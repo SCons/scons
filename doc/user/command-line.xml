@@ -170,16 +170,16 @@
 
       <scons_example name="commandline_SCONSFLAGS">
         <file name="SConstruct">
-        def b(target, source, env):
-            pass
-        def s(target, source, env):
-            return "    ... [build output] ..."
-        a = Action(b, strfunction = s)
-        env = Environment(BUILDERS = {'A' : Builder(action=a)})
-        env.A('foo.out', 'foo.in')
+def b(target, source, env):
+    pass
+def s(target, source, env):
+    return "    ... [build output] ..."
+a = Action(b, strfunction = s)
+env = Environment(BUILDERS = {'A' : Builder(action=a)})
+env.A('foo.out', 'foo.in')
         </file>
         <file name="foo.in">
-        foo.in
+foo.in
         </file>
       </scons_example>
 
@@ -197,7 +197,7 @@
       </para>
 
       <screen>
-        $ <userinput>setenv SCONSFLAGS "-Q"</userinput>
+$ <userinput>setenv SCONSFLAGS "-Q"</userinput>
       </screen>
 
       <para>
@@ -244,8 +244,8 @@
       </para>
 
       <sconstruct>
-        if not GetOption('help'):
-            SConscript('src/SConscript', export='env')
+if not GetOption('help'):
+    SConscript('src/SConscript', export='env')
       </sconstruct>
 
       <para>
@@ -314,13 +314,13 @@
 
       <scons_example name="commandline_SetOption">
         <file name="SConstruct" printme="1">
-        import os
-        num_cpu = int(os.environ.get('NUM_CPU', 2))
-        SetOption('num_jobs', num_cpu)
-        print "running with -j", GetOption('num_jobs')
+import os
+num_cpu = int(os.environ.get('NUM_CPU', 2))
+SetOption('num_jobs', num_cpu)
+print "running with -j", GetOption('num_jobs')
         </file>
         <file name="foo.in">
-        foo.in
+foo.in
         </file>
       </scons_example>
 
@@ -699,7 +699,7 @@
     </para>
 
     <screen>
-      % <userinput>scons -Q debug=1</userinput>
+% <userinput>scons -Q debug=1</userinput>
     </screen>
 
     <para>
@@ -733,14 +733,14 @@
 
     <scons_example name="commandline_ARGUMENTS">
        <file name="SConstruct" printme="1">
-       env = Environment()
-       debug = ARGUMENTS.get('debug', 0)
-       if int(debug):
-           env.Append(CCFLAGS = '-g')
-       env.Program('prog.c')
+env = Environment()
+debug = ARGUMENTS.get('debug', 0)
+if int(debug):
+    env.Append(CCFLAGS = '-g')
+env.Program('prog.c')
        </file>
        <file name="prog.c">
-       prog.c
+prog.c
        </file>
     </scons_example>
 
@@ -822,15 +822,15 @@
 
     <scons_example name="commandline_ARGLIST">
        <file name="SConstruct" printme="1">
-       cppdefines = []
-       for key, value in ARGLIST:
-           if key == 'define':
-               cppdefines.append(value)
-       env = Environment(CPPDEFINES = cppdefines)
-       env.Object('prog.c')
+cppdefines = []
+for key, value in ARGLIST:
+    if key == 'define':
+        cppdefines.append(value)
+env = Environment(CPPDEFINES = cppdefines)
+env.Object('prog.c')
        </file>
        <file name="prog.c">
-       prog.c
+prog.c
        </file>
     </scons_example>
 
@@ -907,17 +907,17 @@
 
       <scons_example name="commandline_Variables1">
         <file name="SConstruct" printme="1">
-           vars = Variables(None, ARGUMENTS)
-           vars.Add('RELEASE', 'Set to 1 to build for release', 0)
-           env = Environment(variables = vars,
-                             CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
-           env.Program(['foo.c', 'bar.c'])
+vars = Variables(None, ARGUMENTS)
+vars.Add('RELEASE', 'Set to 1 to build for release', 0)
+env = Environment(variables = vars,
+                  CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
+env.Program(['foo.c', 'bar.c'])
         </file>
         <file name="foo.c">
-        foo.c
+foo.c
         </file>
         <file name="bar.c">
-        bar.c
+bar.c
         </file>
       </scons_example>
 
@@ -998,10 +998,10 @@
 
       <scons_example name="commandline_Variables_Help">
         <file name="SConstruct" printme="1">
-           vars = Variables(None, ARGUMENTS)
-           vars.Add('RELEASE', 'Set to 1 to build for release', 0)
-           env = Environment(variables = vars)
-           Help(vars.GenerateHelpText(env))
+vars = Variables(None, ARGUMENTS)
+vars.Add('RELEASE', 'Set to 1 to build for release', 0)
+env = Environment(variables = vars)
+Help(vars.GenerateHelpText(env))
         </file>
       </scons_example>
 
@@ -1045,21 +1045,21 @@
 
       <scons_example name="commandline_Variables_custom_py_1">
         <file name="SConstruct" printme="1">
-           vars = Variables('custom.py')
-           vars.Add('RELEASE', 'Set to 1 to build for release', 0)
-           env = Environment(variables = vars,
-                             CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
-           env.Program(['foo.c', 'bar.c'])
-           Help(vars.GenerateHelpText(env))
+vars = Variables('custom.py')
+vars.Add('RELEASE', 'Set to 1 to build for release', 0)
+env = Environment(variables = vars,
+                  CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
+env.Program(['foo.c', 'bar.c'])
+Help(vars.GenerateHelpText(env))
         </file>
         <file name="foo.c">
-        foo.c
+foo.c
         </file>
         <file name="bar.c">
-        bar.c
+bar.c
         </file>
         <file name="custom.py">
-        RELEASE = 1
+RELEASE = 1
         </file>
       </scons_example>
 
@@ -1128,7 +1128,7 @@
       </para>
 
       <screen>
-        vars = Variables('custom.py', ARGUMENTS)
+vars = Variables('custom.py', ARGUMENTS)
       </screen>
 
       <para>
@@ -1182,14 +1182,14 @@
 
         <scons_example name="commandline_BoolVariable">
           <file name="SConstruct" printme="1">
-             vars = Variables('custom.py')
-             vars.Add(BoolVariable('RELEASE', 'Set to build for release', 0))
-             env = Environment(variables = vars,
-                               CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
-             env.Program('foo.c')
+vars = Variables('custom.py')
+vars.Add(BoolVariable('RELEASE', 'Set to build for release', 0))
+env = Environment(variables = vars,
+                  CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
+env.Program('foo.c')
           </file>
           <file name="foo.c">
-          foo.c
+foo.c
           </file>
         </scons_example>
 
@@ -1286,15 +1286,15 @@
 
         <scons_example name="commandline_EnumVariable">
           <file name="SConstruct" printme="1">
-             vars = Variables('custom.py')
-             vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
-                                 allowed_values=('red', 'green', 'blue')))
-             env = Environment(variables = vars,
-                               CPPDEFINES={'COLOR' : '"${COLOR}"'})
-             env.Program('foo.c')
+vars = Variables('custom.py')
+vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
+                    allowed_values=('red', 'green', 'blue')))
+env = Environment(variables = vars,
+                  CPPDEFINES={'COLOR' : '"${COLOR}"'})
+env.Program('foo.c')
           </file>
           <file name="foo.c">
-          foo.c
+foo.c
           </file>
         </scons_example>
 
@@ -1340,16 +1340,16 @@
 
         <scons_example name="EnumVariable_map">
           <file name="SConstruct" printme="1">
-             vars = Variables('custom.py')
-             vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
-                                 allowed_values=('red', 'green', 'blue'),
-                                 map={'navy':'blue'}))
-             env = Environment(variables = vars,
-                               CPPDEFINES={'COLOR' : '"${COLOR}"'})
-             env.Program('foo.c')
+vars = Variables('custom.py')
+vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
+                    allowed_values=('red', 'green', 'blue'),
+                    map={'navy':'blue'}))
+env = Environment(variables = vars,
+                  CPPDEFINES={'COLOR' : '"${COLOR}"'})
+env.Program('foo.c')
           </file>
           <file name="foo.c">
-          foo.c
+foo.c
           </file>
         </scons_example>
 
@@ -1395,17 +1395,17 @@
 
         <scons_example name="commandline_EnumVariable_ic1">
           <file name="SConstruct" printme="1">
-             vars = Variables('custom.py')
-             vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
-                                 allowed_values=('red', 'green', 'blue'),
-                                 map={'navy':'blue'},
-                                 ignorecase=1))
-             env = Environment(variables = vars,
-                               CPPDEFINES={'COLOR' : '"${COLOR}"'})
-             env.Program('foo.c')
+vars = Variables('custom.py')
+vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
+                    allowed_values=('red', 'green', 'blue'),
+                    map={'navy':'blue'},
+                    ignorecase=1))
+env = Environment(variables = vars,
+                  CPPDEFINES={'COLOR' : '"${COLOR}"'})
+env.Program('foo.c')
           </file>
           <file name="foo.c">
-          foo.c
+foo.c
           </file>
         </scons_example>
 
@@ -1435,17 +1435,17 @@
 
         <scons_example name="commandline_EnumVariable_ic2">
           <file name="SConstruct" printme="1">
-             vars = Variables('custom.py')
-             vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
-                                 allowed_values=('red', 'green', 'blue'),
-                                 map={'navy':'blue'},
-                                 ignorecase=2))
-             env = Environment(variables = vars,
-                               CPPDEFINES={'COLOR' : '"${COLOR}"'})
-             env.Program('foo.c')
+vars = Variables('custom.py')
+vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
+                    allowed_values=('red', 'green', 'blue'),
+                    map={'navy':'blue'},
+                    ignorecase=2))
+env = Environment(variables = vars,
+                  CPPDEFINES={'COLOR' : '"${COLOR}"'})
+env.Program('foo.c')
           </file>
           <file name="foo.c">
-          foo.c
+foo.c
           </file>
         </scons_example>
 
@@ -1484,15 +1484,15 @@
 
         <scons_example name="commandline_ListVariable">
           <file name="SConstruct" printme="1">
-             vars = Variables('custom.py')
-             vars.Add(ListVariable('COLORS', 'List of colors', 0,
-                                 ['red', 'green', 'blue']))
-             env = Environment(variables = vars,
-                               CPPDEFINES={'COLORS' : '"${COLORS}"'})
-             env.Program('foo.c')
+vars = Variables('custom.py')
+vars.Add(ListVariable('COLORS', 'List of colors', 0,
+                    ['red', 'green', 'blue']))
+env = Environment(variables = vars,
+                  CPPDEFINES={'COLORS' : '"${COLORS}"'})
+env.Program('foo.c')
           </file>
           <file name="foo.c">
-          foo.c
+foo.c
           </file>
         </scons_example>
 
@@ -1555,22 +1555,22 @@
 
         <scons_example name="commandline_PathVariable">
           <file name="SConstruct" printme="1">
-             vars = Variables('custom.py')
-             vars.Add(PathVariable('CONFIG',
-                                 'Path to configuration file',
-                                 '__ROOT__/etc/my_config'))
-             env = Environment(variables = vars,
-                               CPPDEFINES={'CONFIG_FILE' : '"$CONFIG"'})
-             env.Program('foo.c')
+vars = Variables('custom.py')
+vars.Add(PathVariable('CONFIG',
+                    'Path to configuration file',
+                    '__ROOT__/etc/my_config'))
+env = Environment(variables = vars,
+                  CPPDEFINES={'CONFIG_FILE' : '"$CONFIG"'})
+env.Program('foo.c')
           </file>
           <file name="foo.c">
-          foo.c
+foo.c
           </file>
           <file name="__ROOT__/etc/my_config">
-          /opt/location
+/opt/location
           </file>
           <file name="__ROOT__/usr/local/etc/other_config">
-          /opt/location
+/opt/location
           </file>
         </scons_example>
 
@@ -1611,20 +1611,20 @@
 
         <scons_example name="commandline_PathIsFile">
           <file name="SConstruct" printme="1">
-             vars = Variables('custom.py')
-             vars.Add(PathVariable('CONFIG',
-                                 'Path to configuration file',
-                                 '__ROOT__/etc/my_config',
-                                 PathVariable.PathIsFile))
-             env = Environment(variables = vars,
-                               CPPDEFINES={'CONFIG_FILE' : '"$CONFIG"'})
-             env.Program('foo.c')
+vars = Variables('custom.py')
+vars.Add(PathVariable('CONFIG',
+                    'Path to configuration file',
+                    '__ROOT__/etc/my_config',
+                    PathVariable.PathIsFile))
+env = Environment(variables = vars,
+                  CPPDEFINES={'CONFIG_FILE' : '"$CONFIG"'})
+env.Program('foo.c')
           </file>
           <file name="foo.c">
-          foo.c
+foo.c
           </file>
           <file name="__ROOT__/etc/my_config">
-          /opt/location
+/opt/location
           </file>
         </scons_example>
 
@@ -1638,20 +1638,20 @@
 
         <scons_example name="commandline_PathIsDir">
           <file name="SConstruct" printme="1">
-             vars = Variables('custom.py')
-             vars.Add(PathVariable('DBDIR',
-                                 'Path to database directory',
-                                 '__ROOT__/var/my_dbdir',
-                                 PathVariable.PathIsDir))
-             env = Environment(variables = vars,
-                               CPPDEFINES={'DBDIR' : '"$DBDIR"'})
-             env.Program('foo.c')
+vars = Variables('custom.py')
+vars.Add(PathVariable('DBDIR',
+                    'Path to database directory',
+                    '__ROOT__/var/my_dbdir',
+                    PathVariable.PathIsDir))
+env = Environment(variables = vars,
+                  CPPDEFINES={'DBDIR' : '"$DBDIR"'})
+env.Program('foo.c')
           </file>
           <file name="foo.c">
-          foo.c
+foo.c
           </file>
           <file name="__ROOT__/var/my_dbdir">
-          /opt/location
+/opt/location
           </file>
         </scons_example>
 
@@ -1667,20 +1667,20 @@
 
         <scons_example name="commandline_PathIsDirCreate">
           <file name="SConstruct" printme="1">
-             vars = Variables('custom.py')
-             vars.Add(PathVariable('DBDIR',
-                                 'Path to database directory',
-                                 '__ROOT__/var/my_dbdir',
-                                 PathVariable.PathIsDirCreate))
-             env = Environment(variables = vars,
-                               CPPDEFINES={'DBDIR' : '"$DBDIR"'})
-             env.Program('foo.c')
+vars = Variables('custom.py')
+vars.Add(PathVariable('DBDIR',
+                    'Path to database directory',
+                    '__ROOT__/var/my_dbdir',
+                    PathVariable.PathIsDirCreate))
+env = Environment(variables = vars,
+                  CPPDEFINES={'DBDIR' : '"$DBDIR"'})
+env.Program('foo.c')
           </file>
           <file name="foo.c">
-          foo.c
+foo.c
           </file>
           <file name="__ROOT__/var/my_dbdir">
-          /opt/location
+/opt/location
           </file>
         </scons_example>
 
@@ -1695,17 +1695,17 @@
 
         <scons_example name="commandline_PathAccept">
           <file name="SConstruct" printme="1">
-             vars = Variables('custom.py')
-             vars.Add(PathVariable('OUTPUT',
-                                 'Path to output file or directory',
-                                 None,
-                                 PathVariable.PathAccept))
-             env = Environment(variables = vars,
-                               CPPDEFINES={'OUTPUT' : '"$OUTPUT"'})
-             env.Program('foo.c')
+vars = Variables('custom.py')
+vars.Add(PathVariable('OUTPUT',
+                    'Path to output file or directory',
+                    None,
+                    PathVariable.PathAccept))
+env = Environment(variables = vars,
+                  CPPDEFINES={'OUTPUT' : '"$OUTPUT"'})
+env.Program('foo.c')
           </file>
           <file name="foo.c">
-          foo.c
+foo.c
           </file>
         </scons_example>
 
@@ -1730,22 +1730,22 @@
 
         <scons_example name="commandline_PackageVariable">
           <file name="SConstruct" printme="1">
-             vars = Variables('custom.py')
-             vars.Add(PackageVariable('PACKAGE',
-                                    'Location package',
-                                    '__ROOT__/opt/location'))
-             env = Environment(variables = vars,
-                               CPPDEFINES={'PACKAGE' : '"$PACKAGE"'})
-             env.Program('foo.c')
+vars = Variables('custom.py')
+vars.Add(PackageVariable('PACKAGE',
+                       'Location package',
+                       '__ROOT__/opt/location'))
+env = Environment(variables = vars,
+                  CPPDEFINES={'PACKAGE' : '"$PACKAGE"'})
+env.Program('foo.c')
           </file>
           <file name="foo.c">
-          foo.c
+foo.c
           </file>
           <file name="__ROOT__/opt/location">
-          /opt/location
+/opt/location
           </file>
           <file name="__ROOT__/usr/local/location">
-          /opt/location
+/opt/location
           </file>
         </scons_example>
 
@@ -1796,23 +1796,23 @@
 
       <scons_example name="commandline_AddVariables_1">
         <file name="SConstruct" printme="1">
-          vars = Variables()
-          vars.AddVariables(
-              ('RELEASE', 'Set to 1 to build for release', 0),
-              ('CONFIG', 'Configuration file', '/etc/my_config'),
-              BoolVariable('warnings', 'compilation with -Wall and similiar', 1),
-              EnumVariable('debug', 'debug output and symbols', 'no',
-                         allowed_values=('yes', 'no', 'full'),
-                         map={}, ignorecase=0),  # case sensitive
-              ListVariable('shared',
-                         'libraries to build as shared libraries',
-                         'all',
-                         names = list_of_libs),
-              PackageVariable('x11',
-                            'use X11 installed here (yes = search some places)',
-                            'yes'),
-              PathVariable('qtdir', 'where the root of Qt is installed', qtdir),
-          )
+vars = Variables()
+vars.AddVariables(
+    ('RELEASE', 'Set to 1 to build for release', 0),
+    ('CONFIG', 'Configuration file', '/etc/my_config'),
+    BoolVariable('warnings', 'compilation with -Wall and similiar', 1),
+    EnumVariable('debug', 'debug output and symbols', 'no',
+               allowed_values=('yes', 'no', 'full'),
+               map={}, ignorecase=0),  # case sensitive
+    ListVariable('shared',
+               'libraries to build as shared libraries',
+               'all',
+               names = list_of_libs),
+    PackageVariable('x11',
+                  'use X11 installed here (yes = search some places)',
+                  'yes'),
+    PathVariable('qtdir', 'where the root of Qt is installed', qtdir),
+)
         </file>
       </scons_example>
 
@@ -1857,18 +1857,18 @@
 
       <scons_example name="commandline_UnknownVariables">
         <file name="SConstruct" printme="1">
-           vars = Variables(None)
-           vars.Add('RELEASE', 'Set to 1 to build for release', 0)
-           env = Environment(variables = vars,
-                             CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
-           unknown = vars.UnknownVariables()
-           if unknown:
-               print "Unknown variables:", unknown.keys()
-               Exit(1)
-           env.Program('foo.c')
+vars = Variables(None)
+vars.Add('RELEASE', 'Set to 1 to build for release', 0)
+env = Environment(variables = vars,
+                  CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
+unknown = vars.UnknownVariables()
+if unknown:
+    print "Unknown variables:", unknown.keys()
+    Exit(1)
+env.Program('foo.c')
         </file>
         <file name="foo.c">
-        foo.c
+foo.c
         </file>
       </scons_example>
 
@@ -1944,16 +1944,16 @@
 
       <scons_example name="commandline_COMMAND_LINE_TARGETS">
         <file name="SConstruct" printme="1">
-        if 'bar' in COMMAND_LINE_TARGETS:
-            print "Don't forget to copy `bar' to the archive!"
-        Default(Program('foo.c'))
-        Program('bar.c')
+if 'bar' in COMMAND_LINE_TARGETS:
+    print "Don't forget to copy `bar' to the archive!"
+Default(Program('foo.c'))
+Program('bar.c')
         </file>
         <file name="foo.c">
-        foo.c
+foo.c
         </file>
         <file name="bar.c">
-        foo.c
+foo.c
         </file>
       </scons_example>
 
@@ -2006,16 +2006,16 @@
 
       <scons_example name="commandline_Default1">
          <file name="SConstruct" printme="1">
-         env = Environment()
-         hello = env.Program('hello.c')
-         env.Program('goodbye.c')
-         Default(hello)
+env = Environment()
+hello = env.Program('hello.c')
+env.Program('goodbye.c')
+Default(hello)
          </file>
          <file name="hello.c">
-         hello.c
+hello.c
          </file>
          <file name="goodbye.c">
-         goodbye.c
+goodbye.c
          </file>
       </scons_example>
 
@@ -2060,21 +2060,21 @@
 
       <scons_example name="commandline_Default2">
          <file name="SConstruct" printme="1">
-         env = Environment()
-         prog1 = env.Program('prog1.c')
-         Default(prog1)
-         prog2 = env.Program('prog2.c')
-         prog3 = env.Program('prog3.c')
-         Default(prog3)
+env = Environment()
+prog1 = env.Program('prog1.c')
+Default(prog1)
+prog2 = env.Program('prog2.c')
+prog3 = env.Program('prog3.c')
+Default(prog3)
          </file>
          <file name="prog1.c">
-         prog1.c
+prog1.c
          </file>
          <file name="prog2.c">
-         prog2.c
+prog2.c
          </file>
          <file name="prog3.c">
-         prog3.c
+prog3.c
          </file>
       </scons_example>
 
@@ -2086,11 +2086,11 @@
       </para>
 
       <programlisting>
-         env = Environment()
-         prog1 = env.Program('prog1.c')
-         prog2 = env.Program('prog2.c')
-         prog3 = env.Program('prog3.c')
-         Default(prog1, prog3)
+env = Environment()
+prog1 = env.Program('prog1.c')
+prog2 = env.Program('prog2.c')
+prog3 = env.Program('prog3.c')
+Default(prog1, prog3)
       </programlisting>
 
       <para>
@@ -2118,24 +2118,24 @@
 
       <scons_example name="commandline_Default3">
          <file name="SConstruct" printme="1">
-         env = Environment()
-         env.Program(['prog1/main.c', 'prog1/foo.c'])
-         env.Program(['prog2/main.c', 'prog2/bar.c'])
-         Default('prog1')
+env = Environment()
+env.Program(['prog1/main.c', 'prog1/foo.c'])
+env.Program(['prog2/main.c', 'prog2/bar.c'])
+Default('prog1')
          </file>
          <directory name="prog1"></directory>
          <directory name="prog2"></directory>
          <file name="prog1/main.c">
-         int main() { printf("prog1/main.c\n"); }
+int main() { printf("prog1/main.c\n"); }
          </file>
          <file name="prog1/foo.c">
-         int foo() { printf("prog1/foo.c\n"); }
+int foo() { printf("prog1/foo.c\n"); }
          </file>
          <file name="prog2/main.c">
-         int main() { printf("prog2/main.c\n"); }
+int main() { printf("prog2/main.c\n"); }
          </file>
          <file name="prog2/bar.c">
-         int bar() { printf("prog2/bar.c\n"); }
+int bar() { printf("prog2/bar.c\n"); }
          </file>
       </scons_example>
 
@@ -2163,16 +2163,16 @@
 
       <scons_example name="commandline_Default4">
          <file name="SConstruct" printme="1">
-         env = Environment()
-         prog1 = env.Program('prog1.c')
-         prog2 = env.Program('prog2.c')
-         Default(None)
+env = Environment()
+prog1 = env.Program('prog1.c')
+prog2 = env.Program('prog2.c')
+Default(None)
          </file>
          <file name="prog1.c">
-         prog1.c
+prog1.c
          </file>
          <file name="prog2.c">
-         prog2.c
+prog2.c
          </file>
       </scons_example>
 
@@ -2208,12 +2208,12 @@
 
         <scons_example name="commandline_DEFAULT_TARGETS_1">
            <file name="SConstruct" printme="1">
-           prog1 = Program('prog1.c')
-           Default(prog1)
-           print "DEFAULT_TARGETS is", map(str, DEFAULT_TARGETS)
+prog1 = Program('prog1.c')
+Default(prog1)
+print "DEFAULT_TARGETS is", map(str, DEFAULT_TARGETS)
            </file>
            <file name="prog1.c">
-           prog1.c
+prog1.c
            </file>
         </scons_example>
 
@@ -2242,18 +2242,18 @@
 
         <scons_example name="commandline_DEFAULT_TARGETS_2">
            <file name="SConstruct" printme="1">
-           prog1 = Program('prog1.c')
-           Default(prog1)
-           print "DEFAULT_TARGETS is now", map(str, DEFAULT_TARGETS)
-           prog2 = Program('prog2.c')
-           Default(prog2)
-           print "DEFAULT_TARGETS is now", map(str, DEFAULT_TARGETS)
+prog1 = Program('prog1.c')
+Default(prog1)
+print "DEFAULT_TARGETS is now", map(str, DEFAULT_TARGETS)
+prog2 = Program('prog2.c')
+Default(prog2)
+print "DEFAULT_TARGETS is now", map(str, DEFAULT_TARGETS)
            </file>
            <file name="prog1.c">
-           prog1.c
+prog1.c
            </file>
            <file name="prog2.c">
-           prog2.c
+prog2.c
            </file>
         </scons_example>
 
@@ -2304,10 +2304,10 @@
       </para>
 
       <sconstruct>
-        if COMMAND_LINE_TARGETS:
-            targets = COMMAND_LINE_TARGETS
-        else:
-            targets = DEFAULT_TARGETS
+if COMMAND_LINE_TARGETS:
+    targets = COMMAND_LINE_TARGETS
+else:
+    targets = DEFAULT_TARGETS
       </sconstruct>
 
       <para>
@@ -2335,16 +2335,16 @@
 
       <scons_example name="commandline_BUILD_TARGETS_1">
         <file name="SConstruct" printme="1">
-        prog1 = Program('prog1.c')
-        Program('prog2.c')
-        Default(prog1)
-        print "BUILD_TARGETS is", map(str, BUILD_TARGETS)
+prog1 = Program('prog1.c')
+Program('prog2.c')
+Default(prog1)
+print "BUILD_TARGETS is", map(str, BUILD_TARGETS)
         </file>
         <file name="prog1.c">
-        prog1.c
+prog1.c
         </file>
         <file name="prog2.c">
-        prog2.c
+prog2.c
         </file>
       </scons_example>
 

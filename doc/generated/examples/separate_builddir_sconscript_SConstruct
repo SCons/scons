@@ -1,4 +1,4 @@
 
-      VariantDir('build', 'src')
-      SConscript('build/SConscript')
+VariantDir('build', 'src')
+SConscript('build/SConscript')
       

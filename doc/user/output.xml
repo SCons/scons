@@ -74,10 +74,10 @@
 
     <scons_example name="output_ex1">
        <file name="SConstruct" printme="1">
-       Help("""
-       Type: 'scons program' to build the production program,
-             'scons debug' to build the debug version.
-       """)
+Help("""
+Type: 'scons program' to build the production program,
+      'scons debug' to build the debug version.
+""")
        </file>
     </scons_example>
 
@@ -214,12 +214,12 @@
 
     <scons_example name="output_COMSTR">
        <file name="SConstruct" printme="1">
-       env = Environment(CCCOMSTR = "Compiling $TARGET",
-                         LINKCOMSTR = "Linking $TARGET")
-       env.Program('foo.c')
+env = Environment(CCCOMSTR = "Compiling $TARGET",
+                  LINKCOMSTR = "Linking $TARGET")
+env.Program('foo.c')
        </file>
        <file name="foo.c">
-       foo.c
+foo.c
        </file>
     </scons_example>
 
@@ -238,9 +238,9 @@
     -->
 
     <screen>
-       % <userinput>scons -Q</userinput>
-       Compiling foo.o
-       Linking foo
+% <userinput>scons -Q</userinput>
+Compiling foo.o
+Linking foo
     </screen>
 
     <para>
@@ -286,14 +286,14 @@
 
     <scons_example name="output_COMSTR-VERBOSE">
        <file name="SConstruct" printme="1">
-       env = Environment()
-       if ARGUMENTS.get('VERBOSE') != "1':
-           env['CCCOMSTR'] = "Compiling $TARGET"
-           env['LINKCOMSTR'] = "Linking $TARGET"
-       env.Program('foo.c')
+env = Environment()
+if ARGUMENTS.get('VERBOSE') != "1':
+    env['CCCOMSTR'] = "Compiling $TARGET"
+    env['LINKCOMSTR'] = "Linking $TARGET"
+env.Program('foo.c')
        </file>
        <file name="foo.c">
-       foo.c
+foo.c
        </file>
     </scons_example>
 
@@ -322,15 +322,15 @@
     -->
 
     <screen>
-       % <userinput>scons -Q</userinput>
-       Compiling foo.o
-       Linking foo
-       % <userinput>scons -Q -c</userinput>
-       Removed foo.o
-       Removed foo
-       % <userinput>scons -Q VERBOSE=1</userinput>
-       cc -o foo.o -c foo.c
-       cc -o foo foo.o
+% <userinput>scons -Q</userinput>
+Compiling foo.o
+Linking foo
+% <userinput>scons -Q -c</userinput>
+Removed foo.o
+Removed foo
+% <userinput>scons -Q VERBOSE=1</userinput>
+cc -o foo.o -c foo.c
+cc -o foo foo.o
     </screen>
 
   </section>
@@ -372,15 +372,15 @@
 
     <scons_example name="output_Progress-TARGET">
       <file name="SConstruct" printme="1">
-        Progress('Evaluating $TARGET\n')
-        Program('f1.c')
-        Program('f2.c')
+Progress('Evaluating $TARGET\n')
+Program('f1.c')
+Program('f2.c')
       </file>
       <file name="f1.c">
-        f1.c
+f1.c
       </file>
       <file name="f2.c">
-        f2.c
+f2.c
       </file>
     </scons_example>
 
@@ -425,11 +425,11 @@
     </para>
 
     <sconstruct>
-        Progress('$TARGET\r',
-                 file=open('/dev/tty', 'w'),
-                 overwrite=True)
-        Program('f1.c')
-        Program('f2.c')
+Progress('$TARGET\r',
+         file=open('/dev/tty', 'w'),
+         overwrite=True)
+Program('f1.c')
+Program('f2.c')
     </sconstruct>
 
     <para>
@@ -482,9 +482,9 @@
     </para>
 
     <sconstruct>
-        Progress(['-\r', '\\\r', '|\r', '/\r'], interval=5)
-        Program('f1.c')
-        Program('f2.c')
+Progress(['-\r', '\\\r', '|\r', '/\r'], interval=5)
+Program('f1.c')
+Program('f2.c')
     </sconstruct>
 
     <para>

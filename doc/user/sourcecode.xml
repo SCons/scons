@@ -65,12 +65,12 @@
 
    <scons_example name="sourcecode_bitkeeper">
       <file name="SConstruct" printme="1">
-      env = Environment()
-      env.SourceCode('.', env.BitKeeper())
-      env.Program('hello.c')
+env = Environment()
+env.SourceCode('.', env.BitKeeper())
+env.Program('hello.c')
       </file>
       <file name="s.hello.c">
-      s.hello.c
+s.hello.c
       </file>
    </scons_example>
 
@@ -91,9 +91,9 @@
 
    <scons_example name="sourcecode_cvs">
       <file name="SConstruct" printme="1">
-      env = Environment()
-      env.SourceCode('.', env.CVS('/usr/local/CVS'))
-      env.Program('hello.c')
+env = Environment()
+env.SourceCode('.', env.CVS('/usr/local/CVS'))
+env.Program('hello.c')
       </file>
    </scons_example>
 
@@ -114,12 +114,12 @@
 
    <scons_example name="sourcecode_rcs">
       <file name="SConstruct" printme="1">
-      env = Environment()
-      env.SourceCode('.', env.RCS())
-      env.Program('hello.c')
+env = Environment()
+env.SourceCode('.', env.RCS())
+env.Program('hello.c')
       </file>
       <file name="hello.c,v">
-      hello.c,v
+hello.c,v
       </file>
    </scons_example>
 
@@ -140,12 +140,12 @@
 
    <scons_example name="sourcecode_sccs">
       <file name="SConstruct" printme="1">
-      env = Environment()
-      env.SourceCode('.', env.SCCS())
-      env.Program('hello.c')
+env = Environment()
+env.SourceCode('.', env.SCCS())
+env.Program('hello.c')
       </file>
       <file name="s.hello.c">
-      s.hello.c
+s.hello.c
       </file>
    </scons_example>
 
@@ -168,9 +168,9 @@
 
    <scons_example name="sourcecode_subversion">
       <file name="SConstruct" printme="1">
-      env = Environment()
-      env.SourceCode('.', env.Subversion('XXX'))
-      env.Program('hello.c')
+env = Environment()
+env.SourceCode('.', env.Subversion('XXX'))
+env.Program('hello.c')
       </file>
    </scons_example>
 

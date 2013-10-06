@@ -92,12 +92,12 @@
 
     <scons_example name="troubleshoot_explain1">
       <file name="SConstruct" printme="1">
-      # Intentionally misspell the output file name in the
-      # command used to create the file:
-      Command('file.out', 'file.in', 'cp $SOURCE file.oout')
+# Intentionally misspell the output file name in the
+# command used to create the file:
+Command('file.out', 'file.in', 'cp $SOURCE file.oout')
       </file>
       <file name="file.in">
-      file.in
+file.in
       </file>
     </scons_example>
 
@@ -174,16 +174,16 @@
 
     <scons_example name="troubleshoot_explain2">
       <file name="SConstruct">
-      Program('prog', ['file1.c', 'file2.c', 'file3.c'])
+Program('prog', ['file1.c', 'file2.c', 'file3.c'])
       </file>
       <file name="file1.c">
-      file1.c
+file1.c
       </file>
       <file name="file2.c">
-      file2.c
+file2.c
       </file>
       <file name="file3.c">
-      file3.c
+file3.c
       </file>
     </scons_example>
 
@@ -212,21 +212,21 @@
 
     <scons_example name="troubleshoot_explain3">
       <file name="SConstruct">
-      Program('prog', ['file1.c', 'file2.c', 'file3.c'], CPPPATH='.')
+Program('prog', ['file1.c', 'file2.c', 'file3.c'], CPPPATH='.')
       </file>
       <file name="file1.c">
-      #include &lt;hello.h&gt;
-      file1.c
+#include &lt;hello.h&gt;
+file1.c
       </file>
       <file name="file2.c">
-      file2.c
+file2.c
       </file>
       <file name="file3.c">
-      #include &lt;hello.h&gt;
-      file3.c
+#include &lt;hello.h&gt;
+file3.c
       </file>
       <file name="hello.h">
-      #define string    "world"
+#define string    "world"
       </file>
     </scons_example>
 
@@ -278,8 +278,8 @@
 
     <scons_example name="troubleshoot_Dump">
       <file name="SConstruct" printme="1">
-         env = Environment()
-         print env.Dump()
+env = Environment()
+print env.Dump()
       </file>
     </scons_example>
 
@@ -338,8 +338,8 @@
 
     <scons_example name="troubleshoot_Dump_ENV">
       <file name="SConstruct" printme="1">
-         env = Environment()
-         print env.Dump('ENV')
+env = Environment()
+print env.Dump('ENV')
       </file>
     </scons_example>
 
@@ -391,20 +391,20 @@
 
     <scons_example name="troubleshoot_tree1">
       <file name="SConstruct" printme="1">
-         env = Environment(CPPPATH = ['.'])
-         env.Program('prog', ['f1.c', 'f2.c', 'f3.c'])
+env = Environment(CPPPATH = ['.'])
+env.Program('prog', ['f1.c', 'f2.c', 'f3.c'])
       </file>
       <file name="f1.c">
-      #include "inc.h"
+#include "inc.h"
       </file>
       <file name="f2.c">
-      #include "inc.h"
+#include "inc.h"
       </file>
       <file name="f3.c">
-      #include "inc.h"
+#include "inc.h"
       </file>
       <file name="inc.h">
-      inc.h
+inc.h
       </file>
     </scons_example>
 
@@ -523,30 +523,30 @@
 
     <scons_example name="troubleshoot_tree2">
       <file name="SConstruct" printme="1">
-         env = Environment(CPPPATH = ['.'],
-                           LIBS = ['foo'],
-                           LIBPATH = ['.'])
-         env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
-         env.Program('prog1.c')
-         env.Program('prog2.c')
+env = Environment(CPPPATH = ['.'],
+                  LIBS = ['foo'],
+                  LIBPATH = ['.'])
+env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
+env.Program('prog1.c')
+env.Program('prog2.c')
       </file>
       <file name="prog1.c">
-      #include "inc.h"
+#include "inc.h"
       </file>
       <file name="prog2.c">
-      #include "inc.h"
+#include "inc.h"
       </file>
       <file name="f1.c">
-      #include "inc.h"
+#include "inc.h"
       </file>
       <file name="f2.c">
-      #include "inc.h"
+#include "inc.h"
       </file>
       <file name="f3.c">
-      #include "inc.h"
+#include "inc.h"
       </file>
       <file name="inc.h">
-      inc.h
+inc.h
       </file>
     </scons_example>
 
@@ -609,11 +609,11 @@
 
     <scons_example name="troubleshoot_presub">
       <file name="SConstruct">
-         env = Environment(CPPPATH = ['.'])
-         env.Program('prog', 'prog.c')
+env = Environment(CPPPATH = ['.'])
+env.Program('prog', 'prog.c')
       </file>
       <file name="prog.c">
-      prog.c
+prog.c
       </file>
     </scons_example>
 
@@ -630,13 +630,13 @@
     -->
 
     <screen>
-      % <userinput>scons -Q --debug=presub</userinput>
-      Building prog.o with action:
-        $CC -o $TARGET -c $CFLAGS $CCFLAGS $_CCOMCOM $SOURCES
-      cc -o prog.o -c -I. prog.c
-      Building prog with action:
-        $SMART_LINKCOM
-      cc -o prog prog.o
+% <userinput>scons -Q --debug=presub</userinput>
+Building prog.o with action:
+  $CC -o $TARGET -c $CFLAGS $CCFLAGS $_CCOMCOM $SOURCES
+cc -o prog.o -c -I. prog.c
+Building prog with action:
+  $SMART_LINKCOM
+cc -o prog prog.o
     </screen>
 
   </section>
@@ -657,17 +657,17 @@
 
     <scons_example name="troubleshoot_findlibs">
       <file name="SConstruct" printme="1">
-        env = Environment(LIBPATH = ['libs1', 'libs2'])
-        env.Program('prog.c', LIBS=['foo', 'bar'])
+env = Environment(LIBPATH = ['libs1', 'libs2'])
+env.Program('prog.c', LIBS=['foo', 'bar'])
       </file>
       <file name="prog.c">
-      prog.c
+prog.c
       </file>
       <file name="libs1/libfoo.a">
-      libs1/libfoo.a
+libs1/libfoo.a
       </file>
       <file name="libs2/libbar.a">
-      libs2/libbar.a
+libs2/libbar.a
       </file>
     </scons_example>
 
@@ -701,19 +701,19 @@
 
     <scons_example name="troubleshoot_includes">
       <file name="SConstruct" printme="1">
-        env = Environment(CPPPATH = ['inc1', 'inc2'])
-        env.Program('prog.c')
+env = Environment(CPPPATH = ['inc1', 'inc2'])
+env.Program('prog.c')
       </file>
       <file name="prog.c">
-      #include "file1.h"
-      #include "file2.h"
-      prog.c
+#include "file1.h"
+#include "file2.h"
+prog.c
       </file>
       <file name="inc1/file1.h">
-      inc1/file1.h
+inc1/file1.h
       </file>
       <file name="inc2/file2.h">
-      inc2/file2.h
+inc2/file2.h
       </file>
     </scons_example>
 
@@ -749,7 +749,7 @@
 
     <scons_example name="troubleshoot_stacktrace">
       <file name="SConstruct" printme="1">
-         Program('prog.c')
+Program('prog.c')
       </file>
     </scons_example>
 
@@ -829,15 +829,15 @@
 
     <scons_example name="troubleshoot_taskmastertrace">
       <file name="SConstruct" printme="1">
-      env = Environment(CPPPATH = ['.'])
-      env.Program('prog.c')
+env = Environment(CPPPATH = ['.'])
+env.Program('prog.c')
       </file>
       <file name="prog.c">
-      #include "inc.h"
-      prog.c
+#include "inc.h"
+prog.c
       </file>
       <file name="inc.h">
-      #define   STRING  "one"
+#define   STRING  "one"
       </file>
     </scons_example>
 

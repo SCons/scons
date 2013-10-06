@@ -1,3 +1,3 @@
 
-       #define string    "world"
+#define string    "world"
       

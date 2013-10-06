@@ -80,8 +80,8 @@
     </para>
 
     <sconstruct>
-    Object('hello.c', CCFLAGS='-DHELLO')
-    Object('goodbye.c', CCFLAGS='-DGOODBYE')
+Object('hello.c', CCFLAGS='-DHELLO')
+Object('goodbye.c', CCFLAGS='-DGOODBYE')
     </sconstruct>
 
     <para>
@@ -95,9 +95,9 @@
     </para>
 
     <sconstruct>
-    Object('hello.c', CCFLAGS='-DHELLO')
-    Object('goodbye.c', CCFLAGS='-DGOODBYE')
-    Program(['hello.o', 'goodbye.o'])
+Object('hello.c', CCFLAGS='-DHELLO')
+Object('goodbye.c', CCFLAGS='-DGOODBYE')
+Program(['hello.o', 'goodbye.o'])
     </sconstruct>
 
     <para>
@@ -123,15 +123,15 @@
 
     <scons_example name="nodes_ex1">
       <file name="SConstruct" printme="1">
-      hello_list = Object('hello.c', CCFLAGS='-DHELLO')
-      goodbye_list = Object('goodbye.c', CCFLAGS='-DGOODBYE')
-      Program(hello_list + goodbye_list)
+hello_list = Object('hello.c', CCFLAGS='-DHELLO')
+goodbye_list = Object('goodbye.c', CCFLAGS='-DGOODBYE')
+Program(hello_list + goodbye_list)
       </file>
       <file name="hello.c">
-      int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
       </file>
       <file name="goodbye.c">
-      int main() { printf("Goodbye, world!\n"); }
+int main() { printf("Goodbye, world!\n"); }
       </file>
     </scons_example>
 
@@ -229,7 +229,7 @@
     </para>
 
     <sconstruct>
-    xyzzy = Entry('xyzzy')
+xyzzy = Entry('xyzzy')
     </sconstruct>
 
     <para>
@@ -263,13 +263,13 @@
 
     <scons_example name="nodes_print">
       <file name="SConstruct" printme="1">
-      object_list = Object('hello.c')
-      program_list = Program(object_list)
-      print "The object file is:", object_list[0]
-      print "The program file is:", program_list[0]
+object_list = Object('hello.c')
+program_list = Program(object_list)
+print "The object file is:", object_list[0]
+print "The program file is:", program_list[0]
       </file>
       <file name="hello.c">
-      int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
       </file>
     </scons_example>
 
@@ -330,14 +330,14 @@
 
     <scons_example name="nodes_exists">
       <file name="SConstruct" printme="1">
-      import os.path
-      program_list = Program('hello.c')
-      program_name = str(program_list[0])
-      if not os.path.exists(program_name):
-          print program_name, "does not exist!"
+import os.path
+program_list = Program('hello.c')
+program_name = str(program_list[0])
+if not os.path.exists(program_name):
+    print program_name, "does not exist!"
       </file>
       <file name="hello.c">
-      int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
       </file>
     </scons_example>
 
@@ -372,9 +372,9 @@
 
     <scons_example name="nodes_GetBuildPath">
       <file name="SConstruct" printme="1">
-      env=Environment(VAR="value")
-      n=File("foo.c")
-      print env.GetBuildPath([n, "sub/dir/$VAR"])
+env=Environment(VAR="value")
+n=File("foo.c")
+print env.GetBuildPath([n, "sub/dir/$VAR"])
       </file>
     </scons_example>
 
@@ -412,13 +412,13 @@
 
     <scons_example name="nodes_read">
       <file name="SConstruct" printme="1">
-      hello_c = File('hello.c')
-      contents = hello_c.read()
-      print "contents are:"
-      print contents
+hello_c = File('hello.c')
+contents = hello_c.read()
+print "contents are:"
+print contents
       </file>
       <file name="hello.c">
-      int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
       </file>
     </scons_example>
 

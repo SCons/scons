@@ -172,7 +172,7 @@ over the file scanning rather than being called for each input line:
     </para>
 
     <programlisting>
-      include filename.foo
+include filename.foo
     </programlisting>
 
     <para>
@@ -186,13 +186,13 @@ over the file scanning rather than being called for each input line:
     </para>
 
     <programlisting>
-      import re
-      
-      include_re = re.compile(r'^include\s+(\S+)$', re.M)
-      
-      def kfile_scan(node, env, path, arg):
-          contents = node.get_text_contents()
-          return env.File(include_re.findall(contents))
+import re
+
+include_re = re.compile(r'^include\s+(\S+)$', re.M)
+
+def kfile_scan(node, env, path, arg):
+    contents = node.get_text_contents()
+    return env.File(include_re.findall(contents))
     </programlisting>
 
     <para>
@@ -295,9 +295,9 @@ over the file scanning rather than being called for each input line:
     </para>
 
     <programlisting>
-       kscan = Scanner(function = kfile_scan,
-                       skeys = ['.k'])
-       env.Append(SCANNERS = kscan)
+kscan = Scanner(function = kfile_scan,
+                skeys = ['.k'])
+env.Append(SCANNERS = kscan)
     </programlisting>
 
     <para>
@@ -393,9 +393,9 @@ over the file scanning rather than being called for each input line:
     
     <scons_example name="scanners_findpathdirs">
       <file name="SConstruct" printme="1">
-        kscan = Scanner(function = kfile_scan,
-                        skeys = ['.k'],
-                        path=FindPathDirs('KPATH'))
+kscan = Scanner(function = kfile_scan,
+                skeys = ['.k'],
+                path=FindPathDirs('KPATH'))
       </file>
     </scons_example>
     

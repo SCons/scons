@@ -80,13 +80,13 @@
     for example
     <scons_example name="gettext_ex1">
     <file name="hello.c" printme="1">
-    /* hello.c */
-    #include &lt;stdio.h&gt;
-    int main(int argc, char* argv[])
-    {
-      printf("Hello world\n");
-      return 0;
-    }
+/* hello.c */
+#include &lt;stdio.h&gt;
+int main(int argc, char* argv[])
+{
+  printf("Hello world\n");
+  return 0;
+}
     </file>
     </scons_example>
 
@@ -94,9 +94,9 @@
     as usual.
     <scons_example name="gettext_ex2">
     <file name="SConstruct" printme="1">
-    # SConstruct
-    env = Environment()
-    hello = Program(["hello.c"])
+# SConstruct
+env = Environment()
+hello = Program(["hello.c"])
     </file>
     </scons_example>
     </para>
@@ -120,18 +120,18 @@
     internationalization. Change the previous code so it reads as follows:
     <scons_example name="gettext_ex3">
     <file name="hello.c" printme="1">
-    /* hello.c */
-    #include &lt;stdio.h&gt;
-    #include &lt;libintl.h&gt;
-    #include &lt;locale.h&gt;
-    int main(int argc, char* argv[])
-    {
-      bindtextdomain("hello", "locale");
-      setlocale(LC_ALL, "");
-      textdomain("hello");
-      printf(gettext("Hello world\n"));
-      return 0;
-    }
+/* hello.c */
+#include &lt;stdio.h&gt;
+#include &lt;libintl.h&gt;
+#include &lt;locale.h&gt;
+int main(int argc, char* argv[])
+{
+  bindtextdomain("hello", "locale");
+  setlocale(LC_ALL, "");
+  textdomain("hello");
+  printf(gettext("Hello world\n"));
+  return 0;
+}
     </file>
     </scons_example>
     Detailed recipes for such conversion can
@@ -162,18 +162,18 @@
     <filename>SConstruct</filename> is as follows:
     <scons_example name="gettext_ex4">
     <file name="SConstruct" printme="1">
-    # SConstruct
-    env = Environment( tools = ['default', 'gettext'] )
-    hello = env.Program(["hello.c"])
-    env['XGETTEXTFLAGS'] = [
-      '--package-name=%s' % 'hello',
-      '--package-version=%s' % '1.0',
-    ]
-    po = env.Translate(["pl","en", "de"], ["hello.c"], POAUTOINIT = 1)
-    mo = env.MOFiles(po)
-    InstallAs(["locale/en/LC_MESSAGES/hello.mo"], ["en.mo"])
-    InstallAs(["locale/pl/LC_MESSAGES/hello.mo"], ["pl.mo"])
-    InstallAs(["locale/de/LC_MESSAGES/hello.mo"], ["de.mo"])
+# SConstruct
+env = Environment( tools = ['default', 'gettext'] )
+hello = env.Program(["hello.c"])
+env['XGETTEXTFLAGS'] = [
+  '--package-name=%s' % 'hello',
+  '--package-version=%s' % '1.0',
+]
+po = env.Translate(["pl","en", "de"], ["hello.c"], POAUTOINIT = 1)
+mo = env.MOFiles(po)
+InstallAs(["locale/en/LC_MESSAGES/hello.mo"], ["en.mo"])
+InstallAs(["locale/pl/LC_MESSAGES/hello.mo"], ["pl.mo"])
+InstallAs(["locale/de/LC_MESSAGES/hello.mo"], ["de.mo"])
     </file>
     </scons_example>
     </para>
@@ -181,29 +181,29 @@
     Generate the translation files with <command>scons po-update</command>.
     You should see the output from SCons simillar to this:
     <screen>
-    user@host:$ scons po-update
-    scons: Reading SConscript files ...
-    scons: done reading SConscript files.
-    scons: Building targets ...
-    Entering '/home/ptomulik/projects/tmp'
-    xgettext --package-name=hello --package-version=1.0 -o - hello.c
-    Leaving '/home/ptomulik/projects/tmp'
-    Writting 'messages.pot' (new file)
-    msginit --no-translator -l pl -i messages.pot -o pl.po
-    Created pl.po.
-    msginit --no-translator -l en -i messages.pot -o en.po
-    Created en.po.
-    msginit --no-translator -l de -i messages.pot -o de.po
-    Created de.po.
-    scons: done building targets.
+user@host:$ scons po-update
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+Entering '/home/ptomulik/projects/tmp'
+xgettext --package-name=hello --package-version=1.0 -o - hello.c
+Leaving '/home/ptomulik/projects/tmp'
+Writting 'messages.pot' (new file)
+msginit --no-translator -l pl -i messages.pot -o pl.po
+Created pl.po.
+msginit --no-translator -l en -i messages.pot -o en.po
+Created en.po.
+msginit --no-translator -l de -i messages.pot -o de.po
+Created de.po.
+scons: done building targets.
     </screen>
     </para>
 
     <para>
     If everything is right, you should see following new files.
     <screen>
-    user@host:$ ls *.po*
-    de.po  en.po  messages.pot  pl.po
+user@host:$ ls *.po*
+de.po  en.po  messages.pot  pl.po
     </screen>
     </para>
 
@@ -228,19 +228,19 @@
     Now compile the project by executing <command>scons</command>. The
     output should be similar to this:
     <screen>
-    user@host:$ scons
-    scons: Reading SConscript files ...
-    scons: done reading SConscript files.
-    scons: Building targets ...
-    msgfmt -c -o de.mo de.po
-    msgfmt -c -o en.mo en.po
-    gcc -o hello.o -c hello.c
-    gcc -o hello hello.o
-    Install file: "de.mo" as "locale/de/LC_MESSAGES/hello.mo"
-    Install file: "en.mo" as "locale/en/LC_MESSAGES/hello.mo"
-    msgfmt -c -o pl.mo pl.po
-    Install file: "pl.mo" as "locale/pl/LC_MESSAGES/hello.mo"
-    scons: done building targets.
+user@host:$ scons
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+msgfmt -c -o de.mo de.po
+msgfmt -c -o en.mo en.po
+gcc -o hello.o -c hello.c
+gcc -o hello hello.o
+Install file: "de.mo" as "locale/de/LC_MESSAGES/hello.mo"
+Install file: "en.mo" as "locale/en/LC_MESSAGES/hello.mo"
+msgfmt -c -o pl.mo pl.po
+Install file: "pl.mo" as "locale/pl/LC_MESSAGES/hello.mo"
+scons: done building targets.
     </screen>
     SCons automatically compiled the <literal>PO</literal> files to binary format
     <literal>MO</literal>, and the <literal>InstallAs</literal> lines installed
@@ -249,16 +249,16 @@
     <para>
     Your program should be now ready. You may try it as follows (linux):
     <screen>
-    user@host:$ LANG=en_US.UTF-8 ./hello
-    Welcome to beautiful world
+user@host:$ LANG=en_US.UTF-8 ./hello
+Welcome to beautiful world
     </screen>
     <screen>
-    user@host:$ LANG=de_DE.UTF-8 ./hello
-    Hallo Welt
+user@host:$ LANG=de_DE.UTF-8 ./hello
+Hallo Welt
     </screen>
     <screen>
-    user@host:$ LANG=pl_PL.UTF-8 ./hello
-    Witaj swiecie
+user@host:$ LANG=pl_PL.UTF-8 ./hello
+Witaj swiecie
     </screen>
     </para>
     <para>
@@ -267,13 +267,13 @@
     swiecie\n"</literal>. Run <command>scons</command> to see how scons
     reacts to this
     <screen>
-    user@host:$scons
-    scons: Reading SConscript files ...
-    scons: done reading SConscript files.
-    scons: Building targets ...
-    msgfmt -c -o pl.mo pl.po
-    Install file: "pl.mo" as "locale/pl/LC_MESSAGES/hello.mo"
-    scons: done building targets.
+user@host:$scons
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+msgfmt -c -o pl.mo pl.po
+Install file: "pl.mo" as "locale/pl/LC_MESSAGES/hello.mo"
+scons: done building targets.
     </screen>
     </para>
     <para>
@@ -281,19 +281,19 @@
     <literal>printf</literal> line with new message.
     <scons_example name="gettext_ex5">
     <file name="hello.c" printme="1">
-    /* hello.c */
-    #include &lt;stdio.h&gt;
-    #include &lt;libintl.h&gt;
-    #include &lt;locale.h&gt;
-    int main(int argc, char* argv[])
-    {
-      bindtextdomain("hello", "locale");
-      setlocale(LC_ALL, "");
-      textdomain("hello");
-      printf(gettext("Hello world\n"));
-      printf(gettext("and good bye\n"));
-      return 0;
-    }
+/* hello.c */
+#include &lt;stdio.h&gt;
+#include &lt;libintl.h&gt;
+#include &lt;locale.h&gt;
+int main(int argc, char* argv[])
+{
+  bindtextdomain("hello", "locale");
+  setlocale(LC_ALL, "");
+  textdomain("hello");
+  printf(gettext("Hello world\n"));
+  printf(gettext("and good bye\n"));
+  return 0;
+}
     </file>
     </scons_example>
     </para>
@@ -302,29 +302,29 @@
     <command>msgmerge(1)</command> program is used by SCons to update
     <literal>PO</literal> file. The output from compilation is like:
     <screen>
-    user@host:$scons
-    scons: Reading SConscript files ...
-    scons: done reading SConscript files.
-    scons: Building targets ...
-    Entering '/home/ptomulik/projects/tmp'
-    xgettext --package-name=hello --package-version=1.0 -o - hello.c
-    Leaving '/home/ptomulik/projects/tmp'
-    Writting 'messages.pot' (messages in file were outdated)
-    msgmerge --update de.po messages.pot
-    ... done.
-    msgfmt -c -o de.mo de.po
-    msgmerge --update en.po messages.pot
-    ... done.
-    msgfmt -c -o en.mo en.po
-    gcc -o hello.o -c hello.c
-    gcc -o hello hello.o
-    Install file: "de.mo" as "locale/de/LC_MESSAGES/hello.mo"
-    Install file: "en.mo" as "locale/en/LC_MESSAGES/hello.mo"
-    msgmerge --update pl.po messages.pot
-    ... done.
-    msgfmt -c -o pl.mo pl.po
-    Install file: "pl.mo" as "locale/pl/LC_MESSAGES/hello.mo"
-    scons: done building targets.
+user@host:$scons
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+Entering '/home/ptomulik/projects/tmp'
+xgettext --package-name=hello --package-version=1.0 -o - hello.c
+Leaving '/home/ptomulik/projects/tmp'
+Writting 'messages.pot' (messages in file were outdated)
+msgmerge --update de.po messages.pot
+... done.
+msgfmt -c -o de.mo de.po
+msgmerge --update en.po messages.pot
+... done.
+msgfmt -c -o en.mo en.po
+gcc -o hello.o -c hello.c
+gcc -o hello hello.o
+Install file: "de.mo" as "locale/de/LC_MESSAGES/hello.mo"
+Install file: "en.mo" as "locale/en/LC_MESSAGES/hello.mo"
+msgmerge --update pl.po messages.pot
+... done.
+msgfmt -c -o pl.mo pl.po
+Install file: "pl.mo" as "locale/pl/LC_MESSAGES/hello.mo"
+scons: done building targets.
     </screen>
     </para>
     <para>
@@ -336,35 +336,35 @@
     line to the program (after the last printf), so its code becomes:
     <scons_example name="gettext_ex6">
     <file name="hello.c" printme="1">
-    /* hello.c */
-    #include &lt;stdio.h&gt;
-    #include &lt;libintl.h&gt;
-    #include &lt;locale.h&gt;
-    int main(int argc, char* argv[])
-    {
-      bindtextdomain("hello", "locale");
-      setlocale(LC_ALL, "");
-      textdomain("hello");
-      printf(gettext("Hello world\n"));
-      printf(gettext("and good bye\n"));
-      printf("----------------\n");
-      return a;
-    }
+/* hello.c */
+#include &lt;stdio.h&gt;
+#include &lt;libintl.h&gt;
+#include &lt;locale.h&gt;
+int main(int argc, char* argv[])
+{
+  bindtextdomain("hello", "locale");
+  setlocale(LC_ALL, "");
+  textdomain("hello");
+  printf(gettext("Hello world\n"));
+  printf(gettext("and good bye\n"));
+  printf("----------------\n");
+  return a;
+}
     </file>
     </scons_example>
     Compile the project. You'll see on your screen
     <screen>
-    user@host:$scons
-    scons: Reading SConscript files ...
-    scons: done reading SConscript files.
-    scons: Building targets ...
-    Entering '/home/ptomulik/projects/tmp'
-    xgettext --package-name=hello --package-version=1.0 -o - hello.c
-    Leaving '/home/ptomulik/projects/tmp'
-    Not writting 'messages.pot' (messages in file found to be up-to-date)
-    gcc -o hello.o -c hello.c
-    gcc -o hello hello.o
-    scons: done building targets.
+user@host:$scons
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+Entering '/home/ptomulik/projects/tmp'
+xgettext --package-name=hello --package-version=1.0 -o - hello.c
+Leaving '/home/ptomulik/projects/tmp'
+Not writting 'messages.pot' (messages in file found to be up-to-date)
+gcc -o hello.o -c hello.c
+gcc -o hello hello.o
+scons: done building targets.
     </screen>
     As you see, the internationalized messages ditn't change, so the
     <literal>POT</literal> and the rest of translation files have not

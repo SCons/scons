@@ -84,7 +84,7 @@
 
     <scons_example name="factories_Copy1">
       <file name="SConstruct" printme="1">
-        Command("file.out", "file.in", Copy("$TARGET", "$SOURCE"))
+Command("file.out", "file.in", Copy("$TARGET", "$SOURCE"))
       </file>
       <file name="file.in">file.in</file>
     </scons_example>
@@ -113,7 +113,7 @@
 
     <scons_example name="factories_Copy2">
       <file name="SConstruct" printme="1">
-      Command("file.out", [], Copy("$TARGET", "file.in"))
+Command("file.out", [], Copy("$TARGET", "file.in"))
       </file>
       <file name="file.in">file.in</file>
     </scons_example>
@@ -147,22 +147,22 @@
 
     <scons_example name="factories_Copy3">
       <file name="S" printme="1">
-      Command("file.out", "file.in",
-              [
-                Copy("tempfile", "$SOURCE"),
-                "modify tempfile",
-                Copy("$TARGET", "tempfile"),
-              ])
+Command("file.out", "file.in",
+        [
+          Copy("tempfile", "$SOURCE"),
+          "modify tempfile",
+          Copy("$TARGET", "tempfile"),
+        ])
       </file>
       <file name="SConstruct">
-      env = DefaultEnvironment()
-      import os
-      env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
-      SConscript('S')
+env = DefaultEnvironment()
+import os
+env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+SConscript('S')
       </file>
       <file name="file.in">file.in</file>
       <file name="modify" chmod="0755">
-      touch $*
+touch $*
       </file>
     </scons_example>
 
@@ -198,23 +198,23 @@
 
     <scons_example name="factories_Delete1">
       <file name="S" printme="1">
-      Command("file.out", "file.in",
-              [
-                Delete("tempfile"),
-                Copy("tempfile", "$SOURCE"),
-                "modify tempfile",
-                Copy("$TARGET", "tempfile"),
-              ])
+Command("file.out", "file.in",
+        [
+          Delete("tempfile"),
+          Copy("tempfile", "$SOURCE"),
+          "modify tempfile",
+          Copy("$TARGET", "tempfile"),
+        ])
       </file>
       <file name="SConstruct">
-      env = DefaultEnvironment()
-      import os
-      env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
-      SConscript('S')
+env = DefaultEnvironment()
+import os
+env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+SConscript('S')
       </file>
       <file name="file.in">file.in</file>
       <file name="modify" chmod="0755">
-      touch $*
+touch $*
       </file>
     </scons_example>
 
@@ -239,11 +239,11 @@
 
     <scons_example name="factories_Delete2">
       <file name="SConstruct" printme="1">
-      Command("file.out", "file.in",
-              [
-                Delete("$TARGET"),
-                Copy("$TARGET", "$SOURCE")
-              ])
+Command("file.out", "file.in",
+        [
+          Delete("$TARGET"),
+          Copy("$TARGET", "$SOURCE")
+        ])
       </file>
       <file name="file.in">file.in</file>
     </scons_example>
@@ -293,22 +293,22 @@
 
     <scons_example name="factories_Move">
       <file name="S" printme="1">
-      Command("file.out", "file.in",
-              [
-                Copy("tempfile", "$SOURCE"),
-                "modify tempfile",
-                Move("$TARGET", "tempfile"),
-              ])
+Command("file.out", "file.in",
+        [
+          Copy("tempfile", "$SOURCE"),
+          "modify tempfile",
+          Move("$TARGET", "tempfile"),
+        ])
       </file>
       <file name="SConstruct">
-      env = DefaultEnvironment()
-      import os
-      env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
-      SConscript('S')
+env = DefaultEnvironment()
+import os
+env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+SConscript('S')
       </file>
       <file name="file.in">file.in</file>
       <file name="modify" chmod="0755">
-      touch $*
+touch $*
       </file>
     </scons_example>
 
@@ -337,17 +337,17 @@
 
     <scons_example name="factories_Touch">
       <file name="S" printme="1">
-      Command("file.out", "file.in",
-              [
-                Copy("$TARGET", "$SOURCE"),
-                Touch("$TARGET"),
-              ])
+Command("file.out", "file.in",
+        [
+          Copy("$TARGET", "$SOURCE"),
+          Touch("$TARGET"),
+        ])
       </file>
       <file name="SConstruct">
-      env = DefaultEnvironment()
-      import os
-      env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
-      SConscript('S')
+env = DefaultEnvironment()
+import os
+env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+SConscript('S')
       </file>
       <file name="file.in">file.in</file>
     </scons_example>
@@ -381,25 +381,25 @@
 
     <scons_example name="factories_Mkdir">
       <file name="S" printme="1">
-      Command("file.out", "file.in",
-              [
-                Delete("tempdir"),
-                Mkdir("tempdir"),
-                Copy("tempdir/${SOURCE.file}", "$SOURCE"),
-                "process tempdir",
-                Move("$TARGET", "tempdir/output_file"),
-                Delete("tempdir"),
-              ])
+Command("file.out", "file.in",
+        [
+          Delete("tempdir"),
+          Mkdir("tempdir"),
+          Copy("tempdir/${SOURCE.file}", "$SOURCE"),
+          "process tempdir",
+          Move("$TARGET", "tempdir/output_file"),
+          Delete("tempdir"),
+        ])
       </file>
       <file name="SConstruct">
-      env = DefaultEnvironment()
-      import os
-      env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
-      SConscript('S')
+env = DefaultEnvironment()
+import os
+env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+SConscript('S')
       </file>
       <file name="file.in">file.in</file>
       <file name="process" chmod="0755">
-      touch $*
+touch $*
       </file>
     </scons_example>
 
@@ -431,11 +431,11 @@
 
     <scons_example name="factories_Chmod">
       <file name="SConstruct" printme="1">
-      Command("file.out", "file.in",
-              [
-                Copy("$TARGET", "$SOURCE"),
-                Chmod("$TARGET", 0755),
-              ])
+Command("file.out", "file.in",
+        [
+          Copy("$TARGET", "$SOURCE"),
+          Chmod("$TARGET", 0755),
+        ])
       </file>
       <file name="file.in">file.in</file>
     </scons_example>
@@ -470,7 +470,7 @@
 
     <scons_example name="factories_Execute">
       <file name="SConstruct" printme="1">
-      Execute(Mkdir('__ROOT__/tmp/my_temp_directory'))
+Execute(Mkdir('__ROOT__/tmp/my_temp_directory'))
       </file>
     </scons_example>
 
@@ -521,9 +521,9 @@
     </para>
 
     <sconstruct>
-    if Execute(Mkdir('__ROOT__/tmp/my_temp_directory')):
-        # A problem occurred while making the temp directory.
-        Exit(1)
+if Execute(Mkdir('__ROOT__/tmp/my_temp_directory')):
+    # A problem occurred while making the temp directory.
+    Exit(1)
     </sconstruct>
 
   </section>

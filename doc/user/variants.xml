@@ -159,9 +159,9 @@ is pretty smart about rebuilding things when you change options.
 
   <scons_example name="variants_ex2">
     <file name="SConstruct" printme="1">
-    env = Environment(OS = ARGUMENTS.get('OS'))
-    for os in ['newell', 'post']:
-        SConscript('src/SConscript', variant_dir='build/' + os)
+env = Environment(OS = ARGUMENTS.get('OS'))
+for os in ['newell', 'post']:
+    SConscript('src/SConscript', variant_dir='build/' + os)
     </file>
   </scons_example>
 

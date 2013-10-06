@@ -1841,6 +1841,17 @@ listed in the targets.
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
+On Cygwin systems, the
+<function xmlns="http://www.scons.org/dbxsd/v1.0">SharedLibrary</function>
+builder method will always build an import
+(<filename>.dll.a</filename>) library
+in addition to the shared (<filename>.dll</filename>) library,
+adding a <filename>.dll.a</filename> library with the same basename
+if there is not already a <filename>.dll.a</filename> file explicitly
+listed in the targets.
+</para>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Any object files listed in the
 <literal>source</literal>
 must have been built for a shared library
@@ -1870,7 +1881,7 @@ alpha, beta, or release candidate patch levels.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 This builder may create multiple links to the library. On a POSIX system,
 for the shared library libbar.so.2.3.1, the links created would be
-libbar.so, libbar.so.2, and libbar.so.2.3; on a Darwin (OSX) system
+libbar.so and libbar.so.2; on a Darwin (OSX) system
 the library would be libbar.2.3.1.dylib and the link would be
 libbar.dylib.
 </para>

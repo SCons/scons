@@ -267,7 +267,7 @@ solutions to the above limitations.
   </para>
 
   <sconstruct>
-    b = Builder(action = 'build &lt; $SOURCE &gt; $TARGET')
+b = Builder(action = 'build &lt; $SOURCE &gt; $TARGET')
   </sconstruct>
 
   <para>
@@ -277,7 +277,7 @@ solutions to the above limitations.
   </para>
 
   <sconstruct>
-    b = Builder(action = Action('build &lt; $SOURCE &gt; $TARGET'))
+b = Builder(action = Action('build &lt; $SOURCE &gt; $TARGET'))
   </sconstruct>
 
   <para>

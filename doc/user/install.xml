@@ -58,12 +58,12 @@
 
   <scons_example name="install_ex1">
      <file name="SConstruct" printme="1">
-     env = Environment()
-     hello = env.Program('hello.c')
-     env.Install('__ROOT__/usr/bin', hello)
+env = Environment()
+hello = env.Program('hello.c')
+env.Install('__ROOT__/usr/bin', hello)
      </file>
      <file name="hello.c">
-     int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
      </file>
   </scons_example>
 
@@ -104,13 +104,13 @@
 
   <scons_example name="install_ex2">
     <file name="SConstruct" printme="1">
-     env = Environment()
-     hello = env.Program('hello.c')
-     env.Install('__ROOT__/usr/bin', hello)
-     env.Alias('install', '__ROOT__/usr/bin')
+env = Environment()
+hello = env.Program('hello.c')
+env.Install('__ROOT__/usr/bin', hello)
+env.Alias('install', '__ROOT__/usr/bin')
     </file>
     <file name="hello.c">
-    int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
     </file>
   </scons_example>
 
@@ -139,18 +139,18 @@
 
     <scons_example name="install_ex3">
       <file name="SConstruct" printme="1">
-       env = Environment()
-       hello = env.Program('hello.c')
-       goodbye = env.Program('goodbye.c')
-       env.Install('__ROOT__/usr/bin', hello)
-       env.Install('__ROOT__/usr/bin', goodbye)
-       env.Alias('install', '__ROOT__/usr/bin')
+env = Environment()
+hello = env.Program('hello.c')
+goodbye = env.Program('goodbye.c')
+env.Install('__ROOT__/usr/bin', hello)
+env.Install('__ROOT__/usr/bin', goodbye)
+env.Alias('install', '__ROOT__/usr/bin')
       </file>
       <file name="hello.c">
-      int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
       </file>
       <file name="goodbye.c">
-      int main() { printf("Goodbye, world!\n"); }
+int main() { printf("Goodbye, world!\n"); }
       </file>
     </scons_example>
 
@@ -163,11 +163,11 @@
     </para>
 
     <sconstruct>
-       env = Environment()
-       hello = env.Program('hello.c')
-       goodbye = env.Program('goodbye.c')
-       env.Install('__ROOT__/usr/bin', [hello, goodbye])
-       env.Alias('install', '__ROOT__/usr/bin')
+env = Environment()
+hello = env.Program('hello.c')
+goodbye = env.Program('goodbye.c')
+env.Install('__ROOT__/usr/bin', [hello, goodbye])
+env.Alias('install', '__ROOT__/usr/bin')
     </sconstruct>
 
     <para>
@@ -197,13 +197,13 @@
 
     <scons_example name="install_ex4">
       <file name="SConstruct" printme="1">
-       env = Environment()
-       hello = env.Program('hello.c')
-       env.InstallAs('__ROOT__/usr/bin/hello-new', hello)
-       env.Alias('install', '__ROOT__/usr/bin')
+env = Environment()
+hello = env.Program('hello.c')
+env.InstallAs('__ROOT__/usr/bin/hello-new', hello)
+env.Alias('install', '__ROOT__/usr/bin')
       </file>
       <file name="hello.c">
-      int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
       </file>
     </scons_example>
 
@@ -237,19 +237,19 @@
 
     <scons_example name="install_ex5">
       <file name="SConstruct" printme="1">
-       env = Environment()
-       hello = env.Program('hello.c')
-       goodbye = env.Program('goodbye.c')
-       env.InstallAs(['__ROOT__/usr/bin/hello-new',
-                      '__ROOT__/usr/bin/goodbye-new'],
-                     [hello, goodbye])
-       env.Alias('install', '__ROOT__/usr/bin')
+env = Environment()
+hello = env.Program('hello.c')
+goodbye = env.Program('goodbye.c')
+env.InstallAs(['__ROOT__/usr/bin/hello-new',
+               '__ROOT__/usr/bin/goodbye-new'],
+               [hello, goodbye])
+env.Alias('install', '__ROOT__/usr/bin')
       </file>
       <file name="hello.c">
-      int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
       </file>
       <file name="goodbye.c">
-      int main() { printf("Goodbye, world!\n"); }
+int main() { printf("Goodbye, world!\n"); }
       </file>
     </scons_example>
 

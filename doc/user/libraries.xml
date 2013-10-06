@@ -65,16 +65,16 @@
 
     <scons_example name="libraries_ex1" printme="1">
       <file name="SConstruct" printme="1">
-      Library('foo', ['f1.c', 'f2.c', 'f3.c'])
+Library('foo', ['f1.c', 'f2.c', 'f3.c'])
       </file>
       <file name="f1.c">
-      void f1() { printf("f1.c\n"); }
+void f1() { printf("f1.c\n"); }
       </file>
       <file name="f2.c">
-      void f2() { printf("f2.c\n"); }
+void f2() { printf("f2.c\n"); }
       </file>
       <file name="f3.c">
-      void f3() { printf("f3.c\n"); }
+void f3() { printf("f3.c\n"); }
       </file>
     </scons_example>
 
@@ -131,19 +131,19 @@
 
       <scons_example name="libraries_objects" printme="1">
         <file name="SConstruct" printme="1">
-        Library('foo', ['f1.c', 'f2.o', 'f3.c', 'f4.o'])
+Library('foo', ['f1.c', 'f2.o', 'f3.c', 'f4.o'])
         </file>
         <file name="f1.c">
-        void f1() { printf("f1.c\n"); }
+void f1() { printf("f1.c\n"); }
         </file>
         <file name="f2.o">
-        object file
+object file
         </file>
         <file name="f3.c">
-        void f3() { printf("f3.c\n"); }
+void f3() { printf("f3.c\n"); }
         </file>
         <file name="f4.o">
-        object file
+object file
         </file>
       </scons_example>
 
@@ -186,7 +186,7 @@
 
       <scons_example name="libraries_StaticLibrary" printme="1">
         <file name="SConstruct" printme="1">
-        StaticLibrary('foo', ['f1.c', 'f2.c', 'f3.c'])
+StaticLibrary('foo', ['f1.c', 'f2.c', 'f3.c'])
         </file>
       </scons_example>
 
@@ -212,16 +212,16 @@
 
       <scons_example name="libraries_SharedLibrary" printme="1">
         <file name="SConstruct" printme="1">
-        SharedLibrary('foo', ['f1.c', 'f2.c', 'f3.c'])
+SharedLibrary('foo', ['f1.c', 'f2.c', 'f3.c'])
         </file>
         <file name="f1.c">
-        void f1() { printf("f1.c\n"); }
+void f1() { printf("f1.c\n"); }
         </file>
         <file name="f2.c">
-        void f2() { printf("f2.c\n"); }
+void f2() { printf("f2.c\n"); }
         </file>
         <file name="f3.c">
-        void f3() { printf("f3.c\n"); }
+void f3() { printf("f3.c\n"); }
         </file>
       </scons_example>
 
@@ -280,20 +280,20 @@
 
     <scons_example name="libraries_ex2">
       <file name="SConstruct" printme="1">
-      Library('foo', ['f1.c', 'f2.c', 'f3.c'])
-      Program('prog.c', LIBS=['foo', 'bar'], LIBPATH='.')
+Library('foo', ['f1.c', 'f2.c', 'f3.c'])
+Program('prog.c', LIBS=['foo', 'bar'], LIBPATH='.')
       </file>
       <file name="f1.c">
-      int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
       </file>
       <file name="f2.c">
-      int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
       </file>
       <file name="f3.c">
-      int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
       </file>
       <file name="prog.c">
-      int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
       </file>
     </scons_example>
 
@@ -347,7 +347,7 @@
     </para>
 
     <sconstruct>
-      Program('prog.c', LIBS='foo', LIBPATH='.')
+Program('prog.c', LIBS='foo', LIBPATH='.')
     </sconstruct>
 
     <para>
@@ -357,7 +357,7 @@
     </para>
 
     <sconstruct>
-      Program('prog.c', LIBS=['foo'], LIBPATH='.')
+Program('prog.c', LIBS=['foo'], LIBPATH='.')
     </sconstruct>
 
     <para>
@@ -387,11 +387,11 @@
 
     <scons_example name="libraries_ex3">
       <file name="SConstruct" printme="1">
-      Program('prog.c', LIBS = 'm',
-                        LIBPATH = ['/usr/lib', '/usr/local/lib'])
+Program('prog.c', LIBS = 'm',
+                  LIBPATH = ['/usr/lib', '/usr/local/lib'])
       </file>
       <file name="prog.c">
-      int main() { printf("prog.c\n"); }
+int main() { printf("prog.c\n"); }
       </file>
     </scons_example>
 
@@ -406,7 +406,7 @@
     </para>
 
     <sconstruct>
-      LIBPATH = '/usr/lib:/usr/local/lib'
+LIBPATH = '/usr/lib:/usr/local/lib'
     </sconstruct>
 
     <para>
@@ -416,7 +416,7 @@
     </para>
 
     <sconstruct>
-      LIBPATH = 'C:\\lib;D:\\lib'
+LIBPATH = 'C:\\lib;D:\\lib'
     </sconstruct>
 
     <para>

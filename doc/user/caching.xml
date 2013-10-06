@@ -67,17 +67,17 @@
 
     <scons_example name="caching_ex1">
        <file name="SConstruct">
-       env = Environment()
-       env.Program('hello.c')
-       CacheDir('cache')
+env = Environment()
+env.Program('hello.c')
+CacheDir('cache')
        </file>
        <file name="hello.c">
-       hello.c
+hello.c
        </file>
        <directory name="cache">
        </directory>
        <file name="not_used" printme="1">
-       CacheDir('/usr/local/build_cache')
+CacheDir('/usr/local/build_cache')
        </file>
     </scons_example>
 
@@ -205,14 +205,14 @@
 
     <scons_example name="ex-NoCache">
        <file name="SConstruct" printme="1">
-       env = Environment()
-       obj = env.Object('hello.c')
-       env.Program('hello.c')
-       CacheDir('cache')
-       NoCache('hello.o')
+env = Environment()
+obj = env.Object('hello.c')
+env.Program('hello.c')
+CacheDir('cache')
+NoCache('hello.o')
        </file>
        <file name="hello.c">
-       hello.c
+hello.c
        </file>
        <directory name="cache">
        </directory>
@@ -241,15 +241,15 @@
     -->
 
     <screen>
-      % <userinput>scons -Q</userinput>
-      cc -o hello.o -c hello.c
-      cc -o hello hello.o
-      % <userinput>scons -Q -c</userinput>
-      Removed hello.o
-      Removed hello
-      % <userinput>scons -Q</userinput>
-      cc -o hello.o -c hello.c
-      Retrieved `hello' from cache
+% <userinput>scons -Q</userinput>
+cc -o hello.o -c hello.c
+cc -o hello hello.o
+% <userinput>scons -Q -c</userinput>
+Removed hello.o
+Removed hello
+% <userinput>scons -Q</userinput>
+cc -o hello.o -c hello.c
+Retrieved `hello' from cache
     </screen>
 
   </section>
@@ -367,8 +367,8 @@
 
     <scons_example name="caching_ex-random">
        <file name="SConstruct" printme="1">
-       Program('prog',
-               ['f1.c', 'f2.c', 'f3.c', 'f4.c', 'f5.c'])
+Program('prog',
+        ['f1.c', 'f2.c', 'f3.c', 'f4.c', 'f5.c'])
        </file>
        <file name="f1.c">f1.c</file>
        <file name="f2.c">f2.c</file>
@@ -479,9 +479,9 @@
 
     <scons_example name="caching_ex-random">
        <file name="SConstruct" printme="1">
-       SetOption('random', 1)
-       Program('prog',
-               ['f1.c', 'f2.c', 'f3.c', 'f4.c', 'f5.c'])
+SetOption('random', 1)
+Program('prog',
+        ['f1.c', 'f2.c', 'f3.c', 'f4.c', 'f5.c'])
        </file>
        <file name="f1.c">f1.c</file>
        <file name="f2.c">f2.c</file>
