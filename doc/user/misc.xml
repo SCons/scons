@@ -501,20 +501,20 @@ prog2.c
 
     <scons_example name="misc_Flatten2">
       <file name="SConstruct" printme="1">
-      objects = [
-          Object('prog1.c'),
-          Object('prog2.c', CCFLAGS='-DFOO'),
-      ]
-      Program(objects)
+objects = [
+    Object('prog1.c'),
+    Object('prog2.c', CCFLAGS='-DFOO'),
+]
+Program(objects)
 
-      for object_file in objects:
-          print object_file.abspath
+for object_file in objects:
+    print object_file.abspath
       </file>
       <file name="prog1.c">
-      prog1.c
+prog1.c
       </file>
       <file name="prog2.c">
-      prog2.c
+prog2.c
       </file>
     </scons_example>
 
@@ -542,20 +542,20 @@ prog2.c
 
     <scons_example name="misc_Flatten3">
       <file name="SConstruct" printme="1">
-      objects = [
-          Object('prog1.c'),
-          Object('prog2.c', CCFLAGS='-DFOO'),
-      ]
-      Program(objects)
+objects = [
+    Object('prog1.c'),
+    Object('prog2.c', CCFLAGS='-DFOO'),
+]
+Program(objects)
 
-      for object_file in Flatten(objects):
-          print object_file.abspath
+for object_file in Flatten(objects):
+    print object_file.abspath
       </file>
       <file name="prog1.c">
-      prog1.c
+prog1.c
       </file>
       <file name="prog2.c">
-      prog2.c
+prog2.c
       </file>
     </scons_example>
 

@@ -337,15 +337,15 @@ Program('program2', ['program2.c'])
     </para>
 
     <sconstruct>
-       common_sources = ['file1.c', 'file2.c']
+common_sources = ['file1.c', 'file2.c']
 
-       # THE FOLLOWING IS INCORRECT AND GENERATES A PYTHON ERROR
-       # BECAUSE IT TRIES TO ADD A STRING TO A LIST:
-       Program('program1', common_sources + 'program1.c')
+# THE FOLLOWING IS INCORRECT AND GENERATES A PYTHON ERROR
+# BECAUSE IT TRIES TO ADD A STRING TO A LIST:
+Program('program1', common_sources + 'program1.c')
 
-       # The following works correctly, because it's adding two
-       # lists together to make another list.
-       Program('program2', common_sources + ['program2.c'])
+# The following works correctly, because it's adding two
+# lists together to make another list.
+Program('program2', common_sources + ['program2.c'])
     </sconstruct>
 
     </important>

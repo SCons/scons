@@ -579,13 +579,13 @@ env = Environment()
 
        <scons_example name="environments_ex1">
          <file name="SConstruct" printme="1">
-         env = Environment(CC = 'gcc',
-                           CCFLAGS = '-O2')
+ env = Environment(CC = 'gcc',
+                   CCFLAGS = '-O2')
 
-         env.Program('foo.c')
+ env.Program('foo.c')
          </file>
          <file name="foo.c">
-        int main() { }
+int main() { }
          </file>
        </scons_example>
 
@@ -861,8 +861,6 @@ print "value is:", env.subst( '->${1 / 0}&lt;-' )
        <scons_output example="environments_missing3" suffix="1">
           <scons_output_command>scons -Q</scons_output_command>
        </scons_output>
-      <sconstruct>
-      </sconstruct>
 
       <para>
       If &AllowSubstExceptions; is called multiple times, each call
@@ -903,9 +901,7 @@ print "value is:", env.subst( '->${1 / 0}&lt;-' )
       </para>
 
       <sconstruct>
-
-      DefaultEnvironment(CC = '/usr/local/bin/gcc')
-
+DefaultEnvironment(CC = '/usr/local/bin/gcc')
       </sconstruct>
 
       <para>
@@ -937,10 +933,8 @@ print "value is:", env.subst( '->${1 / 0}&lt;-' )
       </para>
 
       <sconstruct>
-
-      env = DefaultEnvironment()
-      env['CC'] = '/usr/local/bin/gcc'
-
+env = DefaultEnvironment()
+env['CC'] = '/usr/local/bin/gcc'
       </sconstruct>
 
       <para>
@@ -966,10 +960,8 @@ print "value is:", env.subst( '->${1 / 0}&lt;-' )
       </para>
 
       <sconstruct>
-
-      env = DefaultEnvironment(tools = ['gcc', 'gnulink'],
-                               CC = '/usr/local/bin/gcc')
-
+env = DefaultEnvironment(tools = ['gcc', 'gnulink'],
+                         CC = '/usr/local/bin/gcc')
       </sconstruct>
 
       <para>
@@ -1005,18 +997,18 @@ print "value is:", env.subst( '->${1 / 0}&lt;-' )
 
       <scons_example name="environments_ex2">
         <file name="SConstruct" printme="1">
-         opt = Environment(CCFLAGS = '-O2')
-         dbg = Environment(CCFLAGS = '-g')
+opt = Environment(CCFLAGS = '-O2')
+dbg = Environment(CCFLAGS = '-g')
 
-         opt.Program('foo', 'foo.c')
+opt.Program('foo', 'foo.c')
 
-         dbg.Program('bar', 'bar.c')
+dbg.Program('bar', 'bar.c')
         </file>
         <file name="foo.c">
-        int main() { }
+int main() { }
         </file>
         <file name="bar.c">
-        int main() { }
+int main() { }
         </file>
       </scons_example>
 
@@ -1036,15 +1028,15 @@ print "value is:", env.subst( '->${1 / 0}&lt;-' )
 
       <scons_example name="environments_ex3">
         <file name="SConstruct" printme="1">
-         opt = Environment(CCFLAGS = '-O2')
-         dbg = Environment(CCFLAGS = '-g')
+opt = Environment(CCFLAGS = '-O2')
+dbg = Environment(CCFLAGS = '-g')
 
-         opt.Program('foo', 'foo.c')
+opt.Program('foo', 'foo.c')
 
-         dbg.Program('foo', 'foo.c')
+dbg.Program('foo', 'foo.c')
         </file>
         <file name="foo.c">
-        int main() { }
+int main() { }
         </file>
       </scons_example>
 
@@ -1081,17 +1073,17 @@ print "value is:", env.subst( '->${1 / 0}&lt;-' )
 
       <scons_example name="environments_ex4">
         <file name="SConstruct" printme="1">
-         opt = Environment(CCFLAGS = '-O2')
-         dbg = Environment(CCFLAGS = '-g')
+opt = Environment(CCFLAGS = '-O2')
+dbg = Environment(CCFLAGS = '-g')
 
-         o = opt.Object('foo-opt', 'foo.c')
-         opt.Program(o)
+o = opt.Object('foo-opt', 'foo.c')
+opt.Program(o)
 
-         d = dbg.Object('foo-dbg', 'foo.c')
-         dbg.Program(d)
+d = dbg.Object('foo-dbg', 'foo.c')
+dbg.Program(d)
         </file>
         <file name="foo.c">
-        int main() { }
+int main() { }
         </file>
       </scons_example>
 
@@ -1149,20 +1141,20 @@ print "value is:", env.subst( '->${1 / 0}&lt;-' )
 
       <scons_example name="environments_ex5">
         <file name="SConstruct" printme="1">
-         env = Environment(CC = 'gcc')
-         opt = env.Clone(CCFLAGS = '-O2')
-         dbg = env.Clone(CCFLAGS = '-g')
+env = Environment(CC = 'gcc')
+opt = env.Clone(CCFLAGS = '-O2')
+dbg = env.Clone(CCFLAGS = '-g')
 
-         env.Program('foo', 'foo.c')
+env.Program('foo', 'foo.c')
 
-         o = opt.Object('foo-opt', 'foo.c')
-         opt.Program(o)
+o = opt.Object('foo-opt', 'foo.c')
+opt.Program(o)
 
-         d = dbg.Object('foo-dbg', 'foo.c')
-         dbg.Program(d)
+d = dbg.Object('foo-dbg', 'foo.c')
+dbg.Program(d)
         </file>
         <file name="foo.c">
-        int main() { }
+int main() { }
         </file>
       </scons_example>
 
@@ -1258,19 +1250,19 @@ print "NEW_VARIABLE =", env['NEW_VARIABLE']
 
       <scons_example name="environments_Replace2">
         <file name="SConstruct" printme="1">
-         env = Environment(CCFLAGS = '-DDEFINE1')
-         print "CCFLAGS =", env['CCFLAGS']
-         env.Program('foo.c')
+env = Environment(CCFLAGS = '-DDEFINE1')
+print "CCFLAGS =", env['CCFLAGS']
+env.Program('foo.c')
 
-         env.Replace(CCFLAGS = '-DDEFINE2')
-         print "CCFLAGS =", env['CCFLAGS']
-         env.Program('bar.c')
+env.Replace(CCFLAGS = '-DDEFINE2')
+print "CCFLAGS =", env['CCFLAGS']
+env.Program('bar.c')
         </file>
         <file name="foo.c">
-        int main() { }
+int main() { }
         </file>
         <file name="bar.c">
-        int main() { }
+int main() { }
         </file>
       </scons_example>
 

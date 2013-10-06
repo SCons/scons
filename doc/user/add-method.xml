@@ -100,28 +100,28 @@ int main() { printf("Hello, world!\n"); }
 
   <scons_example name="addmethod_ex2">
      <file name="SConstruct" printme="1">
-     def BuildTestProg(env, testfile, resourcefile, testdir="tests"):
-         """Build the test program;
-         prepends "test_" to src and target,
-         and puts target into testdir."""
-         srcfile = "test_%s.c" % testfile
-         target = "%s/test_%s" % (testdir, testfile)
-         if env['PLATFORM'] == 'win32':
-             resfile = env.RES(resourcefile)
-             p = env.Program(target, [srcfile, resfile])
-         else:
-             p = env.Program(target, srcfile)
-         return p
-     AddMethod(Environment, BuildTestProg)
+def BuildTestProg(env, testfile, resourcefile, testdir="tests"):
+    """Build the test program;
+    prepends "test_" to src and target,
+    and puts target into testdir."""
+    srcfile = "test_%s.c" % testfile
+    target = "%s/test_%s" % (testdir, testfile)
+    if env['PLATFORM'] == 'win32':
+        resfile = env.RES(resourcefile)
+        p = env.Program(target, [srcfile, resfile])
+    else:
+        p = env.Program(target, srcfile)
+    return p
+AddMethod(Environment, BuildTestProg)
 
-     env = Environment()
-     env.BuildTestProg('stuff', resourcefile='res.rc')
+env = Environment()
+env.BuildTestProg('stuff', resourcefile='res.rc')
      </file>
      <file name="test_stuff.c">
-     int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
      </file>
      <file name="res.rc">
-     res.rc
+res.rc
      </file>
   </scons_example>
 
