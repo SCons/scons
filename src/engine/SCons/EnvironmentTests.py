@@ -3126,7 +3126,7 @@ def generate(env):
         assert t[4].precious
 
     def test_Pseudo(self):
-        """Test the Precious() method"""
+        """Test the Pseudo() method"""
         env = self.TestEnvironment(FOO='ggg', BAR='hhh')
         env.Dir('p_hhhb')
         env.File('p_d')
