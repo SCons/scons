@@ -685,18 +685,22 @@ Multiple targets can be passed in to a single call to
 </summary>
 </scons_function>
 
-<scons_function name="Phony">
+<scons_function name="Pseudo">
 <arguments>
 (target, ...)
 </arguments>
 <summary>
 <para>
-Marks each given
+This indicates that each given
 <varname>target</varname>
-as phony, indicating it should not be created by the build rule. If a
-Phony target is created, this will cause an error.
+should not be created by the build rule, and if the target is created,
+an error will be generated. This is similar to the gnu make .PHONY
+target. However, in the vast majority of cases, an
+&f-Alias;
+is more appropriate.
+
 Multiple targets can be passed in to a single call to
-&f-Phony;.
+&f-Pseudo;.
 </para>
 </summary>
 </scons_function>

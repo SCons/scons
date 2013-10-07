@@ -694,7 +694,7 @@ class NodeTestCase(unittest.TestCase):
         assert node.precious == 7
 
     def test_set_pseudo(self):
-        """Test setting a Node's phony value
+        """Test setting a Node's pseudo value
         """
         node = SCons.Node.Node()
         node.set_pseudo()
