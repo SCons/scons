@@ -27,7 +27,7 @@
 import os
 
 env = Environment(ENV={'PATH' : os.environ['PATH']},
-                  tools=['docbook'], 
+                  tools=['docbook','gs','zip'], 
                   toolpath=['../../src/engine/SCons/Tool'],
                   DOCBOOK_DEFAULT_XSL_HTML='html.xsl',
                   DOCBOOK_DEFAULT_XSL_HTMLCHUNKED='chtml.xsl',
@@ -51,3 +51,23 @@ env.DocbookHtml('index.html','scons_db.xml')
 env.DocbookHtmlChunked('index.html', 'scons_db.xml', base_dir='scons-user/')
 if has_pdf:
     env.DocbookPdf('scons-user.pdf','scons_db.xml')
+
+has_gs = False
+if env.WhereIs('gs'):
+    has_gs = True
+
+#
+# Create the EPUB format
+#
+if has_gs and has_pdf:
+    metainf = env.Command('META-INF','',[Mkdir('META-INF'), Mkdir('OEBPS')])
+    css = env.Command('OEBPS/epub.css','epub.css',[Copy('OEBPS/epub.css','epub.css')])
+    env.Depends(css, metainf)
+    jpg = env.Gs('OEBPS/cover.jpg','scons-user.pdf', 
+                 GSFLAGS='-dNOPAUSE -dBATCH -sDEVICE=jpeg -dFirstPage=1 -dLastPage=1 -dJPEGQ=100 -r72x72 -q')
+    env.Depends(jpg, metainf)
+    oebps = env.DocbookXslt('OEBPS/toc.ncx', 'scons_db.xml', xsl='epub.xsl')
+    env.Depends(oebps, jpg)
+    env.Zip('scons-user.epub', 'OEBPS', ZIPFLAGS='-Xr9D')
+    env.Clean(oebps, Glob('OEBPS/*.*'))
+    env.Clean(oebps, Glob('META-INF/*.*'))
