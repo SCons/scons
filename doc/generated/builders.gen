@@ -397,6 +397,27 @@ env.DVI(target = 'ccc.dvi', source = 'ccc.latex')
 </example_commands>
 </listitem>
   </varlistentry>
+  <varlistentry id="b-Gs">
+    <term>
+      <function>Gs()</function>
+    </term>
+    <term>
+      <function>env.Gs()</function>
+    </term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+A Builder for explicitly calling the <literal>gs</literal> executable.
+Depending on the underlying OS, the different names <literal>gs</literal>,
+<literal>gsos2</literal> and <literal>gswin32c</literal>
+are tried.
+</para>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['gs'])
+env.Gs('cover.jpg','scons-scons.pdf',
+       GSFLAGS='-dNOPAUSE -dBATCH -sDEVICE=jpeg -dFirstPage=1 -dLastPage=1 -q') 
+       )
+</example_commands>
+</listitem>
+  </varlistentry>
   <varlistentry id="b-Install">
     <term>
       <function>Install()</function>

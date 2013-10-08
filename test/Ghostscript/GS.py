@@ -51,6 +51,7 @@ env = Environment(GS = r'%(_python_)s mygs.py',
                   GSCOM = r'$GS $TARGET $SOURCE',
                   tools=['gs'])
 env.PDF(target = 'test1.pdf', source = 'test1.ps')
+env.Gs(target = 'test2.pdf', source = 'test1.ps')
 """ % locals())
 
 test.write('test1.ps', r"""This is a .ps test.
@@ -60,6 +61,7 @@ test.write('test1.ps', r"""This is a .ps test.
 test.run(arguments = '.', stderr = None)
 
 test.fail_test(test.read('test1.pdf') != "This is a .ps test.\n")
+test.fail_test(test.read('test2.pdf') != "This is a .ps test.\n")
 
 
 
