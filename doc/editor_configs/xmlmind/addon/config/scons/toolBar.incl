@@ -1,0 +1,189 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<configuration
+  xmlns="http://www.xmlmind.com/xmleditor/schema/configuration"
+  xmlns:cfg="http://www.xmlmind.com/xmleditor/schema/configuration">
+
+  <toolBar>
+    <button toolTip="Convert to emphasis" 
+            icon="../common/icons/emphasisText_menu.png">
+      <menu>
+        <item label="emphasis" 
+              command="convert"
+              parameter="[implicitElement] emphasis" />
+        <item label="emphasis[bold]" 
+              command="docb.convertWithAttribute" 
+              parameter="emphasis role bold" />
+	<item label="firstterm" command="convert" 
+	      parameter="[implicitElement] firstterm" />
+        <item label="replaceable" command="convert"
+              parameter="[implicitElement] replaceable" />
+        <separator />
+        <item label="literal" command="convert"
+              parameter="[implicitElement] literal" />
+	<item label="filename" command="convert" 
+	      parameter="[implicitElement] filename" />
+        <separator />
+	<item label="trademark" command="convert" 
+	      parameter="[implicitElement] trademark" />
+	<item label="trademark[registered]" command="docb.convertWithAttribute"
+	      parameter="trademark class registered" />
+        <separator />
+	<item label="guilabel" command="convert" 
+	      parameter="[implicitElement] guilabel" />
+	<item label="guibutton" command="convert" 
+	      parameter="[implicitElement] guibutton" />
+	<item label="guimenuitem" command="convert" 
+	      parameter="[implicitElement] guimenuitem" />
+	<item label="guisubmenu" command="convert" 
+	      parameter="[implicitElement] guisubmenu" />
+	<item label="guimenu" command="convert" 
+	      parameter="[implicitElement] guimenu" />
+        <separator />
+	<item label="keycap" command="convert" 
+	      parameter="[implicitElement] keycap" />
+	<item label="keysym" command="convert" 
+	      parameter="[implicitElement] keysym" />
+        <separator />
+	<item label="sgmltag[element]" command="docb.convertWithAttribute" 
+	      parameter="sgmltag class element" />
+	<item label="sgmltag[attribute]" command="docb.convertWithAttribute" 
+	      parameter="sgmltag class attribute" />
+	<item label="sgmltag[attvalue]" command="docb.convertWithAttribute" 
+	      parameter="sgmltag class attvalue" />
+      </menu>
+    </button>
+
+    <button toolTip="Convert to link" 
+            icon="../common/icons/hyperText_menu.png">
+      <menu>
+        <item label="link" command="convert" 
+              parameter="[implicitElement] link" />
+        <item label="ulink" command="convert" 
+              parameter="[implicitElement] ulink" />
+      </menu>
+    </button>
+
+    <button toolTip="Convert to plain text" 
+            icon="../common/icons/plainText.png">
+      <command name="convert" parameter="[implicitElement] #text" />
+    </button>
+
+    <separator />
+
+    <button toolTip="Add para" icon="../common/icons/paragraph.png">
+      <command name="docb.addAfter" parameter="para" />
+    </button>
+
+    <button toolTip="Add listitem or varlistentry [Ctrl-Enter]" 
+            icon="../common/icons/addListItem.png">
+      <command name="docb.addListItem" parameter="After" />
+    </button>
+
+    <button toolTip="Add itemizedlist" 
+            icon="../common/icons/itemizedList.png">
+      <command name="docb.addAfter" parameter="itemizedlist" />
+    </button>
+
+    <button toolTip="Add orderedlist" 
+            icon="../common/icons/orderedList.png">
+      <command name="docb.addAfter" parameter="orderedlist" />
+    </button>
+
+    <button toolTip="Add variablelist" 
+            icon="../common/icons/definitionList.png">
+      <command name="docb.addAfter" parameter="variablelist" />
+    </button>
+
+    <button toolTip="Add table" icon="../common/icons/table_menu.png">
+      <menu>
+        <item label="informaltable" command="docb.addAfter" 
+              parameter="informaltable" />
+        <item label="informaltable(head_row)" command="docb.addAfter" 
+              parameter="#template(informaltable,head_row)" />
+        <item label="informaltable(head_column)" command="docb.addAfter"
+              parameter="#template(informaltable,head_column)" />
+        <item label="informaltable(head_row_column)" command="docb.addAfter"
+              parameter="#template(informaltable,head_row_column)" />
+        <separator />
+        <item label="table" command="docb.addAfter" 
+              parameter="table" />
+        <item label="table(head_row)" command="docb.addAfter" 
+              parameter="#template(table,head_row)" />
+        <item label="table(head_column)" command="docb.addAfter"
+              parameter="#template(table,head_column)" />
+        <item label="table(head_row_column)" command="docb.addAfter"
+              parameter="#template(table,head_row_column)" />
+
+        <separator />
+
+        <item label="informaltable(HTML)" command="docb.addAfter" 
+              parameter="#template(informaltable,HTML)" />
+        <item label="informaltable(HTML_head_row)" command="docb.addAfter" 
+              parameter="#template(informaltable,HTML_head_row)" />
+        <item label="informaltable(HTML_head_column)" command="docb.addAfter"
+              parameter="#template(informaltable,HTML_head_column)" />
+        <item label="informaltable(HTML_head_row_column)" 
+	      command="docb.addAfter"
+              parameter="#template(informaltable,HTML_head_row_column)" />
+        <separator />
+        <item label="table(HTML)" command="docb.addAfter" 
+              parameter="#template(table,HTML)" />
+        <item label="table(HTML_head_row)" command="docb.addAfter" 
+              parameter="#template(table,HTML_head_row)" />
+        <item label="table(HTML_head_column)" command="docb.addAfter"
+              parameter="#template(table,HTML_head_column)" />
+        <item label="table(HTML_head_row_column)" command="docb.addAfter"
+              parameter="#template(table,HTML_head_row_column)" />
+      </menu>
+    </button>
+
+    <button toolTip="Add image" icon="../common/icons/figure_menu.png">
+      <menu>
+        <item label="inlinemediaobject" command="insert" 
+              parameter="into inlinemediaobject" />
+        <separator />
+        <item label="mediaobject" command="docb.addAfter" 
+              parameter="mediaobject" />
+        <separator />
+        <item label="screenshot" command="docb.addAfter" 
+              parameter="screenshot" />
+        <separator />
+        <item label="figure" command="docb.addAfter" 
+              parameter="figure" />
+        <item label="figure(screenshot)" command="docb.addAfter" 
+              parameter="#template(figure,screenshot)" />
+      </menu>
+    </button>
+
+    <button toolTip="Add section" icon="../common/icons/section_menu.png">
+      <menu>
+        <item label="chapter" command="add" 
+              parameter="after[implicitElement] chapter" />
+        <separator />
+        <item label="section" command="add" 
+              parameter="after[implicitElement] section" />
+        <item label="sect1" command="add" 
+              parameter="after[implicitElement] sect1" />
+        <item label="sect2" command="add" 
+              parameter="after[implicitElement] sect2" />
+        <item label="sect3" command="add" 
+              parameter="after[implicitElement] sect3" />
+        <item label="sect4" command="add" 
+              parameter="after[implicitElement] sect4" />
+        <item label="sect5" command="add" 
+              parameter="after[implicitElement] sect5" />
+        <separator />
+        <item label="appendix" command="add" 
+              parameter="after[implicitElement] appendix" />
+      </menu>
+    </button>
+
+    <separator />
+
+    <button toolTip="Go to opposite link end" 
+            icon="../common/icons/navigate.png">
+      <command name="selectById" parameter="swapIdAndReference" />
+    </button>
+  </toolBar>
+
+</configuration>

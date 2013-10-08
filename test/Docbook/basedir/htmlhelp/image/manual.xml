@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+  Copyright (c) 2001-2010 The SCons Foundation
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+<article>
+  <title>The SCons qt4 tool</title>
+
+  <articleinfo>
+    <author>
+      <surname>Dirk Baechle</surname>
+    </author>
+
+    <pubdate>2010-12-06</pubdate>
+  </articleinfo>
+
+  <section id="basics">
+    <title>Basics</title>
+
+    <para>This tool can be used to compile Qt projects, designed for versions
+    4.x.y and higher. It is not usable for Qt3 and older versions, since some
+    of the helper tools (<literal>moc</literal>, <literal>uic</literal>)
+    behave different.</para>
+
+    <section id="install">
+      <title>Install</title>
+
+      <para>Installing it, requires you to copy (or, even better: checkout)
+      the contents of the package's <literal>qt4</literal> folder to</para>
+
+      <orderedlist>
+        <listitem>
+          <para><quote><literal>/path_to_your_project/site_scons/site_tools/qt4</literal></quote>,
+          if you need the Qt4 Tool in one project only, or</para>
+        </listitem>
+
+        <listitem>
+          <para><quote><literal>~/.scons/site_scons/site_tools/qt4</literal></quote>,
+          for a system-wide installation under your current login.</para>
+        </listitem>
+      </orderedlist>
+
+      <para>For more infos about this, please refer to</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>the SCons User's Guide, chap. 17.7 "Where to put your custom
+          Builders and Tools" and</para>
+        </listitem>
+
+        <listitem>
+          <para>the SCons Tools Wiki page at <ulink
+          url="http://scons.org/wiki/ToolsIndex">http://scons.org/wiki/ToolsIndex</ulink>.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section id="activation">
+      <title>How to activate</title>
+
+      <para>For activating the tool "qt4", you have to add its name to the
+      Environment constructor, like this</para>
+
+      <screen>env = Environment(tools=['default','qt4'])
+</screen>
+
+      <para>On its startup, the Qt4 tool tries to read the variable
+      <literal>QT4DIR</literal> from the current Environment and
+      <literal>os.environ</literal>. If it is not set, the value of
+      <literal>QTDIR</literal> (in Environment/<literal>os.environ</literal>)
+      is used as a fallback.</para>
+
+      <para>So, you either have to explicitly give the path of your Qt4
+      installation to the Environment with</para>
+
+      <screen>env['QT4DIR'] = '/usr/local/Trolltech/Qt-4.2.3'
+</screen>
+
+      <para>or set the <literal>QT4DIR</literal> as environment variable in
+      your shell.</para>
+    </section>
+
+    <section id="requirements">
+      <title>Requirements</title>
+
+      <para>Under Linux, "qt4" uses the system tool
+      <literal>pkg-config</literal> for automatically setting the required
+      compile and link flags of the single Qt4 modules (like QtCore,
+      QtGui,...). This means that</para>
+
+      <orderedlist>
+        <listitem>
+          <para>you should have <literal>pkg-config</literal> installed,
+          and</para>
+        </listitem>
+
+        <listitem>
+          <para>you additionally have to set
+          <literal>PKG_CONFIG_PATH</literal> in your shell environment, such
+          that it points to $<literal>QT4DIR/lib/pkgconfig</literal> (or
+          $<literal>QT4DIR/lib</literal> for some older versions).</para>
+        </listitem>
+      </orderedlist>
+
+      <para>Based on these two environment variables
+      (<literal>QT4DIR</literal> and <literal>PKG_CONFIG_PATH</literal>), the
+      "qt4" tool initializes all <literal>QT4_*</literal> construction
+      variables listed in the Reference manual. This happens when the tool is
+      "detected" during Environment construction. As a consequence, the setup
+      of the tool gets a two-stage process, if you want to override the values
+      provided by your current shell settings:</para>
+
+      <screen># Stage 1: create plain environment
+qtEnv = Environment()
+# Set new vars
+qtEnv['QT4DIR'] = '/usr/local/Trolltech/Qt-4.2.3
+qtEnv['ENV']['PKG_CONFIG_PATH'] = '/usr/local/Trolltech/Qt-4.2.3/lib/pkgconfig'
+# Stage 2: add qt4 tool
+qtEnv.Tool('qt4')
+</screen>
+    </section>
+  </section>
+
+  <section id="boilerplate">
+    <title>Suggested boilerplate</title>
+
+    <para>Based on the requirements above, we suggest a simple ready-to-go
+    setup as follows:</para>
+
+    <para>SConstruct</para>
+
+    <screen># Detect Qt version
+qtdir = detectLatestQtDir()
+
+# Create base environment
+baseEnv = Environment()
+#...further customization of base env
+
+# Clone Qt environment
+qtEnv = baseEnv.Clone()
+# Set QT4DIR and PKG_CONFIG_PATH
+qtEnv['ENV']['PKG_CONFIG_PATH'] = os.path.join(qtdir, 'lib/pkgconfig')
+qtEnv['QT4DIR'] = qtdir
+# Add qt4 tool
+qtEnv.Tool('qt4')
+#...further customization of qt env
+
+# Export environments
+Export('baseEnv qtEnv')
+
+# Your other stuff...
+# ...including the call to your SConscripts
+</screen>
+
+    <para>In a SConscript</para>
+
+    <screen># Get the Qt4 environment
+Import('qtEnv')
+# Clone it
+env = qtEnv.clone()
+# Patch it
+env.Append(CCFLAGS=['-m32']) # or whatever
+# Use it
+env.StaticLibrary('foo', Glob('*.cpp'))
+</screen>
+
+    <para>The detection of the Qt directory could be as simple as directly
+    assigning a fixed path</para>
+
+    <screen>def detectLatestQtDir():
+    return "/usr/local/qt4.3.2"
+</screen>
+
+    <para>or a little more sophisticated</para>
+
+    <screen># Tries to detect the path to the installation of Qt with
+# the highest version number
+def detectLatestQtDir():
+    if sys.platform.startswith("linux"):
+        # Simple check: inspect only '/usr/local/Trolltech'
+        paths = glob.glob('/usr/local/Trolltech/*')
+        if len(paths):
+            paths.sort()
+            return paths[-1]
+        else:
+            return ""
+    else:
+        # Simple check: inspect only 'C:\Qt'
+        paths = glob.glob('C:\\Qt\\*')
+        if len(paths):
+            paths.sort()
+            return paths[-1]
+        else:
+            return os.environ.get("QTDIR","")
+</screen>
+  </section>
+
+  <section id="firstproject">
+    <title>A first project</title>
+
+    <para>The following SConscript is for a simple project with some cxx
+    files, using the QtCore, QtGui and QtNetwork modules:</para>
+
+    <screen>Import('qtEnv')
+env = qtEnv.Clone()
+env.EnableQt4Modules([
+                      'QtGui',
+                      'QtCore',
+                      'QtNetwork'
+                     ])
+# Add your CCFLAGS and CPPPATHs to env here...
+
+env.Program('foo', Glob('*.cpp')) 
+</screen>
+  </section>
+
+  <section id="mocup">
+    <title>MOC it up</title>
+
+    <para>For the basic support of automocing, nothing needs to be done by the
+    user. The tool usually detects the <literal>Q_OBJECT</literal> macro and
+    calls the <quote><literal>moc</literal></quote> executable
+    accordingly.</para>
+
+    <para>If you don't want this, you can switch off the automocing by
+    a</para>
+
+    <screen>env['QT4_AUTOSCAN'] = 0
+</screen>
+
+    <para>in your SConscript file. Then, you have to moc your files
+    explicitly, using the Moc4 builder.</para>
+
+    <para>You can also switch to an extended automoc strategy with</para>
+
+    <screen>env['QT4_AUTOSCAN_STRATEGY'] = 1
+</screen>
+
+    <para>Please read the description of the
+    <literal>QT4_AUTOSCAN_STRATEGY</literal> variable in the Reference manual
+    for details.</para>
+
+    <para>For debugging purposes, you can set the variable
+    <literal>QT4_DEBUG</literal> with</para>
+
+    <screen>env['QT4_DEBUG'] = 1
+</screen>
+
+    <para>which outputs a lot of messages during automocing.</para>
+  </section>
+
+  <section id="forms">
+    <title>Forms (.ui)</title>
+
+    <para>The header files with setup code for your GUI classes, are not
+    compiled automatically from your <literal>.ui</literal> files. You always
+    have to call the Uic4 builder explicitly like</para>
+
+    <screen>env.Uic4(Glob('*.ui'))
+env.Program('foo', Glob('*.cpp'))
+</screen>
+  </section>
+
+  <section id="resources">
+    <title>Resource files (.qrc)</title>
+
+    <para>Resource files are not built automatically, you always have to add
+    the names of the <literal>.qrc</literal> files to the source list for your
+    program or library:</para>
+
+    <screen>env.Program('foo', Glob('*.cpp')+Glob('*.qrc'))
+</screen>
+
+    <para>For each of the Resource input files, its prefix defines the name of
+    the resulting resource. An appropriate
+    <quote><literal>-name</literal></quote> option is added to the call of the
+    <literal>rcc</literal> executable by default.</para>
+
+    <para>You can also call the Qrc4 builder explicitly as</para>
+
+    <screen>qrccc = env.Qrc4('foo') # ['foo.qrc'] -&gt; ['qrc_foo.cc']
+</screen>
+
+    <para>or (overriding the default suffix)</para>
+
+    <screen>qrccc = env.Qrc4('myprefix_foo.cxx','foo.qrc') # -&gt; ['qrc_myprefix_foo.cxx']
+</screen>
+
+    <para>and then add the resulting cxx file to the sources of your
+    Program/Library:</para>
+
+    <screen>env.Program('foo', Glob('*.cpp') + qrccc)
+</screen>
+  </section>
+
+  <section id="translation">
+    <title>Translation files</title>
+
+    <para>The update of the <literal>.ts</literal> files and the conversion to
+    binary <literal>.qm</literal> files is not done automatically. You have to
+    call the corresponding builders on your own.</para>
+
+    <para>Example for updating a translation file:</para>
+
+    <screen>env.Ts4('foo.ts','.') # -&gt; ['foo.ts']
+</screen>
+
+    <para>By default, the <literal>.ts</literal> files are treated as
+    <emphasis>precious</emphasis> targets. This means that they are not
+    removed prior to a rebuild, but simply get updated. Additionally, they do
+    not get cleaned on a <quote><literal>scons -c</literal></quote>. If you
+    want to delete the translation files on the
+    <quote><literal>-c</literal></quote> SCons command, you can set the
+    variable <quote><literal>QT4_CLEAN_TS</literal></quote> like this</para>
+
+    <screen>env['QT4_CLEAN_TS']=1
+</screen>
+
+    <para>Example for releasing a translation file, i.e. compiling it to a
+    <literal>.qm</literal> binary file:</para>
+
+    <screen>env.Qm4('foo') # ['foo.ts'] -&gt; ['foo.qm']
+</screen>
+
+    <para>or (overriding the output prefix)</para>
+
+    <screen>env.Qm4('myprefix','foo') # ['foo.ts'] -&gt; ['myprefix.qm']
+</screen>
+
+    <para>As an extension both, the Ts4() and Qm4 builder, support the
+    definition of multiple targets. So, calling</para>
+
+    <screen>env.Ts4(['app_en','app_de'], Glob('*.cpp'))
+</screen>
+
+    <para>and</para>
+
+    <screen>env.Qm4(['app','copy'], Glob('*.ts'))
+</screen>
+
+    <para>should work fine.</para>
+
+    <para>Finally, two short notes about the support of directories for the
+    Ts4() builder. You can pass an arbitrary mix of cxx files and subdirs to
+    it, as in</para>
+
+    <screen>env.Ts4('app_en',['sub1','appwindow.cpp','main.cpp']))
+</screen>
+
+    <para>where <literal>sub1</literal> is a folder that gets scanned
+    recursively for cxx files by <literal>lupdate</literal>. But like this,
+    you lose all dependency information for the subdir, i.e. if a file inside
+    the folder changes, the .ts file is not updated automatically! In this
+    case you should tell SCons to always update the target:</para>
+
+    <screen>ts = env.Ts4('app_en',['sub1','appwindow.cpp','main.cpp'])
+env.AlwaysBuild(ts)
+</screen>
+
+    <para>Last note: specifying the current folder
+    <quote><literal>.</literal></quote> as input to Ts4() and storing the
+    resulting .ts file in the same directory, leads to a dependency cycle! You
+    then have to store the .ts and .qm files outside of the current folder, or
+    use <literal>Glob('*.cpp'))</literal> instead.</para>
+  </section>
+</article>

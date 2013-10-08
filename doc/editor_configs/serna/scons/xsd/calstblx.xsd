@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ...................................................................... -->
+<!-- SCons DocBook V4.5-Based extension V1.0 XML CALS Table Model V4.5 .... -->
+<!-- File calstblx.xsd .................................................... -->
+
+<!-- Copyright (c) 2001-7,2010,2011,2012 The SCons Foundation
+
+     Permission is hereby granted, free of charge, to any person obtaining
+     a copy of this software and associated documentation files (the
+     "Software"), to deal in the Software without restriction, including
+     without limitation the rights to use, copy, modify, merge, publish,
+     distribute, sublicense, and/or sell copies of the Software, and to
+     permit persons to whom the Software is furnished to do so, subject to
+     the following conditions:
+
+     The above copyright notice and this permission notice shall be included
+     in all copies or substantial portions of the Software.
+
+     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+     KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+     LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+     OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+     WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+     This DTD extension is based on the DocBook CALS Table Model V4.5 with:
+     
+        Copyright 1992-2002 HaL Computer Systems, Inc.,
+        O'Reilly & Associates, Inc., ArborText, Inc., Fujitsu Software
+        Corporation, Norman Walsh, Sun Microsystems, Inc., and the
+        Organization for the Advancement of Structured Information
+        Standards (OASIS).
+  
+        This DTD is based on the CALS Table Model
+        PUBLIC "-//USA-DOD//DTD Table Model 951010//EN"
+  
+        $Id: calstblx.dtd 6340 2006-10-03 13:23:24Z nwalsh $
+
+     Please direct all questions, bug reports, or suggestions for
+     changes to the docbook@lists.oasis-open.org mailing list. For more
+     information, see http://www.oasis-open.org/docbook/.
+     For the modified SCons extension files
+     
+        scons.xsd, dbpoolx.xsd, 
+
+     you can write to its developer mailing list. Check out 
+     http://www.scons.org/ and http://www.scons.org/lists.php.
+ 
+-->
+<!-- ...................................................................... -->
+<!--
+  This module contains the definitions for the CALS Table Model
+  converted to XML. It has been modified slightly for use in the
+  combined HTML/CALS models supported by DocBook V4.5.
+-->
+<!--
+  These definitions are not directly related to the table model, but are
+  used in the default CALS table model and are usually defined elsewhere
+  (and prior to the inclusion of this table module) in a CALS DTD.
+-->
+<!--
+  no if zero(s),
+  yes if any other digits value
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+  <xs:simpleType name="yesorno">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  <xs:group name="titles">
+    <xs:sequence>
+      <xs:element minOccurs="0" ref="title"/>
+    </xs:sequence>
+  </xs:group>
+  <!-- default for use in entry content -->
+  <!--
+    The parameter entities as defined below provide the CALS table model
+    as published (as part of the Example DTD) in MIL-HDBK-28001.
+    
+    These following declarations provide the CALS-compliant default definitions
+    for these entities.  However, these entities can and should be redefined
+    (by giving the appropriate parameter entity declaration(s) prior to the
+    reference to this Table Model declaration set entity) to fit the needs
+    of the current application.
+  -->
+  <xs:group name="tbl.table-titles.mdl">
+    <xs:sequence>
+      <xs:group ref="titles"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="tbl.table-main.mdl">
+    <xs:choice>
+      <xs:element maxOccurs="unbounded" ref="tgroup"/>
+      <xs:element maxOccurs="unbounded" ref="graphic"/>
+    </xs:choice>
+  </xs:group>
+  <xs:complexType name="tbl.tgroup.mdl">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" ref="colspec"/>
+      <xs:element minOccurs="0" maxOccurs="unbounded" ref="spanspec"/>
+      <xs:element minOccurs="0" ref="thead"/>
+      <xs:element minOccurs="0" ref="tfoot"/>
+      <xs:element ref="tbody"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:attributeGroup name="tbl.tgroup.att">
+    <xs:attribute name="tgroupstyle"/>
+  </xs:attributeGroup>
+  <xs:complexType name="tbl.row.mdl">
+    <xs:choice maxOccurs="unbounded">
+      <xs:element ref="entry"/>
+      <xs:element ref="entrytbl"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="tbl.entrytbl.mdl">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" ref="colspec"/>
+      <xs:element minOccurs="0" maxOccurs="unbounded" ref="spanspec"/>
+      <xs:element minOccurs="0" ref="thead"/>
+      <xs:element ref="tbody"/>
+    </xs:sequence>
+  </xs:complexType>
+  <!-- =====  Element and attribute declarations follow. ===== -->
+  <!-- doc:A formal table in a document. -->
+  <xs:element name="table" substitutionGroup="formal.class">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="tbl.table.mdl">
+          <xs:attributeGroup ref="table.attlist"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="table.attlist">
+    <xs:attribute name="frame" type="tbl.frame.attval"/>
+    <xs:attribute name="colsep" type="yesorno"/>
+    <xs:attribute name="rowsep" type="yesorno"/>
+    <xs:attributeGroup ref="tbl.table.att"/>
+    <xs:attributeGroup ref="bodyatt"/>
+    <xs:attributeGroup ref="secur"/>
+  </xs:attributeGroup>
+  <!-- doc:A wrapper for the main content of a table, or part of a table. -->
+  <xs:element name="tgroup">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="tbl.tgroup.mdl">
+          <xs:attributeGroup ref="tgroup.attlist"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="tgroup.attlist">
+    <xs:attribute name="cols" use="required"/>
+    <xs:attributeGroup ref="tbl.tgroup.att"/>
+    <xs:attribute name="colsep" type="yesorno"/>
+    <xs:attribute name="rowsep" type="yesorno"/>
+    <xs:attribute name="align">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="left"/>
+          <xs:enumeration value="right"/>
+          <xs:enumeration value="center"/>
+          <xs:enumeration value="justify"/>
+          <xs:enumeration value="char"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="char"/>
+    <xs:attribute name="charoff"/>
+    <xs:attributeGroup ref="secur"/>
+  </xs:attributeGroup>
+  <!-- doc:Specifications for a column in a table. -->
+  <xs:element name="colspec">
+    <xs:complexType>
+      <xs:attributeGroup ref="colspec.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="colspec.attlist">
+    <xs:attribute name="colnum"/>
+    <xs:attribute name="colname"/>
+    <xs:attribute name="colwidth"/>
+    <xs:attribute name="colsep" type="yesorno"/>
+    <xs:attribute name="rowsep" type="yesorno"/>
+    <xs:attribute name="align">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="left"/>
+          <xs:enumeration value="right"/>
+          <xs:enumeration value="center"/>
+          <xs:enumeration value="justify"/>
+          <xs:enumeration value="char"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="char"/>
+    <xs:attribute name="charoff"/>
+  </xs:attributeGroup>
+  <!-- doc:Formatting information for a spanned column in a table. -->
+  <xs:element name="spanspec">
+    <xs:complexType>
+      <xs:attributeGroup ref="spanspec.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="spanspec.attlist">
+    <xs:attribute name="namest" use="required"/>
+    <xs:attribute name="nameend" use="required"/>
+    <xs:attribute name="spanname" use="required"/>
+    <xs:attribute name="colsep" type="yesorno"/>
+    <xs:attribute name="rowsep" type="yesorno"/>
+    <xs:attribute name="align">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="left"/>
+          <xs:enumeration value="right"/>
+          <xs:enumeration value="center"/>
+          <xs:enumeration value="justify"/>
+          <xs:enumeration value="char"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="char"/>
+    <xs:attribute name="charoff"/>
+  </xs:attributeGroup>
+  <!-- doc:A table header consisting of one or more rows. -->
+  <xs:element name="thead">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="tbl.hdft.mdl">
+          <xs:attributeGroup ref="thead.attlist"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="thead.attlist">
+    <xs:attribute name="valign">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="top"/>
+          <xs:enumeration value="middle"/>
+          <xs:enumeration value="bottom"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attributeGroup ref="secur"/>
+  </xs:attributeGroup>
+  <!-- doc:A table footer consisting of one or more rows. -->
+  <xs:element name="tfoot">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="tbl.hdft.mdl">
+          <xs:attributeGroup ref="tfoot.attlist"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="tfoot.attlist">
+    <xs:attribute name="valign">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="top"/>
+          <xs:enumeration value="middle"/>
+          <xs:enumeration value="bottom"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attributeGroup ref="secur"/>
+  </xs:attributeGroup>
+  <!-- doc:A wrapper for the rows of a table or informal table. -->
+  <xs:element name="tbody">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="tbl.tbody.mdl">
+          <xs:attributeGroup ref="tbody.attlist"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="tbody.attlist">
+    <xs:attribute name="valign">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="top"/>
+          <xs:enumeration value="middle"/>
+          <xs:enumeration value="bottom"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attributeGroup ref="secur"/>
+  </xs:attributeGroup>
+  <!-- doc:A row in a table. -->
+  <xs:element name="row">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="tbl.row.mdl">
+          <xs:attributeGroup ref="row.attlist"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="row.attlist">
+    <xs:attribute name="rowsep" type="yesorno"/>
+    <xs:attribute name="valign">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="top"/>
+          <xs:enumeration value="middle"/>
+          <xs:enumeration value="bottom"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attributeGroup ref="secur"/>
+  </xs:attributeGroup>
+  <!-- doc:A subtable appearing in place of an Entry in a table. -->
+  <xs:element name="entrytbl">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="tbl.entrytbl.mdl">
+          <xs:attributeGroup ref="entrytbl.attlist"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="entrytbl.attlist">
+    <xs:attribute name="cols" use="required"/>
+    <xs:attributeGroup ref="tbl.tgroup.att"/>
+    <xs:attribute name="colname"/>
+    <xs:attribute name="spanname"/>
+    <xs:attribute name="namest"/>
+    <xs:attribute name="nameend"/>
+    <xs:attribute name="colsep" type="yesorno"/>
+    <xs:attribute name="rowsep" type="yesorno"/>
+    <xs:attribute name="align">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="left"/>
+          <xs:enumeration value="right"/>
+          <xs:enumeration value="center"/>
+          <xs:enumeration value="justify"/>
+          <xs:enumeration value="char"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="char"/>
+    <xs:attribute name="charoff"/>
+    <xs:attributeGroup ref="secur"/>
+  </xs:attributeGroup>
+  <!-- doc:A cell in a table. -->
+  <xs:element name="entry">
+    <xs:complexType mixed="true">
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="tbl.entry.mdl"/>
+      <xs:attributeGroup ref="entry.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="entry.attlist">
+    <xs:attribute name="colname"/>
+    <xs:attribute name="namest"/>
+    <xs:attribute name="nameend"/>
+    <xs:attribute name="spanname"/>
+    <xs:attribute name="morerows"/>
+    <xs:attribute name="colsep" type="yesorno"/>
+    <xs:attribute name="rowsep" type="yesorno"/>
+    <xs:attribute name="align">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="left"/>
+          <xs:enumeration value="right"/>
+          <xs:enumeration value="center"/>
+          <xs:enumeration value="justify"/>
+          <xs:enumeration value="char"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="char"/>
+    <xs:attribute name="charoff"/>
+    <xs:attribute name="rotate" type="yesorno"/>
+    <xs:attribute name="valign">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="top"/>
+          <xs:enumeration value="middle"/>
+          <xs:enumeration value="bottom"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attributeGroup ref="secur"/>
+  </xs:attributeGroup>
+</xs:schema>
+<!-- End of SCons DocBook V4.5-Based extension V1.0 XML CALS Table Model V4.5 ... -->
+<!-- ............................................................................ -->

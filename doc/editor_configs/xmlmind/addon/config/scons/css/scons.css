@@ -1,0 +1,17 @@
+/*
+ * Copyright (c) 2003-2008 Pixware. 
+ *
+ * This file is part of the XMLmind XML Editor project.
+ * For conditions of distribution and use, see the accompanying legal.txt file.
+ *
+ * A CSS style sheet for DocBook V4.5.
+ */
+
+@import "docbook1.imp";
+@import "refentry.imp";
+@import "docbook2.imp";
+@import "html_cals_table.imp";
+@import "image.imp";
+@import "collapsible.imp";
+@import "print.imp";
+
