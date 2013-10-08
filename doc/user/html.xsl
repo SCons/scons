@@ -51,5 +51,9 @@ reference toc,title
 set       toc,title
 </xsl:param>
 
+<!-- Prevent our EPUB cover image from getting included -->
+<xsl:template match="mediaobject[@role = 'cover']">
+</xsl:template>
+
 </xsl:stylesheet> 
 

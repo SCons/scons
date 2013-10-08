@@ -85,6 +85,7 @@
     
     <releaseinfo>version &buildversion;</releaseinfo>
 
+    <mediaobject role="cover"><imageobject><imagedata fileref="cover.jpg" format="JPG"/></imageobject></mediaobject>
   </bookinfo>
 
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="preface.xml"/>

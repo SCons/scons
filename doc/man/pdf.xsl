@@ -67,5 +67,8 @@ set       toc,title
   <xsl:apply-templates select="." mode="vl.as.blocks"/>
 </xsl:template>
 
-</xsl:stylesheet> 
+<!-- Prevent our EPUB cover image from getting printed to the PDF -->
+<xsl:template match="mediaobject[@role = 'cover']">
+</xsl:template>
 
+</xsl:stylesheet> 

@@ -5,8 +5,9 @@ scons.xml
 sconsign.xml
 scons-time.xml
 *.xsl
-scons.css
+*.css
 SConstruct
+cover.jpg
 titlepage/bricks.jpg
 titlepage/mapnik_final_colors.svg
 titlepage/SCons_path.svg
