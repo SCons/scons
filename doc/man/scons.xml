@@ -671,8 +671,9 @@ directory.</para>
   <term>--debug=<emphasis>type</emphasis></term>
   <listitem>
 <para>Debug the build process.
-<emphasis>type</emphasis>
-specifies what type of debugging:</para>
+<emphasis>type[,type...]</emphasis>
+specifies what type of debugging. Multiple types may be specified,
+separated by commas. The following types are valid:</para>
 
   </listitem>
   </varlistentry>
