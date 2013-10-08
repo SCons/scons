@@ -216,8 +216,10 @@ See &t-link-msginit; tool and &b-link-POInit; builder.
 Internal ``macro''. Computes locale (language) name based on target filename
 (default: <literal>'${TARGET.filebase}' </literal>).
 </para>
-</summary>
+<para>
 See &t-link-msginit; tool and &b-link-POInit; builder.
+</para>
+</summary>
 </cvar>
 
 </sconsdoc>
