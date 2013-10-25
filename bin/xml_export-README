@@ -1,0 +1,56 @@
+This copy of xml_export was snarfed from adocman-0.10 from SourceForge.
+We're checking in a copy as a convenience for any future SCons project
+administrator who may need to download exported XML data.  The original,
+unmodified contents of the README file for that release of adocman are
+as follows:
+
+
+adocman - Automation tool for SourceForge.net DocManager handling
+Copyright (C) 2002 Open Source Development Network, Inc. ("OSDN")
+
+
+File manifest:
+
+Alexandria	perl-based API for performing operations against the
+		SourceForge.net site, currently including basic Client
+		operations (i.e. login/logout) and DocManager operations
+
+adocman		The adocman program, providing the means to perform
+		DocManager operations from the command-line or scripts
+		(by project developers or admins listed as DocManager Editors)
+
+xml_export	The xml_export program, providing the means to automate
+		downloads of data from the XML data export facility
+		on SourceForge.net (by project administrators)
+
+adocman.html	Manual for adocman, including background information,
+		command-line options detail, etc.
+
+xml_export.html	Manual for xml_export, including basic info about
+		command-line options.  See adocman.html for additional
+		information.
+
+LICENSE		License terms for adocman
+
+README		This file
+
+TODO		List of ongoing work in improving adocman.  NOTE:
+		Please contact the maintainer before starting any effort
+		to improve this code.  We have significantly modified
+		the structure and design of this program for the next
+		release; structure and command-line interface are subject
+		to change without notice.
+
+A list of the prerequisites required to execute 'adocman' may be found
+at in the PREREQUISITES section of the adocman manual (adocman.html).
+Though not listed, a recent installation of 'perl' is also a prerequisite.
+
+Support for this program may be obtained as per the SUPPORT AND BUGS
+section of the adocman.html manual.  Any questions or concerns regarding
+this software should be escalated as per the SUPPORT AND BUGS section
+of the provided manual.
+
+The authoritative source of this software is:
+  https://sourceforge.net/projects/sitedocs
+
+
