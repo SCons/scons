@@ -35,6 +35,10 @@ import sys
 import time
 import weakref
 
+# Global variable that gets set to 'True' by the Main script,
+# when the creation of class instances should get tracked.
+track_instances = False
+# List of currently tracked classes
 tracked_classes = {}
 
 def logInstanceCreation(instance, name=None):

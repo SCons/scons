@@ -30,6 +30,8 @@ RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From Dirk Baechle:
     - Update bootstrap.py so it can be used from any dir, to run
       SCons from a source (non-installed) dir.
+    - Count statistics of instances are now collected only when
+      the --debug=count command-line option is used (#2922).
 
   From Gary Oberbrunner:
     - Test harness: fail_test() can now print a message to help debugging.

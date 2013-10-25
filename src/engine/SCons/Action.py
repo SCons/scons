@@ -109,6 +109,7 @@ import re
 import sys
 import subprocess
 
+import SCons.Debug
 from SCons.Debug import logInstanceCreation
 import SCons.Errors
 import SCons.Executor
@@ -698,7 +699,7 @@ class CommandAction(_ActionAction):
         # factory above does).  cmd will be passed to
         # Environment.subst_list() for substituting environment
         # variables.
-        if __debug__: logInstanceCreation(self, 'Action.CommandAction')
+        if SCons.Debug.track_instances: logInstanceCreation(self, 'Action.CommandAction')
 
         _ActionAction.__init__(self, **kw)
         if is_List(cmd):
@@ -855,7 +856,7 @@ class CommandAction(_ActionAction):
 class CommandGeneratorAction(ActionBase):
     """Class for command-generator actions."""
     def __init__(self, generator, kw):
-        if __debug__: logInstanceCreation(self, 'Action.CommandGeneratorAction')
+        if SCons.Debug.track_instances: logInstanceCreation(self, 'Action.CommandGeneratorAction')
         self.generator = generator
         self.gen_kw = kw
         self.varlist = kw.get('varlist', ())
@@ -944,7 +945,7 @@ class CommandGeneratorAction(ActionBase):
 class LazyAction(CommandGeneratorAction, CommandAction):
 
     def __init__(self, var, kw):
-        if __debug__: logInstanceCreation(self, 'Action.LazyAction')
+        if SCons.Debug.track_instances: logInstanceCreation(self, 'Action.LazyAction')
         #FUTURE CommandAction.__init__(self, '${'+var+'}', **kw)
         CommandAction.__init__(self, '${'+var+'}', **kw)
         self.var = SCons.Util.to_String(var)
@@ -986,7 +987,7 @@ class FunctionAction(_ActionAction):
     """Class for Python function actions."""
 
     def __init__(self, execfunction, kw):
-        if __debug__: logInstanceCreation(self, 'Action.FunctionAction')
+        if SCons.Debug.track_instances: logInstanceCreation(self, 'Action.FunctionAction')
 
         self.execfunction = execfunction
         try:
@@ -1108,7 +1109,7 @@ class FunctionAction(_ActionAction):
 class ListAction(ActionBase):
     """Class for lists of other actions."""
     def __init__(self, actionlist):
-        if __debug__: logInstanceCreation(self, 'Action.ListAction')
+        if SCons.Debug.track_instances: logInstanceCreation(self, 'Action.ListAction')
         def list_of_actions(x):
             if isinstance(x, ActionBase):
                 return x
