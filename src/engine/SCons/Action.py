@@ -439,7 +439,8 @@ class ActionBase(object):
         vl = self.get_varlist(target, source, env)
         if is_String(vl): vl = (vl,)
         for v in vl:
-            result.append(env.subst('${'+v+'}'))
+            # do the subst this way to ignore $(...$) parts:
+            result.append(env.subst_target_source('${'+v+'}', SCons.Subst.SUBST_SIG, target, source))
         return ''.join(result)
 
     def __add__(self, other):
