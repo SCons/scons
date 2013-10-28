@@ -364,8 +364,12 @@ symlinks for the platform we are on"""
                 print "VerShLib: made sym link of %s -> %s" % (linkname, lib_ver)
     return result
 
-# Fix http://scons.tigris.org/issues/show_bug.cgi?id=2903 : 
-# varlist=['$SHLINKCOM']: ensure we still depend on SCons.Defaults.ShLinkAction command line which is $SHLINKCOM 
+# Fix http://scons.tigris.org/issues/show_bug.cgi?id=2903 :
+# Ensure we still depend on SCons.Defaults.ShLinkAction command line which is $SHLINKCOM.
+# This was tricky because we don't want changing LIBPATH to cause a rebuild, but
+# changing other link args should.  LIBPATH has $( ... $) around it but until this
+# fix, when the varlist was added to the build sig those ignored parts weren't getting
+# ignored.
 ShLibAction = SCons.Action.Action(VersionedSharedLibrary, None, varlist=['SHLINKCOM'])
 
 def createSharedLibBuilder(env):

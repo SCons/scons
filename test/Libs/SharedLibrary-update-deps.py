@@ -26,18 +26,20 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test that SharedLibrary() updates when a different lib is linked, even if it has the same md5.
-This is Tigris bug #2909.
+This is Tigris bug #2903.
 """
 
+import sys
 import os.path
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.dir_fixture( "bug2909" )
+test.dir_fixture( "bug2903" )
 
 # Build the sub-libs (don't care about details of this)
 test.run(arguments='-f SConstruct-libs')
+
 # This should build the main lib, using libfoo.so
 test.run(arguments='libname=foo')
 # This should rebuild the main lib, using libbar.so;
@@ -47,6 +49,17 @@ test.must_not_contain_any_line(test.stdout(), ["is up to date"])
 # Try it again, in reverse, to make sure:
 test.run(arguments='libname=foo')
 test.must_not_contain_any_line(test.stdout(), ["is up to date"])
+
+# Now try changing the link command line (in an innocuous way); should rebuild.
+if sys.platform == 'win32':
+    extraflags='shlinkflags=/DEBUG'
+else:
+    extraflags='shlinkflags=-g'
+
+test.run(arguments=['libname=foo', extraflags])
+test.must_not_contain_any_line(test.stdout(), ["is up to date"])
+test.run(arguments=['libname=foo', extraflags])
+test.must_contain_all_lines(test.stdout(), ["is up to date"])
 
 test.pass_test()
 

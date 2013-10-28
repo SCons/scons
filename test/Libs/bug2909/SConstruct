@@ -1,3 +1,0 @@
-env=Environment()
-libname=ARGUMENTS.get('libname', 'foo')
-env.SharedLibrary('myshared', ['main.c'], LIBS=[libname], LIBPATH='.')
