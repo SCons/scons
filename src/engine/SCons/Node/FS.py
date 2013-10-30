@@ -44,6 +44,7 @@ import time
 import codecs
 
 import SCons.Action
+import SCons.Debug
 from SCons.Debug import logInstanceCreation
 import SCons.Errors
 import SCons.Memoize
@@ -581,7 +582,7 @@ class Base(SCons.Node.Node):
         our relative and absolute paths, identify our parent
         directory, and indicate that this node should use
         signatures."""
-        if __debug__: logInstanceCreation(self, 'Node.FS.Base')
+        if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS.Base')
         SCons.Node.Node.__init__(self)
 
         # Filenames and paths are probably reused and are intern'ed to
@@ -1111,7 +1112,7 @@ class FS(LocalFS):
 
         The path argument must be a valid absolute path.
         """
-        if __debug__: logInstanceCreation(self, 'Node.FS')
+        if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS')
 
         self._memo = {}
 
@@ -1445,7 +1446,7 @@ class Dir(Base):
     BuildInfo = DirBuildInfo
 
     def __init__(self, name, directory, fs):
-        if __debug__: logInstanceCreation(self, 'Node.FS.Dir')
+        if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS.Dir')
         Base.__init__(self, name, directory, fs)
         self._morph()
 
@@ -2113,7 +2114,7 @@ class RootDir(Dir):
     this directory.
     """
     def __init__(self, drive, fs):
-        if __debug__: logInstanceCreation(self, 'Node.FS.RootDir')
+        if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS.RootDir')
         # We're going to be our own parent directory (".." entry and .dir
         # attribute) so we have to set up some values so Base.__init__()
         # won't gag won't it calls some of our methods.
@@ -2361,7 +2362,7 @@ class File(Base):
                         "Directory %s found where file expected.")
 
     def __init__(self, name, directory, fs):
-        if __debug__: logInstanceCreation(self, 'Node.FS.File')
+        if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS.File')
         Base.__init__(self, name, directory, fs)
         self._morph()
 

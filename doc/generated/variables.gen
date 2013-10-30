@@ -7352,6 +7352,28 @@ General options passed to the zip utility.
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-ZIPROOT">
+    <term>ZIPROOT</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+An optional zip root directory (default empty).  The filenames stored
+in the zip file will be relative to this directory, if given.
+Otherwise the filenames are relative to the current directory of the
+command.
+For instance:
+</para>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
+env = Environment()
+env.Zip('foo.zip', 'subdir1/subdir2/file1', ZIPROOT='subdir1')
+</example_commands>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+will produce a zip file <literal>foo.zip</literal>
+containing a file with the name
+<literal>subdir2/file1</literal> rather than
+<literal>subdir1/subdir2/file1</literal>.
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-ZIPSUFFIX">
     <term>ZIPSUFFIX</term>
     <listitem>

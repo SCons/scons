@@ -490,10 +490,10 @@ environment, of directory names, suffixes, etc.
 
    <scons_example name="environments_ex1">
      <file name="SConstruct" printme="1">
-     import os
+import os
      </file>
      <file name="foo.c">
-    int main() { }
+int main() { }
      </file>
    </scons_example>
 
@@ -546,7 +546,7 @@ environment, of directory names, suffixes, etc.
       </para>
 
        <sconstruct>
-         env = Environment()
+env = Environment()
        </sconstruct>
 
       <para>
@@ -579,13 +579,13 @@ environment, of directory names, suffixes, etc.
 
        <scons_example name="environments_ex1">
          <file name="SConstruct" printme="1">
-         env = Environment(CC = 'gcc',
-                           CCFLAGS = '-O2')
+ env = Environment(CC = 'gcc',
+                   CCFLAGS = '-O2')
 
-         env.Program('foo.c')
+ env.Program('foo.c')
          </file>
          <file name="foo.c">
-        int main() { }
+int main() { }
          </file>
        </scons_example>
 
@@ -626,8 +626,8 @@ environment, of directory names, suffixes, etc.
 
       <scons_example name="environments_ex6">
         <file name="SConstruct" printme="1">
-         env = Environment()
-         print "CC is:", env['CC']
+env = Environment()
+print "CC is:", env['CC']
         </file>
       </scons_example>
 
@@ -655,10 +655,10 @@ environment, of directory names, suffixes, etc.
 
       <scons_example name="environments_ex6b">
          <file name="SConstruct" printme="1">
-         env = Environment(FOO = 'foo', BAR = 'bar')
-         dict = env.Dictionary()
-         for key in ['OBJSUFFIX', 'LIBSUFFIX', 'PROGSUFFIX']:
-             print "key = %s, value = %s" % (key, dict[key])
+env = Environment(FOO = 'foo', BAR = 'bar')
+dict = env.Dictionary()
+for key in ['OBJSUFFIX', 'LIBSUFFIX', 'PROGSUFFIX']:
+    print "key = %s, value = %s" % (key, dict[key])
          </file>
       </scons_example>
 
@@ -693,9 +693,9 @@ environment, of directory names, suffixes, etc.
       </para>
 
       <sconstruct>
-         env = Environment()
-         for item in sorted(env.Dictionary().items()):
-             print "construction variable = '%s', value = '%s'" % item
+env = Environment()
+for item in sorted(env.Dictionary().items()):
+    print "construction variable = '%s', value = '%s'" % item
       </sconstruct>
 
     </section>
@@ -720,8 +720,8 @@ environment, of directory names, suffixes, etc.
       </para>
 
       <sconstruct>
-        env = Environment()
-        print "CC is:", env.subst('$CC')
+env = Environment()
+print "CC is:", env.subst('$CC')
       </sconstruct>
 
       <para>
@@ -737,8 +737,8 @@ environment, of directory names, suffixes, etc.
       </para>
 
       <sconstruct>
-        env = Environment(CCFLAGS = '-DFOO')
-        print "CCCOM is:", env['CCCOM']
+env = Environment(CCFLAGS = '-DFOO')
+print "CCCOM is:", env['CCCOM']
       </sconstruct>
 
       <para>
@@ -750,9 +750,9 @@ environment, of directory names, suffixes, etc.
       </para>
 
       <screen>
-        % <userinput>scons -Q</userinput>
-        CCCOM is: $CC $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES
-        scons: `.' is up to date.
+% <userinput>scons -Q</userinput>
+CCCOM is: $CC $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES
+scons: `.' is up to date.
       </screen>
 
       <para>
@@ -763,8 +763,8 @@ environment, of directory names, suffixes, etc.
       </para>
 
       <sconstruct>
-        env = Environment(CCFLAGS = '-DFOO')
-        print "CCCOM is:", env.subst('$CCCOM')
+env = Environment(CCFLAGS = '-DFOO')
+print "CCCOM is:", env.subst('$CCCOM')
       </sconstruct>
 
       <para>
@@ -777,9 +777,9 @@ environment, of directory names, suffixes, etc.
       </para>
 
       <screen>
-        % <userinput>scons -Q</userinput>
-        CCCOM is: gcc -DFOO -c -o
-        scons: `.' is up to date.
+% <userinput>scons -Q</userinput>
+CCCOM is: gcc -DFOO -c -o
+scons: `.' is up to date.
       </screen>
 
       <para>
@@ -805,8 +805,8 @@ environment, of directory names, suffixes, etc.
 
        <scons_example name="environments_missing1">
          <file name="SConstruct" printme="1">
-          env = Environment()
-          print "value is:", env.subst( '->$MISSING&lt;-' )
+env = Environment()
+print "value is:", env.subst( '->$MISSING&lt;-' )
         </file>
       </scons_example>
 
@@ -832,9 +832,9 @@ environment, of directory names, suffixes, etc.
 
        <scons_example name="environments_missing2">
          <file name="SConstruct" printme="1">
-          AllowSubstExceptions()
-          env = Environment()
-          print "value is:", env.subst( '->$MISSING&lt;-' )
+AllowSubstExceptions()
+env = Environment()
+print "value is:", env.subst( '->$MISSING&lt;-' )
         </file>
       </scons_example>
 
@@ -852,17 +852,15 @@ environment, of directory names, suffixes, etc.
 
        <scons_example name="environments_missing3">
          <file name="SConstruct" printme="1">
-          AllowSubstExceptions(IndexError, NameError, ZeroDivisionError)
-          env = Environment()
-          print "value is:", env.subst( '->${1 / 0}&lt;-' )
+AllowSubstExceptions(IndexError, NameError, ZeroDivisionError)
+env = Environment()
+print "value is:", env.subst( '->${1 / 0}&lt;-' )
         </file>
       </scons_example>
 
        <scons_output example="environments_missing3" suffix="1">
           <scons_output_command>scons -Q</scons_output_command>
        </scons_output>
-      <sconstruct>
-      </sconstruct>
 
       <para>
       If &AllowSubstExceptions; is called multiple times, each call
@@ -903,9 +901,7 @@ environment, of directory names, suffixes, etc.
       </para>
 
       <sconstruct>
-
-      DefaultEnvironment(CC = '/usr/local/bin/gcc')
-
+DefaultEnvironment(CC = '/usr/local/bin/gcc')
       </sconstruct>
 
       <para>
@@ -937,10 +933,8 @@ environment, of directory names, suffixes, etc.
       </para>
 
       <sconstruct>
-
-      env = DefaultEnvironment()
-      env['CC'] = '/usr/local/bin/gcc'
-
+env = DefaultEnvironment()
+env['CC'] = '/usr/local/bin/gcc'
       </sconstruct>
 
       <para>
@@ -966,10 +960,8 @@ environment, of directory names, suffixes, etc.
       </para>
 
       <sconstruct>
-
-      env = DefaultEnvironment(tools = ['gcc', 'gnulink'],
-                               CC = '/usr/local/bin/gcc')
-
+env = DefaultEnvironment(tools = ['gcc', 'gnulink'],
+                         CC = '/usr/local/bin/gcc')
       </sconstruct>
 
       <para>
@@ -1005,18 +997,18 @@ environment, of directory names, suffixes, etc.
 
       <scons_example name="environments_ex2">
         <file name="SConstruct" printme="1">
-         opt = Environment(CCFLAGS = '-O2')
-         dbg = Environment(CCFLAGS = '-g')
+opt = Environment(CCFLAGS = '-O2')
+dbg = Environment(CCFLAGS = '-g')
 
-         opt.Program('foo', 'foo.c')
+opt.Program('foo', 'foo.c')
 
-         dbg.Program('bar', 'bar.c')
+dbg.Program('bar', 'bar.c')
         </file>
         <file name="foo.c">
-        int main() { }
+int main() { }
         </file>
         <file name="bar.c">
-        int main() { }
+int main() { }
         </file>
       </scons_example>
 
@@ -1036,15 +1028,15 @@ environment, of directory names, suffixes, etc.
 
       <scons_example name="environments_ex3">
         <file name="SConstruct" printme="1">
-         opt = Environment(CCFLAGS = '-O2')
-         dbg = Environment(CCFLAGS = '-g')
+opt = Environment(CCFLAGS = '-O2')
+dbg = Environment(CCFLAGS = '-g')
 
-         opt.Program('foo', 'foo.c')
+opt.Program('foo', 'foo.c')
 
-         dbg.Program('foo', 'foo.c')
+dbg.Program('foo', 'foo.c')
         </file>
         <file name="foo.c">
-        int main() { }
+int main() { }
         </file>
       </scons_example>
 
@@ -1081,17 +1073,17 @@ environment, of directory names, suffixes, etc.
 
       <scons_example name="environments_ex4">
         <file name="SConstruct" printme="1">
-         opt = Environment(CCFLAGS = '-O2')
-         dbg = Environment(CCFLAGS = '-g')
+opt = Environment(CCFLAGS = '-O2')
+dbg = Environment(CCFLAGS = '-g')
 
-         o = opt.Object('foo-opt', 'foo.c')
-         opt.Program(o)
+o = opt.Object('foo-opt', 'foo.c')
+opt.Program(o)
 
-         d = dbg.Object('foo-dbg', 'foo.c')
-         dbg.Program(d)
+d = dbg.Object('foo-dbg', 'foo.c')
+dbg.Program(d)
         </file>
         <file name="foo.c">
-        int main() { }
+int main() { }
         </file>
       </scons_example>
 
@@ -1149,20 +1141,20 @@ environment, of directory names, suffixes, etc.
 
       <scons_example name="environments_ex5">
         <file name="SConstruct" printme="1">
-         env = Environment(CC = 'gcc')
-         opt = env.Clone(CCFLAGS = '-O2')
-         dbg = env.Clone(CCFLAGS = '-g')
+env = Environment(CC = 'gcc')
+opt = env.Clone(CCFLAGS = '-O2')
+dbg = env.Clone(CCFLAGS = '-g')
 
-         env.Program('foo', 'foo.c')
+env.Program('foo', 'foo.c')
 
-         o = opt.Object('foo-opt', 'foo.c')
-         opt.Program(o)
+o = opt.Object('foo-opt', 'foo.c')
+opt.Program(o)
 
-         d = dbg.Object('foo-dbg', 'foo.c')
-         dbg.Program(d)
+d = dbg.Object('foo-dbg', 'foo.c')
+dbg.Program(d)
         </file>
         <file name="foo.c">
-        int main() { }
+int main() { }
         </file>
       </scons_example>
 
@@ -1190,12 +1182,12 @@ environment, of directory names, suffixes, etc.
 
       <scons_example name="environments_Replace1">
         <file name="SConstruct" printme="1">
-         env = Environment(CCFLAGS = '-DDEFINE1')
-         env.Replace(CCFLAGS = '-DDEFINE2')
-         env.Program('foo.c')
+env = Environment(CCFLAGS = '-DDEFINE1')
+env.Replace(CCFLAGS = '-DDEFINE2')
+env.Program('foo.c')
         </file>
         <file name="foo.c">
-        int main() { }
+int main() { }
         </file>
       </scons_example>
 
@@ -1222,9 +1214,9 @@ environment, of directory names, suffixes, etc.
 
       <scons_example name="environments_Replace-nonexistent">
         <file name="SConstruct" printme="1">
-         env = Environment()
-         env.Replace(NEW_VARIABLE = 'xyzzy')
-         print "NEW_VARIABLE =", env['NEW_VARIABLE']
+env = Environment()
+env.Replace(NEW_VARIABLE = 'xyzzy')
+print "NEW_VARIABLE =", env['NEW_VARIABLE']
         </file>
       </scons_example>
 
@@ -1258,19 +1250,19 @@ environment, of directory names, suffixes, etc.
 
       <scons_example name="environments_Replace2">
         <file name="SConstruct" printme="1">
-         env = Environment(CCFLAGS = '-DDEFINE1')
-         print "CCFLAGS =", env['CCFLAGS']
-         env.Program('foo.c')
+env = Environment(CCFLAGS = '-DDEFINE1')
+print "CCFLAGS =", env['CCFLAGS']
+env.Program('foo.c')
 
-         env.Replace(CCFLAGS = '-DDEFINE2')
-         print "CCFLAGS =", env['CCFLAGS']
-         env.Program('bar.c')
+env.Replace(CCFLAGS = '-DDEFINE2')
+print "CCFLAGS =", env['CCFLAGS']
+env.Program('bar.c')
         </file>
         <file name="foo.c">
-        int main() { }
+int main() { }
         </file>
         <file name="bar.c">
-        int main() { }
+int main() { }
         </file>
       </scons_example>
 
@@ -1321,7 +1313,7 @@ environment, of directory names, suffixes, etc.
       </para>
 
       <sconstruct>
-      env.SetDefault(SPECIAL_FLAG = '-extra-option')
+env.SetDefault(SPECIAL_FLAG = '-extra-option')
       </sconstruct>
 
       <para>
@@ -1352,12 +1344,12 @@ environment, of directory names, suffixes, etc.
 
       <scons_example name="environments_ex8">
         <file name="SConstruct" printme="1">
-         env = Environment(CCFLAGS = ['-DMY_VALUE'])
-         env.Append(CCFLAGS = ['-DLAST'])
-         env.Program('foo.c')
+env = Environment(CCFLAGS = ['-DMY_VALUE'])
+env.Append(CCFLAGS = ['-DLAST'])
+env.Program('foo.c')
         </file>
         <file name="foo.c">
-        int main() { }
+int main() { }
         </file>
       </scons_example>
 
@@ -1381,9 +1373,9 @@ environment, of directory names, suffixes, etc.
 
       <scons_example name="environments_Append-nonexistent">
         <file name="SConstruct" printme="1">
-         env = Environment()
-         env.Append(NEW_VARIABLE = 'added')
-         print "NEW_VARIABLE =", env['NEW_VARIABLE']
+env = Environment()
+env.Append(NEW_VARIABLE = 'added')
+print "NEW_VARIABLE =", env['NEW_VARIABLE']
         </file>
       </scons_example>
 
@@ -1425,7 +1417,7 @@ environment, of directory names, suffixes, etc.
       </para>
 
       <sconstruct>
-      env.AppendUnique(CCFLAGS=['-g'])
+env.AppendUnique(CCFLAGS=['-g'])
       </sconstruct>
 
       <para>
@@ -1452,12 +1444,12 @@ environment, of directory names, suffixes, etc.
 
       <scons_example name="environments_ex9">
         <file name="SConstruct" printme="1">
-         env = Environment(CCFLAGS = ['-DMY_VALUE'])
-         env.Prepend(CCFLAGS = ['-DFIRST'])
-         env.Program('foo.c')
+env = Environment(CCFLAGS = ['-DMY_VALUE'])
+env.Prepend(CCFLAGS = ['-DFIRST'])
+env.Program('foo.c')
         </file>
         <file name="foo.c">
-        int main() { }
+int main() { }
         </file>
       </scons_example>
 
@@ -1481,9 +1473,9 @@ environment, of directory names, suffixes, etc.
 
       <scons_example name="environments_Prepend-nonexistent">
         <file name="SConstruct" printme="1">
-         env = Environment()
-         env.Prepend(NEW_VARIABLE = 'added')
-         print "NEW_VARIABLE =", env['NEW_VARIABLE']
+env = Environment()
+env.Prepend(NEW_VARIABLE = 'added')
+print "NEW_VARIABLE =", env['NEW_VARIABLE']
         </file>
       </scons_example>
 
@@ -1527,7 +1519,7 @@ environment, of directory names, suffixes, etc.
       </para>
 
       <sconstruct>
-      env.PrependUnique(CCFLAGS=['-g'])
+env.PrependUnique(CCFLAGS=['-g'])
       </sconstruct>
 
       <para>
@@ -1598,8 +1590,8 @@ environment, of directory names, suffixes, etc.
     </para>
 
     <sconstruct>
-      path = ['/usr/local/bin', '/bin', '/usr/bin']
-      env = Environment(ENV = {'PATH' : path})
+path = ['/usr/local/bin', '/bin', '/usr/bin']
+env = Environment(ENV = {'PATH' : path})
     </sconstruct>
 
     <para>
@@ -1618,7 +1610,7 @@ environment, of directory names, suffixes, etc.
     </para>
 
     <sconstruct>
-      env['ENV']['PATH'] = ['/usr/local/bin', '/bin', '/usr/bin']
+env['ENV']['PATH'] = ['/usr/local/bin', '/bin', '/usr/bin']
     </sconstruct>
 
     <para>
@@ -1631,7 +1623,7 @@ environment, of directory names, suffixes, etc.
     </para>
 
     <sconstruct>
-      env['ENV']['PATH'] = '/usr/local/bin:/bin:/usr/bin'
+env['ENV']['PATH'] = '/usr/local/bin:/bin:/usr/bin'
     </sconstruct>
 
     <para>
@@ -1646,19 +1638,19 @@ environment, of directory names, suffixes, etc.
 
     <scons_example name="environments_ex1">
       <file name="SConstruct" printme="1">
-      env = Environment()
-      env.Command('foo', [], '__ROOT__/usr/bin/printenv.py')
+env = Environment()
+env.Command('foo', [], '__ROOT__/usr/bin/printenv.py')
       </file>
       <file name="__ROOT__/usr/bin/printenv.py" chmod="0755">
-      #!/usr/bin/env python
-      import os
-      import sys
-      if len(sys.argv) &gt; 1:
-          keys = sys.argv[1:]
-      else:
-          keys = sorted(os.environ.keys())
-      for key in keys:
-          print "    " + key + "=" + os.environ[key]
+#!/usr/bin/env python
+import os
+import sys
+if len(sys.argv) &gt; 1:
+    keys = sys.argv[1:]
+else:
+    keys = sorted(os.environ.keys())
+for key in keys:
+    print "    " + key + "=" + os.environ[key]
       </file>
     </scons_example>
 
@@ -1689,8 +1681,8 @@ environment, of directory names, suffixes, etc.
       </para>
 
       <sconstruct>
-        import os
-        env = Environment(ENV = {'PATH' : os.environ['PATH']})
+import os
+env = Environment(ENV = {'PATH' : os.environ['PATH']})
       </sconstruct>
 
       <para>
@@ -1705,8 +1697,8 @@ environment, of directory names, suffixes, etc.
       </para>
 
       <sconstruct>
-        import os
-        env = Environment(ENV = os.environ)
+import os
+env = Environment(ENV = os.environ)
       </sconstruct>
 
       <para>
@@ -1752,9 +1744,9 @@ environment, of directory names, suffixes, etc.
       </para>
 
       <sconstruct>
-        env = Environment(ENV = os.environ)
-        env.PrependENVPath('PATH', '/usr/local/bin')
-        env.AppendENVPath('LIB', '/usr/local/lib')
+env = Environment(ENV = os.environ)
+env.PrependENVPath('PATH', '/usr/local/bin')
+env.AppendENVPath('LIB', '/usr/local/lib')
       </sconstruct>
 
       <para>

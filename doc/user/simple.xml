@@ -66,11 +66,11 @@
    </para>
 
    <programlisting>
-      int
-      main()
-      {
-          printf("Hello, world!\n");
-      }
+int
+main()
+{
+    printf("Hello, world!\n");
+}
    </programlisting>
 
    <para>
@@ -82,10 +82,10 @@
 
    <scons_example name="simple_ex1">
       <file name="SConstruct" printme="1">
-      Program('hello.c')
+Program('hello.c')
       </file>
       <file name="hello.c">
-      int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
       </file>
    </scons_example>
 
@@ -179,10 +179,10 @@
 
    <scons_example name="simple_Object">
       <file name="SConstruct" printme="1">
-      Object('hello.c')
+Object('hello.c')
       </file>
       <file name="hello.c">
-      int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
       </file>
    </scons_example>
 
@@ -228,16 +228,16 @@
 
    <scons_example name="simple_java">
      <file name="SConstruct" printme="1">
-     Java('classes', 'src')
+Java('classes', 'src')
      </file>
      <file name="src/hello.java">
-     public class Example1
-     {
-       public static void main(String[] args)
-       {
-         System.out.println("Hello Java world!\n");
-       }
-     }
+public class Example1
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
      </file>
    </scons_example>
 
@@ -285,10 +285,10 @@
 
    <scons_example name="simple_clean">
       <file name="SConstruct">
-      Program('hello.c')
+Program('hello.c')
       </file>
       <file name="hello.c">
-      int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
       </file>
    </scons_example>
 
@@ -358,8 +358,8 @@
      </para>
 
      <programlisting>
-        # Arrange to build the "hello" program.
-        Program('hello.c')    # "hello.c" is the source file.
+# Arrange to build the "hello" program.
+Program('hello.c')    # "hello.c" is the source file.
      </programlisting>
 
      <para>
@@ -442,17 +442,17 @@
 
      <scons_example name="simple_declarative">
        <file name="SConstruct" printme="1">
-       print "Calling Program('hello.c')"
-       Program('hello.c')
-       print "Calling Program('goodbye.c')"
-       Program('goodbye.c')
-       print "Finished calling Program()"
+print "Calling Program('hello.c')"
+Program('hello.c')
+print "Calling Program('goodbye.c')"
+Program('goodbye.c')
+print "Finished calling Program()"
        </file>
        <file name="hello.c">
-       int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
        </file>
        <file name="goodbye.c">
-       int main() { printf("Goodbye, world!\n"); }
+int main() { printf("Goodbye, world!\n"); }
        </file>
      </scons_example>
 

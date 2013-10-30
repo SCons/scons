@@ -72,7 +72,7 @@
     </para>
 
     <programlisting>
-       Program('hello.c')
+Program('hello.c')
     </programlisting>
 
     <para>
@@ -86,10 +86,10 @@
 
     <scons_example name="lesssimple_target">
        <file name="SConstruct" printme="1">
-       Program('new_hello', 'hello.c')
+Program('new_hello', 'hello.c')
        </file>
        <file name="hello.c">
-       int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
        </file>
     </scons_example>
 
@@ -147,16 +147,16 @@
 
     <scons_example name="lesssimple_ex2">
        <file name="SConstruct" printme="1">
-       Program(['prog.c', 'file1.c', 'file2.c'])
+Program(['prog.c', 'file1.c', 'file2.c'])
        </file>
        <file name="prog.c">
-       int main() { printf("prog.c\n"); }
+int main() { printf("prog.c\n"); }
        </file>
        <file name="file1.c">
-       void file1() { printf("file1.c\n"); }
+void file1() { printf("file1.c\n"); }
        </file>
        <file name="file2.c">
-       void file2() { printf("file2.c\n"); }
+void file2() { printf("file2.c\n"); }
        </file>
     </scons_example>
 
@@ -194,16 +194,16 @@
 
     <scons_example name="lesssimple_ex3">
        <file name="SConstruct" printme="1">
-       Program('program', ['prog.c', 'file1.c', 'file2.c'])
+Program('program', ['prog.c', 'file1.c', 'file2.c'])
        </file>
        <file name="prog.c">
-       int main() { printf("prog.c\n"); }
+int main() { printf("prog.c\n"); }
        </file>
        <file name="file1.c">
-       void file1() { printf("file1.c\n"); }
+void file1() { printf("file1.c\n"); }
        </file>
        <file name="file2.c">
-       void file2() { printf("file2.c\n"); }
+void file2() { printf("file2.c\n"); }
        </file>
     </scons_example>
 
@@ -247,7 +247,7 @@
     </para>
 
     <sconstruct>
-       Program('program', Glob('*.c'))
+Program('program', Glob('*.c'))
     </sconstruct>
 
     <para>
@@ -275,7 +275,7 @@
     </para>
 
     <sconstruct>
-       Program('hello', ['file1.c', 'file2.c'])
+Program('hello', ['file1.c', 'file2.c'])
     </sconstruct>
 
     <para>
@@ -285,7 +285,7 @@
     </para>
 
     <sconstruct>
-       Program('hello', 'hello.c')
+Program('hello', 'hello.c')
     </sconstruct>
 
     <para>
@@ -296,7 +296,7 @@
     </para>
 
     <sconstruct>
-       Program('hello', ['hello.c'])
+Program('hello', ['hello.c'])
     </sconstruct>
 
     <para>
@@ -324,9 +324,9 @@
     </para>
 
     <sconstruct>
-       # The following two calls both work correctly:
-       Program('program1', 'program1.c')
-       Program('program2', ['program2.c'])
+# The following two calls both work correctly:
+Program('program1', 'program1.c')
+Program('program2', ['program2.c'])
     </sconstruct>
 
     <para>
@@ -337,15 +337,15 @@
     </para>
 
     <sconstruct>
-       common_sources = ['file1.c', 'file2.c']
+common_sources = ['file1.c', 'file2.c']
 
-       # THE FOLLOWING IS INCORRECT AND GENERATES A PYTHON ERROR
-       # BECAUSE IT TRIES TO ADD A STRING TO A LIST:
-       Program('program1', common_sources + 'program1.c')
+# THE FOLLOWING IS INCORRECT AND GENERATES A PYTHON ERROR
+# BECAUSE IT TRIES TO ADD A STRING TO A LIST:
+Program('program1', common_sources + 'program1.c')
 
-       # The following works correctly, because it's adding two
-       # lists together to make another list.
-       Program('program2', common_sources + ['program2.c'])
+# The following works correctly, because it's adding two
+# lists together to make another list.
+Program('program2', common_sources + ['program2.c'])
     </sconstruct>
 
     </important>
@@ -383,7 +383,7 @@
     </para>
 
     <programlisting>
-       Program('program', Split('main.c file1.c file2.c'))
+Program('program', Split('main.c file1.c file2.c'))
     </programlisting>
 
     <para>
@@ -417,8 +417,8 @@
     </para>
 
     <programlisting>
-       src_files = Split('main.c file1.c file2.c')
-       Program('program', src_files)
+src_files = Split('main.c file1.c file2.c')
+Program('program', src_files)
     </programlisting>
 
     <para>
@@ -433,10 +433,10 @@
     </para>
 
     <programlisting>
-       src_files = Split("""main.c
-                            file1.c
-                            file2.c""")
-       Program('program', src_files)
+src_files = Split("""main.c
+                     file1.c
+                     file2.c""")
+Program('program', src_files)
     </programlisting>
 
     <para>
@@ -469,8 +469,8 @@
     </para>
 
     <programlisting>
-       src_files = Split('main.c file1.c file2.c')
-       Program(target = 'program', source = src_files)
+src_files = Split('main.c file1.c file2.c')
+Program(target = 'program', source = src_files)
     </programlisting>
 
     <para>
@@ -482,8 +482,8 @@
     </para>
 
     <programlisting>
-       src_files = Split('main.c file1.c file2.c')
-       Program(source = src_files, target = 'program')
+src_files = Split('main.c file1.c file2.c')
+Program(source = src_files, target = 'program')
     </programlisting>
 
     <para>
@@ -514,17 +514,17 @@
 
     <scons_example name="lesssimple_ex4">
        <file name="SConstruct" printme="1">
-       Program('foo.c')
-       Program('bar', ['bar1.c', 'bar2.c'])
+Program('foo.c')
+Program('bar', ['bar1.c', 'bar2.c'])
        </file>
        <file name="foo.c">
-       int main() { printf("foo.c\n"); }
+int main() { printf("foo.c\n"); }
        </file>
        <file name="bar1.c">
-       int main() { printf("bar1.c\n"); }
+int main() { printf("bar1.c\n"); }
        </file>
        <file name="bar2.c">
-       void bar2() { printf("bar2.c\n"); }
+void bar2() { printf("bar2.c\n"); }
        </file>
     </scons_example>
 
@@ -579,23 +579,23 @@
 
     <scons_example name="lesssimple_ex5">
        <file name="SConstruct" printme="1">
-       Program(Split('foo.c common1.c common2.c'))
-       Program('bar', Split('bar1.c bar2.c common1.c common2.c'))
+Program(Split('foo.c common1.c common2.c'))
+Program('bar', Split('bar1.c bar2.c common1.c common2.c'))
        </file>
        <file name="foo.c">
-       int main() { printf("foo.c\n"); }
+int main() { printf("foo.c\n"); }
        </file>
        <file name="bar1.c">
-       int main() { printf("bar1.c\n"); }
+int main() { printf("bar1.c\n"); }
        </file>
        <file name="bar2.c">
-       int bar2() { printf("bar2.c\n"); }
+int bar2() { printf("bar2.c\n"); }
        </file>
        <file name="common1.c">
-       void common1() { printf("common1.c\n"); }
+void common1() { printf("common1.c\n"); }
        </file>
        <file name="common2.c">
-       void common22() { printf("common2.c\n"); }
+void common22() { printf("common2.c\n"); }
        </file>
     </scons_example>
 
@@ -628,11 +628,11 @@
     </para>
 
     <programlisting>
-       common = ['common1.c', 'common2.c']
-       foo_files = ['foo.c'] + common
-       bar_files = ['bar1.c', 'bar2.c'] + common
-       Program('foo', foo_files)
-       Program('bar', bar_files)
+common = ['common1.c', 'common2.c']
+foo_files = ['foo.c'] + common
+bar_files = ['bar1.c', 'bar2.c'] + common
+Program('foo', foo_files)
+Program('bar', bar_files)
     </programlisting>
 
     <para>
