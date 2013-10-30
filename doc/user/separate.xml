@@ -174,14 +174,14 @@ program using the F<build/foo.c> path name.
 
     <scons_example name="separate_ex1">
       <file name="SConstruct" printme="1">
-      SConscript('src/SConscript', variant_dir='build')
+SConscript('src/SConscript', variant_dir='build')
       </file>
       <file name="src/SConscript">
-      env = Environment()
-      env.Program('hello.c')
+env = Environment()
+env.Program('hello.c')
       </file>
       <file name="src/hello.c">
-      int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
       </file>
     </scons_example>
 
@@ -267,7 +267,7 @@ program using the F<build/foo.c> path name.
     </para>
 
     <sconstruct>
-      #include "file.h"
+#include "file.h"
     </sconstruct>
 
     <para>
@@ -320,7 +320,7 @@ program using the F<build/foo.c> path name.
     </para>
 
     <sconstruct>
-      SConscript('src/SConscript', variant_dir='build', duplicate=0)
+SConscript('src/SConscript', variant_dir='build', duplicate=0)
     </sconstruct>
 
     <para>
@@ -334,15 +334,15 @@ program using the F<build/foo.c> path name.
     </para>
 
     <screen>
-      % <userinput>ls src</userinput>
-      SConscript
-      hello.c
-      % <userinput>scons -Q</userinput>
-      cc -c src/hello.c -o build/hello.o
-      cc -o build/hello build/hello.o
-      % <userinput>ls build</userinput>
-      hello
-      hello.o
+% <userinput>ls src</userinput>
+SConscript
+hello.c
+% <userinput>scons -Q</userinput>
+cc -c src/hello.c -o build/hello.o
+cc -o build/hello build/hello.o
+% <userinput>ls build</userinput>
+hello
+hello.o
     </screen>
 
   </section>
@@ -360,12 +360,12 @@ program using the F<build/foo.c> path name.
 
     <scons_example name="separate_builddir">
       <file name="SConstruct" printme="1">
-      VariantDir('build', 'src')
-      env = Environment()
-      env.Program('build/hello.c')
+VariantDir('build', 'src')
+env = Environment()
+env.Program('build/hello.c')
       </file>
       <file name="src/hello.c">
-      int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
       </file>
     </scons_example>
 
@@ -404,12 +404,12 @@ program using the F<build/foo.c> path name.
 
     <scons_example name="separate_duplicate0">
       <file name="SConstruct" printme="1">
-      VariantDir('build', 'src', duplicate=0)
-      env = Environment()
-      env.Program('build/hello.c')
+VariantDir('build', 'src', duplicate=0)
+env = Environment()
+env.Program('build/hello.c')
       </file>
       <file name="src/hello.c">
-      int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
       </file>
     </scons_example>
 
@@ -444,15 +444,15 @@ program using the F<build/foo.c> path name.
 
     <scons_example name="separate_builddir_sconscript">
       <file name="SConstruct">
-      VariantDir('build', 'src')
-      SConscript('build/SConscript')
+VariantDir('build', 'src')
+SConscript('build/SConscript')
       </file>
       <file name="src/SConscript" printme="1">
-      env = Environment()
-      env.Program('hello.c')
+env = Environment()
+env.Program('hello.c')
       </file>
       <file name="src/hello.c">
-      int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
       </file>
     </scons_example>
 
@@ -502,22 +502,22 @@ program using the F<build/foo.c> path name.
 
     <scons_example name="separate_glob_builddir_sconscript">
       <file name="SConstruct">
-      VariantDir('build', 'src')
-      SConscript('build/SConscript')
+VariantDir('build', 'src')
+SConscript('build/SConscript')
       </file>
       <file name="src/SConscript" printme="1">
-      env = Environment()
-      env.Program('hello', Glob('*.c'))
+env = Environment()
+env.Program('hello', Glob('*.c'))
       </file>
       <file name="src/f1.c">
-      #include "f2.h"
-      int main() { printf(f2()); }
+#include "f2.h"
+int main() { printf(f2()); }
       </file>
       <file name="src/f2.c">
-      const char * f2() { return("Hello, world!\n"); }
+const char * f2() { return("Hello, world!\n"); }
       </file>
       <file name="src/f2.h">
-      const char * f2();
+const char * f2();
       </file>
     </scons_example>
 

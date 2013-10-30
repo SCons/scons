@@ -80,16 +80,16 @@
 
  <scons_example name="parseflags_ex1">
    <file name="SConstruct" printme="1">
-    env = Environment()
-    d = env.ParseFlags("-I/opt/include -L/opt/lib -lfoo")
-    for k,v in sorted(d.items()):
-        if v:
-            print k, v
-    env.MergeFlags(d)
-    env.Program('f1.c')
+env = Environment()
+d = env.ParseFlags("-I/opt/include -L/opt/lib -lfoo")
+for k,v in sorted(d.items()):
+    if v:
+        print k, v
+env.MergeFlags(d)
+env.Program('f1.c')
    </file>
    <file name="f1.c">
-     int main() { return 0; }
+int main() { return 0; }
    </file>
  </scons_example>
 
@@ -119,16 +119,16 @@
 
  <scons_example name="parseflags_ex2">
    <file name="SConstruct" printme="1">
-    env = Environment()
-    d = env.ParseFlags("-whatever")
-    for k,v in sorted(d.items()):
-        if v:
-            print k, v
-    env.MergeFlags(d)
-    env.Program('f1.c')
+env = Environment()
+d = env.ParseFlags("-whatever")
+for k,v in sorted(d.items()):
+    if v:
+        print k, v
+env.MergeFlags(d)
+env.Program('f1.c')
    </file>
    <file name="f1.c">
-     int main() { return 0; }
+ int main() { return 0; }
    </file>
  </scons_example>
 
@@ -145,16 +145,16 @@
 
  <scons_example name="parseflags_ex3">
    <file name="SConstruct" printme="1">
-    env = Environment()
-    d = env.ParseFlags(["-I/opt/include", ["-L/opt/lib", "-lfoo"]])
-    for k,v in sorted(d.items()):
-        if v:
-            print k, v
-    env.MergeFlags(d)
-    env.Program('f1.c')
+env = Environment()
+d = env.ParseFlags(["-I/opt/include", ["-L/opt/lib", "-lfoo"]])
+for k,v in sorted(d.items()):
+    if v:
+        print k, v
+env.MergeFlags(d)
+env.Program('f1.c')
    </file>
    <file name="f1.c">
-     int main() { return 0; }
+int main() { return 0; }
    </file>
  </scons_example>
 
@@ -172,16 +172,16 @@
 
  <scons_example name="parseflags_ex4">
    <file name="SConstruct" printme="1">
-    env = Environment()
-    d = env.ParseFlags(["!echo -I/opt/include", "!echo -L/opt/lib", "-lfoo"])
-    for k,v in sorted(d.items()):
-        if v:
-            print k, v
-    env.MergeFlags(d)
-    env.Program('f1.c')
+env = Environment()
+d = env.ParseFlags(["!echo -I/opt/include", "!echo -L/opt/lib", "-lfoo"])
+for k,v in sorted(d.items()):
+    if v:
+        print k, v
+env.MergeFlags(d)
+env.Program('f1.c')
    </file>
    <file name="f1.c">
-     int main() { return 0; }
+int main() { return 0; }
    </file>
  </scons_example>
 

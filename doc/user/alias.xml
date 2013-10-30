@@ -54,13 +54,13 @@
 
   <scons_example name="alias_ex1">
      <file name="SConstruct" printme="1">
-     env = Environment()
-     hello = env.Program('hello.c')
-     env.Install('__ROOT__/usr/bin', hello)
-     env.Alias('install', '__ROOT__/usr/bin')
+env = Environment()
+hello = env.Program('hello.c')
+env.Install('__ROOT__/usr/bin', hello)
+env.Alias('install', '__ROOT__/usr/bin')
      </file>
      <file name="hello.c">
-     int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
      </file>
   </scons_example>
 
@@ -90,20 +90,20 @@
 
   <scons_example name="alias_ex2">
      <file name="SConstruct" printme="1">
-     env = Environment()
-     p = env.Program('foo.c')
-     l = env.Library('bar.c')
-     env.Install('__ROOT__/usr/bin', p)
-     env.Install('__ROOT__/usr/lib', l)
-     ib = env.Alias('install-bin', '__ROOT__/usr/bin')
-     il = env.Alias('install-lib', '__ROOT__/usr/lib')
-     env.Alias('install', [ib, il])
+env = Environment()
+p = env.Program('foo.c')
+l = env.Library('bar.c')
+env.Install('__ROOT__/usr/bin', p)
+env.Install('__ROOT__/usr/lib', l)
+ib = env.Alias('install-bin', '__ROOT__/usr/bin')
+il = env.Alias('install-lib', '__ROOT__/usr/lib')
+env.Alias('install', [ib, il])
      </file>
      <file name="foo.c">
-     int main() { printf("foo.c\n"); }
+int main() { printf("foo.c\n"); }
      </file>
      <file name="bar.c">
-     void bar() { printf("bar.c\n"); }
+void bar() { printf("bar.c\n"); }
      </file>
   </scons_example>
 

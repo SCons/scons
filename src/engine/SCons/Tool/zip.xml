@@ -145,11 +145,13 @@ The suffix used for zip file names.
 
 <cvar name="ZIPROOT">
 <summary>
+<para>
 An optional zip root directory (default empty).  The filenames stored
 in the zip file will be relative to this directory, if given.
 Otherwise the filenames are relative to the current directory of the
 command.
 For instance:
+</para>
 <example_commands>
 env = Environment()
 env.Zip('foo.zip', 'subdir1/subdir2/file1', ZIPROOT='subdir1')

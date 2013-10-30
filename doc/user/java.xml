@@ -80,34 +80,34 @@
 
     <scons_example name="java_java">
       <file name="SConstruct" printme="1">
-      Java('classes', 'src')
+Java('classes', 'src')
       </file>
       <file name="src/Example1.java">
-      public class Example1
-      {
-        public static void main(String[] args)
-        {
-          System.out.println("Hello Java world!\n");
-        }
-      }
+public class Example1
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
       </file>
       <file name="src/Example2.java">
-      public class Example2
-      {
-        public static void main(String[] args)
-        {
-          System.out.println("Hello Java world!\n");
-        }
-      }
+public class Example2
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
       </file>
       <file name="src/Example3.java">
-      public class Example3
-      {
-        public static void main(String[] args)
-        {
-          System.out.println("Hello Java world!\n");
-        }
-      }
+public class Example3
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
       </file>
     </scons_example>
 
@@ -155,50 +155,50 @@
 
     <scons_example name="java_java-classes">
       <file name="SConstruct" printme="1">
-      Java('classes', 'src')
+Java('classes', 'src')
       </file>
       <file name="src/Example1.java">
-      public class Example1
-      {
-        public static void main(String[] args)
-        {
-          System.out.println("Hello Java world!\n");
-        }
-      }
-      public class AdditionalClass1
-      {
-        public static void main(String[] args)
-        {
-          System.out.println("Hello Java world!\n");
-        }
-      }
+public class Example1
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
+public class AdditionalClass1
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
       </file>
       <file name="src/Example2.java">
-      public class Example2
-      {
-        class Inner2 {
-          public static void main(String[] args)
-          {
-            System.out.println("Hello Java world!\n");
-          }
-        }
-      }
+public class Example2
+{
+  class Inner2 {
+    public static void main(String[] args)
+    {
+      System.out.println("Hello Java world!\n");
+    }
+  }
+}
       </file>
       <file name="src/Example3.java">
-      public class Example3
-      {
-        public static void main(String[] args)
-        {
-          System.out.println("Hello Java world!\n");
-        }
-      }
-      public class AdditionalClass3
-      {
-        public static void main(String[] args)
-        {
-          System.out.println("Hello Java world!\n");
-        }
-      }
+public class Example3
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
+public class AdditionalClass3
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
       </file>
     </scons_example>
 
@@ -253,7 +253,7 @@
     </para> 
 
     <sconstruct>
-      Java('classes', 'src', JAVAVERSION='1.6')
+Java('classes', 'src', JAVAVERSION='1.6')
     </sconstruct>
 
     <para>
@@ -280,35 +280,35 @@
 
     <scons_example name="java_jar1">
       <file name="SConstruct" printme="1">
-      Java(target = 'classes', source = 'src')
-      Jar(target = 'test.jar', source = 'classes')
+Java(target = 'classes', source = 'src')
+Jar(target = 'test.jar', source = 'classes')
       </file>
       <file name="src/Example1.java">
-      public class Example1
-      {
-        public static void main(String[] args)
-        {
-          System.out.println("Hello Java world!\n");
-        }
-      }
+public class Example1
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
       </file>
       <file name="src/Example2.java">
-      public class Example2
-      {
-        public static void main(String[] args)
-        {
-          System.out.println("Hello Java world!\n");
-        }
-      }
+public class Example2
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
       </file>
       <file name="src/Example3.java">
-      public class Example3
-      {
-        public static void main(String[] args)
-        {
-          System.out.println("Hello Java world!\n");
-        }
-      }
+public class Example3
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
       </file>
     </scons_example>
 
@@ -344,46 +344,46 @@
 
     <scons_example name="java_jar2">
       <file name="SConstruct" printme="1">
-      prog1_class_files = Java(target = 'classes', source = 'prog1')
-      prog2_class_files = Java(target = 'classes', source = 'prog2')
-      Jar(target = 'prog1.jar', source = prog1_class_files)
-      Jar(target = 'prog2.jar', source = prog2_class_files)
+prog1_class_files = Java(target = 'classes', source = 'prog1')
+prog2_class_files = Java(target = 'classes', source = 'prog2')
+Jar(target = 'prog1.jar', source = prog1_class_files)
+Jar(target = 'prog2.jar', source = prog2_class_files)
       </file>
       <file name="prog1/Example1.java">
-      public class Example1
-      {
-        public static void main(String[] args)
-        {
-          System.out.println("Hello Java world!\n");
-        }
-      }
+public class Example1
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
       </file>
       <file name="prog1/Example2.java">
-      public class Example2
-      {
-        public static void main(String[] args)
-        {
-          System.out.println("Hello Java world!\n");
-        }
-      }
+public class Example2
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
       </file>
       <file name="prog2/Example3.java">
-      public class Example3
-      {
-        public static void main(String[] args)
-        {
-          System.out.println("Hello Java world!\n");
-        }
-      }
+public class Example3
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
       </file>
       <file name="prog2/Example4.java">
-      public class Example4
-      {
-        public static void main(String[] args)
-        {
-          System.out.println("Hello Java world!\n");
-        }
-      }
+public class Example4
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
       </file>
     </scons_example>
 
@@ -418,35 +418,35 @@
 
     <scons_example name="java_javah">
       <file name="SConstruct" printme="1">
-      classes = Java(target = 'classes', source = 'src/pkg/sub')
-      JavaH(target = 'native', source = classes)
+classes = Java(target = 'classes', source = 'src/pkg/sub')
+JavaH(target = 'native', source = classes)
       </file>
       <file name="src/pkg/sub/Example1.java">
-      package pkg.sub;
-      public class Example1
-      {
-        public static void main(String[] args)
-        {
-        }
-      }
+package pkg.sub;
+public class Example1
+{
+  public static void main(String[] args)
+  {
+  }
+}
       </file>
       <file name="src/pkg/sub/Example2.java">
-      package pkg.sub;
-      public class Example2
-      {
-        public static void main(String[] args)
-        {
-        }
-      }
+package pkg.sub;
+public class Example2
+{
+  public static void main(String[] args)
+  {
+  }
+}
       </file>
       <file name="src/pkg/sub/Example3.java">
-      package pkg.sub;
-      public class Example3
-      {
-        public static void main(String[] args)
-        {
-        }
-      }
+package pkg.sub;
+public class Example3
+{
+  public static void main(String[] args)
+  {
+  }
+}
       </file>
     </scons_example>
 
@@ -502,38 +502,38 @@
 
     <scons_example name="java_JAVACLASSDIR">
       <file name="SConstruct" printme="1">
-      Java(target = 'classes', source = 'src/pkg/sub')
-      class_file_list = ['classes/pkg/sub/Example1.class',
-                         'classes/pkg/sub/Example2.class',
-                         'classes/pkg/sub/Example3.class']
-      JavaH(target = 'native', source = class_file_list, JAVACLASSDIR = 'classes')
+Java(target = 'classes', source = 'src/pkg/sub')
+class_file_list = ['classes/pkg/sub/Example1.class',
+                   'classes/pkg/sub/Example2.class',
+                   'classes/pkg/sub/Example3.class']
+JavaH(target = 'native', source = class_file_list, JAVACLASSDIR = 'classes')
       </file>
       <file name="src/pkg/sub/Example1.java">
-      package pkg.sub;
-      public class Example1
-      {
-        public static void main(String[] args)
-        {
-        }
-      }
+package pkg.sub;
+public class Example1
+{
+  public static void main(String[] args)
+  {
+  }
+}
       </file>
       <file name="src/pkg/sub/Example2.java">
-      package pkg.sub;
-      public class Example2
-      {
-        public static void main(String[] args)
-        {
-        }
-      }
+package pkg.sub;
+public class Example2
+{
+  public static void main(String[] args)
+  {
+  }
+}
       </file>
       <file name="src/pkg/sub/Example3.java">
-      package pkg.sub;
-      public class Example3
-      {
-        public static void main(String[] args)
-        {
-        }
-      }
+package pkg.sub;
+public class Example3
+{
+  public static void main(String[] args)
+  {
+  }
+}
       </file>
     </scons_example>
 
@@ -560,35 +560,35 @@
 
     <scons_example name="java_javah_file">
       <file name="SConstruct" printme="1">
-      classes = Java(target = 'classes', source = 'src/pkg/sub')
-      JavaH(target = File('native.h'), source = classes)
+classes = Java(target = 'classes', source = 'src/pkg/sub')
+JavaH(target = File('native.h'), source = classes)
       </file>
       <file name="src/pkg/sub/Example1.java">
-      package pkg.sub;
-      public class Example1
-      {
-        public static void main(String[] args)
-        {
-        }
-      }
+package pkg.sub;
+public class Example1
+{
+  public static void main(String[] args)
+  {
+  }
+}
       </file>
       <file name="src/pkg/sub/Example2.java">
-      package pkg.sub;
-      public class Example2
-      {
-        public static void main(String[] args)
-        {
-        }
-      }
+package pkg.sub;
+public class Example2
+{
+  public static void main(String[] args)
+  {
+  }
+}
       </file>
       <file name="src/pkg/sub/Example3.java">
-      package pkg.sub;
-      public class Example3
-      {
-        public static void main(String[] args)
-        {
-        }
-      }
+package pkg.sub;
+public class Example3
+{
+  public static void main(String[] args)
+  {
+  }
+}
       </file>
     </scons_example>
 
@@ -629,26 +629,26 @@
 
     <scons_example name="java_RMIC">
       <file name="SConstruct" printme="1">
-      classes = Java(target = 'classes', source = 'src/pkg/sub')
-      RMIC(target = 'outdir', source = classes)
+classes = Java(target = 'classes', source = 'src/pkg/sub')
+RMIC(target = 'outdir', source = classes)
       </file>
       <file name="src/pkg/sub/Example1.java">
-      package pkg.sub;
-      public class Example1
-      {
-        public static void main(String[] args)
-        {
-        }
-      }
+package pkg.sub;
+public class Example1
+{
+  public static void main(String[] args)
+  {
+  }
+}
       </file>
       <file name="src/pkg/sub/Example2.java">
-      package pkg.sub;
-      public class Example2
-      {
-        public static void main(String[] args)
-        {
-        }
-      }
+package pkg.sub;
+public class Example2
+{
+  public static void main(String[] args)
+  {
+  }
+}
       </file>
     </scons_example>
 
