@@ -43,6 +43,7 @@ from collections import UserDict
 
 import SCons.Action
 import SCons.Builder
+import SCons.Debug
 from SCons.Debug import logInstanceCreation
 import SCons.Defaults
 import SCons.Errors
@@ -370,7 +371,7 @@ class SubstitutionEnvironment(object):
     def __init__(self, **kw):
         """Initialization of an underlying SubstitutionEnvironment class.
         """
-        if __debug__: logInstanceCreation(self, 'Environment.SubstitutionEnvironment')
+        if SCons.Debug.track_instances: logInstanceCreation(self, 'Environment.SubstitutionEnvironment')
         self.fs = SCons.Node.FS.get_default_fs()
         self.ans = SCons.Node.Alias.default_ans
         self.lookup_list = SCons.Node.arg2nodes_lookups
@@ -931,7 +932,7 @@ class Base(SubstitutionEnvironment):
         initialize things in a very specific order that doesn't work
         with the much simpler base class initialization.
         """
-        if __debug__: logInstanceCreation(self, 'Environment.Base')
+        if SCons.Debug.track_instances: logInstanceCreation(self, 'Environment.Base')
         self._memo = {}
         self.fs = SCons.Node.FS.get_default_fs()
         self.ans = SCons.Node.Alias.default_ans
@@ -1414,7 +1415,7 @@ class Base(SubstitutionEnvironment):
         # Finally, apply any flags to be merged in
         if parse_flags: clone.MergeFlags(parse_flags)
 
-        if __debug__: logInstanceCreation(self, 'Environment.EnvironmentClone')
+        if SCons.Debug.track_instances: logInstanceCreation(self, 'Environment.EnvironmentClone')
         return clone
 
     def Copy(self, *args, **kw):
@@ -2278,7 +2279,7 @@ class OverrideEnvironment(Base):
     """
 
     def __init__(self, subject, overrides={}):
-        if __debug__: logInstanceCreation(self, 'Environment.OverrideEnvironment')
+        if SCons.Debug.track_instances: logInstanceCreation(self, 'Environment.OverrideEnvironment')
         self.__dict__['__subject'] = subject
         self.__dict__['overrides'] = overrides
 

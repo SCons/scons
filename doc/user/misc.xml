@@ -91,14 +91,14 @@
 
     <scons_example name="misc_EnsurePythonVersion">
       <file name="SConstruct" printme="1">
-      EnsurePythonVersion(2, 5)
+EnsurePythonVersion(2, 5)
       </file>
     </scons_example>
 
     -->
 
     <sconstruct>
-      EnsurePythonVersion(2, 5)
+EnsurePythonVersion(2, 5)
     </sconstruct>
 
     <para>
@@ -122,8 +122,8 @@
     -->
 
     <screen>
-      % <userinput>scons -Q</userinput>
-      Python 2.5 or greater required, but you have Python 2.3.6
+% <userinput>scons -Q</userinput>
+Python 2.5 or greater required, but you have Python 2.3.6
     </screen>
 
   </section>
@@ -160,14 +160,14 @@
 
     <scons_example name="misc_EnsureSConsVersion">
       <file name="SConstruct" printme="1">
-      EnsureSConsVersion(1, 0)
+EnsureSConsVersion(1, 0)
       </file>
     </scons_example>
 
     -->
 
     <sconstruct>
-      EnsureSConsVersion(1, 0)
+EnsureSConsVersion(1, 0)
     </sconstruct>
 
     <para>
@@ -191,8 +191,8 @@
     -->
 
     <screen>
-      % <userinput>scons -Q</userinput>
-      SCons 1.0 or greater required, but you have SCons 0.98.5
+% <userinput>scons -Q</userinput>
+SCons 1.0 or greater required, but you have SCons 0.98.5
     </screen>
 
   </section>
@@ -212,14 +212,14 @@
 
     <scons_example name="misc_Exit">
       <file name="SConstruct" printme="1">
-      if ARGUMENTS.get('FUTURE'):
-          print "The FUTURE option is not supported yet!"
-          Exit(2)
-      env = Environment()
-      env.Program('hello.c')
+if ARGUMENTS.get('FUTURE'):
+    print "The FUTURE option is not supported yet!"
+    Exit(2)
+env = Environment()
+env.Program('hello.c')
       </file>
       <file name="hello.c">
-      hello.c
+hello.c
       </file>
     </scons_example>
 
@@ -268,13 +268,13 @@
 
     <scons_example name="misc_FindFile1a">
       <file name="SConstruct" printme="1">
-       # one directory
-       print FindFile('missing', '.')
-       t = FindFile('exists', '.')
-       print t.__class__, t
+# one directory
+print FindFile('missing', '.')
+t = FindFile('exists', '.')
+print t.__class__, t
       </file>
       <file name="exists">
-        exists
+ exists
       </file>
     </scons_example>
 
@@ -284,23 +284,23 @@
 
     <scons_example name="misc_FindFile1b">
       <file name="SConstruct" printme="1">
-       # several directories
-       includes = [ '.', 'include', 'src/include']
-       headers = [ 'nonesuch.h', 'config.h', 'private.h', 'dist.h']
-       for hdr in headers:
-           print '%-12s' % ('%s:' % hdr), FindFile(hdr, includes)
+# several directories
+includes = [ '.', 'include', 'src/include']
+headers = [ 'nonesuch.h', 'config.h', 'private.h', 'dist.h']
+for hdr in headers:
+    print '%-12s' % ('%s:' % hdr), FindFile(hdr, includes)
       </file>
       <file name="config.h">
-        exists
+exists
       </file>
       <directory name="src"></directory>
       <directory name="src/include"></directory>
       <file name="src/include/private.h">
-        exists
+exists
       </file>
       <directory name="include"></directory>
       <file name="include/dist.h">
-        exists
+exists
       </file>
     </scons_example>
 
@@ -318,23 +318,23 @@
 
     <scons_example name="misc_FindFile1c">
       <file name="SConstruct" printme="1">
-       # several directories
-       includes = [ '.', 'include', 'src/include']
-       headers = [ 'nonesuch.h', 'config.h', 'private.h', 'dist.h']
-       print FindFile(headers, includes)
+# several directories
+includes = [ '.', 'include', 'src/include']
+headers = [ 'nonesuch.h', 'config.h', 'private.h', 'dist.h']
+print FindFile(headers, includes)
       </file>
       <file name="config.h">
-        exists
+exists
       </file>
       <directory name="src"></directory>
       <directory name="src/include"></directory>
       </file>
       <file name="src/include/private.h">
-        exists
+exists
       <directory name="include"></directory>
       </file>
       <file name="include/dist.h">
-        exists
+exists
     </scons_example>
 
     <scons_output example="misc_FindFile1c" os="posix" suffix="1">
@@ -351,21 +351,21 @@
 
     <scons_example name="misc_FindFile1d">
       <file name="SConstruct" printme="1">
-        print FindFile('multiple', ['sub1', 'sub2', 'sub3'])
-        print FindFile('multiple', ['sub2', 'sub3', 'sub1'])
-        print FindFile('multiple', ['sub3', 'sub1', 'sub2'])
+print FindFile('multiple', ['sub1', 'sub2', 'sub3'])
+print FindFile('multiple', ['sub2', 'sub3', 'sub1'])
+print FindFile('multiple', ['sub3', 'sub1', 'sub2'])
       </file>
       <directory name="sub1"></directory>
       <file name="sub1/multiple">
-        exists
+exists
       </file>
       <directory name="sub2"></directory>
       <file name="sub2/multiple">
-        exists
+exists
       </file>
       <directory name="sub3"></directory>
       <file name="sub3/multiple">
-        exists
+exists
       </file>
     </scons_example>
 
@@ -385,10 +385,10 @@
 
     <scons_example name="misc_FindFile2">
       <file name="SConstruct" printme="1">
-       # Neither file exists, so build will fail
-       Command('derived', 'leaf', 'cat >$TARGET $SOURCE')
-       print FindFile('leaf', '.')
-       print FindFile('derived', '.')
+# Neither file exists, so build will fail
+Command('derived', 'leaf', 'cat >$TARGET $SOURCE')
+print FindFile('leaf', '.')
+print FindFile('derived', '.')
       </file>
     </scons_example>
 
@@ -398,13 +398,13 @@
 
     <scons_example name="misc_FindFile2">
       <file name="SConstruct" printme="1">
-       # Only 'leaf' exists
-       Command('derived', 'leaf', 'cat >$TARGET $SOURCE')
-       print FindFile('leaf', '.')
-       print FindFile('derived', '.')
+# Only 'leaf' exists
+Command('derived', 'leaf', 'cat >$TARGET $SOURCE')
+print FindFile('leaf', '.')
+print FindFile('derived', '.')
       </file>
       <file name="leaf">
-       leaf
+leaf
       </file>
     </scons_example>
 
@@ -421,13 +421,13 @@
 
     <scons_example name="misc_FindFile3">
       <file name="SConstruct" printme="1">
-       # Only 'src/leaf' exists
-       VariantDir('build', 'src')
-       print FindFile('leaf', 'build')
+# Only 'src/leaf' exists
+VariantDir('build', 'src')
+print FindFile('leaf', 'build')
       </file>
       <directory name="src"></directory>
       <file name="src/leaf">
-       leaf
+leaf
       </file>
     </scons_example>
 
@@ -460,17 +460,17 @@
 
     <scons_example name="misc_Flatten1">
       <file name="SConstruct" printme="1">
-      objects = [
-          Object('prog1.c'),
-          Object('prog2.c', CCFLAGS='-DFOO'),
-      ]
-      Program(objects)
+objects = [
+    Object('prog1.c'),
+    Object('prog2.c', CCFLAGS='-DFOO'),
+]
+Program(objects)
       </file>
       <file name="prog1.c">
-      prog1.c
+prog1.c
       </file>
       <file name="prog2.c">
-      prog2.c
+prog2.c
       </file>
     </scons_example>
 
@@ -501,20 +501,20 @@
 
     <scons_example name="misc_Flatten2">
       <file name="SConstruct" printme="1">
-      objects = [
-          Object('prog1.c'),
-          Object('prog2.c', CCFLAGS='-DFOO'),
-      ]
-      Program(objects)
+objects = [
+    Object('prog1.c'),
+    Object('prog2.c', CCFLAGS='-DFOO'),
+]
+Program(objects)
 
-      for object_file in objects:
-          print object_file.abspath
+for object_file in objects:
+    print object_file.abspath
       </file>
       <file name="prog1.c">
-      prog1.c
+prog1.c
       </file>
       <file name="prog2.c">
-      prog2.c
+prog2.c
       </file>
     </scons_example>
 
@@ -542,20 +542,20 @@
 
     <scons_example name="misc_Flatten3">
       <file name="SConstruct" printme="1">
-      objects = [
-          Object('prog1.c'),
-          Object('prog2.c', CCFLAGS='-DFOO'),
-      ]
-      Program(objects)
+objects = [
+    Object('prog1.c'),
+    Object('prog2.c', CCFLAGS='-DFOO'),
+]
+Program(objects)
 
-      for object_file in Flatten(objects):
-          print object_file.abspath
+for object_file in Flatten(objects):
+    print object_file.abspath
       </file>
       <file name="prog1.c">
-      prog1.c
+prog1.c
       </file>
       <file name="prog2.c">
-      prog2.c
+prog2.c
       </file>
     </scons_example>
 
@@ -570,12 +570,12 @@
     -->
 
     <screen>
-      % <userinput>scons -Q</userinput>
-      /home/me/project/prog1.o
-      /home/me/project/prog2.o
-      cc -o prog1.o -c prog1.c
-      cc -o prog2.o -c -DFOO prog2.c
-      cc -o prog1 prog1.o prog2.o
+% <userinput>scons -Q</userinput>
+/home/me/project/prog1.o
+/home/me/project/prog2.o
+cc -o prog1.o -c prog1.c
+cc -o prog2.o -c -DFOO prog2.c
+cc -o prog1 prog1.o prog2.o
     </screen>
 
   </section>
@@ -592,12 +592,12 @@
     </para>
 
     <sconstruct>
-      env = Environment(
-          LAUNCHDIR = GetLaunchDir(),
-      )
-      env.Command('directory_build_info',
-                  '$LAUNCHDIR/build_info'
-                  Copy('$TARGET', '$SOURCE'))
+env = Environment(
+    LAUNCHDIR = GetLaunchDir(),
+)
+env.Command('directory_build_info',
+            '$LAUNCHDIR/build_info'
+            Copy('$TARGET', '$SOURCE'))
     </sconstruct>
 
     <para>

@@ -63,17 +63,17 @@
 
   <scons_example name="addmethod_ex1">
      <file name="SConstruct" printme="1">
-     def install_in_bin_dirs(env, source):
-         """Install source in both bin dirs"""
-         i1 = env.Install("$BIN", source)
-         i2 = env.Install("$LOCALBIN", source)
-         return [i1[0], i2[0]] # Return a list, like a normal builder
-     env = Environment(BIN='__ROOT__/usr/bin', LOCALBIN='#install/bin')
-     env.AddMethod(install_in_bin_dirs, "InstallInBinDirs")
-     env.InstallInBinDirs(Program('hello.c')) # installs hello in both bin dirs     
+def install_in_bin_dirs(env, source):
+    """Install source in both bin dirs"""
+    i1 = env.Install("$BIN", source)
+    i2 = env.Install("$LOCALBIN", source)
+    return [i1[0], i2[0]] # Return a list, like a normal builder
+env = Environment(BIN='__ROOT__/usr/bin', LOCALBIN='#install/bin')
+env.AddMethod(install_in_bin_dirs, "InstallInBinDirs")
+env.InstallInBinDirs(Program('hello.c')) # installs hello in both bin dirs     
      </file>
      <file name="hello.c">
-     int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
      </file>
   </scons_example>
 
@@ -100,28 +100,28 @@
 
   <scons_example name="addmethod_ex2">
      <file name="SConstruct" printme="1">
-     def BuildTestProg(env, testfile, resourcefile, testdir="tests"):
-         """Build the test program;
-         prepends "test_" to src and target,
-         and puts target into testdir."""
-         srcfile = "test_%s.c" % testfile
-         target = "%s/test_%s" % (testdir, testfile)
-         if env['PLATFORM'] == 'win32':
-             resfile = env.RES(resourcefile)
-             p = env.Program(target, [srcfile, resfile])
-         else:
-             p = env.Program(target, srcfile)
-         return p
-     AddMethod(Environment, BuildTestProg)
+def BuildTestProg(env, testfile, resourcefile, testdir="tests"):
+    """Build the test program;
+    prepends "test_" to src and target,
+    and puts target into testdir."""
+    srcfile = "test_%s.c" % testfile
+    target = "%s/test_%s" % (testdir, testfile)
+    if env['PLATFORM'] == 'win32':
+        resfile = env.RES(resourcefile)
+        p = env.Program(target, [srcfile, resfile])
+    else:
+        p = env.Program(target, srcfile)
+    return p
+AddMethod(Environment, BuildTestProg)
 
-     env = Environment()
-     env.BuildTestProg('stuff', resourcefile='res.rc')
+env = Environment()
+env.BuildTestProg('stuff', resourcefile='res.rc')
      </file>
      <file name="test_stuff.c">
-     int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
      </file>
      <file name="res.rc">
-     res.rc
+res.rc
      </file>
   </scons_example>
 

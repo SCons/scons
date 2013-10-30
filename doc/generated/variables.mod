@@ -576,6 +576,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-ZIPCOMPRESSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$ZIPCOMPRESSION</envar>">
 <!ENTITY cv-ZIPCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$ZIPCOMSTR</envar>">
 <!ENTITY cv-ZIPFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$ZIPFLAGS</envar>">
+<!ENTITY cv-ZIPROOT "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$ZIPROOT</envar>">
 <!ENTITY cv-ZIPSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$ZIPSUFFIX</envar>">
 
 <!--
@@ -1156,6 +1157,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-ZIPCOMPRESSION "<link linkend='cv-ZIPCOMPRESSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$ZIPCOMPRESSION</envar></link>">
 <!ENTITY cv-link-ZIPCOMSTR "<link linkend='cv-ZIPCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$ZIPCOMSTR</envar></link>">
 <!ENTITY cv-link-ZIPFLAGS "<link linkend='cv-ZIPFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$ZIPFLAGS</envar></link>">
+<!ENTITY cv-link-ZIPROOT "<link linkend='cv-ZIPROOT' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$ZIPROOT</envar></link>">
 <!ENTITY cv-link-ZIPSUFFIX "<link linkend='cv-ZIPSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$ZIPSUFFIX</envar></link>">
 
 <!--

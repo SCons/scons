@@ -47,6 +47,7 @@ import collections
 import copy
 from itertools import chain
 
+import SCons.Debug
 from SCons.Debug import logInstanceCreation
 import SCons.Executor
 import SCons.Memoize
@@ -187,7 +188,7 @@ class Node(object):
         pass
 
     def __init__(self):
-        if __debug__: logInstanceCreation(self, 'Node.Node')
+        if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.Node')
         # Note that we no longer explicitly initialize a self.builder
         # attribute to None here.  That's because the self.builder
         # attribute may be created on-the-fly later by a subclass (the

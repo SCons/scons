@@ -60,11 +60,11 @@
 
   <scons_example name="depends_ex1">
     <file name="SConstruct">
-    Program('hello.c')
+Program('hello.c')
     </file>
     <file name="hello.c">
-    int main() { printf("Hello, world!\n"); }
-    </file>
+int main() { printf("Hello, world!\n"); }
+</file>
   </scons_example>
 
   <scons_output example="depends_ex1" os="posix" suffix="1">
@@ -173,8 +173,8 @@
       </para>
 
       <sconstruct>
-        Program('hello.c')
-        Decider('MD5')
+Program('hello.c')
+Decider('MD5')
       </sconstruct>
 
       <para>
@@ -270,11 +270,11 @@
 
       <scons_example name="depends_newer">
         <file name="SConstruct" printme="1">
-        Object('hello.c')
-        Decider('timestamp-newer')
+Object('hello.c')
+Decider('timestamp-newer')
         </file>
         <file name="hello.c">
-        int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
         </file>
       </scons_example>
 
@@ -303,8 +303,8 @@
       </para>
 
       <sconstruct>
-        Object('hello.c')
-        Decider('make')
+Object('hello.c')
+Decider('make')
       </sconstruct>
 
       <para>
@@ -339,11 +339,11 @@
 
       <scons_example name="depends_match">
         <file name="SConstruct" printme="1">
-        Object('hello.c')
-        Decider('timestamp-match')
+Object('hello.c')
+Decider('timestamp-match')
         </file>
         <file name="hello.c">
-        int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
         </file>
       </scons_example>
 
@@ -398,11 +398,11 @@
 
       <scons_example name="depends_MD5-timestamp">
         <file name="SConstruct" printme="1">
-        Program('hello.c')
-        Decider('MD5-timestamp')
+Program('hello.c')
+Decider('MD5-timestamp')
         </file>
         <file name="hello.c">
-        int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
         </file>
       </scons_example>
 
@@ -431,17 +431,17 @@
       -->
 
       <screen>
-         % <userinput>scons -Q hello</userinput>
-         cc -o hello.o -c hello.c
-         cc -o hello hello.o
-         % <userinput>touch hello.c</userinput>
-         % <userinput>scons -Q hello</userinput>
-         scons: `hello' is up to date.
-         % <userinput>edit hello.c</userinput>
-             [CHANGE THE CONTENTS OF hello.c]
-         % <userinput>scons -Q hello</userinput>
-         cc -o hello.o -c hello.c
-         cc -o hello hello.o
+% <userinput>scons -Q hello</userinput>
+cc -o hello.o -c hello.c
+cc -o hello hello.o
+% <userinput>touch hello.c</userinput>
+% <userinput>scons -Q hello</userinput>
+scons: `hello' is up to date.
+% <userinput>edit hello.c</userinput>
+    [CHANGE THE CONTENTS OF hello.c]
+% <userinput>scons -Q hello</userinput>
+cc -o hello.o -c hello.c
+cc -o hello hello.o
       </screen>
 
       <para>
@@ -516,18 +516,18 @@
 
       <scons_example name="depends_function">
         <file name="SConstruct" printme="1">
-        Program('hello.c')
-        def decide_if_changed(dependency, target, prev_ni):
-            if self.get_timestamp() != prev_ni.timestamp:
-                dep = str(dependency)
-                tgt = str(target)
-                if specific_part_of_file_has_changed(dep, tgt):
-                    return True
-            return False
-        Decider(decide_if_changed)
+Program('hello.c')
+def decide_if_changed(dependency, target, prev_ni):
+    if self.get_timestamp() != prev_ni.timestamp:
+        dep = str(dependency)
+        tgt = str(target)
+        if specific_part_of_file_has_changed(dep, tgt):
+            return True
+    return False
+Decider(decide_if_changed)
         </file>
         <file name="hello.c">
-        int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
         </file>
       </scons_example>
 
@@ -635,35 +635,35 @@
       </para>
 
       <sconstruct>
-        env = Environment()
-        
-        def config_file_decider(dependency, target, prev_ni):
-            import os.path
-        
-            # We always have to init the .csig value...
-            dep_csig = dependency.get_csig()
-            # .csig may not exist, because no target was built yet...
-            if 'csig' not in dir(prev_ni):
-                return True
-            # Target file may not exist yet
-            if not os.path.exists(str(target.abspath)):
-                return True
-            if dep_csig != prev_ni.csig:
-                # Some change on source file => update installed one
-                return True
-            return False
-        
-        def update_file():
-            f = open("test.txt","a")
-            f.write("some line\n")
-            f.close()
-            
-        update_file()
-        
-        # Activate our own decider function
-        env.Decider(config_file_decider)
-        
-        env.Install("install","test.txt")
+env = Environment()
+
+def config_file_decider(dependency, target, prev_ni):
+    import os.path
+
+    # We always have to init the .csig value...
+    dep_csig = dependency.get_csig()
+    # .csig may not exist, because no target was built yet...
+    if 'csig' not in dir(prev_ni):
+        return True
+    # Target file may not exist yet
+    if not os.path.exists(str(target.abspath)):
+        return True
+    if dep_csig != prev_ni.csig:
+        # Some change on source file => update installed one
+        return True
+    return False
+
+def update_file():
+    f = open("test.txt","a")
+    f.write("some line\n")
+    f.close()
+
+update_file()
+
+# Activate our own decider function
+env.Decider(config_file_decider)
+
+env.Install("install","test.txt")
       </sconstruct>
 
     </section>
@@ -698,22 +698,22 @@
 
       <scons_example name="depends_mixing">
         <file name="SConstruct" printme="1">
-        env1 = Environment(CPPPATH = ['.'])
-        env2 = env1.Clone()
-        env2.Decider('timestamp-match')
-        env1.Program('prog-MD5', 'program1.c')
-        env2.Program('prog-timestamp', 'program2.c')
+env1 = Environment(CPPPATH = ['.'])
+env2 = env1.Clone()
+env2.Decider('timestamp-match')
+env1.Program('prog-MD5', 'program1.c')
+env2.Program('prog-timestamp', 'program2.c')
         </file>
         <file name="program1.c">
-        #include "inc.h"
-        int main() { printf("Hello, world!\n"); }
+#include "inc.h"
+int main() { printf("Hello, world!\n"); }
         </file>
         <file name="program2.c">
-        #include "inc.h"
-        int main() { printf("Hello, world!\n"); }
+#include "inc.h"
+int main() { printf("Hello, world!\n"); }
         </file>
         <file name="inc.h">
-        #define INC     1
+#define INC     1
         </file>
       </scons_example>
 
@@ -771,8 +771,8 @@
       </para>
 
       <sconstruct>
-        Program('hello.c')
-        SourceSignatures('MD5')
+Program('hello.c')
+SourceSignatures('MD5')
       </sconstruct>
 
       <para>
@@ -782,8 +782,8 @@
       </para>
 
       <sconstruct>
-        Program('hello.c')
-        SourceSignatures('timestamp')
+Program('hello.c')
+SourceSignatures('timestamp')
       </sconstruct>
 
       <para>
@@ -839,8 +839,8 @@
       </para>
 
       <sconstruct>
-        Program('hello.c')
-        TargetSignatures('MD5')
+Program('hello.c')
+TargetSignatures('MD5')
       </sconstruct>
 
       <para>
@@ -853,8 +853,8 @@
       </para>
 
       <sconstruct>
-        Program('hello.c')
-        TargetSignatures('timestamp')
+Program('hello.c')
+TargetSignatures('timestamp')
       </sconstruct>
 
       <para>
@@ -882,9 +882,9 @@
       </para>
 
       <sconstruct>
-        Program('hello.c')
-        TargetSignatures('source')
-        SourceSignatures('timestamp')
+Program('hello.c')
+TargetSignatures('source')
+SourceSignatures('timestamp')
       </sconstruct>
 
       <para>
@@ -949,18 +949,18 @@
 
     <scons_example name="depends_include">
       <file name="SConstruct">
-       Program('hello.c', CPPPATH = '.')
+Program('hello.c', CPPPATH = '.')
       </file>
       <file name="hello.c" printme="1">
-       #include &lt;hello.h&gt;
-       int
-       main()
-       {
-           printf("Hello, %s!\n", string);
-       }
+#include &lt;hello.h&gt;
+int
+main()
+{
+    printf("Hello, %s!\n", string);
+}
       </file>
       <file name="hello.h">
-       #define string    "world"
+#define string    "world"
       </file>
     </scons_example>
 
@@ -1049,10 +1049,10 @@
 
     <scons_example name="depends_ex5">
       <file name="SConstruct" printme="1">
-       Program('hello.c', CPPPATH = ['include', '/home/project/inc'])
+Program('hello.c', CPPPATH = ['include', '/home/project/inc'])
       </file>
       <file name="hello.c">
-      int main() { printf("Hello, world!\n"); }
+int main() { printf("Hello, world!\n"); }
       </file>
     </scons_example>
 
@@ -1142,7 +1142,7 @@
     </para>
 
     <sconstruct>
-       SetOption('implicit_cache', 1)
+SetOption('implicit_cache', 1)
     </sconstruct>
 
     <para>
@@ -1291,23 +1291,23 @@
     </para>
 
     <programlisting>
-       hello = Program('hello.c')
-       Depends(hello, 'other_file')
+hello = Program('hello.c')
+Depends(hello, 'other_file')
     </programlisting>
 
     <!-- XXX mention that you can use arrays for target and source? -->
 
     <screen>
-       % <userinput>scons -Q hello</userinput>
-       cc -c hello.c -o hello.o
-       cc -o hello hello.o
-       % <userinput>scons -Q hello</userinput>
-       scons: `hello' is up to date.
-       % <userinput>edit other_file</userinput>
-           [CHANGE THE CONTENTS OF other_file]
-       % <userinput>scons -Q hello</userinput>
-       cc -c hello.c -o hello.o
-       cc -o hello hello.o
+% <userinput>scons -Q hello</userinput>
+cc -c hello.c -o hello.o
+cc -o hello hello.o
+% <userinput>scons -Q hello</userinput>
+scons: `hello' is up to date.
+% <userinput>edit other_file</userinput>
+    [CHANGE THE CONTENTS OF other_file]
+% <userinput>scons -Q hello</userinput>
+cc -c hello.c -o hello.o
+cc -o hello hello.o
     </screen>
 
     <para>
@@ -1320,9 +1320,9 @@
     </para>
 
     <programlisting>
-       hello = Program('hello.c')
-       goodbye = Program('goodbye.c')
-       Depends(hello, goodbye)
+hello = Program('hello.c')
+goodbye = Program('goodbye.c')
+Depends(hello, goodbye)
     </programlisting>
 
     <para>
@@ -1333,11 +1333,11 @@
     </para>
 
     <screen>
-       % <userinput>scons -Q hello</userinput>
-       cc -c goodbye.c -o goodbye.o
-       cc -o goodbye goodbye.o
-       cc -c hello.c -o hello.o
-       cc -o hello hello.o
+% <userinput>scons -Q hello</userinput>
+cc -c goodbye.c -o goodbye.o
+cc -o goodbye goodbye.o
+cc -c hello.c -o hello.o
+cc -o hello hello.o
     </screen>
 
   </section>
@@ -1364,18 +1364,18 @@
 
     <scons_example name="depends_macroinc">
       <file name="hello.c" printme="1">
-      #define FOO_HEADER &lt;foo.h&gt;
-      #include FOO_HEADER
+#define FOO_HEADER &lt;foo.h&gt;
+#include FOO_HEADER
 
-      int main() {
-          return FOO;
-      }
+int main() {
+    return FOO;
+}
       </file>
       <file name="SConstruct">
-      Program('hello', 'hello.c', CPPPATH='.')
+Program('hello', 'hello.c', CPPPATH='.')
       </file>
       <file name="foo.h">
-      #define FOO 42
+#define FOO 42
       </file>
     </scons_example>
 
@@ -1416,24 +1416,24 @@
 
     <scons_example name="depends_parsedep">
       <file name="hello.c">
-      #define FOO_HEADER &lt;foo.h&gt;
-      #include FOO_HEADER
+#define FOO_HEADER &lt;foo.h&gt;
+#include FOO_HEADER
 
-      int main() {
-          return FOO;
-      }
+int main() {
+    return FOO;
+}
       </file>
       <file name="SConstruct" printme="1">
-      obj = Object('hello.c', CCFLAGS='-MD -MF hello.d', CPPPATH='.')
-      SideEffect('hello.d', obj)
-      ParseDepends('hello.d')
-      Program('hello', obj)
+obj = Object('hello.c', CCFLAGS='-MD -MF hello.d', CPPPATH='.')
+SideEffect('hello.d', obj)
+ParseDepends('hello.d')
+Program('hello', obj)
       </file>
       <file name="foo.h">
-      #define FOO 42
+#define FOO 42
       </file>
       <file name="hello.d">
-      hello.o: hello.c foo.h
+hello.o: hello.c foo.h
       </file>
     </scons_example>
 
@@ -1453,21 +1453,21 @@
 
     <scons_example name="depends_parsedeprebuild">
       <file name="hello.c">
-      #define FOO_HEADER &lt;foo.h&gt;
-      #include FOO_HEADER
+#define FOO_HEADER &lt;foo.h&gt;
+#include FOO_HEADER
 
-      int main() {
-          return FOO;
-      }
+int main() {
+    return FOO;
+}
       </file>
       <file name="SConstruct">
-      obj = Object('hello.c', CCFLAGS='-MD -MF hello.d', CPPPATH='.')
-      SideEffect('hello.d', obj)
-      ParseDepends('hello.d')
-      Program('hello', obj)
+obj = Object('hello.c', CCFLAGS='-MD -MF hello.d', CPPPATH='.')
+SideEffect('hello.d', obj)
+ParseDepends('hello.d')
+Program('hello', obj)
       </file>
       <file name="foo.h">
-      #define FOO 42
+#define FOO 42
       </file>
     </scons_example>
 
@@ -1480,14 +1480,14 @@
     -->
 
     <screen>
-      % <userinput>scons -Q</userinput>
-      cc -o hello.o -c -MD -MF hello.d -I. hello.c
-      cc -o hello hello.o
-      % <userinput>scons -Q --debug=explain</userinput>
-      scons: rebuilding `hello.o' because `foo.h' is a new dependency
-      cc -o hello.o -c -MD -MF hello.d -I. hello.c
-      % <userinput>scons -Q</userinput>
-      scons: `.' is up to date.
+% <userinput>scons -Q</userinput>
+cc -o hello.o -c -MD -MF hello.d -I. hello.c
+cc -o hello hello.o
+% <userinput>scons -Q --debug=explain</userinput>
+scons: rebuilding `hello.o' because `foo.h' is a new dependency
+cc -o hello.o -c -MD -MF hello.d -I. hello.c
+% <userinput>scons -Q</userinput>
+scons: `.' is up to date.
     </screen>
 
     <para>
@@ -1532,16 +1532,16 @@
 
     <scons_example name="depends_ignore">
       <file name="SConstruct" printme="1">
-      hello_obj=Object('hello.c')
-      hello = Program(hello_obj)
-      Ignore(hello_obj, 'hello.h')
+hello_obj=Object('hello.c')
+hello = Program(hello_obj)
+Ignore(hello_obj, 'hello.h')
       </file>
       <file name="hello.c">
-      #include "hello.h"
-      int main() { printf("Hello, %s!\n", string); }
+#include "hello.h"
+int main() { printf("Hello, %s!\n", string); }
       </file>
       <file name="hello.h">
-      #define string    "world"
+#define string    "world"
       </file>
     </scons_example>
 
@@ -1558,15 +1558,15 @@
     -->
 
     <screen>
-      % <userinput>scons -Q hello</userinput>
-      cc -c -o hello.o hello.c
-      cc -o hello hello.o
-      % <userinput>scons -Q hello</userinput>
-      scons: `hello' is up to date.
-      % <userinput>edit hello.h</userinput>
-        [CHANGE THE CONTENTS OF hello.h]
-      % <userinput>scons -Q hello</userinput>
-      scons: `hello' is up to date.
+% <userinput>scons -Q hello</userinput>
+cc -c -o hello.o hello.c
+cc -o hello hello.o
+% <userinput>scons -Q hello</userinput>
+scons: `hello' is up to date.
+% <userinput>edit hello.h</userinput>
+  [CHANGE THE CONTENTS OF hello.h]
+% <userinput>scons -Q hello</userinput>
+scons: `hello' is up to date.
     </screen>
 
     <para>
@@ -1591,8 +1591,8 @@
     </para>
 
     <programlisting>
-       hello = Program('hello.c', CPPPATH=['/usr/include'])
-       Ignore(hello, '/usr/include/stdio.h')
+hello = Program('hello.c', CPPPATH=['/usr/include'])
+Ignore(hello, '/usr/include/stdio.h')
     </programlisting>
 
     <para>
@@ -1608,13 +1608,13 @@
 
     <scons_example name="depends_ignore_explicit">
       <file name="SConstruct" printme="1">
-      hello_obj=Object('hello.c')
-      hello = Program(hello_obj)
-      Ignore('.',[hello,hello_obj])
+hello_obj=Object('hello.c')
+hello = Program(hello_obj)
+Ignore('.',[hello,hello_obj])
       </file>
       <file name="hello.c">
-      #include "stdio.h"
-      int main() { printf("Hello!\n"); }
+#include "stdio.h"
+int main() { printf("Hello!\n"); }
       </file>
     </scons_example>
 
@@ -1669,18 +1669,18 @@
 
     <scons_example name="depends_no-Requires">
       <file name="SConstruct" printme="1">
-      import time
+import time
 
-      version_c_text = """
-      char *date = "%s";
-      """ % time.ctime(time.time())
-      open('version.c', 'w').write(version_c_text)
+version_c_text = """
+char *date = "%s";
+""" % time.ctime(time.time())
+open('version.c', 'w').write(version_c_text)
 
-      hello = Program(['hello.c', 'version.c'])
+hello = Program(['hello.c', 'version.c'])
       </file>
       <file name="hello.c">
-      extern char *date;
-      int main() { printf("Hello, %s!  I was built: %s\n", date); }
+extern char *date;
+int main() { printf("Hello, %s!  I was built: %s\n", date); }
       </file>
     </scons_example>
 
@@ -1728,23 +1728,23 @@
 
     <scons_example name="depends_Requires">
       <file name="SConstruct" printme="1">
-      import time
+import time
 
-      version_c_text = """
-      char *date = "%s";
-      """ % time.ctime(time.time())
-      open('version.c', 'w').write(version_c_text)
+version_c_text = """
+char *date = "%s";
+""" % time.ctime(time.time())
+open('version.c', 'w').write(version_c_text)
 
-      version_obj = Object('version.c')
+version_obj = Object('version.c')
 
-      hello = Program('hello.c',
-                      LINKFLAGS = str(version_obj[0]))
+hello = Program('hello.c',
+                LINKFLAGS = str(version_obj[0]))
 
-      Requires(hello, version_obj)
+Requires(hello, version_obj)
       </file>
       <file name="hello.c">
-      extern char *date;
-      int main() { printf("Hello, %s!  I was built: %s\n", date); }
+extern char *date;
+int main() { printf("Hello, %s!  I was built: %s\n", date); }
       </file>
     </scons_example>
 
@@ -1801,11 +1801,11 @@
 
     <scons_example name="depends_AlwaysBuild">
       <file name="SConstruct" printme="1">
-      hello = Program('hello.c')
-      AlwaysBuild(hello)
+hello = Program('hello.c')
+AlwaysBuild(hello)
       </file>
       <file name="hello.c">
-      int main() { printf("Hello, %s!\n", string); }
+int main() { printf("Hello, %s!\n", string); }
       </file>
     </scons_example>
 

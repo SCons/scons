@@ -622,7 +622,7 @@ def _set_debug_values(options):
     debug_values = options.debug
 
     if "count" in debug_values:
-        # All of the object counts are within "if __debug__:" blocks,
+        # All of the object counts are within "if track_instances:" blocks,
         # which get stripped when running optimized (with python -O or
         # from compiled *.pyo files).  Provide a warning if __debug__ is
         # stripped, so it doesn't just look like --debug=count is broken.
@@ -630,6 +630,7 @@ def _set_debug_values(options):
         if __debug__: enable_count = True
         if enable_count:
             count_stats.enable(sys.stdout)
+            SCons.Debug.track_instances = True
         else:
             msg = "--debug=count is not supported when running SCons\n" + \
                   "\twith the python -O option or optimized (.pyo) modules."
@@ -644,6 +645,8 @@ def _set_debug_values(options):
     if "memory" in debug_values:
         memory_stats.enable(sys.stdout)
     print_objects = ("objects" in debug_values)
+    if print_objects:
+        SCons.Debug.track_instances = True
     if "presub" in debug_values:
         SCons.Action.print_actions_presub = 1
     if "stacktrace" in debug_values:

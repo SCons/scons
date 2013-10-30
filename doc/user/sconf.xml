@@ -80,10 +80,10 @@
     </para>
 
     <sconstruct>
-    env = Environment()
-    conf = Configure(env)
-    # Checks for libraries, header files, etc. go here!
-    env = conf.Finish()
+env = Environment()
+conf = Configure(env)
+# Checks for libraries, header files, etc. go here!
+env = conf.Finish()
     </sconstruct>
 
     <para>
@@ -131,14 +131,14 @@
     </para>
 
     <sconstruct>
-    env = Environment()
-    conf = Configure(env)
-    if not conf.CheckCHeader('math.h'):
-        print 'Math.h must be installed!'
-        Exit(1)
-    if conf.CheckCHeader('foo.h'):
-        conf.env.Append('-DHAS_FOO_H')
-    env = conf.Finish()
+env = Environment()
+conf = Configure(env)
+if not conf.CheckCHeader('math.h'):
+    print 'Math.h must be installed!'
+    Exit(1)
+if conf.CheckCHeader('foo.h'):
+    conf.env.Append('-DHAS_FOO_H')
+env = conf.Finish()
     </sconstruct>
 
     <para>
@@ -159,12 +159,12 @@
     </para>
 
     <sconstruct>
-    env = Environment()
-    conf = Configure(env)
-    if not conf.CheckCXXHeader('vector.h'):
-        print 'vector.h must be installed!'
-        Exit(1)
-    env = conf.Finish()
+env = Environment()
+conf = Configure(env)
+if not conf.CheckCXXHeader('vector.h'):
+    print 'vector.h must be installed!'
+    Exit(1)
+env = conf.Finish()
     </sconstruct>
 
   </section>
@@ -180,12 +180,12 @@
     </para>
 
     <sconstruct>
-    env = Environment()
-    conf = Configure(env)
-    if not conf.CheckFunc('strcpy'):
-        print 'Did not find strcpy(), using local version'
-        conf.env.Append(CPPDEFINES = '-Dstrcpy=my_local_strcpy')
-    env = conf.Finish()
+env = Environment()
+conf = Configure(env)
+if not conf.CheckFunc('strcpy'):
+    print 'Did not find strcpy(), using local version'
+    conf.env.Append(CPPDEFINES = '-Dstrcpy=my_local_strcpy')
+env = conf.Finish()
     </sconstruct>
 
   </section>
@@ -204,12 +204,12 @@
     </para>
 
     <sconstruct>
-    env = Environment()
-    conf = Configure(env)
-    if not conf.CheckLib('m'):
-        print 'Did not find libm.a or m.lib, exiting!'
-        Exit(1)
-    env = conf.Finish()
+env = Environment()
+conf = Configure(env)
+if not conf.CheckLib('m'):
+    print 'Did not find libm.a or m.lib, exiting!'
+    Exit(1)
+env = conf.Finish()
     </sconstruct>
 
     <para>
@@ -225,12 +225,12 @@
     </para>
 
     <sconstruct>
-    env = Environment()
-    conf = Configure(env)
-    if not conf.CheckLibWithHeader('m', 'math.h', 'c'):
-        print 'Did not find libm.a or m.lib, exiting!'
-        Exit(1)
-    env = conf.Finish()
+env = Environment()
+conf = Configure(env)
+if not conf.CheckLibWithHeader('m', 'math.h', 'c'):
+    print 'Did not find libm.a or m.lib, exiting!'
+    Exit(1)
+env = conf.Finish()
     </sconstruct>
 
     <para>
@@ -254,12 +254,12 @@
     </para>
 
     <sconstruct>
-    env = Environment()
-    conf = Configure(env)
-    if not conf.CheckType('off_t'):
-        print 'Did not find off_t typedef, assuming int'
-        conf.env.Append(CCFLAGS = '-Doff_t=int')
-    env = conf.Finish()
+env = Environment()
+conf = Configure(env)
+if not conf.CheckType('off_t'):
+    print 'Did not find off_t typedef, assuming int'
+    conf.env.Append(CCFLAGS = '-Doff_t=int')
+env = conf.Finish()
     </sconstruct>
 
     <para>
@@ -273,12 +273,12 @@
     </para>
 
     <sconstruct>
-    env = Environment()
-    conf = Configure(env)
-    if not conf.CheckType('off_t', '#include &amp;lt;sys/types.h&amp;gt;\n'):
-        print 'Did not find off_t typedef, assuming int'
-        conf.env.Append(CCFLAGS = '-Doff_t=int')
-    env = conf.Finish()
+env = Environment()
+conf = Configure(env)
+if not conf.CheckType('off_t', '#include &amp;lt;sys/types.h&amp;gt;\n'):
+    print 'Did not find off_t typedef, assuming int'
+    conf.env.Append(CCFLAGS = '-Doff_t=int')
+env = conf.Finish()
     </sconstruct>
 
   </section>
@@ -303,20 +303,20 @@
     </para>
 
     <sconstruct>
-    mylib_test_source_file = """
-    #include &amp;lt;mylib.h&amp;gt;
-    int main(int argc, char **argv)
-    {
-        MyLibrary mylib(argc, argv);
-        return 0;
-    }
-    """
+mylib_test_source_file = """
+#include &amp;lt;mylib.h&amp;gt;
+int main(int argc, char **argv)
+{
+    MyLibrary mylib(argc, argv);
+    return 0;
+}
+"""
 
-    def CheckMyLibrary(context):
-        context.Message('Checking for MyLibrary...')
-        result = context.TryLink(mylib_test_source_file, '.c')
-        context.Result(result)
-        return result
+def CheckMyLibrary(context):
+    context.Message('Checking for MyLibrary...')
+    result = context.TryLink(mylib_test_source_file, '.c')
+    context.Result(result)
+    return result
     </sconstruct>
 
     <para>
@@ -358,8 +358,8 @@
     </para>
 
     <sconstruct>
-    env = Environment()
-    conf = Configure(env, custom_tests = {'CheckMyLibrary' : CheckMyLibrary})
+env = Environment()
+conf = Configure(env, custom_tests = {'CheckMyLibrary' : CheckMyLibrary})
     </sconstruct>
 
     <para>
@@ -380,30 +380,30 @@
     </para>
 
     <sconstruct>
-    mylib_test_source_file = """
-    #include &amp;lt;mylib.h&amp;gt;
-    int main(int argc, char **argv)
-    {
-        MyLibrary mylib(argc, argv);
-        return 0;
-    }
-    """
+mylib_test_source_file = """
+#include &amp;lt;mylib.h&amp;gt;
+int main(int argc, char **argv)
+{
+    MyLibrary mylib(argc, argv);
+    return 0;
+}
+"""
 
-    def CheckMyLibrary(context):
-        context.Message('Checking for MyLibrary... ')
-        result = context.TryLink(mylib_test_source_file, '.c')
-        context.Result(result)
-        return result
+def CheckMyLibrary(context):
+    context.Message('Checking for MyLibrary... ')
+    result = context.TryLink(mylib_test_source_file, '.c')
+    context.Result(result)
+    return result
 
-    env = Environment()
-    conf = Configure(env, custom_tests = {'CheckMyLibrary' : CheckMyLibrary})
-    if not conf.CheckMyLibrary():
-        print 'MyLibrary is not installed!'
-        Exit(1)
-    env = conf.Finish()
+env = Environment()
+conf = Configure(env, custom_tests = {'CheckMyLibrary' : CheckMyLibrary})
+if not conf.CheckMyLibrary():
+    print 'MyLibrary is not installed!'
+    Exit(1)
+env = conf.Finish()
 
-    # We would then add actual calls like Program() to build
-    # something using the "env" construction environment.
+# We would then add actual calls like Program() to build
+# something using the "env" construction environment.
     </sconstruct>
 
     <para>
@@ -414,10 +414,10 @@
     </para>
 
     <screen>
-    % <userinput>scons</userinput>
-    scons: Reading SConscript file ...
-    Checking for MyLibrary... failed
-    MyLibrary is not installed!
+% <userinput>scons</userinput>
+scons: Reading SConscript file ...
+Checking for MyLibrary... failed
+MyLibrary is not installed!
     </screen>
 
     <para>
@@ -428,14 +428,14 @@
     </para>
 
     <screen>
-    % <userinput>scons</userinput>
-    scons: Reading SConscript file ...
-    Checking for MyLibrary... failed
-    scons: done reading SConscript
-    scons: Building targets ...
-        .
-        .
-        .
+% <userinput>scons</userinput>
+scons: Reading SConscript file ...
+Checking for MyLibrary... failed
+scons: done reading SConscript
+scons: Building targets ...
+    .
+    .
+    .
     </screen>
 
   </section>
@@ -455,10 +455,10 @@
     </para>
 
     <screen>
-    % <userinput>scons -Q -c</userinput>
-    Checking for MyLibrary... yes
-    Removed foo.o
-    Removed foo
+% <userinput>scons -Q -c</userinput>
+Checking for MyLibrary... yes
+Removed foo.o
+Removed foo
     </screen>
 
     <para>
@@ -474,19 +474,19 @@
     </para>
 
     <sconstruct>
-    env = Environment()
-    if not env.GetOption('clean'):
-        conf = Configure(env, custom_tests = {'CheckMyLibrary' : CheckMyLibrary})
-        if not conf.CheckMyLibrary():
-            print 'MyLibrary is not installed!'
-            Exit(1)
-        env = conf.Finish()
+env = Environment()
+if not env.GetOption('clean'):
+    conf = Configure(env, custom_tests = {'CheckMyLibrary' : CheckMyLibrary})
+    if not conf.CheckMyLibrary():
+        print 'MyLibrary is not installed!'
+        Exit(1)
+    env = conf.Finish()
     </sconstruct>
 
     <screen>
-    % <userinput>scons -Q -c</userinput>
-    Removed foo.o
-    Removed foo
+% <userinput>scons -Q -c</userinput>
+Removed foo.o
+Removed foo
     </screen>
 
   </section>
