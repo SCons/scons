@@ -1411,8 +1411,8 @@ Comments?
   </para>
   
   <programlisting>
-    env.Library(target = 'libfoo.a', source = ['aaa.c', 'bbb.c', 'ccc.c'])
-    env.NoClean('libfoo.a')
+env.Library(target = 'libfoo.a', source = ['aaa.c', 'bbb.c', 'ccc.c'])
+env.NoClean('libfoo.a')
   </programlisting>
   
   <para>
@@ -1425,8 +1425,8 @@ Comments?
     during "cleanup":
     
     <programlisting>
-      env.Clean(target = 'foo')
-      env.NoClean('foo')
+env.Clean(target = 'foo')
+env.NoClean('foo')
     </programlisting>
     
     

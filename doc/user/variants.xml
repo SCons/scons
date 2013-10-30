@@ -84,53 +84,53 @@ is pretty smart about rebuilding things when you change options.
 
   <scons_example name="variants_ex">
     <file name="SConstruct" printme="1">
-    platform = ARGUMENTS.get('OS', Platform())
+platform = ARGUMENTS.get('OS', Platform())
 
-    include = "#export/$PLATFORM/include"
-    lib = "#export/$PLATFORM/lib"
-    bin = "#export/$PLATFORM/bin"
+include = "#export/$PLATFORM/include"
+lib = "#export/$PLATFORM/lib"
+bin = "#export/$PLATFORM/bin"
 
-    env = Environment(PLATFORM = platform,
-                      BINDIR = bin,
-                      INCDIR = include,
-                      LIBDIR = lib,
-                      CPPPATH = [include],
-                      LIBPATH = [lib],
-                      LIBS = 'world')
+env = Environment(PLATFORM = platform,
+                  BINDIR = bin,
+                  INCDIR = include,
+                  LIBDIR = lib,
+                  CPPPATH = [include],
+                  LIBPATH = [lib],
+                  LIBS = 'world')
 
-    Export('env')
+Export('env')
 
-    env.SConscript('src/SConscript', variant_dir='build/$PLATFORM')
+env.SConscript('src/SConscript', variant_dir='build/$PLATFORM')
     </file>
     <directory name="src"></directory>
     <directory name="src/hello"></directory>
     <directory name="src/world"></directory>
     <file name="src/SConscript">
-    Import('env')
-    SConscript('hello/SConscript')
-    SConscript('world/SConscript')
+Import('env')
+SConscript('hello/SConscript')
+SConscript('world/SConscript')
     </file>
     <file name="src/hello/SConscript">
-    Import('env')
-    hello = env.Program('hello.c')
-    env.Install('$BINDIR', hello)
+Import('env')
+hello = env.Program('hello.c')
+env.Install('$BINDIR', hello)
     </file>
     <file name="src/hello/hello.c">
-    #include "world.h"
-    int main(int argc, char *argv[]) { printf "hello.c\n"; world(); }
+#include "world.h"
+int main(int argc, char *argv[]) { printf "hello.c\n"; world(); }
     </file>
     <file name="src/world/SConscript">
-    Import('env')
-    world = env.Library('world.c')
-    env.Install('$LIBDIR', world)
-    env.Install('$INCDIR', 'world.h')
+Import('env')
+world = env.Library('world.c')
+env.Install('$LIBDIR', world)
+env.Install('$INCDIR', 'world.h')
     </file>
     <file name="src/world/world.h">
-    #define STRING "world.h"
-    extern int world();
+#define STRING "world.h"
+extern int world();
     </file>
     <file name="src/world/world.c">
-    int world() { printf "world.c\n"; }
+int world() { printf "world.c\n"; }
     </file>
   </scons_example>
 
@@ -159,9 +159,9 @@ is pretty smart about rebuilding things when you change options.
 
   <scons_example name="variants_ex2">
     <file name="SConstruct" printme="1">
-    env = Environment(OS = ARGUMENTS.get('OS'))
-    for os in ['newell', 'post']:
-        SConscript('src/SConscript', variant_dir='build/' + os)
+env = Environment(OS = ARGUMENTS.get('OS'))
+for os in ['newell', 'post']:
+    SConscript('src/SConscript', variant_dir='build/' + os)
     </file>
   </scons_example>
 

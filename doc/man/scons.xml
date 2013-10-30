@@ -1470,11 +1470,11 @@ the last dir examined comes first in the resulting path.</para>
   <term>Windows:</term>
   <listitem>
 <literallayout class="monospaced">
-    %ALLUSERSPROFILE/Application Data/scons/site_scons
-    %USERPROFILE%/Local Settings/Application Data/scons/site_scons
-    %APPDATA%/scons/site_scons
-    %HOME%/.scons/site_scons
-    ./site_scons
+%ALLUSERSPROFILE/Application Data/scons/site_scons
+%USERPROFILE%/Local Settings/Application Data/scons/site_scons
+%APPDATA%/scons/site_scons
+%HOME%/.scons/site_scons
+./site_scons
 </literallayout>
   </listitem>
   </varlistentry>
@@ -1482,12 +1482,12 @@ the last dir examined comes first in the resulting path.</para>
   <term>Mac OS X:</term>
   <listitem>
 <literallayout class="monospaced">
-    /Library/Application Support/SCons/site_scons
-    /opt/local/share/scons/site_scons (for MacPorts)
-    /sw/share/scons/site_scons (for Fink)
-    $HOME/Library/Application Support/SCons/site_scons
-    $HOME/.scons/site_scons
-    ./site_scons
+/Library/Application Support/SCons/site_scons
+/opt/local/share/scons/site_scons (for MacPorts)
+/sw/share/scons/site_scons (for Fink)
+$HOME/Library/Application Support/SCons/site_scons
+$HOME/.scons/site_scons
+./site_scons
 </literallayout>
   </listitem>
   </varlistentry>
@@ -1495,10 +1495,10 @@ the last dir examined comes first in the resulting path.</para>
   <term>Solaris:</term>
   <listitem>
 <literallayout class="monospaced">
-    /opt/sfw/scons/site_scons
-    /usr/share/scons/site_scons
-    $HOME/.scons/site_scons
-    ./site_scons
+/opt/sfw/scons/site_scons
+/usr/share/scons/site_scons
+$HOME/.scons/site_scons
+./site_scons
 </literallayout>
   </listitem>
   </varlistentry>
@@ -1506,9 +1506,9 @@ the last dir examined comes first in the resulting path.</para>
   <term>Linux, HPUX, and other Posix-like systems:</term>
   <listitem>
 <literallayout class="monospaced">
-    /usr/share/scons/site_scons
-    $HOME/.scons/site_scons
-    ./site_scons
+/usr/share/scons/site_scons
+$HOME/.scons/site_scons
+./site_scons
 </literallayout>
 
   </listitem>
