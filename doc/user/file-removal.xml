@@ -80,18 +80,18 @@
 
     <scons_example name="fileremoval_precious-ex1">
       <file name="SConstruct" printme="1">
-        env = Environment(RANLIBCOM='')
-        lib = env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
-        env.Precious(lib)
+  env = Environment(RANLIBCOM='')
+  lib = env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
+  env.Precious(lib)
       </file>
       <file name="f1.c">
-      int f1() { }
+int f1() { }
       </file>
       <file name="f2.c">
-      int f2() { }
+int f2() { }
       </file>
       <file name="f3.c">
-      int f3() { }
+int f3() { }
       </file>
     </scons_example>
 
@@ -138,18 +138,18 @@
 
     <scons_example name="fileremoval_noclean-ex1">
       <file name="SConstruct" printme="1">
-        env = Environment(RANLIBCOM='')
-        lib = env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
-        env.NoClean(lib)
+env = Environment(RANLIBCOM='')
+lib = env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
+env.NoClean(lib)
       </file>
       <file name="f1.c">
-      int f1() { }
+int f1() { }
       </file>
       <file name="f2.c">
-      int f2() { }
+int f2() { }
       </file>
       <file name="f3.c">
-      int f3() { }
+int f3() { }
       </file>
     </scons_example>
 
@@ -199,23 +199,23 @@
 
     <scons_example name="fileremoval_clean-ex1">
       <file name="S" printme="1">
-        t = Command('foo.out', 'foo.in', 'build -o $TARGET $SOURCE')
-        Clean(t, 'foo.log')
+t = Command('foo.out', 'foo.in', 'build -o $TARGET $SOURCE')
+Clean(t, 'foo.log')
       </file>
       <file name="SConstruct">
-      env = DefaultEnvironment()
-      import os
-      env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
-      SConscript('S')
+env = DefaultEnvironment()
+import os
+env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+SConscript('S')
       </file>
       <file name="foo.in">
-      foo.in
+foo.in
       </file>
       <file name="foo.log">
-      foo.log
+foo.log
       </file>
       <file name="build" chmod="0755">
-      cat $3 > $2
+cat $3 > $2
       </file>
     </scons_example>
 

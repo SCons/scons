@@ -31,6 +31,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import collections
 
+import SCons.Debug
 from SCons.Debug import logInstanceCreation
 import SCons.Errors
 import SCons.Memoize
@@ -123,7 +124,7 @@ class Executor(object):
 
     def __init__(self, action, env=None, overridelist=[{}],
                  targets=[], sources=[], builder_kw={}):
-        if __debug__: logInstanceCreation(self, 'Executor.Executor')
+        if SCons.Debug.track_instances: logInstanceCreation(self, 'Executor.Executor')
         self.set_action_list(action)
         self.pre_actions = []
         self.post_actions = []
@@ -575,7 +576,7 @@ class Null(object):
     going to worry about unit tests for this--at least for now.
     """
     def __init__(self, *args, **kw):
-        if __debug__: logInstanceCreation(self, 'Executor.Null')
+        if SCons.Debug.track_instances: logInstanceCreation(self, 'Executor.Null')
         self.batches = [Batch(kw['targets'][:], [])]
     def get_build_env(self):
         return get_NullEnvironment()

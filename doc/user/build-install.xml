@@ -106,8 +106,8 @@
     </para>
 
     <screen>
-       $ <userinput>python -V</userinput>
-       Python 2.5.1
+$ <userinput>python -V</userinput>
+Python 2.5.1
     </screen>
 
     <para>
@@ -117,8 +117,8 @@
     </para>
 
     <screen>
-       C:\><userinput>python -V</userinput>
-       Python 2.5.1
+C:\><userinput>python -V</userinput>
+Python 2.5.1
     </screen>
 
     <para>
@@ -200,7 +200,7 @@
       </para>
 
       <screen>
-        # <userinput>yum install scons</userinput>
+# <userinput>yum install scons</userinput>
       </screen>
 
       <para>
@@ -225,7 +225,7 @@
       </para>
 
       <screen>
-        # <userinput>rpm -Uvh scons-&buildversion;-1.noarch.rpm</userinput>
+# <userinput>rpm -Uvh scons-&buildversion;-1.noarch.rpm</userinput>
       </screen>
 
       <para>
@@ -258,7 +258,7 @@
       </para>
 
       <screen>
-        # <userinput>apt-get install scons</userinput>
+# <userinput>apt-get install scons</userinput>
       </screen>
 
       <!--
@@ -273,7 +273,7 @@
       </para>
 
       <screen>
-        # <userinput>db-XXX scons-*.deb</userinput>
+# <userinput>db-XXX scons-*.deb</userinput>
       </screen>
 
       -->
@@ -419,8 +419,8 @@
     </para>
 
     <screen>
-      # <userinput>cd scons-&buildversion;</userinput>
-      # <userinput>python setup.py install</userinput>
+# <userinput>cd scons-&buildversion;</userinput>
+# <userinput>python setup.py install</userinput>
     </screen>
 
     <para>
@@ -480,7 +480,7 @@
       </para>
 
       <screen>
-        # <userinput>python setup.py install --version-lib</userinput>
+# <userinput>python setup.py install --version-lib</userinput>
       </screen>
 
       <para>
@@ -522,7 +522,7 @@
       </para>
 
       <screen>
-        # <userinput>python setup.py install --prefix=/opt/scons</userinput>
+# <userinput>python setup.py install --prefix=/opt/scons</userinput>
       </screen>
 
       <para>
@@ -573,7 +573,7 @@
       </para>
 
       <screen>
-        $ <userinput>python setup.py install --prefix=$HOME</userinput>
+$ <userinput>python setup.py install --prefix=$HOME</userinput>
       </screen>
 
       <para>

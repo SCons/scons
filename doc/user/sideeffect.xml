@@ -77,12 +77,12 @@
 
  <scons_example name="sideeffect_simple">
    <file name="SConstruct" printme="1">
-    env = Environment()
-    f2 = env.Command('file2', 'log', Copy('$TARGET', '$SOURCE'))
-    f1 = env.Command('file1', [],
-        'echo >$TARGET data1; echo >log updated file1'))
-    env.SideEffect('log', env.Command('file1', [],
-        'echo >$TARGET data1; echo >log updated file1'))
+env = Environment()
+f2 = env.Command('file2', 'log', Copy('$TARGET', '$SOURCE'))
+f1 = env.Command('file1', [],
+    'echo >$TARGET data1; echo >log updated file1'))
+env.SideEffect('log', env.Command('file1', [],
+    'echo >$TARGET data1; echo >log updated file1'))
    </file>
  </scons_example>
 
@@ -114,11 +114,11 @@
  </para>
 
  <screen>
- env = Environment()
- env.Command('file1.out', 'file.in',
-             './build --log logfile.txt $SOURCE $TARGET')
- env.Command('file2.out', 'file.in',
-             './build --log logfile.txt $SOURCE $TARGET')
+env = Environment()
+env.Command('file1.out', 'file.in',
+            './build --log logfile.txt $SOURCE $TARGET')
+env.Command('file2.out', 'file.in',
+            './build --log logfile.txt $SOURCE $TARGET')
  </screen>
 
  <para>
@@ -155,17 +155,17 @@
 
  <scons_example name="sideeffect_shared">
    <file name="SConstruct" printme="1">
-   env = Environment()
-   f1 = env.Command('file1.out', 'file1.in',
-                    './build --log logfile.txt $SOURCE $TARGET')
-   f2 = env.Command('file2.out', 'file2.in',
-                    './build --log logfile.txt $SOURCE $TARGET')
-   env.SideEffect('logfile.txt', f1 + f2)
+env = Environment()
+f1 = env.Command('file1.out', 'file1.in',
+                 './build --log logfile.txt $SOURCE $TARGET')
+f2 = env.Command('file2.out', 'file2.in',
+                 './build --log logfile.txt $SOURCE $TARGET')
+env.SideEffect('logfile.txt', f1 + f2)
    </file>
    <file name="file1.in">file1.in</file>
    <file name="file2.in">file2.in</file>
    <file name="build" chmod="0755">
-   cat
+cat
    </file>
  </scons_example>
 
@@ -199,11 +199,11 @@
 
  <scons_example name="sideeffect_parallel">
    <file name="SConstruct" printme="1">
-    env = Environment()
-    f1 = env.Command('file1.out', [], 'echo >$TARGET data1')
-    env.SideEffect('not_really_updated', f1)
-    f2 = env.Command('file2.out', [], 'echo >$TARGET data2')
-    env.SideEffect('not_really_updated', f2)
+env = Environment()
+f1 = env.Command('file1.out', [], 'echo >$TARGET data1')
+env.SideEffect('not_really_updated', f1)
+f2 = env.Command('file2.out', [], 'echo >$TARGET data2')
+env.SideEffect('not_really_updated', f2)
    </file>
  </scons_example>
 

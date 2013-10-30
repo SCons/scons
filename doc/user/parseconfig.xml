@@ -84,10 +84,10 @@
 
  <scons_example name="parseconfig_ex1">
    <file name="SConstruct" printme="1">
-    env = Environment()
-    env['CPPPATH'] = ['/lib/compat']
-    env.ParseConfig("pkg-config x11 --cflags --libs")
-    print env['CPPPATH']
+env = Environment()
+env['CPPPATH'] = ['/lib/compat']
+env.ParseConfig("pkg-config x11 --cflags --libs")
+print env['CPPPATH']
    </file>
  </scons_example>
 
@@ -111,9 +111,9 @@
  -->
 
  <screen>
-    % <userinput>scons -Q</userinput>
-    ['/lib/compat', '/usr/X11/include']
-    scons: `.' is up to date.
+% <userinput>scons -Q</userinput>
+['/lib/compat', '/usr/X11/include']
+scons: `.' is up to date.
  </screen>
 
  <para>
@@ -136,10 +136,10 @@
 
  <scons_example name="parseconfig_ex2">
    <file name="SConstruct" printme="1">
-    env = Environment()
-    env.ParseConfig("pkg-config x11 --cflags --libs")
-    env.ParseConfig("pkg-config x11 --cflags --libs")
-    print env['CPPPATH']
+env = Environment()
+env.ParseConfig("pkg-config x11 --cflags --libs")
+env.ParseConfig("pkg-config x11 --cflags --libs")
+print env['CPPPATH']
    </file>
  </scons_example>
 
@@ -155,9 +155,9 @@
  -->
 
  <screen>
-    % <userinput>scons -Q</userinput>
-    ['/usr/X11/include']
-    scons: `.' is up to date.
+% <userinput>scons -Q</userinput>
+['/usr/X11/include']
+scons: `.' is up to date.
  </screen>
 
 </section>
