@@ -24,49 +24,37 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
-Verify use of the --warn=dependency option.
-"""
-
 import TestSCons
 
-test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
+test = TestSCons.TestSCons()
 
-
-test.write("SConstruct", """\
-import SCons.Defaults
-
-def build(target, source, env):
-    pass
-
-env=Environment()
-env['BUILDERS']['test'] = Builder(action=build,
-                                  source_scanner=SCons.Defaults.ObjSourceScan)
-env.test(target='foo', source='foo.c')
-env.Pseudo('foo')
+# Firstly, build a pseudo target and make sure we get no warnings it
+# doesn't exist under any circumstances
+test.write('SConstruct', """
+env = Environment()
+env.Pseudo(env.Command('foo.out', [], '@echo boo'))
 """)
 
-test.write("foo.c","""
-#include "not_there.h"
+test.run(arguments='-Q', stdout = 'boo\n')
+
+test.run(arguments='-Q --warning=target-not-built', stdout = "boo\n")
+
+# Now do the same thing again but create the target and check we get an
+# error if it exists after the build
+test.write('SConstruct', """
+env = Environment()
+env.Pseudo(env.Command('foo.out', [], Touch('$TARGET')))
 """)
 
-
-expect = r"""
-scons: warning: No dependency generated for file: not_there\.h \(included from: foo\.c\) \-\- file not found
-""" + TestSCons.file_expr
-
-test.run(arguments='--warn=dependency .',
-         stderr=expect)
-
-test.run(arguments='--warn=dependency .',
-         stderr=expect)
-
-test.run(arguments='--warn=all --warn=no-dependency .',
-         stderr=TestSCons.deprecated_python_expr)
-
-test.run(arguments='--warn=no-dependency --warn=all .',
-         stderr=TestSCons.deprecated_python_expr + expect)
-
+test.run(arguments='-Q', stdout = 'Touch("foo.out")\n', stderr = None,
+         status = 2)
+test.must_contain_all_lines(test.stderr(),
+                            'scons:  *** Pseudo target foo.out must not exist')
+test.run(arguments='-Q --warning=target-not-built',
+         stdout = 'Touch("foo.out")\n',
+         stderr = None, status = 2)
+test.must_contain_all_lines(test.stderr(),
+                            'scons:  *** Pseudo target foo.out must not exist')
 
 test.pass_test()
 
