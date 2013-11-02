@@ -6,6 +6,10 @@
 
 RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Tom Tanner:
+    - Stop leaking file handles to subprocesses by switching to using subprocess
+      always.
+
   From Bogdan Tenea:
     - Check for 8.3 filenames on cygwin as well as win32 to make variant_dir work properly.
 
