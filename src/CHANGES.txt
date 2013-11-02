@@ -9,6 +9,13 @@ RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From Tom Tanner:
     - Stop leaking file handles to subprocesses by switching to using subprocess
       always.
+    - Allow multiple options to be specified with --debug=a,b,c
+    - Add support for a readonly cache (--cache-readonly)
+    - Always print stats if requested
+    - Generally try harder to print out a message on build errors
+    - Adds a switch to warn on missing targets
+    - Add Pseudo command to mark targets which should not exist after
+      they are built.
 
   From Bogdan Tenea:
     - Check for 8.3 filenames on cygwin as well as win32 to make variant_dir work properly.
@@ -60,14 +67,14 @@ RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       approach, that also requires less external dependencies (programs and
       Python packages). Added a customized Docbook XSD for strict validation of
       all input XML files.
-      
+
   From Luca Falavigna:
     - Fixed spelling errors in MAN pages (#2897).
-      
+
   From Michael McDougall:
     - Fixed description of ignore_case for EnumVariable in the
       MAN page (#2774).
-      
+
 RELEASE 2.3.0 - Mon, 02 Mar 2013 13:22:29 -0400
 
   From Anatoly Techtonik:
