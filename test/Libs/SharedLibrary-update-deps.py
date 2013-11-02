@@ -58,7 +58,7 @@ else:
 
 test.run(arguments=['libname=foo', extraflags])
 test.must_not_contain_any_line(test.stdout(), ["is up to date"])
-test.run(arguments=['libname=foo', extraflags])
+test.run(arguments=['libname=foo', extraflags, '--debug=explain'])
 test.must_contain_all_lines(test.stdout(), ["is up to date"])
 
 test.pass_test()
