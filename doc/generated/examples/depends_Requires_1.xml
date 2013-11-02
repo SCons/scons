@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd">% <userinput>scons -Q hello</userinput>
+cc -o version.o -c version.c
+cc -o hello.o -c hello.c
+cc -o hello version.o hello.o
+% <userinput>sleep 1</userinput>
+% <userinput>scons -Q hello</userinput>
+cc -o version.o -c version.c
+scons: `hello' is up to date.
+% <userinput>sleep 1</userinput>
+%     [CHANGE THE CONTENTS OF hello.c]
+% <userinput>scons -Q hello</userinput>
+cc -o version.o -c version.c
+cc -o hello.o -c hello.c
+cc -o hello version.o hello.o
+% <userinput>sleep 1</userinput>
+% <userinput>scons -Q hello</userinput>
+cc -o version.o -c version.c
+scons: `hello' is up to date.
+</screen>

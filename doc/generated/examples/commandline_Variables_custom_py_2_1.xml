@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd">% <userinput>scons -Q</userinput>
+cc -o bar.o -c -DRELEASE_BUILD=0 bar.c
+cc -o foo.o -c -DRELEASE_BUILD=0 foo.c
+cc -o foo foo.o bar.o
+</screen>
