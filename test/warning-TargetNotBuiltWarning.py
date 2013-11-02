@@ -24,49 +24,27 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
-Verify use of the --warn=dependency option.
-"""
-
 import TestSCons
 
-test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
+test = TestSCons.TestSCons()
 
-
-test.write("SConstruct", """\
-import SCons.Defaults
-
-def build(target, source, env):
-    pass
-
-env=Environment()
-env['BUILDERS']['test'] = Builder(action=build,
-                                  source_scanner=SCons.Defaults.ObjSourceScan)
-env.test(target='foo', source='foo.c')
-env.Pseudo('foo')
+test.write('SConstruct', """
+foo = Command('foo.out', [], '@echo boo')
+bill = Command('bill.out', [], Touch('$TARGET'))
+Depends(bill, foo)
+Alias('jim', bill)
 """)
 
-test.write("foo.c","""
-#include "not_there.h"
-""")
+test.run(arguments='-Q jim', stdout = 'boo\nTouch("bill.out")\n')
 
+test.run(arguments='-Q jim --warning=target-not-built',
+         stdout = "boo\nscons: `jim' is up to date.\n",
+         stderr = None)
+test.must_contain_all_lines(test.stderr(),
+                            'scons: warning: Cannot find target foo.out after building')
 
-expect = r"""
-scons: warning: No dependency generated for file: not_there\.h \(included from: foo\.c\) \-\- file not found
-""" + TestSCons.file_expr
-
-test.run(arguments='--warn=dependency .',
-         stderr=expect)
-
-test.run(arguments='--warn=dependency .',
-         stderr=expect)
-
-test.run(arguments='--warn=all --warn=no-dependency .',
-         stderr=TestSCons.deprecated_python_expr)
-
-test.run(arguments='--warn=no-dependency --warn=all .',
-         stderr=TestSCons.deprecated_python_expr + expect)
-
+test.run(arguments='-Q jim --warning=target-not-built -n',
+         stdout = "scons: `jim' is up to date.\n")
 
 test.pass_test()
 

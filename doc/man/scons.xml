@@ -1940,6 +1940,14 @@ These warnings are enabled by default.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
+  <term>--warn=target_not_build, --warn=no-target_not_built</term>
+  <listitem>
+<para>Enables or disables warnings about a build rule not building the
+ expected targets. These warnings are not currently enabled by default.</para>
+
+  </listitem>
+  </varlistentry>
+  <varlistentry>
   <term>-Y<emphasis> repository</emphasis>, --repository=<emphasis>repository</emphasis>, --srcdir=<emphasis>repository</emphasis></term>
   <listitem>
 <para>Search the specified repository for any input and target

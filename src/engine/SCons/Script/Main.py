@@ -1086,6 +1086,7 @@ def _build_targets(fs, options, targets, target_top):
     SCons.Action.print_actions          = not options.silent
     SCons.Action.execute_actions        = not options.no_exec
     SCons.Node.FS.do_store_info         = not options.no_exec
+    SCons.Node.do_store_info            = not options.no_exec
     SCons.SConf.dryrun                  = options.no_exec
 
     if options.diskcheck:
