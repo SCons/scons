@@ -1,3 +1,4 @@
 env=Environment()
 libfoo = env.SharedLibrary('foo', 'lib.c')
-env.InstallAs('${SHLIBPREFIX}bar${SHLIBSUFFIX}', libfoo)
+env.InstallAs('${SHLIBPREFIX}bar${SHLIBSUFFIX}', libfoo[0])
+env.InstallAs('${LIBPREFIX}bar${LIBSUFFIX}', libfoo[1])

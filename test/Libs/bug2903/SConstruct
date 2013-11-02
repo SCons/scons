@@ -7,7 +7,7 @@
 # that already.)
 env=Environment()
 libname=ARGUMENTS.get('libname', 'foo')
-env['SHLINKCOM'] = env['SHLINKCOM'] + ' $EXTRA_SHLINKFLAGS'
+env.Append(SHLINKFLAGS=' $EXTRA_SHLINKFLAGS')
 shlinkflags=ARGUMENTS.get('shlinkflags', '')
 env.SharedLibrary('myshared', ['main.c'],
                   LIBS=[libname], LIBPATH='.', EXTRA_SHLINKFLAGS=shlinkflags)
