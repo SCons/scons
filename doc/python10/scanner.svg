@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="744.09448"
+   height="1052.3622"
+   id="svg2">
+  <defs
+     id="defs4" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1">
+    <g
+       transform="matrix(0.07472826,0,0,0.07472826,105.97826,207.29425)"
+       id="g3657"
+       style="fill:none;stroke-width:0.025in">
+      <rect
+         width="1800"
+         height="600"
+         rx="0"
+         x="2700"
+         y="5400"
+         id="rect3659"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter" />
+      <rect
+         width="1800"
+         height="600"
+         rx="0"
+         x="2700"
+         y="4200"
+         id="rect3661"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter" />
+      <rect
+         width="1800"
+         height="600"
+         rx="0"
+         x="2700"
+         y="3000"
+         id="rect3663"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter" />
+      <rect
+         width="1800"
+         height="600"
+         rx="0"
+         x="5100"
+         y="5400"
+         id="rect3665"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:40, 40" />
+      <rect
+         width="1800"
+         height="600"
+         rx="0"
+         x="300"
+         y="5400"
+         id="rect3667"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter" />
+      <rect
+         width="900"
+         height="600"
+         rx="0"
+         x="600"
+         y="3300"
+         id="rect3669"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter" />
+      <polyline
+         id="polyline3671"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter"
+         points="1200,5400 1200,5100 6000,5100 6000,5400 " />
+      <polyline
+         id="polyline3673"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter"
+         points="3600,4950 3600,5400 " />
+      <polygon
+         points="3600,4800 3600,4800 3525,4950 3675,4950 "
+         id="polygon3675"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter" />
+      <polygon
+         points="3640,3675 3600,3600 3600,3600 3560,3675 3600,3750 "
+         id="polygon3677"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter" />
+      <polygon
+         points="1090,3975 1050,3900 1050,3900 1010,3975 1050,4050 "
+         id="polygon3679"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter" />
+      <polyline
+         id="polyline3681"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter"
+         points="1050,4050 1050,4500 2580,4500 " />
+      <polygon
+         points="2579,4530 2579,4530 2699,4500 2579,4470 "
+         id="polygon3683"
+         style="fill:#000000;stroke:#000000;stroke-width:7;stroke-miterlimit:8" />
+      <polyline
+         id="polyline3685"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter"
+         points="3600,3750 3600,4080 " />
+      <polygon
+         points="3570,4079 3570,4079 3600,4199 3630,4079 "
+         id="polygon3687"
+         style="fill:#000000;stroke:#000000;stroke-width:7;stroke-miterlimit:8" />
+      <polyline
+         id="polyline3689"
+         style="stroke:#000000;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:40, 40"
+         points="3600,3000 3600,2700 " />
+      <text
+         x="3000"
+         y="5775"
+         id="text3691"
+         xml:space="preserve"
+         style="font-size:192px;font-style:normal;font-weight:normal;text-anchor:start;fill:#000000;font-family:Times">ProgScanner</text>
+      <text
+         x="3225"
+         y="4575"
+         id="text3693"
+         xml:space="preserve"
+         style="font-size:192px;font-style:normal;font-weight:normal;text-anchor:start;fill:#000000;font-family:Times">Scanner</text>
+      <text
+         x="2925"
+         y="3375"
+         id="text3695"
+         xml:space="preserve"
+         style="font-size:192px;font-style:normal;font-weight:normal;text-anchor:start;fill:#000000;font-family:Times">Environment</text>
+      <text
+         x="5400"
+         y="5775"
+         id="text3697"
+         xml:space="preserve"
+         style="font-size:192px;font-style:normal;font-weight:normal;text-anchor:start;fill:#000000;font-family:Times">JavaScanner</text>
+      <text
+         x="750"
+         y="5775"
+         id="text3699"
+         xml:space="preserve"
+         style="font-size:192px;font-style:normal;font-weight:normal;text-anchor:start;fill:#000000;font-family:Times">CScanner</text>
+      <text
+         x="825"
+         y="3675"
+         id="text3701"
+         xml:space="preserve"
+         style="font-size:192px;font-style:normal;font-weight:normal;text-anchor:start;fill:#000000;font-family:Times">Node</text>
+    </g>
+  </g>
+</svg>
