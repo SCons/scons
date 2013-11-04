@@ -2,7 +2,7 @@
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -156,6 +156,17 @@ file.in
     would be an important clue
     that something was wrong with
     the command that we invoked to build it.
+
+    <para>
+    Note that you can also use --warn=target-not-built which checks
+    whether or not expected targets exist after a build rule is
+    executed.
+    </para>
+
+    <para>
+    <scons_output example="troubleshoot_explain1" os="posix" suffix="3">
+      <scons_output_command>scons -Q --warn=target-not-built</scons_output_command>
+    </scons_output>
 
     </para>
 
