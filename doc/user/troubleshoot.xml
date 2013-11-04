@@ -165,12 +165,9 @@ file.in
     executed.
     </para>
 
-    <para>
     <scons_output example="troubleshoot_explain1" os="posix" suffix="3">
       <scons_output_command>scons -Q --warn=target-not-built</scons_output_command>
     </scons_output>
-
-    </para>
 
     <para>
 
