@@ -157,6 +157,8 @@ file.in
     that something was wrong with
     the command that we invoked to build it.
 
+    </para>
+
     <para>
     Note that you can also use --warn=target-not-built which checks
     whether or not expected targets exist after a build rule is
