@@ -34,6 +34,7 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Action
+import SCons.Builder
 import SCons.Platform
 import SCons.Util
 
@@ -52,17 +53,27 @@ GhostscriptAction = None
 def generate(env):
     """Add Builders and construction variables for Ghostscript to an
     Environment."""
-
     global GhostscriptAction
-    if GhostscriptAction is None:
-        GhostscriptAction = SCons.Action.Action('$GSCOM', '$GSCOMSTR')
+    # The following try-except block enables us to use the Tool
+    # in standalone mode (without the accompanying pdf.py),
+    # whenever we need an explicit call of gs via the Gs()
+    # Builder ...
+    try:
+        if GhostscriptAction is None:
+            GhostscriptAction = SCons.Action.Action('$GSCOM', '$GSCOMSTR')
+    
+        import pdf
+        pdf.generate(env)
+    
+        bld = env['BUILDERS']['PDF']
+        bld.add_action('.ps', GhostscriptAction)
+    except ImportError, e:
+        pass
 
-    import pdf
-    pdf.generate(env)
-
-    bld = env['BUILDERS']['PDF']
-    bld.add_action('.ps', GhostscriptAction)
-
+    gsbuilder = SCons.Builder.Builder(action = SCons.Action.Action('$GSCOM', '$GSCOMSTR'),
+                                      env = env)
+    env['BUILDERS']['Gs'] = gsbuilder
+    
     env['GS']      = gs
     env['GSFLAGS'] = SCons.Util.CLVar('-dNOPAUSE -dBATCH -sDEVICE=pdfwrite')
     env['GSCOM']   = '$GS $GSFLAGS -sOutputFile=$TARGET $SOURCES'

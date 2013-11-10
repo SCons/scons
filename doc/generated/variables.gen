@@ -2324,7 +2324,7 @@ described above.)
     <term>GS</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-The Ghostscript program used to convert PostScript to PDF files.
+The Ghostscript program used, e.g. to convert PostScript to PDF files.
 </para>
 </listitem>
   </varlistentry>
@@ -2332,7 +2332,8 @@ The Ghostscript program used to convert PostScript to PDF files.
     <term>GSCOM</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-The Ghostscript command line used to convert PostScript to PDF files.
+The full Ghostscript command line used for the conversion process. Its default
+value is <quote><literal>$GS $GSFLAGS -sOutputFile=$TARGET $SOURCES</literal></quote>.
 </para>
 </listitem>
   </varlistentry>
@@ -2341,9 +2342,8 @@ The Ghostscript command line used to convert PostScript to PDF files.
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The string displayed when
-Ghostscript is used to convert
-a PostScript file to a PDF file.
-If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-GSCOM"><envar>$GSCOM</envar></link> (the command line) is displayed.
+Ghostscript is called for the conversion process.
+If this is not set (the default), then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-GSCOM"><envar>$GSCOM</envar></link> (the command line) is displayed.
 </para>
 </listitem>
   </varlistentry>
@@ -2351,8 +2351,9 @@ If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="
     <term>GSFLAGS</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-General options passed to the Ghostscript program
-when converting PostScript to PDF files.
+General options passed to the Ghostscript program,
+when converting PostScript to PDF files for example. Its default value
+is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
 </para>
 </listitem>
   </varlistentry>
@@ -3547,6 +3548,9 @@ See <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-msginit"><literal>m
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 Internal ``macro''. Computes locale (language) name based on target filename
 (default: <literal>'${TARGET.filebase}' </literal>).
+</para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+See <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-msginit"><literal>msginit</literal></link> tool and <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-POInit"><function>POInit</function></link> builder.
 </para>
 </listitem>
   </varlistentry>

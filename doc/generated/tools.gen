@@ -444,7 +444,12 @@ Set construction variables for GNU linker/loader.
     <term>gs</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-Set construction variables for Ghostscript.
+This Tool sets the required construction variables for working with
+the Ghostscript command. It also registers an appropriate Action
+with the PDF Builder (<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-PDF"><function>PDF</function></link>), such that the conversion from
+PS/EPS to PDF happens automatically for the TeX/LaTeX toolchain.
+Finally, it adds an explicit Ghostscript Builder (<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-Gs"><function>Gs</function></link>) to the
+environment.
 </para>
 <para>Sets:  &cv-link-GS;, &cv-link-GSCOM;, &cv-link-GSFLAGS;.</para><para>Uses:  &cv-link-GSCOMSTR;.</para></listitem>
   </varlistentry>
