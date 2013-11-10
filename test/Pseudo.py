@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2001-2010 The SCons Foundation
+# __COPYRIGHT__
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -22,41 +22,39 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-"""
-Test the base_dir argument for the HTMLHELP builder.
-"""
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
-import sys
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-if not (sys.platform.startswith('linux') and
-        os.path.isdir('/usr/share/xml/docbook/stylesheet/docbook-xsl')):
-    test.skip_test('Wrong OS or no stylesheets installed, skipping test.\n')
+# Firstly, build a pseudo target and make sure we get no warnings it
+# doesn't exist under any circumstances
+test.write('SConstruct', """
+env = Environment()
+env.Pseudo(env.Command('foo.out', [], '@echo boo'))
+""")
 
-try:
-    import libxml2
-except:
-    try:
-        import lxml
-    except:
-        test.skip_test('Cannot find installed Python binding for libxml2 or lxml, skipping test.\n')
+test.run(arguments='-Q', stdout = 'boo\n')
 
-test.dir_fixture('image')
+test.run(arguments='-Q --warning=target-not-built', stdout = "boo\n")
 
-# Normal invocation
-test.run(stderr=None)
-test.must_exist(test.workpath('output/index.html'))
-test.must_exist(test.workpath('htmlhelp.hhp'))
-test.must_exist(test.workpath('toc.hhc'))
+# Now do the same thing again but create the target and check we get an
+# error if it exists after the build
+test.write('SConstruct', """
+env = Environment()
+env.Pseudo(env.Command('foo.out', [], Touch('$TARGET')))
+""")
 
-# Cleanup
-test.run(arguments='-c')
-test.must_not_exist(test.workpath('output/index.html'))
-test.must_not_exist(test.workpath('htmlhelp.hhp'))
-test.must_not_exist(test.workpath('toc.hhc'))
+test.run(arguments='-Q', stdout = 'Touch("foo.out")\n', stderr = None,
+         status = 2)
+test.must_contain_all_lines(test.stderr(),
+                            'scons:  *** Pseudo target foo.out must not exist')
+test.run(arguments='-Q --warning=target-not-built',
+         stdout = 'Touch("foo.out")\n',
+         stderr = None, status = 2)
+test.must_contain_all_lines(test.stderr(),
+                            'scons:  *** Pseudo target foo.out must not exist')
 
 test.pass_test()
 

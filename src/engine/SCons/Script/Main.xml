@@ -685,6 +685,25 @@ Multiple targets can be passed in to a single call to
 </summary>
 </scons_function>
 
+<scons_function name="Pseudo">
+<arguments>
+(target, ...)
+</arguments>
+<summary>
+<para>
+This indicates that each given
+<varname>target</varname>
+should not be created by the build rule, and if the target is created,
+an error will be generated. This is similar to the gnu make .PHONY
+target. However, in the vast majority of cases, an
+&f-Alias;
+is more appropriate.
+
+Multiple targets can be passed in to a single call to
+&f-Pseudo;.
+</para>
+</summary>
+</scons_function>
 <scons_function name="SetOption">
 <arguments>
 (name, value)

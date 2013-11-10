@@ -20,46 +20,62 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test that SharedLibrary() updates when a different lib is linked, even if it has the same md5.
-This is Tigris bug #2903.
+Test that --debug can take multiple options
 """
 
-import sys
-import os.path
+import re
+
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.dir_fixture( "bug2903" )
+test.write('SConstruct', """
+def cat(target, source, env):
+    open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
+env = Environment(BUILDERS={'Cat':Builder(action=Action(cat))})
+env.Cat('file.out', 'file.in')
+""")
 
-# Build the sub-libs (don't care about details of this)
-test.run(arguments='-f SConstruct-libs')
+test.write('file.in', "file.in\n")
 
-# This should build the main lib, using libfoo.so
-test.run(arguments='libname=foo')
-# This should rebuild the main lib, using libbar.so;
-# it should NOT say it's already up to date.
-test.run(arguments='libname=bar')
-test.must_not_contain_any_line(test.stdout(), ["is up to date"])
-# Try it again, in reverse, to make sure:
-test.run(arguments='libname=foo')
-test.must_not_contain_any_line(test.stdout(), ["is up to date"])
+# Just check that object counts for some representative classes
+# show up in the output.
 
-# Now try changing the link command line (in an innocuous way); should rebuild.
-if sys.platform == 'win32':
-    extraflags='shlinkflags=/DEBUG'
-else:
-    extraflags='shlinkflags=-g'
+def find_object_count(s, stdout):
+    re_string = '\d+ +\d+   %s' % re.escape(s)
+    return re.search(re_string, stdout)
 
-test.run(arguments=['libname=foo', extraflags])
-test.must_not_contain_any_line(test.stdout(), ["is up to date"])
-test.run(arguments=['libname=foo', extraflags, '--debug=explain'])
-test.must_contain_all_lines(test.stdout(), ["is up to date"])
+objects = [
+    'Action.CommandAction',
+    'Builder.BuilderBase',
+    'Environment.Base',
+    'Executor.Executor',
+    'Node.FS',
+    'Node.FS.Base',
+    'Node.Node',
+]
+
+for args in ['--debug=prepare,count', '--debug=count,prepare']:
+    test.run(arguments = args)
+    stdout = test.stdout()
+    missing = [o for o in objects if find_object_count(o, stdout) is None]
+
+    if missing:
+        print "Missing the following object lines from '%s' output:" % args
+        print "\t", ' '.join(missing)
+        print "STDOUT =========="
+        print stdout
+        test.fail_test(1)
+
+    if 'Preparing target file.out...' not in stdout:
+        print "Missing 'Preparing' lines from '%s' output:" % args
+        print "STDOUT =========="
+        print stdout
+        test.fail_test(1)
 
 test.pass_test()
 

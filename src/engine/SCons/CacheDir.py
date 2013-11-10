@@ -37,6 +37,7 @@ cache_enabled = True
 cache_debug = False
 cache_force = False
 cache_show = False
+cache_readonly = False
 
 def CacheRetrieveFunc(target, source, env):
     t = target[0]
@@ -70,6 +71,8 @@ CacheRetrieve = SCons.Action.Action(CacheRetrieveFunc, CacheRetrieveString)
 CacheRetrieveSilent = SCons.Action.Action(CacheRetrieveFunc, None)
 
 def CachePushFunc(target, source, env):
+    if cache_readonly: return
+
     t = target[0]
     if t.nocache:
         return
@@ -150,6 +153,9 @@ class CacheDir(object):
     def is_enabled(self):
         return (cache_enabled and not self.path is None)
 
+    def is_readonly(self):
+        return cache_readonly
+
     def cachepath(self, node):
         """
         """
@@ -201,7 +207,7 @@ class CacheDir(object):
         return False
 
     def push(self, node):
-        if not self.is_enabled():
+        if self.is_readonly() or not self.is_enabled():
             return
         return CachePush(node, [], node.get_build_env())
 

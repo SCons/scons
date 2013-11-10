@@ -47,6 +47,7 @@ import collections
 import copy
 from itertools import chain
 
+import SCons.Debug
 from SCons.Debug import logInstanceCreation
 import SCons.Executor
 import SCons.Memoize
@@ -56,6 +57,10 @@ from SCons.Debug import Trace
 
 def classname(obj):
     return str(obj.__class__).split('.')[-1]
+
+# Set to false if we're doing a dry run. There's more than one of these
+# little treats
+do_store_info = True
 
 # Node states
 #
@@ -183,7 +188,7 @@ class Node(object):
         pass
 
     def __init__(self):
-        if __debug__: logInstanceCreation(self, 'Node.Node')
+        if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.Node')
         # Note that we no longer explicitly initialize a self.builder
         # attribute to None here.  That's because the self.builder
         # attribute may be created on-the-fly later by a subclass (the
@@ -214,6 +219,7 @@ class Node(object):
         self.env = None
         self.state = no_state
         self.precious = None
+        self.pseudo = False
         self.noclean = 0
         self.nocache = 0
         self.cached = 0 # is this node pulled from cache?
@@ -385,6 +391,13 @@ class Node(object):
 
         self.clear()
 
+        if self.pseudo:
+            if self.exists():
+                raise SCons.Errors.UserError("Pseudo target " + str(self) + " must not exist")
+        else:
+            if not self.exists() and do_store_info:
+                SCons.Warnings.warn(SCons.Warnings.TargetNotBuiltWarning,
+                                    "Cannot find target " + str(self) + " after building")
         self.ninfo.update(self)
 
     def visited(self):
@@ -787,6 +800,10 @@ class Node(object):
     def set_precious(self, precious = 1):
         """Set the Node's precious value."""
         self.precious = precious
+
+    def set_pseudo(self, pseudo = True):
+        """Set the Node's precious value."""
+        self.pseudo = pseudo
 
     def set_noclean(self, noclean = 1):
         """Set the Node's noclean value."""

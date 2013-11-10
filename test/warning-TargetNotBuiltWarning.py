@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2001-2010 The SCons Foundation
+# __COPYRIGHT__
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -22,41 +22,29 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-"""
-Test the base_dir argument for the HTMLHELP builder.
-"""
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
-import sys
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-if not (sys.platform.startswith('linux') and
-        os.path.isdir('/usr/share/xml/docbook/stylesheet/docbook-xsl')):
-    test.skip_test('Wrong OS or no stylesheets installed, skipping test.\n')
+test.write('SConstruct', """
+foo = Command('foo.out', [], '@echo boo')
+bill = Command('bill.out', [], Touch('$TARGET'))
+Depends(bill, foo)
+Alias('jim', bill)
+""")
 
-try:
-    import libxml2
-except:
-    try:
-        import lxml
-    except:
-        test.skip_test('Cannot find installed Python binding for libxml2 or lxml, skipping test.\n')
+test.run(arguments='-Q jim', stdout = 'boo\nTouch("bill.out")\n')
 
-test.dir_fixture('image')
+test.run(arguments='-Q jim --warning=target-not-built',
+         stdout = "boo\nscons: `jim' is up to date.\n",
+         stderr = None)
+test.must_contain_all_lines(test.stderr(),
+                            'scons: warning: Cannot find target foo.out after building')
 
-# Normal invocation
-test.run(stderr=None)
-test.must_exist(test.workpath('output/index.html'))
-test.must_exist(test.workpath('htmlhelp.hhp'))
-test.must_exist(test.workpath('toc.hhc'))
-
-# Cleanup
-test.run(arguments='-c')
-test.must_not_exist(test.workpath('output/index.html'))
-test.must_not_exist(test.workpath('htmlhelp.hhp'))
-test.must_not_exist(test.workpath('toc.hhc'))
+test.run(arguments='-Q jim --warning=target-not-built -n',
+         stdout = "scons: `jim' is up to date.\n")
 
 test.pass_test()
 
