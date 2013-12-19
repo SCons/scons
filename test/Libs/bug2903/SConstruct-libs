@@ -1,0 +1,5 @@
+env=Environment()
+libfoo = env.SharedLibrary('foo', 'lib.c')
+env.InstallAs('${SHLIBPREFIX}bar${SHLIBSUFFIX}', libfoo[0])
+if len(libfoo) > 1: # on Windows, there's an import lib (also a .exp, but we don't want that)
+   env.InstallAs('${LIBPREFIX}bar${LIBSUFFIX}', libfoo[1])
