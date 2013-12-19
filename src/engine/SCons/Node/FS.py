@@ -2398,6 +2398,8 @@ class File(Base):
         self.scanner_paths = {}
         if not hasattr(self, '_local'):
             self._local = 0
+        if not hasattr(self, 'released_target_info'):
+            self.released_target_info = False
 
         # If there was already a Builder set on this entry, then
         # we need to make sure we call the target-decider function,
@@ -2725,7 +2727,7 @@ class File(Base):
         return self.get_build_env().get_CacheDir().retrieve(self)
 
     def visited(self):
-        if self.exists():
+        if self.exists() and self.executor is not None:
             self.get_build_env().get_CacheDir().push_if_forced(self)
 
         ninfo = self.get_ninfo()
@@ -2746,6 +2748,58 @@ class File(Base):
             self.get_binfo().__dict__.update(old.binfo.__dict__)
 
         self.store_info()
+
+    def release_target_info(self):
+        """Called just after this node has been marked
+         up-to-date or was built completely.
+         
+         This is where we try to release as many target node infos
+         as possible for clean builds and update runs, in order
+         to minimize the overall memory consumption.
+         
+         We'd like to remove a lot more attributes like self.sources
+         and self.sources_set, but they might get used
+         in a next build step. For example, during configuration
+         the source files for a built *.o file are used to figure out
+         which linker to use for the resulting Program (gcc vs. g++)!
+         That's why we check for the 'keep_targetinfo' attribute,
+         config Nodes and the Interactive mode just don't allow
+         an early release of most variables. 
+
+         In the same manner, we can't simply remove the self.attributes
+         here. The smart linking relies on the shared flag, and some
+         parts of the java Tool use it to transport information
+         about nodes...
+         
+         @see: built() and Node.release_target_info()
+         """
+        if (self.released_target_info or SCons.Node.interactive):
+            return
+        
+        if not hasattr(self.attributes, 'keep_targetinfo'):
+            # Cache some required values, before releasing
+            # stuff like env, executor and builder...
+            self.changed()
+            self.get_contents_sig()
+            self.get_build_env()
+            # Now purge unneeded stuff to free memory...
+            self.executor = None
+            self._memo.pop('rfile', None)
+            self.prerequisites = None
+            # Cleanup lists, but only if they're empty
+            if not len(self.ignore_set):
+                self.ignore_set = None
+            if not len(self.implicit_set):
+                self.implicit_set = None
+            if not len(self.depends_set):
+                self.depends_set = None
+            if not len(self.ignore):
+                self.ignore = None
+            if not len(self.depends):
+                self.depends = None
+            # Mark this node as done, we only have to release
+            # the memory once...
+            self.released_target_info = True
 
     def find_src_builder(self):
         if self.rexists():
@@ -2957,6 +3011,48 @@ class File(Base):
         SCons.Node.Node.builder_set(self, builder)
         self.changed_since_last_build = self.decide_target
 
+    def built(self):
+        """Called just after this File node is successfully built.
+        
+         Just like for 'release_target_info' we try to release
+         some more target node attributes in order to minimize the
+         overall memory consumption.
+         
+         @see: release_target_info
+        """
+
+        SCons.Node.Node.built(self)
+
+        if not hasattr(self.attributes, 'keep_targetinfo'):
+            # Ensure that the build infos get computed and cached...        
+            self.store_info()
+            # ... then release some more variables.
+            self._specific_sources = False
+            self.labspath = None
+            self._save_str()
+            self.cwd = None
+             
+            self.scanner_paths = None
+
+    def changed(self, node=None):
+        """
+        Returns if the node is up-to-date with respect to the BuildInfo
+        stored last time it was built. 
+        
+        For File nodes this is basically a wrapper around Node.changed(),
+        but we allow the return value to get cached after the reference
+        to the Executor got released in release_target_info().
+        """
+        if node is None:
+            try:
+                return self._memo['changed']
+            except KeyError:
+                pass
+        
+        has_changed = SCons.Node.Node.changed(self, node)
+        self._memo['changed'] = has_changed
+        return has_changed
+
     def changed_content(self, target, prev_ni):
         cur_csig = self.get_csig()
         try:
@@ -3090,24 +3186,49 @@ class File(Base):
             self.cachedir_csig = self.get_csig()
         return self.cachedir_csig
 
+    def get_contents_sig(self):
+        """
+        A helper method for get_cachedir_bsig.
+
+        It computes and returns the signature for this
+        node's contents.
+        """
+        
+        try:
+            return self.contentsig
+        except AttributeError:
+            pass
+        
+        executor = self.get_executor()
+
+        result = self.contentsig = SCons.Util.MD5signature(executor.get_contents())
+        return result
+
     def get_cachedir_bsig(self):
+        """
+        Return the signature for a cached file, including
+        its children.
+
+        It adds the path of the cached file to the cache signature,
+        because multiple targets built by the same action will all
+        have the same build signature, and we have to differentiate
+        them somehow.
+        """
         try:
             return self.cachesig
         except AttributeError:
             pass
-
-        # Add the path to the cache signature, because multiple
-        # targets built by the same action will all have the same
-        # build signature, and we have to differentiate them somehow.
+        
+        # Collect signatures for all children
         children = self.children()
-        executor = self.get_executor()
-        # sigs = [n.get_cachedir_csig() for n in children]
         sigs = [n.get_cachedir_csig() for n in children]
-        sigs.append(SCons.Util.MD5signature(executor.get_contents()))
+        # Append this node's signature...
+        sigs.append(self.get_contents_sig())
+        # ...and it's path
         sigs.append(self.path)
+        # Merge this all into a single signature
         result = self.cachesig = SCons.Util.MD5collect(sigs)
         return result
-
 
 default_fs = None
 

@@ -100,6 +100,11 @@ def do_nothing(node): pass
 
 Annotate = do_nothing
 
+# Gets set to 'True' if we're running in interactive mode. Is
+# currently used to release parts of a target's info during
+# clean builds and update runs (see release_target_info).
+interactive = False
+
 # Classes for signature info for Nodes.
 
 class NodeInfoBase(object):
@@ -209,7 +214,7 @@ class Node(object):
         self.depends_set = set()
         self.ignore = []        # dependencies to ignore
         self.ignore_set = set()
-        self.prerequisites = SCons.Util.UniqueList()
+        self.prerequisites = None
         self.implicit = None    # implicit (scanned) dependencies (None means not scanned yet)
         self.waiting_parents = set()
         self.waiting_s_e = set()
@@ -292,7 +297,8 @@ class Node(object):
         except AttributeError:
             pass
         else:
-            executor.cleanup()
+            if executor is not None:
+                executor.cleanup()
 
     def reset_executor(self):
         "Remove cached executor; forces recompute when needed."
@@ -352,10 +358,11 @@ class Node(object):
         methods should call this base class method to get the child
         check and the BuildInfo structure.
         """
-        for d in self.depends:
-            if d.missing():
-                msg = "Explicit dependency `%s' not found, needed by target `%s'."
-                raise SCons.Errors.StopError(msg % (d, self))
+        if self.depends is not None:
+            for d in self.depends:
+                if d.missing():
+                    msg = "Explicit dependency `%s' not found, needed by target `%s'."
+                    raise SCons.Errors.StopError(msg % (d, self))
         if self.implicit is not None:
             for i in self.implicit:
                 if i.missing():
@@ -412,6 +419,23 @@ class Node(object):
         else:
             self.ninfo.update(self)
             self.store_info()
+
+    def release_target_info(self):
+        """Called just after this node has been marked
+         up-to-date or was built completely.
+         
+         This is where we try to release as many target node infos
+         as possible for clean builds and update runs, in order
+         to minimize the overall memory consumption.
+         
+         By purging attributes that aren't needed any longer after
+         a Node (=File) got built, we don't have to care that much how
+         many KBytes a Node actually requires...as long as we free
+         the memory shortly afterwards.
+         
+         @see: built() and File.release_target_info()
+         """
+        pass
 
     #
     #
@@ -514,7 +538,7 @@ class Node(object):
 
     def is_derived(self):
         """
-        Returns true iff this node is derived (i.e. built).
+        Returns true if this node is derived (i.e. built).
 
         This should return true only for nodes whose path should be in
         the variant directory when duplicate=0 and should contribute their build
@@ -854,6 +878,8 @@ class Node(object):
 
     def add_prerequisite(self, prerequisite):
         """Adds prerequisites"""
+        if self.prerequisites is None:
+            self.prerequisites = SCons.Util.UniqueList()
         self.prerequisites.extend(prerequisite)
         self._children_reset()
 
@@ -941,20 +967,14 @@ class Node(object):
         # dictionary patterns I found all ended up using "not in"
         # internally anyway...)
         if self.ignore_set:
-            if self.implicit is None:
-                iter = chain(self.sources,self.depends)
-            else:
-                iter = chain(self.sources, self.depends, self.implicit)
+            iter = chain.from_iterable(filter(None, [self.sources, self.depends, self.implicit]))
 
             children = []
             for i in iter:
                 if i not in self.ignore_set:
                     children.append(i)
         else:
-            if self.implicit is None:
-                children = self.sources + self.depends
-            else:
-                children = self.sources + self.depends + self.implicit
+            children = self.all_children(scan=0)
 
         self._memo['children_get'] = children
         return children
@@ -981,10 +1001,7 @@ class Node(object):
         # using dictionary keys, lose the order, and the only ordered
         # dictionary patterns I found all ended up using "not in"
         # internally anyway...)
-        if self.implicit is None:
-            return self.sources + self.depends
-        else:
-            return self.sources + self.depends + self.implicit
+        return list(chain.from_iterable(filter(None, [self.sources, self.depends, self.implicit])))
 
     def children(self, scan=1):
         """Return a list of the node's direct children, minus those
@@ -1120,17 +1137,18 @@ class Node(object):
         Return a text representation, suitable for displaying to the
         user, of the include tree for the sources of this node.
         """
-        if self.is_derived() and self.env:
+        if self.is_derived():
             env = self.get_build_env()
-            for s in self.sources:
-                scanner = self.get_source_scanner(s)
-                if scanner:
-                    path = self.get_build_scanner_path(scanner)
-                else:
-                    path = None
-                def f(node, env=env, scanner=scanner, path=path):
-                    return node.get_found_includes(env, scanner, path)
-                return SCons.Util.render_tree(s, f, 1)
+            if env:
+                for s in self.sources:
+                    scanner = self.get_source_scanner(s)
+                    if scanner:
+                        path = self.get_build_scanner_path(scanner)
+                    else:
+                        path = None
+                    def f(node, env=env, scanner=scanner, path=path):
+                        return node.get_found_includes(env, scanner, path)
+                    return SCons.Util.render_tree(s, f, 1)
         else:
             return None
 

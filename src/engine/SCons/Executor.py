@@ -230,6 +230,8 @@ class Executor(object):
         self.action_list = action
 
     def get_action_list(self):
+        if self.action_list is None:
+            return []
         return self.pre_actions + self.action_list + self.post_actions
 
     def get_all_targets(self):
@@ -268,7 +270,8 @@ class Executor(object):
         """
         result = SCons.Util.UniqueList([])
         for target in self.get_all_targets():
-            result.extend(target.prerequisites)
+            if target.prerequisites is not None:
+                result.extend(target.prerequisites)
         return result
 
     def get_action_side_effects(self):
@@ -571,7 +574,7 @@ class Null(object):
     """A null Executor, with a null build Environment, that does
     nothing when the rest of the methods call it.
 
-    This might be able to disapper when we refactor things to
+    This might be able to disappear when we refactor things to
     disassociate Builders from Nodes entirely, so we're not
     going to worry about unit tests for this--at least for now.
     """
@@ -625,7 +628,6 @@ class Null(object):
     def set_action_list(self, action):
         self._morph()
         self.set_action_list(action)
-
 
 # Local Variables:
 # tab-width:4
