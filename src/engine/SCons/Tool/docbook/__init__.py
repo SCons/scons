@@ -260,6 +260,34 @@ def __xml_scan(node, env, path, arg):
 docbook_xml_scanner = SCons.Script.Scanner(function = __xml_scan,
                                            argument = None)
 
+
+#
+# Action generators
+#
+def __generate_xsltproc_action(source, target, env, for_signature):
+    cmd = env['DOCBOOK_XSLTPROCCOM']    
+    # Does the environment have a base_dir defined?
+    base_dir = env.subst('$base_dir')
+    if base_dir:
+        # Yes, so replace target path by its filename
+        return cmd.replace('$TARGET','${TARGET.file}')
+    return cmd
+
+
+#
+# Emitters
+#
+def __emit_xsl_basedir(target, source, env):
+    # Does the environment have a base_dir defined?
+    base_dir = env.subst('$base_dir')
+    if base_dir:
+        # Yes, so prepend it to each target
+        return [os.path.join(base_dir, str(t)) for t in target], source
+    
+    # No, so simply pass target and source names through
+    return target, source
+
+
 #
 # Builders
 #
@@ -340,11 +368,13 @@ def __xinclude_lxml(target, source, env):
 __libxml2_builder = SCons.Builder.Builder(
         action = __build_libxml2,
         src_suffix = '.xml',
-        source_scanner = docbook_xml_scanner)
+        source_scanner = docbook_xml_scanner,
+        emitter = __emit_xsl_basedir)
 __lxml_builder = SCons.Builder.Builder(
         action = __build_lxml,
         src_suffix = '.xml',
-        source_scanner = docbook_xml_scanner)
+        source_scanner = docbook_xml_scanner,
+        emitter = __emit_xsl_basedir)
 
 __xinclude_libxml2_builder = SCons.Builder.Builder(
         action = __xinclude_libxml2,
@@ -358,9 +388,11 @@ __xinclude_lxml_builder = SCons.Builder.Builder(
         source_scanner = docbook_xml_scanner)
 
 __xsltproc_builder = SCons.Builder.Builder(
-        action = SCons.Action.Action('$DOCBOOK_XSLTPROCCOM','$DOCBOOK_XSLTPROCCOMSTR'),
+        action = SCons.Action.CommandGeneratorAction(__generate_xsltproc_action,
+                                                     {'cmdstr' : '$DOCBOOK_XSLTPROCCOMSTR'}),
         src_suffix = '.xml',
-        source_scanner = docbook_xml_scanner)
+        source_scanner = docbook_xml_scanner,
+        emitter = __emit_xsl_basedir)
 __xmllint_builder = SCons.Builder.Builder(
         action = SCons.Action.Action('$DOCBOOK_XMLLINTCOM','$DOCBOOK_XMLLINTCOMSTR'),
         suffix = '.xml',
@@ -420,11 +452,11 @@ def DocbookHtmlChunked(env, target, source=None, *args, **kw):
    
     # Create targets
     result = []
-    r = __builder.__call__(env, base_dir+__ensure_suffix(str(target[0]), '.html'), source[0], **kw)
+    r = __builder.__call__(env, __ensure_suffix(str(target[0]), '.html'), source[0], **kw)
     env.Depends(r, kw['DOCBOOK_XSL'])
     result.extend(r)
     # Add supporting files for cleanup
-    env.Clean(r, glob.glob(base_dir+'*.html'))
+    env.Clean(r, glob.glob(os.path.join(base_dir, '*.html')))
 
     return result
 
@@ -455,12 +487,12 @@ def DocbookHtmlhelp(env, target, source=None, *args, **kw):
     
     # Create targets
     result = []
-    r = __builder.__call__(env, base_dir+__ensure_suffix(str(target[0]), '.html'), source[0], **kw)
+    r = __builder.__call__(env, __ensure_suffix(str(target[0]), '.html'), source[0], **kw)
     env.Depends(r, kw['DOCBOOK_XSL'])
     result.extend(r)
     # Add supporting files for cleanup
     env.Clean(r, ['toc.hhc', 'htmlhelp.hhp', 'index.hhk'] +
-                 glob.glob(base_dir+'[ar|bk|ch]*.html'))
+                 glob.glob(os.path.join(base_dir, '[ar|bk|ch]*.html')))
 
     return result
 
@@ -605,12 +637,12 @@ def DocbookSlidesHtml(env, target, source=None, *args, **kw):
 
     # Create targets
     result = []
-    r = __builder.__call__(env, base_dir+__ensure_suffix(str(target[0]), '.html'), source[0], **kw)
+    r = __builder.__call__(env, __ensure_suffix(str(target[0]), '.html'), source[0], **kw)
     env.Depends(r, kw['DOCBOOK_XSL'])
     result.extend(r)
     # Add supporting files for cleanup
-    env.Clean(r, [base_dir+'toc.html'] +
-                 glob.glob(base_dir+'foil*.html'))
+    env.Clean(r, [os.path.join(base_dir, 'toc.html')] +
+                 glob.glob(os.path.join(base_dir, 'foil*.html')))
 
     return result
 
