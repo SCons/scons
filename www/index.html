@@ -1,0 +1,288 @@
+<html>
+<head>
+</head>
+<body>
+
+<div class="h2 app" style="border-left: 0px" id="customcontent">
+
+<h2>What is SCons?</h2>
+
+<p>SCons is a next-generation, 
+cross-platform, build tool.
+Think of SCons as an improved
+substitute for the classic
+<tt>Make</tt> utility
+with integrated functionality
+similar to <tt>autoconf</tt>/<tt>automake</tt>
+and compiler caches such as <tt>ccache</tt>.
+</p>
+
+<p>
+Unlike build tools that invent their own mini-language
+or wedge a scripting language onto some other
+configuration file syntax,
+SCons configuration files
+are actually Python scripts.
+The ability to script your build
+gives you a tremendous amount of flexibility
+to solve complicated build problems
+in surprisingly small amounts of maintainable code.
+</p>
+
+<p>
+In short, SCons is an easier, more reliable
+and more flexible way to build software.
+</p>
+
+<!--
+
+<h2><b>Goal</b></h2>
+
+<p>The primary goal of The SCons Project
+is to become the premiere enterprise-quality tool for
+building cross-platform, multi-language software projects
+by offering unparalleled <b>reliability</b> and <b>flexibility</b>
+to software buildmasters and developers.
+</p>
+
+<p>
+Yeah, yeah, every project has similar lofty mom-and-apple-pie goals,
+blah, blah, blah...
+So why is SCons any different?
+Fair question.
+If you go to our public home page at
+<a href="http://www.scons.org/">http://www.scons.org</a>
+you'll get the usual lists of
+supported features and platforms, testimonials, etc.
+But you're presumably at <emphasis>this</emphasis>
+project page because you're interested in digging a little deeper.
+So here are the <emphasis>philosophical viewpoints</emphasis>
+that we think contribute to SCons being
+a really distinctive software build tool:
+</p>
+
+<ul>
+
+<li>
+<strong>Software builds are getting more complicated, not less</strong>
+<p>
+The proliferation of programming languages and technologies
+have led to increasingly difficult demands being
+placed on traditional software build tools Make.
+EVen if you stick to one language--a well-worn
+and mature one like C, for example--the
+differences between the various C tool chains
+and how they behave on various platforms
+make it a real challenge
+to keep your software builds simple and reliable.
+</p>
+<p>
+Consequently, SCons is a build tool
+</p>
+</li>
+
+<li>
+<strong>Effective software building is not a language design issue</strong>
+<p>
+There are a lot of build tools out there,
+and it seems like a new one pops up every week
+as someone gets the urge to fix some particularly
+bad build problem that they're facing.
+Most build tools have, historically,
+invented some special configuration file format
+to express dependencies and actions.
+The problem is that by the time you take care of all
+of the different ways people 
+you really want to have the flexibility
+that a scripting language gives:
+loops, conditionals, real data structures, etc.
+(It's interesting to note that the Ant community is
+working hard on adding more scriptability to their
+XML-based Ant files,
+and James Duncan Davidson, Ant's creator,
+is on record as saying that he'd use a scripting
+language if he were doing it over again.)
+</p>
+<p>
+</p>
+<p>
+Note that SCons is not completely pure in this regard.
+</p>
+</li>
+
+<li>
+<strong>You want to encapsulate software build complexity
+so most developers don't even have to think about it</strong>
+<pp>
+XXX
+</pp>
+</li>
+
+<li>
+<strong>Overall, a reliable build that takes a little longer is
+cheaper than a fast build that you can't rely on</strong>
+<p>
+This one is sometimes tough to swallow,
+because we all want the build to be as quick as possible
+when we're in that tight edit-build-debug development cycle.
+The problem is that if you take shortcuts in how your
+build tool manages the dependencies,
+you waste time chasing phantom problems
+that simply go away because you finally give up
+and do a <tt>make clean; make</tt>.
+</p>
+</li>
+
+<li>
+<strong>Building software in multiple side-by-side variants is crucial
+in a multi-platform world</strong>
+<pp>
+XXX
+</pp>
+</li>
+
+</ul>
+
+-->
+
+<h2><b>SCons Features</b></h2>
+
+<ul>
+
+<li>
+<strong>Configuration files are Python scripts</strong>
+<p>
+This provides much more flexibility for solving
+difficult build problems
+than traditional build tools.
+</p>
+</li>
+
+<li>
+<strong>Reliable, automatic dependency analysis</strong>
+<p>
+C, C++ and Fortran are scanned for dependencies,
+eliminating the need for a separate <tt>make depend</tt> step
+or a <tt>make clean</tt> to get all of the dependencies.
+Avoids the time waste from debugging phantom problems
+that mysteriously disappear after you
+<tt>make clean; make</tt>.
+Easily extended to scan for other languages or file types.
+</p>
+</li>
+
+<li>
+<strong>Built-in support for multiple languages</strong>
+<p>
+C, C++, D, Java, Fortran, Yacc, Lex, Qt and SWIG.
+Can also build TeX and LaTeX documents.
+Easily extended for other languages or file types.
+</p>
+</li>
+
+<li>
+<strong>Cross-platform</strong>
+<p>
+Known to work on Linux,
+other POSIX systems (AIX, *BSD, HP/UX, IRIX, Solaris),
+Windows (NT, 2000, XP),
+Mac OS X,
+and OS/2.
+</p>
+</li>
+
+<li>
+<strong>Fetch files from SCM systems or central directory trees</strong>
+<p>
+Built-in support for SCCS, RCS, CVS, BitKeeper and Perforce.
+On-disk directory trees can be searched for source files
+or pre-built target files.
+</p>
+</li>
+
+<li>
+<strong>Support for Microsoft Visual Studio .NET and 2005</strong>
+<p>
+Generates <tt>.dsp</tt> and <tt>.dsw</tt> files,
+or <tt>.sln</tt> and <tt>.vcproj</tt> files,
+from the same build configuration used to build on all platforms.
+Allows Windows developers to do all the productive
+point-and-click debugging they're used to
+without having to maintain a separate build configuration
+just for Windows.
+</p>
+</li>
+
+<li>
+<strong>Reliable detection of file changes using MD5 signatures</strong>
+<p>
+Use of traditional file timestamps instead of MD5 can be configured.
+</p>
+</li>
+
+<li>
+<strong>Parallel builds</strong>
+<p>
+Keeps up to N jobs running simultaneously regardless
+of directory hierarchy.
+</p>
+</li>
+
+<li>
+<strong>Global view of dependencies</strong>
+<p>
+Simplifies builds by eliminating multiple passes
+or reording targets to build everything correctly.
+</p>
+</li>
+
+<li>
+<strong>Multi-platform configuration (like <tt>Autoconf</tt>)</strong>
+<p>
+Support for finding <tt>#include</tt> files,
+libraries, functions and <tt>typedef</tt> declarations.
+</p>
+</li>
+
+<li>
+<strong>Shared built-file cache</strong>
+<p>
+Speeds up multiple builds by allowing developers
+to share pre-built targets
+(like <tt>ccache</tt>, but for any type of target file,
+not just C/C++ compilation).
+</p>
+</li>
+
+</ul>
+
+<!--
+
+<h2></h2>
+
+<p>What are the high-level assumptions or ground rules for the project?
+</p>
+
+<p>For example:
+</p>
+
+<ul>
+<li> we will use programming language X on operating system Y for now.
+
+<li>We will, or will not, consider certain functional areas like
+internationalization, high security, concurrency, etc.  The list of
+functional areas will depend on what you are trying to do.
+
+<li>Try to keep this part short.
+</ul>
+
+-->
+
+<h2>Future</h2>
+
+See the <a href="roadmap.html">Roadmap</a> page.
+
+</div>
+
+</body>
+</html>
