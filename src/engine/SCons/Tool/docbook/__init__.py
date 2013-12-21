@@ -318,9 +318,14 @@ def __build_lxml(target, source, env):
     """
     from lxml import etree
     
+    xslt_ac = etree.XSLTAccessControl(read_file=True, 
+                                      write_file=True, 
+                                      create_dir=True, 
+                                      read_network=False, 
+                                      write_network=False)
     xsl_style = env.subst('$DOCBOOK_XSL')
     xsl_tree = etree.parse(xsl_style)
-    transform = etree.XSLT(xsl_tree)
+    transform = etree.XSLT(xsl_tree, access_control=xslt_ac)
     doc = etree.parse(str(source[0]))
     # Support for additional parameters
     parampass = {}
@@ -403,6 +408,116 @@ __fop_builder = SCons.Builder.Builder(
         suffix = '.pdf',
         src_suffix = '.fo',
         ensure_suffix=1)
+
+def DocbookEpub(env, target, source=None, *args, **kw):
+    """
+    A pseudo-Builder, providing a Docbook toolchain for ePub output.
+    """
+    import zipfile
+    import shutil
+    from lxml import etree
+    
+    def build_open_container(target, source, env):
+        """Generate the *.epub file from intermediate outputs
+
+        Constructs the epub file according to the Open Container Format. This 
+        function could be replaced by a call to the SCons Zip builder if support
+        was added for different compression formats for separate source nodes.
+        """
+        zf = zipfile.ZipFile(str(target[0]), 'w')
+        mime_file = open('mimetype', 'w')
+        mime_file.write('application/epub+zip')
+        mime_file.close()
+        zf.write(mime_file.name, compress_type = zipfile.ZIP_STORED)
+        for s in source:
+            for dirpath, dirnames, filenames in os.walk(str(s)):
+                for fname in filenames:
+                    path = os.path.join(dirpath, fname)
+                    if os.path.isfile(path):
+                        zf.write(path, os.path.relpath(path, str(env.get('ZIPROOT', ''))),
+                            zipfile.ZIP_DEFLATED)
+        zf.close()
+        
+    def add_resources(target, source, env):
+        """Add missing resources to the OEBPS directory
+
+        Ensure all the resources in the manifest are present in the OEBPS directory.
+        """
+        hrefs = []
+        content_file = os.path.join(source[0].abspath, 'content.opf')
+        if not os.path.isfile(content_file):
+            return
+        
+        hrefs = []
+        if has_libxml2:
+            nsmap = {'opf' : 'http://www.idpf.org/2007/opf'}
+            # Read file and resolve entities
+            doc = libxml2.readFile(content_file, None, 0)
+            opf = doc.getRootElement()
+            # Create xpath context
+            xpath_context = doc.xpathNewContext()
+            # Register namespaces
+            for key, val in nsmap.iteritems():
+                xpath_context.xpathRegisterNs(key, val)
+
+            if hasattr(opf, 'xpathEval') and xpath_context:
+                # Use the xpath context
+                xpath_context.setContextNode(opf)
+                items = xpath_context.xpathEval(".//opf:item")
+            else:
+                items = opf.findall(".//{'http://www.idpf.org/2007/opf'}item")
+
+            for item in items:
+                if hasattr(item, 'prop'):
+                    hrefs.append(item.prop('href'))
+                else:
+                    hrefs.append(item.attrib['href'])
+
+            doc.freeDoc()
+            xpath_context.xpathFreeContext()            
+        elif has_lxml:
+            from lxml import etree
+            
+            opf = etree.parse(content_file)
+            # All the opf:item elements are resources
+            for item in opf.xpath('//opf:item', 
+                    namespaces= { 'opf': 'http://www.idpf.org/2007/opf' }):
+                hrefs.append(item.attrib['href'])
+        
+        for href in hrefs:
+            # If the resource was not already created by DocBook XSL itself, 
+            # copy it into the OEBPS folder
+            referenced_file = os.path.join(source[0].abspath, href)
+            if not os.path.exists(referenced_file):
+                shutil.copy(href, os.path.join(source[0].abspath, href))
+        
+    # Init list of targets/sources
+    target, source = __extend_targets_sources(target, source)
+    
+    # Init XSL stylesheet
+    __init_xsl_stylesheet(kw, env, '$DOCBOOK_DEFAULT_XSL_EPUB', ['epub','docbook.xsl'])
+
+    # Setup builder
+    __builder = __select_builder(__lxml_builder, __libxml2_builder, __xsltproc_builder)
+    
+    # Create targets
+    result = []
+    tlist = ['OEBPS/toc.ncx', 'META-INF/container.xml']
+    dirs = [SCons.Script.Dir('OEBPS'), SCons.Script.Dir('META-INF')]
+    r = __builder.__call__(env, tlist, source[0], **kw)
+    
+    env.Depends(r, kw['DOCBOOK_XSL'])
+    result.extend(r)
+
+    container = env.Command(__ensure_suffix(str(target[0]), '.epub'), 
+        tlist, [add_resources, build_open_container])    
+    
+    env.Depends(container, r)
+    result.extend(container)
+    # Add supporting files for cleanup
+    env.Clean(r, dirs + [SCons.Script.File('mimetype')])
+
+    return result
 
 def DocbookHtml(env, target, source=None, *args, **kw):
     """
@@ -686,19 +801,19 @@ def DocbookXslt(env, target, source=None, *args, **kw):
     return result
 
 
-
 def generate(env):
     """Add Builders and construction variables for docbook to an Environment."""
 
     env.SetDefault(
         # Default names for customized XSL stylesheets
-        DOCBOOK_DEFAULT_XSL_HTML = '',        
-        DOCBOOK_DEFAULT_XSL_HTMLCHUNKED = '',        
-        DOCBOOK_DEFAULT_XSL_HTMLHELP = '',        
-        DOCBOOK_DEFAULT_XSL_PDF = '',        
-        DOCBOOK_DEFAULT_XSL_MAN = '',        
-        DOCBOOK_DEFAULT_XSL_SLIDESPDF = '',        
-        DOCBOOK_DEFAULT_XSL_SLIDESHTML = '',        
+        DOCBOOK_DEFAULT_XSL_EPUB = '',
+        DOCBOOK_DEFAULT_XSL_HTML = '',
+        DOCBOOK_DEFAULT_XSL_HTMLCHUNKED = '',
+        DOCBOOK_DEFAULT_XSL_HTMLHELP = '',
+        DOCBOOK_DEFAULT_XSL_PDF = '',
+        DOCBOOK_DEFAULT_XSL_MAN = '',
+        DOCBOOK_DEFAULT_XSL_SLIDESPDF = '',
+        DOCBOOK_DEFAULT_XSL_SLIDESHTML = '',
         
         # Paths to the detected executables
         DOCBOOK_XSLTPROC = '',
@@ -725,6 +840,7 @@ def generate(env):
     _detect(env)
 
     try:
+        env.AddMethod(DocbookEpub, "DocbookEpub")
         env.AddMethod(DocbookHtml, "DocbookHtml")
         env.AddMethod(DocbookHtmlChunked, "DocbookHtmlChunked")
         env.AddMethod(DocbookHtmlhelp, "DocbookHtmlhelp")
@@ -737,6 +853,7 @@ def generate(env):
     except AttributeError:
         # Looks like we use a pre-0.98 version of SCons...
         from SCons.Script.SConscript import SConsEnvironment
+        SConsEnvironment.DocbookEpub = DocbookEpub        
         SConsEnvironment.DocbookHtml = DocbookHtml
         SConsEnvironment.DocbookHtmlChunked = DocbookHtmlChunked
         SConsEnvironment.DocbookHtmlhelp = DocbookHtmlhelp

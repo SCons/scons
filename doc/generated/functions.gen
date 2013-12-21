@@ -3419,6 +3419,28 @@ Progress(['-\r', '\\\r', '|\r', '/\r'], interval=5)
 </example_commands>
 </listitem>
   </varlistentry>
+  <varlistentry id="f-Pseudo">
+    <term>
+      <literal>Pseudo(target, ...)</literal>
+    </term>
+    <term>
+      <literal>env.Pseudo(target, ...)</literal>
+    </term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+This indicates that each given
+<varname>target</varname>
+should not be created by the build rule, and if the target is created,
+an error will be generated. This is similar to the gnu make .PHONY
+target. However, in the vast majority of cases, an
+<function xmlns="http://www.scons.org/dbxsd/v1.0">Alias</function>
+is more appropriate.
+
+Multiple targets can be passed in to a single call to
+<function xmlns="http://www.scons.org/dbxsd/v1.0">Pseudo</function>.
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="f-RCS">
     <term>
       <literal>env.RCS()</literal>

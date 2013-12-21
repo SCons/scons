@@ -909,6 +909,15 @@ into a list of Dir instances relative to the target being built.
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-DOCBOOK_DEFAULT_XSL_EPUB">
+    <term>DOCBOOK_DEFAULT_XSL_EPUB</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The default XSLT file for the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookEpub"><function>DocbookEpub</function></link> builder within the
+current environment, if no other XSLT gets specified via keyword.
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-DOCBOOK_DEFAULT_XSL_HTML">
     <term>DOCBOOK_DEFAULT_XSL_HTML</term>
     <listitem>
