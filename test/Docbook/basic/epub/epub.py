@@ -41,7 +41,7 @@ except:
 test.dir_fixture('image')
 
 # Normal invocation
-test.run()
+test.run(stderr=None)
 test.must_exist(test.workpath('manual.epub'))
 test.must_exist(test.workpath('OEBPS','toc.ncx'))
 test.must_exist(test.workpath('OEBPS','content.opf'))
