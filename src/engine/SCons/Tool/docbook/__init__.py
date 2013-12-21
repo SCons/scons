@@ -415,7 +415,6 @@ def DocbookEpub(env, target, source=None, *args, **kw):
     """
     import zipfile
     import shutil
-    from lxml import etree
     
     def build_open_container(target, source, env):
         """Generate the *.epub file from intermediate outputs
