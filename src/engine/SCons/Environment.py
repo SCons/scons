@@ -127,7 +127,7 @@ future_reserved_construction_var_names = [
 
 def copy_non_reserved_keywords(dict):
     result = semi_deepcopy(dict)
-    for k in result.keys():
+    for k in list(result.keys()):
         if k in reserved_construction_var_names:
             msg = "Ignoring attempt to set reserved variable `$%s'"
             SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning, msg % k)
@@ -398,8 +398,8 @@ class SubstitutionEnvironment(object):
         # gotten better than dict.has_key() in Python 2.5.)
         self._special_set_keys = list(self._special_set.keys())
 
-    def __cmp__(self, other):
-        return cmp(self._dict, other._dict)
+    def __eq__(self, other):
+        return self._dict == other._dict
 
     def __delitem__(self, key):
         special = self._special_del.get(key)
@@ -1768,7 +1768,7 @@ class Base(SubstitutionEnvironment):
         return os.path.join(dir, new_prefix+name+new_suffix)
 
     def SetDefault(self, **kw):
-        for k in kw.keys():
+        for k in list(kw.keys()):
             if k in self._dict:
                 del kw[k]
         self.Replace(**kw)
