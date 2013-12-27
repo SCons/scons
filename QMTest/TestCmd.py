@@ -287,6 +287,8 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 from __future__ import division, print_function
 
+from six import PY3
+
 __author__ = "Steven Knight <knight at baldmt dot com>"
 __revision__ = "TestCmd.py 1.3.D001 2010/06/03 12:58:27 knight"
 __version__ = "1.3"
@@ -1705,7 +1707,7 @@ class TestCmd(object):
                     do_chmod(os.path.join(dirpath, name))
             do_chmod(top)
 
-    def write(self, file, content, mode = 'wb'):
+    def write(self, file, content, mode = 'w'):
         """Writes the specified content text (second argument) to the
         specified file name (first argument).  The file name may be
         a list, in which case the elements are concatenated with the
@@ -1714,6 +1716,8 @@ class TestCmd(object):
         exist.  The I/O mode for the file may be specified; it must
         begin with a 'w'.  The default is 'wb' (binary write).
         """
+        if PY3:
+            content = re.sub('print (.+)', 'print(\1)', content)
         file = self.canonicalize(file)
         if mode[0] != 'w':
             raise ValueError("mode must begin with 'w'")
