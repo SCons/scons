@@ -26,7 +26,6 @@ files.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-from __future__ import division, print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -257,7 +256,8 @@ def _SConscript(fs, *files, **kw):
                         pass
                     try:
                         try:
-                            exec(_file_.read(), call_stack[-1].globals)
+                            exec(compile(_file_.read(), _file_.name, 'exec'),
+                                 call_stack[-1].globals)
                         except SConscriptReturn:
                             pass
                     finally:
