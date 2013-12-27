@@ -62,7 +62,7 @@ test = TestCmd.TestCmd(workdir = '')
 test.write('act.py', """\
 import os, string, sys
 f = open(sys.argv[1], 'w')
-f.write("act.py: '" + string.join(sys.argv[2:], "' '") + "'\\n")
+f.write("act.py: '" + "' '".join(sys.argv[2:]) + "'\\n")
 try:
     if sys.argv[3]:
         f.write("act.py: '" + os.environ[sys.argv[3]] + "'\\n")
@@ -1326,7 +1326,7 @@ class CommandActionTestCase(unittest.TestCase):
         c = a.get_contents(target=[], source=[],
                            env=Environment(foo = 'FFF', bar = 'BBB',
                                            baz = CmdGen))
-        assert c == "| | FFF BBB 1", c
+        assert c == b"| | FFF BBB 1", c
 
         # Make sure that CommandActions use an Environment's
         # subst_target_source() method for substitution.
@@ -1337,7 +1337,7 @@ class CommandActionTestCase(unittest.TestCase):
         c = a.get_contents(target=DummyNode('ttt'), source = DummyNode('sss'),
                            env=SpecialEnvironment(foo = 'GGG', bar = 'CCC',
                                                   baz = 'ZZZ'))
-        assert c == 'subst_target_source: | $( $foo | $bar $) | $baz 1', c
+        assert c == b'subst_target_source: | $( $foo | $bar $) | $baz 1', c
 
         # We've discussed using the real target and source names in a
         # CommandAction's signature contents.  This would have have the
@@ -1354,35 +1354,35 @@ class CommandActionTestCase(unittest.TestCase):
 
         a = SCons.Action.CommandAction(["$TARGET"])
         c = a.get_contents(target=t, source=s, env=env)
-        assert c == "t1", c
+        assert c == b"t1", c
 
         a = SCons.Action.CommandAction(["$TARGETS"])
         c = a.get_contents(target=t, source=s, env=env)
-        assert c == "t1 t2 t3 t4 t5 t6", c
+        assert c == b"t1 t2 t3 t4 t5 t6", c
 
         a = SCons.Action.CommandAction(["${TARGETS[2]}"])
         c = a.get_contents(target=t, source=s, env=env)
-        assert c == "t3", c
+        assert c == b"t3", c
 
         a = SCons.Action.CommandAction(["${TARGETS[3:5]}"])
         c = a.get_contents(target=t, source=s, env=env)
-        assert c == "t4 t5", c
+        assert c == b"t4 t5", c
 
         a = SCons.Action.CommandAction(["$SOURCE"])
         c = a.get_contents(target=t, source=s, env=env)
-        assert c == "s1", c
+        assert c == b"s1", c
 
         a = SCons.Action.CommandAction(["$SOURCES"])
         c = a.get_contents(target=t, source=s, env=env)
-        assert c == "s1 s2 s3 s4 s5 s6", c
+        assert c == b"s1 s2 s3 s4 s5 s6", c
 
         a = SCons.Action.CommandAction(["${SOURCES[2]}"])
         c = a.get_contents(target=t, source=s, env=env)
-        assert c == "s3", c
+        assert c == b"s3", c
 
         a = SCons.Action.CommandAction(["${SOURCES[3:5]}"])
         c = a.get_contents(target=t, source=s, env=env)
-        assert c == "s4 s5", c
+        assert c == b"s4 s5", c
 
 class CommandGeneratorActionTestCase(unittest.TestCase):
 
@@ -1499,7 +1499,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
                           ignore = 'foo', test=test)
         a = self.factory(f)
         c = a.get_contents(target=[], source=[], env=env)
-        assert c == "guux FFF BBB test", c
+        assert c == b"guux FFF BBB test", c
 
     def test_get_contents_of_function_action(self):
         """Test contents of a CommandGeneratorAction-generated FunctionAction
@@ -1509,13 +1509,13 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
             pass
 
         func_matches = [
-            "0,0,0,0,(),(),(d\000\000S),(),()",
-            "0,0,0,0,(),(),(d\x00\x00S),(),()",
+            b"0,0,0,0,(),(),(d\000\000S),(),()",
+            b"0,0,0,0,(),(),(d\x00\x00S),(),()",
             ]
         
         meth_matches = [
-            "1,1,0,0,(),(),(d\000\000S),(),()",
-            "1,1,0,0,(),(),(d\x00\x00S),(),()",
+            b"1,1,0,0,(),(),(d\000\000S),(),()",
+            b"1,1,0,0,(),(),(d\x00\x00S),(),()",
         ]
 
         def f_global(target, source, env, for_signature):
@@ -1540,7 +1540,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         def f_local(target, source, env, for_signature):
             return SCons.Action.Action(LocalFunc, varlist=['XYZ'])
 
-        matches_foo = [x + "foo" for x in func_matches]
+        matches_foo = [x + b"foo" for x in func_matches]
 
         a = self.factory(f_global)
         c = a.get_contents(target=[], source=[], env=env)
@@ -1668,13 +1668,13 @@ class FunctionActionTestCase(unittest.TestCase):
             pass
 
         func_matches = [
-            "0,0,0,0,(),(),(d\000\000S),(),()",
-            "0,0,0,0,(),(),(d\x00\x00S),(),()",
+            b"0,0,0,0,(),(),(d\000\000S),(),()",
+            b"0,0,0,0,(),(),(d\x00\x00S),(),()",
             ]
         
         meth_matches = [
-            "1,1,0,0,(),(),(d\000\000S),(),()",
-            "1,1,0,0,(),(),(d\x00\x00S),(),()",
+            b"1,1,0,0,(),(),(d\000\000S),(),()",
+            b"1,1,0,0,(),(),(d\x00\x00S),(),()",
         ]
 
         def factory(act, **kw):
@@ -1688,7 +1688,7 @@ class FunctionActionTestCase(unittest.TestCase):
         c = a.get_contents(target=[], source=[], env=Environment())
         assert c in func_matches, repr(c)
 
-        matches_foo = [x + "foo" for x in func_matches]
+        matches_foo = [x + b"foo" for x in func_matches]
 
         a = factory(GlobalFunc, varlist=['XYZ'])
         c = a.get_contents(target=[], source=[], env=Environment())
@@ -1706,10 +1706,10 @@ class FunctionActionTestCase(unittest.TestCase):
 
         class Foo(object):
             def get_contents(self, target, source, env):
-                return 'xyzzy'
+                return b'xyzzy'
         a = factory(Foo())
         c = a.get_contents(target=[], source=[], env=Environment())
-        assert c == 'xyzzy', repr(c)
+        assert c == b'xyzzy', repr(c)
 
         class LocalClass(object):
             def LocalMethod(self):
@@ -1820,7 +1820,7 @@ class ListActionTestCase(unittest.TestCase):
                                      "z"])
         c = a.get_contents(target=[], source=[], env=Environment(s = self))
         assert self.foo==1, self.foo
-        assert c == "xyz", c
+        assert c == b"xyz", c
 
 class LazyActionTestCase(unittest.TestCase):
     def test___init__(self):
@@ -1871,7 +1871,7 @@ class LazyActionTestCase(unittest.TestCase):
         a = SCons.Action.Action("${FOO}")
         env = Environment(FOO = [["This", "is", "a", "test"]])
         c = a.get_contents(target=[], source=[], env=env)
-        assert c == "This is a test", c
+        assert c == b"This is a test", c
 
     def test_get_contents_of_function_action(self):
         """Test fetching the contents of a lazy-evaluation FunctionAction
@@ -1881,13 +1881,13 @@ class LazyActionTestCase(unittest.TestCase):
             pass
 
         func_matches = [
-            "0,0,0,0,(),(),(d\000\000S),(),()",
-            "0,0,0,0,(),(),(d\x00\x00S),(),()",
+            b"0,0,0,0,(),(),(d\000\000S),(),()",
+            b"0,0,0,0,(),(),(d\x00\x00S),(),()",
             ]
         
         meth_matches = [
-            "1,1,0,0,(),(),(d\000\000S),(),()",
-            "1,1,0,0,(),(),(d\x00\x00S),(),()",
+            b"1,1,0,0,(),(),(d\000\000S),(),()",
+            b"1,1,0,0,(),(),(d\x00\x00S),(),()",
         ]
 
         def factory(act, **kw):
@@ -1904,7 +1904,7 @@ class LazyActionTestCase(unittest.TestCase):
         c = a.get_contents(target=[], source=[], env=env)
         assert c in func_matches, repr(c)
 
-        matches_foo = [x + "foo" for x in func_matches]
+        matches_foo = [x + b"foo" for x in func_matches]
 
         env = Environment(FOO = factory(GlobalFunc, varlist=['XYZ']))
         c = a.get_contents(target=[], source=[], env=env)
@@ -1931,8 +1931,8 @@ class ActionCallerTestCase(unittest.TestCase):
             pass
 
         matches = [
-            "d\000\000S",
-            "d\x00\x00S"
+            b"d\000\000S",
+            b"d\x00\x00S"
         ]
 
         af = SCons.Action.ActionFactory(GlobalFunc, strfunc)
@@ -1946,8 +1946,8 @@ class ActionCallerTestCase(unittest.TestCase):
         assert c in matches, repr(c)
 
         matches = [
-            'd\000\000S',
-            "d\x00\x00S"
+            b'd\000\000S',
+            b"d\x00\x00S"
         ]
 
         class LocalActFunc(object):
@@ -1965,8 +1965,8 @@ class ActionCallerTestCase(unittest.TestCase):
         assert c in matches, repr(c)
 
         matches = [
-            "<built-in function str>",
-            "<type 'str'>",
+            b"<built-in function str>",
+            b"<type 'str'>",
         ]
 
         af = SCons.Action.ActionFactory(str, strfunc)
