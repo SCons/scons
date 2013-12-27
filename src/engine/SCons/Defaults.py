@@ -183,11 +183,11 @@ def copy_func(dest, src):
     if SCons.Util.is_List(src) and os.path.isdir(dest):
         for file in src:
             shutil.copy2(file, dest)
-        return 0
     elif os.path.isfile(src):
-        return shutil.copy2(src, dest)
+        shutil.copy2(src, dest)
     else:
-        return shutil.copytree(src, dest, 1)
+        shutil.copytree(src, dest, 1)
+    return 0
 
 Copy = ActionFactory(copy_func,
                      lambda dest, src: 'Copy("%s", "%s")' % (dest, src),
