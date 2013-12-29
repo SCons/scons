@@ -84,6 +84,32 @@ env.CXXFile(target = 'bar', source = 'bar.yy')
 </example_commands>
 </listitem>
   </varlistentry>
+  <varlistentry id="b-DocbookEpub">
+    <term>
+      <function>DocbookEpub()</function>
+    </term>
+    <term>
+      <function>env.DocbookEpub()</function>
+    </term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+A pseudo-Builder, providing a Docbook toolchain for EPUB output.
+</para>
+
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookEpub('manual.epub', 'manual.xml')
+</example_commands>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+or simply
+</para>
+
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookEpub('manual')
+</example_commands>
+
+</listitem>
+  </varlistentry>
   <varlistentry id="b-DocbookHtml">
     <term>
       <function>DocbookHtml()</function>

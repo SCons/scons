@@ -62,14 +62,7 @@ if env.WhereIs('gs'):
 # Create the EPUB format
 #
 if has_gs and has_pdf:
-    metainf = env.Command('META-INF','',[Mkdir('META-INF'), Mkdir('OEBPS')])
-    css = env.Command('OEBPS/epub.css','epub.css',[Copy('OEBPS/epub.css','epub.css')])
-    env.Depends(css, metainf)
     jpg = env.Gs('OEBPS/cover.jpg','scons-scons.pdf', 
                  GSFLAGS='-dNOPAUSE -dBATCH -sDEVICE=jpeg -dFirstPage=1 -dLastPage=1 -dJPEGQ=100 -r72x72 -q')
-    env.Depends(jpg, metainf)
-    oebps = env.DocbookXslt('OEBPS/toc.ncx', 'scons_db.xml', xsl='epub.xsl')
-    env.Depends(oebps, jpg)
-    env.Zip('scons-man.epub', 'OEBPS', ZIPFLAGS='-Xr9D')
-    env.Clean(oebps, Glob('OEBPS/*.*'))
-    env.Clean(oebps, Glob('META-INF/*.*'))
+    epub = env.DocbookEpub('scons-man.epub', 'scons_db.xml', xsl='epub.xsl')
+    env.Depends(epub, jpg)

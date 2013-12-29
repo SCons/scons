@@ -6,6 +6,9 @@
 
 RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Andrew Featherstone:
+    - Added support for EPUB output format to the DocBook tool.
+
   From Tom Tanner:
     - Stop leaking file handles to subprocesses by switching to using subprocess
       always.

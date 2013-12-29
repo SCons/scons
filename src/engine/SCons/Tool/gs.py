@@ -70,8 +70,7 @@ def generate(env):
     except ImportError, e:
         pass
 
-    gsbuilder = SCons.Builder.Builder(action = SCons.Action.Action('$GSCOM', '$GSCOMSTR'),
-                                      env = env)
+    gsbuilder = SCons.Builder.Builder(action = SCons.Action.Action('$GSCOM', '$GSCOMSTR'))
     env['BUILDERS']['Gs'] = gsbuilder
     
     env['GS']      = gs

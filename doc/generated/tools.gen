@@ -222,7 +222,7 @@ accordingly.
 </para>
 </important>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">The rules given above are valid for the Builders <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookHtml"><function>DocbookHtml</function></link>, 
-<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookPdf"><function>DocbookPdf</function></link>, <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookSlidesPdf"><function>DocbookSlidesPdf</function></link> and <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookXInclude"><function>DocbookXInclude</function></link>. For the 
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookPdf"><function>DocbookPdf</function></link>, <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookEpub"><function>DocbookEpub</function></link>, <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookSlidesPdf"><function>DocbookSlidesPdf</function></link> and <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookXInclude"><function>DocbookXInclude</function></link>. For the 
 <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookMan"><function>DocbookMan</function></link> transformation you
 can specify a target name, but the actual output names are automatically
 set from the <literal>refname</literal> entries in your XML source.
@@ -261,6 +261,7 @@ variables for setting the default XSL name is provided. These are:
 DOCBOOK_DEFAULT_XSL_HTMLCHUNKED        
 DOCBOOK_DEFAULT_XSL_HTMLHELP        
 DOCBOOK_DEFAULT_XSL_PDF        
+DOCBOOK_DEFAULT_XSL_EPUB        
 DOCBOOK_DEFAULT_XSL_MAN        
 DOCBOOK_DEFAULT_XSL_SLIDESPDF        
 DOCBOOK_DEFAULT_XSL_SLIDESHTML        
@@ -272,7 +273,7 @@ DOCBOOK_DEFAULT_XSL_SLIDESHTML
                   DOCBOOK_DEFAULT_XSL_PDF='pdf.xsl')
 env.DocbookHtml('manual') # now uses html.xsl
 </screen>
-<para>Sets:  &cv-link-DOCBOOK_DEFAULT_XSL_HTML;, &cv-link-DOCBOOK_DEFAULT_XSL_HTMLCHUNKED;, &cv-link-DOCBOOK_DEFAULT_XSL_HTMLHELP;, &cv-link-DOCBOOK_DEFAULT_XSL_MAN;, &cv-link-DOCBOOK_DEFAULT_XSL_PDF;, &cv-link-DOCBOOK_DEFAULT_XSL_SLIDESHTML;, &cv-link-DOCBOOK_DEFAULT_XSL_SLIDESPDF;, &cv-link-DOCBOOK_FOP;, &cv-link-DOCBOOK_FOPCOM;, &cv-link-DOCBOOK_FOPFLAGS;, &cv-link-DOCBOOK_XMLLINT;, &cv-link-DOCBOOK_XMLLINTCOM;, &cv-link-DOCBOOK_XMLLINTFLAGS;, &cv-link-DOCBOOK_XSLTPROC;, &cv-link-DOCBOOK_XSLTPROCCOM;, &cv-link-DOCBOOK_XSLTPROCFLAGS;, &cv-link-DOCBOOK_XSLTPROCPARAMS;.</para><para>Uses:  &cv-link-DOCBOOK_FOPCOMSTR;, &cv-link-DOCBOOK_XMLLINTCOMSTR;, &cv-link-DOCBOOK_XSLTPROCCOMSTR;.</para></listitem>
+<para>Sets:  &cv-link-DOCBOOK_DEFAULT_XSL_EPUB;, &cv-link-DOCBOOK_DEFAULT_XSL_HTML;, &cv-link-DOCBOOK_DEFAULT_XSL_HTMLCHUNKED;, &cv-link-DOCBOOK_DEFAULT_XSL_HTMLHELP;, &cv-link-DOCBOOK_DEFAULT_XSL_MAN;, &cv-link-DOCBOOK_DEFAULT_XSL_PDF;, &cv-link-DOCBOOK_DEFAULT_XSL_SLIDESHTML;, &cv-link-DOCBOOK_DEFAULT_XSL_SLIDESPDF;, &cv-link-DOCBOOK_FOP;, &cv-link-DOCBOOK_FOPCOM;, &cv-link-DOCBOOK_FOPFLAGS;, &cv-link-DOCBOOK_XMLLINT;, &cv-link-DOCBOOK_XMLLINTCOM;, &cv-link-DOCBOOK_XMLLINTFLAGS;, &cv-link-DOCBOOK_XSLTPROC;, &cv-link-DOCBOOK_XSLTPROCCOM;, &cv-link-DOCBOOK_XSLTPROCFLAGS;, &cv-link-DOCBOOK_XSLTPROCPARAMS;.</para><para>Uses:  &cv-link-DOCBOOK_FOPCOMSTR;, &cv-link-DOCBOOK_XMLLINTCOMSTR;, &cv-link-DOCBOOK_XSLTPROCCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-dvi">
     <term>dvi</term>

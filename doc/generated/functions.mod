@@ -71,6 +71,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-PrependENVPath "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PrependENVPath</function>">
 <!ENTITY f-PrependUnique "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PrependUnique</function>">
 <!ENTITY f-Progress "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Progress</function>">
+<!ENTITY f-Pseudo "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Pseudo</function>">
 <!ENTITY f-RCS "<function xmlns='http://www.scons.org/dbxsd/v1.0'>RCS</function>">
 <!ENTITY f-Replace "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Replace</function>">
 <!ENTITY f-Repository "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Repository</function>">
@@ -158,6 +159,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-env-PrependENVPath "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.PrependENVPath</function>">
 <!ENTITY f-env-PrependUnique "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.PrependUnique</function>">
 <!ENTITY f-env-Progress "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Progress</function>">
+<!ENTITY f-env-Pseudo "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Pseudo</function>">
 <!ENTITY f-env-RCS "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.RCS</function>">
 <!ENTITY f-env-Replace "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Replace</function>">
 <!ENTITY f-env-Repository "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Repository</function>">
@@ -255,6 +257,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-PrependENVPath "<link linkend='f-PrependENVPath' xmlns='http://www.scons.org/dbxsd/v1.0'><function>PrependENVPath</function></link>">
 <!ENTITY f-link-PrependUnique "<link linkend='f-PrependUnique' xmlns='http://www.scons.org/dbxsd/v1.0'><function>PrependUnique</function></link>">
 <!ENTITY f-link-Progress "<link linkend='f-Progress' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Progress</function></link>">
+<!ENTITY f-link-Pseudo "<link linkend='f-Pseudo' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Pseudo</function></link>">
 <!ENTITY f-link-RCS "<link linkend='f-RCS' xmlns='http://www.scons.org/dbxsd/v1.0'><function>RCS</function></link>">
 <!ENTITY f-link-Replace "<link linkend='f-Replace' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Replace</function></link>">
 <!ENTITY f-link-Repository "<link linkend='f-Repository' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Repository</function></link>">
@@ -342,6 +345,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-env-PrependENVPath "<link linkend='f-PrependENVPath' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.PrependENVPath</function></link>">
 <!ENTITY f-link-env-PrependUnique "<link linkend='f-PrependUnique' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.PrependUnique</function></link>">
 <!ENTITY f-link-env-Progress "<link linkend='f-Progress' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Progress</function></link>">
+<!ENTITY f-link-env-Pseudo "<link linkend='f-Pseudo' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Pseudo</function></link>">
 <!ENTITY f-link-env-RCS "<link linkend='f-RCS' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.RCS</function></link>">
 <!ENTITY f-link-env-Replace "<link linkend='f-Replace' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Replace</function></link>">
 <!ENTITY f-link-env-Repository "<link linkend='f-Repository' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Repository</function></link>">
