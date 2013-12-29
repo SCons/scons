@@ -1074,6 +1074,7 @@ def _main(parser):
     platform = SCons.Platform.platform_module()
 
     if options.interactive:
+        SCons.Node.interactive = True
         SCons.Script.Interactive.interact(fs, OptionsParser, options,
                                           targets, target_top)
 

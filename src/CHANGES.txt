@@ -46,6 +46,9 @@ RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       SCons from a source (non-installed) dir.
     - Count statistics of instances are now collected only when
       the --debug=count command-line option is used (#2922).
+    - Added release_target_info() to File nodes, which helps to
+      reduce memory consumption in clean builds and update runs
+      of large projects.
 
   From Gary Oberbrunner:
     - Test harness: fail_test() can now print a message to help debugging.
