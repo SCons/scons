@@ -146,9 +146,11 @@ def get_output(vcbat, args = None, env = None):
     # settings in vs.py.
     vars = [
         'COMSPEC',
-# Still set, but setup script will discard these if registry has values.
-#         'VS110COMNTOOLS',
-#         'VS100COMNTOOLS',
+# VS100 and VS110: Still set, but modern MSVC setup scripts will
+# discard these if registry has values.  However Intel compiler setup
+# script still requires these as of 2013/2014.
+        'VS110COMNTOOLS',
+        'VS100COMNTOOLS',
         'VS90COMNTOOLS',
         'VS80COMNTOOLS',
         'VS71COMNTOOLS',
