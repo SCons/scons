@@ -501,20 +501,29 @@ def DocbookEpub(env, target, source=None, *args, **kw):
     
     # Create targets
     result = []
-    tlist = ['OEBPS/toc.ncx', 'META-INF/container.xml']
-    dirs = [SCons.Script.Dir('OEBPS'), SCons.Script.Dir('META-INF')]
-    r = __builder.__call__(env, tlist, source[0], **kw)
+    if not env.GetOption('clean'):        
+        # Ensure that the folders OEBPS and META-INF exist
+        __create_output_dir('OEBPS/')
+        __create_output_dir('META-INF/')
+    dirs = env.Dir(['OEBPS', 'META-INF'])
     
-    env.Depends(r, kw['DOCBOOK_XSL'])
-    result.extend(r)
+    # Set the fixed base_dir
+    kw['base_dir'] = 'OEBPS/'
+    tocncx = __builder.__call__(env, 'toc.ncx', source[0], **kw)
+    cxml = env.File('META-INF/container.xml')
+    env.SideEffect(cxml, tocncx)
+    
+    env.Depends(tocncx, kw['DOCBOOK_XSL'])
+    result.extend(tocncx+[cxml])
 
     container = env.Command(__ensure_suffix(str(target[0]), '.epub'), 
-        tlist, [add_resources, build_open_container])    
-    
-    env.Depends(container, r)
+        tocncx+[cxml], [add_resources, build_open_container])    
+    mimetype = env.File('mimetype')
+    env.SideEffect(mimetype, container)
+
     result.extend(container)
     # Add supporting files for cleanup
-    env.Clean(r, dirs + [SCons.Script.File('mimetype')])
+    env.Clean(tocncx, dirs)
 
     return result
 
