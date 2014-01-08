@@ -1717,7 +1717,7 @@ class TestCmd(object):
         begin with a 'w'.  The default is 'wb' (binary write).
         """
         if PY3:
-            content = re.sub('print (.+)', 'print(\1)', content)
+            content = re.sub(r'print (.+)', r'print(\1)', content)
         file = self.canonicalize(file)
         if mode[0] != 'w':
             raise ValueError("mode must begin with 'w'")
