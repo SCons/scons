@@ -19,14 +19,16 @@
 # hierarchy.
 from __future__ import print_function
 
+from six import PY3
+
 import getopt
 import os
 import shutil
 import sys
 import tarfile
-try:
+if PY3:
     from urllib.request import urlretrieve
-except ImportError: # Python < 3
+else:
     from urllib import urlretrieve
 
 from Command import CommandRunner, Usage

@@ -33,24 +33,21 @@ import copy
 import re
 import types
 
-try:
+if PY3:
     from collections import UserDict, UserList, UserString
-except ImportError: # Python < 3
+else:
     from UserDict import UserDict
     from UserList import UserList
     from UserString import UserString
 
 # Don't "from types import ..." these because we need to get at the
 # types module later to look for UnicodeType.
-try:
-    InstanceType    = types.InstanceType
-except AttributeError: # Python 3
-    InstanceType    = None
+InstanceType    = types.InstanceType if PY2 else None
 MethodType      = types.MethodType
 FunctionType    = types.FunctionType
 try: unicode
 except NameError: UnicodeType = None
-else:             UnicodeType = str
+else:             UnicodeType = unicode
 
 def dictify(keys, values, result={}):
     for k, v in zip(keys, values):

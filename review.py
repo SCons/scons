@@ -15,6 +15,8 @@
 # limitations under the License.
 from __future__ import print_function
 
+from six import PY3
+
 """Tool for uploading diffs from a version control system to the codereview app.
 
 Usage summary: upload.py [options] [-- diff_options] [path...]
@@ -32,14 +34,14 @@ against by using the '--rev' option.
 # This code is derived from appcfg.py in the App Engine SDK (open source),
 # and from ASPN recipe #146306.
 
-try:
+if PY3:
     from configparser import ConfigParser
-except ImportError: # Python < 3
+else:
     from ConfigParser import ConfigParser
-try:
+if PY3:
     from http.cookiejar import (
       CookieJar, MozillaCookieJar, LoadError as CookieLoadError)
-except ImportError: # Python < 3
+else:
     from cookielib import (
       CookieJar, MozillaCookieJar, LoadError as CookieLoadError)
 import fnmatch
@@ -52,7 +54,7 @@ import re
 import socket
 import subprocess
 import sys
-try:
+if PY3:
     from urllib.request import (
       Request, OpenerDirector,
       ProxyHandler, UnknownHandler, HTTPHandler, HTTPSHandler,
@@ -61,7 +63,7 @@ try:
     from urllib.error import HTTPError
     from urllib.parse import (
       urlencode, urlparse, urlunparse, splituser as urlsplituser)
-except ImportError: # Python < 3
+else:
     from urllib2 import (
       Request, OpenerDirector,
       ProxyHandler, UnknownHandler, HTTPHandler, HTTPSHandler,
