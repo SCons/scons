@@ -131,9 +131,14 @@ def get_host_target(env):
 
     return (host, target,req_target_platform)
 
-_VCVER = ["11.0", "11.0Exp", "10.0", "10.0Exp", "9.0", "9.0Exp","8.0", "8.0Exp","7.1", "7.0", "6.0"]
+# If you update this, update SupportedVSList in Tool/MSCommon/vs.py, and the
+# MSVC_VERSION documentation in Tool/msvc.xml.
+# TODO Visual C 12.0
+_VCVER = ["12.0Exp", "11.0", "11.0Exp", "10.0", "10.0Exp", "9.0", "9.0Exp","8.0", "8.0Exp","7.1", "7.0", "6.0"]
 
 _VCVER_TO_PRODUCT_DIR = {
+        '12.0Exp' : [
+            r'Microsoft\VCExpress\12.0\Setup\VC\ProductDir'],
         '11.0': [
             r'Microsoft\VisualStudio\11.0\Setup\VC\ProductDir'],
         '11.0Exp' : [
