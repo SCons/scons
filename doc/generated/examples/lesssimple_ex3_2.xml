@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd">C:\&gt;<userinput>scons -Q</userinput>
+cl /Fofile1.obj /c file1.c /nologo
+cl /Fofile2.obj /c file2.c /nologo
+cl /Foprog.obj /c prog.c /nologo
+link /nologo /OUT:program.exe prog.obj file1.obj file2.obj
+embedManifestExeCheck(target, source, env)
+</screen>
