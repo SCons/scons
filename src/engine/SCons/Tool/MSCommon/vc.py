@@ -89,6 +89,7 @@ _ARCH_TO_CANONICAL = {
 _HOST_TARGET_ARCH_TO_BAT_ARCH = {
     ("x86", "x86"): "x86",
     ("x86", "amd64"): "x86_amd64",
+    ("x86", "x86_amd64"): "x86_amd64",
     ("amd64", "x86_amd64"): "x86_amd64", # This is present in (at least) VS2012 express
     ("amd64", "amd64"): "amd64",
     ("amd64", "x86"): "x86",
