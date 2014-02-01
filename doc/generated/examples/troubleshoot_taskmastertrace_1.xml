@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd">% <userinput>scons -Q --taskmastertrace=- prog</userinput>
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster:     Considering node &lt;no_state   0   'prog'&gt; and its children:
+Taskmaster:        &lt;no_state   0   'prog.o'&gt;
+Taskmaster:      adjusted ref count: &lt;pending    1   'prog'&gt;, child 'prog.o'
+Taskmaster:     Considering node &lt;no_state   0   'prog.o'&gt; and its children:
+Taskmaster:        &lt;no_state   0   'prog.c'&gt;
+Taskmaster:        &lt;no_state   0   'inc.h'&gt;
+Taskmaster:      adjusted ref count: &lt;pending    1   'prog.o'&gt;, child 'prog.c'
+Taskmaster:      adjusted ref count: &lt;pending    2   'prog.o'&gt;, child 'inc.h'
+Taskmaster:     Considering node &lt;no_state   0   'prog.c'&gt; and its children:
+Taskmaster: Evaluating &lt;pending    0   'prog.c'&gt;
+
+Task.make_ready_current(): node &lt;pending    0   'prog.c'&gt;
+Task.prepare():      node &lt;up_to_date 0   'prog.c'&gt;
+Task.executed_with_callbacks(): node &lt;up_to_date 0   'prog.c'&gt;
+Task.postprocess():  node &lt;up_to_date 0   'prog.c'&gt;
+Task.postprocess():  removing &lt;up_to_date 0   'prog.c'&gt;
+Task.postprocess():  adjusted parent ref count &lt;pending    1   'prog.o'&gt;
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster:     Considering node &lt;no_state   0   'inc.h'&gt; and its children:
+Taskmaster: Evaluating &lt;pending    0   'inc.h'&gt;
+
+Task.make_ready_current(): node &lt;pending    0   'inc.h'&gt;
+Task.prepare():      node &lt;up_to_date 0   'inc.h'&gt;
+Task.executed_with_callbacks(): node &lt;up_to_date 0   'inc.h'&gt;
+Task.postprocess():  node &lt;up_to_date 0   'inc.h'&gt;
+Task.postprocess():  removing &lt;up_to_date 0   'inc.h'&gt;
+Task.postprocess():  adjusted parent ref count &lt;pending    0   'prog.o'&gt;
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster:     Considering node &lt;pending    0   'prog.o'&gt; and its children:
+Taskmaster:        &lt;up_to_date 0   'prog.c'&gt;
+Taskmaster:        &lt;up_to_date 0   'inc.h'&gt;
+Taskmaster: Evaluating &lt;pending    0   'prog.o'&gt;
+
+Task.make_ready_current(): node &lt;pending    0   'prog.o'&gt;
+Task.prepare():      node &lt;executing  0   'prog.o'&gt;
+Task.execute():      node &lt;executing  0   'prog.o'&gt;
+cc -o prog.o -c -I. prog.c
+Task.executed_with_callbacks(): node &lt;executing  0   'prog.o'&gt;
+Task.postprocess():  node &lt;executed   0   'prog.o'&gt;
+Task.postprocess():  removing &lt;executed   0   'prog.o'&gt;
+Task.postprocess():  adjusted parent ref count &lt;pending    0   'prog'&gt;
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster:     Considering node &lt;pending    0   'prog'&gt; and its children:
+Taskmaster:        &lt;executed   0   'prog.o'&gt;
+Taskmaster: Evaluating &lt;pending    0   'prog'&gt;
+
+Task.make_ready_current(): node &lt;pending    0   'prog'&gt;
+Task.prepare():      node &lt;executing  0   'prog'&gt;
+Task.execute():      node &lt;executing  0   'prog'&gt;
+cc -o prog prog.o
+Task.executed_with_callbacks(): node &lt;executing  0   'prog'&gt;
+Task.postprocess():  node &lt;executed   0   'prog'&gt;
+
+Taskmaster: Looking for a node to evaluate
+Taskmaster: No candidate anymore.
+</screen>

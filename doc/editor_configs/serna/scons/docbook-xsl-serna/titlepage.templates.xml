@@ -1,0 +1,412 @@
+<!DOCTYPE t:templates [
+<!ENTITY hsize0 "10pt">
+<!ENTITY hsize1 "12pt">
+<!ENTITY hsize2 "14.4pt">
+<!ENTITY hsize3 "17.28pt">
+<!ENTITY hsize4 "20.736pt">
+<!ENTITY hsize5 "24.8832pt">
+<!ENTITY hsize0space "7.5pt"> <!-- 0.75 * hsize0 -->
+<!ENTITY hsize1space "9pt"> <!-- 0.75 * hsize1 -->
+<!ENTITY hsize2space "10.8pt"> <!-- 0.75 * hsize2 -->
+<!ENTITY hsize3space "12.96pt"> <!-- 0.75 * hsize3 -->
+<!ENTITY hsize4space "15.552pt"> <!-- 0.75 * hsize4 -->
+<!ENTITY hsize5space "18.6624pt"> <!-- 0.75 * hsize5 -->
+]>
+<t:templates xmlns:t="http://nwalsh.com/docbook/xsl/template/1.0"
+	     xmlns:param="http://nwalsh.com/docbook/xsl/template/1.0/param"
+             xmlns:fo="http://www.w3.org/1999/XSL/Format"
+             xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+<t:titlepage t:element="article" t:wrapper="fo:block"
+             font-family="{$title.font.family}">
+
+  <t:titlepage-content t:side="recto"
+      text-align="center">
+
+    <title t:named-mode="article.titles.mode"
+	   font-size="&hsize5;"
+	   font-weight="bold"/>
+
+    <subtitle/>
+
+    <corpauthor padding-bottom="0.5em"
+                font-size="&hsize2;"/>
+    <authorgroup padding-bottom="0.5em"
+                 font-size="&hsize2;"/>
+    <author padding-bottom="0.5em"
+            font-size="&hsize2;"/>
+
+    <othercredit padding-bottom="0.5em"/>
+    <releaseinfo padding-bottom="0.5em"/>
+    <copyright padding-bottom="0.5em"/>
+    <legalnotice text-align="start"
+                 margin-left="0.5in"
+                 margin-right="0.5in"
+                 font-family="{$body.font.family}"/>
+    <pubdate padding-bottom="0.5em"/>
+    <revision padding-bottom="0.5em"/>
+    <revhistory 
+                 t:named-mode="rev.mode"
+                 padding-bottom="0.5em"/>
+    <abstract padding-bottom="0.5em"
+	      text-align="start"
+	      margin-left="0.5in"
+              margin-right="0.5in"
+              font-family="{$body.font.family}"/>
+  </t:titlepage-content>
+</t:titlepage>
+
+  <t:titlepage t:element="chapter" t:wrapper="fo:block"
+               font-family="{$title.font.family}">
+    <t:titlepage-content t:side="recto" margin-left="{$title.margin.left}">
+      <title t:named-mode="chapter.titles.mode"
+	     font-size="&hsize5;"
+	     font-weight="bold"/>
+
+      <subtitle padding-bottom="0.5em"
+		font-style="italic"
+		font-size="&hsize2;"
+		font-weight="bold"/>
+
+      <corpauthor  padding-bottom="0.5em"
+	           space-after="0.5em"
+                   font-size="&hsize2;"/>
+
+      <authorgroup padding-bottom="0.5em"
+	           space-after="0.5em"
+                   font-size="&hsize2;"/>
+
+      <author      padding-bottom="0.5em"
+	           space-after="0.5em"
+                   font-size="&hsize2;"/>
+
+      <othercredit/>
+      <releaseinfo/>
+      <copyright/>
+      <legalnotice/>
+      <pubdate/>
+      <revision/>
+      <revhistory/>
+      <abstract/>
+    </t:titlepage-content>
+</t:titlepage>
+
+  <t:titlepage t:element="book" t:wrapper="fo:block">
+    <t:titlepage-content t:side="recto">
+      <title
+         t:named-mode="book.titles.mode"  
+         text-align="center"
+	     font-size="&hsize5;"
+	     padding-bottom="&hsize5space;"
+	     font-weight="bold"
+	     font-family="{$title.font.family}"/>
+      <subtitle
+        text-align="center"
+		font-size="&hsize4;"
+		padding-bottom="&hsize3space;"
+		font-family="{$title.font.family}"/>
+      <corpauthor font-size="&hsize3;"
+		  keep-with-next="always"
+		  padding-bottom="1in"/>
+      <authorgroup padding-bottom="1in"/>
+      <author font-size="&hsize3;"
+	      padding-bottom="&hsize2space;"
+	      keep-with-next="always"/>
+    </t:titlepage-content>
+
+    <t:titlepage-content t:side="verso">
+      <corpauthor/>
+      <authorgroup 
+          padding-bottom="2em"
+          t:named-template="verso.authorgroup"/>
+      <author/>
+      <othercredit/>
+      <pubdate padding-bottom="1em"/>
+      <copyright/>
+      <revision padding-bottom="0.5em"/>
+      <revhistory 
+                 t:named-mode="rev.mode"
+                 padding-bottom="0.5em"/>
+
+      <abstract/>
+      <legalnotice font-size="8pt"/>
+    </t:titlepage-content>
+  </t:titlepage>
+
+<t:titlepage t:element="part" t:wrapper="fo:block">
+  <t:titlepage-content t:side="recto">
+      <title
+	     t:named-mode="part.titles.mode"
+	     text-align="center"
+	     font-size="&hsize5;"
+	     padding-bottom="&hsize5space;"
+	     font-weight="bold"
+	     font-family="{$title.font.family}"/>
+    <subtitle
+	      text-align="center"
+	      font-size="&hsize4;"
+	      padding-bottom="&hsize4space;"
+	      font-weight='bold'
+	      font-style='italic'
+	      font-family="{$title.font.family}"/>
+  </t:titlepage-content>
+</t:titlepage>
+
+  <t:titlepage t:element="preface" t:wrapper="fo:block">
+    <t:titlepage-content t:side="recto">
+      <title
+	     t:named-mode="preface.titles.mode"
+	     margin-left="{$title.margin.left}"
+	     font-size="&hsize5;"
+	     font-family="{$title.font.family}"
+	     font-weight="bold"/>
+      <subtitle
+		font-family="{$title.font.family}"/>
+      <corpauthor/>
+      <authorgroup/>
+      <author/>
+      <othercredit/>
+      <releaseinfo/>
+      <copyright/>
+      <legalnotice/>
+      <pubdate/>
+      <revision/>
+      <revhistory/>
+      <abstract/>
+    </t:titlepage-content>
+</t:titlepage>
+
+<t:titlepage t:element="partintro" t:wrapper="fo:block">
+  <t:titlepage-content t:side="recto">
+    <title
+	   text-align="center"
+	   font-size="&hsize5;"
+	   font-weight="bold"
+	   padding-bottom="1em"
+	   font-family="{$title.font.family}"/>
+    <subtitle
+	      text-align="center"
+	      font-size="&hsize2;"
+	      font-weight="bold"
+	      font-style="italic"
+	      font-family="{$title.font.family}"/>
+    <corpauthor/>
+    <authorgroup/>
+    <author/>
+    <othercredit/>
+    <releaseinfo/>
+    <copyright/>
+    <legalnotice/>
+    <pubdate/>
+    <revision/>
+    <revhistory/>
+    <abstract/>
+  </t:titlepage-content>
+
+</t:titlepage>
+
+<t:titlepage t:element="reference" t:wrapper="fo:block">
+  <t:titlepage-content t:side="recto">
+      <title
+	     t:named-mode="reference.titles.mode"
+	     text-align="center"
+	     font-size="&hsize5;"
+	     padding-bottom="&hsize5space;"
+	     font-weight="bold"
+	     font-family="{$title.font.family}"/>
+      <subtitle
+	      font-family="{$title.font.family}"/>
+  </t:titlepage-content>
+
+</t:titlepage>
+
+<t:titlepage t:element="refsynopsisdiv" t:wrapper="fo:block">
+  <t:titlepage-content t:side="recto">
+    <title
+	   t:named-mode="refsynopsisdiv.titles.mode"
+       font-weight="bold"     
+	   margin-left="{$title.margin.left}"
+	   font-family="{$title.font.family}"/>
+  </t:titlepage-content>
+
+</t:titlepage>
+
+<t:titlepage t:element="refsection" t:wrapper="fo:block">
+  <t:titlepage-content t:side="recto">
+    <title
+	   t:named-mode="section.titles.mode"
+	     font-weight="bold"
+	   font-family="{$title.font.family}"/>
+  </t:titlepage-content>
+
+</t:titlepage>
+
+<t:titlepage t:element="section" t:wrapper="fo:block">
+  <t:titlepage-content t:side="recto">
+    <title
+	   t:named-mode="section.titles.mode"
+	     font-weight="bold"
+	   margin-left="{$title.margin.left}"
+	   font-family="{$title.font.family}"/>
+    <subtitle
+	      font-family="{$title.font.family}"/>
+    <corpauthor/>
+    <authorgroup/>
+    <author/>
+    <othercredit/>
+    <releaseinfo/>
+    <copyright/>
+    <legalnotice/>
+    <pubdate/>
+    <revision/>
+    <revhistory/>
+    <abstract/>
+  </t:titlepage-content>
+</t:titlepage>
+
+<t:titlepage t:element="simplesect" t:wrapper="fo:block">
+  <t:titlepage-content t:side="recto">
+    <title
+	   t:named-mode="simplesect.titles.mode"
+	     font-weight="bold"     
+	   margin-left="{$title.margin.left}"
+	   font-family="{$title.font.family}"/>
+    <subtitle
+	      font-family="{$title.font.family}"/>
+    <corpauthor/>
+    <authorgroup/>
+    <author/>
+    <othercredit/>
+    <releaseinfo/>
+    <copyright/>
+    <legalnotice/>
+    <pubdate/>
+    <revision/>
+    <revhistory/>
+    <abstract/>
+  </t:titlepage-content>
+
+  <t:titlepage-content t:side="verso">
+  </t:titlepage-content>
+
+  <t:titlepage-separator>
+  </t:titlepage-separator>
+
+  <t:titlepage-before t:side="recto">
+  </t:titlepage-before>
+
+  <t:titlepage-before t:side="verso">
+  </t:titlepage-before>
+</t:titlepage>
+
+
+<t:titlepage t:element="set" t:wrapper="fo:block">
+  <t:titlepage-content t:side="recto">
+      <title
+         t:named-mode="set.titles.mode"
+	     text-align="center"
+	     font-size="&hsize5;"
+	     padding-bottom="&hsize5space;"
+	     font-weight="bold"
+	     font-family="{$title.font.family}"/>
+    <subtitle
+	      font-family="{$title.font.family}"
+	      text-align="center"/>
+    <corpauthor/>
+    <authorgroup/>
+    <author/>
+    <othercredit/>
+    <releaseinfo/>
+    <copyright/>
+    <legalnotice/>
+    <pubdate/>
+    <revision/>
+    <revhistory/>
+    <abstract/>
+  </t:titlepage-content>
+</t:titlepage>
+
+  <t:titlepage t:element="appendix" t:wrapper="fo:block">
+    <t:titlepage-content t:side="recto">
+      <title
+	     t:named-mode="appendix.titles.mode"
+	     margin-left="{$title.margin.left}"
+	     font-size="&hsize5;"
+	     font-weight="bold"
+	     font-family="{$title.font.family}"/>
+      <subtitle
+		font-family="{$title.font.family}"/>
+      <corpauthor/>
+      <authorgroup/>
+      <author/>
+      <othercredit/>
+      <releaseinfo/>
+      <copyright/>
+      <legalnotice/>
+      <pubdate/>
+      <revision/>
+      <revhistory/>
+      <abstract/>
+    </t:titlepage-content>
+</t:titlepage>
+
+  <t:titlepage t:element="bibliography" t:wrapper="fo:block">
+    <t:titlepage-content t:side="recto">
+      <title t:named-template="bibliography.title"
+             t:force="1" 
+	     param:node="."
+	     margin-left="{$title.margin.left}"
+	     font-size="&hsize5;"
+	     font-family="{$title.font.family}"
+	     font-weight="bold"/>
+      <subtitle
+		font-family="{$title.font.family}"/>
+    </t:titlepage-content>
+
+  </t:titlepage>
+
+  <t:titlepage t:element="bibliodiv" t:wrapper="fo:block">
+    <t:titlepage-content t:side="recto">
+      <title
+         t:named-mode="bibliodiv.titles.mode"
+	     margin-left="{$title.margin.left}"
+	     font-size="&hsize4;"
+	     font-family="{$title.font.family}"
+	     font-weight="bold"/>
+      <subtitle
+		font-family="{$title.font.family}"/>
+    </t:titlepage-content>
+
+  </t:titlepage>
+
+  <t:titlepage t:element="glossary" t:wrapper="fo:block">
+    <t:titlepage-content t:side="recto">
+      <title
+	     t:named-mode="glossary.title"
+	     param:node="ancestor-or-self::glossary[1]"
+	     margin-left="{$title.margin.left}"
+	     font-size="&hsize5;"
+	     font-family="{$title.font.family}"
+	     font-weight="bold"/>
+      <subtitle
+		font-family="{$title.font.family}"/>
+    </t:titlepage-content>
+
+  </t:titlepage>
+
+<!-- ==================================================================== -->
+
+  <t:titlepage t:element="glossdiv" t:wrapper="fo:block">
+    <t:titlepage-content t:side="recto">
+      <title t:named-mode="glossdiv.titles.mode"
+	     param:node="ancestor-or-self::glossdiv[1]"
+	     margin-left="{$title.margin.left}"
+	     font-size="&hsize4;"
+	     font-family="{$title.font.family}"
+	     font-weight="bold"/>
+      <subtitle
+		font-family="{$title.font.family}"/>
+    </t:titlepage-content>
+  </t:titlepage>
+
+</t:templates>
