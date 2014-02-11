@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd">% <userinput>scons -Q</userinput>
+Evaluating SConstruct
+Evaluating f1.c
+Evaluating f1.o
+cc -o f1.o -c f1.c
+Evaluating f1
+cc -o f1 f1.o
+Evaluating f2.c
+Evaluating f2.o
+cc -o f2.o -c f2.c
+Evaluating f2
+cc -o f2 f2.o
+Evaluating .
+</screen>
