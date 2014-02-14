@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd">C:\&gt;<userinput>scons -Q</userinput>
+cl /Fof1.obj /c f1.c /nologo
+cl /Fof2.obj /c f2.c /nologo
+cl /Fof3.obj /c f3.c /nologo
+lib /nologo /OUT:foo.lib f1.obj f2.obj f3.obj
+cl /Foprog.obj /c prog.c /nologo
+link /nologo /OUT:prog.exe /LIBPATH:. foo.lib bar.lib prog.obj
+embedManifestExeCheck(target, source, env)
+</screen>
