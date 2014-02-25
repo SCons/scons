@@ -31,13 +31,11 @@ test = TestSCons.TestSCons(match = TestCmd.match_re)
 
 test.write('SConstruct', "")
 
-# Construct the standard copyright marker so it doesn't get replaced
+# Standard copyright marker is mangled so it doesn't get replaced
 # by the packaging build.
-copyright_marker = '__' + 'COPYRIGHT' + '__'
-
-fmt = '(%s|Copyright \\(c\\) %s The SCons Foundation)\n'
-
-copyright_line = fmt % (copyright_marker, TestSCons.copyright_years)
+copyright_line = """\
+(_{2}COPYRIGHT__|Copyright \\(c\\) 2001[-\d, ]+ The SCons Foundation)
+"""
 
 # Windows may or may not print a line for the script version
 # depending on whether it's invoked through scons.py or scons.bat.
