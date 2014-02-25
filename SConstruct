@@ -3,8 +3,6 @@
 #
 # See the README.rst file for an overview of how SCons is built and tested.
 
-# When this gets changed, you must also change the copyright_years string
-# in QMTest/TestSCons.py so the test scripts look for the right string.
 copyright_years = '2001-2014'
 
 # This gets inserted into the man pages to reflect the month of release.
