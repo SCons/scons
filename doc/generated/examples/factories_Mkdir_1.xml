@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd">% <userinput>scons -Q</userinput>
+Delete("tempdir")
+Mkdir("tempdir")
+Copy("tempdir/file.in", "file.in")
+process tempdir
+Move("file.out", "tempdir/output_file")
+scons: *** [file.out] tempdir/output_file: No such file or directory
+</screen>
