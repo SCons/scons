@@ -3023,7 +3023,8 @@ class File(Base):
 
         SCons.Node.Node.built(self)
 
-        if not hasattr(self.attributes, 'keep_targetinfo'):
+        if (not SCons.Node.interactive and 
+            not hasattr(self.attributes, 'keep_targetinfo')):
             # Ensure that the build infos get computed and cached...        
             self.store_info()
             # ... then release some more variables.
