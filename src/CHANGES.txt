@@ -6,6 +6,9 @@
 
 RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Andrew Featherstone:
+    - Added support for EPUB output format to the DocBook tool.
+
   From Tom Tanner:
     - Stop leaking file handles to subprocesses by switching to using subprocess
       always.
@@ -43,6 +46,11 @@ RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       SCons from a source (non-installed) dir.
     - Count statistics of instances are now collected only when
       the --debug=count command-line option is used (#2922).
+    - Added release_target_info() to File nodes, which helps to
+      reduce memory consumption in clean builds and update runs
+      of large projects.
+    - Fixed the handling of long options in the command-line
+      parsing (#2929).
     - Fixed misspelled variable in intelc.py (#2928).
 
   From Gary Oberbrunner:

@@ -2589,7 +2589,6 @@
         </xs:documentation>
       </xs:annotation>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
-        <xs:group ref="para.char.mix"/>
         <xs:group ref="para.mix"/>
         <xs:group ref="tool.mix"/>
       </xs:choice>
@@ -2616,7 +2615,6 @@
         </xs:documentation>
       </xs:annotation>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
-        <xs:group ref="para.char.mix"/>
         <xs:group ref="para.mix"/>
         <xs:group ref="tool.mix"/>
       </xs:choice>
@@ -2644,7 +2642,6 @@
         </xs:documentation>
       </xs:annotation>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
-        <xs:group ref="para.char.mix"/>
         <xs:group ref="para.mix"/>
         <xs:element ref="summary"/>
       </xs:choice>

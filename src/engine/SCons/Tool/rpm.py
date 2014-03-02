@@ -79,7 +79,7 @@ def build_rpm(target, source, env):
                                        errstr=output,
                                        filename=str(target[0]) )
     else:
-        # XXX: assume that LC_ALL=c is set while running rpmbuild
+        # XXX: assume that LC_ALL=C is set while running rpmbuild
         output_files = re.compile( 'Wrote: (.*)' ).findall( output )
 
         for output, input in zip( output_files, target ):
@@ -117,7 +117,7 @@ def generate(env):
         bld = RpmBuilder
         env['BUILDERS']['Rpm'] = bld
 
-    env.SetDefault(RPM          = 'LC_ALL=c rpmbuild')
+    env.SetDefault(RPM          = 'LC_ALL=C rpmbuild')
     env.SetDefault(RPMFLAGS     = SCons.Util.CLVar('-ta'))
     env.SetDefault(RPMCOM       = rpmAction)
     env.SetDefault(RPMSUFFIX    = '.rpm')

@@ -11,6 +11,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY b-CFile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CFile</function>">
 <!ENTITY b-Command "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Command</function>">
 <!ENTITY b-CXXFile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CXXFile</function>">
+<!ENTITY b-DocbookEpub "<function xmlns='http://www.scons.org/dbxsd/v1.0'>DocbookEpub</function>">
 <!ENTITY b-DocbookHtml "<function xmlns='http://www.scons.org/dbxsd/v1.0'>DocbookHtml</function>">
 <!ENTITY b-DocbookHtmlChunked "<function xmlns='http://www.scons.org/dbxsd/v1.0'>DocbookHtmlChunked</function>">
 <!ENTITY b-DocbookHtmlhelp "<function xmlns='http://www.scons.org/dbxsd/v1.0'>DocbookHtmlhelp</function>">
@@ -21,6 +22,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY b-DocbookXInclude "<function xmlns='http://www.scons.org/dbxsd/v1.0'>DocbookXInclude</function>">
 <!ENTITY b-DocbookXslt "<function xmlns='http://www.scons.org/dbxsd/v1.0'>DocbookXslt</function>">
 <!ENTITY b-DVI "<function xmlns='http://www.scons.org/dbxsd/v1.0'>DVI</function>">
+<!ENTITY b-Gs "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Gs</function>">
 <!ENTITY b-Install "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Install</function>">
 <!ENTITY b-InstallAs "<function xmlns='http://www.scons.org/dbxsd/v1.0'>InstallAs</function>">
 <!ENTITY b-InstallVersionedLib "<function xmlns='http://www.scons.org/dbxsd/v1.0'>InstallVersionedLib</function>">
@@ -64,6 +66,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY b-env-CFile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.CFile</function>">
 <!ENTITY b-env-Command "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Command</function>">
 <!ENTITY b-env-CXXFile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.CXXFile</function>">
+<!ENTITY b-env-DocbookEpub "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.DocbookEpub</function>">
 <!ENTITY b-env-DocbookHtml "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.DocbookHtml</function>">
 <!ENTITY b-env-DocbookHtmlChunked "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.DocbookHtmlChunked</function>">
 <!ENTITY b-env-DocbookHtmlhelp "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.DocbookHtmlhelp</function>">
@@ -74,6 +77,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY b-env-DocbookXInclude "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.DocbookXInclude</function>">
 <!ENTITY b-env-DocbookXslt "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.DocbookXslt</function>">
 <!ENTITY b-env-DVI "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.DVI</function>">
+<!ENTITY b-env-Gs "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Gs</function>">
 <!ENTITY b-env-Install "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Install</function>">
 <!ENTITY b-env-InstallAs "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.InstallAs</function>">
 <!ENTITY b-env-InstallVersionedLib "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.InstallVersionedLib</function>">
@@ -127,6 +131,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY b-link-CFile "<link linkend='b-CFile' xmlns='http://www.scons.org/dbxsd/v1.0'><function>CFile</function></link>">
 <!ENTITY b-link-Command "<link linkend='b-Command' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Command</function></link>">
 <!ENTITY b-link-CXXFile "<link linkend='b-CXXFile' xmlns='http://www.scons.org/dbxsd/v1.0'><function>CXXFile</function></link>">
+<!ENTITY b-link-DocbookEpub "<link linkend='b-DocbookEpub' xmlns='http://www.scons.org/dbxsd/v1.0'><function>DocbookEpub</function></link>">
 <!ENTITY b-link-DocbookHtml "<link linkend='b-DocbookHtml' xmlns='http://www.scons.org/dbxsd/v1.0'><function>DocbookHtml</function></link>">
 <!ENTITY b-link-DocbookHtmlChunked "<link linkend='b-DocbookHtmlChunked' xmlns='http://www.scons.org/dbxsd/v1.0'><function>DocbookHtmlChunked</function></link>">
 <!ENTITY b-link-DocbookHtmlhelp "<link linkend='b-DocbookHtmlhelp' xmlns='http://www.scons.org/dbxsd/v1.0'><function>DocbookHtmlhelp</function></link>">
@@ -137,6 +142,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY b-link-DocbookXInclude "<link linkend='b-DocbookXInclude' xmlns='http://www.scons.org/dbxsd/v1.0'><function>DocbookXInclude</function></link>">
 <!ENTITY b-link-DocbookXslt "<link linkend='b-DocbookXslt' xmlns='http://www.scons.org/dbxsd/v1.0'><function>DocbookXslt</function></link>">
 <!ENTITY b-link-DVI "<link linkend='b-DVI' xmlns='http://www.scons.org/dbxsd/v1.0'><function>DVI</function></link>">
+<!ENTITY b-link-Gs "<link linkend='b-Gs' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Gs</function></link>">
 <!ENTITY b-link-Install "<link linkend='b-Install' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Install</function></link>">
 <!ENTITY b-link-InstallAs "<link linkend='b-InstallAs' xmlns='http://www.scons.org/dbxsd/v1.0'><function>InstallAs</function></link>">
 <!ENTITY b-link-InstallVersionedLib "<link linkend='b-InstallVersionedLib' xmlns='http://www.scons.org/dbxsd/v1.0'><function>InstallVersionedLib</function></link>">
@@ -180,6 +186,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY b-link-env-CFile "<link linkend='b-CFile' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.CFile</function></link>">
 <!ENTITY b-link-env-Command "<link linkend='b-Command' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Command</function></link>">
 <!ENTITY b-link-env-CXXFile "<link linkend='b-CXXFile' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.CXXFile</function></link>">
+<!ENTITY b-link-env-DocbookEpub "<link linkend='b-DocbookEpub' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.DocbookEpub</function></link>">
 <!ENTITY b-link-env-DocbookHtml "<link linkend='b-DocbookHtml' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.DocbookHtml</function></link>">
 <!ENTITY b-link-env-DocbookHtmlChunked "<link linkend='b-DocbookHtmlChunked' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.DocbookHtmlChunked</function></link>">
 <!ENTITY b-link-env-DocbookHtmlhelp "<link linkend='b-DocbookHtmlhelp' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.DocbookHtmlhelp</function></link>">
@@ -190,6 +197,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY b-link-env-DocbookXInclude "<link linkend='b-DocbookXInclude' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.DocbookXInclude</function></link>">
 <!ENTITY b-link-env-DocbookXslt "<link linkend='b-DocbookXslt' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.DocbookXslt</function></link>">
 <!ENTITY b-link-env-DVI "<link linkend='b-DVI' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.DVI</function></link>">
+<!ENTITY b-link-env-Gs "<link linkend='b-Gs' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Gs</function></link>">
 <!ENTITY b-link-env-Install "<link linkend='b-Install' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Install</function></link>">
 <!ENTITY b-link-env-InstallAs "<link linkend='b-InstallAs' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.InstallAs</function></link>">
 <!ENTITY b-link-env-InstallVersionedLib "<link linkend='b-InstallVersionedLib' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.InstallVersionedLib</function></link>">

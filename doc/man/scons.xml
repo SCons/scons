@@ -60,6 +60,9 @@
     </copyright>
 
     <releaseinfo>version &buildversion;</releaseinfo>
+    
+    <mediaobject role="cover"><imageobject><imagedata fileref="cover.jpg" format="JPG"/></imageobject></mediaobject>
+    
   </referenceinfo>
 
   <title>SCons &buildversion;</title>

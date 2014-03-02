@@ -26,9 +26,16 @@
 Test the base_dir argument for the Slides HTML builder.
 """
 
+import os
+import sys
 import TestSCons
 
 test = TestSCons.TestSCons()
+
+if not (sys.platform.startswith('linux') and
+        os.path.isdir('/usr/share/xml/docbook/stylesheet/docbook-xsl/slides') and
+        os.path.isdir('/usr/share/xml/docbook/custom/slides/3.3.1')):
+    test.skip_test('Wrong OS or no "slides" stylesheets installed, skipping test.\n')
 
 try:
     import libxml2

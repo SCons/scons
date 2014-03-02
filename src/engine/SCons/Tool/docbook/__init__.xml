@@ -97,7 +97,7 @@ accordingly.
 </para>
 </important>
 <para>The rules given above are valid for the Builders &b-link-DocbookHtml;, 
-&b-link-DocbookPdf;, &b-link-DocbookSlidesPdf; and &b-link-DocbookXInclude;. For the 
+&b-link-DocbookPdf;, &b-link-DocbookEpub;, &b-link-DocbookSlidesPdf; and &b-link-DocbookXInclude;. For the 
 &b-link-DocbookMan; transformation you
 can specify a target name, but the actual output names are automatically
 set from the <literal>refname</literal> entries in your XML source.
@@ -136,6 +136,7 @@ variables for setting the default XSL name is provided. These are:
 DOCBOOK_DEFAULT_XSL_HTMLCHUNKED        
 DOCBOOK_DEFAULT_XSL_HTMLHELP        
 DOCBOOK_DEFAULT_XSL_PDF        
+DOCBOOK_DEFAULT_XSL_EPUB        
 DOCBOOK_DEFAULT_XSL_MAN        
 DOCBOOK_DEFAULT_XSL_SLIDESPDF        
 DOCBOOK_DEFAULT_XSL_SLIDESHTML        
@@ -153,6 +154,7 @@ env.DocbookHtml('manual') # now uses html.xsl
 <item>DOCBOOK_DEFAULT_XSL_HTMLCHUNKED</item>
 <item>DOCBOOK_DEFAULT_XSL_HTMLHELP</item>
 <item>DOCBOOK_DEFAULT_XSL_PDF</item>
+<item>DOCBOOK_DEFAULT_XSL_EPUB</item>
 <item>DOCBOOK_DEFAULT_XSL_MAN</item>
 <item>DOCBOOK_DEFAULT_XSL_SLIDESPDF</item>
 <item>DOCBOOK_DEFAULT_XSL_SLIDESHTML</item>
@@ -207,6 +209,15 @@ current environment, if no other XSLT gets specified via keyword.
 <summary>
 <para>
 The default XSLT file for the &b-link-DocbookPdf; builder within the
+current environment, if no other XSLT gets specified via keyword.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DOCBOOK_DEFAULT_XSL_EPUB">
+<summary>
+<para>
+The default XSLT file for the &b-link-DocbookEpub; builder within the
 current environment, if no other XSLT gets specified via keyword.
 </para>
 </summary>
@@ -468,6 +479,27 @@ or simply
 
 <example_commands>env = Environment(tools=['docbook'])
 env.DocbookPdf('manual')
+</example_commands>
+
+</summary>
+</builder>
+
+<builder name="DocbookEpub">
+<summary>
+<para>
+A pseudo-Builder, providing a Docbook toolchain for EPUB output.
+</para>
+
+<example_commands>env = Environment(tools=['docbook'])
+env.DocbookEpub('manual.epub', 'manual.xml')
+</example_commands>
+
+<para>
+or simply
+</para>
+
+<example_commands>env = Environment(tools=['docbook'])
+env.DocbookEpub('manual')
 </example_commands>
 
 </summary>
