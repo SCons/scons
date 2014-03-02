@@ -51,6 +51,7 @@ RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       of large projects.
     - Fixed the handling of long options in the command-line
       parsing (#2929).
+    - Fixed misspelled variable in intelc.py (#2928).
 
   From Gary Oberbrunner:
     - Test harness: fail_test() can now print a message to help debugging.
