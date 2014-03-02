@@ -49,13 +49,17 @@ RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Added release_target_info() to File nodes, which helps to
       reduce memory consumption in clean builds and update runs
       of large projects.
+    - Fixed the handling of long options in the command-line
+      parsing (#2929).
+    - Fixed misspelled variable in intelc.py (#2928).
 
   From Gary Oberbrunner:
     - Test harness: fail_test() can now print a message to help debugging.
 
   From Anatoly Techtonik:
-    - require rpmbuild when building SCons package.
-    - print full stack on certain errors, for debugging.
+    - Require rpmbuild when building SCons package.
+    - Print full stack on certain errors, for debugging.
+    - Improve documentation for Textfile builder.
 
   From William Deegan:
     - VS2012 & VS2010 Resolve initialization issues by adding path to reg.exe
