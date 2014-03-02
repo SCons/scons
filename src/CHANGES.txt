@@ -57,8 +57,9 @@ RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Test harness: fail_test() can now print a message to help debugging.
 
   From Anatoly Techtonik:
-    - require rpmbuild when building SCons package.
-    - print full stack on certain errors, for debugging.
+    - Require rpmbuild when building SCons package.
+    - Print full stack on certain errors, for debugging.
+    - Improve documentation for Textfile builder.
 
   From William Deegan:
     - VS2012 & VS2010 Resolve initialization issues by adding path to reg.exe
