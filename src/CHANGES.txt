@@ -4,7 +4,7 @@
 
                             Change Log
 
-RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
+RELEASE 2.3.1 - Mon, 02 Mar 2014 13:53:45 -0400
 
   From Andrew Featherstone:
     - Added support for EPUB output format to the DocBook tool.
