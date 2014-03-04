@@ -85,7 +85,7 @@ scons_version = 'scons-%s' % __version__
 # preferred order of scons lookup paths
 prefs = []
 
-# - running from source takes priority (since 2.3.1)
+# - running from source takes priority (since 2.3.2)
 script_path = os.path.abspath(os.path.dirname(__file__))
 source_path = os.path.join(script_path, '..', 'engine')
 
