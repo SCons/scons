@@ -3,7 +3,7 @@
 #
 # See the README.rst file for an overview of how SCons is built and tested.
 
-copyright_years = '2001-2014'
+copyright_years = '2001 - 2014'
 
 # This gets inserted into the man pages to reflect the month of release.
 month_year = 'MONTH YEAR'
