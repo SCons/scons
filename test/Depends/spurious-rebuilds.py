@@ -21,61 +21,47 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify the behavior of the "version" subcommand.
+After adding some code for reducing the overall memory consumption in
+revision b4bc497, a number of spurious rebuilds was observed by different
+people. The problem was, that the value of the Node.changed() method got cached
+too early for File nodes.
+
+This test verifies that the changed() function works properly, especially
+in connection with auto-generated sources, combined with an explicit Depends().  
 """
 
-import TestCmd
 import TestSCons
 
-test = TestSCons.TestSCons(match = TestCmd.match_re)
+test = TestSCons.TestSCons()
 
-test.write('SConstruct', "")
+test.write('SConstruct', """\
+# This tests the too-many-rebuilds problem with SCons 2.3.1 (test)
+# Run like this: scons all-defuns.obj
 
+# Test setup (only runs once)
+import os.path
+if not os.path.exists('mkl'):
+  os.mkdir('mkl')
+if not os.path.exists('test.c'):
+  open('test.c', 'w').write('int i;')
 
+env=Environment()
+env.SharedObject('all-defuns.obj', 'all-defuns.c')
+results = env.Command('all-defuns.c', 'test.c', Copy('$TARGET', '$SOURCE'))
+env.Depends(results, '#mkl')
+""")
 
-# Standard copyright marker is mangled so it doesn't get replaced
-# by the packaging build.
-copyright_line = """\
-(_{2}COPYRIGHT__|Copyright \\(c\\) 2001[-\d, ]+ The SCons Foundation)
-"""
+test.run(arguments = 'all-defuns.obj')
 
-expect1 = """\
-scons>>> 
-scons>>> 
-"""
+test.must_exist('all-defuns.c')
+test.must_exist('test.c')
+test.must_exist('all-defuns.obj')
 
-expect2 = """\
-scons>>> 
-scons>>> 
-"""
-
-test.run(arguments = '-Q --interactive',
-         stdin = "version\nexit\n")
-
-# Windows may or may not print a line for the script version
-# depending on whether it's invoked through scons.py or scons.bat.
-expect1 = r"""scons>>> SCons by Steven Knight et al\.:
-\tengine: v\S+, [^,]*, by \S+ on \S+
-\tengine path: \[.*\]
-%(copyright_line)sscons>>> 
-""" % locals()
-
-expect2 = r"""scons>>> SCons by Steven Knight et al\.:
-\tscript: v\S+, [^,]*, by \S+ on \S+
-\tengine: v\S+, [^,]*, by \S+ on \S+
-\tengine path: \[.*\]
-%(copyright_line)sscons>>> 
-""" % locals()
-
-stdout = test.stdout() + '\n'
-if not test.match_re(stdout, expect1) and not test.match_re(stdout, expect2):
-    print repr(stdout)
-    test.fail_test()
-
-
+test.up_to_date(arguments = 'all-defuns.obj')
 
 test.pass_test()
 

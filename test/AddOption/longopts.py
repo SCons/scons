@@ -21,61 +21,35 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify the behavior of the "version" subcommand.
+Verifies that the default name matching of optparse for long options
+gets properly suppressed. We don't allow for partial matching
+of argument names, because it would lead to trouble in the test
+case below...
 """
 
-import TestCmd
 import TestSCons
 
-test = TestSCons.TestSCons(match = TestCmd.match_re)
+test = TestSCons.TestSCons()
 
-test.write('SConstruct', "")
+test.write('SConstruct', """\
+AddOption('--myargument', dest='myargument', type='string', default='gully')
+AddOption('--myarg', dest='myarg', type='string', default='balla')
+print("myargument: " + str(GetOption('myargument')))
+print("myarg: " + str(GetOption('myarg')))
+""")
 
+test.run('-Q -q .',
+         stdout="myargument: gully\nmyarg: balla\n")
 
+test.run('-Q -q . --myargument=helloworld',
+         stdout="myargument: helloworld\nmyarg: balla\n")
 
-# Standard copyright marker is mangled so it doesn't get replaced
-# by the packaging build.
-copyright_line = """\
-(_{2}COPYRIGHT__|Copyright \\(c\\) 2001[-\d, ]+ The SCons Foundation)
-"""
-
-expect1 = """\
-scons>>> 
-scons>>> 
-"""
-
-expect2 = """\
-scons>>> 
-scons>>> 
-"""
-
-test.run(arguments = '-Q --interactive',
-         stdin = "version\nexit\n")
-
-# Windows may or may not print a line for the script version
-# depending on whether it's invoked through scons.py or scons.bat.
-expect1 = r"""scons>>> SCons by Steven Knight et al\.:
-\tengine: v\S+, [^,]*, by \S+ on \S+
-\tengine path: \[.*\]
-%(copyright_line)sscons>>> 
-""" % locals()
-
-expect2 = r"""scons>>> SCons by Steven Knight et al\.:
-\tscript: v\S+, [^,]*, by \S+ on \S+
-\tengine: v\S+, [^,]*, by \S+ on \S+
-\tengine path: \[.*\]
-%(copyright_line)sscons>>> 
-""" % locals()
-
-stdout = test.stdout() + '\n'
-if not test.match_re(stdout, expect1) and not test.match_re(stdout, expect2):
-    print repr(stdout)
-    test.fail_test()
-
-
+test.run('-Q -q . --myarg=helloworld',
+         stdout="myargument: gully\nmyarg: helloworld\n")
 
 test.pass_test()
 

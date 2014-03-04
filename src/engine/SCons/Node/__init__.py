@@ -1049,7 +1049,7 @@ class Node(object):
     def Decider(self, function):
         SCons.Util.AddMethod(self, function, 'changed_since_last_build')
 
-    def changed(self, node=None):
+    def changed(self, node=None, allowcache=False):
         """
         Returns if the node is up-to-date with respect to the BuildInfo
         stored last time it was built.  The default behavior is to compare
@@ -1062,6 +1062,15 @@ class Node(object):
         any difference, but we now rely on checking every dependency
         to make sure that any necessary Node information (for example,
         the content signature of an #included .h file) is updated.
+        
+        The allowcache option was added for supporting the early
+        release of the executor/builder structures, right after
+        a File target was built. When set to true, the return
+        value of this changed method gets cached for File nodes.
+        Like this, the executor isn't needed any longer for subsequent
+        calls to changed().
+        
+        @see: FS.File.changed(), FS.File.release_target_info()
         """
         t = 0
         if t: Trace('changed(%s [%s], %s)' % (self, classname(self), node))

@@ -317,7 +317,7 @@ def get_intel_compiler_top(version, abi):
                 for d in glob.glob('/opt/intel/composerxe-*'):
                     # Typical dir here is /opt/intel/composerxe-2011.4.184
                     m = re.search(r'([0-9][0-9.]*)$', d)
-                    if m and m.group(1) == verison and \
+                    if m and m.group(1) == version and \
                         (os.path.exists(os.path.join(d, "bin", "ia32", "icc")) or
                         os.path.exists(os.path.join(d, "bin", "intel64", "icc"))):
                             top = d
