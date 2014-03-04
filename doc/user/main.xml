@@ -74,15 +74,15 @@
 
     <corpauthor>Steven Knight</corpauthor>
 
-    <pubdate>2004, 2005, 2006, 2007, 2008, 2009, 2010</pubdate>
+    <pubdate>2004 - 2014</pubdate>
 
     <copyright>
-      <year>2004, 2005, 2006, 2007, 2008, 2009, 2010</year>
-      <holder>Steven Knight</holder>
+      <year>2004 - 2014</year>
+      <holder>The SCons Foundation</holder>
     </copyright>
 
     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="copyright.xml"/>
-    
+
     <releaseinfo>version &buildversion;</releaseinfo>
 
     <mediaobject role="cover"><imageobject><imagedata fileref="cover.jpg" format="JPG"/></imageobject></mediaobject>
@@ -96,7 +96,7 @@
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="nodes.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="depends.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="environments.xml"/>
-  
+
   <chapter id="chap-manip-options">
     <title>Automatically Putting Command-line Options into their Construction Variables</title>
     <!-- TODO:  This intro paragraph should describe at a high-level

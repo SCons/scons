@@ -138,7 +138,7 @@ if DEBUG: print 'month year', month_year
 try:
     copyright_years = config['copyright_years']
 except KeyError:
-    copyright_years = ', '.join(map(str, list(range(2001, release_date[0] + 1))))
+    copyright_years = '2001 - %d'%(release_date[0] + 1)
 if DEBUG: print 'copyright years', copyright_years
 
 class UpdateFile(object):
@@ -332,7 +332,7 @@ t.replace_assign('deprecated_python_version', str(deprecated_version))
 
 # Update doc/user/main.{in,xml}
 
-docyears = ', '.join(map(str, iter(range(2004, release_date[0] + 1))))
+docyears = '2004 - %d' % release_date[0]
 if os.path.exists(os.path.join('doc', 'user', 'main.in')):
     # this is no longer used as of Dec 2013
     t = UpdateFile(os.path.join('doc', 'user', 'main.in'))
