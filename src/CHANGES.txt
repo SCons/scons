@@ -57,10 +57,16 @@ RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Test harness: fail_test() can now print a message to help debugging.
 
   From Anatoly Techtonik:
-    - Require rpmbuild when building SCons package.
-    - Print full stack on certain errors, for debugging.
-    - Improve documentation for Textfile builder.
-
+    - Several improvements for running scons.py from source:
+      * engine files form source directory take priority over all other
+        importable versions
+      * message about scons.py running from source is removed to fix tests
+        that were failing because of this extra line in the output
+      * error message when SCons import fails now lists lookup paths
+    - Fixed rpmbuild requirement for building SCons .rpm package.
+    - Improved Debug tools to return full caller stack (PR#66).
+    - Improved documentation for Textfile builder.
+    
   From William Deegan:
     - VS2012 & VS2010 Resolve initialization issues by adding path to reg.exe
       in shell used to run batch files.
