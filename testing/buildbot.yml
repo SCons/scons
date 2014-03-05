@@ -50,3 +50,5 @@
     command: "{{ venv }}/bin/buildslave create-slave
               {{ work }} buildbot.scons.org:9989 {{ builder }} {{ pass }}
               creates={{ work }}"
+    sudo: yes
+    sudo_user: "{{ botuser }}"
