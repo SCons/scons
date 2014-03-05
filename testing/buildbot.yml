@@ -47,6 +47,6 @@
     pip: name=buildbot-slave virtualenv={{ venv }}
 
   - name: create buildbot environment
-    command: "{{ venv }}/bin/buildslave create-slave --relocatable
+    command: "{{ venv }}/bin/buildslave create-slave
               {{ work }} buildbot.scons.org:9989 {{ builder }} {{ pass }}
               creates={{ work }}"
