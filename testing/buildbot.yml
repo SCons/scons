@@ -15,7 +15,10 @@
   tasks:
   # --- install requirements ---
   - name: ubuntu/debian - make sure mercurial is installed
-    apt: pkg=mercurial
+    apt: pkg={{ item }}
+    with_items:
+      - mercurial
+      - python-virtualenv
 
   - name: create .hgrc if necessary
     stat: path={{ hgrc }}
