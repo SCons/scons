@@ -37,5 +37,5 @@
 
   # --- setup virtualenv for buildbot ---
   - name: setup buildbot-virtualenv
-    command: /usr/bin/virtualenv {{ venv }}
+    command: /usr/bin/virtualenv --no-site-packages {{ venv }}
              creates={{ venv }}/bin
