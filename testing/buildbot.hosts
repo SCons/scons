@@ -1,1 +1,1 @@
-localhost ansible_connection=local
+localhost ansible_connection=local builder=xxx pass=xxx

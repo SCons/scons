@@ -1,9 +1,16 @@
-# Ansible playbook to setup buildbot instance
+# Ansible playbook to setup buildbot instance.
+# Edit buildbot.hosts to set builder and pass variables.
+# Then exec:
+#
+#   ansible-playbook -i buildbot.hosts buildbot.yml
+#
+# botuser can be overridden from command line:
+#
+#   ansible-playbook -i hosts buildbot.yml -e 'botuser=sconsy'
+#
+# Tested with Ansible 1.5.0, based on
 # http://scons.org/wiki/InstallingBuildbotSlaves
-#
-#   ansible-playbook -i buildbot.hosts buildbot.yml -e 'botuser=scons'
-#
-# Tested with Ansible 1.5.0. Send questions to:
+# Send questions to:
 #
 #   anatoly techtonik <techtonik@gmail.com>
 #
@@ -15,6 +22,7 @@
     - botuser: scons
     - hgrc: /home/{{ botuser }}/.hgrc
     - venv: /home/{{ botuser }}/buildbot-virtualenv
+    - work: /home/{{ botuser }}/buildbot-workdir
 
   tasks:
   # --- install requirements ---
@@ -31,10 +39,14 @@
   - file: path={{ hgrc }} owner={{ botuser }} state=touch
     when: not st.stat.exists
   - name: enable mercurial purge extension
-    ini_file: dest={{ hgrc }} backup=yes
+    ini_file: dest={{ hgrc }}
               section=extensions option=hgext.purge
               value=
 
-  # --- install buildbot ---
   - name: install buildbot-slave in virtualenv
-    pip: name=buildbot-slave virtualenv={{ venv }} 
+    pip: name=buildbot-slave virtualenv={{ venv }}
+
+  - name: create buildbot environment
+    command: "{{ venv }}/bin/buildslave create-slave --relocatable
+              {{ work }} buildbot.scons.org:9989 {{ builder }} {{ pass }}
+              creates={{ work }}"
