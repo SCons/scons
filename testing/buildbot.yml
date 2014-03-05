@@ -35,7 +35,6 @@
               section=extensions option=hgext.purge
               value=
 
-  # --- setup virtualenv for buildbot ---
-  - name: setup buildbot-virtualenv
-    command: /usr/bin/virtualenv --no-site-packages {{ venv }}
-             creates={{ venv }}/bin
+  # --- install buildbot ---
+  - name: install buildbot-slave in virtualenv
+    pip: name=buildbot-slave virtualenv={{ venv }} 
