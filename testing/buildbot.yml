@@ -1,5 +1,10 @@
 # Ansible playbook to setup buildbot instance
 # http://scons.org/wiki/InstallingBuildbotSlaves
+#
+# Send questions to:
+#
+#   anatoly techtonik <techtonik@gmail.com>
+#
 ---
 # host is overridable with --extra-vars 'host=address'
 - hosts: "{{ host | default('localhost') }}"
@@ -13,7 +18,7 @@
     apt: pkg=mercurial
 
   - name: create .hgrc if necessary
-    command: touch {{ hgrc }} creates={{ hgrc }}
+    file: path={{ hgrc }} owner={{ botuser }} state=touch
   - name: enable mercurial purge extension
     ini_file: dest={{ hgrc }} backup=yes
               section=extensions option=hgext.purge
