@@ -9,7 +9,8 @@
 # host is overridable with --extra-vars 'host=address'
 - hosts: "{{ host | default('localhost') }}"
   vars:
-    - botuser: scons2
+    # botuser can be overridden with -e 'botuser=scons2'
+    - botuser: scons
     - hgrc: /home/{{ botuser }}/.hgrc
 
   tasks:
