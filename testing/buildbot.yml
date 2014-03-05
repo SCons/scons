@@ -24,6 +24,12 @@
     - venv: /home/{{ botuser }}/buildbot-virtualenv
     - work: /home/{{ botuser }}/buildbot-workdir
 
+  vars_prompt:
+    - name: maintainer
+      prompt: contact details of the builbot owner
+      default: name <mail@example.com>
+      private: no
+
   tasks:
   # --- install requirements ---
   - name: ubuntu/debian - make sure mercurial is installed
@@ -52,3 +58,6 @@
               creates={{ work }}"
     sudo: yes
     sudo_user: "{{ botuser }}"
+
+  - name: set contact details of the buildbot owner
+    copy: dest="{{ work }}/info/admin" content="{{ maintainer }}"
