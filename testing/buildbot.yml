@@ -1,7 +1,9 @@
 # Ansible playbook to setup buildbot instance
 # http://scons.org/wiki/InstallingBuildbotSlaves
 #
-# Send questions to:
+#   ansible-playbook -i buildbot.hosts buildbot.yml -e 'botuser=scons'
+#
+# Tested with Ansible 1.5.0. Send questions to:
 #
 #   anatoly techtonik <techtonik@gmail.com>
 #
