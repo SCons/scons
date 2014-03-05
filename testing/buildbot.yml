@@ -12,6 +12,7 @@
     # botuser can be overridden with -e 'botuser=scons2'
     - botuser: scons
     - hgrc: /home/{{ botuser }}/.hgrc
+    - venv: /home/{{ botuser }}/buildbot-virtualenv
 
   tasks:
   # --- install requirements ---
@@ -21,6 +22,7 @@
       - mercurial
       - python-virtualenv
 
+  # --- enable mercurial purge extension ---
   - name: create .hgrc if necessary
     stat: path={{ hgrc }}
     register: st
@@ -30,3 +32,8 @@
     ini_file: dest={{ hgrc }} backup=yes
               section=extensions option=hgext.purge
               value=
+
+  # --- setup virtualenv for buildbot ---
+  - name: setup buildbot-virtualenv
+    command: /usr/bin/virtualenv {{ venv }}
+             creates={{ venv }}/bin
