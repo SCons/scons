@@ -61,3 +61,10 @@
 
   - name: set contact details of the buildbot owner
     copy: dest="{{ work }}/info/admin" content="{{ maintainer }}"
+
+  - name: update host information
+    copy: dest="{{ work }}/info/host"
+          content="{{ansible_lsb.description}}
+                   {{'\n'}}{{ansible_machine}}
+                   {{'\n'}}{{ansible_memtotal_mb}}MB RAM
+                   {{'\n'}}Python {{ansible_python_version}}"
