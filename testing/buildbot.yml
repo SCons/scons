@@ -18,7 +18,10 @@
     apt: pkg=mercurial
 
   - name: create .hgrc if necessary
-    file: path={{ hgrc }} owner={{ botuser }} state=touch
+    stat: path={{ hgrc }}
+    register: st
+  - file: path={{ hgrc }} owner={{ botuser }} state=touch
+    when: not st.stat.exists
   - name: enable mercurial purge extension
     ini_file: dest={{ hgrc }} backup=yes
               section=extensions option=hgext.purge
