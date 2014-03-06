@@ -20,8 +20,7 @@
 #
 #       -a              Run all tests; does a virtual 'find' for
 #                       all SCons tests under the current directory.
-#                       You can also specify a list of subdirectories
-#                       (not available with the "--qmtest" option!). Then,
+#                       You can also specify a list of subdirectories. Then,
 #                       only the given folders are searched for test files.
 #
 #       -d              Debug.  Runs the script under the Python
@@ -114,7 +113,6 @@ print_passed_summary = None
 python3incompatibilities = None
 scons = None
 scons_exec = None
-qmtest = None
 testlistfile = None
 version = ''
 print_times = None
@@ -158,7 +156,6 @@ Options:
                                 tar-gz        .tar.gz distribution
                                 zip           .zip distribution
   --passed                    Summarize which tests passed.
-  --qmtest                    Run using the QMTest harness (deprecated).
   -q, --quiet                 Don't print the test being executed.
   --quit-on-failure           Quit on any test failure
   -s, --short-progress        Short progress, prints only the command line
@@ -216,7 +213,7 @@ opts, args = getopt.getopt(args, "3b:def:hj:klnP:p:qsv:Xx:t",
                              'debug', 'external', 'file=', 'help', 'no-progress',
                              'jobs=',
                              'list', 'no-exec', 'nopipefiles',
-                             'package=', 'passed', 'python=', 'qmtest',
+                             'package=', 'passed', 'python=',
                              'quiet',
                              'quit-on-failure',
                              'short-progress', 'time',
@@ -263,12 +260,6 @@ for o, a in opts:
         print_passed_summary = 1
     elif o in ['-P', '--python']:
         python = a
-    elif o in ['--qmtest']:
-        if sys.platform == 'win32':
-            # typically in c:/PythonXX/Scripts
-            qmtest = 'qmtest.py'
-        else:
-            qmtest = 'qmtest'
     elif o in ['-q', '--quiet']:
         printcommand = 0
         suppress_stdout = True
@@ -572,15 +563,6 @@ else:
     if not baseline or baseline == '.':
         base = cwd
     elif baseline == '-':
-        # Tentative code for fetching information directly from the
-        # QMTest context file.
-        #
-        #import qm.common
-        #import qm.test.context
-        #qm.rc.Load("test")
-        #context = qm.test.context.Context()
-        #context.Read('context')
-
         url = None
         svn_info =  os.popen("svn info 2>&1", "r").read()
         match = re.search('URL: (.*)', svn_info)
@@ -706,7 +688,7 @@ elif testlistfile:
     tests = [x for x in tests if x[0] != '#']
     tests = [x[:-1] for x in tests]
     tests = [x.strip() for x in tests]
-elif options.all and not qmtest:
+elif options.all:
     # Find all of the SCons functional tests in the local directory
     # tree.  This is anything under the 'src' subdirectory that ends
     # with 'Tests.py', or any Python script (*.py) under the 'test'
@@ -728,56 +710,6 @@ runtest.py:  No tests were found.
 """)
     sys.exit(1)
 
-if qmtest:
-    if baseline:
-        aegis_result_stream = 'scons_tdb.AegisBaselineStream'
-        qmr_file = 'baseline.qmr'
-    else:
-        aegis_result_stream = 'scons_tdb.AegisChangeStream'
-        qmr_file = 'results.qmr'
-
-    if print_times:
-        aegis_result_stream = aegis_result_stream + "(print_time='1')"
-
-    qmtest_args = [ qmtest, ]
-
-    qmtest_args.extend([
-                'run',
-                '--output %s' % qmr_file,
-                '--format none',
-                '--result-stream="%s"' % aegis_result_stream,
-              ])
-
-    if python:
-        qmtest_args.append('--context python="%s"' % python)
-
-    if options.xml:
-        rsclass = 'scons_tdb.SConsXMLResultStream'
-        qof = "r'" + options.xml + "'"
-        rs = '--result-stream="%s(filename=%s)"' % (rsclass, qof)
-        qmtest_args.append(rs)
-
-    os.environ['SCONS'] = os.path.join(cwd, 'src', 'script', 'scons.py')
-
-    cmd = ' '.join(qmtest_args + tests)
-    if printcommand:
-        sys.stdout.write(cmd + '\n')
-        sys.stdout.flush()
-    status = 0
-    if execute_tests:
-        status = os.system(cmd)
-        try:
-            wexitstatus = os.WEXITSTATUS
-        except AttributeError:
-            pass
-        else:
-            status = wexitstatus(status)
-    sys.exit(status)
-
-#try:
-#    os.chdir(scons_script_dir)
-#except OSError:
-#    pass
 
 tests = [Test(t) for t in tests]
 
