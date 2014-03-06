@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd">C:\&gt;<userinput>scons -Q</userinput>
+cl /Fof1.obj /c f1.c /nologo
+cl /Fof2.obj /c f2.c /nologo
+cl /Fof3.obj /c f3.c /nologo
+link /nologo /dll /out:foo.dll /implib:foo.lib f1.obj f2.obj f3.obj
+RegServerFunc(target, source, env)
+embedManifestDllCheck(target, source, env)
+</screen>
