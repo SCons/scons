@@ -4,7 +4,14 @@
 
                             Change Log
 
-RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
+
+RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
+
+  From Anatoly Techtonik:
+    - Remove support for QMTest harness from runtest.py
+
+
+RELEASE 2.3.1 - Mon, 02 Mar 2014 13:53:45 -0400
 
   From Andrew Featherstone:
     - Added support for EPUB output format to the DocBook tool.
@@ -85,6 +92,7 @@ RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Fixed description of ignore_case for EnumVariable in the
       MAN page (#2774).
 
+
 RELEASE 2.3.0 - Mon, 02 Mar 2013 13:22:29 -0400
 
   From Anatoly Techtonik:
@@ -147,6 +155,7 @@ RELEASE 2.3.0 - Mon, 02 Mar 2013 13:22:29 -0400
       a versioned shared library and create the required symlinks.
       Add builder InstallVersionedLib to create the required symlinks
       installing a versioned shared library.
+
 
 RELEASE 2.2.0 - Mon, 05 Aug 2012 15:37:48 +0000
 
