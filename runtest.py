@@ -4,18 +4,17 @@
 #
 # runtest.py - wrapper script for running SCons tests
 #
-# This script mainly exists to set PYTHONPATH to the right list of
-# directories to test the SCons modules.
+# SCons test suite consists of:
 #
-# By default, it directly uses the modules in the local tree:
-# ./src/ (source files we ship) and ./QMTest/ (other modules we don't).
+#  - unit tests   - included in *Tests.py files from src/ dir
+#  - module tests - are in test/ dir and use framework from QMTest/
 #
-# When any -p option is specified, this script assumes it's in a
-# directory in which a build has been performed, and sets PYTHONPATH
-# so that it *only* references the modules that have unpacked from
-# the specified built package, to test whether the packages are good.
+# This script adds src/ and QMTest/ directories to PYTHONPATH,
+# performs test discovery and processes them according to options.
 #
-# Options:
+# With -p (--package) option, script tests specified package from
+# build directory and sets PYTHONPATH to reference modules unpacked
+# during build process for testing purposes (build/test-*).
 #
 #       -3              Run with the python -3 option,
 #
