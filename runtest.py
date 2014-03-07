@@ -641,9 +641,13 @@ if old_pythonpath:
 if python3incompatibilities:
     os.environ['SCONS_HORRIBLE_REGRESSION_TEST_HACK'] = '1'
 
+
+# ---[ test discovery ]------------------------------------
+
 tests = []
 
 def find_Tests_py(directory):
+    """ Look for unit tests """
     result = []
     for dirpath, dirnames, filenames in os.walk(directory):
         # Skip folders containing a sconstest.skip file
@@ -655,6 +659,7 @@ def find_Tests_py(directory):
     return sorted(result)
 
 def find_py(directory):
+    """ Look for module tests """
     result = []
     for dirpath, dirnames, filenames in os.walk(directory):
         # Skip folders containing a sconstest.skip file
@@ -677,17 +682,20 @@ if args:
         for path in glob.glob(a):
             if os.path.isdir(path):
                 if path[:3] == 'src':
-                    tests.extend(find_Tests_py(path))
-
+                    for p in find_Tests_py(path):
+                        tests.append(p)
                 elif path[:4] == 'test':
-                    tests.extend(find_py(path))
+                    for p in find_py(path):
+                        tests.append(p)
             else:
                 tests.append(path)
+
 elif testlistfile:
     tests = open(testlistfile, 'r').readlines()
     tests = [x for x in tests if x[0] != '#']
     tests = [x[:-1] for x in tests]
     tests = [x.strip() for x in tests]
+
 elif options.all:
     # Find all of the SCons functional tests in the local directory
     # tree.  This is anything under the 'src' subdirectory that ends
@@ -710,6 +718,8 @@ runtest.py:  No tests were found.
 """)
     sys.exit(1)
 
+
+# ---[ test processing ]-----------------------------------
 
 tests = [Test(t) for t in tests]
 
