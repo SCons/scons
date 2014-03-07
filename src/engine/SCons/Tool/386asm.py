@@ -37,7 +37,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 from SCons.Tool.PharLapCommon import addPharLapPaths
 import SCons.Util
 
-as_module = __import__('as', globals(), locals(), [])
+as_module = __import__('as', globals(), locals(), [], 1)
 
 def generate(env):
     """Add Builders and construction variables for ar to an Environment."""

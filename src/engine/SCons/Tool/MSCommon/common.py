@@ -115,11 +115,11 @@ def normalize_env(env, keys, force=False):
     normenv = {}
     if env:
         for k in env.keys():
-            normenv[k] = copy.deepcopy(env[k]).encode('mbcs')
+            normenv[k] = copy.deepcopy(env[k])
 
         for k in keys:
             if k in os.environ and (force or not k in normenv):
-                normenv[k] = os.environ[k].encode('mbcs')
+                normenv[k] = os.environ[k]
 
     # This shouldn't be necessary, since the default environment should include system32,
     # but keep this here to be safe, since it's needed to find reg.exe which the MSVC
@@ -212,7 +212,6 @@ def parse_output(output, keep = ("INCLUDE", "LIB", "LIBPATH", "PATH")):
         for p in plist:
             # Do not add empty paths (when a var ends with ;)
             if p:
-                p = p.encode('mbcs')
                 # XXX: For some reason, VC98 .bat file adds "" around the PATH
                 # values, and it screws up the environment later, so we strip
                 # it.
