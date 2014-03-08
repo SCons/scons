@@ -85,6 +85,11 @@ scons_version = 'scons-%s' % __version__
 # preferred order of scons lookup paths
 prefs = []
 
+# - running from source takes priority (since 2.3.2)
+script_path = os.path.abspath(os.path.dirname(__file__))
+source_path = os.path.join(script_path, '..', 'engine')
+
+# - running from egg check
 try:
     import pkg_resources
 except ImportError:
@@ -171,7 +176,7 @@ else:
 libs.extend([os.path.join(x, scons_version) for x in prefs])
 libs.extend([os.path.join(x, 'scons') for x in prefs])
 
-sys.path = libs + sys.path
+sys.path = [source_path] + libs + sys.path
 
 ##############################################################################
 # END STANDARD SCons SCRIPT HEADER
@@ -181,12 +186,11 @@ if __name__ == "__main__":
     try:
         import SCons.Script
     except:
-        ROOT = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'engine')
-        if os.path.exists(ROOT):
-            sys.path += [ROOT]
-            print("SCons import failed. Trying to run from source directory")
-        import SCons.Script
-  
+        print("Import failed. Unable to find SCons files in:")
+        for path in [source_path] + libs:
+          print "  %s" % path
+        raise
+
     # this does all the work, and calls sys.exit
     # with the proper exit status when done.
     SCons.Script.main()
