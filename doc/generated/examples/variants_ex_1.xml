@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd">% <userinput>scons -Q OS=linux</userinput>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q OS=linux</userinput>
 Install file: "build/linux/world/world.h" as "export/linux/include/world.h"
 cc -o build/linux/hello/hello.o -c -Iexport/linux/include build/linux/hello/hello.c
 cc -o build/linux/world/world.o -c -Iexport/linux/include build/linux/world/world.c
