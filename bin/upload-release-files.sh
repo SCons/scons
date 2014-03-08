@@ -46,7 +46,7 @@ $RSYNC $RSYNCOPTS \
 
 #
 # scons.org stuff:
-# 
+#
 # Doc: copy the doc tgz over; we'll unpack later
 $RSYNC $RSYNCOPTS \
   scons-doc-$VERSION.tar.gz \
@@ -68,7 +68,7 @@ ssh scons@scons.org "
   cd ..
   rm latest; ln -s $VERSION latest
   rm production; ln -s $VERSION production
-  for f in HTML PDF PS TEXT; do rm $f; ln -s $VERSION/$f $f; done
+  for f in HTML PDF EPUB PS TEXT; do rm \$f; ln -s $VERSION/\$f \$f; done
 "
 echo '*****'
 echo '***** Now manually update index.php, includes/versions.php and news-raw.xhtml on scons.org.'
