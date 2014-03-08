@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd">% <userinput>ls src</userinput>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>ls src</userinput>
 SConscript  f1.c  f2.c  f2.h
 % <userinput>scons -Q</userinput>
 cc -o build/f1.o -c build/f1.c

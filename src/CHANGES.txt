@@ -4,14 +4,21 @@
 
                             Change Log
 
-
 RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
   From Anatoly Techtonik:
+    - Several improvements for running scons.py from source:
+      * engine files form source directory take priority over all other
+        importable versions
+      * message about scons.py running from source is removed to fix tests
+        that were failing because of this extra line in the output
+      * error message when SCons import fails now lists lookup paths
     - Remove support for QMTest harness from runtest.py
 
+  From Dirk Baechle:
+    - Update XML doc editor configuration
 
-RELEASE 2.3.1 - Mon, 02 Mar 2014 13:53:45 -0400
+RELEASE 2.3.1
 
   From Andrew Featherstone:
     - Added support for EPUB output format to the DocBook tool.
@@ -92,7 +99,6 @@ RELEASE 2.3.1 - Mon, 02 Mar 2014 13:53:45 -0400
     - Fixed description of ignore_case for EnumVariable in the
       MAN page (#2774).
 
-
 RELEASE 2.3.0 - Mon, 02 Mar 2013 13:22:29 -0400
 
   From Anatoly Techtonik:
@@ -155,7 +161,6 @@ RELEASE 2.3.0 - Mon, 02 Mar 2013 13:22:29 -0400
       a versioned shared library and create the required symlinks.
       Add builder InstallVersionedLib to create the required symlinks
       installing a versioned shared library.
-
 
 RELEASE 2.2.0 - Mon, 05 Aug 2012 15:37:48 +0000
 
