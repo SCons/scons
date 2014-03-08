@@ -26,6 +26,25 @@ RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   since last release.  This announcement highlights only the important
   changes.
 
+  Please note the following important changes since release 2.3.0:
+
+    -- Fix failure to relink when LINKCOM or libs change, introduced in
+       2.3.0.
+
+    -- Fix MSVC defaulting TARGET_ARCH to HOST_ARCH and other MSVC
+       issues.
+
+    -- Reduced memory consumption in large builds, which should speed
+       them up as well.
+
+    -- Add new cyglink linker for use with cygwin.
+
+    -- Fix leaking file handles to subprocesses
+
+    -- Support read-only cache (--cache-readonly)
+
+    -- Add Pseudo command to mark targets that shouldn't exist after building
+
   Please note the following important changes since release 2.2.0:
 
     -- SUPPORT FOR PYTHON VERSIONS BEFORE 2.7 IS NOW DEPRECATED
@@ -1072,20 +1091,9 @@ RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 Thank you for your interest, and please let us know how we can help
 improve SCons for your needs.
 
-Steven Knight
-knight at baldmt dot com
-http://www.baldmt.com/~knight/
-
-With plenty of help from the SCons Development team:
-        Chad Austin
-        Charles Crain
-        Bill Deegan
-        Steve Leblanc
-        Greg Noel
-        Gary Oberbrunner
-        Anthony Roach
-        Greg Spencer
-        Christoph Wiedemann
+-- The SCons Development Team
+   Gary Oberbrunner and Bill Deegan, maintainers
+   Thanks to all the contributors for all your help!
 
 __COPYRIGHT__
 __FILE__ __REVISION__ __DATE__ __DEVELOPER__
