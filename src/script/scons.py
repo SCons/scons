@@ -190,7 +190,7 @@ if __name__ == "__main__":
         import SCons.Script
     except:
         print("Import failed. Unable to find SCons files in:")
-        for path in [source_path] + libs:
+        for path in libs:
           print "  %s" % path
         raise
 
