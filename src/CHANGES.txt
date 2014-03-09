@@ -6,6 +6,10 @@
 
 RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Sye van der Veen:
+    - Support for Visual Studio 12.0Exp, and fixes for earlier MSVS
+      versions.
+
   From Anatoly Techtonik:
     - Several improvements for running scons.py from source:
       * engine files form source directory take priority over all other
