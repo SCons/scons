@@ -201,7 +201,7 @@ RELEASE 2.0.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 """, mode = 'r')
 
 
-years = ', '.join(map(str, range(2001, this_year + 1)))
+years = '2001 - %d'%(this_year + 1)
 test.must_match(SConstruct, """
 month_year = 'MONTH YEAR'
 copyright_years = %s
