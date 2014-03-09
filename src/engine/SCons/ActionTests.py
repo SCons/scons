@@ -185,9 +185,8 @@ class DummyNode(object):
 if os.name == 'java':
     python = os.path.join(sys.prefix, 'jython')
 else:
-    python = sys.executable
-
-_python_ = '"' + python + '"'
+    python = os.environ.get('python_executable', sys.executable)
+_python_ = test.escape(python)
 
 _null = SCons.Action._null
 
