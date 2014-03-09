@@ -38,6 +38,7 @@ __developer__ = "__DEVELOPER__"
 import os
 import sys
 
+
 ##############################################################################
 # BEGIN STANDARD SCons SCRIPT HEADER
 #
@@ -72,6 +73,11 @@ libs = []
 if "SCONS_LIB_DIR" in os.environ:
     libs.append(os.environ["SCONS_LIB_DIR"])
 
+# - running from source takes priority (since 2.3.2)
+script_path = os.path.abspath(os.path.dirname(__file__))
+source_path = os.path.join(script_path, '..', 'engine')
+libs.append(source_path)
+
 local_version = 'scons-local-' + __version__
 local = 'scons-local'
 if script_dir:
@@ -85,9 +91,6 @@ scons_version = 'scons-%s' % __version__
 # preferred order of scons lookup paths
 prefs = []
 
-# - running from source takes priority (since 2.3.2)
-script_path = os.path.abspath(os.path.dirname(__file__))
-source_path = os.path.join(script_path, '..', 'engine')
 
 # - running from egg check
 try:
@@ -176,7 +179,7 @@ else:
 libs.extend([os.path.join(x, scons_version) for x in prefs])
 libs.extend([os.path.join(x, 'scons') for x in prefs])
 
-sys.path = [source_path] + libs + sys.path
+sys.path = libs + sys.path
 
 ##############################################################################
 # END STANDARD SCons SCRIPT HEADER
