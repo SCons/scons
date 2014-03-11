@@ -1,0 +1,13 @@
+# SConstruct for testing but #2903.
+# The test changes the lib name to make sure it rebuilds
+# when the name changes, even if the content of the lib is the same.
+# Also, the test passes in extra shlinkflags to ensure things rebuild
+# when other linker options change, and not when they don't.
+# (This doesn't specifically test LIBPATH, but there's a test for
+# that already.)
+env=Environment()
+libname=ARGUMENTS.get('libname', 'foo')
+env.Append(SHLINKFLAGS=' $EXTRA_SHLINKFLAGS')
+shlinkflags=ARGUMENTS.get('shlinkflags', '')
+env.SharedLibrary('myshared', ['main.c'],
+                  LIBS=[libname], LIBPATH='.', EXTRA_SHLINKFLAGS=shlinkflags)

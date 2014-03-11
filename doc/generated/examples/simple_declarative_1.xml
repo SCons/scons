@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons</userinput>
+scons: Reading SConscript files ...
+Calling Program('hello.c')
+Calling Program('goodbye.c')
+Finished calling Program()
+scons: done reading SConscript files.
+scons: Building targets ...
+cc -o goodbye.o -c goodbye.c
+cc -o goodbye goodbye.o
+cc -o hello.o -c hello.c
+cc -o hello hello.o
+scons: done building targets.
+</screen>

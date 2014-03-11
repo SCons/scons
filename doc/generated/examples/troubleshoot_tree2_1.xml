@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q --tree=all</userinput>
+cc -o f1.o -c -I. f1.c
+cc -o f2.o -c -I. f2.c
+cc -o f3.o -c -I. f3.c
+ar rc libfoo.a f1.o f2.o f3.o
+ranlib libfoo.a
+cc -o prog1.o -c -I. prog1.c
+cc -o prog1 prog1.o -L. -lfoo
+cc -o prog2.o -c -I. prog2.c
+cc -o prog2 prog2.o -L. -lfoo
++-.
+  +-SConstruct
+  +-f1.c
+  +-f1.o
+  | +-f1.c
+  | +-inc.h
+  +-f2.c
+  +-f2.o
+  | +-f2.c
+  | +-inc.h
+  +-f3.c
+  +-f3.o
+  | +-f3.c
+  | +-inc.h
+  +-inc.h
+  +-libfoo.a
+  | +-f1.o
+  | | +-f1.c
+  | | +-inc.h
+  | +-f2.o
+  | | +-f2.c
+  | | +-inc.h
+  | +-f3.o
+  |   +-f3.c
+  |   +-inc.h
+  +-prog1
+  | +-prog1.o
+  | | +-prog1.c
+  | | +-inc.h
+  | +-libfoo.a
+  |   +-f1.o
+  |   | +-f1.c
+  |   | +-inc.h
+  |   +-f2.o
+  |   | +-f2.c
+  |   | +-inc.h
+  |   +-f3.o
+  |     +-f3.c
+  |     +-inc.h
+  +-prog1.c
+  +-prog1.o
+  | +-prog1.c
+  | +-inc.h
+  +-prog2
+  | +-prog2.o
+  | | +-prog2.c
+  | | +-inc.h
+  | +-libfoo.a
+  |   +-f1.o
+  |   | +-f1.c
+  |   | +-inc.h
+  |   +-f2.o
+  |   | +-f2.c
+  |   | +-inc.h
+  |   +-f3.o
+  |     +-f3.c
+  |     +-inc.h
+  +-prog2.c
+  +-prog2.o
+    +-prog2.c
+    +-inc.h
+</screen>
