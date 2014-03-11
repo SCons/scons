@@ -1,0 +1,375 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+    
+    <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
+    %builders-mod;
+    <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
+    %functions-mod;
+    <!ENTITY % tools-mod SYSTEM "../generated/tools.mod">
+    %tools-mod;
+    <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
+    %variables-mod;
+    
+]>
+
+<chapter id="chap-gettext"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Internationalization and localization with gettext</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <para>
+  The &t-link-gettext; toolset supports internationalization and localization
+  of SCons-based projects. Builders provided by &t-link-gettext; automatize
+  generation and updates of translation files. You can manage translations and
+  translation templates similarly to how it's done with autotools.
+  </para>
+
+  <section>
+  <title>Prerequisites</title>
+  <para>
+    To follow examples provided in this chapter set up your operating system to
+    support two or more languages. In following examples we use locales
+    <literal>en_US</literal>, <literal>de_DE</literal>, and
+    <literal>pl_PL</literal>.
+  </para>
+
+  <para>
+    Ensure, that you have <ulink
+    url="http://www.gnu.org/software/gettext/manual/gettext.html">GNU gettext
+    utilities</ulink> installed on your system.
+  </para>
+
+  <para>
+    To edit translation files you may wish to install <ulink
+    url="http://www.poedit.net/">poedit</ulink> editor.
+  </para>
+  </section>
+
+  <section>
+  <title>Simple project</title>
+    <para>
+    Let's start with a very simple project, the "Hello world" program 
+    for example
+    <scons_example name="gettext_ex1">
+    <file name="hello.c" printme="1">
+/* hello.c */
+#include &lt;stdio.h&gt;
+int main(int argc, char* argv[])
+{
+  printf("Hello world\n");
+  return 0;
+}
+    </file>
+    </scons_example>
+
+    Prepare a <filename>SConstruct</filename> to compile the program
+    as usual.
+    <scons_example name="gettext_ex2">
+    <file name="SConstruct" printme="1">
+# SConstruct
+env = Environment()
+hello = Program(["hello.c"])
+    </file>
+    </scons_example>
+    </para>
+
+    <para>
+    Now we'll convert the project to a multi-lingual one. If you don't
+    already have <ulink
+    url="http://www.gnu.org/software/gettext/manual/gettext.html">GNU gettext
+    utilities</ulink> installed, install them from your preffered
+    package repository, or download from <ulink
+    url="http://ftp.gnu.org/gnu/gettext/">
+    http://ftp.gnu.org/gnu/gettext/</ulink>. For the purpose of this example,
+    you should have following three locales installed on your system:
+    <literal>en_US</literal>, <literal>de_DE</literal> and
+    <literal>pl_PL</literal>. On debian, for example, you may enable certain
+    locales through <command>dpkg-reconfigure locales</command>.
+    </para>
+
+    <para>
+    First prepare the <filename>hello.c</filename> program for
+    internationalization. Change the previous code so it reads as follows:
+    <scons_example name="gettext_ex3">
+    <file name="hello.c" printme="1">
+/* hello.c */
+#include &lt;stdio.h&gt;
+#include &lt;libintl.h&gt;
+#include &lt;locale.h&gt;
+int main(int argc, char* argv[])
+{
+  bindtextdomain("hello", "locale");
+  setlocale(LC_ALL, "");
+  textdomain("hello");
+  printf(gettext("Hello world\n"));
+  return 0;
+}
+    </file>
+    </scons_example>
+    Detailed recipes for such conversion can
+    be found at <ulink
+    url="http://www.gnu.org/software/gettext/manual/gettext.html#Sources">
+    http://www.gnu.org/software/gettext/manual/gettext.html#Sources</ulink>.
+    The <function>gettext("...")</function> has two purposes.
+    First, it marks messages for the <command>xgettext(1)</command> program, which
+    we will use to extract from the sources the messages for localization.
+    Second, it calls the <literal>gettext</literal> library internals to
+    translate the message at runtime.
+    </para>
+
+    <para> 
+    Now we shall instruct SCons how to generate and maintain translation files.
+    For that, use the &b-link-Translate; builder and &b-link-MOFiles; builder.
+    The first one takes source files, extracts internationalized
+    messages from them, creates so-called <literal>POT</literal> file
+    (translation template), and then creates <literal>PO</literal> translation
+    files, one for each requested language. Later, during the development
+    lifecycle, the builder keeps all these files up-to date. The
+    &b-link-MOFiles; builder compiles the <literal>PO</literal> files to binary
+    form. Then install the <literal>MO</literal> files under directory
+    called <filename>locale</filename>.
+    </para>
+
+    <para>  The completed 
+    <filename>SConstruct</filename> is as follows:
+    <scons_example name="gettext_ex4">
+    <file name="SConstruct" printme="1">
+# SConstruct
+env = Environment( tools = ['default', 'gettext'] )
+hello = env.Program(["hello.c"])
+env['XGETTEXTFLAGS'] = [
+  '--package-name=%s' % 'hello',
+  '--package-version=%s' % '1.0',
+]
+po = env.Translate(["pl","en", "de"], ["hello.c"], POAUTOINIT = 1)
+mo = env.MOFiles(po)
+InstallAs(["locale/en/LC_MESSAGES/hello.mo"], ["en.mo"])
+InstallAs(["locale/pl/LC_MESSAGES/hello.mo"], ["pl.mo"])
+InstallAs(["locale/de/LC_MESSAGES/hello.mo"], ["de.mo"])
+    </file>
+    </scons_example>
+    </para>
+    <para>
+    Generate the translation files with <command>scons po-update</command>.
+    You should see the output from SCons simillar to this:
+    <screen>
+user@host:$ scons po-update
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+Entering '/home/ptomulik/projects/tmp'
+xgettext --package-name=hello --package-version=1.0 -o - hello.c
+Leaving '/home/ptomulik/projects/tmp'
+Writting 'messages.pot' (new file)
+msginit --no-translator -l pl -i messages.pot -o pl.po
+Created pl.po.
+msginit --no-translator -l en -i messages.pot -o en.po
+Created en.po.
+msginit --no-translator -l de -i messages.pot -o de.po
+Created de.po.
+scons: done building targets.
+    </screen>
+    </para>
+
+    <para>
+    If everything is right, you should see following new files.
+    <screen>
+user@host:$ ls *.po*
+de.po  en.po  messages.pot  pl.po
+    </screen>
+    </para>
+
+    <para>
+    Open <filename>en.po</filename> in <command>poedit</command> and provide
+    the English translation to message <literal>"Hello world\n"</literal>. Do the
+    same for <filename>de.po</filename> (deutsch) and
+    <filename>pl.po</filename> (polish). Let the translations be, for example:
+    <itemizedlist>
+      <listitem><para>
+        <literal>en: "Welcome to beautiful world!\n"</literal>
+      </para></listitem>
+      <listitem><para>
+        <literal>de: "Hallo Welt!\n"</literal>
+      </para></listitem>
+      <listitem><para>
+        <literal>pl: "Witaj swiecie!\n"</literal>
+      </para></listitem>
+    </itemizedlist>
+    </para>
+    <para>
+    Now compile the project by executing <command>scons</command>. The
+    output should be similar to this:
+    <screen>
+user@host:$ scons
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+msgfmt -c -o de.mo de.po
+msgfmt -c -o en.mo en.po
+gcc -o hello.o -c hello.c
+gcc -o hello hello.o
+Install file: "de.mo" as "locale/de/LC_MESSAGES/hello.mo"
+Install file: "en.mo" as "locale/en/LC_MESSAGES/hello.mo"
+msgfmt -c -o pl.mo pl.po
+Install file: "pl.mo" as "locale/pl/LC_MESSAGES/hello.mo"
+scons: done building targets.
+    </screen>
+    SCons automatically compiled the <literal>PO</literal> files to binary format
+    <literal>MO</literal>, and the <literal>InstallAs</literal> lines installed
+    these files under <filename>locale</filename> folder.
+    </para>
+    <para>
+    Your program should be now ready. You may try it as follows (linux):
+    <screen>
+user@host:$ LANG=en_US.UTF-8 ./hello
+Welcome to beautiful world
+    </screen>
+    <screen>
+user@host:$ LANG=de_DE.UTF-8 ./hello
+Hallo Welt
+    </screen>
+    <screen>
+user@host:$ LANG=pl_PL.UTF-8 ./hello
+Witaj swiecie
+    </screen>
+    </para>
+    <para>
+    To demonstrate the further life of translation files, let's change Polish
+    translation (<command>poedit pl.po</command>) to <literal>"Witaj drogi
+    swiecie\n"</literal>. Run <command>scons</command> to see how scons
+    reacts to this
+    <screen>
+user@host:$scons
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+msgfmt -c -o pl.mo pl.po
+Install file: "pl.mo" as "locale/pl/LC_MESSAGES/hello.mo"
+scons: done building targets.
+    </screen>
+    </para>
+    <para>
+    Now, open <filename>hello.c</filename> and add another one
+    <literal>printf</literal> line with new message.
+    <scons_example name="gettext_ex5">
+    <file name="hello.c" printme="1">
+/* hello.c */
+#include &lt;stdio.h&gt;
+#include &lt;libintl.h&gt;
+#include &lt;locale.h&gt;
+int main(int argc, char* argv[])
+{
+  bindtextdomain("hello", "locale");
+  setlocale(LC_ALL, "");
+  textdomain("hello");
+  printf(gettext("Hello world\n"));
+  printf(gettext("and good bye\n"));
+  return 0;
+}
+    </file>
+    </scons_example>
+    </para>
+    <para>
+    Compile project with <command>scons</command>. This time, the
+    <command>msgmerge(1)</command> program is used by SCons to update
+    <literal>PO</literal> file. The output from compilation is like:
+    <screen>
+user@host:$scons
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+Entering '/home/ptomulik/projects/tmp'
+xgettext --package-name=hello --package-version=1.0 -o - hello.c
+Leaving '/home/ptomulik/projects/tmp'
+Writting 'messages.pot' (messages in file were outdated)
+msgmerge --update de.po messages.pot
+... done.
+msgfmt -c -o de.mo de.po
+msgmerge --update en.po messages.pot
+... done.
+msgfmt -c -o en.mo en.po
+gcc -o hello.o -c hello.c
+gcc -o hello hello.o
+Install file: "de.mo" as "locale/de/LC_MESSAGES/hello.mo"
+Install file: "en.mo" as "locale/en/LC_MESSAGES/hello.mo"
+msgmerge --update pl.po messages.pot
+... done.
+msgfmt -c -o pl.mo pl.po
+Install file: "pl.mo" as "locale/pl/LC_MESSAGES/hello.mo"
+scons: done building targets.
+    </screen>
+    </para>
+    <para>
+    The next example demonstrates what happens if we change the source code
+    in such way that the internationalized messages do not change. The answer
+    is that none of translation files (<literal>POT</literal>,
+    <literal>PO</literal>) are touched (i.e. no content changes, no
+    creation/modification time changed and so on). Let's append another
+    line to the program (after the last printf), so its code becomes:
+    <scons_example name="gettext_ex6">
+    <file name="hello.c" printme="1">
+/* hello.c */
+#include &lt;stdio.h&gt;
+#include &lt;libintl.h&gt;
+#include &lt;locale.h&gt;
+int main(int argc, char* argv[])
+{
+  bindtextdomain("hello", "locale");
+  setlocale(LC_ALL, "");
+  textdomain("hello");
+  printf(gettext("Hello world\n"));
+  printf(gettext("and good bye\n"));
+  printf("----------------\n");
+  return a;
+}
+    </file>
+    </scons_example>
+    Compile the project. You'll see on your screen
+    <screen>
+user@host:$scons
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+Entering '/home/ptomulik/projects/tmp'
+xgettext --package-name=hello --package-version=1.0 -o - hello.c
+Leaving '/home/ptomulik/projects/tmp'
+Not writting 'messages.pot' (messages in file found to be up-to-date)
+gcc -o hello.o -c hello.c
+gcc -o hello hello.o
+scons: done building targets.
+    </screen>
+    As you see, the internationalized messages ditn't change, so the
+    <literal>POT</literal> and the rest of translation files have not
+    even been touched.
+    </para>
+  </section>
+
+</chapter>

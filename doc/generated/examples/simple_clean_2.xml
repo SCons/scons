@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">C:\&gt;<userinput>scons</userinput>
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+cl /Fohello.obj /c hello.c /nologo
+link /nologo /OUT:hello.exe hello.obj
+embedManifestExeCheck(target, source, env)
+scons: done building targets.
+C:\&gt;<userinput>scons -c</userinput>
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Cleaning targets ...
+Removed hello.obj
+Removed hello.exe
+scons: done cleaning targets.
+</screen>
