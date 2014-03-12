@@ -42,6 +42,7 @@ fop = whereis('fop')
 xep = whereis('xep')
 epydoc_cli = whereis('epydoc')
 gs = whereis('gs')
+lynx = whereis('lynx')
 
 #
 #
@@ -96,6 +97,9 @@ if not fop and not xep:
 if skip_doc:
     print "doc: ...skipping building User Guide."
 else:
+    if not lynx:
+        print "doc: Warning, lynx is not installed...created release packages won't be complete!"
+    
     #
     # Always create a version.xml file containing the version information
     # for this run.  Ignore it for dependency purposes so we don't
@@ -252,8 +256,8 @@ else:
             #'python10' : ['chunked','html','pdf'],
             'reference' : ['chunked','html','pdf'],
             #'developer' : ['chunked','html','pdf'],
-            'user' : ['chunked','html','pdf','epub'],
-            'man' : ['man','epub']
+            'user' : ['chunked','html','pdf','epub','text'],
+            'man' : ['man','epub','text']
            }
            
     # The names of the target files for the MAN pages
@@ -344,6 +348,7 @@ else:
         docnodes[doc] = env.Command(sctargets, buildsuite, 
                                     "cd %s && $PYTHON ${SCONS_PY.abspath}%s" % (scdir, cleanopt))
         
+    install_css = False
     for doc in docs:
 
         # Collect the output files for this subfolder
@@ -352,12 +357,16 @@ else:
         html = os.path.join(build, 'HTML', 'scons-%s.html' % doc)
         pdf = os.path.join(build, 'PDF', 'scons-%s.pdf' % doc)
         epub = os.path.join(build, 'EPUB', 'scons-%s.epub' % doc)
+        text = os.path.join(build, 'TEXT', 'scons-%s.txt' % doc)
         if 'chunked' in docs[doc]:
             installed_chtml = env.ChunkedInstall(env.Dir(htmldir), 
                                                  os.path.join(build, doc,'scons-%s' % doc, 'index.html'))
+            installed_chtml_css = env.Install(env.Dir(htmldir),
+                                              os.path.join(build, doc, 'scons.css'))
             env.Depends(installed_chtml, docnodes[doc])
+            env.Depends(installed_chtml_css, docnodes[doc])
             
-            tar_deps.extend([htmlindex])
+            tar_deps.extend([htmlindex, installed_chtml_css])
             tar_list.extend([htmldir])
             Local(htmlindex)
             env.Ignore(htmlindex, version_xml)
@@ -368,6 +377,7 @@ else:
             tar_list.extend([html])
             Local(html)
             env.Ignore(html, version_xml)
+            install_css = True
             
         if 'pdf' in docs[doc]:
             env.InstallAs(env.File(pdf), env.File(os.path.join(build, doc,'scons-%s.pdf' % doc)))
@@ -385,6 +395,22 @@ else:
             tar_deps.append(epub)
             tar_list.append(epub)
             
+        if ('text' in docs[doc] and lynx and 
+            (('html' in docs[doc]) or (doc == 'man'))):
+            texthtml = os.path.join(build, doc,'index.html')
+            if doc == 'man':
+                # Special handling for single MAN file
+                texthtml = os.path.join(build, doc, 'scons-scons.html')
+            
+            env.Command(text, env.File(texthtml), "lynx -dump ${SOURCE.abspath} > $TARGET")
+            Local(text)
+
+            env.Ignore(text, version_xml)
+
+            tar_deps.append(text)
+            tar_list.append(text)
+            
+            
         if 'man' in docs[doc]:
             #
             # Man page(s)
@@ -401,6 +427,15 @@ else:
                 tar_deps.extend([pdf, html])
                 tar_list.extend([pdf, html])
 
+
+    # Install CSS file, common to all single HTMLs
+    if install_css:
+        css_file = os.path.join(build, 'HTML', 'scons.css')
+        env.InstallAs(env.File(css_file), 
+                      env.File(os.path.join(build, 'user','scons.css')))
+        tar_deps.extend([css_file])
+        tar_list.extend([css_file])
+        Local(css_file)
 
 if not epydoc_cli:
     try:
