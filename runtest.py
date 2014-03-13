@@ -18,10 +18,9 @@
 #
 #       -3              Run with the python -3 option,
 #
-#       -a              Run all tests; does a virtual 'find' for
-#                       all SCons tests under the current directory.
-#                       You can also specify a list of subdirectories. Then,
-#                       only the given folders are searched for test files.
+#       -a              Run all tests found under the current directory.
+#                       It is also possible to specify a list of
+#                       subdirectories to search.
 #
 #       -d              Debug.  Runs the script under the Python
 #                       debugger (pdb.py) so you don't have to
@@ -32,8 +31,6 @@
 #
 #       -f file         Only execute the tests listed in the specified
 #                       file.
-#
-#       -h              Print the help and exit.
 #
 #       -k              Suppress printing of count and percent progress for
 #                       the single tests.
@@ -124,8 +121,11 @@ suppress_stderr = False
 allow_pipe_files = True
 quit_on_failure = False
 
-helpstr = """\
+usagestr = """\
 Usage: runtest.py [OPTIONS] [TEST ...]
+       runtest.py -h|--help
+"""
+helpstr = usagestr + """\
 Options:
   -3                          Warn about Python 3.x incompatibilities.
   -a, --all                   Run all tests.
@@ -134,7 +134,6 @@ Options:
   -d, --debug                 Run test scripts under the Python debugger.
   -e, --external              Run the script in external mode (for testing separate Tools)
   -f FILE, --file FILE        Run tests in specified FILE.
-  -h, --help                  Print this message and exit.
   -k, --no-progress           Suppress count and percent progress messages.
   -l, --list                  List available tests and exit.
   -n, --no-exec               No execute, just print command lines.
@@ -145,8 +144,7 @@ Options:
                               run into some deadlocks else.
   -o FILE, --output FILE      Save the output from a test run to the log file.
   -P Python                   Use the specified Python interpreter.
-  -p PACKAGE, --package PACKAGE
-                              Test against the specified PACKAGE:
+  -p, --package PACKAGE       Test against the specified PACKAGE:
                                 deb           Debian
                                 local-tar-gz  .tar.gz standalone package
                                 local-zip     .zip standalone package
@@ -173,7 +171,7 @@ Options:
 Environment Variables:
 
   PRESERVE, PRESERVE_{PASS,FAIL,NO_RESULT}: preserve test subdirs
-  TESTCMD_VERBOSE: turn on verbosity in TestCommand
+  TESTCMD_VERBOSE: turn on verbosity in TestCommand\
 """
 
 
@@ -282,12 +280,10 @@ for o, a in opts:
         scons = a
 
 if not args and not options.all and not testlistfile:
-    sys.stderr.write("""\
+    sys.stderr.write(usagestr + """
 runtest.py:  No tests were specified.
-             List one or more tests on the command line, use the
-             -f option to specify a file containing a list of tests,
-             or use the -a option to find and run all tests.
-
+             Tests can be specified on the command line, read from file
+             with -f option, or discovered with -a to run all tests.
 """)
     sys.exit(1)
 
