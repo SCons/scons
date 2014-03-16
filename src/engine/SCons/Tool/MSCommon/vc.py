@@ -299,9 +299,12 @@ def reset_installed_vcs():
     __INSTALLED_VCS_RUN = None
 
 # Running these batch files isn't cheap: most of the time spent in
-# msvs.generate() is due to vcvars*.bat.  In a build that keeps separate
-# environments for debug and release, or perhaps builds against multiple
-# MSVS versions at once, we can save a lot of time by caching the output.
+# msvs.generate() is due to vcvars*.bat.  In a build that uses "tools='msvs'"
+# in multiple environments, for example:
+#    env1 = Environment(tools='msvs')
+#    env2 = Environment(tools='msvs')
+# we can greatly improve the speed of the second and subsequent Environment
+# (or Clone) calls by memoizing the environment variables set by vcvars*.bat.
 script_env_stdout_cache = {}
 def script_env(script, args=None):
     cache_key = (script, args)
