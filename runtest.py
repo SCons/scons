@@ -128,23 +128,23 @@ Usage: runtest.py [OPTIONS] [TEST ...]
 helpstr = usagestr + """\
 Options:
   -3                          Warn about Python 3.x incompatibilities.
-  -a, --all                   Run all tests.
-  -b BASE, --baseline BASE    Run test scripts against baseline BASE.
-  --builddir DIR              Directory in which packages were built.
-  -d, --debug                 Run test scripts under the Python debugger.
-  -e, --external              Run the script in external mode (for testing separate Tools)
-  -f FILE, --file FILE        Run tests in specified FILE.
-  -k, --no-progress           Suppress count and percent progress messages.
-  -l, --list                  List available tests and exit.
-  -n, --no-exec               No execute, just print command lines.
-  --nopipefiles               Doesn't use the "file pipe" workaround for subprocess.Popen()
+  -a --all                    Run all tests.
+  -b --baseline BASE          Run test scripts against baseline BASE.
+     --builddir DIR           Directory in which packages were built.
+  -d --debug                  Run test scripts under the Python debugger.
+  -e --external               Run the script in external mode (for testing separate Tools)
+  -f --file FILE              Run tests in specified FILE.
+  -k --no-progress            Suppress count and percent progress messages.
+  -l --list                   List available tests and exit.
+  -n --no-exec                No execute, just print command lines.
+     --nopipefiles            Doesn't use the "file pipe" workaround for subprocess.Popen()
                               for starting tests. WARNING: Only use this when too much file
                               traffic is giving you trouble AND you can be sure that none of
                               your tests create output that exceed 65K chars! You might
                               run into some deadlocks else.
-  -o FILE, --output FILE      Save the output from a test run to the log file.
-  -P Python                   Use the specified Python interpreter.
-  -p, --package PACKAGE       Test against the specified PACKAGE:
+  -o --output FILE            Save the output from a test run to the log file.
+  -P PYTHON                   Use the specified Python interpreter.
+  -p --package PACKAGE        Test against the specified PACKAGE:
                                 deb           Debian
                                 local-tar-gz  .tar.gz standalone package
                                 local-zip     .zip standalone package
@@ -153,20 +153,20 @@ Options:
                                 src-zip       .zip source package
                                 tar-gz        .tar.gz distribution
                                 zip           .zip distribution
-  --passed                    Summarize which tests passed.
-  -q, --quiet                 Don't print the test being executed.
-  --quit-on-failure           Quit on any test failure
-  -s, --short-progress        Short progress, prints only the command line
+     --passed                 Summarize which tests passed.
+  -q --quiet                  Don't print the test being executed.
+     --quit-on-failure        Quit on any test failure
+  -s --short-progress         Short progress, prints only the command line
                               and a percentage value, based on the total and
                               current number of tests.
-  -t, --time                  Print test execution time.
-  -v version                  Specify the SCons version.
-  --verbose=LEVEL             Set verbose level: 1 = print executed commands,
+  -t --time                   Print test execution time.
+  -v VERSION                  Specify the SCons version.
+     --verbose=LEVEL          Set verbose level: 1 = print executed commands,
                                 2 = print commands and non-zero output,
                                 3 = print commands and all output.
   -X                          Test script is executable, don't feed to Python.
-  -x SCRIPT, --exec SCRIPT    Test SCRIPT.
-  --xml file                  Save results to file in SCons XML format.
+  -x --exec SCRIPT            Test SCRIPT.
+     --xml file               Save results to file in SCons XML format.
 
 Environment Variables:
 
