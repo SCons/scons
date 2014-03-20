@@ -643,6 +643,9 @@ if python3incompatibilities:
 
 tests = []
 
+unittests = []
+endtests = []
+
 def find_Tests_py(directory):
     """ Look for unit tests """
     result = []
@@ -674,30 +677,20 @@ def find_py(directory):
                 result.append(os.path.join(dirpath, fname))
     return sorted(result)
 
-if args:
-    for a in args:
-        for path in glob.glob(a):
-            if os.path.isdir(path):
-                if path[:3] == 'src':
-                    for p in find_Tests_py(path):
-                        tests.append(p)
-                elif path[:4] == 'test':
-                    for p in find_py(path):
-                        tests.append(p)
-            else:
-                tests.append(path)
 
-elif testlistfile:
+if testlistfile:
     tests = open(testlistfile, 'r').readlines()
     tests = [x for x in tests if x[0] != '#']
     tests = [x[:-1] for x in tests]
     tests = [x.strip() for x in tests]
 
-elif options.all:
-    # Find all of the SCons functional tests in the local directory
-    # tree.  This is anything under the 'src' subdirectory that ends
-    # with 'Tests.py', or any Python script (*.py) under the 'test'
-    # subdirectory.
+else:
+    testpaths = []
+
+    # Each test path specifies a test file, or a directory to search for
+    # SCons tests. SCons code layout assumes that any file under the 'src'
+    # subdirectory that ends with 'Tests.py' is a unit test, and Python
+    # script (*.py) under the 'test' subdirectory an end-to-end test.
     #
     # Note that there are some tests under 'src' that *begin* with
     # 'test_', but they're packaging and installation tests, not
@@ -705,8 +698,26 @@ elif options.all:
     # still be executed by hand, though, and are routinely executed
     # by the Aegis packaging build to make sure that we're building
     # things correctly.)
-    tests.extend(find_Tests_py('src'))
-    tests.extend(find_py('test'))
+
+    if options.all:
+        testpaths = ['src', 'test']
+    elif args:
+        testpaths = args
+
+    for tp in testpaths:
+        for path in glob.glob(tp):
+            if os.path.isdir(path):
+                if path.endswith('src'):
+                    for p in find_Tests_py(path):
+                        unittests.append(p)
+                elif path.endswith('test'):
+                    for p in find_py(path):
+                        endtests.append(p)
+            else:
+                tests.append(path)
+
+    tests.extend(unittests)
+    tests.extend(endtests)
     tests.sort()
 
 if not tests:
