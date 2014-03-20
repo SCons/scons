@@ -280,13 +280,6 @@ for o, a in opts:
     elif o in ['-x', '--exec']:
         scons = a
 
-if not args and not options.all and not testlistfile:
-    sys.stderr.write(usagestr + """
-runtest.py:  No tests were specified.
-             Tests can be specified on the command line, read from file
-             with -f option, or discovered with -a to run all tests.
-""")
-    sys.exit(1)
 
 
 # --- setup stdout/stderr ---
@@ -721,8 +714,10 @@ else:
     tests.sort()
 
 if not tests:
-    sys.stderr.write("""\
+    sys.stderr.write(usagestr + """
 runtest.py:  No tests were found.
+             Tests can be specified on the command line, read from file
+             with -f option, or discovered with -a to run all tests.
 """)
     sys.exit(1)
 
