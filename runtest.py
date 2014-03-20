@@ -157,6 +157,7 @@ Options:
      --passed                 Summarize which tests passed.
   -q --quiet                  Don't print the test being executed.
      --quit-on-failure        Quit on any test failure
+     --runner CLASS           Alternative test runner class for unit tests
   -s --short-progress         Short progress, prints only the command line
                               and a percentage value, based on the total and
                               current number of tests.
@@ -199,6 +200,8 @@ parser.add_option('-a', '--all', action='store_true',
                       help="Run all tests.")
 parser.add_option('-o', '--output',
                       help="Save the output from a test run to the log file.")
+parser.add_option('--runner', metavar='class',
+                      help="Test runner class for unit tests.")
 parser.add_option('--xml',
                       help="Save results to file in SCons XML format.")
 (options, args) = parser.parse_args()
@@ -612,14 +615,17 @@ old_pythonpath = os.environ.get('PYTHONPATH')
 
 # FIXME: the following is necessary to pull in half of the testing
 #        harness from $srcdir/etc. Those modules should be transfered
-#        to QMTest/ once we completely cut over to using that as
-#        the harness, in which case this manipulation of PYTHONPATH
+#        to testing/, in which case this manipulation of PYTHONPATH
 #        should be able to go away.
 pythonpaths = [ pythonpath_dir ]
 
 # Add path of the QMTest folder to PYTHONPATH
+# [ ] move used parts from QMTest to testing/framework/
 scriptpath = os.path.dirname(os.path.realpath(__file__))
 pythonpaths.append(os.path.join(scriptpath, 'QMTest'))
+# Add path for testing framework to PYTHONPATH
+pythonpaths.append(os.path.join(scriptpath, 'testing', 'framework'))
+
 
 os.environ['PYTHONPATH'] = os.pathsep.join(pythonpaths)
 
@@ -731,7 +737,6 @@ if list_only:
         sys.stdout.write(t.path + "\n")
     sys.exit(0)
 
-#
 if not python:
     if os.name == 'java':
         python = os.path.join(sys.prefix, 'jython')
@@ -766,6 +771,9 @@ def run_test(t, io_lock, async=True):
     if debug:
         command_args.append(debug)
     command_args.append(t.path)
+    if options.runner:
+        # For example --runner TestUnit.TAPTestRunner
+        command_args.append('--runner ' + options.runner)
     t.command_args = [python] + command_args
     t.command_str = " ".join([escape(python)] + command_args)
     if printcommand:
