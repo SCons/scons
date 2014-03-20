@@ -6,8 +6,9 @@
 #
 # SCons test suite consists of:
 #
-#  - unit tests   - included in *Tests.py files from src/ dir
-#  - module tests - are in test/ dir and use framework from QMTest/
+#  - unit tests        - included in *Tests.py files from src/ dir
+#  - end-to-end tests  - these are *.py files in test/ directory that
+#                        require custom SCons framework from QMTest/
 #
 # This script adds src/ and QMTest/ directories to PYTHONPATH,
 # performs test discovery and processes them according to options.
@@ -655,7 +656,7 @@ def find_Tests_py(directory):
     return sorted(result)
 
 def find_py(directory):
-    """ Look for module tests """
+    """ Look for end-to-end tests """
     result = []
     for dirpath, dirnames, filenames in os.walk(directory):
         # Skip folders containing a sconstest.skip file
