@@ -713,7 +713,10 @@ else:
                     for p in find_py(path):
                         endtests.append(p)
             else:
-                tests.append(path)
+                if path.endswith("Tests.py"):
+                    unittests.append(path)
+                else:
+                    endtests.append(path)
 
     tests.extend(unittests)
     tests.extend(endtests)
@@ -771,7 +774,7 @@ def run_test(t, io_lock, async=True):
     if debug:
         command_args.append(debug)
     command_args.append(t.path)
-    if options.runner:
+    if options.runner and t.path in unittests:
         # For example --runner TestUnit.TAPTestRunner
         command_args.append('--runner ' + options.runner)
     t.command_args = [python] + command_args
