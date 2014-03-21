@@ -526,7 +526,7 @@ def suite():
 
 if __name__ == "__main__":
     runner = TestUnit.cli.get_runner()
-    result = runner.run(suite())
+    result = runner().run(suite())
     if (len(result.failures) == 0
         and len(result.errors) == 1
         and isinstance(result.errors[0][0], SerialTestCase)

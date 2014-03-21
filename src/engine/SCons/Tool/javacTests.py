@@ -106,4 +106,4 @@ def suite():
     return suite
 
 if __name__ == "__main__":
-    TestUnit.run(suite)
+    TestUnit.run(suite())
