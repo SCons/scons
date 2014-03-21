@@ -31,6 +31,8 @@ import sys
 import unittest
 
 import TestCmd
+import TestUnit
+
 import SCons.Node.FS
 import SCons.Scanner.LaTeX
 
@@ -150,10 +152,7 @@ def suite():
     return suite
 
 if __name__ == "__main__":
-    runner = unittest.TextTestRunner()
-    result = runner.run(suite())
-    if not result.wasSuccessful():
-        sys.exit(1)
+    TestUnit.run(suite())
 
 # Local Variables:
 # tab-width:4

@@ -29,6 +29,8 @@ import collections
 import sys
 import unittest
 
+import TestUnit
+
 import SCons.Errors
 import SCons.Platform
 
@@ -118,8 +120,7 @@ class PlatformTestCase(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(PlatformTestCase, 'test_')
-    if not unittest.TextTestRunner().run(suite).wasSuccessful():
-        sys.exit(1)
+    TestUnit.run(suite)
 
 # Local Variables:
 # tab-width:4

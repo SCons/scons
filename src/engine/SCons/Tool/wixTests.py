@@ -33,6 +33,8 @@ from SCons.Tool.wix import *
 from SCons.Environment import Environment
 
 import TestCmd
+import TestUnit
+
 
 # create fake candle and light, so the tool's exists() method will succeed
 test = TestCmd.TestCmd(workdir = '')
@@ -52,8 +54,7 @@ class WixTestCase(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(WixTestCase, 'test_')
-    if not unittest.TextTestRunner().run(suite).wasSuccessful():
-        sys.exit(1)
+    TestUnit.run(suite)
 
 # Local Variables:
 # tab-width:4
