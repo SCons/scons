@@ -100,10 +100,6 @@ class pathoptTestCase(unittest.TestCase):
             '/foo',
             '')
 
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(pathoptTestCase())
-    return suite
-
 if __name__ == "__main__":
-    TestUnit.run(suite())
+    suite = unittest.makeSuite(pathoptTestCase, 'test_')
+    TestUnit.run(suite)
