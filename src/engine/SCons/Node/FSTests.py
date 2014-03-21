@@ -31,9 +31,11 @@ import os.path
 import sys
 import time
 import unittest
-from TestCmd import TestCmd
 import shutil
 import stat
+
+from TestCmd import TestCmd
+import TestUnit
 
 import SCons.Errors
 import SCons.Node.FS
@@ -3755,8 +3757,7 @@ if __name__ == "__main__":
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')
         suite.addTests(list(map(tclass, names)))
-    if not unittest.TextTestRunner().run(suite).wasSuccessful():
-        sys.exit(1)
+    TestUnit.run(suite)
 
 # Local Variables:
 # tab-width:4

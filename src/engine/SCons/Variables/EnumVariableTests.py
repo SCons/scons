@@ -26,6 +26,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import sys
 import unittest
 
+import TestUnit
+
 import SCons.Errors
 import SCons.Variables
 
@@ -194,8 +196,7 @@ class EnumVariableTestCase(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(EnumVariableTestCase, 'test_')
-    if not unittest.TextTestRunner().run(suite).wasSuccessful():
-        sys.exit(1)
+    TestUnit.run(suite)
 
 # Local Variables:
 # tab-width:4
