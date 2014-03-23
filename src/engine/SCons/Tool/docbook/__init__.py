@@ -429,6 +429,11 @@ def DocbookEpub(env, target, source=None, *args, **kw):
         mime_file.close()
         zf.write(mime_file.name, compress_type = zipfile.ZIP_STORED)
         for s in source:
+            if os.path.isfile(str(s)):
+                head, tail = os.path.split(str(s))
+                if not head:
+                    continue
+                s = head
             for dirpath, dirnames, filenames in os.walk(str(s)):
                 for fname in filenames:
                     path = os.path.join(dirpath, fname)

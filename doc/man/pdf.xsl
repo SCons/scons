@@ -33,6 +33,7 @@
 	<xsl:include href="scons_title.xsl"/> 
 <xsl:param name="l10n.gentext.default.language" select="'en'"/>
 <xsl:param name="section.autolabel" select="1"></xsl:param>
+<xsl:param name="section.label.includes.component.label" select="1"/>
 <xsl:param name="paper.type" select="'letter'"></xsl:param>
 <xsl:param name="body.start.indent">0pt</xsl:param>
 <xsl:param name="shade.verbatim" select="1"></xsl:param>
