@@ -352,6 +352,7 @@ constructor; setting it later has no effect.
 
 <para>
 Valid values for Windows are
+<literal>12.0</literal>,
 <literal>12.0Exp</literal>,
 <literal>11.0</literal>,
 <literal>11.0Exp</literal>,

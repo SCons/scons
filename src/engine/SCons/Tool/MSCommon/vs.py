@@ -203,7 +203,16 @@ class VisualStudio(object):
 # Tool/MSCommon/vc.py, and the MSVC_VERSION documentation in Tool/msvc.xml.
 
 SupportedVSList = [
-    # TODO Visual Studio 2013
+    # Visual Studio 2013
+    VisualStudio('12.0',
+                 vc_version='12.0',
+                 sdk_version='8.1A',
+                 hkeys=[r'Microsoft\VisualStudio\12.0\Setup\VS\ProductDir'],
+                 common_tools_var='VS120COMNTOOLS',
+                 executable_path=r'Common7\IDE\devenv.com',
+                 batch_file_path=r'Common7\Tools\vsvars32.bat',
+                 supported_arch=['x86', 'amd64'],
+    ),
 
     # Visual C++ 2013 Express Edition (for Desktop)
     VisualStudio('12.0Exp',
