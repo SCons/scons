@@ -6,8 +6,9 @@
 #
 # SCons test suite consists of:
 #
-#  - unit tests   - included in *Tests.py files from src/ dir
-#  - module tests - are in test/ dir and use framework from QMTest/
+#  - unit tests        - included in *Tests.py files from src/ dir
+#  - end-to-end tests  - these are *.py files in test/ directory that
+#                        require custom SCons framework from QMTest/
 #
 # This script adds src/ and QMTest/ directories to PYTHONPATH,
 # performs test discovery and processes them according to options.
@@ -18,10 +19,9 @@
 #
 #       -3              Run with the python -3 option,
 #
-#       -a              Run all tests; does a virtual 'find' for
-#                       all SCons tests under the current directory.
-#                       You can also specify a list of subdirectories. Then,
-#                       only the given folders are searched for test files.
+#       -a              Run all tests found under the current directory.
+#                       It is also possible to specify a list of
+#                       subdirectories to search.
 #
 #       -d              Debug.  Runs the script under the Python
 #                       debugger (pdb.py) so you don't have to
@@ -32,8 +32,6 @@
 #
 #       -f file         Only execute the tests listed in the specified
 #                       file.
-#
-#       -h              Print the help and exit.
 #
 #       -k              Suppress printing of count and percent progress for
 #                       the single tests.
@@ -124,29 +122,30 @@ suppress_stderr = False
 allow_pipe_files = True
 quit_on_failure = False
 
-helpstr = """\
+usagestr = """\
 Usage: runtest.py [OPTIONS] [TEST ...]
+       runtest.py -h|--help
+"""
+helpstr = usagestr + """\
 Options:
   -3                          Warn about Python 3.x incompatibilities.
-  -a, --all                   Run all tests.
-  -b BASE, --baseline BASE    Run test scripts against baseline BASE.
-  --builddir DIR              Directory in which packages were built.
-  -d, --debug                 Run test scripts under the Python debugger.
-  -e, --external              Run the script in external mode (for testing separate Tools)
-  -f FILE, --file FILE        Run tests in specified FILE.
-  -h, --help                  Print this message and exit.
-  -k, --no-progress           Suppress count and percent progress messages.
-  -l, --list                  List available tests and exit.
-  -n, --no-exec               No execute, just print command lines.
-  --nopipefiles               Doesn't use the "file pipe" workaround for subprocess.Popen()
+  -a --all                    Run all tests.
+  -b --baseline BASE          Run test scripts against baseline BASE.
+     --builddir DIR           Directory in which packages were built.
+  -d --debug                  Run test scripts under the Python debugger.
+  -e --external               Run the script in external mode (for testing separate Tools)
+  -f --file FILE              Run tests in specified FILE.
+  -k --no-progress            Suppress count and percent progress messages.
+  -l --list                   List available tests and exit.
+  -n --no-exec                No execute, just print command lines.
+     --nopipefiles            Doesn't use the "file pipe" workaround for subprocess.Popen()
                               for starting tests. WARNING: Only use this when too much file
                               traffic is giving you trouble AND you can be sure that none of
                               your tests create output that exceed 65K chars! You might
                               run into some deadlocks else.
-  -o FILE, --output FILE      Save the output from a test run to the log file.
-  -P Python                   Use the specified Python interpreter.
-  -p PACKAGE, --package PACKAGE
-                              Test against the specified PACKAGE:
+  -o --output FILE            Save the output from a test run to the log file.
+  -P PYTHON                   Use the specified Python interpreter.
+  -p --package PACKAGE        Test against the specified PACKAGE:
                                 deb           Debian
                                 local-tar-gz  .tar.gz standalone package
                                 local-zip     .zip standalone package
@@ -155,25 +154,25 @@ Options:
                                 src-zip       .zip source package
                                 tar-gz        .tar.gz distribution
                                 zip           .zip distribution
-  --passed                    Summarize which tests passed.
-  -q, --quiet                 Don't print the test being executed.
-  --quit-on-failure           Quit on any test failure
-  -s, --short-progress        Short progress, prints only the command line
+     --passed                 Summarize which tests passed.
+  -q --quiet                  Don't print the test being executed.
+     --quit-on-failure        Quit on any test failure
+  -s --short-progress         Short progress, prints only the command line
                               and a percentage value, based on the total and
                               current number of tests.
-  -t, --time                  Print test execution time.
-  -v version                  Specify the SCons version.
-  --verbose=LEVEL             Set verbose level: 1 = print executed commands,
+  -t --time                   Print test execution time.
+  -v VERSION                  Specify the SCons version.
+     --verbose=LEVEL          Set verbose level: 1 = print executed commands,
                                 2 = print commands and non-zero output,
                                 3 = print commands and all output.
   -X                          Test script is executable, don't feed to Python.
-  -x SCRIPT, --exec SCRIPT    Test SCRIPT.
-  --xml file                  Save results to file in SCons XML format.
+  -x --exec SCRIPT            Test SCRIPT.
+     --xml file               Save results to file in SCons XML format.
 
 Environment Variables:
 
   PRESERVE, PRESERVE_{PASS,FAIL,NO_RESULT}: preserve test subdirs
-  TESTCMD_VERBOSE: turn on verbosity in TestCommand
+  TESTCMD_VERBOSE: turn on verbosity in TestCommand\
 """
 
 
@@ -282,12 +281,10 @@ for o, a in opts:
         scons = a
 
 if not args and not options.all and not testlistfile:
-    sys.stderr.write("""\
+    sys.stderr.write(usagestr + """
 runtest.py:  No tests were specified.
-             List one or more tests on the command line, use the
-             -f option to specify a file containing a list of tests,
-             or use the -a option to find and run all tests.
-
+             Tests can be specified on the command line, read from file
+             with -f option, or discovered with -a to run all tests.
 """)
     sys.exit(1)
 
@@ -641,9 +638,13 @@ if old_pythonpath:
 if python3incompatibilities:
     os.environ['SCONS_HORRIBLE_REGRESSION_TEST_HACK'] = '1'
 
+
+# ---[ test discovery ]------------------------------------
+
 tests = []
 
 def find_Tests_py(directory):
+    """ Look for unit tests """
     result = []
     for dirpath, dirnames, filenames in os.walk(directory):
         # Skip folders containing a sconstest.skip file
@@ -655,6 +656,7 @@ def find_Tests_py(directory):
     return sorted(result)
 
 def find_py(directory):
+    """ Look for end-to-end tests """
     result = []
     for dirpath, dirnames, filenames in os.walk(directory):
         # Skip folders containing a sconstest.skip file
@@ -677,17 +679,20 @@ if args:
         for path in glob.glob(a):
             if os.path.isdir(path):
                 if path[:3] == 'src':
-                    tests.extend(find_Tests_py(path))
-
+                    for p in find_Tests_py(path):
+                        tests.append(p)
                 elif path[:4] == 'test':
-                    tests.extend(find_py(path))
+                    for p in find_py(path):
+                        tests.append(p)
             else:
                 tests.append(path)
+
 elif testlistfile:
     tests = open(testlistfile, 'r').readlines()
     tests = [x for x in tests if x[0] != '#']
     tests = [x[:-1] for x in tests]
     tests = [x.strip() for x in tests]
+
 elif options.all:
     # Find all of the SCons functional tests in the local directory
     # tree.  This is anything under the 'src' subdirectory that ends
@@ -710,6 +715,8 @@ runtest.py:  No tests were found.
 """)
     sys.exit(1)
 
+
+# ---[ test processing ]-----------------------------------
 
 tests = [Test(t) for t in tests]
 
