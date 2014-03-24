@@ -706,10 +706,10 @@ else:
     for tp in testpaths:
         for path in glob.glob(tp):
             if os.path.isdir(path):
-                if path.endswith('src'):
+                if path.startswith('src'):
                     for p in find_Tests_py(path):
                         unittests.append(p)
-                elif path.endswith('test'):
+                elif path.startswith('test'):
                     for p in find_py(path):
                         endtests.append(p)
             else:
