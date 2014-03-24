@@ -761,7 +761,7 @@ if __name__ == "__main__":
                     del os.environ[k]
 
             suite = unittest.makeSuite(test_class, 'test_')
-            if not TestUnit.cli.get_runner().run(suite).wasSuccessful():
+            if not TestUnit.cli.get_runner()().run(suite).wasSuccessful():
                 exit_val = 1
         finally:
             os.env = back_osenv
