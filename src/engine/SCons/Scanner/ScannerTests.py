@@ -28,6 +28,8 @@ import collections
 import sys
 import unittest
 
+import TestUnit
+
 import SCons.Scanner
 
 class DummyFS(object):
@@ -593,10 +595,7 @@ def suite():
     return suite
 
 if __name__ == "__main__":
-    runner = unittest.TextTestRunner()
-    result = runner.run(suite())
-    if not result.wasSuccessful():
-        sys.exit(1)
+    TestUnit.run(suite())
 
 # Local Variables:
 # tab-width:4

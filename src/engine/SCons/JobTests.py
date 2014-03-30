@@ -25,9 +25,13 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import unittest
 import random
 import math
-import SCons.Job
 import sys
 import time
+
+import TestUnit
+
+import SCons.Job
+
 
 # a large number
 num_sines = 10000
@@ -521,8 +525,8 @@ def suite():
     return suite
 
 if __name__ == "__main__":
-    runner = unittest.TextTestRunner()
-    result = runner.run(suite())
+    runner = TestUnit.cli.get_runner()
+    result = runner().run(suite())
     if (len(result.failures) == 0
         and len(result.errors) == 1
         and isinstance(result.errors[0][0], SerialTestCase)

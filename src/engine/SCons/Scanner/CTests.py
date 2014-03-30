@@ -28,8 +28,10 @@ import SCons.compat
 import collections
 import os
 import sys
-import TestCmd
 import unittest
+
+import TestCmd
+import TestUnit
 
 import SCons.Node.FS
 import SCons.Warnings
@@ -457,10 +459,7 @@ def suite():
     return suite
 
 if __name__ == "__main__":
-    runner = unittest.TextTestRunner()
-    result = runner.run(suite())
-    if not result.wasSuccessful():
-        sys.exit(1)
+    TestUnit.run(suite())
 
 # Local Variables:
 # tab-width:4

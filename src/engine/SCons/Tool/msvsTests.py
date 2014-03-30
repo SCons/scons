@@ -25,9 +25,11 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import sys
-import TestCmd
 import unittest
 import copy
+
+import TestCmd
+import TestUnit
 
 from SCons.Tool.msvs import *
 from SCons.Tool.MSCommon.vs import SupportedVSList
@@ -759,7 +761,7 @@ if __name__ == "__main__":
                     del os.environ[k]
 
             suite = unittest.makeSuite(test_class, 'test_')
-            if not unittest.TextTestRunner().run(suite).wasSuccessful():
+            if not TestUnit.cli.get_runner()().run(suite).wasSuccessful():
                 exit_val = 1
         finally:
             os.env = back_osenv
