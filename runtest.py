@@ -157,6 +157,7 @@ Options:
      --passed                 Summarize which tests passed.
   -q --quiet                  Don't print the test being executed.
      --quit-on-failure        Quit on any test failure
+     --runner CLASS           Alternative test runner class for unit tests
   -s --short-progress         Short progress, prints only the command line
                               and a percentage value, based on the total and
                               current number of tests.
@@ -199,6 +200,8 @@ parser.add_option('-a', '--all', action='store_true',
                       help="Run all tests.")
 parser.add_option('-o', '--output',
                       help="Save the output from a test run to the log file.")
+parser.add_option('--runner', metavar='class',
+                      help="Test runner class for unit tests.")
 parser.add_option('--xml',
                       help="Save results to file in SCons XML format.")
 (options, args) = parser.parse_args()
@@ -280,13 +283,6 @@ for o, a in opts:
     elif o in ['-x', '--exec']:
         scons = a
 
-if not args and not options.all and not testlistfile:
-    sys.stderr.write(usagestr + """
-runtest.py:  No tests were specified.
-             Tests can be specified on the command line, read from file
-             with -f option, or discovered with -a to run all tests.
-""")
-    sys.exit(1)
 
 
 # --- setup stdout/stderr ---
@@ -619,14 +615,17 @@ old_pythonpath = os.environ.get('PYTHONPATH')
 
 # FIXME: the following is necessary to pull in half of the testing
 #        harness from $srcdir/etc. Those modules should be transfered
-#        to QMTest/ once we completely cut over to using that as
-#        the harness, in which case this manipulation of PYTHONPATH
+#        to testing/, in which case this manipulation of PYTHONPATH
 #        should be able to go away.
 pythonpaths = [ pythonpath_dir ]
 
 # Add path of the QMTest folder to PYTHONPATH
+# [ ] move used parts from QMTest to testing/framework/
 scriptpath = os.path.dirname(os.path.realpath(__file__))
 pythonpaths.append(os.path.join(scriptpath, 'QMTest'))
+# Add path for testing framework to PYTHONPATH
+pythonpaths.append(os.path.join(scriptpath, 'testing', 'framework'))
+
 
 os.environ['PYTHONPATH'] = os.pathsep.join(pythonpaths)
 
@@ -642,6 +641,9 @@ if python3incompatibilities:
 # ---[ test discovery ]------------------------------------
 
 tests = []
+
+unittests = []
+endtests = []
 
 def find_Tests_py(directory):
     """ Look for unit tests """
@@ -674,30 +676,20 @@ def find_py(directory):
                 result.append(os.path.join(dirpath, fname))
     return sorted(result)
 
-if args:
-    for a in args:
-        for path in glob.glob(a):
-            if os.path.isdir(path):
-                if path[:3] == 'src':
-                    for p in find_Tests_py(path):
-                        tests.append(p)
-                elif path[:4] == 'test':
-                    for p in find_py(path):
-                        tests.append(p)
-            else:
-                tests.append(path)
 
-elif testlistfile:
+if testlistfile:
     tests = open(testlistfile, 'r').readlines()
     tests = [x for x in tests if x[0] != '#']
     tests = [x[:-1] for x in tests]
     tests = [x.strip() for x in tests]
 
-elif options.all:
-    # Find all of the SCons functional tests in the local directory
-    # tree.  This is anything under the 'src' subdirectory that ends
-    # with 'Tests.py', or any Python script (*.py) under the 'test'
-    # subdirectory.
+else:
+    testpaths = []
+
+    # Each test path specifies a test file, or a directory to search for
+    # SCons tests. SCons code layout assumes that any file under the 'src'
+    # subdirectory that ends with 'Tests.py' is a unit test, and Python
+    # script (*.py) under the 'test' subdirectory an end-to-end test.
     #
     # Note that there are some tests under 'src' that *begin* with
     # 'test_', but they're packaging and installation tests, not
@@ -705,13 +697,36 @@ elif options.all:
     # still be executed by hand, though, and are routinely executed
     # by the Aegis packaging build to make sure that we're building
     # things correctly.)
-    tests.extend(find_Tests_py('src'))
-    tests.extend(find_py('test'))
+
+    if options.all:
+        testpaths = ['src', 'test']
+    elif args:
+        testpaths = args
+
+    for tp in testpaths:
+        for path in glob.glob(tp):
+            if os.path.isdir(path):
+                if path.startswith('src'):
+                    for p in find_Tests_py(path):
+                        unittests.append(p)
+                elif path.startswith('test'):
+                    for p in find_py(path):
+                        endtests.append(p)
+            else:
+                if path.endswith("Tests.py"):
+                    unittests.append(path)
+                else:
+                    endtests.append(path)
+
+    tests.extend(unittests)
+    tests.extend(endtests)
     tests.sort()
 
 if not tests:
-    sys.stderr.write("""\
+    sys.stderr.write(usagestr + """
 runtest.py:  No tests were found.
+             Tests can be specified on the command line, read from file
+             with -f option, or discovered with -a to run all tests.
 """)
     sys.exit(1)
 
@@ -725,7 +740,6 @@ if list_only:
         sys.stdout.write(t.path + "\n")
     sys.exit(0)
 
-#
 if not python:
     if os.name == 'java':
         python = os.path.join(sys.prefix, 'jython')
@@ -760,6 +774,9 @@ def run_test(t, io_lock, async=True):
     if debug:
         command_args.append(debug)
     command_args.append(t.path)
+    if options.runner and t.path in unittests:
+        # For example --runner TestUnit.TAPTestRunner
+        command_args.append('--runner ' + options.runner)
     t.command_args = [python] + command_args
     t.command_str = " ".join([escape(python)] + command_args)
     if printcommand:

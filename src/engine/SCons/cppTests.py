@@ -27,6 +27,8 @@ import atexit
 import sys
 import unittest
 
+import TestUnit
+
 import cpp
 
 
@@ -705,8 +707,7 @@ if __name__ == '__main__':
             pass
         names.sort()
         suite.addTests(list(map(tclass, names)))
-    if not unittest.TextTestRunner().run(suite).wasSuccessful():
-        sys.exit(1)
+    TestUnit.run(suite)
 
 # Local Variables:
 # tab-width:4

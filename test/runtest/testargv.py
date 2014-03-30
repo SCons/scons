@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -23,38 +24,49 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import unittest
-import os.path
+"""
+Test subdir args for runtest.py, for example:
+
+    python runtest.py test/subdir
+
+"""
+
 import os
-import sys
 
-import SCons.Errors
-from SCons.Tool.wix import *
-from SCons.Environment import Environment
+import TestRuntest
 
-import TestCmd
-import TestUnit
+test = TestRuntest.TestRuntest()
+test.subdir('test', ['test', 'subdir'])
 
+files = {}
+files['pythonstring'] = TestRuntest.pythonstring
 
-# create fake candle and light, so the tool's exists() method will succeed
-test = TestCmd.TestCmd(workdir = '')
-test.write('candle.exe', 'rem this is candle')
-test.write('light.exe', 'rem this is light')
-os.environ['PATH'] += os.pathsep + test.workdir
+files['one'] = os.path.join('test/subdir', 'test_one.py')
+files['two'] = os.path.join('test/subdir', 'two.py')
+files['three'] = os.path.join('test', 'test_three.py')
 
-class WixTestCase(unittest.TestCase):
-    def test_vars(self):
-        """Test that WiX tool adds vars"""
-        env = Environment(tools=['wix'])
-        assert env['WIXCANDLE'] is not None
-        assert env['WIXCANDLEFLAGS'] is not None
-        assert env['WIXLIGHTFLAGS'] is not None
-        assert env.subst('$WIXOBJSUF') == '.wixobj'
-        assert env.subst('$WIXSRCSUF') == '.wxs'
+test.write_passing_test(files['one'])
+test.write_passing_test(files['two'])
+test.write_passing_test(files['three'])
 
-if __name__ == "__main__":
-    suite = unittest.makeSuite(WixTestCase, 'test_')
-    TestUnit.run(suite)
+expect_stdout = """\
+%(pythonstring)s -tt %(one)s
+PASSING TEST STDOUT
+%(pythonstring)s -tt %(two)s
+PASSING TEST STDOUT
+""" % files
+
+expect_stderr = """\
+PASSING TEST STDERR
+PASSING TEST STDERR
+"""
+
+test.run(arguments = '--no-progress test/subdir',
+         status = 0,
+         stdout = expect_stdout,
+         stderr = expect_stderr)
+
+test.pass_test()
 
 # Local Variables:
 # tab-width:4

@@ -28,6 +28,8 @@ import os.path
 import os
 import sys
 
+import TestUnit
+
 import SCons.Errors
 from SCons.Tool.PharLapCommon import *
 
@@ -58,8 +60,7 @@ class PharLapCommonTestCase(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(PharLapCommonTestCase, 'test_')
-    if not unittest.TextTestRunner().run(suite).wasSuccessful():
-        sys.exit(1)
+    TestUnit.run(suite)
 
 # Local Variables:
 # tab-width:4
