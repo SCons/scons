@@ -6,6 +6,9 @@
 
 RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Gary Oberbrunner:
+    - get default RPM architecture more robustly when building RPMs
+
   From Shane Gannon:
     - Support for Visual Studio 2013 (12.0)
 
