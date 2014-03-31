@@ -62,7 +62,7 @@ def generate(env):
         if GhostscriptAction is None:
             GhostscriptAction = SCons.Action.Action('$GSCOM', '$GSCOMSTR')
     
-        from . import pdf
+        from SCons.Tool import pdf
         pdf.generate(env)
     
         bld = env['BUILDERS']['PDF']
