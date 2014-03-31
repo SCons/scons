@@ -20,7 +20,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+from __future__ import division, print_function
 
 """
 QMTest classes to support SCons' testing and Aegis-inspired workflow.
@@ -92,7 +92,7 @@ def get_explicit_arguments(e):
     # Determine which subset of the 'arguments' have been set
     # explicitly.
     explicit_arguments = {}
-    for name, field in list(arguments.items()):
+    for name, field in arguments.items():
         # Do not record computed fields.
         if field.IsComputed():
             continue

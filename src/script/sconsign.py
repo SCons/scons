@@ -22,6 +22,9 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import print_function
+
+from six import PY2, PY3
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -171,6 +174,8 @@ sys.path = libs + sys.path
 
 import SCons.compat   # so pickle will import cPickle instead
 
+if PY2:
+    import whichdb
 import dbm
 import time
 import pickle
@@ -189,7 +194,10 @@ def my_whichdb(filename):
         pass
     return _orig_whichdb(filename)
 
-_orig_whichdb = dbm.whichdb
+if PY3:
+    _orig_whichdb = dbm.whichdb
+else:
+    _orig_whichdb = whichdb.whichdb
 dbm.whichdb = my_whichdb
 
 def my_import(mname):

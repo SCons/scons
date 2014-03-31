@@ -81,6 +81,7 @@
 # library directory.  If we ever resurrect that as the default, then
 # you can find the appropriate code in the 0.04 version of this script,
 # rather than reinventing that wheel.)
+from __future__ import print_function
 
 import getopt
 import glob
@@ -92,7 +93,10 @@ import time
 
 try:
     import threading
-    import queue                # 2to3: rename to queue
+    try:
+        from queue import Queue
+    except ImportError: # Python < 3
+        from Queue import Queue
     threading_ok = True
 except ImportError:
     print("Can't import threading or queue")
@@ -865,7 +869,7 @@ class RunTest(threading.Thread):
 if jobs > 1 and threading_ok:
     print("Running tests using %d jobs"%jobs)
     # Start worker threads
-    queue = queue.Queue()
+    queue = Queue()
     io_lock = threading.Lock()
     for i in range(1, jobs):
         t = RunTest(queue, io_lock)

@@ -10,6 +10,8 @@ some other module.  If it's specific to the "scons" script invocation,
 it goes here.
 """
 
+from __future__ import print_function
+
 unsupported_python_version = (2, 3, 0)
 deprecated_python_version = (2, 7, 0)
 
@@ -68,7 +70,6 @@ import SCons.Util
 import SCons.Warnings
 
 import SCons.Script.Interactive
-import collections
 
 def fetch_win32_parallel_msg():
     # A subsidiary function that exists solely to isolate this import
@@ -105,7 +106,7 @@ class Progressor(object):
         self.interval = interval
         self.overwrite = overwrite
 
-        if isinstance(obj, collections.Callable):
+        if callable(obj):
             self.func = obj
         elif SCons.Util.is_List(obj):
             self.func = self.spinner
@@ -716,7 +717,7 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
                     modname = os.path.basename(pathname)[:-len(sfx)]
                     site_m = {"__file__": pathname, "__name__": modname, "__doc__": None}
                     re_special = re.compile("__[^_]+__")
-                    for k in list(m.__dict__.keys()):
+                    for k in m.__dict__.keys():
                         if not re_special.match(k):
                             site_m[k] = m.__dict__[k]
 

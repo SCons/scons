@@ -9,6 +9,8 @@
 # DocBook-formatted generated XML files containing the summary text
 # and/or .mod files containing the ENTITY definitions for each item.
 #
+from __future__ import print_function
+
 import getopt
 import os
 import re
@@ -106,7 +108,7 @@ Link_Entities_Header = """\
 class SCons_XML(object):
     def __init__(self, entries, **kw):
         self.values = entries
-        for k, v in list(kw.items()):
+        for k, v in kw.items():
             setattr(self, k, v)
             
     def fopen(self, name):

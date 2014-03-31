@@ -18,6 +18,7 @@
 # Grab the sort bar on the far left (just above the "1" for row one)
 # and move it down one row.  (Row one becomes a floating header)
 # Voila!
+from __future__ import print_function
 
 # The team members
 # FIXME: These names really should be external to this script

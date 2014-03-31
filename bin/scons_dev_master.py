@@ -3,6 +3,7 @@
 
 # A script for turning a generic Ubuntu system into a master for
 # SCons development.
+from __future__ import print_function
 
 import getopt
 import sys

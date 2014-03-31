@@ -22,6 +22,7 @@
 #
 #       https://sourceforge.net/projects/sitedocs/
 #
+from __future__ import print_function
 
 import xml.sax
 import xml.sax.saxutils
@@ -121,9 +122,9 @@ if __name__ == '__main__':
     # generalized once we figure out other things for this script to do.
     bugs = [x for x in Artifacts['Bugs'] if x.status == 'Open']
 
-    print list(Artifacts.keys())
+    print(list(Artifacts.keys()))
 
-    print "%d open bugs" % len(bugs)
+    print("%d open bugs" % len(bugs))
 
     # Sort them into a separate list for each assignee.
     Assigned = {}
@@ -141,7 +142,7 @@ if __name__ == '__main__':
         except KeyError:
             pass
         else:
-            print "    %s" % a
-            b.sort(lambda x, y: cmp(x.artifact_id, y.artifact_id))
+            print("    %s" % a)
+            b.sort(key=lambda x, y: (x.artifact_id, y.artifact_id))
             for bug in b:
-                print "        %-6s  %s" % (bug.artifact_id, bug.summary)
+                print("        %-6s  %s" % (bug.artifact_id, bug.summary))

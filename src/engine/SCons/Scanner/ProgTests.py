@@ -230,7 +230,7 @@ def suite():
     suite.addTest(ProgramScannerTestCase6())
     suite.addTest(ProgramScannerTestCase7())
     suite.addTest(ProgramScannerTestCase8())
-    try: str
+    try: unicode
     except NameError: pass
     else:
         code = """if 1:

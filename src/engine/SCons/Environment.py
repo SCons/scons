@@ -58,7 +58,6 @@ import SCons.Subst
 import SCons.Tool
 import SCons.Util
 import SCons.Warnings
-import collections
 
 class _Null(object):
     pass
@@ -128,7 +127,7 @@ future_reserved_construction_var_names = [
 
 def copy_non_reserved_keywords(dict):
     result = semi_deepcopy(dict)
-    for k in list(result.keys()):
+    for k in result.keys():
         if k in reserved_construction_var_names:
             msg = "Ignoring attempt to set reserved variable `$%s'"
             SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning, msg % k)
@@ -152,7 +151,7 @@ def _set_BUILDERS(env, key, value):
     except KeyError:
         bd = BuilderDict(kwbd, env)
         env._dict[key] = bd
-    for k, v in list(value.items()):
+    for k, v in value.items():
         if not SCons.Builder.is_a_Builder(v):
             raise SCons.Errors.UserError('%s is not a Builder.' % repr(v))
     bd.update(value)
@@ -324,7 +323,7 @@ class BuilderDict(UserDict):
         delattr(self.env, item)
 
     def update(self, dict):
-        for i, v in list(dict.items()):
+        for i, v in dict.items():
             self.__setitem__(i, v)
 
 
@@ -518,7 +517,7 @@ class SubstitutionEnvironment(object):
 
     def subst_kw(self, kw, raw=0, target=None, source=None):
         nkw = {}
-        for k, v in list(kw.items()):
+        for k, v in kw.items():
             k = self.subst(k, raw, target, source)
             if SCons.Util.is_String(v):
                 v = self.subst(v, raw, target, source)
@@ -592,7 +591,7 @@ class SubstitutionEnvironment(object):
         out,err = p.communicate()
         status = p.wait()
         if err:
-            sys.stderr.write(str(err))
+            sys.stderr.write(u"" + err)
         if status:
             raise OSError("'%s' exited %d" % (command, status))
         return out
@@ -630,7 +629,7 @@ class SubstitutionEnvironment(object):
         if not o: return self
         overrides = {}
         merges = None
-        for key, value in list(o.items()):
+        for key, value in o.items():
             if key == 'parse_flags':
                 merges = value
             else:
@@ -815,7 +814,7 @@ class SubstitutionEnvironment(object):
         if not unique:
             self.Append(**args)
             return self
-        for key, value in list(args.items()):
+        for key, value in args.items():
             if not value:
                 continue
             try:
@@ -1005,7 +1004,7 @@ class Base(SubstitutionEnvironment):
         # Now restore the passed-in and customized variables
         # to the environment, since the values the user set explicitly
         # should override any values set by the tools.
-        for key, val in list(save.items()):
+        for key, val in save.items():
             self._dict[key] = val
 
         # Finally, apply any flags to be merged in
@@ -1263,7 +1262,7 @@ class Base(SubstitutionEnvironment):
         values move to end.
         """
         kw = copy_non_reserved_keywords(kw)
-        for key, val in list(kw.items()):
+        for key, val in kw.items():
             if SCons.Util.is_List(val):
                 val = _delete_duplicates(val, delete_existing)
             if key not in self._dict or self._dict[key] in ('', None):
@@ -1403,7 +1402,7 @@ class Base(SubstitutionEnvironment):
         # so the tools can use the new variables
         kw = copy_non_reserved_keywords(kw)
         new = {}
-        for key, value in list(kw.items()):
+        for key, value in kw.items():
             new[key] = SCons.Subst.scons_subst_once(value, self, key)
         clone.Replace(**new)
 
@@ -1470,7 +1469,7 @@ class Base(SubstitutionEnvironment):
             copy_function = self._copy_from_cache
         elif function == 'timestamp-match':
             function = self._changed_timestamp_match
-        elif not isinstance(function, collections.Callable):
+        elif not callable(function):
             raise UserError("Unknown Decider value %s" % repr(function))
 
         # We don't use AddMethod because we don't want to turn the
@@ -1603,7 +1602,7 @@ class Base(SubstitutionEnvironment):
         in an Environment.
         """
         kw = copy_non_reserved_keywords(kw)
-        for key, val in list(kw.items()):
+        for key, val in kw.items():
             # It would be easier on the eyes to write this using
             # "continue" statements whenever we finish processing an item,
             # but Python 1.5.2 apparently doesn't let you use "continue"
@@ -1694,7 +1693,7 @@ class Base(SubstitutionEnvironment):
         values move to front.
         """
         kw = copy_non_reserved_keywords(kw)
-        for key, val in list(kw.items()):
+        for key, val in kw.items():
             if SCons.Util.is_List(val):
                 val = _delete_duplicates(val, not delete_existing)
             if key not in self._dict or self._dict[key] in ('', None):
@@ -1769,7 +1768,7 @@ class Base(SubstitutionEnvironment):
         return os.path.join(dir, new_prefix+name+new_suffix)
 
     def SetDefault(self, **kw):
-        for k in list(kw.keys()):
+        for k in kw.keys():
             if k in self._dict:
                 del kw[k]
         self.Replace(**kw)
@@ -1831,7 +1830,7 @@ class Base(SubstitutionEnvironment):
         uniq = {}
         for executor in [n.get_executor() for n in nodes]:
             uniq[executor] = 1
-        for executor in list(uniq.keys()):
+        for executor in uniq.keys():
             executor.add_pre_action(action)
         return nodes
 
@@ -1841,7 +1840,7 @@ class Base(SubstitutionEnvironment):
         uniq = {}
         for executor in [n.get_executor() for n in nodes]:
             uniq[executor] = 1
-        for executor in list(uniq.keys()):
+        for executor in uniq.keys():
             executor.add_post_action(action)
         return nodes
 

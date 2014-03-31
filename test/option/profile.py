@@ -21,6 +21,8 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from six import u
+
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
@@ -36,7 +38,7 @@ else:
     # when we drop support for Python 2.6.
     class StringIO(_StringIO):
         def write(self, s):
-            _StringIO.write(self, str(s))
+            _StringIO.write(self, u(s))
 
 import TestSCons
 

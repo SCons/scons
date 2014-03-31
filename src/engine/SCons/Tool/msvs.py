@@ -29,6 +29,7 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -357,7 +358,7 @@ class _DSPGenerator(object):
             AddConfig(self, variants[i], buildtarget[i], outdir[i], runfile[i], cmdargs)
 
         self.platforms = []
-        for key in list(self.configs.keys()):
+        for key in self.configs.keys():
             platform = self.configs[key].platform
             if not platform in self.platforms:
                 self.platforms.append(platform)
@@ -480,7 +481,7 @@ class _GenerateV6DSP(_DSPGenerator):
                       'Resource Files': 'r|rc|ico|cur|bmp|dlg|rc2|rct|bin|cnt|rtf|gif|jpg|jpeg|jpe',
                       'Other Files': ''}
 
-        for kind in sorted(list(categories.keys()), key=lambda a: a.lower()):
+        for kind in sorted(categories.keys(), key=lambda a: a.lower()):
             if not self.sources[kind]:
                 continue # skip empty groups
 
@@ -744,7 +745,7 @@ class _GenerateV7DSP(_DSPGenerator):
             self.file.write(pdata + '-->\n')
 
     def printSources(self, hierarchy, commonprefix):
-        sorteditems = sorted(list(hierarchy.items()), key=lambda a: a[0].lower())
+        sorteditems = sorted(hierarchy.items(), key=lambda a: a[0].lower())
 
         # First folders, then files
         for key, value in sorteditems:
@@ -774,7 +775,7 @@ class _GenerateV7DSP(_DSPGenerator):
 
         self.file.write('\t<Files>\n')
 
-        cats = sorted([k for k in list(categories.keys()) if self.sources[k]],
+        cats = sorted([k for k in categories.keys() if self.sources[k]],
                       key=lambda a: a.lower())
         for kind in cats:
             if len(cats) > 1:
@@ -1055,7 +1056,7 @@ class _GenerateV10DSP(_DSPGenerator):
             self.file.write(pdata + '-->\n')
 
     def printFilters(self, hierarchy, name):
-        sorteditems = sorted(list(hierarchy.items()), key = lambda a: a[0].lower())
+        sorteditems = sorted(hierarchy.items(), key = lambda a: a[0].lower())
         
         for key, value in sorteditems:
             if SCons.Util.is_Dict(value):
@@ -1072,7 +1073,7 @@ class _GenerateV10DSP(_DSPGenerator):
                     'Resource Files': 'None',
                     'Other Files': 'None'}
                     
-        sorteditems = sorted(list(hierarchy.items()), key = lambda a: a[0].lower())
+        sorteditems = sorted(hierarchy.items(), key = lambda a: a[0].lower())
 
         # First folders, then files
         for key, value in sorteditems:
@@ -1098,7 +1099,7 @@ class _GenerateV10DSP(_DSPGenerator):
                       'Resource Files': 'r;rc;ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe',
                       'Other Files': ''}
         
-        cats = sorted([k for k in list(categories.keys()) if self.sources[k]],
+        cats = sorted([k for k in categories.keys() if self.sources[k]],
 		              key = lambda a: a.lower())
         
         # print vcxproj.filters file first
@@ -1254,7 +1255,7 @@ class _GenerateV7DSW(_DSWGenerator):
                 AddConfig(self, variant)
 
         self.platforms = []
-        for key in list(self.configs.keys()):
+        for key in self.configs.keys():
             platform = self.configs[key].platform
             if not platform in self.platforms:
                 self.platforms.append(platform)

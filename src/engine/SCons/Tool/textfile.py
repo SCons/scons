@@ -54,7 +54,6 @@ import re
 from SCons.Node import Node
 from SCons.Node.Python import Value
 from SCons.Util import is_String, is_Sequence, is_Dict
-import collections
 
 def _do_subst(node, subs):
     """
@@ -97,7 +96,7 @@ def _action(target, source, env):
             raise SCons.Errors.UserError('SUBST_DICT must be dict or sequence')
         subs = []
         for (k,v) in d:
-            if isinstance(v, collections.Callable):
+            if callable(v):
                 v = v()
             if is_String(v):
                 v = env.subst(v)

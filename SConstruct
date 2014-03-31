@@ -2,6 +2,7 @@
 # SConstruct file to build scons packages during development.
 #
 # See the README.rst file for an overview of how SCons is built and tested.
+from __future__ import print_function
 
 # When this gets changed, you must also change the copyright_years string
 # in QMTest/TestSCons.py so the test scripts look for the right string.
@@ -327,7 +328,7 @@ try:
     import zipfile
 
     def zipit(env, target, source):
-        print "Zipping %s:" % str(target[0])
+        print("Zipping %s:" % str(target[0]))
         def visit(arg, dirname, names):
             for name in names:
                 path = os.path.join(dirname, name)
@@ -341,7 +342,7 @@ try:
         zf.close()
 
     def unzipit(env, target, source):
-        print "Unzipping %s:" % str(source[0])
+        print("Unzipping %s:" % str(source[0]))
         zf = zipfile.ZipFile(str(source[0]), 'r')
         for name in zf.namelist():
             dest = os.path.join(env['UNPACK_ZIP_DIR'], name)
@@ -350,7 +351,7 @@ try:
                 os.makedirs(dir)
             except:
                 pass
-            print dest,name
+            print(dest,name)
             # if the file exists, then delete it before writing
             # to it so that we don't end up trying to write to a symlink:
             if os.path.isfile(dest) or os.path.islink(dest):
@@ -558,7 +559,7 @@ else:
     i = install_egg_info(dist)
     i.finalize_options()
     import os.path
-    print os.path.split(i.outputs[0])[1]
+    print(os.path.split(i.outputs[0])[1])
 """ % version
 
 try:
@@ -853,7 +854,7 @@ for p in [ scons ]:
     AddPostAction(dist_distutils_targets, Chmod(dist_distutils_targets, 0644))
 
     if not gzip:
-        print "gzip not found in %s; skipping .tar.gz package for %s." % (os.environ['PATH'], pkg)
+        print("gzip not found in %s; skipping .tar.gz package for %s." % (os.environ['PATH'], pkg))
     else:
 
         distutils_formats.append('gztar')
@@ -928,7 +929,7 @@ for p in [ scons ]:
         env.Command(digest, tar_gz, Digestify)
 
     if not zipit:
-        print "zip not found; skipping .zip package for %s." % pkg
+        print("zip not found; skipping .zip package for %s." % pkg)
     else:
 
         distutils_formats.append('zip')
@@ -1211,7 +1212,7 @@ elif svn_status_lines:
     sentries = [l.split()[-1] for l in slines]
     sfiles = list(filter(os.path.isfile, sentries))
 else:
-   print "Not building in a Mercurial or Subversion tree; skipping building src package."
+   print("Not building in a Mercurial or Subversion tree; skipping building src package.")
 
 if sfiles:
     remove_patterns = [

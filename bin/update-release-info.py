@@ -56,6 +56,7 @@ In 'post' mode, files are prepared for the next release cycle:
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -332,7 +333,7 @@ t.replace_assign('deprecated_python_version', str(deprecated_version))
 
 # Update doc/user/main.{in,xml}
 
-docyears = ', '.join(map(str, iter(list(range(2004, release_date[0] + 1)))))
+docyears = ', '.join(map(str, range(2004, release_date[0] + 1)))
 t = UpdateFile(os.path.join('doc', 'user', 'main.in'))
 if DEBUG: t.file = '/tmp/main.in'
 ## TODO debug these

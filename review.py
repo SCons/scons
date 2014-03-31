@@ -13,6 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import print_function
 
 """Tool for uploading diffs from a version control system to the codereview app.
 
@@ -31,8 +32,16 @@ against by using the '--rev' option.
 # This code is derived from appcfg.py in the App Engine SDK (open source),
 # and from ASPN recipe #146306.
 
-import configparser
-import http.cookiejar
+try:
+    from configparser import ConfigParser
+except ImportError: # Python < 3
+    from ConfigParser import ConfigParser
+try:
+    from http.cookiejar import (
+      CookieJar, MozillaCookieJar, LoadError as CookieLoadError)
+except ImportError: # Python < 3
+    from cookielib import (
+      CookieJar, MozillaCookieJar, LoadError as CookieLoadError)
 import fnmatch
 import getpass
 import logging
@@ -43,6 +52,24 @@ import re
 import socket
 import subprocess
 import sys
+try:
+    from urllib.request import (
+      Request, OpenerDirector,
+      ProxyHandler, UnknownHandler, HTTPHandler, HTTPSHandler,
+      HTTPDefaultErrorHandler, HTTPErrorProcessor,
+      HTTPCookieProcessor)
+    from urllib.error import HTTPError
+    from urllib.parse import (
+      urlencode, urlparse, urlunparse, splituser as urlsplituser)
+except ImportError: # Python < 3
+    from urllib2 import (
+      Request, OpenerDirector,
+      ProxyHandler, UnknownHandler, HTTPHandler, HTTPSHandler,
+      HTTPDefaultErrorHandler, HTTPErrorProcessor, HTTPError,
+      HTTPCookieProcessor,
+      urlparse)
+    from urllib import urlencode, splituser as urlsplituser
+    from urlparse import urlparse, urlunparse
 import urllib.request, urllib.parse, urllib.error
 import urllib.request, urllib.error, urllib.parse
 import urllib.parse
@@ -155,11 +182,11 @@ def ErrorExit(msg):
   sys.exit(1)
 
 
-class ClientLoginError(urllib.error.HTTPError):
+class ClientLoginError(HTTPError):
   """Raised to indicate there was an error authenticating with ClientLogin."""
 
   def __init__(self, url, code, msg, headers, args):
-    urllib.error.HTTPError.__init__(self, url, code, msg, headers, None)
+    HTTPError.__init__(self, url, code, msg, headers, None)
     self.args = args
     self.reason = args["Error"]
     self.info = args.get("Info", None)
@@ -212,7 +239,7 @@ class AbstractRpcServer(object):
   def _CreateRequest(self, url, data=None):
     """Creates a new urllib request."""
     logging.debug("Creating request for: '%s' with payload:\n%s", url, data)
-    req = urllib.request.Request(url, data=data)
+    req = Request(url, data=data)
     if self.host_override:
       req.add_header("Host", self.host_override)
     for key, value in self.extra_headers.items():
@@ -239,7 +266,7 @@ class AbstractRpcServer(object):
       account_type = "HOSTED"
     req = self._CreateRequest(
         url="https://www.google.com/accounts/ClientLogin",
-        data=urllib.parse.urlencode({
+        data=urlencode({
             "Email": email,
             "Passwd": password,
             "service": "ah",
@@ -253,7 +280,7 @@ class AbstractRpcServer(object):
       response_dict = dict(x.split("=")
                            for x in response_body.split("\n") if x)
       return response_dict["Auth"]
-    except urllib.error.HTTPError as e:
+    except HTTPError as e:
       if e.code == 403:
         body = e.read()
         response_dict = dict(x.split("=", 1) for x in body.split("\n") if x)
@@ -275,15 +302,15 @@ class AbstractRpcServer(object):
     continue_location = "http://localhost/"
     args = {"continue": continue_location, "auth": auth_token}
     req = self._CreateRequest("%s/_ah/login?%s" %
-                              (self.host, urllib.parse.urlencode(args)))
+                              (self.host, urlencode(args)))
     try:
       response = self.opener.open(req)
-    except urllib.error.HTTPError as e:
+    except HTTPError as e:
       response = e
     if (response.code != 302 or
         response.info()["location"] != continue_location):
-      raise urllib.error.HTTPError(req.get_full_url(), response.code, response.msg,
-                              response.headers, response.fp)
+      raise HTTPError(req.get_full_url(), response.code, response.msg,
+                      response.headers, response.fp)
     self.authenticated = True
 
   def _Authenticate(self):
@@ -306,23 +333,23 @@ class AbstractRpcServer(object):
       try:
         auth_token = self._GetAuthToken(credentials[0], credentials[1])
       except ClientLoginError as e:
-        print('', file=sys.stderr)
+        print(file=sys.stderr)
         if e.reason == "BadAuthentication":
           if e.info == "InvalidSecondFactor":
-            print((
-                "Use an application-specific password instead "
-                "of your regular account password.\n"
-                "See http://www.google.com/"
-                "support/accounts/bin/answer.py?answer=185833"), file=sys.stderr)
+            print("Use an application-specific password instead "
+                  "of your regular account password.\n"
+                  "See http://www.google.com/"
+                  "support/accounts/bin/answer.py?answer=185833",
+                  file=sys.stderr)
           else:
             print("Invalid username or password.", file=sys.stderr)
         elif e.reason == "CaptchaRequired":
-          print((
-              "Please go to\n"
-              "https://www.google.com/accounts/DisplayUnlockCaptcha\n"
-              "and verify you are a human.  Then try again.\n"
-              "If you are using a Google Apps account the URL is:\n"
-              "https://www.google.com/a/yourdomain.com/UnlockCaptcha"), file=sys.stderr)
+          print("Please go to\n"
+                "https://www.google.com/accounts/DisplayUnlockCaptcha\n"
+                "and verify you are a human.  Then try again.\n"
+                "If you are using a Google Apps account the URL is:\n"
+                "https://www.google.com/a/yourdomain.com/UnlockCaptcha",
+                file=sys.stderr)
         elif e.reason == "NotVerified":
           print("Account not verified.", file=sys.stderr)
         elif e.reason == "TermsNotAgreed":
@@ -333,14 +360,15 @@ class AbstractRpcServer(object):
           print("The user account has been disabled.", file=sys.stderr)
           break
         elif e.reason == "ServiceDisabled":
-          print(("The user's access to the service has been "
-                               "disabled."), file=sys.stderr)
+          print("The user's access to the service has been disabled.",
+                file=sys.stderr)
         elif e.reason == "ServiceUnavailable":
-          print("The service is not available; try again later.", file=sys.stderr)
+          print("The service is not available; try again later.",
+                file=sys.stderr)
         else:
           # Unknown error.
           raise
-        print('', file=sys.stderr)
+        print(file=sys.stderr)
         continue
       self._GetAuthCookie(auth_token)
       return
@@ -380,18 +408,18 @@ class AbstractRpcServer(object):
         args = dict(kwargs)
         url = "%s%s" % (self.host, request_path)
         if args:
-          url += "?" + urllib.parse.urlencode(args)
+          url += "?" + urlencode(args)
         req = self._CreateRequest(url=url, data=payload)
         req.add_header("Content-Type", content_type)
         if extra_headers:
-          for header, value in list(extra_headers.items()):
+          for header, value in extra_headers.items():
             req.add_header(header, value)
         try:
           f = self.opener.open(req)
           response = f.read()
           f.close()
           return response
-        except urllib.error.HTTPError as e:
+        except HTTPError as e:
           if tries > 3:
             raise
           elif e.code == 401 or e.code == 302:
@@ -402,7 +430,7 @@ class AbstractRpcServer(object):
           elif e.code == 301:
             # Handle permanent redirect manually.
             url = e.info()["location"]
-            url_loc = urllib.parse.urlparse(url)
+            url_loc = urlparse(url)
             self.host = '%s://%s' % (url_loc[0], url_loc[1])
           else:
             raise
@@ -426,23 +454,23 @@ class HttpRpcServer(AbstractRpcServer):
     Returns:
       A urllib2.OpenerDirector object.
     """
-    opener = urllib.request.OpenerDirector()
-    opener.add_handler(urllib.request.ProxyHandler())
-    opener.add_handler(urllib.request.UnknownHandler())
-    opener.add_handler(urllib.request.HTTPHandler())
-    opener.add_handler(urllib.request.HTTPDefaultErrorHandler())
-    opener.add_handler(urllib.request.HTTPSHandler())
-    opener.add_handler(urllib2.HTTPErrorProcessor())
+    opener = OpenerDirector()
+    opener.add_handler(ProxyHandler())
+    opener.add_handler(UnknownHandler())
+    opener.add_handler(HTTPHandler())
+    opener.add_handler(HTTPDefaultErrorHandler())
+    opener.add_handler(HTTPSHandler())
+    opener.add_handler(HTTPErrorProcessor())
     if self.save_cookies:
       self.cookie_file = os.path.expanduser("~/.codereview_upload_cookies")
-      self.cookie_jar = http.cookiejar.MozillaCookieJar(self.cookie_file)
+      self.cookie_jar = MozillaCookieJar(self.cookie_file)
       if os.path.exists(self.cookie_file):
         try:
           self.cookie_jar.load()
           self.authenticated = True
           StatusUpdate("Loaded authentication cookies from %s" %
                        self.cookie_file)
-        except (http.cookiejar.LoadError, IOError):
+        except (CookieLoadError, IOError):
           # Failed to load cookies - just ignore them.
           pass
       else:
@@ -453,8 +481,8 @@ class HttpRpcServer(AbstractRpcServer):
       os.chmod(self.cookie_file, 0o600)
     else:
       # Don't save cookies across runs of update.py.
-      self.cookie_jar = http.cookiejar.CookieJar()
-    opener.add_handler(urllib.request.HTTPCookieProcessor(self.cookie_jar))
+      self.cookie_jar = CookieJar()
+    opener.add_handler(HTTPCookieProcessor(self.cookie_jar))
     return opener
 
 
@@ -804,8 +832,8 @@ class VersionControlSystem(object):
       else:
         type = "current"
       if len(content) > MAX_UPLOAD_SIZE:
-        print(("Not uploading the %s file for %s because it's too large." %
-               (type, filename)))
+        print("Not uploading the %s file for %s because it's too large." %
+              (type, filename))
         file_too_large = True
         content = ""
       checksum = md5(content).hexdigest()
@@ -832,7 +860,7 @@ class VersionControlSystem(object):
 
     patches = dict()
     [patches.setdefault(v, k) for k, v in patch_list]
-    for filename in list(patches.keys()):
+    for filename in patches.keys():
       base_content, new_content, is_binary, status = files[filename]
       file_id_str = patches.get(filename)
       if file_id_str.find("nobase") != -1:
@@ -898,7 +926,7 @@ class SubversionVCS(VersionControlSystem):
     for line in info.splitlines():
       if line.startswith("URL: "):
         url = line.split()[1]
-        scheme, netloc, path, params, query, fragment = urllib.parse.urlparse(url)
+        scheme, netloc, path, params, query, fragment = urlparse(url)
         guess = ""
         if netloc == "svn.python.org" and scheme == "svn+ssh":
           path = "projects" + path
@@ -908,8 +936,7 @@ class SubversionVCS(VersionControlSystem):
           scheme = "http"
           guess = "Google Code "
         path = path + "/"
-        base = urllib.parse.urlunparse((scheme, netloc, path, params,
-                                    query, fragment))
+        base = urlunparse((scheme, netloc, path, params, query, fragment))
         logging.info("Guessed %sbase = %s", guess, base)
         return base
     if required:
@@ -1412,8 +1439,8 @@ def UploadSeparatePatches(issue, rpc_server, patchset, data, options):
   rv = []
   for patch in patches:
     if len(patch[1]) > MAX_UPLOAD_SIZE:
-      print(("Not uploading the patch for " + patch[0] +
-             " because the file is too large."))
+      print("Not uploading the patch for " + patch[0] +
+            " because the file is too large.")
       continue
     form_fields = [("filename", patch[0])]
     if not options.download_base:
@@ -1551,7 +1578,7 @@ def LoadSubversionAutoProperties():
     subversion_config = os.path.expanduser("~/.subversion/config")
   if not os.path.exists(subversion_config):
     return {}
-  config = configparser.ConfigParser()
+  config = ConfigParser()
   config.read(subversion_config)
   if (config.has_section("miscellany") and
       config.has_option("miscellany", "enable-auto-props") and
@@ -1606,7 +1633,7 @@ def GetSubversionPropertyChanges(filename):
     svn_auto_props_map = LoadSubversionAutoProperties()
 
   all_props = []
-  for file_pattern, props in list(svn_auto_props_map.items()):
+  for file_pattern, props in svn_auto_props_map.items():
     if fnmatch.fnmatch(filename, file_pattern):
       all_props.extend(props)
   if all_props:
@@ -1703,12 +1730,12 @@ def RealMain(argv, data=None):
                             options.account_type)
   form_fields = [("subject", message)]
   if base:
-    b = urllib.parse.urlparse(base)
-    username, netloc = urllib.parse.splituser(b.netloc)
+    b = urlparse(base)
+    username, netloc = urlsplituser(b.netloc)
     if username:
       logging.info("Removed username from base URL")
-      base = urllib.parse.urlunparse((b.scheme, netloc, b.path, b.params,
-                                  b.query, b.fragment))
+      base = urlunparse((b.scheme, netloc, b.path, b.params,
+                         b.query, b.fragment))
     form_fields.append(("base", base))
   if options.issue:
     form_fields.append(("issue", str(options.issue)))

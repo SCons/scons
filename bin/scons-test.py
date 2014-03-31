@@ -14,6 +14,7 @@
 # relevant information about the system, the Python version, etc.,
 # so that problems on different platforms can be identified sooner.
 #
+from __future__ import print_function
 
 import atexit
 import getopt
@@ -224,7 +225,7 @@ if format == '--xml':
     print("  </environment>")
 
     command = '"%s" runtest.py -q -o - --xml %s' % (sys.executable, runtest_args)
-    #print command
+    #print(command)
     os.system(command)
     print("</scons_test_run>")
 
@@ -243,7 +244,7 @@ else:
     print_version_info("engine", SCons)
 
     command = '"%s" runtest.py %s' % (sys.executable, runtest_args)
-    #print command
+    #print(command)
     os.system(command)
 
 # Local Variables:

@@ -17,11 +17,11 @@ InstanceType = types.InstanceType
 DictType = dict
 ListType = list
 StringType = str
-try: str
+try: unicode
 except NameError:
     UnicodeType = None
 else:
-    UnicodeType = str
+    UnicodeType = unicode
 
 
 # The original implementations, pretty straightforward checks for the
@@ -36,7 +36,7 @@ def original_is_List(e):
 
 if UnicodeType is not None:
     def original_is_String(e):
-        return isinstance(e, (str,UserString))
+        return isinstance(e, (str,unicode,UserString))
 else:
     def original_is_String(e):
         return isinstance(e, (str,UserString))
@@ -58,7 +58,7 @@ def checkInstanceType_is_List(e):
 if UnicodeType is not None:
     def checkInstanceType_is_String(e):
         return isinstance(e, str) \
-            or isinstance(e, str) \
+            or isinstance(e, unicode) \
             or (isinstance(e, types.InstanceType) and isinstance(e, UserString))
 else:
     def checkInstanceType_is_String(e):
@@ -84,7 +84,7 @@ if UnicodeType is not None:
     def cache_type_e_is_String(e):
         t = type(e)
         return t is str \
-            or t is str \
+            or t is unicode \
             or (t is types.InstanceType and isinstance(e, UserString))
 else:
     def cache_type_e_is_String(e):
@@ -136,7 +136,7 @@ if UnicodeType is not None:
         t = type(obj)
         if t is types.InstanceType:
             t = instanceTypeMap.get(obj.__class__, t)
-        elif t is str:
+        elif t is unicode:
             t = str
         return t
 else:

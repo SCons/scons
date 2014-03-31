@@ -33,7 +33,7 @@ class Timing(object):
 def times(num=1000000, init='', title='Results:', **statements):
     # time each statement
     timings = []
-    for n, s in list(statements.items()):
+    for n, s in statements.items():
         t = Timing(n, num, init, s)
         t.timeit()
         timings.append(t)
@@ -287,7 +287,7 @@ else:
 # that the timer will use to get at these classes.
 
 class_names = []
-for n in list(locals().keys()):
+for n in locals().keys():
     #if n.startswith('env_'):
     if n[:4] == 'env_':
         class_names.append(n)

@@ -39,6 +39,7 @@
 # function at the same time, for example, their counts will intermix.
 # So use this to get a *general* idea of who's calling what, not for
 # fine-grained performance tuning.
+from __future__ import print_function
 
 import sys
 
@@ -86,7 +87,7 @@ def print_entry(e, level, calls):
     else:
         print()
 
-for e in [ e for e in list(AllCalls.values()) if not e.calls ]:
+for e in [ e for e in AllCalls.values() if not e.calls ]:
     print_entry(e, 0, '')
 
 # Local Variables:

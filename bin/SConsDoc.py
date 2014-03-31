@@ -24,6 +24,7 @@
 #
 # Module for handling SCons documentation processing.
 #
+from __future__ import print_function
 
 __doc__ = """
 This module parses home-brew XML files that document various things
@@ -51,7 +52,7 @@ Builder example:
     to indicate a new paragraph.
 
     <example>
-    print "this is example code, it will be offset and indented"
+    print("this is example code, it will be offset and indented")
     </example>
     </summary>
     </builder>
@@ -71,7 +72,7 @@ Function example:
     &f-FUNCTION; element.  It need not be on a line by itself.</para>
 
     <example>
-    print "this is example code, it will be offset and indented"
+    print("this is example code, it will be offset and indented")
     </example>
     </summary>
     </scons_function>
@@ -88,7 +89,7 @@ Construction variable example:
     &t-VARIABLE; element.  It need not be on a line by itself.</para>
 
     <example>
-    print "this is example code, it will be offset and indented"
+    print("this is example code, it will be offset and indented")
     </example>
     </summary>
     </cvar>
@@ -105,7 +106,7 @@ Tool example:
     &t-TOOL; element. It need not be on a line by itself.</para>
 
     <example>
-    print "this is example code, it will be offset and indented"
+    print("this is example code, it will be offset and indented")
     </example>
     </summary>
     </tool>

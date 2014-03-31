@@ -20,6 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -160,7 +161,7 @@ class TestEnvironmentFixture(object):
         default_keys = { 'CC' : 'cc',
                          'CCFLAGS' : '-DNDEBUG',
                          'ENV' : { 'TMP' : '/tmp' } }
-        for key, value in list(default_keys.items()):
+        for key, value in default_keys.items():
             if key not in kw:
                 kw[key] = value
         if 'BUILDERS' not in kw:
@@ -263,16 +264,10 @@ class SubstitutionTestCase(unittest.TestCase):
         assert isinstance(nodes[0], X)
         assert nodes[0].name == "Util.py UtilTests.py"
 
-        try: str
-        except NameError: pass
-        else:
-            code = """if 1:
-                nodes = env.arg2nodes(u"Util.py UtilTests.py", Factory)
-                assert len(nodes) == 1, nodes
-                assert isinstance(nodes[0], X)
-                assert nodes[0].name == u"Util.py UtilTests.py"
-                \n"""
-            exec(code, globals(), locals())
+        nodes = env.arg2nodes(u"Util.py UtilTests.py", Factory)
+        assert len(nodes) == 1, nodes
+        assert isinstance(nodes[0], X)
+        assert nodes[0].name == u"Util.py UtilTests.py"
 
         nodes = env.arg2nodes(["Util.py", "UtilTests.py"], Factory)
         assert len(nodes) == 2, nodes

@@ -30,6 +30,7 @@ selection method.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -183,7 +184,7 @@ def prog_emitter(target, source, env):
         # MSVC 11 and above need the PCH object file to be added to the link line,
         # otherwise you get link error LNK2011.
         pchobj = SCons.Util.splitext(str(env['PCH']))[0] + '.obj'
-        # print "prog_emitter, version %s, appending pchobj %s"%(version_num, pchobj)
+        # print("prog_emitter, version %s, appending pchobj %s"%(version_num, pchobj))
         if pchobj not in extrasources:
             extrasources.append(pchobj)
 

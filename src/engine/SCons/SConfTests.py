@@ -60,7 +60,7 @@ class SConfTestCase(unittest.TestCase):
         # We try to reset scons' state (including all global variables)
         import SCons.SConsign
         SCons.SConsign.write() # simulate normal scons-finish
-        for n in list(sys.modules.keys()):
+        for n in sys.modules.keys():
             if n.split('.')[0] == 'SCons' and n[:12] != 'SCons.compat':
                 m = sys.modules[n]
                 if isinstance(m, ModuleType):

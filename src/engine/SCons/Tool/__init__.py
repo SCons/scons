@@ -34,6 +34,7 @@ tool definition.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -631,7 +632,7 @@ class ToolInitializer(object):
         so we no longer copy and re-bind them when the construction
         environment gets cloned.
         """
-        for method in list(self.methods.values()):
+        for method in self.methods.values():
             env.RemoveMethod(method)
 
     def apply_tools(self, env):

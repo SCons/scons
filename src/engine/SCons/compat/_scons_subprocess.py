@@ -351,6 +351,8 @@ except that:
 
 
 """
+from __future__ import print_function
+from six import integer_types
 
 import sys
 mswindows = (sys.platform == "win32")
@@ -444,15 +446,15 @@ else:
     def is_int(obj):
         return isinstance(obj, int)
     def is_int_or_long(obj):
-        return isinstance(obj, int)
+        return isinstance(obj, integer_types)
 
 try:
-    str
+    types.StringTypes
 except AttributeError:
     try:
-        str = (str, str)
+        types.StringTypes = (str, unicode)
     except NameError:
-        str = (str,)
+        types.StringTypes = (str,)
 def is_string(obj):
     return isinstance(obj, str)
 
@@ -785,7 +787,7 @@ class Popen(object):
                            errread, errwrite):
             """Execute program (MS Windows version)"""
 
-            if not isinstance(args, str):
+            if not isinstance(args, types.StringTypes):
                 args = list2cmdline(args)
 
             # Process startup details

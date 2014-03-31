@@ -20,6 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from six import add_metaclass
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -29,8 +30,8 @@ import unittest
 import SCons.Memoize
 
 
-
-class FakeObject(object, metaclass=SCons.Memoize.Memoized_Metaclass):
+@add_metaclass(SCons.Memoize.Memoized_Metaclass)
+class FakeObject(object):
 
     memoizer_counters = []
 

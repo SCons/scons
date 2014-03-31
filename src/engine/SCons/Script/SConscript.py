@@ -26,7 +26,7 @@ files.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+from __future__ import division, print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -529,7 +529,7 @@ class SConsEnvironment(SCons.Environment.Base):
             return x
         ls = list(map(subst_element, ls))
         subst_kw = {}
-        for key, val in list(kw.items()):
+        for key, val in kw.items():
             if SCons.Util.is_String(val):
                 val = self.subst(val)
             elif SCons.Util.is_List(val):

@@ -25,6 +25,7 @@ Autoconf-like configuration support.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -118,7 +119,7 @@ def CreateConfigHBuilder(env):
                                  _stringConfigH)
     sconfigHBld = SCons.Builder.Builder(action=action)
     env.Append( BUILDERS={'SConfigHBuilder':sconfigHBld} )
-    for k in list(_ac_config_hs.keys()):
+    for k in _ac_config_hs.keys():
         env.SConfigHBuilder(k, env.Value(_ac_config_hs[k]))
     
 class SConfWarning(SCons.Warnings.Warning):
@@ -175,19 +176,13 @@ class Streamer(object):
     """
     def __init__(self, orig):
         self.orig = orig
-        try:
-            import StringIO
-            self.s = StringIO.StringIO()
-        except:
-            self.s = io.StringIO()
+        self.s = io.StringIO()
 
     def write(self, str):
-        try:
-            if self.orig:
-                self.orig.write(str)
-            self.s.write(str)
-        except:
-            print ('oops')
+        if self.orig:
+            self.orig.write(str)
+        self.s.write(str)
+
     def writelines(self, lines):
         for l in lines:
             self.write(l + '\n')
@@ -658,7 +653,7 @@ class SConfBase(object):
         """Adds all the tests given in the tests dictionary to this SConf
         instance
         """
-        for name in list(tests.keys()):
+        for name in tests.keys():
             self.AddTest(name, tests[name])
 
     def _createDir( self, node ):

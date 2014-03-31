@@ -8,6 +8,7 @@
 # etc. so that you can diff trees without having to ignore changes in
 # version lines.
 #
+from __future__ import print_function
 
 import difflib
 import getopt
@@ -161,7 +162,7 @@ def diff_file(left, right):
     else:
         if text:
             diff_line(left, right)
-            print(text, end=' ')
+            print(text)
         elif report_same:
             print('Files %s and %s are identical' % (left, right))
 
@@ -173,7 +174,7 @@ def diff_dir(left, right):
         u[l] = 1
     for r in rlist:
         u[r] = 1
-    for x in sorted([ x for x in list(u.keys()) if x[-4:] != '.pyc' ]):
+    for x in sorted([ x for x in u.keys() if x[-4:] != '.pyc' ]):
         if x in llist:
             if x in rlist:
                 do_diff(os.path.join(left, x),

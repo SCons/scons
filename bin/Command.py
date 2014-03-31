@@ -4,6 +4,7 @@
 #
 # XXX Describe what the script does here.
 #
+from __future__ import print_function
 
 import getopt
 import os

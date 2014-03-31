@@ -35,12 +35,12 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-try:
-    str
-except NameError:
-    import sys
-    msg = "Unicode not supported by Python version %s; skipping test\n"
-    test.skip_test(msg % sys.version[:3])
+## try:
+##     unicode
+## except NameError:
+##     import sys
+##     msg = "Unicode not supported by Python version %s; skipping test\n"
+##     test.skip_test(msg % sys.version[:3])
 
 import codecs
 
@@ -102,28 +102,28 @@ include utf16be.k
 foo.k 1 line 4
 """)
 
-contents = str("""\
+contents = (u"""\
 ascii.k 1 line 1
 include ascii.inc
 ascii.k 1 line 3
 """)
 test.write('ascii.k', contents.encode('ascii'))
 
-contents = str("""\
+contents = (u"""\
 utf8.k 1 line 1
 include utf8.inc
 utf8.k 1 line 3
 """)
 test.write('utf8.k', codecs.BOM_UTF8 + contents.encode('utf-8'))
 
-contents = str("""\
+contents = (u"""\
 utf16le.k 1 line 1
 include utf16le.inc
 utf16le.k 1 line 3
 """)
 test.write('utf16le.k', codecs.BOM_UTF16_LE + contents.encode('utf-16-le'))
 
-contents = str("""\
+contents = (u"""\
 utf16be.k 1 line 1
 include utf16be.inc
 utf16be.k 1 line 3

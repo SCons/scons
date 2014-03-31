@@ -31,6 +31,7 @@ that can be used by scripts or modules looking for the canonical default.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -54,7 +55,6 @@ import SCons.Util
 import SCons.Warnings
 
 from SCons.Debug import Trace
-import collections
 
 do_store_info = True
 print_duplicate = 0
@@ -1509,7 +1509,7 @@ class Dir(Base):
         This clears any cached information that is invalidated by changing
         the repository."""
 
-        for node in list(self.entries.values()):
+        for node in self.entries.values():
             if node != self.dir:
                 if node != self and isinstance(node, Dir):
                     node.__clearRepositoryCache(duplicate)
@@ -2056,7 +2056,7 @@ class Dir(Base):
             # We use the .name attribute from the Node because the keys of
             # the dir.entries dictionary are normalized (that is, all upper
             # case) on case-insensitive systems like Windows.
-            node_names = [ v.name for k, v in list(dir.entries.items())
+            node_names = [ v.name for k, v in dir.entries.items()
                            if k not in ('.', '..') ]
             names.extend(node_names)
             if not strings:
@@ -3197,10 +3197,10 @@ class FileFinder(object):
             except KeyError:
                 pass
 
-        if verbose and not isinstance(verbose, collections.Callable):
+        if verbose and not callable(verbose):
             if not SCons.Util.is_String(verbose):
                 verbose = "find_file"
-            _verbose = '  %s: ' % verbose
+            _verbose = u'  %s: ' % verbose
             verbose = lambda s: sys.stdout.write(_verbose + s)
 
         filedir, filename = os.path.split(filename)

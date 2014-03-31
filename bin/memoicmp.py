@@ -2,6 +2,7 @@
 #
 # A script to compare the --debug=memoizer output found in
 # two different files.
+from future import print_function
 
 import sys
 
@@ -29,14 +30,14 @@ def memoize_cmp(filea, fileb):
         ma_o = []
         mb_o = []
         mab  = []
-        for k in list(ma.keys()):
-                if k in list(mb.keys()):
+        for k in ma.keys():
+                if k in mb.keys():
                         if k not in mab:
                                 mab.append(k)
                 else:
                         ma_o.append(k)
-        for k in list(mb.keys()):
-                if k in list(ma.keys()):
+        for k in mb.keys():
+                if k in ma.keys():
                         if k not in mab:
                                 mab.append(k)
                 else:

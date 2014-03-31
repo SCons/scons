@@ -23,6 +23,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import print_function
 
 import os.path
 import re
@@ -84,16 +85,16 @@ except:
     try:
         import lxml
     except:
-        print "doc: Neither libxml2 nor lxml Python bindings found!"
-        print "     Please install one of the packages python-libxml2 or python-lxml."
+        print("doc: Neither libxml2 nor lxml Python bindings found!")
+        print("     Please install one of the packages python-libxml2 or python-lxml.")
         skip_doc = True
         
 if not fop and not xep:
-    print "doc: No PDF renderer found (fop|xep)!"
+    print("doc: No PDF renderer found (fop|xep)!")
     skip_doc = True
     
 if skip_doc:
-    print "doc: ...skipping building User Guide."
+    print("doc: ...skipping building User Guide.")
 else:
     #
     # Always create a version.xml file containing the version information
@@ -109,18 +110,18 @@ else:
         # Ensure that all XML files are valid against our XSD, and
         # that all example names and example output suffixes are unique
         #
-        print "Validating files against SCons XSD..."
+        print("Validating files against SCons XSD...")
         if SConsDoc.validate_all_xml(['src'], xsdfile='xsd/scons.xsd'):
-            print "OK"
+            print("OK")
         else:
-            print "Validation failed! Please correct the errors above and try again."
+            print("Validation failed! Please correct the errors above and try again.")
             sys.exit(0)
             
-        print "Checking whether all example names are unique..."
+        print("Checking whether all example names are unique...")
         if SConsExamples.exampleNamesAreUnique(os.path.join('doc','user')):
-            print "OK"
+            print("OK")
         else:
-            print "Not all example names and suffixes are unique! Please correct the errors listed above and try again."
+            print("Not all example names and suffixes are unique! Please correct the errors listed above and try again.")
             sys.exit(0)
     
         #
@@ -358,7 +359,7 @@ else: # epydoc_cli is found
 
      
 if not epydoc_cli and not epydoc:
-    print "doc: epydoc not found, skipping building API documentation."
+    print("doc: epydoc not found, skipping building API documentation.")
 else:
     # XXX Should be in common with reading the same thing in
     # the SConstruct file.
@@ -380,7 +381,7 @@ else:
     tar_list.append(htmldir)
 
     if not epydoc_cli:
-        print "doc: command line epydoc is not found, skipping PDF/PS/Tex output"
+        print("doc: command line epydoc is not found, skipping PDF/PS/Tex output")
     else:
         # PDF and PostScript and TeX are built from the
         # same invocation.

@@ -46,7 +46,7 @@ be aware of it.  The baseline overhead can be measured by invoking the
 program without arguments.  The baseline overhead differs between
 Python versions!
 """
-
+from __future__ import division, print_function
 
 try:
     import gc
@@ -245,7 +245,7 @@ def main(args=None):
                 precision = precision + 1
             verbose = precision + 1
         if o in ("-h", "--help"):
-            print(__doc__, end=' ')
+            print(__doc__)
             return 0
     setup = "\n".join(setup) or "pass"
     # Include the current directory, so that local imports work (sys.path

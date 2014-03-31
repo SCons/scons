@@ -1197,8 +1197,8 @@ class Node(object):
         new_bkids    = new.bsources    + new.bdepends    + new.bimplicit
         new_bkidsigs = new.bsourcesigs + new.bdependsigs + new.bimplicitsigs
 
-        osig = dict(list(zip(old_bkids, old_bkidsigs)))
-        nsig = dict(list(zip(new_bkids, new_bkidsigs)))
+        osig = dict(zip(old_bkids, old_bkidsigs))
+        nsig = dict(zip(new_bkids, new_bkidsigs))
 
         # The sources and dependencies we'll want to report are all stored
         # as relative paths to this target's directory, but we want to

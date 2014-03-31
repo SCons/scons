@@ -23,6 +23,7 @@ Tool specific initialization of `xgettext` tool.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from six import u
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -55,7 +56,7 @@ class _CmdRunner(object):
     proc = SCons.Action._subproc(env, command, **kw)
     self.out, self.err = proc.communicate()
     self.status = proc.wait()
-    if self.err: sys.stderr.write(str(self.err))
+    if self.err: sys.stderr.write(u(self.err))
     return self.status
 
   def strfunction(self, target, source, env):

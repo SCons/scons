@@ -1,4 +1,3 @@
-from __future__ import print_function
 """
 TestCmd.py:  a testing framework for commands and scripts.
 
@@ -286,7 +285,7 @@ version.
 # PARTICULAR PURPOSE.  THE CODE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS,
 # AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
-
+from __future__ import division, print_function
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
 __revision__ = "TestCmd.py 1.3.D001 2010/06/03 12:58:27 knight"
@@ -356,7 +355,7 @@ except NameError:
         return isinstance(e, (str, UserString))
 else:
     def is_String(e):
-        return isinstance(e, (str, UserString))
+        return isinstance(e, (str, unicode, UserString))
 
 tempfile.template = 'testcmd.'
 if os.name in ('posix', 'nt'):
@@ -951,7 +950,7 @@ class TestCmd(object):
             condition = self.condition
         if self._preserve[condition]:
             for dir in self._dirlist:
-                print("Preserved directory " + dir + "\n", end=' ')
+                print("Preserved directory " + dir + "\n")
         else:
             list = self._dirlist[:]
             list.reverse()

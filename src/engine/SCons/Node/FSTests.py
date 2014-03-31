@@ -20,7 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-
+from __future__ import division, print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -1305,7 +1305,7 @@ class FSTestCase(_tempdirTestCase):
         assert f1.get_contents() == "Foo\x1aBar", f1.get_contents()
 
         # This tests to make sure we can decode UTF-8 text files.
-        test_string = "Foo\x1aBar"
+        test_string = u"Foo\x1aBar"
         test.write("utf8_file", test_string.encode('utf-8'))
         f1 = fs.File(test.workpath("utf8_file"))
         assert eval('f1.get_text_contents() == u"Foo\x1aBar"'), \

@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -77,7 +78,7 @@ check = {
 missing = []
 no_result = []
 
-for directory, check_list in list(check.items()):
+for directory, check_list in check.items():
     if os.path.exists(directory):
         for c in check_list:
             f = os.path.join(directory, c)

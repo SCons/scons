@@ -35,12 +35,12 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-try:
-    str
-except NameError:
-    import sys
-    msg = "Unicode not supported by Python version %s; skipping test\n"
-    test.skip_test(msg % sys.version[:3])
+## try:
+##     unicode
+## except NameError:
+##     import sys
+##     msg = "Unicode not supported by Python version %s; skipping test\n"
+##     test.skip_test(msg % sys.version[:3])
 
 test.write('SConstruct', """
 fnode = File(u'foo.txt')

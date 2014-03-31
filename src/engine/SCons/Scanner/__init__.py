@@ -33,7 +33,6 @@ import re
 
 import SCons.Node.FS
 import SCons.Util
-import collections
 
 
 class _Null(object):
@@ -179,7 +178,7 @@ class Base(object):
         self.node_class = node_class
         self.node_factory = node_factory
         self.scan_check = scan_check
-        if isinstance(recursive, collections.Callable):
+        if callable(recursive):
             self.recurse_nodes = recursive
         elif recursive:
             self.recurse_nodes = self._recurse_all_nodes
@@ -370,7 +369,7 @@ class Classic(Current):
         # is actually found in a Repository or locally.
         nodes = []
         source_dir = node.get_dir()
-        if isinstance(path, collections.Callable):
+        if callable(path):
             path = path()
         for include in includes:
             n, i = self.find_include(include, source_dir, path)

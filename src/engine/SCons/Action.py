@@ -114,7 +114,6 @@ import SCons.Errors
 import SCons.Executor
 import SCons.Util
 import SCons.Subst
-import collections
 
 # we use these a lot, so try to optimize them
 is_String = SCons.Util.is_String
@@ -329,7 +328,7 @@ def _do_create_keywords(args, kw):
         cmdstrfunc = args[0]
         if cmdstrfunc is None or is_String(cmdstrfunc):
             kw['cmdstr'] = cmdstrfunc
-        elif isinstance(cmdstrfunc, collections.Callable):
+        elif callable(cmdstrfunc):
             kw['strfunction'] = cmdstrfunc
         else:
             raise SCons.Errors.UserError(
@@ -360,7 +359,7 @@ def _do_create_action(act, kw):
     if is_List(act):
         return CommandAction(act, **kw)
 
-    if isinstance(act, collections.Callable):
+    if callable(act):
         try:
             gen = kw['generator']
             del kw['generator']
@@ -494,7 +493,7 @@ class _ActionAction(ActionBase):
         self.targets = targets
 
         if batch_key:
-            if not isinstance(batch_key, collections.Callable):
+            if not callable(batch_key):
                 # They have set batch_key, but not to their own
                 # callable.  The default behavior here will batch
                 # *all* targets+sources using this action, separated
@@ -514,7 +513,7 @@ class _ActionAction(ActionBase):
         # This code assumes s is a regular string, but should
         # work if it's unicode too.
         try:
-            sys.stdout.write(str(s + "\n"))
+            sys.stdout.write(s + u"\n")
         except UnicodeDecodeError:
             sys.stdout.write(s + "\n")
 
@@ -555,7 +554,7 @@ class _ActionAction(ActionBase):
                 source = executor.get_all_sources()
             t = ' and '.join(map(str, target))
             l = '\n  '.join(self.presub_lines(env))
-            out = "Building %s with action:\n  %s\n" % (t, l)
+            out = u"Building %s with action:\n  %s\n" % (t, l)
             sys.stdout.write(out)
         cmd = None
         if show and self.strfunction:
@@ -655,7 +654,7 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
 
     # Ensure that the ENV values are all strings:
     new_env = {}
-    for key, value in list(ENV.items()):
+    for key, value in ENV.items():
         if is_List(value):
             # If the value is a list, then we assume it is a path list,
             # because that's a pretty common list-like value to stick
@@ -781,7 +780,7 @@ class CommandAction(_ActionAction):
         ENV = get_default_ENV(env)
 
         # Ensure that the ENV values are all strings:
-        for key, value in list(ENV.items()):
+        for key, value in ENV.items():
             if not is_String(value):
                 if is_List(value):
                     # If the value is a list, then we assume it is a
@@ -1040,7 +1039,7 @@ class FunctionAction(_ActionAction):
         else:
             if strfunc is None:
                 return None
-            if isinstance(strfunc, collections.Callable):
+            if callable(strfunc):
                 return strfunc(target, source, env)
         name = self.function_name()
         tstr = array(target)
@@ -1216,7 +1215,7 @@ class ActionCaller(object):
 
     def subst_kw(self, target, source, env):
         kw = {}
-        for key in list(self.kw.keys()):
+        for key in self.kw.keys():
             kw[key] = self.subst(self.kw[key], target, source, env)
         return kw
 

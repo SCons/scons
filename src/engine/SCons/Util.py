@@ -23,6 +23,7 @@ Various utility functions go here.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from six import PY2, PY3, u
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -32,14 +33,22 @@ import copy
 import re
 import types
 
-from collections import UserDict, UserList, UserString
-import collections
+try:
+    from collections import UserDict, UserList, UserString
+except ImportError: # Python < 3
+    from UserDict import UserDict
+    from UserList import UserList
+    from UserString import UserString
 
 # Don't "from types import ..." these because we need to get at the
 # types module later to look for UnicodeType.
+try:
+    InstanceType    = types.InstanceType
+except AttributeError: # Python 3
+    InstanceType    = None
 MethodType      = types.MethodType
 FunctionType    = types.FunctionType
-try: str
+try: unicode
 except NameError: UnicodeType = None
 else:             UnicodeType = str
 
@@ -111,8 +120,11 @@ class NodeList(UserList):
     >>> someList.strip()
     [ 'foo', 'bar' ]
     """
-    def __bool__(self):
+    def __nonzero__(self):
         return len(self.data) != 0
+
+    def __bool__(self):
+        return self.__nonzero__()
 
     def __str__(self):
         return ' '.join(map(str, self.data))
@@ -153,7 +165,7 @@ class DisplayEngine(object):
             return
         if append_newline: text = text + '\n'
         try:
-            sys.stdout.write(str(text))
+            sys.stdout.write(u(text))
         except IOError:
             # Stdout might be connected to a pipe that has been closed
             # by now. The most likely reason for the pipe being closed
@@ -239,7 +251,7 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
                       '        N  = no clean\n' +
                       '         H = no cache\n' +
                       '\n')
-            sys.stdout.write(str(legend))
+            sys.stdout.write(u(legend))
 
         tags = ['[']
         tags.append(' E'[IDX(root.exists())])
@@ -264,10 +276,10 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
     children = child_func(root)
 
     if prune and rname in visited and children:
-        sys.stdout.write(''.join(tags + margins + ['+-[', rname, ']']) + '\n')
+        sys.stdout.write(''.join(tags + margins + ['+-[', rname, ']']) + u'\n')
         return
 
-    sys.stdout.write(''.join(tags + margins + ['+-', rname]) + '\n')
+    sys.stdout.write(''.join(tags + margins + ['+-', rname]) + u'\n')
 
     visited[rname] = 1
 
@@ -303,11 +315,17 @@ SequenceTypes = (list, tuple, UserList)
 # Note that profiling data shows a speed-up when comparing
 # explicitely with str and unicode instead of simply comparing
 # with basestring. (at least on Python 2.5.1)
-StringTypes = (str, str, UserString)
+try:
+    StringTypes = (str, unicode, UserString)
+except NameError:
+    StringTypes = (str, UserString)
 
 # Empirically, it is faster to check explicitely for str and
 # unicode than for basestring.
-BaseStringTypes = (str, str)
+try:
+    BaseStringTypes = (str, unicode)
+except NameError:
+    BaseStringTypes = (str)
 
 def is_Dict(obj, isinstance=isinstance, DictTypes=DictTypes):
     return isinstance(obj, DictTypes)
@@ -440,7 +458,7 @@ _semi_deepcopy_dispatch = d = {}
 
 def semi_deepcopy_dict(x, exclude = [] ):
     copy = {}
-    for key, val in list(x.items()):
+    for key, val in x.items():
         # The regular Python copy.deepcopy() also deepcopies the key,
         # as follows:
         #
@@ -465,7 +483,7 @@ def semi_deepcopy(x):
     if copier:
         return copier(x)
     else:
-        if hasattr(x, '__semi_deepcopy__') and isinstance(x.__semi_deepcopy__, collections.Callable):
+        if hasattr(x, '__semi_deepcopy__') and callable(x.__semi_deepcopy__):
             return x.__semi_deepcopy__()
         elif isinstance(x, UserDict):
             return x.__class__(semi_deepcopy_dict(x))
@@ -979,7 +997,7 @@ class OrderedDict(UserDict):
         if key not in self._keys: self._keys.append(key)
 
     def update(self, dict):
-        for (key, val) in list(dict.items()):
+        for (key, val) in dict.items():
             self.__setitem__(key, val)
 
     def values(self):
@@ -1001,7 +1019,7 @@ class Selector(OrderedDict):
             # Try to perform Environment substitution on the keys of
             # the dictionary before giving up.
             s_dict = {}
-            for (k,v) in list(self.items()):
+            for (k,v) in self.items():
                 if k is not None:
                     s_k = env.subst(k)
                     if s_k in s_dict:
@@ -1346,8 +1364,9 @@ def make_path_relative(path):
 
 def AddMethod(obj, function, name=None):
     """
-    Adds either a bound method to an instance or an unbound method to
-    a class. If name is ommited the name of the specified function
+    Adds either a bound method to an instance or the function itself
+    (or an unbound method in Python 2) to a class.
+    If name is ommited the name of the specified function
     is used by default.
     Example:
       a = A()
@@ -1366,9 +1385,15 @@ def AddMethod(obj, function, name=None):
 
     if hasattr(obj, '__class__') and obj.__class__ is not type:
         # "obj" is an instance, so it gets a bound method.
-        setattr(obj, name, MethodType(function, obj, obj.__class__))
+        if PY3:
+            method = MethodType(function, obj)
+        else:
+            method = MethodType(function, obj, obj.__class__)
+        setattr(obj, name, method)
     else:
         # "obj" is a class, so it gets an unbound method.
+        if PY2:
+            function = MethodType(function, None, obj)
         setattr(obj, name, function)
 
 def RenameFunction(function, name):
@@ -1461,6 +1486,8 @@ class Null(object):
         return self
     def __repr__(self):
         return "Null(0x%08X)" % id(self)
+    def __nonzero__(self):
+        return False
     def __bool__(self):
         return False
     def __getattr__(self, name):

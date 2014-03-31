@@ -180,7 +180,7 @@ class Variables(object):
         if args is None:
             args = self.args
 
-        for arg, value in list(args.items()):
+        for arg, value in args.items():
             added = False
             for option in self.options:
                 if arg in list(option.aliases) + [ option.key ]:

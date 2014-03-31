@@ -90,6 +90,7 @@ The TestCommon module also provides the following variables
 # PARTICULAR PURPOSE.  THE CODE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS,
 # AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+from __future__ import print_function
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
 __revision__ = "TestCommon.py 1.3.D001 2010/06/03 12:58:27 knight"

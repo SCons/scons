@@ -19,6 +19,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -120,7 +121,7 @@ class SConsInteractiveCmd(cmd.Cmd):
 
     def __init__(self, **kw):
         cmd.Cmd.__init__(self)
-        for key, val in list(kw.items()):
+        for key, val in kw.items():
             setattr(self, key, val)
 
         if sys.platform == 'win32':
@@ -249,7 +250,7 @@ class SConsInteractiveCmd(cmd.Cmd):
             while n:
                 n = walker.get_next()
 
-        for node in list(seen_nodes.keys()):
+        for node in seen_nodes.keys():
             # Call node.clear() to clear most of the state
             node.clear()
             # node.clear() doesn't reset node.state, so call

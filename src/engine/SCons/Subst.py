@@ -472,7 +472,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
                 def func(l, conv=self.conv, substitute=self.substitute, lvars=lvars):
                     return conv(substitute(l, lvars))
                 return list(map(func, s))
-            elif isinstance(s, collections.Callable):
+            elif callable(s):
                 try:
                     s = s(target=lvars['TARGETS'],
                          source=lvars['SOURCES'],
@@ -681,7 +681,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                 for a in s:
                     self.substitute(a, lvars, 1)
                     self.next_word()
-            elif isinstance(s, collections.Callable):
+            elif callable(s):
                 try:
                     s = s(target=lvars['TARGETS'],
                          source=lvars['SOURCES'],

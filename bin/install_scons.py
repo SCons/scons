@@ -17,13 +17,17 @@
 # This was written for a Linux system (specifically Ubuntu) but should
 # be reasonably generic to any POSIX-style system with a /usr/local
 # hierarchy.
+from __future__ import print_function
 
 import getopt
 import os
 import shutil
 import sys
 import tarfile
-import urllib.request, urllib.parse, urllib.error
+try:
+    from urllib.request import urlretrieve
+except ImportError: # Python < 3
+    from urllib import urlretrieve
 
 from Command import CommandRunner, Usage
 
@@ -171,7 +175,7 @@ Usage:  install_scons.py [-ahnq] [-d DIR] [-p PREFIX] [VERSION ...]
         if not os.path.exists(tar_gz):
             if not os.path.exists(downloads_dir):
                 cmd.run('mkdir %(downloads_dir)s')
-            cmd.run((urllib.request.urlretrieve, tar_gz_url, tar_gz),
+            cmd.run((urlretrieve, tar_gz_url, tar_gz),
                     'wget -O %(tar_gz)s %(tar_gz_url)s')
 
         def extract(tar_gz):

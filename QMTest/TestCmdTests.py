@@ -19,6 +19,8 @@ AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from six import PY3
+
 __author__ = "Steven Knight <knight at baldmt dot com>"
 __revision__ = "TestCmdTests.py 1.3.D001 2010/06/03 12:58:27 knight"
 
@@ -26,13 +28,20 @@ import os
 import shutil
 import signal
 import stat
-import io
+if PY3:
+    from io import StringIO
+else:
+    from StringIO import StringIO
 import sys
 import tempfile
 import time
 import types
 import unittest
-import collections
+if PY3:
+    from collections import UserList
+else:
+    from UserList import UserList
+
 
 # Strip the current directory so we get the right TestCmd.py module.
 sys.path = sys.path[1:]
@@ -1032,14 +1041,14 @@ class match_exact_TestCase(TestCmdTestCase):
         assert test.match_exact("abcde\n", "abcde\n")
         assert not test.match_exact(["12345\n", "abcde\n"], ["1[0-9]*5\n", "a.*e\n"])
         assert test.match_exact(["12345\n", "abcde\n"], ["12345\n", "abcde\n"])
-        assert not test.match_exact(collections.UserList(["12345\n", "abcde\n"]),
+        assert not test.match_exact(UserList(["12345\n", "abcde\n"]),
                                     ["1[0-9]*5\n", "a.*e\n"])
-        assert test.match_exact(collections.UserList(["12345\n", "abcde\n"]),
+        assert test.match_exact(UserList(["12345\n", "abcde\n"]),
                                 ["12345\n", "abcde\n"])
         assert not test.match_exact(["12345\n", "abcde\n"],
-                                    collections.UserList(["1[0-9]*5\n", "a.*e\n"]))
+                                    UserList(["1[0-9]*5\n", "a.*e\n"]))
         assert test.match_exact(["12345\n", "abcde\n"],
-                                collections.UserList(["12345\n", "abcde\n"]))
+                                UserList(["12345\n", "abcde\n"]))
         assert not test.match_exact("12345\nabcde\n", "1[0-9]*5\na.*e\n")
         assert test.match_exact("12345\nabcde\n", "12345\nabcde\n")
         lines = ["vwxyz\n", "67890\n"]
@@ -1098,28 +1107,28 @@ sys.exit(0)
                                     ["1.*j\n"])
         assert test.match_re_dotall(["12345\n", "abcde\n", "fghij\n"],
                                     ["12345\n", "abcde\n", "fghij\n"])
-        assert test.match_re_dotall(collections.UserList(["12345\n",
-                                                       "abcde\n",
-                                                       "fghij\n"]),
+        assert test.match_re_dotall(UserList(["12345\n",
+                                              "abcde\n",
+                                              "fghij\n"]),
                                     ["1[0-9]*5\n", "a.*e\n", "f.*j\n"])
-        assert test.match_re_dotall(collections.UserList(["12345\n",
-                                                       "abcde\n",
-                                                       "fghij\n"]),
+        assert test.match_re_dotall(UserList(["12345\n",
+                                              "abcde\n",
+                                              "fghij\n"]),
                                     ["1.*j\n"])
-        assert test.match_re_dotall(collections.UserList(["12345\n",
-                                                       "abcde\n",
-                                                       "fghij\n"]),
+        assert test.match_re_dotall(UserList(["12345\n",
+                                              "abcde\n",
+                                              "fghij\n"]),
                                     ["12345\n", "abcde\n", "fghij\n"])
         assert test.match_re_dotall(["12345\n", "abcde\n", "fghij\n"],
-                                    collections.UserList(["1[0-9]*5\n",
-                                                       "a.*e\n",
-                                                       "f.*j\n"]))
+                                    UserList(["1[0-9]*5\n",
+                                              "a.*e\n",
+                                              "f.*j\n"]))
         assert test.match_re_dotall(["12345\n", "abcde\n", "fghij\n"],
-                                    collections.UserList(["1.*j\n"]))
+                                    UserList(["1.*j\n"]))
         assert test.match_re_dotall(["12345\n", "abcde\n", "fghij\n"],
-                                    collections.UserList(["12345\n",
-                                                       "abcde\n",
-                                                       "fghij\n"]))
+                                    UserList(["12345\n",
+                                              "abcde\n",
+                                              "fghij\n"]))
         assert test.match_re_dotall("12345\nabcde\nfghij\n",
                                     "1[0-9]*5\na.*e\nf.*j\n")
         assert test.match_re_dotall("12345\nabcde\nfghij\n", "1.*j\n")
@@ -1176,14 +1185,14 @@ sys.exit(0)
         assert test.match_re("abcde\n", "abcde\n")
         assert test.match_re(["12345\n", "abcde\n"], ["1[0-9]*5\n", "a.*e\n"])
         assert test.match_re(["12345\n", "abcde\n"], ["12345\n", "abcde\n"])
-        assert test.match_re(collections.UserList(["12345\n", "abcde\n"]),
+        assert test.match_re(UserList(["12345\n", "abcde\n"]),
                              ["1[0-9]*5\n", "a.*e\n"])
-        assert test.match_re(collections.UserList(["12345\n", "abcde\n"]),
+        assert test.match_re(UserList(["12345\n", "abcde\n"]),
                              ["12345\n", "abcde\n"])
         assert test.match_re(["12345\n", "abcde\n"],
-                             collections.UserList(["1[0-9]*5\n", "a.*e\n"]))
+                             UserList(["1[0-9]*5\n", "a.*e\n"]))
         assert test.match_re(["12345\n", "abcde\n"],
-                             collections.UserList(["12345\n", "abcde\n"]))
+                             UserList(["12345\n", "abcde\n"]))
         assert test.match_re("12345\nabcde\n", "1[0-9]*5\na.*e\n")
         assert test.match_re("12345\nabcde\n", "12345\nabcde\n")
         lines = ["vwxyz\n", "67890\n"]
@@ -1463,7 +1472,7 @@ class preserve_TestCase(TestCmdTestCase):
     def test_preserve(self):
         """Test preserve()"""
         def cleanup_test(test, cond=None, stdout=""):
-            io = io.StringIO()
+            io = StringIO()
             save = sys.stdout
             sys.stdout = io
             try:
@@ -1603,7 +1612,7 @@ class read_TestCase(TestCmdTestCase):
         _file_matches(wdir_foo_file3, test.read(['foo', 'file3']),
                         "Test\nfile\n#3.\n")
         _file_matches(wdir_foo_file3,
-                      test.read(collections.UserList(['foo', 'file3'])),
+                      test.read(UserList(['foo', 'file3'])),
                         "Test\nfile\n#3.\n")
         _file_matches(wdir_file4, test.read('file4', mode = 'r'),
                         "Test\nfile\n#4.\n")
@@ -1862,8 +1871,8 @@ class run_verbose_TestCase(TestCmdTestCase):
                                    workdir = '',
                                    verbose = 1)
     
-            sys.stdout = io.StringIO()
-            sys.stderr = io.StringIO()
+            sys.stdout = StringIO()
+            sys.stderr = StringIO()
     
             test.run(arguments = ['arg1 arg2'])
             o = sys.stdout.getvalue()
@@ -1876,8 +1885,8 @@ class run_verbose_TestCase(TestCmdTestCase):
                                     workdir = '',
                                     verbose = 1)
     
-            sys.stdout = io.StringIO()
-            sys.stderr = io.StringIO()
+            sys.stdout = StringIO()
+            sys.stderr = StringIO()
     
             testx.run(arguments = ['arg1 arg2'])
             expect = '"%s" "arg1 arg2"\n' % t.scriptx_path
@@ -1913,8 +1922,8 @@ class run_verbose_TestCase(TestCmdTestCase):
                                    workdir = '',
                                    verbose = 2)
     
-            sys.stdout = io.StringIO()
-            sys.stderr = io.StringIO()
+            sys.stdout = StringIO()
+            sys.stderr = StringIO()
     
             test.run(arguments = ['arg1 arg2'])
 
@@ -1934,8 +1943,8 @@ class run_verbose_TestCase(TestCmdTestCase):
                                     workdir = '',
                                     verbose = 2)
     
-            sys.stdout = io.StringIO()
-            sys.stderr = io.StringIO()
+            sys.stdout = StringIO()
+            sys.stderr = StringIO()
     
             testx.run(arguments = ['arg1 arg2'])
 
@@ -1958,8 +1967,8 @@ class run_verbose_TestCase(TestCmdTestCase):
                                    workdir = '',
                                    verbose = 2)
     
-            sys.stdout = io.StringIO()
-            sys.stderr = io.StringIO()
+            sys.stdout = StringIO()
+            sys.stderr = StringIO()
     
             test.run(arguments = ['arg1 arg2'])
 
@@ -1978,8 +1987,8 @@ class run_verbose_TestCase(TestCmdTestCase):
                                    workdir = '',
                                    verbose = 3)
     
-            sys.stdout = io.StringIO()
-            sys.stderr = io.StringIO()
+            sys.stdout = StringIO()
+            sys.stderr = StringIO()
     
             test.run(arguments = ['arg1 arg2'])
 
@@ -2002,8 +2011,8 @@ class run_verbose_TestCase(TestCmdTestCase):
                                    interpreter = 'python',
                                    workdir = '')
     
-            sys.stdout = io.StringIO()
-            sys.stderr = io.StringIO()
+            sys.stdout = StringIO()
+            sys.stderr = StringIO()
     
             test.run(arguments = ['arg1 arg2'])
 
@@ -2022,8 +2031,8 @@ class run_verbose_TestCase(TestCmdTestCase):
             testx = TestCmd.TestCmd(program = t.scriptx,
                                     workdir = '')
     
-            sys.stdout = io.StringIO()
-            sys.stderr = io.StringIO()
+            sys.stdout = StringIO()
+            sys.stderr = StringIO()
     
             testx.run(arguments = ['arg1 arg2'])
 
@@ -2048,8 +2057,8 @@ class run_verbose_TestCase(TestCmdTestCase):
                                    workdir = '',
                                    verbose = 1)
     
-            sys.stdout = io.StringIO()
-            sys.stderr = io.StringIO()
+            sys.stdout = StringIO()
+            sys.stderr = StringIO()
     
             test.run(arguments = ['arg1 arg2'])
             o = sys.stdout.getvalue()
@@ -2062,8 +2071,8 @@ class run_verbose_TestCase(TestCmdTestCase):
                                     workdir = '',
                                     verbose = 1)
     
-            sys.stdout = io.StringIO()
-            sys.stderr = io.StringIO()
+            sys.stdout = StringIO()
+            sys.stderr = StringIO()
     
             testx.run(arguments = ['arg1 arg2'])
             expect = '"%s" "arg1 arg2"\n' % t.scriptx_path
@@ -2769,7 +2778,7 @@ class subdir_TestCase(TestCmdTestCase):
             assert test.subdir(['foo', 'fail']) == 0
         assert test.subdir(['sub', 'dir', 'ectory'], 'sub') == 1
         assert test.subdir('one',
-                           collections.UserList(['one', 'two']),
+                           UserList(['one', 'two']),
                            ['one', 'two', 'three']) == 3
         assert os.path.isdir(test.workpath('foo'))
         assert os.path.isdir(test.workpath('bar'))
@@ -2962,7 +2971,7 @@ class unlink_TestCase(TestCmdTestCase):
         test.unlink(['foo', 'file3a'])
         assert not os.path.exists(wdir_foo_file3a)
 
-        test.unlink(collections.UserList(['foo', 'file3b']))
+        test.unlink(UserList(['foo', 'file3b']))
         assert not os.path.exists(wdir_foo_file3b)
 
         test.unlink([test.workdir, 'foo', 'file4'])

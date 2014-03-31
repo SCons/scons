@@ -20,6 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from six import u
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -285,16 +286,16 @@ class UtilTestCase(unittest.TestCase):
         assert to_String(s2) == 'foo', s2
 
         if HasUnicode:
-            s3=UserString(str('bar'))
+            s3=UserString(unicode('bar'))
             assert to_String(s3) == s3, s3
-            assert to_String(s3) == str('bar'), s3
-            assert isinstance(to_String(s3), str), \
+            assert to_String(s3) == unicode('bar'), s3
+            assert isinstance(to_String(s3), unicode), \
                    type(to_String(s3))
 
         if HasUnicode:
-            s4 = str('baz')
-            assert to_String(s4) == str('baz'), to_String(s4)
-            assert isinstance(to_String(s4), str), \
+            s4 = unicode('baz')
+            assert to_String(s4) == unicode('baz'), to_String(s4)
+            assert isinstance(to_String(s4), unicode), \
                    type(to_String(s4))
 
     def test_WhereIs(self):
@@ -681,7 +682,7 @@ bling
             fobj = io.StringIO(content)
         except TypeError:
             # Python 2.7 and beyond require unicode strings.
-            fobj = io.StringIO(str(content))
+            fobj = io.StringIO(u(content))
 
         lines = LogicalLines(fobj).readlines()
         assert lines == [
@@ -696,7 +697,7 @@ bling
         s1 = silent_intern("spam")
         # Python 3.x does not have a unicode() global function
         if sys.version[0] == '2': 
-            s2 = silent_intern(str("unicode spam"))
+            s2 = silent_intern(unicode("unicode spam"))
         s3 = silent_intern(42)
         s4 = silent_intern("spam")
         assert id(s1) == id(s4)

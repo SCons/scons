@@ -179,7 +179,7 @@ class CallableSelector(SCons.Util.Selector):
     finds if it can."""
     def __call__(self, env, source):
         value = SCons.Util.Selector.__call__(self, env, source)
-        if isinstance(value, collections.Callable):
+        if callable(value):
             value = value(env, source)
         return value
 
@@ -230,7 +230,7 @@ class OverrideWarner(collections.UserDict):
     def warn(self):
         if self.already_warned:
             return
-        for k in list(self.keys()):
+        for k in self.keys():
             if k in misleading_keywords:
                 alt = misleading_keywords[k]
                 msg = "Did you mean to use `%s' instead of `%s'?" % (alt, k)
@@ -336,7 +336,7 @@ class EmitterProxy(object):
         # in strings.  Maybe we should change that?
         while SCons.Util.is_String(emitter) and emitter in env:
             emitter = env[emitter]
-        if isinstance(emitter, collections.Callable):
+        if callable(emitter):
             target, source = emitter(target, source, env)
         elif SCons.Util.is_List(emitter):
             for e in emitter:
@@ -426,8 +426,11 @@ class BuilderBase(object):
             src_builder = [ src_builder ]
         self.src_builder = src_builder
 
-    def __bool__(self):
+    def __nonzero__(self):
         raise InternalError("Do not test for the Node.builder attribute directly; use Node.has_builder() instead")
+
+    def __bool__(self):
+        return self.__nonzero__()
 
     def get_name(self, env):
         """Attempts to get the name of the Builder.
@@ -638,18 +641,18 @@ class BuilderBase(object):
 
     def get_prefix(self, env, sources=[]):
         prefix = self.prefix
-        if isinstance(prefix, collections.Callable):
+        if callable(prefix):
             prefix = prefix(env, sources)
         return env.subst(prefix)
 
     def set_suffix(self, suffix):
-        if not isinstance(suffix, collections.Callable):
+        if not callable(suffix):
             suffix = self.adjust_suffix(suffix)
         self.suffix = suffix
 
     def get_suffix(self, env, sources=[]):
         suffix = self.suffix
-        if isinstance(suffix, collections.Callable):
+        if callable(suffix):
             suffix = suffix(env, sources)
         return env.subst(suffix)
 
@@ -658,7 +661,7 @@ class BuilderBase(object):
             src_suffix = []
         elif not SCons.Util.is_List(src_suffix):
             src_suffix = [ src_suffix ]
-        self.src_suffix = [isinstance(suf, collections.Callable) and suf or self.adjust_suffix(suf) for suf in src_suffix]
+        self.src_suffix = [callable(suf) and suf or self.adjust_suffix(suf) for suf in src_suffix]
 
     def get_src_suffix(self, env):
         """Get the first src_suffix in the list of src_suffixes."""
@@ -868,7 +871,7 @@ def is_a_Builder(obj):
     """
     return (isinstance(obj, BuilderBase)
             or isinstance(obj, CompositeBuilder)
-            or isinstance(obj, collections.Callable))
+            or callable(obj))
 
 # Local Variables:
 # tab-width:4

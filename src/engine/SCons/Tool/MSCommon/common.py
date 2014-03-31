@@ -20,6 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -113,7 +114,7 @@ def normalize_env(env, keys, force=False):
     Note: the environment is copied."""
     normenv = {}
     if env:
-        for k in list(env.keys()):
+        for k in env.keys():
             normenv[k] = copy.deepcopy(env[k]).encode('mbcs')
 
         for k in keys:
@@ -217,7 +218,7 @@ def parse_output(output, keep = ("INCLUDE", "LIB", "LIBPATH", "PATH")):
                 dkeep[key].append(p)
 
     for line in output.splitlines():
-        for k,v in list(rdk.items()):
+        for k,v in rdk.items():
             m = v.match(line)
             if m:
                 add_env(m, k)

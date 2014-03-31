@@ -20,6 +20,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import print_function
 
 import re
 import sys
@@ -47,7 +48,7 @@ c1 = fetch_counts(sys.argv[1])
 c2 = fetch_counts(sys.argv[2])
 
 common = {}
-for k in list(c1.keys()):
+for k in c1.keys():
     try:
         common[k] = (c1[k], c2[k])
     except KeyError:
@@ -58,7 +59,7 @@ for k in list(c1.keys()):
         if not '.' in k:
             s = '.'+k
             l = len(s)
-            for k2 in list(c2.keys()):
+            for k2 in c2.keys():
                 if k2[-l:] == s:
                     common[k2] = (c1[k], c2[k2])
                     del c1[k]

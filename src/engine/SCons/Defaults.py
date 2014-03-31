@@ -31,7 +31,7 @@ from distutils.msvccompiler.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-
+from __future__ import division
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -50,7 +50,6 @@ import SCons.Environment
 import SCons.PathList
 import SCons.Subst
 import SCons.Tool
-import collections
 
 # A placeholder for a default Environment (for fetching source files
 # from source code management systems and the like).  This must be
@@ -326,9 +325,9 @@ def _stripixes(prefix, itms, suffix, stripprefixes, stripsuffixes, env, c=None):
     if not itms:
         return itms
 
-    if not isinstance(c, collections.Callable):
+    if not callable(c):
         env_c = env['_concat']
-        if env_c != _concat and isinstance(env_c, collections.Callable):
+        if env_c != _concat and callable(env_c):
             # There's a custom _concat() method in the construction
             # environment, and we've allowed people to set that in
             # the past (see test/custom-concat.py), so preserve the

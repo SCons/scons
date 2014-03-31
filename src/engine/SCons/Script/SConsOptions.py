@@ -611,7 +611,7 @@ def Parser(version):
                   deprecated_debug_options=deprecated_debug_options):
         if value in debug_options:
             parser.values.debug.append(value)
-        elif value in list(deprecated_debug_options.keys()):
+        elif value in deprecated_debug_options.keys():
             parser.values.debug.append(value)
             try:
                 parser.values.delayed_warnings

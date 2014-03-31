@@ -122,7 +122,7 @@ class EnumVariableTestCase(unittest.TestCase):
             'C'     : ['C',     'three', 'three'],
         }
 
-        for k, l in list(table.items()):
+        for k, l in table.items():
             x = o0.converter(k)
             assert x == l[0], "o0 got %s, expected %s" % (x, l[0])
             x = o1.converter(k)
@@ -186,7 +186,7 @@ class EnumVariableTestCase(unittest.TestCase):
             'no_v'  : [invalid, invalid, invalid],
         }
 
-        for v, l in list(table.items()):
+        for v, l in table.items():
             l[0](o0, v)
             l[1](o1, v)
             l[2](o2, v)
