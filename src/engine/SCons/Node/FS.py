@@ -2420,7 +2420,7 @@ class File(Base):
 
     def get_contents(self):
         if not self.rexists():
-            return ''
+            return b'' # Should always be bytes
         fname = self.rfile().abspath
         try:
             contents = open(fname, "rb").read()

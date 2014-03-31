@@ -290,7 +290,7 @@ def _function_contents(func):
         xxx = [_object_contents(x.cell_contents) for x in closure]
     except AttributeError:
         xxx = []
-    contents.append(b',(' + b','.join(xxx) + b')')
+    contents.append(b',(' + ','.join(xxx).encode('ascii') + b')')
 
     return b''.join(contents)
 
