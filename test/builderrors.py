@@ -107,9 +107,6 @@ test.fail_test(os.path.exists(test.workpath('f3.out')))
 
 test.write('SConstruct', """
 env=Environment()
-if env['PLATFORM'] == 'posix':
-    from SCons.Platform.posix import fork_spawn
-    env['SPAWN'] = fork_spawn
 env['ENV']['PATH'] = ''
 env.Command(target='foo.out', source=[], action='not_a_program')
 """)
@@ -123,9 +120,6 @@ test.must_not_contain_any_line(test.stderr(), ['Exception', 'Traceback'])
 long_cmd = 'xyz ' + "foobarxyz" * 100000
 test.write('SConstruct', """
 env=Environment()
-if env['PLATFORM'] == 'posix':
-    from SCons.Platform.posix import fork_spawn
-    env['SPAWN'] = fork_spawn
 env.Command(target='longcmd.out', source=[], action='echo %s')
 """%long_cmd)
 
@@ -147,9 +141,6 @@ test.must_not_contain_any_line(test.stderr(), ['Exception', 'Traceback'])
 # with error "Permission denied" or "No such file or directory".
 test.write('SConstruct', """
 env=Environment()
-if env['PLATFORM'] in ('posix', 'darwin'):
-    from SCons.Platform.posix import fork_spawn
-    env['SPAWN'] = fork_spawn
 env['SHELL'] = 'one'
 env.Command(target='badshell.out', source=[], action='foo')
 """)
@@ -191,7 +182,7 @@ env2.Install("target", "dir2/myFile")
 def print_build_failures():
     from SCons.Script import GetBuildFailures
     for bf in GetBuildFailures():
-	print bf.action
+    print bf.action
 
 atexit.register(print_build_failures)
 """)

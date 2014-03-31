@@ -78,6 +78,14 @@ class Literal(object):
     def is_literal(self):
         return 1
 
+    def __eq__(self, other):
+        if not isinstance(other, Literal):
+            return False
+        return self.lstr == other.lstr
+
+    def __neq__(self, other):
+        return not self.__eq__(other)
+
 class SpecialAttrWrapper(object):
     """This is a wrapper for what we call a 'Node special attribute.'
     This is any of the attributes of a Node that we can reference from
@@ -172,7 +180,7 @@ class NLWrapper(object):
     In practice, this might be a wash performance-wise, but it's a little
     cleaner conceptually...
     """
-    
+
     def __init__(self, list, func):
         self.list = list
         self.func = func
@@ -190,7 +198,7 @@ class NLWrapper(object):
         self._create_nodelist = self._return_nodelist
         return self.nodelist
     _create_nodelist = _gen_nodelist
-    
+
 
 class Targets_or_Sources(collections.UserList):
     """A class that implements $TARGETS or $SOURCES expansions by in turn
@@ -451,7 +459,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
                             raise_exception(NameError(key), lvars['TARGETS'], s)
                         else:
                             return ''
-    
+
                     # Before re-expanding the result, handle
                     # recursive expansion by copying the local
                     # variable dictionary and overwriting a null

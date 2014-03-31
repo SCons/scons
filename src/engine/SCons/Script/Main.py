@@ -81,7 +81,12 @@ def fetch_win32_parallel_msg():
     import SCons.Platform.win32
     return SCons.Platform.win32.parallel_msg
 
-#
+def revert_io():
+    # This call is added to revert stderr and stdout to the original
+    # ones just in case some build rule or something else in the system
+    # has redirected them elsewhere.
+    sys.stderr = sys.__stderr__
+    sys.stdout = sys.__stdout__
 
 class SConsPrintHelpException(Exception):
     pass
@@ -274,6 +279,9 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
                (EnvironmentError, SCons.Errors.StopError,
                             SCons.Errors.UserError))):
             type, value, trace = buildError.exc_info
+            if tb and print_stacktrace:
+                sys.stderr.write("scons: internal stack trace:\n")
+                traceback.print_tb(tb, file=sys.stderr)
             traceback.print_exception(type, value, trace)
         elif tb and print_stacktrace:
             sys.stderr.write("scons: internal stack trace:\n")
@@ -624,7 +632,7 @@ def _set_debug_values(options):
     debug_values = options.debug
 
     if "count" in debug_values:
-        # All of the object counts are within "if __debug__:" blocks,
+        # All of the object counts are within "if track_instances:" blocks,
         # which get stripped when running optimized (with python -O or
         # from compiled *.pyo files).  Provide a warning if __debug__ is
         # stripped, so it doesn't just look like --debug=count is broken.
@@ -632,6 +640,7 @@ def _set_debug_values(options):
         if __debug__: enable_count = True
         if enable_count:
             count_stats.enable(sys.stdout)
+            SCons.Debug.track_instances = True
         else:
             msg = "--debug=count is not supported when running SCons\n" + \
                   "\twith the python -O option or optimized (.pyo) modules."
@@ -646,6 +655,8 @@ def _set_debug_values(options):
     if "memory" in debug_values:
         memory_stats.enable(sys.stdout)
     print_objects = ("objects" in debug_values)
+    if print_objects:
+        SCons.Debug.track_instances = True
     if "presub" in debug_values:
         SCons.Action.print_actions_presub = 1
     if "stacktrace" in debug_values:
@@ -985,9 +996,9 @@ def _main(parser):
         # reading SConscript files and haven't started building
         # things yet, stop regardless of whether they used -i or -k
         # or anything else.
+        revert_io()
         sys.stderr.write("scons: *** %s  Stop.\n" % e)
-        exit_status = 2
-        sys.exit(exit_status)
+        sys.exit(2)
     global sconscript_time
     sconscript_time = time.time() - start_time
 
@@ -1065,6 +1076,7 @@ def _main(parser):
     platform = SCons.Platform.platform_module()
 
     if options.interactive:
+        SCons.Node.interactive = True
         SCons.Script.Interactive.interact(fs, OptionsParser, options,
                                           targets, target_top)
 
@@ -1073,6 +1085,8 @@ def _main(parser):
         # Build the targets
         nodes = _build_targets(fs, options, targets, target_top)
         if not nodes:
+            revert_io()
+            print('Found nothing to build')
             exit_status = 2
 
 def _build_targets(fs, options, targets, target_top):
@@ -1085,12 +1099,14 @@ def _build_targets(fs, options, targets, target_top):
     SCons.Action.print_actions          = not options.silent
     SCons.Action.execute_actions        = not options.no_exec
     SCons.Node.FS.do_store_info         = not options.no_exec
+    SCons.Node.do_store_info            = not options.no_exec
     SCons.SConf.dryrun                  = options.no_exec
 
     if options.diskcheck:
         SCons.Node.FS.set_diskcheck(options.diskcheck)
 
     SCons.CacheDir.cache_enabled = not options.cache_disable
+    SCons.CacheDir.cache_readonly = options.cache_readonly
     SCons.CacheDir.cache_debug = options.cache_debug
     SCons.CacheDir.cache_force = options.cache_force
     SCons.CacheDir.cache_show = options.cache_show
@@ -1300,12 +1316,8 @@ def _exec_main(parser, values):
         prof = Profile()
         try:
             prof.runcall(_main, parser)
-        except SConsPrintHelpException as e:
+        finally:
             prof.dump_stats(options.profile_file)
-            raise e
-        except SystemExit:
-            pass
-        prof.dump_stats(options.profile_file)
     else:
         _main(parser)
 
@@ -1343,7 +1355,10 @@ def main():
     OptionsParser = parser
 
     try:
-        _exec_main(parser, values)
+        try:
+            _exec_main(parser, values)
+        finally:
+            revert_io()
     except SystemExit as s:
         if s:
             exit_status = s
@@ -1360,6 +1375,7 @@ def main():
         parser.print_help()
         exit_status = 0
     except SCons.Errors.BuildError as e:
+        print(e)
         exit_status = e.exitstatus
     except:
         # An exception here is likely a builtin Python exception Python

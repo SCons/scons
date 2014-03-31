@@ -79,16 +79,16 @@ be generated (the rest will disappear!).
  <title>Linking With a Library</title>
 
    <programlisting>
-      env = Environment(CC = 'gcc',
-                        LIBS = 'world')
-      env.Program('hello.c')
+env = Environment(CC = 'gcc',
+                  LIBS = 'world')
+env.Program('hello.c')
    </programlisting>
 
    <literallayout>
-      % <userinput>scons</userinput>
-      gcc -c hello.c -o hello.o
-      gcc -c world.c -o world.o
-      gcc -o hello hello.o -lworld
+% <userinput>scons</userinput>
+gcc -c hello.c -o hello.o
+gcc -c world.c -o world.o
+gcc -o hello hello.o -lworld
    </literallayout>
 
  </section>
@@ -97,20 +97,20 @@ be generated (the rest will disappear!).
  <title>Creating a Library</title>
 
    <programlisting>
-      env = Environment(CC = 'gcc',
-                        LIBS = 'world')
-      env.Program('hello.c')
-      env.Library('world.c')
+env = Environment(CC = 'gcc',
+                  LIBS = 'world')
+env.Program('hello.c')
+env.Library('world.c')
    </programlisting>
 
    <literallayout>
-      % <userinput>scons</userinput>
-      gcc -c hello.c -o hello.o
-      gcc -c world.c -o world.o
-      ar r libworld.a world.o
-      ar: creating libworld.a
-      ranlib libworld.a
-      gcc -o hello hello.o libworld.a
+% <userinput>scons</userinput>
+gcc -c hello.c -o hello.o
+gcc -c world.c -o world.o
+ar r libworld.a world.o
+ar: creating libworld.a
+ranlib libworld.a
+gcc -o hello hello.o libworld.a
    </literallayout>
 
  </section>

@@ -219,10 +219,10 @@ make no difference to the build.
     </para>
 
     <sconstruct>
-      SConscript(['drivers/display/SConscript',
-                  'drivers/mouse/SConscript',
-                  'parser/SConscript',
-                  'utilities/SConscript'])
+SConscript(['drivers/display/SConscript',
+            'drivers/mouse/SConscript',
+            'parser/SConscript',
+            'utilities/SConscript'])
     </sconstruct>
 
     <para>
@@ -241,9 +241,9 @@ make no difference to the build.
     </para>
 
     <sconstruct>
-      SConscript(['drivers/SConscript',
-                  'parser/SConscript',
-                  'utilities/SConscript'])
+SConscript(['drivers/SConscript',
+            'parser/SConscript',
+            'utilities/SConscript'])
     </sconstruct>
 
     <para>
@@ -255,8 +255,8 @@ make no difference to the build.
     </para>
 
     <sconstruct>
-      SConscript(['display/SConscript',
-                  'mouse/SConscript'])
+SConscript(['display/SConscript',
+            'mouse/SConscript'])
     </sconstruct>
 
     <para>
@@ -303,36 +303,36 @@ make no difference to the build.
 
     <scons_example name="hierarchy_ex1">
       <file name="SConstruct" printme="1">
-      SConscript(['prog1/SConscript',
-                  'prog2/SConscript'])
+SConscript(['prog1/SConscript',
+            'prog2/SConscript'])
       </file>
       <file name="prog1/SConscript">
-      env = Environment()
-      env.Program('prog1', ['main.c', 'foo1.c', 'foo2.c'])
+env = Environment()
+env.Program('prog1', ['main.c', 'foo1.c', 'foo2.c'])
       </file>
       <file name="prog2/SConscript">
-      env = Environment()
-      env.Program('prog2', ['main.c', 'bar1.c', 'bar2.c'])
+env = Environment()
+env.Program('prog2', ['main.c', 'bar1.c', 'bar2.c'])
       </file>
       <directory name="prog1"></directory>
       <file name="prog1/main.c">
-      x
+x
       </file>
       <file name="prog1/foo1.c">
-      x
+x
       </file>
       <file name="prog1/foo2.c">
-      x
+x
       </file>
       <directory name="prog2"></directory>
       <file name="prog2/main.c">
-      x
+x
       </file>
       <file name="prog2/bar1.c">
-      x
+x
       </file>
       <file name="prog2/bar2.c">
-      x
+x
       </file>
     </scons_example>
 
@@ -404,20 +404,20 @@ make no difference to the build.
 
     <scons_example name="hierarchy_ex2">
        <file name="SConstruct">
-       SConscript('src/prog/SConscript')
+SConscript('src/prog/SConscript')
        </file>
        <file name="src/prog/SConscript" printme="1">
-       env = Environment()
-       env.Program('prog', ['main.c', '#lib/foo1.c', 'foo2.c'])
+env = Environment()
+env.Program('prog', ['main.c', '#lib/foo1.c', 'foo2.c'])
        </file>
        <file name="src/prog/main.c">
-       x
+x
        </file>
        <file name="lib/foo1.c">
-       x
+x
        </file>
        <file name="src/prog/foo2.c">
-       x
+x
        </file>
     </scons_example>
 
@@ -460,20 +460,20 @@ make no difference to the build.
 
     <scons_example name="hierarchy_ex3">
        <file name="SConstruct">
-       SConscript('src/prog/SConscript')
+SConscript('src/prog/SConscript')
        </file>
        <file name="src/prog/SConscript" printme="1">
-       env = Environment()
-       env.Program('prog', ['main.c', '__ROOT__/usr/joe/lib/foo1.c', 'foo2.c'])
+env = Environment()
+env.Program('prog', ['main.c', '__ROOT__/usr/joe/lib/foo1.c', 'foo2.c'])
        </file>
        <file name="src/prog/main.c">
-       x
+x
        </file>
        <file name="__ROOT__/usr/joe/lib/foo1.c">
-       x
+x
        </file>
        <file name="src/prog/foo2.c">
-       x
+x
        </file>
     </scons_example>
 
@@ -549,8 +549,8 @@ make no difference to the build.
       </para>
 
       <sconstruct>
-        env = Environment()
-        Export('env')
+env = Environment()
+Export('env')
       </sconstruct>
 
       <para>
@@ -560,9 +560,9 @@ make no difference to the build.
       </para>
 
       <sconstruct>
-        env = Environment()
-        debug = ARGUMENTS['debug']
-        Export('env', 'debug')
+env = Environment()
+debug = ARGUMENTS['debug']
+Export('env', 'debug')
       </sconstruct>
 
       <para>
@@ -574,7 +574,7 @@ make no difference to the build.
       </para>
 
       <sconstruct>
-        Export('env debug')
+Export('env debug')
       </sconstruct>
 
       <para>
@@ -586,7 +586,7 @@ make no difference to the build.
       </para>
 
       <sconstruct>
-        SConscript('src/SConscript', 'env')
+SConscript('src/SConscript', 'env')
       </sconstruct>
 
       <para>
@@ -596,7 +596,7 @@ make no difference to the build.
       </para>
 
       <sconstruct>
-        SConscript('src/SConscript', exports='env')
+SConscript('src/SConscript', exports='env')
       </sconstruct>
 
       <para>
@@ -609,8 +609,8 @@ make no difference to the build.
       </para>
 
       <sconstruct>
-        SConscript(['src1/SConscript',
-                    'src2/SConscript'], exports='env')
+SConscript(['src1/SConscript',
+            'src2/SConscript'], exports='env')
       </sconstruct>
 
       <para>
@@ -637,8 +637,8 @@ make no difference to the build.
       </para>
 
       <sconstruct>
-        Import('env')
-        env.Program('prog', ['prog.c'])
+Import('env')
+env.Program('prog', ['prog.c'])
       </sconstruct>
 
       <para>
@@ -659,9 +659,9 @@ make no difference to the build.
       </para>
 
       <sconstruct>
-        Import('env', 'debug')
-        env = env.Clone(DEBUG = debug)
-        env.Program('prog', ['prog.c'])
+Import('env', 'debug')
+env = env.Clone(DEBUG = debug)
+env.Program('prog', ['prog.c'])
       </sconstruct>
 
       <para>
@@ -673,9 +673,9 @@ make no difference to the build.
       </para>
 
       <sconstruct>
-        Import('env debug')
-        env = env.Clone(DEBUG = debug)
-        env.Program('prog', ['prog.c'])
+Import('env debug')
+env = env.Clone(DEBUG = debug)
+env.Program('prog', ['prog.c'])
       </sconstruct>
 
       <para>
@@ -688,9 +688,9 @@ make no difference to the build.
       </para>
 
       <sconstruct>
-        Import('*')
-        env = env.Clone(DEBUG = debug)
-        env.Program('prog', ['prog.c'])
+Import('*')
+env = env.Clone(DEBUG = debug)
+env.Program('prog', ['prog.c'])
       </sconstruct>
 
       <para>
@@ -738,31 +738,31 @@ make no difference to the build.
 
       <scons_example name="hierarchy_Return">
         <file name="SConstruct" printme="1">
-          env = Environment()
-          Export('env')
-          objs = []
-          for subdir in ['foo', 'bar']:
-              o = SConscript('%s/SConscript' % subdir)
-              objs.append(o)
-          env.Library('prog', objs)
+env = Environment()
+Export('env')
+objs = []
+for subdir in ['foo', 'bar']:
+    o = SConscript('%s/SConscript' % subdir)
+    objs.append(o)
+env.Library('prog', objs)
         </file>
         <directory name="foo"></directory>
         <directory name="bar"></directory>
         <file name="foo/SConscript">
-          Import('env')
-          obj = env.Object('foo.c')
-          Return('obj')
+Import('env')
+obj = env.Object('foo.c')
+Return('obj')
         </file>
         <file name="bar/SConscript">
-          Import('env')
-          obj = env.Object('bar.c')
-          Return('obj')
+Import('env')
+obj = env.Object('bar.c')
+Return('obj')
         </file>
         <file name="foo/foo.c">
-          void foo(void) { printf("foo/foo.c\n"); }
+void foo(void) { printf("foo/foo.c\n"); }
         </file>
         <file name="bar/bar.c">
-          void bar(void) { printf("bar/bar.c\n"); }
+void bar(void) { printf("bar/bar.c\n"); }
         </file>
       </scons_example>
 

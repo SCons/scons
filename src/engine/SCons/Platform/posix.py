@@ -58,176 +58,32 @@ def escape(arg):
 
     return '"' + arg + '"'
 
-def exec_system(l, env):
-    stat = os.system(' '.join(l))
-    if stat & 0xff:
-        return stat | 0x80
-    return stat >> 8
+def exec_subprocess(l, env):
+    proc = subprocess.Popen(l, env = env, close_fds = True)
+    return proc.wait()
 
-def exec_spawnvpe(l, env):
-    stat = os.spawnvpe(os.P_WAIT, l[0], l, env)
-    # os.spawnvpe() returns the actual exit code, not the encoding
-    # returned by os.waitpid() or os.system().
-    return stat
-
-def exec_fork(l, env): 
-    pid = os.fork()
-    if not pid:
-        # Child process.
-        exitval = 127
-        try:
-            os.execvpe(l[0], l, env)
-        except OSError as e:
-            exitval = exitvalmap.get(e[0], e[0])
-            sys.stderr.write("scons: %s: %s\n" % (l[0], e[1]))
-        os._exit(exitval)
-    else:
-        # Parent process.
-        pid, stat = os.waitpid(pid, 0)
-        if stat & 0xff:
-            return stat | 0x80
-        return stat >> 8
-
-def _get_env_command(sh, escape, cmd, args, env):
-    s = ' '.join(args)
-    if env:
-        l = ['env', '-'] + \
-            [escape(t[0])+'='+escape(t[1]) for t in env.items()] + \
-            [sh, '-c', escape(s)]
-        s = ' '.join(l)
-    return s
-
-def env_spawn(sh, escape, cmd, args, env):
-    return exec_system([_get_env_command( sh, escape, cmd, args, env)], env)
-
-def spawnvpe_spawn(sh, escape, cmd, args, env):
-    return exec_spawnvpe([sh, '-c', ' '.join(args)], env)
-
-def fork_spawn(sh, escape, cmd, args, env):
-    return exec_fork([sh, '-c', ' '.join(args)], env)
-
-def process_cmd_output(cmd_stdout, cmd_stderr, stdout, stderr):
-    stdout_eof = stderr_eof = 0
-    while not (stdout_eof and stderr_eof):
-        try:
-            (i,o,e) = select.select([cmd_stdout, cmd_stderr], [], [])
-            if cmd_stdout in i:
-                str = cmd_stdout.read()
-                if len(str) == 0:
-                    stdout_eof = 1
-                elif stdout is not None:
-                    stdout.write(str)
-            if cmd_stderr in i:
-                str = cmd_stderr.read()
-                if len(str) == 0:
-                    #sys.__stderr__.write( "stderr_eof=1\n" )
-                    stderr_eof = 1
-                else:
-                    #sys.__stderr__.write( "str(stderr) = %s\n" % str )
-                    stderr.write(str)
-        except select.error as xxx_todo_changeme:
-            (_errno, _strerror) = xxx_todo_changeme.args
-            if _errno != errno.EINTR:
-                raise
+def subprocess_spawn(sh, escape, cmd, args, env):
+    return exec_subprocess([sh, '-c', ' '.join(args)], env)
 
 def exec_popen3(l, env, stdout, stderr):
-    proc = subprocess.Popen(' '.join(l),
-                            stdout=stdout,
-                            stderr=stderr,
-                            shell=True)
-    stat = proc.wait()
-    if stat & 0xff:
-        return stat | 0x80
-    return stat >> 8
-
-def exec_piped_fork(l, env, stdout, stderr):
-    # spawn using fork / exec and providing a pipe for the command's
-    # stdout / stderr stream
-    if stdout != stderr:
-        (rFdOut, wFdOut) = os.pipe()
-        (rFdErr, wFdErr) = os.pipe()
-    else:
-        (rFdOut, wFdOut) = os.pipe()
-        rFdErr = rFdOut
-        wFdErr = wFdOut
-    # do the fork
-    pid = os.fork()
-    if not pid:
-        # Child process
-        os.close( rFdOut )
-        if rFdOut != rFdErr:
-            os.close( rFdErr )
-        os.dup2( wFdOut, 1 ) # is there some symbolic way to do that ?
-        os.dup2( wFdErr, 2 )
-        os.close( wFdOut )
-        if stdout != stderr:
-            os.close( wFdErr )
-        exitval = 127
-        try:
-            os.execvpe(l[0], l, env)
-        except OSError as e:
-            exitval = exitvalmap.get(e[0], e[0])
-            stderr.write("scons: %s: %s\n" % (l[0], e[1]))
-        os._exit(exitval)
-    else:
-        # Parent process
-        pid, stat = os.waitpid(pid, 0)
-        os.close( wFdOut )
-        if stdout != stderr:
-            os.close( wFdErr )
-        childOut = os.fdopen( rFdOut )
-        if stdout != stderr:
-            childErr = os.fdopen( rFdErr )
-        else:
-            childErr = childOut
-        process_cmd_output(childOut, childErr, stdout, stderr)
-        os.close( rFdOut )
-        if stdout != stderr:
-            os.close( rFdErr )
-        if stat & 0xff:
-            return stat | 0x80
-        return stat >> 8
+    proc = subprocess.Popen(l, env = env, close_fds = True,
+                            stdout = stdout,
+                            stderr = stderr)
+    return proc.wait()
 
 def piped_env_spawn(sh, escape, cmd, args, env, stdout, stderr):
     # spawn using Popen3 combined with the env command
     # the command name and the command's stdout is written to stdout
     # the command's stderr is written to stderr
-    return exec_popen3([_get_env_command(sh, escape, cmd, args, env)],
+    return exec_popen3([sh, '-c', ' '.join(args)],
                        env, stdout, stderr)
-
-def piped_fork_spawn(sh, escape, cmd, args, env, stdout, stderr):
-    # spawn using fork / exec and providing a pipe for the command's
-    # stdout / stderr stream
-    return exec_piped_fork([sh, '-c', ' '.join(args)],
-                           env, stdout, stderr)
-
 
 
 def generate(env):
-    # If os.spawnvpe() exists, we use it to spawn commands.  Otherwise
-    # if the env utility exists, we use os.system() to spawn commands,
-    # finally we fall back on os.fork()/os.exec().  
-    #
-    # os.spawnvpe() is prefered because it is the most efficient.  But
-    # for Python versions without it, os.system() is prefered because it
-    # is claimed that it works better with threads (i.e. -j) and is more
-    # efficient than forking Python.
-    #
-    # NB: Other people on the scons-users mailing list have claimed that
-    # os.fork()/os.exec() works better than os.system().  There may just
-    # not be a default that works best for all users.
-
-    if 'spawnvpe' in os.__dict__:
-        spawn = spawnvpe_spawn
-    elif env.Detect('env'):
-        spawn = env_spawn
-    else:
-        spawn = fork_spawn
-
-    if env.Detect('env'):
-        pspawn = piped_env_spawn
-    else:
-        pspawn = piped_fork_spawn
+    # Bearing in mind we have python 2.4 as a baseline, we can just do this:
+    spawn = subprocess_spawn
+    pspawn = piped_env_spawn
+    # Note that this means that 'escape' is no longer used
 
     if 'ENV' not in env:
         env['ENV']        = {}

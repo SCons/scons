@@ -84,6 +84,32 @@ env.CXXFile(target = 'bar', source = 'bar.yy')
 </example_commands>
 </listitem>
   </varlistentry>
+  <varlistentry id="b-DocbookEpub">
+    <term>
+      <function>DocbookEpub()</function>
+    </term>
+    <term>
+      <function>env.DocbookEpub()</function>
+    </term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+A pseudo-Builder, providing a Docbook toolchain for EPUB output.
+</para>
+
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookEpub('manual.epub', 'manual.xml')
+</example_commands>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+or simply
+</para>
+
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+env.DocbookEpub('manual')
+</example_commands>
+
+</listitem>
+  </varlistentry>
   <varlistentry id="b-DocbookHtml">
     <term>
       <function>DocbookHtml()</function>
@@ -394,6 +420,27 @@ env.DVI(target = 'aaa.dvi', source = 'aaa.tex')
 env.DVI(target = 'bbb', source = 'bbb.ltx')
 # builds from ccc.latex
 env.DVI(target = 'ccc.dvi', source = 'ccc.latex')
+</example_commands>
+</listitem>
+  </varlistentry>
+  <varlistentry id="b-Gs">
+    <term>
+      <function>Gs()</function>
+    </term>
+    <term>
+      <function>env.Gs()</function>
+    </term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+A Builder for explicitly calling the <literal>gs</literal> executable.
+Depending on the underlying OS, the different names <literal>gs</literal>,
+<literal>gsos2</literal> and <literal>gswin32c</literal>
+are tried.
+</para>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['gs'])
+env.Gs('cover.jpg','scons-scons.pdf',
+       GSFLAGS='-dNOPAUSE -dBATCH -sDEVICE=jpeg -dFirstPage=1 -dLastPage=1 -q') 
+       )
 </example_commands>
 </listitem>
   </varlistentry>
@@ -1841,6 +1888,17 @@ listed in the targets.
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
+On Cygwin systems, the
+<function xmlns="http://www.scons.org/dbxsd/v1.0">SharedLibrary</function>
+builder method will always build an import
+(<filename>.dll.a</filename>) library
+in addition to the shared (<filename>.dll</filename>) library,
+adding a <filename>.dll.a</filename> library with the same basename
+if there is not already a <filename>.dll.a</filename> file explicitly
+listed in the targets.
+</para>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Any object files listed in the
 <literal>source</literal>
 must have been built for a shared library
@@ -1870,7 +1928,7 @@ alpha, beta, or release candidate patch levels.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 This builder may create multiple links to the library. On a POSIX system,
 for the shared library libbar.so.2.3.1, the links created would be
-libbar.so, libbar.so.2, and libbar.so.2.3; on a Darwin (OSX) system
+libbar.so and libbar.so.2; on a Darwin (OSX) system
 the library would be libbar.2.3.1.dylib and the link would be
 libbar.dylib.
 </para>

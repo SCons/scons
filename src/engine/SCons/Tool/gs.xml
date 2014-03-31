@@ -26,7 +26,12 @@ See its __doc__ string for a discussion of the format.
 <tool name="gs">
 <summary>
 <para>
-Set construction variables for Ghostscript.
+This Tool sets the required construction variables for working with
+the Ghostscript command. It also registers an appropriate Action
+with the PDF Builder (&b-link-PDF;), such that the conversion from
+PS/EPS to PDF happens automatically for the TeX/LaTeX toolchain.
+Finally, it adds an explicit Ghostscript Builder (&b-link-Gs;) to the
+environment.
 </para>
 </summary>
 <sets>
@@ -42,7 +47,7 @@ Set construction variables for Ghostscript.
 <cvar name="GS">
 <summary>
 <para>
-The Ghostscript program used to convert PostScript to PDF files.
+The Ghostscript program used, e.g. to convert PostScript to PDF files.
 </para>
 </summary>
 </cvar>
@@ -50,7 +55,8 @@ The Ghostscript program used to convert PostScript to PDF files.
 <cvar name="GSCOM">
 <summary>
 <para>
-The Ghostscript command line used to convert PostScript to PDF files.
+The full Ghostscript command line used for the conversion process. Its default
+value is <quote><literal>$GS $GSFLAGS -sOutputFile=$TARGET $SOURCES</literal></quote>.
 </para>
 </summary>
 </cvar>
@@ -59,9 +65,8 @@ The Ghostscript command line used to convert PostScript to PDF files.
 <summary>
 <para>
 The string displayed when
-Ghostscript is used to convert
-a PostScript file to a PDF file.
-If this is not set, then &cv-link-GSCOM; (the command line) is displayed.
+Ghostscript is called for the conversion process.
+If this is not set (the default), then &cv-link-GSCOM; (the command line) is displayed.
 </para>
 </summary>
 </cvar>
@@ -69,10 +74,27 @@ If this is not set, then &cv-link-GSCOM; (the command line) is displayed.
 <cvar name="GSFLAGS">
 <summary>
 <para>
-General options passed to the Ghostscript program
-when converting PostScript to PDF files.
+General options passed to the Ghostscript program,
+when converting PostScript to PDF files for example. Its default value
+is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
 </para>
 </summary>
 </cvar>
+
+<builder name="Gs">
+<summary>
+<para>
+A Builder for explicitly calling the <literal>gs</literal> executable.
+Depending on the underlying OS, the different names <literal>gs</literal>,
+<literal>gsos2</literal> and <literal>gswin32c</literal>
+are tried.
+</para>
+<example_commands>env = Environment(tools=['gs'])
+env.Gs('cover.jpg','scons-scons.pdf',
+       GSFLAGS='-dNOPAUSE -dBATCH -sDEVICE=jpeg -dFirstPage=1 -dLastPage=1 -q') 
+       )
+</example_commands>
+</summary>
+</builder>
 
 </sconsdoc>

@@ -484,6 +484,9 @@ class SConfBase(object):
         # so we really control how it gets written.
         for n in nodes:
             n.store_info = n.do_not_store_info
+            if not hasattr(n, 'attributes'):
+                n.attributes = SCons.Node.Node.Attrs()
+            n.attributes.keep_targetinfo = 1
 
         ret = 1
 

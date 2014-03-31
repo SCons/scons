@@ -60,6 +60,13 @@ obj = env.SharedObject('bar', 'foo.c')
 Default(env.Library(target = 'foo', source = obj))
 """)
 
+test.write('SConstructBaz', """
+env=Environment()
+env['SHLIBVERSION'] = '1.0.0'
+obj = env.SharedObject('baz', 'foo.c')
+Default(env.SharedLibrary(target = 'baz', source = obj))
+""")
+
 test.write('foo.c', r"""
 #include <stdio.h>
 
@@ -286,6 +293,12 @@ main(int argc, char *argv[])
 
     test.run(program = test.workpath('progbar'),
              stdout = "f4.c\nprogbar.c\n")
+
+if sys.platform.startswith('openbsd'):
+    # Make sure we don't link libraries with -Wl,-soname on OpenBSD.
+    test.run(arguments = '-f SConstructBaz')
+    for line in test.stdout().split('\n'):
+        test.fail_test(line.find('-Wl,-soname=libbaz.so') != -1)
 
 test.pass_test()
 

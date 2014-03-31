@@ -58,6 +58,8 @@
 #                       command line it will execute before
 #                       executing it.  This suppresses that print.
 #
+#       --quit-on-failure Quit on any test failure
+#
 #       -s              Short progress.  Prints only the command line
 #                       and a percentage value, based on the total and
 #                       current number of tests.
@@ -127,6 +129,7 @@ print_progress = 1
 suppress_stdout = False
 suppress_stderr = False
 allow_pipe_files = True
+quit_on_failure = False
 
 helpstr = """\
 Usage: runtest.py [OPTIONS] [TEST ...]
@@ -162,6 +165,7 @@ Options:
   --passed                    Summarize which tests passed.
   --qmtest                    Run using the QMTest harness (deprecated).
   -q, --quiet                 Don't print the test being executed.
+  --quit-on-failure           Quit on any test failure
   -s, --short-progress        Short progress, prints only the command line
                               and a percentage value, based on the total and
                               current number of tests.
@@ -218,7 +222,9 @@ opts, args = getopt.getopt(args, "3b:def:hj:klnP:p:qsv:Xx:t",
                              'jobs=',
                              'list', 'no-exec', 'nopipefiles',
                              'package=', 'passed', 'python=', 'qmtest',
-                             'quiet', 'short-progress', 'time',
+                             'quiet',
+                             'quit-on-failure',
+                             'short-progress', 'time',
                              'version=', 'exec=',
                              'verbose='])
 
@@ -271,7 +277,9 @@ for o, a in opts:
     elif o in ['-q', '--quiet']:
         printcommand = 0
         suppress_stdout = True
-        suppress_stderr = True        
+        suppress_stderr = True
+    elif o in ['--quit-on-failure']:
+        quit_on_failure = True
     elif o in ['-s', '--short-progress']:
         print_progress = 1
         suppress_stdout = True
@@ -377,16 +385,16 @@ else:
     # Else, we catch the output of both pipes...
     if allow_pipe_files:
         # The subprocess.Popen() suffers from a well-known
-        # problem. Data for stdout/stderr is read into a 
+        # problem. Data for stdout/stderr is read into a
         # memory buffer of fixed size, 65K which is not very much.
         # When it fills up, it simply stops letting the child process
         # write to it. The child will then sit and patiently wait to
-        # be able to write the rest of its output. Hang! 
+        # be able to write the rest of its output. Hang!
         # In order to work around this, we follow a suggestion
         # by Anders Pearson in
         #   http://http://thraxil.org/users/anders/posts/2008/03/13/Subprocess-Hanging-PIPE-is-your-enemy/
         # and pass temp file objects to Popen() instead of the ubiquitous
-        # subprocess.PIPE. 
+        # subprocess.PIPE.
         def spawn_it(command_args):
             # Create temporary files
             import tempfile
@@ -399,7 +407,7 @@ else:
                                  shell=True)
             # ... and wait for it to finish.
             ret = p.wait()
-            
+
             try:
                 # Rewind to start of files
                 tmp_stdout.seek(0)
@@ -411,10 +419,10 @@ else:
                 # Remove temp files by closing them
                 tmp_stdout.close()
                 tmp_stderr.close()
-                
+
             # Return values
             return (spawned_stderr, spawned_stdout, ret)
-        
+
     else:
         # We get here only if the user gave the '--nopipefiles'
         # option, meaning the "temp file" approach for
@@ -423,9 +431,9 @@ else:
         # potential deadlock situation in the following code:
         #   If the subprocess writes a lot of data to its stderr,
         #   the pipe will fill up (nobody's reading it yet) and the
-        #   subprocess will wait for someone to read it. 
+        #   subprocess will wait for someone to read it.
         #   But the parent process is trying to read from stdin
-        #   (but the subprocess isn't writing anything there).  
+        #   (but the subprocess isn't writing anything there).
         #   Hence a deadlock.
         # Be dragons here! Better don't use this!
         def spawn_it(command_args):
@@ -473,7 +481,7 @@ class PopenExecutor(Base):
                                  shell=True)
             # ... and wait for it to finish.
             self.status = p.wait()
-            
+
             try:
                 # Rewind to start of files
                 tmp_stdout.seek(0)
@@ -485,7 +493,7 @@ class PopenExecutor(Base):
                 # Remove temp files by closing them
                 tmp_stdout.close()
                 tmp_stderr.close()
-    else:        
+    else:
         def execute(self):
             p = subprocess.Popen(self.command_str,
                                  stdout=subprocess.PIPE,
@@ -836,7 +844,7 @@ def run_test(t, io_lock, async=True):
     if head:
         os.environ['PYTHON_SCRIPT_DIR'] = head
     else:
-        os.environ['PYTHON_SCRIPT_DIR'] = ''     
+        os.environ['PYTHON_SCRIPT_DIR'] = ''
     test_start_time = time_func()
     if execute_tests:
         t.execute()
@@ -853,6 +861,10 @@ def run_test(t, io_lock, async=True):
     print_time_func("Test execution time: %.1f seconds\n", t.test_time)
     if io_lock:
         io_lock.release()
+    if quit_on_failure and t.status == 1:
+        print("Exiting due to error")
+        print(t.status)
+        sys.exit(1)
 
 class RunTest(threading.Thread):
     def __init__(self, queue, io_lock):

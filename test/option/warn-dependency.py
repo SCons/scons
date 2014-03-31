@@ -43,6 +43,7 @@ env=Environment()
 env['BUILDERS']['test'] = Builder(action=build,
                                   source_scanner=SCons.Defaults.ObjSourceScan)
 env.test(target='foo', source='foo.c')
+env.Pseudo('foo')
 """)
 
 test.write("foo.c","""

@@ -51,7 +51,7 @@ variants.xml
 variables.xml
 *.jpg
 *.xsl
-scons.css
+*.css
 SConstruct
 titlepage/bricks.jpg
 titlepage/mapnik_final_colors.svg

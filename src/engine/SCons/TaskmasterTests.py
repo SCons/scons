@@ -49,7 +49,7 @@ class Node(object):
         self.scanned = 0
         self.scanner = None
         self.targets = [self]
-        self.prerequisites = []
+        self.prerequisites = None
         class Builder(object):
             def targets(self, node):
                 return node.targets
@@ -141,6 +141,9 @@ class Node(object):
 
         self.clear()
         
+    def release_target_info(self):
+        pass
+
     def has_builder(self):
         return not self.builder is None
 

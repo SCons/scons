@@ -556,8 +556,8 @@
     </para>
 
     <programlisting>
-      env = Environment()
-      env_debug = Environment(CCFLAGS = '-g')
+env = Environment()
+env_debug = Environment(CCFLAGS = '-g')
     </programlisting>
 
   </section>
@@ -584,7 +584,7 @@
     </para>
 
     <programlisting>
-      bld = Builder(name = 'Program', action = "$CC -o $TARGET $SOURCES")
+bld = Builder(name = 'Program', action = "$CC -o $TARGET $SOURCES")
     </programlisting>
 
     <para>
@@ -633,8 +633,8 @@
     </para>
 
     <programlisting>
-      bld_lib = Builder(name = 'Library', action = "$AR r $TARGET $SOURCES",
-                        prefix = 'lib', suffix = '.a', src_suffix = '.o')
+bld_lib = Builder(name = 'Library', action = "$AR r $TARGET $SOURCES",
+                  prefix = 'lib', suffix = '.a', src_suffix = '.o')
     </programlisting>
 
     <para>
@@ -660,7 +660,7 @@
     </para>
 
     <programlisting>
-      env = Environment(BUILDERS = [ Object, Library, WebPage, Program ])
+env = Environment(BUILDERS = [ Object, Library, WebPage, Program ])
     </programlisting>
 
   </section>
@@ -709,7 +709,7 @@
     </para>
 
     <programlisting>
-      env = Environment(SCANNERS = [ CScan, M4Scan ])
+env = Environment(SCANNERS = [ CScan, M4Scan ])
     </programlisting>
 
     <para>
@@ -745,7 +745,7 @@
     </para>
 
     <programlisting>
-      BuildDir(source = 'src', build = 'bld')
+BuildDir(source = 'src', build = 'bld')
     </programlisting>
 
     <para>
@@ -763,7 +763,7 @@
     </para>
 
     <programlisting>
-      BuildDir(source = 'src', build = 'bld', no_sources = 1)
+BuildDir(source = 'src', build = 'bld', no_sources = 1)
     </programlisting>
 
   </section>
@@ -784,7 +784,7 @@
     </para>
 
     <programlisting>
-      Repository('/home/source/1.1', '/home/source/1.0')
+Repository('/home/source/1.1', '/home/source/1.0')
     </programlisting>
 
     <para>
@@ -810,7 +810,7 @@
     </para>
 
     <programlisting>
-      Cache('/var/build.cache/i386')
+Cache('/var/build.cache/i386')
     </programlisting>
 
     <para>
@@ -880,7 +880,7 @@
   </para>
 
   <programlisting>
-    source_files = 'f1.c f2.c f3.c'
+source_files = 'f1.c f2.c f3.c'
   </programlisting>
 
   <para>
@@ -892,7 +892,7 @@
   </para>
 
   <programlisting>
-    SConscript('src/SConscript', 'lib/SConscript')
+SConscript('src/SConscript', 'lib/SConscript')
   </programlisting>
 
   <para>

@@ -248,7 +248,7 @@ class SConsOption(optparse.Option):
 class SConsOptionGroup(optparse.OptionGroup):
     """
     A subclass for SCons-specific option groups.
-    
+
     The only difference between this and the base class is that we print
     the group's help text flush left, underneath their own title but
     lined up with the normal "SCons Options".
@@ -340,7 +340,7 @@ class SConsOptionParser(optparse.OptionParser):
     def add_local_option(self, *args, **kw):
         """
         Adds a local option to the parser.
-        
+
         This is initiated by a SetOption() call to add a user-defined
         command-line option.  We add the option to a separate option
         group for the local options, creating the group if necessary.
@@ -394,11 +394,11 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
         out liking:
 
         --  add our own regular expression that doesn't break on hyphens
-            (so things like --no-print-directory don't get broken); 
+            (so things like --no-print-directory don't get broken);
 
         --  wrap the list of options themselves when it's too long
             (the wrapper.fill(opts) call below);
- 
+
         --  set the subsequent_indent when wrapping the help_text.
         """
         # The help for each option consists of two parts:
@@ -564,6 +564,11 @@ def Parser(version):
                   action="store_true",
                   help="Copy already-built targets into the CacheDir.")
 
+    op.add_option('--cache-readonly',
+                  dest='cache_readonly', default=False,
+                  action="store_true",
+                  help="Do not update CacheDir with built targets.")
+
     op.add_option('--cache-show',
                   dest='cache_show', default=False,
                   action="store_true",
@@ -579,8 +584,10 @@ def Parser(version):
         if not value in c_options:
             raise OptionValueError(opt_invalid('config', value, c_options))
         setattr(parser.values, option.dest, value)
+
     opt_config_help = "Controls Configure subsystem: %s." \
                       % ", ".join(config_options)
+
     op.add_option('--config',
                   nargs=1, type="string",
                   dest="config", default="auto",
@@ -606,23 +613,25 @@ def Parser(version):
                      "pdb", "prepare", "presub", "stacktrace",
                      "time"]
 
-    def opt_debug(option, opt, value, parser,
+    def opt_debug(option, opt, value__, parser,
                   debug_options=debug_options,
                   deprecated_debug_options=deprecated_debug_options):
-        if value in debug_options:
-            parser.values.debug.append(value)
-        elif value in deprecated_debug_options.keys():
-            parser.values.debug.append(value)
-            try:
-                parser.values.delayed_warnings
-            except AttributeError:
-                parser.values.delayed_warnings = []
-            msg = deprecated_debug_options[value]
-            w = "The --debug=%s option is deprecated%s." % (value, msg)
-            t = (SCons.Warnings.DeprecatedDebugOptionsWarning, w)
-            parser.values.delayed_warnings.append(t)
-        else:
-            raise OptionValueError(opt_invalid('debug', value, debug_options))
+        for value in value__.split(','):
+            if value in debug_options:
+                parser.values.debug.append(value)
+            elif value in deprecated_debug_options.keys():
+                parser.values.debug.append(value)
+                try:
+                    parser.values.delayed_warnings
+                except AttributeError:
+                    parser.values.delayed_warnings = []
+                msg = deprecated_debug_options[value]
+                w = "The --debug=%s option is deprecated%s." % (value, msg)
+                t = (SCons.Warnings.DeprecatedDebugOptionsWarning, w)
+                parser.values.delayed_warnings.append(t)
+            else:
+                raise OptionValueError(opt_invalid('debug', value, debug_options))
+
     opt_debug_help = "Print various types of debugging information: %s." \
                      % ", ".join(debug_options)
     op.add_option('--debug',

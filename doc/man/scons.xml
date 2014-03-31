@@ -60,13 +60,16 @@
     </copyright>
 
     <releaseinfo>version &buildversion;</releaseinfo>
+    
+    <mediaobject role="cover"><imageobject><imagedata fileref="cover.jpg" format="JPG"/></imageobject></mediaobject>
+    
   </referenceinfo>
-  
+
   <title>SCons &buildversion;</title>
   <subtitle>MAN page</subtitle>
-  
-  
-<refentry id='scons1'> 
+
+
+<refentry id='scons1'>
 <refmeta>
 <refentrytitle>SCONS</refentrytitle>
 <manvolnum>1</manvolnum>
@@ -79,7 +82,7 @@
 <!-- body begins here -->
 <refsynopsisdiv id='synopsis'>
 <cmdsynopsis>
-  <command>scons</command>    
+  <command>scons</command>
     <arg choice='opt' rep='repeat'><replaceable>options</replaceable></arg>
     <arg choice='opt' rep='repeat'><replaceable>name=val</replaceable></arg>
     <arg choice='opt' rep='repeat'><replaceable>targets</replaceable></arg>
@@ -381,6 +384,7 @@ will be retrieved from the cache instead of being rebuilt locally.
 Caching behavior may be disabled and controlled in other ways by the
 <option>--cache-force</option>,
 <option>--cache-disable</option>,
+<option>--cache-readonly</option>,
 and
 <option>--cache-show</option>
 command-line options.  The
@@ -542,6 +546,15 @@ option.</para>
 
   </listitem>
   </varlistentry>
+<varlistentry>
+  <term>--cache-readonly</term>
+  <listitem>
+<para>Use the cache (if enabled) for reading, but do not not update the
+cache with changed files.
+</para>
+
+  </listitem>
+  </varlistentry>
   <varlistentry>
   <term>--cache-show</term>
   <listitem>
@@ -661,8 +674,9 @@ directory.</para>
   <term>--debug=<emphasis>type</emphasis></term>
   <listitem>
 <para>Debug the build process.
-<emphasis>type</emphasis>
-specifies what type of debugging:</para>
+<emphasis>type[,type...]</emphasis>
+specifies what type of debugging. Multiple types may be specified,
+separated by commas. The following types are valid:</para>
 
   </listitem>
   </varlistentry>
@@ -1094,6 +1108,7 @@ command:</para>
 --cache-debug=FILE
 --cache-disable, --no-cache
 --cache-force, --cache-populate
+--cache-readonly
 --cache-show
 --debug=TYPE
 -i, --ignore-errors
@@ -1458,11 +1473,11 @@ the last dir examined comes first in the resulting path.</para>
   <term>Windows:</term>
   <listitem>
 <literallayout class="monospaced">
-    %ALLUSERSPROFILE/Application Data/scons/site_scons
-    %USERPROFILE%/Local Settings/Application Data/scons/site_scons
-    %APPDATA%/scons/site_scons
-    %HOME%/.scons/site_scons
-    ./site_scons
+%ALLUSERSPROFILE/Application Data/scons/site_scons
+%USERPROFILE%/Local Settings/Application Data/scons/site_scons
+%APPDATA%/scons/site_scons
+%HOME%/.scons/site_scons
+./site_scons
 </literallayout>
   </listitem>
   </varlistentry>
@@ -1470,12 +1485,12 @@ the last dir examined comes first in the resulting path.</para>
   <term>Mac OS X:</term>
   <listitem>
 <literallayout class="monospaced">
-    /Library/Application Support/SCons/site_scons
-    /opt/local/share/scons/site_scons (for MacPorts)
-    /sw/share/scons/site_scons (for Fink)
-    $HOME/Library/Application Support/SCons/site_scons
-    $HOME/.scons/site_scons
-    ./site_scons
+/Library/Application Support/SCons/site_scons
+/opt/local/share/scons/site_scons (for MacPorts)
+/sw/share/scons/site_scons (for Fink)
+$HOME/Library/Application Support/SCons/site_scons
+$HOME/.scons/site_scons
+./site_scons
 </literallayout>
   </listitem>
   </varlistentry>
@@ -1483,10 +1498,10 @@ the last dir examined comes first in the resulting path.</para>
   <term>Solaris:</term>
   <listitem>
 <literallayout class="monospaced">
-    /opt/sfw/scons/site_scons
-    /usr/share/scons/site_scons
-    $HOME/.scons/site_scons
-    ./site_scons
+/opt/sfw/scons/site_scons
+/usr/share/scons/site_scons
+$HOME/.scons/site_scons
+./site_scons
 </literallayout>
   </listitem>
   </varlistentry>
@@ -1494,9 +1509,9 @@ the last dir examined comes first in the resulting path.</para>
   <term>Linux, HPUX, and other Posix-like systems:</term>
   <listitem>
 <literallayout class="monospaced">
-    /usr/share/scons/site_scons
-    $HOME/.scons/site_scons
-    ./site_scons
+/usr/share/scons/site_scons
+$HOME/.scons/site_scons
+./site_scons
 </literallayout>
 
   </listitem>
@@ -1936,6 +1951,14 @@ These warnings are enabled by default.</para>
 <!--  .TP -->
 <!--  \-\-warn\-undefined\-variables -->
 <!--  Warn when an undefined variable is referenced. -->
+
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term>--warn=target_not_build, --warn=no-target_not_built</term>
+  <listitem>
+<para>Enables or disables warnings about a build rule not building the
+ expected targets. These warnings are not currently enabled by default.</para>
 
   </listitem>
   </varlistentry>
@@ -6775,7 +6798,7 @@ specified in the
 <emphasis role="bold">$MYPATH</emphasis>
 construction variable. It lets SCons detect the file
 <emphasis role="bold">incs/foo.inc</emphasis>
-, even if 
+, even if
 <emphasis role="bold">foo.x</emphasis>
 contains the line
 <emphasis role="bold">include foo.inc</emphasis>

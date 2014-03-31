@@ -151,7 +151,7 @@ def deprecated_python_version(version=sys.version_info):
 
 if deprecated_python_version():
     msg = r"""
-scons: warning: Support for pre-2.4 Python (%s) is deprecated.
+scons: warning: Support for pre-2.7.0 Python version (%s) is deprecated.
     If this will cause hardship, contact dev@scons.tigris.org.
 """
 
@@ -1131,9 +1131,9 @@ SConscript( sconscript )
         self.run(program = python, stdin = """\
 import os, sys
 try:
-	py_ver = 'python%d.%d' % sys.version_info[:2]
+    py_ver = 'python%d.%d' % sys.version_info[:2]
 except AttributeError:
-	py_ver = 'python' + sys.version[:3]
+    py_ver = 'python' + sys.version[:3]
 print os.path.join(sys.prefix, 'include', py_ver)
 print os.path.join(sys.prefix, 'lib', py_ver, 'config')
 print py_ver
@@ -1357,7 +1357,7 @@ class TimeSCons(TestSCons):
         options = kw.get('options', '')
         if additional is not None:
             options += additional
-        kw['options'] = options + ' --debug=memory --debug=time'
+        kw['options'] = options + ' --debug=memory,time'
 
     def startup(self, *args, **kw):
         """

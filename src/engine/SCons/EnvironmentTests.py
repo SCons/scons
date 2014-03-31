@@ -171,7 +171,7 @@ class TestEnvironmentFixture(object):
                                                single_source = 1)
             kw['BUILDERS'] = {'Object' : static_obj}
             static_obj.add_action('.cpp', 'fake action')
-            
+
         env = Environment(*args, **kw)
         return env
 
@@ -1677,6 +1677,8 @@ def exists(env):
                           CCC1 = '',
                           CCC2 = '',
                           DDD1 = ['a', 'b', 'c'])
+        env['LL1'] = [env.Literal('a literal'), env.Literal('b literal')]
+        env['LL2'] = [env.Literal('c literal'), env.Literal('b literal')]
         env.AppendUnique(AAA1 = 'a1',
                          AAA2 = ['a2'],
                          AAA3 = ['a3', 'b', 'c', 'c', 'b', 'a3'], # ignore dups
@@ -1689,7 +1691,9 @@ def exists(env):
                          BBB5 = ['b5.new'],
                          CCC1 = 'c1',
                          CCC2 = ['c2'],
-                         DDD1 = 'b')
+                         DDD1 = 'b',
+                         LL1  = env.Literal('a literal'),
+                         LL2  = env.Literal('a literal'))
 
         assert env['AAA1'] == 'a1a1', env['AAA1']
         assert env['AAA2'] == ['a2'], env['AAA2']
@@ -1704,6 +1708,8 @@ def exists(env):
         assert env['CCC1'] == 'c1', env['CCC1']
         assert env['CCC2'] == ['c2'], env['CCC2']
         assert env['DDD1'] == ['a', 'b', 'c'], env['DDD1']
+        assert env['LL1']  == [env.Literal('a literal'), env.Literal('b literal')], env['LL1']
+        assert env['LL2']  == [env.Literal('c literal'), env.Literal('b literal'), env.Literal('a literal')], [str(x) for x in env['LL2']]
 
         env.AppendUnique(DDD1 = 'b', delete_existing=1)
         assert env['DDD1'] == ['a', 'c', 'b'], env['DDD1'] # b moves to end
@@ -1711,7 +1717,7 @@ def exists(env):
         assert env['DDD1'] == ['c', 'a', 'b'], env['DDD1'] # a & b move to end
         env.AppendUnique(DDD1 = ['e','f', 'e'], delete_existing=1)
         assert env['DDD1'] == ['c', 'a', 'b', 'f', 'e'], env['DDD1'] # add last
-        
+
         env['CLVar'] = CLVar([])
         env.AppendUnique(CLVar = 'bar')
         result = env['CLVar']
@@ -2019,7 +2025,7 @@ def generate(env):
 
         try:
             save_command = []
-            env.backtick = my_backtick(save_command, 
+            env.backtick = my_backtick(save_command,
                                  "-I/usr/include/fum -I bar -X\n" + \
                                  "-L/usr/fax -L foo -lxxx -l yyy " + \
                                  "-Wa,-as -Wl,-link " + \
@@ -2364,7 +2370,7 @@ f5: \
         env.PrependUnique(DDD1 = ['a','c'], delete_existing=1)
         assert env['DDD1'] == ['a', 'c', 'b'], env['DDD1'] # a & c move to front
         env.PrependUnique(DDD1 = ['d','e','d'], delete_existing=1)
-        assert env['DDD1'] == ['d', 'e', 'a', 'c', 'b'], env['DDD1'] 
+        assert env['DDD1'] == ['d', 'e', 'a', 'c', 'b'], env['DDD1']
 
 
         env['CLVar'] = CLVar([])
@@ -3113,6 +3119,29 @@ def generate(env):
         assert t[4].__class__.__name__ == 'Entry', t[4].__class__.__name__
         assert t[4].path == 'p_ggg'
         assert t[4].precious
+
+    def test_Pseudo(self):
+        """Test the Pseudo() method"""
+        env = self.TestEnvironment(FOO='ggg', BAR='hhh')
+        env.Dir('p_hhhb')
+        env.File('p_d')
+        t = env.Pseudo('p_a', 'p_${BAR}b', ['p_c', 'p_d'], 'p_$FOO')
+
+        assert t[0].__class__.__name__ == 'Entry', t[0].__class__.__name__
+        assert t[0].path == 'p_a'
+        assert t[0].pseudo
+        assert t[1].__class__.__name__ == 'Dir', t[1].__class__.__name__
+        assert t[1].path == 'p_hhhb'
+        assert t[1].pseudo
+        assert t[2].__class__.__name__ == 'Entry', t[2].__class__.__name__
+        assert t[2].path == 'p_c'
+        assert t[2].pseudo
+        assert t[3].__class__.__name__ == 'File', t[3].__class__.__name__
+        assert t[3].path == 'p_d'
+        assert t[3].pseudo
+        assert t[4].__class__.__name__ == 'Entry', t[4].__class__.__name__
+        assert t[4].path == 'p_ggg'
+        assert t[4].pseudo
 
     def test_Repository(self):
         """Test the Repository() method."""

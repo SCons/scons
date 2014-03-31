@@ -70,6 +70,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-DESCRIPTION_lang "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DESCRIPTION_lang</envar>">
 <!ENTITY cv-Dir "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$Dir</envar>">
 <!ENTITY cv-Dirs "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$Dirs</envar>">
+<!ENTITY cv-DOCBOOK_DEFAULT_XSL_EPUB "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_DEFAULT_XSL_EPUB</envar>">
 <!ENTITY cv-DOCBOOK_DEFAULT_XSL_HTML "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_DEFAULT_XSL_HTML</envar>">
 <!ENTITY cv-DOCBOOK_DEFAULT_XSL_HTMLCHUNKED "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_DEFAULT_XSL_HTMLCHUNKED</envar>">
 <!ENTITY cv-DOCBOOK_DEFAULT_XSL_HTMLHELP "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DOCBOOK_DEFAULT_XSL_HTMLHELP</envar>">
@@ -576,6 +577,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-ZIPCOMPRESSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$ZIPCOMPRESSION</envar>">
 <!ENTITY cv-ZIPCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$ZIPCOMSTR</envar>">
 <!ENTITY cv-ZIPFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$ZIPFLAGS</envar>">
+<!ENTITY cv-ZIPROOT "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$ZIPROOT</envar>">
 <!ENTITY cv-ZIPSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$ZIPSUFFIX</envar>">
 
 <!--
@@ -650,6 +652,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-DESCRIPTION_lang "<link linkend='cv-DESCRIPTION_lang' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DESCRIPTION_lang</envar></link>">
 <!ENTITY cv-link-Dir "<link linkend='cv-Dir' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$Dir</envar></link>">
 <!ENTITY cv-link-Dirs "<link linkend='cv-Dirs' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$Dirs</envar></link>">
+<!ENTITY cv-link-DOCBOOK_DEFAULT_XSL_EPUB "<link linkend='cv-DOCBOOK_DEFAULT_XSL_EPUB' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_DEFAULT_XSL_EPUB</envar></link>">
 <!ENTITY cv-link-DOCBOOK_DEFAULT_XSL_HTML "<link linkend='cv-DOCBOOK_DEFAULT_XSL_HTML' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_DEFAULT_XSL_HTML</envar></link>">
 <!ENTITY cv-link-DOCBOOK_DEFAULT_XSL_HTMLCHUNKED "<link linkend='cv-DOCBOOK_DEFAULT_XSL_HTMLCHUNKED' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_DEFAULT_XSL_HTMLCHUNKED</envar></link>">
 <!ENTITY cv-link-DOCBOOK_DEFAULT_XSL_HTMLHELP "<link linkend='cv-DOCBOOK_DEFAULT_XSL_HTMLHELP' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DOCBOOK_DEFAULT_XSL_HTMLHELP</envar></link>">
@@ -1156,6 +1159,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-ZIPCOMPRESSION "<link linkend='cv-ZIPCOMPRESSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$ZIPCOMPRESSION</envar></link>">
 <!ENTITY cv-link-ZIPCOMSTR "<link linkend='cv-ZIPCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$ZIPCOMSTR</envar></link>">
 <!ENTITY cv-link-ZIPFLAGS "<link linkend='cv-ZIPFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$ZIPFLAGS</envar></link>">
+<!ENTITY cv-link-ZIPROOT "<link linkend='cv-ZIPROOT' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$ZIPROOT</envar></link>">
 <!ENTITY cv-link-ZIPSUFFIX "<link linkend='cv-ZIPSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$ZIPSUFFIX</envar></link>">
 
 <!--
