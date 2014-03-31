@@ -418,7 +418,8 @@ def soelim(target, source, env):
 
 def soscan(node, env, path):
     c = node.get_text_contents()
-    return re.compile(r"^[\.']so\s+(\S+)", re.M).findall(c)
+    # Node contents are bytes ==> br"..."
+    return re.compile(br"^[\.']so\s+(\S+)", re.M).findall(c)
 
 soelimbuilder = Builder(action = Action(soelim),
                         source_scanner = Scanner(soscan))
@@ -828,7 +829,7 @@ for p in [ scons ]:
     def write_src_files(target, source, **kw):
         global src_files
         src_files.sort()
-        f = open(str(target[0]), 'wb')
+        f = open(str(target[0]), 'w')
         for file in src_files:
             f.write(file + "\n")
         f.close()
