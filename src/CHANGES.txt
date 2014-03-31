@@ -4,7 +4,31 @@
 
                             Change Log
 
-RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
+RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
+
+  From Gary Oberbrunner:
+    - get default RPM architecture more robustly when building RPMs
+
+  From Shane Gannon:
+    - Support for Visual Studio 2013 (12.0)
+
+  From Sye van der Veen:
+    - Support for Visual Studio 12.0Exp, and fixes for earlier MSVS
+      versions.
+
+  From Anatoly Techtonik:
+    - Several improvements for running scons.py from source:
+      * engine files form source directory take priority over all other
+        importable versions
+      * message about scons.py running from source is removed to fix tests
+        that were failing because of this extra line in the output
+      * error message when SCons import fails now lists lookup paths
+    - Remove support for QMTest harness from runtest.py
+
+  From Dirk Baechle:
+    - Update XML doc editor configuration
+
+RELEASE 2.3.1
 
   From Andrew Featherstone:
     - Added support for EPUB output format to the DocBook tool.
@@ -49,13 +73,17 @@ RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Added release_target_info() to File nodes, which helps to
       reduce memory consumption in clean builds and update runs
       of large projects.
+    - Fixed the handling of long options in the command-line
+      parsing (#2929).
+    - Fixed misspelled variable in intelc.py (#2928).
 
   From Gary Oberbrunner:
     - Test harness: fail_test() can now print a message to help debugging.
 
   From Anatoly Techtonik:
-    - require rpmbuild when building SCons package.
-    - print full stack on certain errors, for debugging.
+    - Require rpmbuild when building SCons package.
+    - Print full stack on certain errors, for debugging.
+    - Improve documentation for Textfile builder.
 
   From William Deegan:
     - VS2012 & VS2010 Resolve initialization issues by adding path to reg.exe

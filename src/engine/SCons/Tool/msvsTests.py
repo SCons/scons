@@ -26,11 +26,14 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import sys
-import TestCmd
 import unittest
 import copy
 
+import TestCmd
+import TestUnit
+
 from SCons.Tool.msvs import *
+from SCons.Tool.MSCommon.vs import SupportedVSList
 import SCons.Util
 import SCons.Warnings
 
@@ -548,15 +551,17 @@ class msvsTestCase(unittest.TestCase):
 
     def test_get_default_version(self):
         """Test retrieval of the default visual studio version"""
-        
+
         debug("Testing for default version %s"%self.default_version)
         env = DummyEnv()
         v1 = get_default_version(env)
         if v1:
             assert env['MSVS_VERSION'] == self.default_version, \
-                   ("env['MSVS_VERSION'] != self.default_version",self.default_version, env['MSVS_VERSION'])
+                   ("env['MSVS_VERSION'] != self.default_version",
+                    env['MSVS_VERSION'],self.default_version)
             assert env['MSVS']['VERSION'] == self.default_version, \
-                   ("env['MSVS']['VERSION'] != self.default_version",self.default_version, env['MSVS']['VERSION'])
+                   ("env['MSVS']['VERSION'] != self.default_version",
+                    env['MSVS']['VERSION'], self.default_version)
             assert v1 == self.default_version, (self.default_version, v1)
 
         env = DummyEnv({'MSVS_VERSION':'7.0'})
@@ -702,7 +707,7 @@ class msvs80TestCase(msvsTestCase):
 class msvsEmptyTestCase(msvsTestCase):
     """Test Empty Registry"""
     registry = DummyRegistry(regdata_none)
-    default_version = '11.0'
+    default_version = SupportedVSList[0].version
     highest_version = None
     number_of_versions = 0
     install_locs = {
@@ -725,7 +730,7 @@ if __name__ == "__main__":
     SCons.Util.RegEnumKey      = DummyEnumKey
     SCons.Util.RegEnumValue    = DummyEnumValue
     SCons.Util.RegQueryValueEx = DummyQueryValue
-    
+
     os.path.exists = DummyExists # make sure all files exist :-)
     os.path.isfile = DummyExists # make sure all files are files :-)
     os.path.isdir  = DummyExists # make sure all dirs are dirs :-)
@@ -757,7 +762,7 @@ if __name__ == "__main__":
                     del os.environ[k]
 
             suite = unittest.makeSuite(test_class, 'test_')
-            if not unittest.TextTestRunner().run(suite).wasSuccessful():
+            if not TestUnit.cli.get_runner()().run(suite).wasSuccessful():
                 exit_val = 1
         finally:
             os.env = back_osenv

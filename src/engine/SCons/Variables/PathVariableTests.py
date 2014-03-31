@@ -31,6 +31,8 @@ import SCons.Errors
 import SCons.Variables
 
 import TestCmd
+import TestUnit
+
 
 class PathVariableTestCase(unittest.TestCase):
     def test_PathVariable(self):
@@ -227,8 +229,7 @@ class PathVariableTestCase(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(PathVariableTestCase, 'test_')
-    if not unittest.TextTestRunner().run(suite).wasSuccessful():
-        sys.exit(1)
+    TestUnit.run(suite)
 
 # Local Variables:
 # tab-width:4

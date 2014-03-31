@@ -680,7 +680,7 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
         # return a dummy Popen instance that only returns error
         class dummyPopen(object):
             def __init__(self, e): self.exception = e
-            def communicate(self): return ('','')
+            def communicate(self,input=None): return ('','')
             def wait(self): return -self.exception.errno
             stdin = None
             class f(object):

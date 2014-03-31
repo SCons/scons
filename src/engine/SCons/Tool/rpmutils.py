@@ -10,7 +10,7 @@ mimic the exact naming rules of the RPM source code.
 They were directly derived from the file "rpmrc.in" of the version
 rpm-4.9.1.3. For updating to a more recent version of RPM, this Python
 script can be used standalone. The usage() function below shows the
-exact syntax. 
+exact syntax.
 
 """
 
@@ -40,6 +40,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 import platform
+import subprocess
 
 # Start of rpmrc dictionaries (Marker, don't change or remove!)
 os_canon = {
@@ -436,20 +437,29 @@ arch_canon = {
 
 # End of rpmrc dictionaries (Marker, don't change or remove!)
 
-def defaultMachine():
+def defaultMachine(use_rpm_default=True):
     """ Return the canonicalized machine name. """
-    rmachine = platform.machine()
-    
-    # Try to lookup the string in the canon table
-    if rmachine in arch_canon:
-        rmachine = arch_canon[rmachine][0]
-    
+
+    if use_rpm_default:
+        try:
+            # This should be the most reliable way to get the default arch
+            rmachine = subprocess.check_output(['rpm', '--eval=%_target_cpu'], shell=False).rstrip()
+        except Exception as e:
+            # Something went wrong, try again by looking up platform.machine()
+            return defaultMachine(False)
+    else:
+        rmachine = platform.machine()
+
+        # Try to lookup the string in the canon table
+        if rmachine in arch_canon:
+            rmachine = arch_canon[rmachine][0]
+
     return rmachine
 
 def defaultSystem():
     """ Return the canonicalized system name. """
     rsystem = platform.system()
-    
+
     # Try to lookup the string in the canon tables
     if rsystem in os_canon:
         rsystem = os_canon[rsystem][0]
@@ -524,7 +534,7 @@ def usage():
 
 def main():
     import sys
-    
+
     if len(sys.argv) < 3:
         usage()
         sys.exit(0)

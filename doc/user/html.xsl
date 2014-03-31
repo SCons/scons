@@ -32,6 +32,7 @@
 
 <xsl:param name="l10n.gentext.default.language" select="'en'"/>
 <xsl:param name="section.autolabel" select="1"/>
+<xsl:param name="section.label.includes.component.label" select="1"/>
 <xsl:param name="html.stylesheet" select="'scons.css'"/>
 <xsl:param name="generate.toc">
 /appendix toc,title

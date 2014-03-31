@@ -2780,7 +2780,7 @@ class File(Base):
         if not hasattr(self.attributes, 'keep_targetinfo'):
             # Cache some required values, before releasing
             # stuff like env, executor and builder...
-            self.changed()
+            self.changed(allowcache=True)
             self.get_contents_sig()
             self.get_build_env()
             # Now purge unneeded stuff to free memory...
@@ -3024,7 +3024,8 @@ class File(Base):
 
         SCons.Node.Node.built(self)
 
-        if not hasattr(self.attributes, 'keep_targetinfo'):
+        if (not SCons.Node.interactive and 
+            not hasattr(self.attributes, 'keep_targetinfo')):
             # Ensure that the build infos get computed and cached...        
             self.store_info()
             # ... then release some more variables.
@@ -3035,7 +3036,7 @@ class File(Base):
              
             self.scanner_paths = None
 
-    def changed(self, node=None):
+    def changed(self, node=None, allowcache=False):
         """
         Returns if the node is up-to-date with respect to the BuildInfo
         stored last time it was built. 
@@ -3043,6 +3044,8 @@ class File(Base):
         For File nodes this is basically a wrapper around Node.changed(),
         but we allow the return value to get cached after the reference
         to the Executor got released in release_target_info().
+        
+        @see: Node.changed()
         """
         if node is None:
             try:
@@ -3051,7 +3054,8 @@ class File(Base):
                 pass
         
         has_changed = SCons.Node.Node.changed(self, node)
-        self._memo['changed'] = has_changed
+        if allowcache:
+            self._memo['changed'] = has_changed
         return has_changed
 
     def changed_content(self, target, prev_ni):

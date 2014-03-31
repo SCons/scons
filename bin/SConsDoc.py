@@ -316,7 +316,7 @@ if not has_libxml2:
             fout.close()
 
         def decorateWithHeader(self, root):
-            root.attrib["{"+xsi+"}schemaLocation"] = "%s/scons.xsd scons.xsd" % dbxsd
+            root.attrib["{"+xsi+"}schemaLocation"] = "%s %s/scons.xsd" % (dbxsd, dbxsd)
             return root
             
         def newXmlTree(self, root):
@@ -451,7 +451,7 @@ else:
             xi = root.newNs(xsi, 'xsi')
             root.setNs(ns)  #put this node in the target namespace
     
-            root.setNsProp(xi, 'schemaLocation', "%s/scons.xsd scons.xsd" % dbxsd)
+            root.setNsProp(xi, 'schemaLocation', "%s %s/scons.xsd" % (dbxsd, dbxsd))
         
             return root
 

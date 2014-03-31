@@ -4,26 +4,24 @@
 #
 # runtest.py - wrapper script for running SCons tests
 #
-# This script mainly exists to set PYTHONPATH to the right list of
-# directories to test the SCons modules.
+# SCons test suite consists of:
 #
-# By default, it directly uses the modules in the local tree:
-# ./src/ (source files we ship) and ./QMTest/ (other modules we don't).
+#  - unit tests        - included in *Tests.py files from src/ dir
+#  - end-to-end tests  - these are *.py files in test/ directory that
+#                        require custom SCons framework from QMTest/
 #
-# When any -p option is specified, this script assumes it's in a
-# directory in which a build has been performed, and sets PYTHONPATH
-# so that it *only* references the modules that have unpacked from
-# the specified built package, to test whether the packages are good.
+# This script adds src/ and QMTest/ directories to PYTHONPATH,
+# performs test discovery and processes them according to options.
 #
-# Options:
+# With -p (--package) option, script tests specified package from
+# build directory and sets PYTHONPATH to reference modules unpacked
+# during build process for testing purposes (build/test-*).
 #
 #       -3              Run with the python -3 option,
 #
-#       -a              Run all tests; does a virtual 'find' for
-#                       all SCons tests under the current directory.
-#                       You can also specify a list of subdirectories
-#                       (not available with the "--qmtest" option!). Then,
-#                       only the given folders are searched for test files.
+#       -a              Run all tests found under the current directory.
+#                       It is also possible to specify a list of
+#                       subdirectories to search.
 #
 #       -d              Debug.  Runs the script under the Python
 #                       debugger (pdb.py) so you don't have to
@@ -34,8 +32,6 @@
 #
 #       -f file         Only execute the tests listed in the specified
 #                       file.
-#
-#       -h              Print the help and exit.
 #
 #       -k              Suppress printing of count and percent progress for
 #                       the single tests.
@@ -121,7 +117,6 @@ print_passed_summary = None
 python3incompatibilities = None
 scons = None
 scons_exec = None
-qmtest = None
 testlistfile = None
 version = ''
 print_times = None
@@ -133,29 +128,30 @@ suppress_stderr = False
 allow_pipe_files = True
 quit_on_failure = False
 
-helpstr = """\
+usagestr = """\
 Usage: runtest.py [OPTIONS] [TEST ...]
+       runtest.py -h|--help
+"""
+helpstr = usagestr + """\
 Options:
   -3                          Warn about Python 3.x incompatibilities.
-  -a, --all                   Run all tests.
-  -b BASE, --baseline BASE    Run test scripts against baseline BASE.
-  --builddir DIR              Directory in which packages were built.
-  -d, --debug                 Run test scripts under the Python debugger.
-  -e, --external              Run the script in external mode (for testing separate Tools)
-  -f FILE, --file FILE        Run tests in specified FILE.
-  -h, --help                  Print this message and exit.
-  -k, --no-progress           Suppress count and percent progress messages.
-  -l, --list                  List available tests and exit.
-  -n, --no-exec               No execute, just print command lines.
-  --nopipefiles               Doesn't use the "file pipe" workaround for subprocess.Popen()
+  -a --all                    Run all tests.
+  -b --baseline BASE          Run test scripts against baseline BASE.
+     --builddir DIR           Directory in which packages were built.
+  -d --debug                  Run test scripts under the Python debugger.
+  -e --external               Run the script in external mode (for testing separate Tools)
+  -f --file FILE              Run tests in specified FILE.
+  -k --no-progress            Suppress count and percent progress messages.
+  -l --list                   List available tests and exit.
+  -n --no-exec                No execute, just print command lines.
+     --nopipefiles            Doesn't use the "file pipe" workaround for subprocess.Popen()
                               for starting tests. WARNING: Only use this when too much file
                               traffic is giving you trouble AND you can be sure that none of
                               your tests create output that exceed 65K chars! You might
                               run into some deadlocks else.
-  -o FILE, --output FILE      Save the output from a test run to the log file.
-  -P Python                   Use the specified Python interpreter.
-  -p PACKAGE, --package PACKAGE
-                              Test against the specified PACKAGE:
+  -o --output FILE            Save the output from a test run to the log file.
+  -P PYTHON                   Use the specified Python interpreter.
+  -p --package PACKAGE        Test against the specified PACKAGE:
                                 deb           Debian
                                 local-tar-gz  .tar.gz standalone package
                                 local-zip     .zip standalone package
@@ -164,26 +160,26 @@ Options:
                                 src-zip       .zip source package
                                 tar-gz        .tar.gz distribution
                                 zip           .zip distribution
-  --passed                    Summarize which tests passed.
-  --qmtest                    Run using the QMTest harness (deprecated).
-  -q, --quiet                 Don't print the test being executed.
-  --quit-on-failure           Quit on any test failure
-  -s, --short-progress        Short progress, prints only the command line
+     --passed                 Summarize which tests passed.
+  -q --quiet                  Don't print the test being executed.
+     --quit-on-failure        Quit on any test failure
+     --runner CLASS           Alternative test runner class for unit tests
+  -s --short-progress         Short progress, prints only the command line
                               and a percentage value, based on the total and
                               current number of tests.
-  -t, --time                  Print test execution time.
-  -v version                  Specify the SCons version.
-  --verbose=LEVEL             Set verbose level: 1 = print executed commands,
+  -t --time                   Print test execution time.
+  -v VERSION                  Specify the SCons version.
+     --verbose=LEVEL          Set verbose level: 1 = print executed commands,
                                 2 = print commands and non-zero output,
                                 3 = print commands and all output.
   -X                          Test script is executable, don't feed to Python.
-  -x SCRIPT, --exec SCRIPT    Test SCRIPT.
-  --xml file                  Save results to file in SCons XML format.
+  -x --exec SCRIPT            Test SCRIPT.
+     --xml file               Save results to file in SCons XML format.
 
 Environment Variables:
 
   PRESERVE, PRESERVE_{PASS,FAIL,NO_RESULT}: preserve test subdirs
-  TESTCMD_VERBOSE: turn on verbosity in TestCommand
+  TESTCMD_VERBOSE: turn on verbosity in TestCommand\
 """
 
 
@@ -210,6 +206,8 @@ parser.add_option('-a', '--all', action='store_true',
                       help="Run all tests.")
 parser.add_option('-o', '--output',
                       help="Save the output from a test run to the log file.")
+parser.add_option('--runner', metavar='class',
+                      help="Test runner class for unit tests.")
 parser.add_option('--xml',
                       help="Save results to file in SCons XML format.")
 (options, args) = parser.parse_args()
@@ -223,7 +221,7 @@ opts, args = getopt.getopt(args, "3b:def:hj:klnP:p:qsv:Xx:t",
                              'debug', 'external', 'file=', 'help', 'no-progress',
                              'jobs=',
                              'list', 'no-exec', 'nopipefiles',
-                             'package=', 'passed', 'python=', 'qmtest',
+                             'package=', 'passed', 'python=',
                              'quiet',
                              'quit-on-failure',
                              'short-progress', 'time',
@@ -270,12 +268,6 @@ for o, a in opts:
         print_passed_summary = 1
     elif o in ['-P', '--python']:
         python = a
-    elif o in ['--qmtest']:
-        if sys.platform == 'win32':
-            # typically in c:/PythonXX/Scripts
-            qmtest = 'qmtest.py'
-        else:
-            qmtest = 'qmtest'
     elif o in ['-q', '--quiet']:
         printcommand = 0
         suppress_stdout = True
@@ -297,15 +289,6 @@ for o, a in opts:
     elif o in ['-x', '--exec']:
         scons = a
 
-if not args and not options.all and not testlistfile:
-    sys.stderr.write("""\
-runtest.py:  No tests were specified.
-             List one or more tests on the command line, use the
-             -f option to specify a file containing a list of tests,
-             or use the -a option to find and run all tests.
-
-""")
-    sys.exit(1)
 
 
 # --- setup stdout/stderr ---
@@ -579,15 +562,6 @@ else:
     if not baseline or baseline == '.':
         base = cwd
     elif baseline == '-':
-        # Tentative code for fetching information directly from the
-        # QMTest context file.
-        #
-        #import qm.common
-        #import qm.test.context
-        #qm.rc.Load("test")
-        #context = qm.test.context.Context()
-        #context.Read('context')
-
         url = None
         svn_info =  os.popen("svn info 2>&1", "r").read()
         match = re.search('URL: (.*)', svn_info)
@@ -647,14 +621,17 @@ old_pythonpath = os.environ.get('PYTHONPATH')
 
 # FIXME: the following is necessary to pull in half of the testing
 #        harness from $srcdir/etc. Those modules should be transfered
-#        to QMTest/ once we completely cut over to using that as
-#        the harness, in which case this manipulation of PYTHONPATH
+#        to testing/, in which case this manipulation of PYTHONPATH
 #        should be able to go away.
 pythonpaths = [ pythonpath_dir ]
 
 # Add path of the QMTest folder to PYTHONPATH
+# [ ] move used parts from QMTest to testing/framework/
 scriptpath = os.path.dirname(os.path.realpath(__file__))
 pythonpaths.append(os.path.join(scriptpath, 'QMTest'))
+# Add path for testing framework to PYTHONPATH
+pythonpaths.append(os.path.join(scriptpath, 'testing', 'framework'))
+
 
 os.environ['PYTHONPATH'] = os.pathsep.join(pythonpaths)
 
@@ -666,9 +643,16 @@ if old_pythonpath:
 if python3incompatibilities:
     os.environ['SCONS_HORRIBLE_REGRESSION_TEST_HACK'] = '1'
 
+
+# ---[ test discovery ]------------------------------------
+
 tests = []
 
+unittests = []
+endtests = []
+
 def find_Tests_py(directory):
+    """ Look for unit tests """
     result = []
     for dirpath, dirnames, filenames in os.walk(directory):
         # Skip folders containing a sconstest.skip file
@@ -680,6 +664,7 @@ def find_Tests_py(directory):
     return sorted(result)
 
 def find_py(directory):
+    """ Look for end-to-end tests """
     result = []
     for dirpath, dirnames, filenames in os.walk(directory):
         # Skip folders containing a sconstest.skip file
@@ -697,27 +682,20 @@ def find_py(directory):
                 result.append(os.path.join(dirpath, fname))
     return sorted(result)
 
-if args:
-    for a in args:
-        for path in glob.glob(a):
-            if os.path.isdir(path):
-                if path[:3] == 'src':
-                    tests.extend(find_Tests_py(path))
 
-                elif path[:4] == 'test':
-                    tests.extend(find_py(path))
-            else:
-                tests.append(path)
-elif testlistfile:
+if testlistfile:
     tests = open(testlistfile, 'r').readlines()
     tests = [x for x in tests if x[0] != '#']
     tests = [x[:-1] for x in tests]
     tests = [x.strip() for x in tests]
-elif options.all and not qmtest:
-    # Find all of the SCons functional tests in the local directory
-    # tree.  This is anything under the 'src' subdirectory that ends
-    # with 'Tests.py', or any Python script (*.py) under the 'test'
-    # subdirectory.
+
+else:
+    testpaths = []
+
+    # Each test path specifies a test file, or a directory to search for
+    # SCons tests. SCons code layout assumes that any file under the 'src'
+    # subdirectory that ends with 'Tests.py' is a unit test, and Python
+    # script (*.py) under the 'test' subdirectory an end-to-end test.
     #
     # Note that there are some tests under 'src' that *begin* with
     # 'test_', but they're packaging and installation tests, not
@@ -725,66 +703,41 @@ elif options.all and not qmtest:
     # still be executed by hand, though, and are routinely executed
     # by the Aegis packaging build to make sure that we're building
     # things correctly.)
-    tests.extend(find_Tests_py('src'))
-    tests.extend(find_py('test'))
+
+    if options.all:
+        testpaths = ['src', 'test']
+    elif args:
+        testpaths = args
+
+    for tp in testpaths:
+        for path in glob.glob(tp):
+            if os.path.isdir(path):
+                if path.startswith('src'):
+                    for p in find_Tests_py(path):
+                        unittests.append(p)
+                elif path.startswith('test'):
+                    for p in find_py(path):
+                        endtests.append(p)
+            else:
+                if path.endswith("Tests.py"):
+                    unittests.append(path)
+                else:
+                    endtests.append(path)
+
+    tests.extend(unittests)
+    tests.extend(endtests)
     tests.sort()
 
 if not tests:
-    sys.stderr.write("""\
+    sys.stderr.write(usagestr + """
 runtest.py:  No tests were found.
+             Tests can be specified on the command line, read from file
+             with -f option, or discovered with -a to run all tests.
 """)
     sys.exit(1)
 
-if qmtest:
-    if baseline:
-        aegis_result_stream = 'scons_tdb.AegisBaselineStream'
-        qmr_file = 'baseline.qmr'
-    else:
-        aegis_result_stream = 'scons_tdb.AegisChangeStream'
-        qmr_file = 'results.qmr'
 
-    if print_times:
-        aegis_result_stream = aegis_result_stream + "(print_time='1')"
-
-    qmtest_args = [ qmtest, ]
-
-    qmtest_args.extend([
-                'run',
-                '--output %s' % qmr_file,
-                '--format none',
-                '--result-stream="%s"' % aegis_result_stream,
-              ])
-
-    if python:
-        qmtest_args.append('--context python="%s"' % python)
-
-    if options.xml:
-        rsclass = 'scons_tdb.SConsXMLResultStream'
-        qof = "r'" + options.xml + "'"
-        rs = '--result-stream="%s(filename=%s)"' % (rsclass, qof)
-        qmtest_args.append(rs)
-
-    os.environ['SCONS'] = os.path.join(cwd, 'src', 'script', 'scons.py')
-
-    cmd = ' '.join(qmtest_args + tests)
-    if printcommand:
-        sys.stdout.write(cmd + '\n')
-        sys.stdout.flush()
-    status = 0
-    if execute_tests:
-        status = os.system(cmd)
-        try:
-            wexitstatus = os.WEXITSTATUS
-        except AttributeError:
-            pass
-        else:
-            status = wexitstatus(status)
-    sys.exit(status)
-
-#try:
-#    os.chdir(scons_script_dir)
-#except OSError:
-#    pass
+# ---[ test processing ]-----------------------------------
 
 tests = [Test(t) for t in tests]
 
@@ -793,7 +746,6 @@ if list_only:
         sys.stdout.write(t.path + "\n")
     sys.exit(0)
 
-#
 if not python:
     if os.name == 'java':
         python = os.path.join(sys.prefix, 'jython')
@@ -828,6 +780,9 @@ def run_test(t, io_lock, async=True):
     if debug:
         command_args.append(debug)
     command_args.append(t.path)
+    if options.runner and t.path in unittests:
+        # For example --runner TestUnit.TAPTestRunner
+        command_args.append('--runner ' + options.runner)
     t.command_args = [python] + command_args
     t.command_str = " ".join([escape(python)] + command_args)
     if printcommand:

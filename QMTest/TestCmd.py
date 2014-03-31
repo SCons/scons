@@ -674,8 +674,35 @@ except AttributeError:
 PIPE = subprocess.PIPE
 
 if subprocess.mswindows:
-    from win32file import ReadFile, WriteFile
-    from win32pipe import PeekNamedPipe
+    try:
+        from win32file import ReadFile, WriteFile
+        from win32pipe import PeekNamedPipe
+    except ImportError:
+        # If PyWin32 is not available, try ctypes instead
+        # XXX These replicate _just_enough_ PyWin32 behaviour for our purposes
+        import ctypes; from ctypes.wintypes import DWORD
+        def ReadFile(hFile, bufSize, ol=None):
+            assert ol is None
+            lpBuffer = ctypes.create_string_buffer(bufSize)
+            bytesRead = DWORD()
+            bErr = ctypes.windll.kernel32.ReadFile( 
+                    hFile, lpBuffer, bufSize, ctypes.byref(bytesRead), ol)
+            if not bErr: raise ctypes.WinError()
+            return (0, ctypes.string_at(lpBuffer, bytesRead.value))
+        def WriteFile(hFile, data, ol=None):
+            assert ol is None
+            bytesWritten = DWORD()
+            bErr = ctypes.windll.kernel32.WriteFile(
+                    hFile, data, len(data), ctypes.byref(bytesWritten), ol)
+            if not bErr: raise ctypes.WinError()
+            return (0, bytesWritten.value)
+        def PeekNamedPipe(hPipe, size):
+            assert size == 0
+            bytesAvail = DWORD()
+            bErr = ctypes.windll.kernel32.PeekNamedPipe(
+                    hPipe, None, size, None, ctypes.byref(bytesAvail), None)
+            if not bErr: raise ctypes.WinError()
+            return ("", bytesAvail.value, None)
     import msvcrt
 else:
     import select

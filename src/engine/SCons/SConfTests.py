@@ -33,6 +33,8 @@ from types import *
 import unittest
 
 import TestCmd
+import TestUnit
+
 
 sys.stdout = io.StringIO()
 
@@ -752,9 +754,7 @@ int main() {
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(SConfTestCase, 'test_')
-    res = unittest.TextTestRunner().run(suite)
-    if not res.wasSuccessful():
-        sys.exit(1)
+    TestUnit.run(suite)
 
 # Local Variables:
 # tab-width:4

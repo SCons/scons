@@ -33,6 +33,7 @@ import SCons.Node.FS
 import SCons.Warnings
 
 import TestCmd
+import TestUnit
 
 original = os.getcwd()
 
@@ -531,10 +532,7 @@ def suite():
     return suite
 
 if __name__ == "__main__":
-    runner = unittest.TextTestRunner()
-    result = runner.run(suite())
-    if not result.wasSuccessful():
-        sys.exit(1)
+    TestUnit.run(suite())
 
 # Local Variables:
 # tab-width:4

@@ -1,47 +1,65 @@
-  A new SCons release, 2.3.0, is now available
+  A new SCons release, 2.3.1, is now available
   on the SCons download page:
 
           http://www.scons.org/download.php
 
-  This release adds several new features and fixes many issues.
+  This release adds several new features and fixes many issues,
+  including a serious regression in linking (failure to re-link if
+  linker options are changed).
 
-  Here is a summary of the changes since 2.2:
+  Here is a summary of the changes since 2.3.0:
 
   NEW FUNCTIONALITY
 
-    - Versioned shared library support for Linux and Mac:
-      Add SHLIBVERSION as an option that tells SharedLibrary to build
-      a versioned shared library and create the required symlinks.
-      Add builder InstallVersionedLib to create the required symlinks
-      installing a versioned shared library.
+    - Add Pseudo command to mark targets which should not exist after
+      they are built.
+    - Add support for a readonly cache (--cache-readonly)
+    - Added cyglink linker that uses Cygwin naming conventions for
+      shared libraries and automatically generates import libraries.
+    - Added optional ZIPROOT to Zip tool.
 
   DEPRECATED FUNCTIONALITY
 
-    - Removed a lot of Python 2.3 and older support code
-    - Hide deprecated --debug={dtree,stree,tree} from --help output
+    -
 
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
-    - No changes
+    - DocBook tool can now output EPUB format
+    - Allow multiple options to be specified with --debug=a,b,c
+    - Update bootstrap.py so it can be used from any dir, to run
+      SCons from a source (non-installed) dir.
+    - Added release_target_info() to File nodes, which helps to
+      reduce memory consumption in clean builds and update runs
+      of large projects.
+    - Print full stack on certain errors, for debugging.
+    - Improve documentation for Textfile builder.
 
   FIXES
 
-    - Fix subprocess spawning on Windows.  Work around a Windows
-      bug that can crash python occasionally when using -jN. (#2449)
-    - Fix nested LIBPATH expansion by flattening sequences in subst_path.
-    - Fix WiX Tool to use .wixobj rather than .wxiobj for compiler output
-    - Add MSVC10 and MSVC11 support to get_output low-level bat script runner.
-    - Fix MSVS solution generation for VS11, and fixed tests.
-
-  IMPROVEMENTS
-
-    - Error messages from option parser now include hints about valid choices
-    - Support building with WiX releases after 2.0
-    - Print target name with command execution time with --debug=time
-    - Updated the TeX builder to support the \newglossary command
-      in LaTeX's glossaries package and the files it creates.
-    - Improve support for new versions of biblatex in the TeX builder
-      so biber is called automatically if biblatex requires it.
+    - Stop leaking file handles to subprocesses by switching to using subprocess
+      always.
+    - Generally try harder to print out a message on build errors
+    - Added a switch to warn on missing targets
+    - Always print stats if requested
+    - Check for 8.3 filenames on cygwin as well as win32 to make variant_dir work properly.
+    - Make sure SharedLibrary depends on all dependent libs (by depending on SHLINKCOM)
+    - Fixed the setup of linker flags for a versioned SharedLibrary
+      under OpenBSD (#2916).
+    - Improve error if Visual Studio bat file not found.
+    - Allow Subst.Literal string objects to be compared with each other,
+      so they work better in AddUnique() and Remove().
+    - Fixed the handling of long options in the command-line
+      parsing (#2929).
+    - Fixed misspelled variable in intelc.py (#2928).
+    - VS2012 & VS2010: Resolve initialization issues by adding path to reg.exe
+      in shell used to run batch files.
+    - MSVC Support: fixed defaulting TARGET_ARCH to HOST_ARCH. It should be
+      None if not explicitly set.
+    - MSVC: Fixed issue where if more than one Architectures compilers are
+      detected, it would take the last one found, and not the first.
+    - Fixed spelling errors in MAN pages (#2897).
+    - Fixed description of ignore_case for EnumVariable in the
+      MAN page (#2774).
 
   PACKAGING
 
@@ -49,47 +67,57 @@
 
   DEVELOPMENT
 
-    - Updated test framework to support dir and file fixtures and
-      added ability to test external (out-of-tree) tools.
-      See doc in QMTest/test-framework.rst.
-    - Added ability to run scripts/scons.py directly from source checkout
-    - Several fixes for runtest.py
-    - Fixed several errors in the test suite.
-    - Add -jN support to runtest.py to run tests in parallel
-
+    - Count statistics of instances are now collected only when
+      the --debug=count command-line option is used (#2922).
+    - Test harness: fail_test() can now print a message to help debugging.
+    - Require rpmbuild when building SCons package.
+    - Replaced old SGML-based documentation toolchain with a more modern
+      approach, that also requires less external dependencies (programs and
+      Python packages). Added a customized Docbook XSD for strict validation of
+      all input XML files.
 
 Thanks to:
   Dirk Baechle,
   Vincent Beffar,
   Thomas Berg,
+  Antonio Cavallo,
   Jean-François Colson,
   Bauke Conijn,
   Bill Deegan,
   Ken Deeter,
   dubcanada on Bitbucket,
   Luca Falavigna,
+  Andrew Featherstone,
+  Alexandre Feblot,
   Alexander Goomenyuk,
   Justin Gullingsrud,
   Joshua Hughes,
   Alexey Klimkin,
   Steven Knight,
   Arve Knudsen,
+  Philipp Kraus,
   Jean-Baptiste Lab,
   Juan Lang,
   Rob Managan,
+  Michael McDougall,
   Mortoray,
+  Manuel Francisco Naranjo,
   Gary Oberbrunner,
   Alexey Petruchik,
   Evgeny Podjachev,
+  David Rothenberger,
   smallbub on Bitbucket,
   Sohail Somani,
+  Stefan Sperling,
+  Tom Tanner,
   Anatoly Techtonik,
+  Bogdan Tenea,
   Paweł Tomulik,
   Greg Ward,
   Allen Weeks,
   Russel Winder,
   Joe Zuntz
-  for their contributions to this release.
+  for their contributions to this and prior releases.
 
 __COPYRIGHT__
 __FILE__ __REVISION__ __DATE__ __DEVELOPER__
