@@ -668,8 +668,10 @@ class Item(object):
         if name[0] == '_':
             name = name[1:]
         return name.lower()
-    def __cmp__(self, other):
-        return cmp(self.sort_name, other.sort_name)
+    def __eq__(self, other):
+        return self.sort_name == other.sort_name
+    def __lt__(self, other):
+        return self.sort_name < other.sort_name
 
 class Builder(Item):
     pass

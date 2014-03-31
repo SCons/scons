@@ -145,8 +145,8 @@ class Environment(object):
         d['SOURCES'] = ['__s1__', '__s2__', '__s3__', '__s4__', '__s5__', '__s6__']
         d['SOURCE'] = d['SOURCES'][0]
         return d
-    def __cmp__(self, other):
-        return cmp(self.scanner, other.scanner) or cmp(self.d, other.d)
+    def __eq__(self, other):
+        return self.scanner == other.scanner or self.d == other.d
 
 class MyAction(object):
     def __init__(self, action):
@@ -1500,9 +1500,10 @@ class CompositeBuilderTestCase(unittest.TestCase):
             builder(env, target='test3', source=['test2.bar', 'test1.foo'])[0]
         except SCons.Errors.UserError as e:
             flag = 1
+            err = e
         assert flag, "UserError should be thrown when we call a builder with files of different suffixes."
         expect = "While building `['test3']' from `test1.foo': Cannot build multiple sources with different extensions: .bar, .foo"
-        assert str(e) == expect, e
+        assert str(err) == expect, err
 
     def test_source_ext_match(self):
         """Test the CompositeBuilder source_ext_match argument"""
@@ -1584,45 +1585,50 @@ class CompositeBuilderTestCase(unittest.TestCase):
             builder(env, target='t5', source=['test5a.foo', 'test5b.inb'])[0]
         except SCons.Errors.UserError as e:
             flag = 1
+            err = e
         assert flag, "UserError should be thrown when we call a builder with files of different suffixes."
         expect = "While building `['t5']' from `test5b.bar': Cannot build multiple sources with different extensions: .foo, .bar"
-        assert str(e) == expect, e
+        assert str(err) == expect, err
 
         flag = 0
         try:
             builder(env, target='t6', source=['test6a.bar', 'test6b.ina'])[0]
         except SCons.Errors.UserError as e:
             flag = 1
+            err = e
         assert flag, "UserError should be thrown when we call a builder with files of different suffixes."
         expect = "While building `['t6']' from `test6b.foo': Cannot build multiple sources with different extensions: .bar, .foo"
-        assert str(e) == expect, e
+        assert str(err) == expect, err
 
         flag = 0
         try:
             builder(env, target='t4', source=['test4a.ina', 'test4b.inb'])[0]
         except SCons.Errors.UserError as e:
             flag = 1
+            err = e
         assert flag, "UserError should be thrown when we call a builder with files of different suffixes."
         expect = "While building `['t4']' from `test4b.bar': Cannot build multiple sources with different extensions: .foo, .bar"
-        assert str(e) == expect, e
+        assert str(err) == expect, err
 
         flag = 0
         try:
             builder(env, target='t7', source=[env.fs.File('test7')])[0]
         except SCons.Errors.UserError as e:
             flag = 1
+            err = e
         assert flag, "UserError should be thrown when we call a builder with files of different suffixes."
         expect = "While building `['t7']': Cannot deduce file extension from source files: ['test7']"
-        assert str(e) == expect, e
+        assert str(err) == expect, err
 
         flag = 0
         try:
             builder(env, target='t8', source=['test8.unknown'])[0]
         except SCons.Errors.UserError as e:
             flag = 1
+            err = e
         assert flag, "UserError should be thrown when we call a builder target with an unknown suffix."
         expect = "While building `['t8']' from `['test8.unknown']': Don't know how to build from a source file with suffix `.unknown'.  Expected a suffix in this list: ['.foo', '.bar']."
-        assert str(e) == expect, e
+        assert str(err) == expect, err
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()

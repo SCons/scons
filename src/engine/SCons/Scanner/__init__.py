@@ -221,12 +221,12 @@ class Base(object):
             nodes.append(l)
         return nodes
 
-    def __cmp__(self, other):
+    def __eq__(self, other):
         try:
-            return cmp(self.__dict__, other.__dict__)
+            return self.__dict__ == other.__dict__
         except AttributeError:
             # other probably doesn't have a __dict__
-            return cmp(self.__dict__, other)
+            return self.__dict__ == other
 
     def __hash__(self):
         return id(self)

@@ -537,10 +537,10 @@ class Proxy(object):
         """Retrieve the entire wrapped object"""
         return self._subject
 
-    def __cmp__(self, other):
+    def __eq__(self, other):
         if issubclass(other.__class__, self._subject.__class__):
-            return cmp(self._subject, other)
-        return cmp(self.__dict__, other.__dict__)
+            return self._subject == other
+        return self.__dict__ == other.__dict__
 
 class Delegate(object):
     """A Python Descriptor class that delegates attribute fetches

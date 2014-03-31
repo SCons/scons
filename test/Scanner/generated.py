@@ -317,8 +317,8 @@ def write_out(file, dict):
 class CScannerCounter(object):
     def __init__(self, original_CScanner, *args, **kw):
         self.original_CScanner = original_CScanner
-    def __cmp__(self, *args, **kw):
-        return self.original_CScanner.__cmp__(*args, **kw)
+    def __eq__(self, *args, **kw):
+        return self.original_CScanner.__eq__(*args, **kw)
     def __hash__(self, *args, **kw):
         return self.original_CScanner.__hash__(*args, **kw)
     def __str__(self, *args, **kw):

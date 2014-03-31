@@ -345,8 +345,11 @@ class EmitterProxy(object):
         return (target, source)
 
 
-    def __cmp__(self, other):
-        return cmp(self.var, other.var)
+    def __eq__(self, other):
+        return self.var == other.var
+
+    def __lt__(self, other):
+        return self.var < other.var
 
 class BuilderBase(object):
     """Base class for Builders, objects that create output
@@ -449,8 +452,8 @@ class BuilderBase(object):
             except AttributeError:
                 return str(self.__class__)
 
-    def __cmp__(self, other):
-        return cmp(self.__dict__, other.__dict__)
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
 
     def splitext(self, path, env=None):
         if not env:

@@ -145,11 +145,11 @@ class Counter(object):
     def display(self):
         fmt = "    %7d hits %7d misses    %s()"
         print(fmt % (self.hit, self.miss, self.name))
-    def __cmp__(self, other):
+    def __eq__(self, other):
         try:
-            return cmp(self.name, other.name)
+            return self.name == other.name
         except AttributeError:
-            return 0
+            return True
 
 class CountValue(Counter):
     """

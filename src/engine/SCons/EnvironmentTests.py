@@ -113,11 +113,11 @@ class Scanner(object):
         global scanned_it
         scanned_it[filename] = 1
 
-    def __cmp__(self, other):
+    def __eq__(self, other):
         try:
-            return cmp(self.__dict__, other.__dict__)
+            return self.__dict__ == other.__dict__
         except AttributeError:
-            return 1
+            return False
 
     def get_skeys(self, env):
         return self.skeys
@@ -1613,7 +1613,7 @@ def exists(env):
                 self.name = name
             def __str__(self):
                 return self.name
-            def __cmp__(self, other):
+            def __eq__(self, other):
                 raise Exception("should not compare")
 
         ccc = C('ccc')

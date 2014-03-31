@@ -420,8 +420,8 @@ class ActionBase(object):
     other objects (Builders, Executors, etc.)  This provides the
     common methods for manipulating and combining those actions."""
 
-    def __cmp__(self, other):
-        return cmp(self.__dict__, other)
+    def __eq__(self, other):
+        return self.__dict__ == other
 
     def no_batch_key(self, env, target, source):
         return None

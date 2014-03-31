@@ -231,10 +231,15 @@ class Proxy(object):
         """Retrieve the entire wrapped object"""
         return self.__subject
 
-    def __cmp__(self, other):
+    def __eq__(self, other):
         if issubclass(other.__class__, self.__subject.__class__):
-            return cmp(self.__subject, other)
-        return cmp(self.__dict__, other.__dict__)
+            return self.__subject == other
+        return self.__dict__ == other.__dict__
+
+    ## def __lt__(self, other):
+    ##     if issubclass(other.__class__, self.__subject.__class__):
+    ##         return self.__subject < other
+    ##     return self.__dict__ < other.__dict__
 
 class SConsThing(Proxy):
     def idfunc(self):
