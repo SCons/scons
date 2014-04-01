@@ -10,7 +10,9 @@ some other module.  If it's specific to the "scons" script invocation,
 it goes here.
 """
 
-from __future__ import print_function
+# Would affect exec()'d site_init.py:
+## from __future__ import print_function
+from six import print_
 
 unsupported_python_version = (2, 3, 0)
 deprecated_python_version = (2, 7, 0)
@@ -339,7 +341,7 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
         except SCons.Errors.UserError as e:
             print(e)
         except (IOError, OSError) as e:
-            print("scons: Could not remove '%s':" % pathstr, e.strerror)
+            print_("scons: Could not remove '%s':" % pathstr, e.strerror)
 
     def show(self):
         target = self.targets[0]
@@ -364,7 +366,7 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
                     # the file not existing.  In either case, print a
                     # message and keep going to try to remove as many
                     # targets aa possible.
-                    print("scons: Could not remove '%s':" % str(t), e.strerror)
+                    print_("scons: Could not remove '%s':" % str(t), e.strerror)
                 else:
                     if removed:
                         display("Removed " + str(t))
@@ -798,7 +800,7 @@ def _load_all_site_scons_dirs(topdir, verbose=None):
     dirs=sysdirs + [topdir]
     for d in dirs:
         if verbose:    # this is used by unit tests.
-            print("Loading site dir ", d)
+            print_("Loading site dir ", d)
         _load_site_scons_dir(d)
 
 def test_load_all_site_scons_dirs(d):
