@@ -733,7 +733,7 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
                             site_m[k] = m.__dict__[k]
 
                     # This is the magic.
-                    exec(fp, site_m)
+                    exec(compile(fp.read(), fp.name, 'exec'), site_m)
                 except KeyboardInterrupt:
                     raise
                 except Exception as e:
