@@ -51,7 +51,7 @@ import os.path
 import re
 
 special = []
-for x in globals().keys():
+for x in list(globals().keys()):
     if re.match("__[^_]+__", x):
         if x in ("__builtins__", "__package__",):
             # Ignore certain keywords, as they are known to be added by Python
