@@ -1,0 +1,1157 @@
+/*
+ * Copyright (c) 2003-2010 Pixware. 
+ *
+ * This file is part of the XMLmind XML Editor project.
+ * For conditions of distribution and use, see the accompanying legal.txt file.
+ *
+ * Styles for elements other than those found in Simplified DocBook.
+ */
+
+/* =====================================
+   Book structure
+===================================== */
+
+set {
+    display: block;
+}
+         
+set > title { 
+    font-size: 2.5em; 
+    margin: 0.25ex 0;
+    border-width: 4px;
+    border-style: solid;
+    border-color: transparent transparent #004080 transparent;
+}
+
+book {
+    display: block;
+}
+
+book > title { 
+    font-size: 2.5em; 
+    margin: 0.25ex 0;
+    border-width: 3px;
+    border-style: solid;
+    border-color: transparent transparent #004080 transparent;
+}
+
+dedication,
+colophon {
+    display: block;
+    /* content of dedication has a margin */
+}
+
+part,
+reference {
+    display: block;
+}
+        
+part > title,
+reference > title { 
+    font-size: 2em; 
+    margin: 0.5ex 0;
+    border-width: 2px;
+    border-style: solid;
+    border-color: transparent transparent #004080 transparent;
+}
+
+part > title:before { 
+    content: "Part " simple-counter(n-, upper-roman) ": "; 
+}
+
+partintro {
+    display: block;
+    /* content of partintro has a margin */
+}       
+
+chapter,
+preface {
+    display: block;
+}       
+
+chapter > title,
+preface > title { 
+    font-size: 2em; 
+    margin: 0.5ex 0;
+    border-width: 1px;
+    border-style: solid;
+    border-color: transparent transparent #004080 transparent;
+}
+
+chapter > title:before { 
+    content: "Chapter " simple-counter(n-, decimal) ": "; 
+}
+
+/* -------------------------------------
+   TOC
+------------------------------------- */
+
+toc {
+    display: block;
+    /* content of toc has a margin */
+}
+        
+tocchap,
+tocpart {
+    display: block;
+    margin: 1.33ex 0;
+}
+
+tocfront,
+tocback,
+tocentry {
+    display: block;
+    /* no vertical margins to make it more compact */
+}
+
+toclevel1,
+toclevel2,
+toclevel3,
+toclevel4,
+toclevel5 {
+    display: block;
+    /* no vertical margins to make it more compact */
+}
+
+toclevel2,
+toclevel3,
+toclevel4,
+toclevel5 {
+    margin-left: 4ex;
+}
+
+/* -------------------------------------
+   LOT
+------------------------------------- */
+
+lot {
+    display: block;
+    /* content of lot has a margin */
+}
+         
+lotentry {
+    display: block;
+    /* no vertical margins to make it more compact */
+}
+         
+/* -------------------------------------
+   Glossary
+------------------------------------- */
+
+glossary,
+glossdiv {
+    display: block;
+    /* content of glossary has a margin */
+}
+     
+glosslist {
+    display: block;
+    margin-left: 2ex; 
+    margin-top: 1.33ex; 
+    margin-bottom: 1.33ex; 
+}
+
+glossentry {
+    display: block;
+    /* no vertical margins to make it more compact */
+}
+
+glossterm {
+    display: inline;
+    font-style: italic;
+}
+
+glossentry > acronym,
+glossentry > abbrev,
+glossentry > indexterm,
+glossentry > revhistory {
+    display: block;
+    margin-left: 4ex; 
+    margin-top: 0;
+    margin-bottom: 1.33ex;
+}
+
+glossdef,
+glosssee {
+    display: block;
+    margin-left: 4ex; 
+    margin-bottom: 1.33ex;
+}
+
+glossdef > *:first-child {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+glossseealso {
+    display: block;
+    margin: 1.33ex 0;
+}
+
+glosssee:before,
+glossseealso:before {
+    display: inline;
+    font-size: small;
+    color: #004080;
+}
+
+glosssee:before {
+    content: "See ";
+}
+
+glossseealso:before {
+    content: "See also ";
+}
+
+/* -------------------------------------
+   Index
+------------------------------------- */
+
+index,
+setindex,
+indexdiv {
+    display: block;
+    /* content of index has a margin */
+}
+    
+indexentry {
+    display: block;
+    /* no vertical margins to make it more compact */
+}
+
+primaryie,
+secondaryie,
+tertiaryie,
+seeie,
+seealsoie {
+    display: block;
+    /* no vertical margins to make it more compact */
+}
+
+secondaryie {
+    margin-left: 2ex;
+}
+
+tertiaryie {
+    margin-left: 4ex;
+}
+
+seeie,
+seealsoie {
+    margin-left: 6ex;
+}
+
+seeie:before,
+seealsoie:before {
+    display: inline;
+    font-size: small;
+    color: #004080;
+}
+
+seeie:before {
+    content: "See ";
+}
+
+seealsoie:before {
+    content: "See also ";
+}
+
+/* =====================================
+   Paragraphs
+===================================== */
+
+ackno {
+    display: block;
+    margin: 1.33ex 0; 
+}
+
+address {
+    display: block;
+    white-space: pre;
+    margin: 1.33ex 0; 
+}
+
+street,
+pob,
+postcode,
+city,
+state,
+country,
+phone,
+fax,
+otheraddr {
+    display: inline;
+}
+
+formalpara {
+    display: block;
+    /* content of formalpara has a margin */
+}
+
+/* =====================================
+   Lists
+===================================== */
+
+procedure {
+    display: block;
+    margin-left: 2ex; /* all lists are slightly indented */
+    margin-top: 1.33ex; 
+    margin-bottom: 1.33ex; 
+}
+
+stepalternatives,
+substeps {
+    display: block;
+}
+
+stepalternatives > *:first-child,
+substeps > *:first-child {
+    margin-top: 0; 
+    margin-bottom: 0; 
+}
+
+step {
+    display: block;
+    margin-left: 6ex;
+}
+
+step > *:first-child {
+    margin-top: 0; 
+    margin-bottom: 0; 
+}
+
+step:before {
+    display: marker;
+    content: simple-counter(n, decimal) "."; 
+    font-weight: bold; 
+    color: #004080;
+}
+
+step step:before {
+    content: simple-counter(n, lower-alpha) "."; 
+}
+step step step:before {
+    content: simple-counter(n, decimal) "."; 
+}
+step step step step:before {
+    content: simple-counter(n, lower-alpha) "."; 
+}
+step step step step step:before {
+    content: simple-counter(n, decimal) "."; 
+}
+
+segmentedlist {
+    display: block;
+    margin-left: 2ex; 
+    margin-top: 1.33ex; 
+    margin-bottom: 1.33ex; 
+}
+
+segmentedlist > title {
+    margin-top: 0;
+}
+
+segtitle {
+    display: inline;
+    font-weight: bold; 
+    color: #004080;
+}
+
+seglistitem {
+    display: block;
+    margin: 1.33ex 0;
+}
+
+seg {
+    display: inline;
+}
+
+segtitle:before,
+seg:before {
+    content: " ";
+}
+
+segtitle:first-child:before,
+title + segtitle:before,
+seg:first-child:before {
+    content: "";
+}
+
+simplelist { /* also works for type=vert */
+    display: block;
+    margin-left: 2ex; 
+    margin-top: 1.33ex; 
+    margin-bottom: 1.33ex; 
+}
+
+member {
+    display: block;
+}
+
+simplelist[type=inline] > member,
+simplelist[type=horiz] > member {
+    display: inline;
+}
+
+simplelist[type=inline] > member:before {
+    content: ", ";
+    color: gray;
+}
+
+simplelist[type=horiz] > member:before {
+    content: " ";
+}
+
+simplelist[type=inline] > member:first-child:before,
+simplelist[type=horiz] > member:first-child:before {
+    content: "";
+}
+
+/* =====================================
+   Figures
+===================================== */
+
+graphic {
+    display: block;
+    margin: 1.33ex auto;
+}
+
+inlinegraphic {
+    display: inline;
+}
+
+/* 
+ * Replaced content of graphic and inlinegraphic 
+ * is defined in image.imp.
+ */
+
+equation,
+informalequation {
+    display: block;
+    margin: 1.33ex auto; 
+}
+
+equation > title {
+    font-style: italic;
+    font-weight: normal;
+    text-align: center;
+    margin: 0; /* content of equation generally already has a margin */
+}
+
+mathphrase,
+alt {
+    display: block;
+    text-align: center;
+    margin: 1.33ex 0;
+}
+
+mathphrase {
+    font-style: italic;
+}
+
+alt {
+    font-size: small;
+    background-color: #EEEEFF;
+}
+
+inlineequation {
+    display: inline;
+}
+
+inlineequation > mathphrase,
+inlineequation > alt,
+inlineequation > graphic { /* inlineequation > graphic is a DTD bug */
+    display: inline;
+}
+
+screenshot {    
+    display: block;
+    /* content of screenshot has a margin */
+}
+
+screeninfo {
+    display: block;
+    margin: 1.33ex 0; 
+    font-size: small;
+    background-color: #EEEEFF;
+    text-align: center;
+}
+
+/* -------------------------------------
+   Callouts
+------------------------------------- */
+
+mediaobjectco {
+    display: block;
+    /* content of mediaobjectco has a margin */
+}
+
+graphicco,
+imageobjectco, 
+programlistingco, 
+screenco {
+    display: block;
+    /* content of graphicco has a margin */
+}
+
+areaspec,
+areaset,
+area {
+    display: tree;
+}
+
+co {
+    display: inline;
+    content: icon(left-half-disc) simple-counter(n) icon(right-half-disc); 
+    color: #004080; 
+}
+         
+coref {
+    display: inline;
+    content: icon(left-half-disc) attr(linkend) icon(right-half-disc); 
+    color: #004080; 
+}
+         
+calloutlist {
+    display: block;
+    margin-left: 2ex;
+    margin-top: 1.33ex; 
+    margin-bottom: 1.33ex; 
+}
+   
+callout {
+    display: block;
+    margin-left: 6ex;
+    margin-top: 1.33ex; 
+    margin-bottom: 1.33ex; 
+}
+       
+callout > *:first-child {
+    margin-top: 0; 
+    margin-bottom: 0; 
+}
+
+calloutlist > callout:before {
+    display: marker; 
+    content: icon(left-half-disc) simple-counter(n) icon(right-half-disc); 
+    color: #004080; 
+}
+
+/* =====================================
+   Divisions
+===================================== */
+
+highlights {
+    display: block;
+    margin-bottom: 1.33ex;
+    background-color: #F8E0F8; 
+    border: thin solid #F880F8;
+    padding: 2px;
+}
+
+highlights:before {
+    display: block;
+    content: element-label();
+    font-weight: bold;
+    color: #E840E8;
+    margin-top: 1.33ex;
+}
+
+/* =====================================
+   Special sections
+===================================== */
+
+/* -------------------------------------
+   Task
+------------------------------------- */
+
+task {
+    display: block;
+    /* content of task has a margin */
+}
+
+tasksummary,
+taskprerequisites,
+taskrelated,
+task > procedure {
+    display: block;
+    margin-left: 2ex; 
+    /* content of taskxxx has a margin */
+    margin-top: 0; 
+    margin-bottom: 0; 
+}
+
+/* -------------------------------------
+   Question-and-answer set
+------------------------------------- */
+
+qandaset,
+qandadiv {
+    display: block;
+    /* content of qandaset has a margin */
+}
+
+qandaentry {
+    display: block;
+    margin: 1.33ex 0; 
+}
+
+question,
+answer {
+    display: block;
+    margin-left: 4ex;
+    /* content of question has a margin */
+}
+
+question > *:first-child,
+answer > *:first-child {
+    margin-top: 0; 
+    margin-bottom: 0; 
+}
+
+question:before,
+answer:before {
+    display: marker;
+    color: #004080;
+    font-weight: bold;
+}
+
+question:before {
+    content: "Q:";
+}
+
+answer:before {
+    content: "A:";
+}
+
+label {
+    display: block;
+    margin: 1.33ex 0; 
+    color: #004080;
+    font-weight: bold;
+}
+
+/* -------------------------------------
+   Set of messages
+------------------------------------- */
+
+msgset {
+    display: block;
+    /* content of msgset has a margin */
+}
+
+msgentry,
+simplemsgentry {
+    display: block;
+    margin: 1.33ex 0;
+    border: thin solid gray;
+    padding: 2px;
+}
+
+msg,
+msgmain,
+msgsub,
+msgrel,
+msgtext,
+msgexplan,
+msginfo {
+    display: block;
+    margin-left: 10ex;
+    /* content of msg has a margin */
+}
+
+msg > *:first-child,
+msgmain > *:first-child,
+msgsub > *:first-child,
+msgrel > *:first-child,
+msgtext > *:first-child,
+msgexplan > *:first-child,
+msginfo > *:first-child {
+    margin-top: 0; 
+    margin-bottom: 0; 
+}
+
+msg:before,
+msgmain:before,
+msgsub:before,
+msgrel:before,
+simplemsgentry > msgtext:before,
+msgexplan:before,
+msginfo:before {
+    display: marker; 
+    content: element-label();
+    font-size: small;
+    color: #004080;
+}
+
+msglevel,
+msgorig,
+msgaud {
+    display: inline;
+}
+
+msglevel:before,
+msgorig:before,
+msgaud:before {
+    content: icon(left-half-disc) element-local-name() " ";
+    font-size: small;
+    color: gray;
+}
+
+msglevel:after,
+msgorig:after,
+msgaud:after {
+    content: icon(right-half-disc);
+    color: gray;
+}
+
+/* -------------------------------------
+   Bibliography
+   (complements docbook2.imp)
+------------------------------------- */
+
+bibliocoverage,
+bibliorelation,
+bibliosource {
+   display: inline;
+}
+
+biblioid,
+isbn,
+issn,
+pubsnumber {
+   display: inline;
+}
+
+citebiblioid {
+   display: inline;
+}
+
+biblioref {
+    content: attr(linkend) icon(right-link);
+    vertical-align: text-top; /* for the icon */
+    color: navy;
+}
+        
+/* -------------------------------------
+   Meta-information
+   (complements docbook2.imp)
+------------------------------------- */
+
+artpagenums,
+pagenums,
+seriesvolnums,
+invpartnumber {
+   display: inline;
+}
+
+itermset {
+    /* Could be block but inline is safer when used in strange places
+       and when used in meta-info, display is forced to be block. */
+   display: inline;
+}
+
+collab {
+    display: block; /* can contain affiliation */
+    margin: 1.33ex 0;
+}
+
+collabname {
+    display: inline;
+}
+
+confgroup {
+    display: block; /* can contain address */
+    margin: 1.33ex 0;
+}
+
+confdates,
+conftitle,
+confnum,
+confsponsor {
+    display: inline;
+}
+
+confdates:after,
+conftitle:after,
+confnum:after,
+confsponsor:after {
+    content: " ";
+}
+
+contractnum,
+contractsponsor {
+    display: inline;
+}
+
+publisher {
+    display: block; /* can contain address */
+    margin: 1.33ex 0;
+}
+
+printhistory {    
+    display: block;
+    /* content of printhistory has a margin */
+}
+
+/* =====================================
+   Other elements
+===================================== */
+
+bridgehead {
+    display: block;
+    font-weight: bold; 
+    color: #004080;
+    margin: 1.33ex 0;
+}
+
+bridgehead[renderas=sect1] {
+    font-size: 1.5em; 
+    margin: .83ex 0; 
+}
+
+bridgehead[renderas=sect2] {
+    font-size: 1.3em; 
+    margin: 1ex 0; 
+}
+
+/* ---------------------------------------------------------------------------
+   Inlined elements other than those belonging to modules
+
+   Note that default display is inline, so there is no need to specify it.
+--------------------------------------------------------------------------- */
+
+/* -------------------------------------
+   Technical
+------------------------------------- */
+
+keycombo {
+    display: inline;
+}
+
+keycombo > *:before {
+    content: icon(plus);
+    color: gray;
+}
+
+keycombo[action] > *:before {
+    content: " ";
+}
+
+keycombo[action=simul] > *:before {
+    content: icon(plus);
+}
+
+keycombo > *:first-child:before {
+    content: "";
+}
+
+keycap,
+keysym,
+mousebutton {
+    font-weight: bold;
+}
+
+keycode {
+    font-family: monospace;
+}
+
+menuchoice {
+    display: inline;
+}
+
+menuchoice > *:before {
+    content: icon(pop-right);
+    color: gray;
+}
+
+menuchoice > *:first-child:before,
+menuchoice > shortcut + *:before {
+    content: "";
+}
+
+shortcut {
+    display: inline;
+}
+
+/* shortcut:before should be enough but this selector makes this rule more
+   specific than the above one */
+
+menuchoice > shortcut:first-child:before { 
+    content: "(";
+    color: gray;
+}
+
+shortcut:after {
+    content: ") ";
+    color: gray;
+}
+
+shortcut > *:before {
+    content: " ";
+}
+
+shortcut > *:first-child:before {
+    content: "";
+}
+
+guimenu,
+guisubmenu,
+guimenuitem,
+guibutton,
+guilabel,
+guiicon,
+accel,
+interface {
+    font-weight: bold;
+}
+
+accel {
+    text-decoration: underline;
+}
+
+action {
+    display: inline;
+}
+
+application,
+hardware,
+database,
+productnumber {
+    display: inline;
+}
+
+medialabel {
+    font-weight: bold;
+}
+
+package,
+uri,
+code,
+constant,
+envar,
+markup,
+prompt,
+property,
+sgmltag,
+token,
+type,
+function,
+parameter,
+varname,
+returnvalue,
+errorcode,
+errorname,
+errortext,
+errortype,
+exceptionname,
+classname,
+methodname,
+interfacename,
+structfield,
+structname,
+symbol {
+    font-family: monospace;
+}
+
+optional {
+    display: inline;
+}
+synopsis > optional:before {
+    content: "[";
+    color: gray;
+}
+synopsis > optional:after {
+    content: "]";
+    color: gray;
+}
+
+sgmltag:before,
+sgmltag:after {
+    color: gray;
+}
+
+sgmltag[class=attvalue]:before {
+    content: '"';
+}
+sgmltag[class=attvalue]:after {
+    content: '"';
+}
+
+sgmltag[class=starttag]:before,
+sgmltag[class=emptytag]:before {
+    content: "<";
+}
+sgmltag[class=endtag]:before {
+    content: "</";
+}
+sgmltag[class=endtag]:after,
+sgmltag[class=starttag]:after {
+    content: ">";
+}
+sgmltag[class=emptytag]:after {
+    content: "/>";
+}
+
+sgmltag[class=pi]:before,
+sgmltag[class=xmlpi]:before {
+    content: "<?";
+}
+sgmltag[class=pi]:after,
+sgmltag[class=xmlpi]:after {
+    content: "?>";
+}
+
+sgmltag[class=sgmlcomment]:before {
+    content: "<!--";
+}
+sgmltag[class=sgmlcomment]:after {
+    content: "-->";
+}
+
+sgmltag[class=paramentity]:before {
+    content: "%";
+}
+sgmltag[class=genentity]:before {
+    content: "&";
+}
+sgmltag[class=numcharref]:before {
+    content: "&#";
+}
+sgmltag[class=paramentity]:after,
+sgmltag[class=genentity]:after,
+sgmltag[class=numcharref]:after {
+    content: ";";
+}
+
+/* -------------------------------------
+   General
+------------------------------------- */
+
+remark {
+    font-style: italic;
+    color: #880000;
+}
+
+firstterm,
+foreignphrase {
+    font-style: italic;
+}
+
+citation:before {
+    content: "[";
+    color: gray;
+}
+
+citation:after {
+    content: "]";
+    color: gray;
+}
+
+wordasword {
+    font-family: sans-serif;
+    font-size: medium;
+    font-style: normal;
+    font-weight: normal;
+    color: black;
+}
+
+olink {
+    color: navy;
+    text-decoration: underline;
+}
+
+olink:after {
+    vertical-align: text-top; /* for the icon */
+}
+
+olink[targetdoc]:after {
+    content: icon(left-link) attr(targetdoc);
+}
+
+olink[targetdoc][targetptr]:after {
+    content: icon(left-link) attr(targetdoc) ":" attr(targetptr);
+}
+
+modespec {
+    display: inline;
+}
+
+indexterm,
+primary,
+secondary,
+tertiary,
+see,
+seealso {
+    display: inline;
+    font-size: small;
+}
+
+indexterm:before {
+    content: icon(left-half-disc);
+    color: gray;
+}
+
+indexterm:after {
+    content: icon(right-half-disc);
+    color: gray;
+}
+
+indexterm[class=startofrange][id]:before {
+    content: icon(left-half-disc) attr(id) icon(half-disc-separator);
+}
+
+indexterm[class=startofrange][xml|id]:before {
+    content: icon(left-half-disc) attr(xml|id) icon(half-disc-separator);
+}
+
+indexterm[class=endofrange]:after {
+    content: icon(half-disc-separator) attr(startref) icon(right-half-disc);
+}
+
+indexterm > *:before {
+    content: "; ";
+    color: gray;
+    font-weight: bold;
+}
+
+indexterm > see:before {
+    content: " see ";
+}
+
+indexterm > seealso:before {
+    content: " see also ";
+}
+
+indexterm > *:first-child:before {
+    content: "";
+}
+
+termdef {
+    display: inline;
+}
+
+termdef:before {
+    content: icon(right) element-local-name() " ";
+    color: gray;
+}
+
+termdef:after {
+    content: icon(left);
+    color: gray;
+}
+
+/* -------------------------------------
+   Other
+------------------------------------- */
+
+beginpage {
+    display: inline;
+    content: url(icons/beginpage.png);
+}
+
+sbr {
+    display: inline;
+    content: "\A";
+    color: gray;
+}
