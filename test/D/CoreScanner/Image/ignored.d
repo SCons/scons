@@ -1,0 +1,3 @@
+module  ignored;
+
+int something;

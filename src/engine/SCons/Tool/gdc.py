@@ -1,32 +1,20 @@
-"""SCons.Tool.dmd
+"""SCons.Tool.gdc
 
-Tool-specific initialization for the Digital Mars D compiler.
-(http://digitalmars.com/d)
+Tool-specific initialization for the GDC compiler.
+(https://github.com/D-Programming-GDC/GDC)
 
-Originally coded by Andy Friesen (andy@ikagames.com)
-15 November 2003
-
-Evolved by Russel Winder (russel@winder.org.uk)
-2010-02-07 onwards
-
-There are a number of problems with this script at this point in time.
-The one that irritates the most is the Windows linker setup.  The D
-linker doesn't have a way to add lib paths on the commandline, as far
-as I can see.  You have to specify paths relative to the SConscript or
-use absolute paths.  To hack around it, add '#/blah'.  This will link
-blah.lib from the directory where SConstruct resides.
+Developed by Russel Winder (russel@winder.org.uk)
+2012-05-09 onwards
 
 Compiler variables:
-    DC - The name of the D compiler to use.  Defaults to dmd or gdmd,
-        whichever is found.
+    DC - The name of the D compiler to use.  Defaults to gdc.
     DPATH - List of paths to search for import modules.
     DVERSIONS - List of version tags to enable when compiling.
     DDEBUG - List of debug tags to enable when compiling.
 
 Linker related variables:
     LIBS - List of library files to link in.
-    DLINK - Name of the linker to use.  Defaults to dmd or gdmd,
-        whichever is found.
+    DLINK - Name of the linker to use.  Defaults to gdc.
     DLINKFLAGS - List of linker flags.
 
 Lib tool variables:
@@ -60,13 +48,8 @@ Lib tool variables:
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
-import subprocess
-
 import SCons.Action
-import SCons.Builder
 import SCons.Defaults
-import SCons.Scanner.D
 import SCons.Tool
 
 import SCons.Tool.DCommon
@@ -80,23 +63,21 @@ def generate(env):
     static_obj.add_emitter('.d', SCons.Defaults.StaticObjectEmitter)
     shared_obj.add_emitter('.d', SCons.Defaults.SharedObjectEmitter)
 
-    env['DC'] = env.Detect(['dmd', 'gdmd'])
-    env['DCOM'] = '$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -c -of$TARGET $SOURCES'
+    env['DC'] = env.Detect('gdc')
+    env['DCOM'] = '$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -c -o $TARGET $SOURCES'
     env['_DINCFLAGS'] = '$( ${_concat(DINCPREFIX, DPATH, DINCSUFFIX, __env__, RDirs, TARGET, SOURCE)}  $)'
     env['_DVERFLAGS'] = '$( ${_concat(DVERPREFIX, DVERSIONS, DVERSUFFIX, __env__)}  $)'
     env['_DDEBUGFLAGS'] = '$( ${_concat(DDEBUGPREFIX, DDEBUG, DDEBUGSUFFIX, __env__)} $)'
     env['_DFLAGS'] = '$( ${_concat(DFLAGPREFIX, DFLAGS, DFLAGSUFFIX, __env__)} $)'
 
     env['SHDC'] = '$DC'
-    env['SHDCOM'] = '$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -c -fPIC -of$TARGET $SOURCES'
+    env['SHDCOM'] = '$SHDC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -fPIC -c -o $TARGET $SOURCES'
 
     env['DPATH'] = ['#/']
     env['DFLAGS'] = []
     env['DVERSIONS'] = []
     env['DDEBUG'] = []
 
-    #env['SHOBJSUFFIX'] = '.os'
-    #env['OBJSUFFIX'] = '.o'
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 0
 
     if env['DC']:
@@ -113,16 +94,16 @@ def generate(env):
     env['DFILESUFFIX'] = '.d'
 
     env['DLINK'] = '$DC'
-    env['DLINKCOM'] = '$DLINK -of$TARGET $SOURCES $DFLAGS $DLINKFLAGS $_DLINKLIBFLAGS'
-    env['SHDLINKCOM'] = '$DLINK -shared -defaultlib=libphobos2.so -of$TARGET $SOURCES $DFLAGS $DLINKFLAGS $_DLINKLIBFLAGS'
+    env['DLINKCOM'] = '$DLINK -o $TARGET $SOURCES $DFLAGS $DLINKFLAGS $_DLINKLIBFLAGS'
+    env['SHDLINKCOM'] = '$DLINK -o $TARGET $SOURCES $DFLAGS $DLINKFLAGS $_DLINKLIBFLAGS'
 
     env['DLIB'] = 'lib' if env['PLATFORM'] == 'win32' else 'ar cr'
     env['DLIBCOM'] = '$DLIB $_DLIBFLAGS {} $TARGET $SOURCES $_DLINKLIBFLAGS'.format('-c' if env['PLATFORM'] == 'win32' else '')
 
     env['_DLINKLIBFLAGS'] = '$( ${_concat(DLIBLINKPREFIX, LIBS, DLIBLINKSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'
     env['_DLIBFLAGS'] = '$( ${_concat(DLIBFLAGPREFIX, DLIBFLAGS, DLIBFLAGSUFFIX, __env__)} $)'
-    env['DLINKFLAGS'] = ['-L-L.']
-    env['DLIBLINKPREFIX'] = '' if env['PLATFORM'] == 'win32' else '-L-l'
+    env['DLINKFLAGS'] = ['-L.']
+    env['DLIBLINKPREFIX'] = '' if env['PLATFORM'] == 'win32' else '-l'
     env['DLIBLINKSUFFIX'] = '.lib' if env['PLATFORM'] == 'win32' else ''
     env['DLIBFLAGPREFIX'] = '-'
     env['DLIBFLAGSUFFIX'] = ''
@@ -133,7 +114,7 @@ def generate(env):
 
 
 def exists(env):
-    return env.Detect(['dmd', 'gdmd'])
+    return env.Detect('gdc')
 
 # Local Variables:
 # tab-width:4

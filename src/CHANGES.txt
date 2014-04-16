@@ -6,6 +6,11 @@
 
 RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Russel Winder:
+    - Revamp of the D language support. Tools for DMD, GDC and LDC provided
+      and integrated with the C and C++ linking.   NB  This is only tested with
+      D v2, D v1 is now deprecated.
+
   From Gary Oberbrunner:
     - get default RPM architecture more robustly when building RPMs
 
