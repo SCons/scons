@@ -144,6 +144,9 @@ ShCAction = SCons.Action.Action("$SHCCCOM", "$SHCCCOMSTR")
 CXXAction = SCons.Action.Action("$CXXCOM", "$CXXCOMSTR")
 ShCXXAction = SCons.Action.Action("$SHCXXCOM", "$SHCXXCOMSTR")
 
+DAction = SCons.Action.Action("$DCOM", "$DCOMSTR")
+ShDAction = SCons.Action.Action("$SHDCOM", "$SHDCOMSTR")
+
 ASAction = SCons.Action.Action("$ASCOM", "$ASCOMSTR")
 ASPPAction = SCons.Action.Action("$ASPPCOM", "$ASPPCOMSTR")
 
@@ -321,7 +324,7 @@ def _stripixes(prefix, itms, suffix, stripprefixes, stripsuffixes, env, c=None):
     where it finds them.  This is used by tools (like the GNU linker)
     that need to turn something like 'libfoo.a' into '-lfoo'.
     """
-    
+
     if not itms:
         return itms
 
@@ -335,7 +338,7 @@ def _stripixes(prefix, itms, suffix, stripprefixes, stripsuffixes, env, c=None):
             c = env_c
         else:
             c = _concat_ixes
-    
+
     stripprefixes = list(map(env.subst, SCons.Util.flatten(stripprefixes)))
     stripsuffixes = list(map(env.subst, SCons.Util.flatten(stripsuffixes)))
 
@@ -413,7 +416,7 @@ def _defines(prefix, defs, suffix, env, c=_concat_ixes):
     """
 
     return c(prefix, env.subst_path(processDefines(defs)), suffix, env)
-    
+
 class NullCmdGenerator(object):
     """This is a callable class that can be used in place of other
     command generators if you don't want them to do anything.
@@ -449,7 +452,7 @@ class Variable_Method_Caller(object):
         self.method = method
     def __call__(self, *args, **kw):
         try: 1//0
-        except ZeroDivisionError: 
+        except ZeroDivisionError:
             # Don't start iterating with the current stack-frame to
             # prevent creating reference cycles (f_back is safe).
             frame = sys.exc_info()[2].tb_frame.f_back

@@ -180,7 +180,13 @@ class Streamer(object):
     def write(self, str):
         if self.orig:
             self.orig.write(str)
-        self.s.write(str)
+        try:
+            self.s.write(str)
+        except TypeError as e:
+            if e.message.startswith('unicode argument expected'):
+                self.s.write(str.decode())
+            else:
+                raise
 
     def writelines(self, lines):
         for l in lines:
