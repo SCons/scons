@@ -25,7 +25,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
 import unittest
+
 import TestSCons
+import TestUnit
 
 import SCons.Variables
 import SCons.Subst
@@ -655,8 +657,7 @@ if __name__ == "__main__":
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')
         suite.addTests(list(map(tclass, names)))
-    if not unittest.TextTestRunner().run(suite).wasSuccessful():
-        sys.exit(1)
+    TestUnit.run(suite)
 
 # Local Variables:
 # tab-width:4

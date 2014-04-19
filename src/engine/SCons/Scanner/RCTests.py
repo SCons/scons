@@ -23,12 +23,15 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestCmd
-import SCons.Scanner.RC
 import unittest
 import sys
 import collections
 import os
+
+import TestCmd
+import TestUnit
+
+import SCons.Scanner.RC
 import SCons.Node.FS
 import SCons.Warnings
 
@@ -164,10 +167,7 @@ def suite():
     return suite
 
 if __name__ == "__main__":
-    runner = unittest.TextTestRunner()
-    result = runner.run(suite())
-    if not result.wasSuccessful():
-        sys.exit(1)
+    TestUnit.run(suite())
 
 # Local Variables:
 # tab-width:4

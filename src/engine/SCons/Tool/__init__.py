@@ -705,7 +705,7 @@ def tool_list(platform, env):
         assemblers = ['masm', 'nasm', 'gas', '386asm' ]
         fortran_compilers = ['gfortran', 'g77', 'ifl', 'cvf', 'f95', 'f90', 'fortran']
         ars = ['mslib', 'ar', 'tlib']
-        other_plat_tools=['msvs','midl']
+        other_plat_tools = ['msvs', 'midl']
     elif str(platform) == 'os2':
         "prefer IBM tools on OS/2"
         linkers = ['ilink', 'gnulink', ]#'mslink']
@@ -795,8 +795,10 @@ def tool_list(platform, env):
         fortran_compiler = FindTool(fortran_compilers, env) or fortran_compilers[0]
         ar = FindTool(ars, env) or ars[0]
 
+    d_compilers = ['dmd', 'gdc', 'ldc']
+    d_compiler = FindTool(d_compilers, env) or d_compilers[0]
+
     other_tools = FindAllTools(other_plat_tools + [
-                               'dmd',
                                #TODO: merge 'install' into 'filesystem' and
                                # make 'filesystem' the default
                                'filesystem',
@@ -819,7 +821,7 @@ def tool_list(platform, env):
                                ], env)
 
     tools = ([linker, c_compiler, cxx_compiler,
-              fortran_compiler, assembler, ar]
+              fortran_compiler, assembler, ar, d_compiler]
              + other_tools)
 
     return [x for x in tools if x]

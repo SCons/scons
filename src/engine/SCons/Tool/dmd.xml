@@ -21,7 +21,7 @@ See its __doc__ string for a discussion of the format.
 
 <sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd">
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 
 <tool name="dmd">
 <summary>
@@ -31,17 +31,19 @@ Sets construction variables for D language compilers
 </para>
 </summary>
 <sets>
-<item><!--</item>
 <item>DC</item>
 <item>DCOM</item>
 <item>_DINCFLAGS</item>
 <item>_DVERFLAGS</item>
 <item>_DDEBUGFLAGS</item>
 <item>_DFLAGS</item>
+<item>SHDC</item>
+<item>SHDCOM</item>
 <item>DPATH</item>
 <item>DFLAGS</item>
 <item>DVERSIONS</item>
 <item>DDEBUG</item>
+<item>STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME</item>
 <item>DINCPREFIX</item>
 <item>DINCSUFFIX</item>
 <item>DVERPREFIX</item>
@@ -53,6 +55,7 @@ Sets construction variables for D language compilers
 <item>DFLESUFFIX</item>
 <item>DLINK</item>
 <item>DLINKCOM</item>
+<item>SHDLINKCOM</item>
 <item>DLIB</item>
 <item>DLIBCOM</item>
 <item>_DLINKLIBFLAGS</item>
@@ -64,10 +67,6 @@ Sets construction variables for D language compilers
 <item>DLIBFLAGSUFFIX</item>
 <item>DLINKFLAGPREFIX</item>
 <item>DLINKFLAGSUFFIX</item>
-<item>LINKCOM</item>
-<item>ARCOM</item>
-<item>LIBS</item>
-<item>--></item>
 </sets>
 <uses>
 </uses>

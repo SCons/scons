@@ -21,7 +21,7 @@ See its __doc__ string for a discussion of the format.
 
 <sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd">
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 
 <tool name="textfile">
 <summary>
@@ -46,7 +46,7 @@ Set construction variables for the &b-Textfile; and &b-Substfile; builders.
 <para>
 The &b-Textfile; builder generates a single text file.
 The source strings constitute the lines;
-nested lists of sources are flattened. 
+nested lists of sources are flattened.
 &cv-LINESEPARATOR; is used to separate the strings.
 </para>
 
@@ -74,7 +74,7 @@ env.Textfile(target = 'bar',
              LINESEPARATOR='|*')
 
 # nested lists are flattened automatically
-env.Textfile(target = 'blob', 
+env.Textfile(target = 'blob',
              source = ['lalala', ['Goethe', 42 'Schiller'], 'tanteratei'])
 
 # files may be used as input by wraping them in File()
@@ -110,11 +110,10 @@ blob.txt
 <builder name="Substfile">
 <summary>
 <para>
-The &b-Substfile; builder generates a single text file
-by concatenating the source files.
-Nested lists of sources are flattened. 
-&cv-LINESEPARATOR; is used to separate the source files;
-see the description of &b-Textfile; for details.
+The &b-Substfile; builder creates a single text file from another file or set of
+files by concatenating them with &cv-LINESEPARATOR; and replacing text
+using the &cv-SUBST_DICT; construction variable. Nested lists of source files
+are flattened. See also &b-Textfile;.
 </para>
 
 <para>
@@ -132,20 +131,18 @@ are automatically added to the target if they are not already present.
 <para>
 If a construction variable named &cv-SUBST_DICT; is present,
 it may be either a Python dictionary or a sequence of (key,value) tuples.
-If the former,
-the dictionary is converted into a list of tuples in an arbitrary order,
+If it is a dictionary it is converted into a list of tuples in an arbitrary order,
 so if one key is a prefix of another key
 or if one substitution could be further expanded by another subsitition,
-it is unpredictible whether the expansion will occur.
+it is unpredictable whether the expansion will occur.
 </para>
 
 <para>
-Any occurences in the source of a key
+Any occurrences of a key in the source
 are replaced by the corresponding value,
 which may be a Python callable function or a string.
-If a value is a function,
-it is first called (with no arguments) to produce a string.
-The string is <emphasis>subst</emphasis>-expanded
+If the value is a callable, it is called with no arguments to get a string.
+Strings are <emphasis>subst</emphasis>-expanded
 and the result replaces the key.
 </para>
 

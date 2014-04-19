@@ -42,6 +42,8 @@ import SCons.Warnings
 
 from SCons.Tool.FortranCommon import isfortran
 
+from SCons.Tool.DCommon import isD
+
 cplusplus = __import__('c++', globals(), locals(), [])
 
 issued_mixed_link_warning = False
@@ -49,7 +51,8 @@ issued_mixed_link_warning = False
 def smart_link(source, target, env, for_signature):
     has_cplusplus = cplusplus.iscplusplus(source)
     has_fortran = isfortran(env, source)
-    if has_cplusplus and has_fortran:
+    has_d = isD(env, source)
+    if has_cplusplus and has_fortran and not has_d:
         global issued_mixed_link_warning
         if not issued_mixed_link_warning:
             msg = "Using $CXX to link Fortran and C++ code together.\n\t" + \
@@ -59,6 +62,10 @@ def smart_link(source, target, env, for_signature):
                                 msg % env.subst('$CXX'))
             issued_mixed_link_warning = True
         return '$CXX'
+    elif has_d:
+        env['LINKCOM'] = env['DLINKCOM']
+        env['SHLINKCOM'] = env['SHDLINKCOM']
+        return '$DC'
     elif has_fortran:
         return '$FORTRAN'
     elif has_cplusplus:
@@ -138,7 +145,7 @@ def shlib_emitter_names(target, source, env):
                     print "shlib_emitter_names: side effect: ", name
                 # add version_name to list of names to be a Side effect
                 version_names.append(version_name)
-                
+
     except KeyError:
         version = None
     return version_names
@@ -178,8 +185,8 @@ def generate(env):
     # don't set up the emitter, cause AppendUnique will generate a list
     # starting with None :-(
     env.Append(LDMODULEEMITTER='$SHLIBEMITTER')
-    env['LDMODULEPREFIX'] = '$SHLIBPREFIX' 
-    env['LDMODULESUFFIX'] = '$SHLIBSUFFIX' 
+    env['LDMODULEPREFIX'] = '$SHLIBPREFIX'
+    env['LDMODULESUFFIX'] = '$SHLIBSUFFIX'
     env['LDMODULEFLAGS'] = '$SHLINKFLAGS'
     env['LDMODULECOM'] = '$LDMODULE -o $TARGET $LDMODULEFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
 

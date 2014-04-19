@@ -24,6 +24,8 @@
 import os
 import unittest
 
+import TestUnit
+
 import SCons.Tool.javac
 
 class DummyNode(object):
@@ -99,4 +101,5 @@ class pathoptTestCase(unittest.TestCase):
             '')
 
 if __name__ == "__main__":
-    unittest.main()
+    suite = unittest.makeSuite(pathoptTestCase, 'test_')
+    TestUnit.run(suite)

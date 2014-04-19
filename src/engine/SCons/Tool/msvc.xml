@@ -21,7 +21,7 @@ See its __doc__ string for a discussion of the format.
 
 <sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd">
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 
 <tool name="msvc">
 <summary>
@@ -347,9 +347,28 @@ If &cv-MSVC_VERSION; is not set, SCons will (by default) select the
 latest version of Visual C/C++ installed on your system.  If the
 specified version isn't installed, tool initialization will fail.
 This variable must be passed as an argument to the Environment()
-constructor; setting it later has no effect.  Set it to an unexpected
-value (e.g. "XXX") to see the valid values on your system.
+constructor; setting it later has no effect.
 </para>
+
+<para>
+Valid values for Windows are
+<literal>12.0</literal>,
+<literal>12.0Exp</literal>,
+<literal>11.0</literal>,
+<literal>11.0Exp</literal>,
+<literal>10.0</literal>,
+<literal>10.0Exp</literal>,
+<literal>9.0</literal>,
+<literal>9.0Exp</literal>,
+<literal>8.0</literal>,
+<literal>8.0Exp</literal>,
+<literal>7.1</literal>,
+<literal>7.0</literal>,
+and <literal>6.0</literal>.
+Versions ending in <literal>Exp</literal> refer to "Express" or 
+"Express for Desktop" editions.
+</para>
+
 </summary>
 </cvar>
 

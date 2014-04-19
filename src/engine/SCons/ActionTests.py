@@ -49,6 +49,7 @@ import SCons.Environment
 import SCons.Errors
 
 import TestCmd
+import TestUnit
 
 # Initial setup of the common environment for all tests,
 # a temporary working directory containing a
@@ -185,9 +186,8 @@ class DummyNode(object):
 if os.name == 'java':
     python = os.path.join(sys.prefix, 'jython')
 else:
-    python = sys.executable
-
-_python_ = '"' + python + '"'
+    python = os.environ.get('python_executable', sys.executable)
+_python_ = test.escape(python)
 
 _null = SCons.Action._null
 
@@ -2109,8 +2109,8 @@ if __name__ == "__main__":
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')
         suite.addTests(list(map(tclass, names)))
-    if not unittest.TextTestRunner().run(suite).wasSuccessful():
-        sys.exit(1)
+
+    TestUnit.run(suite)
 
 # Local Variables:
 # tab-width:4
