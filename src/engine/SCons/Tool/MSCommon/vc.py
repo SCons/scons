@@ -305,8 +305,21 @@ def reset_installed_vcs():
     """Make it try again to find VC.  This is just for the tests."""
     __INSTALLED_VCS_RUN = None
 
+# Running these batch files isn't cheap: most of the time spent in
+# msvs.generate() is due to vcvars*.bat.  In a build that uses "tools='msvs'"
+# in multiple environments, for example:
+#    env1 = Environment(tools='msvs')
+#    env2 = Environment(tools='msvs')
+# we can greatly improve the speed of the second and subsequent Environment
+# (or Clone) calls by memoizing the environment variables set by vcvars*.bat.
+script_env_stdout_cache = {}
 def script_env(script, args=None):
-    stdout = common.get_output(script, args)
+    cache_key = (script, args)
+    stdout = script_env_stdout_cache.get(cache_key, None)
+    if stdout is None:
+        stdout = common.get_output(script, args)
+        script_env_stdout_cache[cache_key] = stdout
+
     # Stupid batch files do not set return code: we take a look at the
     # beginning of the output for an error message instead
     olines = stdout.splitlines()
@@ -423,7 +436,7 @@ def msvc_find_valid_batch_script(env,version):
         if not vc_script and sdk_script:
             debug('vc.py:msvc_find_valid_batch_script() use_script 4: trying sdk script: %s'%(sdk_script))
             try:
-                d = script_env(sdk_script,args=[])
+                d = script_env(sdk_script)
             except BatchFileExecutionError,e:
                 debug('vc.py:msvc_find_valid_batch_script() use_script 5: failed running SDK script %s: Error:%s'%(repr(sdk_script),e))
                 continue
