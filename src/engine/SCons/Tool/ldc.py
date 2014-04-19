@@ -1,32 +1,20 @@
-"""SCons.Tool.dmd
+"""SCons.Tool.ldc
 
-Tool-specific initialization for the Digital Mars D compiler.
-(http://digitalmars.com/d)
+Tool-specific initialization for the LDC compiler.
+(http://www.dsource.org/projects/ldc)
 
-Originally coded by Andy Friesen (andy@ikagames.com)
-15 November 2003
-
-Evolved by Russel Winder (russel@winder.org.uk)
-2010-02-07 onwards
-
-There are a number of problems with this script at this point in time.
-The one that irritates the most is the Windows linker setup.  The D
-linker doesn't have a way to add lib paths on the commandline, as far
-as I can see.  You have to specify paths relative to the SConscript or
-use absolute paths.  To hack around it, add '#/blah'.  This will link
-blah.lib from the directory where SConstruct resides.
+Developed by Russel Winder (russel@winder.org.uk)
+2012-05-09 onwards
 
 Compiler variables:
-    DC - The name of the D compiler to use.  Defaults to dmd or gdmd,
-        whichever is found.
+    DC - The name of the D compiler to use.  Defaults to ldc2.
     DPATH - List of paths to search for import modules.
     DVERSIONS - List of version tags to enable when compiling.
     DDEBUG - List of debug tags to enable when compiling.
 
 Linker related variables:
     LIBS - List of library files to link in.
-    DLINK - Name of the linker to use.  Defaults to dmd or gdmd,
-        whichever is found.
+    DLINK - Name of the linker to use.  Defaults to ldc2.
     DLINKFLAGS - List of linker flags.
 
 Lib tool variables:
@@ -80,29 +68,27 @@ def generate(env):
     static_obj.add_emitter('.d', SCons.Defaults.StaticObjectEmitter)
     shared_obj.add_emitter('.d', SCons.Defaults.SharedObjectEmitter)
 
-    env['DC'] = env.Detect(['dmd', 'gdmd'])
-    env['DCOM'] = '$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -c -of$TARGET $SOURCES'
+    env['DC'] = env.Detect('ldc2')
+    env['DCOM'] = '$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -c -of=$TARGET $SOURCES'
     env['_DINCFLAGS'] = '$( ${_concat(DINCPREFIX, DPATH, DINCSUFFIX, __env__, RDirs, TARGET, SOURCE)}  $)'
     env['_DVERFLAGS'] = '$( ${_concat(DVERPREFIX, DVERSIONS, DVERSUFFIX, __env__)}  $)'
     env['_DDEBUGFLAGS'] = '$( ${_concat(DDEBUGPREFIX, DDEBUG, DDEBUGSUFFIX, __env__)} $)'
     env['_DFLAGS'] = '$( ${_concat(DFLAGPREFIX, DFLAGS, DFLAGSUFFIX, __env__)} $)'
 
     env['SHDC'] = '$DC'
-    env['SHDCOM'] = '$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -c -fPIC -of$TARGET $SOURCES'
+    env['SHDCOM'] = '$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -c -relocation-model=pic -of=$TARGET $SOURCES'
 
     env['DPATH'] = ['#/']
     env['DFLAGS'] = []
     env['DVERSIONS'] = []
     env['DDEBUG'] = []
 
-    #env['SHOBJSUFFIX'] = '.os'
-    #env['OBJSUFFIX'] = '.o'
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 0
 
     if env['DC']:
         SCons.Tool.DCommon.addDPATHToEnv(env, env['DC'])
 
-    env['DINCPREFIX'] = '-I'
+    env['DINCPREFIX'] = '-I='
     env['DINCSUFFIX'] = ''
     env['DVERPREFIX'] = '-version='
     env['DVERSUFFIX'] = ''
@@ -113,8 +99,8 @@ def generate(env):
     env['DFILESUFFIX'] = '.d'
 
     env['DLINK'] = '$DC'
-    env['DLINKCOM'] = '$DLINK -of$TARGET $SOURCES $DFLAGS $DLINKFLAGS $_DLINKLIBFLAGS'
-    env['SHDLINKCOM'] = '$DLINK -shared -defaultlib=libphobos2.so -of$TARGET $SOURCES $DFLAGS $DLINKFLAGS $_DLINKLIBFLAGS'
+    env['DLINKCOM'] = '$DLINK -of=$TARGET $SOURCES $DFLAGS $DLINKFLAGS $_DLINKLIBFLAGS'
+    env['SHDLINKCOM'] = '$DLINK -shared -of=$TARGET $SOURCES $DFLAGS $DLINKFLAGS $_DLINKLIBFLAGS'
 
     env['DLIB'] = 'lib' if env['PLATFORM'] == 'win32' else 'ar cr'
     env['DLIBCOM'] = '$DLIB $_DLIBFLAGS {} $TARGET $SOURCES $_DLINKLIBFLAGS'.format('-c' if env['PLATFORM'] == 'win32' else '')
@@ -133,7 +119,7 @@ def generate(env):
 
 
 def exists(env):
-    return env.Detect(['dmd', 'gdmd'])
+    return env.Detect('ldc2')
 
 # Local Variables:
 # tab-width:4

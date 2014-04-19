@@ -1,0 +1,9 @@
+env = Environment({})
+
+env.Library('mylib', 'mylib.d')
+
+prog_env = env.Clone(
+    LIBS = ['mylib'],
+    LIBPATH = '#'
+    )
+prog_env.Program('prog', 'prog.d')
