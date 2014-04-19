@@ -6,6 +6,9 @@
 
 RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Paweł Tomulik:
+    - Fix SConf tests that write output
+
   From Gary Oberbrunner:
     - get default RPM architecture more robustly when building RPMs
 
