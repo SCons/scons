@@ -19,7 +19,7 @@
 # hierarchy.
 from __future__ import print_function
 
-from six import PY3
+from SCons.compat.six import PY3
 
 import getopt
 import os

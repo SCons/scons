@@ -15,7 +15,7 @@
 # limitations under the License.
 from __future__ import print_function
 
-from six import PY3
+from SCons.compat.six import PY3
 
 """Tool for uploading diffs from a version control system to the codereview app.
 
@@ -120,7 +120,7 @@ VCS_UNKNOWN = "Unknown"
 # whitelist for non-binary filetypes which do not start with "text/"
 # .mm (Objective-C) shows up as application/x-freemind on my Linux box.
 TEXT_MIMETYPES = ['application/javascript', 'application/x-javascript',
-                  'application/xml', 'application/x-freemind', 
+                  'application/xml', 'application/x-freemind',
                   'application/x-sh']
 
 VCS_ABBREVIATIONS = {
@@ -1474,7 +1474,7 @@ def GuessVCSName():
   """
   def RunDetectCommand(vcs_type, command):
     """Helper to detect VCS by executing command.
-    
+
     Returns:
        A pair (vcs, output) or None. Throws exception on error.
     """
@@ -1486,7 +1486,7 @@ def GuessVCSName():
       (errcode, message) = xxx_todo_changeme.args
       if errcode != errno.ENOENT:  # command not found code
         raise
-  
+
   # Mercurial has a command to get the base directory of a repository
   # Try running it, but don't die if we don't have hg installed.
   # NOTE: we try Mercurial first as it can sit on top of an SVN working copy.

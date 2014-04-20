@@ -81,7 +81,6 @@
 # rather than reinventing that wheel.)
 from __future__ import print_function
 
-from six import PY3
 
 import getopt
 import glob
@@ -93,9 +92,9 @@ import time
 
 try:
     import threading
-    if PY3:
+    try:                        # python3
         from queue import Queue
-    else:
+    except ImportError as e:    # python2
         from Queue import Queue
     threading_ok = True
 except ImportError:

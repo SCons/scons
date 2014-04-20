@@ -24,7 +24,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from __future__ import print_function
 
-from six import PY2, PY3
+from SCons.compat.six import PY2, PY3
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -85,7 +85,7 @@ try:
 except ImportError:
     pass
 else:
-    # when running from an egg add the egg's directory 
+    # when running from an egg add the egg's directory
     try:
         d = pkg_resources.get_distribution('scons')
     except pkg_resources.DistributionNotFound:

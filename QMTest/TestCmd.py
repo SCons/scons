@@ -287,7 +287,7 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 from __future__ import division, print_function
 
-from six import PY3
+from SCons.compat.six import PY3
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
 __revision__ = "TestCmd.py 1.3.D001 2010/06/03 12:58:27 knight"
@@ -685,7 +685,7 @@ if subprocess.mswindows:
             assert ol is None
             lpBuffer = ctypes.create_string_buffer(bufSize)
             bytesRead = DWORD()
-            bErr = ctypes.windll.kernel32.ReadFile( 
+            bErr = ctypes.windll.kernel32.ReadFile(
                     hFile, lpBuffer, bufSize, ctypes.byref(bytesRead), ol)
             if not bErr: raise ctypes.WinError()
             return (0, ctypes.string_at(lpBuffer, bytesRead.value))

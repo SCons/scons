@@ -19,7 +19,7 @@ AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from six import PY3
+from SCons.compat.six import PY3
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
 __revision__ = "TestCmdTests.py 1.3.D001 2010/06/03 12:58:27 knight"
@@ -1870,24 +1870,24 @@ class run_verbose_TestCase(TestCmdTestCase):
                                    interpreter = 'python',
                                    workdir = '',
                                    verbose = 1)
-    
+
             sys.stdout = StringIO()
             sys.stderr = StringIO()
-    
+
             test.run(arguments = ['arg1 arg2'])
             o = sys.stdout.getvalue()
             assert o == '', o
             e = sys.stderr.getvalue()
             expect = 'python "%s" "arg1 arg2"\n' % t.script_path
             assert expect == e, (expect, e)
-    
+
             testx = TestCmd.TestCmd(program = t.scriptx,
                                     workdir = '',
                                     verbose = 1)
-    
+
             sys.stdout = StringIO()
             sys.stderr = StringIO()
-    
+
             testx.run(arguments = ['arg1 arg2'])
             expect = '"%s" "arg1 arg2"\n' % t.scriptx_path
             o = sys.stdout.getvalue()
@@ -1921,10 +1921,10 @@ class run_verbose_TestCase(TestCmdTestCase):
                                    interpreter = 'python',
                                    workdir = '',
                                    verbose = 2)
-    
+
             sys.stdout = StringIO()
             sys.stderr = StringIO()
-    
+
             test.run(arguments = ['arg1 arg2'])
 
             line_fmt = "script:  %s:  %s:  ['arg1 arg2']\n"
@@ -1938,14 +1938,14 @@ class run_verbose_TestCase(TestCmdTestCase):
             expect = 'python "%s" "arg1 arg2"\n' % t.script_path
             e = sys.stderr.getvalue()
             assert e == expect, (e, expect)
-    
+
             testx = TestCmd.TestCmd(program = t.scriptx,
                                     workdir = '',
                                     verbose = 2)
-    
+
             sys.stdout = StringIO()
             sys.stderr = StringIO()
-    
+
             testx.run(arguments = ['arg1 arg2'])
 
             line_fmt = "scriptx.bat:  %s:  %s:  ['arg1 arg2']\n"
@@ -1966,10 +1966,10 @@ class run_verbose_TestCase(TestCmdTestCase):
                                    interpreter = 'python',
                                    workdir = '',
                                    verbose = 2)
-    
+
             sys.stdout = StringIO()
             sys.stderr = StringIO()
-    
+
             test.run(arguments = ['arg1 arg2'])
 
             line_fmt = "scriptout:  %s:  %s:  ['arg1 arg2']\n"
@@ -1986,10 +1986,10 @@ class run_verbose_TestCase(TestCmdTestCase):
                                    interpreter = 'python',
                                    workdir = '',
                                    verbose = 3)
-    
+
             sys.stdout = StringIO()
             sys.stderr = StringIO()
-    
+
             test.run(arguments = ['arg1 arg2'])
 
             line_fmt = "scriptout:  %s:  %s:  ['arg1 arg2']\n"
@@ -2010,10 +2010,10 @@ class run_verbose_TestCase(TestCmdTestCase):
             test = TestCmd.TestCmd(program = t.script,
                                    interpreter = 'python',
                                    workdir = '')
-    
+
             sys.stdout = StringIO()
             sys.stderr = StringIO()
-    
+
             test.run(arguments = ['arg1 arg2'])
 
             line_fmt = "script:  %s:  %s:  ['arg1 arg2']\n"
@@ -2027,13 +2027,13 @@ class run_verbose_TestCase(TestCmdTestCase):
             expect = 'python "%s" "arg1 arg2"\n' % t.script_path
             e = sys.stderr.getvalue()
             assert e == expect, (e, expect)
-    
+
             testx = TestCmd.TestCmd(program = t.scriptx,
                                     workdir = '')
-    
+
             sys.stdout = StringIO()
             sys.stderr = StringIO()
-    
+
             testx.run(arguments = ['arg1 arg2'])
 
             line_fmt = "scriptx.bat:  %s:  %s:  ['arg1 arg2']\n"
@@ -2056,24 +2056,24 @@ class run_verbose_TestCase(TestCmdTestCase):
                                    interpreter = 'python',
                                    workdir = '',
                                    verbose = 1)
-    
+
             sys.stdout = StringIO()
             sys.stderr = StringIO()
-    
+
             test.run(arguments = ['arg1 arg2'])
             o = sys.stdout.getvalue()
             assert o == '', o
             e = sys.stderr.getvalue()
             expect = 'python "%s" "arg1 arg2"\n' % t.script_path
             assert expect == e, (expect, e)
-    
+
             testx = TestCmd.TestCmd(program = t.scriptx,
                                     workdir = '',
                                     verbose = 1)
-    
+
             sys.stdout = StringIO()
             sys.stderr = StringIO()
-    
+
             testx.run(arguments = ['arg1 arg2'])
             expect = '"%s" "arg1 arg2"\n' % t.scriptx_path
             o = sys.stdout.getvalue()

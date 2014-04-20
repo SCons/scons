@@ -20,7 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-from six import u
+from SCons.compat.six import u
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -697,7 +697,7 @@ bling
     def test_intern(self):
         s1 = silent_intern("spam")
         # Python 3.x does not have a unicode() global function
-        if sys.version[0] == '2': 
+        if sys.version[0] == '2':
             s2 = silent_intern(unicode("unicode spam"))
         s3 = silent_intern(42)
         s4 = silent_intern("spam")
@@ -710,7 +710,7 @@ class MD5TestCase(unittest.TestCase):
         """Test collecting a list of signatures into a new signature value
         """
         s = list(map(MD5signature, ('111', '222', '333')))
-        
+
         assert '698d51a19d8a121ce581499d7b701668' == MD5collect(s[0:1])
         assert '8980c988edc2c78cc43ccb718c06efd5' == MD5collect(s[0:2])
         assert '53fd88c84ff8a285eb6e0a687e55b8c7' == MD5collect(s)

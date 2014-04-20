@@ -352,7 +352,7 @@ except that:
 
 """
 from __future__ import print_function
-from six import integer_types
+from SCons.compat.six import integer_types
 
 import sys
 mswindows = (sys.platform == "win32")

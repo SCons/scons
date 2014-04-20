@@ -306,7 +306,7 @@ class Task(object):
                     t.push_to_cache()
                 t.built()
                 t.visited()
-                if (not print_prepare and 
+                if (not print_prepare and
                     (not hasattr(self, 'options') or not self.options.debug_includes)):
                     t.release_target_info()
             else:
@@ -424,7 +424,7 @@ class Task(object):
                 # parallel build...)
                 t.visited()
                 t.set_state(NODE_UP_TO_DATE)
-                if (not print_prepare and 
+                if (not print_prepare and
                     (not hasattr(self, 'options') or not self.options.debug_includes)):
                     t.release_target_info()
 
@@ -533,8 +533,8 @@ class Task(object):
         Task ready for execution.
         """
 
-        import six
-        six.reraise(*self.exc_info())
+        import SCons.compat.six
+        SCons.compat.six.reraise(*self.exc_info())
 
 class AlwaysTask(Task):
     def needs_execute(self):
@@ -940,7 +940,7 @@ class Taskmaster(object):
         executor = node.get_executor()
         if executor is None:
             return None
-        
+
         tlist = executor.get_all_targets()
 
         task = self.tasker(self, tlist, node in self.original_top, node)

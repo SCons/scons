@@ -12,7 +12,7 @@ it goes here.
 
 # Would affect exec()'d site_init.py:
 ## from __future__ import print_function
-from six import print_
+from SCons.compat.six import print_
 
 unsupported_python_version = (2, 3, 0)
 deprecated_python_version = (2, 7, 0)
