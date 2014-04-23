@@ -5,9 +5,29 @@ __COPYRIGHT__
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
 -->
-<tool name="dmd">
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="ldc">
 <summary>
+<para>
 Sets construction variables for the D language compiler LDC2.
+</para>
 </summary>
 <sets>
 <item>DC</item>
@@ -33,20 +53,24 @@ Sets construction variables for the D language compiler LDC2.
 <item>DFLAGSUFFIX</item>
 <item>DFLESUFFIX</item>
 <item>DLINK</item>
-<item>DLINKCOM</item>
-<item>SHDLINKCOM</item>
-<item>DLIB</item>
-<item>DLIBCOM</item>
-<item>_DLINKLIBFLAGS</item>
-<item>_DLIBFLAGS</item>
 <item>DLINKFLAGS</item>
+<item>DLINKCOM</item>
+<item>SHDLINK</item>
+<item>SHDLINKFLAGS</item>
+<item>SHDLINKCOM</item>
 <item>DLIBLINKPREFIX</item>
 <item>DLIBLINKSUFFIX</item>
+<item>_DLIBFLAGS</item>
+<item>DLIBDIRPREFIX</item>
+<item>DLIBDIRSUFFIX</item>
+<item>_DLIBDIRFLAGS</item>
+<item>DLIB</item>
+<item>DLIBCOM</item>
 <item>DLIBFLAGPREFIX</item>
 <item>DLIBFLAGSUFFIX</item>
-<item>DLINKFLAGPREFIX</item>
-<item>DLINKFLAGSUFFIX</item>
 </sets>
 <uses>
 </uses>
 </tool>
+
+</sconsdoc>
