@@ -94,21 +94,28 @@ def generate(env):
     env['DFILESUFFIX'] = '.d'
 
     env['DLINK'] = '$DC'
-    env['DLINKCOM'] = '$DLINK -o $TARGET $SOURCES $DFLAGS $DLINKFLAGS $_DLINKLIBFLAGS'
-    env['SHDLINKCOM'] = '$DLINK -o $TARGET $SOURCES $DFLAGS $DLINKFLAGS $_DLINKLIBFLAGS'
+    env['DLINKFLAGS'] = SCons.Util.CLVar('')
+    env['DLINKCOM'] = '$DLINK -o $TARGET $DLINKFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
+
+    env['SHDLINK'] = '$DC'
+    env['SHDLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared')
+    env['SHDLINKCOM'] = '$DLINK -o $TARGET $DLINKFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
 
     env['DLIB'] = 'lib' if env['PLATFORM'] == 'win32' else 'ar cr'
     env['DLIBCOM'] = '$DLIB $_DLIBFLAGS {} $TARGET $SOURCES $_DLINKLIBFLAGS'.format('-c' if env['PLATFORM'] == 'win32' else '')
 
-    env['_DLINKLIBFLAGS'] = '$( ${_concat(DLIBLINKPREFIX, LIBS, DLIBLINKSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'
     env['_DLIBFLAGS'] = '$( ${_concat(DLIBFLAGPREFIX, DLIBFLAGS, DLIBFLAGSUFFIX, __env__)} $)'
-    env['DLINKFLAGS'] = ['-L.']
-    env['DLIBLINKPREFIX'] = '' if env['PLATFORM'] == 'win32' else '-l'
-    env['DLIBLINKSUFFIX'] = '.lib' if env['PLATFORM'] == 'win32' else ''
+
     env['DLIBFLAGPREFIX'] = '-'
     env['DLIBFLAGSUFFIX'] = ''
     env['DLINKFLAGPREFIX'] = '-'
     env['DLINKFLAGSUFFIX'] = ''
+
+    # __RPATH is set to $_RPATH in the platform specification if that
+    # platform supports it.
+    env['RPATHPREFIX'] = '-Wl,-rpath='
+    env['RPATHSUFFIX'] = ''
+    env['_RPATH'] = '${_concat(RPATHPREFIX, RPATH, RPATHSUFFIX, __env__)}'
 
     SCons.Tool.createStaticLibBuilder(env)
 
