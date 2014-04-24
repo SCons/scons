@@ -21,7 +21,7 @@ See its __doc__ string for a discussion of the format.
 
 <sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd scons.xsd">
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd">
 
 <tool name="gdc">
 <summary>
@@ -51,7 +51,7 @@ Sets construction variables for the D language compiler GDC.
 <item>DDEBUGSUFFIX</item>
 <item>DFLAGPREFIX</item>
 <item>DFLAGSUFFIX</item>
-<item>DFLESUFFIX</item>
+<item>DFILESUFFIX</item>
 <item>DLINK</item>
 <item>DLINKFLAGS</item>
 <item>DLINKCOM</item>
@@ -72,3 +72,5 @@ Sets construction variables for the D language compiler GDC.
 <uses>
 </uses>
 </tool>
+
+</sconsdoc>

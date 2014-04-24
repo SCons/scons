@@ -21,7 +21,7 @@ See its __doc__ string for a discussion of the format.
 
 <sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd">
 
 <tool name="ldc">
 <summary>
@@ -51,7 +51,7 @@ Sets construction variables for the D language compiler LDC2.
 <item>DDEBUGSUFFIX</item>
 <item>DFLAGPREFIX</item>
 <item>DFLAGSUFFIX</item>
-<item>DFLESUFFIX</item>
+<item>DFILESUFFIX</item>
 <item>DLINK</item>
 <item>DLINKFLAGS</item>
 <item>DLINKCOM</item>
@@ -66,8 +66,14 @@ Sets construction variables for the D language compiler LDC2.
 <item>_DLIBDIRFLAGS</item>
 <item>DLIB</item>
 <item>DLIBCOM</item>
+<item>_DLIBFLAGS</item>
 <item>DLIBFLAGPREFIX</item>
 <item>DLIBFLAGSUFFIX</item>
+<item>DLINKFLAGPREFIX</item>
+<item>DLINKFLAGSUFFIX</item>
+<item>RPATHPREFIX</item>
+<item>RPATHSUFFIX</item>
+<item>_RPATH</item>
 </sets>
 <uses>
 </uses>
