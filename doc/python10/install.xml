@@ -1,0 +1,218 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+]>
+
+<section id="sect-install"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Installation</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+<para>
+
+  Initial installation of a new utility provides the first, lasting
+  impression of how well the software is likely to perform. From the
+  start, &SCons; has made clean installation a priority.
+
+</para>
+
+<section>
+  <title>Version Control</title>
+
+  <para>
+
+    Distributing an application like &SCons; that depends
+    on a package normally found in a library poses a
+    problem. If the &scons; script and the &SCons; Build Engine
+    are installed separately, it could be easy
+    to introduce a version mismatch between the Build Engine
+    installed in
+    <filename>/usr/lib/python*/site-packages</filename>
+    and the &scons; script installed in
+    <filename>/usr/bin</filename>.
+    Such a mismatch
+    could possible mean exceptions that prevent builds, or even worse,
+    silently unreliable builds.
+
+  </para>
+
+  <para>
+
+    To reduce the possibility of a version mismatch,
+    the &scons; script looks first for its
+    imported modules in <filename>/usr/lib/scons-{version}/</filename>,
+    then in <filename>/usr/lib/scons/</filename>,
+    and then in the normal &PYTHONPATH; locations,
+    including <filename>/usr/lib/python*/site-packages</filename>).
+    Searching in a version-specific library directory first
+    makes it convenient to install and use multiple
+    side-by-side versions of &SCons;,
+    which is sometimes important
+    when verifying that a new version does not introduce any
+    errors into the local build process.
+    Searching next in an &SCons;-specific library directory
+    makes it convenient for other software to find
+    the &SCons; Build Engine without having to worry about
+    installing separate copies for
+    multiple versions of Python.
+
+  </para>
+
+</section>
+
+<section>
+  <title>Packages</title>
+
+  <para>
+
+    &SCons; is currently distributed in the following packages:
+
+  </para>
+
+  <table>
+  <title></title>
+  <tgroup cols="2">
+    <tbody>
+
+    <row valign="top">
+      <entry>
+        <literal>scons-</literal><emphasis>version</emphasis><literal>.tar.gz</literal>
+      </entry>
+      <entry><para>
+
+        The traditional <literal>.tar.gz</literal> file,
+        installable by running <filename>setup.py</filename>.
+
+      </para></entry>
+    </row>
+
+    <row valign="top">
+      <entry>
+        <literal>scons-</literal><emphasis>version</emphasis><literal>.noarch.rpm</literal>
+      </entry>
+      <entry><para>
+
+        An RPM file for typical installation.
+
+      </para></entry>
+    </row>
+
+    <row valign="top">
+      <entry>
+        <literal>scons-</literal><emphasis>version</emphasis><literal>_all.deb</literal>
+      </entry>
+      <entry><para>
+
+        A Debian package.
+
+      </para></entry>
+    </row>
+
+    <row valign="top">
+      <entry>
+        <literal>scons-</literal><emphasis>version</emphasis><literal>.win32.exe</literal>
+      </entry>
+      <entry><para>
+
+        A Windows installer.
+
+      </para></entry>
+    </row>
+
+    <row valign="top">
+      <entry>
+        <literal>scons-</literal><emphasis>version</emphasis><literal>.src.rpm</literal>
+      </entry>
+      <entry><para>
+
+        A source RPM file.
+
+      </para></entry>
+    </row>
+
+    <row valign="top">
+      <entry>
+        <literal>scons-src-</literal><emphasis>version</emphasis><literal>.tar.gz</literal>
+      </entry>
+      <entry><para>
+
+        A tarball of the &SCons; source tree,
+        including the full set of regression tests.
+
+      </para></entry>
+    </row>
+
+    </tbody>
+  </tgroup>
+  </table>
+
+  <para>
+
+    Like other software written in Python, &SCons; benefits greatly from
+    the tremendous effort put into the <literal>distutils</literal> by
+    Greg Ward and others. These take care of 90% of the work by making
+    it almost trivial to generate the appropriate RPM files, Debian
+    packages, and Windows installer.
+
+  </para>
+
+</section>
+
+<section>
+  <title>Default Builder Objects</title>
+
+  <para>
+
+    As part of the installation process, &SCons; runs a set of scripts
+    that look for popular compilers and other tools and set up
+    appropriate default &Builder; objects for the tools found. These
+    &Builder; objects are then used to initialize the default &consenv;
+    values.
+
+  </para>
+
+</section>
+
+<section>
+  <title>Default Scanner Objects</title>
+
+  <para>
+
+    Additionally, &SCons; comes with a stock set of &Scanner; objects
+    for the various file types that it supports out of the box. Any
+    unusal &Scanner; objects required for a specific tool will be
+    detected at installation time and associated with the appropriate
+    &Builder; object for the tool.
+
+  </para>
+
+</section>
+
+</section>

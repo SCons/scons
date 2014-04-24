@@ -1,0 +1,32 @@
+#!/bin/sh
+#
+# Sync this directory tree with sourceforge.
+#
+# Cribbed and modified from Peter Miller's same-named script in
+# /home/groups/a/ae/aegis/aegis at SourceForge.
+#
+# Guide to what this does with rsync:
+#
+#   --rsh=ssh          use ssh for the transfer
+#   -l                 copy symlinks as symlinks
+#   -p                 preserve permissions
+#   -r                 recursive
+#   -t                 preserve times
+#   -z                 compress data
+#   --stats            file transfer statistics
+#   --exclude          exclude files matching the pattern
+#   --delete           delete files that don't exist locally
+#   --delete-excluded  delete files that match the --exclude patterns
+#   --progress         show progress during the transfer
+#   -v                 verbose
+#
+LOCAL=/home/scons/scons
+REMOTE=/home/groups/s/sc/scons/scons
+/usr/bin/rsync --rsh=ssh -l -p -r -t -z --stats \
+	--exclude build \
+	--exclude "*,D" \
+	--exclude "*.pyc" \
+	--exclude aegis.log \
+	--delete --delete-excluded \
+	--progress -v \
+	${LOCAL}/. scons.sourceforge.net:${REMOTE}/.
