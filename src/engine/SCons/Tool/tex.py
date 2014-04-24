@@ -684,15 +684,18 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     auxfilename = targetbase + '.aux'
     logfilename = targetbase + '.log'
     flsfilename = targetbase + '.fls'
+    syncfilename = targetbase + '.synctex.gz'
 
     env.SideEffect(auxfilename,target[0])
     env.SideEffect(logfilename,target[0])
     env.SideEffect(flsfilename,target[0])
+    env.SideEffect(syncfilename,target[0])
     if Verbose:
-        print "side effect :",auxfilename,logfilename,flsfilename
+        print "side effect :",auxfilename,logfilename,flsfilename,syncfilename
     env.Clean(target[0],auxfilename)
     env.Clean(target[0],logfilename)
     env.Clean(target[0],flsfilename)
+    env.Clean(target[0],syncfilename)
 
     content = source[0].get_text_contents()
 
