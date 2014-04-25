@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q</userinput>
+BUILD_TARGETS is ['prog1']
+cc -o prog1.o -c prog1.c
+cc -o prog1 prog1.o
+% <userinput>scons -Q prog2</userinput>
+BUILD_TARGETS is ['prog2']
+cc -o prog2.o -c prog2.c
+cc -o prog2 prog2.o
+% <userinput>scons -Q -c .</userinput>
+BUILD_TARGETS is ['.']
+Removed prog1.o
+Removed prog1
+Removed prog2.o
+Removed prog2
+</screen>
