@@ -36,6 +36,10 @@ RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From Dirk Baechle:
     - Update XML doc editor configuration
 
+  From Rob Managan:
+    - Updated the TeX builder to correctly clean auxiliary files when
+      the biblatex package is used.
+
 RELEASE 2.3.1
 
   From Andrew Featherstone:
