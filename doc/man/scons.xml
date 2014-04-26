@@ -52,19 +52,19 @@
       <surname>Knight</surname>
     </author>
 
-    <corpauthor>Steven Knight</corpauthor>
+    <corpauthor>Steven Knight and the SCons Development Team</corpauthor>
 
-    <pubdate>2004, 2005, 2006, 2007, 2008, 2009, 2010</pubdate>
+    <pubdate>2004 - 2014</pubdate>
 
     <copyright>
-      <year>2004, 2005, 2006, 2007, 2008, 2009, 2010</year>
-      <holder>Steven Knight</holder>
+      <year>2004 - 2014</year>
+      <holder>The SCons Foundation</holder>
     </copyright>
 
     <releaseinfo>version &buildversion;</releaseinfo>
-    
+
     <mediaobject role="cover"><imageobject><imagedata fileref="cover.jpg" format="JPG"/></imageobject></mediaobject>
-    
+
   </referenceinfo>
 
   <title>SCons &buildversion;</title>
@@ -4936,7 +4936,7 @@ multi-stage builder.</para>
   <term>single_source</term>
   <listitem>
 <para>Specifies that this builder expects exactly one source file per call. Giving
-more than one source file without target files results in implicitely calling
+more than one source file without target files results in implicitly calling
 the builder multiple times (once for each source given). Giving multiple
 source files together with target files results in a UserError exception.</para>
 
@@ -5118,7 +5118,7 @@ function will turn its
 <emphasis role="bold">action</emphasis>
 keyword argument into an appropriate
 internal Action object.
-You can also explicity create Action objects
+You can also explicitly create Action objects
 using the
 <emphasis role="bold">Action</emphasis>()
 global function,
@@ -6125,7 +6125,7 @@ So in the following case:</para>
 <literallayout class="monospaced">
 env['COND'] = 0
 env.Command('foo.out', 'foo.in',
-<!--    '''echo ${COND==1 and 'FOO' or 'BAR'} &gt; $TARGET''') -->
+    '''echo ${COND==1 and 'FOO' or 'BAR'} &gt; $TARGET''')
 </literallayout>
 <para>the command executed will be either</para>
 <literallayout class="monospaced">
@@ -7095,9 +7095,9 @@ source code.</para>
 </refsect1>
 
 <refsect1 id='authors'><title>AUTHORS</title>
-<para>Steven Knight &lt;knight@baldmt.com&gt;
-<!-- .br -->
-Anthony Roach &lt;aroach@electriceyeball.com&gt;</para>
+<para>Originally: Steven Knight &lt;knight@baldmt.com&gt; and Anthony Roach &lt;aroach@electriceyeball.com&gt;<br/>
+Since 2010: The SCons Development Team &lt;scons-dev@scons.org&gt;
+</para>
 </refsect1>
 </refentry>
 </reference>
