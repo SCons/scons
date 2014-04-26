@@ -731,9 +731,10 @@ Check the SCons web site at:
 Author Info
 ===========
 
-Steven Knight, knight at baldmt dot com, http://www.baldmt.com/~knight/
-
-With plenty of help from the SCons Development team:
+SCons was originally written by Steven Knight, knight at baldmt dot com.
+Since around 2010 it has been maintained by the SCons
+development team, co-managed by Bill Deegan and Gary Oberbrunner, with
+many contributors, including but not at all limited to:
 
 - Chad Austin
 - Dirk Baechle
@@ -745,6 +746,8 @@ With plenty of help from the SCons Development team:
 - Gary Oberbrunner
 - Anthony Roach
 - Greg Spencer
+- Tom Tanner
+- Anatoly Techtonik
 - Christoph Wiedemann
 - Russel Winder
 

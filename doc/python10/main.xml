@@ -10,7 +10,7 @@
 <article xmlns="http://www.scons.org/dbxsd/v1.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
-         
+
 <!--
 
   __COPYRIGHT__
@@ -35,7 +35,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -->
-         
+
   <articleinfo>
     <title>SCons Design and Implementation</title>
 
@@ -46,8 +46,8 @@
 
     <copyright>
       <year>2001</year>
-      <year>2002</year>
-      <holder>Steven Knight</holder>
+      <year>2014</year>
+      <holder>The SCons Foundation</holder>
     </copyright>
 
     <pubdate>2002</pubdate>
