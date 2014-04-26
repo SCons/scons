@@ -102,6 +102,7 @@ makeacronyms_re = re.compile(r"^[^%\n]*\\makeglossaries", re.MULTILINE)
 beamer_re = re.compile(r"^[^%\n]*\\documentclass\{beamer\}", re.MULTILINE)
 regex = r'^[^%\n]*\\newglossary\s*\[([^\]]+)\]?\s*\{([^}]*)\}\s*\{([^}]*)\}\s*\{([^}]*)\}\s*\{([^}]*)\}'
 newglossary_re = re.compile(regex, re.MULTILINE)
+biblatex_re = re.compile(r"^[^%\n]*\\usepackage.*\{biblatex\}", re.MULTILINE)
 
 newglossary_suffix = []
 
@@ -722,7 +723,8 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                          makeglossaries_re,
                          makeacronyms_re,
                          beamer_re,
-                         newglossary_re ]
+                         newglossary_re,
+                         biblatex_re ]
     # set up list with the file suffixes that need emitting
     # when a feature is found
     file_tests_suff = [['.aux','aux_file'],
@@ -740,7 +742,8 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                   ['.glo', '.gls', '.glg','glossaries'],
                   ['.acn', '.acr', '.alg','acronyms'],
                   ['.nav', '.snm', '.out', '.toc','beamer'],
-                  ['newglossary',] ]
+                  ['newglossary',],
+                  ['.bcf', '.blg','biblatex'] ]
     # for newglossary the suffixes are added as we find the command
     # build the list of lists
     file_tests = []

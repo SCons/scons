@@ -39,6 +39,8 @@ RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From Rob Managan:
     - Updated the TeX builder to support use of the -synctex=1
       option and the files it creates.
+    - Updated the TeX builder to correctly clean auxiliary files when
+      the biblatex package is used.
 
 RELEASE 2.3.1
 
