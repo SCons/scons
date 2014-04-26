@@ -95,8 +95,6 @@ def generate(env):
     env['DVERSIONS'] = []
     env['DDEBUG'] = []
 
-    #env['SHOBJSUFFIX'] = '.os'
-    #env['OBJSUFFIX'] = '.o'
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 0
 
     if env['DC']:
@@ -113,21 +111,35 @@ def generate(env):
     env['DFILESUFFIX'] = '.d'
 
     env['DLINK'] = '$DC'
-    env['DLINKCOM'] = '$DLINK -of$TARGET $SOURCES $DFLAGS $DLINKFLAGS $_DLINKLIBFLAGS'
-    env['SHDLINKCOM'] = '$DLINK -shared -defaultlib=libphobos2.so -of$TARGET $SOURCES $DFLAGS $DLINKFLAGS $_DLINKLIBFLAGS'
+    env['DLINKFLAGS'] = SCons.Util.CLVar('')
+    env['DLINKCOM'] = '$DLINK -of$TARGET $DLINKFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS'
 
-    env['DLIB'] = 'lib' if env['PLATFORM'] == 'win32' else 'ar cr'
-    env['DLIBCOM'] = '$DLIB $_DLIBFLAGS {} $TARGET $SOURCES $_DLINKLIBFLAGS'.format('-c' if env['PLATFORM'] == 'win32' else '')
+    env['DSHLINK'] = '$DC'
+    env['DSHLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared -defaultlib=libphobos2.so')
+    env['SHDLINKCOM'] = '$DLINK -of$TARGET $DSHLINKFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS'
 
-    env['_DLINKLIBFLAGS'] = '$( ${_concat(DLIBLINKPREFIX, LIBS, DLIBLINKSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'
-    env['_DLIBFLAGS'] = '$( ${_concat(DLIBFLAGPREFIX, DLIBFLAGS, DLIBFLAGSUFFIX, __env__)} $)'
-    env['DLINKFLAGS'] = ['-L-L.']
     env['DLIBLINKPREFIX'] = '' if env['PLATFORM'] == 'win32' else '-L-l'
     env['DLIBLINKSUFFIX'] = '.lib' if env['PLATFORM'] == 'win32' else ''
+    env['_DLIBFLAGS'] = '${_stripixes(DLIBLINKPREFIX, LIBS, DLIBLINKSUFFIX, LIBPREFIXES, LIBSUFFIXES,  __env__)}'
+
+    env['DLIBDIRPREFIX'] = '-L-L'
+    env['DLIBDIRSUFFIX'] = ''
+    env['_DLIBDIRFLAGS'] = '$( ${_concat(DLIBDIRPREFIX, LIBPATH, DLIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'
+
+
+    env['DLIB'] = 'lib' if env['PLATFORM'] == 'win32' else 'ar cr'
+    env['DLIBCOM'] = '$DLIB $_DLIBFLAGS {} $TARGET $SOURCES $_DLIBFLAGS'.format('-c' if env['PLATFORM'] == 'win32' else '')
+
+    #env['_DLIBFLAGS'] = '$( ${_concat(DLIBFLAGPREFIX, DLIBFLAGS, DLIBFLAGSUFFIX, __env__)} $)'
+
     env['DLIBFLAGPREFIX'] = '-'
     env['DLIBFLAGSUFFIX'] = ''
-    env['DLINKFLAGPREFIX'] = '-'
-    env['DLINKFLAGSUFFIX'] = ''
+
+    # __RPATH is set to $_RPATH in the platform specification if that
+    # platform supports it.
+    env['DRPATHPREFIX'] = '-L-rpath='
+    env['DRPATHSUFFIX'] = ''
+    env['_DRPATH'] = '${_concat(DRPATHPREFIX, RPATH, DRPATHSUFFIX, __env__)}'
 
     SCons.Tool.createStaticLibBuilder(env)
 
