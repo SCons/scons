@@ -339,37 +339,41 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
         except (IOError, OSError), e:
             print "scons: Could not remove '%s':" % pathstr, e.strerror
 
-    def show(self):
+    def _get_files_to_clean(self):
+        result = []
         target = self.targets[0]
-        if (target.has_builder() or target.side_effect) and not target.noclean:
-            for t in self.targets:
-                if not t.isdir():
-                    display("Removed " + str(t))
+        if target.has_builder() or target.side_effect:
+            result = [t for t in self.targets if not t.noclean]
+        return result
+
+    def _clean_targets(self, remove):
+        target = self.targets[0]
         if target in SCons.Environment.CleanTargets:
             files = SCons.Environment.CleanTargets[target]
             for f in files:
-                self.fs_delete(f.abspath, str(f), 0)
+                self.fs_delete(f.abspath, str(f), remove)
+
+    def show(self):
+        for t in self._get_files_to_clean():
+            if not t.isdir():
+                display("Removed " + str(t))
+        self._clean_targets(0)
 
     def remove(self):
-        target = self.targets[0]
-        if (target.has_builder() or target.side_effect) and not target.noclean:
-            for t in self.targets:
-                try:
-                    removed = t.remove()
-                except OSError, e:
-                    # An OSError may indicate something like a permissions
-                    # issue, an IOError would indicate something like
-                    # the file not existing.  In either case, print a
-                    # message and keep going to try to remove as many
-                    # targets aa possible.
-                    print "scons: Could not remove '%s':" % str(t), e.strerror
-                else:
-                    if removed:
-                        display("Removed " + str(t))
-        if target in SCons.Environment.CleanTargets:
-            files = SCons.Environment.CleanTargets[target]
-            for f in files:
-                self.fs_delete(f.abspath, str(f))
+        for t in self._get_files_to_clean():
+            try:
+                removed = t.remove()
+            except OSError, e:
+                # An OSError may indicate something like a permissions
+                # issue, an IOError would indicate something like
+                # the file not existing.  In either case, print a
+                # message and keep going to try to remove as many
+                # targets aa possible.
+                print "scons: Could not remove '%s':" % str(t), e.strerror
+            else:
+                if removed:
+                    display("Removed " + str(t))
+        self._clean_targets(1)
 
     execute = remove
 
