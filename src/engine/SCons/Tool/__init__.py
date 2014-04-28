@@ -772,6 +772,9 @@ def tool_list(platform, env):
         fortran_compilers = ['gfortran', 'g77', 'ifort', 'ifl', 'f95', 'f90', 'f77']
         ars = ['ar', 'mslib']
 
+    if not str(platform) == 'win32':
+        other_plat_tools += ['m4', 'rpm']
+
     c_compiler = FindTool(c_compilers, env) or c_compilers[0]
 
     # XXX this logic about what tool provides what should somehow be
@@ -802,7 +805,6 @@ def tool_list(platform, env):
                                #TODO: merge 'install' into 'filesystem' and
                                # make 'filesystem' the default
                                'filesystem',
-                               'm4',
                                'wix', #'midl', 'msvs',
                                # Parser generators
                                'lex', 'yacc',
@@ -814,7 +816,7 @@ def tool_list(platform, env):
                                'dvipdf', 'dvips', 'gs',
                                'tex', 'latex', 'pdflatex', 'pdftex',
                                # Archivers
-                               'tar', 'zip', 'rpm',
+                               'tar', 'zip',
                                # SourceCode factories
                                'BitKeeper', 'CVS', 'Perforce',
                                'RCS', 'SCCS', # 'Subversion',

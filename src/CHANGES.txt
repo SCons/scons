@@ -35,6 +35,11 @@ RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
         that were failing because of this extra line in the output
       * error message when SCons import fails now lists lookup paths
     - Remove support for QMTest harness from runtest.py
+    - Remove RPM and m4 from default tools on Windows
+    - BitKeeper, CVS, Perforce, RCS, SCCS are deprecated from default
+      tools and will be removed in future SCons versions to speed up
+      SCons initialization (it will still be possible to use these tools
+      explicitly)
 
   From Dirk Baechle:
     - Update XML doc editor configuration
