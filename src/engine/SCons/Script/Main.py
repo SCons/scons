@@ -312,7 +312,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
 
 class CleanTask(SCons.Taskmaster.AlwaysTask):
     """An SCons clean task."""
-    def fs_delete(self, path, pathstr, remove=1):
+    def fs_delete(self, path, pathstr, remove=True):
         try:
             if os.path.lexists(path):
                 if os.path.isfile(path) or os.path.islink(path):
@@ -346,7 +346,7 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
             result = [t for t in self.targets if not t.noclean]
         return result
 
-    def _clean_targets(self, remove):
+    def _clean_targets(self, remove=True):
         target = self.targets[0]
         if target in SCons.Environment.CleanTargets:
             files = SCons.Environment.CleanTargets[target]
@@ -357,7 +357,7 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
         for t in self._get_files_to_clean():
             if not t.isdir():
                 display("Removed " + str(t))
-        self._clean_targets(0)
+        self._clean_targets(remove=False)
 
     def remove(self):
         for t in self._get_files_to_clean():
@@ -373,7 +373,7 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
             else:
                 if removed:
                     display("Removed " + str(t))
-        self._clean_targets(1)
+        self._clean_targets(remove=True)
 
     execute = remove
 
