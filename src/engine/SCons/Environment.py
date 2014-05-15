@@ -1803,8 +1803,8 @@ class Base(SubstitutionEnvironment):
                 pass
         elif SCons.Util.is_String(pathext):
             pathext = self.subst(pathext)
-        prog = self.subst(prog)
-        path = SCons.Util.WhereIs(prog, path, pathext, reject)
+        prog = SCons.Util.CLVar(self.subst(prog)) # support "program --with-args"
+        path = SCons.Util.WhereIs(prog[0], path, pathext, reject)
         if path: return path
         return None
 
