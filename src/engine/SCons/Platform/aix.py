@@ -33,10 +33,14 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import subprocess
 
 import posix
 
-def get_xlc(env, xlc=None, xlc_r=None, packages=[]):
+import SCons.Util
+import SCons.Action
+
+def get_xlc(env, xlc=None, packages=[]):
     # Use the AIX package installer tool lslpp to figure out where a
     # given xl* compiler is installed and what version it is.
     xlcPath = None
@@ -44,18 +48,30 @@ def get_xlc(env, xlc=None, xlc_r=None, packages=[]):
 
     if xlc is None:
         xlc = env.get('CC', 'xlc')
-    if xlc_r is None:
-        xlc_r = xlc + '_r'
+    if SCons.Util.is_List(xlc):
+        xlc = xlc[0]
     for package in packages:
-        cmd = "lslpp -fc " + package + " 2>/dev/null | egrep '" + xlc + "([^-_a-zA-Z0-9].*)?$'"
-        line = os.popen(cmd).readline()
-        if line:
-            v, p = line.split(':')[1:3]
-            xlcVersion = v.split()[1]
-            xlcPath = p.split()[0]
-            xlcPath = xlcPath[:xlcPath.rindex('/')]
-            break
-    return (xlcPath, xlc, xlc_r, xlcVersion)
+        # find the installed filename, which may be a symlink as well
+        pipe = SCons.Action._subproc(env, ['lslpp', '-fc', package],
+                stdin = 'devnull',
+                stderr = 'devnull',
+                stdout = subprocess.PIPE)
+        # output of lslpp is something like this:
+        #     #Path:Fileset:File
+        #     /usr/lib/objrepos:vac.C 6.0.0.0:/usr/vac/exe/xlCcpp
+        #     /usr/lib/objrepos:vac.C 6.0.0.0:/usr/vac/bin/xlc_r -> /usr/vac/bin/xlc
+        for line in pipe.stdout:
+            if xlcPath:
+                continue # read everything to let lslpp terminate
+            fileset, filename = line.split(':')[1:3]
+            filename = filename.split()[0]
+            if ('/' in xlc and filename == xlc) \
+            or ('/' not in xlc and filename.endswith('/' + xlc)):
+                xlcVersion = fileset.split()[1]
+                xlcPath, sep, xlc = filename.rpartition('/')
+            pass
+        pass
+    return (xlcPath, xlc, xlcVersion)
 
 def generate(env):
     posix.generate(env)
