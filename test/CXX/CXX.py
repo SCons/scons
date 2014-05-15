@@ -186,7 +186,8 @@ env.Program(target = 'test6', source = 'test6.C')
 test.write("wrapper.py",
 """import os
 import sys
-open('%s', 'wb').write("wrapper.py\\n")
+if '--version' not in sys.argv and '-dumpversion' not in sys.argv:
+    open('%s', 'wb').write("wrapper.py\\n")
 os.system(" ".join(sys.argv[1:]))
 """ % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
