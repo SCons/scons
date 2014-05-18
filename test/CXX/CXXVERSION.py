@@ -1,13 +1,4 @@
-"""SCons.Tool.gnulink
-
-Tool-specific initialization for the gnu linker.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -33,32 +24,55 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Util
+import os
+import sys
+import TestSCons
 
-import link
+_python_ = TestSCons._python_
+_exe   = TestSCons._exe
 
-def generate(env):
-    """Add Builders and construction variables for gnulink to an Environment."""
-    link.generate(env)
+test = TestSCons.TestSCons()
 
-    if env['PLATFORM'] == 'hpux':
-        env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -shared -fPIC')
 
-    # __RPATH is set to $_RPATH in the platform specification if that
-    # platform supports it.
-    env['RPATHPREFIX'] = '-Wl,-rpath='
-    env['RPATHSUFFIX'] = ''
-    env['_RPATH'] = '${_concat(RPATHPREFIX, RPATH, RPATHSUFFIX, __env__)}'
-    
-def exists(env):
-    # TODO: sync with link.smart_link() to choose a linker
-    linkers = { 'CXX': ['g++'], 'CC': ['gcc'] }
-    alltools = []
-    for langvar, linktools in linkers.items():
-        if langvar in env: # use CC over CXX when user specified CC but not CXX
-            return SCons.Tool.FindTool(linktools, env)
-        alltools.extend(linktools)
-    return SCons.Tool.FindTool(alltools, env) # find CXX or CC
+
+test.write("versioned.py",
+"""import os
+import sys
+if '-dumpversion' in sys.argv:
+    print '3.9.9'
+    sys.exit(0)
+if '--version' in sys.argv:
+    print 'this is version 2.9.9 wrapping', sys.argv[2]
+    sys.exit(0)
+if sys.argv[1] not in [ '2.9.9', '3.9.9' ]:
+    print 'wrong version', sys.argv[1], 'when wrapping', sys.argv[2]
+    sys.exit(1)
+os.system(" ".join(sys.argv[2:]))
+""")
+
+test.write('SConstruct', """
+cxx = Environment().Dictionary('CXX')
+foo = Environment(CXX = r'%(_python_)s versioned.py "${CXXVERSION}" ' + cxx)
+foo.Program(target = 'foo', source = 'foo.cpp')
+""" % locals())
+
+test.write('foo.cpp', r"""
+#include <stdio.h>
+#include <stdlib.h>
+
+int
+main(int argc, char *argv[])
+{
+        printf("foo.c\n");
+        exit (0);
+}
+""")
+
+test.run(arguments = 'foo' + _exe)
+
+test.up_to_date(arguments = 'foo' + _exe)
+
+test.pass_test()
 
 # Local Variables:
 # tab-width:4

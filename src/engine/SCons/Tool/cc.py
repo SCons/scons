@@ -62,6 +62,8 @@ def add_common_cc_variables(env):
     if 'SHCCFLAGS' not in env:
         env['SHCCFLAGS'] = SCons.Util.CLVar('$CCFLAGS')
 
+compilers = ['cc']
+
 def generate(env):
     """
     Add Builders and construction variables for C compilers to an Environment.
@@ -76,7 +78,8 @@ def generate(env):
 
     add_common_cc_variables(env)
 
-    env['CC']        = 'cc'
+    if 'CC' not in env:
+        env['CC']    = env.Detect(compilers) or compilers[0]
     env['CFLAGS']    = SCons.Util.CLVar('')
     env['CCCOM']     = '$CC -o $TARGET -c $CFLAGS $CCFLAGS $_CCCOMCOM $SOURCES'
     env['SHCC']      = '$CC'
@@ -93,7 +96,7 @@ def generate(env):
     env['CFILESUFFIX'] = '.c'
 
 def exists(env):
-    return env.Detect('cc')
+    return env.Detect(env.get('CC', compilers))
 
 # Local Variables:
 # tab-width:4
