@@ -685,6 +685,7 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
             class f(object):
                 def read(self): return ''
                 def readline(self): return ''
+                def __iter__(self): return iter(())
             stdout = stderr = f()
         return dummyPopen(e)
 
