@@ -72,7 +72,8 @@ def generate(env):
 
     SCons.Tool.cc.add_common_cc_variables(env)
 
-    env['CXX']        = 'c++'
+    if 'CXX' not in env:
+        env['CXX']    = env.Detect(compilers) or compilers[0]
     env['CXXFLAGS']   = SCons.Util.CLVar('')
     env['CXXCOM']     = '$CXX -o $TARGET -c $CXXFLAGS $CCFLAGS $_CCCOMCOM $SOURCES'
     env['SHCXX']      = '$CXX'
@@ -90,7 +91,7 @@ def generate(env):
     env['CXXFILESUFFIX'] = '.cc'
 
 def exists(env):
-    return env.Detect(compilers)
+    return env.Detect(env.get('CXX', compilers))
 
 # Local Variables:
 # tab-width:4

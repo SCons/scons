@@ -51,6 +51,8 @@ class ToolTestCase(unittest.TestCase):
                 return self.dict.__contains__(key)
             def has_key(self, key):
                 return key in self.dict
+            def subst(self, string, *args, **kwargs):
+                return string
         env = Environment()
         env['BUILDERS'] = {}
         env['ENV'] = {}
