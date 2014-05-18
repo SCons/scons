@@ -8,6 +8,7 @@ RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
   From Michael Haubenwallner:
     - Respect user's CC/CXX values; don't always overwrite in generate()
+    - Delegate linker Tool.exists() to CC/CXX Tool.exists().
 
   From Amir Szekely:
     - Fixed NoClean() for multi-target builders (#2353).

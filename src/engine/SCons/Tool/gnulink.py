@@ -37,8 +37,6 @@ import SCons.Util
 
 import link
 
-linkers = ['g++', 'gcc']
-
 def generate(env):
     """Add Builders and construction variables for gnulink to an Environment."""
     link.generate(env)
@@ -53,7 +51,14 @@ def generate(env):
     env['_RPATH'] = '${_concat(RPATHPREFIX, RPATH, RPATHSUFFIX, __env__)}'
     
 def exists(env):
-    return env.Detect(linkers)
+    # TODO: sync with link.smart_link() to choose a linker
+    linkers = { 'CXX': ['g++'], 'CC': ['gcc'] }
+    alltools = []
+    for langvar, linktools in linkers.items():
+        if langvar in env: # use CC over CXX when user specified CC but not CXX
+            return SCons.Tool.FindTool(linktools, env)
+        alltools.extend(linktools)
+    return SCons.Tool.FindTool(alltools, env) # find CXX or CC
 
 # Local Variables:
 # tab-width:4
