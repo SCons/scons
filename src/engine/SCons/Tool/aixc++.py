@@ -45,12 +45,6 @@ def get_xlc(env):
     xlc = env.get('CXX', 'xlC')
     return SCons.Platform.aix.get_xlc(env, xlc, packages)
 
-def smart_cxxflags(source, target, env, for_signature):
-    build_dir = env.GetBuildPath()
-    if build_dir:
-        return '-qtempinc=' + os.path.join(build_dir, 'tempinc')
-    return ''
-
 def generate(env):
     """Add Builders and construction variables for xlC / Visual Age
     suite to an Environment."""
