@@ -242,7 +242,7 @@ def __xml_scan(node, env, path, arg):
 
     styledoc = libxml2.parseFile(xsl_file)
     style = libxslt.parseStylesheetDoc(styledoc)
-    doc = libxml2.parseFile(str(node))
+    doc = libxml2.readFile(str(node), None, libxml2.XML_PARSE_NOENT)
     result = style.applyStylesheet(doc, None)
 
     depfiles = []
@@ -348,7 +348,7 @@ def __xinclude_libxml2(target, source, env):
     Resolving XIncludes, using the libxml2 module.
     """
     doc = libxml2.readFile(str(source[0]), None, libxml2.XML_PARSE_NOENT)
-    doc.xincludeProcess()
+    doc.xincludeProcessFlags(libxml2.XML_PARSE_NOENT)
     doc.saveFile(str(target[0]))
     doc.freeDoc()
 
