@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q</userinput>
+cc -o prog1/foo.o -c prog1/foo.c
+cc -o prog1/main.o -c prog1/main.c
+cc -o prog1/main prog1/main.o prog1/foo.o
+% <userinput>scons -Q</userinput>
+scons: `prog1' is up to date.
+% <userinput>scons -Q .</userinput>
+cc -o prog2/bar.o -c prog2/bar.c
+cc -o prog2/main.o -c prog2/main.c
+cc -o prog2/main prog2/main.o prog2/bar.o
+</screen>

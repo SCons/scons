@@ -1,0 +1,125 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+]>
+
+<chapter id="chap-intro"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Introduction</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+ <para>
+
+   The &SCons; tool provides an easy-to-use, feature-rich interface
+   for constructing software.  Architecturally, &SCons; separates
+   its dependency analysis and external object management into an
+   interface-independent Build Engine that could be embedded in any
+   software system that can run Python.
+
+ </para>
+
+ <para>
+
+   At the command line, &SCons; presents an easily-grasped tool
+   where configuration files are Python scripts, reducing the need
+   to learn new build-tool syntax. Inexperienced users can use
+   intelligent methods that ``do the right thing'' to build software
+   with a minimum of fuss. Sophisticated users can use a rich set
+   of underlying features for finer control of the build process,
+   including mechanisms for easily extending the build process to new
+   file types.
+   
+ </para>
+ 
+ <para>
+ 
+   Dependencies are tracked using digital signatures,
+   which provide more robust dependency analysis than file time
+   stamps. Implicit dependencies are determined automatically by
+   scanning the contents of source files, avoiding the need for
+   laborious and fragile maintenance of static lists of dependencies in
+   configuration files.
+   
+ </para>
+
+ <para>
+
+   The &SCons; tool supports use of files from one or more central code
+   repositories, a mechanism for caching derived files, and parallel
+   builds.  The tool also includes a framework for sharing build
+   environments, which allows system administrators or integrators to
+   define appropriate build parameters for use by other users.
+
+ </para>
+
+<section id="sect-document">
+ <title>About This Document</title>
+
+ <para>
+
+   This document is an ongoing work-in-progress to write down the ideas
+   and tradeoffs that have gone, and will go into, the &SCons; design.
+   As such, this is intended primarily for use by developers and others
+   working on &SCons;, although it is also intended to serve as a
+   detailed overview of &SCons; for other interested parties.  It will
+   be continually updated and evolve, and will likely overlap with other
+   documentation produced by the project.  Sections of this document
+   that deal with syntax, for example, may move or be copied into a user
+   guide or reference manual.
+
+ </para>
+
+ <para>
+
+   So please don't assume that everything mentioned here has been
+   decided and carved in stone.  If you have ideas for improvements, or
+   questions about things that don't seem to make any sense, please help
+   improve the design by speaking up about them.
+
+ </para>
+
+<!--
+Sections marked like this
+(prefixed with <literal>RATIONALE:</literal> in the HTML,
+surrounded by <literal>BEGIN RATIONALE:</literal>
+and <literal>END RATIONALE:</literal>
+in the printed documentatio)
+are DocBook REMARKs,
+comments about the document
+rather than actual document.
+I've used these to mark sections that need work,
+but also to cite some open design issues.
+If you have input on any of these marked issues,
+I'm especially eager to hear it.
+-->
+
+</section>
+
+</chapter>

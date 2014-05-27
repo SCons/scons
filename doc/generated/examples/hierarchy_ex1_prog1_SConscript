@@ -1,0 +1,4 @@
+
+env = Environment()
+env.Program('prog1', ['main.c', 'foo1.c', 'foo2.c'])
+      
