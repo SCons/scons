@@ -26,7 +26,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 # This test tests whether a file that defines a module "a" and
 # then uses it with a different case ("A") works.  Pre-2.0, this
-# gave a spurious dependency cycle error.  See Tigris issue #2574.
+# gave a spurious dependency cycle error.
+# See http://scons.tigris.org/issues/show_bug.cgi?id=2574
 
 import TestSCons
 

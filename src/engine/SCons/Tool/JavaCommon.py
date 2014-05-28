@@ -244,7 +244,8 @@ if java_parsing:
                 return self
             # If that's an inner class which is declared in a method, it
             # requires an index prepended to the class-name, e.g.
-            # 'Foo$1Inner' (Tigris Issue 2087)
+            # 'Foo$1Inner'
+            # http://scons.tigris.org/issues/show_bug.cgi?id=2087
             if self.outer_state.localClasses and \
                 self.outer_state.stackBrackets[-1] > \
                 self.outer_state.stackBrackets[-2]+1:
