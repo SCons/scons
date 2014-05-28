@@ -676,7 +676,7 @@ Submission page:
 
 You can also send mail to the SCons developers' mailing list:
 
-        dev@scons.tigris.org
+        scons-dev@scons.org
 
 But even if you send email to the mailing list please make sure that you ALSO
 submit a bug report to the project page bug tracker, because bug reports in
@@ -689,12 +689,11 @@ Mailing Lists
 An active mailing list for developers of SCons is available.  You may
 send questions or comments to the list at:
 
-        dev@scons.tigris.org
+        scons-dev@scons.org
 
-You may request a subscription to the developer's mailing list by sending
-email to:
+You may subscribe to the developer's mailing list using form on this page:
 
-        dev-subscribe@scons.tigris.org
+        http://two.pairlist.net/mailman/listinfo/scons-dev
 
 Subscription to the developer's mailing list is by approval.  In practice, no
 one is refused list membership, but we reserve the right to limit membership
