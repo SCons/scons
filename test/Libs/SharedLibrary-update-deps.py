@@ -26,7 +26,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test that SharedLibrary() updates when a different lib is linked, even if it has the same md5.
-This is Tigris bug #2903.
+This is http://scons.tigris.org/issues/show_bug.cgi?id=2903
 """
 
 import sys

@@ -32,7 +32,7 @@ we have to make sure that the file gets copied to the variant dir. (This
 was not the case for 0.98.5 and earlier)
 
 Test case supplied by Jared Grubb, based on a minimal example supplied
-by Ali Tofigh, filed as issue #2121 at tigris.org.
+by Ali Tofigh, filed as http://scons.tigris.org/issues/show_bug.cgi?id=2121
 """
 
 import TestSCons
