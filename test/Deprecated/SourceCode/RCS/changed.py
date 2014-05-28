@@ -38,7 +38,7 @@ Environment(tools = ['RCS']).RCS()
 msg_rcs = """The RCS() factory is deprecated and there is no replacement."""
 warn_rcs = test.deprecated_fatal('deprecated-build-dir', msg_rcs)
 msg_sc = """SourceCode() has been deprecated and there is no replacement.
-\tIf you need this function, please contact dev@scons.tigris.org."""
+\tIf you need this function, please contact scons-dev@scons.org"""
 warn_sc = test.deprecated_wrap(msg_sc)
 
 rcs = test.where_is('rcs')

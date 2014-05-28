@@ -111,4 +111,4 @@ Things to do to release a new X.Y.Z version of SCons:
 
 
 
-    Announce to dev@scons.tigris.org.
+    Announce to scons-dev@scons.org

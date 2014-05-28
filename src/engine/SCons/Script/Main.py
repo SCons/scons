@@ -1025,7 +1025,7 @@ def _main(parser):
     # in case they disabled the warning in the SConscript files.
     if python_version_deprecated():
         msg = "Support for pre-%s Python version (%s) is deprecated.\n" + \
-              "    If this will cause hardship, contact dev@scons.tigris.org."
+              "    If this will cause hardship, contact scons-dev@scons.org"
         deprecated_version_string = ".".join(map(str, deprecated_python_version))
         SCons.Warnings.warn(SCons.Warnings.PythonVersionWarning,
                             msg % (deprecated_version_string, python_version_string()))
