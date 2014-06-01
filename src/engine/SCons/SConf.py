@@ -1,6 +1,15 @@
 """SCons.SConf
 
 Autoconf-like configuration support.
+
+In other words, this package allows to run series of tests to detect
+capabilities of current system and generate config files (header files
+in C/C++) that turn on system-specific options and optimizations.
+
+For example, it is possible to detect if optional libraries are present
+on current system and generate config that makes compiler include them.
+C compilers do not have ability to catch ImportError if some library is
+not found, so these checks should be done externally.
 """
 
 #
