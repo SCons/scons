@@ -1031,7 +1031,11 @@ def _main(parser):
                             msg % (deprecated_version_string, python_version_string()))
 
     if not options.help:
-        SCons.SConf.CreateConfigHBuilder(SCons.Defaults.DefaultEnvironment())
+        # [ ] Clarify why we need to create Builder here at all, and
+        #     why it is created in DefaultEnvironment
+        # https://bitbucket.org/scons/scons/commits/d27a548aeee8ad5e67ea75c2d19a7d305f784e30
+        if SCons.SConf.NeedConfigHBuilder():
+            SCons.SConf.CreateConfigHBuilder(SCons.Defaults.DefaultEnvironment())
 
     # Now re-parse the command-line options (any to the left of a '--'
     # argument, that is) with any user-defined command-line options that
