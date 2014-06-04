@@ -47,6 +47,7 @@ RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
   From Dirk Baechle:
     - Update XML doc editor configuration
+    - Fix: Allow varlist to be specified as list of strings for Actions (#2754)
 
   From Rob Managan:
     - Updated the TeX builder to support use of the -synctex=1
