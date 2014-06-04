@@ -211,6 +211,9 @@ def test_varlist(pos_call, str_call, cmd, cmdstrfunc, **kw):
     a = call_action((cmd, cmdstrfunc, 'a', 'b', 'c'))
     assert a.varlist == ('a', 'b', 'c'), a.varlist
 
+    a = call_action((cmd, cmdstrfunc, ['a', 'b', 'c']))
+    assert a.varlist == ('a', 'b', 'c'), a.varlist
+
     kw['varlist'] = 'foo'
     a = call_action((cmd, cmdstrfunc))
     assert a.varlist == ('foo',), a.varlist
