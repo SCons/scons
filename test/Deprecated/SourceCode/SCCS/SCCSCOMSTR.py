@@ -42,7 +42,7 @@ Environment(tools = ['SCCS']).SCCS()
 msg_sccs = """The SCCS() factory is deprecated and there is no replacement."""
 warn_sccs = test.deprecated_fatal('deprecated-build-dir', msg_sccs)
 msg_sc = """SourceCode() has been deprecated and there is no replacement.
-\tIf you need this function, please contact dev@scons.tigris.org."""
+\tIf you need this function, please contact scons-dev@scons.org"""
 warn_sc = test.deprecated_wrap(msg_sc)
 
 test.subdir('SCCS', ['SCCS', 'sub'], 'sub')

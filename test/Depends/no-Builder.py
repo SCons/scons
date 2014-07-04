@@ -40,7 +40,7 @@ file2 = File('file2')
 env.Depends(file1, [[file2, 'file3']])
 # Verify that a "hidden" file created by another action causes the
 # action to run when an explicit Dependency is specified.
-# See tigris.org issue 2647.
+# See http://scons.tigris.org/issues/show_bug.cgi?id=2647
 env.Depends('hidden', 'file4.out')
 env.Command('file4.out', 'file4.in',
             [Copy('$TARGET', '$SOURCE'), Touch('hidden')])

@@ -508,7 +508,7 @@ group.add_option("-r", "--reviewers", action="store", dest="reviewers",
                  metavar="REVIEWERS", default=None,
                  help="Add reviewers (comma separated email addresses).")
 group.add_option("--cc", action="store", dest="cc",
-                 metavar="CC", default="dev@scons.tigris.org",
+                 metavar="CC", default="scons-dev@scons.org",
                  help="Add CC (comma separated email addresses).")
 group.add_option("--private", action="store_true", dest="private",
                  default=False,

@@ -42,7 +42,7 @@ Environment(tools = ['BitKeeper']).BitKeeper()
 msg_bk = """The BitKeeper() factory is deprecated and there is no replacement."""
 warn_bk = test.deprecated_fatal('deprecated-build-dir', msg_bk)
 msg_sc = """SourceCode() has been deprecated and there is no replacement.
-\tIf you need this function, please contact dev@scons.tigris.org."""
+\tIf you need this function, please contact scons-dev@scons.org"""
 warn_sc = test.deprecated_wrap(msg_sc)
 
 test.subdir('BitKeeper', ['BitKeeper', 'sub'], 'sub')
