@@ -1,6 +1,15 @@
 """SCons.SConf
 
 Autoconf-like configuration support.
+
+In other words, this package allows to run series of tests to detect
+capabilities of current system and generate config files (header files
+in C/C++) that turn on system-specific options and optimizations.
+
+For example, it is possible to detect if optional libraries are present
+on current system and generate config that makes compiler include them.
+C compilers do not have ability to catch ImportError if some library is
+not found, so these checks should be done externally.
 """
 
 #
@@ -110,16 +119,22 @@ def _createConfigH(target, source, env):
 def _stringConfigH(target, source, env):
     return "scons: Configure: creating " + str(target[0])
 
-def CreateConfigHBuilder(env):
-    """Called just before the building targets phase begins."""
+
+def NeedConfigHBuilder():
     if len(_ac_config_hs) == 0:
-        return
+       return False
+    else:
+       return True
+
+def CreateConfigHBuilder(env):
+    """Called if necessary just before the building targets phase begins."""
     action = SCons.Action.Action(_createConfigH,
                                  _stringConfigH)
     sconfigHBld = SCons.Builder.Builder(action=action)
     env.Append( BUILDERS={'SConfigHBuilder':sconfigHBld} )
     for k in _ac_config_hs.keys():
         env.SConfigHBuilder(k, env.Value(_ac_config_hs[k]))
+
     
 class SConfWarning(SCons.Warnings.Warning):
     pass

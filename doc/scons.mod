@@ -525,8 +525,8 @@
 -->
 
 <!ENTITY scons-announce "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>announce@scons.tigris.org</literal>">
-<!ENTITY scons-devel "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>dev@scons.tigris.org</literal>">
-<!ENTITY scons-users "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>users@scons.tigris.org</literal>">
+<!ENTITY scons-devel "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>scons-dev@scons.org</literal>">
+<!ENTITY scons-users "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>scons-users@scons.org</literal>">
 
 <!--
 

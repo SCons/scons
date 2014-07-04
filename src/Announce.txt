@@ -319,7 +319,7 @@ RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
         Python 1.5, 2.0 or 2.1 release or sub-release:
 
             scons: warning: Support for pre-2.2 Python (VERSION) is deprecated.
-                If this will cause hardship, contact dev@scons.tigris.org.
+                If this will cause hardship, contact scons-dev@scons.org
 
         You may disable all warnings about deprecated features by adding
         the option "--warn=no-deprecated" to the command line or to the
