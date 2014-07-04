@@ -19,12 +19,33 @@ effectively, please go to http://scons.org/lists.php#users to sign up for
 the scons-users mailing list.
 
 
-RELEASE 2.3.1.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
+RELEASE 2.3.2
 
   Please consult the RELEASE.txt file for a summary of changes since the last
   release and consult the CHANGES.txt file for complete a list of changes
   since last release.  This announcement highlights only the important
   changes.
+
+  Please note the following important changes since release 2.3.0:
+
+    -- BitKeeper, CVS, Perforce, RCS, SCCS are deprecated from the
+       default toolset and will be removed from the default toolset
+       in future SCons versions to speed up SCons initialization.
+       The tools themselves continue to be supported.
+
+    -- Support for Visual Studio 12.0Exp and 2013
+
+    -- Revamp of D language support, focusing on D v2.
+       D v1 is now deprecated.
+
+    -- Fixed NoClean() for multi-target builders.
+
+    -- RPM and m4 are no longer in the default toolset on Windows.
+       Should improve startup speed.
+
+    -- TeX fixes: -synctex=1 and cleaning auxiliary files.
+
+    -- Fixes to the Docbook tool.
 
   Please note the following important changes since release 2.3.0:
 
