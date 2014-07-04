@@ -327,6 +327,22 @@ no_space_input = """
 """
 
 
+nested_ifs_input = """
+#define DEFINED
+
+#ifdef	NOT_DEFINED
+    #include "file7-no"
+    #ifdef DEFINED
+        #include "file8-no"
+    #else
+        #include "file9-no"
+    #endif
+#else
+    #include "file7-yes"
+#endif
+"""
+
+
 
 #    pp_class = PreProcessor
 #    #pp_class = DumbPreProcessor
@@ -401,6 +417,11 @@ class cppTestCase(unittest.TestCase):
         """Test no space between #include and the quote"""
         expect = self.no_space_expect
         result = self.cpp.process_contents(no_space_input)
+        assert expect == result, (expect, result)
+
+    def test_nested_ifs(self):
+        expect = self.nested_ifs_expect
+        result = self.cpp.process_contents(nested_ifs_input)
         assert expect == result, (expect, result)
 
 class cppAllTestCase(cppTestCase):
@@ -484,6 +505,10 @@ class PreProcessorTestCase(cppAllTestCase):
     no_space_expect = [
         ('include', '<', 'file43-yes'),
         ('include', '"', 'file44-yes'),
+    ]
+
+    nested_ifs_expect = [
+        ('include', '"', 'file7-yes'),
     ]
 
 class DumbPreProcessorTestCase(cppAllTestCase):
@@ -589,6 +614,13 @@ class DumbPreProcessorTestCase(cppAllTestCase):
     no_space_expect = [
         ('include', '<', 'file43-yes'),
         ('include', '"', 'file44-yes'),
+    ]
+
+    nested_ifs_expect = [
+        ('include', '"', 'file7-no'),
+        ('include', '"', 'file8-no'),
+        ('include', '"', 'file9-no'),
+        ('include', '"', 'file7-yes')
     ]
 
 
