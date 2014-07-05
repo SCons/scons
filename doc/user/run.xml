@@ -1,0 +1,398 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+    
+    <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
+    %builders-mod;
+    <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
+    %functions-mod;
+    <!ENTITY % tools-mod SYSTEM "../generated/tools.mod">
+    %tools-mod;
+    <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
+    %variables-mod;
+]>
+
+<chapter id="chap-run"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>How to Run &SCons;</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+<!--
+
+=head1 Invoking Cons
+
+The C<cons> command is usually invoked from the root of the build tree. A
+F<Construct> file must exist in that directory. If the C<-f> argument is
+used, then an alternate F<Construct> file may be used (and, possibly, an
+alternate root, since C<cons> will cd to F<Construct> file's containing
+directory).
+
+If C<cons> is invoked from a child of the root of the build tree with
+the C<-t> argument, it will walk up the directory hierarchy looking for a
+F<Construct> file.  (An alternate name may still be specified with C<-f>.)
+The targets supplied on the command line will be modified to be relative
+to the discovered F<Construct> file.  For example, from a directory
+containing a top-level F<Construct> file, the following invocation:
+
+  % cd libfoo/subdir
+  % cons -t target
+
+is exactly equivalent to:
+
+  % cons libfoo/subdir/target
+
+If there are any C<Default> targets specified in the directory hierarchy's
+F<Construct> or F<Conscript> files, only the default targets at or below
+the directory from which C<cons -t> was invoked will be built.
+
+The command is invoked as follows:
+
+  cons <arguments> ,  <construct-args>
+
+where I<arguments> can be any of the following, in any order:
+
+=over 10
+
+=item I<target>
+
+Build the specified target. If I<target> is a directory, then recursively
+build everything within that directory.
+
+=item I<+pattern>
+
+Limit the F<Conscript> files considered to just those that match I<pattern>,
+which is a Perl regular expression. Multiple C<+> arguments are accepted.
+
+=item I<name>=<val>
+
+Sets I<name> to value I<val> in the C<ARG> hash passed to the top-level
+F<Construct> file.
+
+=item C<-cc>
+
+Show command that would have been executed, when retrieving from cache. No
+indication that the file has been retrieved is given; this is useful for
+generating build logs that can be compared with real build logs.
+
+=item C<-cd>
+
+Disable all caching. Do not retrieve from cache nor flush to cache.
+
+=item C<-cr>
+
+Build dependencies in random order. This is useful when building multiple
+similar trees with caching enabled.
+
+=item C<-cs>
+
+Synchronize existing build targets that are found to be up-to-date with
+cache. This is useful if caching has been disabled with -cc or just recently
+enabled with UseCache.
+
+=item C<-d>
+
+Enable dependency debugging.
+
+=item C<-f> <file>
+
+Use the specified file instead of F<Construct> (but first change to
+containing directory of I<file>).
+
+=item C<-h>
+
+Show a help message local to the current build if one such is defined, and
+exit.
+
+=item C<-k>
+
+Keep going as far as possible after errors.
+
+=item C<-o> <file>
+
+Read override file I<file>.
+
+=item C<-p>
+
+Show construction products in specified trees. No build is attempted.
+
+=item C<-pa>
+
+Show construction products and associated actions. No build is attempted.
+
+=item C<-pw>
+
+Show products and where they are defined. No build is attempted.
+
+=item C<-q>
+
+Make the build quiet.  Multiple C<-q> options may be specified.
+
+A single C<-q> options suppress messages about Installing and Removing
+targets.
+
+Two C<-q> options suppress build command lines and target up-to-date
+messages.
+
+=item C<-r>
+
+Remove construction products associated with <targets>. No build is
+attempted.
+
+=item C<-R> <repos>
+
+Search for files in I<repos>.  Multiple B<-R> I<repos> directories are
+searched in the order specified.
+
+=item C<-S> <pkg>
+
+Use the sig::<pkg> package to calculate.  Supported <pkg> values
+include "md5" for MD5 signature calculation and "md5::debug" for debug
+information about MD5 signature calculation.
+
+If the specified package ends in <::debug>, signature debug information
+will be printed to the file name specified in the C<CONS_SIG_DEBUG>
+environment variable, or to standard output if the environment variable
+is not set.
+
+=item C<-t>
+
+Traverse up the directory hierarchy looking for a F<Construct> file,
+if none exists in the current directory.  Targets will be modified to
+be relative to the F<Construct> file.
+
+Internally, C<cons> will change its working directory to the directory
+which contains the top-level F<Construct> file and report:
+
+  cons: Entering directory `top-level-directory'
+
+This message indicates to an invoking editor (such as emacs) or build
+environment that Cons will now report all file names relative to the
+top-level directory.  This message can not be suppressed with the C<-q>
+option.
+
+=item C<-v>
+
+Show C<cons> version and continue processing.
+
+=item C<-V>
+
+Show C<cons> version and exit.
+
+=item C<-wf> <file>
+
+Write all filenames considered into I<file>.
+
+=item C<-x>
+
+Show a help message similar to this one, and exit.
+
+=back
+
+And I<construct-args> can be any arguments that you wish to process in the
+F<Construct> file. Note that there should be a B<-,-> separating the arguments
+to cons and the arguments that you wish to process in the F<Construct> file.
+
+Processing of I<construct-args> can be done by any standard package like
+B<Getopt> or its variants, or any user defined package. B<cons> will pass in
+the I<construct-args> as B<@ARGV> and will not attempt to interpret anything
+after the B<-,->.
+
+  % cons -R /usr/local/repository -d os=solaris +driver -,- -c test -f DEBUG
+
+would pass the following to cons
+
+  -R /usr/local/repository -d os=solaris +driver
+
+and the following, to the top level F<Construct> file as B<@ARGV>
+
+  -c test -f DEBUG
+
+Note that C<cons -r .> is equivalent to a full recursive C<make clean>,
+but requires no support in the F<Construct> file or any F<Conscript>
+files. This is most useful if you are compiling files into source
+directories (if you separate the F<build> and F<export> directories,
+then you can just remove the directories).
+
+The options C<-p>, C<-pa>, and C<-pw> are extremely useful for use as an aid
+in reading scripts or debugging them. If you want to know what script
+installs F<export/include/foo.h>, for example, just type:
+
+  % cons -pw export/include/foo.h
+
+=head1 Selective builds
+
+Cons provides two methods for reducing the size of given build. The first is
+by specifying targets on the command line, and the second is a method for
+pruning the build tree. We'll consider target specification first.
+
+
+=head2 Selective targeting
+
+Like make, Cons allows the specification of ``targets'' on the command
+line. Cons targets may be either files or directories. When a directory is
+specified, this is simply a short-hand notation for every derivable
+product-,-that Cons knows about-,-in the specified directory and below. For
+example:
+
+  % cons build/hello/hello.o
+
+means build F<hello.o> and everything that F<hello.o> might need. This is
+from a previous version of the B<Hello, World!> program in which F<hello.o>
+depended upon F<export/include/world.h>. If that file is not up-to-date
+(because someone modified F<src/world/world.h)>, then it will be rebuilt,
+even though it is in a directory remote from F<build/hello>.
+
+In this example:
+
+  % cons build
+
+Everything in the F<build> directory is built, if necessary. Again, this may
+cause more files to be built. In particular, both F<export/include/world.h>
+and F<export/lib/libworld.a> are required by the F<build/hello> directory,
+and so they will be built if they are out-of-date.
+
+If we do, instead:
+
+  % cons export
+
+then only the files that should be installed in the export directory will be
+rebuilt, if necessary, and then installed there. Note that C<cons build>
+might build files that C<cons export> doesn't build, and vice-versa.
+
+
+=head1 Build Pruning
+
+In conjunction with target selection, B<build pruning> can be used to reduce
+the scope of the build. In the previous peAcH and baNaNa example, we have
+already seen how script-driven build pruning can be used to make only half
+of the potential build available for any given invocation of C<cons>. Cons
+also provides, as a convenience, a command line convention that allows you
+to specify which F<Conscript> files actually get ``built''-,-that is,
+incorporated into the build tree. For example:
+
+  % cons build +world
+
+The C<+> argument introduces a Perl regular expression. This must, of
+course, be quoted at the shell level if there are any shell meta-characters
+within the expression. The expression is matched against each F<Conscript>
+file which has been mentioned in a C<Build> statement, and only those
+scripts with matching names are actually incorporated into the build
+tree. Multiple such arguments are allowed, in which case a match against any
+of them is sufficient to cause a script to be included.
+
+In the example, above, the F<hello> program will not be built, since Cons
+will have no knowledge of the script F<hello/Conscript>. The F<libworld.a>
+archive will be built, however, if need be.
+
+There are a couple of uses for build pruning via the command line. Perhaps
+the most useful is the ability to make local changes, and then, with
+sufficient knowledge of the consequences of those changes, restrict the size
+of the build tree in order to speed up the rebuild time. A second use for
+build pruning is to actively prevent the recompilation of certain files that
+you know will recompile due to, for example, a modified header file. You may
+know that either the changes to the header file are immaterial, or that the
+changes may be safely ignored for most of the tree, for testing
+purposes.With Cons, the view is that it is pragmatic to admit this type of
+behavior, with the understanding that on the next full build everything that
+needs to be rebuilt will be. There is no equivalent to a ``make touch''
+command, to mark files as permanently up-to-date. So any risk that is
+incurred by build pruning is mitigated. For release quality work, obviously,
+we recommend that you do not use build pruning (it's perfectly OK to use
+during integration, however, for checking compilation, etc. Just be sure to
+do an unconstrained build before committing the integration).
+
+-->
+
+  <para>
+
+    XXX
+
+  </para>
+
+  <section>
+  <title>Command-Line Options</title>
+
+    <para>
+
+    XXX
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Getting at Command-Line Arguments</title>
+
+    <para>
+
+    XXX
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Selective Builds</title>
+
+    <para>
+
+    XXX
+
+    </para>
+
+  </section>
+
+  <!--
+
+  <section>
+  <title>Build Pruning</title>
+
+    <para>
+
+    XXX
+
+    </para>
+
+  </section>
+
+  -->
+
+  <section>
+  <title>Overriding Construction Variables</title>
+
+    <para>
+
+    XXX
+
+    </para>
+
+  </section>
+
+</chapter>

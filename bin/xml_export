@@ -1,0 +1,225 @@
+#!/usr/bin/perl -w
+#
+# xml_export - Retrieve data from the SF.net XML export for project data
+#
+# Copyright (C) 2002 Open Source Development Network, Inc. ("OSDN")
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the license details found
+# below in the section marked "$LICENSE_TEXT".
+#
+# SCons: modified the following RCS Id line so it won't expand during
+# our checkins.
+#
+# $_Id: adocman,v 1.51 2002/06/07 18:56:35 moorman Exp _$
+#
+# Written by Nate Oostendorp <oostendo@sourceforge.net>
+# and Jacob Moorman <moorman@sourceforge.net>
+###########################################################################
+
+use strict;
+use Alexandria::Client;
+use HTTP::Request::Common;
+my $client = new Alexandria::Client;
+
+util_verifyvariables("groupid");
+
+my $res = $ua->simple_request(GET "$config{hosturl}/export/xml_export.php?group_id=$config{groupid}");
+
+if (not $res->is_success()) {
+    die "Failed to connect: ".$res->as_string();
+}
+print $res->content;
+
+###########################################################################
+
+__END__
+=head1 NAME
+
+xml_export - Retrieve data for a project via the SF.net XML export facility
+
+=head1 DESCRIPTION
+
+B<This program> provides a simple mechanism to download data from the
+XML data export facility on SourceForge.net.  This utility is needed
+(in place of a downloader like wget or curl) since authentication by
+a project administrator is required to access the XML export facility.
+
+=head1 SYNOPSIS
+
+xml_export [options] > output_file
+
+ OPTIONS
+ --login                Login to the SourceForge.net site
+ --logout               Logout of the SourceForge.net site
+ --groupid=GROUPID      Group ID of the project whose data you wish to export
+
+=head1 ERROR LEVELS
+
+The following error levels are returned upon exit of this program:
+
+ 0 success
+
+ 1 failure: general (requested DocManager operation failed)
+
+ 2 failure: authentication failure
+
+ 3 failure: must --login before performing this operation
+
+ 4 failure: bad command-line option specified or variable setting problem
+
+ 5 failure: error in accessing/creating a file or directory
+
+ 6 failure: failed to enter requested input before timeout expired
+
+=head1 AUTHORITATIVE SOURCE
+
+The original version of B<this program> may be found in the materials
+provided from the SourceForge.net Site Documentation project (sitedocs)
+on the SourceForge.net site.  The latest version of this program
+may be found in the CVS repository for the sitedocs project on
+SourceForge.net.  The sitedocs project pages may be accessed at:
+http://sourceforge.net/projects/sitedocs
+
+=head1 SECURITY
+
+For security-related information for this application, please review
+the documentation provided for the adocman utility.
+
+=head1 EXAMPLES
+
+The following are examples for using this program to export project
+data via the XML data export facility on SourceForge.net.  It is presumed
+that you have a valid SourceForge.net user account, which is listed as
+a project administrator on the project in question.  This tool will
+only work for project administrators.  The group ID for the project
+may be derived from the URL for the Admin page for the project, or by
+viewing the Project Admin page for the project (look for the text
+"Your Group ID is: xxxxxx").
+
+To login to the SourceForge.net site via the command-line:
+
+  adocman --username=myusername --password=mypassword --login \
+          --groupid=8675309
+
+To login to the SourceForge.net site, and be prompted to enter your
+password interactively:
+
+  adocman --username=myusername --interactive --login --groupid=8675309
+
+To perform an export (after logging-in):
+
+  xml_export --groupid=8675309 > output.xml
+
+To logout of SourceForge.net:
+
+  adocman --logout
+
+Additional capabilities (including the use of configuration files to
+specify information that would otherwise be provided interactively
+or on the command-line) are detailed in the documentation provided for
+the adocman utility.
+
+To obtain output for debugging a problem, perform the same command
+as originally tested, but first add the --verbose flag, and determine
+whether you are able to solve the issue on your own.  If the problem
+persists, see the "SUPPORT AND BUGS" section, below.
+
+=head1 SUPPORT AND BUGS
+
+This program was written by a member of the SourceForge.net staff
+team.  This software has been released under an Open Source license,
+for the greater benefit of the SourceForge.net developer community.
+
+The SourceForge.net Site Documentation project is the caretaker of
+this software.  Issues related to the use of this program, or bugs
+found in using this program, may be reported to the SourceForge.net
+Site Documentation project using their Support Request Tracker at:
+https://sourceforge.net/tracker/?func=add&group_id=52614&atid=467457
+
+Any support that is provided for this program is provided as to
+further enhance the stability and functionality of this program
+for SourceForge.net users.  The SourceForge.net Site Documentation
+project makes use of this software for its own internal purposes,
+in managing the Site Documentation collection for the SourceForge.net
+site.
+
+=head1 AUTHOR
+
+Nathan Oostendorp <oostendo@sourceforge.net> and
+Jacob Moorman <moorman@sourceforge.net>
+
+=head1 PREREQUISITES
+
+C<LWP::UserAgent>, C<HTML::TokeParser>, C<Crypt::SSLeay>, C<Digest::MD5>,
+C<Term::ReadKey>
+
+These prerequisites may be installed in an interactive, but automated
+fashion through the use of perl's CPAN module, invoked as:
+
+  perl -MCPAN -e shell;
+
+=head1 LICENSE
+
+Copyright (c) 2002 Open Source Development Network, Inc. ("OSDN")
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+
+1. The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+2. Neither the names of VA Software Corporation, OSDN, SourceForge.net,
+the SourceForge.net Site Documentation project, nor the names of its
+contributors may be used to endorse or promote products derived from
+the Software without specific prior written permission of OSDN. 
+
+3. The name and trademarks of copyright holders may NOT be used in
+advertising or publicity pertaining to the Software without specific,
+written prior permission. Title to copyright in the Software and
+any associated documentation will at all times remain with copyright
+holders.
+
+4. If any files are modified, you must cause the modified files to carry
+prominent notices stating that you changed the files and the date of
+any change.  We recommend that you provide URLs to the location from which
+the code is derived.
+
+5. Altered versions of the Software must be plainly marked as such, and
+must not be misrepresented as being the original Software.
+
+6. The origin of the Software must not be misrepresented; you must not
+claim that you wrote the original Software. If you use the Software in a
+product, an acknowledgment in the product documentation would be
+appreciated but is not required.
+
+7. The data files supplied as input to, or produced as output from,
+the programs of the Software do not automatically fall under the
+copyright of the Software, but belong to whomever generated them, and may
+be sold commercially, and may be aggregated with the Software.
+
+8. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE OR DOCUMENTATION.
+
+This Software consists of contributions made by OSDN and many individuals
+on behalf of OSDN.  Specific attributions are listed in the accompanying
+credits file.
+
+=head1 HISTORY
+
+B<2002-12-03> Completed version 0.10 - move to classes, added POD
+
+=cut
