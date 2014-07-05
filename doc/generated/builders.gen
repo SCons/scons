@@ -2137,11 +2137,10 @@ below, for more information.
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-The <function xmlns="http://www.scons.org/dbxsd/v1.0">Substfile</function> builder generates a single text file
-by concatenating the source files.
-Nested lists of sources are flattened. 
-<envar xmlns="http://www.scons.org/dbxsd/v1.0">$LINESEPARATOR</envar> is used to separate the source files;
-see the description of <function xmlns="http://www.scons.org/dbxsd/v1.0">Textfile</function> for details.
+The <function xmlns="http://www.scons.org/dbxsd/v1.0">Substfile</function> builder creates a single text file from another file or set of
+files by concatenating them with <envar xmlns="http://www.scons.org/dbxsd/v1.0">$LINESEPARATOR</envar> and replacing text
+using the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$SUBST_DICT</envar> construction variable. Nested lists of source files
+are flattened. See also <function xmlns="http://www.scons.org/dbxsd/v1.0">Textfile</function>.
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2159,20 +2158,18 @@ are automatically added to the target if they are not already present.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 If a construction variable named <envar xmlns="http://www.scons.org/dbxsd/v1.0">$SUBST_DICT</envar> is present,
 it may be either a Python dictionary or a sequence of (key,value) tuples.
-If the former,
-the dictionary is converted into a list of tuples in an arbitrary order,
+If it is a dictionary it is converted into a list of tuples in an arbitrary order,
 so if one key is a prefix of another key
 or if one substitution could be further expanded by another subsitition,
-it is unpredictible whether the expansion will occur.
+it is unpredictable whether the expansion will occur.
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-Any occurences in the source of a key
+Any occurrences of a key in the source
 are replaced by the corresponding value,
 which may be a Python callable function or a string.
-If a value is a function,
-it is first called (with no arguments) to produce a string.
-The string is <emphasis>subst</emphasis>-expanded
+If the value is a callable, it is called with no arguments to get a string.
+Strings are <emphasis>subst</emphasis>-expanded
 and the result replaces the key.
 </para>
 
@@ -2278,7 +2275,7 @@ env.Tar('foo')
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The <function xmlns="http://www.scons.org/dbxsd/v1.0">Textfile</function> builder generates a single text file.
 The source strings constitute the lines;
-nested lists of sources are flattened. 
+nested lists of sources are flattened.
 <envar xmlns="http://www.scons.org/dbxsd/v1.0">$LINESEPARATOR</envar> is used to separate the strings.
 </para>
 
@@ -2306,7 +2303,7 @@ env.Textfile(target = 'bar',
              LINESEPARATOR='|*')
 
 # nested lists are flattened automatically
-env.Textfile(target = 'blob', 
+env.Textfile(target = 'blob',
              source = ['lalala', ['Goethe', 42 'Schiller'], 'tanteratei'])
 
 # files may be used as input by wraping them in File()
