@@ -34,14 +34,14 @@ Repeatable with any N-tier, with N > 1, Java derived-source builds where
 any of the following conditions are meet:
 1. The java class does not belong to the root package.
 2. A java source (*.java) creates N targets (*.class) where N > 1.
-
-@author William Blevins
-@version 2 March 2014
 """
 
 import os
 import TestSCons
 import SCons.Node.FS
+import SCons.Defaults
+
+SCons.Defaults.DefaultEnvironment(tools = [])
 
 test = TestSCons.TestSCons()
 
