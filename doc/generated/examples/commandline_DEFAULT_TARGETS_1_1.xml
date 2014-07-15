@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons</userinput>
+scons: Reading SConscript files ...
+DEFAULT_TARGETS is ['prog1']
+scons: done reading SConscript files.
+scons: Building targets ...
+cc -o prog1.o -c prog1.c
+cc -o prog1 prog1.o
+scons: done building targets.
+</screen>

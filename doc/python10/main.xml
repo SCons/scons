@@ -1,0 +1,178 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE sconsdoc [
+
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+
+]>
+
+<article xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <articleinfo>
+    <title>SCons Design and Implementation</title>
+
+    <author>
+      <firstname>Steven</firstname>
+      <surname>Knight</surname>
+    </author>
+
+    <copyright>
+      <year>2001</year>
+      <year>2014</year>
+      <holder>The SCons Foundation</holder>
+    </copyright>
+
+    <pubdate>2002</pubdate>
+
+    <confgroup>
+      <confdates>4-7 February 2002</confdates>
+      <conftitle>The Tenth International Python Conference</conftitle>
+      <address>Alexandria, Virginia</address>
+    </confgroup>
+
+    <revhistory>
+      <revision>
+        <revnumber>0.2</revnumber>
+	<date>16 December 2001</date>
+	<revremark>Internal re-review.</revremark>
+      </revision>
+      <revision>
+        <revnumber>0.1</revnumber>
+	<date>8 October 2001</date>
+	<revremark>Submitted for Python10 conference.</revremark>
+      </revision>
+    </revhistory>
+
+  </articleinfo>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="abstract.xml"/>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="intro.xml"/>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="design.xml"/>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="install.xml"/>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="process.xml"/>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="future.xml"/>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="summary.xml"/>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="acks.xml"/>
+
+  <!--
+  <section id="sect-refs">
+    <title>References</title>
+    <para>
+    </para>
+  </section>
+  -->
+
+  <bibliography id="sect-refs">
+    <title>References</title>
+
+    <biblioentry>
+      <abbrev>1</abbrev>
+      <authorgroup>
+        <author><firstname>Stuart I.</firstname><surname>Feldman</surname></author>
+      </authorgroup>
+      <copyright>
+        <year>Aug 1978</year>
+      </copyright>
+      <publisher>
+        <publishername>Bell Laboratories</publishername>
+      </publisher>
+      <title>Make - A Program for Maintaining Computer Programs</title>
+    </biblioentry>
+
+    <biblioentry>
+      <abbrev>2</abbrev>
+      <authorgroup>
+        <author><firstname>Peter</firstname><surname>Miller</surname></author>
+      </authorgroup>
+      <copyright>
+        <year>1997</year>
+        <holder>Peter Miller</holder>
+      </copyright>
+      <title>Recursive Make Considered Harmful</title>
+      <!--http://www.pcug.org.au/~millerp/rmch/recu-make-cons-harm.html-->
+    </biblioentry>
+
+    <biblioentry>
+      <abbrev>3</abbrev>
+      <authorgroup>
+        <author><firstname>Andrew</firstname><surname>Oram</surname></author>
+        <author><firstname>Steve</firstname><surname>Talbott</surname></author>
+      </authorgroup>
+      <copyright>
+        <year>1986</year>
+        <year>1991</year>
+        <holder>O'Reilly &amp; Associates, Inc.</holder>
+      </copyright>
+      <publisher>
+        <publishername>O'Reilly &amp; Associates, Inc.</publishername>
+      </publisher>
+      <title>Managing Projects with Make, 2nd Ed.</title>
+    </biblioentry>
+
+    <biblioentry>
+      <abbrev>4</abbrev>
+      <authorgroup>
+        <author><firstname>Richard M.</firstname><surname>Stallman</surname></author>
+        <author><firstname>Roland</firstname><surname>McGrath</surname></author>
+      </authorgroup>
+      <copyright>
+        <year>1988</year>
+        <year>'89</year>
+        <year>'90</year>
+        <year>'91</year>
+        <year>'92</year>
+        <year>'93</year>
+        <year>'94</year>
+        <year>'95</year>
+        <year>'96</year>
+        <year>'97</year>
+        <year>'98</year>
+        <year>'99</year>
+        <year>2000</year>
+        <holder>Free Software Foundation, Inc.</holder>
+      </copyright>
+      <publisher>
+        <publishername>Free Software Foundation, Inc.</publishername>
+      </publisher>
+      <title>GNU Make</title>
+      <subtitle>A Program for Directing Recompilation</subtitle>
+    </biblioentry>
+
+  </bibliography>
+
+</article>

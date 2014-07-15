@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q</userinput>
+cc -o src/prog/foo2.o -c src/prog/foo2.c
+cc -o src/prog/main.o -c src/prog/main.c
+cc -o /usr/joe/lib/foo1.o -c /usr/joe/lib/foo1.c
+cc -o src/prog/prog src/prog/main.o /usr/joe/lib/foo1.o src/prog/foo2.o
+</screen>
