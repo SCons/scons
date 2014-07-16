@@ -6,6 +6,8 @@
 
 RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From William Blevins:
+    - Added test for Java derived-source dependency tree generation.
 
 RELEASE 2.3.2
 
