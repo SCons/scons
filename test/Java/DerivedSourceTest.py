@@ -92,6 +92,25 @@ env.Java(
 """  
 )
 
-test.run( arguments = '.' )
+expected = test.wrap_stdout(
+build_str =
+'''\
+Copy("org/sample/Sample.java", "Sample.java")
+javac -d build -sourcepath org/sample org/sample/Sample.java
++-.
+  +-build
+  | +-build/org
+  |   +-build/org/sample
+  |     +-build/org/sample/Sample$InnerEnum.class
+  |      +-org/sample/Sample.java
+  |     +-build/org/sample/Sample.class
+  |      +-org/sample/Sample.java
+  +-org
+    +-org/sample
+      +-org/sample/Sample.java
+'''.replace( '/', os.sep )
+)
+
+test.run( arguments = '--tree=derived', stdout = expected )
 
 test.up_to_date(arguments = '.')
