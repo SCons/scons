@@ -6,6 +6,8 @@
 
 RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From William Blevins:
+    - Added Copy Action symlink soft-copy support (#2395).
 
 RELEASE 2.3.2
 
