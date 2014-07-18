@@ -45,6 +45,10 @@ SCons.Defaults.DefaultEnvironment(tools = [])
 
 test = TestSCons.TestSCons()
 
+# No result if tools not available
+test.no_result( condition=(test.where_is( 'javac' ) is None) )
+test.no_result( condition=(test.where_is( 'jar' ) is None) )
+
 test.write(
     ['Sample.java'],
 """
