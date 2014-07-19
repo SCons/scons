@@ -223,4 +223,13 @@ for the variable that expands to library search path options.
 </summary>
 </cvar>
 
+<cvar name="STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME">
+  <summary>
+    <para>
+      When this variable is true, static objects and shared objects are assumed to be the same; that is, SCons does not check for linking static objects into a shared library.
+    </para>
+  </summary>
+</cvar>
+
+
 </sconsdoc>

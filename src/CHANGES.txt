@@ -6,6 +6,9 @@
 
 RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+
+RELEASE 2.3.2
+
   From veon on bitbucket:
     - Fixed handling of nested ifs in CPP scanner PreProcessor class.
 

@@ -1,80 +1,51 @@
-  A new SCons release, 2.3.1, is now available
+  A new SCons release, 2.3.2, is now available
   on the SCons download page:
 
           http://www.scons.org/download.php
 
-  This release adds several new features and fixes many issues,
-  including a serious regression in linking (failure to re-link if
-  linker options are changed).
+  This is a maintenance release, focusing on bug fixes.
 
-  Here is a summary of the changes since 2.3.0:
+  Here is a summary of the changes since 2.3.1:
 
   NEW FUNCTIONALITY
 
-    - Add Pseudo command to mark targets which should not exist after
-      they are built.
-    - Add support for a readonly cache (--cache-readonly)
-    - Added cyglink linker that uses Cygwin naming conventions for
-      shared libraries and automatically generates import libraries.
-    - Added optional ZIPROOT to Zip tool.
+    - Support for Visual Studio 12.0Exp and 2013 (12.0).
 
   DEPRECATED FUNCTIONALITY
 
-    -
+    - RPM and m4 are no longer in the default toolset on Windows.
+    - BitKeeper, CVS, Perforce, RCS, SCCS are deprecated from the
+      default toolset and will be removed from the default toolset
+      in future SCons versions.
+    - D language, version 1, is now deprecated.  Version 2 is
+      supported.
 
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
-    - DocBook tool can now output EPUB format
-    - Allow multiple options to be specified with --debug=a,b,c
-    - Update bootstrap.py so it can be used from any dir, to run
-      SCons from a source (non-installed) dir.
-    - Added release_target_info() to File nodes, which helps to
-      reduce memory consumption in clean builds and update runs
-      of large projects.
-    - Print full stack on certain errors, for debugging.
-    - Improve documentation for Textfile builder.
+    - Revamp of D language support.
+      Tools for DMD, GDC and LDC are provided, and integrated
+      with the C and C++ linking.
+    - TeX builder now supports -synctex=1
+    - TeX builder cleans auxiliary files correctly with biblatex.
 
   FIXES
 
-    - Stop leaking file handles to subprocesses by switching to using subprocess
-      always.
-    - Generally try harder to print out a message on build errors
-    - Added a switch to warn on missing targets
-    - Always print stats if requested
-    - Check for 8.3 filenames on cygwin as well as win32 to make variant_dir work properly.
-    - Make sure SharedLibrary depends on all dependent libs (by depending on SHLINKCOM)
-    - Fixed the setup of linker flags for a versioned SharedLibrary
-      under OpenBSD (#2916).
-    - Improve error if Visual Studio bat file not found.
-    - Allow Subst.Literal string objects to be compared with each other,
-      so they work better in AddUnique() and Remove().
-    - Fixed the handling of long options in the command-line
-      parsing (#2929).
-    - Fixed misspelled variable in intelc.py (#2928).
-    - VS2012 & VS2010: Resolve initialization issues by adding path to reg.exe
-      in shell used to run batch files.
-    - MSVC Support: fixed defaulting TARGET_ARCH to HOST_ARCH. It should be
-      None if not explicitly set.
-    - MSVC: Fixed issue where if more than one Architectures compilers are
-      detected, it would take the last one found, and not the first.
-    - Fixed spelling errors in MAN pages (#2897).
-    - Fixed description of ignore_case for EnumVariable in the
-      MAN page (#2774).
+    - Fixed handling of nested ifs in CPP scanner PreProcessor class.
+    - Respect user's CC/CXX values; don't always overwrite in generate()
+    - Delegate linker Tool.exists() to CC/CXX Tool.exists().
+    - Fixed NoClean() for multi-target builders (#2353).
+    - Fix SConf tests that write output
+    - get default RPM architecture more robustly when building RPMs
+    - Allow varlist to be specified as list of strings for Actions (#2754)
+    - Fixes to Docbook tool
 
   PACKAGING
 
-    - No changes
+    - Update XML doc editor configuration
 
   DEVELOPMENT
 
-    - Count statistics of instances are now collected only when
-      the --debug=count command-line option is used (#2922).
-    - Test harness: fail_test() can now print a message to help debugging.
-    - Require rpmbuild when building SCons package.
-    - Replaced old SGML-based documentation toolchain with a more modern
-      approach, that also requires less external dependencies (programs and
-      Python packages). Added a customized Docbook XSD for strict validation of
-      all input XML files.
+    - Improvements to running scons.py from the source tree
 
 Thanks to:
   Dirk Baechle,
@@ -89,8 +60,10 @@ Thanks to:
   Luca Falavigna,
   Andrew Featherstone,
   Alexandre Feblot,
+  Shane Gannon,
   Alexander Goomenyuk,
   Justin Gullingsrud,
+  Michael Haubenwallner,
   Joshua Hughes,
   Alexey Klimkin,
   Steven Knight,
@@ -109,10 +82,13 @@ Thanks to:
   smallbub on Bitbucket,
   Sohail Somani,
   Stefan Sperling,
+  Amir Szekely,
   Tom Tanner,
   Anatoly Techtonik,
   Bogdan Tenea,
   Paweł Tomulik,
+  Sye van der Veen,
+  veon on bitbucket,
   Greg Ward,
   Allen Weeks,
   Russel Winder,
