@@ -176,6 +176,27 @@ touch $*
       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
+    <para>
+    The &Copy; factory supports symbolic link copying behavior
+    which is controlled by a third optional argument.
+    </para>
+    
+    <para>
+    Symbolic links shallow copied as new symbolic links:
+    </para>
+
+    <para>
+    <literal>Command("LinkIn", "LinkOut1", Copy("$TARGET", "$SOURCE"[, True]))</literal>
+    </para>
+
+    <para>
+    Symbolic link deep copied as file target file or directory:
+    </para>
+    
+    <para>
+    <literal>Command("LinkIn", "FileOut", Copy("$TARGET", "$SOURCE", False))</literal>
+    </para>
+
   </section>
 
   <section>
