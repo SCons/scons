@@ -93,7 +93,7 @@ env.Java(
     'build',
     'org'
 )
-"""  
+"""
 )
 
 expected = test.wrap_stdout(

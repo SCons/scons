@@ -612,10 +612,6 @@ README-local
     Similar to this file, but stripped down and modified for people looking at
     including SCons in their shipped software.
 
-review.py
-    Script for uploading changes for review to Rietveld installation at
-    http://codereview.appspot.com
-
 rpm/
     The .spec file for building our RPM packages.
 
