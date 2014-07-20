@@ -182,6 +182,13 @@ def chmod_strfunc(dest, mode):
 Chmod = ActionFactory(chmod_func, chmod_strfunc)
 
 def copy_func(dest, src, symlinks=True):
+    """
+    If symlinks (is true), then a symbolic link will be
+    shallow copied and recreated as a symbolic link; otherwise, copying
+    a symbolic link will be equivalent to copying the symbolic link's
+    final target regardless of symbolic link depth.
+    """
+
     dest = str(dest)
     src = str(src)
 
