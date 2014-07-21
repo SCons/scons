@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+<!DOCTYPE sconsdoc [
+
+    <!ENTITY % version SYSTEM "../version.xml">
+    %version;
+
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+
+]>
+
+<book xmlns="http://www.scons.org/dbxsd/v1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+  <bookinfo>
+    <title>SCons &buildversion;</title>
+    <subtitle>Design</subtitle>
+    <author>
+      <firstname>Steven</firstname>
+      <surname>Knight</surname>
+    </author>
+
+    <corpauthor>Steven Knight</corpauthor>
+
+    <pubdate>2001</pubdate>
+
+    <copyright>
+      <year>2001</year>
+      <holder>Steven Knight</holder>
+    </copyright>
+
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="copyright.xml"/>
+
+    <releaseinfo>version &buildversion;</releaseinfo>
+
+  </bookinfo>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="intro.xml"/>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="goals.xml"/>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="overview.xml"/>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="engine.xml"/>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="native.xml"/>
+
+  <!--
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="install.xml"/>
+
+  -->
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="issues.xml"/>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="bground.xml"/>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="summary.xml"/>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="acks.xml"/>
+
+</book>
