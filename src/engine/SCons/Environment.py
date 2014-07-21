@@ -1378,10 +1378,8 @@ class Base(SubstitutionEnvironment):
         (like a function).  There are no references to any mutable
         objects in the original Environment.
         """
-        try:
-            builders = self._dict['BUILDERS']
-        except KeyError:
-            pass
+
+        builders = self._dict.get('BUILDERS', {})
 
         clone = copy.copy(self)
         # BUILDERS is not safe to do a simple copy
