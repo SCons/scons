@@ -6,6 +6,9 @@
 
 RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Andrew Featherstone:
+    - Added description of CheckTypeSize method (#1991).
+
   From William Blevins:
     - Added test for Java derived-source dependency tree generation.
     - Added Copy Action symlink soft-copy support (#2395).
