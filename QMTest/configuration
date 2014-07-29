@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<extension class="scons_tdb.Database" kind="database">
+  <argument name="srcdir">
+    <text>.</text>
+  </argument>
+</extension>

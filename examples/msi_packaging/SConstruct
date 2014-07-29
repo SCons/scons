@@ -1,0 +1,19 @@
+#
+# Build a minimal msi installer with two features.
+#
+
+f1 = Install( '/bin/', File('main.exe') )
+f2 = Install( '/lib/', File('helloworld.dll') )
+f3 = Install( '/doc/', File('README') )
+
+Tag( f2, x_msi_feature = 'Resuable Components' )
+Tag( f3, 'doc' )
+
+Package( projectname    = 'helloworld',
+         version        = '1.0',
+         packageversion = '1',
+         license        = 'gpl',
+         type           = 'msi',
+         vendor         = 'Nanosoft',
+         summary        = 'A HelloWorld implementation',
+         source         = [ f1, f2, f3 ], )

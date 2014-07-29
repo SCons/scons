@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>export NUM_CPU="4"</userinput>
+% <userinput>scons -Q</userinput>
+running with -j 4
+scons: `.' is up to date.
+</screen>

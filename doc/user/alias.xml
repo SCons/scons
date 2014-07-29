@@ -1,0 +1,126 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+    
+    <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
+    %builders-mod;
+    <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
+    %functions-mod;
+    <!ENTITY % tools-mod SYSTEM "../generated/tools.mod">
+    %tools-mod;
+    <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
+    %variables-mod;
+    
+]>
+
+<chapter id="chap-alias"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Alias Targets</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <para>
+
+  We've already seen how you can use the &Alias;
+  function to create a target named <literal>install</literal>:
+
+  </para>
+
+  <scons_example name="alias_ex1">
+     <file name="SConstruct" printme="1">
+env = Environment()
+hello = env.Program('hello.c')
+env.Install('__ROOT__/usr/bin', hello)
+env.Alias('install', '__ROOT__/usr/bin')
+     </file>
+     <file name="hello.c">
+int main() { printf("Hello, world!\n"); }
+     </file>
+  </scons_example>
+
+  <para>
+
+  You can then use this alias on the command line
+  to tell &SCons; more naturally that you want to install files:
+
+  </para>
+
+  <scons_output example="alias_ex1" os="posix" suffix="1">
+     <scons_output_command>scons -Q install</scons_output_command>
+  </scons_output>
+
+  <para>
+
+  Like other &Builder; methods, though,
+  the &Alias; method returns an object
+  representing the alias being built.
+  You can then use this object as input to anothother &Builder;.
+  This is especially useful if you use such an object
+  as input to another call to the &Alias; &Builder;,
+  allowing you to create a hierarchy
+  of nested aliases:
+
+  </para>
+
+  <scons_example name="alias_ex2">
+     <file name="SConstruct" printme="1">
+env = Environment()
+p = env.Program('foo.c')
+l = env.Library('bar.c')
+env.Install('__ROOT__/usr/bin', p)
+env.Install('__ROOT__/usr/lib', l)
+ib = env.Alias('install-bin', '__ROOT__/usr/bin')
+il = env.Alias('install-lib', '__ROOT__/usr/lib')
+env.Alias('install', [ib, il])
+     </file>
+     <file name="foo.c">
+int main() { printf("foo.c\n"); }
+     </file>
+     <file name="bar.c">
+void bar() { printf("bar.c\n"); }
+     </file>
+  </scons_example>
+
+  <para>
+
+  This example defines separate <literal>install</literal>,
+  <literal>install-bin</literal>,
+  and <literal>install-lib</literal> aliases,
+  allowing you finer control over what gets installed:
+
+  </para>
+
+  <scons_output example="alias_ex2" os="posix" suffix="1">
+     <scons_output_command>scons -Q install-bin</scons_output_command>
+     <scons_output_command>scons -Q install-lib</scons_output_command>
+     <scons_output_command>scons -Q -c __ROOT__/</scons_output_command>
+     <scons_output_command>scons -Q install</scons_output_command>
+  </scons_output>
+
+</chapter>
