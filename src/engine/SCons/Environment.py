@@ -1378,7 +1378,6 @@ class Base(SubstitutionEnvironment):
                                 else:
                                     tmp.append((k,))
                             dk = tmp
-                            #dk = dk.items()
                         if SCons.Util.is_String(val):
                             if val in dk:
                                 val = []
