@@ -1206,7 +1206,13 @@ class Base(SubstitutionEnvironment):
                     # based on what we think the value looks like.
                     if SCons.Util.is_List(val):
                         if key == 'CPPDEFINES':
-                            orig = orig.items()
+                            tmp = []
+                            for (k, v) in orig.iteritems():
+                                if v is not None:
+                                    tmp.append((k, v))
+                                else:
+                                    tmp.append((k,))
+                            orig = tmp
                             orig += val
                             self._dict[key] = orig
                         else:
@@ -1286,8 +1292,15 @@ class Base(SubstitutionEnvironment):
                         else:
                             tmp.append((i,))
                     val = tmp
+                    # Construct a list of (key, value) tuples.
                     if SCons.Util.is_Dict(dk):
-                        dk = dk.items()
+                        tmp = []
+                        for (k, v) in dk.iteritems():
+                            if v is not None:
+                                tmp.append((k, v))
+                            else:
+                                tmp.append((k,))
+                        dk = tmp
                     elif SCons.Util.is_String(dk):
                         dk = [(dk,)]
                     else:
@@ -1327,8 +1340,15 @@ class Base(SubstitutionEnvironment):
                             else:
                                 tmp.append((i,))
                         dk = tmp
+                        # Construct a list of (key, value) tuples.
                         if SCons.Util.is_Dict(val):
-                            val = val.items()
+                            tmp = []
+                            for (k, v) in val.iteritems():
+                                if v is not None:
+                                    tmp.append((k, v))
+                                else:
+                                    tmp.append((k,))
+                            val = tmp
                         elif SCons.Util.is_String(val):
                             val = [(val,)]
                         if delete_existing:
@@ -1351,7 +1371,14 @@ class Base(SubstitutionEnvironment):
                         if SCons.Util.is_String(dk):
                             dk = [dk]
                         elif SCons.Util.is_Dict(dk):
-                            dk = dk.items()
+                            tmp = []
+                            for (k, v) in dk.iteritems():
+                                if v is not None:
+                                    tmp.append((k, v))
+                                else:
+                                    tmp.append((k,))
+                            dk = tmp
+                            #dk = dk.items()
                         if SCons.Util.is_String(val):
                             if val in dk:
                                 val = []
