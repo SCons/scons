@@ -12,6 +12,8 @@ RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
   From Andrew Featherstone:
     - Added description of CheckTypeSize method (#1991).
+    - Fixed handling of CPPDEFINE var in Append()
+      for several list-dict combinations (#2900).
 
   From William Blevins:
     - Added test for Java derived-source dependency tree generation.
