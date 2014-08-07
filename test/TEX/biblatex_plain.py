@@ -72,7 +72,6 @@ test.run()
 # All (?) the files we expect will get created in the docs directory
 files = [
     'biblatextest.aux',
-    'biblatextest.bcf',
     'biblatextest.blg',
     'biblatextest.fls',
     'biblatextest.log',

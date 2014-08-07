@@ -182,7 +182,7 @@ def build_specfile_sections(spec):
         spec['X_RPM_PREP'] = '[ -n "$RPM_BUILD_ROOT" -a "$RPM_BUILD_ROOT" != / ] && rm -rf "$RPM_BUILD_ROOT"' + '\n%setup -q'
 
     if 'X_RPM_BUILD' not in spec:
-        spec['X_RPM_BUILD'] = 'mkdir "$RPM_BUILD_ROOT"'
+        spec['X_RPM_BUILD'] = '[ ! -e "$RPM_BUILD_ROOT" -a "$RPM_BUILD_ROOT" != / ] && mkdir "$RPM_BUILD_ROOT"'
 
     if 'X_RPM_INSTALL' not in spec:
         spec['X_RPM_INSTALL'] = 'scons --install-sandbox="$RPM_BUILD_ROOT" "$RPM_BUILD_ROOT"'
