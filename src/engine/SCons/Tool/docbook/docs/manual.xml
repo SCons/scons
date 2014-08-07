@@ -263,7 +263,7 @@ with large input files may occur. There will definitely arise the need for
 adding features, or a variable. Let us know if you can think of a nice
 improvement or have worked on a bugfix/patch with success. Enter your issues at the
 Launchpad bug tracker for the Docbook Tool, or write to the User General Discussion
-list of SCons at <literal>scons-users@tigris.org</literal>.
+list of SCons at <literal>scons-users@scons.org</literal>.
 </para>
 </section>
 
