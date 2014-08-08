@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">C:\&gt;<userinput>scons -Q</userinput>
+rc /fores.res res.rc
+cl /Fotest_stuff.obj /c test_stuff.c /nologo
+link /nologo /OUT:tests\test_stuff.exe test_stuff.obj res.res
+embedManifestExeCheck(target, source, env)
+</screen>

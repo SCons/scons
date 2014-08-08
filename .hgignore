@@ -1,0 +1,11 @@
+build
+bootstrap
+
+syntax:glob
+*.py[co]
+.sconsign*
+.svn
+.git
+*~
+*.xcodeproj
+*.orig
