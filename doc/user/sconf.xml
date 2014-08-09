@@ -282,6 +282,26 @@ env = conf.Finish()
     </sconstruct>
 
   </section>
+  <section>
+  <title>Checking the size of a datatype</title>
+    <para>
+    Check the size of a datatype by using the &CheckTypeSize; method:
+    </para>
+    
+    <sconstruct>
+env = Environment()
+conf = Configure(env)
+int_size = conf.CheckTypeSize('unsigned int')
+print 'sizeof unsigned int is', int_size
+env = conf.Finish()
+    </sconstruct>
+    
+    <screen>
+% <userinput>scons -Q</userinput>
+sizeof unsigned int is 4
+scons: `.' is up to date.
+    </screen>
+  </section>
 
   <section>
   <title>Adding Your Own Custom Checks</title>

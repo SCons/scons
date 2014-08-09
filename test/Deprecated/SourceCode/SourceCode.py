@@ -38,7 +38,7 @@ SourceCode('.', None)
 """)
 
 msg = """SourceCode() has been deprecated and there is no replacement.
-\tIf you need this function, please contact scons-dev@tigris.org"""
+\tIf you need this function, please contact scons-dev@scons.org"""
 warning = test.deprecated_warning('deprecated-source-code', msg)
 
 test.subdir('sub', 'sub2')
