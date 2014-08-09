@@ -95,8 +95,6 @@ def generate(env):
     env['DVERSIONS'] = []
     env['DDEBUG'] = []
 
-    env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 0
-
     if env['DC']:
         SCons.Tool.DCommon.addDPATHToEnv(env, env['DC'])
 

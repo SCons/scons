@@ -42,7 +42,6 @@ Sets construction variables for D language compiler DMD.
 <item>DFLAGS</item>
 <item>DVERSIONS</item>
 <item>DDEBUG</item>
-<item>STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME</item>
 <item>DINCPREFIX</item>
 <item>DINCSUFFIX</item>
 <item>DVERPREFIX</item>
