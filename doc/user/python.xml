@@ -1,0 +1,169 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+    
+    <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
+    %builders-mod;
+    <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
+    %functions-mod;
+    <!ENTITY % tools-mod SYSTEM "../generated/tools.mod">
+    %tools-mod;
+    <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
+    %variables-mod;
+
+]>
+
+<appendix id="app-python"
+          xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Python overview</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+    <para>
+
+    This section will provide a brief overview of
+    the Python programming language.
+    Skip this section if you are already familiar with Python
+    (or you're really intent on diving into &SCons;
+    and just picking up things as you go).
+
+    </para>
+
+    <para>
+
+    Python has a lot of good
+    documentation freely available on-line
+    to help you get started.
+    The standard tutorial is available at XXX.
+
+
+    </para>
+
+    <para>
+
+    Python is very easy to pick up.
+
+    </para>
+
+    <para>
+
+    Python variables must be assigned to before they can be referenced.
+
+    </para>
+
+    <para>
+
+    Assignment is like most programming languages:
+
+    x = 1 + 2
+    z = 3 * x
+
+    </para>
+
+    <para>
+
+    Function calls look like most language function calls:
+
+    a = f(g)
+
+    </para>
+
+    <para>
+
+    Define functions like so:
+
+        def func(arg1, arg2):
+            return arg1 * arg 2
+
+    The number of parameters
+
+    </para>
+
+    <para>
+
+    Strings can be enclosed in single quotes or double quotes,
+    backslashes are used to escape characters,
+    triple-quote syntax lets you include quotes and newlines,
+    raw strings begin with 'r'.
+
+    </para>
+
+    <para>
+
+    Lists are enclosed in square brackets,
+    list items are separated by commas.
+    List references use square brackets and integer index values,
+    slice notation lets you select, delete or replace a range.
+
+    </para>
+
+    <para>
+
+    Dictionaries (hashes) are enclosed in curly brackets,
+    : separates keys from values,
+    , separates items.
+    Dictionary values are referenced using square brackets.
+
+    </para>
+
+    <para>
+
+    Access class attributes (including methods) using a '.'.
+
+    </para>
+
+    <para>
+
+    if: statements look like
+
+    elif: statements look like
+
+    else: statements look like
+
+    </para>
+
+    <para>
+
+    for: statements look like
+
+    while: statements look like
+
+    break statements look like
+    
+    continue statements look like
+
+    </para>
+
+    <para>
+
+    pass
+
+    </para>
+
+</appendix>

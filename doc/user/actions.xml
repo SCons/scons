@@ -1,0 +1,428 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+    
+    <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
+    %builders-mod;
+    <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
+    %functions-mod;
+    <!ENTITY % tools-mod SYSTEM "../generated/tools.mod">
+    %tools-mod;
+    <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
+    %variables-mod;
+    
+]>
+
+<chapter id="chap-actions"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>&SCons; Actions</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+<!--
+
+=head1 Build actions
+
+Cons supports several types of B<build actions> that can be performed
+to construct one or more target files.  Usually, a build action is
+a construction command, that is, a command-line string that invokes
+an external command.  Cons can also execute Perl code embedded in a
+command-line string, and even supports an experimental ability to build
+a target file by executing a Perl code reference directly.
+
+A build action is usually specified as the value of a construction
+variable:
+
+  $env = new cons(
+	CCCOM         => '%CC %CFLAGS %_IFLAGS -c %< -o %>',
+	LINKCOM       => '[perl] &link_executable("%>", "%<")',
+	ARCOM         => sub { my($env, $target, @sources) = @_;
+				 # code to create an archive
+				}
+  );
+
+A build action may be associated directly with one or more target files
+via the C<Command> method; see below.
+
+=head2 Construction commands
+
+A construction command goes through expansion of construction variables
+and C<%-> pseudo-variables, as described above, to create the actual
+command line that Cons will execute to generate the target file or
+files.
+
+After substitution occurs, strings of white space are converted into
+single blanks, and leading and trailing white space is eliminated. It
+is therefore currently not possible to introduce variable length white
+space in strings passed into a command.
+
+If a multi-line command string is provided, the commands are executed
+sequentially. If any of the commands fails, then none of the rest are
+executed, and the target is not marked as updated, i.e. a new signature is
+not stored for the target.
+
+Normally, if all the commands succeed, and return a zero status (or whatever
+platform-specific indication of success is required), then a new signature
+is stored for the target. If a command erroneously reports success even
+after a failure, then Cons will assume that the target file created by that
+command is accurate and up-to-date.
+
+The first word of each command string, after expansion, is assumed to be an
+executable command looked up on the C<PATH> environment variable (which is,
+in turn, specified by the C<ENV> construction variable). If this command is
+found on the path, then the target will depend upon it: the command will
+therefore be automatically built, as necessary. It's possible to write
+multi-part commands to some shells, separated by semi-colons. Only the first
+command word will be depended upon, however, so if you write your command
+strings this way, you must either explicitly set up a dependency (with the
+C<Depends> method), or be sure that the command you are using is a system
+command which is expected to be available. If it isn't available, you will,
+of course, get an error.
+
+Cons normally prints a command before executing it.  This behavior is
+suppressed if the first character of the command is C<@>.  Note that
+you may need to separate the C<@> from the command name or escape it to
+prevent C<@cmd> from looking like an array to Perl quote operators that
+perform interpolation:
+
+  # The first command line is incorrect,
+  # because "@cp" looks like an array
+  # to the Perl qq// function.
+  # Use the second form instead.
+  Command $env 'foo', 'foo.in', qq(
+	@cp %< tempfile
+	@ cp tempfile %>
+  );
+
+If there are shell meta characters anywhere in the expanded command line,
+such as C<E<lt>>, C<E<gt>>, quotes, or semi-colon, then the command
+will actually be executed by invoking a shell. This means that a command
+such as:
+
+  cd foo
+
+alone will typically fail, since there is no command C<cd> on the path. But
+the command string:
+
+  cd $<:d; tar cf $>:f $<:f
+
+when expanded will still contain the shell meta character semi-colon, and a
+shell will be invoked to interpret the command. Since C<cd> is interpreted
+by this sub-shell, the command will execute as expected.
+
+=head2 Perl expressions
+
+If any command (even one within a multi-line command) begins with
+C<[perl]>, the remainder of that command line will be evaluated by the
+running Perl instead of being forked by the shell.  If an error occurs
+in parsing the Perl code, or if the Perl expression returns 0 or undef,
+the command will be considered to have failed.  For example, here is a
+simple command which creates a file C<foo> directly from Perl:
+
+  $env = new cons();
+  Command $env 'foo',
+    qq([perl] open(FOO,'>foo');print FOO "hi\\n"; close(FOO); 1);
+
+Note that when the command is executed, you are in the same package as
+when the F<Construct> or F<Conscript> file was read, so you can call
+Perl functions you've defined in the same F<Construct> or F<Conscript>
+file in which the C<Command> appears:
+
+  $env = new cons();
+  sub create_file {
+	my $file = shift;
+	open(FILE, ">$file");
+	print FILE "hi\n";
+	close(FILE);
+	return 1;
+  }
+  Command $env 'foo', "[perl] &create_file('%>')";
+
+The Perl string will be used to generate the signature for the derived
+file, so if you change the string, the file will be rebuilt.  The contents
+of any subroutines you call, however, are not part of the signature,
+so if you modify a called subroutine such as C<create_file> above,
+the target will I<not> be rebuilt.  Caveat user.
+
+=head2 Perl code references [EXPERIMENTAL]
+
+Cons supports the ability to create a derived file by directly executing
+a Perl code reference.  This feature is considered EXPERIMENTAL and
+subject to change in the future.
+
+A code reference may either be a named subroutine referenced by the
+usual C<\&> syntax:
+
+  sub build_output {
+	my($env, $target, @sources) = @_;
+	print "build_output building $target\n";
+	open(OUT, ">$target");
+	foreach $src (@sources) {
+	    if (! open(IN, "<$src")) {
+		print STDERR "cannot open '$src': $!\n";
+		return undef;
+	    }
+	    print OUT, <IN>;
+	}
+	close(OUT);
+	return 1;
+  }
+  Command $env 'output', \&build_output;
+
+or the code reference may be an anonymous subroutine:
+
+  Command $env 'output', sub {
+	my($env, $target, @sources) = @_;
+	print "building $target\n";
+	open(FILE, ">$target");
+	print FILE "hello\n";
+	close(FILE);
+	return 1;
+  };
+
+To build the target file, the referenced subroutine is passed, in order:
+the construction environment used to generate the target; the path
+name of the target itself; and the path names of all the source files
+necessary to build the target file.
+
+The code reference is expected to generate the target file, of course,
+but may manipulate the source and target files in any way it chooses.
+The code reference must return a false value (C<undef> or C<0>) if
+the build of the file failed.  Any true value indicates a successful
+build of the target.
+
+Building target files using code references is considered EXPERIMENTAL
+due to the following current limitations:
+
+=over 4
+
+Cons does I<not> print anything to indicate the code reference is being
+called to build the file.  The only way to give the user any indication
+is to have the code reference explicitly print some sort of "building"
+message, as in the above examples.
+
+Cons does not generate any signatures for code references, so if the
+code in the reference changes, the target will I<not> be rebuilt.
+
+Cons has no public method to allow a code reference to extract
+construction variables.  This would be good to allow generalization of
+code references based on the current construction environment, but would
+also complicate the problem of generating meaningful signatures for code
+references.
+
+=back
+
+Support for building targets via code references has been released in
+this version to encourage experimentation and the seeking of possible
+solutions to the above limitations.
+
+-->
+
+  <para>
+
+  &SCons; supports several types of &build_actions;
+  that can be performed to build one or more target files.
+  Usually, a &build_action; is a command-line string
+  that invokes an external command.
+  A build action can also be an external  command
+  specified as a list of arguments,
+  or even a Python function.
+
+  </para>
+
+  <para>
+
+  Build action objects are created by the &Action; function.
+  This function is, in fact, what &SCons; uses
+  to interpret the &action;
+  keyword argument when you call the &Builder; function.
+  So the following line that creates a simple Builder:
+
+  </para>
+
+  <sconstruct>
+b = Builder(action = 'build &lt; $SOURCE &gt; $TARGET')
+  </sconstruct>
+
+  <para>
+
+  Is equivalent to:
+
+  </para>
+
+  <sconstruct>
+b = Builder(action = Action('build &lt; $SOURCE &gt; $TARGET'))
+  </sconstruct>
+
+  <para>
+
+  The advantage of using the &Action; function directly
+  is that it can take a number of additional options
+  to modify the action's behavior in many useful ways.
+
+  </para>
+
+  <section>
+  <title>Command Strings as Actions</title>
+
+    <section>
+    <title>Suppressing Command-Line Printing</title>
+
+    <para>
+
+    XXX
+
+    </para>
+
+    </section>
+
+    <section>
+    <title>Ignoring Exit Status</title>
+
+    <para>
+
+    XXX
+
+    </para>
+
+    </section>
+
+  </section>
+
+  <section>
+  <title>Argument Lists as Actions</title>
+
+  <para>
+
+  XXX
+
+  </para>
+
+  </section>
+
+  <section>
+  <title>Python Functions as Actions</title>
+
+  <para>
+
+  XXX
+
+  </para>
+
+  </section>
+
+  <section>
+  <title>Modifying How an Action is Printed</title>
+
+    <section>
+    <title>XXX:  the &strfunction; keyword argument</title>
+
+    <para>
+
+    XXX
+
+    </para>
+
+    </section>
+
+    <section>
+    <title>XXX:  the &cmdstr; keyword argument</title>
+
+    <para>
+
+    XXX
+
+    </para>
+
+    </section>
+
+  </section>
+
+  <section>
+  <title>Making an Action Depend on Variable Contents:  the &varlist; keyword argument</title>
+
+  <para>
+
+  XXX
+
+  </para>
+
+  </section>
+
+  <section>
+  <title>chdir=1</title>
+
+  <para>
+
+  XXX
+
+  </para>
+
+  </section>
+
+  <section>
+  <title>Batch Building of Multiple Targets from Separate Sources:  the &batch_key; keyword argument</title>
+
+  <para>
+
+  XXX
+
+  </para>
+
+  </section>
+
+  <section>
+  <title>Manipulating the Exit Status of an Action:  the &exitstatfunc; keyword argument</title>
+
+  <para>
+
+  XXX
+
+  </para>
+
+  </section>
+
+  <!--
+
+  ???
+
+  <section>
+  <title>presub=</title>
+
+  <para>
+
+  XXX
+
+  </para>
+
+  </section>
+
+  -->
+
+</chapter>

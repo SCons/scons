@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<article xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+  <articleinfo>
+    <title></title>
+    <author>
+      <firstname></firstname>
+      <surname></surname>
+      <affiliation>
+        <orgname></orgname>
+      </affiliation>
+    </author>
+    <pubdate></pubdate>
+  </articleinfo>
+  <section>
+    <title></title>
+    <para></para>
+  </section>
+</article>
