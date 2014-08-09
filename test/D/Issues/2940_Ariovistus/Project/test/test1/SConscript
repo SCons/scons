@@ -1,0 +1,16 @@
+Import('environment')
+
+env = Environment()
+env.SharedLibrary(target='stuff', source=['stuff.cpp'])
+
+env = Environment()
+env.Append(LIBPATH=['.'])
+env.Append(LIBS=['stuff'])
+env.Append(RPATH=['.'])
+env.Program(target='test1', source=['test1.cpp'])
+
+env = environment.Clone()
+env.Append(LIBPATH=['.'])
+env.Append(LIBS=['stuff'])
+env.Append(RPATH=['.'])
+env.Program(target='test2', source=['test2.d'])
