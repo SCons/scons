@@ -2,14 +2,13 @@
 
 Autoconf-like configuration support.
 
-In other words, this package allows to run series of tests to detect
-capabilities of current system and generate config files (header files
-in C/C++) that turn on system-specific options and optimizations.
+In other words, SConf allows to run tests on the build machine to detect
+capabilities of system and do some things based on result: generate config
+files, header files for C/C++, update variables in environment.
 
-For example, it is possible to detect if optional libraries are present
-on current system and generate config that makes compiler include them.
-C compilers do not have ability to catch ImportError if some library is
-not found, so these checks should be done externally.
+Tests on the build system can detect if compiler sees header files, if
+libraries are installed, if some command line options are supported etc.
+
 """
 
 #

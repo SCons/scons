@@ -6,6 +6,21 @@
 
 RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Manuel Francisco Naranjo:
+    - Added a default for the BUILDERS environment variable,
+      to prevent not defined exception on a Clone().
+
+  From Andrew Featherstone:
+    - Added description of CheckTypeSize method (#1991).
+    - Fixed handling of CPPDEFINE var in Append()
+      for several list-dict combinations (#2900).
+
+  From William Blevins:
+    - Added test for Java derived-source dependency tree generation.
+    - Added Copy Action symlink soft-copy support (#2395).
+
+RELEASE 2.3.2
+
   From veon on bitbucket:
     - Fixed handling of nested ifs in CPP scanner PreProcessor class.
 

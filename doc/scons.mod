@@ -277,6 +277,7 @@
 <!ENTITY CheckLib "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CheckLib</function>">
 <!ENTITY CheckLibWithHeader "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CheckLibWithHeader</function>">
 <!ENTITY CheckType "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CheckType</function>">
+<!ENTITY CheckTypeSize "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CheckTypeSize</function>">
 <!ENTITY TryAction "<function xmlns='http://www.scons.org/dbxsd/v1.0'>TryAction</function>">
 <!ENTITY TryBuild "<function xmlns='http://www.scons.org/dbxsd/v1.0'>TryBuild</function>">
 <!ENTITY TryCompile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>TryCompile</function>">
