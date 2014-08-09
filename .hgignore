@@ -9,3 +9,10 @@ syntax:glob
 *~
 *.xcodeproj
 *.orig
+
+doc/user/scons-user
+doc/user/scons_db.xml
+doc/user/scons_ex.xml
+doc/user/scons_exi.xml
+doc/user/scons_xi.xml
+doc/user/index.html
