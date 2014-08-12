@@ -431,7 +431,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                 if Verbose:
                     print "Need to run makeindex for newglossary"
                 newglfile = suffix_nodes[newglossary_suffix[ig][2]]
-                MakeNewGlossaryAction = SCons.Action.Action("$MAKENEWGLOSSARY ${SOURCE.filebase}%s -s ${SOURCE.filebase}.ist -t ${SOURCE.filebase}%s -o ${SOURCE.filebase}%s" % (newglossary_suffix[ig][2],newglossary_suffix[ig][0],newglossary_suffix[ig][1]), "$MAKENEWGLOSSARYCOMSTR")
+                MakeNewGlossaryAction = SCons.Action.Action("$MAKENEWGLOSSARYCOM ${SOURCE.filebase}%s -s ${SOURCE.filebase}.ist -t ${SOURCE.filebase}%s -o ${SOURCE.filebase}%s" % (newglossary_suffix[ig][2],newglossary_suffix[ig][0],newglossary_suffix[ig][1]), "$MAKENEWGLOSSARYCOMSTR")
 
                 result = MakeNewGlossaryAction(newglfile, newglfile, env)
                 if result != 0:
