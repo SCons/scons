@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE sconsdoc [
+
+    <!ENTITY % version SYSTEM "../version.xml">
+    %version;
+
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+
+]>
+
+<book xmlns="http://www.scons.org/dbxsd/v1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+      
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+      
+  <bookinfo>
+    <title>SCons &buildversion;</title>
+    <subtitle>Reference Manual</subtitle>
+
+    <author>
+      <firstname>Steven</firstname>
+      <surname>Knight</surname>
+    </author>
+
+    <corpauthor>Steven Knight</corpauthor>
+  
+    <pubdate>2003</pubdate>
+
+    <copyright>
+      <year>2003</year>
+      <holder>Steven Knight</holder>
+    </copyright>
+
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="copyright.xml"/>
+
+    <releaseinfo>version &buildversion;</releaseinfo>
+
+  </bookinfo>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="preface.xml"/>
+
+  <chapter id="chap-builders">
+    <title>Builder Reference</title>
+
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Alias.xml"/>
+
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="CFile.xml"/>
+
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Command.xml"/>
+
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="CXXFile.xml"/>
+
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Install.xml"/>
+
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="InstallAs.xml"/>
+
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Library.xml"/>
+
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Object.xml"/>
+
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="PCH.xml"/>
+
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="PDF.xml"/>
+
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="PostScript.xml"/>
+
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Program.xml"/>
+
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="RES.xml"/>
+
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="SharedLibrary.xml"/>
+
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="SharedObject.xml"/>
+
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="StaticLibrary.xml"/>
+
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="StaticObject.xml"/>
+
+  </chapter>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="errors.xml"/>
+
+</book>
