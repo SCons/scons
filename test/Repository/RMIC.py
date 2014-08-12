@@ -35,6 +35,27 @@ python = TestSCons.python
 test = TestSCons.TestSCons()
 
 where_javac, java_version = test.java_where_javac()
+
+# Try to get the major/minor Java version 
+curver = (1, 0)
+if java_version.count('.') == 1:
+    # Check Java version
+    major, minor = java_version.split('.')
+    try:
+        curver = (int(major), int(minor))
+    except:
+        pass
+
+# Check the version of the found Java compiler.
+# If it's 1.8 or higher, we skip the further RMIC test
+# because we'll get warnings about the deprecated API...
+# it's just not state-of-the-art anymore.
+# Note, how we allow simple version strings like "5" and
+# "6" to successfully pass this test.
+if curver >= (1, 8):
+    test.skip_test('The found version of javac is higher than 1.7, skipping test.\n')
+
+
 where_java = test.java_where_java()
 where_rmic = test.java_where_rmic()
 
