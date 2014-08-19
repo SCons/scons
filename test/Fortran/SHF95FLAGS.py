@@ -103,6 +103,13 @@ g95 = test.detect_tool(fc)
 
 if g95:
 
+    test.subdir('x')
+
+    test.write(['x','dummy.i'],
+"""
+# Exists only such that -Ix finds the directory...
+""")
+
     test.write("wrapper.py",
 """import os
 import sys
