@@ -6,6 +6,9 @@
 
 RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Kendrick Boyd and Rob Managan:
+    - Fixed the newglossary action to work with VariantDir (LaTeX).
+
   From Manuel Francisco Naranjo:
     - Added a default for the BUILDERS environment variable,
       to prevent not defined exception on a Clone().
