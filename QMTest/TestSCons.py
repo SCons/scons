@@ -1147,7 +1147,6 @@ except:
 print py_ver
 """)
 
-        # print "get_platform_python_info(): "+self.stdout()
         return [python] + self.stdout().strip().split('\n')
 
     def start(self, *args, **kw):
