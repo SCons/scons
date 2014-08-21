@@ -6,6 +6,9 @@
 
 RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Roland Stark:
+    - Fixed false line length calculation in the TempFileMunge class (#2970).
+
   From Anatoly Techtonik:
     - Do not fail on EnsureSConsVersion when running from checkout
 
