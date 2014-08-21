@@ -30,6 +30,7 @@ without white space before the opening parenthesis.
 """
 
 import os.path
+import sys
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -44,16 +45,31 @@ Python_h = os.path.join(python_include, 'Python.h')
 if not os.path.exists(Python_h):
     test.skip_test('Can not find %s, skipping test.\n' % Python_h)
 
+# swig-python expects specific filenames.
+# the platform specific suffix won't necessarily work.
+if sys.platform == 'win32':
+    _dll = '.pyd'
+else:
+    _dll   = '.so'
+
+# On Windows, build a 32-bit exe if on 32-bit python.
+if sys.platform == 'win32' and sys.maxsize <= 2**32:
+    swig_arch_var="TARGET_ARCH='x86',"
+else:
+    swig_arch_var=""
+
 test.write(['SConstruct'], """\
 env = Environment(SWIGFLAGS = '-python -c++',
+                  %(swig_arch_var)s
                   CPPPATH=[r'%(python_include)s'],
                   SWIG=[r'%(swig)s'],
                   LIBPATH=[r'%(python_libpath)s'],
                   LIBS='%(python_lib)s',
+                  LDMODULESUFFIX='%(_dll)s',
                   )
 
-env.LoadableModule('test1.so', ['test1.i', 'test1.cc'])
-env.LoadableModule('test2.so', ['test2.i', 'test2.cc'])
+env.LoadableModule('test1', ['test1.i', 'test1.cc'])
+env.LoadableModule('test2', ['test2.i', 'test2.cc'])
 """ % locals())
 
 test.write(['test1.cc'], """\

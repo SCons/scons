@@ -45,7 +45,7 @@ if not swig:
 if sys.platform == 'win32':
     _dll = '.dll'
 else:
-    _dll   = '.so' 
+    _dll   = '.so'
 
 test.subdir(['source'])
 
@@ -55,11 +55,17 @@ Python_h = os.path.join(python_include, 'Python.h')
 if not os.path.exists(Python_h):
     test.skip_test('Can not find %s, skipping test.\n' % Python_h)
 
+if sys.platform == 'win32' and sys.maxsize <= 2**32:
+    swig_arch_var="TARGET_ARCH='x86',"
+else:
+    swig_arch_var=""
+
 test.write(['SConstruct'], """\
 #
 # Create the build environment.
 #
 env = Environment(CPPPATH = [".", r'%(python_include)s'],
+                  %(swig_arch_var)s
                   CPPDEFINES = "NDEBUG",
                   SWIG = [r'%(swig)s'],
                   SWIGFLAGS = ["-python", "-c++"],
@@ -123,11 +129,11 @@ class Vector
 public:
   Vector(int n = 0);
   ~Vector();
-  
+
   %extend
   {
     const char* __str__() { return "linalg.Vector()"; }
-    
+
     %pythoncode %{
     def __iter__(self):
         for i in range(len(self)):

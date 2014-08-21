@@ -1129,14 +1129,25 @@ SConscript( sconscript )
         self.run(program = python, stdin = """\
 import os, sys
 try:
-    py_ver = 'python%d.%d' % sys.version_info[:2]
+    if sys.platform == 'win32':
+        py_ver = 'python%d%d' % sys.version_info[:2]
+    else:
+        py_ver = 'python%d.%d' % sys.version_info[:2]
 except AttributeError:
     py_ver = 'python' + sys.version[:3]
-print os.path.join(sys.prefix, 'include', py_ver)
-print os.path.join(sys.prefix, 'lib', py_ver, 'config')
+# print include and lib path
+try:
+    import distutils.sysconfig
+    exec_prefix = distutils.sysconfig.EXEC_PREFIX
+    print distutils.sysconfig.get_python_inc()
+    print os.path.join(exec_prefix, 'libs')
+except:
+    print os.path.join(sys.prefix, 'include', py_ver)
+    print os.path.join(sys.prefix, 'lib', py_ver, 'config')
 print py_ver
 """)
 
+        # print "get_platform_python_info(): "+self.stdout()
         return [python] + self.stdout().strip().split('\n')
 
     def start(self, *args, **kw):

@@ -36,7 +36,7 @@ import TestSCons
 # swig-python expects specific filenames.
 # the platform specific suffix won't necessarily work.
 if sys.platform == 'win32':
-    _dll = '.dll'
+    _dll = '.pyd'
 else:
     _dll   = '.so'
 
@@ -55,6 +55,12 @@ if not os.path.exists(Python_h):
 # handle testing on other platforms:
 ldmodule_prefix = '_'
 
+# On Windows, build a 32-bit exe if on 32-bit python.
+if sys.platform == 'win32' and sys.maxsize <= 2**32:
+    swig_arch_var="TARGET_ARCH='x86',"
+else:
+    swig_arch_var=""
+
 test.write("wrapper.py",
 """import os
 import sys
@@ -64,11 +70,12 @@ os.system(" ".join(sys.argv[1:]))
 
 test.write('SConstruct', """\
 foo = Environment(SWIGFLAGS='-python',
+                  LIBPATH=[r'%(python_libpath)s'],
                   CPPPATH=[r'%(python_include)s'],
                   LDMODULEPREFIX='%(ldmodule_prefix)s',
                   LDMODULESUFFIX='%(_dll)s',
                   SWIG=[r'%(swig)s'],
-                  LIBPATH=[r'%(python_libpath)s'],
+                  %(swig_arch_var)s
                   LIBS='%(python_lib)s',
                   )
 

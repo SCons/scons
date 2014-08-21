@@ -31,6 +31,7 @@ that Python files are created in the specified output directory.
 
 import TestSCons
 import os
+import sys
 
 test = TestSCons.TestSCons()
 
@@ -44,8 +45,15 @@ Python_h = os.path.join(python_include, 'Python.h')
 if not os.path.exists(Python_h):
     test.skip_test('Can not find %s, skipping test.\n' % Python_h)
 
+# On Windows, build a 32-bit exe if on 32-bit python.
+if sys.platform == 'win32' and sys.maxsize <= 2**32:
+    swig_arch_var="TARGET_ARCH='x86',"
+else:
+    swig_arch_var=""
+
 test.write(['SConstruct'], """\
 env = Environment(SWIGFLAGS = '-python -c++',
+                  %(swig_arch_var)s
                   CPPPATH=[r"%(python_include)s"],
                   SWIG=[r'%(swig)s'],
                   SWIGOUTDIR='python/build dir',
@@ -64,17 +72,17 @@ test.write('python_foo_interface.i', """\
 # subdirectory to hold the generated .py files.
 test.run(arguments = '.')
 
-test.must_exist('python/build dir/foopack.py') 
+test.must_exist('python/build dir/foopack.py')
 
 # SCons should remove the built .py files.
 test.run(arguments = '-c')
 
-test.must_not_exist('python/build dir/foopack.py') 
+test.must_not_exist('python/build dir/foopack.py')
 
 # SCons should realize it needs to rebuild the removed .py files.
 test.not_up_to_date(arguments = '.')
 
-test.must_exist('python/build dir/foopack.py') 
+test.must_exist('python/build dir/foopack.py')
 
 
 test.pass_test()

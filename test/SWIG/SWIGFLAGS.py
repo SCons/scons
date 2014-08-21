@@ -28,6 +28,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify that we can use ${SOURCE} expansions in $SWIGFLAGS.
 """
 
+import sys
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -54,9 +55,10 @@ test.write(['src', 'bar.i'], """\
 test.write('SConstruct', """
 # Note that setting the -I option in $SWIGFLAGS is not good and the
 # documentation says to use $SWIGPATH.  This is just for testing.
-env = Environment(SWIGFLAGS='-python -I${SOURCE.dir}')
+env = Environment(SWIGFLAGS='-python -I${SOURCE.dir}',
+                  SWIG=r'%(swig)s')
 env.CFile(target = 'foo', source = ['src/foo.i'])
-""")
+""" % locals())
 
 test.run()
 
