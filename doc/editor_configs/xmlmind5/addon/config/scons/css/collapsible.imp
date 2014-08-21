@@ -1,0 +1,135 @@
+/*
+ * Copyright (c) 2003-2007 Pixware. 
+ *
+ * This file is part of the XMLmind XML Editor project.
+ * For conditions of distribution and use, see the accompanying legal.txt file.
+ *
+ * Styles for making sections and blocks with titles collapsible. 
+ */
+
+set,
+book,
+part,
+reference,
+chapter,
+preface,
+article,
+sect1,
+sect2,
+sect3,
+sect4,
+section,
+appendix,
+figure,
+example,
+table {
+    collapsible: yes;
+    not-collapsible-head: 1; /* title or metainfo */
+}
+
+figure {
+    collapsed-content: url(icons/figure.png);
+    collapsed-content-align: center;
+}
+
+example {
+    collapsed-content: url(icons/para.png);
+    collapsed-content-align: center;
+}
+
+table {
+    collapsed-content: url(icons/table.png);
+    collapsed-content-align: center;
+}
+
+set > title:first-child:before,
+book > title:first-child:before,
+reference > title:first-child:before,
+preface > title:first-child:before,
+article > title:first-child:before,
+figure > title:before,
+example > title:before,
+table > title:before {
+    content: collapser() " ";
+}
+
+part > title:first-child:before { 
+    content: collapser() " Part " simple-counter(n-, upper-roman) ": "; 
+}
+
+chapter > title:first-child:before { 
+    content: collapser() " Chapter " simple-counter(n-, decimal) ": "; 
+}
+
+sect1 > title:first-child:before { 
+    content: collapser() " " simple-counter(n-) " "; 
+}
+
+sect2 > title:first-child:before { 
+    content: collapser() " " simple-counter(nn-) " "; 
+}
+
+sect3 > title:first-child:before { 
+    content: collapser() " " simple-counter(nnn-) " "; 
+}
+
+sect4 > title:first-child:before { 
+    content: collapser() " " simple-counter(nnnn-) " "; 
+}
+
+section > title:first-child:before { 
+    content: collapser() " " simple-counter(n-) " "; 
+}
+
+section section > title:first-child:before { 
+    content: collapser() " " simple-counter(nn-) " "; 
+}
+
+section section section > title:first-child:before { 
+    content: collapser() " " simple-counter(nnn-) " "; 
+}
+
+section section section section > title:first-child:before { 
+    content: collapser() " " simple-counter(nnnn-) " "; 
+}
+
+section section section * section > title:first-child:before { 
+    content: ""; 
+}
+      
+appendix > title:first-child:before { 
+    content: collapser() " Appendix " simple-counter(n-, upper-alpha) ": "; 
+}
+
+appendixinfo:first-child,
+articleinfo:first-child,
+bookinfo:first-child,
+chapterinfo:first-child,
+partinfo:first-child,
+prefaceinfo:first-child,
+referenceinfo:first-child,
+sect1info:first-child,
+sect2info:first-child,
+sect3info:first-child,
+sect4info:first-child,
+sectioninfo:first-child,
+setinfo:first-child {
+    margin-left: 20px;
+}
+
+appendixinfo:first-child:before,
+articleinfo:first-child:before,
+bookinfo:first-child:before,
+chapterinfo:first-child:before,
+partinfo:first-child:before,
+prefaceinfo:first-child:before,
+referenceinfo:first-child:before,
+sect1info:first-child:before,
+sect2info:first-child:before,
+sect3info:first-child:before,
+sect4info:first-child:before,
+sectioninfo:first-child:before,
+setinfo:first-child:before {
+    content: collapser();
+    display: marker;
+}

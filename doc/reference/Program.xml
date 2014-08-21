@@ -1,0 +1,91 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+]>
+
+<section id="sect-Program"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>The Program Builder</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+<!--
+
+=head2 The C<Program> method
+
+The C<Program> method arranges to link the specified program with the
+specified object files. It is invoked in the following manner:
+
+  Program $env <program name>, <source or object files>;
+
+The program name will have the value of the C<SUFEXE> construction
+variable appended (by default, C<.exe> on Win32 systems, nothing on Unix
+systems) if the suffix is not already present.
+
+Source files may be specified in place of objects files-,-the C<Objects>
+method will be invoked to arrange the conversion of all the files into
+object files, and hence all the observations about the C<Objects> method,
+above, apply to this method also.
+
+The actual linking of the program will be handled by an external command
+which results from expanding the C<LINKCOM> construction variable, with
+C<%E<lt>> set to the object files to be linked (in the order presented),
+and C<%E<gt>> set to the target. (See the section above on construction
+variable expansion for details.)  The user may set additional variables
+in the construction environment, including C<LINK>, to define which
+program to use for linking, C<LIBPATH>, a colon-separated list of
+library search paths, for use with library specifications of the form
+I<-llib>, and C<LIBS>, specifying the list of libraries to link against
+(in either I<-llib> form or just as pathnames. Relative pathnames in
+both C<LIBPATH> and C<LIBS> are interpreted relative to the directory
+in which the associated construction environment is created (absolute
+and top-relative names may also be used). Cons automatically sets up
+dependencies on any libraries mentioned in C<LIBS>: those libraries will
+be built before the command is linked.
+
+-->
+
+ <para>
+
+   X
+
+ </para>
+
+ <section>
+ <title>The &Program; Builder</title>
+
+   <para>
+
+   X
+
+   </para>
+
+ </section>
+
+</section>
