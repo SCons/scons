@@ -173,6 +173,7 @@ class TempFileMunge(object):
         length = 0
         for c in cmd:
             length += len(c)
+        length += len(cmd) - 1
         if length <= maxline:
             return self.cmd
 
@@ -187,7 +188,7 @@ class TempFileMunge(object):
         (fd, tmp) = tempfile.mkstemp('.lnk', text=True)
         native_tmp = SCons.Util.get_native_path(os.path.normpath(tmp))
 
-        if env['SHELL'] and env['SHELL'] == 'sh':
+        if env.get('SHELL',None) and env['SHELL'] == 'sh':
             # The sh shell will try to escape the backslashes in the
             # path, so unescape them.
             native_tmp = native_tmp.replace('\\', r'\\\\')
