@@ -39,14 +39,14 @@ import TestSCons
 if sys.platform == 'win32':
     _dll = '.dll'
 else:
-    _dll   = '.so' 
+    _dll   = '.so'
 
 # swig-python expects specific filenames.
 # the platform specific suffix won't necessarily work.
 if sys.platform == 'win32':
     _dll = '.dll'
 else:
-    _dll   = '.so' 
+    _dll   = '.so'
 
 test = TestSCons.TestSCons()
 
@@ -69,17 +69,17 @@ foo = Environment(CPPPATH=[r'%(python_include)s'],
                   SWIG=[r'%(swig)s'],
                   LIBPATH=[r'%(python_libpath)s'],
                   )
-python_interface = foo.Command( 'test_py_swig.i', Value(1), "echo '%%module test_py_swig'  > test_py_swig.i" )
+python_interface = foo.Command( 'test_py_swig.i', Value(1), 'echo %%module test_py_swig  > test_py_swig.i' )
 python_c_file    = foo.CFile( target='python_swig_test',source=python_interface, SWIGFLAGS = '-python -c++' )
-java_interface  = foo.Command( 'test_java_swig.i', Value(1),"echo '%%module test_java_swig' > test_java_swig.i" )
-java_c_file     = foo.CFile( target='java_swig_test'  ,source=java_interface, SWIGFLAGS = '-java -c++' ) 
+java_interface  = foo.Command( 'test_java_swig.i', Value(1),'echo %%module test_java_swig > test_java_swig.i' )
+java_c_file     = foo.CFile( target='java_swig_test'  ,source=java_interface, SWIGFLAGS = '-java -c++' )
 
 """ % locals())
 
 expected_stdout = """\
-echo '%%module test_java_swig' > test_java_swig.i
+echo %%module test_java_swig > test_java_swig.i
 %(swig)s -o java_swig_test_wrap.cc -java -c++ test_java_swig.i
-echo '%%module test_py_swig' > test_py_swig.i
+echo %%module test_py_swig > test_py_swig.i
 %(swig)s -o python_swig_test_wrap.cc -python -c++ test_py_swig.i
 """ % locals()
 test.run(arguments = '.',stdout=test.wrap_stdout(expected_stdout))
