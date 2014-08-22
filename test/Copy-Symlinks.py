@@ -38,6 +38,9 @@ SCons.Defaults.DefaultEnvironment( tools = [] )
 
 test = TestSCons.TestSCons()
 
+if sys.platform == 'win32':
+    test.skip_test('No symlink-copying (yet) on Windows, skipping test.')
+
 filelinkToCopy = 'filelinkToCopy'
 fileToLink = 'file.in'
 fileContents = 'stuff n things\n'
