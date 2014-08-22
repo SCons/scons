@@ -54,6 +54,9 @@ class CorruptSConsignWarning(WarningOnByDefault):
 class DependencyWarning(Warning):
     pass
 
+class DevelopmentVersionWarning(WarningOnByDefault):
+    pass
+
 class DuplicateEnvironmentWarning(WarningOnByDefault):
     pass
 
