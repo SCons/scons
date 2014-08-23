@@ -5,12 +5,14 @@ http://testanything.org/tap-version-13-specification.html
 Public domain work by:
   anatoly techtonik <techtonik@gmail.com>
 
+Changes:
+  0.2 - removed unused import that failed on Python 2.6
+  0.1 - initial release
 """
 
-from unittest import suite
 from unittest.runner import TextTestRunner, TextTestResult
 
-__version__ = "0.1"
+__version__ = "0.2"
 
 class TAPTestResult(TextTestResult):
 
