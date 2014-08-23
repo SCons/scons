@@ -706,7 +706,7 @@ def tool_list(platform, env):
         assemblers = ['masm', 'nasm', 'gas', '386asm' ]
         fortran_compilers = ['gfortran', 'g77', 'ifl', 'cvf', 'f95', 'f90', 'fortran']
         ars = ['mslib', 'ar', 'tlib']
-        other_plat_tools=['msvs','midl']
+        other_plat_tools = ['msvs', 'midl']
     elif str(platform) == 'os2':
         "prefer IBM tools on OS/2"
         linkers = ['ilink', 'gnulink', ]#'mslink']
@@ -773,6 +773,9 @@ def tool_list(platform, env):
         fortran_compilers = ['gfortran', 'g77', 'ifort', 'ifl', 'f95', 'f90', 'f77']
         ars = ['ar', 'mslib']
 
+    if not str(platform) == 'win32':
+        other_plat_tools += ['m4', 'rpm']
+
     c_compiler = FindTool(c_compilers, env) or c_compilers[0]
 
     # XXX this logic about what tool provides what should somehow be
@@ -796,12 +799,13 @@ def tool_list(platform, env):
         fortran_compiler = FindTool(fortran_compilers, env) or fortran_compilers[0]
         ar = FindTool(ars, env) or ars[0]
 
+    d_compilers = ['dmd', 'gdc', 'ldc']
+    d_compiler = FindTool(d_compilers, env) or d_compilers[0]
+
     other_tools = FindAllTools(other_plat_tools + [
-                               'dmd',
                                #TODO: merge 'install' into 'filesystem' and
                                # make 'filesystem' the default
                                'filesystem',
-                               'm4',
                                'wix', #'midl', 'msvs',
                                # Parser generators
                                'lex', 'yacc',
@@ -813,14 +817,14 @@ def tool_list(platform, env):
                                'dvipdf', 'dvips', 'gs',
                                'tex', 'latex', 'pdflatex', 'pdftex',
                                # Archivers
-                               'tar', 'zip', 'rpm',
+                               'tar', 'zip',
                                # SourceCode factories
                                'BitKeeper', 'CVS', 'Perforce',
                                'RCS', 'SCCS', # 'Subversion',
                                ], env)
 
     tools = ([linker, c_compiler, cxx_compiler,
-              fortran_compiler, assembler, ar]
+              fortran_compiler, assembler, ar, d_compiler]
              + other_tools)
 
     return [x for x in tools if x]

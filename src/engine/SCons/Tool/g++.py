@@ -40,16 +40,19 @@ import subprocess
 import SCons.Tool
 import SCons.Util
 
+from . import gcc
 cplusplus = __import__(__package__+'.c++', globals(), locals(), ['*'])
+
 compilers = ['g++']
 
 def generate(env):
     """Add Builders and construction variables for g++ to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
-    cplusplus.generate(env)
+    if 'CXX' not in env:
+        env['CXX']    = env.Detect(compilers) or compilers[0]
 
-    env['CXX']        = env.Detect(compilers)
+    cplusplus.generate(env)
 
     # platform specific settings
     if env['PLATFORM'] == 'aix':
@@ -61,26 +64,13 @@ def generate(env):
     elif env['PLATFORM'] == 'sunos':
         env['SHOBJSUFFIX'] = '.pic.o'
     # determine compiler version
-    if env['CXX']:
-        #pipe = SCons.Action._subproc(env, [env['CXX'], '-dumpversion'],
-        pipe = SCons.Action._subproc(env, [env['CXX'], '--version'],
-                                     stdin = 'devnull',
-                                     stderr = 'devnull',
-                                     stdout = subprocess.PIPE)
-        if pipe.wait() != 0: return
-        # -dumpversion was added in GCC 3.0.  As long as we're supporting
-        # GCC versions older than that, we should use --version and a
-        # regular expression.
-        #line = pipe.stdout.read().strip()
-        #if line:
-        #    env['CXXVERSION'] = line
-        line = SCons.Util.to_str (pipe.stdout.readline())
-        match = re.search(r'[0-9]+(\.[0-9]+)+', line)
-        if match:
-            env['CXXVERSION'] = match.group(0)
+    version = gcc.detect_version(env, env['CXX'])
+    if version:
+        env['CXXVERSION'] = version
 
 def exists(env):
-    return env.Detect(compilers)
+    # is executable, and is a GNU compiler (or accepts '--version' at least)
+    return gcc.detect_version(env, env.Detect(env.get('CXX', compilers)))
 
 # Local Variables:
 # tab-width:4

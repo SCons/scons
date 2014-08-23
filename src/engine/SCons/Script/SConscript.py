@@ -461,6 +461,10 @@ class SConsEnvironment(SCons.Environment.Base):
 
     def EnsureSConsVersion(self, major, minor, revision=0):
         """Exit abnormally if the SCons version is not late enough."""
+        if SCons.__version__ == '__VERSION__':
+            SCons.Warnings.warn(SCons.Warnings.DevelopmentVersionWarning,
+                "EnsureSConsVersion is ignored for development version")
+            return
         scons_ver = self._get_major_minor_revision(SCons.__version__)
         if scons_ver < (major, minor, revision):
             if revision:

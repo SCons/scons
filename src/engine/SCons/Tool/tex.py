@@ -103,6 +103,7 @@ makeacronyms_re = re.compile(r"^[^%\n]*\\makeglossaries", re.MULTILINE)
 beamer_re = re.compile(r"^[^%\n]*\\documentclass\{beamer\}", re.MULTILINE)
 regex = r'^[^%\n]*\\newglossary\s*\[([^\]]+)\]?\s*\{([^}]*)\}\s*\{([^}]*)\}\s*\{([^}]*)\}\s*\{([^}]*)\}'
 newglossary_re = re.compile(regex, re.MULTILINE)
+biblatex_re = re.compile(r"^[^%\n]*\\usepackage.*\{biblatex\}", re.MULTILINE)
 
 newglossary_suffix = []
 
@@ -431,7 +432,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                 if Verbose:
                     print("Need to run makeindex for newglossary")
                 newglfile = suffix_nodes[newglossary_suffix[ig][2]]
-                MakeNewGlossaryAction = SCons.Action.Action("$MAKENEWGLOSSARY ${SOURCE.filebase}%s -s ${SOURCE.filebase}.ist -t ${SOURCE.filebase}%s -o ${SOURCE.filebase}%s" % (newglossary_suffix[ig][2],newglossary_suffix[ig][0],newglossary_suffix[ig][1]), "$MAKENEWGLOSSARYCOMSTR")
+                MakeNewGlossaryAction = SCons.Action.Action("$MAKENEWGLOSSARYCOM ${SOURCE.filebase}%s -s ${SOURCE.filebase}.ist -t ${SOURCE.filebase}%s -o ${SOURCE.filebase}%s" % (newglossary_suffix[ig][2],newglossary_suffix[ig][0],newglossary_suffix[ig][1]), "$MAKENEWGLOSSARYCOMSTR")
 
                 result = MakeNewGlossaryAction(newglfile, newglfile, env)
                 if result != 0:
@@ -640,7 +641,7 @@ def ScanFiles(theFile, target, paths, file_tests, file_tests_search, env, graphi
                     newglossary_suffix.append(suffix_list)
                 if Verbose:
                     print(" new suffixes for newglossary ",newglossary_suffix)
-                
+
 
     incResult = includeOnly_re.search(content)
     if incResult:
@@ -685,15 +686,18 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     auxfilename = targetbase + '.aux'
     logfilename = targetbase + '.log'
     flsfilename = targetbase + '.fls'
+    syncfilename = targetbase + '.synctex.gz'
 
     env.SideEffect(auxfilename,target[0])
     env.SideEffect(logfilename,target[0])
     env.SideEffect(flsfilename,target[0])
+    env.SideEffect(syncfilename,target[0])
     if Verbose:
-        print("side effect :",auxfilename,logfilename,flsfilename)
+        print("side effect :",auxfilename,logfilename,flsfilename,syncfilename)
     env.Clean(target[0],auxfilename)
     env.Clean(target[0],logfilename)
     env.Clean(target[0],flsfilename)
+    env.Clean(target[0],syncfilename)
 
     content = source[0].get_text_contents()
 
@@ -720,7 +724,8 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                          makeglossaries_re,
                          makeacronyms_re,
                          beamer_re,
-                         newglossary_re ]
+                         newglossary_re,
+                         biblatex_re ]
     # set up list with the file suffixes that need emitting
     # when a feature is found
     file_tests_suff = [['.aux','aux_file'],
@@ -738,7 +743,8 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                   ['.glo', '.gls', '.glg','glossaries'],
                   ['.acn', '.acr', '.alg','acronyms'],
                   ['.nav', '.snm', '.out', '.toc','beamer'],
-                  ['newglossary',] ]
+                  ['newglossary',],
+                  ['.bcf', '.blg','biblatex'] ]
     # for newglossary the suffixes are added as we find the command
     # build the list of lists
     file_tests = []
@@ -854,7 +860,7 @@ def generate_darwin(env):
     except KeyError:
         environ = {}
         env['ENV'] = environ
-    
+
     if (platform.system() == 'Darwin'):
         try:
             ospath = env['ENV']['PATHOSX']

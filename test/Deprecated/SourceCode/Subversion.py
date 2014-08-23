@@ -40,7 +40,7 @@ Environment(tools = ['Subversion']).Subversion('')
 msg_svn = """The Subversion() factory is deprecated and there is no replacement."""
 warn_svn = test.deprecated_fatal('deprecated-build-dir', msg_svn)
 msg_sc = """SourceCode() has been deprecated and there is no replacement.
-\tIf you need this function, please contact dev@scons.tigris.org."""
+\tIf you need this function, please contact scons-dev@scons.org"""
 warn_sc = test.deprecated_wrap(msg_sc)
 
 svn = test.where_is('svn')

@@ -316,7 +316,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
 
 class CleanTask(SCons.Taskmaster.AlwaysTask):
     """An SCons clean task."""
-    def fs_delete(self, path, pathstr, remove=1):
+    def fs_delete(self, path, pathstr, remove=True):
         try:
             if os.path.lexists(path):
                 if os.path.isfile(path) or os.path.islink(path):
@@ -343,37 +343,41 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
         except (IOError, OSError) as e:
             print_("scons: Could not remove '%s':" % pathstr, e.strerror)
 
-    def show(self):
+    def _get_files_to_clean(self):
+        result = []
         target = self.targets[0]
-        if (target.has_builder() or target.side_effect) and not target.noclean:
-            for t in self.targets:
-                if not t.isdir():
-                    display("Removed " + str(t))
+        if target.has_builder() or target.side_effect:
+            result = [t for t in self.targets if not t.noclean]
+        return result
+
+    def _clean_targets(self, remove=True):
+        target = self.targets[0]
         if target in SCons.Environment.CleanTargets:
             files = SCons.Environment.CleanTargets[target]
             for f in files:
-                self.fs_delete(f.abspath, str(f), 0)
+                self.fs_delete(f.abspath, str(f), remove)
+
+    def show(self):
+        for t in self._get_files_to_clean():
+            if not t.isdir():
+                display("Removed " + str(t))
+        self._clean_targets(remove=False)
 
     def remove(self):
-        target = self.targets[0]
-        if (target.has_builder() or target.side_effect) and not target.noclean:
-            for t in self.targets:
-                try:
-                    removed = t.remove()
-                except OSError as e:
-                    # An OSError may indicate something like a permissions
-                    # issue, an IOError would indicate something like
-                    # the file not existing.  In either case, print a
-                    # message and keep going to try to remove as many
-                    # targets aa possible.
-                    print_("scons: Could not remove '%s':" % str(t), e.strerror)
-                else:
-                    if removed:
-                        display("Removed " + str(t))
-        if target in SCons.Environment.CleanTargets:
-            files = SCons.Environment.CleanTargets[target]
-            for f in files:
-                self.fs_delete(f.abspath, str(f))
+        for t in self._get_files_to_clean():
+            try:
+                removed = t.remove()
+            except OSError, e:
+                # An OSError may indicate something like a permissions
+                # issue, an IOError would indicate something like
+                # the file not existing.  In either case, print a
+                # message and keep going to try to remove as many
+                # targets aa possible.
+                print(("scons: Could not remove '%s':" % str(t), e.strerror)
+            else:
+                if removed:
+                    display("Removed " + str(t))
+        self._clean_targets(remove=True)
 
     execute = remove
 
@@ -1025,13 +1029,17 @@ def _main(parser):
     # in case they disabled the warning in the SConscript files.
     if python_version_deprecated():
         msg = "Support for pre-%s Python version (%s) is deprecated.\n" + \
-              "    If this will cause hardship, contact dev@scons.tigris.org."
+              "    If this will cause hardship, contact scons-dev@scons.org"
         deprecated_version_string = ".".join(map(str, deprecated_python_version))
         SCons.Warnings.warn(SCons.Warnings.PythonVersionWarning,
                             msg % (deprecated_version_string, python_version_string()))
 
     if not options.help:
-        SCons.SConf.CreateConfigHBuilder(SCons.Defaults.DefaultEnvironment())
+        # [ ] Clarify why we need to create Builder here at all, and
+        #     why it is created in DefaultEnvironment
+        # https://bitbucket.org/scons/scons/commits/d27a548aeee8ad5e67ea75c2d19a7d305f784e30
+        if SCons.SConf.NeedConfigHBuilder():
+            SCons.SConf.CreateConfigHBuilder(SCons.Defaults.DefaultEnvironment())
 
     # Now re-parse the command-line options (any to the left of a '--'
     # argument, that is) with any user-defined command-line options that

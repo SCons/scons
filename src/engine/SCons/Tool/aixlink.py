@@ -62,12 +62,14 @@ def generate(env):
     env['SHLIBSUFFIX']    = '.a'
 
 def exists(env):
-    path, _cc, _shcc, version = aixcc.get_xlc(env)
-    if path and _cc:
-        xlc = os.path.join(path, _cc)
-        if os.path.exists(xlc):
-            return xlc
-    return None
+    # TODO: sync with link.smart_link() to choose a linker
+    linkers = { 'CXX': ['aixc++'], 'CC': ['aixcc'] }
+    alltools = []
+    for langvar, linktools in linkers.items():
+        if langvar in env: # use CC over CXX when user specified CC but not CXX
+            return SCons.Tool.FindTool(linktools, env)
+        alltools.extend(linktools)
+    return SCons.Tool.FindTool(alltools, env)
 
 # Local Variables:
 # tab-width:4

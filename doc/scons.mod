@@ -277,6 +277,7 @@
 <!ENTITY CheckLib "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CheckLib</function>">
 <!ENTITY CheckLibWithHeader "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CheckLibWithHeader</function>">
 <!ENTITY CheckType "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CheckType</function>">
+<!ENTITY CheckTypeSize "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CheckTypeSize</function>">
 <!ENTITY TryAction "<function xmlns='http://www.scons.org/dbxsd/v1.0'>TryAction</function>">
 <!ENTITY TryBuild "<function xmlns='http://www.scons.org/dbxsd/v1.0'>TryBuild</function>">
 <!ENTITY TryCompile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>TryCompile</function>">
@@ -525,8 +526,8 @@
 -->
 
 <!ENTITY scons-announce "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>announce@scons.tigris.org</literal>">
-<!ENTITY scons-devel "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>dev@scons.tigris.org</literal>">
-<!ENTITY scons-users "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>users@scons.tigris.org</literal>">
+<!ENTITY scons-devel "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>scons-dev@scons.org</literal>">
+<!ENTITY scons-users "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>scons-users@scons.org</literal>">
 
 <!--
 

@@ -156,7 +156,43 @@ def get_intel_registry_value(valuename, version=None, abi=None):
     try:
         k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE, K)
     except SCons.Util.RegError:
-        raise MissingRegistryError("%s was not found in the registry, for Intel compiler version %s, abi='%s'"%(K, version,abi))
+        # For version 13 and later, check UUID subkeys for valuename
+        if is_win64:
+            K = 'Software\\Wow6432Node\\Intel\\Suites\\' + version + "\\Defaults\\C++\\" + abi.upper()
+        else:
+            K = 'Software\\Intel\\Suites\\' + version + "\\Defaults\\C++\\" + abi.upper()
+        try:
+            k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE, K)
+            uuid = SCons.Util.RegQueryValueEx(k, 'SubKey')[0]
+
+            if is_win64:
+                K = 'Software\\Wow6432Node\\Intel\\Suites\\' + version + "\\" + uuid + "\\C++"
+            else:
+                K = 'Software\\Intel\\Suites\\' + version + "\\" + uuid + "\\C++"
+            k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE, K)
+
+            try:
+                v = SCons.Util.RegQueryValueEx(k, valuename)[0]
+                return v  # or v.encode('iso-8859-1', 'replace') to remove unicode?
+            except SCons.Util.RegError:
+                if abi.upper() == 'EM64T':
+                    abi = 'em64t_native'
+                if is_win64:
+                    K = 'Software\\Wow6432Node\\Intel\\Suites\\' + version + "\\" + uuid + "\\C++\\" + abi.upper()
+                else:
+                    K = 'Software\\Intel\\Suites\\' + version + "\\" + uuid + "\\C++\\" + abi.upper()
+                k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE, K)
+
+            try:
+                v = SCons.Util.RegQueryValueEx(k, valuename)[0]
+                return v  # or v.encode('iso-8859-1', 'replace') to remove unicode?
+            except SCons.Util.RegError:
+                raise MissingRegistryError("%s was not found in the registry, for Intel compiler version %s, abi='%s'"%(K, version,abi))
+
+        except SCons.Util.RegError:
+            raise MissingRegistryError("%s was not found in the registry, for Intel compiler version %s, abi='%s'"%(K, version,abi))
+        except WindowsError:
+            raise MissingRegistryError("%s was not found in the registry, for Intel compiler version %s, abi='%s'"%(K, version,abi))
 
     # Get the value:
     try:
@@ -180,7 +216,16 @@ def get_all_compiler_versions():
             k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
                                         keyname)
         except WindowsError:
-            return []
+            # For version 13 or later, check for default instance UUID
+            if is_win64:
+                keyname = 'Software\\WoW6432Node\\Intel\\Suites'
+            else:
+                keyname = 'Software\\Intel\\Suites'
+            try:
+                k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
+                                            keyname)
+            except WindowsError:
+                return []
         i = 0
         versions = []
         try:
@@ -192,6 +237,9 @@ def get_all_compiler_versions():
                 # and then the install directory deleted or moved (rather
                 # than uninstalling properly), so the registry values
                 # are still there.
+                if subkey == 'Defaults': # Ignore default instances
+                    i = i + 1
+                    continue
                 ok = False
                 for try_abi in ('IA32', 'IA32e',  'IA64', 'EM64T'):
                     try:
@@ -267,9 +315,17 @@ def get_intel_compiler_top(version, abi):
         if not SCons.Util.can_read_reg:
             raise NoRegistryModuleError("No Windows registry module was found")
         top = get_intel_registry_value('ProductDir', version, abi)
+        archdir={'x86_64': 'intel64',
+                 'amd64' : 'intel64',
+                 'em64t' : 'intel64',
+                 'x86'   : 'ia32',
+                 'i386'  : 'ia32',
+                 'ia32'  : 'ia32'
+        }[abi] # for v11 and greater
         # pre-11, icl was in Bin.  11 and later, it's in Bin/<abi> apparently.
         if not os.path.exists(os.path.join(top, "Bin", "icl.exe")) \
-              and not os.path.exists(os.path.join(top, "Bin", abi, "icl.exe")):
+              and not os.path.exists(os.path.join(top, "Bin", abi, "icl.exe")) \
+              and not os.path.exists(os.path.join(top, "Bin", archdir, "icl.exe")):
             raise MissingDirError("Can't find Intel compiler in %s"%(top))
     elif is_mac or is_linux:
         def find_in_2008style_dir(version):

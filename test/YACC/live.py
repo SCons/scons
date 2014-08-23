@@ -91,8 +91,6 @@ newline: '\n';
 test.write("file.yy", """\
 %token   GRAPH_T NODE_T EDGE_T DIGRAPH_T EDGEOP_T SUBGRAPH_T
 
-%pure_parser
-
 %%
 graph:        GRAPH_T
               ;

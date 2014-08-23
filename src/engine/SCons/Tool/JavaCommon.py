@@ -65,7 +65,7 @@ if java_parsing:
         def __init__(self, version=default_java_version):
 
             if not version in ('1.1', '1.2', '1.3','1.4', '1.5', '1.6', '1.7',
-                               '5', '6'):
+                               '1.8', '5', '6'):
                 msg = "Java version %s not supported" % version
                 raise NotImplementedError(msg)
 
@@ -171,7 +171,7 @@ if java_parsing:
             if self.version in ('1.1', '1.2', '1.3', '1.4'):
                 clazz = self.listClasses[0]
                 self.listOutputs.append('%s$%d' % (clazz, self.nextAnon))
-            elif self.version in ('1.5', '1.6', '1.7', '5', '6'):
+            elif self.version in ('1.5', '1.6', '1.7', '1.8', '5', '6'):
                 self.stackAnonClassBrackets.append(self.brackets)
                 className = []
                 className.extend(self.listClasses)
@@ -244,7 +244,8 @@ if java_parsing:
                 return self
             # If that's an inner class which is declared in a method, it
             # requires an index prepended to the class-name, e.g.
-            # 'Foo$1Inner' (Tigris Issue 2087)
+            # 'Foo$1Inner'
+            # http://scons.tigris.org/issues/show_bug.cgi?id=2087
             if self.outer_state.localClasses and \
                 self.outer_state.stackBrackets[-1] > \
                 self.outer_state.stackBrackets[-2]+1:

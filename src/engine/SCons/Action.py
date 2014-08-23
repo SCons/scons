@@ -337,7 +337,7 @@ def _do_create_keywords(args, kw):
                 'You must either pass a string or a callback which '
                 'accepts (target, source, env) as parameters.')
         if len(args) > 1:
-            kw['varlist'] = args[1:] + kw['varlist']
+            kw['varlist'] = tuple(SCons.Util.flatten(args[1:])) + kw['varlist']
     if kw.get('strfunction', _null) is not _null \
                       and kw.get('cmdstr', _null) is not _null:
         raise SCons.Errors.UserError(
@@ -686,6 +686,7 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
             class f(object):
                 def read(self): return ''
                 def readline(self): return ''
+                def __iter__(self): return iter(())
             stdout = stderr = f()
         return dummyPopen(e)
 

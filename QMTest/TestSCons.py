@@ -150,7 +150,7 @@ def deprecated_python_version(version=sys.version_info):
 if deprecated_python_version():
     msg = r"""
 scons: warning: Support for pre-2.7.0 Python version (%s) is deprecated.
-    If this will cause hardship, contact dev@scons.tigris.org.
+    If this will cause hardship, contact scons-dev@scons.org
 """
 
     deprecated_python_expr = re_escape(msg % python_version_string()) + file_expr
@@ -1129,11 +1129,21 @@ SConscript( sconscript )
         self.run(program = python, stdin = """\
 import os, sys
 try:
-    py_ver = 'python%d.%d' % sys.version_info[:2]
+    if sys.platform == 'win32':
+        py_ver = 'python%d%d' % sys.version_info[:2]
+    else:
+        py_ver = 'python%d.%d' % sys.version_info[:2]
 except AttributeError:
     py_ver = 'python' + sys.version[:3]
-print os.path.join(sys.prefix, 'include', py_ver)
-print os.path.join(sys.prefix, 'lib', py_ver, 'config')
+# print include and lib path
+try:
+    import distutils.sysconfig
+    exec_prefix = distutils.sysconfig.EXEC_PREFIX
+    print distutils.sysconfig.get_python_inc()
+    print os.path.join(exec_prefix, 'libs')
+except:
+    print os.path.join(sys.prefix, 'include', py_ver)
+    print os.path.join(sys.prefix, 'lib', py_ver, 'config')
 print py_ver
 """)
 

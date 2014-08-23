@@ -37,6 +37,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-g77 "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>g77</literal>">
 <!ENTITY t-gas "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>gas</literal>">
 <!ENTITY t-gcc "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>gcc</literal>">
+<!ENTITY t-gdc "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>gdc</literal>">
 <!ENTITY t-gettext "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>gettext</literal>">
 <!ENTITY t-gfortran "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>gfortran</literal>">
 <!ENTITY t-gnulink "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>gnulink</literal>">
@@ -56,6 +57,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-javac "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>javac</literal>">
 <!ENTITY t-javah "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>javah</literal>">
 <!ENTITY t-latex "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>latex</literal>">
+<!ENTITY t-ldc "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>ldc</literal>">
 <!ENTITY t-lex "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>lex</literal>">
 <!ENTITY t-link "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>link</literal>">
 <!ENTITY t-linkloc "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>linkloc</literal>">
@@ -144,6 +146,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-link-g77 "<link linkend='t-g77' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>g77</literal></link>">
 <!ENTITY t-link-gas "<link linkend='t-gas' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>gas</literal></link>">
 <!ENTITY t-link-gcc "<link linkend='t-gcc' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>gcc</literal></link>">
+<!ENTITY t-link-gdc "<link linkend='t-gdc' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>gdc</literal></link>">
 <!ENTITY t-link-gettext "<link linkend='t-gettext' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>gettext</literal></link>">
 <!ENTITY t-link-gfortran "<link linkend='t-gfortran' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>gfortran</literal></link>">
 <!ENTITY t-link-gnulink "<link linkend='t-gnulink' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>gnulink</literal></link>">
@@ -163,6 +166,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-link-javac "<link linkend='t-javac' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>javac</literal></link>">
 <!ENTITY t-link-javah "<link linkend='t-javah' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>javah</literal></link>">
 <!ENTITY t-link-latex "<link linkend='t-latex' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>latex</literal></link>">
+<!ENTITY t-link-ldc "<link linkend='t-ldc' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>ldc</literal></link>">
 <!ENTITY t-link-lex "<link linkend='t-lex' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>lex</literal></link>">
 <!ENTITY t-link-link "<link linkend='t-link' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>link</literal></link>">
 <!ENTITY t-link-linkloc "<link linkend='t-linkloc' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>linkloc</literal></link>">

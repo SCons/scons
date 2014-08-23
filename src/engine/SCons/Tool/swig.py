@@ -174,7 +174,8 @@ def generate(env):
     env.Append(SCANNERS = scanner)
 
 def exists(env):
-    return env.Detect(['swig'])
+    swig = env.get('SWIG') or env.Detect(['swig'])
+    return swig
 
 # Local Variables:
 # tab-width:4

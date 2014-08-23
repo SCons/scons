@@ -56,6 +56,11 @@ if not os.path.exists(Python_h):
 # handle testing on other platforms:
 ldmodule_prefix = '_'
 
+# On Windows, build a 32-bit exe if on 32-bit python.
+if sys.platform == 'win32' and sys.maxsize <= 2**32:
+    swig_arch_var="TARGET_ARCH='x86',"
+else:
+    swig_arch_var=""
 
 test.write("module.i", """\
 %module modulename
@@ -63,6 +68,7 @@ test.write("module.i", """\
 
 test.write('SConstruct', """
 foo = Environment(SWIGFLAGS='-python',
+                  %(swig_arch_var)s
                   CPPPATH=['%(python_include)s'],
                   LDMODULEPREFIX='%(ldmodule_prefix)s',
                   LDMODULESUFFIX='%(_dll)s',

@@ -52,7 +52,7 @@ test.write("dependent.i", """\
 """)
 
 test.write('SConstruct', """
-foo = Environment(SWIGFLAGS='-python')
+foo = Environment(SWIGFLAGS='-python', SWIG='%(swig)s')
 swig = foo.Dictionary('SWIG')
 bar = foo.Clone(SWIG = [r'%(python)s', r'wrapper.py', swig])
 foo.CFile(target = 'dependent', source = ['dependent.i'])

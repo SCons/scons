@@ -65,6 +65,7 @@ SCons/Tool/cc.py
 SCons/Tool/cyglink.py
 SCons/Tool/cvf.py
 SCons/Tool/CVS.py
+SCons/Tool/DCommon.py
 SCons/Tool/default.py
 SCons/Tool/dmd.py
 SCons/Tool/docbook/__init__.py
@@ -82,6 +83,7 @@ SCons/Tool/g++.py
 SCons/Tool/g77.py
 SCons/Tool/gas.py
 SCons/Tool/gcc.py
+SCons/Tool/gdc.py
 SCons/Tool/gfortran.py
 SCons/Tool/gnulink.py
 SCons/Tool/gs.py
@@ -102,6 +104,7 @@ SCons/Tool/JavaCommon.py
 SCons/Tool/javac.py
 SCons/Tool/javah.py
 SCons/Tool/latex.py
+SCons/Tool/ldc.py
 SCons/Tool/lex.py
 SCons/Tool/link.py
 SCons/Tool/linkloc.py

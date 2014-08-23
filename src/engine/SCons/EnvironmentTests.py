@@ -1887,6 +1887,11 @@ def generate(env):
         env = env.Clone(KEY_THAT_I_WANT=6, tools=[my_tool])
         assert env['KEY_THAT_I_WANT'] == real_value[0], env['KEY_THAT_I_WANT']
 
+        # test for pull request #150
+        env = self.TestEnvironment()
+        env._dict.pop('BUILDERS')
+        assert env.has_key('BUILDERS') is False
+        env2 = env.Clone()
 
     def test_Copy(self):
         """Test copying using the old env.Copy() method"""

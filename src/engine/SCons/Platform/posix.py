@@ -113,6 +113,10 @@ def generate(env):
     # This platform supports RPATH specifications.
     env['__RPATH'] = '$_RPATH'
 
+    # GDC is GCC family, but DMD and LDC have different options.
+    # Must be able to have GCC and DMD work in the same build, so:
+    env['__DRPATH'] = '$_DRPATH'
+
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil

@@ -247,18 +247,32 @@ else:
     copy_dbfiles(env, toolpath, [], 'zip.py')
 
     #
-    # Each document will live in its own subdirectory.  List them here
-    # by their subfolder names. Note, how the specifiers for each subdir
-    # have nothing to do with which formats get created...but which 
-    # of the outputs get installed to the build folder and added to
-    # the different source and binary packages in the end.
-    #
-    docs = {'design' : ['chunked','pdf'],
-            #'python10' : ['chunked','html','pdf'],
-            'reference' : ['chunked','html','pdf'],
-            #'developer' : ['chunked','html','pdf'],
-            'user' : ['chunked','html','pdf','epub','text'],
-            'man' : ['man','epub','text']
+    # Each document will live in its own subdirectory "build/doc/xxx".
+    # List them here by their subfolder names. Note, how the specifiers
+    # for each subdir (=DOCTARGETS) have nothing to do with which
+    # formats get created...but which of the outputs get installed
+    # to the build folder and added to the different source and binary
+    # packages in the end.
+    # In addition to the list of target formats (DOCTARGETS), we also
+    # store some dependency information in this dict. The DOCDEPENDS
+    # list contains all files from each local "MANIFEST", after
+    # installing/copying them to the build directory. It basically
+    # links the original sources to the respective build folder,
+    # such that a simple 'python bootstrap.py' rebuilds the
+    # documentation when a file, like 'doc/user/depends.xml' 
+    # for example, changes.
+    # Finally, in DOCNODES we store the created PDF and HTML files,
+    # such that we can then install them in the proper places for
+    # getting picked up by the archiving/packaging stages.
+    DOCTARGETS = 0
+    DOCDEPENDS = 1
+    DOCNODES = 2
+    docs = {'design' : (['chunked','pdf'], [], []),
+            #'python10' : (['chunked','html','pdf'], [], []),
+            'reference' : (['chunked','html','pdf'], [], []),
+            #'developer' : (['chunked','html','pdf'], [], []),
+            'user' : (['chunked','html','pdf','epub','text'], [], []),
+            'man' : (['man','epub','text'], [], [])
            }
            
     # The names of the target files for the MAN pages
@@ -307,18 +321,18 @@ else:
             else:
                 target_dir = os.path.join(build, doc)
             if ext in ['.fig', '.jpg', '.svg']:
-                buildsuite.extend(env.Command(build_s, doc_s, 
-                                              Copy("$TARGET", "$SOURCE")))
+                docs[doc][DOCDEPENDS].extend(env.Command(build_s, doc_s, 
+                                             Copy("$TARGET", "$SOURCE")))
             else:
-                revaction([env.File(build_s)], 
-                          [env.File(doc_s)], env)
+                btarget = env.File(build_s)
+                docs[doc][DOCDEPENDS].append(btarget)
+                revaction([btarget], [env.File(doc_s)], env)
 
 
     #
     # For each document, build the document itself in HTML,
     # and PDF formats.
     #
-    docnodes = {}
     for doc in docs:
 
         #
@@ -329,16 +343,16 @@ else:
             cleanopt = ' -c'
         scdir = os.path.join(build, doc)
         sctargets = []
-        if 'html' in docs[doc]:
+        if 'html' in docs[doc][DOCTARGETS]:
             sctargets.append(env.File(os.path.join(scdir, 'index.html')))
-        if 'chunked' in docs[doc]:
+        if 'chunked' in docs[doc][DOCTARGETS]:
             sctargets.append(env.File(os.path.join(scdir, 'scons-%s' % doc, 'index.html')))
-        if 'pdf' in docs[doc]:
+        if 'pdf' in docs[doc][DOCTARGETS]:
             sctargets.append(env.File(os.path.join(scdir, 'scons-%s.pdf' % doc)))
-        if 'epub' in docs[doc]:
+        if 'epub' in docs[doc][DOCTARGETS]:
             sctargets.append(env.File(os.path.join(scdir, 'scons-%s.epub' % doc)))
             
-        if 'man' in docs[doc]:
+        if 'man' in docs[doc][DOCTARGETS]:
             for m in man_page_list:
                 sctargets.append(os.path.join(scdir, m))
                 man, _1 = os.path.splitext(m)
@@ -346,8 +360,8 @@ else:
                 sctargets.append(os.path.join(scdir, 'scons-%s.pdf' % man))
                 sctargets.append(os.path.join(scdir, 'scons-%s.html' % man))
         
-        docnodes[doc] = env.Command(sctargets, buildsuite, 
-                                    "cd %s && $PYTHON ${SCONS_PY.abspath}%s" % (scdir, cleanopt))
+        docs[doc][DOCNODES].extend(env.Command(sctargets, buildsuite + docs[doc][DOCDEPENDS], 
+                                   "cd %s && $PYTHON ${SCONS_PY.abspath}%s" % (scdir, cleanopt)))
         
     install_css = False
     for doc in docs:
@@ -359,20 +373,20 @@ else:
         pdf = os.path.join(build, 'PDF', 'scons-%s.pdf' % doc)
         epub = os.path.join(build, 'EPUB', 'scons-%s.epub' % doc)
         text = os.path.join(build, 'TEXT', 'scons-%s.txt' % doc)
-        if 'chunked' in docs[doc]:
+        if 'chunked' in docs[doc][DOCTARGETS]:
             installed_chtml = env.ChunkedInstall(env.Dir(htmldir), 
                                                  os.path.join(build, doc,'scons-%s' % doc, 'index.html'))
             installed_chtml_css = env.Install(env.Dir(htmldir),
                                               os.path.join(build, doc, 'scons.css'))
-            env.Depends(installed_chtml, docnodes[doc])
-            env.Depends(installed_chtml_css, docnodes[doc])
+            env.Depends(installed_chtml, docs[doc][DOCNODES])
+            env.Depends(installed_chtml_css, docs[doc][DOCNODES])
             
             tar_deps.extend([htmlindex, installed_chtml_css])
             tar_list.extend([htmldir])
             Local(htmlindex)
             env.Ignore(htmlindex, version_xml)
 
-        if 'html' in docs[doc]:
+        if 'html' in docs[doc][DOCTARGETS]:
             env.InstallAs(env.File(html), env.File(os.path.join(build, doc,'index.html')))
             tar_deps.extend([html])
             tar_list.extend([html])
@@ -380,7 +394,7 @@ else:
             env.Ignore(html, version_xml)
             install_css = True
             
-        if 'pdf' in docs[doc]:
+        if 'pdf' in docs[doc][DOCTARGETS]:
             env.InstallAs(env.File(pdf), env.File(os.path.join(build, doc,'scons-%s.pdf' % doc)))
             Local(pdf)
             env.Ignore(pdf, version_xml)
@@ -388,7 +402,7 @@ else:
             tar_deps.append(pdf)
             tar_list.append(pdf)
 
-        if 'epub' in docs[doc] and gs:
+        if 'epub' in docs[doc][DOCTARGETS] and gs:
             env.InstallAs(env.File(epub), env.File(os.path.join(build, doc,'scons-%s.epub' % doc)))
             Local(epub)
             env.Ignore(epub, version_xml)
@@ -396,8 +410,8 @@ else:
             tar_deps.append(epub)
             tar_list.append(epub)
             
-        if ('text' in docs[doc] and lynx and 
-            (('html' in docs[doc]) or (doc == 'man'))):
+        if ('text' in docs[doc][DOCTARGETS] and lynx and 
+            (('html' in docs[doc][DOCTARGETS]) or (doc == 'man'))):
             texthtml = os.path.join(build, doc,'index.html')
             if doc == 'man':
                 # Special handling for single MAN file
@@ -412,7 +426,7 @@ else:
             tar_list.append(text)
             
             
-        if 'man' in docs[doc]:
+        if 'man' in docs[doc][DOCTARGETS]:
             #
             # Man page(s)
             #

@@ -612,10 +612,6 @@ README-local
     Similar to this file, but stripped down and modified for people looking at
     including SCons in their shipped software.
 
-review.py
-    Script for uploading changes for review to Rietveld installation at
-    http://codereview.appspot.com
-
 rpm/
     The .spec file for building our RPM packages.
 
@@ -676,7 +672,7 @@ Submission page:
 
 You can also send mail to the SCons developers' mailing list:
 
-        dev@scons.tigris.org
+        scons-dev@scons.org
 
 But even if you send email to the mailing list please make sure that you ALSO
 submit a bug report to the project page bug tracker, because bug reports in
@@ -689,12 +685,11 @@ Mailing Lists
 An active mailing list for developers of SCons is available.  You may
 send questions or comments to the list at:
 
-        dev@scons.tigris.org
+        scons-dev@scons.org
 
-You may request a subscription to the developer's mailing list by sending
-email to:
+You may subscribe to the developer's mailing list using form on this page:
 
-        dev-subscribe@scons.tigris.org
+        http://two.pairlist.net/mailman/listinfo/scons-dev
 
 Subscription to the developer's mailing list is by approval.  In practice, no
 one is refused list membership, but we reserve the right to limit membership
@@ -731,9 +726,10 @@ Check the SCons web site at:
 Author Info
 ===========
 
-Steven Knight, knight at baldmt dot com, http://www.baldmt.com/~knight/
-
-With plenty of help from the SCons Development team:
+SCons was originally written by Steven Knight, knight at baldmt dot com.
+Since around 2010 it has been maintained by the SCons
+development team, co-managed by Bill Deegan and Gary Oberbrunner, with
+many contributors, including but not at all limited to:
 
 - Chad Austin
 - Dirk Baechle
@@ -745,6 +741,8 @@ With plenty of help from the SCons Development team:
 - Gary Oberbrunner
 - Anthony Roach
 - Greg Spencer
+- Tom Tanner
+- Anatoly Techtonik
 - Christoph Wiedemann
 - Russel Winder
 

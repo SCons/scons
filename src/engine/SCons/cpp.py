@@ -395,9 +395,10 @@ class PreProcessor(object):
 
         """
         d = self.dispatch_table
-        d['import'] = self.do_import
-        d['include'] =  self.do_include
-        d['include_next'] =  self.do_include
+        p = self.stack[-1] if self.stack else self.default_table
+
+        for k in ('import', 'include', 'include_next'):
+            d[k] = p[k]
 
     def stop_handling_includes(self, t=None):
         """
