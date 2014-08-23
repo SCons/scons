@@ -1,0 +1,209 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+]>
+
+<chapter id="chap-issues"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Other Issues</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+ <para>
+
+   No build tools is perfect.
+   Here are some &SCons; issues that
+   do not yet have solutions.
+
+ </para>
+
+ <section>
+ <title>Interaction with SC-config</title>
+
+   <para>
+
+   The SC-config tool will be used in the &SCons; installation
+   process to generate an appropriate default construction environment
+   so that building most software works "out of the box" on the
+   installed platform.  The SC-config tool will find reasonable default
+   compilers (C, C++, Fortran), linkers/loaders, library archive tools,
+   etc. for specification in the default &SCons; construction
+   environment.
+
+   </para>
+
+ </section>
+
+ <section>
+ <title>Interaction with test infrastructures</title>
+
+   <para>
+
+   &SCons; can be configured to use SC-test (or some other test tool)
+   to provide controlled, automated testing of software.  The &Link;
+   method could link a <filename>test</filename> subdirectory to a build
+   subdirectory:
+
+   </para>
+
+    <programlisting>
+	Link('test', 'build')
+	SConscript('test/SConscript')</programlisting>
+
+   <para>
+
+   Any test cases checked in with the source code will be linked
+   into the <filename>test</filename> subdirectory and executed.  If
+   &SConscript; files and test cases are written with this in mind, then
+   invoking:
+
+   </para>
+
+    <programlisting>
+	% sccons test</programlisting>
+
+   <para>
+
+   Would run all the automated test cases that depend on any changed
+   software.
+
+   </para>
+
+
+   <!--
+
+	 YYY	integrate with SC-test to provide sanity check on new tools
+		"discovery testing" of new tools
+		results recorded in a central database
+		central database can be somewhere else on web
+
+   -->
+
+ </section>
+
+ <section>
+ <title>Java dependencies</title>
+
+   <para>
+
+   Java dependencies are difficult for an external dependency-based
+   construction tool to accomodate.  Determining Java class dependencies
+   is more complicated than the simple pattern-matching of C or C++
+   <literal>#include</literal> files.  From the point of view of an
+   external build tool, the Java compiler behaves "unpredictably"
+   because it may create or update multiple output class files and
+   directories as a result of its internal class dependencies.
+
+   </para>
+
+   <para>
+
+   An obvious &SCons; implementation would be to have the &Scanner;
+   object parse output from <command>Java -depend -verbose</command> to
+   calculate dependencies, but this has the distinct disadvantage of
+   requiring two separate compiler invocations, thereby slowing down
+   builds.
+
+   </para>
+
+ </section>
+
+ <section>
+ <title>Limitations of digital signature calculation</title>
+
+   <para>
+
+   In practice, calculating digital signatures of a file's contents is a
+   more robust mechanism than time stamps for determining what needs
+   building.  However:
+
+   </para>
+
+   <orderedlist numeration="arabic">
+
+    <listitem>
+    <para>
+
+     Developers used to the time stamp model of &Make; can initially
+     find digital signatures counter-intuitive.  The assumption that:
+
+     <programlisting>
+	% touch file.c</programlisting>
+
+     will cause a rebuild of <filename>file</filename> is strong...
+
+    </para>
+    </listitem>
+
+    <listitem>
+    <para>
+
+     Abstracting dependency calculation into a single digital signature
+     loses a little information:  It is no longer possible to tell
+     (without laborious additional calculation) which input file dependency
+     caused a rebuild of a given target file.  A feature that could
+     report, "I'm rebuilding file X because it's out-of-date with respect
+     to file Y," would be good, but an digital-signature implementation of
+     such a feature is non-obvious.
+
+    </para>
+    </listitem>
+
+   </orderedlist>
+
+ </section>
+
+ <section>
+ <title>Remote execution</title>
+
+   <para>
+
+   The ability to use multiple build systems through remote execution
+   of tools would be good.  This should be implementable through the
+   &Job; class.  Construction environments would need modification
+   to specify build systems.
+
+   </para>
+
+ </section>
+
+ <section>
+ <title>Conditional builds</title>
+
+   <para>
+
+   The ability to check run-time conditions as suggested on the
+   sc-discuss mailing list ("build X only if: the machine is idle /
+   the file system has Y megabytes free space") would also be good,
+   but is not part of the current design.
+
+   </para>
+
+ </section>
+
+</chapter>

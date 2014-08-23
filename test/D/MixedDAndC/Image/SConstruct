@@ -1,0 +1,13 @@
+# -*- codig:utf-8; -*-
+
+import os
+
+environment = Environment(
+    ENV=os.environ,
+    DFLAGS=['-m64', '-O'])
+
+environment.Program('proj', [
+'proj.d',
+'dmod.d',
+'cmod.c',
+])
