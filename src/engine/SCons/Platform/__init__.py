@@ -188,7 +188,7 @@ class TempFileMunge(object):
         (fd, tmp) = tempfile.mkstemp('.lnk', text=True)
         native_tmp = SCons.Util.get_native_path(os.path.normpath(tmp))
 
-        if env.get('SHELL',None) and env['SHELL'] == 'sh':
+        if env.get('SHELL',None) == 'sh':
             # The sh shell will try to escape the backslashes in the
             # path, so unescape them.
             native_tmp = native_tmp.replace('\\', r'\\\\')

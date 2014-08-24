@@ -26,7 +26,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.compat
 
 import collections
-import sys
 import unittest
 
 import TestUnit
@@ -121,12 +120,10 @@ class PlatformTestCase(unittest.TestCase):
         assert env != {}, env
 
 class TempFileMungeTestCase(unittest.TestCase):
-    def test_TempFileMunge(self):
-        """Test the TempFileMunge() class, more specifically the
-           MAXLINELENGTH setting.
-           We try setting different maximum line lengths for a
-           fixed command string and ensure that the tempfile mechanism
-           kicks in at MAXLINELENGTH+1.
+    def test_MAXLINELENGTH(self):
+        """ Test different values for MAXLINELENGTH with the same
+            size command string to ensure that the temp file mechanism
+            kicks in only at MAXLINELENGTH+1, or higher
         """
         # Init class with cmd, such that the fully expanded
         # string reads "a test command line".
