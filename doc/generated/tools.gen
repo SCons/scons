@@ -767,19 +767,19 @@ Sets construction variables for the
 </para>
 <para>Sets:  &cv-link-AS;, &cv-link-ASCOM;, &cv-link-ASFLAGS;, &cv-link-ASPPCOM;, &cv-link-ASPPFLAGS;.</para><para>Uses:  &cv-link-ASCOMSTR;, &cv-link-ASPPCOMSTR;.</para></listitem>
   </varlistentry>
-  <varlistentry id="t-packaging">
-    <term>packaging</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-A framework for building binary and source packages.
-</para>
-</listitem>
-  </varlistentry>
   <varlistentry id="t-Packaging">
     <term>Packaging</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 Sets construction variables for the <function xmlns="http://www.scons.org/dbxsd/v1.0">Package</function> Builder.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="t-packaging">
+    <term>packaging</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+A framework for building binary and source packages.
 </para>
 </listitem>
   </varlistentry>
