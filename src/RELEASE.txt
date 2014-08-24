@@ -5,52 +5,43 @@
 
   This is a maintenance release, focusing on bug fixes.
 
-  Here is a summary of the changes since 2.3.1:
+  Here is a summary of the changes since 2.3.2:
 
   NEW FUNCTIONALITY
 
-    - Support for Visual Studio 12.0Exp and 2013 (12.0).
+    - Added Copy Action symlink soft-copy support (#2395).
 
   DEPRECATED FUNCTIONALITY
 
-    - RPM and m4 are no longer in the default toolset on Windows.
-    - BitKeeper, CVS, Perforce, RCS, SCCS are deprecated from the
-      default toolset and will be removed from the default toolset
-      in future SCons versions.
-    - D language, version 1, is now deprecated.  Version 2 is
-      supported.
+    - None
 
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
-    - Revamp of D language support.
-      Tools for DMD, GDC and LDC are provided, and integrated
-      with the C and C++ linking.
-    - TeX builder now supports -synctex=1
-    - TeX builder cleans auxiliary files correctly with biblatex.
+    - Improved SWIG detection
 
   FIXES
 
-    - Fixed handling of nested ifs in CPP scanner PreProcessor class.
-    - Respect user's CC/CXX values; don't always overwrite in generate()
-    - Delegate linker Tool.exists() to CC/CXX Tool.exists().
-    - Fixed NoClean() for multi-target builders (#2353).
-    - Fix SConf tests that write output
-    - get default RPM architecture more robustly when building RPMs
-    - Allow varlist to be specified as list of strings for Actions (#2754)
-    - Fixes to Docbook tool
+    - Fix regression on Windows in D language update
+    - Fixed the newglossary action to work with VariantDir (LaTeX).
+    - Added a default for the BUILDERS environment variable,
+      to prevent not defined exception on a Clone().
+    - Fixed handling of CPPDEFINE var in Append()
+      for several list-dict combinations (#2900).
 
   PACKAGING
 
-    - Update XML doc editor configuration
+    - No changes
 
   DEVELOPMENT
 
-    - Improvements to running scons.py from the source tree
+    - Do not fail on EnsureSConsVersion when running from checkout
 
 Thanks to:
   Dirk Baechle,
   Vincent Beffar,
   Thomas Berg,
+  William Blevins,
+  Kendrick Boyd,
   Antonio Cavallo,
   Jean-François Colson,
   Bauke Conijn,
