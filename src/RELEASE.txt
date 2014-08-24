@@ -1,90 +1,73 @@
-  A new SCons release, 2.3.2, is now available
+  A new SCons checkpoint release, 2.3.4.alpha.yyyymmdd, is now available
   on the SCons download page:
 
           http://www.scons.org/download.php
 
-  This is a maintenance release, focusing on bug fixes.
+  XXX The primary purpose of this release ... XXX
 
-  Here is a summary of the changes since 2.3.2:
+  A SCons "checkpoint release" is intended to provide early access to
+  new features so they can be tested in the field before being released
+  for adoption by other software distributions.
+
+  Note that a checkpoint release is developed using the same test-driven
+  development methodology as all SCons releases.  Existing SCons
+  functionality should all work as it does in previous releases (except
+  for any changes identified in the release notes) and early adopters
+  should be able to use a checkpoint release safely for production work
+  with existing SConscript files.  If not, it represents not only a bug
+  in SCons but also a hole in the regression test suite, and we want to
+  hear about it.
+
+  New features may be more lightly tested than in past releases,
+  especially as concerns their interaction with all of the other
+  functionality in SCons.  We are especially interested in hearing bug
+  reports about new functionality.
+
+  We do not recommend that downstream distributions (Debian, Fedora,
+  etc.) package a checkpoint release, mainly to avoid confusing the
+  "public" release numbering with the long checkpoint release names.
+
+  Here is a summary of the changes since 1.3.0:
 
   NEW FUNCTIONALITY
 
-    - Added Copy Action symlink soft-copy support (#2395).
+    - List new features (presumably why a checkpoint is being released)
 
   DEPRECATED FUNCTIONALITY
 
-    - None
+    - List anything that's been deprecated since the last release
 
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
-    - Improved SWIG detection
+    - List modifications to existing features, where the previous behavior
+      wouldn't actually be considered a bug
 
   FIXES
 
-    - Fix regression on Windows in D language update
-    - Fixed the newglossary action to work with VariantDir (LaTeX).
-    - Added a default for the BUILDERS environment variable,
-      to prevent not defined exception on a Clone().
-    - Fixed handling of CPPDEFINE var in Append()
-      for several list-dict combinations (#2900).
+    - List fixes of outright bugs
+
+  IMPROVEMENTS
+
+    - List improvements that wouldn't be visible to the user in the
+      documentation:  performance improvements (describe the circumstances
+      under which they would be observed), or major code cleanups
 
   PACKAGING
 
-    - No changes
+    - List changes in the way SCons is packaged and/or released
+
+  DOCUMENTATION
+
+    - List any significant changes to the documentation (not individual
+      typo fixes, even if they're mentioned in src/CHANGES.txt to give
+      the contributor credit)
 
   DEVELOPMENT
 
-    - Do not fail on EnsureSConsVersion when running from checkout
+    - List visible changes in the way SCons is developed
 
-Thanks to:
-  Dirk Baechle,
-  Vincent Beffar,
-  Thomas Berg,
-  William Blevins,
-  Kendrick Boyd,
-  Antonio Cavallo,
-  Jean-François Colson,
-  Bauke Conijn,
-  Bill Deegan,
-  Ken Deeter,
-  dubcanada on Bitbucket,
-  Luca Falavigna,
-  Andrew Featherstone,
-  Alexandre Feblot,
-  Shane Gannon,
-  Alexander Goomenyuk,
-  Justin Gullingsrud,
-  Michael Haubenwallner,
-  Joshua Hughes,
-  Alexey Klimkin,
-  Steven Knight,
-  Arve Knudsen,
-  Philipp Kraus,
-  Jean-Baptiste Lab,
-  Juan Lang,
-  Rob Managan,
-  Michael McDougall,
-  Mortoray,
-  Manuel Francisco Naranjo,
-  Gary Oberbrunner,
-  Alexey Petruchik,
-  Evgeny Podjachev,
-  David Rothenberger,
-  smallbub on Bitbucket,
-  Sohail Somani,
-  Stefan Sperling,
-  Amir Szekely,
-  Tom Tanner,
-  Anatoly Techtonik,
-  Bogdan Tenea,
-  Paweł Tomulik,
-  Sye van der Veen,
-  veon on bitbucket,
-  Greg Ward,
-  Allen Weeks,
-  Russel Winder,
-  Joe Zuntz
-  for their contributions to this and prior releases.
+  Thanks to CURLY, LARRY, and MOE for their contributions to this release.
+  Contributors are listed alphabetically by their last name.
 
 __COPYRIGHT__
 __FILE__ __REVISION__ __DATE__ __DEVELOPER__
