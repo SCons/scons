@@ -486,7 +486,8 @@ def match_re(lines = None, res = None):
     """
     """
     if not is_List(lines):
-        lines = lines.split("\n")
+        # CRs mess up matching (Windows) so split carefully
+        lines = re.split('\r?\n', lines)
     if not is_List(res):
         res = res.split("\n")
     if len(lines) != len(res):
@@ -683,7 +684,7 @@ if subprocess.mswindows:
             assert ol is None
             lpBuffer = ctypes.create_string_buffer(bufSize)
             bytesRead = DWORD()
-            bErr = ctypes.windll.kernel32.ReadFile( 
+            bErr = ctypes.windll.kernel32.ReadFile(
                     hFile, lpBuffer, bufSize, ctypes.byref(bytesRead), ol)
             if not bErr: raise ctypes.WinError()
             return (0, ctypes.string_at(lpBuffer, bytesRead.value))

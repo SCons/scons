@@ -19,12 +19,18 @@ effectively, please go to http://scons.org/lists.php#users to sign up for
 the scons-users mailing list.
 
 
-RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
+RELEASE VERSION/DATE TO BE FILLED IN LATER
 
   Please consult the RELEASE.txt file for a summary of changes since the last
   release and consult the CHANGES.txt file for complete a list of changes
   since last release.  This announcement highlights only the important
   changes.
+
+  Please note the following important changes since release 2.3.2:
+
+    -- On Windows, .def files did not work as sources to shared
+       libraries or executables, due to a regression which is
+       corrected in 2.3.3.
 
   Please note the following important changes since release 2.3.0:
 

@@ -425,7 +425,7 @@ try to access a list member that
 does not exist.</para>
 
 <para><command>scons</command>
-requires Python version 2.4 or later.
+requires Python version 2.7 or later.
 There should be no other dependencies or requirements to run
 <emphasis role="bold">scons.</emphasis></para>
 
