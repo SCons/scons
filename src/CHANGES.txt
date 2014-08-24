@@ -4,7 +4,7 @@
 
                             Change Log
 
-RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
+RELEASE 2.3.3 - Sun, 24 Aug 2014 21:08:33 -0400
 
   From Roland Stark:
     - Fixed false line length calculation in the TempFileMunge class (#2970).
