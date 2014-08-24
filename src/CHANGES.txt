@@ -4,6 +4,13 @@
 
                             Change Log
 
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From John Doe:
+
+    - Whatever John Doe did.
+
+
 RELEASE 2.3.3 - Sun, 24 Aug 2014 21:08:33 -0400
 
   From Roland Stark:
