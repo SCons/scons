@@ -9,6 +9,12 @@ RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From Roland Stark:
     - Fixed false line length calculation in the TempFileMunge class (#2970).
 
+  From Gary Oberbrunner:
+    - Improve SWIG detection
+
+  From Russel Winder:
+    - Fix regression on Windows in D language update
+
   From Anatoly Techtonik:
     - Do not fail on EnsureSConsVersion when running from checkout
 

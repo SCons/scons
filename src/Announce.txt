@@ -26,6 +26,12 @@ RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   since last release.  This announcement highlights only the important
   changes.
 
+  Please note the following important changes since release 2.3.2:
+
+    -- On Windows, .def files did not work as sources to shared
+       libraries or executables, due to a regression which is
+       corrected in 2.3.3.
+
   Please note the following important changes since release 2.3.0:
 
     -- BitKeeper, CVS, Perforce, RCS, SCCS are deprecated from the
