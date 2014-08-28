@@ -36,6 +36,9 @@ import TestSCons
 import SCons.Defaults
 SCons.Defaults.DefaultEnvironment( tools = [] )
 
+if not hasattr(os, 'symlink'):
+    test.skip_test('No os.symlink() method, no symlinks to test.\n')
+
 test = TestSCons.TestSCons()
 
 filelinkToCopy = 'filelinkToCopy'
@@ -48,13 +51,10 @@ treelinkToCopy = 'treelinkToCopy'
 badToLink = 'None' # do not write this item
 badlinkToCopy = 'badlinkToCopy'
 
-try:
-    test.symlink( fileToLink, filelinkToCopy )
-    test.symlink( dirToLink, dirlinkToCopy )
-    test.symlink( treeToLink, treelinkToCopy )
-    test.symlink( badToLink, badlinkToCopy )
-except:
-    test.no_result()
+test.symlink( fileToLink, filelinkToCopy )
+test.symlink( dirToLink, dirlinkToCopy )
+test.symlink( treeToLink, treelinkToCopy )
+test.symlink( badToLink, badlinkToCopy )
 
 test.write( fileToLink, fileContents )
 test.subdir( dirToLink )
