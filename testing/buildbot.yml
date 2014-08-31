@@ -1,0 +1,80 @@
+# Ansible playbook to setup buildbot instance.
+# Edit buildbot.hosts to set builder and pass variables.
+# Then exec:
+#
+#   ansible-playbook -i buildbot.hosts buildbot.yml
+#
+# botuser can be overridden from command line:
+#
+#   ansible-playbook -i hosts buildbot.yml -e 'botuser=sconsy'
+#
+# Tested with Ansible 1.5.0, based on
+# http://scons.org/wiki/InstallingBuildbotSlaves
+# Send questions to:
+#
+#   anatoly techtonik <techtonik@gmail.com>
+#
+---
+# host is overridable with --extra-vars 'host=address'
+- hosts: "{{ host | default('localhost') }}"
+  vars:
+    # botuser can be overridden with -e 'botuser=scons2'
+    - botuser: scons
+    - hgrc: /home/{{ botuser }}/.hgrc
+    - venv: /home/{{ botuser }}/buildbot-virtualenv
+    - work: /home/{{ botuser }}/buildbot-workdir
+
+  vars_prompt:
+    - name: maintainer
+      prompt: contact details of the builbot owner
+      default: name <mail@example.com>
+      private: no
+
+  tasks:
+  # --- install requirements ---
+  - name: ubuntu/debian - make sure mercurial is installed
+    apt: pkg={{ item }}
+    with_items:
+      - mercurial
+      - python-virtualenv
+
+  # --- enable mercurial purge extension ---
+  - name: create .hgrc if necessary
+    stat: path={{ hgrc }}
+    register: st
+  - file: path={{ hgrc }} owner={{ botuser }} state=touch
+    when: not st.stat.exists
+  - name: enable mercurial purge extension
+    ini_file: dest={{ hgrc }}
+              section=extensions option=hgext.purge
+              value=
+
+  - name: install buildbot-slave in virtualenv
+    pip: name=buildbot-slave virtualenv={{ venv }}
+
+  - name: create buildbot environment
+    command: "{{ venv }}/bin/buildslave create-slave
+              {{ work }} buildbot.scons.org:9989 {{ builder }} {{ pass }}
+              creates={{ work }}"
+    sudo: yes
+    sudo_user: "{{ botuser }}"
+
+  - name: set contact details of the buildbot owner
+    copy: dest="{{ work }}/info/admin" content="{{ maintainer }}"
+    notify:
+     - restart buildbot
+
+  - name: update host information
+    copy: dest="{{ work }}/info/host"
+          content="{{ansible_lsb.description}}
+                   {{'\n'}}{{ansible_machine}}
+                   {{'\n'}}{{ansible_memtotal_mb}}MB RAM
+                   {{'\n'}}Python {{ansible_python_version}}"
+    notify:
+     - restart buildbot
+
+  handlers:
+  - name: restart buildbot
+    command: "{{ venv }}/bin/buildslave restart {{ work }}"
+    sudo: yes
+    sudo_user: "{{ botuser }}"

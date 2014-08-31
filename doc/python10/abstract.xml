@@ -1,0 +1,69 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+]>
+
+<abstract xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+<para>
+
+  &SCons; is a software construction tool (build tool, or make tool)
+  implemented in Python, which uses Python scripts as "configuration
+  files" for software builds. Based on the design which won the
+  Software Carpentry build tool competition, &SCons; solves a number of
+  problems associated with other build tools, especially including the
+  classic and ubiquitous &Make; itself.
+
+</para>
+
+<para>
+
+  Distinctive features of &SCons; include: a modular design that
+  lends itself to being embedded in other applications; a global
+  view of all dependencies in the source tree; an improved model for
+  parallel (<option>-j</option>) builds; automatic scanning of files for
+  dependencies; use of MD5 signatures for deciding whether a file
+  is up-to-date; use of traditional file timestamps instead of
+  MD5 signatures available as an option;
+  use of Python functions or objects to build target files; easy user
+  extensibility.
+
+</para>
+
+<para>
+
+  This paper discusses the goals of the &SCons; project, gives an overview
+  of the design of &SCons; itself, describes the development process used,
+  and discusses future plans and directions for the tool.
+
+</para>
+
+</abstract>

@@ -1,0 +1,477 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ...................................................................... -->
+<!-- DocBook CALS Table Model V4.5 ........................................ -->
+<!-- File calstblx.mod .................................................... -->
+<!--
+  Copyright 1992-2002 HaL Computer Systems, Inc.,
+  O'Reilly & Associates, Inc., ArborText, Inc., Fujitsu Software
+  Corporation, Norman Walsh, Sun Microsystems, Inc., and the
+  Organization for the Advancement of Structured Information
+  Standards (OASIS).
+  
+  This DTD is based on the CALS Table Model
+  PUBLIC "-//USA-DOD//DTD Table Model 951010//EN"
+  
+  $Id: calstblx.dtd,v 1.1 2009-03-30 14:59:35 sorin Exp $
+  
+  Permission to use, copy, modify and distribute the DocBook DTD
+  and its accompanying documentation for any purpose and without fee
+  is hereby granted in perpetuity, provided that the above copyright
+  notice and this paragraph appear in all copies.  The copyright
+  holders make no representation about the suitability of the DTD for
+  any purpose.  It is provided "as is" without expressed or implied
+  warranty.
+  
+  If you modify the DocBook DTD in any way, except for declaring and
+  referencing additional sets of general entities and declaring
+  additional notations, label your DTD as a variant of DocBook.  See
+  the maintenance documentation for more information.
+  
+  Please direct all questions, bug reports, or suggestions for
+  changes to the docbook@lists.oasis-open.org mailing list. For more
+  information, see http://www.oasis-open.org/docbook/.
+-->
+<!-- ...................................................................... -->
+<!--
+  This module contains the definitions for the CALS Table Model
+  converted to XML. It has been modified slightly for use in the
+  combined HTML/CALS models supported by DocBook V4.5.
+-->
+<!--
+  These definitions are not directly related to the table model, but are
+  used in the default CALS table model and are usually defined elsewhere
+  (and prior to the inclusion of this table module) in a CALS DTD.
+-->
+<!--
+  no if zero(s),
+  yes if any other digits value
+-->
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="">
+  <define name="yesorno">
+    <data type="string"/>
+  </define>
+  <define name="titles">
+    <optional>
+      <ref name="title"/>
+    </optional>
+  </define>
+  <!-- default for use in entry content -->
+  <!--
+    The parameter entities as defined below provide the CALS table model
+    as published (as part of the Example DTD) in MIL-HDBK-28001.
+    
+    These following declarations provide the CALS-compliant default definitions
+    for these entities.  However, these entities can and should be redefined
+    (by giving the appropriate parameter entity declaration(s) prior to the
+    reference to this Table Model declaration set entity) to fit the needs
+    of the current application.
+  -->
+  <define name="tbl.table-titles.mdl">
+    <ref name="titles"/>
+  </define>
+  <define name="tbl.table-main.mdl">
+    <choice>
+      <oneOrMore>
+        <ref name="tgroup"/>
+      </oneOrMore>
+      <oneOrMore>
+        <ref name="graphic"/>
+      </oneOrMore>
+    </choice>
+  </define>
+  <define name="tbl.tgroup.mdl">
+    <zeroOrMore>
+      <ref name="colspec"/>
+    </zeroOrMore>
+    <zeroOrMore>
+      <ref name="spanspec"/>
+    </zeroOrMore>
+    <optional>
+      <ref name="thead"/>
+    </optional>
+    <optional>
+      <ref name="tfoot"/>
+    </optional>
+    <ref name="tbody"/>
+  </define>
+  <define name="tbl.tgroup.att">
+    <optional>
+      <attribute name="tgroupstyle"/>
+    </optional>
+  </define>
+  <define name="tbl.row.mdl">
+    <oneOrMore>
+      <choice>
+        <ref name="entry"/>
+        <ref name="entrytbl"/>
+      </choice>
+    </oneOrMore>
+  </define>
+  <define name="tbl.entrytbl.mdl">
+    <zeroOrMore>
+      <ref name="colspec"/>
+    </zeroOrMore>
+    <zeroOrMore>
+      <ref name="spanspec"/>
+    </zeroOrMore>
+    <optional>
+      <ref name="thead"/>
+    </optional>
+    <ref name="tbody"/>
+  </define>
+  <!-- =====  Element and attribute declarations follow. ===== -->
+  <!-- doc:A formal table in a document. -->
+  <define name="table">
+    <element name="table">
+      <ref name="table.attlist"/>
+      <ref name="tbl.table.mdl"/>
+    </element>
+  </define>
+  <define name="table.attlist" combine="interleave">
+    <optional>
+      <attribute name="frame">
+        <choice>
+          <ref name="tbl.frame.attval"/>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="colsep">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="rowsep">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <ref name="tbl.table.att"/>
+    <ref name="bodyatt"/>
+    <ref name="secur"/>
+  </define>
+  <!-- doc:A wrapper for the main content of a table, or part of a table. -->
+  <define name="tgroup">
+    <element name="tgroup">
+      <ref name="tgroup.attlist"/>
+      <ref name="tbl.tgroup.mdl"/>
+    </element>
+  </define>
+  <define name="tgroup.attlist" combine="interleave">
+    <attribute name="cols"/>
+    <ref name="tbl.tgroup.att"/>
+    <optional>
+      <attribute name="colsep">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="rowsep">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="align">
+        <choice>
+          <value>left</value>
+          <value>right</value>
+          <value>center</value>
+          <value>justify</value>
+          <value>char</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="char"/>
+    </optional>
+    <optional>
+      <attribute name="charoff"/>
+    </optional>
+    <ref name="secur"/>
+  </define>
+  <!-- doc:Specifications for a column in a table. -->
+  <define name="colspec">
+    <element name="colspec">
+      <ref name="colspec.attlist"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="colspec.attlist" combine="interleave">
+    <optional>
+      <attribute name="colnum"/>
+    </optional>
+    <optional>
+      <attribute name="colname"/>
+    </optional>
+    <optional>
+      <attribute name="colwidth"/>
+    </optional>
+    <optional>
+      <attribute name="colsep">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="rowsep">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="align">
+        <choice>
+          <value>left</value>
+          <value>right</value>
+          <value>center</value>
+          <value>justify</value>
+          <value>char</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="char"/>
+    </optional>
+    <optional>
+      <attribute name="charoff"/>
+    </optional>
+  </define>
+  <!-- doc:Formatting information for a spanned column in a table. -->
+  <define name="spanspec">
+    <element name="spanspec">
+      <ref name="spanspec.attlist"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="spanspec.attlist" combine="interleave">
+    <attribute name="namest"/>
+    <attribute name="nameend"/>
+    <attribute name="spanname"/>
+    <optional>
+      <attribute name="colsep">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="rowsep">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="align">
+        <choice>
+          <value>left</value>
+          <value>right</value>
+          <value>center</value>
+          <value>justify</value>
+          <value>char</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="char"/>
+    </optional>
+    <optional>
+      <attribute name="charoff"/>
+    </optional>
+  </define>
+  <!-- doc:A table header consisting of one or more rows. -->
+  <define name="thead">
+    <element name="thead">
+      <ref name="thead.attlist"/>
+      <ref name="tbl.hdft.mdl"/>
+    </element>
+  </define>
+  <define name="thead.attlist" combine="interleave">
+    <optional>
+      <attribute name="valign">
+        <choice>
+          <value>top</value>
+          <value>middle</value>
+          <value>bottom</value>
+        </choice>
+      </attribute>
+    </optional>
+    <ref name="secur"/>
+  </define>
+  <!-- doc:A table footer consisting of one or more rows. -->
+  <define name="tfoot">
+    <element name="tfoot">
+      <ref name="tfoot.attlist"/>
+      <ref name="tbl.hdft.mdl"/>
+    </element>
+  </define>
+  <define name="tfoot.attlist" combine="interleave">
+    <optional>
+      <attribute name="valign">
+        <choice>
+          <value>top</value>
+          <value>middle</value>
+          <value>bottom</value>
+        </choice>
+      </attribute>
+    </optional>
+    <ref name="secur"/>
+  </define>
+  <!-- doc:A wrapper for the rows of a table or informal table. -->
+  <define name="tbody">
+    <element name="tbody">
+      <ref name="tbody.attlist"/>
+      <ref name="tbl.tbody.mdl"/>
+    </element>
+  </define>
+  <define name="tbody.attlist" combine="interleave">
+    <optional>
+      <attribute name="valign">
+        <choice>
+          <value>top</value>
+          <value>middle</value>
+          <value>bottom</value>
+        </choice>
+      </attribute>
+    </optional>
+    <ref name="secur"/>
+  </define>
+  <!-- doc:A row in a table. -->
+  <define name="row">
+    <element name="row">
+      <ref name="row.attlist"/>
+      <ref name="tbl.row.mdl"/>
+    </element>
+  </define>
+  <define name="row.attlist" combine="interleave">
+    <optional>
+      <attribute name="rowsep">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="valign">
+        <choice>
+          <value>top</value>
+          <value>middle</value>
+          <value>bottom</value>
+        </choice>
+      </attribute>
+    </optional>
+    <ref name="secur"/>
+  </define>
+  <!-- doc:A subtable appearing in place of an Entry in a table. -->
+  <define name="entrytbl">
+    <element name="entrytbl">
+      <ref name="entrytbl.attlist"/>
+      <ref name="tbl.entrytbl.mdl"/>
+    </element>
+  </define>
+  <define name="entrytbl.attlist" combine="interleave">
+    <attribute name="cols"/>
+    <ref name="tbl.tgroup.att"/>
+    <optional>
+      <attribute name="colname"/>
+    </optional>
+    <optional>
+      <attribute name="spanname"/>
+    </optional>
+    <optional>
+      <attribute name="namest"/>
+    </optional>
+    <optional>
+      <attribute name="nameend"/>
+    </optional>
+    <optional>
+      <attribute name="colsep">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="rowsep">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="align">
+        <choice>
+          <value>left</value>
+          <value>right</value>
+          <value>center</value>
+          <value>justify</value>
+          <value>char</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="char"/>
+    </optional>
+    <optional>
+      <attribute name="charoff"/>
+    </optional>
+    <ref name="secur"/>
+  </define>
+  <!-- doc:A cell in a table. -->
+  <define name="entry">
+    <element name="entry">
+      <ref name="entry.attlist"/>
+      <zeroOrMore>
+        <ref name="tbl.entry.mdl"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="entry.attlist" combine="interleave">
+    <optional>
+      <attribute name="colname"/>
+    </optional>
+    <optional>
+      <attribute name="namest"/>
+    </optional>
+    <optional>
+      <attribute name="nameend"/>
+    </optional>
+    <optional>
+      <attribute name="spanname"/>
+    </optional>
+    <optional>
+      <attribute name="morerows"/>
+    </optional>
+    <optional>
+      <attribute name="colsep">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="rowsep">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="align">
+        <choice>
+          <value>left</value>
+          <value>right</value>
+          <value>center</value>
+          <value>justify</value>
+          <value>char</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="char"/>
+    </optional>
+    <optional>
+      <attribute name="charoff"/>
+    </optional>
+    <optional>
+      <attribute name="rotate">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="valign">
+        <choice>
+          <value>top</value>
+          <value>middle</value>
+          <value>bottom</value>
+        </choice>
+      </attribute>
+    </optional>
+    <ref name="secur"/>
+  </define>
+</grammar>
+<!-- End of DocBook CALS Table Model V4.5 ................................. -->
+<!-- ...................................................................... -->
