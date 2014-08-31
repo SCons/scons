@@ -36,10 +36,10 @@ import TestSCons
 import SCons.Defaults
 SCons.Defaults.DefaultEnvironment( tools = [] )
 
+test = TestSCons.TestSCons()
+
 if not hasattr(os, 'symlink'):
     test.skip_test('No os.symlink() method, no symlinks to test.\n')
-
-test = TestSCons.TestSCons()
 
 filelinkToCopy = 'filelinkToCopy'
 fileToLink = 'file.in'

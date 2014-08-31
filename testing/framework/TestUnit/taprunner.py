@@ -6,13 +6,21 @@ Public domain work by:
   anatoly techtonik <techtonik@gmail.com>
 
 Changes:
+  0.3 - fixed used imports that failed on Python 2.6
   0.2 - removed unused import that failed on Python 2.6
   0.1 - initial release
 """
 
-from unittest.runner import TextTestRunner, TextTestResult
+__version__ = "0.3"
 
-__version__ = "0.2"
+
+from unittest import TextTestRunner
+try:
+    from unittest import TextTestResult
+except ImportError:
+    # Python 2.6
+    from unittest import _TextTestResult as TextTestResult
+
 
 class TAPTestResult(TextTestResult):
 
