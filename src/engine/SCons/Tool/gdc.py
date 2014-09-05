@@ -95,9 +95,9 @@ def generate(env):
     env['DLINKFLAGS'] = SCons.Util.CLVar('')
     env['DLINKCOM'] = '$DLINK -o $TARGET $DLINKFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
 
-    env['SHDLINK'] = '$DC'
-    env['SHDLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared')
-    env['SHDLINKCOM'] = '$DLINK -o $TARGET $DLINKFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
+    env['DSHLINK'] = '$DC'
+    env['DSHLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared')
+    env['SHDLINKCOM'] = '$DLINK -o $TARGET $DSHLINKFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
 
     env['DLIB'] = 'lib' if env['PLATFORM'] == 'win32' else 'ar cr'
     env['DLIBCOM'] = '$DLIB $_DLIBFLAGS {0}$TARGET $SOURCES $_DLINKLIBFLAGS'.format('-c ' if env['PLATFORM'] == 'win32' else '')

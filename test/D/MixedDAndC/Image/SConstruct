@@ -3,7 +3,6 @@
 import os
 
 environment = Environment(
-    ENV=os.environ,
     DFLAGS=['-m64', '-O'])
 
 environment.Program('proj', [

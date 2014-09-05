@@ -37,7 +37,7 @@ if not dmd:
 
 test.write('SConstruct', """\
 import os
-env = Environment(ENV=os.environ)
+env = Environment()
 if env['PLATFORM'] == 'cygwin': env['OBJSUFFIX'] = '.obj'  # trick DMD
 env.Program('foo', 'foo.d')
 """)
