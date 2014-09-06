@@ -28,11 +28,15 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
+import sys
+from os.path import abspath, dirname, join
+sys.path.append(join(dirname(abspath(__file__)), 'Support'))
+from executablesSearch import isExecutableOfToolAvailable
+
 _exe = TestSCons._exe
 test = TestSCons.TestSCons()
 
-dmd = test.where_is('dmd')
-if not dmd:
+if not isExecutableOfToolAvailable(test, 'dmd'):
     test.skip_test("Could not find 'dmd'; skipping test.\n")
 
 test.write('SConstruct', """\
