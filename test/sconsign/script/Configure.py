@@ -58,9 +58,8 @@ CC_file = re.escape(CC_file)
 _sconf_temp_conftest_0_c = '.sconf_temp/conftest_0.c'
 
 test.write('SConstruct', """
-env = Environment()
 import os
-env.AppendENVPath('PATH', os.environ['PATH'])
+env = Environment(ENV={'PATH' : os.environ.get('PATH','')})
 conf = Configure(env)
 r1 = conf.CheckCHeader( 'math.h' )
 env = conf.Finish()
