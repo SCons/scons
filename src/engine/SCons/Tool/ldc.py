@@ -126,7 +126,7 @@ def generate(env):
     # platform supports it.
     env['DRPATHPREFIX'] = '-L-rpath='
     env['DRPATHSUFFIX'] = ''
-    env['_RPATH'] = '${_concat(DRPATHPREFIX, RPATH, DRPATHSUFFIX, __env__)}'
+    env['_DRPATH'] = '${_concat(DRPATHPREFIX, RPATH, DRPATHSUFFIX, __env__)}'
 
     SCons.Tool.createStaticLibBuilder(env)
 
