@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q --tree=all</userinput>
+cc -o f1.o -c -I. f1.c
+cc -o f2.o -c -I. f2.c
+cc -o f3.o -c -I. f3.c
+cc -o prog f1.o f2.o f3.o
++-.
+  +-SConstruct
+  +-f1.c
+  +-f1.o
+  | +-f1.c
+  | +-inc.h
+  +-f2.c
+  +-f2.o
+  | +-f2.c
+  | +-inc.h
+  +-f3.c
+  +-f3.o
+  | +-f3.c
+  | +-inc.h
+  +-inc.h
+  +-prog
+    +-f1.o
+    | +-f1.c
+    | +-inc.h
+    +-f2.o
+    | +-f2.c
+    | +-inc.h
+    +-f3.o
+      +-f3.c
+      +-inc.h
+</screen>
