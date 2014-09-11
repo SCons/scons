@@ -82,6 +82,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 skip_doc = False
 try:
     import libxml2
+    import libxslt
 except:
     try:
         import lxml
