@@ -50,7 +50,21 @@ def testForTool(tool):
 
     test.run()
 
-    for f in ('libstuff.so', 'stuff.os', 'test1', 'test1.o', 'test2', 'test2.o'):
+    platform = Base()['PLATFORM']
+
+    if platform == 'posix':
+        libraryname = 'libstuff.so'
+        filename = 'stuff.os'
+    elif platform == 'darwin':
+        libraryname = 'libstuff.dylib'
+        filename = 'stuff.os'
+    elif platform == 'win32':
+        libraryname = 'stuff.dll'
+        filename = 'stuff.obj'
+    else:
+        test.fail_test('No information about platform: ' + platform)
+
+    for f in (libraryname, filename, 'test1', 'test1.o', 'test2', 'test2.o'):
         test.must_exist(test.workpath(join('test', 'test1', f)))
 
     test.pass_test()

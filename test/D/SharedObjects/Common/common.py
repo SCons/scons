@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+"""
+Support functions for all the tests.
+"""
+
 #
 # __COPYRIGHT__
 #
@@ -22,47 +25,53 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-#  Amended by Russel Winder <russel@russel.org.uk> 2010-05-05
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
+from SCons.Environment import Base
+
 from os.path import abspath, dirname
 
 import sys
-sys.path.insert(1, abspath(dirname(__file__) + '/Support'))
+sys.path.insert(1, abspath(dirname(__file__) + '/../../Support'))
 
 from executablesSearch import isExecutableOfToolAvailable
 
-_exe = TestSCons._exe
-test = TestSCons.TestSCons()
+def testForTool(tool):
 
-if not isExecutableOfToolAvailable(test, 'ldc'):
-    test.skip_test("Could not find 'ldc', skipping test.\n")
+    test = TestSCons.TestSCons()
 
-test.write('SConstruct', """\
-import os
-env = Environment(tools=['link', 'ldc'])
-if env['PLATFORM'] == 'cygwin': env['OBJSUFFIX'] = '.obj'  # trick DMD
-env.Program('foo', 'foo.d')
-""")
+    if not isExecutableOfToolAvailable(test, tool) :
+        test.skip_test("Required executable for tool '{}' not found, skipping test.\n".format(tool))
 
-test.write('foo.d', """\
-import std.stdio;
-int main(string[] args) {
-    printf("Hello!");
-    return 0;
-}
-""")
+    test.dir_fixture('Image')
+    test.write('SConstruct', open('SConstruct_template', 'r').read().format(tool))
 
-test.run()
+    if tool == 'dmd':
+        # The gdmd executable in Debian Unstable as at 2012-05-12, version 4.6.3 puts out messages on stderr
+        # that cause inappropriate failure of the tests, so simply ignore them.
+        test.run(stderr=None)
+    else:
+        test.run()
 
-test.run(program=test.workpath('foo'+_exe))
+    platform = Base()['PLATFORM']
+    if platform == 'posix':
+        filename = 'code.o'
+        libraryname = 'libanswer.so'
+    elif platform == 'darwin':
+        filename = 'code.o'
+        libraryname = 'libanswer.dylib'
+    elif platform == 'win32' or platform == 'win64':
+        filename = 'code.obj'
+        libraryname = 'answer.dll'
+    else:
+        test.fail_test()
 
-test.fail_test(not test.stdout() == 'Hello!')
+    test.must_exist(test.workpath(filename))
+    test.must_exist(test.workpath(libraryname))
 
-test.pass_test()
+    test.pass_test()
 
 # Local Variables:
 # tab-width:4

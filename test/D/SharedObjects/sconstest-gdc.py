@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+"""
+Test compiling and executing using the gcd tool.
+"""
+
 #
 # __COPYRIGHT__
 #
@@ -22,45 +25,13 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-#  Amended by Russel Winder <russel@russel.org.uk> 2010-05-05
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
+TestSCons.TestSCons().skip_test('SKIPPED... gdc does not, as at version 4.9.1, support shared libraries.\n')
 
-import sys
-from os.path import abspath, dirname, join
-sys.path.append(join(dirname(abspath(__file__)), 'Support'))
-from executablesSearch import isExecutableOfToolAvailable
-
-_exe = TestSCons._exe
-test = TestSCons.TestSCons()
-
-if not isExecutableOfToolAvailable(test, 'dmd'):
-    test.skip_test("Could not find 'dmd'; skipping test.\n")
-
-test.write('SConstruct', """\
-import os
-env = Environment(tools=['dmd', 'link'])
-if env['PLATFORM'] == 'cygwin': env['OBJSUFFIX'] = '.obj'  # trick DMD
-env.Program('foo', 'foo.d')
-""")
-
-test.write('foo.d', """\
-import std.stdio;
-int main(string[] args) {
-    printf("Hello!");
-    return 0;
-}
-""")
-
-test.run()
-
-test.run(program=test.workpath('foo'+_exe))
-
-test.fail_test(not test.stdout() == 'Hello!')
-
-test.pass_test()
+from Common.common import testForTool
+testForTool('gdc')
 
 # Local Variables:
 # tab-width:4
