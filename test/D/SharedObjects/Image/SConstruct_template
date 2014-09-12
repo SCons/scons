@@ -3,6 +3,6 @@
 import os
 
 environment = Environment(
-    tools=['link', '{}'])
+    tools=['{}', 'link'])
 
-environment.Program('helloWorld.d')
+environment.SharedLibrary('answer', 'code.d')
