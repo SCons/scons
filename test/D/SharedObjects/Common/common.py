@@ -45,6 +45,27 @@ def testForTool(tool):
     if not isExecutableOfToolAvailable(test, tool) :
         test.skip_test("Required executable for tool '{}' not found, skipping test.\n".format(tool))
 
+
+    if tool == 'gdc':
+        test.skip_test('gdc does not, as at version 4.9.1, support shared libraries.\n')
+
+
+    platform = Base()['PLATFORM']
+    if platform == 'posix':
+        filename = 'code.o'
+        libraryname = 'libanswer.so'
+    elif platform == 'darwin':
+        filename = 'code.o'
+        libraryname = 'libanswer.dylib'
+        # As at 2014-09-14, DMD 2.066, LDC master head, and GDC 4.9.1 do not support
+        # shared libraries on OSX.
+        test.skip_test('Dynamic libraries not yet supported on OSX.\n')
+    elif platform == 'win32':
+        filename = 'code.obj'
+        libraryname = 'answer.dll'
+    else:
+        test.fail_test()
+
     test.dir_fixture('Image')
     test.write('SConstruct', open('SConstruct_template', 'r').read().format(tool))
 
@@ -54,19 +75,6 @@ def testForTool(tool):
         test.run(stderr=None)
     else:
         test.run()
-
-    platform = Base()['PLATFORM']
-    if platform == 'posix':
-        filename = 'code.o'
-        libraryname = 'libanswer.so'
-    elif platform == 'darwin':
-        filename = 'code.o'
-        libraryname = 'libanswer.dylib'
-    elif platform == 'win32' or platform == 'win64':
-        filename = 'code.obj'
-        libraryname = 'answer.dll'
-    else:
-        test.fail_test()
 
     test.must_exist(test.workpath(filename))
     test.must_exist(test.workpath(libraryname))

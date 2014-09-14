@@ -27,9 +27,6 @@ Test compiling and executing using the gcd tool.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
-TestSCons.TestSCons().skip_test('SKIPPED... gdc does not, as at version 4.9.1, support shared libraries.\n')
-
 from Common.common import testForTool
 testForTool('gdc')
 

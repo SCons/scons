@@ -45,24 +45,26 @@ def testForTool(tool):
     if not isExecutableOfToolAvailable(test, tool) :
         test.skip_test("Required executable for tool '{}' not found, skipping test.\n".format(tool))
 
-    test.dir_fixture('Project')
-    test.write('SConstruct', open('SConstruct_template', 'r').read().format('tools=["{}", "link"]'.format(tool)))
-
-    test.run()
-
     platform = Base()['PLATFORM']
-
     if platform == 'posix':
         libraryname = 'libstuff.so'
         filename = 'stuff.os'
     elif platform == 'darwin':
         libraryname = 'libstuff.dylib'
         filename = 'stuff.os'
+        # As at 2014-09-14, DMD 2.066, LDC master head, and GDC 4.9.1 do not support
+        # shared libraries on OSX.
+        test.skip_test('Dynamic libraries not yet supported on OSX.\n')
     elif platform == 'win32':
         libraryname = 'stuff.dll'
         filename = 'stuff.obj'
     else:
         test.fail_test('No information about platform: ' + platform)
+
+    test.dir_fixture('Project')
+    test.write('SConstruct', open('SConstruct_template', 'r').read().format('tools=["{}", "link"]'.format(tool)))
+
+    test.run()
 
     for f in (libraryname, filename, 'test1', 'test1.o', 'test2', 'test2.o'):
         test.must_exist(test.workpath(join('test', 'test1', f)))
