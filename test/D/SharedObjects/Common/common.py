@@ -62,7 +62,7 @@ def testForTool(tool):
     elif platform == 'darwin':
         filename = 'code.o'
         libraryname = 'libanswer.dylib'
-    elif platform == 'win32' or platform == 'win64':
+    elif platform == 'win32':
         filename = 'code.obj'
         libraryname = 'answer.dll'
     else:
