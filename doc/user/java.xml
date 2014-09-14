@@ -1,0 +1,680 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+    
+    <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
+    %builders-mod;
+    <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
+    %functions-mod;
+    <!ENTITY % tools-mod SYSTEM "../generated/tools.mod">
+    %tools-mod;
+    <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
+    %variables-mod;
+]>
+
+<chapter id="chap-java"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Java Builds</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <para>
+
+  So far, we've been using examples of
+  building C and C++ programs
+  to demonstrate the features of &SCons;.
+  &SCons; also supports building Java programs,
+  but Java builds are handled slightly differently,
+  which reflects the ways in which
+  the Java compiler and tools
+  build programs differently than
+  other languages' tool chains.
+
+  </para>
+
+  <section>
+  <title>Building Java Class Files:  the &b-Java; Builder</title>
+
+    <para>
+
+    The basic activity when programming in Java,
+    of course, is to take one or more <filename>.java</filename> files
+    containing Java source code
+    and to call the Java compiler
+    to turn them into one or more
+    <filename>.class</filename> files.
+    In &SCons;, you do this
+    by giving the &b-link-Java; Builder
+    a target directory in which
+    to put the <filename>.class</filename> files,
+    and a source directory that contains
+    the <filename>.java</filename> files:
+
+    </para>
+
+    <scons_example name="java_java">
+      <file name="SConstruct" printme="1">
+Java('classes', 'src')
+      </file>
+      <file name="src/Example1.java">
+public class Example1
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
+      </file>
+      <file name="src/Example2.java">
+public class Example2
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
+      </file>
+      <file name="src/Example3.java">
+public class Example3
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
+      </file>
+    </scons_example>
+
+    <para>
+
+    If the <filename>src</filename> directory contains
+    three <filename>.java</filename> source files,
+    then running &SCons; might look like this:
+
+    </para>
+
+    <scons_output example="java_java" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    &SCons; will actually search the <filename>src</filename>
+    directory tree for all of the <filename>.java</filename> files.
+    The Java compiler will then create the
+    necessary class files in the <filename>classes</filename> subdirectory,
+    based on the class names found in the <filename>.java</filename> files.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>How &SCons; Handles Java Dependencies</title>
+
+    <para>
+
+    In addition to searching the source directory for
+    <filename>.java</filename> files,
+    &SCons; actually runs the <filename>.java</filename> files
+    through a stripped-down Java parser that figures out
+    what classes are defined.
+    In other words, &SCons; knows,
+    without you having to tell it,
+    what <filename>.class</filename> files
+    will be produced by the &javac; call.
+    So our one-liner example from the preceding section:
+
+    </para>
+
+    <scons_example name="java_java-classes">
+      <file name="SConstruct" printme="1">
+Java('classes', 'src')
+      </file>
+      <file name="src/Example1.java">
+public class Example1
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
+public class AdditionalClass1
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
+      </file>
+      <file name="src/Example2.java">
+public class Example2
+{
+  class Inner2 {
+    public static void main(String[] args)
+    {
+      System.out.println("Hello Java world!\n");
+    }
+  }
+}
+      </file>
+      <file name="src/Example3.java">
+public class Example3
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
+public class AdditionalClass3
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
+      </file>
+    </scons_example>
+
+    <para>
+
+    Will not only tell you reliably
+    that the <filename>.class</filename> files
+    in the <filename>classes</filename> subdirectory 
+    are up-to-date:
+
+    </para>
+
+    <scons_output example="java_java-classes" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q classes</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    But it will also remove all of the generated
+    <filename>.class</filename> files,
+    even for inner classes,
+    without you having to specify them manually.
+    For example, if our
+    <filename>Example1.java</filename>
+    and
+    <filename>Example3.java</filename>
+    files both define additional classes,
+    and the class defined in <filename>Example2.java</filename>
+    has an inner class,
+    running <userinput>scons -c</userinput>
+    will clean up all of those <filename>.class</filename> files
+    as well:
+
+    </para>
+
+    <scons_output example="java_java-classes" suffix="2">
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q -c classes</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    To ensure correct handling of <filename>.class</filename>
+    dependencies in all cases, you need to tell &SCons; which Java
+    version is being used.  This is needed because Java 1.5 changed
+    the <filename>.class</filename> file names for nested anonymous
+    inner classes.  Use the <varname>JAVAVERSION</varname> construction
+    variable to specify the version in use.  With Java 1.6, the
+    one-liner example can then be defined like this:
+
+    </para> 
+
+    <sconstruct>
+Java('classes', 'src', JAVAVERSION='1.6')
+    </sconstruct>
+
+    <para>
+    See <varname>JAVAVERSION</varname> in the man page for more information.
+    </para>
+
+  </section>
+
+  <section>
+  <title>Building Java Archive (<filename>.jar</filename>) Files:  the &b-Jar; Builder</title>
+
+    <para>
+
+    After building the class files,
+    it's common to collect them into
+    a Java archive (<filename>.jar</filename>) file,
+    which you do by calling the &b-link-Jar; Builder method.
+    If you want to just collect all of the
+    class files within a subdirectory,
+    you can just specify that subdirectory
+    as the &b-Jar; source:
+
+    </para>
+
+    <scons_example name="java_jar1">
+      <file name="SConstruct" printme="1">
+Java(target = 'classes', source = 'src')
+Jar(target = 'test.jar', source = 'classes')
+      </file>
+      <file name="src/Example1.java">
+public class Example1
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
+      </file>
+      <file name="src/Example2.java">
+public class Example2
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
+      </file>
+      <file name="src/Example3.java">
+public class Example3
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
+      </file>
+    </scons_example>
+
+    <para>
+
+    &SCons; will then pass that directory
+    to the &jar; command,
+    which will collect all of the underlying
+    <filename>.class</filename> files:
+
+    </para>
+
+    <scons_output example="java_jar1" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    If you want to keep all of the
+    <filename>.class</filename> files
+    for multiple programs in one location,
+    and only archive some of them in
+    each <filename>.jar</filename> file,
+    you can pass the &b-Jar; builder a
+    list of files as its source.
+    It's extremely simple to create multiple
+    <filename>.jar</filename> files this way,
+    using the lists of target class files created
+    by calls to the &b-link-Java; builder
+    as sources to the various &b-Jar; calls:
+
+    </para>
+
+    <scons_example name="java_jar2">
+      <file name="SConstruct" printme="1">
+prog1_class_files = Java(target = 'classes', source = 'prog1')
+prog2_class_files = Java(target = 'classes', source = 'prog2')
+Jar(target = 'prog1.jar', source = prog1_class_files)
+Jar(target = 'prog2.jar', source = prog2_class_files)
+      </file>
+      <file name="prog1/Example1.java">
+public class Example1
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
+      </file>
+      <file name="prog1/Example2.java">
+public class Example2
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
+      </file>
+      <file name="prog2/Example3.java">
+public class Example3
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
+      </file>
+      <file name="prog2/Example4.java">
+public class Example4
+{
+  public static void main(String[] args)
+  {
+    System.out.println("Hello Java world!\n");
+  }
+}
+      </file>
+    </scons_example>
+
+    <para>
+
+    This will then create
+    <filename>prog1.jar</filename>
+    and <filename>prog2.jar</filename>
+    next to the subdirectories
+    that contain their <filename>.java</filename> files:
+
+    </para>
+
+    <scons_output example="java_jar2" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+  </section>
+
+  <section>
+  <title>Building C Header and Stub Files:  the &b-JavaH; Builder</title>
+
+    <para>
+
+    You can generate C header and source files
+    for implementing native methods,
+    by using the &b-link-JavaH; Builder.
+    There are several ways of using the &JavaH; Builder.
+    One typical invocation might look like:
+
+    </para>
+
+    <scons_example name="java_javah">
+      <file name="SConstruct" printme="1">
+classes = Java(target = 'classes', source = 'src/pkg/sub')
+JavaH(target = 'native', source = classes)
+      </file>
+      <file name="src/pkg/sub/Example1.java">
+package pkg.sub;
+public class Example1
+{
+  public static void main(String[] args)
+  {
+  }
+}
+      </file>
+      <file name="src/pkg/sub/Example2.java">
+package pkg.sub;
+public class Example2
+{
+  public static void main(String[] args)
+  {
+  }
+}
+      </file>
+      <file name="src/pkg/sub/Example3.java">
+package pkg.sub;
+public class Example3
+{
+  public static void main(String[] args)
+  {
+  }
+}
+      </file>
+    </scons_example>
+
+    <para>
+
+    The source is a list of class files generated by the
+    call to the &b-link-Java; Builder,
+    and the target is the output directory in
+    which we want the C header files placed.
+    The target
+    gets converted into the <option>-d</option>
+    when &SCons; runs &javah;:
+
+    </para>
+
+    <scons_output example="java_javah" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    In this case,
+    the call to &javah;
+    will generate the header files
+    <filename>native/pkg_sub_Example1.h</filename>,
+    <filename>native/pkg_sub_Example2.h</filename>
+    and
+    <filename>native/pkg_sub_Example3.h</filename>.
+    Notice that &SCons; remembered that the class
+    files were generated with a target directory of
+    <filename>classes</filename>,
+    and that it then specified that target directory
+    as the <option>-classpath</option> option
+    to the call to &javah;.
+
+    </para>
+
+    <para>
+
+    Although it's more convenient to use
+    the list of class files returned by
+    the &b-Java; Builder
+    as the source of a call to the &b-JavaH; Builder,
+    you <emphasis>can</emphasis>
+    specify the list of class files
+    by hand, if you prefer.
+    If you do,
+    you need to set the
+    &cv-link-JAVACLASSDIR; construction variable
+    when calling &b-JavaH;:
+
+    </para>
+
+    <scons_example name="java_JAVACLASSDIR">
+      <file name="SConstruct" printme="1">
+Java(target = 'classes', source = 'src/pkg/sub')
+class_file_list = ['classes/pkg/sub/Example1.class',
+                   'classes/pkg/sub/Example2.class',
+                   'classes/pkg/sub/Example3.class']
+JavaH(target = 'native', source = class_file_list, JAVACLASSDIR = 'classes')
+      </file>
+      <file name="src/pkg/sub/Example1.java">
+package pkg.sub;
+public class Example1
+{
+  public static void main(String[] args)
+  {
+  }
+}
+      </file>
+      <file name="src/pkg/sub/Example2.java">
+package pkg.sub;
+public class Example2
+{
+  public static void main(String[] args)
+  {
+  }
+}
+      </file>
+      <file name="src/pkg/sub/Example3.java">
+package pkg.sub;
+public class Example3
+{
+  public static void main(String[] args)
+  {
+  }
+}
+      </file>
+    </scons_example>
+
+    <para>
+
+    The &cv-JAVACLASSDIR; value then
+    gets converted into the <option>-classpath</option>
+    when &SCons; runs &javah;:
+
+    </para>
+
+    <scons_output example="java_JAVACLASSDIR" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    Lastly, if you don't want a separate header file
+    generated for each source file,
+    you can specify an explicit File Node
+    as the target of the &b-JavaH; Builder:
+
+    </para>
+
+    <scons_example name="java_javah_file">
+      <file name="SConstruct" printme="1">
+classes = Java(target = 'classes', source = 'src/pkg/sub')
+JavaH(target = File('native.h'), source = classes)
+      </file>
+      <file name="src/pkg/sub/Example1.java">
+package pkg.sub;
+public class Example1
+{
+  public static void main(String[] args)
+  {
+  }
+}
+      </file>
+      <file name="src/pkg/sub/Example2.java">
+package pkg.sub;
+public class Example2
+{
+  public static void main(String[] args)
+  {
+  }
+}
+      </file>
+      <file name="src/pkg/sub/Example3.java">
+package pkg.sub;
+public class Example3
+{
+  public static void main(String[] args)
+  {
+  }
+}
+      </file>
+    </scons_example>
+
+    <para>
+
+    Because &SCons; assumes by default
+    that the target of the &b-JavaH; builder is a directory,
+    you need to use the &File; function
+    to make sure that &SCons; doesn't
+    create a directory named <filename>native.h</filename>.
+    When a file is used, though,
+    &SCons; correctly converts the file name
+    into the &javah; <option>-o</option> option:
+
+    </para>
+
+    <scons_output example="java_javah_file" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+  </section>
+
+  <section>
+  <title>Building RMI Stub and Skeleton Class Files:  the &b-RMIC; Builder</title>
+
+    <para>
+
+    You can generate Remote Method Invocation stubs
+    by using the &b-link-RMIC; Builder.
+    The source is a list of directories,
+    typically returned by a call to the &b-link-Java; Builder,
+    and the target is an output directory
+    where the <filename>_Stub.class</filename>
+    and <filename>_Skel.class</filename> files will
+    be placed:
+
+    </para>
+
+    <scons_example name="java_RMIC">
+      <file name="SConstruct" printme="1">
+classes = Java(target = 'classes', source = 'src/pkg/sub')
+RMIC(target = 'outdir', source = classes)
+      </file>
+      <file name="src/pkg/sub/Example1.java">
+package pkg.sub;
+public class Example1
+{
+  public static void main(String[] args)
+  {
+  }
+}
+      </file>
+      <file name="src/pkg/sub/Example2.java">
+package pkg.sub;
+public class Example2
+{
+  public static void main(String[] args)
+  {
+  }
+}
+      </file>
+    </scons_example>
+
+    <para>
+
+    As it did with the &b-link-JavaH; Builder,
+    &SCons; remembers the class directory
+    and passes it as the <option>-classpath</option> option
+    to &rmic;:
+
+    </para>
+
+    <scons_output example="java_RMIC" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    This example would generate the files
+    <filename>outdir/pkg/sub/Example1_Skel.class</filename>,
+    <filename>outdir/pkg/sub/Example1_Stub.class</filename>,
+    <filename>outdir/pkg/sub/Example2_Skel.class</filename> and
+    <filename>outdir/pkg/sub/Example2_Stub.class</filename>.
+
+    </para>
+
+  </section>
+
+</chapter>

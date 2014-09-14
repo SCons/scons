@@ -1,0 +1,9 @@
+from os.path import join
+
+environment = Environment({})
+
+Export('environment')
+
+environment.SConscript([
+    join("test","test1", "SConscript"),
+]);

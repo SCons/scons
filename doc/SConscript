@@ -1,0 +1,586 @@
+#
+# SConscript file for building SCons documentation.
+#
+
+#
+# __COPYRIGHT__
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+import os.path
+import re
+import sys
+import glob
+import SConsDoc
+import SConsExamples
+import bootstrap
+
+Import('build_dir', 'env', 'whereis', 'revaction')
+
+env = env.Clone()
+
+build = os.path.join(build_dir, 'doc')
+
+fop = whereis('fop')
+xep = whereis('xep')
+epydoc_cli = whereis('epydoc')
+gs = whereis('gs')
+lynx = whereis('lynx')
+
+#
+#
+#
+dist_doc_tar_gz = '$DISTDIR/scons-doc-${VERSION}.tar.gz'
+
+tar_deps = []
+tar_list = []
+
+orig_env = env
+env = orig_env.Clone(SCONS_PY = File('#src/script/scons.py').rfile())
+
+
+def writeVersionXml(verfile, date, ver, rev):
+    """ Helper function: Write a version.xml file. """
+    try:
+        os.unlink(verfile)
+    except OSError:
+        pass    # okay if the file didn't exist
+    dir, f = os.path.split(verfile)
+    try:
+        os.makedirs(dir)
+    except OSError:
+        pass    # okay if the directory already exists
+    open(verfile, "w").write("""<!--
+THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
+-->
+<!ENTITY builddate "%s">
+<!ENTITY buildversion "%s">
+<!ENTITY buildrevision "%s">
+""" % (date, ver, rev))
+
+#
+# Check whether we have all tools installed for
+# building the documentation.
+#
+skip_doc = False
+try:
+    import libxml2
+    import libxslt
+except:
+    try:
+        import lxml
+    except:
+        print "doc: Neither libxml2 nor lxml Python bindings found!"
+        print "     Please install one of the packages python-libxml2 or python-lxml."
+        skip_doc = True
+        
+if not fop and not xep:
+    print "doc: No PDF renderer found (fop|xep)!"
+    skip_doc = True
+    
+if skip_doc:
+    print "doc: ...skipping building User Guide."
+else:
+    if not lynx:
+        print "doc: Warning, lynx is not installed...created release packages won't be complete!"
+    
+    #
+    # Always create a version.xml file containing the version information
+    # for this run.  Ignore it for dependency purposes so we don't
+    # rebuild all the docs every time just because the date changes.
+    #
+    date, ver, rev = env.Dictionary('DATE', 'VERSION', 'REVISION')
+    version_xml = File(os.path.join(build, "version.xml"))
+    writeVersionXml(str(version_xml), date, ver, rev)
+
+    import shutil
+    import SCons.Builder
+    import SCons.Util
+    #
+    # Builder for copying files to an Install dir, based
+    # on their extension (better: glob matching pattern)...
+    #    
+    def _glob_install_action(target, source, env):
+        if not SCons.Util.is_List(target):
+            target = [target]
+        if not SCons.Util.is_List(source):
+            source = [source]
+        for t, s in zip(target, source):
+            shutil.copy(str(s), str(t))
+    def _glob_install_emitter(target, source, env):
+        if not SCons.Util.is_List(target):
+            target = [target]
+        if not SCons.Util.is_List(source):
+            source = [source]
+            
+        res = []
+        res_src = []
+        tdir = env.Dir(target[0])
+        for g in glob.glob(str(source[0])):
+            head, tail = os.path.split(g)
+            res.append(os.path.join(str(tdir), tail))
+            res_src.append(g)
+        return res, res_src
+    _glob_install_builder = SCons.Builder.Builder(action=_glob_install_action,
+                                                  emitter=_glob_install_emitter)
+    env['BUILDERS']['GlobInstall'] = _glob_install_builder
+
+    #
+    # Builder for copying ChunkedHTML files to an Install dir...
+    #    
+    def _chunked_install_action(target, source, env):
+        if not SCons.Util.is_List(target):
+            target = [target]
+        if not SCons.Util.is_List(source):
+            source = [source]
+        tdir, tail = os.path.split(str(target[0]))
+        spattern = os.path.join(os.path.split(str(source[0]))[0], '*.html')
+        for g in glob.glob(spattern):
+            shutil.copy(g, tdir)
+            
+    def _chunked_install_emitter(target, source, env):
+        if not SCons.Util.is_List(target):
+            target = [target]
+        if not SCons.Util.is_List(source):
+            source = [source]
+            
+        tdir = env.Dir(target[0])
+        head, tail = os.path.split(str(source[0]))
+        return os.path.join(str(tdir), tail), source
+    _chunked_install_builder = SCons.Builder.Builder(action=_chunked_install_action,
+                                                     emitter=_chunked_install_emitter)
+    env['BUILDERS']['ChunkedInstall'] = _chunked_install_builder
+
+    if not env.GetOption('clean'):
+        #
+        # Ensure that all XML files are valid against our XSD, and
+        # that all example names and example output suffixes are unique
+        #
+        print "Validating files against SCons XSD..."
+        if SConsDoc.validate_all_xml(['src'], xsdfile='xsd/scons.xsd'):
+            print "OK"
+        else:
+            print "Validation failed! Please correct the errors above and try again."
+            sys.exit(0)
+            
+        print "Checking whether all example names are unique..."
+        if SConsExamples.exampleNamesAreUnique(os.path.join('doc','user')):
+            print "OK"
+        else:
+            print "Not all example names and suffixes are unique! Please correct the errors listed above and try again."
+            sys.exit(0)
+    
+    # List of prerequisite files in the build/doc folder
+    buildsuite = []
+    
+    def copy_dbfiles(env, toolpath, paths, fpattern, use_builddir=True):
+        """ Helper function, copies a bunch of files matching
+            the given fpattern to a target directory.
+        """
+        global buildsuite
+        if not SCons.Util.is_List(toolpath):
+            toolpath = [toolpath]
+        if not SCons.Util.is_List(paths):
+            paths = [paths]
+        if not SCons.Util.is_List(fpattern):
+            fpattern = [fpattern]
+
+        if use_builddir:
+            target_dir = env.Dir(os.path.join(build_dir, *(toolpath+paths)))
+            buildsuite.extend(env.GlobInstall(target_dir,
+                                              os.path.join('..', *(toolpath+paths+fpattern))))
+        else:
+            target_dir = env.Dir(os.path.join(*(toolpath+paths)))
+            buildsuite.extend(env.GlobInstall(target_dir,
+                                              os.path.join(*(paths + fpattern))))
+    
+    #
+    # Copy generated files (.gen/.mod/.xml) to the build folder
+    #
+    copy_dbfiles(env, build, 'generated', '*.gen', False)
+    copy_dbfiles(env, build, 'generated', '*.mod', False)
+    copy_dbfiles(env, build, ['generated','examples'], '*', False)
+
+    #
+    # Copy XSLT files (.xslt) to the build folder
+    #
+    copy_dbfiles(env, build, 'xslt', '*.*', False)
+
+    #
+    # Copy DocBook stylesheets and Tool to the build folder
+    #
+    dbtoolpath = ['src', 'engine', 'SCons', 'Tool', 'docbook']
+    copy_dbfiles(env, dbtoolpath, [], '__init__.py')
+    copy_dbfiles(env, dbtoolpath, 'utils', 'xmldepend.xsl')
+    dbpath = dbtoolpath + ['docbook-xsl-1.76.1']
+    copy_dbfiles(env, dbpath, [], 'VERSION')
+    copy_dbfiles(env, dbpath, ['common'], '*.*')
+    copy_dbfiles(env, dbpath, ['lib'], '*.*')
+    copy_dbfiles(env, dbpath, ['html'], '*.*')
+    copy_dbfiles(env, dbpath, ['fo'], '*.*')
+    copy_dbfiles(env, dbpath, ['manpages'], '*.*')
+    copy_dbfiles(env, dbpath, ['epub'], '*.xsl')
+    copy_dbfiles(env, dbpath, ['xhtml-1_1'], '*.*')
+
+    #
+    # Copy additional Tools (gs, zip)
+    #
+    toolpath = ['src', 'engine', 'SCons', 'Tool']
+    copy_dbfiles(env, toolpath, [], 'gs.py')
+    copy_dbfiles(env, toolpath, [], 'zip.py')
+
+    #
+    # Each document will live in its own subdirectory "build/doc/xxx".
+    # List them here by their subfolder names. Note, how the specifiers
+    # for each subdir (=DOCTARGETS) have nothing to do with which
+    # formats get created...but which of the outputs get installed
+    # to the build folder and added to the different source and binary
+    # packages in the end.
+    # In addition to the list of target formats (DOCTARGETS), we also
+    # store some dependency information in this dict. The DOCDEPENDS
+    # list contains all files from each local "MANIFEST", after
+    # installing/copying them to the build directory. It basically
+    # links the original sources to the respective build folder,
+    # such that a simple 'python bootstrap.py' rebuilds the
+    # documentation when a file, like 'doc/user/depends.xml' 
+    # for example, changes.
+    # Finally, in DOCNODES we store the created PDF and HTML files,
+    # such that we can then install them in the proper places for
+    # getting picked up by the archiving/packaging stages.
+    DOCTARGETS = 0
+    DOCDEPENDS = 1
+    DOCNODES = 2
+    docs = {'design' : (['chunked','pdf'], [], []),
+            #'python10' : (['chunked','html','pdf'], [], []),
+            'reference' : (['chunked','html','pdf'], [], []),
+            #'developer' : (['chunked','html','pdf'], [], []),
+            'user' : (['chunked','html','pdf','epub','text'], [], []),
+            'man' : (['man','epub','text'], [], [])
+           }
+           
+    # The names of the target files for the MAN pages
+    man_page_list = ['scons.1','scons-time.1','sconsign.1']
+    
+    #
+    # We have to tell SCons to scan the top-level XML files which
+    # get included by the document XML files in the subdirectories.
+    #
+    manifest = File('MANIFEST').rstr()
+    src_files = bootstrap.parseManifestLines('.', open(manifest).readlines())
+    for s in src_files:
+        if not s:
+            continue
+        base, ext = os.path.splitext(s)
+        if ext in ['.fig', '.jpg']:
+            buildsuite.extend(env.Command(os.path.join(build, s), 
+                                          s, 
+                                          Copy("$TARGET", "$SOURCE")))
+        else:
+            revaction([env.File(os.path.join(build, s))],
+                      [env.File(s)], env)
+
+    for doc in docs:
+        
+        #
+        # Read MANIFEST file and copy the listed files to the
+        # build directory, while branding them with the
+        # SCons copyright and the current revision number...
+        #
+        if not os.path.exists(os.path.join(build, doc)):
+            env.Execute(Mkdir(os.path.join(build, doc)))
+        if not os.path.exists(os.path.join(build, doc, 'titlepage')):
+            env.Execute(Mkdir(os.path.join(build, doc, 'titlepage')))
+        manifest = File(os.path.join(doc, 'MANIFEST')).rstr()
+        src_files = bootstrap.parseManifestLines(doc, open(manifest).readlines())
+        for s in src_files:
+            if not s:
+                continue
+            doc_s = os.path.join(doc, s)
+            build_s = os.path.join(build, doc, s)
+            base, ext = os.path.splitext(doc_s)
+            head, tail = os.path.split(s)
+            if head:
+                target_dir = os.path.join(build, doc, head)
+            else:
+                target_dir = os.path.join(build, doc)
+            if ext in ['.fig', '.jpg', '.svg']:
+                docs[doc][DOCDEPENDS].extend(env.Command(build_s, doc_s, 
+                                             Copy("$TARGET", "$SOURCE")))
+            else:
+                btarget = env.File(build_s)
+                docs[doc][DOCDEPENDS].append(btarget)
+                revaction([btarget], [env.File(doc_s)], env)
+
+
+    #
+    # For each document, build the document itself in HTML,
+    # and PDF formats.
+    #
+    for doc in docs:
+
+        #
+        # Call SCons in each local doc folder
+        #
+        cleanopt = ''
+        if env.GetOption('clean'):
+            cleanopt = ' -c'
+        scdir = os.path.join(build, doc)
+        sctargets = []
+        if 'html' in docs[doc][DOCTARGETS]:
+            sctargets.append(env.File(os.path.join(scdir, 'index.html')))
+        if 'chunked' in docs[doc][DOCTARGETS]:
+            sctargets.append(env.File(os.path.join(scdir, 'scons-%s' % doc, 'index.html')))
+        if 'pdf' in docs[doc][DOCTARGETS]:
+            sctargets.append(env.File(os.path.join(scdir, 'scons-%s.pdf' % doc)))
+        if 'epub' in docs[doc][DOCTARGETS]:
+            sctargets.append(env.File(os.path.join(scdir, 'scons-%s.epub' % doc)))
+            
+        if 'man' in docs[doc][DOCTARGETS]:
+            for m in man_page_list:
+                sctargets.append(os.path.join(scdir, m))
+                man, _1 = os.path.splitext(m)
+            
+                sctargets.append(os.path.join(scdir, 'scons-%s.pdf' % man))
+                sctargets.append(os.path.join(scdir, 'scons-%s.html' % man))
+        
+        docs[doc][DOCNODES].extend(env.Command(sctargets, buildsuite + docs[doc][DOCDEPENDS], 
+                                   "cd %s && $PYTHON ${SCONS_PY.abspath}%s" % (scdir, cleanopt)))
+        
+    install_css = False
+    for doc in docs:
+
+        # Collect the output files for this subfolder
+        htmldir = os.path.join(build, 'HTML', 'scons-%s' % doc)
+        htmlindex = os.path.join(htmldir, 'index.html')
+        html = os.path.join(build, 'HTML', 'scons-%s.html' % doc)
+        pdf = os.path.join(build, 'PDF', 'scons-%s.pdf' % doc)
+        epub = os.path.join(build, 'EPUB', 'scons-%s.epub' % doc)
+        text = os.path.join(build, 'TEXT', 'scons-%s.txt' % doc)
+        if 'chunked' in docs[doc][DOCTARGETS]:
+            installed_chtml = env.ChunkedInstall(env.Dir(htmldir), 
+                                                 os.path.join(build, doc,'scons-%s' % doc, 'index.html'))
+            installed_chtml_css = env.Install(env.Dir(htmldir),
+                                              os.path.join(build, doc, 'scons.css'))
+            env.Depends(installed_chtml, docs[doc][DOCNODES])
+            env.Depends(installed_chtml_css, docs[doc][DOCNODES])
+            
+            tar_deps.extend([htmlindex, installed_chtml_css])
+            tar_list.extend([htmldir])
+            Local(htmlindex)
+            env.Ignore(htmlindex, version_xml)
+
+        if 'html' in docs[doc][DOCTARGETS]:
+            env.InstallAs(env.File(html), env.File(os.path.join(build, doc,'index.html')))
+            tar_deps.extend([html])
+            tar_list.extend([html])
+            Local(html)
+            env.Ignore(html, version_xml)
+            install_css = True
+            
+        if 'pdf' in docs[doc][DOCTARGETS]:
+            env.InstallAs(env.File(pdf), env.File(os.path.join(build, doc,'scons-%s.pdf' % doc)))
+            Local(pdf)
+            env.Ignore(pdf, version_xml)
+
+            tar_deps.append(pdf)
+            tar_list.append(pdf)
+
+        if 'epub' in docs[doc][DOCTARGETS] and gs:
+            env.InstallAs(env.File(epub), env.File(os.path.join(build, doc,'scons-%s.epub' % doc)))
+            Local(epub)
+            env.Ignore(epub, version_xml)
+
+            tar_deps.append(epub)
+            tar_list.append(epub)
+            
+        if ('text' in docs[doc][DOCTARGETS] and lynx and 
+            (('html' in docs[doc][DOCTARGETS]) or (doc == 'man'))):
+            texthtml = os.path.join(build, doc,'index.html')
+            if doc == 'man':
+                # Special handling for single MAN file
+                texthtml = os.path.join(build, doc, 'scons-scons.html')
+            
+            env.Command(text, env.File(texthtml), "lynx -dump ${SOURCE.abspath} > $TARGET")
+            Local(text)
+
+            env.Ignore(text, version_xml)
+
+            tar_deps.append(text)
+            tar_list.append(text)
+            
+            
+        if 'man' in docs[doc][DOCTARGETS]:
+            #
+            # Man page(s)
+            #
+            for m in man_page_list:
+                man, _1 = os.path.splitext(m)
+            
+                pdf = os.path.join(build, 'PDF', '%s-man.pdf' % man)
+                html = os.path.join(build, 'HTML' , '%s-man.html' % man)
+            
+                env.InstallAs(env.File(pdf), env.File(os.path.join(build, 'man','scons-%s.pdf' % man)))
+                env.InstallAs(env.File(html), env.File(os.path.join(build, 'man','scons-%s.html' % man)))
+            
+                tar_deps.extend([pdf, html])
+                tar_list.extend([pdf, html])
+
+
+    # Install CSS file, common to all single HTMLs
+    if install_css:
+        css_file = os.path.join(build, 'HTML', 'scons.css')
+        env.InstallAs(env.File(css_file), 
+                      env.File(os.path.join(build, 'user','scons.css')))
+        tar_deps.extend([css_file])
+        tar_list.extend([css_file])
+        Local(css_file)
+
+if not epydoc_cli:
+    try:
+        import epydoc
+    except ImportError:
+        epydoc = None
+    else:
+        # adding Epydoc builder using imported module
+        def epydoc_builder_action(target, source, env):
+            """
+            Take a list of `source` files and build docs for them in
+            `target` dir.
+
+            `target` and `source` are lists.
+
+            Uses OUTDIR and EPYDOCFLAGS environment variables.
+
+            http://www.scons.org/doc/2.0.1/HTML/scons-user/x3594.html
+            """
+
+            # the epydoc build process is the following:
+            # 1. build documentation index
+            # 2. feed doc index to writer for docs
+
+            from epydoc.docbuilder import build_doc_index
+            from epydoc.docwriter.html import HTMLWriter
+            from epydoc.docwriter.latex import LatexWriter
+
+            # first arg is a list where can be names of python package dirs,
+            # python files, object names or objects itself
+            docindex = build_doc_index([str(src) for src in source])
+            if docindex == None:
+                return -1
+
+            if env['EPYDOCFLAGS'] == '--html':
+                html_writer = HTMLWriter(docindex,
+                                         docformat='restructuredText',
+                                         prj_name='SCons',
+                                         prj_url='http://www.scons.org/')
+                try:
+                    html_writer.write(env['OUTDIR'])
+                except OSError: # If directory cannot be created or any file cannot
+                                # be created or written to.
+                    return -2
+
+            """
+            # PDF support requires external Linux utilites, so it's not crossplatform.
+            # Leaving for now.
+            # http://epydoc.svn.sourceforge.net/viewvc/epydoc/trunk/epydoc/src/epydoc/cli.py
+
+            elif env['EPYDOCFLAGS'] == '--pdf':
+                pdf_writer = LatexWriter(docindex, 
+                                         docformat='restructuredText',
+                                         prj_name='SCons',
+                                         prj_url='http://www.scons.org/')
+            """
+            return 0
+
+        epydoc_commands = [
+            Delete('$OUTDIR'),
+            epydoc_builder_action,
+            Touch('$TARGET'),
+        ]
+
+else: # epydoc_cli is found
+    epydoc_commands = [
+        Delete('$OUTDIR'),
+        '$EPYDOC $EPYDOCFLAGS --debug --output $OUTDIR --docformat=restructuredText --name SCons --url http://www.scons.org/ $SOURCES',
+        Touch('$TARGET'),
+    ]
+
+     
+if not epydoc_cli and not epydoc:
+    print "doc: epydoc not found, skipping building API documentation."
+else:
+    # XXX Should be in common with reading the same thing in
+    # the SConstruct file.
+    e = os.path.join('#src', 'engine')
+    manifest_in = File(os.path.join(e, 'MANIFEST.in')).rstr()
+    sources = bootstrap.parseManifestLines(e, open(manifest_in).readlines())
+    sources = [x for x in sources if x.find('Platform') == -1]
+    sources = [x for x in sources if x.find('Tool') == -1]
+    # XXX
+    sources = [x for x in sources if x.find('Options') == -1]
+
+    e = os.path.join(build, '..', 'scons', 'engine')
+    sources = [os.path.join(e, x) for x in sources]
+
+    htmldir = os.path.join(build, 'HTML', 'scons-api')
+    env.Command('${OUTDIR}/index.html', sources, epydoc_commands,
+                EPYDOC=epydoc_cli, EPYDOCFLAGS='--html', OUTDIR=htmldir)
+    tar_deps.append(htmldir)
+    tar_list.append(htmldir)
+
+    if not epydoc_cli:
+        print "doc: command line epydoc is not found, skipping PDF/PS/Tex output"
+    else:
+        # PDF and PostScript and TeX are built from the
+        # same invocation.
+        api_dir = os.path.join(build, 'scons-api')
+        api_pdf = os.path.join(api_dir, 'api.pdf')
+        api_ps = os.path.join(api_dir, 'api.ps')
+        api_tex = os.path.join(api_dir, 'api.tex')
+        api_targets = [api_pdf, api_ps, api_tex]
+        env.Command(api_targets, sources, epydoc_commands,
+                    EPYDOC=epydoc_cli, EPYDOCFLAGS='--pdf', OUTDIR=api_dir)
+        Local(api_targets)
+
+        pdf_install = os.path.join(build, 'PDF', 'scons-api.pdf')
+        env.InstallAs(pdf_install, api_pdf)
+        tar_deps.append(pdf_install)
+        tar_list.append(pdf_install)
+        Local(pdf_install)
+
+        ps_install = os.path.join(build, 'PS', 'scons-api.ps')
+        env.InstallAs(ps_install, api_ps)
+        tar_deps.append(ps_install)
+        tar_list.append(ps_install)
+        Local(ps_install)
+
+#
+# Now actually create the tar file of the documentation,
+# for easy distribution to the web site.
+#
+if tar_deps:
+    tar_list = ' '.join([x.replace(build+'/', '') for x in tar_list])
+    t = env.Command(dist_doc_tar_gz, tar_deps,
+                "tar cf${TAR_HFLAG} - -C %s %s | gzip > $TARGET" % (build, tar_list))
+    AddPostAction(dist_doc_tar_gz, Chmod(dist_doc_tar_gz, 0644))
+    Local(t)
+    Alias('doc', t)
+else:
+    Alias('doc', os.path.join(build_dir, 'doc'))
