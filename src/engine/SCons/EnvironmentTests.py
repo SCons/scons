@@ -805,7 +805,9 @@ sys.exit(0)
             "-pthread " + \
             "-fopenmp " + \
             "-mno-cygwin -mwindows " + \
-            "-arch i386 -isysroot /tmp +DD64 " + \
+            "-arch i386 -isysroot /tmp " + \
+            "-isystem /usr/include/foo " + \
+            "+DD64 " + \
             "-DFOO -DBAR=value -D BAZ "
 
         d = env.ParseFlags(s)
@@ -815,6 +817,7 @@ sys.exit(0)
         assert d['CCFLAGS'] == ['-X', '-Wa,-as',
                                   '-pthread', '-fopenmp', '-mno-cygwin',
                                   ('-arch', 'i386'), ('-isysroot', '/tmp'),
+                                  ('-isystem', '/usr/include/foo'),
                                   '+DD64'], repr(d['CCFLAGS'])
         assert d['CXXFLAGS'] == ['-std=c++0x'], repr(d['CXXFLAGS'])
         assert d['CPPDEFINES'] == ['FOO', ['BAR', 'value'], 'BAZ'], d['CPPDEFINES']
@@ -2051,7 +2054,9 @@ def generate(env):
                                  "-F fwd3 " + \
                                  "-pthread " + \
                                  "-mno-cygwin -mwindows " + \
-                                 "-arch i386 -isysroot /tmp +DD64 " + \
+                                 "-arch i386 -isysroot /tmp " + \
+                                 "-isystem /usr/include/foo " + \
+                                 "+DD64 " + \
                                  "-DFOO -DBAR=value")
             env.ParseConfig("fake $COMMAND")
             assert save_command == ['fake command'], save_command
@@ -2059,6 +2064,7 @@ def generate(env):
             assert env['CCFLAGS'] == ['', '-X', '-Wa,-as',
                                       '-pthread', '-mno-cygwin',
                                       ('-arch', 'i386'), ('-isysroot', '/tmp'),
+                                      ('-isystem', '/usr/include/foo'),
                                       '+DD64'], env['CCFLAGS']
             assert env['CPPDEFINES'] == ['FOO', ['BAR', 'value']], env['CPPDEFINES']
             assert env['CPPFLAGS'] == ['', '-Wp,-cpp'], env['CPPFLAGS']
