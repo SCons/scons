@@ -43,7 +43,7 @@ def testForTool(tool):
     test = TestSCons.TestSCons()
 
     if not isExecutableOfToolAvailable(test, tool) :
-        test.skip_test("Required executable for tool '{}' not found, skipping test.\n".format(tool))
+        test.skip_test("Required executable for tool '{0}' not found, skipping test.\n".format(tool))
 
     platform = Base()['PLATFORM']
     if platform == 'posix':
@@ -62,7 +62,7 @@ def testForTool(tool):
         test.fail_test('No information about platform: ' + platform)
 
     test.dir_fixture('Project')
-    test.write('SConstruct', open('SConstruct_template', 'r').read().format('tools=["{}", "link"]'.format(tool)))
+    test.write('SConstruct', open('SConstruct_template', 'r').read().format('tools=["{0}", "link"]'.format(tool)))
 
     test.run()
 
