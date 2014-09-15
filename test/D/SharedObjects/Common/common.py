@@ -43,7 +43,7 @@ def testForTool(tool):
     test = TestSCons.TestSCons()
 
     if not isExecutableOfToolAvailable(test, tool) :
-        test.skip_test("Required executable for tool '{}' not found, skipping test.\n".format(tool))
+        test.skip_test("Required executable for tool '{0}' not found, skipping test.\n".format(tool))
 
 
     if tool == 'gdc':
