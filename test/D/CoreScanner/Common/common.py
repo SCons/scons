@@ -44,7 +44,7 @@ def testForTool(tool):
     _obj = TestSCons._obj
 
     if not isExecutableOfToolAvailable(test, tool) :
-        test.skip_test("Required executable for tool '{}' not found, skipping test.\n".format(tool))
+        test.skip_test("Required executable for tool '{0}' not found, skipping test.\n".format(tool))
 
     test.dir_fixture('Image')
     test.write('SConstruct', open('SConstruct_template', 'r').read().format(tool))
