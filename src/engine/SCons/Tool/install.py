@@ -149,7 +149,7 @@ def versionedLibVersion(dest, env):
     """Check if dest is a version shared library name. Return version, libname, & install_dir if it is."""
     Verbose = False
     platform = env.subst('$PLATFORM')
-    if not (platform == 'posix'  or platform == 'darwin'):
+    if not (platform == 'posix'  or platform == 'darwin' or platform == 'sunos'):
         return (None, None, None)
 
     libname = os.path.basename(dest)
@@ -160,7 +160,7 @@ def versionedLibVersion(dest, env):
     
     version_re = re.compile("[0-9]+\\.[0-9]+\\.[0-9a-zA-Z]+")
     version_File = None
-    if platform == 'posix':
+    if platform == 'posix' or platform == 'sunos':
         # handle unix names
         versioned_re = re.compile(re.escape(shlib_suffix + '.') + "[0-9]+\\.[0-9]+\\.[0-9a-zA-Z]+")
         result = versioned_re.findall(libname)

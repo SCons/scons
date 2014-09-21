@@ -105,7 +105,7 @@ def shlib_emitter_names(target, source, env):
             # We need a version of the form x.y.z to proceed
             raise ValueError
         if version:
-            if platform == 'posix':
+            if platform == 'posix' or platform == 'sunos':
                 versionparts = version.split('.')
                 name = target[0].name
                 # generate library name with the version number

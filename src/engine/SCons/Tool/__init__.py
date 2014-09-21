@@ -256,7 +256,7 @@ def VersionShLibLinkNames(version, libname, env):
         if Verbose:
             print "VersionShLibLinkNames: linkname = ",linkname
         linknames.append(linkname)
-    elif platform == 'posix':
+    elif platform == 'posix' or platform == 'sunos':
         if sys.platform.startswith('openbsd'):
             # OpenBSD uses x.y shared library versioning numbering convention
             # and doesn't use symlinks to backwards-compatible libraries
