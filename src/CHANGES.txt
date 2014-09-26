@@ -11,6 +11,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Configure contexts (#2971).
 
 
+RELEASE 2.3.4 - Sss, DD Mmm yyyy hh:mm:ss -zzzz
+
+  From Anatoly Techtonik:
+    - Fix EnsureSConsVersion warning when running packaged version
+
 RELEASE 2.3.3 - Sun, 24 Aug 2014 21:08:33 -0400
 
   From Roland Stark:
