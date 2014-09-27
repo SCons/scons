@@ -13,6 +13,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Anatoly Techtonik:
     - Fix EnsureSConsVersion warning when running packaged version
 
+  From Russel Winder:
+    - Fix D tools for building shared libraries
+
 RELEASE 2.3.3 - Sun, 24 Aug 2014 21:08:33 -0400
 
   From Roland Stark:
