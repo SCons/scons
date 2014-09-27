@@ -480,14 +480,14 @@ following packages will be built::
         build/dist/scons-2.3.3-1.noarch.rpm
         build/dist/scons-2.3.3-1.src.rpm
         build/dist/scons-2.3.3.linux-i686.tar.gz
-        build/dist/scons-2.3.3.tar.gz
-        build/dist/scons-2.3.3.win32.exe
-        build/dist/scons-2.3.3.zip
-        build/dist/scons-doc-2.3.3.tar.gz
-        build/dist/scons-local-2.3.3.tar.gz
-        build/dist/scons-local-2.3.3.zip
-        build/dist/scons-src-2.3.3.tar.gz
-        build/dist/scons-src-2.3.3.zip
+        build/dist/scons-2.3.4.tar.gz
+        build/dist/scons-2.3.4.win32.exe
+        build/dist/scons-2.3.4.zip
+        build/dist/scons-doc-2.3.4.tar.gz
+        build/dist/scons-local-2.3.4.tar.gz
+        build/dist/scons-local-2.3.4.zip
+        build/dist/scons-src-2.3.4.tar.gz
+        build/dist/scons-src-2.3.4.zip
         build/dist/scons_2.3.3-1_all.deb
 
 The SConstruct file is supposed to be smart enough to avoid trying to build
