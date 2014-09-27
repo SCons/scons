@@ -29,6 +29,7 @@ RELEASE VERSION/DATE TO BE FILLED IN LATER
   Please note the following important changes since release 2.3.3:
 
     -- Fix for EnsureSConsVersion regression in 2.3.3.
+
     -- Fix for interactive mode with Configure contexts
 
   Please note the following important changes since release 2.3.2:

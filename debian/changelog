@@ -1,3 +1,9 @@
+scons (2.3.4) unstable; urgency=low
+
+  * Maintenance release.
+
+ -- Gary Oberbrunner <garyo@oberbrunner.com>  Sun, 27 Sep 2014 21:00:00 -0500
+
 scons (2.3.3) unstable; urgency=low
 
   * Maintenance release.
