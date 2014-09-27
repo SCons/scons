@@ -6,9 +6,9 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From John Doe:
-
-    - Whatever John Doe did.
+  From Bernhard Walle and Dirk Baechle:
+    - Fixed the interactive mode, in connection with
+      Configure contexts (#2971).
 
 
 RELEASE 2.3.3 - Sun, 24 Aug 2014 21:08:33 -0400
