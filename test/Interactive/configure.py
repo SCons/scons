@@ -32,20 +32,43 @@ Also tests that "b" can be used as a synonym for "build".
 
 import TestSCons
 
+_python_ = TestSCons._python_
+
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """\
+test.write('mycc.py', r"""
 import sys
+outfile = open(sys.argv[1], 'wb')
+infile = open(sys.argv[2], 'rb')
+for l in [l for l in infile.readlines() if l[:7] != '/*c++*/']:
+    outfile.write(l)
+sys.exit(0)
+""")
 
-env = Environment()
+test.write('SConstruct', """\
+env = Environment(CXXCOM = r'%(_python_)s mycc.py $TARGET $SOURCE',
+                  OBJSUFFIX='.obj')
 
-conf = Configure(env)
-if not conf.CheckCXX():
-    sys.exit(1)
+# Ensure that our 'compiler' works...
+def CheckMyCC(context):
+    context.Message('Checking for MyCC compiler...')
+    result = context.TryBuild(context.env.Object, 
+                              'int main(void) {return 0;}', 
+                              '.cpp')
+    context.Result(result)
+    return result
+    
+conf = Configure(env, 
+                 custom_tests = {'CheckMyCC' : CheckMyCC})
+                 
+if conf.CheckMyCC():
+    pass # build succeeded
+else:
+    Exit(1)
 conf.Finish()
 
-env.Program('foo','foo.cpp')
-""")
+env.Object('foo.obj','foo.cpp')
+""" % locals())
 
 test.write('foo.cpp', """\
 #include <stdio.h>
@@ -60,11 +83,11 @@ int main (int argc, char *argv[])
 
 scons = test.start(arguments = '-Q --interactive')
 # Initial build
-scons.send("build foo\n")
+scons.send("build foo.obj\n")
 
-test.wait_for(test.workpath('foo'))
+test.wait_for(test.workpath('foo.obj'))
 # Update without any changes -> no action
-scons.send("build foo\n")
+scons.send("build foo.obj\n")
 # Changing the source file
 test.write('foo.cpp', """\
 #include <stdio.h>
@@ -82,16 +105,14 @@ int main (int argc, char *argv[])
 """)
 
 # Verify that "b" can be used as a synonym for the "build" command.
-scons.send("b foo\n")
+scons.send("b foo.obj\n")
 
-scons.send("build foo\n")
+scons.send("build foo.obj\n")
 
 expect_stdout = r"""scons>>> .*foo\.cpp.*
-.*foo.*
 scons>>> .*foo\.cpp.*
-.*foo.*
-scons>>> scons: `foo' is up to date.
-scons>>> scons: `foo' is up to date.
+scons>>> scons: `foo.obj' is up to date.
+scons>>> scons: `foo.obj' is up to date.
 scons>>>\s*
 """
 
