@@ -719,6 +719,9 @@ class SubstitutionEnvironment(object):
                        t = ('-isysroot', arg)
                        dict['CCFLAGS'].append(t)
                        dict['LINKFLAGS'].append(t)
+                   elif append_next_arg_to == '-isystem':
+                       t = ('-isystem', arg)
+                       dict['CCFLAGS'].append(t)
                    elif append_next_arg_to == '-arch':
                        t = ('-arch', arg)
                        dict['CCFLAGS'].append(t)
@@ -791,7 +794,7 @@ class SubstitutionEnvironment(object):
                 elif arg[0] == '+':
                     dict['CCFLAGS'].append(arg)
                     dict['LINKFLAGS'].append(arg)
-                elif arg in ['-include', '-isysroot', '-arch']:
+                elif arg in ['-include', '-isysroot', '-isystem', '-arch']:
                     append_next_arg_to = arg
                 else:
                     dict['CCFLAGS'].append(arg)

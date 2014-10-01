@@ -6,10 +6,8 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From John Doe:
-
-    - Whatever John Doe did.
-
+  From James McCoy:
+    - Added support for '-isystem' to ParseFlags.
 
 RELEASE 2.3.4 - Mon, 27 Sep 2014 12:50:35 -0400
 
