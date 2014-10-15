@@ -892,6 +892,7 @@ V10DSPPropertyGroupCondition = """\
 \t<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='%(variant)s|%(platform)s'" Label="Configuration">
 \t\t<ConfigurationType>Makefile</ConfigurationType>
 \t\t<UseOfMfc>false</UseOfMfc>
+\t\t<PlatformToolset>%(toolset)s</PlatformToolset>
 \t</PropertyGroup>
 """
 
@@ -972,6 +973,11 @@ class _GenerateV10DSP(_DSPGenerator):
              
         self.file.write('\t<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />\n')
         
+        toolset = ''
+        if 'MSVC_VERSION' in self.env:
+            version_num, suite = msvs_parse_version(self.env['MSVC_VERSION'])
+            print version_num
+            toolset = 'v%d' % (version_num * 10)
         for kind in confkeys:
             variant = self.configs[kind].variant
             platform = self.configs[kind].platform
