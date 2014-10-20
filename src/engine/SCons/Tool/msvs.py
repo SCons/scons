@@ -976,7 +976,6 @@ class _GenerateV10DSP(_DSPGenerator):
         toolset = ''
         if 'MSVC_VERSION' in self.env:
             version_num, suite = msvs_parse_version(self.env['MSVC_VERSION'])
-            print version_num
             toolset = 'v%d' % (version_num * 10)
         for kind in confkeys:
             variant = self.configs[kind].variant
