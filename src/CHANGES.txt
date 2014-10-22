@@ -6,6 +6,9 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Dan Pidcock:
+    - Added support for the 'PlatformToolset' tag in VS project files (#2978).
+
   From James McCoy:
     - Added support for '-isystem' to ParseFlags.
 
