@@ -289,9 +289,17 @@ class _DSPGenerator(object):
                 runfile.append(s)
 
         self.sconscript = env['MSVSSCONSCRIPT']
-
-        cmdargs = env.get('cmdargs', '')
-
+        
+        if 'cmdargs' not in env or env['cmdargs'] == None:
+            cmdargs = [''] * len(variants)
+        elif SCons.Util.is_String(env['cmdargs']):
+            outdir = [env['cmdargs']] * len(variants)
+        elif SCons.Util.is_List(env['cmdargs']):
+            if len(env['cmdargs']) != len(variants):
+                raise SCons.Errors.InternalError("Sizes of 'cmdargs' and 'variant' lists must be the same.")
+            else:
+                cmdargs = env['cmdargs']
+                
         self.env = env
 
         if 'name' in self.env:
@@ -354,7 +362,7 @@ class _DSPGenerator(object):
             print "Adding '" + self.name + ' - ' + config.variant + '|' + config.platform + "' to '" + str(dspfile) + "'"
 
         for i in range(len(variants)):
-            AddConfig(self, variants[i], buildtarget[i], outdir[i], runfile[i], cmdargs)
+            AddConfig(self, variants[i], buildtarget[i], outdir[i], runfile[i], cmdargs[i])
 
         self.platforms = []
         for key in self.configs.keys():
