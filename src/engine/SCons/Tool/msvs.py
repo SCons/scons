@@ -293,7 +293,7 @@ class _DSPGenerator(object):
         if 'cmdargs' not in env or env['cmdargs'] == None:
             cmdargs = [''] * len(variants)
         elif SCons.Util.is_String(env['cmdargs']):
-            outdir = [env['cmdargs']] * len(variants)
+            cmdargs = [env['cmdargs']] * len(variants)
         elif SCons.Util.is_List(env['cmdargs']):
             if len(env['cmdargs']) != len(variants):
                 raise SCons.Errors.InternalError("Sizes of 'cmdargs' and 'variant' lists must be the same.")
