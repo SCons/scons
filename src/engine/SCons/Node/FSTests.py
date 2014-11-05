@@ -2052,6 +2052,32 @@ class DirTestCase(_tempdirTestCase):
         if os.path.normcase("TeSt") != os.path.normpath("TeSt") or sys.platform == "cygwin":
             assert d.entry_exists_on_disk('case-insensitive')
 
+    def test_rentry_exists_on_disk(self):
+        """Test the Dir.rentry_exists_on_disk() method
+        """
+        test = self.test
+
+        does_not_exist = self.fs.Dir('does_not_exist')
+        assert not does_not_exist.rentry_exists_on_disk('foo')
+
+        test.subdir('d')
+        test.write(['d', 'exists'], "d/exists\n")
+        test.write(['d', 'Case-Insensitive'], "d/Case-Insensitive\n")
+
+        test.subdir('r')
+        test.write(['r', 'rexists'], "r/rexists\n")
+
+        d = self.fs.Dir('d')
+        r = self.fs.Dir('r')
+        d.addRepository(r)
+        
+        assert d.rentry_exists_on_disk('exists')
+        assert d.rentry_exists_on_disk('rexists')
+        assert not d.rentry_exists_on_disk('does_not_exist')
+
+        if os.path.normcase("TeSt") != os.path.normpath("TeSt") or sys.platform == "cygwin":
+            assert d.rentry_exists_on_disk('case-insensitive')
+
     def test_srcdir_list(self):
         """Test the Dir.srcdir_list() method
         """
