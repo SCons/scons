@@ -6,10 +6,23 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From John Doe:
+  From Dan Pidcock:
+    - Added support for the 'PlatformToolset' tag in VS project files (#2978).
 
-    - Whatever John Doe did.
+  From James McCoy:
+    - Added support for '-isystem' to ParseFlags.
 
+RELEASE 2.3.4 - Mon, 27 Sep 2014 12:50:35 -0400
+
+  From Bernhard Walle and Dirk Baechle:
+    - Fixed the interactive mode, in connection with
+      Configure contexts (#2971).
+
+  From Anatoly Techtonik:
+    - Fix EnsureSConsVersion warning when running packaged version
+
+  From Russel Winder:
+    - Fix D tools for building shared libraries
 
 RELEASE 2.3.3 - Sun, 24 Aug 2014 21:08:33 -0400
 

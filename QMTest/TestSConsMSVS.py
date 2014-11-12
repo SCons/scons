@@ -709,6 +709,7 @@ expected_vcprojfile_10_0 = """\
 \t<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
 \t\t<ConfigurationType>Makefile</ConfigurationType>
 \t\t<UseOfMfc>false</UseOfMfc>
+\t\t<PlatformToolset>v100</PlatformToolset>
 \t</PropertyGroup>
 \t<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.props" />
 \t<ImportGroup Label="ExtensionSettings">
@@ -773,6 +774,7 @@ expected_vcprojfile_11_0 = """\
 \t<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
 \t\t<ConfigurationType>Makefile</ConfigurationType>
 \t\t<UseOfMfc>false</UseOfMfc>
+\t\t<PlatformToolset>v110</PlatformToolset>
 \t</PropertyGroup>
 \t<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.props" />
 \t<ImportGroup Label="ExtensionSettings">

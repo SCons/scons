@@ -289,9 +289,17 @@ class _DSPGenerator(object):
                 runfile.append(s)
 
         self.sconscript = env['MSVSSCONSCRIPT']
-
-        cmdargs = env.get('cmdargs', '')
-
+        
+        if 'cmdargs' not in env or env['cmdargs'] == None:
+            cmdargs = [''] * len(variants)
+        elif SCons.Util.is_String(env['cmdargs']):
+            cmdargs = [env['cmdargs']] * len(variants)
+        elif SCons.Util.is_List(env['cmdargs']):
+            if len(env['cmdargs']) != len(variants):
+                raise SCons.Errors.InternalError("Sizes of 'cmdargs' and 'variant' lists must be the same.")
+            else:
+                cmdargs = env['cmdargs']
+                
         self.env = env
 
         if 'name' in self.env:
@@ -354,7 +362,7 @@ class _DSPGenerator(object):
             print "Adding '" + self.name + ' - ' + config.variant + '|' + config.platform + "' to '" + str(dspfile) + "'"
 
         for i in range(len(variants)):
-            AddConfig(self, variants[i], buildtarget[i], outdir[i], runfile[i], cmdargs)
+            AddConfig(self, variants[i], buildtarget[i], outdir[i], runfile[i], cmdargs[i])
 
         self.platforms = []
         for key in self.configs.keys():
@@ -892,6 +900,7 @@ V10DSPPropertyGroupCondition = """\
 \t<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='%(variant)s|%(platform)s'" Label="Configuration">
 \t\t<ConfigurationType>Makefile</ConfigurationType>
 \t\t<UseOfMfc>false</UseOfMfc>
+\t\t<PlatformToolset>%(toolset)s</PlatformToolset>
 \t</PropertyGroup>
 """
 
@@ -972,6 +981,10 @@ class _GenerateV10DSP(_DSPGenerator):
              
         self.file.write('\t<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />\n')
         
+        toolset = ''
+        if 'MSVC_VERSION' in self.env:
+            version_num, suite = msvs_parse_version(self.env['MSVC_VERSION'])
+            toolset = 'v%d' % (version_num * 10)
         for kind in confkeys:
             variant = self.configs[kind].variant
             platform = self.configs[kind].platform
