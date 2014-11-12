@@ -317,6 +317,11 @@ symlinks for the platform we are on"""
                 shlink_flags += [ '-Wl,-soname=%s' % soname ]
                 if Verbose:
                     print " soname ",soname,", shlink_flags ",shlink_flags
+        elif platform == 'sunos':
+            suffix_re = re.escape(shlib_suffix + '.' + version)
+            (major, age, revision) = version.split(".")
+            soname = re.sub(suffix_re, shlib_suffix, libname) + '.' + major
+            shlink_flags += [ '-h', soname ]
         elif platform == 'cygwin':
             shlink_flags += [ '-Wl,-Bsymbolic',
                               '-Wl,--out-implib,${TARGET.base}.a' ]
