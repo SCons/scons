@@ -6,6 +6,12 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Alexandre Feblot:
+    - Fix for VersionedSharedLibrary under 'sunos' platform.
+
+  From Laurent Marchelli:
+    - Support for multiple cmdargs (one per variant) in VS project files.
+
   From Dan Pidcock:
     - Added support for the 'PlatformToolset' tag in VS project files (#2978).
 
