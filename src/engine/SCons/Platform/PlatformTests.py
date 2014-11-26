@@ -156,6 +156,33 @@ class TempFileMungeTestCase(unittest.TestCase):
         SCons.Action.print_actions = old_actions
         assert cmd != defined_cmd, cmd
 
+    def test_tempfilecreation_once(self):
+        # Init class with cmd, such that the fully expanded
+        # string reads "a test command line".
+        # Note, how we're using a command string here that is
+        # actually longer than the substituted one. This is to ensure
+        # that the TempFileMunge class internally really takes the
+        # length of the expanded string into account.
+        defined_cmd = "a $VERY $OVERSIMPLIFIED line"
+        t = SCons.Platform.TempFileMunge(defined_cmd)
+        env = SCons.Environment.SubstitutionEnvironment(tools=[])
+        # Setting the line length high enough...
+        env['VERY'] = 'test'
+        env['OVERSIMPLIFIED'] = 'command'
+        expanded_cmd = env.subst(defined_cmd)
+        env['MAXLINELENGTH'] = len(expanded_cmd)-1
+        # Disable printing of actions...
+        old_actions = SCons.Action.print_actions
+        SCons.Action.print_actions = 0
+        # Create an instance of object derived class to allow setattrb
+        class TSList(object): pass
+        target = TSList()
+        cmd = t(target,None,env,0)
+        # ...and restoring its setting.
+        SCons.Action.print_actions = old_actions
+        assert cmd != defined_cmd, cmd
+        assert cmd == getattr(target, 'tempfile_cmdlist', None)
+
 if __name__ == "__main__":
     suite = unittest.TestSuite()
     

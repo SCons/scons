@@ -177,6 +177,12 @@ class TempFileMunge(object):
         if length <= maxline:
             return self.cmd
 
+        # Check if we already created the temporary file for this Executor
+        # It should have been previously done by Action.strfunction() call
+        cmdlist = getattr(target, 'tempfile_cmdlist', None)
+        if cmdlist is not None :
+            return cmdlist
+        
         # We do a normpath because mktemp() has what appears to be
         # a bug in Windows that will use a forward slash as a path
         # delimiter.  Windows's link mistakes that for a command line
@@ -226,7 +232,16 @@ class TempFileMunge(object):
         if SCons.Action.print_actions:
             print("Using tempfile "+native_tmp+" for command line:\n"+
                   str(cmd[0]) + " " + " ".join(args))
-        return [ cmd[0], prefix + native_tmp + '\n' + rm, native_tmp ]
+            
+        # Store the temporary file command list into the target TList hold by 
+        # the Executor to avoid creating two temporary files one for print and 
+        # one for execute
+        cmdlist = [ cmd[0], prefix + native_tmp + '\n' + rm, native_tmp ]
+        try :
+            setattr(target, 'tempfile_cmdlist', cmdlist)
+        except AttributeError:
+            pass
+        return cmdlist
     
 def Platform(name = platform_default()):
     """Select a canned Platform specification.
