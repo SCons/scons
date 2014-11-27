@@ -177,10 +177,12 @@ class TempFileMunge(object):
         if length <= maxline:
             return self.cmd
 
-        # Check if we already created the temporary file for this Executor
+        # Check if we already created the temporary file for this target
         # It should have been previously done by Action.strfunction() call
-        cmdlist = getattr(target, 'tempfile_cmdlist', None)
-        if cmdlist is not None :
+        node = target[0] if SCons.Util.is_List(target) else target
+        cmdlist = getattr(node.attributes, 'tempfile_cmdlist', None) \
+                    if node is not None else None
+        if cmdlist is not None : 
             return cmdlist
         
         # We do a normpath because mktemp() has what appears to be
@@ -233,14 +235,14 @@ class TempFileMunge(object):
             print("Using tempfile "+native_tmp+" for command line:\n"+
                   str(cmd[0]) + " " + " ".join(args))
             
-        # Store the temporary file command list into the target TList hold by 
-        # the Executor to avoid creating two temporary files one for print and 
-        # one for execute
+        # Store the temporary file command list into the target Node.attributes 
+        # to avoid creating two temporary files one for print and one for execute.
         cmdlist = [ cmd[0], prefix + native_tmp + '\n' + rm, native_tmp ]
-        try :
-            setattr(target, 'tempfile_cmdlist', cmdlist)
-        except AttributeError:
-            pass
+        if node is not None:
+            try :
+                setattr(node.attributes, 'tempfile_cmdlist', cmdlist)
+            except AttributeError:
+                pass
         return cmdlist
     
 def Platform(name = platform_default()):

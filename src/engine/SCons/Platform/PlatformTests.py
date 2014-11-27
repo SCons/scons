@@ -175,13 +175,17 @@ class TempFileMungeTestCase(unittest.TestCase):
         old_actions = SCons.Action.print_actions
         SCons.Action.print_actions = 0
         # Create an instance of object derived class to allow setattrb
-        class TSList(object): pass
-        target = TSList()
-        cmd = t(target,None,env,0)
+        class Node(object) :
+            class Attrs(object): 
+                pass
+            def __init__(self): 
+                self.attributes = self.Attrs()
+        target = [Node()]
+        cmd = t(target, None, env, 0)
         # ...and restoring its setting.
         SCons.Action.print_actions = old_actions
         assert cmd != defined_cmd, cmd
-        assert cmd == getattr(target, 'tempfile_cmdlist', None)
+        assert cmd == getattr(target[0].attributes, 'tempfile_cmdlist', None)
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
