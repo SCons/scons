@@ -139,7 +139,7 @@ class TempFileMunge(object):
 
     Example usage:
     env["TEMPFILE"] = TempFileMunge
-    env["LINKCOM"] = "${TEMPFILE('$LINK $TARGET $SOURCES')}"
+    env["LINKCOM"] = "${TEMPFILE('$LINK $TARGET $SOURCES','$LINKCOMSTR')}"
 
     By default, the name of the temporary file used begins with a
     prefix of '@'.  This may be configred for other tool chains by
@@ -148,8 +148,9 @@ class TempFileMunge(object):
     env["TEMPFILEPREFIX"] = '-@'        # diab compiler
     env["TEMPFILEPREFIX"] = '-via'      # arm tool chain
     """
-    def __init__(self, cmd):
+    def __init__(self, cmd, cmdstr = None):
         self.cmd = cmd
+        self.cmdstr = cmdstr
 
     def __call__(self, target, source, env, for_signature):
         if for_signature:
@@ -232,8 +233,12 @@ class TempFileMunge(object):
         # purity get in the way of just being helpful, so we'll
         # reach into SCons.Action directly.
         if SCons.Action.print_actions:
-            print("Using tempfile "+native_tmp+" for command line:\n"+
-                  str(cmd[0]) + " " + " ".join(args))
+            cmdstr = env.subst(self.cmdstr, SCons.Subst.SUBST_RAW, target, 
+                               source) if self.cmdstr is not None else ''
+            # Print our message only if XXXCOMSTR returns an empty string
+            if len(cmdstr) == 0 :
+                print("Using tempfile "+native_tmp+" for command line:\n"+
+                      str(cmd[0]) + " " + " ".join(args))
             
         # Store the temporary file command list into the target Node.attributes 
         # to avoid creating two temporary files one for print and one for execute.
