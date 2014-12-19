@@ -145,15 +145,19 @@ def copyFuncVersionedLib(dest, source, env):
 
     return 0
 
-def versionedLibVersion(dest, env):
+def versionedLibVersion(dest, source, env):
     """Check if dest is a version shared library name. Return version, libname, & install_dir if it is."""
     Verbose = False
     platform = env.subst('$PLATFORM')
     if not (platform == 'posix'  or platform == 'darwin' or platform == 'sunos'):
         return (None, None, None)
 
-    libname = os.path.basename(dest)
-    install_dir = os.path.dirname(dest)
+    if (hasattr(source[0], 'attributes') and
+        hasattr(source[0].attributes, 'shlibname')):
+        libname = source[0].attributes.shlibname
+    else:
+        libname = os.path.basename(str(dest))
+    install_dir = os.path.dirname(str(dest))
     shlib_suffix = env.subst('$SHLIBSUFFIX')
     # See if the source name is a versioned shared library, get the version number
     result = False
@@ -196,7 +200,7 @@ def versionedLibLinks(dest, source, env):
     """If we are installing a versioned shared library create the required links."""
     Verbose = False
     linknames = []
-    version, libname, install_dir = versionedLibVersion(dest, env)
+    version, libname, install_dir = versionedLibVersion(dest, source, env)
 
     if version != None:
         # libname includes the version number if one was given
@@ -258,7 +262,11 @@ def installFuncVersionedLib(target, source, env):
     assert len(target)==len(source), \
            "Installing source %s into target %s: target and source lists must have same length."%(list(map(str, source)), list(map(str, target)))
     for t,s in zip(target,source):
-        if install(t.get_path(),s.get_path(),env):
+        if hasattr(t.attributes, 'shlibname'):
+            tpath = os.path.join(t.get_dir(), t.attributes.shlibname)
+        else:
+            tpath = t.get_path()
+        if install(tpath,s.get_path(),env):
             return 1
 
     return 0
@@ -301,7 +309,7 @@ def add_versioned_targets_to_INSTALLED_FILES(target, source, env):
         print "ver lib emitter ",repr(target)
 
     # see if we have a versioned shared library, if so generate side effects
-    version, libname, install_dir = versionedLibVersion(target[0].path, env)
+    version, libname, install_dir = versionedLibVersion(target[0], source, env)
     if version != None:
         # generate list of link names
         linknames = SCons.Tool.VersionShLibLinkNames(version,libname,env)

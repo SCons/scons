@@ -82,13 +82,18 @@ def shlib_emitter(target, source, env):
         version = env.subst('$SHLIBVERSION')
         if version:
             version_names = shlib_emitter_names(target, source, env)
-            # change the name of the target to include the version number
-            target[0].name = version_names[0]
-            for name in version_names:
-                env.SideEffect(name, target[0])
-                env.Clean(target[0], name)
+            # mark the target with the shared libraries name, including
+            # the version number
+            target[0].attributes.shlibname = version_names[0]
+            shlib = env.File(version_names[0], directory=target[0].get_dir())
+            target[0].attributes.shlibpath = shlib.path
+            for name in version_names[1:]:
+                env.SideEffect(name, shlib)
+                env.Clean(shlib, name)
                 if Verbose:
                     print "shlib_emitter: add side effect - ",name
+            env.Clean(shlib, target[0])
+            return ([shlib], source)
     except KeyError:
         version = None
     return (target, source)
@@ -107,9 +112,12 @@ def shlib_emitter_names(target, source, env):
         if version:
             if platform == 'posix' or platform == 'sunos':
                 versionparts = version.split('.')
-                name = target[0].name
+                if hasattr(target[0].attributes, 'shlibname'):
+                    name = target[0].attributes.shlibname
+                else:
+                    name = target[0].name
                 # generate library name with the version number
-                version_name = target[0].name + '.' + version
+                version_name = name + '.' + version
                 if Verbose:
                     print "shlib_emitter_names: target is ", version_name
                     print "shlib_emitter_names: side effect: ", name
@@ -125,7 +133,10 @@ def shlib_emitter_names(target, source, env):
                     version_names.append(name)
             elif platform == 'darwin':
                 shlib_suffix = env.subst('$SHLIBSUFFIX')
-                name = target[0].name
+                if hasattr(target[0].attributes, 'shlibname'):
+                    name = target[0].attributes.shlibname
+                else:
+                    name = target[0].name
                 # generate library name with the version number
                 suffix_re = re.escape(shlib_suffix)
                 version_name = re.sub(suffix_re, '.' + version + shlib_suffix, name)
@@ -136,7 +147,10 @@ def shlib_emitter_names(target, source, env):
                 version_names.append(version_name)
             elif platform == 'cygwin':
                 shlib_suffix = env.subst('$SHLIBSUFFIX')
-                name = target[0].name
+                if hasattr(target[0].attributes, 'shlibname'):
+                    name = target[0].attributes.shlibname
+                else:
+                    name = target[0].name
                 # generate library name with the version number
                 suffix_re = re.escape(shlib_suffix)
                 version_name = re.sub(suffix_re, '-' + re.sub('\.', '-', version) + shlib_suffix, name)
