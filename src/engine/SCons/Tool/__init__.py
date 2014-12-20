@@ -293,10 +293,7 @@ symlinks for the platform we are on"""
         version = None
 
     # libname includes the version number if one was given
-    if hasattr(target[0].attributes, 'shlibname'):
-        libname = target[0].attributes.shlibname
-    else:
-        libname = target[0].name
+    libname = getattr(target[0].attributes, 'shlibname', target[0].name)
     platform = env.subst('$PLATFORM')
     shlib_suffix = env.subst('$SHLIBSUFFIX')
     shlink_flags = SCons.Util.CLVar(env.subst('$SHLINKFLAGS'))
@@ -343,10 +340,7 @@ symlinks for the platform we are on"""
 
     if version:
         # here we need the full pathname so the links end up in the right directory
-        if hasattr(target[0].attributes, 'shlibname'):
-            libname = target[0].attributes.shlibname
-        else:
-            libname = target[0].path
+        libname = getattr(target[0].attributes, 'shlibpath', target[0].path)
         if Verbose:
             print "VerShLib: target lib is = ", libname
             print "VerShLib: name is = ", target[0].name
@@ -355,10 +349,7 @@ symlinks for the platform we are on"""
         if Verbose:
             print "VerShLib: linknames ",linknames
         # Here we just need the file name w/o path as the target of the link
-        if hasattr(target[0].attributes, 'shlibname'):
-            lib_ver = target[0].attributes.shlibname
-        else:
-            lib_ver = target[0].name
+        lib_ver = getattr(target[0].attributes, 'shlibname', target[0].name)
         # make symlink of adjacent names in linknames
         for count in range(len(linknames)):
             linkname = linknames[count]
