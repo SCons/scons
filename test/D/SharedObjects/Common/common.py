@@ -49,6 +49,9 @@ def testForTool(tool):
     if tool == 'gdc':
         test.skip_test('gdc does not, as at version 4.9.1, support shared libraries.\n')
 
+    if tool == 'dmd' and Base()['DC'] == 'gdmd':
+        test.skip_test('gdmd does not recognize the -shared option so cannot support linking of shared objects.\n')
+
 
     platform = Base()['PLATFORM']
     if platform == 'posix':

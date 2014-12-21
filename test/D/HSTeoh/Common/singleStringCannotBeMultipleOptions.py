@@ -55,6 +55,10 @@ def testForTool(tool):
         'ldc': ".*Unknown command line argument '-m64 -O'.*",
         }[tool]
 
+    from SCons.Environment import Base
+    if tool == 'dmd' and Base()['DC'] == 'gdmd':
+        result = ".*unrecognized command line option '-m64 -O'.*"
+
     test.fail_test(not test.match_re_dotall(test.stderr(), result))
 
     test.pass_test()

@@ -42,6 +42,7 @@ if not isExecutableOfToolAvailable(test, 'dmd'):
 test.write('SConstruct', """\
 import os
 env = Environment(tools=['link', 'dmd'])
+env['ENV']['HOME'] = os.environ['HOME']  # Hack for gdmd
 if env['PLATFORM'] == 'cygwin': env['OBJSUFFIX'] = '.obj'  # trick DMD
 env.Program('foo', 'foo.d')
 """)
