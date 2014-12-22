@@ -29,6 +29,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
+from os import uname
 from os.path import abspath, dirname
 
 import sys
@@ -46,6 +47,9 @@ def testForTool(tool):
     test.dir_fixture('Image')
 
     test.run()
+
+    if uname()[4] not in ('x86_64',):
+        test.fail_test('64-bit mode not compiled in' not in test.stdout())
 
     test.pass_test()
 
