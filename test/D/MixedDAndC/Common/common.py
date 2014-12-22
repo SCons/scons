@@ -29,8 +29,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
-from os import uname
 from os.path import abspath, dirname
+from platform import machine
 
 import sys
 sys.path.insert(1, abspath(dirname(__file__) + '/../../Support'))
@@ -48,7 +48,7 @@ def testForTool(tool):
 
     test.run()
 
-    if uname()[4] not in ('x86_64',):
+    if machine() in ('i386',):
         test.fail_test('64-bit mode not compiled in' not in test.stdout())
 
     test.pass_test()
