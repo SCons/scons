@@ -103,7 +103,7 @@ def generate(env):
     env['DSHLINK'] = '$DC'
     env['DSHLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared -defaultlib=phobos2-ldc')
     # Hack for Fedora the packages of which use the wrong name :-(
-    if os.path.exists('/usr/lib64/libphobos-ldc.so'):
+    if os.path.exists('/usr/lib64/libphobos-ldc.so') or  os.path.exists('/usr/lib32/libphobos-ldc.so') or os.path.exists('/usr/lib/libphobos-ldc.so') :
         env['DSHLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared -defaultlib=phobos-ldc')
     env['SHDLINKCOM'] = '$DLINK -of=$TARGET $DSHLINKFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS'
 
