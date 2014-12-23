@@ -43,7 +43,7 @@ def testForTool(tool):
     if not isExecutableOfToolAvailable(test, tool) :
         test.skip_test("Required executable for tool '{0}' not found, skipping test.\n".format(tool))
 
-    if not exists('/usr/bin/tset'):
+    if not exists('/usr/include/ncurses.h'):
         test.skip_test("ncurses not apparently installed, skip this test.")
 
     test.dir_fixture('LinkingProblem')
