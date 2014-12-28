@@ -319,7 +319,13 @@ class SConsOptionParser(optparse.OptionParser):
                     value = option.const
             elif len(rargs) < nargs:
                 if nargs == 1:
-                    self.error(_("%s option requires an argument") % opt)
+                    if not option.choices:
+                        self.error(_("%s option requires an argument") % opt)
+                    else:
+                        msg  = _("%s option requires an argument " % opt)
+                        msg += _("(choose from %s)"
+                                 % ', '.join(option.choices))
+                        self.error(msg)
                 else:
                     self.error(_("%s option requires %d arguments")
                                % (opt, nargs))
@@ -645,18 +651,12 @@ def Parser(version):
 
     config_options = ["auto", "force" ,"cache"]
 
-    def opt_config(option, opt, value, parser, c_options=config_options):
-        if not value in c_options:
-            raise OptionValueError(opt_invalid('config', value, c_options))
-        setattr(parser.values, option.dest, value)
-
     opt_config_help = "Controls Configure subsystem: %s." \
                       % ", ".join(config_options)
 
     op.add_option('--config',
-                  nargs=1, type="string",
+                  nargs=1, choices=config_options,
                   dest="config", default="auto",
-                  action="callback", callback=opt_config,
                   help = opt_config_help,
                   metavar="MODE")
 
