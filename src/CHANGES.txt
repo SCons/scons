@@ -6,6 +6,9 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Anatoly Techtonik:
+    - Show --config choices if no argument is specified (PR #202).
+
   From Alexandre Feblot:
     - Fix for VersionedSharedLibrary under 'sunos' platform.
 
