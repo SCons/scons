@@ -6,6 +6,9 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Russel Winder:
+    - Add support for f08 file extensions for Fortran 2008 code.
+
   From Alexandre Feblot:
     - Fix for VersionedSharedLibrary under 'sunos' platform.
 
