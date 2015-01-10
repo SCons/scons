@@ -950,19 +950,19 @@ DFLAGPREFIX.
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-_DFLAGS">
-    <term>_DFLAGS</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-_DFLAGS.
-</para>
-</listitem>
-  </varlistentry>
   <varlistentry id="cv-DFLAGS">
     <term>DFLAGS</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 DFLAGS.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-_DFLAGS">
+    <term>_DFLAGS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+_DFLAGS.
 </para>
 </listitem>
   </varlistentry>
@@ -1683,6 +1683,184 @@ If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The list of file extensions for which the compilation + preprocessor pass for
 F03 dialect will be used. By default, this is empty
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-F08">
+    <term>F08</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The Fortran 08 compiler.
+You should normally set the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FORTRAN"><envar>$FORTRAN</envar></link> variable,
+which specifies the default Fortran compiler
+for all Fortran versions.
+You only need to set <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-F08"><envar>$F08</envar></link> if you need to use a specific compiler
+or compiler version for Fortran 08 files.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-F08COM">
+    <term>F08COM</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The command line used to compile a Fortran 08 source file to an object file.
+You only need to set <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-F08COM"><envar>$F08COM</envar></link> if you need to use a specific
+command line for Fortran 08 files.
+You should normally set the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FORTRANCOM"><envar>$FORTRANCOM</envar></link> variable,
+which specifies the default command line
+for all Fortran versions.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-F08COMSTR">
+    <term>F08COMSTR</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The string displayed when a Fortran 08 source file
+is compiled to an object file.
+If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-F08COM"><envar>$F08COM</envar></link> or <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FORTRANCOM"><envar>$FORTRANCOM</envar></link>
+(the command line) is displayed.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-F08FILESUFFIXES">
+    <term>F08FILESUFFIXES</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The list of file extensions for which the F08 dialect will be used. By
+default, this is ['.f08']
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-F08FLAGS">
+    <term>F08FLAGS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+General user-specified options that are passed to the Fortran 08 compiler.
+Note that this variable does
+<emphasis>not</emphasis>
+contain
+<option>-I</option>
+(or similar) include search path options
+that scons generates automatically from <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-F08PATH"><envar>$F08PATH</envar></link>.
+See
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-_F08INCFLAGS"><envar>$_F08INCFLAGS</envar></link>
+below,
+for the variable that expands to those options.
+You only need to set <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-F08FLAGS"><envar>$F08FLAGS</envar></link> if you need to define specific
+user options for Fortran 08 files.
+You should normally set the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FORTRANFLAGS"><envar>$FORTRANFLAGS</envar></link> variable,
+which specifies the user-specified options
+passed to the default Fortran compiler
+for all Fortran versions.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-_F08INCFLAGS">
+    <term>_F08INCFLAGS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+An automatically-generated construction variable
+containing the Fortran 08 compiler command-line options
+for specifying directories to be searched for include files.
+The value of <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-_F08INCFLAGS"><envar>$_F08INCFLAGS</envar></link> is created
+by appending <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-INCPREFIX"><envar>$INCPREFIX</envar></link> and <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-INCSUFFIX"><envar>$INCSUFFIX</envar></link>
+to the beginning and end
+of each directory in <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-F08PATH"><envar>$F08PATH</envar></link>.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-F08PATH">
+    <term>F08PATH</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The list of directories that the Fortran 08 compiler will search for include
+directories. The implicit dependency scanner will search these
+directories for include files. Don't explicitly put include directory
+arguments in <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-F08FLAGS"><envar>$F08FLAGS</envar></link> because the result will be non-portable
+and the directories will not be searched by the dependency scanner. Note:
+directory names in <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-F08PATH"><envar>$F08PATH</envar></link> will be looked-up relative to the SConscript
+directory when they are used in a command. To force
+<filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>
+to look-up a directory relative to the root of the source tree use #:
+You only need to set <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-F08PATH"><envar>$F08PATH</envar></link> if you need to define a specific
+include path for Fortran 08 files.
+You should normally set the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FORTRANPATH"><envar>$FORTRANPATH</envar></link> variable,
+which specifies the include path
+for the default Fortran compiler
+for all Fortran versions.
+</para>
+
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
+env = Environment(F08PATH='#/include')
+</example_commands>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The directory look-up can also be forced using the
+<function xmlns="http://www.scons.org/dbxsd/v1.0">Dir</function>()
+function:
+</para>
+
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
+include = Dir('include')
+env = Environment(F08PATH=include)
+</example_commands>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The directory list will be added to command lines
+through the automatically-generated
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-_F08INCFLAGS"><envar>$_F08INCFLAGS</envar></link>
+construction variable,
+which is constructed by
+appending the values of the
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-INCPREFIX"><envar>$INCPREFIX</envar></link> and <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-INCSUFFIX"><envar>$INCSUFFIX</envar></link>
+construction variables
+to the beginning and end
+of each directory in <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-F08PATH"><envar>$F08PATH</envar></link>.
+Any command lines you define that need
+the F08PATH directory list should
+include <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-_F08INCFLAGS"><envar>$_F08INCFLAGS</envar></link>:
+</para>
+
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
+env = Environment(F08COM="my_compiler $_F08INCFLAGS -c -o $TARGET $SOURCE")
+</example_commands>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-F08PPCOM">
+    <term>F08PPCOM</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The command line used to compile a Fortran 08 source file to an object file
+after first running the file through the C preprocessor.
+Any options specified in the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-F08FLAGS"><envar>$F08FLAGS</envar></link> and <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-CPPFLAGS"><envar>$CPPFLAGS</envar></link> construction variables
+are included on this command line.
+You only need to set <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-F08PPCOM"><envar>$F08PPCOM</envar></link> if you need to use a specific
+C-preprocessor command line for Fortran 08 files.
+You should normally set the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FORTRANPPCOM"><envar>$FORTRANPPCOM</envar></link> variable,
+which specifies the default C-preprocessor command line
+for all Fortran versions.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-F08PPCOMSTR">
+    <term>F08PPCOMSTR</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The string displayed when a Fortran 08 source file
+is compiled to an object file
+after first running the file through the C preprocessor.
+If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-F08PPCOM"><envar>$F08PPCOM</envar></link> or <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FORTRANPPCOM"><envar>$FORTRANPPCOM</envar></link>
+(the command line) is displayed.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-F08PPFILESUFFIXES">
+    <term>F08PPFILESUFFIXES</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The list of file extensions for which the compilation + preprocessor pass for
+F08 dialect will be used. By default, this is empty
 </para>
 </listitem>
   </varlistentry>
@@ -2642,15 +2820,6 @@ is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
     <term>HOST_ARCH</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-        The name of the host hardware architecture used to create the Environment.
-        If a platform is specified when creating the Environment, then
-        that Platform's logic will handle setting this value.
-        This value is immutable, and should not be changed by the user after
-        the Environment is initialized.
-        Currently only set for Win32.
-</para>
-    
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Sets the host architecture for Visual Studio compiler. If not set,
 default to the detected host architecture: note that this may depend
 on the python you are using.
@@ -2666,7 +2835,16 @@ Valid values are the same as for <envar xmlns="http://www.scons.org/dbxsd/v1.0">
 This is currently only used on Windows, but in the future it will be
 used on other OSes as well.
 </para>
-</listitem>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The name of the host hardware architecture used to create the Environment.
+        If a platform is specified when creating the Environment, then
+        that Platform's logic will handle setting this value.
+        This value is immutable, and should not be changed by the user after
+        the Environment is initialized.
+        Currently only set for Win32.
+</para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-HOST_OS">
     <term>HOST_OS</term>
@@ -2862,7 +3040,7 @@ The command line used to call the Java archive tool.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The string displayed when the Java archive tool
 is called
-If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-JARCOM"><envar>$JARCOM</envar></link> (the command line) is displayed.
+If this is not set, then <envar xmlns="http://www.scons.org/dbxsd/v1.0">$JARCOM</envar> (the command line) is displayed.
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2872,7 +3050,7 @@ env = Environment(JARCOMSTR = "JARchiving $SOURCES into $TARGET")
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The string displayed when the Java archive tool
 is called
-If this is not set, then <envar xmlns="http://www.scons.org/dbxsd/v1.0">$JARCOM</envar> (the command line) is displayed.
+If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-JARCOM"><envar>$JARCOM</envar></link> (the command line) is displayed.
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -5915,6 +6093,88 @@ If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-SHF08">
+    <term>SHF08</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The Fortran 08 compiler used for generating shared-library objects.
+You should normally set the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHFORTRAN"><envar>$SHFORTRAN</envar></link> variable,
+which specifies the default Fortran compiler
+for all Fortran versions.
+You only need to set <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHF08"><envar>$SHF08</envar></link> if you need to use a specific compiler
+or compiler version for Fortran 08 files.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-SHF08COM">
+    <term>SHF08COM</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The command line used to compile a Fortran 08 source file
+to a shared-library object file.
+You only need to set <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHF08COM"><envar>$SHF08COM</envar></link> if you need to use a specific
+command line for Fortran 08 files.
+You should normally set the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHFORTRANCOM"><envar>$SHFORTRANCOM</envar></link> variable,
+which specifies the default command line
+for all Fortran versions.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-SHF08COMSTR">
+    <term>SHF08COMSTR</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The string displayed when a Fortran 08 source file
+is compiled to a shared-library object file.
+If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHF08COM"><envar>$SHF08COM</envar></link> or <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHFORTRANCOM"><envar>$SHFORTRANCOM</envar></link>
+(the command line) is displayed.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-SHF08FLAGS">
+    <term>SHF08FLAGS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Options that are passed to the Fortran 08 compiler
+to generated shared-library objects.
+You only need to set <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHF08FLAGS"><envar>$SHF08FLAGS</envar></link> if you need to define specific
+user options for Fortran 08 files.
+You should normally set the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHFORTRANFLAGS"><envar>$SHFORTRANFLAGS</envar></link> variable,
+which specifies the user-specified options
+passed to the default Fortran compiler
+for all Fortran versions.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-SHF08PPCOM">
+    <term>SHF08PPCOM</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The command line used to compile a Fortran 08 source file to a
+shared-library object file
+after first running the file through the C preprocessor.
+Any options specified in the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHF08FLAGS"><envar>$SHF08FLAGS</envar></link> and <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-CPPFLAGS"><envar>$CPPFLAGS</envar></link> construction variables
+are included on this command line.
+You only need to set <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHF08PPCOM"><envar>$SHF08PPCOM</envar></link> if you need to use a specific
+C-preprocessor command line for Fortran 08 files.
+You should normally set the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHFORTRANPPCOM"><envar>$SHFORTRANPPCOM</envar></link> variable,
+which specifies the default C-preprocessor command line
+for all Fortran versions.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-SHF08PPCOMSTR">
+    <term>SHF08PPCOMSTR</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The string displayed when a Fortran 08 source file
+is compiled to a shared-library object file
+after first running the file through the C preprocessor.
+If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHF08PPCOM"><envar>$SHF08PPCOM</envar></link> or <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHFORTRANPPCOM"><envar>$SHFORTRANPPCOM</envar></link>
+(the command line) is displayed.
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-SHF77">
     <term>SHF77</term>
     <listitem>
@@ -6713,13 +6973,6 @@ that may not be set or used in a construction environment.
     <term>TARGET_ARCH</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-        The name of the target hardware architecture for the compiled objects
-        created by this Environment.
-        This defaults to the value of HOST_ARCH, and the user can override it.
-        Currently only set for Win32.
-</para>
-    
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Sets the target architecture for Visual Studio compiler (i.e. the arch
 of the binaries generated by the compiler). If not set, default to
 <envar xmlns="http://www.scons.org/dbxsd/v1.0">$HOST_ARCH</envar>, or, if that is unset, to the architecture of the
@@ -6744,7 +6997,14 @@ and <literal>ia64</literal> (Itanium).
 For example, if you want to compile 64-bit binaries, you would set
 <literal>TARGET_ARCH='x86_64'</literal> in your SCons environment.
 </para>
-</listitem>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The name of the target hardware architecture for the compiled objects
+        created by this Environment.
+        This defaults to the value of HOST_ARCH, and the user can override it.
+        Currently only set for Win32.
+</para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-TARGET_OS">
     <term>TARGET_OS</term>

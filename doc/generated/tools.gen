@@ -307,6 +307,14 @@ Set construction variables for generic POSIX Fortran 03 compilers.
 </para>
 <para>Sets:  &cv-link-F03;, &cv-link-F03COM;, &cv-link-F03FLAGS;, &cv-link-F03PPCOM;, &cv-link-SHF03;, &cv-link-SHF03COM;, &cv-link-SHF03FLAGS;, &cv-link-SHF03PPCOM;, &cv-link-_F03INCFLAGS;.</para><para>Uses:  &cv-link-F03COMSTR;, &cv-link-F03PPCOMSTR;, &cv-link-SHF03COMSTR;, &cv-link-SHF03PPCOMSTR;.</para></listitem>
   </varlistentry>
+  <varlistentry id="t-f08">
+    <term>f08</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Set construction variables for generic POSIX Fortran 08 compilers.
+</para>
+<para>Sets:  &cv-link-F08;, &cv-link-F08COM;, &cv-link-F08FLAGS;, &cv-link-F08PPCOM;, &cv-link-SHF08;, &cv-link-SHF08COM;, &cv-link-SHF08FLAGS;, &cv-link-SHF08PPCOM;, &cv-link-_F08INCFLAGS;.</para><para>Uses:  &cv-link-F08COMSTR;, &cv-link-F08PPCOMSTR;, &cv-link-SHF08COMSTR;, &cv-link-SHF08PPCOMSTR;.</para></listitem>
+  </varlistentry>
   <varlistentry id="t-f77">
     <term>f77</term>
     <listitem>
@@ -767,19 +775,19 @@ Sets construction variables for the
 </para>
 <para>Sets:  &cv-link-AS;, &cv-link-ASCOM;, &cv-link-ASFLAGS;, &cv-link-ASPPCOM;, &cv-link-ASPPFLAGS;.</para><para>Uses:  &cv-link-ASCOMSTR;, &cv-link-ASPPCOMSTR;.</para></listitem>
   </varlistentry>
-  <varlistentry id="t-Packaging">
-    <term>Packaging</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the <function xmlns="http://www.scons.org/dbxsd/v1.0">Package</function> Builder.
-</para>
-</listitem>
-  </varlistentry>
   <varlistentry id="t-packaging">
     <term>packaging</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 A framework for building binary and source packages.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="t-Packaging">
+    <term>Packaging</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Sets construction variables for the <function xmlns="http://www.scons.org/dbxsd/v1.0">Package</function> Builder.
 </para>
 </listitem>
   </varlistentry>
