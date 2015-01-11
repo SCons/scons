@@ -1830,6 +1830,12 @@ class Dir(Base):
         return self.tpath + OS_SEP + name
 
     def entry_exists_on_disk(self, name):
+        """ Searches through the file/dir entries of the current
+            directory, and returns True if a physical entry with the given
+            name could be found.
+            
+            @see rentry_exists_on_disk
+        """
         try:
             d = self.on_disk_entries
         except AttributeError:
@@ -1853,6 +1859,33 @@ class Dir(Base):
             return result
         else:
             return name in d
+
+    def rentry_exists_on_disk(self, name):
+        """ Searches through the file/dir entries of the current
+            *and* all its remote directories (repos), and returns
+            True if a physical entry with the given name could be found.
+            The local directory (self) gets searched first, so
+            repositories take a lower precedence regarding the
+            searching order.
+            
+            @see entry_exists_on_disk
+        """
+        
+        rentry_exists = self.entry_exists_on_disk(name)
+        if not rentry_exists:
+            # Search through the repository folders
+            norm_name = _my_normcase(name)
+            for rdir in self.get_all_rdirs():
+                try:
+                    node = rdir.entries[norm_name]
+                    if node:
+                        rentry_exists = True
+                        break
+                except KeyError:
+                    if rdir.entry_exists_on_disk(name):
+                        rentry_exists = True
+                        break
+        return rentry_exists
 
     memoizer_counters.append(SCons.Memoize.CountValue('srcdir_list'))
 
