@@ -28,25 +28,43 @@ import os.path
 import re
 import sys
 import glob
-import SConsDoc
-import SConsExamples
+
 import bootstrap
 
 Import('build_dir', 'env', 'whereis', 'revaction')
 
+#
+# -- Check prerequisites for building the documentation ---
+#
+skip_doc = False
+
+try:
+    import SConsDoc
+    import SConsExamples
+except ImportError as exc:
+    print("doc: SConsDoc failed to import, the error was:")
+    print("         ImportError: %s" % exc)
+    print("     Please make sure that python-libxml2 or python-lxml is installed.")
+    skip_doc = True
+
+fop = whereis('fop')
+xep = whereis('xep')
+
+if not fop and not xep:
+    print "doc: No PDF renderer found (fop|xep)!"
+    skip_doc = True
+
+#
+# --- Configure build
+#
 env = env.Clone()
 
 build = os.path.join(build_dir, 'doc')
 
-fop = whereis('fop')
-xep = whereis('xep')
 epydoc_cli = whereis('epydoc')
 gs = whereis('gs')
 lynx = whereis('lynx')
 
-#
-#
-#
 dist_doc_tar_gz = '$DISTDIR/scons-doc-${VERSION}.tar.gz'
 
 tar_deps = []
@@ -55,7 +73,9 @@ tar_list = []
 orig_env = env
 env = orig_env.Clone(SCONS_PY = File('#src/script/scons.py').rfile())
 
-
+#
+# --- Helpers ---
+#
 def writeVersionXml(verfile, date, ver, rev):
     """ Helper function: Write a version.xml file. """
     try:
@@ -76,25 +96,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 """ % (date, ver, rev))
 
 #
-# Check whether we have all tools installed for
-# building the documentation.
+# --- Processing ---
 #
-skip_doc = False
-try:
-    import libxml2
-    import libxslt
-except:
-    try:
-        import lxml
-    except:
-        print "doc: Neither libxml2 nor lxml Python bindings found!"
-        print "     Please install one of the packages python-libxml2 or python-lxml."
-        skip_doc = True
-        
-if not fop and not xep:
-    print "doc: No PDF renderer found (fop|xep)!"
-    skip_doc = True
-    
 if skip_doc:
     print "doc: ...skipping building User Guide."
 else:
