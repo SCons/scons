@@ -73,7 +73,7 @@ class DummyEnvironment(object):
 
     def subst(self, s, target=None, source=None, conv=None):
         try:
-            if s[0] == '$':
+            if isinstance(s, str) and s[0] == '$':
                 return self._dict[s[1:]]
         except IndexError:
             return ''
@@ -223,6 +223,30 @@ class ProgramScannerTestCase8(unittest.TestCase):
         deps = s(DummyNode('dummy'), env, path)
         assert deps == [n1, n2], deps
 
+class ProgramScannerTestCase9(unittest.TestCase):
+    def runTest(self):
+        env = DummyEnvironment(LIBPATH=[ test.workpath("dir") ],
+                               LIBS=['foo', '$LIBBAR'],
+                               LIBPREFIXES=['lib'],
+                               LIBSUFFIXES=['.a'],
+                               LIBBAR=['sub/libbar', 'xyz.other'])
+        s = SCons.Scanner.Prog.ProgramScanner()
+        path = s.path(env)
+        deps = s(DummyNode('dummy'), env, path)
+        assert deps_match(deps, ['dir/libfoo.a', 'dir/sub/libbar.a', 'dir/libxyz.other']), list(map(str, deps))
+
+class ProgramScannerTestCase10(unittest.TestCase):
+    def runTest(self):
+        env = DummyEnvironment(LIBPATH=[ test.workpath("dir") ],
+                               LIBS=['foo', '$LIBBAR'],
+                               LIBPREFIXES=['lib'],
+                               LIBSUFFIXES=['.a'],
+                               LIBBAR='sub/libbar xyz.other')
+        s = SCons.Scanner.Prog.ProgramScanner()
+        path = s.path(env)
+        deps = s(DummyNode('dummy'), env, path)
+        assert deps_match(deps, ['dir/libfoo.a', 'dir/sub/libbar.a', 'dir/libxyz.other']), list(map(str, deps))
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(ProgramScannerTestCase1())
@@ -232,6 +256,8 @@ def suite():
     suite.addTest(ProgramScannerTestCase6())
     suite.addTest(ProgramScannerTestCase7())
     suite.addTest(ProgramScannerTestCase8())
+    suite.addTest(ProgramScannerTestCase9())
+    suite.addTest(ProgramScannerTestCase10())
     try: unicode
     except NameError: pass
     else:
