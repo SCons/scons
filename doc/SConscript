@@ -95,11 +95,49 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY buildrevision "%s">
 """ % (date, ver, rev))
 
+
+# The names of the target files for the MAN pages
+man_page_list = ['scons.1','scons-time.1','sconsign.1']
+
+# Template for the MAN page texts when we can't properly
+# create them because the skip_doc flag is set (required
+# modules/tools aren't installed in the current system)
+man_replace_tpl = """.TH "%(uctitle)s" "1" "%(today)s" "SCons %(version)s" "SCons %(version)s"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.nh
+.ad l
+.SH "NOTE"
+%(title)s \- This is a replacement file, stemming from an incomplete
+packaging process without the required doc modules installed. Please 
+update the system and try running bootstrap.py again.
+"""
+
 #
 # --- Processing ---
 #
 if skip_doc:
     print "doc: ...skipping building User Guide."
+    print "     ...creating fake MAN pages."
+
+    # Since the top-level SConstruct requires the MAN
+    # pages to exist for the basic packaging, we create simple
+    # stub texts here as replacement...
+    scdir = os.path.join(build, 'man')
+    if not os.path.isdir(scdir):
+        os.makedirs(scdir)
+    
+    import datetime
+    today = datetime.date.today().strftime("%m/%d/%Y")
+    version = env.subst('$VERSION')
+    for m in man_page_list:
+        man, _ = os.path.splitext(m)
+        fman = open(os.path.join(scdir, m), "w")
+        fman.write(man_replace_tpl % {'uctitle' : man.upper().replace("-", "\\-"),
+                                      'today' : today,
+                                      'title' : man,
+                                      'version' : version})
+        fman.close()
 else:
     if not lynx:
         print "doc: Warning, lynx is not installed...created release packages won't be complete!"
@@ -278,9 +316,6 @@ else:
             'man' : (['man','epub','text'], [], [])
            }
            
-    # The names of the target files for the MAN pages
-    man_page_list = ['scons.1','scons-time.1','sconsign.1']
-    
     #
     # We have to tell SCons to scan the top-level XML files which
     # get included by the document XML files in the subdirectories.
