@@ -32,6 +32,7 @@ import TestUnit
 
 import SCons.Node.FS
 import SCons.Scanner.Prog
+import SCons.Subst
 
 test = TestCmd.TestCmd(workdir = '')
 
@@ -72,12 +73,7 @@ class DummyEnvironment(object):
         del self.Dictionary()[key]
 
     def subst(self, s, target=None, source=None, conv=None):
-        try:
-            if isinstance(s, str) and s[0] == '$':
-                return self._dict[s[1:]]
-        except IndexError:
-            return ''
-        return s
+        return SCons.Subst.scons_subst(s, self, gvars=self._dict, lvars=self._dict)
 
     def subst_path(self, path, target=None, source=None, conv=None):
         if not isinstance(path, list):
@@ -241,7 +237,8 @@ class ProgramScannerTestCase10(unittest.TestCase):
                                LIBS=['foo', '$LIBBAR'],
                                LIBPREFIXES=['lib'],
                                LIBSUFFIXES=['.a'],
-                               LIBBAR='sub/libbar xyz.other')
+                               LIBBAR='sub/libbar $LIBBAR2',
+                               LIBBAR2=['xyz.other'])
         s = SCons.Scanner.Prog.ProgramScanner()
         path = s.path(env)
         deps = s(DummyNode('dummy'), env, path)

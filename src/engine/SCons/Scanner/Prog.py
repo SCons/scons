@@ -38,13 +38,21 @@ def ProgramScanner(**kw):
     ps = SCons.Scanner.Base(scan, "ProgramScanner", **kw)
     return ps
 
-def _split_libs(env, libs):
+def _subst_libs(env, libs):
     """
     Substitute environment variables and split into list.
     """
-    libs = env.subst(libs)
     if SCons.Util.is_String(libs):
-        libs = libs.split()
+        libs = env.subst(libs)
+        if SCons.Util.is_String(libs):
+            libs = libs.split()
+    elif SCons.Util.is_Sequence(libs):
+        _libs = []
+        for l in libs:
+            _libs += _subst_libs(env, l)
+        libs = _libs
+    else:
+        libs = [libs]
     return libs
 
 def scan(node, env, libpath = ()):
@@ -59,12 +67,8 @@ def scan(node, env, libpath = ()):
     except KeyError:
         # There are no LIBS in this environment, so just return a null list:
         return []
-    if SCons.Util.is_String(libs):
-        libs = _split_libs(env, libs)
-    else:
-        libs = SCons.Util.flatten(libs)
-        libs = map(lambda x: _split_libs(env, x) if SCons.Util.is_String(x) else x, libs)
-    libs = SCons.Util.flatten(libs)
+
+    libs = _subst_libs(env, libs)
 
     try:
         prefix = env['LIBPREFIXES']
