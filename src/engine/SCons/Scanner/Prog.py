@@ -52,6 +52,7 @@ def _subst_libs(env, libs):
             _libs += _subst_libs(env, l)
         libs = _libs
     else:
+        # libs is an object (Node, for example)
         libs = [libs]
     return libs
 
