@@ -331,7 +331,8 @@ try:
                 path = os.path.join(dirname, name)
                 if os.path.isfile(path):
                     arg.write(path)
-        zf = zipfile.ZipFile(str(target[0]), 'w')
+        # default ZipFile compression is ZIP_STORED
+        zf = zipfile.ZipFile(str(target[0]), 'w', compression=zipfile.ZIP_DEFLATED)
         olddir = os.getcwd()
         os.chdir(env['CD'])
         try: os.path.walk(env['PSV'], visit, zf)
@@ -356,7 +357,7 @@ try:
             if not os.path.isdir(dest):
                 open(dest, 'wb').write(zf.read(name))
 
-except:
+except ImportError:
     if unzip and zip:
         zipit = "cd $CD && $ZIP $ZIPFLAGS $( ${TARGET.abspath} $) $PSV"
         unzipit = "$UNZIP $UNZIPFLAGS $SOURCES"
