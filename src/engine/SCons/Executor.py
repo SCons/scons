@@ -554,19 +554,20 @@ def AddBatchExecutor(key, executor):
 nullenv = None
 
 
+import SCons.Util
+class NullEnvironment(SCons.Util.Null):
+    import SCons.CacheDir
+    _CacheDir_path = None
+    _CacheDir = SCons.CacheDir.CacheDir(None)
+    def get_CacheDir(self):
+        return self._CacheDir
+
+
 def get_NullEnvironment():
     """Use singleton pattern for Null Environments."""
     global nullenv
 
-    import SCons.Util
-    class NullEnvironment(SCons.Util.Null):
-        import SCons.CacheDir
-        _CacheDir_path = None
-        _CacheDir = SCons.CacheDir.CacheDir(None)
-        def get_CacheDir(self):
-            return self._CacheDir
-
-    if not nullenv:
+    if nullenv is None:
         nullenv = NullEnvironment()
     return nullenv
 
