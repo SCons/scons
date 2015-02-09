@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog"
+         prefer="public">
+  <uri name="http://www.scons.org/dbxsd/v1.0/scons.xsd"
+       uri="scons_xsd/scons.xsd"/>
+  <uriSuffix uriSuffix="scons.xsd"
+       uri="scons_xsd/scons.xsd"/>
+</catalog>
+
