@@ -63,6 +63,7 @@ def xmlify(s):
     s = s.replace("&", "&amp;") # do this first
     s = s.replace("'", "&apos;")
     s = s.replace('"', "&quot;")
+    s = s.replace('\n', '&#x0A;')
     return s
 
 # Process a CPPPATH list in includes, given the env, target and source.
@@ -224,7 +225,7 @@ class _UserGenerator(object):
             dbg_settings = []
         elif SCons.Util.is_Dict(env['DebugSettings']):
             dbg_settings = [env['DebugSettings']]
-        elif SCons.Util.is_List(env['dbg_settings']):
+        elif SCons.Util.is_List(env['DebugSettings']):
             if len(env['DebugSettings']) != len(variants):
                 raise SCons.Errors.InternalError("Sizes of 'DebugSettings' and 'variant' lists must be the same.")
             dbg_settings = []
@@ -332,10 +333,11 @@ class _GenerateV7User(_UserGenerator):
             variant = self.configs[kind].variant
             platform = self.configs[kind].platform
             debug = self.configs[kind].debug
-            debug_settings = '\n'.join(['\t\t\t\t%s="%s"' % (key, xmlify(value)) 
-                                        for key, value in debug.items() 
-                                        if value is not None])
-            self.usrfile.write(self.usrconf % locals())
+            if debug:
+                debug_settings = '\n'.join(['\t\t\t\t%s="%s"' % (key, xmlify(value)) 
+                                            for key, value in debug.items() 
+                                            if value is not None])
+                self.usrfile.write(self.usrconf % locals())
         self.usrfile.write('\t</Configurations>\n</VisualStudioUserFile>')
 
 V10UserHeader = """\
@@ -393,10 +395,11 @@ class _GenerateV10User(_UserGenerator):
             variant = self.configs[kind].variant
             platform = self.configs[kind].platform
             debug = self.configs[kind].debug
-            debug_settings = '\n'.join(['\t\t<%s>%s</%s>' % (key, xmlify(value), key) 
-                                        for key, value in debug.items() 
-                                        if value is not None])
-            self.usrfile.write(self.usrconf % locals())
+            if debug:
+                debug_settings = '\n'.join(['\t\t<%s>%s</%s>' % (key, xmlify(value), key) 
+                                            for key, value in debug.items() 
+                                            if value is not None])
+                self.usrfile.write(self.usrconf % locals())
         self.usrfile.write('</Project>')
 
 class _DSPGenerator(object):
