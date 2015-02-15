@@ -730,10 +730,9 @@ for p in [ scons ]:
     platform_zip = os.path.join(build,
                                 'dist',
                                 "%s.%s.zip" % (pkg_version, platform))
-    if platform == "win-amd64":
-        win32_exe = os.path.join(build, 'dist', "%s.win-amd64.exe" % pkg_version)
-    else:
-        win32_exe = os.path.join(build, 'dist', "%s.win32.exe" % pkg_version)
+    
+    win64_exe = os.path.join(build, 'dist', "%s.win-amd64.exe" % pkg_version)
+    win32_exe = os.path.join(build, 'dist', "%s.win32.exe" % pkg_version)
 
     #
     # Update the environment with the relevant information
@@ -845,11 +844,13 @@ for p in [ scons ]:
 
     distutils_formats = []
 
-    distutils_targets = [ win32_exe ]
+    distutils_targets = [  win32_exe , win64_exe ]
+    dist_distutils_targets = []
 
-    dist_distutils_targets = env.Install('$DISTDIR', distutils_targets)
-    Local(dist_distutils_targets)
-    AddPostAction(dist_distutils_targets, Chmod(dist_distutils_targets, 0644))
+    for target in distutils_targets:
+        dist_target = env.Install('$DISTDIR', target)
+        AddPostAction(dist_target, Chmod(dist_target, 0644))
+        dist_distutils_targets += dist_target
 
     if not gzip:
         print "gzip not found in %s; skipping .tar.gz package for %s." % (os.environ['PATH'], pkg)
@@ -1081,7 +1082,9 @@ for p in [ scons ]:
         commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY sdist --formats=%s" %  \
                             ','.join(distutils_formats))
 
-    commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY bdist_wininst --plat-name win32 --user-access-control auto")
+    commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY bdist_wininst --plat-name=win32 --user-access-control auto")
+
+    commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY bdist_wininst --plat-name=win-amd64 --user-access-control auto")
 
     env.Command(distutils_targets, build_src_files, commands)
 
