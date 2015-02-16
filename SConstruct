@@ -48,6 +48,12 @@ copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 platform = distutils.util.get_platform()
 
+def is_windows():
+   if platform.startswith('win'):
+      return True
+   else:
+      return False
+   
 SConsignFile()
 
 #
@@ -56,7 +62,7 @@ SConsignFile()
 #
 def whereis(file):
     exts = ['']
-    if platform == "win32":
+    if is_windows():
         exts += ['.exe']
     for dir in os.environ['PATH'].split(os.pathsep):
         f = os.path.join(dir, file)
@@ -267,7 +273,7 @@ test_local_zip_dir    = os.path.join(build_dir, "test-local-zip")
 unpack_tar_gz_dir     = os.path.join(build_dir, "unpack-tar-gz")
 unpack_zip_dir        = os.path.join(build_dir, "unpack-zip")
 
-if platform == "win32":
+if is_windows():
     tar_hflag = ''
     python_project_subinst_dir = os.path.join("Lib", "site-packages", project)
     project_script_subinst_dir = 'Scripts'
@@ -1112,7 +1118,7 @@ for p in [ scons ]:
 
     for script in scripts:
         # add .py extension for scons-local scripts on non-windows platforms
-        if platform == "win32":
+        if is_windows():
             break
         local_script = os.path.join(build_dir_local, script)
         commands.append(Move(local_script + '.py', local_script))
@@ -1136,7 +1142,7 @@ for p in [ scons ]:
     Local(l)
 
     if gzip:
-        if platform == "win32":
+        if is_windows():
             # avoid problem with tar interpreting c:/ as a remote machine
             tar_cargs = '-cz --force-local -f'
         else:
