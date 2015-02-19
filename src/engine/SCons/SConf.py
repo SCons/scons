@@ -197,10 +197,8 @@ class Streamer(object):
         try:
             self.s.write(str)
         except TypeError as e:
-            if e.message.startswith('unicode argument expected'):
-                self.s.write(str.decode())
-            else:
-                raise
+            # "unicode argument expected" bug in IOStream (python 2.x)
+            self.s.write(str.decode())
 
     def writelines(self, lines):
         for l in lines:
