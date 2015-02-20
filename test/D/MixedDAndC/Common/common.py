@@ -30,7 +30,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import TestSCons
 
 from os.path import abspath, dirname
-from platform import machine
+from platform import architecture
 
 import sys
 sys.path.insert(1, abspath(dirname(__file__) + '/../../Support'))
@@ -48,7 +48,7 @@ def testForTool(tool):
 
     test.run()
 
-    if machine() in ('i386',):
+    if architecture()[0] == '32bit':
         test.fail_test('64-bit mode not compiled in' not in test.stdout())
 
     test.pass_test()
