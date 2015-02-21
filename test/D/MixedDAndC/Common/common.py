@@ -48,8 +48,8 @@ def testForTool(tool):
 
     test.run()
 
-    if machine() in ('i386',):
-        test.fail_test('64-bit mode not compiled in' not in test.stdout())
+    if machine() in ('i386', 'i486', 'i586', 'i686'):
+        test.fail_test('64-bit mode not compiled in' not in test.stderr())
 
     test.pass_test()
 
