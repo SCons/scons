@@ -46,10 +46,11 @@ def testForTool(tool):
 
     test.dir_fixture('Image')
 
-    test.run()
-
     if architecture()[0] == '32bit':
+        test.run(status=2)
         test.fail_test('64-bit mode not compiled in' not in test.stderr())
+    else:
+        test.run()
 
     test.pass_test()
 
