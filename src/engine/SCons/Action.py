@@ -99,8 +99,6 @@ way for wrapping up the functions.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.compat
-
 import dis
 import os
 # compat layer imports "cPickle" for us if it's available.
@@ -112,7 +110,6 @@ import subprocess
 import SCons.Debug
 from SCons.Debug import logInstanceCreation
 import SCons.Errors
-import SCons.Executor
 import SCons.Util
 import SCons.Subst
 
@@ -357,21 +354,6 @@ def _do_create_action(act, kw):
     if isinstance(act, ActionBase):
         return act
 
-    if is_List(act):
-        return CommandAction(act, **kw)
-
-    if callable(act):
-        try:
-            gen = kw['generator']
-            del kw['generator']
-        except KeyError:
-            gen = 0
-        if gen:
-            action_type = CommandGeneratorAction
-        else:
-            action_type = FunctionAction
-        return action_type(act, kw)
-
     if is_String(act):
         var=SCons.Util.get_environment_var(act)
         if var:
@@ -388,6 +370,22 @@ def _do_create_action(act, kw):
         # The list of string commands may include a LazyAction, so we
         # reprocess them via _do_create_list_action.
         return _do_create_list_action(commands, kw)
+    
+    if is_List(act):
+        return CommandAction(act, **kw)
+
+    if callable(act):
+        try:
+            gen = kw['generator']
+            del kw['generator']
+        except KeyError:
+            gen = 0
+        if gen:
+            action_type = CommandGeneratorAction
+        else:
+            action_type = FunctionAction
+        return action_type(act, kw)
+
     # Catch a common error case with a nice message:
     if isinstance(act, int) or isinstance(act, float):
         raise TypeError("Don't know how to create an Action from a number (%s)"%act)

@@ -107,8 +107,6 @@ from SCons.Debug import logInstanceCreation
 from SCons.Errors import InternalError, UserError
 import SCons.Executor
 import SCons.Memoize
-import SCons.Node
-import SCons.Node.FS
 import SCons.Util
 import SCons.Warnings
 
@@ -862,7 +860,7 @@ class CompositeBuilder(SCons.Util.Proxy):
         self.set_src_suffix(self.cmdgen.src_suffixes())
 
 def is_a_Builder(obj):
-    """"Returns True iff the specified obj is one of our Builder classes.
+    """"Returns True if the specified obj is one of our Builder classes.
 
     The test is complicated a bit by the fact that CompositeBuilder
     is a proxy, not a subclass of BuilderBase.

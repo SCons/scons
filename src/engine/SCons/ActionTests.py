@@ -23,8 +23,6 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.compat
-
 # Define a null function and a null class for use as builder actions.
 # Where these are defined in the file seems to affect their byte-code
 # contents, so try to minimize changes by defining them here, before we
