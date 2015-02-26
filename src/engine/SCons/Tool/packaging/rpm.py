@@ -130,8 +130,7 @@ def build_specfile(target, source, env):
     """ Builds a RPM specfile from a dictionary with string metadata and
     by analyzing a tree of nodes.
     """
-    file = open(target[0].abspath, 'w')
-    str  = ""
+    file = open(target[0].get_abspath(), 'w')
 
     try:
         file.write( build_specfile_header(env) )
@@ -279,7 +278,9 @@ def build_specfile_filesection(spec, files):
         tags = {}
         for k in supported_tags.keys():
             try:
-                tags[k]=getattr(file, k)
+                v = file.GetTag(k)
+                if v:
+                    tags[k] = v
             except AttributeError:
                 pass
 
@@ -287,7 +288,7 @@ def build_specfile_filesection(spec, files):
         str = str + SimpleTagCompiler(supported_tags, mandatory=0).compile( tags )
 
         str = str + ' '
-        str = str + file.PACKAGING_INSTALL_LOCATION
+        str = str + file.GetTag('PACKAGING_INSTALL_LOCATION')
         str = str + '\n\n'
 
     return str

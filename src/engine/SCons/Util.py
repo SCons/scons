@@ -992,7 +992,7 @@ class Selector(OrderedDict):
     def __call__(self, env, source, ext=None):
         if ext is None:
             try:
-                ext = source[0].suffix
+                ext = source[0].get_suffix()
             except IndexError:
                 ext = ""
         try:

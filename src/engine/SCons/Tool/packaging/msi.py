@@ -189,7 +189,7 @@ def build_wxsfile(target, source, env):
     """ compiles a .wxs file from the keywords given in env['msi_spec'] and
         by analyzing the tree of source nodes and their tags.
     """
-    file = open(target[0].abspath, 'w')
+    file = open(target[0].get_abspath(), 'w')
 
     try:
         # Create a document with the Wix root tag

@@ -79,7 +79,6 @@ env.Cat('foo', 'foo.k')
 
 bar_in = File('bar.in')
 env.Cat('bar', bar_in)
-bar_in.source_scanner = kscan
 """)
 
 test.write('foo.k', 

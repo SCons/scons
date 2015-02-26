@@ -540,7 +540,7 @@ class _ActionAction(ActionBase):
         if chdir:
             save_cwd = os.getcwd()
             try:
-                chdir = str(chdir.abspath)
+                chdir = str(chdir.get_abspath())
             except AttributeError:
                 if not is_String(chdir):
                     if executor:

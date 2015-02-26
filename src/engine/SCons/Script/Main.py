@@ -214,7 +214,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
         if self.top and not t.has_builder() and not t.side_effect:
             if not t.exists():
                 if t.__class__.__name__ in ('File', 'Dir', 'Entry'):
-                    errstr="Do not know how to make %s target `%s' (%s)." % (t.__class__.__name__, t, t.abspath)
+                    errstr="Do not know how to make %s target `%s' (%s)." % (t.__class__.__name__, t, t.get_abspath())
                 else: # Alias or Python or ...
                     errstr="Do not know how to make %s target `%s'." % (t.__class__.__name__, t)
                 sys.stderr.write("scons: *** " + errstr)
@@ -351,7 +351,7 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
         if target in SCons.Environment.CleanTargets:
             files = SCons.Environment.CleanTargets[target]
             for f in files:
-                self.fs_delete(f.abspath, str(f), remove)
+                self.fs_delete(f.get_abspath(), str(f), remove)
 
     def show(self):
         for t in self._get_files_to_clean():
@@ -672,7 +672,7 @@ def _set_debug_values(options):
     if "prepare" in debug_values:
         SCons.Taskmaster.print_prepare = 1
     if "duplicate" in debug_values:
-        SCons.Node.FS.print_duplicate = 1
+        SCons.Node.print_duplicate = 1
 
 def _create_path(plist):
     path = '.'
@@ -946,9 +946,9 @@ def _main(parser):
         progress_display.set_mode(0)
 
     if options.site_dir:
-        _load_site_scons_dir(d.path, options.site_dir)
+        _load_site_scons_dir(d.get_internal_path(), options.site_dir)
     elif not options.no_site_dir:
-        _load_all_site_scons_dirs(d.path)
+        _load_all_site_scons_dirs(d.get_internal_path())
 
     if options.include_dir:
         sys.path = options.include_dir + sys.path
@@ -1111,7 +1111,6 @@ def _build_targets(fs, options, targets, target_top):
     display.set_mode(not options.silent)
     SCons.Action.print_actions          = not options.silent
     SCons.Action.execute_actions        = not options.no_exec
-    SCons.Node.FS.do_store_info         = not options.no_exec
     SCons.Node.do_store_info            = not options.no_exec
     SCons.SConf.dryrun                  = options.no_exec
 

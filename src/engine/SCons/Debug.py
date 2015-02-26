@@ -34,6 +34,7 @@ import os
 import sys
 import time
 import weakref
+import inspect
 
 # Global variable that gets set to 'True' by the Main script,
 # when the creation of class instances should get tracked.
@@ -46,7 +47,12 @@ def logInstanceCreation(instance, name=None):
         name = instance.__class__.__name__
     if name not in tracked_classes:
         tracked_classes[name] = []
-    tracked_classes[name].append(weakref.ref(instance))
+    if hasattr(instance, '__dict__'):
+        tracked_classes[name].append(weakref.ref(instance))
+    else:
+        # weakref doesn't seem to work when the instance
+        # contains only slots...
+        tracked_classes[name].append(instance)
 
 def string_to_classes(s):
     if s == '*':
@@ -66,7 +72,10 @@ def listLoggedInstances(classes, file=sys.stdout):
     for classname in string_to_classes(classes):
         file.write('\n%s:\n' % classname)
         for ref in tracked_classes[classname]:
-            obj = ref()
+            if inspect.isclass(ref):
+                obj = ref()
+            else:
+                obj = ref
             if obj is not None:
                 file.write('    %s\n' % repr(obj))
 

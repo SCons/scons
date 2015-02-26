@@ -171,11 +171,6 @@ class PathListCache(object):
     cheaply avoid re-parsing both values of CPPPATH by using the
     common value from this cache.
     """
-    if SCons.Memoize.use_memoizer:
-        __metaclass__ = SCons.Memoize.Memoized_Metaclass
-
-    memoizer_counters = []
-
     def __init__(self):
         self._memo = {}
 
@@ -196,8 +191,7 @@ class PathListCache(object):
             pathlist = tuple(SCons.Util.flatten(pathlist))
         return pathlist
 
-    memoizer_counters.append(SCons.Memoize.CountDict('PathList', _PathList_key))
-
+    @SCons.Memoize.CountDictCall(_PathList_key)
     def PathList(self, pathlist):
         """
         Returns the cached _PathList object for the specified pathlist,

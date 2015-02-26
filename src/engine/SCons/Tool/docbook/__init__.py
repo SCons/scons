@@ -448,7 +448,7 @@ def DocbookEpub(env, target, source=None, *args, **kw):
         Ensure all the resources in the manifest are present in the OEBPS directory.
         """
         hrefs = []
-        content_file = os.path.join(source[0].abspath, 'content.opf')
+        content_file = os.path.join(source[0].get_abspath(), 'content.opf')
         if not os.path.isfile(content_file):
             return
         
@@ -491,9 +491,9 @@ def DocbookEpub(env, target, source=None, *args, **kw):
         for href in hrefs:
             # If the resource was not already created by DocBook XSL itself, 
             # copy it into the OEBPS folder
-            referenced_file = os.path.join(source[0].abspath, href)
+            referenced_file = os.path.join(source[0].get_abspath(), href)
             if not os.path.exists(referenced_file):
-                shutil.copy(href, os.path.join(source[0].abspath, href))
+                shutil.copy(href, os.path.join(source[0].get_abspath(), href))
         
     # Init list of targets/sources
     target, source = __extend_targets_sources(target, source)

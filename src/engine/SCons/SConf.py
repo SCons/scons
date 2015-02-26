@@ -175,8 +175,11 @@ class SConfBuildInfo(SCons.Node.FS.FileBuildInfo):
     are result (did the builder succeed last time?) and string, which
     contains messages of the original build phase.
     """
-    result = None # -> 0/None -> no error, != 0 error
-    string = None # the stdout / stderr output when building the target
+    __slots__ = ('result', 'string')
+    
+    def __init__(self):
+        self.result = None # -> 0/None -> no error, != 0 error
+        self.string = None # the stdout / stderr output when building the target
 
     def set_build_result(self, result, string):
         self.result = result
@@ -352,8 +355,10 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
                 raise SCons.Errors.ExplicitExit(self.targets[0],exc_value.code)
             except Exception, e:
                 for t in self.targets:
-                    binfo = t.get_binfo()
-                    binfo.__class__ = SConfBuildInfo
+                    #binfo = t.get_binfo()
+                    #binfo.__class__ = SConfBuildInfo
+                    binfo = SConfBuildInfo()
+                    binfo.merge(t.get_binfo())
                     binfo.set_build_result(1, s.getvalue())
                     sconsign_entry = SCons.SConsign.SConsignEntry()
                     sconsign_entry.binfo = binfo
@@ -370,8 +375,10 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
                 raise e
             else:
                 for t in self.targets:
-                    binfo = t.get_binfo()
-                    binfo.__class__ = SConfBuildInfo
+                    #binfo = t.get_binfo()
+                    #binfo.__class__ = SConfBuildInfo
+                    binfo = SConfBuildInfo()
+                    binfo.merge(t.get_binfo())
                     binfo.set_build_result(0, s.getvalue())
                     sconsign_entry = SCons.SConsign.SConsignEntry()
                     sconsign_entry.binfo = binfo
@@ -500,7 +507,7 @@ class SConfBase(object):
         # we override the store_info() method with a null place-holder
         # so we really control how it gets written.
         for n in nodes:
-            n.store_info = n.do_not_store_info
+            n.store_info = 0
             if not hasattr(n, 'attributes'):
                 n.attributes = SCons.Node.Node.Attrs()
             n.attributes.keep_targetinfo = 1
@@ -640,7 +647,7 @@ class SConfBase(object):
         ok = self.TryLink(text, extension)
         if( ok ):
             prog = self.lastTarget
-            pname = prog.path
+            pname = prog.get_internal_path()
             output = self.confdir.File(os.path.basename(pname)+'.out')
             node = self.env.Command(output, prog, [ [ pname, ">", "${TARGET}"] ])
             ok = self.BuildNodes(node)
@@ -684,7 +691,6 @@ class SConfBase(object):
         else:
             if not os.path.isdir( dirName ):
                 os.makedirs( dirName )
-                node._exists = 1
 
     def _startup(self):
         """Private method. Set up logstream, and set the environment

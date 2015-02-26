@@ -221,8 +221,6 @@ class SConfTestCase(unittest.TestCase):
                         pass
                     def get_stored_info(self):
                         pass
-                    def do_not_store_info(self):
-                        pass
                     def get_executor(self):
                         class Executor(object):
                             def __init__(self, targets):
