@@ -373,7 +373,7 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
                 # the file not existing.  In either case, print a
                 # message and keep going to try to remove as many
                 # targets aa possible.
-                print(("scons: Could not remove '%s':" % str(t), e.strerror)
+                print("scons: Could not remove '%s':" % str(t), e.strerror)
             else:
                 if removed:
                     display("Removed " + str(t))
