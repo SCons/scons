@@ -35,6 +35,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 __doc__ = """Module for Visual C/C++ detection and configuration.
 """
 import SCons.compat
+import SCons.Util
 
 import os
 import platform
@@ -137,32 +138,46 @@ def get_host_target(env):
 _VCVER = ["12.0", "12.0Exp", "11.0", "11.0Exp", "10.0", "10.0Exp", "9.0", "9.0Exp","8.0", "8.0Exp","7.1", "7.0", "6.0"]
 
 _VCVER_TO_PRODUCT_DIR = {
-        '12.0' : [
-            r'Microsoft\VisualStudio\12.0\Setup\VC\ProductDir'],
-        '12.0Exp' : [
-            r'Microsoft\VCExpress\12.0\Setup\VC\ProductDir'],
-        '11.0': [
-            r'Microsoft\VisualStudio\11.0\Setup\VC\ProductDir'],
-        '11.0Exp' : [
-            r'Microsoft\VCExpress\11.0\Setup\VC\ProductDir'],
-        '10.0': [
-            r'Microsoft\VisualStudio\10.0\Setup\VC\ProductDir'],
-        '10.0Exp' : [
-            r'Microsoft\VCExpress\10.0\Setup\VC\ProductDir'],
-        '9.0': [
-            r'Microsoft\VisualStudio\9.0\Setup\VC\ProductDir'],
-        '9.0Exp' : [
-            r'Microsoft\VCExpress\9.0\Setup\VC\ProductDir'],
-        '8.0': [
-            r'Microsoft\VisualStudio\8.0\Setup\VC\ProductDir'],
-        '8.0Exp': [
-            r'Microsoft\VCExpress\8.0\Setup\VC\ProductDir'],
-        '7.1': [
-            r'Microsoft\VisualStudio\7.1\Setup\VC\ProductDir'],
-        '7.0': [
-            r'Microsoft\VisualStudio\7.0\Setup\VC\ProductDir'],
-        '6.0': [
-            r'Microsoft\VisualStudio\6.0\Setup\Microsoft Visual C++\ProductDir']
+    '12.0' : [
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\12.0\Setup\VC\ProductDir'),
+        ],
+    '12.0Exp' : [
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\12.0\Setup\VC\ProductDir'),
+        ],
+    '11.0': [
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\11.0\Setup\VC\ProductDir'),
+        ],
+    '11.0Exp' : [
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\11.0\Setup\VC\ProductDir'),
+        ],
+    '10.0': [
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\10.0\Setup\VC\ProductDir'),
+        ],
+    '10.0Exp' : [
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\10.0\Setup\VC\ProductDir'),
+        ],
+    '9.0': [
+        (SCons.Util.HKEY_CURRENT_USER, r'Microsoft\DevDiv\VCForPython\9.0\installdir',),
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\9.0\Setup\VC\ProductDir',),
+        ],
+    '9.0Exp' : [
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\9.0\Setup\VC\ProductDir'),
+        ],
+    '8.0': [
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\8.0\Setup\VC\ProductDir'),
+        ],
+    '8.0Exp': [
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\8.0\Setup\VC\ProductDir'),
+        ],
+    '7.1': [
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\7.1\Setup\VC\ProductDir'),
+        ],
+    '7.0': [
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\7.0\Setup\VC\ProductDir'),
+        ],
+    '6.0': [
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\6.0\Setup\Microsoft Visual C++\ProductDir'),
+        ]
 }
         
 def msvc_version_to_maj_min(msvc_version):
@@ -212,18 +227,25 @@ def find_vc_pdir(msvc_version):
     If for some reason the requested version could not be found, an
     exception which inherits from VisualCException will be raised."""
     root = 'Software\\'
-    if common.is_win64():
-        root = root + 'Wow6432Node\\'
     try:
         hkeys = _VCVER_TO_PRODUCT_DIR[msvc_version]
     except KeyError:
         debug("Unknown version of MSVC: %s" % msvc_version)
         raise UnsupportedVersion("Unknown version %s" % msvc_version)
 
-    for key in hkeys:
-        key = root + key
+    for hkroot, key in hkeys:
         try:
-            comps = common.read_reg(key)
+            comps = None
+            if common.is_win64():
+                try:
+                    # ordinally at win64, try Wow6432Node first.
+                    comps = common.read_reg(root + 'Wow6432Node\\' + key, hkroot)
+                except WindowsError, e:
+                    # at Microsoft Visual Studio for Python 2.7, value is not in Wow6432Node
+                    pass
+            if not comps:
+                # not Win64, or Microsoft Visual Studio for Python 2.7
+                comps = common.read_reg(root + key, hkroot)
         except WindowsError, e:
             debug('find_vc_dir(): no VC registry key %s' % repr(key))
         else:
