@@ -41,6 +41,7 @@ start_time = time.time()
 
 import collections
 import os
+import StringIO
 import sys
 
 # Special chicken-and-egg handling of the "--debug=memoizer" flag:
@@ -107,6 +108,7 @@ QuestionTask            = Main.QuestionTask
 #SConscriptSettableOptions = Main.SConscriptSettableOptions
 
 AddOption               = Main.AddOption
+PrintHelp               = Main.PrintHelp
 GetOption               = Main.GetOption
 SetOption               = Main.SetOption
 Progress                = Main.Progress
@@ -258,10 +260,17 @@ def _Set_Default_Targets(env, tlist):
 #
 help_text = None
 
-def HelpFunction(text):
+def HelpFunction(text, append=False):
     global help_text
-    if SCons.Script.help_text is None:
-        SCons.Script.help_text = text
+    if help_text is None:
+        if append:
+            s = StringIO.StringIO()
+            PrintHelp(s)  
+            help_text = s.getvalue()
+            s.close()
+        else:
+            help_text = ""       
+        help_text = help_text + "\nLocal Build Variables:\n" + text
     else:
         help_text = help_text + text
 

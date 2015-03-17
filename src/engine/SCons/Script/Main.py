@@ -484,6 +484,9 @@ def GetOption(name):
 def SetOption(name, value):
     return OptionsParser.values.set_option(name, value)
 
+def PrintHelp(file=None):
+    OptionsParser.print_help(file=file)
+
 #
 class Stats(object):
     def __init__(self):

@@ -6,6 +6,9 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From William Roberts:
+    - Fix bug 2831 and allow Help() text to be appended to AddOption() help.
+
   From Russel Winder:
     - Add support for f08 file extensions for Fortran 2008 code.
 
