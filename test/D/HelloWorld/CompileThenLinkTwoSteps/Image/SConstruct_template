@@ -1,0 +1,10 @@
+# -*- mode:python; coding:utf-8; -*-
+
+import os
+
+environment = Environment(
+    tools=['link', '{}'])
+
+objects = environment.Object('helloWorld.d')
+
+environment.Program('helloWorld', objects)

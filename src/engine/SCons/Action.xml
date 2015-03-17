@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<cvar name="IMPLICIT_COMMAND_DEPENDENCIES">
+<summary>
+<para>
+Controls whether or not SCons will
+add implicit dependencies for the commands
+executed to build targets.
+</para>
+
+<para>
+By default, SCons will add
+to each target
+an implicit dependency on the command
+represented by the first argument on any
+command line it executes.
+The specific file for the dependency is
+found by searching the
+<varname>PATH</varname>
+variable in the
+<varname>ENV</varname>
+environment used to execute the command.
+</para>
+
+<para>
+If the construction variable
+&cv-IMPLICIT_COMMAND_DEPENDENCIES;
+is set to a false value
+(<literal>None</literal>,
+<literal>False</literal>,
+<literal>0</literal>,
+etc.),
+then the implicit dependency will
+not be added to the targets
+built with that construction environment.
+</para>
+
+<example_commands>
+env = Environment(IMPLICIT_COMMAND_DEPENDENCIES = 0)
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="PRINT_CMD_LINE_FUNC">
+<summary>
+<para>
+A Python function used to print the command lines as they are executed
+(assuming command printing is not disabled by the
+<option>-q</option>
+or
+<option>-s</option>
+options or their equivalents).
+The function should take four arguments:
+<varname>s</varname>,
+the command being executed (a string),
+<varname>target</varname>,
+the target being built (file node, list, or string name(s)),
+<varname>source</varname>,
+the source(s) used (file node, list, or string name(s)), and
+<varname>env</varname>,
+the environment being used.
+</para>
+
+<para>
+The function must do the printing itself.  The default implementation,
+used if this variable is not set or is None, is:
+</para>
+<example_commands>
+def print_cmd_line(s, target, source, env):
+  sys.stdout.write(s + "\n")
+</example_commands>
+
+<para>
+Here's an example of a more interesting function:
+</para>
+
+<example_commands>
+def print_cmd_line(s, target, source, env):
+   sys.stdout.write("Building %s -> %s...\n" %
+    (' and '.join([str(x) for x in source]),
+     ' and '.join([str(x) for x in target])))
+env=Environment(PRINT_CMD_LINE_FUNC=print_cmd_line)
+env.Program('foo', 'foo.c')
+</example_commands>
+
+<para>
+This just prints "Building <varname>targetname</varname> from <varname>sourcename</varname>..." instead
+of the actual commands.
+Such a function could also log the actual commands to a log file,
+for example.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SPAWN">
+<summary>
+<para>
+A command interpreter function that will be called to execute command line
+strings. The function must expect the following arguments:
+</para>
+
+<example_commands>
+def spawn(shell, escape, cmd, args, env):
+</example_commands>
+
+<para>
+<varname>sh</varname>
+is a string naming the shell program to use.
+<varname>escape</varname>
+is a function that can be called to escape shell special characters in
+the command line.
+<varname>cmd</varname>
+is the path to the command to be executed.
+<varname>args</varname>
+is the arguments to the command.
+<varname>env</varname>
+is a dictionary of the environment variables
+in which the command should be executed.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>
