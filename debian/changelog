@@ -1,0 +1,216 @@
+scons (2.3.4) unstable; urgency=low
+
+  * Maintenance release.
+
+ -- Gary Oberbrunner <garyo@oberbrunner.com>  Sun, 27 Sep 2014 21:00:00 -0500
+
+scons (2.3.3) unstable; urgency=low
+
+  * Maintenance release.
+
+ -- Gary Oberbrunner <garyo@oberbrunner.com>  Sun, 24 Aug 2014 21:00:00 -0500
+
+scons (2.3.2) unstable; urgency=low
+
+  * Maintenance release.
+
+ -- Gary Oberbrunner <garyo@oberbrunner.com>  Fri, 4 July 2014 21:00:00 -0500
+
+scons (2.3.0) unstable; urgency=low
+
+  * Maintenance release.
+
+ -- Gary Oberbrunner <garyo@oberbrunner.com>  Sat, 9 Feb 2013 21:00:00 -0500
+
+
+scons (2.2.0) unstable; urgency=low
+
+  * Maintenance release.
+
+ -- Gary Oberbrunner <garyo@oberbrunner.com>  Sun, 12 Aug 2012 09:00:00 -0500
+
+
+scons (0.97) unstable; urgency=low
+
+  * Eighth beta release.
+
+ -- Steven Knight <knight@baldmt.com>  Thu, 17 May 2007 08:59:41 -0500
+
+
+scons (0.96-1) unstable; urgency=low
+
+  * Seventh beta release.
+
+ -- Steven Knight <knight@baldmt.com>  Wed, 18 Aug 2004 13:36:40 +0000
+
+
+scons (0.95-1) unstable; urgency=low
+
+  * Sixth beta release.
+
+ -- Steven Knight <knight@baldmt.com>  Mon, 08 Mar 2004 06:43:20 -0600
+
+
+scons (0.94-1) unstable; urgency=low
+
+  * Fifth beta release.
+
+ -- Steven Knight <knight@baldmt.com>  Fri, 07 Nov 2003 05:29:48 -0600
+
+
+scons (0.93-1) unstable; urgency=low
+
+  * Fourth beta release.
+
+ -- Steven Knight <knight@baldmt.com>  Thu, 23 Oct 2003 07:26:55 -0500
+
+
+scons (0.92-1) unstable; urgency=low
+
+  * Third beta release.
+
+ -- Steven Knight <knight@baldmt.com>  Wed, 20 Aug 2003 03:45:28 -0500
+
+
+scons (0.91-1) unstable; urgency=low
+
+  * Second beta release.
+
+ -- Steven Knight <knight@baldmt.com>  Thu, 14 Aug 2003 13:00:44 -0500
+
+
+scons (0.90-1) unstable; urgency=low
+
+  * First beta release.
+
+ -- Steven Knight <knight@baldmt.com>  Wed, 25 Jun 2003 14:24:52 -0500
+
+
+scons (0.14-1) unstable; urgency=low
+
+  * Eighth post-official-Debian build cycle
+
+ -- Steven Knight <knight@baldmt.com>  Wed, 21 May 2003 05:16:32 -0500
+
+
+scons (0.13-1) unstable; urgency=low
+
+  * Seventh post-official-Debian build cycle
+
+ -- Steven Knight <knight@baldmt.com>  Mon, 31 Mar 2003 20:22:00 -0600
+
+
+scons (0.12-1) unstable; urgency=low
+
+  * Sixth post-official-Debian build cycle
+
+ -- Steven Knight <knight@baldmt.com>  Thu, 27 Mar 2003 23:52:09 -0600
+
+
+scons (0.11-1) unstable; urgency=low
+
+  * Fifth post-official-Debian build cycle
+
+ -- Steven Knight <knight@baldmt.com>  Tue, 11 Feb 2003 05:24:33 -0600
+
+
+scons (0.10-1) unstable; urgency=low
+
+  * Fourth post-official-Debian build cycle
+
+ -- Steven Knight <knight@baldmt.com>  Thu, 16 Jan 2003 04:11:46 -0600
+
+
+scons (0.09-1) unstable; urgency=low
+
+  * Third post-official-Debian build cycle
+
+ -- Steven Knight <knight@baldmt.com>  Thu,  5 Dec 2002 04:48:25 -0600
+
+
+scons (0.08-1) unstable; urgency=low
+
+  *  New upstream release (Closes: #158373)
+
+ -- Moshe Zadka <moshez@debian.org>  Mon, 21 Oct 2002 16:52:11 +0200
+
+scons (0.07-3) unstable; urgency=low
+
+  * Removing /usr/doc links
+  * Python 2.1 -> Python 2.2
+
+ -- Moshe Zadka <moshez@debian.org>  Tue, 27 Aug 2002 18:48:02 +0300
+
+scons (0.07-2) unstable; urgency=low
+
+  * Ugh, who would put distutils.core in python-dev? Changing build
+    dependancies (Closes: #146601)
+  * While we're at it, update Standards-Version
+
+ -- Moshe Zadka <moshez@debian.org>  Sat, 11 May 2002 08:25:07 +0300
+
+scons (0.07-1) unstable; urgency=low
+
+  * New upstream version
+  * Packaging properly, instead of as debian native
+  * Modifying copyright to include upstream location (Closes: #144491)
+  * Fixing my e-mail address (Closes: #144490)
+    * Thanks for looking after my packages, tbm ;-)
+
+ -- Moshe Zadka <moshez@debian.org>  Sat,  4 May 2002 13:05:53 +0300
+
+scons (0.06-1) unstable; urgency=low
+
+  * New upstream version
+
+ -- Moshe Zadka <moshez@debian.org>  Mon, 15 Apr 2002 19:22:09 +0300
+
+scons (0.05-1) unstable; urgency=low
+
+  * First upload (closes: #140128)
+
+ -- Moshe Zadka <moshez@debian.org>  Wed, 27 Mar 2002 10:40:42 +0200
+
+
+scons (0.06-1) unstable; urgency=low
+
+  * Sixth Release.
+
+ -- Steven Knight <knight@baldmt.com>  Thu, 28 Mar 2002 01:24:29 -0600
+
+
+scons (0.05-1) unstable; urgency=low
+
+  * Fifth Release.
+
+ -- Steven Knight <knight@baldmt.com>  Thu, 21 Feb 2002 16:50:03 -0600
+
+
+scons (0.04-1) unstable; urgency=low
+
+  * Fourth Release.
+
+ -- Steven Knight <knight@baldmt.com>  Wed, 30 Jan 2002 11:09:42 -0600
+
+
+scons (0.03-1) unstable; urgency=low
+
+  * Third Release.
+
+ -- Steven Knight <knight@baldmt.com>  Fri, 11 Jan 2002 01:09:30 -0600
+
+
+scons (0.02-1) unstable; urgency=low
+
+  * Second Release.
+
+ -- Steven Knight <knight@baldmt.com>  Fri, 14 Dec 2001 13:23:03 -0600
+
+
+scons (0.01-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Anthony Roach <aroach@electriceyeball.com>  Mon,  1 Oct 2001 23:24:45 -0500
+
+

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q --cache-disable</userinput>
+cc -o hello.o -c hello.c
+cc -o hello hello.o
+% <userinput>scons -Q -c</userinput>
+Removed hello.o
+Removed hello
+% <userinput>scons -Q --cache-disable</userinput>
+cc -o hello.o -c hello.c
+cc -o hello hello.o
+% <userinput>scons -Q --cache-force</userinput>
+scons: `.' is up to date.
+% <userinput>scons -Q</userinput>
+scons: `.' is up to date.
+</screen>

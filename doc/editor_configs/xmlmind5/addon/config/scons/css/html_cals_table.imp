@@ -1,0 +1,101 @@
+/*
+ * Copyright (c) 2005-2009 Pixware. 
+ *
+ * This file is part of the XMLmind XML Editor project.
+ * For conditions of distribution and use, see the accompanying legal.txt file.
+ *
+ * Styles for both HTML and CALS tables (DocBook 4.3+).
+ */
+
+@import "table.imp";
+
+/*
+ * "black" is the color used to draw a border around the table and its cells
+ * based on values of attributes such as frame, rowsep and colsep.
+ *
+ * "rgb(238,238,224)" (a very light gray) is the color used to draw 
+ * a border around each cell whether the cell actually has borders or not.
+ * Remove this parameter if this ``cell footprint'' disturbs you.
+ *
+ * For more information about table support for DocBook, see 
+ * XMLmind XML Editor - Configuration and Deployment.
+ */
+@extension "com.xmlmind.xmleditext.docbook.TableSupport black rgb(238,238,224)";
+
+/*
+ * Real DocBook tables (CALS) contain (graphic+|mediaobject+|tgroup+)
+ * not (tbody+|tr+).
+ */
+
+table:contains-element(tr),
+table:contains-element(tbody),
+informaltable:contains-element(tr),
+informaltable:contains-element(tbody) { 
+    display: table;
+    border-style: solid;
+    border-width: 1;
+    margin-top: 1.33ex;
+    margin-bottom: 1.33ex;
+}
+
+table:contains-element(tr) > caption,
+table:contains-element(tbody) > caption,
+informaltable:contains-element(tr) > caption,
+informaltable:contains-element(tbody) > caption { 
+    display: table-caption;
+    color: #004080;
+    font-style: italic;
+    font-weight: normal;
+    text-align: center;
+    margin: 2px 2ex 2px 2ex;
+}
+
+colgroup { 
+    display: table-column-group;
+    collapsed: yes;
+}
+
+col { 
+    display: table-column;
+    collapsed: yes;
+}
+
+/*
+ * thead, tbody, tfoot, already properly styled in table.imp.
+ */
+
+table:contains-element(tbody) > thead,
+table:contains-element(tbody) > tfoot {
+    /* 
+     * In CALS tables, header and footer rows are often presented
+     * in an alternate typographic style, such as boldface.
+     * There is no such processing expectation for HTML tables.
+     * Explicitly use th instead of td when boldface is needed.
+     */
+    font-weight: normal; 
+}
+       
+tr { 
+    display: table-row;
+    background-color: inherit; /*e.g. from read-only tbody*/
+}
+
+td, 
+th { 
+    display: table-cell;
+    background-color: inherit; /*e.g. from read-only row*/
+    border-style: solid;
+    border-width: 1;
+    padding: 2;
+}
+
+th {
+    font-weight: bold;
+}
+
+@media print {
+    colgroup, 
+    col { 
+        display: none;
+    }
+}
