@@ -205,6 +205,11 @@ and Y are numbers, and Z is a number but can also contain letters to designate
 alpha, beta, or release candidate patch levels.
 </para>
 
+<example_commands>
+env.SharedLibrary(target = 'bar', source = ['bar.c', 'foo.o'], SHLIBVERSION='1.5.2')
+</example_commands>
+
+
 <para>
 This builder may create multiple links to the library. On a POSIX system,
 for the shared library libbar.so.2.3.1, the links created would be
