@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q foo.o</userinput>
+cc -o foo.o -c -DPACKAGE="/opt/location" foo.c
+% <userinput>scons -Q PACKAGE=/usr/local/location foo.o</userinput>
+cc -o foo.o -c -DPACKAGE="/usr/local/location" foo.c
+% <userinput>scons -Q PACKAGE=yes foo.o</userinput>
+cc -o foo.o -c -DPACKAGE="True" foo.c
+% <userinput>scons -Q PACKAGE=no foo.o</userinput>
+cc -o foo.o -c -DPACKAGE="False" foo.c
+</screen>

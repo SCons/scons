@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="gdc">
+<summary>
+<para>
+Sets construction variables for the D language compiler GDC.
+</para>
+</summary>
+<sets>
+<item>DC</item>
+<item>DCOM</item>
+<item>_DINCFLAGS</item>
+<item>_DVERFLAGS</item>
+<item>_DDEBUGFLAGS</item>
+<item>_DFLAGS</item>
+<item>SHDC</item>
+<item>SHDCOM</item>
+<item>DPATH</item>
+<item>DFLAGS</item>
+<item>DVERSIONS</item>
+<item>DDEBUG</item>
+<item>DINCPREFIX</item>
+<item>DINCSUFFIX</item>
+<item>DVERPREFIX</item>
+<item>DVERSUFFIX</item>
+<item>DDEBUGPREFIX</item>
+<item>DDEBUGSUFFIX</item>
+<item>DFLAGPREFIX</item>
+<item>DFLAGSUFFIX</item>
+<item>DFILESUFFIX</item>
+<item>DLINK</item>
+<item>DLINKFLAGS</item>
+<item>DLINKCOM</item>
+<item>SHDLINK</item>
+<item>SHDLINKFLAGS</item>
+<item>SHDLINKCOM</item>
+<item>DLIB</item>
+<item>DLIBCOM</item>
+<item>_DLIBFLAGS</item>
+<item>DLIBFLAGPREFIX</item>
+<item>DLIBFLAGSUFFIX</item>
+<item>DLINKFLAGPREFIX</item>
+<item>DLINKFLAGSUFFIX</item>
+<item>RPATHPREFIX</item>
+<item>RPATHSUFFIX</item>
+<item>_RPATH</item>
+</sets>
+<uses>
+</uses>
+</tool>
+
+<cvar name="DC">
+<summary>
+<para>
+DC.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DCOM">
+<summary>
+<para>
+DCOM.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DDEBUG">
+<summary>
+<para>
+DDEBUG.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DDEBUGPREFIX">
+<summary>
+<para>
+DDEBUGPREFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DDEBUGSUFFIX">
+<summary>
+<para>
+DDEBUGSUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DFILESUFFIX">
+<summary>
+<para>
+DFILESUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DFLAGPREFIX">
+<summary>
+<para>
+DFLAGPREFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DFLAGS">
+<summary>
+<para>
+DFLAGS.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DFLAGSUFFIX">
+<summary>
+<para>
+DFLAGSUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DINCPREFIX">
+<summary>
+<para>
+DINCPREFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DINCSUFFIX">
+<summary>
+<para>
+DINCSUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLIB">
+<summary>
+<para>
+DLIB.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLIBCOM">
+<summary>
+<para>
+DLIBCOM.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLIBDIRPREFIX">
+<summary>
+<para>
+DLIBDIRPREFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLIBDIRSUFFIX">
+<summary>
+<para>
+DLIBDIRSUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLIBFLAGPREFIX">
+<summary>
+<para>
+DLIBFLAGPREFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLIBFLAGSUFFIX">
+<summary>
+<para>
+DLIBFLAGSUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLIBLINKPREFIX">
+<summary>
+<para>
+DLIBLINKPREFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLIBLINKSUFFIX">
+<summary>
+<para>
+DLIBLINKSUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLINK">
+<summary>
+<para>
+DLINK.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLINKCOM">
+<summary>
+<para>
+DLINKCOM.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLINKFLAGPREFIX">
+<summary>
+<para>
+DLINKFLAGPREFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLINKFLAGS">
+<summary>
+<para>
+DLINKFLAGS.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLINKFLAGSUFFIX">
+<summary>
+<para>
+DLINKFLAGSUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DPATH">
+<summary>
+<para>
+DPATH.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DVERPREFIX">
+<summary>
+<para>
+DVERPREFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DVERSIONS">
+<summary>
+<para>
+DVERSIONS.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DVERSUFFIX">
+<summary>
+<para>
+DVERSUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHDC">
+<summary>
+<para>
+SHDC.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHDCOM">
+<summary>
+<para>
+SHDCOM.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHDLINK">
+<summary>
+<para>
+SHDLINK.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHDLINKCOM">
+<summary>
+<para>
+SHDLINKCOM.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHDLINKFLAGS">
+<summary>
+<para>
+SHDLINKFLAGS.
+</para>
+</summary>
+</cvar>
+
+<cvar name="_DDEBUGFLAGS">
+<summary>
+<para>
+_DDEBUGFLAGS.
+</para>
+</summary>
+</cvar>
+
+<cvar name="_DFLAGS">
+<summary>
+<para>
+_DFLAGS.
+</para>
+</summary>
+</cvar>
+
+<cvar name="_DINCFLAGS">
+<summary>
+<para>
+_DINCFLAGS.
+</para>
+</summary>
+</cvar>
+
+<cvar name="_DLIBDIRFLAGS">
+<summary>
+<para>
+_DLIBDIRFLAGS.
+</para>
+</summary>
+</cvar>
+
+<cvar name="_DLIBFLAGS">
+<summary>
+<para>
+_DLIBFLAGS.
+</para>
+</summary>
+</cvar>
+
+<cvar name="_DVERFLAGS">
+<summary>
+<para>
+_DVERFLAGS.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>
