@@ -1,0 +1,2 @@
+env = Environment(tools=['docbook'])
+env.DocbookEpub('manual')

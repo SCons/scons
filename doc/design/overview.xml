@@ -1,0 +1,508 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+]>
+
+<chapter id="chap-overview"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Overview</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+<section id="sect-architecture">
+ <title>Architecture</title>
+
+ <para>
+
+   The heart of &SCons; is its <emphasis>Build Engine</emphasis>.
+   The &SCons; Build Engine is a Python module
+   that manages dependencies between
+   external objects
+   such as files or database records.
+   The Build Engine is designed to
+   be interface-neutral
+   and easily embeddable in any
+   software system that needs dependency
+   analysis between updatable objects.
+
+ </para>
+
+ <para>
+
+   The key parts of the Build Engine architecture
+   are captured in the following quasi-UML diagram:
+
+ </para>
+
+   <figure>
+    <title>&SCons; Architecture</title>
+    <mediaobject>
+     <imageobject>
+      <imagedata fileref="engine.svg" align="center" scale="50"/>
+     </imageobject>
+     <imageobject>
+      <imagedata fileref="engine.jpg" align="center"/>
+     </imageobject>
+    </mediaobject>
+   </figure>
+
+ <para>
+
+   The point of &SCons; is to manage
+   dependencies between arbitrary external objects.
+   Consequently, the Build Engine does not restrict or specify
+   the nature of the external objects it manages,
+   but instead relies on subclass of the &Node;
+   class to interact with the external system or systems
+   (file systems, database management systems)
+   that maintain the objects being examined or updated.
+
+ </para>
+
+ <para>
+
+   The Build Engine presents to the software system in
+   which it is embedded
+   a Python API for specifying source (input) and target (output) objects,
+   rules for building/updating objects,
+   rules for scanning objects for dependencies, etc. 
+   Above its Python API,
+   the Build Engine is completely
+   interface-independent,
+   and can be encapsulated by any other software
+   that supports embedded Python.
+
+ </para>
+
+ <para>
+
+   Software that chooses to use the Build Engine
+   for dependency management
+   interacts with it
+   through <emphasis>Construction Environments</emphasis>.
+   A Construction Environment consists
+   of a dictionary of environment variables,
+   and one or more associated
+   &Scanner; objects
+   and &Builder; objects.
+   The Python API is used to
+   form these associations.
+
+ </para>
+
+ <para>
+
+   A &Scanner; object specifies
+   how to examine a type of source object
+   (C source file, database record)
+   for dependency information.
+   A &Scanner; object may use
+   variables from the associated
+   Construction Environment
+   to modify how it scans an object:
+   specifying a search path for included files,
+   which field in a database record to consult,
+   etc.
+
+ </para>
+
+ <para>
+
+   A &Builder; object specifies
+   how to update a type of target object:
+   executable program, object file, database field, etc.
+   Like a &Scanner; object,
+   a &Builder; object may use
+   variables from the associated
+   Construction Environment
+   to modify how it builds an object:
+   specifying flags to a compiler,
+   using a different update function,
+   etc.
+
+ </para>
+
+ <para>
+
+   &Scanner; and &Builder; objects will return one or more
+   &Node; objects that represent external objects.
+   &Node; objects are the means by which the
+   Build Engine tracks dependencies:
+   A &Node; may represent a source (input) object that
+   should already exist,
+   or a target (output) object which may be built,
+   or both.
+   The &Node; class is sub-classed to 
+   represent external objects of specific type:
+   files, directories, database fields or records, etc.
+   Because dependency information, however,
+   is tracked by the top-level &Node; methods and attributes,
+   dependencies can exist
+   between nodes representing different external object types.
+   For example,
+   building a file could be made
+   dependent on the value of a given
+   field in a database record,
+   or a database table could depend
+   on the contents of an external file.
+
+ </para>
+
+ <para>
+
+   The Build Engine uses a &Job; class (not displayed)
+   to manage the actual work of updating external target objects:
+   spawning commands to build files,
+   submitting the necessary commands to update a database record,
+   etc.
+   The &Job; class has sub-classes
+   to handle differences between spawning
+   jobs in parallel and serially.
+
+ </para>
+
+ <para>
+
+   The Build Engine also uses a
+   &Signature; class (not displayed)
+   to maintain information about whether
+   an external object is up-to-date.
+   Target objects with out-of-date signatures
+   are updated using the appropriate
+   &Builder; object.
+
+ </para>
+
+   <!-- BEGIN HTML -->
+
+   <!--
+   Details on the composition, methods,
+   and attributes of these classes
+   are available in the  A HREF="internals.html" Internals /A  page.
+   -->
+
+   <!-- END HTML -->
+
+</section>
+
+
+
+<section id="sect-engine">
+ <title>Build Engine</title>
+
+ <para>
+
+   More detailed discussion of some of the
+   Build Engine's characteristics:
+
+ </para>
+
+ <section>
+  <title>Python API</title>
+
+   <para>
+
+   The Build Engine can be embedded in any other software
+   that supports embedding Python:
+   in a GUI,
+   in a wrapper script that
+   interprets classic <filename>Makefile</filename> syntax,
+   or in any other software that
+   can translate its dependency representation
+   into the appropriate calls to the Build Engine API.
+   <!--<xref linkend="chap-native">--> describes in detail
+   the specification for a "Native Python" interface
+   that will drive the &SCons; implementation effort.
+
+   </para>
+
+ </section>
+
+ <section>
+ <title>Single-image execution</title>
+
+   <para>
+
+   When building/updating the objects,
+   the Build Engine operates as a single executable
+   with a complete Directed Acyclic Graph (DAG)
+   of the dependencies in the entire build tree.
+   This is in stark contrast to the
+   commonplace recursive use of Make
+   to handle hierarchical directory-tree builds.
+
+   </para>
+
+ </section>
+
+ <section>
+ <title>Dependency analysis</title>
+
+   <para>
+
+   Dependency analysis is carried out via digital signatures
+   (a.k.a. "fingerprints").
+   Contents of object are examined and reduced
+   to a number that can be stored and compared to
+   see if the object has changed.
+   Additionally, &SCons; uses the same
+   signature technique on the command-lines that
+   are executed to update an object.
+   If the command-line has changed since the last time,
+   then the object must be rebuilt.
+
+   </para>
+
+ </section>
+
+ <section>
+ <title>Customized output</title>
+
+   <para>
+
+   The output of Build Engine is customizable
+   through user-defined functions.
+   This could be used to print additional desired
+   information about what &SCons; is doing,
+   or tailor output to a specific build analyzer,
+   GUI, or IDE.
+
+   </para>
+
+ </section>
+
+ <section>
+ <title>Build failures</title>
+
+   <para>
+
+   &SCons; detects build failures via the exit status from the tools
+   used to build the target files.  By default, a failed exit status
+   (non-zero on UNIX systems) terminates the build with an appropriate
+   error message.  An appropriate class from the Python library will
+   interpret build-tool failures via an OS-independent API.
+
+   </para>
+
+   <para>
+
+   If multiple tasks are executing in a parallel build, and one tool
+   returns failure, &SCons; will not initiate any further build tasks,
+   but allow the other build tasks to complete before terminating.
+
+   </para>
+
+   <para>
+
+   A <option>-k</option> command-line option may be used to ignore
+   errors and continue building other targets.  In no case will a target
+   that depends on a failed build be rebuilt.
+
+   </para>
+
+ </section>
+
+</section>
+
+
+
+<section id="sect-interfaces">
+ <title>Interfaces</title>
+
+ <para>
+
+   As previously described,
+   the &SCons; Build Engine
+   is interface-independent above its Python API,
+   and can be embedded in any software system
+   that can translate its dependency requirements
+   into the necessary Python calls.
+
+ </para>
+
+ <para>
+
+   The "main" &SCons; interface
+   for implementation purposes,
+   uses Python scripts as configuration files.
+   Because this exposes the Build Engine's Python API to the user,
+   it is current called the "Native Python" interface.
+
+ </para>
+
+ <para>
+
+   This section will also discuss
+   how &SCons; will function in the context
+   of two other interfaces:
+   the &Makefile; interface of the classic &Make; utility,
+   and a hypothetical graphical user interface (GUI).
+
+ </para>
+
+ <section>
+  <title>Native Python interface</title>
+
+  <para>
+
+   The Native Python interface is intended to be the primary interface
+   by which users will know &SCons;--that is,
+   it is the interface they will use
+   if they actually type &SCons; at a command-line prompt.
+
+  </para>
+
+  <para>
+
+   In the Native Python interface, &SCons; configuration files are simply
+   Python scripts that directly invoke methods from the Build Engine's
+   Python API to specify target files to be built, rules for building
+   the target files, and dependencies.  Additional methods, specific to
+   this interface, are added to handle functionality that is specific to
+   the Native Python interface:  reading a subsidiary configuration file;
+   copying target files to an installation directory; etc.
+
+  </para>
+
+  <para>
+
+   Because configuration files are Python scripts, Python flow control
+   can be used to provide very flexible manipulation of objects and
+   dependencies.  For example, a function could be used to invoke a common
+   set of methods on a file, and called iteratively over an array of
+   files.
+
+  </para>
+
+  <para>
+
+   As an additional advantage, syntax errors in &SCons; Native Python
+   configuration files will be caught by the Python parser.  Target-building
+   does not begin until after all configuration files are read, so a syntax
+   error will not cause a build to fail half-way.
+
+  </para>
+
+ </section>
+
+ <section>
+  <title>Makefile interface</title>
+
+  <para>
+
+   An alternate &SCons; interface would provide backwards
+   compatibility with the classic &Make; utility.
+   This would be done by embedding the &SCons; Build Engine
+   in a Python script that can translate existing
+   &Makefile;s into the underlying calls to the
+   Build Engine's Python API
+   for building and tracking dependencies.
+   Here are approaches to solving some of the issues
+   that arise from marrying these two pieces:
+
+  </para>
+
+  <itemizedlist>
+
+   <listitem>
+   <para>
+   &Makefile; suffix rules can be translated
+   into an appropriate &Builder; object
+   with suffix maps from the Construction Environment.
+   </para>
+   </listitem>
+
+   <listitem>
+   <para>
+   Long lists of static dependences
+   appended to a &Makefile; by
+   various <command>"make depend"</command> schemes
+   can be preserved
+   but supplemented by
+   the more accurate dependency information
+   provided by &Scanner; objects.
+   </para>
+   </listitem>
+
+   <listitem>
+   <para>
+   Recursive invocations of &Make;
+   can be avoided by reading up
+   the subsidiary &Makefile; instead.
+   </para>
+   </listitem>
+
+  </itemizedlist>
+
+  <para>
+
+   Lest this seem like too outlandish an undertaking,
+   there is a working example of this approach:
+   Gary Holt's &Makepp; utility
+   is a Perl script that provides
+   admirably complete parsing of complicated &Makefile;s
+   around an internal build engine inspired,
+   in part, by the classic <application>Cons</application> utility.
+
+  </para>
+
+ </section>
+
+ <section>
+  <title>Graphical interfaces</title>
+
+  <para>
+
+   The &SCons; Build Engine
+   is designed from the ground up to be embedded
+   into multiple interfaces.
+   Consequently, embedding the dependency capabilities
+   of &SCons; into graphical interface
+   would be a matter of mapping the
+   GUI's dependency representation
+   (either implicit or explicit)
+   into corresponding calls to the Python API
+   of the &SCons; Build Engine.
+
+  </para>
+
+  <para>
+
+   Note, however, that this proposal leaves the problem of
+   designed a good graphical interface
+   for representing software build dependencies
+   to people with actual GUI design experience...
+
+  </para>
+
+ </section>
+
+</section>
+
+</chapter>

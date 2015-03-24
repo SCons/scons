@@ -1,0 +1,10 @@
+# -*- mode:python; coding:utf-8; -*-
+
+import os
+
+environment = Environment(
+    tools=['{}', 'link'])
+
+environment['ENV']['HOME'] = os.environ['HOME']  # Hack for gdmd
+
+environment.SharedLibrary('answer', 'code.d')
