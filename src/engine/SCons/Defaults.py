@@ -198,11 +198,10 @@ def copy_func(dest, src, symlinks=True):
             shutil.copy2(file, dest)
         return 0
     elif os.path.islink(src):
-        linkto = os.readlink(src)
         if symlinks:
-            return os.symlink(linkto, dest)
+            return os.symlink(os.readlink(src), dest)
         else:
-            return copy_func(dest, linkto, symlinks)
+            return copy_func(dest, os.path.realpath(src))
     elif os.path.isfile(src):
         return shutil.copy2(src, dest)
     else:
