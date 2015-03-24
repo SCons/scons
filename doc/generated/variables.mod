@@ -76,8 +76,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-DESCRIPTION_lang "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DESCRIPTION_lang</envar>">
 <!ENTITY cv-DFILESUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DFILESUFFIX</envar>">
 <!ENTITY cv-DFLAGPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DFLAGPREFIX</envar>">
-<!ENTITY cv-DFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DFLAGS</envar>">
 <!ENTITY cv-_DFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_DFLAGS</envar>">
+<!ENTITY cv-DFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DFLAGS</envar>">
 <!ENTITY cv-DFLAGSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DFLAGSUFFIX</envar>">
 <!ENTITY cv-_DINCFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_DINCFLAGS</envar>">
 <!ENTITY cv-DINCPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DINCPREFIX</envar>">
@@ -714,8 +714,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-DESCRIPTION_lang "<link linkend='cv-DESCRIPTION_lang' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DESCRIPTION_lang</envar></link>">
 <!ENTITY cv-link-DFILESUFFIX "<link linkend='cv-DFILESUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DFILESUFFIX</envar></link>">
 <!ENTITY cv-link-DFLAGPREFIX "<link linkend='cv-DFLAGPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DFLAGPREFIX</envar></link>">
-<!ENTITY cv-link-DFLAGS "<link linkend='cv-DFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DFLAGS</envar></link>">
 <!ENTITY cv-link-_DFLAGS "<link linkend='cv-_DFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_DFLAGS</envar></link>">
+<!ENTITY cv-link-DFLAGS "<link linkend='cv-DFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DFLAGS</envar></link>">
 <!ENTITY cv-link-DFLAGSUFFIX "<link linkend='cv-DFLAGSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DFLAGSUFFIX</envar></link>">
 <!ENTITY cv-link-_DINCFLAGS "<link linkend='cv-_DINCFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_DINCFLAGS</envar></link>">
 <!ENTITY cv-link-DINCPREFIX "<link linkend='cv-DINCPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DINCPREFIX</envar></link>">
