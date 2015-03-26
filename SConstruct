@@ -172,6 +172,8 @@ if build_id is None:
     else:
         build_id = ''
 
+skip_win_packages = ARGUMENTS.get('SKIP_WIN_PACKAGES',False)
+
 python_ver = sys.version[0:3]
 
 #
@@ -235,6 +237,8 @@ command_line_variables = [
     ("VERSION=",        "The SCons version being packaged.  The default " +
                         "is the hard-coded value '%s' " % default_version +
                         "from this SConstruct file."),
+
+    ("SKIP_WIN_PACKAGES=", "If set, skip building win32 and win64 packages."),
 ]
 
 Default('.', build_dir)
@@ -495,10 +499,13 @@ Version_values = [Value(version), Value(build_id)]
 # separate packages.
 #
 
+from distutils.sysconfig import get_python_lib;
+
+
 python_scons = {
         'pkg'           : 'python-' + project,
         'src_subdir'    : 'engine',
-        'inst_subdir'   : os.path.join('lib', 'python1.5', 'site-packages'),
+        'inst_subdir'   : get_python_lib(),
         'rpm_dir'       : '/usr/lib/scons',
 
         'debian_deps'   : [
@@ -737,8 +744,6 @@ for p in [ scons ]:
                                 'dist',
                                 "%s.%s.zip" % (pkg_version, platform))
     
-    win64_exe = os.path.join(build, 'dist', "%s.win-amd64.exe" % pkg_version)
-    win32_exe = os.path.join(build, 'dist', "%s.win32.exe" % pkg_version)
 
     #
     # Update the environment with the relevant information
@@ -849,8 +854,13 @@ for p in [ scons ]:
     Local(*build_src_files)
 
     distutils_formats = []
+    distutils_targets = []
 
-    distutils_targets = [  win32_exe , win64_exe ]
+    if not skip_win_packages:
+        win64_exe = os.path.join(build, 'dist', "%s.win-amd64.exe" % pkg_version)
+        win32_exe = os.path.join(build, 'dist', "%s.win32.exe" % pkg_version)
+        distutils_targets.extend([ win32_exe , win64_exe ])
+
     dist_distutils_targets = []
 
     for target in distutils_targets:
@@ -1088,9 +1098,10 @@ for p in [ scons ]:
         commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY sdist --formats=%s" %  \
                             ','.join(distutils_formats))
 
-    commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY bdist_wininst --plat-name=win32 --user-access-control auto")
+    if not skip_win_packages:
+        commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY bdist_wininst --plat-name=win32 --user-access-control auto")
 
-    commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY bdist_wininst --plat-name=win-amd64 --user-access-control auto")
+        commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY bdist_wininst --plat-name=win-amd64 --user-access-control auto")
 
     env.Command(distutils_targets, build_src_files, commands)
 
