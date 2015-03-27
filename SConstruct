@@ -861,6 +861,8 @@ for p in [ scons ]:
         win32_exe = os.path.join(build, 'dist', "%s.win32.exe" % pkg_version)
         distutils_targets.extend([ win32_exe , win64_exe ])
 
+    print "distutils_targets :%s"%distutils_targets
+
     dist_distutils_targets = []
 
     for target in distutils_targets:
