@@ -1105,6 +1105,8 @@ for p in [ scons ]:
 
         commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY bdist_wininst --plat-name=win-amd64 --user-access-control auto")
 
+    print "Commands:%s"%commands
+    
     env.Command(distutils_targets, build_src_files, commands)
 
     #
