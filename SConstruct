@@ -173,6 +173,11 @@ if build_id is None:
         build_id = ''
 
 skip_win_packages = ARGUMENTS.get('SKIP_WIN_PACKAGES',False)
+import os.path
+import distutils.command
+
+skip_win_packages = not os.path.exists(os.path.join(os.path.split(distutils.command.__file__)[0],'wininst-9.0.exe'))
+print "Skip_win_packages:%s"%skip_win_packages
 
 python_ver = sys.version[0:3]
 
