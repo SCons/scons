@@ -588,11 +588,11 @@ class Base(SCons.Node.Node):
 
     __slots__ = ['name',
                  'fs',
-                 'abspath',
-                 'labspath',
-                 'path',
-                 'tpath',
-                 'path_elements',
+                 '_abspath',
+                 '_labspath',
+                 '_path',
+                 '_tpath',
+                 '_path_elements',
                  'dir',
                  'cwd',
                  'duplicate',
@@ -621,11 +621,11 @@ class Base(SCons.Node.Node):
 
         assert directory, "A directory must be provided"
 
-        self.abspath = None
-        self.labspath = None
-        self.path = None
-        self.tpath = None
-        self.path_elements = None
+        self._abspath = None
+        self._labspath = None
+        self._path = None
+        self._tpath = None
+        self._path_elements = None
 
         self.dir = directory
         self.cwd = None # will hold the SConscript directory for target nodes
@@ -659,6 +659,27 @@ class Base(SCons.Node.Node):
 
     def rfile(self):
         return self
+
+    def __getattr__(self, attr):
+        """ Together with the node_bwcomp dict defined below,
+            this method provides a simple backward compatibility
+            layer for the Node attributes 'abspath', 'labspath',
+            'path', 'tpath' and 'path_elements'. These Node attributes
+            used to be directly available in v2.3 and earlier, but
+            have been replaced by getter methods that initialize the
+            single variables lazily when required, in order to save memory.
+            The redirection to the getters lets older Tools and
+            SConstruct continue to work without any additional changes,
+            fully transparent to the user. 
+            Note, that __getattr__ is only called as fallback when the
+            requested attribute can't be found, so there should be no
+            speed performance penalty involved for standard builds.
+        """
+        if attr in node_bwcomp:
+            return node_bwcomp[attr](self)
+        
+        raise AttributeError("%r object has no attribute %r" %
+                         (self.__class__, attr))
 
     def __str__(self):
         """A Node.FS.Base object's string representation is its path
@@ -815,19 +836,19 @@ class Base(SCons.Node.Node):
         return self.dir.entry_labspath(self.name)
 
     def get_internal_path(self):
-        if self.dir.path == '.':
+        if self.dir._path == '.':
             return self.name
         else:
             return self.dir.entry_path(self.name)
         
     def get_tpath(self):
-        if self.dir.tpath == '.':
+        if self.dir._tpath == '.':
             return self.name
         else:
             return self.dir.entry_tpath(self.name)
         
     def get_path_elements(self):
-        return self.dir.path_elements + [self]
+        return self.dir._path_elements + [self]
 
     def for_signature(self):
         # Return just our name.  Even an absolute path would not work,
@@ -919,6 +940,16 @@ class Base(SCons.Node.Node):
     def _glob1(self, pattern, ondisk=True, source=False, strings=False):
         return []
     
+# Dict that provides a simple backward compatibility
+# layer for the Node attributes 'abspath', 'labspath',
+# 'path', 'tpath' and 'path_elements'.
+# @see Base.__getattr__ above
+node_bwcomp = {'abspath' : Base.get_abspath,
+               'labspath' : Base.get_labspath,
+               'path' : Base.get_internal_path,
+               'tpath' : Base.get_tpath,
+               'path_elements' : Base.get_path_elements}
+
 class Entry(Base):
     """This is the class for generic Node.FS entries--that is, things
     that could be a File or a Dir, but we're just not sure yet.
@@ -1169,8 +1200,8 @@ class FS(LocalFS):
         self.defaultDrive = _my_normcase(_my_splitdrive(self.pathTop)[0])
 
         self.Top = self.Dir(self.pathTop)
-        self.Top.path = '.'
-        self.Top.tpath = '.'
+        self.Top._path = '.'
+        self.Top._tpath = '.'
         self._cwd = self.Top
 
         DirNodeInfo.fs = self
@@ -1434,7 +1465,7 @@ class FS(LocalFS):
                 if start_dir.is_under(bd):
                     # If already in the build-dir location, don't reflect
                     return [orig], fmt % str(orig)
-                p = os.path.join(bd.path, *tail)
+                p = os.path.join(bd._path, *tail)
                 targets.append(self.Entry(p))
             tail = [dir.name] + tail
             dir = dir.up()
@@ -1533,17 +1564,17 @@ class Dir(Base):
         self._func_exists = 2
         self._func_get_contents = 2
         
-        self.abspath = SCons.Util.silent_intern(self.dir.entry_abspath(self.name))
-        self.labspath = SCons.Util.silent_intern(self.dir.entry_labspath(self.name))
-        if self.dir.path == '.':
-            self.path = SCons.Util.silent_intern(self.name)
+        self._abspath = SCons.Util.silent_intern(self.dir.entry_abspath(self.name))
+        self._labspath = SCons.Util.silent_intern(self.dir.entry_labspath(self.name))
+        if self.dir._path == '.':
+            self._path = SCons.Util.silent_intern(self.name)
         else:
-            self.path = SCons.Util.silent_intern(self.dir.entry_path(self.name))
-        if self.dir.tpath == '.':
-            self.tpath = SCons.Util.silent_intern(self.name)
+            self._path = SCons.Util.silent_intern(self.dir.entry_path(self.name))
+        if self.dir._tpath == '.':
+            self._tpath = SCons.Util.silent_intern(self.name)
         else:
-            self.tpath = SCons.Util.silent_intern(self.dir.entry_tpath(self.name))
-        self.path_elements = self.dir.path_elements + [self]
+            self._tpath = SCons.Util.silent_intern(self.dir.entry_tpath(self.name))
+        self._path_elements = self.dir._path_elements + [self]
 
         # For directories, we make a difference between the directory
         # 'name' and the directory 'dirname'. The 'name' attribute is
@@ -1662,7 +1693,7 @@ class Dir(Base):
     def addRepository(self, dir):
         if dir != self and not dir in self.repositories:
             self.repositories.append(dir)
-            dir.tpath = '.'
+            dir._tpath = '.'
             self.__clearRepositoryCache()
 
     def up(self):
@@ -1700,7 +1731,7 @@ class Dir(Base):
         if self is other:
             result = '.'
 
-        elif not other in self.path_elements:
+        elif not other in self._path_elements:
             try:
                 other_dir = other.get_dir()
             except AttributeError:
@@ -1715,10 +1746,10 @@ class Dir(Base):
                     else:
                         result = dir_rel_path + OS_SEP + other.name
         else:
-            i = self.path_elements.index(other) + 1
+            i = self._path_elements.index(other) + 1
 
-            path_elems = ['..'] * (len(self.path_elements) - i) \
-                         + [n.name for n in other.path_elements[i:]]
+            path_elems = ['..'] * (len(self._path_elements) - i) \
+                         + [n.name for n in other._path_elements[i:]]
              
             result = OS_SEP.join(path_elems)
 
@@ -1882,32 +1913,32 @@ class Dir(Base):
 
     def get_abspath(self):
         """Get the absolute path of the file."""
-        return self.abspath
+        return self._abspath
 
     def get_labspath(self):
         """Get the absolute path of the file."""
-        return self.labspath
+        return self._labspath
 
     def get_internal_path(self):
-        return self.path
+        return self._path
         
     def get_tpath(self):
-        return self.tpath
+        return self._tpath
         
     def get_path_elements(self):
-        return self.path_elements
+        return self._path_elements
 
     def entry_abspath(self, name):
-        return self.abspath + OS_SEP + name
+        return self._abspath + OS_SEP + name
 
     def entry_labspath(self, name):
-        return self.labspath + '/' + name
+        return self._labspath + '/' + name
 
     def entry_path(self, name):
-        return self.path + OS_SEP + name
+        return self._path + OS_SEP + name
 
     def entry_tpath(self, name):
-        return self.tpath + OS_SEP + name
+        return self._tpath + OS_SEP + name
 
     def entry_exists_on_disk(self, name):
         """ Searches through the file/dir entries of the current
@@ -1921,7 +1952,7 @@ class Dir(Base):
         except AttributeError:
             d = {}
             try:
-                entries = os.listdir(self.abspath)
+                entries = os.listdir(self._abspath)
             except OSError:
                 pass
             else:
@@ -1934,7 +1965,7 @@ class Dir(Base):
             if result is None:
                 # Belt-and-suspenders for Windows:  check directly for
                 # 8.3 file names that don't show up in os.listdir().
-                result = os.path.exists(self.abspath + OS_SEP + name)
+                result = os.path.exists(self._abspath + OS_SEP + name)
                 d[name] = result
             return result
         else:
@@ -2177,7 +2208,7 @@ class Dir(Base):
                 for name in node_names: selfEntry(name)
             if ondisk:
                 try:
-                    disk_names = os.listdir(dir.abspath)
+                    disk_names = os.listdir(dir._abspath)
                 except os.error:
                     continue
                 names.extend(disk_names)
@@ -2251,7 +2282,7 @@ class RootDir(Dir):
         self.name = SCons.Util.silent_intern(name)
         self.fs = fs #: Reference to parent Node.FS object
 
-        self.path_elements = [self]
+        self._path_elements = [self]
         self.dir = self
         self._func_rexists = 2
         self._func_target_from_source = 1
@@ -2262,10 +2293,10 @@ class RootDir(Dir):
         # as the initial drive letter (the name) plus the directory
         # separator, except for the "lookup abspath," which does not
         # have the drive letter.
-        self.abspath = dirname
-        self.labspath = ''
-        self.path = dirname
-        self.tpath = dirname
+        self._abspath = dirname
+        self._labspath = ''
+        self._path = dirname
+        self._tpath = dirname
         self.dirname = dirname
 
         self._morph()
@@ -2373,19 +2404,19 @@ class RootDir(Dir):
         return result
 
     def __str__(self):
-        return self.abspath
+        return self._abspath
 
     def entry_abspath(self, name):
-        return self.abspath + name
+        return self._abspath + name
 
     def entry_labspath(self, name):
         return '/' + name
 
     def entry_path(self, name):
-        return self.path + name
+        return self._path + name
 
     def entry_tpath(self, name):
-        return self.tpath + name
+        return self._tpath + name
 
     def is_under(self, dir):
         if self is dir:
@@ -3080,7 +3111,7 @@ class File(Base):
         Unlink(self, None, None)
         e = Link(self, src, None)
         if isinstance(e, SCons.Errors.BuildError):
-            desc = "Cannot duplicate `%s' in `%s': %s." % (src.get_internal_path(), self.dir.path, e.errstr)
+            desc = "Cannot duplicate `%s' in `%s': %s." % (src.get_internal_path(), self.dir._path, e.errstr)
             raise SCons.Errors.StopError(desc)
         self.linked = 1
         # The Link() action may or may not have actually
@@ -3193,7 +3224,7 @@ class File(Base):
             SCons.Node.store_info_map[self.store_info](self)
             # ... then release some more variables.
             self._specific_sources = False
-            self.labspath = None
+            self._labspath = None
             self._save_str()
             self.cwd = None
              
