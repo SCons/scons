@@ -1816,7 +1816,7 @@ class Dir(Base):
             if p is None:
                 # Don't use while: - else: for this condition because
                 # if so, then parent is None and has no .path attribute.
-                raise SCons.Errors.StopError(parent.path)
+                raise SCons.Errors.StopError(parent._path)
             parent = p
         listDirs.reverse()
         for dirnode in listDirs:
