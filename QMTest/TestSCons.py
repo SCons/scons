@@ -693,7 +693,7 @@ class TestSCons(TestCommon):
         else:
             jni_dirs = ['/System/Library/Frameworks/JavaVM.framework/Versions/%s*/Headers/jni.h'%version]
         jni_dirs.extend(['/usr/lib/jvm/java-*-sun-%s*/include/jni.h'%version,
-                         '/usr/lib/jvm/java-%s*-openjdk/include/jni.h'%version,
+                         '/usr/lib/jvm/java-%s*-openjdk*/include/jni.h'%version,
                          '/usr/java/jdk%s*/include/jni.h'%version])
         dirs = self.paths(jni_dirs)
         if not dirs:
