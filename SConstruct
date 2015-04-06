@@ -172,12 +172,13 @@ if build_id is None:
     else:
         build_id = ''
 
-skip_win_packages = ARGUMENTS.get('SKIP_WIN_PACKAGES',False)
 import os.path
 import distutils.command
 
-skip_win_packages = not os.path.exists(os.path.join(os.path.split(distutils.command.__file__)[0],'wininst-9.0.exe'))
-print "Skip_win_packages:%s"%skip_win_packages
+no_winpack_templates = not os.path.exists(os.path.join(os.path.split(distutils.command.__file__)[0],'wininst-9.0.exe'))
+skip_win_packages = ARGUMENTS.get('SKIP_WIN_PACKAGES',False) or no_winpack_templates
+if skip_win_packages:
+    print "Skipping the build of Windows packages..."
 
 python_ver = sys.version[0:3]
 
@@ -866,8 +867,6 @@ for p in [ scons ]:
         win32_exe = os.path.join(build, 'dist', "%s.win32.exe" % pkg_version)
         distutils_targets.extend([ win32_exe , win64_exe ])
 
-    print "distutils_targets :%s"%distutils_targets
-
     dist_distutils_targets = []
 
     for target in distutils_targets:
@@ -1110,8 +1109,6 @@ for p in [ scons ]:
 
         commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY bdist_wininst --plat-name=win-amd64 --user-access-control auto")
 
-    print "Commands:%s"%commands
-    
     env.Command(distutils_targets, build_src_files, commands)
 
     #

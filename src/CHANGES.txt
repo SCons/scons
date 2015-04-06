@@ -6,17 +6,38 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From William Deegan:
+    - Extended docs for InstallVersionedLib/SharedLibrary,
+      and added SKIP_WIN_PACKAGES argument to build script
+      bootstrap.py (PR #230, #3002).
+
+  From William Blevins:
+    - Fixed symlink support (PR #227, #2395).
+    - Updated debug-count test case (PR #229).
+
+  From Alexey Klimkin:
+    - Fixed incomplete LIBS flattening and substitution in
+      Program scanner(PR #205, #2954).
+
+  From Dirk Baechle:
+    - Added new method rentry_exists_on_disk to Node.FS (PR #193).
+
   From Russel Winder:
+    - Fixed several D tests under the different OS.
     - Add support for f08 file extensions for Fortran 2008 code.
 
   From Anatoly Techtonik:
     - Show --config choices if no argument is specified (PR #202).
+    - Fixed build crash when XML toolchain isn't installed, and
+      activated compression for ZIP archives.
 
   From Alexandre Feblot:
     - Fix for VersionedSharedLibrary under 'sunos' platform.
 
   From Laurent Marchelli:
     - Support for multiple cmdargs (one per variant) in VS project files.
+    - Various improvements for TempFileMunge class.
+    - Added an implementation for Visual Studio users files (PR #209).
 
   From Dan Pidcock:
     - Added support for the 'PlatformToolset' tag in VS project files (#2978).
