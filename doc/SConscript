@@ -28,25 +28,43 @@ import os.path
 import re
 import sys
 import glob
-import SConsDoc
-import SConsExamples
+
 import bootstrap
 
 Import('build_dir', 'env', 'whereis', 'revaction')
 
+#
+# -- Check prerequisites for building the documentation ---
+#
+skip_doc = False
+
+try:
+    import SConsDoc
+    import SConsExamples
+except ImportError as exc:
+    print("doc: SConsDoc failed to import, the error was:")
+    print("         ImportError: %s" % exc)
+    print("     Please make sure that python-libxml2 or python-lxml is installed.")
+    skip_doc = True
+
+fop = whereis('fop')
+xep = whereis('xep')
+
+if not fop and not xep:
+    print "doc: No PDF renderer found (fop|xep)!"
+    skip_doc = True
+
+#
+# --- Configure build
+#
 env = env.Clone()
 
 build = os.path.join(build_dir, 'doc')
 
-fop = whereis('fop')
-xep = whereis('xep')
 epydoc_cli = whereis('epydoc')
 gs = whereis('gs')
 lynx = whereis('lynx')
 
-#
-#
-#
 dist_doc_tar_gz = '$DISTDIR/scons-doc-${VERSION}.tar.gz'
 
 tar_deps = []
@@ -55,7 +73,9 @@ tar_list = []
 orig_env = env
 env = orig_env.Clone(SCONS_PY = File('#src/script/scons.py').rfile())
 
-
+#
+# --- Helpers ---
+#
 def writeVersionXml(verfile, date, ver, rev):
     """ Helper function: Write a version.xml file. """
     try:
@@ -75,28 +95,49 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY buildrevision "%s">
 """ % (date, ver, rev))
 
+
+# The names of the target files for the MAN pages
+man_page_list = ['scons.1','scons-time.1','sconsign.1']
+
+# Template for the MAN page texts when we can't properly
+# create them because the skip_doc flag is set (required
+# modules/tools aren't installed in the current system)
+man_replace_tpl = """.TH "%(uctitle)s" "1" "%(today)s" "SCons %(version)s" "SCons %(version)s"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.nh
+.ad l
+.SH "NOTE"
+%(title)s \- This is a replacement file, stemming from an incomplete
+packaging process without the required doc modules installed. Please 
+update the system and try running bootstrap.py again.
+"""
+
 #
-# Check whether we have all tools installed for
-# building the documentation.
+# --- Processing ---
 #
-skip_doc = False
-try:
-    import libxml2
-    import libxslt
-except:
-    try:
-        import lxml
-    except:
-        print "doc: Neither libxml2 nor lxml Python bindings found!"
-        print "     Please install one of the packages python-libxml2 or python-lxml."
-        skip_doc = True
-        
-if not fop and not xep:
-    print "doc: No PDF renderer found (fop|xep)!"
-    skip_doc = True
-    
 if skip_doc:
     print "doc: ...skipping building User Guide."
+    print "     ...creating fake MAN pages."
+
+    # Since the top-level SConstruct requires the MAN
+    # pages to exist for the basic packaging, we create simple
+    # stub texts here as replacement...
+    scdir = os.path.join(build, 'man')
+    if not os.path.isdir(scdir):
+        os.makedirs(scdir)
+    
+    import datetime
+    today = datetime.date.today().strftime("%m/%d/%Y")
+    version = env.subst('$VERSION')
+    for m in man_page_list:
+        man, _ = os.path.splitext(m)
+        fman = open(os.path.join(scdir, m), "w")
+        fman.write(man_replace_tpl % {'uctitle' : man.upper().replace("-", "\\-"),
+                                      'today' : today,
+                                      'title' : man,
+                                      'version' : version})
+        fman.close()
 else:
     if not lynx:
         print "doc: Warning, lynx is not installed...created release packages won't be complete!"
@@ -275,9 +316,6 @@ else:
             'man' : (['man','epub','text'], [], [])
            }
            
-    # The names of the target files for the MAN pages
-    man_page_list = ['scons.1','scons-time.1','sconsign.1']
-    
     #
     # We have to tell SCons to scan the top-level XML files which
     # get included by the document XML files in the subdirectories.

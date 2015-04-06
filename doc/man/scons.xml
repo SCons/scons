@@ -75,7 +75,8 @@
 <refmeta>
 <refentrytitle>SCONS</refentrytitle>
 <manvolnum>1</manvolnum>
-<refmiscinfo class='source'>__MONTH_YEAR__</refmiscinfo>
+<refmiscinfo class='source'>SCons __VERSION__</refmiscinfo>
+<refmiscinfo class='manual'>SCons __VERSION__</refmiscinfo>
 </refmeta>
 <refnamediv id='name'>
 <refname>scons</refname>

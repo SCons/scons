@@ -38,6 +38,24 @@ def ProgramScanner(**kw):
     ps = SCons.Scanner.Base(scan, "ProgramScanner", **kw)
     return ps
 
+def _subst_libs(env, libs):
+    """
+    Substitute environment variables and split into list.
+    """
+    if SCons.Util.is_String(libs):
+        libs = env.subst(libs)
+        if SCons.Util.is_String(libs):
+            libs = libs.split()
+    elif SCons.Util.is_Sequence(libs):
+        _libs = []
+        for l in libs:
+            _libs += _subst_libs(env, l)
+        libs = _libs
+    else:
+        # libs is an object (Node, for example)
+        libs = [libs]
+    return libs
+
 def scan(node, env, libpath = ()):
     """
     This scanner scans program files for static-library
@@ -50,10 +68,8 @@ def scan(node, env, libpath = ()):
     except KeyError:
         # There are no LIBS in this environment, so just return a null list:
         return []
-    if SCons.Util.is_String(libs):
-        libs = libs.split()
-    else:
-        libs = SCons.Util.flatten(libs)
+
+    libs = _subst_libs(env, libs)
 
     try:
         prefix = env['LIBPREFIXES']
@@ -83,7 +99,6 @@ def scan(node, env, libpath = ()):
     adjustixes = SCons.Util.adjustixes
     for lib in libs:
         if SCons.Util.is_String(lib):
-            lib = env.subst(lib)
             for pref, suf in pairs:
                 l = adjustixes(lib, pref, suf)
                 l = find_file(l, libpath, verbose=print_find_libs)

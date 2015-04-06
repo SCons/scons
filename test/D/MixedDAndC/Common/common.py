@@ -30,7 +30,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import TestSCons
 
 from os.path import abspath, dirname
-from platform import machine
+from platform import architecture
 
 import sys
 sys.path.insert(1, abspath(dirname(__file__) + '/../../Support'))
@@ -46,10 +46,17 @@ def testForTool(tool):
 
     test.dir_fixture('Image')
 
-    test.run()
+# There was an issue with Russel mentioned but couldn't remember the details
+# Which drove him to add the following logic. For now removing until
+# we can determine what that issue is and if there's not a better
+# way to handle the corner case
+#    if architecture()[0] == '32bit':
+#        test.run(status=2)
+#        test.fail_test('64-bit mode not compiled in' not in test.stderr())
+#    else:
+#        test.run()
 
-    if machine() in ('i386',):
-        test.fail_test('64-bit mode not compiled in' not in test.stdout())
+    test.run()
 
     test.pass_test()
 
