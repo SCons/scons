@@ -68,6 +68,14 @@ and
 source
 arguments list different numbers of files or directories.
 </para>
+
+<example_commands>
+env.InstallAs(target = '/usr/local/bin/foo',
+              source = 'foo_debug')
+env.InstallAs(target = ['../lib/libfoo.a', '../lib/libbar.a'],
+              source = ['libFOO.a', 'libBAR.a'])
+</example_commands>
+
 </summary>
 </builder>
 
@@ -77,14 +85,17 @@ arguments list different numbers of files or directories.
 Installs a versioned shared library. The &cv-link-SHLIBVERSION;
 construction variable should be defined in the environment
 to confirm the version number in the library name.
+If &cv-link-SHLIBVERSION; is not defined a warning will be issued
+and the name of the library will be parsed to derive the version. 
 The symlinks appropriate to the architecture will be generated.
 </para>
 
 <example_commands>
-env.InstallAs(target = '/usr/local/bin/foo',
-              source = 'foo_debug')
-env.InstallAs(target = ['../lib/libfoo.a', '../lib/libbar.a'],
-              source = ['libFOO.a', 'libBAR.a'])
+env.InstallVersionedLib(target = '/usr/local/bin/foo',
+              source = 'libxyz.1.5.2.so')
+env.InstallVersionedLib(target = '/usr/local/bin/foo',
+              source = 'libxyz.1.5.2.so',
+              SHLIBVERSION='1.5.2')
 </example_commands>
 </summary>
 </builder>
