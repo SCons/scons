@@ -1,0 +1,449 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+    
+    <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
+    %builders-mod;
+    <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
+    %functions-mod;
+    <!ENTITY % tools-mod SYSTEM "../generated/tools.mod">
+    %tools-mod;
+    <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
+    %variables-mod;
+]>
+
+<preface id="chap-preface"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Preface</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <para>
+
+  Thank you for taking the time to read about &SCons;.
+  &SCons; is a next-generation
+  software construction tool,
+  or make tool--that is, a software utility
+  for building software (or other files)
+  and keeping built software up-to-date
+  whenever the underlying input files change.
+
+  </para>
+
+  <para>
+
+  The most distinctive thing about &SCons;
+  is that its configuration files are
+  actually <emphasis>scripts</emphasis>,
+  written in the &Python; programming language.
+  This is in contrast to most alternative build tools,
+  which typically invent a new language to
+  configure the build.
+  &SCons; still has a learning curve, of course,
+  because you have to know what functions to call
+  to set up your build properly,
+  but the underlying syntax used should be familiar
+  to anyone who has ever looked at a Python script.
+
+  </para>
+
+  <para>
+
+  Paradoxically,
+  using Python as the configuration file format
+  makes &SCons;
+  <emphasis>easier</emphasis>
+  for non-programmers to learn
+  than the cryptic languages of other build tools,
+  which are usually invented by programmers for other programmers.
+  This is in no small part due to the
+  consistency and readability that are hallmarks of Python.
+  It just so happens that making a real, live
+  scripting language the basis for the
+  configuration files
+  makes it a snap for more accomplished programmers
+  to do more complicated things with builds,
+  as necessary.
+
+  </para>
+
+  <!--
+
+  <section>
+  <title>Why &SCons;?</title>
+
+    <para>
+
+    &SCons; is a response to a perennial problem:
+    building software is harder than it should be.
+    In a nutshell:  the old, reliable model of the
+    venerable and ubiquitous &Make; program
+    has had a hard time keeping up with
+    how complicated building software has become.
+    The fact that &Make; has kept up as well as it has is impressive,
+    and a testament to how the simplicity.
+    But anyone who has wrestled with &Automake; and &Autoconf;
+    to try to guarantee that a bit of software
+    will build correctly on multiple platforms
+    can tell you that it takes a lot of work to get right.
+
+    </para>
+
+  </section>
+
+  -->
+
+  <section>
+  <title>&SCons; Principles</title>
+
+    <para>
+
+    There are a few overriding principles
+    we try to live up to in designing and implementing &SCons;:
+
+    </para>
+
+    <variablelist>
+
+      <varlistentry>
+      <term>Correctness</term>
+
+      <listitem>
+      <para>
+
+      First and foremost,
+      by default, &SCons; guarantees a correct build
+      even if it means sacrificing performance a little.
+      We strive to guarantee the build is correct
+      regardless of how the software being built is structured,
+      how it may have been written,
+      or how unusual the tools are that build it.
+
+      </para>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry>
+      <term>Performance</term>
+
+      <listitem>
+      <para>
+
+      Given that the build is correct,
+      we try to make &SCons; build software
+      as quickly as possible.
+      In particular, wherever we may have needed to slow
+      down the default &SCons; behavior to guarantee a correct build,
+      we also try to make it easy to speed up &SCons;
+      through optimization options that let you trade off
+      guaranteed correctness in all end cases for
+      a speedier build in the usual cases.
+
+      </para>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry>
+      <term>Convenience</term>
+
+      <listitem>
+      <para>
+
+      &SCons; tries to do as much for you out of the box as reasonable,
+      including detecting the right tools on your system
+      and using them correctly to build the software.
+
+      </para>
+      </listitem>
+      </varlistentry>
+
+    </variablelist>
+
+    <para>
+
+    In a nutshell, we try hard to make &SCons; just
+    "do the right thing" and build software correctly,
+    with a minimum of hassles.
+
+    </para>
+
+  </section>
+
+  <!--
+
+  <section>
+  <title>History</title>
+
+    <para>
+
+    &SCons; originated with a design
+    that was submitted to the Software Carpentry
+    design competition in 2000.
+
+    </para>
+
+    <para>
+
+    &SCons; is the direct descendant
+    of a Perl utility called &Cons;.
+    &Cons; in turn based some of its ideas on &Jam;,
+    a build tool from Perforce Systems.
+
+    </para>
+
+    <para>
+
+    XXX history of SCons
+
+    </para>
+
+  </section>
+
+  -->
+
+  <!--
+
+  <section>
+  <title>Conventions</title>
+
+    <para>
+
+    XXX conventions used in this manual
+
+    </para>
+
+  </section>
+
+  -->
+
+  <section>
+  <title>A Caveat About This Guide's Completeness</title>
+
+  <para>
+
+  One word of warning as you read through this Guide:
+  Like too much Open Source software out there,
+  the &SCons; documentation isn't always
+  kept up-to-date with the available features.
+  In other words,
+  there's a lot that &SCons; can do that
+  isn't yet covered in this User's Guide.
+  (Come to think of it,
+  that also describes a lot of proprietary software, doesn't it?)
+
+  </para>
+
+  <para>
+
+  Although this User's Guide isn't as complete as we'd like it to be,
+  our development process does emphasize
+  making sure that the &SCons; man page is kept up-to-date
+  with new features.
+  So if you're trying to figure out how to do something
+  that &SCons; supports
+  but can't find enough (or any) information here,
+  it would be worth your while to look
+  at the man page to see if the information is covered there.
+  And if you do,
+  maybe you'd even consider contributing
+  a section to the User's Guide
+  so the next person looking for
+  that information won't have to
+  go through the same thing...?
+
+  </para>
+
+  </section>
+
+  <section>
+  <title>Acknowledgements</title>
+
+    <para>
+
+    &SCons; would not exist without a lot of help
+    from a lot of people,
+    many of whom may not even be aware
+    that they helped or served as inspiration.
+    So in no particular order,
+    and at the risk of leaving out someone:
+
+    </para>
+
+    <para>
+
+    First and foremost,
+    &SCons; owes a tremendous debt to Bob Sidebotham,
+    the original author of the classic Perl-based &Cons; tool
+    which Bob first released to the world back around 1996.
+    Bob's work on Cons classic provided the underlying architecture
+    and model of specifying a build configuration
+    using a real scripting language.
+    My real-world experience working on Cons
+    informed many of the design decisions in SCons,
+    including the improved parallel build support,
+    making Builder objects easily definable by users,
+    and separating the build engine from the wrapping interface.
+
+    </para>
+
+    <para>
+
+    Greg Wilson was instrumental in getting
+    &SCons; started as a real project
+    when he initiated the Software Carpentry design
+    competition in February 2000.
+    Without that nudge,
+    marrying the advantages of the Cons classic
+    architecture with the readability of Python
+    might have just stayed no more than a nice idea.
+
+    </para>
+
+    <para>
+
+    The entire &SCons; team have been
+    absolutely wonderful to work with,
+    and &SCons; would be nowhere near as useful a
+    tool without the energy, enthusiasm
+    and time people have contributed over the past few years.
+    The "core team"
+    of Chad Austin, Anthony Roach,
+    Bill Deegan, Charles Crain, Steve Leblanc, Greg Noel,
+    Gary Oberbrunner, Greg Spencer and Christoph Wiedemann
+    have been great about reviewing my (and other) changes
+    and catching problems before they get in the code base.
+    Of particular technical note:
+    Anthony's outstanding and innovative work on the tasking engine
+    has given &SCons; a vastly superior parallel build model;
+    Charles has been the master of the crucial Node infrastructure;
+    Christoph's work on the Configure infrastructure
+    has added crucial Autoconf-like functionality;
+    and Greg has provided excellent support
+    for Microsoft Visual Studio.
+
+    </para>
+
+    <para>
+
+    Special thanks to David Snopek for contributing
+    his underlying "Autoscons" code that formed
+    the basis of Christoph's work with the Configure functionality.
+    David was extremely generous in making
+    this code available to &SCons;,
+    given that he initially released it under the GPL
+    and &SCons; is released under a less-restrictive MIT-style license.
+
+    </para>
+
+    <!--
+
+    <para>
+
+    &SCons; has received contributions
+    from many other people, of course:
+    Matt Balvin (extending long command-line support on Windows),
+    Allen Bierbaum (extensions and fixes to Options),
+    Steve Christensen (help text sorting and function action signature fixes),
+    Michael Cook (avoiding losing signal bits from executed commands),
+    Derrick 'dman' Hudson (),
+    Alex Jacques (work on the Windows scons.bat file),
+    Stephen Kennedy (performance enhancements),
+    Lachlan O'Dea (SharedObject() support for masm
+    and normalized paths for the WhereIs() function),
+    Damyan Pepper (keeping output like Make),
+    Jeff Petkau (significant fixes for CacheDir and other areas),
+    Stefan Reichor (Ghostscript support),
+    Zed Shaw (Append() and Replace() environment methods),
+    Terrel Shumway (build and test fixes, as well as the SCons Wiki)
+    and
+    sam th (dynamic checks for utilities).
+
+    </para>
+
+    -->
+
+    <para>
+
+    Thanks to Peter Miller
+    for his splendid change management system, &Aegis;,
+    which has provided the &SCons; project
+    with a robust development methodology from day one,
+    and which showed me how you could
+    integrate incremental regression tests into
+    a practical development cycle
+    (years before eXtreme Programming arrived on the scene).
+
+    </para>
+
+    <para>
+
+    And last, thanks to Guido van Rossum
+    for his elegant scripting language,
+    which is the basis not only for the &SCons; implementation,
+    but for the interface itself.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Contact</title>
+
+    <para>
+
+    The best way to contact people involved with SCons,
+    including the author,
+    is through the SCons mailing lists.
+
+    </para>
+
+    <para>
+
+    If you want to ask general questions about how to use &SCons;
+    send email to &scons-users;.
+
+    </para>
+
+    <para>
+
+    If you want to contact the &SCons; development community directly,
+    send email to &scons-devel;.
+
+    </para>
+
+    <para>
+
+    If you want to receive announcements about &SCons;,
+    join the low-volume &scons-announce; mailing list.
+
+    </para>
+
+  </section>
+
+</preface>
