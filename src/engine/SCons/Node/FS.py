@@ -1401,7 +1401,7 @@ class FS(LocalFS):
             message = fmt % ' '.join(map(str, targets))
         return targets, message
 
-    def Glob(self, pathname, ondisk=True, source=True, strings=False, cwd=None):
+    def Glob(self, pathname, ondisk=True, source=True, strings=False, exclude=None, cwd=None):
         """
         Globs
 
@@ -1409,7 +1409,7 @@ class FS(LocalFS):
         """
         if cwd is None:
             cwd = self.getcwd()
-        return cwd.glob(pathname, ondisk, source, strings)
+        return cwd.glob(pathname, ondisk, source, strings, exclude)
 
 class DirNodeInfo(SCons.Node.NodeInfoBase):
     # This should get reset by the FS initialization.
@@ -2020,7 +2020,7 @@ class Dir(Base):
         for dirname in [n for n in names if isinstance(entries[n], Dir)]:
             entries[dirname].walk(func, arg)
 
-    def glob(self, pathname, ondisk=True, source=False, strings=False):
+    def glob(self, pathname, ondisk=True, source=False, strings=False, exclude=None):
         """
         Returns a list of Nodes (or strings) matching a specified
         pathname pattern.
@@ -2048,24 +2048,30 @@ class Dir(Base):
         The "strings" argument, when true, returns the matches as strings,
         not Nodes.  The strings are path names relative to this directory.
 
+        The "exclude" argument, if not None, must be a list of patterns
+        following the same UNIX shell semantics. Elements matching a least
+        one pattern of this list will be excluded from the result.
+
         The underlying algorithm is adapted from the glob.glob() function
         in the Python library (but heavily modified), and uses fnmatch()
         under the covers.
         """
         dirname, basename = os.path.split(pathname)
         if not dirname:
-            return sorted(self._glob1(basename, ondisk, source, strings),
-                          key=lambda t: str(t))
-        if has_glob_magic(dirname):
-            list = self.glob(dirname, ondisk, source, strings=False)
+            result = self._glob1(basename, ondisk, source, strings)
         else:
-            list = [self.Dir(dirname, create=True)]
-        result = []
-        for dir in list:
-            r = dir._glob1(basename, ondisk, source, strings)
-            if strings:
-                r = [os.path.join(str(dir), x) for x in r]
-            result.extend(r)
+            if has_glob_magic(dirname):
+                list = self.glob(dirname, ondisk, source, False, exclude)
+            else:
+                list = [self.Dir(dirname, create=True)]
+            result = []
+            for dir in list:
+                r = dir._glob1(basename, ondisk, source, strings)
+                if strings:
+                    r = [os.path.join(str(dir), x) for x in r]
+                result.extend(r)
+        if exclude:
+            result = filter(lambda x: not any(fnmatch.fnmatch(str(x), e) for e in exclude), result)
         return sorted(result, key=lambda a: str(a))
 
     def _glob1(self, pattern, ondisk=True, source=False, strings=False):
@@ -2128,14 +2134,12 @@ class Dir(Base):
 
         names = set(names)
         if pattern[0] != '.':
-            #names = [ n for n in names if n[0] != '.' ]
             names = [x for x in names if x[0] != '.']
         names = fnmatch.filter(names, pattern)
 
         if strings:
             return names
 
-        #return [ self.entries[_my_normcase(n)] for n in names ]
         return [self.entries[_my_normcase(n)] for n in names]
 
 class RootDir(Dir):

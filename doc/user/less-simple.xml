@@ -257,6 +257,7 @@ Program('program', Glob('*.c'))
     (see <xref linkend="chap-variants"></xref>, below)
     and repositories
     (see <xref linkend="chap-repositories"></xref>, below),
+    excluding some files 
     and returning strings rather than Nodes.
 
     </para>
