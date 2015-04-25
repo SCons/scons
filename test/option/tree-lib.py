@@ -52,7 +52,7 @@ test.write('main.c', """\
 #include <stdlib.h>
 #include <stdio.h>
 int
-main(int argc, char *argv)
+main(int argc, char **argv)
 {
     printf("#define	FOO_H	\\"foo.h\\"\\n");
     return (0);
