@@ -50,8 +50,8 @@ env.Concatenate('fa.out', sorted(Glob('f*.in'   , exclude=['f2.in', 'f4.*']   , 
 env.Concatenate('fb.out', sorted(Glob('f*.in'   , exclude=['f2.in', 'f4.*']   , strings=True)))
 env.Concatenate('fc.out', sorted(Glob('d?/f*.in', exclude=['d?/f1.*', 'f2.in'], strings=False), key=lambda t: t.path))
 env.Concatenate('fd.out', sorted(Glob('d?/f*.in', exclude=['d?/f1.*', 'f2.in'], strings=True)))
-env.Concatenate('fe.out', sorted(Glob('f*.in',    exclude=['f1.in']           , strings=True)))
-env.Concatenate('ff.out', sorted(Glob('f*.in',    exclude=['other']           , strings=True)))
+env.Concatenate('fe.out', sorted(Glob('f*.in',    exclude='f1.in'             , strings=True)))
+env.Concatenate('ff.out', sorted(Glob('f*.in',    exclude='other'             , strings=True)))
 """)
 
 test.write('f1.in', "f1.in\n")

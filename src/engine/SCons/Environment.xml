@@ -1813,7 +1813,7 @@ directory.)
 <para>
 The
 <varname>exclude</varname>
-argument may be set to a list of patterns
+argument may be set to a pattern or a list of patterns
 (following the same Unix shell semantics)
 which must be filtered out of returned elements.
 Elements matching a least one pattern of
