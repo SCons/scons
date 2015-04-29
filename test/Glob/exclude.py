@@ -50,6 +50,8 @@ env.Concatenate('fa.out', sorted(Glob('f*.in'   , exclude=['f2.in', 'f4.*']   , 
 env.Concatenate('fb.out', sorted(Glob('f*.in'   , exclude=['f2.in', 'f4.*']   , strings=True)))
 env.Concatenate('fc.out', sorted(Glob('d?/f*.in', exclude=['d?/f1.*', 'f2.in'], strings=False), key=lambda t: t.path))
 env.Concatenate('fd.out', sorted(Glob('d?/f*.in', exclude=['d?/f1.*', 'f2.in'], strings=True)))
+env.Concatenate('fe.out', sorted(Glob('f*.in',    exclude=['f1.in']           , strings=True)))
+env.Concatenate('ff.out', sorted(Glob('f*.in',    exclude=['other']           , strings=True)))
 """)
 
 test.write('f1.in', "f1.in\n")
@@ -72,6 +74,8 @@ test.must_match('fa.out', "f1.in\nf3.in\nf5.in\n")
 test.must_match('fb.out', "f1.in\nf3.in\nf5.in\n")
 test.must_match('fc.out', "d1/f2.in\nd1/f3.in\nd2/f2.in\nd2/f3.in\n")
 test.must_match('fd.out', "d1/f2.in\nd1/f3.in\nd2/f2.in\nd2/f3.in\n")
+test.must_match('fe.out', "f2.in\nf3.in\nf4.in\nf5.in\n")
+test.must_match('ff.out', "f1.in\nf2.in\nf3.in\nf4.in\nf5.in\n")
 
 test.pass_test()
 
