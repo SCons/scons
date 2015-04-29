@@ -129,6 +129,14 @@ def _dllEmitter(target, source, env, paramtp):
         extratargets.append(pdb)
         target[0].attributes.pdb = pdb
 
+    if version_num >= 11.0 and env.get('PCH', 0):
+        # MSVC 11 and above need the PCH object file to be added to the link line,
+        # otherwise you get link error LNK2011.
+        pchobj = SCons.Util.splitext(str(env['PCH']))[0] + '.obj'
+        # print "prog_emitter, version %s, appending pchobj %s"%(version_num, pchobj)
+        if pchobj not in extrasources:
+            extrasources.append(pchobj)
+
     if not no_import_lib and \
        not env.FindIxes(target, "LIBPREFIX", "LIBSUFFIX"):
         # Append an import library to the list of targets.
