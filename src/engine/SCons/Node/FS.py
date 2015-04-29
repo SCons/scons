@@ -2048,9 +2048,10 @@ class Dir(Base):
         The "strings" argument, when true, returns the matches as strings,
         not Nodes.  The strings are path names relative to this directory.
 
-        The "exclude" argument, if not None, must be a list of patterns
-        following the same UNIX shell semantics. Elements matching a least
-        one pattern of this list will be excluded from the result.
+        The "exclude" argument, if not None, must be a pattern or a list
+        of patterns following the same UNIX shell semantics.
+        Elements matching a least one pattern of this list will be excluded
+        from the result.
 
         The underlying algorithm is adapted from the glob.glob() function
         in the Python library (but heavily modified), and uses fnmatch()
@@ -2071,7 +2072,7 @@ class Dir(Base):
                     r = [os.path.join(str(dir), x) for x in r]
                 result.extend(r)
         if exclude:
-            result = filter(lambda x: not any(fnmatch.fnmatch(str(x), e) for e in exclude), result)
+            result = filter(lambda x: not any(fnmatch.fnmatch(str(x), e) for e in SCons.Util.flatten(exclude)), result)
         return sorted(result, key=lambda a: str(a))
 
     def _glob1(self, pattern, ondisk=True, source=False, strings=False):
