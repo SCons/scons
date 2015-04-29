@@ -33,6 +33,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Alexandre Feblot:
     - Fix for VersionedSharedLibrary under 'sunos' platform.
+    - Fixed dll link with precompiled headers on MSVC 2012
+    - Added an 'exclude' parameter to Glob()
 
   From Laurent Marchelli:
     - Support for multiple cmdargs (one per variant) in VS project files.
