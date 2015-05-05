@@ -6,6 +6,10 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Stephen Pollard:
+    - Documentation fixes for libraries.xml and
+      builders-writing.xml (#2989 and #2990)
+
   From William Deegan:
     - Extended docs for InstallVersionedLib/SharedLibrary,
       and added SKIP_WIN_PACKAGES argument to build script
