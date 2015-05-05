@@ -502,7 +502,7 @@ def build_function(target, source, env):
     The builder function
     may raise an exception
     or return any non-zero value
-    to indicate that the build is unsuccessful,
+    to indicate that the build is unsuccessful.
 
     </para>
 
