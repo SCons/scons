@@ -123,7 +123,7 @@ void f3() { printf("f3.c\n"); }
       list of source files.
       You can, however, also give the &b-link-Library; call
       object files,
-      and it will correctly realize
+      and it will correctly realize they are object files.
       In fact, you can arbitrarily mix source code files
       and object files in the source list:
 
