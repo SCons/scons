@@ -202,9 +202,7 @@ and translated into the
 The list of directories that the scripting language wrapper
 and interface generate will search for included files.
 The SWIG implicit dependency scanner will search these
-directories for include files.
-The default is to use the same path
-specified as &cv-CPPPATH;.
+directories for include files. The default value is an empty list.
 </para>
 
 <para>
@@ -251,7 +249,7 @@ include &cv-_SWIGINCFLAGS;:
 </para>
 
 <example_commands>
-env = Environment(SWIGCOM="my_swig -o $TARGET $_SWIGINCFLAGS $SORUCES")
+env = Environment(SWIGCOM="my_swig -o $TARGET $_SWIGINCFLAGS $SOURCES")
 </example_commands>
 </summary>
 </cvar>
