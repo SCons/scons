@@ -292,8 +292,8 @@ def _node_errors(builder, env, tlist, slist):
         if t.has_explicit_builder():
             if not t.env is None and not t.env is env:
                 action = t.builder.action
-                t_contents = action.get_contents(tlist, slist, t.env)
-                contents = action.get_contents(tlist, slist, env)
+                t_contents = t.builder.action.get_contents(tlist, slist, t.env)
+                contents = builder.action.get_contents(tlist, slist, env)
 
                 if t_contents == contents:
                     msg = "Two different environments were specified for target %s,\n\tbut they appear to have the same action: %s" % (t, action.genstring(tlist, slist, t.env))
