@@ -1,0 +1,688 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<configuration
+  xmlns="http://www.xmlmind.com/xmleditor/schema/configuration"
+  xmlns:cfg="http://www.xmlmind.com/xmleditor/schema/configuration">
+
+  <!-- ====== First step used by most process commands defined here ====== -->
+
+  <command name="docb.convertStep1">
+    <process>
+      <mkdir dir="resources" />
+      <mkdir dir="raw" />
+
+      <copyDocument to="__doc.xml">
+        <resources match="(https|http|ftp)://.*" />
+
+        <!-- Support for textdata/@fileref.
+             add your favorite text file extensions here: -->
+        <resources
+          match=".+\.(txt|text|htm|html|xml|h|c|cpp|java|js|tcl|py|pl|rb)" 
+          copyTo="." />
+
+        <resources match=".+\.(png|jpg|jpeg|gif)" 
+                   copyTo="resources" />
+        <resources match="(?:.+/)?(.+)\.(\w+)"
+                   copyTo="raw" referenceAs="resources/$1.png" />
+        <resources match=".+" 
+                   copyTo="resources" />
+      </copyDocument>
+
+      <convertImage from="raw" to="resources" format="png" />
+
+      <mkdir dir="images/callouts" />
+      <copyProcessResources resources="xsl/images/draft.png" to="images" />
+      <copyProcessResources resources="@xsl/images/callouts/png_callouts.list" 
+                            to="images/callouts" />
+    </process>
+  </command>
+
+  <!-- =================================================================== -->
+
+  <command name="docb.toHTML">
+    <process>
+      <subProcess name="docb.convertStep1" />
+
+      <copyProcessResources resources="xsl/css/html.css" to="html.css"
+                            name="css" />
+
+      <transform stylesheet="xsl/html/chunk.xsl" 
+                 file="__doc.xml" to="__doc.html"
+                 label="Convert to multi-page HTML"
+                 documentation="http://docbook.sourceforge.net/release/xsl/current/doc/html/%{parameter.name|html.stylesheet}.html">
+        <parameter name="use.extensions">1</parameter>
+	<!-- Cannot work and generates a lot of error messages. -->
+	<parameter name="graphicsize.extension">0</parameter>
+
+        <parameter name="base.dir">%W%S</parameter>
+        <parameter name="chunk.first.sections">1</parameter>
+        <parameter name="chunk.section.depth">1</parameter>
+
+        <parameter name="toc.section.depth">3</parameter>
+        <parameter name="section.autolabel">1</parameter>
+
+        <parameter name="callout.graphics">1</parameter>
+
+        <parameter name="html.stylesheet">html.css</parameter>
+
+	<parameterGroup name="docb.toHTML.transformParameters" />
+      </transform>
+ 
+      <!-- The real HTML file is index.html -->
+      <delete files="__doc.*" />
+
+      <upload base="%0/">
+        <copyFiles files="*.*" toDir="." />
+        <copyFiles files="resources/*" toDir="resources" />
+        <copyFiles files="images/*" toDir="images" />
+      </upload>
+    </process>
+  </command>
+
+  <command name="docb.convertToHTML">
+    <macro>
+      <sequence>
+	<command name="selectConvertedFile" 
+	         parameter="saveDirectoryURL" />
+	<command name="docb.toHTML" parameter='"%_"' />
+      </sequence>
+    </macro>
+  </command>
+
+  <!-- =================================================================== -->
+
+  <command name="docb.toHTML1">
+    <process>
+      <subProcess name="docb.convertStep1" />
+
+      <copyProcessResources resources="xsl/css/html.css" to="html.css"
+                            name="css" />
+
+      <transform stylesheet="xsl/html/docbook.xsl" 
+                 file="__doc.xml" to="__doc.html"
+                 label="Convert to single-page HTML"
+                 documentation="http://docbook.sourceforge.net/release/xsl/current/doc/html/%{parameter.name|html.stylesheet}.html">
+        <parameter name="use.extensions">1</parameter>
+	<!-- Cannot work and generates a lot of error messages. -->
+	<parameter name="graphicsize.extension">0</parameter>
+
+        <parameter name="generate.toc">%0</parameter>
+        <parameter name="toc.section.depth">3</parameter>
+        <parameter name="section.autolabel">%1</parameter>
+
+        <parameter name="callout.graphics">1</parameter>
+
+        <parameter name="html.stylesheet">html.css</parameter>
+
+	<parameterGroup name="docb.toHTML1.transformParameters" />
+      </transform>
+ 
+      <upload base="%2">
+        <copyFile file="__doc.html" to="%2" />
+        <copyFile file="html.css" to="html.css" />
+        <copyFiles files="resources/*" toDir="resources" />
+        <copyFiles files="images/*" toDir="images" />
+      </upload>
+    </process>
+  </command>
+
+  <command name="docb.convertToHTML1">
+    <macro>
+      <sequence>
+	<command name="selectConvertedFile" 
+	         parameter="saveFileURLWithExtension=html" />
+	<command name="docb.toHTML1" parameter='"%0" "%1" "%_"' />
+      </sequence>
+    </macro>
+  </command>
+
+  <!-- =================================================================== -->
+
+  <command name="docb.toHTMLHelp">
+    <process>
+      <subProcess name="docb.convertStep1" />
+
+      <copyProcessResources resources="xsl/css/htmlhelp.css"
+                            to="htmlhelp.css" name="css" />
+
+      <transform stylesheet="xsl/htmlhelp/htmlhelp.xsl" 
+                 file="__doc.xml" to="__doc.html"
+                 label="Convert to HTML Help"
+                 documentation="http://docbook.sourceforge.net/release/xsl/current/doc/html/%{parameter.name|html.stylesheet}.html">
+        <parameter name="use.extensions">1</parameter>
+	<!-- Cannot work and generates a lot of error messages. -->
+	<parameter name="graphicsize.extension">0</parameter>
+
+        <parameter name="base.dir">%W%S</parameter>
+        <parameter name="manifest.in.base.dir">1</parameter>
+
+        <parameter name="chunk.first.sections">1</parameter>
+        <parameter name="chunk.section.depth">1</parameter>
+
+        <parameter name="toc.section.depth">3</parameter>
+        <parameter name="section.autolabel">1</parameter>
+
+        <parameter name="callout.graphics">1</parameter>
+
+        <parameter name="html.stylesheet">htmlhelp.css</parameter>
+
+	<parameterGroup name="docb.toHTMLHelp.transformParameters" />
+      </transform>
+ 
+      <!-- Not useful. -->
+      <delete files="__doc.*" />
+
+      <!-- "C:\Program Files\HTML Help Workshop\hhc.exe" is the 
+           HTML Help compiler.
+           hhc.exe exit code is 1 even when the compilation is successful.
+           Its exit code should be 0. That's why, without "|| exit 0", 
+           the process command thinks hhc.exe has failed. -->
+
+      <shell command="helper(.hhp) htmlhelp.hhp || exit 0"
+             platform="Windows" />
+
+      <upload base="%0">
+        <copyFile file="htmlhelp.chm" to="%0" />
+      </upload>
+    </process>
+  </command>
+
+  <command name="docb.convertToHTMLHelp">
+    <macro>
+      <sequence>
+        <!-- path.separator==';' only on Windows. -->
+        <test expression="system-property('path.separator') = ';'" />
+
+	<command name="selectConvertedFile" 
+	         parameter="saveFileURLWithExtension=chm" />
+	<command name="docb.toHTMLHelp" parameter='"%_"' />
+      </sequence>
+    </macro>
+  </command>
+
+  <!-- =================================================================== -->
+
+  <command name="docb.toJavaHelpStep1">
+    <process>
+      <subProcess name="docb.convertStep1" />
+
+      <copyProcessResources resources="xsl/css/javahelp.css" 
+                            to="javahelp.css" name="css" />
+
+      <transform stylesheet="xsl/javahelp/javahelp.xsl"
+                 file="__doc.xml" to="__doc.html"
+                 label="Convert to Java Help"
+                 documentation="http://docbook.sourceforge.net/release/xsl/current/doc/html/%{parameter.name|html.stylesheet}.html">
+        <parameter name="use.extensions">1</parameter>
+	<!-- Cannot work and generates a lot of error messages. -->
+	<parameter name="graphicsize.extension">0</parameter>
+
+        <parameter name="base.dir">%W%S</parameter>
+
+        <parameter name="chunk.first.sections">1</parameter>
+        <parameter name="chunk.section.depth">2</parameter>
+
+        <parameter name="generate.toc"> </parameter>
+
+        <parameter name="callout.graphics">1</parameter>
+
+        <parameter name="html.stylesheet">javahelp.css</parameter>
+
+	<parameterGroup name="docb.toJavaHelp.transformParameters" />
+      </transform>
+ 
+      <!-- The real file is not __doc.html -->
+      <delete files="__doc.*" />
+
+      <shell command="helper(application/x-java-help-index) ." />
+    </process>
+  </command>
+
+  <command name="docb.toJavaHelp">
+    <process>
+      <subProcess name="docb.toJavaHelpStep1" />
+
+      <jar archive="__help_jar__">
+        <add files="*.*" />
+        <add files="resources/*" />
+        <add files="images/*" />
+        <add files="JavaHelpSearch/*" />
+      </jar>
+
+      <upload base="%0">
+        <copyFile file="__help_jar__" to="%0" />
+      </upload>
+    </process>
+  </command>
+
+  <!-- Useful when the application merges several HelpSets -->
+  <command name="docb.toJavaHelpWithPrefix">
+    <process>
+      <subProcess name="docb.toJavaHelpStep1" />
+
+      <mkdir dir="%1" />
+      <copy files="*.*" to="%1" />
+      <copy recurse="true" files="resources" to="%1" />
+      <copy recurse="true" files="images" to="%1" />
+      <copy recurse="true" files="JavaHelpSearch" to="%1" />
+
+      <jar archive="__help_jar__">
+        <add files="%1/*" />
+      </jar>
+
+      <upload base="%0">
+        <copyFile file="__help_jar__" to="%0" />
+      </upload>
+    </process>
+  </command>
+
+  <command name="docb.convertToJavaHelp">
+    <macro>
+      <sequence>
+	<command name="selectConvertedFile" 
+	         parameter="saveFileURLWithExtension=jar" />
+	<command name="docb.toJavaHelp" parameter='"%_"' />
+      </sequence>
+    </macro>
+  </command>
+
+  <!-- =================================================================== -->
+
+  <command name="docb.toEclipseHelp">
+    <process>
+      <subProcess name="docb.convertStep1" />
+
+      <copyProcessResources resources="xsl/css/eclipsehelp.css"
+                            to="eclipsehelp.css" name="css" />
+
+      <transform stylesheet="xsl/eclipse/eclipse.xsl" 
+                 file="__doc.xml" to="__doc.html"
+                 label="Convert to Eclipse Help"
+                 documentation="http://docbook.sourceforge.net/release/xsl/current/doc/html/%{parameter.name|html.stylesheet}.html">
+        <parameter name="use.extensions">1</parameter>
+	<!-- Cannot work and generates a lot of error messages. -->
+	<parameter name="graphicsize.extension">0</parameter>
+
+        <parameter name="base.dir">%W%S</parameter>
+        <parameter name="manifest.in.base.dir">1</parameter>
+
+        <parameter name="chunk.first.sections">1</parameter>
+        <parameter name="chunk.section.depth">3</parameter>
+
+        <parameter name="toc.section.depth">3</parameter>
+        <parameter name="section.autolabel">1</parameter>
+
+        <parameter name="callout.graphics">1</parameter>
+
+        <parameter name="html.stylesheet">eclipsehelp.css</parameter>
+
+        <parameter name="eclipse.plugin.name"
+          >REDEFINE THIS: title of this help</parameter>
+        <parameter name="eclipse.plugin.id"
+          >REDEFINE THIS: unique.id.of.this.plugin</parameter>
+        <parameter name="eclipse.plugin.provider"
+          >REDEFINE THIS: author, company or organization</parameter>
+
+	<parameterGroup name="docb.toEclipseHelp.transformParameters" />
+      </transform>
+ 
+      <!-- Not useful. -->
+      <delete files="__doc.*" />
+
+      <upload base="%0/">
+        <copyFiles files="*.*" toDir="." />
+        <copyFiles files="resources/*" toDir="resources" />
+        <copyFiles files="images/*" toDir="images" />
+      </upload>
+    </process>
+  </command>
+
+  <command name="docb.convertToEclipseHelp">
+    <macro>
+      <sequence>
+	<command name="selectConvertedFile" 
+	         parameter="saveDirectoryURL" />
+	<command name="docb.toEclipseHelp" parameter='"%_"' />
+      </sequence>
+    </macro>
+  </command>
+
+  <!-- =================================================================== -->
+
+  <command name="docb.toEpub">
+    <process>
+      <mkdir dir="raw" />
+      <mkdir dir="images" />
+      <mkdir dir="META-INF" />
+
+      <copyDocument to="__doc.xml">
+        <resources match="(https|http|ftp)://.*" />
+
+        <!-- Support for textdata/@fileref.
+             add your favorite text file extensions here: -->
+        <resources
+          match=".+\.(txt|text|htm|html|xml|h|c|cpp|java|js|tcl|py|pl|rb)" 
+          copyTo="." />
+
+        <resources match=".+\.(png|jpg|jpeg|gif)" 
+                   copyTo="images" />
+        <resources match="(?:.+/)?(.+)\.(\w+)"
+                   copyTo="raw" referenceAs="images/$1.png" />
+        <resources match=".+" 
+                   copyTo="images" />
+      </copyDocument>
+
+      <convertImage from="raw" to="images" format="png" />
+
+      <mkdir dir="images/callouts" />
+      <copyProcessResources resources="xsl/images/draft.png" 
+                            to="images" />
+      <copyProcessResources resources="@xsl/images/callouts/png_callouts.list" 
+                            to="images/callouts" />
+
+      <copyProcessResources resources="xsl/css/epub.css"
+                            to="epub.css" name="css" />
+      <copyProcessResources resources="xsl/epub/mimetype"
+                            to="mimetype" />
+      <copyProcessResources resources="xsl/epub/META-INF/container.xml"
+                            to="META-INF/container.xml" />
+
+      <transform stylesheet="xsl/epub/epub.xsl" 
+                 file="__doc.xml" to="__doc.html"
+                 label="Convert to Epub"
+                 documentation="http://docbook.sourceforge.net/release/xsl/current/doc/html/%{parameter.name|html.stylesheet}.html">
+        <parameter name="use.extensions">1</parameter>
+	<!-- Cannot work and generates a lot of error messages. -->
+	<parameter name="graphicsize.extension">0</parameter>
+
+        <parameter name="base.dir">%W%S</parameter>
+
+        <parameter name="chunk.first.sections">1</parameter>
+        <parameter name="chunk.section.depth">3</parameter>
+
+        <parameter name="generate.toc"> </parameter>
+
+        <parameter name="callout.graphics">1</parameter>
+
+        <parameter name="html.stylesheet">epub.css</parameter>
+
+	<parameterGroup name="docb.toEpub.transformParameters" />
+      </transform>
+ 
+      <!-- Not useful. -->
+      <delete files="__doc.*" />
+
+      <zip archive="epub.zip">
+        <add files="mimetype" store="true" />
+        <add files="META-INF/*" />
+        <add files="*.html" />
+        <add files="*.css" />
+        <add files="images/*" />
+        <add files="content.opf" />
+        <add files="toc.ncx" />
+      </zip>
+
+      <upload base="%0">
+        <copyFile file="epub.zip" to="%0" />
+      </upload>
+    </process>
+  </command>
+
+  <command name="docb.convertToEpub">
+    <macro>
+      <sequence>
+	<command name="selectConvertedFile" 
+	         parameter="saveFileURLWithExtension=epub" />
+	<command name="docb.toEpub" parameter='"%_"' />
+      </sequence>
+    </macro>
+  </command>
+
+  <!-- =================================================================== -->
+
+  <command name="docb.toRTF">
+    <process>
+      <subProcess name="docb.convertStep1" />
+
+      <transform stylesheet="xsl/fo/docbook.xsl" 
+                 file="__doc.xml" to="__doc.fo"
+                 label="Convert to RTF, WordprocessingML, OOXML, OpenDocument"
+                 documentation="http://docbook.sourceforge.net/release/xsl/current/doc/fo/%{parameter.name|paper.type}.html">
+        <parameter name="use.extensions">1</parameter>
+	<!-- Cannot work and generates a lot of error messages. -->
+	<parameter name="graphicsize.extension">0</parameter>
+
+        <parameter name="paper.type">A4</parameter>
+
+        <parameter name="generate.toc">%2</parameter>
+        <parameter name="toc.section.depth">3</parameter>
+        <parameter name="section.autolabel">%3</parameter>
+
+        <parameter name="callout.graphics">1</parameter>
+
+        <parameter name="shade.verbatim">1</parameter>
+
+        <parameter name="ulink.show">0</parameter>
+
+	<parameterGroup name="docb.toRTF.transformParameters" />
+      </transform>
+
+      <processFO processor="XFC" file="__doc.fo" to="__doc.%0">
+        <parameter name="outputFormat">%0</parameter>
+        <parameter name="outputEncoding">%1</parameter>
+        <parameter name="imageResolution">120</parameter>
+        <parameter name="prescaleImages">false</parameter>
+	<parameterGroup name="docb.toRTF.XFCParameters" />
+      </processFO>
+
+      <upload base="%4">
+        <copyFile file="__doc.%0" to="%4" />
+      </upload>
+    </process>
+  </command>
+
+  <command name="docb.convertToRTF">
+    <macro>
+      <sequence>
+	<command name="selectConvertedFile" 
+	         parameter="saveFileURLWithExtension=%4" />
+	<command name="docb.toRTF" parameter='"%0" "%1" "%2" "%3" "%_"' />
+      </sequence>
+    </macro>
+  </command>
+
+  <!-- =================================================================== -->
+
+  <command name="docb.toPS">
+    <process>
+      <mkdir dir="resources" />
+      <mkdir dir="raw" />
+
+      <copyDocument to="__doc.xml">
+        <resources match="(https|http|ftp)://.*" />
+
+        <!-- Support for textdata/@fileref.
+             add your favorite text file extensions here: -->
+        <resources
+          match=".+\.(txt|text|htm|html|xml|h|c|cpp|java|js|tcl|py|pl|rb)" 
+          copyTo="." />
+
+        <!-- referenceAs=absolute_URL is used as a workaround for 
+             FOP 0.20.5 ``really strange'' image managment. 
+	     (This is harmless for XEP.) -->
+
+        <resources match="(?:.+/)?(.+)\.(png|jpg|jpeg|gif|mml|svg|svgz%1)" 
+                   copyTo="resources" referenceAs="%w/resources/$1.$2" />
+        <resources match="(?:.+/)?(.+)\.tex"
+                   copyTo="raw" referenceAs="%w/resources/$1.%0" />
+        <resources match="(?:.+/)?(.+)\.(\w+)"
+                   copyTo="raw" referenceAs="%w/resources/$1.png" />
+        <resources match="(?:.+/)?(.+)" 
+	           copyTo="resources" referenceAs="%w/resources/$1" />
+      </copyDocument>
+
+      <convertImage from="raw" to="resources" format="%0 png" />
+
+      <mkdir dir="images/callouts" />
+      <copyProcessResources resources="xsl/images/draft.png" to="images" />
+      <copyProcessResources resources="@xsl/images/callouts/png_callouts.list" 
+                            to="images/callouts" />
+
+      <transform stylesheet="xsl/fo/docbook.xsl"
+                 file="__doc.xml" to="__doc.fo"
+                 label="Convert to PDF, PostScript"
+                 documentation="http://docbook.sourceforge.net/release/xsl/current/doc/fo/%{parameter.name|paper.type}.html">
+        <parameter name="use.extensions">1</parameter>
+	<!-- Cannot work and generates a lot of error messages. -->
+	<parameter name="graphicsize.extension">0</parameter>
+
+        <parameter name="paper.type">A4</parameter>
+
+        <parameter name="generate.toc">%2</parameter>
+        <parameter name="toc.section.depth">3</parameter>
+        <parameter name="section.autolabel">%3</parameter>
+
+        <parameter name="callout.graphics">1</parameter>
+
+        <parameter name="shade.verbatim">1</parameter>
+
+        <parameter name="ulink.show">0</parameter>
+
+	<parameterGroup name="docb.toPS.transformParameters" />
+      </transform>
+
+      <processFO processor="XEP" file="__doc.fo" to="__doc.%0">
+        <parameter name="OUTPUT_FORMAT">%0</parameter>
+        <parameter name="PS.LANGUAGE_LEVEL">2</parameter>
+	<parameterGroup name="docb.toPS.XEPParameters" />
+
+	<!-- If XEP plug-in has not been installed, try FOP plug-in. -->
+	<processFO processor="FOP" file="__doc.fo" to="__doc.%0">
+	  <parameter name="renderer">%0</parameter>
+	  <parameter name="strict-validation">false</parameter>
+	  <parameterGroup name="docb.toPS.FOPParameters" />
+	</processFO>
+      </processFO>
+    </process>
+  </command>
+
+  <command name="docb.toPSFile">
+    <process>
+      <subProcess name="docb.toPS" parameter='"%0" "%1" "%2" "%3"' />
+
+      <upload base="%4">
+        <copyFile file="__doc.%0" to="%4" />
+      </upload>
+    </process>
+  </command>
+
+  <command name="docb.convertToPS">
+    <macro>
+      <sequence>
+	<command name="selectConvertedFile"
+	         parameter="saveFileURLWithExtension=%0" />
+	<command name="docb.toPSFile" parameter='"%0" "%1" "%2" "%3" "%_"' />
+      </sequence>
+    </macro>
+  </command>
+
+  <!-- =================================================================== -->
+
+  <command name="docb.toPSPrinter">
+    <process>
+      <subProcess name="docb.toPS" parameter='"%0" "%1" "%2" "%3"' />
+
+      <print file="__doc.%0" printer="%4" />
+    </process>
+  </command>
+
+  <command name="docb.printPS">
+    <macro>
+      <sequence>
+	<command name="selectPrinter" parameter="%0" />
+	<command name="docb.toPSPrinter" parameter='"%0" "%1" "%2" "%3" "%_"'/>
+      </sequence>
+    </macro>
+  </command>
+
+  <!-- =================================================================== -->
+
+  <menu label="_DocBook"
+        insert="ifDefined(XXE.Edition.Unrestricted)after ##last">
+    <separator />
+    <menu label="_Convert Document">
+      <item label="Convert to _HTML..."
+            command="docb.convertToHTML" />
+      <item label="Convert to HTML [_one page]..." 
+            command="docb.convertToHTML1" 	
+	    parameter='"/book toc /article toc" 1' />
+      <item label="Convert to HTML [one page, _no TOC]..."
+            command="docb.convertToHTML1" parameter='" " 0' />
+      <separator />
+      <item label="Convert to HTM_L Help..."
+            command="docb.convertToHTMLHelp" />
+      <separator />
+      <item label="Convert to _Java Help..."
+            command="docb.convertToJavaHelp" />
+      <separator />
+      <item label="Convert to _Eclipse Help..."
+            command="docb.convertToEclipseHelp" />
+      <separator />
+      <item label="Convert to Epu_b..."
+            command="docb.convertToEpub" />
+      <separator />
+      <item label="Convert to _RTF (Word 2000+)..."
+            command="docb.convertToRTF" 
+	    parameter='rtf Cp1252 "/book toc /article toc" 1 rtf' />
+      <item label="Convert to R_TF [no TOC]..."
+            command="docb.convertToRTF" 
+            parameter='rtf Cp1252 " " 0 rtf' />
+      <separator />
+      <item label="Convert to _WordprocessingML (Word 2003+)..."
+            command="docb.convertToRTF" 
+	    parameter='wml UTF-8 "/book toc /article toc" 1 wml' />
+      <item label="Convert to Wordprocessing_ML [no TOC]..." 
+            command="docb.convertToRTF" 
+            parameter='wml UTF-8 " " 0 wml' />
+      <separator />
+      <item label="Convert to Office Open _XML (Word 2007+)..."
+            command="docb.convertToRTF" 
+	    parameter='docx UTF-8 "/book toc /article toc" 1 docx' />
+      <item label="Con_vert to Office Open XML [no TOC]..."
+            command="docb.convertToRTF" 
+            parameter='docx UTF-8 " " 0 docx' />
+      <separator />
+      <item label="Convert to Open_Document (OpenOffice.org 2+)..."
+            command="docb.convertToRTF" 
+	    parameter='odt UTF-8 "/book toc /article toc" 1 odt' />
+      <item label="Convert to OpenDoc_ument [no TOC]..."
+            command="docb.convertToRTF" 
+            parameter='odt UTF-8 " " 0 odt' />
+      <separator />
+      <item label="Print Post_Script..."
+            command="docb.printPS"
+            parameter='ps |eps|ps "/book toc /article toc" 1' />
+      <item label="Print PostScr_ipt [no TOC]..."
+            command="docb.printPS" 
+	    parameter='ps |eps|ps " " 0' />
+      <separator />
+      <item label="Convert to _PDF..."
+            command="docb.convertToPS" 
+            parameter='pdf |pdf "/book toc /article toc" 1' />
+      <item label="Convert to PD_F [no TOC]..."
+            command="docb.convertToPS" 
+	    parameter='pdf |pdf " " 0' />
+    </menu>
+  </menu>
+
+  <!-- =================================================================== -->
+
+  <command name="docb.conversionPreferences">
+    <class>com.xmlmind.xmleditext.docbook.ConversionPreferences</class>
+  </command>
+
+  <menu name="customizeConfig" label="_Customize Configuration">
+    <item label="Document Conversion _Preferences..."
+          command="docb.conversionPreferences" />
+  </menu>
+
+</configuration>
