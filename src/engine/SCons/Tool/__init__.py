@@ -51,6 +51,7 @@ import SCons.Scanner.C
 import SCons.Scanner.D
 import SCons.Scanner.LaTeX
 import SCons.Scanner.Prog
+import SCons.Scanner.SWIG
 
 DefaultToolpath=[]
 
@@ -60,6 +61,7 @@ LaTeXScanner = SCons.Scanner.LaTeX.LaTeXScanner()
 PDFLaTeXScanner = SCons.Scanner.LaTeX.PDFLaTeXScanner()
 ProgramScanner = SCons.Scanner.Prog.ProgramScanner()
 SourceFileScanner = SCons.Scanner.Base({}, name='SourceFileScanner')
+SWIGScanner = SCons.Scanner.SWIG.SWIGScanner()
 
 CSuffixes = [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
              ".h", ".H", ".hxx", ".hpp", ".hh",
@@ -73,11 +75,16 @@ IDLSuffixes = [".idl", ".IDL"]
 
 LaTeXSuffixes = [".tex", ".ltx", ".latex"]
 
+SWIGSuffixes = ['.i']
+
 for suffix in CSuffixes:
     SourceFileScanner.add_scanner(suffix, CScanner)
 
 for suffix in DSuffixes:
     SourceFileScanner.add_scanner(suffix, DScanner)
+
+for suffix in SWIGSuffixes:
+    SourceFileScanner.add_scanner(suffix, SWIGScanner)
 
 # FIXME: what should be done here? Two scanners scan the same extensions,
 # but look for different files, e.g., "picture.eps" vs. "picture.pdf".

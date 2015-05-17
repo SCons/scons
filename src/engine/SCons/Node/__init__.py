@@ -916,32 +916,38 @@ class Node(object):
         """
         return []
 
-    def get_implicit_deps(self, env, scanner, path):
+    def get_implicit_deps(self, env, scanner, path, kw = {}):
         """Return a list of implicit dependencies for this node.
 
         This method exists to handle recursive invocation of the scanner
         on the implicit dependencies returned by the scanner, if the
         scanner's recursive flag says that we should.
         """
-        if not scanner:
-            return []
-
-        # Give the scanner a chance to select a more specific scanner
-        # for this Node.
-        #scanner = scanner.select(self)
-
         nodes = [self]
         seen = {}
         seen[self] = 1
         deps = []
         while nodes:
             n = nodes.pop(0)
-            d = [x for x in n.get_found_includes(env, scanner, path) if x not in seen]
+
+            if not scanner:
+                s = n.get_env_scanner(env, kw)
+                if s:
+                    s = s.select(n)
+            else:
+                s = scanner.select(n)
+                
+            if not s:
+                continue
+
+            p = path(s)
+
+            d = [x for x in n.get_found_includes(env, s, p) if x not in seen]
             if d:
                 deps.extend(d)
                 for n in d:
                     seen[n] = 1
-                nodes.extend(scanner.recurse_nodes(d))
+                nodes.extend(s.recurse_nodes(d))
 
         return deps
 
