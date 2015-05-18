@@ -338,6 +338,7 @@ class CScannerCounter(object):
 import SCons.Tool
 MyCScanner = CScannerCounter(SCons.Script.CScanner)
 SCons.Tool.SourceFileScanner.add_scanner('.c', MyCScanner)
+SCons.Tool.SourceFileScanner.add_scanner('.h', MyCScanner)
 
 env = Environment(CPPPATH = ".")
 l = env.StaticLibrary("g", Split("libg_1.c libg_2.c libg_3.c"))

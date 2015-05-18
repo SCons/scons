@@ -83,23 +83,23 @@ env.Cat('bar', bar_in)
 
 test.write('foo.k', 
 """foo.k 1 line 1
-include xxx
-include yyy
+include xxx.k
+include yyy.k
 foo.k 1 line 4
 """)
 
 test.write('bar.in', 
-"""include yyy
+"""include yyy.k
 bar.in 1 line 2
 bar.in 1 line 3
-include zzz
+include zzz.k
 """)
 
-test.write('xxx', "xxx 1\n")
+test.write('xxx.k', "xxx 1\n")
 
-test.write('yyy', "exception yyy 1\n")
+test.write('yyy.k', "exception yyy 1\n")
 
-test.write('zzz', "zzz 1\n")
+test.write('zzz.k', "zzz 1\n")
 
 test.run(arguments = '.',
          status = 2,
