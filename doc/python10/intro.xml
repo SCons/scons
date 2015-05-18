@@ -1,0 +1,251 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+]>
+
+<section id="sect-intro"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Introduction</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+<para>
+
+  More than twenty years after its creation, the classic UNIX &Make;
+  utility and its descendants are still the dominant way in which
+  software is built. &Make; has maintained this position despite the
+  fact that the intervening years have revealed many
+  shortcomings of the &Make; model for building software:
+
+</para>
+
+<itemizedlist>
+
+  <listitem>
+    <para>
+
+      The use of timestamps to decide when a file has been updated is
+      imprecise and prone to error, especially across distributed file
+      systems such as NFS.
+
+    </para>
+  </listitem>
+
+  <listitem>
+    <para>
+
+      Builds of typical large software systems still take hours, if not
+      days, despite the tremendous advances in CPU and disk speeds over
+      recent years.
+
+    </para>
+  </listitem>
+
+  <listitem>
+    <para>
+
+      &Make; maintains static definitions of dependencies in its
+      &Makefiles;. Much effort has been put into
+      utilities (<application>mkdepend</application>, <application>gcc
+      -M</application>) and schemes (<filename>Makefile.d</filename>
+      files) to try to keep &Makefile; dependencies up-to-date,
+      but these only confirm that &Make;'s static dependencies are
+      inherently fragile.
+
+    </para>
+  </listitem>
+
+  <listitem>
+    <para>
+
+      The standard recursive use of &Make; for build hierarchies leads
+      to incomplete dependency graphs, which must be overcome by
+      manually changing the order in which directories are built, or
+      through the use of multiple build passes.
+
+    </para>
+  </listitem>
+
+</itemizedlist>
+
+<para>
+
+  One need only look at the plethora of helper and wrapper utilities
+  (automake, easymake, imake, jmake, makeLib, maketool, mkmed, shake,
+  SMake, TMAKE) and complete alternatives to &Make; (Ant, bake, bau,
+  bras, Cake, Cons, Cook, Jam, jmk, jus, makeme, mash, MK, nmake, Odin,
+  VMake) that have been created over the years to realize that vanilla
+  &Make; is not satisfying everyone's build requirements. So why Yet
+  Another build tool?
+
+</para>
+
+<section>
+  <title>Enter Software Carpentry</title>
+
+  <para>
+
+    Most of the build tools just mentioned
+    were written by programmers and for
+    programmers. The fact that most programmer-friendly
+    utilities do a poor job of fulfilling the needs
+    of non-programmers prompted Greg Wilson to
+    organize the Software Carpentry competition in January 2000.
+    Software Carpentry was an
+    open design contest with the express goal of producing a set of
+    next-generation utilities, including a build tool, that would be
+    accessible
+    not only to
+    programmers
+    but also to computer <emphasis>users</emphasis>
+    such as physical scientists.
+
+  </para>
+
+  <para>
+
+    The key to this usability would be that all of
+    these utilities, including the build tool, would be
+    written in Python.
+    This provided the catalyst for actually
+    pursuing an idea
+    that had been floating around one of the more
+    intriguing &Make; alternatives,
+    a Perl utility called &Cons;.
+    What if the friendlier syntax of Python
+    could be married to the
+    architectural advantages of &Cons;?
+
+  </para>
+
+  <para>
+
+    The resulting merged design, at that time named &ScCons;,
+    won the Software Carpentry build tool competition. CodeSourcery (by
+    then the administrators of the competition) ultimately decided not to
+    fund development of the build tool, but the seed had been planted and the
+    design had taken root.
+
+  </para>
+
+</section>
+
+<section>
+  <title>Cons</title>
+
+  <para>
+
+    It helps to know something about &Cons;.
+    &Cons; was first released in 1996 by Bob Sidebotham,
+    then an employee of Fore Systems,
+    and it has a number of
+    distinctive features that set it apart from most &Make;-alikes:
+
+  </para>
+
+  <itemizedlist>
+
+    <listitem>
+      <para>
+
+        &Cons; "configuration files" are not Yet Another
+        invented mini-language, but are actually <emphasis>Perl
+        scripts</emphasis>, which means the full power and flexibility of
+        a real scripting language can be applied to build problems.
+
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+
+        &Cons; builds everything from a single process at the top of the
+        source tree, with a global view of the dependencies.
+
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+
+        &Cons; scans files automatically for dependencies such as
+        files specified on <literal>#include</literal> lines.
+
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+
+        &Cons; decides if a file was out-of-date by using MD5 checksums of
+        the contents of files, not timestamps.
+
+      </para>
+    </listitem>
+
+  </itemizedlist>
+
+  <para>
+
+    Despite all of these intriguing architectural features, the great
+    strength of &Cons;&mdash;being written in Perl&mdash;was also one of
+    its weaknesses, turning away many potential users due to the
+    (real or perceived) steep learning curve of Perl.
+
+  </para>
+
+</section>
+
+<section>
+  <title>&SCons;</title>
+
+  <para>
+
+    Through the &ScCons; contest entry,
+    &SCons; is the direct descendant of the &Cons; architecture,
+    and is currently
+    under active, supported development with a growing body of
+    users. Its first release was 13 December 2001, under the simple and
+    non-restrictive MIT license, and from the outset, the goal of the
+    members of the &SCons; project has been to deliver a stable, reliable
+    tool that can be used for industrial-strength software builds.
+
+  </para>
+
+  <para>
+
+    The rest of this paper will give an overview of the &SCons; design
+    (including its architecture and interface), describe the development
+    methodology used, and discuss future directions for &SCons;.
+
+  </para>
+
+</section>
+
+</section>
