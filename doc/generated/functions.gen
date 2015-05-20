@@ -2426,10 +2426,10 @@ option.
   </varlistentry>
   <varlistentry id="f-Glob">
     <term>
-      <literal>Glob(pattern, [ondisk, source, strings])</literal>
+      <literal>Glob(pattern, [ondisk, source, strings, exclude])</literal>
     </term>
     <term>
-      <literal>env.Glob(pattern, [ondisk, source, strings])</literal>
+      <literal>env.Glob(pattern, [ondisk, source, strings, exclude])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2543,12 +2543,23 @@ directory.)
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
+The
+<varname>exclude</varname>
+argument may be set to a pattern or a list of patterns
+(following the same Unix shell semantics)
+which must be filtered out of returned elements.
+Elements matching a least one pattern of
+this list will be excluded.
+</para>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Examples:
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 Program('foo', Glob('*.c'))
 Zip('/tmp/everything', Glob('.??*') + Glob('*'))
+sources = Glob('*.cpp', exclude=['os_*_specific_*.cpp']) + Glob('os_%s_specific_*.cpp'%currentOS)
 </example_commands>
 </listitem>
   </varlistentry>
