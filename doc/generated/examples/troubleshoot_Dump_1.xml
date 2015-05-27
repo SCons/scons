@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons</userinput>
 scons: Reading SConscript files ...
-{ 'BUILDERS': {'_InternalInstall': &lt;function InstallBuilderWrapper at 0x700000&gt;, '_InternalInstallVersionedLib': &lt;function InstallVersionedBuilderWrapper at 0x700000&gt;, '_InternalInstallAs': &lt;function InstallAsBuilderWrapper at 0x700000&gt;},
+{ 'BUILDERS': {'_InternalInstall': &lt;function InstallBuilderWrapper at 0x700000&amp;gt;, '_InternalInstallVersionedLib': &lt;function InstallVersionedBuilderWrapper at 0x700000&amp;gt;, '_InternalInstallAs': &lt;function InstallAsBuilderWrapper at 0x700000&amp;gt;},
   'CONFIGUREDIR': '#/.sconf_temp',
   'CONFIGURELOG': '#/config.log',
   'CPPSUFFIXES': [ '.c',
@@ -25,16 +25,16 @@ scons: Reading SConscript files ...
                    '.SPP',
                    '.sx'],
   'DSUFFIXES': ['.d'],
-  'Dir': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
-  'Dirs': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
+  'Dir': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&amp;gt;,
+  'Dirs': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&amp;gt;,
   'ENV': { 'PATH': '/usr/local/bin:/opt/bin:/bin:/usr/bin'},
-  'ESCAPE': &lt;function escape at 0x700000&gt;,
-  'File': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
+  'ESCAPE': &lt;function escape at 0x700000&amp;gt;,
+  'File': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&amp;gt;,
   'HOST_ARCH': None,
   'HOST_OS': None,
   'IDLSUFFIXES': ['.idl', '.IDL'],
-  'INSTALL': &lt;function copyFunc at 0x700000&gt;,
-  'INSTALLVERSIONEDLIB': &lt;function copyFuncVersionedLib at 0x700000&gt;,
+  'INSTALL': &lt;function copyFunc at 0x700000&amp;gt;,
+  'INSTALLVERSIONEDLIB': &lt;function copyFuncVersionedLib at 0x700000&amp;gt;,
   'LIBPREFIX': 'lib',
   'LIBPREFIXES': ['$LIBPREFIX'],
   'LIBSUFFIX': '.a',
@@ -45,15 +45,15 @@ scons: Reading SConscript files ...
   'PLATFORM': 'posix',
   'PROGPREFIX': '',
   'PROGSUFFIX': '',
-  'PSPAWN': &lt;function piped_env_spawn at 0x700000&gt;,
-  'RDirs': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
+  'PSPAWN': &lt;function piped_env_spawn at 0x700000&amp;gt;,
+  'RDirs': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&amp;gt;,
   'SCANNERS': [],
   'SHELL': 'sh',
   'SHLIBPREFIX': '$LIBPREFIX',
   'SHLIBSUFFIX': '.so',
   'SHOBJPREFIX': '$OBJPREFIX',
   'SHOBJSUFFIX': '$OBJSUFFIX',
-  'SPAWN': &lt;function subprocess_spawn at 0x700000&gt;,
+  'SPAWN': &lt;function subprocess_spawn at 0x700000&amp;gt;,
   'TARGET_ARCH': None,
   'TARGET_OS': None,
   'TEMPFILE': &lt;class 'SCons.Platform.TempFileMunge'&gt;,
@@ -65,9 +65,9 @@ scons: Reading SConscript files ...
   '_LIBFLAGS': '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
   '__DRPATH': '$_DRPATH',
   '__RPATH': '$_RPATH',
-  '_concat': &lt;function _concat at 0x700000&gt;,
-  '_defines': &lt;function _defines at 0x700000&gt;,
-  '_stripixes': &lt;function _stripixes at 0x700000&gt;}
+  '_concat': &lt;function _concat at 0x700000&amp;gt;,
+  '_defines': &lt;function _defines at 0x700000&amp;gt;,
+  '_stripixes': &lt;function _stripixes at 0x700000&amp;gt;}
 scons: done reading SConscript files.
 scons: Building targets ...
 scons: `.' is up to date.
