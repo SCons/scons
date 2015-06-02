@@ -25,6 +25,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Dirk Baechle:
     - Added new method rentry_exists_on_disk to Node.FS (PR #193).
+    - Fixed license of SVG titlepage files in the context of Debian
+      packaging, such that they allow for commercial use too (#2985).
 
   From Russel Winder:
     - Fixed several D tests under the different OS.
