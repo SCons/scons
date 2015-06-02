@@ -1,0 +1,392 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+]>
+
+<section id="sect-process"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Development Process</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+<para>
+
+  The &SCons; project has paid particular attention from day one to the
+  development process. One of the first internal documents produced was
+  a set of Developer's Guidelines to provide a loose framework for what
+  we were trying to accomplish and how we would go about accomplishing
+  it. These Guidelines cover things like:
+
+</para>
+
+<itemizedlist>
+
+  <listitem>
+    <para>
+
+      &SCons; will be written to Python version 2.7 (to ensure
+      usability by a wide install base).
+
+    </para>
+  </listitem>
+
+  <listitem>
+    <para>
+
+      How &SCons; is be tested: which infrastructure modules to use,
+      what platforms to test on, etc.
+
+    </para>
+  </listitem>
+
+  <listitem>
+    <para>
+
+      Expectations for developers (subscribe to the mailing list,
+      encouraged to register at SourceForge).
+
+    </para>
+  </listitem>
+
+  <listitem>
+    <para>
+
+      Brief outline of how to use the change management systems (Aegis and
+      CVS) for &SCons; development;.
+
+    </para>
+  </listitem>
+
+</itemizedlist>
+
+<para>
+
+  Establishing these guidelines up front had two purposes: 1)
+  Demonstrate the seriousness of the project to anyone wondering about
+  joining the effort; 2) Give potential developers an idea up front as
+  to whether their development style would mesh with the rest of the
+  project.
+
+</para>
+
+<section>
+  <title>Aegis</title>
+
+  <para>
+
+    One of the most important aspects of the &SCons; development process
+    is the use of Peter Miller's Aegis change management system. I
+    had been using Aegis for personal projects for several years, and
+    found its development methodology vastly improved the quality of my
+    programming. I was consequently committed to using it for &SCons;
+    development.
+
+  </para>
+
+  <para>
+
+    Aegis provides a number of things, including:
+
+  </para>
+
+  <itemizedlist>
+
+    <listitem>
+      <para>
+
+        A flexible source code control and branching model.
+
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+
+        A defined process with separate development, review and
+        integration steps.
+
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+
+        A distributed development model based on distribution of atomic
+        change sets.
+
+      </para>
+    </listitem>
+
+  </itemizedlist>
+
+  <para>
+
+    The single most important reason for using Aegis, however, is its
+    management of automated tests as part of the development process.
+
+  </para>
+
+</section>
+
+<section>
+  <title>Testing, Testing, Testing</title>
+
+  <para>
+
+    The &SCons; project has made extensive use of automated tests from day
+    one, taking inspiration mostly from Aegis, partly from the eXtreme
+    Programming model, and with a little home-brew scripting for glue.
+
+  </para>
+
+  <section>
+    <title>Testing Criteria</title>
+
+    <para>
+
+      The underlying criteria for testing changes to the &SCons; code
+      are taken from Aegis:
+
+    </para>
+
+    <itemizedlist>
+
+      <listitem>
+        <para>
+
+          Every change must have one or more new or modified tests
+          checked in along with the code.
+
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+
+          The new code being checked in must pass all of the new and/or
+          modified tests.
+
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+
+          The <emphasis>old</emphasis>, already checked-in code in must
+          <emphasis>fail</emphasis> all of the new and/or modified
+          tests.
+
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+
+          The new code being checked in must pass all unmodified,
+          already checked-in tests.
+
+        </para>
+      </listitem>
+
+    </itemizedlist>
+
+    <para>
+
+      In practice, these restrictions can be overridden as necessary--for
+      example, when changing comments or documentation.
+
+    </para>
+
+    <para>
+
+      The criterion that surprises many people is having the old code
+      fail the tests in the change. This makes sure that the new tests
+      or modified tests really do exercise the bug fix or feature being
+      added by the change.
+
+    </para>
+
+    <para>
+
+      Together, these criteria ensure that every newly checked-in
+      version &SCons; conforms to defined behavior, as defined by
+      the tests. Whenever a bug is found, its fix is checked in with
+      a new or modified test that guarantees the bug will not recur
+      in the future. We have already built up a regression test base
+      of almost 90 tests that cover the vast majority of &SCons;'
+      functionality.
+
+    </para>
+
+  </section>
+
+  <section>
+    <title>Testing Infrastructure</title>
+
+    <para>
+
+      Testing standards are no good if they're too much of a burden for
+      developers, who will at best work around or ignore the testing
+      requirements, or at worst stop contributing code and go join a
+      project that's more fun. To this end, good testing infrastructure
+      that makes it easy to write tests is crucial.
+
+    </para>
+
+    <para>
+
+      &SCons; development uses two development methodologies, one for
+      the individual modules in the build engine, and the other for
+      end-to-end tests of the &SCons; script.
+
+    </para>
+
+    <para>
+
+      For the build engine modules, we use PyUnit. Every change to a
+      build engine module must have a change to its corresponding unit
+      tests, which live side-by-side in a separate file that imports
+      module. As we build up a large body of unit tests, this ensures
+      that the build engine will perform correctly whenever someone uses
+      it in some application other than the &SCons; script itself.
+
+    </para>
+
+    <para>
+
+      For end-to-end script tests, we have developed two modules to make
+      writing tests easy. The first, <filename>TestCmd.py</filename>,
+      is a generic module for
+      testing commands or scripts (in any language, not just Python).
+
+      The second module, <filename>TestScons.py</filename>,
+      is a subclass of the generic
+      <filename>TestCmd.py</filename> module.
+      <filename>TestScons.py</filename>
+      takes care of initialization and
+      displaying error conditions
+      specific to testing &SCons;.
+
+    </para>
+
+    <para>
+
+      In practice, simple tests only
+      need to initialize a test object, use the object to write some
+      input files, run &SCons;, and then check whatever criteria
+      determine whether the test passed or failed. A complete test of
+      the &Program; method, for example, looks like this:
+
+    </para>
+
+    <programlisting>
+      test = TestSCons.TestSCons()
+
+      test.write('SConstruct',
+      """env = Environment()
+      env.Program(target = 'foo', source = 'foo.c')
+      """)
+
+      test.write('foo.c',
+      """
+      int
+      main(int argc, char *argv[])
+      {
+          argv[argc++] = "-"; /* dummy use of args */
+          printf("foo.c successfully compiled\\n");
+          exit (0);
+      }
+      """)
+
+      test.run(arguments = 'foo') # runs SCons
+
+      test.run(program = test.workpath('foo'))
+
+      test.fail_test(test.stdout() != "foo.c successfully compiled\n")
+
+      test.pass_test()
+    </programlisting>
+
+  </section>
+
+</section>
+
+<section>
+  <title>SourceForge</title>
+
+  <para>
+
+    Registration of the &SCons; project was approved at SourceForge on
+    29 June 2001.  Within a week, the initial code base was checked in,
+    mailing lists were created, and the web site was set up. We started
+    making use of the task-list manager to track what we had to finish
+    for initial release.
+
+  </para>
+
+  <para>
+
+    The obvious complication was how to use
+    structured testing methodology of Aegis when SourceForge uses
+    CVS for source control. Not using the SourceForge CVS tree would
+    have had two significant disadvantages: one, missing out on the
+    archiving and central location in the event of disaster; two, people
+    coming to the SourceForge project page wouldn't be able to browse
+    the source.  The latter was particularly important in
+    the early stages of development, in order to avoid any impression
+    that this was Yet Another Project that starts with a bang and then
+    dwindles as the initial enthusiasm starts to wear off.
+
+  </para>
+
+  <para>
+
+    The solution was to use the SourceForge CVS repository for read-only
+    access to the source. &SCons; developers are welcome to use CVS for
+    their development, but the changes are <emphasis>not</emphasis>
+    committed to the SourceForge repository. Instead, patches are sent
+    to the integrator for processing through Aegis. When the change
+    has been integrated into the Aegis repository, a home-brew
+    script translates the Aegis change into a virtual shell script
+    of commands that copy the necessary files from Aegis and check them
+    in to CVS at SourceForge.
+
+  </para>
+
+  <para>
+
+    (In practice, write access is not actually disabled for registered
+    developers, but if they do make any changes directly at SourceForge,
+    they can be overwritten at the next Aegis update.)
+
+  </para>
+
+</section>
+
+</section>
