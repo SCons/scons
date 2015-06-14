@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 # __COPYRIGHT__
 #
@@ -51,20 +50,6 @@ scons: warning: The --debug=tree option is deprecated; please use --tree=all ins
 .*
 """,
          status = 0, match=TestSCons.match_re_dotall)
-
-
-# Check that printing nodes won't fail with
-# UnicodeDecodeError: 'ascii' codec ... ordinal not in range(128)
-# https://bitbucket.org/scons/scons/pull-request/235
-
-test.write('SConstruct', """\
-# -*- coding: utf-8 -*-
-
-Entry('русский юникод')
-""")
-
-test.run(arguments = '-Q --tree=all')
-
 
 test.pass_test()
 
