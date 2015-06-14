@@ -34,8 +34,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Show --config choices if no argument is specified (PR #202).
     - Fixed build crash when XML toolchain isn't installed, and
       activated compression for ZIP archives.
-    - Fixed --tree=all print when build tree contains non-ascii
-      Node representation (PR #235).
 
   From Alexandre Feblot:
     - Fix for VersionedSharedLibrary under 'sunos' platform.
