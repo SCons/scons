@@ -264,10 +264,10 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
     children = child_func(root)
 
     if prune and rname in visited and children:
-        sys.stdout.write(''.join(tags + margins + ['+-[', rname, ']']) + '\n')
+        sys.stdout.write(''.join(tags + margins + ['+-[', rname, ']']) + u'\n')
         return
 
-    sys.stdout.write(''.join(tags + margins + ['+-', rname]) + '\n')
+    sys.stdout.write(''.join(tags + margins + ['+-', rname]) + u'\n')
 
     visited[rname] = 1
 
