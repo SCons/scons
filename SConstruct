@@ -43,7 +43,7 @@ import tempfile
 import bootstrap
 
 project = 'scons'
-default_version = '2.3.5.final.0'
+default_version = '2.3.5'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 platform = distutils.util.get_platform()
