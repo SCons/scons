@@ -19,12 +19,32 @@ effectively, please go to http://scons.org/lists.php#users to sign up for
 the scons-users mailing list.
 
 
-RELEASE VERSION/DATE TO BE FILLED IN LATER
+RELEASE 2.3.5.final.0 - Mon, 15 Jun 2015 09:38:27 -0700
 
   Please consult the RELEASE.txt file for a summary of changes since the last
   release and consult the CHANGES.txt file for complete a list of changes
   since last release.  This announcement highlights only the important
   changes.
+
+  Please note the following important changes since release 2.3.4:
+
+    -- Extended docs for InstallVersionedLib/SharedLibrary,
+    -- Fixed symlink support (PR #227, #2395).
+    -- Fixed incomplete LIBS flattening and substitution in
+       Program scanner(PR #205, #2954).
+    -- Added new method rentry_exists_on_disk to Node.FS (PR #193).
+    -- Add support for f08 file extensions for Fortran 2008 code.
+    -- Show --config choices if no argument is specified (PR #202).
+    -- Fixed build crash when XML toolchain isn't installed, and
+       activated compression for ZIP archives.
+    -- Fix for VersionedSharedLibrary under 'sunos' platform.
+    -- Fixed dll link with precompiled headers on MSVC 2012
+    -- Added an 'exclude' parameter to Glob()
+    -- Support for multiple cmdargs (one per variant) in VS project files.
+    -- Various improvements for TempFileMunge class.
+    -- Added an implementation for Visual Studio users files (PR #209).
+    -- Added support for the 'PlatformToolset' tag in VS project files (#2978).
+    -- Added support for '-isystem' to ParseFlags.
 
   Please note the following important changes since release 2.3.3:
 
