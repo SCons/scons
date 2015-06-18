@@ -18,13 +18,58 @@ So that everyone using SCons can help each other learn how to use it more
 effectively, please go to http://scons.org/lists.php#users to sign up for
 the scons-users mailing list.
 
+==============IMPORTANT NOTICE FOR NEXT VERSION V2.4.0===========
 
-RELEASE VERSION/DATE TO BE FILLED IN LATER
+PLEASE READ. CHANGES COMING IN NEXT MAJOR RELEASE V2.4.0
+As has been pre-announced in SCons's mailing lists:
+
+* https://pairlist4.pair.net/pipermail/scons-users/2014-July/002734.html ,
+* https://pairlist2.pair.net/pipermail/scons-dev/2014-December/002107.html
+* https://pairlist4.pair.net/pipermail/scons-users/2015-February/003454.html
+
+We're planning to switch the Node class to using "slots" in the core sources,
+mainly to reduce memory consumption by up to 35% in large build projects.
+
+This feature has been tested extensively and we don't expect any problems for you.
+However as with all major changes it would be wise to test V2.4.0 when it is
+released. Especially if you are directly using the Node class.
+
+=================================================================
+
+
+RELEASE 2.3.5 - Mon, 17 Jun 2015 21:07:32 -0700
 
   Please consult the RELEASE.txt file for a summary of changes since the last
   release and consult the CHANGES.txt file for complete a list of changes
   since last release.  This announcement highlights only the important
   changes.
+
+
+  Please note the following important changes since release 2.3.4:
+    - Documentation fixes for libraries.xml and
+      builders-writing.xml (#2989 and #2990)
+    - Extended docs for InstallVersionedLib/SharedLibrary,
+      and added SKIP_WIN_PACKAGES argument to build script
+      bootstrap.py (PR #230, #3002).
+    - Fixed symlink support (PR #227, #2395).
+    - Updated debug-count test case (PR #229).
+    - Fixed incomplete LIBS flattening and substitution in
+      Program scanner(PR #205, #2954).
+    - Added new method rentry_exists_on_disk to Node.FS (PR #193).
+    - Fixed several D tests under the different OS.
+    - Add support for f08 file extensions for Fortran 2008 code.
+    - Show --config choices if no argument is specified (PR #202).
+    - Fixed build crash when XML toolchain isn't installed, and
+      activated compression for ZIP archives.
+    - Fix for VersionedSharedLibrary under 'sunos' platform.
+    - Fixed dll link with precompiled headers on MSVC 2012
+    - Added an 'exclude' parameter to Glob()
+    - Support for multiple cmdargs (one per variant) in VS project files.
+    - Various improvements for TempFileMunge class.
+    - Added an implementation for Visual Studio users files (PR #209).
+    - Added support for the 'PlatformToolset' tag in VS project files (#2978).
+    - Added support for '-isystem' to ParseFlags.
+
 
   Please note the following important changes since release 2.3.3:
 
