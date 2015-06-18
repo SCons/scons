@@ -4,7 +4,7 @@
 
                             Change Log
 
-RELEASE 2.3.5.final.0 - Mon, 15 Jun 2015 09:38:27 -0700
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Stephen Pollard:
     - Documentation fixes for libraries.xml and
