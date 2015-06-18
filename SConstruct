@@ -3,10 +3,10 @@
 #
 # See the README.rst file for an overview of how SCons is built and tested.
 
-copyright_years = '2001 - 2015'
+copyright_years = '2001 - 2014'
 
 # This gets inserted into the man pages to reflect the month of release.
-month_year = 'June 2015'
+month_year = 'September 2014'
 
 #
 # __COPYRIGHT__
@@ -43,7 +43,7 @@ import tempfile
 import bootstrap
 
 project = 'scons'
-default_version = '2.3.5.final.0'
+default_version = '2.3.4'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 platform = distutils.util.get_platform()
