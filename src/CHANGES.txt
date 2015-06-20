@@ -4,6 +4,13 @@
 
                             Change Log
 
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From John Doe:
+
+    - Whatever John Doe did.
+
+
 RELEASE 2.3.5 - Mon, 17 Jun 2015 21:07:32 -0700
 
   From Stephen Pollard:
