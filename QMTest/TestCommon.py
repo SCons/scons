@@ -36,7 +36,7 @@ provided by the TestCommon class:
 
     test.must_contain('file', 'required text\n')
 
-    test.must_contain_all(output, lines, ['title', find])
+    test.must_contain_all(output, input, ['title', find])
 
     test.must_contain_all_lines(output, lines, ['title', find])
 
