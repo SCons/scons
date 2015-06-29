@@ -1528,8 +1528,8 @@ class Base(SubstitutionEnvironment):
 
     def Dump(self, key = None):
         """
-        Using the standard Python pretty printer, dump the contents of the
-        scons build environment to stdout.
+        Using the standard Python pretty printer, return the contents of the
+        scons build environment as a string.
 
         If the key passed in is anything other than None, then that will
         be used as an index into the build environment dictionary and
