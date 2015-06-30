@@ -968,8 +968,8 @@ class Node(object):
                 
             if scanner:
                 # Ensure scanner hint returned a valid Scanner object
-                if not instanceof( scanner, SCons.Scanner.Base ):
-                    raise SCons.Error.UserError(
+                if not isinstance( scanner, SCons.Scanner.Base ):
+                    raise SCons.Errors.UserError(
                         'SCANNER_HINT object must be instance of ' + str(SCons.Scanner.Base)
                     )
             else:
