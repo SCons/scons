@@ -121,6 +121,8 @@ class Environment(object):
         self._dict.update(kw)
     def __getitem__(self, key):
         return self._dict[key]
+    def get(self, key, default = None):
+        return self._dict.get(key, default)
     def Dictionary(self, *args):
         return {}
     def Override(self, overrides):
