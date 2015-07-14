@@ -203,6 +203,28 @@ class VisualStudio(object):
 # Tool/MSCommon/vc.py, and the MSVC_VERSION documentation in Tool/msvc.xml.
 
 SupportedVSList = [
+    # Visual Studio 2015
+    VisualStudio('14.0',
+                 vc_version='14.0',
+                 sdk_version='10.0A',
+                 hkeys=[r'Microsoft\VisualStudio\14.0\Setup\VS\ProductDir'],
+                 common_tools_var='VS140COMNTOOLS',
+                 executable_path=r'Common7\IDE\devenv.com',
+                 batch_file_path=r'Common7\Tools\vsvars32.bat',
+                 supported_arch=['x86', 'amd64', "arm"],
+    ),
+ 
+    # Visual C++ 2015 Express Edition (for Desktop)
+    VisualStudio('14.0Exp',
+                 vc_version='14.0',
+                 sdk_version='10.0A',
+                 hkeys=[r'Microsoft\VisualStudio\14.0\Setup\VS\ProductDir'],
+                 common_tools_var='VS140COMNTOOLS',
+                 executable_path=r'Common7\IDE\WDExpress.exe',
+                 batch_file_path=r'Common7\Tools\vsvars32.bat',
+                 supported_arch=['x86', 'amd64', "arm"],
+    ),
+
     # Visual Studio 2013
     VisualStudio('12.0',
                  vc_version='12.0',

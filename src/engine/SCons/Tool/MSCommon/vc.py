@@ -134,9 +134,13 @@ def get_host_target(env):
 
 # If you update this, update SupportedVSList in Tool/MSCommon/vs.py, and the
 # MSVC_VERSION documentation in Tool/msvc.xml.
-_VCVER = ["12.0", "12.0Exp", "11.0", "11.0Exp", "10.0", "10.0Exp", "9.0", "9.0Exp","8.0", "8.0Exp","7.1", "7.0", "6.0"]
+_VCVER = ["14.0", "14.0Exp", "12.0", "12.0Exp", "11.0", "11.0Exp", "10.0", "10.0Exp", "9.0", "9.0Exp","8.0", "8.0Exp","7.1", "7.0", "6.0"]
 
 _VCVER_TO_PRODUCT_DIR = {
+        '14.0' : [
+            r'Microsoft\VisualStudio\14.0\Setup\VC\ProductDir'],
+        '14.0Exp' : [
+            r'Microsoft\VCExpress\14.0\Setup\VC\ProductDir'],
         '12.0' : [
             r'Microsoft\VisualStudio\12.0\Setup\VC\ProductDir'],
         '12.0Exp' : [
