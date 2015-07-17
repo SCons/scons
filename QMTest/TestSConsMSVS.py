@@ -514,6 +514,26 @@ Global
 EndGlobal
 """
 
+expected_slnfile_14_0 = """\
+Microsoft Visual Studio Solution File, Format Version 14.00
+# Visual Studio 14
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test.vcxproj", "Test.vcxproj", "{39A97E1F-1A52-8954-A0B1-A10A8487545E}"
+EndProject
+Global
+<SCC_SLN_INFO>
+\tGlobalSection(SolutionConfigurationPlatforms) = preSolution
+\t\tRelease|Win32 = Release|Win32
+\tEndGlobalSection
+\tGlobalSection(ProjectConfigurationPlatforms) = postSolution
+\t\t{39A97E1F-1A52-8954-A0B1-A10A8487545E}.Release|Win32.ActiveCfg = Release|Win32
+\t\t{39A97E1F-1A52-8954-A0B1-A10A8487545E}.Release|Win32.Build.0 = Release|Win32
+\tEndGlobalSection
+\tGlobalSection(SolutionProperties) = preSolution
+\t\tHideSolutionNode = FALSE
+\tEndGlobalSection
+EndGlobal
+"""
+
 expected_vcprojfile_8_0 = """\
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
@@ -820,6 +840,71 @@ expected_vcprojfile_11_0 = """\
 </Project>
 """
 
+expected_vcprojfile_14_0 = """\
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+\t<ItemGroup Label="ProjectConfigurations">
+\t\t<ProjectConfiguration Include="Release|Win32">
+\t\t\t<Configuration>Release</Configuration>
+\t\t\t<Platform>Win32</Platform>
+\t\t</ProjectConfiguration>
+\t</ItemGroup>
+\t<PropertyGroup Label="Globals">
+\t\t<ProjectGuid>{39A97E1F-1A52-8954-A0B1-A10A8487545E}</ProjectGuid>
+<SCC_VCPROJ_INFO>
+\t\t<RootNamespace>Test</RootNamespace>
+\t\t<Keyword>MakeFileProj</Keyword>
+\t</PropertyGroup>
+\t<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.Default.props" />
+\t<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+\t\t<ConfigurationType>Makefile</ConfigurationType>
+\t\t<UseOfMfc>false</UseOfMfc>
+\t\t<PlatformToolset>v140</PlatformToolset>
+\t</PropertyGroup>
+\t<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.props" />
+\t<ImportGroup Label="ExtensionSettings">
+\t</ImportGroup>
+\t<ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+\t\t<Import Project="$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+\t</ImportGroup>
+\t<PropertyGroup Label="UserMacros" />
+\t<PropertyGroup>
+\t<_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+\t\t<NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;</NMakeBuildCommandLine>
+\t\t<NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct &quot;Test.exe&quot;</NMakeReBuildCommandLine>
+\t\t<NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">echo Starting SCons &amp;&amp; &quot;<PYTHON>&quot; -c &quot;<SCONS_SCRIPT_MAIN_XML>&quot; -C &quot;<WORKPATH>&quot; -f SConstruct -c &quot;Test.exe&quot;</NMakeCleanCommandLine>
+\t\t<NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Test.exe</NMakeOutput>
+\t\t<NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">DEF1;DEF2;DEF3=1234</NMakePreprocessorDefinitions>
+\t\t<NMakeIncludeSearchPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">inc1;inc2</NMakeIncludeSearchPath>
+\t\t<NMakeForcedIncludes Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(NMakeForcedIncludes)</NMakeForcedIncludes>
+\t\t<NMakeAssemblySearchPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>
+\t\t<NMakeForcedUsingAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(NMakeForcedUsingAssemblies)</NMakeForcedUsingAssemblies>
+\t</PropertyGroup>
+\t<ItemGroup>
+\t\t<ClInclude Include="sdk_dir\sdk.h" />
+\t</ItemGroup>
+\t<ItemGroup>
+\t\t<ClInclude Include="test.h" />
+\t</ItemGroup>
+\t<ItemGroup>
+\t\t<None Include="readme.txt" />
+\t</ItemGroup>
+\t<ItemGroup>
+\t\t<None Include="test.rc" />
+\t</ItemGroup>
+\t<ItemGroup>
+\t\t<ClCompile Include="test1.cpp" />
+\t\t<ClCompile Include="test2.cpp" />
+\t</ItemGroup>
+\t<ItemGroup>
+\t\t<None Include="SConstruct" />
+\t</ItemGroup>
+\t<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />
+\t<ImportGroup Label="ExtensionTargets">
+\t</ImportGroup>
+</Project>
+"""
+
 SConscript_contents_8_0 = """\
 env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='8.0',
                 CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
@@ -891,6 +976,29 @@ env.MSVSProject(target = 'Test.vcxproj',
 
 SConscript_contents_11_0 = """\
 env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='11.0',
+                CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
+                CPPPATH=['inc1', 'inc2'],
+                HOST_ARCH='%(HOST_ARCH)s')
+
+testsrc = ['test1.cpp', 'test2.cpp']
+testincs = ['sdk_dir\sdk.h']
+testlocalincs = ['test.h']
+testresources = ['test.rc']
+testmisc = ['readme.txt']
+
+env.MSVSProject(target = 'Test.vcxproj',
+                slnguid = '{SLNGUID}',
+                srcs = testsrc,
+                incs = testincs,
+                localincs = testlocalincs,
+                resources = testresources,
+                misc = testmisc,
+                buildtarget = 'Test.exe',
+                variant = 'Release')
+"""
+
+SConscript_contents_14_0 = """\
+env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='14.0',
                 CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
                 CPPPATH=['inc1', 'inc2'],
                 HOST_ARCH='%(HOST_ARCH)s')
