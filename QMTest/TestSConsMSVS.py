@@ -515,7 +515,7 @@ EndGlobal
 """
 
 expected_slnfile_14_0 = """\
-Microsoft Visual Studio Solution File, Format Version 14.00
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test.vcxproj", "Test.vcxproj", "{39A97E1F-1A52-8954-A0B1-A10A8487545E}"
 EndProject

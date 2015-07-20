@@ -1535,7 +1535,9 @@ class _GenerateV7DSW(_DSWGenerator):
     def PrintSolution(self):
         """Writes a solution file"""
         self.file.write('Microsoft Visual Studio Solution File, Format Version %s\n' % self.versionstr)
-        if self.version_num >= 11.0:
+        if self.version_num >= 12.0:
+            self.file.write('# Visual Studio 14\n')
+        elif self.version_num >= 11.0:
             self.file.write('# Visual Studio 11\n')
         elif self.version_num >= 10.0:
             self.file.write('# Visual Studio 2010\n')
