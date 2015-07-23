@@ -1,0 +1,7 @@
+SCons/*.xml
+SCons/Platform/*.xml
+SCons/Scanner/__init__.xml
+SCons/Script/*.xml
+SCons/Tool/*.xml
+SCons/Tool/docbook/__init__.xml
+SCons/Tool/packaging/__init__.xml

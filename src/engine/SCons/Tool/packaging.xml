@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="packaging">
+<summary>
+<para>
+A framework for building binary and source packages.
+</para>
+</summary>
+</tool>
+
+<builder name="Package">
+<summary>
+<para>
+Builds a Binary Package of the given source files. 
+</para>
+
+<example_commands>
+env.Package(source = FindInstalledFiles())
+</example_commands>
+</summary>
+</builder>
+
+<cvar name="JAR">
+<summary>
+<para>
+The Java archive tool.
+</para>
+</summary>
+</cvar>
+
+<cvar name="JARCHDIR">
+<summary>
+<para>
+The directory to which the Java archive tool should change
+(using the
+<option>-C</option>
+option).
+</para>
+</summary>
+</cvar>
+
+<cvar name="JARCOM">
+<summary>
+<para>
+The command line used to call the Java archive tool.
+</para>
+</summary>
+</cvar>
+
+<cvar name="JARCOMSTR">
+<summary>
+<para>
+The string displayed when the Java archive tool
+is called
+If this is not set, then &cv-JARCOM; (the command line) is displayed.
+</para>
+
+<example_commands>
+env = Environment(JARCOMSTR = "JARchiving $SOURCES into $TARGET")
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="JARFLAGS">
+<summary>
+<para>
+General options passed to the Java archive tool.
+By default this is set to
+<option>cf</option>
+to create the necessary
+<command>jar</command>
+file.
+</para>
+</summary>
+</cvar>
+
+<cvar name="JARSUFFIX">
+<summary>
+<para>
+The suffix for Java archives:
+<filename>.jar</filename>
+by default.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

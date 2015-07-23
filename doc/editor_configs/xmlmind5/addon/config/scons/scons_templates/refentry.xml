@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<refentry xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+  <refmeta>
+    <refentrytitle></refentrytitle>
+    <manvolnum></manvolnum>
+  </refmeta>
+
+  <refnamediv>
+    <refname></refname>
+    <refpurpose></refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command></command>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+  <refsection>
+    <title>Description</title>
+    <para></para>
+  </refsection>
+</refentry>

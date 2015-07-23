@@ -1,0 +1,21 @@
+# -*- mode:python; coding=utf-8; -*-
+
+import os
+
+environment = Environment(
+    tools = ['cc', '{}', 'link'],
+    LIBS = ['ncurses'])
+
+environment['ENV']['HOME'] = os.environ['HOME']  # Hack for gdmd
+
+environment.Object('ncurs_impl.o', 'ncurs_impl.c')
+
+environment.Program('prog', Split("""
+	prog.d
+	ncurs_impl.o
+"""))
+
+environment.Program('cprog', Split("""
+	cprog.c
+	ncurs_impl.o
+"""))
