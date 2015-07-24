@@ -191,7 +191,7 @@ if __name__ == "__main__":
     except:
         print("Import failed. Unable to find SCons files in:")
         for path in libs:
-          print "  %s" % path
+            print("  %s" % path)
         raise
 
     # this does all the work, and calls sys.exit
