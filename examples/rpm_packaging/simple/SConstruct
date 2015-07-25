@@ -1,0 +1,20 @@
+import os
+
+install_dir  = os.path.join( ARGUMENTS.get('prefix', '/'), 'bin/' )
+prog_install = Install( install_dir , Program( 'main.c') )
+
+Tag( prog_install, unix_attr = '(0755, root, users)' )
+
+Package( projectname    = 'foo',
+         version        = '1.2.3',
+         type           = 'rpm',
+         license        = 'gpl',
+         summary        = 'bla bla bla',
+         packageversion = 0,
+         x_rpm_Group    = 'Application/office',
+         description    = 'this should be reallly really long',
+         source_url     = 'http://foo.org/foo-1.2.3.tar.gz',
+         source         = [ prog_install ],
+        )
+
+Alias( 'install', prog_install )
