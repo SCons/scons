@@ -275,7 +275,7 @@ env = conf.Finish()
     <sconstruct>
 env = Environment()
 conf = Configure(env)
-if not conf.CheckType('off_t', '#include &amp;lt;sys/types.h&amp;gt;\n'):
+if not conf.CheckType('off_t', '#include &lt;sys/types.h&gt;\n'):
     print 'Did not find off_t typedef, assuming int'
     conf.env.Append(CCFLAGS = '-Doff_t=int')
 env = conf.Finish()
@@ -324,7 +324,7 @@ scons: `.' is up to date.
 
     <sconstruct>
 mylib_test_source_file = """
-#include &amp;lt;mylib.h&amp;gt;
+#include &lt;mylib.h&gt;
 int main(int argc, char **argv)
 {
     MyLibrary mylib(argc, argv);
@@ -401,7 +401,7 @@ conf = Configure(env, custom_tests = {'CheckMyLibrary' : CheckMyLibrary})
 
     <sconstruct>
 mylib_test_source_file = """
-#include &amp;lt;mylib.h&amp;gt;
+#include &lt;mylib.h&gt;
 int main(int argc, char **argv)
 {
     MyLibrary mylib(argc, argv);
