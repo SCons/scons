@@ -3,5 +3,5 @@
 cp file.in file.oout
 
 scons: warning: Cannot find target file.out after building
-File "/home/garyo/src/scons-scons/src/script/scons.py", line 199, in &lt;module&gt;
+File "/home/bdbaddog/scons/as_scons/bootstrap/src/script/scons.py", line 199, in &lt;module&gt;
 </screen>
