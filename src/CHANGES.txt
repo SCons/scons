@@ -6,10 +6,6 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From John Doe:
-
-    - Whatever John Doe did.
-    
   From Rob Smith:
     - Added support for Visual Studio 2015
 

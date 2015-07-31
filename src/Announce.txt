@@ -45,6 +45,9 @@ RELEASE VERSION/DATE TO BE FILLED IN LATER
   changes.
 
 
+  Please note the following important changes since release 2.3.5:
+    - Support for Visual Studio 2015
+
   Please note the following important changes since release 2.3.4:
     - Documentation fixes for libraries.xml and
       builders-writing.xml (#2989 and #2990)
