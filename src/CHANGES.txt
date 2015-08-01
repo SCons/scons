@@ -6,6 +6,13 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From John Doe:
+
+    - Whatever John Doe did.
+
+
+RELEASE 2.3.6 - Mon, 31 Jul 2015 14:35:03 -0700
+
   From Rob Smith:
     - Added support for Visual Studio 2015
 
