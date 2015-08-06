@@ -39,7 +39,7 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 import SCons.Script
-SCons.Script.Main.test_load_all_site_scons_dirs(Dir('.').path)
+SCons.Script.Main.test_load_all_site_scons_dirs(Dir('.').get_internal_path())
 """)
 
 test.run(arguments = '-Q .')

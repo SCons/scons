@@ -86,7 +86,7 @@ def shlib_emitter(target, source, env):
             # the version number
             target[0].attributes.shlibname = version_names[0]
             shlib = env.File(version_names[0], directory=target[0].get_dir())
-            target[0].attributes.shlibpath = shlib.path
+            target[0].attributes.shlibpath = shlib.get_internal_path()
             for name in version_names[1:]:
                 env.SideEffect(name, shlib)
                 env.Clean(shlib, name)
