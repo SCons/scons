@@ -265,7 +265,7 @@ def _SConscript(fs, *files, **kw):
                             call_stack[-1].globals.update({__file__:old_file})
                 else:
                     SCons.Warnings.warn(SCons.Warnings.MissingSConscriptWarning,
-                             "Ignoring missing SConscript '%s'" % f.path)
+                             "Ignoring missing SConscript '%s'" % f.get_internal_path())
 
         finally:
             SCons.Script.sconscript_reading = SCons.Script.sconscript_reading - 1
@@ -438,7 +438,7 @@ class SConsEnvironment(SCons.Environment.Base):
                     fname = fn.get_path(src_dir)
                     files = [os.path.join(str(variant_dir), fname)]
                 else:
-                    files = [fn.abspath]
+                    files = [fn.get_abspath()]
                 kw['src_dir'] = variant_dir
             self.fs.VariantDir(variant_dir, src_dir, duplicate)
 

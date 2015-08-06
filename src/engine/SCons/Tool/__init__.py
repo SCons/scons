@@ -340,7 +340,7 @@ symlinks for the platform we are on"""
 
     if version:
         # here we need the full pathname so the links end up in the right directory
-        libname = getattr(target[0].attributes, 'shlibpath', target[0].path)
+        libname = getattr(target[0].attributes, 'shlibpath', target[0].get_internal_path())
         if Verbose:
             print "VerShLib: target lib is = ", libname
             print "VerShLib: name is = ", target[0].name

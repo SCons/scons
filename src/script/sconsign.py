@@ -278,7 +278,7 @@ def field(name, entry, verbose=Verbose):
 def nodeinfo_raw(name, ninfo, prefix=""):
     # This just formats the dictionary, which we would normally use str()
     # to do, except that we want the keys sorted for deterministic output.
-    d = ninfo.__dict__
+    d = ninfo.__getstate__()
     try:
         keys = ninfo.field_list + ['_version_id']
     except AttributeError:

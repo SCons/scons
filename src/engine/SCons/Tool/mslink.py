@@ -216,7 +216,7 @@ def embedManifestDllCheck(target, source, env):
     """Function run by embedManifestDllCheckAction to check for existence of manifest
     and other conditions, and embed the manifest by calling embedManifestDllAction if so."""
     if env.get('WINDOWS_EMBED_MANIFEST', 0):
-        manifestSrc = target[0].abspath + '.manifest'
+        manifestSrc = target[0].get_abspath() + '.manifest'
         if os.path.exists(manifestSrc):
             ret = (embedManifestDllAction) ([target[0]],None,env)        
             if ret:
@@ -230,7 +230,7 @@ def embedManifestExeCheck(target, source, env):
     """Function run by embedManifestExeCheckAction to check for existence of manifest
     and other conditions, and embed the manifest by calling embedManifestExeAction if so."""
     if env.get('WINDOWS_EMBED_MANIFEST', 0):
-        manifestSrc = target[0].abspath + '.manifest'
+        manifestSrc = target[0].get_abspath() + '.manifest'
         if os.path.exists(manifestSrc):
             ret = (embedManifestExeAction) ([target[0]],None,env)
             if ret:

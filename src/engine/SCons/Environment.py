@@ -365,9 +365,6 @@ class SubstitutionEnvironment(object):
     class actually becomes useful.)
     """
 
-    if SCons.Memoize.use_memoizer:
-        __metaclass__ = SCons.Memoize.Memoized_Metaclass
-
     def __init__(self, **kw):
         """Initialization of an underlying SubstitutionEnvironment class.
         """
@@ -902,8 +899,6 @@ class Base(SubstitutionEnvironment):
     Environment.
     """
 
-    memoizer_counters = []
-
     #######################################################################
     # This is THE class for interacting with the SCons build engine,
     # and it contains a lot of stuff, so we're going to try to keep this
@@ -1071,8 +1066,7 @@ class Base(SubstitutionEnvironment):
             factory = getattr(self.fs, name)
         return factory
 
-    memoizer_counters.append(SCons.Memoize.CountValue('_gsm'))
-
+    @SCons.Memoize.CountMethodCall
     def _gsm(self):
         try:
             return self._memo['_gsm']
@@ -1802,7 +1796,7 @@ class Base(SubstitutionEnvironment):
         self.Replace(**kw)
 
     def _find_toolpath_dir(self, tp):
-        return self.fs.Dir(self.subst(tp)).srcnode().abspath
+        return self.fs.Dir(self.subst(tp)).srcnode().get_abspath()
 
     def Tool(self, tool, toolpath=None, **kw):
         if SCons.Util.is_String(tool):

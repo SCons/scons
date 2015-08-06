@@ -242,7 +242,7 @@ class Task(object):
                 #
                 for t in cached_targets:
                     try:
-                        t.fs.unlink(t.path)
+                        t.fs.unlink(t.get_internal_path())
                     except (IOError, OSError):
                         pass
                 self.targets[0].build()

@@ -42,6 +42,7 @@ import SCons.Defaults
 import SCons.Scanner
 import SCons.Tool
 import SCons.Util
+import SCons.Node
 
 SwigAction = SCons.Action.Action('$SWIGCOM', '$SWIGCOMSTR')
 
@@ -117,9 +118,13 @@ def _swigEmitter(target, source, env):
             if outdir:
                  java_files = [os.path.join(outdir, j) for j in java_files]
             java_files = list(map(env.fs.File, java_files))
+            def t_from_s(t, p, s, x):
+                return t.dir
+            tsm = SCons.Node._target_from_source_map
+            tkey = len(tsm)
+            tsm[tkey] = t_from_s
             for jf in java_files:
-                t_from_s = lambda t, p, s, x: t.dir
-                SCons.Util.AddMethod(jf, t_from_s, 'target_from_source')
+                jf._func_target_from_source = tkey
             target.extend(java_files)
     return (target, source)
 

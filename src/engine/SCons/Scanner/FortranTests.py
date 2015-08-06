@@ -356,17 +356,18 @@ class FortranScannerTestCase9(unittest.TestCase):
         path = s.path(env)
 
         n = env.File('fff3.f')
-        def my_rexists(s=n):
-            s.rexists_called = 1
-            return s.old_rexists()
-        setattr(n, 'old_rexists', n.rexists)
-        setattr(n, 'rexists', my_rexists)
+        def my_rexists(s):
+            s.Tag('rexists_called', 1)
+            return SCons.Node._rexists_map[s.GetTag('old_rexists')](s)
+        n.Tag('old_rexists', n._func_rexists)
+        SCons.Node._rexists_map[3] = my_rexists
+        n._func_rexists = 3
 
         deps = s(n, env, path)
 
         # Make sure rexists() got called on the file node being
         # scanned, essential for cooperation with VariantDir functionality.
-        assert n.rexists_called
+        assert n.GetTag('rexists_called')
 
         headers =  ['d1/f3.f', 'f3.f']
         deps_match(self, deps, headers)

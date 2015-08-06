@@ -40,6 +40,10 @@ import SCons.Memoize
 class Batch(object):
     """Remembers exact association between targets
     and sources of executor."""
+    
+    __slots__ = ('targets',
+                 'sources')
+    
     def __init__(self, targets=[], sources=[]):
         self.targets = targets
         self.sources = sources
@@ -109,6 +113,48 @@ def rfile(node):
         return rfile()
 
 
+def execute_nothing(obj, target, kw):
+    return 0
+
+def execute_action_list(obj, target, kw):
+    """Actually execute the action list."""
+    env = obj.get_build_env()
+    kw = obj.get_kw(kw)
+    status = 0
+    for act in obj.get_action_list():
+        #args = (self.get_all_targets(), self.get_all_sources(), env)
+        args = ([], [], env)
+        status = act(*args, **kw)
+        if isinstance(status, SCons.Errors.BuildError):
+            status.executor = obj
+            raise status
+        elif status:
+            msg = "Error %s" % status
+            raise SCons.Errors.BuildError(
+                errstr=msg, 
+                node=obj.batches[0].targets,
+                executor=obj, 
+                action=act)
+    return status
+
+_do_execute_map = {0 : execute_nothing,
+                   1 : execute_action_list}
+
+
+def execute_actions_str(obj):
+    env = obj.get_build_env()
+    return "\n".join([action.genstring(obj.get_all_targets(),
+                                       obj.get_all_sources(),
+                                       env)
+                      for action in obj.get_action_list()])
+
+def execute_null_str(obj):
+    return ''
+
+_execute_str_map = {0 : execute_null_str,
+                    1 : execute_actions_str}
+
+
 class Executor(object):
     """A class for controlling instances of executing an action.
 
@@ -117,10 +163,21 @@ class Executor(object):
     and sources for later processing as needed.
     """
 
-    if SCons.Memoize.use_memoizer:
-        __metaclass__ = SCons.Memoize.Memoized_Metaclass
-
-    memoizer_counters = []
+    __slots__ = ('pre_actions',
+                 'post_actions',
+                 'env',
+                 'overridelist',
+                 'batches',
+                 'builder_kw',
+                 '_memo',
+                 'lvars',
+                 '_changed_sources_list',
+                 '_changed_targets_list',
+                 '_unchanged_sources_list',
+                 '_unchanged_targets_list',
+                 'action_list',
+                 '_do_execute',
+                 '_execute_str')
 
     def __init__(self, action, env=None, overridelist=[{}],
                  targets=[], sources=[], builder_kw={}):
@@ -135,6 +192,8 @@ class Executor(object):
         else:
             self.batches = []
         self.builder_kw = builder_kw
+        self._do_execute = 1
+        self._execute_str = 1
         self._memo = {}
 
     def get_lvars(self):
@@ -284,8 +343,7 @@ class Executor(object):
             result.extend(target.side_effects)
         return result
 
-    memoizer_counters.append(SCons.Memoize.CountValue('get_build_env'))
-
+    @SCons.Memoize.CountMethodCall
     def get_build_env(self):
         """Fetch or create the appropriate build Environment
         for this Executor.
@@ -330,36 +388,12 @@ class Executor(object):
         result['executor'] = self
         return result
 
-    def do_nothing(self, target, kw):
-        return 0
-
-    def do_execute(self, target, kw):
-        """Actually execute the action list."""
-        env = self.get_build_env()
-        kw = self.get_kw(kw)
-        status = 0
-        for act in self.get_action_list():
-            #args = (self.get_all_targets(), self.get_all_sources(), env)
-            args = ([], [], env)
-            status = act(*args, **kw)
-            if isinstance(status, SCons.Errors.BuildError):
-                status.executor = self
-                raise status
-            elif status:
-                msg = "Error %s" % status
-                raise SCons.Errors.BuildError(
-                    errstr=msg, 
-                    node=self.batches[0].targets,
-                    executor=self, 
-                    action=act)
-        return status
-
     # use extra indirection because with new-style objects (Python 2.2
     # and above) we can't override special methods, and nullify() needs
     # to be able to do this.
 
     def __call__(self, target, **kw):
-        return self.do_execute(target, kw)
+        return _do_execute_map[self._do_execute](self, target, kw)
 
     def cleanup(self):
         self._memo = {}
@@ -403,24 +437,15 @@ class Executor(object):
 
     # another extra indirection for new-style objects and nullify...
 
-    def my_str(self):
-        env = self.get_build_env()
-        return "\n".join([action.genstring(self.get_all_targets(),
-                                           self.get_all_sources(),
-                                           env)
-                          for action in self.get_action_list()])
-
-
     def __str__(self):
-        return self.my_str()
+        return _execute_str_map[self._execute_str](self)
 
     def nullify(self):
         self.cleanup()
-        self.do_execute = self.do_nothing
-        self.my_str     = lambda: ''
+        self._do_execute = 0
+        self._execute_str = 0
 
-    memoizer_counters.append(SCons.Memoize.CountValue('get_contents'))
-
+    @SCons.Memoize.CountMethodCall
     def get_contents(self):
         """Fetch the signature contents.  This is the main reason this
         class exists, so we can compute this once and cache it regardless
@@ -493,8 +518,7 @@ class Executor(object):
     def _get_unignored_sources_key(self, node, ignore=()):
         return (node,) + tuple(ignore)
 
-    memoizer_counters.append(SCons.Memoize.CountDict('get_unignored_sources', _get_unignored_sources_key))
-
+    @SCons.Memoize.CountDictCall(_get_unignored_sources_key)
     def get_unignored_sources(self, node, ignore=()):
         key = (node,) + tuple(ignore)
         try:
@@ -579,6 +603,23 @@ class Null(object):
     disassociate Builders from Nodes entirely, so we're not
     going to worry about unit tests for this--at least for now.
     """
+    
+    __slots__ = ('pre_actions',
+                 'post_actions',
+                 'env',
+                 'overridelist',
+                 'batches',
+                 'builder_kw',
+                 '_memo',
+                 'lvars',
+                 '_changed_sources_list',
+                 '_changed_targets_list',
+                 '_unchanged_sources_list',
+                 '_unchanged_targets_list',
+                 'action_list',
+                 '_do_execute',
+                 '_execute_str')
+    
     def __init__(self, *args, **kw):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Executor.Null')
         self.batches = [Batch(kw['targets'][:], [])]

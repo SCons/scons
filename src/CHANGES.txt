@@ -6,10 +6,12 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From John Doe:
-
-    - Whatever John Doe did.
-
+  From Dirk Baechle:
+    - Switched several core classes to using "slots", for
+      reducing the overall memory consumption in large
+      projects (fixes #2180, #2178, #2198)
+    - Memoizer counting uses decorators now, instead of
+      the old metaclasses approach.
 
 RELEASE 2.3.6 - Mon, 31 Jul 2015 14:35:03 -0700
 

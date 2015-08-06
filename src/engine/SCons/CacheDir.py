@@ -50,11 +50,11 @@ def CacheRetrieveFunc(target, source, env):
     cd.CacheDebug('CacheRetrieve(%s):  retrieving from %s\n', t, cachefile)
     if SCons.Action.execute_actions:
         if fs.islink(cachefile):
-            fs.symlink(fs.readlink(cachefile), t.path)
+            fs.symlink(fs.readlink(cachefile), t.get_internal_path())
         else:
-            env.copy_from_cache(cachefile, t.path)
+            env.copy_from_cache(cachefile, t.get_internal_path())
         st = fs.stat(cachefile)
-        fs.chmod(t.path, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+        fs.chmod(t.get_internal_path(), stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
     return 0
 
 def CacheRetrieveString(target, source, env):
@@ -63,7 +63,7 @@ def CacheRetrieveString(target, source, env):
     cd = env.get_CacheDir()
     cachedir, cachefile = cd.cachepath(t)
     if t.fs.exists(cachefile):
-        return "Retrieved `%s' from cache" % t.path
+        return "Retrieved `%s' from cache" % t.get_internal_path()
     return None
 
 CacheRetrieve = SCons.Action.Action(CacheRetrieveFunc, CacheRetrieveString)
@@ -106,12 +106,12 @@ def CachePushFunc(target, source, env):
                 raise SCons.Errors.EnvironmentError(msg)
 
     try:
-        if fs.islink(t.path):
-            fs.symlink(fs.readlink(t.path), tempfile)
+        if fs.islink(t.get_internal_path()):
+            fs.symlink(fs.readlink(t.get_internal_path()), tempfile)
         else:
-            fs.copy2(t.path, tempfile)
+            fs.copy2(t.get_internal_path(), tempfile)
         fs.rename(tempfile, cachefile)
-        st = fs.stat(t.path)
+        st = fs.stat(t.get_internal_path())
         fs.chmod(cachefile, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
     except EnvironmentError:
         # It's possible someone else tried writing the file at the

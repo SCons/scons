@@ -352,11 +352,6 @@ class BuilderBase(object):
     nodes (files) from input nodes (files).
     """
 
-    if SCons.Memoize.use_memoizer:
-        __metaclass__ = SCons.Memoize.Memoized_Metaclass
-
-    memoizer_counters = []
-
     def __init__(self,  action = None,
                         prefix = '',
                         suffix = '',
@@ -758,8 +753,7 @@ class BuilderBase(object):
     def _get_src_builders_key(self, env):
         return id(env)
 
-    memoizer_counters.append(SCons.Memoize.CountDict('get_src_builders', _get_src_builders_key))
-
+    @SCons.Memoize.CountDictCall(_get_src_builders_key)
     def get_src_builders(self, env):
         """
         Returns the list of source Builders for this Builder.
@@ -795,8 +789,7 @@ class BuilderBase(object):
     def _subst_src_suffixes_key(self, env):
         return id(env)
 
-    memoizer_counters.append(SCons.Memoize.CountDict('subst_src_suffixes', _subst_src_suffixes_key))
-
+    @SCons.Memoize.CountDictCall(_subst_src_suffixes_key)
     def subst_src_suffixes(self, env):
         """
         The suffix list may contain construction variable expansions,

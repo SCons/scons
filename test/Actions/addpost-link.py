@@ -54,7 +54,7 @@ myprog = env.Program('test1.c',
                      OBJSUFFIX = '.obj',
                      PROGSUFFIX = '.exe')
 if ARGUMENTS['case']=='2':
-  AddPostAction(myprog, Action(r'%(_python_)s strip.py ' + myprog[0].abspath))
+  AddPostAction(myprog, Action(r'%(_python_)s strip.py ' + myprog[0].get_abspath()))
 """ % locals())
 
 test.write('test1.c', """\

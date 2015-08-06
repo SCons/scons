@@ -120,7 +120,7 @@ def build_specfiles(source, target, env):
             return opened_files[needle]
         except KeyError:
             file=filter(lambda x: x.get_path().rfind(needle)!=-1, haystack)[0]
-            opened_files[needle]=open(file.abspath, 'w')
+            opened_files[needle]=open(file.get_abspath(), 'w')
             return opened_files[needle]
 
     control_file=open_file('control', target)

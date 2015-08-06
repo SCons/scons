@@ -32,15 +32,49 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.Node
 
 class ValueNodeInfo(SCons.Node.NodeInfoBase):
-    current_version_id = 1
+    __slots__ = ('csig',)
+    current_version_id = 2
 
     field_list = ['csig']
 
     def str_to_node(self, s):
         return Value(s)
 
+    def __getstate__(self):
+        """
+        Return all fields that shall be pickled. Walk the slots in the class
+        hierarchy and add those to the state dictionary. If a '__dict__' slot is
+        available, copy all entries to the dictionary. Also include the version
+        id, which is fixed for all instances of a class.
+        """
+        state = getattr(self, '__dict__', {}).copy()
+        for obj in type(self).mro():
+            for name in getattr(obj,'__slots__',()):
+                if hasattr(self, name):
+                    state[name] = getattr(self, name)
+
+        state['_version_id'] = self.current_version_id
+        try:
+            del state['__weakref__']
+        except KeyError:
+            pass
+        
+        return state
+
+    def __setstate__(self, state):
+        """
+        Restore the attributes from a pickled state.
+        """
+        # TODO check or discard version
+        del state['_version_id']
+        for key, value in state.items():
+            if key not in ('__weakref__',):
+                setattr(self, key, value)
+
+
 class ValueBuildInfo(SCons.Node.BuildInfoBase):
-    current_version_id = 1
+    __slots__ = ()
+    current_version_id = 2
 
 class Value(SCons.Node.Node):
     """A class for Python variables, typically passed on the command line 
@@ -53,6 +87,8 @@ class Value(SCons.Node.Node):
     def __init__(self, value, built_value=None):
         SCons.Node.Node.__init__(self)
         self.value = value
+        self.changed_since_last_build = 6
+        self.store_info = 0
         if built_value is not None:
             self.built_value = built_value
 

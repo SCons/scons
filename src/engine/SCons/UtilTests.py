@@ -591,10 +591,11 @@ class UtilTestCase(unittest.TestCase):
         class MyNode(object):
             def __init__(self, name):
                 self.name = name
-                self.suffix = os.path.splitext(name)[1]
 
             def __str__(self):
                 return self.name
+            def get_suffix(self):
+                return os.path.splitext(self.name)[1]
 
         s = Selector({'a' : 'AAA', 'b' : 'BBB'})
         assert s['a'] == 'AAA', s['a']
