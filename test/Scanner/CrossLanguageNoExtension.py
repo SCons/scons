@@ -63,17 +63,18 @@ k2scan = Scanner(name = 'k2',
                      argument = None,
                      skeys = ['.k2'])
 
+k2scan2 = Scanner(name = 'k2',
+                     function = k2file_scan,
+                     argument = None,
+                     skeys = [''])
+
 env1 = Environment()
 env1.Append(SCANNERS = [ kscan, k2scan ] )
 env1.Command( 'k', 'foo.k', Copy( '$TARGET', '$SOURCE' ) )
 
 env2 = env1.Clone()
-env2.Replace(SCANNER_HINT = k2scan)
+env2.Append(SCANNERS = [ k2scan2 ] )
 env2.Command( 'k2', 'foo.k', Copy( '$TARGET', '$SOURCE' ) )
-
-env3 = env1.Clone()
-env3.Replace(SCANNER_HINT = 'raise')
-env3.Command( 'raise', 'foo.k', Copy( '$TARGET', '$SOURCE' ) )
 """)
 
 test.write('foo.k', 
@@ -100,16 +101,6 @@ Copy("k2", "foo.k")
 
 test.run(arguments='k k2', stdout=expected_stdout)
 
-expected_stdout = test.wrap_stdout("""\
-kscan: foo.k
-kscan: xxx.k
-""", error = True)
-
-expected_stderr = """\
-scons: *** [raise] SCANNER_HINT object must be instance of <class 'SCons.Scanner.Base'>
-"""
-
-test.run(arguments='raise', stderr=expected_stderr, stdout=expected_stdout, status = 2)
 test.pass_test()
 
 # Local Variables:

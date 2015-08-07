@@ -962,19 +962,7 @@ class Node(object):
         if not scanner:
             # no scanner could be found for the given node's scanner key;
             # thus, make an attempt at using a default.
-
-            # check for a user specified scanner hint
-            scanner = env.get( 'SCANNER_HINT' )
-                
-            if scanner:
-                # Ensure scanner hint returned a valid Scanner object
-                if not isinstance( scanner, SCons.Scanner.Base ):
-                    raise SCons.Errors.UserError(
-                        'SCANNER_HINT object must be instance of ' + str(SCons.Scanner.Base)
-                    )
-            else:
-                # no scanner hint, so do best guess (IE. return the root's scanner).
-                scanner = root_node_scanner
+            scanner = root_node_scanner
                 
         return scanner
         
