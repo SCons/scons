@@ -18,6 +18,33 @@ So that everyone using SCons can help each other learn how to use it more
 effectively, please go to http://scons.org/lists.php#users to sign up for
 the scons-users mailing list.
 
+==============IMPORTANT NOTICE FOR NEXT VERSION V2.X.X==========
+
+PLEASE READ. CHANGES COMING IN NEXT MAJOR RELEASE V2.X.X
+
+We're enhancing implicit language scanning functionality to improve
+correctness.  SCons now honors scanner keys for implicit
+dependencies and correctly changes scanner type (if necessary) when
+traversing implicit dependency trees.  This enhancement resolves
+missing dependencies with built-in scanners including SWIG (#2264) 
+and QT:
+* http://scons.tigris.org/issues/show_bug.cgi?id=2264
+
+This enhancement broadens the horizon for handling heterogeneous
+data flow environments (E.G. software builds):
+* http://article.gmane.org/gmane.comp.programming.tools.scons.user/26596
+
+Notes:
+* SCons may find new (and correct) dependencies in cross-langauge contexts.
+** Update may cause rebuilds, especially in heterogeneous data environments.
+** Update may find previously missed dependencies errors (E.G. cycles).
+*** Discovered in some QT test cases.
+* SCons handles the SCANNERS variable differently.
+** Previously, the Install builder would scan implicit dependencies for
+   a scanner found in SCANNERS (but not for built-in scanners), but now
+   the Install builder will not scan recursively regardless in order
+   to optimize Install behaviour and bring orthogonality to previous behaviour.
+
 ==============IMPORTANT NOTICE FOR NEXT VERSION V2.4.0===========
 
 PLEASE READ. CHANGES COMING IN NEXT MAJOR RELEASE V2.4.0

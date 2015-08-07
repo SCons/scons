@@ -6,6 +6,12 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From William Blevins:
+    - Added support for cross-language dependency scanning;
+      SCons now respects scanner keys for implicit dependencies.
+    - Resolved missing cross-language dependencies for
+      SWIG bindings (fixes #2264).
+ 
   From Dirk Baechle:
     - Switched several core classes to using "slots", for
       reducing the overall memory consumption in large
