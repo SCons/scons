@@ -60,11 +60,6 @@ test.up_to_date(arguments='.')
 
 test.write('foo.h', "foo.h 2\n")
 
-test.run(arguments='.', stdout=test.wrap_stdout("""\
-Install file: "foo.idl" as "foo_idl"
-Install file: "foo.x" as "foo_x"
-"""))
-
 test.up_to_date(arguments='.')
 
 test.pass_test()

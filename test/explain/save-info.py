@@ -141,7 +141,7 @@ file5.k 1 line 4
 test.write(['src', 'subdir', 'file6.in'], "subdir/file6.in 1\n")
 
 #
-test.run(chdir='src', arguments='.')
+test.run(chdir='src', arguments='..')
 
 test.must_match(['src', 'file1'], "file1.in 1\n")
 test.must_match(['src', 'file2'], """\
@@ -176,10 +176,7 @@ scons: rebuilding `file3' because:
            `yyy' changed
            `zzz' changed
 %(_python_)s %(cat_py)s file3 xxx yyy zzz
-scons: rebuilding `%(inc_bbb_k)s' because:
-           `%(inc_ddd)s' is no longer a dependency
-           `%(inc_eee)s' is no longer a dependency
-           `bbb.k' changed
+scons: rebuilding `%(inc_bbb_k)s' because `bbb.k' changed
 Install file: "bbb.k" as "%(inc_bbb_k)s"
 scons: rebuilding `file5' because `%(inc_bbb_k)s' changed
 %(_python_)s %(cat_py)s file5 file5.k
