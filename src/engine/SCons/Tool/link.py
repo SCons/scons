@@ -33,9 +33,10 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import sys
 import re
+import os
 
-import SCons.Defaults
 import SCons.Tool
 import SCons.Util
 import SCons.Warnings
@@ -72,97 +73,66 @@ def smart_link(source, target, env, for_signature):
         return '$CXX'
     return '$CC'
 
-def shlib_emitter(target, source, env):
+def _lib_emitter(target, source, env, **kw):
     Verbose = False
-    platform = env.subst('$PLATFORM')
+    if Verbose:
+        print "_lib_emitter: str(target[0])=%r" % str(target[0])
     for tgt in target:
         tgt.attributes.shared = 1
+    
     try:
-        # target[0] comes in as libtest.so. Add the version extensions
-        version = env.subst('$SHLIBVERSION')
-        if version:
-            version_names = shlib_emitter_names(target, source, env)
-            # mark the target with the shared libraries name, including
-            # the version number
-            target[0].attributes.shlibname = version_names[0]
-            shlib = env.File(version_names[0], directory=target[0].get_dir())
-            target[0].attributes.shlibpath = shlib.get_internal_path()
-            for name in version_names[1:]:
-                env.SideEffect(name, shlib)
-                env.Clean(shlib, name)
-                if Verbose:
-                    print "shlib_emitter: add side effect - ",name
-            env.Clean(shlib, target[0])
-            return ([shlib], source)
+        symlink_generator = kw['symlink_generator']
     except KeyError:
-        version = None
+        pass
+    else:
+        if Verbose:
+            print "_lib_emitter: symlink_generator=%r" % symlink_generator
+        symlinks = symlink_generator(env, target[0])
+        if Verbose:
+            print "_lib_emitter: symlinks=%r" % symlinks 
+
+        if symlinks:
+            SCons.Tool.EmitLibSymlinks(env, symlinks, target[0])
+            target[0].attributes.shliblinks = symlinks
     return (target, source)
 
-def shlib_emitter_names(target, source, env):
-    """Return list of file names that are side effects for a versioned library build. The first name in the list is the new name for the target"""
-    Verbose = False
-    platform = env.subst('$PLATFORM')
-    version_names = []
-    try:
-        # target[0] comes in as libtest.so. Add the version extensions
-        version = env.subst('$SHLIBVERSION')
-        if version.count(".") != 2:
-            # We need a version of the form x.y.z to proceed
-            raise ValueError
-        if version:
-            if platform == 'posix' or platform == 'sunos':
-                versionparts = version.split('.')
-                if hasattr(target[0].attributes, 'shlibname'):
-                    name = target[0].attributes.shlibname
-                else:
-                    name = target[0].name
-                # generate library name with the version number
-                version_name = name + '.' + version
-                if Verbose:
-                    print "shlib_emitter_names: target is ", version_name
-                    print "shlib_emitter_names: side effect: ", name
-                # add version_name to list of names to be a Side effect
-                version_names.append(version_name)
-                if Verbose:
-                    print "shlib_emitter_names: versionparts ",versionparts
-                for ver in versionparts[0:-1]:
-                    name = name + '.' + ver
-                    if Verbose:
-                        print "shlib_emitter_names: side effect: ", name
-                    # add name to list of names to be a Side effect
-                    version_names.append(name)
-            elif platform == 'darwin':
-                shlib_suffix = env.subst('$SHLIBSUFFIX')
-                if hasattr(target[0].attributes, 'shlibname'):
-                    name = target[0].attributes.shlibname
-                else:
-                    name = target[0].name
-                # generate library name with the version number
-                suffix_re = re.escape(shlib_suffix)
-                version_name = re.sub(suffix_re, '.' + version + shlib_suffix, name)
-                if Verbose:
-                    print "shlib_emitter_names: target is ", version_name
-                    print "shlib_emitter_names: side effect: ", name
-                # add version_name to list of names to be a Side effect
-                version_names.append(version_name)
-            elif platform == 'cygwin':
-                shlib_suffix = env.subst('$SHLIBSUFFIX')
-                if hasattr(target[0].attributes, 'shlibname'):
-                    name = target[0].attributes.shlibname
-                else:
-                    name = target[0].name
-                # generate library name with the version number
-                suffix_re = re.escape(shlib_suffix)
-                version_name = re.sub(suffix_re, '-' + re.sub('\.', '-', version) + shlib_suffix, name)
-                if Verbose:
-                    print "shlib_emitter_names: target is ", version_name
-                    print "shlib_emitter_names: side effect: ", name
-                # add version_name to list of names to be a Side effect
-                version_names.append(version_name)
+def shlib_emitter(target, source, env):
+    return _lib_emitter(target, source, env, symlink_generator = SCons.Tool.ShLibSymlinkGenerator)
 
-    except KeyError:
-        version = None
-    return version_names
+def ldmod_emitter(target, source, env):
+    return _lib_emitter(target, source, env, symlink_generator = SCons.Tool.LdModSymlinkGenerator)
+
+# This is generic enough to be included here...
+def _versioned_lib_name(env, libnode, version, suffix, suffix_generator, **kw):
+    """For libnode='/optional/dir/libfoo.so.X.Y.Z' it returns 'libfoo.so'"""
+    Verbose = False
+
+    if Verbose:
+        print "_versioned_lib_name: version=%r" % version
+
+    versioned_name = os.path.basename(str(libnode))
+    if Verbose:
+        print "_versioned_lib_name: versioned_name=%r" % versioned_name
+
+    if Verbose:
+        print "_versioned_lib_name: suffix=%r" % suffix
+
+    versioned_suffix = suffix_generator(env, **kw)
+
+    versioned_suffix_re = re.escape(versioned_suffix) + '$'
+    name = re.sub(versioned_suffix_re, suffix, versioned_name)
+    if Verbose:
+        print "_versioned_lib_name: name=%r" % name
+    return name
+
+def _versioned_shlib_name(env, libnode, version, suffix, **kw):
+    generator = SCons.Tool.ShLibSuffixGenerator
+    return _versioned_lib_name(env, libnode, version, suffix, generator, **kw)
+
+def _versioned_ldmod_name(env, libnode, version, suffix, **kw):
+    generator = SCons.Tool.LdModSuffixGenerator
+    return _versioned_lib_name(env, libnode, version, suffix, generator, **kw)
+
 
 def generate(env):
     """Add Builders and construction variables for gnulink to an Environment."""
@@ -171,7 +141,7 @@ def generate(env):
 
     env['SHLINK']      = '$LINK'
     env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -shared')
-    env['SHLINKCOM']   = '$SHLINK -o $TARGET $SHLINKFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
+    env['SHLINKCOM']   = '$SHLINK -o $TARGET $SHLINKFLAGS $__SHLIBVERSIONFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
     # don't set up the emitter, cause AppendUnique will generate a list
     # starting with None :-(
     env.Append(SHLIBEMITTER = [shlib_emitter])
@@ -196,15 +166,13 @@ def generate(env):
     # setting them the same means that LoadableModule works everywhere.
     SCons.Tool.createLoadableModuleBuilder(env)
     env['LDMODULE'] = '$SHLINK'
-    # don't set up the emitter, cause AppendUnique will generate a list
-    # starting with None :-(
-    env.Append(LDMODULEEMITTER='$SHLIBEMITTER')
+    env.Append(LDMODULEEMITTER = [ldmod_emitter])
     env['LDMODULEPREFIX'] = '$SHLIBPREFIX'
     env['LDMODULESUFFIX'] = '$SHLIBSUFFIX'
     env['LDMODULEFLAGS'] = '$SHLINKFLAGS'
-    env['LDMODULECOM'] = '$LDMODULE -o $TARGET $LDMODULEFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
-
-
+    env['LDMODULECOM'] = '$LDMODULE -o $TARGET $LDMODULEFLAGS $__LDMODULEVERSIONFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
+    env['LDMODULEVERSION'] = '$SHLIBVERSION'
+    env['LDMODULENOVERSIONSYMLINKS'] = '$SHLIBNOVERSIONSYMLINKS'
 
 def exists(env):
     # This module isn't really a Tool on its own, it's common logic for

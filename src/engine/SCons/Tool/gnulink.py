@@ -34,8 +34,96 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Util
+import SCons.Tool
+import os
+import sys
+import re
 
 import link
+
+def _versioned_lib_suffix(env, suffix, version):
+    """For suffix='.so' and version='0.1.2' it returns '.so.0.1.2'"""
+    Verbose = False
+    if Verbose:
+        print "_versioned_lib_suffix: suffix=%r" % suffix
+        print "_versioned_lib_suffix: version=%r" % version
+    if not suffix.endswith(version):
+        suffix = suffix + '.' + version
+    if Verbose:
+        print "_versioned_lib_suffix: return suffix=%r" % suffix
+    return suffix
+
+def _versioned_lib_soname(env, libnode, version, suffix, name_generator):
+    """For libnode='/optional/dir/libfoo.so.X.Y.Z' it returns 'libfoo.so.X'"""
+    Verbose = False
+    if Verbose:
+        print "_versioned_lib_soname: version=%r" % version
+    name = name_generator(env, libnode)
+    if Verbose:
+        print "_versioned_lib_soname: name=%r" % name
+    major = version.split('.')[0]
+    soname = name + '.' + major
+    if Verbose:
+        print "_versioned_lib_soname: soname=%r" % soname
+    return soname
+
+def _versioned_shlib_soname(env, libnode, version, suffix):
+    generator = SCons.Tool.ShLibNameGenerator
+    return _versioned_lib_soname(env, libnode, version, suffix, generator) 
+
+def _versioned_ldmod_soname(env, libnode, version, suffix):
+    generator = SCons.Tool.LdModNameGenerator
+    return _versioned_lib_soname(env, libnode, version, suffix, generator) 
+
+def _versioned_lib_symlinks(env, libnode, version, suffix, name_generator, soname_generator):
+    """Generate link names that should be created for a versioned shared lirbrary.
+       Returns a dictionary in the form { linkname : linktarget }
+    """
+    Verbose = False
+
+    if Verbose:
+        print "_versioned_lib_symlinks: str(libnode)=%r" % str(libnode)
+        print "_versioned_lib_symlinks: version=%r" % version
+
+    symlinks = {}
+
+    if sys.platform.startswith('openbsd'):
+        # OpenBSD uses x.y shared library versioning numbering convention
+        # and doesn't use symlinks to backwards-compatible libraries
+        if Verbose:
+            print "_versioned_lib_symlinks: return symlinks=%r" % symlinks
+        return symlinks
+
+    linkdir = os.path.dirname(str(libnode))
+    if Verbose:
+        print "_versioned_lib_symlinks: linkdir=%r" % linkdir
+
+    name = name_generator(env, libnode)
+    if Verbose:
+        print "_versioned_lib_symlinks: name=%r" % name
+
+    soname = soname_generator(env, libnode)
+
+    link0 = os.path.join(str(linkdir), soname)
+    link1 = os.path.join(str(linkdir), name)
+
+    symlinks[link0] = str(libnode)
+    symlinks[link1] = link0
+
+    if Verbose:
+        print "_versioned_lib_symlinks: return symlinks=%r" % symlinks
+
+    return symlinks
+
+def _versioned_shlib_symlinks(env, libnode, version, suffix):
+    name_generator = SCons.Tool.ShLibNameGenerator
+    soname_generator = SCons.Tool.ShLibSonameGenerator
+    return _versioned_lib_symlinks(env, libnode, version, suffix, name_generator, soname_generator)
+
+def _versioned_ldmod_symlinks(env, libnode, version, suffix):
+    name_generator = SCons.Tool.LdModNameGenerator
+    soname_generator = SCons.Tool.LdModSonameGenerator
+    return _versioned_lib_symlinks(env, libnode, version, suffix, name_generator, soname_generator)
 
 def generate(env):
     """Add Builders and construction variables for gnulink to an Environment."""
@@ -49,6 +137,35 @@ def generate(env):
     env['RPATHPREFIX'] = '-Wl,-rpath='
     env['RPATHSUFFIX'] = ''
     env['_RPATH'] = '${_concat(RPATHPREFIX, RPATH, RPATHSUFFIX, __env__)}'
+
+    # The $_SHLIBVERSIONFLAGS define extra commandline flags used when
+    # building VERSIONED shared libraries. It's always set, but used only
+    # when VERSIONED library is built (see __SHLIBVERSIONFLAGS).
+    if sys.platform.startswith('openbsd'):
+        # OpenBSD doesn't usually use SONAME for libraries
+        env['_SHLIBVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS'
+        env['_LDMODULEVERSIONFLAGS'] = '$LDMODULEVERSIONFLAGS'
+    else:
+        env['_SHLIBVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS -Wl,-soname=$_SHLINKSONAME'
+        env['_LDMODULEVERSIONFLAGS'] = '$LDMODULEVERSIONFLAGS -Wl,-soname=$_LDMODULESONAME'
+    env['SHLIBVERSIONFLAGS'] = SCons.Util.CLVar('-Wl,-Bsymbolic')
+    env['LDMODULEVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS'
+
+    # libfoo.so.X.Y.Z -> libfoo.so.X
+    env['_SHLINKSONAME']   = '${ShLibSonameGenerator(__env__,TARGET)}'
+    env['_LDMODULESONAME'] = '${LdModSonameGenerator(__env__,TARGET)}'
+
+    env['ShLibSonameGenerator'] = SCons.Tool.ShLibSonameGenerator
+    env['LdModSonameGenerator'] = SCons.Tool.LdModSonameGenerator
+
+    env['GenerateVersionedShLibSuffix']   = _versioned_lib_suffix
+    env['GenerateVersionedLdModSuffix']   = _versioned_lib_suffix
+    env['GenerateVersionedShLibSymlinks'] = _versioned_shlib_symlinks
+    env['GenerateVersionedLdModSymlinks'] = _versioned_ldmod_symlinks
+    env['GenerateVersionedShLibName']     = link._versioned_shlib_name
+    env['GenerateVersionedLdModName']     = link._versioned_ldmod_name
+    env['GenerateVersionedShLibSoname']   = _versioned_shlib_soname
+    env['GenerateVersionedLdModSoname']   = _versioned_shlib_soname
     
 def exists(env):
     # TODO: sync with link.smart_link() to choose a linker

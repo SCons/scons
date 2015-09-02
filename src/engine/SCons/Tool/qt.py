@@ -320,6 +320,7 @@ def generate(env):
     # correctly later by our emitter.
     env.AppendUnique(PROGEMITTER =[AutomocStatic],
                      SHLIBEMITTER=[AutomocShared],
+                     LDMODULEEMITTER=[AutomocShared],
                      LIBEMITTER  =[AutomocStatic],
                      # Of course, we need to link against the qt libraries
                      CPPPATH=["$QT_CPPPATH"],

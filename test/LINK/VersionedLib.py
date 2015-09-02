@@ -39,8 +39,8 @@ import os
 env = Environment()
 objs = env.SharedObject('test.c')
 mylib = env.SharedLibrary('test', objs, SHLIBVERSION = '2.5.4')
-env.Program(source=['testapp.c',mylib])
-env.Program(target=['testapp2'],source=['testapp.c','libtest.dylib'])
+env.Program('testapp1.c', LIBS = mylib, LIBPATH='.')
+env.Program('testapp2.c', LIBS = ['test'], LIBPATH='.')
 instnode = env.InstallVersionedLib("#/installtest",mylib)
 env.Default(instnode)
 """)
@@ -55,22 +55,28 @@ return n+1 ;
 }
 """)
 
-test.write('testapp.c', """\
+testapp_src = """\
+#if _WIN32
+__declspec(dllimport)
+#endif
+int testlib(int n);
 #include <stdio.h>
 int main(int argc, char **argv)
 {
 int itest ;
 
 itest = testlib(2) ;
-printf("results: testlib(2) = %d\n",itest) ;
+printf("results: testlib(2) = %d\\n",itest) ;
 return 0 ;
 }
-""")
+"""
+test.write('testapp1.c', testapp_src)
+test.write('testapp2.c', testapp_src)
 
 platform = SCons.Platform.platform_default()
 
 
-test.run()
+test.run(arguments = ['--tree=all'])
 
 if platform == 'posix':
     # All (?) the files we expect will get created in the current directory
@@ -103,12 +109,14 @@ elif platform == 'cygwin':
     files = [
     'cygtest-2-5-4.dll',
     'libtest-2-5-4.dll.a',
+    'libtest.dll.a',
     'test.os',
     ]
     # All (?) the files we expect will get created in the 'installtest' directory
     instfiles = [
     'cygtest-2-5-4.dll',
     'libtest-2-5-4.dll.a',
+    'libtest.dll.a',
     ]
 elif platform == 'win32':
     # All (?) the files we expect will get created in the current directory
@@ -148,7 +156,7 @@ return n+11 ;
 
 test.run()
 
-test.run(arguments = '-c')
+test.run(arguments = ['-c'])
 
 for f in files:
     test.must_not_exist([ f])

@@ -482,6 +482,10 @@ class Variable_Method_Caller(object):
             frame = frame.f_back
         return None
 
+def __libversionflags_string(versionvar):
+    return '${("%s" in locals() and %s and "_%sFLAGS" in locals()) ' \
+            'and _%sFLAGS or None}' % (versionvar, versionvar, versionvar, versionvar)
+
 ConstructionEnvironment = {
     'BUILDERS'      : {},
     'SCANNERS'      : [],
@@ -499,6 +503,9 @@ ConstructionEnvironment = {
     '_LIBDIRFLAGS'  : '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
     '_CPPINCFLAGS'  : '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
     '_CPPDEFFLAGS'  : '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
+
+    '__SHLIBVERSIONFLAGS'    : __libversionflags_string('SHLIBVERSION'),
+    '__LDMODULEVERSIONFLAGS' : __libversionflags_string('LDMODULEVERSION'),
     'TEMPFILE'      : NullCmdGenerator,
     'Dir'           : Variable_Method_Caller('TARGET', 'Dir'),
     'Dirs'          : Variable_Method_Caller('TARGET', 'Dirs'),

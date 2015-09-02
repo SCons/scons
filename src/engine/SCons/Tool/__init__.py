@@ -236,150 +236,304 @@ def createStaticLibBuilder(env):
 
     return static_lib
 
-def VersionShLibLinkNames(version, libname, env):
-    """Generate names of symlinks to the versioned shared library"""
+def _call_env_cb(env, callback, args, result = None):
+    """Returns the result of env[callback](*args) call if env[callback] is
+    callable. If env[callback] does not exist or is not callable, return the
+    value provided as the *result* argument. This function is mainly used for
+    generating library info such as versioned suffixes, symlink maps, sonames
+    etc. by delegating the core job to callbacks configured by current linker
+    tool"""
+
     Verbose = False
-    platform = env.subst('$PLATFORM')
-    shlib_suffix = env.subst('$SHLIBSUFFIX')
-    shlink_flags = SCons.Util.CLVar(env.subst('$SHLINKFLAGS'))
 
-    linknames = []
-    if version.count(".") != 2:
-        # We need a version string of the form x.y.z to proceed
-        # Several changes need to be made to support versions like x.y
-        raise ValueError
-
-    if platform == 'darwin':
-        # For libfoo.x.y.z.dylib, linknames libfoo.so
-        suffix_re = re.escape('.' + version + shlib_suffix)
-        linkname = re.sub(suffix_re, shlib_suffix, libname)
-        if Verbose:
-            print "VersionShLibLinkNames: linkname = ",linkname
-        linknames.append(linkname)
-    elif platform == 'posix' or platform == 'sunos':
-        if sys.platform.startswith('openbsd'):
-            # OpenBSD uses x.y shared library versioning numbering convention
-            # and doesn't use symlinks to backwards-compatible libraries
-            return []
-        # For libfoo.so.x.y.z, linknames libfoo.so libfoo.so.x.y libfoo.so.x
-        suffix_re = re.escape(shlib_suffix + '.' + version)
-        # First linkname has no version number
-        linkname = re.sub(suffix_re, shlib_suffix, libname)
-        if Verbose:
-            print "VersionShLibLinkNames: linkname = ",linkname
-        linknames.append(linkname)
-        versionparts = version.split('.')
-        major_name = linkname + "." + versionparts[0]
-        minor_name = major_name + "." + versionparts[1]
-        #Only add link for major_name
-        #for linkname in [major_name, minor_name]:
-        for linkname in [major_name, ]:
-            if Verbose:
-                print "VersionShLibLinkNames: linkname ",linkname, ", target ",libname
-            linknames.append(linkname)
-    # note: no Windows case here (win32 or cygwin);
-    # MSVC doesn't support this type of versioned shared libs.
-    # (could probably do something for MinGW though)
-    return linknames
-
-def VersionedSharedLibrary(target = None, source= None, env=None):
-    """Build a shared library. If the environment has SHLIBVERSION
-defined make a versioned shared library and create the appropriate
-symlinks for the platform we are on"""
-    Verbose = False
-    try:
-        version = env.subst('$SHLIBVERSION')
-    except KeyError:
-        version = None
-
-    # libname includes the version number if one was given
-    libname = getattr(target[0].attributes, 'shlibname', target[0].name)
-    platform = env.subst('$PLATFORM')
-    shlib_suffix = env.subst('$SHLIBSUFFIX')
-    shlink_flags = SCons.Util.CLVar(env.subst('$SHLINKFLAGS'))
     if Verbose:
-        print "VersionShLib: libname      = ",libname
-        print "VersionShLib: platform     = ",platform
-        print "VersionShLib: shlib_suffix = ",shlib_suffix
-        print "VersionShLib: target = ",str(target[0])
+        print '_call_env_cb: args=%r' % args
+        print '_call_env_cb: callback=%r' % callback
 
-    if version:
-        # set the shared library link flags
-        if platform == 'posix':
-            shlink_flags += [ '-Wl,-Bsymbolic' ]
-            # OpenBSD doesn't usually use SONAME for libraries
-            if not sys.platform.startswith('openbsd'):
-                # continue setup of shlink flags for all other POSIX systems
-                suffix_re = re.escape(shlib_suffix + '.' + version)
-                (major, age, revision) = version.split(".")
-                # soname will have only the major version number in it
-                soname = re.sub(suffix_re, shlib_suffix, libname) + '.' + major
-                shlink_flags += [ '-Wl,-soname=%s' % soname ]
-                if Verbose:
-                    print " soname ",soname,", shlink_flags ",shlink_flags
-        elif platform == 'sunos':
-            suffix_re = re.escape(shlib_suffix + '.' + version)
-            (major, age, revision) = version.split(".")
-            soname = re.sub(suffix_re, shlib_suffix, libname) + '.' + major
-            shlink_flags += [ '-h', soname ]
-        elif platform == 'cygwin':
-            shlink_flags += [ '-Wl,-Bsymbolic',
-                              '-Wl,--out-implib,${TARGET.base}.a' ]
-        elif platform == 'darwin':
-            shlink_flags += [ '-current_version', '%s' % version,
-                              '-compatibility_version', '%s' % version,
-                              '-undefined', 'dynamic_lookup' ]
-        if Verbose:
-            print "VersionShLib: shlink_flags = ",shlink_flags
-        envlink = env.Clone()
-        envlink['SHLINKFLAGS'] = shlink_flags
+    try:
+        cbfun = env[callback]
+    except KeyError:
+        pass
     else:
-        envlink = env
-
-    result = SCons.Defaults.ShLinkAction(target, source, envlink)
-
-    if version:
-        # here we need the full pathname so the links end up in the right directory
-        libname = getattr(target[0].attributes, 'shlibpath', target[0].get_internal_path())
         if Verbose:
-            print "VerShLib: target lib is = ", libname
-            print "VerShLib: name is = ", target[0].name
-            print "VerShLib: dir is = ", target[0].dir.path
-        linknames = VersionShLibLinkNames(version, libname, env)
-        if Verbose:
-            print "VerShLib: linknames ",linknames
-        # Here we just need the file name w/o path as the target of the link
-        lib_ver = getattr(target[0].attributes, 'shlibname', target[0].name)
-        # make symlink of adjacent names in linknames
-        for count in range(len(linknames)):
-            linkname = linknames[count]
-            if count > 0:
-                try:
-                    os.remove(lastlinkname)
-                except:
-                    pass
-                os.symlink(os.path.basename(linkname),lastlinkname)
-                if Verbose:
-                    print "VerShLib: made sym link of %s -> %s" % (lastlinkname,linkname)
-            lastlinkname = linkname
-        # finish chain of sym links with link to the actual library
-        if len(linknames)>0:
-            try:
-                os.remove(lastlinkname)
-            except:
-                pass
-            os.symlink(lib_ver,lastlinkname)
+            print '_call_env_cb: env[%r] found' % callback
+            print '_call_env_cb: env[%r]=%r' % (callback, cbfun)
+        if(callable(cbfun)):
             if Verbose:
-                print "VerShLib: made sym link of %s -> %s" % (linkname, lib_ver)
+                print '_call_env_cb: env[%r] is callable' % callback
+            result = cbfun(env, *args)
     return result
 
-# Fix http://scons.tigris.org/issues/show_bug.cgi?id=2903 :
-# Ensure we still depend on SCons.Defaults.ShLinkAction command line which is $SHLINKCOM.
-# This was tricky because we don't want changing LIBPATH to cause a rebuild, but
-# changing other link args should.  LIBPATH has $( ... $) around it but until this
-# fix, when the varlist was added to the build sig those ignored parts weren't getting
-# ignored.
-ShLibAction = SCons.Action.Action(VersionedSharedLibrary, None, varlist=['SHLINKCOM'])
+class _LibInfoGeneratorBase(object):
+    """Generator base class for library-related info such as suffixes for
+    versioned libraries, symlink maps, sonames etc. It handles commonities
+    of SharedLibrary and LoadableModule
+    """
+    def __init__(self, libtype, infoname):
+        self.set_libtype(libtype)
+        self.set_infoname(infoname)
+
+    def set_libtype(self, libtype):
+        if libtype not in ['ShLib', 'LdMod', 'ImpLib']:
+            raise ValueError('unsupported libtype %r' % libtype)
+        self.libtype = libtype
+
+    def get_libtype(self):
+        return self.libtype
+
+    def set_infoname(self, infoname):
+        self.infoname = infoname
+
+    def get_infoname(self):
+        return self.infoname
+
+    def get_lib_prefix(self, env):
+        prefix = None
+        libtype = self.get_libtype()
+        if libtype == 'ShLib':
+            prefix = env.subst('$SHLIBPREFIX')
+        elif libtype == 'LdMod':
+            prefix = env.subst('$LDMODULEPREFIX')
+        elif libtype == 'ImpLib':
+            prefix = env.subst('$IMPLIBPREFIX')
+        return prefix
+
+    def get_lib_suffix(self, env):
+        suffix = None
+        libtype = self.get_libtype()
+        if libtype == 'ShLib':
+            suffix = env.subst('$SHLIBSUFFIX')
+        elif libtype == 'LdMod':
+            suffix = env.subst('$LDMODULESUFFIX')
+        elif libtype == 'ImpLib':
+            suffix = env.subst('$IMPLIBSUFFIX')
+        return suffix
+
+    def get_lib_version(self, env, **kw):
+        version = None
+        libtype = self.get_libtype()
+        if libtype == 'ShLib':
+            version = env.subst('$SHLIBVERSION')
+        elif libtype == 'LdMod':
+            version = env.subst('$LDMODULEVERSION')
+        elif libtype == 'ImpLib':
+            version = env.subst('$IMPLIBVERSION')
+            if not version:
+                try: lt = kw['implib_libtype']
+                except KeyError: pass
+                else:
+                    if lt == 'ShLib':
+                        version = env.subst('$SHLIBVERSION')
+                    elif lt == 'LdMod':
+                        version = env.subst('$LDMODULEVERSION')
+        return version
+
+    def get_versioned_lib_info_generator(self, **kw):
+        try: libtype = kw['generator_libtype']
+        except KeyError: libtype = self.get_libtype()
+        infoname = self.get_infoname()
+        return 'GenerateVersioned%s%s' % (libtype, infoname)
+
+    def generate_versioned_lib_info(self, env, args, result = None, **kw):
+        callback = self.get_versioned_lib_info_generator(**kw)
+        return _call_env_cb(env, callback, args, result) 
+
+class _LibSuffixGenerator(_LibInfoGeneratorBase):
+    """Library suffix generator, used as target_suffix in SharedLibrary and
+    LoadableModule builders"""
+    def __init__(self, libtype):
+        super(_LibSuffixGenerator, self).__init__(libtype, 'Suffix')
+
+    def __call__(self, env, sources = None, **kw):
+        Verbose = False
+
+        suffix = self.get_lib_suffix(env)
+        if Verbose:
+            print "_LibSuffixGenerator: input suffix=%r" % suffix
+
+        version = self.get_lib_version(env, **kw)
+        if Verbose:
+            print "_LibSuffixGenerator: version=%r" % version
+
+        if version:
+            suffix = self.generate_versioned_lib_info(env, [suffix, version], suffix, **kw)
+
+        if Verbose:
+            print "_LibSuffixGenerator: return suffix=%r" % suffix
+        return suffix
+
+ShLibSuffixGenerator  = _LibSuffixGenerator('ShLib')
+LdModSuffixGenerator  = _LibSuffixGenerator('LdMod')
+ImpLibSuffixGenerator = _LibSuffixGenerator('ImpLib')
+
+class _LibSymlinkGenerator(_LibInfoGeneratorBase):
+    """Library symlink map generator. It generates a dict of symlinks that
+    should be created by SharedLibrary or LoadableModule builders"""
+    def __init__(self, libtype):
+        super(_LibSymlinkGenerator, self).__init__(libtype, 'Symlinks')
+
+    def get_noversionsymlinks(self, env, **kw):
+        disable = None
+        libtype = self.get_libtype()
+        if libtype == 'ShLib':
+            disable = env.subst('$SHLIBNOVERSIONSYMLINKS')
+        elif libtype == 'LdMod':
+            disable = env.subst('$LDMODULENOVERSIONSYMLINKS')
+        elif libtype == 'ImpLib':
+            try: env['IMPLIBNOVERSIONSYMLINKS']
+            except KeyError:
+                try: lt = kw['implib_libtype']
+                except KeyError: pass
+                else:
+                    if lt == 'ShLib':
+                        disable = env.subst('$SHLIBNOVERSIONSYMLINKS')
+                    elif lt == 'LdMod':
+                        disable = env.subst('$LDMODULENOVERSIONSYMLINKS')
+            else:
+                disable = env.subst('$IMPLIBNOVERSIONSYMLINKS')
+        return disable
+
+    def __call__(self, env, libnode, **kw):
+        Verbose = False
+
+        if Verbose:
+            print "_LibSymLinkGenerator: str(libnode)=%r" % str(libnode)
+
+        symlinks = None
+
+        version = self.get_lib_version(env, **kw)
+        disable = self.get_noversionsymlinks(env, **kw)
+        if Verbose:
+            print '_LibSymlinkGenerator: version=%r' % version
+            print '_LibSymlinkGenerator: disable=%r' % disable
+
+        if version and not disable:
+            suffix = self.get_lib_suffix(env)
+            symlinks = self.generate_versioned_lib_info(env, [libnode, version, suffix], **kw)
+
+        if Verbose:
+            print '_LibSymlinkGenerator: return symlinks=%r' % symlinks
+        return symlinks
+
+ShLibSymlinkGenerator =  _LibSymlinkGenerator('ShLib')
+LdModSymlinkGenerator =  _LibSymlinkGenerator('LdMod')
+ImpLibSymlinkGenerator = _LibSymlinkGenerator('ImpLib')
+
+class _LibNameGenerator(_LibInfoGeneratorBase):
+    """Library name generator. Returns library name (e.g. libfoo.so) for 
+    a given node (e.g. /foo/bar/libfoo.so.0.1.2)"""
+    def __init__(self, libtype):
+        super(_LibNameGenerator, self).__init__(libtype, 'Name')
+
+    def __call__(self, env, libnode, **kw):
+        """Returns library name with version suffixes stripped"""
+        Verbose = False
+
+        if Verbose:
+            print "_LibNameGenerator: str(libnode)=%r" % str(libnode)
+
+        version = self.get_lib_version(env, **kw)
+        if Verbose:
+            print '_LibNameGenerator: version=%r' % version
+
+        name = None
+        if version:
+            suffix = self.get_lib_suffix(env)
+            name = self.generate_versioned_lib_info(env, [libnode, version, suffix], **kw)
+
+        if not name:
+            name = os.path.basename(str(libnode))
+
+        if Verbose:
+            print '_LibNameGenerator: return name=%r' % name
+
+        return name
+
+ShLibNameGenerator =  _LibNameGenerator('ShLib')
+LdModNameGenerator =  _LibNameGenerator('LdMod')
+ImpLibNameGenerator = _LibNameGenerator('ImpLib')
+
+class _LibSonameGenerator(_LibInfoGeneratorBase):
+    """Library soname generator. Returns library soname (e.g. libfoo.so.0) for 
+    a given node (e.g. /foo/bar/libfoo.so.0.1.2)"""
+    def __init__(self, libtype):
+        super(_LibSonameGenerator, self).__init__(libtype, 'Soname')
+
+    def __call__(self, env, libnode, **kw):
+        """Returns a SONAME based on a shared library's node path"""
+        Verbose = False
+
+        if Verbose:
+            print "_LibSonameGenerator: str(libnode)=%r" % str(libnode)
+
+        soname = env.subst('$SONAME')
+        if not soname:
+            version = self.get_lib_version(env,**kw)
+            if Verbose:
+                print "_LibSonameGenerator: version=%r" % version
+            if version:
+                suffix = self.get_lib_suffix(env)
+                soname = self.generate_versioned_lib_info(env, [libnode, version, suffix], **kw)
+
+        if not soname:
+            # fallback to library name (as returned by appropriate _LibNameGenerator)
+            soname = _LibNameGenerator(self.get_libtype())(env, libnode)
+            if Verbose:
+                print "_LibSonameGenerator: FALLBACK: soname=%r" % soname
+
+        if Verbose:
+            print "_LibSonameGenerator: return soname=%r" % soname
+
+        return soname
+
+ShLibSonameGenerator =  _LibSonameGenerator('ShLib')
+LdModSonameGenerator =  _LibSonameGenerator('LdMod')
+
+def EmitLibSymlinks(env, symlinks, libnode):
+    """Used by emitters to handle (shared/versioned) library symlinks"""
+    Verbose = False
+    for linkname, linktgt in symlinks.iteritems():
+        env.SideEffect(linkname, linktgt)
+        if(Verbose):
+            print "EmitLibSymlinks: SideEffect(", linkname, ", ", linktgt, ")"
+        clean = list(set(filter(lambda x : x != linktgt, symlinks.keys() + [str(libnode)])))
+        env.Clean(linktgt, clean)
+        if(Verbose):
+            print "EmitLibSymlinks: Clean(%r,%r)" % (linktgt, clean)
+
+def CreateLibSymlinks(env, symlinks):
+    """Physically creates symlinks. The symlinks argument must be a dict in
+    form { linkname : linktarget }
+    """
+    
+    Verbose = False
+    for linkname, linktgt in symlinks.iteritems():
+        linkname = str(env.arg2nodes(linkname)[0])
+        linkdir = os.path.dirname(linkname)
+        if linkdir:
+            # NOTE: os.path.relpath appears in python 2.6
+            linktgt = os.path.relpath(linktgt, linkdir)
+        else:
+            linktgt = os.path.basename(linktgt)
+        if(Verbose):
+            print "CreateLibSymlinks: preparing to add symlink ", linkname, " -> ", linktgt
+        try:
+            os.remove(linkname)
+        except:
+            pass
+        os.symlink(linktgt, linkname)
+        if(Verbose):
+            print "CreateLibSymlinks: add symlink ", linkname, " -> ", linktgt
+    return 0
+
+def LibSymlinksActionFunction(target, source, env):
+    for tgt in target:
+        symlinks = getattr(getattr(tgt,'attributes', None), 'shliblinks', None)
+        if symlinks:
+            CreateLibSymlinks(env, symlinks)
+    return 0
+
+LibSymlinksAction = SCons.Action.Action(LibSymlinksActionFunction, None)
 
 def createSharedLibBuilder(env):
     """This is a utility function that creates the SharedLibrary
@@ -393,11 +547,12 @@ def createSharedLibBuilder(env):
     except KeyError:
         import SCons.Defaults
         action_list = [ SCons.Defaults.SharedCheck,
-                        ShLibAction ]
+                        SCons.Defaults.ShLinkAction,
+                        LibSymlinksAction ]
         shared_lib = SCons.Builder.Builder(action = action_list,
                                            emitter = "$SHLIBEMITTER",
                                            prefix = '$SHLIBPREFIX',
-                                           suffix = '$SHLIBSUFFIX',
+                                           suffix = ShLibSuffixGenerator,
                                            target_scanner = ProgramScanner,
                                            src_suffix = '$SHOBJSUFFIX',
                                            src_builder = 'SharedObject')
@@ -417,11 +572,12 @@ def createLoadableModuleBuilder(env):
     except KeyError:
         import SCons.Defaults
         action_list = [ SCons.Defaults.SharedCheck,
-                        SCons.Defaults.LdModuleLinkAction ]
+                        SCons.Defaults.LdModuleLinkAction,
+                        LibSymlinksAction ]
         ld_module = SCons.Builder.Builder(action = action_list,
                                           emitter = "$LDMODULEEMITTER",
                                           prefix = '$LDMODULEPREFIX',
-                                          suffix = '$LDMODULESUFFIX',
+                                          suffix = LdModSuffixGenerator,
                                           target_scanner = ProgramScanner,
                                           src_suffix = '$SHOBJSUFFIX',
                                           src_builder = 'SharedObject')

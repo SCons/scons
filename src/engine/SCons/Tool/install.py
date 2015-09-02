@@ -38,6 +38,7 @@ import shutil
 import stat
 
 import SCons.Action
+import SCons.Tool
 from SCons.Util import make_path_relative
 
 #
@@ -141,98 +142,34 @@ def copyFuncVersionedLib(dest, source, env):
         shutil.copy2(source, dest)
         st = os.stat(source)
         os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
-        versionedLibLinks(dest, source, env)
+        installShlibLinks(dest, source, env)
 
     return 0
 
-def versionedLibVersion(dest, source, env):
-    """Check if dest is a version shared library name. Return version, libname, & install_dir if it is."""
-    Verbose = False
-    platform = env.subst('$PLATFORM')
-    if not (platform == 'posix'  or platform == 'darwin' or platform == 'sunos'):
-        return (None, None, None)
-
-    if (hasattr(source[0], 'attributes') and
-        hasattr(source[0].attributes, 'shlibname')):
-        libname = source[0].attributes.shlibname
-    else:
-        libname = os.path.basename(str(dest))
+def listShlibLinksToInstall(dest, source, env):
+    install_links = {}
     install_dir = os.path.dirname(str(dest))
-    shlib_suffix = env.subst('$SHLIBSUFFIX')
-    # See if the source name is a versioned shared library, get the version number
-    result = False
-    
-    version_re = re.compile("[0-9]+\\.[0-9]+\\.[0-9a-zA-Z]+")
-    version_File = None
-    if platform == 'posix' or platform == 'sunos':
-        # handle unix names
-        versioned_re = re.compile(re.escape(shlib_suffix + '.') + "[0-9]+\\.[0-9]+\\.[0-9a-zA-Z]+")
-        result = versioned_re.findall(libname)
-        if result:
-            version_File = version_re.findall(versioned_re.findall(libname)[-1])[-1]
-    elif platform == 'darwin':
-        # handle OSX names
-        versioned_re = re.compile("\\.[0-9]+\\.[0-9]+\\.[0-9a-zA-Z]+" + re.escape(shlib_suffix) )
-        result = versioned_re.findall(libname)
-        if result:
-            version_File = version_re.findall(versioned_re.findall(libname)[-1])[-1]
-    
-    if Verbose:
-        print "install: version_File ", version_File
-    # result is False if we did not find a versioned shared library name, so return and empty list
-    if not result:
-        return (None, libname, install_dir)
+    source = env.arg2nodes(source)
+    for src in source:
+        links = getattr(getattr(src,'attributes',None), 'shliblinks', None)
+        if SCons.Util.is_Dict(links):
+            for linkname, linktgt in links.iteritems():
+                linkname_base = os.path.basename(str(linkname))
+                linktgt_base  = os.path.basename(str(linktgt))
+                install_linkname = os.path.join(install_dir, linkname_base)
+                install_linktgt = os.path.join(install_dir, linktgt_base)
+                install_links[install_linkname] = install_linktgt
+    return install_links
 
-    version = None
-    # get version number from the environment
-    try:
-        version = env.subst('$SHLIBVERSION')
-    except KeyError:
-        version = None
-    
-    if version != version_File:
-        #raise SCons.Errors.UserError("SHLIBVERSION '%s' does not match the version # '%s' in the filename" % (version, version_File) )
-        print "SHLIBVERSION '%s' does not match the version # '%s' in the filename, proceeding based on file name" % (version, version_File)
-        version = version_File
-    return (version, libname, install_dir)
-
-def versionedLibLinks(dest, source, env):
+def installShlibLinks(dest, source, env):
     """If we are installing a versioned shared library create the required links."""
     Verbose = False
-    linknames = []
-    version, libname, install_dir = versionedLibVersion(dest, source, env)
 
-    if version != None:
-        # libname includes the version number if one was given
-        linknames = SCons.Tool.VersionShLibLinkNames(version,libname,env)
-        if Verbose:
-            print "versionedLibLinks: linknames ",linknames
-        # Here we just need the file name w/o path as the target of the link
-        lib_ver = libname
-        # make symlink of adjacent names in linknames
-        for count in range(len(linknames)):
-            linkname = linknames[count]
-            fulllinkname = os.path.join(install_dir, linkname)
-            if Verbose:
-                print "full link name ",fulllinkname
-            if count > 0:
-                try:
-                    os.remove(lastlinkname)
-                except:
-                    pass
-                os.symlink(os.path.basename(fulllinkname),lastlinkname)
-                if Verbose:
-                    print "versionedLibLinks: made sym link of %s -> %s" % (lastlinkname,os.path.basename(fulllinkname))
-            lastlinkname = fulllinkname
-        # finish chain of sym links with link to the actual library
-        if len(linknames)>0:
-            try:
-                os.remove(lastlinkname)
-            except:
-                pass
-            os.symlink(lib_ver,lastlinkname)
-            if Verbose:
-                print "versionedLibLinks: made sym link of %s -> %s" % (lib_ver,lastlinkname)
+    symlinks = listShlibLinksToInstall(dest, source, env)
+    if Verbose:
+        print 'installShlibLinks: symlinks=%r' % symlinks
+    if symlinks:
+        SCons.Tool.CreateLibSymlinks(env, symlinks)
     return
 
 def installFunc(target, source, env):
@@ -306,22 +243,11 @@ def add_versioned_targets_to_INSTALLED_FILES(target, source, env):
     Verbose = False
     _INSTALLED_FILES.extend(target)
     if Verbose:
-        print "ver lib emitter ",repr(target)
+        print "add_versioned_targets_to_INSTALLED_FILES: target=%r" % map(str, target)
 
-    # see if we have a versioned shared library, if so generate side effects
-    version, libname, install_dir = versionedLibVersion(target[0], source, env)
-    if version != None:
-        # generate list of link names
-        linknames = SCons.Tool.VersionShLibLinkNames(version,libname,env)
-        for linkname in linknames:
-            if Verbose:
-                print "make side effect of %s" % os.path.join(install_dir, linkname)
-            fulllinkname = os.path.join(install_dir, linkname)
-            env.SideEffect(fulllinkname,target[0])
-            env.Clean(target[0],fulllinkname)
-            _INSTALLED_FILES.append(fulllinkname)
-            if Verbose:
-                print "installed list ", _INSTALLED_FILES
+    symlinks = listShlibLinksToInstall(target[0], source, env)
+    if symlinks:
+        SCons.Tool.EmitLibSymlinks(env, symlinks, target[0])
         
     _UNIQUE_INSTALLED_FILES = None
     return (target, source)
