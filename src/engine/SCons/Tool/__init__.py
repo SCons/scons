@@ -632,7 +632,7 @@ def createLoadableModuleBuilder(env):
                         LibSymlinksAction ]
         ld_module = SCons.Builder.Builder(action = action_list,
                                           emitter = "$LDMODULEEMITTER",
-                                          prefix = ShLibPrefixGenerator,
+                                          prefix = LdModPrefixGenerator,
                                           suffix = LdModSuffixGenerator,
                                           target_scanner = ProgramScanner,
                                           src_suffix = '$SHOBJSUFFIX',
