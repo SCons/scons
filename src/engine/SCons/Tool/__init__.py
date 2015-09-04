@@ -236,31 +236,31 @@ def createStaticLibBuilder(env):
 
     return static_lib
 
-def _call_env_cb(env, callback, args, result = None):
-    """Returns the result of env[callback](*args) call if env[callback] is
-    callable. If env[callback] does not exist or is not callable, return the
-    value provided as the *result* argument. This function is mainly used for
-    generating library info such as versioned suffixes, symlink maps, sonames
-    etc. by delegating the core job to callbacks configured by current linker
-    tool"""
+def _call_linker_cb(env, callback, args, result = None):
+    """Returns the result of env['LINKCALLBACKS'][callback](*args)
+    if env['LINKCALLBACKS'] is a dictionary and env['LINKCALLBACKS'][callback]
+    is callable. If these conditions are not meet, return the value provided as
+    the *result* argument. This function is mainly used for generating library
+    info such as versioned suffixes, symlink maps, sonames etc. by delegating
+    the core job to callbacks configured by current linker tool"""
 
     Verbose = False
 
     if Verbose:
-        print '_call_env_cb: args=%r' % args
-        print '_call_env_cb: callback=%r' % callback
-
+        print '_call_linker_cb: args=%r' % args
+        print '_call_linker_cb: callback=%r' % callback
+    
     try:
-        cbfun = env[callback]
-    except KeyError:
+        cbfun = env['LINKCALLBACKS'][callback]
+    except (KeyError, TypeError):
         pass
     else:
         if Verbose:
-            print '_call_env_cb: env[%r] found' % callback
-            print '_call_env_cb: env[%r]=%r' % (callback, cbfun)
+            print '_call_linker_cb: env[%r] found' % callback
+            print '_call_linker_cb: env[%r]=%r' % (callback, cbfun)
         if(callable(cbfun)):
             if Verbose:
-                print '_call_env_cb: env[%r] is callable' % callback
+                print '_call_linker_cb: env[%r] is callable' % callback
             result = cbfun(env, *args)
     return result
 
@@ -286,6 +286,17 @@ class _LibInfoGeneratorBase(object):
 
     def get_infoname(self):
         return self.infoname
+
+    def get_lib_prefix(self, env):
+        prefix = None
+        libtype = self.get_libtype()
+        if libtype == 'ShLib':
+            prefix = env.subst('$SHLIBPREFIX')
+        elif libtype == 'LdMod':
+            prefix = env.subst('$LDMODULEPREFIX')
+        elif libtype == 'ImpLib':
+            prefix = env.subst('$IMPLIBPREFIX')
+        return prefix
 
     def get_lib_prefix(self, env):
         prefix = None
@@ -332,11 +343,39 @@ class _LibInfoGeneratorBase(object):
         try: libtype = kw['generator_libtype']
         except KeyError: libtype = self.get_libtype()
         infoname = self.get_infoname()
-        return 'GenerateVersioned%s%s' % (libtype, infoname)
+        return 'Versioned%s%s' % (libtype, infoname)
 
     def generate_versioned_lib_info(self, env, args, result = None, **kw):
         callback = self.get_versioned_lib_info_generator(**kw)
-        return _call_env_cb(env, callback, args, result) 
+        return _call_linker_cb(env, callback, args, result) 
+
+class _LibPrefixGenerator(_LibInfoGeneratorBase):
+    """Library prefix generator, used as target_prefix in SharedLibrary and
+    LoadableModule builders"""
+    def __init__(self, libtype):
+        super(_LibPrefixGenerator, self).__init__(libtype, 'Prefix')
+
+    def __call__(self, env, sources = None, **kw):
+        Verbose = False
+
+        prefix = self.get_lib_prefix(env)
+        if Verbose:
+            print "_LibPrefixGenerator: input prefix=%r" % prefix
+
+        version = self.get_lib_version(env, **kw)
+        if Verbose:
+            print "_LibPrefixGenerator: version=%r" % version
+
+        if version:
+            prefix = self.generate_versioned_lib_info(env, [prefix, version], prefix, **kw)
+
+        if Verbose:
+            print "_LibPrefixGenerator: return prefix=%r" % prefix
+        return prefix
+
+ShLibPrefixGenerator  = _LibPrefixGenerator('ShLib')
+LdModPrefixGenerator  = _LibPrefixGenerator('LdMod')
+ImpLibPrefixGenerator = _LibPrefixGenerator('ImpLib')
 
 class _LibSuffixGenerator(_LibInfoGeneratorBase):
     """Library suffix generator, used as target_suffix in SharedLibrary and
@@ -408,8 +447,9 @@ class _LibSymlinkGenerator(_LibInfoGeneratorBase):
             print '_LibSymlinkGenerator: disable=%r' % disable
 
         if version and not disable:
+            prefix = self.get_lib_prefix(env)
             suffix = self.get_lib_suffix(env)
-            symlinks = self.generate_versioned_lib_info(env, [libnode, version, suffix], **kw)
+            symlinks = self.generate_versioned_lib_info(env, [libnode, version, prefix, suffix], **kw)
 
         if Verbose:
             print '_LibSymlinkGenerator: return symlinks=%r' % StringizeLibSymlinks(symlinks)
@@ -420,8 +460,19 @@ LdModSymlinkGenerator =  _LibSymlinkGenerator('LdMod')
 ImpLibSymlinkGenerator = _LibSymlinkGenerator('ImpLib')
 
 class _LibNameGenerator(_LibInfoGeneratorBase):
-    """Library name generator. Returns library name (e.g. libfoo.so) for 
-    a given node (e.g. /foo/bar/libfoo.so.0.1.2)"""
+    """Generates "unmangled" library name from a library file node.
+    
+    Generally, it's thought to revert modifications done by prefix/suffix
+    generators (_LibPrefixGenerator/_LibSuffixGenerator) used by a library
+    builder. For example, on gnulink the suffix generator used by SharedLibrary
+    builder appends $SHLIBVERSION to $SHLIBSUFFIX producing node name which
+    ends with "$SHLIBSUFFIX.$SHLIBVERSION". Correspondingly, the implementation
+    of _LibNameGenerator replaces "$SHLIBSUFFIX.$SHLIBVERSION" with
+    "$SHLIBSUFFIX" in the node's basename. So that, if $SHLIBSUFFIX is ".so",
+    $SHLIBVERSION is "0.1.2" and the node path is "/foo/bar/libfoo.so.0.1.2",
+    the _LibNameGenerator shall return "libfoo.so". Other link tools may
+    implement it's own way of library name unmangling. 
+    """
     def __init__(self, libtype):
         super(_LibNameGenerator, self).__init__(libtype, 'Name')
 
@@ -438,8 +489,9 @@ class _LibNameGenerator(_LibInfoGeneratorBase):
 
         name = None
         if version:
+            prefix = self.get_lib_prefix(env)
             suffix = self.get_lib_suffix(env)
-            name = self.generate_versioned_lib_info(env, [libnode, version, suffix], **kw)
+            name = self.generate_versioned_lib_info(env, [libnode, version, prefix, suffix], **kw)
 
         if not name:
             name = os.path.basename(libnode.get_path())
@@ -566,7 +618,7 @@ def createSharedLibBuilder(env):
                         LibSymlinksAction ]
         shared_lib = SCons.Builder.Builder(action = action_list,
                                            emitter = "$SHLIBEMITTER",
-                                           prefix = '$SHLIBPREFIX',
+                                           prefix = ShLibPrefixGenerator,
                                            suffix = ShLibSuffixGenerator,
                                            target_scanner = ProgramScanner,
                                            src_suffix = '$SHOBJSUFFIX',
@@ -591,7 +643,7 @@ def createLoadableModuleBuilder(env):
                         LibSymlinksAction ]
         ld_module = SCons.Builder.Builder(action = action_list,
                                           emitter = "$LDMODULEEMITTER",
-                                          prefix = '$LDMODULEPREFIX',
+                                          prefix = ShLibPrefixGenerator,
                                           suffix = LdModSuffixGenerator,
                                           target_scanner = ProgramScanner,
                                           src_suffix = '$SHOBJSUFFIX',

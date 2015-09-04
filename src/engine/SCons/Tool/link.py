@@ -76,7 +76,7 @@ def smart_link(source, target, env, for_signature):
 def _lib_emitter(target, source, env, **kw):
     Verbose = False
     if Verbose:
-        print "_lib_emitter: str(target[0])=%r" % str(target[0])
+        print "_lib_emitter: target[0]=%r" % target[0].get_path()
     for tgt in target:
         tgt.attributes.shared = 1
     
@@ -103,35 +103,44 @@ def ldmod_emitter(target, source, env):
     return _lib_emitter(target, source, env, symlink_generator = SCons.Tool.LdModSymlinkGenerator)
 
 # This is generic enough to be included here...
-def _versioned_lib_name(env, libnode, version, suffix, suffix_generator, **kw):
+def _versioned_lib_name(env, libnode, version, prefix, suffix, prefix_generator, suffix_generator, **kw):
     """For libnode='/optional/dir/libfoo.so.X.Y.Z' it returns 'libfoo.so'"""
     Verbose = False
 
     if Verbose:
+        print "_versioned_lib_name: libnode=%r" % libnode.get_path()
         print "_versioned_lib_name: version=%r" % version
+        print "_versioned_lib_name: prefix=%r" % prefix
+        print "_versioned_lib_name: suffix=%r" % suffix
+        print "_versioned_lib_name: suffix_generator=%r" % suffix_generator
 
-    versioned_name = os.path.basename(str(libnode))
+    versioned_name = os.path.basename(libnode.get_path())
     if Verbose:
         print "_versioned_lib_name: versioned_name=%r" % versioned_name
 
-    if Verbose:
-        print "_versioned_lib_name: suffix=%r" % suffix
-
+    versioned_prefix = prefix_generator(env, **kw)
     versioned_suffix = suffix_generator(env, **kw)
+    if Verbose:
+        print "_versioned_lib_name: versioned_prefix=%r" % versioned_prefix
+        print "_versioned_lib_name: versioned_suffix=%r" % versioned_suffix
 
+    versioned_prefix_re = '^' + re.escape(versioned_prefix)
     versioned_suffix_re = re.escape(versioned_suffix) + '$'
-    name = re.sub(versioned_suffix_re, suffix, versioned_name)
+    name = re.sub(versioned_prefix_re, prefix, versioned_name)
+    name = re.sub(versioned_suffix_re, suffix, name)
     if Verbose:
         print "_versioned_lib_name: name=%r" % name
     return name
 
-def _versioned_shlib_name(env, libnode, version, suffix, **kw):
-    generator = SCons.Tool.ShLibSuffixGenerator
-    return _versioned_lib_name(env, libnode, version, suffix, generator, **kw)
+def _versioned_shlib_name(env, libnode, version, prefix, suffix, **kw):
+    pg = SCons.Tool.ShLibPrefixGenerator
+    sg = SCons.Tool.ShLibSuffixGenerator
+    return _versioned_lib_name(env, libnode, version, prefix, suffix, pg, sg, **kw)
 
-def _versioned_ldmod_name(env, libnode, version, suffix, **kw):
-    generator = SCons.Tool.LdModSuffixGenerator
-    return _versioned_lib_name(env, libnode, version, suffix, generator, **kw)
+def _versioned_ldmod_name(env, libnode, version, prefix, suffix, **kw):
+    pg = SCons.Tool.LdModPrefixGenerator
+    sg = SCons.Tool.LdModSuffixGenerator
+    return _versioned_lib_name(env, libnode, version, prefix, suffix, pg, sg, **kw)
 
 
 def generate(env):

@@ -15,6 +15,7 @@ import SCons.Util
 import SCons.Tool
 
 import gnulink
+import link
 
 def _lib_generator(target, source, env, for_signature, **kw):
     try: cmd = kw['cmd']
@@ -135,13 +136,13 @@ def _versioned_lib_suffix(env, suffix, version):
         print "_versioned_lib_suffix: return suffix= ", suffix
     return suffix
 
-def _versioned_implib_name(env, libnode, version, suffix, **kw):
-    import link
-    generator = SCons.Tool.ImpLibSuffixGenerator
-    libtype = kw['libtype']
-    return link._versioned_lib_name(env, libnode, version, suffix, generator, implib_libtype=libtype)
+def _versioned_implib_name(env, libnode, version, prefix, suffix, **kw):
+    return link._versioned_lib_name(env, libnode, version, prefix, suffix,
+                                    SCons.Tool.ImpLibPrefixGenerator,
+                                    SCons.Tool.ImpLibSuffixGenerator,
+                                    implib_libtype=kw['libtype'])
 
-def _versioned_implib_symlinks(env, libnode, version, suffix, **kw):
+def _versioned_implib_symlinks(env, libnode, version, prefix, suffix, **kw):
     """Generate link names that should be created for a versioned shared lirbrary.
        Returns a list in the form [ (link, linktarget), ... ]
     """
@@ -201,27 +202,24 @@ def generate(env):
 
     # SHLIBVERSIONFLAGS and LDMODULEVERSIONFLAGS are same as in gnulink...
 
-    env['GenerateVersionedShLibSuffix']          = _versioned_lib_suffix
-    env['GenerateVersionedLdModSuffix']          = _versioned_lib_suffix
-    env['GenerateVersionedImpLibSuffix']         = _versioned_lib_suffix
-    env['GenerateVersionedShLibImpLibName']      = lambda *args: _versioned_implib_name(*args, libtype='ShLib')
-    env['GenerateVersionedLdModImpLibName']      = lambda *args: _versioned_implib_name(*args, libtype='LdMod')
-    env['GenerateVersionedShLibImpLibSymlinks']  = lambda *args: _versioned_implib_symlinks(*args, libtype='ShLib')
-    env['GenerateVersionedLdModImpLibSymlinks']  = lambda *args: _versioned_implib_symlinks(*args, libtype='LdMod')
-
-    def trydel(env, key):
-        try: del env[key]
-        except KeyError: pass
+    # LINKCALLBACKS are NOT inherited from gnulink
+    env['LINKCALLBACKS'] = {
+        'VersionedShLibSuffix'          : _versioned_lib_suffix,
+        'VersionedLdModSuffix'          : _versioned_lib_suffix,
+        'VersionedImpLibSuffix'         : _versioned_lib_suffix,
+        'VersionedShLibName'            : link._versioned_shlib_name,
+        'VersionedLdModName'            : link._versioned_ldmod_name,
+        'VersionedShLibImpLibName'      : lambda *args: _versioned_implib_name(*args, libtype='ShLib'),
+        'VersionedLdModImpLibName'      : lambda *args: _versioned_implib_name(*args, libtype='LdMod'),
+        'VersionedShLibImpLibSymlinks'  : lambda *args: _versioned_implib_symlinks(*args, libtype='ShLib'),
+        'VersionedLdModImpLibSymlinks'  : lambda *args: _versioned_implib_symlinks(*args, libtype='LdMod'),
+    }
 
     # these variables were set by gnulink but are not used in cyglink
-    trydel(env,'_SHLINKSONAME')
-    trydel(env,'_LDMODULESONAME')
-    trydel(env,'ShLibSonameGenerator')
-    trydel(env,'LdModSonameGenerator')
-    trydel(env,'GenerateVersionedShLibSymlinks')
-    trydel(env,'GenerateVersionedLdModSymlinks')
-    trydel(env,'GenerateVersionedShLibSoname')
-    trydel(env,'GenerateVersionedLdModSoname')
+    try: del env['_SHLINKSONAME']
+    except KeyError: pass
+    try: del env['_LDMODULESONAME']
+    except KeyError: pass
 
 def exists(env):
     return gnulink.exists(env)
