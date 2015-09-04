@@ -85,18 +85,16 @@ def _versioned_lib_symlinks(env, libnode, version, suffix, name_generator, sonam
         print "_versioned_lib_symlinks: str(libnode)=%r" % str(libnode)
         print "_versioned_lib_symlinks: version=%r" % version
 
-    symlinks = {}
-
     if sys.platform.startswith('openbsd'):
         # OpenBSD uses x.y shared library versioning numbering convention
         # and doesn't use symlinks to backwards-compatible libraries
         if Verbose:
-            print "_versioned_lib_symlinks: return symlinks=%r" % symlinks
-        return symlinks
+            print "_versioned_lib_symlinks: return symlinks=%r" % None
+        return None
 
-    linkdir = os.path.dirname(str(libnode))
+    linkdir = libnode.get_dir()
     if Verbose:
-        print "_versioned_lib_symlinks: linkdir=%r" % linkdir
+        print "_versioned_lib_symlinks: linkdir=%r" % linkdir.get_path()
 
     name = name_generator(env, libnode)
     if Verbose:
@@ -104,14 +102,13 @@ def _versioned_lib_symlinks(env, libnode, version, suffix, name_generator, sonam
 
     soname = soname_generator(env, libnode)
 
-    link0 = os.path.join(str(linkdir), soname)
-    link1 = os.path.join(str(linkdir), name)
+    link0 = env.fs.File(soname, linkdir)
+    link1 = env.fs.File(name, linkdir)
 
-    symlinks[link0] = str(libnode)
-    symlinks[link1] = link0
+    symlinks = [ (link0, libnode), (link1, link0) ]
 
     if Verbose:
-        print "_versioned_lib_symlinks: return symlinks=%r" % symlinks
+        print "_versioned_lib_symlinks: return symlinks=%r" % SCons.Tool.StringizeLibSymlinks(symlinks)
 
     return symlinks
 

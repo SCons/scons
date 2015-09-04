@@ -147,18 +147,19 @@ def copyFuncVersionedLib(dest, source, env):
     return 0
 
 def listShlibLinksToInstall(dest, source, env):
-    install_links = {}
-    install_dir = os.path.dirname(str(dest))
+    install_links = []
     source = env.arg2nodes(source)
+    dest = env.fs.File(dest)
+    install_dir = dest.get_dir()
     for src in source:
-        links = getattr(getattr(src,'attributes',None), 'shliblinks', None)
-        if SCons.Util.is_Dict(links):
-            for linkname, linktgt in links.iteritems():
-                linkname_base = os.path.basename(str(linkname))
-                linktgt_base  = os.path.basename(str(linktgt))
-                install_linkname = os.path.join(install_dir, linkname_base)
-                install_linktgt = os.path.join(install_dir, linktgt_base)
-                install_links[install_linkname] = install_linktgt
+        symlinks = getattr(getattr(src,'attributes',None), 'shliblinks', None)
+        if symlinks:
+            for link, linktgt in symlinks:
+                link_base = os.path.basename(link.get_path())
+                linktgt_base  = os.path.basename(linktgt.get_path())
+                install_link = env.fs.File(link_base, install_dir)
+                install_linktgt = env.fs.File(linktgt_base, install_dir)
+                install_links.append((install_link, install_linktgt))
     return install_links
 
 def installShlibLinks(dest, source, env):
@@ -167,7 +168,7 @@ def installShlibLinks(dest, source, env):
 
     symlinks = listShlibLinksToInstall(dest, source, env)
     if Verbose:
-        print 'installShlibLinks: symlinks=%r' % symlinks
+        print 'installShlibLinks: symlinks=%r' % SCons.Tool.StringizeLibSymlinks(symlinks)
     if symlinks:
         SCons.Tool.CreateLibSymlinks(env, symlinks)
     return
