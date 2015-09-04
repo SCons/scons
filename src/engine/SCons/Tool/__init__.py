@@ -466,7 +466,7 @@ class _LibNameGenerator(_LibInfoGeneratorBase):
         super(_LibNameGenerator, self).__init__(libtype, 'Name')
 
     def __call__(self, env, libnode, **kw):
-        """Returns library name with version suffixes stripped"""
+        """Returns "demangled" library name"""
         Verbose = False
 
         if Verbose:
@@ -536,9 +536,7 @@ def StringizeLibSymlinks(symlinks):
     if SCons.Util.is_List(symlinks):
         try:
             return [ (k.get_path(), v.get_path()) for k,v in symlinks ]
-        except TypeError:
-            return symlinks
-        except ValueError:
+        except (TypeError, ValueError):
             return symlinks
     else:
         return symlinks
@@ -589,7 +587,24 @@ def LibSymlinksActionFunction(target, source, env):
             CreateLibSymlinks(env, symlinks)
     return 0
 
-LibSymlinksAction = SCons.Action.Action(LibSymlinksActionFunction, None)
+def LibSymlinksStrFun(target, source, env,*args):
+    cmd = None
+    for tgt in target:
+        symlinks = getattr(getattr(tgt,'attributes', None), 'shliblinks', None)
+        if symlinks:
+            if cmd is None: cmd = ""
+            if cmd: cmd += "\n"
+            cmd += "Create symlinks for: %r" % tgt.get_path()
+            try:
+                linkstr = ', '.join([ "%r->%r" %(k,v) for k,v in StringizeLibSymlinks(symlinks)])
+            except (KeyError, ValueError):
+                pass
+            else:
+                cmd += ": %s" % linkstr
+    return cmd
+    
+
+LibSymlinksAction = SCons.Action.Action(LibSymlinksActionFunction, LibSymlinksStrFun)
 
 def createSharedLibBuilder(env):
     """This is a utility function that creates the SharedLibrary
