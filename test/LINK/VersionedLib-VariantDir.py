@@ -25,11 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Ensure that SharedLibrary builder with SHLIBVERSION='0.1.2' can build its target
-in a subdirectory containing .so.0.1.2 in name. 
-
-This is regression test for issue mentioned in:
-http://thread.gmane.org/gmane.comp.programming.tools.scons.user/27081
+Ensure that SharedLibrary builder with SHLIBVERSION set works with VariantDir.
 """
 
 import TestSCons
@@ -38,16 +34,22 @@ import sys
 
 import SCons.Platform
 
+platform = SCons.Platform.platform_default()
+
 test = TestSCons.TestSCons()
 
-test.write('foo.c', """
+test.subdir(['src'])
+test.subdir(['src','lib'])
+test.subdir(['src','bin'])
+
+test.write(['src','lib','foo.c'], """
 #if _WIN32
 __declspec(dllexport)
 #endif
 int foo() { return 0; }
 """)
 
-test.write('main.c', """
+test.write(['src','bin','main.c'], """
 #if _WIN32
 __declspec(dllimport)
 #endif
@@ -58,21 +60,25 @@ int main()
 }
 """)
 
-platform = SCons.Platform.platform_default()
-
-if platform == 'darwin':
-    subdir = 'blah.0.1.2.dylib.blah'
-elif platform == 'cygwin':
-    subdir = 'blah-0-1-2.dll.a.blah'
-else:
-    subdir = 'blah.so.0.1.2.blah'
-
 test.write('SConstruct', """
 env = Environment()
-env.AppendUnique(LIBPATH = [ '%s' ])
-env.SharedLibrary('%s/foo', 'foo.c', SHLIBVERSION = '0.1.2')
-env.Program('main.c', LIBS=['foo'])
-""" % (subdir,subdir))
+variant = { 'variant_dir' : 'build',
+            'src_dir'     : 'src',
+            'duplicate'   : 0,
+            'exports'     : { 'env' : env } }
+SConscript('src/lib/SConscript', **variant)
+SConscript('src/bin/SConscript', **variant)
+""")
+
+test.write(['src','lib','SConscript'], """
+Import('env')
+env.SharedLibrary('foo', 'foo.c', SHLIBVERSION = '0.1.2')
+""" )
+
+test.write(['src','bin','SConscript'], """
+Import('env')
+env.Program('main.c', LIBS=['foo'], LIBPATH=['../lib'])
+""")
 
 test.run(arguments = ['--tree=all'])
 
@@ -80,15 +86,15 @@ if platform == 'cygwin' or platform == 'win32':
     # PATH is used to search for *.dll libraries on windows
     path = os.environ.get('PATH','')
     if path: path = path + os.pathsep
-    path = path + test.workpath(subdir)
+    path = path + test.workpath('build/lib')
     os.environ['PATH'] = path
 
 if os.name == 'posix':
-    os.environ['LD_LIBRARY_PATH'] = subdir
+    os.environ['LD_LIBRARY_PATH'] = test.workpath('build/lib')
 if sys.platform.find('irix') != -1:
-    os.environ['LD_LIBRARYN32_PATH'] = subdir
+    os.environ['LD_LIBRARYN32_PATH'] = test.workpath('build/lib')
 
-test.run(program = test.workpath('main'))
+test.run(program = test.workpath('build/bin/main'))
 
 if platform == 'posix':
     # All (?) the files we expect will get created in the current directory
@@ -127,18 +133,20 @@ else:
     ]
     obj = 'foo.os'
 
-test.must_exist([ obj ])
+test.must_exist([ 'build', 'lib', obj ])
 for f in files:
-    test.must_exist([ subdir, f ])
+    test.must_exist([ 'build', 'lib', f ])
 
 test.run(arguments = ['-c'])
 
-test.must_not_exist([ obj ])
+test.must_not_exist([ 'build', 'lib', obj ])
 for f in files:
-    test.must_not_exist([ subdir, f ])
+    test.must_not_exist([ 'build', 'lib', f ])
 
-test.must_exist(['foo.c'])
+test.must_exist(['src', 'lib', 'foo.c'])
 test.must_exist(['SConstruct'])
+test.must_exist(['src', 'lib', 'SConscript'])
+test.must_exist(['src', 'bin', 'SConscript'])
 
 test.pass_test()
 

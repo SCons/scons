@@ -367,7 +367,7 @@ LdModSuffixGenerator  = _LibSuffixGenerator('LdMod')
 ImpLibSuffixGenerator = _LibSuffixGenerator('ImpLib')
 
 class _LibSymlinkGenerator(_LibInfoGeneratorBase):
-    """Library symlink map generator. It generates a dict of symlinks that
+    """Library symlink map generator. It generates a list of symlinks that
     should be created by SharedLibrary or LoadableModule builders"""
     def __init__(self, libtype):
         super(_LibSymlinkGenerator, self).__init__(libtype, 'Symlinks')
@@ -397,7 +397,7 @@ class _LibSymlinkGenerator(_LibInfoGeneratorBase):
         Verbose = False
 
         if Verbose:
-            print "_LibSymLinkGenerator: str(libnode)=%r" % str(libnode)
+            print "_LibSymLinkGenerator: libnode=%r" % libnode.get_path()
 
         symlinks = None
 
@@ -412,7 +412,7 @@ class _LibSymlinkGenerator(_LibInfoGeneratorBase):
             symlinks = self.generate_versioned_lib_info(env, [libnode, version, suffix], **kw)
 
         if Verbose:
-            print '_LibSymlinkGenerator: return symlinks=%r' % symlinks
+            print '_LibSymlinkGenerator: return symlinks=%r' % StringizeLibSymlinks(symlinks)
         return symlinks
 
 ShLibSymlinkGenerator =  _LibSymlinkGenerator('ShLib')
@@ -430,7 +430,7 @@ class _LibNameGenerator(_LibInfoGeneratorBase):
         Verbose = False
 
         if Verbose:
-            print "_LibNameGenerator: str(libnode)=%r" % str(libnode)
+            print "_LibNameGenerator: libnode=%r" % libnode.get_path()
 
         version = self.get_lib_version(env, **kw)
         if Verbose:
@@ -442,7 +442,7 @@ class _LibNameGenerator(_LibInfoGeneratorBase):
             name = self.generate_versioned_lib_info(env, [libnode, version, suffix], **kw)
 
         if not name:
-            name = os.path.basename(str(libnode))
+            name = os.path.basename(libnode.get_path())
 
         if Verbose:
             print '_LibNameGenerator: return name=%r' % name
@@ -464,7 +464,7 @@ class _LibSonameGenerator(_LibInfoGeneratorBase):
         Verbose = False
 
         if Verbose:
-            print "_LibSonameGenerator: str(libnode)=%r" % str(libnode)
+            print "_LibSonameGenerator: libnode=%r" % libnode.get_path()
 
         soname = env.subst('$SONAME')
         if not soname:
@@ -489,41 +489,56 @@ class _LibSonameGenerator(_LibInfoGeneratorBase):
 ShLibSonameGenerator =  _LibSonameGenerator('ShLib')
 LdModSonameGenerator =  _LibSonameGenerator('LdMod')
 
+def StringizeLibSymlinks(symlinks):
+    """Converts list with pairs of nodes to list with pairs of node paths
+    (strings). Used mainly for debugging."""
+    if SCons.Util.is_List(symlinks):
+        try:
+            return [ (k.get_path(), v.get_path()) for k,v in symlinks ]
+        except TypeError:
+            return symlinks
+        except ValueError:
+            return symlinks
+    else:
+        return symlinks
+
 def EmitLibSymlinks(env, symlinks, libnode):
     """Used by emitters to handle (shared/versioned) library symlinks"""
     Verbose = False
-    for linkname, linktgt in symlinks.iteritems():
-        env.SideEffect(linkname, linktgt)
+
+    # nodes involved in process... all symlinks + library
+    nodes = list(set([ x for x,y in symlinks ] + [libnode]))
+      
+    for link, linktgt in symlinks:
+        env.SideEffect(link, linktgt)
         if(Verbose):
-            print "EmitLibSymlinks: SideEffect(", linkname, ", ", linktgt, ")"
-        clean = list(set(filter(lambda x : x != linktgt, symlinks.keys() + [str(libnode)])))
-        env.Clean(linktgt, clean)
+            print "EmitLibSymlinks: SideEffect(%r,%r)" % (link.get_path(), linktgt.get_path())
+        clean_list = filter(lambda x : x != linktgt, nodes)
+        env.Clean(linktgt, clean_list)
         if(Verbose):
-            print "EmitLibSymlinks: Clean(%r,%r)" % (linktgt, clean)
+            print "EmitLibSymlinks: Clean(%r,%r)" % (linktgt.get_path(), map(lambda x : x.get_path(), clean_list))
 
 def CreateLibSymlinks(env, symlinks):
-    """Physically creates symlinks. The symlinks argument must be a dict in
-    form { linkname : linktarget }
+    """Physically creates symlinks. The symlinks argument must be a list in
+    form [ (link, linktarget), ... ], where link and linktarget are SCons
+    nodes.
     """
     
     Verbose = False
-    for linkname, linktgt in symlinks.iteritems():
-        linkname = str(env.arg2nodes(linkname)[0])
-        linkdir = os.path.dirname(linkname)
-        if linkdir:
-            # NOTE: os.path.relpath appears in python 2.6
-            linktgt = os.path.relpath(linktgt, linkdir)
-        else:
-            linktgt = os.path.basename(linktgt)
+    for link, linktgt in symlinks:
+        linktgt = link.get_dir().rel_path(linktgt)
+        link = link.get_path()
         if(Verbose):
-            print "CreateLibSymlinks: preparing to add symlink ", linkname, " -> ", linktgt
+            print "CreateLibSymlinks: preparing to add symlink %r -> %r" % (link, linktgt)
         try:
-            os.remove(linkname)
+            os.remove(link)
+            if(Verbose):
+                print "CreateLibSymlinks: removed old file %r" % link
         except:
             pass
-        os.symlink(linktgt, linkname)
+        os.symlink(linktgt, link)
         if(Verbose):
-            print "CreateLibSymlinks: add symlink ", linkname, " -> ", linktgt
+            print "CreateLibSymlinks: add symlink %r -> %r" % (link, linktgt)
     return 0
 
 def LibSymlinksActionFunction(target, source, env):

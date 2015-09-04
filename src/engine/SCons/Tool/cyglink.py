@@ -56,6 +56,9 @@ def ldmod_generator(target, source, env, for_signature):
 def _lib_emitter(target, source, env, **kw):
     Verbose = False
 
+    if Verbose:
+        print "_lib_emitter: target[0]=%r" % target[0].get_path()
+
     try: vp = kw['varprefix']
     except KeyError: vp = 'SHLIB'
 
@@ -65,6 +68,9 @@ def _lib_emitter(target, source, env, **kw):
     dll = env.FindIxes(target, '%sPREFIX' % vp, '%sSUFFIX' % vp)
     no_import_lib = env.get('no_import_lib', 0)
 
+    if Verbose:
+        print "_lib_emitter: dll=%r" % dll.get_path()
+
     if not dll or len(target) > 1:
         raise SCons.Errors.UserError("A shared library should have exactly one target with the suffix: %s" % env.subst("$%sSUFFIX" % vp))
     
@@ -73,9 +79,15 @@ def _lib_emitter(target, source, env, **kw):
     if dll.name[len(pre):len(pre)+3] == 'lib':
         dll.name = pre + dll.name[len(pre)+3:]
 
+    if Verbose:
+        print "_lib_emitter: dll.name=%r" % dll.name
+
     orig_target = target
     target = [env.fs.File(dll)]
     target[0].attributes.shared = 1
+
+    if Verbose:
+        print "_lib_emitter: after target=[env.fs.File(dll)]: target[0]=%r" % target[0].get_path()
 
     # Append an import lib target
     if not no_import_lib:
@@ -83,10 +95,12 @@ def _lib_emitter(target, source, env, **kw):
         target_strings = env.ReplaceIxes(orig_target[0],
                                          '%sPREFIX' % vp, '%sSUFFIX' % vp,
                                          'IMPLIBPREFIX', 'IMPLIBSUFFIX')
+        if Verbose:
+            print "_lib_emitter: target_strings=%r" % target_strings
         
         implib_target = env.fs.File(target_strings)
         if Verbose:
-            print "_lib_emitter: implib_target=%r" % str(implib_target) 
+            print "_lib_emitter: implib_target=%r" % implib_target.get_path()
         implib_target.attributes.shared = 1
         target.append(implib_target)
 
@@ -94,7 +108,7 @@ def _lib_emitter(target, source, env, **kw):
                                                  implib_libtype=libtype,
                                                  generator_libtype=libtype+'ImpLib')
     if Verbose:
-        print "_lib_emitter: implib symlinks=%r" % symlinks
+        print "_lib_emitter: implib symlinks=%r" % SCons.Tool.StringizeLibSymlinks(symlinks)
     if symlinks:
         SCons.Tool.EmitLibSymlinks(env, symlinks, implib_target)
         implib_target.attributes.shliblinks = symlinks
@@ -129,20 +143,19 @@ def _versioned_implib_name(env, libnode, version, suffix, **kw):
 
 def _versioned_implib_symlinks(env, libnode, version, suffix, **kw):
     """Generate link names that should be created for a versioned shared lirbrary.
-       Returns a dictionary in the form { linkname : linktarget }
+       Returns a list in the form [ (link, linktarget), ... ]
     """
     Verbose = False
 
     if Verbose:
-        print "_versioned_implib_symlinks: str(libnode)=%r" % str(libnode)
+        print "_versioned_implib_symlinks: libnode=%r" % libnode.get_path()
         print "_versioned_implib_symlinks: version=%r" % version
 
     try: libtype = kw['libtype']
     except KeyError: libtype = 'ShLib'
 
-    symlinks = {}
 
-    linkdir = os.path.dirname(str(libnode))
+    linkdir = os.path.dirname(libnode.get_path())
     if Verbose:
         print "_versioned_implib_symlinks: linkdir=%r" % linkdir
 
@@ -154,12 +167,11 @@ def _versioned_implib_symlinks(env, libnode, version, suffix, **kw):
 
     major = version.split('.')[0]
 
-    link0 = os.path.join(str(linkdir), name)
-
-    symlinks[link0] = str(libnode)
+    link0 = env.fs.File(os.path.join(linkdir, name))
+    symlinks = [(link0, libnode)]
 
     if Verbose:
-        print "_versioned_implib_symlinks: return symlinks=%r" % symlinks
+        print "_versioned_implib_symlinks: return symlinks=%r" % SCons.Tool.StringizeLibSymlinks(symlinks)
 
     return symlinks
 
