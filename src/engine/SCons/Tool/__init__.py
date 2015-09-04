@@ -298,17 +298,6 @@ class _LibInfoGeneratorBase(object):
             prefix = env.subst('$IMPLIBPREFIX')
         return prefix
 
-    def get_lib_prefix(self, env):
-        prefix = None
-        libtype = self.get_libtype()
-        if libtype == 'ShLib':
-            prefix = env.subst('$SHLIBPREFIX')
-        elif libtype == 'LdMod':
-            prefix = env.subst('$LDMODULEPREFIX')
-        elif libtype == 'ImpLib':
-            prefix = env.subst('$IMPLIBPREFIX')
-        return prefix
-
     def get_lib_suffix(self, env):
         suffix = None
         libtype = self.get_libtype()
