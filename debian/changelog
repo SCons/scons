@@ -1,3 +1,10 @@
+
+scons (2.3.6) unstable; urgency=low
+
+  * Maintenance release.
+
+ -- William Deegan <bill@baddogconsulting.com>  Mon, 14 Sep 2015 21:07:32 -0700
+
 scons (2.3.6) unstable; urgency=low
 
   * Maintenance release.
