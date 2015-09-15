@@ -469,7 +469,7 @@ as C++ files.
 <para>
 Used to override &cv-link-SHLIBVERSION;/&cv-link-LDMODULEVERSION; when
 generating versioned import library for a shared library/loadable module. If
-undefined, the &cv-link-SHLIBVERSION;/&cv-link-LDMODULEVERSION; is used do
+undefined, the &cv-link-SHLIBVERSION;/&cv-link-LDMODULEVERSION; is used to
 determine the version of versioned import library. 
 </para>
 </summary>
