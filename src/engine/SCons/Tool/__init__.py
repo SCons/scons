@@ -239,7 +239,7 @@ def createStaticLibBuilder(env):
 def _call_linker_cb(env, callback, args, result = None):
     """Returns the result of env['LINKCALLBACKS'][callback](*args)
     if env['LINKCALLBACKS'] is a dictionary and env['LINKCALLBACKS'][callback]
-    is callable. If these conditions are not meet, return the value provided as
+    is callable. If these conditions are not met, return the value provided as
     the *result* argument. This function is mainly used for generating library
     info such as versioned suffixes, symlink maps, sonames etc. by delegating
     the core job to callbacks configured by current linker tool"""
@@ -254,7 +254,7 @@ def _call_linker_cb(env, callback, args, result = None):
         cbfun = env['LINKCALLBACKS'][callback]
     except (KeyError, TypeError):
         if Verbose:
-            print '_call_linker_cb: env["LINKCALLBACKS"][%r] not found or can not be used'
+            print '_call_linker_cb: env["LINKCALLBACKS"][%r] not found or can not be used' % callback
         pass
     else:
         if Verbose:
@@ -266,22 +266,91 @@ def _call_linker_cb(env, callback, args, result = None):
             result = cbfun(env, *args)
     return result
 
+def _call_env_subst(env, string, *args, **kw):
+    kw2 = {}
+    for k in ('raw', 'target', 'source', 'conv', 'executor'):
+        try: kw2[k] = kw[k]
+        except KeyError: pass
+    return env.subst(string, *args, **kw2)
+
+class _ShLibInfoSupport(object):
+    def get_libtype(self):
+        return 'ShLib'
+    def get_lib_prefix(self, env, *args, **kw):
+        return _call_env_subst(env,'$SHLIBPREFIX', *args, **kw)
+    def get_lib_suffix(self, env, *args, **kw):
+        return _call_env_subst(env,'$SHLIBSUFFIX', *args, **kw)
+    def get_lib_version(self, env, *args, **kw):
+        return _call_env_subst(env,'$SHLIBVERSION', *args, **kw)
+    def get_lib_noversionsymlinks(self, env, *args, **kw):
+        return _call_env_subst(env,'$SHLIBNOVERSIONSYMLINKS', *args, **kw)
+
+class _LdModInfoSupport(object):
+    def get_libtype(self):
+        return 'LdMod'
+    def get_lib_prefix(self, env, *args, **kw):
+        return _call_env_subst(env,'$LDMODULEPREFIX', *args, **kw)
+    def get_lib_suffix(self, env, *args, **kw):
+        return _call_env_subst(env,'$LDMODULESUFFIX', *args, **kw)
+    def get_lib_version(self, env, *args, **kw):
+        return _call_env_subst(env,'$LDMODULEVERSION', *args, **kw)
+    def get_lib_noversionsymlinks(self, env, *args, **kw):
+        return _call_env_subst(env,'$LDMODULENOVERSIONSYMLINKS', *args, **kw)
+
+class _ImpLibInfoSupport(object):
+    def get_libtype(self):
+        return 'ImpLib'
+    def get_lib_prefix(self, env, *args, **kw):
+        return _call_env_subst(env,'$IMPLIBPREFIX', *args, **kw)
+    def get_lib_suffix(self, env, *args, **kw):
+        return _call_env_subst(env,'$IMPLIBSUFFIX', *args, **kw)
+    def get_lib_version(self, env, *args, **kw):
+        version = _call_env_subst(env,'$IMPLIBVERSION', *args, **kw)
+        if not version:
+            try: lt = kw['implib_libtype']
+            except KeyError: pass
+            else:
+                if lt == 'ShLib':
+                    version = _call_env_subst(env,'$SHLIBVERSION', *args, **kw)
+                elif lt == 'LdMod':
+                    version = _call_env_subst(env,'$LDMODULEVERSION', *args, **kw)
+        return version
+    def get_lib_noversionsymlinks(self, env, *args, **kw):
+        disable = None
+        try: env['IMPLIBNOVERSIONSYMLINKS']
+        except KeyError:
+            try: lt = kw['implib_libtype']
+            except KeyError: pass
+            else:
+                if lt == 'ShLib':
+                    disable = _call_env_subst(env,'$SHLIBNOVERSIONSYMLINKS', *args, **kw)
+                elif lt == 'LdMod':
+                    disable = _call_env_subst(env,'$LDMODULENOVERSIONSYMLINKS', *args, **kw)
+        else:
+            disable = _call_env_subst(env,'$IMPLIBNOVERSIONSYMLINKS', *args, **kw)
+        return disable
+
 class _LibInfoGeneratorBase(object):
     """Generator base class for library-related info such as suffixes for
     versioned libraries, symlink maps, sonames etc. It handles commonities
     of SharedLibrary and LoadableModule
     """
+    _support_classes = { 'ShLib'  : _ShLibInfoSupport,
+                         'LdMod'  : _LdModInfoSupport,
+                         'ImpLib' : _ImpLibInfoSupport }
     def __init__(self, libtype, infoname):
         self.set_libtype(libtype)
         self.set_infoname(infoname)
 
     def set_libtype(self, libtype):
-        if libtype not in ['ShLib', 'LdMod', 'ImpLib']:
+        try:
+            support_class = self._support_classes[libtype]
+        except KeyError:
             raise ValueError('unsupported libtype %r' % libtype)
-        self.libtype = libtype
+        self._support = support_class()
 
     def get_libtype(self):
-        return self.libtype
+        return self._support.get_libtype()
 
     def set_infoname(self, infoname):
         self.infoname = infoname
@@ -289,47 +358,21 @@ class _LibInfoGeneratorBase(object):
     def get_infoname(self):
         return self.infoname
 
-    def get_lib_prefix(self, env):
-        prefix = None
-        libtype = self.get_libtype()
-        if libtype == 'ShLib':
-            prefix = env.subst('$SHLIBPREFIX')
-        elif libtype == 'LdMod':
-            prefix = env.subst('$LDMODULEPREFIX')
-        elif libtype == 'ImpLib':
-            prefix = env.subst('$IMPLIBPREFIX')
-        return prefix
+    def get_lib_prefix(self, env, *args, **kw):
+        return self._support.get_lib_prefix(env,*args,**kw)
 
-    def get_lib_suffix(self, env):
-        suffix = None
-        libtype = self.get_libtype()
-        if libtype == 'ShLib':
-            suffix = env.subst('$SHLIBSUFFIX')
-        elif libtype == 'LdMod':
-            suffix = env.subst('$LDMODULESUFFIX')
-        elif libtype == 'ImpLib':
-            suffix = env.subst('$IMPLIBSUFFIX')
-        return suffix
+    def get_lib_suffix(self, env, *args, **kw):
+        return self._support.get_lib_suffix(env,*args,**kw)
 
-    def get_lib_version(self, env, **kw):
-        version = None
-        libtype = self.get_libtype()
-        if libtype == 'ShLib':
-            version = env.subst('$SHLIBVERSION')
-        elif libtype == 'LdMod':
-            version = env.subst('$LDMODULEVERSION')
-        elif libtype == 'ImpLib':
-            version = env.subst('$IMPLIBVERSION')
-            if not version:
-                try: lt = kw['implib_libtype']
-                except KeyError: pass
-                else:
-                    if lt == 'ShLib':
-                        version = env.subst('$SHLIBVERSION')
-                    elif lt == 'LdMod':
-                        version = env.subst('$LDMODULEVERSION')
-        return version
+    def get_lib_version(self, env, *args, **kw):
+        return self._support.get_lib_version(env,*args,**kw)
 
+    def get_lib_noversionsymlinks(self, env, *args, **kw):
+        return self._support.get_lib_noversionsymlinks(env,*args,**kw)
+
+    # Returns name of generator linker callback that shall be used to generate
+    # our info for a versioned library. For example, if our libtype is 'ShLib'
+    # and infoname is 'Prefix', it would return 'VersionedShLibPrefix'.
     def get_versioned_lib_info_generator(self, **kw):
         try: libtype = kw['generator_libtype']
         except KeyError: libtype = self.get_libtype()
@@ -349,16 +392,22 @@ class _LibPrefixGenerator(_LibInfoGeneratorBase):
     def __call__(self, env, sources = None, **kw):
         Verbose = False
 
-        prefix = self.get_lib_prefix(env)
+        if sources and 'source' not in kw:
+            kw2 = kw.copy()
+            kw2['source'] = sources
+        else:
+            kw2 = kw
+
+        prefix = self.get_lib_prefix(env,**kw2)
         if Verbose:
             print "_LibPrefixGenerator: input prefix=%r" % prefix
 
-        version = self.get_lib_version(env, **kw)
+        version = self.get_lib_version(env, **kw2)
         if Verbose:
             print "_LibPrefixGenerator: version=%r" % version
 
         if version:
-            prefix = self.generate_versioned_lib_info(env, [prefix, version], prefix, **kw)
+            prefix = self.generate_versioned_lib_info(env, [prefix, version], prefix, **kw2)
 
         if Verbose:
             print "_LibPrefixGenerator: return prefix=%r" % prefix
@@ -377,16 +426,22 @@ class _LibSuffixGenerator(_LibInfoGeneratorBase):
     def __call__(self, env, sources = None, **kw):
         Verbose = False
 
-        suffix = self.get_lib_suffix(env)
+        if sources and 'source' not in kw:
+            kw2 = kw.copy()
+            kw2['source'] = sources
+        else:
+            kw2 = kw
+
+        suffix = self.get_lib_suffix(env, **kw2)
         if Verbose:
             print "_LibSuffixGenerator: input suffix=%r" % suffix
 
-        version = self.get_lib_version(env, **kw)
+        version = self.get_lib_version(env, **kw2)
         if Verbose:
             print "_LibSuffixGenerator: version=%r" % version
 
         if version:
-            suffix = self.generate_versioned_lib_info(env, [suffix, version], suffix, **kw)
+            suffix = self.generate_versioned_lib_info(env, [suffix, version], suffix, **kw2)
 
         if Verbose:
             print "_LibSuffixGenerator: return suffix=%r" % suffix
@@ -402,45 +457,30 @@ class _LibSymlinkGenerator(_LibInfoGeneratorBase):
     def __init__(self, libtype):
         super(_LibSymlinkGenerator, self).__init__(libtype, 'Symlinks')
 
-    def get_noversionsymlinks(self, env, **kw):
-        disable = None
-        libtype = self.get_libtype()
-        if libtype == 'ShLib':
-            disable = env.subst('$SHLIBNOVERSIONSYMLINKS')
-        elif libtype == 'LdMod':
-            disable = env.subst('$LDMODULENOVERSIONSYMLINKS')
-        elif libtype == 'ImpLib':
-            try: env['IMPLIBNOVERSIONSYMLINKS']
-            except KeyError:
-                try: lt = kw['implib_libtype']
-                except KeyError: pass
-                else:
-                    if lt == 'ShLib':
-                        disable = env.subst('$SHLIBNOVERSIONSYMLINKS')
-                    elif lt == 'LdMod':
-                        disable = env.subst('$LDMODULENOVERSIONSYMLINKS')
-            else:
-                disable = env.subst('$IMPLIBNOVERSIONSYMLINKS')
-        return disable
-
     def __call__(self, env, libnode, **kw):
         Verbose = False
+
+        if libnode and 'target' not in kw:
+            kw2 = kw.copy()
+            kw2['target'] = libnode
+        else:
+            kw2 = kw
 
         if Verbose:
             print "_LibSymLinkGenerator: libnode=%r" % libnode.get_path()
 
         symlinks = None
 
-        version = self.get_lib_version(env, **kw)
-        disable = self.get_noversionsymlinks(env, **kw)
+        version = self.get_lib_version(env, **kw2)
+        disable = self.get_lib_noversionsymlinks(env, **kw2)
         if Verbose:
             print '_LibSymlinkGenerator: version=%r' % version
             print '_LibSymlinkGenerator: disable=%r' % disable
 
         if version and not disable:
-            prefix = self.get_lib_prefix(env)
-            suffix = self.get_lib_suffix(env)
-            symlinks = self.generate_versioned_lib_info(env, [libnode, version, prefix, suffix], **kw)
+            prefix = self.get_lib_prefix(env,**kw2)
+            suffix = self.get_lib_suffix(env,**kw2)
+            symlinks = self.generate_versioned_lib_info(env, [libnode, version, prefix, suffix], **kw2)
 
         if Verbose:
             print '_LibSymlinkGenerator: return symlinks=%r' % StringizeLibSymlinks(symlinks)
@@ -471,18 +511,24 @@ class _LibNameGenerator(_LibInfoGeneratorBase):
         """Returns "demangled" library name"""
         Verbose = False
 
+        if libnode and 'target' not in kw:
+            kw2 = kw.copy()
+            kw2['target'] = libnode
+        else:
+            kw2 = kw
+
         if Verbose:
             print "_LibNameGenerator: libnode=%r" % libnode.get_path()
 
-        version = self.get_lib_version(env, **kw)
+        version = self.get_lib_version(env, **kw2)
         if Verbose:
             print '_LibNameGenerator: version=%r' % version
 
         name = None
         if version:
-            prefix = self.get_lib_prefix(env)
-            suffix = self.get_lib_suffix(env)
-            name = self.generate_versioned_lib_info(env, [libnode, version, prefix, suffix], **kw)
+            prefix = self.get_lib_prefix(env,**kw2)
+            suffix = self.get_lib_suffix(env,**kw2)
+            name = self.generate_versioned_lib_info(env, [libnode, version, prefix, suffix], **kw2)
 
         if not name:
             name = os.path.basename(libnode.get_path())
@@ -506,17 +552,23 @@ class _LibSonameGenerator(_LibInfoGeneratorBase):
         """Returns a SONAME based on a shared library's node path"""
         Verbose = False
 
+        if libnode and 'target' not in kw:
+            kw2 = kw.copy()
+            kw2['target'] = libnode
+        else:
+            kw2 = kw
+
         if Verbose:
             print "_LibSonameGenerator: libnode=%r" % libnode.get_path()
 
-        soname = env.subst('$SONAME')
+        soname = _call_env_subst(env, '$SONAME', **kw2)
         if not soname:
-            version = self.get_lib_version(env,**kw)
+            version = self.get_lib_version(env,**kw2)
             if Verbose:
                 print "_LibSonameGenerator: version=%r" % version
             if version:
-                suffix = self.get_lib_suffix(env)
-                soname = self.generate_versioned_lib_info(env, [libnode, version, suffix], **kw)
+                suffix = self.get_lib_suffix(env,**kw2)
+                soname = self.generate_versioned_lib_info(env, [libnode, version, suffix], **kw2)
 
         if not soname:
             # fallback to library name (as returned by appropriate _LibNameGenerator)
@@ -571,13 +623,15 @@ def CreateLibSymlinks(env, symlinks):
         link = link.get_path()
         if(Verbose):
             print "CreateLibSymlinks: preparing to add symlink %r -> %r" % (link, linktgt)
-        try:
-            os.remove(link)
+        # Delete the (previously created) symlink if exists. Let only symlinks
+        # to be deleted to prevent accidental deletion of source files...
+        if env.fs.islink(link):
+            env.fs.unlink(link)
             if(Verbose):
-                print "CreateLibSymlinks: removed old file %r" % link
-        except:
-            pass
-        os.symlink(linktgt, link)
+                print "CreateLibSymlinks: removed old symlink %r" % link
+        # If a file or directory exists with the same name as link, an OSError
+        # will be thrown, which should be enough, I think.
+        env.fs.symlink(linktgt, link)
         if(Verbose):
             print "CreateLibSymlinks: add symlink %r -> %r" % (link, linktgt)
     return 0
@@ -589,7 +643,7 @@ def LibSymlinksActionFunction(target, source, env):
             CreateLibSymlinks(env, symlinks)
     return 0
 
-def LibSymlinksStrFun(target, source, env,*args):
+def LibSymlinksStrFun(target, source, env, *args):
     cmd = None
     for tgt in target:
         symlinks = getattr(getattr(tgt,'attributes', None), 'shliblinks', None)
