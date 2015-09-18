@@ -444,6 +444,7 @@ class SConfBase(object):
                  'CheckCXXHeader'     : CheckCXXHeader,
                  'CheckLib'           : CheckLib,
                  'CheckLibWithHeader' : CheckLibWithHeader,
+                 'CheckProg'          : CheckProg,
                }
         self.AddTests(default_tests)
         self.AddTests(custom_tests)
@@ -1046,6 +1047,14 @@ def CheckLibWithHeader(context, libs, header, language,
             call = call, language = language, autoadd = autoadd)
     context.did_show_result = 1
     return not res
+
+def CheckProg(context, prog_name):
+    """Simple check if a program exists in the path.  Returns the path
+    for the application, or None if not found.
+    """
+    res = SCons.Conftest.CheckProg(context, prog_name)
+    context.did_show_result = 1
+    return res
 
 # Local Variables:
 # tab-width:4
