@@ -1,0 +1,144 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+    
+    <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
+    %builders-mod;
+    <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
+    %functions-mod;
+    <!ENTITY % tools-mod SYSTEM "../generated/tools.mod">
+    %tools-mod;
+    <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
+    %variables-mod;    
+]>
+
+<appendix id="app-make"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Converting From Make</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+<!--
+
+=head1 Why Cons? Why not Make?
+
+Cons is a B<make> replacement. In the following paragraphs, we look at a few
+of the undesirable characteristics of make, and typical build environments
+based on make, that motivated the development of Cons.
+
+=head2 Build complexity
+
+Traditional make-based systems of any size tend to become quite complex. The
+original make utility and its derivatives have contributed to this tendency
+in a number of ways. Make is not good at dealing with systems that are
+spread over multiple directories. Various work-arounds are used to overcome
+this difficulty; the usual choice is for make to invoke itself recursively
+for each sub-directory of a build. This leads to complicated code, in which
+it is often unclear how a variable is set, or what effect the setting of a
+variable will have on the build as a whole. The make scripting language has
+gradually been extended to provide more possibilities, but these have
+largely served to clutter an already overextended language. Often, builds
+are done in multiple passes in order to provide appropriate products from
+one directory to another directory. This represents a further increase in
+build complexity.
+
+
+=head2 Build reproducibility
+
+The bane of all makes has always been the correct handling of
+dependencies. Most often, an attempt is made to do a reasonable job of
+dependencies within a single directory, but no serious attempt is made to do
+the job between directories. Even when dependencies are working correctly,
+make's reliance on a simple time stamp comparison to determine whether a
+file is out of date with respect to its dependents is not, in general,
+adequate for determining when a file should be rederived. If an external
+library, for example, is rebuilt and then ``snapped'' into place, the
+timestamps on its newly created files may well be earlier than the last
+local build, since it was built before it became visible.
+
+
+=head2 Variant builds
+
+Make provides only limited facilities for handling variant builds. With the
+proliferation of hardware platforms and the need for debuggable
+vs. optimized code, the ability to easily create these variants is
+essential. More importantly, if variants are created, it is important to
+either be able to separate the variants or to be able to reproduce the
+original or variant at will. With make it is very difficult to separate the
+builds into multiple build directories, separate from the source. And if
+this technique isn't used, it's also virtually impossible to guarantee at
+any given time which variant is present in the tree, without resorting to a
+complete rebuild.
+
+
+=head2 Repositories
+
+Make provides only limited support for building software from code that
+exists in a central repository directory structure.  The VPATH feature of
+GNU make (and some other make implementations) is intended to provide this,
+but doesn't work as expected: it changes the path of target file to the
+VPATH name too early in its analysis, and therefore searches for all
+dependencies in the VPATH directory.  To ensure correct development builds,
+it is important to be able to create a file in a local build directory and
+have any files in a code repository (a VPATH directory, in make terms) that
+depend on the local file get rebuilt properly.  This isn't possible with
+VPATH, without coding a lot of complex repository knowledge directly into
+the makefiles.
+
+-->
+
+ <para>
+
+   XXX
+
+ </para>
+
+ <section>
+ <title>Differences Between &Make; and &SCons;</title>
+
+   <para>
+
+   XXX
+
+   </para>
+
+ </section>
+
+ <section>
+ <title>Advantages of &SCons; Over &Make;</title>
+
+   <para>
+
+   XXX
+
+   </para>
+
+ </section>
+
+</appendix>
