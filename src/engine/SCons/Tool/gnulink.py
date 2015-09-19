@@ -103,11 +103,13 @@ def _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, so
     link0 = env.fs.File(soname, linkdir)
     link1 = env.fs.File(name, linkdir)
 
-    # This allows anything in SHLIBVERSION (especially SHLIBVERSION=1).
+    # We create direct symlinks, not daisy-chained.
     if link0 == libnode:
+        # This enables SHLIBVERSION without periods (e.g. SHLIBVERSION=1)
         symlinks = [ (link1, libnode) ]
     else:
-        symlinks = [ (link0, libnode), (link1, link0) ]
+        # This handles usual SHLIBVERSION, i.e. '1.2', '1.2.3', etc.
+        symlinks = [ (link0, libnode), (link1, libnode) ]
 
     if Verbose:
         print "_versioned_lib_symlinks: return symlinks=%r" % SCons.Tool.StringizeLibSymlinks(symlinks)
