@@ -103,7 +103,11 @@ def _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, so
     link0 = env.fs.File(soname, linkdir)
     link1 = env.fs.File(name, linkdir)
 
-    symlinks = [ (link0, libnode), (link1, link0) ]
+    # This allows anything in SHLIBVERSION (especially SHLIBVERSION=1).
+    if link0 == libnode:
+        symlinks = [ (link1, libnode) ]
+    else:
+        symlinks = [ (link0, libnode), (link1, link0) ]
 
     if Verbose:
         print "_versioned_lib_symlinks: return symlinks=%r" % SCons.Tool.StringizeLibSymlinks(symlinks)
