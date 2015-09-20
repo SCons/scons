@@ -227,6 +227,51 @@ def _versioned_ldmod_symlinks(env, libnode, version, prefix, suffix):
     sf = _versioned_ldmod_soname
     return _versioned_lib_symlinks(env, libnode, version, prefix, suffix, nf, sf)
 
+def _versioned_lib_callbacks():
+    return {
+        'VersionedShLibSuffix'   : _versioned_lib_suffix,
+        'VersionedLdModSuffix'   : _versioned_lib_suffix,
+        'VersionedShLibSymlinks' : _versioned_shlib_symlinks,
+        'VersionedLdModSymlinks' : _versioned_ldmod_symlinks,
+        'VersionedShLibName'     : _versioned_shlib_name,
+        'VersionedLdModName'     : _versioned_ldmod_name,
+        'VersionedShLibSoname'   : _versioned_shlib_soname,
+        'VersionedLdModSoname'   : _versioned_ldmod_soname,
+    }.copy()
+
+# Setup all variables required by the versioning machinery
+def _setup_versioned_lib_variables(env, **kw):
+
+    tool = None
+    try: tool = kw['tool']
+    except KeyError: pass
+
+    use_soname = False
+    try: use_soname = kw['use_soname'] 
+    except KeyError: pass
+
+    # The $_SHLIBVERSIONFLAGS define extra commandline flags used when
+    # building VERSIONED shared libraries. It's always set, but used only
+    # when VERSIONED library is built (see __SHLIBVERSIONFLAGS in SCons/Defaults.py).
+    if use_soname:
+        # If the linker uses SONAME, then we need this little automata
+        if tool == 'sunlink':
+            env['_SHLIBVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS -h $_SHLINKSONAME'
+            env['_LDMODULEVERSIONFLAGS'] = '$LDMODULEVERSIONFLAGS -h $_LDMODULESONAME'
+        else:
+            env['_SHLIBVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS -Wl,-soname=$_SHLINKSONAME'
+            env['_LDMODULEVERSIONFLAGS'] = '$LDMODULEVERSIONFLAGS -Wl,-soname=$_LDMODULESONAME'
+        env['_SHLINKSONAME'] = '${ShLibSonameGenerator(__env__,TARGET)}'
+        env['_LDMODULESONAME'] = '${LdModSonameGenerator(__env__,TARGET)}'
+        env['ShLibSonameGenerator'] = SCons.Tool.ShLibSonameGenerator
+        env['LdModSonameGenerator'] = SCons.Tool.LdModSonameGenerator
+    else:
+        env['_SHLIBVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS'
+        env['_LDMODULEVERSIONFLAGS'] = '$LDMODULEVERSIONFLAGS'
+
+    # LDOMDULVERSIONFLAGS should always default to $SHLIBVERSIONFLAGS
+    env['LDMODULEVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS'
+
 
 def generate(env):
     """Add Builders and construction variables for gnulink to an Environment."""
