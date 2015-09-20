@@ -55,36 +55,13 @@ def generate(env):
     env['RPATHSUFFIX'] = ''
     env['_RPATH'] = '${_concat(RPATHPREFIX, RPATH, RPATHSUFFIX, __env__)}'
 
-    # The $_SHLIBVERSIONFLAGS define extra commandline flags used when
-    # building VERSIONED shared libraries. It's always set, but used only
-    # when VERSIONED library is built (see __SHLIBVERSIONFLAGS).
-    if sys.platform.startswith('openbsd'):
-        # OpenBSD doesn't usually use SONAME for libraries
-        env['_SHLIBVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS'
-        env['_LDMODULEVERSIONFLAGS'] = '$LDMODULEVERSIONFLAGS'
-    else:
-        env['_SHLIBVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS -Wl,-soname=$_SHLINKSONAME'
-        env['_LDMODULEVERSIONFLAGS'] = '$LDMODULEVERSIONFLAGS -Wl,-soname=$_LDMODULESONAME'
+    # OpenBSD doesn't usually use SONAME for libraries
+    use_soname = not sys.platform.startswith('openbsd')
+    link._setup_versioned_lib_variables(env, tool = 'gnulink', use_soname = use_soname)
+    env['LINKCALLBACKS'] = link._versioned_lib_callbacks()
+
+    # For backward-compatiblity with older SCons versions
     env['SHLIBVERSIONFLAGS'] = SCons.Util.CLVar('-Wl,-Bsymbolic')
-    env['LDMODULEVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS'
-
-    # libfoo.so.X.Y.Z -> libfoo.so.X
-    env['_SHLINKSONAME']   = '${ShLibSonameGenerator(__env__,TARGET)}'
-    env['_LDMODULESONAME'] = '${LdModSonameGenerator(__env__,TARGET)}'
-
-    env['ShLibSonameGenerator'] = SCons.Tool.ShLibSonameGenerator
-    env['LdModSonameGenerator'] = SCons.Tool.LdModSonameGenerator
-
-    env['LINKCALLBACKS'] = {
-        'VersionedShLibSuffix'   : link._versioned_lib_suffix,
-        'VersionedLdModSuffix'   : link._versioned_lib_suffix,
-        'VersionedShLibSymlinks' : link._versioned_shlib_symlinks,
-        'VersionedLdModSymlinks' : link._versioned_ldmod_symlinks,
-        'VersionedShLibName'     : link._versioned_shlib_name,
-        'VersionedLdModName'     : link._versioned_ldmod_name,
-        'VersionedShLibSoname'   : link._versioned_shlib_soname,
-        'VersionedLdModSoname'   : link._versioned_ldmod_soname,
-    }
     
 def exists(env):
     # TODO: sync with link.smart_link() to choose a linker

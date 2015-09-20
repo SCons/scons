@@ -67,25 +67,8 @@ def generate(env):
     env['_RPATH'] = '${_concat(RPATHPREFIX, RPATH, RPATHSUFFIX, __env__)}'
 
     # Support for versioned libraries
-    env['_SHLIBVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS -h $_SHLINKSONAME'
-    env['_LDMODULEVERSIONFLAGS'] = '$LDMODULEVERSIONFLAGS -h $_LDMODULESONAME'
-
-    env['_SHLINKSONAME'] = '${ShLibSonameGenerator(__env__,TARGET)}'
-    env['_LDMODULESONAME'] = '${LdModSonameGenerator(__env__,TARGET)}'
-
-    env['ShLibSonameGenerator'] = SCons.Tool.ShLibSonameGenerator
-    env['LdModSonameGenerator'] = SCons.Tool.LdModSonameGenerator
-
-    env['LINKCALLBACKS'] = {
-        'VersionedShLibSuffix'   : link._versioned_lib_suffix,
-        'VersionedLdModSuffix'   : link._versioned_lib_suffix,
-        'VersionedShLibSymlinks' : link._versioned_shlib_symlinks,
-        'VersionedLdModSymlinks' : link._versioned_ldmod_symlinks,
-        'VersionedShLibName'     : link._versioned_shlib_name,
-        'VersionedLdModName'     : link._versioned_ldmod_name,
-        'VersionedShLibSoname'   : link._versioned_shlib_soname,
-        'VersionedLdModSoname'   : link._versioned_ldmod_soname,
-    }
+    link._setup_versioned_lib_variables(env, tool = 'sunlink', use_soname = True) 
+    env['LINKCALLBACKS'] = link._versioned_lib_callbacks()
 
 def exists(env):
     return ccLinker
