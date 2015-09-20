@@ -51,9 +51,6 @@ def generate(env):
         env['ARFLAGS']     = SCons.Util.CLVar('r')
         env['ARCOM']       = '$AR $ARFLAGS $TARGET $SOURCES'
 
-    env['SHLINK']      = '$LINK'
-    env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -G')
-    env['SHLINKCOM']   = '$SHLINK -o $TARGET $SHLINKFLAGS $__SHLIBVERSIONFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
     env['LIBPREFIX']   = 'lib'
     env['LIBSUFFIX']   = '.a'
 

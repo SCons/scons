@@ -33,15 +33,11 @@ Sets construction variables for the Sun library archiver.
 <item>AR</item>
 <item>ARFLAGS</item>
 <item>ARCOM</item>
-<item>SHLINK</item>
-<item>SHLINKFLAGS</item>
-<item>SHLINKCOM</item>
 <item>LIBPREFIX</item>
 <item>LIBSUFFIX</item>
 </sets>
 <uses>
 <item>ARCOMSTR</item>
-<item>SHLINKCOMSTR</item>
 </uses>
 </tool>
 
