@@ -97,7 +97,15 @@ def generate(env):
 
     env['DSHLINK'] = '$DC'
     env['DSHLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared')
-    env['SHDLINKCOM'] = '$DLINK -o $TARGET $DSHLINKFLAGS $__DSHLIBVERSIONFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
+    # NOTE: using $__SHLIBVERSIONFLAGS here is just a quick hack. The macro
+    # $__SHLIBVERSIONFLAGS involves _SHLIBVERSIONFLAGS, which are set by
+    # current linker tool. If the current linker tool is not same as that used
+    # by gdc, and SHLIBVERSION is defined, an invalid flags may be generated
+    # for the gdc linker. It looks like the D tools should define its own
+    # set of variables (__DSHLIBVERSIONFLAGS, _DSHLIBVERSIONFLAGS,
+    # DSHLIBVERSIONFLAGS, DSHLIBVERSION, etc...) and duplicate the versioning
+    # machinery.
+    env['SHDLINKCOM'] = '$DLINK -o $TARGET $DSHLINKFLAGS $__SHLIBVERSIONFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
 
     env['DLIB'] = 'lib' if env['PLATFORM'] == 'win32' else 'ar cr'
     env['DLIBCOM'] = '$DLIB $_DLIBFLAGS {0}$TARGET $SOURCES $_DLINKLIBFLAGS'.format('-c ' if env['PLATFORM'] == 'win32' else '')
