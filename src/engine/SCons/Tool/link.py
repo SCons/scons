@@ -142,6 +142,91 @@ def _versioned_ldmod_name(env, libnode, version, prefix, suffix, **kw):
     sg = SCons.Tool.LdModSuffixGenerator
     return _versioned_lib_name(env, libnode, version, prefix, suffix, pg, sg, **kw)
 
+def _versioned_lib_suffix(env, suffix, version):
+    """For suffix='.so' and version='0.1.2' it returns '.so.0.1.2'"""
+    Verbose = False
+    if Verbose:
+        print "_versioned_lib_suffix: suffix=%r" % suffix
+        print "_versioned_lib_suffix: version=%r" % version
+    if not suffix.endswith(version):
+        suffix = suffix + '.' + version
+    if Verbose:
+        print "_versioned_lib_suffix: return suffix=%r" % suffix
+    return suffix
+
+def _versioned_lib_soname(env, libnode, version, prefix, suffix, name_func):
+    """For libnode='/optional/dir/libfoo.so.X.Y.Z' it returns 'libfoo.so.X'"""
+    Verbose = False
+    if Verbose:
+        print "_versioned_lib_soname: version=%r" % version
+    name = name_func(env, libnode, version, prefix, suffix)
+    if Verbose:
+        print "_versioned_lib_soname: name=%r" % name
+    major = version.split('.')[0]
+    soname = name + '.' + major
+    if Verbose:
+        print "_versioned_lib_soname: soname=%r" % soname
+    return soname
+
+def _versioned_shlib_soname(env, libnode, version, prefix, suffix):
+    return _versioned_lib_soname(env, libnode, version, prefix, suffix, _versioned_shlib_name) 
+
+def _versioned_ldmod_soname(env, libnode, version, prefix, suffix):
+    return _versioned_lib_soname(env, libnode, version, prefix, suffix, _versioned_ldmod_name) 
+
+def _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, soname_func):
+    """Generate link names that should be created for a versioned shared lirbrary.
+       Returns a dictionary in the form { linkname : linktarget }
+    """
+    Verbose = False
+
+    if Verbose:
+        print "_versioned_lib_symlinks: libnode=%r" % libnode.get_path()
+        print "_versioned_lib_symlinks: version=%r" % version
+
+    if sys.platform.startswith('openbsd'):
+        # OpenBSD uses x.y shared library versioning numbering convention
+        # and doesn't use symlinks to backwards-compatible libraries
+        if Verbose:
+            print "_versioned_lib_symlinks: return symlinks=%r" % None
+        return None
+
+    linkdir = libnode.get_dir()
+    if Verbose:
+        print "_versioned_lib_symlinks: linkdir=%r" % linkdir.get_path()
+
+    name = name_func(env, libnode, version, prefix, suffix)
+    if Verbose:
+        print "_versioned_lib_symlinks: name=%r" % name
+
+    soname = soname_func(env, libnode, version, prefix, suffix)
+
+    link0 = env.fs.File(soname, linkdir)
+    link1 = env.fs.File(name, linkdir)
+
+    # We create direct symlinks, not daisy-chained.
+    if link0 == libnode:
+        # This enables SHLIBVERSION without periods (e.g. SHLIBVERSION=1)
+        symlinks = [ (link1, libnode) ]
+    else:
+        # This handles usual SHLIBVERSION, i.e. '1.2', '1.2.3', etc.
+        symlinks = [ (link0, libnode), (link1, libnode) ]
+
+    if Verbose:
+        print "_versioned_lib_symlinks: return symlinks=%r" % SCons.Tool.StringizeLibSymlinks(symlinks)
+
+    return symlinks
+
+def _versioned_shlib_symlinks(env, libnode, version, prefix, suffix):
+    nf = _versioned_shlib_name
+    sf = _versioned_shlib_soname
+    return _versioned_lib_symlinks(env, libnode, version, prefix, suffix, nf, sf)
+
+def _versioned_ldmod_symlinks(env, libnode, version, prefix, suffix):
+    nf = _versioned_ldmod_name
+    sf = _versioned_ldmod_soname
+    return _versioned_lib_symlinks(env, libnode, version, prefix, suffix, nf, sf)
+
 
 def generate(env):
     """Add Builders and construction variables for gnulink to an Environment."""

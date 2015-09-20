@@ -113,6 +113,14 @@ elif platform == 'win32':
     'foo.lib',
     'foo.obj',
     ]
+elif platform == 'sunos':
+    # All (?) the files we expect will get created in the current directory
+    files = [
+    'libfoo.so',
+    'libfoo.so.0',
+    'libfoo.so.0.1.2',
+    'so_foo.os',
+    ]
 else:
     # All (?) the files we expect will get created in the current directory
     files= [

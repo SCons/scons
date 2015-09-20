@@ -130,6 +130,20 @@ elif platform == 'win32':
     'test.dll',
     'test.lib',
     ]
+elif platform == 'sunos':
+    # All (?) the files we expect will get created in the current directory
+    files = [
+    'libtest.so',
+    'libtest.so.2',
+    'libtest.so.2.5.4',
+    'so_test.os',
+    ]
+    # All (?) the files we expect will get created in the 'installtest' directory
+    instfiles = [
+    'libtest.so',
+    'libtest.so.2',
+    'libtest.so.2.5.4',
+    ]
 else:
     # All (?) the files we expect will get created in the current directory
     files= [
