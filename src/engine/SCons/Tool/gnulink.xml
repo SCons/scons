@@ -34,7 +34,7 @@ Set construction variables for GNU linker/loader.
 <item>RPATHPREFIX</item>
 <item>RPATHSUFFIX</item>
 <item>_LDMODULESONAME</item>
-<item>_SHLINKSONAME</item>
+<item>_SHLIBSONAME</item>
 <item>LDMODULEVERSIONFLAGS</item>
 <item>SHLIBVERSIONFLAGS</item>
 </sets>

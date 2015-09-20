@@ -216,7 +216,7 @@ def generate(env):
     }
 
     # these variables were set by gnulink but are not used in cyglink
-    try: del env['_SHLINKSONAME']
+    try: del env['_SHLIBSONAME']
     except KeyError: pass
     try: del env['_LDMODULESONAME']
     except KeyError: pass
