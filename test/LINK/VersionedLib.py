@@ -192,6 +192,13 @@ __declspec(dllexport)
 int testlib(int n) { return n+1 ; }
 """
 
+test_c_src2 = """\
+#if _WIN32
+__declspec(dllexport)
+#endif
+int testlib(int n) { return n+11 ; }
+"""
+
 testapp_c_src = """\
 #if _WIN32
 __declspec(dllimport)
@@ -255,15 +262,7 @@ env.Default(instnode)
         test.fail_test(wrong_symlinks)
 
     # modify test.c and make sure it can recompile when links already exist
-    test.write('test.c', """\
-    #if _WIN32
-    __declspec(dllexport)
-    #endif
-    int testlib(int n)
-    {
-    return n+11 ;
-    }
-    """)
+    test.write('test.c', test_c_src2)
 
     test.run()
 
