@@ -596,19 +596,23 @@ def StringizeLibSymlinks(symlinks):
     else:
         return symlinks
 
-def EmitLibSymlinks(env, symlinks, libnode):
+def EmitLibSymlinks(env, symlinks, libnode, **kw):
     """Used by emitters to handle (shared/versioned) library symlinks"""
     Verbose = False
 
     # nodes involved in process... all symlinks + library
     nodes = list(set([ x for x,y in symlinks ] + [libnode]))
+
+    clean_targets = kw.get('clean_targets', [])
+    if not SCons.Util.is_List(clean_targets):
+        clean_targets = [ clean_targets ]
       
     for link, linktgt in symlinks:
         env.SideEffect(link, linktgt)
         if(Verbose):
             print "EmitLibSymlinks: SideEffect(%r,%r)" % (link.get_path(), linktgt.get_path())
         clean_list = filter(lambda x : x != linktgt, nodes)
-        env.Clean(linktgt, clean_list)
+        env.Clean(list(set([linktgt] + clean_targets)), clean_list)
         if(Verbose):
             print "EmitLibSymlinks: Clean(%r,%r)" % (linktgt.get_path(), map(lambda x : x.get_path(), clean_list))
 

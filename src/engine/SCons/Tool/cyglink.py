@@ -111,7 +111,7 @@ def _lib_emitter(target, source, env, **kw):
     if Verbose:
         print "_lib_emitter: implib symlinks=%r" % SCons.Tool.StringizeLibSymlinks(symlinks)
     if symlinks:
-        SCons.Tool.EmitLibSymlinks(env, symlinks, implib_target)
+        SCons.Tool.EmitLibSymlinks(env, symlinks, implib_target, clean_targets = target[0])
         implib_target.attributes.shliblinks = symlinks
 
     return (target, source)

@@ -86,12 +86,6 @@ elif platform == 'darwin':
 elif platform == 'cygwin':
     test_plan = [
       {
-          'libversion' : '2.5.4',
-          'files'      : [ 'cygtest-2-5-4.dll', 'libtest-2-5-4.dll.a', 'libtest.dll.a', 'test.os' ],
-          'instfiles'  : [ 'cygtest-2-5-4.dll', 'libtest-2-5-4.dll.a', 'libtest.dll.a' ],
-          'symlinks'   : [],
-      },
-      {
           'libversion' : '2',
           'files'      : [ 'cygtest-2.dll', 'libtest-2.dll.a', 'libtest.dll.a', 'test.os' ],
           'instfiles'  : [ 'cygtest-2.dll', 'libtest-2.dll.a', 'libtest.dll.a' ],
