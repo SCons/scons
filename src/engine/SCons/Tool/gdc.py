@@ -97,15 +97,7 @@ def generate(env):
 
     env['DSHLINK'] = '$DC'
     env['DSHLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared')
-    # NOTE: using $__SHLIBVERSIONFLAGS here is just a quick hack. The macro
-    # $__SHLIBVERSIONFLAGS involves _SHLIBVERSIONFLAGS, which are set by
-    # current linker tool. If the current linker tool is not same as that used
-    # by gdc, and SHLIBVERSION is defined, an invalid flags may be generated
-    # for the gdc linker. It looks like the D tools should define its own
-    # set of variables (__DSHLIBVERSIONFLAGS, _DSHLIBVERSIONFLAGS,
-    # DSHLIBVERSIONFLAGS, DSHLIBVERSION, etc...) and duplicate the versioning
-    # machinery.
-    env['SHDLINKCOM'] = '$DLINK -o $TARGET $DSHLINKFLAGS $__SHLIBVERSIONFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
+    env['SHDLINKCOM'] = '$DLINK -o $TARGET $DSHLINKFLAGS $__DSHLIBVERSIONFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
 
     env['DLIB'] = 'lib' if env['PLATFORM'] == 'win32' else 'ar cr'
     env['DLIBCOM'] = '$DLIB $_DLIBFLAGS {0}$TARGET $SOURCES $_DLINKLIBFLAGS'.format('-c ' if env['PLATFORM'] == 'win32' else '')
@@ -122,6 +114,17 @@ def generate(env):
     env['RPATHPREFIX'] = '-Wl,-rpath='
     env['RPATHSUFFIX'] = ''
     env['_RPATH'] = '${_concat(RPATHPREFIX, RPATH, RPATHSUFFIX, __env__)}'
+
+    # Support for versioned libraries
+    env['_DSHLIBVERSIONFLAGS'] = '$DSHLIBVERSIONFLAGS -Wl,-soname=$_DSHLIBSONAME'
+    env['_DSHLIBSONAME'] = '${DShLibSonameGenerator(__env__,TARGET)}'
+    # NOTE: this is a quick hack, the soname will only work if there is
+    # c/c++ linker loaded which provides callback for the ShLibSonameGenerator
+    env['DShLibSonameGenerator'] = SCons.Tool.ShLibSonameGenerator
+    # NOTE: this is only for further reference, currently $DSHLIBVERSION does
+    # not work, the user must use $SHLIBVERSION
+    env['DSHLIBVERSION'] = '$SHLIBVERSION'
+    env['DSHLIBVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS'
 
     SCons.Tool.createStaticLibBuilder(env)
 
