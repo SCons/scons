@@ -567,8 +567,9 @@ class _LibSonameGenerator(_LibInfoGeneratorBase):
             if Verbose:
                 print "_LibSonameGenerator: version=%r" % version
             if version:
+                prefix = self.get_lib_prefix(env,**kw2)
                 suffix = self.get_lib_suffix(env,**kw2)
-                soname = self.generate_versioned_lib_info(env, [libnode, version, suffix], **kw2)
+                soname = self.generate_versioned_lib_info(env, [libnode, version, prefix, suffix], **kw2)
 
         if not soname:
             # fallback to library name (as returned by appropriate _LibNameGenerator)

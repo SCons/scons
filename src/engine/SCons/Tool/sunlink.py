@@ -84,7 +84,7 @@ def generate(env):
         'VersionedShLibName'     : link._versioned_shlib_name,
         'VersionedLdModName'     : link._versioned_ldmod_name,
         'VersionedShLibSoname'   : link._versioned_shlib_soname,
-        'VersionedLdModSoname'   : link._versioned_shlib_soname,
+        'VersionedLdModSoname'   : link._versioned_ldmod_soname,
     }
 
 def exists(env):
