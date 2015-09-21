@@ -1,0 +1,48 @@
+  A new SCons release, 2.4.0, is now available
+  on the SCons download page:
+
+          http://www.scons.org/download.php
+
+  Here is a summary of the changes since 2.3.6:
+
+  NEW FUNCTIONALITY
+
+    - None
+
+  DEPRECATED FUNCTIONALITY
+
+    - None
+
+  CHANGED/ENHANCED EXISTING FUNCTIONALITY
+
+    - None
+
+  FIXES
+
+    - None
+
+  IMPROVEMENTS
+
+    - Switched several core classes to use "slots", to
+      reduce the overall memory consumption in large
+      projects (fixes #2180, #2178, #2198)
+    - Memoizer counting uses decorators now, instead of
+      the old metaclasses approach.
+
+  PACKAGING
+
+    - Added new amd64 windows 64 bit installer
+
+  DOCUMENTATION
+
+    - None
+
+  DEVELOPMENT
+
+    - None
+
+  Thanks to Dirk Baechle, Andrew Featherstone for their contributions to this release.
+  Contributors are listed alphabetically by their last name.
+
+__COPYRIGHT__
+__FILE__ __REVISION__ __DATE__ __DEVELOPER__
