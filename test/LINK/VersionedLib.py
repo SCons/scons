@@ -29,12 +29,13 @@ import sys
 import TestSCons
 
 import SCons.Platform
+import SCons.Defaults
 
-_exe = TestSCons._exe
-
+env = SCons.Defaults.DefaultEnvironment()
 platform = SCons.Platform.platform_default()
+tool_list = SCons.Platform.DefaultToolList(platform, env)
 
-if platform == 'posix':
+if 'gnulink' in tool_list:
     test_plan = [
       {
           'libversion' : '2',
@@ -73,7 +74,7 @@ if platform == 'posix':
           'symlinks'   : [ ('libtest.so', 'libtest.so.2.dfffa11'), ('libtest.so.2', 'libtest.so.2.dfffa11') ],
       },
     ]
-elif platform == 'darwin':
+elif 'applelink' in tool_list:
     # All (?) the files we expect will get created in the current directory
     test_plan = [
       {
@@ -83,7 +84,7 @@ elif platform == 'darwin':
           'symlinks'   : [],
       },
     ]
-elif platform == 'cygwin':
+elif 'cyglink' in tool_list:
     test_plan = [
       {
           'libversion' : '2',
@@ -122,7 +123,7 @@ elif platform == 'cygwin':
           'symlinks'   : [ ('libtest.dll.a', 'libtest-2-dfffa11.dll.a') ],
       },
     ]
-elif platform == 'win32':
+elif 'mslink' in tool_list:
     test_plan = [
         {
           'libversion' : '2.5.4',
@@ -131,7 +132,7 @@ elif platform == 'win32':
           'symlinks'   : [],
         },
     ]
-elif platform == 'sunos':
+elif 'sunlink' in tool_list:
     test_plan = [
       {
           'libversion' : '2',

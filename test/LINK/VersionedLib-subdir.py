@@ -37,6 +37,7 @@ import os
 import sys
 
 import SCons.Platform
+import SCons.Defaults
 
 test = TestSCons.TestSCons()
 
@@ -58,11 +59,13 @@ int main()
 }
 """)
 
+env = SCons.Defaults.DefaultEnvironment()
 platform = SCons.Platform.platform_default()
+tool_list = SCons.Platform.DefaultToolList(platform, env)
 
-if platform == 'darwin':
+if 'applelink' in tool_list:
     subdir = 'blah.0.1.2.dylib.blah'
-elif platform == 'cygwin':
+elif 'cyglink' in tool_list:
     subdir = 'blah-0-1-2.dll.a.blah'
 else:
     subdir = 'blah.so.0.1.2.blah'
@@ -90,7 +93,7 @@ if sys.platform.find('irix') != -1:
 
 test.run(program = test.workpath('main'))
 
-if platform == 'posix':
+if 'gnulink' in tool_list:
     # All (?) the files we expect will get created in the current directory
     files = [
     'libfoo.so',
@@ -98,14 +101,14 @@ if platform == 'posix':
     'libfoo.so.0.1.2',
     ]
     obj = 'foo.os'
-elif platform == 'darwin':
+elif 'applelink' in tool_list:
     # All (?) the files we expect will get created in the current directory
     files = [
     'libfoo.dylib',
     'libfoo.0.1.2.dylib',
     ]
     obj = 'foo.os'
-elif platform == 'cygwin':
+elif 'cyglink' in tool_list:
     # All (?) the files we expect will get created in the current directory
     files = [
     'cygfoo-0-1-2.dll',
@@ -113,14 +116,14 @@ elif platform == 'cygwin':
     'libfoo.dll.a',
     ]
     obj = 'foo.os'
-elif platform == 'win32':
+elif 'mslink' in tool_list:
     # All (?) the files we expect will get created in the current directory
     files = [
     'foo.dll',
     'foo.lib',
     ]
     obj = 'foo.obj'
-elif platform == 'sunos':
+elif 'sunlink' in tool_list:
     # All (?) the files we expect will get created in the current directory
     files = [
     'libfoo.so',
