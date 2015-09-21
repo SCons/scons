@@ -28,7 +28,8 @@ the latest version by checking the SCons download page at:
 EXECUTION REQUIREMENTS
 ======================
 
-Running SCons requires Python version 2.4 or later.  There should be
+Running SCons requires Python version 2.7.*.  Currently it does not 
+run on the Python 3.x release.  There should be
 no other dependencies or requirements to run SCons.  (There is, however,
 an additional requirement to *install* SCons from this particular
 package; see the next section.)
@@ -224,20 +225,26 @@ Check the SCons web site at:
 
 AUTHOR INFO
 ===========
+SCons was originally written by Steven Knight, knight at baldmt dot com.
+Since around 2010 it has been maintained by the SCons
+development team, co-managed by Bill Deegan and Gary Oberbrunner, with
+many contributors, including but not at all limited to:
 
-Steven Knight
-knight at baldmt dot com
-http://www.baldmt.com/~knight/
+- Chad Austin
+- Dirk Baechle
+- Charles Crain
+- William Deegan
+- Steve Leblanc
+- Rob Managan
+- Greg Noel
+- Gary Oberbrunner
+- Anthony Roach
+- Greg Spencer
+- Tom Tanner
+- Anatoly Techtonik
+- Christoph Wiedemann
+- Russel Winder
 
-With plenty of help from the SCons Development team:
-        Chad Austin
-        Charles Crain
-        Steve Leblanc
-        Greg Noel
-        Gary Oberbrunner
-        Anthony Roach
-        Greg Spencer
-        Christoph Wiedemann
+\... and many others.
 
-__COPYRIGHT__
-__FILE__ __REVISION__ __DATE__ __DEVELOPER__
+Copyright (c) 2001 - 2015 The SCons Foundation
