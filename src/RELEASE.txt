@@ -1,72 +1,47 @@
-  A new SCons checkpoint release, 2.3.8.alpha.yyyymmdd, is now available
+  A new SCons release, 2.4.0, is now available
   on the SCons download page:
 
           http://www.scons.org/download.php
 
-  XXX The primary purpose of this release ... XXX
-
-  A SCons "checkpoint release" is intended to provide early access to
-  new features so they can be tested in the field before being released
-  for adoption by other software distributions.
-
-  Note that a checkpoint release is developed using the same test-driven
-  development methodology as all SCons releases.  Existing SCons
-  functionality should all work as it does in previous releases (except
-  for any changes identified in the release notes) and early adopters
-  should be able to use a checkpoint release safely for production work
-  with existing SConscript files.  If not, it represents not only a bug
-  in SCons but also a hole in the regression test suite, and we want to
-  hear about it.
-
-  New features may be more lightly tested than in past releases,
-  especially as concerns their interaction with all of the other
-  functionality in SCons.  We are especially interested in hearing bug
-  reports about new functionality.
-
-  We do not recommend that downstream distributions (Debian, Fedora,
-  etc.) package a checkpoint release, mainly to avoid confusing the
-  "public" release numbering with the long checkpoint release names.
-
-  Here is a summary of the changes since 1.3.0:
+  Here is a summary of the changes since 2.3.6:
 
   NEW FUNCTIONALITY
 
-    - List new features (presumably why a checkpoint is being released)
+    - None
 
   DEPRECATED FUNCTIONALITY
 
-    - List anything that's been deprecated since the last release
+    - None
 
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
-    - List modifications to existing features, where the previous behavior
-      wouldn't actually be considered a bug
+    - None
 
   FIXES
 
-    - List fixes of outright bugs
+    - None
 
   IMPROVEMENTS
 
-    - List improvements that wouldn't be visible to the user in the
-      documentation:  performance improvements (describe the circumstances
-      under which they would be observed), or major code cleanups
+    - Switched several core classes to use "slots", to
+      reduce the overall memory consumption in large
+      projects (fixes #2180, #2178, #2198)
+    - Memoizer counting uses decorators now, instead of
+      the old metaclasses approach.
 
   PACKAGING
 
-    - List changes in the way SCons is packaged and/or released
+    - Added new amd64 windows 64 bit installer
 
   DOCUMENTATION
 
-    - List any significant changes to the documentation (not individual
-      typo fixes, even if they're mentioned in src/CHANGES.txt to give
-      the contributor credit)
+    - None
 
   DEVELOPMENT
 
-    - List visible changes in the way SCons is developed
+    - None
 
-  Thanks to CURLY, LARRY, and MOE for their contributions to this release.
+  Thanks to Dirk Baechle, Andrew Featherstone for their contributions to this release.
   Contributors are listed alphabetically by their last name.
 
 __COPYRIGHT__
