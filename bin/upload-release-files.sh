@@ -1,4 +1,6 @@
 #!/bin/sh
+set -e
+set -x
 
 if [ $# -lt 2 ]; then
 	echo Usage: $0 VERSION SF_USERNAME
@@ -17,6 +19,8 @@ SF_TOPDIR='/home/frs/project/scons'
 cd build/dist
 cp -f ../../src/CHANGES.txt ../../src/RELEASE.txt ../../src/Announce.txt .
 
+cp scons-$VERSION.win32.exe scons-$VERSION-setup.exe
+
 set -x
 
 # Upload main scons release files:
@@ -24,6 +28,7 @@ $RSYNC $RSYNCOPTS \
   scons-$VERSION-1.noarch.rpm \
   scons-$VERSION-1.src.rpm \
   scons-$VERSION-setup.exe \
+  scons-$VERSION.win-amd64.exe \
   scons-$VERSION.tar.gz \
   scons-$VERSION.zip \
   Announce.txt CHANGES.txt RELEASE.txt \
