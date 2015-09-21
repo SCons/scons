@@ -4,7 +4,7 @@
 
                             Change Log
 
-RELEASE 2.4.0 - Mon, 21 Sep 2015 08:56:00 -0700
+RELEASE 2.4.0 - Mon, 21 Sep 2015 09:07:51 -0700
 
   From Dirk Baechle:
     - Switched several core classes to use "slots", to
