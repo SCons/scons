@@ -35,6 +35,7 @@ import os
 import sys
 
 import SCons.Platform
+import SCons.Defaults
 
 test = TestSCons.TestSCons()
 
@@ -63,7 +64,9 @@ env.SharedLibrary('foo', 'foo.c', SHLIBVERSION = '0.1.2')
 
 test.run(arguments = ['-j 2', '--tree=all'])
 
+env = SCons.Defaults.DefaultEnvironment()
 platform = SCons.Platform.platform_default()
+tool_list = SCons.Platform.DefaultToolList(platform, env)
 
 if platform == 'cygwin':
     # PATH is used to search for *.dll librarier (cygfoo-0-2-1.dll in our case)
@@ -83,7 +86,7 @@ test.run(arguments = ['-c'])
 
 platform = SCons.Platform.platform_default()
 
-if platform == 'posix':
+if 'gnulink' in tool_list:
     # All (?) the files we expect will get created in the current directory
     files = [
     'libfoo.so',
@@ -91,14 +94,14 @@ if platform == 'posix':
     'libfoo.so.0.1.2',
     'foo.os',
     ]
-elif platform == 'darwin':
+elif 'applelink' in tool_list:
     # All (?) the files we expect will get created in the current directory
     files = [
     'libfoo.dylib',
     'libfoo.0.1.2.dylib',
     'foo.os',
     ]
-elif platform == 'cygwin':
+elif 'cyglink' in tool_list:
     # All (?) the files we expect will get created in the current directory
     files = [
     'cygfoo-0-1-2.dll',
@@ -106,14 +109,14 @@ elif platform == 'cygwin':
     'libfoo.dll.a',
     'foo.os',
     ]
-elif platform == 'win32':
+elif 'mslink' in tool_list:
     # All (?) the files we expect will get created in the current directory
     files = [
     'foo.dll',
     'foo.lib',
     'foo.obj',
     ]
-elif platform == 'sunos':
+elif 'sunlink' in tool_list:
     # All (?) the files we expect will get created in the current directory
     files = [
     'libfoo.so',
