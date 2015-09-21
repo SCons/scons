@@ -36,7 +36,7 @@ released. Especially if you are directly using the Node class.
 =================================================================
 
 
-RELEASE 2.4.0 - Mon, 21 Sep 2015 08:56:00 -0700
+RELEASE VERSION/DATE TO BE FILLED IN LATER
 
   Please consult the RELEASE.txt file for a summary of changes since the last
   release and consult the CHANGES.txt file for complete a list of changes
