@@ -141,7 +141,6 @@ def generate(env):
     # not work, the user must use $SHLIBVERSION
     env['DSHLIBVERSION'] = '$SHLIBVERSION'
     env['DSHLIBVERSIONFLAGS'] = []
-    print "AKUKU: %r" % env.subst('$_DSHLIBVERSIONFLAGS')
 
     SCons.Tool.createStaticLibBuilder(env)
 
