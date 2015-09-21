@@ -1,0 +1,7 @@
+*,D
+.*.swp
+.consign
+.sconsign*
+aegis.log
+bootstrap
+build

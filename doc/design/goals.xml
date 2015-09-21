@@ -1,0 +1,230 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+]>
+
+<chapter id="chap-goals"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Goals</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+ <para>
+
+   As a next-generation build tool,
+   &SCons; should fundamentally
+   improve on its predecessors.
+   Rather than simply being driven by trying to
+   <emphasis>not</emphasis> be like previous tools,
+   &SCons; aims to satisfy the following goals:
+
+ </para>
+
+ <variablelist>
+
+  <varlistentry>
+   <term><literal>Practicality</literal></term>
+   <listitem>
+    <para>
+
+     The &SCons; design emphasizes
+     an implementable feature set
+     that lets users get practical, useful work done.
+     &SCons; is helped in this regard by its roots in &Cons;,
+     which has had its feature set honed by
+     several years of input
+     from a dedicated band of users.
+
+    </para>
+   </listitem>
+  </varlistentry>
+
+  <varlistentry>
+   <term><literal>Portability</literal></term>
+   <listitem>
+    <para>
+
+     &SCons; is intended as a portable build tool,
+     able to handle software construction tasks
+     on a variety of operating systems.
+     It should be possible (although not mandatory)
+     to use &SCons; so that the same configuration file
+     builds the same software correctly on,
+     for example, both Linux and Windows NT.
+     Consequently, &SCons; should hide from users
+     operating-system-dependent details
+     such as filename extensions
+     (for example, <filename>.o</filename>
+     vs. <filename>.obj</filename>).
+
+     <!--
+     XXX: enable writing portable builds without forcing it
+     -->
+
+     <!--
+     XXX: still write non-portably for quick-and-dirty
+     -->
+
+    </para>
+   </listitem>
+  </varlistentry>
+
+  <varlistentry>
+   <term><literal>Usability</literal></term>
+   <listitem>
+    <para>
+
+     Novice users should be able to grasp quickly
+     the rudiments of using &SCons; to build their software.
+     This extends to installing &SCons;, too.
+     Installation should be painless,
+     and the installed &SCons;
+     should work "out of the box"
+     to build most software.
+
+    </para>
+
+    <para>
+
+     This goal should be kept in mind during implementation,
+     when there is always a tendency to try to optimize too early.
+     Speed is nice, but not as important as clarity
+     and ease of use.
+
+    </para>
+   </listitem>
+  </varlistentry>
+
+  <varlistentry>
+   <term><literal>Utility</literal></term>
+   <listitem>
+    <para>
+
+     &SCons; should also provide a rich enough set of features
+     to accommodate building more complicated software projects.
+     However, the features required for
+     building complicated software projects
+     should not get in the way of novice users.
+     (See the previous goal.)
+     In other words, complexity should be available
+     when it's needed
+     but not required to get work done.
+     Practically, this implies that &SCons;
+     shouldn't be dumbed down to the point it
+     excludes complicated software builds.
+
+    </para>
+   </listitem>
+  </varlistentry>
+
+  <varlistentry>
+   <term><literal>Sharability</literal></term>
+   <listitem>
+    <para>
+
+     As a key element in balancing the conflicting
+     needs of <literal>Usability</literal> and <literal>Utility</literal>,
+     &SCons; should provide mechanisms to
+     allow &SCons; users to share build rules,
+     dependency scanners, and other objects and recipes
+     for constructing software.
+     A good sharing mechanism should support
+     the model wherein most developers on a project
+     use rules and templates
+     that are created
+     and maintained by a local integrator or build-master,
+
+    </para>
+   </listitem>
+  </varlistentry>
+
+  <varlistentry>
+   <term><literal>Extensibility</literal></term>
+   <listitem>
+    <para>
+
+     &SCons; should provide mechanisms for
+     easily extending its capabilities,
+     including building new types of files,
+     adding new types of dependency scanning,
+     being able to accomodate dependencies
+     between objects other than files,
+     etc.
+
+    </para>
+   </listitem>
+  </varlistentry>
+
+  <varlistentry>
+   <term><literal>Flexibility</literal></term>
+   <listitem>
+    <para>
+
+     In addition to providing a useful command-line interface,
+     &SCons; should provide the right architectural
+     framework for embedding its dependency management
+     in other interfaces.
+     &SCons; would help strengthen other GUIs or IDEs
+     and the additional requirements of the
+     other interfaces would help broaden and solidify
+     the core &SCons; dependency management.
+
+    </para>
+   </listitem>
+  </varlistentry>
+
+ </variablelist>
+
+<section id="sect-fix-make">
+ <title>Fixing &Make;'s problems</title>
+
+ <para>
+
+<!--
+To be written.
+-->
+
+ </para>
+
+</section>
+
+<section id="sect-fix-cons">
+ <title>Fixing &Cons;'s problems</title>
+
+  <para>
+
+<!--
+To be written.
+-->
+
+  </para>
+
+</section>
+
+</chapter>

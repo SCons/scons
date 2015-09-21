@@ -1,0 +1,6 @@
+env = Environment({})
+
+import os
+env['ENV']['HOME'] = os.environ['HOME']  # Hack for gdmd
+
+env.StaticLibrary('mylib', ['a.d', 'b.d'])
