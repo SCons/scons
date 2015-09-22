@@ -34,8 +34,13 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Util
+import SCons.Tool
+import os
+import sys
+import re
 
 import link
+
 
 def generate(env):
     """Add Builders and construction variables for gnulink to an Environment."""
@@ -49,6 +54,14 @@ def generate(env):
     env['RPATHPREFIX'] = '-Wl,-rpath='
     env['RPATHSUFFIX'] = ''
     env['_RPATH'] = '${_concat(RPATHPREFIX, RPATH, RPATHSUFFIX, __env__)}'
+
+    # OpenBSD doesn't usually use SONAME for libraries
+    use_soname = not sys.platform.startswith('openbsd')
+    link._setup_versioned_lib_variables(env, tool = 'gnulink', use_soname = use_soname)
+    env['LINKCALLBACKS'] = link._versioned_lib_callbacks()
+
+    # For backward-compatiblity with older SCons versions
+    env['SHLIBVERSIONFLAGS'] = SCons.Util.CLVar('-Wl,-Bsymbolic')
     
 def exists(env):
     # TODO: sync with link.smart_link() to choose a linker
