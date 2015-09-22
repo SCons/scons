@@ -11,34 +11,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Whatever John Doe did.
 
 
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
-
-  From John Doe:
-
-    - Whatever John Doe did.
-
-
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
-
-  From John Doe:
-
-    - Whatever John Doe did.
-
-
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
-
-  From John Doe:
-
-    - Whatever John Doe did.
-
-
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
-
-  From John Doe:
-
-    - Whatever John Doe did.
-
-
 RELEASE 2.4.0 - Mon, 21 Sep 2015 08:56:00 -0700
 
   From Dirk Baechle:
