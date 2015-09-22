@@ -34,6 +34,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.subdir('src')
+test.subdir('src/sub1')
 
 test.write('SConstruct', """\
 VariantDir('var1', 'src')
@@ -41,6 +42,9 @@ VariantDir('var2', 'src')
 
 SConscript('var1/SConscript')
 SConscript('var2/SConscript')
+SConscript('var1/sub1/SConscript')
+SConscript('var2/sub1/SConscript')
+SConscript('src/sub1/SConscript', src_dir = 'src', variant_dir = 'var3', duplicate=0)
 """)
 
 test.write(['src', 'SConscript'], """\
@@ -55,16 +59,46 @@ def concatenate(target, source, env):
 env['BUILDERS']['Concatenate'] = Builder(action=concatenate)
 
 env.Concatenate('f.out', sorted(Glob('f*.in'), key=lambda t: t.name))
+env.Concatenate('fex.out', sorted(Glob('f*.in', exclude = 'f1.in'), key=lambda t: t.name))
+""")
+
+test.write(['src', 'sub1', 'SConscript'], """\
+env = Environment()
+
+def concatenate(target, source, env):
+    fp = open(str(target[0]), 'wb')
+    for s in source:
+        fp.write(open(str(s), 'rb').read())
+    fp.close()
+
+env['BUILDERS']['Concatenate'] = Builder(action=concatenate)
+
+env.Concatenate('f.out', sorted(Glob('f*.in'), key=lambda t: t.name))
+env.Concatenate('fex.out', sorted(Glob('f*.in', exclude = 'f1.in'), key=lambda t: t.name))
 """)
 
 test.write(['src', 'f1.in'], "src/f1.in\n")
 test.write(['src', 'f2.in'], "src/f2.in\n")
 test.write(['src', 'f3.in'], "src/f3.in\n")
+test.write(['src', 'sub1', 'f1.in'], "src/sub1/f1.in\n")
+test.write(['src', 'sub1', 'f2.in'], "src/sub1/f2.in\n")
+test.write(['src', 'sub1', 'f3.in'], "src/sub1/f3.in\n")
+
 
 test.run(arguments = '.')
 
 test.must_match(['var1', 'f.out'], "src/f1.in\nsrc/f2.in\nsrc/f3.in\n")
 test.must_match(['var2', 'f.out'], "src/f1.in\nsrc/f2.in\nsrc/f3.in\n")
+test.must_match(['var1', 'fex.out'], "src/f2.in\nsrc/f3.in\n")
+test.must_match(['var2', 'fex.out'], "src/f2.in\nsrc/f3.in\n")
+
+test.must_match(['var1', 'sub1', 'f.out'], "src/sub1/f1.in\nsrc/sub1/f2.in\nsrc/sub1/f3.in\n")
+test.must_match(['var2', 'sub1', 'f.out'], "src/sub1/f1.in\nsrc/sub1/f2.in\nsrc/sub1/f3.in\n")
+test.must_match(['var1', 'sub1', 'fex.out'], "src/sub1/f2.in\nsrc/sub1/f3.in\n")
+test.must_match(['var2', 'sub1', 'fex.out'], "src/sub1/f2.in\nsrc/sub1/f3.in\n")
+
+test.must_match(['var3', 'sub1', 'f.out'], "src/sub1/f1.in\nsrc/sub1/f2.in\nsrc/sub1/f3.in\n")
+test.must_match(['var3', 'sub1', 'fex.out'], "src/sub1/f2.in\nsrc/sub1/f3.in\n")
 
 test.pass_test()
 

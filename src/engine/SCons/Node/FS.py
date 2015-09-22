@@ -2182,7 +2182,12 @@ class Dir(Base):
                     r = [os.path.join(str(dir), x) for x in r]
                 result.extend(r)
         if exclude:
-            result = filter(lambda x: not any(fnmatch.fnmatch(str(x), e) for e in SCons.Util.flatten(exclude)), result)
+            excludes = []
+            excludeList = SCons.Util.flatten(exclude)
+            for x in excludeList:
+              r = self.glob(x, ondisk, source, strings)
+              excludes.extend(r)
+            result = filter(lambda x: not any(fnmatch.fnmatch(str(x), str(e)) for e in SCons.Util.flatten(excludes)), result)
         return sorted(result, key=lambda a: str(a))
 
     def _glob1(self, pattern, ondisk=True, source=False, strings=False):
