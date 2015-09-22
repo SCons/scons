@@ -6,6 +6,10 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From William Blevins:
+    - InstallVersionedLib now available in the DefaultEnvironment context.
+    - Improves orthogonality of use cases between different Install functions.
+    
   From Paweł Tomulik:
     - Reimplemented versioning for shared libraries, with the following effects
     - Fixed tigris issues #3001, #3006.
