@@ -1,0 +1,174 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+    
+    <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
+    %builders-mod;
+    <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
+    %functions-mod;
+    <!ENTITY % tools-mod SYSTEM "../generated/tools.mod">
+    %tools-mod;
+    <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
+    %variables-mod;
+]>
+
+<chapter id="chap-variants"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Variant Builds</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+<!--
+
+=head1 Variant builds
+
+=head2 Variations on a theme
+
+Other variations of this model are possible. For example, you might decide
+that you want to separate out your include files into platform dependent and
+platform independent files. In this case, you'd have to define an
+alternative to C<$INCLUDE> for platform-dependent files. Most F<Conscript>
+files, generating purely platform-independent include files, would not have
+to change.
+
+You might also want to be able to compile your whole system with debugging
+or profiling, for example, enabled. You could do this with appropriate
+command line options, such as C<DEBUG=on>. This would then be translated
+into the appropriate platform-specific requirements to enable debugging
+(this might include turning off optimization, for example). You could
+optionally vary the name space for these different types of systems, but, as
+we'll see in the next section, it's not B<essential> to do this, since Cons
+is pretty smart about rebuilding things when you change options.
+
+-->
+
+  <para>
+
+  The &variant_dir; keyword argument of
+  the &SConscript; function provides everything
+  we need to show how easy it is to create
+  variant builds using &SCons;.
+  Suppose, for example, that we want to
+  build a program for both Windows and Linux platforms,
+  but that we want to build it in a shared directory
+  with separate side-by-side build directories
+  for the Windows and Linux versions of the program.
+
+  </para>
+
+  <scons_example name="variants_ex">
+    <file name="SConstruct" printme="1">
+platform = ARGUMENTS.get('OS', Platform())
+
+include = "#export/$PLATFORM/include"
+lib = "#export/$PLATFORM/lib"
+bin = "#export/$PLATFORM/bin"
+
+env = Environment(PLATFORM = platform,
+                  BINDIR = bin,
+                  INCDIR = include,
+                  LIBDIR = lib,
+                  CPPPATH = [include],
+                  LIBPATH = [lib],
+                  LIBS = 'world')
+
+Export('env')
+
+env.SConscript('src/SConscript', variant_dir='build/$PLATFORM')
+    </file>
+    <directory name="src"></directory>
+    <directory name="src/hello"></directory>
+    <directory name="src/world"></directory>
+    <file name="src/SConscript">
+Import('env')
+SConscript('hello/SConscript')
+SConscript('world/SConscript')
+    </file>
+    <file name="src/hello/SConscript">
+Import('env')
+hello = env.Program('hello.c')
+env.Install('$BINDIR', hello)
+    </file>
+    <file name="src/hello/hello.c">
+#include "world.h"
+int main(int argc, char *argv[]) { printf "hello.c\n"; world(); }
+    </file>
+    <file name="src/world/SConscript">
+Import('env')
+world = env.Library('world.c')
+env.Install('$LIBDIR', world)
+env.Install('$INCDIR', 'world.h')
+    </file>
+    <file name="src/world/world.h">
+#define STRING "world.h"
+extern int world();
+    </file>
+    <file name="src/world/world.c">
+int world() { printf "world.c\n"; }
+    </file>
+  </scons_example>
+
+  <para>
+
+  This SConstruct file,
+  when run on a Linux system, yields:
+
+  </para>
+
+  <scons_output example="variants_ex" os="posix" suffix="1">
+    <scons_output_command>scons -Q OS=linux</scons_output_command>
+  </scons_output>
+
+  <para>
+
+  The same SConstruct file on Windows would build:
+
+  </para>
+
+  <scons_output example="variants_ex" os="win32" suffix="2">
+    <scons_output_command>scons -Q OS=windows</scons_output_command>
+  </scons_output>
+
+  <!--
+
+  <scons_example name="variants_ex2">
+    <file name="SConstruct" printme="1">
+env = Environment(OS = ARGUMENTS.get('OS'))
+for os in ['newell', 'post']:
+    SConscript('src/SConscript', variant_dir='build/' + os)
+    </file>
+  </scons_example>
+
+  <scons_output example="variants_ex2" suffix="1">
+    <scons_output_command>scons -Q</scons_output_command>
+  </scons_output>
+
+  -->
+
+</chapter>

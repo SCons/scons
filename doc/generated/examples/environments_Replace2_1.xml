@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons</userinput>
+scons: Reading SConscript files ...
+CCFLAGS = -DDEFINE1
+CCFLAGS = -DDEFINE2
+scons: done reading SConscript files.
+scons: Building targets ...
+cc -o bar.o -c -DDEFINE2 bar.c
+cc -o bar bar.o
+cc -o foo.o -c -DDEFINE2 foo.c
+cc -o foo foo.o
+scons: done building targets.
+</screen>

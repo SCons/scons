@@ -1,0 +1,25 @@
+# coding: utf-8
+import os
+
+prog_install = Install( os.path.join( ARGUMENTS.get('prefix', '/'), 'bin'), Program( 'main.c' ) )
+Tag( prog_install, unix_attr='(0755, root, users)' )
+
+Default( Package( projectname    = 'foo',
+         version        = '1.2.3',
+         type           = 'rpm',
+         license        = 'gpl',
+         summary        = 'hello',
+         summary_de     = 'hallo',
+         summary_fr     = 'bonjour',
+         packageversion = 0,
+         x_rpm_Group    = 'Application/office',
+         x_rpm_Group_de = 'Applikation/büro',
+         x_rpm_Group_fr = 'Application/bureau',
+         description    = 'this should be really long',
+         description_de = 'das sollte wirklich lang sein',
+         description_fr = 'ceci devrait être vraiment long',
+         source         = [ prog_install ],
+         source_url     = 'http://foo.org/foo-1.2.3.tar.gz',
+        ) )
+
+Alias ( 'install', prog_install )
