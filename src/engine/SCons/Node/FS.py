@@ -2185,8 +2185,8 @@ class Dir(Base):
             excludes = []
             excludeList = SCons.Util.flatten(exclude)
             for x in excludeList:
-              r = self.glob(x, ondisk, source, strings)
-              excludes.extend(r)
+                r = self.glob(x, ondisk, source, strings)
+                excludes.extend(r)
             result = filter(lambda x: not any(fnmatch.fnmatch(str(x), str(e)) for e in SCons.Util.flatten(excludes)), result)
         return sorted(result, key=lambda a: str(a))
 
