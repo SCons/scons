@@ -228,6 +228,12 @@ env.Program('testapp1.c', LIBS = mylib, LIBPATH='.')
 env.Program('testapp2.c', LIBS = ['test'], LIBPATH='.')
 instnode = env.InstallVersionedLib("#/installtest",mylib)
 env.Default(instnode)
+
+# Extra test to ensure that InstallVersionedLib can be called from the DefaultEnvironment
+# Ensures orthogonality where InstallVersionedLib wasn't previously available: SCons gave NameError.
+instnode = InstallVersionedLib("defaultenv-installtest",mylib)
+Default(instnode)
+
 """ % libversion)
 
     test.write('test.c', test_c_src)
@@ -240,6 +246,7 @@ env.Default(instnode)
         test.must_exist([ f])
     for f in instfiles:
         test.must_exist(['installtest', f])
+        test.must_exist(['defaultenv-installtest', f])
 
     wrong_symlinks = []
     for (linkname,expected) in symlinks:
@@ -268,6 +275,7 @@ env.Default(instnode)
 
     for f in instfiles:
         test.must_not_exist(['installtest', f])
+        test.must_not_exist(['defaultenv-installtest', f])
 
 test.pass_test()
 
