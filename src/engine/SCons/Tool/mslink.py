@@ -263,6 +263,7 @@ def generate(env):
     env['_SHLINK_SOURCES'] = windowsShlinkSources
     env['SHLINKCOM']   =  compositeShLinkAction
     env.Append(SHLIBEMITTER = [windowsLibEmitter])
+    env.Append(LDMODULEEMITTER = [windowsLibEmitter])
     env['LINK']        = 'link'
     env['LINKFLAGS']   = SCons.Util.CLVar('/nologo')
     env['_PDB'] = pdbGenerator

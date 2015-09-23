@@ -318,6 +318,7 @@ GlobalDefaultEnvironmentFunctions = [
     'Ignore',
     'Install',
     'InstallAs',
+    'InstallVersionedLib',
     'Literal',
     'Local',
     'ParseDepends',
