@@ -6,6 +6,9 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Florian Miedniak:
+    - Fixed tigris issue #3011: Glob() excludes didn't work when used with VariantDir(duplicate=0)
+
   From William Blevins:
     - InstallVersionedLib now available in the DefaultEnvironment context.
     - Improves orthogonality of use cases between different Install functions.
