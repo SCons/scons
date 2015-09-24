@@ -200,22 +200,20 @@ For maximum portability, use the &b-LoadableModule; builder for the latter.
 When the &cv-link-SHLIBVERSION; construction variable is defined a versioned
 shared library is created. This modifies the &cv-link-SHLINKFLAGS; as required,
 adds the version number to the library name, and creates the symlinks that
-are needed. &cv-link-SHLIBVERSION; needs to be of the form X.Y.Z, where X
-and Y are numbers, and Z is a number but can also contain letters to designate
-alpha, beta, or release candidate patch levels.
+are needed.
 </para>
 
 <example_commands>
 env.SharedLibrary(target = 'bar', source = ['bar.c', 'foo.o'], SHLIBVERSION='1.5.2')
 </example_commands>
 
-
 <para>
-This builder may create multiple links to the library. On a POSIX system,
-for the shared library libbar.so.2.3.1, the links created would be
-libbar.so and libbar.so.2; on a Darwin (OSX) system
-the library would be libbar.2.3.1.dylib and the link would be
-libbar.dylib.
+On a POSIX system, versions with a single token create exactly one symlink:
+libbar.so.6 would have symlinks libbar.so only.
+On a POSIX system, versions with two or more
+tokens create exactly two symlinks: libbar.so.2.3.1 would have symlinks
+libbar.so and libbar.so.2; on a Darwin (OSX) system the library would be
+libbar.2.3.1.dylib and the link would be libbar.dylib.
 </para>
 
 <para>
@@ -490,10 +488,8 @@ When this construction variable is defined, a versioned loadable module
 is created by &b-link-LoadableModule; builder. This activates the
 &cv-link-_LDMODULEVERSIONFLAGS; and thus modifies the &cv-link-LDMODULECOM; as
 required, adds the version number to the library name, and creates the symlinks
-that are needed. &cv-link-LDMODULEVERSION; needs to be of the form X.Y.Z, where
-X and Y are numbers, and Z is a number but can also contain letters to
-designate alpha, beta, or release candidate patch levels. By default
-&cv-link-LDMODULEVERSION; is set to $SHLIBVERSION.
+that are needed. &cv-link-LDMODULEVERSION; versions should exist in the same
+format as &cv-link-SHLIBVERSION.
 </para>
 </summary>
 </cvar>
@@ -521,9 +517,9 @@ When this construction variable is defined, a versioned shared library
 is created by &b-link-SharedLibrary; builder. This activates the
 &cv-link-_SHLIBVERSIONFLAGS; and thus modifies the &cv-link-SHLINKCOM; as
 required, adds the version number to the library name, and creates the symlinks
-that are needed. &cv-link-SHLIBVERSION; needs to be of the form X.Y.Z, where X
-and Y are numbers, and Z is a number but can also contain letters to designate
-alpha, beta, or release candidate patch levels.
+that are needed.  &cv-link-SHLIBVERSION; versions should exist as alpha-numeric,
+decimal-delimited values as defined by the regular expression "\w+[\.\w+]*".
+Example &cv-link-SHLIBVERSION; values include '1', '1.2.3', and '1.2.gitaa412c8b'.
 </para>
 </summary>
 </cvar>
