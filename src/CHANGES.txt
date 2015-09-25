@@ -6,12 +6,51 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Florian Miedniak:
+    - Fixed tigris issue #3011: Glob() excludes didn't work when used with VariantDir(duplicate=0)
+
+  From William Blevins:
+    - InstallVersionedLib now available in the DefaultEnvironment context.
+    - Improves orthogonality of use cases between different Install functions.
+    
+  From Paweł Tomulik:
+    - Reimplemented versioning for shared libraries, with the following effects
+    - Fixed tigris issues #3001, #3006.
+    - Fixed several other issues not reported to tigris, including:
+      issues with versioned libraries in subdirectories with tricky names,
+      issues with versioned libraries and variant directories,
+      issue with soname not being injected to library when using D linkers,
+    - Switched to direct symlinks instead of daisy-chained ones -- soname and
+      development symlinks point directly to the versioned shared library now),
+      for rationale see:
+      https://www.debian.org/doc/debian-policy/ch-sharedlibs.html
+      https://fedoraproject.org/wiki/Packaging:Guidelines#Devel_Packages
+      https://bitbucket.org/scons/scons/pull-requests/247/new-versioned-libraries-gnulink-cyglink/diff#comment-10063929
+    - New construction variables to allow override default behavior: SONAME,
+      SHLIBVERSIONFLAGS, _SHLIBVERSIONFLAGS, SHLIBNOVERSIONSYMLINKS,
+      LDMODULEVERSION, LDMODULEVERSIONFLAGS, _LDMODULEVERSIONFLAGS,
+      LDMODULENOVERSIONSYMLINKS.
+    - Changed logic used to configure the versioning machinery from
+      platform-centric to linker-oriented.
+    - The SHLIBVERSION/LDMODULEVERSION variables are no longer validated by
+      SCons (more freedom to users).
+    - InstallVersionedLib() doesn't use SHLIBVERSION anymore.
+    - Enchanced docs for the library versioning stuff.
+    - New tests for versioned libraries.
+    - Library versioning is currently implemented for the following linker
+      tools: 'cyglink', 'gnulink', 'sunlink'.
+
+RELEASE 2.4.0 - Mon, 21 Sep 2015 08:56:00 -0700
+
   From Dirk Baechle:
-    - Switched several core classes to using "slots", for
-      reducing the overall memory consumption in large
+    - Switched several core classes to use "slots", to
+      reduce the overall memory consumption in large
       projects (fixes #2180, #2178, #2198)
     - Memoizer counting uses decorators now, instead of
       the old metaclasses approach.
+
+  From Andrew Featherstone
+    - Fixed typo in SWIGPATH description
 
 RELEASE 2.3.6 - Mon, 31 Jul 2015 14:35:03 -0700
 

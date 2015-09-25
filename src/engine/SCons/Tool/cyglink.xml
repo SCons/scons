@@ -23,20 +23,26 @@ See its __doc__ string for a discussion of the format.
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 
-<tool name="gnulink">
+<tool name="cyglink">
 <summary>
 <para>
-Set construction variables for GNU linker/loader.
+Set construction variables for cygwin linker/loader.
 </para>
 </summary>
 <sets>
-<item>SHLINKFLAGS</item>
+<item>IMPLIBPREFIX</item>
+<item>IMPLIBSUFFIX</item>
+<item>LDMODULEVERSIONFLAGS</item>
+<item>LINKFLAGS</item>
 <item>RPATHPREFIX</item>
 <item>RPATHSUFFIX</item>
-<item>_LDMODULESONAME</item>
-<item>_SHLIBSONAME</item>
-<item>LDMODULEVERSIONFLAGS</item>
+<item>SHLIBPREFIX</item>
+<item>SHLIBSUFFIX</item>
 <item>SHLIBVERSIONFLAGS</item>
+<item>SHLINKCOM</item>
+<item>SHLINKFLAGS</item>
+<item>_LDMODULEVERSIONFLAGS</item>
+<item>_SHLIBVERSIONFLAGS</item>
 </sets>
 </tool>
 

@@ -1,12 +1,4 @@
-"""SCons.Platform.cygwin
-
-Platform-specific initialization for Cygwin systems.
-
-There normally shouldn't be any need to import this module directly.  It
-will usually be imported through the generic SCons.Platform.Platform()
-selection method.
-"""
-
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -32,21 +24,33 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import posix
-from SCons.Platform import TempFileMunge
+import os
+import re
 
-def generate(env):
-    posix.generate(env)
+import TestSCons
+import SCons.Platform
+import SCons.Defaults
 
-    env['PROGPREFIX']  = ''
-    env['PROGSUFFIX']  = '.exe'
-    env['SHLIBPREFIX'] = ''
-    env['SHLIBSUFFIX'] = '.dll'
-    env['LIBPREFIXES'] = [ '$LIBPREFIX', '$SHLIBPREFIX', '$IMPLIBPREFIX' ]
-    env['LIBSUFFIXES'] = [ '$LIBSUFFIX', '$SHLIBSUFFIX', '$IMPLIBSUFFIX' ]
-    env['TEMPFILE']    = TempFileMunge
-    env['TEMPFILEPREFIX'] = '@'
-    env['MAXLINELENGTH']  = 2048
+linkers = [ 'gnulink', 'cyglink', 'sunlink' ]
+
+foo_c_src = "void foo() {}\n"
+
+env = SCons.Defaults.DefaultEnvironment()
+platform = SCons.Platform.platform_default()
+tool_list = SCons.Platform.DefaultToolList(platform, env)
+
+test = TestSCons.TestSCons()
+test.write('foo.c', foo_c_src)
+test.write('SConstruct', "SharedLibrary('foo','foo.c',SHLIBVERSION='1.2.3')\n")
+
+if 'gnulink' in tool_list:
+    test.run(stdout = r".+ -Wl,-Bsymbolic -Wl,-soname=libfoo.so.1( .+)+", match = TestSCons.match_re_dotall)
+    test.run(arguments = ['-c'])
+elif 'sunlink' in tool_list:
+    test.run(stdout = r".+ -h libfoo.so.1( .+)+", match = TestSCons.match_re_dotall)
+    test.run(arguments = ['-c'])
+
+test.pass_test()
 
 # Local Variables:
 # tab-width:4

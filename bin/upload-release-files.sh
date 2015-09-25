@@ -1,4 +1,6 @@
 #!/bin/sh
+set -e
+set -x
 
 if [ $# -lt 2 ]; then
 	echo Usage: $0 VERSION SF_USERNAME
@@ -15,7 +17,10 @@ SF_TOPDIR='/home/frs/project/scons'
 
 # the build products are here:
 cd build/dist
-cp -f ../../src/CHANGES.txt ../../src/RELEASE.txt ../../src/Announce.txt .
+cp -f ../../src/CHANGES.txt ../../src/RELEASE.txt ../../src/Announce.txt ../../src/README.txt .
+
+cp scons-$VERSION.win32.exe scons-$VERSION-setup.exe
+cp scons-$VERSION.win-amd64.exe scons-$VERSION-amd64-setup.exe
 
 set -x
 
@@ -24,6 +29,7 @@ $RSYNC $RSYNCOPTS \
   scons-$VERSION-1.noarch.rpm \
   scons-$VERSION-1.src.rpm \
   scons-$VERSION-setup.exe \
+  scons-$VERSION-amd64-setup.exe \
   scons-$VERSION.tar.gz \
   scons-$VERSION.zip \
   Announce.txt CHANGES.txt RELEASE.txt \
@@ -42,6 +48,12 @@ $RSYNC $RSYNCOPTS \
   scons-src-$VERSION.zip \
   Announce.txt CHANGES.txt RELEASE.txt \
   $SF_USER@$SF_MACHINE:$SF_TOPDIR/scons-src/$VERSION/
+
+# Readme
+$RSYNC $RSYNCOPTS \
+  README.txt  \
+  $SF_USER@$SF_MACHINE:$SF_TOPDIR/
+
 
 
 #

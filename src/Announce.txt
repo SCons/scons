@@ -18,9 +18,8 @@ So that everyone using SCons can help each other learn how to use it more
 effectively, please go to http://scons.org/lists.php#users to sign up for
 the scons-users mailing list.
 
-==============IMPORTANT NOTICE FOR NEXT VERSION V2.4.0===========
+==============IMPORTANT NOTICE===========
 
-PLEASE READ. CHANGES COMING IN NEXT MAJOR RELEASE V2.4.0
 As has been pre-announced in SCons's mailing lists:
 
 * https://pairlist4.pair.net/pipermail/scons-users/2014-July/002734.html ,
@@ -44,6 +43,9 @@ RELEASE VERSION/DATE TO BE FILLED IN LATER
   since last release.  This announcement highlights only the important
   changes.
 
+  Please note the following important changes since release 2.3.6:
+    - Switch several core classes to use "slots" to reduce memory
+      usage. (PR #2180, #2178, #2198)
 
   Please note the following important changes since release 2.3.5:
     - Support for Visual Studio 2015
