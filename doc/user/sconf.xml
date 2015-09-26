@@ -304,6 +304,26 @@ scons: `.' is up to date.
   </section>
 
   <section>
+  <title>Checking for the Presence of a program</title>
+
+    <para>
+
+    Check for the presence of a program
+    by using the &CheckProg; method:
+
+    </para>
+
+    <sconstruct>
+env = Environment()
+conf = Configure(env)
+if not conf.CheckProg('foobar'):
+  print 'Unable to find the program foobar on the system'
+  Exit(1)
+env = conf.Finish()
+    </sconstruct>
+
+  </section>
+  <section>
   <title>Adding Your Own Custom Checks</title>
 
     <para>
