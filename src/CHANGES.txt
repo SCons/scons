@@ -13,6 +13,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Memoizer counting uses decorators now, instead of
       the old metaclasses approach.
 
+  From Carnë Draug:
+    - Added new configure check, CheckProg, to check for
+      existence of a program.
+
 RELEASE 2.3.6 - Mon, 31 Jul 2015 14:35:03 -0700
 
   From Rob Smith:
