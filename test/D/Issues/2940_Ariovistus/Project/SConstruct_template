@@ -1,0 +1,12 @@
+from os.path import join
+
+environment = Environment({})
+
+import os
+environment['ENV']['HOME'] = os.environ['HOME']  # Hack for gdmd
+
+Export('environment')
+
+environment.SConscript([
+    join("test","test1", "SConscript"),
+]);
