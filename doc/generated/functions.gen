@@ -2565,10 +2565,10 @@ sources = Glob('*.cpp', exclude=['os_*_specific_*.cpp']) + Glob('os_%s_specific_
   </varlistentry>
   <varlistentry id="f-Help">
     <term>
-      <literal>Help(text)</literal>
+      <literal>Help(text, append=False)</literal>
     </term>
     <term>
-      <literal>env.Help(text)</literal>
+      <literal>env.Help(text, append=False)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2576,12 +2576,18 @@ This specifies help text to be printed if the
 <option>-h</option>
 argument is given to
 <filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>.
-If
+If 
 <function xmlns="http://www.scons.org/dbxsd/v1.0">Help</function>
-is called multiple times, the text is appended together in the order
-that
+is called multiple times, the text is appended together in the order that 
 <function xmlns="http://www.scons.org/dbxsd/v1.0">Help</function>
-is called.
+is called. With append set to False, any 
+<function xmlns="http://www.scons.org/dbxsd/v1.0">Help</function>
+text generated with 
+<function xmlns="http://www.scons.org/dbxsd/v1.0">AddOption</function>
+is clobbered. If append is True, the AddOption help is prepended to the help
+string, thus preserving the 
+<option>-h</option>
+message.
 </para>
 </listitem>
   </varlistentry>
