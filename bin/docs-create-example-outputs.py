@@ -14,6 +14,6 @@ if __name__ == "__main__":
         print "OK"
     else:
         print "Not all example names and suffixes are unique! Please correct the errors listed above and try again."
-        sys.exit(0)
+        sys.exit(1)
     
     SConsExamples.createAllExampleOutputs(os.path.join('doc','user'))

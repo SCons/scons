@@ -505,20 +505,13 @@ env.InstallAs(target = ['../lib/libfoo.a', '../lib/libbar.a'],
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-Installs a versioned shared library. The <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link>
-construction variable should be defined in the environment
-to confirm the version number in the library name.
-If <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> is not defined a warning will be issued
-and the name of the library will be parsed to derive the version. 
-The symlinks appropriate to the architecture will be generated.
+Installs a versioned shared library. The symlinks appropriate to the
+architecture will be generated based on symlinks of the source library.
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.InstallVersionedLib(target = '/usr/local/bin/foo',
               source = 'libxyz.1.5.2.so')
-env.InstallVersionedLib(target = '/usr/local/bin/foo',
-              source = 'libxyz.1.5.2.so',
-              SHLIBVERSION='1.5.2')
 </example_commands>
 </listitem>
   </varlistentry>
@@ -1257,7 +1250,7 @@ file as the second element. Normally the object file is ignored.
 This builder method is only
 provided when Microsoft Visual C++ is being used as the compiler.
 The PCH builder method is generally used in
-conjuction with the PCH construction variable to force object files to use
+conjunction with the PCH construction variable to force object files to use
 the precompiled header:
 </para>
 
@@ -1490,7 +1483,7 @@ the results shall be as the comments above say.
 <emphasis>Example 2.</emphasis>
 The <function xmlns="http://www.scons.org/dbxsd/v1.0">POTUpdate</function> builder may be used with no target specified, in which
 case default target <filename>messages.pot</filename> will be used. The
-default target may also be overriden by setting <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-POTDOMAIN"><envar>$POTDOMAIN</envar></link> construction
+default target may also be overridden by setting <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-POTDOMAIN"><envar>$POTDOMAIN</envar></link> construction
 variable or providing it as an override to <function xmlns="http://www.scons.org/dbxsd/v1.0">POTUpdate</function> builder:
 </para>
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">    
@@ -1623,7 +1616,7 @@ Target nodes defined through <function xmlns="http://www.scons.org/dbxsd/v1.0">P
 (they're <literal>Ignore</literal>d from <literal>'.'</literal> node). Instead,
 they are added automatically to special <literal>Alias</literal> 
 (<literal>'po-update'</literal> by default). The alias name may be changed
-through the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-POUPDATE_ALIAS"><envar>$POUPDATE_ALIAS</envar></link> construction variable.  You can easilly 
+through the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-POUPDATE_ALIAS"><envar>$POUPDATE_ALIAS</envar></link> construction variable.  You can easily 
 update <literal>PO</literal> files in your project by <command>scons
 po-update</command>.
 </para>
@@ -1995,22 +1988,20 @@ For maximum portability, use the <function xmlns="http://www.scons.org/dbxsd/v1.
 When the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> construction variable is defined a versioned
 shared library is created. This modifies the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLINKFLAGS"><envar>$SHLINKFLAGS</envar></link> as required,
 adds the version number to the library name, and creates the symlinks that
-are needed. <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> needs to be of the form X.Y.Z, where X
-and Y are numbers, and Z is a number but can also contain letters to designate
-alpha, beta, or release candidate patch levels.
+are needed.
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.SharedLibrary(target = 'bar', source = ['bar.c', 'foo.o'], SHLIBVERSION='1.5.2')
 </example_commands>
 
-
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-This builder may create multiple links to the library. On a POSIX system,
-for the shared library libbar.so.2.3.1, the links created would be
-libbar.so and libbar.so.2; on a Darwin (OSX) system
-the library would be libbar.2.3.1.dylib and the link would be
-libbar.dylib.
+On a POSIX system, versions with a single token create exactly one symlink:
+libbar.so.6 would have symlinks libbar.so only.
+On a POSIX system, versions with two or more
+tokens create exactly two symlinks: libbar.so.2.3.1 would have symlinks
+libbar.so and libbar.so.2; on a Darwin (OSX) system the library would be
+libbar.2.3.1.dylib and the link would be libbar.dylib.
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2564,7 +2555,7 @@ running <command>scons '.'</command>.</para></note>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds a Windows type library (<filename>.tlb</filename>)
 file from an input IDL file (<filename>.idl</filename>).
-In addition, it will build the associated inteface stub and
+In addition, it will build the associated interface stub and
 proxy source files,
 naming them according to the base name of the <filename>.idl</filename> file.
 For example,

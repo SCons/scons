@@ -240,7 +240,7 @@ file is found.
 
 <scons_function name="Help">
 <arguments>
-(text)
+(text, append=False)
 </arguments>
 <summary>
 <para>
@@ -248,12 +248,18 @@ This specifies help text to be printed if the
 <option>-h</option>
 argument is given to
 &scons;.
-If
+If 
 &f-Help;
-is called multiple times, the text is appended together in the order
-that
+is called multiple times, the text is appended together in the order that 
 &f-Help;
-is called.
+is called. With append set to False, any 
+&f-Help;
+text generated with 
+&f-AddOption;
+is clobbered. If append is True, the AddOption help is prepended to the help
+string, thus preserving the 
+<option>-h</option>
+message.
 </para>
 </summary>
 </scons_function>
