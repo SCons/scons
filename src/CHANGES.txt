@@ -13,6 +13,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - InstallVersionedLib now available in the DefaultEnvironment context.
     - Improves orthogonality of use cases between different Install functions.
     
+  From William Roberts:
+    - Fix bug 2831 and allow Help() text to be appended to AddOption() help.
+
   From Paweł Tomulik:
     - Reimplemented versioning for shared libraries, with the following effects
     - Fixed tigris issues #3001, #3006.

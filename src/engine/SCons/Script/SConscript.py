@@ -499,9 +499,9 @@ class SConsEnvironment(SCons.Environment.Base):
         name = self.subst(name)
         return SCons.Script.Main.GetOption(name)
 
-    def Help(self, text):
+    def Help(self, text, append=False):
         text = self.subst(text, raw=1)
-        SCons.Script.HelpFunction(text)
+        SCons.Script.HelpFunction(text, append=append)
 
     def Import(self, *vars):
         try:
