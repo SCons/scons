@@ -489,7 +489,7 @@ is created by &b-link-LoadableModule; builder. This activates the
 &cv-link-_LDMODULEVERSIONFLAGS; and thus modifies the &cv-link-LDMODULECOM; as
 required, adds the version number to the library name, and creates the symlinks
 that are needed. &cv-link-LDMODULEVERSION; versions should exist in the same
-format as &cv-link-SHLIBVERSION.
+format as &cv-link-SHLIBVERSION;.
 </para>
 </summary>
 </cvar>

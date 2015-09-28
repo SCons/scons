@@ -97,6 +97,10 @@ scons: Reading SConscript files ...
   '_LIBDIRFLAGS': '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
   '_LIBFLAGS': '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
   '_MSVC_OUTPUT_FLAG': &lt;function msvc_output_flag at 0x700000&amp;gt;,
+  '__DSHLIBVERSIONFLAGS': '${__libversionflags(__env__,"DSHLIBVERSION","_DSHLIBVERSIONFLAGS")}',
+  '__LDMODULEVERSIONFLAGS': '${__libversionflags(__env__,"LDMODULEVERSION","_LDMODULEVERSIONFLAGS")}',
+  '__SHLIBVERSIONFLAGS': '${__libversionflags(__env__,"SHLIBVERSION","_SHLIBVERSIONFLAGS")}',
+  '__libversionflags': &lt;function __libversionflags at 0x700000&amp;gt;,
   '_concat': &lt;function _concat at 0x700000&amp;gt;,
   '_defines': &lt;function _defines at 0x700000&amp;gt;,
   '_stripixes': &lt;function _stripixes at 0x700000&amp;gt;}
