@@ -25,3 +25,4 @@ if __name__ == "__main__":
             print "OK"
         else:
             print "Validation failed! Please correct the errors above and try again."
+            sys.exit(1)
