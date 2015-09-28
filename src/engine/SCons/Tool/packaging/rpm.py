@@ -168,7 +168,7 @@ def build_specfile_sections(spec):
         'X_RPM_POSTUNINSTALL' : '%%postun\n%s\n\n',
         'X_RPM_VERIFY'        : '%%verify\n%s\n\n',
 
-        # These are for internal use but could possibly be overriden
+        # These are for internal use but could possibly be overridden
         'X_RPM_PREP'          : '%%prep\n%s\n\n',
         'X_RPM_BUILD'         : '%%build\n%s\n\n',
         'X_RPM_INSTALL'       : '%%install\n%s\n\n',

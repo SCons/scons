@@ -268,7 +268,7 @@ class SConsOptionParser(optparse.OptionParser):
     preserve_unknown_options = False
 
     def error(self, msg):
-        # overriden OptionValueError exception handler
+        # overridden OptionValueError exception handler
         self.print_usage(sys.stderr)
         sys.stderr.write("SCons Error: %s\n" % msg)
         sys.exit(2)

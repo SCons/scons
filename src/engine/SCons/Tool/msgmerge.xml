@@ -64,7 +64,7 @@ Target nodes defined through &b-POUpdate; are not built by default
 (they're <literal>Ignore</literal>d from <literal>'.'</literal> node). Instead,
 they are added automatically to special <literal>Alias</literal> 
 (<literal>'po-update'</literal> by default). The alias name may be changed
-through the &cv-link-POUPDATE_ALIAS; construction variable.  You can easilly 
+through the &cv-link-POUPDATE_ALIAS; construction variable.  You can easily 
 update <literal>PO</literal> files in your project by <command>scons
 po-update</command>.
 </para>

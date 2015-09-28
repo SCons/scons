@@ -612,7 +612,7 @@ class SubstitutionEnvironment(object):
 
     def Override(self, overrides):
         """
-        Produce a modified environment whose variables are overriden by
+        Produce a modified environment whose variables are overridden by
         the overrides dictionaries.  "overrides" is a dictionary that
         will override the variables of this environment.
 

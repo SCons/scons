@@ -26,7 +26,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test the ability to use a explicit target package name and the use
-of FindInstalledFiles() in conjuction with .msi packages.
+of FindInstalledFiles() in conjunction with .msi packages.
 """
 
 import TestSCons
