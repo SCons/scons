@@ -714,6 +714,9 @@ class TestSCons(TestCommon):
                 home = '/System/Library/Frameworks/JavaVM.framework/Home'
             else:
                 home = '/System/Library/Frameworks/JavaVM.framework/Versions/%s/Home' % version
+                if not os.path.exists(home):
+                    # This works on OSX 10.10
+                    home = '/System/Library/Frameworks/JavaVM.framework/Versions/Current/'
         else:
             jar = self.java_where_jar(version)
             home = os.path.normpath('%s/..'%jar)
