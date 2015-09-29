@@ -96,8 +96,8 @@ filenames = [x for x in filenames if os.path.splitext(x)[1] in extensions]
 <example>
 <title>The "backtick function": run a shell command and capture the
 output</title>
-<programlisting>import os
-output = os.popen(command).read()
+<programlisting>import subprocess
+output = subprocess.check_output(command)
 </programlisting>
 </example>
 
