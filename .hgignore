@@ -10,6 +10,7 @@ syntax:glob
 *.xcodeproj
 *.orig
 *.DS_Store
+*#
 
 doc/user/scons-user
 doc/user/scons_db.xml
