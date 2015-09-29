@@ -269,10 +269,16 @@ def HelpFunction(text, append=False):
             help_text = s.getvalue()
             s.close()
         else:
-            help_text = ""       
-        help_text = help_text + "\nLocal Build Variables:\n" + text
-    else:
-        help_text = help_text + text
+            help_text = ""
+#            
+# Was in original patch but this text is arbitrary and breaks tests
+# so I removed it (Deegan)
+#        help_text = help_text + "\nLocal Build Variables:\n" + text
+#    else:
+#        help_text = help_text + text
+
+    help_text= help_text + text
+
 
 #
 # Will be non-zero if we are reading an SConscript file.
