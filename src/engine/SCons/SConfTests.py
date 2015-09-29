@@ -620,8 +620,14 @@ int main() {
                                  log_file=self.test.workpath('config.log'))
 
         try:
-            r = sconf.CheckProg('sh')
-            assert r, "/bin/sh"
+            if os.name != 'nt':
+                r = sconf.CheckProg('sh')
+                assert r, "/bin/sh"
+            else:
+                r = sconf.CheckProg('cmd.exe')
+                assertIn('cmd.exe',r)
+                
+                
             r = sconf.CheckProg('hopefully-not-a-program')
             assert r is None
 
