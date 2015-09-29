@@ -1,0 +1,31 @@
+# We don't use a wildcard for the XML files
+# here, because it would pull in the created
+# ones as well...
+Alias.xml
+CFile.xml
+CXXFile.xml
+Command.xml
+Install.xml
+InstallAs.xml
+Library.xml
+Object.xml
+PCH.xml
+PDF.xml
+PostScript.xml
+Program.xml
+RES.xml
+SharedLibrary.xml
+SharedObject.xml
+StaticLibrary.xml
+StaticObject.xml
+copyright.xml
+errors.xml
+main.xml
+preface.xml
+*.xsl
+scons.css
+SConstruct
+titlepage/bricks.jpg
+titlepage/mapnik_final_colors.svg
+titlepage/SCons_path.svg
+titlepage/SConsBuildBricks_path.svg

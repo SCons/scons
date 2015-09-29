@@ -1,0 +1,647 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<configuration
+  xmlns="http://www.xmlmind.com/xmleditor/schema/configuration"
+  xmlns:cfg="http://www.xmlmind.com/xmleditor/schema/configuration">
+
+  <translation location="docbook_en.properties" />
+
+  <inclusionScheme name="XInclude">
+    <class>com.xmlmind.xml.xinclude.XIncludeScheme</class>
+  </inclusionScheme>
+
+  <cfg:preserveSpace xmlns="" 
+    elements="address funcsynopsisinfo classsynopsisinfo 
+              literallayout programlisting screen synopsis
+              sconstruct scons_example_file example_commands
+              scons_output_command file directory" />
+
+  <cfg:documentResources xmlns="">
+    <cfg:resource path="//@fileref" />
+  </cfg:documentResources>
+
+  <!-- Fixes the cols attribute of tgroup and entrytbl if needed to -->
+  <validateHook>
+    <class>com.xmlmind.xmleditext.docbook.table.ValidateHookImpl</class>
+  </validateHook>
+
+  <cfg:spellCheckOptions xmlns=""
+    useAutomaticSpellChecker="true"
+    languageAttribute="lang"
+    skippedElements="address programlisting screen synopsis code sgmltag 
+                     classsynopsisinfo modifier package classname  
+                     interfacename exceptionname varname methodname
+                     funcsynopsisinfo modifier type function
+                     initializer parameter funcparams
+                     lhs rhs nonterminal" />
+
+  <!-- Menu ============================================================== -->
+
+  <command name="docb.tableEdit">
+    <class>com.xmlmind.xmleditext.docbook.DBTableEdit</class>
+  </command>
+
+  <command name="docb.promote">
+    <class>com.xmlmind.xmleditext.docbook.Promote</class>
+  </command>
+  <command name="docb.demote">
+    <class>com.xmlmind.xmleditext.docbook.Demote</class>
+  </command>
+
+  <command name="docb.toggleInformal">
+    <macro undoable="true"
+           label="Convert informal&lt;element&gt; to/from &lt;element&gt;">
+      <choice>
+        <sequence>
+          <command name="selectNode" 
+            parameter="ancestorOrSelf[implicitElement]
+                       informaltable informalfigure informalexample" />
+
+          <!-- DocBook 4.3 supports HTML tables and we will *not* attempt to 
+               transform an HTML informaltable to a HTML table 
+               with a caption. -->
+
+          <test context="$selected" 
+                expression="local-name() != 'informaltable' or ./tgroup" />
+
+          <command name="selectNode" parameter="children" />
+          <command name="copy" />
+          <command name="selectNode" parameter="parent" />
+          <get context="$selected" 
+               expression="substring-after(local-name(), 'informal')" />
+	  <command name="replace" parameter="%_" />
+          <set variable="selectedNodes" context="$selected"
+               expression="./*[position() &gt; 1]" />
+	  <command name="paste" parameter="to" />
+        </sequence>
+
+        <sequence>
+          <command name="selectNode" 
+            parameter="ancestorOrSelf[implicitElement] table figure example" />
+          <!-- Assumes that first child is a title and not a blockinfo. -->
+          <set variable="selectedNodes" context="$selected"
+               expression="./*[position() &gt; 1]" />
+          <command name="copy" />
+          <command name="selectNode" parameter="parent" />
+          <get context="$selected" 
+               expression="concat('informal', local-name())" />
+	  <command name="replace" parameter="%_" />
+          <command name="selectNode" parameter="children" />
+	  <command name="paste" parameter="to" />
+        </sequence>
+      </choice>
+    </macro>
+  </command>
+
+  <menu label="_DocBook">
+    <menu label="C_olumn" name="tableColumnMenu">
+      <item label="_Insert Before"
+            icon="xxe-config:common/icons/insertColumnBefore.png"
+            command="docb.tableEdit" parameter="insertColumnBefore"/>
+      <item label="I_nsert After"
+            icon="xxe-config:common/icons/insertColumnAfter.png"
+            command="docb.tableEdit" parameter="insertColumnAfter"/>
+      <separator />
+      <item label="_Cut"
+            icon="xxe-config:common/icons/cut.png"
+            command="docb.tableEdit" parameter="cutColumn"/>
+      <item label="C_opy"
+            icon="xxe-config:common/icons/copy.png"
+            command="docb.tableEdit" parameter="copyColumn"/>
+      <item label="_Paste Before"
+            icon="xxe-config:common/icons/pasteBefore.png"
+            command="docb.tableEdit" parameter="pasteColumnBefore"/>
+      <item label="P_aste After"
+            icon="xxe-config:common/icons/pasteAfter.png"
+            command="docb.tableEdit" parameter="pasteColumnAfter"/>
+      <item label="_Delete"
+            icon="xxe-config:common/icons/deleteColumn.png"
+            command="docb.tableEdit" parameter="deleteColumn"/>
+    </menu>
+    <menu label="_Row" name="tableRowMenu">
+      <item label="_Insert Before"
+            icon="xxe-config:common/icons/insertRowBefore.png"
+            command="docb.tableEdit" parameter="insertRowBefore"/>
+      <item label="I_nsert After"
+            icon="xxe-config:common/icons/insertRowAfter.png"
+            command="docb.tableEdit" parameter="insertRowAfter"/>
+      <separator />
+      <item label="_Cut"
+            icon="xxe-config:common/icons/cut.png"
+            command="docb.tableEdit" parameter="cutRow"/>
+      <item label="C_opy"
+            icon="xxe-config:common/icons/copy.png"
+            command="docb.tableEdit" parameter="copyRow"/>
+      <item label="_Paste Before"
+            icon="xxe-config:common/icons/pasteBefore.png"
+            command="docb.tableEdit" parameter="pasteRowBefore"/>
+      <item label="P_aste After"
+            icon="xxe-config:common/icons/pasteAfter.png"
+            command="docb.tableEdit" parameter="pasteRowAfter"/>
+      <item label="_Delete"
+            icon="xxe-config:common/icons/deleteRow.png"
+            command="docb.tableEdit" parameter="deleteRow"/>
+    </menu>
+    <menu label="C_ell">
+      <item label="_Increment Column Span"
+            icon="xxe-config:common/icons/incrementColumnSpan.png"
+            command="docb.tableEdit" parameter="incrColumnSpan"/>
+      <item label="_Decrement Column Span"
+            icon="xxe-config:common/icons/decrementColumnSpan.png"
+            command="docb.tableEdit" parameter="decrColumnSpan"/>
+      <separator />
+      <item label="I_ncrement Row Span"
+            icon="xxe-config:common/icons/incrementRowSpan.png"
+            command="docb.tableEdit" parameter="incrRowSpan"/>
+      <item label="D_ecrement Row Span"
+            icon="xxe-config:common/icons/decrementRowSpan.png"
+            command="docb.tableEdit" parameter="decrRowSpan"/>
+    </menu>
+    <separator />
+    <item label="Convert in_formal&lt;element&gt; to/from &lt;element&gt;" 
+          command="docb.toggleInformal"/>
+    <separator />
+    <item label="Move _Up"
+          icon="xxe-config:common/icons/up.png"
+          command="moveElement" parameter="up" />
+    <item label="Move Do_wn"
+          icon="xxe-config:common/icons/down.png"
+          command="moveElement" parameter="down" />
+  </menu>
+
+  <!-- Toolbar ============================================================ -->
+
+  <command name="docb.convertWithAttribute">
+    <macro repeatable="true" undoable="true" label="Convert">
+      <sequence>
+        <choice>
+	  <command name="selectNode" 
+                   parameter="self[implicitElement] %0" />
+	  <command name="convert" 
+                   parameter="[implicitElement] %0" />
+        </choice>
+        <command name="putAttribute" parameter="%1 %2" />
+      </sequence>
+    </macro>
+  </command>
+
+  <!-- Easier to implement with "add" instead of "insertNode" but slower. -->
+
+  <command name="docb.addListItem">
+    <macro>
+      <sequence>
+	<command name="selectNode" 
+           parameter="ancestor[implicitElement] itemizedlist orderedlist 
+                      variablelist calloutlist procedure substeps
+                      simplelist segmentedlist" />
+        <command name="selectNode" parameter="child" />
+        <command name="insertNode" parameter="sameElement%0" />
+      </sequence>
+    </macro>
+  </command>
+
+  <!-- This macro is required for DocBook where a para can contains
+       lists, tables, etc.
+       Note that this is not the case of para in Simplified DocBook. -->
+
+  <command name="docb.addAfter">
+    <macro>
+      <choice>
+        <sequence>
+	  <command name="selectNode" 
+                   parameter="ancestorOrSelf[implicitElement] para" />
+          <command name="insert" parameter="after[implicitElement] %0" />
+        </sequence>
+        <command name="add" parameter="after[implicitElement] %0" />
+      </choice>
+    </macro>
+  </command>
+
+  <!-- Bindings =========================================================== -->
+
+  <binding>
+    <keyPressed code="F2" />
+    <keyPressed code="UP" />
+    <command name="moveElement" parameter="up" />
+  </binding>
+
+  <binding>
+    <keyPressed code="F2" />
+    <keyPressed code="DOWN" />
+    <command name="moveElement" parameter="down" />
+  </binding>
+
+  <!-- Inside a para or simpara (and only inside a para or simpara), 
+       XXE attempts to behave like a word-processor. -->
+
+  <binding>
+    <keyPressed code="ENTER" />
+    <command name="docb.splitOrInsertNewLine" />
+  </binding>
+
+  <binding>
+    <keyPressed code="DELETE" />
+    <command name="docb.joinOrDeleteChar" />
+  </binding>
+
+  <binding>
+    <keyPressed code="BACK_SPACE" />
+    <command name="docb.joinOrDeleteChar" parameter="backwards" />
+  </binding>
+
+  <command name="docb.splitOrInsertNewLine">
+    <macro>
+      <choice>
+        <command name="insertControlChar" parameter="\n" />
+
+	<sequence>
+          <command name="selectNode" 
+	           parameter="ancestorOrSelf[implicitElement] simpara para" />
+	  <command name="split" />
+	</sequence>
+      </choice>
+    </macro>
+  </command>
+
+  <command name="docb.joinOrDeleteChar">
+    <macro>
+      <choice>
+	<sequence>
+          <test 
+            expression="($dot/ancestor::para or $dot/ancestor::simpara) and 
+                        not($selected) and not($mark)" />
+          <command name="deleteSelectionOrJoinOrDeleteChar" parameter="%0" />
+	</sequence>
+
+        <command name="deleteSelectionOrDeleteChar" parameter="%0" />
+      </choice>
+    </macro>
+  </command>
+
+  <!-- Easy way to add paragraphs and list items -->
+
+  <binding>
+    <keyPressed code="ENTER" modifiers="mod" />
+    <command name="docb.addSame" parameter="After" />
+  </binding>
+
+  <binding>
+    <keyPressed code="ENTER" modifiers="mod shift" />
+    <command name="docb.addSame" parameter="Before" />
+  </binding>
+
+  <command name="docb.addSame">
+    <macro>
+      <choice>
+	<sequence>
+          <command name="selectNode" 
+	           parameter="ancestorOrSelf[implicitElement] simpara para" />
+
+          <choice>
+            <sequence>
+              <match context="$selected" 
+                     pattern="listitem/*[position() = 1]|
+	                      callout/*[position() = 1]|
+	                      step/*[position() = 1]" />
+              <command name="docb.addListItem" parameter="%0" />
+            </sequence>
+
+	    <command name="insertNode" parameter="sameElement%0" />
+          </choice>
+	</sequence>
+
+        <command name="docb.addListItem" parameter="%0" />
+      </choice>
+    </macro>
+  </command>
+
+  <!-- Note that Shift-Enter is not bound. -->
+
+  <!-- An easy way to paste paragraphs copied from another application. -->
+
+  <command name="docb.pasteAfterAsParagraphs">
+    <macro>
+      <sequence>
+	<command name="makeParagraphs" parameter="%0" />
+	<command name="paste" parameter="after[implicitElement] %_" />
+      </sequence>
+    </macro>
+  </command>
+
+  <binding>
+    <keyPressed code="ESCAPE" />
+    <charTyped char="w" />
+    <command name="docb.pasteAfterAsParagraphs" parameter="para" />
+  </binding>
+
+  <!-- An easy way to specify the URL in ulink -->
+
+  <binding>
+    <appEvent name="drop" />
+    <command name="docb.fileDrop" parameter="'%{value}'" />
+  </binding>
+
+  <command name="docb.fileDrop">
+    <macro>
+      <choice>
+        <sequence>
+          <match context="$clickedElement" pattern="ulink" />
+          <set variable="selectedElement" expression="$clickedElement" />
+
+          <set variable="dropped" context="$selectedElement" 
+               expression="relativize-uri(uri-or-file-name('%0'))" />
+          <get expression="$dropped" />
+          <command name="putAttribute" parameter="url '%_'" />
+
+          <get expression="$dropped" />
+          <command name="status" parameter="url='%_'" />
+        </sequence>
+
+        <command name="XXE.open" parameter="%0" />
+      </choice>
+    </macro>
+  </command>
+
+  <!-- Element templates ================================================== -->
+
+  <!-- Unlike graphic, mediaobject/imageobject is also supported by 
+       simplified docbook. -->
+
+  <elementTemplate name="image" selectable="override">
+    <figure xmlns="">
+      <title></title>
+      <mediaobject cfg:template="image" />
+    </figure>
+  </elementTemplate>
+
+  <elementTemplate name="screenshot">
+    <figure xmlns="">
+      <title></title>
+      <screenshot cfg:template="simple" />
+    </figure>
+  </elementTemplate>
+
+  <elementTemplate name="simple" selectable="override">
+    <screenshot xmlns="">
+      <screeninfo></screeninfo>
+      <mediaobject cfg:template="image" />
+    </screenshot>
+  </elementTemplate>
+
+  <!-- Replacement for automatically generated mediaobject
+       (which contains a textobject) -->
+
+  <elementTemplate name="image" selectable="override">
+    <mediaobject xmlns="">
+      <imageobject><imagedata cfg:template="simple" /></imageobject>
+    </mediaobject>
+  </elementTemplate>
+
+  <elementTemplate name="image" selectable="override">
+    <inlinemediaobject xmlns="">
+      <imageobject><imagedata cfg:template="simple" /></imageobject>
+    </inlinemediaobject>
+  </elementTemplate>
+
+  <!-- fileref is not a mandatory attribute of imagedata -->
+
+  <elementTemplate name="simple" selectable="override">
+    <imagedata xmlns="" fileref="???" />
+  </elementTemplate>
+
+  <!-- Replacement for automatically generated caption of a mediaobject
+       (which is empty) -->
+
+  <elementTemplate name="simple" selectable="override">
+    <caption xmlns="">
+      <para></para>
+    </caption>
+  </elementTemplate>
+
+  <!-- Replacement for automatically generated table 
+       (which contains a graphic) -->
+
+  <elementTemplate name="simple" selectable="override">
+    <table xmlns="">
+      <title></title>
+      <tgroup cols="2">
+        <tbody>
+          <row>
+            <entry></entry><entry></entry>
+          </row>
+          <row>
+            <entry></entry><entry></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </elementTemplate>
+
+<!--
+  <elementTemplate name="withPara" selectable="override">
+    <entry xmlns=""><para></para></entry>
+  </elementTemplate>
+
+  <elementTemplate name="withPara" selectable="override">
+    <entrytbl xmlns="" cols="2">
+      <tbody>
+	<row>
+	  <entry><para></para></entry><entry><para></para></entry>
+	</row>
+	<row>
+	  <entry><para></para></entry><entry><para></para></entry>
+	</row>
+      </tbody>
+    </entrytbl>
+  </elementTemplate>
+-->
+
+  <elementTemplate name="head_row">
+    <table xmlns="">
+      <title></title>
+      <tgroup cols="2">
+        <thead>
+          <row>
+            <entry align="center"></entry><entry align="center"></entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry></entry><entry></entry>
+          </row>
+          <row>
+            <entry></entry><entry></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </elementTemplate>
+
+  <elementTemplate name="head_column">
+    <table xmlns="">
+      <title></title>
+      <tgroup cols="2">
+        <colspec align="center"/>
+        <tbody>
+          <row>
+            <entry></entry><entry></entry>
+          </row>
+          <row>
+            <entry></entry><entry></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </elementTemplate>
+
+  <elementTemplate name="head_row_column">
+    <table xmlns="">
+      <title></title>
+      <tgroup cols="2">
+        <colspec align="center" />
+        <thead>
+          <row>
+            <entry align="center"></entry><entry align="center"></entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry></entry><entry></entry>
+          </row>
+          <row>
+            <entry></entry><entry></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </elementTemplate>
+
+  <!-- Replacement for automatically generated informaltable 
+       (which contains a graphic) -->
+
+  <elementTemplate name="simple" selectable="override">
+    <informaltable xmlns="">
+      <tgroup cols="2">
+        <tbody>
+          <row>
+            <entry></entry><entry></entry>
+          </row>
+          <row>
+            <entry></entry><entry></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </informaltable>
+  </elementTemplate>
+
+  <elementTemplate name="head_row">
+    <informaltable xmlns="">
+      <tgroup cols="2">
+        <thead>
+          <row>
+            <entry align="center"></entry><entry align="center"></entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry></entry><entry></entry>
+          </row>
+          <row>
+            <entry></entry><entry></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </informaltable>
+  </elementTemplate>
+
+  <elementTemplate name="head_column">
+    <informaltable xmlns="">
+      <tgroup cols="2">
+        <colspec align="center"/>
+        <tbody>
+          <row>
+            <entry></entry><entry></entry>
+          </row>
+          <row>
+            <entry></entry><entry></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </informaltable>
+  </elementTemplate>
+
+  <elementTemplate name="head_row_column">
+    <informaltable xmlns="">
+      <tgroup cols="2">
+        <colspec align="center" />
+        <thead>
+          <row>
+            <entry align="center"></entry><entry align="center"></entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry></entry><entry></entry>
+          </row>
+          <row>
+            <entry></entry><entry></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </informaltable>
+  </elementTemplate>
+
+  <elementTemplate name="1x2">
+    <entrytbl xmlns="" cols="2">
+      <tbody>
+	<row>
+	  <entry></entry><entry></entry>
+	</row>
+      </tbody>
+    </entrytbl>
+  </elementTemplate>
+
+  <elementTemplate name="2x1">
+    <entrytbl xmlns="" cols="1">
+      <tbody>
+	<row>
+	  <entry></entry>
+	</row>
+	<row>
+	  <entry></entry>
+	</row>
+      </tbody>
+    </entrytbl>
+  </elementTemplate>
+
+  <elementTemplate name="2x2">
+    <entrytbl xmlns="" cols="2">
+      <tbody>
+	<row>
+	  <entry></entry><entry></entry>
+	</row>
+	<row>
+	  <entry></entry><entry></entry>
+	</row>
+      </tbody>
+    </entrytbl>
+  </elementTemplate>
+
+  <!-- indexterm -->
+
+  <elementTemplate name="singular" selectable="override">
+    <indexterm xmlns=""><primary></primary></indexterm>
+  </elementTemplate>
+
+  <elementTemplate name="startofrange">
+    <indexterm xmlns="" id="???"
+               class="startofrange"><primary></primary></indexterm>
+  </elementTemplate>
+
+  <elementTemplate name="endofrange">
+    <indexterm xmlns="" class="endofrange" startref="???" />
+  </elementTemplate>
+
+  <!-- DocBook 4.3, Simplified DocBook 1.1, etc, support
+       both HTML and CALS tables. -->
+  <include location="htmlTable.incl" />
+</configuration>
