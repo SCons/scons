@@ -1,0 +1,193 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+]>
+
+<chapter id="chap-acks"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Acknowledgements</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+ <para>
+
+   I'm grateful to the following people
+   for their influence, knowing or not,
+   on the design of &SCons;:
+
+ </para>
+
+ <variablelist>
+  <varlistentry>
+   <term>Bob Sidebotham</term>
+   <listitem>
+     <para>
+
+     First, as the original author of &Cons;, Bob did the real heavy
+     lifting of creating the underlying model for dependency management
+     and software construction, as well as implementing it in Perl.
+     During the first years of &Cons;' existence, Bob did a skillful
+     job of integrating input and code from the first users, and
+     consequently is a source of practical wisdom and insight into the
+     problems of real-world software construction.  His continuing
+     advice has been invaluable.
+
+     </para>
+   </listitem>
+  </varlistentry>
+
+  <varlistentry>
+   <term>The &SCons; Development Team</term>
+   <listitem>
+     <para>
+
+     A big round of thanks go to those brave souls who have
+     gotten in on the ground floor:
+     David Abrahams,
+     Charles Crain,
+     Steven Leblanc.
+     Anthony Roach,
+     and
+     Steven Shaw.
+     Their contributions,
+     through their general knowledge of software build issues in general
+     Python in particular,
+     have made &SCons; what it is today.
+
+     </para>
+   </listitem>
+  </varlistentry>
+
+  <varlistentry>
+   <term>The &Cons; Community</term>
+   <listitem>
+     <para>
+
+     The real-world build problems that the users of &Cons;
+     share on the <command>cons-discuss</command> mailing list
+     have informed much of the thinking that
+     has gone into the &SCons; design.
+     In particular,
+     Rajesh Vaidheeswarran,
+     the current maintainer of &Cons;,
+     has been a very steady influence.
+     I've also picked up valuable insight from
+     mailing-list participants
+     Johan Holmberg,
+     Damien Neil,
+     Gary Oberbrunner,
+     Wayne Scott,
+     and Greg Spencer.
+
+     </para>
+   </listitem>
+  </varlistentry>
+
+  <varlistentry>
+   <term>Peter Miller</term>
+   <listitem>
+
+     <para>
+
+     Peter has indirectly
+     influenced two aspects of the &SCons; design:
+
+     </para>
+
+     <para>
+
+     Miller's influential paper
+     <citetitle>Recursive Make Considered Harmful</citetitle>
+     was what led me, indirectly, to my involvement with &Cons;
+     in the first place.
+     Experimenting with the single-Makefile approach he describes in
+     <citetitle>RMCH</citetitle> led me to conclude that while it worked
+     as advertised, it was not an extensible scheme.  This solidified
+     my frustration with Make and led me to try &Cons;, which at its
+     core shares the single-process, universal-DAG model of the "RMCH"
+     single-Makefile technique.
+
+     </para>
+
+     <para>
+
+     The testing framework that Miller created for his
+     Aegis change management system
+     changed the way I approach software development
+     by providing a framework for rigorous, repeatable
+     testing during development.
+     It was my success at using Aegis for personal projects
+     that led me to begin my involvement with &Cons;
+     by creating the <command>cons-test</command> regression suite.
+
+     </para>
+   </listitem>
+  </varlistentry>
+
+  <varlistentry>
+   <term>Stuart Stanley</term>
+   <listitem>
+     <para>
+
+     An experienced Python programmer,
+     Stuart provided valuable advice and insight
+     into some of the more useful Python idioms at my disposal
+     during the original <literal>ScCons</literal>; design
+     for the Software Carpentry contest.
+
+     </para>
+   </listitem>
+  </varlistentry>
+
+  <varlistentry>
+   <term>Gary Holt</term>
+   <listitem>
+     <para>
+
+     I don't know which came first,
+     the first-round Software Carpentry contest entry
+     or the tool itself,
+     but Gary's design for &Makepp;
+     showed me that it is possible to marry
+     the strengths of &Cons;-like dependency management
+     with backwards compatibility for &Makefile;s.
+     Striving to support both
+     &Makefile; compatibility and
+     a native Python interface
+     cleaned up the &SCons; design immeasurably
+     by factoring out the common elements
+     into the Build Engine.
+
+     </para>
+   </listitem>
+  </varlistentry>
+ </variablelist>
+
+
+</chapter>

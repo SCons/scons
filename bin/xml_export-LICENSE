@@ -1,0 +1,52 @@
+Copyright (c) 2002 Open Source Development Network, Inc. ("OSDN")
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+
+1. The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+2. Neither the names of VA Software Corporation, OSDN, SourceForge.net,
+the SourceForge.net Site Documentation project, nor the names of its
+contributors may be used to endorse or promote products derived from
+the Software without specific prior written permission of OSDN.
+
+3. The name and trademarks of copyright holders may NOT be used in
+advertising or publicity pertaining to the Software without specific,
+written prior permission. Title to copyright in the Software and
+any associated documentation will at all times remain with copyright
+holders.
+
+4. If any files are modified, you must cause the modified files to carry
+prominent notices stating that you changed the files and the date of
+any change.  We recommend that you provide URLs to the location from which
+the code is derived.
+
+5. Altered versions of the Software must be plainly marked as such, and
+must not be misrepresented as being the original Software.
+
+6. The origin of the Software must not be misrepresented; you must not
+claim that you wrote the original Software. If you use the Software in a
+product, an acknowledgment in the product documentation would be
+appreciated but is not required.
+
+7. The data files supplied as input to, or produced as output from,
+the programs of the Software do not automatically fall under the
+copyright of the Software, but belong to whomever generated them, and may
+be sold commercially, and may be aggregated with the Software.
+
+8. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE OR DOCUMENTATION.
+
+This Software consists of contributions made by OSDN and many individuals
+on behalf of OSDN.  Specific attributions are listed in the accompanying
+credits file.

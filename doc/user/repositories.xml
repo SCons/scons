@@ -1,0 +1,664 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+    
+    <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
+    %builders-mod;
+    <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
+    %functions-mod;
+    <!ENTITY % tools-mod SYSTEM "../generated/tools.mod">
+    %tools-mod;
+    <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
+    %variables-mod;
+]>
+
+<chapter id="chap-repositories"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Building From Code Repositories</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <para>
+
+  Often, a software project will have
+  one or more central repositories,
+  directory trees that contain
+  source code, or derived files, or both.
+  You can eliminate additional unnecessary
+  rebuilds of files by having &SCons;
+  use files from one or more code repositories
+  to build files in your local build tree.
+
+  </para>
+
+  <section>
+  <title>The &Repository; Method</title>
+
+ <!--
+
+ The repository directories specified may contain source files, derived files
+ (objects, libraries and executables), or both.  If there is no local file
+ (source or derived) under the directory in which Cons is executed, then the
+ first copy of a same-named file found under a repository directory will be
+ used to build any local derived files.
+
+ -->
+
+    <para>
+
+    It's often useful to allow multiple programmers working
+    on a project to build software from
+    source files and/or derived files that
+    are stored in a centrally-accessible repository,
+    a directory copy of the source code tree.
+    (Note that this is not the sort of repository
+    maintained by a source code management system
+    like BitKeeper, CVS, or Subversion.)
+    <!--
+    For information about using &SCons;
+    with these systems, see the section,
+    "Fetching Files From Source Code Management Systems,"
+    below.)
+    -->
+    You use the &Repository; method
+    to tell &SCons; to search one or more
+    central code repositories (in order)
+    for any source files and derived files
+    that are not present in the local build tree:
+
+    </para>
+
+    <scons_example name="repositories_ex1">
+      <file name="SConstruct" printme="1">
+env = Environment()
+env.Program('hello.c')
+Repository('__ROOT__/usr/repository1', '__ROOT__/usr/repository2')
+      </file>
+      <file name="hello.c">
+int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
+
+    <para>
+
+    Multiple calls to the &Repository; method
+    will simply add repositories to the global list
+    that &SCons; maintains,
+    with the exception that &SCons; will automatically eliminate
+    the current directory and any non-existent
+    directories from the list.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Finding source files in repositories</title>
+
+    <para>
+
+    The above example
+    specifies that &SCons;
+    will first search for files under
+    the <filename>/usr/repository1</filename> tree
+    and next under the <filename>/usr/repository2</filename> tree.
+    &SCons; expects that any files it searches
+    for will be found in the same position
+    relative to the top-level directory.
+    In the above example, if the &hello_c; file is not
+    found in the local build tree,
+    &SCons; will search first for
+    a <filename>/usr/repository1/hello.c</filename> file
+    and then for a <filename>/usr/repository2/hello.c</filename> file
+    to use in its place.
+
+    </para>
+
+    <para>
+
+    So given the &SConstruct; file above,
+    if the &hello_c; file exists in the local
+    build directory,
+    &SCons; will rebuild the &hello; program
+    as normal:
+
+    </para>
+
+    <scons_output example="repositories_ex1" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    If, however, there is no local &hello_c; file,
+    but one exists in <filename>/usr/repository1</filename>,
+    &SCons; will recompile the &hello; program
+    from the source file it finds in the repository:
+
+    </para>
+
+    <scons_example name="repositories_ex2">
+      <file name="SConstruct">
+env = Environment()
+env.Program('hello.c')
+Repository('__ROOT__/usr/repository1', '__ROOT__/usr/repository2')
+      </file>
+      <file name="__ROOT__/usr/repository1/hello.c">
+int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
+
+    <scons_output example="repositories_ex2" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    And similarly, if there is no local &hello_c; file
+    and no <filename>/usr/repository1/hello.c</filename>,
+    but one exists in <filename>/usr/repository2</filename>:
+
+    </para>
+
+    <scons_example name="repositories_ex3">
+      <file name="SConstruct">
+env = Environment()
+env.Program('hello.c')
+Repository('__ROOT__/usr/repository1', '__ROOT__/usr/repository2')
+      </file>
+      <file name="__ROOT__/usr/repository2/hello.c">
+int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
+
+    <scons_output example="repositories_ex3" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Finding <literal>#include</literal> files in repositories</title>
+
+    <para>
+
+    We've already seen that SCons will scan the contents of
+    a source file for <literal>#include</literal> file names
+    and realize that targets built from that source file
+    also depend on the <literal>#include</literal> file(s).
+    For each directory in the &cv-link-CPPPATH; list,
+    &SCons; will actually search the corresponding directories
+    in any repository trees and establish the
+    correct dependencies on any
+    <literal>#include</literal> files that it finds
+    in repository directory.
+
+    </para>
+
+    <para>
+
+    Unless the C compiler also knows about these directories
+    in the repository trees, though,
+    it will be unable to find the <literal>#include</literal> files.
+    If, for example, the &hello_c; file in
+    our previous example includes the &hello_h;
+    in its current directory,
+    and the &hello_h; only exists in the repository:
+
+    </para>
+
+    <screen>
+% <userinput>scons -Q</userinput>
+cc -o hello.o -c hello.c
+hello.c:1: hello.h: No such file or directory
+    </screen>
+
+    <para>
+
+    In order to inform the C compiler about the repositories,
+    &SCons; will add appropriate
+    <literal>-I</literal> flags to the compilation commands
+    for each directory in the &cv-CPPPATH; list.
+    So if we add the current directory to the
+    construction environment &cv-CPPPATH; like so:
+
+    </para>
+
+    <scons_example name="repositories_CPPPATH">
+      <file name="SConstruct" printme="1">
+env = Environment(CPPPATH = ['.'])
+env.Program('hello.c')
+Repository('__ROOT__/usr/repository1')
+      </file>
+      <file name="hello.c">
+int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
+
+    <para>
+
+    Then re-executing &SCons; yields:
+
+    </para>
+
+    <scons_output example="repositories_CPPPATH" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    The order of the <literal>-I</literal> options replicates,
+    for the C preprocessor,
+    the same repository-directory search path
+    that &SCons; uses for its own dependency analysis.
+    If there are multiple repositories and multiple &cv-CPPPATH;
+    directories, &SCons; will add the repository directories
+    to the beginning of each &cv-CPPPATH; directory,
+    rapidly multiplying the number of <literal>-I</literal> flags.
+    If, for example, the &cv-CPPPATH; contains three directories
+    (and shorter repository path names!):
+
+    </para>
+
+    <scons_example name="repositories_CPPPATH3">
+      <file name="SConstruct" printme="1">
+env = Environment(CPPPATH = ['dir1', 'dir2', 'dir3'])
+env.Program('hello.c')
+Repository('__ROOT__/r1', '__ROOT__/r2')
+      </file>
+      <file name="hello.c">
+int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
+
+    <para>
+
+    Then we'll end up with nine <literal>-I</literal> options
+    on the command line,
+    three (for each of the &cv-CPPPATH; directories)
+    times three (for the local directory plus the two repositories):
+
+    </para>
+
+    <scons_output example="repositories_CPPPATH3" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+<!--
+
+Cons classic did the following, does SCons?
+
+In order to shorten the command lines as much as possible, Cons will
+remove C<-I> flags for any directories, locally or in the repositories,
+which do not actually exist.  (Note that the C<-I> flags are not included
+in the MD5 signature calculation for the target file, so the target will
+not be recompiled if the compilation command changes due to a directory
+coming into existence.)
+
+-->
+
+    <section>
+    <title>Limitations on <literal>#include</literal> files in repositories</title>
+
+      <para>
+
+      &SCons; relies on the C compiler's
+      <literal>-I</literal> options to control the order in which
+      the preprocessor will search the repository directories
+      for <literal>#include</literal> files.
+      This causes a problem, however, with how the C preprocessor
+      handles <literal>#include</literal> lines with
+      the file name included in double-quotes.
+
+      </para>
+
+      <para>
+
+      As we've seen,
+      &SCons; will compile the &hello_c; file from
+      the repository if it doesn't exist in
+      the local directory.
+      If, however, the &hello_c; file in the repository contains
+      a <literal>#include</literal> line with the file name in
+      double quotes:
+
+      </para>
+
+      <programlisting>
+#include "hello.h"
+int
+main(int argc, char *argv[])
+{
+    printf(HELLO_MESSAGE);
+    return (0);
+}
+      </programlisting>
+
+      <para>
+
+      Then the C preprocessor will <emphasis>always</emphasis>
+      use a &hello_h; file from the repository directory first,
+      even if there is a &hello_h; file in the local directory,
+      despite the fact that the command line specifies
+      <literal>-I</literal> as the first option:
+
+      </para>
+
+      <scons_example name="repositories_quote1">
+        <file name="SConstruct">
+env = Environment(CPPPATH = ['.'])
+env.Program('hello.c')
+Repository('__ROOT__/usr/repository1')
+        </file>
+        <file name="__ROOT__/usr/repository1/hello.c">
+int main() { printf("Hello, world!\n"); }
+        </file>
+      </scons_example>
+
+      <scons_output example="repositories_quote1" suffix="1">
+        <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
+
+      <para>
+
+      This behavior of the C preprocessor--always search
+      for a <literal>#include</literal> file in double-quotes
+      first in the same directory as the source file,
+      and only then search the <literal>-I</literal>--can
+      not, in general, be changed.
+      In other words, it's a limitation
+      that must be lived with if you want to use
+      code repositories in this way.
+      There are three ways you can possibly
+      work around this C preprocessor behavior:
+
+      </para>
+
+      <orderedlist>
+
+        <listitem>
+        <para>
+
+        Some modern versions of C compilers do have an option
+        to disable or control this behavior.
+        If so, add that option to &cv-link-CFLAGS;
+        (or &cv-link-CXXFLAGS; or both) in your construction environment(s).
+        Make sure the option is used for all construction
+        environments that use C preprocessing!
+
+        </para>
+        </listitem>
+
+        <listitem>
+        <para>
+
+        Change all occurrences of <literal>#include "file.h"</literal>
+        to <literal>#include &lt;file.h&gt;</literal>.
+        Use of <literal>#include</literal> with angle brackets
+        does not have the same behavior--the <literal>-I</literal>
+        directories are searched first
+        for <literal>#include</literal> files--which
+        gives &SCons; direct control over the list of
+        directories the C preprocessor will search.
+
+        </para>
+        </listitem>
+
+        <listitem>
+        <para>
+
+        Require that everyone working with compilation from
+        repositories check out and work on entire directories of files,
+        not individual files.
+        (If you use local wrapper scripts around
+        your source code control system's command,
+        you could add logic to enforce this restriction there.
+
+        </para>
+        </listitem>
+
+      </orderedlist>
+
+    </section>
+
+  </section>
+
+  <section>
+  <title>Finding the &SConstruct; file in repositories</title>
+
+    <para>
+
+    &SCons; will also search in repositories
+    for the &SConstruct; file and any specified &SConscript; files.
+    This poses a problem, though:  how can &SCons; search a
+    repository tree for an &SConstruct; file
+    if the &SConstruct; file itself contains the information
+    about the pathname of the repository?
+    To solve this problem, &SCons; allows you
+    to specify repository directories
+    on the command line using the <literal>-Y</literal> option:
+
+    </para>
+
+    <screen>
+% <userinput>scons -Q -Y /usr/repository1 -Y /usr/repository2</userinput>
+    </screen>
+
+    <para>
+
+    When looking for source or derived files,
+    &SCons; will first search the repositories
+    specified on the command line,
+    and then search the repositories
+    specified in the &SConstruct; or &SConscript; files.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Finding derived files in repositories</title>
+
+    <para>
+
+    If a repository contains not only source files,
+    but also derived files (such as object files,
+    libraries, or executables), &SCons; will perform
+    its normal MD5 signature calculation to
+    decide if a derived file in a repository is up-to-date,
+    or the derived file must be rebuilt in the local build directory.
+    For the &SCons; signature calculation to work correctly,
+    a repository tree must contain the &sconsign; files
+    that &SCons; uses to keep track of signature information.
+
+    </para>
+
+    <para>
+
+    Usually, this would be done by a build integrator
+    who would run &SCons; in the repository
+    to create all of its derived files and &sconsign; files,
+    or who would run &SCons; in a separate build directory
+    and copy the resulting tree to the desired repository:
+
+    </para>
+
+    <scons_example name="repositories_ex4">
+      <file name="SConstruct">
+env = Environment()
+env.Program(['hello.c', 'file1.c', 'file2.c'])
+Repository('/usr/repository1', '/usr/repository2')
+      </file>
+      <file name="hello.c">
+int main() { printf("Hello, world!\n"); }
+      </file>
+      <file name="file1.c">
+int f1() { printf("file1\n"); }
+      </file>
+      <file name="file2.c">
+int f2() { printf("file2.c\n"); }
+      </file>
+    </scons_example>
+
+    <scons_output example="repositories_ex4" suffix="1">
+      <scons_output_command>cd /usr/repository1</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    <para>
+    
+    (Note that this is safe even if the &SConstruct; file
+    lists <filename>/usr/repository1</filename> as a repository,
+    because &SCons; will remove the current build directory
+    from its repository list for that invocation.)
+
+    </para>
+
+    <para>
+
+    Now, with the repository populated,
+    we only need to create the one local source file
+    we're interested in working with at the moment,
+    and use the <literal>-Y</literal> option to
+    tell &SCons; to fetch any other files it needs
+    from the repository:
+
+    </para>
+
+    <!--
+    <scons_output example="repositories_ex4" suffix="2">
+      <scons_output_command>cd $HOME/build</scons_output_command>
+      <scons_output_command>edit hello.c</scons_output_command>
+      <scons_output_command>scons -Q -Y __ROOT__/usr/repository1</scons_output_command>
+    </scons_output>
+    -->
+    <screen>
+% <userinput>cd $HOME/build</userinput>
+% <userinput>edit hello.c</userinput>
+% <userinput>scons -Q -Y /usr/repository1</userinput>
+cc -c -o hello.o hello.c
+cc -o hello hello.o /usr/repository1/file1.o /usr/repository1/file2.o
+    </screen>
+
+    <para>
+
+    Notice that &SCons; realizes that it does not need to
+    rebuild local copies <filename>file1.o</filename> and <filename>file2.o</filename> files,
+    but instead uses the already-compiled files
+    from the repository.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Guaranteeing local copies of files</title>
+
+    <para>
+
+    If the repository tree contains the complete results of a build,
+    and we try to build from the repository
+    without any files in our local tree,
+    something moderately surprising happens:
+
+    </para>
+
+    <screen>
+% <userinput>mkdir $HOME/build2</userinput>
+% <userinput>cd $HOME/build2</userinput>
+% <userinput>scons -Q -Y /usr/all/repository hello</userinput>
+scons: `hello' is up-to-date.
+    </screen>
+
+    <para>
+
+    Why does &SCons; say that the &hello; program
+    is up-to-date when there is no &hello; program
+    in the local build directory?
+    Because the repository (not the local directory)
+    contains the up-to-date &hello; program,
+    and &SCons; correctly determines that nothing
+    needs to be done to rebuild that
+    up-to-date copy of the file.
+
+    </para>
+
+    <para>
+
+    There are, however, many times when you want to ensure that a
+    local copy of a file always exists.
+    A packaging or testing script, for example,
+    may assume that certain generated files exist locally.
+    To tell &SCons; to make a copy of any up-to-date repository
+    file in the local build directory,
+    use the &Local; function:
+
+    </para>
+
+    <scons_example name="repositories_ex5">
+      <file name="SConstruct" printme="1">
+env = Environment()
+hello = env.Program('hello.c')
+Local(hello)
+      </file>
+      <file name="hello.c">
+int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
+
+    <para>
+
+    If we then run the same command,
+    &SCons; will make a local copy of the program
+    from the repository copy,
+    and tell you that it is doing so:
+
+    </para>
+
+    <screen>
+% <userinput>scons -Y /usr/all/repository hello</userinput>
+Local copy of hello from /usr/all/repository/hello
+scons: `hello' is up-to-date.
+    </screen>
+
+    <para>
+
+    (Notice that, because the act of making the local copy
+    is not considered a "build" of the &hello; file,
+    &SCons; still reports that it is up-to-date.)
+
+    </para>
+
+  </section>
+
+</chapter>
