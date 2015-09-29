@@ -6,13 +6,21 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From Florian Miedniak:
-    - Fixed tigris issue #3011: Glob() excludes didn't work when used with VariantDir(duplicate=0)
+  From Dirk Baechle:
+    - Fixed license of SVG titlepage files in the context of Debian
+      packaging, such that they allow for commercial use too (#2985).
 
   From William Blevins:
     - InstallVersionedLib now available in the DefaultEnvironment context.
     - Improves orthogonality of use cases between different Install functions.
-    
+
+  From Carnë Draug:
+    - Added new configure check, CheckProg, to check for
+      existence of a program.
+
+  From Florian Miedniak:
+    - Fixed tigris issue #3011: Glob() excludes didn't work when used with VariantDir(duplicate=0)
+
   From William Roberts:
     - Fix bug 2831 and allow Help() text to be appended to AddOption() help.
 
@@ -43,9 +51,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Library versioning is currently implemented for the following linker
       tools: 'cyglink', 'gnulink', 'sunlink'.
 
-  From Dirk Baechle:
-    - Fixed license of SVG titlepage files in the context of Debian
-      packaging, such that they allow for commercial use too (#2985).
 
 
 RELEASE 2.4.0 - Mon, 21 Sep 2015 08:56:00 -0700
