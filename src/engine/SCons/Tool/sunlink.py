@@ -66,6 +66,10 @@ def generate(env):
     env['RPATHSUFFIX'] = ''
     env['_RPATH'] = '${_concat(RPATHPREFIX, RPATH, RPATHSUFFIX, __env__)}'
 
+    # Support for versioned libraries
+    link._setup_versioned_lib_variables(env, tool = 'sunlink', use_soname = True) 
+    env['LINKCALLBACKS'] = link._versioned_lib_callbacks()
+
 def exists(env):
     return ccLinker
 

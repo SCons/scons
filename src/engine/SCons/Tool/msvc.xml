@@ -86,7 +86,7 @@ file as the second element. Normally the object file is ignored.
 This builder method is only
 provided when Microsoft Visual C++ is being used as the compiler.
 The PCH builder method is generally used in
-conjuction with the PCH construction variable to force object files to use
+conjunction with the PCH construction variable to force object files to use
 the precompiled header:
 </para>
 

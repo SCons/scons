@@ -25,7 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Validate the use of \newglossary in TeX source files in conjuction
+Validate the use of \newglossary in TeX source files in conjunction
 with variant_dir. 
 
 Test configuration contributed by Kendrick Boyd.

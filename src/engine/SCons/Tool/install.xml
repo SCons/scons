@@ -82,20 +82,13 @@ env.InstallAs(target = ['../lib/libfoo.a', '../lib/libbar.a'],
 <builder name="InstallVersionedLib">
 <summary>
 <para>
-Installs a versioned shared library. The &cv-link-SHLIBVERSION;
-construction variable should be defined in the environment
-to confirm the version number in the library name.
-If &cv-link-SHLIBVERSION; is not defined a warning will be issued
-and the name of the library will be parsed to derive the version. 
-The symlinks appropriate to the architecture will be generated.
+Installs a versioned shared library. The symlinks appropriate to the
+architecture will be generated based on symlinks of the source library.
 </para>
 
 <example_commands>
 env.InstallVersionedLib(target = '/usr/local/bin/foo',
               source = 'libxyz.1.5.2.so')
-env.InstallVersionedLib(target = '/usr/local/bin/foo',
-              source = 'libxyz.1.5.2.so',
-              SHLIBVERSION='1.5.2')
 </example_commands>
 </summary>
 </builder>

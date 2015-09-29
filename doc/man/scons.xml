@@ -7040,7 +7040,7 @@ env.Program('MyApp', ['Foo.cpp', 'Bar.cpp'])
 
 <para>For more information see the document for the PCH builder, and the PCH and
 PCHSTOP construction variables. To learn about the details of precompiled
-headers consult the MSDN documention for /Yc, /Yu, and /Yp.</para>
+headers consult the MSDN documentation for /Yc, /Yu, and /Yp.</para>
 
 </refsect2>
 
