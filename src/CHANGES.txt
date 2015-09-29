@@ -43,6 +43,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Library versioning is currently implemented for the following linker
       tools: 'cyglink', 'gnulink', 'sunlink'.
 
+  From Dirk Baechle:
+    - Fixed license of SVG titlepage files in the context of Debian
+      packaging, such that they allow for commercial use too (#2985).
+
+
 RELEASE 2.4.0 - Mon, 21 Sep 2015 08:56:00 -0700
 
   From Dirk Baechle:
@@ -81,8 +86,6 @@ RELEASE 2.3.5 - Mon, 17 Jun 2015 21:07:32 -0700
 
   From Dirk Baechle:
     - Added new method rentry_exists_on_disk to Node.FS (PR #193).
-    - Fixed license of SVG titlepage files in the context of Debian
-      packaging, such that they allow for commercial use too (#2985).
 
   From Russel Winder:
     - Fixed several D tests under the different OS.
