@@ -625,7 +625,7 @@ int main() {
                 assert r, "/bin/sh"
             else:
                 r = sconf.CheckProg('cmd.exe')
-                assertIn('cmd.exe',r)
+                self.assertIn('cmd.exe',r)
                 
                 
             r = sconf.CheckProg('hopefully-not-a-program')
