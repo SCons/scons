@@ -343,7 +343,7 @@ class install_scripts(_install_scripts):
                 self.copy_scons(src, scons_version_bat)
 
         # --- distutils copy/paste ---
-        if os.name == 'posix':
+        if hasattr(os, 'chmod') and hasattr(os,'stat'):
             # Set the executable bits (owner, group, and world) on
             # all the scripts we just installed.
             for file in self.get_outputs():
