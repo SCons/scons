@@ -1,0 +1,25 @@
+# We don't use a wildcard for the XML files
+# here, because it would pull in the created
+# ones as well...
+acks.xml
+bground.xml
+copyright.xml
+engine.xml
+goals.xml
+install.xml
+intro.xml
+issues.xml
+main.xml
+native.xml
+overview.xml
+summary.xml
+engine.fig
+engine.jpg
+engine.svg
+*.xsl
+scons.css
+SConstruct
+titlepage/bricks.jpg
+titlepage/mapnik_final_colors.svg
+titlepage/SCons_path.svg
+titlepage/SConsBuildBricks_path.svg

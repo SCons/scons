@@ -1,0 +1,209 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+]>
+
+<section id="sect-future"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Future Directions</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+<para>
+
+  There are a number of things we would like to do to continue to
+  improve &SCons; in the future.
+
+</para>
+
+<section>
+  <title>Distutils Cooperation</title>
+
+  <para>
+
+    There is a certain amount of overlap between what &SCons; does
+    to search out and make use of various compilers on a system, and
+    the impressively complete job that the Distutils do of describing
+    much the same thing. Collaborating to provide some sort of common
+    interface between the two tools would benefit both tools.
+
+  </para>
+
+</section>
+
+<section>
+  <title>Additional Builder Support</title>
+
+  <para>
+
+    Adding additional builders would broaden the
+    potential user base. In rough order of importance:
+
+  </para>
+
+  <variablelist>
+
+    <varlistentry>
+      <term>Java</term>
+      <listitem>
+        <para>
+
+          Given the popularity of Java, support for it would greatly
+          increase the appeal of &SCons; in the large community of Java
+          users.
+
+        </para>
+
+        <para>
+
+          Good support for Java is, however, a tricky
+          proposition. Because the Java compiler can make decisions
+          about compiling other files based on what classes it finds
+          in a file, it behaves "unpredictably" from the point of
+          view of an outside build tool like &SCons; or &Make;. Some
+          sort of sophisticated scanning of Java source code to
+          identify what other classes are likely to be compiled
+          would be an obvious first step, but notice that here
+          &SCons; would be scanning the file to find additional
+          targets to be built. This is the inverse of the sort of
+          <literal>#include</literal> scanning performed
+          for C files, in which &SCons; is looking for additional
+          <emphasis>dependencies</emphasis>.
+
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>Documentation toolchains</term>
+      <listitem>
+        <para>
+
+	  A number of early adopters
+	  are using &SCons; to
+	  build documents
+	  from TeX or DocBook source files.
+	  Built-in support for
+	  various documentation toolchains
+	  would be an obvious boon
+	  for many people.
+
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>C#</term>
+      <listitem>
+        <para>
+
+          The reality is that anything that Microsoft does will doubtless
+          have a wide audience. Turning &SCons;' back on that would be
+          cutting off its nose to spite its face.
+    
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>Fortran</term>
+      <listitem>
+        <para>
+
+          Despite the fact that &SCons; is no longer directly
+          associated with Software Carpentry, it still shares the
+          same goal: to make programming easier for more than just
+          programmers. To that end, good Fortran support would
+          help a great many physical scientists and other computer
+          <emphasis>users</emphasis> out there who still rely on Fortran
+          for a great deal of their work.
+
+        </para>
+      </listitem>
+    </varlistentry>
+
+  </variablelist>
+
+</section>
+
+<section>
+  <title>Database Interface</title>
+
+  <para>
+
+    The Nodes in an &SCons; dependency graph aren't only restricted to
+    files. Creating an interface to mSQL or MySQL databases would allow
+    the possibility of updating external files in response to changes in
+    database fields, or vice versa. This could be handy, for example,
+    for generating a cache of static web pages from a database that only
+    need re-generating when the appropriate database objects change.
+
+  </para>
+
+</section>
+
+<section>
+  <title>Tool Integration</title>
+
+  <para>
+
+    &SCons; should work well with as many popular Integrated Development
+    Environments (IDEs) and tool chains as possible: Komodo, Microsoft
+    Visual Studio, ClearCase, etc. Suggestions for additional tools are
+    welcome.
+
+  </para>
+
+</section>
+
+<section>
+  <title>Makefile Interface</title>
+
+  <para>
+
+    Because the &SCons; Build Engine can be embedded in any Python
+    interface, there isn't any technical reason why a &Makefile;
+    interpreter couldn't be written in Python and use the &SCons; Build
+    Engine for its dependency analysis.
+
+  </para>
+
+  <para>
+
+    Proof-of-concept for the idea already exists. Gary Holt's
+    <literal>make++</literal> (also known as <literal>makepp</literal>)
+    is a Perl implementation of just such a &Makefile; interpreter. It
+    could possible serve as a model for a Python version, in much the
+    same way the &Cons; design served as the prototype for &SCons;.
+
+  </para>
+
+</section>
+
+</section>
