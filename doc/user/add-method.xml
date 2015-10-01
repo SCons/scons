@@ -1,0 +1,151 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+    
+    <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
+    %builders-mod;
+    <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
+    %functions-mod;
+    <!ENTITY % tools-mod SYSTEM "../generated/tools.mod">
+    %tools-mod;
+    <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
+    %variables-mod;
+    
+]>
+
+<chapter id="chap-add-method"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Pseudo-Builders:  the AddMethod function</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <para>
+
+  The &AddMethod; function is used to add a method
+  to an environment.  It's typically used to add a "pseudo-builder,"
+  a function that looks like a &Builder; but
+  wraps up calls to multiple other &Builder;s
+  or otherwise processes its arguments
+  before calling one or more &Builder;s.
+  In the following example,
+  we want to install the program into the standard
+  <filename>/usr/bin</filename> directory hierarchy,
+  but also copy it into a local <filename>install/bin</filename>
+  directory from which a package might be built:
+
+  </para>
+
+  <scons_example name="addmethod_ex1">
+     <file name="SConstruct" printme="1">
+def install_in_bin_dirs(env, source):
+    """Install source in both bin dirs"""
+    i1 = env.Install("$BIN", source)
+    i2 = env.Install("$LOCALBIN", source)
+    return [i1[0], i2[0]] # Return a list, like a normal builder
+env = Environment(BIN='__ROOT__/usr/bin', LOCALBIN='#install/bin')
+env.AddMethod(install_in_bin_dirs, "InstallInBinDirs")
+env.InstallInBinDirs(Program('hello.c')) # installs hello in both bin dirs     
+     </file>
+     <file name="hello.c">
+int main() { printf("Hello, world!\n"); }
+     </file>
+  </scons_example>
+
+  <para>
+  This produces the following:
+  </para>
+
+  <scons_output example="addmethod_ex1" suffix="1">
+    <scons_output_command>scons -Q /</scons_output_command>
+  </scons_output>
+
+  <para>
+
+  As mentioned, a pseudo-builder also provides more flexibility
+  in parsing arguments than you can get with a &Builder;.
+  The next example shows a pseudo-builder with a
+  named argument that modifies the filename, and a separate argument
+  for the resource file (rather than having the builder figure it out
+  by file extension).  This example also demonstrates using the global
+  &AddMethod; function to add a method to the global Environment class,
+  so it will be used in all subsequently created environments.
+
+  </para>
+
+  <scons_example name="addmethod_ex2">
+     <file name="SConstruct" printme="1">
+def BuildTestProg(env, testfile, resourcefile, testdir="tests"):
+    """Build the test program;
+    prepends "test_" to src and target,
+    and puts target into testdir."""
+    srcfile = "test_%s.c" % testfile
+    target = "%s/test_%s" % (testdir, testfile)
+    if env['PLATFORM'] == 'win32':
+        resfile = env.RES(resourcefile)
+        p = env.Program(target, [srcfile, resfile])
+    else:
+        p = env.Program(target, srcfile)
+    return p
+AddMethod(Environment, BuildTestProg)
+
+env = Environment()
+env.BuildTestProg('stuff', resourcefile='res.rc')
+     </file>
+     <file name="test_stuff.c">
+int main() { printf("Hello, world!\n"); }
+     </file>
+     <file name="res.rc">
+res.rc
+     </file>
+  </scons_example>
+
+  <para>
+  This produces the following on Linux:
+  </para>
+
+  <scons_output example="addmethod_ex2" suffix="1">
+    <scons_output_command>scons -Q</scons_output_command>
+  </scons_output>
+
+  <para>
+  And the following on Windows:
+  </para>
+
+  <scons_output example="addmethod_ex2" os="win32" suffix="2">
+    <scons_output_command>scons -Q</scons_output_command>
+  </scons_output>
+
+  <para>
+  Using &AddMethod; is better than just adding an instance method
+  to a &consenv; because it gets called as a proper method,
+  and because &AddMethod; provides for copying the method
+  to any clones of the &consenv; instance.
+  </para>
+
+</chapter>

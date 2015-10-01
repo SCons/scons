@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q</userinput>
+cc -o prog1/foo1.o -c prog1/foo1.c
+cc -o prog1/foo2.o -c prog1/foo2.c
+cc -o prog1/main.o -c prog1/main.c
+cc -o prog1/prog1 prog1/main.o prog1/foo1.o prog1/foo2.o
+cc -o prog2/bar1.o -c prog2/bar1.c
+cc -o prog2/bar2.o -c prog2/bar2.c
+cc -o prog2/main.o -c prog2/main.c
+cc -o prog2/prog2 prog2/main.o prog2/bar1.o prog2/bar2.o
+</screen>

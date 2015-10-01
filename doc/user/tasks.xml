@@ -1,0 +1,169 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+    
+    <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
+    %builders-mod;
+    <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
+    %functions-mod;
+    <!ENTITY % tools-mod SYSTEM "../generated/tools.mod">
+    %tools-mod;
+    <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
+    %variables-mod;
+]>
+
+<appendix id="app-tasks"
+          xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Handling Common Tasks</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+<para>
+There is a common set of simple tasks that many build configurations rely
+on as they become more complex. Most build tools have special
+purpose constructs for performing these tasks, but since &SConscript;
+files are &Python; scripts, you can use more flexible built-in &Python;
+services to perform these tasks. This appendix lists a number of these
+tasks and how to implement them in &Python; and &SCons;.
+</para>
+
+<example>
+<title>Wildcard globbing to create a list of filenames</title>
+<programlisting>
+files = Glob(wildcard)
+</programlisting>
+</example>
+
+<example>
+<title>Filename extension substitution</title>
+<programlisting>
+import os.path
+filename = os.path.splitext(filename)[0]+extension
+</programlisting>
+</example>
+
+<example>
+<title>Appending a path prefix to a list of filenames</title>
+<programlisting>
+import os.path
+filenames = [os.path.join(prefix, x) for x in filenames]
+</programlisting>
+</example>
+
+<example>
+<title>Substituting a path prefix with another one</title>
+<programlisting>
+if filename.find(old_prefix) == 0:
+    filename = filename.replace(old_prefix, new_prefix)
+</programlisting>
+</example>
+
+<example>
+<title>Filtering a filename list to exclude/retain only a specific set
+of extensions</title>
+<programlisting>
+import os.path
+filenames = [x for x in filenames if os.path.splitext(x)[1] in extensions]
+</programlisting>
+</example>
+
+<example>
+<title>The "backtick function": run a shell command and capture the
+output</title>
+<programlisting>import subprocess
+output = subprocess.check_output(command)
+</programlisting>
+</example>
+
+<example>
+<title>Generating source code: how code can be generated and used by SCons</title>
+
+<para>
+
+The Copy builders here could be any arbitrary shell or python function
+that produces one or more files.  This example shows how to create
+those files and use them in &SCons;.
+
+</para>
+
+<scons_example name="tasks_ex1">
+<file name="SConstruct" printme="1">
+#### SConstruct
+env = Environment()
+env.Append(CPPPATH = "#")
+
+## Header example
+env.Append(BUILDERS =
+   {'Copy1' : Builder(action = 'cat &lt; $SOURCE > $TARGET',
+                      suffix='.h', src_suffix='.bar')})
+env.Copy1('test.bar') # produces test.h from test.bar. 
+env.Program('app','main.cpp') # indirectly depends on test.bar
+
+## Source file example
+env.Append(BUILDERS =
+  {'Copy2' : Builder(action = 'cat &lt; $SOURCE > $TARGET',
+                     suffix='.cpp', src_suffix='.bar2')})
+foo = env.Copy2('foo.bar2') # produces foo.cpp from foo.bar2. 
+env.Program('app2',['main2.cpp'] + foo) # compiles main2.cpp and foo.cpp into app2.
+</file>
+
+<file name="main.cpp">
+#include "test.h"
+</file>
+<file name="test.bar">
+// nothing here
+</file>
+<file name="main2.cpp">
+//// main2.cpp
+</file>
+<file name="foo.bar2">
+// nothing here
+</file>
+</scons_example>
+
+<para>
+
+Where main.cpp looks like this:
+
+</para>
+
+ <scons_example_file example="tasks_ex1" name="main.cpp">
+ </scons_example_file>
+
+<para>
+produces this:
+</para>
+
+ <scons_output example="tasks_ex1" suffix="1">
+    <scons_output_command>scons -Q</scons_output_command>
+ </scons_output>
+    
+</example>
+
+</appendix>
