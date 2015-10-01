@@ -6,6 +6,9 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Arfrever Frehtes Taifersar Arahesis:
+    - Fix for Bug # 2791 - Setup.py fails unnecessarily under Jython.
+
   From Dirk Baechle:
     - Fixed license of SVG titlepage files in the context of Debian
       packaging, such that they allow for commercial use too (#2985).
