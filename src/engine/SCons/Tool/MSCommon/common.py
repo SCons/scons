@@ -84,8 +84,8 @@ def is_win64():
     return _is_win64
 
 
-def read_reg(value):
-    return SCons.Util.RegGetValue(SCons.Util.HKEY_LOCAL_MACHINE, value)[0]
+def read_reg(value, hkroot=SCons.Util.HKEY_LOCAL_MACHINE):
+    return SCons.Util.RegGetValue(hkroot, value)[0]
 
 def has_reg(value):
     """Return True if the given key exists in HKEY_LOCAL_MACHINE, False
