@@ -26,6 +26,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       actions not throwing hard error. Instead SCons was incorrectly issuing a warning
       and continuing.
 
+  From Hiroaki Itoh :
+    - Add support `Microsoft Visual C++ Compiler for Python 2.7' 
+      Compiler can be obtained at: https://www.microsoft.com/en-us/download/details.aspx?id=44266
+
   From Florian Miedniak:
     - Fixed tigris issue #3011: Glob() excludes didn't work when used with VariantDir(duplicate=0)
 
