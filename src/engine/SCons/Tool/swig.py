@@ -44,6 +44,8 @@ import SCons.Tool
 import SCons.Util
 import SCons.Node
 
+swigs = [ 'swig', 'swig3.0', 'swig2.0' ]
+
 SwigAction = SCons.Action.Action('$SWIGCOM', '$SWIGCOMSTR')
 
 def swigSuffixEmitter(env, source):
@@ -160,7 +162,8 @@ def generate(env):
     java_file.add_action('.i', SwigAction)
     java_file.add_emitter('.i', _swigEmitter)
 
-    env['SWIG']              = 'swig'
+    if 'SWIG' not in env:
+        env['SWIG'] = env.Detect(swigs) or swigs[0]
     env['SWIGVERSION']       = _get_swig_version(env)
     env['SWIGFLAGS']         = SCons.Util.CLVar('')
     env['SWIGDIRECTORSUFFIX'] = '_wrap.h'
