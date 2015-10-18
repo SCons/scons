@@ -6,6 +6,10 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Paweł Tomulik:
+    - Fix to swig tool - pick-up 'swig', 'swig3.0' and 'swig2.0' (in order).
+    - Fix to swig tool - respect env['SWIG'] provided by user.
+
   From Arfrever Frehtes Taifersar Arahesis:
     - Fix for Bug # 2791 - Setup.py fails unnecessarily under Jython.
 
