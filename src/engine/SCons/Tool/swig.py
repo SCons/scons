@@ -130,9 +130,10 @@ def _swigEmitter(target, source, env):
             target.extend(java_files)
     return (target, source)
 
-def _get_swig_version(env):
+def _get_swig_version(env, swig):
     """Run the SWIG command line tool to get and return the version number"""
-    pipe = SCons.Action._subproc(env, [env['SWIG'], '-version'],
+    swig = env.subst(swig)
+    pipe = SCons.Action._subproc(env, SCons.Util.CLVar(swig) + ['-version'],
                                  stdin = 'devnull',
                                  stderr = 'devnull',
                                  stdout = subprocess.PIPE)
@@ -164,7 +165,7 @@ def generate(env):
 
     if 'SWIG' not in env:
         env['SWIG'] = env.Detect(swigs) or swigs[0]
-    env['SWIGVERSION']       = _get_swig_version(env)
+    env['SWIGVERSION']       = _get_swig_version(env, env['SWIG'])
     env['SWIGFLAGS']         = SCons.Util.CLVar('')
     env['SWIGDIRECTORSUFFIX'] = '_wrap.h'
     env['SWIGCFILESUFFIX']   = '_wrap$CFILESUFFIX'
