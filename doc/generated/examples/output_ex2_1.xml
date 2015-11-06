@@ -3,8 +3,6 @@
 scons: Reading SConscript files ...
 scons: done reading SConscript files.
 
-Local Build Variables:
-
 Type: 'scons program' to build the production program.
 
 Type: 'scons windebug' to build the Windows debug version.
