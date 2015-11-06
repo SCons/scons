@@ -3,8 +3,6 @@
 scons: Reading SConscript files ...
 scons: done reading SConscript files.
 
-Local Build Variables:
-
 Type: 'scons program' to build the production program.
 
 Use scons -H for help about command-line options.

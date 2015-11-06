@@ -6553,16 +6553,6 @@ Example <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION">
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-SHLIBVERSIONFLAGS">
-    <term>SHLIBVERSIONFLAGS</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Extra flags added to <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLINKCOM"><envar>$SHLINKCOM</envar></link> when building versioned
-<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link>. These flags are only used when <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> is
-set.
-</para>
-</listitem>
-  </varlistentry>
   <varlistentry id="cv-_SHLIBVERSIONFLAGS">
     <term>_SHLIBVERSIONFLAGS</term>
     <listitem>
@@ -6573,6 +6563,16 @@ is set). <literal>_SHLIBVERSIONFLAGS</literal> usually adds <link xmlns="http://
 and some extra dynamically generated options (such as
 <literal>-Wl,-soname=$_SHLIBSONAME</literal>. It is unused by "plain"
 (unversioned) shared libraries.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-SHLIBVERSIONFLAGS">
+    <term>SHLIBVERSIONFLAGS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Extra flags added to <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLINKCOM"><envar>$SHLINKCOM</envar></link> when building versioned
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link>. These flags are only used when <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> is
+set.
 </para>
 </listitem>
   </varlistentry>
