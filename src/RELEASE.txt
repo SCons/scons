@@ -1,72 +1,68 @@
-  A new SCons checkpoint release, 2.3.13.alpha.yyyymmdd, is now available
+  A new SCons release, 2.4.1, is now available
   on the SCons download page:
 
           http://www.scons.org/download.php
 
-  XXX The primary purpose of this release ... XXX
-
-  A SCons "checkpoint release" is intended to provide early access to
-  new features so they can be tested in the field before being released
-  for adoption by other software distributions.
-
-  Note that a checkpoint release is developed using the same test-driven
-  development methodology as all SCons releases.  Existing SCons
-  functionality should all work as it does in previous releases (except
-  for any changes identified in the release notes) and early adopters
-  should be able to use a checkpoint release safely for production work
-  with existing SConscript files.  If not, it represents not only a bug
-  in SCons but also a hole in the regression test suite, and we want to
-  hear about it.
-
-  New features may be more lightly tested than in past releases,
-  especially as concerns their interaction with all of the other
-  functionality in SCons.  We are especially interested in hearing bug
-  reports about new functionality.
-
-  We do not recommend that downstream distributions (Debian, Fedora,
-  etc.) package a checkpoint release, mainly to avoid confusing the
-  "public" release numbering with the long checkpoint release names.
-
-  Here is a summary of the changes since 1.3.0:
+    Here is a summary of the changes since 2.4.0:
 
   NEW FUNCTIONALITY
-
-    - List new features (presumably why a checkpoint is being released)
+    - InstallVersionedLib now available in the DefaultEnvironment context.
+    - Added new configure check, CheckProg, to check for existence of a program.
+    - Add support `Microsoft Visual C++ Compiler for Python 2.7' 
+      Compiler can be obtained at: https://www.microsoft.com/en-us/download/details.aspx?id=44266
 
   DEPRECATED FUNCTIONALITY
 
-    - List anything that's been deprecated since the last release
-
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
-    - List modifications to existing features, where the previous behavior
-      wouldn't actually be considered a bug
+    - Reimplemented versioning for shared libraries, with the following effects
+    - Fixed tigris issues #3001, #3006.
+    - Fixed several other issues not reported to tigris, including:
+      issues with versioned libraries in subdirectories with tricky names,
+      issues with versioned libraries and variant directories,
+      issue with soname not being injected to library when using D linkers,
+    - Switched to direct symlinks instead of daisy-chained ones -- soname and
+      development symlinks point directly to the versioned shared library now),
+      for rationale see:
+      https://www.debian.org/doc/debian-policy/ch-sharedlibs.html
+      https://fedoraproject.org/wiki/Packaging:Guidelines#Devel_Packages
+      https://bitbucket.org/scons/scons/pull-requests/247/new-versioned-libraries-gnulink-cyglink/diff#comment-10063929
+    - New construction variables to allow override default behavior: SONAME,
+      SHLIBVERSIONFLAGS, _SHLIBVERSIONFLAGS, SHLIBNOVERSIONSYMLINKS,
+      LDMODULEVERSION, LDMODULEVERSIONFLAGS, _LDMODULEVERSIONFLAGS,
+      LDMODULENOVERSIONSYMLINKS.
+    - Changed logic used to configure the versioning machinery from
+      platform-centric to linker-oriented.
+    - The SHLIBVERSION/LDMODULEVERSION variables are no longer validated by
+      SCons (more freedom to users).
+    - InstallVersionedLib() doesn't use SHLIBVERSION anymore.
+    - Enchanced docs for the library versioning stuff.
+    - New tests for versioned libraries.
+    - Library versioning is currently implemented for the following linker
+      tools: 'cyglink', 'gnulink', 'sunlink'.
 
   FIXES
 
-    - List fixes of outright bugs
+    - Fix for issue #2840 - Fix for two environments specifying same target with different
+      actions not throwing hard error. Instead SCons was incorrectly issuing a warning
+      and continuing.
+    - Fix to swig tool - pick-up 'swig', 'swig3.0' and 'swig2.0' (in order).
+    - Fix to swig tool - respect env['SWIG'] provided by user.
+    - Fix for Bug # 2791 - Setup.py fails unnecessarily under Jython.
+    - Fixed license of SVG titlepage files in the context of Debian
+      packaging, such that they allow for commercial use too (#2985).
+    - Fixed tigris issue #3011: Glob() excludes didn't work when used with VariantDir(duplicate=0)
+    - Fix bug 2831 and allow Help() text to be appended to AddOption() help.
 
   IMPROVEMENTS
 
-    - List improvements that wouldn't be visible to the user in the
-      documentation:  performance improvements (describe the circumstances
-      under which they would be observed), or major code cleanups
-
   PACKAGING
-
-    - List changes in the way SCons is packaged and/or released
 
   DOCUMENTATION
 
-    - List any significant changes to the documentation (not individual
-      typo fixes, even if they're mentioned in src/CHANGES.txt to give
-      the contributor credit)
-
   DEVELOPMENT
 
-    - List visible changes in the way SCons is developed
-
-  Thanks to CURLY, LARRY, and MOE for their contributions to this release.
+  Thanks to Arfrever Frehtes Taifersar Arahesis, Dirk Baechle, William Blevins, Carnë Draug, Andrew Featherstone, Hiroaki Itoh, Florian Miedniak, William Roberts, Paweł Tomulik  for their contributions to this release.
   Contributors are listed alphabetically by their last name.
 
 __COPYRIGHT__
