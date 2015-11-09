@@ -32,7 +32,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 # 'final', the patchlevel is set to the release date.  This value is
 # mandatory and must be present in this file.
 #version_tuple = (2, 2, 0, 'final', 0)
-version_tuple = (2, 4, 1, 'alpha', 0)
+version_tuple = (2, 4, 1)
 
 # Python versions prior to unsupported_python_version cause a fatal error
 # when that version is used.  Python versions prior to deprecate_python_version

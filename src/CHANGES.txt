@@ -4,11 +4,7 @@
 
                             Change Log
 
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
-
-  From Paweł Tomulik:
-    - Fix to swig tool - pick-up 'swig', 'swig3.0' and 'swig2.0' (in order).
-    - Fix to swig tool - respect env['SWIG'] provided by user.
+RELEASE 2.4.1 - Mon, 07 Nov 2015 10:37:21 -0700
 
   From Arfrever Frehtes Taifersar Arahesis:
     - Fix for Bug # 2791 - Setup.py fails unnecessarily under Jython.
@@ -66,6 +62,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - New tests for versioned libraries.
     - Library versioning is currently implemented for the following linker
       tools: 'cyglink', 'gnulink', 'sunlink'.
+    - Fix to swig tool - pick-up 'swig', 'swig3.0' and 'swig2.0' (in order).
+    - Fix to swig tool - respect env['SWIG'] provided by user.
 
 
 
