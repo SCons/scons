@@ -48,7 +48,7 @@ Notes:
 +=================================================================
 
 
-RELEASE 2.4.1 - Mon, 07 Nov 2015 10:37:21 -0700
+RELEASE VERSION/DATE TO BE FILLED IN LATER
 
   Please consult the RELEASE.txt file for a summary of changes since the last
   release and consult the CHANGES.txt file for complete a list of changes
