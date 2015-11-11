@@ -4,17 +4,20 @@
 
                             Change Log
 
+
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From John Doe:
-
     - Whatever John Doe did.
+
+  From Anatoly Techtonik:
+    - Document SCons.Debug.caller_trace() behavior.
 
 
 RELEASE 2.4.1 - Mon, 07 Nov 2015 10:37:21 -0700
 
   From Arfrever Frehtes Taifersar Arahesis:
-    - Fix for Bug # 2791 - Setup.py fails unnecessarily under Jython.
+    - Fix for Bug # 2791 - setup.py fails unnecessarily under Jython.
 
   From Dirk Baechle:
     - Fixed license of SVG titlepage files in the context of Debian
@@ -73,7 +76,6 @@ RELEASE 2.4.1 - Mon, 07 Nov 2015 10:37:21 -0700
     - Fix to swig tool - respect env['SWIG'] provided by user.
 
 
-
 RELEASE 2.4.0 - Mon, 21 Sep 2015 08:56:00 -0700
 
   From Dirk Baechle:
@@ -85,6 +87,8 @@ RELEASE 2.4.0 - Mon, 21 Sep 2015 08:56:00 -0700
 
   From Andrew Featherstone
     - Fixed typo in SWIGPATH description
+
+
 
 RELEASE 2.3.6 - Mon, 31 Jul 2015 14:35:03 -0700
 
@@ -378,6 +382,8 @@ RELEASE 2.3.0 - Mon, 02 Mar 2013 13:22:29 -0400
       a versioned shared library and create the required symlinks.
       Add builder InstallVersionedLib to create the required symlinks
       installing a versioned shared library.
+
+
 
 RELEASE 2.2.0 - Mon, 05 Aug 2012 15:37:48 +0000
 
