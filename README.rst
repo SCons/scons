@@ -480,14 +480,14 @@ following packages will be built::
         build/dist/scons-2.4.1-1.noarch.rpm
         build/dist/scons-2.4.1-1.src.rpm
         build/dist/scons-2.4.1.linux-i686.tar.gz
-        build/dist/scons-2.4.1.tar.gz
-        build/dist/scons-2.4.1.win32.exe
-        build/dist/scons-2.4.1.zip
-        build/dist/scons-doc-2.4.1.tar.gz
-        build/dist/scons-local-2.4.1.tar.gz
-        build/dist/scons-local-2.4.1.zip
-        build/dist/scons-src-2.4.1.tar.gz
-        build/dist/scons-src-2.4.1.zip
+        build/dist/scons-2.4.2.alpha.yyyymmdd.tar.gz
+        build/dist/scons-2.4.2.alpha.yyyymmdd.win32.exe
+        build/dist/scons-2.4.2.alpha.yyyymmdd.zip
+        build/dist/scons-doc-2.4.2.alpha.yyyymmdd.tar.gz
+        build/dist/scons-local-2.4.2.alpha.yyyymmdd.tar.gz
+        build/dist/scons-local-2.4.2.alpha.yyyymmdd.zip
+        build/dist/scons-src-2.4.2.alpha.yyyymmdd.tar.gz
+        build/dist/scons-src-2.4.2.alpha.yyyymmdd.zip
         build/dist/scons_2.4.1-1_all.deb
 
 The SConstruct file is supposed to be smart enough to avoid trying to build

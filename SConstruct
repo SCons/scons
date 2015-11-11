@@ -6,7 +6,7 @@
 copyright_years = '2001 - 2015'
 
 # This gets inserted into the man pages to reflect the month of release.
-month_year = 'November 2015'
+month_year = 'MONTH YEAR'
 
 #
 # __COPYRIGHT__
@@ -43,7 +43,7 @@ import tempfile
 import bootstrap
 
 project = 'scons'
-default_version = '2.4.1'
+default_version = '2.4.2.alpha.yyyymmdd'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 platform = distutils.util.get_platform()
