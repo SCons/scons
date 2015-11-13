@@ -493,7 +493,7 @@ def __libversionflags(env, version_var, flags_var):
 
 ConstructionEnvironment = {
     'BUILDERS'      : {},
-    'SCANNERS'      : [],
+    'SCANNERS'      : [ SCons.Tool.SourceFileScanner ],
     'CONFIGUREDIR'  : '#/.sconf_temp',
     'CONFIGURELOG'  : '#/config.log',
     'CPPSUFFIXES'   : SCons.Tool.CSuffixes,

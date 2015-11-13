@@ -39,7 +39,6 @@ import subprocess
 
 import SCons.Action
 import SCons.Defaults
-import SCons.Scanner
 import SCons.Tool
 import SCons.Util
 import SCons.Node
@@ -176,11 +175,6 @@ def generate(env):
     env['SWIGINCSUFFIX']     = ''
     env['_SWIGINCFLAGS']     = '$( ${_concat(SWIGINCPREFIX, SWIGPATH, SWIGINCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'
     env['SWIGCOM']           = '$SWIG -o $TARGET ${_SWIGOUTDIR} ${_SWIGINCFLAGS} $SWIGFLAGS $SOURCES'
-
-    expr = '^[ \t]*%[ \t]*(?:include|import|extern)[ \t]*(<|"?)([^>\s"]+)(?:>|"?)'
-    scanner = SCons.Scanner.ClassicCPP("SWIGScan", ".i", "SWIGPATH", expr)
-
-    env.Append(SCANNERS = scanner)
 
 def exists(env):
     swig = env.get('SWIG') or env.Detect(['swig'])

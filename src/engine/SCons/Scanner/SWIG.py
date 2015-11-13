@@ -1,4 +1,9 @@
-#!/usr/bin/env python
+"""SCons.Scanner.SWIG
+
+This module implements the dependency scanner for SWIG code. 
+
+"""
+
 #
 # __COPYRIGHT__
 #
@@ -24,45 +29,14 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
-Test that we can add filesuffixes to $IDLSUFFIXES.
-"""
+import SCons.Scanner
 
-import TestSCons
+SWIGSuffixes = [ '.i' ]
 
-test = TestSCons.TestSCons()
-
-test.write('SConstruct', """
-import SCons.Scanner.IDL
-env = Environment(CPPPATH=['.'])
-env.Append(SCANNERS = [ SCons.Scanner.IDL.IDLScan() ],
-           IDLSUFFIXES = ['.x'])
-env.InstallAs('foo_idl', 'foo.idl')
-env.InstallAs('foo_x', 'foo.x')
-""")
-
-test.write('foo.idl', """\
-import <foo.h>
-""")
-
-test.write('foo.x', """\
-#include <foo.h>
-""")
-
-test.write('foo.h', "foo.h 1\n")
-
-test.run(arguments='.', stdout=test.wrap_stdout("""\
-Install file: "foo.idl" as "foo_idl"
-Install file: "foo.x" as "foo_x"
-"""))
-
-test.up_to_date(arguments='.')
-
-test.write('foo.h', "foo.h 2\n")
-
-test.up_to_date(arguments='.')
-
-test.pass_test()
+def SWIGScanner():
+    expr = '^[ \t]*%[ \t]*(?:include|import|extern)[ \t]*(<|"?)([^>\s"]+)(?:>|"?)'
+    scanner = SCons.Scanner.ClassicCPP("SWIGScanner", ".i", "SWIGPATH", expr)
+    return scanner
 
 # Local Variables:
 # tab-width:4

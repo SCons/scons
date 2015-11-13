@@ -916,35 +916,56 @@ class Node(object):
         """
         return []
 
-    def get_implicit_deps(self, env, scanner, path):
+    def get_implicit_deps(self, env, initial_scanner, path_func, kw = {}):
         """Return a list of implicit dependencies for this node.
 
         This method exists to handle recursive invocation of the scanner
         on the implicit dependencies returned by the scanner, if the
         scanner's recursive flag says that we should.
         """
-        if not scanner:
-            return []
-
-        # Give the scanner a chance to select a more specific scanner
-        # for this Node.
-        #scanner = scanner.select(self)
-
         nodes = [self]
         seen = {}
         seen[self] = 1
-        deps = []
+        dependencies = []
+
+        root_node_scanner = self._get_scanner(env, initial_scanner, None, kw)
+
         while nodes:
-            n = nodes.pop(0)
-            d = [x for x in n.get_found_includes(env, scanner, path) if x not in seen]
-            if d:
-                deps.extend(d)
-                for n in d:
-                    seen[n] = 1
-                nodes.extend(scanner.recurse_nodes(d))
+            node = nodes.pop(0)
 
-        return deps
+            scanner = node._get_scanner(env, initial_scanner, root_node_scanner, kw)
+                
+            if not scanner:
+                continue
 
+            path = path_func(scanner)
+
+            included_deps = [x for x in node.get_found_includes(env, scanner, path) if x not in seen]
+            if included_deps:
+                dependencies.extend(included_deps)
+                for dep in included_deps:
+                    seen[dep] = 1
+                nodes.extend(scanner.recurse_nodes(included_deps))
+
+        return dependencies
+
+    def _get_scanner(self, env, initial_scanner, root_node_scanner, kw):
+        if not initial_scanner:
+            # handle implicit scanner case
+            scanner = self.get_env_scanner(env, kw)
+            if scanner:
+                scanner = scanner.select(self)
+        else:
+            # handle explicit scanner case
+            scanner = initial_scanner.select(self)
+            
+        if not scanner:
+            # no scanner could be found for the given node's scanner key;
+            # thus, make an attempt at using a default.
+            scanner = root_node_scanner
+                
+        return scanner
+        
     def get_env_scanner(self, env, kw={}):
         return env.get_scanner(self.scanner_key())
 

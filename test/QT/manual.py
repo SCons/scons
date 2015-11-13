@@ -46,13 +46,15 @@ sources = ['aaa.cpp', 'bbb.cpp', 'ddd.cpp', 'eee.cpp', 'main.cpp']
 
 # normal invocation
 sources.append(env.Moc('include/aaa.h'))
-env.Moc('bbb.cpp')
+moc = env.Moc('bbb.cpp')
+env.Ignore( moc, moc )
 sources.extend(env.Uic('ui/ccc.ui')[1:])
 
 # manual target specification
 sources.append(env.Moc('moc-ddd.cpp', 'include/ddd.h',
                QT_MOCHPREFIX='')) # Watch out !
-env.Moc('moc_eee.cpp', 'eee.cpp')
+moc = env.Moc('moc_eee.cpp', 'eee.cpp')
+env.Ignore( moc, moc )
 sources.extend(env.Uic(['include/uic_fff.hpp', 'fff.cpp', 'fff.moc.cpp'],
                        'ui/fff.ui')[1:])
 

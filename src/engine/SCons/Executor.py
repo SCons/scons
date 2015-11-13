@@ -486,29 +486,15 @@ class Executor(object):
         each individual target, which is a hell of a lot more efficient.
         """
         env = self.get_build_env()
+        path = self.get_build_scanner_path
+        kw = self.get_kw()
 
         # TODO(batch):  scan by batches)
         deps = []
-        if scanner:
-            for node in node_list:
-                node.disambiguate()
-                s = scanner.select(node)
-                if not s:
-                    continue
-                path = self.get_build_scanner_path(s)
-                deps.extend(node.get_implicit_deps(env, s, path))
-        else:
-            kw = self.get_kw()
-            for node in node_list:
-                node.disambiguate()
-                scanner = node.get_env_scanner(env, kw)
-                if not scanner:
-                    continue
-                scanner = scanner.select(node)
-                if not scanner:
-                    continue
-                path = self.get_build_scanner_path(scanner)
-                deps.extend(node.get_implicit_deps(env, scanner, path))
+
+        for node in node_list:
+            node.disambiguate()
+            deps.extend(node.get_implicit_deps(env, scanner, path, kw))
 
         deps.extend(self.get_implicit_deps())
 

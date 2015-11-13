@@ -6,17 +6,12 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From John Doe:
-
-    - Whatever John Doe did.
-
-
-RELEASE 2.4.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
-
-  From John Doe:
-
-    - Whatever John Doe did.
-
+  From William Blevins:
+    - Added support for cross-language dependency scanning;
+      SCons now respects scanner keys for implicit dependencies.
+    - Resolved missing cross-language dependencies for
+      SWIG bindings (fixes #2264).
+ 
 
 RELEASE 2.4.1 - Mon, 07 Nov 2015 10:37:21 -0700
 

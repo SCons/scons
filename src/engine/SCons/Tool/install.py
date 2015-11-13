@@ -374,6 +374,7 @@ def generate(env):
                               source_factory = env.fs.Entry,
                               multi          = 1,
                               emitter        = [ add_targets_to_INSTALLED_FILES, ],
+                              source_scanner = SCons.Scanner.Base( {}, name = 'Install', recursive = False ),
                               name           = 'InstallBuilder')
 
     global BaseVersionedInstallBuilder

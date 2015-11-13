@@ -83,7 +83,9 @@ class MyNode(object):
         executor(self)
     def get_env_scanner(self, env, kw):
         return MyScanner('dep-')
-    def get_implicit_deps(self, env, scanner, path):
+    def get_implicit_deps(self, env, scanner, path, kw={}):
+        if not scanner:
+            scanner = self.get_env_scanner(env, kw)
         return [scanner.prefix + str(self)]
     def add_to_implicit(self, deps):
         self.implicit.extend(deps)
