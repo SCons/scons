@@ -174,15 +174,6 @@ except AttributeError:
 
         
 
-        
-try:
-    sys.maxsize
-except AttributeError:
-    # Pre-2.6 Python has no sys.maxsize attribute
-    # Wrapping sys in () is silly, but protects it from 2to3 renames fixer
-    sys.maxsize = (sys).maxint
-
-
 if os.environ.get('SCONS_HORRIBLE_REGRESSION_TEST_HACK') is not None:
     # We can't apply the 'callable' fixer until the floor is 2.6, but the
     # '-3' option to Python 2.6 and 2.7 generates almost ten thousand
