@@ -126,19 +126,17 @@ rename_module('queue', 'Queue')
 rename_module('winreg', '_winreg')
 
 
+# Python 3 moved builtin intern() to sys package
+# To make porting easier, make intern always live
+# in sys package (for python 2.7.x)
 try:
     sys.intern
 except AttributeError:
-    # Pre-2.6 Python has no sys.intern() function.
+    # We must be using python 2.7.x so monkey patch
+    # intern into the sys package
     import builtins
-    try:
-        sys.intern = builtins.intern
-    except AttributeError:
-        # Pre-2.x Python has no builtin intern() function.
-        def intern(x):
-           return x
-        sys.intern = intern
-        del intern
+    sys.intern = builtins.intern
+
 
 
 # Preparing for 3.x. UserDict, UserList, UserString are in
