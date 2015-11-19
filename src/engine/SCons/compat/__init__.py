@@ -105,13 +105,6 @@ except ImportError:
 
 
 try:
-    import io
-except ImportError:
-    # Pre-2.6 Python has no io module.
-    import_as('_scons_io', 'io')
-
-
-try:
     os.devnull
 except AttributeError:
     # Pre-2.4 Python has no os.devnull attribute
