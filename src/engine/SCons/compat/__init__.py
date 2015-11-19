@@ -105,32 +105,6 @@ except ImportError:
 
 
 try:
-    import collections
-except ImportError:
-    # Pre-2.4 Python has no collections module.
-    import_as('_scons_collections', 'collections')
-else:
-    try:
-        collections.UserDict
-    except AttributeError:
-        exec('from UserDict import UserDict as _UserDict')
-        collections.UserDict = _UserDict
-        del _UserDict
-    try:
-        collections.UserList
-    except AttributeError:
-        exec('from UserList import UserList as _UserList')
-        collections.UserList = _UserList
-        del _UserList
-    try:
-        collections.UserString
-    except AttributeError:
-        exec('from UserString import UserString as _UserString')
-        collections.UserString = _UserString
-        del _UserString
-
-
-try:
     import io
 except ImportError:
     # Pre-2.6 Python has no io module.
