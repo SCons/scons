@@ -146,6 +146,35 @@ except AttributeError:
            return x
         sys.intern = intern
         del intern
+
+
+# Preparing for 3.x. UserDict, UserList, UserString are in
+# collections for 3.x, but standalone in 2.7.x
+import collections
+try:
+    collections.UserDict
+except AttributeError:
+    exec('from UserDict import UserDict as _UserDict')
+    collections.UserDict = _UserDict
+    del _UserDict
+
+try:
+    collections.UserList
+except AttributeError:
+    exec('from UserList import UserList as _UserList')
+    collections.UserList = _UserList
+    del _UserList
+
+try:
+    collections.UserString
+except AttributeError:
+    exec('from UserString import UserString as _UserString')
+    collections.UserString = _UserString
+    del _UserString
+
+        
+
+        
 try:
     sys.maxsize
 except AttributeError:
