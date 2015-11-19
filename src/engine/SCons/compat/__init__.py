@@ -186,12 +186,6 @@ rename_module('winreg', '_winreg')
 
 
 try:
-    import subprocess
-except ImportError:
-    # Pre-2.4 Python has no subprocess module.
-    import_as('_scons_subprocess', 'subprocess')
-
-try:
     sys.intern
 except AttributeError:
     # Pre-2.6 Python has no sys.intern() function.
