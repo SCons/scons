@@ -103,13 +103,6 @@ except ImportError:
         # can fall back to using timestamp.
         pass
 
-try:
-    os.path.lexists
-except AttributeError:
-    # Pre-2.4 Python has no os.path.lexists function
-    def lexists(path):
-        return os.path.exists(path) or os.path.islink(path)
-    os.path.lexists = lexists
 
 
 # When we're using the '-3' option during regression tests, importing
