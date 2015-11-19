@@ -103,17 +103,6 @@ except ImportError:
         # can fall back to using timestamp.
         pass
 
-
-try:
-    os.devnull
-except AttributeError:
-    # Pre-2.4 Python has no os.devnull attribute
-    _names = sys.builtin_module_names
-    if 'posix' in _names:
-        os.devnull = '/dev/null'
-    elif 'nt' in _names:
-        os.devnull = 'nul'
-    os.path.devnull = os.devnull
 try:
     os.path.lexists
 except AttributeError:
