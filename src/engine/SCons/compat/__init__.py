@@ -103,14 +103,6 @@ except ImportError:
         # can fall back to using timestamp.
         pass
 
-try:
-    set
-except NameError:
-    # Pre-2.4 Python has no native set type
-    import_as('_scons_sets', 'sets')
-    import builtins, sets
-    builtins.set = sets.Set
-
 
 try:
     import collections
