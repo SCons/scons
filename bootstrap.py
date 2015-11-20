@@ -129,7 +129,7 @@ def main():
     def must_copy(dst, src):
         if not os.path.exists(dst):
             return 1
-        return filecmp.cmp(dst,src)
+        return not filecmp.cmp(dst,src)
     
     # Note:  We don't use the getopt module to process the command-line
     # arguments because we'd have to teach it about all of the SCons options.
