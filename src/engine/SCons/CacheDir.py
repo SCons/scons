@@ -32,6 +32,7 @@ import stat
 import sys
 
 import SCons.Action
+import SCons.Warnings
 
 cache_enabled = True
 cache_debug = False
