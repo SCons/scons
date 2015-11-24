@@ -88,7 +88,6 @@ fakeroot = whereis('fakeroot')
 gzip = whereis('gzip')
 rpmbuild = whereis('rpmbuild')
 hg = os.path.exists('.hg') and whereis('hg')
-svn = os.path.exists('.svn') and whereis('svn')
 unzip = whereis('unzip')
 zip = whereis('zip')
 
@@ -117,15 +116,10 @@ if not version:
     version = default_version
 
 hg_status_lines = []
-svn_status_lines = []
 
 if hg:
     cmd = "%s status --all 2> /dev/null" % hg
     hg_status_lines = os.popen(cmd, "r").readlines()
-
-if svn:
-    cmd = "%s status --verbose 2> /dev/null" % svn
-    svn_status_lines = os.popen(cmd, "r").readlines()
 
 revision = ARGUMENTS.get('REVISION', '')
 def generate_build_id(revision):
@@ -142,17 +136,6 @@ if not revision and hg:
         def generate_build_id(revision):
             result = revision
             if [l for l in hg_status_lines if l[0] in 'AMR!']:
-                result = result + '[MODIFIED]'
-            return result
-
-if not revision and svn:
-    svn_info = os.popen("%s info 2> /dev/null" % svn, "r").read()
-    m = re.search('Revision: (\d+)', svn_info)
-    if m:
-        revision = m.group(1)
-        def generate_build_id(revision):
-            result = 'r' + revision
-            if [l for l in svn_status_lines if l[0] in 'ACDMR']:
                 result = result + '[MODIFIED]'
             return result
 
@@ -236,7 +219,7 @@ command_line_variables = [
 
     ("REVISION=",       "The revision number of the source being built.  " +
                         "The default is the Subversion revision returned " +
-                        "'svn info', with an appended string of " +
+                        "'hg heads', with an appended string of " +
                         "'[MODIFIED]' if there are any changes in the " +
                         "working copy."),
 
@@ -1234,12 +1217,8 @@ sfiles = None
 if hg_status_lines:
     slines = [l for l in hg_status_lines if l[0] in 'ACM']
     sfiles = [l.split()[-1] for l in slines]
-elif svn_status_lines:
-    slines = [l for l in svn_status_lines if l[0] in ' MA']
-    sentries = [l.split()[-1] for l in slines]
-    sfiles = list(filter(os.path.isfile, sentries))
 else:
-   print "Not building in a Mercurial or Subversion tree; skipping building src package."
+   print "Not building in a Mercurial tree; skipping building src package."
 
 if sfiles:
     remove_patterns = [
