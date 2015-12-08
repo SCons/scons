@@ -1,7 +1,10 @@
 """SCons.Debug
 
 Code for debugging SCons internal things.  Shouldn't be
-needed by most users.
+needed by most users. Quick shortcuts:
+
+from SCons.Debug import caller_trace
+caller_trace()
 
 """
 
@@ -137,8 +140,12 @@ def caller_stack():
 caller_bases = {}
 caller_dicts = {}
 
-# trace a caller's stack
 def caller_trace(back=0):
+    """
+    Trace caller stack and save info into global dicts, which
+    are printed automatically at the end of SCons execution.
+    """
+    global caller_bases, caller_dicts
     import traceback
     tb = traceback.extract_stack(limit=3+back)
     tb.reverse()
