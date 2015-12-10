@@ -244,13 +244,13 @@ def find_vc_pdir(msvc_version):
                 try:
                     # ordinally at win64, try Wow6432Node first.
                     comps = common.read_reg(root + 'Wow6432Node\\' + key, hkroot)
-                except WindowsError, e:
+                except SCons.Util.WinError, e:
                     # at Microsoft Visual Studio for Python 2.7, value is not in Wow6432Node
                     pass
             if not comps:
                 # not Win64, or Microsoft Visual Studio for Python 2.7
                 comps = common.read_reg(root + key, hkroot)
-        except WindowsError, e:
+        except SCons.Util.WinError, e:
             debug('find_vc_dir(): no VC registry key %s' % repr(key))
         else:
             debug('find_vc_dir(): found VC in registry: %s' % comps)

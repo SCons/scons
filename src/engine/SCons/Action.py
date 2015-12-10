@@ -235,11 +235,7 @@ def _code_contents(code):
     # The code contents depends on the number of local variables
     # but not their actual names.
     contents.append("%s,%s" % (code.co_argcount, len(code.co_varnames)))
-    try:
-        contents.append(",%s,%s" % (len(code.co_cellvars), len(code.co_freevars)))
-    except AttributeError:
-        # Older versions of Python do not support closures.
-        contents.append(",0,0")
+    contents.append(",%s,%s" % (len(code.co_cellvars), len(code.co_freevars)))
 
     # The code contents depends on any constants accessed by the
     # function. Note that we have to call _object_contents on each
@@ -276,11 +272,7 @@ def _function_contents(func):
         contents.append(',()')
 
     # The function contents depends on the closure captured cell values.
-    try:
-        closure = func.func_closure or []
-    except AttributeError:
-        # Older versions of Python do not support closures.
-        closure = []
+    closure = func.func_closure or []
 
     #xxx = [_object_contents(x.cell_contents) for x in closure]
     try:
@@ -946,7 +938,6 @@ class LazyAction(CommandGeneratorAction, CommandAction):
 
     def __init__(self, var, kw):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Action.LazyAction')
-        #FUTURE CommandAction.__init__(self, '${'+var+'}', **kw)
         CommandAction.__init__(self, '${'+var+'}', **kw)
         self.var = SCons.Util.to_String(var)
         self.gen_kw = kw

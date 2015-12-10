@@ -254,14 +254,7 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
         else:
             self.display('Caught exception while building "%s":\n' %
                          self.targets[0])
-            try:
-                excepthook = sys.excepthook
-            except AttributeError:
-                # Earlier versions of Python don't have sys.excepthook...
-                def excepthook(type, value, tb):
-                    traceback.print_tb(tb)
-                    print type, value
-            excepthook(*self.exc_info())
+            sys.excepthook(*self.exc_info())
         return SCons.Taskmaster.Task.failed(self)
 
     def collect_node_states(self):
@@ -355,8 +348,6 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
                 raise SCons.Errors.ExplicitExit(self.targets[0],exc_value.code)
             except Exception, e:
                 for t in self.targets:
-                    #binfo = t.get_binfo()
-                    #binfo.__class__ = SConfBuildInfo
                     binfo = SConfBuildInfo()
                     binfo.merge(t.get_binfo())
                     binfo.set_build_result(1, s.getvalue())
@@ -375,8 +366,6 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
                 raise e
             else:
                 for t in self.targets:
-                    #binfo = t.get_binfo()
-                    #binfo.__class__ = SConfBuildInfo
                     binfo = SConfBuildInfo()
                     binfo.merge(t.get_binfo())
                     binfo.set_build_result(0, s.getvalue())
@@ -399,16 +388,16 @@ class SConfBase(object):
     tests, be sure to call the Finish() method, which returns the modified
     environment.
     Some words about caching: In most cases, it is not necessary to cache
-    Test results explicitely. Instead, we use the scons dependency checking
+    Test results explicitly. Instead, we use the scons dependency checking
     mechanism. For example, if one wants to compile a test program
     (SConf.TryLink), the compiler is only called, if the program dependencies
     have changed. However, if the program could not be compiled in a former
-    SConf run, we need to explicitely cache this error.
+    SConf run, we need to explicitly cache this error.
     """
 
     def __init__(self, env, custom_tests = {}, conf_dir='$CONFIGUREDIR',
                  log_file='$CONFIGURELOG', config_h = None, _depth = 0): 
-        """Constructor. Pass additional tests in the custom_tests-dictinary,
+        """Constructor. Pass additional tests in the custom_tests-dictionary,
         e.g. custom_tests={'CheckPrivate':MyPrivateTest}, where MyPrivateTest
         defines a custom test.
         Note also the conf_dir and log_file arguments (you may want to

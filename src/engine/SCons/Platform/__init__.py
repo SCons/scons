@@ -12,7 +12,7 @@ environment.  Consequently, we'll examine both sys.platform and os.name
 (and anything else that might come in to play) in order to return some
 specification which is unique enough for our purposes.
 
-Note that because this subsysem just *selects* a callable that can
+Note that because this subsystem just *selects* a callable that can
 modify a construction environment, it's possible for people to define
 their own "platform specification" in an arbitrary callable function.
 No one needs to use or tie in to this subsystem in order to roll

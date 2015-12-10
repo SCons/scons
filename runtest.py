@@ -17,8 +17,6 @@
 # build directory and sets PYTHONPATH to reference modules unpacked
 # during build process for testing purposes (build/test-*).
 #
-#       -3              Run with the python -3 option,
-#
 #       -a              Run all tests found under the current directory.
 #                       It is also possible to specify a list of
 #                       subdirectories to search.
@@ -108,7 +106,6 @@ list_only = None
 printcommand = 1
 package = None
 print_passed_summary = None
-python3incompatibilities = None
 scons = None
 scons_exec = None
 testlistfile = None
@@ -128,7 +125,6 @@ Usage: runtest.py [OPTIONS] [TEST ...]
 """
 helpstr = usagestr + """\
 Options:
-  -3                          Warn about Python 3.x incompatibilities.
   -a --all                    Run all tests.
   -b --baseline BASE          Run test scripts against baseline BASE.
      --builddir DIR           Directory in which packages were built.
@@ -210,7 +206,7 @@ parser.add_option('--xml',
 #print "args:", args
 
 
-opts, args = getopt.getopt(args, "3b:def:hj:klnP:p:qsv:Xx:t",
+opts, args = getopt.getopt(args, "b:def:hj:klnP:p:qsv:Xx:t",
                             ['baseline=', 'builddir=',
                              'debug', 'external', 'file=', 'help', 'no-progress',
                              'jobs=',
@@ -223,9 +219,7 @@ opts, args = getopt.getopt(args, "3b:def:hj:klnP:p:qsv:Xx:t",
                              'verbose='])
 
 for o, a in opts:
-    if o in ['-3']:
-        python3incompatibilities = 1
-    elif o in ['-b', '--baseline']:
+    if o in ['-b', '--baseline']:
         baseline = a
     elif o in ['--builddir']:
         builddir = a
@@ -634,9 +628,6 @@ if old_pythonpath:
                                os.pathsep + \
                                old_pythonpath
 
-if python3incompatibilities:
-    os.environ['SCONS_HORRIBLE_REGRESSION_TEST_HACK'] = '1'
-
 
 # ---[ test discovery ]------------------------------------
 
@@ -769,8 +760,6 @@ def run_test(t, io_lock, async=True):
     global tests_completed
     header = ""
     command_args = ['-tt']
-    if python3incompatibilities:
-        command_args.append('-3')
     if debug:
         command_args.append(debug)
     command_args.append(t.path)

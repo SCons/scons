@@ -54,6 +54,14 @@ import sys
 # followed by generic) so we pick up the right version of the build
 # engine modules if they're in either directory.
 
+
+if sys.version_info >= (3,0,0):
+    msg = "sconsign: *** Version %s does not run under Python version %s.\n\
+Python 3 is not yet supported.\n"
+    sys.stderr.write(msg % (__version__, sys.version.split()[0]))
+    sys.exit(1)
+
+
 script_dir = sys.path[0]
 
 if script_dir in sys.path:
@@ -63,6 +71,11 @@ libs = []
 
 if "SCONS_LIB_DIR" in os.environ:
     libs.append(os.environ["SCONS_LIB_DIR"])
+
+# - running from source takes priority (since 2.3.2), excluding SCONS_LIB_DIR settings
+script_path = os.path.abspath(os.path.dirname(__file__))
+source_path = os.path.join(script_path, '..', 'engine')
+libs.append(source_path)
 
 local_version = 'scons-local-' + __version__
 local = 'scons-local'
@@ -463,12 +476,22 @@ for o, a in opts:
     elif o in ('-e', '--entry'):
         Print_Entries.append(a)
     elif o in ('-f', '--format'):
+        # Try to map the given DB format to a known module
+        # name, that we can then try to import...
         Module_Map = {'dblite'   : 'SCons.dblite',
                       'sconsign' : None}
         dbm_name = Module_Map.get(a, a)
         if dbm_name:
             try:
-                dbm = my_import(dbm_name)
+                if dbm_name != "SCons.dblite":
+                    dbm = my_import(dbm_name)
+                else:
+                    import SCons.dblite
+                    dbm = SCons.dblite
+                    # Ensure that we don't ignore corrupt DB files,
+                    # this was handled by calling my_import('SCons.dblite')
+                    # again in earlier versions...
+                    SCons.dblite.ignore_corrupt_dbfiles = 0
             except:
                 sys.stderr.write("sconsign: illegal file format `%s'\n" % a)
                 print helpstr
@@ -500,7 +523,15 @@ else:
         dbm_name = whichdb.whichdb(a)
         if dbm_name:
             Map_Module = {'SCons.dblite' : 'dblite'}
-            dbm = my_import(dbm_name)
+            if dbm_name != "SCons.dblite":
+                dbm = my_import(dbm_name)
+            else:
+                import SCons.dblite
+                dbm = SCons.dblite
+                # Ensure that we don't ignore corrupt DB files,
+                # this was handled by calling my_import('SCons.dblite')
+                # again in earlier versions...
+                SCons.dblite.ignore_corrupt_dbfiles = 0
             Do_SConsignDB(Map_Module.get(dbm_name, dbm_name), dbm)(a)
         else:
             Do_SConsignDir(a)

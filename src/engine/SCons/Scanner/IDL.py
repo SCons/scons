@@ -1,6 +1,6 @@
 """SCons.Scanner.IDL
 
-This module implements the depenency scanner for IDL (Interface
+This module implements the dependency scanner for IDL (Interface
 Definition Language) files.
 
 """

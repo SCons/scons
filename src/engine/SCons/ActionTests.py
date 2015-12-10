@@ -229,7 +229,6 @@ def test_varlist(pos_call, str_call, cmd, cmdstrfunc, **kw):
 def test_positional_args(pos_callback, cmd, **kw):
     """Test that Action() returns the expected type and that positional args work.
     """
-    #FUTURE act = SCons.Action.Action(cmd, **kw)
     act = SCons.Action.Action(cmd, **kw)
     pos_callback(act)
     assert act.varlist is (), act.varlist
@@ -237,7 +236,6 @@ def test_positional_args(pos_callback, cmd, **kw):
     if not isinstance(act, SCons.Action._ActionAction):
         # only valid cmdstrfunc is None
         def none(a): pass
-        #FUTURE test_varlist(pos_callback, none, cmd, None, **kw)
         test_varlist(pos_callback, none, cmd, None, **kw)
     else:
         # _ActionAction should have set these
@@ -251,25 +249,21 @@ def test_positional_args(pos_callback, cmd, **kw):
         def cmdstr(a):
             assert hasattr(a, 'strfunction')
             assert a.cmdstr == 'cmdstr', a.cmdstr
-        #FUTURE test_varlist(pos_callback, cmdstr, cmd, 'cmdstr', **kw)
         test_varlist(pos_callback, cmdstr, cmd, 'cmdstr', **kw)
 
         def fun(): pass
         def strfun(a, fun=fun):
             assert a.strfunction is fun, a.strfunction
             assert a.cmdstr == _null, a.cmdstr
-        #FUTURE test_varlist(pos_callback, strfun, cmd, fun, **kw)
         test_varlist(pos_callback, strfun, cmd, fun, **kw)
 
         def none(a):
             assert hasattr(a, 'strfunction')
             assert a.cmdstr is None, a.cmdstr
-        #FUTURE test_varlist(pos_callback, none, cmd, None, **kw)
         test_varlist(pos_callback, none, cmd, None, **kw)
 
         """Test handling of bad cmdstrfunc arguments """
         try:
-            #FUTURE a = SCons.Action.Action(cmd, [], **kw)
             a = SCons.Action.Action(cmd, [], **kw)
         except SCons.Errors.UserError, e:
             s = str(e)
@@ -1192,81 +1186,6 @@ class CommandActionTestCase(unittest.TestCase):
         act = SCons.Action.CommandAction('- %s %s 1' % (_python_, exit_py))
         r = act([], [], env)
         assert r == 0, r
-
-    def _DO_NOT_EXECUTE_test_pipe_execute(self):
-        """Test capturing piped output from an action
-
-        We used to have PIPE_BUILD support built right into
-        Action.execute() for the benefit of the SConf subsystem, but we've
-        moved that logic back into SConf itself.  We'll leave this code
-        here, just in case we ever want to resurrect this functionality
-        in the future, but change the name of the test so it doesn't
-        get executed as part of the normal test suite.
-        """
-        pipe = open( pipe_file, "w" )
-        self.env = Environment(ENV = {'ACTPY_PIPE' : '1'}, PIPE_BUILD = 1,
-                               PSTDOUT = pipe, PSTDERR = pipe)
-        # everything should also work when piping output
-        self.test_execute()
-        self.env['PSTDOUT'].close()
-        pipe_out = test.read( pipe_file )
-
-        act_out = "act.py: stdout: executed act.py"
-        act_err = "act.py: stderr: executed act.py"
-
-        # Since we are now using select(), stdout and stderr can be
-        # intermixed, so count the lines separately.
-        outlines = re.findall(act_out, pipe_out)
-        errlines = re.findall(act_err, pipe_out)
-        assert len(outlines) == 6, pipe_out + repr(outlines)
-        assert len(errlines) == 6, pipe_out + repr(errlines)
-
-        # test redirection operators
-        def test_redirect(self, redir, stdout_msg, stderr_msg):
-            cmd = r'%s %s %s xyzzy %s' % (_python_, act_py, outfile, redir)
-            # Write the output and error messages to files because
-            # Windows can't handle strings that are too big in its
-            # external environment (os.spawnve() returns EINVAL,
-            # "Invalid argument").
-            stdout_file = test.workpath('stdout_msg')
-            stderr_file = test.workpath('stderr_msg')
-            open(stdout_file, 'w').write(stdout_msg)
-            open(stderr_file, 'w').write(stderr_msg)
-            pipe = open( pipe_file, "w" )
-            act = SCons.Action.CommandAction(cmd)
-            env = Environment( ENV = {'ACTPY_PIPE' : '1',
-                                      'PIPE_STDOUT_FILE' : stdout_file,
-                                      'PIPE_STDERR_FILE' : stderr_file},
-                               PIPE_BUILD = 1,
-                               PSTDOUT = pipe, PSTDERR = pipe )
-            r = act([], [], env)
-            pipe.close()
-            assert r == 0
-            return (test.read(outfile2, 'r'), test.read(pipe_file, 'r'))
-
-        (redirected, pipe_out) = test_redirect(self,'> %s' % outfile2,
-                                               act_out, act_err)
-        assert redirected == act_out
-        assert pipe_out == act_err
-
-        (redirected, pipe_out) = test_redirect(self,'2> %s' % outfile2,
-                                               act_out, act_err)
-        assert redirected == act_err
-        assert pipe_out == act_out
-
-        (redirected, pipe_out) = test_redirect(self,'> %s 2>&1' % outfile2,
-                                               act_out, act_err)
-        assert (redirected == act_out + act_err or
-                redirected == act_err + act_out)
-        assert pipe_out == ""
-
-        act_err = "Long Command Output\n"*3000
-        # the size of the string should exceed the system's default block size
-        act_out = ""
-        (redirected, pipe_out) = test_redirect(self,'> %s' % outfile2,
-                                               act_out, act_err)
-        assert (redirected == act_out)
-        assert (pipe_out == act_err)
 
     def test_set_handler(self):
         """Test setting the command handler...

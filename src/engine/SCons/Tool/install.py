@@ -39,7 +39,7 @@ import stat
 
 import SCons.Action
 import SCons.Tool
-from SCons.Util import make_path_relative
+import SCons.Util
 
 #
 # We keep track of *all* installed files.
@@ -91,7 +91,7 @@ def scons_copytree(src, dst, symlinks=False):
             errors.extend(err.args[0])
     try:
         shutil.copystat(src, dst)
-    except WindowsError:
+    except SCons.Util.WinError:
         # can't copy file access times on Windows
         pass
     except OSError, why:
@@ -225,7 +225,7 @@ def stringFunc(target, source, env):
 # Emitter functions
 #
 def add_targets_to_INSTALLED_FILES(target, source, env):
-    """ an emitter that adds all target files to the list stored in the
+    """ An emitter that adds all target files to the list stored in the
     _INSTALLED_FILES global variable. This way all installed files of one
     scons call will be collected.
     """
@@ -236,7 +236,7 @@ def add_targets_to_INSTALLED_FILES(target, source, env):
     return (target, source)
 
 def add_versioned_targets_to_INSTALLED_FILES(target, source, env):
-    """ an emitter that adds all target files to the list stored in the
+    """ An emitter that adds all target files to the list stored in the
     _INSTALLED_FILES global variable. This way all installed files of one
     scons call will be collected.
     """
@@ -254,7 +254,7 @@ def add_versioned_targets_to_INSTALLED_FILES(target, source, env):
     return (target, source)
 
 class DESTDIR_factory(object):
-    """ a node factory, where all files will be relative to the dir supplied
+    """ A node factory, where all files will be relative to the dir supplied
     in the constructor.
     """
     def __init__(self, env, dir):
@@ -262,11 +262,11 @@ class DESTDIR_factory(object):
         self.dir = env.arg2nodes( dir, env.fs.Dir )[0]
 
     def Entry(self, name):
-        name = make_path_relative(name)
+        name = SCons.Util.make_path_relative(name)
         return self.dir.Entry(name)
 
     def Dir(self, name):
-        name = make_path_relative(name)
+        name = SCons.Util.make_path_relative(name)
         return self.dir.Dir(name)
 
 #
@@ -304,14 +304,12 @@ def InstallBuilderWrapper(env, target=None, source=None, dir=None, **kw):
             # '#' on the file name portion as meaning the Node should
             # be relative to the top-level SConstruct directory.
             target = env.fs.Entry('.'+os.sep+src.name, dnode)
-            #tgt.extend(BaseInstallBuilder(env, target, src, **kw))
             tgt.extend(BaseInstallBuilder(env, target, src, **kw))
     return tgt
 
 def InstallAsBuilderWrapper(env, target=None, source=None, **kw):
     result = []
     for src, tgt in map(lambda x, y: (x, y), source, target):
-        #result.extend(BaseInstallBuilder(env, tgt, src, **kw))
         result.extend(BaseInstallBuilder(env, tgt, src, **kw))
     return result
 

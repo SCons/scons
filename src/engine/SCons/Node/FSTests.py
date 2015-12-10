@@ -751,16 +751,6 @@ class FileNodeInfoTestCase(_tempdirTestCase):
         size = st[stat.ST_SIZE]
         assert ni.size != size, (ni.size, size)
 
-        #fff.clear()
-        #ni.update(fff)
-
-        #st = os.stat('fff')
-
-        #mtime = st[stat.ST_MTIME]
-        #assert ni.timestamp == mtime, (ni.timestamp, mtime)
-        #size = st[stat.ST_SIZE]
-        #assert ni.size == size, (ni.size, size)
-
 class FileBuildInfoTestCase(_tempdirTestCase):
     def test___init__(self):
         """Test File.BuildInfo initialization"""

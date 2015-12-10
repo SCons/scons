@@ -62,15 +62,6 @@ class MissingDirError(IntelCError):     # dir not found
 class NoRegistryModuleError(IntelCError): # can't read registry at all
     pass
 
-def uniquify(s):
-    """Return a sequence containing only one copy of each unique element from input sequence s.
-    Does not preserve order.
-    Input sequence must be hashable (i.e. must be usable as a dictionary key)."""
-    u = {}
-    for x in s:
-        u[x] = 1
-    return list(u.keys())
-
 def linux_ver_normalize(vstr):
     """Normalize a Linux compiler version number.
     Intel changed from "80" to "9.0" in 2005, so we assume if the number
@@ -191,7 +182,7 @@ def get_intel_registry_value(valuename, version=None, abi=None):
 
         except SCons.Util.RegError:
             raise MissingRegistryError("%s was not found in the registry, for Intel compiler version %s, abi='%s'"%(K, version,abi))
-        except WindowsError:
+        except SCons.Util.WinError:
             raise MissingRegistryError("%s was not found in the registry, for Intel compiler version %s, abi='%s'"%(K, version,abi))
 
     # Get the value:
@@ -215,7 +206,7 @@ def get_all_compiler_versions():
         try:
             k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
                                         keyname)
-        except WindowsError:
+        except SCons.Util.WinError:
             # For version 13 or later, check for default instance UUID
             if is_win64:
                 keyname = 'Software\\WoW6432Node\\Intel\\Suites'
@@ -224,7 +215,7 @@ def get_all_compiler_versions():
             try:
                 k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
                                             keyname)
-            except WindowsError:
+            except SCons.Util.WinError:
                 return []
         i = 0
         versions = []
@@ -302,7 +293,7 @@ def get_all_compiler_versions():
         """Given a dot-separated version string, return a tuple of ints representing it."""
         return [int(x) for x in str.split('.')]
     # split into ints, sort, then remove dups
-    return sorted(uniquify(versions), key=keyfunc, reverse=True)
+    return sorted(SCons.Util.unique(versions), key=keyfunc, reverse=True)
 
 def get_intel_compiler_top(version, abi):
     """

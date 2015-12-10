@@ -305,7 +305,7 @@ def generate(env):
     # if the manifest actually exists before trying to run mt with it.
     env['MTEXECOM']   = '-$MT $MTFLAGS -manifest ${TARGET}.manifest $_MANIFEST_SOURCES -outputresource:$TARGET;1'
     env['MTSHLIBCOM'] = '-$MT $MTFLAGS -manifest ${TARGET}.manifest $_MANIFEST_SOURCES -outputresource:$TARGET;2'
-    # Future work garyo 27-Feb-11
+    # TODO Future work garyo 27-Feb-11
     env['_MANIFEST_SOURCES'] = None # _windowsManifestSources
 
     # Set-up ms tools paths

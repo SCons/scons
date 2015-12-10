@@ -186,7 +186,7 @@ needs_normpath_check = re.compile(
       # We need to renormalize the path if it contains a '.'
       # directory, but NOT if it is a single '.'  '/' characters. We
       # do not want to match a single '.' because this case is checked
-      # for explicitely since this is common enough case.
+      # for explicitly since this is common enough case.
       #
       # Note that we check for all the following cases:
       #
@@ -1163,15 +1163,6 @@ class LocalFS(object):
     else:
         def readlink(self, file):
             return ''
-
-
-#class RemoteFS:
-#    # Skeleton for the obvious methods we might need from the
-#    # abstraction layer for a remote filesystem.
-#    def upload(self, local_src, remote_dst):
-#        pass
-#    def download(self, remote_src, local_dst):
-#        pass
 
 
 class FS(LocalFS):
@@ -2234,7 +2225,6 @@ class Dir(Base):
                     # the overall list will also be filtered later,
                     # after we exit this loop.
                     if pattern[0] != '.':
-                        #disk_names = [ d for d in disk_names if d[0] != '.' ]
                         disk_names = [x for x in disk_names if x[0] != '.']
                     disk_names = fnmatch.filter(disk_names, pattern)
                     dirEntry = dir.Entry
@@ -2627,13 +2617,6 @@ class File(Base):
         the directory of this file."""
         return self.dir.File(name)
 
-    #def generate_build_dict(self):
-    #    """Return an appropriate dictionary of values for building
-    #    this File."""
-    #    return {'Dir' : self.Dir,
-    #            'File' : self.File,
-    #            'RDirs' : self.RDirs}
-
     def _morph(self):
         """Turn a file system node into a File object."""
         self.scanner_paths = {}
@@ -2907,9 +2890,7 @@ class File(Base):
                 pass
 
         if scanner:
-            # result = [n.disambiguate() for n in scanner(self, env, path)]
-            result = scanner(self, env, path)
-            result = [N.disambiguate() for N in result]
+            result = [n.disambiguate() for n in scanner(self, env, path)]
         else:
             result = []
 
@@ -3519,36 +3500,6 @@ class FileFinder(object):
 
         filedir, filename = os.path.split(filename)
         if filedir:
-            # More compact code that we can't use until we drop
-            # support for Python 1.5.2:
-            #
-            #def filedir_lookup(p, fd=filedir):
-            #    """
-            #    A helper function that looks up a directory for a file
-            #    we're trying to find.  This only creates the Dir Node
-            #    if it exists on-disk, since if the directory doesn't
-            #    exist we know we won't find any files in it...  :-)
-            #    """
-            #    dir, name = os.path.split(fd)
-            #    if dir:
-            #        p = filedir_lookup(p, dir)
-            #        if not p:
-            #            return None
-            #    norm_name = _my_normcase(name)
-            #    try:
-            #        node = p.entries[norm_name]
-            #    except KeyError:
-            #        return p.dir_on_disk(name)
-            #    if isinstance(node, Dir):
-            #        return node
-            #    if isinstance(node, Entry):
-            #        node.must_be_same(Dir)
-            #        return node
-            #    if isinstance(node, Dir) or isinstance(node, Entry):
-            #        return node
-            #    return None
-            #paths = [_f for _f in map(filedir_lookup, paths) if _f]
-
             self.default_filedir = filedir
             paths = [_f for _f in map(self.filedir_lookup, paths) if _f]
 

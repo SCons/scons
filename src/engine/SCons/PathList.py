@@ -27,7 +27,7 @@ __doc__ = """SCons.PathList
 
 A module for handling lists of directory paths (the sort of things
 that get set as CPPPATH, LIBPATH, etc.) with as much caching of data and
-efficiency as we can while still keeping the evaluation delayed so that we
+efficiency as we can, while still keeping the evaluation delayed so that we
 Do the Right Thing (almost) regardless of how the variable is specified.
 
 """

@@ -251,7 +251,7 @@ class RPaths(object):
   recently re-created. For such reason, we need a function, which always
   returns relative paths. This is the purpose of `RPaths` callable object.
 
-  The `__call__` method returns paths relative to current woking directory, but
+  The `__call__` method returns paths relative to current working directory, but
   we assume, that *xgettext(1)* is run from the directory, where target file is
   going to be created.
 
@@ -330,7 +330,7 @@ def _init_po_files(target, source, env):
     autoinit = False
   # Well, if everything outside works well, this loop should do single
   # iteration. Otherwise we are rebuilding all the targets even, if just
-  # one has changed (but is this out fault?).
+  # one has changed (but is this our fault?).
   for tgt in target:
     if not tgt.exists():
       if autoinit:

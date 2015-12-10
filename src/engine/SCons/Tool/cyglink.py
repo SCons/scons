@@ -143,7 +143,7 @@ def _versioned_implib_name(env, libnode, version, prefix, suffix, **kw):
                                     implib_libtype=kw['libtype'])
 
 def _versioned_implib_symlinks(env, libnode, version, prefix, suffix, **kw):
-    """Generate link names that should be created for a versioned shared lirbrary.
+    """Generate link names that should be created for a versioned shared library.
        Returns a list in the form [ (link, linktarget), ... ]
     """
     Verbose = False

@@ -700,12 +700,6 @@ def tex_emitter_core(target, source, env, graphics_extensions):
 
     content = source[0].get_text_contents()
 
-    # These variables are no longer used.
-    #idx_exists = os.path.isfile(targetbase + '.idx')
-    #nlo_exists = os.path.isfile(targetbase + '.nlo')
-    #glo_exists = os.path.isfile(targetbase + '.glo')
-    #acr_exists = os.path.isfile(targetbase + '.acn')
-
     # set up list with the regular expressions
     # we use to find features used
     file_tests_search = [auxfile_re,

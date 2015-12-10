@@ -2,7 +2,7 @@
 
 Tool-specific initialization for Solaris (Forte) ar (library archive). If CC
 exists, static libraries should be built with it, so that template
-instantians can be resolved.
+instantiations can be resolved.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()

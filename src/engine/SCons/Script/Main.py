@@ -10,7 +10,7 @@ some other module.  If it's specific to the "scons" script invocation,
 it goes here.
 """
 
-unsupported_python_version = (2, 3, 0)
+unsupported_python_version = (2, 6, 0)
 deprecated_python_version = (2, 7, 0)
 
 # __COPYRIGHT__
@@ -43,15 +43,6 @@ import sys
 import time
 import traceback
 
-# Strip the script directory from sys.path() so on case-insensitive
-# (Windows) systems Python doesn't think that the "scons" script is the
-# "SCons" package.  Replace it with our own version directory so, if
-# if they're there, we pick up the right version of the build engine
-# modules.
-#sys.path = [os.path.join(sys.prefix,
-#                         'lib',
-#                         'scons-%d' % SCons.__version__)] + sys.path[1:]
-
 import SCons.CacheDir
 import SCons.Debug
 import SCons.Defaults
@@ -74,7 +65,7 @@ def fetch_win32_parallel_msg():
     # so we don't have to pull it in on all platforms, and so that an
     # in-line "import" statement in the _main() function below doesn't
     # cause warnings about local names shadowing use of the 'SCons'
-    # globl in nest scopes and UnboundLocalErrors and the like in some
+    # global in nest scopes and UnboundLocalErrors and the like in some
     # versions (2.1) of Python.
     import SCons.Platform.win32
     return SCons.Platform.win32.parallel_msg
@@ -368,7 +359,7 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
                 # issue, an IOError would indicate something like
                 # the file not existing.  In either case, print a
                 # message and keep going to try to remove as many
-                # targets aa possible.
+                # targets as possible.
                 print "scons: Could not remove '%s':" % str(t), e.strerror
             else:
                 if removed:
@@ -383,7 +374,7 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
     # we don't want, like store .sconsign information.
     executed = SCons.Taskmaster.Task.executed_without_callbacks
 
-    # Have the taskmaster arrange to "execute" all of the targets, because
+    # Have the Taskmaster arrange to "execute" all of the targets, because
     # we'll figure out ourselves (in remove() or show() above) whether
     # anything really needs to be done.
     make_ready = SCons.Taskmaster.Task.make_ready_all
@@ -487,7 +478,6 @@ def SetOption(name, value):
 def PrintHelp(file=None):
     OptionsParser.print_help(file=file)
 
-#
 class Stats(object):
     def __init__(self):
         self.stats = []
@@ -711,7 +701,6 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
     site_tools_dir = os.path.join(site_dir, site_tools_dirname)
     if os.path.exists(site_init_file):
         import imp, re
-        # TODO(2.4): turn this into try:-except:-finally:
         try:
             try:
                 fp, pathname, description = imp.find_module(site_init_modname,
@@ -1024,7 +1013,7 @@ def _main(parser):
     # the SConscript file.
     #
     # We delay enabling the PythonVersionWarning class until here so that,
-    # if they explicity disabled it in either in the command line or in
+    # if they explicitly disabled it in either in the command line or in
     # $SCONSFLAGS, or in the SConscript file, then the search through
     # the list of deprecated warning classes will find that disabling
     # first and not issue the warning.
@@ -1232,13 +1221,8 @@ def _build_targets(fs, options, targets, target_top):
         def order(dependencies):
             """Randomize the dependencies."""
             import random
-            # This is cribbed from the implementation of
-            # random.shuffle() in Python 2.X.
-            d = dependencies
-            for i in range(len(d)-1, 0, -1):
-                j = int(random.random() * (i+1))
-                d[i], d[j] = d[j], d[i]
-            return d
+            random.shuffle(dependencies)
+            return dependencies
     else:
         def order(dependencies):
             """Leave the order of dependencies alone."""
@@ -1315,18 +1299,6 @@ def _exec_main(parser, values):
     elif options.profile_file:
         # compat layer imports "cProfile" for us if it's available.
         from profile import Profile
-
-        # Some versions of Python 2.4 shipped a profiler that had the
-        # wrong 'c_exception' entry in its dispatch table.  Make sure
-        # we have the right one.  (This may put an unnecessary entry
-        # in the table in earlier versions of Python, but its presence
-        # shouldn't hurt anything).
-        try:
-            dispatch = Profile.dispatch
-        except AttributeError:
-            pass
-        else:
-            dispatch['c_exception'] = Profile.trace_dispatch_return
 
         prof = Profile()
         try:

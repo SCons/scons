@@ -122,7 +122,6 @@ def execute_action_list(obj, target, kw):
     kw = obj.get_kw(kw)
     status = 0
     for act in obj.get_action_list():
-        #args = (self.get_all_targets(), self.get_all_sources(), env)
         args = ([], [], env)
         status = act(*args, **kw)
         if isinstance(status, SCons.Errors.BuildError):
@@ -244,14 +243,12 @@ class Executor(object):
             return self._changed_targets_list
 
     def _get_source(self, *args, **kw):
-        #return SCons.Util.NodeList([rfile(self.batches[0].sources[0]).get_subst_proxy()])
         return rfile(self.batches[0].sources[0]).get_subst_proxy()
 
     def _get_sources(self, *args, **kw):
         return SCons.Util.NodeList([rfile(n).get_subst_proxy() for n in self.get_all_sources()])
 
     def _get_target(self, *args, **kw):
-        #return SCons.Util.NodeList([self.batches[0].targets[0].get_subst_proxy()])
         return self.batches[0].targets[0].get_subst_proxy()
 
     def _get_targets(self, *args, **kw):

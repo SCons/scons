@@ -108,7 +108,7 @@ class Tool(object):
             self.options = module.options
 
     def _tool_module(self):
-        # TODO: Interchange zipimport with normal initilization for better error reporting
+        # TODO: Interchange zipimport with normal initialization for better error reporting
         oldpythonpath = sys.path
         sys.path = self.toolpath + sys.path
 

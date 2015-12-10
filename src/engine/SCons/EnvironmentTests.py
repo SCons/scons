@@ -862,31 +862,6 @@ sys.exit(0)
         assert env['A'] == ['aaa'], env['A']
         assert env['B'] == ['bbb'], env['B']
 
-#     def test_MergeShellPaths(self):
-#         """Test the MergeShellPaths() method
-#         """
-#         env = Environment()
-#         env.MergeShellPaths({})
-#         assert not env['ENV'].has_key('INCLUDE'), env['INCLUDE']
-#         env.MergeShellPaths({'INCLUDE': r'c:\Program Files\Stuff'})
-#         assert env['ENV']['INCLUDE'] == r'c:\Program Files\Stuff', env['ENV']['INCLUDE']
-#         env.MergeShellPaths({'INCLUDE': r'c:\Program Files\Stuff'})
-#         assert env['ENV']['INCLUDE'] == r'c:\Program Files\Stuff', env['ENV']['INCLUDE']
-#         env.MergeShellPaths({'INCLUDE': r'xyz'})
-#         assert env['ENV']['INCLUDE'] == r'xyz%sc:\Program Files\Stuff'%os.pathsep, env['ENV']['INCLUDE']
-
-#         env = Environment()
-#         env['ENV']['INCLUDE'] = 'xyz'
-#         env.MergeShellPaths({'INCLUDE':['c:/inc1', 'c:/inc2']} )
-#         assert env['ENV']['INCLUDE'] == r'c:/inc1%sc:/inc2%sxyz'%(os.pathsep, os.pathsep), env['ENV']['INCLUDE']
-
-#         # test prepend=0
-#         env = Environment()
-#         env.MergeShellPaths({'INCLUDE': r'c:\Program Files\Stuff'}, prepend=0)
-#         assert env['ENV']['INCLUDE'] == r'c:\Program Files\Stuff', env['ENV']['INCLUDE']
-#         env.MergeShellPaths({'INCLUDE': r'xyz'}, prepend=0)
-#         assert env['ENV']['INCLUDE'] == r'c:\Program Files\Stuff%sxyz'%os.pathsep, env['ENV']['INCLUDE']
-
 
 class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
 

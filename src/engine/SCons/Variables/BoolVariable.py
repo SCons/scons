@@ -51,7 +51,7 @@ def _text2bool(val):
     will be returned.
 
     See '__true_strings' and '__false_strings' for values considered
-    'true' or 'false respectivly.
+    'true' or 'false respectively.
 
     This is usable as 'converter' for SCons' Variables.
     """
@@ -74,7 +74,7 @@ def _validator(key, val, env):
 
 def BoolVariable(key, help, default):
     """
-    The input parameters describe a boolen option, thus they are
+    The input parameters describe a boolean option, thus they are
     returned with the correct converter and validator appended. The
     'help' text will by appended by '(yes|no) to show the valid
     valued. The result is usable for input to opts.Add().

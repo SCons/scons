@@ -27,6 +27,7 @@ __doc__ = """
 
 import os
 import re
+import SCons.Util
 
 from common import read_reg, debug
 
@@ -40,7 +41,7 @@ def find_framework_root():
     try:
         froot = read_reg(_FRAMEWORKDIR_HKEY_ROOT)
         debug("Found framework install root in registry: %s" % froot)
-    except WindowsError, e:
+    except SCons.Util.WinError, e:
         debug("Could not read reg key %s" % _FRAMEWORKDIR_HKEY_ROOT)
         return None
 

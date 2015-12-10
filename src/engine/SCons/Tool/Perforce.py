@@ -38,9 +38,6 @@ import SCons.Builder
 import SCons.Node.FS
 import SCons.Util
 
-# This function should maybe be moved to SCons.Util?
-from SCons.Tool.PharLapCommon import addPathIfNotExists
-
 
 # Variables that we want to import from the base OS environment.
 _import_env = [ 'P4PORT', 'P4CLIENT', 'P4USER', 'USER', 'USERNAME', 'P4PASSWD',
@@ -58,7 +55,6 @@ def generate(env):
         W.warn(W.DeprecatedSourceCodeWarning, """The Perforce() factory is deprecated and there is no replacement.""")
         return SCons.Builder.Builder(action = PerforceAction, env = env)
 
-    #setattr(env, 'Perforce', PerforceFactory)
     env.Perforce = PerforceFactory
 
     env['P4']      = 'p4'
@@ -87,7 +83,7 @@ def generate(env):
             k=SCons.Util.RegOpenKeyEx(SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
                                       'Software\\Perforce\\environment')
             val, tok = SCons.Util.RegQueryValueEx(k, 'P4INSTROOT')
-            addPathIfNotExists(environ, 'PATH', val)
+            SCons.Util.AddPathIfNotExists(environ, 'PATH', val)
         except SCons.Util.RegError:
             # Can't detect where Perforce is, hope the user has it set in the
             # PATH.

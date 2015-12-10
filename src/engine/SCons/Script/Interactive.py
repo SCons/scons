@@ -304,14 +304,8 @@ class SConsInteractiveCmd(cmd.Cmd):
         return self._strip_initial_spaces(doc)
 
     def _strip_initial_spaces(self, s):
-        #lines = s.split('\n')
         lines = s.split('\n')
         spaces = re.match(' *', lines[0]).group(0)
-        #def strip_spaces(l):
-        #    if l.startswith(spaces):
-        #        l = l[len(spaces):]
-        #    return l
-        #return '\n'.join([ strip_spaces(l) for l in lines ])
         def strip_spaces(l, spaces=spaces):
             if l[:len(spaces)] == spaces:
                 l = l[len(spaces):]

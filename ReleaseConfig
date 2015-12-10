@@ -38,7 +38,7 @@ version_tuple = (2, 4, 2, 'alpha', 0)
 # when that version is used.  Python versions prior to deprecate_python_version
 # cause a warning to be issued (assuming it's not disabled).  These values are
 # mandatory and must be present in the configuration file.
-unsupported_python_version = (2, 3, 0)
+unsupported_python_version = (2, 6, 0)
 deprecated_python_version = (2, 7, 0)
 
 # If release_date is (yyyy, mm, dd, hh, mm, ss), that is used as the release

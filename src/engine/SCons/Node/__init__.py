@@ -577,7 +577,7 @@ class Node(object):
         self.always_build = None
         self.includes = None
         self.attributes = self.Attrs() # Generic place to stick information about the Node.
-        self.side_effect = 0 # true iff this node is a side effect
+        self.side_effect = 0 # true if this node is a side effect
         self.side_effects = [] # the side effects of building this target
         self.linked = 0 # is this node linked to the variant directory?
         self.changed_since_last_build = 0
@@ -1281,11 +1281,6 @@ class Node(object):
     def _add_child(self, collection, set, child):
         """Adds 'child' to 'collection', first checking 'set' to see if it's
         already present."""
-        #if type(child) is not type([]):
-        #    child = [child]
-        #for c in child:
-        #    if not isinstance(c, Node):
-        #        raise TypeError, c
         added = None
         for c in child:
             if c not in set:

@@ -52,7 +52,7 @@ def _validator(key, val, env, vals):
 
 def EnumVariable(key, help, default, allowed_values, map={}, ignorecase=0):
     """
-    The input parameters describe a option with only certain values
+    The input parameters describe an option with only certain values
     allowed. They are returned with an appropriate converter and
     validator appended. The result is usable for input to
     Variables.Add().
@@ -65,7 +65,7 @@ def EnumVariable(key, help, default, allowed_values, map={}, ignorecase=0):
     for this option.
 
     The 'map'-dictionary may be used for converting the input value
-    into canonical values (eg. for aliases).
+    into canonical values (e.g. for aliases).
 
     'ignorecase' defines the behaviour of the validator:
 

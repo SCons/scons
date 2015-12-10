@@ -118,9 +118,6 @@ test.must_not_exist(test.workpath('simple.blg'))
 test.pass_test()
 
 
-
-# FUTURE:  
-
 test.write('SConstruct', """\
 env = Environment(tools = ['tex', 'latex', 'dvips'])
 env.PostScript('d00', 'd00.tex')

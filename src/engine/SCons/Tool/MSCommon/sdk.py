@@ -80,7 +80,7 @@ class SDKDefinition(object):
 
         try:
             sdk_dir = common.read_reg(hkey)
-        except WindowsError, e:
+        except SCons.Util.WinError, e:
             debug('find_sdk_dir(): no SDK registry key %s' % repr(hkey))
             return None
 
@@ -168,7 +168,7 @@ SDK70VCSetupScripts =    { 'x86'      : r'bin\vcvars32.bat',
 #
 # The first SDK found in the list is the one used by default if there
 # are multiple SDKs installed.  Barring good reasons to the contrary,
-# this means we should list SDKs with from most recent to oldest.
+# this means we should list SDKs from most recent to oldest.
 #
 # If you update this list, update the documentation in Tool/mssdk.xml.
 SupportedSDKList = [
@@ -306,29 +306,6 @@ def set_sdk_by_directory(env, sdk_dir):
     for variable, directory in env_tuple_list:
         env.PrependENVPath(variable, directory)
 
-
-# TODO(sgk):  currently unused; remove?
-def get_cur_sdk_dir_from_reg():
-    """Try to find the platform sdk directory from the registry.
-
-    Return None if failed or the directory does not exist"""
-    if not SCons.Util.can_read_reg:
-        debug('SCons cannot read registry')
-        return None
-
-    try:
-        val = common.read_reg(_CURINSTALLED_SDK_HKEY_ROOT)
-        debug("Found current sdk dir in registry: %s" % val)
-    except WindowsError, e:
-        debug("Did not find current sdk in registry")
-        return None
-
-    if not os.path.exists(val):
-        debug("Current sdk dir %s not on fs" % val)
-        return None
-
-    return val
-
 def get_sdk_by_version(mssdk):
     if mssdk not in SupportedSDKMap:
         msg = "SDK version %s is not supported" % repr(mssdk)
@@ -342,9 +319,6 @@ def get_default_sdk():
     if not InstalledSDKList:
         return None
     return InstalledSDKList[0]
-
-
-
 
 def mssdk_setup_env(env):
     debug('sdk.py:mssdk_setup_env()')

@@ -857,25 +857,6 @@ class SubstitutionEnvironment(object):
             self[key] = t
         return self
 
-#     def MergeShellPaths(self, args, prepend=1):
-#         """
-#         Merge the dict in args into the shell environment in env['ENV'].
-#         Shell path elements are appended or prepended according to prepend.
-
-#         Uses Pre/AppendENVPath, so it always appends or prepends uniquely.
-
-#         Example: env.MergeShellPaths({'LIBPATH': '/usr/local/lib'})
-#         prepends /usr/local/lib to env['ENV']['LIBPATH'].
-#         """
-
-#         for pathname, pathval in args.items():
-#             if not pathval:
-#                 continue
-#             if prepend:
-#                 self.PrependENVPath(pathname, pathval)
-#             else:
-#                 self.AppendENVPath(pathname, pathval)
-
 
 def default_decide_source(dependency, target, prev_ni):
     f = SCons.Defaults.DefaultEnvironment().decide_source

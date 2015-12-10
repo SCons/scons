@@ -122,7 +122,7 @@ class Task(object):
     aspects of controlling a build, so any given application
     *should* be able to do what it wants by sub-classing this
     class and overriding methods as appropriate.  If an application
-    needs to customze something by sub-classing Taskmaster (or
+    needs to customize something by sub-classing Taskmaster (or
     some other build engine class), we should first try to migrate
     that functionality into this class.
 
@@ -147,7 +147,7 @@ class Task(object):
 
         This hook gets called as part of preparing a task for execution
         (that is, a Node to be built).  As part of figuring out what Node
-        should be built next, the actually target list may be altered,
+        should be built next, the actual target list may be altered,
         along with a message describing the alteration.  The calling
         interface can subclass Task and provide a concrete implementation
         of this method to see those messages.
@@ -664,9 +664,9 @@ class Taskmaster(object):
         its parent node.
 
         A pending child can occur when the Taskmaster completes a loop
-        through a cycle. For example, lets imagine a graph made of
-        three node (A, B and C) making a cycle. The evaluation starts
-        at node A. The taskmaster first consider whether node A's
+        through a cycle. For example, let's imagine a graph made of
+        three nodes (A, B and C) making a cycle. The evaluation starts
+        at node A. The Taskmaster first considers whether node A's
         child B is up-to-date. Then, recursively, node B needs to
         check whether node C is up-to-date. This leaves us with a
         dependency graph looking like:
@@ -951,7 +951,7 @@ class Taskmaster(object):
             task.make_ready()
         except:
             # We had a problem just trying to get this task ready (like
-            # a child couldn't be linked in to a VariantDir when deciding
+            # a child couldn't be linked to a VariantDir when deciding
             # whether this node is current).  Arrange to raise the
             # exception when the Task is "executed."
             self.ready_exc = sys.exc_info()

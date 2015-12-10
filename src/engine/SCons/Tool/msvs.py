@@ -100,42 +100,6 @@ def msvs_parse_version(s):
     num, suite = version_re.match(s).groups()
     return float(num), suite
 
-# os.path.relpath has been introduced in Python 2.6
-# We define it locally for earlier versions of Python
-def relpath(path, start=os.path.curdir):
-    """Return a relative version of a path"""
-    import sys
-    if not path:
-        raise ValueError("no path specified")
-    start_list = os.path.abspath(start).split(os.sep)
-    path_list = os.path.abspath(path).split(os.sep)
-    if 'posix' in sys.builtin_module_names:
-        # Work out how much of the filepath is shared by start and path.
-        i = len(os.path.commonprefix([start_list, path_list]))
-    else:
-        if start_list[0].lower() != path_list[0].lower():
-            unc_path, rest = os.path.splitunc(path)
-            unc_start, rest = os.path.splitunc(start)
-            if bool(unc_path) ^ bool(unc_start):
-                raise ValueError("Cannot mix UNC and non-UNC paths (%s and %s)"
-                                                                    % (path, start))
-            else:
-                raise ValueError("path is on drive %s, start on drive %s"
-                                                    % (path_list[0], start_list[0]))
-        # Work out how much of the filepath is shared by start and path.
-        for i in range(min(len(start_list), len(path_list))):
-            if start_list[i].lower() != path_list[i].lower():
-                break
-        else:
-            i += 1
-    rel_list = [os.pardir] * (len(start_list)-i) + path_list[i:]
-    if not rel_list:
-        return os.path.curdir
-    return os.path.join(*rel_list)
-
-if not "relpath" in os.path.__all__:
-    os.path.relpath = relpath
-
 # This is how we re-invoke SCons from inside MSVS Project files.
 # The problem is that we might have been invoked as either scons.bat
 # or scons.py.  If we were invoked directly as scons.py, then we could
@@ -204,7 +168,7 @@ class _UserGenerator(object):
     Base class for .dsp.user file generator
     '''
     # Default instance values.
-    # Ok ... a bit defensive, but it does not seems reasonable to crash the 
+    # Ok ... a bit defensive, but it does not seem reasonable to crash the 
     # build for a workspace user file. :-)
     usrhead = None
     usrdebg = None 
@@ -212,7 +176,7 @@ class _UserGenerator(object):
     createfile = False 
     def __init__(self, dspfile, source, env):
         # DebugSettings should be a list of debug dictionary sorted in the same order
-        # than the target list and variants 
+        # as the target list and variants 
         if 'variant' not in env:
             raise SCons.Errors.InternalError("You must specify a 'variant' argument (i.e. 'Debug' or " +\
                   "'Release') to create an MSVSProject.")
@@ -543,9 +507,7 @@ class _DSPGenerator(object):
                         self.sources[t[0]].append(self.env[t[1]])
 
         for n in sourcenames:
-            #TODO 2.4: compat layer supports sorted(key=) but not sort(key=)
-            #TODO 2.4: self.sources[n].sort(key=lambda a: a.lower())
-            self.sources[n] = sorted(self.sources[n], key=lambda a: a.lower())
+            self.sources[n].sort(key=lambda a: a.lower())
 
         def AddConfig(self, variant, buildtarget, outdir, runfile, cmdargs, dspfile=dspfile):
             config = Config()

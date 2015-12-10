@@ -270,12 +270,6 @@ def HelpFunction(text, append=False):
             s.close()
         else:
             help_text = ""
-#            
-# Was in original patch but this text is arbitrary and breaks tests
-# so I removed it (Deegan)
-#        help_text = help_text + "\nLocal Build Variables:\n" + text
-#    else:
-#        help_text = help_text + text
 
     help_text= help_text + text
 

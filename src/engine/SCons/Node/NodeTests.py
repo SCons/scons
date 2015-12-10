@@ -358,8 +358,6 @@ class NodeTestCase(unittest.TestCase):
         ggg.path = "ggg"
         fff.sources = ["hhh", "iii"]
         ggg.sources = ["hhh", "iii"]
-        # [Charles C. 1/7/2002] Uhhh, why are there no asserts here?
-        # [SK, 15 May 2003] I dunno, let's add some...
         built_it = None
         fff.build()
         assert built_it

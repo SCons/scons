@@ -100,11 +100,10 @@ class SConfTestCase(unittest.TestCase):
              # original builtin functions whenever we have to reset
              # all of our global state.
 
-             import builtins
              import SCons.Platform.win32
 
-             builtins.file = SCons.Platform.win32._builtin_file
-             builtins.open = SCons.Platform.win32._builtin_open
+             file = SCons.Platform.win32._builtin_file
+             open = SCons.Platform.win32._builtin_open
 
     def _baseTryXXX(self, TryFunc):
         # TryCompile and TryLink are much the same, so we can test them

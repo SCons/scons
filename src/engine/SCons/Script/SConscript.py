@@ -52,16 +52,6 @@ import re
 import sys
 import traceback
 
-# The following variables used to live in this module.  Some
-# SConscript files out there may have referred to them directly as
-# SCons.Script.SConscript.*.  This is now supported by some special
-# handling towards the bottom of the SConscript.__init__.py module.
-#Arguments = {}
-#ArgList = []
-#BuildTargets = TargetList()
-#CommandLineTargets = []
-#DefaultTargets = []
-
 class SConscriptReturn(Exception):
     pass
 
@@ -446,7 +436,7 @@ class SConsEnvironment(SCons.Environment.Base):
 
     #
     # Public methods of an SConsEnvironment.  These get
-    # entry points in the global name space so they can be called
+    # entry points in the global namespace so they can be called
     # as global functions.
     #
 

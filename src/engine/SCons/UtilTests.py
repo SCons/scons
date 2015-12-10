@@ -190,16 +190,7 @@ class UtilTestCase(unittest.TestCase):
             assert expect == actual, (expect, actual)
 
             sys.stdout = io.StringIO()
-            # The following call should work here:
-            #    print_tree(node, get_children, 1, showtags=1)
-            # For some reason I don't understand, though, *this*
-            # time that we call print_tree, the visited dictionary
-            # is still populated with the values from the last call!
-            # I can't see why this would be, short of a bug in Python,
-            # and rather than continue banging my head against the
-            # brick wall for a *test*, we're going to going with
-            # the cheap, easy workaround:
-            print_tree(node, get_children, 1, showtags=1, visited={})
+            print_tree(node, get_children, 1, showtags=1)
             actual = sys.stdout.getvalue()
             assert withtags == actual, (withtags, actual)
         finally:
@@ -487,6 +478,30 @@ class UtilTestCase(unittest.TestCase):
         p1 = AppendPath(p1,r'C:\dir\num\three',sep = ';')
         assert(p1 == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
 
+    def test_addPathIfNotExists(self):
+        """Test the AddPathIfNotExists() function"""
+        env_dict = { 'FOO' : os.path.normpath('/foo/bar') + os.pathsep + \
+                     os.path.normpath('/baz/blat'),
+                     'BAR' : os.path.normpath('/foo/bar') + os.pathsep + \
+                     os.path.normpath('/baz/blat'),
+                     'BLAT' : [ os.path.normpath('/foo/bar'),
+                                os.path.normpath('/baz/blat') ] }
+        AddPathIfNotExists(env_dict, 'FOO', os.path.normpath('/foo/bar'))
+        AddPathIfNotExists(env_dict, 'BAR', os.path.normpath('/bar/foo'))
+        AddPathIfNotExists(env_dict, 'BAZ', os.path.normpath('/foo/baz'))
+        AddPathIfNotExists(env_dict, 'BLAT', os.path.normpath('/baz/blat'))
+        AddPathIfNotExists(env_dict, 'BLAT', os.path.normpath('/baz/foo'))
+
+        assert env_dict['FOO'] == os.path.normpath('/foo/bar') + os.pathsep + \
+               os.path.normpath('/baz/blat'), env_dict['FOO']
+        assert env_dict['BAR'] == os.path.normpath('/bar/foo') + os.pathsep + \
+               os.path.normpath('/foo/bar') + os.pathsep + \
+               os.path.normpath('/baz/blat'), env_dict['BAR']
+        assert env_dict['BAZ'] == os.path.normpath('/foo/baz'), env_dict['BAZ']
+        assert env_dict['BLAT'] == [ os.path.normpath('/baz/foo'),
+                                     os.path.normpath('/foo/bar'),
+                                     os.path.normpath('/baz/blat') ], env_dict['BLAT' ]
+
     def test_CLVar(self):
         """Test the command-line construction variable class"""
         f = SCons.Util.CLVar('a b')
@@ -679,11 +694,8 @@ bling \
 bling \ bling
 bling
 """
-        try:
-            fobj = io.StringIO(content)
-        except TypeError:
-            # Python 2.7 and beyond require unicode strings.
-            fobj = io.StringIO(unicode(content))
+        # Python 2.7 and beyond require unicode strings.
+        fobj = io.StringIO(unicode(content))
 
         lines = LogicalLines(fobj).readlines()
         assert lines == [
@@ -779,6 +791,7 @@ class flattenTestCase(unittest.TestCase):
         """Test flattening a scalar"""
         result = flatten('xyz')
         assert result == ['xyz'], result
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()

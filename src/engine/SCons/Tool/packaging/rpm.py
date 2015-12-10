@@ -72,7 +72,6 @@ def package(env, target, source, PACKAGEROOT, NAME, VERSION,
 
     # if no "SOURCE_URL" tag is given add a default one.
     if 'SOURCE_URL' not in kw:
-        #kw['SOURCE_URL']=(str(target[0])+".tar.gz").replace('.rpm', '')
         kw['SOURCE_URL']=(str(target[0])+".tar.gz").replace('.rpm', '')
 
     # mangle the source and target list for the rpmbuild
@@ -86,26 +85,21 @@ def package(env, target, source, PACKAGEROOT, NAME, VERSION,
 
 def collectintargz(target, source, env):
     """ Puts all source files into a tar.gz file. """
-    # the rpm tool depends on a source package, until this is chagned
+    # the rpm tool depends on a source package, until this is changed
     # this hack needs to be here that tries to pack all sources in.
     sources = env.FindSourceFiles()
 
     # filter out the target we are building the source list for.
-    #sources = [s for s in sources if not (s in target)]
     sources = [s for s in sources if s not in target]
 
     # find the .spec file for rpm and add it since it is not necessarily found
     # by the FindSourceFiles function.
-    #sources.extend( [s for s in source if str(s).rfind('.spec')!=-1] )
-    spec_file = lambda s: str(s).rfind('.spec') != -1
-    sources.extend( list(filter(spec_file, source)) )
+    sources.extend( [s for s in source if str(s).rfind('.spec')!=-1] )
 
     # as the source contains the url of the source package this rpm package
     # is built from, we extract the target name
-    #tarball = (str(target[0])+".tar.gz").replace('.rpm', '')
     tarball = (str(target[0])+".tar.gz").replace('.rpm', '')
     try:
-        #tarball = env['SOURCE_URL'].split('/')[-1]
         tarball = env['SOURCE_URL'].split('/')[-1]
     except KeyError, e:
         raise SCons.Errors.UserError( "Missing PackageTag '%s' for RPM packager" % e.args[0] )
@@ -194,7 +188,7 @@ def build_specfile_sections(spec):
     return str
 
 def build_specfile_header(spec):
-    """ Builds all section but the %file of a rpm specfile
+    """ Builds all sections but the %file of a rpm specfile
     """
     str = ""
 
@@ -312,11 +306,10 @@ class SimpleTagCompiler(object):
         self.mandatory = mandatory
 
     def compile(self, values):
-        """ compiles the tagset and returns a str containing the result
+        """ Compiles the tagset and returns a str containing the result
         """
         def is_international(tag):
-            #return tag.endswith('_')
-            return tag[-1:] == '_'
+            return tag.endswith('_')
 
         def get_country_code(tag):
             return tag[-2:]
@@ -327,7 +320,6 @@ class SimpleTagCompiler(object):
         replacements = list(self.tagset.items())
 
         str = ""
-        #domestic = [ (k,v) for k,v in replacements if not is_international(k) ]
         domestic = [t for t in replacements if not is_international(t[0])]
         for key, replacement in domestic:
             try:
@@ -336,11 +328,9 @@ class SimpleTagCompiler(object):
                 if self.mandatory:
                     raise e
 
-        #international = [ (k,v) for k,v in replacements if is_international(k) ]
         international = [t for t in replacements if is_international(t[0])]
         for key, replacement in international:
             try:
-                #int_values_for_key = [ (get_country_code(k),v) for k,v in values.items() if strip_country_code(k) == key ]
                 x = [t for t in values.items() if strip_country_code(t[0]) == key]
                 int_values_for_key = [(get_country_code(t[0]),t[1]) for t in x]
                 for v in int_values_for_key:

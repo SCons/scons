@@ -35,9 +35,6 @@ the builtins namespace or the global module list so that the rest
 of our code can use the objects and names imported here regardless of
 Python version.
 
-Simply enough, things that go in the builtins name space come from
-our _scons_builtins module.
-
 The rest of the things here will be in individual compatibility modules
 that are either: 1) suitably modified copies of the future modules that
 we want to use; or 2) backwards compatible re-implementations of the
@@ -85,34 +82,8 @@ def rename_module(new, old):
     except ImportError:
         return False
 
-
-rename_module('builtins', '__builtin__')
-import _scons_builtins
-
-
-try:
-    import hashlib
-except ImportError:
-    # Pre-2.5 Python has no hashlib module.
-    try:
-        import_as('_scons_hashlib', 'hashlib')
-    except ImportError:
-        # If we failed importing our compatibility module, it probably
-        # means this version of Python has no md5 module.  Don't do
-        # anything and let the higher layer discover this fact, so it
-        # can fall back to using timestamp.
-        pass
-
-
-
-# When we're using the '-3' option during regression tests, importing
-# cPickle gives a warning no matter how it's done, so always use the
-# real profile module, whether it's fast or not.
-if os.environ.get('SCONS_HORRIBLE_REGRESSION_TEST_HACK') is None:
-    # Not a regression test with '-3', so try to use faster version.
-    # In 3.x, 'pickle' automatically loads the fast version if available.
-    rename_module('pickle', 'cPickle')
-
+# In 3.x, 'pickle' automatically loads the fast version if available.
+rename_module('pickle', 'cPickle')
 
 # In 3.x, 'profile' automatically loads the fast version if available.
 rename_module('profile', 'cProfile')
@@ -134,9 +105,7 @@ try:
 except AttributeError:
     # We must be using python 2.7.x so monkey patch
     # intern into the sys package
-    import builtins
-    sys.intern = builtins.intern
-
+    sys.intern = intern
 
 
 # Preparing for 3.x. UserDict, UserList, UserString are in
@@ -162,25 +131,6 @@ except AttributeError:
     exec('from UserString import UserString as _UserString')
     collections.UserString = _UserString
     del _UserString
-
-        
-
-if os.environ.get('SCONS_HORRIBLE_REGRESSION_TEST_HACK') is not None:
-    # We can't apply the 'callable' fixer until the floor is 2.6, but the
-    # '-3' option to Python 2.6 and 2.7 generates almost ten thousand
-    # warnings.  This hack allows us to run regression tests with the '-3'
-    # option by replacing the callable() built-in function with a hack
-    # that performs the same function but doesn't generate the warning.
-    # Note that this hack is ONLY intended to be used for regression
-    # testing, and should NEVER be used for real runs.
-    from types import ClassType
-    def callable(obj):
-        if hasattr(obj, '__call__'): return True
-        if isinstance(obj, (ClassType, type)): return True
-        return False
-    import builtins
-    builtins.callable = callable
-    del callable
 
 
 # Local Variables:

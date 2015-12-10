@@ -52,8 +52,6 @@ class VisualStudio(object):
         self.__dict__.update(kw)
         self._cache = {}
 
-    #
-
     def find_batch_file(self):
         vs_dir = self.get_vs_dir()
         if not vs_dir:
@@ -85,7 +83,7 @@ class VisualStudio(object):
             key = root + key
             try:
                 comps = read_reg(key)
-            except WindowsError, e:
+            except SCons.Util.WinError, e:
                 debug('find_vs_dir_by_reg(): no VS registry key %s' % repr(key))
             else:
                 debug('find_vs_dir_by_reg(): found VS in registry: %s' % comps)
@@ -115,8 +113,6 @@ class VisualStudio(object):
             debug('find_executable():  %s not on file system' % executable)
             return None
         return executable
-
-    #
 
     def get_batch_file(self):
         try:
@@ -471,7 +467,7 @@ def get_default_version(env):
     """Returns the default version string to use for MSVS.
 
     If no version was requested by the user through the MSVS environment
-    variable, query all the available the visual studios through
+    variable, query all the available visual studios through
     get_installed_visual_studios, and take the highest one.
 
     Return

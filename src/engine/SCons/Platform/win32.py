@@ -60,10 +60,8 @@ except AttributeError:
 else:
     parallel_msg = None
 
-    import builtins
-
-    _builtin_file = builtins.file
-    _builtin_open = builtins.open
+    _builtin_file = file
+    _builtin_open = open
 
     class _scons_file(_builtin_file):
         def __init__(self, *args, **kw):
@@ -78,8 +76,8 @@ else:
                                       0)
         return fp
 
-    builtins.file = _scons_file
-    builtins.open = _scons_open
+    file = _scons_file
+    open = _scons_open
 
 try:
     import threading
