@@ -167,7 +167,7 @@ class DisplayEngine(object):
     def set_mode(self, mode):
         self.print_it = mode
 
-def render_tree(root, child_func, prune=0, margin=[0], visited={}):
+def render_tree(root, child_func, prune=0, margin=[0], visited=None):
     """
     Render a tree of nodes into an ASCII tree view.
     root - the root node of the tree
@@ -180,6 +180,10 @@ def render_tree(root, child_func, prune=0, margin=[0], visited={}):
     """
 
     rname = str(root)
+
+    # Initialize 'visited' dict, if required
+    if visited is None:
+        visited = {}
 
     children = child_func(root)
     retval = ""

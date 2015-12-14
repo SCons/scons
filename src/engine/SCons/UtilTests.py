@@ -124,7 +124,9 @@ class UtilTestCase(unittest.TestCase):
     def tree_case_2(self, prune=1):
         """Fixture for the render_tree() and print_tree() tests."""
 
-        stdlib_h = self.Node("stdlib.h")
+        types_h = self.Node('types.h')
+        malloc_h = self.Node('malloc.h')
+        stdlib_h = self.Node('stdlib.h', [types_h, malloc_h])
         bar_h = self.Node('bar.h', [stdlib_h])
         blat_h = self.Node('blat.h', [stdlib_h])
         blat_c = self.Node('blat.c', [blat_h, bar_h])
@@ -135,13 +137,18 @@ class UtilTestCase(unittest.TestCase):
   +-blat.c
     +-blat.h
     | +-stdlib.h
+    |   +-types.h
+    |   +-malloc.h
     +-bar.h
-      +-[stdlib.h]
 """
-
-        if not prune:
-            expect = expect.replace('[', '')
-            expect = expect.replace(']', '')
+        if prune:
+            expect += """      +-[stdlib.h]
+"""
+        else:
+            expect += """      +-stdlib.h
+        +-types.h
+        +-malloc.h
+"""
 
         lines = expect.split('\n')[:-1]
         lines = ['[E BSPACN ]'+l for l in lines]
@@ -159,6 +166,13 @@ class UtilTestCase(unittest.TestCase):
         assert expect == actual, (expect, actual)
 
         node, expect, withtags = self.tree_case_2()
+        actual = render_tree(node, get_children, 1)
+        assert expect == actual, (expect, actual)
+
+        # Ensure that we can call render_tree on the same Node
+        # again. This wasn't possible in version 2.4.1 and earlier
+        # due to a bug in render_tree (visited was set to {} as default
+        # parameter)
         actual = render_tree(node, get_children, 1)
         assert expect == actual, (expect, actual)
 
@@ -181,9 +195,33 @@ class UtilTestCase(unittest.TestCase):
             print_tree(node, get_children, showtags=1)
             actual = sys.stdout.getvalue()
             assert withtags == actual, (withtags, actual)
-
+ 
+            # Test that explicitly setting prune to zero works
+            # the same as the default (see above)
             node, expect, withtags = self.tree_case_2(prune=0)
+ 
+            sys.stdout = io.StringIO()
+            print_tree(node, get_children, 0)
+            actual = sys.stdout.getvalue()
+            assert expect == actual, (expect, actual)
+ 
+            sys.stdout = io.StringIO()
+            print_tree(node, get_children, 0, showtags=1)
+            actual = sys.stdout.getvalue()
+            assert withtags == actual, (withtags, actual)
 
+            # Test output with prune=1
+            node, expect, withtags = self.tree_case_2(prune=1)
+
+            sys.stdout = io.StringIO()
+            print_tree(node, get_children, 1)
+            actual = sys.stdout.getvalue()
+            assert expect == actual, (expect, actual)
+
+            # Ensure that we can call print_tree on the same Node
+            # again. This wasn't possible in version 2.4.1 and earlier
+            # due to a bug in print_tree (visited was set to {} as default
+            # parameter)
             sys.stdout = io.StringIO()
             print_tree(node, get_children, 1)
             actual = sys.stdout.getvalue()
