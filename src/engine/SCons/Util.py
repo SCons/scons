@@ -586,6 +586,10 @@ WinError = None
 # OSError subclass on Windows.)
 class PlainWindowsError(OSError):
     pass
+try:
+    WinError = WindowsError
+except NameError:
+    WinError = PlainWindowsError
 
 
 if can_read_reg:
@@ -621,11 +625,6 @@ if can_read_reg:
         k = RegOpenKeyEx(root, keyp)
         return RegQueryValueEx(k,val)
 else:
-    try:
-        WinError = WindowsError
-    except NameError:
-        WinError = PlainWindowsError
-        
     HKEY_CLASSES_ROOT = None
     HKEY_LOCAL_MACHINE = None
     HKEY_CURRENT_USER = None
