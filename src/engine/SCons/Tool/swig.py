@@ -43,6 +43,8 @@ import SCons.Tool
 import SCons.Util
 import SCons.Node
 
+verbose = False
+
 swigs = [ 'swig', 'swig3.0', 'swig2.0' ]
 
 SwigAction = SCons.Action.Action('$SWIGCOM', '$SWIGCOMSTR')
@@ -141,11 +143,10 @@ def _get_swig_version(env, swig):
     out = pipe.stdout.read()
     match = re.search(r'SWIG Version\s+(\S+).*', out, re.MULTILINE)
     if match:
-        # print "Version is:%s"%match.group(1)
+        if verbose: print "Version is:%s"%match.group(1)
         return match.group(1)
     else:
-        # print "Unable to detect version: [%s]"%out
-        pass
+        if verbose: print "Unable to detect version: [%s]"%out
 
 def generate(env):
     """Add Builders and construction variables for swig to an Environment."""
