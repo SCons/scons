@@ -58,10 +58,10 @@ env.SconsInternalInstallFunc = env.Install
 env.SconsInternalInstallAsFunc = env.InstallAs
 
 def InstallWithDestDir(dir, source):
-    abspath = os.path.splitdrive(env.Dir(dir).abspath)[1]
+    abspath = os.path.splitdrive(env.Dir(dir).get_abspath())[1]
     return env.SconsInternalInstallFunc('$DESTDIR'+abspath, source)
 def InstallAsWithDestDir(target, source):
-    abspath = os.path.splitdrive(env.File(target).abspath)[1]
+    abspath = os.path.splitdrive(env.File(target).get_abspath())[1]
     return env.SconsInternalInstallAsFunc('$DESTDIR'+abspath, source)
 
 # Add the wrappers directly as attributes.

@@ -4,7 +4,7 @@ This file defines the option type for SCons implementing 'lists'.
 
 A 'list' option may either be 'all', 'none' or a list of names
 separated by comma. After the option has been processed, the option
-value holds either the named list elements, all list elemens or no
+value holds either the named list elements, all list elements or no
 list elements at all.
 
 Usage example:
@@ -48,7 +48,7 @@ Usage example:
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-# Know Bug: This should behave like a Set-Type, but does not really,
+# Known Bug: This should behave like a Set-Type, but does not really,
 # since elements can occur twice.
 
 __all__ = ['ListVariable',]
@@ -106,14 +106,14 @@ def _converter(val, allowedElems, mapdict):
 ## def _validator(key, val, env):
 ##     """
 ##     """
-##     # todo: write validater for pgk list
+##     # todo: write validator for pgk list
 ##     return 1
 
 
 def ListVariable(key, help, default, names, map={}):
     """
     The input parameters describe a 'package list' option, thus they
-    are returned with the correct converter and validater appended. The
+    are returned with the correct converter and validator appended. The
     result is usable for input to opts.Add() .
 
     A 'package list' option may either be 'all', 'none' or a list of

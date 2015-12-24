@@ -29,7 +29,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
-from os.path import abspath, dirname
+from os.path import abspath, dirname, exists
 
 import sys
 sys.path.insert(1, abspath(dirname(__file__) + '/../../Support'))
@@ -41,7 +41,10 @@ def testForTool(tool):
     test = TestSCons.TestSCons()
 
     if not isExecutableOfToolAvailable(test, tool) :
-        test.skip_test("Required executable for tool '{}' not found, skipping test.\n".format(tool))
+        test.skip_test("Required executable for tool '{0}' not found, skipping test.\n".format(tool))
+
+    if not exists('/usr/include/ncurses.h'):
+        test.skip_test("ncurses not apparently installed, skip this test.")
 
     test.dir_fixture('LinkingProblem')
     test.write('SConstruct', open('SConstruct_template', 'r').read().format(tool))

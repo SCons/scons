@@ -31,12 +31,16 @@ a single statement.
 
 import TestSCons
 
+import sys
+from os.path import abspath, dirname, join
+sys.path.append(join(dirname(abspath(__file__)), 'Support'))
+from executablesSearch import isExecutableOfToolAvailable
+
 test = TestSCons.TestSCons()
 
 _obj = TestSCons._obj
 
-dmd = test.where_is('dmd')
-if not dmd:
+if not isExecutableOfToolAvailable(test, 'dmd'):
     test.skip_test("Could not find 'dmd'; skipping test.\n")
 
 test.subdir(['p'])

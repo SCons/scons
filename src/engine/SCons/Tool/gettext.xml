@@ -27,7 +27,7 @@ See its __doc__ string for a discussion of the format.
 <summary>
 <para>
 This is actually a toolset, which supports internationalization and
-localization of sofware being constructed with SCons. The toolset loads
+localization of software being constructed with SCons. The toolset loads
 following tools:
 </para>
 

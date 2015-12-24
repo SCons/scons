@@ -290,17 +290,18 @@ class IDLScannerTestCase5(unittest.TestCase):
         path = s.path(env)
 
         n = env.File('t3.idl')
-        def my_rexists(s=n):
-            s.rexists_called = 1
-            return s.old_rexists()
-        setattr(n, 'old_rexists', n.rexists)
-        setattr(n, 'rexists', my_rexists)
+        def my_rexists(s):
+            s.Tag('rexists_called', 1)
+            return SCons.Node._rexists_map[s.GetTag('old_rexists')](s)
+        n.Tag('old_rexists', n._func_rexists)
+        SCons.Node._rexists_map[3] = my_rexists
+        n._func_rexists = 3
 
         deps = s(n, env, path)
 
         # Make sure rexists() got called on the file node being
         # scanned, essential for cooperation with VariantDir functionality.
-        assert n.rexists_called
+        assert n.GetTag('rexists_called')
         
         headers =  ['d1/f1.idl', 'd1/f2.idl',
                     'f1.idl', 'f2.idl', 'f3-test.idl',

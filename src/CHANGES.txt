@@ -4,7 +4,171 @@
 
                             Change Log
 
-RELEASE 2.3.2.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From William Blevins:
+    - Added support for cross-language dependency scanning;
+      SCons now respects scanner keys for implicit dependencies.
+    - Resolved missing cross-language dependencies for
+      SWIG bindings (fixes #2264).
+
+  From Dirk Baechle:
+    - Removed a lot of compatibility methods and workarounds
+      for Python versions < 2.7, in order to prepare the work
+      towards a combined 2.7/3.x version. (PR #284)
+      Also fixed the default arguments for the print_tree and
+      render_tree methods. (PR #284, too)
+
+
+RELEASE 2.4.1 - Mon, 07 Nov 2015 10:37:21 -0700
+
+  From Arfrever Frehtes Taifersar Arahesis:
+    - Fix for Bug # 2791 - Setup.py fails unnecessarily under Jython.
+
+  From Dirk Baechle:
+    - Fixed license of SVG titlepage files in the context of Debian
+      packaging, such that they allow for commercial use too (#2985).
+
+  From William Blevins:
+    - InstallVersionedLib now available in the DefaultEnvironment context.
+    - Improves orthogonality of use cases between different Install functions.
+
+  From Carnë Draug:
+    - Added new configure check, CheckProg, to check for
+      existence of a program.
+
+  From Andrew Featherstone:
+    - Fix for issue #2840 - Fix for two environments specifying same target with different
+      actions not throwing hard error. Instead SCons was incorrectly issuing a warning
+      and continuing.
+
+  From Hiroaki Itoh :
+    - Add support `Microsoft Visual C++ Compiler for Python 2.7' 
+      Compiler can be obtained at: https://www.microsoft.com/en-us/download/details.aspx?id=44266
+
+  From Florian Miedniak:
+    - Fixed tigris issue #3011: Glob() excludes didn't work when used with VariantDir(duplicate=0)
+
+  From William Roberts:
+    - Fix bug 2831 and allow Help() text to be appended to AddOption() help.
+
+  From Paweł Tomulik:
+    - Reimplemented versioning for shared libraries, with the following effects
+    - Fixed tigris issues #3001, #3006.
+    - Fixed several other issues not reported to tigris, including:
+      issues with versioned libraries in subdirectories with tricky names,
+      issues with versioned libraries and variant directories,
+      issue with soname not being injected to library when using D linkers,
+    - Switched to direct symlinks instead of daisy-chained ones -- soname and
+      development symlinks point directly to the versioned shared library now),
+      for rationale see:
+      https://www.debian.org/doc/debian-policy/ch-sharedlibs.html
+      https://fedoraproject.org/wiki/Packaging:Guidelines#Devel_Packages
+      https://bitbucket.org/scons/scons/pull-requests/247/new-versioned-libraries-gnulink-cyglink/diff#comment-10063929
+    - New construction variables to allow override default behavior: SONAME,
+      SHLIBVERSIONFLAGS, _SHLIBVERSIONFLAGS, SHLIBNOVERSIONSYMLINKS,
+      LDMODULEVERSION, LDMODULEVERSIONFLAGS, _LDMODULEVERSIONFLAGS,
+      LDMODULENOVERSIONSYMLINKS.
+    - Changed logic used to configure the versioning machinery from
+      platform-centric to linker-oriented.
+    - The SHLIBVERSION/LDMODULEVERSION variables are no longer validated by
+      SCons (more freedom to users).
+    - InstallVersionedLib() doesn't use SHLIBVERSION anymore.
+    - Enchanced docs for the library versioning stuff.
+    - New tests for versioned libraries.
+    - Library versioning is currently implemented for the following linker
+      tools: 'cyglink', 'gnulink', 'sunlink'.
+    - Fix to swig tool - pick-up 'swig', 'swig3.0' and 'swig2.0' (in order).
+    - Fix to swig tool - respect env['SWIG'] provided by user.
+
+
+
+RELEASE 2.4.0 - Mon, 21 Sep 2015 08:56:00 -0700
+
+  From Dirk Baechle:
+    - Switched several core classes to use "slots", to
+      reduce the overall memory consumption in large
+      projects (fixes #2180, #2178, #2198)
+    - Memoizer counting uses decorators now, instead of
+      the old metaclasses approach.
+
+  From Andrew Featherstone
+    - Fixed typo in SWIGPATH description
+
+RELEASE 2.3.6 - Mon, 31 Jul 2015 14:35:03 -0700
+
+  From Rob Smith:
+    - Added support for Visual Studio 2015
+
+RELEASE 2.3.5 - Mon, 17 Jun 2015 21:07:32 -0700
+
+  From Stephen Pollard:
+    - Documentation fixes for libraries.xml and
+      builders-writing.xml (#2989 and #2990)
+
+  From William Deegan:
+    - Extended docs for InstallVersionedLib/SharedLibrary,
+      and added SKIP_WIN_PACKAGES argument to build script
+      bootstrap.py (PR #230, #3002).
+
+  From William Blevins:
+    - Fixed symlink support (PR #227, #2395).
+    - Updated debug-count test case (PR #229).
+
+  From Alexey Klimkin:
+    - Fixed incomplete LIBS flattening and substitution in
+      Program scanner(PR #205, #2954).
+
+  From Dirk Baechle:
+    - Added new method rentry_exists_on_disk to Node.FS (PR #193).
+
+  From Russel Winder:
+    - Fixed several D tests under the different OS.
+    - Add support for f08 file extensions for Fortran 2008 code.
+
+  From Anatoly Techtonik:
+    - Show --config choices if no argument is specified (PR #202).
+    - Fixed build crash when XML toolchain isn't installed, and
+      activated compression for ZIP archives.
+
+  From Alexandre Feblot:
+    - Fix for VersionedSharedLibrary under 'sunos' platform.
+    - Fixed dll link with precompiled headers on MSVC 2012
+    - Added an 'exclude' parameter to Glob()
+
+  From Laurent Marchelli:
+    - Support for multiple cmdargs (one per variant) in VS project files.
+    - Various improvements for TempFileMunge class.
+    - Added an implementation for Visual Studio users files (PR #209).
+
+  From Dan Pidcock:
+    - Added support for the 'PlatformToolset' tag in VS project files (#2978).
+
+  From James McCoy:
+    - Added support for '-isystem' to ParseFlags.
+
+RELEASE 2.3.4 - Mon, 27 Sep 2014 12:50:35 -0400
+
+  From Bernhard Walle and Dirk Baechle:
+    - Fixed the interactive mode, in connection with
+      Configure contexts (#2971).
+
+  From Anatoly Techtonik:
+    - Fix EnsureSConsVersion warning when running packaged version
+
+  From Russel Winder:
+    - Fix D tools for building shared libraries
+
+RELEASE 2.3.3 - Sun, 24 Aug 2014 21:08:33 -0400
+
+  From Roland Stark:
+    - Fixed false line length calculation in the TempFileMunge class (#2970).
+
+  From Gary Oberbrunner:
+    - Improve SWIG detection
+
+  From Russel Winder:
+    - Fix regression on Windows in D language update
 
   From Neal Becker and Stefan Zimmermann:
     - Python 3 port and compatibility

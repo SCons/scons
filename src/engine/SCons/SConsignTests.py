@@ -62,6 +62,10 @@ class DummyNode(object):
         return self.binfo
     def get_binfo(self):
         return self.binfo
+    def get_internal_path(self):
+        return self.path
+    def get_tpath(self):
+        return self.tpath
 
 class SConsignTestCase(unittest.TestCase):
     def setUp(self):

@@ -41,6 +41,7 @@ from SCons.Tool.MSCommon.common import debug
 
 from SCons.Tool.MSCommon import get_default_version, \
                                 query_versions
+from SCons.Tool.msvs import _GenerateV6DSP, _GenerateV7DSP, _GenerateV10DSP
 
 regdata_6a = r'''[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio]
 [HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\6.0]
@@ -592,6 +593,84 @@ class msvsTestCase(unittest.TestCase):
         assert not v1 or str(v1[0]) == self.highest_version, \
                (v1, self.highest_version)
         assert len(v1) == self.number_of_versions, v1
+        
+    def test_config_generation(self):
+        """Test _DSPGenerator.__init__(...)"""
+        if not self.highest_version :
+            return
+        
+        # Initialize 'static' variables
+        version_num, suite = msvs_parse_version(self.highest_version)
+        if version_num >= 10.0:
+            function_test = _GenerateV10DSP
+        elif version_num >= 7.0:
+            function_test = _GenerateV7DSP
+        else:
+            function_test = _GenerateV6DSP
+            
+        str_function_test = str(function_test.__init__)
+        dspfile = 'test.dsp'
+        source = 'test.cpp'
+        
+        # Create the cmdargs test list
+        list_variant = ['Debug|Win32','Release|Win32',
+                        'Debug|x64', 'Release|x64']
+        list_cmdargs = ['debug=True target_arch=32', 
+                        'debug=False target_arch=32',
+                        'debug=True target_arch=x64', 
+                        'debug=False target_arch=x64']
+        
+        # Tuple list :   (parameter,        dictionary of expected result per variant)
+        tests_cmdargs = [(None,            dict.fromkeys(list_variant, '')), 
+                         ('',              dict.fromkeys(list_variant, '')), 
+                         (list_cmdargs[0], dict.fromkeys(list_variant, list_cmdargs[0])),
+                         (list_cmdargs,    dict(zip(list_variant, list_cmdargs)))]
+        
+        # Run the test for each test case
+        for param_cmdargs, expected_cmdargs in tests_cmdargs:
+            debug('Testing %s. with :\n  variant = %s \n  cmdargs = "%s"' % \
+                  (str_function_test, list_variant, param_cmdargs))
+            param_configs = []
+            expected_configs = {}
+            for platform in ['Win32', 'x64']:
+                for variant in ['Debug', 'Release']:
+                    variant_platform = '%s|%s' % (variant, platform)
+                    runfile = '%s\\%s\\test.exe' % (platform, variant)
+                    buildtarget = '%s\\%s\\test.exe' % (platform, variant)
+                    outdir = '%s\\%s' % (platform, variant)
+            
+                    # Create parameter list for this variant_platform
+                    param_configs.append([variant_platform, runfile, buildtarget, outdir])
+            
+                    # Create expected dictionary result for this variant_platform
+                    expected_configs[variant_platform] = \
+                    {'variant': variant, 'platform': platform, 
+                     'runfile': runfile,
+                     'buildtarget': buildtarget, 
+                     'outdir': outdir,
+                     'cmdargs': expected_cmdargs[variant_platform]}
+            
+            # Create parameter environment with final parameter dictionary
+            param_dict = dict(zip(('variant', 'runfile', 'buildtarget', 'outdir'),
+                                  [list(l) for l in zip(*param_configs)]))
+            param_dict['cmdargs'] = param_cmdargs
+
+            # Hack to be able to run the test with a 'DummyEnv'
+            class _DummyEnv(DummyEnv):
+                def subst(self, string) : 
+                    return string
+            
+            env = _DummyEnv(param_dict)
+            env['MSVSSCONSCRIPT'] = ''
+            env['MSVS_VERSION'] = self.highest_version
+           
+            # Call function to test
+            genDSP = function_test(dspfile, source, env)
+        
+            # Check expected result
+            self.assertListEqual(genDSP.configs.keys(), expected_configs.keys())
+            for key in genDSP.configs.keys():
+                self.assertDictEqual(genDSP.configs[key].__dict__, expected_configs[key])
 
 class msvs6aTestCase(msvsTestCase):
     """Test MSVS 6 Registry"""

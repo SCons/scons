@@ -1,6 +1,6 @@
 """SCons.Scanner.RC
 
-This module implements the depenency scanner for RC (Interface
+This module implements the dependency scanner for RC (Interface
 Definition Language) files.
 
 """

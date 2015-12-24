@@ -83,6 +83,21 @@ Type: 'scons program' to build the production program,
 
     <para>
 
+    Optionally, one can specify the append flag:
+
+    </para>
+
+    <scons_example name="output_ex1_a">
+       <file name="SConstruct" printme="1">
+Help("""
+Type: 'scons program' to build the production program,
+      'scons debug' to build the debug version.
+""", append=True)
+       </file>
+    </scons_example>
+
+    <para>
+
     (Note the above use of the Python triple-quote syntax,
     which comes in very handy for
     specifying multi-line strings like help text.)
@@ -115,6 +130,13 @@ Type: 'scons program' to build the production program,
     will determine the order in which the &Help; functions are called,
     which will determine the order in which
     the various bits of text will get concatenated.
+
+    </para>
+
+    <para>
+
+    When used with &AddOption; Help("text", append=False) will clobber any help output associated with AddOption().
+    To preserve the help output from AddOption(), set append=True.
 
     </para>
 

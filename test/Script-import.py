@@ -62,7 +62,6 @@ SCons.Script.CleanTask
 SCons.Script.QuestionTask
 
 old_SCons_Script_variables = [
-    'PrintHelp',
     'OptParser',
     'keep_going_on_error',
     'print_explanations',

@@ -85,8 +85,8 @@ def is_win64():
     return _is_win64
 
 
-def read_reg(value):
-    return SCons.Util.RegGetValue(SCons.Util.HKEY_LOCAL_MACHINE, value)[0]
+def read_reg(value, hkroot=SCons.Util.HKEY_LOCAL_MACHINE):
+    return SCons.Util.RegGetValue(hkroot, value)[0]
 
 def has_reg(value):
     """Return True if the given key exists in HKEY_LOCAL_MACHINE, False
@@ -94,7 +94,7 @@ def has_reg(value):
     try:
         SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE, value)
         ret = True
-    except WindowsError:
+    except SCons.Util.WinError:
         ret = False
     return ret
 
@@ -181,7 +181,7 @@ def get_output(vcbat, args = None, env = None):
     stdout = popen.stdout.read()
     stderr = popen.stderr.read()
 
-    # Extra debug logic, uncomment if necessar
+    # Extra debug logic, uncomment if necessary
 #     debug('get_output():stdout:%s'%stdout)
 #     debug('get_output():stderr:%s'%stderr)
 
@@ -225,33 +225,6 @@ def parse_output(output, keep = ("INCLUDE", "LIB", "LIBPATH", "PATH")):
                 add_env(m, k)
 
     return dkeep
-
-# TODO(sgk): unused
-def output_to_dict(output):
-    """Given an output string, parse it to find env variables.
-
-    Return a dict where keys are variables names, and values their content"""
-    envlinem = re.compile(r'^([a-zA-z0-9]+)=([\S\s]*)$')
-    parsedenv = {}
-    for line in output.splitlines():
-        m = envlinem.match(line)
-        if m:
-            parsedenv[m.group(1)] = m.group(2)
-    return parsedenv
-
-# TODO(sgk): unused
-def get_new(l1, l2):
-    """Given two list l1 and l2, return the items in l2 which are not in l1.
-    Order is maintained."""
-
-    # We don't try to be smart: lists are small, and this is not the bottleneck
-    # is any case
-    new = []
-    for i in l2:
-        if i not in l1:
-            new.append(i)
-
-    return new
 
 # Local Variables:
 # tab-width:4

@@ -3,7 +3,6 @@
 import os
 
 environment = Environment(
-    ENV=os.environ,
     tools=['link', '{}'])
 environment.Program('test1.d')
 environment.Program('test2.d')

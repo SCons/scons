@@ -319,20 +319,6 @@ except ImportError:
     exec('from UserList import UserList')
     exec('from UserString import UserString')
 
-try:
-    # pre-2.7 doesn't have the memoryview() built-in
-    memoryview
-except NameError:
-    class memoryview:
-        def __init__(self, obj):
-            # wrapping buffer in () keeps the fixer from changing it
-            self.obj = (buffer)(obj)
-        def __getitem__(self, indx):
-            if isinstance(indx, slice):
-                return self.obj[indx.start:indx.stop]
-            else:
-                return self.obj[indx]
-
 __all__ = [
     'diff_re',
     'fail_test',
@@ -488,7 +474,8 @@ def match_re(lines = None, res = None):
     """
     """
     if not is_List(lines):
-        lines = lines.split("\n")
+        # CRs mess up matching (Windows) so split carefully
+        lines = re.split('\r?\n', lines)
     if not is_List(res):
         res = res.split("\n")
     if len(lines) != len(res):

@@ -128,8 +128,7 @@ except:
     try:
         import lxml
     except:
-        print("Failed to import either libxml2/libxslt or lxml")
-        sys.exit(1)
+        raise ImportError("Failed to import either libxml2/libxslt or lxml")
 
 has_etree = False
 if not has_libxml2:
@@ -155,8 +154,7 @@ if not has_etree:
                     # normal ElementTree install
                     import elementtree.ElementTree as etree
                 except ImportError:
-                    print("Failed to import ElementTree from any known place")
-                    sys.exit(1)
+                    raise ImportError("Failed to import ElementTree from any known place")
 
 re_entity = re.compile("\&([^;]+);")
 re_entity_header = re.compile("<!DOCTYPE\s+sconsdoc\s+[^\]]+\]>")

@@ -218,7 +218,7 @@ def generate(env):
     env['_JAVASOURCEPATH']          = '${_javapathopt("-sourcepath", "JAVASOURCEPATH", "_JAVASOURCEPATHDEFAULT")} '
     env['_JAVASOURCEPATHDEFAULT']   = '${TARGET.attributes.java_sourcedir}'
     env['_JAVACCOM']                = '$JAVAC $JAVACFLAGS $_JAVABOOTCLASSPATH $_JAVACLASSPATH -d ${TARGET.attributes.java_classdir} $_JAVASOURCEPATH $SOURCES'
-    env['JAVACCOM']                 = "${TEMPFILE('$_JAVACCOM')}"
+    env['JAVACCOM']                 = "${TEMPFILE('$_JAVACCOM','$JAVACCOMSTR')}"
     env['JAVACLASSSUFFIX']          = '.class'
     env['JAVASUFFIX']               = '.java'
 

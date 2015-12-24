@@ -1697,7 +1697,7 @@ Nodes or strings representing path names.
 
 <scons_function name="Glob">
 <arguments>
-(pattern, [ondisk, source, strings])
+(pattern, [ondisk, source, strings, exclude])
 </arguments>
 <summary>
 <para>
@@ -1811,12 +1811,23 @@ directory.)
 </para>
 
 <para>
+The
+<varname>exclude</varname>
+argument may be set to a pattern or a list of patterns
+(following the same Unix shell semantics)
+which must be filtered out of returned elements.
+Elements matching a least one pattern of
+this list will be excluded.
+</para>
+
+<para>
 Examples:
 </para>
 
 <example_commands>
 Program('foo', Glob('*.c'))
 Zip('/tmp/everything', Glob('.??*') + Glob('*'))
+sources = Glob('*.cpp', exclude=['os_*_specific_*.cpp']) + Glob('os_%s_specific_*.cpp'%currentOS)
 </example_commands>
 </summary>
 </scons_function>

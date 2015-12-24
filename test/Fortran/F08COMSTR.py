@@ -24,37 +24,50 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
-Verify that we can use the any() function (in any supported Python
-version we happen to be testing).
-
-This test can be retired at some point in the distant future when Python
-2.5 becomes the minimum version supported by SCons.
-"""
-
 import TestSCons
+
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """\
-print all([True, 1]) and "YES" or "NO"
-print all([0]) and "YES" or "NO"
-SConscript('SConscript')
+
+
+test.write('myfc.py', r"""
+import sys
+fline = '#'+sys.argv[1]+'\n'
+outfile = open(sys.argv[2], 'wb')
+infile = open(sys.argv[3], 'rb')
+for l in [l for l in infile.readlines() if l != fline]:
+    outfile.write(l)
+sys.exit(0)
 """)
 
-test.write('SConscript', """\
-print all([1, False]) and "YES" or "NO"
-print all([True, None]) and "YES" or "NO"
-""")
+if not TestSCons.case_sensitive_suffixes('.f','.F'):
+    f08pp = 'f08'
+else:
+    f08pp = 'f08pp'
 
-expect = """\
-YES
-NO
-NO
-NO
-"""
 
-test.run(arguments = '-Q -q', stdout = expect)
+test.write('SConstruct', """
+env = Environment(F08COM = r'%(_python_)s myfc.py f08 $TARGET $SOURCES',
+                  F08COMSTR = 'Building f08 $TARGET from $SOURCES',
+                  F08PPCOM = r'%(_python_)s myfc.py f08pp $TARGET $SOURCES',
+                  F08PPCOMSTR = 'Building f08pp $TARGET from $SOURCES',
+                  OBJSUFFIX='.obj')
+env.Object(source = 'test01.f08')
+env.Object(source = 'test02.F08')
+""" % locals())
+
+test.write('test01.f08',        "A .f08 file.\n#f08\n")
+test.write('test02.F08',        "A .F08 file.\n#%s\n" % f08pp)
+
+test.run(stdout = test.wrap_stdout("""\
+Building f08 test01.obj from test01.f08
+Building %(f08pp)s test02.obj from test02.F08
+""" % locals()))
+
+test.must_match('test01.obj', "A .f08 file.\n")
+test.must_match('test02.obj', "A .F08 file.\n")
 
 test.pass_test()
 

@@ -50,12 +50,17 @@ class Variables(object):
     Holds all the options, updates the environment with the variables,
     and renders the help text.
     """
-    def __init__(self, files=[], args={}, is_global=1):
+    def __init__(self, files=None, args=None, is_global=1):
         """
         files - [optional] List of option configuration files to load
             (backward compatibility) If a single string is passed it is
                                      automatically placed in a file list
         """
+        # initialize arguments
+        if files is None:
+            files = []
+        if args is None:
+            args = {}
         self.options = []
         self.args = args
         if not SCons.Util.is_List(files):

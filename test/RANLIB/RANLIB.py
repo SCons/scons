@@ -81,6 +81,10 @@ library_function(void)
 
 test.write('main.c', r"""
 #include <stdlib.h>
+
+void
+library_function(void);
+
 int
 main(int argc, char *argv[])
 {

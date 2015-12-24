@@ -56,13 +56,47 @@ class AliasNameSpace(collections.UserDict):
             return None
 
 class AliasNodeInfo(SCons.Node.NodeInfoBase):
-    current_version_id = 1
+    __slots__ = ('csig',)
+    current_version_id = 2
     field_list = ['csig']
     def str_to_node(self, s):
         return default_ans.Alias(s)
 
+    def __getstate__(self):
+        """
+        Return all fields that shall be pickled. Walk the slots in the class
+        hierarchy and add those to the state dictionary. If a '__dict__' slot is
+        available, copy all entries to the dictionary. Also include the version
+        id, which is fixed for all instances of a class.
+        """
+        state = getattr(self, '__dict__', {}).copy()
+        for obj in type(self).mro():
+            for name in getattr(obj,'__slots__',()):
+                if hasattr(self, name):
+                    state[name] = getattr(self, name)
+
+        state['_version_id'] = self.current_version_id
+        try:
+            del state['__weakref__']
+        except KeyError:
+            pass
+
+        return state
+
+    def __setstate__(self, state):
+        """
+        Restore the attributes from a pickled state.
+        """
+        # TODO check or discard version
+        del state['_version_id']
+        for key, value in state.items():
+            if key not in ('__weakref__',):
+                setattr(self, key, value)
+          
+
 class AliasBuildInfo(SCons.Node.BuildInfoBase):
-    current_version_id = 1
+    __slots__ = ()
+    current_version_id = 2
 
 class Alias(SCons.Node.Node):
 
@@ -72,7 +106,9 @@ class Alias(SCons.Node.Node):
     def __init__(self, name):
         SCons.Node.Node.__init__(self)
         self.name = name
-
+        self.changed_since_last_build = 1
+        self.store_info = 0
+        
     def str_for_display(self):
         return '"' + self.__str__() + '"'
 
@@ -104,13 +140,6 @@ class Alias(SCons.Node.Node):
     #
     #
     #
-
-    def changed_since_last_build(self, target, prev_ni):
-        cur_csig = self.get_csig()
-        try:
-            return cur_csig != prev_ni.csig
-        except AttributeError:
-            return 1
 
     def build(self):
         """A "builder" for aliases."""

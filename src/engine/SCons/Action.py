@@ -99,8 +99,6 @@ way for wrapping up the functions.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.compat
-
 import dis
 import os
 # compat layer imports "cPickle" for us if it's available.
@@ -112,7 +110,6 @@ import subprocess
 import SCons.Debug
 from SCons.Debug import logInstanceCreation
 import SCons.Errors
-import SCons.Executor
 import SCons.Util
 import SCons.Subst
 
@@ -237,12 +234,8 @@ def _code_contents(code):
 
     # The code contents depends on the number of local variables
     # but not their actual names.
-    contents.append(str.encode("%s,%s" % (code.co_argcount, len(code.co_varnames))))
-    try:
-        contents.append(str.encode(",%s,%s" % (len(code.co_cellvars), len(code.co_freevars))))
-    except AttributeError:
-        # Older versions of Python do not support closures.
-        contents.append(",0,0")
+    contents.append("{}, {}".format(code.co_argcount, len(code.co_varnames)))
+    contents.append(", {}, {}".format(len(code.co_cellvars), len(code.co_freevars)))
 
     # The code contents depends on any constants accessed by the
     # function. Note that we have to call _object_contents on each
@@ -279,11 +272,7 @@ def _function_contents(func):
         contents.append(b',()')
 
     # The function contents depends on the closure captured cell values.
-    try:
-        closure = func.__closure__ or []
-    except AttributeError:
-        # Older versions of Python do not support closures.
-        closure = []
+    closure = func.func_closure or []
 
     #xxx = [_object_contents(x.cell_contents) for x in closure]
     try:
@@ -357,21 +346,6 @@ def _do_create_action(act, kw):
     if isinstance(act, ActionBase):
         return act
 
-    if is_List(act):
-        return CommandAction(act, **kw)
-
-    if callable(act):
-        try:
-            gen = kw['generator']
-            del kw['generator']
-        except KeyError:
-            gen = 0
-        if gen:
-            action_type = CommandGeneratorAction
-        else:
-            action_type = FunctionAction
-        return action_type(act, kw)
-
     if is_String(act):
         var=SCons.Util.get_environment_var(act)
         if var:
@@ -388,6 +362,22 @@ def _do_create_action(act, kw):
         # The list of string commands may include a LazyAction, so we
         # reprocess them via _do_create_list_action.
         return _do_create_list_action(commands, kw)
+
+    if is_List(act):
+        return CommandAction(act, **kw)
+
+    if callable(act):
+        try:
+            gen = kw['generator']
+            del kw['generator']
+        except KeyError:
+            gen = 0
+        if gen:
+            action_type = CommandGeneratorAction
+        else:
+            action_type = FunctionAction
+        return action_type(act, kw)
+
     # Catch a common error case with a nice message:
     if isinstance(act, int) or isinstance(act, float):
         raise TypeError("Don't know how to create an Action from a number (%s)"%act)
@@ -543,7 +533,7 @@ class _ActionAction(ActionBase):
         if chdir:
             save_cwd = os.getcwd()
             try:
-                chdir = str(chdir.abspath)
+                chdir = str(chdir.get_abspath())
             except AttributeError:
                 if not is_String(chdir):
                     if executor:
@@ -949,7 +939,6 @@ class LazyAction(CommandGeneratorAction, CommandAction):
 
     def __init__(self, var, kw):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Action.LazyAction')
-        #FUTURE CommandAction.__init__(self, '${'+var+'}', **kw)
         CommandAction.__init__(self, '${'+var+'}', **kw)
         self.var = SCons.Util.to_String(var)
         self.gen_kw = kw

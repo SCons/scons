@@ -43,7 +43,7 @@ def generate(env):
     Environment."""
     fortran.generate(env)
 
-    for dialect in ['F77', 'F90', 'FORTRAN', 'F95', 'F03']:
+    for dialect in ['F77', 'F90', 'FORTRAN', 'F95', 'F03', 'F08']:
         env['%s' % dialect] = 'gfortran'
         env['SH%s' % dialect] = '$%s' % dialect
         if env['PLATFORM'] in ['cygwin', 'win32']:

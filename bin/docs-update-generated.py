@@ -9,6 +9,7 @@
 from __future__ import print_function
 
 import os
+import sys
 import SConsDoc
 
 # Directory where all generated files are stored
@@ -42,8 +43,8 @@ def generate_all():
                 print("Couldn't create destination folder %s! Exiting..." % gen_folder)
                 return
         # Call scons-proc.py
-        os.system('python %s -b %s -f %s -t %s -v %s %s' %
-                  (os.path.join('bin','scons-proc.py'),
+        os.system('%s %s -b %s -f %s -t %s -v %s %s' %
+                  (sys.executable, os.path.join('bin','scons-proc.py'),
                    argpair('builders'), argpair('functions'),
                    argpair('tools'), argpair('variables'), ' '.join(flist)))
     

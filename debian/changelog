@@ -1,3 +1,45 @@
+scons (2.4.1) unstable; urgency=low
+
+  * Maintenance release.
+
+ -- William Deegan <bill@baddogconsulting.com>  Sat, 07 Nov 2015 08:56:00 -0700
+
+scons (2.4.0) unstable; urgency=low
+
+  * Maintenance release.
+
+ -- William Deegan <bill@baddogconsulting.com>  Mon, 21 Sep 2015 08:56:00 -0700
+
+scons (2.3.6) unstable; urgency=low
+
+  * Maintenance release.
+
+ -- William Deegan <bill@baddogconsulting.com>  Mon, 17 Jun 2015 21:07:32 -0700
+
+scons (2.3.5) unstable; urgency=low
+
+  * Maintenance release.
+
+ -- William Deegan <bill@baddogconsulting.com>  Mon, 17 Jun 2015 21:07:32 -0700
+
+scons (2.3.4) unstable; urgency=low
+
+  * Maintenance release.
+
+ -- Gary Oberbrunner <garyo@oberbrunner.com>  Sun, 27 Sep 2014 21:00:00 -0500
+
+scons (2.3.3) unstable; urgency=low
+
+  * Maintenance release.
+
+ -- Gary Oberbrunner <garyo@oberbrunner.com>  Sun, 24 Aug 2014 21:00:00 -0500
+
+scons (2.3.2) unstable; urgency=low
+
+  * Maintenance release.
+
+ -- Gary Oberbrunner <garyo@oberbrunner.com>  Fri, 4 July 2014 21:00:00 -0500
+
 scons (2.3.0) unstable; urgency=low
 
   * Maintenance release.

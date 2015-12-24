@@ -4,7 +4,6 @@ from __future__ import print_function
 
 import SCons.compat
 
-import builtins
 import os
 # compat layer imports "cPickle" for us if it's available.
 import pickle
@@ -48,7 +47,7 @@ class dblite(object):
   # See the discussion at:
   #   http://mail.python.org/pipermail/python-bugs-list/2003-March/016877.html
 
-  _open = builtins.open
+  _open = open
   _pickle_dump = staticmethod(pickle.dump)
   _os_chmod = os.chmod
   try:
@@ -103,7 +102,10 @@ class dblite(object):
         if (len(p) > 0):
           try:
             self._dict = pickle.loads(p)
-          except (pickle.UnpicklingError, EOFError):
+          except (pickle.UnpicklingError, EOFError, KeyError):
+            # Note how we catch KeyErrors too here, which might happen
+            # when we don't have cPickle available (default pickle
+            # throws it).
             if (ignore_corrupt_dbfiles == 0): raise
             if (ignore_corrupt_dbfiles == 1):
               corruption_warning(self._file_name)

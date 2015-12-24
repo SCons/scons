@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -20,24 +21,57 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-
-__doc__ = """
-io compatibility module for older (pre-2.6) Python versions
-
-This does not not NOT (repeat, *NOT*) provide complete io
-functionality.  It only wraps the portions of io functionality used
-by SCons, in an interface that looks enough like io for our purposes.
-"""
-
+ 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-# Use the "imp" module to protect the imports below from fixers.
-import imp
-
-_cStringIO = imp.load_module('cStringIO', *imp.find_module('cStringIO'))
-StringIO = _cStringIO.StringIO
-del _cStringIO
-
+ 
+"""
+Verify PCH works to build a simple exe and a simple dll.
+"""
+ 
+import time
+ 
+import TestSCons
+ 
+test = TestSCons.TestSCons(match = TestSCons.match_re)
+ 
+test.skip_if_not_msvc()
+ 
+test.write('Main.cpp', """\
+#include "Precompiled.h"
+ 
+int main()
+{
+    return testf();
+}
+""")
+ 
+test.write('Precompiled.cpp', """\
+#include "Precompiled.h"
+""")
+ 
+test.write('Precompiled.h', """\
+#pragma once
+ 
+static int testf()
+{
+    return 0;
+}
+""")
+ 
+test.write('SConstruct', """\
+env = Environment()
+ 
+env['PCHSTOP'] = 'Precompiled.h'
+env['PCH'] = env.PCH('Precompiled.cpp')[0]
+ 
+env.SharedLibrary('pch_dll', 'Main.cpp')
+env.Program('pch_exe', 'Main.cpp')
+""")
+ 
+test.run(arguments='.', stderr=None)
+ 
+test.pass_test()
+ 
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil

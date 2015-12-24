@@ -55,6 +55,8 @@ import SCons.Util
 
 from SCons.Debug import Trace
 
+print_duplicate = 0
+
 def classname(obj):
     return str(obj.__class__).split('.')[-1]
 
@@ -105,6 +107,233 @@ Annotate = do_nothing
 # clean builds and update runs (see release_target_info).
 interactive = False
 
+def is_derived_none(node):
+    raise NotImplementedError
+
+def is_derived_node(node):
+    """
+        Returns true if this node is derived (i.e. built).
+    """
+    return node.has_builder() or node.side_effect
+
+_is_derived_map = {0 : is_derived_none,
+                   1 : is_derived_node}
+
+def exists_none(node):
+    raise NotImplementedError
+
+def exists_always(node):
+    return 1
+
+def exists_base(node):
+    return node.stat() is not None
+
+def exists_entry(node):
+    """Return if the Entry exists.  Check the file system to see
+    what we should turn into first.  Assume a file if there's no
+    directory."""
+    node.disambiguate()
+    return _exists_map[node._func_exists](node)
+
+def exists_file(node):
+    # Duplicate from source path if we are set up to do this.
+    if node.duplicate and not node.is_derived() and not node.linked:
+        src = node.srcnode()
+        if src is not node:
+            # At this point, src is meant to be copied in a variant directory.
+            src = src.rfile()
+            if src.get_abspath() != node.get_abspath():
+                if src.exists():
+                    node.do_duplicate(src)
+                    # Can't return 1 here because the duplication might
+                    # not actually occur if the -n option is being used.
+                else:
+                    # The source file does not exist.  Make sure no old
+                    # copy remains in the variant directory.
+                    if print_duplicate:
+                        print "dup: no src for %s, unlinking old variant copy"%self
+                    if exists_base(node) or node.islink():
+                        node.fs.unlink(node.get_internal_path())
+                    # Return None explicitly because the Base.exists() call
+                    # above will have cached its value if the file existed.
+                    return None
+    return exists_base(node)
+
+_exists_map = {0 : exists_none,
+               1 : exists_always,
+               2 : exists_base,
+               3 : exists_entry,
+               4 : exists_file}
+
+
+def rexists_none(node):
+    raise NotImplementedError
+
+def rexists_node(node):
+    return node.exists()
+
+def rexists_base(node):
+    return node.rfile().exists()
+
+_rexists_map = {0 : rexists_none,
+                1 : rexists_node,
+                2 : rexists_base}
+
+def get_contents_none(node):
+    raise NotImplementedError
+
+def get_contents_entry(node):
+    """Fetch the contents of the entry.  Returns the exact binary
+    contents of the file."""
+    try:
+        node = node.disambiguate(must_exist=1)
+    except SCons.Errors.UserError:
+        # There was nothing on disk with which to disambiguate
+        # this entry.  Leave it as an Entry, but return a null
+        # string so calls to get_contents() in emitters and the
+        # like (e.g. in qt.py) don't have to disambiguate by hand
+        # or catch the exception.
+        return ''
+    else:
+        return _get_contents_map[node._func_get_contents](node)
+
+def get_contents_dir(node):
+    """Return content signatures and names of all our children
+    separated by new-lines. Ensure that the nodes are sorted."""
+    contents = []
+    for n in sorted(node.children(), key=lambda t: t.name):
+        contents.append('%s %s\n' % (n.get_csig(), n.name))
+    return ''.join(contents)
+
+def get_contents_file(node):    
+    if not node.rexists():
+        return ''
+    fname = node.rfile().get_abspath()
+    try:
+        contents = open(fname, "rb").read()
+    except EnvironmentError, e:
+        if not e.filename:
+            e.filename = fname
+        raise
+    return contents
+
+_get_contents_map = {0 : get_contents_none,
+                     1 : get_contents_entry,
+                     2 : get_contents_dir,
+                     3 : get_contents_file}
+
+def target_from_source_none(node, prefix, suffix, splitext):
+    raise NotImplementedError
+
+def target_from_source_base(node, prefix, suffix, splitext):
+    return node.dir.Entry(prefix + splitext(node.name)[0] + suffix)
+
+_target_from_source_map = {0 : target_from_source_none,
+                           1 : target_from_source_base}
+
+#
+# The new decider subsystem for Nodes
+#
+# We would set and overwrite the changed_since_last_build function
+# before, but for being able to use slots (less memory!) we now have
+# a dictionary of the different decider functions. Then in the Node
+# subclasses we simply store the index to the decider that should be
+# used by it.
+#
+
+#
+# First, the single decider functions
+#
+def changed_since_last_build_node(node, target, prev_ni):
+    """
+
+    Must be overridden in a specific subclass to return True if this
+    Node (a dependency) has changed since the last time it was used
+    to build the specified target.  prev_ni is this Node's state (for
+    example, its file timestamp, length, maybe content signature)
+    as of the last time the target was built.
+
+    Note that this method is called through the dependency, not the
+    target, because a dependency Node must be able to use its own
+    logic to decide if it changed.  For example, File Nodes need to
+    obey if we're configured to use timestamps, but Python Value Nodes
+    never use timestamps and always use the content.  If this method
+    were called through the target, then each Node's implementation
+    of this method would have to have more complicated logic to
+    handle all the different Node types on which it might depend.
+    """
+    raise NotImplementedError
+
+def changed_since_last_build_alias(node, target, prev_ni):
+    cur_csig = node.get_csig()
+    try:
+        return cur_csig != prev_ni.csig
+    except AttributeError:
+        return 1
+
+def changed_since_last_build_entry(node, target, prev_ni):
+    node.disambiguate()
+    return _decider_map[node.changed_since_last_build](node, target, prev_ni)
+
+def changed_since_last_build_state_changed(node, target, prev_ni):
+    return (node.state != SCons.Node.up_to_date)
+
+def decide_source(node, target, prev_ni):
+    return target.get_build_env().decide_source(node, target, prev_ni)
+
+def decide_target(node, target, prev_ni):
+    return target.get_build_env().decide_target(node, target, prev_ni)
+
+def changed_since_last_build_python(node, target, prev_ni):
+    cur_csig = node.get_csig()
+    try:
+        return cur_csig != prev_ni.csig
+    except AttributeError:
+        return 1
+
+
+#
+# Now, the mapping from indices to decider functions
+#
+_decider_map = {0 : changed_since_last_build_node,
+               1 : changed_since_last_build_alias,
+               2 : changed_since_last_build_entry,
+               3 : changed_since_last_build_state_changed,
+               4 : decide_source,
+               5 : decide_target,
+               6 : changed_since_last_build_python}
+
+do_store_info = True
+
+#
+# The new store_info subsystem for Nodes
+#
+# We would set and overwrite the store_info function
+# before, but for being able to use slots (less memory!) we now have
+# a dictionary of the different functions. Then in the Node
+# subclasses we simply store the index to the info method that should be
+# used by it.
+#
+
+#
+# First, the single info functions
+#
+
+def store_info_pass(node):
+    pass
+
+def store_info_file(node):
+    # Merge our build information into the already-stored entry.
+    # This accommodates "chained builds" where a file that's a target
+    # in one build (SConstruct file) is a source in a different build.
+    # See test/chained-build.py for the use case.
+    if do_store_info:
+        node.dir.sconsign().store_info(node.name, node)
+
+
+store_info_map = {0 : store_info_pass,
+                  1 : store_info_file}
+
 # Classes for signature info for Nodes.
 
 class NodeInfoBase(object):
@@ -114,11 +343,8 @@ class NodeInfoBase(object):
     Node subclasses should subclass NodeInfoBase to provide their own
     logic for dealing with their own Node-specific signature information.
     """
-    current_version_id = 1
-    def __init__(self, node=None):
-        # Create an object attribute from the class attribute so it ends up
-        # in the pickled data in the .sconsign file.
-        self._version_id = self.current_version_id
+    __slots__ = ('__weakref__',)
+    current_version_id = 2
     def update(self, node):
         try:
             field_list = self.field_list
@@ -138,13 +364,25 @@ class NodeInfoBase(object):
     def convert(self, node, val):
         pass
     def merge(self, other):
-        self.__dict__.update(other.__dict__)
+        """
+        Merge the fields of another object into this object. Already existing
+        information is overwritten by the other instance's data.
+        WARNING: If a '__dict__' slot is added, it should be updated instead of
+        replaced.
+        """
+        state = other.__getstate__()
+        self.__setstate__(state)
     def format(self, field_list=None, names=0):
         if field_list is None:
             try:
                 field_list = self.field_list
             except AttributeError:
-                field_list = sorted(self.__dict__.keys())
+                field_list = getattr(self, '__dict__', {}).keys()
+                for obj in type(self).mro():
+                    for slot in getattr(obj, '__slots__', ()):
+                        if slot not in ('__weakref__', '__dict__'):
+                            field_list.append(slot)
+                field_list.sort()
         fields = []
         for field in field_list:
             try:
@@ -157,6 +395,38 @@ class NodeInfoBase(object):
             fields.append(f)
         return fields
 
+    def __getstate__(self):
+        """
+        Return all fields that shall be pickled. Walk the slots in the class
+        hierarchy and add those to the state dictionary. If a '__dict__' slot is
+        available, copy all entries to the dictionary. Also include the version
+        id, which is fixed for all instances of a class.
+        """
+        state = getattr(self, '__dict__', {}).copy()
+        for obj in type(self).mro():
+            for name in getattr(obj,'__slots__',()):
+                if hasattr(self, name):
+                    state[name] = getattr(self, name)
+    
+        state['_version_id'] = self.current_version_id
+        try:
+            del state['__weakref__']
+        except KeyError:
+            pass
+        return state
+    
+    def __setstate__(self, state):
+        """
+        Restore the attributes from a pickled state. The version is discarded.
+        """
+        # TODO check or discard version
+        del state['_version_id']
+    
+        for key, value in state.items():
+            if key not in ('__weakref__',):
+                setattr(self, key, value)
+
+
 class BuildInfoBase(object):
     """
     The generic base class for build information for a Node.
@@ -167,30 +437,106 @@ class BuildInfoBase(object):
     generic build stuff we have to track:  sources, explicit dependencies,
     implicit dependencies, and action information.
     """
-    current_version_id = 1
-    def __init__(self, node=None):
+    __slots__ = ("bsourcesigs", "bdependsigs", "bimplicitsigs", "bactsig",
+                 "bsources", "bdepends", "bact", "bimplicit", "__weakref__")
+    current_version_id = 2
+    def __init__(self):
         # Create an object attribute from the class attribute so it ends up
         # in the pickled data in the .sconsign file.
-        self._version_id = self.current_version_id
         self.bsourcesigs = []
         self.bdependsigs = []
         self.bimplicitsigs = []
         self.bactsig = None
     def merge(self, other):
-        self.__dict__.update(other.__dict__)
+        """
+        Merge the fields of another object into this object. Already existing
+        information is overwritten by the other instance's data.
+        WARNING: If a '__dict__' slot is added, it should be updated instead of
+        replaced.
+        """
+        state = other.__getstate__()
+        self.__setstate__(state)
+ 
+    def __getstate__(self):
+        """
+        Return all fields that shall be pickled. Walk the slots in the class
+        hierarchy and add those to the state dictionary. If a '__dict__' slot is
+        available, copy all entries to the dictionary. Also include the version
+        id, which is fixed for all instances of a class.
+        """
+        state = getattr(self, '__dict__', {}).copy()
+        for obj in type(self).mro():
+            for name in getattr(obj,'__slots__',()):
+                if hasattr(self, name):
+                    state[name] = getattr(self, name)
+
+        state['_version_id'] = self.current_version_id
+        try:
+            del state['__weakref__']
+        except KeyError:
+            pass
+        return state
+
+    def __setstate__(self, state):
+        """
+        Restore the attributes from a pickled state.
+        """
+        # TODO check or discard version
+        del state['_version_id']
+        for key, value in state.items():
+            if key not in ('__weakref__',):
+                setattr(self, key, value)
 
 class Node(object):
     """The base Node class, for entities that we know how to
     build, or use to build other Nodes.
     """
 
-    if SCons.Memoize.use_memoizer:
-        __metaclass__ = SCons.Memoize.Memoized_Metaclass
-
-    memoizer_counters = []
+    __slots__ = ['sources',
+                 'sources_set',
+                 '_specific_sources',
+                 'depends',
+                 'depends_set',
+                 'ignore',
+                 'ignore_set',
+                 'prerequisites',
+                 'implicit',
+                 'waiting_parents',
+                 'waiting_s_e',
+                 'ref_count',
+                 'wkids',
+                 'env',
+                 'state',
+                 'precious',
+                 'noclean',
+                 'nocache',
+                 'cached',
+                 'always_build',
+                 'includes',
+                 'attributes',
+                 'side_effect',
+                 'side_effects',
+                 'linked',
+                 '_memo',
+                 'executor',
+                 'binfo',
+                 'ninfo',
+                 'builder',
+                 'is_explicit',
+                 'implicit_set',
+                 'changed_since_last_build',
+                 'store_info',
+                 'pseudo',
+                 '_tags',
+                 '_func_is_derived',
+                 '_func_exists',
+                 '_func_rexists',
+                 '_func_get_contents',
+                 '_func_target_from_source']
 
     class Attrs(object):
-        pass
+        __slots__ = ('shared', '__dict__')
+ 
 
     def __init__(self):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.Node')
@@ -234,7 +580,15 @@ class Node(object):
         self.side_effect = 0 # true iff this node is a side effect
         self.side_effects = [] # the side effects of building this target
         self.linked = 0 # is this node linked to the variant directory?
-
+        self.changed_since_last_build = 0
+        self.store_info = 0
+        self._tags = None
+        self._func_is_derived = 1
+        self._func_exists = 1
+        self._func_rexists = 1
+        self._func_get_contents = 0
+        self._func_target_from_source = 0
+        
         self.clear_memoized_values()
 
         # Let the interface in which the build engine is embedded
@@ -248,8 +602,7 @@ class Node(object):
     def get_suffix(self):
         return ''
 
-    memoizer_counters.append(SCons.Memoize.CountValue('get_build_env'))
-
+    @SCons.Memoize.CountMethodCall
     def get_build_env(self):
         """Fetch the appropriate Environment to build this node.
         """
@@ -418,7 +771,7 @@ class Node(object):
             pass
         else:
             self.ninfo.update(self)
-            self.store_info()
+            SCons.Node.store_info_map[self.store_info](self)
 
     def release_target_info(self):
         """Called just after this node has been marked
@@ -546,7 +899,7 @@ class Node(object):
         example: source with source builders are not derived in this sense,
         and hence should not return true.
         """
-        return self.has_builder() or self.side_effect
+        return _is_derived_map[self._func_is_derived](self)
 
     def alter_targets(self):
         """Return a list of alternate targets for this Node.
@@ -563,35 +916,56 @@ class Node(object):
         """
         return []
 
-    def get_implicit_deps(self, env, scanner, path):
+    def get_implicit_deps(self, env, initial_scanner, path_func, kw = {}):
         """Return a list of implicit dependencies for this node.
 
         This method exists to handle recursive invocation of the scanner
         on the implicit dependencies returned by the scanner, if the
         scanner's recursive flag says that we should.
         """
-        if not scanner:
-            return []
-
-        # Give the scanner a chance to select a more specific scanner
-        # for this Node.
-        #scanner = scanner.select(self)
-
         nodes = [self]
         seen = {}
         seen[self] = 1
-        deps = []
+        dependencies = []
+
+        root_node_scanner = self._get_scanner(env, initial_scanner, None, kw)
+
         while nodes:
-            n = nodes.pop(0)
-            d = [x for x in n.get_found_includes(env, scanner, path) if x not in seen]
-            if d:
-                deps.extend(d)
-                for n in d:
-                    seen[n] = 1
-                nodes.extend(scanner.recurse_nodes(d))
+            node = nodes.pop(0)
 
-        return deps
+            scanner = node._get_scanner(env, initial_scanner, root_node_scanner, kw)
+                
+            if not scanner:
+                continue
 
+            path = path_func(scanner)
+
+            included_deps = [x for x in node.get_found_includes(env, scanner, path) if x not in seen]
+            if included_deps:
+                dependencies.extend(included_deps)
+                for dep in included_deps:
+                    seen[dep] = 1
+                nodes.extend(scanner.recurse_nodes(included_deps))
+
+        return dependencies
+
+    def _get_scanner(self, env, initial_scanner, root_node_scanner, kw):
+        if not initial_scanner:
+            # handle implicit scanner case
+            scanner = self.get_env_scanner(env, kw)
+            if scanner:
+                scanner = scanner.select(self)
+        else:
+            # handle explicit scanner case
+            scanner = initial_scanner.select(self)
+            
+        if not scanner:
+            # no scanner could be found for the given node's scanner key;
+            # thus, make an attempt at using a default.
+            scanner = root_node_scanner
+                
+        return scanner
+        
     def get_env_scanner(self, env, kw={}):
         return env.get_scanner(self.scanner_key())
 
@@ -706,7 +1080,7 @@ class Node(object):
     BuildInfo = BuildInfoBase
 
     def new_ninfo(self):
-        ninfo = self.NodeInfo(self)
+        ninfo = self.NodeInfo()
         return ninfo
 
     def get_ninfo(self):
@@ -717,7 +1091,7 @@ class Node(object):
             return self.ninfo
 
     def new_binfo(self):
-        binfo = self.BuildInfo(self)
+        binfo = self.BuildInfo()
         return binfo
 
     def get_binfo(self):
@@ -802,14 +1176,6 @@ class Node(object):
     def get_cachedir_csig(self):
         return self.get_csig()
 
-    def store_info(self):
-        """Make the build signature permanent (that is, store it in the
-        .sconsign file or equivalent)."""
-        pass
-
-    def do_not_store_info(self):
-        pass
-
     def get_stored_info(self):
         return None
 
@@ -847,13 +1213,16 @@ class Node(object):
 
     def exists(self):
         """Does this node exists?"""
-        # All node exist by default:
-        return 1
+        return _exists_map[self._func_exists](self)
 
     def rexists(self):
         """Does this node exist locally or in a repositiory?"""
         # There are no repositories by default:
-        return self.exists()
+        return _rexists_map[self._func_rexists](self)
+
+    def get_contents(self):
+        """Fetch the contents of the entry."""
+        return _get_contents_map[self._func_get_contents](self)
 
     def missing(self):
         return not self.is_derived() and \
@@ -912,11 +1281,6 @@ class Node(object):
     def _add_child(self, collection, set, child):
         """Adds 'child' to 'collection', first checking 'set' to see if it's
         already present."""
-        #if type(child) is not type([]):
-        #    child = [child]
-        #for c in child:
-        #    if not isinstance(c, Node):
-        #        raise TypeError, c
         added = None
         for c in child:
             if c not in set:
@@ -941,11 +1305,10 @@ class Node(object):
         # build info that it's cached so we can re-calculate it.
         self.executor_cleanup()
 
-    memoizer_counters.append(SCons.Memoize.CountValue('_children_get'))
-
+    @SCons.Memoize.CountMethodCall
     def _children_get(self):
         try:
-            return self._memo['children_get']
+            return self._memo['_children_get']
         except KeyError:
             pass
 
@@ -976,7 +1339,7 @@ class Node(object):
         else:
             children = self.all_children(scan=0)
 
-        self._memo['children_get'] = children
+        self._memo['_children_get'] = children
         return children
 
     def all_children(self, scan=1):
@@ -1016,9 +1379,6 @@ class Node(object):
     def get_state(self):
         return self.state
 
-    def state_has_changed(self, target, prev_ni):
-        return (self.state != SCons.Node.up_to_date)
-
     def get_env(self):
         env = self.env
         if not env:
@@ -1026,28 +1386,28 @@ class Node(object):
             env = SCons.Defaults.DefaultEnvironment()
         return env
 
-    def changed_since_last_build(self, target, prev_ni):
-        """
-
-        Must be overridden in a specific subclass to return True if this
-        Node (a dependency) has changed since the last time it was used
-        to build the specified target.  prev_ni is this Node's state (for
-        example, its file timestamp, length, maybe content signature)
-        as of the last time the target was built.
-
-        Note that this method is called through the dependency, not the
-        target, because a dependency Node must be able to use its own
-        logic to decide if it changed.  For example, File Nodes need to
-        obey if we're configured to use timestamps, but Python Value Nodes
-        never use timestamps and always use the content.  If this method
-        were called through the target, then each Node's implementation
-        of this method would have to have more complicated logic to
-        handle all the different Node types on which it might depend.
-        """
-        raise NotImplementedError
-
     def Decider(self, function):
-        SCons.Util.AddMethod(self, function, 'changed_since_last_build')
+        foundkey = None
+        for k, v in _decider_map.iteritems():
+            if v == function:
+                foundkey = k
+                break
+        if not foundkey:
+            foundkey = len(_decider_map)
+            _decider_map[foundkey] = function
+        self.changed_since_last_build = foundkey
+
+    def Tag(self, key, value):
+        """ Add a user-defined tag. """
+        if not self._tags:
+            self._tags = {}
+        self._tags[key] = value
+
+    def GetTag(self, key):
+        """ Return a user-defined tag. """
+        if not self._tags:
+            return None
+        return self._tags.get(key, None)
 
     def changed(self, node=None, allowcache=False):
         """
@@ -1095,7 +1455,7 @@ class Node(object):
             result = True
 
         for child, prev_ni in zip(children, then):
-            if child.changed_since_last_build(self, prev_ni):
+            if _decider_map[child.changed_since_last_build](child, self, prev_ni):
                 if t: Trace(': %s changed' % child)
                 result = True
 
@@ -1266,7 +1626,7 @@ class Node(object):
         for k in new_bkids:
             if not k in old_bkids:
                 lines.append("`%s' is a new dependency\n" % stringify(k))
-            elif k.changed_since_last_build(self, osig[k]):
+            elif _decider_map[k.changed_since_last_build](k, self, osig[k]):
                 lines.append("`%s' changed\n" % stringify(k))
 
         if len(lines) == 0 and old_bkids != new_bkids:

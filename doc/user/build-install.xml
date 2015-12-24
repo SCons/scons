@@ -6,7 +6,7 @@
 
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -15,7 +15,7 @@
     %tools-mod;
     <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
     %variables-mod;
-    
+
 ]>
 
 <chapter id="chap-build-install"
@@ -79,7 +79,7 @@
   to configure simple &SCons; builds without knowing Python,
   so you can skip this section if you
   want to dive in and pick up things
-  by example- -or, of course, if you are 
+  by example- -or, of course, if you are
   already familiar with Python.
 
   </para>
@@ -147,7 +147,7 @@ Python 2.5.1
 
     <para>
 
-    &SCons; will work with any 2.x version of Python from 2.4 on;
+    &SCons; will work with any 2.x version of Python from 2.7 on;
     3.0 and later are not yet supported.
     If you need to install Python and have a choice,
     we recommend using the most recent 2.x Python version available.
@@ -209,7 +209,7 @@ Python 2.5.1
       a specific &SCons; RPM file,
       you can download and install from the
       generic RPM provided by the &SCons; project.
-      This will install the 
+      This will install the
       SCons script(s) in <filename>/usr/bin</filename>,
       and the SCons library modules in
       <filename>/usr/lib/scons</filename>.
@@ -231,7 +231,7 @@ Python 2.5.1
       <para>
 
       Or, you can use a graphical RPM package manager.
-      See your package manager application's documention
+      See your package manager application's documentation
       for specific instructions about
       how to use it to install a downloaded RPM.
 
@@ -530,7 +530,7 @@ Python 2.5.1
       This would
       install the <application>scons</application> script in
       <filename>/opt/scons/bin</filename>
-      and the build engine in 
+      and the build engine in
       <filename>/opt/scons/lib/scons</filename>,
 
       </para>
@@ -566,7 +566,7 @@ Python 2.5.1
       relative to the user's <literal>$HOME</literal> directory,
       the &scons; script in
       <filename>$HOME/bin</filename>
-      and the build engine in 
+      and the build engine in
       <filename>$HOME/lib/scons</filename>,
       simply type:
 
@@ -719,7 +719,7 @@ $ <userinput>python setup.py install --prefix=$HOME</userinput>
     while: statements look like
 
     break statements look like
-    
+
     continue statements look like
 
     </para>

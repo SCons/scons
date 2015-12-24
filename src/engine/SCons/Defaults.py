@@ -198,11 +198,10 @@ def copy_func(dest, src, symlinks=True):
             shutil.copy2(file, dest)
         return 0
     elif os.path.islink(src):
-        linkto = os.readlink(src)
         if symlinks:
-            return os.symlink(linkto, dest)
+            return os.symlink(os.readlink(src), dest)
         else:
-            return copy_func(dest, linkto, symlinks)
+            return copy_func(dest, os.path.realpath(src))
     elif os.path.isfile(src):
         shutil.copy2(src, dest)
         return 0
@@ -484,9 +483,18 @@ class Variable_Method_Caller(object):
             frame = frame.f_back
         return None
 
+# if env[version_var] id defined, returns env[flags_var], otherwise returns None
+def __libversionflags(env, version_var, flags_var):
+    try:
+        if env[version_var]:
+            return env[flags_var]
+    except KeyError:
+        pass
+    return None
+
 ConstructionEnvironment = {
     'BUILDERS'      : {},
-    'SCANNERS'      : [],
+    'SCANNERS'      : [ SCons.Tool.SourceFileScanner ],
     'CONFIGUREDIR'  : '#/.sconf_temp',
     'CONFIGURELOG'  : '#/config.log',
     'CPPSUFFIXES'   : SCons.Tool.CSuffixes,
@@ -501,6 +509,12 @@ ConstructionEnvironment = {
     '_LIBDIRFLAGS'  : '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
     '_CPPINCFLAGS'  : '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
     '_CPPDEFFLAGS'  : '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
+
+    '__libversionflags'      : __libversionflags,
+    '__SHLIBVERSIONFLAGS'    : '${__libversionflags(__env__,"SHLIBVERSION","_SHLIBVERSIONFLAGS")}',
+    '__LDMODULEVERSIONFLAGS' : '${__libversionflags(__env__,"LDMODULEVERSION","_LDMODULEVERSIONFLAGS")}',
+    '__DSHLIBVERSIONFLAGS'   : '${__libversionflags(__env__,"DSHLIBVERSION","_DSHLIBVERSIONFLAGS")}',
+
     'TEMPFILE'      : NullCmdGenerator,
     'Dir'           : Variable_Method_Caller('TARGET', 'Dir'),
     'Dirs'          : Variable_Method_Caller('TARGET', 'Dirs'),

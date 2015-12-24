@@ -77,7 +77,7 @@ def _update_pot_file(target, source, env):
   nop = lambda target, source, env : 0
 
   # Save scons cwd and os cwd (NOTE: they may be different. After the job, we
-  # revert ech one to its original state).
+  # revert each one to its original state).
   save_cwd = env.fs.getcwd()
   save_os_cwd = os.getcwd()
   chdir = target[0].dir
@@ -135,7 +135,7 @@ def _update_pot_file(target, source, env):
       explain = "new file"
   if needs_update:
     # Print message employing SCons.Action.Action for that.
-    msg = "Writting " + repr(str(target[0])) + " (" + explain + ")"
+    msg = "Writing " + repr(str(target[0])) + " (" + explain + ")"
     env.Execute(SCons.Action.Action(nop, msg))
     f = open(str(target[0]),"w")
     f.write(new_content)
@@ -143,7 +143,7 @@ def _update_pot_file(target, source, env):
     return 0
   else:
     # Print message employing SCons.Action.Action for that.
-    msg = "Not writting " + repr(str(target[0])) + " (" + explain + ")"
+    msg = "Not writing " + repr(str(target[0])) + " (" + explain + ")"
     env.Execute(SCons.Action.Action(nop, msg))
     return 0
 #############################################################################

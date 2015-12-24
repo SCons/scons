@@ -130,6 +130,14 @@ def _dllEmitter(target, source, env, paramtp):
         extratargets.append(pdb)
         target[0].attributes.pdb = pdb
 
+    if version_num >= 11.0 and env.get('PCH', 0):
+        # MSVC 11 and above need the PCH object file to be added to the link line,
+        # otherwise you get link error LNK2011.
+        pchobj = SCons.Util.splitext(str(env['PCH']))[0] + '.obj'
+        # print "prog_emitter, version %s, appending pchobj %s"%(version_num, pchobj)
+        if pchobj not in extrasources:
+            extrasources.append(pchobj)
+
     if not no_import_lib and \
        not env.FindIxes(target, "LIBPREFIX", "LIBSUFFIX"):
         # Append an import library to the list of targets.
@@ -209,7 +217,7 @@ def embedManifestDllCheck(target, source, env):
     """Function run by embedManifestDllCheckAction to check for existence of manifest
     and other conditions, and embed the manifest by calling embedManifestDllAction if so."""
     if env.get('WINDOWS_EMBED_MANIFEST', 0):
-        manifestSrc = target[0].abspath + '.manifest'
+        manifestSrc = target[0].get_abspath() + '.manifest'
         if os.path.exists(manifestSrc):
             ret = (embedManifestDllAction) ([target[0]],None,env)        
             if ret:
@@ -223,7 +231,7 @@ def embedManifestExeCheck(target, source, env):
     """Function run by embedManifestExeCheckAction to check for existence of manifest
     and other conditions, and embed the manifest by calling embedManifestExeAction if so."""
     if env.get('WINDOWS_EMBED_MANIFEST', 0):
-        manifestSrc = target[0].abspath + '.manifest'
+        manifestSrc = target[0].get_abspath() + '.manifest'
         if os.path.exists(manifestSrc):
             ret = (embedManifestExeAction) ([target[0]],None,env)
             if ret:
@@ -238,11 +246,11 @@ embedManifestExeCheckAction = SCons.Action.Action(embedManifestExeCheck, None)
 
 regServerAction = SCons.Action.Action("$REGSVRCOM", "$REGSVRCOMSTR")
 regServerCheck = SCons.Action.Action(RegServerFunc, None)
-shlibLinkAction = SCons.Action.Action('${TEMPFILE("$SHLINK $SHLINKFLAGS $_SHLINK_TARGETS $_LIBDIRFLAGS $_LIBFLAGS $_PDB $_SHLINK_SOURCES")}', '$SHLINKCOMSTR')
+shlibLinkAction = SCons.Action.Action('${TEMPFILE("$SHLINK $SHLINKFLAGS $_SHLINK_TARGETS $_LIBDIRFLAGS $_LIBFLAGS $_PDB $_SHLINK_SOURCES", "$SHLINKCOMSTR")}', '$SHLINKCOMSTR')
 compositeShLinkAction = shlibLinkAction + regServerCheck + embedManifestDllCheckAction
-ldmodLinkAction = SCons.Action.Action('${TEMPFILE("$LDMODULE $LDMODULEFLAGS $_LDMODULE_TARGETS $_LIBDIRFLAGS $_LIBFLAGS $_PDB $_LDMODULE_SOURCES")}', '$LDMODULECOMSTR')
+ldmodLinkAction = SCons.Action.Action('${TEMPFILE("$LDMODULE $LDMODULEFLAGS $_LDMODULE_TARGETS $_LIBDIRFLAGS $_LIBFLAGS $_PDB $_LDMODULE_SOURCES", "$LDMODULECOMSTR")}', '$LDMODULECOMSTR')
 compositeLdmodAction = ldmodLinkAction + regServerCheck + embedManifestDllCheckAction
-exeLinkAction = SCons.Action.Action('${TEMPFILE("$LINK $LINKFLAGS /OUT:$TARGET.windows $_LIBDIRFLAGS $_LIBFLAGS $_PDB $SOURCES.windows")}', '$LINKCOMSTR')
+exeLinkAction = SCons.Action.Action('${TEMPFILE("$LINK $LINKFLAGS /OUT:$TARGET.windows $_LIBDIRFLAGS $_LIBFLAGS $_PDB $SOURCES.windows", "$LINKCOMSTR")}', '$LINKCOMSTR')
 compositeLinkAction = exeLinkAction + embedManifestExeCheckAction
 
 def generate(env):
@@ -256,6 +264,7 @@ def generate(env):
     env['_SHLINK_SOURCES'] = windowsShlinkSources
     env['SHLINKCOM']   =  compositeShLinkAction
     env.Append(SHLIBEMITTER = [windowsLibEmitter])
+    env.Append(LDMODULEEMITTER = [windowsLibEmitter])
     env['LINK']        = 'link'
     env['LINKFLAGS']   = SCons.Util.CLVar('/nologo')
     env['_PDB'] = pdbGenerator
@@ -297,7 +306,7 @@ def generate(env):
     # if the manifest actually exists before trying to run mt with it.
     env['MTEXECOM']   = '-$MT $MTFLAGS -manifest ${TARGET}.manifest $_MANIFEST_SOURCES -outputresource:$TARGET;1'
     env['MTSHLIBCOM'] = '-$MT $MTFLAGS -manifest ${TARGET}.manifest $_MANIFEST_SOURCES -outputresource:$TARGET;2'
-    # Future work garyo 27-Feb-11
+    # TODO Future work garyo 27-Feb-11
     env['_MANIFEST_SOURCES'] = None # _windowsManifestSources
 
     # Set-up ms tools paths

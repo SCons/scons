@@ -33,7 +33,8 @@ _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-
+if sys.platform == 'win32':
+    test.skip_test('CCVERSION not set with MSVC, skipping test.')
 
 test.write("versioned.py",
 """import os

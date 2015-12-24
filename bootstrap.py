@@ -27,6 +27,8 @@ import os.path
 import sys
 import glob
 import subprocess
+import filecmp
+import shutil
 
 __doc__ = """bootstrap.py
 
@@ -127,7 +129,7 @@ def main():
     def must_copy(dst, src):
         if not os.path.exists(dst):
             return 1
-        return open(dst, 'rb').read() != open(src, 'rb').read()
+        return not filecmp.cmp(dst,src)
     
     # Note:  We don't use the getopt module to process the command-line
     # arguments because we'd have to teach it about all of the SCons options.
@@ -195,7 +197,8 @@ def main():
                 os.makedirs(dir)
             try: os.unlink(dst)
             except: pass
-            open(dst, 'wb').write( open(src, 'rb').read() )
+
+            shutil.copyfile(src,dst)
     
     if update_only:
         sys.exit(0)

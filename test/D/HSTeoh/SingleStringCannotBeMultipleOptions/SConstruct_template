@@ -3,7 +3,6 @@
 import os
 
 environment = Environment(
-    ENV=os.environ,
     tools=['link', '{}'],
     # It might be thought that a single string can contain multiple options space separated. Actually this
     # is deemed to be a single option, so leads to an error.

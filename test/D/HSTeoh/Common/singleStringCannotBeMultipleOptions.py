@@ -42,7 +42,7 @@ def testForTool(tool):
     test = TestSCons.TestSCons()
 
     if not isExecutableOfToolAvailable(test, tool) :
-        test.skip_test("Required executable for tool '{}' not found, skipping test.\n".format(tool))
+        test.skip_test("Required executable for tool '{0}' not found, skipping test.\n".format(tool))
 
     test.dir_fixture('SingleStringCannotBeMultipleOptions')
     test.write('SConstruct', open('SConstruct_template', 'r').read().format(tool))
@@ -54,6 +54,10 @@ def testForTool(tool):
         'gdc': ".*unrecognized command line option.*",
         'ldc': ".*Unknown command line argument '-m64 -O'.*",
         }[tool]
+
+    from SCons.Environment import Base
+    if tool == 'dmd' and Base()['DC'] == 'gdmd':
+        result = ".*unrecognized command line option '-m64 -O'.*"
 
     test.fail_test(not test.match_re_dotall(test.stderr(), result))
 

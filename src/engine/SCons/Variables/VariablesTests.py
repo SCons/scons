@@ -273,6 +273,22 @@ class VariablesTestCase(unittest.TestCase):
         opts.Update(env, {})
         assert 'ANSWER' not in env
 
+    def test_noaggregation(self):
+        """Test that the 'files' and 'args' attributes of the Variables class
+           don't aggregate entries from one instance to another.
+           This used to be a bug in SCons version 2.4.1 and earlier.
+        """
+
+        opts = SCons.Variables.Variables()
+        opts.files.append('custom.py')
+        opts.args['ANSWER'] = 54
+        nopts = SCons.Variables.Variables()
+
+        # Ensure that both attributes are initialized to
+        # an empty list and dict, respectively. 
+        assert len(nopts.files) == 0
+        assert len(nopts.args) == 0        
+
     def test_args(self):
         """Test updating an Environment with arguments overridden"""
 

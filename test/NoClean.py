@@ -34,14 +34,14 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 def action(target, source, env):
-	for t in target: open(t.path, 'w')
+	for t in target: open(t.get_internal_path(), 'w')
 Command('1.out', 'SConstruct', action)
 NoClean('1.out')
 """)
 
 test.write('SConstruct.force', """
 def action(target, source, env):
-	for t in target: open(t.path, 'w')
+	for t in target: open(t.get_internal_path(), 'w')
 	open('4.out', 'w')
 res = Command('3.out', 'SConstruct.force', action)
 Clean('4.out', res)
@@ -50,7 +50,7 @@ NoClean('4.out')
 
 test.write('SConstruct.multi', """
 def action(target, source, env):
-	for t in target: open(t.path, 'w')
+	for t in target: open(t.get_internal_path(), 'w')
 Command(['5.out', '6.out'], 'SConstruct.multi', action)
 NoClean('6.out')
 """)

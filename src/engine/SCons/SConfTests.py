@@ -100,11 +100,10 @@ class SConfTestCase(unittest.TestCase):
              # original builtin functions whenever we have to reset
              # all of our global state.
 
-             import builtins
              import SCons.Platform.win32
 
-             builtins.file = SCons.Platform.win32._builtin_file
-             builtins.open = SCons.Platform.win32._builtin_open
+             file = SCons.Platform.win32._builtin_file
+             open = SCons.Platform.win32._builtin_open
 
     def _baseTryXXX(self, TryFunc):
         # TryCompile and TryLink are much the same, so we can test them
@@ -220,8 +219,6 @@ class SConfTestCase(unittest.TestCase):
                     def built(self):
                         pass
                     def get_stored_info(self):
-                        pass
-                    def do_not_store_info(self):
                         pass
                     def get_executor(self):
                         class Executor(object):
@@ -612,6 +609,30 @@ int main() {
 
         finally:
             sconf.Finish()
+
+    def test_CheckProg(self):
+        """Test SConf.CheckProg()
+        """
+        self._resetSConfState()
+        sconf = self.SConf.SConf(self.scons_env,
+                                 conf_dir=self.test.workpath('config.tests'),
+                                 log_file=self.test.workpath('config.log'))
+
+        try:
+            if os.name != 'nt':
+                r = sconf.CheckProg('sh')
+                assert r, "/bin/sh"
+            else:
+                r = sconf.CheckProg('cmd.exe')
+                self.assertIn('cmd.exe',r)
+                
+                
+            r = sconf.CheckProg('hopefully-not-a-program')
+            assert r is None
+
+        finally:
+            sconf.Finish()
+
 
     def test_Define(self):
         """Test SConf.Define()

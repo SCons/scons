@@ -35,7 +35,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Tool.intelc
 
-# This has been completely superceded by intelc.py, which can
+# This has been completely superseded by intelc.py, which can
 # handle both Windows and Linux versions.
 
 def generate(*args, **kw):

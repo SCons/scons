@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+"""
+Test compiling and executing using the gcd tool.
+"""
+
 #
 # __COPYRIGHT__
 #
@@ -24,37 +27,8 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
-Verify that we can use the any() function (in any supported Python
-version we happen to be testing).
-
-This test can be retired at some point in the distant future when Python
-2.5 becomes the minimum version supported by SCons.
-"""
-
-import TestSCons
-
-test = TestSCons.TestSCons()
-
-test.write('SConstruct', """\
-print any([True, False]) and "YES" or "NO"
-print any([1]) and "YES" or "NO"
-SConscript('SConscript')
-""")
-
-test.write('SConscript', """\
-print any([0, False]) and "YES" or "NO"
-""")
-
-expect = """\
-YES
-YES
-NO
-"""
-
-test.run(arguments = '-Q -q', stdout = expect)
-
-test.pass_test()
+from Common.common import testForTool
+testForTool('gdc')
 
 # Local Variables:
 # tab-width:4

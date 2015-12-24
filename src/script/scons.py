@@ -98,7 +98,7 @@ try:
 except ImportError:
     pass
 else:
-    # when running from an egg add the egg's directory 
+    # when running from an egg add the egg's directory
     try:
         d = pkg_resources.get_distribution('scons')
     except pkg_resources.DistributionNotFound:
@@ -191,7 +191,7 @@ if __name__ == "__main__":
     except:
         print("Import failed. Unable to find SCons files in:")
         for path in libs:
-          print("  %s" % path)
+            print("  {}".format(path))
         raise
 
     # this does all the work, and calls sys.exit

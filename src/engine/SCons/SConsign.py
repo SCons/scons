@@ -123,16 +123,40 @@ class SConsignEntry(object):
     XXX As coded below, we do expect a '.binfo' attribute to be added,
     but we'll probably generalize this in the next refactorings.
     """
-    current_version_id = 1
+    __slots__ = ("binfo", "ninfo", "__weakref__")
+    current_version_id = 2
+    
     def __init__(self):
         # Create an object attribute from the class attribute so it ends up
         # in the pickled data in the .sconsign file.
-        _version_id = self.current_version_id
+        #_version_id = self.current_version_id
+        pass
+    
     def convert_to_sconsign(self):
         self.binfo.convert_to_sconsign()
+        
     def convert_from_sconsign(self, dir, name):
         self.binfo.convert_from_sconsign(dir, name)
 
+    def __getstate__(self):
+        state = getattr(self, '__dict__', {}).copy()
+        for obj in type(self).mro():
+            for name in getattr(obj,'__slots__',()):
+                if hasattr(self, name):
+                    state[name] = getattr(self, name)
+
+        state['_version_id'] = self.current_version_id
+        try:
+            del state['__weakref__']
+        except KeyError:
+            pass
+        return state
+
+    def __setstate__(self, state):
+        for key, value in state.items():
+            if key not in ('_version_id','__weakref__'):
+                setattr(self, key, value)
+        
 class Base(object):
     """
     This is the controlling class for the signatures for the collection of
@@ -203,7 +227,7 @@ class DB(Base):
         # Read using the path relative to the top of the Repository
         # (self.dir.tpath) from which we're fetching the signature
         # information.
-        path = normcase(dir.tpath)
+        path = normcase(dir.get_tpath())
         try:
             rawentries = db[path]
         except KeyError:
@@ -218,7 +242,7 @@ class DB(Base):
                 raise
             except Exception as e:
                 SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
-                                    "Ignoring corrupt sconsign entry : %s (%s)\n"%(self.dir.tpath, e))
+                                    "Ignoring corrupt sconsign entry : %s (%s)\n"%(self.dir.get_tpath(), e))
             for key, entry in self.entries.items():
                 entry.convert_from_sconsign(dir, key)
 
@@ -245,7 +269,7 @@ class DB(Base):
         # directory (self.dir.path), not relative to the top of
         # the Repository; we only write to our own .sconsign file,
         # not to .sconsign files in Repositories.
-        path = normcase(self.dir.path)
+        path = normcase(self.dir.get_internal_path())
         for key, entry in self.entries.items():
             entry.convert_to_sconsign()
         db[path] = pickle.dumps(self.entries, 1)
@@ -288,7 +312,7 @@ class DirFile(Dir):
         """
 
         self.dir = dir
-        self.sconsign = os.path.join(dir.path, '.sconsign')
+        self.sconsign = os.path.join(dir.get_internal_path(), '.sconsign')
 
         try:
             fp = open(self.sconsign, 'rb')
@@ -324,7 +348,7 @@ class DirFile(Dir):
 
         self.merge()
 
-        temp = os.path.join(self.dir.path, '.scons%d' % os.getpid())
+        temp = os.path.join(self.dir.get_internal_path(), '.scons%d' % os.getpid())
         try:
             file = open(temp, 'wb')
             fname = temp

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -21,22 +22,32 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__doc__ = """
-collections compatibility module for older (pre-2.4) Python versions
-
-This does not not NOT (repeat, *NOT*) provide complete collections
-functionality.  It only wraps the portions of collections functionality
-used by SCons, in an interface that looks enough like collections for
-our purposes.
-"""
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-# Use exec to hide old names from fixers.
-exec("""if True:
-            from UserDict import UserDict
-            from UserList import UserList
-            from UserString import UserString""")
+"""
+Verify that two builders in two environments with different 
+actions generate an error.
+"""
+
+import TestSCons
+
+test = TestSCons.TestSCons(match=TestSCons.match_re)
+
+test.write('SConstruct', """\
+e1 = Environment()
+e2 = Environment()
+
+e1.Command('out.txt', [], 'echo 1 > $TARGET')
+e2.Command('out.txt', [], 'echo 2 > $TARGET')
+""")
+
+expect = TestSCons.re_escape("""
+scons: *** Two environments with different actions were specified for the same target: out.txt
+""") + TestSCons.file_expr
+
+test.run(arguments='out.txt', status=2, stderr=expect)
+
+test.pass_test()
 
 # Local Variables:
 # tab-width:4

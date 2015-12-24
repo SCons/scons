@@ -34,7 +34,7 @@ from TestCmd import PIPE
 # here provides some independent verification that what we packaged
 # conforms to what we expect.
 
-default_version = '2.3.1.alpha.yyyymmdd'
+default_version = '2.4.2.alpha.yyyymmdd'
 
 python_version_unsupported = (2, 3, 0)
 python_version_deprecated = (2, 7, 0)
@@ -693,7 +693,7 @@ class TestSCons(TestCommon):
         else:
             jni_dirs = ['/System/Library/Frameworks/JavaVM.framework/Versions/%s*/Headers/jni.h'%version]
         jni_dirs.extend(['/usr/lib/jvm/java-*-sun-%s*/include/jni.h'%version,
-                         '/usr/lib/jvm/java-%s*-openjdk/include/jni.h'%version,
+                         '/usr/lib/jvm/java-%s*-openjdk*/include/jni.h'%version,
                          '/usr/java/jdk%s*/include/jni.h'%version])
         dirs = self.paths(jni_dirs)
         if not dirs:
@@ -714,6 +714,9 @@ class TestSCons(TestCommon):
                 home = '/System/Library/Frameworks/JavaVM.framework/Home'
             else:
                 home = '/System/Library/Frameworks/JavaVM.framework/Versions/%s/Home' % version
+                if not os.path.exists(home):
+                    # This works on OSX 10.10
+                    home = '/System/Library/Frameworks/JavaVM.framework/Versions/Current/'
         else:
             jar = self.java_where_jar(version)
             home = os.path.normpath('%s/..'%jar)

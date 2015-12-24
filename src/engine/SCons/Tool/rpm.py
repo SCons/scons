@@ -51,11 +51,11 @@ def get_cmd(source, env):
     if SCons.Util.is_List(source):
         tar_file_with_included_specfile = source[0]
     return "%s %s %s"%(env['RPM'], env['RPMFLAGS'],
-                       tar_file_with_included_specfile.abspath )
+                       tar_file_with_included_specfile.get_abspath() )
 
 def build_rpm(target, source, env):
     # create a temporary rpm build root.
-    tmpdir = os.path.join( os.path.dirname( target[0].abspath ), 'rpmtemp' )
+    tmpdir = os.path.join( os.path.dirname( target[0].get_abspath() ), 'rpmtemp' )
     if os.path.exists(tmpdir):
         shutil.rmtree(tmpdir)
 
@@ -87,7 +87,7 @@ def build_rpm(target, source, env):
             expected   = os.path.basename(input.get_path())
 
             assert expected == rpm_output, "got %s but expected %s" % (rpm_output, expected)
-            shutil.copy( output, input.abspath )
+            shutil.copy( output, input.get_abspath() )
 
 
     # cleanup before leaving.

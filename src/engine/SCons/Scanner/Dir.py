@@ -77,7 +77,7 @@ def scan_on_disk(node, env, path=()):
     that and then call the in-memory scanning function.
     """
     try:
-        flist = node.fs.listdir(node.abspath)
+        flist = node.fs.listdir(node.get_abspath())
     except (IOError, OSError):
         return []
     e = node.Entry
