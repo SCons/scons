@@ -26,6 +26,7 @@ Writing and reading information to the .sconsign file or files.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+
 from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
@@ -33,7 +34,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.compat
 
 import os
-# compat layer imports "cPickle" for us if it's available.
 import pickle
 
 import SCons.dblite
@@ -125,16 +125,16 @@ class SConsignEntry(object):
     """
     __slots__ = ("binfo", "ninfo", "__weakref__")
     current_version_id = 2
-    
+
     def __init__(self):
         # Create an object attribute from the class attribute so it ends up
         # in the pickled data in the .sconsign file.
         #_version_id = self.current_version_id
         pass
-    
+
     def convert_to_sconsign(self):
         self.binfo.convert_to_sconsign()
-        
+
     def convert_from_sconsign(self, dir, name):
         self.binfo.convert_from_sconsign(dir, name)
 
@@ -156,7 +156,7 @@ class SConsignEntry(object):
         for key, value in state.items():
             if key not in ('_version_id','__weakref__'):
                 setattr(self, key, value)
-        
+
 class Base(object):
     """
     This is the controlling class for the signatures for the collection of

@@ -23,6 +23,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 from __future__ import print_function
 
 import os.path
@@ -52,7 +53,7 @@ fop = whereis('fop')
 xep = whereis('xep')
 
 if not fop and not xep:
-    print "doc: No PDF renderer found (fop|xep)!"
+    print("doc: No PDF renderer found (fop|xep)!")
     skip_doc = True
 
 #

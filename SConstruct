@@ -2,6 +2,7 @@
 # SConstruct file to build scons packages during development.
 #
 # See the README.rst file for an overview of how SCons is built and tested.
+
 from __future__ import print_function
 
 copyright_years = '2001 - 2015'
@@ -162,7 +163,7 @@ import distutils.command
 no_winpack_templates = not os.path.exists(os.path.join(os.path.split(distutils.command.__file__)[0],'wininst-9.0.exe'))
 skip_win_packages = ARGUMENTS.get('SKIP_WIN_PACKAGES',False) or no_winpack_templates
 if skip_win_packages:
-    print "Skipping the build of Windows packages..."
+    print("Skipping the build of Windows packages...")
 
 python_ver = sys.version[0:3]
 
@@ -1049,7 +1050,7 @@ for p in [ scons ]:
         # The built deb is called just x.y.z, not x.y.z.final.0 so strip those off:
         deb_version = '.'.join(version.split('.')[0:3])
         deb = os.path.join(build_dir, 'dist', "%s_%s_all.deb" % (pkg, deb_version))
-        # print "Building deb into %s (version=%s)"%(deb, deb_version)
+        # print("Building deb into %s (version=%s)"%(deb, deb_version))
         for d in p['debian_deps']:
             b = env.SCons_revision(os.path.join(build, d), d)
             env.Depends(deb, b)

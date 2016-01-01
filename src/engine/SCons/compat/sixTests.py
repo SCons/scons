@@ -1,4 +1,3 @@
-from __future__ import print_function
 #
 # __COPYRIGHT__
 #
@@ -22,6 +21,8 @@ from __future__ import print_function
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+from __future__ import print_function
+
 import unittest
 
 class sixTestCase(unittest.TestCase):
@@ -32,4 +33,3 @@ class sixTestCase(unittest.TestCase):
         print(sys.path)
         from SCons.compat.six import PY2, PY3
         self.assertTrue(PY2 or PY3)
-

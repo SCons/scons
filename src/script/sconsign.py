@@ -22,6 +22,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 from __future__ import print_function
 
 from SCons.compat.six import PY2, PY3
@@ -185,7 +186,7 @@ sys.path = libs + sys.path
 # END STANDARD SCons SCRIPT HEADER
 ##############################################################################
 
-import SCons.compat   # so pickle will import cPickle instead
+import SCons.compat
 
 if PY2:
     import whichdb

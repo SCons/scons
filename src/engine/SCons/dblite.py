@@ -5,7 +5,6 @@ from __future__ import print_function
 import SCons.compat
 
 import os
-# compat layer imports "cPickle" for us if it's available.
 import pickle
 import shutil
 import time
