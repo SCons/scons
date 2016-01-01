@@ -92,6 +92,7 @@ The TestCommon module also provides the following variables
 # PARTICULAR PURPOSE.  THE CODE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS,
 # AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+
 from __future__ import print_function
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
@@ -307,10 +308,10 @@ class TestCommon(TestCmd):
         if find(output, input) is None:
             if title is None:
                 title = 'output'
-            print 'Missing expected input from %s:' % title
-            print input
-            print self.banner(title + ' ')
-            print output
+            print('Missing expected input from {}:'.format(title))
+            print(input)
+            print(self.banner(title + ' '))
+            print(output)
             self.fail_test()
 
     def must_contain_all_lines(self, output, lines, title=None, find=None):
