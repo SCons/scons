@@ -38,7 +38,7 @@ import SCons.Defaults
 SCons.Defaults.ConstructionEnvironment.update({
         'XXX'   : 777,
 })
-print DefaultEnvironment()['XXX']
+print(DefaultEnvironment()['XXX'])
 """)
 
 expect = test.wrap_stdout(read_str = "777\n",
