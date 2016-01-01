@@ -38,16 +38,16 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 env = Environment(FOO = 'fff', BAR = 'bbb')
-print File('ddd')
-print File('$FOO')
-print File('${BAR}_$BAR')
-print env.File('eee')
-print env.File('$FOO')
-print env.File('${BAR}_$BAR')
+print(File('ddd'))
+print(File('$FOO'))
+print(File('${BAR}_$BAR'))
+print(env.File('eee'))
+print(env.File('$FOO'))
+print(env.File('${BAR}_$BAR'))
 f1 = env.File('f1')
-print f1
+print(f1)
 f2 = f1.File('f2')
-print f2
+print(f2)
 """)
 
 expect = test.wrap_stdout(read_str = """\

@@ -34,9 +34,9 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
 if GetOption('help'):
-   print "GetOption('help') set"
+   print("GetOption('help') set")
 else:
-    print "no help for you"
+    print("no help for you")
 """)
 
 test.run(arguments = '-q -Q', stdout = "no help for you\n")

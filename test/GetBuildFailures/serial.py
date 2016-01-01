@@ -91,9 +91,9 @@ def print_build_failures():
     from SCons.Script import GetBuildFailures
     for bf in sorted(GetBuildFailures(), key=lambda t: str(t.node)):
         assert( isinstance(bf, SCons.Errors.BuildError) )
-        print "BF: %%s failed (%%s):  %%s" %% (bf.node, bf.status, bf.errstr)
+        print("BF: %%s failed (%%s):  %%s" %% (bf.node, bf.status, bf.errstr))
         if bf.command:
-            print "BF:    %%s" %% " ".join(Flatten(bf.command))
+            print("BF:    %%s" %% " ".join(Flatten(bf.command)))
 
 import atexit
 atexit.register(print_build_failures)

@@ -67,15 +67,15 @@ env = Environment(options=opts)
 opts.Save(optsfile, env)
 Help(opts.GenerateHelpText(env))
 
-print env['shared']
-if 'ical' in env['shared']: print '1'
-else: print '0'
+print(env['shared'])
+if 'ical' in env['shared']: print('1')
+else: print('0')
 for x in  env['shared']:
-    print x,
-print
-print env.subst('$shared')
+    print(x, end='')
+print()
+print(env.subst('$shared'))
 # Test subst_path() because it's used in $CPPDEFINES expansions.
-print env.subst_path('$shared')
+print(env.subst_path('$shared'))
 Default(env.Alias('dummy', None))
 """)
 
@@ -169,7 +169,7 @@ opts.AddOptions(
 env = Environment(options=opts)
 Help(opts.GenerateHelpText(env))
 
-print env['gpib']
+print(env['gpib'])
 Default(env.Alias('dummy', None))
 """)
 

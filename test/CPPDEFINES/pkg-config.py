@@ -60,26 +60,26 @@ test.write('SConstruct', """\
 # Passing test cases
 env_1 = Environment(CPPDEFINES=[('DEBUG','1'), 'TEST'])
 env_1.ParseConfig('PKG_CONFIG_PATH=. %(pkg_config_path)s --cflags bug')
-print env_1.subst('$_CPPDEFFLAGS')
+print(env_1.subst('$_CPPDEFFLAGS'))
 
 env_2 = Environment(CPPDEFINES=[('DEBUG','1'), 'TEST'])
 env_2.MergeFlags('-DSOMETHING -DVARIABLE=2')
-print env_2.subst('$_CPPDEFFLAGS')
+print(env_2.subst('$_CPPDEFFLAGS'))
 
 # Failing test cases
 env_3 = Environment(CPPDEFINES={'DEBUG':1, 'TEST':None})
 env_3.ParseConfig('PKG_CONFIG_PATH=. %(pkg_config_path)s --cflags bug')
-print env_3.subst('$_CPPDEFFLAGS')
+print(env_3.subst('$_CPPDEFFLAGS'))
 
 env_4 = Environment(CPPDEFINES={'DEBUG':1, 'TEST':None})
 env_4.MergeFlags('-DSOMETHING -DVARIABLE=2')
-print env_4.subst('$_CPPDEFFLAGS')
+print(env_4.subst('$_CPPDEFFLAGS'))
 
 # http://scons.tigris.org/issues/show_bug.cgi?id=1738
 env_1738_1 = Environment(tools=['default'])
 env_1738_1.ParseConfig('PKG_CONFIG_PATH=. %(pkg_config_path)s --cflags --libs bug')
 env_1738_1.Append(CPPDEFINES={'value' : '1'})
-print env_1738_1.subst('$_CPPDEFFLAGS')
+print(env_1738_1.subst('$_CPPDEFFLAGS'))
 """%locals() )
 
 expect_print_output="""\
@@ -92,7 +92,7 @@ expect_print_output="""\
 
 build_output="scons: `.' is up to date.\n"
 
-expect = test.wrap_stdout(build_str=build_output, 
+expect = test.wrap_stdout(build_str=build_output,
                           read_str = expect_print_output)
 test.run(arguments = '.', stdout=expect)
 test.pass_test()

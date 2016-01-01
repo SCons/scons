@@ -58,7 +58,7 @@ env.Ignore( moc, moc )
 sources.extend(env.Uic(['include/uic_fff.hpp', 'fff.cpp', 'fff.moc.cpp'],
                        'ui/fff.ui')[1:])
 
-print list(map(str,sources))
+print(list(map(str,sources)))
 env.Program(target='aaa',
             source=sources,
             CPPPATH=['$CPPPATH', './include'],
@@ -68,7 +68,7 @@ env.Program(target='aaa',
 test.write('aaa.cpp', r"""
 #include "aaa.h"
 """)
-                     
+
 test.write(['include', 'aaa.h'], r"""
 #include "my_qobject.h"
 void aaa(void) Q_OBJECT;
@@ -91,7 +91,7 @@ void ccc(void)
 test.write('ddd.cpp', r"""
 #include "ddd.h"
 """)
-                     
+
 test.write(['include', 'ddd.h'], r"""
 #include "my_qobject.h"
 void ddd(void) Q_OBJECT;
