@@ -929,7 +929,7 @@ if ARGUMENTS.get('variant_dir', 0):
     else:
         builddir = 'build'
     VariantDir(builddir, '.', duplicate=dup)
-    print builddir, dup
+    print(builddir, dup)
     sconscript = Dir(builddir).File('SConscript')
 else:
     sconscript = File('SConscript')
@@ -1142,12 +1142,12 @@ except AttributeError:
 try:
     import distutils.sysconfig
     exec_prefix = distutils.sysconfig.EXEC_PREFIX
-    print distutils.sysconfig.get_python_inc()
-    print os.path.join(exec_prefix, 'libs')
+    print(distutils.sysconfig.get_python_inc())
+    print(os.path.join(exec_prefix, 'libs'))
 except:
-    print os.path.join(sys.prefix, 'include', py_ver)
-    print os.path.join(sys.prefix, 'lib', py_ver, 'config')
-print py_ver
+    print(os.path.join(sys.prefix, 'include', py_ver)
+    print(os.path.join(sys.prefix, 'lib', py_ver, 'config'))
+print(py_ver)
 """)
 
         return [python] + self.stdout().strip().split('\n')
