@@ -101,7 +101,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import dis
 import os
-# compat layer imports "cPickle" for us if it's available.
 import pickle
 import re
 import sys
@@ -272,7 +271,7 @@ def _function_contents(func):
         contents.append(b',()')
 
     # The function contents depends on the closure captured cell values.
-    closure = func.func_closure or []
+    closure = func.__closure__ or []
 
     #xxx = [_object_contents(x.cell_contents) for x in closure]
     try:

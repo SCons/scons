@@ -7,6 +7,7 @@ It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
 
 """
+from __future__ import print_function
 
 #
 # __COPYRIGHT__
@@ -144,10 +145,10 @@ def _get_swig_version(env, swig):
     out = pipe.stdout.read()
     match = re.search(r'SWIG Version\s+(\S+).*', out, re.MULTILINE)
     if match:
-        if verbose: print "Version is:%s"%match.group(1)
+        if verbose: print("Version is:%s"%match.group(1))
         return match.group(1)
     else:
-        if verbose: print "Unable to detect version: [%s]"%out
+        if verbose: print("Unable to detect version: [%s]"%out)
 
 def generate(env):
     """Add Builders and construction variables for swig to an Environment."""

@@ -19,6 +19,8 @@ be able to depend on any other type of "thing."
 
 """
 
+from __future__ import print_function
+
 #
 # __COPYRIGHT__
 #
@@ -151,7 +153,7 @@ def exists_file(node):
                     # The source file does not exist.  Make sure no old
                     # copy remains in the variant directory.
                     if print_duplicate:
-                        print "dup: no src for %s, unlinking old variant copy"%self
+                        print("dup: no src for %s, unlinking old variant copy"%self)
                     if exists_base(node) or node.islink():
                         node.fs.unlink(node.get_internal_path())
                     # Return None explicitly because the Base.exists() call
@@ -205,13 +207,13 @@ def get_contents_dir(node):
         contents.append('%s %s\n' % (n.get_csig(), n.name))
     return ''.join(contents)
 
-def get_contents_file(node):    
+def get_contents_file(node):
     if not node.rexists():
         return ''
     fname = node.rfile().get_abspath()
     try:
         contents = open(fname, "rb").read()
-    except EnvironmentError, e:
+    except EnvironmentError as e:
         if not e.filename:
             e.filename = fname
         raise
@@ -407,21 +409,21 @@ class NodeInfoBase(object):
             for name in getattr(obj,'__slots__',()):
                 if hasattr(self, name):
                     state[name] = getattr(self, name)
-    
+
         state['_version_id'] = self.current_version_id
         try:
             del state['__weakref__']
         except KeyError:
             pass
         return state
-    
+
     def __setstate__(self, state):
         """
         Restore the attributes from a pickled state. The version is discarded.
         """
         # TODO check or discard version
         del state['_version_id']
-    
+
         for key, value in state.items():
             if key not in ('__weakref__',):
                 setattr(self, key, value)
@@ -456,7 +458,7 @@ class BuildInfoBase(object):
         """
         state = other.__getstate__()
         self.__setstate__(state)
- 
+
     def __getstate__(self):
         """
         Return all fields that shall be pickled. Walk the slots in the class
@@ -536,7 +538,7 @@ class Node(object):
 
     class Attrs(object):
         __slots__ = ('shared', '__dict__')
- 
+
 
     def __init__(self):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.Node')
@@ -588,7 +590,7 @@ class Node(object):
         self._func_rexists = 1
         self._func_get_contents = 0
         self._func_target_from_source = 0
-        
+
         self.clear_memoized_values()
 
         # Let the interface in which the build engine is embedded
@@ -776,16 +778,16 @@ class Node(object):
     def release_target_info(self):
         """Called just after this node has been marked
          up-to-date or was built completely.
-         
+
          This is where we try to release as many target node infos
          as possible for clean builds and update runs, in order
          to minimize the overall memory consumption.
-         
+
          By purging attributes that aren't needed any longer after
          a Node (=File) got built, we don't have to care that much how
          many KBytes a Node actually requires...as long as we free
          the memory shortly afterwards.
-         
+
          @see: built() and File.release_target_info()
          """
         pass
@@ -934,7 +936,7 @@ class Node(object):
             node = nodes.pop(0)
 
             scanner = node._get_scanner(env, initial_scanner, root_node_scanner, kw)
-                
+
             if not scanner:
                 continue
 
@@ -958,14 +960,14 @@ class Node(object):
         else:
             # handle explicit scanner case
             scanner = initial_scanner.select(self)
-            
+
         if not scanner:
             # no scanner could be found for the given node's scanner key;
             # thus, make an attempt at using a default.
             scanner = root_node_scanner
-                
+
         return scanner
-        
+
     def get_env_scanner(self, env, kw={}):
         return env.get_scanner(self.scanner_key())
 
@@ -1422,14 +1424,14 @@ class Node(object):
         any difference, but we now rely on checking every dependency
         to make sure that any necessary Node information (for example,
         the content signature of an #included .h file) is updated.
-        
+
         The allowcache option was added for supporting the early
         release of the executor/builder structures, right after
         a File target was built. When set to true, the return
         value of this changed method gets cached for File nodes.
         Like this, the executor isn't needed any longer for subsequent
         calls to changed().
-        
+
         @see: FS.File.changed(), FS.File.release_target_info()
         """
         t = 0

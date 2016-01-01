@@ -20,6 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+
 from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
@@ -1868,7 +1869,7 @@ def generate(env):
         # test for pull request #150
         env = self.TestEnvironment()
         env._dict.pop('BUILDERS')
-        assert env.has_key('BUILDERS') is False
+        assert ('BUILDERS' in env) is False
         env2 = env.Clone()
 
     def test_Copy(self):

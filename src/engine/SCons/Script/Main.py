@@ -10,6 +10,8 @@ some other module.  If it's specific to the "scons" script invocation,
 it goes here.
 """
 
+from __future__ import print_function
+
 unsupported_python_version = (2, 6, 0)
 deprecated_python_version = (2, 7, 0)
 
@@ -354,13 +356,13 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
         for t in self._get_files_to_clean():
             try:
                 removed = t.remove()
-            except OSError, e:
+            except OSError as e:
                 # An OSError may indicate something like a permissions
                 # issue, an IOError would indicate something like
                 # the file not existing.  In either case, print a
                 # message and keep going to try to remove as many
                 # targets as possible.
-                print("scons: Could not remove '{}':".format(str(t)), e.strerror)
+                print(("scons: Could not remove '{}':".format(str(t)), e.strerror))
             else:
                 if removed:
                     display("Removed " + str(t))

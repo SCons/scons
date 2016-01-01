@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # __COPYRIGHT__
 #
@@ -28,7 +29,7 @@ class sixTestCase(unittest.TestCase):
     def test_import(self):
         """Test that six imports correctly."""
         import sys
-        print sys.path
+        print(sys.path)
         from SCons.compat.six import PY2, PY3
         self.assertTrue(PY2 or PY3)
 
