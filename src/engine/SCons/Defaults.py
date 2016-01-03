@@ -169,15 +169,65 @@ def get_paths_str(dest):
     else:
         return '"' + str(dest) + '"'
 
+permission_dic = {
+    'u':{
+        'r':stat.S_IRUSR,
+        'w':stat.S_IWUSR,
+        'x':stat.S_IXUSR
+    },
+    'g':{
+        'r':stat.S_IRGRP,
+        'w':stat.S_IWGRP,
+        'x':stat.S_IXGRP
+    },
+    'o':{
+        'r':stat.S_IROTH,
+        'w':stat.S_IWOTH,
+        'x':stat.S_IXOTH
+    }
+}
+
 def chmod_func(dest, mode):
     SCons.Node.FS.invalidate_node_memos(dest)
     if not SCons.Util.is_List(dest):
         dest = [dest]
-    for element in dest:
-        os.chmod(str(element), mode)
+    if str(mode).isdigit():
+        for element in dest:
+            os.chmod(str(element), mode)
+    else:
+        mode = str(mode)
+        for operation in mode.split(","):
+            if "=" in operation:
+                operator = "="
+            elif "+" in operation:
+                operator = "+"
+            elif "-" in operation:
+                operator = "-"
+            else:
+                raise SyntaxError("Could not find +, - or =")
+            user = operation.split(operator)[0].strip().replace("a", "ugo")
+            permission = operation.split(operator)[1].strip()
+            new_perm = 0
+            for u in user:
+                for p in permission:
+                    try:
+                        new_perm = new_perm | permission_dic[u][p]
+                    except KeyError:
+                        raise SyntaxError("Unrecognized user or permission format")
+            for element in dest:
+                curr_perm = os.stat(str(element)).st_mode
+                if operator == "=":
+                    os.chmod(str(element), new_perm)
+                elif operator == "+":
+                    os.chmod(str(element), curr_perm | new_perm)
+                elif operator == "-":
+                    os.chmod(str(element), curr_perm & ~new_perm)
 
 def chmod_strfunc(dest, mode):
-    return 'Chmod(%s, 0%o)' % (get_paths_str(dest), mode)
+    if str(mode).isdigit():
+        return 'Chmod(%s, 0%o)' % (get_paths_str(dest), mode)
+    else:
+        return 'Chmod(%s, "%s")' % (get_paths_str(dest), str(mode))
 
 Chmod = ActionFactory(chmod_func, chmod_strfunc)
 
