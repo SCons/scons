@@ -188,10 +188,14 @@ permission_dic = {
 }
 
 def chmod_func(dest, mode):
+    import SCons.Util
+    from string import digits
     SCons.Node.FS.invalidate_node_memos(dest)
     if not SCons.Util.is_List(dest):
         dest = [dest]
-    if str(mode).isdigit():
+    if SCons.Util.is_String(mode) and not 0 in [i in digits for i in mode]:
+        mode = int(mode, 8)
+    if not SCons.Util.is_String(mode):
         for element in dest:
             os.chmod(str(element), mode)
     else:
@@ -205,8 +209,11 @@ def chmod_func(dest, mode):
                 operator = "-"
             else:
                 raise SyntaxError("Could not find +, - or =")
-            user = operation.split(operator)[0].strip().replace("a", "ugo")
-            permission = operation.split(operator)[1].strip()
+            operation_list = operation.split(operator)
+            if len(operation_list) is not 2:
+                raise SyntaxError("More than one operator found")
+            user = operation_list[0].strip().replace("a", "ugo")
+            permission = operation_list[1].strip()
             new_perm = 0
             for u in user:
                 for p in permission:
@@ -224,7 +231,8 @@ def chmod_func(dest, mode):
                     os.chmod(str(element), curr_perm & ~new_perm)
 
 def chmod_strfunc(dest, mode):
-    if str(mode).isdigit():
+    import SCons.Util
+    if not SCons.Util.is_String(mode):
         return 'Chmod(%s, 0%o)' % (get_paths_str(dest), mode)
     else:
         return 'Chmod(%s, "%s")' % (get_paths_str(dest), str(mode))
