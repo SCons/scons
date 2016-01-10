@@ -556,7 +556,7 @@ class _ActionActionTestCase(unittest.TestCase):
                 assert isinstance(source, list), type(source)
                 return 9
             b = SCons.Action.Action([firstfunc, execfunc, lastfunc])
-            
+
             sio = io.StringIO()
             sys.stdout = sio
             result = a("out", "in", env)
@@ -699,7 +699,7 @@ class _ActionActionTestCase(unittest.TestCase):
             env['PRINT_CMD_LINE_FUNC'] = my_print_cmd_line
             a("output", "input", env)
             assert result == ["execfunc(['output'], ['input'])"], result
-            
+
 
         finally:
             sys.stdout = save_stdout
@@ -942,7 +942,7 @@ class CommandActionTestCase(unittest.TestCase):
 
         act = SCons.Action.CommandAction('xyzzy $TARGETS $SOURCES',
                                          cmdstr='cmdstr\t$TARGETS\n$SOURCES   ')
-                    
+
         s = act.strfunction([], [], env)
         assert s == 'cmdstr\t\n   ', s
         s = act.strfunction([t1], [s1], env)
@@ -1429,13 +1429,13 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
             pass
 
         func_matches = [
-            b"0,0,0,0,(),(),(d\000\000S),(),()",
-            b"0,0,0,0,(),(),(d\x00\x00S),(),()",
+            b"0, 0, 0, 0,(),(),(d\000\000S),(),()",
+            b"0, 0, 0, 0,(),(),(d\x00\x00S),(),()",
             ]
-        
+
         meth_matches = [
-            b"1,1,0,0,(),(),(d\000\000S),(),()",
-            b"1,1,0,0,(),(),(d\x00\x00S),(),()",
+            b"1, 1, 0, 0,(),(),(d\000\000S),(),()",
+            b"1, 1, 0, 0,(),(),(d\x00\x00S),(),()",
         ]
 
         def f_global(target, source, env, for_signature):
@@ -1588,13 +1588,13 @@ class FunctionActionTestCase(unittest.TestCase):
             pass
 
         func_matches = [
-            b"0,0,0,0,(),(),(d\000\000S),(),()",
-            b"0,0,0,0,(),(),(d\x00\x00S),(),()",
+            b"0, 0, 0, 0,(),(),(d\000\000S),(),()",
+            b"0, 0, 0, 0,(),(),(d\x00\x00S),(),()",
             ]
-        
+
         meth_matches = [
-            b"1,1,0,0,(),(),(d\000\000S),(),()",
-            b"1,1,0,0,(),(),(d\x00\x00S),(),()",
+            b"1, 1, 0, 0,(),(),(d\000\000S),(),()",
+            b"1, 1, 0, 0,(),(),(d\x00\x00S),(),()",
         ]
 
         def factory(act, **kw):
@@ -1801,13 +1801,13 @@ class LazyActionTestCase(unittest.TestCase):
             pass
 
         func_matches = [
-            b"0,0,0,0,(),(),(d\000\000S),(),()",
-            b"0,0,0,0,(),(),(d\x00\x00S),(),()",
+            b"0, 0, 0, 0,(),(),(d\000\000S),(),()",
+            b"0, 0, 0, 0,(),(),(d\x00\x00S),(),()",
             ]
-        
+
         meth_matches = [
-            b"1,1,0,0,(),(),(d\000\000S),(),()",
-            b"1,1,0,0,(),(),(d\x00\x00S),(),()",
+            b"1, 1, 0, 0,(),(),(d\000\000S),(),()",
+            b"1, 1, 0, 0,(),(),(d\x00\x00S),(),()",
         ]
 
         def factory(act, **kw):
@@ -1999,16 +1999,16 @@ class ActionCompareTestCase(unittest.TestCase):
         especially two builders that can generate the same suffix,
         where one of the builders has a suffix dictionary with a None
         key."""
-        
+
         foo = SCons.Builder.Builder(action = '$FOO', suffix = '.foo')
         bar = SCons.Builder.Builder(action = {}, suffix={None:'.bar'})
         bar.add_action('.cow', "$MOO")
         dog = SCons.Builder.Builder(suffix = '.bar')
-        
+
         env = Environment( BUILDERS = {'FOO' : foo,
                                        'BAR' : bar,
                                        'DOG' : dog} )
-        
+
         assert foo.get_name(env) == 'FOO', foo.get_name(env)
         assert bar.get_name(env) == 'BAR', bar.get_name(env)
         assert dog.get_name(env) == 'DOG', dog.get_name(env)
