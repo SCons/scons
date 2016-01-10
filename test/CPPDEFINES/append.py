@@ -67,7 +67,7 @@ for (t1, c1) in cases:
         env=Environment(CPPDEFINES = c1, CPPDEFPREFIX='-D')
         env.Append(CPPDEFINES = c2)
         final=env.subst('$_CPPDEFFLAGS',source="src", target="tgt")
-        print('Append: \\n\\tresult=%s\\n\\tfinal=%s'%\\
+        print('Append:\\n\\tresult=%s\\n\\tfinal=%s'%\\
               (env['CPPDEFINES'], final))
         env=Environment(CPPDEFINES = c1, CPPDEFPREFIX='-D')
         env.AppendUnique(CPPDEFINES = c2)
