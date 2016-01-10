@@ -38,35 +38,40 @@ test = TestSCons.TestSCons()
 if not hasattr(os, 'mkfifo'):
     test.skip_test('No os.mkfifo() function; skipping test\n')
 
+test_dir_name = 'testdir'
+pipe_path = os.path.join(test_dir_name, 'namedpipe')
+
 test.write('SConstruct', """\
-Execute(Mkdir("testdir"))
-dir = Dir("testdir")
-Clean(dir, 'testdir')
-""")
+Execute(Mkdir("{0}"))
+dir = Dir("{0}")
+Clean(dir, '{0}')
+""".format(test_dir_name))
 
-test.run(arguments='-Q -q', stdout='Mkdir("testdir")\n')
+test.run(arguments='-Q -q', stdout='Mkdir("{0}")\n'.format(test_dir_name))
 
-os.mkfifo('testdir/namedpipe')
+os.mkfifo(pipe_path)
+
+test.must_exist(test.workpath(pipe_path))
 
 expect1 = """\
-Mkdir("testdir")
-Path '%s' exists but isn't a file or directory.
-scons: Could not remove 'testdir': Directory not empty
-""" % os.path.join('testdir', 'namedpipe')
+Mkdir("{0}")
+Path '{1}' exists but isn't a file or directory.
+scons: Could not remove '{0}': Directory not empty
+""".format(test_dir_name, pipe_path)
 
 expect2 = """\
-Mkdir("testdir")
-Path '%s' exists but isn't a file or directory.
-scons: Could not remove 'testdir': File exists
-""" % os.path.join('testdir', 'namedpipe')
+Mkdir("{0}")
+Path '{1}' exists but isn't a file or directory.
+scons: Could not remove '{0}': File exists
+""".format(test_dir_name, pipe_path)
 
 test.run(arguments='-c -Q -q')
+
+test.must_exist(test.workpath(pipe_path))
 
 if test.stdout() not in [expect1, expect2]:
     test.diff(expect1, test.stdout(), 'STDOUT ')
     test.fail_test()
- 
-test.must_exist(test.workpath('testdir/namedpipe'))
 
 test.pass_test()
 
