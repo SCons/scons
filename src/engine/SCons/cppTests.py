@@ -31,7 +31,7 @@ import unittest
 
 import TestUnit
 
-from . import cpp
+import cpp
 
 
 
