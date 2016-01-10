@@ -107,7 +107,7 @@ fmt = "%(considered)3d "\
 
 def dump_stats():
     for n in sorted(StatsNodes, key=lambda a: str(a)):
-        print (fmt % n.stats.__dict__) + str(n)
+        print (fmt % n.attributes.stats.__dict__) + str(n)
 
 
 
@@ -781,10 +781,10 @@ class Taskmaster(object):
             #     return node
 
             if CollectStats:
-                if not hasattr(node, 'stats'):
-                    node.stats = Stats()
+                if not hasattr(node.attributes, 'stats'):
+                    node.attributes.stats = Stats()
                     StatsNodes.append(node)
-                S = node.stats
+                S = node.attributes.stats
                 S.considered = S.considered + 1
             else:
                 S = None
