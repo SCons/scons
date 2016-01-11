@@ -6,6 +6,9 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Jakub Pola:
+    - Intel Compiler 2016 (Linux/Mac) update for tool directories.
+
   From William Blevins:
     - Added support for cross-language dependency scanning;
       SCons now respects scanner keys for implicit dependencies.
