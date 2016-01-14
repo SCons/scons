@@ -1,6 +1,10 @@
 SCons - a software construction tool
 ####################################
 
+.. image:: https://img.shields.io/badge/IRC-pyinstalller-blue.svg
+   :target: http://webchat.freenode.net/?channels=%23scons&uio=d4
+   :alt: IRC
+
 Welcome to the SCons development tree.  The real purpose of this tree is to
 package SCons for production distribution in a variety of formats, not just to
 hack SCons code.
