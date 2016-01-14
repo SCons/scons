@@ -57,6 +57,8 @@ test.write('file03b.in', 'file03b.in\n')
 
 expect = TestSCons.re_escape("""
 scons: *** Two environments with different actions were specified for the same target: file03.out
+(action 1: /usr/bin/python build.py 1 file03.out file03b.in)
+(action 2: /usr/bin/python build.py 2 file03.out file03b.in)
 """) + TestSCons.file_expr
 
 test.run(arguments='file03.out', status=2, stderr=expect)
