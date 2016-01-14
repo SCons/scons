@@ -30,6 +30,7 @@ but the overrides don't appear to affect the build operation.
 """
 
 import TestSCons
+import sys
 
 test = TestSCons.TestSCons(match=TestSCons.match_re)
 
@@ -57,9 +58,9 @@ test.write('file03b.in', 'file03b.in\n')
 
 expect = TestSCons.re_escape("""
 scons: *** Two environments with different actions were specified for the same target: file03.out
-(action 1: /usr/bin/python build.py 1 file03.out file03b.in)
-(action 2: /usr/bin/python build.py 2 file03.out file03b.in)
-""") + TestSCons.file_expr
+(action 1: %s build.py 1 file03.out file03b.in)
+(action 2: %s build.py 2 file03.out file03b.in)
+""" % (sys.executable, sys.executable )) + TestSCons.file_expr
 
 test.run(arguments='file03.out', status=2, stderr=expect)
 
