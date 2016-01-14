@@ -19,6 +19,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 from __future__ import print_function
 
 __doc__ = """
@@ -108,7 +109,7 @@ fmt = "%(considered)3d "\
 
 def dump_stats():
     for n in sorted(StatsNodes, key=lambda a: str(a)):
-        print((fmt % n.stats.__dict__) + str(n))
+        print((fmt % n.attributes.stats.__dict__) + str(n))
 
 
 
@@ -532,9 +533,13 @@ class Task(object):
         Raises a pending exception that was recorded while getting a
         Task ready for execution.
         """
-
-        import SCons.compat.six
-        SCons.compat.six.reraise(*self.exc_info())
+        exc = self.exc_info()[:]
+        try:
+            exc_type, exc_value, exc_traceback = exc
+        except ValueError:
+            exc_type, exc_value = exc
+            exc_traceback = None
+        raise exc_type, exc_value, exc_traceback
 
 class AlwaysTask(Task):
     def needs_execute(self):
@@ -778,10 +783,10 @@ class Taskmaster(object):
             #     return node
 
             if CollectStats:
-                if not hasattr(node, 'stats'):
-                    node.stats = Stats()
+                if not hasattr(node.attributes, 'stats'):
+                    node.attributes.stats = Stats()
                     StatsNodes.append(node)
-                S = node.stats
+                S = node.attributes.stats
                 S.considered = S.considered + 1
             else:
                 S = None

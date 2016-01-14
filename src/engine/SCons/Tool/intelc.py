@@ -288,6 +288,12 @@ def get_all_compiler_versions():
             m = re.search(r'([0-9]{0,4})(?:_sp\d*)?\.([0-9][0-9.]*)$', d)
             if m:
                 versions.append("%s.%s"%(m.group(1), m.group(2)))
+        for d in glob.glob('/opt/intel/compilers_and_libraries_*'):
+            # JPA: For the new version of Intel compiler 2016.1.
+            m = re.search(r'([0-9]{0,4})(?:_sp\d*)?\.([0-9][0-9.]*)$', d)
+            if m:
+                versions.append("%s.%s"%(m.group(1), m,group(2)))
+            
     def keyfunc(str):
         """Given a dot-separated version string, return a tuple of ints representing it."""
         return [int(x) for x in str.split('.')]
@@ -369,7 +375,16 @@ def get_intel_compiler_top(version, abi):
                             top = d
                             break
             return top
-        top = find_in_2011style_dir(version) or find_in_2010style_dir(version) or find_in_2008style_dir(version)
+        def find_in_2016style_dir(version):
+            # The 2016 (compiler v16) dirs are inconsistent from previous.
+            top = None
+            for d in glob.glob('/opt/intel/compilers_and_libraries_%s/linux'%version):
+                if os.path.exists(os.path.join(d, "bin", "ia32", "icc")) or os.path.exists(os.path.join(d, "bin", "intel64", "icc")):
+                    top = d
+                    break
+            return top
+                    
+        top = find_in_2016style_dir(version) or find_in_2011style_dir(version) or find_in_2010style_dir(version) or find_in_2008style_dir(version)
         # print "INTELC: top=",top
         if not top:
             raise MissingDirError("Can't find version %s Intel compiler in %s (abi='%s')"%(version,top, abi))
