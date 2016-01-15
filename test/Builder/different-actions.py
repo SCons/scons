@@ -43,6 +43,8 @@ e2.Command('out.txt', [], 'echo 2 > $TARGET')
 
 expect = TestSCons.re_escape("""
 scons: *** Two environments with different actions were specified for the same target: out.txt
+(action 1: echo 1 > out.txt)
+(action 2: echo 2 > out.txt)
 """) + TestSCons.file_expr
 
 test.run(arguments='out.txt', status=2, stderr=expect)

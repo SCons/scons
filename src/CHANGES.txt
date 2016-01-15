@@ -6,8 +6,12 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From Jakub Pola:
-    - Intel Compiler 2016 (Linux/Mac) update for tool directories.
+  From Dirk Baechle:
+    - Removed a lot of compatibility methods and workarounds
+      for Python versions < 2.7, in order to prepare the work
+      towards a combined 2.7/3.x version. (PR #284)
+      Also fixed the default arguments for the print_tree and
+      render_tree methods. (PR #284, too)
 
   From William Blevins:
     - Added support for cross-language dependency scanning;
@@ -15,12 +19,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Resolved missing cross-language dependencies for
       SWIG bindings (fixes #2264).
 
-  From Dirk Baechle:
-    - Removed a lot of compatibility methods and workarounds
-      for Python versions < 2.7, in order to prepare the work
-      towards a combined 2.7/3.x version. (PR #284)
-      Also fixed the default arguments for the print_tree and
-      render_tree methods. (PR #284, too)
+  From William Deegan:
+    - Add better messaging when two environments have
+      different actions for the same target (Bug #2024)
+
+  From Jakub Pola:
+    - Intel Compiler 2016 (Linux/Mac) update for tool directories.
 
 
 RELEASE 2.4.1 - Mon, 07 Nov 2015 10:37:21 -0700
