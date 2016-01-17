@@ -201,6 +201,7 @@ class TestSCons(TestCommon):
     """
 
     scons_version = SConsVersion
+    javac_is_gcj = False
 
     def __init__(self, **kw):
         """Initialize an SCons testing object.
@@ -768,8 +769,13 @@ class TestSCons(TestCommon):
             m = re.search(r'javac (\d\.\d)', self.stderr())
             if m:
                 version = m.group(1)
+                self.javac_is_gcj = False
+            elif self.stderr().find('gcj'):
+                version='1.2'
+                self.javac_is_gcj = True
             else:
                 version = None
+                self.javac_is_gcj = False
         return where_javac, version
 
     def java_where_javah(self, version=None):
@@ -792,6 +798,7 @@ class TestSCons(TestCommon):
             self.skip_test("Could not find Java rmic, skipping non-simulated test(s).\n")
         return where_rmic
 
+    
     def java_get_class_files(self, dir):
         result = []
         for dirpath, dirnames, filenames in os.walk(dir):

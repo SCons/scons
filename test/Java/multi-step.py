@@ -43,6 +43,10 @@ swig = test.where_is('swig')
 if not swig:
     test.skip_test('Can not find installed "swig", skipping test.\n')
 
+if test.javac_is_gcj:
+    test.skip_test('Test not valid for gcj (gnu java); skipping test(s).\n')
+
+
 
 
 test.subdir(['src'],

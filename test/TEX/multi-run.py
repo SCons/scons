@@ -39,6 +39,8 @@ test = TestSCons.TestSCons()
 tex = test.where_is('tex')
 latex = test.where_is('latex')
 
+if not latex:
+    test.skip_test("Could not find latex; skipping test(s).\n")
 if not tex and not latex:
     test.skip_test("Could not find tex or latex; skipping test(s).\n")
 

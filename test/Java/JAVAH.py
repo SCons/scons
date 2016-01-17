@@ -93,14 +93,14 @@ line 3
     test.must_match('test2.h', "test2.JAVA\nline 3\n")
 
 
-
 where_javac, java_version = test.java_where_javac()
 where_javah = test.java_where_javah()
 
 if java_version:
     java_version = repr(java_version)
 
-
+if test.javac_is_gcj:
+    test.skip_test('Test not valid for gcj (gnu java); skipping test(s).\n')
 
 test.write("wrapper.py", """\
 import os

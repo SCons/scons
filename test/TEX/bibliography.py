@@ -36,11 +36,19 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 dvips = test.where_is('dvips')
+
+if not dvips:
+    test.skip_test("Could not find dvips; skipping test(s).\n")
+
 bibtex = test.where_is('bibtex')
+if not bibtex:
+    test.skip_test("Could not find bibtex; skipping test(s).\n")
 
-if not dvips or not bibtex:
-    test.skip_test("Could not find dvips or bibtex; skipping test(s).\n")
+have_latex = test.where_is('latex')
+if not have_latex:
+    test.skip_test('Could not find latex; skipping test(s).\n')
 
+    
 test.write('SConstruct', """\
 import os
 env = Environment(tools = ['tex', 'latex', 'dvips'])

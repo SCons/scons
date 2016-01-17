@@ -40,6 +40,10 @@ where_javac, java_version = test.java_where_javac()
 # Work around javac 1.4 not reporting its version:
 java_version = java_version or "1.4"
 
+if test.javac_is_gcj:
+    test.skip_test('Test not valid for gcj (gnu java); skipping test(s).\n')
+
+
 test.write('SConstruct', """
 env = Environment()
 env['JAVAVERSION'] = '%(java_version)s'
