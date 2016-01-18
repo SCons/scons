@@ -34,7 +34,7 @@ dvipdf = test.where_is('dvipdf')
 tex = test.where_is('tex')
 
 if not dvipdf or not tex:
-    test.skip_test('Could not find dvipdf or text; skipping test(s).\n')
+    test.skip_test('Could not find dvipdf or tex; skipping test(s).\n')
 
 
 
