@@ -114,6 +114,9 @@ test.must_match('test3.ps', "This is a .ltx test.\n")
 test.must_match('test4.ps', "This is a .latex test.\n")
 
 
+have_latex = test.where_is('latex')
+if not have_latex:
+    test.skip_test('Could not find latex; skipping test(s).\n')
 
 dvips = test.where_is('dvips')
 

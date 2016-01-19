@@ -61,20 +61,23 @@ foo.CFile(target = 'not_foo', source = 'foo.y')
 yacc = r"""
 %%{
 #include <stdio.h>
+extern int yyparse();
+int yyerror(char *s);
+int yylex();
 
-main()
+int main()
 {
-    yyparse();
+    return yyparse();
 }
 
-yyerror(s)
+int yyerror(s)
 char *s;
 {
     fprintf(stderr, "%%s\n", s);
     return 0;
 }
 
-yylex()
+int yylex()
 {
     int c;
 
