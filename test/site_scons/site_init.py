@@ -58,10 +58,10 @@ for x in list(globals().keys()):
             continue
         special.append(x)
 
-print sorted(special)
-print __doc__
-print os.path.realpath(__file__)
-print __name__
+print(sorted(special))
+print(__doc__)
+print(os.path.realpath(__file__))
+print(__name__)
 """)
 
     test.write('SConstruct', "\n")

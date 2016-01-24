@@ -64,9 +64,9 @@ opts.AddVariables(
 env = Environment(variables=opts)
 Help(opts.GenerateHelpText(env))
 
-print env['qtdir']
-print env['qt_libraries']
-print env.subst('$qt_libraries')
+print(env['qtdir'])
+print(env['qt_libraries'])
+print(env.subst('$qt_libraries'))
 
 Default(env.Alias('dummy', None))
 """ % (workpath, os.path.join('$qtdir', 'lib') ))
@@ -132,7 +132,7 @@ opts.AddVariables(
 
 env = Environment(variables=opts)
 
-print env['X']
+print(env['X'])
 
 Default(env.Alias('dummy', None))
 """ % default_subdir)
@@ -165,7 +165,7 @@ opts.AddVariables(
 
 env = Environment(variables=opts)
 
-print env['X']
+print(env['X'])
 
 Default(env.Alias('dummy', None))
 """ % default_file)
@@ -211,7 +211,7 @@ opts.AddVariables(
 
 env = Environment(variables=opts)
 
-print env['X']
+print(env['X'])
 
 Default(env.Alias('dummy', None))
 """ % default_subdir)
@@ -259,7 +259,7 @@ opts.AddVariables(
 
 env = Environment(variables=opts)
 
-print env['X']
+print(env['X'])
 
 Default(env.Alias('dummy', None))
 """ % default_subdir)

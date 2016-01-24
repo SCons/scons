@@ -44,7 +44,7 @@ env1 = Environment(MYFLAGS=myflags, _concat = my_concat1,
                    MYPREFIX='p', MYSUFFIX='s',
                    STRIPPREFIX='xxx', STRIPSUFFIX='yyy',
                    LIST=['a', 'xxxb', 'cyyy', 'd'])
-print env1.subst('$MYFLAGS')
+print(env1.subst('$MYFLAGS'))
 """)
 
 expect = test.wrap_stdout(read_str = "mypas1 mypbs1 mypcs1 mypds1\n",

@@ -10,8 +10,6 @@ some other module.  If it's specific to the "scons" script invocation,
 it goes here.
 """
 
-from __future__ import print_function
-
 unsupported_python_version = (2, 6, 0)
 deprecated_python_version = (2, 7, 0)
 
@@ -330,7 +328,7 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
         except SCons.Errors.UserError as e:
             print(e)
         except (IOError, OSError) as e:
-            print_("scons: Could not remove '%s':" % pathstr, e.strerror)
+            print("scons: Could not remove '%s':" % pathstr, e.strerror)
 
     def _get_files_to_clean(self):
         result = []
@@ -794,7 +792,7 @@ def _load_all_site_scons_dirs(topdir, verbose=None):
     dirs=sysdirs + [topdir]
     for d in dirs:
         if verbose:    # this is used by unit tests.
-            print_("Loading site dir ", d)
+            print("Loading site dir ", d)
         _load_site_scons_dir(d)
 
 def test_load_all_site_scons_dirs(d):
