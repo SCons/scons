@@ -41,6 +41,7 @@ test.run()
 # makes it into CHANGED_SOURCES.
 # Compile is triggered because SCons knows it needs to build it
 test.run()
+test.must_contain_all_lines(test.stdout(),['changed_sources_main.cpp'])
 test.pass_test()
 
 # Local Variables:
