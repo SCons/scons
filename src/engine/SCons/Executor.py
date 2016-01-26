@@ -217,7 +217,9 @@ class Executor(object):
         us = []
         ut = []
         for b in self.batches:
-            if b.targets[0].is_up_to_date():
+            # don't add targets marked always build to unchanged lists
+            # add to changed list as they always need to build
+            if not b.targets[0].always_build and b.targets[0].is_up_to_date():
                 us.extend(list(map(rfile, b.sources)))
                 ut.extend(b.targets)
             else:
