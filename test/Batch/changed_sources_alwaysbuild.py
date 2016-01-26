@@ -37,9 +37,12 @@ test.file_fixture('changed_sources_main.cpp')
 # always works on first run
 test.run()
 
-# second run prior to fix, the file hasn't changes and so never
+# On second run prior to fix the file hasn't changed and so never
 # makes it into CHANGED_SOURCES.
-# Compile is triggered because SCons knows it needs to build it
+# Compile is triggered because SCons knows it needs to build it.
+# This tests that on second run the source file is in the scons
+# output.  Also prior to fix the compile would fail because
+# it would produce a compile command line lacking a source file.
 test.run()
 test.must_contain_all_lines(test.stdout(),['changed_sources_main.cpp'])
 test.pass_test()
