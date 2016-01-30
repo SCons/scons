@@ -74,7 +74,7 @@ def cat(env, source, target):
     f.close()
 env = Environment(TOOLS = ['default', 'RCS'],
                   BUILDERS={'Cat':Builder(action=cat)},
-                  RCS_COCOM='%(_python_)s my-rcs-co.py $TARGET')
+                  RCS_COCOM=r'%(_python_)s my-rcs-co.py $TARGET')
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')

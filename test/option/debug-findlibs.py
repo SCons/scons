@@ -47,7 +47,7 @@ env = Environment(OBJSUFFIX = '.ooo', PROGSUFFIX = '.xxx',
                   LIBS = ['iii', 'jjj', 'kkk', 'lll', 'mmm'],
                   LIBPREFIXES = ['a-', 'b-', 'c-'],
                   LIBSUFFIXES = ['.aaa', '.bbb', '.ccc'],
-                  LINKCOM = '%(_python_)s cat.py $TARGET $SOURCES')
+                  LINKCOM = r'%(_python_)s cat.py $TARGET $SOURCES')
 env.Program('foo', 'a.ooo',)
 """ % locals())
 

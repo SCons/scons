@@ -51,7 +51,7 @@ def my_escape(s):
     s = s.replace('file.in', 'file.xxx')
     return orig_escape(s)
 env = Environment(ESCAPE = my_escape)
-env.Command('file.out', 'file.in', '%(_python_)s cat.py $TARGET $SOURCES')
+env.Command('file.out', 'file.in', r'%(_python_)s cat.py $TARGET $SOURCES')
 """ % locals())
 
 test.write('file.in', "file.in\n")

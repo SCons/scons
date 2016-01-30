@@ -45,7 +45,7 @@ build(sys.argv[1],sys.argv[2],sys.argv[3:])
 """)
 
 test.write('SConstruct', """\
-B = Builder(action='%(_python_)s build.py $foo $TARGET $SOURCES', multi=1)
+B = Builder(action=r'%(_python_)s build.py $foo $TARGET $SOURCES', multi=1)
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'file4.out', source = 'file4a.in', foo=3)
 env.B(target = 'file4.out', source = 'file4b.in', foo=3)

@@ -74,7 +74,7 @@ def cat(env, source, target):
     f.close()
 env = Environment(TOOLS = ['default', 'SCCS'],
                   BUILDERS={'Cat':Builder(action=cat)},
-                  SCCSCOM='%(_python_)s my-sccs-get.py $TARGET')
+                  SCCSCOM=r'%(_python_)s my-sccs-get.py $TARGET')
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')
