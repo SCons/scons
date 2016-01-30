@@ -164,7 +164,7 @@ class CacheDir(object):
             return None, None
 
         sig = node.get_cachedir_bsig()
-        subdir = sig[0].upper()
+        subdir = sig[:2].upper()
         dir = os.path.join(self.path, subdir)
         return dir, os.path.join(dir, sig)
 

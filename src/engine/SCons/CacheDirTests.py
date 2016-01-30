@@ -100,7 +100,7 @@ class CacheDirTestCase(BaseTestCase):
         try:
             f5 = self.File("cd.f5", 'a_fake_bsig')
             result = self._CacheDir.cachepath(f5)
-            dirname = os.path.join('cache', 'A')
+            dirname = os.path.join('cache', 'A_')
             filename = os.path.join(dirname, 'a_fake_bsig')
             assert result == (dirname, filename), result
         finally:
