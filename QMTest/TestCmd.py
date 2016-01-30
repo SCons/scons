@@ -328,6 +328,7 @@ __all__ = [
     'match_re_dotall',
     'python',
     '_python_',
+#    '_esc_python_',
     'TestCmd'
 ]
 

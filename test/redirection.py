@@ -43,13 +43,13 @@ sys.exit(0)
 test.write('SConstruct', r"""
 env = Environment()
 env.Command(target='foo1', source='bar1',
-            action= '%(_python_)s cat.py $SOURCES > $TARGET')
+            action= r'%(_python_)s cat.py $SOURCES > $TARGET')
 env.Command(target='foo2', source='bar2',
-            action= '%(_python_)s cat.py < $SOURCES > $TARGET')
+            action= r'%(_python_)s cat.py < $SOURCES > $TARGET')
 env.Command(target='foo3', source='bar3',
-            action='%(_python_)s cat.py $SOURCES | %(_python_)s cat.py > $TARGET')
+            action=r'%(_python_)s cat.py $SOURCES | %(_python_)s cat.py > $TARGET')
 env.Command(target='foo4', source='bar4',
-            action='%(_python_)s cat.py <$SOURCES |%(_python_)s cat.py >$TARGET')
+            action=r'%(_python_)s cat.py <$SOURCES |%(_python_)s cat.py >$TARGET')
 """ % locals())
 
 test.write('bar1', 'bar1\r\n')

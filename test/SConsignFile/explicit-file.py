@@ -49,7 +49,7 @@ file.close()
 test.write('SConstruct', """
 e = Environment(XXX = 'scons')
 e.SConsignFile('my_${XXX}ign')
-B = Builder(action = '%(_python_)s build.py $TARGETS $SOURCES')
+B = Builder(action = r'%(_python_)s build.py $TARGETS $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'f5.out', source = 'f5.in')
 env.B(target = 'f6.out', source = 'f6.in')

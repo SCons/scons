@@ -53,8 +53,8 @@ test.write('SConstruct', """
 # Test case for SCons issue #1608
 # Create a file "foo.in" in the current directory before running scons.
 env = Environment()
-env.Command('foo.out', ['foo.in'], '%(_python_)s cat.py $TARGET $SOURCE && %(_python_)s sleep.py 3')
-env.Command('foobar', ['foo.out'], '%(_python_)s cat.py $TARGET $SOURCES')
+env.Command('foo.out', ['foo.in'], r'%(_python_)s cat.py $TARGET $SOURCE && %(_python_)s sleep.py 3')
+env.Command('foobar', ['foo.out'], r'%(_python_)s cat.py $TARGET $SOURCES')
 env.Depends('foobar', 'foo.out')
 """ % locals())
 
