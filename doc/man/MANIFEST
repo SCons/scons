@@ -1,0 +1,15 @@
+# We don't use a wildcard for the XML files
+# here, because it would pull in the created
+# ones as well...
+scons.xml
+sconsign.xml
+scons-time.xml
+*.xsl
+*.css
+SConstruct
+cover.jpg
+titlepage/bricks.jpg
+titlepage/mapnik_final_colors.svg
+titlepage/SCons_path.svg
+titlepage/SConsBuildBricks_path.svg
+
