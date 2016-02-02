@@ -22,6 +22,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From William Deegan:
     - Add better messaging when two environments have
       different actions for the same target (Bug #2024)
+    - Fix issue only with MSVC and Always build where targets
+      marked AlwaysBuild wouldn't make it into CHANGED_SOURCES
+      and thus yield an empty compile command line. (Bug #2622)
+
 
   From Jakub Pola:
     - Intel Compiler 2016 (Linux/Mac) update for tool directories.
