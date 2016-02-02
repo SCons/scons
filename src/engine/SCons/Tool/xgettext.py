@@ -23,7 +23,6 @@ Tool specific initialization of `xgettext` tool.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-from SCons.compat.six import u
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -33,7 +32,7 @@ class _CmdRunner(object):
   variables. It also provides `strfunction()` method, which shall be used by
   scons Action objects to print command string. """
 
-  def __init__( self, command, commandstr = None):
+  def __init__(self, command, commandstr = None):
     self.out = None
     self.err = None
     self.status = None
@@ -56,7 +55,8 @@ class _CmdRunner(object):
     proc = SCons.Action._subproc(env, command, **kw)
     self.out, self.err = proc.communicate()
     self.status = proc.wait()
-    if self.err: sys.stderr.write(u(self.err))
+    if self.err:
+      sys.stderr.write(unicode(self.err))
     return self.status
 
   def strfunction(self, target, source, env):

@@ -25,8 +25,6 @@
 
 from __future__ import print_function
 
-from SCons.compat.six import PY2, PY3
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 __version__ = "__VERSION__"
@@ -188,8 +186,7 @@ sys.path = libs + sys.path
 
 import SCons.compat
 
-if PY2:
-    import whichdb
+import whichdb
 import dbm
 import time
 import pickle
@@ -208,10 +205,7 @@ def my_whichdb(filename):
         pass
     return _orig_whichdb(filename)
 
-if PY3:
-    _orig_whichdb = dbm.whichdb
-else:
-    _orig_whichdb = whichdb.whichdb
+_orig_whichdb = whichdb.whichdb
 dbm.whichdb = my_whichdb
 
 def my_import(mname):

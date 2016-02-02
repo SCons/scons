@@ -23,7 +23,6 @@ Various utility functions go here.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-from SCons.compat.six import PY2, PY3, u
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -33,16 +32,13 @@ import copy
 import re
 import types
 
-if PY3:
-    from collections import UserDict, UserList, UserString
-else:
-    from UserDict import UserDict
-    from UserList import UserList
-    from UserString import UserString
+from UserDict import UserDict
+from UserList import UserList
+from UserString import UserString
 
 # Don't "from types import ..." these because we need to get at the
 # types module later to look for UnicodeType.
-InstanceType    = types.InstanceType if PY2 else None
+InstanceType    = types.InstanceType
 MethodType      = types.MethodType
 FunctionType    = types.FunctionType
 try: unicode
@@ -162,7 +158,7 @@ class DisplayEngine(object):
             return
         if append_newline: text = text + '\n'
         try:
-            sys.stdout.write(u(text))
+            sys.stdout.write(unicode(text))
         except IOError:
             # Stdout might be connected to a pipe that has been closed
             # by now. The most likely reason for the pipe being closed
@@ -256,7 +252,7 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
                       '        N  = no clean\n' +
                       '         H = no cache\n' +
                       '\n')
-            sys.stdout.write(u(legend))
+            sys.stdout.write(unicode(legend))
 
         tags = ['[']
         tags.append(' E'[IDX(root.exists())])
@@ -1413,15 +1409,11 @@ def AddMethod(obj, function, name=None):
 
     if hasattr(obj, '__class__') and obj.__class__ is not type:
         # "obj" is an instance, so it gets a bound method.
-        if PY3:
-            method = MethodType(function, obj)
-        else:
-            method = MethodType(function, obj, obj.__class__)
+        method = MethodType(function, obj, obj.__class__)
         setattr(obj, name, method)
     else:
         # "obj" is a class, so it gets an unbound method.
-        if PY2:
-            function = MethodType(function, None, obj)
+        function = MethodType(function, None, obj)
         setattr(obj, name, function)
 
 def RenameFunction(function, name):

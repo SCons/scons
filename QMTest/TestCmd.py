@@ -287,8 +287,6 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 from __future__ import division, print_function
 
-from SCons.compat.six import PY3
-
 __author__ = "Steven Knight <knight at baldmt dot com>"
 __revision__ = "TestCmd.py 1.3.D001 2010/06/03 12:58:27 knight"
 __version__ = "1.3"
@@ -1730,8 +1728,6 @@ class TestCmd(object):
         exist.  The I/O mode for the file may be specified; it must
         begin with a 'w'.  The default is 'wb' (binary write).
         """
-        if PY3:
-            content = re.sub(r'print (.+)', r'print(\1)', content)
         file = self.canonicalize(file)
         if mode[0] != 'w':
             raise ValueError("mode must begin with 'w'")
