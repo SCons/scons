@@ -71,7 +71,7 @@ scons: Reading SConscript files ...
   'RCFLAGS': [],
   'RCSUFFIXES': ['.rc', '.rc2'],
   'RDirs': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&amp;gt;,
-  'SCANNERS': [],
+  'SCANNERS': [&lt;SCons.Scanner.Base object at 0x700000&amp;gt;],
   'SHCC': '$CC',
   'SHCCCOM': &lt;SCons.Action.FunctionAction object at 0x700000&amp;gt;,
   'SHCCFLAGS': ['$CCFLAGS'],

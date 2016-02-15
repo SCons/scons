@@ -30,6 +30,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Jakub Pola:
     - Intel Compiler 2016 (Linux/Mac) update for tool directories.
 
+  From Adarsh Sanjeev:
+  	- Fix for issue #2494: Added string support for Chmod function.
 
 RELEASE 2.4.1 - Mon, 07 Nov 2015 10:37:21 -0700
 

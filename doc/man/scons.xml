@@ -5630,7 +5630,8 @@ env.Command('foo.out', 'foo.in',
 changes the permissions on the specified
 <emphasis>dest</emphasis>
 file or directory to the specified
-<emphasis>mode</emphasis>.
+<emphasis>mode</emphasis>
+which can be octal or string, similar to the bash command.
 Examples:</para>
 
 <literallayout class="monospaced">
@@ -5639,6 +5640,12 @@ Execute(Chmod('file', 0755))
 env.Command('foo.out', 'foo.in',
             [Copy('$TARGET', '$SOURCE'),
              Chmod('$TARGET', 0755)])
+
+Execute(Chmod('file', "ugo+w"))
+
+env.Command('foo.out', 'foo.in',
+            [Copy('$TARGET', '$SOURCE'),
+             Chmod('$TARGET', "ugo+w")])
 </literallayout>
 
   </listitem>
