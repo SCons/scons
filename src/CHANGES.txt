@@ -18,6 +18,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       SCons now respects scanner keys for implicit dependencies.
     - Resolved missing cross-language dependencies for
       SWIG bindings (fixes #2264).
+    - Corrected typo in User Guide for Scanner keyword. (PR #2959)
 
   From William Deegan:
     - Add better messaging when two environments have
