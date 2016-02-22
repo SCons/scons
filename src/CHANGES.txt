@@ -16,8 +16,19 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From William Blevins:
     - Added support for cross-language dependency scanning;
       SCons now respects scanner keys for implicit dependencies.
+      - Notes for SCons users with heterogeneous systems.
+        - May find new (previously missed) dependencies.
+        - May cause rebuild after upgrade due to dependency changes.
+        - May find new dependency errors (EG. cycles).
+          - Discovered in some of the SCons QT tests.
     - Resolved missing cross-language dependencies for
-      SWIG bindings (fixes #2264).
+      SWIG bindings (PR #2264).
+    - Install builder interacts with scanner found in SCANNERS differently.
+      - Previous: Install builder recursively scanned implicit dependencies
+        for scanners from SCANNER, but not for built-in (default) scanners.
+      - Current: Install builder will not scan for implicit dependencies via
+        either scanner source. This optimizes some Install builder behavior
+        and brings orthogonality to Install builder scanning behavior.
 
   From William Deegan:
     - Add better messaging when two environments have
