@@ -187,11 +187,29 @@ class TempFileMungeTestCase(unittest.TestCase):
         assert cmd != defined_cmd, cmd
         assert cmd == getattr(target[0].attributes, 'tempfile_cmdlist', None)
 
+class PlatformEscapeTestCase(unittest.TestCase):
+    def test_posix_escape(self):
+        """  Check that paths with parens are escaped properly
+        """
+        import SCons.Platform.posix
+
+        test_string = "/my (really) great code/main.cpp"
+        output = SCons.Platform.posix.escape(test_string)
+
+        # We expect the escape function to wrap the string
+        # in quotes, but not escape any internal characters
+        # in the test_string. (Parens doesn't require shell
+        # escaping if their quoted)
+        assert output[1:-1] == test_string
+
+
 if __name__ == "__main__":
     suite = unittest.TestSuite()
     
     tclasses = [ PlatformTestCase,
-                 TempFileMungeTestCase ]
+                 TempFileMungeTestCase,
+                 PlatformEscapeTestCase,
+                ]
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')
         suite.addTests(list(map(tclass, names)))

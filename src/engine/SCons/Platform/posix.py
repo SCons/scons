@@ -48,15 +48,17 @@ exitvalmap = {
 }
 
 def escape(arg):
-    "escape shell special characters"
+    "escape shell special characters" 
     slash = '\\'
-    special = '"$()'
+    special = '"$'
 
     arg = arg.replace(slash, slash+slash)
     for c in special:
         arg = arg.replace(c, slash+c)
 
+    # print "ESCAPE RESULT: %s"%arg
     return '"' + arg + '"'
+
 
 def exec_subprocess(l, env):
     proc = subprocess.Popen(l, env = env, close_fds = True)
