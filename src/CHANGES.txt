@@ -25,6 +25,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix issue only with MSVC and Always build where targets
       marked AlwaysBuild wouldn't make it into CHANGED_SOURCES
       and thus yield an empty compile command line. (Bug #2622)
+    - Fix posix platform escaping logic to properly handle paths
+      with parens in them "()".  (Bug #2225)
 
 
   From Jakub Pola:
