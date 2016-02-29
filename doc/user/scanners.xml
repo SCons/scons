@@ -395,7 +395,7 @@ cat
       <file name="SConstruct" printme="1">
 kscan = Scanner(function = kfile_scan,
                 skeys = ['.k'],
-                path=FindPathDirs('KPATH'))
+                path_function = FindPathDirs('KPATH'))
       </file>
     </scons_example>
     
