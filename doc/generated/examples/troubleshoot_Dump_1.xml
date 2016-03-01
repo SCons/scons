@@ -47,7 +47,7 @@ scons: Reading SConscript files ...
   'PROGSUFFIX': '',
   'PSPAWN': &lt;function piped_env_spawn at 0x700000&amp;gt;,
   'RDirs': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&amp;gt;,
-  'SCANNERS': [],
+  'SCANNERS': [&lt;SCons.Scanner.Base object at 0x700000&amp;gt;],
   'SHELL': 'sh',
   'SHLIBPREFIX': '$LIBPREFIX',
   'SHLIBSUFFIX': '.so',
