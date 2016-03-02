@@ -755,10 +755,10 @@ class CheckContext(object):
     A typical test is just a callable with an instance of CheckContext as
     first argument:
 
-    def CheckCustom(context, ...)
-    context.Message('Checking my weird test ... ')
-    ret = myWeirdTestFunction(...)
-    context.Result(ret)
+        def CheckCustom(context, ...):
+            context.Message('Checking my weird test ... ')
+            ret = myWeirdTestFunction(...)
+            context.Result(ret)
 
     Often, myWeirdTestFunction will be one of
     context.TryCompile/context.TryLink/context.TryRun. The results of
