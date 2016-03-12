@@ -27,7 +27,10 @@ __doc__ = """
 CacheDir support
 """
 
-import os.path
+from collections import defaultdict
+
+import json
+import os
 import stat
 import sys
 
@@ -72,7 +75,8 @@ CacheRetrieve = SCons.Action.Action(CacheRetrieveFunc, CacheRetrieveString)
 CacheRetrieveSilent = SCons.Action.Action(CacheRetrieveFunc, None)
 
 def CachePushFunc(target, source, env):
-    if cache_readonly: return
+    if cache_readonly:
+        return
 
     t = target[0]
     if t.nocache:
@@ -133,11 +137,36 @@ class CacheDir(object):
         except ImportError:
             msg = "No hashlib or MD5 module available, CacheDir() not supported"
             SCons.Warnings.warn(SCons.Warnings.NoMD5ModuleWarning, msg)
-            self.path = None
-        else:
-            self.path = path
+            path = None
+        self.path = path
         self.current_cache_debug = None
         self.debugFP = None
+        self.config = defaultdict()
+        if path is None:
+            return
+        # See if there's a config file in the cache directory
+        config_file = os.path.join(path, 'config')
+        if not os.path.exists(config_file):
+            # If the directory exists we're likely version 1, otherwise
+            # assume we're latest.
+            # A note: There is a race hazard here, if two processes start and
+            # attempt to create the cache directory at the same time. However,
+            # python doesn't really give you the option to do exclusive file
+            # creation (it doesn't even give you the option to error on opening
+            # an existing file for writing...). The ordering of events here
+            # as an attempt to alleviate this, on the basis that it's a pretty
+            # unlikely occurence (it'd require two builds with a brand new cache
+            # directory)
+            if os.path.isdir(path):
+                self.config['prefix_len'] = 1
+            else:                
+                os.makedirs(path)
+                self.config['prefix_len'] = 2
+            if not os.path.exists(config_file):
+                with open(config_file, 'w') as config:
+                    self.config = json.dump(self.config, config)
+        with open(config_file) as config:
+            self.config = json.load(config)
 
     def CacheDebug(self, fmt, target, cachefile):
         if cache_debug != self.current_cache_debug:
@@ -152,7 +181,7 @@ class CacheDir(object):
             self.debugFP.write(fmt % (target, os.path.split(cachefile)[1]))
 
     def is_enabled(self):
-        return (cache_enabled and not self.path is None)
+        return cache_enabled and not self.path is None
 
     def is_readonly(self):
         return cache_readonly
@@ -164,7 +193,7 @@ class CacheDir(object):
             return None, None
 
         sig = node.get_cachedir_bsig()
-        subdir = sig[:2].upper()
+        subdir = sig[:self.config['prefix_len']].upper()
         dir = os.path.join(self.path, subdir)
         return dir, os.path.join(dir, sig)
 
