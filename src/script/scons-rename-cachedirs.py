@@ -36,6 +36,7 @@ __date__ = "__DATE__"
 __developer__ = "__DEVELOPER__"
 
 import glob
+import json
 import os
 
 # The entire purpose of this script is to rename the files in the specified
@@ -43,20 +44,35 @@ import os
 # directories.
 
 # You run this in the cache directory.
+
 expected = ['{:X}'.format(x) for x in range(0, 16)]
-# check there are 16 directories, 0 - 9, A - F
-if sorted(glob.glob('*')) != [x]:
-    raise RuntimeError("This doesn't look like a cache directory")
+
+if not os.path.exists('config'):    
+    # check there are 16 directories, 0 - 9, A - F
+    if sorted(glob.glob('*')) != expected:
+        raise RuntimeError("This doesn't look like a (version 1) cache directory")
+    config = { 'prefix_len' : 1 }
+else:
+    with open('config') as conf:
+        config = json.load(conf)
+    if config['prefix_len'] != 1:
+        raise RuntimeError("This doesn't look like a (version 1) cache directory")
+
 dirs = set()
 for file in glob.iglob(os.path.join('*', '*')):
     name = os.path.basename(file)
     dir = name[:2].upper()
-    print dir, name
     if dir not in dirs:
         os.mkdir(dir)
         dirs.add(dir)
     os.rename(file, os.path.join(dir, name))
 
- # Now delete the original directories
- for dir in expected:
-    os.rmdir(dir)
+# Now delete the original directories
+for dir in expected:
+    if os.path.exists(dir):
+        os.rmdir(dir)
+
+# and write a config file
+config['prefix_len'] = 2
+with open('config', 'w') as conf:
+    json.dump(config, conf)
