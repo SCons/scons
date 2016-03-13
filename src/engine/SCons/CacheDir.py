@@ -129,6 +129,10 @@ def CachePushFunc(target, source, env):
 
 CachePush = SCons.Action.Action(CachePushFunc, None)
 
+# Nasty hack to cut down to one warning for each cachedir path that needs
+# upgrading.
+warned = dict()
+
 class CacheDir(object):
 
     def __init__(self, path):
@@ -147,8 +151,8 @@ class CacheDir(object):
         # See if there's a config file in the cache directory
         config_file = os.path.join(path, 'config')
         if not os.path.exists(config_file):
-            # If the directory exists we're likely version 1, otherwise
-            # assume we're latest.
+            # If the directory exists and is not empty, we're likely version 1.
+            #
             # A note: There is a race hazard here, if two processes start and
             # attempt to create the cache directory at the same time. However,
             # python doesn't really give you the option to do exclusive file
@@ -157,16 +161,26 @@ class CacheDir(object):
             # as an attempt to alleviate this, on the basis that it's a pretty
             # unlikely occurence (it'd require two builds with a brand new cache
             # directory)
-            if os.path.isdir(path):
+            if os.path.isdir(path) and len(os.listdir(path)) != 0:
                 self.config['prefix_len'] = 1
-            else:                
-                os.makedirs(path)
+            else:
+                if not os.path.isdir(path):
+                    os.makedirs(path)
                 self.config['prefix_len'] = 2
             if not os.path.exists(config_file):
                 with open(config_file, 'w') as config:
                     self.config = json.dump(self.config, config)
         with open(config_file) as config:
             self.config = json.load(config)
+        # When building the project I was testing this on, this was output
+        # over 20 times. That seems excessive
+        global warned
+        if self.config['prefix_len'] == 1 and self.path not in warned:
+            msg = "Please update your cache by going into " + self.path +\
+                   " and running scons-rename-cachedirs.py"
+            SCons.Warnings.warn(SCons.Warnings.CacheV1Warning, msg)
+            warned[self.path] = True
+        
 
     def CacheDebug(self, fmt, target, cachefile):
         if cache_debug != self.current_cache_debug:

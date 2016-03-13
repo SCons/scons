@@ -6,6 +6,13 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Tom Tanner:
+    - change cache to use 2 character subdirectories, rather than one character.
+      For existing caches, you will need to run the scons-rename-cachedirs.py
+      script to update them to the new format. You will get a warning for this
+      every time you build.
+    - Fix a bunch of unit tests on windows
+
   From Dirk Baechle:
     - Removed a lot of compatibility methods and workarounds
       for Python versions < 2.7, in order to prepare the work
