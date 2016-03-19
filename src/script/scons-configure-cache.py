@@ -60,6 +60,29 @@ def rearrange_cache_entries(current_prefix_len, new_prefix_len):
     for dir in old_dirs:
         os.rmdir(dir)
 
+# This dictionary should have one entry per entry in the cache config
+# Each entry should have the following:
+#   implicit - (optional) This is to allow adding a new config entry and also
+#              changing the behaviour of the system at the same time. This
+#              indicates the value the config entry would have had if it had been
+#              specified.
+#   default - The value the config entry should have if it wasn't previously
+#             specified
+#   command-line - parameters to pass to ArgumentParser.add_argument
+#   converter - (optional) Function to call if it's necessary to do some work
+#               if this configuration entry changes
+config_entries = {
+    'prefix_len' : { 
+        'implicit' : 1, 
+        'default' : 2 ,
+        'command-line' : {
+            'help' : 'Length of cache file name used as subdirectory prefix',
+            'metavar' : '<number>',
+            'type' : int
+            },
+        'converter' : rearrange_cache_entries
+    }
+}
 parser = argparse.ArgumentParser(
     description = 'Modify the configuration of an scons cache directory',
     epilog = '''
@@ -70,10 +93,9 @@ parser = argparse.ArgumentParser(
     )
 
 parser.add_argument('cache-dir', help='Path to scons cache directory')
-parser.add_argument('--prefix-len', 
-                    help='Length of cache file name used as subdirectory prefix',
-                    metavar = '<number>',
-                    type=int)
+for param in config_entries:
+    parser.add_argument('--' + param.replace('_', '-'), 
+                        **config_entries[param]['command-line'])
 parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 
 # Get the command line as a dict without any of the unspecified entries.
@@ -83,15 +105,6 @@ args = dict(filter(lambda x: x[1], vars(parser.parse_args()).items()))
 # in the name changed to _, whereas optional arguments do...
 os.chdir(args['cache-dir'])
 del args['cache-dir']
-
-# If a value isn't currently configured, this contains the way it behaves
-# currently (implied), and the way it should behave afer running this script
-# (default)
-# FIXME: I should use this to construct the parameter list and supply an
-# upgrade function
-implicit = {
-    'prefix_len' : { 'implied' : 1, 'default' : 2 }
-}
 
 if not os.path.exists('config'):
     # Validate the only files in the directory are directories 0-9, a-f
@@ -104,18 +117,21 @@ else:
         config = json.load(conf)
 
 # Find any keys that aren't currently set but should be
-for key in implicit:
+for key in config_entries:
     if key not in config:
-        config[key] = implicit[key]['implied']
+        if 'implicit' in config_entries[key]:
+            config[key] = config_entries[key]['implicit']
+        else:
+            config[key] = config_entries[key]['default']
         if key not in args:
-            args[key] = implicit[key]['default']
+            args[key] = config_entries[key]['default']
 
 #Now we go through each entry in args to see if it changes an existing config
 #setting.
 for key in args:
     if args[key] != config[key]:        
-        if key == 'prefix_len':
-            rearrange_cache_entries(config[key], args[key])
+        if 'converter' in config_entries[key]:
+            config_entries[key]['converter'](config[key], args[key])
         config[key] = args[key]
 
 # and write the updated config file
