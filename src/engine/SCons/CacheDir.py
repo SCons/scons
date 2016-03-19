@@ -148,11 +148,12 @@ class CacheDir(object):
         self.config = defaultdict()
         if path is None:
             return
-        # See if there's a config file in the cache directory
+        # See if there's a config file in the cache directory. If there is,
+        # use it. If there isn't, and the directory exists and isn't empty,
+        # produce a warning. If the directory doesn't exist or is empty,
+        # write a config file.
         config_file = os.path.join(path, 'config')
         if not os.path.exists(config_file):
-            # If the directory exists and is not empty, we're likely version 1.
-            #
             # A note: There is a race hazard here, if two processes start and
             # attempt to create the cache directory at the same time. However,
             # python doesn't really give you the option to do exclusive file
@@ -163,24 +164,24 @@ class CacheDir(object):
             # directory)
             if os.path.isdir(path) and len(os.listdir(path)) != 0:
                 self.config['prefix_len'] = 1
+                # When building the project I was testing this on, the warning
+                # was output over 20 times. That seems excessive
+                global warned
+                if self.path not in warned:
+                    msg = "Please upgrade your cache by running " +\
+                          " scons-upgrade-cache.py " +  self.path
+                    SCons.Warnings.warn(SCons.Warnings.CacheVersionWarning, msg)
+                    warned[self.path] = True
             else:
                 if not os.path.isdir(path):
                     os.makedirs(path)
                 self.config['prefix_len'] = 2
-            if not os.path.exists(config_file):
-                with open(config_file, 'w') as config:
-                    self.config = json.dump(self.config, config)
-        with open(config_file) as config:
-            self.config = json.load(config)
-        # When building the project I was testing this on, this was output
-        # over 20 times. That seems excessive
-        global warned
-        if self.config['prefix_len'] == 1 and self.path not in warned:
-            msg = "Please update your cache by going into " + self.path +\
-                   " and running scons-rename-cachedirs.py"
-            SCons.Warnings.warn(SCons.Warnings.CacheV1Warning, msg)
-            warned[self.path] = True
-        
+                if not os.path.exists(config_file):
+                    with open(config_file, 'w') as config:
+                        self.config = json.dump(self.config, config)
+        else:
+            with open(config_file) as config:
+                self.config = json.load(config)
 
     def CacheDebug(self, fmt, target, cachefile):
         if cache_debug != self.current_cache_debug:

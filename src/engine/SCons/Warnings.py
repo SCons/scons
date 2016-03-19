@@ -44,7 +44,7 @@ class WarningOnByDefault(Warning):
 class TargetNotBuiltWarning(Warning): # Should go to OnByDefault
     pass
 
-class CacheV1Warning(WarningOnByDefault):
+class CacheVersionWarning(WarningOnByDefault):
     pass
 
 class CacheWriteErrorWarning(Warning):
