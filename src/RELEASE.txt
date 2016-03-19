@@ -32,6 +32,9 @@
   NEW FUNCTIONALITY
 
     - List new features (presumably why a checkpoint is being released)
+    - Addition of script scons-configure-cache which allows you to configure
+      information about a specific cache directly (currently it only supports
+      determining how the cache files are divided into subdirectories).
 
   DEPRECATED FUNCTIONALITY
 
@@ -41,6 +44,11 @@
 
     - List modifications to existing features, where the previous behavior
       wouldn't actually be considered a bug
+    - Cache files are now stored in 256 subdirectories in the cache directory
+      by default (this stresses NFS less). Existing cache directories will
+      remain as current, but scons will prompt you to run scons-configure-cache
+      which will allow you to use the new layour, or confirm you want to use the
+      existing layout.
 
   FIXES
 
