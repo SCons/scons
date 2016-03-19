@@ -27,8 +27,6 @@ __doc__ = """
 CacheDir support
 """
 
-from collections import defaultdict
-
 import json
 import os
 import stat
@@ -145,7 +143,7 @@ class CacheDir(object):
         self.path = path
         self.current_cache_debug = None
         self.debugFP = None
-        self.config = defaultdict()
+        self.config = dict()
         if path is None:
             return
         # See if there's a config file in the cache directory. If there is,
@@ -186,7 +184,7 @@ class CacheDir(object):
                 if not os.path.exists(config_file):
                     try:
                         with open(config_file, 'w') as config:
-                            self.config = json.dump(self.config, config)
+                            json.dump(self.config, config)
                     except:
                         msg = "Failed to write cache configuration for " + path
                         raise SCons.Errors.EnvironmentError(msg)
