@@ -169,19 +169,35 @@ class CacheDir(object):
                 global warned
                 if self.path not in warned:
                     msg = "Please upgrade your cache by running " +\
-                          " scons-upgrade-cache.py " +  self.path
+                          " scons-configure-cache.py " +  self.path
                     SCons.Warnings.warn(SCons.Warnings.CacheVersionWarning, msg)
                     warned[self.path] = True
             else:
                 if not os.path.isdir(path):
-                    os.makedirs(path)
+                    try:
+                        os.makedirs(path)
+                    except OSError:
+                        # If someone else is trying to create the directory at
+                        # the same time as me, bad things will happen
+                        msg = "Failed to create cache directory " + path
+                        raise SCons.Errors.EnvironmentError(msg)
+                        
                 self.config['prefix_len'] = 2
                 if not os.path.exists(config_file):
-                    with open(config_file, 'w') as config:
-                        self.config = json.dump(self.config, config)
+                    try:
+                        with open(config_file, 'w') as config:
+                            self.config = json.dump(self.config, config)
+                    except:
+                        msg = "Failed to write cache configuration for " + path
+                        raise SCons.Errors.EnvironmentError(msg)
         else:
-            with open(config_file) as config:
-                self.config = json.load(config)
+            try:
+                with open(config_file) as config:
+                    self.config = json.load(config)
+            except ValueError:
+                msg = "Failed to read cache configuration for " + path
+                raise SCons.Errors.EnvironmentError(msg)
+            
 
     def CacheDebug(self, fmt, target, cachefile):
         if cache_debug != self.current_cache_debug:
