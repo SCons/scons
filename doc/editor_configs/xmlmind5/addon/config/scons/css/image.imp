@@ -1,0 +1,23 @@
+/*
+ * Copyright (c) 2004-2009 Pixware. 
+ *
+ * This file is part of the XMLmind XML Editor project.
+ * For conditions of distribution and use, see the accompanying legal.txt file.
+ *
+ * Display of images.
+ */
+
+mediaobject imagedata {
+    display: block; /* without this, a viewport specified as % will not work */
+    margin: 0 auto;
+}
+
+inlinemediaobject imagedata {
+    display: inline;
+}
+
+graphic,
+inlinegraphic,
+imagedata {
+    content: gadget("com.xmlmind.xmleditext.docbook.Graphic");
+}

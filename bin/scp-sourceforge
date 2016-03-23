@@ -1,0 +1,46 @@
+#!/bin/bash
+set -x 
+set -e
+
+if [ -z "$1" ]; then
+    echo usage: $0 SourceForgeUserName
+    exit
+fi
+
+SF_USER=$1
+
+rm -rf sf
+for p in scons scons-src scons-local
+do
+  mkdir -p sf/$p/$VERSION
+  cp -p   src/Announce.txt \
+      build/scons/CHANGES.txt \
+      build/scons/RELEASE.txt \
+      sf/$p/$VERSION
+done
+
+cp -p build/scons/README.txt \
+      sf/.
+
+cp -p   build/dist/scons-$VERSION-1.noarch.rpm \
+    build/dist/scons-$VERSION-1.src.rpm \
+    build/dist/scons-$VERSION.tar.gz \
+    build/dist/scons-$VERSION.win32.exe \
+    build/dist/scons-$VERSION.win-amd64.exe \
+    build/dist/scons-$VERSION.zip \
+    sf/scons/$VERSION
+cp -p   build/dist/scons-local-$VERSION.tar.gz \
+    build/dist/scons-local-$VERSION.zip \
+    sf/scons-src/$VERSION
+cp -p   build/dist/scons-src-$VERSION.tar.gz \
+    build/dist/scons-src-$VERSION.zip \
+    sf/scons-local/$VERSION
+
+# Transmit them in this order, since the most-recent is displayed at the top
+scp -r sf/scons-local/ sf/scons-src/ sf/scons/ \
+    $SF_USER,scons@frs.sourceforge.net:/home/pfs/project/s/sc/scons
+
+scp  sf/README.txt \
+    $SF_USER,scons@frs.sourceforge.net:/home/pfs/project/s/sc/scons
+
+rm -rf sf
