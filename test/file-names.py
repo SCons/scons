@@ -69,6 +69,13 @@ if sys.platform == 'win32':
         return c in ' .'
     commandString = "copy $SOURCE $TARGET"
 else:
+    invalid_chars = set(invalid_chars)
+    invalid_chars.add(chr(10))
+    invalid_chars.add(chr(13))
+    invalid_chars.add(chr(92)) # forward slash (dirsep)
+    invalid_chars.add(chr(96)) # backtick
+
+    
     def bad_char(c):
         return c in invalid_chars
     def invalid_leading_char(c):
@@ -80,13 +87,16 @@ else:
 
 goodChars = [ chr(c) for c in range(1, 128) if not bad_char(chr(c)) ]
 
+def get_filename(ftype,c):
+    return ftype+"%d"%ord(c[-1])+c+ftype
+
 for c in goodChars:
-    test.write("in" + c + "in", contents(c))
+    test.write(get_filename("in",c), contents(c))
 
 def create_command(a, b, c):
     a = ('', 'out')[a]
     b = ('', 'out')[b]
-    return 'env.Command("' + a + c + b + '", "in' + c + 'in", "' + commandString + '")'
+    return 'env.Command("' + a + get_filename('',c) + b + '", "'+get_filename("in",c)+ '","' + commandString + '")'
 
 sconstruct = [ 'import sys', 'env = Environment()' ]
 for c in goodChars:
@@ -94,7 +104,7 @@ for c in goodChars:
         c = '$$'
     if c == '"':
         c = r'\"'
-    infile = "in" + c + "in"
+    infile = get_filename("in",c)
     if not invalid_leading_char(c):
         sconstruct.append(create_command(False, True, c))
     sconstruct.append(create_command(True, True, c))
@@ -105,11 +115,14 @@ test.write('SConstruct', '\n'.join(sconstruct))
 test.run(arguments = '.')
 
 for c in goodChars:
+#    print "Checking %d "%ord(c)
+
+    c_str = ("%d"%ord(c[-1]))+c
     if not invalid_leading_char(c):
-        test.fail_test(test.read(c + "out") != contents(c))
-    test.fail_test(test.read("out" + c + "out") != contents(c))
+        test.fail_test(test.read(c_str + "out") != contents(c))
+    test.fail_test(test.read("out" + c_str + "out") != contents(c))
     if not invalid_trailing_char(c):
-        test.fail_test(test.read("out" + c) != contents(c))
+        test.fail_test(test.read("out" + c_str) != contents(c))
 
 test.pass_test()
 
