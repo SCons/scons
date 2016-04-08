@@ -69,7 +69,7 @@ def buildFileStr(fn):
 xxx = '\n'.join(map(buildFileStr, file_names))
 
 test.write("SConstruct", """
-env=Environment(BUILDERS = {'Build' : Builder(action = '%(_python_)s cat.py $TARGET $SOURCE')})
+env=Environment(BUILDERS = {'Build' : Builder(action = r'%(_python_)s cat.py $TARGET $SOURCE')})
 
 %(xxx)s
 """ % locals())

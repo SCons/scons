@@ -1707,6 +1707,16 @@ specifies the type of warnings to be enabled or disabled:</para>
   </listitem>
   </varlistentry>
   <varlistentry>
+  <term>--warn=cache-version, --warn=no-cache-version</term>
+  <listitem>
+<para>Enables or disables warnings about the cache directory not using
+the latest configuration information
+<emphasis role="bold">CacheDir</emphasis>().
+These warnings are enabled by default.</para>
+
+  </listitem>
+  </varlistentry>
+  <varlistentry>
   <term>--warn=cache-write-error, --warn=no-cache-write-error</term>
   <listitem>
 <para>Enables or disables warnings about errors trying to
