@@ -74,7 +74,7 @@ def cat(env, source, target):
     f.close()
 env = Environment(TOOLS = ['default', 'BitKeeper'],
                   BUILDERS={'Cat':Builder(action=cat)},
-                  BITKEEPERCOM='%(_python_)s my-bk-get.py $TARGET')
+                  BITKEEPERCOM=r'%(_python_)s my-bk-get.py $TARGET')
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')

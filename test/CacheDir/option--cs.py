@@ -35,6 +35,7 @@ import shutil
 import TestSCons
 
 _python_ = TestSCons._python_
+
 _exe = TestSCons._exe
 _obj = TestSCons._obj
 
@@ -62,7 +63,7 @@ def cat(env, source, target):
         f.write(open(str(src), "rb").read())
     f.close()
 env = Environment(BUILDERS={'Internal':Builder(action=cat),
-                            'External':Builder(action='%(_python_)s build.py $TARGET $SOURCES')})
+                            'External':Builder(action=r'%(_python_)s build.py $TARGET $SOURCES')})
 env.External('aaa.out', 'aaa.in')
 env.External('bbb.out', 'bbb.in')
 env.Internal('ccc.out', 'ccc.in')

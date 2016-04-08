@@ -74,7 +74,7 @@ def cat(env, source, target):
     f.close()
 env = Environment(TOOLS = ['default', 'Perforce'],
                   BUILDERS={'Cat':Builder(action=cat)},
-                  P4COM='%(_python_)s my-p4.py $TARGET')
+                  P4COM=r'%(_python_)s my-p4.py $TARGET')
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')

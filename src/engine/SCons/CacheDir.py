@@ -27,7 +27,8 @@ __doc__ = """
 CacheDir support
 """
 
-import os.path
+import json
+import os
 import stat
 import sys
 
@@ -72,7 +73,8 @@ CacheRetrieve = SCons.Action.Action(CacheRetrieveFunc, CacheRetrieveString)
 CacheRetrieveSilent = SCons.Action.Action(CacheRetrieveFunc, None)
 
 def CachePushFunc(target, source, env):
-    if cache_readonly: return
+    if cache_readonly:
+        return
 
     t = target[0]
     if t.nocache:
@@ -125,6 +127,10 @@ def CachePushFunc(target, source, env):
 
 CachePush = SCons.Action.Action(CachePushFunc, None)
 
+# Nasty hack to cut down to one warning for each cachedir path that needs
+# upgrading.
+warned = dict()
+
 class CacheDir(object):
 
     def __init__(self, path):
@@ -133,11 +139,63 @@ class CacheDir(object):
         except ImportError:
             msg = "No hashlib or MD5 module available, CacheDir() not supported"
             SCons.Warnings.warn(SCons.Warnings.NoMD5ModuleWarning, msg)
-            self.path = None
-        else:
-            self.path = path
+            path = None
+        self.path = path
         self.current_cache_debug = None
         self.debugFP = None
+        self.config = dict()
+        if path is None:
+            return
+        # See if there's a config file in the cache directory. If there is,
+        # use it. If there isn't, and the directory exists and isn't empty,
+        # produce a warning. If the directory doesn't exist or is empty,
+        # write a config file.
+        config_file = os.path.join(path, 'config')
+        if not os.path.exists(config_file):
+            # A note: There is a race hazard here, if two processes start and
+            # attempt to create the cache directory at the same time. However,
+            # python doesn't really give you the option to do exclusive file
+            # creation (it doesn't even give you the option to error on opening
+            # an existing file for writing...). The ordering of events here
+            # as an attempt to alleviate this, on the basis that it's a pretty
+            # unlikely occurence (it'd require two builds with a brand new cache
+            # directory)
+            if os.path.isdir(path) and len(os.listdir(path)) != 0:
+                self.config['prefix_len'] = 1
+                # When building the project I was testing this on, the warning
+                # was output over 20 times. That seems excessive
+                global warned
+                if self.path not in warned:
+                    msg = "Please upgrade your cache by running " +\
+                          " scons-configure-cache.py " +  self.path
+                    SCons.Warnings.warn(SCons.Warnings.CacheVersionWarning, msg)
+                    warned[self.path] = True
+            else:
+                if not os.path.isdir(path):
+                    try:
+                        os.makedirs(path)
+                    except OSError:
+                        # If someone else is trying to create the directory at
+                        # the same time as me, bad things will happen
+                        msg = "Failed to create cache directory " + path
+                        raise SCons.Errors.EnvironmentError(msg)
+                        
+                self.config['prefix_len'] = 2
+                if not os.path.exists(config_file):
+                    try:
+                        with open(config_file, 'w') as config:
+                            json.dump(self.config, config)
+                    except:
+                        msg = "Failed to write cache configuration for " + path
+                        raise SCons.Errors.EnvironmentError(msg)
+        else:
+            try:
+                with open(config_file) as config:
+                    self.config = json.load(config)
+            except ValueError:
+                msg = "Failed to read cache configuration for " + path
+                raise SCons.Errors.EnvironmentError(msg)
+            
 
     def CacheDebug(self, fmt, target, cachefile):
         if cache_debug != self.current_cache_debug:
@@ -152,7 +210,7 @@ class CacheDir(object):
             self.debugFP.write(fmt % (target, os.path.split(cachefile)[1]))
 
     def is_enabled(self):
-        return (cache_enabled and not self.path is None)
+        return cache_enabled and not self.path is None
 
     def is_readonly(self):
         return cache_readonly
@@ -164,7 +222,7 @@ class CacheDir(object):
             return None, None
 
         sig = node.get_cachedir_bsig()
-        subdir = sig[0].upper()
+        subdir = sig[:self.config['prefix_len']].upper()
         dir = os.path.join(self.path, subdir)
         return dir, os.path.join(dir, sig)
 
