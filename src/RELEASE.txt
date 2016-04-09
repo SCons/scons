@@ -5,68 +5,72 @@
 
   XXX The primary purpose of this release ... XXX
 
-  A SCons "checkpoint release" is intended to provide early access to
-  new features so they can be tested in the field before being released
-  for adoption by other software distributions.
-
-  Note that a checkpoint release is developed using the same test-driven
-  development methodology as all SCons releases.  Existing SCons
-  functionality should all work as it does in previous releases (except
-  for any changes identified in the release notes) and early adopters
-  should be able to use a checkpoint release safely for production work
-  with existing SConscript files.  If not, it represents not only a bug
-  in SCons but also a hole in the regression test suite, and we want to
-  hear about it.
-
-  New features may be more lightly tested than in past releases,
-  especially as concerns their interaction with all of the other
-  functionality in SCons.  We are especially interested in hearing bug
-  reports about new functionality.
-
-  We do not recommend that downstream distributions (Debian, Fedora,
-  etc.) package a checkpoint release, mainly to avoid confusing the
-  "public" release numbering with the long checkpoint release names.
-
-  Here is a summary of the changes since 1.3.0:
+  Here is a summary of the changes since 2.4.1:
 
   NEW FUNCTIONALITY
+    -  We're enhancing implicit language scanning functionality to improve
+       correctness.  SCons now honors scanner keys for implicit dependencies
+       and correctly changes scanner type (if necessary) when traversing 
+       implicit dependency trees.  
 
-    - List new features (presumably why a checkpoint is being released)
+       This enhancement resolves missing dependencies
+       with built-in scanners including SWIG (#2264) and QT:
+       * http://scons.tigris.org/issues/show_bug.cgi?id=2264
+
+       -  This enhancement broadens the horizon for handling heterogeneous
+          data flow environments (E.G. software builds):
+          - http://article.gmane.org/gmane.comp.programming.tools.scons.user/26596
+
+       - SCons may find new (and correct) dependencies in cross-langauge contexts.
+         - Update may cause rebuilds, especially in heterogeneous data environments.
+         - Update may find previously missed dependencies errors (E.G. cycles).
+           - Discovered in some QT test cases.
+       - SCons handles the SCANNERS variable differently.
+         -  Previously, the Install builder would scan implicit dependencies for
+            a scanner found in SCANNERS (but not for built-in scanners), but now
+            the Install builder will not scan recursively regardless in order
+            to optimize Install behaviour and bring orthogonality to previous behaviour.
+
+    - New external tool scons-configurecache which allows some configuration of
+      how files in the cache are controlled.
 
   DEPRECATED FUNCTIONALITY
 
-    - List anything that's been deprecated since the last release
+    - None
 
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
-    - List modifications to existing features, where the previous behavior
-      wouldn't actually be considered a bug
+    - SCons handles cache directories a bit differently/
+      - Cache files are now stored in 256 subdirectories in the cache directory by 
+        default (this stresses NFS less). Existing cache directories will remain as
+        current, but SCons will prompt you to run scons-configure-cache which will
+        allow you to migrate to the new layout, or confirm you want to use the
+        existing layout.
 
   FIXES
 
-    - List fixes of outright bugs
+    - This enhancement resolves missing dependencies with built-in scanners including
+      SWIG (#2264) and QT - See New Features above
+       * http://scons.tigris.org/issues/show_bug.cgi?id=2264
 
   IMPROVEMENTS
 
-    - List improvements that wouldn't be visible to the user in the
-      documentation:  performance improvements (describe the circumstances
-      under which they would be observed), or major code cleanups
+    - None
 
   PACKAGING
 
-    - List changes in the way SCons is packaged and/or released
+    - None
 
   DOCUMENTATION
 
-    - List any significant changes to the documentation (not individual
-      typo fixes, even if they're mentioned in src/CHANGES.txt to give
-      the contributor credit)
+    - None
 
   DEVELOPMENT
 
-    - List visible changes in the way SCons is developed
+    - None
 
-  Thanks to CURLY, LARRY, and MOE for their contributions to this release.
+  Thanks to Dirk Baechle, William Blevins, William Deegan, Jakub Pola, Adarsh Sanjeev, Tom Tanner
+  for their contributions to this release.
   Contributors are listed alphabetically by their last name.
 
 __COPYRIGHT__
