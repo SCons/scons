@@ -4,6 +4,13 @@
 
                             Change Log
 
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From John Doe:
+
+    - Whatever John Doe did.
+
+
 RELEASE 2.5.0 - Mon, 09 Apr 2016 11:27:42 -0700
 
   From Dirk Baechle:
