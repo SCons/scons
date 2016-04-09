@@ -168,7 +168,7 @@ Or on Windows::
 
 By default, the above commands will do the following:
 
-- Install the version-numbered "scons-2.4.1" and "sconsign-2.4.1" scripts in
+- Install the version-numbered "scons-2.5.0" and "sconsign-2.5.0" scripts in
   the default system script directory (/usr/bin or C:\\Python\*\\Scripts, for
   example).  This can be disabled by specifying the "--no-version-script"
   option on the command line.
@@ -180,23 +180,23 @@ By default, the above commands will do the following:
   before making it the default on your system.
 
   On UNIX or Linux systems, you can have the "scons" and "sconsign" scripts be
-  hard links or symbolic links to the "scons-2.4.1" and "sconsign-2.4.1"
+  hard links or symbolic links to the "scons-2.5.0" and "sconsign-2.5.0"
   scripts by specifying the "--hardlink-scons" or "--symlink-scons" options on
   the command line.
 
-- Install "scons-2.4.1.bat" and "scons.bat" wrapper scripts in the Python
+- Install "scons-2.5.0.bat" and "scons.bat" wrapper scripts in the Python
   prefix directory on Windows (C:\\Python\*, for example).  This can be disabled
   by specifying the "--no-install-bat" option on the command line.
 
   On UNIX or Linux systems, the "--install-bat" option may be specified to
-  have "scons-2.4.1.bat" and "scons.bat" files installed in the default system
+  have "scons-2.5.0.bat" and "scons.bat" files installed in the default system
   script directory, which is useful if you want to install SCons in a shared
   file system directory that can be used to execute SCons from both UNIX/Linux
   and Windows systems.
 
 - Install the SCons build engine (a Python module) in an appropriate
-  version-numbered SCons library directory (/usr/lib/scons-2.4.0 or
-  C:\\Python\*\\scons-2.4.0, for example).  See below for more options related to
+  version-numbered SCons library directory (/usr/lib/scons-2.5.0 or
+  C:\\Python\*\\scons-2.5.0, for example).  See below for more options related to
   installing the build engine library.
 
 - Install the troff-format man pages in an appropriate directory on UNIX or
@@ -474,7 +474,7 @@ running all of "runtest.py -a".
 Building Packages
 =================
 
-We use SCons (version 2.4.1 or later) to build its own packages.  If you
+We use SCons (version 2.5.0 or later) to build its own packages.  If you
 already have an appropriate version of SCons installed on your system, you can
 build everything by simply running it::
 
@@ -489,18 +489,18 @@ about `Executing SCons Without Installing`_)::
 Depending on the utilities installed on your system, any or all of the
 following packages will be built::
 
-        build/dist/scons-2.4.1-1.noarch.rpm
-        build/dist/scons-2.4.1-1.src.rpm
-        build/dist/scons-2.4.1.linux-i686.tar.gz
-        build/dist/scons-2.4.2.alpha.yyyymmdd.tar.gz
-        build/dist/scons-2.4.2.alpha.yyyymmdd.win32.exe
-        build/dist/scons-2.4.2.alpha.yyyymmdd.zip
-        build/dist/scons-doc-2.4.2.alpha.yyyymmdd.tar.gz
-        build/dist/scons-local-2.4.2.alpha.yyyymmdd.tar.gz
-        build/dist/scons-local-2.4.2.alpha.yyyymmdd.zip
-        build/dist/scons-src-2.4.2.alpha.yyyymmdd.tar.gz
-        build/dist/scons-src-2.4.2.alpha.yyyymmdd.zip
-        build/dist/scons_2.4.1-1_all.deb
+        build/dist/scons-2.5.0-1.noarch.rpm
+        build/dist/scons-2.5.0-1.src.rpm
+        build/dist/scons-2.5.0.linux-i686.tar.gz
+        build/dist/scons-2.5.0.tar.gz
+        build/dist/scons-2.5.0.win32.exe
+        build/dist/scons-2.5.0.zip
+        build/dist/scons-doc-2.5.0.tar.gz
+        build/dist/scons-local-2.5.0.tar.gz
+        build/dist/scons-local-2.5.0.zip
+        build/dist/scons-src-2.5.0.tar.gz
+        build/dist/scons-src-2.5.0.zip
+        build/dist/scons_2.5.0-1_all.deb
 
 The SConstruct file is supposed to be smart enough to avoid trying to build
 packages for which you don't have the proper utilities installed.  For
