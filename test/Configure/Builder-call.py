@@ -48,7 +48,7 @@ def CustomTest(*args):
     return 0
 conf = env.Configure(custom_tests = {'MyTest' : CustomTest})
 if not conf.MyTest():
-    env.Command("hello", [], '%(_python_)s mycommand.py $TARGET')
+    env.Command("hello", [], r'%(_python_)s mycommand.py $TARGET')
 env = conf.Finish()
 """ % locals())
 

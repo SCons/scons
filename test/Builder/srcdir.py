@@ -50,7 +50,7 @@ o.close()
 test.write(['src', 'SConstruct'], """\
 Command('output',
         ['file1', File('file2'), r'%(file3)s', 'file4'],
-        '%(_python_)s cat.py $TARGET $SOURCES',
+        r'%(_python_)s cat.py $TARGET $SOURCES',
         srcdir='foo')
 """ % locals())
 

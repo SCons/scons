@@ -44,6 +44,12 @@ Notes:
    a scanner found in SCANNERS (but not for built-in scanners), but now
    the Install builder will not scan recursively regardless in order
    to optimize Install behaviour and bring orthogonality to previous behaviour.
+* SCons handles cache directories a bit differently/
+** Cache files are now stored in 256 subdirectories in the cache directory by 
+   default (this stresses NFS less). Existing cache directories will remain as
+   current, but SCons will prompt you to run scons-configure-cache which will
+   allow you to migrate to the new layout, or confirm you want to use the
+   existing layout.
 
 +=================================================================
 
@@ -56,6 +62,8 @@ RELEASE VERSION/DATE TO BE FILLED IN LATER
   changes.
 
   Please note the following important changes since release 2.4.0:
+    - New external tool scons-configurecache which allows some configuration of
+      how files in the cache are controlled.
     - Fix to swig tool - pick-up 'swig', 'swig3.0' and 'swig2.0' (in order).
     - Fix to swig tool - respect env['SWIG'] provided by user.
     - Fix for Bug # 2791 - Setup.py fails unnecessarily under Jython.

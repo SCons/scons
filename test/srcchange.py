@@ -63,7 +63,7 @@ SubRevision = Action(subrevision)
 
 env=Environment()
 content_env=env.Clone()
-content_env.Command('revision.in', [], '%(_python_)s getrevision > $TARGET')
+content_env.Command('revision.in', [], r'%(_python_)s getrevision > $TARGET')
 content_env.AlwaysBuild('revision.in')
 env.Precious('main.c')
 env.Command('main.c', 'revision.in', SubRevision)
