@@ -190,8 +190,8 @@ sys.path = libs + sys.path
 if __name__ == "__main__":
     try:
         import SCons.Script
-    except:
-        print("Import failed. Unable to find SCons files in:")
+    except ImportError:
+        print("SCons import failed. Unable to find engine files in:")
         for path in libs:
             print("  {}".format(path))
         raise

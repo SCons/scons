@@ -82,7 +82,8 @@ test.must_not_exist(src_aaa_out)
 test.must_not_exist(src_bbb_out)
 test.must_not_exist(src_ccc_out)
 test.must_not_exist(src_all)
-test.fail_test(len(os.listdir(cache)))
+# Even if you do -n, the cache will be configured.
+test.fail_test(os.listdir(cache) != ['config'])
 
 # Verify that a normal build works correctly, and clean up.
 # This should populate the cache with our derived files.

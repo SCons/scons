@@ -5,10 +5,10 @@
 
 from __future__ import print_function
 
-copyright_years = '2001 - 2015'
+copyright_years = '2001 - 2016'
 
 # This gets inserted into the man pages to reflect the month of release.
-month_year = 'MONTH YEAR'
+month_year = 'April 2016'
 
 #
 # __COPYRIGHT__
@@ -45,7 +45,7 @@ import tempfile
 import bootstrap
 
 project = 'scons'
-default_version = '2.4.2.alpha.yyyymmdd'
+default_version = '2.5.0'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 platform = distutils.util.get_platform()
@@ -371,7 +371,7 @@ def SCons_revision(target, source, env):
     """
     t = str(target[0])
     s = source[0].rstr()
-    contents = open(s, 'r').read()
+    contents = open(s, 'rb').read()
     # Note:  We construct the __*__ substitution strings here
     # so that they don't get replaced when this file gets
     # copied into the tree for packaging.
@@ -385,7 +385,7 @@ def SCons_revision(target, source, env):
     contents = contents.replace('__REVISION'  + '__', env['REVISION'])
     contents = contents.replace('__VERSION'   + '__', env['VERSION'])
     contents = contents.replace('__NULL'      + '__', '')
-    open(t, 'w').write(contents)
+    open(t, 'wb').write(contents)
     os.chmod(t, os.stat(s)[0])
 
 revaction = SCons_revision
@@ -419,7 +419,6 @@ def soelim(target, source, env):
 
 def soscan(node, env, path):
     c = node.get_text_contents()
-    # Node contents are bytes ==> br"..."
     return re.compile(br"^[\.']so\s+(\S+)", re.M).findall(c)
 
 soelimbuilder = Builder(action = Action(soelim),
@@ -830,7 +829,7 @@ for p in [ scons ]:
     def write_src_files(target, source, **kw):
         global src_files
         src_files.sort()
-        f = open(str(target[0]), 'w')
+        f = open(str(target[0]), 'wb')
         for file in src_files:
             f.write(file + "\n")
         f.close()

@@ -188,7 +188,7 @@ def post_action(target, source, env):
 env = Environment()
 o = env.Command(['pre-post', 'file.out'],
                 'file.in',
-                '%(_python_)s build.py ${TARGETS[1]} $SOURCE')
+                r'%(_python_)s build.py ${TARGETS[1]} $SOURCE')
 env.AddPreAction(o, pre_action)
 env.AddPostAction(o, post_action)
 """ % locals())
