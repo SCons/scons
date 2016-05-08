@@ -293,7 +293,7 @@ def get_all_compiler_versions():
             # JPA: For the new version of Intel compiler 2016.1.
             m = re.search(r'([0-9]{0,4})(?:_sp\d*)?\.([0-9][0-9.]*)$', d)
             if m:
-                versions.append("%s.%s"%(m.group(1), m,group(2)))
+                versions.append("%s.%s"%(m.group(1), m.group(2)))
             
     def keyfunc(str):
         """Given a dot-separated version string, return a tuple of ints representing it."""
