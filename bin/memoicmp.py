@@ -2,7 +2,8 @@
 #
 # A script to compare the --debug=memoizer output found in
 # two different files.
-from future import print_function
+
+from __future__ import print_function
 
 import sys
 
@@ -46,7 +47,7 @@ def memoize_cmp(filea, fileb):
         mab.sort()
         ma_o.sort()
         mb_o.sort()
-        
+
         for k in mab:
                 hits = cfmt%(ma[k][0], mb[k][0], mb[k][0]-ma[k][0])
                 miss = cfmt%(ma[k][1], mb[k][1], mb[k][1]-ma[k][1])
@@ -63,7 +64,7 @@ def memoize_cmp(filea, fileb):
                 print('%-24s %-24s  %s'%(hits, miss, k))
 
         print('-'*(24+24+1+20))
-        
+
 
 if __name__ == "__main__":
         if len(sys.argv) != 3:

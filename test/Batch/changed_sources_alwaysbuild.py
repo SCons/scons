@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -21,14 +22,33 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-import unittest
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-class sixTestCase(unittest.TestCase):
+"""
+Verify that files marked AlwaysBuild also get put into CHANGED_SOURCES.
+Tigris bug 2622
+"""
 
-    def test_import(self):
-        """Test that six imports correctly."""
-        import sys
-        print sys.path
-        from SCons.compat.six import PY2, PY3
-        self.assertTrue(PY2 or PY3)
+import TestSCons
 
+test = TestSCons.TestSCons()
+test.file_fixture('SConstruct_changed_sources_alwaysBuild','SConstruct')
+test.file_fixture('changed_sources_main.cpp')
+# always works on first run
+test.run()
+
+# On second run prior to fix the file hasn't changed and so never
+# makes it into CHANGED_SOURCES.
+# Compile is triggered because SCons knows it needs to build it.
+# This tests that on second run the source file is in the scons
+# output.  Also prior to fix the compile would fail because
+# it would produce a compile command line lacking a source file.
+test.run()
+test.must_contain_all_lines(test.stdout(),['changed_sources_main.cpp'])
+test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

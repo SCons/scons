@@ -28,12 +28,13 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test Environment's FindSourceFiles method.
 """
 
+import sys
 import TestSCons
 
 test = TestSCons.TestSCons()
 
 package_format = "src_tarbz2"
-if not test.where_is('tar'):
+if not test.where_is('tar') or sys.platform == 'win32':
     if not test.where_is('zip'):
         test.skip_test("neither 'tar' nor 'zip' found; skipping test\n")
     package_format = "src_zip"

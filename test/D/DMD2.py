@@ -28,15 +28,21 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
+import sys
+from os.path import abspath, dirname, join
+sys.path.append(join(dirname(abspath(__file__)), 'Support'))
+from executablesSearch import isExecutableOfToolAvailable
+
 _exe = TestSCons._exe
 test = TestSCons.TestSCons()
 
-if not test.where_is('dmd') and not test.where_is('gdmd'):
-    test.skip_test("Could not find 'dmd' or 'gdmd', skipping test.\n")
+if not isExecutableOfToolAvailable(test, 'dmd'):
+    test.skip_test("Could not find 'dmd'; skipping test.\n")
 
 test.write('SConstruct', """\
 import os
-env = Environment(tools=['link', 'dmd'], ENV=os.environ)
+env = Environment(tools=['link', 'dmd'])
+env['ENV']['HOME'] = os.environ['HOME']  # Hack for gdmd
 if env['PLATFORM'] == 'cygwin': env['OBJSUFFIX'] = '.obj'  # trick DMD
 env.Program('foo', 'foo.d')
 """)

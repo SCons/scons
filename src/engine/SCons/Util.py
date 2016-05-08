@@ -23,7 +23,6 @@ Various utility functions go here.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-from SCons.compat.six import PY2, PY3, u
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -33,16 +32,13 @@ import copy
 import re
 import types
 
-if PY3:
-    from collections import UserDict, UserList, UserString
-else:
-    from UserDict import UserDict
-    from UserList import UserList
-    from UserString import UserString
+from UserDict import UserDict
+from UserList import UserList
+from UserString import UserString
 
 # Don't "from types import ..." these because we need to get at the
 # types module later to look for UnicodeType.
-InstanceType    = types.InstanceType if PY2 else None
+InstanceType    = types.InstanceType
 MethodType      = types.MethodType
 FunctionType    = types.FunctionType
 try: unicode
@@ -98,7 +94,7 @@ def splitext(path):
 def updrive(path):
     """
     Make the drive letter (if any) upper case.
-    This is useful because Windows is inconsitent on the case
+    This is useful because Windows is inconsistent on the case
     of the drive letter, which can cause inconsistencies when
     calculating command signatures.
     """
@@ -162,7 +158,7 @@ class DisplayEngine(object):
             return
         if append_newline: text = text + '\n'
         try:
-            sys.stdout.write(u(text))
+            sys.stdout.write(unicode(text))
         except IOError:
             # Stdout might be connected to a pipe that has been closed
             # by now. The most likely reason for the pipe being closed
@@ -176,7 +172,7 @@ class DisplayEngine(object):
     def set_mode(self, mode):
         self.print_it = mode
 
-def render_tree(root, child_func, prune=0, margin=[0], visited={}):
+def render_tree(root, child_func, prune=0, margin=[0], visited=None):
     """
     Render a tree of nodes into an ASCII tree view.
     root - the root node of the tree
@@ -189,6 +185,10 @@ def render_tree(root, child_func, prune=0, margin=[0], visited={}):
     """
 
     rname = str(root)
+
+    # Initialize 'visited' dict, if required
+    if visited is None:
+        visited = {}
 
     children = child_func(root)
     retval = ""
@@ -216,7 +216,7 @@ def render_tree(root, child_func, prune=0, margin=[0], visited={}):
 
 IDX = lambda N: N and 1 or 0
 
-def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
+def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
     """
     Print a tree of nodes.  This is like render_tree, except it prints
     lines directly instead of creating a string representation in memory,
@@ -234,6 +234,10 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
 
     rname = str(root)
 
+    # Initialize 'visited' dict, if required
+    if visited is None:
+        visited = {}
+
     if showtags:
 
         if showtags == 2:
@@ -248,7 +252,7 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
                       '        N  = no clean\n' +
                       '         H = no cache\n' +
                       '\n')
-            sys.stdout.write(u(legend))
+            sys.stdout.write(unicode(legend))
 
         tags = ['[']
         tags.append(' E'[IDX(root.exists())])
@@ -300,7 +304,7 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
 # often too slow.
 
 # We are using the following trick to speed up these
-# functions. Default arguments are used to take a snapshot of the
+# functions. Default arguments are used to take a snapshot of
 # the global functions and constants used by these functions. This
 # transforms accesses to global variable into local variables
 # accesses (i.e. LOAD_FAST instead of LOAD_GLOBAL).
@@ -310,14 +314,14 @@ ListTypes = (list, UserList)
 SequenceTypes = (list, tuple, UserList)
 
 # Note that profiling data shows a speed-up when comparing
-# explicitely with str and unicode instead of simply comparing
+# explicitly with str and unicode instead of simply comparing
 # with basestring. (at least on Python 2.5.1)
 try:
     StringTypes = (str, unicode, UserString)
 except NameError:
     StringTypes = (str, UserString)
 
-# Empirically, it is faster to check explicitely for str and
+# Empirically, it is faster to check explicitly for str and
 # unicode than for basestring.
 try:
     BaseStringTypes = (str, unicode)
@@ -341,11 +345,11 @@ def is_String(obj, isinstance=isinstance, StringTypes=StringTypes):
 
 def is_Scalar(obj, isinstance=isinstance, StringTypes=StringTypes, SequenceTypes=SequenceTypes):
     # Profiling shows that there is an impressive speed-up of 2x
-    # when explicitely checking for strings instead of just not
+    # when explicitly checking for strings instead of just not
     # sequence when the argument (i.e. obj) is already a string.
     # But, if obj is a not string then it is twice as fast to
     # check only for 'not sequence'. The following code therefore
-    # assumes that the obj argument is a string must of the time.
+    # assumes that the obj argument is a string most of the time.
     return isinstance(obj, StringTypes) or not isinstance(obj, SequenceTypes)
 
 def do_flatten(sequence, result, isinstance=isinstance,
@@ -446,7 +450,7 @@ def to_String_for_signature(obj, to_String_for_subst=to_String_for_subst,
 #
 # A special case is any object that has a __semi_deepcopy__() method,
 # which we invoke to create the copy. Currently only used by
-# BuilderDict to actually prevent the copy operation (as invalid on that object)
+# BuilderDict to actually prevent the copy operation (as invalid on that object).
 #
 # The dispatch table approach used here is a direct rip-off from the
 # normal Python copy module.
@@ -586,6 +590,19 @@ except ImportError:
             pass
         RegError = _NoError
 
+WinError = None
+# Make sure we have a definition of WindowsError so we can
+# run platform-independent tests of Windows functionality on
+# platforms other than Windows.  (WindowsError is, in fact, an
+# OSError subclass on Windows.)
+class PlainWindowsError(OSError):
+    pass
+try:
+    WinError = WindowsError
+except NameError:
+    WinError = PlainWindowsError
+
+
 if can_read_reg:
     HKEY_CLASSES_ROOT  = hkey_mod.HKEY_CLASSES_ROOT
     HKEY_LOCAL_MACHINE = hkey_mod.HKEY_LOCAL_MACHINE
@@ -619,30 +636,16 @@ if can_read_reg:
         k = RegOpenKeyEx(root, keyp)
         return RegQueryValueEx(k,val)
 else:
-    try:
-        e = WindowsError
-    except NameError:
-        # Make sure we have a definition of WindowsError so we can
-        # run platform-independent tests of Windows functionality on
-        # platforms other than Windows.  (WindowsError is, in fact, an
-        # OSError subclass on Windows.)
-        class WindowsError(OSError):
-            pass
-        import builtins
-        builtins.WindowsError = WindowsError
-    else:
-        del e
-
     HKEY_CLASSES_ROOT = None
     HKEY_LOCAL_MACHINE = None
     HKEY_CURRENT_USER = None
     HKEY_USERS = None
 
     def RegGetValue(root, key):
-        raise WindowsError
+        raise WinError
 
     def RegOpenKeyEx(root, key):
-        raise WindowsError
+        raise WinError
 
 if sys.platform == 'win32':
 
@@ -904,6 +907,28 @@ def AppendPath(oldpath, newpath, sep = os.pathsep,
     else:
         return sep.join(paths)
 
+def AddPathIfNotExists(env_dict, key, path, sep=os.pathsep):
+    """This function will take 'key' out of the dictionary
+    'env_dict', then add the path 'path' to that key if it is not
+    already there.  This treats the value of env_dict[key] as if it
+    has a similar format to the PATH variable...a list of paths
+    separated by tokens.  The 'path' will get added to the list if it
+    is not already there."""
+    try:
+        is_list = 1
+        paths = env_dict[key]
+        if not is_List(env_dict[key]):
+            paths = paths.split(sep)
+            is_list = 0
+        if os.path.normcase(path) not in list(map(os.path.normcase, paths)):
+            paths = [ path ] + paths
+        if is_list:
+            env_dict[key] = paths
+        else:
+            env_dict[key] = sep.join(paths)
+    except KeyError:
+        env_dict[key] = path
+
 if sys.platform == 'cygwin':
     def get_native_path(path):
         """Transforms an absolute path into a native path for the system.  In
@@ -1007,7 +1032,7 @@ class Selector(OrderedDict):
     def __call__(self, env, source, ext=None):
         if ext is None:
             try:
-                ext = source[0].suffix
+                ext = source[0].get_suffix()
             except IndexError:
                 ext = ""
         try:
@@ -1171,36 +1196,38 @@ def uniquer_hashables(seq):
     return result
 
 
+# Recipe 19.11 "Reading Lines with Continuation Characters",
+# by Alex Martelli, straight from the Python CookBook (2nd edition).
+def logical_lines(physical_lines, joiner=''.join):
+    logical_line = []
+    for line in physical_lines:
+        stripped = line.rstrip()
+        if stripped.endswith('\\'):
+            # a line which continues w/the next physical line
+            logical_line.append(stripped[:-1])
+        else:
+            # a line which does not continue, end of logical line
+            logical_line.append(line)
+            yield joiner(logical_line)
+            logical_line = []
+    if logical_line:
+        # end of sequence implies end of last logical line
+        yield joiner(logical_line)
 
-# Much of the logic here was originally based on recipe 4.9 from the
-# Python CookBook, but we had to dumb it way down for Python 1.5.2.
+
 class LogicalLines(object):
+    """ Wrapper class for the logical_lines method.
+
+        Allows us to read all "logical" lines at once from a
+        given file object.
+    """
 
     def __init__(self, fileobj):
         self.fileobj = fileobj
 
-    def readline(self):
-        result = []
-        while True:
-            line = self.fileobj.readline()
-            if not line:
-                break
-            if line[-2:] == '\\\n':
-                result.append(line[:-2])
-            else:
-                result.append(line)
-                break
-        return ''.join(result)
-
     def readlines(self):
-        result = []
-        while True:
-            line = self.readline()
-            if not line:
-                break
-            result.append(line)
+        result = [l for l in logical_lines(self.fileobj)]
         return result
-
 
 
 class UniqueList(UserList):
@@ -1382,15 +1409,11 @@ def AddMethod(obj, function, name=None):
 
     if hasattr(obj, '__class__') and obj.__class__ is not type:
         # "obj" is an instance, so it gets a bound method.
-        if PY3:
-            method = MethodType(function, obj)
-        else:
-            method = MethodType(function, obj, obj.__class__)
+        method = MethodType(function, obj, obj.__class__)
         setattr(obj, name, method)
     else:
         # "obj" is a class, so it gets an unbound method.
-        if PY2:
-            function = MethodType(function, None, obj)
+        function = MethodType(function, None, obj)
         setattr(obj, name, function)
 
 def RenameFunction(function, name):

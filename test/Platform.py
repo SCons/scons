@@ -31,27 +31,27 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', """
 env = Environment()
 Platform('cygwin')(env)
-print "'%s'" % env['PROGSUFFIX']
+print("'%s'" % env['PROGSUFFIX'])
 assert env['SHELL'] == 'sh'
 Platform('os2')(env)
-print "'%s'" % env['PROGSUFFIX']
+print("'%s'" % env['PROGSUFFIX'])
 env.Platform('posix')
-print "'%s'" % env['PROGSUFFIX']
+print("'%s'" % env['PROGSUFFIX'])
 Platform('win32')(env)
-print "'%s'" % env['PROGSUFFIX']
+print("'%s'" % env['PROGSUFFIX'])
 SConscript('SConscript')
 """)
 
 test.write('SConscript', """
 env = Environment()
 Platform('cygwin')(env)
-print "'%s'" % env['LIBSUFFIX']
+print("'%s'" % env['LIBSUFFIX'])
 Platform('os2')(env)
-print "'%s'" % env['LIBSUFFIX']
+print("'%s'" % env['LIBSUFFIX'])
 env.Platform('posix')
-print "'%s'" % env['LIBSUFFIX']
+print("'%s'" % env['LIBSUFFIX'])
 Platform('win32')(env)
-print "'%s'" % env['LIBSUFFIX']
+print("'%s'" % env['LIBSUFFIX'])
 """)
 
 expect = test.wrap_stdout(read_str = """'.exe'

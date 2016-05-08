@@ -35,9 +35,9 @@ _python_ = TestSCons._python_
 test.write('SConstruct', """
 env = Environment(CCFLAGS='-DFOO', LIBS=['a'])
 def build(target, source, env):
-    print "env['CC'] =", env['CC']
-    print "env['CCFLAGS'] =", env['CCFLAGS']
-    print "env['LIBS'] =", env['LIBS']
+    print("env['CC'] =", env['CC'])
+    print("env['CCFLAGS'] =", env['CCFLAGS'])
+    print("env['LIBS'] =", env['LIBS'])
 builder = Builder(action=build, CC='buildcc', LIBS='buildlibs')
 env['BUILDERS']['Build'] = builder
 

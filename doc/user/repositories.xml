@@ -423,7 +423,7 @@ int main() { printf("Hello, world!\n"); }
         <para>
 
         Change all occurrences of <literal>#include "file.h"</literal>
-        to <literal>#include &amp;lt;file.h&amp;gt;</literal>.
+        to <literal>#include &lt;file.h&gt;</literal>.
         Use of <literal>#include</literal> with angle brackets
         does not have the same behavior--the <literal>-I</literal>
         directories are searched first

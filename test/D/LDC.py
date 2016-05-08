@@ -43,7 +43,7 @@ if not isExecutableOfToolAvailable(test, 'ldc'):
 
 test.write('SConstruct', """\
 import os
-env = Environment(tools=['link', 'ldc'], ENV=os.environ)
+env = Environment(tools=['link', 'ldc'])
 if env['PLATFORM'] == 'cygwin': env['OBJSUFFIX'] = '.obj'  # trick DMD
 env.Program('foo', 'foo.d')
 """)

@@ -65,10 +65,10 @@ def generate(env):
 
     env['DC'] = env.Detect('gdc')
     env['DCOM'] = '$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -c -o $TARGET $SOURCES'
-    env['_DINCFLAGS'] = '$( ${_concat(DINCPREFIX, DPATH, DINCSUFFIX, __env__, RDirs, TARGET, SOURCE)}  $)'
-    env['_DVERFLAGS'] = '$( ${_concat(DVERPREFIX, DVERSIONS, DVERSUFFIX, __env__)}  $)'
-    env['_DDEBUGFLAGS'] = '$( ${_concat(DDEBUGPREFIX, DDEBUG, DDEBUGSUFFIX, __env__)} $)'
-    env['_DFLAGS'] = '$( ${_concat(DFLAGPREFIX, DFLAGS, DFLAGSUFFIX, __env__)} $)'
+    env['_DINCFLAGS'] = '${_concat(DINCPREFIX, DPATH, DINCSUFFIX, __env__, RDirs, TARGET, SOURCE)}'
+    env['_DVERFLAGS'] = '${_concat(DVERPREFIX, DVERSIONS, DVERSUFFIX, __env__)}'
+    env['_DDEBUGFLAGS'] = '${_concat(DDEBUGPREFIX, DDEBUG, DDEBUGSUFFIX, __env__)}'
+    env['_DFLAGS'] = '${_concat(DFLAGPREFIX, DFLAGS, DFLAGSUFFIX, __env__)}'
 
     env['SHDC'] = '$DC'
     env['SHDCOM'] = '$SHDC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -fPIC -c -o $TARGET $SOURCES'
@@ -95,14 +95,14 @@ def generate(env):
     env['DLINKFLAGS'] = SCons.Util.CLVar('')
     env['DLINKCOM'] = '$DLINK -o $TARGET $DLINKFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
 
-    env['SHDLINK'] = '$DC'
-    env['SHDLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared')
-    env['SHDLINKCOM'] = '$DLINK -o $TARGET $DLINKFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
+    env['DSHLINK'] = '$DC'
+    env['DSHLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared')
+    env['SHDLINKCOM'] = '$DLINK -o $TARGET $DSHLINKFLAGS $__DSHLIBVERSIONFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
 
     env['DLIB'] = 'lib' if env['PLATFORM'] == 'win32' else 'ar cr'
     env['DLIBCOM'] = '$DLIB $_DLIBFLAGS {0}$TARGET $SOURCES $_DLINKLIBFLAGS'.format('-c ' if env['PLATFORM'] == 'win32' else '')
 
-    env['_DLIBFLAGS'] = '$( ${_concat(DLIBFLAGPREFIX, DLIBFLAGS, DLIBFLAGSUFFIX, __env__)} $)'
+    env['_DLIBFLAGS'] = '${_concat(DLIBFLAGPREFIX, DLIBFLAGS, DLIBFLAGSUFFIX, __env__)}'
 
     env['DLIBFLAGPREFIX'] = '-'
     env['DLIBFLAGSUFFIX'] = ''
@@ -114,6 +114,17 @@ def generate(env):
     env['RPATHPREFIX'] = '-Wl,-rpath='
     env['RPATHSUFFIX'] = ''
     env['_RPATH'] = '${_concat(RPATHPREFIX, RPATH, RPATHSUFFIX, __env__)}'
+
+    # Support for versioned libraries
+    env['_DSHLIBVERSIONFLAGS'] = '$DSHLIBVERSIONFLAGS -Wl,-soname=$_DSHLIBSONAME'
+    env['_DSHLIBSONAME'] = '${DShLibSonameGenerator(__env__,TARGET)}'
+    # NOTE: this is a quick hack, the soname will only work if there is
+    # c/c++ linker loaded which provides callback for the ShLibSonameGenerator
+    env['DShLibSonameGenerator'] = SCons.Tool.ShLibSonameGenerator
+    # NOTE: this is only for further reference, currently $DSHLIBVERSION does
+    # not work, the user must use $SHLIBVERSION
+    env['DSHLIBVERSION'] = '$SHLIBVERSION'
+    env['DSHLIBVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS'
 
     SCons.Tool.createStaticLibBuilder(env)
 

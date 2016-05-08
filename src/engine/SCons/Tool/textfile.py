@@ -40,8 +40,8 @@ Textfile/Substfile builder for SCons.
     expanded (its keys are not expanded).  If a value of SUBST_DICT is
     a python callable function, it is called and the result is expanded
     as the value.  Values are substituted in a "random" order; if any
-    substitution could be further expanded by another subsitition, it
-    is unpredictible whether the expansion will occur.
+    substitution could be further expanded by another substitution, it
+    is unpredictable whether the expansion will occur.
 """
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"

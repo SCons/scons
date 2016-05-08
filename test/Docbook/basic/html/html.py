@@ -32,6 +32,7 @@ test = TestSCons.TestSCons()
 
 try:
     import libxml2
+    import libxslt
 except:
     try:
         import lxml

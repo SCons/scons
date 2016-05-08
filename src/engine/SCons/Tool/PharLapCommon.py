@@ -85,28 +85,6 @@ def getPharLapVersion():
     # Default return for Phar Lap 9.1
     return 910
 
-def addPathIfNotExists(env_dict, key, path, sep=os.pathsep):
-    """This function will take 'key' out of the dictionary
-    'env_dict', then add the path 'path' to that key if it is not
-    already there.  This treats the value of env_dict[key] as if it
-    has a similar format to the PATH variable...a list of paths
-    separated by tokens.  The 'path' will get added to the list if it
-    is not already there."""
-    try:
-        is_list = 1
-        paths = env_dict[key]
-        if not SCons.Util.is_List(env_dict[key]):
-            paths = paths.split(sep)
-            is_list = 0
-        if os.path.normcase(path) not in list(map(os.path.normcase, paths)):
-            paths = [ path ] + paths
-        if is_list:
-            env_dict[key] = paths
-        else:
-            env_dict[key] = sep.join(paths)
-    except KeyError:
-        env_dict[key] = path
-
 def addPharLapPaths(env):
     """This function adds the path to the Phar Lap binaries, includes,
     and libraries, if they are not already there."""
@@ -117,14 +95,14 @@ def addPharLapPaths(env):
     except KeyError:
         env_dict = {}
         env['ENV'] = env_dict
-    addPathIfNotExists(env_dict, 'PATH',
-                       os.path.join(ph_path, 'bin'))
-    addPathIfNotExists(env_dict, 'INCLUDE',
-                       os.path.join(ph_path, 'include'))
-    addPathIfNotExists(env_dict, 'LIB',
-                       os.path.join(ph_path, 'lib'))
-    addPathIfNotExists(env_dict, 'LIB',
-                       os.path.join(ph_path, os.path.normpath('lib/vclib')))
+    SCons.Util.AddPathIfNotExists(env_dict, 'PATH',
+                                  os.path.join(ph_path, 'bin'))
+    SCons.Util.AddPathIfNotExists(env_dict, 'INCLUDE',
+                                  os.path.join(ph_path, 'include'))
+    SCons.Util.AddPathIfNotExists(env_dict, 'LIB',
+                                  os.path.join(ph_path, 'lib'))
+    SCons.Util.AddPathIfNotExists(env_dict, 'LIB',
+                                  os.path.join(ph_path, os.path.normpath('lib/vclib')))
     
     env['PHARLAP_PATH'] = getPharLapPath()
     env['PHARLAP_VERSION'] = str(getPharLapVersion())

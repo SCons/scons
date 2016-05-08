@@ -56,51 +56,51 @@ env = Environment(FORTRANPATH = ['.'],
 env.Append(FORTRANSUFFIXES = ['.x'])
 env.Object(target = 'test1', source = 'test1.f')
 env.InstallAs('test1_f', 'test1.f')
-env.InstallAs('test1_h', 'test1.h')
 env.InstallAs('test1_x', 'test1.x')
+env.InstallAs('test2_f', 'test2.f')
 """ % locals())
 
 test.write('test1.f', """\
       test1.f 1
-      INCLUDE 'test1.h'
+      INCLUDE 'test2.f'
       INCLUDE 'test1.x'
 """)
 
-test.write('test1.h', """\
-      test1.h 1
-      INCLUDE 'foo.h'
+test.write('test2.f', """\
+      test2.f 1
+      INCLUDE 'foo.f'
 """)
 
 test.write('test1.x', """\
       test1.x 1
-      INCLUDE 'foo.h'
+      INCLUDE 'foo.f'
 """)
 
-test.write('foo.h', """\
-      foo.h 1
+test.write('foo.f', """\
+      foo.f 1
 """)
 
 expect = test.wrap_stdout("""\
 %(_python_)s myfc.py test1.o test1.f
 Install file: "test1.f" as "test1_f"
-Install file: "test1.h" as "test1_h"
 Install file: "test1.x" as "test1_x"
+Install file: "test2.f" as "test2_f"
 """ % locals())
 
 test.run(arguments='.', stdout=expect)
 
 test.must_match('test1.o', """\
       test1.f 1
-      test1.h 1
-      foo.h 1
+      test2.f 1
+      foo.f 1
       test1.x 1
-      foo.h 1
+      foo.f 1
 """)
 
 test.up_to_date(arguments='.')
 
-test.write('foo.h', """\
-      foo.h 2
+test.write('foo.f', """\
+      foo.f 2
 """)
 
 expect = test.wrap_stdout("""\
@@ -111,17 +111,17 @@ test.run(arguments='.', stdout=expect)
 
 test.must_match('test1.o', """\
       test1.f 1
-      test1.h 1
-      foo.h 2
+      test2.f 1
+      foo.f 2
       test1.x 1
-      foo.h 2
+      foo.f 2
 """)
 
 test.up_to_date(arguments='.')
 
 test.write('test1.x', """\
       test1.x 2
-      INCLUDE 'foo.h'
+      INCLUDE 'foo.f'
 """)
 
 expect = test.wrap_stdout("""\
@@ -133,32 +133,32 @@ test.run(arguments='.', stdout=expect)
 
 test.must_match('test1.o', """\
       test1.f 1
-      test1.h 1
-      foo.h 2
+      test2.f 1
+      foo.f 2
       test1.x 2
-      foo.h 2
+      foo.f 2
 """)
 
 test.up_to_date(arguments='.')
 
-test.write('test1.h', """\
-      test1.h 2
-      INCLUDE 'foo.h'
+test.write('test2.f', """\
+      test2.f 2
+      INCLUDE 'foo.f'
 """)
 
 expect = test.wrap_stdout("""\
 %(_python_)s myfc.py test1.o test1.f
-Install file: "test1.h" as "test1_h"
+Install file: "test2.f" as "test2_f"
 """ % locals())
 
 test.run(arguments='.', stdout=expect)
 
 test.must_match('test1.o', """\
       test1.f 1
-      test1.h 2
-      foo.h 2
+      test2.f 2
+      foo.f 2
       test1.x 2
-      foo.h 2
+      foo.f 2
 """)
 
 test.up_to_date(arguments='.')

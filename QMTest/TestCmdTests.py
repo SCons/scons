@@ -19,8 +19,6 @@ AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from SCons.compat.six import PY3
-
 __author__ = "Steven Knight <knight at baldmt dot com>"
 __revision__ = "TestCmdTests.py 1.3.D001 2010/06/03 12:58:27 knight"
 
@@ -28,19 +26,13 @@ import os
 import shutil
 import signal
 import stat
-if PY3:
-    from io import StringIO
-else:
-    from StringIO import StringIO
+from StringIO import StringIO
 import sys
 import tempfile
 import time
 import types
 import unittest
-if PY3:
-    from collections import UserList
-else:
-    from UserList import UserList
+from UserList import UserList
 
 
 # Strip the current directory so we get the right TestCmd.py module.

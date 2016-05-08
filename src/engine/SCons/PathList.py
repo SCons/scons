@@ -27,7 +27,7 @@ __doc__ = """SCons.PathList
 
 A module for handling lists of directory paths (the sort of things
 that get set as CPPPATH, LIBPATH, etc.) with as much caching of data and
-efficiency as we can while still keeping the evaluation delayed so that we
+efficiency as we can, while still keeping the evaluation delayed so that we
 Do the Right Thing (almost) regardless of how the variable is specified.
 
 """
@@ -171,11 +171,6 @@ class PathListCache(object):
     cheaply avoid re-parsing both values of CPPPATH by using the
     common value from this cache.
     """
-    if SCons.Memoize.use_memoizer:
-        __metaclass__ = SCons.Memoize.Memoized_Metaclass
-
-    memoizer_counters = []
-
     def __init__(self):
         self._memo = {}
 
@@ -196,8 +191,7 @@ class PathListCache(object):
             pathlist = tuple(SCons.Util.flatten(pathlist))
         return pathlist
 
-    memoizer_counters.append(SCons.Memoize.CountDict('PathList', _PathList_key))
-
+    @SCons.Memoize.CountDictCall(_PathList_key)
     def PathList(self, pathlist):
         """
         Returns the cached _PathList object for the specified pathlist,

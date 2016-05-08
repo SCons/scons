@@ -34,9 +34,9 @@ from TestCmd import PIPE
 # here provides some independent verification that what we packaged
 # conforms to what we expect.
 
-default_version = '2.3.1.alpha.yyyymmdd'
+default_version = '2.5.0'
 
-python_version_unsupported = (2, 3, 0)
+python_version_unsupported = (2, 6, 0)
 python_version_deprecated = (2, 7, 0)
 
 # In the checked-in source, the value of SConsVersion in the following
@@ -201,6 +201,7 @@ class TestSCons(TestCommon):
     """
 
     scons_version = SConsVersion
+    javac_is_gcj = False
 
     def __init__(self, **kw):
         """Initialize an SCons testing object.
@@ -693,7 +694,7 @@ class TestSCons(TestCommon):
         else:
             jni_dirs = ['/System/Library/Frameworks/JavaVM.framework/Versions/%s*/Headers/jni.h'%version]
         jni_dirs.extend(['/usr/lib/jvm/java-*-sun-%s*/include/jni.h'%version,
-                         '/usr/lib/jvm/java-%s*-openjdk/include/jni.h'%version,
+                         '/usr/lib/jvm/java-%s*-openjdk*/include/jni.h'%version,
                          '/usr/java/jdk%s*/include/jni.h'%version])
         dirs = self.paths(jni_dirs)
         if not dirs:
@@ -714,6 +715,9 @@ class TestSCons(TestCommon):
                 home = '/System/Library/Frameworks/JavaVM.framework/Home'
             else:
                 home = '/System/Library/Frameworks/JavaVM.framework/Versions/%s/Home' % version
+                if not os.path.exists(home):
+                    # This works on OSX 10.10
+                    home = '/System/Library/Frameworks/JavaVM.framework/Versions/Current/'
         else:
             jar = self.java_where_jar(version)
             home = os.path.normpath('%s/..'%jar)
@@ -765,8 +769,13 @@ class TestSCons(TestCommon):
             m = re.search(r'javac (\d\.\d)', self.stderr())
             if m:
                 version = m.group(1)
+                self.javac_is_gcj = False
+            elif self.stderr().find('gcj'):
+                version='1.2'
+                self.javac_is_gcj = True
             else:
                 version = None
+                self.javac_is_gcj = False
         return where_javac, version
 
     def java_where_javah(self, version=None):
@@ -789,6 +798,7 @@ class TestSCons(TestCommon):
             self.skip_test("Could not find Java rmic, skipping non-simulated test(s).\n")
         return where_rmic
 
+    
     def java_get_class_files(self, dir):
         result = []
         for dirpath, dirnames, filenames in os.walk(dir):
@@ -926,7 +936,7 @@ if ARGUMENTS.get('variant_dir', 0):
     else:
         builddir = 'build'
     VariantDir(builddir, '.', duplicate=dup)
-    print builddir, dup
+    print(builddir, dup)
     sconscript = Dir(builddir).File('SConscript')
 else:
     sconscript = File('SConscript')
@@ -1139,12 +1149,12 @@ except AttributeError:
 try:
     import distutils.sysconfig
     exec_prefix = distutils.sysconfig.EXEC_PREFIX
-    print distutils.sysconfig.get_python_inc()
-    print os.path.join(exec_prefix, 'libs')
+    print(distutils.sysconfig.get_python_inc())
+    print(os.path.join(exec_prefix, 'libs'))
 except:
-    print os.path.join(sys.prefix, 'include', py_ver)
-    print os.path.join(sys.prefix, 'lib', py_ver, 'config')
-print py_ver
+    print(os.path.join(sys.prefix, 'include', py_ver)
+    print(os.path.join(sys.prefix, 'lib', py_ver, 'config'))
+print(py_ver)
 """)
 
         return [python] + self.stdout().strip().split('\n')

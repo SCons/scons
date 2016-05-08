@@ -22,9 +22,8 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-from __future__ import print_function
 
-from SCons.compat.six import PY2, PY3
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -57,6 +56,14 @@ import sys
 # followed by generic) so we pick up the right version of the build
 # engine modules if they're in either directory.
 
+
+if sys.version_info >= (3,0,0):
+    msg = "sconsign: *** Version %s does not run under Python version %s.\n\
+Python 3 is not yet supported.\n"
+    sys.stderr.write(msg % (__version__, sys.version.split()[0]))
+    sys.exit(1)
+
+
 script_dir = sys.path[0]
 
 if script_dir in sys.path:
@@ -66,6 +73,11 @@ libs = []
 
 if "SCONS_LIB_DIR" in os.environ:
     libs.append(os.environ["SCONS_LIB_DIR"])
+
+# - running from source takes priority (since 2.3.2), excluding SCONS_LIB_DIR settings
+script_path = os.path.abspath(os.path.dirname(__file__))
+source_path = os.path.join(script_path, '..', 'engine')
+libs.append(source_path)
 
 local_version = 'scons-local-' + __version__
 local = 'scons-local'
@@ -172,10 +184,9 @@ sys.path = libs + sys.path
 # END STANDARD SCons SCRIPT HEADER
 ##############################################################################
 
-import SCons.compat   # so pickle will import cPickle instead
+import SCons.compat
 
-if PY2:
-    import whichdb
+import whichdb
 import dbm
 import time
 import pickle
@@ -194,10 +205,7 @@ def my_whichdb(filename):
         pass
     return _orig_whichdb(filename)
 
-if PY3:
-    _orig_whichdb = dbm.whichdb
-else:
-    _orig_whichdb = whichdb.whichdb
+_orig_whichdb = whichdb.whichdb
 dbm.whichdb = my_whichdb
 
 def my_import(mname):
@@ -286,7 +294,7 @@ def field(name, entry, verbose=Verbose):
 def nodeinfo_raw(name, ninfo, prefix=""):
     # This just formats the dictionary, which we would normally use str()
     # to do, except that we want the keys sorted for deterministic output.
-    d = ninfo.__dict__
+    d = ninfo.__getstate__()
     try:
         keys = ninfo.field_list + ['_version_id']
     except AttributeError:
@@ -471,12 +479,22 @@ for o, a in opts:
     elif o in ('-e', '--entry'):
         Print_Entries.append(a)
     elif o in ('-f', '--format'):
+        # Try to map the given DB format to a known module
+        # name, that we can then try to import...
         Module_Map = {'dblite'   : 'SCons.dblite',
                       'sconsign' : None}
         dbm_name = Module_Map.get(a, a)
         if dbm_name:
             try:
-                dbm = my_import(dbm_name)
+                if dbm_name != "SCons.dblite":
+                    dbm = my_import(dbm_name)
+                else:
+                    import SCons.dblite
+                    dbm = SCons.dblite
+                    # Ensure that we don't ignore corrupt DB files,
+                    # this was handled by calling my_import('SCons.dblite')
+                    # again in earlier versions...
+                    SCons.dblite.ignore_corrupt_dbfiles = 0
             except:
                 sys.stderr.write("sconsign: illegal file format `%s'\n" % a)
                 print(helpstr)
@@ -508,7 +526,15 @@ else:
         dbm_name = dbm.whichdb(a)
         if dbm_name:
             Map_Module = {'SCons.dblite' : 'dblite'}
-            dbm = my_import(dbm_name)
+            if dbm_name != "SCons.dblite":
+                dbm = my_import(dbm_name)
+            else:
+                import SCons.dblite
+                dbm = SCons.dblite
+                # Ensure that we don't ignore corrupt DB files,
+                # this was handled by calling my_import('SCons.dblite')
+                # again in earlier versions...
+                SCons.dblite.ignore_corrupt_dbfiles = 0
             Do_SConsignDB(Map_Module.get(dbm_name, dbm_name), dbm)(a)
         else:
             Do_SConsignDir(a)

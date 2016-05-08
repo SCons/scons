@@ -97,7 +97,7 @@ def generate(env):
     env['_JARMANIFEST'] = jarManifest
     env['_JARSOURCES'] = jarSources
     env['_JARCOM']    = '$JAR $_JARFLAGS $TARGET $_JARMANIFEST $_JARSOURCES'
-    env['JARCOM']     = "${TEMPFILE('$_JARCOM')}"
+    env['JARCOM']     = "${TEMPFILE('$_JARCOM','$JARCOMSTR')}"
     env['JARSUFFIX']  = '.jar'
 
 def exists(env):

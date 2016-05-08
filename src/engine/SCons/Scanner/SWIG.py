@@ -1,3 +1,9 @@
+"""SCons.Scanner.SWIG
+
+This module implements the dependency scanner for SWIG code. 
+
+"""
+
 #
 # __COPYRIGHT__
 #
@@ -21,53 +27,16 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__doc__ = """
-hashlib backwards-compatibility module for older (pre-2.5) Python versions
-
-This does not not NOT (repeat, *NOT*) provide complete hashlib
-functionality.  It only wraps the portions of MD5 functionality used
-by SCons, in an interface that looks like hashlib (or enough for our
-purposes, anyway).  In fact, this module will raise an ImportError if
-the underlying md5 module isn't available.
-"""
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import md5
-from string import hexdigits
+import SCons.Scanner
 
-class md5obj(object):
+SWIGSuffixes = [ '.i' ]
 
-    md5_module = md5
-
-    def __init__(self, name, string=''):
-        if not name in ('MD5', 'md5'):
-            raise ValueError("unsupported hash type")
-        self.name = 'md5'
-        self.m = self.md5_module.md5()
-
-    def __repr__(self):
-        return '<%s HASH object @ %#x>' % (self.name, id(self))
-
-    def copy(self):
-        import copy
-        result = copy.copy(self)
-        result.m = self.m.copy()
-        return result
-
-    def digest(self):
-        return self.m.digest()
-
-    def update(self, arg):
-        return self.m.update(arg)
-
-    def hexdigest(self):
-        return self.m.hexdigest()
-
-new = md5obj
-
-def md5(string=''):
-    return md5obj('md5', string)
+def SWIGScanner():
+    expr = '^[ \t]*%[ \t]*(?:include|import|extern)[ \t]*(<|"?)([^>\s"]+)(?:>|"?)'
+    scanner = SCons.Scanner.ClassicCPP("SWIGScanner", ".i", "SWIGPATH", expr)
+    return scanner
 
 # Local Variables:
 # tab-width:4

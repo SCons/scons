@@ -169,10 +169,18 @@ test.write(['src', 'file6.in'], "file6.in 1\n")
 test.write(['src', 'subdir', 'file7.in'], "subdir/file7.in 1\n")
 
 
-args = '--debug=explain .'
+args = '--debug=explain ..'
 
 
 expect = test.wrap_stdout("""\
+scons: building `%(inc_aaa)s' because it doesn't exist
+Install file: "aaa" as "%(inc_aaa)s"
+scons: building `%(inc_bbb_k)s' because it doesn't exist
+Install file: "bbb.k" as "%(inc_bbb_k)s"
+scons: building `%(inc_ddd)s' because it doesn't exist
+Install file: "ddd" as "%(inc_ddd)s"
+scons: building `%(inc_eee)s' because it doesn't exist
+Install file: "eee.in" as "%(inc_eee)s"
 scons: building `file1' because it doesn't exist
 %(_python_)s %(cat_py)s file1 file1.in
 scons: building `file2' because it doesn't exist
@@ -181,14 +189,6 @@ scons: building `file3' because it doesn't exist
 %(_python_)s %(cat_py)s file3 xxx yyy zzz
 scons: building `file4' because it doesn't exist
 %(_python_)s %(cat_py)s file4 - file4.in
-scons: building `%(inc_aaa)s' because it doesn't exist
-Install file: "aaa" as "%(inc_aaa)s"
-scons: building `%(inc_ddd)s' because it doesn't exist
-Install file: "ddd" as "%(inc_ddd)s"
-scons: building `%(inc_eee)s' because it doesn't exist
-Install file: "eee.in" as "%(inc_eee)s"
-scons: building `%(inc_bbb_k)s' because it doesn't exist
-Install file: "bbb.k" as "%(inc_bbb_k)s"
 scons: building `file5' because it doesn't exist
 %(_python_)s %(cat_py)s file5 file5.k
 scons: building `file6' because it doesn't exist
@@ -236,6 +236,8 @@ test_value = '"second"'
 WriteInitialTest( locals() )
 
 expect = test.wrap_stdout("""\
+scons: rebuilding `%(inc_bbb_k)s' because `bbb.k' changed
+Install file: "bbb.k" as "%(inc_bbb_k)s"
 scons: rebuilding `file1' because `file1.in' changed
 %(_python_)s %(cat_py)s file1 file1.in
 scons: rebuilding `file2' because `yyy' changed
@@ -244,11 +246,6 @@ scons: rebuilding `file3' because:
            `yyy' changed
            `zzz' changed
 %(_python_)s %(cat_py)s file3 xxx yyy zzz
-scons: rebuilding `%(inc_bbb_k)s' because:
-           `%(inc_ddd)s' is no longer a dependency
-           `%(inc_eee)s' is no longer a dependency
-           `bbb.k' changed
-Install file: "bbb.k" as "%(inc_bbb_k)s"
 scons: rebuilding `file5' because `%(inc_bbb_k)s' changed
 %(_python_)s %(cat_py)s file5 file5.k
 scons: rebuilding `file6' because AlwaysBuild() is specified

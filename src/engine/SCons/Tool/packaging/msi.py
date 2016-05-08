@@ -70,7 +70,7 @@ def convert_to_id(s, id_set):
     try:
         return id_set[id][s]
     except KeyError:
-        # no we did not so initialize with the id
+        # no we did not, so initialize with the id
         if id not in id_set: id_set[id] = { s : id }
         # there is a collision, generate an id which is unique by appending
         # the collision number
@@ -79,7 +79,7 @@ def convert_to_id(s, id_set):
         return id_set[id][s]
 
 def is_dos_short_file_name(file):
-    """ examine if the given file is in the 8.3 form.
+    """ Examine if the given file is in the 8.3 form.
     """
     fname, ext = os.path.splitext(file)
     proper_ext = len(ext) == 0 or (2 <= len(ext) <= 4) # the ext contains the dot
@@ -88,7 +88,7 @@ def is_dos_short_file_name(file):
     return proper_ext and proper_fname
 
 def gen_dos_short_file_name(file, filename_set):
-    """ see http://support.microsoft.com/default.aspx?scid=kb;en-us;Q142982
+    """ See http://support.microsoft.com/default.aspx?scid=kb;en-us;Q142982
 
     These are no complete 8.3 dos short names. The ~ char is missing and 
     replaced with one character from the filename. WiX warns about such
@@ -186,10 +186,10 @@ def string_wxsfile(target, source, env):
     return "building WiX file %s"%( target[0].path )
 
 def build_wxsfile(target, source, env):
-    """ compiles a .wxs file from the keywords given in env['msi_spec'] and
+    """ Compiles a .wxs file from the keywords given in env['msi_spec'] and
         by analyzing the tree of source nodes and their tags.
     """
-    file = open(target[0].abspath, 'w')
+    file = open(target[0].get_abspath(), 'w')
 
     try:
         # Create a document with the Wix root tag
@@ -268,7 +268,7 @@ def create_default_directory_layout(root, NAME, VERSION, VENDOR, filename_set):
 # mandatory and optional file tags
 #
 def build_wxsfile_file_section(root, files, NAME, VERSION, VENDOR, filename_set, id_set):
-    """ builds the Component sections of the wxs file with their included files.
+    """ Builds the Component sections of the wxs file with their included files.
 
     Files need to be specified in 8.3 format and in the long name format, long
     filenames will be converted automatically.
@@ -280,7 +280,7 @@ def build_wxsfile_file_section(root, files, NAME, VERSION, VENDOR, filename_set,
     factory    = Document()
 
     def get_directory( node, dir ):
-        """ returns the node under the given node representing the directory.
+        """ Returns the node under the given node representing the directory.
 
         Returns the component node if dir is None or empty.
         """
@@ -415,7 +415,7 @@ def build_wxsfile_features_section(root, files, NAME, VERSION, SUMMARY, id_set):
     root.getElementsByTagName('Product')[0].childNodes.append(Feature)
 
 def build_wxsfile_default_gui(root):
-    """ this function adds a default GUI to the wxs file
+    """ This function adds a default GUI to the wxs file
     """
     factory = Document()
     Product = root.getElementsByTagName('Product')[0]
@@ -429,7 +429,7 @@ def build_wxsfile_default_gui(root):
     Product.childNodes.append(UIRef)
 
 def build_license_file(directory, spec):
-    """ creates a License.rtf file with the content of "X_MSI_LICENSE_TEXT"
+    """ Creates a License.rtf file with the content of "X_MSI_LICENSE_TEXT"
     in the given directory
     """
     name, text = '', ''

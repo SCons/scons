@@ -63,8 +63,8 @@ def CheckCustom(test):
     retLinkFAIL                 = test.TryLink( '%(linkFAIL)s', '.c' )
     (retRunOK, outputRunOK)     = test.TryRun( '%(runOK)s', '.c' )
     (retRunFAIL, outputRunFAIL) = test.TryRun( '%(runFAIL)s', '.c' )
-    (retActOK, outputActOK) = test.TryAction( '%(_python_)s pyAct.py 0 > $TARGET' )
-    (retActFAIL, outputActFAIL) = test.TryAction( '%(_python_)s pyAct.py 1 > $TARGET' )
+    (retActOK, outputActOK) = test.TryAction( r'%(_python_)s pyAct.py 0 > $TARGET' )
+    (retActFAIL, outputActFAIL) = test.TryAction( r'%(_python_)s pyAct.py 1 > $TARGET' )
     resOK = retCompileOK and retLinkOK and retRunOK and outputRunOK=="Hello"
     resOK = resOK and retActOK and int(outputActOK)==0
     resFAIL = retCompileFAIL or retLinkFAIL or retRunFAIL or outputRunFAIL!=""
@@ -180,7 +180,7 @@ scons: Configure: Display of random string ...
 scons: Configure: \(cached\) a random string
 
 scons: Configure: Display of empty string ...
-scons: Configure: \(cached\).
+scons: Configure: \(cached\) *
 
 scons: Configure: Display of dictionary ...
 scons: Configure: \(cached\) yes

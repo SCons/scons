@@ -70,7 +70,7 @@ class Jobs(object):
 
     def __init__(self, num, taskmaster):
         """
-        create 'num' jobs using the given taskmaster.
+        Create 'num' jobs using the given taskmaster.
 
         If 'num' is 1 or less, then a serial job will be used,
         otherwise a parallel job with 'num' worker threads will
@@ -126,10 +126,10 @@ class Jobs(object):
           c) SIGHUP: Controlling shell exiting
 
         We handle all of these cases by stopping the taskmaster. It
-        turns out that it very difficult to stop the build process
+        turns out that it's very difficult to stop the build process
         by throwing asynchronously an exception such as
         KeyboardInterrupt. For example, the python Condition
-        variables (threading.Condition) and queue's do not seem to
+        variables (threading.Condition) and queues do not seem to be
         asynchronous-exception-safe. It would require adding a whole
         bunch of try/finally block and except KeyboardInterrupt all
         over the place.
@@ -177,7 +177,7 @@ class Serial(object):
         The taskmaster's next_task() method should return the next task
         that needs to be executed, or None if there are no more tasks. The
         taskmaster's executed() method will be called for each task when it
-        is successfully executed or failed() will be called if it failed to
+        is successfully executed, or failed() will be called if it failed to
         execute (e.g. execute() raised an exception)."""
         
         self.taskmaster = taskmaster
@@ -351,7 +351,7 @@ else:
             The taskmaster's next_task() method should return the next
             task that needs to be executed, or None if there are no more
             tasks. The taskmaster's executed() method will be called
-            for each task when it is successfully executed or failed()
+            for each task when it is successfully executed, or failed()
             will be called if the task failed to execute (i.e. execute()
             raised an exception).
 

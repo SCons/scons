@@ -121,6 +121,8 @@ class Environment(object):
         self._dict.update(kw)
     def __getitem__(self, key):
         return self._dict[key]
+    def get(self, key, default = None):
+        return self._dict.get(key, default)
     def Dictionary(self, *args):
         return {}
     def Override(self, overrides):
@@ -132,7 +134,12 @@ class Environment(object):
     def get_factory(self, factory):
         return factory or MyNode
     def get_scanner(self, scanner_key):
-        return self._dict['SCANNERS'][0]
+        try:
+            return self._dict['SCANNERS'][0]
+        except:
+            pass
+
+        return []
 
 class Builder(object):
     def __init__(self, env=None, is_explicit=1):
@@ -184,8 +191,8 @@ class Scanner(object):
     called = None
     def __call__(self, node):
         self.called = 1
-        return node.found_includes
-    def path(self, env, dir, target=None, source=None):
+        return node.GetTag('found_includes')
+    def path(self, env, dir=None, target=None, source=None, kw={}):
         return ()
     def select(self, node):
         return self
@@ -200,7 +207,7 @@ class MyNode(SCons.Node.Node):
     def __init__(self, name):
         SCons.Node.Node.__init__(self)
         self.name = name
-        self.found_includes = []
+        self.Tag('found_includes', [])
     def __str__(self):
         return self.name
     def get_found_includes(self, env, scanner, target):
@@ -224,11 +231,18 @@ class Calculator(object):
 
 
 class NodeInfoBaseTestCase(unittest.TestCase):
+    # The abstract class NodeInfoBase has not enough default slots to perform
+    # the merge and format test (arbitrary attributes do not work). Do it with a
+    # derived class that does provide the slots.
 
     def test_merge(self):
         """Test merging NodeInfoBase attributes"""
-        ni1 = SCons.Node.NodeInfoBase(SCons.Node.Node())
-        ni2 = SCons.Node.NodeInfoBase(SCons.Node.Node())
+
+        class TestNodeInfo(SCons.Node.NodeInfoBase):
+            __slots__ = ('a1', 'a2', 'a3')
+
+        ni1 = TestNodeInfo()
+        ni2 = TestNodeInfo()
 
         ni1.a1 = 1
         ni1.a2 = 2
@@ -237,27 +251,32 @@ class NodeInfoBaseTestCase(unittest.TestCase):
         ni2.a3 = 333
 
         ni1.merge(ni2)
-        expect = {'a1':1, 'a2':222, 'a3':333, '_version_id':1}
-        assert ni1.__dict__ == expect, ni1.__dict__
+        assert ni1.a1 == 1, ni1.a1
+        assert ni1.a2 == 222, ni1.a2
+        assert ni1.a3 == 333, ni1.a3
 
     def test_update(self):
         """Test the update() method"""
-        ni = SCons.Node.NodeInfoBase(SCons.Node.Node())
+        ni = SCons.Node.NodeInfoBase()
         ni.update(SCons.Node.Node())
 
     def test_format(self):
         """Test the NodeInfoBase.format() method"""
-        ni1 = SCons.Node.NodeInfoBase(SCons.Node.Node())
+
+        class TestNodeInfo(SCons.Node.NodeInfoBase):
+            __slots__ = ('xxx', 'yyy', 'zzz')
+
+        ni1 = TestNodeInfo()
         ni1.xxx = 'x'
         ni1.yyy = 'y'
         ni1.zzz = 'z'
 
         f = ni1.format()
-        assert f == ['1', 'x', 'y', 'z'], f
+        assert f == ['x', 'y', 'z'], f
+ 
+        field_list = ['xxx', 'zzz', 'aaa']
 
-        ni1.field_list = ['xxx', 'zzz', 'aaa']
-
-        f = ni1.format()
+        f = ni1.format(field_list)
         assert f == ['x', 'z', 'None'], f
 
 
@@ -267,26 +286,26 @@ class BuildInfoBaseTestCase(unittest.TestCase):
     def test___init__(self):
         """Test BuildInfoBase initialization"""
         n = SCons.Node.Node()
-        bi = SCons.Node.BuildInfoBase(n)
+        bi = SCons.Node.BuildInfoBase()
         assert bi
 
     def test_merge(self):
         """Test merging BuildInfoBase attributes"""
         n1 = SCons.Node.Node()
-        bi1 = SCons.Node.BuildInfoBase(n1)
+        bi1 = SCons.Node.BuildInfoBase()
         n2 = SCons.Node.Node()
-        bi2 = SCons.Node.BuildInfoBase(n2)
+        bi2 = SCons.Node.BuildInfoBase()
 
-        bi1.a1 = 1
-        bi1.a2 = 2
+        bi1.bsources = 1
+        bi1.bdepends = 2
 
-        bi2.a2 = 222
-        bi2.a3 = 333
+        bi2.bdepends = 222
+        bi2.bact = 333
 
         bi1.merge(bi2)
-        assert bi1.a1 == 1, bi1.a1
-        assert bi1.a2 == 222, bi1.a2
-        assert bi1.a3 == 333, bi1.a3
+        assert bi1.bsources == 1, bi1.bsources
+        assert bi1.bdepends == 222, bi1.bdepends
+        assert bi1.bact == 333, bi1.bact
 
 
 class NodeTestCase(unittest.TestCase):
@@ -339,8 +358,6 @@ class NodeTestCase(unittest.TestCase):
         ggg.path = "ggg"
         fff.sources = ["hhh", "iii"]
         ggg.sources = ["hhh", "iii"]
-        # [Charles C. 1/7/2002] Uhhh, why are there no asserts here?
-        # [SK, 15 May 2003] I dunno, let's add some...
         built_it = None
         fff.build()
         assert built_it
@@ -427,6 +444,7 @@ class NodeTestCase(unittest.TestCase):
     def test_built(self):
         """Test the built() method"""
         class SubNodeInfo(SCons.Node.NodeInfoBase):
+            __slots__ = ('updated',)
             def update(self, node):
                 self.updated = 1
         class SubNode(SCons.Node.Node):
@@ -434,7 +452,7 @@ class NodeTestCase(unittest.TestCase):
                 self.cleared = 1
 
         n = SubNode()
-        n.ninfo = SubNodeInfo(n)
+        n.ninfo = SubNodeInfo()
         n.built()
         assert n.cleared, n.cleared
         assert n.ninfo.updated, n.ninfo.cleared
@@ -568,32 +586,56 @@ class NodeTestCase(unittest.TestCase):
     def test_get_csig(self):
         """Test generic content signature calculation
         """
-        node = SCons.Node.Node()
-        node.get_contents = lambda: 444
-        result = node.get_csig()
-        assert result == '550a141f12de6341fba65b0ad0433500', result
+        
+        class TestNodeInfo(SCons.Node.NodeInfoBase):
+            __slots__ = ('csig',)
+        try:
+            SCons.Node.Node.NodeInfo = TestNodeInfo
+            def my_contents(obj):
+                return 444
+            SCons.Node._get_contents_map[4] = my_contents
+            node = SCons.Node.Node()
+            node._func_get_contents = 4
+            result = node.get_csig()
+            assert result == '550a141f12de6341fba65b0ad0433500', result
+        finally:
+            SCons.Node.Node.NodeInfo = SCons.Node.NodeInfoBase
 
     def test_get_cachedir_csig(self):
         """Test content signature calculation for CacheDir
         """
-        node = SCons.Node.Node()
-        node.get_contents = lambda: 555
-        result = node.get_cachedir_csig()
-        assert result == '15de21c670ae7c3f6f3f1f37029303c9', result
+        class TestNodeInfo(SCons.Node.NodeInfoBase):
+            __slots__ = ('csig',)
+        try:
+            SCons.Node.Node.NodeInfo = TestNodeInfo
+            def my_contents(obj):
+                return 555
+            SCons.Node._get_contents_map[4] = my_contents
+            node = SCons.Node.Node()
+            node._func_get_contents = 4
+            result = node.get_cachedir_csig()
+            assert result == '15de21c670ae7c3f6f3f1f37029303c9', result
+        finally:
+            SCons.Node.Node.NodeInfo = SCons.Node.NodeInfoBase
 
     def test_get_binfo(self):
         """Test fetching/creating a build information structure
         """
+        class TestNodeInfo(SCons.Node.NodeInfoBase):
+            __slots__ = ('csig',)
+        SCons.Node.Node.NodeInfo = TestNodeInfo
         node = SCons.Node.Node()
-
+ 
         binfo = node.get_binfo()
         assert isinstance(binfo, SCons.Node.BuildInfoBase), binfo
 
         node = SCons.Node.Node()
         d = SCons.Node.Node()
-        d.get_ninfo().csig = 777
+        ninfo = d.get_ninfo()
+        assert isinstance(ninfo, SCons.Node.NodeInfoBase), ninfo
         i = SCons.Node.Node()
-        i.get_ninfo().csig = 888
+        ninfo = i.get_ninfo()
+        assert isinstance(ninfo, SCons.Node.NodeInfoBase), ninfo
         node.depends = [d]
         node.implicit = [i]
 
@@ -655,7 +697,7 @@ class NodeTestCase(unittest.TestCase):
         """Test calling the method to store build information
         """
         node = SCons.Node.Node()
-        node.store_info()
+        SCons.Node.store_info_map[node.store_info](node)
 
     def test_get_stored_info(self):
         """Test calling the method to fetch stored build information
@@ -888,37 +930,37 @@ class NodeTestCase(unittest.TestCase):
         s = Scanner()
         d1 = MyNode("d1")
         d2 = MyNode("d2")
-        node.found_includes = [d1, d2]
+        node.Tag('found_includes', [d1, d2])
 
         # Simple return of the found includes
-        deps = node.get_implicit_deps(env, s, target)
+        deps = node.get_implicit_deps(env, s, s.path)
         assert deps == [d1, d2], deps
 
         # By default, our fake scanner recurses
         e = MyNode("eee")
         f = MyNode("fff")
         g = MyNode("ggg")
-        d1.found_includes = [e, f]
-        d2.found_includes = [e, f]
-        f.found_includes = [g]
-        deps = node.get_implicit_deps(env, s, target)
+        d1.Tag('found_includes', [e, f])
+        d2.Tag('found_includes', [e, f])
+        f.Tag('found_includes', [g])
+        deps = node.get_implicit_deps(env, s, s.path)
         assert deps == [d1, d2, e, f, g], list(map(str, deps))
 
         # Recursive scanning eliminates duplicates
-        e.found_includes = [f]
-        deps = node.get_implicit_deps(env, s, target)
+        e.Tag('found_includes', [f])
+        deps = node.get_implicit_deps(env, s, s.path)
         assert deps == [d1, d2, e, f, g], list(map(str, deps))
 
         # Scanner method can select specific nodes to recurse
         def no_fff(nodes):
             return [n for n in nodes if str(n)[0] != 'f']
         s.recurse_nodes = no_fff
-        deps = node.get_implicit_deps(env, s, target)
+        deps = node.get_implicit_deps(env, s, s.path)
         assert deps == [d1, d2, e, f], list(map(str, deps))
 
         # Scanner method can short-circuit recursing entirely
         s.recurse_nodes = lambda nodes: []
-        deps = node.get_implicit_deps(env, s, target)
+        deps = node.get_implicit_deps(env, s, s.path)
         assert deps == [d1, d2], list(map(str, deps))
 
     def test_get_env_scanner(self):
@@ -994,7 +1036,7 @@ class NodeTestCase(unittest.TestCase):
 
         s = Scanner()
         d = MyNode("ddd")
-        node.found_includes = [d]
+        node.Tag('found_includes', [d])
 
         node.builder.target_scanner = s
         assert node.implicit is None
@@ -1207,7 +1249,7 @@ class NodeTestCase(unittest.TestCase):
     def test_Annotate(self):
         """Test using an interface-specific Annotate function."""
         def my_annotate(node, self=self):
-            node.annotation = self.node_string
+            node.Tag('annotation', self.node_string)
 
         save_Annotate = SCons.Node.Annotate
         SCons.Node.Annotate = my_annotate
@@ -1215,11 +1257,13 @@ class NodeTestCase(unittest.TestCase):
         try:
             self.node_string = '#1'
             n = SCons.Node.Node()
-            assert n.annotation == '#1', n.annotation
+            a = n.GetTag('annotation')
+            assert a == '#1', a
 
             self.node_string = '#2'
             n = SCons.Node.Node()
-            assert n.annotation == '#2', n.annotation
+            a = n.GetTag('annotation')
+            assert a == '#2', a
         finally:
             SCons.Node.Annotate = save_Annotate
 
@@ -1230,7 +1274,7 @@ class NodeTestCase(unittest.TestCase):
         n.set_state(3)
         n.binfo = 'xyz'
         n.includes = 'testincludes'
-        n.found_include = {'testkey':'testvalue'}
+        n.Tag('found_includes', {'testkey':'testvalue'})
         n.implicit = 'testimplicit'
 
         x = MyExecutor()

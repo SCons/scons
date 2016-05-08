@@ -26,19 +26,14 @@ from SCons.compat.six import u
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
-try:
-    import io
-    _StringIO = io.StringIO
-except (ImportError, AttributeError):
-    # Pre-2.6 Python has no "io" module.
-    exec('from cStringIO import StringIO')
-else:
-    # TODO(2.6):  In 2.6 and beyond, the io.StringIO.write() method
-    # requires unicode strings.  This subclass can probably be removed
-    # when we drop support for Python 2.6.
-    class StringIO(_StringIO):
-        def write(self, s):
-            _StringIO.write(self, u(s))
+import io
+_StringIO = io.StringIO
+# TODO(2.6):  In 2.6 and beyond, the io.StringIO.write() method
+# requires unicode strings.  This subclass can probably be removed
+# when we drop support for Python 2.6.
+class StringIO(_StringIO):
+    def write(self, s):
+        _StringIO.write(self, unicode(s))
 
 import TestSCons
 

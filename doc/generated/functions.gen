@@ -2426,10 +2426,10 @@ option.
   </varlistentry>
   <varlistentry id="f-Glob">
     <term>
-      <literal>Glob(pattern, [ondisk, source, strings])</literal>
+      <literal>Glob(pattern, [ondisk, source, strings, exclude])</literal>
     </term>
     <term>
-      <literal>env.Glob(pattern, [ondisk, source, strings])</literal>
+      <literal>env.Glob(pattern, [ondisk, source, strings, exclude])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2543,21 +2543,32 @@ directory.)
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
+The
+<varname>exclude</varname>
+argument may be set to a pattern or a list of patterns
+(following the same Unix shell semantics)
+which must be filtered out of returned elements.
+Elements matching a least one pattern of
+this list will be excluded.
+</para>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Examples:
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 Program('foo', Glob('*.c'))
 Zip('/tmp/everything', Glob('.??*') + Glob('*'))
+sources = Glob('*.cpp', exclude=['os_*_specific_*.cpp']) + Glob('os_%s_specific_*.cpp'%currentOS)
 </example_commands>
 </listitem>
   </varlistentry>
   <varlistentry id="f-Help">
     <term>
-      <literal>Help(text)</literal>
+      <literal>Help(text, append=False)</literal>
     </term>
     <term>
-      <literal>env.Help(text)</literal>
+      <literal>env.Help(text, append=False)</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -2565,12 +2576,18 @@ This specifies help text to be printed if the
 <option>-h</option>
 argument is given to
 <filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>.
-If
+If 
 <function xmlns="http://www.scons.org/dbxsd/v1.0">Help</function>
-is called multiple times, the text is appended together in the order
-that
+is called multiple times, the text is appended together in the order that 
 <function xmlns="http://www.scons.org/dbxsd/v1.0">Help</function>
-is called.
+is called. With append set to False, any 
+<function xmlns="http://www.scons.org/dbxsd/v1.0">Help</function>
+text generated with 
+<function xmlns="http://www.scons.org/dbxsd/v1.0">AddOption</function>
+is clobbered. If append is True, the AddOption help is prepended to the help
+string, thus preserving the 
+<option>-h</option>
+message.
 </para>
 </listitem>
   </varlistentry>

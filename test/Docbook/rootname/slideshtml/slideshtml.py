@@ -39,6 +39,7 @@ if not (sys.platform.startswith('linux') and
 
 try:
     import libxml2
+    import libxslt
 except:
     try:
         import lxml

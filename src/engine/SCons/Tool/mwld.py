@@ -56,6 +56,7 @@ def generate(env):
     env['SHLINKFLAGS'] = '$LINKFLAGS'
     env['SHLINKCOM']   = shlib_action
     env['SHLIBEMITTER']= shlib_emitter
+    env['LDMODULEEMITTER']= shlib_emitter
 
 
 def exists(env):

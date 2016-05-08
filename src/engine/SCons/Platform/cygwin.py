@@ -42,8 +42,8 @@ def generate(env):
     env['PROGSUFFIX']  = '.exe'
     env['SHLIBPREFIX'] = ''
     env['SHLIBSUFFIX'] = '.dll'
-    env['LIBPREFIXES'] = [ '$LIBPREFIX', '$SHLIBPREFIX' ]
-    env['LIBSUFFIXES'] = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]
+    env['LIBPREFIXES'] = [ '$LIBPREFIX', '$SHLIBPREFIX', '$IMPLIBPREFIX' ]
+    env['LIBSUFFIXES'] = [ '$LIBSUFFIX', '$SHLIBSUFFIX', '$IMPLIBSUFFIX' ]
     env['TEMPFILE']    = TempFileMunge
     env['TEMPFILEPREFIX'] = '@'
     env['MAXLINELENGTH']  = 2048

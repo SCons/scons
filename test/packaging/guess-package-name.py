@@ -86,7 +86,7 @@ test.run(stderr = None)
 test.must_exist( 'src.tar.gz' )
 
 #
-# TEST: default package name creation with overriden packager.
+# TEST: default package name creation with overridden packager.
 #
 
 test.write('SConstruct', """

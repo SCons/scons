@@ -36,6 +36,9 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
+have_latex = test.where_is('latex')
+if not have_latex:
+    test.skip_test('Could not find latex; skipping test(s).\n')
 
 
 test.write('mytex.py', r"""

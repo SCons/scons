@@ -36,6 +36,8 @@ provided by the TestCommon class:
 
     test.must_contain('file', 'required text\n')
 
+    test.must_contain_all(output, input, ['title', find])
+
     test.must_contain_all_lines(output, lines, ['title', find])
 
     test.must_contain_any_line(output, lines, ['title', find])
@@ -90,6 +92,7 @@ The TestCommon module also provides the following variables
 # PARTICULAR PURPOSE.  THE CODE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS,
 # AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+
 from __future__ import print_function
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
@@ -121,31 +124,6 @@ __all__.extend([ 'TestCommon',
                  'dll_prefix',
                  'dll_suffix',
                ])
-
-try:
-    sorted
-except NameError:
-    # Pre-2.4 Python has no sorted() function.
-    #
-    # The pre-2.4 Python list.sort() method does not support
-    # list.sort(key=) nor list.sort(reverse=) keyword arguments, so
-    # we must implement the functionality of those keyword arguments
-    # by hand instead of passing them to list.sort().
-    def sorted(iterable, cmp=None, key=None, reverse=False):
-        if key is not None:
-            result = [(key(x), x) for x in iterable]
-        else:
-            result = iterable[:]
-        if cmp is None:
-            # Pre-2.3 Python does not support list.sort(None).
-            result.sort()
-        else:
-            result.sort(cmp)
-        if key is not None:
-            result = [t1 for t0,t1 in result]
-        if reverse:
-            result.reverse()
-        return result
 
 # Variables that describe the prefixes and suffixes on this system.
 if sys.platform == 'win32':
@@ -305,6 +283,36 @@ class TestCommon(TestCmd):
             print(self.banner('%s contents ' % file))
             print(file_contents)
             self.fail_test(not contains)
+
+    def must_contain_all(self, output, input, title=None, find=None):
+        """Ensures that the specified output string (first argument)
+        contains all of the specified input as a block (second argument).
+
+        An optional third argument can be used to describe the type
+        of output being searched, and only shows up in failure output.
+
+        An optional fourth argument can be used to supply a different
+        function, of the form "find(line, output), to use when searching
+        for lines in the output.
+        """
+        if find is None:
+            def find(o, i):
+                try:
+                    return o.index(i)
+                except ValueError:
+                    return None
+
+        if is_List(output):
+            output = os.newline.join(output)
+
+        if find(output, input) is None:
+            if title is None:
+                title = 'output'
+            print('Missing expected input from {}:'.format(title))
+            print(input)
+            print(self.banner(title + ' '))
+            print(output)
+            self.fail_test()
 
     def must_contain_all_lines(self, output, lines, title=None, find=None):
         """Ensures that the specified output string (first argument)

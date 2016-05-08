@@ -16,11 +16,7 @@ import os
 import re
 import string
 import sys
-try:
-    from io import StringIO     # usable as of 2.6; takes unicode only
-except ImportError:
-    # No 'io' module or no StringIO in io
-    exec('from cStringIO import StringIO')
+from io import StringIO     # usable as of 2.6; takes unicode only
 
 import SConsDoc
 from SConsDoc import tf as stf

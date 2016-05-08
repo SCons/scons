@@ -1,3 +1,15 @@
+"""engine.SCons.Tool.f08
+
+Tool-specific initialization for the generic Posix f08 Fortran compiler.
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+
+"""
+
+from __future__ import absolute_import
+
 #
 # __COPYRIGHT__
 #
@@ -21,22 +33,30 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__doc__ = """
-io compatibility module for older (pre-2.6) Python versions
-
-This does not not NOT (repeat, *NOT*) provide complete io
-functionality.  It only wraps the portions of io functionality used
-by SCons, in an interface that looks enough like io for our purposes.
-"""
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-# Use the "imp" module to protect the imports below from fixers.
-import imp
+import SCons.Defaults
+import SCons.Tool
+import SCons.Util
+from . import fortran
+from SCons.Tool.FortranCommon import add_all_to_env, add_f08_to_env
 
-_cStringIO = imp.load_module('cStringIO', *imp.find_module('cStringIO'))
-StringIO = _cStringIO.StringIO
-del _cStringIO
+compilers = ['f08']
+
+def generate(env):
+    add_all_to_env(env)
+    add_f08_to_env(env)
+
+    fcomp = env.Detect(compilers) or 'f08'
+    env['F08']  = fcomp
+    env['SHF08']  = fcomp
+
+    env['FORTRAN']  = fcomp
+    env['SHFORTRAN']  = fcomp
+
+
+def exists(env):
+    return env.Detect(compilers)
 
 # Local Variables:
 # tab-width:4

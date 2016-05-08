@@ -365,9 +365,6 @@ class SubstitutionEnvironment(object):
     class actually becomes useful.)
     """
 
-    if SCons.Memoize.use_memoizer:
-        __metaclass__ = SCons.Memoize.Memoized_Metaclass
-
     def __init__(self, **kw):
         """Initialization of an underlying SubstitutionEnvironment class.
         """
@@ -615,7 +612,7 @@ class SubstitutionEnvironment(object):
 
     def Override(self, overrides):
         """
-        Produce a modified environment whose variables are overriden by
+        Produce a modified environment whose variables are overridden by
         the overrides dictionaries.  "overrides" is a dictionary that
         will override the variables of this environment.
 
@@ -719,6 +716,9 @@ class SubstitutionEnvironment(object):
                        t = ('-isysroot', arg)
                        dict['CCFLAGS'].append(t)
                        dict['LINKFLAGS'].append(t)
+                   elif append_next_arg_to == '-isystem':
+                       t = ('-isystem', arg)
+                       dict['CCFLAGS'].append(t)
                    elif append_next_arg_to == '-arch':
                        t = ('-arch', arg)
                        dict['CCFLAGS'].append(t)
@@ -791,7 +791,7 @@ class SubstitutionEnvironment(object):
                 elif arg[0] == '+':
                     dict['CCFLAGS'].append(arg)
                     dict['LINKFLAGS'].append(arg)
-                elif arg in ['-include', '-isysroot', '-arch']:
+                elif arg in ['-include', '-isysroot', '-isystem', '-arch']:
                     append_next_arg_to = arg
                 else:
                     dict['CCFLAGS'].append(arg)
@@ -857,25 +857,6 @@ class SubstitutionEnvironment(object):
             self[key] = t
         return self
 
-#     def MergeShellPaths(self, args, prepend=1):
-#         """
-#         Merge the dict in args into the shell environment in env['ENV'].
-#         Shell path elements are appended or prepended according to prepend.
-
-#         Uses Pre/AppendENVPath, so it always appends or prepends uniquely.
-
-#         Example: env.MergeShellPaths({'LIBPATH': '/usr/local/lib'})
-#         prepends /usr/local/lib to env['ENV']['LIBPATH'].
-#         """
-
-#         for pathname, pathval in args.items():
-#             if not pathval:
-#                 continue
-#             if prepend:
-#                 self.PrependENVPath(pathname, pathval)
-#             else:
-#                 self.AppendENVPath(pathname, pathval)
-
 
 def default_decide_source(dependency, target, prev_ni):
     f = SCons.Defaults.DefaultEnvironment().decide_source
@@ -898,8 +879,6 @@ class Base(SubstitutionEnvironment):
     is created are construction variables used to initialize the
     Environment.
     """
-
-    memoizer_counters = []
 
     #######################################################################
     # This is THE class for interacting with the SCons build engine,
@@ -1068,8 +1047,7 @@ class Base(SubstitutionEnvironment):
             factory = getattr(self.fs, name)
         return factory
 
-    memoizer_counters.append(SCons.Memoize.CountValue('_gsm'))
-
+    @SCons.Memoize.CountMethodCall
     def _gsm(self):
         try:
             return self._memo['_gsm']
@@ -1525,8 +1503,8 @@ class Base(SubstitutionEnvironment):
 
     def Dump(self, key = None):
         """
-        Using the standard Python pretty printer, dump the contents of the
-        scons build environment to stdout.
+        Using the standard Python pretty printer, return the contents of the
+        scons build environment as a string.
 
         If the key passed in is anything other than None, then that will
         be used as an index into the build environment dictionary and
@@ -1799,7 +1777,7 @@ class Base(SubstitutionEnvironment):
         self.Replace(**kw)
 
     def _find_toolpath_dir(self, tp):
-        return self.fs.Dir(self.subst(tp)).srcnode().abspath
+        return self.fs.Dir(self.subst(tp)).srcnode().get_abspath()
 
     def Tool(self, tool, toolpath=None, **kw):
         if SCons.Util.is_String(tool):
@@ -2077,8 +2055,8 @@ class Base(SubstitutionEnvironment):
         else:
             return result[0]
 
-    def Glob(self, pattern, ondisk=True, source=False, strings=False):
-        return self.fs.Glob(self.subst(pattern), ondisk, source, strings)
+    def Glob(self, pattern, ondisk=True, source=False, strings=False, exclude=None):
+        return self.fs.Glob(self.subst(pattern), ondisk, source, strings, exclude)
 
     def Ignore(self, target, dependency):
         """Ignore a dependency."""

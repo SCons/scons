@@ -43,10 +43,10 @@ def testForTool(tool):
     test = TestSCons.TestSCons()
 
     if not isExecutableOfToolAvailable(test, tool) :
-        test.skip_test("Required executable for tool '{}' not found, skipping test.\n".format(tool))
+        test.skip_test("Required executable for tool '{0}' not found, skipping test.\n".format(tool))
 
     test.dir_fixture('ArLibIssue')
-    test.write('SConstruct', open('SConstruct_template', 'r').read().format('tools=["{}", "ar"]'.format(tool)))
+    test.write('SConstruct', open('SConstruct_template', 'r').read().format('tools=["{0}", "ar"]'.format(tool)))
 
     test.run()
 

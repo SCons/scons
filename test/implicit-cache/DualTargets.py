@@ -37,14 +37,14 @@ test.write('SConstruct', """\
 import os.path
 
 def emitter(target, source, env):
-    tgt0 = target[0].abspath
+    tgt0 = target[0].get_abspath()
     base,ext = os.path.splitext(tgt0)
     target.append(base + '.b')
     return(target, source)
 
 
 def source_scan(node, env, path):
-    path = node.abspath
+    path = node.get_abspath()
     base,ext = os.path.splitext(path)
     return [base + '.lib']
 

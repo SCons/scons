@@ -41,10 +41,10 @@ marker_2 = test.workpath('markers', '2')
 
 test.write(['work', 'SConstruct'], """\
 # build the plugin binaries
-basepath = str(Dir('#').abspath)
+basepath = str(Dir('#').get_abspath())
 env = Environment()
 env.Append(BASEPATH=basepath)
-env.Append(ENV = {'BASEPATH' : str(Dir('#').abspath)})
+env.Append(ENV = {'BASEPATH' : str(Dir('#').get_abspath())})
 SConscript( 'sub1/SConscript',
             variant_dir = 'build', 
             duplicate=False, 

@@ -1,5 +1,8 @@
 env = Environment({})
 
+import os
+env['ENV']['HOME'] = os.environ['HOME']  # Hack for gdmd
+
 env.Library('mylib', 'mylib.d')
 
 prog_env = env.Clone(

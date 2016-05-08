@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+
 from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
@@ -40,7 +41,7 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 import SCons.Script
-SCons.Script.Main.test_load_all_site_scons_dirs(Dir('.').path)
+SCons.Script.Main.test_load_all_site_scons_dirs(Dir('.').get_internal_path())
 """)
 
 test.run(arguments = '-Q .')

@@ -50,7 +50,7 @@
   <listitem>
     <para>
 
-      &SCons; will be written to Python version 2.4 (to ensure
+      &SCons; will be written to Python version 2.7 (to ensure
       usability by a wide install base).
 
     </para>
@@ -296,7 +296,7 @@
     </para>
 
     <para>
-      
+
       In practice, simple tests only
       need to initialize a test object, use the object to write some
       input files, run &SCons;, and then check whatever criteria

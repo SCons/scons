@@ -43,7 +43,7 @@ _lib = TestSCons._lib
 _obj = TestSCons._obj
 dll_ = TestSCons.dll_
 _dll = TestSCons._dll
-    
+
 if os.name == 'posix':
     os.environ['LD_LIBRARY_PATH'] = '.'
 if sys.platform.find('irix') > -1:
@@ -71,7 +71,7 @@ if %(_E)s:
   exists = [N.exists() for N in Nodes]
   real2 = [os.path.exists(str(N)) for N in Nodes]
   for N,D,R,E,F in zip(Nodes, derived, real1, exists, real2):
-    print '%%s: %%s %%s %%s %%s'%%(N,D,R,E,F)
+    print('%%s: %%s %%s %%s %%s'%%(N,D,R,E,F))
 foo.SharedLibrary(target = 'foo', source = 'foo%(_obj)s')
 bar.SharedLibrary(target = 'bar', source = 'bar%(_obj)s')
 

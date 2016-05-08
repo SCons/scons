@@ -104,8 +104,8 @@ get_stat(["test.stat"], ["test.big"])
 test2.write('SConstruct', """
 import os
 def get_stat(target, source, env):
-    stat = os.stat(source[0].abspath)
-    dest = open(target[0].abspath,'w')
+    stat = os.stat(source[0].get_abspath())
+    dest = open(target[0].get_abspath(),'w')
     dest.write(str(stat))
     dest.close()
 env = Environment()

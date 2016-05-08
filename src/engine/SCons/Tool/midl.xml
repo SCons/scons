@@ -44,7 +44,7 @@ Sets construction variables for the Microsoft IDL compiler.
 <para>
 Builds a Windows type library (<filename>.tlb</filename>)
 file from an input IDL file (<filename>.idl</filename>).
-In addition, it will build the associated inteface stub and
+In addition, it will build the associated interface stub and
 proxy source files,
 naming them according to the base name of the <filename>.idl</filename> file.
 For example,

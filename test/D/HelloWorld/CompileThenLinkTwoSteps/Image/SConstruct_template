@@ -3,7 +3,6 @@
 import os
 
 environment = Environment(
-    ENV=os.environ,
     tools=['link', '{}'])
 
 objects = environment.Object('helloWorld.d')

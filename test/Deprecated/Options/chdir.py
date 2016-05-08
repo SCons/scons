@@ -46,7 +46,7 @@ SConscript_contents = """\
 Import("opts")
 env = Environment()
 opts.Update(env)
-print "VARIABLE =", repr(env['VARIABLE'])
+print("VARIABLE =", repr(env['VARIABLE']))
 """
 
 test.write(['bin', 'opts.cfg'], """\

@@ -20,6 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+
 from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
@@ -800,7 +801,9 @@ sys.exit(0)
             "-pthread " + \
             "-fopenmp " + \
             "-mno-cygwin -mwindows " + \
-            "-arch i386 -isysroot /tmp +DD64 " + \
+            "-arch i386 -isysroot /tmp " + \
+            "-isystem /usr/include/foo " + \
+            "+DD64 " + \
             "-DFOO -DBAR=value -D BAZ "
 
         d = env.ParseFlags(s)
@@ -810,6 +813,7 @@ sys.exit(0)
         assert d['CCFLAGS'] == ['-X', '-Wa,-as',
                                   '-pthread', '-fopenmp', '-mno-cygwin',
                                   ('-arch', 'i386'), ('-isysroot', '/tmp'),
+                                  ('-isystem', '/usr/include/foo'),
                                   '+DD64'], repr(d['CCFLAGS'])
         assert d['CXXFLAGS'] == ['-std=c++0x'], repr(d['CXXFLAGS'])
         assert d['CPPDEFINES'] == ['FOO', ['BAR', 'value'], 'BAZ'], d['CPPDEFINES']
@@ -853,31 +857,6 @@ sys.exit(0)
         env.MergeFlags({'A':['aaa'], 'B':['bbb']})
         assert env['A'] == ['aaa'], env['A']
         assert env['B'] == ['bbb'], env['B']
-
-#     def test_MergeShellPaths(self):
-#         """Test the MergeShellPaths() method
-#         """
-#         env = Environment()
-#         env.MergeShellPaths({})
-#         assert not env['ENV'].has_key('INCLUDE'), env['INCLUDE']
-#         env.MergeShellPaths({'INCLUDE': r'c:\Program Files\Stuff'})
-#         assert env['ENV']['INCLUDE'] == r'c:\Program Files\Stuff', env['ENV']['INCLUDE']
-#         env.MergeShellPaths({'INCLUDE': r'c:\Program Files\Stuff'})
-#         assert env['ENV']['INCLUDE'] == r'c:\Program Files\Stuff', env['ENV']['INCLUDE']
-#         env.MergeShellPaths({'INCLUDE': r'xyz'})
-#         assert env['ENV']['INCLUDE'] == r'xyz%sc:\Program Files\Stuff'%os.pathsep, env['ENV']['INCLUDE']
-
-#         env = Environment()
-#         env['ENV']['INCLUDE'] = 'xyz'
-#         env.MergeShellPaths({'INCLUDE':['c:/inc1', 'c:/inc2']} )
-#         assert env['ENV']['INCLUDE'] == r'c:/inc1%sc:/inc2%sxyz'%(os.pathsep, os.pathsep), env['ENV']['INCLUDE']
-
-#         # test prepend=0
-#         env = Environment()
-#         env.MergeShellPaths({'INCLUDE': r'c:\Program Files\Stuff'}, prepend=0)
-#         assert env['ENV']['INCLUDE'] == r'c:\Program Files\Stuff', env['ENV']['INCLUDE']
-#         env.MergeShellPaths({'INCLUDE': r'xyz'}, prepend=0)
-#         assert env['ENV']['INCLUDE'] == r'c:\Program Files\Stuff%sxyz'%os.pathsep, env['ENV']['INCLUDE']
 
 
 class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
@@ -1890,7 +1869,7 @@ def generate(env):
         # test for pull request #150
         env = self.TestEnvironment()
         env._dict.pop('BUILDERS')
-        assert env.has_key('BUILDERS') is False
+        assert ('BUILDERS' in env) is False
         env2 = env.Clone()
 
     def test_Copy(self):
@@ -2046,7 +2025,9 @@ def generate(env):
                                  "-F fwd3 " + \
                                  "-pthread " + \
                                  "-mno-cygwin -mwindows " + \
-                                 "-arch i386 -isysroot /tmp +DD64 " + \
+                                 "-arch i386 -isysroot /tmp " + \
+                                 "-isystem /usr/include/foo " + \
+                                 "+DD64 " + \
                                  "-DFOO -DBAR=value")
             env.ParseConfig("fake $COMMAND")
             assert save_command == ['fake command'], save_command
@@ -2054,6 +2035,7 @@ def generate(env):
             assert env['CCFLAGS'] == ['', '-X', '-Wa,-as',
                                       '-pthread', '-mno-cygwin',
                                       ('-arch', 'i386'), ('-isysroot', '/tmp'),
+                                      ('-isystem', '/usr/include/foo'),
                                       '+DD64'], env['CCFLAGS']
             assert env['CPPDEFINES'] == ['FOO', ['BAR', 'value']], env['CPPDEFINES']
             assert env['CPPFLAGS'] == ['', '-Wp,-cpp'], env['CPPFLAGS']
@@ -2692,25 +2674,25 @@ def generate(env):
         t = env.AlwaysBuild('a', 'b$FOO', ['c', 'd'], '$BAR',
                             env.fs.Dir('dir'), env.fs.File('file'))
         assert t[0].__class__.__name__ == 'Entry'
-        assert t[0].path == 'a'
+        assert t[0].get_internal_path() == 'a'
         assert t[0].always_build
         assert t[1].__class__.__name__ == 'Entry'
-        assert t[1].path == 'bfff'
+        assert t[1].get_internal_path() == 'bfff'
         assert t[1].always_build
         assert t[2].__class__.__name__ == 'Entry'
-        assert t[2].path == 'c'
+        assert t[2].get_internal_path() == 'c'
         assert t[2].always_build
         assert t[3].__class__.__name__ == 'Entry'
-        assert t[3].path == 'd'
+        assert t[3].get_internal_path() == 'd'
         assert t[3].always_build
         assert t[4].__class__.__name__ == 'Entry'
-        assert t[4].path == 'bbb'
+        assert t[4].get_internal_path() == 'bbb'
         assert t[4].always_build
         assert t[5].__class__.__name__ == 'Dir'
-        assert t[5].path == 'dir'
+        assert t[5].get_internal_path() == 'dir'
         assert t[5].always_build
         assert t[6].__class__.__name__ == 'File'
-        assert t[6].path == 'file'
+        assert t[6].get_internal_path() == 'file'
         assert t[6].always_build
 
     def test_VariantDir(self):
@@ -2800,13 +2782,13 @@ def generate(env):
         assert t.builder is not None
         assert t.builder.action.__class__.__name__ == 'CommandAction'
         assert t.builder.action.cmd_list == 'buildfoo $target $source'
-        assert 'foo1.in' in [x.path for x in t.sources]
-        assert 'foo2.in' in [x.path for x in t.sources]
+        assert 'foo1.in' in [x.get_internal_path() for x in t.sources]
+        assert 'foo2.in' in [x.get_internal_path() for x in t.sources]
 
         sub = env.fs.Dir('sub')
         t = env.Command(target='bar.out', source='sub',
                         action='buildbar $target $source')[0]
-        assert 'sub' in [x.path for x in t.sources]
+        assert 'sub' in [x.get_internal_path() for x in t.sources]
 
         def testFunc(env, target, source):
             assert str(target[0]) == 'foo.out'
@@ -2817,8 +2799,8 @@ def generate(env):
         assert t.builder is not None
         assert t.builder.action.__class__.__name__ == 'FunctionAction'
         t.build()
-        assert 'foo1.in' in [x.path for x in t.sources]
-        assert 'foo2.in' in [x.path for x in t.sources]
+        assert 'foo1.in' in [x.get_internal_path() for x in t.sources]
+        assert 'foo2.in' in [x.get_internal_path() for x in t.sources]
 
         x = []
         def test2(baz, x=x):
@@ -2835,7 +2817,7 @@ def generate(env):
                         action = 'foo',
                         X = 'xxx')[0]
         assert str(t) == 'xxx.out', str(t)
-        assert 'xxx.in' in [x.path for x in t.sources]
+        assert 'xxx.in' in [x.get_internal_path() for x in t.sources]
 
         env = self.TestEnvironment(source_scanner = 'should_not_find_this')
         t = env.Command(target='file.out', source='file.in',
@@ -2879,27 +2861,27 @@ def generate(env):
         t = env.Depends(target='EnvironmentTest.py',
                         dependency='Environment.py')[0]
         assert t.__class__.__name__ == 'Entry', t.__class__.__name__
-        assert t.path == 'EnvironmentTest.py'
+        assert t.get_internal_path() == 'EnvironmentTest.py'
         assert len(t.depends) == 1
         d = t.depends[0]
         assert d.__class__.__name__ == 'Entry', d.__class__.__name__
-        assert d.path == 'Environment.py'
+        assert d.get_internal_path() == 'Environment.py'
 
         t = env.Depends(target='${FOO}.py', dependency='${BAR}.py')[0]
         assert t.__class__.__name__ == 'File', t.__class__.__name__
-        assert t.path == 'xxx.py'
+        assert t.get_internal_path() == 'xxx.py'
         assert len(t.depends) == 1
         d = t.depends[0]
         assert d.__class__.__name__ == 'File', d.__class__.__name__
-        assert d.path == 'yyy.py'
+        assert d.get_internal_path() == 'yyy.py'
 
         t = env.Depends(target='dir1', dependency='dir2')[0]
         assert t.__class__.__name__ == 'Dir', t.__class__.__name__
-        assert t.path == 'dir1'
+        assert t.get_internal_path() == 'dir1'
         assert len(t.depends) == 1
         d = t.depends[0]
         assert d.__class__.__name__ == 'Dir', d.__class__.__name__
-        assert d.path == 'dir2'
+        assert d.get_internal_path() == 'dir2'
 
     def test_Dir(self):
         """Test the Dir() method"""
@@ -2933,19 +2915,19 @@ def generate(env):
         t = env.NoClean('p_a', 'p_${BAR}b', ['p_c', 'p_d'], 'p_$FOO')
 
         assert t[0].__class__.__name__ == 'Entry', t[0].__class__.__name__
-        assert t[0].path == 'p_a'
+        assert t[0].get_internal_path() == 'p_a'
         assert t[0].noclean
         assert t[1].__class__.__name__ == 'Dir', t[1].__class__.__name__
-        assert t[1].path == 'p_hhhb'
+        assert t[1].get_internal_path() == 'p_hhhb'
         assert t[1].noclean
         assert t[2].__class__.__name__ == 'Entry', t[2].__class__.__name__
-        assert t[2].path == 'p_c'
+        assert t[2].get_internal_path() == 'p_c'
         assert t[2].noclean
         assert t[3].__class__.__name__ == 'File', t[3].__class__.__name__
-        assert t[3].path == 'p_d'
+        assert t[3].get_internal_path() == 'p_d'
         assert t[3].noclean
         assert t[4].__class__.__name__ == 'Entry', t[4].__class__.__name__
-        assert t[4].path == 'p_ggg'
+        assert t[4].get_internal_path() == 'p_ggg'
         assert t[4].noclean
 
     def test_Dump(self):
@@ -3063,27 +3045,27 @@ def generate(env):
 
         t = env.Ignore(target='targ.py', dependency='dep.py')[0]
         assert t.__class__.__name__ == 'Entry', t.__class__.__name__
-        assert t.path == 'targ.py'
+        assert t.get_internal_path() == 'targ.py'
         assert len(t.ignore) == 1
         i = t.ignore[0]
         assert i.__class__.__name__ == 'Entry', i.__class__.__name__
-        assert i.path == 'dep.py'
+        assert i.get_internal_path() == 'dep.py'
 
         t = env.Ignore(target='$FOO$BAR', dependency='$BAR$FOO')[0]
         assert t.__class__.__name__ == 'File', t.__class__.__name__
-        assert t.path == 'yyyzzz'
+        assert t.get_internal_path() == 'yyyzzz'
         assert len(t.ignore) == 1
         i = t.ignore[0]
         assert i.__class__.__name__ == 'File', i.__class__.__name__
-        assert i.path == 'zzzyyy'
+        assert i.get_internal_path() == 'zzzyyy'
 
         t = env.Ignore(target='dir1', dependency='dir2')[0]
         assert t.__class__.__name__ == 'Dir', t.__class__.__name__
-        assert t.path == 'dir1'
+        assert t.get_internal_path() == 'dir1'
         assert len(t.ignore) == 1
         i = t.ignore[0]
         assert i.__class__.__name__ == 'Dir', i.__class__.__name__
-        assert i.path == 'dir2'
+        assert i.get_internal_path() == 'dir2'
 
     def test_Literal(self):
         """Test the Literal() method"""
@@ -3112,19 +3094,19 @@ def generate(env):
         t = env.Precious('p_a', 'p_${BAR}b', ['p_c', 'p_d'], 'p_$FOO')
 
         assert t[0].__class__.__name__ == 'Entry', t[0].__class__.__name__
-        assert t[0].path == 'p_a'
+        assert t[0].get_internal_path() == 'p_a'
         assert t[0].precious
         assert t[1].__class__.__name__ == 'Dir', t[1].__class__.__name__
-        assert t[1].path == 'p_hhhb'
+        assert t[1].get_internal_path() == 'p_hhhb'
         assert t[1].precious
         assert t[2].__class__.__name__ == 'Entry', t[2].__class__.__name__
-        assert t[2].path == 'p_c'
+        assert t[2].get_internal_path() == 'p_c'
         assert t[2].precious
         assert t[3].__class__.__name__ == 'File', t[3].__class__.__name__
-        assert t[3].path == 'p_d'
+        assert t[3].get_internal_path() == 'p_d'
         assert t[3].precious
         assert t[4].__class__.__name__ == 'Entry', t[4].__class__.__name__
-        assert t[4].path == 'p_ggg'
+        assert t[4].get_internal_path() == 'p_ggg'
         assert t[4].precious
 
     def test_Pseudo(self):
@@ -3135,19 +3117,19 @@ def generate(env):
         t = env.Pseudo('p_a', 'p_${BAR}b', ['p_c', 'p_d'], 'p_$FOO')
 
         assert t[0].__class__.__name__ == 'Entry', t[0].__class__.__name__
-        assert t[0].path == 'p_a'
+        assert t[0].get_internal_path() == 'p_a'
         assert t[0].pseudo
         assert t[1].__class__.__name__ == 'Dir', t[1].__class__.__name__
-        assert t[1].path == 'p_hhhb'
+        assert t[1].get_internal_path() == 'p_hhhb'
         assert t[1].pseudo
         assert t[2].__class__.__name__ == 'Entry', t[2].__class__.__name__
-        assert t[2].path == 'p_c'
+        assert t[2].get_internal_path() == 'p_c'
         assert t[2].pseudo
         assert t[3].__class__.__name__ == 'File', t[3].__class__.__name__
-        assert t[3].path == 'p_d'
+        assert t[3].get_internal_path() == 'p_d'
         assert t[3].pseudo
         assert t[4].__class__.__name__ == 'Entry', t[4].__class__.__name__
-        assert t[4].path == 'p_ggg'
+        assert t[4].get_internal_path() == 'p_ggg'
         assert t[4].pseudo
 
     def test_Repository(self):
@@ -3252,7 +3234,7 @@ def generate(env):
         bar = env.Object('bar.obj', 'bar.cpp')[0]
         s = env.SideEffect('mylib.pdb', ['foo.obj', 'bar.obj'])[0]
         assert s.__class__.__name__ == 'Entry', s.__class__.__name__
-        assert s.path == 'mylib.pdb'
+        assert s.get_internal_path() == 'mylib.pdb'
         assert s.side_effect
         assert foo.side_effects == [s]
         assert bar.side_effects == [s]
@@ -3261,7 +3243,7 @@ def generate(env):
         bbb = env.Object('bbb.obj', 'bbb.cpp')[0]
         s = env.SideEffect('my${LIB}.pdb', ['${FOO}.obj', '${BAR}.obj'])[0]
         assert s.__class__.__name__ == 'File', s.__class__.__name__
-        assert s.path == 'mylll.pdb'
+        assert s.get_internal_path() == 'mylll.pdb'
         assert s.side_effect
         assert fff.side_effects == [s], fff.side_effects
         assert bbb.side_effects == [s], bbb.side_effects
@@ -3270,7 +3252,7 @@ def generate(env):
         ccc = env.Object('ccc.obj', 'ccc.cpp')[0]
         s = env.SideEffect('mymmm.pdb', ['ggg.obj', 'ccc.obj'])[0]
         assert s.__class__.__name__ == 'Dir', s.__class__.__name__
-        assert s.path == 'mymmm.pdb'
+        assert s.get_internal_path() == 'mymmm.pdb'
         assert s.side_effect
         assert ggg.side_effects == [s], ggg.side_effects
         assert ccc.side_effects == [s], ccc.side_effects
@@ -3279,18 +3261,18 @@ def generate(env):
         """Test the SourceCode() method."""
         env = self.TestEnvironment(FOO='mmm', BAR='nnn')
         e = env.SourceCode('foo', None)[0]
-        assert e.path == 'foo'
+        assert e.get_internal_path() == 'foo'
         s = e.src_builder()
         assert s is None, s
 
         b = Builder()
         e = env.SourceCode(e, b)[0]
-        assert e.path == 'foo'
+        assert e.get_internal_path() == 'foo'
         s = e.src_builder()
         assert s is b, s
 
         e = env.SourceCode('$BAR$FOO', None)[0]
-        assert e.path == 'nnnmmm'
+        assert e.get_internal_path() == 'nnnmmm'
         s = e.src_builder()
         assert s is None, s
 

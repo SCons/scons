@@ -2,12 +2,13 @@
 # SConstruct file to build scons packages during development.
 #
 # See the README.rst file for an overview of how SCons is built and tested.
+
 from __future__ import print_function
 
-copyright_years = '2001 - 2014'
+copyright_years = '2001 - 2016'
 
 # This gets inserted into the man pages to reflect the month of release.
-month_year = 'MONTH YEAR'
+month_year = 'April 2016'
 
 #
 # __COPYRIGHT__
@@ -44,10 +45,16 @@ import tempfile
 import bootstrap
 
 project = 'scons'
-default_version = '2.3.1.alpha.yyyymmdd'
+default_version = '2.5.0'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 platform = distutils.util.get_platform()
+
+def is_windows():
+   if platform.startswith('win'):
+      return True
+   else:
+      return False
 
 SConsignFile()
 
@@ -57,7 +64,7 @@ SConsignFile()
 #
 def whereis(file):
     exts = ['']
-    if platform == "win32":
+    if is_windows():
         exts += ['.exe']
     for dir in os.environ['PATH'].split(os.pathsep):
         f = os.path.join(dir, file)
@@ -83,7 +90,6 @@ fakeroot = whereis('fakeroot')
 gzip = whereis('gzip')
 rpmbuild = whereis('rpmbuild')
 hg = os.path.exists('.hg') and whereis('hg')
-svn = os.path.exists('.svn') and whereis('svn')
 unzip = whereis('unzip')
 zip = whereis('zip')
 
@@ -112,15 +118,10 @@ if not version:
     version = default_version
 
 hg_status_lines = []
-svn_status_lines = []
 
 if hg:
     cmd = "%s status --all 2> /dev/null" % hg
     hg_status_lines = os.popen(cmd, "r").readlines()
-
-if svn:
-    cmd = "%s status --verbose 2> /dev/null" % svn
-    svn_status_lines = os.popen(cmd, "r").readlines()
 
 revision = ARGUMENTS.get('REVISION', '')
 def generate_build_id(revision):
@@ -140,17 +141,6 @@ if not revision and hg:
                 result = result + '[MODIFIED]'
             return result
 
-if not revision and svn:
-    svn_info = os.popen("%s info 2> /dev/null" % svn, "r").read()
-    m = re.search('Revision: (\d+)', svn_info)
-    if m:
-        revision = m.group(1)
-        def generate_build_id(revision):
-            result = 'r' + revision
-            if [l for l in svn_status_lines if l[0] in 'ACDMR']:
-                result = result + '[MODIFIED]'
-            return result
-
 checkpoint = ARGUMENTS.get('CHECKPOINT', '')
 if checkpoint:
     if checkpoint == 'd':
@@ -166,6 +156,14 @@ if build_id is None:
         build_id = generate_build_id(revision)
     else:
         build_id = ''
+
+import os.path
+import distutils.command
+
+no_winpack_templates = not os.path.exists(os.path.join(os.path.split(distutils.command.__file__)[0],'wininst-9.0.exe'))
+skip_win_packages = ARGUMENTS.get('SKIP_WIN_PACKAGES',False) or no_winpack_templates
+if skip_win_packages:
+    print("Skipping the build of Windows packages...")
 
 python_ver = sys.version[0:3]
 
@@ -223,13 +221,15 @@ command_line_variables = [
 
     ("REVISION=",       "The revision number of the source being built.  " +
                         "The default is the Subversion revision returned " +
-                        "'svn info', with an appended string of " +
+                        "'hg heads', with an appended string of " +
                         "'[MODIFIED]' if there are any changes in the " +
                         "working copy."),
 
     ("VERSION=",        "The SCons version being packaged.  The default " +
                         "is the hard-coded value '%s' " % default_version +
                         "from this SConstruct file."),
+
+    ("SKIP_WIN_PACKAGES=", "If set, skip building win32 and win64 packages."),
 ]
 
 Default('.', build_dir)
@@ -268,7 +268,7 @@ test_local_zip_dir    = os.path.join(build_dir, "test-local-zip")
 unpack_tar_gz_dir     = os.path.join(build_dir, "unpack-tar-gz")
 unpack_zip_dir        = os.path.join(build_dir, "unpack-zip")
 
-if platform == "win32":
+if is_windows():
     tar_hflag = ''
     python_project_subinst_dir = os.path.join("Lib", "site-packages", project)
     project_script_subinst_dir = 'Scripts'
@@ -332,7 +332,8 @@ try:
                 path = os.path.join(dirname, name)
                 if os.path.isfile(path):
                     arg.write(path)
-        zf = zipfile.ZipFile(str(target[0]), 'w')
+        # default ZipFile compression is ZIP_STORED
+        zf = zipfile.ZipFile(str(target[0]), 'w', compression=zipfile.ZIP_DEFLATED)
         olddir = os.getcwd()
         os.chdir(env['CD'])
         try: os.path.walk(env['PSV'], visit, zf)
@@ -357,7 +358,7 @@ try:
             if not os.path.isdir(dest):
                 open(dest, 'wb').write(zf.read(name))
 
-except:
+except ImportError:
     if unzip and zip:
         zipit = "cd $CD && $ZIP $ZIPFLAGS $( ${TARGET.abspath} $) $PSV"
         unzipit = "$UNZIP $UNZIPFLAGS $SOURCES"
@@ -370,7 +371,7 @@ def SCons_revision(target, source, env):
     """
     t = str(target[0])
     s = source[0].rstr()
-    contents = open(s, 'r').read()
+    contents = open(s, 'rb').read()
     # Note:  We construct the __*__ substitution strings here
     # so that they don't get replaced when this file gets
     # copied into the tree for packaging.
@@ -384,7 +385,7 @@ def SCons_revision(target, source, env):
     contents = contents.replace('__REVISION'  + '__', env['REVISION'])
     contents = contents.replace('__VERSION'   + '__', env['VERSION'])
     contents = contents.replace('__NULL'      + '__', '')
-    open(t, 'w').write(contents)
+    open(t, 'wb').write(contents)
     os.chmod(t, os.stat(s)[0])
 
 revaction = SCons_revision
@@ -418,7 +419,6 @@ def soelim(target, source, env):
 
 def soscan(node, env, path):
     c = node.get_text_contents()
-    # Node contents are bytes ==> br"..."
     return re.compile(br"^[\.']so\s+(\S+)", re.M).findall(c)
 
 soelimbuilder = Builder(action = Action(soelim),
@@ -490,10 +490,13 @@ Version_values = [Value(version), Value(build_id)]
 # separate packages.
 #
 
+from distutils.sysconfig import get_python_lib;
+
+
 python_scons = {
         'pkg'           : 'python-' + project,
         'src_subdir'    : 'engine',
-        'inst_subdir'   : os.path.join('lib', 'python1.5', 'site-packages'),
+        'inst_subdir'   : get_python_lib(),
         'rpm_dir'       : '/usr/lib/scons',
 
         'debian_deps'   : [
@@ -731,10 +734,7 @@ for p in [ scons ]:
     platform_zip = os.path.join(build,
                                 'dist',
                                 "%s.%s.zip" % (pkg_version, platform))
-    if platform == "win-amd64":
-        win32_exe = os.path.join(build, 'dist', "%s.win-amd64.exe" % pkg_version)
-    else:
-        win32_exe = os.path.join(build, 'dist', "%s.win32.exe" % pkg_version)
+
 
     #
     # Update the environment with the relevant information
@@ -829,7 +829,7 @@ for p in [ scons ]:
     def write_src_files(target, source, **kw):
         global src_files
         src_files.sort()
-        f = open(str(target[0]), 'w')
+        f = open(str(target[0]), 'wb')
         for file in src_files:
             f.write(file + "\n")
         f.close()
@@ -845,12 +845,19 @@ for p in [ scons ]:
     Local(*build_src_files)
 
     distutils_formats = []
+    distutils_targets = []
 
-    distutils_targets = [ win32_exe ]
+    if not skip_win_packages:
+        win64_exe = os.path.join(build, 'dist', "%s.win-amd64.exe" % pkg_version)
+        win32_exe = os.path.join(build, 'dist', "%s.win32.exe" % pkg_version)
+        distutils_targets.extend([ win32_exe , win64_exe ])
 
-    dist_distutils_targets = env.Install('$DISTDIR', distutils_targets)
-    Local(dist_distutils_targets)
-    AddPostAction(dist_distutils_targets, Chmod(dist_distutils_targets, 0o644))
+    dist_distutils_targets = []
+
+    for target in distutils_targets:
+        dist_target = env.Install('$DISTDIR', target)
+        AddPostAction(dist_target, Chmod(dist_target, 0o644))
+        dist_distutils_targets += dist_target
 
     if not gzip:
         print("gzip not found in %s; skipping .tar.gz package for %s." % (os.environ['PATH'], pkg))
@@ -1042,7 +1049,7 @@ for p in [ scons ]:
         # The built deb is called just x.y.z, not x.y.z.final.0 so strip those off:
         deb_version = '.'.join(version.split('.')[0:3])
         deb = os.path.join(build_dir, 'dist', "%s_%s_all.deb" % (pkg, deb_version))
-        # print "Building deb into %s (version=%s)"%(deb, deb_version)
+        # print("Building deb into %s (version=%s)"%(deb, deb_version))
         for d in p['debian_deps']:
             b = env.SCons_revision(os.path.join(build, d), d)
             env.Depends(deb, b)
@@ -1082,7 +1089,10 @@ for p in [ scons ]:
         commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY sdist --formats=%s" %  \
                             ','.join(distutils_formats))
 
-    commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY bdist_wininst --plat-name win32 --user-access-control auto")
+    if not skip_win_packages:
+        commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY bdist_wininst --plat-name=win32 --user-access-control auto")
+
+        commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY bdist_wininst --plat-name=win-amd64 --user-access-control auto")
 
     env.Command(distutils_targets, build_src_files, commands)
 
@@ -1110,7 +1120,7 @@ for p in [ scons ]:
 
     for script in scripts:
         # add .py extension for scons-local scripts on non-windows platforms
-        if platform == "win32":
+        if is_windows():
             break
         local_script = os.path.join(build_dir_local, script)
         commands.append(Move(local_script + '.py', local_script))
@@ -1134,7 +1144,7 @@ for p in [ scons ]:
     Local(l)
 
     if gzip:
-        if platform == "win32":
+        if is_windows():
             # avoid problem with tar interpreting c:/ as a remote machine
             tar_cargs = '-cz --force-local -f'
         else:
@@ -1209,12 +1219,8 @@ sfiles = None
 if hg_status_lines:
     slines = [l for l in hg_status_lines if l[0] in 'ACM']
     sfiles = [l.split()[-1] for l in slines]
-elif svn_status_lines:
-    slines = [l for l in svn_status_lines if l[0] in ' MA']
-    sentries = [l.split()[-1] for l in slines]
-    sfiles = list(filter(os.path.isfile, sentries))
 else:
-   print("Not building in a Mercurial or Subversion tree; skipping building src package.")
+   print("Not building in a Mercurial tree; skipping building src package.")
 
 if sfiles:
     remove_patterns = [

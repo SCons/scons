@@ -32,6 +32,8 @@ NOTE: Installed SCons is not importable like usual Python packages. It is
       below is dedicated to make it happen on various platforms.
 """
 
+from __future__ import print_function
+
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
@@ -73,6 +75,16 @@ import distutils.command.install_data
 import distutils.command.install_lib
 import distutils.command.install_scripts
 import distutils.command.build_scripts
+import distutils.msvccompiler
+
+def get_build_version():
+    """ monkey patch distutils msvc version if we're not on windows.
+    We need to use vc version 9 for python 2.7.x and it defaults to 6
+    for non-windows platforms and there is no way to override it besides
+    monkey patching"""
+    return 9
+
+distutils.msvccompiler.get_build_version = get_build_version
 
 _install = distutils.command.install.install
 _install_data = distutils.command.install_data.install_data
@@ -325,7 +337,7 @@ class install_scripts(_install_scripts):
                 self.copy_scons(src, scons_version_bat)
 
         # --- distutils copy/paste ---
-        if os.name == 'posix':
+        if hasattr(os, 'chmod') and hasattr(os,'stat'):
             # Set the executable bits (owner, group, and world) on
             # all the scripts we just installed.
             for file in self.get_outputs():

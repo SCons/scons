@@ -104,13 +104,13 @@ class ValueNodeInfoTestCase(unittest.TestCase):
     def test___init__(self):
         """Test ValueNodeInfo initialization"""
         vvv = SCons.Node.Python.Value('vvv')
-        ni = SCons.Node.Python.ValueNodeInfo(vvv)
+        ni = SCons.Node.Python.ValueNodeInfo()
 
 class ValueBuildInfoTestCase(unittest.TestCase):
     def test___init__(self):
         """Test ValueBuildInfo initialization"""
         vvv = SCons.Node.Python.Value('vvv')
-        bi = SCons.Node.Python.ValueBuildInfo(vvv)
+        bi = SCons.Node.Python.ValueBuildInfo()
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()

@@ -48,8 +48,8 @@ def exists(env):
 """)
 
 test.write('SConstruct', """
-e=Environment()
-print e.subst('M4 is $M4, M4_MINE is $M4_MINE')
+e=Environment(tools=['m4'])
+print(e.subst('M4 is $M4, M4_MINE is $M4_MINE'))
 """)
 test.run(arguments = '-Q .',
          stdout = """M4 is my_m4, M4_MINE is 1

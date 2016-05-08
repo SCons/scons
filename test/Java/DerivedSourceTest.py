@@ -45,13 +45,13 @@ SCons.Defaults.DefaultEnvironment(tools = [])
 
 test = TestSCons.TestSCons()
 
-# No result if tools not available
-test.no_result( condition=(test.where_is( 'javac' ) is None) )
-test.no_result( condition=(test.where_is( 'jar' ) is None) )
-
 # This test is known to fail as of July 2014; see Tigris issue 1771 and issue 2931.
 # Once the underlying issue is corrected, this test should be re-enabled.
 test.skip_test('Skipping derived-source test until issue 1771 is fixed.\n')
+
+# No result if tools not available
+test.no_result( condition=(test.where_is( 'javac' ) is None) )
+test.no_result( condition=(test.where_is( 'jar' ) is None) )
 
 test.write(
     ['Sample.java'],

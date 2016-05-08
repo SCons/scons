@@ -11,7 +11,7 @@ Usage example:
   Examples:
       x11=no   (disables X11 support)
       x11=yes  (will search for the package installation dir)
-      x11=/usr/local/X11 (will check this path for existance)
+      x11=/usr/local/X11 (will check this path for existence)
 
   To replace autoconf's --with-xxx=yyy 
 
@@ -70,10 +70,10 @@ def _converter(val):
 
 
 def _validator(key, val, env, searchfunc):
-    # NB: searchfunc is currenty undocumented and unsupported
+    # NB: searchfunc is currently undocumented and unsupported
     """
     """
-    # todo: write validator, check for path
+    # TODO write validator, check for path
     import os
     if env[key] is True:
         if searchfunc:
@@ -84,14 +84,14 @@ def _validator(key, val, env, searchfunc):
 
 
 def PackageVariable(key, help, default, searchfunc=None):
-    # NB: searchfunc is currenty undocumented and unsupported
+    # NB: searchfunc is currently undocumented and unsupported
     """
     The input parameters describe a 'package list' option, thus they
     are returned with the correct converter and validator appended. The
     result is usable for input to opts.Add() .
 
     A 'package list' option may either be 'all', 'none' or a list of
-    package names (seperated by space).
+    package names (separated by space).
     """
     help = '\n    '.join(
         (help, '( yes | no | /path/to/%s )' % key))

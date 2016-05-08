@@ -59,8 +59,8 @@ if mode:
 else:
     MyCopy = Builder(action = Copy('$TARGET', '$SOURCE'))
     def ChangingCopy(target, source, env):
-        tgt = str(target[0].abspath)
-        src = str(source[0].abspath)
+        tgt = str(target[0].get_abspath())
+        src = str(source[0].get_abspath())
         shutil.copy(src, tgt)
     ChangingCopy = Builder(action = ChangingCopy)
 

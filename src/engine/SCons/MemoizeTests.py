@@ -20,7 +20,6 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-from SCons.compat.six import add_metaclass
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -31,20 +30,17 @@ import TestUnit
 
 import SCons.Memoize
 
+# Enable memoization counting
+SCons.Memoize.EnableMemoization()
 
-@add_metaclass(SCons.Memoize.Memoized_Metaclass)
 class FakeObject(object):
-
-    memoizer_counters = []
-
     def __init__(self):
         self._memo = {}
 
     def _dict_key(self, argument):
         return argument
 
-    memoizer_counters.append(SCons.Memoize.CountDict('dict', _dict_key))
-
+    @SCons.Memoize.CountDictCall(_dict_key)
     def dict(self, argument):
 
         memo_key = argument
@@ -65,8 +61,7 @@ class FakeObject(object):
 
         return result
 
-    memoizer_counters.append(SCons.Memoize.CountValue('value'))
-
+    @SCons.Memoize.CountMethodCall
     def value(self):
 
         try:
@@ -81,10 +76,7 @@ class FakeObject(object):
         return result
 
     def get_memoizer_counter(self, name):
-        for mc in self.memoizer_counters:
-            if mc.method_name == name:
-                return mc
-        return  None
+        return SCons.Memoize.CounterList.get(self.__class__.__name__+'.'+name, None)
 
 class Returner(object):
     def __init__(self, result):

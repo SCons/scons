@@ -82,6 +82,69 @@ Use scons -H for help about command-line options.
 
 test.run(arguments = '-h', stdout = expect)
 
+# Bug #2831 - append flag to Help doesn't wipe out addoptions and variables used together
+test.write('SConstruct', r"""
+
+AddOption('--debugging',
+	dest='debugging',
+	action='store_true',
+	default=False,
+	metavar='BDEBUGGING',
+	help='Compile with debugging symbols')
+
+vars = Variables()
+vars.Add(ListVariable('buildmod', 'List of modules to build', 'none',
+                    ['python']))
+
+env = Environment()
+
+Help(vars.GenerateHelpText(env),append=True)
+""")
+
+expect = ".*--debugging.*Compile with debugging symbols.*buildmod: List of modules to build.*"
+
+test.run(arguments = '-h', stdout = expect, match=TestSCons.match_re_dotall)
+
+
+# Bug 2831
+# This test checks to verify that append=False doesn't include anything
+# but the expected help for the specified Variable()
+
+test.write('SConstruct', r"""
+
+AddOption('--debugging',
+	dest='debugging',
+	action='store_true',
+	default=False,
+	metavar='BDEBUGGING',
+	help='Compile with debugging symbols')
+
+vars = Variables()
+vars.Add(ListVariable('buildmod', 'List of modules to build', 'none',
+                    ['python']))
+
+env = Environment()
+
+Help(vars.GenerateHelpText(env),append=False)
+""")
+
+expect = """\
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+
+buildmod: List of modules to build
+    (all|none|comma-separated list of names)
+    allowed names: python
+    default: none
+    actual: None
+
+Use scons -H for help about command-line options.
+"""
+
+test.run(arguments = '-h', stdout = expect)
+
+
+
 test.pass_test()
 
 # Local Variables:

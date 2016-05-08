@@ -23,6 +23,8 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import print_function
+
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 __version__ = "__VERSION__"
@@ -98,7 +100,7 @@ try:
 except ImportError:
     pass
 else:
-    # when running from an egg add the egg's directory 
+    # when running from an egg add the egg's directory
     try:
         d = pkg_resources.get_distribution('scons')
     except pkg_resources.DistributionNotFound:
@@ -188,10 +190,10 @@ sys.path = libs + sys.path
 if __name__ == "__main__":
     try:
         import SCons.Script
-    except:
-        print("Import failed. Unable to find SCons files in:")
+    except ImportError:
+        print("SCons import failed. Unable to find engine files in:")
         for path in libs:
-          print("  %s" % path)
+            print("  {}".format(path))
         raise
 
     # this does all the work, and calls sys.exit

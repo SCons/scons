@@ -8,6 +8,6 @@ scons: internal stack trace:
     return SCons.Taskmaster.OutOfDateTask.prepare(self)
   File "bootstrap/src/engine/SCons/Taskmaster.py", line 191, in prepare
     executor.prepare()
-  File "bootstrap/src/engine/SCons/Executor.py", line 396, in prepare
+  File "bootstrap/src/engine/SCons/Executor.py", line 430, in prepare
     raise SCons.Errors.StopError(msg % (s, self.batches[0].targets[0]))
 </screen>

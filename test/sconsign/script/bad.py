@@ -47,16 +47,16 @@ test.run_sconsign(arguments = "-f dblite bad1.dblite",
          stderr = "sconsign: \[Errno 2\] No such file or directory: 'bad1.dblite'\n")
 
 test.run_sconsign(arguments = "-f dblite bad2",
-         stderr = "sconsign: ignoring invalid `dblite' file `bad2'\n")
+         stderr = "sconsign: ignoring invalid `dblite' file `bad2'.*\n")
 
 test.run_sconsign(arguments = "-f dblite bad2.dblite",
-         stderr = "sconsign: ignoring invalid `dblite' file `bad2.dblite'\n")
+         stderr = "sconsign: ignoring invalid `dblite' file `bad2.dblite'.*\n")
 
 test.run_sconsign(arguments = "-f sconsign no_sconsign",
          stderr = "sconsign: \[Errno 2\] No such file or directory: 'no_sconsign'\n")
 
 test.run_sconsign(arguments = "-f sconsign bad3",
-         stderr = "sconsign: ignoring invalid .sconsign file `bad3'\n")
+         stderr = "sconsign: ignoring invalid .sconsign file `bad3'.*\n")
 
 test.pass_test()
 

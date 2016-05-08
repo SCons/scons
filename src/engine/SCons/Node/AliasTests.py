@@ -103,14 +103,14 @@ class AliasNodeInfoTestCase(unittest.TestCase):
         """Test AliasNodeInfo initialization"""
         ans = SCons.Node.Alias.AliasNameSpace()
         aaa = ans.Alias('aaa')
-        ni = SCons.Node.Alias.AliasNodeInfo(aaa)
+        ni = SCons.Node.Alias.AliasNodeInfo()
 
 class AliasBuildInfoTestCase(unittest.TestCase):
     def test___init__(self):
         """Test AliasBuildInfo initialization"""
         ans = SCons.Node.Alias.AliasNameSpace()
         aaa = ans.Alias('aaa')
-        bi = SCons.Node.Alias.AliasBuildInfo(aaa)
+        bi = SCons.Node.Alias.AliasBuildInfo()
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()

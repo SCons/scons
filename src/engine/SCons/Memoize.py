@@ -26,17 +26,17 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 __doc__ = """Memoizer
 
-A metaclass implementation to count hits and misses of the computed
+A decorator-based implementation to count hits and misses of the computed
 values that various methods cache in memory.
 
 Use of this modules assumes that wrapped methods be coded to cache their
-values in a consistent way.  Here is an example of wrapping a method
-that returns a computed value, with no input parameters:
+values in a consistent way. In particular, it requires that the class uses a
+dictionary named "_memo" to store the cached values.
 
-    memoizer_counters = []                                      # Memoization
+Here is an example of wrapping a method that returns a computed value,
+with no input parameters:
 
-    memoizer_counters.append(SCons.Memoize.CountValue('foo'))   # Memoization
-
+    @SCons.Memoize.CountMethodCall
     def foo(self):
 
         try:                                                    # Memoization
@@ -56,8 +56,7 @@ based on one or more input arguments:
     def _bar_key(self, argument):                               # Memoization
         return argument                                         # Memoization
 
-    memoizer_counters.append(SCons.Memoize.CountDict('bar', _bar_key)) # Memoization
-
+    @SCons.Memoize.CountDictCall(_bar_key)
     def bar(self, argument):
 
         memo_key = argument                                     # Memoization
@@ -77,10 +76,6 @@ based on one or more input arguments:
         memo_dict[memo_key] = result                            # Memoization
 
         return result
-
-At one point we avoided replicating this sort of logic in all the methods
-by putting it right into this module, but we've moved away from that at
-present (see the "Historical Note," below.).
 
 Deciding what to cache is tricky, because different configurations
 can have radically different performance tradeoffs, and because the
@@ -103,51 +98,36 @@ cache return values from a method that's being called a lot:
         input arguments, you don't need to use all of the arguments
         if some of them don't affect the return values.
 
-Historical Note:  The initial Memoizer implementation actually handled
-the caching of values for the wrapped methods, based on a set of generic
-algorithms for computing hashable values based on the method's arguments.
-This collected caching logic nicely, but had two drawbacks:
-
-    Running arguments through a generic key-conversion mechanism is slower
-    (and less flexible) than just coding these things directly.  Since the
-    methods that need memoized values are generally performance-critical,
-    slowing them down in order to collect the logic isn't the right
-    tradeoff.
-
-    Use of the memoizer really obscured what was being called, because
-    all the memoized methods were wrapped with re-used generic methods.
-    This made it more difficult, for example, to use the Python profiler
-    to figure out how to optimize the underlying methods.
 """
-
-import types
 
 # A flag controlling whether or not we actually use memoization.
 use_memoizer = None
 
-CounterList = []
+# Global list of counter objects
+CounterList = {}
 
 class Counter(object):
     """
     Base class for counting memoization hits and misses.
 
-    We expect that the metaclass initialization will have filled in
-    the .name attribute that represents the name of the function
-    being counted.
+    We expect that the initialization in a matching decorator will
+    fill in the correct class name and method name that represents
+    the name of the function being counted.
     """
-    def __init__(self, method_name):
+    def __init__(self, cls_name, method_name):
         """
         """
+        self.cls_name = cls_name
         self.method_name = method_name
         self.hit = 0
         self.miss = 0
-        CounterList.append(self)
+    def key(self):
+        return self.cls_name+'.'+self.method_name
     def display(self):
-        fmt = "    %7d hits %7d misses    %s()"
-        print(fmt % (self.hit, self.miss, self.name))
+        print("    {:7d} hits {:7d} misses    {}()".format(self.hit, self.miss, self.key()))
     def __eq__(self, other):
         try:
-            return self.name == other.name
+            return self.key() == other.key()
         except AttributeError:
             return True
 
@@ -155,45 +135,39 @@ class CountValue(Counter):
     """
     A counter class for simple, atomic memoized values.
 
-    A CountValue object should be instantiated in a class for each of
+    A CountValue object should be instantiated in a decorator for each of
     the class's methods that memoizes its return value by simply storing
     the return value in its _memo dictionary.
-
-    We expect that the metaclass initialization will fill in the
-    .underlying_method attribute with the method that we're wrapping.
-    We then call the underlying_method method after counting whether
-    its memoized value has already been set (a hit) or not (a miss).
     """
-    def __call__(self, *args, **kw):
+    def count(self, *args, **kw):
+        """ Counts whether the memoized value has already been
+            set (a hit) or not (a miss).
+        """
         obj = args[0]
         if self.method_name in obj._memo:
             self.hit = self.hit + 1
         else:
             self.miss = self.miss + 1
-        return self.underlying_method(*args, **kw)
 
 class CountDict(Counter):
     """
     A counter class for memoized values stored in a dictionary, with
     keys based on the method's input arguments.
 
-    A CountDict object is instantiated in a class for each of the
+    A CountDict object is instantiated in a decorator for each of the
     class's methods that memoizes its return value in a dictionary,
     indexed by some key that can be computed from one or more of
     its input arguments.
-
-    We expect that the metaclass initialization will fill in the
-    .underlying_method attribute with the method that we're wrapping.
-    We then call the underlying_method method after counting whether the
-    computed key value is already present in the memoization dictionary
-    (a hit) or not (a miss).
     """
-    def __init__(self, method_name, keymaker):
+    def __init__(self, cls_name, method_name, keymaker):
         """
         """
-        Counter.__init__(self, method_name)
+        Counter.__init__(self, cls_name, method_name)
         self.keymaker = keymaker
-    def __call__(self, *args, **kw):
+    def count(self, *args, **kw):
+        """ Counts whether the computed key value is already present
+           in the memoization dictionary (a hit) or not (a miss).
+        """
         obj = args[0]
         try:
             memo_dict = obj._memo[self.method_name]
@@ -205,38 +179,64 @@ class CountDict(Counter):
                 self.hit = self.hit + 1
             else:
                 self.miss = self.miss + 1
-        return self.underlying_method(*args, **kw)
-
-class Memoizer(object):
-    """Object which performs caching of method calls for its 'primary'
-    instance."""
-
-    def __init__(self):
-        pass
 
 def Dump(title=None):
+    """ Dump the hit/miss count for all the counters
+        collected so far.
+    """
     if title:
         print(title)
-    CounterList.sort()
-    for counter in CounterList:
-        counter.display()
-
-class Memoized_Metaclass(type):
-    def __init__(cls, name, bases, cls_dict):
-        super(Memoized_Metaclass, cls).__init__(name, bases, cls_dict)
-
-        for counter in cls_dict.get('memoizer_counters', []):
-            method_name = counter.method_name
-
-            counter.name = cls.__name__ + '.' + method_name
-            counter.underlying_method = cls_dict[method_name]
-
-            replacement_method = types.MethodType(counter, None, cls)
-            setattr(cls, method_name, replacement_method)
+    for counter in sorted(CounterList):
+        CounterList[counter].display()
 
 def EnableMemoization():
     global use_memoizer
     use_memoizer = 1
+
+def CountMethodCall(fn):
+    """ Decorator for counting memoizer hits/misses while retrieving
+        a simple value in a class method. It wraps the given method
+        fn and uses a CountValue object to keep track of the
+        caching statistics.
+        Wrapping gets enabled by calling EnableMemoization().
+    """
+    if use_memoizer:
+        def wrapper(self, *args, **kwargs):
+            global CounterList
+            key = self.__class__.__name__+'.'+fn.__name__
+            if key not in CounterList:
+                CounterList[key] = CountValue(self.__class__.__name__, fn.__name__)
+            CounterList[key].count(self, *args, **kwargs)
+            return fn(self, *args, **kwargs)
+        wrapper.__name__= fn.__name__
+        return wrapper
+    else:
+        return fn
+
+def CountDictCall(keyfunc):
+    """ Decorator for counting memoizer hits/misses while accessing
+        dictionary values with a key-generating function. Like
+        CountMethodCall above, it wraps the given method
+        fn and uses a CountDict object to keep track of the
+        caching statistics. The dict-key function keyfunc has to
+        get passed in the decorator call and gets stored in the
+        CountDict instance.
+        Wrapping gets enabled by calling EnableMemoization().
+    """
+    def decorator(fn):
+        if use_memoizer:
+            def wrapper(self, *args, **kwargs):
+                global CounterList
+                key = self.__class__.__name__+'.'+fn.__name__
+                if key not in CounterList:
+                    CounterList[key] = CountDict(self.__class__.__name__, fn.__name__, keyfunc)
+                CounterList[key].count(self, *args, **kwargs)
+                return fn(self, *args, **kwargs)
+            wrapper.__name__= fn.__name__
+            return wrapper
+        else:
+            return fn
+    return decorator
 
 # Local Variables:
 # tab-width:4

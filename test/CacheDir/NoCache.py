@@ -45,7 +45,7 @@ CacheDir(r'%s')
 g = '%s'
 
 def ActionWithUndeclaredInputs(target,source,env):
-    open(target[0].abspath,'w').write(g)
+    open(target[0].get_abspath(),'w').write(g)
 
 Command('foo_cached', [], ActionWithUndeclaredInputs)
 NoCache(Command('foo_notcached', [], ActionWithUndeclaredInputs))

@@ -54,10 +54,10 @@
 
     <corpauthor>Steven Knight and the SCons Development Team</corpauthor>
 
-    <pubdate>2004 - 2014</pubdate>
+    <pubdate>2004 - 2016</pubdate>
 
     <copyright>
-      <year>2004 - 2014</year>
+      <year>2004 - 2016</year>
       <holder>The SCons Foundation</holder>
     </copyright>
 
@@ -75,7 +75,8 @@
 <refmeta>
 <refentrytitle>SCONS</refentrytitle>
 <manvolnum>1</manvolnum>
-<refmiscinfo class='source'>__MONTH_YEAR__</refmiscinfo>
+<refmiscinfo class='source'>SCons __VERSION__</refmiscinfo>
+<refmiscinfo class='manual'>SCons __VERSION__</refmiscinfo>
 </refmeta>
 <refnamediv id='name'>
 <refname>scons</refname>
@@ -425,7 +426,7 @@ try to access a list member that
 does not exist.</para>
 
 <para><command>scons</command>
-requires Python version 2.4 or later.
+requires Python version 2.7 or later.
 There should be no other dependencies or requirements to run
 <emphasis role="bold">scons.</emphasis></para>
 
@@ -1702,6 +1703,16 @@ specifies the type of warnings to be enabled or disabled:</para>
   <term>--warn=all, --warn=no-all</term>
   <listitem>
 <para>Enables or disables all warnings.</para>
+
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term>--warn=cache-version, --warn=no-cache-version</term>
+  <listitem>
+<para>Enables or disables warnings about the cache directory not using
+the latest configuration information
+<emphasis role="bold">CacheDir</emphasis>().
+These warnings are enabled by default.</para>
 
   </listitem>
   </varlistentry>
@@ -5629,7 +5640,8 @@ env.Command('foo.out', 'foo.in',
 changes the permissions on the specified
 <emphasis>dest</emphasis>
 file or directory to the specified
-<emphasis>mode</emphasis>.
+<emphasis>mode</emphasis>
+which can be octal or string, similar to the bash command.
 Examples:</para>
 
 <literallayout class="monospaced">
@@ -5638,6 +5650,12 @@ Execute(Chmod('file', 0755))
 env.Command('foo.out', 'foo.in',
             [Copy('$TARGET', '$SOURCE'),
              Chmod('$TARGET', 0755)])
+
+Execute(Chmod('file', "ugo+w"))
+
+env.Command('foo.out', 'foo.in',
+            [Copy('$TARGET', '$SOURCE'),
+             Chmod('$TARGET', "ugo+w")])
 </literallayout>
 
   </listitem>
@@ -7039,7 +7057,7 @@ env.Program('MyApp', ['Foo.cpp', 'Bar.cpp'])
 
 <para>For more information see the document for the PCH builder, and the PCH and
 PCHSTOP construction variables. To learn about the details of precompiled
-headers consult the MSDN documention for /Yc, /Yu, and /Yp.</para>
+headers consult the MSDN documentation for /Yc, /Yu, and /Yp.</para>
 
 </refsect2>
 

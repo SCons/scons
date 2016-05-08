@@ -605,17 +605,6 @@ class scons_subst_TestCase(SubstTestCase):
         node = scons_subst("$NODE", env, mode=SUBST_SIG, conv=s, gvars=gvars)
         assert node is n1, node
 
-    #def test_subst_function_return(self):
-    #    """Test scons_subst():  returning a function"""
-    #    env = DummyEnv({'FUNCTION' : foo})
-    #    gvars = env.Dictionary()
-    #    func = scons_subst("$FUNCTION", env, mode=SUBST_RAW, call=None, gvars=gvars)
-    #    assert func is function_foo, func
-    #    func = scons_subst("$FUNCTION", env, mode=SUBST_CMD, call=None, gvars=gvars)
-    #    assert func is function_foo, func
-    #    func = scons_subst("$FUNCTION", env, mode=SUBST_SIG, call=None, gvars=gvars)
-    #    assert func is function_foo, func
-
     def test_subst_overriding_gvars(self):
         """Test scons_subst():  supplying an overriding gvars dictionary"""
         env = DummyEnv({'XXX' : 'xxx'})

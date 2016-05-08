@@ -65,7 +65,7 @@ test.write(['repository', 'SConstruct'], r"""
 def copy(env, source, target):
     source = str(source[0])
     target = str(target[0])
-    print 'copy() < %s > %s' % (source, target)
+    print('copy() < %s > %s' % (source, target))
     open(target, "wb").write(open(source, "rb").read())
 
 Build = Builder(action=copy)

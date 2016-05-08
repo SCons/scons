@@ -683,6 +683,22 @@ return 0;
 
     return ret
 
+def CheckProg(context, prog_name):
+    """
+    Configure check for a specific program.
+
+    Check whether program prog_name exists in path.  If it is found,
+    returns the path for it, otherwise returns None.
+    """
+    context.Display("Checking whether %s program exists..." % prog_name)
+    path = context.env.WhereIs(prog_name)
+    if path:
+        context.Display(path + "\n")
+    else:
+        context.Display("no\n")
+    return path
+
+
 #
 # END OF PUBLIC FUNCTIONS
 #

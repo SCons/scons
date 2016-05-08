@@ -296,6 +296,7 @@ t = UpdateFile(os.path.join('src', 'Announce.txt'))
 if DEBUG: t.file = '/tmp/Announce.txt'
 t.sub('\nRELEASE .*', '\nRELEASE ' + version_string + ' - ' + t.new_date)
 
+
 # Update SConstruct
 
 t = UpdateFile('SConstruct')

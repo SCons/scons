@@ -1,3 +1,7 @@
+"""
+Test compiling and executing using the gcd tool.
+"""
+
 #
 # __COPYRIGHT__
 #
@@ -21,22 +25,10 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__doc__ = """
-collections compatibility module for older (pre-2.4) Python versions
-
-This does not not NOT (repeat, *NOT*) provide complete collections
-functionality.  It only wraps the portions of collections functionality
-used by SCons, in an interface that looks enough like collections for
-our purposes.
-"""
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-# Use exec to hide old names from fixers.
-exec("""if True:
-            from UserDict import UserDict
-            from UserList import UserList
-            from UserString import UserString""")
+from Common.common import testForTool
+testForTool('gdc')
 
 # Local Variables:
 # tab-width:4

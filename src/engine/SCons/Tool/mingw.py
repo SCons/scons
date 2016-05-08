@@ -146,6 +146,7 @@ def generate(env):
     env['SHLINKCOM']   = shlib_action
     env['LDMODULECOM'] = shlib_action
     env.Append(SHLIBEMITTER = [shlib_emitter])
+    env.Append(LDMODULEEMITTER = [shlib_emitter])
     env['AS'] = 'as'
 
     env['WIN32DEFPREFIX']        = ''

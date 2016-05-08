@@ -21,41 +21,57 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-
+ 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
+ 
 """
-Verify that we can use the any() function (in any supported Python
-version we happen to be testing).
-
-This test can be retired at some point in the distant future when Python
-2.5 becomes the minimum version supported by SCons.
+Verify PCH works to build a simple exe and a simple dll.
 """
-
+ 
+import time
+ 
 import TestSCons
-
-test = TestSCons.TestSCons()
-
+ 
+test = TestSCons.TestSCons(match = TestSCons.match_re)
+ 
+test.skip_if_not_msvc()
+ 
+test.write('Main.cpp', """\
+#include "Precompiled.h"
+ 
+int main()
+{
+    return testf();
+}
+""")
+ 
+test.write('Precompiled.cpp', """\
+#include "Precompiled.h"
+""")
+ 
+test.write('Precompiled.h', """\
+#pragma once
+ 
+static int testf()
+{
+    return 0;
+}
+""")
+ 
 test.write('SConstruct', """\
-print any([True, False]) and "YES" or "NO"
-print any([1]) and "YES" or "NO"
-SConscript('SConscript')
+env = Environment()
+ 
+env['PCHSTOP'] = 'Precompiled.h'
+env['PCH'] = env.PCH('Precompiled.cpp')[0]
+ 
+env.SharedLibrary('pch_dll', 'Main.cpp')
+env.Program('pch_exe', 'Main.cpp')
 """)
-
-test.write('SConscript', """\
-print any([0, False]) and "YES" or "NO"
-""")
-
-expect = """\
-YES
-YES
-NO
-"""
-
-test.run(arguments = '-Q -q', stdout = expect)
-
+ 
+test.run(arguments='.', stderr=None)
+ 
 test.pass_test()
-
+ 
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil

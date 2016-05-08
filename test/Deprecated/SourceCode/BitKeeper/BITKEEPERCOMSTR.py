@@ -74,7 +74,7 @@ def cat(env, source, target):
     f.close()
 env = Environment(tools = ['default', 'BitKeeper'],
                   BUILDERS={'Cat':Builder(action=cat)},
-                  BITKEEPERCOM='%(_python_)s my-bk-get.py $TARGET',
+                  BITKEEPERCOM=r'%(_python_)s my-bk-get.py $TARGET',
                   BITKEEPERCOMSTR='Checking out $TARGET from our fake BitKeeper')
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')

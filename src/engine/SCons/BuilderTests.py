@@ -164,7 +164,8 @@ class MyNode_without_target_from_source(object):
         self.builder = None
         self.is_explicit = None
         self.side_effect = 0
-        self.suffix = os.path.splitext(name)[1]
+    def get_suffix(self):
+        return os.path.splitext(self.name)[1]
     def disambiguate(self):
         return self
     def __str__(self):
@@ -350,7 +351,7 @@ class BuilderTestCase(unittest.TestCase):
 
         builder = SCons.Builder.Builder(action="foo")
         target = builder(env, None, source='n22', srcdir='src_dir')[0]
-        p = target.sources[0].path
+        p = target.sources[0].get_internal_path()
         assert p == os.path.join('src_dir', 'n22'), p
 
     def test_mistaken_variables(self):
@@ -488,20 +489,20 @@ class BuilderTestCase(unittest.TestCase):
         builder = SCons.Builder.Builder(prefix = 'lib', action='')
         assert builder.get_prefix(env) == 'lib'
         tgt = builder(env, target = 'tgt1', source = 'src1')[0]
-        assert tgt.path == 'libtgt1', \
-                "Target has unexpected name: %s" % tgt.path
+        assert tgt.get_internal_path() == 'libtgt1', \
+                "Target has unexpected name: %s" % tgt.get_internal_path()
         tgt = builder(env, target = 'tgt2a tgt2b', source = 'src2')[0]
-        assert tgt.path == 'libtgt2a tgt2b', \
-                "Target has unexpected name: %s" % tgt.path
+        assert tgt.get_internal_path() == 'libtgt2a tgt2b', \
+                "Target has unexpected name: %s" % tgt.get_internal_path()
         tgt = builder(env, target = None, source = 'src3')[0]
-        assert tgt.path == 'libsrc3', \
-                "Target has unexpected name: %s" % tgt.path
+        assert tgt.get_internal_path() == 'libsrc3', \
+                "Target has unexpected name: %s" % tgt.get_internal_path()
         tgt = builder(env, target = None, source = 'lib/src4')[0]
-        assert tgt.path == os.path.join('lib', 'libsrc4'), \
-                "Target has unexpected name: %s" % tgt.path
+        assert tgt.get_internal_path() == os.path.join('lib', 'libsrc4'), \
+                "Target has unexpected name: %s" % tgt.get_internal_path()
         tgt = builder(env, target = 'lib/tgt5', source = 'lib/src5')[0]
-        assert tgt.path == os.path.join('lib', 'libtgt5'), \
-                "Target has unexpected name: %s" % tgt.path
+        assert tgt.get_internal_path() == os.path.join('lib', 'libtgt5'), \
+                "Target has unexpected name: %s" % tgt.get_internal_path()
 
         def gen_prefix(env, sources):
             return "gen_prefix() says " + env['FOO']
@@ -521,17 +522,17 @@ class BuilderTestCase(unittest.TestCase):
                                                   '.zzz' : my_emit},
                                         action = '')
         tgt = builder(my_env, target = None, source = 'f1')[0]
-        assert tgt.path == 'default-f1', tgt.path
+        assert tgt.get_internal_path() == 'default-f1', tgt.get_internal_path()
         tgt = builder(my_env, target = None, source = 'f2.c')[0]
-        assert tgt.path == 'default-f2', tgt.path
+        assert tgt.get_internal_path() == 'default-f2', tgt.get_internal_path()
         tgt = builder(my_env, target = None, source = 'f3.in')[0]
-        assert tgt.path == 'out-f3', tgt.path
+        assert tgt.get_internal_path() == 'out-f3', tgt.get_internal_path()
         tgt = builder(my_env, target = None, source = 'f4.x')[0]
-        assert tgt.path == 'y-f4', tgt.path
+        assert tgt.get_internal_path() == 'y-f4', tgt.get_internal_path()
         tgt = builder(my_env, target = None, source = 'f5.foo')[0]
-        assert tgt.path == 'foo-f5', tgt.path
+        assert tgt.get_internal_path() == 'foo-f5', tgt.get_internal_path()
         tgt = builder(my_env, target = None, source = 'f6.zzz')[0]
-        assert tgt.path == 'emit-f6', tgt.path
+        assert tgt.get_internal_path() == 'emit-f6', tgt.get_internal_path()
 
     def test_set_suffix(self):
         """Test the set_suffix() method"""
@@ -561,13 +562,13 @@ class BuilderTestCase(unittest.TestCase):
         assert b1.src_suffixes(env) == ['.c'], b1.src_suffixes(env)
 
         tgt = b1(env, target = 'tgt2', source = 'src2')[0]
-        assert tgt.sources[0].path == 'src2.c', \
-                "Source has unexpected name: %s" % tgt.sources[0].path
+        assert tgt.sources[0].get_internal_path() == 'src2.c', \
+                "Source has unexpected name: %s" % tgt.sources[0].get_internal_path()
 
         tgt = b1(env, target = 'tgt3', source = 'src3a src3b')[0]
         assert len(tgt.sources) == 1
-        assert tgt.sources[0].path == 'src3a src3b.c', \
-                "Unexpected tgt.sources[0] name: %s" % tgt.sources[0].path
+        assert tgt.sources[0].get_internal_path() == 'src3a src3b.c', \
+                "Unexpected tgt.sources[0] name: %s" % tgt.sources[0].get_internal_path()
 
         b2 = SCons.Builder.Builder(src_suffix = '.2', src_builder = b1)
         r = sorted(b2.src_suffixes(env))
@@ -637,14 +638,14 @@ class BuilderTestCase(unittest.TestCase):
         builder = SCons.Builder.Builder(suffix = 'o', action='')
         assert builder.get_suffix(env) == '.o', builder.get_suffix(env)
         tgt = builder(env, target = 'tgt3', source = 'src3')[0]
-        assert tgt.path == 'tgt3.o', \
-                "Target has unexpected name: %s" % tgt.path
+        assert tgt.get_internal_path() == 'tgt3.o', \
+                "Target has unexpected name: %s" % tgt.get_internal_path()
         tgt = builder(env, target = 'tgt4a tgt4b', source = 'src4')[0]
-        assert tgt.path == 'tgt4a tgt4b.o', \
-                "Target has unexpected name: %s" % tgt.path
+        assert tgt.get_internal_path() == 'tgt4a tgt4b.o', \
+                "Target has unexpected name: %s" % tgt.get_internal_path()
         tgt = builder(env, target = None, source = 'src5')[0]
-        assert tgt.path == 'src5.o', \
-                "Target has unexpected name: %s" % tgt.path
+        assert tgt.get_internal_path() == 'src5.o', \
+                "Target has unexpected name: %s" % tgt.get_internal_path()
 
         def gen_suffix(env, sources):
             return "gen_suffix() says " + env['BAR']
@@ -664,17 +665,17 @@ class BuilderTestCase(unittest.TestCase):
                                                   '.zzz' : my_emit},
                                         action='')
         tgt = builder(my_env, target = None, source = 'f1')[0]
-        assert tgt.path == 'f1.default', tgt.path
+        assert tgt.get_internal_path() == 'f1.default', tgt.get_internal_path()
         tgt = builder(my_env, target = None, source = 'f2.c')[0]
-        assert tgt.path == 'f2.default', tgt.path
+        assert tgt.get_internal_path() == 'f2.default', tgt.get_internal_path()
         tgt = builder(my_env, target = None, source = 'f3.in')[0]
-        assert tgt.path == 'f3.out', tgt.path
+        assert tgt.get_internal_path() == 'f3.out', tgt.get_internal_path()
         tgt = builder(my_env, target = None, source = 'f4.x')[0]
-        assert tgt.path == 'f4.y', tgt.path
+        assert tgt.get_internal_path() == 'f4.y', tgt.get_internal_path()
         tgt = builder(my_env, target = None, source = 'f5.bar')[0]
-        assert tgt.path == 'f5.new', tgt.path
+        assert tgt.get_internal_path() == 'f5.new', tgt.get_internal_path()
         tgt = builder(my_env, target = None, source = 'f6.zzz')[0]
-        assert tgt.path == 'f6.emit', tgt.path
+        assert tgt.get_internal_path() == 'f6.emit', tgt.get_internal_path()
 
     def test_single_source(self):
         """Test Builder with single_source flag set"""

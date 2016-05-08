@@ -41,7 +41,7 @@ from . import f77
 # It would be good to look for the AIX F77 package the same way we're now
 # looking for the C and C++ packages.  This should be as easy as supplying
 # the correct package names in the following list and uncommenting the
-# SCons.Platform.aix_get_xlc() call the in the function below.
+# SCons.Platform.aix_get_xlc() call in the function below.
 packages = []
 
 def get_xlf77(env):
