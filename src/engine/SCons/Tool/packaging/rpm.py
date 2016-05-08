@@ -225,7 +225,6 @@ def build_specfile_header(spec):
         'X_RPM_EXCLUDEARCH'   : 'ExcludeArch: %s\n',
         'X_RPM_EXCLUSIVEARCH' : 'ExclusiveArch: %s\n',
         'X_RPM_PREFIX'        : 'Prefix: %s\n',
-        'X_RPM_CONFLICTS'     : 'Conflicts: %s\n',
 
         # internal use
         'X_RPM_BUILDROOT'     : 'BuildRoot: %s\n', }
