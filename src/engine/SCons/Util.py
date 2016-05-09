@@ -32,13 +32,27 @@ import copy
 import re
 import types
 
-from UserDict import UserDict
-from UserList import UserList
-from UserString import UserString
+try:
+    from UserDict import UserDict
+except ImportError as e:
+    from collections import UserDict
+
+try:
+    from UserList import UserList
+except ImportError as e:
+    from collections import UserList
+
+try:
+    from UserString import UserString
+except ImportError as e:
+    from collections import UserString
 
 # Don't "from types import ..." these because we need to get at the
 # types module later to look for UnicodeType.
-InstanceType    = types.InstanceType
+
+# Below not used?
+# InstanceType    = types.InstanceType
+
 MethodType      = types.MethodType
 FunctionType    = types.FunctionType
 try: unicode
