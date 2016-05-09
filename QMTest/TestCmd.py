@@ -658,7 +658,7 @@ except AttributeError:
 
 PIPE = subprocess.PIPE
 
-if subprocess.mswindows:
+if sys.platform == 'win32' and subprocess.mswindows:
     try:
         from win32file import ReadFile, WriteFile
         from win32pipe import PeekNamedPipe
@@ -720,7 +720,7 @@ class Popen(subprocess.Popen):
         getattr(self, which).close()
         setattr(self, which, None)
 
-    if subprocess.mswindows:
+    if sys.platform == 'win32' and subprocess.mswindows:
         def send(self, input):
             if not self.stdin:
                 return None
