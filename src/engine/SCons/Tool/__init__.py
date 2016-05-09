@@ -244,6 +244,9 @@ def createStaticLibBuilder(env):
 
     return static_lib
 
+# used by the following two methods
+linknames = []
+
 def _call_linker_cb(env, callback, args, result = None):
     """Returns the result of env['LINKCALLBACKS'][callback](*args)
     if env['LINKCALLBACKS'] is a dictionary and env['LINKCALLBACKS'][callback]
@@ -268,7 +271,7 @@ def _call_linker_cb(env, callback, args, result = None):
         if Verbose:
             print('_call_linker_cb: env["LINKCALLBACKS"][{:r}] found'.format(callback))
             print('_call_linker_cb: env["LINKCALLBACKS"][{:r}]={:r}'.format(callback, cbfun))
-        if(callable(cbfun)):
+        if (callable(cbfun)):
             if Verbose:
                 print("VersionShLibLinkNames: linkname ",linkname, ", target ",libname)
             linknames.append(linkname)
