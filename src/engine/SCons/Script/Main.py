@@ -10,8 +10,12 @@ some other module.  If it's specific to the "scons" script invocation,
 it goes here.
 """
 
+from __future__ import print_function
+
+
 unsupported_python_version = (2, 6, 0)
 deprecated_python_version = (2, 7, 0)
+
 
 # __COPYRIGHT__
 #
@@ -35,6 +39,7 @@ deprecated_python_version = (2, 7, 0)
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+
 
 import SCons.compat
 
@@ -360,7 +365,7 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
                 # the file not existing.  In either case, print a
                 # message and keep going to try to remove as many
                 # targets as possible.
-                print(("scons: Could not remove '{}':".format(str(t)), e.strerror))
+                print("scons: Could not remove '{0}'".format(str(t)), e.strerror)
             else:
                 if removed:
                     display("Removed " + str(t))
