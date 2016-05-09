@@ -40,12 +40,12 @@ print("env1['TOOL_BAR'] =", env1.get('TOOL_BAR'))
 
 # pick a built-in tool with pretty simple behavior
 env2 = Environment(tools=['SCCS'])
-print("env2['SCCS'] =", env2.get('SCCS')
+print("env2['SCCS'] =", env2.get('SCCS'))
 print("env2['TOOL_SCCS1'] =", env2.get('TOOL_SCCS1'))
 print("env2['TOOL_SCCS2'] =", env2.get('TOOL_SCCS2'))
 
 env3 = Environment(tools=['SCCS'], toolpath=['.'])
-print("env3['SCCS'] =", env3.get('SCCS')
+print("env3['SCCS'] =", env3.get('SCCS'))
 print("env3['TOOL_SCCS1'] =", env3.get('TOOL_SCCS1'))
 print("env3['TOOL_SCCS2'] =", env3.get('TOOL_SCCS2'))
 
