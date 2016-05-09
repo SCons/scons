@@ -85,7 +85,7 @@ SConscript('SConscript7')
 
 
 test.write('SConscript', """\
-# os should not be automajically imported:
+# os should not be automatically imported:
 assert "os" not in globals()
 
 import os
