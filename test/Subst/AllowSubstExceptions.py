@@ -52,37 +52,37 @@ assert env.subst_list('${INDEX[999]}') == [[]]
 AllowSubstExceptions()
 
 try: env.subst('$NAME')
-except SCons.Errors.UserError, e: print e
+except SCons.Errors.UserError, e: print(e)
 else: raise Exception("did not catch expected SCons.Errors.UserError")
 
 try: env.subst('${NAME}')
-except SCons.Errors.UserError, e: print e
+except SCons.Errors.UserError, e: print(e)
 else: raise Exception("did not catch expected SCons.Errors.UserError")
 
 try: env.subst('${INDEX[999]}')
-except SCons.Errors.UserError, e: print e
+except SCons.Errors.UserError, e: print(e)
 else: raise Exception("did not catch expected SCons.Errors.UserError")
 
 try: env.subst_list('$NAME')
-except SCons.Errors.UserError, e: print e
+except SCons.Errors.UserError, e: print(e)
 else: raise Exception("did not catch expected SCons.Errors.UserError")
 
 try: env.subst_list('${NAME}')
-except SCons.Errors.UserError, e: print e
+except SCons.Errors.UserError, e: print(e)
 else: raise Exception("did not catch expected SCons.Errors.UserError")
 
 try: env.subst_list('${INDEX[999]}')
-except SCons.Errors.UserError, e: print e
+except SCons.Errors.UserError, e: print(e)
 else: raise Exception("did not catch expected SCons.Errors.UserError")
 
 
 
 try: env.subst('${1/0}')
-except SCons.Errors.UserError, e: print e
+except SCons.Errors.UserError, e: print(e)
 else: raise Exception("did not catch expected SCons.Errors.UserError")
 
 try: env.subst_list('${1/0}')
-except SCons.Errors.UserError, e: print e
+except SCons.Errors.UserError, e: print(e)
 else: raise Exception("did not catch expected SCons.Errors.UserError")
 
 AllowSubstExceptions(ZeroDivisionError)
