@@ -1,0 +1,11 @@
+from glob import glob
+
+src_files = glob( 'src/*.c' )
+include_files = glob( 'src/*.h' )
+
+SharedLibrary( 'foobar', src_files )
+
+Package( projectname = 'libfoobar',
+         version     = '1.2.3',
+         type        = [ 'src_zip', 'src_targz', 'src_tarbz2' ],
+         source      = FindSourceFiles() )

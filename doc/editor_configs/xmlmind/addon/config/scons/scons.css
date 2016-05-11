@@ -1,0 +1,11 @@
+doc,
+para {
+     display: block;
+}
+para {
+     margin: 1ex 0;
+}
+para[align] {
+     text-align: concatenate(attr(align));
+}
+

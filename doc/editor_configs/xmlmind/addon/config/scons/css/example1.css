@@ -1,0 +1,20 @@
+/*
+ * Copyright (c) 2003-2008 Pixware. 
+ *
+ * This file is part of the XMLmind XML Editor project.
+ * For conditions of distribution and use, see the accompanying legal.txt file.
+ *
+ * A CSS style sheet for DocBook V4.5.
+ */
+
+doc,
+para {
+     display: block;
+}
+para {
+     margin: 1ex 0;
+}
+para[align] {
+     text-align: concatenate(attr(align));
+}
+

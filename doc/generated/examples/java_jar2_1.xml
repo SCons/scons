@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q</userinput>
+javac -d classes -sourcepath prog1 prog1/Example1.java prog1/Example2.java
+javac -d classes -sourcepath prog2 prog2/Example3.java prog2/Example4.java
+jar cf prog1.jar -C classes Example1.class -C classes Example2.class
+jar cf prog2.jar -C classes Example3.class -C classes Example4.class
+</screen>
