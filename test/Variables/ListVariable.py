@@ -67,11 +67,14 @@ opts.Save(optsfile, env)
 Help(opts.GenerateHelpText(env))
 
 print(env['shared'])
-if 'ical' in env['shared']: print('1')
-else: print('0')
-for x in  env['shared']:
-    print (x,)
-print()
+
+if 'ical' in env['shared']:
+    print('1')
+else:
+    print('0')
+
+print(" ".join(env['shared']))
+
 print(env.subst('$shared'))
 # Test subst_path() because it's used in $CPPDEFINES expansions.
 print(env.subst_path('$shared'))
