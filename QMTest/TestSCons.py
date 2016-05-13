@@ -1152,7 +1152,7 @@ try:
     print(distutils.sysconfig.get_python_inc())
     print(os.path.join(exec_prefix, 'libs'))
 except:
-    print(os.path.join(sys.prefix, 'include', py_ver)
+    print(os.path.join(sys.prefix, 'include', py_ver))
     print(os.path.join(sys.prefix, 'lib', py_ver, 'config'))
 print(py_ver)
 """)
