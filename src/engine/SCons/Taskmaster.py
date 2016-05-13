@@ -539,7 +539,11 @@ class Task(object):
         except ValueError:
             exc_type, exc_value = exc
             exc_traceback = None
-        raise exc_type, exc_value, exc_traceback
+        # raise exc_type, exc_value, exc_traceback
+        raise exc_type(exc_value).with_traceback(exc_traceback)
+
+        # raise e.__class__, e.__class__(e), sys.exc_info()[2]
+
 
 class AlwaysTask(Task):
     def needs_execute(self):

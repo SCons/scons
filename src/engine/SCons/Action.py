@@ -233,8 +233,8 @@ def _code_contents(code):
 
     # The code contents depends on the number of local variables
     # but not their actual names.
-    contents.append("{}, {}".format(code.co_argcount, len(code.co_varnames)))
-    contents.append(", {}, {}".format(len(code.co_cellvars), len(code.co_freevars)))
+    contents.append(b"{}, {}".format(code.co_argcount, len(code.co_varnames)))
+    contents.append(b", {}, {}".format(len(code.co_cellvars), len(code.co_freevars)))
 
     # The code contents depends on any constants accessed by the
     # function. Note that we have to call _object_contents on each
