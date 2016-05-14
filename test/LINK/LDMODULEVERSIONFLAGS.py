@@ -37,6 +37,7 @@ env = SCons.Defaults.DefaultEnvironment()
 platform = SCons.Platform.platform_default()
 tool_list = SCons.Platform.DefaultToolList(platform, env)
 
+
 test = TestSCons.TestSCons()
 if 'gnulink' in tool_list:
     versionflags = r".+ -Wl,-Bsymbolic -Wl,-soname=libfoo.so.1( .+)+"
@@ -46,19 +47,20 @@ else:
     test.skip_test('No testable likers found, skipping the test\n')
 
 
-# stdout must not contain SHLIBVERSIONFLAGS if there is no SHLIBVERSION provided
+# We expect stdout to not contain LDMODULEVERSIONFLAGS if there is no
+# SHLIBVERSION nor LDMODULEVERSION provided
 test.write('foo.c', foo_c_src)
-test.write('SConstruct', "SharedLibrary('foo','foo.c')\n")
+test.write('SConstruct', "LoadableModule('foo','foo.c')\n")
 test.run()
 test.fail_test(test.match_re_dotall(test.stdout(), versionflags))
 test.run(arguments = ['-c'])
 
-# stdout must contain SHLIBVERSIONFLAGS if there is SHLIBVERSION provided
-test = TestSCons.TestSCons()
-test.write('foo.c', foo_c_src)
-test.write('SConstruct', "SharedLibrary('foo','foo.c',SHLIBVERSION='1.2.3')\n")
-test.run(stdout = versionflags, match = TestSCons.match_re_dotall)
-test.run(arguments = ['-c'])
+for versionvar in ['SHLIBVERSION', 'LDMODULEVERSION']:
+    test = TestSCons.TestSCons()
+    test.write('foo.c', foo_c_src)
+    test.write('SConstruct', "LoadableModule('foo','foo.c',%s='1.2.3')\n" % versionvar)
+    test.run(stdout = versionflags, match = TestSCons.match_re_dotall)
+    test.run(arguments = ['-c'])
 
 test.pass_test()
 
