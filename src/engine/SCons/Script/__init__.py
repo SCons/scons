@@ -354,6 +354,7 @@ GlobalDefaultBuilders = [
     'Java',
     'JavaH',
     'Library',
+    'LoadableModule',
     'M4',
     'MSVSProject',
     'Object',
