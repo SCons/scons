@@ -187,7 +187,9 @@ sys.path = libs + sys.path
 import SCons.compat
 
 import whichdb
-import dbm
+
+# was added for py3, but breaks py2 on windows..
+#import dbm
 import time
 import pickle
 import imp
@@ -205,8 +207,14 @@ def my_whichdb(filename):
         pass
     return _orig_whichdb(filename)
 
+
+# Should work on python2
 _orig_whichdb = whichdb.whichdb
-dbm.whichdb = my_whichdb
+whichdb.whichdb = my_whichdb
+
+# was changed for python3
+#_orig_whichdb = whichdb.whichdb
+#dbm.whichdb = my_whichdb
 
 def my_import(mname):
     if '.' in mname:
@@ -523,7 +531,9 @@ if Do_Call:
         Do_Call(a)
 else:
     for a in args:
-        dbm_name = dbm.whichdb(a)
+        # changed for py3 compat, broke py2 on windows
+        # dbm_name = dbm.whichdb(a)
+        dbm_name = whichdb.whichdb(a)
         if dbm_name:
             Map_Module = {'SCons.dblite' : 'dblite'}
             if dbm_name != "SCons.dblite":
