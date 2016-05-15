@@ -77,6 +77,9 @@ g77 = test.detect_tool(fc)
 
 if g77:
 
+    directory = 'x'
+    test.subdir(directory)
+
     test.write("wrapper.py",
 """import os
 import sys
@@ -87,7 +90,7 @@ os.system(" ".join(sys.argv[1:]))
     test.write('SConstruct', """
 foo = Environment(F77 = '%(fc)s', tools = ['default', 'f77'], F77FILESUFFIXES = [".f"])
 f77 = foo.Dictionary('F77')
-bar = foo.Clone(F77 = r'%(_python_)s wrapper.py ' + f77, F77FLAGS = '-Ix')
+bar = foo.Clone(F77 = r'%(_python_)s wrapper.py ' + f77, F77FLAGS = '-I%(directory)s')
 foo.Program(target = 'foo', source = 'foo.f')
 bar.Program(target = 'bar', source = 'bar.f')
 """ % locals())
