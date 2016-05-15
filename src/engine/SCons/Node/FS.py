@@ -3082,7 +3082,7 @@ class File(Base):
                 try:
                     self._createDir()
                 except SCons.Errors.StopError as drive:
-                    raise SCons.Errors.StopError("No drive `%s' for target `{}'.".format(drive, self))
+                    raise SCons.Errors.StopError("No drive `{}' for target `{}'.".format(drive, self))
 
     #
     #
