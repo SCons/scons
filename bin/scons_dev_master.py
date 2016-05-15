@@ -11,7 +11,7 @@ import sys
 from Command import CommandRunner, Usage
 
 INITIAL_PACKAGES = [
-    'subversion',
+    'mercurial',
 ]
 
 INSTALL_PACKAGES = [
@@ -123,7 +123,7 @@ Usage:  scons_dev_master.py [-hnqy] [--password PASSWORD] [--username USER]
         buildbot                Install packages for running BuildBot
 """
 
-    scons_url = 'http://scons.tigris.org/svn/scons/trunk'
+    scons_url = 'https://bdbaddog@bitbucket.org/scons/scons'
     sudo = 'sudo'
     password = '""'
     username = 'guest'
@@ -171,7 +171,7 @@ Usage:  scons_dev_master.py [-hnqy] [--password PASSWORD] [--username USER]
             cmd.run('%(sudo)s apt-get %(yesflag)s upgrade')
         elif arg == 'checkout':
             cmd.run('%(sudo)s apt-get %(yesflag)s install %(initial_packages)s')
-            cmd.run('svn co --username guest --password "" %(scons_url)s')
+            cmd.run('hg clone" %(scons_url)s')
         elif arg == 'building':
             cmd.run('%(sudo)s apt-get %(yesflag)s install %(building_packages)s')
         elif arg == 'testing':
