@@ -95,6 +95,9 @@ g77 = test.detect_tool(fc)
 
 if g77:
 
+    directory = 'x'
+    test.subdir(directory)
+
     test.write("wrapper.py",
 """import os
 import sys
@@ -105,7 +108,7 @@ os.system(" ".join(sys.argv[1:]))
     test.write('SConstruct', """
 foo = Environment(FORTRAN = '%(fc)s')
 f77 = foo.Dictionary('FORTRAN')
-bar = foo.Clone(FORTRAN = r'%(_python_)s wrapper.py ' + f77, FORTRANFLAGS = '-Ix')
+bar = foo.Clone(FORTRAN = r'%(_python_)s wrapper.py ' + f77, FORTRANFLAGS = '-I%(directory)s')
 foo.Program(target = 'foo', source = 'foo.f')
 bar.Program(target = 'bar', source = 'bar.f')
 """ % locals())
