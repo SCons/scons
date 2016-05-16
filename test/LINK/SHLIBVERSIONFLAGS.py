@@ -43,7 +43,7 @@ if 'gnulink' in tool_list:
 elif 'sunlink' in tool_list:
     versionflags = r".+ -h libfoo.so.1( .+)+"
 else:
-    test.skip_test('No testable likers found, skipping the test\n')
+    test.skip_test('No testable linkers found, skipping the test\n')
 
 
 # stdout must not contain SHLIBVERSIONFLAGS if there is no SHLIBVERSION provided
