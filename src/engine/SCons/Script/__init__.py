@@ -41,7 +41,12 @@ start_time = time.time()
 
 import collections
 import os
-import StringIO
+
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+
 import sys
 
 # Special chicken-and-egg handling of the "--debug=memoizer" flag:
