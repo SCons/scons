@@ -38,10 +38,12 @@ tool definition.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import imp
+import importlib
 import sys
 import re
 import os
 import shutil
+
 
 import SCons.Builder
 import SCons.Errors
@@ -114,29 +116,55 @@ class Tool(object):
         sys.path = self.toolpath + sys.path
 
         try:
+            # Try site_tools first
+            return importlib.import_module(self.name)
+        except ImportError as e:
+            # Then try modules in main distribution
+            return importlib.import_module('SCons.Tool.'+self.name)
+        except ImportError as e:
+            if str(e) != "No module named %s" % self.name:
+                raise SCons.Errors.EnvironmentError(e)
             try:
-                file, path, desc = imp.find_module(self.name, self.toolpath)
-                try:
-                    return imp.load_module(self.name, file, path, desc)
-                finally:
-                    if file:
-                        file.close()
-            except ImportError as e:
-                if str(e)!="No module named %s"%self.name:
-                    raise SCons.Errors.EnvironmentError(e)
-                try:
-                    import zipimport
-                except ImportError:
-                    pass
-                else:
-                    for aPath in self.toolpath:
-                        try:
-                            importer = zipimport.zipimporter(aPath)
-                            return importer.load_module(self.name)
-                        except ImportError as e:
-                            pass
+                import zipimport
+            except ImportError:
+                pass
+            else:
+                for aPath in self.toolpath:
+                    try:
+                        importer = zipimport.zipimporter(aPath)
+                        return importer.load_module(self.name)
+                    except ImportError as e:
+                        pass
+
         finally:
             sys.path = oldpythonpath
+
+        # old code
+        # try:
+        #     try:
+        #         file, path, desc = imp.find_module(self.name, self.toolpath)
+        #         try:
+        #             return imp.load_module(self.name, file, path, desc)
+        #
+        #         finally:
+        #             if file:
+        #                 file.close()
+        #     except ImportError as e:
+        #         if str(e)!="No module named %s"%self.name:
+        #             raise SCons.Errors.EnvironmentError(e)
+        #         try:
+        #             import zipimport
+        #         except ImportError:
+        #             pass
+        #         else:
+        #             for aPath in self.toolpath:
+        #                 try:
+        #                     importer = zipimport.zipimporter(aPath)
+        #                     return importer.load_module(self.name)
+        #                 except ImportError as e:
+        #                     pass
+        # finally:
+        #     sys.path = oldpythonpath
 
         full_name = 'SCons.Tool.' + self.name
         try:
