@@ -120,21 +120,22 @@ class Tool(object):
             return importlib.import_module(self.name)
         except ImportError as e:
             # Then try modules in main distribution
-            return importlib.import_module('SCons.Tool.'+self.name)
-        except ImportError as e:
-            if str(e) != "No module named %s" % self.name:
-                raise SCons.Errors.EnvironmentError(e)
             try:
-                import zipimport
-            except ImportError:
-                pass
-            else:
-                for aPath in self.toolpath:
-                    try:
-                        importer = zipimport.zipimporter(aPath)
-                        return importer.load_module(self.name)
-                    except ImportError as e:
-                        pass
+                return importlib.import_module('SCons.Tool.'+self.name)
+            except ImportError as e:
+                if str(e) != "No module named %s" % self.name:
+                    raise SCons.Errors.EnvironmentError(e)
+                try:
+                    import zipimport
+                except ImportError:
+                    pass
+                else:
+                    for aPath in self.toolpath:
+                        try:
+                            importer = zipimport.zipimporter(aPath)
+                            return importer.load_module(self.name)
+                        except ImportError as e:
+                            pass
 
         finally:
             sys.path = oldpythonpath
