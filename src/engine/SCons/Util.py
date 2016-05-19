@@ -55,9 +55,13 @@ except ImportError as e:
 
 MethodType      = types.MethodType
 FunctionType    = types.FunctionType
-try: unicode
-except NameError: UnicodeType = None
-else:             UnicodeType = unicode
+
+try:
+    unicode
+except NameError:
+    UnicodeType = str
+else:
+    UnicodeType = unicode
 
 def dictify(keys, values, result={}):
     for k, v in zip(keys, values):
@@ -172,7 +176,7 @@ class DisplayEngine(object):
             return
         if append_newline: text = text + '\n'
         try:
-            sys.stdout.write(unicode(text))
+            sys.stdout.write(UnicodeType(text))
         except IOError:
             # Stdout might be connected to a pipe that has been closed
             # by now. The most likely reason for the pipe being closed
