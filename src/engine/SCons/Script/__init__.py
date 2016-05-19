@@ -269,7 +269,7 @@ def HelpFunction(text, append=False):
     global help_text
     if help_text is None:
         if append:
-            s = StringIO.StringIO()
+            s = StringIO()
             PrintHelp(s)  
             help_text = s.getvalue()
             s.close()
