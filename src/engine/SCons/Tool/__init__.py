@@ -115,57 +115,62 @@ class Tool(object):
         oldpythonpath = sys.path
         sys.path = self.toolpath + sys.path
 
-        try:
-            # Try site_tools first
-            return importlib.import_module(self.name)
-        except ImportError as e:
-            # Then try modules in main distribution
+
+        if False and sys.version_info[0] < 3:
+            # Py 2 code
             try:
-                return importlib.import_module('SCons.Tool.'+self.name)
-            except ImportError as e:
-                if str(e) != "No module named %s" % self.name:
-                    raise SCons.Errors.EnvironmentError(e)
                 try:
-                    import zipimport
-                except ImportError:
-                    pass
-                else:
-                    for aPath in self.toolpath:
-                        try:
-                            importer = zipimport.zipimporter(aPath)
-                            return importer.load_module(self.name)
-                        except ImportError as e:
-                            pass
+                    file, path, desc = imp.find_module(self.name, self.toolpath)
+                    try:
+                        return imp.load_module(self.name, file, path, desc)
 
-        finally:
-            sys.path = oldpythonpath
+                    finally:
+                        if file:
+                            file.close()
+                except ImportError as e:
+                    if str(e)!="No module named %s"%self.name:
+                        raise SCons.Errors.EnvironmentError(e)
+                    try:
+                        import zipimport
+                    except ImportError:
+                        pass
+                    else:
+                        for aPath in self.toolpath:
+                            try:
+                                importer = zipimport.zipimporter(aPath)
+                                return importer.load_module(self.name)
+                            except ImportError as e:
+                                pass
+            finally:
+                sys.path = oldpythonpath
+        else:
+            # Py 3 code
+            try:
+                # Try site_tools first
+                return importlib.import_module(self.name)
+            except ImportError as e:
+                # Then try modules in main distribution
+                try:
+                    return importlib.import_module('SCons.Tool.'+self.name)
+                except ImportError as e:
+                    if str(e) != "No module named %s" % self.name:
+                        raise SCons.Errors.EnvironmentError(e)
+                    try:
+                        import zipimport
+                    except ImportError:
+                        pass
+                    else:
+                        for aPath in self.toolpath:
+                            try:
+                                importer = zipimport.zipimporter(aPath)
+                                return importer.load_module(self.name)
+                            except ImportError as e:
+                                pass
 
-        # old code
-        # try:
-        #     try:
-        #         file, path, desc = imp.find_module(self.name, self.toolpath)
-        #         try:
-        #             return imp.load_module(self.name, file, path, desc)
-        #
-        #         finally:
-        #             if file:
-        #                 file.close()
-        #     except ImportError as e:
-        #         if str(e)!="No module named %s"%self.name:
-        #             raise SCons.Errors.EnvironmentError(e)
-        #         try:
-        #             import zipimport
-        #         except ImportError:
-        #             pass
-        #         else:
-        #             for aPath in self.toolpath:
-        #                 try:
-        #                     importer = zipimport.zipimporter(aPath)
-        #                     return importer.load_module(self.name)
-        #                 except ImportError as e:
-        #                     pass
-        # finally:
-        #     sys.path = oldpythonpath
+            finally:
+                sys.path = oldpythonpath
+
+
 
         full_name = 'SCons.Tool.' + self.name
         try:
