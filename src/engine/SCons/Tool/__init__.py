@@ -116,7 +116,7 @@ class Tool(object):
         sys.path = self.toolpath + sys.path
 
 
-        if False and sys.version_info[0] < 3:
+        if sys.version_info[0] < 3:
             # Py 2 code
             try:
                 try:
