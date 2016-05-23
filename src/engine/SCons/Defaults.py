@@ -540,10 +540,10 @@ class Variable_Method_Caller(object):
             frame = frame.f_back
         return None
 
-# if env[version_var] id defined, returns env[flags_var], otherwise returns None
+# if $version_var is not empty, returns env[flags_var], otherwise returns None
 def __libversionflags(env, version_var, flags_var):
     try:
-        if env[version_var]:
+        if env.subst('$'+version_var):
             return env[flags_var]
     except KeyError:
         pass

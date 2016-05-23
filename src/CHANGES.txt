@@ -11,6 +11,15 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Whatever John Doe did.
 
 
+  From Paweł Tomulik:
+    - Fixed the issue with LDMODULEVERSIONFLAGS reported by Tim Jennes
+      (https://pairlist4.pair.net/pipermail/scons-users/2016-May/004893.html).
+      An error was causing “-Wl,Bsymbolic” being added to linker's command-line
+      even when there was no specified value in LDMODULEVERSION and thus no
+      need for the flags to be specified.
+    - Added LoadableModule to the list of global functions (DefaultEnvironment
+      builders).
+
 RELEASE 2.5.0 - Mon, 09 Apr 2016 11:27:42 -0700
 
   From Dirk Baechle:
