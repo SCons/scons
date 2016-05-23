@@ -45,10 +45,10 @@ if sys.platform != 'win32':
 os.mkdir(sub2_xxx_exe)
 
 test.write(sub3_xxx_exe, "\n")
-os.chmod(sub3_xxx_exe, 0777)
+os.chmod(sub3_xxx_exe, 0o777)
 
 test.write(sub4_xxx_exe, "\n")
-os.chmod(sub4_xxx_exe, 0777)
+os.chmod(sub4_xxx_exe, 0o777)
 
 env_path = os.environ['PATH']
 
@@ -67,14 +67,14 @@ pathdirs_1243 = [ test.workpath('sub1'),
 test.write('SConstruct', """
 SConscript('%s')
 env = Environment()
-print WhereIs('xxx.exe')
-print WhereIs('xxx.exe', %s)
-print env.WhereIs('xxx.exe', %s)
-print WhereIs('xxx.exe', %s)
-print WhereIs('xxx.exe', %s)
-print WhereIs('xxx.exe', %s, reject=%s)
+print(WhereIs('xxx.exe'))
+print(WhereIs('xxx.exe', %s))
+print(env.WhereIs('xxx.exe', %s))
+print(WhereIs('xxx.exe', %s))
+print(WhereIs('xxx.exe', %s))
+print(WhereIs('xxx.exe', %s, reject=%s))
 env.Replace( XXXNAME='xxx.exe' )
-print env.WhereIs( '$XXXNAME', %s )
+print(env.WhereIs( '$XXXNAME', %s ))
 """ % (subdir_SConscript,
        repr(os.pathsep.join(pathdirs_1234)),
        repr(os.pathsep.join(pathdirs_1243)),
@@ -87,11 +87,11 @@ print env.WhereIs( '$XXXNAME', %s )
 
 test.write(subdir_SConscript, """
 env = Environment()
-print WhereIs('xxx.exe')
-print WhereIs('xxx.exe', %s)
-print env.WhereIs('xxx.exe', %s)
-print WhereIs('xxx.exe', %s)
-print WhereIs('xxx.exe', %s)
+print(WhereIs('xxx.exe'))
+print(WhereIs('xxx.exe', %s))
+print(env.WhereIs('xxx.exe', %s))
+print(WhereIs('xxx.exe', %s))
+print(WhereIs('xxx.exe', %s))
 """ % (repr(os.pathsep.join(pathdirs_1234)),
        repr(os.pathsep.join(pathdirs_1243)),
        repr(pathdirs_1234),

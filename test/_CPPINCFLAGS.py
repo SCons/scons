@@ -39,9 +39,9 @@ env=Environment(CPPPATH=['tmp'], INCPREFIX='-I')
 d=Entry('foo.d')
 e=Entry('foo.e')
 f=File('foo.f')
-print env.subst('$_CPPINCFLAGS', target=e, source=f)
-print env.subst('$_CPPINCFLAGS', target=d, source=f)
-print env.subst('$_CPPINCFLAGS', target=f, source=d)
+print(env.subst('$_CPPINCFLAGS', target=e, source=f))
+print(env.subst('$_CPPINCFLAGS', target=d, source=f))
+print(env.subst('$_CPPINCFLAGS', target=f, source=d))
 """)
 
 expect = """\

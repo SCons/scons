@@ -70,7 +70,7 @@ import os
 def func(env, target, source):
     cmd = r'%(_python_)s build.py %%s 3 %%s' %% (' '.join(map(str, target)),
                                        ' '.join(map(str, source)))
-    print cmd
+    print(cmd)
     return os.system(cmd)
 B = Builder(action = func)
 env = Environment(BUILDERS = { 'B' : B })
@@ -91,7 +91,7 @@ class bld(object):
         self.cmd = r'%(_python_)s build.py %%s 4 %%s'
     def __call__(self, env, target, source):
         cmd = self.get_contents(env, target, source)
-        print cmd
+        print(cmd)
         return os.system(cmd)
     def get_contents(self, env, target, source):
         return self.cmd %% (' '.join(map(str, target)),
@@ -114,9 +114,9 @@ def func(env, target, source):
 env = Environment(S = Action('foo'),
                   F = Action(func),
                   L = Action(['arg1', 'arg2']))
-print env.subst('$S')
-print env.subst('$F')
-print env.subst('$L')
+print(env.subst('$S'))
+print(env.subst('$F'))
+print(env.subst('$L'))
 """)
 
 test.run(arguments = '-Q .', stdout = """\

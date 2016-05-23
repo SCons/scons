@@ -45,11 +45,11 @@ def scan(node, env, scanpaths, arg):
     return includes
 
 def kfile_scan(node, env, scanpaths, arg):
-    print 'kscan: ' + str(node)
+    print('kscan: ' + str(node))
     return scan(node, env, scanpaths, arg)
 
 def k2file_scan(node, env, scanpaths, arg):
-    print 'k2scan: ' + str(node)
+    print('k2scan: ' + str(node))
     return scan(node, env, scanpaths, arg)
 
 kscan = Scanner(name = 'kfile',

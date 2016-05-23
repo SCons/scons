@@ -36,7 +36,7 @@ test.subdir('sub1', 'sub2')
 
 test.write("SConstruct", """\
 env = Environment(SUB1='sub1', SUB2='sub2')
-print "SConstruct"
+print("SConstruct")
 x = 'xxx'
 y = 'yyy'
 env.Export(["x", "y"])
@@ -49,15 +49,15 @@ env.SConscript(['s3', 's4'])
 test.write(['sub1', 'SConscript'], """\
 env = Environment()
 env.Import("x")
-print "sub1/SConscript"
-print "x =", x
+print("sub1/SConscript")
+print("x =", x)
 """)
 
 test.write(['sub2', 'SConscript'], """\
 env = Environment()
 env.Import("y")
-print "sub2/SConscript"
-print "y =", y
+print("sub2/SConscript")
+print("y =", y)
 """)
 
 test.write('s1', "\n")

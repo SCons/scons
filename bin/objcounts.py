@@ -20,6 +20,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import print_function
 
 import re
 import sys
@@ -27,10 +28,10 @@ import sys
 filenames = sys.argv[1:]
 
 if len(sys.argv) != 3:
-    print """Usage:  objcounts.py file1 file2
+    print("""Usage:  objcounts.py file1 file2
 
 Compare the --debug=object counts from two build logs.
-"""
+""")
     sys.exit(0)
 
 def fetch_counts(fname):
@@ -81,10 +82,9 @@ def diffstr(c1, c2):
     return " %5s/%-5s %-8s" % (c1, c2, d)
 
 def printline(c1, c2, classname):
-    print \
-          diffstr(c1[2], c2[2]) + \
+    print(diffstr(c1[2], c2[2]) + \
           diffstr(c1[3], c2[3]) + \
-          ' ' + classname
+          ' ' + classname)
 
 for k in sorted(common.keys()):
     c = common[k]

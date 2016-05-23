@@ -40,7 +40,7 @@ subdir_foo_in = os.path.join('subdir', 'foo.in')
 subdir_foo_out = os.path.join('subdir', 'foo.out')
 
 test.write('SConstruct', """\
-print "SConstruct, Exit()"
+print("SConstruct, Exit()")
 Exit()
 """)
 
@@ -51,7 +51,7 @@ SConstruct, Exit()
 
 test.write('SConstruct', """\
 env = Environment()
-print "SConstruct, env.Exit()"
+print("SConstruct, env.Exit()")
 env.Exit()
 """)
 
@@ -61,7 +61,7 @@ SConstruct, env.Exit()
 """)
 
 test.write('SConstruct', """\
-print "SConstruct"
+print("SConstruct")
 Exit(7)
 """)
 
@@ -71,12 +71,12 @@ SConstruct
 """)
 
 test.write('SConstruct', """\
-print "SConstruct"
+print("SConstruct")
 SConscript('subdir/SConscript')
 """)
 
 test.write(['subdir', 'SConscript'], """\
-print "subdir/SConscript"
+print("subdir/SConscript")
 Exit()
 """)
 
@@ -87,7 +87,7 @@ subdir/SConscript
 """)
 
 test.write(['subdir', 'SConscript'], """\
-print "subdir/SConscript"
+print("subdir/SConscript")
 Exit(17)
 """)
 

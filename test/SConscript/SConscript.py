@@ -37,7 +37,7 @@ import foo
 
 assert foo.foo == 4
 
-print "SConstruct", os.getcwd()
+print ("SConstruct", os.getcwd())
 SConscript('SConscript')
 
 x1 = "SConstruct x1"
@@ -85,11 +85,11 @@ SConscript('SConscript7')
 
 
 test.write('SConscript', """\
-# os should not be automajically imported:
+# os should not be automatically imported:
 assert "os" not in globals()
 
 import os
-print "SConscript " + os.getcwd()
+print ("SConscript " + os.getcwd())
 """)
 
 test.write('SConscript1', """

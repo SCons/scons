@@ -66,7 +66,7 @@ def generate(env):
     try:
         env['BUILDERS']['CopyTo']
         env['BUILDERS']['CopyAs']
-    except KeyError, e:
+    except KeyError as e:
         global copyToBuilder
         if copyToBuilder is None:
             copyToBuilder = SCons.Builder.Builder(

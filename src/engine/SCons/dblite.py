@@ -1,10 +1,10 @@
 # dblite.py module contributed by Ralf W. Grosse-Kunstleve.
 # Extended for Unicode by Steven Knight.
+from __future__ import print_function
 
 import SCons.compat
 
 import os
-# compat layer imports "cPickle" for us if it's available.
 import pickle
 import shutil
 import time
@@ -13,7 +13,7 @@ keep_all_files = 00000
 ignore_corrupt_dbfiles = 0
 
 def corruption_warning(filename):
-    print "Warning: Discarding corrupt database:", filename
+    print("Warning: Discarding corrupt database:", filename)
 
 try: unicode
 except NameError:
@@ -22,13 +22,16 @@ except NameError:
 else:
     def is_string(s):
         return type(s) in (str, unicode)
-
+def is_bytes(s):
+    return isinstance (s, bytes)
 try:
     unicode('a')
 except NameError:
     def unicode(s): return s
 
 dblite_suffix = '.dblite'
+if bytes is not str:
+    dblite_suffix += '.p3'
 tmp_suffix = '.tmp'
 
 class dblite(object):
@@ -76,7 +79,7 @@ class dblite(object):
         statinfo = os.stat(self._file_name)
         self._chown_to = statinfo.st_uid
         self._chgrp_to = statinfo.st_gid
-      except OSError, e:
+      except OSError as e:
         # db file doesn't exist yet.
         # Check os.environ for SUDO_UID, use if set
         self._chown_to = int(os.environ.get('SUDO_UID', -1))
@@ -89,7 +92,7 @@ class dblite(object):
     else:
       try:
         f = self._open(self._file_name, "rb")
-      except IOError, e:
+      except IOError as e:
         if (self._flag != "c"):
           raise e
         self._open(self._file_name, "wb", self._mode)
@@ -124,7 +127,7 @@ class dblite(object):
     # (e.g. from a previous run as root).  We should still be able to
     # unlink() the file if the directory's writable, though, so ignore
     # any OSError exception  thrown by the chmod() call.
-    try: self._os_chmod(self._file_name, 0777)
+    try: self._os_chmod(self._file_name, 0o777)
     except OSError: pass
     self._os_unlink(self._file_name)
     self._os_rename(self._tmp_name, self._file_name)
@@ -150,10 +153,10 @@ class dblite(object):
     self._check_writable()
     if (not is_string(key)):
       raise TypeError("key `%s' must be a string but is %s" % (key, type(key)))
-    if (not is_string(value)):
-      raise TypeError("value `%s' must be a string but is %s" % (value, type(value)))
+    if (not is_bytes(value)):
+      raise TypeError("value `%s' must be a bytes but is %s" % (value, type(value)))
     self._dict[key] = value
-    self._needs_sync = 0001
+    self._needs_sync = 0o001
 
   def keys(self):
     return list(self._dict.keys())
@@ -173,7 +176,7 @@ class dblite(object):
   def __len__(self):
     return len(self._dict)
 
-def open(file, flag=None, mode=0666):
+def open(file, flag=None, mode=0o666):
   return dblite(file, flag, mode)
 
 def _exercise():
@@ -200,7 +203,7 @@ def _exercise():
   assert db[unicode("ubar")] == unicode("ufoo")
   try:
     db.sync()
-  except IOError, e:
+  except IOError as e:
     assert str(e) == "Read-only database: tmp.dblite"
   else:
     raise RuntimeError("IOError expected.")
@@ -210,13 +213,13 @@ def _exercise():
   db.sync()
   try:
     db[(1,2)] = "tuple"
-  except TypeError, e:
+  except TypeError as e:
     assert str(e) == "key `(1, 2)' must be a string but is <type 'tuple'>", str(e)
   else:
     raise RuntimeError("TypeError exception expected")
   try:
     db["list"] = [1,2]
-  except TypeError, e:
+  except TypeError as e:
     assert str(e) == "value `[1, 2]' must be a string but is <type 'list'>", str(e)
   else:
     raise RuntimeError("TypeError exception expected")
@@ -240,11 +243,10 @@ def _exercise():
   os.unlink("tmp.dblite")
   try:
     db = open("tmp", "w")
-  except IOError, e:
+  except IOError as e:
     assert str(e) == "[Errno 2] No such file or directory: 'tmp.dblite'", str(e)
   else:
     raise RuntimeError("IOError expected.")
-  print "OK"
 
 if (__name__ == "__main__"):
   _exercise()

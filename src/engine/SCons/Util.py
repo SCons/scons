@@ -32,16 +32,36 @@ import copy
 import re
 import types
 
-from collections import UserDict, UserList, UserString
+try:
+    from UserDict import UserDict
+except ImportError as e:
+    from collections import UserDict
+
+try:
+    from UserList import UserList
+except ImportError as e:
+    from collections import UserList
+
+try:
+    from UserString import UserString
+except ImportError as e:
+    from collections import UserString
 
 # Don't "from types import ..." these because we need to get at the
 # types module later to look for UnicodeType.
-InstanceType    = types.InstanceType
+
+# Below not used?
+# InstanceType    = types.InstanceType
+
 MethodType      = types.MethodType
 FunctionType    = types.FunctionType
-try: unicode
-except NameError: UnicodeType = None
-else:             UnicodeType = unicode
+
+try:
+    unicode
+except NameError:
+    UnicodeType = str
+else:
+    UnicodeType = unicode
 
 def dictify(keys, values, result={}):
     for k, v in zip(keys, values):
@@ -114,6 +134,9 @@ class NodeList(UserList):
     def __nonzero__(self):
         return len(self.data) != 0
 
+    def __bool__(self):
+        return self.__nonzero__()
+
     def __str__(self):
         return ' '.join(map(str, self.data))
 
@@ -153,7 +176,7 @@ class DisplayEngine(object):
             return
         if append_newline: text = text + '\n'
         try:
-            sys.stdout.write(unicode(text))
+            sys.stdout.write(UnicodeType(text))
         except IOError:
             # Stdout might be connected to a pipe that has been closed
             # by now. The most likely reason for the pipe being closed
@@ -228,7 +251,7 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
     """
 
     rname = str(root)
-    
+
     # Initialize 'visited' dict, if required
     if visited is None:
         visited = {}
@@ -311,11 +334,17 @@ SequenceTypes = (list, tuple, UserList)
 # Note that profiling data shows a speed-up when comparing
 # explicitly with str and unicode instead of simply comparing
 # with basestring. (at least on Python 2.5.1)
-StringTypes = (str, unicode, UserString)
+try:
+    StringTypes = (str, unicode, UserString)
+except NameError:
+    StringTypes = (str, UserString)
 
 # Empirically, it is faster to check explicitly for str and
 # unicode than for basestring.
-BaseStringTypes = (str, unicode)
+try:
+    BaseStringTypes = (str, unicode)
+except NameError:
+    BaseStringTypes = (str)
 
 def is_Dict(obj, isinstance=isinstance, DictTypes=DictTypes):
     return isinstance(obj, DictTypes)
@@ -341,7 +370,7 @@ def is_Scalar(obj, isinstance=isinstance, StringTypes=StringTypes, SequenceTypes
     # assumes that the obj argument is a string most of the time.
     return isinstance(obj, StringTypes) or not isinstance(obj, SequenceTypes)
 
-def do_flatten(sequence, result, isinstance=isinstance, 
+def do_flatten(sequence, result, isinstance=isinstance,
                StringTypes=StringTypes, SequenceTypes=SequenceTypes):
     for item in sequence:
         if isinstance(item, StringTypes) or not isinstance(item, SequenceTypes):
@@ -349,7 +378,7 @@ def do_flatten(sequence, result, isinstance=isinstance,
         else:
             do_flatten(item, result)
 
-def flatten(obj, isinstance=isinstance, StringTypes=StringTypes, 
+def flatten(obj, isinstance=isinstance, StringTypes=StringTypes,
             SequenceTypes=SequenceTypes, do_flatten=do_flatten):
     """Flatten a sequence to a non-nested list.
 
@@ -367,7 +396,7 @@ def flatten(obj, isinstance=isinstance, StringTypes=StringTypes,
             do_flatten(item, result)
     return result
 
-def flatten_sequence(sequence, isinstance=isinstance, StringTypes=StringTypes, 
+def flatten_sequence(sequence, isinstance=isinstance, StringTypes=StringTypes,
                      SequenceTypes=SequenceTypes, do_flatten=do_flatten):
     """Flatten a sequence to a non-nested list.
 
@@ -388,7 +417,7 @@ def flatten_sequence(sequence, isinstance=isinstance, StringTypes=StringTypes,
 # to_String_for_signature() will use a for_signature() method if the
 # specified object has one.
 #
-def to_String(s, 
+def to_String(s,
               isinstance=isinstance, str=str,
               UserString=UserString, BaseStringTypes=BaseStringTypes):
     if isinstance(s,BaseStringTypes):
@@ -401,11 +430,11 @@ def to_String(s,
     else:
         return str(s)
 
-def to_String_for_subst(s, 
+def to_String_for_subst(s,
                         isinstance=isinstance, str=str, to_String=to_String,
                         BaseStringTypes=BaseStringTypes, SequenceTypes=SequenceTypes,
                         UserString=UserString):
-                        
+
     # Note that the test cases are sorted by order of probability.
     if isinstance(s, BaseStringTypes):
         return s
@@ -421,7 +450,7 @@ def to_String_for_subst(s,
     else:
         return str(s)
 
-def to_String_for_signature(obj, to_String_for_subst=to_String_for_subst, 
+def to_String_for_signature(obj, to_String_for_subst=to_String_for_subst,
                             AttributeError=AttributeError):
     try:
         f = obj.for_signature
@@ -479,7 +508,7 @@ def semi_deepcopy(x):
             return x.__class__(semi_deepcopy_dict(x))
         elif isinstance(x, UserList):
             return x.__class__(_semi_deepcopy_list(x))
-        
+
         return x
 
 
@@ -527,10 +556,10 @@ class Proxy(object):
         """Retrieve the entire wrapped object"""
         return self._subject
 
-    def __cmp__(self, other):
+    def __eq__(self, other):
         if issubclass(other.__class__, self._subject.__class__):
-            return cmp(self._subject, other)
-        return cmp(self.__dict__, other.__dict__)
+            return self._subject == other
+        return self.__dict__ == other.__dict__
 
 class Delegate(object):
     """A Python Descriptor class that delegates attribute fetches
@@ -725,7 +754,7 @@ else:
                     # raised so as to not mask possibly serious disk or
                     # network issues.
                     continue
-                if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
+                if stat.S_IMODE(st[stat.ST_MODE]) & 0o111:
                     try:
                         reject.index(f)
                     except ValueError:
@@ -733,7 +762,7 @@ else:
                     continue
         return None
 
-def PrependPath(oldpath, newpath, sep = os.pathsep, 
+def PrependPath(oldpath, newpath, sep = os.pathsep,
                 delete_existing=1, canonicalize=None):
     """This prepends newpath elements to the given oldpath.  Will only
     add any particular path once (leaving the first one it encounters
@@ -752,7 +781,7 @@ def PrependPath(oldpath, newpath, sep = os.pathsep,
     not move it to the beginning; it will stay where it is in the
     list.
 
-    If canonicalize is not None, it is applied to each element of 
+    If canonicalize is not None, it is applied to each element of
     newpath before use.
     """
 
@@ -774,7 +803,7 @@ def PrependPath(oldpath, newpath, sep = os.pathsep,
         newpaths=list(map(canonicalize, newpaths))
 
     if not delete_existing:
-        # First uniquify the old paths, making sure to 
+        # First uniquify the old paths, making sure to
         # preserve the first instance (in Unix/Linux,
         # the first one wins), and remembering them in normpaths.
         # Then insert the new paths at the head of the list
@@ -815,7 +844,7 @@ def PrependPath(oldpath, newpath, sep = os.pathsep,
     else:
         return sep.join(paths)
 
-def AppendPath(oldpath, newpath, sep = os.pathsep, 
+def AppendPath(oldpath, newpath, sep = os.pathsep,
                delete_existing=1, canonicalize=None):
     """This appends new path elements to the given old path.  Will
     only add any particular path once (leaving the last one it
@@ -833,7 +862,7 @@ def AppendPath(oldpath, newpath, sep = os.pathsep,
     If delete_existing is 0, then adding a path that exists
     will not move it to the end; it will stay where it is in the list.
 
-    If canonicalize is not None, it is applied to each element of 
+    If canonicalize is not None, it is applied to each element of
     newpath before use.
     """
 
@@ -1206,11 +1235,11 @@ def logical_lines(physical_lines, joiner=''.join):
 
 class LogicalLines(object):
     """ Wrapper class for the logical_lines method.
-    
+
         Allows us to read all "logical" lines at once from a
         given file object.
     """
-    
+
     def __init__(self, fileobj):
         self.fileobj = fileobj
 
@@ -1377,8 +1406,9 @@ def make_path_relative(path):
 
 def AddMethod(obj, function, name=None):
     """
-    Adds either a bound method to an instance or an unbound method to
-    a class. If name is ommited the name of the specified function
+    Adds either a bound method to an instance or the function itself
+    (or an unbound method in Python 2) to a class.
+    If name is ommited the name of the specified function
     is used by default.
     Example:
       a = A()
@@ -1391,26 +1421,28 @@ def AddMethod(obj, function, name=None):
       print a.listIndex(5)
     """
     if name is None:
-        name = function.func_name
+        name = function.__name__
     else:
         function = RenameFunction(function, name)
 
     if hasattr(obj, '__class__') and obj.__class__ is not type:
         # "obj" is an instance, so it gets a bound method.
-        setattr(obj, name, MethodType(function, obj, obj.__class__))
+        method = MethodType(function, obj, obj.__class__)
+        setattr(obj, name, method)
     else:
         # "obj" is a class, so it gets an unbound method.
-        setattr(obj, name, MethodType(function, None, obj))
+        function = MethodType(function, None, obj)
+        setattr(obj, name, function)
 
 def RenameFunction(function, name):
     """
     Returns a function identical to the specified function, but with
     the specified name.
     """
-    return FunctionType(function.func_code,
-                        function.func_globals,
+    return FunctionType(function.__code__,
+                        function.__globals__,
                         name,
-                        function.func_defaults)
+                        function.__defaults__)
 
 
 md5 = False
@@ -1432,7 +1464,7 @@ else:
         md5 = True
         def MD5signature(s):
             m = hashlib.md5()
-            m.update(str(s))
+            m.update(to_bytes(str(s)))
             return m.hexdigest()
 
         def MD5filesignature(fname, chunksize=65536):
@@ -1442,10 +1474,10 @@ else:
                 blck = f.read(chunksize)
                 if not blck:
                     break
-                m.update(str(blck))
+                m.update(to_bytes (str(blck)))
             f.close()
             return m.hexdigest()
-            
+
 def MD5collect(signatures):
     """
     Collects a list of signatures into an aggregate signature.
@@ -1494,6 +1526,8 @@ class Null(object):
         return "Null(0x%08X)" % id(self)
     def __nonzero__(self):
         return False
+    def __bool__(self):
+        return False
     def __getattr__(self, name):
         return self
     def __setattr__(self, name, value):
@@ -1515,6 +1549,18 @@ class NullSeq(Null):
 
 
 del __revision__
+
+def to_bytes (s):
+    if isinstance (s, bytes) or bytes is str:
+        return s
+    else:
+        return bytes (s, 'utf-8')
+
+def to_str (s):
+    if bytes is str:
+        return s
+    else:
+        return str (s, 'utf-8')
 
 # Local Variables:
 # tab-width:4

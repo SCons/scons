@@ -32,8 +32,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Util
 
-import exceptions
-
 class BuildError(Exception):
     """ Errors occuring while building.
 
@@ -146,6 +144,7 @@ def convert_to_BuildError(status, exc_info=None):
     if not exc_info and isinstance(status, Exception):
         exc_info = (status.__class__, status, None)
 
+
     if isinstance(status, BuildError):
         buildError = status
         buildError.exitstatus = 2   # always exit with 2 on build errors
@@ -163,14 +162,17 @@ def convert_to_BuildError(status, exc_info=None):
             status=2,
             exitstatus=2,
             exc_info=exc_info)
-    elif isinstance(status, exceptions.EnvironmentError):
+    elif isinstance(status, (EnvironmentError, OSError, IOError)):
         # If an IOError/OSError happens, raise a BuildError.
         # Report the name of the file or directory that caused the
         # error, which might be different from the target being built
         # (for example, failure to create the directory in which the
         # target file will appear).
-        try: filename = status.filename
-        except AttributeError: filename = None
+        try:
+            filename = status.filename
+        except AttributeError:
+            filename = None
+
         buildError = BuildError( 
             errstr=status.strerror,
             status=status.errno,

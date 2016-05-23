@@ -10,8 +10,12 @@ some other module.  If it's specific to the "scons" script invocation,
 it goes here.
 """
 
+from __future__ import print_function
+
+
 unsupported_python_version = (2, 6, 0)
 deprecated_python_version = (2, 7, 0)
+
 
 # __COPYRIGHT__
 #
@@ -35,6 +39,7 @@ deprecated_python_version = (2, 7, 0)
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+
 
 import SCons.compat
 
@@ -220,7 +225,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
                     self.exception_set()
                 self.do_failed()
             else:
-                print "scons: Nothing to be done for `%s'." % t
+                print("scons: Nothing to be done for `%s'." % t)
                 SCons.Taskmaster.OutOfDateTask.executed(self)
         else:
             SCons.Taskmaster.OutOfDateTask.executed(self)
@@ -289,8 +294,8 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
             if self.options.debug_includes:
                 tree = t.render_include_tree()
                 if tree:
-                    print
-                    print tree
+                    print()
+                    print(tree)
         SCons.Taskmaster.OutOfDateTask.postprocess(self)
 
     def make_ready(self):
@@ -325,10 +330,10 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
                 else:
                     errstr = "Path '%s' exists but isn't a file or directory."
                     raise SCons.Errors.UserError(errstr % (pathstr))
-        except SCons.Errors.UserError, e:
-            print e
-        except (IOError, OSError), e:
-            print "scons: Could not remove '%s':" % pathstr, e.strerror
+        except SCons.Errors.UserError as e:
+            print(e)
+        except (IOError, OSError) as e:
+            print("scons: Could not remove '%s':" % pathstr, e.strerror)
 
     def _get_files_to_clean(self):
         result = []
@@ -354,13 +359,13 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
         for t in self._get_files_to_clean():
             try:
                 removed = t.remove()
-            except OSError, e:
+            except OSError as e:
                 # An OSError may indicate something like a permissions
                 # issue, an IOError would indicate something like
                 # the file not existing.  In either case, print a
                 # message and keep going to try to remove as many
                 # targets as possible.
-                print "scons: Could not remove '%s':" % str(t), e.strerror
+                print("scons: Could not remove '{0}'".format(str(t)), e.strerror)
             else:
                 if removed:
                     display("Removed " + str(t))
@@ -600,7 +605,7 @@ def _scons_internal_error():
     """Handle all errors but user errors. Print out a message telling
     the user what to do in this case and print a normal trace.
     """
-    print 'internal error'
+    print('internal error')
     traceback.print_exc()
     sys.exit(2)
 
@@ -714,7 +719,7 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
                 # the error checking makes it longer.
                 try:
                     m = sys.modules['SCons.Script']
-                except Exception, e:
+                except Exception as e:
                     fmt = 'cannot import site_init.py: missing SCons.Script module %s'
                     raise SCons.Errors.InternalError(fmt % repr(e))
                 try:
@@ -727,10 +732,10 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
                             site_m[k] = m.__dict__[k]
 
                     # This is the magic.
-                    exec fp in site_m
+                    exec(compile(fp.read(), fp.name, 'exec'), site_m)
                 except KeyboardInterrupt:
                     raise
-                except Exception, e:
+                except Exception as e:
                     fmt = '*** Error loading site_init file %s:\n'
                     sys.stderr.write(fmt % repr(site_init_file))
                     raise
@@ -740,7 +745,7 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
                             m.__dict__[k] = site_m[k]
             except KeyboardInterrupt:
                 raise
-            except ImportError, e:
+            except ImportError as e:
                 fmt = '*** cannot import site init file %s:\n'
                 sys.stderr.write(fmt % repr(site_init_file))
                 raise
@@ -792,7 +797,7 @@ def _load_all_site_scons_dirs(topdir, verbose=None):
     dirs=sysdirs + [topdir]
     for d in dirs:
         if verbose:    # this is used by unit tests.
-            print "Loading site dir ", d
+            print("Loading site dir ", d)
         _load_site_scons_dir(d)
 
 def test_load_all_site_scons_dirs(d):
@@ -992,7 +997,7 @@ def _main(parser):
     try:
         for script in scripts:
             SCons.Script._SConscript._SConscript(fs, script)
-    except SCons.Errors.StopError, e:
+    except SCons.Errors.StopError as e:
         # We had problems reading an SConscript file, such as it
         # couldn't be copied in to the VariantDir.  Since we're just
         # reading SConscript files and haven't started building
@@ -1053,8 +1058,8 @@ def _main(parser):
             # SConscript files.  Give them the options usage.
             raise SConsPrintHelpException
         else:
-            print help_text
-            print "Use scons -H for help about command-line options."
+            print(help_text)
+            print("Use scons -H for help about command-line options.")
         exit_status = 0
         return
 
@@ -1091,7 +1096,7 @@ def _main(parser):
         nodes = _build_targets(fs, options, targets, target_top)
         if not nodes:
             revert_io()
-            print 'Found nothing to build'
+            print('Found nothing to build')
             exit_status = 2
 
 def _build_targets(fs, options, targets, target_top):
@@ -1335,7 +1340,7 @@ def main():
     parts.append("__COPYRIGHT__")
     version = ''.join(parts)
 
-    import SConsOptions
+    from . import SConsOptions
     parser = SConsOptions.Parser(version)
     values = SConsOptions.SConsValues(parser.get_default_values())
 
@@ -1346,23 +1351,23 @@ def main():
             _exec_main(parser, values)
         finally:
             revert_io()
-    except SystemExit, s:
+    except SystemExit as s:
         if s:
             exit_status = s
     except KeyboardInterrupt:
         print("scons: Build interrupted.")
         sys.exit(2)
-    except SyntaxError, e:
+    except SyntaxError as e:
         _scons_syntax_error(e)
     except SCons.Errors.InternalError:
         _scons_internal_error()
-    except SCons.Errors.UserError, e:
+    except SCons.Errors.UserError as e:
         _scons_user_error(e)
     except SConsPrintHelpException:
         parser.print_help()
         exit_status = 0
-    except SCons.Errors.BuildError, e:
-        print e
+    except SCons.Errors.BuildError as e:
+        print(e)
         exit_status = e.exitstatus
     except:
         # An exception here is likely a builtin Python exception Python
@@ -1398,10 +1403,10 @@ def main():
             else:
                 ct = last_command_end - first_command_start
         scons_time = total_time - sconscript_time - ct
-        print "Total build time: %f seconds"%total_time
-        print "Total SConscript file execution time: %f seconds"%sconscript_time
-        print "Total SCons execution time: %f seconds"%scons_time
-        print "Total command execution time: %f seconds"%ct
+        print("Total build time: %f seconds"%total_time)
+        print("Total SConscript file execution time: %f seconds"%sconscript_time)
+        print("Total SCons execution time: %f seconds"%scons_time)
+        print("Total command execution time: %f seconds"%ct)
 
     sys.exit(exit_status)
 

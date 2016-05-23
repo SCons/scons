@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 
 import sys
 import datetime
@@ -6,13 +7,13 @@ import datetime
 months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
 	  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-print '<table width="100%">'
+print('<table width="100%">')
 def row(*cells, **kw):
 	td = kw.get('tr','td')
-	print '  <tr>'
+	print('  <tr>')
 	for cell in cells:
-		print '    <%s>%s</%s>' % (td,cell,td)
-	print '  </tr>'
+		print('    <%s>%s</%s>' % (td,cell,td))
+	print('  </tr>')
 row('Estimated&nbsp;date', 'Type', 'Comments', tr = 'th')
 
 if len(sys.argv) > 1:
@@ -30,7 +31,7 @@ for line in f:
 		incr,type,desc = line[1:].strip().split(None,2)
 		now = now + datetime.timedelta(int(incr))
 	else:
-		print 'dunna understand code', line[0]
+		print('dunna understand code', line[0])
 		sys.exit(1)
 	#name = current + '.d' + str(now).replace('-','')
 	date = '%s-%s-%s' % (now.day,months[now.month-1],now.year)
@@ -41,7 +42,7 @@ for line in f:
 	else:
 		category = current = type
 	row(date, category, desc)
-print '</table>'
+print('</table>')
 
 # Local Variables:
 # tab-width:4

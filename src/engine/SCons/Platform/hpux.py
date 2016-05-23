@@ -32,7 +32,7 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import posix
+from . import posix
 
 def generate(env):
     posix.generate(env)

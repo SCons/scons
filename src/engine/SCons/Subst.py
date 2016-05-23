@@ -445,7 +445,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
                             s = eval(key, self.gvars, lvars)
                         except KeyboardInterrupt:
                             raise
-                        except Exception, e:
+                        except Exception as e:
                             if e.__class__ in AllowableExceptions:
                                 return ''
                             raise_exception(e, lvars['TARGETS'], s)
@@ -652,7 +652,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                             s = eval(key, self.gvars, lvars)
                         except KeyboardInterrupt:
                             raise
-                        except Exception, e:
+                        except Exception as e:
                             if e.__class__ in AllowableExceptions:
                                 return
                             raise_exception(e, lvars['TARGETS'], s)

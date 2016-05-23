@@ -7,6 +7,7 @@
 # I'm using this to make it more convenient to manage working on multiple
 # changes on Windows, where I don't have access to my Aegis tools.
 #
+from __future__ import print_function
 
 import getopt
 import os.path
@@ -32,7 +33,7 @@ for o, a in opts:
         outdir = a
     elif o == '-v' or o == '--verbose':
         def printname(x):
-            print x
+            print(x)
 
 if len(args) != 1:
     sys.stderr.write("scons-unzip.py:  \n")

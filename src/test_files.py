@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -87,13 +88,13 @@ for directory, check_list in check.items():
         no_result.append(directory)
 
 if missing:
-    print "Missing the following files:\n"
-    print "\t" + "\n\t".join(missing)
+    print("Missing the following files:\n")
+    print("\t" + "\n\t".join(missing))
     test.fail_test(1)
 
 if no_result:
-    print "Cannot check files, the following have apparently not been built:"
-    print "\t" + "\n\t".join(no_result)
+    print("Cannot check files, the following have apparently not been built:")
+    print("\t" + "\n\t".join(no_result))
     test.no_result(1)
 
 test.pass_test()

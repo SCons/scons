@@ -48,14 +48,14 @@ for opt, arg in opts:
     if opt == '-c': pass
     elif opt == '-o': out = arg
     elif opt == '-v' and arg == 'ersion':
-        print ""
-        print "SWIG Version 0.1.2"
-        print ""
-        print "Compiled with g++ [x86_64-pc-linux-gnu]"
-        print ""
-        print "Configured options: +pcre"
-        print ""
-        print "Please see http://www.swig.org for reporting bugs and further information"
+        print("")
+        print("SWIG Version 0.1.2")
+        print("")
+        print("Compiled with g++ [x86_64-pc-linux-gnu]")
+        print("")
+        print("Configured options: +pcre")
+        print("")
+        print("Please see http://www.swig.org for reporting bugs and further information")
         sys.exit(0)
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
@@ -68,7 +68,7 @@ sys.exit(0)
 test.write('SConstruct', """
 env = Environment(tools=['default', 'swig'],
                   SWIG = [r'%(python)s', 'myswig.py'])
-print env.subst("Using SWIG $SWIGVERSION")
+print(env.subst("Using SWIG $SWIGVERSION"))
 env.Program(target = 'test1', source = 'test1.i')
 env.CFile(target = 'test2', source = 'test2.i')
 env.Clone(SWIGFLAGS = '-c++').Program(target = 'test3', source = 'test3.i')

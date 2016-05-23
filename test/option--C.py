@@ -51,18 +51,18 @@ test.subdir('sub', ['sub', 'dir'])
 
 test.write('SConstruct', """
 import os
-print "SConstruct", os.getcwd()
+print("SConstruct", os.getcwd())
 """)
 
 test.write(['sub', 'SConstruct'], """
 import os
-print GetBuildPath('..')
+print(GetBuildPath('..'))
 """)
 
 test.write(['sub', 'dir', 'SConstruct'], """
 import os
 env = Environment(FOO='foo', BAR='bar')
-print env.GetBuildPath('../$FOO/$BAR')
+print(env.GetBuildPath('../$FOO/$BAR'))
 """)
 
 test.run(arguments = '-C sub .',

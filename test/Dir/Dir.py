@@ -36,12 +36,12 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 env = Environment(FOO = 'fff', BAR = 'bbb')
-print Dir('ddd')
-print Dir('$FOO')
-print Dir('${BAR}_$BAR')
-print env.Dir('eee')
-print env.Dir('$FOO')
-print env.Dir('${BAR}_$BAR')
+print(Dir('ddd'))
+print(Dir('$FOO'))
+print(Dir('${BAR}_$BAR'))
+print(env.Dir('eee'))
+print(env.Dir('$FOO'))
+print(env.Dir('${BAR}_$BAR'))
 """)
 
 test.run(stdout = test.wrap_stdout(read_str = """\

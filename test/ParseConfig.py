@@ -38,17 +38,17 @@ test_config3 = test.workpath('test-config3')
 # File node.
 # It used to be returned as the 'static_libs' output of ParseConfig.
 test.write(test_config1, """\
-print "-I/usr/include/fum -Ibar -X -arch i386"
-print "-L/usr/fax -Lfoo -lxxx abc"
+print("-I/usr/include/fum -Ibar -X -arch i386")
+print("-L/usr/fax -Lfoo -lxxx abc")
 """)
 
 test.write(test_config2, """\
-print "-L foo -L lib_dir"
+print("-L foo -L lib_dir")
 """)
 
 # This is like what wxWidgets does on OSX w/ Universal Binaries
 test.write(test_config3, """\
-print "-L foo -L lib_dir -isysroot /tmp -arch ppc -arch i386"
+print("-L foo -L lib_dir -isysroot /tmp -arch ppc -arch i386")
 """)
 
 test.write('SConstruct1', """
@@ -56,10 +56,10 @@ env = Environment(CPPPATH = [], LIBPATH = [], LIBS = [],
                   CCFLAGS = '-pipe -Wall')
 env.ParseConfig([r'%(_python_)s', r"%(test_config1)s", "--libs --cflags"])
 env.ParseConfig([r'%(_python_)s', r"%(test_config2)s", "--libs --cflags"])
-print env['CPPPATH']
-print env['LIBPATH']
-print [str(x) for x in env['LIBS']]
-print env['CCFLAGS']
+print(env['CPPPATH'])
+print(env['LIBPATH'])
+print([str(x) for x in env['LIBS']])
+print(env['CCFLAGS'])
 """ % locals())
 
 test.write('SConstruct2', """
@@ -68,10 +68,10 @@ env = Environment(CPPPATH = [], LIBPATH = [], LIBS = [],
                   PYTHON = r'%(_python_)s')
 env.ParseConfig(r"$PYTHON %(test_config1)s --libs --cflags")
 env.ParseConfig(r"$PYTHON %(test_config2)s --libs --cflags")
-print env['CPPPATH']
-print env['LIBPATH']
-print [str(x) for x in env['LIBS']]
-print env['CCFLAGS']
+print(env['CPPPATH'])
+print(env['LIBPATH'])
+print([str(x) for x in env['LIBS']])
+print(env['CCFLAGS'])
 """ % locals())
 
 test.write('SConstruct3', """
@@ -79,10 +79,10 @@ env = Environment(CPPPATH = [], LIBPATH = [], LIBS = [],
                   CCFLAGS = '-pipe -Wall',
                   PYTHON = r'%(_python_)s')
 env.ParseConfig(r"$PYTHON %(test_config3)s --libs --cflags")
-print env['CPPPATH']
-print env['LIBPATH']
-print [str(x) for x in env['LIBS']]
-print env['CCFLAGS']
+print(env['CPPPATH'])
+print(env['LIBPATH'])
+print([str(x) for x in env['LIBS']])
+print(env['CCFLAGS'])
 """ % locals())
 
 good_stdout = """\

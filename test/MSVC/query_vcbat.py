@@ -49,7 +49,7 @@ DefaultEnvironment(tools = [])
 #            print k, v
 #MergeMSVSBatFile(env, 9.0)
 #print env['ENV']['PATH']
-print query_versions()
+print(query_versions())
 """)
 
 test.run(stderr = None)

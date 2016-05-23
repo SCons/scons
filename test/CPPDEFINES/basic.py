@@ -41,13 +41,13 @@ test_list = [
 ]
 for i in test_list:
     env = Environment(CPPDEFPREFIX='-D', CPPDEFSUFFIX='', INTEGER=0)
-    print env.Clone(CPPDEFINES=i).subst('$_CPPDEFFLAGS')
+    print(env.Clone(CPPDEFINES=i).subst('$_CPPDEFFLAGS'))
 for i in test_list:
     env = Environment(CPPDEFPREFIX='|', CPPDEFSUFFIX='|', INTEGER=1)
-    print env.Clone(CPPDEFINES=i).subst('$_CPPDEFFLAGS')
+    print(env.Clone(CPPDEFINES=i).subst('$_CPPDEFFLAGS'))
 """)
 
-expect = test.wrap_stdout(build_str="scons: `.' is up to date.\n", 
+expect = test.wrap_stdout(build_str="scons: `.' is up to date.\n",
                           read_str = """\
 -Dxyz
 -Dx -Dy -Dz

@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -181,9 +182,9 @@ slow = time.time() - start
 # using precompiled headers should be faster
 limit = slow*0.90
 if fast >= limit:
-    print "Using precompiled headers was not fast enough:"
-    print "slow.obj:  %.3fs" % slow
-    print "fast.obj:  %.3fs (expected less than %.3fs)" % (fast, limit)
+    print("Using precompiled headers was not fast enough:")
+    print("slow.obj:  %.3fs" % slow)
+    print("fast.obj:  %.3fs (expected less than %.3fs)" % (fast, limit))
     test.fail_test()
 
 # Modifying resource.h should cause both the resource and precompiled header to be rebuilt:

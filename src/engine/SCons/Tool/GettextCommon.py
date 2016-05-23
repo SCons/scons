@@ -196,7 +196,7 @@ class _POFileBuilder(BuilderBase):
     import SCons.Util
     import SCons.Node
     linguas_files = None
-    if env.has_key('LINGUAS_FILE') and env['LINGUAS_FILE']:
+    if 'LINGUAS_FILE' in env and env['LINGUAS_FILE']:
       linguas_files = env['LINGUAS_FILE']
       # This prevents endless recursion loop (we'll be invoked once for 
       # each target appended here, we must not extend the list again).
@@ -324,7 +324,7 @@ class RPaths(object):
 def _init_po_files(target, source, env):
   """ Action function for `POInit` builder. """
   nop = lambda target, source, env : 0
-  if env.has_key('POAUTOINIT'):
+  if 'POAUTOINIT' in env:
     autoinit = env['POAUTOINIT']
   else:
     autoinit = False
@@ -348,7 +348,7 @@ def _init_po_files(target, source, env):
 #############################################################################
 def _detect_xgettext(env):
   """ Detects *xgettext(1)* binary """
-  if env.has_key('XGETTEXT'):
+  if 'XGETTEXT' in env:
     return env['XGETTEXT']
   xgettext = env.Detect('xgettext');
   if xgettext:
@@ -363,7 +363,7 @@ def _xgettext_exists(env):
 #############################################################################
 def _detect_msginit(env):
   """ Detects *msginit(1)* program. """
-  if env.has_key('MSGINIT'):
+  if 'MSGINIT' in env:
     return env['MSGINIT']
   msginit = env.Detect('msginit');
   if msginit:
@@ -378,7 +378,7 @@ def _msginit_exists(env):
 #############################################################################
 def _detect_msgmerge(env):
   """ Detects *msgmerge(1)* program. """
-  if env.has_key('MSGMERGE'):
+  if 'MSGMERGE' in env:
     return env['MSGMERGE']
   msgmerge = env.Detect('msgmerge');
   if msgmerge:
@@ -393,7 +393,7 @@ def _msgmerge_exists(env):
 #############################################################################
 def _detect_msgfmt(env):
   """ Detects *msgmfmt(1)* program. """
-  if env.has_key('MSGFMT'):
+  if 'MSGFMT' in env:
     return env['MSGFMT']
   msgfmt = env.Detect('msgfmt');
   if msgfmt:

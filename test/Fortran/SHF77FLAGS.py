@@ -75,6 +75,9 @@ g77 = test.detect_tool(fc)
 
 if g77:
 
+    directory = 'x'
+    test.subdir(directory)
+
     test.write("wrapper.py",
 """import os
 import sys
@@ -87,7 +90,7 @@ foo = Environment(SHF77 = '%(fc)s')
 shf77 = foo.Dictionary('SHF77')
 bar = foo.Clone(SHF77 = r'%(_python_)s wrapper.py ' + shf77,
                 tools = ["default", 'f77'], F77FILESUFFIXES = [".f"])
-bar.Append(SHF77FLAGS = '-Ix')
+bar.Append(SHF77FLAGS = '-I%(directory)s')
 foo.SharedLibrary(target = 'foo/foo', source = 'foo.f')
 bar.SharedLibrary(target = 'bar/bar', source = 'bar.f')
 """ % locals())

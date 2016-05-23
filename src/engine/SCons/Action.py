@@ -101,7 +101,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import dis
 import os
-# compat layer imports "cPickle" for us if it's available.
 import pickle
 import re
 import sys
@@ -163,12 +162,12 @@ def _callable_contents(obj):
     """
     try:
         # Test if obj is a method.
-        return _function_contents(obj.im_func)
+        return _function_contents(obj.__func__)
 
     except AttributeError:
         try:
             # Test if obj is a callable object.
-            return _function_contents(obj.__call__.im_func)
+            return _function_contents(obj.__call__.__func__)
 
         except AttributeError:
             try:
@@ -188,12 +187,12 @@ def _object_contents(obj):
     """
     try:
         # Test if obj is a method.
-        return _function_contents(obj.im_func)
+        return _function_contents(obj.__func__)
 
     except AttributeError:
         try:
             # Test if obj is a callable object.
-            return _function_contents(obj.__call__.im_func)
+            return _function_contents(obj.__call__.__func__)
 
         except AttributeError:
             try:
@@ -234,8 +233,8 @@ def _code_contents(code):
 
     # The code contents depends on the number of local variables
     # but not their actual names.
-    contents.append("%s,%s" % (code.co_argcount, len(code.co_varnames)))
-    contents.append(",%s,%s" % (len(code.co_cellvars), len(code.co_freevars)))
+    contents.append(b"{}, {}".format(code.co_argcount, len(code.co_varnames)))
+    contents.append(b", {}, {}".format(len(code.co_cellvars), len(code.co_freevars)))
 
     # The code contents depends on any constants accessed by the
     # function. Note that we have to call _object_contents on each
@@ -245,43 +244,43 @@ def _code_contents(code):
     # Note that we also always ignore the first entry of co_consts
     # which contains the function doc string. We assume that the
     # function does not access its doc string.
-    contents.append(',(' + ','.join(map(_object_contents,code.co_consts[1:])) + ')')
+    contents.append(b',(' + b','.join(map(_object_contents,code.co_consts[1:])) + b')')
 
     # The code contents depends on the variable names used to
     # accessed global variable, as changing the variable name changes
     # the variable actually accessed and therefore changes the
     # function result.
-    contents.append(',(' + ','.join(map(_object_contents,code.co_names)) + ')')
+    contents.append(b',(' + b','.join(map(_object_contents,code.co_names)) + b')')
 
 
     # The code contents depends on its actual code!!!
-    contents.append(',(' + str(remove_set_lineno_codes(code.co_code)) + ')')
+    contents.append(b',(' + remove_set_lineno_codes(code.co_code) + b')')
 
-    return ''.join(contents)
+    return b''.join(contents)
 
 
 def _function_contents(func):
     """Return the signature contents of a function."""
 
-    contents = [_code_contents(func.func_code)]
+    contents = [_code_contents(func.__code__)]
 
     # The function contents depends on the value of defaults arguments
-    if func.func_defaults:
-        contents.append(',(' + ','.join(map(_object_contents,func.func_defaults)) + ')')
+    if func.__defaults__:
+        contents.append(b',(' + b','.join(map(_object_contents,func.__defaults__)) + b')')
     else:
-        contents.append(',()')
+        contents.append(b',()')
 
     # The function contents depends on the closure captured cell values.
-    closure = func.func_closure or []
+    closure = func.__closure__ or []
 
     #xxx = [_object_contents(x.cell_contents) for x in closure]
     try:
         xxx = [_object_contents(x.cell_contents) for x in closure]
     except AttributeError:
         xxx = []
-    contents.append(',(' + ','.join(xxx) + ')')
+    contents.append(b',(' + ','.join(xxx).encode('ascii') + b')')
 
-    return ''.join(contents)
+    return b''.join(contents)
 
 
 def _actionAppend(act1, act2):
@@ -362,7 +361,7 @@ def _do_create_action(act, kw):
         # The list of string commands may include a LazyAction, so we
         # reprocess them via _do_create_list_action.
         return _do_create_list_action(commands, kw)
-    
+
     if is_List(act):
         return CommandAction(act, **kw)
 
@@ -411,8 +410,8 @@ class ActionBase(object):
     other objects (Builders, Executors, etc.)  This provides the
     common methods for manipulating and combining those actions."""
 
-    def __cmp__(self, other):
-        return cmp(self.__dict__, other)
+    def __eq__(self, other):
+        return self.__dict__ == other
 
     def no_batch_key(self, env, target, source):
         return None
@@ -424,6 +423,7 @@ class ActionBase(object):
 
     def get_contents(self, target, source, env):
         result = [ self.get_presig(target, source, env) ]
+        result = [ SCons.Util.to_bytes(r) for r in result ]
         # This should never happen, as the Action() factory should wrap
         # the varlist, but just in case an action is created directly,
         # we duplicate this check here.
@@ -431,8 +431,8 @@ class ActionBase(object):
         if is_String(vl): vl = (vl,)
         for v in vl:
             # do the subst this way to ignore $(...$) parts:
-            result.append(env.subst_target_source('${'+v+'}', SCons.Subst.SUBST_SIG, target, source))
-        return ''.join(result)
+            result.append(SCons.Util.to_bytes(env.subst_target_source('${'+v+'}', SCons.Subst.SUBST_SIG, target, source)))
+        return b''.join(result)
 
     def __add__(self, other):
         return _actionAppend(self, other)
@@ -504,7 +504,7 @@ class _ActionAction(ActionBase):
         # This code assumes s is a regular string, but should
         # work if it's unicode too.
         try:
-            sys.stdout.write(unicode(s + "\n"))
+            sys.stdout.write(s + u"\n")
         except UnicodeDecodeError:
             sys.stdout.write(s + "\n")
 
@@ -664,7 +664,7 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
 
     try:
         return subprocess.Popen(cmd, **kw)
-    except EnvironmentError, e:
+    except EnvironmentError as e:
         if error == 'raise': raise
         # return a dummy Popen instance that only returns error
         class dummyPopen(object):
@@ -1052,11 +1052,11 @@ class FunctionAction(_ActionAction):
             rsources = list(map(rfile, source))
             try:
                 result = self.execfunction(target=target, source=rsources, env=env)
-            except KeyboardInterrupt, e:
+            except KeyboardInterrupt as e:
                 raise
-            except SystemExit, e:
+            except SystemExit as e:
                 raise
-            except Exception, e:
+            except Exception as e:
                 result = e
                 exc_info = sys.exc_info()
 
@@ -1126,7 +1126,7 @@ class ListAction(ActionBase):
 
         Simple concatenation of the signatures of the elements.
         """
-        return "".join([x.get_contents(target, source, env) for x in self.list])
+        return b"".join([x.get_contents(target, source, env) for x in self.list])
 
     def __call__(self, target, source, env, exitstatfunc=_null, presub=_null,
                  show=_null, execute=_null, chdir=_null, executor=None):
@@ -1171,11 +1171,11 @@ class ActionCaller(object):
         actfunc = self.parent.actfunc
         try:
             # "self.actfunc" is a function.
-            contents = str(actfunc.func_code.co_code)
+            contents = str(actfunc.__code__.co_code)
         except AttributeError:
             # "self.actfunc" is a callable object.
             try:
-                contents = str(actfunc.__call__.im_func.func_code.co_code)
+                contents = str(actfunc.__call__.__func__.__code__.co_code)
             except AttributeError:
                 # No __call__() method, so it might be a builtin
                 # or something like that.  Do the best we can.

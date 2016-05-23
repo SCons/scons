@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -248,13 +249,13 @@ for collector in check_list:
         not_built.append(collector.directory)
 
 if missing_strings:
-    print "Found the following files with missing strings:"
-    print "\t" + "\n\t".join(missing_strings)
+    print("Found the following files with missing strings:")
+    print("\t" + "\n\t".join(missing_strings))
     test.fail_test(1)
 
 if not_built:
-    print "Cannot check all strings, the following have apparently not been built:"
-    print "\t" + "\n\t".join(not_built)
+    print("Cannot check all strings, the following have apparently not been built:")
+    print("\t" + "\n\t".join(not_built))
     test.no_result(1)
 
 test.pass_test()

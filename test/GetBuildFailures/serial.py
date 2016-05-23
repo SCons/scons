@@ -82,8 +82,8 @@ Command('f08', 'f08.in', raiseExcAction(SCons.Errors.UserError("My User Error"))
 Command('f09', 'f09.in', returnExcAction(SCons.Errors.UserError("My User Error")))
 Command('f10', 'f10.in', raiseExcAction(MyBuildError(errstr="My Build Error", status=7)))
 Command('f11', 'f11.in', returnExcAction(MyBuildError(errstr="My Build Error", status=7)))
-Command('f12', 'f12.in', raiseExcAction(EnvironmentError(123, "My EnvironmentError", "f12")))
-Command('f13', 'f13.in', returnExcAction(EnvironmentError(123, "My EnvironmentError", "f13")))
+Command('f12', 'f12.in', raiseExcAction(OSError(123, "My EnvironmentError", "f12")))
+Command('f13', 'f13.in', returnExcAction(OSError(123, "My EnvironmentError", "f13")))
 Command('f14', 'f14.in', raiseExcAction(SCons.Errors.InternalError("My InternalError")))
 Command('f15', 'f15.in', returnExcAction(SCons.Errors.InternalError("My InternalError")))
 
@@ -91,9 +91,9 @@ def print_build_failures():
     from SCons.Script import GetBuildFailures
     for bf in sorted(GetBuildFailures(), key=lambda t: str(t.node)):
         assert( isinstance(bf, SCons.Errors.BuildError) )
-        print "BF: %%s failed (%%s):  %%s" %% (bf.node, bf.status, bf.errstr)
+        print("BF: %%s failed (%%s):  %%s" %% (bf.node, bf.status, bf.errstr))
         if bf.command:
-            print "BF:    %%s" %% " ".join(Flatten(bf.command))
+            print("BF:    %%s" %% " ".join(Flatten(bf.command)))
 
 import atexit
 atexit.register(print_build_failures)

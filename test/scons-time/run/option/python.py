@@ -49,7 +49,7 @@ for arg in sys.argv[1:]:
 sys.stdout.write('my_python.py: %s\\n' % profile)
 """)
 
-os.chmod(my_python_py, 0755)
+os.chmod(my_python_py, 0o755)
 
 test.run(arguments = 'run --python %s foo.tar.gz' % my_python_py)
 

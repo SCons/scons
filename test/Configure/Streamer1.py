@@ -45,7 +45,7 @@ test.write('SConstruct', """
 def hello(target, source, env):
   import traceback
   try:
-    print 'hello!\\n' # this breaks the script
+    print('hello!\\n') # this breaks the script
     with open(env.subst('$TARGET', target = target),'w') as f:
       f.write('yes')
   except:

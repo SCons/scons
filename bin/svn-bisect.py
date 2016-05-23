@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- Python -*-
-from __future__ import division
+from __future__ import division, print_function
 
 import sys
 from math import log, ceil
@@ -28,22 +28,22 @@ script = script_args[2:]
 
 # print an error message and quit
 def error(s):
-    print >>sys.stderr, "******", s, "******"
+    print("******", s, "******", file=sys.stderr)
     sys.exit(1)    
 
 # update to the specified version and run test
 def testfail(revision):
     "Return true if test fails"
-    print "Updating to revision", revision
+    print("Updating to revision", revision)
     if subprocess.call(["svn","up","-qr",str(revision)]) != 0:
         m = "SVN did not update properly to revision %d"
         raise RuntimeError(m % revision)
     return subprocess.call(script,shell=False) != 0
 
 # confirm that the endpoints are different
-print "****** Checking upper bracket", upper
+print("****** Checking upper bracket", upper)
 upperfails = testfail(upper)
-print "****** Checking lower bracket", lower
+print("****** Checking lower bracket", lower)
 lowerfails = testfail(lower)
 if upperfails == lowerfails:
     error("Upper and lower revisions must bracket the failure")
@@ -51,7 +51,7 @@ if upperfails == lowerfails:
 # binary search for transition
 msg = "****** max %d revisions to test (bug bracketed by [%d,%d])"
 while upper-lower > 1:
-    print msg % (ceil(log(upper-lower,2)), lower, upper)
+    print(msg % (ceil(log(upper-lower,2)), lower, upper))
 
     mid = (lower + upper)//2
     midfails = testfail(mid)
@@ -64,7 +64,7 @@ while upper-lower > 1:
 
 # show which revision was first to fail
 if upperfails != lowerfails: lower = upper
-print "The error was caused by revision", lower
+print("The error was caused by revision", lower)
 
 # Local Variables:
 # tab-width:4

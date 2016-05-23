@@ -38,7 +38,7 @@ class ErrorsTestCase(unittest.TestCase):
             raise SCons.Errors.BuildError(
                 errstr = "foo", status=57, filename="file", exc_info=(1,2,3),
                 node = "n", executor="e", action="a", command="c")
-        except SCons.Errors.BuildError, e:
+        except SCons.Errors.BuildError as e:
             assert e.errstr == "foo"
             assert e.status == 57
             assert e.exitstatus == 2, e.exitstatus
@@ -53,7 +53,7 @@ class ErrorsTestCase(unittest.TestCase):
         try:
             raise SCons.Errors.BuildError("n", "foo", 57, 3, "file", 
                                           "e", "a", "c", (1,2,3))
-        except SCons.Errors.BuildError, e:
+        except SCons.Errors.BuildError as e:
             assert e.errstr == "foo", e.errstr
             assert e.status == 57, e.status
             assert e.exitstatus == 3, e.exitstatus
@@ -67,7 +67,7 @@ class ErrorsTestCase(unittest.TestCase):
 
         try:
             raise SCons.Errors.BuildError()
-        except SCons.Errors.BuildError, e:
+        except SCons.Errors.BuildError as e:
             assert e.errstr == "Unknown error"
             assert e.status == 2
             assert e.exitstatus == 2
@@ -83,21 +83,21 @@ class ErrorsTestCase(unittest.TestCase):
         """Test the InternalError exception."""
         try:
             raise SCons.Errors.InternalError("test internal error")
-        except SCons.Errors.InternalError, e:
+        except SCons.Errors.InternalError as e:
             assert e.args == ("test internal error",)
 
     def test_UserError(self):
         """Test the UserError exception."""
         try:
             raise SCons.Errors.UserError("test user error")
-        except SCons.Errors.UserError, e:
+        except SCons.Errors.UserError as e:
             assert e.args == ("test user error",)
 
     def test_ExplicitExit(self):
         """Test the ExplicitExit exception."""
         try:
             raise SCons.Errors.ExplicitExit("node")
-        except SCons.Errors.ExplicitExit, e:
+        except SCons.Errors.ExplicitExit as e:
             assert e.node == "node"
 
 if __name__ == "__main__":

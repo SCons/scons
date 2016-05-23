@@ -20,6 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -123,13 +124,12 @@ class Counter(object):
     def key(self):
         return self.cls_name+'.'+self.method_name
     def display(self):
-        fmt = "    %7d hits %7d misses    %s()"
-        print fmt % (self.hit, self.miss, self.key())
-    def __cmp__(self, other):
+        print("    {:7d} hits {:7d} misses    {}()".format(self.hit, self.miss, self.key()))
+    def __eq__(self, other):
         try:
-            return cmp(self.key(), other.key())
+            return self.key() == other.key()
         except AttributeError:
-            return 0
+            return True
 
 class CountValue(Counter):
     """
@@ -185,7 +185,7 @@ def Dump(title=None):
         collected so far.
     """
     if title:
-        print title
+        print(title)
     for counter in sorted(CounterList):
         CounterList[counter].display()
 

@@ -34,7 +34,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Util
 
-import cc
+from . import cc
 
 def generate(env):
     """Add Builders and construction variables for aCC & cc to an Environment."""

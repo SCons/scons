@@ -40,9 +40,8 @@ import subprocess
 import SCons.Tool
 import SCons.Util
 
-import gcc
-
-cplusplus = __import__('c++', globals(), locals(), [])
+from . import gcc
+cplusplus = __import__(__package__+'.c++', globals(), locals(), ['*'])
 
 compilers = ['g++']
 

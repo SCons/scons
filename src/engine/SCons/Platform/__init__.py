@@ -21,7 +21,7 @@ their own platform definition.
 
 #
 # __COPYRIGHT__
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -41,6 +41,7 @@ their own platform definition.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -130,7 +131,7 @@ class PlatformSpec(object):
 
     def __str__(self):
         return self.name
-        
+
 class TempFileMunge(object):
     """A callable class.  You can set an Environment variable to this,
     then call it with a string argument, then it will perform temporary
@@ -183,9 +184,9 @@ class TempFileMunge(object):
         node = target[0] if SCons.Util.is_List(target) else target
         cmdlist = getattr(node.attributes, 'tempfile_cmdlist', None) \
                     if node is not None else None
-        if cmdlist is not None : 
+        if cmdlist is not None :
             return cmdlist
-        
+
         # We do a normpath because mktemp() has what appears to be
         # a bug in Windows that will use a forward slash as a path
         # delimiter.  Windows's link mistakes that for a command line
@@ -233,14 +234,14 @@ class TempFileMunge(object):
         # purity get in the way of just being helpful, so we'll
         # reach into SCons.Action directly.
         if SCons.Action.print_actions:
-            cmdstr = env.subst(self.cmdstr, SCons.Subst.SUBST_RAW, target, 
+            cmdstr = env.subst(self.cmdstr, SCons.Subst.SUBST_RAW, target,
                                source) if self.cmdstr is not None else ''
             # Print our message only if XXXCOMSTR returns an empty string
             if len(cmdstr) == 0 :
                 print("Using tempfile "+native_tmp+" for command line:\n"+
                       str(cmd[0]) + " " + " ".join(args))
-            
-        # Store the temporary file command list into the target Node.attributes 
+
+        # Store the temporary file command list into the target Node.attributes
         # to avoid creating two temporary files one for print and one for execute.
         cmdlist = [ cmd[0], prefix + native_tmp + '\n' + rm, native_tmp ]
         if node is not None:
@@ -249,7 +250,8 @@ class TempFileMunge(object):
             except AttributeError:
                 pass
         return cmdlist
-    
+
+
 def Platform(name = platform_default()):
     """Select a canned Platform specification.
     """

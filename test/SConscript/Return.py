@@ -39,50 +39,50 @@ x = SConscript('SConscript2')
 y, z = SConscript('SConscript3')
 a4, b4 = SConscript('SConscript4')
 foo, bar = SConscript('SConscript5')
-print "x =", x
-print "y =", y
-print "z =", z
-print "a4 =", a4
-print "b4 =", b4
-print "foo =", foo
-print "bar =", bar
+print ("x =", x)
+print ("y =", y)
+print ("z =", z)
+print ("a4 =", a4)
+print ("b4 =", b4)
+print ("foo =", foo)
+print ("bar =", bar)
 """)
 
 test.write('SConscript1', """\
-print "line 1"
+print ("line 1")
 Return()
-print "line 2"
+print ("line 2")
 """)
 
 test.write('SConscript2', """\
-print "line 3"
+print ("line 3")
 x = 7
 Return('x')
-print "line 4"
+print ("line 4")
 """)
 
 test.write('SConscript3', """\
-print "line 5"
+print ("line 5")
 y = 8
 z = 9
 Return('y z')
-print "line 6"
+print ("line 6")
 """)
 
 test.write('SConscript4', """\
 a4 = 'aaa'
 b4 = 'bbb'
-print "line 7"
+print ("line 7")
 Return('a4', 'b4', stop=False)
 b4 = 'b-after'
-print "line 8"
+print ("line 8")
 """)
 
 test.write('SConscript5', """\
 foo = 'foo'
 bar = 'bar'
 Return(["foo", "bar"])
-print "line 9"
+print ("line 9")
 """)
 
 expect = """\

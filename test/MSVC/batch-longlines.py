@@ -38,7 +38,7 @@ test.skip_if_not_msvc()
 
 _python_ = TestSCons._python_
 
-for i in xrange(1,200):
+for i in range(1,200):
     test.write('source-file-with-quite-a-long-name-maybe-unrealistic-but-who-cares-%05d.cxx'%i,
                '/* source file %d */\nint var%d;\n'%(i,i))
 

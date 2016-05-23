@@ -48,8 +48,8 @@ except AttributeError:
 env1 = Environment(X = 1)
 env2 = env1.Clone(X = 2)
 
-print env1['X']
-print env2['X']
+print(env1['X'])
+print(env2['X'])
 """)
 
 test.run(arguments = '-q -Q', stdout = "1\n2\n")

@@ -49,7 +49,7 @@ libdirvar_re = re.escape(libdirvar)
 
 test.subdir(qtpath)
 test.subdir(libpath)
-         
+
 test.write('SConstruct', """
 from SCons.Options import BoolOption, EnumOption, ListOption, \
    PackageOption, PathOption
@@ -86,8 +86,8 @@ opts.AddOptions(
 env = Environment(options=opts)
 Help(opts.GenerateHelpText(env))
 
-print env['warnings']
-print env['profile']
+print(env['warnings'])
+print(env['profile'])
 
 Default(env.Alias('dummy', None))
 """ % locals())

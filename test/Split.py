@@ -30,19 +30,19 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 env = Environment(BBB = 'bbb', CCC = 'ccc')
-print Split('aaa')
-print Split('aaa $BBB')
-print env.Split('bbb $CCC')
-print env.Split('$BBB ccc')
-print Split(['ddd', 'eee'])
+print(Split('aaa'))
+print(Split('aaa $BBB'))
+print(env.Split('bbb $CCC'))
+print(env.Split('$BBB ccc'))
+print(Split(['ddd', 'eee']))
 SConscript('SConscript')
 """)
 
 test.write('SConscript', """
 env = Environment(FFF='fff', JJJ='jjj')
-print env.Split('${FFF}.f')
-print Split('ggg hhh')
-print env.Split(['iii', '$JJJ'])
+print(env.Split('${FFF}.f'))
+print(Split('ggg hhh'))
+print(env.Split(['iii', '$JJJ']))
 """)
 
 expect = """\

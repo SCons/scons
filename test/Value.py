@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -81,7 +82,7 @@ open(sys.argv[-1],'wb').write(" ".join(sys.argv[1:-2]))
 # to make sure there's no difference in behavior.
 for source_signature in ['MD5', 'timestamp-newer']:
 
-    print "Testing Value node with source signatures:", source_signature
+    print("Testing Value node with source signatures:", source_signature)
 
     test.write('SConstruct', SConstruct_content % locals())
 
