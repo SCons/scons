@@ -926,9 +926,9 @@ class Node(object):
         scanner's recursive flag says that we should.
         """
         nodes = [self]
-        seen = {}
-        seen[self] = 1
+        seen = set(nodes)
         dependencies = []
+        path_memo = {}
 
         root_node_scanner = self._get_scanner(env, initial_scanner, None, kw)
 
@@ -936,30 +936,32 @@ class Node(object):
             node = nodes.pop(0)
 
             scanner = node._get_scanner(env, initial_scanner, root_node_scanner, kw)
-
             if not scanner:
                 continue
 
-            path = path_func(scanner)
+            try:
+                path = path_memo[scanner]
+            except KeyError:
+                path = path_func(scanner)
+                path_memo[scanner] = path
 
             included_deps = [x for x in node.get_found_includes(env, scanner, path) if x not in seen]
             if included_deps:
                 dependencies.extend(included_deps)
-                for dep in included_deps:
-                    seen[dep] = 1
+                seen.update(included_deps)
                 nodes.extend(scanner.recurse_nodes(included_deps))
 
         return dependencies
 
     def _get_scanner(self, env, initial_scanner, root_node_scanner, kw):
-        if not initial_scanner:
+        if initial_scanner:
+            # handle explicit scanner case
+            scanner = initial_scanner.select(self)
+        else:
             # handle implicit scanner case
             scanner = self.get_env_scanner(env, kw)
             if scanner:
                 scanner = scanner.select(self)
-        else:
-            # handle explicit scanner case
-            scanner = initial_scanner.select(self)
 
         if not scanner:
             # no scanner could be found for the given node's scanner key;
