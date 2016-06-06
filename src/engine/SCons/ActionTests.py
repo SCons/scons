@@ -231,7 +231,7 @@ def test_positional_args(pos_callback, cmd, **kw):
     """
     act = SCons.Action.Action(cmd, **kw)
     pos_callback(act)
-    assert act.varlist is (), act.varlist
+    assert act.varlist == (), act.varlist
 
     if not isinstance(act, SCons.Action._ActionAction):
         # only valid cmdstrfunc is None
@@ -316,7 +316,7 @@ class ActionTestCase(unittest.TestCase):
         """
         a1 = SCons.Action.Action(["x", "y", "z", [ "a", "b", "c"]])
         assert isinstance(a1, SCons.Action.ListAction), a1
-        assert a1.varlist is (), a1.varlist
+        assert a1.varlist == (), a1.varlist
         assert isinstance(a1.list[0], SCons.Action.CommandAction), a1.list[0]
         assert a1.list[0].cmd_list == "x", a1.list[0].cmd_list
         assert isinstance(a1.list[1], SCons.Action.CommandAction), a1.list[1]
@@ -328,7 +328,7 @@ class ActionTestCase(unittest.TestCase):
 
         a2 = SCons.Action.Action("x\ny\nz")
         assert isinstance(a2, SCons.Action.ListAction), a2
-        assert a2.varlist is (), a2.varlist
+        assert a2.varlist == (), a2.varlist
         assert isinstance(a2.list[0], SCons.Action.CommandAction), a2.list[0]
         assert a2.list[0].cmd_list == "x", a2.list[0].cmd_list
         assert isinstance(a2.list[1], SCons.Action.CommandAction), a2.list[1]
@@ -341,7 +341,7 @@ class ActionTestCase(unittest.TestCase):
 
         a3 = SCons.Action.Action(["x", foo, "z"])
         assert isinstance(a3, SCons.Action.ListAction), a3
-        assert a3.varlist is (), a3.varlist
+        assert a3.varlist == (), a3.varlist
         assert isinstance(a3.list[0], SCons.Action.CommandAction), a3.list[0]
         assert a3.list[0].cmd_list == "x", a3.list[0].cmd_list
         assert isinstance(a3.list[1], SCons.Action.FunctionAction), a3.list[1]
@@ -351,7 +351,7 @@ class ActionTestCase(unittest.TestCase):
 
         a4 = SCons.Action.Action(["x", "y"], strfunction=foo)
         assert isinstance(a4, SCons.Action.ListAction), a4
-        assert a4.varlist is (), a4.varlist
+        assert a4.varlist == (), a4.varlist
         assert isinstance(a4.list[0], SCons.Action.CommandAction), a4.list[0]
         assert a4.list[0].cmd_list == "x", a4.list[0].cmd_list
         assert a4.list[0].strfunction == foo, a4.list[0].strfunction
@@ -361,7 +361,7 @@ class ActionTestCase(unittest.TestCase):
 
         a5 = SCons.Action.Action("x\ny", strfunction=foo)
         assert isinstance(a5, SCons.Action.ListAction), a5
-        assert a5.varlist is (), a5.varlist
+        assert a5.varlist == (), a5.varlist
         assert isinstance(a5.list[0], SCons.Action.CommandAction), a5.list[0]
         assert a5.list[0].cmd_list == "x", a5.list[0].cmd_list
         assert a5.list[0].strfunction == foo, a5.list[0].strfunction
@@ -1533,7 +1533,8 @@ class FunctionActionTestCase(unittest.TestCase):
             global count
             count = count + 1
             for t in target:
-                open(t, 'w').write("function1\n")
+                with open(t, 'w') as f:
+                    f.write("function1\n")
             return 1
 
         act = SCons.Action.FunctionAction(function1, {})
@@ -1548,7 +1549,8 @@ class FunctionActionTestCase(unittest.TestCase):
 
         class class1a(object):
             def __init__(self, target, source, env):
-                open(env['out'], 'w').write("class1a\n")
+                with open(env['out'], 'w') as f:
+                    f.write("class1a\n")
 
         act = SCons.Action.FunctionAction(class1a, {})
         r = act([], [], Environment(out = outfile))
@@ -1558,7 +1560,8 @@ class FunctionActionTestCase(unittest.TestCase):
 
         class class1b(object):
             def __call__(self, target, source, env):
-                open(env['out'], 'w').write("class1b\n")
+                with open(env['out'], 'w') as f:
+                    f.write("class1b\n")
                 return 2
 
         act = SCons.Action.FunctionAction(class1b(), {})
@@ -1710,17 +1713,20 @@ class ListActionTestCase(unittest.TestCase):
         cmd2 = r'%s %s %s syzygy' % (_python_, act_py, outfile)
 
         def function2(target, source, env):
-            open(env['out'], 'a').write("function2\n")
+            with open(env['out'], 'a') as f:
+                f.write("function2\n")
             return 0
 
         class class2a(object):
             def __call__(self, target, source, env):
-                open(env['out'], 'a').write("class2a\n")
+                with open(env['out'], 'a') as f:
+                    f.write("class2a\n")
                 return 0
 
         class class2b(object):
             def __init__(self, target, source, env):
-                open(env['out'], 'a').write("class2b\n")
+                with open(env['out'], 'a') as f:
+                    f.write("class2b\n")
         act = SCons.Action.ListAction([cmd2, function2, class2a(), class2b])
         r = act([], [], Environment(out = outfile))
         assert isinstance(r.status, class2b), r.status
