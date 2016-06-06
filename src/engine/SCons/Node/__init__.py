@@ -57,6 +57,8 @@ import SCons.Util
 
 from SCons.Debug import Trace
 
+from SCons.compat import with_metaclass, NoSlotsPyPy
+
 print_duplicate = 0
 
 def classname(obj):
@@ -489,7 +491,8 @@ class BuildInfoBase(object):
             if key not in ('__weakref__',):
                 setattr(self, key, value)
 
-class Node(object):
+
+class Node(object, with_metaclass(NoSlotsPyPy)):
     """The base Node class, for entities that we know how to
     build, or use to build other Nodes.
     """
