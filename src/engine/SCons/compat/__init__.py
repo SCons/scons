@@ -178,7 +178,7 @@ class NoSlotsPyPy(type):
     """
     def __new__(meta, name, bases, dct):
         if PYPY and '__slots__' in dct:
-            dct['__slats__'] = dct.pop('__slots__')
+            dct.pop('__slots__')
         return super(NoSlotsPyPy, meta).__new__(meta, name, bases, dct)
 
 
