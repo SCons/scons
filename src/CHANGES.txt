@@ -221,6 +221,9 @@ RELEASE 2.3.3 - Sun, 24 Aug 2014 21:08:33 -0400
   From Russel Winder:
     - Fix regression on Windows in D language update
 
+  From Neal Becker and Stefan Zimmermann:
+    - Python 3 port and compatibility
+
   From Anatoly Techtonik:
     - Do not fail on EnsureSConsVersion when running from checkout
 
@@ -261,6 +264,7 @@ RELEASE 2.3.2
   From Paweł Tomulik:
     - Fix SConf tests that write output
 
+>>>>>>> other
   From Gary Oberbrunner:
     - get default RPM architecture more robustly when building RPMs
 

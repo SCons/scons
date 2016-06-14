@@ -20,6 +20,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -75,10 +76,10 @@ for args in ['-h --debug=count', '--debug=count']:
     missing = [o for o in objects if find_object_count(o, stdout) is None]
 
     if missing:
-        print "Missing the following object lines from '%s' output:" % args
-        print "\t", ' '.join(missing)
-        print "STDOUT =========="
-        print stdout
+        print("Missing the following object lines from '%s' output:" % args)
+        print("\t", ' '.join(missing))
+        print("STDOUT ==========")
+        print(stdout)
         test.fail_test(1)
 
 expect_warning = """

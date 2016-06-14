@@ -335,7 +335,7 @@ def __build_lxml(target, source, env):
         result = transform(doc)
         
     try:
-        of = open(str(target[0]), "w")
+        of = open(str(target[0]), "wb")
         of.write(of.write(etree.tostring(result, pretty_print=True)))
         of.close()
     except:

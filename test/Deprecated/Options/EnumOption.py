@@ -43,6 +43,7 @@ def check(expect):
 
 
 test.write(SConstruct_path, """\
+
 from SCons.Options.EnumOption import EnumOption
 EO = EnumOption
 
@@ -66,9 +67,9 @@ opts.AddOptions(
 env = Environment(options=opts)
 Help(opts.GenerateHelpText(env))
 
-print env['debug']
-print env['guilib']
-print env['some']
+print(env['debug'])
+print(env['guilib'])
+print(env['some'])
 
 Default(env.Alias('dummy', None))
 """)

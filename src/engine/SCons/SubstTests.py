@@ -20,6 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -243,14 +244,14 @@ class SubstTestCase(unittest.TestCase):
             expect = convert(expect)
             try:
                 result = function(input, env, **kwargs)
-            except Exception, e:
+            except Exception as e:
                 fmt = "    input %s generated %s (%s)"
-                print fmt % (repr(input), e.__class__.__name__, repr(e))
+                print(fmt % (repr(input), e.__class__.__name__, repr(e)))
                 failed = failed + 1
             else:
                 if result != expect:
-                    if failed == 0: print
-                    print "    input %s => %s did not match %s" % (repr(input), repr(result), repr(expect))
+                    if failed == 0: print()
+                    print("    input %s => %s did not match %s" % (repr(input), repr(result), repr(expect)))
                     failed = failed + 1
             del cases[:2]
         fmt = "%d %s() cases failed"
@@ -462,18 +463,18 @@ class scons_subst_TestCase(SubstTestCase):
             input, eraw, ecmd, esig = subst_cases[:4]
             result = scons_subst(input, env, mode=SUBST_RAW, gvars=gvars)
             if result != eraw:
-                if failed == 0: print
-                print "    input %s => RAW %s did not match %s" % (repr(input), repr(result), repr(eraw))
+                if failed == 0: print()
+                print("    input %s => RAW %s did not match %s" % (repr(input), repr(result), repr(eraw)))
                 failed = failed + 1
             result = scons_subst(input, env, mode=SUBST_CMD, gvars=gvars)
             if result != ecmd:
-                if failed == 0: print
-                print "    input %s => CMD %s did not match %s" % (repr(input), repr(result), repr(ecmd))
+                if failed == 0: print()
+                print("    input %s => CMD %s did not match %s" % (repr(input), repr(result), repr(ecmd)))
                 failed = failed + 1
             result = scons_subst(input, env, mode=SUBST_SIG, gvars=gvars)
             if result != esig:
-                if failed == 0: print
-                print "    input %s => SIG %s did not match %s" % (repr(input), repr(result), repr(esig))
+                if failed == 0: print()
+                print("    input %s => SIG %s did not match %s" % (repr(input), repr(result), repr(esig)))
                 failed = failed + 1
             del subst_cases[:4]
         assert failed == 0, "%d subst() mode cases failed" % failed
@@ -516,7 +517,7 @@ class scons_subst_TestCase(SubstTestCase):
             class Foo(object):
                 pass
             scons_subst('${foo.bar}', env, gvars={'foo':Foo()})
-        except SCons.Errors.UserError, e:
+        except SCons.Errors.UserError as e:
             expect = [
                 "AttributeError `bar' trying to evaluate `${foo.bar}'",
                 "AttributeError `Foo instance has no attribute 'bar'' trying to evaluate `${foo.bar}'",
@@ -532,7 +533,7 @@ class scons_subst_TestCase(SubstTestCase):
         env = DummyEnv(self.loc)
         try:
             scons_subst('$foo.bar.3.0', env)
-        except SCons.Errors.UserError, e:
+        except SCons.Errors.UserError as e:
             expect = [
                 # Python 2.3, 2.4
                 "SyntaxError `invalid syntax (line 1)' trying to evaluate `$foo.bar.3.0'",
@@ -548,7 +549,7 @@ class scons_subst_TestCase(SubstTestCase):
         env = DummyEnv(self.loc)
         try:
             scons_subst("${NONE[2]}", env, gvars={'NONE':None})
-        except SCons.Errors.UserError, e:
+        except SCons.Errors.UserError as e:
             expect = [
                 # Python 2.3, 2.4
                 "TypeError `unsubscriptable object' trying to evaluate `${NONE[2]}'",
@@ -567,7 +568,7 @@ class scons_subst_TestCase(SubstTestCase):
             def func(a, b, c):
                 pass
             scons_subst("${func(1)}", env, gvars={'func':func})
-        except SCons.Errors.UserError, e:
+        except SCons.Errors.UserError as e:
             expect = [
                 # Python 2.3, 2.4, 2.5
                 "TypeError `func() takes exactly 3 arguments (1 given)' trying to evaluate `${func(1)}'"
@@ -937,18 +938,18 @@ class scons_subst_list_TestCase(SubstTestCase):
             input, eraw, ecmd, esig = subst_list_cases[:4]
             result = scons_subst_list(input, env, mode=SUBST_RAW, gvars=gvars)
             if result != eraw:
-                if failed == 0: print
-                print "    input %s => RAW %s did not match %s" % (repr(input), repr(result), repr(eraw))
+                if failed == 0: print()
+                print("    input %s => RAW %s did not match %s" % (repr(input), repr(result), repr(eraw)))
                 failed = failed + 1
             result = scons_subst_list(input, env, mode=SUBST_CMD, gvars=gvars)
             if result != ecmd:
-                if failed == 0: print
-                print "    input %s => CMD %s did not match %s" % (repr(input), repr(result), repr(ecmd))
+                if failed == 0: print()
+                print("    input %s => CMD %s did not match %s" % (repr(input), repr(result), repr(ecmd)))
                 failed = failed + 1
             result = scons_subst_list(input, env, mode=SUBST_SIG, gvars=gvars)
             if result != esig:
-                if failed == 0: print
-                print "    input %s => SIG %s did not match %s" % (repr(input), repr(result), repr(esig))
+                if failed == 0: print()
+                print("    input %s => SIG %s did not match %s" % (repr(input), repr(result), repr(esig)))
                 failed = failed + 1
             del subst_list_cases[:4]
         assert failed == 0, "%d subst() mode cases failed" % failed
@@ -960,7 +961,7 @@ class scons_subst_list_TestCase(SubstTestCase):
             class Foo(object):
                 pass
             scons_subst_list('${foo.bar}', env, gvars={'foo':Foo()})
-        except SCons.Errors.UserError, e:
+        except SCons.Errors.UserError as e:
             expect = [
                 "AttributeError `bar' trying to evaluate `${foo.bar}'",
                 "AttributeError `Foo instance has no attribute 'bar'' trying to evaluate `${foo.bar}'",
@@ -976,7 +977,7 @@ class scons_subst_list_TestCase(SubstTestCase):
         env = DummyEnv()
         try:
             scons_subst_list('$foo.bar.3.0', env)
-        except SCons.Errors.UserError, e:
+        except SCons.Errors.UserError as e:
             expect = [
                 "SyntaxError `invalid syntax' trying to evaluate `$foo.bar.3.0'",
                 "SyntaxError `invalid syntax (line 1)' trying to evaluate `$foo.bar.3.0'",
@@ -1084,8 +1085,8 @@ class scons_subst_once_TestCase(unittest.TestCase):
             input, key, expect = cases[:3]
             result = scons_subst_once(input, env, key)
             if result != expect:
-                if failed == 0: print
-                print "    input %s (%s) => %s did not match %s" % (repr(input), repr(key), repr(result), repr(expect))
+                if failed == 0: print()
+                print("    input %s (%s) => %s did not match %s" % (repr(input), repr(key), repr(result), repr(expect)))
                 failed = failed + 1
             del cases[:3]
         assert failed == 0, "%d subst() cases failed" % failed

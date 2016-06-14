@@ -20,7 +20,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-from __future__ import division
+from __future__ import division, print_function
 
 import optparse
 import os
@@ -48,7 +48,7 @@ def main(argv=None):
 
     for arg in args:
         if len(args) > 1:
-            print arg + ':'
+            print(arg + ':')
 
         command = [sys.executable, 'runtest.py']
         if opts.package:
@@ -67,9 +67,9 @@ def main(argv=None):
             try:
                 elapsed = float(em.group(1))
             except AttributeError:
-                print output
+                print(output)
                 raise
-            print "run %3d: %7.3f:  %s" % (run, elapsed, ' '.join(vm.groups()))
+            print("run %3d: %7.3f:  %s" % (run, elapsed, ' '.join(vm.groups())))
             if opts.min < elapsed and elapsed < opts.max:
                 good += 1
             else:

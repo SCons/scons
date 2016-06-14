@@ -36,7 +36,7 @@ import os.path
 
 #import SCons.Platform.aix
 
-import f77
+from . import f77
 
 # It would be good to look for the AIX F77 package the same way we're now
 # looking for the C and C++ packages.  This should be as easy as supplying

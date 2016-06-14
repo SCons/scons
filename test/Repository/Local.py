@@ -48,7 +48,7 @@ test.write(['repository', 'SConstruct'], r"""
 def copy(env, source, target):
     source = str(source[0])
     target = str(target[0])
-    print 'copy() < %s > %s' % (source, target)
+    print('copy() < %s > %s' % (source, target))
     open(target, "wb").write(open(source, "rb").read())
 
 Build = Builder(action=copy)
@@ -65,7 +65,7 @@ SConscript('build/SConscript')
 test.write(['repository', 'src', 'SConscript'], r"""
 def bbb_copy(env, source, target):
     target = str(target[0])
-    print 'bbb_copy()'
+    print('bbb_copy()')
     open(target, "wb").write(open('build/bbb.1', "rb").read())
 
 Import("env")

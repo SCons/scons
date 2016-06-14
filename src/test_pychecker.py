@@ -20,6 +20,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -139,7 +140,7 @@ for file in files:
             mismatches.append(stderr)
 
 if mismatches:
-    print ''.join(mismatches[1:])
+    print(''.join(mismatches[1:]))
     test.fail_test()
 
 test.pass_test()

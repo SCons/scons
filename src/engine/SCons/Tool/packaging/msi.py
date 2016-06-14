@@ -216,7 +216,7 @@ def build_wxsfile(target, source, env):
         if 'CHANGE_SPECFILE' in env:
             env['CHANGE_SPECFILE'](target, source)
 
-    except KeyError, e:
+    except KeyError as e:
         raise SCons.Errors.UserError( '"%s" package field for MSI is missing.' % e.args[0] )
 
 #

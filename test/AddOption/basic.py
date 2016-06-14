@@ -48,8 +48,8 @@ AddOption('--prefix',
 f = GetOption('force')
 if f:
     f = "True"
-print f
-print GetOption('prefix')
+print(f)
+print(GetOption('prefix'))
 """)
 
 test.run('-Q -q .',

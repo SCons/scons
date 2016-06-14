@@ -84,8 +84,8 @@ test.subdir('d5')
 test.write(['d5', 'f12.in'], "f12.in\n")
 test.write('f   13.in', "f   13.in\n")
 
-os.chmod('f1.in', 0646)
-os.chmod('f4.in', 0644)
+os.chmod('f1.in', 0o646)
+os.chmod('f4.in', 0o644)
 
 test.sleep()
 

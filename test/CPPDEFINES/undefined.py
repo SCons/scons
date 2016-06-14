@@ -34,10 +34,10 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
 env = Environment()
-print env.subst('$_CPPDEFFLAGS')
+print(env.subst('$_CPPDEFFLAGS'))
 """)
 
-expect = test.wrap_stdout(build_str="scons: `.' is up to date.\n", 
+expect = test.wrap_stdout(build_str="scons: `.' is up to date.\n",
                           read_str = "\n")
 
 test.run(arguments = '.', stdout=expect)

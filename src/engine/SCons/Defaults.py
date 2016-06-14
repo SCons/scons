@@ -261,7 +261,8 @@ def copy_func(dest, src, symlinks=True):
         else:
             return copy_func(dest, os.path.realpath(src))
     elif os.path.isfile(src):
-        return shutil.copy2(src, dest)
+        shutil.copy2(src, dest)
+        return 0
     else:
         return shutil.copytree(src, dest, symlinks)
 
@@ -298,7 +299,7 @@ def mkdir_func(dest):
     for entry in dest:
         try:
             os.makedirs(str(entry))
-        except os.error, e:
+        except os.error as e:
             p = str(entry)
             if (e.args[0] == errno.EEXIST or
                     (sys.platform=='win32' and e.args[0]==183)) \
@@ -458,7 +459,7 @@ def processDefines(defs):
                 else:
                     l.append(str(d[0]))
             elif SCons.Util.is_Dict(d):
-                for macro,value in d.iteritems():
+                for macro,value in d.items():
                     if value is not None:
                         l.append(str(macro) + '=' + str(value))
                     else:

@@ -311,7 +311,7 @@ class ExecutorTestCase(unittest.TestCase):
 
         try:
             r = x.prepare()
-        except SCons.Errors.StopError, e:
+        except SCons.Errors.StopError as e:
             assert str(e) == "Source `s2' not found, needed by target `t1'.", e
         else:
             raise AssertionError("did not catch expected StopError: %s" % r)

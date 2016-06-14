@@ -37,7 +37,7 @@ test.subdir('site_scons', ['site_scons', 'site_tools'])
 
 test.write(['site_scons', 'site_init.py'], """
 from SCons.Script import *
-print "Hi there, I am in site_scons/site_init.py!"
+print("Hi there, I am in site_scons/site_init.py!")
 """)
 
 test.write(['site_scons', 'site_tools', 'mytool.py'], """
@@ -68,7 +68,7 @@ test.run(arguments = '-Q --no-site-dir .',
 
 test.write('SConstruct', """
 e=Environment()
-print e.subst('no site: M4 is $M4, M4_MINE is $M4_MINE')
+print(e.subst('no site: M4 is $M4, M4_MINE is $M4_MINE'))
 """)
 
 test.run(arguments = '-Q --no-site-dir .')

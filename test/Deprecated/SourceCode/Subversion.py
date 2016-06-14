@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -50,7 +51,7 @@ svnadmin = test.where_is('svnadmin')
 if not svn:
     test.skip_test("Could not find 'svnadmin'; skipping test(s).\n")
 
-print "Short-circuiting this test until we support Subversion"
+print("Short-circuiting this test until we support Subversion")
 test.pass_test()
 
 test.subdir('Subversion', 'import', ['import', 'sub'], 'work1', 'work2')

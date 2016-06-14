@@ -36,12 +36,12 @@ test = TestSCons.TestSCons()
 test.subdir('subdir', 'other')
 
 test.write('main.scons', """\
-print "main.scons"
+print("main.scons")
 SConscript('subdir/sub.scons')
 """)
 
 test.write(['subdir', 'sub.scons'], """\
-print "subdir/sub.scons"
+print("subdir/sub.scons")
 """)
 
 

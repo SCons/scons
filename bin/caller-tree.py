@@ -39,6 +39,7 @@
 # function at the same time, for example, their counts will intermix.
 # So use this to get a *general* idea of who's calling what, not for
 # fine-grained performance tuning.
+from __future__ import print_function
 
 import sys
 
@@ -74,17 +75,17 @@ for line in sys.stdin.readlines():
 stack = []
 
 def print_entry(e, level, calls):
-    print '%-72s%6s' % ((' '*2*level) + e.file_line_func, calls)
+    print('%-72s%6s' % ((' '*2*level) + e.file_line_func, calls))
     if e in stack:
-        print (' '*2*(level+1))+'RECURSION'
-        print
+        print((' '*2*(level+1))+'RECURSION')
+        print()
     elif e.called_by:
         stack.append(e)
         for c in e.called_by:
             print_entry(c[0], level+1, c[1])
         stack.pop()
     else:
-        print
+        print()
 
 for e in [ e for e in AllCalls.values() if not e.calls ]:
     print_entry(e, 0, '')

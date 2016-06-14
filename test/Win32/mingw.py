@@ -47,7 +47,7 @@ from SCons.Tool.mingw import exists
 import sys
 env = Environment()
 if exists(env):
-    print 'mingw exists'
+    print('mingw exists')
 sys.exit(0)
 """)
 

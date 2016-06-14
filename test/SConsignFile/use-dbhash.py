@@ -35,7 +35,7 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 
 try:
-    import dbhash
+    import dbm.bsd
 except ImportError:
     test.skip_test('No dbhash in this version of Python; skipping test.\n')
 

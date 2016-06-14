@@ -3,6 +3,7 @@
 
 # A script for turning a generic Ubuntu system into a master for
 # SCons development.
+from __future__ import print_function
 
 import getopt
 import sys
@@ -10,7 +11,7 @@ import sys
 from Command import CommandRunner, Usage
 
 INITIAL_PACKAGES = [
-    'subversion',
+    'mercurial',
 ]
 
 INSTALL_PACKAGES = [
@@ -122,7 +123,7 @@ Usage:  scons_dev_master.py [-hnqy] [--password PASSWORD] [--username USER]
         buildbot                Install packages for running BuildBot
 """
 
-    scons_url = 'http://scons.tigris.org/svn/scons/trunk'
+    scons_url = 'https://bdbaddog@bitbucket.org/scons/scons'
     sudo = 'sudo'
     password = '""'
     username = 'guest'
@@ -131,12 +132,12 @@ Usage:  scons_dev_master.py [-hnqy] [--password PASSWORD] [--username USER]
     try:
         try:
             opts, args = getopt.getopt(argv[1:], short_options, long_options)
-        except getopt.error, msg:
+        except getopt.error as msg:
             raise Usage(msg)
 
         for o, a in opts:
             if o in ('-h', '--help'):
-                print helpstr
+                print(helpstr)
                 sys.exit(0)
             elif o in ('-n', '--no-exec'):
                 CommandRunner.execute = CommandRunner.do_not_execute
@@ -148,7 +149,7 @@ Usage:  scons_dev_master.py [-hnqy] [--password PASSWORD] [--username USER]
                 username = a
             elif o in ('-y', '--yes', '--assume-yes'):
                 yesflag = o
-    except Usage, err:
+    except Usage as err:
         sys.stderr.write(str(err.msg) + '\n')
         sys.stderr.write('use -h to get help\n')
         return 2
@@ -170,7 +171,7 @@ Usage:  scons_dev_master.py [-hnqy] [--password PASSWORD] [--username USER]
             cmd.run('%(sudo)s apt-get %(yesflag)s upgrade')
         elif arg == 'checkout':
             cmd.run('%(sudo)s apt-get %(yesflag)s install %(initial_packages)s')
-            cmd.run('svn co --username guest --password "" %(scons_url)s')
+            cmd.run('hg clone" %(scons_url)s')
         elif arg == 'building':
             cmd.run('%(sudo)s apt-get %(yesflag)s install %(building_packages)s')
         elif arg == 'testing':

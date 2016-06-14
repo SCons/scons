@@ -136,7 +136,7 @@ int main() {
 """)
 
 test.run(chdir = 'work1', arguments = "mytest" + _exe)
-                       
+
 test.must_exist(['work1', 'mmmmocFromH.cxx'],
                 ['work1', 'mocmocFromCpp.inl'],
                 ['work1', 'an_ui_file.cxx'],
@@ -168,15 +168,15 @@ env1 = Environment(tools=['qt'],
 
 cpppath = env1.subst('$CPPPATH')
 if os.path.normpath(cpppath) != os.path.join(r'%(QTDIR)s', 'h64'):
-    print cpppath
+    print(cpppath)
     Exit(1)
 libpath = env1.subst('$LIBPATH')
 if os.path.normpath(libpath) != os.path.join(r'%(QTDIR)s', 'lib64'):
-    print libpath
+    print(libpath)
     Exit(2)
 qt_moc = env1.subst('$QT_MOC')
 if os.path.normpath(qt_moc) != os.path.join(r'%(QTDIR)s', 'bin64', 'moc'):
-    print qt_moc
+    print(qt_moc)
     Exit(3)
 
 env2 = Environment(tools=['default', 'qt'],

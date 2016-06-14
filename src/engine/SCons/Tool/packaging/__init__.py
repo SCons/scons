@@ -119,7 +119,7 @@ def Package(env, target=None, source=None, **kw):
         try:
             file,path,desc=imp.find_module(type, __path__)
             return imp.load_module(type, file, path, desc)
-        except ImportError, e:
+        except ImportError as e:
             raise EnvironmentError("packager %s not available: %s"%(type,str(e)))
 
     packagers=list(map(load_packager, PACKAGETYPE))
@@ -140,7 +140,7 @@ def Package(env, target=None, source=None, **kw):
         if 'PACKAGEROOT' not in kw:
             kw['PACKAGEROOT'] = default_name%kw
 
-    except KeyError, e:
+    except KeyError as e:
         raise SCons.Errors.UserError( "Missing Packagetag '%s'"%e.args[0] )
 
     # setup the source files
@@ -156,10 +156,10 @@ def Package(env, target=None, source=None, **kw):
 
         assert( len(target) == 0 )
 
-    except KeyError, e:
+    except KeyError as e:
         raise SCons.Errors.UserError( "Missing Packagetag '%s' for %s packager"\
                                       % (e.args[0],packager.__name__) )
-    except TypeError, e:
+    except TypeError as e:
         # this exception means that a needed argument for the packager is
         # missing. As our packagers get their "tags" as named function
         # arguments we need to find out which one is missing.

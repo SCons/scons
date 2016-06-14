@@ -100,7 +100,7 @@ def generate(env):
     if DVIPDFAction is None:
         DVIPDFAction = SCons.Action.Action(DviPdfFunction, strfunction = DviPdfStrFunction)
 
-    import pdf
+    from . import pdf
     pdf.generate(env)
 
     bld = env['BUILDERS']['PDF']

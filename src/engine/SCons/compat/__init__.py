@@ -82,17 +82,19 @@ def rename_module(new, old):
     except ImportError:
         return False
 
+# TODO: FIXME
 # In 3.x, 'pickle' automatically loads the fast version if available.
 rename_module('pickle', 'cPickle')
 
+# TODO: FIXME
 # In 3.x, 'profile' automatically loads the fast version if available.
 rename_module('profile', 'cProfile')
 
-
+# TODO: FIXME
 # Before Python 3.0, the 'queue' module was named 'Queue'.
 rename_module('queue', 'Queue')
 
-
+# TODO: FIXME
 # Before Python 3.0, the 'winreg' module was named '_winreg'
 rename_module('winreg', '_winreg')
 

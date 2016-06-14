@@ -51,17 +51,17 @@ import os.path
 import re
 
 special = []
-for x in globals().keys():
+for x in list(globals().keys()):
     if re.match("__[^_]+__", x):
         if x in ("__builtins__", "__package__",):
             # Ignore certain keywords, as they are known to be added by Python
             continue
         special.append(x)
 
-print sorted(special)
-print __doc__
-print os.path.realpath(__file__)
-print __name__
+print(sorted(special))
+print(__doc__)
+print(os.path.realpath(__file__))
+print(__name__)
 """)
 
     test.write('SConstruct', "\n")

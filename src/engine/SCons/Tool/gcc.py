@@ -33,7 +33,7 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import cc
+from . import cc
 import os
 import re
 import subprocess
@@ -80,13 +80,13 @@ def detect_version(env, cc):
     #line = pipe.stdout.read().strip()
     #if line:
     #    version = line
-    line = pipe.stdout.readline()
+    line = SCons.Util.to_str(pipe.stdout.readline())
     match = re.search(r'[0-9]+(\.[0-9]+)+', line)
     if match:
         version = match.group(0)
     # Non-GNU compiler's output (like AIX xlc's) may exceed the stdout buffer:
     # So continue with reading to let the child process actually terminate.
-    while pipe.stdout.readline():
+    while SCons.Util.to_str(pipe.stdout.readline()):
         pass
     ret = pipe.wait()
     if ret != 0:

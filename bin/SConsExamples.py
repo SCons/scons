@@ -1,7 +1,7 @@
 # !/usr/bin/env python
-# 
+#
 # Copyright (c) 2010 The SCons Foundation
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -9,10 +9,10 @@
 # distribute, sublicense, and/or sell copies of the Software, and to
 # permit persons to whom the Software is furnished to do so, subject to
 # the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included
 # in all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
 # KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
 # WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -21,18 +21,18 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# 
-# 
+#
+#
 # This script looks for some XML tags that describe SCons example
 # configurations and commands to execute in those configurations, and
 # uses TestCmd.py to execute the commands and insert the output from
 # those commands into the XML that we output.  This way, we can run a
 # script and update all of our example documentation output without
 # a lot of laborious by-hand checking.
-# 
+#
 # An "SCons example" looks like this, and essentially describes a set of
 # input files (program source files as well as SConscript files):
-# 
+#
 #       <scons_example name="ex1">
 #         <file name="SConstruct" printme="1">
 #           env = Environment()
@@ -42,7 +42,7 @@
 #           int main() { printf("foo.c\n"); }
 #         </file>
 #       </scons_example>
-# 
+#
 # The <file> contents within the <scons_example> tag will get written
 # into a temporary directory whenever example output needs to be
 # generated.  By default, the <file> contents are not inserted into text
@@ -50,41 +50,43 @@
 # in which case they will get inserted within a <programlisting> tag.
 # This makes it easy to define the example at the appropriate
 # point in the text where you intend to show the SConstruct file.
-# 
+#
 # Note that you should usually give the <scons_example> a "name"
 # attribute so that you can refer to the example configuration later to
 # run SCons and generate output.
-# 
+#
 # If you just want to show a file's contents without worry about running
 # SCons, there's a shorter <sconstruct> tag:
-# 
+#
 #       <sconstruct>
 #         env = Environment()
 #         env.Program('foo')
 #       </sconstruct>
-# 
+#
 # This is essentially equivalent to <scons_example><file printme="1">,
 # but it's more straightforward.
-# 
+#
 # SCons output is generated from the following sort of tag:
-# 
+#
 #       <scons_output example="ex1" os="posix">
 #         <scons_output_command suffix="1">scons -Q foo</scons_output_command>
 #         <scons_output_command suffix="2">scons -Q foo</scons_output_command>
 #       </scons_output>
-# 
+#
 # You tell it which example to use with the "example" attribute, and then
 # give it a list of <scons_output_command> tags to execute.  You can also
 # supply an "os" tag, which specifies the type of operating system this
 # example is intended to show; if you omit this, default value is "posix".
-# 
+#
 # The generated XML will show the command line (with the appropriate
 # command-line prompt for the operating system), execute the command in
 # a temporary directory with the example files, capture the standard
 # output from SCons, and insert it into the text as appropriate.
 # Error output gets passed through to your error output so you
 # can see if there are any problems executing the command.
-# 
+#
+
+from __future__ import print_function
 
 import os
 import re
@@ -94,9 +96,9 @@ import time
 import SConsDoc
 from SConsDoc import tf as stf
 
-# 
+#
 # The available types for ExampleFile entries
-# 
+#
 FT_FILE = 0  # a physical file (=<file>)
 FT_FILEREF = 1  # a reference     (=<scons_example_file>)
 
@@ -106,7 +108,7 @@ class ExampleFile:
         self.name = ''
         self.content = ''
         self.chmod = ''
-        
+
     def isFileRef(self):
         return self.type == FT_FILEREF
 
@@ -130,19 +132,19 @@ class ExampleOutput:
         self.preserve = None
         self.suffix = ''
         self.commands = []
-        
+
 class ExampleInfo:
     def __init__(self):
         self.name = ''
         self.files = []
         self.folders = []
         self.outputs = []
-        
+
     def getFileContents(self, fname):
         for f in self.files:
             if fname == f.name and not f.isFileRef():
                 return f.content
-            
+
         return ''
 
 def readExampleInfos(fpath, examples):
@@ -150,10 +152,10 @@ def readExampleInfos(fpath, examples):
         global dictionary examples.
     """
 
-    # Create doctree    
+    # Create doctree
     t = SConsDoc.SConsDocTree()
     t.parseXmlFile(fpath)
-    
+
     # Parse scons_examples
     for e in stf.findAll(t.root, "scons_example", SConsDoc.dbxid,
                          t.xpath_context, t.nsmap):
@@ -164,7 +166,7 @@ def readExampleInfos(fpath, examples):
             i = ExampleInfo()
             i.name = n
             examples[n] = i
-            
+
         # Parse file and directory entries
         for f in stf.findAll(e, "file", SConsDoc.dbxid,
                              t.xpath_context, t.nsmap):
@@ -199,8 +201,8 @@ def readExampleInfos(fpath, examples):
             fi.chmod = stf.getAttribute(f, 'chmod')
         fi.content = stf.getText(f)
         examples[e].files.append(fi)
-        
-    
+
+
     # Parse scons_output
     for o in stf.findAll(t.root, "scons_output", SConsDoc.dbxid,
                          t.xpath_context, t.nsmap):
@@ -238,7 +240,7 @@ def readExampleInfos(fpath, examples):
         examples[n].outputs.append(eout)
 
 def readAllExampleInfos(dpath):
-    """ Scan for XML files in the given directory and 
+    """ Scan for XML files in the given directory and
         collect together all relevant infos (files/folders,
         output commands) in a map, which gets returned.
     """
@@ -249,13 +251,13 @@ def readAllExampleInfos(dpath):
                 fpath = os.path.join(path, f)
                 if SConsDoc.isSConsXml(fpath):
                     readExampleInfos(fpath, examples)
-                   
+
     return examples
 
 generated_examples = os.path.join('doc', 'generated', 'examples')
 
 def ensureExampleOutputsExist(dpath):
-    """ Scan for XML files in the given directory and 
+    """ Scan for XML files in the given directory and
         ensure that for every example output we have a
         corresponding output file in the 'generated/examples'
         folder.
@@ -263,9 +265,9 @@ def ensureExampleOutputsExist(dpath):
     # Ensure that the output folder exists
     if not os.path.isdir(generated_examples):
         os.mkdir(generated_examples)
-        
+
     examples = readAllExampleInfos(dpath)
-    for key, value in examples.iteritems():
+    for key, value in examples.items():
         # Process all scons_output tags
         for o in value.outputs:
             cpath = os.path.join(generated_examples,
@@ -276,7 +278,7 @@ def ensureExampleOutputsExist(dpath):
                 stf.setText(s, "NO OUTPUT YET! Run the script to generate/update all examples.")
                 # Write file
                 stf.writeTree(s, cpath)
-                
+
         # Process all scons_example_file tags
         for r in value.files:
             if r.isFileRef():
@@ -292,22 +294,22 @@ def ensureExampleOutputsExist(dpath):
 perc = "%"
 
 def createAllExampleOutputs(dpath):
-    """ Scan for XML files in the given directory and 
+    """ Scan for XML files in the given directory and
         creates all output files for every example in
         the 'generated/examples' folder.
     """
     # Ensure that the output folder exists
     if not os.path.isdir(generated_examples):
         os.mkdir(generated_examples)
-        
+
     examples = readAllExampleInfos(dpath)
     total = len(examples)
     idx = 0
-    for key, value in examples.iteritems():
+    for key, value in examples.items():
         # Process all scons_output tags
-        print "%.2f%s (%d/%d) %s" % (float(idx + 1) * 100.0 / float(total),
-                                     perc, idx + 1, total, key)
-        
+        print("%.2f%s (%d/%d) %s" % (float(idx + 1) * 100.0 / float(total),
+                                     perc, idx + 1, total, key))
+
         create_scons_output(value)
         # Process all scons_example_file tags
         for r in value.files:
@@ -329,10 +331,10 @@ def collectSConsExampleNames(fpath):
     suffixes = {}
     failed_suffixes = False
 
-    # Create doctree    
+    # Create doctree
     t = SConsDoc.SConsDocTree()
     t.parseXmlFile(fpath)
-    
+
     # Parse it
     for e in stf.findAll(t.root, "scons_example", SConsDoc.dbxid,
                          t.xpath_context, t.nsmap):
@@ -344,40 +346,40 @@ def collectSConsExampleNames(fpath):
             if n not in suffixes:
                 suffixes[n] = []
         else:
-            print "Error: Example in file '%s' is missing a name!" % fpath
+            print("Error: Example in file '%s' is missing a name!" % fpath)
             failed_suffixes = True
-    
+
     for o in stf.findAll(t.root, "scons_output", SConsDoc.dbxid,
                          t.xpath_context, t.nsmap):
         n = ''
         if stf.hasAttribute(o, 'example'):
             n = stf.getAttribute(o, 'example')
         else:
-            print "Error: scons_output in file '%s' is missing an example name!" % fpath
+            print("Error: scons_output in file '%s' is missing an example name!" % fpath)
             failed_suffixes = True
-            
+
         if n not in suffixes:
-            print "Error: scons_output in file '%s' is referencing non-existent example '%s'!" % (fpath, n)
+            print("Error: scons_output in file '%s' is referencing non-existent example '%s'!" % (fpath, n))
             failed_suffixes = True
             continue
-            
+
         s = ''
         if stf.hasAttribute(o, 'suffix'):
             s = stf.getAttribute(o, 'suffix')
         else:
-            print "Error: scons_output in file '%s' (example '%s') is missing a suffix!" % (fpath, n)
+            print("Error: scons_output in file '%s' (example '%s') is missing a suffix!" % (fpath, n))
             failed_suffixes = True
-        
+
         if s not in suffixes[n]:
             suffixes[n].append(s)
         else:
-            print "Error: scons_output in file '%s' (example '%s') is using a duplicate suffix '%s'!" % (fpath, n, s)
+            print("Error: scons_output in file '%s' (example '%s') is using a duplicate suffix '%s'!" % (fpath, n, s))
             failed_suffixes = True
-    
+
     return names, failed_suffixes
 
 def exampleNamesAreUnique(dpath):
-    """ Scan for XML files in the given directory and 
+    """ Scan for XML files in the given directory and
         check whether the scons_example names are unique.
     """
     unique = True
@@ -392,21 +394,21 @@ def exampleNamesAreUnique(dpath):
                         unique = False
                     i = allnames.intersection(names)
                     if i:
-                        print "Not unique in %s are: %s" % (fpath, ', '.join(i))
+                        print("Not unique in %s are: %s" % (fpath, ', '.join(i)))
                         unique = False
-                    
+
                     allnames |= names
-                   
+
     return unique
 
 # ###############################################################
-# 
+#
 # In the second half of this module (starting here)
 # we define the variables and functions that are required
 # to actually run the examples, collect their output and
 # write it into the files in doc/generated/examples...
 # which then get included by our UserGuide.
-# 
+#
 # ###############################################################
 
 sys.path.append(os.path.join(os.getcwd(), 'QMTest'))
@@ -430,7 +432,7 @@ Prompt = {
 }
 
 # The magick SCons hackery that makes this work.
-# 
+#
 # So that our examples can still use the default SConstruct file, we
 # actually feed the following into SCons via stdin and then have it
 # SConscript() the SConstruct file.  This stdin wrapper creates a set
@@ -438,7 +440,7 @@ Prompt = {
 # Surrogates print output like the real tools and behave like them
 # without actually having to be on the right platform or have the right
 # tool installed.
-# 
+#
 # The upshot:  The wrapper transparently changes the world out from
 # under the top-level SConstruct file in an example just so we can get
 # the command output.
@@ -765,7 +767,7 @@ def ExecuteCommand(args, c, t, dict):
 def create_scons_output(e):
     # The real raison d'etre for this script, this is where we
     # actually execute SCons to fetch the output.
-    
+
     # Loop over all outputs for the example
     for o in e.outputs:
         # Create new test directory
@@ -774,19 +776,19 @@ def create_scons_output(e):
             t.preserve()
         t.subdir('ROOT', 'WORK')
         t.rootpath = t.workpath('ROOT').replace('\\', '\\\\')
-    
+
         for d in e.folders:
             dir = t.workpath('WORK', d.name)
             if not os.path.exists(dir):
                 os.makedirs(dir)
-    
+
         for f in e.files:
             if f.isFileRef():
                 continue
-            # 
+            #
             # Left-align file's contents, starting on the first
             # non-empty line
-            # 
+            #
             data = f.content.split('\n')
             i = 0
             # Skip empty lines
@@ -813,26 +815,26 @@ def create_scons_output(e):
             if hasattr(f, 'chmod'):
                 if len(f.chmod):
                     os.chmod(path, int(f.chmod, 0))
-    
+
         # Regular expressions for making the doc output consistent,
         # regardless of reported addresses or Python version.
-    
+
         # Massage addresses in object repr strings to a constant.
         address_re = re.compile(r' at 0x[0-9a-fA-F]*\>')
-    
+
         # Massage file names in stack traces (sometimes reported as absolute
         # paths) to a consistent relative path.
         engine_re = re.compile(r' File ".*/src/engine/SCons/')
-    
+
         # Python 2.5 changed the stack trace when the module is read
         # from standard input from read "... line 7, in ?" to
         # "... line 7, in <module>".
         file_re = re.compile(r'^( *File ".*", line \d+, in) \?$', re.M)
-    
+
         # Python 2.6 made UserList a new-style class, which changes the
         # AttributeError message generated by our NodeList subclass.
         nodelist_re = re.compile(r'(AttributeError:) NodeList instance (has no attribute \S+)')
-  
+
         # Root element for our subtree
         sroot = stf.newEtreeNode("screen", True)
         curchild = None
@@ -881,7 +883,7 @@ def create_scons_output(e):
                 curchild.tail = content
             else:
                 sroot.text = content
-   
+
         # Construct filename
         fpath = os.path.join(generated_examples,
                              e.name + '_' + o.suffix + '.xml')

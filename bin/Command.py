@@ -4,6 +4,7 @@
 #
 # XXX Describe what the script does here.
 #
+from __future__ import print_function
 
 import getopt
 import os
@@ -109,18 +110,18 @@ Usage:  script-template.py [-hnq]
     try:
         try:
             opts, args = getopt.getopt(argv[1:], short_options, long_options)
-        except getopt.error, msg:
+        except getopt.error as msg:
             raise Usage(msg)
 
         for o, a in opts:
             if o in ('-h', '--help'):
-                print helpstr
+                print(helpstr)
                 sys.exit(0)
             elif o in ('-n', '--no-exec'):
                 Command.execute = Command.do_not_execute
             elif o in ('-q', '--quiet'):
                 Command.display = Command.do_not_display
-    except Usage, err:
+    except Usage as err:
         sys.stderr.write(err.msg)
         sys.stderr.write('use -h to get help')
         return 2

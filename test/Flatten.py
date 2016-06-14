@@ -44,15 +44,15 @@ def cat(env, source, target):
 env = Environment(BUILDERS={'Cat':Builder(action=cat)})
 f1 = env.Cat('../file1.out', 'file1.in')
 f2 = env.Cat('../file2.out', ['file2a.in', 'file2b.in'])
-print list(map(str, Flatten(['begin', f1, 'middle', f2, 'end'])))
-print list(map(str, env.Flatten([f1, [['a', 'b'], 'c'], f2])))
+print(list(map(str, Flatten(['begin', f1, 'middle', f2, 'end']))))
+print(list(map(str, env.Flatten([f1, [['a', 'b'], 'c'], f2]))))
 SConscript('SConscript', "env")
 """)
 
 test.write(['work', 'SConscript'], """
 Import("env")
-print Flatten([1, [2, 3], 4])
-print env.Flatten([[[[1], 2], 3], 4])
+print(Flatten([1, [2, 3], 4]))
+print(env.Flatten([[[[1], 2], 3], 4]))
 """)
 
 test.write('file1.in', "file1.in\n")

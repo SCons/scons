@@ -23,7 +23,7 @@
 #
 # This will allow (as much as possible) us to time just the code itself,
 # not Python function call overhead.
-from __future__ import division
+from __future__ import division, print_function
 
 import getopt
 import sys
@@ -113,12 +113,12 @@ def display(label, results):
     total = 0.0
     for r in results:
         total += r
-    print "    %8.3f" % ((total * 1e6) / len(results)), ':', label
+    print("    %8.3f" % ((total * 1e6) / len(results)), ':', label)
 
 for func in FunctionList:
     if func.__doc__: d = ' (' + func.__doc__ + ')'
     else: d = ''
-    print func.__name__ + d + ':'
+    print(func.__name__ + d + ':')
 
     for label, args, kw in Data:
         r = timer(func, *args, **kw)

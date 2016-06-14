@@ -455,9 +455,9 @@ class Executor(object):
         except KeyError:
             pass
         env = self.get_build_env()
-        result = "".join([action.get_contents(self.get_all_targets(),
-                                              self.get_all_sources(),
-                                              env)
+        result = b"".join([action.get_contents(self.get_all_targets(),
+                                               self.get_all_sources(),
+                                               env)
                           for action in self.get_action_list()])
         self._memo['get_contents'] = result
         return result

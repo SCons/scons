@@ -105,8 +105,8 @@ output.write(input.read())
 sys.exit(0)
 """)
 
-test.chmod(fake_cc_py, 0755)
-test.chmod(fake_link_py, 0755)
+test.chmod(fake_cc_py, 0o755)
+test.chmod(fake_link_py, 0o755)
 
 test.write('SConstruct', """
 SConsignFile(None)

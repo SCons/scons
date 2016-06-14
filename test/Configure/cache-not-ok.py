@@ -53,7 +53,7 @@ r1 = conf.CheckCHeader( 'no_std_c_header.h' ) # leads to compile error
 r2 = conf.CheckLib( 'no_c_library_SAFFDG' )   # leads to link error
 env = conf.Finish()
 if not (not r1 and not r2):
-     print "FAIL: ", r1, r2
+     print("FAIL: ", r1, r2)
      Exit(1)
 """)
 

@@ -1037,8 +1037,8 @@ class TestSConsMSVS(TestSCons):
             input = """\
 import SCons
 import SCons.Tool.MSCommon
-print "self.scons_version =", repr(SCons.__%s__)
-print "self._msvs_versions =", str(SCons.Tool.MSCommon.query_versions())
+print("self.scons_version =", repr(SCons.__%s__))
+print("self._msvs_versions =", str(SCons.Tool.MSCommon.query_versions()))
 """ % 'version'
         
             self.run(arguments = '-n -q -Q -f -', stdin = input)
@@ -1149,7 +1149,7 @@ print "self._msvs_versions =", str(SCons.Tool.MSCommon.query_versions())
             
         try:
             host = _ARCH_TO_CANONICAL[host_platform]
-        except KeyError, e:
+        except KeyError as e:
             # Default to x86 for all other platforms
             host = 'x86'
     

@@ -64,7 +64,7 @@ ofp.close()
 sys.exit(0)
 """ % locals())
 
-os.chmod(my_shell, 0755)
+os.chmod(my_shell, 0o755)
 
 test.write('SConstruct', """\
 env = Environment(SHELL = r'%(my_shell)s')

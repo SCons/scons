@@ -18,6 +18,7 @@
 # Grab the sort bar on the far left (just above the "1" for row one)
 # and move it down one row.  (Row one becomes a floating header)
 # Voila!
+from __future__ import print_function
 
 # The team members
 # FIXME: These names really should be external to this script
@@ -89,7 +90,7 @@ for issue in issues:
     writer.writerow(['','','','','','',''])
     for member in team: writer.writerow(['','',member,'','','',''])
 
-print "Exported %d issues to editlist.csv.  Ready to upload to Google."%len(issues)
+print("Exported %d issues to editlist.csv.  Ready to upload to Google."%len(issues))
 
 # Local Variables:
 # tab-width:4

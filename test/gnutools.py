@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -118,7 +119,7 @@ def testObject(test, obj, expect):
     line1 = contents.split('\n')[0]
     actual = ' '.join(line1.split())
     if not expect == actual:
-        print "%s:  %s != %s\n" % (obj, repr(expect), repr(actual))
+        print("%s:  %s != %s\n" % (obj, repr(expect), repr(actual)))
         test.fail_test()
 
 if sys.platform in ('win32', 'cygwin'):

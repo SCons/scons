@@ -40,13 +40,13 @@ test.write(['bar', 'baz', 'testfile2'], 'test 4\n')
 test.write('SConstruct', """
 env = Environment(FILE = 'file', BAR = 'bar')
 file1 = FindFile('testfile1', [ 'foo', '.', 'bar', 'bar/baz' ])
-print open(str(file1), 'r').read()
+print(open(str(file1), 'r').read())
 file2 = env.FindFile('test${FILE}1', [ 'bar', 'foo', '.', 'bar/baz' ])
-print open(str(file2), 'r').read()
+print(open(str(file2), 'r').read())
 file3 = FindFile('testfile2', [ 'foo', '.', 'bar', 'bar/baz' ])
-print open(str(file3), 'r').read()
+print(open(str(file3), 'r').read())
 file4 = env.FindFile('testfile2', [ '$BAR/baz', 'foo', '.', 'bar' ])
-print open(str(file4), 'r').read()
+print(open(str(file4), 'r').read())
 """)
 
 expect = test.wrap_stdout(read_str = """test 1

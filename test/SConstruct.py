@@ -41,7 +41,7 @@ wpath = test.workpath()
 
 test.write('sconstruct', """
 import os
-print "sconstruct", os.getcwd()
+print("sconstruct", os.getcwd())
 """)
 
 test.run(arguments = ".",
@@ -51,7 +51,7 @@ test.run(arguments = ".",
 
 test.write('Sconstruct', """
 import os
-print "Sconstruct", os.getcwd()
+print("Sconstruct", os.getcwd())
 """)
 
 test.run(arguments = ".",
@@ -60,7 +60,7 @@ test.run(arguments = ".",
 
 test.write('SConstruct', """
 import os
-print "SConstruct", os.getcwd()
+print("SConstruct", os.getcwd())
 """)
 
 test.run(arguments = ".",

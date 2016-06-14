@@ -29,6 +29,7 @@ selection method.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -48,7 +49,7 @@ _UNIQUE_INSTALLED_FILES = None
 
 class CopytreeError(EnvironmentError):
     pass
-                
+
 # This is a patched version of shutil.copytree from python 2.5.  It
 # doesn't fail if the dir exists, which regular copytree does
 # (annoyingly).  Note the XXX comment in the docstring.
@@ -83,21 +84,21 @@ def scons_copytree(src, dst, symlinks=False):
             else:
                 shutil.copy2(srcname, dstname)
             # XXX What about devices, sockets etc.?
-        except (IOError, os.error), why:
+        except (IOError, os.error) as why:
             errors.append((srcname, dstname, str(why)))
         # catch the CopytreeError from the recursive copytree so that we can
         # continue with other files
-        except CopytreeError, err:
+        except CopytreeError as err:
             errors.extend(err.args[0])
     try:
         shutil.copystat(src, dst)
     except SCons.Util.WinError:
         # can't copy file access times on Windows
         pass
-    except OSError, why:
+    except OSError as why:
         errors.extend((src, dst, str(why)))
     if errors:
-        raise CopytreeError, errors
+        raise CopytreeError(errors)
 
 
 #
@@ -165,10 +166,9 @@ def listShlibLinksToInstall(dest, source, env):
 def installShlibLinks(dest, source, env):
     """If we are installing a versioned shared library create the required links."""
     Verbose = False
-
     symlinks = listShlibLinksToInstall(dest, source, env)
     if Verbose:
-        print 'installShlibLinks: symlinks=%r' % SCons.Tool.StringizeLibSymlinks(symlinks)
+        print('installShlibLinks: symlinks={:r}'.format(SCons.Tool.StringizeLibSymlinks(symlinks)))
     if symlinks:
         SCons.Tool.CreateLibSymlinks(env, symlinks)
     return
@@ -244,12 +244,10 @@ def add_versioned_targets_to_INSTALLED_FILES(target, source, env):
     Verbose = False
     _INSTALLED_FILES.extend(target)
     if Verbose:
-        print "add_versioned_targets_to_INSTALLED_FILES: target=%r" % map(str, target)
-
+        print("add_versioned_targets_to_INSTALLED_FILES: target={:r}".format(map(str, target)))
     symlinks = listShlibLinksToInstall(target[0], source, env)
     if symlinks:
         SCons.Tool.EmitLibSymlinks(env, symlinks, target[0])
-        
     _UNIQUE_INSTALLED_FILES = None
     return (target, source)
 

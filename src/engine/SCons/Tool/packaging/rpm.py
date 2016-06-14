@@ -101,7 +101,7 @@ def collectintargz(target, source, env):
     tarball = (str(target[0])+".tar.gz").replace('.rpm', '')
     try:
         tarball = env['SOURCE_URL'].split('/')[-1]
-    except KeyError, e:
+    except KeyError as e:
         raise SCons.Errors.UserError( "Missing PackageTag '%s' for RPM packager" % e.args[0] )
 
     tarball = src_targz.package(env, source=sources, target=tarball,
@@ -136,7 +136,7 @@ def build_specfile(target, source, env):
         if 'CHANGE_SPECFILE' in env:
             env['CHANGE_SPECFILE'](target, source)
 
-    except KeyError, e:
+    except KeyError as e:
         raise SCons.Errors.UserError( '"%s" package field for RPM is missing.' % e.args[0] )
 
 
@@ -323,7 +323,7 @@ class SimpleTagCompiler(object):
         for key, replacement in domestic:
             try:
                 str = str + replacement % values[key]
-            except KeyError, e:
+            except KeyError as e:
                 if self.mandatory:
                     raise e
 
@@ -334,7 +334,7 @@ class SimpleTagCompiler(object):
                 int_values_for_key = [(get_country_code(t[0]),t[1]) for t in x]
                 for v in int_values_for_key:
                     str = str + replacement % v
-            except KeyError, e:
+            except KeyError as e:
                 if self.mandatory:
                     raise e
 

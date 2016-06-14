@@ -102,7 +102,7 @@ def nameInLib(source, lib, libname):
     # When using non-standard prefixes and suffixes, one has to
     # provide the full name of the library since scons can not know
     # which of the non-standard extension to use.
-    # 
+    #
     # Note that this is not necessarily SHLIBPREFIX and
     # SHLIBSUFFIX. These are the ixes of the target library, not the
     # ixes of the library that we are linking against.
@@ -130,7 +130,7 @@ def buildAndlinkAgainst(builder, target, source,  method, lib, libname, **kw):
     # for the linker command line...
     if (isMingw or isCygwin) and len(lib) > 1:
         lib = lib[1:]
-        
+
     # Apply the naming method to be tested and call the specified Builder.
     (source, LIBS) = method(source, lib, libname)
     #build = builder(target=target, source=source, LIBS=LIBS, **kw)
@@ -153,8 +153,8 @@ def buildAndlinkAgainst(builder, target, source,  method, lib, libname, **kw):
         (list(map(str,lib)), list(map(str, build[0].children())), method.__name__, libname, shlibsuffix)
     return build
 
-def prog(i, 
-         goomethod, goolibprefix, goolibsuffix, 
+def prog(i,
+         goomethod, goolibprefix, goolibsuffix,
          foomethod, foolibprefix, foolibsuffix):
     '''Build a program
 
@@ -166,7 +166,7 @@ def prog(i,
     foo_name =  foolibprefix+'foo'+str(i)+foolibsuffix
     prog_name = progprefix+'prog'+str(i)+progsuffix
 
-    print 'Prog: %d, %s, %s, %s' % (i, goo_name, foo_name, prog_name)
+    print('Prog: %d, %s, %s, %s' % (i, goo_name, foo_name, prog_name))
 
     # On Windows, we have to link against the .lib file.
     if isWindows:
@@ -179,7 +179,7 @@ def prog(i,
     goo_lib = env.SharedLibrary(
         goo_name, goo_obj, SHLIBSUFFIX=goolibsuffix)
     foo_lib = buildAndlinkAgainst(
-        env.SharedLibrary, foo_name, foo_obj, 
+        env.SharedLibrary, foo_name, foo_obj,
         goomethod, goo_lib, goo_libname, SHLIBSUFFIX=foolibsuffix)
     prog = buildAndlinkAgainst(env.Program, prog_name, prog_obj,
         foomethod, foo_lib, foo_libname)
@@ -199,8 +199,8 @@ for foolibprefix in prefixes:
                 for goolibsuffix in suffixes:
                     for goomethod in libmethods:
                         tests.append(
-                            (i, 
-                             goomethod, goolibprefix, goolibsuffix, 
+                            (i,
+                             goomethod, goolibprefix, goolibsuffix,
                              foomethod, foolibprefix, foolibsuffix))
                         i = i + 1
 

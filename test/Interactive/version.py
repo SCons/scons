@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
@@ -72,7 +73,7 @@ expect2 = r"""scons>>> SCons by Steven Knight et al\.:
 
 stdout = test.stdout() + '\n'
 if not test.match_re(stdout, expect1) and not test.match_re(stdout, expect2):
-    print repr(stdout)
+    print(repr(stdout))
     test.fail_test()
 
 
