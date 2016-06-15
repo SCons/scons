@@ -1211,9 +1211,9 @@ class FS(LocalFS):
 
     def getcwd(self):
         if hasattr(self, "_cwd"):
-           return self._cwd
+            return self._cwd
         else:
-           return "<no cwd>"
+            return "<no cwd>"
 
     def chdir(self, dir, change_os_dir=0):
         """Change the current working directory for lookups.

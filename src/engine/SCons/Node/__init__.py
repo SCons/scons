@@ -214,7 +214,8 @@ def get_contents_file(node):
         return ''
     fname = node.rfile().get_abspath()
     try:
-        contents = open(fname, "rb").read()
+        with open(fname, "rb") as fp:
+            contents = fp.read()
     except EnvironmentError as e:
         if not e.filename:
             e.filename = fname
