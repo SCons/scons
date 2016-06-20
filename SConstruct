@@ -356,7 +356,8 @@ try:
             if os.path.isfile(dest) or os.path.islink(dest):
                 os.unlink(dest)
             if not os.path.isdir(dest):
-                open(dest, 'wb').write(zf.read(name))
+                with open(dest, 'wb') as fp:
+                    fp.write(zf.read(name))
 
 except ImportError:
     if unzip and zip:
@@ -371,7 +372,8 @@ def SCons_revision(target, source, env):
     """
     t = str(target[0])
     s = source[0].rstr()
-    contents = open(s, 'rb').read()
+    with open(s, 'rb') as fp:
+        contents = fp.read()
     # Note:  We construct the __*__ substitution strings here
     # so that they don't get replaced when this file gets
     # copied into the tree for packaging.
