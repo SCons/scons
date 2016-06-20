@@ -39,6 +39,8 @@ import pickle
 import SCons.dblite
 import SCons.Warnings
 
+from SCons.compat import PICKLE_PROTOCOL
+
 def corrupt_dblite_warning(filename):
     SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
                         "Ignoring corrupt .sconsign file: %s"%filename)
@@ -272,7 +274,7 @@ class DB(Base):
         path = normcase(self.dir.get_internal_path())
         for key, entry in self.entries.items():
             entry.convert_to_sconsign()
-        db[path] = pickle.dumps(self.entries, 1)
+        db[path] = pickle.dumps(self.entries, PICKLE_PROTOCOL)
 
         if sync:
             try:
@@ -360,7 +362,7 @@ class DirFile(Dir):
                 return
         for key, entry in self.entries.items():
             entry.convert_to_sconsign()
-        pickle.dump(self.entries, file, 1)
+        pickle.dump(self.entries, file, PICKLE_PROTOCOL)
         file.close()
         if fname != self.sconsign:
             try:
