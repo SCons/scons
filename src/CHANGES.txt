@@ -10,6 +10,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
     - Whatever John Doe did.
 
+  From Daniel Holth:
+    - Add basic support for PyPy (by deleting __slots__ from Node with a
+      metaclass on PyPy); wrap most-used open() calls in 'with' statements to
+      avoid too many open files.
+    - Add __main__.py for `python -m SCons` in case it is on PYTHONPATH.
 
   From Paweł Tomulik:
     - Fixed the issue with LDMODULEVERSIONFLAGS reported by Tim Jennes
