@@ -91,7 +91,8 @@ rename_module('pickle', 'cPickle')
 # Default pickle protocol. Higher protocols are more efficient/featureful
 # but incompatible with older Python versions. On Python 2.7 this is 2.
 # Negative numbers choose the highest available protocol.
-PICKLE_PROTOCOL=-1
+import pickle
+PICKLE_PROTOCOL=pickle.HIGHEST_PROTOCOL
 
 # TODO: FIXME
 # In 3.x, 'profile' automatically loads the fast version if available.
