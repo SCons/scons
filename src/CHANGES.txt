@@ -25,7 +25,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added LoadableModule to the list of global functions (DefaultEnvironment
       builders).
 
-  From Matthew Limber:
+  From M. Limber:
     - Fixed msvs.py for Visual Studio Express editions that would report
       "Error  : ValueError: invalid literal for float(): 10.0Exp".
 
