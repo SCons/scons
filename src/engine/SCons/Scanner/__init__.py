@@ -221,12 +221,12 @@ class Base(object):
             nodes.append(l)
         return nodes
 
-    def __cmp__(self, other):
+    def __eq__(self, other):
         try:
-            return cmp(self.__dict__, other.__dict__)
+            return self.__dict__ == other.__dict__
         except AttributeError:
             # other probably doesn't have a __dict__
-            return cmp(self.__dict__, other)
+            return self.__dict__ == other
 
     def __hash__(self):
         return id(self)
@@ -324,7 +324,7 @@ class Classic(Current):
 
     def __init__(self, name, suffixes, path_variable, regex, *args, **kw):
 
-        self.cre = re.compile(regex, re.M)
+        self.cre = re.compile(SCons.Util.to_bytes(regex), re.M)
 
         def _scan(node, env, path=(), self=self):
             node = node.rfile()
@@ -393,6 +393,7 @@ class ClassicCPP(Classic):
     the contained filename in group 1.
     """
     def find_include(self, include, source_dir, path):
+        include = list (map (SCons.Util.to_str, include))
         if include[0] == '"':
             paths = (source_dir,) + tuple(path)
         else:
@@ -404,7 +405,7 @@ class ClassicCPP(Classic):
         return n, i
 
     def sort_key(self, include):
-        return SCons.Node.FS._my_normcase(' '.join(include))
+        return SCons.Node.FS._my_normcase(b' '.join(include))
 
 # Local Variables:
 # tab-width:4

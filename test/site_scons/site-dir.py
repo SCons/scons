@@ -38,7 +38,7 @@ test.subdir('site_scons', ['site_scons', 'site_tools'])
 
 test.write(['site_scons', 'site_init.py'], """
 from SCons.Script import *
-print "Hi there, I am in site_scons/site_init.py!"
+print("Hi there, I am in site_scons/site_init.py!")
 """)
 
 test.write(['site_scons', 'site_tools', 'mytool.py'], """
@@ -55,7 +55,7 @@ test.subdir('alt_site', ['alt_site', 'site_tools'])
 
 test.write(['alt_site', 'site_init.py'], """
 from SCons.Script import *
-print "Hi there, I am in alt_site/site_init.py!"
+print("Hi there, I am in alt_site/site_init.py!")
 """)
 
 test.write('SConstruct', """

@@ -9,16 +9,14 @@
 # DocBook-formatted generated XML files containing the summary text
 # and/or .mod files containing the ENTITY definitions for each item.
 #
+from __future__ import print_function
+
 import getopt
 import os
 import re
 import string
 import sys
-try:
-    from io import StringIO     # usable as of 2.6; takes unicode only
-except ImportError:
-    # No 'io' module or no StringIO in io
-    exec('from cStringIO import StringIO')
+from io import StringIO     # usable as of 2.6; takes unicode only
 
 import SConsDoc
 from SConsDoc import tf as stf
@@ -229,10 +227,15 @@ class Proxy(object):
         """Retrieve the entire wrapped object"""
         return self.__subject
 
-    def __cmp__(self, other):
+    def __eq__(self, other):
         if issubclass(other.__class__, self.__subject.__class__):
-            return cmp(self.__subject, other)
-        return cmp(self.__dict__, other.__dict__)
+            return self.__subject == other
+        return self.__dict__ == other.__dict__
+
+    ## def __lt__(self, other):
+    ##     if issubclass(other.__class__, self.__subject.__class__):
+    ##         return self.__subject < other
+    ##     return self.__dict__ < other.__dict__
 
 class SConsThing(Proxy):
     def idfunc(self):
@@ -344,25 +347,25 @@ def write_output_files(h, buildersfiles, functionsfiles,
 processor_class = SCons_XML
 
 # Step 1: Creating entity files for builders, functions,...
-print "Generating entity files..."
+print("Generating entity files...")
 h = parse_docs(args, False)
 write_output_files(h, buildersfiles, functionsfiles, toolsfiles,
                    variablesfiles, SCons_XML.write_mod)
 
 # Step 2: Validating all input files
-print "Validating files against SCons XSD..."
+print("Validating files against SCons XSD...")
 if SConsDoc.validate_all_xml(['src']):
-    print "OK"
+    print("OK")
 else:
-    print "Validation failed! Please correct the errors above and try again."
+    print("Validation failed! Please correct the errors above and try again.")
 
 # Step 3: Creating actual documentation snippets, using the
 #         fully resolved and updated entities from the *.mod files.
-print "Updating documentation for builders, tools and functions..."
+print("Updating documentation for builders, tools and functions...")
 h = parse_docs(args, True)
 write_output_files(h, buildersfiles, functionsfiles, toolsfiles,
                    variablesfiles, SCons_XML.write)
-print "Done"
+print("Done")
 
 # Local Variables:
 # tab-width:4

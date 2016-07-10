@@ -166,7 +166,7 @@ class DictCmdGenerator(SCons.Util.Selector):
 
         try:
             ret = SCons.Util.Selector.__call__(self, env, source, ext)
-        except KeyError, e:
+        except KeyError as e:
             raise UserError("Ambiguous suffixes after environment substitution: %s == %s == %s" % (e.args[0], e.args[1], e.args[2]))
         if ret is None:
             raise UserError("While building `%s' from `%s': Don't know how to build from a source file with suffix `%s'.  Expected a suffix in this list: %s." % \
@@ -292,14 +292,14 @@ def _node_errors(builder, env, tlist, slist):
         if t.has_explicit_builder():
             if not t.env is None and not t.env is env:
                 action = t.builder.action
-                t_contents = action.get_contents(tlist, slist, t.env)
-                contents = action.get_contents(tlist, slist, env)
+                t_contents = t.builder.action.get_contents(tlist, slist, t.env)
+                contents = builder.action.get_contents(tlist, slist, env)
 
                 if t_contents == contents:
                     msg = "Two different environments were specified for target %s,\n\tbut they appear to have the same action: %s" % (t, action.genstring(tlist, slist, t.env))
                     SCons.Warnings.warn(SCons.Warnings.DuplicateEnvironmentWarning, msg)
                 else:
-                    msg = "Two environments with different actions were specified for the same target: %s" % t
+                    msg = "Two environments with different actions were specified for the same target: %s\n(action 1: %s)\n(action 2: %s)" % (t,t_contents,contents)
                     raise UserError(msg)
             if builder.multi:
                 if t.builder != builder:
@@ -344,8 +344,11 @@ class EmitterProxy(object):
         return (target, source)
 
 
-    def __cmp__(self, other):
-        return cmp(self.var, other.var)
+    def __eq__(self, other):
+        return self.var == other.var
+
+    def __lt__(self, other):
+        return self.var < other.var
 
 class BuilderBase(object):
     """Base class for Builders, objects that create output
@@ -423,6 +426,9 @@ class BuilderBase(object):
     def __nonzero__(self):
         raise InternalError("Do not test for the Node.builder attribute directly; use Node.has_builder() instead")
 
+    def __bool__(self):
+        return self.__nonzero__()
+
     def get_name(self, env):
         """Attempts to get the name of the Builder.
 
@@ -440,8 +446,8 @@ class BuilderBase(object):
             except AttributeError:
                 return str(self.__class__)
 
-    def __cmp__(self, other):
-        return cmp(self.__dict__, other.__dict__)
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
 
     def splitext(self, path, env=None):
         if not env:

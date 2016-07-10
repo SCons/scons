@@ -44,9 +44,9 @@ variable = "sub2/bar"
 
 test.write('SConstruct', """
 import foo
-print foo.variable
+print(foo.variable)
 import bar
-print bar.variable
+print(bar.variable)
 """)
 
 test.run(arguments = '-I sub1 -I sub2 .',

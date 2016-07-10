@@ -24,6 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import sys
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -38,56 +39,90 @@ test = TestSCons.TestSCons()
 # parsing and interpretation of redirection and piping.  But that
 # means we have to find ways to work with *all* of their quoting
 # conventions.
-#
-# Until we sort that all out, short-circuit this test so we can
-# check it in and avoid having to re-invent this wheel later.
-test.pass_test()
 
 def contents(c):
     return "|" + c + "|\n"
 
-if sys.platform == 'win32':
-    def bad_char(c):
-        return c in '/\\:'
-else:
-    def bad_char(c):
-        return c in '/'
+invalid_chars = '/\0'
 
-# Only worry about ASCII characters right now.
-# Someone with more Unicode knowledge should enhance this later.
-for i in range(1, 255):
-    c = chr(i)
-    if not bad_char(c):
-        test.write("in" + c + "in", contents(c))
-
-test.write('SConstruct', r"""
-import sys
 if sys.platform == 'win32':
+    invalid_chars = set(invalid_chars)
+
+    # See the 'naming conventions' section of
+    # https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
+    invalid_chars.update([ chr(c) for c in range(32) ])
+    invalid_chars.update(r'\/:*?"<>|')
+    invalid_chars.update(chr(127))
+
+    # Win32 filesystems are case insensitive so don't do half the alphabet.
+    import string
+    invalid_chars.update(string.lowercase)
+
+    # See the 'naming conventions' section of
+    # https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
     def bad_char(c):
-        return (c == '/' or c == '\\' or c == ':')
+        return c in invalid_chars
+    def invalid_leading_char(c):
+        # the hash character as a leading character is interpreted to mean the project root
+        return c in ' #'
+    def invalid_trailing_char(c):
+        return c in ' .'
+    commandString = "copy $SOURCE $TARGET"
 else:
+    invalid_chars = set(invalid_chars)
+    invalid_chars.add(chr(10))
+    invalid_chars.add(chr(13))
+    invalid_chars.add(chr(92)) # forward slash (dirsep)
+    invalid_chars.add(chr(96)) # backtick
+
+    
     def bad_char(c):
-        return (c == '/')
-env = Environment()
-for i in range(1, 255):
-    c = chr(i)
-    if not bad_char(c):
-        if c in '$':
-            c = '\\' + c
-        infile = "in" + c + "in"
-        env.Command(c + "out", infile, "cp $SOURCE $TARGET")
-        env.Command("out" + c + "out", infile, "cp $SOURCE $TARGET")
-        env.Command("out" + c, infile, "cp $SOURCE $TARGET")
-""")
+        return c in invalid_chars
+    def invalid_leading_char(c):
+        # the hash character as a leading character is interpreted to mean the project root
+        return c in '#'
+    def invalid_trailing_char(c):
+        return False
+    commandString = "cp $SOURCE $TARGET"
+
+goodChars = [ chr(c) for c in range(1, 128) if not bad_char(chr(c)) ]
+
+def get_filename(ftype,c):
+    return ftype+"%d"%ord(c[-1])+c+ftype
+
+for c in goodChars:
+    test.write(get_filename("in",c), contents(c))
+
+def create_command(a, b, c):
+    a = ('', 'out')[a]
+    b = ('', 'out')[b]
+    return 'env.Command("' + a + get_filename('',c) + b + '", "'+get_filename("in",c)+ '","' + commandString + '")'
+
+sconstruct = [ 'import sys', 'env = Environment()' ]
+for c in goodChars:
+    if c == '$':
+        c = '$$'
+    if c == '"':
+        c = r'\"'
+    infile = get_filename("in",c)
+    if not invalid_leading_char(c):
+        sconstruct.append(create_command(False, True, c))
+    sconstruct.append(create_command(True, True, c))
+    if not invalid_trailing_char(c):
+        sconstruct.append(create_command(True, False, c))
+test.write('SConstruct', '\n'.join(sconstruct))
 
 test.run(arguments = '.')
 
-for i in range(1, 255):
-    c = chr(i)
-    if not bad_char(c):
-        test.fail_test(test.read(c + "out") != contents(c))
-        test.fail_test(test.read("out" + c + "out") != contents(c))
-        test.fail_test(test.read("out" + c) != contents(c))
+for c in goodChars:
+#    print "Checking %d "%ord(c)
+
+    c_str = ("%d"%ord(c[-1]))+c
+    if not invalid_leading_char(c):
+        test.fail_test(test.read(c_str + "out") != contents(c))
+    test.fail_test(test.read("out" + c_str + "out") != contents(c))
+    if not invalid_trailing_char(c):
+        test.fail_test(test.read("out" + c_str) != contents(c))
 
 test.pass_test()
 

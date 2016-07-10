@@ -20,6 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 """
 This configuration comes from the following blog article:
@@ -87,7 +88,7 @@ test.run(program=test.workpath('genscons.pl'), arguments=' '.join(arguments))
 # This print is nott for debugging, leave it alone!
 # We want to display the output from genscons.pl's generation the build
 # configuration, so the buildbot logs contain more info.
-print test.stdout()
+print(test.stdout())
 
 test.main(chdir='sconsbld')
 

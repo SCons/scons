@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 """
 This test verifies (on Windows systems) that specifying an
@@ -59,7 +60,7 @@ test.write(['src', 'file.in'], "src/file.in\n")
 
 build_file_out = test.workpath('build', 'file.out')
 
-print os.path.splitdrive(build_file_out)[1]
+print(os.path.splitdrive(build_file_out)[1])
 test.run(chdir = 'src',
          arguments = os.path.splitdrive(build_file_out)[1])
 

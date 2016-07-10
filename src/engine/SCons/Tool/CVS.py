@@ -55,7 +55,6 @@ def generate(env):
                                      CVSREPOSITORY = repos,
                                      CVSMODULE = module)
 
-    #setattr(env, 'CVS', CVSFactory)
     env.CVS = CVSFactory
 
     env['CVS']        = 'cvs'

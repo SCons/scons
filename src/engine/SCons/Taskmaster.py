@@ -20,6 +20,10 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import print_function
+
+import sys
+
 __doc__ = """
 Generic Taskmaster module for the SCons build engine.
 
@@ -107,7 +111,7 @@ fmt = "%(considered)3d "\
 
 def dump_stats():
     for n in sorted(StatsNodes, key=lambda a: str(a)):
-        print (fmt % n.stats.__dict__) + str(n)
+        print((fmt % n.attributes.stats.__dict__) + str(n))
 
 
 
@@ -122,7 +126,7 @@ class Task(object):
     aspects of controlling a build, so any given application
     *should* be able to do what it wants by sub-classing this
     class and overriding methods as appropriate.  If an application
-    needs to customze something by sub-classing Taskmaster (or
+    needs to customize something by sub-classing Taskmaster (or
     some other build engine class), we should first try to migrate
     that functionality into this class.
 
@@ -147,7 +151,7 @@ class Task(object):
 
         This hook gets called as part of preparing a task for execution
         (that is, a Node to be built).  As part of figuring out what Node
-        should be built next, the actually target list may be altered,
+        should be built next, the actual target list may be altered,
         along with a message describing the alteration.  The calling
         interface can subclass Task and provide a concrete implementation
         of this method to see those messages.
@@ -191,13 +195,13 @@ class Task(object):
         executor.prepare()
         for t in executor.get_action_targets():
             if print_prepare:
-                print "Preparing target %s..."%t
+                print("Preparing target %s..."%t)
                 for s in t.side_effects:
-                    print "...with side-effect %s..."%s
+                    print("...with side-effect %s..."%s)
             t.prepare()
             for s in t.side_effects:
                 if print_prepare:
-                    print "...Preparing side-effect %s..."%s
+                    print("...Preparing side-effect %s..."%s)
                 s.prepare()
 
     def get_target(self):
@@ -256,7 +260,7 @@ class Task(object):
             raise
         except SCons.Errors.BuildError:
             raise
-        except Exception, e:
+        except Exception as e:
             buildError = SCons.Errors.convert_to_BuildError(e)
             buildError.node = self.targets[0]
             buildError.exc_info = sys.exc_info()
@@ -305,7 +309,7 @@ class Task(object):
                     t.push_to_cache()
                 t.built()
                 t.visited()
-                if (not print_prepare and 
+                if (not print_prepare and
                     (not hasattr(self, 'options') or not self.options.debug_includes)):
                     t.release_target_info()
             else:
@@ -402,7 +406,7 @@ class Task(object):
                 t.disambiguate().make_ready()
                 is_up_to_date = not t.has_builder() or \
                                 (not t.always_build and t.is_up_to_date())
-            except EnvironmentError, e:
+            except EnvironmentError as e:
                 raise SCons.Errors.BuildError(node=t, errstr=e.strerror, filename=e.filename)
 
             if not is_up_to_date:
@@ -423,7 +427,7 @@ class Task(object):
                 # parallel build...)
                 t.visited()
                 t.set_state(NODE_UP_TO_DATE)
-                if (not print_prepare and 
+                if (not print_prepare and
                     (not hasattr(self, 'options') or not self.options.debug_includes)):
                     t.release_target_info()
 
@@ -537,7 +541,14 @@ class Task(object):
         except ValueError:
             exc_type, exc_value = exc
             exc_traceback = None
-        raise exc_type, exc_value, exc_traceback
+
+        if sys.version_info[0] == 2:
+            exec("raise exc_type, exc_value, exc_traceback")
+        else: #  sys.version_info[0] == 3:
+            exec("raise exc_type(exc_value).with_traceback(exc_traceback)")
+
+        # raise e.__class__, e.__class__(e), sys.exc_info()[2]
+
 
 class AlwaysTask(Task):
     def needs_execute(self):
@@ -664,9 +675,9 @@ class Taskmaster(object):
         its parent node.
 
         A pending child can occur when the Taskmaster completes a loop
-        through a cycle. For example, lets imagine a graph made of
-        three node (A, B and C) making a cycle. The evaluation starts
-        at node A. The taskmaster first consider whether node A's
+        through a cycle. For example, let's imagine a graph made of
+        three nodes (A, B and C) making a cycle. The evaluation starts
+        at node A. The Taskmaster first considers whether node A's
         child B is up-to-date. Then, recursively, node B needs to
         check whether node C is up-to-date. This leaves us with a
         dependency graph looking like:
@@ -781,10 +792,10 @@ class Taskmaster(object):
             #     return node
 
             if CollectStats:
-                if not hasattr(node, 'stats'):
-                    node.stats = Stats()
+                if not hasattr(node.attributes, 'stats'):
+                    node.attributes.stats = Stats()
                     StatsNodes.append(node)
-                S = node.stats
+                S = node.attributes.stats
                 S.considered = S.considered + 1
             else:
                 S = None
@@ -810,7 +821,7 @@ class Taskmaster(object):
                 self.ready_exc = (SCons.Errors.ExplicitExit, e)
                 if T: T.write(self.trace_message('       SystemExit'))
                 return node
-            except Exception, e:
+            except Exception as e:
                 # We had a problem just trying to figure out the
                 # children (like a child couldn't be linked in to a
                 # VariantDir, or a Scanner threw something).  Arrange to
@@ -943,7 +954,7 @@ class Taskmaster(object):
         executor = node.get_executor()
         if executor is None:
             return None
-        
+
         tlist = executor.get_all_targets()
 
         task = self.tasker(self, tlist, node in self.original_top, node)
@@ -951,7 +962,7 @@ class Taskmaster(object):
             task.make_ready()
         except:
             # We had a problem just trying to get this task ready (like
-            # a child couldn't be linked in to a VariantDir when deciding
+            # a child couldn't be linked to a VariantDir when deciding
             # whether this node is current).  Arrange to raise the
             # exception when the Task is "executed."
             self.ready_exc = sys.exc_info()

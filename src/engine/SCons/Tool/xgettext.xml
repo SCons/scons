@@ -108,7 +108,7 @@ the results shall be as the comments above say.
 <emphasis>Example 2.</emphasis>
 The &b-POTUpdate; builder may be used with no target specified, in which
 case default target <filename>messages.pot</filename> will be used. The
-default target may also be overriden by setting &cv-link-POTDOMAIN; construction
+default target may also be overridden by setting &cv-link-POTDOMAIN; construction
 variable or providing it as an override to &b-POTUpdate; builder:
 </para>
 <example_commands>    

@@ -39,7 +39,7 @@ import os
 import sys
 import re
 
-import link
+from . import link
 
 
 def generate(env):
@@ -60,7 +60,7 @@ def generate(env):
     link._setup_versioned_lib_variables(env, tool = 'gnulink', use_soname = use_soname)
     env['LINKCALLBACKS'] = link._versioned_lib_callbacks()
 
-    # For backward-compatiblity with older SCons versions
+    # For backward-compatibility with older SCons versions
     env['SHLIBVERSIONFLAGS'] = SCons.Util.CLVar('-Wl,-Bsymbolic')
     
 def exists(env):

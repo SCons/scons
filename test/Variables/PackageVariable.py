@@ -59,7 +59,7 @@ opts.AddVariables(
 env = Environment(variables=opts)
 Help(opts.GenerateHelpText(env))
 
-print env['x11']
+print(env['x11'])
 Default(env.Alias('dummy', None))
 """)
 

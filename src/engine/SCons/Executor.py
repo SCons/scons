@@ -35,7 +35,7 @@ import SCons.Debug
 from SCons.Debug import logInstanceCreation
 import SCons.Errors
 import SCons.Memoize
-
+from SCons.compat import with_metaclass, NoSlotsPyPy
 
 class Batch(object):
     """Remembers exact association between targets
@@ -122,7 +122,6 @@ def execute_action_list(obj, target, kw):
     kw = obj.get_kw(kw)
     status = 0
     for act in obj.get_action_list():
-        #args = (self.get_all_targets(), self.get_all_sources(), env)
         args = ([], [], env)
         status = act(*args, **kw)
         if isinstance(status, SCons.Errors.BuildError):
@@ -155,7 +154,7 @@ _execute_str_map = {0 : execute_null_str,
                     1 : execute_actions_str}
 
 
-class Executor(object):
+class Executor(object, with_metaclass(NoSlotsPyPy)):
     """A class for controlling instances of executing an action.
 
     This largely exists to hold a single association of an action,
@@ -218,7 +217,9 @@ class Executor(object):
         us = []
         ut = []
         for b in self.batches:
-            if b.targets[0].is_up_to_date():
+            # don't add targets marked always build to unchanged lists
+            # add to changed list as they always need to build
+            if not b.targets[0].always_build and b.targets[0].is_up_to_date():
                 us.extend(list(map(rfile, b.sources)))
                 ut.extend(b.targets)
             else:
@@ -244,14 +245,12 @@ class Executor(object):
             return self._changed_targets_list
 
     def _get_source(self, *args, **kw):
-        #return SCons.Util.NodeList([rfile(self.batches[0].sources[0]).get_subst_proxy()])
         return rfile(self.batches[0].sources[0]).get_subst_proxy()
 
     def _get_sources(self, *args, **kw):
         return SCons.Util.NodeList([rfile(n).get_subst_proxy() for n in self.get_all_sources()])
 
     def _get_target(self, *args, **kw):
-        #return SCons.Util.NodeList([self.batches[0].targets[0].get_subst_proxy()])
         return self.batches[0].targets[0].get_subst_proxy()
 
     def _get_targets(self, *args, **kw):
@@ -456,9 +455,9 @@ class Executor(object):
         except KeyError:
             pass
         env = self.get_build_env()
-        result = "".join([action.get_contents(self.get_all_targets(),
-                                              self.get_all_sources(),
-                                              env)
+        result = b"".join([action.get_contents(self.get_all_targets(),
+                                               self.get_all_sources(),
+                                               env)
                           for action in self.get_action_list()])
         self._memo['get_contents'] = result
         return result
@@ -486,29 +485,15 @@ class Executor(object):
         each individual target, which is a hell of a lot more efficient.
         """
         env = self.get_build_env()
+        path = self.get_build_scanner_path
+        kw = self.get_kw()
 
         # TODO(batch):  scan by batches)
         deps = []
-        if scanner:
-            for node in node_list:
-                node.disambiguate()
-                s = scanner.select(node)
-                if not s:
-                    continue
-                path = self.get_build_scanner_path(s)
-                deps.extend(node.get_implicit_deps(env, s, path))
-        else:
-            kw = self.get_kw()
-            for node in node_list:
-                node.disambiguate()
-                scanner = node.get_env_scanner(env, kw)
-                if not scanner:
-                    continue
-                scanner = scanner.select(node)
-                if not scanner:
-                    continue
-                path = self.get_build_scanner_path(scanner)
-                deps.extend(node.get_implicit_deps(env, scanner, path))
+
+        for node in node_list:
+            node.disambiguate()
+            deps.extend(node.get_implicit_deps(env, scanner, path, kw))
 
         deps.extend(self.get_implicit_deps())
 
@@ -595,7 +580,7 @@ def get_NullEnvironment():
         nullenv = NullEnvironment()
     return nullenv
 
-class Null(object):
+class Null(object, with_metaclass(NoSlotsPyPy)):
     """A null Executor, with a null build Environment, that does
     nothing when the rest of the methods call it.
 

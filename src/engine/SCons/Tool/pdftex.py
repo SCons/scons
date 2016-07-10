@@ -85,7 +85,7 @@ def generate(env):
 
     env.AppendUnique(LATEXSUFFIXES=SCons.Tool.LaTeXSuffixes)
 
-    import pdf
+    from . import pdf
     pdf.generate(env)
 
     bld = env['BUILDERS']['PDF']

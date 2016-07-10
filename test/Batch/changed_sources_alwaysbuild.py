@@ -25,35 +25,26 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify that we can use the any() function (in any supported Python
-version we happen to be testing).
-
-This test can be retired at some point in the distant future when Python
-2.5 becomes the minimum version supported by SCons.
+Verify that files marked AlwaysBuild also get put into CHANGED_SOURCES.
+Tigris bug 2622
 """
 
 import TestSCons
 
 test = TestSCons.TestSCons()
+test.file_fixture('SConstruct_changed_sources_alwaysBuild','SConstruct')
+test.file_fixture('changed_sources_main.cpp')
+# always works on first run
+test.run()
 
-test.write('SConstruct', """\
-print any([True, False]) and "YES" or "NO"
-print any([1]) and "YES" or "NO"
-SConscript('SConscript')
-""")
-
-test.write('SConscript', """\
-print any([0, False]) and "YES" or "NO"
-""")
-
-expect = """\
-YES
-YES
-NO
-"""
-
-test.run(arguments = '-Q -q', stdout = expect)
-
+# On second run prior to fix the file hasn't changed and so never
+# makes it into CHANGED_SOURCES.
+# Compile is triggered because SCons knows it needs to build it.
+# This tests that on second run the source file is in the scons
+# output.  Also prior to fix the compile would fail because
+# it would produce a compile command line lacking a source file.
+test.run()
+test.must_contain_all_lines(test.stdout(),['changed_sources_main.cpp'])
 test.pass_test()
 
 # Local Variables:

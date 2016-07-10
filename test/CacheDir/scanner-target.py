@@ -52,7 +52,7 @@ def docopy(target,source,env):
     f.close()
 
 def sillyScanner(node, env, dirs):
-    print 'This is never called (unless we build file.out)'
+    print('This is never called (unless we build file.out)')
     return []
 
 SillyScanner = SCons.Scanner.Base(function = sillyScanner, skeys = ['.res'])

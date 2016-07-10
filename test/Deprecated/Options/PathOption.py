@@ -25,7 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test the PathOption canned option type, with tests for its 
+Test the PathOption canned option type, with tests for its
 various canned validators.
 """
 
@@ -65,9 +65,9 @@ opts.AddOptions(
 env = Environment(options=opts)
 Help(opts.GenerateHelpText(env))
 
-print env['qtdir']
-print env['qt_libraries']
-print env.subst('$qt_libraries')
+print(env['qtdir'])
+print(env['qt_libraries'])
+print(env.subst('$qt_libraries'))
 
 Default(env.Alias('dummy', None))
 """ % (workpath, os.path.join('$qtdir', 'lib') ))
@@ -144,7 +144,7 @@ opts.AddOptions(
 
 env = Environment(options=opts)
 
-print env['X']
+print(env['X'])
 
 Default(env.Alias('dummy', None))
 """ % default_subdir)
@@ -177,7 +177,7 @@ opts.AddOptions(
 
 env = Environment(options=opts)
 
-print env['X']
+print(env['X'])
 
 Default(env.Alias('dummy', None))
 """ % default_file)
@@ -218,7 +218,7 @@ opts.AddOptions(
 
 env = Environment(options=opts)
 
-print env['X']
+print(env['X'])
 
 Default(env.Alias('dummy', None))
 """ % default_subdir)
@@ -263,7 +263,7 @@ opts.AddOptions(
 
 env = Environment(options=opts)
 
-print env['X']
+print(env['X'])
 
 Default(env.Alias('dummy', None))
 """ % default_subdir)

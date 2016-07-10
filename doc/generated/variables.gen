@@ -13,6 +13,24 @@
 ]>
 
 <variablelist xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+  <varlistentry id="cv-__LDMODULEVERSIONFLAGS">
+    <term>__LDMODULEVERSIONFLAGS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+This construction variable automatically introduces <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-_LDMODULEVERSIONFLAGS"><envar>$_LDMODULEVERSIONFLAGS</envar></link>
+if <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-LDMODULEVERSION"><envar>$LDMODULEVERSION</envar></link> is set. Othervise it evaluates to an empty string.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-__SHLIBVERSIONFLAGS">
+    <term>__SHLIBVERSIONFLAGS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+This construction variable automatically introduces <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-_SHLIBVERSIONFLAGS"><envar>$_SHLIBVERSIONFLAGS</envar></link>
+if <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> is set. Othervise it evaluates to an empty string.
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-AR">
     <term>AR</term>
     <listitem>
@@ -2874,6 +2892,52 @@ The default list is:
 </example_commands>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-IMPLIBNOVERSIONSYMLINKS">
+    <term>IMPLIBNOVERSIONSYMLINKS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Used to override <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBNOVERSIONSYMLINKS"><envar>$SHLIBNOVERSIONSYMLINKS</envar></link>/<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-LDMODULENOVERSIONSYMLINKS"><envar>$LDMODULENOVERSIONSYMLINKS</envar></link> when 
+creating versioned import library for a shared library/loadable module. If not defined,
+then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBNOVERSIONSYMLINKS"><envar>$SHLIBNOVERSIONSYMLINKS</envar></link>/<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-LDMODULENOVERSIONSYMLINKS"><envar>$LDMODULENOVERSIONSYMLINKS</envar></link> is used to determine
+whether to disable symlink generation or not.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-IMPLIBPREFIX">
+    <term>IMPLIBPREFIX</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The prefix used for import library names. For example, cygwin uses import
+libraries (<literal>libfoo.dll.a</literal>) in pair with dynamic libraries
+(<literal>cygfoo.dll</literal>). The <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-cyglink"><literal>cyglink</literal></link> linker sets
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-IMPLIBPREFIX"><envar>$IMPLIBPREFIX</envar></link> to <literal>'lib'</literal> and <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBPREFIX"><envar>$SHLIBPREFIX</envar></link>
+to <literal>'cyg'</literal>.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-IMPLIBSUFFIX">
+    <term>IMPLIBSUFFIX</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The suffix used for import library names. For example, cygwin uses import
+libraries (<literal>libfoo.dll.a</literal>) in pair with dynamic libraries
+(<literal>cygfoo.dll</literal>). The <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-cyglink"><literal>cyglink</literal></link> linker sets
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-IMPLIBSUFFIX"><envar>$IMPLIBSUFFIX</envar></link> to <literal>'.dll.a'</literal> and <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBSUFFIX"><envar>$SHLIBSUFFIX</envar></link>
+to <literal>'.dll'</literal>.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-IMPLIBVERSION">
+    <term>IMPLIBVERSION</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Used to override <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link>/<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-LDMODULEVERSION"><envar>$LDMODULEVERSION</envar></link> when
+generating versioned import library for a shared library/loadable module. If
+undefined, the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link>/<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-LDMODULEVERSION"><envar>$LDMODULEVERSION</envar></link> is used to
+determine the version of versioned import library. 
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-IMPLICIT_COMMAND_DEPENDENCIES">
     <term>IMPLICIT_COMMAND_DEPENDENCIES</term>
     <listitem>
@@ -3408,6 +3472,15 @@ General user options passed to the linker for building loadable modules.
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-LDMODULENOVERSIONSYMLINKS">
+    <term>LDMODULENOVERSIONSYMLINKS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Instructs the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-LoadableModule"><function>LoadableModule</function></link> builder to not automatically create symlinks
+for versioned modules. Defaults to <literal>$SHLIBNOVERSIONSYMLINKS</literal>
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-LDMODULEPREFIX">
     <term>LDMODULEPREFIX</term>
     <listitem>
@@ -3419,6 +3492,16 @@ the same as <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBPREFI
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-_LDMODULESONAME">
+    <term>_LDMODULESONAME</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+A macro that automatically generates loadable module's SONAME based on $TARGET,
+$LDMODULEVERSION and $LDMODULESUFFIX. Used by <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-LoadableModule"><function>LoadableModule</function></link> builder
+when the linker tool supports SONAME (e.g. <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-gnulink"><literal>gnulink</literal></link>).
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-LDMODULESUFFIX">
     <term>LDMODULESUFFIX</term>
     <listitem>
@@ -3427,6 +3510,42 @@ The suffix used for loadable module file names.
 On Mac OS X, this is null;
 on other systems, this is
 the same as $SHLIBSUFFIX.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-LDMODULEVERSION">
+    <term>LDMODULEVERSION</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+When this construction variable is defined, a versioned loadable module
+is created by <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-LoadableModule"><function>LoadableModule</function></link> builder. This activates the
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-_LDMODULEVERSIONFLAGS"><envar>$_LDMODULEVERSIONFLAGS</envar></link> and thus modifies the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-LDMODULECOM"><envar>$LDMODULECOM</envar></link> as
+required, adds the version number to the library name, and creates the symlinks
+that are needed. <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-LDMODULEVERSION"><envar>$LDMODULEVERSION</envar></link> versions should exist in the same
+format as <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link>.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-LDMODULEVERSIONFLAGS">
+    <term>LDMODULEVERSIONFLAGS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Extra flags added to <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-LDMODULECOM"><envar>$LDMODULECOM</envar></link> when building versioned
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-LoadableModule"><function>LoadableModule</function></link>. These flags are only used when <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-LDMODULEVERSION"><envar>$LDMODULEVERSION</envar></link> is
+set.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-_LDMODULEVERSIONFLAGS">
+    <term>_LDMODULEVERSIONFLAGS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+This macro automatically introduces extra flags to <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-LDMODULECOM"><envar>$LDMODULECOM</envar></link> when
+building versioned <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-LoadableModule"><function>LoadableModule</function></link> (that is when
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-LDMODULEVERSION"><envar>$LDMODULEVERSION</envar></link> is set). <literal>_LDMODULEVERSIONFLAGS</literal>
+usually adds <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSIONFLAGS"><envar>$SHLIBVERSIONFLAGS</envar></link> and some extra dynamically generated
+options (such as <literal>-Wl,-soname=$_LDMODULESONAME</literal>).  It is unused
+by plain (unversioned) loadable modules.
 </para>
 </listitem>
   </varlistentry>
@@ -6385,11 +6504,30 @@ TODO
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-SHLIBNOVERSIONSYMLINKS">
+    <term>SHLIBNOVERSIONSYMLINKS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Instructs the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link> builder to not create symlinks for versioned
+shared libraries.
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-SHLIBPREFIX">
     <term>SHLIBPREFIX</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The prefix used for shared library file names.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-_SHLIBSONAME">
+    <term>_SHLIBSONAME</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+A macro that automatically generates shared library's SONAME based on $TARGET,
+$SHLIBVERSION and $SHLIBSUFFIX. Used by <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link> builder when
+the linker tool supports SONAME (e.g. <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-gnulink"><literal>gnulink</literal></link>).
 </para>
 </listitem>
   </varlistentry>
@@ -6406,11 +6544,35 @@ The suffix used for shared library file names.
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 When this construction variable is defined, a versioned shared library
-is created. This modifies the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLINKFLAGS"><envar>$SHLINKFLAGS</envar></link> as required, adds
-the version number to the library name, and creates the symlinks that
-are needed. <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> needs to be of the form X.Y.Z,
-where X and Y are numbers, and Z is a number but can also contain
-letters to designate alpha, beta, or release candidate patch levels.
+is created by <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link> builder. This activates the
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-_SHLIBVERSIONFLAGS"><envar>$_SHLIBVERSIONFLAGS</envar></link> and thus modifies the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLINKCOM"><envar>$SHLINKCOM</envar></link> as
+required, adds the version number to the library name, and creates the symlinks
+that are needed.  <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> versions should exist as alpha-numeric,
+decimal-delimited values as defined by the regular expression "\w+[\.\w+]*".
+Example <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> values include '1', '1.2.3', and '1.2.gitaa412c8b'.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-_SHLIBVERSIONFLAGS">
+    <term>_SHLIBVERSIONFLAGS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+This macro automatically introduces extra flags to <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLINKCOM"><envar>$SHLINKCOM</envar></link> when
+building versioned <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link> (that is when <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link>
+is set). <literal>_SHLIBVERSIONFLAGS</literal> usually adds <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSIONFLAGS"><envar>$SHLIBVERSIONFLAGS</envar></link>
+and some extra dynamically generated options (such as
+<literal>-Wl,-soname=$_SHLIBSONAME</literal>. It is unused by "plain"
+(unversioned) shared libraries.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-SHLIBVERSIONFLAGS">
+    <term>SHLIBVERSIONFLAGS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Extra flags added to <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLINKCOM"><envar>$SHLINKCOM</envar></link> when building versioned
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link>. These flags are only used when <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> is
+set.
 </para>
 </listitem>
   </varlistentry>
@@ -6481,6 +6643,18 @@ The prefix used for shared object file names.
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The suffix used for shared object file names.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-SONAME">
+    <term>SONAME</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Variable used to hard-code SONAME for versioned shared library/loadable module.
+<example_commands>
+env.SharedLibrary('test', 'test.c', SHLIBVERSION='0.1.2', SONAME='libtest.so.2')
+</example_commands>
+The variable is used, for example, by <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-gnulink"><literal>gnulink</literal></link> linker tool.
 </para>
 </listitem>
   </varlistentry>

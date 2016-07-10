@@ -86,8 +86,8 @@ output.write(input.read())
 sys.exit(0)
 """)
 
-test.chmod(fake_cc_py, 0755)
-test.chmod(fake_link_py, 0755)
+test.chmod(fake_cc_py, 0o755)
+test.chmod(fake_link_py, 0o755)
 
 # Note:  We don't use os.path.join() representations of the file names
 # in the expected output because paths in the .sconsign files are

@@ -35,9 +35,6 @@ the builtins namespace or the global module list so that the rest
 of our code can use the objects and names imported here regardless of
 Python version.
 
-Simply enough, things that go in the builtins name space come from
-our _scons_builtins module.
-
 The rest of the things here will be in individual compatibility modules
 that are either: 1) suitably modified copies of the future modules that
 we want to use; or 2) backwards compatible re-implementations of the
@@ -66,6 +63,8 @@ import os
 import sys
 import imp   # Use the "imp" module to protect imports from fixers.
 
+PYPY = hasattr(sys, 'pypy_translation_info')
+
 def import_as(module, name):
     """
     Imports the specified module (from our local directory) as the
@@ -85,149 +84,102 @@ def rename_module(new, old):
     except ImportError:
         return False
 
+# TODO: FIXME
+# In 3.x, 'pickle' automatically loads the fast version if available.
+rename_module('pickle', 'cPickle')
 
-rename_module('builtins', '__builtin__')
-import _scons_builtins
-
-
-try:
-    import hashlib
-except ImportError:
-    # Pre-2.5 Python has no hashlib module.
-    try:
-        import_as('_scons_hashlib', 'hashlib')
-    except ImportError:
-        # If we failed importing our compatibility module, it probably
-        # means this version of Python has no md5 module.  Don't do
-        # anything and let the higher layer discover this fact, so it
-        # can fall back to using timestamp.
-        pass
-
-try:
-    set
-except NameError:
-    # Pre-2.4 Python has no native set type
-    import_as('_scons_sets', 'sets')
-    import builtins, sets
-    builtins.set = sets.Set
-
-
-try:
-    import collections
-except ImportError:
-    # Pre-2.4 Python has no collections module.
-    import_as('_scons_collections', 'collections')
-else:
-    try:
-        collections.UserDict
-    except AttributeError:
-        exec('from UserDict import UserDict as _UserDict')
-        collections.UserDict = _UserDict
-        del _UserDict
-    try:
-        collections.UserList
-    except AttributeError:
-        exec('from UserList import UserList as _UserList')
-        collections.UserList = _UserList
-        del _UserList
-    try:
-        collections.UserString
-    except AttributeError:
-        exec('from UserString import UserString as _UserString')
-        collections.UserString = _UserString
-        del _UserString
-
-
-try:
-    import io
-except ImportError:
-    # Pre-2.6 Python has no io module.
-    import_as('_scons_io', 'io')
-
-
-try:
-    os.devnull
-except AttributeError:
-    # Pre-2.4 Python has no os.devnull attribute
-    _names = sys.builtin_module_names
-    if 'posix' in _names:
-        os.devnull = '/dev/null'
-    elif 'nt' in _names:
-        os.devnull = 'nul'
-    os.path.devnull = os.devnull
-try:
-    os.path.lexists
-except AttributeError:
-    # Pre-2.4 Python has no os.path.lexists function
-    def lexists(path):
-        return os.path.exists(path) or os.path.islink(path)
-    os.path.lexists = lexists
-
-
-# When we're using the '-3' option during regression tests, importing
-# cPickle gives a warning no matter how it's done, so always use the
-# real profile module, whether it's fast or not.
-if os.environ.get('SCONS_HORRIBLE_REGRESSION_TEST_HACK') is None:
-    # Not a regression test with '-3', so try to use faster version.
-    # In 3.x, 'pickle' automatically loads the fast version if available.
-    rename_module('pickle', 'cPickle')
-
-
+# TODO: FIXME
 # In 3.x, 'profile' automatically loads the fast version if available.
 rename_module('profile', 'cProfile')
 
-
+# TODO: FIXME
 # Before Python 3.0, the 'queue' module was named 'Queue'.
 rename_module('queue', 'Queue')
 
-
+# TODO: FIXME
 # Before Python 3.0, the 'winreg' module was named '_winreg'
 rename_module('winreg', '_winreg')
 
 
-try:
-    import subprocess
-except ImportError:
-    # Pre-2.4 Python has no subprocess module.
-    import_as('_scons_subprocess', 'subprocess')
-
+# Python 3 moved builtin intern() to sys package
+# To make porting easier, make intern always live
+# in sys package (for python 2.7.x)
 try:
     sys.intern
 except AttributeError:
-    # Pre-2.6 Python has no sys.intern() function.
-    import builtins
-    try:
-        sys.intern = builtins.intern
-    except AttributeError:
-        # Pre-2.x Python has no builtin intern() function.
-        def intern(x):
-           return x
-        sys.intern = intern
-        del intern
+    # We must be using python 2.7.x so monkey patch
+    # intern into the sys package
+    sys.intern = intern
+
+
+# Preparing for 3.x. UserDict, UserList, UserString are in
+# collections for 3.x, but standalone in 2.7.x
+import collections
 try:
-    sys.maxsize
+    collections.UserDict
 except AttributeError:
-    # Pre-2.6 Python has no sys.maxsize attribute
-    # Wrapping sys in () is silly, but protects it from 2to3 renames fixer
-    sys.maxsize = (sys).maxint
+    exec('from UserDict import UserDict as _UserDict')
+    collections.UserDict = _UserDict
+    del _UserDict
+
+try:
+    collections.UserList
+except AttributeError:
+    exec('from UserList import UserList as _UserList')
+    collections.UserList = _UserList
+    del _UserList
+
+try:
+    collections.UserString
+except AttributeError:
+    exec('from UserString import UserString as _UserString')
+    collections.UserString = _UserString
+    del _UserString
 
 
-if os.environ.get('SCONS_HORRIBLE_REGRESSION_TEST_HACK') is not None:
-    # We can't apply the 'callable' fixer until the floor is 2.6, but the
-    # '-3' option to Python 2.6 and 2.7 generates almost ten thousand
-    # warnings.  This hack allows us to run regression tests with the '-3'
-    # option by replacing the callable() built-in function with a hack
-    # that performs the same function but doesn't generate the warning.
-    # Note that this hack is ONLY intended to be used for regression
-    # testing, and should NEVER be used for real runs.
-    from types import ClassType
-    def callable(obj):
-        if hasattr(obj, '__call__'): return True
-        if isinstance(obj, (ClassType, type)): return True
-        return False
-    import builtins
-    builtins.callable = callable
-    del callable
+def with_metaclass(meta, *bases):
+    """
+    Function from jinja2/_compat.py. License: BSD.
+
+    Use it like this::
+
+        class BaseForm(object):
+            pass
+
+        class FormType(type):
+            pass
+
+        class Form(with_metaclass(FormType, BaseForm)):
+            pass
+
+    This requires a bit of explanation: the basic idea is to make a
+    dummy metaclass for one level of class instantiation that replaces
+    itself with the actual metaclass.  Because of internal type checks
+    we also need to make sure that we downgrade the custom metaclass
+    for one level to something closer to type (that's why __call__ and
+    __init__ comes back from type etc.).
+
+    This has the advantage over six.with_metaclass of not introducing
+    dummy classes into the final MRO.
+    """
+    class metaclass(meta):
+        __call__ = type.__call__
+        __init__ = type.__init__
+        def __new__(cls, name, this_bases, d):
+            if this_bases is None:
+                return type.__new__(cls, name, (), d)
+            return meta(name, bases, d)
+    return metaclass('temporary_class', None, {})
+
+
+class NoSlotsPyPy(type):
+    """
+    Workaround for PyPy not working well with __slots__ and __class__ assignment.
+    """
+    def __new__(meta, name, bases, dct):
+        if PYPY and '__slots__' in dct:
+            dct.pop('__slots__')
+        return super(NoSlotsPyPy, meta).__new__(meta, name, bases, dct)
 
 
 # Local Variables:

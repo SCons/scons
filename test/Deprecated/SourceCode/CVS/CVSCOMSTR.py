@@ -74,7 +74,7 @@ def cat(env, source, target):
     f.close()
 env = Environment(TOOLS = ['default', 'CVS'],
                   BUILDERS={'Cat':Builder(action=cat)},
-                  CVSCOM='%(_python_)s my-cvs-co.py $TARGET',
+                  CVSCOM=r'%(_python_)s my-cvs-co.py $TARGET',
                   CVSCOMSTR='Checking out $TARGET from our fake CVS')
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')

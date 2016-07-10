@@ -46,7 +46,6 @@ def generate(env):
         act = SCons.Action.Action('$SCCSCOM', '$SCCSCOMSTR')
         return SCons.Builder.Builder(action = act, env = env)
 
-    #setattr(env, 'SCCS', SCCSFactory)
     env.SCCS = SCCSFactory
 
     env['SCCS']         = 'sccs'

@@ -20,6 +20,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -35,6 +36,9 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
+have_latex = test.where_is('latex')
+if not have_latex:
+    test.skip_test('Could not find latex; skipping test(s).\n')
 
 
 test.write('mytex.py', r"""
@@ -173,14 +177,14 @@ Run \texttt{latex}, then \texttt{bibtex}, then \texttt{latex} twice again \cite{
 
     reruns = [x for x in output_lines if x.find('latex -interaction=nonstopmode -recorder rerun.tex') != -1]
     if len(reruns) != 2:
-        print "Expected 2 latex calls, got %s:" % len(reruns)
-        print '\n'.join(reruns)
+        print("Expected 2 latex calls, got %s:" % len(reruns))
+        print('\n'.join(reruns))
         test.fail_test()
 
     bibtex = [x for x in output_lines if x.find('bibtex bibtex-test') != -1]
     if len(bibtex) != 1:
-        print "Expected 1 bibtex call, got %s:" % len(bibtex)
-        print '\n'.join(bibtex)
+        print("Expected 1 bibtex call, got %s:" % len(bibtex))
+        print('\n'.join(bibtex))
         test.fail_test()
 
 test.pass_test()

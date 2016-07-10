@@ -236,7 +236,7 @@ class BaseTestCase(unittest.TestCase):
     def test___cmp__(self):
         """Test the Scanner.Base class __cmp__() method"""
         s = SCons.Scanner.Base(self.func, "Cmp")
-        assert cmp(s, None)
+        assert s != None
 
     def test_hash(self):
         """Test the Scanner.Base class __hash__() method"""

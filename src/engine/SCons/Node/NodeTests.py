@@ -121,6 +121,8 @@ class Environment(object):
         self._dict.update(kw)
     def __getitem__(self, key):
         return self._dict[key]
+    def get(self, key, default = None):
+        return self._dict.get(key, default)
     def Dictionary(self, *args):
         return {}
     def Override(self, overrides):
@@ -132,7 +134,12 @@ class Environment(object):
     def get_factory(self, factory):
         return factory or MyNode
     def get_scanner(self, scanner_key):
-        return self._dict['SCANNERS'][0]
+        try:
+            return self._dict['SCANNERS'][0]
+        except:
+            pass
+
+        return []
 
 class Builder(object):
     def __init__(self, env=None, is_explicit=1):
@@ -185,7 +192,7 @@ class Scanner(object):
     def __call__(self, node):
         self.called = 1
         return node.GetTag('found_includes')
-    def path(self, env, dir, target=None, source=None):
+    def path(self, env, dir=None, target=None, source=None, kw={}):
         return ()
     def select(self, node):
         return self
@@ -351,8 +358,6 @@ class NodeTestCase(unittest.TestCase):
         ggg.path = "ggg"
         fff.sources = ["hhh", "iii"]
         ggg.sources = ["hhh", "iii"]
-        # [Charles C. 1/7/2002] Uhhh, why are there no asserts here?
-        # [SK, 15 May 2003] I dunno, let's add some...
         built_it = None
         fff.build()
         assert built_it
@@ -928,7 +933,7 @@ class NodeTestCase(unittest.TestCase):
         node.Tag('found_includes', [d1, d2])
 
         # Simple return of the found includes
-        deps = node.get_implicit_deps(env, s, target)
+        deps = node.get_implicit_deps(env, s, s.path)
         assert deps == [d1, d2], deps
 
         # By default, our fake scanner recurses
@@ -938,24 +943,24 @@ class NodeTestCase(unittest.TestCase):
         d1.Tag('found_includes', [e, f])
         d2.Tag('found_includes', [e, f])
         f.Tag('found_includes', [g])
-        deps = node.get_implicit_deps(env, s, target)
+        deps = node.get_implicit_deps(env, s, s.path)
         assert deps == [d1, d2, e, f, g], list(map(str, deps))
 
         # Recursive scanning eliminates duplicates
         e.Tag('found_includes', [f])
-        deps = node.get_implicit_deps(env, s, target)
+        deps = node.get_implicit_deps(env, s, s.path)
         assert deps == [d1, d2, e, f, g], list(map(str, deps))
 
         # Scanner method can select specific nodes to recurse
         def no_fff(nodes):
             return [n for n in nodes if str(n)[0] != 'f']
         s.recurse_nodes = no_fff
-        deps = node.get_implicit_deps(env, s, target)
+        deps = node.get_implicit_deps(env, s, s.path)
         assert deps == [d1, d2, e, f], list(map(str, deps))
 
         # Scanner method can short-circuit recursing entirely
         s.recurse_nodes = lambda nodes: []
-        deps = node.get_implicit_deps(env, s, target)
+        deps = node.get_implicit_deps(env, s, s.path)
         assert deps == [d1, d2], list(map(str, deps))
 
     def test_get_env_scanner(self):

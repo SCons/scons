@@ -43,10 +43,20 @@ if not python:
 test.write('myswig.py', r"""
 import getopt
 import sys
-opts, args = getopt.getopt(sys.argv[1:], 'c:o:')
+opts, args = getopt.getopt(sys.argv[1:], 'c:o:v:')
 for opt, arg in opts:
     if opt == '-c': pass
     elif opt == '-o': out = arg
+    elif opt == '-v' and arg == 'ersion':
+        print("")
+        print("SWIG Version 0.1.2")
+        print("")
+        print("Compiled with g++ [x86_64-pc-linux-gnu]")
+        print("")
+        print("Configured options: +pcre")
+        print("")
+        print("Please see http://www.swig.org for reporting bugs and further information")
+        sys.exit(0)
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
@@ -58,6 +68,7 @@ sys.exit(0)
 test.write('SConstruct', """
 env = Environment(tools=['default', 'swig'],
                   SWIG = [r'%(python)s', 'myswig.py'])
+print(env.subst("Using SWIG $SWIGVERSION"))
 env.Program(target = 'test1', source = 'test1.i')
 env.CFile(target = 'test2', source = 'test2.i')
 env.Clone(SWIGFLAGS = '-c++').Program(target = 'test3', source = 'test3.i')
@@ -91,7 +102,7 @@ main(int argc, char *argv[]) {
 swig
 """)
 
-test.run(arguments = '.', stderr = None)
+test.run(arguments = '.', stderr = None, stdout = r'.*Using SWIG 0.1.2.*', match = TestSCons.match_re_dotall)
 
 test.run(program = test.workpath('test1' + _exe), stdout = "test1.i\n")
 test.must_exist(test.workpath('test1_wrap.c'))

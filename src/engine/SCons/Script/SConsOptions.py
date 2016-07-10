@@ -161,7 +161,7 @@ class SConsValues(optparse.Values):
         elif name == 'diskcheck':
             try:
                 value = diskcheck_convert(value)
-            except ValueError, v:
+            except ValueError as v:
                 raise SCons.Errors.UserError("Not a valid diskcheck value: %s"%v)
             if 'diskcheck' not in self.__dict__:
                 # No --diskcheck= option was specified on the command line.
@@ -268,7 +268,7 @@ class SConsOptionParser(optparse.OptionParser):
     preserve_unknown_options = False
 
     def error(self, msg):
-        # overriden OptionValueError exception handler
+        # overridden OptionValueError exception handler
         self.print_usage(sys.stderr)
         sys.stderr.write("SCons Error: %s\n" % msg)
         sys.exit(2)
@@ -426,7 +426,7 @@ class SConsOptionParser(optparse.OptionParser):
         result = group.add_option(*args, **kw)
 
         if result:
-            # The option was added succesfully.  We now have to add the
+            # The option was added successfully.  We now have to add the
             # default value to our object that holds the default values
             # (so that an attempt to fetch the option's attribute will
             # yield the default value when not overridden) and then
@@ -449,11 +449,6 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
         "SCons Options."  Unfortunately, we have to do this here,
         because those titles are hard-coded in the optparse calls.
         """
-        if heading == 'options':
-            # The versions of optparse.py shipped with Pythons 2.3 and
-            # 2.4 pass this in uncapitalized; override that so we get
-            # consistent output on all versions.
-            heading = "Options"
         if heading == 'Options':
             heading = "SCons Options"
         return optparse.IndentedHelpFormatter.format_heading(self, heading)
@@ -488,13 +483,7 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
         #           read data from FILENAME
         result = []
 
-        try:
-            opts = self.option_strings[option]
-        except AttributeError:
-            # The Python 2.3 version of optparse attaches this to
-            # to the option argument, not to this object.
-            opts = option.option_strings
-
+        opts = self.option_strings[option]
         opt_width = self.help_position - self.current_indent - 2
         if len(opts) > opt_width:
             wrapper = textwrap.TextWrapper(width=self.width,
@@ -509,14 +498,7 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
         result.append(opts)
         if option.help:
 
-            try:
-                expand_default = self.expand_default
-            except AttributeError:
-                # The HelpFormatter base class in the Python 2.3 version
-                # of optparse has no expand_default() method.
-                help_text = option.help
-            else:
-                help_text = expand_default(option)
+            help_text = self.expand_default(option)
 
             # SCons:  indent every line of the help text but the first.
             wrapper = textwrap.TextWrapper(width=self.help_width,
@@ -529,34 +511,6 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
         elif opts[-1] != "\n":
             result.append("\n")
         return "".join(result)
-
-    # For consistent help output across Python versions, we provide a
-    # subclass copy of format_option_strings() and these two variables.
-    # This is necessary (?) for Python2.3, which otherwise concatenates
-    # a short option with its metavar.
-    _short_opt_fmt = "%s %s"
-    _long_opt_fmt = "%s=%s"
-
-    def format_option_strings(self, option):
-        """Return a comma-separated list of option strings & metavariables."""
-        if option.takes_value():
-            metavar = option.metavar or option.dest.upper()
-            short_opts = []
-            for sopt in option._short_opts:
-                short_opts.append(self._short_opt_fmt % (sopt, metavar))
-            long_opts = []
-            for lopt in option._long_opts:
-                long_opts.append(self._long_opt_fmt % (lopt, metavar))
-        else:
-            short_opts = option._short_opts
-            long_opts = option._long_opts
-
-        if self.short_first:
-            opts = short_opts + long_opts
-        else:
-            opts = long_opts + short_opts
-
-        return ", ".join(opts)
 
 def Parser(version):
     """
@@ -709,7 +663,7 @@ def Parser(version):
     def opt_diskcheck(option, opt, value, parser):
         try:
             diskcheck_value = diskcheck_convert(value)
-        except ValueError, e:
+        except ValueError as e:
             raise OptionValueError("`%s' is not a valid diskcheck type" % e)
         setattr(parser.values, option.dest, diskcheck_value)
 
@@ -876,7 +830,7 @@ def Parser(version):
     tree_options = ["all", "derived", "prune", "status"]
 
     def opt_tree(option, opt, value, parser, tree_options=tree_options):
-        import Main
+        from . import Main
         tp = Main.TreePrinter()
         for o in value.split(','):
             if o == 'all':

@@ -24,6 +24,7 @@
 #
 # Module for handling SCons documentation processing.
 #
+from __future__ import print_function
 
 __doc__ = """
 This module parses home-brew XML files that document various things
@@ -51,7 +52,7 @@ Builder example:
     to indicate a new paragraph.
 
     <example>
-    print "this is example code, it will be offset and indented"
+    print("this is example code, it will be offset and indented")
     </example>
     </summary>
     </builder>
@@ -71,7 +72,7 @@ Function example:
     &f-FUNCTION; element.  It need not be on a line by itself.</para>
 
     <example>
-    print "this is example code, it will be offset and indented"
+    print("this is example code, it will be offset and indented")
     </example>
     </summary>
     </scons_function>
@@ -88,7 +89,7 @@ Construction variable example:
     &t-VARIABLE; element.  It need not be on a line by itself.</para>
 
     <example>
-    print "this is example code, it will be offset and indented"
+    print("this is example code, it will be offset and indented")
     </example>
     </summary>
     </cvar>
@@ -105,7 +106,7 @@ Tool example:
     &t-TOOL; element. It need not be on a line by itself.</para>
 
     <example>
-    print "this is example code, it will be offset and indented"
+    print("this is example code, it will be offset and indented")
     </example>
     </summary>
     </tool>
@@ -208,12 +209,12 @@ class Libxml2ValidityHandler:
         
     def error(self, msg, data):
         if data != ARG:
-            raise Exception, "Error handler did not receive correct argument"
+            raise Exception("Error handler did not receive correct argument")
         self.errors.append(msg)
 
     def warning(self, msg, data):
         if data != ARG:
-            raise Exception, "Warning handler did not receive correct argument"
+            raise Exception("Warning handler did not receive correct argument")
         self.warnings.append(msg)
 
 
@@ -330,16 +331,16 @@ if not has_libxml2:
             xmlschema = etree.XMLSchema(xmlschema_context)
             try:
                 doc = etree.parse(fpath)
-            except Exception, e:
-                print "ERROR: %s fails to parse:"%fpath
-                print e
+            except Exception as e:
+                print("ERROR: %s fails to parse:"%fpath)
+                print(e)
                 return False
             doc.xinclude()
             try:
                 xmlschema.assertValid(doc)
-            except Exception, e:
-                print "ERROR: %s fails to validate:" % fpath
-                print e
+            except Exception as e:
+                print("ERROR: %s fails to validate:" % fpath)
+                print(e)
                 return False
             return True
 
@@ -475,8 +476,8 @@ else:
         
             if err or eh.errors:
                 for e in eh.errors:
-                    print e.rstrip("\n")
-                print "%s fails to validate" % fpath
+                    print(e.rstrip("\n"))
+                print("%s fails to validate" % fpath)
                 return False
                 
             return True
@@ -597,7 +598,7 @@ class SConsDocTree:
             # Create xpath context
             self.xpath_context = self.doc.xpathNewContext()
             # Register namespaces
-            for key, val in self.nsmap.iteritems():
+            for key, val in self.nsmap.items():
                 self.xpath_context.xpathRegisterNs(key, val)
             
     def __del__(self):
@@ -635,8 +636,8 @@ def validate_all_xml(dpaths, xsdfile=default_xsd):
     fails = []
     for idx, fp in enumerate(fpaths):
         fpath = os.path.join(path, fp)
-        print "%.2f%s (%d/%d) %s" % (float(idx+1)*100.0/float(len(fpaths)),
-                                     perc, idx+1, len(fpaths),fp)
+        print("%.2f%s (%d/%d) %s" % (float(idx+1)*100.0/float(len(fpaths)),
+                                     perc, idx+1, len(fpaths),fp))
                                               
         if not tf.validateXml(fp, xmlschema_context):
             fails.append(fp)
@@ -665,8 +666,10 @@ class Item(object):
         if name[0] == '_':
             name = name[1:]
         return name.lower()
-    def __cmp__(self, other):
-        return cmp(self.sort_name, other.sort_name)
+    def __eq__(self, other):
+        return self.sort_name == other.sort_name
+    def __lt__(self, other):
+        return self.sort_name < other.sort_name
 
 class Builder(Item):
     pass
@@ -808,7 +811,7 @@ def importfile(path):
     file = open(path, 'r')
     try:
         module = imp.load_module(name, file, path, (ext, 'r', kind))
-    except ImportError, e:
+    except ImportError as e:
         sys.stderr.write("Could not import %s: %s\n" % (path, e))
         return None
     file.close()

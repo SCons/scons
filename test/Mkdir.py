@@ -178,7 +178,7 @@ test.write(['work3', 'sub1', 'sub11', 'SConscript'], """\
 #/sub1/sub11/SConscript-------------------------
 Import('env test1')
 test11 = test1 + '/test11'
-print 'test11 = ' + test11
+print('test11 = ' + test11)
 env.Command(Dir(test11), '', Mkdir('$TARGET'))
 """)
 

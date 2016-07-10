@@ -35,7 +35,7 @@ from SCons.Tool.packaging import stripinstallbuilder, putintopackageroot
 def package(env, target, source, PACKAGEROOT, NAME, VERSION, DESCRIPTION,
             SUMMARY, X_IPK_PRIORITY, X_IPK_SECTION, SOURCE_URL,
             X_IPK_MAINTAINER, X_IPK_DEPENDS, **kw):
-    """ this function prepares the packageroot directory for packaging with the
+    """ This function prepares the packageroot directory for packaging with the
     ipkg builder.
     """
     SCons.Tool.Tool('ipkg').generate(env)
@@ -45,7 +45,7 @@ def package(env, target, source, PACKAGEROOT, NAME, VERSION, DESCRIPTION,
     target, source = stripinstallbuilder(target, source, env)
     target, source = putintopackageroot(target, source, env, PACKAGEROOT)
 
-    # This should be overridable from the construction environment,
+    # This should be overrideable from the construction environment,
     # which it is by using ARCHITECTURE=.
     # Guessing based on what os.uname() returns at least allows it
     # to work for both i386 and x86_64 Linux systems.
@@ -61,7 +61,7 @@ def package(env, target, source, PACKAGEROOT, NAME, VERSION, DESCRIPTION,
     if 'ARCHITECTURE' in kw:
         buildarchitecture = kw['ARCHITECTURE']
 
-    # setup the kw to contain the mandatory arguments to this fucntion.
+    # setup the kw to contain the mandatory arguments to this function.
     # do this before calling any builder or setup function
     loc=locals()
     del loc['kw']
@@ -104,7 +104,7 @@ def gen_ipk_dir(proot, source, env, kw):
     return proot
 
 def build_specfiles(source, target, env):
-    """ filter the targets for the needed files and use the variables in env
+    """ Filter the targets for the needed files and use the variables in env
     to create the specfile.
     """
     #

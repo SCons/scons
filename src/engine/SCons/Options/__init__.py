@@ -33,11 +33,11 @@ and will then be removed entirely (some day).
 import SCons.Variables
 import SCons.Warnings
 
-from BoolOption import BoolOption  # okay
-from EnumOption import EnumOption  # okay
-from ListOption import ListOption  # naja
-from PackageOption import PackageOption # naja
-from PathOption import PathOption # okay
+from .BoolOption import BoolOption  # okay
+from .EnumOption import EnumOption  # okay
+from .ListOption import ListOption  # naja
+from .PackageOption import PackageOption # naja
+from .PathOption import PathOption # okay
 
 warned = False
 

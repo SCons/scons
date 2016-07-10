@@ -19,6 +19,8 @@ be able to depend on any other type of "thing."
 
 """
 
+from __future__ import print_function
+
 #
 # __COPYRIGHT__
 #
@@ -54,6 +56,8 @@ import SCons.Memoize
 import SCons.Util
 
 from SCons.Debug import Trace
+
+from SCons.compat import with_metaclass, NoSlotsPyPy
 
 print_duplicate = 0
 
@@ -151,7 +155,7 @@ def exists_file(node):
                     # The source file does not exist.  Make sure no old
                     # copy remains in the variant directory.
                     if print_duplicate:
-                        print "dup: no src for %s, unlinking old variant copy"%self
+                        print("dup: no src for %s, unlinking old variant copy"%self)
                     if exists_base(node) or node.islink():
                         node.fs.unlink(node.get_internal_path())
                     # Return None explicitly because the Base.exists() call
@@ -205,13 +209,14 @@ def get_contents_dir(node):
         contents.append('%s %s\n' % (n.get_csig(), n.name))
     return ''.join(contents)
 
-def get_contents_file(node):    
+def get_contents_file(node):
     if not node.rexists():
         return ''
     fname = node.rfile().get_abspath()
     try:
-        contents = open(fname, "rb").read()
-    except EnvironmentError, e:
+        with open(fname, "rb") as fp:
+            contents = fp.read()
+    except EnvironmentError as e:
         if not e.filename:
             e.filename = fname
         raise
@@ -407,21 +412,21 @@ class NodeInfoBase(object):
             for name in getattr(obj,'__slots__',()):
                 if hasattr(self, name):
                     state[name] = getattr(self, name)
-    
+
         state['_version_id'] = self.current_version_id
         try:
             del state['__weakref__']
         except KeyError:
             pass
         return state
-    
+
     def __setstate__(self, state):
         """
         Restore the attributes from a pickled state. The version is discarded.
         """
         # TODO check or discard version
         del state['_version_id']
-    
+
         for key, value in state.items():
             if key not in ('__weakref__',):
                 setattr(self, key, value)
@@ -456,7 +461,7 @@ class BuildInfoBase(object):
         """
         state = other.__getstate__()
         self.__setstate__(state)
- 
+
     def __getstate__(self):
         """
         Return all fields that shall be pickled. Walk the slots in the class
@@ -487,7 +492,8 @@ class BuildInfoBase(object):
             if key not in ('__weakref__',):
                 setattr(self, key, value)
 
-class Node(object):
+
+class Node(object, with_metaclass(NoSlotsPyPy)):
     """The base Node class, for entities that we know how to
     build, or use to build other Nodes.
     """
@@ -536,7 +542,7 @@ class Node(object):
 
     class Attrs(object):
         __slots__ = ('shared', '__dict__')
- 
+
 
     def __init__(self):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.Node')
@@ -588,7 +594,7 @@ class Node(object):
         self._func_rexists = 1
         self._func_get_contents = 0
         self._func_target_from_source = 0
-        
+
         self.clear_memoized_values()
 
         # Let the interface in which the build engine is embedded
@@ -737,7 +743,7 @@ class Node(object):
         """
         try:
             self.get_executor()(self, **kw)
-        except SCons.Errors.BuildError, e:
+        except SCons.Errors.BuildError as e:
             e.node = self
             raise
 
@@ -776,16 +782,16 @@ class Node(object):
     def release_target_info(self):
         """Called just after this node has been marked
          up-to-date or was built completely.
-         
+
          This is where we try to release as many target node infos
          as possible for clean builds and update runs, in order
          to minimize the overall memory consumption.
-         
+
          By purging attributes that aren't needed any longer after
          a Node (=File) got built, we don't have to care that much how
          many KBytes a Node actually requires...as long as we free
          the memory shortly afterwards.
-         
+
          @see: built() and File.release_target_info()
          """
         pass
@@ -916,34 +922,55 @@ class Node(object):
         """
         return []
 
-    def get_implicit_deps(self, env, scanner, path):
+    def get_implicit_deps(self, env, initial_scanner, path_func, kw = {}):
         """Return a list of implicit dependencies for this node.
 
         This method exists to handle recursive invocation of the scanner
         on the implicit dependencies returned by the scanner, if the
         scanner's recursive flag says that we should.
         """
-        if not scanner:
-            return []
-
-        # Give the scanner a chance to select a more specific scanner
-        # for this Node.
-        #scanner = scanner.select(self)
-
         nodes = [self]
         seen = {}
         seen[self] = 1
-        deps = []
-        while nodes:
-            n = nodes.pop(0)
-            d = [x for x in n.get_found_includes(env, scanner, path) if x not in seen]
-            if d:
-                deps.extend(d)
-                for n in d:
-                    seen[n] = 1
-                nodes.extend(scanner.recurse_nodes(d))
+        dependencies = []
 
-        return deps
+        root_node_scanner = self._get_scanner(env, initial_scanner, None, kw)
+
+        while nodes:
+            node = nodes.pop(0)
+
+            scanner = node._get_scanner(env, initial_scanner, root_node_scanner, kw)
+
+            if not scanner:
+                continue
+
+            path = path_func(scanner)
+
+            included_deps = [x for x in node.get_found_includes(env, scanner, path) if x not in seen]
+            if included_deps:
+                dependencies.extend(included_deps)
+                for dep in included_deps:
+                    seen[dep] = 1
+                nodes.extend(scanner.recurse_nodes(included_deps))
+
+        return dependencies
+
+    def _get_scanner(self, env, initial_scanner, root_node_scanner, kw):
+        if not initial_scanner:
+            # handle implicit scanner case
+            scanner = self.get_env_scanner(env, kw)
+            if scanner:
+                scanner = scanner.select(self)
+        else:
+            # handle explicit scanner case
+            scanner = initial_scanner.select(self)
+
+        if not scanner:
+            # no scanner could be found for the given node's scanner key;
+            # thus, make an attempt at using a default.
+            scanner = root_node_scanner
+
+        return scanner
 
     def get_env_scanner(self, env, kw={}):
         return env.get_scanner(self.scanner_key())
@@ -1216,7 +1243,7 @@ class Node(object):
         """Adds dependencies."""
         try:
             self._add_child(self.depends, self.depends_set, depend)
-        except TypeError, e:
+        except TypeError as e:
             e = e.args[0]
             if SCons.Util.is_List(e):
                 s = list(map(str, e))
@@ -1235,7 +1262,7 @@ class Node(object):
         """Adds dependencies to ignore."""
         try:
             self._add_child(self.ignore, self.ignore_set, depend)
-        except TypeError, e:
+        except TypeError as e:
             e = e.args[0]
             if SCons.Util.is_List(e):
                 s = list(map(str, e))
@@ -1249,7 +1276,7 @@ class Node(object):
             return
         try:
             self._add_child(self.sources, self.sources_set, source)
-        except TypeError, e:
+        except TypeError as e:
             e = e.args[0]
             if SCons.Util.is_List(e):
                 s = list(map(str, e))
@@ -1260,11 +1287,6 @@ class Node(object):
     def _add_child(self, collection, set, child):
         """Adds 'child' to 'collection', first checking 'set' to see if it's
         already present."""
-        #if type(child) is not type([]):
-        #    child = [child]
-        #for c in child:
-        #    if not isinstance(c, Node):
-        #        raise TypeError, c
         added = None
         for c in child:
             if c not in set:
@@ -1406,14 +1428,14 @@ class Node(object):
         any difference, but we now rely on checking every dependency
         to make sure that any necessary Node information (for example,
         the content signature of an #included .h file) is updated.
-        
+
         The allowcache option was added for supporting the early
         release of the executor/builder structures, right after
         a File target was built. When set to true, the return
         value of this changed method gets cached for File nodes.
         Like this, the executor isn't needed any longer for subsequent
         calls to changed().
-        
+
         @see: FS.File.changed(), FS.File.release_target_info()
         """
         t = 0

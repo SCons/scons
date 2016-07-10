@@ -20,7 +20,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-from __future__ import division
+from __future__ import division, print_function
 
 """
 QMTest classes to support SCons' testing and Aegis-inspired workflow.
@@ -337,14 +337,14 @@ class AegisChangeStream(AegisStream):
             # We'd like to use the _FormatStatistics() method to do
             # this, but it's wrapped around the list in Result.outcomes,
             # so it's simpler to just do it ourselves.
-            print "  %6d        tests total\n" % self._num_tests
+            print("  %6d        tests total\n" % self._num_tests)
             for outcome in AegisTest.aegis_outcomes:
                 if self._outcome_counts[outcome] != 0:
-                    print "  %6d (%3.0f%%) tests %s" % (
+                    print("  %6d (%3.0f%%) tests %s" % (
                         self._outcome_counts[outcome],
                         self._percent(outcome),
                         outcome
-                    )
+                    ))
 
 class AegisBaselineStream(AegisStream):
     def WriteResult(self, result):
@@ -368,19 +368,19 @@ class AegisBaselineStream(AegisStream):
             # this, but it's wrapped around the list in Result.outcomes,
             # so it's simpler to just do it ourselves.
             if self._outcome_counts[AegisTest.FAIL]:
-                print "  %6d (%3.0f%%) tests as expected" % (
+                print("  %6d (%3.0f%%) tests as expected" % (
                     self._outcome_counts[AegisTest.FAIL],
                     self._percent(AegisTest.FAIL),
-                )
+                ))
             non_fail_outcomes = list(AegisTest.aegis_outcomes[:])
             non_fail_outcomes.remove(AegisTest.FAIL)
             for outcome in non_fail_outcomes:
                 if self._outcome_counts[outcome] != 0:
-                    print "  %6d (%3.0f%%) tests unexpected %s" % (
+                    print("  %6d (%3.0f%%) tests unexpected %s" % (
                         self._outcome_counts[outcome],
                         self._percent(outcome),
                         outcome,
-                    )
+                    ))
 
 class AegisBatchStream(FileResultStream):
     def __init__(self, arguments):

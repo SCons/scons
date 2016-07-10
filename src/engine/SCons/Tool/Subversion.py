@@ -54,7 +54,6 @@ def generate(env):
                                      SVNREPOSITORY = repos,
                                      SVNMODULE = module)
 
-    #setattr(env, 'Subversion', SubversionFactory)
     env.Subversion = SubversionFactory
 
     env['SVN']      = 'svn'

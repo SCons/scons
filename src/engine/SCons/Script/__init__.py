@@ -41,6 +41,12 @@ start_time = time.time()
 
 import collections
 import os
+
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+
 import sys
 
 # Special chicken-and-egg handling of the "--debug=memoizer" flag:
@@ -66,7 +72,7 @@ if "--debug=memoizer" in _args:
     except SCons.Warnings.Warning:
         # Some warning was thrown.  Arrange for it to be displayed
         # or not after warnings are configured.
-        import Main
+        from . import Main
         exc_type, exc_value, tb = sys.exc_info()
         Main.delayed_warnings.append((exc_type, exc_value))
 del _args
@@ -85,7 +91,7 @@ import SCons.Util
 import SCons.Variables
 import SCons.Defaults
 
-import Main
+from . import Main
 
 main                    = Main.main
 
@@ -107,6 +113,7 @@ QuestionTask            = Main.QuestionTask
 #SConscriptSettableOptions = Main.SConscriptSettableOptions
 
 AddOption               = Main.AddOption
+PrintHelp               = Main.PrintHelp
 GetOption               = Main.GetOption
 SetOption               = Main.SetOption
 Progress                = Main.Progress
@@ -128,7 +135,7 @@ GetBuildFailures        = Main.GetBuildFailures
 #repositories            = Main.repositories
 
 #
-import SConscript
+from . import SConscript
 _SConscript = SConscript
 
 call_stack              = _SConscript.call_stack
@@ -258,12 +265,19 @@ def _Set_Default_Targets(env, tlist):
 #
 help_text = None
 
-def HelpFunction(text):
+def HelpFunction(text, append=False):
     global help_text
-    if SCons.Script.help_text is None:
-        SCons.Script.help_text = text
-    else:
-        help_text = help_text + text
+    if help_text is None:
+        if append:
+            s = StringIO()
+            PrintHelp(s)  
+            help_text = s.getvalue()
+            s.close()
+        else:
+            help_text = ""
+
+    help_text= help_text + text
+
 
 #
 # Will be non-zero if we are reading an SConscript file.
@@ -345,6 +359,7 @@ GlobalDefaultBuilders = [
     'Java',
     'JavaH',
     'Library',
+    'LoadableModule',
     'M4',
     'MSVSProject',
     'Object',
@@ -365,7 +380,7 @@ GlobalDefaultBuilders = [
 ]
 
 for name in GlobalDefaultEnvironmentFunctions + GlobalDefaultBuilders:
-    exec "%s = _SConscript.DefaultEnvironmentCall(%s)" % (name, repr(name))
+    exec ("%s = _SConscript.DefaultEnvironmentCall(%s)" % (name, repr(name)))
 del name
 
 # There are a handful of variables that used to live in the

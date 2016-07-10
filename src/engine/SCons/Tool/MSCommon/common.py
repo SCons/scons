@@ -20,6 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -38,7 +39,7 @@ import SCons.Util
 logfile = os.environ.get('SCONS_MSCOMMON_DEBUG')
 if logfile == '-':
     def debug(x):
-        print x
+        print(x)
 elif logfile:
     try:
         import logging
@@ -84,8 +85,8 @@ def is_win64():
     return _is_win64
 
 
-def read_reg(value):
-    return SCons.Util.RegGetValue(SCons.Util.HKEY_LOCAL_MACHINE, value)[0]
+def read_reg(value, hkroot=SCons.Util.HKEY_LOCAL_MACHINE):
+    return SCons.Util.RegGetValue(hkroot, value)[0]
 
 def has_reg(value):
     """Return True if the given key exists in HKEY_LOCAL_MACHINE, False
@@ -93,7 +94,7 @@ def has_reg(value):
     try:
         SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE, value)
         ret = True
-    except WindowsError:
+    except SCons.Util.WinError:
         ret = False
     return ret
 
@@ -114,11 +115,11 @@ def normalize_env(env, keys, force=False):
     normenv = {}
     if env:
         for k in env.keys():
-            normenv[k] = copy.deepcopy(env[k]).encode('mbcs')
+            normenv[k] = copy.deepcopy(env[k])
 
         for k in keys:
             if k in os.environ and (force or not k in normenv):
-                normenv[k] = os.environ[k].encode('mbcs')
+                normenv[k] = os.environ[k]
 
     # This shouldn't be necessary, since the default environment should include system32,
     # but keep this here to be safe, since it's needed to find reg.exe which the MSVC
@@ -180,7 +181,7 @@ def get_output(vcbat, args = None, env = None):
     stdout = popen.stdout.read()
     stderr = popen.stderr.read()
 
-    # Extra debug logic, uncomment if necessar
+    # Extra debug logic, uncomment if necessary
 #     debug('get_output():stdout:%s'%stdout)
 #     debug('get_output():stderr:%s'%stderr)
 
@@ -211,7 +212,6 @@ def parse_output(output, keep = ("INCLUDE", "LIB", "LIBPATH", "PATH")):
         for p in plist:
             # Do not add empty paths (when a var ends with ;)
             if p:
-                p = p.encode('mbcs')
                 # XXX: For some reason, VC98 .bat file adds "" around the PATH
                 # values, and it screws up the environment later, so we strip
                 # it.
@@ -225,33 +225,6 @@ def parse_output(output, keep = ("INCLUDE", "LIB", "LIBPATH", "PATH")):
                 add_env(m, k)
 
     return dkeep
-
-# TODO(sgk): unused
-def output_to_dict(output):
-    """Given an output string, parse it to find env variables.
-
-    Return a dict where keys are variables names, and values their content"""
-    envlinem = re.compile(r'^([a-zA-z0-9]+)=([\S\s]*)$')
-    parsedenv = {}
-    for line in output.splitlines():
-        m = envlinem.match(line)
-        if m:
-            parsedenv[m.group(1)] = m.group(2)
-    return parsedenv
-
-# TODO(sgk): unused
-def get_new(l1, l2):
-    """Given two list l1 and l2, return the items in l2 which are not in l1.
-    Order is maintained."""
-
-    # We don't try to be smart: lists are small, and this is not the bottleneck
-    # is any case
-    new = []
-    for i in l2:
-        if i not in l1:
-            new.append(i)
-
-    return new
 
 # Local Variables:
 # tab-width:4

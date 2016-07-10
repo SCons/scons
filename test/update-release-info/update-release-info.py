@@ -60,10 +60,10 @@ combo_strings = [
 """version_tuple = (2, 0, 0, 'bad', 0)
 """,
 # Index 1: Python version tuple
-"""unsupported_python_version = (2, 3)
+"""unsupported_python_version = (2, 6)
 """,
 # Index 2: Python version tuple
-"""deprecated_python_version  = (2, 4)
+"""deprecated_python_version  = (2, 7)
 """,
 # Index 3: alpha version tuple
 """version_tuple = (2, 0, 0, 'alpha', 0)
@@ -223,14 +223,14 @@ These files are a part of 33.22.11:
 test.must_match(TestSCons, """
 copyright_years = '%s'
 default_version = '2.0.0.alpha.yyyymmdd'
-python_version_unsupported = (2, 3)
-python_version_deprecated = (2, 4)
+python_version_unsupported = (2, 6)
+python_version_deprecated = (2, 7)
 """%years, mode = 'r')
 
 # should get Python floors from TestSCons module.
 test.must_match(Main, """
-unsupported_python_version = (2, 3)
-deprecated_python_version = (2, 4)
+unsupported_python_version = (2, 6)
+deprecated_python_version = (2, 7)
 """, mode = 'r')
 
 #TODO: Release option

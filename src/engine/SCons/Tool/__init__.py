@@ -38,10 +38,12 @@ tool definition.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import imp
+import importlib
 import sys
 import re
 import os
 import shutil
+
 
 import SCons.Builder
 import SCons.Errors
@@ -51,6 +53,8 @@ import SCons.Scanner.C
 import SCons.Scanner.D
 import SCons.Scanner.LaTeX
 import SCons.Scanner.Prog
+import SCons.Scanner.SWIG
+import collections
 
 DefaultToolpath=[]
 
@@ -60,6 +64,7 @@ LaTeXScanner = SCons.Scanner.LaTeX.LaTeXScanner()
 PDFLaTeXScanner = SCons.Scanner.LaTeX.PDFLaTeXScanner()
 ProgramScanner = SCons.Scanner.Prog.ProgramScanner()
 SourceFileScanner = SCons.Scanner.Base({}, name='SourceFileScanner')
+SWIGScanner = SCons.Scanner.SWIG.SWIGScanner()
 
 CSuffixes = [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
              ".h", ".H", ".hxx", ".hpp", ".hh",
@@ -73,11 +78,16 @@ IDLSuffixes = [".idl", ".IDL"]
 
 LaTeXSuffixes = [".tex", ".ltx", ".latex"]
 
+SWIGSuffixes = ['.i']
+
 for suffix in CSuffixes:
     SourceFileScanner.add_scanner(suffix, CScanner)
 
 for suffix in DSuffixes:
     SourceFileScanner.add_scanner(suffix, DScanner)
+
+for suffix in SWIGSuffixes:
+    SourceFileScanner.add_scanner(suffix, SWIGScanner)
 
 # FIXME: what should be done here? Two scanners scan the same extensions,
 # but look for different files, e.g., "picture.eps" vs. "picture.pdf".
@@ -101,34 +111,66 @@ class Tool(object):
             self.options = module.options
 
     def _tool_module(self):
-        # TODO: Interchange zipimport with normal initilization for better error reporting
+        # TODO: Interchange zipimport with normal initialization for better error reporting
         oldpythonpath = sys.path
         sys.path = self.toolpath + sys.path
 
-        try:
+
+        if sys.version_info[0] < 3:
+            # Py 2 code
             try:
-                file, path, desc = imp.find_module(self.name, self.toolpath)
                 try:
-                    return imp.load_module(self.name, file, path, desc)
-                finally:
-                    if file:
-                        file.close()
-            except ImportError, e:
-                if str(e)!="No module named %s"%self.name:
-                    raise SCons.Errors.EnvironmentError(e)
+                    file, path, desc = imp.find_module(self.name, self.toolpath)
+                    try:
+                        return imp.load_module(self.name, file, path, desc)
+
+                    finally:
+                        if file:
+                            file.close()
+                except ImportError as e:
+                    if str(e)!="No module named %s"%self.name:
+                        raise SCons.Errors.EnvironmentError(e)
+                    try:
+                        import zipimport
+                    except ImportError:
+                        pass
+                    else:
+                        for aPath in self.toolpath:
+                            try:
+                                importer = zipimport.zipimporter(aPath)
+                                return importer.load_module(self.name)
+                            except ImportError as e:
+                                pass
+            finally:
+                sys.path = oldpythonpath
+        else:
+            # Py 3 code
+            try:
+                # Try site_tools first
+                return importlib.import_module(self.name)
+            except ImportError as e:
+                # Then try modules in main distribution
                 try:
-                    import zipimport
-                except ImportError:
-                    pass
-                else:
-                    for aPath in self.toolpath:
-                        try:
-                            importer = zipimport.zipimporter(aPath)
-                            return importer.load_module(self.name)
-                        except ImportError, e:
-                            pass
-        finally:
-            sys.path = oldpythonpath
+                    return importlib.import_module('SCons.Tool.'+self.name)
+                except ImportError as e:
+                    if str(e) != "No module named %s" % self.name:
+                        raise SCons.Errors.EnvironmentError(e)
+                    try:
+                        import zipimport
+                    except ImportError:
+                        pass
+                    else:
+                        for aPath in self.toolpath:
+                            try:
+                                importer = zipimport.zipimporter(aPath)
+                                return importer.load_module(self.name)
+                            except ImportError as e:
+                                pass
+
+            finally:
+                sys.path = oldpythonpath
+
+
 
         full_name = 'SCons.Tool.' + self.name
         try:
@@ -143,7 +185,7 @@ class Tool(object):
                     if file:
                         file.close()
                     return module
-                except ImportError, e:
+                except ImportError as e:
                     if str(e)!="No module named %s"%self.name:
                         raise SCons.Errors.EnvironmentError(e)
                     try:
@@ -152,10 +194,10 @@ class Tool(object):
                         module = importer.load_module(full_name)
                         setattr(SCons.Tool, self.name, module)
                         return module
-                    except ImportError, e:
+                    except ImportError as e:
                         m = "No tool named '%s': %s" % (self.name, e)
                         raise SCons.Errors.EnvironmentError(m)
-            except ImportError, e:
+            except ImportError as e:
                 m = "No tool named '%s': %s" % (self.name, e)
                 raise SCons.Errors.EnvironmentError(m)
 
@@ -247,22 +289,22 @@ def _call_linker_cb(env, callback, args, result = None):
     Verbose = False
 
     if Verbose:
-        print '_call_linker_cb: args=%r' % args
-        print '_call_linker_cb: callback=%r' % callback
+        print('_call_linker_cb: args=%r' % args)
+        print('_call_linker_cb: callback=%r' % callback)
     
     try:
         cbfun = env['LINKCALLBACKS'][callback]
     except (KeyError, TypeError):
         if Verbose:
-            print '_call_linker_cb: env["LINKCALLBACKS"][%r] not found or can not be used' % callback
+            print('_call_linker_cb: env["LINKCALLBACKS"][%r] not found or can not be used' % callback)
         pass
     else:
         if Verbose:
-            print '_call_linker_cb: env["LINKCALLBACKS"][%r] found' % callback
-            print '_call_linker_cb: env["LINKCALLBACKS"][%r]=%r' % (callback, cbfun)
-        if(callable(cbfun)):
+            print('_call_linker_cb: env["LINKCALLBACKS"][%r] found' % callback)
+            print('_call_linker_cb: env["LINKCALLBACKS"][%r]=%r' % (callback, cbfun))
+        if(isinstance(cbfun, collections.Callable)):
             if Verbose:
-                print '_call_linker_cb: env["LINKCALLBACKS"][%r] is callable' % callback
+                print('_call_linker_cb: env["LINKCALLBACKS"][%r] is callable' % callback)
             result = cbfun(env, *args)
     return result
 
@@ -400,17 +442,17 @@ class _LibPrefixGenerator(_LibInfoGeneratorBase):
 
         prefix = self.get_lib_prefix(env,**kw2)
         if Verbose:
-            print "_LibPrefixGenerator: input prefix=%r" % prefix
+            print("_LibPrefixGenerator: input prefix=%r" % prefix)
 
         version = self.get_lib_version(env, **kw2)
         if Verbose:
-            print "_LibPrefixGenerator: version=%r" % version
+            print("_LibPrefixGenerator: version=%r" % version)
 
         if version:
             prefix = self.generate_versioned_lib_info(env, [prefix, version], prefix, **kw2)
 
         if Verbose:
-            print "_LibPrefixGenerator: return prefix=%r" % prefix
+            print("_LibPrefixGenerator: return prefix=%r" % prefix)
         return prefix
 
 ShLibPrefixGenerator  = _LibPrefixGenerator('ShLib')
@@ -434,17 +476,17 @@ class _LibSuffixGenerator(_LibInfoGeneratorBase):
 
         suffix = self.get_lib_suffix(env, **kw2)
         if Verbose:
-            print "_LibSuffixGenerator: input suffix=%r" % suffix
+            print("_LibSuffixGenerator: input suffix=%r" % suffix)
 
         version = self.get_lib_version(env, **kw2)
         if Verbose:
-            print "_LibSuffixGenerator: version=%r" % version
+            print("_LibSuffixGenerator: version=%r" % version)
 
         if version:
             suffix = self.generate_versioned_lib_info(env, [suffix, version], suffix, **kw2)
 
         if Verbose:
-            print "_LibSuffixGenerator: return suffix=%r" % suffix
+            print("_LibSuffixGenerator: return suffix=%r" % suffix)
         return suffix
 
 ShLibSuffixGenerator  = _LibSuffixGenerator('ShLib')
@@ -467,15 +509,15 @@ class _LibSymlinkGenerator(_LibInfoGeneratorBase):
             kw2 = kw
 
         if Verbose:
-            print "_LibSymLinkGenerator: libnode=%r" % libnode.get_path()
+            print("_LibSymLinkGenerator: libnode=%r" % libnode.get_path())
 
         symlinks = None
 
         version = self.get_lib_version(env, **kw2)
         disable = self.get_lib_noversionsymlinks(env, **kw2)
         if Verbose:
-            print '_LibSymlinkGenerator: version=%r' % version
-            print '_LibSymlinkGenerator: disable=%r' % disable
+            print('_LibSymlinkGenerator: version=%r' % version)
+            print('_LibSymlinkGenerator: disable=%r' % disable)
 
         if version and not disable:
             prefix = self.get_lib_prefix(env,**kw2)
@@ -483,7 +525,7 @@ class _LibSymlinkGenerator(_LibInfoGeneratorBase):
             symlinks = self.generate_versioned_lib_info(env, [libnode, version, prefix, suffix], **kw2)
 
         if Verbose:
-            print '_LibSymlinkGenerator: return symlinks=%r' % StringizeLibSymlinks(symlinks)
+            print('_LibSymlinkGenerator: return symlinks=%r' % StringizeLibSymlinks(symlinks))
         return symlinks
 
 ShLibSymlinkGenerator =  _LibSymlinkGenerator('ShLib')
@@ -518,11 +560,11 @@ class _LibNameGenerator(_LibInfoGeneratorBase):
             kw2 = kw
 
         if Verbose:
-            print "_LibNameGenerator: libnode=%r" % libnode.get_path()
+            print("_LibNameGenerator: libnode=%r" % libnode.get_path())
 
         version = self.get_lib_version(env, **kw2)
         if Verbose:
-            print '_LibNameGenerator: version=%r' % version
+            print('_LibNameGenerator: version=%r' % version)
 
         name = None
         if version:
@@ -534,7 +576,7 @@ class _LibNameGenerator(_LibInfoGeneratorBase):
             name = os.path.basename(libnode.get_path())
 
         if Verbose:
-            print '_LibNameGenerator: return name=%r' % name
+            print('_LibNameGenerator: return name=%r' % name)
 
         return name
 
@@ -559,13 +601,13 @@ class _LibSonameGenerator(_LibInfoGeneratorBase):
             kw2 = kw
 
         if Verbose:
-            print "_LibSonameGenerator: libnode=%r" % libnode.get_path()
+            print("_LibSonameGenerator: libnode=%r" % libnode.get_path())
 
         soname = _call_env_subst(env, '$SONAME', **kw2)
         if not soname:
             version = self.get_lib_version(env,**kw2)
             if Verbose:
-                print "_LibSonameGenerator: version=%r" % version
+                print("_LibSonameGenerator: version=%r" % version)
             if version:
                 prefix = self.get_lib_prefix(env,**kw2)
                 suffix = self.get_lib_suffix(env,**kw2)
@@ -575,10 +617,10 @@ class _LibSonameGenerator(_LibInfoGeneratorBase):
             # fallback to library name (as returned by appropriate _LibNameGenerator)
             soname = _LibNameGenerator(self.get_libtype())(env, libnode)
             if Verbose:
-                print "_LibSonameGenerator: FALLBACK: soname=%r" % soname
+                print("_LibSonameGenerator: FALLBACK: soname=%r" % soname)
 
         if Verbose:
-            print "_LibSonameGenerator: return soname=%r" % soname
+            print("_LibSonameGenerator: return soname=%r" % soname)
 
         return soname
 
@@ -610,11 +652,11 @@ def EmitLibSymlinks(env, symlinks, libnode, **kw):
     for link, linktgt in symlinks:
         env.SideEffect(link, linktgt)
         if(Verbose):
-            print "EmitLibSymlinks: SideEffect(%r,%r)" % (link.get_path(), linktgt.get_path())
-        clean_list = filter(lambda x : x != linktgt, nodes)
+            print("EmitLibSymlinks: SideEffect(%r,%r)" % (link.get_path(), linktgt.get_path()))
+        clean_list = [x for x in nodes if x != linktgt]
         env.Clean(list(set([linktgt] + clean_targets)), clean_list)
         if(Verbose):
-            print "EmitLibSymlinks: Clean(%r,%r)" % (linktgt.get_path(), map(lambda x : x.get_path(), clean_list))
+            print("EmitLibSymlinks: Clean(%r,%r)" % (linktgt.get_path(), [x.get_path() for x in clean_list]))
 
 def CreateLibSymlinks(env, symlinks):
     """Physically creates symlinks. The symlinks argument must be a list in
@@ -627,18 +669,18 @@ def CreateLibSymlinks(env, symlinks):
         linktgt = link.get_dir().rel_path(linktgt)
         link = link.get_path()
         if(Verbose):
-            print "CreateLibSymlinks: preparing to add symlink %r -> %r" % (link, linktgt)
+            print("CreateLibSymlinks: preparing to add symlink %r -> %r" % (link, linktgt))
         # Delete the (previously created) symlink if exists. Let only symlinks
         # to be deleted to prevent accidental deletion of source files...
         if env.fs.islink(link):
             env.fs.unlink(link)
             if(Verbose):
-                print "CreateLibSymlinks: removed old symlink %r" % link
+                print("CreateLibSymlinks: removed old symlink %r" % link)
         # If a file or directory exists with the same name as link, an OSError
         # will be thrown, which should be enough, I think.
         env.fs.symlink(linktgt, link)
         if(Verbose):
-            print "CreateLibSymlinks: add symlink %r -> %r" % (link, linktgt)
+            print("CreateLibSymlinks: add symlink %r -> %r" % (link, linktgt))
     return 0
 
 def LibSymlinksActionFunction(target, source, env):
@@ -942,7 +984,7 @@ class ToolInitializer(object):
         so we no longer copy and re-bind them when the construction
         environment gets cloned.
         """
-        for method in self.methods.values():
+        for method in list(self.methods.values()):
             env.RemoveMethod(method)
 
     def apply_tools(self, env):

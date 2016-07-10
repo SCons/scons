@@ -13,7 +13,7 @@ attributes defined in this subclass.
 """
 
 # __COPYRIGHT__
-from __future__ import division
+from __future__ import division, print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -34,9 +34,9 @@ from TestCmd import PIPE
 # here provides some independent verification that what we packaged
 # conforms to what we expect.
 
-default_version = '2.4.0'
+default_version = '2.5.0'
 
-python_version_unsupported = (2, 3, 0)
+python_version_unsupported = (2, 6, 0)
 python_version_deprecated = (2, 7, 0)
 
 # In the checked-in source, the value of SConsVersion in the following
@@ -201,6 +201,7 @@ class TestSCons(TestCommon):
     """
 
     scons_version = SConsVersion
+    javac_is_gcj = False
 
     def __init__(self, **kw):
         """Initialize an SCons testing object.
@@ -354,7 +355,7 @@ class TestSCons(TestCommon):
                             # raised so as to not mask possibly serious disk or
                             # network issues.
                             continue
-                        if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
+                        if stat.S_IMODE(st[stat.ST_MODE]) & 0o111:
                             return os.path.normpath(f)
         else:
             import SCons.Environment
@@ -501,9 +502,9 @@ class TestSCons(TestCommon):
                self.pass_test()
             else:
                # test failed; have to do this by hand...
-               print self.banner('STDOUT ')
-               print self.stdout()
-               print self.diff(warning, stderr, 'STDERR ')
+               print(self.banner('STDOUT '))
+               print(self.stdout())
+               print(self.diff(warning, stderr, 'STDERR '))
                self.fail_test()
 
         return warning
@@ -572,7 +573,7 @@ class TestSCons(TestCommon):
         We stick the requested file name and line number in the right
         places, abstracting out the version difference.
         """
-        exec 'import traceback; x = traceback.format_stack()[-1]'
+        exec('import traceback; x = traceback.format_stack()[-1]')
         x = x.lstrip()
         x = x.replace('<string>', file)
         x = x.replace('line 1,', 'line %s,' % line)
@@ -714,6 +715,9 @@ class TestSCons(TestCommon):
                 home = '/System/Library/Frameworks/JavaVM.framework/Home'
             else:
                 home = '/System/Library/Frameworks/JavaVM.framework/Versions/%s/Home' % version
+                if not os.path.exists(home):
+                    # This works on OSX 10.10
+                    home = '/System/Library/Frameworks/JavaVM.framework/Versions/Current/'
         else:
             jar = self.java_where_jar(version)
             home = os.path.normpath('%s/..'%jar)
@@ -765,8 +769,13 @@ class TestSCons(TestCommon):
             m = re.search(r'javac (\d\.\d)', self.stderr())
             if m:
                 version = m.group(1)
+                self.javac_is_gcj = False
+            elif self.stderr().find('gcj'):
+                version='1.2'
+                self.javac_is_gcj = True
             else:
                 version = None
+                self.javac_is_gcj = False
         return where_javac, version
 
     def java_where_javah(self, version=None):
@@ -789,6 +798,7 @@ class TestSCons(TestCommon):
             self.skip_test("Could not find Java rmic, skipping non-simulated test(s).\n")
         return where_rmic
 
+    
     def java_get_class_files(self, dir):
         result = []
         for dirpath, dirnames, filenames in os.walk(dir):
@@ -926,7 +936,7 @@ if ARGUMENTS.get('variant_dir', 0):
     else:
         builddir = 'build'
     VariantDir(builddir, '.', duplicate=dup)
-    print builddir, dup
+    print(builddir, dup)
     sconscript = Dir(builddir).File('SConscript')
 else:
     sconscript = File('SConscript')
@@ -1011,7 +1021,7 @@ SConscript( sconscript )
                 raise NoMatch(lastEnd)
             return m.end() + lastEnd
         try:
-            #print len(os.linesep)
+            #print(len(os.linesep))
             ls = os.linesep
             nols = "("
             for i in range(len(ls)):
@@ -1085,27 +1095,27 @@ SConscript( sconscript )
             if doCheckLog and lastEnd != len(logfile):
                 raise NoMatch(lastEnd)
 
-        except NoMatch, m:
-            print "Cannot match log file against log regexp."
-            print "log file: "
-            print "------------------------------------------------------"
-            print logfile[m.pos:]
-            print "------------------------------------------------------"
-            print "log regexp: "
-            print "------------------------------------------------------"
-            print log
-            print "------------------------------------------------------"
+        except NoMatch as m:
+            print("Cannot match log file against log regexp.")
+            print("log file: ")
+            print("------------------------------------------------------")
+            print(logfile[m.pos:])
+            print("------------------------------------------------------")
+            print("log regexp: ")
+            print("------------------------------------------------------")
+            print(log)
+            print("------------------------------------------------------")
             self.fail_test()
 
         if doCheckStdout:
             exp_stdout = self.wrap_stdout(".*", rdstr)
             if not self.match_re_dotall(self.stdout(), exp_stdout):
-                print "Unexpected stdout: "
-                print "-----------------------------------------------------"
-                print repr(self.stdout())
-                print "-----------------------------------------------------"
-                print repr(exp_stdout)
-                print "-----------------------------------------------------"
+                print("Unexpected stdout: ")
+                print("-----------------------------------------------------")
+                print(repr(self.stdout()))
+                print("-----------------------------------------------------")
+                print(repr(exp_stdout))
+                print("-----------------------------------------------------")
                 self.fail_test()
 
     def get_python_version(self):
@@ -1139,12 +1149,12 @@ except AttributeError:
 try:
     import distutils.sysconfig
     exec_prefix = distutils.sysconfig.EXEC_PREFIX
-    print distutils.sysconfig.get_python_inc()
-    print os.path.join(exec_prefix, 'libs')
+    print(distutils.sysconfig.get_python_inc())
+    print(os.path.join(exec_prefix, 'libs'))
 except:
-    print os.path.join(sys.prefix, 'include', py_ver)
-    print os.path.join(sys.prefix, 'lib', py_ver, 'config')
-print py_ver
+    print(os.path.join(sys.prefix, 'include', py_ver))
+    print(os.path.join(sys.prefix, 'lib', py_ver, 'config'))
+print(py_ver)
 """)
 
         return [python] + self.stdout().strip().split('\n')

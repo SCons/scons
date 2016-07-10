@@ -77,7 +77,6 @@ def Tag(env, target, source, *more_tags, **kw_tags):
             # differentiate between "normal" object attributes and the
             # packaging attributes. As the user should not be bothered with
             # that, the prefix will be added here if missing.
-            #if not k.startswith('PACKAGING_'):
             if k[:10] != 'PACKAGING_':
                 k='PACKAGING_'+k
             t.Tag(k, v)
@@ -120,7 +119,7 @@ def Package(env, target=None, source=None, **kw):
         try:
             file,path,desc=imp.find_module(type, __path__)
             return imp.load_module(type, file, path, desc)
-        except ImportError, e:
+        except ImportError as e:
             raise EnvironmentError("packager %s not available: %s"%(type,str(e)))
 
     packagers=list(map(load_packager, PACKAGETYPE))
@@ -141,7 +140,7 @@ def Package(env, target=None, source=None, **kw):
         if 'PACKAGEROOT' not in kw:
             kw['PACKAGEROOT'] = default_name%kw
 
-    except KeyError, e:
+    except KeyError as e:
         raise SCons.Errors.UserError( "Missing Packagetag '%s'"%e.args[0] )
 
     # setup the source files
@@ -157,10 +156,10 @@ def Package(env, target=None, source=None, **kw):
 
         assert( len(target) == 0 )
 
-    except KeyError, e:
+    except KeyError as e:
         raise SCons.Errors.UserError( "Missing Packagetag '%s' for %s packager"\
                                       % (e.args[0],packager.__name__) )
-    except TypeError, e:
+    except TypeError as e:
         # this exception means that a needed argument for the packager is
         # missing. As our packagers get their "tags" as named function
         # arguments we need to find out which one is missing.
@@ -175,7 +174,7 @@ def Package(env, target=None, source=None, **kw):
         args=[x for x in args if x not in kw]
 
         if len(args)==0:
-            raise # must be a different error, so reraise
+            raise # must be a different error, so re-raise
         elif len(args)==1:
             raise SCons.Errors.UserError( "Missing Packagetag '%s' for %s packager"\
                                           % (args[0],packager.__name__) )
@@ -232,8 +231,6 @@ def options(opts):
 def copy_attr(f1, f2):
     """ copies the special packaging file attributes from f1 to f2.
     """
-    #pattrs = [x for x in dir(f1) if not hasattr(f2, x) and\
-    #                                x.startswith('PACKAGING_')]
     copyit = lambda x: not hasattr(f2, x) and x[:10] == 'PACKAGING_'
     if f1._tags:
         pattrs = list(filter(copyit, f1._tags))
@@ -278,7 +275,7 @@ def putintopackageroot(target, source, env, pkgroot, honor_install_location=1):
     return (target, new_source)
 
 def stripinstallbuilder(target, source, env):
-    """ strips the install builder action from the source list and stores
+    """ Strips the install builder action from the source list and stores
     the final installation location as the "PACKAGING_INSTALL_LOCATION" of
     the source of the source file. This effectively removes the final installed
     files from the source list while remembering the installation location.

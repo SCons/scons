@@ -118,14 +118,14 @@ def b(target, source, env):
 env1 = Environment(X='111')
 env2 = Environment(X='222')
 B = Builder(action = b, env = env1, multi=1)
-print "B =", B
-print "B.env =", B.env
+print("B =", B)
+print("B.env =", B.env)
 env1.Append(BUILDERS = {'B' : B})
 env2.Append(BUILDERS = {'B' : B})
 env3 = env1.Clone(X='333')
-print "env1 =", env1
-print "env2 =", env2
-print "env3 =", env3
+print("env1 =", env1)
+print("env2 =", env2)
+print("env3 =", env3)
 f1 = env1.B(File('file1.out'), [])
 f2 = env2.B('file2.out', [])
 f3 = env3.B('file3.out', [])
@@ -133,12 +133,12 @@ def do_nothing(env, target, source):
     pass
 AddPreAction(f2[0], do_nothing)
 AddPostAction(f3[0], do_nothing)
-print "f1[0].builder =", f1[0].builder
-print "f2[0].builder =", f2[0].builder
-print "f3[0].builder =", f3[0].builder
-print "f1[0].env =", f1[0].env
-print "f2[0].env =", f2[0].env
-print "f3[0].env =", f3[0].env
+print("f1[0].builder =", f1[0].builder)
+print("f2[0].builder =", f2[0].builder)
+print("f3[0].builder =", f3[0].builder)
+print("f1[0].env =", f1[0].env)
+print("f2[0].env =", f2[0].env)
+print("f3[0].env =", f3[0].env)
 """)
 
 test.run(chdir='work2', arguments = '.')
@@ -188,7 +188,7 @@ def post_action(target, source, env):
 env = Environment()
 o = env.Command(['pre-post', 'file.out'],
                 'file.in',
-                '%(_python_)s build.py ${TARGETS[1]} $SOURCE')
+                r'%(_python_)s build.py ${TARGETS[1]} $SOURCE')
 env.AddPreAction(o, pre_action)
 env.AddPostAction(o, post_action)
 """ % locals())

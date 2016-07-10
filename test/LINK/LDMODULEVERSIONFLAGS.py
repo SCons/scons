@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -21,53 +22,47 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__doc__ = """
-hashlib backwards-compatibility module for older (pre-2.5) Python versions
-
-This does not not NOT (repeat, *NOT*) provide complete hashlib
-functionality.  It only wraps the portions of MD5 functionality used
-by SCons, in an interface that looks like hashlib (or enough for our
-purposes, anyway).  In fact, this module will raise an ImportError if
-the underlying md5 module isn't available.
-"""
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import md5
-from string import hexdigits
+import os
+import re
 
-class md5obj(object):
+import TestSCons
+import SCons.Platform
+import SCons.Defaults
 
-    md5_module = md5
+foo_c_src = "void foo() {}\n"
 
-    def __init__(self, name, string=''):
-        if not name in ('MD5', 'md5'):
-            raise ValueError("unsupported hash type")
-        self.name = 'md5'
-        self.m = self.md5_module.md5()
+env = SCons.Defaults.DefaultEnvironment()
+platform = SCons.Platform.platform_default()
+tool_list = SCons.Platform.DefaultToolList(platform, env)
 
-    def __repr__(self):
-        return '<%s HASH object @ %#x>' % (self.name, id(self))
 
-    def copy(self):
-        import copy
-        result = copy.copy(self)
-        result.m = self.m.copy()
-        return result
+test = TestSCons.TestSCons()
+if 'gnulink' in tool_list:
+    versionflags = r".+ -Wl,-Bsymbolic -Wl,-soname=libfoo.so.1( .+)+"
+elif 'sunlink' in tool_list:
+    versionflags = r".+ -h libfoo.so.1( .+)+"
+else:
+    test.skip_test('No testable linkers found, skipping the test\n')
 
-    def digest(self):
-        return self.m.digest()
 
-    def update(self, arg):
-        return self.m.update(arg)
+# We expect stdout to not contain LDMODULEVERSIONFLAGS if there is no
+# SHLIBVERSION nor LDMODULEVERSION provided
+test.write('foo.c', foo_c_src)
+test.write('SConstruct', "LoadableModule('foo','foo.c')\n")
+test.run()
+test.fail_test(test.match_re_dotall(test.stdout(), versionflags))
+test.run(arguments = ['-c'])
 
-    def hexdigest(self):
-        return self.m.hexdigest()
+for versionvar in ['SHLIBVERSION', 'LDMODULEVERSION']:
+    test = TestSCons.TestSCons()
+    test.write('foo.c', foo_c_src)
+    test.write('SConstruct', "LoadableModule('foo','foo.c',%s='1.2.3')\n" % versionvar)
+    test.run(stdout = versionflags, match = TestSCons.match_re_dotall)
+    test.run(arguments = ['-c'])
 
-new = md5obj
-
-def md5(string=''):
-    return md5obj('md5', string)
+test.pass_test()
 
 # Local Variables:
 # tab-width:4

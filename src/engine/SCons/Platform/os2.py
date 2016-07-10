@@ -31,7 +31,7 @@ selection method.
 #
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-import win32
+from . import win32
 
 def generate(env):
     if 'ENV' not in env:

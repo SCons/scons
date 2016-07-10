@@ -83,6 +83,11 @@ class BaseTestCase(unittest.TestCase):
             #node.binfo.ninfo.bsig = bsig
         return node
 
+    def tearDown(self):
+        os.remove(os.path.join(self._CacheDir.path, 'config'))
+        os.rmdir(self._CacheDir.path)
+        # Should that be shutil.rmtree?
+
 class CacheDirTestCase(BaseTestCase):
     """
     Test calling CacheDir code directly.
@@ -98,10 +103,12 @@ class CacheDirTestCase(BaseTestCase):
         SCons.Util.MD5collect = my_collect
 
         try:
-            f5 = self.File("cd.f5", 'a_fake_bsig')
+            name = 'a_fake_bsig'
+            f5 = self.File("cd.f5", name)
             result = self._CacheDir.cachepath(f5)
-            dirname = os.path.join('cache', 'A')
-            filename = os.path.join(dirname, 'a_fake_bsig')
+            len = self._CacheDir.config['prefix_len']
+            dirname = os.path.join('cache', name.upper()[:len])
+            filename = os.path.join(dirname, name)
             assert result == (dirname, filename), result
         finally:
             SCons.Util.MD5collect = save_collect
@@ -242,7 +249,7 @@ class FileTestCase(BaseTestCase):
             warn_caught = 0
             try:
                 f7.push_to_cache()
-            except SCons.Errors.BuildError, e:
+            except SCons.Errors.BuildError as e:
                 assert e.exc_info[0] == SCons.Warnings.CacheWriteErrorWarning
                 warn_caught = 1
             assert warn_caught

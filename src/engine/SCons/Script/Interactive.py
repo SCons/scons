@@ -19,6 +19,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -129,12 +130,12 @@ class SConsInteractiveCmd(cmd.Cmd):
             self.shell_variable = 'SHELL'
 
     def default(self, argv):
-        print "*** Unknown command: %s" % argv[0]
+        print("*** Unknown command: %s" % argv[0])
 
     def onecmd(self, line):
         line = line.strip()
         if not line:
-            print self.lastcmd
+            print(self.lastcmd)
             return self.emptyline()
         self.lastcmd = line
         if line[0] == '!':
@@ -274,7 +275,7 @@ class SConsInteractiveCmd(cmd.Cmd):
         return self.do_build(['build', '--clean'] + argv[1:])
 
     def do_EOF(self, argv):
-        print
+        print()
         self.do_exit(argv)
 
     def _do_one_help(self, arg):
@@ -304,14 +305,8 @@ class SConsInteractiveCmd(cmd.Cmd):
         return self._strip_initial_spaces(doc)
 
     def _strip_initial_spaces(self, s):
-        #lines = s.split('\n')
         lines = s.split('\n')
         spaces = re.match(' *', lines[0]).group(0)
-        #def strip_spaces(l):
-        #    if l.startswith(spaces):
-        #        l = l[len(spaces):]
-        #    return l
-        #return '\n'.join([ strip_spaces(l) for l in lines ])
         def strip_spaces(l, spaces=spaces):
             if l[:len(spaces)] == spaces:
                 l = l[len(spaces):]
@@ -357,7 +352,7 @@ class SConsInteractiveCmd(cmd.Cmd):
             # Doing the right thing with an argument list currently
             # requires different shell= values on Windows and Linux.
             p = subprocess.Popen(argv, shell=(sys.platform=='win32'))
-        except EnvironmentError, e:
+        except EnvironmentError as e:
             sys.stderr.write('scons: %s: %s\n' % (argv[0], e.strerror))
         else:
             p.wait()

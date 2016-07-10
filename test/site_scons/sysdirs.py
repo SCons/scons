@@ -22,6 +22,8 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+from __future__ import print_function
+
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
@@ -54,10 +56,10 @@ else:
     dir_to_check_for='.scons'
 
 if 'Loading site dir' not in test.stdout():
-    print test.stdout()
+    print(test.stdout())
     test.fail_test()
 if dir_to_check_for not in test.stdout():
-    print test.stdout()
+    print(test.stdout())
     test.fail_test()
 
 test.pass_test()

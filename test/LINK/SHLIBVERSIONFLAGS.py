@@ -31,8 +31,6 @@ import TestSCons
 import SCons.Platform
 import SCons.Defaults
 
-linkers = [ 'gnulink', 'cyglink', 'sunlink' ]
-
 foo_c_src = "void foo() {}\n"
 
 env = SCons.Defaults.DefaultEnvironment()
@@ -40,15 +38,27 @@ platform = SCons.Platform.platform_default()
 tool_list = SCons.Platform.DefaultToolList(platform, env)
 
 test = TestSCons.TestSCons()
+if 'gnulink' in tool_list:
+    versionflags = r".+ -Wl,-Bsymbolic -Wl,-soname=libfoo.so.1( .+)+"
+elif 'sunlink' in tool_list:
+    versionflags = r".+ -h libfoo.so.1( .+)+"
+else:
+    test.skip_test('No testable linkers found, skipping the test\n')
+
+
+# stdout must not contain SHLIBVERSIONFLAGS if there is no SHLIBVERSION provided
+test.write('foo.c', foo_c_src)
+test.write('SConstruct', "SharedLibrary('foo','foo.c')\n")
+test.run()
+test.fail_test(test.match_re_dotall(test.stdout(), versionflags))
+test.run(arguments = ['-c'])
+
+# stdout must contain SHLIBVERSIONFLAGS if there is SHLIBVERSION provided
+test = TestSCons.TestSCons()
 test.write('foo.c', foo_c_src)
 test.write('SConstruct', "SharedLibrary('foo','foo.c',SHLIBVERSION='1.2.3')\n")
-
-if 'gnulink' in tool_list:
-    test.run(stdout = r".+ -Wl,-Bsymbolic -Wl,-soname=libfoo.so.1( .+)+", match = TestSCons.match_re_dotall)
-    test.run(arguments = ['-c'])
-elif 'sunlink' in tool_list:
-    test.run(stdout = r".+ -h libfoo.so.1( .+)+", match = TestSCons.match_re_dotall)
-    test.run(arguments = ['-c'])
+test.run(stdout = versionflags, match = TestSCons.match_re_dotall)
+test.run(arguments = ['-c'])
 
 test.pass_test()
 

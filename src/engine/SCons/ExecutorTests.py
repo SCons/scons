@@ -83,7 +83,9 @@ class MyNode(object):
         executor(self)
     def get_env_scanner(self, env, kw):
         return MyScanner('dep-')
-    def get_implicit_deps(self, env, scanner, path):
+    def get_implicit_deps(self, env, scanner, path, kw={}):
+        if not scanner:
+            scanner = self.get_env_scanner(env, kw)
         return [scanner.prefix + str(self)]
     def add_to_implicit(self, deps):
         self.implicit.extend(deps)
@@ -309,7 +311,7 @@ class ExecutorTestCase(unittest.TestCase):
 
         try:
             r = x.prepare()
-        except SCons.Errors.StopError, e:
+        except SCons.Errors.StopError as e:
             assert str(e) == "Source `s2' not found, needed by target `t1'.", e
         else:
             raise AssertionError("did not catch expected StopError: %s" % r)

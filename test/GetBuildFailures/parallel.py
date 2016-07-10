@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 """
 Verify that a failed build action with -j works as expected.
@@ -80,7 +81,7 @@ Command('f6', 'f6.in', r'@%(_python_)s mypass.py f5 -  $TARGET $SOURCE')
 def print_build_failures():
     from SCons.Script import GetBuildFailures
     for bf in sorted(GetBuildFailures(), key=lambda t: t.filename):
-        print "%%s failed:  %%s" %% (bf.node, bf.errstr)
+        print("%%s failed:  %%s" %% (bf.node, bf.errstr))
 
 import atexit
 atexit.register(print_build_failures)
@@ -95,15 +96,15 @@ test.run(arguments = '-Q -j 4 .',
          status = 2,
          stderr = None)
 
-f4_error = "scons: *** [f4] Error 1\n" 
+f4_error = "scons: *** [f4] Error 1\n"
 f5_error = "scons: *** [f5] Error 1\n"
 
 error_45 = f4_error + f5_error
 error_54 = f5_error + f4_error
 
 if test.stderr() not in [error_45, error_54]:
-    print "Did not find the following output in list of expected strings:"
-    print test.stderr(),
+    print("Did not find the following output in list of expected strings:")
+    print(test.stderr(), end=' ')
     test.fail_test()
 
 # We jump through hoops above to try to make sure that the individual
@@ -121,14 +122,14 @@ failed_45 = f4_failed + f5_failed
 failed_54 = f5_failed + f4_failed
 
 if test.stdout() not in [failed_45, failed_54]:
-    print "Did not find the following output in list of expected strings:"
-    print test.stdout(),
+    print("Did not find the following output in list of expected strings:")
+    print(test.stdout(), end=' ')
     test.fail_test()
 
 test.must_match(test.workpath('f3'), 'f3.in\n')
 test.must_not_exist(test.workpath('f4'))
 test.must_not_exist(test.workpath('f5'))
-test.must_match(test.workpath('f6'), 'f6.in\n') 
+test.must_match(test.workpath('f6'), 'f6.in\n')
 
 
 

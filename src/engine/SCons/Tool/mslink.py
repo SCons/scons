@@ -30,6 +30,7 @@ selection method.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -44,7 +45,7 @@ import SCons.Tool.msvc
 import SCons.Tool.msvs
 import SCons.Util
 
-from MSCommon import msvc_setup_env_once, msvc_exists
+from .MSCommon import msvc_setup_env_once, msvc_exists
 
 def pdbGenerator(env, target, source, for_signature):
     try:
@@ -191,7 +192,7 @@ def prog_emitter(target, source, env):
         # MSVC 11 and above need the PCH object file to be added to the link line,
         # otherwise you get link error LNK2011.
         pchobj = SCons.Util.splitext(str(env['PCH']))[0] + '.obj'
-        # print "prog_emitter, version %s, appending pchobj %s"%(version_num, pchobj)
+        # print("prog_emitter, version %s, appending pchobj %s"%(version_num, pchobj))
         if pchobj not in extrasources:
             extrasources.append(pchobj)
 
@@ -203,7 +204,7 @@ def RegServerFunc(target, source, env):
         if ret:
             raise SCons.Errors.UserError("Unable to register %s" % target[0])
         else:
-            print "Registered %s sucessfully" % target[0]
+            print("Registered %s sucessfully" % target[0])
         return ret
     return 0
 
@@ -220,10 +221,10 @@ def embedManifestDllCheck(target, source, env):
         if os.path.exists(manifestSrc):
             ret = (embedManifestDllAction) ([target[0]],None,env)        
             if ret:
-                raise SCons.Errors.UserError, "Unable to embed manifest into %s" % (target[0])
+                raise SCons.Errors.UserError("Unable to embed manifest into %s" % (target[0]))
             return ret
         else:
-            print '(embed: no %s.manifest found; not embedding.)'%str(target[0])
+            print('(embed: no %s.manifest found; not embedding.)'%str(target[0]))
     return 0
 
 def embedManifestExeCheck(target, source, env):
@@ -234,10 +235,10 @@ def embedManifestExeCheck(target, source, env):
         if os.path.exists(manifestSrc):
             ret = (embedManifestExeAction) ([target[0]],None,env)
             if ret:
-                raise SCons.Errors.UserError, "Unable to embed manifest into %s" % (target[0])
+                raise SCons.Errors.UserError("Unable to embed manifest into %s" % (target[0]))
             return ret
         else:
-            print '(embed: no %s.manifest found; not embedding.)'%str(target[0])
+            print('(embed: no %s.manifest found; not embedding.)'%str(target[0]))
     return 0
 
 embedManifestDllCheckAction = SCons.Action.Action(embedManifestDllCheck, None)
@@ -305,7 +306,7 @@ def generate(env):
     # if the manifest actually exists before trying to run mt with it.
     env['MTEXECOM']   = '-$MT $MTFLAGS -manifest ${TARGET}.manifest $_MANIFEST_SOURCES -outputresource:$TARGET;1'
     env['MTSHLIBCOM'] = '-$MT $MTFLAGS -manifest ${TARGET}.manifest $_MANIFEST_SOURCES -outputresource:$TARGET;2'
-    # Future work garyo 27-Feb-11
+    # TODO Future work garyo 27-Feb-11
     env['_MANIFEST_SOURCES'] = None # _windowsManifestSources
 
     # Set-up ms tools paths

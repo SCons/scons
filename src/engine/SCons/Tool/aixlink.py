@@ -37,7 +37,8 @@ import os.path
 
 import SCons.Util
 
-import link
+from . import aixcc
+from . import link
 
 cplusplus = __import__('c++', globals(), locals(), [])
 

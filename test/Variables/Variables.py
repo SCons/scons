@@ -30,8 +30,8 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 env = Environment()
-print env['CC']
-print " ".join(env['CCFLAGS'])
+print(env['CC'])
+print(" ".join(env['CCFLAGS']))
 Default(env.Alias('dummy', None))
 """)
 test.run()
@@ -99,12 +99,12 @@ env = Environment(variables=opts, tools=['default', test_tool])
 
 Help('Variables settable in custom.py or on the command line:\\n' + opts.GenerateHelpText(env))
 
-print env['RELEASE_BUILD']
-print env['DEBUG_BUILD']
-print env['CC']
-print " ".join(env['CCFLAGS'])
-print env['VALIDATE']
-print env['valid_key']
+print(env['RELEASE_BUILD'])
+print(env['DEBUG_BUILD'])
+print(env['CC'])
+print(" ".join(env['CCFLAGS']))
+print(env['VALIDATE'])
+print(env['valid_key'])
 
 # unspecified variables should not be set:
 assert 'UNSPECIFIED' not in env
@@ -220,8 +220,8 @@ opts.Add('UNSPECIFIED',
 
 env = Environment(variables = opts)
 
-print env['RELEASE_BUILD']
-print env['DEBUG_BUILD']
+print(env['RELEASE_BUILD'])
+print(env['DEBUG_BUILD'])
 
 opts.Save('variables.saved', env)
 """)
@@ -231,7 +231,7 @@ opts.Save('variables.saved', env)
 def checkSave(file, expected):
     gdict = {}
     ldict = {}
-    exec open(file, 'rU').read() in gdict, ldict
+    exec(open(file, 'rU').read(), gdict, ldict)
     assert expected == ldict, "%s\n...not equal to...\n%s" % (expected, ldict)
 
 # First test with no command line variables
@@ -276,9 +276,9 @@ opts.Add('LISTOPTION_TEST',
 
 env = Environment(variables = opts)
 
-print env['RELEASE_BUILD']
-print env['DEBUG_BUILD']
-print env['LISTOPTION_TEST']
+print(env['RELEASE_BUILD'])
+print(env['DEBUG_BUILD'])
+print(env['LISTOPTION_TEST'])
 
 opts.Save('variables.saved', env)
 """)

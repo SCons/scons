@@ -31,7 +31,7 @@ import os
 import SCons.Errors
 import SCons.Util
 
-from common import debug, \
+from .common import debug, \
                    get_output, \
                    is_win64, \
                    normalize_env, \
@@ -51,8 +51,6 @@ class VisualStudio(object):
         kw['sdk_version'] = kw.get('sdk_version', version)
         self.__dict__.update(kw)
         self._cache = {}
-
-    #
 
     def find_batch_file(self):
         vs_dir = self.get_vs_dir()
@@ -85,10 +83,10 @@ class VisualStudio(object):
             key = root + key
             try:
                 comps = read_reg(key)
-            except WindowsError, e:
-                debug('find_vs_dir_by_reg(): no VS registry key %s' % repr(key))
+            except SCons.Util.WinError as e:
+                debug('find_vs_dir_by_reg(): no VS registry key {}'.format(repr(key)))
             else:
-                debug('find_vs_dir_by_reg(): found VS in registry: %s' % comps)
+                debug('find_vs_dir_by_reg(): found VS in registry: {}'.format(comps))
                 return comps
         return None
 
@@ -107,16 +105,14 @@ class VisualStudio(object):
     def find_executable(self):
         vs_dir = self.get_vs_dir()
         if not vs_dir:
-            debug('find_executable():  no vs_dir (%s)'%vs_dir)
+            debug('find_executable():  no vs_dir ({})'.format(vs_dir))
             return None
         executable = os.path.join(vs_dir, self.executable_path)
         executable = os.path.normpath(executable)
         if not os.path.isfile(executable):
-            debug('find_executable():  %s not on file system' % executable)
+            debug('find_executable():  {} not on file system'.format(executable))
             return None
         return executable
-
-    #
 
     def get_batch_file(self):
         try:
@@ -213,7 +209,7 @@ SupportedVSList = [
                  batch_file_path=r'Common7\Tools\vsvars32.bat',
                  supported_arch=['x86', 'amd64', "arm"],
     ),
- 
+
     # Visual C++ 2015 Express Edition (for Desktop)
     VisualStudio('14.0Exp',
                  vc_version='14.0',
@@ -471,7 +467,7 @@ def get_default_version(env):
     """Returns the default version string to use for MSVS.
 
     If no version was requested by the user through the MSVS environment
-    variable, query all the available the visual studios through
+    variable, query all the available visual studios through
     get_installed_visual_studios, and take the highest one.
 
     Return

@@ -53,7 +53,7 @@ for arg in sys.argv[1:]:
 print 'my_python.py: %s' % profile
 """)
 
-os.chmod(my_python_py, 0755)
+os.chmod(my_python_py, 0o755)
 
 test.run(arguments = 'run -f config foo.tar.gz')
 

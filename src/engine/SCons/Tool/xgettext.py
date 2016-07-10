@@ -1,10 +1,10 @@
-""" xgettext tool 
+""" xgettext tool
 
 Tool specific initialization of `xgettext` tool.
 """
 
 # __COPYRIGHT__
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -12,10 +12,10 @@ Tool specific initialization of `xgettext` tool.
 # distribute, sublicense, and/or sell copies of the Software, and to
 # permit persons to whom the Software is furnished to do so, subject to
 # the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included
 # in all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
 # KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
 # WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -32,19 +32,19 @@ class _CmdRunner(object):
   variables. It also provides `strfunction()` method, which shall be used by
   scons Action objects to print command string. """
 
-  def __init__( self, command, commandstr = None):
+  def __init__(self, command, commandstr = None):
     self.out = None
     self.err = None
     self.status = None
     self.command = command
     self.commandstr = commandstr
 
-  def __call__(self, target, source, env): 
+  def __call__(self, target, source, env):
     import SCons.Action
     import subprocess
     import os
     import sys
-    kw = { 
+    kw = {
       'stdin'  : 'devnull',
       'stdout' : subprocess.PIPE,
       'stderr' : subprocess.PIPE,
@@ -55,7 +55,8 @@ class _CmdRunner(object):
     proc = SCons.Action._subproc(env, command, **kw)
     self.out, self.err = proc.communicate()
     self.status = proc.wait()
-    if self.err: sys.stderr.write(unicode(self.err))
+    if self.err:
+      sys.stderr.write(unicode(self.err))
     return self.status
 
   def strfunction(self, target, source, env):
@@ -76,7 +77,7 @@ def _update_pot_file(target, source, env):
   nop = lambda target, source, env : 0
 
   # Save scons cwd and os cwd (NOTE: they may be different. After the job, we
-  # revert ech one to its original state).
+  # revert each one to its original state).
   save_cwd = env.fs.getcwd()
   save_os_cwd = os.getcwd()
   chdir = target[0].dir
@@ -104,9 +105,9 @@ def _update_pot_file(target, source, env):
   os.chdir(save_os_cwd)
   # If the command was not successfull, return error code.
   if status: return status
- 
+
   new_content = cmd.out
- 
+
   if not new_content:
     # When xgettext finds no internationalized messages, no *.pot is created
     # (because we don't want to bother translators with empty POT files).
@@ -134,7 +135,7 @@ def _update_pot_file(target, source, env):
       explain = "new file"
   if needs_update:
     # Print message employing SCons.Action.Action for that.
-    msg = "Writting " + repr(str(target[0])) + " (" + explain + ")"
+    msg = "Writing " + repr(str(target[0])) + " (" + explain + ")"
     env.Execute(SCons.Action.Action(nop, msg))
     f = open(str(target[0]),"w")
     f.write(new_content)
@@ -142,9 +143,9 @@ def _update_pot_file(target, source, env):
     return 0
   else:
     # Print message employing SCons.Action.Action for that.
-    msg = "Not writting " + repr(str(target[0])) + " (" + explain + ")"
+    msg = "Not writing " + repr(str(target[0])) + " (" + explain + ")"
     env.Execute(SCons.Action.Action(nop, msg))
-    return 0 
+    return 0
 #############################################################################
 
 #############################################################################
@@ -153,7 +154,7 @@ from SCons.Builder import BuilderBase
 class _POTBuilder(BuilderBase):
   def _execute(self, env, target, source, *args):
     if not target:
-      if env.has_key('POTDOMAIN') and env['POTDOMAIN']:
+      if 'POTDOMAIN' in env and env['POTDOMAIN']:
         domain = env['POTDOMAIN']
       else:
         domain = 'messages'
@@ -175,7 +176,7 @@ def _scan_xgettext_from_files(target, source, env, files = None, path = None):
     files = [ files ]
 
   if path is None:
-    if env.has_key('XGETTEXTPATH'):
+    if 'XGETTEXTPATH' in env:
       path = env['XGETTEXTPATH']
     else:
       path = []
@@ -207,7 +208,7 @@ def _scan_xgettext_from_files(target, source, env, files = None, path = None):
       contents = re_emptyln.sub("", contents)
       contents = re_trailws.sub("", contents)
       depnames = contents.splitlines()
-      for depname in depnames: 
+      for depname in depnames:
         depfile = SCons.Node.FS.find_file(depname, dirs)
         if not depfile:
           depfile = env.arg2nodes(depname, dirs[0].File)
@@ -222,7 +223,7 @@ def _pot_update_emitter(target, source, env):
   import SCons.Util
   import SCons.Node.FS
 
-  if env.has_key('XGETTEXTFROM'): 
+  if 'XGETTEXTFROM' in env:
     xfrom = env['XGETTEXTFROM']
   else:
     return target, source
@@ -230,13 +231,13 @@ def _pot_update_emitter(target, source, env):
     xfrom = [ xfrom ]
 
   xfrom = SCons.Util.flatten(xfrom)
-  
+
   # Prepare list of 'POTFILE.in' files.
   files = []
   for xf in xfrom:
     if not isinstance(xf, SCons.Node.FS.Base):
       if SCons.Util.is_String(xf):
-        # Interpolate variables in strings 
+        # Interpolate variables in strings
         xf = env.subst(xf, source = source, target = target)
       xf = env.arg2nodes(xf)
     files.extend(xf)
@@ -274,7 +275,7 @@ def generate(env,**kw):
   try:
     env['XGETTEXT'] = _detect_xgettext(env)
   except:
-    env['XGETTEXT'] = 'xgettext' 
+    env['XGETTEXT'] = 'xgettext'
   # NOTE: sources="$SOURCES" would work as well. However, we use following
   # construction to convert absolute paths provided by scons onto paths
   # relative to current working dir. Note, that scons expands $SOURCE(S) to

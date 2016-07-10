@@ -42,8 +42,8 @@ assert Dir('.') == Dir('.').Dir('.')
 assert target == target.File('foo.out')
 
 e2 = env.Environment(XXX='$BAR', YYY='$BLAT')
-print e2['XXX']
-print e2['YYY']
+print(e2['XXX'])
+print(e2['YYY'])
 """ % locals())
 
 test.write('build.py', """

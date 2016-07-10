@@ -17,8 +17,6 @@
 # build directory and sets PYTHONPATH to reference modules unpacked
 # during build process for testing purposes (build/test-*).
 #
-#       -3              Run with the python -3 option,
-#
 #       -a              Run all tests found under the current directory.
 #                       It is also possible to specify a list of
 #                       subdirectories to search.
@@ -79,6 +77,8 @@
 # library directory.  If we ever resurrect that as the default, then
 # you can find the appropriate code in the 0.04 version of this script,
 # rather than reinventing that wheel.)
+from __future__ import print_function
+
 
 import getopt
 import glob
@@ -90,10 +90,13 @@ import time
 
 try:
     import threading
-    import Queue                # 2to3: rename to queue
+    try:                        # python3
+        from queue import Queue
+    except ImportError as e:    # python2
+        from Queue import Queue
     threading_ok = True
 except ImportError:
-    print "Can't import threading or queue"
+    print("Can't import threading or queue")
     threading_ok = False
 
 cwd = os.getcwd()
@@ -108,7 +111,6 @@ list_only = None
 printcommand = 1
 package = None
 print_passed_summary = None
-python3incompatibilities = None
 scons = None
 scons_exec = None
 testlistfile = None
@@ -128,7 +130,6 @@ Usage: runtest.py [OPTIONS] [TEST ...]
 """
 helpstr = usagestr + """\
 Options:
-  -3                          Warn about Python 3.x incompatibilities.
   -a --all                    Run all tests.
   -b --baseline BASE          Run test scripts against baseline BASE.
      --builddir DIR           Directory in which packages were built.
@@ -187,12 +188,12 @@ class PassThroughOptionParser(OptionParser):
     def _process_long_opt(self, rargs, values):
         try:
             OptionParser._process_long_opt(self, rargs, values)
-        except BadOptionError, err:
+        except BadOptionError as err:
             self.largs.append(err.opt_str)
     def _process_short_opts(self, rargs, values):
         try:
             OptionParser._process_short_opts(self, rargs, values)
-        except BadOptionError, err:
+        except BadOptionError as err:
             self.largs.append(err.opt_str)
 
 parser = PassThroughOptionParser(add_help_option=False)
@@ -210,7 +211,7 @@ parser.add_option('--xml',
 #print "args:", args
 
 
-opts, args = getopt.getopt(args, "3b:def:hj:klnP:p:qsv:Xx:t",
+opts, args = getopt.getopt(args, "b:def:hj:klnP:p:qsv:Xx:t",
                             ['baseline=', 'builddir=',
                              'debug', 'external', 'file=', 'help', 'no-progress',
                              'jobs=',
@@ -223,9 +224,7 @@ opts, args = getopt.getopt(args, "3b:def:hj:klnP:p:qsv:Xx:t",
                              'verbose='])
 
 for o, a in opts:
-    if o in ['-3']:
-        python3incompatibilities = 1
-    elif o in ['-b', '--baseline']:
+    if o in ['-b', '--baseline']:
         baseline = a
     elif o in ['--builddir']:
         builddir = a
@@ -244,7 +243,7 @@ for o, a in opts:
             a = os.path.join(cwd, a)
         testlistfile = a
     elif o in ['-h', '--help']:
-        print helpstr
+        print(helpstr)
         sys.exit(0)
     elif o in ['-j', '--jobs']:
         jobs = int(a)
@@ -334,7 +333,7 @@ else:
                     st = os.stat(f)
                 except OSError:
                     continue
-                if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
+                if stat.S_IMODE(st[stat.ST_MODE]) & 0o111:
                     return f
         return None
 
@@ -572,7 +571,7 @@ else:
 
         base = os.path.join(base, os.path.split(url)[1])
         if printcommand:
-            print command
+            print(command)
         if execute_tests:
             os.system(command)
     else:
@@ -633,9 +632,6 @@ if old_pythonpath:
     os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + \
                                os.pathsep + \
                                old_pythonpath
-
-if python3incompatibilities:
-    os.environ['SCONS_HORRIBLE_REGRESSION_TEST_HACK'] = '1'
 
 
 # ---[ test discovery ]------------------------------------
@@ -769,8 +765,6 @@ def run_test(t, io_lock, async=True):
     global tests_completed
     header = ""
     command_args = ['-tt']
-    if python3incompatibilities:
-        command_args.append('-3')
     if debug:
         command_args.append(debug)
     command_args.append(t.path)
@@ -806,15 +800,15 @@ def run_test(t, io_lock, async=True):
     if suppress_stdout or suppress_stderr:
         sys.stdout.write(header)
     if not suppress_stdout and t.stdout:
-        print t.stdout
+        print(t.stdout)
     if not suppress_stderr and t.stderr:
-        print t.stderr
+        print(t.stderr)
     print_time_func("Test execution time: %.1f seconds\n", t.test_time)
     if io_lock:
         io_lock.release()
     if quit_on_failure and t.status == 1:
-        print "Exiting due to error"
-        print t.status
+        print("Exiting due to error")
+        print(t.status)
         sys.exit(1)
 
 class RunTest(threading.Thread):
@@ -830,9 +824,9 @@ class RunTest(threading.Thread):
             self.queue.task_done()
 
 if jobs > 1 and threading_ok:
-    print "Running tests using %d jobs"%jobs
+    print("Running tests using %d jobs"%jobs)
     # Start worker threads
-    queue = Queue.Queue()
+    queue = Queue()
     io_lock = threading.Lock()
     for i in range(1, jobs):
         t = RunTest(queue, io_lock)
@@ -845,7 +839,7 @@ if jobs > 1 and threading_ok:
 else:
     # Run tests serially
     if jobs > 1:
-        print "Ignoring -j%d option; no python threading module available."%jobs
+        print("Ignoring -j%d option; no python threading module available."%jobs)
     for t in tests:
         run_test(t, None, False)
 

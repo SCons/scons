@@ -32,6 +32,8 @@ NOTE: Installed SCons is not importable like usual Python packages. It is
       below is dedicated to make it happen on various platforms.
 """
 
+from __future__ import print_function
+
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
@@ -45,14 +47,6 @@ man_pages = [
     'sconsign.1',
     'scons-time.1',
 ]
-
-# Exit with error if trying to install with Python >= 3.0
-if sys.version_info >= (3,0,0):
-    msg = "scons: *** SCons does not run under Python version %s.\n\
-Python 3 and above are not yet supported.\n"
-    sys.stderr.write(msg % (sys.version.split()[0]))
-    sys.exit(1)
-
 
 # change to setup.py directory if it was executed from other dir
 (head, tail) = os.path.split(sys.argv[0])
@@ -343,7 +337,7 @@ class install_scripts(_install_scripts):
                 self.copy_scons(src, scons_version_bat)
 
         # --- distutils copy/paste ---
-        if os.name == 'posix':
+        if hasattr(os, 'chmod') and hasattr(os,'stat'):
             # Set the executable bits (owner, group, and world) on
             # all the scripts we just installed.
             for file in self.get_outputs():

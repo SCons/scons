@@ -35,7 +35,7 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 
 try:
-    import gdbm
+    import dbm.gnu
 except ImportError:
     test.skip_test('No gdbm in this version of Python; skipping test.\n')
 

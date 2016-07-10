@@ -46,7 +46,6 @@ def generate(env):
         act = SCons.Action.Action('$RCS_COCOM', '$RCS_COCOMSTR')
         return SCons.Builder.Builder(action = act, env = env)
 
-    #setattr(env, 'RCS', RCSFactory)
     env.RCS = RCSFactory
 
     env['RCS']          = 'rcs'

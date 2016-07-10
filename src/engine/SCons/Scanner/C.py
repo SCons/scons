@@ -1,6 +1,6 @@
 """SCons.Scanner.C
 
-This module implements the depenency scanner for C/C++ code. 
+This module implements the dependency scanner for C/C++ code. 
 
 """
 
@@ -58,12 +58,11 @@ class SConsCPPScanner(SCons.cpp.PreProcessor):
         return result
     def read_file(self, file):
         try:
-            fp = open(str(file.rfile()))
-        except EnvironmentError, e:
+            with open(str(file.rfile())) as fp:
+                return fp.read()
+        except EnvironmentError as e:
             self.missing.append((file, self.current_file))
             return ''
-        else:
-            return fp.read()
 
 def dictify_CPPDEFINES(env):
     cppdefines = env.get('CPPDEFINES', {})

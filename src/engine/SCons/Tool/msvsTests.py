@@ -20,6 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -827,7 +828,7 @@ if __name__ == "__main__":
     ]
 
     for test_class in test_classes:
-        print "TEST: ", test_class.__doc__
+        print("TEST: ", test_class.__doc__)
         back_osenv = copy.deepcopy(os.environ)
         try:
             # XXX: overriding the os.environ is bad, but doing it

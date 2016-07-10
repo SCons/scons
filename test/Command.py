@@ -63,15 +63,15 @@ def sub(env, target, source):
     t.close()
     return 0
 
-env = Environment(COPY_THROUGH_TEMP = '%(_python_)s build.py .tmp $SOURCE\\n%(_python_)s build.py $TARGET .tmp',
+env = Environment(COPY_THROUGH_TEMP = r'%(_python_)s build.py .tmp $SOURCE' + '\\n' + r'%(_python_)s build.py $TARGET .tmp',
                   EXPAND = '$COPY_THROUGH_TEMP')
 env.Command(target = 'f1.out', source = 'f1.in',
             action = buildIt)
 env.Command(target = 'f2.out', source = 'f2.in',
             action = r'%(_python_)s build.py temp2 $SOURCES' + '\\n' + r'%(_python_)s build.py $TARGET temp2')
 env.Command(target = 'f3.out', source = 'f3.in',
-            action = [ [ r'%(python)s', 'build.py', 'temp3', '$SOURCES' ],
-                       [ r'%(python)s', 'build.py', '$TARGET', 'temp3'] ])
+            action = [ [ r'%(_python_)s', 'build.py', 'temp3', '$SOURCES' ],
+                       [ r'%(_python_)s', 'build.py', '$TARGET', 'temp3'] ])
 Command(target = 'f4.out', source = 'sub', action = sub)
 env.Command(target = 'f5.out', source = 'f5.in', action = buildIt,
             XYZZY='XYZZY is set')

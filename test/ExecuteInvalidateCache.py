@@ -40,9 +40,9 @@ subfn = os.path.join('sub', 'foo')
 test.write('SConstruct', """\
 def exists(node):
     if node.exists():
-        print str(node), "exists"
+        print(str(node), "exists")
     else:
-        print str(node), "does not exist"
+        print(str(node), "does not exist")
 
 Execute(Delete('abc'))
 n1 = File('abc')

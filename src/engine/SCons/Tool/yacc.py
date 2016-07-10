@@ -61,7 +61,7 @@ def _yaccEmitter(target, source, env, ysuf, hsuf):
         base, ext = os.path.splitext(SCons.Util.to_String(source[0]))
         target.append(base + env.subst("$YACCVCGFILESUFFIX"))
 
-    # If -v is specirfied yacc will create the output debug file
+    # If -v is specified yacc will create the output debug file
     # which is not really source for any process, but should
     # be noted and also be cleaned
     # Bug #2558
@@ -118,14 +118,6 @@ def generate(env):
     env['YACCCOM']   = '$YACC $YACCFLAGS -o $TARGET $SOURCES'
     env['YACCHFILESUFFIX'] = '.h'
 
-    # Apparently, OS X now creates file.hpp like everybody else
-    # I have no idea when it changed; it was fixed in 10.4
-    #if env['PLATFORM'] == 'darwin':
-    #    # Bison on Mac OS X just appends ".h" to the generated target .cc
-    #    # or .cpp file name.  Hooray for delayed expansion of variables.
-    #    env['YACCHXXFILESUFFIX'] = '${TARGET.suffix}.h'
-    #else:
-    #    env['YACCHXXFILESUFFIX'] = '.hpp'
     env['YACCHXXFILESUFFIX'] = '.hpp'
 
     env['YACCVCGFILESUFFIX'] = '.vcg'

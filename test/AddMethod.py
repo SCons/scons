@@ -40,10 +40,10 @@ def foo(self):
 
 AddMethod(Environment, foo)
 env = Environment(FOO = '111')
-print env.foo()
+print(env.foo())
 
 env = Environment(FOO = '222')
-print env.foo()
+print(env.foo())
 
 env.AddMethod(foo, 'bar')
 env['FOO'] = '333'
@@ -51,8 +51,8 @@ env['FOO'] = '333'
 e = env.Clone()
 e['FOO'] = '444'
 
-print env.bar()
-print e.bar()
+print(env.bar())
+print(e.bar())
 """)
 
 expect = """\

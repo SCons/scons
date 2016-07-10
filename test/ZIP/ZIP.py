@@ -47,7 +47,7 @@ def zipfile_contains(zipfilename, names):
     for name in names:
         try:
             info=zf.getinfo(name)
-        except KeyError, e:     # name not found
+        except KeyError as e:     # name not found
             zf.close()
             return False
     return True

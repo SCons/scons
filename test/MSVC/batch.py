@@ -72,8 +72,8 @@ for infile in sys.argv[2:]:
 """)
 
 test.write('SConstruct', """
-cccom = '%(_python_)s fake_cl.py $_MSVC_OUTPUT_FLAG $CHANGED_SOURCES'
-linkcom = '%(_python_)s fake_link.py ${TARGET.windows} $SOURCES'
+cccom = r'%(_python_)s fake_cl.py $_MSVC_OUTPUT_FLAG $CHANGED_SOURCES'
+linkcom = r'%(_python_)s fake_link.py ${TARGET.windows} $SOURCES'
 env = Environment(tools=['msvc', 'mslink'],
                   CCCOM=cccom, 
                   LINKCOM=linkcom,

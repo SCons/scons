@@ -31,7 +31,7 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', """
 i = 0
 for key, value in ARGLIST:
-    print "%d:  %s = %s" % (i, key, value)
+    print("%d:  %s = %s" % (i, key, value))
     i = i + 1
 """)
 

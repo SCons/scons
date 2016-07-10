@@ -44,12 +44,12 @@ files = [
 def copy(target, source, env):
     t = str(target[0])
     s = str(source[0])
-    c = open(s, 'rb').read()
+    c = open(s, 'r').read()
     # Note:  We construct the __ VERSION __ substitution string at
     # run-time so it doesn't get replaced when this file gets copied
     # into the tree for packaging.
     c = c.replace('__' + 'VERSION' + '__', env['VERSION'])
-    open(t, 'wb').write(c)
+    open(t, 'w').write(c)
 
 for file in files:
     # Guarantee that real copies of these files always exist in

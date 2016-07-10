@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -21,22 +22,34 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__doc__ = """
-io compatibility module for older (pre-2.6) Python versions
-
-This does not not NOT (repeat, *NOT*) provide complete io
-functionality.  It only wraps the portions of io functionality used
-by SCons, in an interface that looks enough like io for our purposes.
-"""
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-# Use the "imp" module to protect the imports below from fixers.
-import imp
+"""
+Verify that two builders in two environments with different 
+actions generate an error.
+"""
 
-_cStringIO = imp.load_module('cStringIO', *imp.find_module('cStringIO'))
-StringIO = _cStringIO.StringIO
-del _cStringIO
+import TestSCons
+
+test = TestSCons.TestSCons(match=TestSCons.match_re)
+
+test.write('SConstruct', """\
+e1 = Environment()
+e2 = Environment()
+
+e1.Command('out.txt', [], 'echo 1 > $TARGET')
+e2.Command('out.txt', [], 'echo 2 > $TARGET')
+""")
+
+expect = TestSCons.re_escape("""
+scons: *** Two environments with different actions were specified for the same target: out.txt
+(action 1: echo 1 > out.txt)
+(action 2: echo 2 > out.txt)
+""") + TestSCons.file_expr
+
+test.run(arguments='out.txt', status=2, stderr=expect)
+
+test.pass_test()
 
 # Local Variables:
 # tab-width:4

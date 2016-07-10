@@ -101,7 +101,6 @@ Autoconf-like configuration support; low level implementation of tests.
 #
 
 import re
-from types import IntType
 
 #
 # PUBLIC VARIABLES
@@ -684,6 +683,22 @@ return 0;
 
     return ret
 
+def CheckProg(context, prog_name):
+    """
+    Configure check for a specific program.
+
+    Check whether program prog_name exists in path.  If it is found,
+    returns the path for it, otherwise returns None.
+    """
+    context.Display("Checking whether %s program exists..." % prog_name)
+    path = context.env.WhereIs(prog_name)
+    if path:
+        context.Display(path + "\n")
+    else:
+        context.Display("no\n")
+    return path
+
+
 #
 # END OF PUBLIC FUNCTIONS
 #
@@ -729,7 +744,7 @@ def _Have(context, key, have, comment = None):
         line = "#define %s 1\n" % key_up
     elif have == 0:
         line = "/* #undef %s */\n" % key_up
-    elif isinstance(have, IntType):
+    elif isinstance(have, int):
         line = "#define %s %d\n" % (key_up, have)
     else:
         line = "#define %s %s\n" % (key_up, str(have))

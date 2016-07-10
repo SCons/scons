@@ -21,6 +21,8 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import print_function
+
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
@@ -129,9 +131,9 @@ for f in files:
     if expected_num != len(uncaught_this_file):
         uncaughtKeyboardInterrupt = 1
         msg = "%s:  expected %d uncaught interrupts, got %d:"
-        print msg % (f, expected_num, len(uncaught_this_file))
+        print(msg % (f, expected_num, len(uncaught_this_file)))
         for line in uncaught_this_file:
-            print "  File %s:%d: Uncaught KeyboardInterrupt!" % (f,line)
+            print("  File %s:%d: Uncaught KeyboardInterrupt!" % (f,line))
 
 test.fail_test(uncaughtKeyboardInterrupt)
 

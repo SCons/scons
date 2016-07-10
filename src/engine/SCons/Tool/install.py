@@ -29,6 +29,7 @@ selection method.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -39,7 +40,7 @@ import stat
 
 import SCons.Action
 import SCons.Tool
-from SCons.Util import make_path_relative
+import SCons.Util
 
 #
 # We keep track of *all* installed files.
@@ -48,7 +49,7 @@ _UNIQUE_INSTALLED_FILES = None
 
 class CopytreeError(EnvironmentError):
     pass
-                
+
 # This is a patched version of shutil.copytree from python 2.5.  It
 # doesn't fail if the dir exists, which regular copytree does
 # (annoyingly).  Note the XXX comment in the docstring.
@@ -83,21 +84,21 @@ def scons_copytree(src, dst, symlinks=False):
             else:
                 shutil.copy2(srcname, dstname)
             # XXX What about devices, sockets etc.?
-        except (IOError, os.error), why:
+        except (IOError, os.error) as why:
             errors.append((srcname, dstname, str(why)))
         # catch the CopytreeError from the recursive copytree so that we can
         # continue with other files
-        except CopytreeError, err:
+        except CopytreeError as err:
             errors.extend(err.args[0])
     try:
         shutil.copystat(src, dst)
-    except WindowsError:
+    except SCons.Util.WinError:
         # can't copy file access times on Windows
         pass
-    except OSError, why:
+    except OSError as why:
         errors.extend((src, dst, str(why)))
     if errors:
-        raise CopytreeError, errors
+        raise CopytreeError(errors)
 
 
 #
@@ -165,10 +166,9 @@ def listShlibLinksToInstall(dest, source, env):
 def installShlibLinks(dest, source, env):
     """If we are installing a versioned shared library create the required links."""
     Verbose = False
-
     symlinks = listShlibLinksToInstall(dest, source, env)
     if Verbose:
-        print 'installShlibLinks: symlinks=%r' % SCons.Tool.StringizeLibSymlinks(symlinks)
+        print('installShlibLinks: symlinks={:r}'.format(SCons.Tool.StringizeLibSymlinks(symlinks)))
     if symlinks:
         SCons.Tool.CreateLibSymlinks(env, symlinks)
     return
@@ -225,7 +225,7 @@ def stringFunc(target, source, env):
 # Emitter functions
 #
 def add_targets_to_INSTALLED_FILES(target, source, env):
-    """ an emitter that adds all target files to the list stored in the
+    """ An emitter that adds all target files to the list stored in the
     _INSTALLED_FILES global variable. This way all installed files of one
     scons call will be collected.
     """
@@ -236,7 +236,7 @@ def add_targets_to_INSTALLED_FILES(target, source, env):
     return (target, source)
 
 def add_versioned_targets_to_INSTALLED_FILES(target, source, env):
-    """ an emitter that adds all target files to the list stored in the
+    """ An emitter that adds all target files to the list stored in the
     _INSTALLED_FILES global variable. This way all installed files of one
     scons call will be collected.
     """
@@ -244,17 +244,15 @@ def add_versioned_targets_to_INSTALLED_FILES(target, source, env):
     Verbose = False
     _INSTALLED_FILES.extend(target)
     if Verbose:
-        print "add_versioned_targets_to_INSTALLED_FILES: target=%r" % map(str, target)
-
+        print("add_versioned_targets_to_INSTALLED_FILES: target={:r}".format(map(str, target)))
     symlinks = listShlibLinksToInstall(target[0], source, env)
     if symlinks:
         SCons.Tool.EmitLibSymlinks(env, symlinks, target[0])
-        
     _UNIQUE_INSTALLED_FILES = None
     return (target, source)
 
 class DESTDIR_factory(object):
-    """ a node factory, where all files will be relative to the dir supplied
+    """ A node factory, where all files will be relative to the dir supplied
     in the constructor.
     """
     def __init__(self, env, dir):
@@ -262,11 +260,11 @@ class DESTDIR_factory(object):
         self.dir = env.arg2nodes( dir, env.fs.Dir )[0]
 
     def Entry(self, name):
-        name = make_path_relative(name)
+        name = SCons.Util.make_path_relative(name)
         return self.dir.Entry(name)
 
     def Dir(self, name):
-        name = make_path_relative(name)
+        name = SCons.Util.make_path_relative(name)
         return self.dir.Dir(name)
 
 #
@@ -304,14 +302,12 @@ def InstallBuilderWrapper(env, target=None, source=None, dir=None, **kw):
             # '#' on the file name portion as meaning the Node should
             # be relative to the top-level SConstruct directory.
             target = env.fs.Entry('.'+os.sep+src.name, dnode)
-            #tgt.extend(BaseInstallBuilder(env, target, src, **kw))
             tgt.extend(BaseInstallBuilder(env, target, src, **kw))
     return tgt
 
 def InstallAsBuilderWrapper(env, target=None, source=None, **kw):
     result = []
     for src, tgt in map(lambda x, y: (x, y), source, target):
-        #result.extend(BaseInstallBuilder(env, tgt, src, **kw))
         result.extend(BaseInstallBuilder(env, tgt, src, **kw))
     return result
 
@@ -374,6 +370,7 @@ def generate(env):
                               source_factory = env.fs.Entry,
                               multi          = 1,
                               emitter        = [ add_targets_to_INSTALLED_FILES, ],
+                              source_scanner = SCons.Scanner.Base( {}, name = 'Install', recursive = False ),
                               name           = 'InstallBuilder')
 
     global BaseVersionedInstallBuilder

@@ -38,10 +38,10 @@ def times(num=1000000, init='', title='Results:', **statements):
         t.timeit()
         timings.append(t)
 
-    print
-    print title
+    print()
+    print(title)
     for i in sorted([(i.getResult(),i.name) for i in timings]):
-        print "  %9.3f s   %s" % i
+        print("  %9.3f s   %s" % i)
 
 # Import the necessary local SCons.* modules used by some of our
 # alternative implementations below, first manipulating sys.path so
@@ -339,9 +339,9 @@ def run_it(title, init):
       s['init'] = init
       times(**s)
 
-print 'Environment __setitem__ benchmark using',
-print 'Python', sys.version.split()[0],
-print 'on', sys.platform, os.name
+print('Environment __setitem__ benchmark using', end=' ')
+print('Python', sys.version.split()[0], end=' ')
+print('on', sys.platform, os.name)
 
 run_it('Results for re-adding an existing variable name 100 times:',
       common_imports + """
