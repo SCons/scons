@@ -958,34 +958,6 @@ SConscript( sconscript )
     # to use cygwin compilers on cmd.exe -> uncomment following line
     #Configure_lib = 'm'
 
-    def gccFortranLibs(self):
-        """Test which gcc Fortran startup libraries are required.
-        This should probably move into SCons itself, but is kind of hacky.
-        """
-        if sys.platform.find('irix') != -1:
-            return ['ftn']
-
-        libs = ['g2c']
-        cmd = ['gcc','-v']
-
-        try:
-            p = Popen(cmd, stdout=PIPE, stderr=PIPE)
-            stdout, stderr = p.communicate()
-        except:
-            return libs
-
-        m = re.search('(gcc\s+version|gcc-Version)\s+(\d\.\d)', stderr)
-        if m:
-            gcc_version = m.group(2)
-            if re.match('[5-9].\d', gcc_version):
-                libs = ['gfortran']
-            elif re.match('4.[^0]', gcc_version):
-                libs = ['gfortranbegin']
-            elif gcc_version in ('3.1', '4.0'):
-                libs = ['frtbegin'] + libs
-
-        return libs
-
     def skip_if_not_msvc(self, check_platform=True):
         """ Check whether we are on a Windows platform and skip the
             test if not. This check can be omitted by setting
