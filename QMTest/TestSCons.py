@@ -977,7 +977,9 @@ SConscript( sconscript )
         m = re.search('(gcc\s+version|gcc-Version)\s+(\d\.\d)', stderr)
         if m:
             gcc_version = m.group(2)
-            if re.match('4.[^0]', gcc_version):
+            if re.match('[5-9].\d', gcc_version):
+                libs = ['gfortran']
+            elif re.match('4.[^0]', gcc_version):
                 libs = ['gfortranbegin']
             elif gcc_version in ('3.1', '4.0'):
                 libs = ['frtbegin'] + libs
