@@ -25,6 +25,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added LoadableModule to the list of global functions (DefaultEnvironment
       builders).
 
+  From William Blevins:
+    - Updated Fortran-related tests to pass under GCC 5/6.
+
 RELEASE 2.5.0 - Mon, 09 Apr 2016 11:27:42 -0700
 
   From Dirk Baechle:
