@@ -25,6 +25,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added LoadableModule to the list of global functions (DefaultEnvironment
       builders).
 
+  From William Blevins:
+    - Updated D language scanner support to latest: 2.071.1. (PR #1924)
+      https://dlang.org/spec/module.html accessed 11 August 2016
+
 RELEASE 2.5.0 - Mon, 09 Apr 2016 11:27:42 -0700
 
   From Dirk Baechle:
