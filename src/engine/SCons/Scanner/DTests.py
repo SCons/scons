@@ -179,6 +179,14 @@ void main()
 }
 """)
 
+# Multiline import
+test.write('multiline.d',"""
+import
+A;
+
+void main() {}
+""")
+
 test.write('A.d',"""
 module A;
 void main() {}
@@ -253,6 +261,9 @@ class DScannerTestCase(unittest.TestCase):
 
     def test_MultipleImport(self):
         self.helper('multiple.d', ['A.d', 'B.d', 'C.d', os.path.join('X','Y.d')])
+
+    def test_MultilineImport(self):
+        self.helper('multiline.d', ['A.d'])
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
