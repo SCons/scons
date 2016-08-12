@@ -10,6 +10,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
     - Whatever John Doe did.
 
+  From Daniel Holth:
+    - Add basic support for PyPy (by deleting __slots__ from Node with a
+      metaclass on PyPy); wrap most-used open() calls in 'with' statements to
+      avoid too many open files.
+    - Add __main__.py for `python -m SCons` in case it is on PYTHONPATH.
 
   From Paweł Tomulik:
     - Fixed the issue with LDMODULEVERSIONFLAGS reported by Tim Jennes
@@ -19,6 +24,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       need for the flags to be specified.
     - Added LoadableModule to the list of global functions (DefaultEnvironment
       builders).
+
+  From Alexey Klimkin:
+    - Use memoization to optimize PATH evaluation across all dependencies per
+      node. (PR #345)
 
 RELEASE 2.5.0 - Mon, 09 Apr 2016 11:27:42 -0700
 

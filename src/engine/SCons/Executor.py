@@ -35,7 +35,7 @@ import SCons.Debug
 from SCons.Debug import logInstanceCreation
 import SCons.Errors
 import SCons.Memoize
-
+from SCons.compat import with_metaclass, NoSlotsPyPy
 
 class Batch(object):
     """Remembers exact association between targets
@@ -154,7 +154,7 @@ _execute_str_map = {0 : execute_null_str,
                     1 : execute_actions_str}
 
 
-class Executor(object):
+class Executor(object, with_metaclass(NoSlotsPyPy)):
     """A class for controlling instances of executing an action.
 
     This largely exists to hold a single association of an action,
@@ -580,7 +580,7 @@ def get_NullEnvironment():
         nullenv = NullEnvironment()
     return nullenv
 
-class Null(object):
+class Null(object, with_metaclass(NoSlotsPyPy)):
     """A null Executor, with a null build Environment, that does
     nothing when the rest of the methods call it.
 

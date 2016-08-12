@@ -1731,11 +1731,12 @@ class TestCmd(object):
         file = self.canonicalize(file)
         if mode[0] != 'w':
             raise ValueError("mode must begin with 'w'")
-        try:
-            open(file, mode).write(content)
-        except TypeError as e:
-            # python 3 default strings are not bytes, but unicode
-            open(file, mode).write(bytes(content,'utf-8'))
+        with open(file, mode) as f:
+            try:
+                f.write(content)
+            except TypeError as e:
+                # python 3 default strings are not bytes, but unicode
+                f.write(bytes(content,'utf-8'))
 
 # Local Variables:
 # tab-width:4

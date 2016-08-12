@@ -58,12 +58,11 @@ class SConsCPPScanner(SCons.cpp.PreProcessor):
         return result
     def read_file(self, file):
         try:
-            fp = open(str(file.rfile()))
+            with open(str(file.rfile())) as fp:
+                return fp.read()
         except EnvironmentError as e:
             self.missing.append((file, self.current_file))
             return ''
-        else:
-            return fp.read()
 
 def dictify_CPPDEFINES(env):
     cppdefines = env.get('CPPDEFINES', {})
