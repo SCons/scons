@@ -125,7 +125,7 @@ void main()
 
 # Selective import
 test.write('selective.d',"""
-import A : B, C = D;
+import A : B, C;
 
 void main()
 {
