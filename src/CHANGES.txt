@@ -28,6 +28,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From William Blevins:
     - Updated D language scanner support to latest: 2.071.1. (PR #1924)
       https://dlang.org/spec/module.html accessed 11 August 2016
+      - Added support for selective imports.
+      - Added support for renamed imports.
 
 RELEASE 2.5.0 - Mon, 09 Apr 2016 11:27:42 -0700
 
