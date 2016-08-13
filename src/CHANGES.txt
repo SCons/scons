@@ -29,8 +29,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Updated D language scanner support to latest: 2.071.1. (PR #1924)
       https://dlang.org/spec/module.html accessed 11 August 2016
       - Enhancements:
-        - Added support for selective imports.
-        - Added support for renamed imports.
+        - Added support for selective imports: "import A : B, C;" -> A
+        - Added support for renamed imports. "import B = A;" -> A
+        - Supports valid combinations: "A, B, CCC = C, DDD = D : EEE = FFF;" -> A, B, C, D
       - Notes:
         - May find new (previously missed) Dlang dependencies.
         - May cause rebuild after upgrade due to dependency changes.
