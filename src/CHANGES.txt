@@ -31,7 +31,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       - Enhancements:
         - Added support for selective imports: "import A : B, C;" -> A
         - Added support for renamed imports. "import B = A;" -> A
-        - Supports valid combinations: "A, B, CCC = C, DDD = D : EEE = FFF;" -> A, B, C, D
+        - Supports valid combinations: "import A, B, CCC = C, DDD = D : EEE = FFF;" -> A, B, C, D
       - Notes:
         - May find new (previously missed) Dlang dependencies.
         - May cause rebuild after upgrade due to dependency changes.
