@@ -4,6 +4,8 @@ from __future__ import print_function
 
 import SCons.compat
 
+from SCons.compat import PICKLE_PROTOCOL
+
 import os
 import pickle
 import shutil
@@ -119,7 +121,7 @@ class dblite(object):
   def sync(self):
     self._check_writable()
     f = self._open(self._tmp_name, "wb", self._mode)
-    self._pickle_dump(self._dict, f, 1)
+    self._pickle_dump(self._dict, f, PICKLE_PROTOCOL)
     f.close()
     # Windows doesn't allow renaming if the file exists, so unlink
     # it first, chmod'ing it to make sure we can do so.  On UNIX, we

@@ -11,6 +11,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       metaclass on PyPy); wrap most-used open() calls in 'with' statements to
       avoid too many open files.
     - Add __main__.py for `python -m SCons` in case it is on PYTHONPATH.
+    - Always use highest available pickle protocol for efficiency.
 
   From Alexey Klimkin:
     - Use memoization to optimize PATH evaluation across all dependencies per
@@ -19,6 +20,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From M. Limber:
     - Fixed msvs.py for Visual Studio Express editions that would report
       "Error  : ValueError: invalid literal for float(): 10.0Exp".
+
 
   From Paweł Tomulik:
     - Fixed the issue with LDMODULEVERSIONFLAGS reported by Tim Jennes
