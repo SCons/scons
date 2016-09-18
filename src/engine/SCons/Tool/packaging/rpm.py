@@ -95,6 +95,8 @@ def collectintargz(target, source, env):
     # find the .spec file for rpm and add it since it is not necessarily found
     # by the FindSourceFiles function.
     sources.extend( [s for s in source if str(s).rfind('.spec')!=-1] )
+    # sort to keep sources from changing order across builds
+    sources.sort()
 
     # as the source contains the url of the source package this rpm package
     # is built from, we extract the target name
