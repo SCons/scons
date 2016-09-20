@@ -244,7 +244,7 @@ def add_versioned_targets_to_INSTALLED_FILES(target, source, env):
     Verbose = False
     _INSTALLED_FILES.extend(target)
     if Verbose:
-        print("add_versioned_targets_to_INSTALLED_FILES: target={:r}".format(map(str, target)))
+        print("add_versioned_targets_to_INSTALLED_FILES: target={:r}".format(list(map(str, target))))
     symlinks = listShlibLinksToInstall(target[0], source, env)
     if symlinks:
         SCons.Tool.EmitLibSymlinks(env, symlinks, target[0])
