@@ -328,11 +328,26 @@ __all__ = [
     'match_re_dotall',
     'python',
     '_python_',
-    'TestCmd'
+    'TestCmd',
+    'to_bytes',
+    'to_str',
 ]
 
 def is_List(e):
     return isinstance(e, (list, UserList))
+
+def to_bytes (s):
+    if isinstance (s, bytes) or bytes is str:
+        return s
+    else:
+        return bytes (s, 'utf-8')
+
+def to_str (s):
+    if bytes is str:
+        return s
+    elif not is_String(s):
+        return str (s, 'utf-8')
+    return s
 
 try:
     eval('unicode')
@@ -513,6 +528,8 @@ def simple_diff(a, b, fromfile='', tofile='',
     (diff -c) and difflib.unified_diff (diff -u) but which prints
     output like the simple, unadorned 'diff" command.
     """
+    a = [to_str(q) for q in a]
+    b = [to_str(q) for q in b]
     sm = difflib.SequenceMatcher(None, a, b)
     def comma(x1, x2):
         return x1+1 == x2 and str(x2) or '%s,%s' % (x1+1, x2)
