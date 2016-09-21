@@ -33,7 +33,7 @@ _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-
+test.dir_fixture('CC-fixture')
 
 if sys.platform == 'win32':
 
@@ -53,7 +53,7 @@ while args:
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
-    if l[:8] != '/*link*/':
+    if l[:8] != b'/*link*/':
         outfile.write(l)
 sys.exit(0)
 """)
@@ -77,7 +77,7 @@ while args:
 infile = open(inf, 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
-    if l[:6] != '/*cc*/':
+    if l[:6] != b'/*cc*/':
         outfile.write(l)
 sys.exit(0)
 """)
@@ -93,7 +93,7 @@ for opt, arg in opts:
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
-    if l[:8] != '/*link*/':
+    if l[:8] != b'/*link*/':
         outfile.write(l)
 sys.exit(0)
 """)
@@ -107,7 +107,7 @@ for opt, arg in opts:
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
-    if l[:6] != '/*cc*/':
+    if l[:6] != b'/*cc*/':
         outfile.write(l)
 sys.exit(0)
 """)
@@ -122,14 +122,9 @@ env = Environment(LINK = r'%(_python_)s mylink.py',
 env.Program(target = 'test1', source = 'test1.c')
 """ % locals())
 
-test.write('test1.c', r"""This is a .c file.
-/*cc*/
-/*link*/
-""")
-
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read('test1' + _exe) != "This is a .c file.\n")
+test.must_match('test1' + _exe, "This is a .c file.\n")
 
 if os.path.normcase('.c') == os.path.normcase('.C'):
 
@@ -141,23 +136,14 @@ env = Environment(LINK = r'%(_python_)s mylink.py',
 env.Program(target = 'test2', source = 'test2.C')
 """ % locals())
 
-    test.write('test2.C', r"""This is a .C file.
-/*cc*/
-/*link*/
-""")
-
     test.run(arguments = '.', stderr = None)
-
-    test.fail_test(test.read('test2' + _exe) != "This is a .C file.\n")
-
-
-
+    test.must_match('test2' + _exe, "This is a .C file.\n")
 
 test.write("wrapper.py",
 """import os
 import sys
 if '--version' not in sys.argv and '-dumpversion' not in sys.argv:
-    open('%s', 'wb').write("wrapper.py\\n")
+    open('%s', 'wb').write(b"wrapper.py\\n")
 os.system(" ".join(sys.argv[1:]))
 """ % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
@@ -168,33 +154,6 @@ bar = Environment(CC = r'%(_python_)s wrapper.py ' + cc)
 foo.Program(target = 'foo', source = 'foo.c')
 bar.Program(target = 'bar', source = 'bar.c')
 """ % locals())
-
-test.write('foo.c', r"""
-#include <stdio.h>
-#include <stdlib.h>
-
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        printf("foo.c\n");
-        exit (0);
-}
-""")
-
-test.write('bar.c', r"""
-#include <stdio.h>
-#include <stdlib.h>
-
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        printf("foo.c\n");
-        exit (0);
-}
-""")
-
 
 test.run(arguments = 'foo' + _exe)
 
