@@ -93,13 +93,13 @@ test.run(arguments = 'f' + _exe,
          stderr=TestSCons.noisy_ar,
          match=TestSCons.match_re_dotall)
 
-test.fail_test(os.path.exists(test.workpath('wrapper.out')))
+test.must_not_exist(test.workpath('wrapper.out'))
 
 test.run(arguments = 'b' + _exe,
          stderr=TestSCons.noisy_ar,
          match=TestSCons.match_re_dotall)
 
-test.fail_test(test.read('wrapper.out') != b"wrapper.py\n")
+test.must_match('wrapper.out', 'wrapper.py\n')
 
 test.pass_test()
 

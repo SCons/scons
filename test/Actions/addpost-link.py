@@ -38,10 +38,7 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.write('strip.py', """\
-import sys
-print "strip.py: %s" % " ".join(sys.argv[1:])
-""")
+test.dir_fixture('addpost-link-fixture')
 
 test.write('SConstruct', """\
 env = Environment()
@@ -56,22 +53,6 @@ myprog = env.Program('test1.c',
 if ARGUMENTS['case']=='2':
   AddPostAction(myprog, Action(r'%(_python_)s strip.py ' + myprog[0].get_abspath()))
 """ % locals())
-
-test.write('test1.c', """\
-extern void test_lib_fn();
-int main(int argc, char **argv) {
-  test_lib_fn();
-  return 0;
-}
-""")
-
-test.write('test_lib.c', r"""\
-#include <stdio.h>
-
-void test_lib_fn() {
-  printf("Hello world\n");
-}
-""")
 
 test.run(arguments="-Q case=1", stderr=None)
 
