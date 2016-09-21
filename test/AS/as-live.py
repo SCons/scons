@@ -58,7 +58,7 @@ if sys.platform == "win32":
 test.write("wrapper.py", """\
 import os
 import sys
-open('%s', 'wb').write("wrapper.py: %%s\\n" %% sys.argv[-1])
+open('%s', 'wb').write(("wrapper.py: %%s\\n" %% sys.argv[-1]).encode())
 cmd = " ".join(sys.argv[1:])
 os.system(cmd)
 """ % test.workpath('wrapper.out').replace('\\', '\\\\'))

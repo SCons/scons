@@ -48,7 +48,7 @@ if not ml:
 test.write("wrapper.py",
 """import os
 import sys
-open('%s', 'wb').write("wrapper.py\\n")
+open('%s', 'wb').write(b"wrapper.py\\n")
 os.system(" ".join(sys.argv[1:]))
 """ % test.workpath('wrapper.out').replace('\\', '\\\\'))
 

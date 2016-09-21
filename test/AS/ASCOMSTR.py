@@ -43,7 +43,7 @@ test.write('myas.py', r"""
 import sys
 infile = open(sys.argv[2], 'rb')
 outfile = open(sys.argv[1], 'wb')
-for l in [l for l in infile.readlines() if l != "#as\n"]:
+for l in [l for l in infile.readlines() if l != b"#as\n"]:
     outfile.write(l)
 sys.exit(0)
 """)
@@ -77,10 +77,10 @@ Assembling test3.obj from test3.asm
 Assembling test4.obj from test4%(alt_asm_suffix)s
 """ % locals()))
 
-test.fail_test(test.read('test1.obj') != "test1.s\n")
-test.fail_test(test.read('test2.obj') != "test2.S\n")
-test.fail_test(test.read('test3.obj') != "test3.asm\n")
-test.fail_test(test.read('test4.obj') != "test4.ASM\n")
+test.must_match('test1.obj', "test1.s\n")
+test.must_match('test2.obj', "test2.S\n")
+test.must_match('test3.obj', "test3.asm\n")
+test.must_match('test4.obj', "test4.ASM\n")
 
 
 
