@@ -91,7 +91,7 @@ marker_out = test.workpath('marker.out').replace('\\', '\\\\')
 
 test.write('SConstruct', """\
 def marker(target, source, env):
-    open(r'%s', 'wb').write("marker\\n")
+    open(r'%s', 'wb').write(b"marker\\n")
 f1 = Environment()
 zipcom = f1.Dictionary('ZIPCOM')
 if not isinstance(zipcom, list):
@@ -117,24 +117,24 @@ f1.Zip(target = 'f4deflated.zip', source = sources,
 for f in ['file10', 'file11', 'file12',
           'file13', 'file14', 'file15',
           'file16', 'file17', 'file18']:
-    test.write(f, f + "\n")
+    test.write(f, (f + "\n").encode())
 
 test.run(arguments = 'f1.zip', stderr = None)
 
-test.fail_test(os.path.exists(test.workpath('marker.out')))
+test.must_not_exist(test.workpath('marker.out'))
 
-test.fail_test(not os.path.exists(test.workpath('f1.zip')))
+test.must_exist(test.workpath('f1.zip'))
 
 test.run(arguments = 'f2.zip', stderr = None)
 
-test.fail_test(test.read('marker.out') != 'marker\n')
+test.must_match('marker.out', 'marker\n')
 
-test.fail_test(not os.path.exists(test.workpath('f2.zip')))
+test.must_exist(test.workpath('f2.zip'))
 
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(os.path.exists(test.workpath('f3.zip')))
-test.fail_test(not os.path.exists(test.workpath('f3.xyzzy')))
+test.must_not_exist(test.workpath('f3.zip'))
+test.must_exist(test.workpath('f3.xyzzy'))
 
 test.fail_test(zipfile_files("f1.zip") != ['file10', 'file11', 'file12'])
 
