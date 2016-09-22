@@ -43,27 +43,7 @@ test = TestSCons.TestSCons()
 
 test.subdir('in')
 
-
-
-test.write('myyacc.py', """
-import getopt
-import sys
-cmd_opts, args = getopt.getopt(sys.argv[1:], 'o:I:x', [])
-output = None
-opt_string = ''
-i_arguments = ''
-for opt, arg in cmd_opts:
-    if opt == '-o': output = open(arg, 'wb')
-    elif opt == '-I': i_arguments = i_arguments + ' ' + arg
-    else: opt_string = opt_string + ' ' + opt
-for a in args:
-    contents = open(a, 'rb').read()
-    contents = contents.replace('YACCFLAGS', opt_string)
-    contents = contents.replace('I_ARGS', i_arguments)
-    output.write(contents)
-output.close()
-sys.exit(0)
-""")
+test.dir_fixture('YACCFLAGS-fixture')
 
 test.write('SConstruct', """
 env = Environment(YACC = r'%(_python_)s myyacc.py',
