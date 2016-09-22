@@ -31,18 +31,15 @@ Test the ability to configure the $LINKCOM construction variable.
 import TestSCons
 
 _python_ = TestSCons._python_
-_exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
-
-
 
 test.write('mylink.py', r"""
 import sys
 outfile = open(sys.argv[1], 'wb')
 for f in sys.argv[2:]:
     infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != '/*link*/\n']:
+    for l in [l for l in infile.readlines() if l != b'/*link*/\n']:
         outfile.write(l)
 sys.exit(0)
 """)
