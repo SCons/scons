@@ -82,11 +82,11 @@ class F90Scanner(SCons.Scanner.Classic):
             mods_and_includes = node.includes
         else:
             # retrieve all included filenames
-            includes = self.cre_incl.findall(node.get_text_contents())
+            includes = self.cre_incl.findall(node.get_contents())
             # retrieve all USE'd module names
-            modules = self.cre_use.findall(node.get_text_contents())
+            modules = self.cre_use.findall(node.get_contents())
             # retrieve all defined module names
-            defmodules = self.cre_def.findall(node.get_text_contents())
+            defmodules = self.cre_def.findall(node.get_contents())
 
             # Remove all USE'd module names that are defined in the same file
             # (case-insensitively)
@@ -187,7 +187,7 @@ def FortranScan(path_variable="FORTRANPATH"):
 #   (\w+)              : match the module name that is being USE'd
 #
 #
-    use_regex = "(?i)(?:^|;)\s*USE(?:\s+|(?:(?:\s*,\s*(?:NON_)?INTRINSIC)?\s*::))\s*(\w+)"
+    use_regex = b"(?i)(?:^|;)\s*USE(?:\s+|(?:(?:\s*,\s*(?:NON_)?INTRINSIC)?\s*::))\s*(\w+)"
 
 
 #   The INCLUDE statement regex matches the following:
@@ -275,7 +275,7 @@ def FortranScan(path_variable="FORTRANPATH"):
 #                        set of semicolon-separated INCLUDE statements
 #                        (as allowed by the F2003 standard)
 
-    include_regex = """(?i)(?:^|['">]\s*;)\s*INCLUDE\s+(?:\w+_)?[<"'](.+?)(?=["'>])"""
+    include_regex = b"(?i)(?:^|['\">]\s*;)\s*INCLUDE\s+(?:\w+_)?[<\"'](.+?)(?=[\"'>])"
 
 #   The MODULE statement regex finds module definitions by matching
 #   the following:
@@ -299,7 +299,7 @@ def FortranScan(path_variable="FORTRANPATH"):
 #                        that make up the defined module name and
 #                        save it in a group
 
-    def_regex = """(?i)^\s*MODULE\s+(?!PROCEDURE)(\w+)"""
+    def_regex = b"(?i)^\s*MODULE\s+(?!PROCEDURE)(\w+)"
 
     scanner = F90Scanner("FortranScan",
                          "$FORTRANSUFFIXES",

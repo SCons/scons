@@ -268,7 +268,7 @@ class TestSCons(TestCommon):
                 SCons.Node.FS.default_fs = SCons.Node.FS.FS()
 
         try:
-            self.fixture_dirs = os.environ['FIXTURE_DIRS'].split(':')
+            self.fixture_dirs = (os.environ['FIXTURE_DIRS']).split(':')
         except KeyError:
             pass
 

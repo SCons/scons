@@ -1251,12 +1251,12 @@ class TestCmd(object):
 	
         if srcdir and self.fixture_dirs and not os.path.isabs(srcdir):
             for dir in self.fixture_dirs:
-                spath = os.path.join(self.fixture_dirs, srcdir)
+                spath = os.path.join(dir, srcdir)
                 if os.path.isdir(spath):
-                    continue
-                
+                    break
         else:
             spath = srcdir
+
         if dstdir:
             dstdir = self.canonicalize(dstdir)
         else:
@@ -1295,9 +1295,9 @@ class TestCmd(object):
             spath = srcfile
         else:
             for dir in self.fixture_dirs:
-                spath = os.path.join(self.fixture_dirs, srcfile)
+                spath = os.path.join(dir, srcfile)
                 if os.path.isfile(spath):
-                    continue
+                    break
 
         if not dstfile:
             if srctail:
