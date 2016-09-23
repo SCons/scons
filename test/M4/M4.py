@@ -59,7 +59,7 @@ line 3
 
 test.run()
 
-test.fail_test(test.read(test.workpath('aaa.x'), 'r') != "line 1\nmym4.py\nline 3\n")
+test.must_match(test.workpath('aaa.x'), "line 1\nmym4.py\nline 3\n")
 
 
 
@@ -70,7 +70,7 @@ if m4:
     test.write("wrapper.py",
 """import os
 import sys
-open('%s', 'wb').write("wrapper.py\\n")
+open('%s', 'wb').write(b"wrapper.py\\n")
 os.system(" ".join(sys.argv[1:]))
 """ % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
@@ -96,11 +96,11 @@ bar.M4(target = 'bar', source = 'bar.m4')
 
     test.up_to_date(arguments = '.')
 
-    test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
+    test.must_match('wrapper.out', "wrapper.py\n")
 
-    test.fail_test(test.read('foo.x', 'r') != "line 1\nfff\nline 3\n")
+    test.must_match('foo.x', "line 1\nfff\nline 3\n")
 
-    test.fail_test(test.read('bar', 'r') != "line 1\nbbb\nline 3\n")
+    test.must_match('bar', "line 1\nbbb\nline 3\n")
 
 test.pass_test()
 

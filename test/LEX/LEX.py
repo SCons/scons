@@ -41,7 +41,7 @@ import sys
 cmd_opts, args = getopt.getopt(sys.argv[1:], 't', [])
 for a in args:
     contents = open(a, 'rb').read()
-    sys.stdout.write(contents.replace('LEX', 'mylex.py'))
+    sys.stdout.write(contents.replace(b'LEX', b'mylex.py').decode())
 sys.exit(0)
 """)
 
