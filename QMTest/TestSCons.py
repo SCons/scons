@@ -268,7 +268,7 @@ class TestSCons(TestCommon):
                 SCons.Node.FS.default_fs = SCons.Node.FS.FS()
 
         try:
-            self.script_srcdir = os.environ['PYTHON_SCRIPT_DIR']
+            self.fixture_dirs = os.environ['FIXTURE_DIRS'].split(':')
         except KeyError:
             pass
 

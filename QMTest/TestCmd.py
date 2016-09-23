@@ -924,7 +924,7 @@ class TestCmd(object):
         self.condition = 'no_result'
         self.workdir_set(workdir)
         self.subdir(subdir)
-        self.script_srcdir = None
+        self.fixture_dirs = []
 
     def __del__(self):
         self.cleanup()
@@ -1248,8 +1248,13 @@ class TestCmd(object):
         assumed to be under the temporary working directory, it gets
         created automatically, if it does not already exist.
         """
-        if srcdir and self.script_srcdir and not os.path.isabs(srcdir):
-            spath = os.path.join(self.script_srcdir, srcdir)
+	
+        if srcdir and self.fixture_dirs and not os.path.isabs(srcdir):
+            for dir in self.fixture_dirs:
+                spath = os.path.join(self.fixture_dirs, srcdir)
+                if os.path.isdir(spath):
+                    continue
+                
         else:
             spath = srcdir
         if dstdir:
@@ -1285,13 +1290,15 @@ class TestCmd(object):
         automatically, if it does not already exist.
         """
         srcpath, srctail = os.path.split(srcfile)
-        if srcpath:
-            if self.script_srcdir and not os.path.isabs(srcpath):
-                spath = os.path.join(self.script_srcdir, srcfile)
-            else:
-                spath = srcfile
+
+        if srcpath and (not self.fixture_dirs or os.path.isabs(srcpath)):
+            spath = srcfile
         else:
-            spath = os.path.join(self.script_srcdir, srcfile)
+            for dir in self.fixture_dirs:
+                spath = os.path.join(self.fixture_dirs, srcfile)
+                if os.path.isfile(spath):
+                    continue
+
         if not dstfile:
             if srctail:
                 dpath = os.path.join(self.workdir, srctail)

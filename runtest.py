@@ -786,10 +786,12 @@ def run_test(t, io_lock, async=True):
     if not suppress_stdout and not suppress_stderr:
         sys.stdout.write(header)
     head, tail = os.path.split(t.abspath)
+    fixture_dirs = []
     if head:
-        os.environ['PYTHON_SCRIPT_DIR'] = head
-    else:
-        os.environ['PYTHON_SCRIPT_DIR'] = ''
+        fixture_dirs.append(head)
+    fixture_dirs.append(os.path.join(os.path.split(os.path.abspath(__file__))[0], 'fixture'))
+    os.environ['PYTHON_SCRIPT_DIR'] = ':'.join(fixture_dirs)
+
     test_start_time = time_func()
     if execute_tests:
         t.execute()
