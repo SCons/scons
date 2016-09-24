@@ -696,7 +696,7 @@ class Base(SCons.Node.Node):
             return self._memo['_save_str']
         except KeyError:
             pass
-        result = sys.intern(self._get_str())
+        result = SCons.Util.silent_intern(self._get_str())
         self._memo['_save_str'] = result
         return result
 
@@ -2670,7 +2670,11 @@ class File(Base):
             return contents[len(codecs.BOM_UTF16_LE):].decode('utf-16-le')
         if contents.startswith(codecs.BOM_UTF16_BE):
             return contents[len(codecs.BOM_UTF16_BE):].decode('utf-16-be')
-        return contents
+        try:
+            return contents.decode()
+        except UnicodeDecodeError:
+            return contents
+
 
     def get_content_hash(self):
         """

@@ -64,7 +64,7 @@ def _fortranEmitter(target, source, env):
     if not node.exists() and not node.is_derived():
        print("Could not locate " + str(node.name))
        return ([], [])
-    mod_regex = b"(?i)^\s*MODULE\s+(?!PROCEDURE)(\w+)"
+    mod_regex = """(?i)^\s*MODULE\s+(?!PROCEDURE)(\w+)"""
     cre = re.compile(mod_regex,re.M)
     # Retrieve all USE'd module names
     modules = cre.findall(node.get_text_contents())
