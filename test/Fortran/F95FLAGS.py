@@ -111,12 +111,7 @@ if g95:
 # Exists only such that -Ix finds the directory...
 """)
 
-    test.write("wrapper.py",
-"""import os
-import sys
-open('%s', 'wb').write("wrapper.py\\n")
-os.system(" ".join(sys.argv[1:]))
-""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
+    test.file_fixture('wrapper.py')
 
     test.write('SConstruct', """
 foo = Environment(F95 = '%(fc)s')

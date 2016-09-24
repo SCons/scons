@@ -40,12 +40,7 @@ yacc = test.where_is('yacc') or test.where_is('bison')
 if not yacc:
     test.skip_test('No yacc or bison found; skipping test.\n')
 
-test.write("wrapper.py",
-"""import os
-import sys
-open('%s', 'wb').write(b"wrapper.py\\n")
-os.system(" ".join(sys.argv[1:]))
-""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
+test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
 foo = Environment(YACCFLAGS='-d')

@@ -139,13 +139,7 @@ env.Program(target = 'test2', source = 'test2.C')
     test.run(arguments = '.', stderr = None)
     test.must_match('test2' + _exe, "This is a .C file.\n")
 
-test.write("wrapper.py",
-"""import os
-import sys
-if '--version' not in sys.argv and '-dumpversion' not in sys.argv:
-    open('%s', 'wb').write(b"wrapper.py\\n")
-os.system(" ".join(sys.argv[1:]))
-""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
+test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
 foo = Environment()
