@@ -727,7 +727,7 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
                     modname = os.path.basename(pathname)[:-len(sfx)]
                     site_m = {"__file__": pathname, "__name__": modname, "__doc__": None}
                     re_special = re.compile("__[^_]+__")
-                    for k in m.__dict__.keys():
+                    for k in list(m.__dict__.keys()):
                         if not re_special.match(k):
                             site_m[k] = m.__dict__[k]
 

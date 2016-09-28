@@ -39,6 +39,8 @@ import pickle
 import SCons.dblite
 import SCons.Warnings
 
+from SCons.compat import PICKLE_PROTOCOL
+
 def corrupt_dblite_warning(filename):
     SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
                         "Ignoring corrupt .sconsign file: %s"%filename)
@@ -153,7 +155,7 @@ class SConsignEntry(object):
         return state
 
     def __setstate__(self, state):
-        for key, value in state.items():
+        for key, value in list(state.items()):
             if key not in ('_version_id','__weakref__'):
                 setattr(self, key, value)
 
@@ -197,7 +199,7 @@ class Base(object):
         pass
 
     def merge(self):
-        for key, node in self.to_be_merged.items():
+        for key, node in list(self.to_be_merged.items()):
             entry = node.get_stored_info()
             try:
                 ninfo = entry.ninfo
@@ -243,7 +245,7 @@ class DB(Base):
             except Exception as e:
                 SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
                                     "Ignoring corrupt sconsign entry : %s (%s)\n"%(self.dir.get_tpath(), e))
-            for key, entry in self.entries.items():
+            for key, entry in list(self.entries.items()):
                 entry.convert_from_sconsign(dir, key)
 
         if mode == "r":
@@ -270,9 +272,9 @@ class DB(Base):
         # the Repository; we only write to our own .sconsign file,
         # not to .sconsign files in Repositories.
         path = normcase(self.dir.get_internal_path())
-        for key, entry in self.entries.items():
+        for key, entry in list(self.entries.items()):
             entry.convert_to_sconsign()
-        db[path] = pickle.dumps(self.entries, 1)
+        db[path] = pickle.dumps(self.entries, PICKLE_PROTOCOL)
 
         if sync:
             try:
@@ -358,9 +360,9 @@ class DirFile(Dir):
                 fname = self.sconsign
             except IOError:
                 return
-        for key, entry in self.entries.items():
+        for key, entry in list(self.entries.items()):
             entry.convert_to_sconsign()
-        pickle.dump(self.entries, file, 1)
+        pickle.dump(self.entries, file, PICKLE_PROTOCOL)
         file.close()
         if fname != self.sconsign:
             try:

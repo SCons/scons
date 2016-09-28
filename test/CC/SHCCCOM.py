@@ -36,16 +36,7 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('mycc.py', r"""
-import sys
-outfile = open(sys.argv[1], 'wb')
-infile = open(sys.argv[2], 'rb')
-for l in [l for l in infile.readlines() if l[:6] != '/*cc*/']:
-    outfile.write(l)
-sys.exit(0)
-""")
+test.dir_fixture('shared-fixture')
 
 if os.path.normcase('.c') == os.path.normcase('.C'):
     alt_c_suffix = '.C'
@@ -59,11 +50,6 @@ env = Environment(SHCCCOM = r'%(_python_)s mycc.py $TARGET $SOURCE',
 env.SharedObject(target = 'test1', source = 'test1.c')
 env.SharedObject(target = 'test2', source = 'test2%(alt_c_suffix)s')
 """ % locals())
-
-test.write('test1.c', """\
-test1.c
-/*cc*/
-""")
 
 test.write('test2'+alt_c_suffix, """\
 test2.C

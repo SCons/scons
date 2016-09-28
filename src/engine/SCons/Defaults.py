@@ -459,7 +459,7 @@ def processDefines(defs):
                 else:
                     l.append(str(d[0]))
             elif SCons.Util.is_Dict(d):
-                for macro,value in d.items():
+                for macro,value in list(d.items()):
                     if value is not None:
                         l.append(str(macro) + '=' + str(value))
                     else:

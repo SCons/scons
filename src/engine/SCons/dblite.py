@@ -2,12 +2,12 @@
 # Extended for Unicode by Steven Knight.
 from __future__ import print_function
 
-import SCons.compat
-
 import os
 import pickle
 import shutil
 import time
+
+from SCons.compat import PICKLE_PROTOCOL
 
 keep_all_files = 00000
 ignore_corrupt_dbfiles = 0
@@ -48,6 +48,7 @@ class dblite(object):
 
   _open = open
   _pickle_dump = staticmethod(pickle.dump)
+  _pickle_protocol = PICKLE_PROTOCOL
   _os_chmod = os.chmod
   try:
       _os_chown = os.chown
@@ -119,7 +120,7 @@ class dblite(object):
   def sync(self):
     self._check_writable()
     f = self._open(self._tmp_name, "wb", self._mode)
-    self._pickle_dump(self._dict, f, 1)
+    self._pickle_dump(self._dict, f, self._pickle_protocol)
     f.close()
     # Windows doesn't allow renaming if the file exists, so unlink
     # it first, chmod'ing it to make sure we can do so.  On UNIX, we

@@ -33,22 +33,11 @@ import stat
 import sys
 import TestSCons
 
-if sys.platform == 'win32':
-    _exe = '.exe'
-else:
-    _exe = ''
+_exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-test.write('foo.c', r"""
-#include <stdio.h>
-
-int main(void)
-{
-    printf("Foo\n");
-    return 0;
-}
-""")
+test.dir_fixture('append-fixture')
 
 test.write('SConstruct', """
 
@@ -56,10 +45,10 @@ env=Environment()
 
 def before(env, target, source):
     f=open(str(target[0]), "wb")
-    f.write("Foo\\n")
+    f.write(b"Foo\\n")
     f.close()
     f=open("before.txt", "wb")
-    f.write("Bar\\n")
+    f.write(b"Bar\\n")
     f.close()
 
 def after(env, target, source):
@@ -77,7 +66,7 @@ env.Program(source='foo.c', target='foo')
 after_exe = test.workpath('after' + _exe)
 
 test.run(arguments='.')
-test.fail_test(open('before.txt', 'rb').read() != "Bar\n")
+test.must_match('before.txt', 'Bar\n')
 os.chmod(after_exe, os.stat(after_exe)[stat.ST_MODE] | stat.S_IXUSR)
 test.run(program=after_exe, stdout="Foo\n")
 test.pass_test()

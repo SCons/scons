@@ -328,11 +328,23 @@ __all__ = [
     'match_re_dotall',
     'python',
     '_python_',
-    'TestCmd'
+    'TestCmd',
+    'to_bytes',
+    'to_str',
 ]
 
 def is_List(e):
     return isinstance(e, (list, UserList))
+
+def to_bytes (s):
+    if isinstance (s, bytes) or bytes is str:
+        return s
+    return bytes (s, 'utf-8')
+
+def to_str (s):
+    if bytes is str or is_String(s):
+        return s
+    return str (s, 'utf-8')
 
 try:
     eval('unicode')
@@ -513,6 +525,8 @@ def simple_diff(a, b, fromfile='', tofile='',
     (diff -c) and difflib.unified_diff (diff -u) but which prints
     output like the simple, unadorned 'diff" command.
     """
+    a = [to_str(q) for q in a]
+    b = [to_str(q) for q in b]
     sm = difflib.SequenceMatcher(None, a, b)
     def comma(x1, x2):
         return x1+1 == x2 and str(x2) or '%s,%s' % (x1+1, x2)
@@ -910,7 +924,7 @@ class TestCmd(object):
         self.condition = 'no_result'
         self.workdir_set(workdir)
         self.subdir(subdir)
-        self.script_srcdir = None
+        self.fixture_dirs = []
 
     def __del__(self):
         self.cleanup()
@@ -1234,10 +1248,15 @@ class TestCmd(object):
         assumed to be under the temporary working directory, it gets
         created automatically, if it does not already exist.
         """
-        if srcdir and self.script_srcdir and not os.path.isabs(srcdir):
-            spath = os.path.join(self.script_srcdir, srcdir)
+	
+        if srcdir and self.fixture_dirs and not os.path.isabs(srcdir):
+            for dir in self.fixture_dirs:
+                spath = os.path.join(dir, srcdir)
+                if os.path.isdir(spath):
+                    break
         else:
             spath = srcdir
+
         if dstdir:
             dstdir = self.canonicalize(dstdir)
         else:
@@ -1271,13 +1290,15 @@ class TestCmd(object):
         automatically, if it does not already exist.
         """
         srcpath, srctail = os.path.split(srcfile)
-        if srcpath:
-            if self.script_srcdir and not os.path.isabs(srcpath):
-                spath = os.path.join(self.script_srcdir, srcfile)
-            else:
-                spath = srcfile
+
+        if srcpath and (not self.fixture_dirs or os.path.isabs(srcpath)):
+            spath = srcfile
         else:
-            spath = os.path.join(self.script_srcdir, srcfile)
+            for dir in self.fixture_dirs:
+                spath = os.path.join(dir, srcfile)
+                if os.path.isfile(spath):
+                    break
+
         if not dstfile:
             if srctail:
                 dpath = os.path.join(self.workdir, srctail)

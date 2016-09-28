@@ -382,7 +382,7 @@ class NodeInfoBase(object):
             try:
                 field_list = self.field_list
             except AttributeError:
-                field_list = getattr(self, '__dict__', {}).keys()
+                field_list = list(getattr(self, '__dict__', {}).keys())
                 for obj in type(self).mro():
                     for slot in getattr(obj, '__slots__', ()):
                         if slot not in ('__weakref__', '__dict__'):
@@ -427,7 +427,7 @@ class NodeInfoBase(object):
         # TODO check or discard version
         del state['_version_id']
 
-        for key, value in state.items():
+        for key, value in list(state.items()):
             if key not in ('__weakref__',):
                 setattr(self, key, value)
 
@@ -488,7 +488,7 @@ class BuildInfoBase(object):
         """
         # TODO check or discard version
         del state['_version_id']
-        for key, value in state.items():
+        for key, value in list(state.items()):
             if key not in ('__weakref__',):
                 setattr(self, key, value)
 
@@ -1338,7 +1338,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         # dictionary patterns I found all ended up using "not in"
         # internally anyway...)
         if self.ignore_set:
-            iter = chain.from_iterable(filter(None, [self.sources, self.depends, self.implicit]))
+            iter = chain.from_iterable([_f for _f in [self.sources, self.depends, self.implicit] if _f])
 
             children = []
             for i in iter:
@@ -1372,7 +1372,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         # using dictionary keys, lose the order, and the only ordered
         # dictionary patterns I found all ended up using "not in"
         # internally anyway...)
-        return list(chain.from_iterable(filter(None, [self.sources, self.depends, self.implicit])))
+        return list(chain.from_iterable([_f for _f in [self.sources, self.depends, self.implicit] if _f]))
 
     def children(self, scan=1):
         """Return a list of the node's direct children, minus those
@@ -1396,7 +1396,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
 
     def Decider(self, function):
         foundkey = None
-        for k, v in _decider_map.iteritems():
+        for k, v in _decider_map.items():
             if v == function:
                 foundkey = k
                 break
@@ -1609,8 +1609,8 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         new_bkids    = new.bsources    + new.bdepends    + new.bimplicit
         new_bkidsigs = new.bsourcesigs + new.bdependsigs + new.bimplicitsigs
 
-        osig = dict(zip(old_bkids, old_bkidsigs))
-        nsig = dict(zip(new_bkids, new_bkidsigs))
+        osig = dict(list(zip(old_bkids, old_bkidsigs)))
+        nsig = dict(list(zip(new_bkids, new_bkidsigs)))
 
         # The sources and dependencies we'll want to report are all stored
         # as relative paths to this target's directory, but we want to

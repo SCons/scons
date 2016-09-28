@@ -111,12 +111,7 @@ if java_version.count('.') == 1:
 # Note, how we allow simple version strings like "5" and
 # "6" to successfully pass this test.
 if curver < (1, 8):
-    test.write("wrapper.py", """\
-import os
-import sys
-open('%s', 'ab').write("wrapper.py %%s\\n" %% " ".join(sys.argv[1:]))
-os.system(" ".join(sys.argv[1:]))
-""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
+    test.file_fixture('wrapper.py')
 
     test.write('SConstruct', """
 foo = Environment(tools = ['javac', 'rmic'],

@@ -500,14 +500,14 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
                    'LIB'             : libdir,
                    'PATH'            : bindir,
                    'LD_LIBRARY_PATH' : libdir}
-            for p in paths.keys():
+            for p in list(paths.keys()):
                 env.PrependENVPath(p, os.path.join(topdir, paths[p]))
         if is_mac:
             paths={'INCLUDE'         : 'include',
                    'LIB'             : libdir,
                    'PATH'            : bindir,
                    'LD_LIBRARY_PATH' : libdir}
-            for p in paths.keys():
+            for p in list(paths.keys()):
                 env.PrependENVPath(p, os.path.join(topdir, paths[p]))
         if is_windows:
             #       env key    reg valname   default subdir of top

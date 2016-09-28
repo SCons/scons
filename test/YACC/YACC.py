@@ -41,25 +41,7 @@ else:
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('myyacc.py', """
-import getopt
-import sys
-cmd_opts, args = getopt.getopt(sys.argv[1:], 'o:', [])
-output = None
-opt_string = ''
-for opt, arg in cmd_opts:
-    if opt == '-o': output = open(arg, 'wb')
-    else: opt_string = opt_string + ' ' + opt
-for a in args:
-    contents = open(a, 'rb').read()
-    output.write(contents.replace('YACC', 'myyacc.py'))
-output.close()
-sys.exit(0)
-""")
-
-
+test.dir_fixture('YACC-fixture')
 
 test.write('SConstruct', """
 env = Environment(YACC = r'%(_python_)s myyacc.py', tools=['default', 'yacc'])
@@ -68,11 +50,6 @@ env.CFile(target = 'bbb', source = 'bbb.yacc')
 env.CXXFile(target = 'ccc', source = 'ccc.yy')
 env.CFile(target = 'ddd', source = 'ddd.ym')
 """ % locals())
-
-test.write('aaa.y',             "aaa.y\nYACC\n")
-test.write('bbb.yacc',          "bbb.yacc\nYACC\n")
-test.write('ccc.yy',            "ccc.yacc\nYACC\n")
-test.write('ddd.ym',            "ddd.yacc\nYACC\n")
 
 test.run(arguments = '.', stderr = None)
 

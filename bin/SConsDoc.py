@@ -598,7 +598,7 @@ class SConsDocTree:
             # Create xpath context
             self.xpath_context = self.doc.xpathNewContext()
             # Register namespaces
-            for key, val in self.nsmap.items():
+            for key, val in list(self.nsmap.items()):
                 self.xpath_context.xpathRegisterNs(key, val)
             
     def __del__(self):

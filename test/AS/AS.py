@@ -58,7 +58,7 @@ while args:
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
-    if l[:5] != '#link':
+    if l[:5] != b'#link':
         outfile.write(l)
 sys.exit(0)
 """)
@@ -82,7 +82,7 @@ while args:
 infile = open(inf, 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
-    if l[:3] != '#as':
+    if l[:3] != b'#as':
         outfile.write(l)
 sys.exit(0)
 """)
@@ -98,7 +98,7 @@ for opt, arg in opts:
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
-    if l[:5] != '#link':
+    if l[:5] != b'#link':
         outfile.write(l)
 sys.exit(0)
 """)
@@ -112,7 +112,7 @@ for opt, arg in opts:
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
-    if l[:3] != '#as':
+    if l[:3] != b'#as':
         outfile.write(l)
 sys.exit(0)
 """)

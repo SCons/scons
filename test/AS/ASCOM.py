@@ -42,7 +42,7 @@ test.write('myas.py', r"""
 import sys
 infile = open(sys.argv[2], 'rb')
 outfile = open(sys.argv[1], 'wb')
-for l in [l for l in infile.readlines() if l != "#as\n"]:
+for l in [l for l in infile.readlines() if l != b"#as\n"]:
     outfile.write(l)
 sys.exit(0)
 """)
@@ -80,14 +80,14 @@ test.write('test8'+alt_asm_suffix, "test8.ASM\n#as\n")
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('test1.obj') != "test1.s\n")
-test.fail_test(test.read('test2.obj') != "test2.S\n")
-test.fail_test(test.read('test3.obj') != "test3.asm\n")
-test.fail_test(test.read('test4.obj') != "test4.ASM\n")
-test.fail_test(test.read('test5.shobj') != "test5.s\n")
-test.fail_test(test.read('test6.shobj') != "test6.S\n")
-test.fail_test(test.read('test7.shobj') != "test7.asm\n")
-test.fail_test(test.read('test8.shobj') != "test8.ASM\n")
+test.must_match('test1.obj', "test1.s\n")
+test.must_match('test2.obj', "test2.S\n")
+test.must_match('test3.obj', "test3.asm\n")
+test.must_match('test4.obj', "test4.ASM\n")
+test.must_match('test5.shobj', "test5.s\n")
+test.must_match('test6.shobj', "test6.S\n")
+test.must_match('test7.shobj', "test7.asm\n")
+test.must_match('test8.shobj', "test8.ASM\n")
 
 
 

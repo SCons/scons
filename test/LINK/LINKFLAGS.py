@@ -36,7 +36,7 @@ test = TestSCons.TestSCons()
 test.write("wrapper.py",
 """import os
 import sys
-open('%s', 'wb').write("wrapper.py\\n")
+open('%s', 'wb').write(("wrapper.py\\n").encode())
 args = [s for s in sys.argv[1:] if s != 'fake_link_flag']
 os.system(" ".join(args))
 """ % test.workpath('wrapper.out').replace('\\', '\\\\'))
@@ -80,7 +80,7 @@ test.must_not_exist(test.workpath('wrapper.out'))
 
 test.run(arguments = 'bar' + _exe)
 
-test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
+test.must_match('wrapper.out', "wrapper.py\n")
 
 test.pass_test()
 
