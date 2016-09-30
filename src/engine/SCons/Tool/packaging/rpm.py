@@ -95,6 +95,8 @@ def collectintargz(target, source, env):
     # find the .spec file for rpm and add it since it is not necessarily found
     # by the FindSourceFiles function.
     sources.extend( [s for s in source if str(s).rfind('.spec')!=-1] )
+    # sort to keep sources from changing order across builds
+    sources.sort()
 
     # as the source contains the url of the source package this rpm package
     # is built from, we extract the target name
@@ -269,7 +271,7 @@ def build_specfile_filesection(spec, files):
     for file in files:
         # build the tagset
         tags = {}
-        for k in supported_tags.keys():
+        for k in list(supported_tags.keys()):
             try:
                 v = file.GetTag(k)
                 if v:
@@ -330,7 +332,7 @@ class SimpleTagCompiler(object):
         international = [t for t in replacements if is_international(t[0])]
         for key, replacement in international:
             try:
-                x = [t for t in values.items() if strip_country_code(t[0]) == key]
+                x = [t for t in list(values.items()) if strip_country_code(t[0]) == key]
                 int_values_for_key = [(get_country_code(t[0]),t[1]) for t in x]
                 for v in int_values_for_key:
                     str = str + replacement % v

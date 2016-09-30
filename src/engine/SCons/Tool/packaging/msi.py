@@ -172,7 +172,7 @@ def generate_guids(root):
 
     # find all XMl nodes matching the key, retrieve their attribute, hash their
     # subtree, convert hash to string and add as a attribute to the xml node.
-    for (key,value) in needs_id.items():
+    for (key,value) in list(needs_id.items()):
         node_list = root.getElementsByTagName(key)
         attribute = value
         for node in node_list:
@@ -335,7 +335,7 @@ def build_wxsfile_file_section(root, files, NAME, VERSION, VENDOR, filename_set,
             }
 
         # fill in the default tags given above.
-        for k,v in [ (k, v) for (k,v) in h.items() if not hasattr(file, k) ]:
+        for k,v in [ (k, v) for (k,v) in list(h.items()) if not hasattr(file, k) ]:
             setattr( file, k, v )
 
         File = factory.createElement( 'File' )
@@ -382,7 +382,7 @@ def build_wxsfile_features_section(root, files, NAME, VERSION, SUMMARY, id_set):
     Feature.attributes['Description']           = escape( SUMMARY )
     Feature.attributes['Display']               = 'expand'
 
-    for (feature, files) in create_feature_dict(files).items():
+    for (feature, files) in list(create_feature_dict(files).items()):
         SubFeature   = factory.createElement('Feature')
         SubFeature.attributes['Level'] = '1'
 

@@ -72,7 +72,7 @@ cpp_lines_dict = {
 # the corresponding compiled regular expression that fetches the arguments
 # we care about.
 Table = {}
-for op_list, expr in cpp_lines_dict.items():
+for op_list, expr in list(cpp_lines_dict.items()):
     e = re.compile(expr)
     for op in op_list:
         Table[op] = e
@@ -87,7 +87,7 @@ del op_list
 override = {
     'if'                        : 'if(?!def)',
 }
-l = [override.get(x, x) for x in Table.keys()]
+l = [override.get(x, x) for x in list(Table.keys())]
 
 
 # Turn the list of expressions into one big honkin' regular expression
@@ -130,7 +130,7 @@ CPP_to_Python_Ops_Sub = lambda m: CPP_to_Python_Ops_Dict[m.group(0)]
 # re module, as late as version 2.2.2, empirically matches the
 # "!" in "!=" first, instead of finding the longest match.
 # What's up with that?
-l = sorted(CPP_to_Python_Ops_Dict.keys(), key=lambda a: len(a), reverse=True)
+l = sorted(list(CPP_to_Python_Ops_Dict.keys()), key=lambda a: len(a), reverse=True)
 
 # Turn the list of keys into one regular expression that will allow us
 # to substitute all of the operators at once.
@@ -266,7 +266,7 @@ class PreProcessor(object):
         d = {
             'scons_current_file'    : self.scons_current_file
         }
-        for op in Table.keys():
+        for op in list(Table.keys()):
             d[op] = getattr(self, 'do_' + op)
         self.default_table = d
 

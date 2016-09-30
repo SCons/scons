@@ -33,12 +33,7 @@ _exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-test.write("wrapper.py",
-"""import os
-import sys
-open('%s', 'wb').write("wrapper.py\\n")
-os.system(" ".join(sys.argv[1:]))
-""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
+test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
 foo = Environment(LIBS = ['foo'], LIBPATH = ['.'])
@@ -94,13 +89,13 @@ test.run(arguments = 'f' + _exe,
          stderr=TestSCons.noisy_ar,
          match=TestSCons.match_re_dotall)
 
-test.fail_test(os.path.exists(test.workpath('wrapper.out')))
+test.must_not_exist(test.workpath('wrapper.out'))
 
 test.run(arguments = 'b' + _exe,
          stderr=TestSCons.noisy_ar,
          match=TestSCons.match_re_dotall)
 
-test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
+test.must_match('wrapper.out', 'wrapper.py\n')
 
 test.pass_test()
 

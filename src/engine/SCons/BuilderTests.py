@@ -79,7 +79,7 @@ class Environment(object):
         self.d['SHELL'] = scons_env['SHELL']
         self.d['SPAWN'] = scons_env['SPAWN']
         self.d['ESCAPE'] = scons_env['ESCAPE']
-        for k, v in kw.items():
+        for k, v in list(kw.items()):
             self.d[k] = v
         global env_arg2nodes_called
         env_arg2nodes_called = None
@@ -140,7 +140,7 @@ class Environment(object):
         return list(self.d.items())
     def sig_dict(self):
         d = {}
-        for k,v in self.items(): d[k] = v
+        for k,v in list(self.items()): d[k] = v
         d['TARGETS'] = ['__t1__', '__t2__', '__t3__', '__t4__', '__t5__', '__t6__']
         d['TARGET'] = d['TARGETS'][0]
         d['SOURCES'] = ['__s1__', '__s2__', '__s3__', '__s4__', '__s5__', '__s6__']

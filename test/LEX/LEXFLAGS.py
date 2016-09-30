@@ -48,9 +48,9 @@ for opt, arg in cmd_opts:
     else: opt_string = opt_string + ' ' + opt
 for a in args:
     contents = open(a, 'rb').read()
-    contents = contents.replace('LEXFLAGS', opt_string)
-    contents = contents.replace('I_ARGS', i_arguments)
-    sys.stdout.write(contents)
+    contents = contents.replace(b'LEXFLAGS', opt_string.encode())
+    contents = contents.replace(b'I_ARGS', i_arguments.encode())
+    sys.stdout.write(contents.decode())
 sys.exit(0)
 """)
 

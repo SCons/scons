@@ -31,14 +31,14 @@ def memoize_cmp(filea, fileb):
         ma_o = []
         mb_o = []
         mab  = []
-        for k in ma.keys():
-                if k in mb.keys():
+        for k in list(ma.keys()):
+                if k in list(mb.keys()):
                         if k not in mab:
                                 mab.append(k)
                 else:
                         ma_o.append(k)
-        for k in mb.keys():
-                if k in ma.keys():
+        for k in list(mb.keys()):
+                if k in list(ma.keys()):
                         if k not in mab:
                                 mab.append(k)
                 else:

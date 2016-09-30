@@ -35,17 +35,8 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('myyacc.py', """
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != '/*yacc*/\\n']:
-        outfile.write(l)
-sys.exit(0)
-""")
+test.dir_fixture('shared-fixture')
+test.dir_fixture('YACCCOM-fixture')
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'yacc'],
@@ -54,9 +45,6 @@ env = Environment(tools=['default', 'yacc'],
 env.CFile(target = 'aaa', source = 'aaa.y')
 env.CFile(target = 'bbb', source = 'bbb.yacc')
 """ % locals())
-
-test.write('aaa.y', "aaa.y\n/*yacc*/\n")
-test.write('bbb.yacc', "bbb.yacc\n/*yacc*/\n")
 
 test.run(stdout = test.wrap_stdout("""\
 Yaccing aaa.c from aaa.y

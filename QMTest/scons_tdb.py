@@ -92,7 +92,7 @@ def get_explicit_arguments(e):
     # Determine which subset of the 'arguments' have been set
     # explicitly.
     explicit_arguments = {}
-    for name, field in arguments.items():
+    for name, field in list(arguments.items()):
         # Do not record computed fields.
         if field.IsComputed():
             continue

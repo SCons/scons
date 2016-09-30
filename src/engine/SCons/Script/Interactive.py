@@ -121,7 +121,7 @@ class SConsInteractiveCmd(cmd.Cmd):
 
     def __init__(self, **kw):
         cmd.Cmd.__init__(self)
-        for key, val in kw.items():
+        for key, val in list(kw.items()):
             setattr(self, key, val)
 
         if sys.platform == 'win32':
@@ -250,7 +250,7 @@ class SConsInteractiveCmd(cmd.Cmd):
             while n:
                 n = walker.get_next()
 
-        for node in seen_nodes.keys():
+        for node in list(seen_nodes.keys()):
             # Call node.clear() to clear most of the state
             node.clear()
             # node.clear() doesn't reset node.state, so call

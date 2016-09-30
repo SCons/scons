@@ -30,14 +30,14 @@ import string
 import sys
 import TestSCons
 
-from common import write_fake_link
+
 
 _python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-write_fake_link(test)
+test.file_fixture('mylink.py')
 
 test.write('myfortran.py', r"""
 import getopt

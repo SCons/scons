@@ -624,7 +624,7 @@ class msvsTestCase(unittest.TestCase):
         tests_cmdargs = [(None,            dict.fromkeys(list_variant, '')), 
                          ('',              dict.fromkeys(list_variant, '')), 
                          (list_cmdargs[0], dict.fromkeys(list_variant, list_cmdargs[0])),
-                         (list_cmdargs,    dict(zip(list_variant, list_cmdargs)))]
+                         (list_cmdargs,    dict(list(zip(list_variant, list_cmdargs))))]
         
         # Run the test for each test case
         for param_cmdargs, expected_cmdargs in tests_cmdargs:
@@ -651,8 +651,8 @@ class msvsTestCase(unittest.TestCase):
                      'cmdargs': expected_cmdargs[variant_platform]}
             
             # Create parameter environment with final parameter dictionary
-            param_dict = dict(zip(('variant', 'runfile', 'buildtarget', 'outdir'),
-                                  [list(l) for l in zip(*param_configs)]))
+            param_dict = dict(list(zip(('variant', 'runfile', 'buildtarget', 'outdir'),
+                                  [list(l) for l in zip(*param_configs)])))
             param_dict['cmdargs'] = param_cmdargs
 
             # Hack to be able to run the test with a 'DummyEnv'
@@ -668,8 +668,8 @@ class msvsTestCase(unittest.TestCase):
             genDSP = function_test(dspfile, source, env)
         
             # Check expected result
-            self.assertListEqual(genDSP.configs.keys(), expected_configs.keys())
-            for key in genDSP.configs.keys():
+            self.assertListEqual(list(genDSP.configs.keys()), list(expected_configs.keys()))
+            for key in list(genDSP.configs.keys()):
                 self.assertDictEqual(genDSP.configs[key].__dict__, expected_configs[key])
 
 class msvs6aTestCase(msvsTestCase):

@@ -479,7 +479,7 @@ class Task(object):
                         if p.ref_count == 0:
                             self.tm.candidates.append(p)
 
-        for p, subtract in parents.items():
+        for p, subtract in list(parents.items()):
             p.ref_count = p.ref_count - subtract
             if T: T.write(self.trace_message(u'Task.postprocess()',
                                              p,

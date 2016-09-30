@@ -40,7 +40,7 @@ test.write('myas.py', r"""
 import sys
 infile = open(sys.argv[2], 'rb')
 outfile = open(sys.argv[1], 'wb')
-for l in [l for l in infile.readlines() if l != "#as\n"]:
+for l in [l for l in infile.readlines() if l != b"#as\n"]:
     outfile.write(l)
 sys.exit(0)
 """)
@@ -63,10 +63,10 @@ test.write('test4.SPP', "test4.SPP\n#as\n")
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('test1.obj') != "test1.spp\n")
-test.fail_test(test.read('test2.obj') != "test2.SPP\n")
-test.fail_test(test.read('test3.shobj') != "test3.spp\n")
-test.fail_test(test.read('test4.shobj') != "test4.SPP\n")
+test.must_match('test1.obj', "test1.spp\n")
+test.must_match('test2.obj', "test2.SPP\n")
+test.must_match('test3.shobj', "test3.spp\n")
+test.must_match('test4.shobj', "test4.SPP\n")
 
 
 

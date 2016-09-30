@@ -520,7 +520,7 @@ def updateRpmDicts(rpmrc, pyfile):
                 if l.startswith('# Start of rpmrc dictionaries'):
                     pm = 1
                     # Write data sections to single dictionaries
-                    for key, entries in data.items():
+                    for key, entries in list(data.items()):
                         out.write("%s = {\n" % key)
                         for arch in sorted(entries.keys()):
                             out.write("  '%s' : ['%s'],\n" % (arch, "','".join(entries[arch])))
