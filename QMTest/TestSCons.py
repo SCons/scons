@@ -47,17 +47,18 @@ SConsVersion = '__VERSION__'
 if SConsVersion == '__' + 'VERSION' + '__':
     SConsVersion = default_version
 
-__all__.extend([ 'TestSCons',
-                 'machine',
-                 'python',
-                 '_exe',
-                 '_obj',
-                 '_shobj',
-                 'shobj_',
-                 'lib_',
-                 '_lib',
-                 'dll_',
-                 '_dll'
+__all__.extend([
+        'TestSCons',
+        'machine',
+        'python',
+        '_exe',
+        '_obj',
+        '_shobj',
+        'shobj_',
+        'lib_',
+        '_lib',
+        'dll_',
+        '_dll'
                ])
 
 machine_map = {
