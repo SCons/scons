@@ -32,26 +32,13 @@ obj_   = TestSCons.shobj_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('myfortran.py', r"""
-import sys
-comment = '#' + sys.argv[1]
-outfile = open(sys.argv[2], 'wb')
-infile = open(sys.argv[3], 'rb')
-for l in infile.readlines():
-    if l[:len(comment)] != comment:
-        outfile.write(l)
-sys.exit(0)
-""")
-
-
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
-env = Environment(SHF95COM = r'%(_python_)s myfortran.py f95 $TARGET $SOURCES',
-                  SHF95PPCOM = r'%(_python_)s myfortran.py f95pp $TARGET $SOURCES',
-                  SHFORTRANCOM = r'%(_python_)s myfortran.py fortran $TARGET $SOURCES',
-                  SHFORTRANPPCOM = r'%(_python_)s myfortran.py fortranpp $TARGET $SOURCES')
+env = Environment(SHF95COM = r'%(_python_)s mycompile.py f95 $TARGET $SOURCES',
+                  SHF95PPCOM = r'%(_python_)s mycompile.py f95pp $TARGET $SOURCES',
+                  SHFORTRANCOM = r'%(_python_)s mycompile.py fortran $TARGET $SOURCES',
+                  SHFORTRANPPCOM = r'%(_python_)s mycompile.py fortranpp $TARGET $SOURCES')
 env.SharedObject(target = 'test01', source = 'test01.f')
 env.SharedObject(target = 'test02', source = 'test02.F')
 env.SharedObject(target = 'test03', source = 'test03.for')
@@ -62,25 +49,25 @@ env.SharedObject(target = 'test07', source = 'test07.fpp')
 env.SharedObject(target = 'test08', source = 'test08.FPP')
 env.SharedObject(target = 'test13', source = 'test13.f95')
 env.SharedObject(target = 'test14', source = 'test14.F95')
-env2 = Environment(SHF95COM = r'%(_python_)s myfortran.py f95 $TARGET $SOURCES',
-                   SHF95PPCOM = r'%(_python_)s myfortran.py f95pp $TARGET $SOURCES')
+env2 = Environment(SHF95COM = r'%(_python_)s mycompile.py f95 $TARGET $SOURCES',
+                   SHF95PPCOM = r'%(_python_)s mycompile.py f95pp $TARGET $SOURCES')
 env2.SharedObject(target = 'test21', source = 'test21.f95')
 env2.SharedObject(target = 'test22', source = 'test22.F95')
 """ % locals())
 
-test.write('test01.f',   "This is a .f file.\n#fortran\n")
-test.write('test02.F',   "This is a .F file.\n#fortranpp\n")
-test.write('test03.for', "This is a .for file.\n#fortran\n")
-test.write('test04.FOR', "This is a .FOR file.\n#fortranpp\n")
-test.write('test05.ftn', "This is a .ftn file.\n#fortran\n")
-test.write('test06.FTN', "This is a .FTN file.\n#fortranpp\n")
-test.write('test07.fpp', "This is a .fpp file.\n#fortranpp\n")
-test.write('test08.FPP', "This is a .FPP file.\n#fortranpp\n")
-test.write('test13.f95', "This is a .f95 file.\n#f95\n")
-test.write('test14.F95', "This is a .F95 file.\n#f95pp\n")
+test.write('test01.f',   "This is a .f file.\n/*fortran*/\n")
+test.write('test02.F',   "This is a .F file.\n/*fortranpp*/\n")
+test.write('test03.for', "This is a .for file.\n/*fortran*/\n")
+test.write('test04.FOR', "This is a .FOR file.\n/*fortranpp*/\n")
+test.write('test05.ftn', "This is a .ftn file.\n/*fortran*/\n")
+test.write('test06.FTN', "This is a .FTN file.\n/*fortranpp*/\n")
+test.write('test07.fpp', "This is a .fpp file.\n/*fortranpp*/\n")
+test.write('test08.FPP', "This is a .FPP file.\n/*fortranpp*/\n")
+test.write('test13.f95', "This is a .f95 file.\n/*f95*/\n")
+test.write('test14.F95', "This is a .F95 file.\n/*f95pp*/\n")
 
-test.write('test21.f95', "This is a .f95 file.\n#f95\n")
-test.write('test22.F95', "This is a .F95 file.\n#f95pp\n")
+test.write('test21.f95', "This is a .f95 file.\n/*f95*/\n")
+test.write('test22.F95', "This is a .F95 file.\n/*f95pp*/\n")
 
 test.run(arguments = '.', stderr = None)
 

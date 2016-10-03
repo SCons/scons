@@ -34,21 +34,11 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('mypch.py', """
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != '/*pch*/\\n']:
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'msvc'],
-                  PCHCOM = r'%(_python_)s mypch.py $TARGET $SOURCES')
+                  PCHCOM = r'%(_python_)s mycompile.py pch $TARGET $SOURCES')
 env.PCH(target = 'aaa', source = 'aaa.h')
 """ % locals())
 
@@ -57,8 +47,6 @@ test.write('aaa.h', "aaa.h\n/*pch*/\n")
 test.run(arguments = ".")
 
 test.must_match('aaa.pch', "aaa.h\n")
-
-
 
 test.pass_test()
 

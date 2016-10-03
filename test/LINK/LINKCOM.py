@@ -34,18 +34,10 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.write('mylink.py', r"""
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != b'/*link*/\n']:
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
-env = Environment(LINKCOM = r'%(_python_)s mylink.py $TARGET $SOURCES',
+env = Environment(LINKCOM = r'%(_python_)s mycompile.py link $TARGET $SOURCES',
                   OBJSUFFIX = '.obj',
                   PROGSUFFIX = '.exe')
 env.Program(target = 'test1', source = ['test1.obj', 'test2.obj'])
@@ -64,8 +56,6 @@ test2.obj
 test.run()
 
 test.must_match('test1.exe', "test1.obj\ntest2.obj\n")
-
-
 
 test.pass_test()
 

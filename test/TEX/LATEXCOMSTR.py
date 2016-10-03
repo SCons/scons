@@ -32,24 +32,14 @@ the C compilation output.
 import TestSCons
 
 _python_ = TestSCons._python_
-_exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('mylatex.py', r"""
-import sys
-outfile = open(sys.argv[1], 'wb')
-infile = open(sys.argv[2], 'rb')
-for l in [l for l in infile.readlines() if l != '/*latex*/\n']:
-    outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
 env = Environment(TOOLS = ['latex'],
-                  LATEXCOM = r'%(_python_)s mylatex.py $TARGET $SOURCE',
+                  LATEXCOM = r'%(_python_)s mycompile.py latex $TARGET $SOURCE',
                   LATEXCOMSTR = 'Building $TARGET from $SOURCE')
 env.DVI('test1', 'test1.latex')
 """ % locals())
@@ -64,8 +54,6 @@ Building test1.dvi from test1.latex
 """ % locals()))
 
 test.must_match('test1.dvi', "test1.latex\n")
-
-
 
 test.pass_test()
 

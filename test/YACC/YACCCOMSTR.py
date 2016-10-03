@@ -35,16 +35,18 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.dir_fixture('shared-fixture')
-test.dir_fixture('YACCCOM-fixture')
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'yacc'],
-                  YACCCOM = r'%(_python_)s myyacc.py $TARGET $SOURCES',
+                  YACCCOM = r'%(_python_)s mycompile.py yacc $TARGET $SOURCES',
                   YACCCOMSTR = 'Yaccing $TARGET from $SOURCE')
 env.CFile(target = 'aaa', source = 'aaa.y')
 env.CFile(target = 'bbb', source = 'bbb.yacc')
 """ % locals())
+
+test.write('aaa.y', 'aaa.y\n/*yacc*/\n')
+test.write('bbb.yacc', 'bbb.yacc\n/*yacc*/\n')
 
 test.run(stdout = test.wrap_stdout("""\
 Yaccing aaa.c from aaa.y
@@ -53,8 +55,6 @@ Yaccing bbb.c from bbb.yacc
 
 test.must_match('aaa.c', "aaa.y\n")
 test.must_match('bbb.c', "bbb.yacc\n")
-
-
 
 test.pass_test()
 

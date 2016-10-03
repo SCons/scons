@@ -34,21 +34,11 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('myswig.py', """
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != b'/*swig*/\\n']:
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'swig'],
-                  SWIGCOM = r'%(_python_)s myswig.py $TARGET $SOURCES')
+                  SWIGCOM = r'%(_python_)s mycompile.py swig $TARGET $SOURCES')
 env.CFile(target = 'aaa', source = 'aaa.i')
 env.CXXFile(target = 'bbb', source = 'bbb.i', SWIGFLAGS='-c++')
 """ % locals())
@@ -60,8 +50,6 @@ test.run(arguments = '.')
 
 test.must_match('aaa_wrap.c', "aaa.i\n")
 test.must_match('bbb_wrap.cc', "bbb.i\n")
-
-
 
 test.pass_test()
 

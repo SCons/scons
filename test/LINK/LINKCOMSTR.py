@@ -35,20 +35,10 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('mylink.py', r"""
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != b'/*link*/\n']:
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
-env = Environment(LINKCOM = r'%(_python_)s mylink.py $TARGET $SOURCES',
+env = Environment(LINKCOM = r'%(_python_)s mycompile.py link $TARGET $SOURCES',
                   LINKCOMSTR = 'Linking $TARGET from $SOURCES',
                   OBJSUFFIX = '.obj',
                   PROGSUFFIX = '.exe')
