@@ -42,19 +42,7 @@ test = TestSCons.TestSCons()
 ##     msg = "Unicode not supported by Python version %s; skipping test\n"
 ##     test.skip_test(msg % sys.version[:3])
 
-test.write('SConstruct', """
-fnode = File(u'foo.txt')
-
-def funcact(target, source, env):
-    open(str(target[0]), 'wb').write("funcact\\n")
-    for i in range(300):
-        pass
-    return 0
-
-env = Environment()
-
-env.Command(fnode, [], ["echo $TARGET", funcact])
-""")
+test.dir_fixture('unicode-signature-fixture')
 
 test.run(arguments = '.')
 

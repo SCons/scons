@@ -72,7 +72,7 @@ def Tag(env, target, source, *more_tags, **kw_tags):
         target=env.Flatten(target)
 
     for t in target:
-        for (k,v) in kw_tags.items():
+        for (k,v) in list(kw_tags.items()):
             # all file tags have to start with PACKAGING_, so we can later
             # differentiate between "normal" object attributes and the
             # packaging attributes. As the user should not be bothered with

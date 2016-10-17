@@ -1100,7 +1100,7 @@ timestamp, such as can happen when restoring files from backup archives.
 <listitem>
 <para>
 Specifies that a target shall be considered out of date and rebuilt
-if the dependency's content has changed sine the last time
+if the dependency's content has changed since the last time
 the target was built,
 as determined be performing an MD5 checksum
 on the dependency's contents
@@ -1117,7 +1117,7 @@ can be used as a synonym for
 <listitem>
 <para>
 Specifies that a target shall be considered out of date and rebuilt
-if the dependency's content has changed sine the last time
+if the dependency's content has changed since the last time
 the target was built,
 except that dependencies with a timestamp that matches
 the last time the target was rebuilt will be

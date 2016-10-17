@@ -32,24 +32,14 @@ the C compilation output.
 import TestSCons
 
 _python_ = TestSCons._python_
-_exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('mytex.py', r"""
-import sys
-outfile = open(sys.argv[1], 'wb')
-infile = open(sys.argv[2], 'rb')
-for l in [l for l in infile.readlines() if l != '/*tex*/\n']:
-    outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
 env = Environment(TOOLS = ['tex'],
-                  TEXCOM = r'%(_python_)s mytex.py $TARGET $SOURCE',
+                  TEXCOM = r'%(_python_)s mycompile.py tex $TARGET $SOURCE',
                   TEXCOMSTR = 'Building $TARGET from $SOURCE')
 env.DVI('test1')
 """ % locals())
@@ -64,8 +54,6 @@ Building test1.dvi from test1.tex
 """ % locals()))
 
 test.must_match('test1.dvi', "test1.tex\n")
-
-
 
 test.pass_test()
 

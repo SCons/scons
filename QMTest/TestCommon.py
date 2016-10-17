@@ -479,7 +479,7 @@ class TestCommon(TestCmd):
         if not match:
             match = self.match
         try:
-            self.fail_test(not match(file_contents, expect))
+            self.fail_test(not match(to_str(file_contents), to_str(expect)))
         except KeyboardInterrupt:
             raise
         except:

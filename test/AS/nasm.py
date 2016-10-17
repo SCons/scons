@@ -69,17 +69,12 @@ else:
 # anyway...).
 nasm_format = 'elf'
 format_map = {}
-for k, v in format_map.items():
+for k, v in list(format_map.items()):
     if sys.platform.find(k) != -1:
         nasm_format = v
         break
 
-test.write("wrapper.py",
-"""import os
-import sys
-open('%s', 'wb').write("wrapper.py\\n")
-os.system(" ".join(sys.argv[1:]))
-""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
+test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
 eee = Environment(tools = ['gcc', 'gnulink', 'nasm'],

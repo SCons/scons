@@ -87,7 +87,7 @@ def print_entry(e, level, calls):
     else:
         print()
 
-for e in [ e for e in AllCalls.values() if not e.calls ]:
+for e in [ e for e in list(AllCalls.values()) if not e.calls ]:
     print_entry(e, 0, '')
 
 # Local Variables:

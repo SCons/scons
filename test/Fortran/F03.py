@@ -26,14 +26,12 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
-from common import write_fake_link
-
 _python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-write_fake_link(test)
+test.file_fixture('mylink.py')
 
 test.write('myfortran.py', r"""
 import getopt
@@ -46,7 +44,7 @@ for opt, arg in opts:
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
-    if l[:length] != comment:
+    if l[:length] != comment.encode():
         outfile.write(l)
 sys.exit(0)
 """)
@@ -97,13 +95,7 @@ fc = 'f03'
 g03 = test.detect_tool(fc)
 
 if g03:
-
-    test.write("wrapper.py",
-"""import os
-import sys
-open('%s', 'wb').write("wrapper.py\\n")
-os.system(" ".join(sys.argv[1:]))
-""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
+    test.file_fixture('wrapper.py')
 
     test.write('SConstruct', """
 foo = Environment(F03 = '%(fc)s')

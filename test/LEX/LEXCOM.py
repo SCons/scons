@@ -34,21 +34,11 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('mylex.py', """
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != '/*lex*/\\n']:
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'lex'],
-                  LEXCOM = r'%(_python_)s mylex.py $TARGET $SOURCES')
+                  LEXCOM = r'%(_python_)s mycompile.py lex $TARGET $SOURCES')
 env.CFile(target = 'aaa', source = 'aaa.l')
 env.CFile(target = 'bbb', source = 'bbb.lex')
 """ % locals())
@@ -60,8 +50,6 @@ test.run(arguments = '.')
 
 test.must_match('aaa.c', "aaa.l\n")
 test.must_match('bbb.c', "bbb.lex\n")
-
-
 
 test.pass_test()
 

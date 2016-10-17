@@ -34,20 +34,11 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('mytar.py', r"""
-import sys
-outfile = open(sys.argv[1], 'wb')
-infile = open(sys.argv[2], 'rb')
-for l in [l for l in infile.readlines() if l != '/*tar*/\n']:
-    outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
 env = Environment(TOOLS = ['tar'],
-                  TARCOM = r'%(_python_)s mytar.py $TARGET $SOURCE')
+                  TARCOM = r'%(_python_)s mycompile.py tar $TARGET $SOURCE')
 env.Tar('test1.tar', 'test1.in')
 """ % locals())
 
@@ -59,8 +50,6 @@ test1.in
 test.run()
 
 test.must_match('test1.tar', "test1.in\n")
-
-
 
 test.pass_test()
 

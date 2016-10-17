@@ -34,33 +34,19 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('myzip.py', r"""
-import sys
-outfile = open(sys.argv[1], 'wb')
-infile = open(sys.argv[2], 'rb')
-for l in [l for l in infile.readlines() if l != '/*zip*/\n']:
-    outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
 env = Environment(TOOLS = ['zip'],
-                  ZIPCOM = r'%(_python_)s myzip.py $TARGET $SOURCE')
+                  ZIPCOM = r'%(_python_)s mycompile.py zip $TARGET $SOURCE')
 env.Zip('test1.zip', 'test1.in')
 """ % locals())
 
-test.write('test1.in', """\
-test1.in
-/*zip*/
-""")
+test.write('test1.in', 'test1.in\n/*zip*/\n')
 
 test.run()
 
 test.must_match('test1.zip', "test1.in\n")
-
-
 
 test.pass_test()
 

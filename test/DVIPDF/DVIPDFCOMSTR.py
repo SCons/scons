@@ -35,21 +35,11 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('mypdf.py', """
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != '/*pdf*/\\n']:
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'dvipdf'],
-                  DVIPDFCOM = r'%(_python_)s mypdf.py $TARGET $SOURCES',
+                  DVIPDFCOM = r'%(_python_)s mycompile.py pdf $TARGET $SOURCES',
                   DVIPDFCOMSTR = 'DVIPDFing $TARGET from $SOURCE')
 env.PDF(target = 'aaa', source = 'aaa.dvi')
 """ % locals())
@@ -61,8 +51,6 @@ DVIPDFing aaa.pdf from aaa.dvi
 """))
 
 test.must_match('aaa.pdf', "aaa.dvi\n")
-
-
 
 test.pass_test()
 

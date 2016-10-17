@@ -229,7 +229,7 @@ class OverrideWarner(collections.UserDict):
     def warn(self):
         if self.already_warned:
             return
-        for k in self.keys():
+        for k in list(self.keys()):
             if k in misleading_keywords:
                 alt = misleading_keywords[k]
                 msg = "Did you mean to use `%s' instead of `%s'?" % (alt, k)

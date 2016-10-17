@@ -36,39 +36,14 @@ test = TestSCons.TestSCons()
 if sys.platform == 'win32':
     test.skip_test('CCVERSION not set with MSVC, skipping test.')
 
-test.write("versioned.py",
-"""import os
-import sys
-if '-dumpversion' in sys.argv:
-    print '3.9.9'
-    sys.exit(0)
-if '--version' in sys.argv:
-    print 'this is version 2.9.9 wrapping', sys.argv[2]
-    sys.exit(0)
-if sys.argv[1] not in [ '2.9.9', '3.9.9' ]:
-    print 'wrong version', sys.argv[1], 'when wrapping', sys.argv[2]
-    sys.exit(1)
-os.system(" ".join(sys.argv[2:]))
-""")
+test.dir_fixture('CCVERSION-fixture')
+test.file_fixture(os.path.join('CC-fixture', 'foo.c'))
 
 test.write('SConstruct', """
 cc = Environment().Dictionary('CC')
 foo = Environment(CC = r'%(_python_)s versioned.py "${CCVERSION}" ' + cc)
 foo.Program(target = 'foo', source = 'foo.c')
 """ % locals())
-
-test.write('foo.c', r"""
-#include <stdio.h>
-#include <stdlib.h>
-
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        printf("foo.c\n");
-        exit (0);
-}
-""")
 
 test.run(arguments = 'foo' + _exe)
 

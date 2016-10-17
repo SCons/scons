@@ -477,7 +477,7 @@ _semi_deepcopy_dispatch = d = {}
 
 def semi_deepcopy_dict(x, exclude = [] ):
     copy = {}
-    for key, val in x.items():
+    for key, val in list(x.items()):
         # The regular Python copy.deepcopy() also deepcopies the key,
         # as follows:
         #
@@ -1037,7 +1037,7 @@ class OrderedDict(UserDict):
         if key not in self._keys: self._keys.append(key)
 
     def update(self, dict):
-        for (key, val) in dict.items():
+        for (key, val) in list(dict.items()):
             self.__setitem__(key, val)
 
     def values(self):
@@ -1059,7 +1059,7 @@ class Selector(OrderedDict):
             # Try to perform Environment substitution on the keys of
             # the dictionary before giving up.
             s_dict = {}
-            for (k,v) in self.items():
+            for (k,v) in list(self.items()):
                 if k is not None:
                     s_k = env.subst(k)
                     if s_k in s_dict:
@@ -1425,14 +1425,22 @@ def AddMethod(obj, function, name=None):
     else:
         function = RenameFunction(function, name)
 
+    # Note the Python version checks - WLB
+    # Python 3.3 dropped the 3rd parameter from types.MethodType
     if hasattr(obj, '__class__') and obj.__class__ is not type:
         # "obj" is an instance, so it gets a bound method.
-        method = MethodType(function, obj, obj.__class__)
-        setattr(obj, name, method)
+        if sys.version_info[:2] > (3, 2):
+            method = MethodType(function, obj)
+        else:
+            method = MethodType(function, obj, obj.__class__)
     else:
         # "obj" is a class, so it gets an unbound method.
-        function = MethodType(function, None, obj)
-        setattr(obj, name, function)
+        if sys.version_info[:2] > (3, 2):
+            method = MethodType(function, None)
+        else:
+            method = MethodType(function, None, obj)
+
+    setattr(obj, name, method)
 
 def RenameFunction(function, name):
     """
@@ -1553,14 +1561,12 @@ del __revision__
 def to_bytes (s):
     if isinstance (s, bytes) or bytes is str:
         return s
-    else:
-        return bytes (s, 'utf-8')
+    return bytes (s, 'utf-8')
 
 def to_str (s):
-    if bytes is str:
+    if bytes is str or is_String(s):
         return s
-    else:
-        return str (s, 'utf-8')
+    return str (s, 'utf-8')
 
 # Local Variables:
 # tab-width:4

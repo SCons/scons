@@ -82,12 +82,7 @@ gs = test.where_is(gs_executable)
 
 if gs:
 
-    test.write("wrapper.py", """import os
-import sys
-cmd = " ".join(sys.argv[1:])
-open('%s', 'ab').write("%%s\\n" %% cmd)
-os.system(cmd)
-""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
+    test.file_fixture('wrapper.py')
 
     test.write('SConstruct', """\
 import os

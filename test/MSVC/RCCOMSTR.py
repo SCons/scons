@@ -35,21 +35,11 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('myrc.py', """
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != '/*rc*/\\n']:
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'msvc'],
-                  RCCOM = r'%(_python_)s myrc.py $TARGET $SOURCES',
+                  RCCOM = r'%(_python_)s mycompile.py rc $TARGET $SOURCES',
                   RCCOMSTR = 'RCing $TARGET from $SOURCE')
 env.RES(target = 'aaa', source = 'aaa.rc')
 """ % locals())
@@ -61,8 +51,6 @@ RCing aaa.res from aaa.rc
 """))
 
 test.must_match('aaa.res', "aaa.rc\n")
-
-
 
 test.pass_test()
 

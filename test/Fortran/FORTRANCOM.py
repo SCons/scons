@@ -26,31 +26,19 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
-from common import write_fake_link
-
 _python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-write_fake_link(test)
-
-test.write('myfortran.py', r"""
-import sys
-comment = '#' + sys.argv[1]
-outfile = open(sys.argv[2], 'wb')
-infile = open(sys.argv[3], 'rb')
-for l in infile.readlines():
-    if l[:len(comment)] != comment:
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
+test.file_fixture('mylink.py')
 
 test.write('SConstruct', """
 env = Environment(LINK = r'%(_python_)s mylink.py',
                   LINKFLAGS = [],
-                  FORTRANCOM = r'%(_python_)s myfortran.py fortran $TARGET $SOURCES',
-                  FORTRANPPCOM = r'%(_python_)s myfortran.py fortranpp $TARGET $SOURCES')
+                  FORTRANCOM = r'%(_python_)s mycompile.py fortran $TARGET $SOURCES',
+                  FORTRANPPCOM = r'%(_python_)s mycompile.py fortranpp $TARGET $SOURCES')
 env.Program(target = 'test01', source = 'test01.f')
 env.Program(target = 'test02', source = 'test02.F')
 env.Program(target = 'test03', source = 'test03.for')
@@ -61,14 +49,14 @@ env.Program(target = 'test07', source = 'test07.fpp')
 env.Program(target = 'test08', source = 'test08.FPP')
 """ % locals())
 
-test.write('test01.f',   "This is a .f file.\n#link\n#fortran\n")
-test.write('test02.F',   "This is a .F file.\n#link\n#fortranpp\n")
-test.write('test03.for', "This is a .for file.\n#link\n#fortran\n")
-test.write('test04.FOR', "This is a .FOR file.\n#link\n#fortranpp\n")
-test.write('test05.ftn', "This is a .ftn file.\n#link\n#fortran\n")
-test.write('test06.FTN', "This is a .FTN file.\n#link\n#fortranpp\n")
-test.write('test07.fpp', "This is a .fpp file.\n#link\n#fortranpp\n")
-test.write('test08.FPP', "This is a .FPP file.\n#link\n#fortranpp\n")
+test.write('test01.f',   "This is a .f file.\n#link\n/*fortran*/\n")
+test.write('test02.F',   "This is a .F file.\n#link\n/*fortranpp*/\n")
+test.write('test03.for', "This is a .for file.\n#link\n/*fortran*/\n")
+test.write('test04.FOR', "This is a .FOR file.\n#link\n/*fortranpp*/\n")
+test.write('test05.ftn', "This is a .ftn file.\n#link\n/*fortran*/\n")
+test.write('test06.FTN', "This is a .FTN file.\n#link\n/*fortranpp*/\n")
+test.write('test07.fpp', "This is a .fpp file.\n#link\n/*fortranpp*/\n")
+test.write('test08.FPP', "This is a .FPP file.\n#link\n/*fortranpp*/\n")
 
 test.run(arguments = '.', stderr = None)
 

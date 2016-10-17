@@ -36,21 +36,11 @@ test = TestSCons.TestSCons()
 
 test.subdir('src')
 
-
-
-test.write('myjavac.py', r"""
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != '/*javac*/\n']:
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
 env = Environment(TOOLS = ['default', 'javac'],
-                  JAVACCOM = r'%(_python_)s myjavac.py $TARGET $SOURCES')
+                  JAVACCOM = r'%(_python_)s mycompile.py javac $TARGET $SOURCES')
 env.Java(target = 'classes', source = 'src')
 """ % locals())
 
@@ -62,8 +52,6 @@ test.run()
 
 test.must_match(['classes', 'file1.class'],
                 "file1.java\nfile2.java\nfile3.java\n")
-
-
 
 test.pass_test()
 

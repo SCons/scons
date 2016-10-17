@@ -30,17 +30,7 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('myfc.py', r"""
-import sys
-fline = '#'+sys.argv[1]+'\n'
-outfile = open(sys.argv[2], 'wb')
-infile = open(sys.argv[3], 'rb')
-for l in [l for l in infile.readlines() if l != fline]:
-    outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 if not TestSCons.case_sensitive_suffixes('.f','.F'):
     fortranpp = 'fortran'
@@ -49,9 +39,9 @@ else:
 
 
 test.write('SConstruct', """
-env = Environment(SHFORTRANCOM = r'%(_python_)s myfc.py fortran $TARGET $SOURCES',
+env = Environment(SHFORTRANCOM = r'%(_python_)s mycompile.py fortran $TARGET $SOURCES',
                   SHFORTRANCOMSTR = 'Building fortran $TARGET from $SOURCES',
-                  SHFORTRANPPCOM = r'%(_python_)s myfc.py fortranpp $TARGET $SOURCES',
+                  SHFORTRANPPCOM = r'%(_python_)s mycompile.py fortranpp $TARGET $SOURCES',
                   SHFORTRANPPCOMSTR = 'Building fortranpp $TARGET from $SOURCES',
                   SHOBJPREFIX='', SHOBJSUFFIX='.shobj')
 env.SharedObject(source = 'test01.f')
@@ -64,14 +54,14 @@ env.SharedObject(source = 'test07.fpp')
 env.SharedObject(source = 'test08.FPP')
 """ % locals())
 
-test.write('test01.f',          "A .f file.\n#fortran\n")
-test.write('test02.F',          "A .F file.\n#%s\n" % fortranpp)
-test.write('test03.for',        "A .for file.\n#fortran\n")
-test.write('test04.FOR',        "A .FOR file.\n#%s\n" % fortranpp)
-test.write('test05.ftn',        "A .ftn file.\n#fortran\n")
-test.write('test06.FTN',        "A .FTN file.\n#%s\n" % fortranpp)
-test.write('test07.fpp',        "A .fpp file.\n#fortranpp\n")
-test.write('test08.FPP',        "A .FPP file.\n#fortranpp\n")
+test.write('test01.f',          "A .f file.\n/*fortran*/\n")
+test.write('test02.F',          "A .F file.\n/*%s*/\n" % fortranpp)
+test.write('test03.for',        "A .for file.\n/*fortran*/\n")
+test.write('test04.FOR',        "A .FOR file.\n/*%s*/\n" % fortranpp)
+test.write('test05.ftn',        "A .ftn file.\n/*fortran*/\n")
+test.write('test06.FTN',        "A .FTN file.\n/*%s*/\n" % fortranpp)
+test.write('test07.fpp',        "A .fpp file.\n/*fortranpp*/\n")
+test.write('test08.FPP',        "A .FPP file.\n/*fortranpp*/\n")
 
 test.run(stdout = test.wrap_stdout("""\
 Building fortran test01.shobj from test01.f

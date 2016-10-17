@@ -105,12 +105,7 @@ if java_version:
 if test.javac_is_gcj:
     test.skip_test('Test not valid for gcj (gnu java); skipping test(s).\n')
 
-test.write("wrapper.py", """\
-import os
-import sys
-open('%s', 'ab').write("wrapper.py %%s\\n" %% " ".join(sys.argv[1:]))
-os.system(" ".join(sys.argv[1:]))
-""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
+test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
 foo = Environment(tools = ['javac', 'javah', 'install'],

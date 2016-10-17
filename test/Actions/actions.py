@@ -33,7 +33,7 @@ test = TestSCons.TestSCons()
 test.write('build.py', r"""
 import sys
 file = open(sys.argv[1], 'wb')
-file.write(sys.argv[2] + "\n")
+file.write((sys.argv[2] + "\n").encode())
 file.write(open(sys.argv[3], 'rb').read())
 file.close
 sys.exit(0)
@@ -49,7 +49,7 @@ test.write('foo.in', "foo.in\n")
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('foo.out') != "1\nfoo.in\n")
+test.must_match('foo.out', '1\nfoo.in\n')
 
 test.up_to_date(arguments = '.')
 
@@ -61,7 +61,7 @@ env.B(target = 'foo.out', source = 'foo.in')
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('foo.out') != "2\nfoo.in\n")
+test.must_match('foo.out', '2\nfoo.in\n')
 
 test.up_to_date(arguments = '.')
 
@@ -79,7 +79,7 @@ env.B(target = 'foo.out', source = 'foo.in')
 
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read('foo.out') != "3\nfoo.in\n")
+test.must_match('foo.out', '3\nfoo.in\n')
 
 test.up_to_date(arguments = '.')
 
@@ -103,7 +103,7 @@ env.B(target = 'foo.out', source = 'foo.in')
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('foo.out') != "4\nfoo.in\n")
+test.must_match('foo.out', '4\nfoo.in\n')
 
 test.up_to_date(arguments = '.')
 

@@ -645,7 +645,7 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
 
     # Ensure that the ENV values are all strings:
     new_env = {}
-    for key, value in ENV.items():
+    for key, value in list(ENV.items()):
         if is_List(value):
             # If the value is a list, then we assume it is a path list,
             # because that's a pretty common list-like value to stick
@@ -772,7 +772,7 @@ class CommandAction(_ActionAction):
         ENV = get_default_ENV(env)
 
         # Ensure that the ENV values are all strings:
-        for key, value in ENV.items():
+        for key, value in list(ENV.items()):
             if not is_String(value):
                 if is_List(value):
                     # If the value is a list, then we assume it is a
@@ -1206,7 +1206,7 @@ class ActionCaller(object):
 
     def subst_kw(self, target, source, env):
         kw = {}
-        for key in self.kw.keys():
+        for key in list(self.kw.keys()):
             kw[key] = self.subst(self.kw[key], target, source, env)
         return kw
 

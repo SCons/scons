@@ -35,20 +35,11 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 
 
-
-test.write('myjar.py', r"""
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != '/*jar*/\n']:
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
 env = Environment(TOOLS = ['default', 'jar'],
-                  JARCOM = r'%(_python_)s myjar.py $TARGET $SOURCES')
+                  JARCOM = r'%(_python_)s mycompile.py jar $TARGET $SOURCES')
 env.Jar(target = 'test1', source = ['file1.in', 'file2.in', 'file3.in'])
 """ % locals())
 
@@ -59,8 +50,6 @@ test.write('file3.in', "file3.in\n/*jar*/\n")
 test.run()
 
 test.must_match('test1.jar', "file1.in\nfile2.in\nfile3.in\n")
-
-
 
 test.pass_test()
 

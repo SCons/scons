@@ -32,25 +32,15 @@ the shared object C++ compilation output.
 import TestSCons
 
 _python_ = TestSCons._python_
-_exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('mycc.py', r"""
-import sys
-outfile = open(sys.argv[1], 'wb')
-infile = open(sys.argv[2], 'rb')
-for l in [l for l in infile.readlines() if l != '/*c++*/\n']:
-    outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 alt_cpp_suffix=test.get_alt_cpp_suffix()
 
 test.write('SConstruct', """
-env = Environment(SHCXXCOM = r'%(_python_)s mycc.py $TARGET $SOURCE',
+env = Environment(SHCXXCOM = r'%(_python_)s mycompile.py c++ $TARGET $SOURCE',
                   SHCXXCOMSTR = 'Building shared object $TARGET from $SOURCE',
                   SHOBJPREFIX='', SHOBJSUFFIX='.obj')
 env.SharedObject(target = 'test1', source = 'test1.cpp')
@@ -83,8 +73,6 @@ test.must_match('test3.obj', "test3.cxx\n")
 test.must_match('test4.obj', "test4.c++\n")
 test.must_match('test5.obj', "test5.C++\n")
 test.must_match('test6.obj', "test6.C\n")
-
-
 
 test.pass_test()
 

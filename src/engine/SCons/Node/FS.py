@@ -696,7 +696,7 @@ class Base(SCons.Node.Node):
             return self._memo['_save_str']
         except KeyError:
             pass
-        result = sys.intern(self._get_str())
+        result = SCons.Util.silent_intern(self._get_str())
         self._memo['_save_str'] = result
         return result
 
@@ -1607,7 +1607,7 @@ class Dir(Base):
         This clears any cached information that is invalidated by changing
         the repository."""
 
-        for node in self.entries.values():
+        for node in list(self.entries.values()):
             if node != self.dir:
                 if node != self and isinstance(node, Dir):
                     node.__clearRepositoryCache(duplicate)
@@ -2179,7 +2179,7 @@ class Dir(Base):
             for x in excludeList:
                 r = self.glob(x, ondisk, source, strings)
                 excludes.extend(r)
-            result = filter(lambda x: not any(fnmatch.fnmatch(str(x), str(e)) for e in SCons.Util.flatten(excludes)), result)
+            result = [x for x in result if not any(fnmatch.fnmatch(str(x), str(e)) for e in SCons.Util.flatten(excludes))]
         return sorted(result, key=lambda a: str(a))
 
     def _glob1(self, pattern, ondisk=True, source=False, strings=False):
@@ -2203,7 +2203,7 @@ class Dir(Base):
             # We use the .name attribute from the Node because the keys of
             # the dir.entries dictionary are normalized (that is, all upper
             # case) on case-insensitive systems like Windows.
-            node_names = [ v.name for k, v in dir.entries.items()
+            node_names = [ v.name for k, v in list(dir.entries.items())
                            if k not in ('.', '..') ]
             names.extend(node_names)
             if not strings:
@@ -2481,7 +2481,7 @@ class FileNodeInfo(SCons.Node.NodeInfoBase):
         """
         # TODO check or discard version
         del state['_version_id']
-        for key, value in state.items():
+        for key, value in list(state.items()):
             if key not in ('__weakref__',):
                 setattr(self, key, value)
 
@@ -2670,7 +2670,11 @@ class File(Base):
             return contents[len(codecs.BOM_UTF16_LE):].decode('utf-16-le')
         if contents.startswith(codecs.BOM_UTF16_BE):
             return contents[len(codecs.BOM_UTF16_BE):].decode('utf-16-be')
-        return contents
+        try:
+            return contents.decode()
+        except UnicodeDecodeError:
+            return contents
+
 
     def get_content_hash(self):
         """

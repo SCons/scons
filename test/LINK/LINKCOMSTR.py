@@ -32,24 +32,13 @@ the displayed linker string.
 import TestSCons
 
 _python_ = TestSCons._python_
-_exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('mylink.py', r"""
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != '/*link*/\n']:
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
-env = Environment(LINKCOM = r'%(_python_)s mylink.py $TARGET $SOURCES',
+env = Environment(LINKCOM = r'%(_python_)s mycompile.py link $TARGET $SOURCES',
                   LINKCOMSTR = 'Linking $TARGET from $SOURCES',
                   OBJSUFFIX = '.obj',
                   PROGSUFFIX = '.exe')
@@ -80,6 +69,7 @@ env = Environment(CXXCOMSTR    = 'Compiling $TARGET ...',
                   LINKCOMSTR   = 'Linking $TARGET ...')
 env.Program('test', 'test.cpp')
 """)
+
 test.write('test.cpp', """
 int main(int argc, char **argv) {}
 """)

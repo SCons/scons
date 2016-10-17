@@ -114,7 +114,7 @@ def normalize_env(env, keys, force=False):
     Note: the environment is copied."""
     normenv = {}
     if env:
-        for k in env.keys():
+        for k in list(env.keys()):
             normenv[k] = copy.deepcopy(env[k])
 
         for k in keys:
@@ -219,7 +219,7 @@ def parse_output(output, keep = ("INCLUDE", "LIB", "LIBPATH", "PATH")):
                 dkeep[key].append(p)
 
     for line in output.splitlines():
-        for k,v in rdk.items():
+        for k,v in list(rdk.items()):
             m = v.match(line)
             if m:
                 add_env(m, k)
