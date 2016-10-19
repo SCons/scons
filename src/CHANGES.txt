@@ -4,7 +4,27 @@
 
                             Change Log
 
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From William Deegan:
+    - Add scons-configure-cache.py to packaging. It was omitted
+
+  From Alexey Klimkin:
+    - Use memoization to optimize PATH evaluation across all dependencies per
+      node. (PR #345)
+
+
 RELEASE 2.5.0 - Mon, 09 Apr 2016 11:27:42 -0700
+
+  From Tom Tanner:
+    - change cache to use 2 character subdirectories, rather than one character,
+      so as not to give huge directories for large caches, a situation which
+      causes issues for NFS.
+      For existing caches, you will need to run the scons-configure-cache.py
+      script to update them to the new format. You will get a warning every time
+      you build until you co this.
+    - Fix a bunch of unit tests on windows
+
 
   From Dirk Baechle:
     - Removed a lot of compatibility methods and workarounds

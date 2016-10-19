@@ -968,19 +968,19 @@ DFLAGPREFIX.
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-_DFLAGS">
-    <term>_DFLAGS</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-_DFLAGS.
-</para>
-</listitem>
-  </varlistentry>
   <varlistentry id="cv-DFLAGS">
     <term>DFLAGS</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 DFLAGS.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-_DFLAGS">
+    <term>_DFLAGS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+_DFLAGS.
 </para>
 </listitem>
   </varlistentry>
