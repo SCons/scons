@@ -1,0 +1,199 @@
+<html>
+  <head>
+    <title>SCons Timings</title>
+    <script src="js/common.js"></script>
+    <script language="javascript">
+      var perf_url = DirName(window.location.href);
+      function DisplayGraph(name, heighth, width, thumbnail, graph) {
+        var params = ParseParams();
+        var url = perf_url + '/' + name + '/graph.html' + '?lookout';
+        //var debug = url;
+        var debug = '';
+        if ('history' in params) {
+          url += '&history=' + params.history
+        }
+        if (typeof graph == 'undefined') {
+          if ('graph' in params) {
+            graph = params.graph;
+          }
+          url += '&header=';
+        } else if (graph != null) {
+          url += '&header=' + graph;
+        }
+        if (graph != null) {
+          url += '&graph=' + graph;
+        }
+        if (thumbnail) {
+          url += '&thumbnail';
+        }
+        document.write('<td>' + debug + '<iframe' +
+                       //' scrolling="no"' +
+                       ' height="' + heighth + '"' +
+                       ' width="' + width + '"' +
+                       ' src="' + url + '">' +
+                       '</iframe></td>');
+      }
+    </script>
+  </head>
+  <body>
+    <center>
+      <script language="javascript">
+        var params = ParseParams();
+        // TODO:  parameterize these in a .dat file
+        var builder_map = {
+            'Ubuntu': 'ubuntu-timings',
+        };
+        var graphs_map = {
+            'Performance': 'TimeSCons-elapsed',
+            'Memory': 'memory-final',
+        };
+        var test_map = {
+            'CPPPATH': 'CPPPATH',
+            'ElectricCloud': 'ElectricCloud',
+            'Java': 'Java',
+            'JTimer': 'JTimer',
+            'hundred': 'hundred',
+        };
+        if ('builder' in params) {
+          builder_list = params.builder.split(',');
+        } else {
+          builder_list = Keys(builder_map);
+        }
+        if ('graph' in params) {
+          graphs_list = param.graph.split(',');
+        } else {
+          graphs_list = Keys(graphs_map);
+        }
+        if ('test' in params) {
+          test_list = params.test.split(',');
+        } else {
+          test_list = Keys(test_map);
+        }
+        function write_builder_table() {
+          document.write('<table><tr>');
+          for (var tindex=0; tindex < test_list.length; tindex++) {
+            test = test_list[tindex];
+            test_name = test_map[test];
+            DisplayGraph(builder_id + '/' + test, 250, 400, false);
+            DisplayGraph(builder_id + '/' + test, 250, 400, false);
+            if ((tindex % 3) == 2) {
+              document.write('</tr><tr>');
+            }
+          }
+          document.write('</tr></table>');
+        }
+        function write_test_table() {
+          document.write('<table>');
+          row = [];
+          function write_row(row) {
+            document.write('<tr>');
+            for (var bidx in row) {
+              builder = row[bidx];
+              document.write('<th align="center"><p><br>' +
+                             builder + '</p></th>');
+            }
+            document.write('</tr><tr>');
+            for (var bidx in row) {
+              builder_id = builder_map[row[bidx]];
+              DisplayGraph(builder_id + '/' + test, 250, 400, true);
+            }
+            document.write('</tr>');
+          }
+          for (var bindex=0; bindex < builder_list.length; bindex++) {
+            builder = builder_list[bindex];
+            row.push(builder)
+            if ((bindex % 3) == 2) {
+              write_row(row);
+              row = [];
+            }
+          }
+          if (row.length > 0) {
+            write_row(row);
+          }
+          document.write('</table>');
+        }
+        function write_builders_header_row() {
+          document.write('<tr><th>&nbsp;</th>');
+          for (var bindex=0; bindex < builder_list.length; bindex++) {
+            builder = builder_list[bindex];
+            url = MakeURL({'builder':escape(builder)});
+            var s ='<th align="center" colspan="' +
+                   graphs_list.length +
+                   '">' +
+                   '<a href="' + url + '">' +
+                   builder +
+                   '</a></th>';
+            document.write(s);
+          }
+          document.write('</tr>');
+        }
+        function write_graphs_header_row() {
+          document.write('<tr><th>&nbsp;</th>');
+          for (var bindex=0; bindex < builder_list.length; bindex++) {
+            for (var gindex=0; gindex < graphs_list.length; gindex++) {
+              graph = graphs_list[gindex];
+              document.write('<th align="center">' + graph + '</th>');
+            }
+          }
+        }
+        function write_overview_table() {
+          document.write('<table>');
+          var width = document.body.scrollWidth / (builder_list.length + 2);
+          write_builders_header_row();
+          for (var tindex=0; tindex < test_list.length; tindex++) {
+            // Write a graphs header every four rows for navigability.
+            // TODO:  Use more sophisticated freezing of the header rows?
+            if ((tindex % 4) == 0) {
+              write_graphs_header_row();
+            }
+            test = test_list[tindex];
+            test_name = test_map[test];
+            document.write('<tr>');
+            url = MakeURL({'test':escape(test)});
+            document.write('<th valign="center"><a href="' + url + '">'
+                           + test_name + '</a></th>');
+            for (var bindex=0; bindex < builder_list.length; bindex++) {
+              builder = builder_list[bindex];
+              builder_id = builder_map[builder];
+              DisplayGraph(builder_id + '/' + test, 250, width, true, "TimeSCons-elapsed")
+              DisplayGraph(builder_id + '/' + test, 250, width, true, "memory-final")
+            }
+            document.write('<th valign="center"><a href="' + url + '">'
+                           + test_name + '</a></th>');
+            document.write('</tr>');
+          }
+          write_graphs_header_row();
+          write_builders_header_row();
+          document.write('</table>');
+        }
+        function write_header(header_string, url_string) {
+          document.write('<h1><a href="' + window.location.pathname + '">'
+                         + 'SCons Timings</a>');
+          if (header_string) {
+            document.write(':  ' + header_string);
+          }
+          if ('graph' in params) {
+            document.write(':  ' + escape(params.graph))
+          } else {
+            document.write(':  overview');
+          }
+          document.write('</h1>');
+        }
+        if (builder_list.length == 0) {
+          builder = builder_list[0];
+          builder_id = builder_map[builder];
+          write_header(builder, '&builder=' + escape(builder));
+          write_builder_table()
+        } else if (test_list.length == 1) {
+          test = test_list[0];
+          test_name = test_map[test];
+          write_header(test_name, '&test=' + escape(test));
+          write_test_table()
+        } else {
+          write_header('', '');
+          write_overview_table();
+        }
+      </script>
+    </center>
+  </body>
+</html>

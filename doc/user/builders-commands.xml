@@ -1,0 +1,180 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+    
+    <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
+    %builders-mod;
+    <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
+    %functions-mod;
+    <!ENTITY % tools-mod SYSTEM "../generated/tools.mod">
+    %tools-mod;
+    <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
+    %variables-mod;
+
+]>
+
+<chapter id="chap-builders-commands"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Not Writing a Builder:  the &Command; Builder</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <!--
+
+  =head2 The C<Command> method
+
+
+  The C<Command> method is called as follows:
+
+    Command $env <target>, <inputs>, <build action>;
+
+  The target is made dependent upon the list of input files specified, and the
+  inputs must be built successfully or Cons will not attempt to build the
+  target.
+
+  To specify a command with multiple targets, you can specify a reference to a
+  list of targets. In Perl, a list reference can be created by enclosing a
+  list in square brackets. Hence the following command:
+
+    Command $env ['foo.h', 'foo.c'], 'foo.template', q(
+  	gen %1
+    );
+
+  could be used in a case where the command C<gen> creates two files, both
+  F<foo.h> and F<foo.c>.
+
+  -->
+
+  <para>
+
+  Creating a &Builder; and attaching it to a &consenv;
+  allows for a lot of flexibility when you
+  want to re-use actions
+  to build multiple files of the same type.
+  This can, however, be cumbersome
+  if you only need to execute one specific command
+  to build a single file (or group of files).
+  For these situations, &SCons; supports a
+  &Command; &Builder; that arranges
+  for a specific action to be executed
+  to build a specific file or files.
+  This looks a lot like the other builders
+  (like &b-link-Program;, &b-link-Object;, etc.),
+  but takes as an additional argument
+  the command to be executed to build the file:
+
+  </para>
+
+  <scons_example name="builderscommands_ex1">
+     <file name="SConstruct" printme="1">
+env = Environment()
+env.Command('foo.out', 'foo.in', "sed 's/x/y/' &lt; $SOURCE > $TARGET")
+     </file>
+     <file name="foo.in">
+foo.in
+     </file>
+  </scons_example>
+
+  <para>
+
+  When executed,
+  &SCons; runs the specified command,
+  substituting &cv-link-SOURCE; and &cv-link-TARGET;
+  as expected:
+
+  </para>
+
+  <scons_output example="builderscommands_ex1" suffix="1">
+    <scons_output_command>scons -Q</scons_output_command>
+  </scons_output>
+
+  <para>
+
+  This is often more convenient than
+  creating a &Builder; object
+  and adding it to the &cv-link-BUILDERS; variable
+  of a &consenv;
+
+  </para>
+
+  <para>
+
+  Note that the action you specify to the
+  &Command; &Builder; can be any legal &SCons; &Action;,
+  such as a Python function:
+
+  </para>
+
+  <scons_example name="builderscommands_ex2">
+     <file name="SConstruct" printme="1">
+env = Environment()
+def build(target, source, env):
+    # Whatever it takes to build
+    return None
+env.Command('foo.out', 'foo.in', build)
+     </file>
+     <file name="foo.in">
+foo.in
+     </file>
+  </scons_example>
+
+  <para>
+
+  Which executes as follows:
+
+  </para>
+
+  <scons_output example="builderscommands_ex2" suffix="1">
+    <scons_output_command>scons -Q</scons_output_command>
+  </scons_output>
+
+  <para>
+
+  Note that &cv-link-SOURCE; and &cv-link-TARGET; are expanded 
+  in the source and target as well as of SCons 1.1,
+  so you can write:
+
+  </para>
+
+  <scons_example name="builderscommands_ex3">
+     <file name="SConstruct" printme="1">
+env.Command('${SOURCE.basename}.out', 'foo.in', build)
+     </file>
+  </scons_example>
+
+
+  <para>
+
+  which does the same thing as the previous example, but allows you
+  to avoid repeating yourself.
+
+  </para>
+
+
+</chapter>
