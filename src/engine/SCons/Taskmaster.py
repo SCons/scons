@@ -545,7 +545,7 @@ class Task(object):
         if sys.version_info[0] == 2:
             exec("raise exc_type, exc_value, exc_traceback")
         else: #  sys.version_info[0] == 3:
-            exec("raise exc_type(exc_value).with_traceback(exc_traceback)")
+            exec("raise exc_type(*exc_value.args).with_traceback(exc_traceback)")
 
         # raise e.__class__, e.__class__(e), sys.exc_info()[2]
 
