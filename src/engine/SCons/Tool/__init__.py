@@ -925,9 +925,9 @@ class ToolInitializerMethod(object):
 
     def get_builder(self, env):
         """
-	Returns the appropriate real Builder for this method name
-	after having the associated ToolInitializer object apply
-	the appropriate Tool module.
+        Returns the appropriate real Builder for this method name
+        after having the associated ToolInitializer object apply
+        the appropriate Tool module.
         """
         builder = getattr(env, self.__name__)
 
@@ -989,8 +989,8 @@ class ToolInitializer(object):
 
     def apply_tools(self, env):
         """
-	Searches the list of associated Tool modules for one that
-	exists, and applies that to the construction environment.
+        Searches the list of associated Tool modules for one that
+        exists, and applies that to the construction environment.
         """
         for t in self.tools:
             tool = SCons.Tool.Tool(t)

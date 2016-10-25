@@ -117,6 +117,7 @@ except ImportError:
 # you had better have cmd or command.com in your PATH when you run
 # scons.
 
+
 def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
     # There is no direct way to do that in python. What we do
     # here should work for most cases:
@@ -137,8 +138,7 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
         stderrRedirected = 0
         for arg in args:
             # are there more possibilities to redirect stdout ?
-            if (arg.find( ">", 0, 1 ) != -1 or
-                arg.find( "1>", 0, 2 ) != -1):
+            if arg.find( ">", 0, 1 ) != -1 or arg.find( "1>", 0, 2 ) != -1:
                 stdoutRedirected = 1
             # are there more possibilities to redirect stderr ?
             if arg.find( "2>", 0, 2 ) != -1:
@@ -179,6 +179,7 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
                 pass
         return ret
 
+
 def exec_spawn(l, env):
     try:
         result = spawnve(os.P_WAIT, l[0], l, env)
@@ -198,6 +199,7 @@ def exec_spawn(l, env):
             sys.stderr.write("scons: unknown OSError exception code %d - '%s': %s\n" % (e[0], command, e[1]))
     return result
 
+
 def spawn(sh, escape, cmd, args, env):
     if not sh:
         sys.stderr.write("scons: Could not find command interpreter, is it in your PATH?\n")
@@ -216,6 +218,7 @@ def escape(x):
 
 # Get the windows system directory name
 _system_root = None
+
 
 def get_system_root():
     global _system_root
@@ -244,8 +247,14 @@ def get_system_root():
     _system_root = val
     return val
 
-# Get the location of the program files directory
+
 def get_program_files_dir():
+    """
+    Get the location of the program files directory
+    Returns
+    -------
+
+    """
     # Now see if we can look in the registry...
     val = ''
     if SCons.Util.can_read_reg:
@@ -266,10 +275,9 @@ def get_program_files_dir():
     return val
 
 
-
-# Determine which windows CPU were running on.
 class ArchDefinition(object):
     """
+    Determine which windows CPU were running on.
     A class for defining architecture-specific settings and logic.
     """
     def __init__(self, arch, synonyms=[]):
@@ -299,6 +307,7 @@ for a in SupportedArchitectureList:
     for s in a.synonyms:
         SupportedArchitectureMap[s] = a
 
+
 def get_architecture(arch=None):
     """Returns the definition for the specified architecture string.
 
@@ -311,6 +320,7 @@ def get_architecture(arch=None):
         if not arch:
             arch = os.environ.get('PROCESSOR_ARCHITECTURE')
     return SupportedArchitectureMap.get(arch, ArchDefinition('', ['']))
+
 
 def generate(env):
     # Attempt to find cmd.exe (for WinNT/2k/XP) or
@@ -357,7 +367,6 @@ def generate(env):
         if not cmd_interp:
             cmd_interp = env.Detect('command')
 
-
     if 'ENV' not in env:
         env['ENV']        = {}
 
@@ -369,7 +378,7 @@ def generate(env):
     # for SystemDrive because it's related.
     #
     # Weigh the impact carefully before adding other variables to this list.
-    import_env = [ 'SystemDrive', 'SystemRoot', 'TEMP', 'TMP' ]
+    import_env = ['SystemDrive', 'SystemRoot', 'TEMP', 'TMP' ]
     for var in import_env:
         v = os.environ.get(var)
         if v:
