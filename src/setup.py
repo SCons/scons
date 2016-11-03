@@ -388,6 +388,7 @@ scripts = [
     'script/scons',
     'script/sconsign',
     'script/scons-time',
+    'script/scons-configure-cache',
 
     # We include scons.bat in the list of scripts, even on UNIX systems,
     # because we provide an option to allow it be installed explicitly,
