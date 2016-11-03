@@ -1,38 +1,15 @@
-  A new SCons checkpoint release, 2.5.0, is now available
+  A new SCons checkpoint release, 2.5.1, is now available
   on the SCons download page:
 
           http://www.scons.org/download.php
 
-  XXX The primary purpose of this release ... XXX
+  This is a minor release
 
-  Here is a summary of the changes since 2.4.1:
+  Here is a summary of the changes since 2.5.0:
 
   NEW FUNCTIONALITY
-    -  We're enhancing implicit language scanning functionality to improve
-       correctness.  SCons now honors scanner keys for implicit dependencies
-       and correctly changes scanner type (if necessary) when traversing 
-       implicit dependency trees.  
 
-       This enhancement resolves missing dependencies
-       with built-in scanners including SWIG (#2264) and QT:
-       * http://scons.tigris.org/issues/show_bug.cgi?id=2264
-
-       -  This enhancement broadens the horizon for handling heterogeneous
-          data flow environments (E.G. software builds):
-          - http://article.gmane.org/gmane.comp.programming.tools.scons.user/26596
-
-       - SCons may find new (and correct) dependencies in cross-langauge contexts.
-         - Update may cause rebuilds, especially in heterogeneous data environments.
-         - Update may find previously missed dependencies errors (E.G. cycles).
-           - Discovered in some QT test cases.
-       - SCons handles the SCANNERS variable differently.
-         -  Previously, the Install builder would scan implicit dependencies for
-            a scanner found in SCANNERS (but not for built-in scanners), but now
-            the Install builder will not scan recursively regardless in order
-            to optimize Install behaviour and bring orthogonality to previous behaviour.
-
-    - New external tool scons-configurecache which allows some configuration of
-      how files in the cache are controlled.
+    - None
 
   DEPRECATED FUNCTIONALITY
 
@@ -40,26 +17,21 @@
 
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
-    - SCons handles cache directories a bit differently/
-      - Cache files are now stored in 256 subdirectories in the cache directory by 
-        default (this stresses NFS less). Existing cache directories will remain as
-        current, but SCons will prompt you to run scons-configure-cache which will
-        allow you to migrate to the new layout, or confirm you want to use the
-        existing layout.
+    - None
 
   FIXES
 
-    - This enhancement resolves missing dependencies with built-in scanners including
-      SWIG (#2264) and QT - See New Features above
-       * http://scons.tigris.org/issues/show_bug.cgi?id=2264
+    - None
 
   IMPROVEMENTS
 
-    - None
+    - Use memoization to optimize PATH evaluation across all dependencies per
+      node. (PR #345)  This should fix some performance degredation due to 
+      changes to enable enhanced multi-language scanning added in 2.5.0
 
   PACKAGING
 
-    - None
+    - Fixed missing scons-configure-cache.py. (It was accidently omitted)
 
   DOCUMENTATION
 
@@ -69,8 +41,7 @@
 
     - None
 
-  Thanks to Dirk Baechle, William Blevins, William Deegan, Jakub Pola, Adarsh Sanjeev, Tom Tanner
-  for their contributions to this release.
+  Thanks to William Deegan and Alexey Klimkin for their contributions to this release.
   Contributors are listed alphabetically by their last name.
 
 __COPYRIGHT__
