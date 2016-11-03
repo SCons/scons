@@ -4,7 +4,7 @@
 
                             Change Log
 
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
+RELEASE 2.5.1 - Mon, 03 Nov 2016 13:37:42 -0400
 
   From William Deegan:
     - Add scons-configure-cache.py to packaging. It was omitted
