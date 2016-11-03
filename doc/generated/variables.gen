@@ -968,19 +968,19 @@ DFLAGPREFIX.
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-_DFLAGS">
-    <term>_DFLAGS</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-_DFLAGS.
-</para>
-</listitem>
-  </varlistentry>
   <varlistentry id="cv-DFLAGS">
     <term>DFLAGS</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 DFLAGS.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-_DFLAGS">
+    <term>_DFLAGS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+_DFLAGS.
 </para>
 </listitem>
   </varlistentry>
@@ -3104,7 +3104,7 @@ The command line used to call the Java archive tool.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The string displayed when the Java archive tool
 is called
-If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-JARCOM"><envar>$JARCOM</envar></link> (the command line) is displayed.
+If this is not set, then <envar xmlns="http://www.scons.org/dbxsd/v1.0">$JARCOM</envar> (the command line) is displayed.
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3114,7 +3114,7 @@ env = Environment(JARCOMSTR = "JARchiving $SOURCES into $TARGET")
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The string displayed when the Java archive tool
 is called
-If this is not set, then <envar xmlns="http://www.scons.org/dbxsd/v1.0">$JARCOM</envar> (the command line) is displayed.
+If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-JARCOM"><envar>$JARCOM</envar></link> (the command line) is displayed.
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
