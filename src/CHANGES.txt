@@ -6,6 +6,13 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From John Doe:
+
+    - Whatever John Doe did.
+
+
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
   From Daniel Holth:
     - Add basic support for PyPy (by deleting __slots__ from Node with a
       metaclass on PyPy); wrap most-used open() calls in 'with' statements to
