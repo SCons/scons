@@ -6,7 +6,7 @@
 copyright_years = '2001 - 2016'
 
 # This gets inserted into the man pages to reflect the month of release.
-month_year = 'April 2016'
+month_year = 'November 2016'
 
 #
 # __COPYRIGHT__
@@ -43,7 +43,7 @@ import tempfile
 import bootstrap
 
 project = 'scons'
-default_version = '2.5.0'
+default_version = '2.5.1'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 platform = distutils.util.get_platform()
@@ -642,6 +642,7 @@ scons_script = {
                             'scons'             : 'scons.py',
                             'sconsign'          : 'sconsign.py',
                             'scons-time'        : 'scons-time.py',
+                            'scons-configure-cache'        : 'scons-configure-cache.py',
                            },
 
         'buildermap'    : {},
@@ -650,6 +651,7 @@ scons_script = {
                             'scons-' + version,
                             'sconsign-' + version,
                             'scons-time-' + version,
+                            'scons-configure-cache-' + version,
                           ],
 
         'explicit_deps' : {
@@ -706,7 +708,7 @@ scons = {
                            },
 }
 
-scripts = ['scons', 'sconsign', 'scons-time']
+scripts = ['scons', 'sconsign', 'scons-time', 'scons-configure-cache']
 
 src_deps = []
 src_files = []
