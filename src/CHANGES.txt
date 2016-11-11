@@ -13,6 +13,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Daniel Moody:
+    - Fixed msvs.py for Visual Studio generated projects which were
+      creating invalid xml for greater than and less than symbols.
+
   From Daniel Holth:
     - Add basic support for PyPy (by deleting __slots__ from Node with a
       metaclass on PyPy); wrap most-used open() calls in 'with' statements to
