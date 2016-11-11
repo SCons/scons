@@ -65,6 +65,8 @@ def xmlify(s):
     s = s.replace("&", "&amp;") # do this first
     s = s.replace("'", "&apos;")
     s = s.replace('"', "&quot;")
+    s = s.replace('<', "&lt;")
+    s = s.replace('>', "&gt;")
     s = s.replace('\n', '&#x0A;')
     return s
 
