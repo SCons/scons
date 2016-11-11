@@ -55,7 +55,8 @@ if not msvs_version in test.msvs_versions():
 
 test.run(arguments = '-n -q -Q -f -', stdin = """\
 env = Environment(tools = ['msvc'], MSVS_VERSION='%(msvs_version)s')
-print "os.environ.update(%%s)" %% repr(env['ENV'])
+sconsEnv = repr(env['ENV'])
+print("os.environ.update(" + sconsEnv + ")")
 """ % locals())
 
 exec(test.stdout())
