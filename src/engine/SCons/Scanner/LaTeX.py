@@ -166,6 +166,9 @@ class LaTeX(SCons.Scanner.Base):
                      'usepackage': 'TEXINPUTS',
                      'lstinputlisting': 'TEXINPUTS'}
     env_variables = SCons.Util.unique(list(keyword_paths.values()))
+    two_arg_commands = ['import', 'subimport',
+                        'includefrom', 'subincludefrom',
+                        'inputfrom', 'subinputfrom']
 
     def __init__(self, name, suffixes, graphics_extensions, *args, **kw):
 
@@ -175,8 +178,29 @@ class LaTeX(SCons.Scanner.Base):
         # line followed by one or more newline characters (i.e. blank
         # lines), interfering with a match on the next line.
         # add option for whitespace before the '[options]' or the '{filename}'
-        regex = r'^[^%\n]*\\(include|includegraphics(?:\s*\[[^\]]+\])?|lstinputlisting(?:\[[^\]]+\])?|input|bibliography|addbibresource|addglobalbib|addsectionbib|usepackage)\s*{([^}]*)}'
-        self.cre = re.compile(regex, re.M)
+        regex = r'''
+            ^[^%\n]*
+            \\(
+                include
+              | includegraphics(?:\s*\[[^\]]+\])?
+              | lstinputlisting(?:\[[^\]]+\])?
+              | input
+              | import
+              | subimport
+              | includefrom
+              | subincludefrom
+              | inputfrom
+              | subinputfrom
+              | bibliography
+              | addbibresource
+              | addglobalbib
+              | addsectionbib
+              | usepackage
+              )
+                  \s*{([^}]*)}       # first arg
+              (?: \s*{([^}]*)} )?    # maybe another arg
+        '''
+        self.cre = re.compile(regex, re.M | re.X)
         self.comment_re = re.compile(r'^((?:(?:\\%)|[^%\n])*)(.*)$', re.M)
 
         self.graphics_extensions = graphics_extensions
@@ -236,23 +260,26 @@ class LaTeX(SCons.Scanner.Base):
 
         SCons.Scanner.Base.__init__(self, *args, **kw)
 
-    def _latex_names(self, include):
-        filename = include[1]
-        if include[0] == 'input':
+    def _latex_names(self, include_type, filename):
+        if include_type == 'input':
             base, ext = os.path.splitext( filename )
             if ext == "":
                 return [filename + '.tex']
-        if (include[0] == 'include'):
-            return [filename + '.tex']
-        if include[0] == 'bibliography':
+        if include_type in ('include', 'import', 'subimport',
+                            'includefrom', 'subincludefrom',
+                            'inputfrom', 'subinputfrom'):
+            base, ext = os.path.splitext( filename )
+            if ext == "":
+                return [filename + '.tex']
+        if include_type == 'bibliography':
             base, ext = os.path.splitext( filename )
             if ext == "":
                 return [filename + '.bib']
-        if include[0] == 'usepackage':
+        if include_type == 'usepackage':
             base, ext = os.path.splitext( filename )
             if ext == "":
                 return [filename + '.sty']
-        if include[0] == 'includegraphics':
+        if include_type == 'includegraphics':
             base, ext = os.path.splitext( filename )
             if ext == "":
                 #return [filename+e for e in self.graphics_extensions + TexGraphics]
@@ -267,21 +294,26 @@ class LaTeX(SCons.Scanner.Base):
         return SCons.Node.FS._my_normcase(str(include))
 
     def find_include(self, include, source_dir, path):
+        inc_type, inc_subdir, inc_filename = include
         try:
-            sub_path = path[include[0]]
+            sub_paths = path[inc_type]
         except (IndexError, KeyError):
-            sub_path = ()
-        try_names = self._latex_names(include)
+            sub_paths = ((), ())
+        try_names = self._latex_names(inc_type, inc_filename)
+
+        # There are three search paths to try:
+        #  1. current directory "source_dir"
+        #  2. env[var]
+        #  3. env['ENV'][var]
+        search_paths = [(source_dir,)] + list(sub_paths)
+
         for n in try_names:
-            # see if we find it using the path in env[var]
-            i = SCons.Node.FS.find_file(n, (source_dir,) + sub_path[0])
-            if i:
-                return i, include
-            # see if we find it using the path in env['ENV'][var]
-            i = SCons.Node.FS.find_file(n, (source_dir,) + sub_path[1])
-            if i:
-                return i, include
-        return i, include
+            for search_path in search_paths:
+                paths = tuple([d.Dir(inc_subdir) for d in search_path])
+                i = SCons.Node.FS.find_file(n, paths)
+                if i:
+                    return i, include
+        return None, include
 
     def canonical_text(self, text):
         """Standardize an input TeX-file contents.
@@ -300,7 +332,7 @@ class LaTeX(SCons.Scanner.Base):
             line_continues_a_comment = len(comment) > 0
         return '\n'.join(out).rstrip()+'\n'
 
-    def scan(self, node):
+    def scan(self, node, subdir='.'):
         # Modify the default scan function to allow for the regular
         # expression to return a comma separated list of file names
         # as can be the case with the bibliography keyword.
@@ -326,9 +358,14 @@ class LaTeX(SCons.Scanner.Base):
             split_includes = []
             for include in includes:
                 inc_type = noopt_cre.sub('', include[0])
-                inc_list = include[1].split(',')
+                inc_subdir = subdir
+                if inc_type in self.two_arg_commands:
+                    inc_subdir = os.path.join(subdir, include[1])
+                    inc_list = include[2].split(',')
+                else:
+                    inc_list = include[1].split(',')
                 for j in range(len(inc_list)):
-                    split_includes.append( (inc_type, inc_list[j]) )
+                    split_includes.append( (inc_type, inc_subdir, inc_list[j]) )
             #
             includes = split_includes
             node.includes = includes
@@ -359,11 +396,12 @@ class LaTeX(SCons.Scanner.Base):
         while queue:
             
             include = queue.pop()
+            inc_type, inc_subdir, inc_filename = include
             try:
-                if seen[include[1]] == 1:
+                if seen[inc_filename] == 1:
                     continue
             except KeyError:
-                seen[include[1]] = 1
+                seen[inc_filename] = 1
 
             #
             # Handle multiple filenames in include[1]
@@ -372,14 +410,14 @@ class LaTeX(SCons.Scanner.Base):
             if n is None:
                 # Do not bother with 'usepackage' warnings, as they most
                 # likely refer to system-level files
-                if include[0] != 'usepackage':
+                if inc_type != 'usepackage':
                     SCons.Warnings.warn(SCons.Warnings.DependencyWarning,
                                         "No dependency generated for file: %s (included from: %s) -- file not found" % (i, node))
             else:
                 sortkey = self.sort_key(n)
                 nodes.append((sortkey, n))
-                # recurse down 
-                queue.extend( self.scan(n) )
+                # recurse down
+                queue.extend( self.scan(n, inc_subdir) )
 
         return [pair[1] for pair in sorted(nodes)]
 
