@@ -20,6 +20,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import sys
 import platform
+import traceback
+from xml.etree import ElementTree
 
 from TestSCons import *
 from TestSCons import __all__
@@ -1156,6 +1158,18 @@ print("self._msvs_versions =", str(SCons.Tool.MSCommon.query_versions()))
    
         return host
 
+    def validate_msvs_file(self,  file):
+        try:
+            x = ElementTree.parse(file)
+        except: 
+            print("--------------------------------------------------------------")
+            print("--------------------------------------------------------------")
+            print(traceback.format_exc())
+            print("Failed to validate xml in MSVS file: ")
+            print(file)
+            print("--------------------------------------------------------------")
+            print("--------------------------------------------------------------")
+            self.fail_test()
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil
