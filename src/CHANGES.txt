@@ -13,6 +13,19 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From William Blevins:
+    - Updated D language scanner support to latest: 2.071.1. (PR #1924)
+      https://dlang.org/spec/module.html accessed 11 August 2016
+      - Enhancements:
+        - Added support for selective imports: "import A : B, C;" -> A
+        - Added support for renamed imports. "import B = A;" -> A
+        - Supports valid combinations: "import A, B, CCC = C, DDD = D : EEE = FFF;" -> A, B, C, D
+      - Notes:
+        - May find new (previously missed) Dlang dependencies.
+        - May cause rebuild after upgrade due to dependency changes.
+    - Updated Fortran-related tests to pass under GCC 5/6.
+    - Fixed SCons.Tool.Packaging.rpm.package source nondeterminism across builds.
+
   From Daniel Moody:
     - Fixed msvs.py for Visual Studio generated projects which were
       creating invalid xml for greater than and less than symbols.
@@ -42,19 +55,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added LoadableModule to the list of global functions (DefaultEnvironment
       builders).
 
+  From Rick Lupton:
+    - Update LaTeX scanner to understand \import and related commands
 
-  From William Blevins:
-    - Updated D language scanner support to latest: 2.071.1. (PR #1924)
-      https://dlang.org/spec/module.html accessed 11 August 2016
-      - Enhancements:
-        - Added support for selective imports: "import A : B, C;" -> A
-        - Added support for renamed imports. "import B = A;" -> A
-        - Supports valid combinations: "import A, B, CCC = C, DDD = D : EEE = FFF;" -> A, B, C, D
-      - Notes:
-        - May find new (previously missed) Dlang dependencies.
-        - May cause rebuild after upgrade due to dependency changes.
-    - Updated Fortran-related tests to pass under GCC 5/6.
-    - Fixed SCons.Tool.Packaging.rpm.package source nondeterminism across builds.
 
 RELEASE 2.5.1 - Mon, 03 Nov 2016 13:37:42 -0400
 
@@ -64,9 +67,6 @@ RELEASE 2.5.1 - Mon, 03 Nov 2016 13:37:42 -0400
   From Alexey Klimkin:
     - Use memoization to optimize PATH evaluation across all dependencies per
       node. (PR #345)
-
-  From Rick Lupton:
-    - Update LaTeX scanner to understand \import and related commands
 
 RELEASE 2.5.0 - Mon, 09 Apr 2016 11:27:42 -0700
 
