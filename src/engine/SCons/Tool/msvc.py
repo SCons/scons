@@ -259,11 +259,16 @@ def generate(env):
     env['CFILESUFFIX'] = '.c'
     env['CXXFILESUFFIX'] = '.cc'
 
-    maj, min = msvc_version_to_maj_min(env['MSVC_VERSION'])
-    if maj < 8:
-        env['PCHPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Yd") or ""}'])
+    if env.get('MSVC_VERSION',False):
+        maj, min = msvc_version_to_maj_min(env['MSVC_VERSION'])
+        if maj < 8:
+            env['PCHPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Yd") or ""}'])
+        else:
+            env['PCHPDBFLAGS'] = ''
     else:
-        env['PCHPDBFLAGS'] = ''
+        # Default if we can't determine which version of MSVC we're using
+        env['PCHPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Yd") or ""}'])
+
 
     env['PCHCOM'] = '$CXX /Fo${TARGETS[1]} $CXXFLAGS $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Yc$PCHSTOP /Fp${TARGETS[0]} $CCPDBFLAGS $PCHPDBFLAGS'
     env['BUILDERS']['PCH'] = pch_builder

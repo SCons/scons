@@ -185,16 +185,17 @@ _VCVER_TO_PRODUCT_DIR = {
 }
 
 def msvc_version_to_maj_min(msvc_version):
-   msvc_version_numeric = ''.join([x for  x in msvc_version if x in string_digits + '.'])
+    
+    msvc_version_numeric = ''.join([x for  x in msvc_version if x in string_digits + '.'])
 
-   t = msvc_version_numeric.split(".")
-   if not len(t) == 2:
+    t = msvc_version_numeric.split(".")
+    if not len(t) == 2:
        raise ValueError("Unrecognized version %s (%s)" % (msvc_version,msvc_version_numeric))
-   try:
+    try:
        maj = int(t[0])
        min = int(t[1])
        return maj, min
-   except ValueError as e:
+    except ValueError as e:
        raise ValueError("Unrecognized version %s (%s)" % (msvc_version,msvc_version_numeric))
 
 def is_host_target_supported(host_target, msvc_version):
