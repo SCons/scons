@@ -31,24 +31,14 @@ Test the ability to configure the $PDFTEXCOM construction variable.
 import TestSCons
 
 _python_ = TestSCons._python_
-_exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('mypdftex.py', r"""
-import sys
-outfile = open(sys.argv[1], 'wb')
-infile = open(sys.argv[2], 'rb')
-for l in [l for l in infile.readlines() if l != '/*tex*/\n']:
-    outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
 env = Environment(TOOLS = ['pdftex'],
-                  PDFTEXCOM = r'%(_python_)s mypdftex.py $TARGET $SOURCE')
+                  PDFTEXCOM = r'%(_python_)s mycompile.py tex $TARGET $SOURCE')
 env.PDF('test1')
 """ % locals())
 
@@ -60,8 +50,6 @@ test1.tex
 test.run()
 
 test.must_match('test1.pdf', "test1.tex\n")
-
-
 
 test.pass_test()
 

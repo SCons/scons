@@ -37,16 +37,7 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('myas.py', r"""
-import sys
-infile = open(sys.argv[2], 'rb')
-outfile = open(sys.argv[1], 'wb')
-for l in [l for l in infile.readlines() if l != b"#as\n"]:
-    outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 if os.path.normcase('.s') == os.path.normcase('.S'):
     alt_s_suffix = '.S'
@@ -56,7 +47,7 @@ else:
     alt_asm_suffix = '.asm'
 
 test.write('SConstruct', """
-env = Environment(ASCOM = r'%(_python_)s myas.py $TARGET $SOURCE',
+env = Environment(ASCOM = r'%(_python_)s mycompile.py as $TARGET $SOURCE',
                   ASCOMSTR = 'Assembling $TARGET from $SOURCE',
                   OBJSUFFIX = '.obj')
 env.Object(target = 'test1', source = 'test1.s')
@@ -65,10 +56,10 @@ env.Object(target = 'test3', source = 'test3.asm')
 env.Object(target = 'test4', source = 'test4%(alt_asm_suffix)s')
 """ % locals())
 
-test.write('test1.s', "test1.s\n#as\n")
-test.write('test2'+alt_s_suffix, "test2.S\n#as\n")
-test.write('test3.asm', "test3.asm\n#as\n")
-test.write('test4'+alt_asm_suffix, "test4.ASM\n#as\n")
+test.write('test1.s', "test1.s\n/*as*/\n")
+test.write('test2'+alt_s_suffix, "test2.S\n/*as*/\n")
+test.write('test3.asm', "test3.asm\n/*as*/\n")
+test.write('test4'+alt_asm_suffix, "test4.ASM\n/*as*/\n")
 
 test.run(stdout = test.wrap_stdout("""\
 Assembling test1.obj from test1.s
@@ -81,8 +72,6 @@ test.must_match('test1.obj', "test1.s\n")
 test.must_match('test2.obj', "test2.S\n")
 test.must_match('test3.obj', "test3.asm\n")
 test.must_match('test4.obj', "test4.ASM\n")
-
-
 
 test.pass_test()
 

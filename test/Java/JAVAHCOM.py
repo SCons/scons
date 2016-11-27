@@ -34,21 +34,11 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('myjavah.py', r"""
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != '/*javah*/\n']:
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
 env = Environment(TOOLS = ['default', 'javah'],
-                  JAVAHCOM = r'%(_python_)s myjavah.py $TARGET $SOURCES')
+                  JAVAHCOM = r'%(_python_)s mycompile.py javah $TARGET $SOURCES')
 env.JavaH(target = 'out', source = 'file1.class')
 env.JavaH(target = 'out', source = 'file2.class')
 env.JavaH(target = 'out', source = 'file3.class')
@@ -63,8 +53,6 @@ test.run()
 test.must_match(['out', 'file1.h'], "file1.class\n")
 test.must_match(['out', 'file2.h'], "file2.class\n")
 test.must_match(['out', 'file3.h'], "file3.class\n")
-
-
 
 test.pass_test()
 

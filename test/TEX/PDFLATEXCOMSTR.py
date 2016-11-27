@@ -33,24 +33,14 @@ the C compilation output.
 import TestSCons
 
 _python_ = TestSCons._python_
-_exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('mypdflatex.py', r"""
-import sys
-outfile = open(sys.argv[1], 'wb')
-infile = open(sys.argv[2], 'rb')
-for l in [l for l in infile.readlines() if l != '/*latex*/\n']:
-    outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
 env = Environment(TOOLS = ['pdflatex'],
-                  PDFLATEXCOM = r'%(_python_)s mypdflatex.py $TARGET $SOURCE',
+                  PDFLATEXCOM = r'%(_python_)s mycompile.py latex $TARGET $SOURCE',
                   PDFLATEXCOMSTR = 'Building $TARGET from $SOURCE')
 env.PDF('test1', 'test1.latex')
 """ % locals())
@@ -65,8 +55,6 @@ Building test1.pdf from test1.latex
 """ % locals()))
 
 test.must_match('test1.pdf', "test1.latex\n")
-
-
 
 test.pass_test()
 

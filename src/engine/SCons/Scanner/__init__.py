@@ -324,7 +324,7 @@ class Classic(Current):
 
     def __init__(self, name, suffixes, path_variable, regex, *args, **kw):
 
-        self.cre = re.compile(SCons.Util.to_bytes(regex), re.M)
+        self.cre = re.compile(regex, re.M)
 
         def _scan(node, env, path=(), self=self):
             node = node.rfile()
@@ -405,7 +405,7 @@ class ClassicCPP(Classic):
         return n, i
 
     def sort_key(self, include):
-        return SCons.Node.FS._my_normcase(b' '.join(include))
+        return SCons.Node.FS._my_normcase(' '.join(include))
 
 # Local Variables:
 # tab-width:4

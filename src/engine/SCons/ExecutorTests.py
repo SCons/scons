@@ -53,7 +53,11 @@ class MyAction(object):
     def genstring(self, target, source, env):
         return ' '.join(['GENSTRING'] + list(map(str, self.actions)) + target + source)
     def get_contents(self, target, source, env):
-        return ' '.join(self.actions + target + source)
+        return b' '.join(
+            [SCons.Util.to_bytes(aa) for aa in self.actions] + 
+            [SCons.Util.to_bytes(tt) for tt in target] +
+            [SCons.Util.to_bytes(ss) for ss in source]
+        )
     def get_implicit_deps(self, target, source, env):
         return []
 
@@ -381,14 +385,14 @@ class ExecutorTestCase(unittest.TestCase):
 
         x = SCons.Executor.Executor(MyAction(), env, [], ['t'], ['s'])
         c = x.get_contents()
-        assert c == 'action1 action2 t s', c
+        assert c == b'action1 action2 t s', c
 
         x = SCons.Executor.Executor(MyAction(actions=['grow']), env, [],
                                     ['t'], ['s'])
         x.add_pre_action(MyAction(['pre']))
         x.add_post_action(MyAction(['post']))
         c = x.get_contents()
-        assert c == 'pre t sgrow t spost t s', c
+        assert c == b'pre t sgrow t spost t s', c
 
     def test_get_timestamp(self):
         """Test fetching the "timestamp" """

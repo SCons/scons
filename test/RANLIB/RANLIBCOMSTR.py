@@ -42,29 +42,13 @@ if not ranlib:
 
 
 
-test.write('myar.py', """
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != '/*ar*/\\n']:
-        outfile.write(l)
-sys.exit(0)
-""")
-
-test.write('myranlib.py', """
-import sys
-lines = open(sys.argv[1], 'rb').readlines()
-outfile = open(sys.argv[1], 'wb')
-for l in [l for l in lines if l != '/*ranlib*/\\n']:
-    outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
+test.file_fixture('myrewrite.py')
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'ar'],
-                  ARCOM = r'%(_python_)s myar.py $TARGET $SOURCES',
-                  RANLIBCOM = r'%(_python_)s myranlib.py $TARGET',
+                  ARCOM = r'%(_python_)s mycompile.py ar $TARGET $SOURCES',
+                  RANLIBCOM = r'%(_python_)s myrewrite.py ranlib $TARGET',
                   RANLIBCOMSTR = 'Indexing $TARGET',
                   LIBPREFIX = '',
                   LIBSUFFIX = '.lib')
@@ -75,15 +59,13 @@ test.write('file.1', "file.1\n/*ar*/\n/*ranlib*/\n")
 test.write('file.2', "file.2\n/*ar*/\n/*ranlib*/\n")
 
 expect = test.wrap_stdout("""\
-%(_python_)s myar.py output.lib file.1 file.2
+%(_python_)s mycompile.py ar output.lib file.1 file.2
 Indexing output.lib
 """ % locals())
 
 test.run(stdout = expect)
 
 test.must_match('output.lib', "file.1\nfile.2\n")
-
-
 
 test.pass_test()
 

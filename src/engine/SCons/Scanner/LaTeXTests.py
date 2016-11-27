@@ -44,6 +44,12 @@ test.write('test1.latex',"""
 include{incNO}
 %\include{incNO}
 xyzzy \include{inc6}
+\subimport{subdir}{inc3}
+\import{subdir}{inc3a}
+\includefrom{subdir}{inc3b}
+\subincludefrom{subdir}{inc3c}
+\inputfrom{subdir}{inc3d}
+\subinputfrom{subdir}{inc3e}
 """)
 
 test.write('test2.latex',"""
@@ -61,6 +67,10 @@ test.subdir('subdir')
 test.write('inc1.tex',"\n")
 test.write('inc2.tex',"\n")
 test.write(['subdir', 'inc3.tex'], "\n")
+for suffix in 'abcde':
+    test.write(['subdir', 'inc3%s.tex' % suffix], "\n")
+test.write(['subdir', 'inc3b.tex'], "\n")
+test.write(['subdir', 'inc3c.tex'], "\n")
 test.write(['subdir', 'inc4.eps'], "\n")
 test.write('inc5.xyz', "\n")
 test.write('inc6.tex', "\n")
@@ -122,7 +132,10 @@ class LaTeXScannerTestCase1(unittest.TestCase):
         s = SCons.Scanner.LaTeX.LaTeXScanner()
         path = s.path(env)
         deps = s(env.File('test1.latex'), env, path)
-        headers = ['inc1.tex', 'inc2.tex', 'inc6.tex']
+        headers = ['inc1.tex', 'inc2.tex', 'inc6.tex',
+                   'subdir/inc3.tex', 'subdir/inc3a.tex',
+                   'subdir/inc3b.tex', 'subdir/inc3c.tex',
+                   'subdir/inc3d.tex', 'subdir/inc3e.tex']
         deps_match(self, deps, headers)
 
 class LaTeXScannerTestCase2(unittest.TestCase):

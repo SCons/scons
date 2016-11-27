@@ -34,31 +34,11 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('mycc.py', r"""
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != b'/*cc*/\n']:
-        outfile.write(l)
-sys.exit(0)
-
-""")
-test.write('mylink.py', r"""
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != b'/*link*/\n']:
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
-env = Environment(SHCCCOM = r'%(_python_)s mycc.py $TARGET $SOURCES',
-                  SHLINKCOM = r'%(_python_)s mylink.py $TARGET $SOURCES',
+env = Environment(SHCCCOM = r'%(_python_)s mycompile.py cc $TARGET $SOURCES',
+                  SHLINKCOM = r'%(_python_)s mycompile.py link $TARGET $SOURCES',
                   SHOBJSUFFIX = '.obj',
                   SHLIBPREFIX = '',
                   SHLIBSUFFIX = '.dll')
@@ -82,9 +62,6 @@ test2.c
 test.run()
 
 test.must_match('test3.dll', "test1.c\ntest2.c\n")
-
-
-
 
 test.pass_test()
 

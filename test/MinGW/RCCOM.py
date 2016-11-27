@@ -39,19 +39,11 @@ test = TestSCons.TestSCons()
 if sys.platform in ('irix6',):
     test.skip_test("Skipping mingw test on non-Windows %s platform."%sys.platform)
 
-test.write('myrc.py', """
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != '/*rc*/\\n']:
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'mingw'],
-                  RCCOM = r'%(_python_)s myrc.py $TARGET $SOURCES')
+                  RCCOM = r'%(_python_)s mycompile.py rc $TARGET $SOURCES')
 env.RES(target = 'aaa', source = 'aaa.rc')
 """ % locals())
 
@@ -60,8 +52,6 @@ test.write('aaa.rc', "aaa.rc\n/*rc*/\n")
 test.run(arguments = ".")
 
 test.must_match('aaa.o', "aaa.rc\n")
-
-
 
 test.pass_test()
 

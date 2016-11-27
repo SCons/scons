@@ -26,33 +26,21 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
-
-
 _python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
+test.file_fixture('mycompile.py')
 test.file_fixture('mylink.py')
-
-test.write('myfortran.py', r"""
-import sys
-comment = '#' + sys.argv[1]
-outfile = open(sys.argv[2], 'wb')
-infile = open(sys.argv[3], 'rb')
-for l in infile.readlines():
-    if l[:len(comment)] != comment:
-        outfile.write(l)
-sys.exit(0)
-""")
 
 test.write('SConstruct', """
 env = Environment(LINK = r'%(_python_)s mylink.py',
                   LINKFLAGS = [],
-                  F95COM = r'%(_python_)s myfortran.py f95 $TARGET $SOURCES',
-                  F95PPCOM = r'%(_python_)s myfortran.py f95pp $TARGET $SOURCES',
-                  FORTRANCOM = r'%(_python_)s myfortran.py fortran $TARGET $SOURCES',
-                  FORTRANPPCOM = r'%(_python_)s myfortran.py fortranpp $TARGET $SOURCES')
+                  F95COM = r'%(_python_)s mycompile.py f95 $TARGET $SOURCES',
+                  F95PPCOM = r'%(_python_)s mycompile.py f95pp $TARGET $SOURCES',
+                  FORTRANCOM = r'%(_python_)s mycompile.py fortran $TARGET $SOURCES',
+                  FORTRANPPCOM = r'%(_python_)s mycompile.py fortranpp $TARGET $SOURCES')
 env.Program(target = 'test01', source = 'test01.f')
 env.Program(target = 'test02', source = 'test02.F')
 env.Program(target = 'test03', source = 'test03.for')
@@ -65,25 +53,25 @@ env.Program(target = 'test13', source = 'test13.f95')
 env.Program(target = 'test14', source = 'test14.F95')
 env2 = Environment(LINK = r'%(_python_)s mylink.py',
                    LINKFLAGS = [],
-                   F95COM = r'%(_python_)s myfortran.py f95 $TARGET $SOURCES',
-                   F95PPCOM = r'%(_python_)s myfortran.py f95pp $TARGET $SOURCES')
+                   F95COM = r'%(_python_)s mycompile.py f95 $TARGET $SOURCES',
+                   F95PPCOM = r'%(_python_)s mycompile.py f95pp $TARGET $SOURCES')
 env2.Program(target = 'test21', source = 'test21.f95')
 env2.Program(target = 'test22', source = 'test22.F95')
 """ % locals())
 
-test.write('test01.f',   "This is a .f file.\n#link\n#fortran\n")
-test.write('test02.F',   "This is a .F file.\n#link\n#fortranpp\n")
-test.write('test03.for', "This is a .for file.\n#link\n#fortran\n")
-test.write('test04.FOR', "This is a .FOR file.\n#link\n#fortranpp\n")
-test.write('test05.ftn', "This is a .ftn file.\n#link\n#fortran\n")
-test.write('test06.FTN', "This is a .FTN file.\n#link\n#fortranpp\n")
-test.write('test07.fpp', "This is a .fpp file.\n#link\n#fortranpp\n")
-test.write('test08.FPP', "This is a .FPP file.\n#link\n#fortranpp\n")
-test.write('test13.f95', "This is a .f95 file.\n#link\n#f95\n")
-test.write('test14.F95', "This is a .F95 file.\n#link\n#f95pp\n")
+test.write('test01.f',   "This is a .f file.\n#link\n/*fortran*/\n")
+test.write('test02.F',   "This is a .F file.\n#link\n/*fortranpp*/\n")
+test.write('test03.for', "This is a .for file.\n#link\n/*fortran*/\n")
+test.write('test04.FOR', "This is a .FOR file.\n#link\n/*fortranpp*/\n")
+test.write('test05.ftn', "This is a .ftn file.\n#link\n/*fortran*/\n")
+test.write('test06.FTN', "This is a .FTN file.\n#link\n/*fortranpp*/\n")
+test.write('test07.fpp', "This is a .fpp file.\n#link\n/*fortranpp*/\n")
+test.write('test08.FPP', "This is a .FPP file.\n#link\n/*fortranpp*/\n")
+test.write('test13.f95', "This is a .f95 file.\n#link\n/*f95*/\n")
+test.write('test14.F95', "This is a .F95 file.\n#link\n/*f95pp*/\n")
 
-test.write('test21.f95', "This is a .f95 file.\n#link\n#f95\n")
-test.write('test22.F95', "This is a .F95 file.\n#link\n#f95pp\n")
+test.write('test21.f95', "This is a .f95 file.\n#link\n/*f95*/\n")
+test.write('test22.F95', "This is a .F95 file.\n#link\n/*f95pp*/\n")
 
 test.run(arguments = '.', stderr = None)
 

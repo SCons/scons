@@ -33,11 +33,10 @@ import os
 import TestSCons
 
 _python_ = TestSCons._python_
-_exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-test.dir_fixture('shared-fixture')
+test.file_fixture('mycompile.py')
 
 if os.path.normcase('.c') == os.path.normcase('.C'):
     alt_c_suffix = '.C'
@@ -45,11 +44,13 @@ else:
     alt_c_suffix = '.c'
 
 test.write('SConstruct', """
-env = Environment(CCCOM = r'%(_python_)s mycc.py $TARGET $SOURCE',
+env = Environment(CCCOM = r'%(_python_)s mycompile.py cc $TARGET $SOURCE',
                   OBJSUFFIX='.obj')
 env.Object(target = 'test1', source = 'test1.c')
 env.Object(target = 'test2', source = 'test2%(alt_c_suffix)s')
 """ % locals())
+
+test.write('test1.c', 'test1.c\n/*cc*/\n')
 
 test.write('test2'+alt_c_suffix, """\
 test2.C
@@ -60,8 +61,6 @@ test.run()
 
 test.must_match('test1.obj', "test1.c\n")
 test.must_match('test2.obj', "test2.C\n")
-
-
 
 test.pass_test()
 

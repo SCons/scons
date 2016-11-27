@@ -35,14 +35,16 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.dir_fixture('ZIPCOMSTR-fixture')
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
 env = Environment(tools=['zip'],
-                  ZIPCOM = r'%(_python_)s myzip.py $TARGET $SOURCES',
+                  ZIPCOM = r'%(_python_)s mycompile.py zip $TARGET $SOURCES',
                   ZIPCOMSTR = 'Zipping $TARGET from $SOURCE')
 env.Zip('aaa.zip', 'aaa.in')
 """ % locals())
+
+test.write('aaa.in', 'aaa.in\n/*zip*/\n')
 
 test.run(stdout = test.wrap_stdout("""\
 Zipping aaa.zip from aaa.in

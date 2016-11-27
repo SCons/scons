@@ -34,21 +34,11 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('mygs.py', """
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != '/*gs*/\\n']:
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'gs'],
-                  GSCOM = r'%(_python_)s mygs.py $TARGET $SOURCES')
+                  GSCOM = r'%(_python_)s mycompile.py gs $TARGET $SOURCES')
 env.PDF(target = 'aaa', source = 'aaa.ps')
 """ % locals())
 
@@ -57,8 +47,6 @@ test.write('aaa.ps', "aaa.ps\n/*gs*/\n")
 test.run(arguments = '.')
 
 test.must_match('aaa.pdf', "aaa.ps\n")
-
-
 
 test.pass_test()
 
