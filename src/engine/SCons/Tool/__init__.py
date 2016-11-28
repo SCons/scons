@@ -263,7 +263,7 @@ def createStaticLibBuilder(env):
         static_lib = env['BUILDERS']['StaticLibrary']
     except KeyError:
         action_list = [ SCons.Action.Action("$ARCOM", "$ARCOMSTR") ]
-        if env.Detect('ranlib'):
+        if env.get('RANLIB',False) or env.Detect('ranlib'):
             ranlib_action = SCons.Action.Action("$RANLIBCOM", "$RANLIBCOMSTR")
             action_list.append(ranlib_action)
 
