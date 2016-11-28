@@ -24,9 +24,8 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import TestSCons
-
-
 
 _python_ = TestSCons._python_
 
@@ -34,30 +33,12 @@ test = TestSCons.TestSCons()
 _exe = TestSCons._exe
 
 test.file_fixture('mylink.py')
-
-test.write('myfortran.py', r"""
-import getopt
-import sys
-opts, args = getopt.getopt(sys.argv[1:], 'co:x')
-optstring = ''
-for opt, arg in opts:
-    if opt == '-o': out = arg
-    else: optstring = optstring + ' ' + opt
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
-outfile.write(optstring + "\n")
-for l in infile.readlines():
-    if l[:8] != '#fortran':
-        outfile.write(l)
-sys.exit(0)
-""")
-
-
+test.file_fixture(os.path.join('fixture', 'myfortran_flags.py'))
 
 test.write('SConstruct', """
 env = Environment(LINK = r'%(_python_)s mylink.py',
                   LINKFLAGS = [],
-                  FORTRAN = r'%(_python_)s myfortran.py',
+                  FORTRAN = r'%(_python_)s myfortran_flags.py fortran',
                   FORTRANFLAGS = '-x')
 env.Program(target = 'test01', source = 'test01.f')
 env.Program(target = 'test02', source = 'test02.F')

@@ -42,7 +42,7 @@ contents = open(sys.argv[2]).read()
 modules = re.findall(mod_regex, contents)
 modules = [os.path.join(sys.argv[1], m.lower()+'.mod') for m in modules]
 for t in sys.argv[3:] + modules:
-    open(t, 'wb').write('myfortran.py wrote %s\n' % os.path.split(t)[1])
+    open(t, 'wb').write(('myfortran.py wrote %s\n' % os.path.split(t)[1]).encode())
 sys.exit(0)
 """)
 

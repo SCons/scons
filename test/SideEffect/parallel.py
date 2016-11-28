@@ -45,14 +45,14 @@ logfile = 'log.txt'
 
 try:
     os.mkdir(lockdir)
-except OSError, e:
+except OSError as e:
     msg = 'could not create lock directory: %s\\n' % e
     sys.stderr.write(msg)
     sys.exit(1)
 
 src, target = sys.argv[1:]
 
-open(logfile, 'ab').write('%s -> %s\\n' % (src, target))
+open(logfile, 'ab').write(('%s -> %s\\n' % (src, target)).encode())
 
 # Give the other threads a chance to start.
 time.sleep(1)

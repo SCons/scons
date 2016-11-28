@@ -38,7 +38,7 @@ test.write('myfc.py', r"""
 import sys
 def do_file(outf, inf):
     for line in open(inf, 'rb').readlines():
-        if line[:15] == "      INCLUDE '":
+        if line[:15] == b"      INCLUDE '":
             do_file(outf, line[15:-2])
         else:
             outf.write(line)
