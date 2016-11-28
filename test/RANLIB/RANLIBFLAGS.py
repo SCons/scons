@@ -42,8 +42,8 @@ test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
 foo = Environment(LIBS = ['foo'], LIBPATH = ['.'])
-bar = Environment(LIBS = ['bar'], LIBPATH = ['.'], RANLIB = '',
-                  RANLIBFLAGS = foo.subst(r'%(_python_)s wrapper.py $RANLIB $RANLIBFLAGS'))
+bar = Environment(LIBS = ['bar'], LIBPATH = ['.'], RANLIB = r'%(_python_)s wrapper.py',
+                  RANLIBFLAGS = foo.subst(r'$RANLIB $RANLIBFLAGS'))
 foo.Library(target = 'foo', source = 'foo.c')
 bar.Library(target = 'bar', source = 'bar.c')
 
