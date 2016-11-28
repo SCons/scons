@@ -25,6 +25,9 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
+import sys
+
+is_windows = (sys.platform == 'win32')
 
 _python_ = TestSCons._python_
 _exe   = TestSCons._exe
@@ -76,18 +79,23 @@ test.write('test22.F03', "This is a .F03 file.\n#link\n/*f03pp*/\n")
 test.run(arguments = '.', stderr = None)
 
 test.must_match('test01' + _exe, "This is a .f file.\n")
-test.must_match('test02' + _exe, "This is a .F file.\n")
 test.must_match('test03' + _exe, "This is a .for file.\n")
-test.must_match('test04' + _exe, "This is a .FOR file.\n")
 test.must_match('test05' + _exe, "This is a .ftn file.\n")
-test.must_match('test06' + _exe, "This is a .FTN file.\n")
 test.must_match('test07' + _exe, "This is a .fpp file.\n")
 test.must_match('test08' + _exe, "This is a .FPP file.\n")
 test.must_match('test13' + _exe, "This is a .f03 file.\n")
-test.must_match('test14' + _exe, "This is a .F03 file.\n")
 
 test.must_match('test21' + _exe, "This is a .f03 file.\n")
-test.must_match('test22' + _exe, "This is a .F03 file.\n")
+
+if not is_windows:
+    # Skip checking files we expect to differ in behavior
+    # based on file extension case
+    test.must_match('test02' + _exe, "This is a .F file.\n")
+    test.must_match('test04' + _exe, "This is a .FOR file.\n")
+    test.must_match('test06' + _exe, "This is a .FTN file.\n")
+    test.must_match('test14' + _exe, "This is a .F03 file.\n")
+    test.must_match('test22' + _exe, "This is a .F03 file.\n")
+
 
 test.pass_test()
 

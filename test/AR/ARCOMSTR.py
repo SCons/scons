@@ -42,6 +42,7 @@ test.write('SConstruct', """
 env = Environment(tools=['default', 'ar'],
                   ARCOM = r'%(_python_)s mycompile.py ar $TARGET $SOURCES',
                   ARCOMSTR = 'Archiving $TARGET from $SOURCES',
+                  RANLIB = True,
                   RANLIBCOM = r'%(_python_)s myrewrite.py ranlib $TARGET',
                   LIBPREFIX = '',
                   LIBSUFFIX = '.lib')
