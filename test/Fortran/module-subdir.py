@@ -103,7 +103,7 @@ end module
 """)
 
 
-test.run(arguments = '. --tree=all')
+test.run(arguments = '.')
 
 somemodule = os.path.join('subdir', 'build', 'somemodule.mod')
 
