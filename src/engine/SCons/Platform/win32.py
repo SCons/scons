@@ -89,7 +89,7 @@ else:
                     _builtin_file.__init__(self, *args, **kw)
                     win32api.SetHandleInformation(msvcrt.get_osfhandle(self.fileno()),
                         win32con.HANDLE_FLAG_INHERIT, 0)
-            setattr(io, io_class, _builtin_file)
+            setattr(io, io_class, _scons_file)
 
 
 try:
