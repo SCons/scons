@@ -204,17 +204,17 @@ def _object_contents(obj):
                     # Test if obj is a function object.
                     return _function_contents(obj)
 
-                except AttributeError:
-                    # Should be a pickable Python object.
+                except AttributeError as ae:
+                    # Should be a pickle-able Python object.
                     try:
                         return pickle.dumps(obj)
-                    except (pickle.PicklingError, TypeError):
+                    except (pickle.PicklingError, TypeError, AttributeError):
                         # This is weird, but it seems that nested classes
                         # are unpickable. The Python docs say it should
                         # always be a PicklingError, but some Python
                         # versions seem to return TypeError.  Just do
                         # the best we can.
-                        return str(obj)
+                        return repr(obj)
 
 
 def _code_contents(code):
@@ -233,8 +233,11 @@ def _code_contents(code):
 
     # The code contents depends on the number of local variables
     # but not their actual names.
-    contents.append(b"{}, {}".format(code.co_argcount, len(code.co_varnames)))
-    contents.append(b", {}, {}".format(len(code.co_cellvars), len(code.co_freevars)))
+    contents.append(bytes("{}, {}".format(code.co_argcount, len(code.co_varnames)),'utf-8'))
+    # part1 = str(code.co_argcount) + ", " + str(len(code.co_varnames))
+
+    contents.append(bytes(", {}, {}".format(len(code.co_cellvars), len(code.co_freevars)),'utf-8'))
+    # part2 = ", " + str(len(code.co_cellvars)) + ", " + str(len(code.co_freevars))
 
     # The code contents depends on any constants accessed by the
     # function. Note that we have to call _object_contents on each
@@ -244,14 +247,19 @@ def _code_contents(code):
     # Note that we also always ignore the first entry of co_consts
     # which contains the function doc string. We assume that the
     # function does not access its doc string.
-    contents.append(b',(' + b','.join(map(_object_contents,code.co_consts[1:])) + b')')
+    z= [str(_object_contents(cc)) for cc in code.co_consts[1:]]
+    # import pdb; pdb.set_trace()
+    # print("BLAH:%s"%code.co_consts)
+    # contents.append(bytes(',(' + ','.join(map(_object_contents,code.co_consts[1:])) + ')','utf-8'))
+    contents.append(bytes(',(' + ','.join(z) + ')','utf-8'))
 
     # The code contents depends on the variable names used to
     # accessed global variable, as changing the variable name changes
     # the variable actually accessed and therefore changes the
     # function result.
-    contents.append(b',(' + b','.join(map(_object_contents,code.co_names)) + b')')
-
+    z= [str(_object_contents(cc)) for cc in code.co_names]
+    # contents.append(bytes(',(' + ','.join(map(_object_contents,code.co_names)) + ')','utf-8'))
+    contents.append(bytes(',(' + ','.join(z) + ')','utf-8'))
 
     # The code contents depends on its actual code!!!
     contents.append(b',(' + remove_set_lineno_codes(code.co_code) + b')')
@@ -266,7 +274,9 @@ def _function_contents(func):
 
     # The function contents depends on the value of defaults arguments
     if func.__defaults__:
-        contents.append(b',(' + b','.join(map(_object_contents,func.__defaults__)) + b')')
+        z = [str(_object_contents(cc)) for cc in func.__defaults__]
+
+        contents.append(bytes(',(' + ','.join(z) + ')','utf-8'))
     else:
         contents.append(b',()')
 
@@ -1171,15 +1181,15 @@ class ActionCaller(object):
         actfunc = self.parent.actfunc
         try:
             # "self.actfunc" is a function.
-            contents = str(actfunc.__code__.co_code)
+            contents = bytes(actfunc.__code__.co_code)
         except AttributeError:
             # "self.actfunc" is a callable object.
             try:
-                contents = str(actfunc.__call__.__func__.__code__.co_code)
+                contents = actfunc.__call__.__func__.__code__.co_code
             except AttributeError:
                 # No __call__() method, so it might be a builtin
                 # or something like that.  Do the best we can.
-                contents = str(actfunc)
+                contents = repr(actfunc)
         contents = remove_set_lineno_codes(contents)
         return contents
 
