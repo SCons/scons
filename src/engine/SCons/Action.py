@@ -287,15 +287,24 @@ def _code_contents(code):
 
 
 def _function_contents(func):
-    """Return the signature contents of a function."""
+    """Return the signature contents of a function.
+
+    The signature is as follows (should be byte/chars):
+    ,( comma separated _object_contents for function argument defaults)
+    ,( comma separated _object_contents for any closure contents )
+
+    func.__code__     - Code object for function
+    func.__defaults__ - Tuple of function argument default values
+    func.__closure__  -
+    """
 
     contents = [_code_contents(func.__code__)]
 
     # The function contents depends on the value of defaults arguments
     if func.__defaults__:
-        z = [str(_object_contents(cc)) for cc in func.__defaults__]
+        function_defaults_contents = [str(_object_contents(cc)) for cc in func.__defaults__]
 
-        contents.append(bytearray(',(','utf-8') + b','.join(z) + bytearray(')','utf-8'))
+        contents.append(bytearray(',(','utf-8') + b','.join(function_defaults_contents) + bytearray(')','utf-8'))
     else:
         contents.append(b',()')
 
@@ -304,10 +313,10 @@ def _function_contents(func):
 
     #xxx = [_object_contents(x.cell_contents) for x in closure]
     try:
-        xxx = [_object_contents(x.cell_contents) for x in closure]
+        closure_contents = [_object_contents(x.cell_contents) for x in closure]
     except AttributeError:
-        xxx = []
-    contents.append(b',(' + ','.join(xxx).encode('ascii') + b')')
+        closure_contents = []
+    contents.append(b',(' + ','.join(closure_contents).encode('ascii') + b')')
 
     return bytearray('','utf-8').join(contents)
 
