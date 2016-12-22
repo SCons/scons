@@ -227,16 +227,37 @@ def _code_contents(code):
     number indications in the compiled byte code.  Boo!
     So we remove the line number byte codes to prevent
     recompilations from moving a Python function.
+
+    See:
+      * https://docs.python.org/2/library/inspect.html
+      * http://python-reference.readthedocs.io/en/latest/docs/code/index.html
+    For info on what each co_ variable provides
+
+    The signature is as follows (should be byte/chars):
+    co_argcount, len(co_varnames), len(co_cellvars), len(co_freevars),
+    ( comma separated signature for each object in co_consts ),
+    ( comma separated signature for each object in co_names ),
+    ( The bytecode with line number bytecodes removed from  co_code )
+
+    co_argcount - Returns the number of positional arguments (including arguments with default values).
+    co_varnames - Returns a tuple containing the names of the local variables (starting with the argument names).
+    co_cellvars - Returns a tuple containing the names of local variables that are referenced by nested functions.
+    co_freevars - Returns a tuple containing the names of free variables. (?)
+    co_consts   - Returns a tuple containing the literals used by the bytecode.
+    co_names    - Returns a tuple containing the names used by the bytecode.
+    co_code     - Returns a string representing the sequence of bytecode instructions.
+
     """
 
-    contents = []
+    # contents = []
 
     # The code contents depends on the number of local variables
     # but not their actual names.
-    contents.append(bytes("{}, {}".format(code.co_argcount, len(code.co_varnames)),'utf-8'))
+    contents = bytearray("{}, {}".format(code.co_argcount, len(code.co_varnames)),'utf-8')
+
     # part1 = str(code.co_argcount) + ", " + str(len(code.co_varnames))
 
-    contents.append(bytes(", {}, {}".format(len(code.co_cellvars), len(code.co_freevars)),'utf-8'))
+    contents.append(bytearray(", {}, {}".format(len(code.co_cellvars), len(code.co_freevars)),'utf-8'))
     # part2 = ", " + str(len(code.co_cellvars)) + ", " + str(len(code.co_freevars))
 
     # The code contents depends on any constants accessed by the
@@ -248,23 +269,21 @@ def _code_contents(code):
     # which contains the function doc string. We assume that the
     # function does not access its doc string.
     z= [str(_object_contents(cc)) for cc in code.co_consts[1:]]
-    # import pdb; pdb.set_trace()
-    # print("BLAH:%s"%code.co_consts)
-    # contents.append(bytes(',(' + ','.join(map(_object_contents,code.co_consts[1:])) + ')','utf-8'))
-    contents.append(bytes(',(' + ','.join(z) + ')','utf-8'))
+    # contents.append(bytearray(',(' + ','.join(map(_object_contents,code.co_consts[1:])) + ')','utf-8'))
+    contents.append(bytearray(',(' + ','.join(z) + ')','utf-8'))
 
     # The code contents depends on the variable names used to
     # accessed global variable, as changing the variable name changes
     # the variable actually accessed and therefore changes the
     # function result.
     z= [str(_object_contents(cc)) for cc in code.co_names]
-    # contents.append(bytes(',(' + ','.join(map(_object_contents,code.co_names)) + ')','utf-8'))
-    contents.append(bytes(',(' + ','.join(z) + ')','utf-8'))
+    # contents.append(bytearray(',(' + ','.join(map(_object_contents,code.co_names)) + ')','utf-8'))
+    contents.append(bytearray(',(' + ','.join(z) + ')','utf-8'))
 
     # The code contents depends on its actual code!!!
-    contents.append(b',(' + remove_set_lineno_codes(code.co_code) + b')')
+    contents.append(bytearray(',(','utf-8') + remove_set_lineno_codes(code.co_code) + bytearray(')','utf-8'))
 
-    return b''.join(contents)
+    return bytearray('').join(contents)
 
 
 def _function_contents(func):
@@ -276,7 +295,7 @@ def _function_contents(func):
     if func.__defaults__:
         z = [str(_object_contents(cc)) for cc in func.__defaults__]
 
-        contents.append(bytes(',(' + ','.join(z) + ')','utf-8'))
+        contents.append(bytearray(',(','utf-8') + b','.join(z) + bytearray(')','utf-8'))
     else:
         contents.append(b',()')
 
@@ -290,7 +309,7 @@ def _function_contents(func):
         xxx = []
     contents.append(b',(' + ','.join(xxx).encode('ascii') + b')')
 
-    return b''.join(contents)
+    return bytearray('','utf-8').join(contents)
 
 
 def _actionAppend(act1, act2):
@@ -415,6 +434,7 @@ def Action(act, *args, **kw):
         return _do_create_list_action(act, kw)
     return _do_create_action(act, kw)
 
+
 class ActionBase(object):
     """Base class for all types of action objects that can be held by
     other objects (Builders, Executors, etc.)  This provides the
@@ -442,6 +462,7 @@ class ActionBase(object):
         for v in vl:
             # do the subst this way to ignore $(...$) parts:
             result.append(SCons.Util.to_bytes(env.subst_target_source('${'+v+'}', SCons.Subst.SUBST_SIG, target, source)))
+
         return b''.join(result)
 
     def __add__(self, other):
@@ -471,6 +492,7 @@ class ActionBase(object):
         by this action.
         """
         return self.targets
+
 
 class _ActionAction(ActionBase):
     """Base class for actions that create output objects."""
@@ -1163,6 +1185,7 @@ class ListAction(ActionBase):
                 result[var] = True
         return list(result.keys())
 
+
 class ActionCaller(object):
     """A class for delaying calling an Action function with specific
     (positional and keyword) arguments until the Action is actually
@@ -1181,7 +1204,7 @@ class ActionCaller(object):
         actfunc = self.parent.actfunc
         try:
             # "self.actfunc" is a function.
-            contents = bytes(actfunc.__code__.co_code)
+            contents = bytearray(actfunc.__code__.co_code,'utf-8')
         except AttributeError:
             # "self.actfunc" is a callable object.
             try:
@@ -1232,6 +1255,7 @@ class ActionCaller(object):
 
     def __str__(self):
         return self.parent.strfunc(*self.args, **self.kw)
+
 
 class ActionFactory(object):
     """A factory class that will wrap up an arbitrary function
