@@ -293,9 +293,10 @@ def _function_contents(func):
     ,( comma separated _object_contents for function argument defaults)
     ,( comma separated _object_contents for any closure contents )
 
-    func.__code__     - Code object for function
-    func.__defaults__ - Tuple of function argument default values
-    func.__closure__  -
+    func.__code__     - The code object representing the compiled function body.
+    func.__defaults__ - A tuple containing default argument values for those arguments
+                        that have defaults, or None if no arguments have a default value
+    func.__closure__  - None or a tuple of cells that contain bindings for the function's free variables.
     """
 
     contents = [_code_contents(func.__code__)]
