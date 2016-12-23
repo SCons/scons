@@ -1840,6 +1840,7 @@ class LazyActionTestCase(unittest.TestCase):
         c = a.get_contents(target=[], source=[], env=env)
         assert c in matches_foo, repr(c)
 
+
 class ActionCallerTestCase(unittest.TestCase):
     def test___init__(self):
         """Test creation of an ActionCaller"""

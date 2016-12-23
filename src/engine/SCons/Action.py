@@ -132,28 +132,6 @@ def rfile(n):
 def default_exitstatfunc(s):
     return s
 
-try:
-    SET_LINENO = dis.SET_LINENO
-    HAVE_ARGUMENT = dis.HAVE_ARGUMENT
-except AttributeError:
-    remove_set_lineno_codes = lambda x: x
-else:
-    def remove_set_lineno_codes(code):
-        result = []
-        n = len(code)
-        i = 0
-        while i < n:
-            c = code[i]
-            op = ord(c)
-            if op >= HAVE_ARGUMENT:
-                if op != SET_LINENO:
-                    result.append(code[i:i+3])
-                i = i+3
-            else:
-                result.append(c)
-                i = i+1
-        return ''.join(result)
-
 strip_quotes = re.compile('^[\'"](.*)[\'"]$')
 
 
@@ -281,7 +259,7 @@ def _code_contents(code):
     contents.append(bytearray(',(' + ','.join(z) + ')','utf-8'))
 
     # The code contents depends on its actual code!!!
-    contents.append(bytearray(',(','utf-8') + remove_set_lineno_codes(code.co_code) + bytearray(')','utf-8'))
+    contents.append(bytearray(',(','utf-8') + code.co_code + bytearray(')','utf-8'))
 
     return bytearray('').join(contents)
 
@@ -290,9 +268,12 @@ def _function_contents(func):
     """Return the signature contents of a function.
 
     The signature is as follows (should be byte/chars):
+    < _code_contents (see above) from func.__code__ >
     ,( comma separated _object_contents for function argument defaults)
     ,( comma separated _object_contents for any closure contents )
 
+
+    See also: https://docs.python.org/3/reference/datamodel.html
     func.__code__     - The code object representing the compiled function body.
     func.__defaults__ - A tuple containing default argument values for those arguments
                         that have defaults, or None if no arguments have a default value
@@ -1223,7 +1204,7 @@ class ActionCaller(object):
                 # No __call__() method, so it might be a builtin
                 # or something like that.  Do the best we can.
                 contents = repr(actfunc)
-        contents = remove_set_lineno_codes(contents)
+
         return contents
 
     def subst(self, s, target, source, env):
