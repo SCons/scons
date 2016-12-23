@@ -33,23 +33,8 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Util
-
-cplusplus = __import__('c++', globals(), locals(), [])
-
-def generate(env):
-    """Add Builders and construction variables for SGI MIPS C++ to an Environment."""
-
-    cplusplus.generate(env)
-
-    env['CXX']         = 'CC'
-    env['CXXFLAGS']    = SCons.Util.CLVar('-LANG:std')
-    env['SHCXX']       = '$CXX'
-    env['SHOBJSUFFIX'] = '.o'
-    env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
-    
-def exists(env):
-    return env.Detect('CC')
+#forward proxy to the preffered cxx version
+from SCons.Tool.sgicxx import *
 
 # Local Variables:
 # tab-width:4
