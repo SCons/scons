@@ -32,66 +32,10 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os.path
 
-import SCons.Tool
-import SCons.Defaults
-import SCons.Util
+#forward proxy to the preffered cxx version
+from SCons.Tool.cxx import *
 
-compilers = ['CC', 'c++']
-
-CXXSuffixes = ['.cpp', '.cc', '.cxx', '.c++', '.C++', '.mm']
-if SCons.Util.case_sensitive_suffixes('.c', '.C'):
-    CXXSuffixes.append('.C')
-
-def iscplusplus(source):
-    if not source:
-        # Source might be None for unusual cases like SConf.
-        return 0
-    for s in source:
-        if s.sources:
-            ext = os.path.splitext(str(s.sources[0]))[1]
-            if ext in CXXSuffixes:
-                return 1
-    return 0
-
-def generate(env):
-    """
-    Add Builders and construction variables for Visual Age C++ compilers
-    to an Environment.
-    """
-    import SCons.Tool
-    import SCons.Tool.cc
-    static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
-
-    for suffix in CXXSuffixes:
-        static_obj.add_action(suffix, SCons.Defaults.CXXAction)
-        shared_obj.add_action(suffix, SCons.Defaults.ShCXXAction)
-        static_obj.add_emitter(suffix, SCons.Defaults.StaticObjectEmitter)
-        shared_obj.add_emitter(suffix, SCons.Defaults.SharedObjectEmitter)
-
-    SCons.Tool.cc.add_common_cc_variables(env)
-
-    if 'CXX' not in env:
-        env['CXX']    = env.Detect(compilers) or compilers[0]
-    env['CXXFLAGS']   = SCons.Util.CLVar('')
-    env['CXXCOM']     = '$CXX -o $TARGET -c $CXXFLAGS $CCFLAGS $_CCCOMCOM $SOURCES'
-    env['SHCXX']      = '$CXX'
-    env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
-    env['SHCXXCOM']   = '$SHCXX -o $TARGET -c $SHCXXFLAGS $SHCCFLAGS $_CCCOMCOM $SOURCES'
-
-    env['CPPDEFPREFIX']  = '-D'
-    env['CPPDEFSUFFIX']  = ''
-    env['INCPREFIX']  = '-I'
-    env['INCSUFFIX']  = ''
-    env['SHOBJSUFFIX'] = '.os'
-    env['OBJSUFFIX'] = '.o'
-    env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 0
-
-    env['CXXFILESUFFIX'] = '.cc'
-
-def exists(env):
-    return env.Detect(env.get('CXX', compilers))
 
 # Local Variables:
 # tab-width:4

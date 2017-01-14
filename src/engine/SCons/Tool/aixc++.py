@@ -33,40 +33,8 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os.path
-
-import SCons.Platform.aix
-
-cplusplus = __import__('c++', globals(), locals(), [])
-
-packages = ['vacpp.cmp.core', 'vacpp.cmp.batch', 'vacpp.cmp.C', 'ibmcxx.cmp']
-
-def get_xlc(env):
-    xlc = env.get('CXX', 'xlC')
-    return SCons.Platform.aix.get_xlc(env, xlc, packages)
-
-def generate(env):
-    """Add Builders and construction variables for xlC / Visual Age
-    suite to an Environment."""
-    path, _cxx, version = get_xlc(env)
-    if path and _cxx:
-        _cxx = os.path.join(path, _cxx)
-
-    if 'CXX' not in env:
-        env['CXX'] = _cxx
-
-    cplusplus.generate(env)
-
-    if version:
-        env['CXXVERSION'] = version
-    
-def exists(env):
-    path, _cxx, version = get_xlc(env)
-    if path and _cxx:
-        xlc = os.path.join(path, _cxx)
-        if os.path.exists(xlc):
-            return xlc
-    return None
+#forward proxy to the preffered cxx version
+from SCons.Tool.aixcxx import *
 
 # Local Variables:
 # tab-width:4

@@ -33,44 +33,10 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os.path
-import re
-import subprocess
 
-import SCons.Tool
-import SCons.Util
+#forward proxy to the preffered cxx version
+from SCons.Tool.gxx import *
 
-from . import gcc
-cplusplus = __import__(__package__+'.c++', globals(), locals(), ['*'])
-
-compilers = ['g++']
-
-def generate(env):
-    """Add Builders and construction variables for g++ to an Environment."""
-    static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
-
-    if 'CXX' not in env:
-        env['CXX']    = env.Detect(compilers) or compilers[0]
-
-    cplusplus.generate(env)
-
-    # platform specific settings
-    if env['PLATFORM'] == 'aix':
-        env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -mminimal-toc')
-        env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
-        env['SHOBJSUFFIX'] = '$OBJSUFFIX'
-    elif env['PLATFORM'] == 'hpux':
-        env['SHOBJSUFFIX'] = '.pic.o'
-    elif env['PLATFORM'] == 'sunos':
-        env['SHOBJSUFFIX'] = '.pic.o'
-    # determine compiler version
-    version = gcc.detect_version(env, env['CXX'])
-    if version:
-        env['CXXVERSION'] = version
-
-def exists(env):
-    # is executable, and is a GNU compiler (or accepts '--version' at least)
-    return gcc.detect_version(env, env.Detect(env.get('CXX', compilers)))
 
 # Local Variables:
 # tab-width:4
