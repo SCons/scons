@@ -48,7 +48,11 @@ def generate(env):
     env['LIBPREFIX']   = 'lib'
     env['LIBSUFFIX']   = '.a'
 
+<<<<<<< working copy
+    if env.get('RANLIB',False) or env.Detect('ranlib'):
+=======
     if env.get('RANLIB',env.Detect('ranlib')) :
+>>>>>>> merge rev
         env['RANLIB']      = env.get('RANLIB','ranlib')
         env['RANLIBFLAGS'] = SCons.Util.CLVar('')
         env['RANLIBCOM']   = '$RANLIB $RANLIBFLAGS $TARGET'
