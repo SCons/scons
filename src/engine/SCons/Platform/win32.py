@@ -92,6 +92,37 @@ else:
             setattr(io, io_class, _scons_file)
 
 
+
+
+# Now swap out shutil.filecopy and filecopy2 for win32 api native CopyFile
+try:
+    from ctypes import windll
+    import shutil
+
+    CopyFile = windll.kernel32.CopyFileA
+    SetFileTime = windll.kernel32.SetFileTime
+
+    _shutil_copy = shutil.copy
+    _shutil_copy2 = shutil.copy2
+
+    shutil.copy2 = CopyFile
+
+    def win_api_copyfile(src,dst):
+        CopyFile(src,dst)
+        os.utime(dst)
+
+    shutil.copy = win_api_copyfile
+
+except AttributeError:
+    parallel_msg = \
+        "Couldn't override shutil.copy or shutil.copy2 falling back to shutil defaults"
+
+
+
+
+
+
+
 try:
     import threading
     spawn_lock = threading.Lock()
