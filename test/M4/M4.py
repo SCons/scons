@@ -59,7 +59,13 @@ line 3
 
 test.run()
 
-test.must_match(test.workpath('aaa.x'), "line 1\nmym4.py\nline 3\n")
+import sys
+
+if sys.platform == 'win32':
+    # Handle carriage returns.
+    test.must_match(test.workpath('aaa.x'), "line 1\r\nmym4.py\r\nline 3\r\n")
+else:
+    test.must_match(test.workpath('aaa.x'), "line 1\nmym4.py\nline 3\n")
 
 
 

@@ -25,6 +25,9 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
+import sys
+
+is_windows = ( sys.platform =='win32')
 
 _python_ = TestSCons._python_
 _obj   = TestSCons._shobj
@@ -72,18 +75,21 @@ test.write('test22.F95', "This is a .F95 file.\n/*f95pp*/\n")
 test.run(arguments = '.', stderr = None)
 
 test.must_match(obj_ + 'test01' + _obj, "This is a .f file.\n")
-test.must_match(obj_ + 'test02' + _obj, "This is a .F file.\n")
 test.must_match(obj_ + 'test03' + _obj, "This is a .for file.\n")
-test.must_match(obj_ + 'test04' + _obj, "This is a .FOR file.\n")
 test.must_match(obj_ + 'test05' + _obj, "This is a .ftn file.\n")
-test.must_match(obj_ + 'test06' + _obj, "This is a .FTN file.\n")
 test.must_match(obj_ + 'test07' + _obj, "This is a .fpp file.\n")
-test.must_match(obj_ + 'test08' + _obj, "This is a .FPP file.\n")
 test.must_match(obj_ + 'test13' + _obj, "This is a .f95 file.\n")
-test.must_match(obj_ + 'test14' + _obj, "This is a .F95 file.\n")
 
 test.must_match(obj_ + 'test21' + _obj, "This is a .f95 file.\n")
-test.must_match(obj_ + 'test22' + _obj, "This is a .F95 file.\n")
+if not is_windows:
+    # Skip checking files we expect to differ in behavior
+    # based on file extension case
+    test.must_match(obj_ + 'test02' + _obj, "This is a .F file.\n")
+    test.must_match(obj_ + 'test04' + _obj, "This is a .FOR file.\n")
+    test.must_match(obj_ + 'test06' + _obj, "This is a .FTN file.\n")
+    test.must_match(obj_ + 'test08' + _obj, "This is a .FPP file.\n")
+    test.must_match(obj_ + 'test14' + _obj, "This is a .F95 file.\n")
+    test.must_match(obj_ + 'test22' + _obj, "This is a .F95 file.\n")
 
 test.pass_test()
 
