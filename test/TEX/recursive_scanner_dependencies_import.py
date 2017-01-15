@@ -34,6 +34,7 @@ dependencies are found only by the scanner.
 
 """
 
+import os
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -42,6 +43,10 @@ pdflatex = test.where_is('pdflatex')
 
 if not pdflatex:
     test.skip_test("Could not find pdflatex; skipping test(s).\n")
+
+latex_import = os.system('kpsewhich import.sty')
+if latex_import != 0:
+    test.skip_test("import.sty not installed; skipping test(s).\n")
 
 test.subdir('subdir')
 test.subdir('subdir/subdir2')

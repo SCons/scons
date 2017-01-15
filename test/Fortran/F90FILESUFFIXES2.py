@@ -24,6 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -32,21 +33,7 @@ _exe   = TestSCons._exe
 test = TestSCons.TestSCons()
 
 test.file_fixture('mylink.py')
-
-test.write('myfortran.py', r"""
-import getopt
-import sys
-comment = '#' + sys.argv[1]
-opts, args = getopt.getopt(sys.argv[2:], 'co:')
-for opt, arg in opts:
-    if opt == '-o': out = arg
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
-for l in infile.readlines():
-    if l[:len(comment)] != comment:
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture(os.path.join('fixture', 'myfortran.py'))
 
 # Test non-default file suffix: .f/.F for F90
 test.write('SConstruct', """

@@ -45,7 +45,7 @@ test.write('myfortran.py', r"""
 import getopt
 import os
 import sys
-comment = '#' + sys.argv[1]
+comment = ('#' + sys.argv[1]).encode()
 length = len(comment)
 opts, args = getopt.getopt(sys.argv[2:], 'cM:o:')
 for opt, arg in opts:
@@ -55,9 +55,9 @@ import os
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
-    if l[:7] == 'module ':
-        module = modsubdir + os.sep + l[7:-1] + '.mod'
-        open(module, 'wb').write('myfortran.py wrote %s\n' % module)
+    if l[:7] == b'module ':
+        module = modsubdir + os.sep + l[7:-1].decode() + '.mod'
+        open(module, 'wb').write(('myfortran.py wrote %s\n' % module).encode())
     if l[:length] != comment:
         outfile.write(l)
 sys.exit(0)

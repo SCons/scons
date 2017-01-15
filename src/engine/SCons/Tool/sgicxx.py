@@ -1,6 +1,6 @@
-"""SCons.Tool.ar
+"""SCons.Tool.sgic++
 
-Tool-specific initialization for ar (library archive).
+Tool-specific initialization for MIPSpro C++ on SGI.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -33,32 +33,23 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Defaults
-import SCons.Tool
 import SCons.Util
 
+cplusplus = __import__('c++', globals(), locals(), [])
 
 def generate(env):
-    """Add Builders and construction variables for ar to an Environment."""
-    SCons.Tool.createStaticLibBuilder(env)
+    """Add Builders and construction variables for SGI MIPS C++ to an Environment."""
 
-    env['AR']          = 'ar'
-    env['ARFLAGS']     = SCons.Util.CLVar('rc')
-    env['ARCOM']       = '$AR $ARFLAGS $TARGET $SOURCES'
-    env['LIBPREFIX']   = 'lib'
-    env['LIBSUFFIX']   = '.a'
+    cplusplus.generate(env)
 
-<<<<<<< working copy
-    if env.get('RANLIB',False) or env.Detect('ranlib'):
-=======
-    if env.get('RANLIB',env.Detect('ranlib')) :
->>>>>>> merge rev
-        env['RANLIB']      = env.get('RANLIB','ranlib')
-        env['RANLIBFLAGS'] = SCons.Util.CLVar('')
-        env['RANLIBCOM']   = '$RANLIB $RANLIBFLAGS $TARGET'
-
+    env['CXX']         = 'CC'
+    env['CXXFLAGS']    = SCons.Util.CLVar('-LANG:std')
+    env['SHCXX']       = '$CXX'
+    env['SHOBJSUFFIX'] = '.o'
+    env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
+    
 def exists(env):
-    return env.Detect('ar')
+    return env.Detect('CC')
 
 # Local Variables:
 # tab-width:4

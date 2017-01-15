@@ -1,6 +1,6 @@
-"""SCons.Tool.ar
+"""SCons.Tool.g++
 
-Tool-specific initialization for ar (library archive).
+Tool-specific initialization for g++.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -33,32 +33,44 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Defaults
+import os.path
+import re
+import subprocess
+
 import SCons.Tool
 import SCons.Util
 
+from . import gcc
+cplusplus = __import__(__package__+'.c++', globals(), locals(), ['*'])
+
+compilers = ['g++']
 
 def generate(env):
-    """Add Builders and construction variables for ar to an Environment."""
-    SCons.Tool.createStaticLibBuilder(env)
+    """Add Builders and construction variables for g++ to an Environment."""
+    static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
-    env['AR']          = 'ar'
-    env['ARFLAGS']     = SCons.Util.CLVar('rc')
-    env['ARCOM']       = '$AR $ARFLAGS $TARGET $SOURCES'
-    env['LIBPREFIX']   = 'lib'
-    env['LIBSUFFIX']   = '.a'
+    if 'CXX' not in env:
+        env['CXX']    = env.Detect(compilers) or compilers[0]
 
-<<<<<<< working copy
-    if env.get('RANLIB',False) or env.Detect('ranlib'):
-=======
-    if env.get('RANLIB',env.Detect('ranlib')) :
->>>>>>> merge rev
-        env['RANLIB']      = env.get('RANLIB','ranlib')
-        env['RANLIBFLAGS'] = SCons.Util.CLVar('')
-        env['RANLIBCOM']   = '$RANLIB $RANLIBFLAGS $TARGET'
+    cplusplus.generate(env)
+
+    # platform specific settings
+    if env['PLATFORM'] == 'aix':
+        env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -mminimal-toc')
+        env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
+        env['SHOBJSUFFIX'] = '$OBJSUFFIX'
+    elif env['PLATFORM'] == 'hpux':
+        env['SHOBJSUFFIX'] = '.pic.o'
+    elif env['PLATFORM'] == 'sunos':
+        env['SHOBJSUFFIX'] = '.pic.o'
+    # determine compiler version
+    version = gcc.detect_version(env, env['CXX'])
+    if version:
+        env['CXXVERSION'] = version
 
 def exists(env):
-    return env.Detect('ar')
+    # is executable, and is a GNU compiler (or accepts '--version' at least)
+    return gcc.detect_version(env, env.Detect(env.get('CXX', compilers)))
 
 # Local Variables:
 # tab-width:4

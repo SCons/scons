@@ -1,6 +1,6 @@
-"""SCons.Tool.ar
+"""SCons.Tool.hpc++
 
-Tool-specific initialization for ar (library archive).
+Tool-specific initialization for c++ on HP/UX.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -33,32 +33,49 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Defaults
-import SCons.Tool
+import os.path
+
 import SCons.Util
 
+cplusplus = __import__('c++', globals(), locals(), [])
 
+acc = None
+
+# search for the acc compiler and linker front end
+
+try:
+    dirs = os.listdir('/opt')
+except (IOError, OSError):
+    # Not being able to read the directory because it doesn't exist
+    # (IOError) or isn't readable (OSError) is okay.
+    dirs = []
+
+for dir in dirs:
+    cc = '/opt/' + dir + '/bin/aCC'
+    if os.path.exists(cc):
+        acc = cc
+        break
+
+        
 def generate(env):
-    """Add Builders and construction variables for ar to an Environment."""
-    SCons.Tool.createStaticLibBuilder(env)
+    """Add Builders and construction variables for g++ to an Environment."""
+    cplusplus.generate(env)
 
-    env['AR']          = 'ar'
-    env['ARFLAGS']     = SCons.Util.CLVar('rc')
-    env['ARCOM']       = '$AR $ARFLAGS $TARGET $SOURCES'
-    env['LIBPREFIX']   = 'lib'
-    env['LIBSUFFIX']   = '.a'
+    if acc:
+        env['CXX']        = acc or 'aCC'
+        env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS +Z')
+        # determine version of aCC
+        line = os.popen(acc + ' -V 2>&1').readline().rstrip()
+        if line.find('aCC: HP ANSI C++') == 0:
+            env['CXXVERSION'] = line.split()[-1]
 
-<<<<<<< working copy
-    if env.get('RANLIB',False) or env.Detect('ranlib'):
-=======
-    if env.get('RANLIB',env.Detect('ranlib')) :
->>>>>>> merge rev
-        env['RANLIB']      = env.get('RANLIB','ranlib')
-        env['RANLIBFLAGS'] = SCons.Util.CLVar('')
-        env['RANLIBCOM']   = '$RANLIB $RANLIBFLAGS $TARGET'
+        if env['PLATFORM'] == 'cygwin':
+            env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
+        else:
+            env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS +Z')
 
 def exists(env):
-    return env.Detect('ar')
+    return acc
 
 # Local Variables:
 # tab-width:4

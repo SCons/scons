@@ -60,15 +60,7 @@ except AttributeError:
 else:
     parallel_msg = None
 
-    _builtin_file = file
     _builtin_open = open
-
-    class _scons_file(_builtin_file):
-        def __init__(self, *args, **kw):
-            _builtin_file.__init__(self, *args, **kw)
-            win32api.SetHandleInformation(msvcrt.get_osfhandle(self.fileno()),
-                win32con.HANDLE_FLAG_INHERIT, 0)
-
 
     def _scons_open(*args, **kw):
         fp = _builtin_open(*args, **kw)
@@ -77,8 +69,28 @@ else:
                                       0)
         return fp
 
-    file = _scons_file
     open = _scons_open
+
+    if sys.version_info.major == 2:
+        _builtin_file = file
+        class _scons_file(_builtin_file):
+            def __init__(self, *args, **kw):
+                _builtin_file.__init__(self, *args, **kw)
+                win32api.SetHandleInformation(msvcrt.get_osfhandle(self.fileno()),
+                    win32con.HANDLE_FLAG_INHERIT, 0)
+        file = _scons_file
+    else:
+        import io
+        for io_class in ['BufferedReader', 'BufferedWriter', 'BufferedRWPair',
+                         'BufferedRandom', 'TextIOWrapper']:
+            _builtin_file = getattr(io, io_class)
+            class _scons_file(_builtin_file):
+                def __init__(self, *args, **kw):
+                    _builtin_file.__init__(self, *args, **kw)
+                    win32api.SetHandleInformation(msvcrt.get_osfhandle(self.fileno()),
+                        win32con.HANDLE_FLAG_INHERIT, 0)
+            setattr(io, io_class, _scons_file)
+
 
 try:
     import threading

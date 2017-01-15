@@ -24,6 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -32,26 +33,10 @@ obj_   = TestSCons.shobj_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('myfortran.py', r"""
-import getopt
-import sys
-opts, args = getopt.getopt(sys.argv[1:], 'cf:o:K:')
-for opt, arg in opts:
-    if opt == '-o': out = arg
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
-for l in infile.readlines():
-    if l[:8] != '#fortran':
-        outfile.write(l)
-sys.exit(0)
-""")
-
-
+test.file_fixture(os.path.join('fixture', 'myfortran.py'))
 
 test.write('SConstruct', """
-env = Environment(SHFORTRAN = r'%(_python_)s myfortran.py')
+env = Environment(SHFORTRAN = r'%(_python_)s myfortran.py fortran')
 env.SharedObject(target = 'test01', source = 'test01.f')
 env.SharedObject(target = 'test02', source = 'test02.F')
 env.SharedObject(target = 'test03', source = 'test03.for')

@@ -1,6 +1,6 @@
-"""SCons.Tool.ar
+"""SCons.Tool.aixc++
 
-Tool-specific initialization for ar (library archive).
+Tool-specific initialization for IBM xlC / Visual Age C++ compiler.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -33,32 +33,40 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Defaults
-import SCons.Tool
-import SCons.Util
+import os.path
 
+import SCons.Platform.aix
+
+cplusplus = __import__('c++', globals(), locals(), [])
+
+packages = ['vacpp.cmp.core', 'vacpp.cmp.batch', 'vacpp.cmp.C', 'ibmcxx.cmp']
+
+def get_xlc(env):
+    xlc = env.get('CXX', 'xlC')
+    return SCons.Platform.aix.get_xlc(env, xlc, packages)
 
 def generate(env):
-    """Add Builders and construction variables for ar to an Environment."""
-    SCons.Tool.createStaticLibBuilder(env)
+    """Add Builders and construction variables for xlC / Visual Age
+    suite to an Environment."""
+    path, _cxx, version = get_xlc(env)
+    if path and _cxx:
+        _cxx = os.path.join(path, _cxx)
 
-    env['AR']          = 'ar'
-    env['ARFLAGS']     = SCons.Util.CLVar('rc')
-    env['ARCOM']       = '$AR $ARFLAGS $TARGET $SOURCES'
-    env['LIBPREFIX']   = 'lib'
-    env['LIBSUFFIX']   = '.a'
+    if 'CXX' not in env:
+        env['CXX'] = _cxx
 
-<<<<<<< working copy
-    if env.get('RANLIB',False) or env.Detect('ranlib'):
-=======
-    if env.get('RANLIB',env.Detect('ranlib')) :
->>>>>>> merge rev
-        env['RANLIB']      = env.get('RANLIB','ranlib')
-        env['RANLIBFLAGS'] = SCons.Util.CLVar('')
-        env['RANLIBCOM']   = '$RANLIB $RANLIBFLAGS $TARGET'
+    cplusplus.generate(env)
 
+    if version:
+        env['CXXVERSION'] = version
+    
 def exists(env):
-    return env.Detect('ar')
+    path, _cxx, version = get_xlc(env)
+    if path and _cxx:
+        xlc = os.path.join(path, _cxx)
+        if os.path.exists(xlc):
+            return xlc
+    return None
 
 # Local Variables:
 # tab-width:4
