@@ -40,6 +40,7 @@ test.file_fixture('myrewrite.py')
 test.write('SConstruct', """
 env = Environment(tools=['default', 'ar'],
                   ARCOM = r'%(_python_)s mycompile.py ar $TARGET $SOURCES',
+                  RANLIB = True,
                   RANLIBCOM = r'%(_python_)s myrewrite.py ranlib $TARGET',
                   LIBPREFIX = '',
                   LIBSUFFIX = '.lib')
@@ -48,6 +49,7 @@ env.Library(target = 'output', source = ['file.1', 'file.2'])
 
 test.write('file.1', "file.1\n/*ar*/\n/*ranlib*/\n")
 test.write('file.2', "file.2\n/*ar*/\n/*ranlib*/\n")
+
 
 test.run(arguments = '.')
 
