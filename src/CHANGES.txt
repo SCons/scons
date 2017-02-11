@@ -62,6 +62,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fixed PCHPDBFLAGS causing a deprecation warning on MSVC v8 and later when
       using PCHs and PDBs together.
 
+  From Tom Tanner:
+    - Allow nested $( ... $) sections
 
 RELEASE 2.5.1 - Mon, 03 Nov 2016 13:37:42 -0400
 
@@ -146,7 +148,7 @@ RELEASE 2.4.1 - Mon, 07 Nov 2015 10:37:21 -0700
       and continuing.
 
   From Hiroaki Itoh :
-    - Add support `Microsoft Visual C++ Compiler for Python 2.7' 
+    - Add support `Microsoft Visual C++ Compiler for Python 2.7'
       Compiler can be obtained at: https://www.microsoft.com/en-us/download/details.aspx?id=44266
 
   From Florian Miedniak:
@@ -316,7 +318,6 @@ RELEASE 2.3.2
   From Paweł Tomulik:
     - Fix SConf tests that write output
 
->>>>>>> other
   From Gary Oberbrunner:
     - get default RPM architecture more robustly when building RPMs
 
