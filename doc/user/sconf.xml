@@ -2,7 +2,7 @@
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -287,7 +287,7 @@ env = conf.Finish()
     <para>
     Check the size of a datatype by using the &CheckTypeSize; method:
     </para>
-    
+
     <sconstruct>
 env = Environment()
 conf = Configure(env)
@@ -295,7 +295,7 @@ int_size = conf.CheckTypeSize('unsigned int')
 print 'sizeof unsigned int is', int_size
 env = conf.Finish()
     </sconstruct>
-    
+
     <screen>
 % <userinput>scons -Q</userinput>
 sizeof unsigned int is 4
@@ -456,7 +456,7 @@ env = conf.Finish()
     <screen>
 % <userinput>scons</userinput>
 scons: Reading SConscript file ...
-Checking for MyLibrary... failed
+Checking for MyLibrary... no
 MyLibrary is not installed!
     </screen>
 
@@ -470,7 +470,7 @@ MyLibrary is not installed!
     <screen>
 % <userinput>scons</userinput>
 scons: Reading SConscript file ...
-Checking for MyLibrary... failed
+Checking for MyLibrary... yes
 scons: done reading SConscript
 scons: Building targets ...
     .
