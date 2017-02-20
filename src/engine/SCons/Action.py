@@ -60,6 +60,7 @@ this module:
     get_presig()
         Fetches the "contents" of a subclass for signature calculation.
         The varlist is added to this to produce the Action's contents.
+        TODO(?): Change this to always return ascii/bytes and not unicode (or py3 strings)
 
     strfunction()
         Returns a substituted string representation of the Action.
@@ -99,7 +100,6 @@ way for wrapping up the functions.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import dis
 import os
 import pickle
 import re
@@ -123,11 +123,21 @@ print_actions = 1
 execute_actions = 1
 print_actions_presub = 0
 
+# Use pickle protocol 1 when pickling functions for signature
+# otherwise python3 and python2 will yield different pickles
+# for the same object.
+# This is due to default being 1 for python 2.7, and 3 for 3.x
+# TODO: We can roll this forward to 2 (if it has value), but not
+# before a deprecation cycle as the sconsigns will change
+ACTION_SIGNATURE_PICKLE_PROTOCOL = 1
+
+
 def rfile(n):
     try:
         return n.rfile()
     except AttributeError:
         return n
+
 
 def default_exitstatfunc(s):
     return s
@@ -185,14 +195,14 @@ def _object_contents(obj):
                 except AttributeError as ae:
                     # Should be a pickle-able Python object.
                     try:
-                        return pickle.dumps(obj)
+                        return pickle.dumps(obj,ACTION_SIGNATURE_PICKLE_PROTOCOL)
                     except (pickle.PicklingError, TypeError, AttributeError):
                         # This is weird, but it seems that nested classes
                         # are unpickable. The Python docs say it should
                         # always be a PicklingError, but some Python
                         # versions seem to return TypeError.  Just do
                         # the best we can.
-                        return repr(obj)
+                        return bytearray(repr(obj),'utf-8')
 
 
 def _code_contents(code):
@@ -233,10 +243,10 @@ def _code_contents(code):
     # but not their actual names.
     contents = bytearray("{}, {}".format(code.co_argcount, len(code.co_varnames)),'utf-8')
 
-    # part1 = str(code.co_argcount) + ", " + str(len(code.co_varnames))
-
-    contents.append(bytearray(", {}, {}".format(len(code.co_cellvars), len(code.co_freevars)),'utf-8'))
-    # part2 = ", " + str(len(code.co_cellvars)) + ", " + str(len(code.co_freevars))
+    contents.extend(b", ")
+    contents.extend(bytearray(str(len(code.co_cellvars)), 'utf-8'))
+    contents.extend(b", ")
+    contents.extend(bytearray(str(len(code.co_freevars)), 'utf-8'))
 
     # The code contents depends on any constants accessed by the
     # function. Note that we have to call _object_contents on each
@@ -246,9 +256,12 @@ def _code_contents(code):
     # Note that we also always ignore the first entry of co_consts
     # which contains the function doc string. We assume that the
     # function does not access its doc string.
-    z= [str(_object_contents(cc)) for cc in code.co_consts[1:]]
-    # contents.append(bytearray(',(' + ','.join(map(_object_contents,code.co_consts[1:])) + ')','utf-8'))
-    contents.append(bytearray(',(' + ','.join(z) + ')','utf-8'))
+    # NOTE: This is not necessarily true. If no docstring, then co_consts[0] does
+    # have a string which is used.
+    z= [_object_contents(cc) for cc in code.co_consts[1:]]
+    contents.extend(b',(')
+    contents.extend(b','.join(z))
+    contents.extend(b')')
 
     # The code contents depends on the variable names used to
     # accessed global variable, as changing the variable name changes
@@ -256,12 +269,15 @@ def _code_contents(code):
     # function result.
     z= [str(_object_contents(cc)) for cc in code.co_names]
     # contents.append(bytearray(',(' + ','.join(map(_object_contents,code.co_names)) + ')','utf-8'))
-    contents.append(bytearray(',(' + ','.join(z) + ')','utf-8'))
+    # contents.extend(',(' + ','.join(z) + ')')
+    contents.extend(bytearray(str(',(' + ','.join(z) + ')'),'utf-8'))
 
     # The code contents depends on its actual code!!!
-    contents.append(bytearray(',(','utf-8') + code.co_code + bytearray(')','utf-8'))
+    contents.extend(b',(')
+    contents.extend(code.co_code)
+    contents.extend(b')')
 
-    return bytearray('').join(contents)
+    return contents
 
 
 def _function_contents(func):
@@ -284,9 +300,16 @@ def _function_contents(func):
 
     # The function contents depends on the value of defaults arguments
     if func.__defaults__:
-        function_defaults_contents = [str(_object_contents(cc)) for cc in func.__defaults__]
 
-        contents.append(bytearray(',(','utf-8') + b','.join(function_defaults_contents) + bytearray(')','utf-8'))
+        function_defaults_contents = [_object_contents(cc) for cc in func.__defaults__]
+
+        defaults = bytearray(b',(')
+        defaults.extend(bytearray(b',').join(function_defaults_contents))
+        defaults.extend(b')')
+
+        contents.append(defaults)
+
+        # contents.append(bytearray(',(','utf-8') + b','.join(function_defaults_contents) + bytearray(')','utf-8'))
     else:
         contents.append(b',()')
 
@@ -324,6 +347,7 @@ def _actionAppend(act1, act2):
         else:
             return ListAction([ a1, a2 ])
 
+
 def _do_create_keywords(args, kw):
     """This converts any arguments after the action argument into
     their equivalent keywords and adds them to the kw argument.
@@ -350,6 +374,7 @@ def _do_create_keywords(args, kw):
                       and kw.get('cmdstr', _null) is not _null:
         raise SCons.Errors.UserError(
             'Cannot have both strfunction and cmdstr args to Action()')
+
 
 def _do_create_action(act, kw):
     """This is the actual "implementation" for the
@@ -403,6 +428,7 @@ def _do_create_action(act, kw):
     # Else fail silently (???)
     return None
 
+
 def _do_create_list_action(act, kw):
     """A factory for list actions.  Convert the input list into Actions
     and then wrap them in a ListAction."""
@@ -416,6 +442,7 @@ def _do_create_list_action(act, kw):
         return acts[0]
     else:
         return ListAction(acts)
+
 
 def Action(act, *args, **kw):
     """A factory for action objects."""
@@ -443,8 +470,17 @@ class ActionBase(object):
         return str(self)
 
     def get_contents(self, target, source, env):
-        result = [ self.get_presig(target, source, env) ]
-        result = [ SCons.Util.to_bytes(r) for r in result ]
+        result = self.get_presig(target, source, env)
+
+        # if not isinstance(result,bytearray):
+        #     raise Exception("1result is:%s  [%s] [[%s]] >>%s<< ]]%s[[" % (type(result), [type(l) for l in result],result,type(self),repr(self.get_presig)))
+
+        if not isinstance(result,(bytes, bytearray)):
+            result = [ SCons.Util.to_bytes(r) for r in result ]
+
+        # raise Exception("result is:%s"%[type(l) for l in result])
+        saveit = result
+
         # This should never happen, as the Action() factory should wrap
         # the varlist, but just in case an action is created directly,
         # we duplicate this check here.
@@ -452,9 +488,19 @@ class ActionBase(object):
         if is_String(vl): vl = (vl,)
         for v in vl:
             # do the subst this way to ignore $(...$) parts:
-            result.append(SCons.Util.to_bytes(env.subst_target_source('${'+v+'}', SCons.Subst.SUBST_SIG, target, source)))
+            if isinstance(result, bytearray):
+                result.extend(SCons.Util.to_bytes(env.subst_target_source('${'+v+'}', SCons.Subst.SUBST_SIG, target, source)))
+            else:
+                result.append(SCons.Util.to_bytes(env.subst_target_source('${'+v+'}', SCons.Subst.SUBST_SIG, target, source)))
 
-        return b''.join(result)
+        # if not isinstance(result,bytearray):
+        #     raise Exception("Presult is:%s  [%s] (saved:%s)" % (type(result), [type(l) for l in result],type(saveit)))
+
+        if isinstance(result, (bytes,bytearray)):
+            return result
+        else:
+            # raise Exception("Result is:%s  [%s]" % (type(result), [type(l) for l in result]))
+            return b''.join(result)
 
     def __add__(self, other):
         return _actionAppend(self, other)
@@ -518,14 +564,16 @@ class _ActionAction(ActionBase):
             SCons.Util.AddMethod(self, batch_key, 'batch_key')
 
     def print_cmd_line(self, s, target, source, env):
-        # In python 3, and in some of our tests, sys.stdout is
-        # a String io object, and it takes unicode strings only
-        # In other cases it's a regular Python 2.x file object
-        # which takes strings (bytes), and if you pass those a
-        # unicode object they try to decode with 'ascii' codec
-        # which fails if the cmd line has any hi-bit-set chars.
-        # This code assumes s is a regular string, but should
-        # work if it's unicode too.
+        """
+        In python 3, and in some of our tests, sys.stdout is
+        a String io object, and it takes unicode strings only
+        In other cases it's a regular Python 2.x file object
+        which takes strings (bytes), and if you pass those a
+        unicode object they try to decode with 'ascii' codec
+        which fails if the cmd line has any hi-bit-set chars.
+        This code assumes s is a regular string, but should
+        work if it's unicode too.
+        """
         try:
             sys.stdout.write(s + u"\n")
         except UnicodeDecodeError:
@@ -624,13 +672,17 @@ def _string_from_cmd_list(cmd_list):
         cl.append(arg)
     return ' '.join(cl)
 
-# A fiddlin' little function that has an 'import SCons.Environment' which
-# can't be moved to the top level without creating an import loop.  Since
-# this import creates a local variable named 'SCons', it blocks access to
-# the global variable, so we move it here to prevent complaints about local
-# variables being used uninitialized.
 default_ENV = None
+
+
 def get_default_ENV(env):
+    """
+    A fiddlin' little function that has an 'import SCons.Environment' which
+    can't be moved to the top level without creating an import loop.  Since
+    this import creates a local variable named 'SCons', it blocks access to
+    the global variable, so we move it here to prevent complaints about local
+    variables being used uninitialized.
+    """
     global default_ENV
     try:
         return env['ENV']
@@ -645,12 +697,15 @@ def get_default_ENV(env):
             default_ENV = SCons.Environment.Environment()['ENV']
         return default_ENV
 
-# This function is still in draft mode.  We're going to need something like
-# it in the long run as more and more places use subprocess, but I'm sure
-# it'll have to be tweaked to get the full desired functionality.
-# one special arg (so far?), 'error', to tell what to do with exceptions.
+
 def _subproc(scons_env, cmd, error = 'ignore', **kw):
-    """Do common setup for a subprocess.Popen() call"""
+    """Do common setup for a subprocess.Popen() call
+
+    This function is still in draft mode.  We're going to need something like
+    it in the long run as more and more places use subprocess, but I'm sure
+    it'll have to be tweaked to get the full desired functionality.
+    one special arg (so far?), 'error', to tell what to do with exceptions.
+    """
     # allow std{in,out,err} to be "'devnull'"
     io = kw.get('stdin')
     if is_String(io) and io == 'devnull':
@@ -701,6 +756,7 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
                 def __iter__(self): return iter(())
             stdout = stderr = f()
         return dummyPopen(e)
+
 
 class CommandAction(_ActionAction):
     """Class for command-execution actions."""
@@ -868,6 +924,7 @@ class CommandAction(_ActionAction):
                     res.append(env.fs.File(d))
         return res
 
+
 class CommandGeneratorAction(ActionBase):
     """Class for command-generator actions."""
     def __init__(self, generator, kw):
@@ -940,24 +997,26 @@ class CommandGeneratorAction(ActionBase):
 
 
 
-# A LazyAction is a kind of hybrid generator and command action for
-# strings of the form "$VAR".  These strings normally expand to other
-# strings (think "$CCCOM" to "$CC -c -o $TARGET $SOURCE"), but we also
-# want to be able to replace them with functions in the construction
-# environment.  Consequently, we want lazy evaluation and creation of
-# an Action in the case of the function, but that's overkill in the more
-# normal case of expansion to other strings.
-#
-# So we do this with a subclass that's both a generator *and*
-# a command action.  The overridden methods all do a quick check
-# of the construction variable, and if it's a string we just call
-# the corresponding CommandAction method to do the heavy lifting.
-# If not, then we call the same-named CommandGeneratorAction method.
-# The CommandGeneratorAction methods work by using the overridden
-# _generate() method, that is, our own way of handling "generation" of
-# an action based on what's in the construction variable.
 
 class LazyAction(CommandGeneratorAction, CommandAction):
+    """
+    A LazyAction is a kind of hybrid generator and command action for
+    strings of the form "$VAR".  These strings normally expand to other
+    strings (think "$CCCOM" to "$CC -c -o $TARGET $SOURCE"), but we also
+    want to be able to replace them with functions in the construction
+    environment.  Consequently, we want lazy evaluation and creation of
+    an Action in the case of the function, but that's overkill in the more
+    normal case of expansion to other strings.
+
+    So we do this with a subclass that's both a generator *and*
+    a command action.  The overridden methods all do a quick check
+    of the construction variable, and if it's a string we just call
+    the corresponding CommandAction method to do the heavy lifting.
+    If not, then we call the same-named CommandGeneratorAction method.
+    The CommandGeneratorAction methods work by using the overridden
+    _generate() method, that is, our own way of handling "generation" of
+    an action based on what's in the construction variable.
+    """
 
     def __init__(self, var, kw):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Action.LazyAction')
@@ -1109,7 +1168,6 @@ class FunctionAction(_ActionAction):
             # more information about this issue.
             del exc_info
 
-
     def get_presig(self, target, source, env):
         """Return the signature contents of this callable action."""
         try:
@@ -1195,7 +1253,7 @@ class ActionCaller(object):
         actfunc = self.parent.actfunc
         try:
             # "self.actfunc" is a function.
-            contents = bytearray(actfunc.__code__.co_code,'utf-8')
+            contents = actfunc.__code__.co_code
         except AttributeError:
             # "self.actfunc" is a callable object.
             try:
