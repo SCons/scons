@@ -26,6 +26,7 @@ Nodes.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -455,10 +456,16 @@ class Executor(object, with_metaclass(NoSlotsPyPy)):
         except KeyError:
             pass
         env = self.get_build_env()
-        result = b"".join([action.get_contents(self.get_all_targets(),
+        sga = self.get_action_list()
+        sga_contents = [action.get_contents(self.get_all_targets(),
                                                self.get_all_sources(),
                                                env)
-                          for action in self.get_action_list()])
+                          for action in self.get_action_list()]
+
+        result = bytearray()
+        for a in sga_contents:
+            result.extend(a)
+
         self._memo['get_contents'] = result
         return result
 
