@@ -44,7 +44,7 @@ class Action(object):
     def genstring(self, target, source, env):
         return str(self)
     def get_contents(self, target, source, env):
-        return ''
+        return bytearray('','utf-8')
 
 class Builder(object):
     def __init__(self, environment, action):
