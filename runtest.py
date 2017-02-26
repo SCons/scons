@@ -99,6 +99,9 @@ except ImportError:
     print("Can't import threading or queue")
     threading_ok = False
 
+import subprocess
+
+
 cwd = os.getcwd()
 
 baseline = 0
@@ -343,14 +346,13 @@ sp.append(cwd)
 #
 _ws = re.compile('\s')
 
+
 def escape(s):
     if _ws.search(s):
         s = '"' + s + '"'
     s = s.replace('\\', '\\\\')
     return s
 
-
-import subprocess
 
 if not suppress_stdout and not suppress_stderr:
     # Without any output suppressed, we let the subprocess
@@ -423,6 +425,7 @@ else:
             spawned_stderr = p.stderr.read()
             return (spawned_stderr, spawned_stdout, p.wait())
 
+
 class Base(object):
     def __init__(self, path, spe=None):
         self.path = path
@@ -435,12 +438,14 @@ class Base(object):
                     break
         self.status = None
 
+
 class SystemExecutor(Base):
     def execute(self):
         self.stderr, self.stdout, s = spawn_it(self.command_args)
         self.status = s
         if s < 0 or s > 2:
             sys.stdout.write("Unexpected exit status %d\n" % s)
+
 
 class PopenExecutor(Base):
     # For an explanation of the following 'if ... else'
@@ -641,6 +646,7 @@ tests = []
 unittests = []
 endtests = []
 
+
 def find_Tests_py(directory):
     """ Look for unit tests """
     result = []
@@ -652,6 +658,7 @@ def find_Tests_py(directory):
             if fname.endswith("Tests.py"):
                 result.append(os.path.join(dirpath, fname))
     return sorted(result)
+
 
 def find_py(directory):
     """ Look for end-to-end tests """
@@ -760,9 +767,12 @@ else:
 total_start_time = time_func()
 total_num_tests = len(tests)
 tests_completed = 0
+tests_passing = 0
+tests_failing = 0
+
 
 def run_test(t, io_lock, async=True):
-    global tests_completed
+    global tests_completed, tests_passing, tests_failing
     header = ""
     command_args = ['-tt']
     if debug:
@@ -795,6 +805,11 @@ def run_test(t, io_lock, async=True):
     test_start_time = time_func()
     if execute_tests:
         t.execute()
+
+    if t.status == 0:
+        tests_passing += 1
+    else:
+        tests_failing += 1
 
     t.test_time = time_func() - test_start_time
     if io_lock:
