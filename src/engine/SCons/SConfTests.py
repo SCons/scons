@@ -140,7 +140,7 @@ class SConfTestCase(unittest.TestCase):
         finally:
             sconf.Finish()
         # we should have exactly one one error cached 
-        log = self.test.read( self.test.workpath('config.log') )
+        log = str(self.test.read( self.test.workpath('config.log') ))
         expr = re.compile( ".*failed in a previous run and all", re.DOTALL ) 
         firstOcc = expr.match( log )
         assert firstOcc is not None, log
@@ -171,6 +171,7 @@ class SConfTestCase(unittest.TestCase):
                                  conf_dir=self.test.workpath('config.tests'),
                                  log_file=self.test.workpath('config.log'))
         import SCons.Builder
+        import SCons.Node
         class MyBuilder(SCons.Builder.BuilderBase):
             def __init__(self):
                 self.prefix = ''
@@ -179,7 +180,7 @@ class SConfTestCase(unittest.TestCase):
                 class MyNode(object):
                     def __init__(self, name):
                         self.name = name
-                        self.state = None
+                        self.state = SCons.Node.no_state
                         self.waiting_parents = set()
                         self.side_effects = []
                         self.builder = None
@@ -265,7 +266,7 @@ int main() {
                                  log_file=self.test.workpath('config.log'))
         try:
             res = checks(sconf)
-            assert res[0][0] and res[0][1] == "Hello", res
+            assert res[0][0] and res[0][1] == bytearray("Hello",'utf-8'), res
             assert not res[1][0] and res[1][1] == "", res
         finally:
             sconf.Finish()
@@ -278,12 +279,13 @@ int main() {
                                  log_file=self.test.workpath('config.log'))
         try:
             res = checks(sconf)
-            assert res[0][0] and res[0][1] == "Hello", res
+            assert res[0][0] and res[0][1] == bytearray("Hello",'utf-8'), res
             assert not res[1][0] and res[1][1] == "", res
         finally:
             sconf.Finish()
-        # we should have exactly one error cached 
-        log = self.test.read( self.test.workpath('config.log') )
+        # we should have exactly one error cached
+        # creating string here because it's bytes by default on py3
+        log = str(self.test.read( self.test.workpath('config.log') ))
         expr = re.compile( ".*failed in a previous run and all", re.DOTALL )
         firstOcc = expr.match( log )
         assert firstOcc is not None, log
@@ -305,7 +307,7 @@ int main() {
                                   log_file=self.test.workpath('config.log'))
         try:
             (ret, output) = sconf.TryAction(action=actionOK)
-            assert ret and output == "RUN OK" + os.linesep, (ret, output)
+            assert ret and output == bytearray("RUN OK"+os.linesep,'utf-8'), (ret, output)
             (ret, output) = sconf.TryAction(action=actionFAIL)
             assert not ret and output == "", (ret, output)
         finally:
@@ -757,7 +759,7 @@ int main() {
 """
             (ret, output) = test.TryRun( prog, ".c" )
             test.Result( ret )
-            assert ret and output == "Hello", (ret, output)
+            assert ret and output == b"Hello", (ret, output)
             return ret
         
 
