@@ -41,6 +41,7 @@ import SCons.Warnings
 
 from SCons.compat import PICKLE_PROTOCOL
 
+
 def corrupt_dblite_warning(filename):
     SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
                         "Ignoring corrupt .sconsign file: %s"%filename)
@@ -48,7 +49,7 @@ def corrupt_dblite_warning(filename):
 SCons.dblite.ignore_corrupt_dbfiles = 1
 SCons.dblite.corruption_warning = corrupt_dblite_warning
 
-#XXX Get rid of the global array so this becomes re-entrant.
+# XXX Get rid of the global array so this becomes re-entrant.
 sig_files = []
 
 # Info for the database SConsign implementation (now the default):
@@ -61,6 +62,7 @@ DataBase = {}
 DB_Module = SCons.dblite
 DB_Name = ".sconsign"
 DB_sync_list = []
+
 
 def Get_DataBase(dir):
     global DataBase, DB_Module, DB_Name
@@ -90,6 +92,7 @@ def Get_DataBase(dir):
         print("DataBase =", DataBase)
         raise
 
+
 def Reset():
     """Reset global state.  Used by unit tests that end up using
     SConsign multiple times to get a clean slate for each test."""
@@ -98,6 +101,7 @@ def Reset():
     DB_sync_list = []
 
 normcase = os.path.normcase
+
 
 def write():
     global sig_files
@@ -116,6 +120,7 @@ def write():
             pass # Not all dbm modules have close() methods.
         else:
             closemethod()
+
 
 class SConsignEntry(object):
     """
@@ -158,6 +163,7 @@ class SConsignEntry(object):
         for key, value in list(state.items()):
             if key not in ('_version_id','__weakref__'):
                 setattr(self, key, value)
+
 
 class Base(object):
     """
@@ -212,6 +218,7 @@ class Base(object):
                 ninfo.merge(node.get_ninfo())
             self.entries[key] = entry
         self.to_be_merged = {}
+
 
 class DB(Base):
     """
@@ -285,6 +292,7 @@ class DB(Base):
             else:
                 syncmethod()
 
+
 class Dir(Base):
     def __init__(self, fp=None, dir=None):
         """
@@ -303,6 +311,7 @@ class Dir(Base):
         if dir:
             for key, entry in list(self.entries.items()):
                 entry.convert_from_sconsign(dir, key)
+
 
 class DirFile(Dir):
     """
@@ -393,6 +402,7 @@ class DirFile(Dir):
             pass
 
 ForDirectory = DB
+
 
 def File(name, dbm_module=None):
     """
