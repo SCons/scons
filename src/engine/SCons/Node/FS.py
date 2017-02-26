@@ -2434,6 +2434,7 @@ class RootDir(Dir):
     def src_builder(self):
         return _null
 
+
 class FileNodeInfo(SCons.Node.NodeInfoBase):
     __slots__ = ('csig', 'timestamp', 'size')
     current_version_id = 2
@@ -2485,6 +2486,7 @@ class FileNodeInfo(SCons.Node.NodeInfoBase):
             if key not in ('__weakref__',):
                 setattr(self, key, value)
 
+
 class FileBuildInfo(SCons.Node.BuildInfoBase):
     __slots__ = ()
     current_version_id = 2
@@ -2515,6 +2517,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
                 pass
             else:
                 setattr(self, attr, list(map(node_to_str, val)))
+
     def convert_from_sconsign(self, dir, name):
         """
         Converts a newly-read FileBuildInfo object for in-SCons use
@@ -2523,6 +2526,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
         perform--but we're leaving this method here to make that clear.
         """
         pass
+
     def prepare_dependencies(self):
         """
         Prepares a FileBuildInfo object for explaining what changed
@@ -2551,6 +2555,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
                     s = ni.str_to_node(s)
                 nodes.append(s)
             setattr(self, nattr, nodes)
+
     def format(self, names=0):
         result = []
         bkids = self.bsources + self.bdepends + self.bimplicit
@@ -2562,6 +2567,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
             self.bact = "none"
         result.append('%s [%s]' % (self.bactsig, self.bact))
         return '\n'.join(result)
+
 
 class File(Base):
     """A class for files in a file system.
