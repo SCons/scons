@@ -49,6 +49,14 @@ class Environment(object):
         return key in self.dict
 
 
+def cmp(a, b):
+    """
+    Define cmp because it's no longer available in python3
+    Works under python 2 as well
+    """
+    return (a > b) - (a < b)
+
+
 def check(key, value, env):
     assert int(value) == 6 * 9, "key %s = %s" % (key, repr(value))
     
