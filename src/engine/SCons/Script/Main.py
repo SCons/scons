@@ -65,6 +65,7 @@ import SCons.Warnings
 
 import SCons.Script.Interactive
 
+
 def fetch_win32_parallel_msg():
     # A subsidiary function that exists solely to isolate this import
     # so we don't have to pull it in on all platforms, and so that an
@@ -74,6 +75,7 @@ def fetch_win32_parallel_msg():
     # versions (2.1) of Python.
     import SCons.Platform.win32
     return SCons.Platform.win32.parallel_msg
+
 
 def revert_io():
     # This call is added to revert stderr and stdout to the original
@@ -90,6 +92,7 @@ progress_display = SCons.Util.DisplayEngine()
 
 first_command_start = None
 last_command_end = None
+
 
 class Progressor(object):
     prev = ''
@@ -154,8 +157,10 @@ def Progress(*args, **kw):
 
 _BuildFailures = []
 
+
 def GetBuildFailures():
     return _BuildFailures
+
 
 class BuildTask(SCons.Taskmaster.OutOfDateTask):
     """An SCons build task."""
@@ -305,6 +310,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
             explanation = self.out_of_date[0].explain()
             if explanation:
                 sys.stdout.write("scons: " + explanation)
+
 
 class CleanTask(SCons.Taskmaster.AlwaysTask):
     """An SCons clean task."""
