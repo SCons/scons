@@ -260,17 +260,17 @@ def _code_contents(code):
     # have a string which is used.
     z= [_object_contents(cc) for cc in code.co_consts[1:]]
     contents.extend(b',(')
-    contents.extend(b','.join(z))
+    contents.extend(bytearray(',','utf-8').join(z))
     contents.extend(b')')
 
     # The code contents depends on the variable names used to
     # accessed global variable, as changing the variable name changes
     # the variable actually accessed and therefore changes the
     # function result.
-    z= [str(_object_contents(cc)) for cc in code.co_names]
-    # contents.append(bytearray(',(' + ','.join(map(_object_contents,code.co_names)) + ')','utf-8'))
-    # contents.extend(',(' + ','.join(z) + ')')
-    contents.extend(bytearray(str(',(' + ','.join(z) + ')'),'utf-8'))
+    z= [bytearray(_object_contents(cc)) for cc in code.co_names]
+    contents.extend(b',(')
+    contents.extend(bytearray(',','utf-8').join(z))
+    contents.extend(b')')
 
     # The code contents depends on its actual code!!!
     contents.extend(b',(')
@@ -321,9 +321,13 @@ def _function_contents(func):
         closure_contents = [_object_contents(x.cell_contents) for x in closure]
     except AttributeError:
         closure_contents = []
-    contents.append(b',(' + ','.join(closure_contents).encode('ascii') + b')')
 
-    return bytearray('','utf-8').join(contents)
+    contents.append(b',(')
+    contents.append(bytearray(b',').join(closure_contents))
+    contents.append(b')')
+    # contents.append(b'BBBBBBBB')
+
+    return bytearray(b'').join(contents)
 
 
 def _actionAppend(act1, act2):
@@ -472,14 +476,15 @@ class ActionBase(object):
     def get_contents(self, target, source, env):
         result = self.get_presig(target, source, env)
 
-        # if not isinstance(result,bytearray):
-        #     raise Exception("1result is:%s  [%s] [[%s]] >>%s<< ]]%s[[" % (type(result), [type(l) for l in result],result,type(self),repr(self.get_presig)))
-
         if not isinstance(result,(bytes, bytearray)):
-            result = [ SCons.Util.to_bytes(r) for r in result ]
+            result = bytearray("").join([ SCons.Util.to_bytes(r) for r in result ])
+        else:
+            # Make a copy and put in bytearray, without this the contents returned by get_presig
+            # can be changed by the logic below, appending with each call and causing very
+            # hard to track down issues...
+            result = bytearray(result)
 
-        # raise Exception("result is:%s"%[type(l) for l in result])
-        saveit = result
+        # At this point everything should be a bytearray
 
         # This should never happen, as the Action() factory should wrap
         # the varlist, but just in case an action is created directly,
@@ -491,16 +496,15 @@ class ActionBase(object):
             if isinstance(result, bytearray):
                 result.extend(SCons.Util.to_bytes(env.subst_target_source('${'+v+'}', SCons.Subst.SUBST_SIG, target, source)))
             else:
-                result.append(SCons.Util.to_bytes(env.subst_target_source('${'+v+'}', SCons.Subst.SUBST_SIG, target, source)))
+                raise Exception("WE SHOULD NEVER GET HERE result should be bytearray not:%s"%type(result))
+                # result.append(SCons.Util.to_bytes(env.subst_target_source('${'+v+'}', SCons.Subst.SUBST_SIG, target, source)))
 
-        # if not isinstance(result,bytearray):
-        #     raise Exception("Presult is:%s  [%s] (saved:%s)" % (type(result), [type(l) for l in result],type(saveit)))
 
         if isinstance(result, (bytes,bytearray)):
             return result
         else:
-            # raise Exception("Result is:%s  [%s]" % (type(result), [type(l) for l in result]))
-            return b''.join(result)
+            raise Exception("WE SHOULD NEVER GET HERE - #2 result should be bytearray not:%s" % type(result))
+            # return b''.join(result)
 
     def __add__(self, other):
         return _actionAppend(self, other)
@@ -996,8 +1000,6 @@ class CommandGeneratorAction(ActionBase):
         return self._generate(None, None, env, 1, executor).get_targets(env, executor)
 
 
-
-
 class LazyAction(CommandGeneratorAction, CommandAction):
     """
     A LazyAction is a kind of hybrid generator and command action for
@@ -1095,6 +1097,7 @@ class FunctionAction(_ActionAction):
                 c = env.subst(self.cmdstr, SUBST_RAW, target, source)
             if c:
                 return c
+
         def array(a):
             def quote(s):
                 try:
@@ -1207,7 +1210,7 @@ class ListAction(ActionBase):
 
         Simple concatenation of the signatures of the elements.
         """
-        return b"".join([x.get_contents(target, source, env) for x in self.list])
+        return b"".join([bytes(x.get_contents(target, source, env)) for x in self.list])
 
     def __call__(self, target, source, env, exitstatfunc=_null, presub=_null,
                  show=_null, execute=_null, chdir=_null, executor=None):
