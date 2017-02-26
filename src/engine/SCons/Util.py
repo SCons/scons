@@ -1454,8 +1454,11 @@ def RenameFunction(function, name):
 
 
 md5 = False
+
+
 def MD5signature(s):
     return str(s)
+
 
 def MD5filesignature(fname, chunksize=65536):
     f = open(fname, "rb")
@@ -1470,6 +1473,7 @@ except ImportError:
 else:
     if hasattr(hashlib, 'md5'):
         md5 = True
+
         def MD5signature(s):
             m = hashlib.md5()
             m.update(to_bytes(str(s)))
