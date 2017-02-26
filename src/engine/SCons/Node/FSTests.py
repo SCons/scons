@@ -86,7 +86,7 @@ class Action(object):
     def show(self, string):
         pass
     def get_contents(self, target, source, env):
-        return ""
+        return bytearray("",'utf-8')
     def genstring(self, target, source, env):
         return ""
     def strfunction(self, targets, sources, env):
@@ -231,7 +231,7 @@ class VariantDirTestCase(unittest.TestCase):
         # Build path exists
         assert f2.exists()
         # ...and exists() should copy the file from src to build path
-        assert test.read(['work', 'build', 'var2', 'test.in']) == 'test.in',\
+        assert test.read(['work', 'build', 'var2', 'test.in']) == bytearray('test.in','utf-8'),\
                test.read(['work', 'build', 'var2', 'test.in'])
         # Since exists() is true, so should rexists() be
         assert f2.rexists()
@@ -260,7 +260,7 @@ class VariantDirTestCase(unittest.TestCase):
         # Build path should exist
         assert f4.exists()
         # ...and copy over the file into the local build path
-        assert test.read(['work', 'build', 'var2', 'test2.in']) == 'test2.in'
+        assert test.read(['work', 'build', 'var2', 'test2.in']) == bytearray('test2.in','utf-8')
         # should exist in repository, since exists() is true
         assert f4.rexists()
         # rfile() should point to ourselves
@@ -273,12 +273,12 @@ class VariantDirTestCase(unittest.TestCase):
         assert f5.exists()
         # We should not copy the file from the source dir, since this is
         # a derived file.
-        assert test.read(['work', 'build', 'var1', 'test.out']) == 'test.old'
+        assert test.read(['work', 'build', 'var1', 'test.out']) == bytearray('test.old','utf-8')
 
         assert f6.exists()
         # We should not copy the file from the source dir, since this is
         # a derived file.
-        assert test.read(['work', 'build', 'var2', 'test.out']) == 'test.old'
+        assert test.read(['work', 'build', 'var2', 'test.out']) == bytearray('test.old','utf-8')
 
         f7 = fs.File('build/var1/test2.out')
         f8 = fs.File('build/var2/test2.out')
@@ -334,7 +334,7 @@ class VariantDirTestCase(unittest.TestCase):
         test.write([ 'work', 'build', 'var1', 'asourcefile' ], 'stuff')
         f10 = fs.File('build/var1/asourcefile')
         assert f10.exists()
-        assert f10.get_contents() == 'stuff', f10.get_contents()
+        assert f10.get_contents() == bytearray('stuff','utf-8'), f10.get_contents()
 
         f11 = fs.File('src/file11')
         t, m = f11.alter_targets()
@@ -1298,7 +1298,7 @@ class FSTestCase(_tempdirTestCase):
         # get_contents() returns the binary contents.
         test.write("binary_file", "Foo\x1aBar")
         f1 = fs.File(test.workpath("binary_file"))
-        assert f1.get_contents() == "Foo\x1aBar", f1.get_contents()
+        assert f1.get_contents() == bytearray("Foo\x1aBar",'utf-8'), f1.get_contents()
 
         # This tests to make sure we can decode UTF-8 text files.
         test_string = u"Foo\x1aBar"
@@ -1367,7 +1367,7 @@ class FSTestCase(_tempdirTestCase):
         try:
             e = fs.Entry('file')
             c = e.get_contents()
-            assert c == "file\n", c
+            assert c == bytearray("file\n",'utf-8'), c
             assert e.__class__ == SCons.Node.FS.File
         finally:
             test.unlink("file")
@@ -3099,7 +3099,7 @@ class RepositoryTestCase(_tempdirTestCase):
         test.write(["rep3", "contents"], "Con\x1aTents\n")
         try:
             c = fs.File("contents").get_contents()
-            assert c == "Con\x1aTents\n", "got '%s'" % c
+            assert c == bytearray("Con\x1aTents\n",'utf-8'), "got '%s'" % c
         finally:
             test.unlink(["rep3", "contents"])
 
