@@ -350,6 +350,7 @@ class NodeInfoBase(object):
     """
     __slots__ = ('__weakref__',)
     current_version_id = 2
+
     def update(self, node):
         try:
             field_list = self.field_list
@@ -366,8 +367,10 @@ class NodeInfoBase(object):
                 pass
             else:
                 setattr(self, f, func())
+
     def convert(self, node, val):
         pass
+
     def merge(self, other):
         """
         Merge the fields of another object into this object. Already existing
@@ -445,6 +448,7 @@ class BuildInfoBase(object):
     __slots__ = ("bsourcesigs", "bdependsigs", "bimplicitsigs", "bactsig",
                  "bsources", "bdepends", "bact", "bimplicit", "__weakref__")
     current_version_id = 2
+
     def __init__(self):
         # Create an object attribute from the class attribute so it ends up
         # in the pickled data in the .sconsign file.
@@ -452,6 +456,7 @@ class BuildInfoBase(object):
         self.bdependsigs = []
         self.bimplicitsigs = []
         self.bactsig = None
+
     def merge(self, other):
         """
         Merge the fields of another object into this object. Already existing
@@ -1651,6 +1656,9 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
                 if old.bact == new.bact:
                     lines.append("the contents of the build action changed\n" +
                                  fmt_with_title('action: ', new.bact))
+
+                    # lines.append("the contents of the build action changed [%s] [%s]\n"%(old.bactsig,new.bactsig) +
+                    #              fmt_with_title('action: ', new.bact))
                 else:
                     lines.append("the build action changed:\n" +
                                  fmt_with_title('old: ', old.bact) +
