@@ -74,7 +74,7 @@ def toto(header='%(header)s', trailer='%(trailer)s'):
         f = open(str(target[0]),'wb')
         f.write(header)
         for d in env['ENVDEPS']:
-            f.write(d+'%(separator)s')
+            f.write(bytearray(d+'%(separator)s'))
         f.write(trailer+'\\n')
         f.write(str(foo())+'\\n')
         f.write(r.match('aaaa').group(1)+'\\n')
@@ -88,43 +88,8 @@ def toto(header='%(header)s', trailer='%(trailer)s'):
     return writeDeps
 '''
 
-NoClosure = \
-r'''
-def toto(header='%(header)s', trailer='%(trailer)s'):
-    xxx = %(closure_cell_value)s
-    def writeDeps(target, source, env, b=%(b)s, r=r %(extraarg)s ,
-                  header=header, trailer=trailer, xxx=xxx):
-        """+'"""%(docstring)s"""'+"""
-        def foo(b=b, xxx=xxx):
-            return %(nestedfuncexp)s
-        f = open(str(target[0]),'wb')
-        f.write(header)
-        for d in env['ENVDEPS']:
-            f.write(d+'%(separator)s')
-        f.write(trailer+'\\n')
-        f.write(str(foo())+'\\n')
-        f.write(r.match('aaaa').group(1)+'\\n')
-        %(extracode)s
-        try:
-           f.write(str(xarg)+'\\n')
-        except NameError:
-           pass
-        f.close()
 
-    return writeDeps
-'''
-
-try:
-    # Check that lexical closure are supported
-    def a():
-        x = 0
-        def b():
-            return x
-        return b
-    a().func_closure[0].cell_contents
-    exec( withClosure % optEnv )
-except (AttributeError, TypeError):
-    exec( NoClosure % optEnv )
+exec( withClosure % optEnv )
 
 genHeaderBld = SCons.Builder.Builder(
     action = SCons.Action.Action(
@@ -164,13 +129,18 @@ def runtest(arguments, expectedOutFile, expectedRebuild=True, stderr=""):
     test.run(arguments=arguments,
              stdout=expectedRebuild and rebuildstr or nobuildstr,
              stderr="")
-    test.must_match('Out.gen.h', expectedOutFile)
+
+    sys.stdout.write('First Build.\n')
+
+    test.must_match('Out.gen.h', expectedOutFile, message="First Build")
 
     # Should not be rebuild when run a second time with the same
     # arguments.
 
+    sys.stdout.write('Rebuild.\n')
+
     test.run(arguments = arguments, stdout=nobuildstr, stderr="")
-    test.must_match('Out.gen.h', expectedOutFile)
+    test.must_match('Out.gen.h', expectedOutFile, message="Should not rebuild")
 
 
 # We're making this script chatty to prevent timeouts on really really
