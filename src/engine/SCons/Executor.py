@@ -456,15 +456,11 @@ class Executor(object, with_metaclass(NoSlotsPyPy)):
         except KeyError:
             pass
         env = self.get_build_env()
-        sga = self.get_action_list()
-        sga_contents = [action.get_contents(self.get_all_targets(),
+
+        result = bytearray("").join([action.get_contents(self.get_all_targets(),
                                                self.get_all_sources(),
                                                env)
-                          for action in self.get_action_list()]
-
-        result = bytearray()
-        for a in sga_contents:
-            result.extend(a)
+                           for action in self.get_action_list()])
 
         self._memo['get_contents'] = result
         return result
