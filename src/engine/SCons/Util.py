@@ -151,6 +151,17 @@ class NodeList(UserList):
         result = [getattr(x, name) for x in self.data]
         return self.__class__(result)
 
+    def __getitem__(self, index):
+        """ 
+        This comes for free on py2,
+        but py3 slices of NodeList are returning a list
+        breaking slicing nodelist and refering to 
+        properties and methods on contained object
+        """
+        return self.__class__(self.data[index])
+
+
+
 
 _get_env_var = re.compile(r'^\$([_a-zA-Z]\w*|{[_a-zA-Z]\w*})$')
 
