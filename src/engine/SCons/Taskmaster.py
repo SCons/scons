@@ -851,13 +851,13 @@ class Taskmaster(object):
                 if childstate <= NODE_EXECUTING:
                     children_not_ready.append(child)
 
-
             # These nodes have not even been visited yet.  Add
             # them to the list so that on some next pass we can
             # take a stab at evaluating them (or their children).
             children_not_visited.reverse()
             self.candidates.extend(self.order(children_not_visited))
-            #if T and children_not_visited:
+
+            # if T and children_not_visited:
             #    T.write(self.trace_message('     adding to candidates: %s' % map(str, children_not_visited)))
             #    T.write(self.trace_message('     candidates now: %s\n' % map(str, self.candidates)))
 
