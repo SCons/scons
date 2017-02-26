@@ -247,7 +247,9 @@ class SubstitutionTestCase(unittest.TestCase):
         """
         env = SubstitutionEnvironment(XXX = 'x', YYY = 'y')
         items = list(env.items())
-        assert items == [('XXX','x'), ('YYY','y')], items
+        assert len(items) == 2 and ('XXX','x') in items and ('YYY','y') in items, items
+        # Was. This fails under py3 as order changes
+        # assert items == [('XXX','x'), ('YYY','y')], items
 
     def test_arg2nodes(self):
         """Test the arg2nodes method
