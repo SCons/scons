@@ -44,15 +44,17 @@ tmp_suffix = '.tmp'
 
 
 class dblite(object):
-    # Squirrel away references to the functions in various modules
-    # that we'll use when our __del__() method calls our sync() method
-    # during shutdown.  We might get destroyed when Python is in the midst
-    # of tearing down the different modules we import in an essentially
-    # arbitrary order, and some of the various modules's global attributes
-    # may already be wiped out from under us.
-    #
-    # See the discussion at:
-    #   http://mail.python.org/pipermail/python-bugs-list/2003-March/016877.html
+    """
+    Squirrel away references to the functions in various modules
+    that we'll use when our __del__() method calls our sync() method
+    during shutdown.  We might get destroyed when Python is in the midst
+    of tearing down the different modules we import in an essentially
+    arbitrary order, and some of the various modules's global attributes
+    may already be wiped out from under us.
+
+    See the discussion at:
+      http://mail.python.org/pipermail/python-bugs-list/2003-March/016877.html
+    """
 
     _open = open
     _pickle_dump = staticmethod(pickle.dump)
