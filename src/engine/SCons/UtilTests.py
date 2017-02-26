@@ -237,7 +237,11 @@ class UtilTestCase(unittest.TestCase):
     def test_is_Dict(self):
         assert is_Dict({})
         assert is_Dict(UserDict())
-        assert is_Dict(os.environ)
+
+        # os.environ is not a dictionary in python 3
+        if sys.version_info < (3,0):
+            assert is_Dict(os.environ)
+
         try:
             class mydict(dict):
                 pass
@@ -723,7 +727,7 @@ class UtilTestCase(unittest.TestCase):
 
     def test_LogicalLines(self):
         """Test the LogicalLines class"""
-        content = r"""
+        content = u"""
 foo \
 bar \
 baz
@@ -732,7 +736,7 @@ bling \
 bling \ bling
 bling
 """
-        fobj = io.StringIO(unicode(content))
+        fobj = io.StringIO(content)
         lines = LogicalLines(fobj).readlines()
         assert lines == [
             '\n',
