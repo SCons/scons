@@ -42,6 +42,8 @@ try:
 except ImportError as e:
     from collections import UserList
 
+from collections import Iterable
+
 try:
     from UserString import UserString
 except ImportError as e:
@@ -131,6 +133,22 @@ class NodeList(UserList):
     >>> someList.strip()
     [ 'foo', 'bar' ]
     """
+
+#     def __init__(self, initlist=None):
+#         self.data = []
+# #        print("TYPE:%s"%type(initlist))
+#         if initlist is not None:
+#             # XXX should this accept an arbitrary sequence?
+#             if type(initlist) == type(self.data):
+#                 self.data[:] = initlist
+#             elif isinstance(initlist, (UserList, NodeList)):
+#                 self.data[:] = initlist.data[:]
+#             elif isinstance(initlist, Iterable):
+#                 self.data = list(initlist)
+#             else:
+#                 self.data = [ initlist,]
+
+    
     def __nonzero__(self):
         return len(self.data) != 0
 
@@ -158,9 +176,17 @@ class NodeList(UserList):
         breaking slicing nodelist and refering to 
         properties and methods on contained object
         """
-        return self.__class__(self.data[index])
+#        return self.__class__(self.data[index])
 
-
+        if isinstance(index, slice):
+            # Expand the slice object using range()
+            # limited by number of items in self.data
+            indices = index.indices(len(self.data))
+            return self.__class__([self[x] for x in
+                    range(*indices)])
+        else:
+            # Return one item of the tart
+            return self.data[index]
 
 
 _get_env_var = re.compile(r'^\$([_a-zA-Z]\w*|{[_a-zA-Z]\w*})$')
