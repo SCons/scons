@@ -849,14 +849,18 @@ class TaskmasterTestCase(unittest.TestCase):
         t = tm.next_task()
         t.exception_set((MyException, "exception value"))
         exc_caught = None
+        exc_actually_caught = None
+        exc_value = None
         try:
             t.prepare()
         except MyException as e:
             exc_caught = 1
-        except:
+            exc_value = e
+        except Exception as e:
+            exc_actually_caught = e
             pass
-        assert exc_caught, "did not catch expected MyException"
-        assert str(e) == "exception value", e
+        assert exc_caught, "did not catch expected MyException: %s"%exc_actually_caught
+        assert str(exc_value) == "exception value", exc_value
         assert built_text is None, built_text
 
         # Regression test, make sure we prepare not only
@@ -1065,10 +1069,20 @@ class TaskmasterTestCase(unittest.TestCase):
         assert t.exception == 3
 
         try: 1//0
-        except: pass
-        t.exception_set(None)
+        except:
+            # Moved from below
+            t.exception_set(None)
+            #pass
+
+#        import pdb; pdb.set_trace()
+
+        # Having this here works for python 2.x,
+        # but it is a tuple (None, None, None) when called outside
+        # an except statement
+        # t.exception_set(None)
+        
         exc_type, exc_value, exc_tb = t.exception
-        assert exc_type is ZeroDivisionError, exc_type
+        assert exc_type is ZeroDivisionError, "Expecting ZeroDevisionError got:%s"%exc_type
         exception_values = [
             "integer division or modulo",
             "integer division or modulo by zero",
@@ -1078,13 +1092,14 @@ class TaskmasterTestCase(unittest.TestCase):
         class Exception1(Exception):
             pass
 
-        t.exception_set((Exception1, None))
+        # Previously value was None, but while PY2 None = "", in Py3 None != "", so set to ""
+        t.exception_set((Exception1, ""))
         try:
             t.exception_raise()
         except:
             exc_type, exc_value = sys.exc_info()[:2]
             assert exc_type == Exception1, exc_type
-            assert str(exc_value) == '', exc_value
+            assert str(exc_value) == '', "Expecting empty string got:%s (type %s)"%(exc_value,type(exc_value))
         else:
             assert 0, "did not catch expected exception"
 
