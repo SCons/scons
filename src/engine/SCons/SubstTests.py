@@ -251,7 +251,7 @@ class SubstTestCase(unittest.TestCase):
             else:
                 if result != expect:
                     if failed == 0: print()
-                    print("    input %s => %s did not match %s" % (repr(input), repr(result), repr(expect)))
+                    print("    input %s => \n%s did not match \n%s" % (repr(input), repr(result), repr(expect)))
                     failed = failed + 1
             del cases[:2]
         fmt = "%d %s() cases failed"
@@ -571,7 +571,10 @@ class scons_subst_TestCase(SubstTestCase):
         except SCons.Errors.UserError as e:
             expect = [
                 # Python 2.3, 2.4, 2.5
-                "TypeError `func() takes exactly 3 arguments (1 given)' trying to evaluate `${func(1)}'"
+                "TypeError `func() takes exactly 3 arguments (1 given)' trying to evaluate `${func(1)}'",
+
+                # Python 3.5 (and 3.x?)
+                "TypeError `func() missing 2 required positional arguments: 'b' and 'c'' trying to evaluate `${func(1)}'"
             ]
             assert str(e) in expect, repr(str(e))
         else:
