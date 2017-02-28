@@ -52,7 +52,7 @@ test.write('file.x', "file.x\n")
 
 test.run()
 
-test.fail_test(test.read('file.c') != "file.x\n")
+test.fail_test(test.read('file.c') != b"file.x\n")
 
 test.pass_test()
 
