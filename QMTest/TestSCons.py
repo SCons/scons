@@ -563,21 +563,26 @@ class TestSCons(TestCommon):
         Returns a Python error line for output comparisons.
 
         The exec of the traceback line gives us the correct format for
-        this version of Python.  Before 2.5, this yielded:
-
-            File "<string>", line 1, ?
-
-        Python 2.5 changed this to:
+        this version of Python. 
 
             File "<string>", line 1, <module>
 
         We stick the requested file name and line number in the right
         places, abstracting out the version difference.
         """
-        exec('import traceback; x = traceback.format_stack()[-1]')
-        x = x.lstrip()
-        x = x.replace('<string>', file)
-        x = x.replace('line 1,', 'line %s,' % line)
+        # This routine used to use traceback to get the proper format
+        # that doesn't work well with py3. And the format of the
+        # traceback seems to be stable, so let's just format
+        # an appropriate string
+        #
+        #exec('import traceback; x = traceback.format_stack()[-1]')
+        #       import traceback
+        #       x = traceback.format_stack()
+        #        x = # XXX: .lstrip()
+        #       x = x.replace('<string>', file)
+        #      x = x.replace('line 1,', 'line %s,' % line)
+        #      x="\n".join(x)
+        x='File "%s", line %s, in <module>\n'%(file,line)
         return x
 
     def normalize_ps(self, s):
