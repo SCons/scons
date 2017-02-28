@@ -72,22 +72,21 @@ def toto(header='%(header)s', trailer='%(trailer)s'):
         def foo(b=b):
             return %(nestedfuncexp)s
         f = open(str(target[0]),'wb')
-        f.write(header)
+        f.write(bytearray(header,'utf-8'))
         for d in env['ENVDEPS']:
-            f.write(bytearray(d+'%(separator)s'))
-        f.write(trailer+'\\n')
-        f.write(str(foo())+'\\n')
-        f.write(r.match('aaaa').group(1)+'\\n')
+            f.write(bytearray(d+'%(separator)s','utf-8'))
+        f.write(bytearray(trailer+'\\n','utf-8'))
+        f.write(bytearray(str(foo())+'\\n','utf-8'))
+        f.write(bytearray(r.match('aaaa').group(1)+'\\n','utf-8'))
         %(extracode)s
         try:
-           f.write(str(xarg)+'\\n')
+           f.write(bytearray(str(xarg),'utf-8')+b'\\n')
         except NameError:
            pass
         f.close()
 
     return writeDeps
 '''
-
 
 exec( withClosure % optEnv )
 
@@ -100,7 +99,8 @@ genHeaderBld = SCons.Builder.Builder(
     suffix = '.gen.h'
     )
 
-env = Environment()
+DefaultEnvironment(tools=[])
+env = Environment(tools=[])
 env.Append(BUILDERS = {'GenHeader' : genHeaderBld})
 
 envdeps = list(map(str, range(int(optEnv['NbDeps']))))
@@ -160,7 +160,7 @@ runtest('NbDeps=4', """Head:0:1:2:3:Tail\n18\naaa\n""")
 runtest('', """Head:0:1:Tail\n18\naaa\n""")
 
 sys.stdout.write('Changing the function code should cause a rebuild.\n')
-runtest('extracode=f.write("XX\\n")', """Head:0:1:Tail\n18\naaa\nXX\n""")
+runtest('extracode=f.write(bytearray("XX\\n","utf-8"))', """Head:0:1:Tail\n18\naaa\nXX\n""")
 runtest('extracode=a=2', """Head:0:1:Tail\n18\naaa\n""")
 runtest('', """Head:0:1:Tail\n18\naaa\n""")
 
