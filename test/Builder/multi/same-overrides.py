@@ -38,7 +38,7 @@ test.write('build.py', r"""#!/usr/bin/env python
 import sys
 def build(num, target, source):
     file = open(str(target), 'wb')
-    file.write('%s\n'%num)
+    file.write(bytearray('%s\n'%num,'utf-8'))
     for s in source:
         file.write(open(str(s), 'rb').read())
 build(sys.argv[1],sys.argv[2],sys.argv[3:])
