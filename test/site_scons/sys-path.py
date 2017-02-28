@@ -37,10 +37,10 @@ test.subdir('site_scons')
 test.subdir('sub1')
 
 test.write(['site_scons', 'testmod1.py'], """
-print "Imported site_scons/testmod1.py."
+print("Imported site_scons/testmod1.py.")
 """)
 test.write(['site_scons', 'testmod2.py'], """
-print "Imported site_scons/testmod2.py."
+print("Imported site_scons/testmod2.py.")
 """)
 
 test.write(['sub1', 'SConscript'], """
