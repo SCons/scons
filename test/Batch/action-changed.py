@@ -47,7 +47,7 @@ for i in range(len(targets)):
     t = targets[i]
     s = sources[i]
     fp = open(t, 'wb')
-    fp.write('%s\\n')
+    fp.write(bytearray('%s\\n','utf-8'))
     fp.write(open(s, 'rb').read())
     fp.close()
 sys.exit(0)
