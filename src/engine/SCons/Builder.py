@@ -299,7 +299,7 @@ def _node_errors(builder, env, tlist, slist):
                     msg = "Two different environments were specified for target %s,\n\tbut they appear to have the same action: %s" % (t, action.genstring(tlist, slist, t.env))
                     SCons.Warnings.warn(SCons.Warnings.DuplicateEnvironmentWarning, msg)
                 else:
-                    msg = "Two environments with different actions were specified for the same target: %s\n(action 1: %s)\n(action 2: %s)" % (t,t_contents,contents)
+                    msg = "Two environments with different actions were specified for the same target: %s\n(action 1: %s)\n(action 2: %s)" % (t,t_contents.decode('utf-8'),contents.decode('utf-8'))
                     raise UserError(msg)
             if builder.multi:
                 if t.builder != builder:
