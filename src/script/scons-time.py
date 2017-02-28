@@ -102,7 +102,7 @@ class Line(object):
 
     def print_label(self, inx, x, y):
         if self.label:
-            print('set label %s "%s" at %s,%s right' % (inx, self.label, x, y))
+            print('set label %s "%s" at %0.1f,%0.1f right' % (inx, self.label, x, y))
 
     def plot_string(self):
         if self.title:
@@ -459,7 +459,9 @@ class SConsTimer(object):
         output = os.popen(command).read()
         if self.verbose:
             sys.stdout.write(output)
-        open(log, 'wb').write(output)
+        # TODO: Figure out
+        # Not sure we need to write binary here
+        open(log, 'w').write(output)
 
     #
 
