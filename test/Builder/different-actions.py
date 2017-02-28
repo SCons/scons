@@ -39,7 +39,7 @@ e2 = Environment()
 
 e1.Command('out.txt', [], 'echo 1 > $TARGET')
 e2.Command('out.txt', [], 'echo 2 > $TARGET')
-""")
+""",'w')
 
 expect = TestSCons.re_escape("""
 scons: *** Two environments with different actions were specified for the same target: out.txt
