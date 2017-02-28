@@ -59,7 +59,7 @@ def build2(target, source, env):
     import os.path
     open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
     dir, file = os.path.split(str(target[0]))
-    os.chmod(dir, 0555)
+    os.chmod(dir, 0o555)
     return None
 
 B1 = Builder(action = build1)
