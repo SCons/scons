@@ -246,7 +246,7 @@ class TestSCons_time(TestCommon):
             d, f = os.path.split(path)
             if not os.path.isdir(d):
                 os.makedirs(d)
-            open(path, 'wb').write(content)
+            open(path, 'w').write(content)
         return dir
 
     def write_sample_tarfile(self, archive, dir, files):
@@ -296,7 +296,7 @@ class TestSCons_time(TestCommon):
             zip = zipfile.ZipFile(archive, 'w')
             for name, content in files:
                 path = os.path.join(dir, name)
-                open(path, 'wb').write(content)
+                open(path, 'w').write(content)
                 zip.write(path)
             zip.close()
             shutil.rmtree(dir)

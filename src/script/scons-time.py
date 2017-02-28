@@ -248,7 +248,7 @@ def unzip(fname):
             os.makedirs(dir)
         except:
             pass
-        open(name, 'w').write(zf.read(name))
+        open(name, 'wb').write(zf.read(name))
 
 def read_tree(dir):
     for dirpath, dirnames, filenames in os.walk(dir):
