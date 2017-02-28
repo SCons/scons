@@ -1471,11 +1471,8 @@ def AddMethod(obj, function, name=None):
         else:
             method = MethodType(function, obj, obj.__class__)
     else:
-        # "obj" is a class, so it gets an unbound method.
-        if sys.version_info[:2] > (3, 2):
-            method = MethodType(function, None)
-        else:
-            method = MethodType(function, None, obj)
+        # Handle classes
+        method = function
 
     setattr(obj, name, method)
 
