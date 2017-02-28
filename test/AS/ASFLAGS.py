@@ -89,7 +89,8 @@ infile = open(inf, 'rb')
 outfile = open(out, 'wb')
 outfile.write(optstring + "\n")
 for l in infile.readlines():
-    if l[:3] != '#as':
+    print("LINE->%s<-"%l)
+    if l[:3] != bytearray('#as'):
         outfile.write(l)
 sys.exit(0)
 """)
@@ -108,7 +109,7 @@ for opt, arg in opts:
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
-    if l[:5] != '#link':
+    if l[:5] != b'#link':
         outfile.write(l)
 sys.exit(0)
 """)
@@ -118,15 +119,19 @@ import getopt
 import sys
 opts, args = getopt.getopt(sys.argv[1:], 'co:x')
 optstring = ''
+
 for opt, arg in opts:
     if opt == '-o': out = arg
     else: optstring = optstring + ' ' + opt
+
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
-outfile.write(optstring + "\n")
+outfile.write(bytearray(optstring + "\n",'utf-8'))
+
 for l in infile.readlines():
-    if l[:3] != '#as':
+    if l[:3] != b'#as':
         outfile.write(l)
+
 sys.exit(0)
 """)
 
