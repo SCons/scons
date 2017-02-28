@@ -58,7 +58,7 @@ while args:
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
-    if l[:5] != '#link':
+    if l[:5] != b'#link':
         outfile.write(l)
 sys.exit(0)
 """)
@@ -89,8 +89,7 @@ infile = open(inf, 'rb')
 outfile = open(out, 'wb')
 outfile.write(optstring + "\n")
 for l in infile.readlines():
-    print("LINE->%s<-"%l)
-    if l[:3] != bytearray('#as'):
+    if l[:3] != b'#as':
         outfile.write(l)
 sys.exit(0)
 """)

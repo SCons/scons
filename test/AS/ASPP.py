@@ -53,7 +53,7 @@ while args:
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
-    if l[:5] != '#link':
+    if l[:5] != b'#link':
         outfile.write(l)
 sys.exit(0)
 """)
@@ -77,7 +77,7 @@ while args:
 infile = open(inf, 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
-    if l[:3] != '#as':
+    if l[:3] != b'#as':
         outfile.write(l)
 sys.exit(0)
 """)
@@ -93,7 +93,7 @@ for opt, arg in opts:
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
-    if l[:5] != '#link':
+    if l[:5] != b'#link':
         outfile.write(l)
 sys.exit(0)
 """)
@@ -107,7 +107,7 @@ for opt, arg in opts:
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
-    if l[:3] != '#as':
+    if l[:3] != b'#as':
         outfile.write(l)
 sys.exit(0)
 """)
@@ -143,9 +143,9 @@ test.write('test3.sx', r"""This is a .sx file.
 
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read('test1' + _exe) != "This is a .spp file.\n")
+test.fail_test(test.read('test1' + _exe) != b"This is a .spp file.\n")
 
-test.fail_test(test.read('test2' + _exe) != "This is a .SPP file.\n")
+test.fail_test(test.read('test2' + _exe) != b"This is a .SPP file.\n")
 
 # Ensure the source scanner was run on test3.sx by
 # checking for foo.h in the dependency tree output 
