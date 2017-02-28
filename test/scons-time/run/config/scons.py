@@ -42,13 +42,14 @@ scons = r'%(my_scons_py)s'
 """ % locals())
 
 test.write(my_scons_py, """\
+from __future__ import print_function
 import sys
 profile = ''
 for arg in sys.argv[1:]:
     if arg.startswith('--profile='):
         profile = arg[10:]
         break
-print 'my_scons.py: %s' % profile
+print('my_scons.py: %s' % profile)
 """)
 
 test.run(arguments = 'run -f config foo.tar.gz')

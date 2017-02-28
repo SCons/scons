@@ -43,7 +43,7 @@ for arg in sys.argv[1:]:
     if arg.startswith('--profile='):
         profile = arg[10:]
         break
-print 'my_scons.py: %s' % profile
+print('my_scons.py: %s' % profile)
 """)
 
 test.run(arguments = 'run --scons %s foo.tar.gz' % my_scons_py)
