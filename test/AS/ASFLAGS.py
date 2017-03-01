@@ -24,6 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import sys
 
 import TestSCons
@@ -33,114 +34,22 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 _exe = TestSCons._exe
 
+test.file_fixture('mylink.py')
+test.file_fixture(os.path.join('fixture', 'myas_args.py'))
 
+o = ' -x'
+o_c = ' -x -c'
 if sys.platform == 'win32':
     import SCons.Tool.MSCommon as msc
     
-    o = ' -x'
-    o_c = ' -x'
-    if not msc.msvc_exists():
-        o_c = ' -x -c'
-
-    test.write('mylink.py', r"""
-import sys
-args = sys.argv[1:]
-while args:
-    a = args[0]
-    if a == '-o':
-        out = args[1]
-        args = args[2:]
-        continue
-    if not a[0] in '/-':
-        break
-    args = args[1:]
-    if a[:5].lower() == '/out:': out = a[5:]
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
-for l in infile.readlines():
-    if l[:5] != b'#link':
-        outfile.write(l)
-sys.exit(0)
-""")
-
-    test.write('myas.py', r"""
-import sys
-args = sys.argv[1:]
-inf = None
-optstring = ''
-while args:
-    a = args[0]
-    if a == '-o':
-        out = args[1]
-        args = args[2:]
-        continue
-    args = args[1:]
-    if not a[0] in '/-':
-        if not inf:
-            inf = a
-        continue
-    if a[:2] == '/c':
-        continue
-    if a[:3] == '/Fo':
-        out = a[3:]
-        continue
-    optstring = optstring + ' ' + a
-infile = open(inf, 'rb')
-outfile = open(out, 'wb')
-outfile.write(optstring + "\n")
-for l in infile.readlines():
-    if l[:3] != b'#as':
-        outfile.write(l)
-sys.exit(0)
-""")
-
-else:
-
-    o = ' -x'
-    o_c = ' -x -c'
-
-    test.write('mylink.py', r"""
-import getopt
-import sys
-opts, args = getopt.getopt(sys.argv[1:], 'o:')
-for opt, arg in opts:
-    if opt == '-o': out = arg
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
-for l in infile.readlines():
-    if l[:5] != b'#link':
-        outfile.write(l)
-sys.exit(0)
-""")
-
-    test.write('myas.py', r"""
-import getopt
-import sys
-opts, args = getopt.getopt(sys.argv[1:], 'co:x')
-optstring = ''
-
-for opt, arg in opts:
-    if opt == '-o': out = arg
-    else: optstring = optstring + ' ' + opt
-
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
-outfile.write(bytearray(optstring + "\n",'utf-8'))
-
-for l in infile.readlines():
-    if l[:3] != b'#as':
-        outfile.write(l)
-
-sys.exit(0)
-""")
-
-
+    if msc.msvc_exists():
+        o_c = ' -x'
 
 test.write('SConstruct', """
 env = Environment(LINK = r'%(_python_)s mylink.py',
                   LINKFLAGS = [],
-                  AS = r'%(_python_)s myas.py', ASFLAGS = '-x',
-                  CC = r'%(_python_)s myas.py')
+                  AS = r'%(_python_)s myas_args.py', ASFLAGS = '-x',
+                  CC = r'%(_python_)s myas_args.py')
 env.Program(target = 'test1', source = 'test1.s')
 env.Program(target = 'test2', source = 'test2.S')
 env.Program(target = 'test3', source = 'test3.asm')
