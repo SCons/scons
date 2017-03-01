@@ -29,6 +29,7 @@ Verify the ability to set the $AS construction variable to a different
 assembler (a wrapper we create).
 """
 
+import os
 import sys
 
 import TestSCons
@@ -38,84 +39,8 @@ _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-
-
-if sys.platform == 'win32':
-
-    test.write('mylink.py', r"""
-import sys
-args = sys.argv[1:]
-while args:
-    a = args[0]
-    if a == '-o':
-        out = args[1]
-        args = args[2:]
-        continue
-    if not a[0] in '/-':
-        break
-    args = args[1:]
-    if a[:5].lower() == '/out:': out = a[5:]
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
-for l in infile.readlines():
-    if l[:5] != b'#link':
-        outfile.write(l)
-sys.exit(0)
-""")
-
-    test.write('myas.py', r"""
-import sys
-args = sys.argv[1:]
-inf = None
-while args:
-    a = args[0]
-    if a == '-o':
-        out = args[1]
-        args = args[2:]
-        continue
-    args = args[1:]
-    if not a[0] in "/-":
-        if not inf:
-            inf = a
-        continue
-    if a[:3] == '/Fo': out = a[3:]
-infile = open(inf, 'rb')
-outfile = open(out, 'wb')
-for l in infile.readlines():
-    if l[:3] != b'#as':
-        outfile.write(l)
-sys.exit(0)
-""")
-
-else:
-
-    test.write('mylink.py', r"""
-import getopt
-import sys
-opts, args = getopt.getopt(sys.argv[1:], 'o:')
-for opt, arg in opts:
-    if opt == '-o': out = arg
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
-for l in infile.readlines():
-    if l[:5] != b'#link':
-        outfile.write(l)
-sys.exit(0)
-""")
-
-    test.write('myas.py', r"""
-import getopt
-import sys
-opts, args = getopt.getopt(sys.argv[1:], 'co:')
-for opt, arg in opts:
-    if opt == '-o': out = arg
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
-for l in infile.readlines():
-    if l[:3] != b'#as':
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mylink.py')
+test.file_fixture(os.path.join('fixture', 'myas.py'))
 
 test.write('SConstruct', """
 env = Environment(LINK = r'%(_python_)s mylink.py',
