@@ -783,7 +783,7 @@ class Popen(subprocess.Popen):
                 return 0
 
             try:
-                written = os.write(self.stdin.fileno(), input)
+                written = os.write(self.stdin.fileno(), bytearray(input,'utf-8'))
             except OSError as why:
                 if why.args[0] == errno.EPIPE: #broken pipe
                     return self._close('stdin')
@@ -1355,6 +1355,7 @@ class TestCmd(object):
         if timeout:
             self.timer = threading.Timer(float(timeout), self._timeout)
             self.timer.start()
+        print("CMD:%s"%cmd)
         p = Popen(cmd,
                   stdin=stdin,
                   stdout=subprocess.PIPE,
