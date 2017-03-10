@@ -44,11 +44,15 @@ _python_ = TestSCons._python_
 re_python = re.escape(TestSCons._python_)
 
 test.write("mycc.py", """
-print 'Compile'
+from __future__ import print_function
+
+print('Compile')
 """)
 
 test.write("mylink.py", """
-print 'Link'
+from __future__ import print_function
+
+print('Link')
 """)
 
 sconstruct = """
