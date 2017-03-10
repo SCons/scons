@@ -63,6 +63,7 @@ def diskcheck_convert(value):
             raise ValueError(v)
     return result
 
+
 class SConsValues(optparse.Values):
     """
     Holder class for uniform access to SCons options, regardless
@@ -112,7 +113,18 @@ class SConsValues(optparse.Values):
             try:
                 return self.__dict__['__SConscript_settings__'][attr]
             except KeyError:
-                return getattr(self.__dict__['__defaults__'], attr)
+                try:
+                    return getattr(self.__dict__['__defaults__'], attr)
+                except KeyError:
+                    # Added because with py3 this is a new class,
+                    # not a classic class, and due to the way
+                    # In that case it will create an object without
+                    # __defaults__, and then query for __setstate__
+                    # which will throw an exception of KeyError
+                    # deepcopy() is expecting AttributeError if __setstate__
+                    # is not available.
+                    raise AttributeError(attr)
+
 
     settable = [
         'clean',
@@ -185,6 +197,7 @@ class SConsValues(optparse.Values):
             SCons.Warnings.process_warn_strings(value)
 
         self.__SConscript_settings__[name] = value
+
 
 class SConsOption(optparse.Option):
     def convert_value(self, opt, value):
