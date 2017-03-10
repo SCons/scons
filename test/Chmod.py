@@ -36,13 +36,13 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 # Note:  Windows basically has two modes that it can os.chmod() files to
-# 0444 and 0666, and directories to 0555 and 0777, so we can only really
+# 0o444 and 0o666, and directories to 0o555 and 0o777, so we can only really
 # oscillate between those values.
 test.write('SConstruct', """
-Execute(Chmod('f1', 0666))
-Execute(Chmod(('f1-File'), 0666))
-Execute(Chmod('d2', 0777))
-Execute(Chmod(Dir('d2-Dir'), 0777))
+Execute(Chmod('f1', 0o666))
+Execute(Chmod(('f1-File'), 0o666))
+Execute(Chmod('d2', 0o777))
+Execute(Chmod(Dir('d2-Dir'), 0o777))
 def cat(env, source, target):
     target = str(target[0])
     f = open(target, "wb")
@@ -52,18 +52,18 @@ def cat(env, source, target):
 Cat = Action(cat)
 env = Environment()
 env.Command('bar.out', 'bar.in', [Cat,
-                                  Chmod("f3", 0666),
-                                  Chmod("d4", 0777)])
+                                  Chmod("f3", 0o666),
+                                  Chmod("d4", 0o777)])
 env = Environment(FILE = 'f5')
-env.Command('f6.out', 'f6.in', [Chmod('$FILE', 0666), Cat])
+env.Command('f6.out', 'f6.in', [Chmod('$FILE', 0o666), Cat])
 env.Command('f7.out', 'f7.in', [Cat,
-                                Chmod('Chmod-$SOURCE', 0666),
-                                Chmod('${TARGET}-Chmod', 0666)])
+                                Chmod('Chmod-$SOURCE', 0o666),
+                                Chmod('${TARGET}-Chmod', 0o666)])
 
 # Make sure Chmod works with a list of arguments
 env = Environment(FILE = 'f9')
-env.Command('f8.out', 'f8.in', [Chmod(['$FILE', File('f10')], 0666), Cat])
-Execute(Chmod(['d11', Dir('d12')], 0777))
+env.Command('f8.out', 'f8.in', [Chmod(['$FILE', File('f10')], 0o666), Cat])
+Execute(Chmod(['d11', Dir('d12')], 0o777))
 Execute(Chmod('f13', "a=r"))
 Execute(Chmod('f14', "ogu+w"))
 Execute(Chmod('f15', "ug=rw, go+ rw"))
