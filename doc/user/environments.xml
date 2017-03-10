@@ -627,7 +627,7 @@ int main() { }
       <scons_example name="environments_ex6">
         <file name="SConstruct" printme="1">
 env = Environment()
-print "CC is:", env['CC']
+print("CC is:", env['CC'])
         </file>
       </scons_example>
 
@@ -658,7 +658,7 @@ print "CC is:", env['CC']
 env = Environment(FOO = 'foo', BAR = 'bar')
 dict = env.Dictionary()
 for key in ['OBJSUFFIX', 'LIBSUFFIX', 'PROGSUFFIX']:
-    print "key = %s, value = %s" % (key, dict[key])
+    print("key = %s, value = %s" % (key, dict[key]))
          </file>
       </scons_example>
 
@@ -695,7 +695,7 @@ for key in ['OBJSUFFIX', 'LIBSUFFIX', 'PROGSUFFIX']:
       <sconstruct>
 env = Environment()
 for item in sorted(env.Dictionary().items()):
-    print "construction variable = '%s', value = '%s'" % item
+    print("construction variable = '%s', value = '%s'" % item)
       </sconstruct>
 
     </section>
@@ -721,7 +721,7 @@ for item in sorted(env.Dictionary().items()):
 
       <sconstruct>
 env = Environment()
-print "CC is:", env.subst('$CC')
+print("CC is:", env.subst('$CC'))
       </sconstruct>
 
       <para>
@@ -738,7 +738,7 @@ print "CC is:", env.subst('$CC')
 
       <sconstruct>
 env = Environment(CCFLAGS = '-DFOO')
-print "CCCOM is:", env['CCCOM']
+print("CCCOM is:", env['CCCOM'])
       </sconstruct>
 
       <para>
@@ -764,7 +764,7 @@ scons: `.' is up to date.
 
       <sconstruct>
 env = Environment(CCFLAGS = '-DFOO')
-print "CCCOM is:", env.subst('$CCCOM')
+print("CCCOM is:", env.subst('$CCCOM'))
       </sconstruct>
 
       <para>
@@ -806,7 +806,7 @@ scons: `.' is up to date.
        <scons_example name="environments_missing1">
          <file name="SConstruct" printme="1">
 env = Environment()
-print "value is:", env.subst( '->$MISSING&lt;-' )
+print("value is:", env.subst( '->$MISSING&lt;-' ))
         </file>
       </scons_example>
 
@@ -834,7 +834,7 @@ print "value is:", env.subst( '->$MISSING&lt;-' )
          <file name="SConstruct" printme="1">
 AllowSubstExceptions()
 env = Environment()
-print "value is:", env.subst( '->$MISSING&lt;-' )
+print("value is:", env.subst( '->$MISSING&lt;-' ))
         </file>
       </scons_example>
 
@@ -854,7 +854,7 @@ print "value is:", env.subst( '->$MISSING&lt;-' )
          <file name="SConstruct" printme="1">
 AllowSubstExceptions(IndexError, NameError, ZeroDivisionError)
 env = Environment()
-print "value is:", env.subst( '->${1 / 0}&lt;-' )
+print("value is:", env.subst( '->${1 / 0}&lt;-' ))
         </file>
       </scons_example>
 
@@ -1216,7 +1216,7 @@ int main() { }
         <file name="SConstruct" printme="1">
 env = Environment()
 env.Replace(NEW_VARIABLE = 'xyzzy')
-print "NEW_VARIABLE =", env['NEW_VARIABLE']
+print("NEW_VARIABLE =", env['NEW_VARIABLE'])
         </file>
       </scons_example>
 
@@ -1251,11 +1251,11 @@ print "NEW_VARIABLE =", env['NEW_VARIABLE']
       <scons_example name="environments_Replace2">
         <file name="SConstruct" printme="1">
 env = Environment(CCFLAGS = '-DDEFINE1')
-print "CCFLAGS =", env['CCFLAGS']
+print("CCFLAGS =", env['CCFLAGS'])
 env.Program('foo.c')
 
 env.Replace(CCFLAGS = '-DDEFINE2')
-print "CCFLAGS =", env['CCFLAGS']
+print("CCFLAGS =", env['CCFLAGS'])
 env.Program('bar.c')
         </file>
         <file name="foo.c">
@@ -1375,7 +1375,7 @@ int main() { }
         <file name="SConstruct" printme="1">
 env = Environment()
 env.Append(NEW_VARIABLE = 'added')
-print "NEW_VARIABLE =", env['NEW_VARIABLE']
+print("NEW_VARIABLE =", env['NEW_VARIABLE'])
         </file>
       </scons_example>
 
@@ -1475,7 +1475,7 @@ int main() { }
         <file name="SConstruct" printme="1">
 env = Environment()
 env.Prepend(NEW_VARIABLE = 'added')
-print "NEW_VARIABLE =", env['NEW_VARIABLE']
+print("NEW_VARIABLE =", env['NEW_VARIABLE'])
         </file>
       </scons_example>
 
@@ -1650,7 +1650,7 @@ if len(sys.argv) &gt; 1:
 else:
     keys = sorted(os.environ.keys())
 for key in keys:
-    print "    " + key + "=" + os.environ[key]
+    print("    " + key + "=" + os.environ[key])
       </file>
     </scons_example>
 
