@@ -22,6 +22,8 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+from __future__ import print_function
+
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
@@ -98,7 +100,7 @@ def CheckForQt(context):
      if os.path.isfile(uic_path):
         potential_qt_dirs.insert(0, env[ 'qt_directory' ])
      else:
-        print "QT not found. Invalid qt_directory value - failed to find uic."
+        print("QT not found. Invalid qt_directory value - failed to find uic.")
         return 0
 
   for i in potential_qt_dirs:
@@ -106,21 +108,21 @@ def CheckForQt(context):
     if CheckForQtAt(context, i):
        # additional checks to validate QT installation
        if not os.path.isfile(os.path.join(i, 'bin', 'uic')):
-          print "QT - failed to find uic."
+          print("QT - failed to find uic.")
           return 0
        if not os.path.isfile(os.path.join(i, 'bin', 'moc')):
-          print "QT - failed to find moc."
+          print("QT - failed to find moc.")
           return 0
        if not os.path.exists(os.path.join(i, 'lib')):
-          print "QT - failed to find QT lib path."
+          print("QT - failed to find QT lib path.")
           return 0
        if not os.path.exists(os.path.join(i, 'include')):
-          print "QT - failed to find QT include path."
+          print("QT - failed to find QT include path.")
           return 0
        return 1
     else:
       if i==env['qt_directory']:
-        print "QT directory not valid.  Failed QT test build."
+        print("QT directory not valid.  Failed QT test build.")
         return 0
   return 0
 
@@ -140,7 +142,7 @@ config = env.Configure(custom_tests = {
 })
 
 if not config.CheckForQt():
-    print "Failed to find valid QT environment."
+    print("Failed to find valid QT environment.")
     Exit(1)
 
 env.Tool('qt', ['$TOOL_PATH'])
