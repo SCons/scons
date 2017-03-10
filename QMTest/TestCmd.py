@@ -1355,7 +1355,6 @@ class TestCmd(object):
         if timeout:
             self.timer = threading.Timer(float(timeout), self._timeout)
             self.timer.start()
-        print("CMD:%s"%cmd)
         p = Popen(cmd,
                   stdin=stdin,
                   stdout=subprocess.PIPE,
