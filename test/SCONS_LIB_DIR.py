@@ -31,8 +31,10 @@ test = TestSCons.TestSCons()
 
 test.subdir('SCons')
 test.write(['SCons','Script.py'], """
+from __future__ import print_function
+
 def main ():
-    print "SCons.Script"
+    print("SCons.Script")
 """)
 
 test.write(['SCons','__init__.py'], """
