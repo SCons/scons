@@ -327,7 +327,7 @@ Examples:
 # which the method will be called; the Python
 # convention is to call it 'self'.
 def my_method(self, arg):
-    print "my_method() got", arg
+    print("my_method() got", arg)
 
 # Use the global AddMethod() function to add a method
 # to the Environment class.  This

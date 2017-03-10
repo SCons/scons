@@ -210,8 +210,8 @@ parser.add_option('--xml',
                       help="Save results to file in SCons XML format.")
 (options, args) = parser.parse_args()
 
-#print "options:", options
-#print "args:", args
+#print("options:", options)
+#print("args:", args)
 
 
 opts, args = getopt.getopt(args, "b:def:hj:klnP:p:qsv:Xx:t",

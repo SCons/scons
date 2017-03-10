@@ -56,7 +56,7 @@ def escape(arg):
     for c in special:
         arg = arg.replace(c, slash+c)
 
-    # print "ESCAPE RESULT: %s"%arg
+    # print("ESCAPE RESULT: %s" % arg)
     return '"' + arg + '"'
 
 

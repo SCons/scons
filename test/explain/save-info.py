@@ -42,6 +42,8 @@ inc_ddd = test.workpath('inc', 'ddd')
 inc_eee = test.workpath('inc', 'eee')
 
 test.write(cat_py, r"""
+from __future__ import print_function
+
 import sys
 
 def process(outfp, infp):
@@ -52,7 +54,7 @@ def process(outfp, infp):
                 fp = open(file, 'rb')
             except IOError:
                 import os
-                print "os.getcwd() =", os.getcwd()
+                print("os.getcwd() =", os.getcwd())
                 raise
             process(outfp, fp)
         else:

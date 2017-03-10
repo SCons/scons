@@ -442,11 +442,11 @@ Program('hello.c')    # "hello.c" is the source file.
 
      <scons_example name="simple_declarative">
        <file name="SConstruct" printme="1">
-print "Calling Program('hello.c')"
+print("Calling Program('hello.c')")
 Program('hello.c')
-print "Calling Program('goodbye.c')"
+print("Calling Program('goodbye.c')")
 Program('goodbye.c')
-print "Finished calling Program()"
+print("Finished calling Program()")
        </file>
        <file name="hello.c">
 int main() { printf("Hello, world!\n"); }

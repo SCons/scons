@@ -212,7 +212,7 @@ SCons 1.0 or greater required, but you have SCons 0.98.5
     <scons_example name="misc_Exit">
       <file name="SConstruct" printme="1">
 if ARGUMENTS.get('FUTURE'):
-    print "The FUTURE option is not supported yet!"
+    print("The FUTURE option is not supported yet!")
     Exit(2)
 env = Environment()
 env.Program('hello.c')
@@ -268,9 +268,9 @@ hello.c
     <scons_example name="misc_FindFile1a">
       <file name="SConstruct" printme="1">
 # one directory
-print FindFile('missing', '.')
+print(FindFile('missing', '.'))
 t = FindFile('exists', '.')
-print t.__class__, t
+print(t.__class__, t)
       </file>
       <file name="exists">
  exists
@@ -287,7 +287,7 @@ print t.__class__, t
 includes = [ '.', 'include', 'src/include']
 headers = [ 'nonesuch.h', 'config.h', 'private.h', 'dist.h']
 for hdr in headers:
-    print '%-12s' % ('%s:' % hdr), FindFile(hdr, includes)
+    print('%-12s' % ('%s:' % hdr), FindFile(hdr, includes))
       </file>
       <file name="config.h">
 exists
@@ -320,7 +320,7 @@ exists
 # several directories
 includes = [ '.', 'include', 'src/include']
 headers = [ 'nonesuch.h', 'config.h', 'private.h', 'dist.h']
-print FindFile(headers, includes)
+print(FindFile(headers, includes))
       </file>
       <file name="config.h">
 exists
@@ -350,9 +350,9 @@ exists
 
     <scons_example name="misc_FindFile1d">
       <file name="SConstruct" printme="1">
-print FindFile('multiple', ['sub1', 'sub2', 'sub3'])
-print FindFile('multiple', ['sub2', 'sub3', 'sub1'])
-print FindFile('multiple', ['sub3', 'sub1', 'sub2'])
+print(FindFile('multiple', ['sub1', 'sub2', 'sub3']))
+print(FindFile('multiple', ['sub2', 'sub3', 'sub1']))
+print(FindFile('multiple', ['sub3', 'sub1', 'sub2']))
       </file>
       <directory name="sub1"></directory>
       <file name="sub1/multiple">
@@ -386,8 +386,8 @@ exists
       <file name="SConstruct" printme="1">
 # Neither file exists, so build will fail
 Command('derived', 'leaf', 'cat >$TARGET $SOURCE')
-print FindFile('leaf', '.')
-print FindFile('derived', '.')
+print(FindFile('leaf', '.'))
+print(FindFile('derived', '.'))
       </file>
     </scons_example>
 
@@ -399,8 +399,8 @@ print FindFile('derived', '.')
       <file name="SConstruct" printme="1">
 # Only 'leaf' exists
 Command('derived', 'leaf', 'cat >$TARGET $SOURCE')
-print FindFile('leaf', '.')
-print FindFile('derived', '.')
+print(FindFile('leaf', '.'))
+print(FindFile('derived', '.'))
       </file>
       <file name="leaf">
 leaf
@@ -422,7 +422,7 @@ leaf
       <file name="SConstruct" printme="1">
 # Only 'src/leaf' exists
 VariantDir('build', 'src')
-print FindFile('leaf', 'build')
+print(FindFile('leaf', 'build'))
       </file>
       <directory name="src"></directory>
       <file name="src/leaf">
@@ -507,7 +507,7 @@ objects = [
 Program(objects)
 
 for object_file in objects:
-    print object_file.abspath
+    print(object_file.abspath)
       </file>
       <file name="prog1.c">
 prog1.c
@@ -548,7 +548,7 @@ objects = [
 Program(objects)
 
 for object_file in Flatten(objects):
-    print object_file.abspath
+    print(object_file.abspath)
       </file>
       <file name="prog1.c">
 prog1.c
