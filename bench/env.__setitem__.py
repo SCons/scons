@@ -4,6 +4,8 @@
 # env.__setitem__() method(s) in the src/engine/SCons/Environment.py
 # module.
 
+from __future__ import print_function
+
 import os.path
 import re
 import sys
