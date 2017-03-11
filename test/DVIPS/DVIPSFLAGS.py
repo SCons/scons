@@ -38,8 +38,8 @@ import sys
 import getopt
 cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:r:', [])
 base_name = os.path.splitext(arg[0])[0]
-infile = open(arg[0], 'rb')
-out_file = open(base_name+'.dvi', 'wb')
+infile = open(arg[0], 'r')
+out_file = open(base_name+'.dvi', 'w')
 for l in infile.readlines():
     if l[:4] != '#tex':
         out_file.write(l)
@@ -52,8 +52,8 @@ import sys
 import getopt
 cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:r:', [])
 base_name = os.path.splitext(arg[0])[0]
-infile = open(arg[0], 'rb')
-out_file = open(base_name+'.dvi', 'wb')
+infile = open(arg[0], 'r')
+out_file = open(base_name+'.dvi', 'w')
 for l in infile.readlines():
     if l[:6] != '#latex':
         out_file.write(l)
@@ -69,8 +69,8 @@ opt_string = ''
 for opt, arg in cmd_opts:
     if opt == '-o': outfile = arg
     else: opt_string = opt_string + ' ' + opt
-infile = open(args[0], 'rb')
-out_file = open(outfile, 'wb')
+infile = open(args[0], 'r')
+out_file = open(outfile, 'w')
 out_file.write(opt_string + "\n")
 for l in infile.readlines():
     if l[:6] != '#dvips':
@@ -120,9 +120,9 @@ test.must_match('test3.ps', " -x\nThis is a .ltx test.\n")
 
 test.must_match('test4.ps', " -x\nThis is a .latex test.\n")
 
-have_latex = test.where_is('latex')
-if not have_latex:
-    test.skip_test('Could not find latex; skipping test(s).\n')
+# have_latex = test.where_is('latex')
+# if not have_latex:
+#     test.skip_test('Could not find latex; skipping test(s).\n')
 
 
 dvips = test.where_is('dvips')
