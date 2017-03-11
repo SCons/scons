@@ -23,6 +23,8 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import print_function
+
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 __version__ = "__VERSION__"
@@ -41,14 +43,14 @@ import json
 import os
 
 def rearrange_cache_entries(current_prefix_len, new_prefix_len):
-    print 'Changing prefix length from', current_prefix_len, 'to', new_prefix_len
+    print('Changing prefix length from', current_prefix_len, 'to', new_prefix_len)
     dirs = set()
     old_dirs = set()
     for file in glob.iglob(os.path.join('*', '*')):
         name = os.path.basename(file)
         dir = name[:current_prefix_len].upper()
         if dir not in old_dirs:
-            print 'Migrating', dir
+            print('Migrating', dir)
             old_dirs.add(dir)
         dir = name[:new_prefix_len].upper()
         if dir not in dirs:
