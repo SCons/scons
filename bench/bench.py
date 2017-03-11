@@ -88,7 +88,7 @@ if len(args) != 1:
     sys.exit(1)
 
 
-exec(open(args[0], 'rU').read())
+exec(open(args[0], 'r').read())
 
 
 try:

@@ -152,7 +152,7 @@ class UpdateFile(object):
         '''
         if orig is None: orig = file
         try:
-            self.content = open(orig, 'rU').read()
+            self.content = open(orig, 'r').read()
         except IOError:
             # Couldn't open file; don't try to write anything in __del__
             self.file = None

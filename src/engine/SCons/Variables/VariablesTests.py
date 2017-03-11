@@ -65,7 +65,7 @@ def check(key, value, env):
 def checkSave(file, expected):
     gdict = {}
     ldict = {}
-    exec(open(file, 'rU').read(), gdict, ldict)
+    exec(open(file, 'r').read(), gdict, ldict)
     assert expected == ldict, "%s\n...not equal to...\n%s" % (expected, ldict)
 
 class VariablesTestCase(unittest.TestCase):

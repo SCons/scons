@@ -175,7 +175,7 @@ class Variables(object):
                     sys.path.insert(0, dir)
                 try:
                     values['__name__'] = filename
-                    exec(open(filename, 'rU').read(), {}, values)
+                    exec(open(filename, 'r').read(), {}, values)
                 finally:
                     if dir:
                         del sys.path[0]
