@@ -37,12 +37,12 @@ test = TestSCons.TestSCons()
 test.write('mycc.py', r"""
 import sys
 def do_file(outf, inf):
-    for line in open(inf, 'rb').readlines():
+    for line in open(inf, 'r').readlines():
         if line[:10] == '#include <':
             do_file(outf, line[10:-2])
         else:
             outf.write(line)
-outf = open(sys.argv[1], 'wb')
+outf = open(sys.argv[1], 'w')
 for f in sys.argv[2:]:
     do_file(outf, f)
 sys.exit(0)
