@@ -233,7 +233,7 @@ def copy_attr(f1, f2):
     """
     copyit = lambda x: not hasattr(f2, x) and x[:10] == 'PACKAGING_'
     if f1._tags:
-        pattrs = list(filter(copyit, f1._tags))
+        pattrs = [tag for tag in f1._tags if copyit(tag)]
         for attr in pattrs:
             f2.Tag(attr, f1.GetTag(attr))
 
@@ -288,7 +288,7 @@ def stripinstallbuilder(target, source, env):
             (file.builder.name=="InstallBuilder" or\
              file.builder.name=="InstallAsBuilder"))
 
-    if len(list(filter(has_no_install_location, source))):
+    if len([src for src in source if has_no_install_location(src)]):
         warn(Warning, "there are files to package which have no\
         InstallBuilder attached, this might lead to irreproducible packages")
 

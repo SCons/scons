@@ -582,7 +582,7 @@ class TestCommon(TestCmd):
         """
         files = [is_List(x) and os.path.join(*x) or x for x in files]
         existing, missing = separate_files(files)
-        writable = list(filter(is_writable, existing))
+        writable = [file for file in existing if is_writable(file)]
         if missing:
             print("Missing files: `%s'" % "', `".join(missing))
         if writable:

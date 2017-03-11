@@ -65,7 +65,7 @@ re3 = re.compile(r' test/.*\.py')
 def filename_is_a_test(x):
     return re1.search(x) or re2.search(x) or re3.search(x)
 
-test_files = list(filter(filename_is_a_test, sources))
+test_files = [file for file in sources if filename_is_a_test(file)]
 
 if test_files:
     sys.stderr.write("Found the following files with test names not marked as Aegis tests:\n")

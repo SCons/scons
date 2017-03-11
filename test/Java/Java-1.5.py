@@ -346,7 +346,7 @@ def classes_must_match(dir, expect):
 
 def classes_must_not_exist(dir, expect):
     global failed
-    present = list(filter(os.path.exists, expect))
+    present = [path for path in expect if os.path.exists(path)]
     if present:
         sys.stderr.write("Found the following unexpected class files in '%s' after cleaning:\n" % dir)
         for c in present:

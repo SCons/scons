@@ -1168,7 +1168,7 @@ def _build_targets(fs, options, targets, target_top):
                         # or not a file, so go ahead and keep it as a default
                         # target and let the engine sort it out:
                         return 1
-                d = list(filter(check_dir, SCons.Script.DEFAULT_TARGETS))
+                d = [tgt for tgt in SCons.Script.DEFAULT_TARGETS if check_dir(tgt)]
                 SCons.Script.DEFAULT_TARGETS[:] = d
                 target_top = None
                 lookup_top = None

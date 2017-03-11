@@ -778,7 +778,7 @@ class CommandAction(_ActionAction):
 
         _ActionAction.__init__(self, **kw)
         if is_List(cmd):
-            if list(filter(is_List, cmd)):
+            if [c for c in cmd if is_List(c)]:
                 raise TypeError("CommandAction should be given only " \
                       "a single command")
         self.cmd_list = cmd
