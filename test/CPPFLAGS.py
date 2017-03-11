@@ -51,8 +51,8 @@ while args:
         break
     args.pop(0)
     if a[:5] == '/OUT:': out = a[5:]
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
+infile = open(args[0], 'r')
+outfile = open(out, 'w')
 for l in infile.readlines():
     if l[:5] != '#link':
         outfile.write(l)
@@ -67,9 +67,9 @@ import sys
 opts, args = getopt.getopt(sys.argv[1:], 'o:s:')
 for opt, arg in opts:
     if opt == '-o': out = arg
-outfile = open(out, 'wb')
+outfile = open(out, 'w')
 for f in args:
-    infile = open(f, 'rb')
+    infile = open(f, 'r')
     for l in infile.readlines():
         if l[:5] != '#link':
             outfile.write(l)
@@ -85,14 +85,16 @@ clen = len(compiler) + 1
 opts, args = getopt.getopt(sys.argv[2:], 'co:xf:K:')
 for opt, arg in opts:
     if opt == '-o': out = arg
-    elif opt == '-x': open('mygcc.out', 'ab').write(compiler + "\n")
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
+    elif opt == '-x': open('mygcc.out', 'a').write(compiler + "\n")
+infile = open(args[0], 'r')
+outfile = open(out, 'w')
 for l in infile.readlines():
     if l[:clen] != '#' + compiler:
         outfile.write(l)
 sys.exit(0)
 """)
+
+
 
 test.write('SConstruct', """
 env = Environment(CPPFLAGS = '-x',
