@@ -71,9 +71,10 @@ env['ENV']['FOO'] = foo
 
 test.write('build.py',
 r"""
+from __future__ import print_function
 import os
-print 'LIST:', os.environ['LIST']
-print 'FOO:', os.environ['FOO']
+print('LIST:', os.environ['LIST'])
+print('FOO:', os.environ['FOO'])
 """)
 
 test.run()

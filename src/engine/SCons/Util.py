@@ -1453,9 +1453,9 @@ def AddMethod(obj, function, name=None):
         self.z = x + y
       AddMethod(f, A, "add")
       a.add(2, 4)
-      print a.z
+      print(a.z)
       AddMethod(lambda self, i: self.l[i], a, "listIndex")
-      print a.listIndex(5)
+      print(a.listIndex(5))
     """
     if name is None:
         name = function.__name__

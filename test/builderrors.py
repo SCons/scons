@@ -171,6 +171,7 @@ test.must_not_contain_any_line(test.stderr(), ['Exception', 'Traceback'])
 # Should not give traceback; the task error should get converted
 # to a BuildError.
 test.write('SConstruct', """
+from __future__ import print_function
 import atexit
 
 env = Environment()
@@ -182,7 +183,7 @@ env2.Install("target", "dir2/myFile")
 def print_build_failures():
     from SCons.Script import GetBuildFailures
     for bf in GetBuildFailures():
-    print bf.action
+    print(bf.action)
 
 atexit.register(print_build_failures)
 """)
