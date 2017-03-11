@@ -53,10 +53,10 @@ SConscript('SConscript')
 test.write(['src', 'SConscript'], """\
 def cat(env, source, target):
     target = str(target[0])
-    open('cat.out', 'ab').write(target + "\\n")
-    f = open(target, "wb")
+    open('cat.out', 'a').write(target + "\\n")
+    f = open(target, "w")
     for src in source:
-        f.write(open(str(src), "rb").read())
+        f.write(open(str(src), "r").read())
     f.close()
 env_cache = Environment(BUILDERS={'Cat':Builder(action=cat)})
 env_nocache = env_cache.Clone()
