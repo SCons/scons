@@ -165,7 +165,7 @@ def _SConscript(fs, *files, **kw):
         try:
             SCons.Script.sconscript_reading = SCons.Script.sconscript_reading + 1
             if fn == "-":
-                exec(sys.stdin, call_stack[-1].globals)
+                exec(sys.stdin.read(), call_stack[-1].globals)
             else:
                 if isinstance(fn, SCons.Node.Node):
                     f = fn
