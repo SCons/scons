@@ -2483,7 +2483,7 @@ foo = Object('foo.c')
 bar = Object('bar.c')
 objects = ['begin.o'] + foo + ['middle.o'] + bar + ['end.o']
 for object in objects:
-    print str(object)
+    print(str(object))
 </literallayout>
 
 <para>Or you can use the
@@ -2497,7 +2497,7 @@ foo = Object('foo.c')
 bar = Object('bar.c')
 objects = Flatten(['begin.o', foo, 'middle.o', bar, 'end.o'])
 for object in objects:
-    print str(object)
+    print(str(object))
 </literallayout>
 
 <para>Note also that because Builder calls return
@@ -2541,7 +2541,7 @@ function:</para>
 
 <literallayout class="monospaced">
 bar_obj_list = env.StaticObject('bar.c', CPPDEFINES='-DBAR')
-print "The path to bar_obj is:", str(bar_obj_list[0])
+print("The path to bar_obj is:", str(bar_obj_list[0]))
 </literallayout>
 
 <para>Note again that because the Builder call returns a list,
@@ -2842,10 +2842,10 @@ of the tuple, respectively.</para>
 <para>Example:</para>
 
 <literallayout class="monospaced">
-print "first keyword, value =", ARGLIST[0][0], ARGLIST[0][1]
-print "second keyword, value =", ARGLIST[1][0], ARGLIST[1][1]
+print("first keyword, value =", ARGLIST[0][0], ARGLIST[0][1])
+print("second keyword, value =", ARGLIST[1][0], ARGLIST[1][1])
 third_tuple = ARGLIST[2]
-print "third keyword, value =", third_tuple[0], third_tuple[1]
+print("third keyword, value =", third_tuple[0], third_tuple[1])
 for key, value in ARGLIST:
     # process key and value
 </literallayout>
@@ -2913,7 +2913,7 @@ for additional information.</para>
 
 <literallayout class="monospaced">
 if 'foo' in BUILD_TARGETS:
-    print "Don't forget to test the `foo' program!"
+    print("Don't forget to test the `foo' program!")
 if 'special/program' in BUILD_TARGETS:
     SConscript('special')
 </literallayout>
@@ -2951,7 +2951,7 @@ is explicitly being built.</para>
 
 <literallayout class="monospaced">
 if 'foo' in COMMAND_LINE_TARGETS:
-    print "Don't forget to test the `foo' program!"
+    print("Don't forget to test the `foo' program!")
 if 'special/program' in COMMAND_LINE_TARGETS:
     SConscript('special')
 </literallayout>
@@ -2975,9 +2975,9 @@ function to get at the path name for each Node.</para>
 <para>Example:</para>
 
 <literallayout class="monospaced">
-print str(DEFAULT_TARGETS[0])
+print(str(DEFAULT_TARGETS[0]))
 if 'foo' in map(str, DEFAULT_TARGETS):
-    print "Don't forget to test the `foo' program!"
+    print("Don't forget to test the `foo' program!")
 </literallayout>
   </listitem>
   </varlistentry>
@@ -2990,13 +2990,13 @@ list change on on each successive call to the
 function:</para>
 
 <literallayout class="monospaced">
-print map(str, DEFAULT_TARGETS)   # originally []
+print(map(str, DEFAULT_TARGETS))   # originally []
 Default('foo')
-print map(str, DEFAULT_TARGETS)   # now a node ['foo']
+print(map(str, DEFAULT_TARGETS))   # now a node ['foo']
 Default('bar')
-print map(str, DEFAULT_TARGETS)   # now a node ['foo', 'bar']
+print(map(str, DEFAULT_TARGETS))   # now a node ['foo', 'bar']
 Default(None)
-print map(str, DEFAULT_TARGETS)   # back to []
+print(map(str, DEFAULT_TARGETS))   # back to []
 </literallayout>
 
 <para>Consequently, be sure to use
@@ -3525,7 +3525,7 @@ a shared library, only that the compilation (not link) succeeds.</para>
 env = Environment()
 conf = Configure( env )
 if not conf.CheckCHeader( 'math.h' ):
-    print 'We really need math.h!'
+    print('We really need math.h!')
     Exit(1)
 if conf.CheckLibWithHeader( 'qt', 'qapp.h', 'c++',
         'QApplication qapp(0,0);' ):
@@ -3815,7 +3815,7 @@ int main(int argc, char **argv) {
 env = Environment()
 conf = Configure( env, custom_tests = { 'CheckQt' : CheckQt } )
 if not conf.CheckQt('/usr/lib/qt'):
-    print 'We really need qt!'
+    print('We really need qt!')
     Exit(1)
 env = conf.Finish()
 </programlisting>
@@ -3995,7 +3995,7 @@ not configured.</para>
 <literallayout class="monospaced">
 env = Environment(variables=vars)
 for key, value in vars.UnknownVariables():
-    print "unknown variable:  %s=%s" % (key, value)
+    print("unknown variable:  %s=%s" % (key, value))
 </literallayout>
 
   </listitem>
@@ -4400,7 +4400,7 @@ File('foo.c').srcnode().path   # source path of the given source file.
 
 # Builders also return File objects:
 foo = env.Program('foo.c')
-print "foo will be built in %s"%foo.path
+print("foo will be built in %s"%foo.path)
 </literallayout>
 
 <para>A

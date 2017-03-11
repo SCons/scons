@@ -317,7 +317,7 @@ if not GetOption('help'):
 import os
 num_cpu = int(os.environ.get('NUM_CPU', 2))
 SetOption('num_jobs', num_cpu)
-print "running with -j", GetOption('num_jobs')
+print("running with -j", GetOption('num_jobs'))
         </file>
         <file name="foo.in">
 foo.in
@@ -1863,7 +1863,7 @@ env = Environment(variables = vars,
                   CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
 unknown = vars.UnknownVariables()
 if unknown:
-    print "Unknown variables:", unknown.keys()
+    print("Unknown variables:", unknown.keys())
     Exit(1)
 env.Program('foo.c')
         </file>
@@ -1945,7 +1945,7 @@ foo.c
       <scons_example name="commandline_COMMAND_LINE_TARGETS">
         <file name="SConstruct" printme="1">
 if 'bar' in COMMAND_LINE_TARGETS:
-    print "Don't forget to copy `bar' to the archive!"
+    print("Don't forget to copy `bar' to the archive!")
 Default(Program('foo.c'))
 Program('bar.c')
         </file>
@@ -2210,7 +2210,7 @@ prog2.c
            <file name="SConstruct" printme="1">
 prog1 = Program('prog1.c')
 Default(prog1)
-print "DEFAULT_TARGETS is", map(str, DEFAULT_TARGETS)
+print("DEFAULT_TARGETS is", map(str, DEFAULT_TARGETS))
            </file>
            <file name="prog1.c">
 prog1.c
@@ -2244,10 +2244,10 @@ prog1.c
            <file name="SConstruct" printme="1">
 prog1 = Program('prog1.c')
 Default(prog1)
-print "DEFAULT_TARGETS is now", map(str, DEFAULT_TARGETS)
+print("DEFAULT_TARGETS is now", map(str, DEFAULT_TARGETS))
 prog2 = Program('prog2.c')
 Default(prog2)
-print "DEFAULT_TARGETS is now", map(str, DEFAULT_TARGETS)
+print("DEFAULT_TARGETS is now", map(str, DEFAULT_TARGETS))
            </file>
            <file name="prog1.c">
 prog1.c
@@ -2338,7 +2338,7 @@ else:
 prog1 = Program('prog1.c')
 Program('prog2.c')
 Default(prog1)
-print "BUILD_TARGETS is", map(str, BUILD_TARGETS)
+print("BUILD_TARGETS is", map(str, BUILD_TARGETS))
         </file>
         <file name="prog1.c">
 prog1.c

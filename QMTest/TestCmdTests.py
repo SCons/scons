@@ -245,11 +245,12 @@ class cleanup_TestCase(TestCmdTestCase):
 
     def test_atexit(self):
         """Test cleanup() when atexit is used"""
-        self.popen_python("""import sys
+        self.popen_python("""from __future__ import print_function
+import sys
 sys.path = ['%s'] + sys.path
 import atexit
 def my_exitfunc():
-    print "my_exitfunc()"
+    print("my_exitfunc()")
 atexit.register(my_exitfunc)
 import TestCmd
 result = TestCmd.TestCmd(workdir = '')
@@ -258,10 +259,11 @@ sys.exit(0)
 
     def test_exitfunc(self):
         """Test cleanup() when sys.exitfunc is set"""
-        self.popen_python("""import sys
+        self.popen_python("""from __future__ import print_function
+import sys
 sys.path = ['%s'] + sys.path
 def my_exitfunc():
-    print "my_exitfunc()"
+    print("my_exitfunc()")
 sys.exitfunc = my_exitfunc
 import TestCmd
 result = TestCmd.TestCmd(workdir = '')
@@ -594,13 +596,14 @@ sys.exit(0)
 
     def test_diff_stderr_not_affecting_diff_stdout(self):
         """Test diff_stderr() not affecting diff_stdout() behavior"""
-        self.popen_python(r"""import sys
+        self.popen_python(r"""from __future__ import print_function
+import sys
 sys.path = ['%s'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd(diff_stderr='diff_re')
-print "diff_stderr:"
+print("diff_stderr:")
 test.diff_stderr('a\nb.\nc\n', 'a\nbb\nc\n')
-print "diff_stdout:"
+print("diff_stdout:")
 test.diff_stdout('a\nb.\nc\n', 'a\nbb\nc\n')
 sys.exit(0)
 """ % self.orig_cwd,
@@ -700,13 +703,14 @@ sys.exit(0)
 
     def test_diff_stdout_not_affecting_diff_stderr(self):
         """Test diff_stdout() not affecting diff_stderr() behavior"""
-        self.popen_python(r"""import sys
+        self.popen_python(r"""from __future__ import print_function
+import sys
 sys.path = ['%s'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd(diff_stdout='diff_re')
-print "diff_stdout:"
+print("diff_stdout:")
 test.diff_stdout('a\nb.\nc\n', 'a\nbb\nc\n')
-print "diff_stderr:"
+print("diff_stderr:")
 test.diff_stderr('a\nb.\nc\n', 'a\nbb\nc\n')
 sys.exit(0)
 """ % self.orig_cwd,
@@ -2096,18 +2100,19 @@ sys.exit(0)
 
     def test_set_diff_function_stdout(self):
         """Test set_diff_function():  stdout"""
-        self.popen_python("""import sys
+        self.popen_python("""from __future__ import print_function
+import sys
 sys.path = ['%s'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd()
-print "diff:"
+print("diff:")
 test.diff("a\\n", "a\\n")
-print "diff_stdout:"
+print("diff_stdout:")
 test.diff_stdout("a\\n", "a\\n")
 test.set_diff_function(stdout='diff_re')
-print "diff:"
+print("diff:")
 test.diff(".\\n", "a\\n")
-print "diff_stdout:"
+print("diff_stdout:")
 test.diff_stdout(".\\n", "a\\n")
 sys.exit(0)
 """ % self.orig_cwd,
@@ -2124,18 +2129,19 @@ diff_stdout:
 
     def test_set_diff_function_stderr(self):
         """Test set_diff_function():  stderr """
-        self.popen_python("""import sys
+        self.popen_python("""from __future__ import print_function
+import sys
 sys.path = ['%s'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd()
-print "diff:"
+print("diff:")
 test.diff("a\\n", "a\\n")
-print "diff_stderr:"
+print("diff_stderr:")
 test.diff_stderr("a\\n", "a\\n")
 test.set_diff_function(stderr='diff_re')
-print "diff:"
+print("diff:")
 test.diff(".\\n", "a\\n")
-print "diff_stderr:"
+print("diff_stderr:")
 test.diff_stderr(".\\n", "a\\n")
 sys.exit(0)
 """ % self.orig_cwd,
@@ -2696,9 +2702,10 @@ class stdin_TestCase(TestCmdTestCase):
     def test_stdin(self):
         """Test stdin()"""
         run_env = TestCmd.TestCmd(workdir = '')
-        run_env.write('run', """import fileinput
+        run_env.write('run', """from __future__ import print_function
+import fileinput
 for line in fileinput.input():
-    print 'Y'.join(line[:-1].split('X'))
+    print('Y'.join(line[:-1].split('X')))
 """)
         run_env.write('input', "X on X this X line X\n")
         os.chdir(run_env.workdir)
@@ -3327,14 +3334,16 @@ class variables_TestCase(TestCmdTestCase):
             'TestCmd',
         ]
 
-        script = "import TestCmd\n" + \
-                 '\n'.join([ "print TestCmd.%s\n" % v for v in variables ])
+        script = "from __future__ import print_function\n" + \
+                 "import TestCmd\n" + \
+                 '\n'.join([ "print(TestCmd.%s\n)" % v for v in variables ])
         run_env.run(program=sys.executable, stdin=script)
         stderr = run_env.stderr()
         assert stderr == "", stderr
 
-        script = "from TestCmd import *\n" + \
-                 '\n'.join([ "print %s" % v for v in variables ])
+        script = "from __future__ import print_function\n" + \
+                 "from TestCmd import *\n" + \
+                 '\n'.join([ "print(%s)" % v for v in variables ])
         run_env.run(program=sys.executable, stdin=script)
         stderr = run_env.stderr()
         assert stderr == "", stderr

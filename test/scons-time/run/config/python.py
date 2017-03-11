@@ -44,13 +44,14 @@ python = r'%(my_python_py)s'
 
 test.write(my_python_py, """\
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 profile = ''
 for arg in sys.argv[1:]:
     if arg.startswith('--profile='):
         profile = arg[10:]
         break
-print 'my_python.py: %s' % profile
+print('my_python.py: %s' % profile)
 """)
 
 os.chmod(my_python_py, 0o755)

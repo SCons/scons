@@ -207,7 +207,7 @@ def add_f90_to_env(env):
     except KeyError:
         F90Suffixes = ['.f90']
 
-    #print "Adding %s to f90 suffixes" % F90Suffixes
+    #print("Adding %s to f90 suffixes" % F90Suffixes)
     try:
         F90PPSuffixes = env['F90PPFILESUFFIXES']
     except KeyError:
@@ -223,7 +223,7 @@ def add_f95_to_env(env):
     except KeyError:
         F95Suffixes = ['.f95']
 
-    #print "Adding %s to f95 suffixes" % F95Suffixes
+    #print("Adding %s to f95 suffixes" % F95Suffixes)
     try:
         F95PPSuffixes = env['F95PPFILESUFFIXES']
     except KeyError:
@@ -239,7 +239,7 @@ def add_f03_to_env(env):
     except KeyError:
         F03Suffixes = ['.f03']
 
-    #print "Adding %s to f95 suffixes" % F95Suffixes
+    #print("Adding %s to f95 suffixes" % F95Suffixes)
     try:
         F03PPSuffixes = env['F03PPFILESUFFIXES']
     except KeyError:
