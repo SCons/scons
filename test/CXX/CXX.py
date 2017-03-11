@@ -50,8 +50,8 @@ while args:
         break
     args = args[1:]
     if a[:5].lower() == '/out:': out = a[5:]
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
+infile = open(args[0], 'r')
+outfile = open(out, 'w')
 for l in infile.readlines():
     if l[:8] != '/*link*/':
         outfile.write(l)
@@ -74,8 +74,8 @@ while args:
             inf = a
         continue
     if a[:3] == '/Fo': out = a[3:]
-infile = open(inf, 'rb')
-outfile = open(out, 'wb')
+infile = open(inf, 'r')
+outfile = open(out, 'w')
 for l in infile.readlines():
     if l[:7] != '/*c++*/':
         outfile.write(l)
@@ -90,8 +90,8 @@ import sys
 opts, args = getopt.getopt(sys.argv[1:], 'o:')
 for opt, arg in opts:
     if opt == '-o': out = arg
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
+infile = open(args[0], 'r')
+outfile = open(out, 'w')
 for l in infile.readlines():
     if l[:8] != '/*link*/':
         outfile.write(l)
@@ -104,8 +104,8 @@ import sys
 opts, args = getopt.getopt(sys.argv[1:], 'co:')
 for opt, arg in opts:
     if opt == '-o': out = arg
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
+infile = open(args[0], 'r')
+outfile = open(out, 'w')
 for l in infile.readlines():
     if l[:7] != '/*c++*/':
         outfile.write(l)
