@@ -70,10 +70,10 @@ expect_h = output % ('-h', test.workpath('rpcif.h'))
 expect_svc = output % ('-m', test.workpath('rpcif_svc.c'))
 expect_xdr = output % ('-c', test.workpath('rpcif_xdr.c'))
 
-test.must_match('rpcif_clnt.c', expect_clnt)
-test.must_match('rpcif.h', expect_h)
-test.must_match('rpcif_svc.c', expect_svc)
-test.must_match('rpcif_xdr.c', expect_xdr)
+test.must_match('rpcif_clnt.c', expect_clnt, mode='r')
+test.must_match('rpcif.h', expect_h, mode='r')
+test.must_match('rpcif_svc.c', expect_svc, mode='r')
+test.must_match('rpcif_xdr.c', expect_xdr, mode='r')
 
 
 

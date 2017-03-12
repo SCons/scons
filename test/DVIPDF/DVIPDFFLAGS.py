@@ -100,9 +100,9 @@ test.write('test2.tex', r"""This is a .tex test.
 
 test.run(arguments = '.', stderr = None)
 
-test.must_match('test1.pdf', " -x\nThis is a .dvi test.\n")
+test.must_match('test1.pdf', " -x\nThis is a .dvi test.\n", mode='r')
 
-test.must_match('test2.pdf', " -x\nThis is a .tex test.\n")
+test.must_match('test2.pdf', " -x\nThis is a .tex test.\n", mode='r')
 
 
 
@@ -149,21 +149,21 @@ This is the %s LaTeX file.
 
     test.write('bar.tex', tex % 'bar.tex')
 
-    test.run(arguments = 'foo.pdf', stderr = None)
+    test.run(arguments='foo.pdf', stderr=None)
 
     test.must_not_exist(test.workpath('wrapper.out'))
 
     test.must_exist(test.workpath('foo.pdf'))
 
-    test.run(arguments = 'xxx.pdf', stderr = None)
+    test.run(arguments='xxx.pdf', stderr=None)
 
     test.must_not_exist(test.workpath('wrapper.out'))
 
     test.must_not_exist(test.workpath('xxx.dvi'))
 
-    test.run(arguments = 'bar.pdf', stderr = None)
+    test.run(arguments='bar.pdf', stderr=None)
 
-    test.must_match('wrapper.out', "dvipdf bar.dvi bar.pdf\n")
+    test.must_match('wrapper.out', "dvipdf bar.dvi bar.pdf\n", mode='r')
 
     test.must_exist(test.workpath('bar.pdf'))
 
