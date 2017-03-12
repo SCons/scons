@@ -38,7 +38,7 @@ test.subdir('work1', 'work2', 'work3')
 
 test.write('succeed.py', r"""
 import sys
-file = open(sys.argv[1], 'wb')
+file = open(sys.argv[1], 'w')
 file.write("succeed.py: %s\n" % sys.argv[1])
 file.close()
 sys.exit(0)

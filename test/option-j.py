@@ -51,7 +51,7 @@ test = TestSCons.TestSCons()
 test.write('build.py', r"""
 import time
 import sys
-file = open(sys.argv[1], 'wb')
+file = open(sys.argv[1], 'w')
 file.write(str(time.time()) + '\n')
 time.sleep(1)
 file.write(str(time.time()))
