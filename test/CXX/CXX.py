@@ -151,15 +151,15 @@ test.write('test5.C++', r"""This is a .C++ file.
 
 test.run(arguments = '.', stderr = None)
 
-test.must_match('test1' + _exe, "This is a .cc file.\n")
+test.must_match('test1' + _exe, "This is a .cc file.\n", mode='r')
 
-test.must_match('test2' + _exe, "This is a .cpp file.\n")
+test.must_match('test2' + _exe, "This is a .cpp file.\n", mode='r')
 
-test.must_match('test3' + _exe, "This is a .cxx file.\n")
+test.must_match('test3' + _exe, "This is a .cxx file.\n", mode='r')
 
-test.must_match('test4' + _exe, "This is a .c++ file.\n")
+test.must_match('test4' + _exe, "This is a .c++ file.\n", mode='r')
 
-test.must_match('test5' + _exe, "This is a .C++ file.\n")
+test.must_match('test5' + _exe, "This is a .C++ file.\n", mode='r')
 
 if TestSCons.case_sensitive_suffixes('.c', '.C'):
 
