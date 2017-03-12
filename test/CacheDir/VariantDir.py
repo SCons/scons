@@ -75,8 +75,8 @@ SConscript('build/SConscript')
 # This should populate the cache with our derived files.
 test.run()
 
-test.must_match(['build', 'all'], "aaa.in\nbbb.in\nccc.in\n")
-test.must_match('cat.out', "%s\n%s\n%s\n%s\n" % (build_aaa_out, build_bbb_out, build_ccc_out, build_all))
+test.must_match(['build', 'all'], "aaa.in\nbbb.in\nccc.in\n", mode='r')
+test.must_match('cat.out', "%s\n%s\n%s\n%s\n" % (build_aaa_out, build_bbb_out, build_ccc_out, build_all), mode='r')
 
 test.up_to_date(arguments = '.')
 
@@ -116,7 +116,7 @@ test.must_not_exist(test.workpath('build', 'all'))
 # even though it doesn't report anything.
 test.run(arguments = '-s .', stdout = "")
 
-test.must_match(['build', 'all'], "aaa.in\nbbb.in\nccc.in\n")
+test.must_match(['build', 'all'], "aaa.in\nbbb.in\nccc.in\n", mode='r')
 test.must_not_exist(cat_out)
 
 test.up_to_date(arguments = '.')
@@ -137,8 +137,8 @@ cat(["%s"], ["%s", "%s", "%s"])
        build_ccc_out,
        build_all, build_aaa_out, build_bbb_out, build_ccc_out)))
 
-test.must_match(['build', 'all'], "aaa.in\nbbb.in 2\nccc.in\n")
-test.must_match('cat.out', "%s\n%s\n" % (build_bbb_out, build_all))
+test.must_match(['build', 'all'], "aaa.in\nbbb.in 2\nccc.in\n", mode='r')
+test.must_match('cat.out', "%s\n%s\n" % (build_bbb_out, build_all), mode='r')
 
 test.up_to_date(arguments = '.')
 

@@ -79,9 +79,9 @@ test.write(['src1', 'ccc.in'], "ccc.in\n")
 # This should populate the cache with our derived files.
 test.run(chdir = 'src1', arguments = '.')
 
-test.must_match(['src1', 'all'], "aaa.in\nbbb.in\nccc.in\n")
+test.must_match(['src1', 'all'], "aaa.in\nbbb.in\nccc.in\n", mode='r')
 
-test.must_match(['src1', 'cat.out'], "aaa.out\nbbb.out\nccc.out\nall\n")
+test.must_match(['src1', 'cat.out'], "aaa.out\nbbb.out\nccc.out\nall\n", mode='r')
 
 test.up_to_date(chdir = 'src1', arguments = '.')
 
@@ -145,7 +145,7 @@ test.run(chdir = 'src1',
          arguments = '--cache-show -s .',
          stdout = "")
 
-test.must_match(['src1', 'all'], "aaa.in\nbbb.in\nccc.in\n")
+test.must_match(['src1', 'all'], "aaa.in\nbbb.in\nccc.in\n", mode='r')
 test.must_not_exist(test.workpath('src1', 'cat.out'))
 
 #
