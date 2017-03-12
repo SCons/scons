@@ -53,7 +53,7 @@ for infile in sys.argv[2:]:
     fp.write(open(infile, 'rb').read())
 fp.close()
 ''')
-os.chmod(sys.argv[1], 0755)
+os.chmod(sys.argv[1], 0o755)
 
 """
 
