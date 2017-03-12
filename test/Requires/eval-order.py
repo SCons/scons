@@ -53,10 +53,10 @@ test.write('prereq.in', "prereq.in 1\n")
 # not, we'll get an error when the build action tries to use it to
 # build file.out.
 
-test.run(arguments = 'file.out')
+test.run(arguments='file.out')
 
-test.must_match('prereq.out', "prereq.in 1\n")
-test.must_match('file.out', "file.in 1\n")
+test.must_match('prereq.out', "prereq.in 1\n", mode='r')
+test.must_match('file.out', "file.in 1\n", mode='r')
 
 test.pass_test()
 

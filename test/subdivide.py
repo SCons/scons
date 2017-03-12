@@ -80,6 +80,7 @@ test.chmod(fake_cc_py, 0o755)
 test.chmod(fake_link_py, 0o755)
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 SConsignFile(None)
 env = Environment(PROGSUFFIX = '.exe',
                   OBJSUFFIX = '.obj',
@@ -91,6 +92,7 @@ env.Object('foo.c')
 """ % locals())
 
 test.write(['src', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
 SConsignFile(None)
 env = Environment(PROGSUFFIX = '.exe',
                   OBJSUFFIX = '.obj',
@@ -134,7 +136,7 @@ src/sub/bar.c
 if os.sep == '\\':
     expect = expect.replace('\\', '\\\\')
 
-test.must_match(['src', 'prog.exe'], expect)
+test.must_match(['src', 'prog.exe'], expect, mode='r')
 
 test.up_to_date(chdir='src', arguments = test.workpath())
 
