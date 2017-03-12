@@ -77,7 +77,7 @@ env.Build('file.out', 'file.in')
 # Just verify that the normal case works fine.
 test.run(chdir = 'normal', arguments = ".")
 
-test.fail_test(test.read(['normal', 'build', 'file.out']) != "normal/src/file.in\n")
+test.fail_test(test.read(['normal', 'build', 'file.out']) != b"normal/src/file.in\n")
 
 # Verify the error when the VariantDir itself is read-only.  Don't bother
 # to test this on Windows, because the ACL (I think) still allows the

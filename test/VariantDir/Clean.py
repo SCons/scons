@@ -44,7 +44,7 @@ def build_sample(target, source, env):
     targetdir = str(target[0].dir)
     target = str(target[0])
     open(target, 'wb').write(open(str(source[0]), 'rb').read())
-    open(targetdir+'/sample.junk', 'wb').write('Side effect!\\n')
+    open(targetdir+'/sample.junk', 'wb').write(b'Side effect!\\n')
 
 t0 = Command("build0/sample.out", "sample.in", build_sample)
 t1 = Command("build1/sample.out", "sample.in", build_sample)

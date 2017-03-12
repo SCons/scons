@@ -41,7 +41,7 @@ import sys
 outfile = open(sys.argv[1], 'wb')
 infile = open(sys.argv[2], 'rb')
 for l in infile.readlines():
-    if l[:3] != '#ps':
+    if l[:3] != b'#ps':
         outfile.write(l)
 sys.exit(0)
 """)
@@ -60,8 +60,8 @@ test.write('test1.ps', r"""This is a .ps test.
 
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read('test1.pdf') != "This is a .ps test.\n")
-test.fail_test(test.read('test2.pdf') != "This is a .ps test.\n")
+test.fail_test(test.read('test1.pdf') != b"This is a .ps test.\n")
+test.fail_test(test.read('test2.pdf') != b"This is a .ps test.\n")
 
 
 

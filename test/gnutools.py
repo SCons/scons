@@ -49,11 +49,11 @@ cmd_opts, args = getopt.getopt(sys.argv[1:], 'f:s:co:', [])
 output = None
 opt_string = ''
 for opt, arg in cmd_opts:
-    if opt == '-o': output = open(arg, 'wb')
+    if opt == '-o': output = open(arg, 'w')
     else: opt_string = opt_string + ' ' + opt + arg
 output.write('gcc ' + opt_string + '\\n')
 for a in args:
-    contents = open(a, 'rb').read()
+    contents = open(a, 'r').read()
     output.write(contents)
 output.close()
 sys.exit(0)
@@ -66,11 +66,11 @@ cmd_opts, args = getopt.getopt(sys.argv[1:], 'f:s:co:', [])
 output = None
 opt_string = ''
 for opt, arg in cmd_opts:
-    if opt == '-o': output = open(arg, 'wb')
+    if opt == '-o': output = open(arg, 'w')
     else: opt_string = opt_string + ' ' + opt + arg
 output.write('g++ ' + opt_string + '\\n')
 for a in args:
-    contents = open(a, 'rb').read()
+    contents = open(a, 'r').read()
     output.write(contents)
 output.close()
 sys.exit(0)
@@ -116,31 +116,31 @@ test.run(chdir='work1')
 
 def testObject(test, obj, expect):
     contents = test.read(test.workpath('work1', obj))
-    line1 = contents.split('\n')[0]
-    actual = ' '.join(line1.split())
+    line1 = contents.split(b'\n')[0]
+    actual = b' '.join(line1.split())
     if not expect == actual:
         print("%s:  %s != %s\n" % (obj, repr(expect), repr(actual)))
         test.fail_test()
 
 if sys.platform in ('win32', 'cygwin'):
-    c_fpic = ''
+    c_fpic = b''
 else:
-    c_fpic = ' -fPIC'
+    c_fpic = b' -fPIC'
 
-testObject(test, 'cfile1.o',            'gcc -c')
-testObject(test, 'cfile2.o',            'gcc -c')
-testObject(test, 'cppfile1.o',          'g++ -c')
-testObject(test, 'cppfile2.o',          'g++ -c')
-testObject(test, 'cfile1.os',           'gcc -c' + c_fpic)
-testObject(test, 'cfile2.os',           'gcc -c' + c_fpic)
-testObject(test, 'cppfile1.os',         'g++ -c' + c_fpic)
-testObject(test, 'cppfile2.os',         'g++ -c' + c_fpic)
-testObject(test, 'c-only' + _exe,       'gcc')
-testObject(test, 'cpp-only' + _exe,     'g++')
-testObject(test, 'c-and-cpp' + _exe,    'g++')
-testObject(test, dll('c-only'),         'gcc -shared')
-testObject(test, dll('cpp-only'),       'g++ -shared')
-testObject(test, dll('c-and-cpp'),      'g++ -shared')
+testObject(test, 'cfile1.o',            b'gcc -c')
+testObject(test, 'cfile2.o',            b'gcc -c')
+testObject(test, 'cppfile1.o',          b'g++ -c')
+testObject(test, 'cppfile2.o',          b'g++ -c')
+testObject(test, 'cfile1.os',           b'gcc -c' + c_fpic)
+testObject(test, 'cfile2.os',           b'gcc -c' + c_fpic)
+testObject(test, 'cppfile1.os',         b'g++ -c' + c_fpic)
+testObject(test, 'cppfile2.os',         b'g++ -c' + c_fpic)
+testObject(test, 'c-only' + _exe,       b'gcc')
+testObject(test, 'cpp-only' + _exe,     b'g++')
+testObject(test, 'c-and-cpp' + _exe,    b'g++')
+testObject(test, dll('c-only'),         b'gcc -shared')
+testObject(test, dll('cpp-only'),       b'g++ -shared')
+testObject(test, dll('c-and-cpp'),      b'g++ -shared')
 
 test.pass_test()
 

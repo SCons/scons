@@ -48,9 +48,9 @@ for opt, arg in cmd_opts:
     else:
         opt_string = opt_string + ' ' + opt
 infile = open(args[0], 'rb')
-out_file.write(opt_string + "\n")
+out_file.write(opt_string.encode("utf-8") + b"\n")
 for l in infile.readlines():
-    if l[:3] != '#ps':
+    if l[:3] != b'#ps':
         out_file.write(l)
 sys.exit(0)
 """)
@@ -68,7 +68,7 @@ This is a .ps test.
 
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read('test1.pdf') != " -x\nThis is a .ps test.\n")
+test.fail_test(test.read('test1.pdf') != b" -x\nThis is a .ps test.\n")
 
 
 

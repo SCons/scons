@@ -46,7 +46,7 @@ bbb_exe = env_yyy.Program('bbb', 'bbb.c')
 def write_LIBDIRFLAGS(env, target, source):
     pre = env.subst('$LIBDIRPREFIX')
     suf = env.subst('$LIBDIRSUFFIX')
-    f = open(str(target[0]), 'wb')
+    f = open(str(target[0]), 'w')
     for arg in env.subst('$_LIBDIRFLAGS', target=target).split():
         if arg[:len(pre)] == pre:
             arg = arg[len(pre):]

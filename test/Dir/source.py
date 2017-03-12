@@ -44,7 +44,7 @@ test.subdir('tstamp', [ 'tstamp', 'subdir' ],
 test.write('SConstruct', """\
 def writeTarget(target, source, env):
     f=open(str(target[0]), 'wb')
-    f.write("stuff\\n")
+    f.write(b"stuff\\n")
     f.close()
     return 0
 

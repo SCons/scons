@@ -58,7 +58,7 @@ def cat(env, source, target):
 def my_install(dest, source, env):
     import shutil
     shutil.copy2(source, dest)
-    open('my_install.out', 'ab').write(dest)
+    open('my_install.out', 'a').write(dest)
 
 env1 = Environment()
 env1.Append(BUILDERS={'Cat':Builder(action=cat)})
@@ -122,7 +122,7 @@ test.fail_test(oldtime1 == os.path.getmtime(f1_out))
 test.fail_test(oldtime2 != os.path.getmtime(f2_out))
 
 # Verify that we didn't link to the Installed file.
-open(f2_out, 'wb').write("xyzzy\n")
+open(f2_out, 'wb').write(b"xyzzy\n")
 test.must_match(['work', 'f2.out'], "f2.in\n")
 
 # Verify that scons prints an error message
