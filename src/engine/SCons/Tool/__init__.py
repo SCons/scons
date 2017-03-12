@@ -291,7 +291,7 @@ def _call_linker_cb(env, callback, args, result = None):
     if Verbose:
         print('_call_linker_cb: args=%r' % args)
         print('_call_linker_cb: callback=%r' % callback)
-    
+
     try:
         cbfun = env['LINKCALLBACKS'][callback]
     except (KeyError, TypeError):
@@ -423,7 +423,7 @@ class _LibInfoGeneratorBase(object):
 
     def generate_versioned_lib_info(self, env, args, result = None, **kw):
         callback = self.get_versioned_lib_info_generator(**kw)
-        return _call_linker_cb(env, callback, args, result) 
+        return _call_linker_cb(env, callback, args, result)
 
 class _LibPrefixGenerator(_LibInfoGeneratorBase):
     """Library prefix generator, used as target_prefix in SharedLibrary and
@@ -534,7 +534,7 @@ ImpLibSymlinkGenerator = _LibSymlinkGenerator('ImpLib')
 
 class _LibNameGenerator(_LibInfoGeneratorBase):
     """Generates "unmangled" library name from a library file node.
-    
+
     Generally, it's thought to revert modifications done by prefix/suffix
     generators (_LibPrefixGenerator/_LibSuffixGenerator) used by a library
     builder. For example, on gnulink the suffix generator used by SharedLibrary
@@ -544,7 +544,7 @@ class _LibNameGenerator(_LibInfoGeneratorBase):
     "$SHLIBSUFFIX" in the node's basename. So that, if $SHLIBSUFFIX is ".so",
     $SHLIBVERSION is "0.1.2" and the node path is "/foo/bar/libfoo.so.0.1.2",
     the _LibNameGenerator shall return "libfoo.so". Other link tools may
-    implement it's own way of library name unmangling. 
+    implement it's own way of library name unmangling.
     """
     def __init__(self, libtype):
         super(_LibNameGenerator, self).__init__(libtype, 'Name')
@@ -585,7 +585,7 @@ LdModNameGenerator =  _LibNameGenerator('LdMod')
 ImpLibNameGenerator = _LibNameGenerator('ImpLib')
 
 class _LibSonameGenerator(_LibInfoGeneratorBase):
-    """Library soname generator. Returns library soname (e.g. libfoo.so.0) for 
+    """Library soname generator. Returns library soname (e.g. libfoo.so.0) for
     a given node (e.g. /foo/bar/libfoo.so.0.1.2)"""
     def __init__(self, libtype):
         super(_LibSonameGenerator, self).__init__(libtype, 'Soname')
@@ -648,7 +648,7 @@ def EmitLibSymlinks(env, symlinks, libnode, **kw):
     clean_targets = kw.get('clean_targets', [])
     if not SCons.Util.is_List(clean_targets):
         clean_targets = [ clean_targets ]
-      
+
     for link, linktgt in symlinks:
         env.SideEffect(link, linktgt)
         if(Verbose):
@@ -663,7 +663,7 @@ def CreateLibSymlinks(env, symlinks):
     form [ (link, linktarget), ... ], where link and linktarget are SCons
     nodes.
     """
-    
+
     Verbose = False
     for link, linktgt in symlinks:
         linktgt = link.get_dir().rel_path(linktgt)
@@ -705,7 +705,7 @@ def LibSymlinksStrFun(target, source, env, *args):
             else:
                 cmd += ": %s" % linkstr
     return cmd
-    
+
 
 LibSymlinksAction = SCons.Action.Action(LibSymlinksActionFunction, LibSymlinksStrFun)
 
@@ -1137,7 +1137,7 @@ def tool_list(platform, env):
         fortran_compiler = FindTool(fortran_compilers, env) or fortran_compilers[0]
         ar = FindTool(ars, env) or ars[0]
 
-    d_compilers = ['dmd', 'gdc', 'ldc']
+    d_compilers = ['dmd', 'ldc', 'gdc']
     d_compiler = FindTool(d_compilers, env) or d_compilers[0]
 
     other_tools = FindAllTools(other_plat_tools + [
@@ -1172,4 +1172,3 @@ def tool_list(platform, env):
 # indent-tabs-mode:nil
 # End:
 # vim: set expandtab tabstop=4 shiftwidth=4:
-
