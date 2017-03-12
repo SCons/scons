@@ -332,7 +332,7 @@ class SimpleTagCompiler(object):
         international = [t for t in replacements if is_international(t[0])]
         for key, replacement in international:
             try:
-                x = [t for t in list(values.items()) if strip_country_code(t[0]) == key]
+                x = [t for t in values.items() if strip_country_code(t[0]) == key]
                 int_values_for_key = [(get_country_code(t[0]),t[1]) for t in x]
                 for v in int_values_for_key:
                     str = str + replacement % v

@@ -545,7 +545,7 @@ def msvs_setup_env(env):
             env['ENV'] = save_ENV
         vars = parse_output(output, vars)
 
-        for k, v in list(vars.items()):
+        for k, v in vars.items():
             env.PrependENVPath(k, v, delete_existing=1)
 
 def query_versions():

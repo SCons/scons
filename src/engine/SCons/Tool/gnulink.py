@@ -67,7 +67,7 @@ def exists(env):
     # TODO: sync with link.smart_link() to choose a linker
     linkers = { 'CXX': ['g++'], 'CC': ['gcc'] }
     alltools = []
-    for langvar, linktools in list(linkers.items()):
+    for langvar, linktools in linkers.items():
         if langvar in env: # use CC over CXX when user specified CC but not CXX
             return SCons.Tool.FindTool(linktools, env)
         alltools.extend(linktools)

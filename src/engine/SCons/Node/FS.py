@@ -2203,7 +2203,7 @@ class Dir(Base):
             # We use the .name attribute from the Node because the keys of
             # the dir.entries dictionary are normalized (that is, all upper
             # case) on case-insensitive systems like Windows.
-            node_names = [ v.name for k, v in list(dir.entries.items())
+            node_names = [ v.name for k, v in dir.entries.items()
                            if k not in ('.', '..') ]
             names.extend(node_names)
             if not strings:
@@ -2482,7 +2482,7 @@ class FileNodeInfo(SCons.Node.NodeInfoBase):
         """
         # TODO check or discard version
         del state['_version_id']
-        for key, value in list(state.items()):
+        for key, value in state.items():
             if key not in ('__weakref__',):
                 setattr(self, key, value)
 

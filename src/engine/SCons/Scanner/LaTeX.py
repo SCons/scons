@@ -224,14 +224,14 @@ class LaTeX(SCons.Scanner.Base):
             """
             def __init__(self, dictionary):
                 self.dictionary = {}
-                for k,n in list(dictionary.items()):
+                for k,n in dictionary.items():
                     self.dictionary[k] = ( SCons.Scanner.FindPathDirs(n),
                                            FindENVPathDirs(n) )
 
             def __call__(self, env, dir=None, target=None, source=None,
                                     argument=None):
                 di = {}
-                for k,(c,cENV)  in list(self.dictionary.items()):
+                for k,(c,cENV)  in self.dictionary.items():
                     di[k] = ( c(env, dir=None, target=None, source=None,
                                    argument=None) ,
                               cENV(env, dir=None, target=None, source=None,

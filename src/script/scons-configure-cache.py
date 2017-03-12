@@ -99,7 +99,7 @@ for param in config_entries:
 parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 
 # Get the command line as a dict without any of the unspecified entries.
-args = dict([x for x in list(vars(parser.parse_args()).items()) if x[1]])
+args = dict([x for x in vars(parser.parse_args()).items() if x[1]])
 
 # It seems somewhat strange to me, but positional arguments don't get the -
 # in the name changed to _, whereas optional arguments do...

@@ -78,7 +78,7 @@ check = {
 missing = []
 no_result = []
 
-for directory, check_list in list(check.items()):
+for directory, check_list in check.items():
     if os.path.exists(directory):
         for c in check_list:
             f = os.path.join(directory, c)

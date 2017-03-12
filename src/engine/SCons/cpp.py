@@ -72,7 +72,7 @@ cpp_lines_dict = {
 # the corresponding compiled regular expression that fetches the arguments
 # we care about.
 Table = {}
-for op_list, expr in list(cpp_lines_dict.items()):
+for op_list, expr in cpp_lines_dict.items():
     e = re.compile(expr)
     for op in op_list:
         Table[op] = e

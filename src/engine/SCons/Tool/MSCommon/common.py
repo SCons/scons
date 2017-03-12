@@ -219,7 +219,7 @@ def parse_output(output, keep = ("INCLUDE", "LIB", "LIBPATH", "PATH")):
                 dkeep[key].append(p)
 
     for line in output.splitlines():
-        for k,v in list(rdk.items()):
+        for k,v in rdk.items():
             m = v.match(line)
             if m:
                 add_env(m, k)

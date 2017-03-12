@@ -514,7 +514,7 @@ _semi_deepcopy_dispatch = d = {}
 
 def semi_deepcopy_dict(x, exclude = [] ):
     copy = {}
-    for key, val in list(x.items()):
+    for key, val in x.items():
         # The regular Python copy.deepcopy() also deepcopies the key,
         # as follows:
         #
@@ -1074,7 +1074,7 @@ class OrderedDict(UserDict):
         if key not in self._keys: self._keys.append(key)
 
     def update(self, dict):
-        for (key, val) in list(dict.items()):
+        for (key, val) in dict.items():
             self.__setitem__(key, val)
 
     def values(self):
@@ -1096,7 +1096,7 @@ class Selector(OrderedDict):
             # Try to perform Environment substitution on the keys of
             # the dictionary before giving up.
             s_dict = {}
-            for (k,v) in list(self.items()):
+            for (k,v) in self.items():
                 if k is not None:
                     s_k = env.subst(k)
                     if s_k in s_dict:
