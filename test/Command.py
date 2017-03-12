@@ -35,8 +35,8 @@ test.subdir('sub')
 
 test.write('build.py', r"""
 import sys
-contents = open(sys.argv[2], 'rb').read()
-file = open(sys.argv[1], 'wb')
+contents = open(sys.argv[2], 'r').read()
+file = open(sys.argv[1], 'w')
 file.write(contents)
 file.close()
 """)
@@ -45,8 +45,8 @@ test.write('SConstruct', """
 import os
 
 def buildIt(env, target, source):
-    contents = open(str(source[0]), 'rb').read()
-    file = open(str(target[0]), 'wb')
+    contents = open(str(source[0]), 'r').read()
+    file = open(str(target[0]), 'w')
     xyzzy = env.get('XYZZY', '')
     if xyzzy:
         file.write(xyzzy + '\\n')
@@ -57,9 +57,9 @@ def buildIt(env, target, source):
 def sub(env, target, source):
     target = str(target[0])
     source = str(source[0])
-    t = open(target, 'wb')
+    t = open(target, 'w')
     for f in sorted(os.listdir(source)):
-        t.write(open(os.path.join(source, f), 'rb').read())
+        t.write(open(os.path.join(source, f), 'r').read())
     t.close()
     return 0
 
