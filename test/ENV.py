@@ -59,9 +59,7 @@ test.write('input', "input file\n")
 test.run(arguments = '.')
 
 test.must_match('env1.out', "build.py env1\ninput file\n", mode='r')
-# test.fail_test(test.read('env1.out') != "build.py env1\ninput file\n")
 test.must_match('env2.out', "build.py env2\ninput file\n", mode='r')
-# test.fail_test(test.read('env2.out') != "build.py env2\ninput file\n")
 
 
 test.write('SConstruct', """
