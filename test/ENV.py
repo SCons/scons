@@ -50,16 +50,18 @@ test.write('build.py',
 r"""#!/usr/bin/env python
 import os
 import sys
-contents = open(sys.argv[2], 'rb').read()
-open(sys.argv[1], 'wb').write("build.py %s\n%s" % (os.environ['X'], contents))
+contents = open(sys.argv[2], 'r').read()
+open(sys.argv[1], 'w').write("build.py %s\n%s" % (os.environ['X'], contents))
 """)
 
 test.write('input', "input file\n")
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('env1.out') != "build.py env1\ninput file\n")
-test.fail_test(test.read('env2.out') != "build.py env2\ninput file\n")
+test.must_match('env1.out', "build.py env1\ninput file\n", mode='r')
+# test.fail_test(test.read('env1.out') != "build.py env1\ninput file\n")
+test.must_match('env2.out', "build.py env2\ninput file\n", mode='r')
+# test.fail_test(test.read('env2.out') != "build.py env2\ninput file\n")
 
 
 test.write('SConstruct', """
