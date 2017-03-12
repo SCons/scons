@@ -73,22 +73,21 @@ test.run(arguments = '-i aaa.1 aaa.out bbb.1 bbb.out',
          'scons: *** [bbb.1] Error 1\n')
          
 test.fail_test(os.path.exists(test.workpath('aaa.1')))
-test.fail_test(test.read('aaa.out') != "succeed.py: aaa.out\n")
+test.fail_test(test.read('aaa.out',mode='r') != "succeed.py: aaa.out\n")
 test.fail_test(os.path.exists(test.workpath('bbb.1')))
-test.fail_test(test.read('bbb.out') != "succeed.py: bbb.out\n")
+test.fail_test(test.read('bbb.out',mode='r') != "succeed.py: bbb.out\n")
 
 test.unlink("aaa.out")
 test.unlink("bbb.out")
 
-test.run(arguments = '--ignore-errors aaa.1 aaa.out bbb.1 bbb.out',
-         stderr =
-         'scons: *** [aaa.1] Error 1\n'
+test.run(arguments='--ignore-errors aaa.1 aaa.out bbb.1 bbb.out',
+         stderr='scons: *** [aaa.1] Error 1\n'
          'scons: *** [bbb.1] Error 1\n')
 
 test.fail_test(os.path.exists(test.workpath('aaa.1')))
-test.fail_test(test.read('aaa.out') != "succeed.py: aaa.out\n")
+test.fail_test(test.read('aaa.out', mode='r') != "succeed.py: aaa.out\n")
 test.fail_test(os.path.exists(test.workpath('bbb.1')))
-test.fail_test(test.read('bbb.out') != "succeed.py: bbb.out\n")
+test.fail_test(test.read('bbb.out', mode='r') != "succeed.py: bbb.out\n")
 
 test.pass_test()
  
