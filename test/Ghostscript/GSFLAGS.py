@@ -44,10 +44,10 @@ opt_string = ''
 for opt, arg in cmd_opts:
     if opt == '-s':
         if arg[:11] == 'OutputFile=':
-            out_file = open(arg[11:], 'wb')
+            out_file = open(arg[11:], 'w')
     else:
         opt_string = opt_string + ' ' + opt
-infile = open(args[0], 'rb')
+infile = open(args[0], 'r')
 out_file.write(opt_string + "\n")
 for l in infile.readlines():
     if l[:3] != '#ps':
@@ -68,7 +68,7 @@ This is a .ps test.
 
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read('test1.pdf') != " -x\nThis is a .ps test.\n")
+test.must_match('test1.pdf', " -x\nThis is a .ps test.\n", mode='r')
 
 
 
