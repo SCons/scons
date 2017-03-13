@@ -89,7 +89,7 @@ line 3
 
     test.run(arguments = '.', stderr = None)
 
-    test.fail_test(test.read(['outdir', 'test2.class']) != "test2.JAVA\nline 3\n")
+    test.must_match(['outdir', 'test2.class'], "test2.JAVA\nline 3\n", mode='r')
 
 where_javac, java_version = test.java_where_javac()
 where_rmic = test.java_where_rmic()

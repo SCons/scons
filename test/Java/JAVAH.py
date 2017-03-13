@@ -70,9 +70,9 @@ test1.java
 line 3
 """)
 
-test.run(arguments = '.', stderr = None)
+test.run(arguments='.', stderr=None)
 
-test.must_match('test1.h', "test1.java\nline 3\n")
+test.must_match('test1.h', "test1.java\nline 3\n", mode='r')
 
 if os.path.normcase('.java') == os.path.normcase('.JAVA'):
 
@@ -88,9 +88,9 @@ test2.JAVA
 line 3
 """)
 
-    test.run(arguments = '.', stderr = None)
+    test.run(arguments='.', stderr=None)
 
-    test.must_match('test2.h', "test2.JAVA\nline 3\n")
+    test.must_match('test2.h', "test2.JAVA\nline 3\n", mode='r')
 
 
 where_javac, java_version = test.java_where_javac()
