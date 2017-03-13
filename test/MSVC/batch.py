@@ -55,20 +55,20 @@ else:
 # Delay writing the .log output until here so any trailing slash or
 # backslash has been stripped, and the output comparisons later in this
 # script don't have to account for the difference.
-open('fake_cl.log', 'ab').write(" ".join(sys.argv[1:]) + '\\n')
+open('fake_cl.log', 'a').write(" ".join(sys.argv[1:]) + '\\n')
 for infile in input_files:
     if dir:
         outfile = os.path.join(dir, infile.replace('.c', '.obj'))
     else:
         outfile = output
-    open(outfile, 'wb').write(open(infile, 'rb').read())
+    open(outfile, 'w').write(open(infile, 'r').read())
 """)
 
 test.write('fake_link.py', """\
 import sys
-ofp = open(sys.argv[1], 'wb')
+ofp = open(sys.argv[1], 'w')
 for infile in sys.argv[2:]:
-    ofp.write(open(infile, 'rb').read())
+    ofp.write(open(infile, 'r').read())
 """)
 
 test.write('SConstruct', """
