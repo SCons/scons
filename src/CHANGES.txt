@@ -13,6 +13,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Russel Winder:
+    - Reordered the default D tools from "dmd, gdc, ldc" to "dmd, ldc, gdc".
+
   From William Blevins:
     - Updated D language scanner support to latest: 2.071.1. (PR #1924)
       https://dlang.org/spec/module.html accessed 11 August 2016
@@ -146,7 +149,7 @@ RELEASE 2.4.1 - Mon, 07 Nov 2015 10:37:21 -0700
       and continuing.
 
   From Hiroaki Itoh :
-    - Add support `Microsoft Visual C++ Compiler for Python 2.7' 
+    - Add support `Microsoft Visual C++ Compiler for Python 2.7'
       Compiler can be obtained at: https://www.microsoft.com/en-us/download/details.aspx?id=44266
 
   From Florian Miedniak:
