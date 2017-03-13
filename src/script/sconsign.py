@@ -57,13 +57,6 @@ import sys
 # engine modules if they're in either directory.
 
 
-#if sys.version_info >= (3,0,0):
-#    msg = "sconsign: *** Version %s does not run under Python version %s.\n\
-#Python 3 is not yet supported.\n"
-#    sys.stderr.write(msg % (__version__, sys.version.split()[0]))
-#    sys.exit(1)
-
-
 script_dir = sys.path[0]
 
 if script_dir in sys.path:
@@ -527,6 +520,7 @@ for o, a in opts:
         Print_Flags['timestamp'] = 1
     elif o in ('-v', '--verbose'):
         Verbose = 1
+
 
 if Do_Call:
     for a in args:
