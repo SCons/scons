@@ -320,7 +320,10 @@ opts.Add('UNSPECIFIED',
 
 env = Environment(variables=opts)
 
-Help('Variables settable in custom.py or on the command line:\\n' + opts.GenerateHelpText(env,sort=cmp))
+def compare(a,b):
+    return a < b
+
+Help('Variables settable in custom.py or on the command line:\\n' + opts.GenerateHelpText(env,sort=compare))
 
 """)
 

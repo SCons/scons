@@ -76,7 +76,7 @@ test.writable('repository', 0)
 #
 test.run(chdir = 'work', options = opts, arguments = 'aaa.out')
 
-test.fail_test(test.read(['work', 'aaa.out']) != "repository/aaa.in\n")
+test.must_match(['work', 'aaa.out'], "repository/aaa.in\n", mode='r')
 test.fail_test(os.path.exists(test.workpath('work', 'bbb.out')))
 test.fail_test(os.path.exists(test.workpath('work', 'ccc.out')))
 test.fail_test(os.path.exists(test.workpath('work', 'src', 'xxx.out')))
@@ -84,15 +84,15 @@ test.fail_test(os.path.exists(test.workpath('work', 'src', 'yyy.out')))
 
 test.run(chdir = 'work', options = opts, arguments = 'bbb.out src')
 
-test.fail_test(test.read(['work', 'bbb.out']) != "repository/bbb.in\n")
+test.must_match(['work', 'bbb.out'], "repository/bbb.in\n", mode='r')
 test.fail_test(os.path.exists(test.workpath('work', 'ccc.out')))
-test.fail_test(test.read(['work', 'src', 'xxx.out']) != "repository/src/xxx.in\n")
-test.fail_test(test.read(['work', 'src', 'yyy.out']) != "repository/src/yyy.in\n")
+test.must_match(['work', 'src', 'xxx.out'], "repository/src/xxx.in\n", mode='r')
+test.must_match(['work', 'src', 'yyy.out'], "repository/src/yyy.in\n", mode='r')
 
 #
 test.run(chdir = 'work', options = opts, arguments = '.')
 
-test.fail_test(test.read(['work', 'ccc.out']) != "repository/ccc.in\n")
+test.must_match(['work', 'ccc.out'], "repository/ccc.in\n", mode='r')
 
 #
 test.pass_test()

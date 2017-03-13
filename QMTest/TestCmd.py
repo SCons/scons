@@ -499,7 +499,7 @@ def match_re(lines = None, res = None):
             msg = "Regular expression error in %s: %s"
             raise re.error(msg % (repr(s), e.args[0]))
         if not expr.search(lines[i]):
-            print("match_re: mismatch at line %d:\n  search re='%s'\n  line='%s'"%(i,s,lines[i]))
+            print("match_re: mismatch at line %d:\n  search re='%s'\n  line='%s'"%(i, s, lines[i]))
             return
     return 1
 
@@ -672,7 +672,7 @@ except AttributeError:
 
 PIPE = subprocess.PIPE
 
-if sys.platform == 'win32' and subprocess.mswindows:
+if sys.platform == 'win32':#  and subprocess.mswindows:
     try:
         from win32file import ReadFile, WriteFile
         from win32pipe import PeekNamedPipe
@@ -734,7 +734,7 @@ class Popen(subprocess.Popen):
         getattr(self, which).close()
         setattr(self, which, None)
 
-    if sys.platform == 'win32' and subprocess.mswindows:
+    if sys.platform == 'win32':# and subprocess.mswindows:
         def send(self, input):
             if not self.stdin:
                 return None

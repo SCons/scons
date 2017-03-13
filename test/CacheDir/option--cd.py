@@ -62,8 +62,8 @@ test.write(['src', 'ccc.in'], "ccc.in\n")
 # This should populate the cache with our derived files.
 test.run(chdir = 'src', arguments = '.')
 
-test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n")
-test.must_match(['src', 'cat.out'], "aaa.out\nbbb.out\nccc.out\nall\n")
+test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n", mode='r')
+test.must_match(['src', 'cat.out'], "aaa.out\nbbb.out\nccc.out\nall\n", mode='r')
 
 test.up_to_date(chdir = 'src', arguments = '.')
 
@@ -79,7 +79,7 @@ Retrieved `ccc.out' from cache
 Retrieved `all' from cache
 """))
 
-test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n")
+test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n", mode='r')
 test.must_not_exist(test.workpath('src', 'cat.out'))
 
 test.up_to_date(chdir = 'src', arguments = '.')
@@ -97,8 +97,8 @@ cat(["ccc.out"], ["ccc.in"])
 cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
 """))
 
-test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n")
-test.must_match(['src', 'cat.out'], "aaa.out\nbbb.out\nccc.out\nall\n")
+test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n", mode='r')
+test.must_match(['src', 'cat.out'], "aaa.out\nbbb.out\nccc.out\nall\n", mode='r')
 
 test.up_to_date(chdir = 'src', arguments = '.')
 
@@ -116,8 +116,8 @@ cat(["ccc.out"], ["ccc.in"])
 cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
 """))
 
-test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n")
-test.must_match(['src', 'cat.out'], "aaa.out\nbbb.out\nccc.out\nall\n")
+test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n", mode='r')
+test.must_match(['src', 'cat.out'], "aaa.out\nbbb.out\nccc.out\nall\n", mode='r')
 
 test.up_to_date(chdir = 'src', arguments = '.')
 

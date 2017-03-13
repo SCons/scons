@@ -50,9 +50,9 @@ _SUBDIR_f4_out = os.path.join('$SUBDIR', 'f4.out')
 test.write(['work', 'SConstruct'], """\
 def cat(env, source, target):
     target = str(target[0])
-    f = open(target, "wb")
+    f = open(target, "w")
     for src in source:
-        f.write(open(str(src), "rb").read())
+        f.write(open(str(src), "r").read())
     f.close()
 
 def my_install(dest, source, env):
@@ -122,7 +122,7 @@ test.fail_test(oldtime1 == os.path.getmtime(f1_out))
 test.fail_test(oldtime2 != os.path.getmtime(f2_out))
 
 # Verify that we didn't link to the Installed file.
-open(f2_out, 'wb').write(b"xyzzy\n")
+open(f2_out, 'w').write("xyzzy\n")
 test.must_match(['work', 'f2.out'], "f2.in\n")
 
 # Verify that scons prints an error message

@@ -43,9 +43,9 @@ while args:
     else:
         break
     args = args[1:]
-outfile = open(out, 'wb')
+outfile = open(out, 'w')
 for file in args:
-    infile = open(file, 'rb')
+    infile = open(file, 'r')
     for l in infile.readlines():
         if l[:7] != '/*jar*/':
             outfile.write(l)
@@ -64,9 +64,9 @@ test1.class
 line 3
 """)
 
-test.run(arguments = '.', stderr = None)
+test.run(arguments='.', stderr=None)
 
-test.must_match('test1.jar', "test1.class\nline 3\n")
+test.must_match('test1.jar', "test1.class\nline 3\n", mode='r')
 
 if os.path.normcase('.class') == os.path.normcase('.CLASS'):
 
@@ -82,13 +82,13 @@ test2.CLASS
 line 3
 """)
 
-    test.run(arguments = '.', stderr = None)
+    test.run(arguments='.', stderr=None)
 
-    test.must_match('test2.jar', "test2.CLASS\nline 3\n")
+    test.must_match('test2.jar', "test2.CLASS\nline 3\n", mode='r')
 
 test.write('myjar2.py', r"""
 import sys
-f=open(sys.argv[2], 'wb')
+f=open(sys.argv[2], 'w')
 f.write(" ".join(sys.argv[1:]))
 f.write("\n")
 f.close()
@@ -106,7 +106,7 @@ env.Jar(target = 'classes.jar', source = [ 'testdir/bar.class',
 """ % locals())
 
 test.subdir('testdir')
-test.write([ 'testdir', 'bar.class' ], 'foo')
+test.write(['testdir', 'bar.class'], 'foo')
 test.write('foo.mf',
            """Manifest-Version : 1.0
            blah
@@ -115,7 +115,7 @@ test.write('foo.mf',
            """)
 test.run(arguments='classes.jar')
 test.must_match('classes.jar',
-                'cvfm classes.jar foo.mf -C testdir bar.class\n')
+                'cvfm classes.jar foo.mf -C testdir bar.class\n', mode='r')
 
 
 
@@ -124,14 +124,14 @@ where_jar = test.java_where_jar()
 
 
 
-test.file_fixture('wrapper.py')
+test.file_fixture('wrapper_with_args.py')
 
 test.write('SConstruct', """
 foo = Environment(tools = ['javac', 'jar'],
                   JAVAC = r'%(where_javac)s',
                   JAR = r'%(where_jar)s')
 jar = foo.Dictionary('JAR')
-bar = foo.Clone(JAR = r'%(_python_)s wrapper.py ' + jar)
+bar = foo.Clone(JAR = r'%(_python_)s wrapper_with_args.py ' + jar)
 foo.Java(target = 'classes', source = 'com/sub/foo')
 bar.Java(target = 'classes', source = 'com/sub/bar')
 foo.Jar(target = 'foo', source = 'classes/com/sub/foo')
@@ -229,10 +229,10 @@ public class Example6
 
 test.run(arguments = '.')
 
-expected_wrapper_out = "wrapper.py %(where_jar)s cf bar.jar classes/com/sub/bar\n"
+expected_wrapper_out = "wrapper_with_args.py %(where_jar)s cf bar.jar classes/com/sub/bar\n"
 expected_wrapper_out = expected_wrapper_out.replace('/', os.sep)
 test.must_match('wrapper.out',
-                expected_wrapper_out % locals())
+                expected_wrapper_out % locals(), mode='r')
 
 test.must_exist('foo.jar')
 test.must_exist('bar.jar')

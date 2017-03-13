@@ -301,7 +301,7 @@ import os
 Scanned = {}
 
 def write_out(file, dict):
-    f = open(file, 'wb')
+    f = open(file, 'w')
     for k in sorted(dict.keys()):
         file = os.path.split(k)[1]
         f.write(file + ": " + str(dict[k]) + "\\n")

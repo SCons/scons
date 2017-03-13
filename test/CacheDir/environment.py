@@ -92,8 +92,8 @@ test.fail_test(os.listdir(cache) != ['config'])
 # This should populate the cache with our derived files.
 test.run(chdir = 'src', arguments = '.')
 
-test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n")
-test.must_match(src_cat_out, "aaa.out\nbbb.out\nccc.out\nall\n")
+test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n", mode='r')
+test.must_match(src_cat_out, "aaa.out\nbbb.out\nccc.out\nall\n", mode='r')
 
 test.up_to_date(chdir = 'src', arguments = '.')
 
@@ -109,7 +109,7 @@ Retrieved `ccc.out' from cache
 cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
 """))
 
-test.must_match(src_cat_out, "bbb.out\nall\n")
+test.must_match(src_cat_out, "bbb.out\nall\n", mode='r')
 
 test.up_to_date(chdir = 'src', arguments = '.')
 
@@ -134,9 +134,9 @@ test.must_not_exist(src_all)
 # even though it doesn't report anything.
 test.run(chdir = 'src', arguments = '-s .', stdout = "")
 
-test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n")
+test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n", mode='r')
 
-test.must_match(src_cat_out, "bbb.out\nall\n")
+test.must_match(src_cat_out, "bbb.out\nall\n", mode='r')
 
 test.up_to_date(chdir = 'src', arguments = '.')
 
@@ -154,8 +154,8 @@ Retrieved `ccc.out' from cache
 cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
 """))
 
-test.must_match(['src', 'all'], "aaa.in\nbbb.in 2\nccc.in\n")
-test.must_match(src_cat_out, "bbb.out\nall\n")
+test.must_match(['src', 'all'], "aaa.in\nbbb.in 2\nccc.in\n", mode='r')
+test.must_match(src_cat_out, "bbb.out\nall\n", mode='r')
 
 test.up_to_date(chdir = 'src', arguments = '.')
 

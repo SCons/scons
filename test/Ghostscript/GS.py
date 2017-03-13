@@ -38,10 +38,10 @@ test = TestSCons.TestSCons()
 test.write('mygs.py', r"""
 import os
 import sys
-outfile = open(sys.argv[1], 'wb')
-infile = open(sys.argv[2], 'rb')
+outfile = open(sys.argv[1], 'w')
+infile = open(sys.argv[2], 'r')
 for l in infile.readlines():
-    if l[:3] != b'#ps':
+    if l[:3] != '#ps':
         outfile.write(l)
 sys.exit(0)
 """)
@@ -60,8 +60,8 @@ test.write('test1.ps', r"""This is a .ps test.
 
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read('test1.pdf') != b"This is a .ps test.\n")
-test.fail_test(test.read('test2.pdf') != b"This is a .ps test.\n")
+test.must_match('test1.pdf', "This is a .ps test.\n", mode='r')
+test.must_match('test2.pdf', "This is a .ps test.\n", mode='r')
 
 
 
@@ -79,7 +79,7 @@ if gs:
 import os
 import sys
 cmd = " ".join(sys.argv[1:])
-open('%s', 'ab').write("%%s\\n" %% cmd)
+open('%s', 'a').write("%%s\\n" %% cmd)
 os.system(cmd)
 """ % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
@@ -110,7 +110,7 @@ bar.PDF(target = 'bar.pdf', source = 'bar.ps')
 
     test.run(arguments = 'bar.pdf', stderr = None)
 
-    test.fail_test(test.read('wrapper.out') != "%s -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=bar.pdf bar.ps\n" % gs_executable)
+    test.must_match('wrapper.out', "%s -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=bar.pdf bar.ps\n" % gs_executable, mode='r')
 
     test.fail_test(not os.path.exists(test.workpath('bar.pdf')))
 

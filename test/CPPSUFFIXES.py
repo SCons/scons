@@ -49,6 +49,7 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(CPPPATH = ['.'],
                   CC = r'%(_python_)s mycc.py',
                   CCFLAGS = [],
@@ -94,7 +95,7 @@ test1.h 1
 foo.h 1
 test1.x 1
 foo.h 1
-""")
+""", mode='r')
 
 test.up_to_date(arguments='.')
 
@@ -112,7 +113,7 @@ test1.h 1
 foo.h 2
 test1.x 1
 foo.h 2
-""")
+""", mode='r')
 
 test.up_to_date(arguments='.')
 
@@ -134,7 +135,7 @@ test1.h 1
 foo.h 2
 test1.x 2
 foo.h 2
-""")
+""", mode='r')
 
 test.up_to_date(arguments='.')
 
@@ -156,7 +157,7 @@ test1.h 2
 foo.h 2
 test1.x 2
 foo.h 2
-""")
+""", mode='r')
 
 test.up_to_date(arguments='.')
 

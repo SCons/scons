@@ -51,7 +51,7 @@ test.writable('repository', 0)
 
 test.run(chdir = 'work', options = opts, arguments = install)
 
-test.fail_test(test.read(install_file) != "repository/file\n")
+test.must_match(install_file, "repository/file\n", mode='r')
 
 test.up_to_date(chdir = 'work', options = opts, arguments = install)
 

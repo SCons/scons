@@ -49,9 +49,9 @@ def cat(env, source, target):
     target = str(target[0])
     source = list(map(str, source))
     print('cat(%s) > %s' % (source, target))
-    f = open(target, "wb")
+    f = open(target, "w")
     for src in source:
-        f.write(open(src, "rb").read())
+        f.write(open(src, "r").read())
     f.close()
 
 env = Environment(BUILDERS={'Build':Builder(action=cat)})
@@ -72,11 +72,11 @@ test.writable('repository', 0)
 #
 test.run(chdir = 'work1', options = opts, arguments = '.')
 
-test.fail_test(test.read(['work1', 'build0', 'output']) !=
+test.must_match(['work1', 'build0', 'output'],
 """repository/src/aaa.in
 repository/src/bbb.in
 repository/src/ccc.in
-""")
+""", mode='r')
 
 test.fail_test(os.path.exists('work1/build0/aaa.in'))
 test.fail_test(os.path.exists('work1/build0/bbb.in'))
@@ -85,11 +85,11 @@ test.fail_test(not os.path.exists('work1/build0/aaa.mid'))
 test.fail_test(not os.path.exists('work1/build0/bbb.mid'))
 test.fail_test(not os.path.exists('work1/build0/ccc.mid'))
 
-test.fail_test(test.read(['work1', 'build1', 'output']) !=
+test.must_match(['work1', 'build1', 'output'],
 """repository/src/aaa.in
 repository/src/bbb.in
 repository/src/ccc.in
-""")
+""", mode='r')
 
 test.fail_test(not os.path.exists('work1/build1/aaa.in'))
 test.fail_test(not os.path.exists('work1/build1/bbb.in'))
@@ -105,11 +105,11 @@ test.write(['work1', 'src', 'bbb.in'], "work1/src/bbb.in\n")
 
 test.run(chdir = 'work1', options = opts, arguments = '.')
 
-test.fail_test(test.read(['work1', 'build0', 'output']) !=
+test.must_match(['work1', 'build0', 'output'],
 """repository/src/aaa.in
 work1/src/bbb.in
 repository/src/ccc.in
-""")
+""", mode='r')
 
 test.fail_test(os.path.exists('work1/build0/aaa.in'))
 test.fail_test(os.path.exists('work1/build0/bbb.in'))
@@ -118,11 +118,11 @@ test.fail_test(not os.path.exists('work1/build0/aaa.mid'))
 test.fail_test(not os.path.exists('work1/build0/bbb.mid'))
 test.fail_test(not os.path.exists('work1/build0/ccc.mid'))
 
-test.fail_test(test.read(['work1', 'build1', 'output']) !=
+test.must_match(['work1', 'build1', 'output'],
 """repository/src/aaa.in
 work1/src/bbb.in
 repository/src/ccc.in
-""")
+""", mode='r')
 
 test.fail_test(not os.path.exists('work1/build1/aaa.in'))
 test.fail_test(not os.path.exists('work1/build1/bbb.in'))
@@ -167,11 +167,11 @@ test.write(['work2', 'src', 'bbb.in'], "work2/src/bbb.in\n")
 
 test.run(chdir = 'work2', options = opts, arguments = '.')
 
-test.fail_test(test.read(['work2', 'build0', 'output']) !=
+test.must_match(['work2', 'build0', 'output'],
 """repository/src/aaa.in
 work2/src/bbb.in
 repository/src/ccc.in
-""")
+""", mode='r')
 
 test.fail_test(os.path.exists('work2/build0/aaa.in'))
 test.fail_test(os.path.exists('work2/build0/bbb.in'))
@@ -180,11 +180,11 @@ test.fail_test(os.path.exists('work2/build0/aaa.mid'))
 test.fail_test(not os.path.exists('work2/build0/bbb.mid'))
 test.fail_test(os.path.exists('work2/build0/ccc.mid'))
 
-test.fail_test(test.read(['work2', 'build1', 'output']) !=
+test.must_match(['work2', 'build1', 'output'],
 """repository/src/aaa.in
 work2/src/bbb.in
 repository/src/ccc.in
-""")
+""", mode='r')
 
 test.fail_test(not os.path.exists('work2/build1/aaa.in'))
 test.fail_test(not os.path.exists('work2/build1/bbb.in'))

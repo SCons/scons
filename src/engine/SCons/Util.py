@@ -271,6 +271,7 @@ def render_tree(root, child_func, prune=0, margin=[0], visited=None):
 
 IDX = lambda N: N and 1 or 0
 
+
 def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
     """
     Print a tree of nodes.  This is like render_tree, except it prints
@@ -307,7 +308,7 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
                       '        N  = no clean\n' +
                       '         H = no cache\n' +
                       '\n')
-            sys.stdout.write(unicode(legend))
+            sys.stdout.write(legend)
 
         tags = ['[']
         tags.append(' E'[IDX(root.exists())])

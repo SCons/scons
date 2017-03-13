@@ -41,14 +41,14 @@ test.write('build.py', r"""
 import os.path
 import sys
 path = sys.argv[1].split()
-input = open(sys.argv[2], 'rb')
-output = open(sys.argv[3], 'wb')
+input = open(sys.argv[2], 'r')
+output = open(sys.argv[3], 'w')
 
 def find_file(f):
     for dir in path:
         p = dir + os.sep + f
         if os.path.exists(p):
-            return open(p, 'rb')
+            return open(p, 'r')
     return None
 
 def process(infp, outfp):

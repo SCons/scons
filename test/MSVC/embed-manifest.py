@@ -76,14 +76,14 @@ testdll(int argc, char *argv)
 }
 """)
 
-test.run(arguments = '.')
+test.run(arguments='.')
 
 test.must_exist('test%s' % _exe)
 test.must_exist('test%s.manifest' % _exe)
-test.must_contain('exe-extracted.manifest', '</assembly>')
+test.must_contain('exe-extracted.manifest', '</assembly>', mode='r')
 test.must_exist('testdll%s' % _dll)
 test.must_exist('testdll%s.manifest' % _dll)
-test.must_contain('dll-extracted.manifest', '</assembly>')
+test.must_contain('dll-extracted.manifest', '</assembly>', mode='r')
 
 test.pass_test()
 

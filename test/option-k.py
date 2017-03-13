@@ -55,6 +55,7 @@ sys.exit(1)
 # 
 
 test.write(['work1', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
 Succeed = Builder(action = r'%(_python_)s ../succeed.py $TARGETS')
 Fail = Builder(action = r'%(_python_)s ../fail.py $TARGETS')
 env = Environment(BUILDERS = { 'Succeed' : Succeed, 'Fail' : Fail })
@@ -82,7 +83,7 @@ test.run(chdir = 'work1',
 
 test.must_not_exist(test.workpath('work1', 'aaa.1'))
 test.must_not_exist(test.workpath('work1', 'aaa.out'))
-test.must_match(['work1', 'bbb.out'], "succeed.py: bbb.out\n")
+test.must_match(['work1', 'bbb.out'], "succeed.py: bbb.out\n", mode='r')
 
 test.unlink(['work1', 'bbb.out'])
 
@@ -93,7 +94,7 @@ test.run(chdir = 'work1',
 
 test.must_not_exist(test.workpath('work1', 'aaa.1'))
 test.must_not_exist(test.workpath('work1', 'aaa.out'))
-test.must_match(['work1', 'bbb.out'], "succeed.py: bbb.out\n")
+test.must_match(['work1', 'bbb.out'], "succeed.py: bbb.out\n", mode='r')
 
 expect = """\
 scons: Reading SConscript files ...
@@ -118,6 +119,7 @@ test.must_not_exist(test.workpath('work1', 'bbb.out'))
 # 
 
 test.write(['work2', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
 Succeed = Builder(action = r'%(_python_)s ../succeed.py $TARGETS')
 Fail = Builder(action = r'%(_python_)s ../fail.py $TARGETS')
 env = Environment(BUILDERS = { 'Succeed' : Succeed, 'Fail' : Fail })
@@ -146,8 +148,8 @@ scons: done building targets (errors occurred during build).
 
 test.must_not_exist(['work2', 'aaa.out'])
 test.must_not_exist(['work2', 'bbb.out'])
-test.must_match(['work2', 'ccc.out'], "succeed.py: ccc.out\n")
-test.must_match(['work2', 'ddd.out'], "succeed.py: ddd.out\n")
+test.must_match(['work2', 'ccc.out'], "succeed.py: ccc.out\n", mode='r')
+test.must_match(['work2', 'ddd.out'], "succeed.py: ddd.out\n", mode='r')
 
 
 
@@ -173,6 +175,7 @@ test.must_match(['work2', 'ddd.out'], "succeed.py: ddd.out\n")
 #
 
 test.write(['work3', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
 Succeed = Builder(action = r'%(_python_)s ../succeed.py $TARGETS')
 Fail = Builder(action = r'%(_python_)s ../fail.py $TARGETS')
 env = Environment(BUILDERS = { 'Succeed' : Succeed, 'Fail' : Fail })

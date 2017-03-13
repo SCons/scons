@@ -49,8 +49,8 @@ while args:
         break
     args = args[1:]
 for file in args:
-    infile = open(file, 'rb')
-    outfile = open(os.path.join(outdir, file[:-5] + '.class'), 'wb')
+    infile = open(file, 'r')
+    outfile = open(os.path.join(outdir, file[:-5] + '.class'), 'w')
     for l in infile.readlines():
         if l[:8] != '/*rmic*/':
             outfile.write(l)
@@ -71,7 +71,7 @@ line 3
 
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read(['outdir', 'test1.class']) != "test1.java\nline 3\n")
+test.must_match(['outdir', 'test1.class'], "test1.java\nline 3\n", mode='r')
 
 if os.path.normcase('.java') == os.path.normcase('.JAVA'):
 
@@ -89,7 +89,7 @@ line 3
 
     test.run(arguments = '.', stderr = None)
 
-    test.fail_test(test.read(['outdir', 'test2.class']) != "test2.JAVA\nline 3\n")
+    test.must_match(['outdir', 'test2.class'], "test2.JAVA\nline 3\n", mode='r')
 
 where_javac, java_version = test.java_where_javac()
 where_rmic = test.java_where_rmic()
@@ -111,7 +111,7 @@ if java_version.count('.') == 1:
 # Note, how we allow simple version strings like "5" and
 # "6" to successfully pass this test.
 if curver < (1, 8):
-    test.file_fixture('wrapper.py')
+    test.file_fixture('wrapper_with_args.py')
 
     test.write('SConstruct', """
 foo = Environment(tools = ['javac', 'rmic'],
@@ -124,7 +124,7 @@ foo.RMIC(target = 'outdir1',
           JAVACLASSDIR = 'class1')
 
 rmic = foo.Dictionary('RMIC')
-bar = foo.Clone(RMIC = r'%(_python_)s wrapper.py ' + rmic)
+bar = foo.Clone(RMIC = r'%(_python_)s wrapper_with_args.py ' + rmic)
 bar_classes = bar.Java(target = 'class2', source = 'com/sub/bar')
 # XXX This is kind of a Python brute-force way to do what Ant
 # does with its "excludes" attribute.  We should probably find
@@ -321,7 +321,9 @@ public class Example4 extends UnicastRemoteObject implements Hello {
 
     test.run(arguments = '.')
     
-    test.fail_test(test.read('wrapper.out') != "wrapper.py %s -d outdir2 -classpath class2 com.sub.bar.Example3 com.sub.bar.Example4\n" % where_rmic)
+    test.must_match('wrapper.out',
+                    "wrapper_with_args.py %s -d outdir2 -classpath class2 com.sub.bar.Example3 com.sub.bar.Example4\n" % where_rmic,
+                    mode='r')
     
     test.must_exist(test.workpath('outdir1', 'com', 'sub', 'foo', 'Example1_Stub.class'))
     test.must_exist(test.workpath('outdir1', 'com', 'sub', 'foo', 'Example2_Stub.class'))

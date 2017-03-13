@@ -21,6 +21,10 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+import os
+import sys
+
+import TestSCons
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -29,13 +33,13 @@ Verify that we push and retrieve a built symlink to/from a CacheDir()
 as an actualy symlink, not by copying the file contents.
 """
 
-import os
 
-import TestSCons
+
 
 test = TestSCons.TestSCons()
 
-if not hasattr(os, 'symlink'):
+if not hasattr(os, 'symlink') or sys.platform == 'win32':
+    # Skip test on windows as well, because this requires permissions which aren't default
     import sys
     test.skip_test('%s has no os.symlink() method; skipping test\n' % sys.executable)
 

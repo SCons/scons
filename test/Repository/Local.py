@@ -49,7 +49,7 @@ def copy(env, source, target):
     source = str(source[0])
     target = str(target[0])
     print('copy() < %s > %s' % (source, target))
-    open(target, "wb").write(open(source, "rb").read())
+    open(target, "w").write(open(source, "r").read())
 
 Build = Builder(action=copy)
 env = Environment(BUILDERS={'Build':Build}, BBB='bbb')
@@ -66,7 +66,7 @@ test.write(['repository', 'src', 'SConscript'], r"""
 def bbb_copy(env, source, target):
     target = str(target[0])
     print('bbb_copy()')
-    open(target, "wb").write(open('build/bbb.1', "rb").read())
+    open(target, "w").write(open('build/bbb.1', "r").read())
 
 Import("env")
 env.Build('bbb.1', 'bbb.0')
@@ -82,8 +82,8 @@ test.write(['repository', 'src', 'bbb.x'], "repository/src/bbb.x\n")
 #
 test.run(chdir = 'repository', options = opts, arguments = '.')
 
-test.fail_test(test.read(repository_aaa_out) != "repository/aaa.in\n")
-test.fail_test(test.read(repository_build_bbb_2) != "repository/src/bbb.0\n")
+test.must_match(repository_aaa_out, "repository/aaa.in\n", mode='r')
+test.must_match(repository_build_bbb_2, "repository/src/bbb.0\n", mode='r')
 
 test.up_to_date(chdir = 'repository', options = opts, arguments = '.')
 
@@ -95,8 +95,8 @@ test.writable('repository', 0)
 test.run(chdir = 'work', options = opts, arguments = 'aaa.out build/bbb.2')
 
 test.fail_test(os.path.exists(work_aaa_mid))
-test.fail_test(test.read(work_aaa_out) != "repository/aaa.in\n")
-test.fail_test(test.read(work_build_bbb_1) != "repository/src/bbb.0\n")
+test.must_match(work_aaa_out, "repository/aaa.in\n", mode='r')
+test.must_match(work_build_bbb_1, "repository/src/bbb.0\n", mode='r')
 test.fail_test(os.path.exists(work_build_bbb_2))
 
 #
@@ -105,8 +105,8 @@ test.write(['work', 'aaa.in'], "work/aaa.in\n")
 #
 test.run(chdir = 'work', options = opts, arguments = '.')
 
-test.fail_test(test.read(work_aaa_mid) != "work/aaa.in\n")
-test.fail_test(test.read(work_aaa_out) != "work/aaa.in\n")
+test.must_match(work_aaa_mid, "work/aaa.in\n", mode='r')
+test.must_match(work_aaa_out, "work/aaa.in\n", mode='r')
 
 test.up_to_date(chdir = 'work', options = opts, arguments = '.')
 

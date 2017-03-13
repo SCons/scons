@@ -97,14 +97,12 @@ test.run(chdir = 'work', options = opts, arguments = ".")
 #dirs = ['.', workpath_foo, workpath_bar, workpath_foo_zzz]
 dirs = ['.', workpath_foo, workpath_bar,
         'zzz', workpath_foo_zzz, workpath_bar_zzz]
-test.fail_test(test.read(['work', 'zzz.out']) !=
-               '\n'.join(dirs) + '\n')
+test.must_match(['work', 'zzz.out'],'\n'.join(dirs) + '\n', mode='r')
 
 #dirs = [workpath_bar_yyy, '.', workpath_foo, workpath_bar]
 dirs = ['yyy', workpath_foo_yyy, workpath_bar_yyy,
         '.', workpath_foo, workpath_bar]
-test.fail_test(test.read(['work', 'yyy.out']) !=
-               '\n'.join(dirs) + '\n')
+test.must_match(['work', 'yyy.out'], '\n'.join(dirs) + '\n', mode='r')
 
 #
 test.run(chdir = 'work', options = '-c', arguments = ".")
@@ -117,14 +115,12 @@ test.run(chdir = 'work', options = opts, arguments = ".")
 #dirs = ['.', workpath_foo, workpath_bar, 'zzz', workpath_foo_zzz]
 dirs = ['.', workpath_foo, workpath_bar,
         'zzz', workpath_foo_zzz, workpath_bar_zzz]
-test.fail_test(test.read(['work', 'zzz.out']) !=
-               '\n'.join(dirs) + '\n')
+test.must_match(['work', 'zzz.out'], '\n'.join(dirs) + '\n', mode='r')
 
 #dirs = ['yyy', workpath_bar_yyy, '.', workpath_foo, workpath_bar]
 dirs = ['yyy', workpath_foo_yyy, workpath_bar_yyy,
         '.', workpath_foo, workpath_bar]
-test.fail_test(test.read(['work', 'yyy.out']) !=
-               '\n'.join(dirs) + '\n')
+test.must_match(['work', 'yyy.out'], '\n'.join(dirs) + '\n', mode='r')
 
 #
 test.pass_test()

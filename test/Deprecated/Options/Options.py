@@ -29,6 +29,7 @@ import TestSCons
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment()
 print(env['CC'])
 print(" ".join(env['CCFLAGS']))
@@ -38,6 +39,7 @@ test.run()
 cc, ccflags = test.stdout().split('\n')[1:3]
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 # test validator.  Change a key and add a new one to the environment
 def validator(key, value, environ):
     environ[key] = "v"
@@ -208,6 +210,8 @@ Use scons -H for help about command-line options.
 # Test saving of options and multi loading
 #
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
+
 opts = Options(['custom.py', 'options.saved'])
 opts.Add('RELEASE_BUILD',
          'Set to 1 to build a release build',
@@ -259,6 +263,8 @@ checkSave('options.saved', {'DEBUG_BUILD':3, 'RELEASE_BUILD':1})
 # Load no options from file(s)
 # Used to test for correct output in save option file
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
+
 opts = Options()
 opts.Add('RELEASE_BUILD',
          'Set to 1 to build a release build',
@@ -305,6 +311,8 @@ check(['0','0'])
 checkSave('options.saved',{'DEBUG_BUILD':0, 'LISTOPTION_TEST':'a,b'})
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
+
 opts = Options('custom.py')
 opts.Add('RELEASE_BUILD',
          'Set to 1 to build a release build',
@@ -326,7 +334,10 @@ opts.Add('UNSPECIFIED',
 
 env = Environment(options=opts)
 
-Help('Variables settable in custom.py or on the command line:\\n' + opts.GenerateHelpText(env,sort=cmp))
+def compare(a,b):
+    return a < b
+
+Help('Variables settable in custom.py or on the command line:\\n' + opts.GenerateHelpText(env,sort=compare))
 
 """)
 
@@ -357,6 +368,8 @@ Use scons -H for help about command-line options.
          stderr=warnings)
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
+
 import SCons.Options
 env1 = Environment(options = Options())
 env2 = Environment(options = SCons.Options.Options())

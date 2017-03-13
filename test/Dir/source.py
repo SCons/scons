@@ -43,8 +43,8 @@ test.subdir('tstamp', [ 'tstamp', 'subdir' ],
 
 test.write('SConstruct', """\
 def writeTarget(target, source, env):
-    f=open(str(target[0]), 'wb')
-    f.write(b"stuff\\n")
+    f=open(str(target[0]), 'w')
+    f.write("stuff\\n")
     f.close()
     return 0
 
@@ -92,12 +92,12 @@ test.write([ 'cmd-content', 'subdir', '#hash.txt' ], 'hash.txt 1\n')
 test.write('junk.txt', 'junk.txt\n')
 
 test.run(arguments=".", stderr=None)
-test.must_match('tstamp.out', 'stuff\n')
-test.must_match('content.out', 'stuff\n')
-test.must_match('cmd-tstamp.out', 'stuff\n')
-test.must_match('cmd-content.out', 'stuff\n')
-test.must_match('cmd-tstamp-noscan.out', 'stuff\n')
-test.must_match('cmd-content-noscan.out', 'stuff\n')
+test.must_match('tstamp.out', 'stuff\n', mode='r')
+test.must_match('content.out', 'stuff\n', mode='r')
+test.must_match('cmd-tstamp.out', 'stuff\n', mode='r')
+test.must_match('cmd-content.out', 'stuff\n', mode='r')
+test.must_match('cmd-tstamp-noscan.out', 'stuff\n', mode='r')
+test.must_match('cmd-content-noscan.out', 'stuff\n', mode='r')
 
 test.up_to_date(arguments='tstamp.out')
 test.up_to_date(arguments='content.out')

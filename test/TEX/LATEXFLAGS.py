@@ -43,8 +43,8 @@ opt_string = ''
 for opt, arg in cmd_opts:
     opt_string = opt_string + ' ' + opt
 base_name = os.path.splitext(args[0])[0]
-infile = open(args[0], 'rb')
-out_file = open(base_name+'.dvi', 'wb')
+infile = open(args[0], 'r')
+out_file = open(base_name+'.dvi', 'w')
 out_file.write(opt_string + "\n")
 for l in infile.readlines():
     if l[0] != '\\':
@@ -70,9 +70,9 @@ test.write('test2.latex', r"""This is a .latex test.
 
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read('test1.dvi') != " -x\nThis is a .ltx test.\n")
+test.must_match('test1.dvi', " -x\nThis is a .ltx test.\n", mode='r')
 
-test.fail_test(test.read('test2.dvi') != " -t\nThis is a .latex test.\n")
+test.must_match('test2.dvi', " -t\nThis is a .latex test.\n", mode='r')
 
 
 
@@ -111,7 +111,7 @@ This is the %s LaTeX file.
 
     test.run(arguments = 'bar.dvi', stderr = None)
 
-    test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
+    test.must_match('wrapper.out', "wrapper.py\n", mode='r')
 
     test.fail_test(not os.path.exists(test.workpath('bar.dvi')))
 

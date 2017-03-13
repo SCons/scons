@@ -55,20 +55,20 @@ else:
 # Delay writing the .log output until here so any trailing slash or
 # backslash has been stripped, and the output comparisons later in this
 # script don't have to account for the difference.
-open('fake_cl.log', 'ab').write(" ".join(sys.argv[1:]) + '\\n')
+open('fake_cl.log', 'a').write(" ".join(sys.argv[1:]) + '\\n')
 for infile in input_files:
     if dir:
         outfile = os.path.join(dir, infile.replace('.c', '.obj'))
     else:
         outfile = output
-    open(outfile, 'wb').write(open(infile, 'rb').read())
+    open(outfile, 'w').write(open(infile, 'r').read())
 """)
 
 test.write('fake_link.py', """\
 import sys
-ofp = open(sys.argv[1], 'wb')
+ofp = open(sys.argv[1], 'w')
 for infile in sys.argv[2:]:
-    ofp.write(open(infile, 'rb').read())
+    ofp.write(open(infile, 'r').read())
 """)
 
 test.write('SConstruct', """
@@ -94,10 +94,10 @@ test.write('f2.c', "f2.c\n")
 
 test.run(arguments = 'MSVC_BATCH=1 .')
 
-test.must_match('prog.exe', "prog.c\nf1.c\nf2.c\n")
+test.must_match('prog.exe', "prog.c\nf1.c\nf2.c\n", mode='r')
 test.must_match('fake_cl.log', """\
 /Fo. prog.c f1.c f2.c
-""")
+""", mode='r')
 
 test.up_to_date(options = 'MSVC_BATCH=1', arguments = '.')
 
@@ -107,11 +107,11 @@ test.write('f1.c', "f1.c 2\n")
 
 test.run(arguments = 'MSVC_BATCH=1 .')
 
-test.must_match('prog.exe', "prog.c\nf1.c 2\nf2.c\n")
+test.must_match('prog.exe', "prog.c\nf1.c 2\nf2.c\n", mode='r')
 test.must_match('fake_cl.log', """\
 /Fo. prog.c f1.c f2.c
 /Fo. f1.c
-""")
+""", mode='r')
 
 test.up_to_date(options = 'MSVC_BATCH=1', arguments = '.')
 
@@ -125,12 +125,12 @@ test.unlink('fake_cl.log')
 
 test.run(arguments = '. MSVC_BATCH=0')
 
-test.must_match('prog.exe', "prog.c\nf1.c 2\nf2.c\n")
+test.must_match('prog.exe', "prog.c\nf1.c 2\nf2.c\n", mode='r')
 test.must_match('fake_cl.log', """\
 /Fof1.obj f1.c
 /Fof2.obj f2.c
 /Foprog.obj prog.c
-""")
+""", mode='r')
 
 test.run(arguments = '-c .')
 test.unlink('fake_cl.log')
@@ -138,12 +138,12 @@ test.unlink('fake_cl.log')
 
 test.run(arguments = '. MSVC_BATCH=False')
 
-test.must_match('prog.exe', "prog.c\nf1.c 2\nf2.c\n")
+test.must_match('prog.exe', "prog.c\nf1.c 2\nf2.c\n", mode='r')
 test.must_match('fake_cl.log', """\
 /Fof1.obj f1.c
 /Fof2.obj f2.c
 /Foprog.obj prog.c
-""")
+""", mode='r')
 
 
 
@@ -151,13 +151,13 @@ test.write('f1.c', "f1.c 3\n")
 
 test.run(arguments = '. MSVC_BATCH=0')
 
-test.must_match('prog.exe', "prog.c\nf1.c 3\nf2.c\n")
+test.must_match('prog.exe', "prog.c\nf1.c 3\nf2.c\n", mode='r')
 test.must_match('fake_cl.log', """\
 /Fof1.obj f1.c
 /Fof2.obj f2.c
 /Foprog.obj prog.c
 /Fof1.obj f1.c
-""")
+""", mode='r')
 
 
 

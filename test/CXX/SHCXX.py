@@ -73,7 +73,8 @@ test.fail_test(os.path.exists(test.workpath('wrapper.out')))
 
 test.run(arguments = 'bar')
 
-test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
+test.must_match('wrapper.out', "wrapper.py\n", mode='r')
+# test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
 
 test.pass_test()
 

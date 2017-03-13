@@ -46,15 +46,11 @@ for opt, arg in cmd_opts:
     else: opt_string = opt_string + ' ' + opt
 def process(outfile, name):
     if os.path.isdir(name):
-        ## TODO 2.5: the next three lines can be replaced by
-        #for entry in sorted(os.listdir(name)):
-        entries = os.listdir(name)
-        entries.sort()
-        for entry in entries:
+        for entry in sorted(os.listdir(name)):
             process(outfile, os.path.join(name, entry))
     else:
-        outfile.write(open(name, 'rb').read())
-outfile = open(out, 'wb')
+        outfile.write(open(name, 'r').read())
+outfile = open(out, 'w')
 outfile.write('options: %s\\n' % opt_string)
 for infile in args:
     process(outfile, infile)
@@ -82,11 +78,11 @@ test.write(['sub1', 'file6'], "sub1/file6\n")
 
 test.run(arguments = 'aaa.tar', stderr = None)
 
-test.fail_test(test.read('aaa.tar') != "options:  -x\nfile1\nfile2\nfile3\n")
+test.must_match('aaa.tar', "options:  -x\nfile1\nfile2\nfile3\n", mode='r')
 
 test.run(arguments = 'bbb.tar', stderr = None)
 
-test.fail_test(test.read('bbb.tar') != "options:  -x\nsub1/file5\nsub1/file6\nfile4\n")
+test.must_match('bbb.tar', "options:  -x\nsub1/file5\nsub1/file6\nfile4\n", mode='r')
 
 
 

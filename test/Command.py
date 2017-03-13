@@ -35,8 +35,8 @@ test.subdir('sub')
 
 test.write('build.py', r"""
 import sys
-contents = open(sys.argv[2], 'rb').read()
-file = open(sys.argv[1], 'wb')
+contents = open(sys.argv[2], 'r').read()
+file = open(sys.argv[1], 'w')
 file.write(contents)
 file.close()
 """)
@@ -45,8 +45,8 @@ test.write('SConstruct', """
 import os
 
 def buildIt(env, target, source):
-    contents = open(str(source[0]), 'rb').read()
-    file = open(str(target[0]), 'wb')
+    contents = open(str(source[0]), 'r').read()
+    file = open(str(target[0]), 'w')
     xyzzy = env.get('XYZZY', '')
     if xyzzy:
         file.write(xyzzy + '\\n')
@@ -57,9 +57,9 @@ def buildIt(env, target, source):
 def sub(env, target, source):
     target = str(target[0])
     source = str(source[0])
-    t = open(target, 'wb')
+    t = open(target, 'w')
     for f in sorted(os.listdir(source)):
-        t.write(open(os.path.join(source, f), 'rb').read())
+        t.write(open(os.path.join(source, f), 'r').read())
     t.close()
     return 0
 
@@ -103,16 +103,16 @@ test.write('f10.in', "f10.in\n")
 
 test.run(arguments = '.')
 
-test.must_match('f1.out', "f1.in\n")
-test.must_match('f2.out', "f2.in\n")
-test.must_match('f3.out', "f3.in\n")
-test.must_match('f4.out', "sub/f4a\nsub/f4b\nsub/f4c\n")
-test.must_match('f5.out', "XYZZY is set\nf5.in\n")
-test.must_match('f6.out', "f6.in\n")
-test.must_match('f7.out', "f7.in\n")
-test.must_match('f8.out', "f8.in\n")
-test.must_match('f9.out', "f9.in\n")
-test.must_match('f10.out', "f10.in\n")
+test.must_match('f1.out', "f1.in\n", mode='r')
+test.must_match('f2.out', "f2.in\n", mode='r')
+test.must_match('f3.out', "f3.in\n", mode='r')
+test.must_match('f4.out', "sub/f4a\nsub/f4b\nsub/f4c\n", mode='r')
+test.must_match('f5.out', "XYZZY is set\nf5.in\n", mode='r')
+test.must_match('f6.out', "f6.in\n", mode='r')
+test.must_match('f7.out', "f7.in\n", mode='r')
+test.must_match('f8.out', "f8.in\n", mode='r')
+test.must_match('f9.out', "f9.in\n", mode='r')
+test.must_match('f10.out', "f10.in\n", mode='r')
 
 test.pass_test()
 
