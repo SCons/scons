@@ -25,14 +25,18 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
-import io
-_StringIO = io.StringIO
-# TODO(2.6):  In 2.6 and beyond, the io.StringIO.write() method
-# requires unicode strings.  This subclass can probably be removed
-# when we drop support for Python 2.6.
-class StringIO(_StringIO):
-    def write(self, s):
-        _StringIO.write(self, unicode(s))
+
+if sys.version_info[0] < 3:
+    import io
+    _StringIO = io.StringIO
+    # TODO(2.6):  In 2.6 and beyond, the io.StringIO.write() method
+    # requires unicode strings.  This subclass can probably be removed
+    # when we drop support for Python 2.6.
+    class StringIO(_StringIO):
+        def write(self, s):
+            _StringIO.write(self, unicode(s))
+else:
+    from io import StringIO
 
 import TestSCons
 
