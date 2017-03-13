@@ -64,9 +64,9 @@ test1.class
 line 3
 """)
 
-test.run(arguments = '.', stderr = None)
+test.run(arguments='.', stderr=None)
 
-test.must_match('test1.jar', "test1.class\nline 3\n")
+test.must_match('test1.jar', "test1.class\nline 3\n", mode='r')
 
 if os.path.normcase('.class') == os.path.normcase('.CLASS'):
 
@@ -82,9 +82,9 @@ test2.CLASS
 line 3
 """)
 
-    test.run(arguments = '.', stderr = None)
+    test.run(arguments='.', stderr=None)
 
-    test.must_match('test2.jar', "test2.CLASS\nline 3\n")
+    test.must_match('test2.jar', "test2.CLASS\nline 3\n", mode='r')
 
 test.write('myjar2.py', r"""
 import sys
@@ -106,7 +106,7 @@ env.Jar(target = 'classes.jar', source = [ 'testdir/bar.class',
 """ % locals())
 
 test.subdir('testdir')
-test.write([ 'testdir', 'bar.class' ], 'foo')
+test.write(['testdir', 'bar.class'], 'foo')
 test.write('foo.mf',
            """Manifest-Version : 1.0
            blah
@@ -115,7 +115,7 @@ test.write('foo.mf',
            """)
 test.run(arguments='classes.jar')
 test.must_match('classes.jar',
-                'cvfm classes.jar foo.mf -C testdir bar.class\n')
+                'cvfm classes.jar foo.mf -C testdir bar.class\n', mode='r')
 
 
 
@@ -232,7 +232,7 @@ test.run(arguments = '.')
 expected_wrapper_out = "wrapper_with_args.py %(where_jar)s cf bar.jar classes/com/sub/bar\n"
 expected_wrapper_out = expected_wrapper_out.replace('/', os.sep)
 test.must_match('wrapper.out',
-                expected_wrapper_out % locals())
+                expected_wrapper_out % locals(), mode='r')
 
 test.must_exist('foo.jar')
 test.must_exist('bar.jar')
