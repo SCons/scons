@@ -1242,7 +1242,7 @@ def _build_targets(fs, options, targets, target_top):
     if options.taskmastertrace_file == '-':
         tmtrace = sys.stdout
     elif options.taskmastertrace_file:
-        tmtrace = open(options.taskmastertrace_file, 'wb')
+        tmtrace = open(options.taskmastertrace_file, 'w')
     else:
         tmtrace = None
     taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, order, tmtrace)
