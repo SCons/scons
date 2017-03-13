@@ -94,10 +94,10 @@ test.write('f2.c', "f2.c\n")
 
 test.run(arguments = 'MSVC_BATCH=1 .')
 
-test.must_match('prog.exe', "prog.c\nf1.c\nf2.c\n")
+test.must_match('prog.exe', "prog.c\nf1.c\nf2.c\n", mode='r')
 test.must_match('fake_cl.log', """\
 /Fo. prog.c f1.c f2.c
-""")
+""", mode='r')
 
 test.up_to_date(options = 'MSVC_BATCH=1', arguments = '.')
 
@@ -107,11 +107,11 @@ test.write('f1.c', "f1.c 2\n")
 
 test.run(arguments = 'MSVC_BATCH=1 .')
 
-test.must_match('prog.exe', "prog.c\nf1.c 2\nf2.c\n")
+test.must_match('prog.exe', "prog.c\nf1.c 2\nf2.c\n", mode='r')
 test.must_match('fake_cl.log', """\
 /Fo. prog.c f1.c f2.c
 /Fo. f1.c
-""")
+""", mode='r')
 
 test.up_to_date(options = 'MSVC_BATCH=1', arguments = '.')
 
@@ -125,12 +125,12 @@ test.unlink('fake_cl.log')
 
 test.run(arguments = '. MSVC_BATCH=0')
 
-test.must_match('prog.exe', "prog.c\nf1.c 2\nf2.c\n")
+test.must_match('prog.exe', "prog.c\nf1.c 2\nf2.c\n", mode='r')
 test.must_match('fake_cl.log', """\
 /Fof1.obj f1.c
 /Fof2.obj f2.c
 /Foprog.obj prog.c
-""")
+""", mode='r')
 
 test.run(arguments = '-c .')
 test.unlink('fake_cl.log')
@@ -138,12 +138,12 @@ test.unlink('fake_cl.log')
 
 test.run(arguments = '. MSVC_BATCH=False')
 
-test.must_match('prog.exe', "prog.c\nf1.c 2\nf2.c\n")
+test.must_match('prog.exe', "prog.c\nf1.c 2\nf2.c\n", mode='r')
 test.must_match('fake_cl.log', """\
 /Fof1.obj f1.c
 /Fof2.obj f2.c
 /Foprog.obj prog.c
-""")
+""", mode='r')
 
 
 
@@ -151,13 +151,13 @@ test.write('f1.c', "f1.c 3\n")
 
 test.run(arguments = '. MSVC_BATCH=0')
 
-test.must_match('prog.exe', "prog.c\nf1.c 3\nf2.c\n")
+test.must_match('prog.exe', "prog.c\nf1.c 3\nf2.c\n", mode='r')
 test.must_match('fake_cl.log', """\
 /Fof1.obj f1.c
 /Fof2.obj f2.c
 /Foprog.obj prog.c
 /Fof1.obj f1.c
-""")
+""", mode='r')
 
 
 
