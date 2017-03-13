@@ -134,7 +134,7 @@ expected_config_h = ("""\
 
 test.run(stdout=expected_stdout)
 
-config_h = test.read(test.workpath('config.h'))
+config_h = test.read(test.workpath('config.h'), mode='r')
 if expected_config_h != config_h:
     print("Unexpected config.h")
     print("Expected: ")
@@ -161,7 +161,7 @@ expected_stdout = test.wrap_stdout(build_str=expected_build_str,
 
 test.run(stdout=expected_stdout)    
 
-config_h = test.read(test.workpath('config.h'))    
+config_h = test.read(test.workpath('config.h'),mode='r')
 if expected_config_h != config_h:
     print("Unexpected config.h")
     print("Expected: ")
