@@ -121,7 +121,7 @@ class SConsInteractiveCmd(cmd.Cmd):
 
     def __init__(self, **kw):
         cmd.Cmd.__init__(self)
-        for key, val in list(kw.items()):
+        for key, val in kw.items():
             setattr(self, key, val)
 
         if sys.platform == 'win32':

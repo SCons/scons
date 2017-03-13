@@ -89,7 +89,7 @@ class AliasNodeInfo(SCons.Node.NodeInfoBase):
         """
         # TODO check or discard version
         del state['_version_id']
-        for key, value in list(state.items()):
+        for key, value in state.items():
             if key not in ('__weakref__',):
                 setattr(self, key, value)
           

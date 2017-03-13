@@ -727,7 +727,7 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
 
     # Ensure that the ENV values are all strings:
     new_env = {}
-    for key, value in list(ENV.items()):
+    for key, value in ENV.items():
         if is_List(value):
             # If the value is a list, then we assume it is a path list,
             # because that's a pretty common list-like value to stick
@@ -855,7 +855,7 @@ class CommandAction(_ActionAction):
         ENV = get_default_ENV(env)
 
         # Ensure that the ENV values are all strings:
-        for key, value in list(ENV.items()):
+        for key, value in ENV.items():
             if not is_String(value):
                 if is_List(value):
                     # If the value is a list, then we assume it is a

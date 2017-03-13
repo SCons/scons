@@ -213,7 +213,7 @@ class _UserGenerator(object):
 
         if self.createfile:
             dbg_settings = dict(list(zip(variants, dbg_settings)))
-            for var, src in list(dbg_settings.items()):
+            for var, src in dbg_settings.items():
                 # Update only expected keys
                 trg = {}
                 for key in [k for k in list(self.usrdebg.keys()) if k in src]:
@@ -303,7 +303,7 @@ class _GenerateV7User(_UserGenerator):
             debug = self.configs[kind].debug
             if debug:
                 debug_settings = '\n'.join(['\t\t\t\t%s="%s"' % (key, xmlify(value))
-                                            for key, value in list(debug.items())
+                                            for key, value in debug.items()
                                             if value is not None])
                 self.usrfile.write(self.usrconf % locals())
         self.usrfile.write('\t</Configurations>\n</VisualStudioUserFile>')
@@ -365,7 +365,7 @@ class _GenerateV10User(_UserGenerator):
             debug = self.configs[kind].debug
             if debug:
                 debug_settings = '\n'.join(['\t\t<%s>%s</%s>' % (key, xmlify(value), key)
-                                            for key, value in list(debug.items())
+                                            for key, value in debug.items()
                                             if value is not None])
                 self.usrfile.write(self.usrconf % locals())
         self.usrfile.write('</Project>')
@@ -924,7 +924,7 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
             self.file.write(pdata + '-->\n')
 
     def printSources(self, hierarchy, commonprefix):
-        sorteditems = sorted(list(hierarchy.items()), key=lambda a: a[0].lower())
+        sorteditems = sorted(hierarchy.items(), key=lambda a: a[0].lower())
 
         # First folders, then files
         for key, value in sorteditems:
@@ -1243,7 +1243,7 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
             self.file.write(pdata + '-->\n')
 
     def printFilters(self, hierarchy, name):
-        sorteditems = sorted(list(hierarchy.items()), key = lambda a: a[0].lower())
+        sorteditems = sorted(hierarchy.items(), key = lambda a: a[0].lower())
 
         for key, value in sorteditems:
             if SCons.Util.is_Dict(value):
@@ -1260,7 +1260,7 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
                     'Resource Files': 'None',
                     'Other Files': 'None'}
 
-        sorteditems = sorted(list(hierarchy.items()), key = lambda a: a[0].lower())
+        sorteditems = sorted(hierarchy.items(), key = lambda a: a[0].lower())
 
         # First folders, then files
         for key, value in sorteditems:

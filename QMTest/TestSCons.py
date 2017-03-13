@@ -1239,7 +1239,7 @@ class TimeSCons(TestSCons):
         self.variables = kw.get('variables')
         default_calibrate_variables = []
         if self.variables is not None:
-            for variable, value in list(self.variables.items()):
+            for variable, value in self.variables.items():
                 value = os.environ.get(variable, value)
                 try:
                     value = int(value)
@@ -1295,7 +1295,7 @@ class TimeSCons(TestSCons):
         """
         if 'options' not in kw and self.variables:
             options = []
-            for variable, value in list(self.variables.items()):
+            for variable, value in self.variables.items():
                 options.append('%s=%s' % (variable, value))
             kw['options'] = ' '.join(options)
         if self.calibrate:
@@ -1321,7 +1321,7 @@ class TimeSCons(TestSCons):
                    self.elapsed_time(),
                    "seconds",
                    sort=0)
-        for name, args in list(stats.items()):
+        for name, args in stats.items():
             self.trace(name, trace, **args)
 
     def uptime(self):

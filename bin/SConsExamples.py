@@ -267,7 +267,7 @@ def ensureExampleOutputsExist(dpath):
         os.mkdir(generated_examples)
 
     examples = readAllExampleInfos(dpath)
-    for key, value in list(examples.items()):
+    for key, value in examples.items():
         # Process all scons_output tags
         for o in value.outputs:
             cpath = os.path.join(generated_examples,
@@ -305,7 +305,7 @@ def createAllExampleOutputs(dpath):
     examples = readAllExampleInfos(dpath)
     total = len(examples)
     idx = 0
-    for key, value in list(examples.items()):
+    for key, value in examples.items():
         # Process all scons_output tags
         print("%.2f%s (%d/%d) %s" % (float(idx + 1) * 100.0 / float(total),
                                      perc, idx + 1, total, key))
