@@ -648,6 +648,21 @@ class TestSCons(TestCommon):
             result.extend(sorted(glob.glob(p)))
         return result
 
+    def unlink_sconsignfile(self,name='.sconsign.dblite'):
+        """
+        Delete sconsign file.
+        Note on python it seems to append .p3 to the file name so we take care of that
+        Parameters
+        ----------
+        name - expected name of sconsign file
+
+        Returns
+        -------
+        None
+        """
+        if sys.version_info[0] == 3:
+            name += '.p3'
+        self.unlink(name)
 
     def java_ENV(self, version=None):
         """
