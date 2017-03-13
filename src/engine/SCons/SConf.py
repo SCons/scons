@@ -643,7 +643,7 @@ class SConfBase(object):
             node = self.env.Command(output, prog, [ [ pname, ">", "${TARGET}"] ])
             ok = self.BuildNodes(node)
             if ok:
-                outputStr = output.get_contents()
+                outputStr = SCons.Util.to_str(output.get_contents())
                 return( 1, outputStr)
         return (0, "")
 
