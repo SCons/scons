@@ -41,7 +41,7 @@ while args:
         outdir = args[1]
         args = args[1:]
     elif a == '-o':
-        outfile = open(args[1], 'wb')
+        outfile = open(args[1], 'w')
         args = args[1:]
     elif a == '-classpath':
         args = args[1:]
@@ -51,7 +51,7 @@ while args:
         break
     args = args[1:]
 for file in args:
-    infile = open(file, 'rb')
+    infile = open(file, 'r')
     for l in infile.readlines():
         if l[:9] != '/*javah*/':
             outfile.write(l)
@@ -105,7 +105,7 @@ if java_version:
 if test.javac_is_gcj:
     test.skip_test('Test not valid for gcj (gnu java); skipping test(s).\n')
 
-test.file_fixture('wrapper.py')
+test.file_fixture('wrapper_with_args.py')
 
 test.write('SConstruct', """
 foo = Environment(tools = ['javac', 'javah', 'install'],
@@ -115,7 +115,7 @@ jv = %(java_version)s
 if jv:
     foo['JAVAVERSION'] = jv
 javah = foo.Dictionary('JAVAH')
-bar = foo.Clone(JAVAH = r'%(_python_)s wrapper.py ' + javah)
+bar = foo.Clone(JAVAH = r'%(_python_)s wrapper_with_args.py ' + javah)
 foo.Java(target = 'class1', source = 'com/sub/foo')
 bar_classes = bar.Java(target = 'class2', source = 'com/sub/bar')
 foo_classes = foo.Java(target = 'class3', source = 'src')
@@ -282,7 +282,8 @@ class Private {
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('wrapper.out') != "wrapper.py %(where_javah)s -d outdir2 -classpath class2 com.sub.bar.Example4 com.other.Example5 com.sub.bar.Example6\n" % locals())
+test.must_match('wrapper.out', "wrapper_with_args.py %(where_javah)s -d outdir2 -classpath class2 com.sub.bar.Example4 com.other.Example5 com.sub.bar.Example6\n" % locals(),
+                mode='r')
 
 test.must_exist(['outdir1', 'com_sub_foo_Example1.h'])
 test.must_exist(['outdir1', 'com_other_Example2.h'])

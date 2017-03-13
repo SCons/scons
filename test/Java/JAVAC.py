@@ -51,8 +51,8 @@ while args:
         break
     args = args[1:]
 for file in args:
-    infile = open(file, 'rb')
-    outfile = open(file[:-5] + '.class', 'wb')
+    infile = open(file, 'r')
+    outfile = open(file[:-5] + '.class', 'w')
     for l in infile.readlines():
         if l[:9] != '/*javac*/':
             outfile.write(l)
@@ -73,7 +73,7 @@ line 3
 
 test.run(arguments = '.', stderr = None)
 
-test.must_match('test1.class', "test1.java\nline 3\n")
+test.must_match('test1.class', "test1.java\nline 3\n", mode='r')
 
 if os.path.normcase('.java') == os.path.normcase('.JAVA'):
 

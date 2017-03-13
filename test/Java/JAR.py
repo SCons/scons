@@ -43,9 +43,9 @@ while args:
     else:
         break
     args = args[1:]
-outfile = open(out, 'wb')
+outfile = open(out, 'w')
 for file in args:
-    infile = open(file, 'rb')
+    infile = open(file, 'r')
     for l in infile.readlines():
         if l[:7] != '/*jar*/':
             outfile.write(l)
@@ -88,7 +88,7 @@ line 3
 
 test.write('myjar2.py', r"""
 import sys
-f=open(sys.argv[2], 'wb')
+f=open(sys.argv[2], 'w')
 f.write(" ".join(sys.argv[1:]))
 f.write("\n")
 f.close()
@@ -124,14 +124,14 @@ where_jar = test.java_where_jar()
 
 
 
-test.file_fixture('wrapper.py')
+test.file_fixture('wrapper_with_args.py')
 
 test.write('SConstruct', """
 foo = Environment(tools = ['javac', 'jar'],
                   JAVAC = r'%(where_javac)s',
                   JAR = r'%(where_jar)s')
 jar = foo.Dictionary('JAR')
-bar = foo.Clone(JAR = r'%(_python_)s wrapper.py ' + jar)
+bar = foo.Clone(JAR = r'%(_python_)s wrapper_with_args.py ' + jar)
 foo.Java(target = 'classes', source = 'com/sub/foo')
 bar.Java(target = 'classes', source = 'com/sub/bar')
 foo.Jar(target = 'foo', source = 'classes/com/sub/foo')
@@ -229,7 +229,7 @@ public class Example6
 
 test.run(arguments = '.')
 
-expected_wrapper_out = "wrapper.py %(where_jar)s cf bar.jar classes/com/sub/bar\n"
+expected_wrapper_out = "wrapper_with_args.py %(where_jar)s cf bar.jar classes/com/sub/bar\n"
 expected_wrapper_out = expected_wrapper_out.replace('/', os.sep)
 test.must_match('wrapper.out',
                 expected_wrapper_out % locals())
