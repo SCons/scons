@@ -43,7 +43,7 @@ env = Environment()
 
 def action( source, target, env ):
     target[0].get_csig()
-    f = open( str(target[0]), 'w' )
+    f = open( str(target[0]), 'wb' )
     for s in source:
         f.write( s.get_contents() )
     f.close()
