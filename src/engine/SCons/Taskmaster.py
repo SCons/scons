@@ -772,7 +772,7 @@ class Taskmaster(object):
         self.ready_exc = None
 
         T = self.trace
-        if T: T.write(u'\n' + self.trace_message('Looking for a node to evaluate'))
+        if T: T.write('\n' + self.trace_message('Looking for a node to evaluate'))
 
         while True:
             node = self.next_candidate()
