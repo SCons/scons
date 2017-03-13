@@ -43,6 +43,7 @@ test.skip_if_not_msvc()
 
 test.write('SConstruct',"""
 import os
+DefaultEnvironment(tools=[])
 # TODO:  this is order-dependent (putting 'mssdk' second or third breaks),
 # and ideally we shouldn't need to specify the tools= list anyway.
 env = Environment(tools=['mssdk', 'msvc', 'mslink'])
@@ -179,6 +180,8 @@ start = time.time()
 test.run(arguments='slow.obj', stderr=None)
 slow = time.time() - start
 
+
+# TODO: Reevaluate if having this part of the test makes sense any longer
 # using precompiled headers should be faster
 limit = slow*0.90
 if fast >= limit:
