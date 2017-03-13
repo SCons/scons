@@ -44,27 +44,27 @@ SConscript('dir5/SConscript')
 """)
 
 test.write(['dir1', 'SConscript'], """
-exec(open("create_test.py", 'rU').read())
+exec(open("create_test.py", 'r').read())
 """)
 
 test.write(['dir2', 'SConscript'], """
-exec(open("create_test.py", 'rU').read())
+exec(open("create_test.py", 'r').read())
 """)
 
 test.write(['dir3', 'SConscript'], """
 import os.path
 name = os.path.join('dir3', 'create_test.py')
-exec(open(name, 'rU').read())
+exec(open(name, 'r').read())
 """)
 
 test.write(['dir4', 'SConscript'], """
-exec(open("create_test.py", 'rU').read())
+exec(open("create_test.py", 'r').read())
 """)
 
 test.write(['dir5', 'SConscript'], """
 import os.path
 name = os.path.join('dir5', 'create_test.py')
-exec(open(name, 'rU').read())
+exec(open(name, 'r').read())
 """)
 
 for dir in ['dir1', 'dir2', 'dir3','dir4', 'dir5']:
