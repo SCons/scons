@@ -38,9 +38,12 @@ except NameError:
         return s
 
 dblite_suffix = '.dblite'
-if bytes is not str:
-    dblite_suffix += '.p3'
+
+# TODO: Does commenting this out break switching from py2/3?
+# if bytes is not str:
+#     dblite_suffix += '.p3'
 tmp_suffix = '.tmp'
+
 
 
 class dblite(object):
