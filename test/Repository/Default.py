@@ -47,7 +47,7 @@ def copy(env, source, target):
     source = str(source[0])
     target = str(target[0])
     print('copy() < %s > %s' % (source, target))
-    open(target, "wb").write(open(source, "rb").read())
+    open(target, "w").write(open(source, "r").read())
 
 Build = Builder(action=copy)
 env = Environment(BUILDERS={'Build':Build})
@@ -80,19 +80,19 @@ test.writable('repository', 0)
 test.run(chdir = 'work', options = opts, arguments = '')
 
 test.fail_test(os.path.exists(work_aaa_out))
-test.fail_test(test.read(work_bbb_out) != "repository/bbb.in\n")
+test.must_match(work_bbb_out, "repository/bbb.in\n", mode='r')
 test.fail_test(os.path.exists(work_ccc_out))
 test.fail_test(os.path.exists(work_subdir_ddd_out))
-test.fail_test(test.read(work_subdir_eee_out) != "repository/subdir/eee.in\n")
+test.must_match(work_subdir_eee_out, "repository/subdir/eee.in\n", mode='r')
 test.fail_test(os.path.exists(work_subdir_fff_out))
 
 #
 test.run(chdir = 'work', options = opts, arguments = '.')
 
-test.fail_test(test.read(work_aaa_out) != "repository/aaa.in\n")
-test.fail_test(test.read(work_ccc_out) != "repository/ccc.in\n")
-test.fail_test(test.read(work_subdir_ddd_out) != "repository/subdir/ddd.in\n")
-test.fail_test(test.read(work_subdir_fff_out) != "repository/subdir/fff.in\n")
+test.must_match(work_aaa_out, "repository/aaa.in\n", mode='r')
+test.must_match(work_ccc_out, "repository/ccc.in\n", mode='r')
+test.must_match(work_subdir_ddd_out, "repository/subdir/ddd.in\n", mode='r')
+test.must_match(work_subdir_fff_out, "repository/subdir/fff.in\n", mode='r')
 
 test.up_to_date(chdir = 'work', options = opts, arguments = '.')
 

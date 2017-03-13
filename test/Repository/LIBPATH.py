@@ -46,7 +46,7 @@ bbb_exe = env_yyy.Program('bbb', 'bbb.c')
 def write_LIBDIRFLAGS(env, target, source):
     pre = env.subst('$LIBDIRPREFIX')
     suf = env.subst('$LIBDIRSUFFIX')
-    f = open(str(target[0]), 'wb')
+    f = open(str(target[0]), 'w')
     for arg in env.subst('$_LIBDIRFLAGS', target=target).split():
         if arg[:len(pre)] == pre:
             arg = arg[len(pre):]
@@ -97,14 +97,12 @@ test.run(chdir = 'work', options = opts, arguments = ".")
 #dirs = ['.', workpath_foo, workpath_bar, workpath_foo_zzz]
 dirs = ['.', workpath_foo, workpath_bar,
         'zzz', workpath_foo_zzz, workpath_bar_zzz]
-test.fail_test(test.read(['work', 'zzz.out']) !=
-               '\n'.join(dirs) + '\n')
+test.must_match(['work', 'zzz.out'],'\n'.join(dirs) + '\n', mode='r')
 
 #dirs = [workpath_bar_yyy, '.', workpath_foo, workpath_bar]
 dirs = ['yyy', workpath_foo_yyy, workpath_bar_yyy,
         '.', workpath_foo, workpath_bar]
-test.fail_test(test.read(['work', 'yyy.out']) !=
-               '\n'.join(dirs) + '\n')
+test.must_match(['work', 'yyy.out'], '\n'.join(dirs) + '\n', mode='r')
 
 #
 test.run(chdir = 'work', options = '-c', arguments = ".")
@@ -117,14 +115,12 @@ test.run(chdir = 'work', options = opts, arguments = ".")
 #dirs = ['.', workpath_foo, workpath_bar, 'zzz', workpath_foo_zzz]
 dirs = ['.', workpath_foo, workpath_bar,
         'zzz', workpath_foo_zzz, workpath_bar_zzz]
-test.fail_test(test.read(['work', 'zzz.out']) !=
-               '\n'.join(dirs) + '\n')
+test.must_match(['work', 'zzz.out'], '\n'.join(dirs) + '\n', mode='r')
 
 #dirs = ['yyy', workpath_bar_yyy, '.', workpath_foo, workpath_bar]
 dirs = ['yyy', workpath_foo_yyy, workpath_bar_yyy,
         '.', workpath_foo, workpath_bar]
-test.fail_test(test.read(['work', 'yyy.out']) !=
-               '\n'.join(dirs) + '\n')
+test.must_match(['work', 'yyy.out'], '\n'.join(dirs) + '\n', mode='r')
 
 #
 test.pass_test()

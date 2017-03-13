@@ -54,16 +54,16 @@ test.write('build.py', r"""
 import os.path
 import sys
 path = sys.argv[1].split()
-input = open(sys.argv[2], 'rb')
-output = open(sys.argv[3], 'wb')
+input = open(sys.argv[2], 'r')
+output = open(sys.argv[3], 'w')
 
 def find_file(f):
     if os.path.isabs(f):
-        return open(f, 'rb')
+        return open(f, 'r')
     for dir in path:
         p = dir + os.sep + f
         if os.path.exists(p):
-            return open(p, 'rb')
+            return open(p, 'r')
     return None
 
 def process(infp, outfp):
@@ -81,7 +81,7 @@ sys.exit(0)
 
 test.write('SConstruct', """\
 def foo(target, source, env):
-    fp = open(str(target[0]), 'wb')
+    fp = open(str(target[0]), 'w')
     for c in sorted(source[0].children(), key=lambda t: t.name):
         fp.write('%s\\n' % c)
     fp.close()

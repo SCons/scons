@@ -44,15 +44,11 @@ for opt, arg in opts:
     if opt == '-f': out = arg
 def process(outfile, name):
     if os.path.isdir(name):
-        ## TODO 2.4: the next three lines can be replaced by
-        #for entry in sorted(os.listdir(name)):
-        list = os.listdir(name)
-        list.sort()
-        for entry in list:
+        for entry in sorted(os.listdir(name)):
             process(outfile, os.path.join(name, entry))
     else:
-        outfile.write(open(name, 'rb').read())
-outfile = open(out, 'wb')
+        outfile.write(open(name, 'r').read())
+outfile = open(out, 'w')
 for infile in args:
     process(outfile, infile)
 outfile.close()
@@ -77,11 +73,11 @@ test.write(['sub1', 'file6'], "sub1/file6\n")
 
 test.run(arguments = 'aaa.tar', stderr = None)
 
-test.fail_test(test.read('aaa.tar') != "file1\nfile2\nfile3\n")
+test.must_match('aaa.tar', "file1\nfile2\nfile3\n", mode='r')
 
 test.run(arguments = 'bbb.tar', stderr = None)
 
-test.fail_test(test.read('bbb.tar') != "sub1/file5\nsub1/file6\nfile4\n")
+test.must_match('bbb.tar', "sub1/file5\nsub1/file6\nfile4\n", mode='r')
 
 
 tar = test.detect('TAR', 'tar')

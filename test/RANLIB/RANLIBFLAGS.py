@@ -101,7 +101,7 @@ test.run(arguments = 'b' + _exe,
          stderr=TestSCons.noisy_ar,
          match=TestSCons.match_re_dotall)
 
-test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
+test.must_match('wrapper.out', "wrapper.py\n", mode='r')
 
 test.pass_test()
 

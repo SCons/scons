@@ -56,9 +56,9 @@ test.writable('repository', 0)
 
 test.run(chdir = 'work', options = opts, arguments = install)
 
-test.fail_test(test.read(install_file1_out) != "repository/file1.in\n")
-test.fail_test(test.read(install_file2_out) != "repository/file2.in\n")
-test.fail_test(test.read(install_file3_out) != "repository/file3.in\n")
+test.must_match(install_file1_out, "repository/file1.in\n", mode='r')
+test.must_match(install_file2_out, "repository/file2.in\n", mode='r')
+test.must_match(install_file3_out, "repository/file3.in\n", mode='r')
 
 test.up_to_date(chdir = 'work', options = opts, arguments = install)
 

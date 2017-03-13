@@ -32,14 +32,14 @@ test = TestSCons.TestSCons()
 
 test.write('build.py', r"""
 import sys
-input = open(sys.argv[1], 'rb')
-output = open(sys.argv[2], 'wb')
+input = open(sys.argv[1], 'r')
+output = open(sys.argv[2], 'w')
 
 def process(infp, outfp):
     for line in infp.readlines():
         if line[:8] == 'include ':
             file = line[8:-1]
-            process(open(file, 'rb'), outfp)
+            process(open(file, 'r'), outfp)
         elif line[:8] == 'getfile ':
             outfp.write('include ')
             outfp.write(line[8:])
@@ -114,7 +114,7 @@ bar = env.BarBld(target='bar', source='bar.in')
 # automatically applied to targets generated from that Builder
 
 def blork(env, target, source):
-    open(str(target[0]), 'wb').write(
+    open(str(target[0]), 'w').write(
         source[0].get_text_contents().replace('getfile', 'MISSEDME'))
 
 kbld = Builder(action=r'%(_python_)s build.py $SOURCES $TARGET',

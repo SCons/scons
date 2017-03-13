@@ -49,7 +49,7 @@ def copy(env, source, target):
     source = str(source[0])
     target = str(target[0])
     print('copy() < %s > %s' % (source, target))
-    open(target, "wb").write(open(source, "rb").read())
+    open(target, "w").write(open(source, "r").read())
 
 Build = Builder(action=copy)
 env = Environment(BUILDERS={'Build':Build})
@@ -62,7 +62,7 @@ test.write(['repository', 'aaa.in'], "repository/aaa.in\n")
 #
 test.run(chdir = 'repository', options = opts, arguments = '.')
 
-test.fail_test(test.read(repository_aaa_out) != "repository/aaa.in\n")
+test.must_match(repository_aaa_out,"repository/aaa.in\n", mode='r')
 
 test.up_to_date(chdir = 'repository', options = opts, arguments = '.')
 
@@ -88,7 +88,7 @@ test.run(chdir = 'work',
          arguments = 'aaa.out',
          stdout = expect)
 
-test.fail_test(test.read(work_aaa_out) != "repository/aaa.in\n")
+test.must_match(work_aaa_out, "repository/aaa.in\n", mode='r')
 
 #
 test.pass_test()
