@@ -1014,6 +1014,10 @@ SConscript( sconscript )
             nols = nols + ")"
             lastEnd = 0
             logfile = self.read(self.workpath(logfile),mode='r')
+
+            # Some debug code to keep around..
+            # sys.stderr.write("LOGFILE[%s]:%s"%(type(logfile),logfile))
+
             if (doCheckLog and
                 logfile.find( "scons: warning: The stored build "
                              "information has an unexpected class." ) >= 0):
