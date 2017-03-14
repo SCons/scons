@@ -124,7 +124,7 @@ env.Program(target = 'test1', source = 'test1.c')
 
 test.run(arguments = '.', stderr = None)
 
-test.must_match('test1' + _exe, "This is a .c file.\n")
+test.must_match('test1' + _exe, "This is a .c file.\n", mode='r')
 
 if os.path.normcase('.c') == os.path.normcase('.C'):
 
@@ -137,7 +137,7 @@ env.Program(target = 'test2', source = 'test2.C')
 """ % locals())
 
     test.run(arguments = '.', stderr = None)
-    test.must_match('test2' + _exe, "This is a .C file.\n")
+    test.must_match('test2' + _exe, "This is a .C file.\n", mode='r')
 
 test.file_fixture('wrapper.py')
 
@@ -157,7 +157,7 @@ test.up_to_date(arguments = 'foo' + _exe)
 
 test.run(arguments = 'bar' + _exe)
 
-test.must_match('wrapper.out', "wrapper.py\n")
+test.must_match('wrapper.out', "wrapper.py\n", mode='r')
 
 test.up_to_date(arguments = 'bar' + _exe)
 
