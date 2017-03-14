@@ -41,7 +41,7 @@ base_name = os.path.splitext(arg[0])[0]
 infile = open(arg[0], 'rb')
 out_file = open(base_name+'.dvi', 'wb')
 for l in infile.readlines():
-    if l[:4] != '#tex':
+    if l[:4] != b'#tex':
         out_file.write(l)
 sys.exit(0)
 """)
@@ -55,7 +55,7 @@ base_name = os.path.splitext(arg[0])[0]
 infile = open(arg[0], 'rb')
 out_file = open(base_name+'.dvi', 'wb')
 for l in infile.readlines():
-    if l[:6] != '#latex':
+    if l[:6] != b'#latex':
         out_file.write(l)
 sys.exit(0)
 """)
@@ -68,7 +68,7 @@ cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:r:', [])
 infile = open(arg[0], 'rb')
 out_file = open(arg[1], 'wb')
 for l in infile.readlines():
-    if l[:7] != '#dvipdf':
+    if l[:7] != b'#dvipdf':
         out_file.write(l)
 sys.exit(0)
 """)
