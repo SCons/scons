@@ -25,6 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
+import os
 
 _python_ = TestSCons._python_
 
@@ -183,7 +184,14 @@ test.run(arguments = '.', stdout=expect)
 test.must_match('foo', "foo.k 1 line 1\nxxx 1\nyyy 1\nfoo.k 1 line 4\n", mode='r')
 test.must_match('bar', "yyy 1\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n", mode='r')
 test.must_match('junk', "yyy 1\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n", mode='r')
-test.must_match('moo.ork', "xxx 1\nmoo.lork 1 line 2\nyyy 1\nmoo.lork 1 line 4\ninclude zzz\n", mode='r')
+
+import sys
+thingy = "xxx 1\nmoo.lork 1 line 2\nyyy 1\nmoo.lork 1 line 4\ninclude zzz\n".replace('\n','\r\n')
+thingy2 = "xxx 1\nmoo.lork 1 line 2\nyyy 1\nmoo.lork 1 line 4\ninclude zzz\n".replace('\n',os.linesep)
+if thingy != thingy2:
+    sys.stderr.write("FARGINBAKJKJDLFKJSLDKFJ")
+test.must_match('moo.ork', "xxx 1\nmoo.lork 1 line 2\nyyy 1\nmoo.lork 1 line 4\ninclude zzz\n".replace('\n','\r\n'), 
+                mode='r')
 
 test.up_to_date(arguments = '.')
 
@@ -200,7 +208,7 @@ test.run(arguments = '.', stdout=expect)
 test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 1\nfoo.k 1 line 4\n", mode='r')
 test.must_match('bar', "yyy 1\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n", mode='r')
 test.must_match('junk', "yyy 1\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n", mode='r')
-test.must_match('moo.ork', "xxx 2\nmoo.lork 1 line 2\nyyy 1\nmoo.lork 1 line 4\ninclude zzz\n", mode='r')
+test.must_match('moo.ork', "xxx 2\nmoo.lork 1 line 2\nyyy 1\nmoo.lork 1 line 4\ninclude zzz\n".replace('\n',os.linesep), mode='r')
 
 test.write('yyy', "yyy 2\n")
 
@@ -217,7 +225,7 @@ test.run(arguments = '.', stdout=expect)
 test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4\n", mode='r')
 test.must_match('bar', "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n", mode='r')
 test.must_match('junk', "yyy 2\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n", mode='r')
-test.must_match('moo.ork', "xxx 2\nmoo.lork 1 line 2\nyyy 2\nmoo.lork 1 line 4\ninclude zzz\n", mode='r')
+test.must_match('moo.ork', "xxx 2\nmoo.lork 1 line 2\nyyy 2\nmoo.lork 1 line 4\ninclude zzz\n".replace('\n',os.linesep), mode='r')
 
 test.write('zzz', "zzz 2\n")
 
@@ -231,7 +239,7 @@ test.run(arguments = '.', stdout=expect)
 test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4\n", mode='r')
 test.must_match('bar', "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 2\n", mode='r')
 test.must_match('junk', "yyy 2\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 2\n", mode='r')
-test.must_match('moo.ork', "xxx 2\nmoo.lork 1 line 2\nyyy 2\nmoo.lork 1 line 4\ninclude zzz\n", mode='r')
+test.must_match('moo.ork', "xxx 2\nmoo.lork 1 line 2\nyyy 2\nmoo.lork 1 line 4\ninclude zzz\n".replace('\n',os.linesep), mode='r')
 
 test.up_to_date(arguments = 'foo')
 
