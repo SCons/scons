@@ -91,10 +91,10 @@ def RunTest(args, extra):
 
     test.run(arguments = args)
 
-    str = test.read("f1")
+    str = test.read("f1", mode='r')
     start1,finish1 = list(map(float, str.split("\n")))
 
-    str = test.read("f2")
+    str = test.read("f2", mode='r')
     start2,finish2 = list(map(float, str.split("\n")))
 
     return start2, finish1
@@ -148,10 +148,10 @@ if sys.platform != 'win32':
 \tignoring -j or num_jobs option."""
     test.must_contain_all_lines(test.stderr(), [warn])
 
-    str = test.read("f1")
+    str = test.read("f1", mode='r')
     start1,finish1 = list(map(float, str.split("\n")))
 
-    str = test.read("f2")
+    str = test.read("f2", mode='r')
     start2,finish2 = list(map(float, str.split("\n")))
 
     test.fail_test(start2 < finish1)
