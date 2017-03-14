@@ -62,9 +62,9 @@ test.write(['subdir', 'ccc', 'ccc.in'], "subdir/ccc/ccc.in\n")
 #
 test.run(arguments = '.')
 
-test.fail_test(test.read(['subdir', 'aaa.out']) != "subdir/aaa.in\n")
-test.fail_test(test.read(['subdir', 'bbb.out']) != "subdir/bbb.input\n")
-test.fail_test(test.read(['subdir', 'ccc', 'ccc.out']) != "subdir/ccc/ccc.in\n")
+test.fail_test(test.read(['subdir', 'aaa.out']) != b"subdir/aaa.in\n")
+test.fail_test(test.read(['subdir', 'bbb.out']) != b"subdir/bbb.input\n")
+test.fail_test(test.read(['subdir', 'ccc', 'ccc.out']) != b"subdir/ccc/ccc.in\n")
 
 #
 test.pass_test()
