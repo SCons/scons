@@ -60,9 +60,9 @@ test.write('foo3.in', "foo3.in\n")
 
 test.run(arguments = 'foo1.out foo2.out foo3.out')
 
-test.fail_test(test.read(test.workpath('foo1.out')) != "foo1.in\n")
-test.fail_test(test.read(test.workpath('foo2.out')) != "foo2.in\n")
-test.fail_test(test.read(test.workpath('foo3.out')) != "foo3.in\n")
+test.fail_test(test.read(test.workpath('foo1.out')) != b"foo1.in\n")
+test.fail_test(test.read(test.workpath('foo2.out')) != b"foo2.in\n")
+test.fail_test(test.read(test.workpath('foo3.out')) != b"foo3.in\n")
 
 test.pass_test()
  
