@@ -77,17 +77,17 @@ env.Program('hello', 'hello.c',
 test.write('hello.c',"this ain't no c file!\n")
 
 test.write('mycc.py',"""
-open('hello.not_obj', 'wt').write('this is no object file!')
+open('hello.not_obj', 'w').write('this is no object file!')
 """)
 
 test.write('mylink.py',"""
-open('hello.not_exe', 'wt').write('this is not a program!')
+open('hello.not_exe', 'w').write('this is not a program!')
 """)
 
 test.run(arguments='hello.not_exe')
 
-assert test.read('hello.not_obj') == 'this is no object file!'
-assert test.read('hello.not_exe') == 'this is not a program!'
+assert test.read('hello.not_obj', mode='r') == 'this is no object file!'
+assert test.read('hello.not_exe', mode='r') == 'this is not a program!'
 
 test.up_to_date(arguments='hello.not_exe')
 
@@ -121,8 +121,8 @@ scons: warning: Did you mean to use `(target|source)' instead of `(targets|sourc
 scons: warning: Did you mean to use `(target|source)' instead of `(targets|sources)'\?
 """ + TestSCons.file_expr))
 
-assert test.read('goodbye.not_obj') == 'this is no object file!'
-assert test.read('goodbye.not_exe') == 'this is not a program!'
+assert test.read('goodbye.not_obj', mode='r') == 'this is no object file!'
+assert test.read('goodbye.not_exe', mode='r') == 'this is not a program!'
 
 
 
