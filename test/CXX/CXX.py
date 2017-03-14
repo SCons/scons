@@ -178,7 +178,7 @@ env.Program(target = 'test6', source = 'test6.C')
 
     test.run(arguments = '.', stderr = None)
 
-    test.must_match('test6' + _exe, "This is a .C file.\n")
+    test.must_match('test6' + _exe, "This is a .C file.\n", mode='r')
 
 
 
@@ -224,7 +224,7 @@ test.must_not_exist(test.workpath('wrapper.out'))
 
 test.run(arguments = 'bar' + _exe)
 
-test.must_match('wrapper.out', "wrapper.py\n")
+test.must_match('wrapper.out', "wrapper.py\n", mode='r')
 
 test.pass_test()
 

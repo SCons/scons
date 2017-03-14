@@ -60,10 +60,10 @@ open('f2.in', 'w').write("f2.in\\n")
 test.run(arguments = '--tree=all .')
 
 #test.must_match(['build0', 'f1.out'], "f1.in\n")
-test.must_match(['build0', 'f2.out'], "f2.in\n")
+test.must_match(['build0', 'f2.out'], "f2.in\n", mode='r')
 
 #test.must_match(['build1', 'f1.out'], "f1.in\n")
-test.must_match(['build1', 'f2.out'], "f2.in\n")
+test.must_match(['build1', 'f2.out'], "f2.in\n", mode='r')
 
 test.up_to_date(arguments = '.')
 

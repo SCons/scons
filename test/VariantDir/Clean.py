@@ -57,10 +57,10 @@ test.write('sample.in', "sample.in\n")
 
 test.run(arguments = '.')
 
-test.must_match(['build0', 'sample.out'], "sample.in\n")
+test.must_match(['build0', 'sample.out'], "sample.in\n", mode='r')
 test.must_exist(['build0', 'sample.junk'])
 
-test.must_match(['build1', 'sample.out'], "sample.in\n")
+test.must_match(['build1', 'sample.out'], "sample.in\n", mode='r')
 test.must_exist(['build1', 'sample.junk'])
 
 test.run(arguments = '-c .')

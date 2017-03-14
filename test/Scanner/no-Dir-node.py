@@ -122,13 +122,13 @@ test.must_match('subdir/foo', """\
 subdir/foo.k
 inc1/include.h
 inc2/include.h
-""")
+""", mode='r')
 
 test.must_match('list.out', """\
 %(subdir_SConscript)s
 %(subdir_foo)s
 %(subdir_foo_k)s
-""" % locals())
+""" % locals(), mode='r')
 
 test.pass_test()
 

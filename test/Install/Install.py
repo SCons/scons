@@ -96,17 +96,17 @@ test.write(f6_txt, "f6.txt\n")
 
 test.run(chdir = 'work', arguments = '.')
 
-test.must_match(f1_out,                         "f1.in\n")
-test.must_match(f2_out,                         "f2.in\n")
-test.must_match(f3_out,                         "f3.in\n")
-test.must_match(f4_out,                         "sub/f4.in\n")
-test.must_match(['work', 'f5.txt'],             "f5.txt\n")
-test.must_match(['work', 'export', 'f5.txt'],   "f5.txt\n")
-test.must_match(['work', 'f6.txt'],             "f6.txt\n")
-test.must_match(['work', 'export', 'f6.txt'],   "f6.txt\n")
+test.must_match(f1_out,                         "f1.in\n", mode='r')
+test.must_match(f2_out,                         "f2.in\n", mode='r')
+test.must_match(f3_out,                         "f3.in\n", mode='r')
+test.must_match(f4_out,                         "sub/f4.in\n", mode='r')
+test.must_match(['work', 'f5.txt'],             "f5.txt\n", mode='r')
+test.must_match(['work', 'export', 'f5.txt'],   "f5.txt\n", mode='r')
+test.must_match(['work', 'f6.txt'],             "f6.txt\n", mode='r')
+test.must_match(['work', 'export', 'f6.txt'],   "f6.txt\n", mode='r')
 
-test.must_match(['work', 'my_install.out'], os.path.join('export', 'f3.out'))
-test.must_match(['work', 'export', 'f1.in'],   "f1.in\n")
+test.must_match(['work', 'my_install.out'], os.path.join('export', 'f3.out'), mode='r')
+test.must_match(['work', 'export', 'f1.in'],   "f1.in\n", mode='r')
 
 # make sure the programs didn't get rebuilt, because nothing changed:
 oldtime1 = os.path.getmtime(f1_out)
@@ -123,7 +123,7 @@ test.fail_test(oldtime2 != os.path.getmtime(f2_out))
 
 # Verify that we didn't link to the Installed file.
 open(f2_out, 'w').write("xyzzy\n")
-test.must_match(['work', 'f2.out'], "f2.in\n")
+test.must_match(['work', 'f2.out'], "f2.in\n", mode='r')
 
 # Verify that scons prints an error message
 # if a target can not be unlinked before building it:

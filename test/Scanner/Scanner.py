@@ -180,10 +180,10 @@ blork(["moo.ork"], ["moo.blork"])
 
 test.run(arguments = '.', stdout=expect)
 
-test.must_match('foo', "foo.k 1 line 1\nxxx 1\nyyy 1\nfoo.k 1 line 4\n")
-test.must_match('bar', "yyy 1\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n")
-test.must_match('junk', "yyy 1\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n")
-test.must_match('moo.ork', "xxx 1\nmoo.lork 1 line 2\nyyy 1\nmoo.lork 1 line 4\ninclude zzz\n")
+test.must_match('foo', "foo.k 1 line 1\nxxx 1\nyyy 1\nfoo.k 1 line 4\n", mode='r')
+test.must_match('bar', "yyy 1\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n", mode='r')
+test.must_match('junk', "yyy 1\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n", mode='r')
+test.must_match('moo.ork', "xxx 1\nmoo.lork 1 line 2\nyyy 1\nmoo.lork 1 line 4\ninclude zzz\n", mode='r')
 
 test.up_to_date(arguments = '.')
 
@@ -197,10 +197,10 @@ blork(["moo.ork"], ["moo.blork"])
 
 test.run(arguments = '.', stdout=expect)
 
-test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 1\nfoo.k 1 line 4\n")
-test.must_match('bar', "yyy 1\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n")
-test.must_match('junk', "yyy 1\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n")
-test.must_match('moo.ork', "xxx 2\nmoo.lork 1 line 2\nyyy 1\nmoo.lork 1 line 4\ninclude zzz\n")
+test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 1\nfoo.k 1 line 4\n", mode='r')
+test.must_match('bar', "yyy 1\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n", mode='r')
+test.must_match('junk', "yyy 1\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n", mode='r')
+test.must_match('moo.ork', "xxx 2\nmoo.lork 1 line 2\nyyy 1\nmoo.lork 1 line 4\ninclude zzz\n", mode='r')
 
 test.write('yyy', "yyy 2\n")
 
@@ -214,10 +214,10 @@ blork(["moo.ork"], ["moo.blork"])
 
 test.run(arguments = '.', stdout=expect)
 
-test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4\n")
-test.must_match('bar', "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n")
-test.must_match('junk', "yyy 2\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n")
-test.must_match('moo.ork', "xxx 2\nmoo.lork 1 line 2\nyyy 2\nmoo.lork 1 line 4\ninclude zzz\n")
+test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4\n", mode='r')
+test.must_match('bar', "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n", mode='r')
+test.must_match('junk', "yyy 2\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n", mode='r')
+test.must_match('moo.ork', "xxx 2\nmoo.lork 1 line 2\nyyy 2\nmoo.lork 1 line 4\ninclude zzz\n", mode='r')
 
 test.write('zzz', "zzz 2\n")
 
@@ -228,10 +228,10 @@ expect = test.wrap_stdout("""\
 
 test.run(arguments = '.', stdout=expect)
 
-test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4\n")
-test.must_match('bar', "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 2\n")
-test.must_match('junk', "yyy 2\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 2\n")
-test.must_match('moo.ork', "xxx 2\nmoo.lork 1 line 2\nyyy 2\nmoo.lork 1 line 4\ninclude zzz\n")
+test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4\n", mode='r')
+test.must_match('bar', "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 2\n", mode='r')
+test.must_match('junk', "yyy 2\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 2\n", mode='r')
+test.must_match('moo.ork', "xxx 2\nmoo.lork 1 line 2\nyyy 2\nmoo.lork 1 line 4\ninclude zzz\n", mode='r')
 
 test.up_to_date(arguments = 'foo')
 
