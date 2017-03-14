@@ -2659,10 +2659,12 @@ class File(Base):
     def get_contents(self):
         return SCons.Node._get_contents_map[self._func_get_contents](self)
 
-    # This attempts to figure out what the encoding of the text is
-    # based upon the BOM bytes, and then decodes the contents so that
-    # it's a valid python string.
     def get_text_contents(self):
+        """
+        This attempts to figure out what the encoding of the text is
+        based upon the BOM bytes, and then decodes the contents so that
+        it's a valid python string.
+        """
         contents = self.get_contents()
         # The behavior of various decode() methods and functions
         # w.r.t. the initial BOM bytes is different for different
