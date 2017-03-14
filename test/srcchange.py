@@ -82,31 +82,31 @@ main(int argc, char *argv[])
     printf("Revision $REV$\\n");
     exit (0);
 }
-""")
+""", mode='w')
 
 test.write('revnum.in', '3.2\n')
 
-prog = 'main' + TestSCons._exe
+program_name = 'main' + TestSCons._exe
 
-light_build=test.wrap_stdout("""\
+light_build = test.wrap_stdout("""\
 %(_python_)s getrevision > revision.in
 """ % locals())
 
 test.run(arguments='.')
-test.must_exist(prog)
-test.run(program=test.workpath(prog), stdout='Revision $REV: 3.2$\n')
+test.must_exist(program_name)
+test.run(program_name=test.workpath(program_name), stdout='Revision $REV: 3.2$\n')
 
 test.run(arguments='.', stdout=light_build)
-test.must_exist(prog)
+test.must_exist(program_name)
 
 test.run(arguments='.', stdout=light_build)
-test.must_exist(prog)
+test.must_exist(program_name)
 
 test.write('revnum.in', '3.3\n')
 
 test.run(arguments='.')
-test.must_exist(prog)
-test.run(program=test.workpath(prog), stdout='Revision $REV: 3.3$\n')
+test.must_exist(program_name)
+test.run(program_name=test.workpath(program_name), stdout='Revision $REV: 3.3$\n')
 
 test.pass_test()
 
