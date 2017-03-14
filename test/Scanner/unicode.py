@@ -56,6 +56,8 @@ def process(outfp, infile):
         contents = contents[len(codecs.BOM_UTF16_LE):].decode('utf-16-le')
     elif contents.startswith(codecs.BOM_UTF16_BE):
         contents = contents[len(codecs.BOM_UTF16_BE):].decode('utf-16-be')
+    else:
+        contents = contents.decode('ascii')
     for line in contents.split('\n')[:-1]:
         if line[:8] == 'include ':
             process(outfp, line[8:])
@@ -65,7 +67,7 @@ def process(outfp, infile):
         else:
             outfp.write(line + '\n')
 
-output = open(sys.argv[2], 'wb')
+output = open(sys.argv[2], 'w')
 process(output, sys.argv[1])
 
 sys.exit(0)
