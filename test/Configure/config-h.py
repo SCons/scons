@@ -130,7 +130,7 @@ expected_config_h = ("""\
 /* #undef HAVE_LIBHOPEFULLYNOLIB2 */
 
 #endif /* CONFIG_H_SEEN */
-""" % locals()).replace("\n", os.linesep)
+""" % locals())
 
 test.run(stdout=expected_stdout)
 

@@ -1028,7 +1028,7 @@ SConscript( sconscript )
                     nols = nols + "|"
             nols = nols + ")"
             lastEnd = 0
-            logfile = self.read(self.workpath(logfile),mode='r')
+            logfile = self.read(self.workpath(logfile))
 
             # Some debug code to keep around..
             # sys.stderr.write("LOGFILE[%s]:%s"%(type(logfile),logfile))
