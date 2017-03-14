@@ -431,7 +431,7 @@ libg_gx.h: 2
 libg_gy.h: 1
 libg_gz.h: 1
 libg_w.h: 2
-""")
+""", mode='r')
 
 test.pass_test()
 

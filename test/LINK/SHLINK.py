@@ -72,7 +72,7 @@ test.must_not_exist(test.workpath('wrapper.out'))
 
 test.run(arguments = dll_ + 'bar' + _shlib)
 
-test.must_match('wrapper.out', "wrapper.py\n")
+test.must_match('wrapper.out', "wrapper.py\n", mode='r')
 
 test.pass_test()
 
