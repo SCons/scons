@@ -78,7 +78,7 @@ test.run(arguments='.')
 
 for fn in file_names:
     out_name = fn.replace('$$', '$') + '.out'
-    test.fail_test(test.read(out_name) != fn + '\n')
+    test.fail_test(test.read(out_name, mode='r') != fn + '\n')
 
 test.pass_test()
 
