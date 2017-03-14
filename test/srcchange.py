@@ -45,7 +45,7 @@ test = TestSCons.TestSCons()
 test.write('getrevision', """
 #!/usr/bin/env python
 from __future__ import print_function
-print(open('revnum.in','r').read().strip())
+print(open('revnum.in','r').read().strip(), end='')
 """)
 
 test.write('SConstruct', """
@@ -72,17 +72,18 @@ exe = env.Program('main.c')
 env.Default(exe)
 """ % locals())
 
-test.write('main.c', """\
+test.write('main.c', r"""\
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdio.h>
 int
 main(int argc, char *argv[])
 {
-    printf("Revision $REV$\\n");
+    printf("Revision $REV$\n");
     exit (0);
 }
-""", mode='w')
+
+""")
 
 test.write('revnum.in', '3.2\n')
 
@@ -94,7 +95,7 @@ light_build = test.wrap_stdout("""\
 
 test.run(arguments='.')
 test.must_exist(program_name)
-test.run(program_name=test.workpath(program_name), stdout='Revision $REV: 3.2$\n')
+test.run(program=test.workpath(program_name), stdout='Revision $REV: 3.2$\n')
 
 test.run(arguments='.', stdout=light_build)
 test.must_exist(program_name)
@@ -106,7 +107,7 @@ test.write('revnum.in', '3.3\n')
 
 test.run(arguments='.')
 test.must_exist(program_name)
-test.run(program_name=test.workpath(program_name), stdout='Revision $REV: 3.3$\n')
+test.run(program=test.workpath(program_name), stdout='Revision $REV: 3.3$\n')
 
 test.pass_test()
 
