@@ -51,14 +51,14 @@ def process(infp, outfp):
 process(input, output)
 
 sys.exit(0)
-""")
+""", mode='w')
 
 # Execute a subsidiary SConscript just to make sure we can
 # get at the Scanner keyword from there.
 
 test.write('SConstruct', """
 SConscript('SConscript')
-""")
+""", mode='w')
 
 test.write('SConscript', """
 import re
@@ -68,6 +68,7 @@ include_re = re.compile(r'^include\s+(\S+)$', re.M)
 def kfile_scan(node, env, scanpaths, arg):
     contents = node.get_text_contents()
     includes = include_re.findall(contents)
+    print("TEXT:%%s Include:%%s"%%(contents,includes))
     return includes
 
 kscan = Scanner(name = 'kfile',
@@ -114,69 +115,71 @@ bar = env.BarBld(target='bar', source='bar.in')
 # Test specifying a source scanner for a Builder that gets
 # automatically applied to targets generated from that Builder
 
-def blork(env, target, source):
-    open(str(target[0]), 'w').write(
-        source[0].get_text_contents().replace('getfile', 'MISSEDME'))
+def third(env, target, source):
+    contents = source[0].get_contents()
+    # print("TYPE:"+str(type(contents)))
+    contents = contents.replace(b'getfile', b'MISSEDME')
+    open(str(target[0]), 'wb').write(contents)
 
 kbld = Builder(action=r'%(_python_)s build.py $SOURCES $TARGET',
-               src_suffix='.lork',
-               suffix='.blork',
+               src_suffix='.first',
+               suffix='.second',
                source_scanner=kscan)
-blorkbld = Builder(action=blork,
-                   src_suffix='.blork',
-                   suffix='.ork')
+thirdbld = Builder(action=third,
+                   src_suffix='.second',
+                   suffix='.third')
 
-env.Append(BUILDERS={'BLORK':blorkbld, 'KB':kbld})
+env.Append(BUILDERS={'Second':thirdbld, 'KB':kbld})
 
-blork = env.KB('moo.lork')
-ork = env.BLORK(blork)
+blork = env.KB('moo.first')
+ork = env.Second(blork)
 Alias('make_ork', ork)
 
-""" % locals())
+""" % locals(),mode='w')
 
 test.write('foo.k', 
 """foo.k 1 line 1
 include xxx
 include yyy
 foo.k 1 line 4
-""")
+""", mode='w')
 
-test.write('bar.in', 
+test.write('bar.in',
 """include yyy
 bar.in 1 line 2
 bar.in 1 line 3
 include zzz
-""")
+""", mode='w')
 
 test.write('junk.k2', 
 """include yyy
 junk.k2 1 line 2
 junk.k2 1 line 3
 include zzz
-""")
+""", mode='w')
 
-test.write('moo.lork',
+test.write('moo.first',
 """include xxx
-moo.lork 1 line 2
+moo.first 1 line 2
 include yyy
-moo.lork 1 line 4
+moo.first 1 line 4
 include moo.inc
-""")
+""", mode='w')
 
 test.write('moo.inc',
 """getfile zzz
-""")
+""", mode='w')
 
-test.write('xxx', "xxx 1\n")
-test.write('yyy', "yyy 1\n")
-test.write('zzz', "zzz 1\n")
+test.write('xxx', "xxx 1\n",mode='w')
+test.write('yyy', "yyy 1\n",mode='w')
+test.write('zzz', "zzz 1\n",mode='w')
 
 expect = test.wrap_stdout("""\
 %(_python_)s build.py bar.in bar
 %(_python_)s build.py foo.k foo
 %(_python_)s build.py junk.k2 junk
-%(_python_)s build.py moo.lork moo.blork
-blork(["moo.ork"], ["moo.blork"])
+%(_python_)s build.py moo.first moo.second
+third(["moo.third"], ["moo.second"])
 """ % locals())
 
 test.run(arguments = '.', stdout=expect)
@@ -184,23 +187,16 @@ test.run(arguments = '.', stdout=expect)
 test.must_match('foo', "foo.k 1 line 1\nxxx 1\nyyy 1\nfoo.k 1 line 4\n", mode='r')
 test.must_match('bar', "yyy 1\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n", mode='r')
 test.must_match('junk', "yyy 1\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n", mode='r')
-
-import sys
-thingy = "xxx 1\nmoo.lork 1 line 2\nyyy 1\nmoo.lork 1 line 4\ninclude zzz\n".replace('\n','\r\n')
-thingy2 = "xxx 1\nmoo.lork 1 line 2\nyyy 1\nmoo.lork 1 line 4\ninclude zzz\n".replace('\n',os.linesep)
-if thingy != thingy2:
-    sys.stderr.write("FARGINBAKJKJDLFKJSLDKFJ")
-test.must_match('moo.ork', "xxx 1\nmoo.lork 1 line 2\nyyy 1\nmoo.lork 1 line 4\ninclude zzz\n".replace('\n','\r\n'), 
-                mode='r')
+test.must_match('moo.third', "xxx 1\nmoo.first 1 line 2\nyyy 1\nmoo.first 1 line 4\ninclude zzz\n", mode='r')
 
 test.up_to_date(arguments = '.')
 
-test.write('xxx', "xxx 2\n")
+test.write('xxx', "xxx 2\n",mode='w')
 
 expect = test.wrap_stdout("""\
 %(_python_)s build.py foo.k foo
-%(_python_)s build.py moo.lork moo.blork
-blork(["moo.ork"], ["moo.blork"])
+%(_python_)s build.py moo.first moo.second
+third(["moo.third"], ["moo.second"])
 """ % locals())
 
 test.run(arguments = '.', stdout=expect)
@@ -208,16 +204,16 @@ test.run(arguments = '.', stdout=expect)
 test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 1\nfoo.k 1 line 4\n", mode='r')
 test.must_match('bar', "yyy 1\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n", mode='r')
 test.must_match('junk', "yyy 1\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n", mode='r')
-test.must_match('moo.ork', "xxx 2\nmoo.lork 1 line 2\nyyy 1\nmoo.lork 1 line 4\ninclude zzz\n".replace('\n',os.linesep), mode='r')
+test.must_match('moo.third', "xxx 2\nmoo.first 1 line 2\nyyy 1\nmoo.first 1 line 4\ninclude zzz\n".replace('\n',os.linesep), mode='r')
 
-test.write('yyy', "yyy 2\n")
+test.write('yyy', "yyy 2\n",mode='w')
 
 expect = test.wrap_stdout("""\
 %(_python_)s build.py bar.in bar
 %(_python_)s build.py foo.k foo
 %(_python_)s build.py junk.k2 junk
-%(_python_)s build.py moo.lork moo.blork
-blork(["moo.ork"], ["moo.blork"])
+%(_python_)s build.py moo.first moo.second
+third(["moo.third"], ["moo.second"])
 """ % locals())
 
 test.run(arguments = '.', stdout=expect)
@@ -225,7 +221,7 @@ test.run(arguments = '.', stdout=expect)
 test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4\n", mode='r')
 test.must_match('bar', "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n", mode='r')
 test.must_match('junk', "yyy 2\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n", mode='r')
-test.must_match('moo.ork', "xxx 2\nmoo.lork 1 line 2\nyyy 2\nmoo.lork 1 line 4\ninclude zzz\n".replace('\n',os.linesep), mode='r')
+test.must_match('moo.third', "xxx 2\nmoo.first 1 line 2\nyyy 2\nmoo.first 1 line 4\ninclude zzz\n".replace('\n',os.linesep), mode='r')
 
 test.write('zzz', "zzz 2\n")
 
@@ -239,7 +235,7 @@ test.run(arguments = '.', stdout=expect)
 test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4\n", mode='r')
 test.must_match('bar', "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 2\n", mode='r')
 test.must_match('junk', "yyy 2\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 2\n", mode='r')
-test.must_match('moo.ork', "xxx 2\nmoo.lork 1 line 2\nyyy 2\nmoo.lork 1 line 4\ninclude zzz\n".replace('\n',os.linesep), mode='r')
+test.must_match('moo.third', "xxx 2\nmoo.first 1 line 2\nyyy 2\nmoo.first 1 line 4\ninclude zzz\n".replace('\n',os.linesep), mode='r')
 
 test.up_to_date(arguments = 'foo')
 
