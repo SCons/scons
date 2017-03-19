@@ -218,7 +218,7 @@ Taskmaster: No candidate anymore.
 
 """
 
-test.must_match('trace.out', expect_trace)
+test.must_match('trace.out', expect_trace, mode='r')
 
 test.pass_test()
 

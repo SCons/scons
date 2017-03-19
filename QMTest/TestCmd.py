@@ -901,7 +901,8 @@ class TestCmd(object):
         self.set_diff_function(diff, diff_stdout, diff_stderr)
         self._dirlist = []
         self._preserve = {'pass_test': 0, 'fail_test': 0, 'no_result': 0}
-        if 'PRESERVE' in os.environ and not os.environ['PRESERVE'] is '':
+        preserve_value = os.environ.get('PRESERVE',False)
+        if preserve_value not in [0,'0','False']:
             self._preserve['pass_test'] = os.environ['PRESERVE']
             self._preserve['fail_test'] = os.environ['PRESERVE']
             self._preserve['no_result'] = os.environ['PRESERVE']
