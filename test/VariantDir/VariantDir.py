@@ -379,7 +379,7 @@ import sys
 headers = ['existing.h', 'non_existing.h']
 for header in headers:
     h = File( header )
-    contents = h.get_contents()
+    contents = h.get_text_contents()
     sys.stderr.write( '%s:%s\\n' % (header, contents))
 """)
 
