@@ -2680,7 +2680,7 @@ class File(Base):
             return contents[len(codecs.BOM_UTF16_BE):].decode('utf-16-be')
         try:
             return contents.decode()
-        except UnicodeDecodeError:
+        except (UnicodeDecodeError, AttributeError) as e:
             return contents
 
 
