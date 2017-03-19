@@ -62,7 +62,7 @@ def process(outfp, infp):
         if line[:8] == 'include ':
             file = line[8:-1]
             try:
-                fp = open(file, 'rb')
+                fp = open(file, 'r')
             except IOError:
                 import os
                 print("os.getcwd() =", os.getcwd())
@@ -71,10 +71,10 @@ def process(outfp, infp):
         else:
             outfp.write(line)
 
-outfp = open(sys.argv[1], 'wb')
+outfp = open(sys.argv[1], 'w')
 for f in sys.argv[2:]:
     if f != '-':
-        process(outfp, open(f, 'rb'))
+        process(outfp, open(f, 'r'))
 
 sys.exit(0)
 """)
