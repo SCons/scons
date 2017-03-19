@@ -30,14 +30,14 @@ Verify that the swig tool generates file names that we expect.
 
 import TestSCons
 
-_exe   = TestSCons._exe
-_obj   = TestSCons._obj
+_exe = TestSCons._exe
+_obj = TestSCons._obj
 
 test = TestSCons.TestSCons()
 
 python = test.where_is('python')
 if not python:
-    test,skip_test('Can not find installed "python", skipping test.\n')
+    test.skip_test('Can not find installed "python", skipping test.\n')
 
 
 test.write('myswig.py', r"""
@@ -57,8 +57,8 @@ for opt, arg in opts:
         print("")
         print("Please see http://www.swig.org for reporting bugs and further information")
         sys.exit(0)
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
+infile = open(args[0], 'r')
+outfile = open(out, 'w')
 for l in infile.readlines():
     if l[:4] != 'swig':
         outfile.write(l)
@@ -102,15 +102,16 @@ main(int argc, char *argv[]) {
 swig
 """)
 
-test.run(arguments = '.', stderr = None, stdout = r'.*Using SWIG 0.1.2.*', match = TestSCons.match_re_dotall)
+test.run(arguments='.', stderr=None, stdout=r'.*Using SWIG 0.1.2.*',
+         match=TestSCons.match_re_dotall)
 
-test.run(program = test.workpath('test1' + _exe), stdout = "test1.i\n")
+test.run(program=test.workpath('test1' + _exe), stdout="test1.i\n")
 test.must_exist(test.workpath('test1_wrap.c'))
 test.must_exist(test.workpath('test1_wrap' + _obj))
 
-test.must_match('test2_wrap.c', "test2.i\n")
+test.must_match('test2_wrap.c', "test2.i\n", mode='r')
 
-test.run(program = test.workpath('test3' + _exe), stdout = "test3.i\n")
+test.run(program=test.workpath('test3' + _exe), stdout="test3.i\n")
 test.must_exist(test.workpath('test3_wrap.cc'))
 test.must_exist(test.workpath('test3_wrap' + _obj))
 
