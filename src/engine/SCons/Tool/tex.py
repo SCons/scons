@@ -297,7 +297,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
         logfilename = targetbase + '.log'
         logContent = ''
         if os.path.isfile(logfilename):
-            logContent = open(logfilename, "rb").read()
+            logContent = open(logfilename, "r").read()
 
 
         # Read the fls file to find all .aux files
@@ -305,7 +305,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
         flsContent = ''
         auxfiles = []
         if os.path.isfile(flsfilename):
-            flsContent = open(flsfilename, "rb").read()
+            flsContent = open(flsfilename, "r").read()
             auxfiles = openout_aux_re.findall(flsContent)
             # remove duplicates
             dups = {}
@@ -315,7 +315,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
 
         bcffiles = []
         if os.path.isfile(flsfilename):
-            flsContent = open(flsfilename, "rb").read()
+            flsContent = open(flsfilename, "r").read()
             bcffiles = openout_bcf_re.findall(flsContent)
             # remove duplicates
             dups = {}
@@ -338,7 +338,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                 already_bibtexed.append(auxfilename)
                 target_aux = os.path.join(targetdir, auxfilename)
                 if os.path.isfile(target_aux):
-                    content = open(target_aux, "rb").read()
+                    content = open(target_aux, "r").read()
                     if content.find("bibdata") != -1:
                         if Verbose:
                             print("Need to run bibtex on ",auxfilename)
@@ -361,7 +361,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                 already_bibtexed.append(bcffilename)
                 target_bcf = os.path.join(targetdir, bcffilename)
                 if os.path.isfile(target_bcf):
-                    content = open(target_bcf, "rb").read()
+                    content = open(target_bcf, "r").read()
                     if content.find("bibdata") != -1:
                         if Verbose:
                             print("Need to run biber on ",bcffilename)
@@ -813,7 +813,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     # read fls file to get all other files that latex creates and will read on the next pass
     # remove files from list that we explicitly dealt with above
     if os.path.isfile(flsfilename):
-        content = open(flsfilename, "rb").read()
+        content = open(flsfilename, "r").read()
         out_files = openout_re.findall(content)
         myfiles = [auxfilename, logfilename, flsfilename, targetbase+'.dvi',targetbase+'.pdf']
         for filename in out_files[:]:
