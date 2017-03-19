@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+2#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -25,7 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-End-to-end tests for POTUpdate. Assure, taht the examples from user's
+End-to-end tests for POTUpdate. Assure, that the examples from user's
 documentation all work.
 """
 
