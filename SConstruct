@@ -421,7 +421,7 @@ def soelim(target, source, env):
 
 def soscan(node, env, path):
     c = node.get_text_contents()
-    return re.compile(br"^[\.']so\s+(\S+)", re.M).findall(c)
+    return re.compile(r"^[\.']so\s+(\S+)", re.M).findall(c)
 
 soelimbuilder = Builder(action = Action(soelim),
                         source_scanner = Scanner(soscan))
