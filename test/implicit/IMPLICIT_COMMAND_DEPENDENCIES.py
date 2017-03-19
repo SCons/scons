@@ -46,11 +46,11 @@ open(sys.argv[1], 'w').write('''\
 #!/usr/bin/env %(python)s
 import os
 import sys
-fp = open(sys.argv[1], 'wb')
+fp = open(sys.argv[1], 'w')
 args = [os.path.split(sys.argv[0])[1]] + sys.argv[1:]
 fp.write(" ".join(args) + '\\\\n' + '%(extra)s')
 for infile in sys.argv[2:]:
-    fp.write(open(infile, 'rb').read())
+    fp.write(open(infile, 'r').read())
 fp.close()
 ''')
 os.chmod(sys.argv[1], 0o755)
