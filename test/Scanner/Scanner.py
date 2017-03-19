@@ -63,12 +63,11 @@ SConscript('SConscript')
 test.write('SConscript', """
 import re
 
-include_re = re.compile(r'^include\s+(\S+)$', re.M)
+include_re = re.compile(r'^include\s+(\S+)\s*$', re.M)
 
 def kfile_scan(node, env, scanpaths, arg):
     contents = node.get_text_contents()
     includes = include_re.findall(contents)
-    print("TEXT:%%s Include:%%s"%%(contents,includes))
     return includes
 
 kscan = Scanner(name = 'kfile',
@@ -204,7 +203,7 @@ test.run(arguments = '.', stdout=expect)
 test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 1\nfoo.k 1 line 4\n", mode='r')
 test.must_match('bar', "yyy 1\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n", mode='r')
 test.must_match('junk', "yyy 1\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n", mode='r')
-test.must_match('moo.third', "xxx 2\nmoo.first 1 line 2\nyyy 1\nmoo.first 1 line 4\ninclude zzz\n".replace('\n',os.linesep), mode='r')
+test.must_match('moo.third', "xxx 2\nmoo.first 1 line 2\nyyy 1\nmoo.first 1 line 4\ninclude zzz\n", mode='r')
 
 test.write('yyy', "yyy 2\n",mode='w')
 
@@ -221,7 +220,7 @@ test.run(arguments = '.', stdout=expect)
 test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4\n", mode='r')
 test.must_match('bar', "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n", mode='r')
 test.must_match('junk', "yyy 2\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n", mode='r')
-test.must_match('moo.third', "xxx 2\nmoo.first 1 line 2\nyyy 2\nmoo.first 1 line 4\ninclude zzz\n".replace('\n',os.linesep), mode='r')
+test.must_match('moo.third', "xxx 2\nmoo.first 1 line 2\nyyy 2\nmoo.first 1 line 4\ninclude zzz\n", mode='r')
 
 test.write('zzz', "zzz 2\n")
 
@@ -235,7 +234,7 @@ test.run(arguments = '.', stdout=expect)
 test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4\n", mode='r')
 test.must_match('bar', "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 2\n", mode='r')
 test.must_match('junk', "yyy 2\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 2\n", mode='r')
-test.must_match('moo.third', "xxx 2\nmoo.first 1 line 2\nyyy 2\nmoo.first 1 line 4\ninclude zzz\n".replace('\n',os.linesep), mode='r')
+test.must_match('moo.third', "xxx 2\nmoo.first 1 line 2\nyyy 2\nmoo.first 1 line 4\ninclude zzz\n", mode='r')
 
 test.up_to_date(arguments = 'foo')
 
