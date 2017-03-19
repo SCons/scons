@@ -2672,11 +2672,11 @@ class File(Base):
         # them, but has a 'utf-8-sig' which does; 'utf-16' seems to
         # strip them; etc.)  Just sidestep all the complication by
         # explicitly stripping the BOM before we decode().
-        if contents.startswith(codecs.BOM_UTF8):
+        if contents[:len(codecs.BOM_UTF8)] == codecs.BOM_UTF8:
             return contents[len(codecs.BOM_UTF8):].decode('utf-8')
-        if contents.startswith(codecs.BOM_UTF16_LE):
+        if contents[:len(codecs.BOM_UTF16_LE)] == codecs.BOM_UTF16_LE:
             return contents[len(codecs.BOM_UTF16_LE):].decode('utf-16-le')
-        if contents.startswith(codecs.BOM_UTF16_BE):
+        if contents[:len(codecs.BOM_UTF16_BE)] == codecs.BOM_UTF16_BE:
             return contents[len(codecs.BOM_UTF16_BE):].decode('utf-16-be')
         try:
             return contents.decode()
