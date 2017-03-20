@@ -1157,7 +1157,7 @@ def tool_list(platform, env):
                                # Archivers
                                'tar', 'zip',
                                # SourceCode factories
-                               'BitKeeper', 'CVS', 'Perforce',
+                               'BitKeeper', 'CVS',
                                'RCS', 'SCCS', # 'Subversion',
                                ], env)
 

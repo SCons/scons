@@ -96,7 +96,7 @@ Examples:
 # which the method will be called; the Python
 # convention is to call it 'self'.
 def my_method(self, arg):
-    print "my_method() got", arg
+    print("my_method() got", arg)
 
 # Use the global AddMethod() function to add a method
 # to the Environment class.  This
@@ -1114,7 +1114,7 @@ timestamp, such as can happen when restoring files from backup archives.
 <listitem>
 <para>
 Specifies that a target shall be considered out of date and rebuilt
-if the dependency's content has changed sine the last time
+if the dependency's content has changed since the last time
 the target was built,
 as determined be performing an MD5 checksum
 on the dependency's contents
@@ -1131,7 +1131,7 @@ can be used as a synonym for
 <listitem>
 <para>
 Specifies that a target shall be considered out of date and rebuilt
-if the dependency's content has changed sine the last time
+if the dependency's content has changed since the last time
 the target was built,
 except that dependencies with a timestamp that matches
 the last time the target was rebuilt will be
@@ -2102,7 +2102,7 @@ import atexit
 def print_build_failures():
     from SCons.Script import GetBuildFailures
     for bf in GetBuildFailures():
-        print "%s failed: %s" % (bf.node, bf.errstr)
+        print("%s failed: %s" % (bf.node, bf.errstr))
 
 atexit.register(print_build_failures)
 </example_commands>
@@ -3062,56 +3062,6 @@ dict = env.ParseFlags('-O2', '!echo -Dfoo -Dbar=1')
 </example_commands>
 </listitem>
   </varlistentry>
-  <varlistentry id="f-Perforce">
-    <term>
-      <literal>env.Perforce()</literal>
-    </term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-A factory function that
-returns a Builder object
-to be used to fetch source files
-from the Perforce source code management system.
-The returned Builder
-is intended to be passed to the
-<function xmlns="http://www.scons.org/dbxsd/v1.0">SourceCode</function>
-function.
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-This function is deprecated.  For details, see the entry for the
-<function xmlns="http://www.scons.org/dbxsd/v1.0">SourceCode</function>
-function.
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Example:
-</para>
-
-<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
-env.SourceCode('.', env.Perforce())
-</example_commands>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Perforce uses a number of external
-environment variables for its operation.
-Consequently, this function adds the
-following variables from the user's external environment
-to the construction environment's
-ENV dictionary:
-P4CHARSET,
-P4CLIENT,
-P4LANGUAGE,
-P4PASSWD,
-P4PORT,
-P4USER,
-SystemRoot,
-USER,
-and
-USERNAME.
-</para>
-</listitem>
-  </varlistentry>
   <varlistentry id="f-Platform">
     <term>
       <literal>Platform(string)</literal>
@@ -3346,7 +3296,7 @@ every 10 Nodes:
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 def my_progress_function(node, *args, **kw):
-    print 'Evaluating node %s!' % node
+    print('Evaluating node %s!' % node)
 Progress(my_progress_function, interval=10)
 </example_commands>
 

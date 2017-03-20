@@ -352,10 +352,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-no_import_lib "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$no_import_lib</envar>">
 <!ENTITY cv-OBJPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$OBJPREFIX</envar>">
 <!ENTITY cv-OBJSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$OBJSUFFIX</envar>">
-<!ENTITY cv-P4 "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$P4</envar>">
-<!ENTITY cv-P4COM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$P4COM</envar>">
-<!ENTITY cv-P4COMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$P4COMSTR</envar>">
-<!ENTITY cv-P4FLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$P4FLAGS</envar>">
 <!ENTITY cv-PACKAGEROOT "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$PACKAGEROOT</envar>">
 <!ENTITY cv-PACKAGETYPE "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$PACKAGETYPE</envar>">
 <!ENTITY cv-PACKAGEVERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$PACKAGEVERSION</envar>">
@@ -1006,10 +1002,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-no_import_lib "<link linkend='cv-no_import_lib' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$no_import_lib</envar></link>">
 <!ENTITY cv-link-OBJPREFIX "<link linkend='cv-OBJPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$OBJPREFIX</envar></link>">
 <!ENTITY cv-link-OBJSUFFIX "<link linkend='cv-OBJSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$OBJSUFFIX</envar></link>">
-<!ENTITY cv-link-P4 "<link linkend='cv-P4' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$P4</envar></link>">
-<!ENTITY cv-link-P4COM "<link linkend='cv-P4COM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$P4COM</envar></link>">
-<!ENTITY cv-link-P4COMSTR "<link linkend='cv-P4COMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$P4COMSTR</envar></link>">
-<!ENTITY cv-link-P4FLAGS "<link linkend='cv-P4FLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$P4FLAGS</envar></link>">
 <!ENTITY cv-link-PACKAGEROOT "<link linkend='cv-PACKAGEROOT' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$PACKAGEROOT</envar></link>">
 <!ENTITY cv-link-PACKAGETYPE "<link linkend='cv-PACKAGETYPE' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$PACKAGETYPE</envar></link>">
 <!ENTITY cv-link-PACKAGEVERSION "<link linkend='cv-PACKAGEVERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$PACKAGEVERSION</envar></link>">

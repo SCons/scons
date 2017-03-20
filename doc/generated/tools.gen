@@ -820,15 +820,6 @@ Sets construction variables for the <application xmlns="http://www.scons.org/dbx
 </para>
 <para>Sets:  &cv-link-LATEXRETRIES;, &cv-link-PDFLATEX;, &cv-link-PDFLATEXCOM;, &cv-link-PDFLATEXFLAGS;, &cv-link-PDFTEX;, &cv-link-PDFTEXCOM;, &cv-link-PDFTEXFLAGS;.</para><para>Uses:  &cv-link-PDFLATEXCOMSTR;, &cv-link-PDFTEXCOMSTR;.</para></listitem>
   </varlistentry>
-  <varlistentry id="t-Perforce">
-    <term>Perforce</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for interacting with the
-Perforce source code management system.
-</para>
-<para>Sets:  &cv-link-P4;, &cv-link-P4COM;, &cv-link-P4FLAGS;.</para><para>Uses:  &cv-link-P4COMSTR;.</para></listitem>
-  </varlistentry>
   <varlistentry id="t-qt">
     <term>qt</term>
     <listitem>

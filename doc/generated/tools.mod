@@ -83,7 +83,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-pdf "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>pdf</literal>">
 <!ENTITY t-pdflatex "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>pdflatex</literal>">
 <!ENTITY t-pdftex "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>pdftex</literal>">
-<!ENTITY t-Perforce "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Perforce</literal>">
 <!ENTITY t-qt "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>qt</literal>">
 <!ENTITY t-RCS "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>RCS</literal>">
 <!ENTITY t-rmic "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>rmic</literal>">
@@ -194,7 +193,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-link-pdf "<link linkend='t-pdf' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>pdf</literal></link>">
 <!ENTITY t-link-pdflatex "<link linkend='t-pdflatex' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>pdflatex</literal></link>">
 <!ENTITY t-link-pdftex "<link linkend='t-pdftex' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>pdftex</literal></link>">
-<!ENTITY t-link-Perforce "<link linkend='t-Perforce' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>Perforce</literal></link>">
 <!ENTITY t-link-qt "<link linkend='t-qt' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>qt</literal></link>">
 <!ENTITY t-link-RCS "<link linkend='t-RCS' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>RCS</literal></link>">
 <!ENTITY t-link-rmic "<link linkend='t-rmic' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>rmic</literal></link>">

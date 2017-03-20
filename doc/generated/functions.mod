@@ -64,7 +64,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-ParseConfig "<function xmlns='http://www.scons.org/dbxsd/v1.0'>ParseConfig</function>">
 <!ENTITY f-ParseDepends "<function xmlns='http://www.scons.org/dbxsd/v1.0'>ParseDepends</function>">
 <!ENTITY f-ParseFlags "<function xmlns='http://www.scons.org/dbxsd/v1.0'>ParseFlags</function>">
-<!ENTITY f-Perforce "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Perforce</function>">
 <!ENTITY f-Platform "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Platform</function>">
 <!ENTITY f-Precious "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Precious</function>">
 <!ENTITY f-Prepend "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Prepend</function>">
@@ -152,7 +151,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-env-ParseConfig "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.ParseConfig</function>">
 <!ENTITY f-env-ParseDepends "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.ParseDepends</function>">
 <!ENTITY f-env-ParseFlags "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.ParseFlags</function>">
-<!ENTITY f-env-Perforce "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Perforce</function>">
 <!ENTITY f-env-Platform "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Platform</function>">
 <!ENTITY f-env-Precious "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Precious</function>">
 <!ENTITY f-env-Prepend "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Prepend</function>">
@@ -250,7 +248,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-ParseConfig "<link linkend='f-ParseConfig' xmlns='http://www.scons.org/dbxsd/v1.0'><function>ParseConfig</function></link>">
 <!ENTITY f-link-ParseDepends "<link linkend='f-ParseDepends' xmlns='http://www.scons.org/dbxsd/v1.0'><function>ParseDepends</function></link>">
 <!ENTITY f-link-ParseFlags "<link linkend='f-ParseFlags' xmlns='http://www.scons.org/dbxsd/v1.0'><function>ParseFlags</function></link>">
-<!ENTITY f-link-Perforce "<link linkend='f-Perforce' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Perforce</function></link>">
 <!ENTITY f-link-Platform "<link linkend='f-Platform' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Platform</function></link>">
 <!ENTITY f-link-Precious "<link linkend='f-Precious' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Precious</function></link>">
 <!ENTITY f-link-Prepend "<link linkend='f-Prepend' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Prepend</function></link>">
@@ -338,7 +335,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-env-ParseConfig "<link linkend='f-ParseConfig' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.ParseConfig</function></link>">
 <!ENTITY f-link-env-ParseDepends "<link linkend='f-ParseDepends' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.ParseDepends</function></link>">
 <!ENTITY f-link-env-ParseFlags "<link linkend='f-ParseFlags' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.ParseFlags</function></link>">
-<!ENTITY f-link-env-Perforce "<link linkend='f-Perforce' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Perforce</function></link>">
 <!ENTITY f-link-env-Platform "<link linkend='f-Platform' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Platform</function></link>">
 <!ENTITY f-link-env-Precious "<link linkend='f-Precious' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Precious</function></link>">
 <!ENTITY f-link-env-Prepend "<link linkend='f-Prepend' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Prepend</function></link>">
