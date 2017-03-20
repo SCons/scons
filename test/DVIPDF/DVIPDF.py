@@ -38,10 +38,10 @@ import sys
 import getopt
 cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:r:', [])
 base_name = os.path.splitext(arg[0])[0]
-infile = open(arg[0], 'rb')
-out_file = open(base_name+'.dvi', 'wb')
+infile = open(arg[0], 'r')
+out_file = open(base_name+'.dvi', 'w')
 for l in infile.readlines():
-    if l[:4] != b'#tex':
+    if l[:4] != '#tex':
         out_file.write(l)
 sys.exit(0)
 """)
@@ -52,10 +52,10 @@ import sys
 import getopt
 cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:r:', [])
 base_name = os.path.splitext(arg[0])[0]
-infile = open(arg[0], 'rb')
-out_file = open(base_name+'.dvi', 'wb')
+infile = open(arg[0], 'r')
+out_file = open(base_name+'.dvi', 'w')
 for l in infile.readlines():
-    if l[:6] != b'#latex':
+    if l[:6] != '#latex':
         out_file.write(l)
 sys.exit(0)
 """)
@@ -65,10 +65,10 @@ import os
 import sys
 import getopt
 cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:r:', [])
-infile = open(arg[0], 'rb')
-out_file = open(arg[1], 'wb')
+infile = open(arg[0], 'r')
+out_file = open(arg[1], 'w')
 for l in infile.readlines():
-    if l[:7] != b'#dvipdf':
+    if l[:7] != '#dvipdf':
         out_file.write(l)
 sys.exit(0)
 """)
@@ -110,7 +110,7 @@ if dvipdf and tex:
     test.write("wrapper.py", """import os
 import sys
 cmd = " ".join(sys.argv[1:])
-open('%s', 'ab').write("%%s\\n" %% cmd)
+open('%s', 'a').write("%%s\\n" %% cmd)
 os.system(cmd)
 """ % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
