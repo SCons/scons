@@ -266,7 +266,7 @@ int main() {
                                  log_file=self.test.workpath('config.log'))
         try:
             res = checks(sconf)
-            assert res[0][0] and res[0][1] == bytearray("Hello",'utf-8'), res
+            assert res[0][0] and res[0][1] == "Hello", res
             assert not res[1][0] and res[1][1] == "", res
         finally:
             sconf.Finish()
@@ -279,7 +279,7 @@ int main() {
                                  log_file=self.test.workpath('config.log'))
         try:
             res = checks(sconf)
-            assert res[0][0] and res[0][1] == bytearray("Hello",'utf-8'), res
+            assert res[0][0] and res[0][1] == "Hello", res
             assert not res[1][0] and res[1][1] == "", res
         finally:
             sconf.Finish()
@@ -759,7 +759,7 @@ int main() {
 """
             (ret, output) = test.TryRun( prog, ".c" )
             test.Result( ret )
-            assert ret and output == b"Hello", (ret, output)
+            assert ret and output == "Hello", (ret, output)
             return ret
         
 
