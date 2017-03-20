@@ -149,7 +149,7 @@ env.PDF( "foo.tex" )
 
     test.must_exist(['work1', 'foo.bbl'])
 
-    foo_log = test.read(['work1', 'foo.log'])
+    foo_log = test.read(['work1', 'foo.log'], mode='r')
     test.must_not_contain_any_line(foo_log, ['undefined references'], 'foo.log')
 
     test.write(['work3', 'SConstruct'], """\
@@ -163,7 +163,7 @@ env.DVI( "foo3.tex" )
 
     test.run(chdir = 'work3', arguments = '.')
 
-    foo_log = test.read(['work3', 'foo3.log'])
+    foo_log = test.read(['work3', 'foo3.log'], mode='r')
     test.must_not_contain_any_line(foo_log, ['Rerun LaTeX'], 'foo3.log')
 
 
@@ -185,7 +185,7 @@ env.PDF( "foo.ltx" )
 
     test.must_exist(['work2', 'foo.bbl'])
 
-    foo_log = test.read(['work2', 'foo.log'])
+    foo_log = test.read(['work2', 'foo.log'], mode='r')
     test.must_not_contain_any_line(foo_log, ['undefined references'], 'foo.log')
 
     test.write(['work3', 'SConstruct'], """\
@@ -200,7 +200,7 @@ env.PDF( "foo3.tex" )
 
     test.run(chdir = 'work3', arguments = '.')
 
-    foo_log = test.read(['work3', 'foo3.log'])
+    foo_log = test.read(['work3', 'foo3.log'], mode='r')
     test.must_not_contain_any_line(foo_log, ['Rerun LaTeX'], 'foo3.log')
 
 

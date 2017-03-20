@@ -43,8 +43,8 @@ opt_string = ''
 for opt, arg in cmd_opts:
     opt_string = opt_string + ' ' + opt
 base_name = os.path.splitext(args[0])[0]
-infile = open(args[0], 'rb')
-out_file = open(base_name+'.pdf', 'wb')
+infile = open(args[0], 'r')
+out_file = open(base_name+'.pdf', 'w')
 out_file.write(opt_string + "\n")
 for l in infile.readlines():
     if l[0] != '\\':
@@ -111,7 +111,7 @@ This is the %s LaTeX file.
 
     test.run(arguments = 'bar.pdf', stderr = None)
 
-    test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
+    test.must_match('wrapper.out',"wrapper.py\n", mode='r')
 
     test.fail_test(not os.path.exists(test.workpath('bar.pdf')))
 
