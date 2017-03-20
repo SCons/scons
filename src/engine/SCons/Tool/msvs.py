@@ -87,7 +87,7 @@ def _generateGUID(slnfile, name):
     # Normalize the slnfile path to a Windows path (\ separators) so
     # the generated file has a consistent GUID even if we generate
     # it on a non-Windows platform.
-    m.update(ntpath.normpath(str(slnfile)) + str(name))
+    m.update(bytearray(ntpath.normpath(str(slnfile)) + str(name),'utf-8'))
     solution = m.hexdigest().upper()
     # convert most of the signature to GUID form (discard the rest)
     solution = "{" + solution[:8] + "-" + solution[8:12] + "-" + solution[12:16] + "-" + solution[16:20] + "-" + solution[20:32] + "}"
@@ -645,10 +645,10 @@ class _GenerateV6DSP(_DSPGenerator):
         if self.nokeep == 0:
             # now we pickle some data and add it to the file -- MSDEV will ignore it.
             pdata = pickle.dumps(self.configs,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata)
+            pdata = base64.encodestring(pdata).decode()
             self.file.write(pdata + '\n')
             pdata = pickle.dumps(self.sources,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata)
+            pdata = base64.encodestring(pdata).decode()
             self.file.write(pdata + '\n')
 
     def PrintSourceFiles(self):
@@ -917,10 +917,10 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
         if self.nokeep == 0:
             # now we pickle some data and add it to the file -- MSDEV will ignore it.
             pdata = pickle.dumps(self.configs,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata)
+            pdata = base64.encodestring(pdata).decode()
             self.file.write('<!-- SCons Data:\n' + pdata + '\n')
             pdata = pickle.dumps(self.sources,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata)
+            pdata = base64.encodestring(pdata).decode()
             self.file.write(pdata + '-->\n')
 
     def printSources(self, hierarchy, commonprefix):
@@ -1236,10 +1236,10 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
         if self.nokeep == 0:
             # now we pickle some data and add it to the file -- MSDEV will ignore it.
             pdata = pickle.dumps(self.configs,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata)
+            pdata = base64.encodestring(pdata).decode()
             self.file.write('<!-- SCons Data:\n' + pdata + '\n')
             pdata = pickle.dumps(self.sources,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata)
+            pdata = base64.encodestring(pdata).decode()
             self.file.write(pdata + '-->\n')
 
     def printFilters(self, hierarchy, name):
@@ -1610,8 +1610,9 @@ class _GenerateV7DSW(_DSWGenerator):
         self.file.write('EndGlobal\n')
         if self.nokeep == 0:
             pdata = pickle.dumps(self.configs,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata)
-            self.file.write(pdata + '\n')
+            pdata = base64.encodestring(pdata).decode()
+            self.file.write(pdata)
+            self.file.write('\n')
 
     def Build(self):
         try:
