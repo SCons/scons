@@ -130,7 +130,7 @@ s = env.Substfile('sub4', t, SUBST_DICT = sub2)
 s = env.Substfile('sub5', s, SUBST_DICT = sub1)
 # both
 s = env.Substfile('sub6', t, SUBST_DICT = sub3)
-""")
+""", mode='w')
 
 test.run(arguments = '.')
 
@@ -142,7 +142,7 @@ line3b = 'This line has many substitutions'
 
 def matchem(file, lines):
     lines = os.linesep.join(lines)
-    test.must_match(file, lines)
+    test.must_match(file, lines, mode='r')
 
 matchem('text.txt', [line1, line2a, line3a])
 matchem('sub1', [line1, line2a, line3a])
@@ -152,6 +152,6 @@ matchem('sub4', [line1, line2a, line3b])
 matchem('sub5', [line1, line2b, line3b])
 matchem('sub6', [line1, line2b, line3b])
 
-test.up_to_date(arguments = '.')
+test.up_to_date(arguments = '. --debug=explain')
 
 test.pass_test()
