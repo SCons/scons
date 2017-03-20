@@ -207,15 +207,15 @@ test.set_match_function(TestSCons.match_caseinsensitive)
 test.run(chdir='src', arguments=args, stdout=expect)
 test.set_match_function(TestSCons.match_exact)
 
-test.must_match(['src', 'file1'], "file1.in 1\n")
+test.must_match(['src', 'file1'], "file1.in 1\n", mode='r')
 test.must_match(['src', 'file2'], """\
 file2.k 1 line 1
 xxx 1
 yyy 1
 file2.k 1 line 4
-""")
-test.must_match(['src', 'file3'], "xxx 1\nyyy 1\nzzz 1\n")
-test.must_match(['src', 'file4'], "file4.in 1\n")
+""", mode='r')
+test.must_match(['src', 'file3'], "xxx 1\nyyy 1\nzzz 1\n", mode='r')
+test.must_match(['src', 'file4'], "file4.in 1\n", mode='r')
 test.must_match(['src', 'file5'], """\
 file5.k 1 line 1
 aaa 1
@@ -224,8 +224,8 @@ ccc 1
 ddd 1
 eee.in 1
 file5.k 1 line 4
-""")
-test.must_match(['src', 'file6'], "file6.in 1\n")
+""", mode='r')
+test.must_match(['src', 'file6'], "file6.in 1\n", mode='r')
 
 
 
@@ -262,21 +262,21 @@ test.set_match_function(TestSCons.match_caseinsensitive)
 test.run(chdir='src', arguments=args, stdout=expect)
 test.set_match_function(TestSCons.match_exact)
 
-test.must_match(['src', 'file1'], "file1.in 2\n")
+test.must_match(['src', 'file1'], "file1.in 2\n", mode='r')
 test.must_match(['src', 'file2'], """\
 file2.k 1 line 1
 xxx 1
 yyy 2
 file2.k 1 line 4
-""")
-test.must_match(['src', 'file3'], "xxx 1\nyyy 2\nzzz 2\n")
+""", mode='r')
+test.must_match(['src', 'file3'], "xxx 1\nyyy 2\nzzz 2\n", mode='r')
 test.must_match(['src', 'file5'], """\
 file5.k 1 line 1
 aaa 1
 bbb.k 2
 ccc 1
 file5.k 1 line 4
-""")
+""", mode='r')
 
 
 
@@ -294,7 +294,7 @@ test.set_match_function(TestSCons.match_caseinsensitive)
 test.run(chdir='src', arguments=args, stdout=expect)
 test.set_match_function(TestSCons.match_exact)
 
-test.must_match(['src', 'file3'], "xxx 1\nyyy 2\n")
+test.must_match(['src', 'file3'], "xxx 1\nyyy 2\n", mode='r')
 
 
 
@@ -312,7 +312,7 @@ test.set_match_function(TestSCons.match_caseinsensitive)
 test.run(chdir='src', arguments=args, stdout=expect)
 test.set_match_function(TestSCons.match_exact)
 
-test.must_match(['src', 'file3'], "xxx 1\nyyy 2\nzzz 2\n")
+test.must_match(['src', 'file3'], "xxx 1\nyyy 2\nzzz 2\n", mode='r')
 
 
 
@@ -334,7 +334,7 @@ test.set_match_function(TestSCons.match_caseinsensitive)
 test.run(chdir='src', arguments=args, stdout=expect)
 test.set_match_function(TestSCons.match_exact)
 
-test.must_match(['src', 'file3'], "zzz 2\nyyy 2\nxxx 1\n")
+test.must_match(['src', 'file3'], "zzz 2\nyyy 2\nxxx 1\n", mode='r')
 
 
 
@@ -361,9 +361,9 @@ test.set_match_function(TestSCons.match_caseinsensitive)
 test.run(chdir='src', arguments=args, stdout=expect)
 test.set_match_function(TestSCons.match_exact)
 
-test.must_match(['src', 'file3'], "zzz 2\nyyy 2\nxxx 1\n")
-test.must_match(['src', 'file3.alt'], "zzz 2\nyyy 2\nxxx 1\n")
-test.must_match(['src', 'file3.yyy'], "zzz 2\nyyy 2\nxxx 1\nyyy 2\n")
+test.must_match(['src', 'file3'], "zzz 2\nyyy 2\nxxx 1\n", mode='r')
+test.must_match(['src', 'file3.alt'], "zzz 2\nyyy 2\nxxx 1\n", mode='r')
+test.must_match(['src', 'file3.yyy'], "zzz 2\nyyy 2\nxxx 1\nyyy 2\n", mode='r')
 
 
 
@@ -392,9 +392,9 @@ test.set_match_function(TestSCons.match_caseinsensitive)
 test.run(chdir='src', arguments=args, stdout=expect)
 test.set_match_function(TestSCons.match_exact)
 
-test.must_match(['src', 'file3'], "zzz 2\nyyy 2\nxxx 1\n")
-test.must_match(['src', 'file3.alt'], "zzz 2\nyyy 2\nxxx 1\n")
-test.must_match(['src', 'file3.yyy'], "zzz 2\nyyy 2\nxxx 1\nxxx 1\n")
+test.must_match(['src', 'file3'], "zzz 2\nyyy 2\nxxx 1\n", mode='r')
+test.must_match(['src', 'file3.alt'], "zzz 2\nyyy 2\nxxx 1\n", mode='r')
+test.must_match(['src', 'file3.yyy'], "zzz 2\nyyy 2\nxxx 1\nxxx 1\n", mode='r')
 
 
 
@@ -415,7 +415,7 @@ test.set_match_function(TestSCons.match_caseinsensitive)
 test.run(chdir='src',arguments=args, stdout=expect)
 test.set_match_function(TestSCons.match_exact)
 
-test.must_match(['src', 'file4'], "file4.in 1\n")
+test.must_match(['src', 'file4'], "file4.in 1\n", mode='r')
 
 test.up_to_date(chdir='src',arguments='.')
 

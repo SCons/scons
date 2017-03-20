@@ -76,10 +76,10 @@ f.close()
 
 test.run(arguments=".", stderr=None)
 
-test.must_match(['dir1', 'test.txt'],"This is the dir1 test.\n")
-test.must_match(['dir2', 'test.txt'], "This is the dir2 test.\n")
-test.must_match('test.txt',"This is the dir3 test.\nThis is the dir5 test.\n")
-test.must_match(['dir4', 'test.txt'],"This is the dir4 test.\n")
+test.must_match(['dir1', 'test.txt'],"This is the dir1 test.\n", mode='r')
+test.must_match(['dir2', 'test.txt'], "This is the dir2 test.\n", mode='r')
+test.must_match('test.txt',"This is the dir3 test.\nThis is the dir5 test.\n", mode='r')
+test.must_match(['dir4', 'test.txt'],"This is the dir4 test.\n", mode='r')
 
 test.pass_test()
 

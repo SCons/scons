@@ -72,13 +72,13 @@ test.write('test2.latex', r"""This is a .latex test.
 
 test.run(arguments = '.')
 
-test.must_match('test1.dvi', "This is a .ltx test.\n")
-test.must_match('test1.aux', "This is a .ltx test.\n")
-test.must_match('test1.log', "This is a .ltx test.\n")
+test.must_match('test1.dvi', "This is a .ltx test.\n", mode='r')
+test.must_match('test1.aux', "This is a .ltx test.\n", mode='r')
+test.must_match('test1.log', "This is a .ltx test.\n", mode='r')
 
-test.must_match('test2.dvi', "This is a .latex test.\n")
-test.must_match('test2.aux', "This is a .latex test.\n")
-test.must_match('test2.log', "This is a .latex test.\n")
+test.must_match('test2.dvi', "This is a .latex test.\n", mode='r')
+test.must_match('test2.aux', "This is a .latex test.\n", mode='r')
+test.must_match('test2.log', "This is a .latex test.\n", mode='r')
 
 test.run(arguments = '-c .')
 
@@ -174,11 +174,11 @@ This is the include file. mod %s
     test.must_exist('foo.dvi')
 
     test.run(arguments = 'bar.dvi', stderr = None)
-    test.must_match('wrapper.out', "wrapper.py\n")
+    test.must_match('wrapper.out', "wrapper.py\n", mode='r')
     test.must_exist('bar.dvi')
 
     test.run(arguments = 'makeindex.dvi', stderr = None)
-    test.must_match('wrapper.out', "wrapper.py\n")
+    test.must_match('wrapper.out', "wrapper.py\n", mode='r')
 
     test.run(arguments = 'latexi.dvi', stderr = None)
     test.must_exist('latexi.dvi')

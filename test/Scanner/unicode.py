@@ -50,14 +50,17 @@ import sys
 
 def process(outfp, infile):
     contents = open(infile, 'rb').read()
-    if contents.startswith(codecs.BOM_UTF8):
+    if contents[:len(codecs.BOM_UTF8)] == codecs.BOM_UTF8:
         contents = contents[len(codecs.BOM_UTF8):].decode('utf-8')
-    elif contents.startswith(codecs.BOM_UTF16_LE):
+    elif contents[:len(codecs.BOM_UTF16_LE)] == codecs.BOM_UTF16_LE:
         contents = contents[len(codecs.BOM_UTF16_LE):].decode('utf-16-le')
-    elif contents.startswith(codecs.BOM_UTF16_BE):
+    elif contents[:len(codecs.BOM_UTF16_BE)] == codecs.BOM_UTF16_BE:
         contents = contents[len(codecs.BOM_UTF16_BE):].decode('utf-16-be')
-    else:
+    try:
         contents = contents.decode('ascii')
+    except (UnicodeDecodeError, AttributeError) as e:
+        contents = contents
+
     for line in contents.split('\n')[:-1]:
         if line[:8] == 'include ':
             process(outfp, line[8:])
@@ -156,7 +159,7 @@ utf16be.k 1 line 3
 foo.k 1 line 4
 """
 
-test.must_match('foo', expect)
+test.must_match('foo', expect, mode='r')
 
 test.up_to_date(arguments='foo')
 
@@ -183,7 +186,7 @@ utf16be.k 1 line 3
 foo.k 1 line 4
 """
 
-test.must_match('foo', expect)
+test.must_match('foo', expect, mode='r')
 
 test.up_to_date(arguments = 'foo')
 
@@ -210,7 +213,7 @@ utf16be.k 1 line 3
 foo.k 1 line 4
 """
 
-test.must_match('foo', expect)
+test.must_match('foo', expect, mode='r')
 
 test.up_to_date(arguments = 'foo')
 
@@ -237,7 +240,7 @@ utf16be.k 1 line 3
 foo.k 1 line 4
 """
 
-test.must_match('foo', expect)
+test.must_match('foo', expect, mode='r')
 
 test.up_to_date(arguments = 'foo')
 
@@ -264,7 +267,7 @@ utf16be.k 1 line 3
 foo.k 1 line 4
 """
 
-test.must_match('foo', expect)
+test.must_match('foo', expect, mode='r')
 
 test.up_to_date(arguments = 'foo')
 

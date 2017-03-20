@@ -65,7 +65,7 @@ test.write('test.tex', r"""This is a test.
 
 test.run(arguments = 'test.dvi', stderr = None)
 
-test.must_match('test.dvi'," -x\nThis is a test.\n")
+test.must_match('test.dvi'," -x\nThis is a test.\n", mode='r')
 
 
 

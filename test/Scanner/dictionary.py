@@ -146,9 +146,9 @@ expect_aaa = 'aaa.k1 1\nline 2\nxxx 1\ninclude2 yyy\ninclude3 zzz\nline 6\n'
 expect_bbb = 'bbb.k2 1\nline 2\ninclude1 xxx\nyyy 1\ninclude3 zzz\nline 6\n'
 expect_ccc = 'ccc.k3 1\nline 2\ninclude1 xxx\ninclude2 yyy\nzzz 1\nline 6\n'
 
-test.must_match('aaa', expect_aaa)
-test.must_match('bbb', expect_bbb)
-test.must_match('ccc', expect_ccc)
+test.must_match('aaa', expect_aaa, mode='r')
+test.must_match('bbb', expect_bbb, mode='r')
+test.must_match('ccc', expect_ccc, mode='r')
 
 test.up_to_date(arguments = '.')
 
@@ -164,7 +164,7 @@ test.run(stdout=expect)
 
 expect_ccc = 'ccc.k3 1\nline 2\ninclude1 xxx\ninclude2 yyy\nzzz 2\nline 6\n'
 
-test.must_match('bbb', expect_bbb)
+test.must_match('bbb', expect_bbb, mode='r')
 
 
 
@@ -178,7 +178,7 @@ test.run(stdout=expect)
 
 expect_bbb = 'bbb.k2 1\nline 2\ninclude1 xxx\nyyy 2\ninclude3 zzz\nline 6\n'
 
-test.must_match('bbb', expect_bbb)
+test.must_match('bbb', expect_bbb, mode='r')
 
 
 
@@ -192,7 +192,7 @@ test.run(stdout=expect)
 
 expect_aaa = 'aaa.k1 1\nline 2\nxxx 2\ninclude2 yyy\ninclude3 zzz\nline 6\n'
 
-test.must_match('bbb', expect_bbb)
+test.must_match('bbb', expect_bbb, mode='r')
 
 
 

@@ -145,15 +145,15 @@ test.write(['src', 'subdir', 'file6.in'], "subdir/file6.in 1\n")
 #
 test.run(chdir='src', arguments='..')
 
-test.must_match(['src', 'file1'], "file1.in 1\n")
+test.must_match(['src', 'file1'], "file1.in 1\n", mode='r')
 test.must_match(['src', 'file2'], """\
 file2.k 1 line 1
 xxx 1
 yyy 1
 file2.k 1 line 4
-""")
-test.must_match(['src', 'file3'], "xxx 1\nyyy 1\nzzz 1\n")
-test.must_match(['src', 'file4'], "file4.in 1\n")
+""", mode='r')
+test.must_match(['src', 'file3'], "xxx 1\nyyy 1\nzzz 1\n", mode='r')
+test.must_match(['src', 'file4'], "file4.in 1\n", mode='r')
 test.must_match(['src', 'file5'], """\
 file5.k 1 line 1
 aaa 1
@@ -162,7 +162,7 @@ ccc 1
 ddd 1
 eee.in 1
 file5.k 1 line 4
-""")
+""", mode='r')
 
 test.write(['src', 'file1.in'], "file1.in 2\n")
 test.write(['src', 'yyy'], "yyy 2\n")
@@ -186,21 +186,21 @@ scons: rebuilding `file5' because `%(inc_bbb_k)s' changed
 
 test.run(chdir='src', arguments='--debug=explain .', stdout=expect)
 
-test.must_match(['src', 'file1'], "file1.in 2\n")
+test.must_match(['src', 'file1'], "file1.in 2\n", mode='r')
 test.must_match(['src', 'file2'], """\
 file2.k 1 line 1
 xxx 1
 yyy 2
 file2.k 1 line 4
-""")
-test.must_match(['src', 'file3'], "xxx 1\nyyy 2\nzzz 2\n")
+""", mode='r')
+test.must_match(['src', 'file3'], "xxx 1\nyyy 2\nzzz 2\n", mode='r')
 test.must_match(['src', 'file5'], """\
 file5.k 1 line 1
 aaa 1
 bbb.k 2
 ccc 1
 file5.k 1 line 4
-""")
+""", mode='r')
 
 
 

@@ -32,7 +32,10 @@ is added to targets.
 
 import TestSCons
 
-python = TestSCons.python
+# swap slashes because on py3 on win32 inside the generated build.py 
+# the backslashes are getting interpretted as unicode which is
+# invalid.
+python = TestSCons.python.replace('\\','//')
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
@@ -98,13 +101,13 @@ test.run(arguments = '--tree=all .')
 
 expect_none = 'build.py %s file.in\nfile.in\n'
 
-test.must_match('file.out',         expect_none % 'file.out')
-test.must_match('file0.out',        expect_none % 'file0.out')
-test.must_match('file1.out',        expect_none % 'file1.out')
-test.must_match('fileNone.out',     expect_none % 'fileNone.out')
-test.must_match('fileFalse.out',    expect_none % 'fileFalse.out')
-test.must_match('fileTrue.out',     expect_none % 'fileTrue.out')
-test.must_match('fileQuote.out',    expect_none % 'fileQuote.out')
+test.must_match('file.out',         expect_none % 'file.out', mode='r')
+test.must_match('file0.out',        expect_none % 'file0.out', mode='r')
+test.must_match('file1.out',        expect_none % 'file1.out', mode='r')
+test.must_match('fileNone.out',     expect_none % 'fileNone.out', mode='r')
+test.must_match('fileFalse.out',    expect_none % 'fileFalse.out', mode='r')
+test.must_match('fileTrue.out',     expect_none % 'fileTrue.out', mode='r')
+test.must_match('fileQuote.out',    expect_none % 'fileQuote.out', mode='r')
 
 
 
@@ -115,13 +118,13 @@ test.run(arguments = '--tree=all .')
 
 expect_extra = 'build.py %s file.in\nxyzzy\nfile.in\n'
 
-test.must_match('file.out',         expect_extra % 'file.out')
-test.must_match('file0.out',        expect_none % 'file0.out')
-test.must_match('file1.out',        expect_extra % 'file1.out')
-test.must_match('fileNone.out',     expect_none % 'fileNone.out')
-test.must_match('fileFalse.out',    expect_none % 'fileFalse.out')
-test.must_match('fileTrue.out',     expect_extra % 'fileTrue.out')
-test.must_match('fileQuote.out',    expect_extra % 'fileQuote.out')
+test.must_match('file.out',         expect_extra % 'file.out', mode='r')
+test.must_match('file0.out',        expect_none % 'file0.out', mode='r')
+test.must_match('file1.out',        expect_extra % 'file1.out', mode='r')
+test.must_match('fileNone.out',     expect_none % 'fileNone.out', mode='r')
+test.must_match('fileFalse.out',    expect_none % 'fileFalse.out', mode='r')
+test.must_match('fileTrue.out',     expect_extra % 'fileTrue.out', mode='r')
+test.must_match('fileQuote.out',    expect_extra % 'fileQuote.out', mode='r')
 
 
 test.pass_test()

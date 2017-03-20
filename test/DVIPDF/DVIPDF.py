@@ -96,9 +96,9 @@ test.write('test2.tex', r"""This is a .tex test.
 
 test.run(arguments = '.', stderr = None)
 
-test.must_match('test1.pdf', "This is a .dvi test.\n")
+test.must_match('test1.pdf', "This is a .dvi test.\n", mode='r')
 
-test.must_match('test2.pdf', "This is a .tex test.\n")
+test.must_match('test2.pdf', "This is a .tex test.\n", mode='r')
 
 
 

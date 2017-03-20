@@ -99,8 +99,8 @@ expect = test.wrap_stdout("""\
 
 test.run(arguments='.', stdout=expect)
 
-test.must_match('frog.1', 'croak\ninput sound2\n')
-test.must_match('frog.2', 'include sound1\nribbet\n')
+test.must_match('frog.1', 'croak\ninput sound2\n', mode='r')
+test.must_match('frog.2', 'include sound1\nribbet\n', mode='r')
 
 test.write('sound2', 'rudeep\n')
 
@@ -110,8 +110,8 @@ expect = test.wrap_stdout("""\
 
 test.run(arguments='.', stdout=expect)
 
-test.must_match('frog.1', 'croak\ninput sound2\n')
-test.must_match('frog.2', 'include sound1\nrudeep\n')
+test.must_match('frog.1', 'croak\ninput sound2\n', mode='r')
+test.must_match('frog.2', 'include sound1\nrudeep\n', mode='r')
 
 test.pass_test()
 
