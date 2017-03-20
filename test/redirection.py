@@ -33,10 +33,15 @@ test = TestSCons.TestSCons()
 test.write('cat.py', r"""
 import sys
 try:
-    input = open(sys.argv[1], 'r').read()
+    input = open(sys.argv[1], 'rb').read()
+    try:
+        sys.stdout.buffer.write(input)
+    except AttributeError:
+        sys.stdout.write(input)
 except IndexError:
     input = sys.stdin.read()
-sys.stdout.write(input)
+    sys.stdout.write(input)
+
 sys.exit(0)
 """)
 
@@ -52,17 +57,17 @@ env.Command(target='foo4', source='bar4',
             action=r'%(_python_)s cat.py <$SOURCES |%(_python_)s cat.py >$TARGET')
 """ % locals())
 
-test.write('bar1', 'bar1\r\n')
-test.write('bar2', 'bar2\r\n')
-test.write('bar3', 'bar3\r\n')
-test.write('bar4', 'bar4\r\n')
+test.write('bar1', 'bar1\r\n', mode='w')
+test.write('bar2', 'bar2\r\n', mode='w')
+test.write('bar3', 'bar3\r\n', mode='w')
+test.write('bar4', 'bar4\r\n', mode='w')
 
 test.run(arguments='.')
 
-test.fail_test(test.read('foo1') != 'bar1\r\n')
-test.fail_test(test.read('foo2') != 'bar2\r\n')
-test.fail_test(test.read('foo3') != 'bar3\r\n')
-test.fail_test(test.read('foo4') != 'bar4\r\n')
+test.must_match('foo1', 'bar1\r\n')
+test.must_match('foo2', 'bar2\r\n')
+test.must_match('foo3', 'bar3\r\n')
+test.must_match('foo4', 'bar4\r\n')
 
 test.pass_test()
 
