@@ -55,7 +55,7 @@ base_name = os.path.splitext(arg[0])[0]
 infile = open(arg[0], 'r')
 out_file = open(base_name+'.dvi', 'w')
 for l in infile.readlines():
-    if l[:6] != b'#latex':
+    if l[:6] != '#latex':
         out_file.write(l)
 sys.exit(0)
 """)
@@ -122,10 +122,11 @@ dvips = test.where_is('dvips')
 
 if dvips:
 
-    test.write("wrapper.py", """import os
+    test.write("wrapper.py", """
+import os
 import sys
 cmd = " ".join(sys.argv[1:])
-open('%s', 'ab').write("%%s\\n" %% cmd)
+open('%s', 'a').write("%%s\\n" %% cmd)
 os.system(cmd)
 """ % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
