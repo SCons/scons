@@ -532,37 +532,6 @@ env.AppendUnique(CCFLAGS = '-g', FOO = ['foo.yyy'])
 </example_commands>
 </listitem>
   </varlistentry>
-  <varlistentry id="f-BitKeeper">
-    <term>
-      <literal>env.BitKeeper()</literal>
-    </term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-A factory function that
-returns a Builder object
-to be used to fetch source files
-using BitKeeper.
-The returned Builder
-is intended to be passed to the
-<function xmlns="http://www.scons.org/dbxsd/v1.0">SourceCode</function>
-function.
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-This function is deprecated.  For details, see the entry for the
-<function xmlns="http://www.scons.org/dbxsd/v1.0">SourceCode</function>
-function.
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Example:
-</para>
-
-<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
-env.SourceCode('.', env.BitKeeper())
-</example_commands>
-</listitem>
-  </varlistentry>
   <varlistentry id="f-BuildDir">
     <term>
       <literal>BuildDir(build_dir, src_dir, [duplicate])</literal>
@@ -997,63 +966,6 @@ below, for a complete explanation of the arguments and behavior.
 A now-deprecated synonym for
 <function>env.Clone</function>().
 </para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="f-CVS">
-    <term>
-      <literal>env.CVS(repository, module)</literal>
-    </term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-A factory function that
-returns a Builder object
-to be used to fetch source files
-from the specified
-CVS
-<varname>repository</varname>.
-The returned Builder
-is intended to be passed to the
-<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="f-SourceCode"><function>SourceCode</function></link>
-function.
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-This function is deprecated.  For details, see the entry for the
-<function xmlns="http://www.scons.org/dbxsd/v1.0">SourceCode</function>
-function.
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The optional specified
-<varname>module</varname>
-will be added to the beginning
-of all repository path names;
-this can be used, in essence,
-to strip initial directory names
-from the repository path names,
-so that you only have to
-replicate part of the repository
-directory hierarchy in your
-local build directory.
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Examples:
-</para>
-
-<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
-# Will fetch foo/bar/src.c
-# from /usr/local/CVSROOT/foo/bar/src.c.
-env.SourceCode('.', env.CVS('/usr/local/CVSROOT'))
-
-# Will fetch bar/src.c
-# from /usr/local/CVSROOT/foo/bar/src.c.
-env.SourceCode('.', env.CVS('/usr/local/CVSROOT', 'foo'))
-
-# Will fetch src.c
-# from /usr/local/CVSROOT/foo/bar/src.c.
-env.SourceCode('.', env.CVS('/usr/local/CVSROOT', 'foo/bar'))
-</example_commands>
 </listitem>
   </varlistentry>
   <varlistentry id="f-Decider">
@@ -3408,53 +3320,6 @@ Multiple targets can be passed in to a single call to
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="f-RCS">
-    <term>
-      <literal>env.RCS()</literal>
-    </term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-A factory function that
-returns a Builder object
-to be used to fetch source files
-from RCS.
-The returned Builder
-is intended to be passed to the
-<function xmlns="http://www.scons.org/dbxsd/v1.0">SourceCode</function>
-function:
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-This function is deprecated.  For details, see the entry for the
-<function xmlns="http://www.scons.org/dbxsd/v1.0">SourceCode</function>
-function.
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Examples:
-</para>
-
-<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
-env.SourceCode('.', env.RCS())
-</example_commands>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Note that
-<filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>
-will fetch source files
-from RCS subdirectories automatically,
-so configuring RCS
-as demonstrated in the above example
-should only be necessary if
-you are fetching from
-RCS,v
-files in the same
-directory as the source files,
-or if you need to explicitly specify RCS
-for a specific subdirectory.
-</para>
-</listitem>
-  </varlistentry>
   <varlistentry id="f-Replace">
     <term>
       <literal>env.Replace(key=val, [...])</literal>
@@ -3628,47 +3493,6 @@ the specified
 <varname>function</varname>.
 See the section "Scanner Objects,"
 below, for a complete explanation of the arguments and behavior.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="f-SCCS">
-    <term>
-      <literal>env.SCCS()</literal>
-    </term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-A factory function that
-returns a Builder object
-to be used to fetch source files
-from SCCS.
-The returned Builder
-is intended to be passed to the
-<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="f-SourceCode"><function>SourceCode</function></link>
-function.
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Example:
-</para>
-
-<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
-env.SourceCode('.', env.SCCS())
-</example_commands>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Note that
-<filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>
-will fetch source files
-from SCCS subdirectories automatically,
-so configuring SCCS
-as demonstrated in the above example
-should only be necessary if
-you are fetching from
-<filename>s.SCCS</filename>
-files in the same
-directory as the source files,
-or if you need to explicitly specify SCCS
-for a specific subdirectory.
 </para>
 </listitem>
   </varlistentry>

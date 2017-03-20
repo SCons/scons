@@ -19,7 +19,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-Append "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Append</function>">
 <!ENTITY f-AppendENVPath "<function xmlns='http://www.scons.org/dbxsd/v1.0'>AppendENVPath</function>">
 <!ENTITY f-AppendUnique "<function xmlns='http://www.scons.org/dbxsd/v1.0'>AppendUnique</function>">
-<!ENTITY f-BitKeeper "<function xmlns='http://www.scons.org/dbxsd/v1.0'>BitKeeper</function>">
 <!ENTITY f-BuildDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>BuildDir</function>">
 <!ENTITY f-Builder "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Builder</function>">
 <!ENTITY f-CacheDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CacheDir</function>">
@@ -28,7 +27,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-Command "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Command</function>">
 <!ENTITY f-Configure "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Configure</function>">
 <!ENTITY f-Copy "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Copy</function>">
-<!ENTITY f-CVS "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CVS</function>">
 <!ENTITY f-Decider "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Decider</function>">
 <!ENTITY f-Default "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Default</function>">
 <!ENTITY f-DefaultEnvironment "<function xmlns='http://www.scons.org/dbxsd/v1.0'>DefaultEnvironment</function>">
@@ -71,13 +69,11 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-PrependUnique "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PrependUnique</function>">
 <!ENTITY f-Progress "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Progress</function>">
 <!ENTITY f-Pseudo "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Pseudo</function>">
-<!ENTITY f-RCS "<function xmlns='http://www.scons.org/dbxsd/v1.0'>RCS</function>">
 <!ENTITY f-Replace "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Replace</function>">
 <!ENTITY f-Repository "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Repository</function>">
 <!ENTITY f-Requires "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Requires</function>">
 <!ENTITY f-Return "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Return</function>">
 <!ENTITY f-Scanner "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Scanner</function>">
-<!ENTITY f-SCCS "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SCCS</function>">
 <!ENTITY f-SConscript "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SConscript</function>">
 <!ENTITY f-SConscriptChdir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SConscriptChdir</function>">
 <!ENTITY f-SConsignFile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SConsignFile</function>">
@@ -106,7 +102,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-env-Append "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Append</function>">
 <!ENTITY f-env-AppendENVPath "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.AppendENVPath</function>">
 <!ENTITY f-env-AppendUnique "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.AppendUnique</function>">
-<!ENTITY f-env-BitKeeper "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.BitKeeper</function>">
 <!ENTITY f-env-BuildDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.BuildDir</function>">
 <!ENTITY f-env-Builder "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Builder</function>">
 <!ENTITY f-env-CacheDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.CacheDir</function>">
@@ -115,7 +110,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-env-Command "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Command</function>">
 <!ENTITY f-env-Configure "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Configure</function>">
 <!ENTITY f-env-Copy "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Copy</function>">
-<!ENTITY f-env-CVS "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.CVS</function>">
 <!ENTITY f-env-Decider "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Decider</function>">
 <!ENTITY f-env-Default "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Default</function>">
 <!ENTITY f-env-DefaultEnvironment "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.DefaultEnvironment</function>">
@@ -158,13 +152,11 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-env-PrependUnique "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.PrependUnique</function>">
 <!ENTITY f-env-Progress "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Progress</function>">
 <!ENTITY f-env-Pseudo "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Pseudo</function>">
-<!ENTITY f-env-RCS "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.RCS</function>">
 <!ENTITY f-env-Replace "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Replace</function>">
 <!ENTITY f-env-Repository "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Repository</function>">
 <!ENTITY f-env-Requires "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Requires</function>">
 <!ENTITY f-env-Return "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Return</function>">
 <!ENTITY f-env-Scanner "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Scanner</function>">
-<!ENTITY f-env-SCCS "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.SCCS</function>">
 <!ENTITY f-env-SConscript "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.SConscript</function>">
 <!ENTITY f-env-SConscriptChdir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.SConscriptChdir</function>">
 <!ENTITY f-env-SConsignFile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.SConsignFile</function>">
@@ -203,7 +195,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-Append "<link linkend='f-Append' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Append</function></link>">
 <!ENTITY f-link-AppendENVPath "<link linkend='f-AppendENVPath' xmlns='http://www.scons.org/dbxsd/v1.0'><function>AppendENVPath</function></link>">
 <!ENTITY f-link-AppendUnique "<link linkend='f-AppendUnique' xmlns='http://www.scons.org/dbxsd/v1.0'><function>AppendUnique</function></link>">
-<!ENTITY f-link-BitKeeper "<link linkend='f-BitKeeper' xmlns='http://www.scons.org/dbxsd/v1.0'><function>BitKeeper</function></link>">
 <!ENTITY f-link-BuildDir "<link linkend='f-BuildDir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>BuildDir</function></link>">
 <!ENTITY f-link-Builder "<link linkend='f-Builder' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Builder</function></link>">
 <!ENTITY f-link-CacheDir "<link linkend='f-CacheDir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>CacheDir</function></link>">
@@ -212,7 +203,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-Command "<link linkend='f-Command' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Command</function></link>">
 <!ENTITY f-link-Configure "<link linkend='f-Configure' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Configure</function></link>">
 <!ENTITY f-link-Copy "<link linkend='f-Copy' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Copy</function></link>">
-<!ENTITY f-link-CVS "<link linkend='f-CVS' xmlns='http://www.scons.org/dbxsd/v1.0'><function>CVS</function></link>">
 <!ENTITY f-link-Decider "<link linkend='f-Decider' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Decider</function></link>">
 <!ENTITY f-link-Default "<link linkend='f-Default' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Default</function></link>">
 <!ENTITY f-link-DefaultEnvironment "<link linkend='f-DefaultEnvironment' xmlns='http://www.scons.org/dbxsd/v1.0'><function>DefaultEnvironment</function></link>">
@@ -255,13 +245,11 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-PrependUnique "<link linkend='f-PrependUnique' xmlns='http://www.scons.org/dbxsd/v1.0'><function>PrependUnique</function></link>">
 <!ENTITY f-link-Progress "<link linkend='f-Progress' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Progress</function></link>">
 <!ENTITY f-link-Pseudo "<link linkend='f-Pseudo' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Pseudo</function></link>">
-<!ENTITY f-link-RCS "<link linkend='f-RCS' xmlns='http://www.scons.org/dbxsd/v1.0'><function>RCS</function></link>">
 <!ENTITY f-link-Replace "<link linkend='f-Replace' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Replace</function></link>">
 <!ENTITY f-link-Repository "<link linkend='f-Repository' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Repository</function></link>">
 <!ENTITY f-link-Requires "<link linkend='f-Requires' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Requires</function></link>">
 <!ENTITY f-link-Return "<link linkend='f-Return' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Return</function></link>">
 <!ENTITY f-link-Scanner "<link linkend='f-Scanner' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Scanner</function></link>">
-<!ENTITY f-link-SCCS "<link linkend='f-SCCS' xmlns='http://www.scons.org/dbxsd/v1.0'><function>SCCS</function></link>">
 <!ENTITY f-link-SConscript "<link linkend='f-SConscript' xmlns='http://www.scons.org/dbxsd/v1.0'><function>SConscript</function></link>">
 <!ENTITY f-link-SConscriptChdir "<link linkend='f-SConscriptChdir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>SConscriptChdir</function></link>">
 <!ENTITY f-link-SConsignFile "<link linkend='f-SConsignFile' xmlns='http://www.scons.org/dbxsd/v1.0'><function>SConsignFile</function></link>">
@@ -290,7 +278,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-env-Append "<link linkend='f-Append' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Append</function></link>">
 <!ENTITY f-link-env-AppendENVPath "<link linkend='f-AppendENVPath' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.AppendENVPath</function></link>">
 <!ENTITY f-link-env-AppendUnique "<link linkend='f-AppendUnique' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.AppendUnique</function></link>">
-<!ENTITY f-link-env-BitKeeper "<link linkend='f-BitKeeper' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.BitKeeper</function></link>">
 <!ENTITY f-link-env-BuildDir "<link linkend='f-BuildDir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.BuildDir</function></link>">
 <!ENTITY f-link-env-Builder "<link linkend='f-Builder' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Builder</function></link>">
 <!ENTITY f-link-env-CacheDir "<link linkend='f-CacheDir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.CacheDir</function></link>">
@@ -299,7 +286,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-env-Command "<link linkend='f-Command' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Command</function></link>">
 <!ENTITY f-link-env-Configure "<link linkend='f-Configure' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Configure</function></link>">
 <!ENTITY f-link-env-Copy "<link linkend='f-Copy' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Copy</function></link>">
-<!ENTITY f-link-env-CVS "<link linkend='f-CVS' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.CVS</function></link>">
 <!ENTITY f-link-env-Decider "<link linkend='f-Decider' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Decider</function></link>">
 <!ENTITY f-link-env-Default "<link linkend='f-Default' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Default</function></link>">
 <!ENTITY f-link-env-DefaultEnvironment "<link linkend='f-DefaultEnvironment' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.DefaultEnvironment</function></link>">
@@ -342,13 +328,11 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-env-PrependUnique "<link linkend='f-PrependUnique' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.PrependUnique</function></link>">
 <!ENTITY f-link-env-Progress "<link linkend='f-Progress' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Progress</function></link>">
 <!ENTITY f-link-env-Pseudo "<link linkend='f-Pseudo' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Pseudo</function></link>">
-<!ENTITY f-link-env-RCS "<link linkend='f-RCS' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.RCS</function></link>">
 <!ENTITY f-link-env-Replace "<link linkend='f-Replace' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Replace</function></link>">
 <!ENTITY f-link-env-Repository "<link linkend='f-Repository' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Repository</function></link>">
 <!ENTITY f-link-env-Requires "<link linkend='f-Requires' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Requires</function></link>">
 <!ENTITY f-link-env-Return "<link linkend='f-Return' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Return</function></link>">
 <!ENTITY f-link-env-Scanner "<link linkend='f-Scanner' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Scanner</function></link>">
-<!ENTITY f-link-env-SCCS "<link linkend='f-SCCS' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.SCCS</function></link>">
 <!ENTITY f-link-env-SConscript "<link linkend='f-SConscript' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.SConscript</function></link>">
 <!ENTITY f-link-env-SConscriptChdir "<link linkend='f-SConscriptChdir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.SConscriptChdir</function></link>">
 <!ENTITY f-link-env-SConsignFile "<link linkend='f-SConsignFile' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.SConsignFile</function></link>">

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">C:\&gt;<userinput>scons -Q</userinput>
-CPPPATH ['/opt/include']
-LIBPATH ['/opt/lib']
-LIBS ['foo']
-cl /Fof1.obj /c f1.c /nologo /I\opt\include
-link /nologo /OUT:f1.exe /LIBPATH:\opt\lib foo.lib f1.obj
-embedManifestExeCheck(target, source, env)
+  File "/home/my/project/SConstruct", line 5
+
+    print k, v
+
+          ^
+
+SyntaxError: invalid syntax
 </screen>

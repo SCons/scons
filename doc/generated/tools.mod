@@ -17,10 +17,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-ar "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>ar</literal>">
 <!ENTITY t-as "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>as</literal>">
 <!ENTITY t-bcc32 "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>bcc32</literal>">
-<!ENTITY t-BitKeeper "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>BitKeeper</literal>">
 <!ENTITY t-cc "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>cc</literal>">
 <!ENTITY t-cvf "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>cvf</literal>">
-<!ENTITY t-CVS "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>CVS</literal>">
 <!ENTITY t-cXX "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>cXX</literal>">
 <!ENTITY t-cyglink "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>cyglink</literal>">
 <!ENTITY t-default "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>default</literal>">
@@ -84,10 +82,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-pdflatex "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>pdflatex</literal>">
 <!ENTITY t-pdftex "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>pdftex</literal>">
 <!ENTITY t-qt "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>qt</literal>">
-<!ENTITY t-RCS "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>RCS</literal>">
 <!ENTITY t-rmic "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>rmic</literal>">
 <!ENTITY t-rpcgen "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>rpcgen</literal>">
-<!ENTITY t-SCCS "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>SCCS</literal>">
 <!ENTITY t-sgiar "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>sgiar</literal>">
 <!ENTITY t-sgicXX "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>sgic++</literal>">
 <!ENTITY t-sgicc "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>sgicc</literal>">
@@ -127,10 +123,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-link-ar "<link linkend='t-ar' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>ar</literal></link>">
 <!ENTITY t-link-as "<link linkend='t-as' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>as</literal></link>">
 <!ENTITY t-link-bcc32 "<link linkend='t-bcc32' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>bcc32</literal></link>">
-<!ENTITY t-link-BitKeeper "<link linkend='t-BitKeeper' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>BitKeeper</literal></link>">
 <!ENTITY t-link-cc "<link linkend='t-cc' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>cc</literal></link>">
 <!ENTITY t-link-cvf "<link linkend='t-cvf' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>cvf</literal></link>">
-<!ENTITY t-link-CVS "<link linkend='t-CVS' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>CVS</literal></link>">
 <!ENTITY t-link-cXX "<link linkend='t-cXX' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>cXX</literal></link>">
 <!ENTITY t-link-cyglink "<link linkend='t-cyglink' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>cyglink</literal></link>">
 <!ENTITY t-link-default "<link linkend='t-default' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>default</literal></link>">
@@ -194,10 +188,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-link-pdflatex "<link linkend='t-pdflatex' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>pdflatex</literal></link>">
 <!ENTITY t-link-pdftex "<link linkend='t-pdftex' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>pdftex</literal></link>">
 <!ENTITY t-link-qt "<link linkend='t-qt' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>qt</literal></link>">
-<!ENTITY t-link-RCS "<link linkend='t-RCS' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>RCS</literal></link>">
 <!ENTITY t-link-rmic "<link linkend='t-rmic' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>rmic</literal></link>">
 <!ENTITY t-link-rpcgen "<link linkend='t-rpcgen' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>rpcgen</literal></link>">
-<!ENTITY t-link-SCCS "<link linkend='t-SCCS' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>SCCS</literal></link>">
 <!ENTITY t-link-sgiar "<link linkend='t-sgiar' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>sgiar</literal></link>">
 <!ENTITY t-link-sgicXX "<link linkend='t-sgicXX' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>sgic++</literal></link>">
 <!ENTITY t-link-sgicc "<link linkend='t-sgicc' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>sgicc</literal></link>">

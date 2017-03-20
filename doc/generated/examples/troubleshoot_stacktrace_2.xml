@@ -4,9 +4,9 @@ scons: *** [prog.o] Source `prog.c' not found, needed by target `prog.o'.
 scons: internal stack trace:
   File "bootstrap/src/engine/SCons/Job.py", line 199, in start
     task.prepare()
-  File "bootstrap/src/engine/SCons/Script/Main.py", line 173, in prepare
+  File "bootstrap/src/engine/SCons/Script/Main.py", line 174, in prepare
     return SCons.Taskmaster.OutOfDateTask.prepare(self)
-  File "bootstrap/src/engine/SCons/Taskmaster.py", line 191, in prepare
+  File "bootstrap/src/engine/SCons/Taskmaster.py", line 195, in prepare
     executor.prepare()
   File "bootstrap/src/engine/SCons/Executor.py", line 430, in prepare
     raise SCons.Errors.StopError(msg % (s, self.batches[0].targets[0]))

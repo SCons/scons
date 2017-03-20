@@ -205,53 +205,6 @@ and typesetter and the LaTeX structured formatter and typesetter.
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-BITKEEPER">
-    <term>BITKEEPER</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The BitKeeper executable.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-BITKEEPERCOM">
-    <term>BITKEEPERCOM</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The command line for
-fetching source files using BitKeeper.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-BITKEEPERCOMSTR">
-    <term>BITKEEPERCOMSTR</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The string displayed when fetching
-a source file using BitKeeper.
-If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-BITKEEPERCOM"><envar>$BITKEEPERCOM</envar></link>
-(the command line) is displayed.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-BITKEEPERGET">
-    <term>BITKEEPERGET</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The command (<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-BITKEEPER"><envar>$BITKEEPER</envar></link>) and subcommand
-for fetching source files using BitKeeper.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-BITKEEPERGETFLAGS">
-    <term>BITKEEPERGETFLAGS</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Options that are passed to the BitKeeper
-<command>get</command>
-subcommand.
-</para>
-</listitem>
-  </varlistentry>
   <varlistentry id="cv-BUILDERS">
     <term>BUILDERS</term>
     <listitem>
@@ -740,63 +693,6 @@ The default list is:
  ".m", ".mm",
  ".S", ".spp", ".SPP"]
 </example_commands>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-CVS">
-    <term>CVS</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The CVS executable.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-CVSCOFLAGS">
-    <term>CVSCOFLAGS</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Options that are passed to the CVS checkout subcommand.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-CVSCOM">
-    <term>CVSCOM</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The command line used to
-fetch source files from a CVS repository.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-CVSCOMSTR">
-    <term>CVSCOMSTR</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The string displayed when fetching
-a source file from a CVS repository.
-If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-CVSCOM"><envar>$CVSCOM</envar></link>
-(the command line) is displayed.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-CVSFLAGS">
-    <term>CVSFLAGS</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-General options that are passed to CVS.
-By default, this is set to
-<literal>-d $CVSREPOSITORY</literal>
-to specify from where the files must be fetched.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-CVSREPOSITORY">
-    <term>CVSREPOSITORY</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The path to the CVS repository.
-This is referenced in the default
-<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-CVSFLAGS"><envar>$CVSFLAGS</envar></link> value.
-</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-CXX">
@@ -2838,15 +2734,6 @@ is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
     <term>HOST_ARCH</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-        The name of the host hardware architecture used to create the Environment.
-        If a platform is specified when creating the Environment, then
-        that Platform's logic will handle setting this value.
-        This value is immutable, and should not be changed by the user after
-        the Environment is initialized.
-        Currently only set for Win32.
-</para>
-    
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Sets the host architecture for Visual Studio compiler. If not set,
 default to the detected host architecture: note that this may depend
 on the python you are using.
@@ -2862,7 +2749,16 @@ Valid values are the same as for <envar xmlns="http://www.scons.org/dbxsd/v1.0">
 This is currently only used on Windows, but in the future it will be
 used on other OSes as well.
 </para>
-</listitem>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The name of the host hardware architecture used to create the Environment.
+        If a platform is specified when creating the Environment, then
+        that Platform's logic will handle setting this value.
+        This value is immutable, and should not be changed by the user after
+        the Environment is initialized.
+        Currently only set for Win32.
+</para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-HOST_OS">
     <term>HOST_OS</term>
@@ -5504,56 +5400,6 @@ when the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$RCINCFLAGS</envar> vari
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-RCS">
-    <term>RCS</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The RCS executable.
-Note that this variable is not actually used
-for the command to fetch source files from RCS;
-see the
-<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-RCS_CO"><envar>$RCS_CO</envar></link>
-construction variable, below.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-RCS_CO">
-    <term>RCS_CO</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The RCS "checkout" executable,
-used to fetch source files from RCS.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-RCS_COCOM">
-    <term>RCS_COCOM</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The command line used to
-fetch (checkout) source files from RCS.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-RCS_COCOMSTR">
-    <term>RCS_COCOMSTR</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The string displayed when fetching
-a source file from RCS.
-If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-RCS_COCOM"><envar>$RCS_COCOM</envar></link>
-(the command line) is displayed.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-RCS_COFLAGS">
-    <term>RCS_COFLAGS</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Options that are passed to the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-RCS_CO"><envar>$RCS_CO</envar></link> command.
-</para>
-</listitem>
-  </varlistentry>
   <varlistentry id="cv-RDirs">
     <term>RDirs</term>
     <listitem>
@@ -5781,53 +5627,6 @@ with a specific Builder.
 See the sections "Builder Objects"
 and "Scanner Objects,"
 below, for more information.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-SCCS">
-    <term>SCCS</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The SCCS executable.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-SCCSCOM">
-    <term>SCCSCOM</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The command line used to
-fetch source files from SCCS.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-SCCSCOMSTR">
-    <term>SCCSCOMSTR</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The string displayed when fetching
-a source file from a CVS repository.
-If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SCCSCOM"><envar>$SCCSCOM</envar></link>
-(the command line) is displayed.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-SCCSFLAGS">
-    <term>SCCSFLAGS</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-General options that are passed to SCCS.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-SCCSGETFLAGS">
-    <term>SCCSGETFLAGS</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Options that are passed specifically to the SCCS "get" subcommand.
-This can be set, for example, to
-<option>-e</option>
-to check out editable files from SCCS.
 </para>
 </listitem>
   </varlistentry>
@@ -6518,6 +6317,16 @@ Example <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION">
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-SHLIBVERSIONFLAGS">
+    <term>SHLIBVERSIONFLAGS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Extra flags added to <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLINKCOM"><envar>$SHLINKCOM</envar></link> when building versioned
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link>. These flags are only used when <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> is
+set.
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-_SHLIBVERSIONFLAGS">
     <term>_SHLIBVERSIONFLAGS</term>
     <listitem>
@@ -6528,16 +6337,6 @@ is set). <literal>_SHLIBVERSIONFLAGS</literal> usually adds <link xmlns="http://
 and some extra dynamically generated options (such as
 <literal>-Wl,-soname=$_SHLIBSONAME</literal>. It is unused by "plain"
 (unversioned) shared libraries.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-SHLIBVERSIONFLAGS">
-    <term>SHLIBVERSIONFLAGS</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Extra flags added to <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLINKCOM"><envar>$SHLINKCOM</envar></link> when building versioned
-<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link>. These flags are only used when <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> is
-set.
 </para>
 </listitem>
   </varlistentry>
@@ -7003,13 +6802,6 @@ that may not be set or used in a construction environment.
     <term>TARGET_ARCH</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-        The name of the target hardware architecture for the compiled objects
-        created by this Environment.
-        This defaults to the value of HOST_ARCH, and the user can override it.
-        Currently only set for Win32.
-</para>
-    
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Sets the target architecture for Visual Studio compiler (i.e. the arch
 of the binaries generated by the compiler). If not set, default to
 <envar xmlns="http://www.scons.org/dbxsd/v1.0">$HOST_ARCH</envar>, or, if that is unset, to the architecture of the
@@ -7034,7 +6826,14 @@ and <literal>ia64</literal> (Itanium).
 For example, if you want to compile 64-bit binaries, you would set
 <literal>TARGET_ARCH='x86_64'</literal> in your SCons environment.
 </para>
-</listitem>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The name of the target hardware architecture for the compiled objects
+        created by this Environment.
+        This defaults to the value of HOST_ARCH, and the user can override it.
+        Currently only set for Win32.
+</para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-TARGET_OS">
     <term>TARGET_OS</term>

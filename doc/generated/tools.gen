@@ -87,15 +87,6 @@ Sets construction variables for the bcc32 compiler.
 </para>
 <para>Sets:  &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CCFLAGS;, &cv-link-CFILESUFFIX;, &cv-link-CFLAGS;, &cv-link-CPPDEFPREFIX;, &cv-link-CPPDEFSUFFIX;, &cv-link-INCPREFIX;, &cv-link-INCSUFFIX;, &cv-link-SHCC;, &cv-link-SHCCCOM;, &cv-link-SHCCFLAGS;, &cv-link-SHCFLAGS;, &cv-link-SHOBJSUFFIX;.</para><para>Uses:  &cv-link-_CPPDEFFLAGS;, &cv-link-_CPPINCFLAGS;.</para></listitem>
   </varlistentry>
-  <varlistentry id="t-BitKeeper">
-    <term>BitKeeper</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the BitKeeper
-source code control system.
-</para>
-<para>Sets:  &cv-link-BITKEEPER;, &cv-link-BITKEEPERCOM;, &cv-link-BITKEEPERGET;, &cv-link-BITKEEPERGETFLAGS;.</para><para>Uses:  &cv-link-BITKEEPERCOMSTR;.</para></listitem>
-  </varlistentry>
   <varlistentry id="t-cc">
     <term>cc</term>
     <listitem>
@@ -111,15 +102,6 @@ Sets construction variables for generic POSIX C copmilers.
 Sets construction variables for the Compaq Visual Fortran compiler.
 </para>
 <para>Sets:  &cv-link-FORTRAN;, &cv-link-FORTRANCOM;, &cv-link-FORTRANMODDIR;, &cv-link-FORTRANMODDIRPREFIX;, &cv-link-FORTRANMODDIRSUFFIX;, &cv-link-FORTRANPPCOM;, &cv-link-OBJSUFFIX;, &cv-link-SHFORTRANCOM;, &cv-link-SHFORTRANPPCOM;.</para><para>Uses:  &cv-link-CPPFLAGS;, &cv-link-FORTRANFLAGS;, &cv-link-SHFORTRANFLAGS;, &cv-link-_CPPDEFFLAGS;, &cv-link-_FORTRANINCFLAGS;, &cv-link-_FORTRANMODFLAG;.</para></listitem>
-  </varlistentry>
-  <varlistentry id="t-CVS">
-    <term>CVS</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the CVS source code
-management system.
-</para>
-<para>Sets:  &cv-link-CVS;, &cv-link-CVSCOFLAGS;, &cv-link-CVSCOM;, &cv-link-CVSFLAGS;.</para><para>Uses:  &cv-link-CVSCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-cXX">
     <term>cXX</term>
@@ -828,15 +810,6 @@ Sets construction variables for building Qt applications.
 </para>
 <para>Sets:  &cv-link-QTDIR;, &cv-link-QT_AUTOSCAN;, &cv-link-QT_BINPATH;, &cv-link-QT_CPPPATH;, &cv-link-QT_LIB;, &cv-link-QT_LIBPATH;, &cv-link-QT_MOC;, &cv-link-QT_MOCCXXPREFIX;, &cv-link-QT_MOCCXXSUFFIX;, &cv-link-QT_MOCFROMCXXCOM;, &cv-link-QT_MOCFROMCXXFLAGS;, &cv-link-QT_MOCFROMHCOM;, &cv-link-QT_MOCFROMHFLAGS;, &cv-link-QT_MOCHPREFIX;, &cv-link-QT_MOCHSUFFIX;, &cv-link-QT_UIC;, &cv-link-QT_UICCOM;, &cv-link-QT_UICDECLFLAGS;, &cv-link-QT_UICDECLPREFIX;, &cv-link-QT_UICDECLSUFFIX;, &cv-link-QT_UICIMPLFLAGS;, &cv-link-QT_UICIMPLPREFIX;, &cv-link-QT_UICIMPLSUFFIX;, &cv-link-QT_UISUFFIX;.</para></listitem>
   </varlistentry>
-  <varlistentry id="t-RCS">
-    <term>RCS</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the interaction
-with the Revision Control System.
-</para>
-<para>Sets:  &cv-link-RCS;, &cv-link-RCS_CO;, &cv-link-RCS_COCOM;, &cv-link-RCS_COFLAGS;.</para><para>Uses:  &cv-link-RCS_COCOMSTR;.</para></listitem>
-  </varlistentry>
   <varlistentry id="t-rmic">
     <term>rmic</term>
     <listitem>
@@ -852,15 +825,6 @@ Sets construction variables for the <application xmlns="http://www.scons.org/dbx
 Sets construction variables for building with RPCGEN.
 </para>
 <para>Sets:  &cv-link-RPCGEN;, &cv-link-RPCGENCLIENTFLAGS;, &cv-link-RPCGENFLAGS;, &cv-link-RPCGENHEADERFLAGS;, &cv-link-RPCGENSERVICEFLAGS;, &cv-link-RPCGENXDRFLAGS;.</para></listitem>
-  </varlistentry>
-  <varlistentry id="t-SCCS">
-    <term>SCCS</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for interacting with the
-Source Code Control System.
-</para>
-<para>Sets:  &cv-link-SCCS;, &cv-link-SCCSCOM;, &cv-link-SCCSFLAGS;, &cv-link-SCCSGETFLAGS;.</para><para>Uses:  &cv-link-SCCSCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-sgiar">
     <term>sgiar</term>
