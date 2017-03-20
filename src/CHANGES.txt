@@ -30,7 +30,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fixed SCons.Tool.Packaging.rpm.package source nondeterminism across builds.
 
   From William Deegan:
-    - Removed deprecated source code tool CVS, Perforce, BitKeeper, RCS, SCCS.
+    - Removed deprecated tools CVS, Perforce, BitKeeper, RCS, SCCS, Subversion.
 
   From Daniel Moody:
     - Fixed msvs.py for Visual Studio generated projects which were

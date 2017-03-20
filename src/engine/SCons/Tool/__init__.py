@@ -1156,8 +1156,6 @@ def tool_list(platform, env):
                                'tex', 'latex', 'pdflatex', 'pdftex',
                                # Archivers
                                'tar', 'zip',
-                               # SourceCode factories
-                                # 'Subversion',
                                ], env)
 
     tools = ([linker, c_compiler, cxx_compiler,
