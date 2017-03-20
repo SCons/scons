@@ -37,7 +37,10 @@ import os.path
 
 import SCons.Util
 
-cplusplus = __import__('c++', globals(), locals(), [])
+import SCons.Tool.cxx
+cplusplus = SCons.Tool.cxx
+#cplusplus = __import__('cxx', globals(), locals(), [])
+
 
 acc = None
 

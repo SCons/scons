@@ -35,7 +35,10 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Util
 
-cplusplus = __import__('c++', globals(), locals(), [])
+import SCons.Tool.cxx
+cplusplus = SCons.Tool.cxx
+#cplusplus = __import__('cxx', globals(), locals(), [])
+
 
 def generate(env):
     """Add Builders and construction variables for SGI MIPS C++ to an Environment."""

@@ -40,7 +40,10 @@ import SCons.Util
 from . import aixcc
 from . import link
 
-cplusplus = __import__('c++', globals(), locals(), [])
+import SCons.Tool.cxx
+cplusplus = SCons.Tool.cxx
+#cplusplus = __import__('cxx', globals(), locals(), [])
+
 
 def smart_linkflags(source, target, env, for_signature):
     if cplusplus.iscplusplus(source):

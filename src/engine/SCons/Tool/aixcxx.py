@@ -37,7 +37,9 @@ import os.path
 
 import SCons.Platform.aix
 
-cplusplus = __import__('c++', globals(), locals(), [])
+import SCons.Tool.cxx
+cplusplus = SCons.Tool.cxx
+#cplusplus = __import__('cxx', globals(), locals(), [])
 
 packages = ['vacpp.cmp.core', 'vacpp.cmp.batch', 'vacpp.cmp.C', 'ibmcxx.cmp']
 

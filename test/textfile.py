@@ -152,6 +152,6 @@ matchem('sub4', [line1, line2a, line3b])
 matchem('sub5', [line1, line2b, line3b])
 matchem('sub6', [line1, line2b, line3b])
 
-test.up_to_date(arguments = '. --debug=explain')
+test.up_to_date(arguments = '.')
 
 test.pass_test()

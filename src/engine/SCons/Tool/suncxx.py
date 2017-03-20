@@ -39,7 +39,9 @@ import os
 import re
 import subprocess
 
-cplusplus = __import__('c++', globals(), locals(), [])
+import SCons.Tool.cxx
+cplusplus = SCons.Tool.cxx
+#cplusplus = __import__('c++', globals(), locals(), [])
 
 package_info = {}
 

@@ -1040,7 +1040,7 @@ def tool_list(platform, env):
         "prefer Microsoft tools on Windows"
         linkers = ['mslink', 'gnulink', 'ilink', 'linkloc', 'ilink32' ]
         c_compilers = ['msvc', 'mingw', 'gcc', 'intelc', 'icl', 'icc', 'cc', 'bcc32' ]
-        cxx_compilers = ['msvc', 'intelc', 'icc', 'g++', 'c++', 'bcc32' ]
+        cxx_compilers = ['msvc', 'intelc', 'icc', 'g++', 'cxx', 'bcc32' ]
         assemblers = ['masm', 'nasm', 'gas', '386asm' ]
         fortran_compilers = ['gfortran', 'g77', 'ifl', 'cvf', 'f95', 'f90', 'fortran']
         ars = ['mslib', 'ar', 'tlib']
@@ -1049,7 +1049,7 @@ def tool_list(platform, env):
         "prefer IBM tools on OS/2"
         linkers = ['ilink', 'gnulink', ]#'mslink']
         c_compilers = ['icc', 'gcc',]# 'msvc', 'cc']
-        cxx_compilers = ['icc', 'g++',]# 'msvc', 'c++']
+        cxx_compilers = ['icc', 'g++',]# 'msvc', 'cxx']
         assemblers = ['nasm',]# 'masm', 'gas']
         fortran_compilers = ['ifl', 'g77']
         ars = ['ar',]# 'mslib']
@@ -1057,7 +1057,7 @@ def tool_list(platform, env):
         "prefer MIPSPro on IRIX"
         linkers = ['sgilink', 'gnulink']
         c_compilers = ['sgicc', 'gcc', 'cc']
-        cxx_compilers = ['sgic++', 'g++', 'c++']
+        cxx_compilers = ['sgicxx', 'g++', 'cxx']
         assemblers = ['as', 'gas']
         fortran_compilers = ['f95', 'f90', 'f77', 'g77', 'fortran']
         ars = ['sgiar']
@@ -1065,7 +1065,7 @@ def tool_list(platform, env):
         "prefer Forte tools on SunOS"
         linkers = ['sunlink', 'gnulink']
         c_compilers = ['suncc', 'gcc', 'cc']
-        cxx_compilers = ['sunc++', 'g++', 'c++']
+        cxx_compilers = ['suncxx', 'g++', 'cxx']
         assemblers = ['as', 'gas']
         fortran_compilers = ['sunf95', 'sunf90', 'sunf77', 'f95', 'f90', 'f77',
                              'gfortran', 'g77', 'fortran']
@@ -1074,7 +1074,7 @@ def tool_list(platform, env):
         "prefer aCC tools on HP-UX"
         linkers = ['hplink', 'gnulink']
         c_compilers = ['hpcc', 'gcc', 'cc']
-        cxx_compilers = ['hpc++', 'g++', 'c++']
+        cxx_compilers = ['hpcxx', 'g++', 'cxx']
         assemblers = ['as', 'gas']
         fortran_compilers = ['f95', 'f90', 'f77', 'g77', 'fortran']
         ars = ['ar']
@@ -1082,7 +1082,7 @@ def tool_list(platform, env):
         "prefer AIX Visual Age tools on AIX"
         linkers = ['aixlink', 'gnulink']
         c_compilers = ['aixcc', 'gcc', 'cc']
-        cxx_compilers = ['aixc++', 'g++', 'c++']
+        cxx_compilers = ['aixcxx', 'g++', 'cxx']
         assemblers = ['as', 'gas']
         fortran_compilers = ['f95', 'f90', 'aixf77', 'g77', 'fortran']
         ars = ['ar']
@@ -1090,7 +1090,7 @@ def tool_list(platform, env):
         "prefer GNU tools on Mac OS X, except for some linkers and IBM tools"
         linkers = ['applelink', 'gnulink']
         c_compilers = ['gcc', 'cc']
-        cxx_compilers = ['g++', 'c++']
+        cxx_compilers = ['g++', 'cxx']
         assemblers = ['as']
         fortran_compilers = ['gfortran', 'f95', 'f90', 'g77']
         ars = ['ar']
@@ -1098,7 +1098,7 @@ def tool_list(platform, env):
         "prefer GNU tools on Cygwin, except for a platform-specific linker"
         linkers = ['cyglink', 'mslink', 'ilink']
         c_compilers = ['gcc', 'msvc', 'intelc', 'icc', 'cc']
-        cxx_compilers = ['g++', 'msvc', 'intelc', 'icc', 'c++']
+        cxx_compilers = ['g++', 'msvc', 'intelc', 'icc', 'cxx']
         assemblers = ['gas', 'nasm', 'masm']
         fortran_compilers = ['gfortran', 'g77', 'ifort', 'ifl', 'f95', 'f90', 'f77']
         ars = ['ar', 'mslib']
@@ -1106,7 +1106,7 @@ def tool_list(platform, env):
         "prefer GNU tools on all other platforms"
         linkers = ['gnulink', 'mslink', 'ilink']
         c_compilers = ['gcc', 'msvc', 'intelc', 'icc', 'cc']
-        cxx_compilers = ['g++', 'msvc', 'intelc', 'icc', 'c++']
+        cxx_compilers = ['g++', 'msvc', 'intelc', 'icc', 'cxx']
         assemblers = ['gas', 'nasm', 'masm']
         fortran_compilers = ['gfortran', 'g77', 'ifort', 'ifl', 'f95', 'f90', 'f77']
         ars = ['ar', 'mslib']
