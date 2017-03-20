@@ -1157,8 +1157,7 @@ def tool_list(platform, env):
                                # Archivers
                                'tar', 'zip',
                                # SourceCode factories
-                               'CVS',
-                               'RCS', 'SCCS', # 'Subversion',
+                               'SCCS', # 'Subversion',
                                ], env)
 
     tools = ([linker, c_compiler, cxx_compiler,
