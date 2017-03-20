@@ -69,17 +69,17 @@ exec(open(name, 'r').read())
 
 for dir in ['dir1', 'dir2', 'dir3','dir4', 'dir5']:
     test.write([dir, 'create_test.py'], r"""
-f = open("test.txt", "ab")
+f = open("test.txt", "a")
 f.write("This is the %s test.\n")
 f.close()
 """ % dir)
 
 test.run(arguments=".", stderr=None)
 
-test.fail_test(test.read(['dir1', 'test.txt']) != "This is the dir1 test.\n")
-test.fail_test(test.read(['dir2', 'test.txt']) != "This is the dir2 test.\n")
-test.fail_test(test.read('test.txt') != "This is the dir3 test.\nThis is the dir5 test.\n")
-test.fail_test(test.read(['dir4', 'test.txt']) != "This is the dir4 test.\n")
+test.must_match(['dir1', 'test.txt'],"This is the dir1 test.\n")
+test.must_match(['dir2', 'test.txt'], "This is the dir2 test.\n")
+test.must_match('test.txt',"This is the dir3 test.\nThis is the dir5 test.\n")
+test.must_match(['dir4', 'test.txt'],"This is the dir4 test.\n")
 
 test.pass_test()
 
