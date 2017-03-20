@@ -72,12 +72,12 @@ def process(infp, outfp):
     l = len(prefix)
     for line in infp.readlines():
         if line[:l] == prefix:
-            process(open(line[l:-1], 'rb'), outfp)
+            process(open(line[l:-1], 'r'), outfp)
         else:
             outfp.write(line)
 
-process(open(sys.argv[2], 'rb'),
-        open(sys.argv[1], 'wb'))
+process(open(sys.argv[2], 'r'),
+        open(sys.argv[1], 'w'))
 sys.exit(0)
 """
 

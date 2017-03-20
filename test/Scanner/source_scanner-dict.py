@@ -39,9 +39,9 @@ test = TestSCons.TestSCons()
 
 test.write('build.py', r"""
 import sys
-output = open(sys.argv[1], 'wb')
+output = open(sys.argv[1], 'w')
 for infile in sys.argv[2:]:
-    input = open(infile, 'rb')
+    input = open(infile, 'r')
 
     include_prefix = 'include%s ' % infile[-1]
 
@@ -49,7 +49,7 @@ for infile in sys.argv[2:]:
         for line in infp.readlines():
             if line[:len(include_prefix)] == include_prefix:
                 file = line[len(include_prefix):-1]
-                process(open(file, 'rb'), outfp)
+                process(open(file, 'r'), outfp)
             else:
                 outfp.write(line)
 
