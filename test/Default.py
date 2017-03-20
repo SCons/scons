@@ -46,8 +46,8 @@ for dir in ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight']:
 
 test.write('build.py', r"""
 import sys
-contents = open(sys.argv[2], 'rb').read()
-file = open(sys.argv[1], 'wb')
+contents = open(sys.argv[2], 'r').read()
+file = open(sys.argv[1], 'w')
 file.write(contents)
 file.close()
 """)
@@ -98,21 +98,21 @@ for dir in ['one', 'two', 'three', 'four', 'five']:
 
     test.run(chdir = dir)       # no arguments, use the Default
 
-test.fail_test(test.read(test.workpath('one', 'foo.out')) != "one/foo.in\n")
+test.must_match(test.workpath('one', 'foo.out'), "one/foo.in\n")
 test.fail_test(os.path.exists(test.workpath('one', 'bar')))
 
-test.fail_test(test.read(test.workpath('two', 'foo.out')) != "two/foo.in\n")
-test.fail_test(test.read(test.workpath('two', 'bar.out')) != "two/bar.in\n")
+test.must_match(test.workpath('two', 'foo.out'), "two/foo.in\n")
+test.must_match(test.workpath('two', 'bar.out'), "two/bar.in\n")
 
-test.fail_test(test.read(test.workpath('three', 'foo.out')) != "three/foo.in\n")
-test.fail_test(test.read(test.workpath('three', 'bar.out')) != "three/bar.in\n")
+test.must_match(test.workpath('three', 'foo.out'), "three/foo.in\n")
+test.must_match(test.workpath('three', 'bar.out'), "three/bar.in\n")
 
 test.fail_test(os.path.exists(test.workpath('four', 'foo')))
 test.fail_test(os.path.exists(test.workpath('four', 'bar')))
-test.fail_test(test.read(test.workpath('four', 'foo bar')) != "four/foo.in\n")
+test.must_match(test.workpath('four', 'foo bar'), "four/foo.in\n")
 
-test.fail_test(test.read(test.workpath('five', 'foo.out')) != "five/foo.in\n")
-test.fail_test(test.read(test.workpath('five', 'bar.out')) != "five/bar.in\n")
+test.must_match(test.workpath('five', 'foo.out'), "five/foo.in\n")
+test.must_match(test.workpath('five', 'bar.out'), "five/bar.in\n")
 
 
 
@@ -150,7 +150,7 @@ Default(foo, None, bar)
 test.run(chdir = 'eight')       # no arguments, use the Default
 
 test.fail_test(os.path.exists(test.workpath('eight', 'foo.out')))
-test.fail_test(test.read(test.workpath('eight', 'bar.out')) != "eight/bar.in\n")
+test.must_match(test.workpath('eight', 'bar.out'), "eight/bar.in\n")
 
 
 
@@ -178,7 +178,7 @@ test.write(['nine', 'sub1', 'xxx.in'], "sub1/xxx.in\n")
 test.run(chdir = 'nine')        # no arguments, use the Default
 
 test.fail_test(os.path.exists(test.workpath('nine', 'xxx.out')))
-test.fail_test(test.read(test.workpath('nine', 'sub1', 'xxx.out')) != "sub1/xxx.in\n")
+test.must_match(test.workpath('nine', 'sub1', 'xxx.out'), "sub1/xxx.in\n")
 
 
 
@@ -205,7 +205,7 @@ test.write(['ten', 'sub2', 'xxx.in'], "sub2/xxx.in\n")
 test.run(chdir = 'ten') # no arguments, use the Default
 
 test.fail_test(os.path.exists(test.workpath('ten', 'xxx.out')))
-test.fail_test(test.read(test.workpath('ten', 'sub2', 'xxx.out')) != "sub2/xxx.in\n")
+test.must_match(test.workpath('ten', 'sub2', 'xxx.out'), "sub2/xxx.in\n")
 
 
 test.subdir('eleven')
@@ -218,13 +218,13 @@ env.B(target = 'bar.out', source = 'bar.in')
 env.Default('$XXX')
 """ % locals())
 
-test.write(os.path.join('eleven', 'foo.in'), "eleven/foo.in\n");
+test.write(os.path.join('eleven', 'foo.in'), "eleven/foo.in\n")
 
-test.write(os.path.join('eleven', 'bar.in'), "eleven/bar.in\n");
+test.write(os.path.join('eleven', 'bar.in'), "eleven/bar.in\n")
 
 test.run(chdir = 'eleven')      # no arguments, use the Default
 
-test.fail_test(test.read(test.workpath('eleven', 'foo.out')) != "eleven/foo.in\n")
+test.must_match(test.workpath('eleven', 'foo.out'), "eleven/foo.in\n")
 test.fail_test(os.path.exists(test.workpath('eleven', 'bar')))
 
 

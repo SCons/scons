@@ -35,8 +35,8 @@ test.subdir('subdir')
 
 test.write('build.py', r"""
 import sys
-contents = open(sys.argv[2], 'rb').read()
-file = open(sys.argv[1], 'wb')
+contents = open(sys.argv[2], 'r').read()
+file = open(sys.argv[1], 'w')
 file.write(contents)
 file.close()
 """)
@@ -57,10 +57,10 @@ test.write(['subdir', 'f4.in'], "f4.in\n")
 
 test.run(arguments = 'subdir')
 
-test.fail_test(test.read(['subdir', 'f1.out']) != "f1.in\n")
-test.fail_test(test.read(['subdir', 'f2.out']) != "f2.in\n")
-test.fail_test(test.read(['subdir', 'f3.out']) != "f3.in\n")
-test.fail_test(test.read(['subdir', 'f4.out']) != "f4.in\n")
+test.must_match(['subdir', 'f1.out'], "f1.in\n")
+test.must_match(['subdir', 'f2.out'], "f2.in\n")
+test.must_match(['subdir', 'f3.out'], "f3.in\n")
+test.must_match(['subdir', 'f4.out'], "f4.in\n")
 
 test.up_to_date(arguments = 'subdir')
 
