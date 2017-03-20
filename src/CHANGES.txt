@@ -30,8 +30,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fixed SCons.Tool.Packaging.rpm.package source nondeterminism across builds.
 
   From William Deegan:
-    - Removed deprecated source code tool Perforce.
-    
+    - Removed deprecated source code tool Perforce, BitKeeper.
+
   From Daniel Moody:
     - Fixed msvs.py for Visual Studio generated projects which were
       creating invalid xml for greater than and less than symbols.
