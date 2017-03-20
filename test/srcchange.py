@@ -103,7 +103,7 @@ test.must_exist(program_name)
 test.run(arguments='.', stdout=light_build)
 test.must_exist(program_name)
 
-test.write('revnum.in', '3.3\n')
+test.write('revnum.in', '3.3\n', mode='w')
 
 test.run(arguments='.')
 test.must_exist(program_name)

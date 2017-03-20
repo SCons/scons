@@ -36,13 +36,10 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-for dir in ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight']:
-
-    test.subdir(dir)
-
-    test.write(os.path.join(dir, 'foo.in'), dir + "/foo.in\n");
-
-    test.write(os.path.join(dir, 'bar.in'), dir + "/bar.in\n");
+for dirname in ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight']:
+    test.subdir(dirname)
+    test.write(os.path.join(dirname, 'foo.in'), dirname + "/foo.in\n")
+    test.write(os.path.join(dirname, 'bar.in'), dirname + "/bar.in\n")
 
 test.write('build.py', r"""
 import sys
@@ -94,26 +91,24 @@ Default(env.B(target = 'bar.out', source = 'bar.in'))
 """ % locals())
 
 
-for dir in ['one', 'two', 'three', 'four', 'five']:
+for dirname in ['one', 'two', 'three', 'four', 'five']:
+    test.run(chdir=dirname)       # no arguments, use the Default
 
-    test.run(chdir = dir)       # no arguments, use the Default
-
-test.must_match(test.workpath('one', 'foo.out'), "one/foo.in\n")
+test.must_match(test.workpath('one', 'foo.out'), "one/foo.in\n", mode='r')
 test.fail_test(os.path.exists(test.workpath('one', 'bar')))
 
-test.must_match(test.workpath('two', 'foo.out'), "two/foo.in\n")
-test.must_match(test.workpath('two', 'bar.out'), "two/bar.in\n")
+test.must_match(test.workpath('two', 'foo.out'), "two/foo.in\n", mode='r')
+test.must_match(test.workpath('two', 'bar.out'), "two/bar.in\n", mode='r')
 
-test.must_match(test.workpath('three', 'foo.out'), "three/foo.in\n")
-test.must_match(test.workpath('three', 'bar.out'), "three/bar.in\n")
+test.must_match(test.workpath('three', 'foo.out'), "three/foo.in\n", mode='r')
+test.must_match(test.workpath('three', 'bar.out'), "three/bar.in\n", mode='r')
 
 test.fail_test(os.path.exists(test.workpath('four', 'foo')))
 test.fail_test(os.path.exists(test.workpath('four', 'bar')))
-test.must_match(test.workpath('four', 'foo bar'), "four/foo.in\n")
+test.must_match(test.workpath('four', 'foo bar'), "four/foo.in\n", mode='r')
 
-test.must_match(test.workpath('five', 'foo.out'), "five/foo.in\n")
-test.must_match(test.workpath('five', 'bar.out'), "five/bar.in\n")
-
+test.must_match(test.workpath('five', 'foo.out'), "five/foo.in\n", mode='r')
+test.must_match(test.workpath('five', 'bar.out'), "five/bar.in\n", mode='r')
 
 
 # Test how a None Default() argument works to disable/reset default targets.
@@ -125,8 +120,8 @@ bar = env.B(target = 'bar.out', source = 'bar.in')
 Default(None)
 """ % locals())
 
-test.run(chdir = 'six', status = 2, stderr =
-"scons: *** No targets specified and no Default() targets found.  Stop.\n")
+test.run(chdir='six', status=2,
+         stderr="scons: *** No targets specified and no Default() targets found.  Stop.\n")
 
 test.write(['seven', 'SConstruct'], """\
 B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
@@ -136,8 +131,8 @@ bar = env.B(target = 'bar.out', source = 'bar.in')
 Default(foo, bar, None)
 """ % locals())
 
-test.run(chdir = 'seven', status = 2, stderr =
-"scons: *** No targets specified and no Default() targets found.  Stop.\n")
+test.run(chdir='seven', status=2,
+         stderr="scons: *** No targets specified and no Default() targets found.  Stop.\n")
 
 test.write(['eight', 'SConstruct'], """\
 B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
@@ -147,12 +142,10 @@ bar = env.B(target = 'bar.out', source = 'bar.in')
 Default(foo, None, bar)
 """ % locals())
 
-test.run(chdir = 'eight')       # no arguments, use the Default
+test.run(chdir='eight')       # no arguments, use the Default
 
 test.fail_test(os.path.exists(test.workpath('eight', 'foo.out')))
-test.must_match(test.workpath('eight', 'bar.out'), "eight/bar.in\n")
-
-
+test.must_match(test.workpath('eight', 'bar.out'), "eight/bar.in\n", mode='r')
 
 
 test.subdir('nine', ['nine', 'sub1'])
@@ -175,11 +168,10 @@ Default('xxx.out')
 
 test.write(['nine', 'sub1', 'xxx.in'], "sub1/xxx.in\n")
 
-test.run(chdir = 'nine')        # no arguments, use the Default
+test.run(chdir='nine')        # no arguments, use the Default
 
 test.fail_test(os.path.exists(test.workpath('nine', 'xxx.out')))
-test.must_match(test.workpath('nine', 'sub1', 'xxx.out'), "sub1/xxx.in\n")
-
+test.must_match(test.workpath('nine', 'sub1', 'xxx.out'), "sub1/xxx.in\n", mode='r')
 
 
 test.subdir('ten', ['ten', 'sub2'])
@@ -202,10 +194,10 @@ env.B(target = 'xxx.out', source = 'xxx.in')
 
 test.write(['ten', 'sub2', 'xxx.in'], "sub2/xxx.in\n")
 
-test.run(chdir = 'ten') # no arguments, use the Default
+test.run(chdir='ten')  # no arguments, use the Default
 
 test.fail_test(os.path.exists(test.workpath('ten', 'xxx.out')))
-test.must_match(test.workpath('ten', 'sub2', 'xxx.out'), "sub2/xxx.in\n")
+test.must_match(test.workpath('ten', 'sub2', 'xxx.out'), "sub2/xxx.in\n", mode='r')
 
 
 test.subdir('eleven')
@@ -222,11 +214,10 @@ test.write(os.path.join('eleven', 'foo.in'), "eleven/foo.in\n")
 
 test.write(os.path.join('eleven', 'bar.in'), "eleven/bar.in\n")
 
-test.run(chdir = 'eleven')      # no arguments, use the Default
+test.run(chdir='eleven')      # no arguments, use the Default
 
-test.must_match(test.workpath('eleven', 'foo.out'), "eleven/foo.in\n")
+test.must_match(test.workpath('eleven', 'foo.out'), "eleven/foo.in\n", mode='r')
 test.fail_test(os.path.exists(test.workpath('eleven', 'bar')))
-
 
 
 test.pass_test()
