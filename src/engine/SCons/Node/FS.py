@@ -1872,8 +1872,6 @@ class Dir(Base):
         for kid in self.children():
             if kid.get_state() > up_to_date:
                 return 0
-#            else if kid.changed_since_last_build_node():
-#                return 0
         return 1
 
     def rdir(self):
