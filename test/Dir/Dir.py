@@ -71,6 +71,31 @@ env.MD(target='sub2', source=['SConstruct'], OVERRIDE='foo')
 
 test.run()
 
+#The following test creates a builder with only a directory target,
+#updates its source, and ensures that the directory target is
+#considered out of date and rebuilt.
+
+test.write('foo-contents.txt', """Hello, """)
+test.write('SConstruct', """\
+import os
+
+def mkdir_and_copy(target=None, source=None, env=None):
+    os.mkdir(str(target[0]))
+    os.copy(str(source[0]), str(target[0]))
+
+mac_builder = Builder(action=mkdir_and_copy)
+env = Environment()
+env.Append(BUILDERS = {'MAC': mac_builder}
+env.MAC(target='foo', src='foo-contents.txt')
+""")
+
+#Build foo
+test.not_up_to_date('foo')
+test.up_to)
+
+test.write('foo-contents.txt', """Hello, World!""")
+test.not_up_to_date('foo')
+
 test.pass_test()
 
 # Local Variables:
