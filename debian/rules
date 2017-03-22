@@ -15,8 +15,6 @@ PYTHON=$(PYTHON_PATH)$(PYTHON_VERSION)
 #export DH_VERBOSE=1
 
 # This is the debhelper compatability version to use.
-export DH_COMPAT=2
-
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
@@ -41,7 +39,7 @@ clean:
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k
+	dh_prep
 	dh_installdirs
 
 	# Add here commands to install the package into debian/scons.
@@ -106,7 +104,7 @@ binary-indep: build install
 	dh_shlibdeps
 	dh_gencontrol
 	dh_md5sums
-	DH_COMPAT=$(DH_COMPAT) dh_builddeb $(BUILDDEB_OPTIONS)
+	dh_builddeb $(BUILDDEB_OPTIONS)
 
 # Build architecture-dependent files here.
 binary-arch: build install

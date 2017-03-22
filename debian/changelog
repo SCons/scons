@@ -1,3 +1,9 @@
+scons (2.5.1) unstable; urgency=low
+
+  * Maintenance Release
+
+ -- William Deegan <bill@baddogconsulting.com>  Mon, 03 Nov 2016 13:37:42 -0700
+
 scons (2.5.0) unstable; urgency=low
 
   * Feature Release
