@@ -13,6 +13,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Manish Vachharajani:
+    - Update debian rules, compat, and control to not use features
+      deprecated or obsolete in later versions of debhelpers
+    - Update python version to 2.7 in debian/control
+
   From Russel Winder:
     - Reordered the default D tools from "dmd, gdc, ldc" to "dmd, ldc, gdc".
 
