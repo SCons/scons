@@ -33,15 +33,10 @@ test = TestSCons.TestSCons()
 test.write('cat.py', r"""
 import sys
 try:
-    input = open(sys.argv[1], 'rb').read()
-    try:
-        sys.stdout.buffer.write(input)
-    except AttributeError:
-        sys.stdout.write(input)
+    input = open(sys.argv[1], 'r').read()
 except IndexError:
     input = sys.stdin.read()
-    sys.stdout.write(input)
-
+sys.stdout.write(input)
 sys.exit(0)
 """)
 
@@ -57,10 +52,10 @@ env.Command(target='foo4', source='bar4',
             action=r'%(_python_)s cat.py <$SOURCES |%(_python_)s cat.py >$TARGET')
 """ % locals())
 
-test.write('bar1', 'bar1\r\n', mode='w')
-test.write('bar2', 'bar2\r\n', mode='w')
-test.write('bar3', 'bar3\r\n', mode='w')
-test.write('bar4', 'bar4\r\n', mode='w')
+test.write('bar1', 'bar1\r\n')
+test.write('bar2', 'bar2\r\n')
+test.write('bar3', 'bar3\r\n')
+test.write('bar4', 'bar4\r\n')
 
 test.run(arguments='.')
 

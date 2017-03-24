@@ -53,7 +53,9 @@ import re
 
 from SCons.Node import Node
 from SCons.Node.Python import Value
-from SCons.Util import is_String, is_Sequence, is_Dict
+from SCons.Util import is_String, is_Sequence, is_Dict, to_bytes
+
+TEXTFILE_FILE_WRITE_MODE = 'wb'
 
 def _do_subst(node, subs):
     """
@@ -64,12 +66,19 @@ def _do_subst(node, subs):
     1.2345 and so forth.
     """
     contents = node.get_text_contents()
-    if not subs: return contents
-    for (k,v) in subs:
-        contents = re.sub(k, v, contents)
+    if subs:
+        for (k, v) in subs:
+            contents = re.sub(k, v, contents)
+
+    if 'b' in TEXTFILE_FILE_WRITE_MODE:
+        contents = bytearray(contents, 'utf-8')
+
     return contents
 
+
 def _action(target, source, env):
+    # import pdb; pdb.set_trace()
+
     # prepare the line separator
     linesep = env['LINESEPARATOR']
     if linesep is None:
@@ -79,9 +88,11 @@ def _action(target, source, env):
     elif isinstance(linesep, Value):
         linesep = linesep.get_text_contents()
     else:
-        raise SCons.Errors.UserError(
-                           'unexpected type/class for LINESEPARATOR: %s'
-                                         % repr(linesep), None)
+        raise SCons.Errors.UserError('unexpected type/class for LINESEPARATOR: %s'
+                                     % repr(linesep), None)
+
+    if 'b' in TEXTFILE_FILE_WRITE_MODE:
+        linesep = to_bytes(linesep)
 
     # create a dictionary to use for the substitutions
     if 'SUBST_DICT' not in env:
@@ -95,30 +106,35 @@ def _action(target, source, env):
         else:
             raise SCons.Errors.UserError('SUBST_DICT must be dict or sequence')
         subs = []
-        for (k,v) in d:
+        for (k, v) in d:
             if callable(v):
                 v = v()
             if is_String(v):
                 v = env.subst(v)
             else:
                 v = str(v)
-            subs.append((k,v))
+            subs.append((k, v))
 
     # write the file
     try:
-        fd = open(target[0].get_path(), "w")
-    except (OSError,IOError) as e:
+        fd = open(target[0].get_path(), TEXTFILE_FILE_WRITE_MODE)
+    except (OSError, IOError) as e:
         raise SCons.Errors.UserError("Can't write target file %s" % target[0])
+
     # separate lines by 'linesep' only if linesep is not empty
     lsep = None
     for s in source:
-        if lsep: fd.write(lsep)
+        if lsep:
+            fd.write(lsep)
+
         fd.write(_do_subst(s, subs))
         lsep = linesep
     fd.close()
 
+
 def _strfunc(target, source, env):
     return "Creating '%s'" % target[0]
+
 
 def _convert_list_R(newlist, sources):
     for elem in sources:
@@ -128,6 +144,8 @@ def _convert_list_R(newlist, sources):
             newlist.append(elem)
         else:
             newlist.append(Value(elem))
+
+
 def _convert_list(target, source, env):
     if len(target) != 1:
         raise SCons.Errors.UserError("Only one target file allowed")
@@ -135,26 +153,28 @@ def _convert_list(target, source, env):
     _convert_list_R(newlist, source)
     return target, newlist
 
+
 _common_varlist = ['SUBST_DICT', 'LINESEPARATOR']
 
 _text_varlist = _common_varlist + ['TEXTFILEPREFIX', 'TEXTFILESUFFIX']
 _text_builder = SCons.Builder.Builder(
-    action = SCons.Action.Action(_action, _strfunc, varlist = _text_varlist),
-    source_factory = Value,
-    emitter = _convert_list,
-    prefix = '$TEXTFILEPREFIX',
-    suffix = '$TEXTFILESUFFIX',
-    )
+    action=SCons.Action.Action(_action, _strfunc, varlist=_text_varlist),
+    source_factory=Value,
+    emitter=_convert_list,
+    prefix='$TEXTFILEPREFIX',
+    suffix='$TEXTFILESUFFIX',
+)
 
 _subst_varlist = _common_varlist + ['SUBSTFILEPREFIX', 'TEXTFILESUFFIX']
 _subst_builder = SCons.Builder.Builder(
-    action = SCons.Action.Action(_action, _strfunc, varlist = _subst_varlist),
-    source_factory = SCons.Node.FS.File,
-    emitter = _convert_list,
-    prefix = '$SUBSTFILEPREFIX',
-    suffix = '$SUBSTFILESUFFIX',
-    src_suffix = ['.in'],
-    )
+    action=SCons.Action.Action(_action, _strfunc, varlist=_subst_varlist),
+    source_factory=SCons.Node.FS.File,
+    emitter=_convert_list,
+    prefix='$SUBSTFILEPREFIX',
+    suffix='$SUBSTFILESUFFIX',
+    src_suffix=['.in'],
+)
+
 
 def generate(env):
     env['LINESEPARATOR'] = os.linesep
@@ -164,6 +184,7 @@ def generate(env):
     env['BUILDERS']['Substfile'] = _subst_builder
     env['SUBSTFILEPREFIX'] = ''
     env['SUBSTFILESUFFIX'] = ''
+
 
 def exists(env):
     return 1
