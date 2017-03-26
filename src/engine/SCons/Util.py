@@ -148,7 +148,7 @@ class NodeList(UserList):
 #             else:
 #                 self.data = [ initlist,]
 
-    
+
     def __nonzero__(self):
         return len(self.data) != 0
 
@@ -170,10 +170,10 @@ class NodeList(UserList):
         return self.__class__(result)
 
     def __getitem__(self, index):
-        """ 
+        """
         This comes for free on py2,
         but py3 slices of NodeList are returning a list
-        breaking slicing nodelist and refering to 
+        breaking slicing nodelist and refering to
         properties and methods on contained object
         """
 #        return self.__class__(self.data[index])
@@ -288,7 +288,7 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
        or in the whole tree if prune.
     """
 
-    rname = str(root)
+    rname = str(root).encode('string-escape')
 
     # Initialize 'visited' dict, if required
     if visited is None:
