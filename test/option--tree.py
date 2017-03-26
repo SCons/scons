@@ -52,7 +52,7 @@ scons: warning: The --debug=tree option is deprecated; please use --tree=all ins
          status = 0, match=TestSCons.match_re_dotall)
 
 
-# Test that unicode characters can be printed with the --tree option
+# Test that unicode characters can be printed (escaped) with the --tree option
 test.write('SConstruct',
 """
 env = Environment()
