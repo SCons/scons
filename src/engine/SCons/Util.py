@@ -31,6 +31,7 @@ import sys
 import copy
 import re
 import types
+import codecs
 
 try:
     from UserDict import UserDict
@@ -288,7 +289,18 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
        or in the whole tree if prune.
     """
 
-    rname = str(root).encode('string-escape')
+    rname = str(root)
+    if sys.version_info.major < 3:
+        # Python 2 UTF-8 encoded str are str. escape_encode is a str to str
+        # encoding
+        rname = codecs.escape_encode(rname)[0]
+    else:
+        # Python 3 UTF-8 encoded str are bytes. escape_encode is a byte to byte
+        # encoding here.
+        rname = rname.encode('utf-8')
+        rname = codecs.escape_encode(rname)[0]
+        # Finally, we need a string again.
+        rname = rname.decode('ascii')
 
     # Initialize 'visited' dict, if required
     if visited is None:

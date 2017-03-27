@@ -57,7 +57,14 @@ test.write('SConstruct',
 """
 env = Environment()
 env.Tool("textfile")
-env.Textfile("Foo", unichr(0xe7).encode('utf-8'))
+try:
+    # Python 2
+    write = unichr(0xe7).encode('utf-8')
+except NameError:
+    # Python 3
+    # str is utf-8 by default
+    write = chr(0xe7)
+env.Textfile("Foo", write)
 """)
 
 test.run(arguments = '-Q --tree=all',
