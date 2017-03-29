@@ -443,7 +443,6 @@ env = Environment(
                    MONTH_YEAR          = month_year,
                    REVISION            = revision,
                    VERSION             = version,
-                   DH_COMPAT           = 2,
 
                    TAR_HFLAG           = tar_hflag,
 
@@ -503,7 +502,8 @@ python_scons = {
 
         'debian_deps'   : [
                             'debian/changelog',
-                            'debian/control',
+                            'debian/compat',
+                            'debian/control',	    
                             'debian/copyright',
                             'debian/dirs',
                             'debian/docs',
@@ -625,6 +625,7 @@ scons_script = {
 
         'debian_deps'   : [
                             'debian/changelog',
+                            'debian/compat',
                             'debian/control',
                             'debian/copyright',
                             'debian/dirs',
@@ -669,6 +670,7 @@ scons = {
 
         'debian_deps'   : [
                             'debian/changelog',
+                            'debian/compat',
                             'debian/control',
                             'debian/copyright',
                             'debian/dirs',
