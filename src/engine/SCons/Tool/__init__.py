@@ -97,6 +97,7 @@ for suffix in LaTeXSuffixes:
     SourceFileScanner.add_scanner(suffix, LaTeXScanner)
     SourceFileScanner.add_scanner(suffix, PDFLaTeXScanner)
 
+
 class Tool(object):
     def __init__(self, name, toolpath=[], **kw):
         self.name = name
@@ -114,9 +115,9 @@ class Tool(object):
         # TODO: Interchange zipimport with normal initialization for better error reporting
         oldpythonpath = sys.path
         sys.path = self.toolpath + sys.path
+        # sys.stderr.write("Tool:%s\nPATH:%s\n"%(self.name,sys.path))
 
-
-        if sys.version_info[0] < 3:
+        if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] in (0,1,2,3,4)):
             # Py 2 code
             try:
                 try:
@@ -143,34 +144,81 @@ class Tool(object):
                                 pass
             finally:
                 sys.path = oldpythonpath
-        else:
+        elif sys.version_info[1] > 4:
+            # From: http://stackoverflow.com/questions/67631/how-to-import-a-module-given-the-full-path/67692#67692
+            # import importlib.util
+            # spec = importlib.util.spec_from_file_location("module.name", "/path/to/file.py")
+            # foo = importlib.util.module_from_spec(spec)
+            # spec.loader.exec_module(foo)
+            # foo.MyClass()
             # Py 3 code
-            try:
-                # Try site_tools first
-                return importlib.import_module(self.name)
-            except ImportError as e:
-                # Then try modules in main distribution
-                try:
-                    return importlib.import_module('SCons.Tool.'+self.name)
-                except ImportError as e:
-                    if str(e) != "No module named %s" % self.name:
-                        raise SCons.Errors.EnvironmentError(e)
-                    try:
-                        import zipimport
-                    except ImportError:
-                        pass
-                    else:
-                        for aPath in self.toolpath:
-                            try:
-                                importer = zipimport.zipimporter(aPath)
-                                return importer.load_module(self.name)
-                            except ImportError as e:
-                                pass
 
-            finally:
-                sys.path = oldpythonpath
+            import importlib.util
+
+            # sys.stderr.write("toolpath:%s\n" % self.toolpath)
+            # sys.stderr.write("SCONS.TOOL path:%s\n" % sys.modules['SCons.Tool'].__path__)
+            debug = False
+            spec = None
+            for path in self.toolpath:
+                file_path = os.path.join(path, "%s.py"%self.name)
+                file_package = os.path.join(path, self.name)
+
+                if debug: sys.stderr.write("Trying:%s %s\n"%(file_path, file_package))
+
+                if os.path.isfile(file_path):
+                    spec = importlib.util.spec_from_file_location(self.name, file_path)
+                    if debug: print("file_Path:%s FOUND"%file_path)
+                    break
+                elif os.path.isdir(file_package):
+                    spec = importlib.util.spec_from_file_location(self.name, file_package)
+                    if debug: print("PACKAGE:%s Found"%file_package)
+                    break
+
+                else:
+                    continue
+
+            if spec is None:
+                if debug: sys.stderr.write("NO SPEC :%s\n"%self.name)
+                spec = importlib.util.find_spec("."+self.name, package='SCons.Tool')
+                if debug: sys.stderr.write("Spec Found? .%s :%s\n"%(self.name, spec))
+
+            module = importlib.util.module_from_spec(spec)
+            if module is None:
+                if debug: print("MODULE IS NONE:%s"%self.name)
+                pass
+
+            spec.loader.exec_module(module)
+
+            sys.modules[self.name] = module
+            return module
 
 
+            # try:
+            #     # Try site_tools first
+            #     return importlib.import_module(self.name)
+            # except ImportError as e:
+            #     # Then try modules in main distribution
+            #     try:
+            #         return importlib.import_module('SCons.Tool.'+self.name)
+            #     except ImportError as e:
+            #         if str(e) != "No module named %s" % self.name:
+            #             raise SCons.Errors.EnvironmentError(e)
+            #         try:
+            #             import zipimport
+            #         except ImportError:
+            #             pass
+            #         else:
+            #             for aPath in self.toolpath:
+            #                 try:
+            #                     importer = zipimport.zipimporter(aPath)
+            #                     return importer.load_module(self.name)
+            #                 except ImportError as e:
+            #                     pass
+            #
+            # finally:
+            #     sys.path = oldpythonpath
+
+        sys.path = oldpythonpath
 
         full_name = 'SCons.Tool.' + self.name
         try:
