@@ -39,65 +39,68 @@ print("env1['TOOL_FOO'] =", env1.get('TOOL_FOO'))
 print("env1['TOOL_BAR'] =", env1.get('TOOL_BAR'))
 
 # pick a built-in tool with pretty simple behavior
-env2 = Environment(tools=['SCCS'])
-print("env2['SCCS'] =", env2.get('SCCS'))
-print("env2['TOOL_SCCS1'] =", env2.get('TOOL_SCCS1'))
-print("env2['TOOL_SCCS2'] =", env2.get('TOOL_SCCS2'))
+env2 = Environment(tools=['zip'])
+print("env2['ZIP'] =", env2.get('ZIP'))
+print("env2['TOOL_zip1'] =", env2.get('TOOL_zip1'))
+print("env2['TOOLDIR_zip'] =", env2.get('TOOLDIR_zip'))
 
-env3 = Environment(tools=['SCCS'], toolpath=['.'])
-print("env3['SCCS'] =", env3.get('SCCS'))
-print("env3['TOOL_SCCS1'] =", env3.get('TOOL_SCCS1'))
-print("env3['TOOL_SCCS2'] =", env3.get('TOOL_SCCS2'))
+env3 = Environment(tools=['zip'], toolpath=['.'])
+print("env3['ZIP'] =", env3.get('ZIP'))
+print("env3['TOOL_zip1'] =", env3.get('TOOL_zip1'))
+print("env3['TOOLDIR_zip'] =", env3.get('TOOLDIR_zip'))
 
-env4 = Environment(tools=['SCCS'], toolpath=['tools'])
-print("env4['SCCS'] =", env4.get('SCCS'))
-print("env4['TOOL_SCCS1'] =", env4.get('TOOL_SCCS1'))
-print("env4['TOOL_SCCS2'] =", env4.get('TOOL_SCCS2'))
+env4 = Environment(tools=['zip'], toolpath=['tools'])
+print("env4['ZIP'] =", env4.get('ZIP'))
+print("env4['TOOL_zip1'] =", env4.get('TOOL_zip1'))
+print("env4['TOOLDIR_zip'] =", env4.get('TOOLDIR_zip'))
 
-env5 = Environment(tools=['SCCS'], toolpath=['tools', '.'])
-print("env5['SCCS'] =", env5.get('SCCS'))
-print("env5['TOOL_SCCS1'] =", env5.get('TOOL_SCCS1'))
-print("env5['TOOL_SCCS2'] =", env5.get('TOOL_SCCS2'))
+# Should pick up from tools dir, and then current dir
+env5 = Environment(tools=['zip'], toolpath=['tools', '.'])
+print("env5['ZIP'] =", env5.get('ZIP'))
+print("env5['TOOL_zip1'] =", env5.get('TOOL_zip1'))
+print("env5['TOOLDIR_zip'] =", env5.get('TOOLDIR_zip'))
 
-env6 = Environment(tools=['SCCS'], toolpath=['.', 'tools'])
-print("env6['SCCS'] =", env6.get('SCCS'))
-print("env6['TOOL_SCCS1'] =", env6.get('TOOL_SCCS1'))
-print("env6['TOOL_SCCS2'] =", env6.get('TOOL_SCCS2'))
 
-env7 = Environment(TOOLPATH="tools", tools=['SCCS'], toolpath=['$TOOLPATH'])
-print("env7['SCCS'] =", env7.get('SCCS'))
-print("env7['TOOL_SCCS1'] =", env7.get('TOOL_SCCS1'))
-print("env7['TOOL_SCCS2'] =", env7.get('TOOL_SCCS2'))
+# Should pick up from current dir, and then tools dir
+env6 = Environment(tools=['zip'], toolpath=['.', 'tools'])
+print("env6['ZIP'] =", env6.get('ZIP'))
+print("env6['TOOL_zip1'] =", env6.get('TOOL_zip1'))
+print("env6['TOOLDIR_zip'] =", env6.get('TOOLDIR_zip'))
+
+env7 = Environment(TOOLPATH="tools", tools=['zip'], toolpath=['$TOOLPATH'])
+print("env7['ZIP'] =", env7.get('ZIP'))
+print("env7['TOOL_zip1'] =", env7.get('TOOL_zip1'))
+print("env7['TOOLDIR_zip'] =", env7.get('TOOLDIR_zip'))
 
 env8 = Environment(tools=[])
-env8.Tool('SCCS', toolpath=['tools'])
-print("env8['SCCS'] =", env8.get('SCCS'))
-print("env8['TOOL_SCCS1'] =", env8.get('TOOL_SCCS1'))
-print("env8['TOOL_SCCS2'] =", env8.get('TOOL_SCCS2'))
+env8.Tool('zip', toolpath=['tools'])
+print("env8['ZIP'] =", env8.get('ZIP'))
+print("env8['TOOL_zip1'] =", env8.get('TOOL_zip1'))
+print("env8['TOOLDIR_zip'] =", env8.get('TOOLDIR_zip'))
 
 env9 = Environment(tools=[])
-Tool('SCCS', toolpath=['tools'])(env9)
-print("env9['SCCS'] =", env9.get('SCCS'))
-print("env9['TOOL_SCCS1'] =", env9.get('TOOL_SCCS1'))
-print("env9['TOOL_SCCS2'] =", env9.get('TOOL_SCCS2'))
+Tool('zip', toolpath=['tools'])(env9)
+print("env9['ZIP'] =", env9.get('ZIP'))
+print("env9['TOOL_zip1'] =", env9.get('TOOL_zip1'))
+print("env9['TOOLDIR_zip'] =", env9.get('TOOLDIR_zip'))
 
 env0 = Environment(TOOLPATH='tools', tools=[])
-env0.Tool('SCCS', toolpath=['$TOOLPATH'])
-print("env0['SCCS'] =", env0.get('SCCS'))
-print("env0['TOOL_SCCS1'] =", env0.get('TOOL_SCCS1'))
-print("env0['TOOL_SCCS2'] =", env0.get('TOOL_SCCS2'))
+env0.Tool('zip', toolpath=['$TOOLPATH'])
+print("env0['ZIP'] =", env0.get('ZIP'))
+print("env0['TOOL_zip1'] =", env0.get('TOOL_zip1'))
+print("env0['TOOLDIR_zip'] =", env0.get('TOOLDIR_zip'))
 
 base = Environment(tools=[], toolpath=['tools'])
 derived = base.Clone(tools=['bar'])
 print("derived['TOOL_BAR'] =", derived.get('TOOL_BAR'))
 """)
 
-test.write('SCCS.py', r"""\
+test.write('zip.py', r"""
 def generate(env):
-    env['TOOL_SCCS1'] = 1
+    env['TOOL_zip1'] = 1
 def exists(env):
     return 1
-""")
+""",mode='w')
 
 test.subdir('tools')
 
@@ -105,10 +108,10 @@ test.write(['tools', 'Common.py'], r"""\
 One = 1
 """)
 
-test.write(['tools', 'SCCS.py'], r"""\
+test.write(['tools', 'zip.py'], r"""\
 import Common
 def generate(env):
-    env['TOOL_SCCS2'] = Common.One
+    env['TOOLDIR_zip'] = Common.One
 def exists(env):
     return Common.One
 """)
@@ -124,33 +127,33 @@ test.run(arguments = '.', stdout = """\
 scons: Reading SConscript files ...
 env1['TOOL_FOO'] = 1
 env1['TOOL_BAR'] = 1
-env2['SCCS'] = sccs
-env2['TOOL_SCCS1'] = None
-env2['TOOL_SCCS2'] = None
-env3['SCCS'] = None
-env3['TOOL_SCCS1'] = 1
-env3['TOOL_SCCS2'] = None
-env4['SCCS'] = None
-env4['TOOL_SCCS1'] = None
-env4['TOOL_SCCS2'] = 1
-env5['SCCS'] = None
-env5['TOOL_SCCS1'] = None
-env5['TOOL_SCCS2'] = 1
-env6['SCCS'] = None
-env6['TOOL_SCCS1'] = 1
-env6['TOOL_SCCS2'] = None
-env7['SCCS'] = None
-env7['TOOL_SCCS1'] = None
-env7['TOOL_SCCS2'] = 1
-env8['SCCS'] = None
-env8['TOOL_SCCS1'] = None
-env8['TOOL_SCCS2'] = 1
-env9['SCCS'] = None
-env9['TOOL_SCCS1'] = None
-env9['TOOL_SCCS2'] = 1
-env0['SCCS'] = None
-env0['TOOL_SCCS1'] = None
-env0['TOOL_SCCS2'] = 1
+env2['ZIP'] = zip
+env2['TOOL_zip1'] = None
+env2['TOOLDIR_zip'] = None
+env3['ZIP'] = None
+env3['TOOL_zip1'] = 1
+env3['TOOLDIR_zip'] = None
+env4['ZIP'] = None
+env4['TOOL_zip1'] = None
+env4['TOOLDIR_zip'] = 1
+env5['ZIP'] = None
+env5['TOOL_zip1'] = None
+env5['TOOLDIR_zip'] = 1
+env6['ZIP'] = None
+env6['TOOL_zip1'] = 1
+env6['TOOLDIR_zip'] = None
+env7['ZIP'] = None
+env7['TOOL_zip1'] = None
+env7['TOOLDIR_zip'] = 1
+env8['ZIP'] = None
+env8['TOOL_zip1'] = None
+env8['TOOLDIR_zip'] = 1
+env9['ZIP'] = None
+env9['TOOL_zip1'] = None
+env9['TOOLDIR_zip'] = 1
+env0['ZIP'] = None
+env0['TOOL_zip1'] = None
+env0['TOOLDIR_zip'] = 1
 derived['TOOL_BAR'] = 1
 scons: done reading SConscript files.
 scons: Building targets ...
