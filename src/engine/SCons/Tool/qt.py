@@ -59,7 +59,11 @@ SCons.Warnings.enableWarningClass(ToolQtWarning)
 header_extensions = [".h", ".hxx", ".hpp", ".hh"]
 if SCons.Util.case_sensitive_suffixes('.h', '.H'):
     header_extensions.append('.H')
-cplusplus = __import__('c++', globals(), locals(), [])
+
+import SCons.Tool.cxx
+cplusplus = SCons.Tool.cxx
+#cplusplus = __import__('cxx', globals(), locals(), [])
+
 cxx_suffixes = cplusplus.CXXSuffixes
 
 def checkMocIncluded(target, source, env):
