@@ -153,6 +153,10 @@ class Tool(object):
             # foo.MyClass()
             # Py 3 code
 
+            # Don't reload a tool we already loaded.
+            if sys.modules.get(self.name, False):
+                return sys.modules[self.name]
+
             import importlib.util
 
             # sys.stderr.write("toolpath:%s\n" % self.toolpath)
