@@ -182,10 +182,17 @@ class Tool(object):
                 spec = importlib.util.find_spec("."+self.name, package='SCons.Tool')
                 if debug: sys.stderr.write("Spec Found? .%s :%s\n"%(self.name, spec))
 
+            if spec is None:
+                error_string = "No module named %s"%self.name
+                raise SCons.Errors.EnvironmentError(error_string)
+
+
             module = importlib.util.module_from_spec(spec)
             if module is None:
                 if debug: print("MODULE IS NONE:%s"%self.name)
-                pass
+                error_string = "No module named %s"%self.name
+                raise SCons.Errors.EnvironmentError(error_string)
+
 
             spec.loader.exec_module(module)
 
