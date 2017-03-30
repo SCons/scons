@@ -1461,8 +1461,6 @@ def exists(env):
         assert env['SOURCE'] == 's', env['SOURCE']
         assert env['SOURCES'] == 'sss', env['SOURCES']
 
-
-
     def test_Append(self):
         """Test appending to construction variables in an Environment
         """
