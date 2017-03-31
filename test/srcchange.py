@@ -72,7 +72,7 @@ exe = env.Program('main.c')
 env.Default(exe)
 """ % locals())
 
-test.write('main.c', r"""\
+test.write('main.c', r"""
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -83,7 +83,7 @@ main(int argc, char *argv[])
     exit (0);
 }
 
-""")
+""",mode='w')
 
 test.write('revnum.in', '3.2\n')
 
