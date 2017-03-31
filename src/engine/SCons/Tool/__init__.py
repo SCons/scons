@@ -153,10 +153,7 @@ class Tool(object):
             # foo.MyClass()
             # Py 3 code
 
-            # Don't reload a tool we already loaded.
-            if sys.modules.get(self.name, False):
-                return sys.modules[self.name]
-
+            # import pdb; pdb.set_trace()
             import importlib.util
 
             # sys.stderr.write("toolpath:%s\n" % self.toolpath)
@@ -190,44 +187,25 @@ class Tool(object):
                 error_string = "No module named %s"%self.name
                 raise SCons.Errors.EnvironmentError(error_string)
 
-
             module = importlib.util.module_from_spec(spec)
             if module is None:
                 if debug: print("MODULE IS NONE:%s"%self.name)
                 error_string = "No module named %s"%self.name
                 raise SCons.Errors.EnvironmentError(error_string)
 
+            # Don't reload a tool we already loaded.
+            sys_modules_value = sys.modules.get(self.name,False)
+            if sys_modules_value and sys_modules_value.__file__ == spec.origin:
+                return sys.modules[self.name]
+            else:
+                # Not sure what to do in the case that there already
+                # exists sys.modules[self.name] but the source file is
+                # different.. ?
+                spec.loader.exec_module(module)
 
-            spec.loader.exec_module(module)
+                sys.modules[self.name] = module
+                return module
 
-            sys.modules[self.name] = module
-            return module
-
-
-            # try:
-            #     # Try site_tools first
-            #     return importlib.import_module(self.name)
-            # except ImportError as e:
-            #     # Then try modules in main distribution
-            #     try:
-            #         return importlib.import_module('SCons.Tool.'+self.name)
-            #     except ImportError as e:
-            #         if str(e) != "No module named %s" % self.name:
-            #             raise SCons.Errors.EnvironmentError(e)
-            #         try:
-            #             import zipimport
-            #         except ImportError:
-            #             pass
-            #         else:
-            #             for aPath in self.toolpath:
-            #                 try:
-            #                     importer = zipimport.zipimporter(aPath)
-            #                     return importer.load_module(self.name)
-            #                 except ImportError as e:
-            #                     pass
-            #
-            # finally:
-            #     sys.path = oldpythonpath
 
         sys.path = oldpythonpath
 
