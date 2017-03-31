@@ -44,6 +44,7 @@ print("env2['ZIP'] =", env2.get('ZIP'))
 print("env2['TOOL_zip1'] =", env2.get('TOOL_zip1'))
 print("env2['TOOLDIR_zip'] =", env2.get('TOOLDIR_zip'))
 
+# Only find tools in current dir, or Scons.Tool.TOOLNAME
 env3 = Environment(tools=['zip'], toolpath=['.'])
 print("env3['ZIP'] =", env3.get('ZIP'))
 print("env3['TOOL_zip1'] =", env3.get('TOOL_zip1'))
