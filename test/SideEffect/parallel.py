@@ -35,7 +35,7 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.write('build.py', """\
+test.write('build.py', """
 import os
 import sys
 import time
@@ -93,7 +93,7 @@ log_lines = [
     'g2.in -> g2.out',
 ]
 
-test.must_contain_all_lines(test.read('log.txt'), log_lines)
+test.must_contain_all_lines(test.read('log.txt', mode='r'), log_lines)
 
 
 test.pass_test()
