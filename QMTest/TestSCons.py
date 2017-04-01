@@ -707,8 +707,15 @@ class TestSCons(TestCommon):
         """
         Return java include paths compiling java jni code
         """
-        import glob
         import sys
+
+        result = []
+        if sys.platform[:6] == 'darwin':
+            java_home = self.java_where_java_home(version)
+            jni_path = os.path.join(java_home,'include','jni.h')
+            if os.path.exists(jni_path):
+                result.append(os.path.dirname(jni_path))
+
         if not version:
             version=''
             jni_dirs = ['/System/Library/Frameworks/JavaVM.framework/Headers/jni.h',
@@ -723,7 +730,7 @@ class TestSCons(TestCommon):
         if not dirs:
             return None
         d=os.path.dirname(self.paths(jni_dirs)[0])
-        result=[d]
+        result.append(d)
 
         if sys.platform == 'win32':
             result.append(os.path.join(d,'win32'))
