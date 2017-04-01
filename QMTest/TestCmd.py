@@ -452,6 +452,7 @@ def pass_test(self = None, condition = 1, function = None):
     sys.stderr.write("PASSED\n")
     sys.exit(0)
 
+
 def match_exact(lines = None, matches = None):
     """
     """
@@ -465,6 +466,7 @@ def match_exact(lines = None, matches = None):
         if lines[i] != matches[i]:
             return
     return 1
+
 
 def match_caseinsensitive(lines = None, matches = None):
     """
