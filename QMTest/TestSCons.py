@@ -712,7 +712,8 @@ class TestSCons(TestCommon):
         if not version:
             version=''
             jni_dirs = ['/System/Library/Frameworks/JavaVM.framework/Headers/jni.h',
-                        '/usr/lib/jvm/default-java/include/jni.h']
+                        '/usr/lib/jvm/default-java/include/jni.h',
+                        '/usr/lib/jvm/java-*-oracle/include/jni.h']
         else:
             jni_dirs = ['/System/Library/Frameworks/JavaVM.framework/Versions/%s*/Headers/jni.h'%version]
         jni_dirs.extend(['/usr/lib/jvm/java-*-sun-%s*/include/jni.h'%version,
