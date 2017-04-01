@@ -22,6 +22,7 @@ import re
 import shutil
 import sys
 import time
+import subprocess
 
 from TestCommon import *
 from TestCommon import __all__
@@ -729,16 +730,34 @@ class TestSCons(TestCommon):
             result.append(os.path.join(d,'linux'))
         return result
 
-
-    def java_where_java_home(self,version=None):
+    def java_where_java_home(self, version=None):
         if sys.platform[:6] == 'darwin':
+            # osx 10.11, 10.12
+            home_tool = '/usr/libexec/java_home'
+            java_home = False
+            if os.path.exists(home_tool):
+                java_home = subprocess.check_output(home_tool).strip()
+                java_home = java_home.decode()
+
             if version is None:
-                home = '/System/Library/Frameworks/JavaVM.framework/Home'
+                if java_home:
+                    return java_home
+                else:
+                    homes = ['/System/Library/Frameworks/JavaVM.framework/Home',
+                            # osx 10.10
+                             '/System/Library/Frameworks/JavaVM.framework/Versions/Current/Home']
+                    for home in homes:
+                        if os.path.exists(home):
+                            return home
+
             else:
-                home = '/System/Library/Frameworks/JavaVM.framework/Versions/%s/Home' % version
-                if not os.path.exists(home):
-                    # This works on OSX 10.10
-                    home = '/System/Library/Frameworks/JavaVM.framework/Versions/Current/'
+                if java_home.find('jdk%s'%version) != -1:
+                    return java_home
+                else:
+                    home = '/System/Library/Frameworks/JavaVM.framework/Versions/%s/Home' % version
+                    if not os.path.exists(home):
+                        # This works on OSX 10.10
+                        home = '/System/Library/Frameworks/JavaVM.framework/Versions/Current/'
         else:
             jar = self.java_where_jar(version)
             home = os.path.normpath('%s/..'%jar)
@@ -1028,7 +1047,7 @@ SConscript( sconscript )
                     nols = nols + "|"
             nols = nols + ")"
             lastEnd = 0
-            logfile = self.read(self.workpath(logfile))
+            logfile = self.read(self.workpath(logfile), mode='r')
 
             # Some debug code to keep around..
             # sys.stderr.write("LOGFILE[%s]:%s"%(type(logfile),logfile))
