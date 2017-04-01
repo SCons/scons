@@ -74,7 +74,7 @@ test.subdir(['src'],
 
 test.write(['SConstruct'], """\
 import os,sys
-env=Environment(tools = ['default', 'javac', 'javah'],
+env=Environment(tools = ['default', 'javac', 'javah', 'swig'],
                 CPPPATH=%(where_java_include)s,                 
                 JAVAC = r'%(where_javac)s',
                 JAVAH = r'%(where_javah)s')
