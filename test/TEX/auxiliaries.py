@@ -76,7 +76,7 @@ envc.Default(test_ps)
 envc.Default(test_pdf)
 """)
 
-test.write(['docs', 'my.bib'], """\
+test.write(['docs', 'my.bib'], r"""\
 @ARTICLE{Mikhin,
    author = "Dmitry {\uppercase{Y}u}. Mikhin",
    title = "Blah!",
@@ -86,7 +86,7 @@ test.write(['docs', 'my.bib'], """\
    number = "3",
    pages = "1--2"
 }
-""")
+""",mode='w')
 
 tex_input = r"""\documentclass{article}
 
