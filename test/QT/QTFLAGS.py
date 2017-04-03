@@ -148,7 +148,7 @@ test.must_exist(['work1', 'mmmmocFromH.cxx'],
 
 def _flagTest(test,fileToContentsStart):
     for f,c in fileToContentsStart.items():
-        if test.read(test.workpath('work1', f)).find(c) != 0:
+        if test.read(test.workpath('work1', f), mode='r').find(c) != 0:
             return 1
     return 0
 

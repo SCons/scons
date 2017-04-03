@@ -871,12 +871,12 @@ output = None
 impl = 0
 opt_string = ''
 for opt, arg in cmd_opts:
-    if opt == '-o': output = open(arg, 'wb')
+    if opt == '-o': output = open(arg, 'w')
     elif opt == '-i': impl = 1
     else: opt_string = opt_string + ' ' + opt
 output.write("/* mymoc.py%s */\\n" % opt_string)
 for a in args:
-    contents = open(a, 'rb').read()
+    contents = open(a, 'r').read()
     a = a.replace('\\\\', '\\\\\\\\')
     subst = r'{ my_qt_symbol( "' + a + '\\\\n" ); }'
     if impl:
@@ -897,7 +897,7 @@ source = None
 opt_string = ''
 for arg in sys.argv[1:]:
     if output_arg:
-        output = open(arg, 'wb')
+        output = open(arg, 'w')
         output_arg = 0
     elif impl_arg:
         impl = arg
@@ -911,7 +911,7 @@ for arg in sys.argv[1:]:
     else:
         if source:
             sys.exit(1)
-        source = open(arg, 'rb')
+        source = open(arg, 'r')
         sourceFile = arg
 output.write("/* myuic.py%s */\\n" % opt_string)
 if impl:
