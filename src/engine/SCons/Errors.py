@@ -32,8 +32,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Util
 
+
 class BuildError(Exception):
-    """ Errors occuring while building.
+    """ Errors occurring while building.
 
     BuildError have the following attributes:
 
@@ -90,8 +91,9 @@ class BuildError(Exception):
                  node=None, errstr="Unknown error", status=2, exitstatus=2,
                  filename=None, executor=None, action=None, command=None,
                  exc_info=(None, None, None)):
-        
-        self.errstr = errstr
+
+        # py3: errstr should be string and not bytes.
+        self.errstr = SCons.Util.to_str(errstr)
         self.status = status
         self.exitstatus = exitstatus
         self.filename = filename
