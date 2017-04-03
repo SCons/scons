@@ -75,10 +75,10 @@ Install file: "%(subdir_file3_in)s" as "%(install_file3_out)s"
 
 test.run(arguments = '.', stdout=expect)
 
-test.fail_test(test.read(install_file1_out) != "file1.in\n")
-test.fail_test(test.read(install_file2_out) != "file2.in\n")
-test.fail_test(test.read(install_file3_out) != "subdir/file3.in\n")
-test.fail_test(test.read(install_file1a_out) != "file1.in\n")
+test.must_match(install_file1_out, "file1.in\n", mode='r')
+test.must_match(install_file2_out, "file2.in\n", mode='r')
+test.must_match(install_file3_out, "subdir/file3.in\n", mode='r')
+test.must_match(install_file1a_out, "file1.in\n", mode='r')
 
 test.up_to_date(arguments = '.')
 
