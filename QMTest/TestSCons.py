@@ -1033,16 +1033,29 @@ SConscript( sconscript )
                           logfile, sconf_dir, sconstruct,
                           doCheckLog=True, doCheckStdout=True):
         """
-        
+        Used to verify the expected output from using Configure()
+        via the contents of one or both of stdout or config.log file. 
+        The checks, results, cached parameters all are zipped together
+        for use in comparing results.
+
+        TODO: Perhaps a better API makes sense?
+
         Parameters
         ----------
-        checks
-        results
-        cached
-        logfile
-        sconf_dir
-        sconstruct 
+        checks : The Configure checks being run
+
+        results : The expected results for each check
+
+        cached  : If the corresponding check is expected to be cached
+
+        logfile : Name of the config log
+
+        sconf_dir : Name of the sconf dir
+
+        sconstruct : SConstruct file name
+
         doCheckLog : check specified log file, defaults to true
+
         doCheckStdout : Check stdout, defaults to true
 
         Returns
@@ -1055,10 +1068,14 @@ SConscript( sconscript )
                 self.pos = p
 
         def matchPart(log, logfile, lastEnd, NoMatch=NoMatch):
+            """
+            Match part of the logfile
+            """
             m = re.match(log, logfile[lastEnd:])
             if not m:
                 raise NoMatch(lastEnd)
             return m.end() + lastEnd
+
         try:
 
             # Build regexp for a character which is not
@@ -1067,16 +1084,22 @@ SConscript( sconscript )
             # TODO: Not sure why this is a good idea. A static string
             #       could do the same since we only have two variations
             #       to do with?
-            ls = os.linesep
-            nols = "("
-            for i in range(len(ls)):
-                nols = nols + "("
-                for j in range(i):
-                    nols = nols + ls[j]
-                nols = nols + "[^" + ls[i] + "])"
-                if i < len(ls)-1:
-                    nols = nols + "|"
-            nols = nols + ")"
+            # ls = os.linesep
+            # nols = "("
+            # for i in range(len(ls)):
+            #     nols = nols + "("
+            #     for j in range(i):
+            #         nols = nols + ls[j]
+            #     nols = nols + "[^" + ls[i] + "])"
+            #     if i < len(ls)-1:
+            #         nols = nols + "|"
+            # nols = nols + ")"
+            #
+            # Replaced above logic with \n as we're reading the file
+            # using non-binary read. Python will translate \r\n -> \n
+            # For us.
+            ls = '\n'
+            nols = '([^\n])'
             lastEnd = 0
 
             # Read the whole logfile
@@ -1086,30 +1109,35 @@ SConscript( sconscript )
             # sys.stderr.write("LOGFILE[%s]:%s"%(type(logfile),logfile))
 
             if (doCheckLog and
-                logfile.find( "scons: warning: The stored build "
-                             "information has an unexpected class." ) >= 0):
+                logfile.find("scons: warning: The stored build information has an unexpected class.") >= 0):
                 self.fail_test()
 
             sconf_dir = sconf_dir
             sconstruct = sconstruct
 
             log = r'file\ \S*%s\,line \d+:' % re.escape(sconstruct) + ls
-            if doCheckLog: lastEnd = matchPart(log, logfile, lastEnd)
+            if doCheckLog: 
+                lastEnd = matchPart(log, logfile, lastEnd)
 
             log = "\t" + re.escape("Configure(confdir = %s)" % sconf_dir) + ls
-            if doCheckLog: lastEnd = matchPart(log, logfile, lastEnd)
+            if doCheckLog: 
+                lastEnd = matchPart(log, logfile, lastEnd)
             
             rdstr = ""
             cnt = 0
             for check,result,cache_desc in zip(checks, results, cached):
                 log   = re.escape("scons: Configure: " + check) + ls
-                if doCheckLog: lastEnd = matchPart(log, logfile, lastEnd)
+
+                if doCheckLog: 
+                    lastEnd = matchPart(log, logfile, lastEnd)
+
                 log = ""
                 result_cached = 1
                 for bld_desc in cache_desc: # each TryXXX
                     for ext, flag in bld_desc: # each file in TryBuild
                         file = os.path.join(sconf_dir,"conftest_%d%s" % (cnt, ext))
                         if flag == self.NCR:
+                            # NCR = Non Cached Rebuild
                             # rebuild will pass
                             if ext in ['.c', '.cpp']:
                                 log=log + re.escape(file + " <-") + ls
@@ -1118,6 +1146,7 @@ SConscript( sconscript )
                                 log=log + "(" + nols + "*" + ls +")*?"
                             result_cached = 0
                         if flag == self.CR:
+                            # CR = cached rebuild (up to date)s
                             # up to date
                             log=log + \
                                  re.escape("scons: Configure: \"%s\" is up to date."
@@ -1143,7 +1172,10 @@ SConscript( sconscript )
                     result = "(cached) " + result
                 rdstr = rdstr + re.escape(check) + re.escape(result) + "\n"
                 log=log + re.escape("scons: Configure: " + result) + ls + ls
-                if doCheckLog: lastEnd = matchPart(log, logfile, lastEnd)
+
+                if doCheckLog: 
+                    lastEnd = matchPart(log, logfile, lastEnd)
+
                 log = ""
             if doCheckLog: lastEnd = matchPart(ls, logfile, lastEnd)
             if doCheckLog and lastEnd != len(logfile):
