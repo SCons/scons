@@ -94,7 +94,7 @@ test.checkLogAndStdout(["Checking for C library %s... " % lib,
                        [[((".c", CR), (_obj, CR))],
                         [((".c", CR), (_obj, CF))]],
                        "config.log", ".sconf_temp", "SConstruct",
-                       doCheckLog=0)
+                       doCheckLog=False)
 
 newLog = test.read(test.workpath('config.log'), mode='r')
 if newLog != oldLog:
