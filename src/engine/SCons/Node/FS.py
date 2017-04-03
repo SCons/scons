@@ -690,6 +690,10 @@ class Base(SCons.Node.Node):
             return self._save_str()
         return self._get_str()
 
+    def __lt__(self, other):
+        """ less than operator used by sorting on py3"""
+        return str(self) < str(other)
+
     @SCons.Memoize.CountMethodCall
     def _save_str(self):
         try:
