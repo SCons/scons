@@ -1031,7 +1031,24 @@ SConscript( sconscript )
 
     def checkLogAndStdout(self, checks, results, cached,
                           logfile, sconf_dir, sconstruct,
-                          doCheckLog=1, doCheckStdout=1):
+                          doCheckLog=True, doCheckStdout=True):
+        """
+        
+        Parameters
+        ----------
+        checks
+        results
+        cached
+        logfile
+        sconf_dir
+        sconstruct 
+        doCheckLog : check specified log file, defaults to true
+        doCheckStdout : Check stdout, defaults to true
+
+        Returns
+        -------
+
+        """
 
         class NoMatch(Exception):
             def __init__(self, p):
@@ -1043,6 +1060,13 @@ SConscript( sconscript )
                 raise NoMatch(lastEnd)
             return m.end() + lastEnd
         try:
+
+            # Build regexp for a character which is not
+            # a linesep, and in the case of CR/LF
+            # build it with both CR and CR/LF
+            # TODO: Not sure why this is a good idea. A static string
+            #       could do the same since we only have two variations
+            #       to do with?
             ls = os.linesep
             nols = "("
             for i in range(len(ls)):
@@ -1054,6 +1078,8 @@ SConscript( sconscript )
                     nols = nols + "|"
             nols = nols + ")"
             lastEnd = 0
+
+            # Read the whole logfile
             logfile = self.read(self.workpath(logfile), mode='r')
 
             # Some debug code to keep around..
@@ -1063,13 +1089,16 @@ SConscript( sconscript )
                 logfile.find( "scons: warning: The stored build "
                              "information has an unexpected class." ) >= 0):
                 self.fail_test()
+
             sconf_dir = sconf_dir
             sconstruct = sconstruct
 
             log = r'file\ \S*%s\,line \d+:' % re.escape(sconstruct) + ls
             if doCheckLog: lastEnd = matchPart(log, logfile, lastEnd)
+
             log = "\t" + re.escape("Configure(confdir = %s)" % sconf_dir) + ls
             if doCheckLog: lastEnd = matchPart(log, logfile, lastEnd)
+            
             rdstr = ""
             cnt = 0
             for check,result,cache_desc in zip(checks, results, cached):
