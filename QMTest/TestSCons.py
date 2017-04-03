@@ -1043,7 +1043,6 @@ SConscript( sconscript )
                 raise NoMatch(lastEnd)
             return m.end() + lastEnd
         try:
-            #print(len(os.linesep))
             ls = os.linesep
             nols = "("
             for i in range(len(ls)):
