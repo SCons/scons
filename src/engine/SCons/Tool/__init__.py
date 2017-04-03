@@ -98,9 +98,16 @@ for suffix in LaTeXSuffixes:
     SourceFileScanner.add_scanner(suffix, PDFLaTeXScanner)
 
 
+# Tool aliases are needed for those tools whos module names also
+# occur in the python standard library. This causes module shadowing and
+# can break using python library functions under python3
+TOOL_ALIASES = {'gettext':'gettext_tool'}
+
 class Tool(object):
     def __init__(self, name, toolpath=[], **kw):
-        self.name = name
+
+        # Rename if there's a TOOL_ALIAS for this tool
+        self.name = TOOL_ALIASES.get(name,name)
         self.toolpath = toolpath + DefaultToolpath
         # remember these so we can merge them into the call
         self.init_kw = kw
@@ -112,7 +119,6 @@ class Tool(object):
             self.options = module.options
 
     def _tool_module(self):
-        # TODO: Interchange zipimport with normal initialization for better error reporting
         oldpythonpath = sys.path
         sys.path = self.toolpath + sys.path
         # sys.stderr.write("Tool:%s\nPATH:%s\n"%(self.name,sys.path))
@@ -160,6 +166,7 @@ class Tool(object):
             # sys.stderr.write("SCONS.TOOL path:%s\n" % sys.modules['SCons.Tool'].__path__)
             debug = False
             spec = None
+            found_name = self.name
             for path in self.toolpath:
                 file_path = os.path.join(path, "%s.py"%self.name)
                 file_package = os.path.join(path, self.name)
@@ -181,6 +188,8 @@ class Tool(object):
             if spec is None:
                 if debug: sys.stderr.write("NO SPEC :%s\n"%self.name)
                 spec = importlib.util.find_spec("."+self.name, package='SCons.Tool')
+                if spec:
+                    found_name = 'SCons.Tool.'+self.name
                 if debug: sys.stderr.write("Spec Found? .%s :%s\n"%(self.name, spec))
 
             if spec is None:
@@ -194,16 +203,16 @@ class Tool(object):
                 raise SCons.Errors.EnvironmentError(error_string)
 
             # Don't reload a tool we already loaded.
-            sys_modules_value = sys.modules.get(self.name,False)
+            sys_modules_value = sys.modules.get(found_name,False)
             if sys_modules_value and sys_modules_value.__file__ == spec.origin:
-                return sys.modules[self.name]
+                return sys.modules[found_name]
             else:
                 # Not sure what to do in the case that there already
                 # exists sys.modules[self.name] but the source file is
                 # different.. ?
                 spec.loader.exec_module(module)
 
-                sys.modules[self.name] = module
+                sys.modules[found_name] = module
                 return module
 
 
