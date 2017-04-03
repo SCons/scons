@@ -709,7 +709,13 @@ else:
 
     for tp in testpaths:
         # Clean up path so it can match startswith's below
-        tp = os.path.normpath(tp)
+        # sys.stderr.write("Changed:%s->"%tp)
+        # remove leading ./ or .\
+        if tp[0] == '.' and tp[1] in (os.sep, os.altsep):
+            tp = tp[2:]
+        # tp = os.path.normpath(tp)
+        # sys.stderr.write('->%s<-'%tp)
+        # sys.stderr.write("to:%s\n"%tp)
         for path in glob.glob(tp):
             if os.path.isdir(path):
                 if path.startswith('src'):
