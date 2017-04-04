@@ -542,6 +542,7 @@ class Task(object):
             exc_type, exc_value = exc
             exc_traceback = None
 
+        # raise exc_type(exc_value).with_traceback(exc_traceback)
         if sys.version_info[0] == 2:
             exec("raise exc_type, exc_value, exc_traceback")
         else: #  sys.version_info[0] == 3:
@@ -960,7 +961,7 @@ class Taskmaster(object):
         task = self.tasker(self, tlist, node in self.original_top, node)
         try:
             task.make_ready()
-        except:
+        except Exception as e :
             # We had a problem just trying to get this task ready (like
             # a child couldn't be linked to a VariantDir when deciding
             # whether this node is current).  Arrange to raise the
