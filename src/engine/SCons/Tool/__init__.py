@@ -167,6 +167,7 @@ class Tool(object):
             debug = False
             spec = None
             found_name = self.name
+            add_to_scons_tools_namespace = False
             for path in self.toolpath:
                 file_path = os.path.join(path, "%s.py"%self.name)
                 file_package = os.path.join(path, self.name)
@@ -190,6 +191,7 @@ class Tool(object):
                 spec = importlib.util.find_spec("."+self.name, package='SCons.Tool')
                 if spec:
                     found_name = 'SCons.Tool.'+self.name
+                    add_to_scons_tools_namespace = True
                 if debug: sys.stderr.write("Spec Found? .%s :%s\n"%(self.name, spec))
 
             if spec is None:
@@ -213,6 +215,10 @@ class Tool(object):
                 spec.loader.exec_module(module)
 
                 sys.modules[found_name] = module
+                if add_to_scons_tools_namespace:
+                    # If we found it in SCons.Tool, then add it to the module
+                    setattr(SCons.Tool, self.name, module)
+
                 return module
 
 
