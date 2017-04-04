@@ -42,7 +42,7 @@ test.write('foo.in', "foo.in 1\n")
 
 
 
-scons = test.start(arguments = '-Q --interactive')
+scons = test.start(arguments='-Q --interactive')
 
 scons.send("build foo-alias\n")
 
