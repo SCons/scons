@@ -86,7 +86,7 @@ test.write(['docs', 'my.bib'], r"""\
    number = "3",
    pages = "1--2"
 }
-""",mode='w')
+""", mode='w')
 
 tex_input = r"""\documentclass{article}
 
