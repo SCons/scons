@@ -305,6 +305,7 @@ def InstallBuilderWrapper(env, target=None, source=None, dir=None, **kw):
             tgt.extend(BaseInstallBuilder(env, target, src, **kw))
     return tgt
 
+
 def InstallAsBuilderWrapper(env, target=None, source=None, **kw):
     result = []
     for src, tgt in map(lambda x, y: (x, y), source, target):
@@ -312,6 +313,7 @@ def InstallAsBuilderWrapper(env, target=None, source=None, **kw):
     return result
 
 BaseVersionedInstallBuilder = None
+
 
 def InstallVersionedBuilderWrapper(env, target=None, source=None, dir=None, **kw):
     if target and dir:
@@ -343,6 +345,7 @@ def InstallVersionedBuilderWrapper(env, target=None, source=None, dir=None, **kw
     return tgt
 
 added = None
+
 
 def generate(env):
 
