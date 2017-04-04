@@ -736,8 +736,20 @@ class Popen(subprocess.Popen):
         getattr(self, which).close()
         setattr(self, which, None)
 
+
+    def to_bytes (s):
+        if isinstance (s, bytes) or bytes is str:
+            return s
+        return bytes (s, 'utf-8')
+
+    def to_str (s):
+        if bytes is str or is_String(s):
+            return s
+        return str (s, 'utf-8')
+
     if sys.platform == 'win32':# and subprocess.mswindows:
         def send(self, input):
+            input = to_bytes(input)
             if not self.stdin:
                 return None
 
