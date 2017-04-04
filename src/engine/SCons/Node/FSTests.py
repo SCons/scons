@@ -673,7 +673,7 @@ class BaseTestCase(_tempdirTestCase):
         nonexistent = fs.Entry('nonexistent')
         assert not nonexistent.isfile()
 
-    if hasattr(os, 'symlink'):
+    if sys.platform != 'win32' and hasattr(os, 'symlink'):
         def test_islink(self):
             """Test the Base.islink() method"""
             test = self.test
@@ -1399,7 +1399,7 @@ class FSTestCase(_tempdirTestCase):
         except SyntaxError:
             assert c == ""
 
-        if hasattr(os, 'symlink'):
+        if sys.platform != 'win32' and hasattr(os, 'symlink'):
             os.symlink('nonexistent', test.workpath('dangling_symlink'))
             e = fs.Entry('dangling_symlink')
             c = e.get_contents()
@@ -1494,16 +1494,14 @@ class FSTestCase(_tempdirTestCase):
         assert r, r
         assert not os.path.exists(test.workpath('exists')), "exists was not removed"
 
-        symlink = test.workpath('symlink')
-        try:
+        if sys.platform != 'win32' and hasattr(os, 'symlink'):
+            symlink = test.workpath('symlink')
             os.symlink(test.workpath('does_not_exist'), symlink)
             assert os.path.islink(symlink)
             f = fs.File('symlink')
             r = f.remove()
             assert r, r
             assert not os.path.islink(symlink), "symlink was not removed"
-        except AttributeError:
-            pass
 
         test.write('can_not_remove', "can_not_remove\n")
         test.writable(test.workpath('.'), 0)
