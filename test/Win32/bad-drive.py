@@ -84,7 +84,7 @@ test.write("no_source", "no_source\n")
 
 test.run(arguments = 'aaa.out')
 
-test.fail_test(test.read('aaa.out') != "aaa.in\n")
+test.must_match('aaa.out', "aaa.in\n", mode='r')
 
 # This next test used to provide a slightly different error message:
 # "scons: *** Do not know how to make File target `%snot_mentioned'.  Stop.\n"
