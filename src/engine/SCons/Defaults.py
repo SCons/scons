@@ -485,12 +485,14 @@ def processDefines(defs):
         l = [str(defs)]
     return l
 
+
 def _defines(prefix, defs, suffix, env, c=_concat_ixes):
     """A wrapper around _concat_ixes that turns a list or string
     into a list of C preprocessor command-line definitions.
     """
 
     return c(prefix, env.subst_path(processDefines(defs)), suffix, env)
+
 
 class NullCmdGenerator(object):
     """This is a callable class that can be used in place of other
@@ -509,6 +511,7 @@ class NullCmdGenerator(object):
 
     def __call__(self, target, source, env, for_signature=None):
         return self.cmd
+
 
 class Variable_Method_Caller(object):
     """A class for finding a construction variable on the stack and
