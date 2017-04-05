@@ -120,7 +120,7 @@ test.write(['docs', 'test.tex'], tex_input)
 test.run(stderr=None)
 
 pdf_output_1 = test.read(['build', 'docs', 'test.pdf'])
-ps_output_1 = test.read(['build', 'docs', 'test.ps'])
+ps_output_1 = test.read(['build', 'docs', 'test.ps'], mode='r')
 
 # Adding blank lines will cause SCons to re-run the builds, but the
 # actual contents of the output files should be the same modulo
@@ -130,7 +130,7 @@ test.write(['docs', 'test.tex'], tex_input + "\n\n\n")
 test.run(stderr=None)
 
 pdf_output_2 = test.read(['build', 'docs', 'test.pdf'])
-ps_output_2 = test.read(['build', 'docs', 'test.ps'])
+ps_output_2 = test.read(['build', 'docs', 'test.ps'], mode='r')
 
 
 
