@@ -47,7 +47,7 @@ test.run(stdout = "scons: Reading SConscript files ...\ninternal error\n",
   File ".+", line \d+, in .+
   File ".+SConstruct", line \d+, in .+
     raise InternalError\('error inside'\)
-InternalError: error inside
+(SCons\.Errors\.|)InternalError: error inside
 """, status=2)
 
 test.pass_test()
