@@ -170,7 +170,7 @@ SCons/Variables/PackageVariable.py
 SCons/Variables/PathVariable.py
 SCons/Warnings.py
 SCons/Tool/GettextCommon.py
-SCons/Tool/gettext.py
+SCons/Tool/gettext_tool.py
 SCons/Tool/msgfmt.py
 SCons/Tool/msginit.py
 SCons/Tool/msgmerge.py
