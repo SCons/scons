@@ -37,7 +37,9 @@ import SCons.Util
 
 # list of graphics file extensions for TeX and LaTeX
 TexGraphics   = ['.eps', '.ps']
-LatexGraphics = ['.pdf', '.png', '.jpg', '.gif', '.tif']
+#LatexGraphics = ['.pdf', '.png', '.jpg', '.gif', '.tif']
+LatexGraphics = [ '.png', '.jpg', '.gif', '.tif']
+
 
 # Used as a return value of modify_env_var if the variable is not set.
 class _Null(object):
@@ -397,6 +399,7 @@ class LaTeX(SCons.Scanner.Base):
             
             include = queue.pop()
             inc_type, inc_subdir, inc_filename = include
+
             try:
                 if seen[inc_filename] == 1:
                     continue
