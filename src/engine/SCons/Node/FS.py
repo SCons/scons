@@ -477,6 +477,11 @@ class EntryProxy(SCons.Util.Proxy):
 
     __str__ = SCons.Util.Delegate('__str__')
 
+    # In PY3 if a class defines __eq__, then it must explicitly provide
+    # __hash__.  Since SCons.Util.Proxy provides __eq__ we need the following
+    # see: https://docs.python.org/3.1/reference/datamodel.html#object.__hash__
+    __hash__ = SCons.Util.Delegate('__hash__')
+
     def __get_abspath(self):
         entry = self.get()
         return SCons.Subst.SpecialAttrWrapper(entry.get_abspath(),
@@ -573,6 +578,7 @@ class EntryProxy(SCons.Util.Proxy):
             return attr
         else:
             return attr_function(self)
+
 
 class Base(SCons.Node.Node):
     """A generic class for file system entries.  This class is for
