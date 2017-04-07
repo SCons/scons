@@ -1260,11 +1260,11 @@ def _build_targets(fs, options, targets, target_top):
     jobs = SCons.Job.Jobs(num_jobs, taskmaster)
     if num_jobs > 1:
         msg = None
-        if jobs.num_jobs == 1 or not python_has_threads:
+        if sys.platform == 'win32':
+            msg = fetch_win32_parallel_msg()
+        elif jobs.num_jobs == 1 or not python_has_threads:
             msg = "parallel builds are unsupported by this version of Python;\n" + \
                   "\tignoring -j or num_jobs option.\n"
-        elif sys.platform == 'win32':
-            msg = fetch_win32_parallel_msg()
         if msg:
             SCons.Warnings.warn(SCons.Warnings.NoParallelSupportWarning, msg)
 
