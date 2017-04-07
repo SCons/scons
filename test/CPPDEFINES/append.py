@@ -52,12 +52,28 @@ env_2300_2 = Environment(CPPDEFINES = ['foo'], CPPDEFPREFIX='-D') # note the lis
 env_2300_2.Append(CPPDEFINES='bar')
 print(env_2300_2.subst('$_CPPDEFFLAGS'))
 
+
+# Python3 dicts dont preserve order. Hence we supply subclass of OrderedDict
+# whose __str__ and __repr__ act like a normal dict.
+from collections import OrderedDict
+class OrderedPrintingDict(OrderedDict):
+    def __str__(self):
+        return '{' + ', '.join(['%r: %r'%(k, v) for (k, v) in self.items()]) + '}'
+
+    def __repr__(self):
+        return '{' + ', '.join(['%r: %r'%(k, v) for (k, v) in self.items()]) + '}'
+
+    def __semi_deepcopy__(self):
+        # Because a dict subclass is not deep copied directly when constructing
+        # Environment(CPPDEFINES = OrderedPrintingDict(...))
+        return self.copy()
+
 # http://scons.tigris.org/issues/show_bug.cgi?id=1152
 # http://scons.tigris.org/issues/show_bug.cgi?id=2900
 cases=[('string', 'FOO'),
        ('list', ['NAME1', 'NAME2']),
        ('list-of-2lists', [('NAME1','VAL1'), ['NAME2','VAL2']]),
-       ('dict', {'NAME1' : 'VAL1', 'NAME2' : 'VAL2', 'NAME3' : None})
+       ('dict', OrderedPrintingDict([('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]))
        ]
 
 for (t1, c1) in cases:
@@ -180,7 +196,7 @@ AppendUnique:
 ==== Testing CPPDEFINES, appending a string to a dict
    orig = {'NAME2': 'VAL2', 'NAME3': None, 'NAME1': 'VAL1'}, append = FOO
 Append:
-	result={'FOO': None, 'NAME2': 'VAL2', 'NAME3': None, 'NAME1': 'VAL1'}
+	result={'NAME2': 'VAL2', 'NAME3': None, 'NAME1': 'VAL1', 'FOO': None}
 	final=-DFOO -DNAME1=VAL1 -DNAME2=VAL2 -DNAME3
 AppendUnique:
 	result=[('NAME2', 'VAL2'), ('NAME3',), ('NAME1', 'VAL1'), 'FOO']
