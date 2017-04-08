@@ -56,6 +56,20 @@ int main(int argc, char *argv[])
 """)
 
 test.write('SConstruct', """\
+# Python3 dicts dont preserve order. Hence we supply subclass of OrderedDict
+# whose __str__ and __repr__ act like a normal dict.
+from collections import OrderedDict
+class OrderedPrintingDict(OrderedDict):
+    def __repr__(self):
+        return '{' + ', '.join(['%r: %r'%(k, v) for (k, v) in self.items()]) + '}'
+
+    __str__ = __repr__
+
+    # Because dict-like objects (except dict and UserDict) are not deep copied
+    # directly when constructing Environment(CPPDEFINES = OrderedPrintingDict(...))
+    def __semi_deepcopy__(self):
+        return self.copy()
+""" + """
 # http://scons.tigris.org/issues/show_bug.cgi?id=2671
 # Passing test cases
 env_1 = Environment(CPPDEFINES=[('DEBUG','1'), 'TEST'])
@@ -67,11 +81,11 @@ env_2.MergeFlags('-DSOMETHING -DVARIABLE=2')
 print(env_2.subst('$_CPPDEFFLAGS'))
 
 # Failing test cases
-env_3 = Environment(CPPDEFINES={'DEBUG':1, 'TEST':None})
+env_3 = Environment(CPPDEFINES=OrderedPrintingDict([('DEBUG', 1), ('TEST', None)]))
 env_3.ParseConfig('PKG_CONFIG_PATH=. %(pkg_config_path)s --cflags bug')
 print(env_3.subst('$_CPPDEFFLAGS'))
 
-env_4 = Environment(CPPDEFINES={'DEBUG':1, 'TEST':None})
+env_4 = Environment(CPPDEFINES=OrderedPrintingDict([('DEBUG', 1), ('TEST', None)]))
 env_4.MergeFlags('-DSOMETHING -DVARIABLE=2')
 print(env_4.subst('$_CPPDEFFLAGS'))
 
