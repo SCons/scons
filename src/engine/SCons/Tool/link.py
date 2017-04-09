@@ -243,8 +243,10 @@ def _versioned_lib_callbacks():
         'VersionedLdModSoname'   : _versioned_ldmod_soname,
     }.copy()
 
-# Setup all variables required by the versioning machinery
 def _setup_versioned_lib_variables(env, **kw):
+    """
+    Setup all variables required by the versioning machinery
+    """
 
     tool = None
     try: tool = kw['tool']
