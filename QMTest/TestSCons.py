@@ -1246,7 +1246,10 @@ try:
     import distutils.sysconfig
     exec_prefix = distutils.sysconfig.EXEC_PREFIX
     print(distutils.sysconfig.get_python_inc())
-    print(os.path.join(exec_prefix, 'libs'))
+    lib_path = os.path.join(exec_prefix, 'libs')
+    if not os.path.exists(lib_path):
+        lib_path = os.path.join(exec_prefix, 'lib')
+    print(lib_path)
 except:
     print(os.path.join(sys.prefix, 'include', py_ver))
     print(os.path.join(sys.prefix, 'lib', py_ver, 'config'))
