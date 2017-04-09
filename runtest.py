@@ -686,6 +686,7 @@ if testlistfile:
     tests = [x for x in tests if x[0] != '#']
     tests = [x[:-1] for x in tests]
     tests = [x.strip() for x in tests]
+    tests = [x for x in tests if len(x) > 0]
 
 else:
     testpaths = []
