@@ -761,6 +761,7 @@ def LibSymlinksStrFun(target, source, env, *args):
 
 LibSymlinksAction = SCons.Action.Action(LibSymlinksActionFunction, LibSymlinksStrFun)
 
+
 def createSharedLibBuilder(env):
     """This is a utility function that creates the SharedLibrary
     Builder in an Environment if it is not there already.
