@@ -179,6 +179,7 @@ def __detect_cl_tool(env, chainkey, cdict):
                 env[chainkey] = clpath
                 if not env[chainkey + 'COM']:
                     env[chainkey + 'COM'] = cdict[cltool]
+                break
 
 def _detect(env):
     """
