@@ -162,6 +162,15 @@ import distutils.command
 
 no_winpack_templates = not os.path.exists(os.path.join(os.path.split(distutils.command.__file__)[0],'wininst-9.0.exe'))
 skip_win_packages = ARGUMENTS.get('SKIP_WIN_PACKAGES',False) or no_winpack_templates
+
+if sys.version_info[0] > 2:
+    # TODO: Resolve this issue. Currently fails when run on windows with
+    #   File "/opt/local/Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/distutils/command/bdist_wininst.py", line 262, in create_exe
+    #   cfgdata = cfgdata.encode("mbcs")
+    #  LookupError: unknown encoding: mbcs
+    print("Temporary PY3: Skipping windows package builds")
+    skip_win_packages = True
+
 if skip_win_packages:
     print("Skipping the build of Windows packages...")
 
@@ -327,17 +336,20 @@ try:
 
     def zipit(env, target, source):
         print("Zipping %s:" % str(target[0]))
-        def visit(arg, dirname, names):
-            for name in names:
-                path = os.path.join(dirname, name)
+        def visit(arg, dirname, filenames):
+            for filename in filenames:
+                path = os.path.join(dirname, filename)
                 if os.path.isfile(path):
                     arg.write(path)
         # default ZipFile compression is ZIP_STORED
         zf = zipfile.ZipFile(str(target[0]), 'w', compression=zipfile.ZIP_DEFLATED)
         olddir = os.getcwd()
         os.chdir(env['CD'])
-        try: os.path.walk(env['PSV'], visit, zf)
-        finally: os.chdir(olddir)
+        try:
+            for dirname, dirnames, filenames in os.walk(env['PSV']):
+                visit(zf, dirname, filenames)
+        finally:
+            os.chdir(olddir)
         zf.close()
 
     def unzipit(env, target, source):
@@ -364,6 +376,7 @@ except ImportError:
         zipit = "cd $CD && $ZIP $ZIPFLAGS $( ${TARGET.abspath} $) $PSV"
         unzipit = "$UNZIP $UNZIPFLAGS $SOURCES"
 
+
 def SCons_revision(target, source, env):
     """Interpolate specific values from the environment into a file.
 
@@ -372,7 +385,7 @@ def SCons_revision(target, source, env):
     """
     t = str(target[0])
     s = source[0].rstr()
-    with open(s, 'rb') as fp:
+    with open(s, 'r') as fp:
         contents = fp.read()
     # Note:  We construct the __*__ substitution strings here
     # so that they don't get replaced when this file gets
@@ -387,8 +400,9 @@ def SCons_revision(target, source, env):
     contents = contents.replace('__REVISION'  + '__', env['REVISION'])
     contents = contents.replace('__VERSION'   + '__', env['VERSION'])
     contents = contents.replace('__NULL'      + '__', '')
-    open(t, 'wb').write(contents)
+    open(t, 'w').write(contents)
     os.chmod(t, os.stat(s)[0])
+
 
 revaction = SCons_revision
 revbuilder = Builder(action = Action(SCons_revision,
@@ -819,6 +833,7 @@ for p in [ scons ]:
         s = p['filemap'].get(b, b)
         if not s[0] == '$' and not os.path.isabs(s):
             s = os.path.join(src, s)
+
         builder = p['buildermap'].get(b, env.SCons_revision)
         x = builder(os.path.join(build, b), s)
         Local(x)
@@ -835,7 +850,7 @@ for p in [ scons ]:
     def write_src_files(target, source, **kw):
         global src_files
         src_files.sort()
-        f = open(str(target[0]), 'wb')
+        f = open(str(target[0]), 'w')
         for file in src_files:
             f.write(file + "\n")
         f.close()
@@ -1017,10 +1032,10 @@ for p in [ scons ]:
             list generated from our MANIFEST(s), so we don't have to
             maintain multiple lists.
             """
-            c = open(str(source[0]), 'rb').read()
+            c = open(str(source[0]), 'r').read()
             c = c.replace('__VERSION' + '__', env['VERSION'])
             c = c.replace('__RPM_FILES' + '__', env['RPM_FILES'])
-            open(str(target[0]), 'wb').write(c)
+            open(str(target[0]), 'w').write(c)
 
         rpm_files.sort()
         rpm_files_str = "\n".join(rpm_files) + "\n"
