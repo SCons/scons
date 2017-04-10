@@ -85,7 +85,7 @@ test.run(stderr = None)
 
 test.must_exist( 'libfoo-1.2.3.tar.gz' )
 
-os.popen( 'tar -C temp -xzf %s'%test.workpath('libfoo-1.2.3.tar.gz') )
+os.system('tar -C temp -xzf %s'%test.workpath('libfoo-1.2.3.tar.gz') )
 
 test.must_exist( 'temp/libfoo-1.2.3/src/main.c' )
 test.must_exist( 'temp/libfoo-1.2.3/SConstruct' )
