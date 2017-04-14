@@ -241,6 +241,11 @@ def default_mapper(entry, name):
         val = eval("entry."+name)
     except:
         val = None
+    if sys.version_info.major >= 3 and isinstance(val, bytes):
+        # This is a dirty hack for py 2/3 compatibility. csig is a bytes object
+        # in Python3 while Python2 bytes are str. Hence, we decode the csig to a
+        # Python3 string
+        val = val.decode()
     return str(val)
 
 def map_action(entry, name):
