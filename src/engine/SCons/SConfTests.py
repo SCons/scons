@@ -48,7 +48,7 @@ class SConfTestCase(unittest.TestCase):
     def setUp(self):
         # we always want to start with a clean directory
         self.save_cwd = os.getcwd()
-        self.test = TestCmd.TestCmd(workdir = '') 
+        self.test = TestCmd.TestCmd(workdir = '')
         os.chdir(self.test.workpath(''))
 
     def tearDown(self):
@@ -109,7 +109,7 @@ class SConfTestCase(unittest.TestCase):
         # TryCompile and TryLink are much the same, so we can test them
         # in one method, we pass the function as a string ('TryCompile',
         # 'TryLink'), so we are aware of reloading modules.
-        
+
         def checks(self, sconf, TryFuncString):
             TryFunc = self.SConf.SConfBase.__dict__[TryFuncString]
             res1 = TryFunc( sconf, "int main() { return 0; }\n", ".c" )
@@ -128,7 +128,7 @@ class SConfTestCase(unittest.TestCase):
             assert res[0] and not res[1], res
         finally:
             sconf.Finish()
-            
+
         # 2.1 test the error caching mechanism (no dependencies have changed)
         self._resetSConfState()
         sconf = self.SConf.SConf(self.scons_env,
@@ -139,9 +139,9 @@ class SConfTestCase(unittest.TestCase):
             assert res[0] and not res[1], res
         finally:
             sconf.Finish()
-        # we should have exactly one one error cached 
+        # we should have exactly one one error cached
         log = str(self.test.read( self.test.workpath('config.log') ))
-        expr = re.compile( ".*failed in a previous run and all", re.DOTALL ) 
+        expr = re.compile( ".*failed in a previous run and all", re.DOTALL )
         firstOcc = expr.match( log )
         assert firstOcc is not None, log
         secondOcc = expr.match( log, firstOcc.end(0) )
@@ -239,11 +239,11 @@ class SConfTestCase(unittest.TestCase):
         """Test SConf.TryCompile
         """
         self._baseTryXXX( "TryCompile" ) #self.SConf.SConf.TryCompile )
-        
+
     def test_TryLink(self):
         """Test SConf.TryLink
         """
-        self._baseTryXXX( "TryLink" ) #self.SConf.SConf.TryLink ) 
+        self._baseTryXXX( "TryLink" ) #self.SConf.SConf.TryLink )
 
     def test_TryRun(self):
         """Test SConf.TryRun
@@ -256,10 +256,10 @@ int main() {
   return 0;
 }
 """
-            res1 = sconf.TryRun( prog, ".c" ) 
+            res1 = sconf.TryRun( prog, ".c" )
             res2 = sconf.TryRun( "not a c program\n", ".c" )
             return (res1, res2)
-        
+
         self._resetSConfState()
         sconf = self.SConf.SConf(self.scons_env,
                                  conf_dir=self.test.workpath('config.tests'),
@@ -307,7 +307,7 @@ int main() {
                                   log_file=self.test.workpath('config.log'))
         try:
             (ret, output) = sconf.TryAction(action=actionOK)
-            assert ret and output == bytearray("RUN OK"+os.linesep,'utf-8'), (ret, output)
+            assert ret and output.encode('utf-8') == bytearray("RUN OK"+os.linesep,'utf-8'), (ret, output)
             (ret, output) = sconf.TryAction(action=actionFAIL)
             assert not ret and output == "", (ret, output)
         finally:
@@ -354,7 +354,7 @@ int main() {
             try:
                 self._test_check_compilers('CC', sconf.CheckCC, 'CheckCC')
             except AssertionError:
-                sys.stderr.write(self.test.read('config.log'))
+                sys.stderr.write(self.test.read('config.log', mode='r'))
                 raise
         finally:
             sconf.Finish()
@@ -370,7 +370,7 @@ int main() {
             try:
                 self._test_check_compilers('SHCC', sconf.CheckSHCC, 'CheckSHCC')
             except AssertionError:
-                sys.stderr.write(self.test.read('config.log'))
+                sys.stderr.write(self.test.read('config.log', mode='r'))
                 raise
         finally:
             sconf.Finish()
@@ -386,7 +386,7 @@ int main() {
             try:
                 self._test_check_compilers('CXX', sconf.CheckCXX, 'CheckCXX')
             except AssertionError:
-                sys.stderr.write(self.test.read('config.log'))
+                sys.stderr.write(self.test.read('config.log', mode='r'))
                 raise
         finally:
             sconf.Finish()
@@ -402,7 +402,7 @@ int main() {
             try:
                 self._test_check_compilers('SHCXX', sconf.CheckSHCXX, 'CheckSHCXX')
             except AssertionError:
-                sys.stderr.write(self.test.read('config.log'))
+                sys.stderr.write(self.test.read('config.log', mode='r'))
                 raise
         finally:
             sconf.Finish()
@@ -627,8 +627,8 @@ int main() {
             else:
                 r = sconf.CheckProg('cmd.exe')
                 self.assertIn('cmd.exe',r)
-                
-                
+
+
             r = sconf.CheckProg('hopefully-not-a-program')
             assert r is None
 
@@ -717,7 +717,7 @@ int main() {
             # In ANSI C, malloc should be available in stdlib
             r = sconf.CheckDeclaration('malloc', includes = "#include <stdlib.h>")
             assert r, "malloc not declared ??"
-            # For C++, __cplusplus should be declared 
+            # For C++, __cplusplus should be declared
             r = sconf.CheckDeclaration('__cplusplus', language = 'C++')
             assert r, "__cplusplus not declared in C++ ??"
             r = sconf.CheckDeclaration('__cplusplus', language = 'C')
@@ -761,7 +761,7 @@ int main() {
             test.Result( ret )
             assert ret and output == "Hello", (ret, output)
             return ret
-        
+
 
         self._resetSConfState()
         sconf = self.SConf.SConf(self.scons_env,
@@ -773,7 +773,7 @@ int main() {
             assert ret, ret
         finally:
             sconf.Finish()
-            
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(SConfTestCase, 'test_')
