@@ -13,6 +13,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Gaurav Juvekar:
+    - Fix issue #2910: Make --tree=all handle Unicode. (PR #427)
+    - Fix issue #2788: Fix typo in documentation example for sconf. (PR #388)
+
   From Manish Vachharajani:
     - Update debian rules, compat, and control to not use features
       deprecated or obsolete in later versions of debhelpers
