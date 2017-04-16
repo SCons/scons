@@ -264,7 +264,10 @@ def copy_func(dest, src, symlinks=True):
         shutil.copy2(src, dest)
         return 0
     else:
-        return shutil.copytree(src, dest, symlinks)
+        shutil.copytree(src, dest, symlinks)
+        # copytree returns None in python2 and destination string in python3
+        # A error is raised in both cases, so we can just return 0 for success
+        return 0
 
 Copy = ActionFactory(
     copy_func,

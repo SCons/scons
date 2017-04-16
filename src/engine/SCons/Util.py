@@ -31,6 +31,7 @@ import sys
 import copy
 import re
 import types
+import codecs
 
 try:
     from UserDict import UserDict
@@ -148,7 +149,7 @@ class NodeList(UserList):
 #             else:
 #                 self.data = [ initlist,]
 
-    
+
     def __nonzero__(self):
         return len(self.data) != 0
 
@@ -170,10 +171,10 @@ class NodeList(UserList):
         return self.__class__(result)
 
     def __getitem__(self, index):
-        """ 
+        """
         This comes for free on py2,
         but py3 slices of NodeList are returning a list
-        breaking slicing nodelist and refering to 
+        breaking slicing nodelist and refering to
         properties and methods on contained object
         """
 #        return self.__class__(self.data[index])
@@ -289,6 +290,17 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
     """
 
     rname = str(root)
+    if sys.version_info.major < 3:
+        # Python 2 UTF-8 encoded str are str. escape_encode is a str to str
+        # encoding
+        rname = codecs.escape_encode(rname)[0]
+    else:
+        # Python 3 UTF-8 encoded str are bytes. escape_encode is a byte to byte
+        # encoding here.
+        rname = rname.encode('utf-8')
+        rname = codecs.escape_encode(rname)[0]
+        # Finally, we need a string again.
+        rname = rname.decode('ascii')
 
     # Initialize 'visited' dict, if required
     if visited is None:

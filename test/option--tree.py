@@ -51,6 +51,30 @@ scons: warning: The --debug=tree option is deprecated; please use --tree=all ins
 """,
          status = 0, match=TestSCons.match_re_dotall)
 
+
+# Test that unicode characters can be printed (escaped) with the --tree option
+test.write('SConstruct',
+"""
+env = Environment()
+env.Tool("textfile")
+try:
+    # Python 2
+    write = unichr(0xe7).encode('utf-8')
+except NameError:
+    # Python 3
+    # str is utf-8 by default
+    write = chr(0xe7)
+env.Textfile("Foo", write)
+""")
+
+test.run(arguments = '-Q --tree=all',
+         stdout = """Creating 'Foo.txt'
++-.
+  +-Foo.txt
+  | +-\\xc3\\xa7
+  +-SConstruct
+""",
+         status = 0)
 test.pass_test()
 
 # Local Variables:

@@ -90,15 +90,15 @@ class ValueTestCase(unittest.TestCase):
         """
         v1 = SCons.Node.Python.Value('aaa')
         csig = v1.get_csig(None)
-        assert csig == 'aaa', csig
+        assert csig.decode() == 'aaa', csig
 
         v2 = SCons.Node.Python.Value(7)
         csig = v2.get_csig(None)
-        assert csig == '7', csig
+        assert csig.decode() == '7', csig
 
         v3 = SCons.Node.Python.Value(None)
         csig = v3.get_csig(None)
-        assert csig == 'None', csig
+        assert csig.decode() == 'None', csig
 
 class ValueNodeInfoTestCase(unittest.TestCase):
     def test___init__(self):
