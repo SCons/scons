@@ -40,6 +40,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From William Deegan:
     - Removed deprecated tools CVS, Perforce, BitKeeper, RCS, SCCS, Subversion.
+    - Removed deprecated module SCons.Sig
 
   From Daniel Moody:
     - Fixed msvs.py for Visual Studio generated projects which were
