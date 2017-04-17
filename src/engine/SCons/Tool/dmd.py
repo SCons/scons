@@ -152,6 +152,11 @@ def generate(env):
 
     SCons.Tool.createStaticLibBuilder(env)
 
+    env['BUILDERS']['ProgramAllAtOnce'] = SCons.Builder.Builder(
+        action='$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -of$TARGET $DLINKFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS',
+    )
+
+
 
 def exists(env):
     return env.Detect(['dmd', 'gdmd'])

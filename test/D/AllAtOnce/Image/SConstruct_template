@@ -1,0 +1,13 @@
+# -*- coding:utf-8; -*-
+
+import os
+
+environment = Environment(
+    tools=['{}', 'link'],
+)
+
+environment.ProgramAllAtOnce('project', [
+'main.d',
+'amod.d',
+'bmod.d',
+])
