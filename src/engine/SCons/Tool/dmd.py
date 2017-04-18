@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 """SCons.Tool.dmd
 
 Tool-specific initialization for the Digital Mars D compiler.
@@ -124,11 +126,10 @@ def generate(env):
     env['DLIBDIRSUFFIX'] = ''
     env['_DLIBDIRFLAGS'] = '${_concat(DLIBDIRPREFIX, LIBPATH, DLIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)}'
 
-
     env['DLIB'] = 'lib' if env['PLATFORM'] == 'win32' else 'ar cr'
     env['DLIBCOM'] = '$DLIB $_DLIBFLAGS {0}$TARGET $SOURCES $_DLIBFLAGS'.format('-c ' if env['PLATFORM'] == 'win32' else '')
 
-    #env['_DLIBFLAGS'] = '${_concat(DLIBFLAGPREFIX, DLIBFLAGS, DLIBFLAGSUFFIX, __env__)}'
+    # env['_DLIBFLAGS'] = '${_concat(DLIBFLAGPREFIX, DLIBFLAGS, DLIBFLAGSUFFIX, __env__)}'
 
     env['DLIBFLAGPREFIX'] = '-'
     env['DLIBFLAGSUFFIX'] = ''
@@ -154,12 +155,13 @@ def generate(env):
 
     env['BUILDERS']['ProgramAllAtOnce'] = SCons.Builder.Builder(
         action='$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -of$TARGET $DLINKFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS',
+        emitter=SCons.Tool.DCommon.allAtOnceEmitter,
     )
-
 
 
 def exists(env):
     return env.Detect(['dmd', 'gdmd'])
+
 
 # Local Variables:
 # tab-width:4

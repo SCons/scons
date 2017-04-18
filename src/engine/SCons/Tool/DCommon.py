@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 """SCons.Tool.DCommon
 
 Common code for the various D tools.
@@ -32,6 +34,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 
+
 def isD(env, source):
     if not source:
         return 0
@@ -42,12 +45,21 @@ def isD(env, source):
                 return 1
     return 0
 
+
 def addDPATHToEnv(env, executable):
     dPath = env.WhereIs(executable)
     if dPath:
         phobosDir = dPath[:dPath.rindex(executable)] + '/../src/phobos'
         if os.path.isdir(phobosDir):
             env.Append(DPATH=[phobosDir])
+
+
+def allAtOnceEmitter(target, source, env):
+    if env['DC'] in ('ldc2', 'dmd'):
+        env.SideEffect(str(target[0]) + '.o', str(target[0]))
+        env.Clean(str(target[0]), str(target[0]) + '.o')
+    return target, source
+
 
 # Local Variables:
 # tab-width:4
