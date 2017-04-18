@@ -27,6 +27,16 @@ Test compiling and executing a project with a C module.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import sys
+if sys.platform == 'darwin':
+    import TestSCons
+    test = TestSCons.TestSCons()
+
+    msg = "Skipping Mixed dmd test until a good way to ensure proper gcc is called." 
+    "Calling default(system /usr/bin/gcc) gcc yields a surplus of linking errors\n"
+    test.skip_test(msg)
+
+
 from Common.common import testForTool
 testForTool('dmd')
 

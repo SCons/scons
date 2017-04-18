@@ -29,12 +29,13 @@ Verify that file handles aren't leaked to child processes
 """
 
 import os
+import sys
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-if os.name != 'posix':
+if os.name != 'posix' or sys.platform == 'darwin':
     msg = "Skipping fork leak test on non-posix platform '%s'\n" % os.name
     test.skip_test(msg)
 
