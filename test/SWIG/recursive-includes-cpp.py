@@ -64,6 +64,7 @@ test.write("mod.i", """\
 
 test.write('SConstruct', """\
 import distutils.sysconfig
+import sys
 
 DefaultEnvironment( tools = [ 'swig' ] )
 
@@ -76,6 +77,9 @@ env = Environment(
     ],
     SHLIBPREFIX = ""
 )
+
+if sys.platform == 'darwin':
+    env['LIBS']=['python%d.%d'%(sys.version_info[0],sys.version_info[1])]
 
 env.SharedLibrary(
     'mod.so',
