@@ -62,6 +62,14 @@ def testForTool(tool):
 The value is 42.
 ''')
 
+    test.run('-c')
+
+    test.must_not_exist(test.workpath('amod.o'))
+    test.must_not_exist(test.workpath('bmod.o'))
+    test.must_not_exist(test.workpath('main.o'))
+    test.must_not_exist(test.workpath('project.o'))
+    test.must_not_exist(test.workpath('project'))
+
     test.pass_test()
 
 # Local Variables:
