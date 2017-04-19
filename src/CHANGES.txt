@@ -41,6 +41,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From William Deegan:
     - Removed deprecated tools CVS, Perforce, BitKeeper, RCS, SCCS, Subversion.
     - Removed deprecated module SCons.Sig
+    - Added prioritized list of xsltproc tools to docbook. The order will now be as
+      follows: xsltproc, saxon, saxon-xslt, xalan  (with first being highest priority, first
+      tool found is used)
 
   From Daniel Moody:
     - Fixed msvs.py for Visual Studio generated projects which were

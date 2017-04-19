@@ -158,6 +158,10 @@ def __create_output_dir(base_dir):
 # Supported command line tools and their call "signature"
 #
 xsltproc_com_priority = ['xsltproc', 'saxon', 'saxon-xslt', 'xalan']
+
+# TODO: Set minimum version of saxon-xslt to be 8.x (lower than this only supports xslt 1.0.
+#       see: http://saxon.sourceforge.net/saxon6.5.5/
+#       see: http://saxon.sourceforge.net/
 xsltproc_com = {'xsltproc' : '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -o $TARGET $DOCBOOK_XSL $SOURCE',
                 'saxon' : '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -o $TARGET $DOCBOOK_XSL $SOURCE $DOCBOOK_XSLTPROCPARAMS',
                 'saxon-xslt' : '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -o $TARGET $DOCBOOK_XSL $SOURCE $DOCBOOK_XSLTPROCPARAMS',

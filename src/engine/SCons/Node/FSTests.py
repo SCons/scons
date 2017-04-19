@@ -3269,18 +3269,11 @@ class has_src_builderTestCase(unittest.TestCase):
         fs = SCons.Node.FS.FS(test.workpath(''))
         os.chdir(test.workpath(''))
         test.subdir('sub1')
-        test.subdir('sub2', ['sub2', 'SCCS'], ['sub2', 'RCS'])
 
         sub1 = fs.Dir('sub1', '.')
         f1 = fs.File('f1', sub1)
         f2 = fs.File('f2', sub1)
         f3 = fs.File('f3', sub1)
-        sub2 = fs.Dir('sub2', '.')
-        f4 = fs.File('f4', sub2)
-        f5 = fs.File('f5', sub2)
-        f6 = fs.File('f6', sub2)
-        f7 = fs.File('f7', sub2)
-        f8 = fs.File('f8', sub2)
 
         h = f1.has_src_builder()
         assert not h, h
@@ -3304,32 +3297,6 @@ class has_src_builderTestCase(unittest.TestCase):
         h = f3.has_builder()
         assert h, h
         assert f3.builder is b1, f3.builder
-
-        f7.set_src_builder(b1)
-        f8.builder_set(b1)
-
-        test.write(['sub2', 'SCCS', 's.f5'], "sub2/SCCS/s.f5\n")
-        test.write(['sub2', 'RCS', 'f6,v'], "sub2/RCS/f6,v\n")
-        h = f4.has_src_builder()
-        assert not h, h
-        h = f4.has_builder()
-        assert not h, h
-        h = f5.has_src_builder()
-        assert h, h
-        h = f5.has_builder()
-        assert h, h
-        h = f6.has_src_builder()
-        assert h, h
-        h = f6.has_builder()
-        assert h, h
-        h = f7.has_src_builder()
-        assert h, h
-        h = f7.has_builder()
-        assert h, h
-        h = f8.has_src_builder()
-        assert not h, h
-        h = f8.has_builder()
-        assert h, h
 
 class prepareTestCase(unittest.TestCase):
     def runTest(self):
