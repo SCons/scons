@@ -109,14 +109,14 @@ atime = os.path.getatime(test.workpath('foo.in'))
 mtime = os.path.getmtime(test.workpath('foo.in'))
 
 test.run()
-test.fail_test(test.read('foo.out') != 'foo.in\n')
+test.must_match('foo.out', 'foo.in\n', mode='r')
 
 test.write('foo.in', 'foo.in delta\n')
 os.utime(test.workpath('foo.in'), (atime,mtime))
 
 test.run()
 
-test.fail_test(test.read('foo.out') != 'foo.in\n')
+test.must_match('foo.out', 'foo.in\n', mode='r')
 
 test.pass_test()
 
