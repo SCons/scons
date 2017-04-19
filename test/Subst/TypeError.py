@@ -58,9 +58,7 @@ expect = expect_build % (r' \[foo\.bar\]', r'\$\{NONE\[0\]\}')
 
 test.run(status=2, stderr=expect)
 
-
-
-expect_build = r"""scons: \*\*\*%s TypeError `(not enough arguments; expected 3, got 1|func\(\) takes exactly 3 arguments \(1 given\))' trying to evaluate `%s'
+expect_build = r"""scons: \*\*\*%s TypeError `(not enough arguments; expected 3, got 1|func\(\) takes exactly 3 arguments \(1 given\)|func\(\) missing 2 required positional arguments: 'b' and 'c')' trying to evaluate `%s'
 """
 
 expect_read = "\n" + expect_build + TestSCons.file_expr
