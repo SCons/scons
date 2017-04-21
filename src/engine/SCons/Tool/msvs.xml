@@ -127,8 +127,10 @@ compilation error messages displayed in the Visual Studio console output
 window. This can be remedied by adding the Visual C/C++ <literal>/FC</literal>
 compiler option to the &cv-link-CCFLAGS; variable so that the compiler will
 print the full path name of any files that cause compilation errors. </para>
-<para> Example usage: </para> <example_commands>barsrcs = ['bar.cpp'],
-barincs = ['bar.h'],
+<para> Example usage: </para>
+    <example_commands>
+barsrcs = ['bar.cpp']
+barincs = ['bar.h']
 barlocalincs = ['StdAfx.h']
 barresources = ['bar.rc','resource.h']
 barmisc = ['bar_readme.txt']
