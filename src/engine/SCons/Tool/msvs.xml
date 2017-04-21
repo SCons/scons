@@ -137,14 +137,14 @@ barmisc = ['bar_readme.txt']
 
 dll = env.SharedLibrary(target = 'bar.dll',
                         source = barsrcs)
-
+buildtarget = [s for s in dll if str(s).endswith('dll')]
 env.MSVSProject(target = 'Bar' + env['MSVSPROJECTSUFFIX'],
                 srcs = barsrcs,
                 incs = barincs,
                 localincs = barlocalincs,
                 resources = barresources,
                 misc = barmisc,
-                buildtarget = dll,
+                buildtarget = buildtarget,
                 variant = 'Release')
 </example_commands>
 <para>Starting with version 2.4 of
