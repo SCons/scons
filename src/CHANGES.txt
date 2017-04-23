@@ -14,9 +14,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Daniel Moody:
-    - Updated the src/engine/SCons/SConfTest.py so when using the 
+    - Updated the QMTest/TestCmd.py so when using the 
       preserve option, it will be able to print unicode directories.
-    - Also updated a few test that were not taking into account PRESERVE
+    - Also updated test/scons-time/run/option/verbose.py that was
+      not taking into account the output when PRESERVE was enabled
     
   From Gaurav Juvekar:
     - Fix issue #2910: Make --tree=all handle Unicode. (PR #427)
