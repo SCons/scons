@@ -34,10 +34,16 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
+
 try:
     import dbm.ndbm
+    use_db = 'dbm.ndbm'
 except ImportError:
-    test.skip_test('No dbm in this version of Python; skipping test.\n')
+    try:
+        import dbm
+        use_db = 'dbm'
+    except ImportError:
+        test.skip_test('No dbm.ndbm in this version of Python; skipping test.\n')
 
 test.subdir('subdir')
 
@@ -53,8 +59,8 @@ sys.exit(0)
 #
 test.write('SConstruct', """
 import sys
-import dbm
-SConsignFile('.sconsign', dbm)
+import %(use_db)s
+SConsignFile('.sconsign', %(use_db)s)
 B = Builder(action = '%(_python_)s build.py $TARGETS $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'f1.out', source = 'f1.in')
