@@ -30,7 +30,7 @@ Verify that the run -v and --verbose options display command output.
 
 import sys
 import re
-
+import os
 import TestSCons_time
 
 _python_ = re.escape('"' + sys.executable + '"')
@@ -112,7 +112,9 @@ scons-time%(time_re)s: %(_python_)s %(scons_py)s %(scons_flags)s --profile=%(pro
 SCONS_LIB_DIR = %(src_engine)s
 SConstruct file directory: %(tmp_scons_time_foo)s
 scons-time%(time_re)s: cd .*
-scons-time%(time_re)s: rm -rf %(tmp_scons_time)s
+"""
+if 'PRESERVE' not in os.environ or not os.environ['PRESERVE']:
+    expect += """scons-time%(time_re)s: rm -rf %(tmp_scons_time)s
 """
 
 foo_tar_gz = re.escape(foo_tar_gz)
