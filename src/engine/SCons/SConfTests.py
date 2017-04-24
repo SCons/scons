@@ -102,8 +102,11 @@ class SConfTestCase(unittest.TestCase):
 
              import SCons.Platform.win32
 
-             file = SCons.Platform.win32._builtin_file
-             open = SCons.Platform.win32._builtin_open
+             try:
+                file = SCons.Platform.win32._builtin_file
+                open = SCons.Platform.win32._builtin_open
+             except AttributeError:
+                 pass
 
     def _baseTryXXX(self, TryFunc):
         # TryCompile and TryLink are much the same, so we can test them
