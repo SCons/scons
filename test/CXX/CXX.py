@@ -50,8 +50,8 @@ while args:
         break
     args = args[1:]
     if a[:5].lower() == '/out:': out = a[5:]
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
+infile = open(args[0], 'r')
+outfile = open(out, 'w')
 for l in infile.readlines():
     if l[:8] != '/*link*/':
         outfile.write(l)
@@ -74,8 +74,8 @@ while args:
             inf = a
         continue
     if a[:3] == '/Fo': out = a[3:]
-infile = open(inf, 'rb')
-outfile = open(out, 'wb')
+infile = open(inf, 'r')
+outfile = open(out, 'w')
 for l in infile.readlines():
     if l[:7] != '/*c++*/':
         outfile.write(l)
@@ -90,8 +90,8 @@ import sys
 opts, args = getopt.getopt(sys.argv[1:], 'o:')
 for opt, arg in opts:
     if opt == '-o': out = arg
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
+infile = open(args[0], 'r')
+outfile = open(out, 'w')
 for l in infile.readlines():
     if l[:8] != '/*link*/':
         outfile.write(l)
@@ -104,8 +104,8 @@ import sys
 opts, args = getopt.getopt(sys.argv[1:], 'co:')
 for opt, arg in opts:
     if opt == '-o': out = arg
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
+infile = open(args[0], 'r')
+outfile = open(out, 'w')
 for l in infile.readlines():
     if l[:7] != '/*c++*/':
         outfile.write(l)
@@ -151,15 +151,15 @@ test.write('test5.C++', r"""This is a .C++ file.
 
 test.run(arguments = '.', stderr = None)
 
-test.must_match('test1' + _exe, "This is a .cc file.\n")
+test.must_match('test1' + _exe, "This is a .cc file.\n", mode='r')
 
-test.must_match('test2' + _exe, "This is a .cpp file.\n")
+test.must_match('test2' + _exe, "This is a .cpp file.\n", mode='r')
 
-test.must_match('test3' + _exe, "This is a .cxx file.\n")
+test.must_match('test3' + _exe, "This is a .cxx file.\n", mode='r')
 
-test.must_match('test4' + _exe, "This is a .c++ file.\n")
+test.must_match('test4' + _exe, "This is a .c++ file.\n", mode='r')
 
-test.must_match('test5' + _exe, "This is a .C++ file.\n")
+test.must_match('test5' + _exe, "This is a .C++ file.\n", mode='r')
 
 if TestSCons.case_sensitive_suffixes('.c', '.C'):
 
@@ -178,18 +178,12 @@ env.Program(target = 'test6', source = 'test6.C')
 
     test.run(arguments = '.', stderr = None)
 
-    test.must_match('test6' + _exe, "This is a .C file.\n")
+    test.must_match('test6' + _exe, "This is a .C file.\n", mode='r')
 
 
 
 
-test.write("wrapper.py",
-"""import os
-import sys
-if '--version' not in sys.argv and '-dumpversion' not in sys.argv:
-    open('%s', 'wb').write("wrapper.py\\n")
-os.system(" ".join(sys.argv[1:]))
-""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
+test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
 foo = Environment()
@@ -230,7 +224,7 @@ test.must_not_exist(test.workpath('wrapper.out'))
 
 test.run(arguments = 'bar' + _exe)
 
-test.must_match('wrapper.out', "wrapper.py\n")
+test.must_match('wrapper.out', "wrapper.py\n", mode='r')
 
 test.pass_test()
 

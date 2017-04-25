@@ -37,7 +37,7 @@ import SCons.Util
 
 # Even though the Mac is based on the GNU toolchain, it doesn't understand
 # the -rpath option, so we use the "link" tool instead of "gnulink".
-import link
+from . import link
 
 def generate(env):
     """Add Builders and construction variables for applelink to an
@@ -50,6 +50,14 @@ def generate(env):
     env['LINKCOM'] = env['LINKCOM'] + ' $_FRAMEWORKPATH $_FRAMEWORKS $FRAMEWORKSFLAGS'
     env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -dynamiclib')
     env['SHLINKCOM'] = env['SHLINKCOM'] + ' $_FRAMEWORKPATH $_FRAMEWORKS $FRAMEWORKSFLAGS'
+
+
+    # TODO: Work needed to generate versioned shared libraries
+    # Leaving this commented out, and also going to disable versioned library checking for now
+    # see: http://docstore.mik.ua/orelly/unix3/mac/ch05_04.htm  for proper naming
+    #link._setup_versioned_lib_variables(env, tool = 'applelink')#, use_soname = use_soname)
+    #env['LINKCALLBACKS'] = link._versioned_lib_callbacks()
+
 
     # override the default for loadable modules, which are different
     # on OS X than dynamic shared libs.  echoing what XCode does for

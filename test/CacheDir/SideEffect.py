@@ -38,14 +38,14 @@ cache = test.workpath('cache')
 
 test.write(['work', 'SConstruct'], """\
 def copy(source, target):
-    open(target, "wb").write(open(source, "rb").read())
+    open(target, "w").write(open(source, "r").read())
 
 def build(env, source, target):
     s = str(source[0])
     t = str(target[0])
     copy(s, t)
     if target[0].side_effects:
-        side_effect = open(str(target[0].side_effects[0]), "ab")
+        side_effect = open(str(target[0].side_effects[0]), "a")
         side_effect.write(s + ' -> ' + t + '\\n')
 
 CacheDir(r'%(cache)s')
@@ -69,7 +69,7 @@ f1.in -> f1.out
 f2.in -> f2.out
 """
 
-test.must_match(['work', 'log.txt'], expect)
+test.must_match(['work', 'log.txt'], expect, mode='r')
 
 
 
@@ -84,7 +84,7 @@ f2.in -> f2.out
 f3.in -> f3.out
 """
 
-test.must_match(['work', 'log.txt'], expect)
+test.must_match(['work', 'log.txt'], expect, mode='r')
 
 
 
@@ -100,7 +100,7 @@ f3.in -> f3.out
 f1.in -> f1.out
 """
 
-test.must_match(['work', 'log.txt'], expect)
+test.must_match(['work', 'log.txt'], expect, mode='r')
 
 
 

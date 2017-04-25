@@ -51,7 +51,7 @@ test = TestSCons.TestSCons()
 test.write('build.py', r"""
 import time
 import sys
-file = open(sys.argv[1], 'wb')
+file = open(sys.argv[1], 'w')
 file.write(str(time.time()) + '\n')
 time.sleep(1)
 file.write(str(time.time()))
@@ -91,10 +91,10 @@ def RunTest(args, extra):
 
     test.run(arguments = args)
 
-    str = test.read("f1")
+    str = test.read("f1", mode='r')
     start1,finish1 = list(map(float, str.split("\n")))
 
-    str = test.read("f2")
+    str = test.read("f2", mode='r')
     start2,finish2 = list(map(float, str.split("\n")))
 
     return start2, finish1
@@ -122,7 +122,7 @@ test.fail_test(start2 < finish1)
 # succeeds.
 test.run(arguments='-j 2 out')
 
-if sys.platform != 'win32':
+if sys.platform != 'win32' and sys.version_info[0] == 2:
     # Test breaks on win32 when using real subprocess is not the only
     # package to import threading
     #
@@ -148,10 +148,10 @@ if sys.platform != 'win32':
 \tignoring -j or num_jobs option."""
     test.must_contain_all_lines(test.stderr(), [warn])
 
-    str = test.read("f1")
+    str = test.read("f1", mode='r')
     start1,finish1 = list(map(float, str.split("\n")))
 
-    str = test.read("f2")
+    str = test.read("f2", mode='r')
     start2,finish2 = list(map(float, str.split("\n")))
 
     test.fail_test(start2 < finish1)

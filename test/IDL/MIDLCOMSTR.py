@@ -35,21 +35,11 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('mymidl.py', """
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != '/*midl*/\\n']:
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'midl'],
-                  MIDLCOM = r'%(_python_)s mymidl.py $TARGET $SOURCES',
+                  MIDLCOM = r'%(_python_)s mycompile.py midl $TARGET $SOURCES',
                   MIDLCOMSTR = 'MIDLing $TARGET from $SOURCE')
 env.TypeLibrary(target = 'aaa', source = 'aaa.idl')
 """ % locals())
@@ -61,8 +51,6 @@ MIDLing aaa.tlb from aaa.idl
 """))
 
 test.must_match('aaa.tlb', "aaa.idl\n")
-
-
 
 test.pass_test()
 

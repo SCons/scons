@@ -49,8 +49,10 @@ runOK = compileOK
 runFAIL = "int main() { return 1; }"
 
 test.write('pyAct.py', """\
+from __future__ import print_function
+
 import sys
-print sys.argv[1]
+print(sys.argv[1])
 sys.exit(int(sys.argv[1]))
 """)
 

@@ -30,20 +30,21 @@ import string
 import sys
 import TestSCons
 
-from common import write_fake_link
+
 
 _python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-write_fake_link(test)
+test.file_fixture('mylink.py')
 
 test.write('myfortran.py', r"""
 import getopt
 import sys
 
-comment = '#' + sys.argv[1]
+comment = ('#' + sys.argv[1]).encode()
+length = len(comment)
 args = sys.argv[2:]
 # First parse defines, since getopt won't have it
 defines = []
@@ -58,9 +59,9 @@ for opt, arg in opts:
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for d in defines:
-    outfile.write("#define %s\n" % (d,))
+    outfile.write(("#define %s\n" % (d,)).encode())
 for l in infile.readlines():
-    if l[:len(comment)] != comment:
+    if l[:length] != comment:
         outfile.write(l)
 sys.exit(0)
 """)

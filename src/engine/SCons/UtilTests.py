@@ -195,16 +195,16 @@ class UtilTestCase(unittest.TestCase):
             print_tree(node, get_children, showtags=1)
             actual = sys.stdout.getvalue()
             assert withtags == actual, (withtags, actual)
- 
+
             # Test that explicitly setting prune to zero works
             # the same as the default (see above)
             node, expect, withtags = self.tree_case_2(prune=0)
- 
+
             sys.stdout = io.StringIO()
             print_tree(node, get_children, 0)
             actual = sys.stdout.getvalue()
             assert expect == actual, (expect, actual)
- 
+
             sys.stdout = io.StringIO()
             print_tree(node, get_children, 0, showtags=1)
             actual = sys.stdout.getvalue()
@@ -237,7 +237,11 @@ class UtilTestCase(unittest.TestCase):
     def test_is_Dict(self):
         assert is_Dict({})
         assert is_Dict(UserDict())
-        assert is_Dict(os.environ)
+
+        # os.environ is not a dictionary in python 3
+        if sys.version_info < (3,0):
+            assert is_Dict(os.environ)
+
         try:
             class mydict(dict):
                 pass
@@ -249,7 +253,7 @@ class UtilTestCase(unittest.TestCase):
         assert not is_Dict(())
         assert not is_Dict("")
         if HasUnicode:
-            exec "assert not is_Dict(u'')"
+            exec("assert not is_Dict(u'')")
 
     def test_is_List(self):
         assert is_List([])
@@ -265,12 +269,12 @@ class UtilTestCase(unittest.TestCase):
         assert not is_List({})
         assert not is_List("")
         if HasUnicode:
-            exec "assert not is_List(u'')"
+            exec("assert not is_List(u'')")
 
     def test_is_String(self):
         assert is_String("")
         if HasUnicode:
-            exec "assert is_String(u'')"
+            exec("assert is_String(u'')")
         assert is_String(UserString(''))
         try:
             class mystr(str):
@@ -296,7 +300,7 @@ class UtilTestCase(unittest.TestCase):
         assert not is_Tuple({})
         assert not is_Tuple("")
         if HasUnicode:
-            exec "assert not is_Tuple(u'')"
+            exec("assert not is_Tuple(u'')")
 
     def test_to_String(self):
         """Test the to_String() method."""
@@ -343,10 +347,10 @@ class UtilTestCase(unittest.TestCase):
         os.mkdir(sub2_xxx_exe)
 
         test.write(sub3_xxx_exe, "\n")
-        os.chmod(sub3_xxx_exe, 0777)
+        os.chmod(sub3_xxx_exe, 0o777)
 
         test.write(sub4_xxx_exe, "\n")
-        os.chmod(sub4_xxx_exe, 0777)
+        os.chmod(sub4_xxx_exe, 0o777)
 
         env_path = os.environ['PATH']
 
@@ -723,7 +727,7 @@ class UtilTestCase(unittest.TestCase):
 
     def test_LogicalLines(self):
         """Test the LogicalLines class"""
-        content = r"""
+        content = u"""
 foo \
 bar \
 baz
@@ -732,9 +736,7 @@ bling \
 bling \ bling
 bling
 """
-        # Python 2.7 and beyond require unicode strings.
-        fobj = io.StringIO(unicode(content))
-
+        fobj = io.StringIO(content)
         lines = LogicalLines(fobj).readlines()
         assert lines == [
             '\n',
@@ -746,8 +748,8 @@ bling
 
     def test_intern(self):
         s1 = silent_intern("spam")
-        # Python 3.x does not have a unicode() global function
-        if sys.version[0] == '2': 
+        # TODO: Python 3.x does not have a unicode() global function
+        if sys.version[0] == '2':
             s2 = silent_intern(unicode("unicode spam"))
         s3 = silent_intern(42)
         s4 = silent_intern("spam")
@@ -760,7 +762,7 @@ class MD5TestCase(unittest.TestCase):
         """Test collecting a list of signatures into a new signature value
         """
         s = list(map(MD5signature, ('111', '222', '333')))
-        
+
         assert '698d51a19d8a121ce581499d7b701668' == MD5collect(s[0:1])
         assert '8980c988edc2c78cc43ccb718c06efd5' == MD5collect(s[0:2])
         assert '53fd88c84ff8a285eb6e0a687e55b8c7' == MD5collect(s)

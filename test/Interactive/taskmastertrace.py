@@ -33,6 +33,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 Command('foo.out', 'foo.in', Copy('$TARGET', '$SOURCE'))
 Command('1', [], Touch('$TARGET'))
 Command('2', [], Touch('$TARGET'))

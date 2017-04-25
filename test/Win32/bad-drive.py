@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 """
 This test verifies (on Windows systems) that we fail gracefully and
@@ -32,7 +33,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import sys
-from string import uppercase
+from string import ascii_uppercase
 
 import TestSCons
 
@@ -43,22 +44,22 @@ if sys.platform != 'win32':
     test.skip_test(msg)
 
 bad_drive = None
-for i in range(len(uppercase)-1, -1, -1):
-    d = uppercase[i]
+for i in range(len(ascii_uppercase)-1, -1, -1):
+    d = ascii_uppercase[i]
     if not os.path.isdir(d + ':' + os.sep):
         bad_drive = d + ':'
         break
 
 if bad_drive is None:
-    print "All drive letters appear to be in use."
-    print "Cannot test SCons handling of invalid Windows drive letters."
+    print("All drive letters appear to be in use.")
+    print("Cannot test SCons handling of invalid Windows drive letters.")
     test.no_result(1);
 
 test.write('SConstruct', """
 def cat(env, source, target):
     target = str(target[0])
     source = list(map(str, source))
-    print 'cat(%%s) > %%s' %% (source, target)
+    print('cat(%%s) > %%s' %% (source, target))
     f = open(target, "wb")
     for src in source:
         f.write(open(src, "rb").read())

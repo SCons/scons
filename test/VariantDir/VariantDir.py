@@ -28,7 +28,6 @@ import TestSCons
 _exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
-fortran_runtime = test.gccFortranLibs()
 
 fortran = test.detect('FORTRAN')
 
@@ -118,9 +117,9 @@ except:
 
 if fortran and env.Detect(fortran):
     env.Command(target='b2.f', source='b2.in', action=buildIt)
-    env.Clone(LIBS = %s).Program(target='bar2', source='b2.f')
-    env.Clone(LIBS = %s).Program(target='bar1', source='b1.f')
-""" % (fortran_runtime, fortran_runtime))
+    env.Clone().Program(target='bar2', source='b2.f')
+    env.Clone().Program(target='bar1', source='b1.f')
+""")
 
 test.write(['work1', 'src', 'f1.c'], r"""
 #include <stdio.h>
@@ -380,7 +379,7 @@ import sys
 headers = ['existing.h', 'non_existing.h']
 for header in headers:
     h = File( header )
-    contents = h.get_contents()
+    contents = h.get_text_contents()
     sys.stderr.write( '%s:%s\\n' % (header, contents))
 """)
 

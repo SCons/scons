@@ -57,9 +57,9 @@ def fake_scan(node, env, target):
 
 def cat(env, source, target):
     target = str(target[0])
-    f = open(target, "wb")
+    f = open(target, "w")
     for src in source:
-        f.write(open(str(src), "rb").read())
+        f.write(open(str(src), "r").read())
     f.close()
 
 env = Environment(BUILDERS={'Build':Builder(action=cat)},
@@ -77,7 +77,7 @@ env.Build('file.out', 'file.in')
 # Just verify that the normal case works fine.
 test.run(chdir = 'normal', arguments = ".")
 
-test.fail_test(test.read(['normal', 'build', 'file.out']) != "normal/src/file.in\n")
+test.must_match(['normal', 'build', 'file.out'], "normal/src/file.in\n", mode='r')
 
 # Verify the error when the VariantDir itself is read-only.  Don't bother
 # to test this on Windows, because the ACL (I think) still allows the

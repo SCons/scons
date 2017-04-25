@@ -34,12 +34,15 @@ exact syntax.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 import platform
 import subprocess
+
+import SCons.Util
 
 # Start of rpmrc dictionaries (Marker, don't change or remove!)
 os_canon = {
@@ -443,6 +446,7 @@ def defaultMachine(use_rpm_default=True):
         try:
             # This should be the most reliable way to get the default arch
             rmachine = subprocess.check_output(['rpm', '--eval=%_target_cpu'], shell=False).rstrip()
+            rmachine = SCons.Util.to_str(rmachine)
         except Exception as e:
             # Something went wrong, try again by looking up platform.machine()
             return defaultMachine(False)
@@ -501,7 +505,7 @@ def updateRpmDicts(rpmrc, pyfile):
                 key = tokens[0]
                 if key in sections:
                     # Have we met this section before?
-                    if not data.has_key(tokens[0]):
+                    if tokens[0] not in data:
                         # No, so insert it
                         data[key] = {}
                     # Insert data
@@ -519,7 +523,7 @@ def updateRpmDicts(rpmrc, pyfile):
                 if l.startswith('# Start of rpmrc dictionaries'):
                     pm = 1
                     # Write data sections to single dictionaries
-                    for key, entries in data.iteritems():
+                    for key, entries in data.items():
                         out.write("%s = {\n" % key)
                         for arch in sorted(entries.keys()):
                             out.write("  '%s' : ['%s'],\n" % (arch, "','".join(entries[arch])))
@@ -529,7 +533,7 @@ def updateRpmDicts(rpmrc, pyfile):
         pass
 
 def usage():
-    print "rpmutils.py rpmrc.in rpmutils.py"
+    print("rpmutils.py rpmrc.in rpmutils.py")
 
 def main():
     import sys

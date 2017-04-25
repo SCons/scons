@@ -38,8 +38,8 @@ import sys
 import getopt
 cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:r:', [])
 base_name = os.path.splitext(arg[0])[0]
-infile = open(arg[0], 'rb')
-out_file = open(base_name+'.dvi', 'wb')
+infile = open(arg[0], 'r')
+out_file = open(base_name+'.dvi', 'w')
 for l in infile.readlines():
     if l[:4] != '#tex':
         out_file.write(l)
@@ -52,8 +52,8 @@ import sys
 import getopt
 cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:r:', [])
 base_name = os.path.splitext(arg[0])[0]
-infile = open(arg[0], 'rb')
-out_file = open(base_name+'.dvi', 'wb')
+infile = open(arg[0], 'r')
+out_file = open(base_name+'.dvi', 'w')
 for l in infile.readlines():
     if l[:6] != '#latex':
         out_file.write(l)
@@ -69,8 +69,8 @@ opt_string = ''
 for opt, arg in cmd_opts:
     if opt == '-o': outfile = arg
     else: opt_string = opt_string + ' ' + opt
-infile = open(args[0], 'rb')
-out_file = open(outfile, 'wb')
+infile = open(args[0], 'r')
+out_file = open(outfile, 'w')
 out_file.write(opt_string + "\n")
 for l in infile.readlines():
     if l[:6] != '#dvips':
@@ -112,27 +112,24 @@ test.write('test4.latex', r"""This is a .latex test.
 
 test.run(arguments = '.', stderr = None)
 
-test.must_match('test1.ps', " -x\nThis is a .dvi test.\n")
+test.must_match('test1.ps', " -x\nThis is a .dvi test.\n", mode='r')
 
-test.must_match('test2.ps', " -x\nThis is a .tex test.\n")
+test.must_match('test2.ps', " -x\nThis is a .tex test.\n", mode='r')
 
-test.must_match('test3.ps', " -x\nThis is a .ltx test.\n")
+test.must_match('test3.ps', " -x\nThis is a .ltx test.\n", mode='r')
 
-test.must_match('test4.ps', " -x\nThis is a .latex test.\n")
-
-have_latex = test.where_is('latex')
-if not have_latex:
-    test.skip_test('Could not find latex; skipping test(s).\n')
+test.must_match('test4.ps', " -x\nThis is a .latex test.\n", mode='r')
 
 
 dvips = test.where_is('dvips')
 
 if dvips:
 
-    test.write("wrapper.py", """import os
+    test.write("wrapper.py", """
+import os
 import sys
 cmd = " ".join(sys.argv[1:])
-open('%s', 'ab').write("%%s\\n" %% cmd)
+open('%s', 'a').write("%%s\\n" %% cmd)
 os.system(cmd)
 """ % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
@@ -165,20 +162,20 @@ This is the %s LaTeX file.
     test.write('bar2.ltx', latex % 'bar2.ltx')
     test.write('bar3.latex', latex % 'bar3.latex')
 
-    test.run(arguments = 'foo.dvi', stderr = None)
+    test.run(arguments='foo.dvi', stderr=None)
 
     test.must_not_exist(test.workpath('wrapper.out'))
 
     test.must_exist(test.workpath('foo.dvi'))
 
-    test.run(arguments = 'bar1.ps bar2.ps bar3.ps', stderr = None)
+    test.run(arguments='bar1.ps bar2.ps bar3.ps', stderr=None)
 
     expect = """dvips -o bar1.ps bar1.dvi
 dvips -o bar2.ps bar2.dvi
 dvips -o bar3.ps bar3.dvi
 """
 
-    test.must_match('wrapper.out', expect)
+    test.must_match('wrapper.out', expect, mode='r')
 
     test.must_exist(test.workpath('bar1.ps'))
     test.must_exist(test.workpath('bar2.ps'))

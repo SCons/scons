@@ -215,33 +215,37 @@ main(int argc, char *argv[])
 """)
 
 #
-test.run(chdir = 'repository', options = opts + " OS=foo", arguments = '.')
+test.run(chdir='repository', options=opts + " OS=foo", arguments='.')
 
-test.run(program = repository_build1_foo_xxx, stdout = """\
+test.run(program=repository_build1_foo_xxx, stdout="""\
 repository/src1/aaa.c:  REPOSITORY_FOO
 repository/src1/bbb.c:  REPOSITORY_FOO
 repository/src1/main.c:  REPOSITORY_FOO
 """)
 
-test.fail_test(os.path.exists(test.workpath('repository', 'src1', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('repository', 'src2', '.sconsign')))
+test.fail_test(os.path.exists(
+    test.workpath('repository', 'src1', '.sconsign')))
+test.fail_test(os.path.exists(
+    test.workpath('repository', 'src2', '.sconsign')))
 test.fail_test(os.path.exists(test.workpath('work1', 'src1', '.sconsign')))
 test.fail_test(os.path.exists(test.workpath('work2', 'src2', '.sconsign')))
 
-test.run(program = repository_build2_foo_src2_xxx_xxx, stdout = """\
+test.run(program=repository_build2_foo_src2_xxx_xxx, stdout="""\
 repository/src2/include/my_string.h:  FOO
 repository/src2/xxx/include.h:  FOO
 repository/src2/xxx/main.c:  FOO
 """)
 
-test.run(program = repository_build2_bar_src2_xxx_xxx, stdout = """\
+test.run(program=repository_build2_bar_src2_xxx_xxx, stdout="""\
 repository/src2/include/my_string.h:  BAR
 repository/src2/xxx/include.h:  BAR
 repository/src2/xxx/main.c:  BAR
 """)
 
-test.fail_test(os.path.exists(test.workpath('repository', 'src1', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('repository', 'src2', '.sconsign')))
+test.fail_test(os.path.exists(
+    test.workpath('repository', 'src1', '.sconsign')))
+test.fail_test(os.path.exists(
+    test.workpath('repository', 'src2', '.sconsign')))
 test.fail_test(os.path.exists(test.workpath('work1', 'src1', '.sconsign')))
 test.fail_test(os.path.exists(test.workpath('work2', 'src2', '.sconsign')))
 
@@ -250,30 +254,36 @@ test.fail_test(os.path.exists(test.workpath('work2', 'src2', '.sconsign')))
 test.writable('repository', 0)
 
 #
-test.up_to_date(chdir = 'work1', options = opts + " OS=foo", arguments = 'build1')
+test.up_to_date(chdir='work1', options=opts + " OS=foo", arguments='build1')
 
-test.fail_test(os.path.exists(test.workpath('work1', 'build1', 'foo', aaa_obj)))
-test.fail_test(os.path.exists(test.workpath('work1', 'build1', 'foo', bbb_obj)))
-test.fail_test(os.path.exists(test.workpath('work1', 'build1', 'foo', main_obj)))
+test.fail_test(os.path.exists(
+    test.workpath('work1', 'build1', 'foo', aaa_obj)))
+test.fail_test(os.path.exists(
+    test.workpath('work1', 'build1', 'foo', bbb_obj)))
+test.fail_test(os.path.exists(test.workpath(
+    'work1', 'build1', 'foo', main_obj)))
 
-test.fail_test(os.path.exists(test.workpath('work1', 'build1', 'foo', xxx_exe)))
+test.fail_test(os.path.exists(
+    test.workpath('work1', 'build1', 'foo', xxx_exe)))
 
 #
-test.run(chdir = 'work1', options = opts, arguments = 'OS=bar .')
+test.run(chdir='work1', options=opts, arguments='OS=bar .')
 
-test.run(program = work1_build1_bar_xxx, stdout = """\
+test.run(program=work1_build1_bar_xxx, stdout="""\
 Only when -DBAR.
 repository/src1/aaa.c:  REPOSITORY_BAR
 repository/src1/bbb.c:  REPOSITORY_BAR
 repository/src1/main.c:  REPOSITORY_BAR
 """)
 
-test.fail_test(os.path.exists(test.workpath('repository', 'src1', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('repository', 'src2', '.sconsign')))
+test.fail_test(os.path.exists(
+    test.workpath('repository', 'src1', '.sconsign')))
+test.fail_test(os.path.exists(
+    test.workpath('repository', 'src2', '.sconsign')))
 test.fail_test(os.path.exists(test.workpath('work1', 'src1', '.sconsign')))
 test.fail_test(os.path.exists(test.workpath('work2', 'src2', '.sconsign')))
 
-test.up_to_date(chdir = 'work1', options = opts + " OS=bar", arguments = 'build1')
+test.up_to_date(chdir='work1', options=opts + " OS=bar", arguments='build1')
 
 # Ensure file time stamps will be newer.
 time.sleep(2)
@@ -288,49 +298,61 @@ test.write(['work1', 'src1', 'iii.h'], r"""
 """)
 
 #
-test.run(chdir = 'work1', options = opts + " OS=bar", arguments = 'build1')
+test.run(chdir='work1', options=opts + " OS=bar", arguments='build1')
 
-test.run(program = work1_build1_bar_xxx, stdout = """\
+test.run(program=work1_build1_bar_xxx, stdout="""\
 Only when -DBAR.
 repository/src1/aaa.c:  WORK_BAR
 repository/src1/bbb.c:  WORK_BAR
 repository/src1/main.c:  WORK_BAR
 """)
 
-test.fail_test(os.path.exists(test.workpath('repository', 'src1', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('repository', 'src2', '.sconsign')))
+test.fail_test(os.path.exists(
+    test.workpath('repository', 'src1', '.sconsign')))
+test.fail_test(os.path.exists(
+    test.workpath('repository', 'src2', '.sconsign')))
 test.fail_test(os.path.exists(test.workpath('work1', 'src1', '.sconsign')))
 test.fail_test(os.path.exists(test.workpath('work2', 'src2', '.sconsign')))
 
-test.up_to_date(chdir = 'work1', options = opts + " OS=bar", arguments = 'build1')
+test.up_to_date(chdir='work1', options=opts + " OS=bar", arguments='build1')
 
 #
-test.run(chdir = 'work1', options = opts + " OS=foo", arguments = 'build1')
+test.run(chdir='work1', options=opts + " OS=foo", arguments='build1')
 
-test.run(program = work1_build1_foo_xxx, stdout = """\
+test.run(program=work1_build1_foo_xxx, stdout="""\
 repository/src1/aaa.c:  WORK_FOO
 repository/src1/bbb.c:  WORK_FOO
 repository/src1/main.c:  WORK_FOO
 """)
 
-test.fail_test(os.path.exists(test.workpath('repository', 'src1', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('repository', 'src2', '.sconsign')))
+test.fail_test(os.path.exists(
+    test.workpath('repository', 'src1', '.sconsign')))
+test.fail_test(os.path.exists(
+    test.workpath('repository', 'src2', '.sconsign')))
 test.fail_test(os.path.exists(test.workpath('work1', 'src1', '.sconsign')))
 test.fail_test(os.path.exists(test.workpath('work2', 'src2', '.sconsign')))
 
-test.up_to_date(chdir = 'work1', options = opts + " OS=foo", arguments = 'build1')
+test.up_to_date(chdir='work1', options=opts + " OS=foo", arguments='build1')
 
 #
-test.up_to_date(chdir = 'work2', options = opts, arguments = 'build2')
+test.up_to_date(chdir='work2', options=opts, arguments='build2')
 
-test.fail_test(os.path.exists(test.workpath('work2', 'build2', 'foo', 'src2', 'xxx', aaa_obj)))
-test.fail_test(os.path.exists(test.workpath('work2', 'build2', 'foo', 'src2', 'xxx', bbb_obj)))
-test.fail_test(os.path.exists(test.workpath('work2', 'build2', 'foo', 'src2', 'xxx', main_obj)))
-test.fail_test(os.path.exists(test.workpath('work2', 'build2', 'foo', 'src2', 'xxx', xxx_exe)))
-test.fail_test(os.path.exists(test.workpath('work2', 'build2', 'bar', 'src2', 'xxx', aaa_obj)))
-test.fail_test(os.path.exists(test.workpath('work2', 'build2', 'bar', 'src2', 'xxx', bbb_obj)))
-test.fail_test(os.path.exists(test.workpath('work2', 'build2', 'bar', 'src2', 'xxx', main_obj)))
-test.fail_test(os.path.exists(test.workpath('work2', 'build2', 'bar', 'src2', 'xxx', xxx_exe)))
+test.fail_test(os.path.exists(test.workpath(
+    'work2', 'build2', 'foo', 'src2', 'xxx', aaa_obj)))
+test.fail_test(os.path.exists(test.workpath(
+    'work2', 'build2', 'foo', 'src2', 'xxx', bbb_obj)))
+test.fail_test(os.path.exists(test.workpath(
+    'work2', 'build2', 'foo', 'src2', 'xxx', main_obj)))
+test.fail_test(os.path.exists(test.workpath(
+    'work2', 'build2', 'foo', 'src2', 'xxx', xxx_exe)))
+test.fail_test(os.path.exists(test.workpath(
+    'work2', 'build2', 'bar', 'src2', 'xxx', aaa_obj)))
+test.fail_test(os.path.exists(test.workpath(
+    'work2', 'build2', 'bar', 'src2', 'xxx', bbb_obj)))
+test.fail_test(os.path.exists(test.workpath(
+    'work2', 'build2', 'bar', 'src2', 'xxx', main_obj)))
+test.fail_test(os.path.exists(test.workpath(
+    'work2', 'build2', 'bar', 'src2', 'xxx', xxx_exe)))
 
 # Ensure file time stamps will be newer.
 time.sleep(2)
@@ -346,22 +368,24 @@ test.write(['work2', 'src2', 'include', 'my_string.h'], r"""
 """)
 
 #
-test.run(chdir = 'work2', options = opts, arguments = 'build2')
+test.run(chdir='work2', options=opts, arguments='build2')
 
-test.run(program = work2_build2_foo_src2_xxx_xxx, stdout = """\
+test.run(program=work2_build2_foo_src2_xxx_xxx, stdout="""\
 work2/src2/include/my_string.h:  FOO
 repository/src2/xxx/include.h:  FOO
 repository/src2/xxx/main.c:  FOO
 """)
 
-test.run(program = work2_build2_bar_src2_xxx_xxx, stdout = """\
+test.run(program=work2_build2_bar_src2_xxx_xxx, stdout="""\
 work2/src2/include/my_string.h:  BAR
 repository/src2/xxx/include.h:  BAR
 repository/src2/xxx/main.c:  BAR
 """)
 
-test.fail_test(os.path.exists(test.workpath('repository', 'src1', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('repository', 'src2', '.sconsign')))
+test.fail_test(os.path.exists(
+    test.workpath('repository', 'src1', '.sconsign')))
+test.fail_test(os.path.exists(
+    test.workpath('repository', 'src2', '.sconsign')))
 test.fail_test(os.path.exists(test.workpath('work1', 'src1', '.sconsign')))
 test.fail_test(os.path.exists(test.workpath('work2', 'src2', '.sconsign')))
 
@@ -379,44 +403,48 @@ test.write(['work2', 'src2', 'xxx', 'include.h'], r"""
 #define XXX_STRING      "work2/src2/xxx/include.h:  %s\n"
 """)
 
-test.run(chdir = 'work2', options = opts, arguments = 'build2')
+test.run(chdir='work2', options=opts, arguments='build2')
 
-test.run(program = work2_build2_foo_src2_xxx_xxx, stdout = """\
+test.run(program=work2_build2_foo_src2_xxx_xxx, stdout="""\
 work2/src2/include/my_string.h:  FOO
 work2/src2/xxx/include.h:  FOO
 repository/src2/xxx/main.c:  FOO
 """)
 
-test.run(program = work2_build2_bar_src2_xxx_xxx, stdout = """\
+test.run(program=work2_build2_bar_src2_xxx_xxx, stdout="""\
 work2/src2/include/my_string.h:  BAR
 work2/src2/xxx/include.h:  BAR
 repository/src2/xxx/main.c:  BAR
 """)
 
-test.fail_test(os.path.exists(test.workpath('repository', 'src1', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('repository', 'src2', '.sconsign')))
+test.fail_test(os.path.exists(
+    test.workpath('repository', 'src1', '.sconsign')))
+test.fail_test(os.path.exists(
+    test.workpath('repository', 'src2', '.sconsign')))
 test.fail_test(os.path.exists(test.workpath('work1', 'src1', '.sconsign')))
 test.fail_test(os.path.exists(test.workpath('work2', 'src2', '.sconsign')))
 
 #
 test.unlink(['work2', 'src2', 'include', 'my_string.h'])
 
-test.run(chdir = 'work2', options = opts, arguments = 'build2')
+test.run(chdir='work2', options=opts, arguments='build2')
 
-test.run(program = work2_build2_foo_src2_xxx_xxx, stdout = """\
+test.run(program=work2_build2_foo_src2_xxx_xxx, stdout="""\
 repository/src2/include/my_string.h:  FOO
 work2/src2/xxx/include.h:  FOO
 repository/src2/xxx/main.c:  FOO
 """)
 
-test.run(program = work2_build2_bar_src2_xxx_xxx, stdout = """\
+test.run(program=work2_build2_bar_src2_xxx_xxx, stdout="""\
 repository/src2/include/my_string.h:  BAR
 work2/src2/xxx/include.h:  BAR
 repository/src2/xxx/main.c:  BAR
 """)
 
-test.fail_test(os.path.exists(test.workpath('repository', 'src1', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('repository', 'src2', '.sconsign')))
+test.fail_test(os.path.exists(
+    test.workpath('repository', 'src1', '.sconsign')))
+test.fail_test(os.path.exists(
+    test.workpath('repository', 'src2', '.sconsign')))
 test.fail_test(os.path.exists(test.workpath('work1', 'src1', '.sconsign')))
 test.fail_test(os.path.exists(test.workpath('work2', 'src2', '.sconsign')))
 

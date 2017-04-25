@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -77,27 +78,27 @@ scons: *** Cannot update configure test "%(conftest_0_c)s" within a dry-run.
 test.run(arguments='-n', status=2, stderr=expect)
 
 test.run()
-test.checkLogAndStdout( ["Checking for C library %s... " % lib,
-                    "Checking for C library hopefullynolib... "],
-                    ["yes", "no"],
-                    [[((".c", NCR), (_obj, NCR))],
-                     [((".c", NCR), (_obj, NCF))]],
-                    "config.log", ".sconf_temp", "SConstruct")
+test.checkLogAndStdout(["Checking for C library %s... " % lib,
+                        "Checking for C library hopefullynolib... "],
+                       ["yes", "no"],
+                       [[((".c", NCR), (_obj, NCR))],
+                        [((".c", NCR), (_obj, NCF))]],
+                       "config.log", ".sconf_temp", "SConstruct")
 
-oldLog = test.read(test.workpath('config.log'))
+oldLog = test.read(test.workpath('config.log'), mode='r')
 
 test.run(arguments='-n')
-test.checkLogAndStdout( ["Checking for C library %s... " % lib,
-                    "Checking for C library hopefullynolib... "],
-                    ["yes", "no"],
-                    [[((".c", CR), (_obj, CR))],
-                     [((".c", CR), (_obj, CF))]],
-                    "config.log", ".sconf_temp", "SConstruct",
-                    doCheckLog=0)
+test.checkLogAndStdout(["Checking for C library %s... " % lib,
+                        "Checking for C library hopefullynolib... "],
+                       ["yes", "no"],
+                       [[((".c", CR), (_obj, CR))],
+                        [((".c", CR), (_obj, CF))]],
+                       "config.log", ".sconf_temp", "SConstruct",
+                       doCheckLog=False)
 
-newLog = test.read(test.workpath('config.log'))
+newLog = test.read(test.workpath('config.log'), mode='r')
 if newLog != oldLog:
-    print "Unexpected update of log file within a dry run"
+    print("Unexpected update of log file within a dry run")
     test.fail_test()
 
 test.pass_test()

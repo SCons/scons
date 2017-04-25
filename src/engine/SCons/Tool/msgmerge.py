@@ -58,7 +58,7 @@ def _POUpdateBuilderWrapper(env, target=None, source=_null, **kw):
   if source is _null:
     if 'POTDOMAIN' in kw:
       domain = kw['POTDOMAIN']
-    elif env.has_key('POTDOMAIN') and env['POTDOMAIN']:
+    elif 'POTDOMAIN' in env and env['POTDOMAIN']:
       domain = env['POTDOMAIN']
     else:
       domain = 'messages'

@@ -61,9 +61,9 @@ SConscript('src/SConscript')
 test.write(['rep1', 'src', 'SConscript'], """\
 def cat(env, source, target):
     target = str(target[0])
-    f = open(target, "wb")
+    f = open(target, "w")
     for src in source:
-        f.write(open(str(src), "rb").read())
+        f.write(open(str(src), "r").read())
     f.close()
 env = Environment(BUILDERS={'Cat':Builder(action=cat)})
 env.Cat(target = 'foo', source = ['aaa.in', 'bbb.in', 'ccc.in'])
@@ -79,11 +79,11 @@ test.writable('rep1', 0)
 
 test.run(chdir = 'work', arguments = ".")
 
-test.fail_test(test.read(['work', 'src', 'foo']) != """\
+test.must_match(['work', 'src', 'foo'], """\
 rep1/src/aaa.in
 rep1/src/bbb.in
 rep1/src/ccc.in
-""")
+""", mode='r')
 
 test.up_to_date(chdir = 'work', arguments = ".")
 
@@ -115,11 +115,11 @@ test.write(['rep2', 'src', 'ccc.in'], "rep2/src/ccc.in\n")
 
 test.run(chdir = 'rep2/build', arguments = ".")
 
-test.fail_test(test.read(['rep2', 'build', 'src', 'foo']) != """\
+test.must_match(['rep2', 'build', 'src', 'foo'], """\
 rep2/src/aaa.in
 rep2/src/bbb.in
 rep2/src/ccc.in
-""")
+""", mode='r')
 
 #
 test.pass_test()

@@ -20,6 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -623,7 +624,7 @@ class msvsTestCase(unittest.TestCase):
         tests_cmdargs = [(None,            dict.fromkeys(list_variant, '')), 
                          ('',              dict.fromkeys(list_variant, '')), 
                          (list_cmdargs[0], dict.fromkeys(list_variant, list_cmdargs[0])),
-                         (list_cmdargs,    dict(zip(list_variant, list_cmdargs)))]
+                         (list_cmdargs,    dict(list(zip(list_variant, list_cmdargs))))]
         
         # Run the test for each test case
         for param_cmdargs, expected_cmdargs in tests_cmdargs:
@@ -650,8 +651,8 @@ class msvsTestCase(unittest.TestCase):
                      'cmdargs': expected_cmdargs[variant_platform]}
             
             # Create parameter environment with final parameter dictionary
-            param_dict = dict(zip(('variant', 'runfile', 'buildtarget', 'outdir'),
-                                  [list(l) for l in zip(*param_configs)]))
+            param_dict = dict(list(zip(('variant', 'runfile', 'buildtarget', 'outdir'),
+                                  [list(l) for l in zip(*param_configs)])))
             param_dict['cmdargs'] = param_cmdargs
 
             # Hack to be able to run the test with a 'DummyEnv'
@@ -667,8 +668,8 @@ class msvsTestCase(unittest.TestCase):
             genDSP = function_test(dspfile, source, env)
         
             # Check expected result
-            self.assertListEqual(genDSP.configs.keys(), expected_configs.keys())
-            for key in genDSP.configs.keys():
+            self.assertListEqual(list(genDSP.configs.keys()), list(expected_configs.keys()))
+            for key in list(genDSP.configs.keys()):
                 self.assertDictEqual(genDSP.configs[key].__dict__, expected_configs[key])
 
 class msvs6aTestCase(msvsTestCase):
@@ -827,7 +828,7 @@ if __name__ == "__main__":
     ]
 
     for test_class in test_classes:
-        print "TEST: ", test_class.__doc__
+        print("TEST: ", test_class.__doc__)
         back_osenv = copy.deepcopy(os.environ)
         try:
             # XXX: overriding the os.environ is bad, but doing it

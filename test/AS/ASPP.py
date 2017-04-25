@@ -24,6 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import sys
 
 import TestSCons
@@ -33,84 +34,8 @@ _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-
-
-if sys.platform == 'win32':
-
-    test.write('mylink.py', r"""
-import sys
-args = sys.argv[1:]
-while args:
-    a = args[0]
-    if a == '-o':
-        out = args[1]
-        args = args[2:]
-        continue
-    if not a[0] in '/-':
-        break
-    args = args[1:]
-    if a[:5].lower() == '/out:': out = a[5:]
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
-for l in infile.readlines():
-    if l[:5] != '#link':
-        outfile.write(l)
-sys.exit(0)
-""")
-
-    test.write('myas.py', r"""
-import sys
-args = sys.argv[1:]
-inf = None
-while args:
-    a = args[0]
-    if a == '-o':
-        out = args[1]
-        args = args[2:]
-        continue
-    args = args[1:]
-    if not a[0] in "/-":
-        if not inf:
-            inf = a
-        continue
-    if a[:3] == '/Fo': out = a[3:]
-infile = open(inf, 'rb')
-outfile = open(out, 'wb')
-for l in infile.readlines():
-    if l[:3] != '#as':
-        outfile.write(l)
-sys.exit(0)
-""")
-
-else:
-
-    test.write('mylink.py', r"""
-import getopt
-import sys
-opts, args = getopt.getopt(sys.argv[1:], 'o:')
-for opt, arg in opts:
-    if opt == '-o': out = arg
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
-for l in infile.readlines():
-    if l[:5] != '#link':
-        outfile.write(l)
-sys.exit(0)
-""")
-
-    test.write('myas.py', r"""
-import getopt
-import sys
-opts, args = getopt.getopt(sys.argv[1:], 'co:')
-for opt, arg in opts:
-    if opt == '-o': out = arg
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
-for l in infile.readlines():
-    if l[:3] != '#as':
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mylink.py')
+test.file_fixture(os.path.join('fixture', 'myas.py'))
 
 test.write('SConstruct', """
 env = Environment(LINK = r'%(_python_)s mylink.py',
@@ -143,9 +68,9 @@ test.write('test3.sx', r"""This is a .sx file.
 
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read('test1' + _exe) != "This is a .spp file.\n")
+test.fail_test(test.read('test1' + _exe) != b"This is a .spp file.\n")
 
-test.fail_test(test.read('test2' + _exe) != "This is a .SPP file.\n")
+test.fail_test(test.read('test2' + _exe) != b"This is a .SPP file.\n")
 
 # Ensure the source scanner was run on test3.sx by
 # checking for foo.h in the dependency tree output 

@@ -43,8 +43,8 @@ opt_string = ''
 for opt, arg in cmd_opts:
     opt_string = opt_string + ' ' + opt
 base_name = os.path.splitext(args[0])[0]
-infile = open(args[0], 'rb')
-out_file = open(base_name+'.dvi', 'wb')
+infile = open(args[0], 'r')
+out_file = open(base_name+'.dvi', 'w')
 out_file.write(opt_string + "\n")
 for l in infile.readlines():
     if l[0] != '\\':
@@ -65,7 +65,7 @@ test.write('test.tex', r"""This is a test.
 
 test.run(arguments = 'test.dvi', stderr = None)
 
-test.fail_test(test.read('test.dvi') != " -x\nThis is a test.\n")
+test.must_match('test.dvi'," -x\nThis is a test.\n", mode='r')
 
 
 
@@ -73,11 +73,7 @@ tex = test.where_is('tex')
 
 if tex:
 
-    test.write("wrapper.py", """import os
-import sys
-open('%s', 'wb').write("wrapper.py\\n")
-os.system(" ".join(sys.argv[1:]))
-""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
+    test.file_fixture('wrapper.py')
 
     test.write('SConstruct', """
 import os

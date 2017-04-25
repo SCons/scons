@@ -35,7 +35,7 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.write('build.py', """\
+test.write('build.py', """
 import os
 import sys
 import time
@@ -45,14 +45,14 @@ logfile = 'log.txt'
 
 try:
     os.mkdir(lockdir)
-except OSError, e:
+except OSError as e:
     msg = 'could not create lock directory: %s\\n' % e
     sys.stderr.write(msg)
     sys.exit(1)
 
 src, target = sys.argv[1:]
 
-open(logfile, 'ab').write('%s -> %s\\n' % (src, target))
+open(logfile, 'ab').write(('%s -> %s\\n' % (src, target)).encode())
 
 # Give the other threads a chance to start.
 time.sleep(1)
@@ -93,7 +93,7 @@ log_lines = [
     'g2.in -> g2.out',
 ]
 
-test.must_contain_all_lines(test.read('log.txt'), log_lines)
+test.must_contain_all_lines(test.read('log.txt', mode='r'), log_lines)
 
 
 test.pass_test()

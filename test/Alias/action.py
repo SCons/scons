@@ -43,12 +43,12 @@ def cat(target, source, env):
 def foo(target, source, env):
     target = list(map(str, target))
     source = list(map(str, source))
-    open('foo', 'wb').write("foo(%s, %s)\\n" % (target, source))
+    open('foo', 'wb').write(bytearray("foo(%s, %s)\\n" % (target, source),'utf-8'))
 
 def bar(target, source, env):
     target = list(map(str, target))
     source = list(map(str, source))
-    open('bar', 'wb').write("bar(%s, %s)\\n" % (target, source))
+    open('bar', 'wb').write(bytearray("bar(%s, %s)\\n" % (target, source),'utf-8'))
 
 env = Environment(BUILDERS = {'Cat':Builder(action=cat)})
 env.Alias(target = ['build-f1'], source = 'f1.out', action = foo)

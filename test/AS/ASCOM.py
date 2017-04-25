@@ -36,16 +36,7 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('myas.py', r"""
-import sys
-infile = open(sys.argv[2], 'rb')
-outfile = open(sys.argv[1], 'wb')
-for l in [l for l in infile.readlines() if l != "#as\n"]:
-    outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 if os.path.normcase('.s') == os.path.normcase('.S'):
     alt_s_suffix = '.S'
@@ -55,7 +46,7 @@ else:
     alt_asm_suffix = '.asm'
 
 test.write('SConstruct', """
-env = Environment(ASCOM = r'%(_python_)s myas.py $TARGET $SOURCE',
+env = Environment(ASCOM = r'%(_python_)s mycompile.py as $TARGET $SOURCE',
                   OBJSUFFIX = '.obj',
                   SHOBJPREFIX = '',
                   SHOBJSUFFIX = '.shobj')
@@ -69,27 +60,25 @@ env.SharedObject(target = 'test7', source = 'test7.asm')
 env.SharedObject(target = 'test8', source = 'test8%(alt_asm_suffix)s')
 """ % locals())
 
-test.write('test1.s', "test1.s\n#as\n")
-test.write('test2'+alt_s_suffix, "test2.S\n#as\n")
-test.write('test3.asm', "test3.asm\n#as\n")
-test.write('test4'+alt_asm_suffix, "test4.ASM\n#as\n")
-test.write('test5.s', "test5.s\n#as\n")
-test.write('test6'+alt_s_suffix, "test6.S\n#as\n")
-test.write('test7.asm', "test7.asm\n#as\n")
-test.write('test8'+alt_asm_suffix, "test8.ASM\n#as\n")
+test.write('test1.s', "test1.s\n/*as*/\n")
+test.write('test2'+alt_s_suffix, "test2.S\n/*as*/\n")
+test.write('test3.asm', "test3.asm\n/*as*/\n")
+test.write('test4'+alt_asm_suffix, "test4.ASM\n/*as*/\n")
+test.write('test5.s', "test5.s\n/*as*/\n")
+test.write('test6'+alt_s_suffix, "test6.S\n/*as*/\n")
+test.write('test7.asm', "test7.asm\n/*as*/\n")
+test.write('test8'+alt_asm_suffix, "test8.ASM\n/*as*/\n")
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('test1.obj') != "test1.s\n")
-test.fail_test(test.read('test2.obj') != "test2.S\n")
-test.fail_test(test.read('test3.obj') != "test3.asm\n")
-test.fail_test(test.read('test4.obj') != "test4.ASM\n")
-test.fail_test(test.read('test5.shobj') != "test5.s\n")
-test.fail_test(test.read('test6.shobj') != "test6.S\n")
-test.fail_test(test.read('test7.shobj') != "test7.asm\n")
-test.fail_test(test.read('test8.shobj') != "test8.ASM\n")
-
-
+test.must_match('test1.obj', "test1.s\n")
+test.must_match('test2.obj', "test2.S\n")
+test.must_match('test3.obj', "test3.asm\n")
+test.must_match('test4.obj', "test4.ASM\n")
+test.must_match('test5.shobj', "test5.s\n")
+test.must_match('test6.shobj', "test6.S\n")
+test.must_match('test7.shobj', "test7.asm\n")
+test.must_match('test8.shobj', "test8.ASM\n")
 
 test.pass_test()
 

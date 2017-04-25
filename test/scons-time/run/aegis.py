@@ -64,7 +64,7 @@ expect = [
     'SCONS_LIB_DIR = %s' % test.tempdir_re('src', 'engine'),
 ]
 
-content = test.read(test.workpath('foo-321-2.log'))
+content = test.read(test.workpath('foo-321-2.log'),mode='r')
 
 def re_find(content, line):
     return re.search(line, content)

@@ -27,7 +27,7 @@ import SCons.Scanner
 
 def only_dirs(nodes):
     is_Dir = lambda n: isinstance(n.disambiguate(), SCons.Node.FS.Dir)
-    return list(filter(is_Dir, nodes))
+    return [node for node in nodes if is_Dir(node)]
 
 def DirScanner(**kw):
     """Return a prototype Scanner instance for scanning

@@ -26,6 +26,7 @@ Nodes.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -35,7 +36,7 @@ import SCons.Debug
 from SCons.Debug import logInstanceCreation
 import SCons.Errors
 import SCons.Memoize
-
+from SCons.compat import with_metaclass, NoSlotsPyPy
 
 class Batch(object):
     """Remembers exact association between targets
@@ -154,7 +155,7 @@ _execute_str_map = {0 : execute_null_str,
                     1 : execute_actions_str}
 
 
-class Executor(object):
+class Executor(object, with_metaclass(NoSlotsPyPy)):
     """A class for controlling instances of executing an action.
 
     This largely exists to hold a single association of an action,
@@ -455,10 +456,16 @@ class Executor(object):
         except KeyError:
             pass
         env = self.get_build_env()
-        result = "".join([action.get_contents(self.get_all_targets(),
-                                              self.get_all_sources(),
-                                              env)
-                          for action in self.get_action_list()])
+
+        action_list = self.get_action_list()
+        all_targets = self.get_all_targets()
+        all_sources = self.get_all_sources()
+
+        result = bytearray("",'utf-8').join([action.get_contents(all_targets,
+                                                                 all_sources,
+                                                                 env)
+                                             for action in action_list])
+
         self._memo['get_contents'] = result
         return result
 
@@ -580,7 +587,7 @@ def get_NullEnvironment():
         nullenv = NullEnvironment()
     return nullenv
 
-class Null(object):
+class Null(object, with_metaclass(NoSlotsPyPy)):
     """A null Executor, with a null build Environment, that does
     nothing when the rest of the methods call it.
 

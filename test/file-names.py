@@ -119,10 +119,10 @@ for c in goodChars:
 
     c_str = ("%d"%ord(c[-1]))+c
     if not invalid_leading_char(c):
-        test.fail_test(test.read(c_str + "out") != contents(c))
-    test.fail_test(test.read("out" + c_str + "out") != contents(c))
+        test.must_match(c_str + "out", contents(c))
+    test.must_match("out" + c_str + "out", contents(c))
     if not invalid_trailing_char(c):
-        test.fail_test(test.read("out" + c_str) != contents(c))
+        test.must_match("out" + c_str, contents(c))
 
 test.pass_test()
 

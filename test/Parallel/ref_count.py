@@ -74,9 +74,9 @@ while args:
         time.sleep(int(args.pop(0)))
 contents = ''
 for ifile in args:
-    contents = contents + open(ifile, 'rb').read()
+    contents = contents + open(ifile, 'r').read()
 for ofile in outputs:
-    ofp = open(ofile, 'wb')
+    ofp = open(ofile, 'w')
     ofp.write('%s:  building from %s\\n' % (ofile, " ".join(args)))
     ofp.write(contents)
     ofp.close()
@@ -136,7 +136,7 @@ test.run(arguments = '-j4 after.out')
 test.must_match('after.out', """\
 after.out:  building from after.in
 after.in
-""")
+""", mode='r')
 
 test.write('file5.c', "file5.c modified\n")
 
@@ -147,7 +147,7 @@ test.run(arguments = '-j4 after.out')
 test.must_match('after.out', """\
 after.out:  building from after.in
 after.in modified
-""")
+""", mode='r')
 
 test.pass_test()
 

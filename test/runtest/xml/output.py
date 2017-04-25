@@ -92,7 +92,7 @@ expect = """\
 
 # Just strip carriage returns so the regular expression matching works.
 contents = test.read('xml.out')
-contents = contents.replace('\r', '')
+contents = contents.replace(b'\r', b'')
 test.write('xml.out', contents)
 
 test.must_match('xml.out', expect)

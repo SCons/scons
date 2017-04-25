@@ -51,8 +51,8 @@ test.write(['repository', 'file2'], "repository/file2\n")
 
 test.run(chdir = 'repository', options = opts, arguments = 'install')
 
-test.fail_test(test.read(repository_install_file1) != "repository/file1\n")
-test.fail_test(test.read(repository_install_file2) != "repository/file2\n")
+test.must_match(repository_install_file1, "repository/file1\n", mode='r')
+test.must_match(repository_install_file2, "repository/file2\n", mode='r')
 
 test.up_to_date(chdir = 'repository', options = opts, arguments = 'install')
 
@@ -62,8 +62,8 @@ test.writable('repository', 0)
 
 test.run(chdir = 'work', options = opts, arguments = 'install')
 
-test.fail_test(test.read(work_install_file1) != "repository/file1\n")
-test.fail_test(test.read(work_install_file2) != "repository/file2\n")
+test.must_match(work_install_file1, "repository/file1\n", mode='r')
+test.must_match(work_install_file2, "repository/file2\n", mode='r')
 
 test.up_to_date(chdir = 'work', options = opts, arguments = 'install')
 
@@ -73,8 +73,8 @@ test.write(['work', 'file2'], "work/file2\n")
 
 test.run(chdir = 'work', options = opts, arguments = 'install')
 
-test.fail_test(test.read(work_install_file1) != "work/file1\n")
-test.fail_test(test.read(work_install_file2) != "work/file2\n")
+test.must_match(work_install_file1, "work/file1\n", mode='r')
+test.must_match(work_install_file2, "work/file2\n", mode='r')
 
 test.up_to_date(chdir = 'work', options = opts, arguments = 'install')
 

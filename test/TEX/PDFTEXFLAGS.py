@@ -43,8 +43,8 @@ opt_string = ''
 for opt, arg in cmd_opts:
     opt_string = opt_string + ' ' + opt
 base_name = os.path.splitext(args[0])[0]
-infile = open(args[0], 'rb')
-out_file = open(base_name+'.pdf', 'wb')
+infile = open(args[0], 'r')
+out_file = open(base_name+'.pdf', 'w')
 out_file.write(opt_string + "\n")
 for l in infile.readlines():
     if l[0] != '\\':
@@ -73,11 +73,7 @@ pdftex = test.where_is('pdftex')
 
 if pdftex:
 
-    test.write("wrapper.py", """import os
-import sys
-open('%s', 'wb').write("wrapper.py\\n")
-os.system(" ".join(sys.argv[1:]))
-""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
+    test.file_fixture('wrapper.py')
 
     test.write('SConstruct', """
 import os
@@ -100,15 +96,15 @@ This is the %s TeX file.
 
     test.run(arguments = 'foo.pdf', stderr = None)
 
-    test.fail_test(os.path.exists(test.workpath('wrapper.out')))
+    test.must_not_exist(test.workpath('wrapper.out'))
 
-    test.fail_test(not os.path.exists(test.workpath('foo.pdf')))
+    test.must_exist(test.workpath('foo.pdf'))
 
     test.run(arguments = 'bar.pdf', stderr = None)
 
-    test.fail_test(not os.path.exists(test.workpath('wrapper.out')))
+    test.must_exist(test.workpath('wrapper.out'))
 
-    test.fail_test(not os.path.exists(test.workpath('bar.pdf')))
+    test.must_exist(test.workpath('bar.pdf'))
 
 test.pass_test()
 

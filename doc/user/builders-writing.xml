@@ -1047,7 +1047,7 @@ def MakeWorkDir(workdir):
       <file name="SConscript">
 import my_utils
 MakeWorkDir('/tmp/work')
-print "build_id=" + my_utils.build_id()
+print("build_id=" + my_utils.build_id())
       </file>
     </scons_example>
 
@@ -1060,7 +1060,7 @@ print "build_id=" + my_utils.build_id()
 
     <sconstruct>
 import my_utils
-print "build_id=" + my_utils.build_id()
+print("build_id=" + my_utils.build_id())
 my_utils.MakeWorkDir('/tmp/work')
     </sconstruct>
 

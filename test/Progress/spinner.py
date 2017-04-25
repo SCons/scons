@@ -33,6 +33,7 @@ import os
 
 import TestSCons
 
+
 test = TestSCons.TestSCons(universal_newlines=None)
 
 test.write('SConstruct', r"""
@@ -50,12 +51,12 @@ test.write('S2.in', "S2.in\n")
 test.write('S3.in', "S3.in\n")
 test.write('S4.in', "S4.in\n")
 
-expect = """\
+expect = bytearray("""\
 \\\r|\rCopy("S1.out", "S1.in")
 /\r-\rCopy("S2.out", "S2.in")
 \\\r|\rCopy("S3.out", "S3.in")
 /\r-\rCopy("S4.out", "S4.in")
-\\\r|\r"""
+\\\r|\r""",'utf-8')
 
 if os.linesep != '\n':
     expect = expect.replace('\n', os.linesep)

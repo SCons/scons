@@ -20,6 +20,10 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import print_function
+
+import sys
+
 __doc__ = """
 Generic Taskmaster module for the SCons build engine.
 
@@ -107,7 +111,7 @@ fmt = "%(considered)3d "\
 
 def dump_stats():
     for n in sorted(StatsNodes, key=lambda a: str(a)):
-        print (fmt % n.attributes.stats.__dict__) + str(n)
+        print((fmt % n.attributes.stats.__dict__) + str(n))
 
 
 
@@ -191,13 +195,13 @@ class Task(object):
         executor.prepare()
         for t in executor.get_action_targets():
             if print_prepare:
-                print "Preparing target %s..."%t
+                print("Preparing target %s..."%t)
                 for s in t.side_effects:
-                    print "...with side-effect %s..."%s
+                    print("...with side-effect %s..."%s)
             t.prepare()
             for s in t.side_effects:
                 if print_prepare:
-                    print "...Preparing side-effect %s..."%s
+                    print("...Preparing side-effect %s..."%s)
                 s.prepare()
 
     def get_target(self):
@@ -256,7 +260,7 @@ class Task(object):
             raise
         except SCons.Errors.BuildError:
             raise
-        except Exception, e:
+        except Exception as e:
             buildError = SCons.Errors.convert_to_BuildError(e)
             buildError.node = self.targets[0]
             buildError.exc_info = sys.exc_info()
@@ -305,7 +309,7 @@ class Task(object):
                     t.push_to_cache()
                 t.built()
                 t.visited()
-                if (not print_prepare and 
+                if (not print_prepare and
                     (not hasattr(self, 'options') or not self.options.debug_includes)):
                     t.release_target_info()
             else:
@@ -402,7 +406,7 @@ class Task(object):
                 t.disambiguate().make_ready()
                 is_up_to_date = not t.has_builder() or \
                                 (not t.always_build and t.is_up_to_date())
-            except EnvironmentError, e:
+            except EnvironmentError as e:
                 raise SCons.Errors.BuildError(node=t, errstr=e.strerror, filename=e.filename)
 
             if not is_up_to_date:
@@ -423,7 +427,7 @@ class Task(object):
                 # parallel build...)
                 t.visited()
                 t.set_state(NODE_UP_TO_DATE)
-                if (not print_prepare and 
+                if (not print_prepare and
                     (not hasattr(self, 'options') or not self.options.debug_includes)):
                     t.release_target_info()
 
@@ -537,7 +541,23 @@ class Task(object):
         except ValueError:
             exc_type, exc_value = exc
             exc_traceback = None
-        raise exc_type, exc_value, exc_traceback
+
+        # raise exc_type(exc_value).with_traceback(exc_traceback)
+        if sys.version_info[0] == 2:
+            exec("raise exc_type, exc_value, exc_traceback")
+        else: #  sys.version_info[0] == 3:
+            if isinstance(exc_value, Exception): #hasattr(exc_value, 'with_traceback'):
+                # If exc_value is an exception, then just reraise
+                exec("raise exc_value.with_traceback(exc_traceback)")
+            else:
+                # else we'll create an exception using the value and raise that
+                exec("raise exc_type(exc_value).with_traceback(exc_traceback)")
+
+
+        # raise e.__class__, e.__class__(e), sys.exc_info()[2]
+        #     exec("raise exc_type(exc_value).with_traceback(exc_traceback)")
+
+
 
 class AlwaysTask(Task):
     def needs_execute(self):
@@ -761,7 +781,7 @@ class Taskmaster(object):
         self.ready_exc = None
 
         T = self.trace
-        if T: T.write(u'\n' + self.trace_message('Looking for a node to evaluate'))
+        if T: T.write(SCons.Util.UnicodeType('\n') + self.trace_message('Looking for a node to evaluate'))
 
         while True:
             node = self.next_candidate()
@@ -810,7 +830,7 @@ class Taskmaster(object):
                 self.ready_exc = (SCons.Errors.ExplicitExit, e)
                 if T: T.write(self.trace_message('       SystemExit'))
                 return node
-            except Exception, e:
+            except Exception as e:
                 # We had a problem just trying to figure out the
                 # children (like a child couldn't be linked in to a
                 # VariantDir, or a Scanner threw something).  Arrange to
@@ -840,13 +860,13 @@ class Taskmaster(object):
                 if childstate <= NODE_EXECUTING:
                     children_not_ready.append(child)
 
-
             # These nodes have not even been visited yet.  Add
             # them to the list so that on some next pass we can
             # take a stab at evaluating them (or their children).
             children_not_visited.reverse()
             self.candidates.extend(self.order(children_not_visited))
-            #if T and children_not_visited:
+
+            # if T and children_not_visited:
             #    T.write(self.trace_message('     adding to candidates: %s' % map(str, children_not_visited)))
             #    T.write(self.trace_message('     candidates now: %s\n' % map(str, self.candidates)))
 
@@ -943,13 +963,13 @@ class Taskmaster(object):
         executor = node.get_executor()
         if executor is None:
             return None
-        
+
         tlist = executor.get_all_targets()
 
         task = self.tasker(self, tlist, node in self.original_top, node)
         try:
             task.make_ready()
-        except:
+        except Exception as e :
             # We had a problem just trying to get this task ready (like
             # a child couldn't be linked to a VariantDir when deciding
             # whether this node is current).  Arrange to raise the

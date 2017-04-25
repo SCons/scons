@@ -47,14 +47,14 @@ for i in range(len(targets)):
     t = targets[i]
     s = sources[i]
     fp = open(t, 'wb')
-    fp.write('%s\\n')
+    fp.write(bytearray('%s\\n','utf-8'))
     fp.write(open(s, 'rb').read())
     fp.close()
 sys.exit(0)
 """
 
 test.write('build.py', build_py_contents % (python, 'one'))
-os.chmod(test.workpath('build.py'), 0755)
+os.chmod(test.workpath('build.py'), 0o755)
 
 test.write('SConstruct', """
 env = Environment()
@@ -81,7 +81,7 @@ test.must_match('f3.out', "one\nf3.in\n")
 test.up_to_date(arguments = '.')
 
 test.write('build.py', build_py_contents % (python, 'two'))
-os.chmod(test.workpath('build.py'), 0755)
+os.chmod(test.workpath('build.py'), 0o755)
 
 test.not_up_to_date(arguments = '.')
 

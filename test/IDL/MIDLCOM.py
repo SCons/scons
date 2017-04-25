@@ -39,12 +39,12 @@ test = TestSCons.TestSCons()
 test.write('mymidl.py', """
 import os.path
 import sys
-out_tlb = open(sys.argv[1], 'wb')
+out_tlb = open(sys.argv[1], 'w')
 base = os.path.splitext(sys.argv[1])[0]
-out_h = open(base + '.h', 'wb')
-out_c = open(base + '_i.c', 'wb')
+out_h = open(base + '.h', 'w')
+out_c = open(base + '_i.c', 'w')
 for f in sys.argv[2:]:
-    infile = open(f, 'rb')
+    infile = open(f, 'r')
     for l in [l for l in infile.readlines() if l != '/*midl*/\\n']:
         out_tlb.write(l)
         out_h.write(l)
@@ -62,9 +62,9 @@ test.write('aaa.idl', "aaa.idl\n/*midl*/\n")
 
 test.run(arguments = '.')
 
-test.must_match('aaa.tlb', "aaa.idl\n")
-test.must_match('aaa.h', "aaa.idl\n")
-test.must_match('aaa_i.c', "aaa.idl\n")
+test.must_match('aaa.tlb', "aaa.idl\n", mode='r')
+test.must_match('aaa.h', "aaa.idl\n", mode='r')
+test.must_match('aaa_i.c', "aaa.idl\n", mode='r')
 
 test.up_to_date(options = '--debug=explain', arguments = 'aaa.tlb')
 

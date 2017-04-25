@@ -32,11 +32,22 @@ test = TestSCons.TestSCons()
 
 test.write('cat.py', r"""
 import sys
+PY3K = sys.version_info >= (3, 0)
+
 try:
-    input = open(sys.argv[1], 'r').read()
+    input = open(sys.argv[1], 'rb').read()
 except IndexError:
-    input = sys.stdin.read()
-sys.stdout.write(input)
+    if PY3K:
+        source = sys.stdin.buffer
+    else:
+        source = sys.stdin
+    input = source.read()
+    
+if PY3K:
+    sys.stdout.buffer.write(input)
+else:
+    sys.stdout.write(input)
+
 sys.exit(0)
 """)
 
@@ -59,10 +70,10 @@ test.write('bar4', 'bar4\r\n')
 
 test.run(arguments='.')
 
-test.fail_test(test.read('foo1') != 'bar1\r\n')
-test.fail_test(test.read('foo2') != 'bar2\r\n')
-test.fail_test(test.read('foo3') != 'bar3\r\n')
-test.fail_test(test.read('foo4') != 'bar4\r\n')
+test.must_match('foo1', 'bar1\r\n')
+test.must_match('foo2', 'bar2\r\n')
+test.must_match('foo3', 'bar3\r\n')
+test.must_match('foo4', 'bar4\r\n')
 
 test.pass_test()
 

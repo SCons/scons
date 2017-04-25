@@ -38,7 +38,7 @@ SConscript('white space/SConscript')
 """)
 
 test.write(['white space', 'SConscript'], """\
-print "`white space/SConscript'"
+print("`white space/SConscript'")
 """)
 
 expect = test.wrap_stdout(read_str = "`white space/SConscript'\n",

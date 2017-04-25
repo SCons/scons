@@ -43,7 +43,7 @@ for arg in sys.argv[1:]:
     if arg.startswith('--profile='):
         profile = arg[10:]
         break
-print 'my_scons.py: %s' % profile
+print('my_scons.py: %s' % profile)
 """)
 
 test.run(arguments = 'run --scons %s foo.tar.gz' % my_scons_py)
@@ -52,9 +52,9 @@ prof0 = test.workpath('foo-000-0.prof')
 prof1 = test.workpath('foo-000-1.prof')
 prof2 = test.workpath('foo-000-2.prof')
 
-test.must_match('foo-000-0.log', "my_scons.py: %s\n" % prof0)
-test.must_match('foo-000-1.log', "my_scons.py: %s\n" % prof1)
-test.must_match('foo-000-2.log', "my_scons.py: %s\n" % prof2)
+test.must_match('foo-000-0.log', "my_scons.py: %s\n" % prof0, mode='r')
+test.must_match('foo-000-1.log', "my_scons.py: %s\n" % prof1, mode='r')
+test.must_match('foo-000-2.log', "my_scons.py: %s\n" % prof2, mode='r')
 
 test.pass_test()
 

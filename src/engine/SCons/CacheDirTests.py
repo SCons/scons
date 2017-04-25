@@ -44,7 +44,7 @@ class Action(object):
     def genstring(self, target, source, env):
         return str(self)
     def get_contents(self, target, source, env):
-        return ''
+        return bytearray('','utf-8')
 
 class Builder(object):
     def __init__(self, environment, action):
@@ -249,7 +249,7 @@ class FileTestCase(BaseTestCase):
             warn_caught = 0
             try:
                 f7.push_to_cache()
-            except SCons.Errors.BuildError, e:
+            except SCons.Errors.BuildError as e:
                 assert e.exc_info[0] == SCons.Warnings.CacheWriteErrorWarning
                 warn_caught = 1
             assert warn_caught

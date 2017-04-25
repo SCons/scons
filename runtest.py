@@ -77,6 +77,8 @@
 # library directory.  If we ever resurrect that as the default, then
 # you can find the appropriate code in the 0.04 version of this script,
 # rather than reinventing that wheel.)
+from __future__ import print_function
+
 
 import getopt
 import glob
@@ -88,11 +90,17 @@ import time
 
 try:
     import threading
-    import Queue                # 2to3: rename to queue
+    try:                        # python3
+        from queue import Queue
+    except ImportError as e:    # python2
+        from Queue import Queue
     threading_ok = True
 except ImportError:
-    print "Can't import threading or queue"
+    print("Can't import threading or queue")
     threading_ok = False
+
+import subprocess
+
 
 cwd = os.getcwd()
 
@@ -183,12 +191,12 @@ class PassThroughOptionParser(OptionParser):
     def _process_long_opt(self, rargs, values):
         try:
             OptionParser._process_long_opt(self, rargs, values)
-        except BadOptionError, err:
+        except BadOptionError as err:
             self.largs.append(err.opt_str)
     def _process_short_opts(self, rargs, values):
         try:
             OptionParser._process_short_opts(self, rargs, values)
-        except BadOptionError, err:
+        except BadOptionError as err:
             self.largs.append(err.opt_str)
 
 parser = PassThroughOptionParser(add_help_option=False)
@@ -202,8 +210,8 @@ parser.add_option('--xml',
                       help="Save results to file in SCons XML format.")
 (options, args) = parser.parse_args()
 
-#print "options:", options
-#print "args:", args
+#print("options:", options)
+#print("args:", args)
 
 
 opts, args = getopt.getopt(args, "b:def:hj:klnP:p:qsv:Xx:t",
@@ -238,7 +246,7 @@ for o, a in opts:
             a = os.path.join(cwd, a)
         testlistfile = a
     elif o in ['-h', '--help']:
-        print helpstr
+        print(helpstr)
         sys.exit(0)
     elif o in ['-j', '--jobs']:
         jobs = int(a)
@@ -328,7 +336,7 @@ else:
                     st = os.stat(f)
                 except OSError:
                     continue
-                if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
+                if stat.S_IMODE(st[stat.ST_MODE]) & 0o111:
                     return f
         return None
 
@@ -338,14 +346,13 @@ sp.append(cwd)
 #
 _ws = re.compile('\s')
 
+
 def escape(s):
     if _ws.search(s):
         s = '"' + s + '"'
     s = s.replace('\\', '\\\\')
     return s
 
-
-import subprocess
 
 if not suppress_stdout and not suppress_stderr:
     # Without any output suppressed, we let the subprocess
@@ -418,6 +425,7 @@ else:
             spawned_stderr = p.stderr.read()
             return (spawned_stderr, spawned_stdout, p.wait())
 
+
 class Base(object):
     def __init__(self, path, spe=None):
         self.path = path
@@ -430,12 +438,14 @@ class Base(object):
                     break
         self.status = None
 
+
 class SystemExecutor(Base):
     def execute(self):
         self.stderr, self.stdout, s = spawn_it(self.command_args)
         self.status = s
         if s < 0 or s > 2:
             sys.stdout.write("Unexpected exit status %d\n" % s)
+
 
 class PopenExecutor(Base):
     # For an explanation of the following 'if ... else'
@@ -566,7 +576,7 @@ else:
 
         base = os.path.join(base, os.path.split(url)[1])
         if printcommand:
-            print command
+            print(command)
         if execute_tests:
             os.system(command)
     else:
@@ -636,6 +646,7 @@ tests = []
 unittests = []
 endtests = []
 
+
 def find_Tests_py(directory):
     """ Look for unit tests """
     result = []
@@ -648,9 +659,11 @@ def find_Tests_py(directory):
                 result.append(os.path.join(dirpath, fname))
     return sorted(result)
 
+
 def find_py(directory):
     """ Look for end-to-end tests """
     result = []
+
     for dirpath, dirnames, filenames in os.walk(directory):
         # Skip folders containing a sconstest.skip file
         if 'sconstest.skip' in filenames:
@@ -673,6 +686,7 @@ if testlistfile:
     tests = [x for x in tests if x[0] != '#']
     tests = [x[:-1] for x in tests]
     tests = [x.strip() for x in tests]
+    tests = [x for x in tests if len(x) > 0]
 
 else:
     testpaths = []
@@ -695,6 +709,14 @@ else:
         testpaths = args
 
     for tp in testpaths:
+        # Clean up path so it can match startswith's below
+        # sys.stderr.write("Changed:%s->"%tp)
+        # remove leading ./ or .\
+        if tp[0] == '.' and tp[1] in (os.sep, os.altsep):
+            tp = tp[2:]
+        # tp = os.path.normpath(tp)
+        # sys.stderr.write('->%s<-'%tp)
+        # sys.stderr.write("to:%s\n"%tp)
         for path in glob.glob(tp):
             if os.path.isdir(path):
                 if path.startswith('src'):
@@ -755,9 +777,12 @@ else:
 total_start_time = time_func()
 total_num_tests = len(tests)
 tests_completed = 0
+tests_passing = 0
+tests_failing = 0
+
 
 def run_test(t, io_lock, async=True):
-    global tests_completed
+    global tests_completed, tests_passing, tests_failing
     header = ""
     command_args = ['-tt']
     if debug:
@@ -781,13 +806,20 @@ def run_test(t, io_lock, async=True):
     if not suppress_stdout and not suppress_stderr:
         sys.stdout.write(header)
     head, tail = os.path.split(t.abspath)
+    fixture_dirs = []
     if head:
-        os.environ['PYTHON_SCRIPT_DIR'] = head
-    else:
-        os.environ['PYTHON_SCRIPT_DIR'] = ''
+        fixture_dirs.append(head)
+    fixture_dirs.append(os.path.join(scriptpath, 'test', 'fixture'))
+    os.environ['FIXTURE_DIRS'] = ':'.join(fixture_dirs)
+
     test_start_time = time_func()
     if execute_tests:
         t.execute()
+
+    if t.status == 0:
+        tests_passing += 1
+    else:
+        tests_failing += 1
 
     t.test_time = time_func() - test_start_time
     if io_lock:
@@ -795,15 +827,15 @@ def run_test(t, io_lock, async=True):
     if suppress_stdout or suppress_stderr:
         sys.stdout.write(header)
     if not suppress_stdout and t.stdout:
-        print t.stdout
+        print(t.stdout)
     if not suppress_stderr and t.stderr:
-        print t.stderr
+        print(t.stderr)
     print_time_func("Test execution time: %.1f seconds\n", t.test_time)
     if io_lock:
         io_lock.release()
     if quit_on_failure and t.status == 1:
-        print "Exiting due to error"
-        print t.status
+        print("Exiting due to error")
+        print(t.status)
         sys.exit(1)
 
 class RunTest(threading.Thread):
@@ -819,9 +851,9 @@ class RunTest(threading.Thread):
             self.queue.task_done()
 
 if jobs > 1 and threading_ok:
-    print "Running tests using %d jobs"%jobs
+    print("Running tests using %d jobs"%jobs)
     # Start worker threads
-    queue = Queue.Queue()
+    queue = Queue()
     io_lock = threading.Lock()
     for i in range(1, jobs):
         t = RunTest(queue, io_lock)
@@ -834,7 +866,7 @@ if jobs > 1 and threading_ok:
 else:
     # Run tests serially
     if jobs > 1:
-        print "Ignoring -j%d option; no python threading module available."%jobs
+        print("Ignoring -j%d option; no python threading module available."%jobs)
     for t in tests:
         run_test(t, None, False)
 

@@ -46,13 +46,13 @@ SConscript_contents = """\
 Import("opts")
 env = Environment()
 opts.Update(env)
-print "VARIABLE =", repr(env['VARIABLE'])
+print("VARIABLE =", repr(env['VARIABLE']))
 """
 
 test.write(['bin', 'opts.cfg'], """\
 import os
 os.chdir(os.path.split(__name__)[0])
-exec(open('opts2.cfg', 'rU').read())
+exec(open('opts2.cfg', 'r').read())
 """)
 
 test.write(['bin', 'opts2.cfg'], """\

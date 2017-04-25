@@ -38,8 +38,8 @@ import sys
 import getopt
 cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:r:', [])
 base_name = os.path.splitext(arg[0])[0]
-infile = open(arg[0], 'rb')
-out_file = open(base_name+'.dvi', 'wb')
+infile = open(arg[0], 'r')
+out_file = open(base_name+'.dvi', 'w')
 for l in infile.readlines():
     if l[:4] != '#tex':
         out_file.write(l)
@@ -52,8 +52,8 @@ import sys
 import getopt
 cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:r:', [])
 base_name = os.path.splitext(arg[0])[0]
-infile = open(arg[0], 'rb')
-out_file = open(base_name+'.dvi', 'wb')
+infile = open(arg[0], 'r')
+out_file = open(base_name+'.dvi', 'w')
 for l in infile.readlines():
     if l[:6] != '#latex':
         out_file.write(l)
@@ -63,8 +63,8 @@ sys.exit(0)
 test.write('mydvips.py', r"""
 import os
 import sys
-infile = open(sys.argv[3], 'rb')
-out_file = open(sys.argv[2], 'wb')
+infile = open(sys.argv[3], 'r')
+out_file = open(sys.argv[2], 'w')
 for l in infile.readlines():
     if l[:6] != '#dvips':
         out_file.write(l)
@@ -105,13 +105,13 @@ test.write('test4.latex', r"""This is a .latex test.
 
 test.run(arguments = '.', stderr = None)
 
-test.must_match('test1.ps', "This is a .dvi test.\n")
+test.must_match('test1.ps', "This is a .dvi test.\n", mode='r')
 
-test.must_match('test2.ps', "This is a .tex test.\n")
+test.must_match('test2.ps', "This is a .tex test.\n", mode='r')
 
-test.must_match('test3.ps', "This is a .ltx test.\n")
+test.must_match('test3.ps', "This is a .ltx test.\n", mode='r')
 
-test.must_match('test4.ps', "This is a .latex test.\n")
+test.must_match('test4.ps', "This is a .latex test.\n", mode='r')
 
 
 have_latex = test.where_is('latex')
@@ -122,10 +122,11 @@ dvips = test.where_is('dvips')
 
 if dvips:
 
-    test.write("wrapper.py", """import os
+    test.write("wrapper.py", """
+import os
 import sys
 cmd = " ".join(sys.argv[1:])
-open('%s', 'ab').write("%%s\\n" %% cmd)
+open('%s', 'a').write("%%s\\n" %% cmd)
 os.system(cmd)
 """ % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
@@ -171,7 +172,7 @@ dvips -o bar2.ps bar2.dvi
 dvips -o bar3.ps bar3.dvi
 """
 
-    test.must_match('wrapper.out', expect)
+    test.must_match('wrapper.out', expect, mode='r')
 
     test.must_exist(test.workpath('bar1.ps'))
     test.must_exist(test.workpath('bar2.ps'))

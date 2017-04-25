@@ -41,14 +41,14 @@ test.write('build.py', r"""
 import os.path
 import sys
 path = sys.argv[1].split()
-input = open(sys.argv[2], 'rb')
-output = open(sys.argv[3], 'wb')
+input = open(sys.argv[2], 'r')
+output = open(sys.argv[3], 'w')
 
 def find_file(f):
     for dir in path:
         p = dir + os.sep + f
         if os.path.exists(p):
-            return open(p, 'rb')
+            return open(p, 'r')
     return None
 
 def process(infp, outfp):
@@ -124,7 +124,7 @@ test.write(['inc2', 'yyy'], "inc2/yyy 1\n")
 
 test.run()
 
-test.must_match('foo', "foo.k 1 line 1\ninc1/xxx 1\ninc2/yyy 1\nfoo.k 1 line 4\n")
+test.must_match('foo', "foo.k 1 line 1\ninc1/xxx 1\ninc2/yyy 1\nfoo.k 1 line 4\n", mode='r')
 
 test.up_to_date(arguments = '.')
 
@@ -134,7 +134,7 @@ test.write(['inc1', 'xxx'], "inc1/xxx 2\n")
 
 test.run()
 
-test.must_match('foo', "foo.k 1 line 1\ninc1/xxx 2\ninc2/yyy 1\nfoo.k 1 line 4\n")
+test.must_match('foo', "foo.k 1 line 1\ninc1/xxx 2\ninc2/yyy 1\nfoo.k 1 line 4\n", mode='r')
 
 
 
@@ -142,7 +142,7 @@ test.write(['inc1', 'yyy'], "inc1/yyy 2\n")
 
 test.run()
 
-test.must_match('foo', "foo.k 1 line 1\ninc1/xxx 2\ninc1/yyy 2\nfoo.k 1 line 4\n")
+test.must_match('foo', "foo.k 1 line 1\ninc1/xxx 2\ninc1/yyy 2\nfoo.k 1 line 4\n", mode='r')
 
 
 

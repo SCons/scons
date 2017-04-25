@@ -44,10 +44,10 @@ opt_string = ''
 for opt, arg in cmd_opts:
     if opt == '-s':
         if arg[:11] == 'OutputFile=':
-            out_file = open(arg[11:], 'wb')
+            out_file = open(arg[11:], 'w')
     else:
         opt_string = opt_string + ' ' + opt
-infile = open(args[0], 'rb')
+infile = open(args[0], 'r')
 out_file.write(opt_string + "\n")
 for l in infile.readlines():
     if l[:3] != '#ps':
@@ -68,7 +68,7 @@ This is a .ps test.
 
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read('test1.pdf') != " -x\nThis is a .ps test.\n")
+test.must_match('test1.pdf', " -x\nThis is a .ps test.\n", mode='r')
 
 
 
@@ -82,12 +82,7 @@ gs = test.where_is(gs_executable)
 
 if gs:
 
-    test.write("wrapper.py", """import os
-import sys
-cmd = " ".join(sys.argv[1:])
-open('%s', 'ab').write("%%s\\n" %% cmd)
-os.system(cmd)
-""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
+    test.file_fixture('wrapper.py')
 
     test.write('SConstruct', """\
 import os

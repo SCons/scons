@@ -38,12 +38,13 @@ test = TestSCons.TestSCons()
 test.subdir('cache', 'src')
 
 test.write(['src', 'SConstruct'], """
+DefaultEnvironment(tools=[])
 def cat(env, source, target):
     target = str(target[0])
-    open('cat.out', 'ab').write(target + "\\n")
-    f = open(target, "wb")
+    open('cat.out', 'a').write(target + "\\n")
+    f = open(target, "w")
     for src in source:
-        f.write(open(str(src), "rb").read())
+        f.write(open(str(src), "r").read())
     f.close()
 env = Environment(BUILDERS={'Cat':Builder(action=cat)})
 env.Cat('aaa.out', 'aaa.in')
@@ -61,8 +62,10 @@ test.write(['src', 'ccc.in'], "ccc.in\n")
 # This should populate the cache with our derived files.
 test.run(chdir = 'src', arguments = '.')
 
-test.fail_test(test.read(['src', 'all']) != "aaa.in\nbbb.in\nccc.in\n")
-test.fail_test(test.read(['src', 'cat.out']) != "aaa.out\nbbb.out\nccc.out\nall\n")
+test.must_match(['src','all'],"aaa.in\nbbb.in\nccc.in\n", mode='r')
+# test.fail_test(test.read(['src', 'all']) != "aaa.in\nbbb.in\nccc.in\n")
+test.must_match(['src','cat.out'],"aaa.out\nbbb.out\nccc.out\nall\n", mode='r')
+# test.fail_test(test.read(['src', 'cat.out']) != "aaa.out\nbbb.out\nccc.out\nall\n")
 
 test.up_to_date(chdir = 'src', arguments = '.')
 

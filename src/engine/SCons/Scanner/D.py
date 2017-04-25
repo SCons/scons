@@ -32,8 +32,6 @@ Coded by Andy Friesen
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import re
-
 import SCons.Scanner
 
 def DScanner():
@@ -43,13 +41,13 @@ def DScanner():
 
 class D(SCons.Scanner.Classic):
     def __init__ (self):
-        SCons.Scanner.Classic.__init__ (self,
+        SCons.Scanner.Classic.__init__ (
+            self,
             name = "DScanner",
             suffixes = '$DSUFFIXES',
             path_variable = 'DPATH',
-            regex = 'import\s+(?:[a-zA-Z0-9_.]+)\s*(?:,\s*(?:[a-zA-Z0-9_.]+)\s*)*;')
-
-        self.cre2 = re.compile ('(?:import\s)?\s*([a-zA-Z0-9_.]+)\s*(?:,|;)', re.M)
+            regex = '(?:import\s+)([\w\s=,.]+)(?:\s*:[\s\w,=]+)?(?:;)'
+        )
 
     def find_include(self, include, source_dir, path):
         # translate dots (package separators) to slashes
@@ -62,8 +60,10 @@ class D(SCons.Scanner.Classic):
 
     def find_include_names(self, node):
         includes = []
-        for i in self.cre.findall(node.get_text_contents()):
-            includes = includes + self.cre2.findall(i)
+        for iii in self.cre.findall(node.get_text_contents()):
+            for jjj in iii.split(','):
+                kkk = jjj.split('=')[-1]
+                includes.append(kkk.strip())
         return includes
 
 # Local Variables:

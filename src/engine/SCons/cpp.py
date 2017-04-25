@@ -87,7 +87,7 @@ del op_list
 override = {
     'if'                        : 'if(?!def)',
 }
-l = [override.get(x, x) for x in Table.keys()]
+l = [override.get(x, x) for x in list(Table.keys())]
 
 
 # Turn the list of expressions into one big honkin' regular expression
@@ -130,7 +130,7 @@ CPP_to_Python_Ops_Sub = lambda m: CPP_to_Python_Ops_Dict[m.group(0)]
 # re module, as late as version 2.2.2, empirically matches the
 # "!" in "!=" first, instead of finding the longest match.
 # What's up with that?
-l = sorted(CPP_to_Python_Ops_Dict.keys(), key=lambda a: len(a), reverse=True)
+l = sorted(list(CPP_to_Python_Ops_Dict.keys()), key=lambda a: len(a), reverse=True)
 
 # Turn the list of keys into one regular expression that will allow us
 # to substitute all of the operators at once.
@@ -266,7 +266,7 @@ class PreProcessor(object):
         d = {
             'scons_current_file'    : self.scons_current_file
         }
-        for op in Table.keys():
+        for op in list(Table.keys()):
             d[op] = getattr(self, 'do_' + op)
         self.default_table = d
 
@@ -312,7 +312,7 @@ class PreProcessor(object):
             t = self.tuples.pop(0)
             # Uncomment to see the list of tuples being processed (e.g.,
             # to validate the CPP lines are being translated correctly).
-            #print t
+            #print(t)
             self.dispatch_table[t[0]](t)
         return self.finalize_result(fname)
 
@@ -510,7 +510,7 @@ class PreProcessor(object):
         t = self.resolve_include(t)
         include_file = self.find_include_file(t)
         if include_file:
-            #print "include_file =", include_file
+            #print("include_file =", include_file)
             self.result.append(include_file)
             contents = self.read_file(include_file)
             new_tuples = [('scons_current_file', include_file)] + \
@@ -547,7 +547,7 @@ class PreProcessor(object):
         """
         s = t[1]
         while not s[0] in '<"':
-            #print "s =", s
+            #print("s =", s)
             try:
                 s = self.cpp_namespace[s]
             except KeyError:

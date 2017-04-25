@@ -34,7 +34,6 @@ import SCons.Memoize
 SCons.Memoize.EnableMemoization()
 
 class FakeObject(object):
-
     def __init__(self):
         self._memo = {}
 

@@ -6,6 +6,7 @@
 # as well as the entity declarations for them.
 # Uses scons-proc.py under the hood...
 #
+from __future__ import print_function
 
 import os
 import sys
@@ -39,7 +40,7 @@ def generate_all():
             try:
                 os.makedirs(gen_folder)
             except:
-                print "Couldn't create destination folder %s! Exiting..." % gen_folder
+                print("Couldn't create destination folder %s! Exiting..." % gen_folder)
                 return
         # Call scons-proc.py
         os.system('%s %s -b %s -f %s -t %s -v %s %s' %

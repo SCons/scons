@@ -35,7 +35,7 @@ test.write('SConstruct', r"""
 def cat(env, source, target):
     target = str(target[0])
     source = list(map(str, source))
-    print 'cat(%s) > %s' % (source, target)
+    print('cat(%s) > %s' % (source, target))
     f = open(target, "wb")
     for src in source:
         f.write(open(src, "rb").read())
@@ -50,7 +50,7 @@ test.write('aaa.in', "aaa.in\n")
 #
 test.run(arguments = '.')
 
-test.fail_test(test.read('aaa.out') != "aaa.in\n")
+test.fail_test(test.read('aaa.out') != b"aaa.in\n")
 
 #
 test.run(arguments = "aaa.in",

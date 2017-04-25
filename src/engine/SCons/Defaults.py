@@ -261,9 +261,13 @@ def copy_func(dest, src, symlinks=True):
         else:
             return copy_func(dest, os.path.realpath(src))
     elif os.path.isfile(src):
-        return shutil.copy2(src, dest)
+        shutil.copy2(src, dest)
+        return 0
     else:
-        return shutil.copytree(src, dest, symlinks)
+        shutil.copytree(src, dest, symlinks)
+        # copytree returns None in python2 and destination string in python3
+        # A error is raised in both cases, so we can just return 0 for success
+        return 0
 
 Copy = ActionFactory(
     copy_func,
@@ -298,7 +302,7 @@ def mkdir_func(dest):
     for entry in dest:
         try:
             os.makedirs(str(entry))
-        except os.error, e:
+        except os.error as e:
             p = str(entry)
             if (e.args[0] == errno.EEXIST or
                     (sys.platform=='win32' and e.args[0]==183)) \
@@ -458,7 +462,7 @@ def processDefines(defs):
                 else:
                     l.append(str(d[0]))
             elif SCons.Util.is_Dict(d):
-                for macro,value in d.iteritems():
+                for macro,value in d.items():
                     if value is not None:
                         l.append(str(macro) + '=' + str(value))
                     else:
@@ -484,12 +488,14 @@ def processDefines(defs):
         l = [str(defs)]
     return l
 
+
 def _defines(prefix, defs, suffix, env, c=_concat_ixes):
     """A wrapper around _concat_ixes that turns a list or string
     into a list of C preprocessor command-line definitions.
     """
 
     return c(prefix, env.subst_path(processDefines(defs)), suffix, env)
+
 
 class NullCmdGenerator(object):
     """This is a callable class that can be used in place of other
@@ -508,6 +514,7 @@ class NullCmdGenerator(object):
 
     def __call__(self, target, source, env, for_signature=None):
         return self.cmd
+
 
 class Variable_Method_Caller(object):
     """A class for finding a construction variable on the stack and
@@ -540,10 +547,10 @@ class Variable_Method_Caller(object):
             frame = frame.f_back
         return None
 
-# if env[version_var] id defined, returns env[flags_var], otherwise returns None
+# if $version_var is not empty, returns env[flags_var], otherwise returns None
 def __libversionflags(env, version_var, flags_var):
     try:
-        if env[version_var]:
+        if env.subst('$'+version_var):
             return env[flags_var]
     except KeyError:
         pass

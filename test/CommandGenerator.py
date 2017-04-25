@@ -34,8 +34,8 @@ test = TestSCons.TestSCons()
 
 test.write('build.py', r"""
 import sys
-contents = open(sys.argv[2], 'rb').read()
-file = open(sys.argv[1], 'wb')
+contents = open(sys.argv[2], 'r').read()
+file = open(sys.argv[1], 'w')
 file.write(contents)
 file.close()
 sys.exit(0)
@@ -64,9 +64,9 @@ test.write('foo3.in', "foo3.in\n")
 
 test.run(arguments = 'foo1.out foo2.out foo3.out')
 
-test.fail_test(test.read(test.workpath('foo1.out')) != "foo1.in\n")
-test.fail_test(test.read(test.workpath('foo2.out')) != "foo2.in\n")
-test.fail_test(test.read(test.workpath('foo3.out')) != "foo3.in\n")
+test.must_match('foo1.out','foo1.in\n', mode='r')
+test.must_match('foo2.out','foo2.in\n', mode='r')
+test.must_match('foo3.out','foo3.in\n', mode='r')
 
 test.pass_test()
 

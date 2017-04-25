@@ -55,7 +55,8 @@ if not msvs_version in test.msvs_versions():
 
 test.run(arguments = '-n -q -Q -f -', stdin = """\
 env = Environment(tools = ['msvc'], MSVS_VERSION='%(msvs_version)s')
-print "os.environ.update(%%s)" %% repr(env['ENV'])
+sconsEnv = repr(env['ENV'])
+print("os.environ.update(" + sconsEnv + ")")
 """ % locals())
 
 exec(test.stdout())
@@ -70,8 +71,8 @@ env=Environment(MSVS_VERSION = '%(msvs_version)s')
 env.MSVSProject(target = 'foo.vcxproj',
                 srcs = ['foo.c'],
                 buildtarget = 'foo.exe',
-                variant = 'Release')
-
+                variant = 'Release',
+                DebugSettings = {'LocalDebuggerCommandArguments':'echo "<foo.c>" > output.txt'})
 env.Program('foo.c')
 """ % locals())
 
@@ -97,7 +98,7 @@ test.run(chdir='sub dir',
          arguments=['foo.sln', '/build', 'Release'])
 
 test.run(program=test.workpath('sub dir', 'foo'), stdout="foo.c\n")
-
+test.validate_msvs_file(test.workpath('sub dir', 'foo.vcxproj.user'))
 
 
 test.pass_test()

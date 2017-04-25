@@ -1,5 +1,6 @@
 build
 bootstrap
+.idea
 
 syntax:glob
 *.py[co]
@@ -11,6 +12,7 @@ syntax:glob
 *.orig
 *.DS_Store
 *\#
+*.swp
 
 doc/user/scons-user
 doc/user/scons_db.xml

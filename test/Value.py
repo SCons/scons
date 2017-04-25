@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -58,7 +59,7 @@ env.B('f3.out', Value(C))
 env.S('f4.out', Value(L))
 
 def create_value (target, source, env):
-    target[0].write(source[0].get_contents ())
+    target[0].write(source[0].get_contents())
 
 def create_value_file (target, source, env):
     open(str(target[0]), 'wb').write(source[0].read())
@@ -74,14 +75,14 @@ env.B3('f5.out', V)
 test.write('put.py', """\
 import os
 import sys
-open(sys.argv[-1],'wb').write(" ".join(sys.argv[1:-2]))
+open(sys.argv[-1],'w').write(" ".join(sys.argv[1:-2]))
 """)
 
 # Run all of the tests with both types of source signature
 # to make sure there's no difference in behavior.
 for source_signature in ['MD5', 'timestamp-newer']:
 
-    print "Testing Value node with source signatures:", source_signature
+    print("Testing Value node with source signatures:", source_signature)
 
     test.write('SConstruct', SConstruct_content % locals())
 

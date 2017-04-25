@@ -24,40 +24,21 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import TestSCons
-
-from common import write_fake_link
 
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 _exe = TestSCons._exe
 
-write_fake_link(test)
-
-test.write('myfortran.py', r"""
-import getopt
-import sys
-opts, args = getopt.getopt(sys.argv[1:], 'co:x')
-optstring = ''
-for opt, arg in opts:
-    if opt == '-o': out = arg
-    else: optstring = optstring + ' ' + opt
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
-outfile.write(optstring + "\n")
-for l in infile.readlines():
-    if l[:8] != '#fortran':
-        outfile.write(l)
-sys.exit(0)
-""")
-
-
+test.file_fixture('mylink.py')
+test.file_fixture(os.path.join('fixture', 'myfortran_flags.py'))
 
 test.write('SConstruct', """
 env = Environment(LINK = r'%(_python_)s mylink.py',
                   LINKFLAGS = [],
-                  FORTRAN = r'%(_python_)s myfortran.py',
+                  FORTRAN = r'%(_python_)s myfortran_flags.py fortran',
                   FORTRANFLAGS = '-x')
 env.Program(target = 'test01', source = 'test01.f')
 env.Program(target = 'test02', source = 'test02.F')
@@ -95,17 +76,15 @@ g77 = test.detect_tool(fc)
 
 if g77:
 
-    test.write("wrapper.py",
-"""import os
-import sys
-open('%s', 'wb').write("wrapper.py\\n")
-os.system(" ".join(sys.argv[1:]))
-""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
+    directory = 'x'
+    test.subdir(directory)
+
+    test.file_fixture('wrapper.py')
 
     test.write('SConstruct', """
 foo = Environment(FORTRAN = '%(fc)s')
 f77 = foo.Dictionary('FORTRAN')
-bar = foo.Clone(FORTRAN = r'%(_python_)s wrapper.py ' + f77, FORTRANFLAGS = '-Ix')
+bar = foo.Clone(FORTRAN = r'%(_python_)s wrapper.py ' + f77, FORTRANFLAGS = '-I%(directory)s')
 foo.Program(target = 'foo', source = 'foo.f')
 bar.Program(target = 'bar', source = 'bar.f')
 """ % locals())

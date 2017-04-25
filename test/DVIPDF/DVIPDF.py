@@ -38,8 +38,8 @@ import sys
 import getopt
 cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:r:', [])
 base_name = os.path.splitext(arg[0])[0]
-infile = open(arg[0], 'rb')
-out_file = open(base_name+'.dvi', 'wb')
+infile = open(arg[0], 'r')
+out_file = open(base_name+'.dvi', 'w')
 for l in infile.readlines():
     if l[:4] != '#tex':
         out_file.write(l)
@@ -52,8 +52,8 @@ import sys
 import getopt
 cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:r:', [])
 base_name = os.path.splitext(arg[0])[0]
-infile = open(arg[0], 'rb')
-out_file = open(base_name+'.dvi', 'wb')
+infile = open(arg[0], 'r')
+out_file = open(base_name+'.dvi', 'w')
 for l in infile.readlines():
     if l[:6] != '#latex':
         out_file.write(l)
@@ -65,8 +65,8 @@ import os
 import sys
 import getopt
 cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:r:', [])
-infile = open(arg[0], 'rb')
-out_file = open(arg[1], 'wb')
+infile = open(arg[0], 'r')
+out_file = open(arg[1], 'w')
 for l in infile.readlines():
     if l[:7] != '#dvipdf':
         out_file.write(l)
@@ -96,9 +96,9 @@ test.write('test2.tex', r"""This is a .tex test.
 
 test.run(arguments = '.', stderr = None)
 
-test.must_match('test1.pdf', "This is a .dvi test.\n")
+test.must_match('test1.pdf', "This is a .dvi test.\n", mode='r')
 
-test.must_match('test2.pdf', "This is a .tex test.\n")
+test.must_match('test2.pdf', "This is a .tex test.\n", mode='r')
 
 
 
@@ -110,7 +110,7 @@ if dvipdf and tex:
     test.write("wrapper.py", """import os
 import sys
 cmd = " ".join(sys.argv[1:])
-open('%s', 'ab').write("%%s\\n" %% cmd)
+open('%s', 'a').write("%%s\\n" %% cmd)
 os.system(cmd)
 """ % test.workpath('wrapper.out').replace('\\', '\\\\'))
 

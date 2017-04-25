@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -42,6 +43,7 @@ test.skip_if_not_msvc()
 
 test.write('SConstruct',"""
 import os
+DefaultEnvironment(tools=[])
 # TODO:  this is order-dependent (putting 'mssdk' second or third breaks),
 # and ideally we shouldn't need to specify the tools= list anyway.
 env = Environment(tools=['mssdk', 'msvc', 'mslink'])
@@ -178,12 +180,14 @@ start = time.time()
 test.run(arguments='slow.obj', stderr=None)
 slow = time.time() - start
 
+
+# TODO: Reevaluate if having this part of the test makes sense any longer
 # using precompiled headers should be faster
 limit = slow*0.90
 if fast >= limit:
-    print "Using precompiled headers was not fast enough:"
-    print "slow.obj:  %.3fs" % slow
-    print "fast.obj:  %.3fs (expected less than %.3fs)" % (fast, limit)
+    print("Using precompiled headers was not fast enough:")
+    print("slow.obj:  %.3fs" % slow)
+    print("fast.obj:  %.3fs (expected less than %.3fs)" % (fast, limit))
     test.fail_test()
 
 # Modifying resource.h should cause both the resource and precompiled header to be rebuilt:

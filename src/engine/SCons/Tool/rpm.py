@@ -71,7 +71,7 @@ def build_rpm(target, source, env):
                                stdout=subprocess.PIPE,
                                stderr=subprocess.STDOUT,
                                shell=True)
-    output = handle.stdout.read()
+    output = SCons.Util.to_str(handle.stdout.read())
     status = handle.wait()
 
     if status:

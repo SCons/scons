@@ -35,12 +35,12 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-try:
-    unicode
-except NameError:
-    import sys
-    msg = "Unicode not supported by Python version %s; skipping test\n"
-    test.skip_test(msg % sys.version[:3])
+## try:
+##     unicode
+## except NameError:
+##     import sys
+##     msg = "Unicode not supported by Python version %s; skipping test\n"
+##     test.skip_test(msg % sys.version[:3])
 
 import codecs
 
@@ -50,12 +50,17 @@ import sys
 
 def process(outfp, infile):
     contents = open(infile, 'rb').read()
-    if contents.startswith(codecs.BOM_UTF8):
+    if contents[:len(codecs.BOM_UTF8)] == codecs.BOM_UTF8:
         contents = contents[len(codecs.BOM_UTF8):].decode('utf-8')
-    elif contents.startswith(codecs.BOM_UTF16_LE):
+    elif contents[:len(codecs.BOM_UTF16_LE)] == codecs.BOM_UTF16_LE:
         contents = contents[len(codecs.BOM_UTF16_LE):].decode('utf-16-le')
-    elif contents.startswith(codecs.BOM_UTF16_BE):
+    elif contents[:len(codecs.BOM_UTF16_BE)] == codecs.BOM_UTF16_BE:
         contents = contents[len(codecs.BOM_UTF16_BE):].decode('utf-16-be')
+    try:
+        contents = contents.decode('ascii')
+    except (UnicodeDecodeError, AttributeError) as e:
+        contents = contents
+
     for line in contents.split('\n')[:-1]:
         if line[:8] == 'include ':
             process(outfp, line[8:])
@@ -65,7 +70,7 @@ def process(outfp, infile):
         else:
             outfp.write(line + '\n')
 
-output = open(sys.argv[2], 'wb')
+output = open(sys.argv[2], 'w')
 process(output, sys.argv[1])
 
 sys.exit(0)
@@ -102,28 +107,28 @@ include utf16be.k
 foo.k 1 line 4
 """)
 
-contents = unicode("""\
+contents = (u"""\
 ascii.k 1 line 1
 include ascii.inc
 ascii.k 1 line 3
 """)
 test.write('ascii.k', contents.encode('ascii'))
 
-contents = unicode("""\
+contents = (u"""\
 utf8.k 1 line 1
 include utf8.inc
 utf8.k 1 line 3
 """)
 test.write('utf8.k', codecs.BOM_UTF8 + contents.encode('utf-8'))
 
-contents = unicode("""\
+contents = (u"""\
 utf16le.k 1 line 1
 include utf16le.inc
 utf16le.k 1 line 3
 """)
 test.write('utf16le.k', codecs.BOM_UTF16_LE + contents.encode('utf-16-le'))
 
-contents = unicode("""\
+contents = (u"""\
 utf16be.k 1 line 1
 include utf16be.inc
 utf16be.k 1 line 3
@@ -154,7 +159,7 @@ utf16be.k 1 line 3
 foo.k 1 line 4
 """
 
-test.must_match('foo', expect)
+test.must_match('foo', expect, mode='r')
 
 test.up_to_date(arguments='foo')
 
@@ -181,7 +186,7 @@ utf16be.k 1 line 3
 foo.k 1 line 4
 """
 
-test.must_match('foo', expect)
+test.must_match('foo', expect, mode='r')
 
 test.up_to_date(arguments = 'foo')
 
@@ -208,7 +213,7 @@ utf16be.k 1 line 3
 foo.k 1 line 4
 """
 
-test.must_match('foo', expect)
+test.must_match('foo', expect, mode='r')
 
 test.up_to_date(arguments = 'foo')
 
@@ -235,7 +240,7 @@ utf16be.k 1 line 3
 foo.k 1 line 4
 """
 
-test.must_match('foo', expect)
+test.must_match('foo', expect, mode='r')
 
 test.up_to_date(arguments = 'foo')
 
@@ -262,7 +267,7 @@ utf16be.k 1 line 3
 foo.k 1 line 4
 """
 
-test.must_match('foo', expect)
+test.must_match('foo', expect, mode='r')
 
 test.up_to_date(arguments = 'foo')
 

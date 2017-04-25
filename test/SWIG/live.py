@@ -61,12 +61,7 @@ if sys.platform == 'win32' and sys.maxsize <= 2**32:
 else:
     swig_arch_var=""
 
-test.write("wrapper.py",
-"""import os
-import sys
-open('%s', 'wb').write("wrapper.py\\n")
-os.system(" ".join(sys.argv[1:]))
-""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
+test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """\
 foo = Environment(SWIGFLAGS='-python',
@@ -136,8 +131,9 @@ test.run(arguments = ldmodule_prefix+'foo' + _dll)
 test.must_not_exist(test.workpath('wrapper.out'))
 
 test.run(program = python, stdin = """\
+from __future__ import print_function
 import foo
-print foo.foo_string()
+print(foo.foo_string())
 """, stdout="""\
 This is foo.c!
 """)
@@ -149,10 +145,11 @@ test.run(arguments = ldmodule_prefix+'bar' + _dll)
 test.must_match('wrapper.out', "wrapper.py\n")
 
 test.run(program = python, stdin = """\
+from __future__ import print_function
 import foo
 import bar
-print foo.foo_string()
-print bar.bar_string()
+print(foo.foo_string())
+print(bar.bar_string())
 """, stdout="""\
 This is foo.c!
 This is bar.c!

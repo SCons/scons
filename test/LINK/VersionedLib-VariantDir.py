@@ -35,11 +35,19 @@ import sys
 import SCons.Platform
 import SCons.Defaults
 
+test = TestSCons.TestSCons()
+
+import sys
+if sys.platform == 'darwin':
+    # Skipping until logic is fixed for macosx
+    test.skip_test("Not working on darwin yet\n")
+
+
 env = SCons.Defaults.DefaultEnvironment()
 platform = SCons.Platform.platform_default()
 tool_list = SCons.Platform.DefaultToolList(platform, env)
 
-test = TestSCons.TestSCons()
+
 
 test.subdir(['src'])
 test.subdir(['src','lib'])

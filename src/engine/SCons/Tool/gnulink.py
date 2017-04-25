@@ -39,7 +39,7 @@ import os
 import sys
 import re
 
-import link
+from . import link
 
 
 def generate(env):

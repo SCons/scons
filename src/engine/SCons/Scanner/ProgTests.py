@@ -270,7 +270,7 @@ def suite():
                     assert deps_match(deps, ['d1/l2.lib', 'd1/d2/l3.lib']), map(str, deps)
             suite.addTest(ProgramScannerTestCase4())
             \n"""
-        exec code
+        exec(code)
     return suite
 
 if __name__ == "__main__":

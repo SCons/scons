@@ -38,14 +38,15 @@ test = TestSCons.TestSCons(match = TestSCons.match_re)
 
 test.write('echo.py', """\
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
-print sys.argv
+print(sys.argv)
 """)
 
 echo_py = test.workpath('echo.py')
 
 st = os.stat(echo_py)
-os.chmod(echo_py, st[stat.ST_MODE]|0111)
+os.chmod(echo_py, st[stat.ST_MODE]|0o111)
 
 test.write('SConstruct', """
 import os

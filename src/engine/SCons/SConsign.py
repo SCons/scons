@@ -27,16 +27,20 @@ Writing and reading information to the .sconsign file or files.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+from __future__ import print_function
+
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
 
 import os
-# compat layer imports "cPickle" for us if it's available.
 import pickle
 
 import SCons.dblite
 import SCons.Warnings
+
+from SCons.compat import PICKLE_PROTOCOL
+
 
 def corrupt_dblite_warning(filename):
     SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
@@ -45,7 +49,7 @@ def corrupt_dblite_warning(filename):
 SCons.dblite.ignore_corrupt_dbfiles = 1
 SCons.dblite.corruption_warning = corrupt_dblite_warning
 
-#XXX Get rid of the global array so this becomes re-entrant.
+# XXX Get rid of the global array so this becomes re-entrant.
 sig_files = []
 
 # Info for the database SConsign implementation (now the default):
@@ -58,6 +62,7 @@ DataBase = {}
 DB_Module = SCons.dblite
 DB_Name = ".sconsign"
 DB_sync_list = []
+
 
 def Get_DataBase(dir):
     global DataBase, DB_Module, DB_Name
@@ -84,8 +89,9 @@ def Get_DataBase(dir):
         DB_sync_list.append(db)
         return db, "c"
     except TypeError:
-        print "DataBase =", DataBase
+        print("DataBase =", DataBase)
         raise
+
 
 def Reset():
     """Reset global state.  Used by unit tests that end up using
@@ -95,6 +101,7 @@ def Reset():
     DB_sync_list = []
 
 normcase = os.path.normcase
+
 
 def write():
     global sig_files
@@ -114,6 +121,7 @@ def write():
         else:
             closemethod()
 
+
 class SConsignEntry(object):
     """
     Wrapper class for the generic entry in a .sconsign file.
@@ -124,16 +132,16 @@ class SConsignEntry(object):
     """
     __slots__ = ("binfo", "ninfo", "__weakref__")
     current_version_id = 2
-    
+
     def __init__(self):
         # Create an object attribute from the class attribute so it ends up
         # in the pickled data in the .sconsign file.
         #_version_id = self.current_version_id
         pass
-    
+
     def convert_to_sconsign(self):
         self.binfo.convert_to_sconsign()
-        
+
     def convert_from_sconsign(self, dir, name):
         self.binfo.convert_from_sconsign(dir, name)
 
@@ -155,7 +163,8 @@ class SConsignEntry(object):
         for key, value in state.items():
             if key not in ('_version_id','__weakref__'):
                 setattr(self, key, value)
-        
+
+
 class Base(object):
     """
     This is the controlling class for the signatures for the collection of
@@ -210,6 +219,7 @@ class Base(object):
             self.entries[key] = entry
         self.to_be_merged = {}
 
+
 class DB(Base):
     """
     A Base subclass that reads and writes signature information
@@ -239,7 +249,7 @@ class DB(Base):
                     raise TypeError
             except KeyboardInterrupt:
                 raise
-            except Exception, e:
+            except Exception as e:
                 SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
                                     "Ignoring corrupt sconsign entry : %s (%s)\n"%(self.dir.get_tpath(), e))
             for key, entry in self.entries.items():
@@ -271,7 +281,7 @@ class DB(Base):
         path = normcase(self.dir.get_internal_path())
         for key, entry in self.entries.items():
             entry.convert_to_sconsign()
-        db[path] = pickle.dumps(self.entries, 1)
+        db[path] = pickle.dumps(self.entries, PICKLE_PROTOCOL)
 
         if sync:
             try:
@@ -281,6 +291,7 @@ class DB(Base):
                 pass
             else:
                 syncmethod()
+
 
 class Dir(Base):
     def __init__(self, fp=None, dir=None):
@@ -300,6 +311,7 @@ class Dir(Base):
         if dir:
             for key, entry in self.entries.items():
                 entry.convert_from_sconsign(dir, key)
+
 
 class DirFile(Dir):
     """
@@ -359,12 +371,12 @@ class DirFile(Dir):
                 return
         for key, entry in self.entries.items():
             entry.convert_to_sconsign()
-        pickle.dump(self.entries, file, 1)
+        pickle.dump(self.entries, file, PICKLE_PROTOCOL)
         file.close()
         if fname != self.sconsign:
             try:
                 mode = os.stat(self.sconsign)[0]
-                os.chmod(self.sconsign, 0666)
+                os.chmod(self.sconsign, 0o666)
                 os.unlink(self.sconsign)
             except (IOError, OSError):
                 # Try to carry on in the face of either OSError
@@ -390,6 +402,7 @@ class DirFile(Dir):
             pass
 
 ForDirectory = DB
+
 
 def File(name, dbm_module=None):
     """

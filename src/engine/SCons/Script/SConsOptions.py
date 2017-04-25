@@ -63,6 +63,7 @@ def diskcheck_convert(value):
             raise ValueError(v)
     return result
 
+
 class SConsValues(optparse.Values):
     """
     Holder class for uniform access to SCons options, regardless
@@ -112,7 +113,18 @@ class SConsValues(optparse.Values):
             try:
                 return self.__dict__['__SConscript_settings__'][attr]
             except KeyError:
-                return getattr(self.__dict__['__defaults__'], attr)
+                try:
+                    return getattr(self.__dict__['__defaults__'], attr)
+                except KeyError:
+                    # Added because with py3 this is a new class,
+                    # not a classic class, and due to the way
+                    # In that case it will create an object without
+                    # __defaults__, and then query for __setstate__
+                    # which will throw an exception of KeyError
+                    # deepcopy() is expecting AttributeError if __setstate__
+                    # is not available.
+                    raise AttributeError(attr)
+
 
     settable = [
         'clean',
@@ -161,7 +173,7 @@ class SConsValues(optparse.Values):
         elif name == 'diskcheck':
             try:
                 value = diskcheck_convert(value)
-            except ValueError, v:
+            except ValueError as v:
                 raise SCons.Errors.UserError("Not a valid diskcheck value: %s"%v)
             if 'diskcheck' not in self.__dict__:
                 # No --diskcheck= option was specified on the command line.
@@ -185,6 +197,7 @@ class SConsValues(optparse.Values):
             SCons.Warnings.process_warn_strings(value)
 
         self.__SConscript_settings__[name] = value
+
 
 class SConsOption(optparse.Option):
     def convert_value(self, opt, value):
@@ -638,7 +651,7 @@ def Parser(version):
         for value in value__.split(','):
             if value in debug_options:
                 parser.values.debug.append(value)
-            elif value in deprecated_debug_options.keys():
+            elif value in list(deprecated_debug_options.keys()):
                 parser.values.debug.append(value)
                 try:
                     parser.values.delayed_warnings
@@ -663,7 +676,7 @@ def Parser(version):
     def opt_diskcheck(option, opt, value, parser):
         try:
             diskcheck_value = diskcheck_convert(value)
-        except ValueError, e:
+        except ValueError as e:
             raise OptionValueError("`%s' is not a valid diskcheck type" % e)
         setattr(parser.values, option.dest, diskcheck_value)
 
@@ -830,7 +843,7 @@ def Parser(version):
     tree_options = ["all", "derived", "prune", "status"]
 
     def opt_tree(option, opt, value, parser, tree_options=tree_options):
-        import Main
+        from . import Main
         tp = Main.TreePrinter()
         for o in value.split(','):
             if o == 'all':

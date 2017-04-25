@@ -2248,7 +2248,7 @@ and the result replaces the key.
 env = Environment(tools = ['default', 'textfile'])
 
 env['prefix'] = '/usr/bin'
-script_dict = {'@prefix@': '/bin', @exec_prefix@: '$prefix'}
+script_dict = {'@prefix@': '/bin', '@exec_prefix@': '$prefix'}
 env.Substfile('script.in', SUBST_DICT = script_dict)
 
 conf_dict = {'%VERSION%': '1.2.3', '%BASE%': 'MyProg'}

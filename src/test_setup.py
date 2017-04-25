@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -197,9 +198,9 @@ if not os.path.isdir(scons_version) and os.path.isfile(tar_gz):
     os.system("gunzip -c %s | tar xf -" % tar_gz)
 
 if not os.path.isdir(scons_version):
-    print "Cannot test package installation, found none of the following packages:"
-    print "\t" + tar_gz
-    print "\t" + zip
+    print("Cannot test package installation, found none of the following packages:")
+    print("\t" + tar_gz)
+    print("\t" + zip)
     test.no_result(1)
 
 # Verify that a virgin installation installs the version library,

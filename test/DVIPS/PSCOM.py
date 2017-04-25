@@ -34,21 +34,11 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('myps.py', """
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != '/*ps*/\\n']:
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'dvips'],
-                  PSCOM = r'%(_python_)s myps.py $TARGET $SOURCES')
+                  PSCOM = r'%(_python_)s mycompile.py ps $TARGET $SOURCES')
 env.PostScript(target = 'aaa', source = 'aaa.dvi')
 """ % locals())
 
@@ -57,8 +47,6 @@ test.write('aaa.dvi', "aaa.dvi\n/*ps*/\n")
 test.run()
 
 test.must_match('aaa.ps', "aaa.dvi\n")
-
-
 
 test.pass_test()
 

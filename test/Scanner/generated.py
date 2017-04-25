@@ -301,7 +301,7 @@ import os
 Scanned = {}
 
 def write_out(file, dict):
-    f = open(file, 'wb')
+    f = open(file, 'w')
     for k in sorted(dict.keys()):
         file = os.path.split(k)[1]
         f.write(file + ": " + str(dict[k]) + "\\n")
@@ -317,8 +317,8 @@ def write_out(file, dict):
 class CScannerCounter(object):
     def __init__(self, original_CScanner, *args, **kw):
         self.original_CScanner = original_CScanner
-    def __cmp__(self, *args, **kw):
-        return self.original_CScanner.__cmp__(*args, **kw)
+    def __eq__(self, *args, **kw):
+        return self.original_CScanner.__eq__(*args, **kw)
     def __hash__(self, *args, **kw):
         return self.original_CScanner.__hash__(*args, **kw)
     def __str__(self, *args, **kw):
@@ -431,7 +431,7 @@ libg_gx.h: 2
 libg_gy.h: 1
 libg_gz.h: 1
 libg_w.h: 2
-""")
+""", mode='r')
 
 test.pass_test()
 

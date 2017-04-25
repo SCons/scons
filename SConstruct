@@ -3,6 +3,8 @@
 #
 # See the README.rst file for an overview of how SCons is built and tested.
 
+from __future__ import print_function
+
 copyright_years = '2001 - 2016'
 
 # This gets inserted into the man pages to reflect the month of release.
@@ -53,7 +55,7 @@ def is_windows():
       return True
    else:
       return False
-   
+
 SConsignFile()
 
 #
@@ -73,7 +75,7 @@ def whereis(file):
                     st = os.stat(f_ext)
                 except:
                     continue
-                if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
+                if stat.S_IMODE(st[stat.ST_MODE]) & 0o111:
                     return f_ext
     return None
 
@@ -160,8 +162,17 @@ import distutils.command
 
 no_winpack_templates = not os.path.exists(os.path.join(os.path.split(distutils.command.__file__)[0],'wininst-9.0.exe'))
 skip_win_packages = ARGUMENTS.get('SKIP_WIN_PACKAGES',False) or no_winpack_templates
+
+if sys.version_info[0] > 2:
+    # TODO: Resolve this issue. Currently fails when run on windows with
+    #   File "/opt/local/Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/distutils/command/bdist_wininst.py", line 262, in create_exe
+    #   cfgdata = cfgdata.encode("mbcs")
+    #  LookupError: unknown encoding: mbcs
+    print("Temporary PY3: Skipping windows package builds")
+    skip_win_packages = True
+
 if skip_win_packages:
-    print "Skipping the build of Windows packages..."
+    print("Skipping the build of Windows packages...")
 
 python_ver = sys.version[0:3]
 
@@ -324,22 +335,25 @@ try:
     import zipfile
 
     def zipit(env, target, source):
-        print "Zipping %s:" % str(target[0])
-        def visit(arg, dirname, names):
-            for name in names:
-                path = os.path.join(dirname, name)
+        print("Zipping %s:" % str(target[0]))
+        def visit(arg, dirname, filenames):
+            for filename in filenames:
+                path = os.path.join(dirname, filename)
                 if os.path.isfile(path):
                     arg.write(path)
         # default ZipFile compression is ZIP_STORED
         zf = zipfile.ZipFile(str(target[0]), 'w', compression=zipfile.ZIP_DEFLATED)
         olddir = os.getcwd()
         os.chdir(env['CD'])
-        try: os.path.walk(env['PSV'], visit, zf)
-        finally: os.chdir(olddir)
+        try:
+            for dirname, dirnames, filenames in os.walk(env['PSV']):
+                visit(zf, dirname, filenames)
+        finally:
+            os.chdir(olddir)
         zf.close()
 
     def unzipit(env, target, source):
-        print "Unzipping %s:" % str(source[0])
+        print("Unzipping %s:" % str(source[0]))
         zf = zipfile.ZipFile(str(source[0]), 'r')
         for name in zf.namelist():
             dest = os.path.join(env['UNPACK_ZIP_DIR'], name)
@@ -348,18 +362,20 @@ try:
                 os.makedirs(dir)
             except:
                 pass
-            print dest,name
+            print(dest,name)
             # if the file exists, then delete it before writing
             # to it so that we don't end up trying to write to a symlink:
             if os.path.isfile(dest) or os.path.islink(dest):
                 os.unlink(dest)
             if not os.path.isdir(dest):
-                open(dest, 'wb').write(zf.read(name))
+                with open(dest, 'wb') as fp:
+                    fp.write(zf.read(name))
 
 except ImportError:
     if unzip and zip:
         zipit = "cd $CD && $ZIP $ZIPFLAGS $( ${TARGET.abspath} $) $PSV"
         unzipit = "$UNZIP $UNZIPFLAGS $SOURCES"
+
 
 def SCons_revision(target, source, env):
     """Interpolate specific values from the environment into a file.
@@ -369,7 +385,8 @@ def SCons_revision(target, source, env):
     """
     t = str(target[0])
     s = source[0].rstr()
-    contents = open(s, 'rb').read()
+    with open(s, 'r') as fp:
+        contents = fp.read()
     # Note:  We construct the __*__ substitution strings here
     # so that they don't get replaced when this file gets
     # copied into the tree for packaging.
@@ -383,8 +400,9 @@ def SCons_revision(target, source, env):
     contents = contents.replace('__REVISION'  + '__', env['REVISION'])
     contents = contents.replace('__VERSION'   + '__', env['VERSION'])
     contents = contents.replace('__NULL'      + '__', '')
-    open(t, 'wb').write(contents)
+    open(t, 'w').write(contents)
     os.chmod(t, os.stat(s)[0])
+
 
 revaction = SCons_revision
 revbuilder = Builder(action = Action(SCons_revision,
@@ -439,7 +457,6 @@ env = Environment(
                    MONTH_YEAR          = month_year,
                    REVISION            = revision,
                    VERSION             = version,
-                   DH_COMPAT           = 2,
 
                    TAR_HFLAG           = tar_hflag,
 
@@ -499,7 +516,8 @@ python_scons = {
 
         'debian_deps'   : [
                             'debian/changelog',
-                            'debian/control',
+                            'debian/compat',
+                            'debian/control',	    
                             'debian/copyright',
                             'debian/dirs',
                             'debian/docs',
@@ -559,7 +577,7 @@ else:
     i = install_egg_info(dist)
     i.finalize_options()
     import os.path
-    print os.path.split(i.outputs[0])[1]
+    print(os.path.split(i.outputs[0])[1])
 """ % version
 
 try:
@@ -621,6 +639,7 @@ scons_script = {
 
         'debian_deps'   : [
                             'debian/changelog',
+                            'debian/compat',
                             'debian/control',
                             'debian/copyright',
                             'debian/dirs',
@@ -665,6 +684,7 @@ scons = {
 
         'debian_deps'   : [
                             'debian/changelog',
+                            'debian/compat',
                             'debian/control',
                             'debian/copyright',
                             'debian/dirs',
@@ -734,7 +754,7 @@ for p in [ scons ]:
     platform_zip = os.path.join(build,
                                 'dist',
                                 "%s.%s.zip" % (pkg_version, platform))
-    
+
 
     #
     # Update the environment with the relevant information
@@ -813,6 +833,7 @@ for p in [ scons ]:
         s = p['filemap'].get(b, b)
         if not s[0] == '$' and not os.path.isabs(s):
             s = os.path.join(src, s)
+
         builder = p['buildermap'].get(b, env.SCons_revision)
         x = builder(os.path.join(build, b), s)
         Local(x)
@@ -829,7 +850,7 @@ for p in [ scons ]:
     def write_src_files(target, source, **kw):
         global src_files
         src_files.sort()
-        f = open(str(target[0]), 'wb')
+        f = open(str(target[0]), 'w')
         for file in src_files:
             f.write(file + "\n")
         f.close()
@@ -856,11 +877,11 @@ for p in [ scons ]:
 
     for target in distutils_targets:
         dist_target = env.Install('$DISTDIR', target)
-        AddPostAction(dist_target, Chmod(dist_target, 0644))
+        AddPostAction(dist_target, Chmod(dist_target, 0o644))
         dist_distutils_targets += dist_target
 
     if not gzip:
-        print "gzip not found in %s; skipping .tar.gz package for %s." % (os.environ['PATH'], pkg)
+        print("gzip not found in %s; skipping .tar.gz package for %s." % (os.environ['PATH'], pkg))
     else:
 
         distutils_formats.append('gztar')
@@ -872,8 +893,8 @@ for p in [ scons ]:
         dist_tar_gz             = env.Install('$DISTDIR', tar_gz)
         dist_platform_tar_gz    = env.Install('$DISTDIR', platform_tar_gz)
         Local(dist_tar_gz, dist_platform_tar_gz)
-        AddPostAction(dist_tar_gz, Chmod(dist_tar_gz, 0644))
-        AddPostAction(dist_platform_tar_gz, Chmod(dist_platform_tar_gz, 0644))
+        AddPostAction(dist_tar_gz, Chmod(dist_tar_gz, 0o644))
+        AddPostAction(dist_platform_tar_gz, Chmod(dist_platform_tar_gz, 0o644))
 
         #
         # Unpack the tar.gz archive created by the distutils into
@@ -935,7 +956,7 @@ for p in [ scons ]:
         env.Command(digest, tar_gz, Digestify)
 
     if not zipit:
-        print "zip not found; skipping .zip package for %s." % pkg
+        print("zip not found; skipping .zip package for %s." % pkg)
     else:
 
         distutils_formats.append('zip')
@@ -947,8 +968,8 @@ for p in [ scons ]:
         dist_zip            = env.Install('$DISTDIR', zip)
         dist_platform_zip   = env.Install('$DISTDIR', platform_zip)
         Local(dist_zip, dist_platform_zip)
-        AddPostAction(dist_zip, Chmod(dist_zip, 0644))
-        AddPostAction(dist_platform_zip, Chmod(dist_platform_zip, 0644))
+        AddPostAction(dist_zip, Chmod(dist_zip, 0o644))
+        AddPostAction(dist_platform_zip, Chmod(dist_platform_zip, 0o644))
 
         #
         # Unpack the zip archive created by the distutils into
@@ -1011,10 +1032,10 @@ for p in [ scons ]:
             list generated from our MANIFEST(s), so we don't have to
             maintain multiple lists.
             """
-            c = open(str(source[0]), 'rb').read()
+            c = open(str(source[0]), 'r').read()
             c = c.replace('__VERSION' + '__', env['VERSION'])
             c = c.replace('__RPM_FILES' + '__', env['RPM_FILES'])
-            open(str(target[0]), 'wb').write(c)
+            open(str(target[0]), 'w').write(c)
 
         rpm_files.sort()
         rpm_files_str = "\n".join(rpm_files) + "\n"
@@ -1035,8 +1056,8 @@ for p in [ scons ]:
         dist_noarch_rpm = env.Install('$DISTDIR', noarch_rpm)
         dist_src_rpm    = env.Install('$DISTDIR', src_rpm)
         Local(dist_noarch_rpm, dist_src_rpm)
-        AddPostAction(dist_noarch_rpm, Chmod(dist_noarch_rpm, 0644))
-        AddPostAction(dist_src_rpm, Chmod(dist_src_rpm, 0644))
+        AddPostAction(dist_noarch_rpm, Chmod(dist_noarch_rpm, 0o644))
+        AddPostAction(dist_src_rpm, Chmod(dist_src_rpm, 0o644))
 
         dfiles = [os.path.join(test_rpm_dir, 'usr', x) for x in dst_files]
         env.Command(dfiles,
@@ -1049,7 +1070,7 @@ for p in [ scons ]:
         # The built deb is called just x.y.z, not x.y.z.final.0 so strip those off:
         deb_version = '.'.join(version.split('.')[0:3])
         deb = os.path.join(build_dir, 'dist', "%s_%s_all.deb" % (pkg, deb_version))
-        # print "Building deb into %s (version=%s)"%(deb, deb_version)
+        # print("Building deb into %s (version=%s)"%(deb, deb_version))
         for d in p['debian_deps']:
             b = env.SCons_revision(os.path.join(build, d), d)
             env.Depends(deb, b)
@@ -1109,8 +1130,8 @@ for p in [ scons ]:
 
     dist_local_tar_gz = os.path.join("$DISTDIR/%s.tar.gz" % s_l_v)
     dist_local_zip = os.path.join("$DISTDIR/%s.zip" % s_l_v)
-    AddPostAction(dist_local_tar_gz, Chmod(dist_local_tar_gz, 0644))
-    AddPostAction(dist_local_zip, Chmod(dist_local_zip, 0644))
+    AddPostAction(dist_local_tar_gz, Chmod(dist_local_tar_gz, 0o644))
+    AddPostAction(dist_local_zip, Chmod(dist_local_zip, 0o644))
 
     commands = [
         Delete(build_dir_local),
@@ -1220,7 +1241,7 @@ if hg_status_lines:
     slines = [l for l in hg_status_lines if l[0] in 'ACM']
     sfiles = [l.split()[-1] for l in slines]
 else:
-   print "Not building in a Mercurial tree; skipping building src package."
+   print("Not building in a Mercurial tree; skipping building src package.")
 
 if sfiles:
     remove_patterns = [
@@ -1384,4 +1405,5 @@ for pf, help_text in packaging_flavors:
         os.path.join(build_dir, 'QMTest'),
         os.path.join(build_dir, 'runtest.py'),
     ])
-#
+
+

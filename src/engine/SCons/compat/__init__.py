@@ -61,7 +61,10 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import sys
-import imp   # Use the "imp" module to protect imports from fixers.
+import imp  # Use the "imp" module to protect imports from fixers.
+
+PYPY = hasattr(sys, 'pypy_translation_info')
+
 
 def import_as(module, name):
     """
@@ -70,6 +73,7 @@ def import_as(module, name):
     """
     dir = os.path.split(__file__)[0]
     return imp.load_module(name, *imp.find_module(module, [dir]))
+
 
 def rename_module(new, old):
     """
@@ -82,20 +86,29 @@ def rename_module(new, old):
     except ImportError:
         return False
 
+
+# TODO: FIXME
 # In 3.x, 'pickle' automatically loads the fast version if available.
 rename_module('pickle', 'cPickle')
 
+# Default pickle protocol. Higher protocols are more efficient/featureful
+# but incompatible with older Python versions. On Python 2.7 this is 2.
+# Negative numbers choose the highest available protocol.
+import pickle
+
+PICKLE_PROTOCOL = pickle.HIGHEST_PROTOCOL
+
+# TODO: FIXME
 # In 3.x, 'profile' automatically loads the fast version if available.
 rename_module('profile', 'cProfile')
 
-
+# TODO: FIXME
 # Before Python 3.0, the 'queue' module was named 'Queue'.
 rename_module('queue', 'Queue')
 
-
+# TODO: FIXME
 # Before Python 3.0, the 'winreg' module was named '_winreg'
 rename_module('winreg', '_winreg')
-
 
 # Python 3 moved builtin intern() to sys package
 # To make porting easier, make intern always live
@@ -107,31 +120,79 @@ except AttributeError:
     # intern into the sys package
     sys.intern = intern
 
-
 # Preparing for 3.x. UserDict, UserList, UserString are in
 # collections for 3.x, but standalone in 2.7.x
 import collections
+
 try:
     collections.UserDict
 except AttributeError:
-    exec('from UserDict import UserDict as _UserDict')
+    exec ('from UserDict import UserDict as _UserDict')
     collections.UserDict = _UserDict
     del _UserDict
 
 try:
     collections.UserList
 except AttributeError:
-    exec('from UserList import UserList as _UserList')
+    exec ('from UserList import UserList as _UserList')
     collections.UserList = _UserList
     del _UserList
 
 try:
     collections.UserString
 except AttributeError:
-    exec('from UserString import UserString as _UserString')
+    exec ('from UserString import UserString as _UserString')
     collections.UserString = _UserString
     del _UserString
 
+
+def with_metaclass(meta, *bases):
+    """
+    Function from jinja2/_compat.py. License: BSD.
+
+    Use it like this::
+
+        class BaseForm(object):
+            pass
+
+        class FormType(type):
+            pass
+
+        class Form(with_metaclass(FormType, BaseForm)):
+            pass
+
+    This requires a bit of explanation: the basic idea is to make a
+    dummy metaclass for one level of class instantiation that replaces
+    itself with the actual metaclass.  Because of internal type checks
+    we also need to make sure that we downgrade the custom metaclass
+    for one level to something closer to type (that's why __call__ and
+    __init__ comes back from type etc.).
+
+    This has the advantage over six.with_metaclass of not introducing
+    dummy classes into the final MRO.
+    """
+
+    class metaclass(meta):
+        __call__ = type.__call__
+        __init__ = type.__init__
+
+        def __new__(cls, name, this_bases, d):
+            if this_bases is None:
+                return type.__new__(cls, name, (), d)
+            return meta(name, bases, d)
+
+    return metaclass('temporary_class', None, {})
+
+
+class NoSlotsPyPy(type):
+    """
+    Workaround for PyPy not working well with __slots__ and __class__ assignment.
+    """
+
+    def __new__(meta, name, bases, dct):
+        if PYPY and '__slots__' in dct:
+            dct.pop('__slots__')
+        return super(NoSlotsPyPy, meta).__new__(meta, name, bases, dct)
 
 # Local Variables:
 # tab-width:4

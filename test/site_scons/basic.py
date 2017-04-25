@@ -40,7 +40,7 @@ test.subdir('site_scons', ['site_scons', 'site_tools'])
 
 test.write(['site_scons', 'site_init.py'], """
 from SCons.Script import *
-print "Hi there, I am in site_scons/site_init.py!"
+print("Hi there, I am in site_scons/site_init.py!")
 """)
 
 test.write(['site_scons', 'site_tools', 'mytool.py'], """
@@ -54,7 +54,7 @@ def exists(env):
 
 test.write('SConstruct', """
 e=Environment(tools=['default', 'mytool'])
-print e.subst('My site tool is $MYTOOL')
+print(e.subst('My site tool is $MYTOOL'))
 """)
 
 test.run(arguments = '-Q .',

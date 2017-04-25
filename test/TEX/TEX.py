@@ -20,6 +20,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -46,10 +47,10 @@ import os
 import getopt
 cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:r:', [])
 base_name = os.path.splitext(arg[0])[0]
-infile = open(arg[0], 'rb')
-dvi_file = open(base_name+'.dvi', 'wb')
-aux_file = open(base_name+'.aux', 'wb')
-log_file = open(base_name+'.log', 'wb')
+infile = open(arg[0], 'r')
+dvi_file = open(base_name+'.dvi', 'w')
+aux_file = open(base_name+'.aux', 'w')
+log_file = open(base_name+'.log', 'w')
 for l in infile.readlines():
     if l[0] != '\\':
         dvi_file.write(l)
@@ -85,11 +86,7 @@ tex = test.where_is('tex')
 
 if tex:
 
-    test.write("wrapper.py", """import os
-import sys
-open('%s', 'wb').write("wrapper.py\\n")
-os.system(" ".join(sys.argv[1:]))
-""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
+    test.file_fixture('wrapper.py')
 
     test.write('SConstruct', """
 import os
@@ -176,14 +173,14 @@ Run \texttt{latex}, then \texttt{bibtex}, then \texttt{latex} twice again \cite{
 
     reruns = [x for x in output_lines if x.find('latex -interaction=nonstopmode -recorder rerun.tex') != -1]
     if len(reruns) != 2:
-        print "Expected 2 latex calls, got %s:" % len(reruns)
-        print '\n'.join(reruns)
+        print("Expected 2 latex calls, got %s:" % len(reruns))
+        print('\n'.join(reruns))
         test.fail_test()
 
     bibtex = [x for x in output_lines if x.find('bibtex bibtex-test') != -1]
     if len(bibtex) != 1:
-        print "Expected 1 bibtex call, got %s:" % len(bibtex)
-        print '\n'.join(bibtex)
+        print("Expected 1 bibtex call, got %s:" % len(bibtex))
+        print('\n'.join(bibtex))
         test.fail_test()
 
 test.pass_test()

@@ -22,6 +22,8 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+from __future__ import print_function
+
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
@@ -30,6 +32,12 @@ import TestSCons
 
 import SCons.Platform
 import SCons.Defaults
+
+import sys
+if sys.platform == 'darwin':
+    # Skipping until logic is fixed for macosx
+    test = TestSCons.TestSCons()
+    test.skip_test("Not working on darwin yet\n")
 
 env = SCons.Defaults.DefaultEnvironment()
 platform = SCons.Platform.platform_default()
@@ -252,12 +260,12 @@ Default(instnode)
     for (linkname,expected) in symlinks:
         try:
             endpoint = os.readlink(linkname)
-        except OSError, err:
-            print "%s (expected symlink %r -> %r)" % (err, linkname, expected)
+        except OSError as err:
+            print("%s (expected symlink %r -> %r)" % (err, linkname, expected))
             wrong_symlinks.append(linkname)
         else:
             if endpoint != expected:
-                print "Wrong symlink: %r -> %r (expected symlink: %r -> %r)" % (linkname, endpoint, linkname, expected)
+                print("Wrong symlink: %r -> %r (expected symlink: %r -> %r)" % (linkname, endpoint, linkname, expected))
                 wrong_symlinks.append(linkname)
 
     if wrong_symlinks:

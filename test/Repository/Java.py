@@ -43,8 +43,8 @@ java = test.java_where_java()
 os.environ['JAVA_HOME'] = test.java_where_java_home(java_version)
 
 ###############################################################################
-
 #
+
 test.subdir('rep1', ['rep1', 'src'],
             'work1',
             'work2')

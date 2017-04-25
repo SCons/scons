@@ -35,37 +35,26 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('myas.py', r"""
-import sys
-infile = open(sys.argv[2], 'rb')
-outfile = open(sys.argv[1], 'wb')
-for l in [l for l in infile.readlines() if l != "#as\n"]:
-    outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
-env = Environment(ASPPCOM = r'%(_python_)s myas.py $TARGET $SOURCE',
+env = Environment(ASPPCOM = r'%(_python_)s mycompile.py as $TARGET $SOURCE',
                   ASPPCOMSTR = 'Assembling $TARGET from $SOURCE',
                   OBJSUFFIX = '.obj')
 env.Object(target = 'test1', source = 'test1.spp')
 env.Object(target = 'test2', source = 'test2.SPP')
 """ % locals())
 
-test.write('test1.spp', "test1.spp\n#as\n")
-test.write('test2.SPP', "test2.SPP\n#as\n")
+test.write('test1.spp', "test1.spp\n/*as*/\n")
+test.write('test2.SPP', "test2.SPP\n/*as*/\n")
 
 test.run(stdout = test.wrap_stdout("""\
 Assembling test1.obj from test1.spp
 Assembling test2.obj from test2.SPP
 """))
 
-test.fail_test(test.read('test1.obj') != "test1.spp\n")
-test.fail_test(test.read('test2.obj') != "test2.SPP\n")
-
-
+test.must_match('test1.obj', "test1.spp\n")
+test.must_match('test2.obj', "test2.SPP\n")
 
 test.pass_test()
 

@@ -41,7 +41,7 @@ test.write(['src', 'SConstruct'],"""
 env = Environment()
 
 def action( source, target, env ):
-    f = open( str(target[0]), 'w' )
+    f = open( str(target[0]), 'wb' )
     f.write( source[0].get_contents())
     f.close()
 

@@ -30,7 +30,7 @@ test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 test.write('SConstruct', """\
 def foo(env, target, source):
-    print str(target[0])
+    print(str(target[0]))
     open(str(target[0]), 'wt').write('foo')
 
 def exit(env, target, source):

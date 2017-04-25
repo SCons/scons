@@ -52,30 +52,6 @@ test.must_contain_all_lines(test.stderr(), ["found where file expected"])
 
 
 
-test.write('SConstruct', """
-SetOption('diskcheck', ['rcs', 'sccs'])
-Dir('file')
-""")
-
-test.run()
-
-test.run(arguments='--diskcheck=match', status=2, stderr=None)
-test.must_contain_all_lines(test.stderr(), ["found where directory expected"])
-
-
-
-test.write('SConstruct', """
-SetOption('diskcheck', 'rcs,sccs')
-Dir('file/subdir')
-""")
-
-test.run()
-
-test.run(arguments='--diskcheck=match', status=2, stderr=None)
-test.must_contain_all_lines(test.stderr(), ["found where directory expected"])
-
-
-
 test.pass_test()
 
 # Local Variables:

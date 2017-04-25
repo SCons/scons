@@ -59,7 +59,7 @@ def build2(target, source, env):
     import os.path
     open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
     dir, file = os.path.split(str(target[0]))
-    os.chmod(dir, 0555)
+    os.chmod(dir, 0o555)
     return None
 
 B1 = Builder(action = build1)
@@ -78,7 +78,7 @@ test.write(['work1', 'foo.in'], "work1/foo.in\n")
 
 test.write(work1__sconsign_dblite, "")
 
-os.chmod(work1__sconsign_dblite, 0444)
+os.chmod(work1__sconsign_dblite, 0o444)
 
 test.run(chdir='work1', arguments='.')
 
@@ -95,7 +95,7 @@ test.write(['work2', 'foo.in'], "work2/foo.in\n")
 pickle.dump({}, open(work2_sub1__sconsign, 'wb'), 1)
 pickle.dump({}, open(work2_sub2__sconsign, 'wb'), 1)
 
-os.chmod(work2_sub1__sconsign, 0444)
+os.chmod(work2_sub1__sconsign, 0o444)
 
 test.run(chdir='work2', arguments='.')
 

@@ -41,10 +41,10 @@ test.subdir('cache', 'src')
 test.write(['src', 'SConstruct'], """
 def cat(env, source, target):
     target = str(target[0])
-    open('cat.out', 'ab').write(target + "\\n")
-    f = open(target, "wb")
+    open('cat.out', 'a').write(target + "\\n")
+    f = open(target, "w")
     for src in source:
-        f.write(open(str(src), "rb").read())
+        f.write(open(str(src), "r").read())
     f.close()
 env = Environment(BUILDERS={'Cat':Builder(action=cat)})
 env.Cat('aaa.out', 'aaa.in')
@@ -62,8 +62,8 @@ test.write(['src', 'ccc.in'], "ccc.in\n")
 # This should populate the cache with our derived files.
 test.run(chdir = 'src', arguments = '.')
 
-test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n")
-test.must_match(['src', 'cat.out'], "aaa.out\nbbb.out\nccc.out\nall\n")
+test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n", mode='r')
+test.must_match(['src', 'cat.out'], "aaa.out\nbbb.out\nccc.out\nall\n", mode='r')
 
 test.up_to_date(chdir = 'src', arguments = '.')
 
@@ -79,7 +79,7 @@ Retrieved `ccc.out' from cache
 Retrieved `all' from cache
 """))
 
-test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n")
+test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n", mode='r')
 test.must_not_exist(test.workpath('src', 'cat.out'))
 
 test.up_to_date(chdir = 'src', arguments = '.')
@@ -97,8 +97,8 @@ cat(["ccc.out"], ["ccc.in"])
 cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
 """))
 
-test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n")
-test.must_match(['src', 'cat.out'], "aaa.out\nbbb.out\nccc.out\nall\n")
+test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n", mode='r')
+test.must_match(['src', 'cat.out'], "aaa.out\nbbb.out\nccc.out\nall\n", mode='r')
 
 test.up_to_date(chdir = 'src', arguments = '.')
 
@@ -116,8 +116,8 @@ cat(["ccc.out"], ["ccc.in"])
 cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
 """))
 
-test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n")
-test.must_match(['src', 'cat.out'], "aaa.out\nbbb.out\nccc.out\nall\n")
+test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n", mode='r')
+test.must_match(['src', 'cat.out'], "aaa.out\nbbb.out\nccc.out\nall\n", mode='r')
 
 test.up_to_date(chdir = 'src', arguments = '.')
 

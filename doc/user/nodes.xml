@@ -265,8 +265,8 @@ xyzzy = Entry('xyzzy')
       <file name="SConstruct" printme="1">
 object_list = Object('hello.c')
 program_list = Program(object_list)
-print "The object file is:", object_list[0]
-print "The program file is:", program_list[0]
+print("The object file is:", object_list[0])
+print("The program file is:", program_list[0])
       </file>
       <file name="hello.c">
 int main() { printf("Hello, world!\n"); }
@@ -334,7 +334,7 @@ import os.path
 program_list = Program('hello.c')
 program_name = str(program_list[0])
 if not os.path.exists(program_name):
-    print program_name, "does not exist!"
+    print(program_name, "does not exist!")
       </file>
       <file name="hello.c">
 int main() { printf("Hello, world!\n"); }
@@ -374,7 +374,7 @@ int main() { printf("Hello, world!\n"); }
       <file name="SConstruct" printme="1">
 env=Environment(VAR="value")
 n=File("foo.c")
-print env.GetBuildPath([n, "sub/dir/$VAR"])
+print(env.GetBuildPath([n, "sub/dir/$VAR"]))
       </file>
     </scons_example>
 
@@ -414,8 +414,8 @@ print env.GetBuildPath([n, "sub/dir/$VAR"])
       <file name="SConstruct" printme="1">
 hello_c = File('hello.c')
 contents = hello_c.read()
-print "contents are:"
-print contents
+print("contents are:")
+print(contents)
       </file>
       <file name="hello.c">
 int main() { printf("Hello, world!\n"); }

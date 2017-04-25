@@ -39,6 +39,11 @@ import SCons.Defaults
 
 test = TestSCons.TestSCons()
 
+if sys.platform == 'darwin':
+    # Skipping until logic is fixed for macosx
+    test.skip_test("Not working on darwin yet\n")
+
+
 test.write('foo.c', """
 #if _WIN32
 __declspec(dllexport)

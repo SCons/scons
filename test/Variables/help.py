@@ -81,8 +81,8 @@ opts.AddVariables(
 env = Environment(variables=opts)
 Help(opts.GenerateHelpText(env))
 
-print env['warnings']
-print env['profile']
+print(env['warnings'])
+print(env['profile'])
 
 Default(env.Alias('dummy', None))
 """ % locals())

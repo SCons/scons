@@ -38,8 +38,8 @@ import sys
 import getopt
 cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:r:', [])
 base_name = os.path.splitext(arg[0])[0]
-infile = open(arg[0], 'rb')
-out_file = open(base_name+'.dvi', 'wb')
+infile = open(arg[0], 'r')
+out_file = open(base_name+'.dvi', 'w')
 for l in infile.readlines():
     if l[:4] != '#tex':
         out_file.write(l)
@@ -52,10 +52,10 @@ import sys
 import getopt
 cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:r:', [])
 base_name = os.path.splitext(arg[0])[0]
-infile = open(arg[0], 'rb')
-out_file = open(base_name+'.dvi', 'wb')
+infile = open(arg[0], 'r')
+out_file = open(base_name+'.dvi', 'w')
 for l in infile.readlines():
-    if l[:6] != '#latex':
+    if l[:6] != b'#latex':
         out_file.write(l)
 sys.exit(0)
 """)
@@ -68,8 +68,8 @@ cmd_opts, args = getopt.getopt(sys.argv[1:], 'x', [])
 opt_string = ''
 for opt, arg in cmd_opts:
     opt_string = opt_string + ' ' + opt
-infile = open(args[0], 'rb')
-out_file = open(args[1], 'wb')
+infile = open(args[0], 'r')
+out_file = open(args[1], 'w')
 out_file.write(opt_string + "\n")
 for l in infile.readlines():
     if l[:7] != '#dvipdf':
@@ -100,9 +100,9 @@ test.write('test2.tex', r"""This is a .tex test.
 
 test.run(arguments = '.', stderr = None)
 
-test.must_match('test1.pdf', " -x\nThis is a .dvi test.\n")
+test.must_match('test1.pdf', " -x\nThis is a .dvi test.\n", mode='r')
 
-test.must_match('test2.pdf', " -x\nThis is a .tex test.\n")
+test.must_match('test2.pdf', " -x\nThis is a .tex test.\n", mode='r')
 
 
 
@@ -114,7 +114,7 @@ if dvipdf and tex:
     test.write("wrapper.py", """import os
 import sys
 cmd = " ".join(sys.argv[1:])
-open('%s', 'ab').write("%%s\\n" %% cmd)
+open('%s', 'a').write("%%s\\n" %% cmd)
 os.system(cmd)
 """ % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
@@ -149,21 +149,21 @@ This is the %s LaTeX file.
 
     test.write('bar.tex', tex % 'bar.tex')
 
-    test.run(arguments = 'foo.pdf', stderr = None)
+    test.run(arguments='foo.pdf', stderr=None)
 
     test.must_not_exist(test.workpath('wrapper.out'))
 
     test.must_exist(test.workpath('foo.pdf'))
 
-    test.run(arguments = 'xxx.pdf', stderr = None)
+    test.run(arguments='xxx.pdf', stderr=None)
 
     test.must_not_exist(test.workpath('wrapper.out'))
 
     test.must_not_exist(test.workpath('xxx.dvi'))
 
-    test.run(arguments = 'bar.pdf', stderr = None)
+    test.run(arguments='bar.pdf', stderr=None)
 
-    test.must_match('wrapper.out', "dvipdf bar.dvi bar.pdf\n")
+    test.must_match('wrapper.out', "dvipdf bar.dvi bar.pdf\n", mode='r')
 
     test.must_exist(test.workpath('bar.pdf'))
 

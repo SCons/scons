@@ -50,15 +50,15 @@ _SUBDIR_f4_out = os.path.join('$SUBDIR', 'f4.out')
 test.write(['work', 'SConstruct'], """\
 def cat(env, source, target):
     target = str(target[0])
-    f = open(target, "wb")
+    f = open(target, "w")
     for src in source:
-        f.write(open(str(src), "rb").read())
+        f.write(open(str(src), "r").read())
     f.close()
 
 def my_install(dest, source, env):
     import shutil
     shutil.copy2(source, dest)
-    open('my_install.out', 'ab').write(dest)
+    open('my_install.out', 'a').write(dest)
 
 env1 = Environment()
 env1.Append(BUILDERS={'Cat':Builder(action=cat)})
@@ -96,17 +96,17 @@ test.write(f6_txt, "f6.txt\n")
 
 test.run(chdir = 'work', arguments = '.')
 
-test.must_match(f1_out,                         "f1.in\n")
-test.must_match(f2_out,                         "f2.in\n")
-test.must_match(f3_out,                         "f3.in\n")
-test.must_match(f4_out,                         "sub/f4.in\n")
-test.must_match(['work', 'f5.txt'],             "f5.txt\n")
-test.must_match(['work', 'export', 'f5.txt'],   "f5.txt\n")
-test.must_match(['work', 'f6.txt'],             "f6.txt\n")
-test.must_match(['work', 'export', 'f6.txt'],   "f6.txt\n")
+test.must_match(f1_out,                         "f1.in\n", mode='r')
+test.must_match(f2_out,                         "f2.in\n", mode='r')
+test.must_match(f3_out,                         "f3.in\n", mode='r')
+test.must_match(f4_out,                         "sub/f4.in\n", mode='r')
+test.must_match(['work', 'f5.txt'],             "f5.txt\n", mode='r')
+test.must_match(['work', 'export', 'f5.txt'],   "f5.txt\n", mode='r')
+test.must_match(['work', 'f6.txt'],             "f6.txt\n", mode='r')
+test.must_match(['work', 'export', 'f6.txt'],   "f6.txt\n", mode='r')
 
-test.must_match(['work', 'my_install.out'], os.path.join('export', 'f3.out'))
-test.must_match(['work', 'export', 'f1.in'],   "f1.in\n")
+test.must_match(['work', 'my_install.out'], os.path.join('export', 'f3.out'), mode='r')
+test.must_match(['work', 'export', 'f1.in'],   "f1.in\n", mode='r')
 
 # make sure the programs didn't get rebuilt, because nothing changed:
 oldtime1 = os.path.getmtime(f1_out)
@@ -122,14 +122,14 @@ test.fail_test(oldtime1 == os.path.getmtime(f1_out))
 test.fail_test(oldtime2 != os.path.getmtime(f2_out))
 
 # Verify that we didn't link to the Installed file.
-open(f2_out, 'wb').write("xyzzy\n")
-test.must_match(['work', 'f2.out'], "f2.in\n")
+open(f2_out, 'w').write("xyzzy\n")
+test.must_match(['work', 'f2.out'], "f2.in\n", mode='r')
 
 # Verify that scons prints an error message
 # if a target can not be unlinked before building it:
 test.write(['work', 'f1.in'], "f1.in again again\n")
 
-os.chmod(test.workpath('work', 'export'), 0555)
+os.chmod(test.workpath('work', 'export'), 0o555)
 f = open(f1_out, 'rb')
 
 

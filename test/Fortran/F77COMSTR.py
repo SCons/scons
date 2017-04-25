@@ -30,17 +30,7 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('myfc.py', r"""
-import sys
-fline = '#'+sys.argv[1]+'\n'
-outfile = open(sys.argv[2], 'wb')
-infile = open(sys.argv[3], 'rb')
-for l in [l for l in infile.readlines() if l != fline]:
-    outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 if not TestSCons.case_sensitive_suffixes('.f','.F'):
     f77pp = 'f77'
@@ -49,17 +39,17 @@ else:
 
 
 test.write('SConstruct', """
-env = Environment(F77COM = r'%(_python_)s myfc.py f77 $TARGET $SOURCES',
+env = Environment(F77COM = r'%(_python_)s mycompile.py f77 $TARGET $SOURCES',
                   F77COMSTR = 'Building f77 $TARGET from $SOURCES',
-                  F77PPCOM = r'%(_python_)s myfc.py f77pp $TARGET $SOURCES',
+                  F77PPCOM = r'%(_python_)s mycompile.py f77pp $TARGET $SOURCES',
                   F77PPCOMSTR = 'Building f77pp $TARGET from $SOURCES',
                   OBJSUFFIX='.obj')
 env.Object(source = 'test09.f77')
 env.Object(source = 'test10.F77')
 """ % locals())
 
-test.write('test09.f77',        "A .f77 file.\n#f77\n")
-test.write('test10.F77',        "A .F77 file.\n#%s\n" % f77pp)
+test.write('test09.f77',        "A .f77 file.\n/*f77*/\n")
+test.write('test10.F77',        "A .F77 file.\n/*%s*/\n" % f77pp)
 
 test.run(stdout = test.wrap_stdout("""\
 Building f77 test09.obj from test09.f77

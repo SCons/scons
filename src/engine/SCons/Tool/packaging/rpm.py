@@ -95,13 +95,15 @@ def collectintargz(target, source, env):
     # find the .spec file for rpm and add it since it is not necessarily found
     # by the FindSourceFiles function.
     sources.extend( [s for s in source if str(s).rfind('.spec')!=-1] )
+    # sort to keep sources from changing order across builds
+    sources.sort()
 
     # as the source contains the url of the source package this rpm package
     # is built from, we extract the target name
     tarball = (str(target[0])+".tar.gz").replace('.rpm', '')
     try:
         tarball = env['SOURCE_URL'].split('/')[-1]
-    except KeyError, e:
+    except KeyError as e:
         raise SCons.Errors.UserError( "Missing PackageTag '%s' for RPM packager" % e.args[0] )
 
     tarball = src_targz.package(env, source=sources, target=tarball,
@@ -136,7 +138,7 @@ def build_specfile(target, source, env):
         if 'CHANGE_SPECFILE' in env:
             env['CHANGE_SPECFILE'](target, source)
 
-    except KeyError, e:
+    except KeyError as e:
         raise SCons.Errors.UserError( '"%s" package field for RPM is missing.' % e.args[0] )
 
 
@@ -225,7 +227,6 @@ def build_specfile_header(spec):
         'X_RPM_EXCLUDEARCH'   : 'ExcludeArch: %s\n',
         'X_RPM_EXCLUSIVEARCH' : 'ExclusiveArch: %s\n',
         'X_RPM_PREFIX'        : 'Prefix: %s\n',
-        'X_RPM_CONFLICTS'     : 'Conflicts: %s\n',
 
         # internal use
         'X_RPM_BUILDROOT'     : 'BuildRoot: %s\n', }
@@ -270,7 +271,7 @@ def build_specfile_filesection(spec, files):
     for file in files:
         # build the tagset
         tags = {}
-        for k in supported_tags.keys():
+        for k in list(supported_tags.keys()):
             try:
                 v = file.GetTag(k)
                 if v:
@@ -324,7 +325,7 @@ class SimpleTagCompiler(object):
         for key, replacement in domestic:
             try:
                 str = str + replacement % values[key]
-            except KeyError, e:
+            except KeyError as e:
                 if self.mandatory:
                     raise e
 
@@ -335,7 +336,7 @@ class SimpleTagCompiler(object):
                 int_values_for_key = [(get_country_code(t[0]),t[1]) for t in x]
                 for v in int_values_for_key:
                     str = str + replacement % v
-            except KeyError, e:
+            except KeyError as e:
                 if self.mandatory:
                     raise e
 

@@ -66,9 +66,9 @@ opts.AddVariables(
 env = Environment(variables=opts)
 Help(opts.GenerateHelpText(env))
 
-print env['debug']
-print env['guilib']
-print env['some']
+print(env['debug'])
+print(env['guilib'])
+print(env['some'])
 
 Default(env.Alias('dummy', None))
 """)

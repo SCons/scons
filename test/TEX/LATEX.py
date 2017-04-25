@@ -44,10 +44,10 @@ import os
 import getopt
 cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:r:', [])
 base_name = os.path.splitext(arg[0])[0]
-infile = open(arg[0], 'rb')
-dvi_file = open(base_name+'.dvi', 'wb')
-aux_file = open(base_name+'.aux', 'wb')
-log_file = open(base_name+'.log', 'wb')
+infile = open(arg[0], 'r')
+dvi_file = open(base_name+'.dvi', 'w')
+aux_file = open(base_name+'.aux', 'w')
+log_file = open(base_name+'.log', 'w')
 for l in infile.readlines():
     if l[0] != '\\':
         dvi_file.write(l)
@@ -72,13 +72,13 @@ test.write('test2.latex', r"""This is a .latex test.
 
 test.run(arguments = '.')
 
-test.must_match('test1.dvi', "This is a .ltx test.\n")
-test.must_match('test1.aux', "This is a .ltx test.\n")
-test.must_match('test1.log', "This is a .ltx test.\n")
+test.must_match('test1.dvi', "This is a .ltx test.\n", mode='r')
+test.must_match('test1.aux', "This is a .ltx test.\n", mode='r')
+test.must_match('test1.log', "This is a .ltx test.\n", mode='r')
 
-test.must_match('test2.dvi', "This is a .latex test.\n")
-test.must_match('test2.aux', "This is a .latex test.\n")
-test.must_match('test2.log', "This is a .latex test.\n")
+test.must_match('test2.dvi', "This is a .latex test.\n", mode='r')
+test.must_match('test2.aux', "This is a .latex test.\n", mode='r')
+test.must_match('test2.log', "This is a .latex test.\n", mode='r')
 
 test.run(arguments = '-c .')
 
@@ -96,11 +96,7 @@ latex = test.where_is('latex')
 
 if latex:
 
-    test.write("wrapper.py", """import os
-import sys
-open('%s', 'wb').write("wrapper.py\\n")
-os.system(" ".join(sys.argv[1:]))
-""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
+    test.file_fixture('wrapper.py')
 
     test.write('SConstruct', """
 import os
@@ -178,11 +174,11 @@ This is the include file. mod %s
     test.must_exist('foo.dvi')
 
     test.run(arguments = 'bar.dvi', stderr = None)
-    test.must_match('wrapper.out', "wrapper.py\n")
+    test.must_match('wrapper.out', "wrapper.py\n", mode='r')
     test.must_exist('bar.dvi')
 
     test.run(arguments = 'makeindex.dvi', stderr = None)
-    test.must_match('wrapper.out', "wrapper.py\n")
+    test.must_match('wrapper.out', "wrapper.py\n", mode='r')
 
     test.run(arguments = 'latexi.dvi', stderr = None)
     test.must_exist('latexi.dvi')

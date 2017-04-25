@@ -24,6 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -32,24 +33,7 @@ obj_   = TestSCons.shobj_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('myfortran.py', r"""
-import getopt
-import sys
-comment = '#' + sys.argv[1]
-opts, args = getopt.getopt(sys.argv[2:], 'cf:o:K:')
-for opt, arg in opts:
-    if opt == '-o': out = arg
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
-for l in infile.readlines():
-    if l[:len(comment)] != comment:
-        outfile.write(l)
-sys.exit(0)
-""")
-
-
+test.file_fixture(os.path.join('fixture', 'myfortran.py'))
 
 test.write('SConstruct', """
 env = Environment(SHF77 = r'%(_python_)s myfortran.py g77',
@@ -94,12 +78,7 @@ f77 = test.detect_tool(fc)
 
 if f77:
 
-    test.write("wrapper.py",
-"""import os
-import sys
-open('%s', 'wb').write("wrapper.py\\n")
-os.system(" ".join(sys.argv[1:]))
-""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
+    test.file_fixture('wrapper.py')
 
     test.write('SConstruct', """
 foo = Environment(SHF77 = '%(fc)s')

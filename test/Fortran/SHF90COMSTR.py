@@ -30,36 +30,25 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('myfc.py', r"""
-import sys
-fline = '#'+sys.argv[1]+'\n'
-outfile = open(sys.argv[2], 'wb')
-infile = open(sys.argv[3], 'rb')
-for l in [l for l in infile.readlines() if l != fline]:
-    outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 if not TestSCons.case_sensitive_suffixes('.f','.F'):
     f90pp = 'f90'
 else:
     f90pp = 'f90pp'
 
-
 test.write('SConstruct', """
-env = Environment(SHF90COM = r'%(_python_)s myfc.py f90 $TARGET $SOURCES',
+env = Environment(SHF90COM = r'%(_python_)s mycompile.py f90 $TARGET $SOURCES',
                   SHF90COMSTR = 'Building f90 $TARGET from $SOURCES',
-                  SHF90PPCOM = r'%(_python_)s myfc.py f90pp $TARGET $SOURCES',
+                  SHF90PPCOM = r'%(_python_)s mycompile.py f90pp $TARGET $SOURCES',
                   SHF90PPCOMSTR = 'Building f90pp $TARGET from $SOURCES',
                   SHOBJPREFIX='', SHOBJSUFFIX='.shobj')
 env.SharedObject(source = 'test01.f90')
 env.SharedObject(source = 'test02.F90')
 """ % locals())
 
-test.write('test01.f90',        "A .f90 file.\n#f90\n")
-test.write('test02.F90',        "A .F90 file.\n#%s\n" % f90pp)
+test.write('test01.f90',        "A .f90 file.\n/*f90*/\n")
+test.write('test02.F90',        "A .F90 file.\n/*%s*/\n" % f90pp)
 
 test.run(stdout = test.wrap_stdout("""\
 Building f90 test01.shobj from test01.f90

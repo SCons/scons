@@ -49,6 +49,14 @@ class Environment(object):
         return key in self.dict
 
 
+def cmp(a, b):
+    """
+    Define cmp because it's no longer available in python3
+    Works under python 2 as well
+    """
+    return (a > b) - (a < b)
+
+
 def check(key, value, env):
     assert int(value) == 6 * 9, "key %s = %s" % (key, repr(value))
     
@@ -57,7 +65,7 @@ def check(key, value, env):
 def checkSave(file, expected):
     gdict = {}
     ldict = {}
-    exec open(file, 'rU').read() in gdict, ldict
+    exec(open(file, 'r').read(), gdict, ldict)
     assert expected == ldict, "%s\n...not equal to...\n%s" % (expected, ldict)
 
 class VariablesTestCase(unittest.TestCase):

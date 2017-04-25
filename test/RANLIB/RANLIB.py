@@ -39,12 +39,7 @@ ranlib = test.detect('RANLIB', 'ranlib')
 if not ranlib:
     test.skip_test("Could not find 'ranlib', skipping test.\n")
 
-test.write("wrapper.py",
-"""import os
-import sys
-open('%s', 'wb').write("wrapper.py\\n")
-os.system(" ".join(sys.argv[1:]))
-""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
+test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
 foo = Environment(LIBS = ['foo'], LIBPATH = ['.'])
@@ -105,7 +100,7 @@ test.run(arguments = 'b' + _exe,
          stderr=TestSCons.noisy_ar,
          match=TestSCons.match_re_dotall)
 
-test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
+test.must_match('wrapper.out',"wrapper.py\n", mode='r')
 
 test.pass_test()
 

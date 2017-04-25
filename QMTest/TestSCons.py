@@ -13,7 +13,7 @@ attributes defined in this subclass.
 """
 
 # __COPYRIGHT__
-from __future__ import division
+from __future__ import division, print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -22,6 +22,7 @@ import re
 import shutil
 import sys
 import time
+import subprocess
 
 from TestCommon import *
 from TestCommon import __all__
@@ -47,17 +48,18 @@ SConsVersion = '__VERSION__'
 if SConsVersion == '__' + 'VERSION' + '__':
     SConsVersion = default_version
 
-__all__.extend([ 'TestSCons',
-                 'machine',
-                 'python',
-                 '_exe',
-                 '_obj',
-                 '_shobj',
-                 'shobj_',
-                 'lib_',
-                 '_lib',
-                 'dll_',
-                 '_dll'
+__all__.extend([
+        'TestSCons',
+        'machine',
+        'python',
+        '_exe',
+        '_obj',
+        '_shobj',
+        'shobj_',
+        'lib_',
+        '_lib',
+        'dll_',
+        '_dll'
                ])
 
 machine_map = {
@@ -268,7 +270,7 @@ class TestSCons(TestCommon):
                 SCons.Node.FS.default_fs = SCons.Node.FS.FS()
 
         try:
-            self.script_srcdir = os.environ['PYTHON_SCRIPT_DIR']
+            self.fixture_dirs = (os.environ['FIXTURE_DIRS']).split(':')
         except KeyError:
             pass
 
@@ -355,7 +357,7 @@ class TestSCons(TestCommon):
                             # raised so as to not mask possibly serious disk or
                             # network issues.
                             continue
-                        if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
+                        if stat.S_IMODE(st[stat.ST_MODE]) & 0o111:
                             return os.path.normpath(f)
         else:
             import SCons.Environment
@@ -502,9 +504,9 @@ class TestSCons(TestCommon):
                self.pass_test()
             else:
                # test failed; have to do this by hand...
-               print self.banner('STDOUT ')
-               print self.stdout()
-               print self.diff(warning, stderr, 'STDERR ')
+               print(self.banner('STDOUT '))
+               print(self.stdout())
+               print(self.diff(warning, stderr, 'STDERR '))
                self.fail_test()
 
         return warning
@@ -562,21 +564,26 @@ class TestSCons(TestCommon):
         Returns a Python error line for output comparisons.
 
         The exec of the traceback line gives us the correct format for
-        this version of Python.  Before 2.5, this yielded:
-
-            File "<string>", line 1, ?
-
-        Python 2.5 changed this to:
+        this version of Python. 
 
             File "<string>", line 1, <module>
 
         We stick the requested file name and line number in the right
         places, abstracting out the version difference.
         """
-        exec 'import traceback; x = traceback.format_stack()[-1]'
-        x = x.lstrip()
-        x = x.replace('<string>', file)
-        x = x.replace('line 1,', 'line %s,' % line)
+        # This routine used to use traceback to get the proper format
+        # that doesn't work well with py3. And the format of the
+        # traceback seems to be stable, so let's just format
+        # an appropriate string
+        #
+        #exec('import traceback; x = traceback.format_stack()[-1]')
+        #       import traceback
+        #       x = traceback.format_stack()
+        #        x = # XXX: .lstrip()
+        #       x = x.replace('<string>', file)
+        #      x = x.replace('line 1,', 'line %s,' % line)
+        #      x="\n".join(x)
+        x='File "%s", line %s, in <module>\n'%(file,line)
         return x
 
     def normalize_ps(self, s):
@@ -591,23 +598,33 @@ class TestSCons(TestCommon):
 
         return s
 
+    @staticmethod
+    def to_bytes_re_sub(pattern, repl, str, count=0, flags=0):
+        """
+        Wrapper around re.sub to change pattern and repl to bytes to work with
+        both python 2 & 3
+        """
+        pattern = to_bytes(pattern)
+        repl = to_bytes(repl)
+        return re.sub(pattern, repl, str, count, flags)
+    
     def normalize_pdf(self, s):
-        s = re.sub(r'/(Creation|Mod)Date \(D:[^)]*\)',
-                   r'/\1Date (D:XXXX)', s)
-        s = re.sub(r'/ID \[<[0-9a-fA-F]*> <[0-9a-fA-F]*>\]',
-                   r'/ID [<XXXX> <XXXX>]', s)
-        s = re.sub(r'/(BaseFont|FontName) /[A-Z]{6}',
-                   r'/\1 /XXXXXX', s)
-        s = re.sub(r'/Length \d+ *\n/Filter /FlateDecode\n',
-                   r'/Length XXXX\n/Filter /FlateDecode\n', s)
+        s = self.to_bytes_re_sub(r'/(Creation|Mod)Date \(D:[^)]*\)',
+                       r'/\1Date (D:XXXX)', s)
+        s = self.to_bytes_re_sub(r'/ID \[<[0-9a-fA-F]*> <[0-9a-fA-F]*>\]',
+                       r'/ID [<XXXX> <XXXX>]', s)
+        s = self.to_bytes_re_sub(r'/(BaseFont|FontName) /[A-Z]{6}',
+                       r'/\1 /XXXXXX', s)
+        s = self.to_bytes_re_sub(r'/Length \d+ *\n/Filter /FlateDecode\n',
+                       r'/Length XXXX\n/Filter /FlateDecode\n', s)
 
         try:
             import zlib
         except ImportError:
             pass
         else:
-            begin_marker = '/FlateDecode\n>>\nstream\n'
-            end_marker = 'endstream\nendobj'
+            begin_marker = to_bytes('/FlateDecode\n>>\nstream\n')
+            end_marker = to_bytes('endstream\nendobj')
 
             encoded = []
             b = s.find(begin_marker, 0)
@@ -622,16 +639,16 @@ class TestSCons(TestCommon):
             for b, e in encoded:
                 r.append(s[x:b])
                 d = zlib.decompress(s[b:e])
-                d = re.sub(r'%%CreationDate: [^\n]*\n',
-                           r'%%CreationDate: 1970 Jan 01 00:00:00\n', d)
-                d = re.sub(r'%DVIPSSource:  TeX output \d\d\d\d\.\d\d\.\d\d:\d\d\d\d',
-                           r'%DVIPSSource:  TeX output 1970.01.01:0000', d)
-                d = re.sub(r'/(BaseFont|FontName) /[A-Z]{6}',
-                           r'/\1 /XXXXXX', d)
+                d = self.to_bytes_re_sub(r'%%CreationDate: [^\n]*\n',
+                               r'%%CreationDate: 1970 Jan 01 00:00:00\n', d)
+                d = self.to_bytes_re_sub(r'%DVIPSSource:  TeX output \d\d\d\d\.\d\d\.\d\d:\d\d\d\d',
+                               r'%DVIPSSource:  TeX output 1970.01.01:0000', d)
+                d = self.to_bytes_re_sub(r'/(BaseFont|FontName) /[A-Z]{6}',
+                               r'/\1 /XXXXXX', d)
                 r.append(d)
                 x = e
             r.append(s[x:])
-            s = ''.join(r)
+            s = to_bytes('').join(r)
 
         return s
 
@@ -642,6 +659,21 @@ class TestSCons(TestCommon):
             result.extend(sorted(glob.glob(p)))
         return result
 
+    def unlink_sconsignfile(self,name='.sconsign.dblite'):
+        """
+        Delete sconsign file.
+        Note on python it seems to append .p3 to the file name so we take care of that
+        Parameters
+        ----------
+        name - expected name of sconsign file
+
+        Returns
+        -------
+        None
+        """
+        if sys.version_info[0] == 3:
+            name += '.p3'
+        self.unlink(name)
 
     def java_ENV(self, version=None):
         """
@@ -685,12 +717,20 @@ class TestSCons(TestCommon):
         """
         Return java include paths compiling java jni code
         """
-        import glob
         import sys
+
+        result = []
+        if sys.platform[:6] == 'darwin':
+            java_home = self.java_where_java_home(version)
+            jni_path = os.path.join(java_home,'include','jni.h')
+            if os.path.exists(jni_path):
+                result.append(os.path.dirname(jni_path))
+
         if not version:
             version=''
             jni_dirs = ['/System/Library/Frameworks/JavaVM.framework/Headers/jni.h',
-                        '/usr/lib/jvm/default-java/include/jni.h']
+                        '/usr/lib/jvm/default-java/include/jni.h',
+                        '/usr/lib/jvm/java-*-oracle/include/jni.h']
         else:
             jni_dirs = ['/System/Library/Frameworks/JavaVM.framework/Versions/%s*/Headers/jni.h'%version]
         jni_dirs.extend(['/usr/lib/jvm/java-*-sun-%s*/include/jni.h'%version,
@@ -700,7 +740,7 @@ class TestSCons(TestCommon):
         if not dirs:
             return None
         d=os.path.dirname(self.paths(jni_dirs)[0])
-        result=[d]
+        result.append(d)
 
         if sys.platform == 'win32':
             result.append(os.path.join(d,'win32'))
@@ -708,16 +748,34 @@ class TestSCons(TestCommon):
             result.append(os.path.join(d,'linux'))
         return result
 
-
-    def java_where_java_home(self,version=None):
+    def java_where_java_home(self, version=None):
         if sys.platform[:6] == 'darwin':
+            # osx 10.11, 10.12
+            home_tool = '/usr/libexec/java_home'
+            java_home = False
+            if os.path.exists(home_tool):
+                java_home = subprocess.check_output(home_tool).strip()
+                java_home = java_home.decode()
+
             if version is None:
-                home = '/System/Library/Frameworks/JavaVM.framework/Home'
+                if java_home:
+                    return java_home
+                else:
+                    homes = ['/System/Library/Frameworks/JavaVM.framework/Home',
+                            # osx 10.10
+                             '/System/Library/Frameworks/JavaVM.framework/Versions/Current/Home']
+                    for home in homes:
+                        if os.path.exists(home):
+                            return home
+
             else:
-                home = '/System/Library/Frameworks/JavaVM.framework/Versions/%s/Home' % version
-                if not os.path.exists(home):
-                    # This works on OSX 10.10
-                    home = '/System/Library/Frameworks/JavaVM.framework/Versions/Current/'
+                if java_home.find('jdk%s'%version) != -1:
+                    return java_home
+                else:
+                    home = '/System/Library/Frameworks/JavaVM.framework/Versions/%s/Home' % version
+                    if not os.path.exists(home):
+                        # This works on OSX 10.10
+                        home = '/System/Library/Frameworks/JavaVM.framework/Versions/Current/'
         else:
             jar = self.java_where_jar(version)
             home = os.path.normpath('%s/..'%jar)
@@ -823,12 +881,12 @@ output = None
 impl = 0
 opt_string = ''
 for opt, arg in cmd_opts:
-    if opt == '-o': output = open(arg, 'wb')
+    if opt == '-o': output = open(arg, 'w')
     elif opt == '-i': impl = 1
     else: opt_string = opt_string + ' ' + opt
 output.write("/* mymoc.py%s */\\n" % opt_string)
 for a in args:
-    contents = open(a, 'rb').read()
+    contents = open(a, 'r').read()
     a = a.replace('\\\\', '\\\\\\\\')
     subst = r'{ my_qt_symbol( "' + a + '\\\\n" ); }'
     if impl:
@@ -849,7 +907,7 @@ source = None
 opt_string = ''
 for arg in sys.argv[1:]:
     if output_arg:
-        output = open(arg, 'wb')
+        output = open(arg, 'w')
         output_arg = 0
     elif impl_arg:
         impl = arg
@@ -863,7 +921,7 @@ for arg in sys.argv[1:]:
     else:
         if source:
             sys.exit(1)
-        source = open(arg, 'rb')
+        source = open(arg, 'r')
         sourceFile = arg
 output.write("/* myuic.py%s */\\n" % opt_string)
 if impl:
@@ -936,7 +994,7 @@ if ARGUMENTS.get('variant_dir', 0):
     else:
         builddir = 'build'
     VariantDir(builddir, '.', duplicate=dup)
-    print builddir, dup
+    print(builddir, dup)
     sconscript = Dir(builddir).File('SConscript')
 else:
     sconscript = File('SConscript')
@@ -957,32 +1015,6 @@ SConscript( sconscript )
 
     # to use cygwin compilers on cmd.exe -> uncomment following line
     #Configure_lib = 'm'
-
-    def gccFortranLibs(self):
-        """Test which gcc Fortran startup libraries are required.
-        This should probably move into SCons itself, but is kind of hacky.
-        """
-        if sys.platform.find('irix') != -1:
-            return ['ftn']
-
-        libs = ['g2c']
-        cmd = ['gcc','-v']
-
-        try:
-            p = Popen(cmd, stdout=PIPE, stderr=PIPE)
-            stdout, stderr = p.communicate()
-        except:
-            return libs
-
-        m = re.search('(gcc\s+version|gcc-Version)\s+(\d\.\d)', stderr)
-        if m:
-            gcc_version = m.group(2)
-            if re.match('4.[^0]', gcc_version):
-                libs = ['gfortranbegin']
-            elif gcc_version in ('3.1', '4.0'):
-                libs = ['frtbegin'] + libs
-
-        return libs
 
     def skip_if_not_msvc(self, check_platform=True):
         """ Check whether we are on a Windows platform and skip the
@@ -1009,53 +1041,113 @@ SConscript( sconscript )
 
     def checkLogAndStdout(self, checks, results, cached,
                           logfile, sconf_dir, sconstruct,
-                          doCheckLog=1, doCheckStdout=1):
+                          doCheckLog=True, doCheckStdout=True):
+        """
+        Used to verify the expected output from using Configure()
+        via the contents of one or both of stdout or config.log file. 
+        The checks, results, cached parameters all are zipped together
+        for use in comparing results.
+
+        TODO: Perhaps a better API makes sense?
+
+        Parameters
+        ----------
+        checks : The Configure checks being run
+
+        results : The expected results for each check
+
+        cached  : If the corresponding check is expected to be cached
+
+        logfile : Name of the config log
+
+        sconf_dir : Name of the sconf dir
+
+        sconstruct : SConstruct file name
+
+        doCheckLog : check specified log file, defaults to true
+
+        doCheckStdout : Check stdout, defaults to true
+
+        Returns
+        -------
+
+        """
 
         class NoMatch(Exception):
             def __init__(self, p):
                 self.pos = p
 
         def matchPart(log, logfile, lastEnd, NoMatch=NoMatch):
+            """
+            Match part of the logfile
+            """
             m = re.match(log, logfile[lastEnd:])
             if not m:
                 raise NoMatch(lastEnd)
             return m.end() + lastEnd
+
         try:
-            #print len(os.linesep)
-            ls = os.linesep
-            nols = "("
-            for i in range(len(ls)):
-                nols = nols + "("
-                for j in range(i):
-                    nols = nols + ls[j]
-                nols = nols + "[^" + ls[i] + "])"
-                if i < len(ls)-1:
-                    nols = nols + "|"
-            nols = nols + ")"
+
+            # Build regexp for a character which is not
+            # a linesep, and in the case of CR/LF
+            # build it with both CR and CR/LF
+            # TODO: Not sure why this is a good idea. A static string
+            #       could do the same since we only have two variations
+            #       to do with?
+            # ls = os.linesep
+            # nols = "("
+            # for i in range(len(ls)):
+            #     nols = nols + "("
+            #     for j in range(i):
+            #         nols = nols + ls[j]
+            #     nols = nols + "[^" + ls[i] + "])"
+            #     if i < len(ls)-1:
+            #         nols = nols + "|"
+            # nols = nols + ")"
+            #
+            # Replaced above logic with \n as we're reading the file
+            # using non-binary read. Python will translate \r\n -> \n
+            # For us.
+            ls = '\n'
+            nols = '([^\n])'
             lastEnd = 0
-            logfile = self.read(self.workpath(logfile))
+
+            # Read the whole logfile
+            logfile = self.read(self.workpath(logfile), mode='r')
+
+            # Some debug code to keep around..
+            # sys.stderr.write("LOGFILE[%s]:%s"%(type(logfile),logfile))
+
             if (doCheckLog and
-                logfile.find( "scons: warning: The stored build "
-                             "information has an unexpected class." ) >= 0):
+                logfile.find("scons: warning: The stored build information has an unexpected class.") >= 0):
                 self.fail_test()
+
             sconf_dir = sconf_dir
             sconstruct = sconstruct
 
             log = r'file\ \S*%s\,line \d+:' % re.escape(sconstruct) + ls
-            if doCheckLog: lastEnd = matchPart(log, logfile, lastEnd)
+            if doCheckLog: 
+                lastEnd = matchPart(log, logfile, lastEnd)
+
             log = "\t" + re.escape("Configure(confdir = %s)" % sconf_dir) + ls
-            if doCheckLog: lastEnd = matchPart(log, logfile, lastEnd)
+            if doCheckLog: 
+                lastEnd = matchPart(log, logfile, lastEnd)
+            
             rdstr = ""
             cnt = 0
             for check,result,cache_desc in zip(checks, results, cached):
                 log   = re.escape("scons: Configure: " + check) + ls
-                if doCheckLog: lastEnd = matchPart(log, logfile, lastEnd)
+
+                if doCheckLog: 
+                    lastEnd = matchPart(log, logfile, lastEnd)
+
                 log = ""
                 result_cached = 1
                 for bld_desc in cache_desc: # each TryXXX
                     for ext, flag in bld_desc: # each file in TryBuild
                         file = os.path.join(sconf_dir,"conftest_%d%s" % (cnt, ext))
                         if flag == self.NCR:
+                            # NCR = Non Cached Rebuild
                             # rebuild will pass
                             if ext in ['.c', '.cpp']:
                                 log=log + re.escape(file + " <-") + ls
@@ -1064,6 +1156,7 @@ SConscript( sconscript )
                                 log=log + "(" + nols + "*" + ls +")*?"
                             result_cached = 0
                         if flag == self.CR:
+                            # CR = cached rebuild (up to date)s
                             # up to date
                             log=log + \
                                  re.escape("scons: Configure: \"%s\" is up to date."
@@ -1089,33 +1182,36 @@ SConscript( sconscript )
                     result = "(cached) " + result
                 rdstr = rdstr + re.escape(check) + re.escape(result) + "\n"
                 log=log + re.escape("scons: Configure: " + result) + ls + ls
-                if doCheckLog: lastEnd = matchPart(log, logfile, lastEnd)
+
+                if doCheckLog: 
+                    lastEnd = matchPart(log, logfile, lastEnd)
+
                 log = ""
             if doCheckLog: lastEnd = matchPart(ls, logfile, lastEnd)
             if doCheckLog and lastEnd != len(logfile):
                 raise NoMatch(lastEnd)
 
-        except NoMatch, m:
-            print "Cannot match log file against log regexp."
-            print "log file: "
-            print "------------------------------------------------------"
-            print logfile[m.pos:]
-            print "------------------------------------------------------"
-            print "log regexp: "
-            print "------------------------------------------------------"
-            print log
-            print "------------------------------------------------------"
+        except NoMatch as m:
+            print("Cannot match log file against log regexp.")
+            print("log file: ")
+            print("------------------------------------------------------")
+            print(logfile[m.pos:])
+            print("------------------------------------------------------")
+            print("log regexp: ")
+            print("------------------------------------------------------")
+            print(log)
+            print("------------------------------------------------------")
             self.fail_test()
 
         if doCheckStdout:
             exp_stdout = self.wrap_stdout(".*", rdstr)
             if not self.match_re_dotall(self.stdout(), exp_stdout):
-                print "Unexpected stdout: "
-                print "-----------------------------------------------------"
-                print repr(self.stdout())
-                print "-----------------------------------------------------"
-                print repr(exp_stdout)
-                print "-----------------------------------------------------"
+                print("Unexpected stdout: ")
+                print("-----------------------------------------------------")
+                print(repr(self.stdout()))
+                print("-----------------------------------------------------")
+                print(repr(exp_stdout))
+                print("-----------------------------------------------------")
                 self.fail_test()
 
     def get_python_version(self):
@@ -1149,12 +1245,15 @@ except AttributeError:
 try:
     import distutils.sysconfig
     exec_prefix = distutils.sysconfig.EXEC_PREFIX
-    print distutils.sysconfig.get_python_inc()
-    print os.path.join(exec_prefix, 'libs')
+    print(distutils.sysconfig.get_python_inc())
+    lib_path = os.path.join(exec_prefix, 'libs')
+    if not os.path.exists(lib_path):
+        lib_path = os.path.join(exec_prefix, 'lib')
+    print(lib_path)
 except:
-    print os.path.join(sys.prefix, 'include', py_ver)
-    print os.path.join(sys.prefix, 'lib', py_ver, 'config')
-print py_ver
+    print(os.path.join(sys.prefix, 'include', py_ver))
+    print(os.path.join(sys.prefix, 'lib', py_ver, 'config'))
+print(py_ver)
 """)
 
         return [python] + self.stdout().strip().split('\n')

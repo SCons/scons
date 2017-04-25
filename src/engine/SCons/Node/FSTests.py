@@ -20,7 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-from __future__ import division
+from __future__ import division, print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -86,7 +86,7 @@ class Action(object):
     def show(self, string):
         pass
     def get_contents(self, target, source, env):
-        return ""
+        return bytearray("",'utf-8')
     def genstring(self, target, source, env):
         return ""
     def strfunction(self, targets, sources, env):
@@ -231,7 +231,7 @@ class VariantDirTestCase(unittest.TestCase):
         # Build path exists
         assert f2.exists()
         # ...and exists() should copy the file from src to build path
-        assert test.read(['work', 'build', 'var2', 'test.in']) == 'test.in',\
+        assert test.read(['work', 'build', 'var2', 'test.in']) == bytearray('test.in','utf-8'),\
                test.read(['work', 'build', 'var2', 'test.in'])
         # Since exists() is true, so should rexists() be
         assert f2.rexists()
@@ -260,7 +260,7 @@ class VariantDirTestCase(unittest.TestCase):
         # Build path should exist
         assert f4.exists()
         # ...and copy over the file into the local build path
-        assert test.read(['work', 'build', 'var2', 'test2.in']) == 'test2.in'
+        assert test.read(['work', 'build', 'var2', 'test2.in']) == bytearray('test2.in','utf-8')
         # should exist in repository, since exists() is true
         assert f4.rexists()
         # rfile() should point to ourselves
@@ -273,12 +273,12 @@ class VariantDirTestCase(unittest.TestCase):
         assert f5.exists()
         # We should not copy the file from the source dir, since this is
         # a derived file.
-        assert test.read(['work', 'build', 'var1', 'test.out']) == 'test.old'
+        assert test.read(['work', 'build', 'var1', 'test.out']) == bytearray('test.old','utf-8')
 
         assert f6.exists()
         # We should not copy the file from the source dir, since this is
         # a derived file.
-        assert test.read(['work', 'build', 'var2', 'test.out']) == 'test.old'
+        assert test.read(['work', 'build', 'var2', 'test.out']) == bytearray('test.old','utf-8')
 
         f7 = fs.File('build/var1/test2.out')
         f8 = fs.File('build/var2/test2.out')
@@ -334,7 +334,7 @@ class VariantDirTestCase(unittest.TestCase):
         test.write([ 'work', 'build', 'var1', 'asourcefile' ], 'stuff')
         f10 = fs.File('build/var1/asourcefile')
         assert f10.exists()
-        assert f10.get_contents() == 'stuff', f10.get_contents()
+        assert f10.get_contents() == bytearray('stuff','utf-8'), f10.get_contents()
 
         f11 = fs.File('src/file11')
         t, m = f11.alter_targets()
@@ -569,13 +569,13 @@ class VariantDirTestCase(unittest.TestCase):
             dp = dnode.srcnode().get_internal_path()
             expect = os.path.normpath(srcnode_map.get(dir, dir))
             if dp != expect:
-                print "Dir `%s' srcnode() `%s' != expected `%s'" % (dir, dp, expect)
+                print("Dir `%s' srcnode() `%s' != expected `%s'" % (dir, dp, expect))
                 errors = errors + 1
 
             fp = fnode.srcnode().get_internal_path()
             expect = os.path.normpath(srcnode_map.get(f, f))
             if fp != expect:
-                print "File `%s' srcnode() `%s' != expected `%s'" % (f, fp, expect)
+                print("File `%s' srcnode() `%s' != expected `%s'" % (f, fp, expect))
                 errors = errors + 1
 
         for dir in dir_list:
@@ -587,14 +587,14 @@ class VariantDirTestCase(unittest.TestCase):
             tp = t[0].get_internal_path()
             expect = os.path.normpath(alter_map.get(dir, dir))
             if tp != expect:
-                print "Dir `%s' alter_targets() `%s' != expected `%s'" % (dir, tp, expect)
+                print("Dir `%s' alter_targets() `%s' != expected `%s'" % (dir, tp, expect))
                 errors = errors + 1
 
             t, m = fnode.alter_targets()
             tp = t[0].get_internal_path()
             expect = os.path.normpath(alter_map.get(f, f))
             if tp != expect:
-                print "File `%s' alter_targets() `%s' != expected `%s'" % (f, tp, expect)
+                print("File `%s' alter_targets() `%s' != expected `%s'" % (f, tp, expect))
                 errors = errors + 1
 
         self.failIf(errors)
@@ -673,7 +673,7 @@ class BaseTestCase(_tempdirTestCase):
         nonexistent = fs.Entry('nonexistent')
         assert not nonexistent.isfile()
 
-    if hasattr(os, 'symlink'):
+    if sys.platform != 'win32' and hasattr(os, 'symlink'):
         def test_islink(self):
             """Test the Base.islink() method"""
             test = self.test
@@ -1084,7 +1084,7 @@ class FSTestCase(_tempdirTestCase):
 
             try:
                 f2 = fs.File(sep.join(['f1', 'f2']), directory = d1)
-            except TypeError, x:
+            except TypeError as x:
                 assert str(x) == ("Tried to lookup File '%s' as a Dir." %
                                   d1_f1), x
             except:
@@ -1092,7 +1092,7 @@ class FSTestCase(_tempdirTestCase):
 
             try:
                 dir = fs.Dir(sep.join(['d1', 'f1']))
-            except TypeError, x:
+            except TypeError as x:
                 assert str(x) == ("Tried to lookup File '%s' as a Dir." %
                                   d1_f1), x
             except:
@@ -1100,7 +1100,7 @@ class FSTestCase(_tempdirTestCase):
 
             try:
                 f2 = fs.File('d1')
-            except TypeError, x:
+            except TypeError as x:
                 assert str(x) == ("Tried to lookup Dir '%s' as a File." %
                                   'd1'), x
             except:
@@ -1298,7 +1298,7 @@ class FSTestCase(_tempdirTestCase):
         # get_contents() returns the binary contents.
         test.write("binary_file", "Foo\x1aBar")
         f1 = fs.File(test.workpath("binary_file"))
-        assert f1.get_contents() == "Foo\x1aBar", f1.get_contents()
+        assert f1.get_contents() == bytearray("Foo\x1aBar",'utf-8'), f1.get_contents()
 
         # This tests to make sure we can decode UTF-8 text files.
         test_string = u"Foo\x1aBar"
@@ -1367,7 +1367,7 @@ class FSTestCase(_tempdirTestCase):
         try:
             e = fs.Entry('file')
             c = e.get_contents()
-            assert c == "file\n", c
+            assert c == bytearray("file\n",'utf-8'), c
             assert e.__class__ == SCons.Node.FS.File
         finally:
             test.unlink("file")
@@ -1399,7 +1399,7 @@ class FSTestCase(_tempdirTestCase):
         except SyntaxError:
             assert c == ""
 
-        if hasattr(os, 'symlink'):
+        if sys.platform != 'win32' and hasattr(os, 'symlink'):
             os.symlink('nonexistent', test.workpath('dangling_symlink'))
             e = fs.Entry('dangling_symlink')
             c = e.get_contents()
@@ -1494,16 +1494,14 @@ class FSTestCase(_tempdirTestCase):
         assert r, r
         assert not os.path.exists(test.workpath('exists')), "exists was not removed"
 
-        symlink = test.workpath('symlink')
-        try:
+        if sys.platform != 'win32' and hasattr(os, 'symlink'):
+            symlink = test.workpath('symlink')
             os.symlink(test.workpath('does_not_exist'), symlink)
             assert os.path.islink(symlink)
             f = fs.File('symlink')
             r = f.remove()
             assert r, r
             assert not os.path.islink(symlink), "symlink was not removed"
-        except AttributeError:
-            pass
 
         test.write('can_not_remove', "can_not_remove\n")
         test.writable(test.workpath('.'), 0)
@@ -1641,7 +1639,7 @@ class FSTestCase(_tempdirTestCase):
 
         def unc_workpath(dirs, test=test):
             import ntpath
-            x = apply(test.workpath, dirs)
+            x = test.workpath(*dirs)
             drive, path = ntpath.splitdrive(x)
             unc, path = ntpath.splitunc(path)
             path = strip_slash(path)
@@ -1907,9 +1905,9 @@ class FSTestCase(_tempdirTestCase):
             del cases[:3]
             result = dir.rel_path(other)
             if result != expect:
-                if failed == 0: print
+                if failed == 0: print()
                 fmt = "    dir_path(%(dir)s, %(other)s) => '%(result)s' did not match '%(expect)s'"
-                print fmt % locals()
+                print(fmt % locals())
                 failed = failed + 1
         assert failed == 0, "%d rel_path() cases failed" % failed
 
@@ -2546,9 +2544,9 @@ class GlobTestCase(_tempdirTestCase):
                 fmt = lambda n: n
             if r != result:
                 import pprint
-                print "Glob(%s) expected:" % repr(input)
+                print("Glob(%s) expected:" % repr(input))
                 pprint.pprint(list(map(fmt, result)))
-                print "Glob(%s) got:" % repr(input)
+                print("Glob(%s) got:" % repr(input))
                 pprint.pprint(list(map(fmt, r)))
                 self.fail()
 
@@ -3099,7 +3097,7 @@ class RepositoryTestCase(_tempdirTestCase):
         test.write(["rep3", "contents"], "Con\x1aTents\n")
         try:
             c = fs.File("contents").get_contents()
-            assert c == "Con\x1aTents\n", "got '%s'" % c
+            assert c == bytearray("Con\x1aTents\n",'utf-8'), "got '%s'" % c
         finally:
             test.unlink(["rep3", "contents"])
 
@@ -3271,18 +3269,11 @@ class has_src_builderTestCase(unittest.TestCase):
         fs = SCons.Node.FS.FS(test.workpath(''))
         os.chdir(test.workpath(''))
         test.subdir('sub1')
-        test.subdir('sub2', ['sub2', 'SCCS'], ['sub2', 'RCS'])
 
         sub1 = fs.Dir('sub1', '.')
         f1 = fs.File('f1', sub1)
         f2 = fs.File('f2', sub1)
         f3 = fs.File('f3', sub1)
-        sub2 = fs.Dir('sub2', '.')
-        f4 = fs.File('f4', sub2)
-        f5 = fs.File('f5', sub2)
-        f6 = fs.File('f6', sub2)
-        f7 = fs.File('f7', sub2)
-        f8 = fs.File('f8', sub2)
 
         h = f1.has_src_builder()
         assert not h, h
@@ -3306,32 +3297,6 @@ class has_src_builderTestCase(unittest.TestCase):
         h = f3.has_builder()
         assert h, h
         assert f3.builder is b1, f3.builder
-
-        f7.set_src_builder(b1)
-        f8.builder_set(b1)
-
-        test.write(['sub2', 'SCCS', 's.f5'], "sub2/SCCS/s.f5\n")
-        test.write(['sub2', 'RCS', 'f6,v'], "sub2/RCS/f6,v\n")
-        h = f4.has_src_builder()
-        assert not h, h
-        h = f4.has_builder()
-        assert not h, h
-        h = f5.has_src_builder()
-        assert h, h
-        h = f5.has_builder()
-        assert h, h
-        h = f6.has_src_builder()
-        assert h, h
-        h = f6.has_builder()
-        assert h, h
-        h = f7.has_src_builder()
-        assert h, h
-        h = f7.has_builder()
-        assert h, h
-        h = f8.has_src_builder()
-        assert not h, h
-        h = f8.has_builder()
-        assert h, h
 
 class prepareTestCase(unittest.TestCase):
     def runTest(self):
@@ -3663,7 +3628,7 @@ class SpecialAttrTestCase(unittest.TestCase):
         caught = None
         try:
             fs.Dir('ddd').get_subst_proxy().no_such_attr
-        except AttributeError, e:
+        except AttributeError as e:
             assert str(e) == "Dir instance 'ddd' has no attribute 'no_such_attr'", e
             caught = 1
         assert caught, "did not catch expected AttributeError"
@@ -3671,7 +3636,7 @@ class SpecialAttrTestCase(unittest.TestCase):
         caught = None
         try:
             fs.Entry('eee').get_subst_proxy().no_such_attr
-        except AttributeError, e:
+        except AttributeError as e:
             # Gets disambiguated to File instance by get_subst_proxy().
             assert str(e) == "File instance 'eee' has no attribute 'no_such_attr'", e
             caught = 1
@@ -3680,7 +3645,7 @@ class SpecialAttrTestCase(unittest.TestCase):
         caught = None
         try:
             fs.File('fff').get_subst_proxy().no_such_attr
-        except AttributeError, e:
+        except AttributeError as e:
             assert str(e) == "File instance 'fff' has no attribute 'no_such_attr'", e
             caught = 1
         assert caught, "did not catch expected AttributeError"

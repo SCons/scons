@@ -24,6 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -31,30 +32,10 @@ _obj   = TestSCons._shobj
 obj_   = TestSCons.shobj_
 
 test = TestSCons.TestSCons()
-
-
-
-test.write('myfortran.py', r"""
-import getopt
-import sys
-opts, args = getopt.getopt(sys.argv[1:], 'cf:K:o:x')
-optstring = ''
-for opt, arg in opts:
-    if opt == '-o': out = arg
-    elif opt not in ('-f', '-K'): optstring = optstring + ' ' + opt
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
-outfile.write(optstring + "\n")
-for l in infile.readlines():
-    if l[:8] != '#fortran':
-        outfile.write(l)
-sys.exit(0)
-""")
-
-
+test.file_fixture(os.path.join('fixture', 'myfortran_flags.py'))
 
 test.write('SConstruct', """
-env = Environment(SHFORTRAN = r'%(_python_)s myfortran.py')
+env = Environment(SHFORTRAN = r'%(_python_)s myfortran_flags.py fortran')
 env.Append(SHFORTRANFLAGS = '-x')
 env.SharedObject(target = 'test01', source = 'test01.f')
 env.SharedObject(target = 'test02', source = 'test02.F')
@@ -91,18 +72,16 @@ fortran = test.detect_tool(fc)
 
 if fortran:
 
-    test.write("wrapper.py",
-"""import os
-import sys
-open('%s', 'wb').write("wrapper.py\\n")
-os.system(" ".join(sys.argv[1:]))
-""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
+    directory = 'x'
+    test.subdir(directory)
+
+    test.file_fixture('wrapper.py')
 
     test.write('SConstruct', """
 foo = Environment(SHFORTRAN = '%(fc)s')
 shfortran = foo.Dictionary('SHFORTRAN')
 bar = foo.Clone(SHFORTRAN = r'%(_python_)s wrapper.py ' + shfortran)
-bar.Append(SHFORTRANFLAGS = '-Ix')
+bar.Append(SHFORTRANFLAGS = '-I%(directory)s')
 foo.SharedLibrary(target = 'foo/foo', source = 'foo.f')
 bar.SharedLibrary(target = 'bar/bar', source = 'bar.f')
 """ % locals())

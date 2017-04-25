@@ -52,10 +52,10 @@ SConscript('SConscript')
 test.write(['src', 'SConscript'], """\
 def cat(env, source, target):
     target = str(target[0])
-    open('cat.out', 'ab').write(target + "\\n")
-    f = open(target, "wb")
+    open('cat.out', 'a').write(target + "\\n")
+    f = open(target, "w")
     for src in source:
-        f.write(open(str(src), "rb").read())
+        f.write(open(str(src), "r").read())
     f.close()
 env = Environment(BUILDERS={'Cat':Builder(action=cat)})
 env.Cat('aaa.out', 'aaa.in')
@@ -89,8 +89,8 @@ test.fail_test(os.listdir(cache) != ['config'])
 # This should populate the cache with our derived files.
 test.run(chdir = 'src', arguments = '.')
 
-test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n")
-test.must_match(['src', 'cat.out'], "aaa.out\nbbb.out\nccc.out\nall\n")
+test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n", mode='r')
+test.must_match(['src', 'cat.out'], "aaa.out\nbbb.out\nccc.out\nall\n", mode='r')
 
 test.up_to_date(chdir = 'src', arguments = '.')
 
@@ -130,7 +130,7 @@ test.must_not_exist(src_all)
 # even though it doesn't report anything.
 test.run(chdir = 'src', arguments = '-s .', stdout = "")
 
-test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n")
+test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n", mode='r')
 test.must_not_exist(src_cat_out)
 
 test.up_to_date(chdir = 'src', arguments = '.')
@@ -148,8 +148,8 @@ Retrieved `ccc.out' from cache
 cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
 """))
 
-test.must_match(['src', 'all'], "aaa.in\nbbb.in 2\nccc.in\n")
-test.must_match(['src', 'cat.out'], "bbb.out\nall\n")
+test.must_match(['src', 'all'], "aaa.in\nbbb.in 2\nccc.in\n", mode='r')
+test.must_match(['src', 'cat.out'], "bbb.out\nall\n", mode='r')
 
 test.up_to_date(chdir = 'src', arguments = '.')
 

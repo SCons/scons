@@ -47,7 +47,7 @@ import SCons.Util
 import SCons.Warnings
 import SCons.Scanner.RC
 
-from MSCommon import msvc_exists, msvc_setup_env_once
+from .MSCommon import msvc_exists, msvc_setup_env_once, msvc_version_to_maj_min
 
 CSuffixes = ['.c', '.C']
 CXXSuffixes = ['.cc', '.cpp', '.cxx', '.c++', '.C++']
@@ -59,6 +59,21 @@ def validate_vars(env):
             raise SCons.Errors.UserError("The PCHSTOP construction must be defined if PCH is defined.")
         if not SCons.Util.is_String(env['PCHSTOP']):
             raise SCons.Errors.UserError("The PCHSTOP construction variable must be a string: %r"%env['PCHSTOP'])
+
+def msvc_set_PCHPDBFLAGS(env):
+    """
+    Set appropriate PCHPDBFLAGS for the MSVC version being used.
+    """
+    if env.get('MSVC_VERSION',False):
+        maj, min = msvc_version_to_maj_min(env['MSVC_VERSION'])
+        if maj < 8:
+            env['PCHPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Yd") or ""}'])
+        else:
+            env['PCHPDBFLAGS'] = ''
+    else:
+        # Default if we can't determine which version of MSVC we're using
+        env['PCHPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Yd") or ""}'])
+
 
 def pch_emitter(target, source, env):
     """Adds the object file target."""
@@ -259,7 +274,9 @@ def generate(env):
     env['CFILESUFFIX'] = '.c'
     env['CXXFILESUFFIX'] = '.cc'
 
-    env['PCHPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Yd") or ""}'])
+    msvc_set_PCHPDBFLAGS(env)
+
+
     env['PCHCOM'] = '$CXX /Fo${TARGETS[1]} $CXXFLAGS $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Yc$PCHSTOP /Fp${TARGETS[0]} $CCPDBFLAGS $PCHPDBFLAGS'
     env['BUILDERS']['PCH'] = pch_builder
 

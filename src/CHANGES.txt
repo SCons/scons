@@ -4,6 +4,91 @@
 
                             Change Log
 
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From John Doe:
+
+    - Whatever John Doe did.
+
+
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From Daniel Moody:
+    - Updated the QMTest/TestCmd.py so when using the 
+      preserve option, it will be able to print unicode directories.
+    - Also updated test/scons-time/run/option/verbose.py that was
+      not taking into account the output when PRESERVE was enabled
+    
+  From Gaurav Juvekar:
+    - Fix issue #2910: Make --tree=all handle Unicode. (PR #427)
+    - Fix issue #2788: Fix typo in documentation example for sconf. (PR #388)
+
+  From Manish Vachharajani:
+    - Update debian rules, compat, and control to not use features
+      deprecated or obsolete in later versions of debhelpers
+    - Update python version to 2.7 in debian/control
+
+  From Russel Winder:
+    - Reordered the default D tools from "dmd, gdc, ldc" to "dmd, ldc, gdc".
+
+  From William Blevins:
+    - Updated D language scanner support to latest: 2.071.1. (PR #1924)
+      https://dlang.org/spec/module.html accessed 11 August 2016
+      - Enhancements:
+        - Added support for selective imports: "import A : B, C;" -> A
+        - Added support for renamed imports. "import B = A;" -> A
+        - Supports valid combinations: "import A, B, CCC = C, DDD = D : EEE = FFF;" -> A, B, C, D
+      - Notes:
+        - May find new (previously missed) Dlang dependencies.
+        - May cause rebuild after upgrade due to dependency changes.
+    - Updated Fortran-related tests to pass under GCC 5/6.
+    - Fixed SCons.Tool.Packaging.rpm.package source nondeterminism across builds.
+
+  From William Deegan:
+    - Removed deprecated tools CVS, Perforce, BitKeeper, RCS, SCCS, Subversion.
+    - Removed deprecated module SCons.Sig
+    - Added prioritized list of xsltproc tools to docbook. The order will now be as
+      follows: xsltproc, saxon, saxon-xslt, xalan  (with first being highest priority, first
+      tool found is used)
+    - Fixed MSVSProject example code (http://scons.tigris.org/issues/show_bug.cgi?id=2979)
+
+  From Daniel Moody:
+    - Fixed msvs.py for Visual Studio generated projects which were
+      creating invalid xml for greater than and less than symbols.
+
+  From Daniel Holth:
+    - Add basic support for PyPy (by deleting __slots__ from Node with a
+      metaclass on PyPy); wrap most-used open() calls in 'with' statements to
+      avoid too many open files.
+    - Add __main__.py for `python -m SCons` in case it is on PYTHONPATH.
+    - Always use highest available pickle protocol for efficiency.
+
+  From Alexey Klimkin:
+    - Use memoization to optimize PATH evaluation across all dependencies per
+      node. (PR #345)
+
+  From M. Limber:
+    - Fixed msvs.py for Visual Studio Express editions that would report
+      "Error  : ValueError: invalid literal for float(): 10.0Exp".
+
+
+  From Paweł Tomulik:
+    - Fixed the issue with LDMODULEVERSIONFLAGS reported by Tim Jennes
+      (https://pairlist4.pair.net/pipermail/scons-users/2016-May/004893.html).
+      An error was causing “-Wl,Bsymbolic” being added to linker's command-line
+      even when there was no specified value in LDMODULEVERSION and thus no
+      need for the flags to be specified.
+    - Added LoadableModule to the list of global functions (DefaultEnvironment
+      builders).
+
+  From Rick Lupton:
+    - Update LaTeX scanner to understand \import and related commands
+
+  From Richard Viney:
+    - Fixed PCHPDBFLAGS causing a deprecation warning on MSVC v8 and later when
+      using PCHs and PDBs together.
+
+
 RELEASE 2.5.1 - Mon, 03 Nov 2016 13:37:42 -0400
 
   From William Deegan:
@@ -12,7 +97,6 @@ RELEASE 2.5.1 - Mon, 03 Nov 2016 13:37:42 -0400
   From Alexey Klimkin:
     - Use memoization to optimize PATH evaluation across all dependencies per
       node. (PR #345)
-
 
 RELEASE 2.5.0 - Mon, 09 Apr 2016 11:27:42 -0700
 
@@ -88,7 +172,7 @@ RELEASE 2.4.1 - Mon, 07 Nov 2015 10:37:21 -0700
       and continuing.
 
   From Hiroaki Itoh :
-    - Add support `Microsoft Visual C++ Compiler for Python 2.7' 
+    - Add support `Microsoft Visual C++ Compiler for Python 2.7'
       Compiler can be obtained at: https://www.microsoft.com/en-us/download/details.aspx?id=44266
 
   From Florian Miedniak:
@@ -215,6 +299,9 @@ RELEASE 2.3.3 - Sun, 24 Aug 2014 21:08:33 -0400
   From Russel Winder:
     - Fix regression on Windows in D language update
 
+  From Neal Becker and Stefan Zimmermann:
+    - Python 3 port and compatibility
+
   From Anatoly Techtonik:
     - Do not fail on EnsureSConsVersion when running from checkout
 
@@ -255,6 +342,7 @@ RELEASE 2.3.2
   From Paweł Tomulik:
     - Fix SConf tests that write output
 
+>>>>>>> other
   From Gary Oberbrunner:
     - get default RPM architecture more robustly when building RPMs
 

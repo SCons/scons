@@ -8,6 +8,8 @@ selection method.
 
 """
 
+from __future__ import absolute_import
+
 #
 # __COPYRIGHT__
 #
@@ -36,7 +38,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.Defaults
 import SCons.Tool
 import SCons.Util
-import fortran
+from . import fortran
 from SCons.Tool.FortranCommon import add_all_to_env, add_f08_to_env
 
 compilers = ['f08']

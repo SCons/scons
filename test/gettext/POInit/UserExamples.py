@@ -79,8 +79,8 @@ test.write(['ex1', 'messages.pot'], pot_contents)
 test.run(arguments = 'po-create', chdir = 'ex1', stderr = None)
 test.must_exist(    ['ex1', 'en.po'] )
 test.must_exist(    ['ex1', 'pl.po'] )
-test.must_contain(  ['ex1', 'en.po'], "Hello from a.cpp")
-test.must_contain(  ['ex1', 'pl.po'], "Hello from a.cpp")
+test.must_contain(  ['ex1', 'en.po'], "Hello from a.cpp", mode='r')
+test.must_contain(  ['ex1', 'pl.po'], "Hello from a.cpp", mode='r')
 
 
 ###############################################################################
@@ -102,8 +102,8 @@ test.write(['ex2', 'foo.pot'], pot_contents)
 test.run(arguments = 'po-create', chdir = 'ex2', stderr = None)
 test.must_exist(    ['ex2', 'en.po'] )
 test.must_exist(    ['ex2', 'pl.po'] )
-test.must_contain(  ['ex2', 'en.po'], "Hello from a.cpp" )
-test.must_contain(  ['ex2', 'pl.po'], "Hello from a.cpp" )
+test.must_contain(  ['ex2', 'en.po'], "Hello from a.cpp", mode='r' )
+test.must_contain(  ['ex2', 'pl.po'], "Hello from a.cpp", mode='r' )
 
 ###############################################################################
 # POInit: Example 3
@@ -124,8 +124,8 @@ test.write(['ex3', 'foo.pot'], pot_contents)
 test.run(arguments = 'po-create', chdir = 'ex3', stderr = None)
 test.must_exist(    ['ex3', 'en.po'] )
 test.must_exist(    ['ex3', 'pl.po'] )
-test.must_contain(  ['ex3', 'en.po'], "Hello from a.cpp")
-test.must_contain(  ['ex3', 'pl.po'], "Hello from a.cpp")
+test.must_contain(  ['ex3', 'en.po'], "Hello from a.cpp", mode='r')
+test.must_contain(  ['ex3', 'pl.po'], "Hello from a.cpp", mode='r')
 
 ###############################################################################
 # POInit: Example 4
@@ -150,8 +150,8 @@ test.write(['ex4', 'messages.pot'], pot_contents)
 test.run(arguments = 'po-create', chdir = 'ex4', stderr = None)
 test.must_exist(    ['ex4', 'en.po'] )
 test.must_exist(    ['ex4', 'pl.po'] )
-test.must_contain(  ['ex4', 'en.po'], "Hello from a.cpp")
-test.must_contain(  ['ex4', 'pl.po'], "Hello from a.cpp")
+test.must_contain(  ['ex4', 'en.po'], "Hello from a.cpp", mode='r')
+test.must_contain(  ['ex4', 'pl.po'], "Hello from a.cpp", mode='r')
 
 ###############################################################################
 # POInit: Example 5
@@ -178,10 +178,10 @@ test.must_exist(    ['ex5', 'en.po'] )
 test.must_exist(    ['ex5', 'pl.po'] )
 test.must_exist(    ['ex5', 'de.po'] )
 test.must_exist(    ['ex5', 'fr.po'] )
-test.must_contain(  ['ex5', 'en.po'], "Hello from a.cpp")
-test.must_contain(  ['ex5', 'pl.po'], "Hello from a.cpp")
-test.must_contain(  ['ex5', 'de.po'], "Hello from a.cpp")
-test.must_contain(  ['ex5', 'fr.po'], "Hello from a.cpp")
+test.must_contain(  ['ex5', 'en.po'], "Hello from a.cpp", mode='r')
+test.must_contain(  ['ex5', 'pl.po'], "Hello from a.cpp", mode='r')
+test.must_contain(  ['ex5', 'de.po'], "Hello from a.cpp", mode='r')
+test.must_contain(  ['ex5', 'fr.po'], "Hello from a.cpp", mode='r')
 
 ###############################################################################
 # POInit: Example 6
@@ -208,8 +208,8 @@ test.write(['ex6', 'foo.pot'], pot_contents)
 test.run(arguments = 'po-create', chdir = 'ex6', stderr = None)
 test.must_exist(    ['ex6', 'en.po'] )
 test.must_exist(    ['ex6', 'pl.po'] )
-test.must_contain(  ['ex6', 'en.po'], "Hello from a.cpp")
-test.must_contain(  ['ex6', 'pl.po'], "Hello from a.cpp")
+test.must_contain(  ['ex6', 'en.po'], "Hello from a.cpp", mode='r')
+test.must_contain(  ['ex6', 'pl.po'], "Hello from a.cpp", mode='r')
 
 test.pass_test()
 

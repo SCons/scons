@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -93,11 +94,11 @@ test.run_sconsign('-d .sconf_temp -e conftest_0.c --raw .sconsign.dblite')
 new_sconsign_dblite = test.stdout()
 
 if old_sconsign_dblite != new_sconsign_dblite:
-    print ".sconsign.dblite did not match:"
-    print "FIRST RUN =========="
-    print old_sconsign_dblite
-    print "SECOND RUN =========="
-    print new_sconsign_dblite
+    print(".sconsign.dblite did not match:")
+    print("FIRST RUN ==========")
+    print(old_sconsign_dblite)
+    print("SECOND RUN ==========")
+    print(new_sconsign_dblite)
     test.fail_test()
 
 test.pass_test()

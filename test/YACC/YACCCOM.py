@@ -34,34 +34,22 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('myyacc.py', """
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != '/*yacc*/\\n']:
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
 env = Environment(tools=['default', 'yacc'],
-                  YACCCOM = r'%(_python_)s myyacc.py $TARGET $SOURCES')
+                  YACCCOM = r'%(_python_)s mycompile.py yacc $TARGET $SOURCES')
 env.CFile(target = 'aaa', source = 'aaa.y')
 env.CFile(target = 'bbb', source = 'bbb.yacc')
 """ % locals())
 
-test.write('aaa.y', "aaa.y\n/*yacc*/\n")
-test.write('bbb.yacc', "bbb.yacc\n/*yacc*/\n")
+test.write('aaa.y', 'aaa.y\n/*yacc*/\n')
+test.write('bbb.yacc', 'bbb.yacc\n/*yacc*/\n')
 
 test.run(arguments = '.')
 
 test.must_match('aaa.c', "aaa.y\n")
 test.must_match('bbb.c', "bbb.yacc\n")
-
-
 
 test.pass_test()
 

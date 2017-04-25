@@ -32,10 +32,10 @@ test = TestSCons.TestSCons()
 # Make sure CFLAGS is not passed to CXX by just expanding CXXCOM
 test.write('SConstruct', """
 env = Environment(CFLAGS='-xyz', CCFLAGS='-abc')
-print env.subst('$CXXCOM')
-print env.subst('$CXXCOMSTR')
-print env.subst('$SHCXXCOM')
-print env.subst('$SHCXXCOMSTR')
+print(env.subst('$CXXCOM'))
+print(env.subst('$CXXCOMSTR'))
+print(env.subst('$SHCXXCOM'))
+print(env.subst('$SHCXXCOMSTR'))
 """)
 test.run(arguments = '.')
 test.must_not_contain_any_line(test.stdout(), ["-xyz"])
@@ -46,7 +46,7 @@ _obj = TestSCons._obj
 # Test passing CFLAGS to C compiler by actually compiling programs
 if sys.platform == 'win32':
     import SCons.Tool.MSCommon as msc
-    
+
     if not msc.msvc_exists():
         fooflags = '-DFOO'
         barflags = '-DBAR'

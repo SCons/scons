@@ -33,7 +33,7 @@ test = TestSCons.TestSCons()
 test.write('build.py', r"""
 import sys
 file = open(sys.argv[1], 'wb')
-file.write(sys.argv[2] + "\n")
+file.write((sys.argv[2] + "\n").encode())
 file.write(open(sys.argv[3], 'rb').read())
 file.close
 sys.exit(0)
@@ -49,7 +49,7 @@ test.write('foo.in', "foo.in\n")
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('foo.out') != "1\nfoo.in\n")
+test.must_match('foo.out', '1\nfoo.in\n')
 
 test.up_to_date(arguments = '.')
 
@@ -61,7 +61,7 @@ env.B(target = 'foo.out', source = 'foo.in')
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('foo.out') != "2\nfoo.in\n")
+test.must_match('foo.out', '2\nfoo.in\n')
 
 test.up_to_date(arguments = '.')
 
@@ -70,7 +70,7 @@ import os
 def func(env, target, source):
     cmd = r'%(_python_)s build.py %%s 3 %%s' %% (' '.join(map(str, target)),
                                        ' '.join(map(str, source)))
-    print cmd
+    print(cmd)
     return os.system(cmd)
 B = Builder(action = func)
 env = Environment(BUILDERS = { 'B' : B })
@@ -79,7 +79,7 @@ env.B(target = 'foo.out', source = 'foo.in')
 
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read('foo.out') != "3\nfoo.in\n")
+test.must_match('foo.out', '3\nfoo.in\n')
 
 test.up_to_date(arguments = '.')
 
@@ -91,7 +91,7 @@ class bld(object):
         self.cmd = r'%(_python_)s build.py %%s 4 %%s'
     def __call__(self, env, target, source):
         cmd = self.get_contents(env, target, source)
-        print cmd
+        print(cmd)
         return os.system(cmd)
     def get_contents(self, env, target, source):
         return self.cmd %% (' '.join(map(str, target)),
@@ -103,7 +103,7 @@ env.B(target = 'foo.out', source = 'foo.in')
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('foo.out') != "4\nfoo.in\n")
+test.must_match('foo.out', '4\nfoo.in\n')
 
 test.up_to_date(arguments = '.')
 
@@ -114,9 +114,9 @@ def func(env, target, source):
 env = Environment(S = Action('foo'),
                   F = Action(func),
                   L = Action(['arg1', 'arg2']))
-print env.subst('$S')
-print env.subst('$F')
-print env.subst('$L')
+print(env.subst('$S'))
+print(env.subst('$F'))
+print(env.subst('$L'))
 """)
 
 test.run(arguments = '-Q .', stdout = """\

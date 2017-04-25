@@ -55,7 +55,7 @@ c2 = env.Alias('clean2', [], [Delete('clean2-t1'), Delete('clean2-t2')])
 env.AlwaysBuild(c2)
 
 def dir_build(target, source, env):
-    open('dir_build.txt', 'ab').write('dir_build()\\n')
+    open('dir_build.txt', 'ab').write(b'dir_build()\\n')
 env.Command(Dir('dir'), None, dir_build)
 env.AlwaysBuild('dir')
 """ % locals())

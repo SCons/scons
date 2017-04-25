@@ -32,12 +32,7 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.write("wrapper.py",
-"""import os
-import sys
-open('%s', 'wb').write("wrapper.py\\n")
-os.system(" ".join(sys.argv[1:]))
-""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
+test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
 foo = Environment()
@@ -78,7 +73,8 @@ test.fail_test(os.path.exists(test.workpath('wrapper.out')))
 
 test.run(arguments = 'bar')
 
-test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
+test.must_match('wrapper.out', "wrapper.py\n", mode='r')
+# test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
 
 test.pass_test()
 

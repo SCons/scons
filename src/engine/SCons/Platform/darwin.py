@@ -32,7 +32,7 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import posix
+from . import posix
 import os
 
 def generate(env):
@@ -62,6 +62,10 @@ def generate(env):
                 if line:
                     env.AppendENVPath('PATHOSX', line.strip('\n'))
             f.close()
+
+    # Not sure why this wasn't the case all along?
+    if env['ENV'].get('PATHOSX', False) and os.environ.get('SCONS_USE_MAC_PATHS', False):
+        env.AppendENVPath('PATH',env['ENV']['PATHOSX'])
 
 # Local Variables:
 # tab-width:4

@@ -72,15 +72,15 @@ def toto(header='%(header)s', trailer='%(trailer)s'):
         def foo(b=b):
             return %(nestedfuncexp)s
         f = open(str(target[0]),'wb')
-        f.write(header)
+        f.write(bytearray(header,'utf-8'))
         for d in env['ENVDEPS']:
-            f.write(d+'%(separator)s')
-        f.write(trailer+'\\n')
-        f.write(str(foo())+'\\n')
-        f.write(r.match('aaaa').group(1)+'\\n')
+            f.write(bytearray(d+'%(separator)s','utf-8'))
+        f.write(bytearray(trailer+'\\n','utf-8'))
+        f.write(bytearray(str(foo())+'\\n','utf-8'))
+        f.write(bytearray(r.match('aaaa').group(1)+'\\n','utf-8'))
         %(extracode)s
         try:
-           f.write(str(xarg)+'\\n')
+           f.write(bytearray(str(xarg),'utf-8')+b'\\n')
         except NameError:
            pass
         f.close()
@@ -88,43 +88,7 @@ def toto(header='%(header)s', trailer='%(trailer)s'):
     return writeDeps
 '''
 
-NoClosure = \
-r'''
-def toto(header='%(header)s', trailer='%(trailer)s'):
-    xxx = %(closure_cell_value)s
-    def writeDeps(target, source, env, b=%(b)s, r=r %(extraarg)s ,
-                  header=header, trailer=trailer, xxx=xxx):
-        """+'"""%(docstring)s"""'+"""
-        def foo(b=b, xxx=xxx):
-            return %(nestedfuncexp)s
-        f = open(str(target[0]),'wb')
-        f.write(header)
-        for d in env['ENVDEPS']:
-            f.write(d+'%(separator)s')
-        f.write(trailer+'\\n')
-        f.write(str(foo())+'\\n')
-        f.write(r.match('aaaa').group(1)+'\\n')
-        %(extracode)s
-        try:
-           f.write(str(xarg)+'\\n')
-        except NameError:
-           pass
-        f.close()
-
-    return writeDeps
-'''
-
-try:
-    # Check that lexical closure are supported
-    def a():
-        x = 0
-        def b():
-            return x
-        return b
-    a().func_closure[0].cell_contents
-    exec( withClosure % optEnv )
-except (AttributeError, TypeError):
-    exec( NoClosure % optEnv )
+exec( withClosure % optEnv )
 
 genHeaderBld = SCons.Builder.Builder(
     action = SCons.Action.Action(
@@ -135,7 +99,8 @@ genHeaderBld = SCons.Builder.Builder(
     suffix = '.gen.h'
     )
 
-env = Environment()
+DefaultEnvironment(tools=[])
+env = Environment(tools=[])
 env.Append(BUILDERS = {'GenHeader' : genHeaderBld})
 
 envdeps = list(map(str, range(int(optEnv['NbDeps']))))
@@ -164,13 +129,18 @@ def runtest(arguments, expectedOutFile, expectedRebuild=True, stderr=""):
     test.run(arguments=arguments,
              stdout=expectedRebuild and rebuildstr or nobuildstr,
              stderr="")
-    test.must_match('Out.gen.h', expectedOutFile)
+
+    sys.stdout.write('First Build.\n')
+
+    test.must_match('Out.gen.h', expectedOutFile, message="First Build")
 
     # Should not be rebuild when run a second time with the same
     # arguments.
 
+    sys.stdout.write('Rebuild.\n')
+
     test.run(arguments = arguments, stdout=nobuildstr, stderr="")
-    test.must_match('Out.gen.h', expectedOutFile)
+    test.must_match('Out.gen.h', expectedOutFile, message="Should not rebuild")
 
 
 # We're making this script chatty to prevent timeouts on really really
@@ -190,7 +160,7 @@ runtest('NbDeps=4', """Head:0:1:2:3:Tail\n18\naaa\n""")
 runtest('', """Head:0:1:Tail\n18\naaa\n""")
 
 sys.stdout.write('Changing the function code should cause a rebuild.\n')
-runtest('extracode=f.write("XX\\n")', """Head:0:1:Tail\n18\naaa\nXX\n""")
+runtest('extracode=f.write(bytearray("XX\\n","utf-8"))', """Head:0:1:Tail\n18\naaa\nXX\n""")
 runtest('extracode=a=2', """Head:0:1:Tail\n18\naaa\n""")
 runtest('', """Head:0:1:Tail\n18\naaa\n""")
 

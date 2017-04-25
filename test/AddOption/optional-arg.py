@@ -43,7 +43,7 @@ AddOption('--install',
           type='string',
           metavar='DIR',
           help='installation directory')
-print GetOption('install')
+print(GetOption('install'))
 """)
 
 test.run('-Q -q',

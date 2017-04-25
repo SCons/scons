@@ -19,6 +19,8 @@ be able to depend on any other type of "thing."
 
 """
 
+from __future__ import print_function
+
 #
 # __COPYRIGHT__
 #
@@ -54,6 +56,8 @@ import SCons.Memoize
 import SCons.Util
 
 from SCons.Debug import Trace
+
+from SCons.compat import with_metaclass, NoSlotsPyPy
 
 print_duplicate = 0
 
@@ -151,7 +155,7 @@ def exists_file(node):
                     # The source file does not exist.  Make sure no old
                     # copy remains in the variant directory.
                     if print_duplicate:
-                        print "dup: no src for %s, unlinking old variant copy"%self
+                        print("dup: no src for %s, unlinking old variant copy"%self)
                     if exists_base(node) or node.islink():
                         node.fs.unlink(node.get_internal_path())
                     # Return None explicitly because the Base.exists() call
@@ -205,13 +209,14 @@ def get_contents_dir(node):
         contents.append('%s %s\n' % (n.get_csig(), n.name))
     return ''.join(contents)
 
-def get_contents_file(node):    
+def get_contents_file(node):
     if not node.rexists():
         return ''
     fname = node.rfile().get_abspath()
     try:
-        contents = open(fname, "rb").read()
-    except EnvironmentError, e:
+        with open(fname, "rb") as fp:
+            contents = fp.read()
+    except EnvironmentError as e:
         if not e.filename:
             e.filename = fname
         raise
@@ -345,6 +350,7 @@ class NodeInfoBase(object):
     """
     __slots__ = ('__weakref__',)
     current_version_id = 2
+
     def update(self, node):
         try:
             field_list = self.field_list
@@ -361,8 +367,10 @@ class NodeInfoBase(object):
                 pass
             else:
                 setattr(self, f, func())
+
     def convert(self, node, val):
         pass
+
     def merge(self, other):
         """
         Merge the fields of another object into this object. Already existing
@@ -377,7 +385,7 @@ class NodeInfoBase(object):
             try:
                 field_list = self.field_list
             except AttributeError:
-                field_list = getattr(self, '__dict__', {}).keys()
+                field_list = list(getattr(self, '__dict__', {}).keys())
                 for obj in type(self).mro():
                     for slot in getattr(obj, '__slots__', ()):
                         if slot not in ('__weakref__', '__dict__'):
@@ -407,21 +415,21 @@ class NodeInfoBase(object):
             for name in getattr(obj,'__slots__',()):
                 if hasattr(self, name):
                     state[name] = getattr(self, name)
-    
+
         state['_version_id'] = self.current_version_id
         try:
             del state['__weakref__']
         except KeyError:
             pass
         return state
-    
+
     def __setstate__(self, state):
         """
         Restore the attributes from a pickled state. The version is discarded.
         """
         # TODO check or discard version
         del state['_version_id']
-    
+
         for key, value in state.items():
             if key not in ('__weakref__',):
                 setattr(self, key, value)
@@ -440,6 +448,7 @@ class BuildInfoBase(object):
     __slots__ = ("bsourcesigs", "bdependsigs", "bimplicitsigs", "bactsig",
                  "bsources", "bdepends", "bact", "bimplicit", "__weakref__")
     current_version_id = 2
+
     def __init__(self):
         # Create an object attribute from the class attribute so it ends up
         # in the pickled data in the .sconsign file.
@@ -447,6 +456,7 @@ class BuildInfoBase(object):
         self.bdependsigs = []
         self.bimplicitsigs = []
         self.bactsig = None
+
     def merge(self, other):
         """
         Merge the fields of another object into this object. Already existing
@@ -456,7 +466,7 @@ class BuildInfoBase(object):
         """
         state = other.__getstate__()
         self.__setstate__(state)
- 
+
     def __getstate__(self):
         """
         Return all fields that shall be pickled. Walk the slots in the class
@@ -487,7 +497,8 @@ class BuildInfoBase(object):
             if key not in ('__weakref__',):
                 setattr(self, key, value)
 
-class Node(object):
+
+class Node(object, with_metaclass(NoSlotsPyPy)):
     """The base Node class, for entities that we know how to
     build, or use to build other Nodes.
     """
@@ -536,7 +547,7 @@ class Node(object):
 
     class Attrs(object):
         __slots__ = ('shared', '__dict__')
- 
+
 
     def __init__(self):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.Node')
@@ -588,7 +599,7 @@ class Node(object):
         self._func_rexists = 1
         self._func_get_contents = 0
         self._func_target_from_source = 0
-        
+
         self.clear_memoized_values()
 
         # Let the interface in which the build engine is embedded
@@ -737,7 +748,7 @@ class Node(object):
         """
         try:
             self.get_executor()(self, **kw)
-        except SCons.Errors.BuildError, e:
+        except SCons.Errors.BuildError as e:
             e.node = self
             raise
 
@@ -776,16 +787,16 @@ class Node(object):
     def release_target_info(self):
         """Called just after this node has been marked
          up-to-date or was built completely.
-         
+
          This is where we try to release as many target node infos
          as possible for clean builds and update runs, in order
          to minimize the overall memory consumption.
-         
+
          By purging attributes that aren't needed any longer after
          a Node (=File) got built, we don't have to care that much how
          many KBytes a Node actually requires...as long as we free
          the memory shortly afterwards.
-         
+
          @see: built() and File.release_target_info()
          """
         pass
@@ -965,9 +976,9 @@ class Node(object):
             # no scanner could be found for the given node's scanner key;
             # thus, make an attempt at using a default.
             scanner = root_node_scanner
-                
+
         return scanner
-        
+
     def get_env_scanner(self, env, kw={}):
         return env.get_scanner(self.scanner_key())
 
@@ -1239,7 +1250,7 @@ class Node(object):
         """Adds dependencies."""
         try:
             self._add_child(self.depends, self.depends_set, depend)
-        except TypeError, e:
+        except TypeError as e:
             e = e.args[0]
             if SCons.Util.is_List(e):
                 s = list(map(str, e))
@@ -1258,7 +1269,7 @@ class Node(object):
         """Adds dependencies to ignore."""
         try:
             self._add_child(self.ignore, self.ignore_set, depend)
-        except TypeError, e:
+        except TypeError as e:
             e = e.args[0]
             if SCons.Util.is_List(e):
                 s = list(map(str, e))
@@ -1272,7 +1283,7 @@ class Node(object):
             return
         try:
             self._add_child(self.sources, self.sources_set, source)
-        except TypeError, e:
+        except TypeError as e:
             e = e.args[0]
             if SCons.Util.is_List(e):
                 s = list(map(str, e))
@@ -1332,7 +1343,7 @@ class Node(object):
         # dictionary patterns I found all ended up using "not in"
         # internally anyway...)
         if self.ignore_set:
-            iter = chain.from_iterable(filter(None, [self.sources, self.depends, self.implicit]))
+            iter = chain.from_iterable([_f for _f in [self.sources, self.depends, self.implicit] if _f])
 
             children = []
             for i in iter:
@@ -1366,7 +1377,7 @@ class Node(object):
         # using dictionary keys, lose the order, and the only ordered
         # dictionary patterns I found all ended up using "not in"
         # internally anyway...)
-        return list(chain.from_iterable(filter(None, [self.sources, self.depends, self.implicit])))
+        return list(chain.from_iterable([_f for _f in [self.sources, self.depends, self.implicit] if _f]))
 
     def children(self, scan=1):
         """Return a list of the node's direct children, minus those
@@ -1390,7 +1401,7 @@ class Node(object):
 
     def Decider(self, function):
         foundkey = None
-        for k, v in _decider_map.iteritems():
+        for k, v in _decider_map.items():
             if v == function:
                 foundkey = k
                 break
@@ -1424,14 +1435,14 @@ class Node(object):
         any difference, but we now rely on checking every dependency
         to make sure that any necessary Node information (for example,
         the content signature of an #included .h file) is updated.
-        
+
         The allowcache option was added for supporting the early
         release of the executor/builder structures, right after
         a File target was built. When set to true, the return
         value of this changed method gets cached for File nodes.
         Like this, the executor isn't needed any longer for subsequent
         calls to changed().
-        
+
         @see: FS.File.changed(), FS.File.release_target_info()
         """
         t = 0
@@ -1603,8 +1614,8 @@ class Node(object):
         new_bkids    = new.bsources    + new.bdepends    + new.bimplicit
         new_bkidsigs = new.bsourcesigs + new.bdependsigs + new.bimplicitsigs
 
-        osig = dict(zip(old_bkids, old_bkidsigs))
-        nsig = dict(zip(new_bkids, new_bkidsigs))
+        osig = dict(list(zip(old_bkids, old_bkidsigs)))
+        nsig = dict(list(zip(new_bkids, new_bkidsigs)))
 
         # The sources and dependencies we'll want to report are all stored
         # as relative paths to this target's directory, but we want to
@@ -1645,6 +1656,9 @@ class Node(object):
                 if old.bact == new.bact:
                     lines.append("the contents of the build action changed\n" +
                                  fmt_with_title('action: ', new.bact))
+
+                    # lines.append("the contents of the build action changed [%s] [%s]\n"%(old.bactsig,new.bactsig) +
+                    #              fmt_with_title('action: ', new.bact))
                 else:
                     lines.append("the build action changed:\n" +
                                  fmt_with_title('old: ', old.bact) +

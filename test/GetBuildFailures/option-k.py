@@ -64,8 +64,8 @@ Command('f6', 'f6.in', r'@%(_python_)s mypass.py f5 -  $TARGET $SOURCE')
 
 def print_build_failures():
     from SCons.Script import GetBuildFailures
-    for bf in sorted(GetBuildFailures(), key=lambda a: a.filename):
-        print "%%s failed:  %%s" %% (bf.node, bf.errstr)
+    for bf in sorted(GetBuildFailures(), key=lambda a: a.filename or 'None'):
+        print("%%s failed:  %%s" %% (bf.node, bf.errstr))
 
 import atexit
 atexit.register(print_build_failures)

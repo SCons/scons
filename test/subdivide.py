@@ -61,25 +61,26 @@ fake_link_py = test.workpath('fake_link.py')
 test.write(fake_cc_py, """\
 #!/usr/bin/env python
 import sys
-ofp = open(sys.argv[1], 'wb')
+ofp = open(sys.argv[1], 'w')
 ofp.write('fake_cc.py:  %s\\n' % sys.argv)
 for s in sys.argv[2:]:
-    ofp.write(open(s, 'rb').read())
+    ofp.write(open(s, 'r').read())
 """)
 
 test.write(fake_link_py, """\
 #!/usr/bin/env python
 import sys
-ofp = open(sys.argv[1], 'wb')
+ofp = open(sys.argv[1], 'w')
 ofp.write('fake_link.py:  %s\\n' % sys.argv)
 for s in sys.argv[2:]:
-    ofp.write(open(s, 'rb').read())
+    ofp.write(open(s, 'r').read())
 """)
 
-test.chmod(fake_cc_py, 0755)
-test.chmod(fake_link_py, 0755)
+test.chmod(fake_cc_py, 0o755)
+test.chmod(fake_link_py, 0o755)
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 SConsignFile(None)
 env = Environment(PROGSUFFIX = '.exe',
                   OBJSUFFIX = '.obj',
@@ -91,6 +92,7 @@ env.Object('foo.c')
 """ % locals())
 
 test.write(['src', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
 SConsignFile(None)
 env = Environment(PROGSUFFIX = '.exe',
                   OBJSUFFIX = '.obj',
@@ -134,7 +136,7 @@ src/sub/bar.c
 if os.sep == '\\':
     expect = expect.replace('\\', '\\\\')
 
-test.must_match(['src', 'prog.exe'], expect)
+test.must_match(['src', 'prog.exe'], expect, mode='r')
 
 test.up_to_date(chdir='src', arguments = test.workpath())
 

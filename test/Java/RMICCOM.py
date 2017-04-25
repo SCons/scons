@@ -38,27 +38,15 @@ test = TestSCons.TestSCons()
 
 test.subdir('src')
 
-
-
 out_file1 = os.path.join('out', 'file1', 'class_Stub.class')
 out_file2 = os.path.join('out', 'file2', 'class_Stub.class')
 out_file3 = os.path.join('out', 'file3', 'class_Stub.class')
 
-
-
-test.write('myrmic.py', r"""
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != '/*rmic*/\n']:
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
 env = Environment(TOOLS = ['default', 'rmic'],
-                  RMICCOM = r'%(_python_)s myrmic.py $TARGET $SOURCES')
+                  RMICCOM = r'%(_python_)s mycompile.py rmic $TARGET $SOURCES')
 env.RMIC(target = 'out', source = 'file1.class')
 env.RMIC(target = 'out', source = 'file2.class')
 env.RMIC(target = 'out', source = 'file3.class')
@@ -73,8 +61,6 @@ test.run()
 test.must_match(out_file1, "file1.class\n")
 test.must_match(out_file2, "file2.class\n")
 test.must_match(out_file3, "file3.class\n")
-
-
 
 test.pass_test()
 

@@ -36,31 +36,11 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('mycc.py', r"""
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != '/*cc*/\n']:
-        outfile.write(l)
-sys.exit(0)
-
-""")
-test.write('mylink.py', r"""
-import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != '/*link*/\n']:
-        outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
-env = Environment(SHCCCOM = r'%(_python_)s mycc.py $TARGET $SOURCES',
-                  SHLINKCOM = r'%(_python_)s mylink.py $TARGET $SOURCES',
+env = Environment(SHCCCOM = r'%(_python_)s mycompile.py cc $TARGET $SOURCES',
+                  SHLINKCOM = r'%(_python_)s mycompile.py link $TARGET $SOURCES',
                   SHLINKCOMSTR = 'Linking shared $TARGET from $SOURCES',
                   SHOBJPREFIX = '',
                   SHOBJSUFFIX = '.obj',
@@ -84,8 +64,8 @@ test2.c
 """)
 
 test.run(stdout = test.wrap_stdout("""\
-%(_python_)s mycc.py test1.obj test1.c
-%(_python_)s mycc.py test2.obj test2.c
+%(_python_)s mycompile.py cc test1.obj test1.c
+%(_python_)s mycompile.py cc test2.obj test2.c
 Linking shared test3.dll from test1.obj test2.obj
 """ % locals()))
 

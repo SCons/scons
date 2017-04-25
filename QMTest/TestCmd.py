@@ -285,7 +285,7 @@ version.
 # PARTICULAR PURPOSE.  THE CODE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS,
 # AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
-from __future__ import division
+from __future__ import division, print_function
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
 __revision__ = "TestCmd.py 1.3.D001 2010/06/03 12:58:27 knight"
@@ -328,11 +328,23 @@ __all__ = [
     'match_re_dotall',
     'python',
     '_python_',
-    'TestCmd'
+    'TestCmd',
+    'to_bytes',
+    'to_str',
 ]
 
 def is_List(e):
     return isinstance(e, (list, UserList))
+
+def to_bytes (s):
+    if isinstance (s, bytes) or bytes is str:
+        return s
+    return bytes (s, 'utf-8')
+
+def to_str (s):
+    if bytes is str or is_String(s):
+        return s
+    return str (s, 'utf-8')
 
 try:
     eval('unicode')
@@ -440,19 +452,25 @@ def pass_test(self = None, condition = 1, function = None):
     sys.stderr.write("PASSED\n")
     sys.exit(0)
 
-def match_exact(lines = None, matches = None):
+
+def match_exact(lines = None, matches = None, newline = '\n'):
     """
     """
+
+    if isinstance(lines, bytes) or bytes is str:
+        newline = to_bytes('\n')
+
     if not is_List(lines):
-        lines = lines.split("\n")
+        lines = lines.split(newline)
     if not is_List(matches):
-        matches = matches.split("\n")
+        matches = matches.split(newline)
     if len(lines) != len(matches):
         return
     for i in range(len(lines)):
         if lines[i] != matches[i]:
             return
     return 1
+
 
 def match_caseinsensitive(lines = None, matches = None):
     """
@@ -477,17 +495,17 @@ def match_re(lines = None, res = None):
     if not is_List(res):
         res = res.split("\n")
     if len(lines) != len(res):
-        print "match_re: expected %d lines, found %d"%(len(res), len(lines))
+        print("match_re: expected %d lines, found %d"%(len(res), len(lines)))
         return
     for i in range(len(lines)):
         s = "^" + res[i] + "$"
         try:
             expr = re.compile(s)
-        except re.error, e:
+        except re.error as e:
             msg = "Regular expression error in %s: %s"
             raise re.error(msg % (repr(s), e.args[0]))
         if not expr.search(lines[i]):
-            print "match_re: mismatch at line %d:\n  search re='%s'\n  line='%s'"%(i,s,lines[i])
+            print("match_re: mismatch at line %d:\n  search re='%s'\n  line='%s'"%(i, s, lines[i]))
             return
     return 1
 
@@ -501,7 +519,7 @@ def match_re_dotall(lines = None, res = None):
     s = "^" + res + "$"
     try:
         expr = re.compile(s, re.DOTALL)
-    except re.error, e:
+    except re.error as e:
         msg = "Regular expression error in %s: %s"
         raise re.error(msg % (repr(s), e.args[0]))
     return expr.match(lines)
@@ -513,6 +531,8 @@ def simple_diff(a, b, fromfile='', tofile='',
     (diff -c) and difflib.unified_diff (diff -u) but which prints
     output like the simple, unadorned 'diff" command.
     """
+    a = [to_str(q) for q in a]
+    b = [to_str(q) for q in b]
     sm = difflib.SequenceMatcher(None, a, b)
     def comma(x1, x2):
         return x1+1 == x2 and str(x2) or '%s,%s' % (x1+1, x2)
@@ -551,7 +571,7 @@ def diff_re(a, b, fromfile='', tofile='',
         s = "^" + aline + "$"
         try:
             expr = re.compile(s)
-        except re.error, e:
+        except re.error as e:
             msg = "Regular expression error in %s: %s"
             raise re.error(msg % (repr(s), e.args[0]))
         if not expr.search(bline):
@@ -627,7 +647,7 @@ else:
                     st = os.stat(f)
                 except OSError:
                     continue
-                if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
+                if stat.S_IMODE(st[stat.ST_MODE]) & 0o111:
                     return f
         return None
 
@@ -658,7 +678,7 @@ except AttributeError:
 
 PIPE = subprocess.PIPE
 
-if subprocess.mswindows:
+if sys.platform == 'win32':#  and subprocess.mswindows:
     try:
         from win32file import ReadFile, WriteFile
         from win32pipe import PeekNamedPipe
@@ -720,8 +740,10 @@ class Popen(subprocess.Popen):
         getattr(self, which).close()
         setattr(self, which, None)
 
-    if subprocess.mswindows:
+
+    if sys.platform == 'win32':# and subprocess.mswindows:
         def send(self, input):
+            input = to_bytes(input)
             if not self.stdin:
                 return None
 
@@ -730,7 +752,7 @@ class Popen(subprocess.Popen):
                 (errCode, written) = WriteFile(x, input)
             except ValueError:
                 return self._close('stdin')
-            except (subprocess.pywintypes.error, Exception), why:
+            except (subprocess.pywintypes.error, Exception) as why:
                 if why.args[0] in (109, errno.ESHUTDOWN):
                     return self._close('stdin')
                 raise
@@ -751,7 +773,7 @@ class Popen(subprocess.Popen):
                     (errCode, read) = ReadFile(x, nAvail, None)
             except ValueError:
                 return self._close(which)
-            except (subprocess.pywintypes.error, Exception), why:
+            except (subprocess.pywintypes.error, Exception) as why:
                 if why.args[0] in (109, errno.ESHUTDOWN):
                     return self._close(which)
                 raise
@@ -769,8 +791,8 @@ class Popen(subprocess.Popen):
                 return 0
 
             try:
-                written = os.write(self.stdin.fileno(), input)
-            except OSError, why:
+                written = os.write(self.stdin.fileno(), bytearray(input,'utf-8'))
+            except OSError as why:
                 if why.args[0] == errno.EPIPE: #broken pipe
                     return self._close('stdin')
                 raise
@@ -887,7 +909,8 @@ class TestCmd(object):
         self.set_diff_function(diff, diff_stdout, diff_stderr)
         self._dirlist = []
         self._preserve = {'pass_test': 0, 'fail_test': 0, 'no_result': 0}
-        if 'PRESERVE' in os.environ and not os.environ['PRESERVE'] is '':
+        preserve_value = os.environ.get('PRESERVE',False)
+        if preserve_value not in [0,'0','False']:
             self._preserve['pass_test'] = os.environ['PRESERVE']
             self._preserve['fail_test'] = os.environ['PRESERVE']
             self._preserve['no_result'] = os.environ['PRESERVE']
@@ -910,7 +933,7 @@ class TestCmd(object):
         self.condition = 'no_result'
         self.workdir_set(workdir)
         self.subdir(subdir)
-        self.script_srcdir = None
+        self.fixture_dirs = []
 
     def __del__(self):
         self.cleanup()
@@ -964,7 +987,7 @@ class TestCmd(object):
             condition = self.condition
         if self._preserve[condition]:
             for dir in self._dirlist:
-                print unicode("Preserved directory " + dir + "\n"),
+                print(u"Preserved directory " + dir + "\n")
         else:
             list = self._dirlist[:]
             list.reverse()
@@ -1030,10 +1053,10 @@ class TestCmd(object):
                 if diff_function is None:
                     diff_function = self.simple_diff
         if name is not None:
-            print self.banner(name)
+            print(self.banner(name))
         args = (a.splitlines(), b.splitlines()) + args
         for line in diff_function(*args, **kw):
-            print line
+            print(line)
 
     def diff_stderr(self, a, b, *args, **kw):
         """Compare actual and expected file contents.
@@ -1234,10 +1257,15 @@ class TestCmd(object):
         assumed to be under the temporary working directory, it gets
         created automatically, if it does not already exist.
         """
-        if srcdir and self.script_srcdir and not os.path.isabs(srcdir):
-            spath = os.path.join(self.script_srcdir, srcdir)
+	
+        if srcdir and self.fixture_dirs and not os.path.isabs(srcdir):
+            for dir in self.fixture_dirs:
+                spath = os.path.join(dir, srcdir)
+                if os.path.isdir(spath):
+                    break
         else:
             spath = srcdir
+
         if dstdir:
             dstdir = self.canonicalize(dstdir)
         else:
@@ -1271,13 +1299,15 @@ class TestCmd(object):
         automatically, if it does not already exist.
         """
         srcpath, srctail = os.path.split(srcfile)
-        if srcpath:
-            if self.script_srcdir and not os.path.isabs(srcpath):
-                spath = os.path.join(self.script_srcdir, srcfile)
-            else:
-                spath = srcfile
+
+        if srcpath and (not self.fixture_dirs or os.path.isabs(srcpath)):
+            spath = srcfile
         else:
-            spath = os.path.join(self.script_srcdir, srcfile)
+            for dir in self.fixture_dirs:
+                spath = os.path.join(dir, srcfile)
+                if os.path.isfile(spath):
+                    break
+
         if not dstfile:
             if srctail:
                 dpath = os.path.join(self.workdir, srctail)
@@ -1659,12 +1689,12 @@ class TestCmd(object):
                 def do_chmod(fname):
                     try: st = os.stat(fname)
                     except OSError: pass
-                    else: os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE]|0200))
+                    else: os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE]|0o200))
             else:
                 def do_chmod(fname):
                     try: st = os.stat(fname)
                     except OSError: pass
-                    else: os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE]&~0200))
+                    else: os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE]&~0o200))
 
         if os.path.isfile(top):
             do_chmod(top)
@@ -1731,7 +1761,12 @@ class TestCmd(object):
         file = self.canonicalize(file)
         if mode[0] != 'w':
             raise ValueError("mode must begin with 'w'")
-        open(file, mode).write(content)
+        with open(file, mode) as f:
+            try:
+                f.write(content)
+            except TypeError as e:
+                # python 3 default strings are not bytes, but unicode
+                f.write(bytes(content,'utf-8'))
 
 # Local Variables:
 # tab-width:4

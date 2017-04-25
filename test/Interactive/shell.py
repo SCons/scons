@@ -40,7 +40,9 @@ shell_command_py    = test.workpath('shell_command.py')
 _shell_command_py_  = '"%s"' % shell_command_py.replace('\\', '\\\\')
 
 test.write(shell_command_py, """\
-print 'hello from shell_command.py'
+from __future__ import print_function
+
+print('hello from shell_command.py')
 """)
 
 test.write('SConstruct', """\

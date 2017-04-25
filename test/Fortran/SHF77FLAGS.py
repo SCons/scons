@@ -24,6 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -32,30 +33,10 @@ _obj = TestSCons._shobj
 obj_ = TestSCons.shobj_
 
 test = TestSCons.TestSCons()
-
-
-
-test.write('myg77.py', r"""
-import getopt
-import sys
-opts, args = getopt.getopt(sys.argv[1:], 'cf:K:o:x')
-optstring = ''
-for opt, arg in opts:
-    if opt == '-o': out = arg
-    elif opt not in ('-f', '-K'): optstring = optstring + ' ' + opt
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
-outfile.write(optstring + "\n")
-for l in infile.readlines():
-    if l[:4] != '#g77':
-        outfile.write(l)
-sys.exit(0)
-""")
-
-
+test.file_fixture(os.path.join('fixture', 'myfortran_flags.py'))
 
 test.write('SConstruct', """
-env = Environment(SHF77 = r'%(_python_)s myg77.py')
+env = Environment(SHF77 = r'%(_python_)s myfortran_flags.py g77')
 env.Append(SHF77FLAGS = '-x')
 env.SharedObject(target = 'test09', source = 'test09.f77')
 env.SharedObject(target = 'test10', source = 'test10.F77')
@@ -75,19 +56,17 @@ g77 = test.detect_tool(fc)
 
 if g77:
 
-    test.write("wrapper.py",
-"""import os
-import sys
-open('%s', 'wb').write("wrapper.py\\n")
-os.system(" ".join(sys.argv[1:]))
-""" % test.workpath('wrapper.out').replace('\\', '\\\\'))
+    directory = 'x'
+    test.subdir(directory)
+
+    test.file_fixture('wrapper.py')
 
     test.write('SConstruct', """
 foo = Environment(SHF77 = '%(fc)s')
 shf77 = foo.Dictionary('SHF77')
 bar = foo.Clone(SHF77 = r'%(_python_)s wrapper.py ' + shf77,
                 tools = ["default", 'f77'], F77FILESUFFIXES = [".f"])
-bar.Append(SHF77FLAGS = '-Ix')
+bar.Append(SHF77FLAGS = '-I%(directory)s')
 foo.SharedLibrary(target = 'foo/foo', source = 'foo.f')
 bar.SharedLibrary(target = 'bar/bar', source = 'bar.f')
 """ % locals())

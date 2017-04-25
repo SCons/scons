@@ -44,16 +44,17 @@ python = r'%(my_python_py)s'
 
 test.write(my_python_py, """\
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 profile = ''
 for arg in sys.argv[1:]:
     if arg.startswith('--profile='):
         profile = arg[10:]
         break
-print 'my_python.py: %s' % profile
+print('my_python.py: %s' % profile)
 """)
 
-os.chmod(my_python_py, 0755)
+os.chmod(my_python_py, 0o755)
 
 test.run(arguments = 'run -f config foo.tar.gz')
 
@@ -61,9 +62,9 @@ prof0 = test.workpath('foo-000-0.prof')
 prof1 = test.workpath('foo-000-1.prof')
 prof2 = test.workpath('foo-000-2.prof')
 
-test.must_match('foo-000-0.log', "my_python.py: %s\n" % prof0)
-test.must_match('foo-000-1.log', "my_python.py: %s\n" % prof1)
-test.must_match('foo-000-2.log', "my_python.py: %s\n" % prof2)
+test.must_match('foo-000-0.log', "my_python.py: %s\n" % prof0, mode='r')
+test.must_match('foo-000-1.log', "my_python.py: %s\n" % prof1, mode='r')
+test.must_match('foo-000-2.log', "my_python.py: %s\n" % prof2, mode='r')
 
 test.pass_test()
 

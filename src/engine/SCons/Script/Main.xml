@@ -256,7 +256,7 @@ import atexit
 def print_build_failures():
     from SCons.Script import GetBuildFailures
     for bf in GetBuildFailures():
-        print "%s failed: %s" % (bf.node, bf.errstr)
+        print("%s failed: %s" % (bf.node, bf.errstr))
 
 atexit.register(print_build_failures)
 </example_commands>
@@ -577,7 +577,7 @@ every 10 Nodes:
 
 <example_commands>
 def my_progress_function(node, *args, **kw):
-    print 'Evaluating node %s!' % node
+    print('Evaluating node %s!' % node)
 Progress(my_progress_function, interval=10)
 </example_commands>
 

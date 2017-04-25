@@ -622,7 +622,7 @@ import atexit
 def print_build_failures():
     from SCons.Script import GetBuildFailures
     for bf in GetBuildFailures():
-        print "%s failed: %s" % (bf.node, bf.errstr)
+        print("%s failed: %s" % (bf.node, bf.errstr))
 atexit.register(print_build_failures)
       </file>
     </scons_example>
@@ -701,10 +701,10 @@ def display_build_status():
     Here you could do all kinds of complicated things."""
     status, failures_message = build_status()
     if status == 'failed':
-       print "FAILED!!!!"  # could display alert, ring bell, etc.
+       print("FAILED!!!!")  # could display alert, ring bell, etc.
     elif status == 'ok':
-       print "Build succeeded."
-    print failures_message
+       print("Build succeeded.")
+    print(failures_message)
 
 atexit.register(display_build_status)
       </file>

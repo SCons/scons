@@ -38,8 +38,8 @@ test.write('mydc.py', r"""
 import sys
 def do_file(outf, inf):
     for line in open(inf, 'rb').readlines():
-        if line[:7] == 'import ':
-            do_file(outf, line[7:-2]+'.d')
+        if line[:7] == b'import ':
+            do_file(outf, line[7:-2] + b'.d')
         else:
             outf.write(line)
 outf = open(sys.argv[1], 'wb')

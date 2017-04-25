@@ -19,6 +19,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -129,12 +130,12 @@ class SConsInteractiveCmd(cmd.Cmd):
             self.shell_variable = 'SHELL'
 
     def default(self, argv):
-        print "*** Unknown command: %s" % argv[0]
+        print("*** Unknown command: %s" % argv[0])
 
     def onecmd(self, line):
         line = line.strip()
         if not line:
-            print self.lastcmd
+            print(self.lastcmd)
             return self.emptyline()
         self.lastcmd = line
         if line[0] == '!':
@@ -221,7 +222,7 @@ class SConsInteractiveCmd(cmd.Cmd):
         def get_unseen_children(node, parent, seen_nodes=seen_nodes):
             def is_unseen(node, seen_nodes=seen_nodes):
                 return node not in seen_nodes
-            return list(filter(is_unseen, node.children(scan=1)))
+            return [child for child in node.children(scan=1) if is_unseen(child)]
 
         def add_to_seen_nodes(node, parent, seen_nodes=seen_nodes):
             seen_nodes[node] = 1
@@ -249,7 +250,7 @@ class SConsInteractiveCmd(cmd.Cmd):
             while n:
                 n = walker.get_next()
 
-        for node in seen_nodes.keys():
+        for node in list(seen_nodes.keys()):
             # Call node.clear() to clear most of the state
             node.clear()
             # node.clear() doesn't reset node.state, so call
@@ -274,7 +275,7 @@ class SConsInteractiveCmd(cmd.Cmd):
         return self.do_build(['build', '--clean'] + argv[1:])
 
     def do_EOF(self, argv):
-        print
+        print()
         self.do_exit(argv)
 
     def _do_one_help(self, arg):
@@ -351,7 +352,7 @@ class SConsInteractiveCmd(cmd.Cmd):
             # Doing the right thing with an argument list currently
             # requires different shell= values on Windows and Linux.
             p = subprocess.Popen(argv, shell=(sys.platform=='win32'))
-        except EnvironmentError, e:
+        except EnvironmentError as e:
             sys.stderr.write('scons: %s: %s\n' % (argv[0], e.strerror))
         else:
             p.wait()

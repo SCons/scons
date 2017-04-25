@@ -145,11 +145,13 @@ public:
 
 test.write(['source', 'test.py'], """\
 #!/usr/bin/env python
+from __future__ import print_function
+
 import linalg
 
 
 x = linalg.Vector(5)
-print x
+print(x)
 
 x[1] = 99.5
 x[3] = 8.3
@@ -157,7 +159,7 @@ x[4] = 11.1
 
 
 for i, v in enumerate(x):
-    print "\tx[%d] = %g" % (i, v)
+    print("\tx[%d] = %g" % (i, v))
 
 """)
 
