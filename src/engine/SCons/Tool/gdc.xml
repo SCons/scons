@@ -32,10 +32,6 @@ Sets construction variables for the D language compiler GDC.
 <sets>
 <item>DC</item>
 <item>DCOM</item>
-<item>_DINCFLAGS</item>
-<item>_DVERFLAGS</item>
-<item>_DDEBUGFLAGS</item>
-<item>_DFLAGS</item>
 <item>SHDC</item>
 <item>SHDCOM</item>
 <item>DPATH</item>
@@ -57,16 +53,18 @@ Sets construction variables for the D language compiler GDC.
 <item>SHDLINK</item>
 <item>SHDLINKFLAGS</item>
 <item>SHDLINKCOM</item>
+<item>DLIBLINKPREFIX</item>
+<item>DLIBLINKSUFFIX</item>
+<item>DLIBDIRPREFIX</item>
+<item>DLIBDIRSUFFIX</item>
 <item>DLIB</item>
 <item>DLIBCOM</item>
-<item>_DLIBFLAGS</item>
 <item>DLIBFLAGPREFIX</item>
 <item>DLIBFLAGSUFFIX</item>
 <item>DLINKFLAGPREFIX</item>
 <item>DLINKFLAGSUFFIX</item>
 <item>RPATHPREFIX</item>
 <item>RPATHSUFFIX</item>
-<item>_RPATH</item>
 </sets>
 <uses>
 </uses>
@@ -75,7 +73,7 @@ Sets construction variables for the D language compiler GDC.
 <cvar name="DC">
 <summary>
 <para>
-DC.
+The D compiler to use.
 </para>
 </summary>
 </cvar>
@@ -83,7 +81,9 @@ DC.
 <cvar name="DCOM">
 <summary>
 <para>
-DCOM.
+  The command line used to compile a D file to an object file.
+  Any options specified in the &cv-link-DFLAGS; construction variable
+  is included on this command line.
 </para>
 </summary>
 </cvar>
@@ -91,39 +91,7 @@ DCOM.
 <cvar name="DDEBUG">
 <summary>
 <para>
-DDEBUG.
-</para>
-</summary>
-</cvar>
-
-<cvar name="DDEBUGPREFIX">
-<summary>
-<para>
-DDEBUGPREFIX.
-</para>
-</summary>
-</cvar>
-
-<cvar name="DDEBUGSUFFIX">
-<summary>
-<para>
-DDEBUGSUFFIX.
-</para>
-</summary>
-</cvar>
-
-<cvar name="DFILESUFFIX">
-<summary>
-<para>
-DFILESUFFIX.
-</para>
-</summary>
-</cvar>
-
-<cvar name="DFLAGPREFIX">
-<summary>
-<para>
-DFLAGPREFIX.
+  List of debug tags to enable when compiling.
 </para>
 </summary>
 </cvar>
@@ -131,31 +99,7 @@ DFLAGPREFIX.
 <cvar name="DFLAGS">
 <summary>
 <para>
-DFLAGS.
-</para>
-</summary>
-</cvar>
-
-<cvar name="DFLAGSUFFIX">
-<summary>
-<para>
-DFLAGSUFFIX.
-</para>
-</summary>
-</cvar>
-
-<cvar name="DINCPREFIX">
-<summary>
-<para>
-DINCPREFIX.
-</para>
-</summary>
-</cvar>
-
-<cvar name="DINCSUFFIX">
-<summary>
-<para>
-DINCSUFFIX.
+  General options that are passed to the D compiler.
 </para>
 </summary>
 </cvar>
@@ -163,7 +107,7 @@ DINCSUFFIX.
 <cvar name="DLIB">
 <summary>
 <para>
-DLIB.
+  Name of the lib tool to use for D codes.
 </para>
 </summary>
 </cvar>
@@ -171,55 +115,7 @@ DLIB.
 <cvar name="DLIBCOM">
 <summary>
 <para>
-DLIBCOM.
-</para>
-</summary>
-</cvar>
-
-<cvar name="DLIBDIRPREFIX">
-<summary>
-<para>
-DLIBDIRPREFIX.
-</para>
-</summary>
-</cvar>
-
-<cvar name="DLIBDIRSUFFIX">
-<summary>
-<para>
-DLIBDIRSUFFIX.
-</para>
-</summary>
-</cvar>
-
-<cvar name="DLIBFLAGPREFIX">
-<summary>
-<para>
-DLIBFLAGPREFIX.
-</para>
-</summary>
-</cvar>
-
-<cvar name="DLIBFLAGSUFFIX">
-<summary>
-<para>
-DLIBFLAGSUFFIX.
-</para>
-</summary>
-</cvar>
-
-<cvar name="DLIBLINKPREFIX">
-<summary>
-<para>
-DLIBLINKPREFIX.
-</para>
-</summary>
-</cvar>
-
-<cvar name="DLIBLINKSUFFIX">
-<summary>
-<para>
-DLIBLINKSUFFIX.
+  The command line to use when creating libraries.
 </para>
 </summary>
 </cvar>
@@ -227,7 +123,7 @@ DLIBLINKSUFFIX.
 <cvar name="DLINK">
 <summary>
 <para>
-DLINK.
+  Name of the linker to use for linking systems including D sources.
 </para>
 </summary>
 </cvar>
@@ -235,15 +131,7 @@ DLINK.
 <cvar name="DLINKCOM">
 <summary>
 <para>
-DLINKCOM.
-</para>
-</summary>
-</cvar>
-
-<cvar name="DLINKFLAGPREFIX">
-<summary>
-<para>
-DLINKFLAGPREFIX.
+  The command line to use when linking systems including D sources.
 </para>
 </summary>
 </cvar>
@@ -251,15 +139,7 @@ DLINKFLAGPREFIX.
 <cvar name="DLINKFLAGS">
 <summary>
 <para>
-DLINKFLAGS.
-</para>
-</summary>
-</cvar>
-
-<cvar name="DLINKFLAGSUFFIX">
-<summary>
-<para>
-DLINKFLAGSUFFIX.
+List of linker flags.
 </para>
 </summary>
 </cvar>
@@ -267,15 +147,7 @@ DLINKFLAGSUFFIX.
 <cvar name="DPATH">
 <summary>
 <para>
-DPATH.
-</para>
-</summary>
-</cvar>
-
-<cvar name="DVERPREFIX">
-<summary>
-<para>
-DVERPREFIX.
+  List of paths to search for import modules.
 </para>
 </summary>
 </cvar>
@@ -283,15 +155,7 @@ DVERPREFIX.
 <cvar name="DVERSIONS">
 <summary>
 <para>
-DVERSIONS.
-</para>
-</summary>
-</cvar>
-
-<cvar name="DVERSUFFIX">
-<summary>
-<para>
-DVERSUFFIX.
+  List of version tags to enable when compiling.
 </para>
 </summary>
 </cvar>
@@ -299,7 +163,8 @@ DVERSUFFIX.
 <cvar name="SHDC">
 <summary>
 <para>
-SHDC.
+  The name of the compiler to use when compiling D source
+  destined to be in a shared objects.
 </para>
 </summary>
 </cvar>
@@ -307,7 +172,7 @@ SHDC.
 <cvar name="SHDCOM">
 <summary>
 <para>
-SHDCOM.
+  The command line to use when compiling code to be part of shared objects.
 </para>
 </summary>
 </cvar>
@@ -315,7 +180,8 @@ SHDCOM.
 <cvar name="SHDLINK">
 <summary>
 <para>
-SHDLINK.
+  The linker to use when creating shared objects for code bases
+  include D sources.
 </para>
 </summary>
 </cvar>
@@ -323,7 +189,7 @@ SHDLINK.
 <cvar name="SHDLINKCOM">
 <summary>
 <para>
-SHDLINKCOM.
+  The command line to use when generating shared objects.
 </para>
 </summary>
 </cvar>
@@ -331,57 +197,35 @@ SHDLINKCOM.
 <cvar name="SHDLINKFLAGS">
 <summary>
 <para>
-SHDLINKFLAGS.
+  The list of flags to use when generating a shared object.
 </para>
 </summary>
 </cvar>
 
-<cvar name="_DDEBUGFLAGS">
-<summary>
-<para>
-_DDEBUGFLAGS.
-</para>
-</summary>
-</cvar>
-
-<cvar name="_DFLAGS">
-<summary>
-<para>
-_DFLAGS.
-</para>
-</summary>
-</cvar>
-
-<cvar name="_DINCFLAGS">
-<summary>
-<para>
-_DINCFLAGS.
-</para>
-</summary>
-</cvar>
-
-<cvar name="_DLIBDIRFLAGS">
-<summary>
-<para>
-_DLIBDIRFLAGS.
-</para>
-</summary>
-</cvar>
-
-<cvar name="_DLIBFLAGS">
-<summary>
-<para>
-_DLIBFLAGS.
-</para>
-</summary>
-</cvar>
-
-<cvar name="_DVERFLAGS">
-<summary>
-<para>
-_DVERFLAGS.
-</para>
-</summary>
-</cvar>
+<builder name="ProgramAllAtOnce">
+  <summary>
+    <para>
+      Builds an executable from D sources without first creating individual
+      objects for each file.
+    </para>
+    <para>
+      D sources can be compiled file-by-file as C and C++ source are, and
+      D is integrated into the &scons; Object and Program builders for
+      this model of build. D codes can though do whole source
+      meta-programming (some of the testing frameworks do this). For this
+      it is imperative that all sources are compiled and linked in a single call of
+      the D compiler. This builder serves that purpose.
+    </para>
+    <example_commands>
+      env.ProgramAllAtOnce('executable', ['mod_a.d, mod_b.d', 'mod_c.d'])
+    </example_commands>
+    <para>
+      This command will compile the modules mod_a, mod_b, and mod_c in a
+      single compilation process without first creating object files for
+      the modules. Some of the D compilers will create executable.o others
+      will not.
+    </para>
+  </summary>
+</builder>
 
 </sconsdoc>

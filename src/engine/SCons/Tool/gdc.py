@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 """SCons.Tool.gdc
 
 Tool-specific initialization for the GDC compiler.
@@ -128,9 +130,15 @@ def generate(env):
 
     SCons.Tool.createStaticLibBuilder(env)
 
+    env['BUILDERS']['ProgramAllAtOnce'] = SCons.Builder.Builder(
+        action='$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -o $TARGET $DLINKFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS',
+        emitter=SCons.Tool.DCommon.allAtOnceEmitter,
+    )
+
 
 def exists(env):
     return env.Detect('gdc')
+
 
 # Local Variables:
 # tab-width:4

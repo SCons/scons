@@ -1,12 +1,7 @@
-from __future__ import print_function
-
-"""SCons.Tool.DCommon
-
-Common code for the various D tools.
-
-Coded by Russel Winder (russel@winder.org.uk)
-2012-09-06
 """
+Test compiling and executing a project with a C module.
+"""
+
 #
 # __COPYRIGHT__
 #
@@ -32,34 +27,8 @@ Coded by Russel Winder (russel@winder.org.uk)
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os.path
-
-
-def isD(env, source):
-    if not source:
-        return 0
-    for s in source:
-        if s.sources:
-            ext = os.path.splitext(str(s.sources[0]))[1]
-            if ext == '.d':
-                return 1
-    return 0
-
-
-def addDPATHToEnv(env, executable):
-    dPath = env.WhereIs(executable)
-    if dPath:
-        phobosDir = dPath[:dPath.rindex(executable)] + '/../src/phobos'
-        if os.path.isdir(phobosDir):
-            env.Append(DPATH=[phobosDir])
-
-
-def allAtOnceEmitter(target, source, env):
-    if env['DC'] in ('ldc2', 'dmd'):
-        env.SideEffect(str(target[0]) + '.o', target[0])
-        env.Clean(target[0], str(target[0]) + '.o')
-    return target, source
-
+from Common.common import testForTool
+testForTool('ldc')
 
 # Local Variables:
 # tab-width:4

@@ -30,6 +30,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Russel Winder:
     - Reordered the default D tools from "dmd, gdc, ldc" to "dmd, ldc, gdc".
+    - Add a ProgramAllAtOnce builder to the dmd, ldc, and gdc tools. (PR #448)
 
   From William Blevins:
     - Updated D language scanner support to latest: 2.071.1. (PR #1924)
