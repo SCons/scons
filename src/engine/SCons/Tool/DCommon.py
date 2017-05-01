@@ -7,6 +7,7 @@ Common code for the various D tools.
 Coded by Russel Winder (russel@winder.org.uk)
 2012-09-06
 """
+
 #
 # __COPYRIGHT__
 #

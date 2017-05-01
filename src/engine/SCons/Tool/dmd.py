@@ -11,13 +11,6 @@ Originally coded by Andy Friesen (andy@ikagames.com)
 Evolved by Russel Winder (russel@winder.org.uk)
 2010-02-07 onwards
 
-There are a number of problems with this script at this point in time.
-The one that irritates the most is the Windows linker setup.  The D
-linker doesn't have a way to add lib paths on the commandline, as far
-as I can see.  You have to specify paths relative to the SConscript or
-use absolute paths.  To hack around it, add '#/blah'.  This will link
-blah.lib from the directory where SConstruct resides.
-
 Compiler variables:
     DC - The name of the D compiler to use.  Defaults to dmd or gdmd,
         whichever is found.
@@ -71,7 +64,7 @@ import SCons.Defaults
 import SCons.Scanner.D
 import SCons.Tool
 
-import SCons.Tool.DCommon
+import SCons.Tool.DCommon as DCommon
 
 
 def generate(env):
@@ -98,7 +91,7 @@ def generate(env):
     env['DDEBUG'] = []
 
     if env['DC']:
-        SCons.Tool.DCommon.addDPATHToEnv(env, env['DC'])
+        DCommon.addDPATHToEnv(env, env['DC'])
 
     env['DINCPREFIX'] = '-I'
     env['DINCSUFFIX'] = ''
@@ -155,7 +148,7 @@ def generate(env):
 
     env['BUILDERS']['ProgramAllAtOnce'] = SCons.Builder.Builder(
         action='$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -of$TARGET $DLINKFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS',
-        emitter=SCons.Tool.DCommon.allAtOnceEmitter,
+        emitter=DCommon.allAtOnceEmitter,
     )
 
 

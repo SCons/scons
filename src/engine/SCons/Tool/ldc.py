@@ -3,7 +3,7 @@ from __future__ import print_function
 """SCons.Tool.ldc
 
 Tool-specific initialization for the LDC compiler.
-(http://www.dsource.org/projects/ldc)
+(https://github.com/ldc-developers/ldc)
 
 Developed by Russel Winder (russel@winder.org.uk)
 2012-05-09 onwards
@@ -59,7 +59,7 @@ import SCons.Defaults
 import SCons.Scanner.D
 import SCons.Tool
 
-import SCons.Tool.DCommon
+import SCons.Tool.DCommon as DCommon
 
 
 def generate(env):
@@ -86,7 +86,7 @@ def generate(env):
     env['DDEBUG'] = []
 
     if env['DC']:
-        SCons.Tool.DCommon.addDPATHToEnv(env, env['DC'])
+        DCommon.addDPATHToEnv(env, env['DC'])
 
     env['DINCPREFIX'] = '-I='
     env['DINCSUFFIX'] = ''
@@ -104,9 +104,6 @@ def generate(env):
 
     env['DSHLINK'] = '$DC'
     env['DSHLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared -defaultlib=phobos2-ldc')
-    # Hack for Fedora the packages of which use the wrong name :-(
-    if os.path.exists('/usr/lib64/libphobos-ldc.so') or os.path.exists('/usr/lib32/libphobos-ldc.so') or os.path.exists('/usr/lib/libphobos-ldc.so'):
-        env['DSHLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared -defaultlib=phobos-ldc')
     env['SHDLINKCOM'] = '$DLINK -of=$TARGET $DSHLINKFLAGS $__DSHLIBVERSIONFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS'
 
     env['DLIBLINKPREFIX'] = '' if env['PLATFORM'] == 'win32' else '-L-l'
@@ -147,7 +144,7 @@ def generate(env):
 
     env['BUILDERS']['ProgramAllAtOnce'] = SCons.Builder.Builder(
         action='$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -of=$TARGET $DLINKFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS',
-        emitter=SCons.Tool.DCommon.allAtOnceEmitter,
+        emitter=DCommon.allAtOnceEmitter,
     )
 
 
