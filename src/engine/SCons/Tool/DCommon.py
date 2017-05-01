@@ -56,8 +56,8 @@ def addDPATHToEnv(env, executable):
 
 def allAtOnceEmitter(target, source, env):
     if env['DC'] in ('ldc2', 'dmd'):
-        env.SideEffect(str(target[0]) + '.o', str(target[0]))
-        env.Clean(str(target[0]), str(target[0]) + '.o')
+        env.SideEffect(str(target[0]) + '.o', target[0])
+        env.Clean(target[0], str(target[0]) + '.o')
     return target, source
 
 
