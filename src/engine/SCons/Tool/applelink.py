@@ -51,6 +51,14 @@ def generate(env):
     env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -dynamiclib')
     env['SHLINKCOM'] = env['SHLINKCOM'] + ' $_FRAMEWORKPATH $_FRAMEWORKS $FRAMEWORKSFLAGS'
 
+
+    # TODO: Work needed to generate versioned shared libraries
+    # Leaving this commented out, and also going to disable versioned library checking for now
+    # see: http://docstore.mik.ua/orelly/unix3/mac/ch05_04.htm  for proper naming
+    #link._setup_versioned_lib_variables(env, tool = 'applelink')#, use_soname = use_soname)
+    #env['LINKCALLBACKS'] = link._versioned_lib_callbacks()
+
+
     # override the default for loadable modules, which are different
     # on OS X than dynamic shared libs.  echoing what XCode does for
     # pre/suffixes:

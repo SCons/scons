@@ -453,13 +453,17 @@ def pass_test(self = None, condition = 1, function = None):
     sys.exit(0)
 
 
-def match_exact(lines = None, matches = None):
+def match_exact(lines = None, matches = None, newline = '\n'):
     """
     """
+
+    if isinstance(lines, bytes) or bytes is str:
+        newline = to_bytes('\n')
+
     if not is_List(lines):
-        lines = lines.split("\n")
+        lines = lines.split(newline)
     if not is_List(matches):
-        matches = matches.split("\n")
+        matches = matches.split(newline)
     if len(lines) != len(matches):
         return
     for i in range(len(lines)):
@@ -737,16 +741,6 @@ class Popen(subprocess.Popen):
         setattr(self, which, None)
 
 
-    def to_bytes (s):
-        if isinstance (s, bytes) or bytes is str:
-            return s
-        return bytes (s, 'utf-8')
-
-    def to_str (s):
-        if bytes is str or is_String(s):
-            return s
-        return str (s, 'utf-8')
-
     if sys.platform == 'win32':# and subprocess.mswindows:
         def send(self, input):
             input = to_bytes(input)
@@ -993,7 +987,7 @@ class TestCmd(object):
             condition = self.condition
         if self._preserve[condition]:
             for dir in self._dirlist:
-                print("Preserved directory " + dir + "\n")
+                print(u"Preserved directory " + dir + "\n")
         else:
             list = self._dirlist[:]
             list.reverse()

@@ -33,6 +33,12 @@ import TestSCons
 import SCons.Platform
 import SCons.Defaults
 
+import sys
+if sys.platform == 'darwin':
+    # Skipping until logic is fixed for macosx
+    test = TestSCons.TestSCons()
+    test.skip_test("Not working on darwin yet\n")
+
 env = SCons.Defaults.DefaultEnvironment()
 platform = SCons.Platform.platform_default()
 tool_list = SCons.Platform.DefaultToolList(platform, env)

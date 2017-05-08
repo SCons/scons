@@ -157,6 +157,11 @@ def __create_output_dir(base_dir):
 #
 # Supported command line tools and their call "signature"
 #
+xsltproc_com_priority = ['xsltproc', 'saxon', 'saxon-xslt', 'xalan']
+
+# TODO: Set minimum version of saxon-xslt to be 8.x (lower than this only supports xslt 1.0.
+#       see: http://saxon.sourceforge.net/saxon6.5.5/
+#       see: http://saxon.sourceforge.net/
 xsltproc_com = {'xsltproc' : '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -o $TARGET $DOCBOOK_XSL $SOURCE',
                 'saxon' : '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -o $TARGET $DOCBOOK_XSL $SOURCE $DOCBOOK_XSLTPROCPARAMS',
                 'saxon-xslt' : '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -o $TARGET $DOCBOOK_XSL $SOURCE $DOCBOOK_XSLTPROCPARAMS',
@@ -166,19 +171,23 @@ fop_com = {'fop' : '$DOCBOOK_FOP $DOCBOOK_FOPFLAGS -fo $SOURCE -pdf $TARGET',
            'xep' : '$DOCBOOK_FOP $DOCBOOK_FOPFLAGS -valid -fo $SOURCE -pdf $TARGET',
            'jw' : '$DOCBOOK_FOP $DOCBOOK_FOPFLAGS -f docbook -b pdf $SOURCE -o $TARGET'}
 
-def __detect_cl_tool(env, chainkey, cdict):
+def __detect_cl_tool(env, chainkey, cdict, cpriority=None):
     """
     Helper function, picks a command line tool from the list
     and initializes its environment variables.
     """
     if env.get(chainkey,'') == '':
         clpath = ''
-        for cltool in cdict:
+
+        if cpriority is None:
+            cpriority = cdict.keys()
+        for cltool in cpriority:
             clpath = env.WhereIs(cltool)
             if clpath:
                 env[chainkey] = clpath
                 if not env[chainkey + 'COM']:
                     env[chainkey + 'COM'] = cdict[cltool]
+                break
 
 def _detect(env):
     """
@@ -192,7 +201,7 @@ def _detect(env):
         
     if ((not has_libxml2 and not has_lxml) or (prefer_xsltproc)):
         # Try to find the XSLT processors
-        __detect_cl_tool(env, 'DOCBOOK_XSLTPROC', xsltproc_com)
+        __detect_cl_tool(env, 'DOCBOOK_XSLTPROC', xsltproc_com, xsltproc_com_priority)
         __detect_cl_tool(env, 'DOCBOOK_XMLLINT', xmllint_com)
 
     __detect_cl_tool(env, 'DOCBOOK_FOP', fop_com)

@@ -179,10 +179,10 @@ def _SConscript(fs, *files, **kw):
                 fs.chdir(top, change_os_dir=1)
                 if f.rexists():
                     actual = f.rfile()
-                    _file_ = open(actual.get_abspath(), "r")
+                    _file_ = open(actual.get_abspath(), "rb")
                 elif f.srcnode().rexists():
                     actual = f.srcnode().rfile()
-                    _file_ = open(actual.get_abspath(), "r")
+                    _file_ = open(actual.get_abspath(), "rb")
                 elif f.has_src_builder():
                     # The SConscript file apparently exists in a source
                     # code management system.  Build it, but then clear
@@ -192,7 +192,7 @@ def _SConscript(fs, *files, **kw):
                     f.built()
                     f.builder_set(None)
                     if f.exists():
-                        _file_ = open(f.get_abspath(), "r")
+                        _file_ = open(f.get_abspath(), "rb")
                 if _file_:
                     # Chdir to the SConscript directory.  Use a path
                     # name relative to the SConstruct file so that if
@@ -248,6 +248,7 @@ def _SConscript(fs, *files, **kw):
                         pass
                     try:
                         try:
+#                            _file_ = SCons.Util.to_str(_file_)
                             exec(compile(_file_.read(), _file_.name, 'exec'),
                                  call_stack[-1].globals)
                         except SConscriptReturn:

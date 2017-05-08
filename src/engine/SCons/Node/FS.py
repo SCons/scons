@@ -351,33 +351,6 @@ class _Null(object):
 
 _null = _Null()
 
-DefaultSCCSBuilder = None
-DefaultRCSBuilder = None
-
-def get_DefaultSCCSBuilder():
-    global DefaultSCCSBuilder
-    if DefaultSCCSBuilder is None:
-        import SCons.Builder
-        # "env" will get filled in by Executor.get_build_env()
-        # calling SCons.Defaults.DefaultEnvironment() when necessary.
-        act = SCons.Action.Action('$SCCSCOM', '$SCCSCOMSTR')
-        DefaultSCCSBuilder = SCons.Builder.Builder(action = act,
-                                                   env = None,
-                                                   name = "DefaultSCCSBuilder")
-    return DefaultSCCSBuilder
-
-def get_DefaultRCSBuilder():
-    global DefaultRCSBuilder
-    if DefaultRCSBuilder is None:
-        import SCons.Builder
-        # "env" will get filled in by Executor.get_build_env()
-        # calling SCons.Defaults.DefaultEnvironment() when necessary.
-        act = SCons.Action.Action('$RCS_COCOM', '$RCS_COCOMSTR')
-        DefaultRCSBuilder = SCons.Builder.Builder(action = act,
-                                                  env = None,
-                                                  name = "DefaultRCSBuilder")
-    return DefaultRCSBuilder
-
 # Cygwin's os.path.normcase pretends it's on a case-sensitive filesystem.
 _is_cygwin = sys.platform == "cygwin"
 if os.path.normcase("TeSt") == os.path.normpath("TeSt") and not _is_cygwin:
@@ -422,46 +395,12 @@ def do_diskcheck_match(node, predicate, errorfmt):
 def ignore_diskcheck_match(node, predicate, errorfmt):
     pass
 
-def do_diskcheck_rcs(node, name):
-    try:
-        rcs_dir = node.rcs_dir
-    except AttributeError:
-        if node.entry_exists_on_disk('RCS'):
-            rcs_dir = node.Dir('RCS')
-        else:
-            rcs_dir = None
-        node.rcs_dir = rcs_dir
-    if rcs_dir:
-        return rcs_dir.entry_exists_on_disk(name+',v')
-    return None
 
-def ignore_diskcheck_rcs(node, name):
-    return None
-
-def do_diskcheck_sccs(node, name):
-    try:
-        sccs_dir = node.sccs_dir
-    except AttributeError:
-        if node.entry_exists_on_disk('SCCS'):
-            sccs_dir = node.Dir('SCCS')
-        else:
-            sccs_dir = None
-        node.sccs_dir = sccs_dir
-    if sccs_dir:
-        return sccs_dir.entry_exists_on_disk('s.'+name)
-    return None
-
-def ignore_diskcheck_sccs(node, name):
-    return None
 
 diskcheck_match = DiskChecker('match', do_diskcheck_match, ignore_diskcheck_match)
-diskcheck_rcs = DiskChecker('rcs', do_diskcheck_rcs, ignore_diskcheck_rcs)
-diskcheck_sccs = DiskChecker('sccs', do_diskcheck_sccs, ignore_diskcheck_sccs)
 
 diskcheckers = [
     diskcheck_match,
-    diskcheck_rcs,
-    diskcheck_sccs,
 ]
 
 def set_diskcheck(list):
@@ -476,6 +415,11 @@ def diskcheck_types():
 class EntryProxy(SCons.Util.Proxy):
 
     __str__ = SCons.Util.Delegate('__str__')
+
+    # In PY3 if a class defines __eq__, then it must explicitly provide
+    # __hash__.  Since SCons.Util.Proxy provides __eq__ we need the following
+    # see: https://docs.python.org/3.1/reference/datamodel.html#object.__hash__
+    __hash__ = SCons.Util.Delegate('__hash__')
 
     def __get_abspath(self):
         entry = self.get()
@@ -573,6 +517,7 @@ class EntryProxy(SCons.Util.Proxy):
             return attr
         else:
             return attr_function(self)
+
 
 class Base(SCons.Node.Node):
     """A generic class for file system entries.  This class is for
@@ -976,8 +921,6 @@ class Entry(Base):
                  'root',
                  'dirname',
                  'on_disk_entries',
-                 'sccs_dir',
-                 'rcs_dir',
                  'released_target_info',
                  'contentsig']
 
@@ -1523,8 +1466,6 @@ class Dir(Base):
                  'root',
                  'dirname',
                  'on_disk_entries',
-                 'sccs_dir',
-                 'rcs_dir',
                  'released_target_info',
                  'contentsig']
 
@@ -2090,9 +2031,7 @@ class Dir(Base):
         return node
 
     def file_on_disk(self, name):
-        if self.entry_exists_on_disk(name) or \
-           diskcheck_rcs(self, name) or \
-           diskcheck_sccs(self, name):
+        if self.entry_exists_on_disk(name):
             try: return self.File(name)
             except TypeError: pass
         node = self.srcdir_duplicate(name)
@@ -2589,8 +2528,6 @@ class File(Base):
                  'root',
                  'dirname',
                  'on_disk_entries',
-                 'sccs_dir',
-                 'rcs_dir',
                  'released_target_info',
                  'contentsig']
 
@@ -3031,12 +2968,7 @@ class File(Base):
             return None
         scb = self.dir.src_builder()
         if scb is _null:
-            if diskcheck_sccs(self.dir, self.name):
-                scb = get_DefaultSCCSBuilder()
-            elif diskcheck_rcs(self.dir, self.name):
-                scb = get_DefaultRCSBuilder()
-            else:
-                scb = None
+            scb = None
         if scb is not None:
             try:
                 b = self.builder

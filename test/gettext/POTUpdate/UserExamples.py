@@ -62,19 +62,19 @@ test.must_not_exist(    ['ex1', 'po', 'bar.pot'] )
 test.run(arguments = 'foo.pot', chdir = path.join('ex1', 'po'))
 test.must_exist(        ['ex1', 'po', 'foo.pot'] )
 test.must_not_exist(    ['ex1', 'po', 'bar.pot'] )
-test.must_contain(      ['ex1', 'po', 'foo.pot'], "Hello from a.cpp" )
-test.must_contain(      ['ex1', 'po', 'foo.pot'], "Hello from b.cpp" )
-test.must_not_contain(  ['ex1', 'po', 'foo.pot'], "Hello from c.cpp" )
-test.must_not_contain(  ['ex1', 'po', 'foo.pot'], "Hello from d.cpp" )
+test.must_contain(      ['ex1', 'po', 'foo.pot'], "Hello from a.cpp", mode='r')
+test.must_contain(      ['ex1', 'po', 'foo.pot'], "Hello from b.cpp", mode='r')
+test.must_not_contain(  ['ex1', 'po', 'foo.pot'], "Hello from c.cpp", mode='r')
+test.must_not_contain(  ['ex1', 'po', 'foo.pot'], "Hello from d.cpp", mode='r')
 
 # scons 'pot-update' creates foo.pot and bar.pot
 test.run(arguments = 'pot-update', chdir = path.join('ex1', 'po'))
 test.must_exist(        ['ex1', 'po', 'foo.pot'] )
 test.must_exist(        ['ex1', 'po', 'bar.pot'] )
-test.must_not_contain(  ['ex1', 'po', 'bar.pot'], "Hello from a.cpp" )
-test.must_not_contain(  ['ex1', 'po', 'bar.pot'], "Hello from b.cpp" )
-test.must_contain(      ['ex1', 'po', 'bar.pot'], "Hello from c.cpp" )
-test.must_contain(      ['ex1', 'po', 'bar.pot'], "Hello from d.cpp" )
+test.must_not_contain(  ['ex1', 'po', 'bar.pot'], "Hello from a.cpp", mode='r')
+test.must_not_contain(  ['ex1', 'po', 'bar.pot'], "Hello from b.cpp", mode='r')
+test.must_contain(      ['ex1', 'po', 'bar.pot'], "Hello from c.cpp", mode='r')
+test.must_contain(      ['ex1', 'po', 'bar.pot'], "Hello from d.cpp", mode='r')
 
 # scons -c does not clean anything
 test.run(arguments = '-c', chdir = path.join('ex1', 'po'))
@@ -101,16 +101,16 @@ test.write(['ex2', 'd.cpp'], """ gettext("Hello from d.cpp") """)
 test.run(arguments = 'pot-update', chdir = path.join('ex2'))
 
 test.must_exist(        ['ex2', 'foo.pot'])
-test.must_contain(      ['ex2', 'foo.pot'], "Hello from a.cpp" )
-test.must_contain(      ['ex2', 'foo.pot'], "Hello from b.cpp" )
-test.must_not_contain(  ['ex2', 'foo.pot'], "Hello from c.cpp" )
-test.must_not_contain(  ['ex2', 'foo.pot'], "Hello from d.cpp" )
+test.must_contain(      ['ex2', 'foo.pot'], "Hello from a.cpp", mode='r' )
+test.must_contain(      ['ex2', 'foo.pot'], "Hello from b.cpp", mode='r' )
+test.must_not_contain(  ['ex2', 'foo.pot'], "Hello from c.cpp", mode='r' )
+test.must_not_contain(  ['ex2', 'foo.pot'], "Hello from d.cpp", mode='r' )
 
 test.must_exist(        ['ex2', 'bar.pot'])
-test.must_not_contain(  ['ex2', 'bar.pot'], "Hello from a.cpp" )
-test.must_not_contain(  ['ex2', 'bar.pot'], "Hello from b.cpp" )
-test.must_contain(      ['ex2', 'bar.pot'], "Hello from c.cpp" )
-test.must_contain(      ['ex2', 'bar.pot'], "Hello from d.cpp" )
+test.must_not_contain(  ['ex2', 'bar.pot'], "Hello from a.cpp", mode='r' )
+test.must_not_contain(  ['ex2', 'bar.pot'], "Hello from b.cpp", mode='r' )
+test.must_contain(      ['ex2', 'bar.pot'], "Hello from c.cpp", mode='r' )
+test.must_contain(      ['ex2', 'bar.pot'], "Hello from d.cpp", mode='r' )
 
 
 #############################################################################
@@ -192,9 +192,9 @@ test.write(['ex5', '0', '1', 'a.cpp'], """ gettext("Hello from ../a.cpp") """)
 test.run(arguments = 'pot-update', chdir = path.join('ex5', '0', '1', 'po'))
 test.must_exist(        ['ex5', '0', '1', 'po', 'messages.pot'])
 test.must_contain(      ['ex5', '0', '1', 'po', 'messages.pot'], 
-                        'Hello from ../a.cpp' )
+                        'Hello from ../a.cpp', mode='r' )
 test.must_not_contain(  ['ex5', '0', '1', 'po', 'messages.pot'], 
-                        'Hello from ../../a.cpp' )
+                        'Hello from ../../a.cpp', mode='r' )
 
 test.write(['ex5', '0', '1', 'po', 'SConstruct'],
 """
@@ -204,9 +204,9 @@ env.POTUpdate(XGETTEXTFROM = 'POTFILES.in', XGETTEXTPATH=['../../', '../'])
 """)
 test.run(arguments = 'pot-update', chdir = path.join('ex5', '0', '1', 'po'))
 test.must_contain(      ['ex5', '0', '1', 'po', 'messages.pot'],
-                        'Hello from ../../a.cpp' )
+                        'Hello from ../../a.cpp', mode='r' )
 test.must_not_contain(  ['ex5', '0', '1', 'po', 'messages.pot'],
-                        'Hello from ../a.cpp')
+                        'Hello from ../a.cpp', mode='r')
 
 test.pass_test()
 

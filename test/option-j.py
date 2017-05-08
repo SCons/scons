@@ -122,7 +122,7 @@ test.fail_test(start2 < finish1)
 # succeeds.
 test.run(arguments='-j 2 out')
 
-if sys.platform != 'win32':
+if sys.platform != 'win32' and sys.version_info[0] == 2:
     # Test breaks on win32 when using real subprocess is not the only
     # package to import threading
     #

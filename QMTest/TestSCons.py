@@ -598,23 +598,33 @@ class TestSCons(TestCommon):
 
         return s
 
+    @staticmethod
+    def to_bytes_re_sub(pattern, repl, str, count=0, flags=0):
+        """
+        Wrapper around re.sub to change pattern and repl to bytes to work with
+        both python 2 & 3
+        """
+        pattern = to_bytes(pattern)
+        repl = to_bytes(repl)
+        return re.sub(pattern, repl, str, count, flags)
+    
     def normalize_pdf(self, s):
-        s = re.sub(r'/(Creation|Mod)Date \(D:[^)]*\)',
-                   r'/\1Date (D:XXXX)', s)
-        s = re.sub(r'/ID \[<[0-9a-fA-F]*> <[0-9a-fA-F]*>\]',
-                   r'/ID [<XXXX> <XXXX>]', s)
-        s = re.sub(r'/(BaseFont|FontName) /[A-Z]{6}',
-                   r'/\1 /XXXXXX', s)
-        s = re.sub(r'/Length \d+ *\n/Filter /FlateDecode\n',
-                   r'/Length XXXX\n/Filter /FlateDecode\n', s)
+        s = self.to_bytes_re_sub(r'/(Creation|Mod)Date \(D:[^)]*\)',
+                       r'/\1Date (D:XXXX)', s)
+        s = self.to_bytes_re_sub(r'/ID \[<[0-9a-fA-F]*> <[0-9a-fA-F]*>\]',
+                       r'/ID [<XXXX> <XXXX>]', s)
+        s = self.to_bytes_re_sub(r'/(BaseFont|FontName) /[A-Z]{6}',
+                       r'/\1 /XXXXXX', s)
+        s = self.to_bytes_re_sub(r'/Length \d+ *\n/Filter /FlateDecode\n',
+                       r'/Length XXXX\n/Filter /FlateDecode\n', s)
 
         try:
             import zlib
         except ImportError:
             pass
         else:
-            begin_marker = '/FlateDecode\n>>\nstream\n'
-            end_marker = 'endstream\nendobj'
+            begin_marker = to_bytes('/FlateDecode\n>>\nstream\n')
+            end_marker = to_bytes('endstream\nendobj')
 
             encoded = []
             b = s.find(begin_marker, 0)
@@ -629,16 +639,16 @@ class TestSCons(TestCommon):
             for b, e in encoded:
                 r.append(s[x:b])
                 d = zlib.decompress(s[b:e])
-                d = re.sub(r'%%CreationDate: [^\n]*\n',
-                           r'%%CreationDate: 1970 Jan 01 00:00:00\n', d)
-                d = re.sub(r'%DVIPSSource:  TeX output \d\d\d\d\.\d\d\.\d\d:\d\d\d\d',
-                           r'%DVIPSSource:  TeX output 1970.01.01:0000', d)
-                d = re.sub(r'/(BaseFont|FontName) /[A-Z]{6}',
-                           r'/\1 /XXXXXX', d)
+                d = self.to_bytes_re_sub(r'%%CreationDate: [^\n]*\n',
+                               r'%%CreationDate: 1970 Jan 01 00:00:00\n', d)
+                d = self.to_bytes_re_sub(r'%DVIPSSource:  TeX output \d\d\d\d\.\d\d\.\d\d:\d\d\d\d',
+                               r'%DVIPSSource:  TeX output 1970.01.01:0000', d)
+                d = self.to_bytes_re_sub(r'/(BaseFont|FontName) /[A-Z]{6}',
+                               r'/\1 /XXXXXX', d)
                 r.append(d)
                 x = e
             r.append(s[x:])
-            s = ''.join(r)
+            s = to_bytes('').join(r)
 
         return s
 
@@ -1236,7 +1246,10 @@ try:
     import distutils.sysconfig
     exec_prefix = distutils.sysconfig.EXEC_PREFIX
     print(distutils.sysconfig.get_python_inc())
-    print(os.path.join(exec_prefix, 'libs'))
+    lib_path = os.path.join(exec_prefix, 'libs')
+    if not os.path.exists(lib_path):
+        lib_path = os.path.join(exec_prefix, 'lib')
+    print(lib_path)
 except:
     print(os.path.join(sys.prefix, 'include', py_ver))
     print(os.path.join(sys.prefix, 'lib', py_ver, 'config'))

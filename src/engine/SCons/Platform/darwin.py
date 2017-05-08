@@ -63,6 +63,10 @@ def generate(env):
                     env.AppendENVPath('PATHOSX', line.strip('\n'))
             f.close()
 
+    # Not sure why this wasn't the case all along?
+    if env['ENV'].get('PATHOSX', False) and os.environ.get('SCONS_USE_MAC_PATHS', False):
+        env.AppendENVPath('PATH',env['ENV']['PATHOSX'])
+
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil

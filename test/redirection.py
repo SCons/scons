@@ -32,11 +32,22 @@ test = TestSCons.TestSCons()
 
 test.write('cat.py', r"""
 import sys
+PY3K = sys.version_info >= (3, 0)
+
 try:
-    input = open(sys.argv[1], 'r').read()
+    input = open(sys.argv[1], 'rb').read()
 except IndexError:
-    input = sys.stdin.read()
-sys.stdout.write(input)
+    if PY3K:
+        source = sys.stdin.buffer
+    else:
+        source = sys.stdin
+    input = source.read()
+    
+if PY3K:
+    sys.stdout.buffer.write(input)
+else:
+    sys.stdout.write(input)
+
 sys.exit(0)
 """)
 

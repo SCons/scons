@@ -110,7 +110,7 @@ def _createConfigH(target, source, env):
 #define %(DEFNAME)s_SEEN
 
 """ % {'DEFNAME' : defname})
-    t.write(source[0].get_contents())
+    t.write(source[0].get_contents().decode())
     t.write("""
 #endif /* %(DEFNAME)s_SEEN */
 """ % {'DEFNAME' : defname})
@@ -164,11 +164,11 @@ class ConfigureCacheError(SConfError):
 # define actions for building text files
 def _createSource( target, source, env ):
     fd = open(str(target[0]), "w")
-    fd.write(source[0].get_contents())
+    fd.write(source[0].get_contents().decode())
     fd.close()
 def _stringSource( target, source, env ):
     return (str(target[0]) + ' <-\n  |' +
-            source[0].get_contents().replace( '\n', "\n  |" ) )
+            source[0].get_contents().decode().replace( '\n', "\n  |" ) )
 
 class SConfBuildInfo(SCons.Node.FS.FileBuildInfo):
     """
@@ -609,7 +609,7 @@ class SConfBase(object):
         ok = self.TryBuild(self.env.SConfActionBuilder, text, extension)
         del self.env['BUILDERS']['SConfActionBuilder']
         if ok:
-            outputStr = self.lastTarget.get_contents()
+            outputStr = self.lastTarget.get_contents().decode()
             return (1, outputStr)
         return (0, "")
 

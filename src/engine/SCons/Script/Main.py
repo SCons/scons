@@ -47,6 +47,7 @@ import os
 import sys
 import time
 import traceback
+import sysconfig
 
 import SCons.CacheDir
 import SCons.Debug
@@ -1251,16 +1252,19 @@ def _build_targets(fs, options, targets, target_top):
     # various print_* settings, tree_printer list, etc.
     BuildTask.options = options
 
+
+    python_has_threads = sysconfig.get_config_var('WITH_THREAD')
+    # to check if python configured with threads.
     global num_jobs
     num_jobs = options.num_jobs
     jobs = SCons.Job.Jobs(num_jobs, taskmaster)
     if num_jobs > 1:
         msg = None
-        if jobs.num_jobs == 1:
+        if sys.platform == 'win32':
+            msg = fetch_win32_parallel_msg()
+        elif jobs.num_jobs == 1 or not python_has_threads:
             msg = "parallel builds are unsupported by this version of Python;\n" + \
                   "\tignoring -j or num_jobs option.\n"
-        elif sys.platform == 'win32':
-            msg = fetch_win32_parallel_msg()
         if msg:
             SCons.Warnings.warn(SCons.Warnings.NoParallelSupportWarning, msg)
 
