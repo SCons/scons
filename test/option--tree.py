@@ -24,6 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import sys
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -67,11 +68,16 @@ except NameError:
 env.Textfile("Foo", write)
 """)
 
+if sys.version_info.major < 3:
+    py23_char = unichr(0xe7).encode('utf-8')
+else:
+    py23_char = chr(0xe7)
+
 test.run(arguments = '-Q --tree=all',
          stdout = """Creating 'Foo.txt'
 +-.
   +-Foo.txt
-  | +-\\xc3\\xa7
+  | +-""" + py23_char + """
   +-SConstruct
 """,
          status = 0)

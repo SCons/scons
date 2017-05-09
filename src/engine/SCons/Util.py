@@ -290,25 +290,6 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
     """
 
     rname = str(root)
-    if sys.version_info.major < 3:
-        # Python 2 UTF-8 encoded str are str. escape_encode is a str to str
-        # encoding
-        try:
-            rname.decode('ascii')
-        except UnicodeDecodeError:
-            # If we can't decode into ascii, then escape it
-            rname = codecs.escape_encode(rname)[0]
-    else:
-        # Python 3 UTF-8 encoded str are bytes. escape_encode is a byte to byte
-        # encoding here.
-        rname = rname.encode('utf-8')
-        try:
-            # Finally, we need a string again.
-            rname = rname.decode('ascii')
-        except UnicodeDecodeError:
-            # If we can't decode into ascii, then escape it
-            rname = codecs.escape_encode(rname)[0]
-            rname = rname.decode('ascii')
 
 
     # Initialize 'visited' dict, if required
@@ -354,10 +335,10 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
     children = child_func(root)
 
     if prune and rname in visited and children:
-        sys.stdout.write(''.join(tags + margins + ['+-[', rname, ']']) + u'\n')
+        sys.stdout.write(''.join(tags + margins + ['+-[', rname, ']']) + '\n')
         return
 
-    sys.stdout.write(''.join(tags + margins + ['+-', rname]) + u'\n')
+    sys.stdout.write(''.join(tags + margins + ['+-', rname]) + '\n')
 
     visited[rname] = 1
 
