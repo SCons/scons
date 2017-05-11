@@ -610,6 +610,8 @@ class BuilderBase(object):
         else:
             ekw = self.executor_kw.copy()
             ekw['chdir'] = chdir
+        if 'chdir' in ekw and SCons.Util.is_String(ekw['chdir']):
+            ekw['chdir'] = env.subst(ekw['chdir'])
         if kw:
             if 'srcdir' in kw:
                 def prependDirIfRelative(f, srcdir=kw['srcdir']):

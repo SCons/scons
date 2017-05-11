@@ -31,15 +31,18 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
+test.subdir('expand_chdir_sub')
 test.subdir('sub')
 
-test.write('build.py', r"""
+build_py = r"""
 import sys
 contents = open(sys.argv[2], 'r').read()
 file = open(sys.argv[1], 'w')
 file.write(contents)
 file.close()
-""")
+"""
+test.write('build.py', build_py)
+test.write(['expand_chdir_sub', 'subbuild.py'], build_py)
 
 test.write('SConstruct', """
 import os
@@ -86,6 +89,11 @@ env.Command(target = 'f9.out', source = 'f9.in',
 env.Command(target = '${F10}.out', source = '${F10}.in',
             action = r'%(_python_)s build.py $TARGET $SOURCE',
             F10 = 'f10')
+env['SUB'] = 'expand_chdir_sub'
+env.Command(target = '$SUB/${F11}.out', source = '$SUB/${F11}.in',
+            action = r'%(_python_)s subbuild.py ${F11}.out ${F11}.in',
+            chdir = '$SUB',
+            F11 = 'f11')
 """ % locals())
 
 test.write('f1.in', "f1.in\n")
@@ -100,6 +108,7 @@ test.write('f7.in', "f7.in\n")
 test.write('f8.in', "f8.in\n")
 test.write('f9.in', "f9.in\n")
 test.write('f10.in', "f10.in\n")
+test.write(['expand_chdir_sub', 'f11.in'], "expand_chdir_sub/f11.in\n")
 
 test.run(arguments = '.')
 
@@ -113,6 +122,7 @@ test.must_match('f7.out', "f7.in\n", mode='r')
 test.must_match('f8.out', "f8.in\n", mode='r')
 test.must_match('f9.out', "f9.in\n", mode='r')
 test.must_match('f10.out', "f10.in\n", mode='r')
+test.must_match(['expand_chdir_sub', 'f11.out'], "expand_chdir_sub/f11.in\n", mode='r')
 
 test.pass_test()
 
