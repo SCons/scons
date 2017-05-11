@@ -34,6 +34,13 @@ test.write('cat.py', r"""
 import sys
 PY3K = sys.version_info >= (3, 0)
 
+# write binary to stdout
+if sys.platform == "win32":
+    import os, msvcrt
+    msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
+    msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
+
+
 try:
     input = open(sys.argv[1], 'rb').read()
 except IndexError:
