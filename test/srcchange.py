@@ -83,7 +83,7 @@ main(int argc, char *argv[])
     exit (0);
 }
 
-""",mode='w')
+""", mode='w')
 
 test.write('revnum.in', '3.2\n')
 
