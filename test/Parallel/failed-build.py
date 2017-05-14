@@ -107,7 +107,7 @@ test.run(arguments = '-j 2 .',
 
 test.must_not_exist(test.workpath('f3'))
 test.must_match(test.workpath('f4'), 'f4.in\n')
-test.must_not_exist(test.workpath('f5')) 
+test.must_not_exist(test.workpath('f5'))
 test.must_not_exist(test.workpath('f6'))
 
 
