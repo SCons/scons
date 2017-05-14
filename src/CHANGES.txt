@@ -53,6 +53,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       follows: xsltproc, saxon, saxon-xslt, xalan  (with first being highest priority, first
       tool found is used)
     - Fixed MSVSProject example code (http://scons.tigris.org/issues/show_bug.cgi?id=2979)
+    - Defined MS SDK 10.0 and Changed VS 2015 to use SDK 10.0
 
   From Daniel Moody:
     - Fixed msvs.py for Visual Studio generated projects which were
