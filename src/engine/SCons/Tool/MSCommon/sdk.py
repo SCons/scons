@@ -164,6 +164,12 @@ SDK70VCSetupScripts =    { 'x86'      : r'bin\vcvars32.bat',
                            'x86_ia64' : r'bin\vcvarsx86_ia64.bat',
                            'ia64'     : r'bin\vcvarsia64.bat'}
 
+SDK100VCSetupScripts =    {'x86'      : r'bin\vcvars32.bat',
+                           'amd64'    : r'bin\vcvars64.bat',
+                           'x86_amd64': r'bin\x86_amd64\vcvarsx86_amd64.bat',
+                           'x86_arm'  : r'bin\x86_arm\vcvarsx86_arm.bat'}
+
+
 # The list of support SDKs which we know how to detect.
 #
 # The first SDK found in the list is the one used by default if there
@@ -172,6 +178,16 @@ SDK70VCSetupScripts =    { 'x86'      : r'bin\vcvars32.bat',
 #
 # If you update this list, update the documentation in Tool/mssdk.xml.
 SupportedSDKList = [
+    WindowsSDK('10.0',
+               sanity_check_file=r'bin\SetEnv.Cmd',
+               include_subdir='include',
+               lib_subdir={
+                   'x86'       : ['lib'],
+                   'x86_64'    : [r'lib\x64'],
+                   'ia64'      : [r'lib\ia64'],
+               },
+               vc_setup_scripts = SDK70VCSetupScripts,
+              ),
     WindowsSDK('7.1',
                sanity_check_file=r'bin\SetEnv.Cmd',
                include_subdir='include',

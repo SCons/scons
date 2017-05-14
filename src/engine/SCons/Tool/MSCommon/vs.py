@@ -202,7 +202,7 @@ SupportedVSList = [
     # Visual Studio 2015
     VisualStudio('14.0',
                  vc_version='14.0',
-                 sdk_version='10.0A',
+                 sdk_version='10.0',
                  hkeys=[r'Microsoft\VisualStudio\14.0\Setup\VS\ProductDir'],
                  common_tools_var='VS140COMNTOOLS',
                  executable_path=r'Common7\IDE\devenv.com',
