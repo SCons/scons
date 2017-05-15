@@ -30,6 +30,7 @@ SConscript settable option.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import sys
 import stat
 import TestSCons
 
@@ -49,8 +50,10 @@ SConscript('build/SConscript')
 
 test.write('SConscript', '')
 
-hard = hasattr(os,'link')
-soft = hasattr(os,'symlink')
+# we don't use links on windows currently as they
+# require permissions not usually set
+hard = hasattr(os, 'link') and sys.platform != 'win32'
+soft = hasattr(os, 'symlink') and sys.platform != 'win32'
 copy = 1 # should always work
 
 bss = test.workpath('build/SConscript')
