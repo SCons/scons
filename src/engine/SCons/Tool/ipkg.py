@@ -44,20 +44,26 @@ def generate(env):
     try:
         bld = env['BUILDERS']['Ipkg']
     except KeyError:
-        bld = SCons.Builder.Builder( action  = '$IPKGCOM',
-                                     suffix  = '$IPKGSUFFIX',
-                                     source_scanner = None,
-                                     target_scanner = None)
+        bld = SCons.Builder.Builder(action='$IPKGCOM',
+                                    suffix='$IPKGSUFFIX',
+                                    source_scanner=None,
+                                    target_scanner=None)
         env['BUILDERS']['Ipkg'] = bld
 
-    env['IPKG']       = 'ipkg-build'
-    env['IPKGCOM']    = '$IPKG $IPKGFLAGS ${SOURCE}'
-    env['IPKGUSER']   = os.popen('id -un').read().strip()
-    env['IPKGGROUP']  = os.popen('id -gn').read().strip()
-    env['IPKGFLAGS']  = SCons.Util.CLVar('-o $IPKGUSER -g $IPKGGROUP')
+
+    env['IPKG'] = 'ipkg-build'
+    env['IPKGCOM'] = '$IPKG $IPKGFLAGS ${SOURCE}'
+
+    if env.WhereIs('id'):
+        env['IPKGUSER'] = os.popen('id -un').read().strip()
+        env['IPKGGROUP'] = os.popen('id -gn').read().strip()
+    env['IPKGFLAGS'] = SCons.Util.CLVar('-o $IPKGUSER -g $IPKGGROUP')
     env['IPKGSUFFIX'] = '.ipk'
 
 def exists(env):
+    """
+    Can we find the tool
+    """
     return env.Detect('ipkg-build')
 
 # Local Variables:

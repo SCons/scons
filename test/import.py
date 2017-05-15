@@ -64,7 +64,7 @@ platforms = [
 for platform in platforms:
     test.write('SConstruct', """
 print("Platform %(platform)s")
-env = Environment(platform = '%(platform)s')
+env = Environment(platform = '%(platform)s', tools=[])
 import SCons.Platform.%(platform)s
 x = SCons.Platform.%(platform)s.generate
 """ % locals())
