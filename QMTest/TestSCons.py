@@ -1313,6 +1313,12 @@ print(py_ver)
             alt_cpp_suffix = '.C'
         return alt_cpp_suffix
 
+    def platform_has_symlink(self):
+        if not hasattr(os, 'symlink') or sys.platform == 'win32':
+            return False
+        else:
+            return True
+
 
 class Stat:
     def __init__(self, name, units, expression, convert=None):
