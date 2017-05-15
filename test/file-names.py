@@ -56,7 +56,7 @@ if sys.platform == 'win32':
 
     # Win32 filesystems are case insensitive so don't do half the alphabet.
     import string
-    invalid_chars.update(string.lowercase)
+    invalid_chars.update(string.ascii_lowercase)
 
     # See the 'naming conventions' section of
     # https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
