@@ -1375,7 +1375,7 @@ class TestCmd(object):
                   stdin=stdin,
                   stdout=subprocess.PIPE,
                   stderr=stderr_value,
-                  universal_newlines=False)
+                  universal_newlines=universal_newlines)
         self.process = p
         return p
 
