@@ -220,7 +220,12 @@ needs_normpath_match = needs_normpath_check.match
 # there should be *no* changes to the external file system(s)...
 #
 
-if hasattr(os, 'link'):
+# For Now disable hard & softlinks for win32
+# PY3 supports them, but the rest of SCons is not ready for this
+# in some cases user permissions may be required.
+# TODO: See if theres a reasonable way to enable using links on win32/64
+
+if hasattr(os, 'link') and sys.platform != 'win32':
     def _hardlink_func(fs, src, dst):
         # If the source is a symlink, we can't just hard-link to it
         # because a relative symlink may point somewhere completely
@@ -236,7 +241,7 @@ if hasattr(os, 'link'):
 else:
     _hardlink_func = None
 
-if hasattr(os, 'symlink'):
+if hasattr(os, 'symlink') and sys.platform != 'win32':
     def _softlink_func(fs, src, dst):
         fs.symlink(src, dst)
 else:
