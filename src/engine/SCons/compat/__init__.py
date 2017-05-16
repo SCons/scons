@@ -146,6 +146,15 @@ except AttributeError:
     del _UserString
 
 
+import shutil
+try:
+    shutil.SameFileError
+except AttributeError:
+    class SameFileError(Exception):
+        pass
+
+    shutil.SameFileError = SameFileError
+
 def with_metaclass(meta, *bases):
     """
     Function from jinja2/_compat.py. License: BSD.
