@@ -83,10 +83,15 @@ test.write('l.in', "l.in\n")
 test.write('m.in', "m.in\n")
 
 import sys
-if sys.platform == 'win32':
+if sys.platform == 'win32' and sys.version_info[0] == 2:
     expect = r"""scons: \*\*\* Error 1
 scons: \*\*\* Error 2
 scons: \*\*\* nonexistent.in/\*\.\*: (The system cannot find the path specified|Das System kann den angegebenen Pfad nicht finden)"""
+elif sys.platform == 'win32' and sys.version_info[0] == 3:
+    expect = r"""scons: \*\*\* Error 1
+scons: \*\*\* Error 2
+scons: \*\*\* nonexistent.in: (The system cannot find the path specified|Das System kann den angegebenen Pfad nicht finden)"""
+
 else:
     expect = r"""scons: \*\*\* Error 1
 scons: \*\*\* Error 2
