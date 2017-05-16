@@ -25,6 +25,7 @@
 """
 This test verifies that file isn't redefined incorrectly as a function on
 Windows systems.  It's a built-in type and should thus be inheritable.
+Doesn't apply on win32 under python3
 """
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
@@ -35,7 +36,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-if sys.platform != 'win32':
+if sys.platform != 'win32' or sys.version_info[0] != 2:
     test.skip_test(
         'Skipping file-type test on non-Windows platform: %s\n' % sys.platform)
 
