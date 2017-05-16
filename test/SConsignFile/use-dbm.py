@@ -61,7 +61,7 @@ test.write('SConstruct', """
 import sys
 import %(use_db)s
 SConsignFile('.sconsign', %(use_db)s)
-B = Builder(action = '%(_python_)s build.py $TARGETS $SOURCES')
+B = Builder(action = r'%(_python_)s build.py $TARGETS $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'f1.out', source = 'f1.in')
 env.B(target = 'f2.out', source = 'f2.in')
