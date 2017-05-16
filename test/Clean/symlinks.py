@@ -34,7 +34,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-if not hasattr(os, 'symlink'):
+if not test.platform_has_symlink():
     test.skip_test('No os.symlink() function; skipping test\n')
 
 test.write('SConstruct', """\
