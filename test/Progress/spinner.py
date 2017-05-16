@@ -51,15 +51,17 @@ test.write('S2.in', "S2.in\n")
 test.write('S3.in', "S3.in\n")
 test.write('S4.in', "S4.in\n")
 
-expect = bytearray("""\
+expect ="""\
 \\\r|\rCopy("S1.out", "S1.in")
 /\r-\rCopy("S2.out", "S2.in")
 \\\r|\rCopy("S3.out", "S3.in")
 /\r-\rCopy("S4.out", "S4.in")
-\\\r|\r""",'utf-8')
+\\\r|\r"""
 
 if os.linesep != '\n':
     expect = expect.replace('\n', os.linesep)
+
+expect = bytearray(expect,'utf-8')
 
 test.run(arguments = '-Q .', stdout=expect)
 
