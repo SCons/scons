@@ -38,7 +38,7 @@ SCons.Defaults.DefaultEnvironment( tools = [] )
 
 test = TestSCons.TestSCons()
 
-if not hasattr(os, 'symlink'):
+if not test.platform_has_symlink():
     test.skip_test('No os.symlink() method, no symlinks to test.\n')
 
 filelinkToCopy = 'filelinkToCopy'
