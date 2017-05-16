@@ -77,7 +77,7 @@ else:
             def __init__(self, *args, **kw):
                 _builtin_file.__init__(self, *args, **kw)
                 win32api.SetHandleInformation(msvcrt.get_osfhandle(self.fileno()),
-                    win32con.HANDLE_FLAG_INHERIT, 0)
+                 win32con.HANDLE_FLAG_INHERIT, 0)
         file = _scons_file
     else:
         import io
@@ -226,10 +226,10 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
 def exec_spawn(l, env):
     try:
         result = spawnve(os.P_WAIT, l[0], l, env)
-    except OSError as e:
+    except (OSError, EnvironmentError) as e:
         try:
-            result = exitvalmap[e[0]]
-            sys.stderr.write("scons: %s: %s\n" % (l[0], e[1]))
+            result = exitvalmap[e.errno]
+            sys.stderr.write("scons: %s: %s\n" % (l[0], e.strerror))
         except KeyError:
             result = 127
             if len(l) > 2:
@@ -239,7 +239,7 @@ def exec_spawn(l, env):
                     command = l[0]
             else:
                 command = l[0]
-            sys.stderr.write("scons: unknown OSError exception code %d - '%s': %s\n" % (e[0], command, e[1]))
+            sys.stderr.write("scons: unknown OSError exception code %d - '%s': %s\n" % (e.errno, command, e.strerror))
     return result
 
 
