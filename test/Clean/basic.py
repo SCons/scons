@@ -54,7 +54,8 @@ env.B(target = 'foo3.out', source = 'foo3.in')
 env.B(target = 'foo4.out', source = 'foo4.in')
 env.NoClean('foo4.out')
 import os
-if hasattr(os, 'symlink'):
+import sys
+if hasattr(os, 'symlink') and sys.platform !='win32':
     def symlink1(env, target, source):
         # symlink to a file that exists
         os.symlink(str(source[0]), str(target[0]))
@@ -124,7 +125,7 @@ test.must_match(test.workpath('foo4.out'), "foo4.in\n")
 test.must_exist(test.workpath('touch1.out'))
 test.must_exist(test.workpath('touch2.out'))
 
-if hasattr(os, 'symlink'):
+if test.platform_has_symlink():
     test.fail_test(not os.path.islink(test.workpath('symlink1')))
     test.fail_test(not os.path.islink(test.workpath('symlink2')))
 
@@ -148,7 +149,7 @@ test.must_exist(test.workpath('foo4.out'))
 test.must_not_exist(test.workpath('touch1.out'))
 test.must_not_exist(test.workpath('touch2.out'))
 
-if hasattr(os, 'symlink'):
+if test.platform_has_symlink():
     test.fail_test(os.path.islink(test.workpath('symlink1')))
     test.fail_test(os.path.islink(test.workpath('symlink2')))
 
