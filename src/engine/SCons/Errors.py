@@ -199,7 +199,7 @@ def convert_to_BuildError(status, exc_info=None):
             exitstatus=2)
     
     #import sys
-    #sys.stderr.write("convert_to_BuildError: status %s => (errstr %s, status %s)"%(status,buildError.errstr, buildError.status))
+    #sys.stderr.write("convert_to_BuildError: status %s => (errstr %s, status %s)\n"%(status,buildError.errstr, buildError.status))
     return buildError
 
 # Local Variables:
