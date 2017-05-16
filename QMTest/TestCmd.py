@@ -1364,11 +1364,18 @@ class TestCmd(object):
         if timeout:
             self.timer = threading.Timer(float(timeout), self._timeout)
             self.timer.start()
+
+        if sys.version_info[0] == 3 and sys.platform == 'win32':
+            # Set this otherwist stdout/stderr pipes default to 
+            # windows default locall cp1252 which will throw exception
+            # if using non-ascii characters. 
+            # For example test/Install/non-ascii-name.py
+            os.environ['PYTHONIOENCODING'] = 'utf-8'
         p = Popen(cmd,
                   stdin=stdin,
                   stdout=subprocess.PIPE,
                   stderr=stderr_value,
-                  universal_newlines=universal_newlines)
+                  universal_newlines=False)
         self.process = p
         return p
 
@@ -1424,6 +1431,7 @@ class TestCmd(object):
                        stdin = stdin)
         if is_List(stdin):
             stdin = ''.join(stdin)
+
         # TODO(sgk):  figure out how to re-use the logic in the .finish()
         # method above.  Just calling it from here causes problems with
         # subclasses that redefine .finish().  We could abstract this
@@ -1524,6 +1532,11 @@ class TestCmd(object):
         is an absolute path name. The target is *not* assumed to be
         under the temporary working directory.
         """
+        if sys.platform == 'win32':
+            # Skip this on windows as we're not enabling it due to 
+            # it requiring user permissions which aren't always present
+            # and we don't have a good way to detect those permissions yet.
+            return 
         link = self.canonicalize(link)
         try:
             os.symlink(target, link)
