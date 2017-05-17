@@ -485,6 +485,14 @@ class VariantDirTestCase(unittest.TestCase):
                 real_symlink = os.symlink
             except AttributeError:
                 real_symlink = None
+
+            # Disable symlink and link for now in win32.
+            # We don't have a consistant plan to make these work as yet
+            # They are only supported with PY3
+            if sys.platform == 'win32':
+                real_symlink = None
+                real_link = None
+
             real_copy = shutil.copy2
 
             simulator = LinkSimulator(duplicate, real_link, real_symlink, real_copy)
