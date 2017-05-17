@@ -1056,7 +1056,7 @@ print("self._msvs_versions =", str(SCons.Tool.MSCommon.query_versions()))
         enginepath = repr(os.path.join(self._cwd, '..', 'engine'))
         replace = 'sys.path = [ %s, join(sys' % enginepath
 
-        contents = self.read(fname)
+        contents = self.read(fname, mode='r')
         contents = contents.replace(orig, replace)
         self.write(fname, contents)
 
