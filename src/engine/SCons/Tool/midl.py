@@ -61,6 +61,9 @@ def midl_emitter(target, source, env):
     return (t,source)
 
 idl_scanner = SCons.Scanner.IDL.IDLScan()
+# TODO: The problem is .tlb is getting scanned with this scanner, and .tlb is a binary file
+# this works fine under py27 (everythings bytes), but in py3 it fails.
+
 
 midl_action = SCons.Action.Action('$MIDLCOM', '$MIDLCOMSTR')
 
