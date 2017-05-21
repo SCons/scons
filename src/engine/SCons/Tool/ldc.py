@@ -104,6 +104,13 @@ def generate(env):
 
     env['DSHLINK'] = '$DC'
     env['DSHLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared -defaultlib=phobos2-ldc')
+
+    #### START DEPRECATION 2017-05-21
+    # Hack for Fedora the packages of which use the wrong name :-(
+    if os.path.exists('/usr/lib64/libphobos-ldc.so') or os.path.exists('/usr/lib32/libphobos-ldc.so') or os.path.exists('/usr/lib/libphobos-ldc.so'):
+        env['DSHLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared -defaultlib=phobos-ldc')
+    #### END DEPRECATION 2017-05-21
+
     env['SHDLINKCOM'] = '$DLINK -of=$TARGET $DSHLINKFLAGS $__DSHLIBVERSIONFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS'
 
     env['DLIBLINKPREFIX'] = '' if env['PLATFORM'] == 'win32' else '-L-l'
