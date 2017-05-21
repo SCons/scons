@@ -14,11 +14,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Daniel Moody:
-    - Updated the QMTest/TestCmd.py so when using the 
+    - Updated the QMTest/TestCmd.py so when using the
       preserve option, it will be able to print unicode directories.
     - Also updated test/scons-time/run/option/verbose.py that was
       not taking into account the output when PRESERVE was enabled
-    
+
   From Gaurav Juvekar:
     - Fix issue #2910: Make --tree=all handle Unicode. (PR #427)
     - Fix issue #2788: Fix typo in documentation example for sconf. (PR #388)
@@ -31,6 +31,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Russel Winder:
     - Reordered the default D tools from "dmd, gdc, ldc" to "dmd, ldc, gdc".
     - Add a ProgramAllAtOnce builder to the dmd, ldc, and gdc tools. (PR #448)
+    - Deprecate a file name exception for very old Fedora LDC installation.
+    - Remove some comments that haven't been relevant for years.
+    - Adjust the way a package is imported to make experimenting easier.
 
   From William Blevins:
     - Updated D language scanner support to latest: 2.071.1. (PR #1924)
