@@ -33,6 +33,8 @@ import re
 import types
 import codecs
 
+PY3 = sys.version[0] == 3
+
 try:
     from UserDict import UserDict
 except ImportError as e:
