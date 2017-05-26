@@ -30,21 +30,32 @@ Definition Language) files.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import re
+
 import SCons.Node.FS
 import SCons.Scanner
-import re
+
+
+def no_tlb(nodes):
+    """
+    Filter out .tlb files as they are binary and shouldn't be scanned
+    """
+    # print("Nodes:%s"%[str(n) for n in nodes])
+    return [n for n in nodes if str(n)[-4:] != '.tlb']
+
 
 def RCScan():
     """Return a prototype Scanner instance for scanning RC source files"""
- 
+
     res_re= r'^(?:\s*#\s*(?:include)|' \
             '.*?\s+(?:ICON|BITMAP|CURSOR|HTML|FONT|MESSAGETABLE|TYPELIB|REGISTRY|D3DFX)' \
             '\s*.*?)' \
             '\s*(<|"| )([^>"\s]+)(?:[>"\s])*$'
-    resScanner = SCons.Scanner.ClassicCPP( "ResourceScanner",
-                                           "$RCSUFFIXES",
-                                           "CPPPATH",
-                                           res_re )
+    resScanner = SCons.Scanner.ClassicCPP("ResourceScanner",
+                                          "$RCSUFFIXES",
+                                          "CPPPATH",
+                                          res_re,
+                                          recursive=no_tlb)
     
     return resScanner
 

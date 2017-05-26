@@ -105,7 +105,7 @@ class ScannerTestCase(unittest.TestCase):
         assert str(s) == 'fooscan', str(s)
         assert s.argument == 888, s.argument
 
-        
+
 class BaseTestCase(unittest.TestCase):
 
     class skey_node(object):
@@ -447,6 +447,17 @@ class CurrentTestCase(unittest.TestCase):
         self.failUnless(ic.func_called, "did not call func()")
 
 class ClassicTestCase(unittest.TestCase):
+
+    def func(self, filename, env, target, *args):
+        self.filename = filename
+        self.env = env
+        self.target = target
+
+        if len(args) > 0:
+            self.arg = args[0]
+
+        return self.deps
+
     def test_find_include(self):
         """Test the Scanner.Classic find_include() method"""
         env = DummyEnvironment()
@@ -547,6 +558,25 @@ class ClassicTestCase(unittest.TestCase):
         n._rfile = nr
         ret = s.function(n, env, ('foo5',))
         assert ret == ['jkl', 'mno'], ret
+
+    def test_recursive(self):
+        """Test the Scanner.Classic class recursive flag"""
+        nodes = [1, 2, 3, 4]
+
+
+        s = SCons.Scanner.Classic("Test", [], None, "", function=self.func, recursive=1)
+        n = s.recurse_nodes(nodes)
+        self.failUnless(n == n,
+                        "recursive = 1 didn't return all nodes: %s" % n)
+
+        def odd_only(nodes):
+            return [n for n in nodes if n % 2]
+
+        s = SCons.Scanner.Classic("Test", [], None, "", function=self.func, recursive=odd_only)
+        n = s.recurse_nodes(nodes)
+        self.failUnless(n == [1, 3],
+                        "recursive = 1 didn't return all nodes: %s" % n)
+
 
         
 

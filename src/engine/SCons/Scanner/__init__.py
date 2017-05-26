@@ -188,12 +188,12 @@ class Base(object):
     def path(self, env, dir=None, target=None, source=None):
         if not self.path_function:
             return ()
-        if not self.argument is _null:
+        if self.argument is not _null:
             return self.path_function(env, dir, target, source, self.argument)
         else:
             return self.path_function(env, dir, target, source)
 
-    def __call__(self, node, env, path = ()):
+    def __call__(self, node, env, path=()):
         """
         This method scans a single object. 'node' is the node
         that will be passed to the scanner function, and 'env' is the
@@ -206,16 +206,16 @@ class Base(object):
         self = self.select(node)
 
         if not self.argument is _null:
-            list = self.function(node, env, path, self.argument)
+            node_list = self.function(node, env, path, self.argument)
         else:
-            list = self.function(node, env, path)
+            node_list = self.function(node, env, path)
 
         kw = {}
         if hasattr(node, 'dir'):
             kw['directory'] = node.dir
         node_factory = env.get_factory(self.node_factory)
         nodes = []
-        for l in list:
+        for l in node_list:
             if self.node_class and not isinstance(l, self.node_class):
                 l = node_factory(l, **kw)
             nodes.append(l)
@@ -259,7 +259,7 @@ class Base(object):
     def _recurse_no_nodes(self, nodes):
         return []
 
-    recurse_nodes = _recurse_no_nodes
+    # recurse_nodes = _recurse_no_nodes
 
     def add_scanner(self, skey, scanner):
         self.function[skey] = scanner
@@ -283,7 +283,7 @@ class Selector(Base):
         self.dict = dict
         self.skeys = list(dict.keys())
 
-    def __call__(self, node, env, path = ()):
+    def __call__(self, node, env, path=()):
         return self.select(node)(node, env, path)
 
     def select(self, node):
@@ -326,7 +326,7 @@ class Classic(Current):
 
         self.cre = re.compile(regex, re.M)
 
-        def _scan(node, env, path=(), self=self):
+        def _scan(node, _, path=(), self=self):
             node = node.rfile()
             if not node.exists():
                 return []
@@ -334,7 +334,12 @@ class Classic(Current):
 
         kw['function'] = _scan
         kw['path_function'] = FindPathDirs(path_variable)
-        kw['recursive'] = 1
+
+        # Allow recursive to propagate if child class specifies.
+        # In this case resource scanner needs to specify a filter on which files
+        # get recursively processed.  Previously was hardcoded to 1 instead of
+        # defaulted to 1.
+        kw['recursive'] = kw.get('recursive', 1)
         kw['skeys'] = suffixes
         kw['name'] = name
 
@@ -356,7 +361,7 @@ class Classic(Current):
         if node.includes is not None:
             includes = node.includes
         else:
-            includes = self.find_include_names (node)
+            includes = self.find_include_names(node)
             # Intern the names of the include files. Saves some memory
             # if the same header is included many times.
             node.includes = list(map(SCons.Util.silent_intern, includes))
@@ -393,7 +398,7 @@ class ClassicCPP(Classic):
     the contained filename in group 1.
     """
     def find_include(self, include, source_dir, path):
-        include = list (map (SCons.Util.to_str, include))
+        include = list(map(SCons.Util.to_str, include))
         if include[0] == '"':
             paths = (source_dir,) + tuple(path)
         else:
