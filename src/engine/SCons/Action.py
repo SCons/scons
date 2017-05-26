@@ -163,8 +163,8 @@ def _callable_contents(obj):
                 return _code_contents(obj)
 
             except AttributeError:
-                    # Test if obj is a function object.
-                    return _function_contents(obj)
+                # Test if obj is a function object.
+                return _function_contents(obj)
 
 
 def _object_contents(obj):
@@ -195,14 +195,14 @@ def _object_contents(obj):
                 except AttributeError as ae:
                     # Should be a pickle-able Python object.
                     try:
-                        return pickle.dumps(obj,ACTION_SIGNATURE_PICKLE_PROTOCOL)
+                        return pickle.dumps(obj, ACTION_SIGNATURE_PICKLE_PROTOCOL)
                     except (pickle.PicklingError, TypeError, AttributeError):
                         # This is weird, but it seems that nested classes
                         # are unpickable. The Python docs say it should
                         # always be a PicklingError, but some Python
                         # versions seem to return TypeError.  Just do
                         # the best we can.
-                        return bytearray(repr(obj),'utf-8')
+                        return bytearray(repr(obj), 'utf-8')
 
 
 def _code_contents(code):
@@ -241,7 +241,7 @@ def _code_contents(code):
 
     # The code contents depends on the number of local variables
     # but not their actual names.
-    contents = bytearray("{}, {}".format(code.co_argcount, len(code.co_varnames)),'utf-8')
+    contents = bytearray("{}, {}".format(code.co_argcount, len(code.co_varnames)), 'utf-8')
 
     contents.extend(b", ")
     contents.extend(bytearray(str(len(code.co_cellvars)), 'utf-8'))
@@ -258,9 +258,9 @@ def _code_contents(code):
     # function does not access its doc string.
     # NOTE: This is not necessarily true. If no docstring, then co_consts[0] does
     # have a string which is used.
-    z= [_object_contents(cc) for cc in code.co_consts[1:]]
+    z = [_object_contents(cc) for cc in code.co_consts[1:]]
     contents.extend(b',(')
-    contents.extend(bytearray(',','utf-8').join(z))
+    contents.extend(bytearray(',', 'utf-8').join(z))
     contents.extend(b')')
 
     # The code contents depends on the variable names used to
