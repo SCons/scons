@@ -1448,11 +1448,11 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
 
         a = self.factory(f_global)
         c = a.get_contents(target=[], source=[], env=env)
-        assert c in func_matches, "Got\n"+repr(c)+"\nExpected on of \n"+"\n".join([repr(f) for f in func_matches])
+        assert c in func_matches, "Got\n"+repr(c)+"\nExpected one of \n"+"\n".join([repr(f) for f in func_matches])
 
         a = self.factory(f_local)
         c = a.get_contents(target=[], source=[], env=env)
-        assert c in func_matches, repr(c)
+        assert c in func_matches, "Got\n"+repr(c)+"\nExpected one of \n"+"\n".join([repr(f) for f in func_matches])
 
         def f_global(target, source, env, for_signature):
             return SCons.Action.Action(GlobalFunc, varlist=['XYZ'])
