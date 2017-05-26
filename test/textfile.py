@@ -35,7 +35,7 @@ foo1 = test.workpath('foo1.txt')
 #foo1a = test.workpath('foo1a.txt')
 #foo2a = test.workpath('foo2a.txt')
 
-match_mode = 'rb'
+match_mode = 'r'
 
 test.write('SConstruct', """
 env = Environment(tools=['textfile'])
@@ -61,12 +61,14 @@ env.Substfile('bar2a.txt', data, LINESEPARATOR='|*')
 
 test.run(arguments='.')
 
+linesep = '\n'
+
 textparts = ['lalala', '42',
              'Goethe', 'Schiller',
              'tanteratei']
-foo1Text = os.linesep.join(textparts)
+foo1Text = linesep.join(textparts)
 foo2Text = '|*'.join(textparts)
-foo1aText = foo1Text + os.linesep
+foo1aText = foo1Text + linesep
 foo2aText = foo2Text + '|*'
 
 test.up_to_date(arguments='.')
@@ -153,8 +155,8 @@ def matchem(match_file, lines):
     Join all the lines with correct line separator,
     then compare
     """
-    lines = os.linesep.join(lines)
-    test.must_match(match_file, lines, mode=match_mode)
+    lines = linesep.join(lines)
+    test.must_match(match_file, lines, mode=match_mode, message="Expected:\n%s\n"%lines)
 
 
 matchem('text.txt', [line1, line2a, line3a])

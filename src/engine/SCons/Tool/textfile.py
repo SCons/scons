@@ -53,9 +53,15 @@ import re
 
 from SCons.Node import Node
 from SCons.Node.Python import Value
-from SCons.Util import is_String, is_Sequence, is_Dict, to_bytes
+from SCons.Util import is_String, is_Sequence, is_Dict, to_bytes, PY3
 
-TEXTFILE_FILE_WRITE_MODE = 'wb'
+
+if PY3:
+    TEXTFILE_FILE_WRITE_MODE = 'w'
+else:
+    TEXTFILE_FILE_WRITE_MODE = 'wb'
+
+LINESEP = '\n'
 
 def _do_subst(node, subs):
     """
@@ -81,12 +87,11 @@ def _do_subst(node, subs):
 
 
 def _action(target, source, env):
-    # import pdb; pdb.set_trace()
 
     # prepare the line separator
     linesep = env['LINESEPARATOR']
     if linesep is None:
-        linesep = os.linesep
+        linesep = LINESEP # os.linesep
     elif is_String(linesep):
         pass
     elif isinstance(linesep, Value):
@@ -102,38 +107,41 @@ def _action(target, source, env):
     if 'SUBST_DICT' not in env:
         subs = None    # no substitutions
     else:
-        d = env['SUBST_DICT']
-        if is_Dict(d):
-            d = list(d.items())
-        elif is_Sequence(d):
+        subst_dict = env['SUBST_DICT']
+        if is_Dict(subst_dict):
+            subst_dict = list(subst_dict.items())
+        elif is_Sequence(subst_dict):
             pass
         else:
             raise SCons.Errors.UserError('SUBST_DICT must be dict or sequence')
         subs = []
-        for (k, v) in d:
-            if callable(v):
-                v = v()
-            if is_String(v):
-                v = env.subst(v)
+        for (k, value) in subst_dict:
+            if callable(value):
+                value = value()
+            if is_String(value):
+                value = env.subst(value)
             else:
-                v = str(v)
-            subs.append((k, v))
+                value = str(value)
+            subs.append((k, value))
 
     # write the file
     try:
-        fd = open(target[0].get_path(), TEXTFILE_FILE_WRITE_MODE)
-    except (OSError, IOError) as e:
+        if SCons.Util.PY3:
+            target_file = open(target[0].get_path(), TEXTFILE_FILE_WRITE_MODE, newline='')
+        else:
+            target_file = open(target[0].get_path(), TEXTFILE_FILE_WRITE_MODE)
+    except (OSError, IOError):
         raise SCons.Errors.UserError("Can't write target file %s" % target[0])
 
     # separate lines by 'linesep' only if linesep is not empty
     lsep = None
-    for s in source:
+    for line in source:
         if lsep:
-            fd.write(lsep)
+            target_file.write(lsep)
 
-        fd.write(_do_subst(s, subs))
+        target_file.write(_do_subst(line, subs))
         lsep = linesep
-    fd.close()
+    target_file.close()
 
 
 def _strfunc(target, source, env):
@@ -181,7 +189,7 @@ _subst_builder = SCons.Builder.Builder(
 
 
 def generate(env):
-    env['LINESEPARATOR'] = os.linesep
+    env['LINESEPARATOR'] = LINESEP # os.linesep
     env['BUILDERS']['Textfile'] = _text_builder
     env['TEXTFILEPREFIX'] = ''
     env['TEXTFILESUFFIX'] = '.txt'
