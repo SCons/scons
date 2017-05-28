@@ -1448,7 +1448,10 @@ class TestCmd(object):
 
         TODO: Do we need to pass universal newlines into this function?
         """
-        if sys.version_info[0] == 3 and sys.version_info[1] < 6:
+
+        if not stream:
+            return stream
+        elif sys.version_info[0] == 3 and sys.version_info[1] < 6:
             stream = stream.decode('utf-8')
             stream = stream.replace('\r\n', '\n')
         elif sys.version_info[0] == 2:
