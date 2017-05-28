@@ -926,7 +926,7 @@ class TestCmd(object):
                  diff_stdout=None,
                  diff_stderr=None,
                  combine=0,
-                 universal_newlines=1,
+                 universal_newlines=True,
                  timeout=None):
         self.external = os.environ.get('SCONS_EXTERNAL_TEST', 0)
         self._cwd = os.getcwd()
@@ -1233,7 +1233,7 @@ class TestCmd(object):
                 program = os.path.join(self._cwd, program)
         self.program = program
 
-    def read(self, file, mode='rb', newline=''):
+    def read(self, file, mode='rb', newline=None):
         """Reads and returns the contents of the specified file name.
         The file name may be a list, in which case the elements are
         concatenated with the os.path.join() method.  The file is
@@ -1408,17 +1408,54 @@ class TestCmd(object):
 
         if sys.version_info[0] == 3 and sys.platform == 'win32':
             # Set this otherwist stdout/stderr pipes default to
-            # windows default locall cp1252 which will throw exception
+            # windows default locale cp1252 which will throw exception
             # if using non-ascii characters.
             # For example test/Install/non-ascii-name.py
             os.environ['PYTHONIOENCODING'] = 'utf-8'
-        p = Popen(cmd,
-                  stdin=stdin,
-                  stdout=subprocess.PIPE,
-                  stderr=stderr_value,
-                  universal_newlines=universal_newlines)
+
+        if sys.version_info[0] == 2 or sys.version_info[0:2] < (3, 6):
+            p = Popen(cmd,
+                      stdin=stdin,
+                      stdout=subprocess.PIPE,
+                      stderr=stderr_value,
+                      env=os.environ,
+                      universal_newlines=False)
+        else:
+            # this will only work on py3.6, encoding
+            p = Popen(cmd,
+                      stdin=stdin,
+                      stdout=subprocess.PIPE,
+                      stderr=stderr_value,
+                      env=os.environ,
+                      universal_newlines=universal_newlines,
+                      encoding='utf-8')
+
         self.process = p
         return p
+
+    @staticmethod
+    def fix_binary_stream(stream):
+        """
+        Handle stdout/stderr from popen when we specify universal_newlines = False.
+        This will read from the pipes in binary mode, not decode the output,
+        and not convert line endings to \n.
+        We do this because in py3 (3.5) with universal_newlines=True, it will
+        choose the default system locale to decode the output, and this breaks unicode
+        output. Specifically breaking test/option--tree.py which outputs a unicode char.
+
+        py 3.6 allows us to pass an encoding param to popen thus not requiring the decode
+        nor end of line handling, because we propagate universal_newlines as specified.
+
+        TODO: Do we need to pass universal newlines into this function?
+        """
+        if sys.version_info[0] == 3 and sys.version_info[1] < 6:
+            stream = stream.decode('utf-8')
+            stream = stream.replace('\r\n', '\n')
+        elif sys.version_info[0] == 2:
+            stream = stream.replace('\r\n', '\n')
+
+        return stream
+
 
     def finish(self, popen=None, **kw):
         """
@@ -1429,6 +1466,10 @@ class TestCmd(object):
         if popen is None:
             popen = self.process
         stdout, stderr = popen.communicate()
+
+        stdout = self.fix_binary_stream(stdout)
+        stderr = self.fix_binary_stream(stderr)
+
         if self.timer:
             self.timer.cancel()
             self.timer = None
@@ -1457,6 +1498,9 @@ class TestCmd(object):
             if not interpreter:
                 interpreter = self.interpreter
 
+        if universal_newlines is None:
+            universal_newlines = self.universal_newlines
+
         if chdir:
             oldcwd = os.getcwd()
             if not os.path.isabs(chdir):
@@ -1473,6 +1517,9 @@ class TestCmd(object):
         if is_List(stdin):
             stdin = ''.join(stdin)
 
+        if stdin and sys.version_info[0] == 3 and sys.version_info[1] < 6:
+            stdin = bytearray(stdin,'utf-8')
+
         # TODO(sgk):  figure out how to re-use the logic in the .finish()
         # method above.  Just calling it from here causes problems with
         # subclasses that redefine .finish().  We could abstract this
@@ -1484,6 +1531,11 @@ class TestCmd(object):
             self.timer = None
         self.status = p.returncode
         self.process = None
+
+        stdout = self.fix_binary_stream(stdout)
+        stderr = self.fix_binary_stream(stderr)
+
+
         self._stdout.append(stdout or '')
         self._stderr.append(stderr or '')
 
