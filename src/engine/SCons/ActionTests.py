@@ -1826,7 +1826,7 @@ class LazyActionTestCase(unittest.TestCase):
 
         env = Environment(FOO = factory(GlobalFunc))
         c = a.get_contents(target=[], source=[], env=env)
-        assert c in func_matches, repr(c)
+        assert c in func_matches, "Got\n"+repr(c)+"\nExpected one of \n"+"\n".join([repr(f) for f in func_matches])
 
         env = Environment(FOO = factory(LocalFunc))
         c = a.get_contents(target=[], source=[], env=env)
@@ -1867,12 +1867,12 @@ class ActionCallerTestCase(unittest.TestCase):
         af = SCons.Action.ActionFactory(GlobalFunc, strfunc)
         ac = SCons.Action.ActionCaller(af, [], {})
         c = ac.get_contents([], [], Environment())
-        assert c in matches, "C [%s] not in matches [%s]"%(repr(c),matches)
+        assert c in matches, "Got\n"+repr(c)+"\nExpected one of \n"+"\n".join([repr(f) for f in matches])
 
         af = SCons.Action.ActionFactory(LocalFunc, strfunc)
         ac = SCons.Action.ActionCaller(af, [], {})
         c = ac.get_contents([], [], Environment())
-        assert c in matches, repr(c)
+        assert c in matches, "Got\n"+repr(c)+"\nExpected one of \n"+"\n".join([repr(f) for f in matches])
 
         matches = [
             b'd\000\000S',
@@ -2044,7 +2044,8 @@ class ObjectContentsTestCase(unittest.TestCase):
             return a
 
         c = SCons.Action._function_contents(func1)
-        assert bytearray('3, 3, 0, 0,(),(),(|\x00\x00S),(),()','utf-8') == c, repr(c)
+        expected = bytearray('3, 3, 0, 0,(),(),(|\x00\x00S),(),()','utf-8')
+        assert expected == c, "Got\n"+repr(c)+"\nExpected \n"+repr(expected)+"\n"
 
 
     @unittest.skip("Results vary between py2 and py3, not sure if test makes sense to implement")
