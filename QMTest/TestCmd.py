@@ -1245,7 +1245,7 @@ class TestCmd(object):
         file = self.canonicalize(file)
         if mode[0] != 'r':
             raise ValueError("mode must begin with 'r'")
-        if PY3:
+        if PY3 and 'b' not in mode:
             return open(file, mode, newline=newline).read()
         else:
             return open(file, mode).read()
