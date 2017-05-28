@@ -57,11 +57,6 @@ S1.in\r     \rS1.out\rCopy("S1.out", "S1.in")
       \rS4.in\r     \rS4.out\rCopy("S4.out", "S4.in")
       \rSConstruct\r          \r.\r"""
 
-if os.linesep != '\n':
-    expect = expect.replace('\n', os.linesep)
-
-expect = bytearray(expect, 'utf-8')
-
 test.run(arguments = '-Q .', stdout=expect)
 
 test.pass_test()
