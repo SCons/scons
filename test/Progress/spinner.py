@@ -58,11 +58,6 @@ expect ="""\
 /\r-\rCopy("S4.out", "S4.in")
 \\\r|\r"""
 
-if os.linesep != '\n':
-    expect = expect.replace('\n', os.linesep)
-
-expect = bytearray(expect,'utf-8')
-
 test.run(arguments = '-Q .', stdout=expect)
 
 test.pass_test()
