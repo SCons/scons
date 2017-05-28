@@ -31,31 +31,31 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '-Q --tree=prune',
-         stdout = """scons: `.' is up to date.
+test.run(arguments='-Q --tree=prune',
+         stdout="""scons: `.' is up to date.
 +-.
   +-SConstruct
 """)
 
-test.run(arguments = '-Q --tree=foofoo',
-         stderr = """usage: scons [OPTION] [TARGET] ...
+test.run(arguments='-Q --tree=foofoo',
+         stderr="""usage: scons [OPTION] [TARGET] ...
 
 SCons Error: `foofoo' is not a valid --tree option type, try:
     all, derived, prune, status
 """,
-         status = 2)
+         status=2)
 
-test.run(arguments = '--debug=tree',
-         stderr = """
+test.run(arguments='--debug=tree',
+         stderr="""
 scons: warning: The --debug=tree option is deprecated; please use --tree=all instead.
 .*
 """,
-         status = 0, match=TestSCons.match_re_dotall)
+         status=0, match=TestSCons.match_re_dotall)
 
 
 # Test that unicode characters can be printed (escaped) with the --tree option
 test.write('SConstruct',
-"""
+           """
 env = Environment()
 env.Tool("textfile")
 try:
@@ -73,14 +73,16 @@ if sys.version_info.major < 3:
 else:
     py23_char = chr(0xe7)
 
-test.run(arguments = '-Q --tree=all',
-         stdout = """Creating 'Foo.txt'
+expected = """Creating 'Foo.txt'
 +-.
   +-Foo.txt
   | +-""" + py23_char + """
   +-SConstruct
-""",
-         status = 0)
+"""
+
+test.run(arguments='-Q --tree=all',
+         stdout=expected,
+         status=0)
 test.pass_test()
 
 # Local Variables:
