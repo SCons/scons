@@ -34,7 +34,7 @@ import types
 import codecs
 import pprint
 
-PY3 = sys.version[0] == 3
+PY3 = sys.version_info[0] == 3
 
 try:
     from UserDict import UserDict
@@ -266,9 +266,8 @@ def render_tree(root, child_func, prune=0, margin=[0], visited=None):
     visited[rname] = 1
 
     for i in range(len(children)):
-        margin.append(i<len(children)-1)
-        retval = retval + render_tree(children[i], child_func, prune, margin, visited
-)
+        margin.append(i < len(children)-1)
+        retval = retval + render_tree(children[i], child_func, prune, margin, visited)
         margin.pop()
 
     return retval
