@@ -2048,7 +2048,7 @@ class ObjectContentsTestCase(unittest.TestCase):
         assert expected == c, "Got\n"+repr(c)+"\nExpected \n"+repr(expected)+"\n"
 
 
-    @unittest.skip("Results vary between py2 and py3, not sure if test makes sense to implement")
+    # @unittest.skip("Results vary between py2 and py3, not sure if test makes sense to implement")
     def test_object_contents(self):
         """Test that Action._object_contents works"""
 
@@ -2058,7 +2058,7 @@ class ObjectContentsTestCase(unittest.TestCase):
         expected = bytearray("(i__main__\nTestClass\np1\n(dp2\nS'a'\nS'a'\nsS'b'\nS'b'\nsb.", 'utf-8')
         assert expected == c, "Got\n" + repr(c) + "\nExpected\n" + repr(expected)
 
-    @unittest.skip("Results vary between py2 and py3, not sure if test makes sense to implement")
+    # @unittest.skip("Results vary between py2 and py3, not sure if test makes sense to implement")
     def test_code_contents(self):
         """Test that Action._code_contents works"""
 
