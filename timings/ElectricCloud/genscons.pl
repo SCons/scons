@@ -47,6 +47,9 @@ $OBJ = ".o";
 #}
 
 sub init() {
+
+#    use strict;
+#    use warnings FATAL => 'all';
     use Getopt::Std;
     my $opt_string = 'd:f:g:l:u:h';
     getopts ( "$opt_string", \%opt) or usage ();
@@ -125,21 +128,21 @@ sub gen_cfile {
     print CFILE $buff;
 
     if ($group == 1) {
-        print CFILE "main (int argc, char * argv[]) {\n"
+        print CFILE "int main (int argc, char * argv[]) {\n"
             . "\tint i, mb_out;\n"
             . "\tprintf (\"I am $basedir/%s\\n\", \"$filname[$idx]\""
             . ");\n"
             . "\treturn (0);\n}\n";
     }
     elsif ( ($group - ($fil[$idx] % $group)) == 1) {
-        print CFILE "printr_$filname[$idx] (char * fname) {\n"
+        print CFILE "int printr_$filname[$idx] (char * fname) {\n"
             . "    printf (\"I am $basedir/%s\\n\", fname);\n"
             . "    return (0);\n}\n";
     }
     elsif ( ($fil[$idx] % $group) == 0) {
         $idx2 = $fil[$idx] + 1;
         print CFILE "extern int printr_$file[$idx2] (char * fname);\n"
-            . "main (int argc, char * argv[]) {\n"
+            . "int main (int argc, char * argv[]) {\n"
             . "\tint i, mb_out;\n"; 
 
         print CFILE "\tprintr_$file[$idx2] (\"$filname[$idx]\");\n"
@@ -157,7 +160,7 @@ sub gen_cfile {
     else {
         $idx2 = $fil[$idx] + 1;
         print CFILE "extern int printr_$file[$idx2] (char * fname);\n"
-            . "printr_$filname[$idx] (char * fname) {\n"
+            . "int printr_$filname[$idx] (char * fname) {\n"
             . "    printr_$file[$idx2] (fname);\n"
             . "    return (0);\n}\n";
     }
