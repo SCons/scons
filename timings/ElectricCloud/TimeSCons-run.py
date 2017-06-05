@@ -85,7 +85,7 @@ arguments = [
 ]
 
 test.run(program=test.workpath('genscons.pl'), arguments=' '.join(arguments))
-# This print is nott for debugging, leave it alone!
+# This print is not for debugging, leave it alone!
 # We want to display the output from genscons.pl's generation the build
 # configuration, so the buildbot logs contain more info.
 print(test.stdout())
