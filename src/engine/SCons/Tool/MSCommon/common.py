@@ -1,3 +1,6 @@
+"""
+Common helper functions for working with the Microsoft tool chain.
+"""
 #
 # __COPYRIGHT__
 #
@@ -24,10 +27,6 @@ from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-__doc__ = """
-Common helper functions for working with the Microsoft tool chain.
-"""
-
 import copy
 import os
 import subprocess
@@ -36,17 +35,17 @@ import re
 import SCons.Util
 
 
-logfile = os.environ.get('SCONS_MSCOMMON_DEBUG')
-if logfile == '-':
-    def debug(x):
-        print(x)
-elif logfile:
+LOGFILE = os.environ.get('SCONS_MSCOMMON_DEBUG')
+if LOGFILE == '-':
+    def debug(message):
+        print(message)
+elif LOGFILE:
     try:
         import logging
     except ImportError:
-        debug = lambda x: open(logfile, 'a').write(x + '\n')
+        debug = lambda message: open(LOGFILE, 'a').write(message + '\n')
     else:
-        logging.basicConfig(filename=logfile, level=logging.DEBUG)
+        logging.basicConfig(filename=LOGFILE, level=logging.DEBUG)
         debug = logging.debug
 else:
     debug = lambda x: None
@@ -76,7 +75,7 @@ def is_win64():
         # I structured these tests to make it easy to add new ones or
         # add exceptions in the future, because this is a bit fragile.
         _is_win64 = False
-        if os.environ.get('PROCESSOR_ARCHITECTURE','x86') != 'x86':
+        if os.environ.get('PROCESSOR_ARCHITECTURE', 'x86') != 'x86':
             _is_win64 = True
         if os.environ.get('PROCESSOR_ARCHITEW6432'):
             _is_win64 = True
@@ -124,7 +123,9 @@ def normalize_env(env, keys, force=False):
     # This shouldn't be necessary, since the default environment should include system32,
     # but keep this here to be safe, since it's needed to find reg.exe which the MSVC
     # bat scripts use.
-    sys32_dir = os.path.join(os.environ.get("SystemRoot", os.environ.get("windir",r"C:\Windows\system32")),"System32")
+    sys32_dir = os.path.join(os.environ.get("SystemRoot",
+                                            os.environ.get("windir", r"C:\Windows\system32")),
+                             "System32")
 
     if sys32_dir not in normenv['PATH']:
         normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_dir
@@ -145,11 +146,13 @@ def get_output(vcbat, args = None, env = None):
     # execution to work.  This list should really be either directly
     # controlled by vc.py, or else derived from the common_tools_var
     # settings in vs.py.
-    vars = [
+    vs_vc_vars = [
         'COMSPEC',
-# VS100 and VS110: Still set, but modern MSVC setup scripts will
-# discard these if registry has values.  However Intel compiler setup
-# script still requires these as of 2013/2014.
+        # VS100 and VS110: Still set, but modern MSVC setup scripts will
+        # discard these if registry has values.  However Intel compiler setup
+        # script still requires these as of 2013/2014.
+        'VS140COMNTOOLS',
+        'VS120COMNTOOLS',
         'VS110COMNTOOLS',
         'VS100COMNTOOLS',
         'VS90COMNTOOLS',
@@ -158,22 +161,22 @@ def get_output(vcbat, args = None, env = None):
         'VS70COMNTOOLS',
         'VS60COMNTOOLS',
     ]
-    env['ENV'] = normalize_env(env['ENV'], vars, force=False)
+    env['ENV'] = normalize_env(env['ENV'], vs_vc_vars, force=False)
 
     if args:
         debug("Calling '%s %s'" % (vcbat, args))
         popen = SCons.Action._subproc(env,
-                                     '"%s" %s & set' % (vcbat, args),
-                                     stdin = 'devnull',
-                                     stdout=subprocess.PIPE,
-                                     stderr=subprocess.PIPE)
+                                      '"%s" %s & set' % (vcbat, args),
+                                      stdin='devnull',
+                                      stdout=subprocess.PIPE,
+                                      stderr=subprocess.PIPE)
     else:
         debug("Calling '%s'" % vcbat)
         popen = SCons.Action._subproc(env,
-                                     '"%s" & set' % vcbat,
-                                     stdin = 'devnull',
-                                     stdout=subprocess.PIPE,
-                                     stderr=subprocess.PIPE)
+                                      '"%s" & set' % vcbat,
+                                      stdin='devnull',
+                                      stdout=subprocess.PIPE,
+                                      stderr=subprocess.PIPE)
 
     # Use the .stdout and .stderr attributes directly because the
     # .communicate() method uses the threading module on Windows
@@ -196,10 +199,14 @@ def get_output(vcbat, args = None, env = None):
     output = stdout.decode("mbcs")
     return output
 
-def parse_output(output, keep = ("INCLUDE", "LIB", "LIBPATH", "PATH")):
+def parse_output(output, keep=("INCLUDE", "LIB", "LIBPATH", "PATH")):
+    """
+    Parse output from running visual c++/studios vcvarsall.bat and running set
+    To capture the values listed in keep
+    """
+
     # dkeep is a dict associating key: path_list, where key is one item from
     # keep, and pat_list the associated list of paths
-
     dkeep = dict([(i, []) for i in keep])
 
     # rdk will  keep the regex to match the .bat file output line starts
@@ -208,21 +215,21 @@ def parse_output(output, keep = ("INCLUDE", "LIB", "LIBPATH", "PATH")):
         rdk[i] = re.compile('%s=(.*)' % i, re.I)
 
     def add_env(rmatch, key, dkeep=dkeep):
-        plist = rmatch.group(1).split(os.pathsep)
-        for p in plist:
+        path_list = rmatch.group(1).split(os.pathsep)
+        for path in path_list:
             # Do not add empty paths (when a var ends with ;)
-            if p:
+            if path:
                 # XXX: For some reason, VC98 .bat file adds "" around the PATH
                 # values, and it screws up the environment later, so we strip
                 # it.
-                p = p.strip('"')
-                dkeep[key].append(p)
+                path = path.strip('"')
+                dkeep[key].append(str(path))
 
     for line in output.splitlines():
-        for k,v in rdk.items():
-            m = v.match(line)
-            if m:
-                add_env(m, k)
+        for k, value in rdk.items():
+            match = value.match(line)
+            if match:
+                add_env(match, k)
 
     return dkeep
 

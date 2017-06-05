@@ -287,6 +287,10 @@ def get_system_root():
                 raise
             except:
                 pass
+
+    # Ensure system root is a string and not unicode 
+    # (This only matters for py27 were unicode in env passed to POpen fails)
+    val = str(val)
     _system_root = val
     return val
 
