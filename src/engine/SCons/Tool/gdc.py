@@ -54,7 +54,7 @@ import SCons.Action
 import SCons.Defaults
 import SCons.Tool
 
-import SCons.Tool.DCommon
+import SCons.Tool.DCommon as DCommon
 
 
 def generate(env):
@@ -81,7 +81,7 @@ def generate(env):
     env['DDEBUG'] = []
 
     if env['DC']:
-        SCons.Tool.DCommon.addDPATHToEnv(env, env['DC'])
+        DCommon.addDPATHToEnv(env, env['DC'])
 
     env['DINCPREFIX'] = '-I'
     env['DINCSUFFIX'] = ''
@@ -132,7 +132,7 @@ def generate(env):
 
     env['BUILDERS']['ProgramAllAtOnce'] = SCons.Builder.Builder(
         action='$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -o $TARGET $DLINKFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS',
-        emitter=SCons.Tool.DCommon.allAtOnceEmitter,
+        emitter=DCommon.allAtOnceEmitter,
     )
 
 
