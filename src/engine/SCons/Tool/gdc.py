@@ -98,7 +98,7 @@ def generate(env):
     env['DLINKCOM'] = '$DLINK -o $TARGET $DLINKFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
 
     env['DSHLINK'] = '$DC'
-    env['DSHLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared')
+    env['DSHLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared -shared-libphobos')
     env['SHDLINKCOM'] = '$DLINK -o $TARGET $DSHLINKFLAGS $__DSHLIBVERSIONFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
 
     env['DLIB'] = 'lib' if env['PLATFORM'] == 'win32' else 'ar cr'

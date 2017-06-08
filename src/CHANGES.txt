@@ -33,6 +33,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Reordered the default D tools from "dmd, gdc, ldc" to "dmd, ldc, gdc".
     - Add a ProgramAllAtOnce builder to the dmd, ldc, and gdc tools. (PR #448)
     - Deprecate a file name exception for very old Fedora LDC installation.
+    - gdc can now handle building shared objects (tested for version 6.3.0).
 
   From William Blevins:
     - Updated D language scanner support to latest: 2.071.1. (PR #1924)
