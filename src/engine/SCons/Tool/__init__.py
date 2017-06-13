@@ -118,6 +118,16 @@ class Tool(object):
         if hasattr(module, 'options'):
             self.options = module.options
 
+    def _load_dotted_module(self, short_name, full_name, searchpaths=None):
+        splitname = short_name.split('.')
+        index = 0
+        srchpths = searchpaths
+        for item in splitname:
+            file, path, desc = imp.find_module(item, srchpths)
+            mod = imp.load_module(full_name, file, path, desc)
+            srchpths = [path]
+        return mod, file
+
     def _tool_module(self):
         oldpythonpath = sys.path
         sys.path = self.toolpath + sys.path
@@ -127,10 +137,10 @@ class Tool(object):
             # Py 2 code
             try:
                 try:
-                    file, path, desc = imp.find_module(self.name, self.toolpath)
+                    file = None
                     try:
-                        return imp.load_module(self.name, file, path, desc)
-
+                        mod, file = self._load_dotted_module(self.name, self.name, self.toolpath)
+                        return mod
                     finally:
                         if file:
                             file.close()
@@ -231,8 +241,7 @@ class Tool(object):
             try:
                 smpath = sys.modules['SCons.Tool'].__path__
                 try:
-                    file, path, desc = imp.find_module(self.name, smpath)
-                    module = imp.load_module(full_name, file, path, desc)
+                    module, file = self._load_dotted_module(self.name, full_name, smpath)
                     setattr(SCons.Tool, self.name, module)
                     if file:
                         file.close()
