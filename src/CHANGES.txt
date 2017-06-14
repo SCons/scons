@@ -4,36 +4,8 @@
 
                             Change Log
 
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
-
-  From John Doe:
-
-    - Whatever John Doe did.
-
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
-
-  From Daniel Moody:
-    - Updated the QMTest/TestCmd.py so when using the
-      preserve option, it will be able to print unicode directories.
-    - Also updated test/scons-time/run/option/verbose.py that was
-      not taking into account the output when PRESERVE was enabled
-
-  From Gaurav Juvekar:
-    - Fix issue #2832: Expand construction variables in 'chdir' argument of builders. (PR #463)
-    - Fix issue #2910: Make --tree=all handle Unicode. (PR #427)
-    - Fix issue #2788: Fix typo in documentation example for sconf. (PR #388)
-
-  From Manish Vachharajani:
-    - Update debian rules, compat, and control to not use features
-      deprecated or obsolete in later versions of debhelpers
-    - Update python version to 2.7 in debian/control
-
-  From Russel Winder:
-    - Reordered the default D tools from "dmd, gdc, ldc" to "dmd, ldc, gdc".
-    - Add a ProgramAllAtOnce builder to the dmd, ldc, and gdc tools. (PR #448)
-    - Deprecate a file name exception for very old Fedora LDC installation.
-    - gdc can now handle building shared objects (tested for version 6.3.0).
 
   From William Blevins:
     - Updated D language scanner support to latest: 2.071.1. (PR #1924)
@@ -57,16 +29,17 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fixed MSVSProject example code (http://scons.tigris.org/issues/show_bug.cgi?id=2979)
     - Defined MS SDK 10.0 and Changed VS 2015 to use SDK 10.0
 
-  From Daniel Moody:
-    - Fixed msvs.py for Visual Studio generated projects which were
-      creating invalid xml for greater than and less than symbols.
-
   From Daniel Holth:
     - Add basic support for PyPy (by deleting __slots__ from Node with a
       metaclass on PyPy); wrap most-used open() calls in 'with' statements to
       avoid too many open files.
     - Add __main__.py for `python -m SCons` in case it is on PYTHONPATH.
     - Always use highest available pickle protocol for efficiency.
+
+  From Gaurav Juvekar:
+    - Fix issue #2832: Expand construction variables in 'chdir' argument of builders. (PR #463)
+    - Fix issue #2910: Make --tree=all handle Unicode. (PR #427)
+    - Fix issue #2788: Fix typo in documentation example for sconf. (PR #388)
 
   From Alexey Klimkin:
     - Use memoization to optimize PATH evaluation across all dependencies per
@@ -76,6 +49,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fixed msvs.py for Visual Studio Express editions that would report
       "Error  : ValueError: invalid literal for float(): 10.0Exp".
 
+  From Rick Lupton:
+    - Update LaTeX scanner to understand \import and related commands
 
   From Paweł Tomulik:
     - Fixed the issue with LDMODULEVERSIONFLAGS reported by Tim Jennes
@@ -86,13 +61,20 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added LoadableModule to the list of global functions (DefaultEnvironment
       builders).
 
-  From Rick Lupton:
-    - Update LaTeX scanner to understand \import and related commands
+  From Manish Vachharajani:
+    - Update debian rules, compat, and control to not use features
+      deprecated or obsolete in later versions of debhelpers
+    - Update python version to 2.7 in debian/control
 
   From Richard Viney:
     - Fixed PCHPDBFLAGS causing a deprecation warning on MSVC v8 and later when
       using PCHs and PDBs together.
 
+  From Russel Winder:
+    - Reordered the default D tools from "dmd, gdc, ldc" to "dmd, ldc, gdc".
+    - Add a ProgramAllAtOnce builder to the dmd, ldc, and gdc tools. (PR #448)
+    - Deprecate a file name exception for very old Fedora LDC installation.
+    - gdc can now handle building shared objects (tested for version 6.3.0).
 
 RELEASE 2.5.1 - Mon, 03 Nov 2016 13:37:42 -0400
 

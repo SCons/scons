@@ -25,7 +25,7 @@ RELEASE 3.0.0 Alpha
   since last release.  This announcement highlights only the important
   changes.
     Please note the following important changes since release 2.5.1:
-       *IT IS NOT READY FOR PRODUCTION USE YET.*
+       *IT IS NOT READY FOR PRODUCTION USE*
 
        This is the initial release supporting both python 3.5+ and 2.7.x and pypy
        There are some important changes:
@@ -43,12 +43,16 @@ RELEASE 3.0.0 Alpha
          regardless switching between python 2.7.x and 3.5+ will not use compatible
          sconsigns and as such incremental builds should be expected to rebuild
          anything changed since the previous scons run with the same version of python.
+       - It is likely that migrating from 2.5.1 -> 3.0.0 alpha will cause rebuilds due
+         to the significant number of changes in the codebase.
 
        - Removed deprecated tools CVS, Perforce, BitKeeper, RCS, SCCS, Subversion.
        - Removed deprecated module SCons.Sig
        - See CHANGES.txt for more details on other changes
-
-
+       - 3.0.0 should be slightly faster than 2.5.1.  Changes yielded a 15% speed up for
+         null incremental builds.
+       - Updated D language scanner support to latest: 2.071.1.
+       - python -m SCons should now run SCons if it's installed PYTHONPATH
 
 
     Please note the following important changes since release 2.4.1:

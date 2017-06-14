@@ -8,7 +8,8 @@
 
   NEW FUNCTIONALITY
 
-    - Initial support for Python 3.0
+    - Initial support for Python 3.5+
+    - I
 
   DEPRECATED FUNCTIONALITY
 
