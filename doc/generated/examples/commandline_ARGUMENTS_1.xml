@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q debug=0</userinput>
-cc -o prog.o -c prog.c
+[?1034hcc -o prog.o -c prog.c
 cc -o prog prog.o
 % <userinput>scons -Q debug=0</userinput>
-scons: `.' is up to date.
+[?1034hscons: `.' is up to date.
 % <userinput>scons -Q debug=1</userinput>
-cc -o prog.o -c -g prog.c
+[?1034hcc -o prog.o -c -g prog.c
 cc -o prog prog.o
 % <userinput>scons -Q debug=1</userinput>
-scons: `.' is up to date.
+[?1034hscons: `.' is up to date.
 </screen>

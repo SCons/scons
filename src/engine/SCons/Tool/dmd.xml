@@ -160,6 +160,8 @@ List of linker flags.
 </summary>
 </cvar>
 
+
+
 <cvar name="SHDC">
 <summary>
 <para>
@@ -201,6 +203,148 @@ List of linker flags.
 </para>
 </summary>
 </cvar>
+
+<!-- The following are re-added because their removal breaks doc validation -->
+<cvar name="DVERSUFFIX">
+  <summary>
+    <para>
+      DVERSUFFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DVERPREFIX">
+  <summary>
+    <para>
+      DVERPREFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DLINKFLAGSUFFIX">
+  <summary>
+    <para>
+      DLINKFLAGSUFFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DLINKFLAGPREFIX">
+  <summary>
+    <para>
+      DLINKFLAGPREFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DLIBLINKSUFFIX">
+  <summary>
+    <para>
+      DLIBLINKSUFFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DLIBLINKPREFIX">
+  <summary>
+    <para>
+      DLIBLINKPREFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DLIBFLAGSUFFIX">
+  <summary>
+    <para>
+      DLIBFLAGSUFFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DLIBFLAGPREFIX">
+  <summary>
+    <para>
+      DLIBFLAGPREFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DLIBDIRSUFFIX">
+  <summary>
+    <para>
+      DLIBLINKSUFFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DLIBDIRPREFIX">
+  <summary>
+    <para>
+      DLIBLINKPREFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DINCSUFFIX">
+  <summary>
+    <para>
+      DLIBFLAGSUFFIX.
+    </para>
+ </summary>
+</cvar>
+
+
+<cvar name="DINCPREFIX">
+  <summary>
+    <para>
+      DINCPREFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DFLAGSUFFIX">
+  <summary>
+    <para>
+      DFLAGSUFFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DFLAGPREFIX">
+  <summary>
+    <para>
+      DFLAGPREFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DFILESUFFIX">
+  <summary>
+    <para>
+      DFILESUFFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DDEBUGPREFIX">
+  <summary>
+    <para>
+      DDEBUGPREFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DDEBUGSUFFIX">
+  <summary>
+    <para>
+      DDEBUGSUFFIX.
+    </para>
+ </summary>
+</cvar>
+
+
+<!-- Validation fix to here -->
+
 
 <builder name="ProgramAllAtOnce">
   <summary>

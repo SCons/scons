@@ -3,4 +3,5 @@
 AttributeError: 'NodeList' object has no attribute 'abspath':
   File "/home/my/project/SConstruct", line 8:
     print(object_file.abspath)
+[?1034h
 </screen>

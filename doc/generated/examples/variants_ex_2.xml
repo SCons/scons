@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">C:\&gt;<userinput>scons -Q OS=windows</userinput>
-Install file: "build/windows/world/world.h" as "export/windows/include/world.h"
+[?1034hInstall file: "build/windows/world/world.h" as "export/windows/include/world.h"
 cl /Fobuild\windows\hello\hello.obj /c build\windows\hello\hello.c /nologo /Iexport\windows\include
 cl /Fobuild\windows\world\world.obj /c build\windows\world\world.c /nologo /Iexport\windows\include
 lib /nologo /OUT:build\windows\world\world.lib build\windows\world\world.obj

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q</userinput>
-cc -o file1.o -c file1.c
+[?1034hcc -o file1.o -c file1.c
 cc -o file2.o -c file2.c
 cc -o file3.o -c file3.c
 cc -o prog file1.o file2.o file3.o
 %     [CHANGE THE CONTENTS OF file2.c]
 % <userinput>scons -Q --debug=explain</userinput>
-scons: rebuilding `file2.o' because `file2.c' changed
+[?1034hscons: rebuilding `file2.o' because `file2.c' changed
 cc -o file2.o -c file2.c
 scons: rebuilding `prog' because `file2.o' changed
 cc -o prog file1.o file2.o file3.o

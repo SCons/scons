@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">C:\&gt;<userinput>scons -Q</userinput>
-The object file is: hello.obj
+[?1034hThe object file is: hello.obj
 The program file is: hello.exe
 cl /Fohello.obj /c hello.c /nologo
 link /nologo /OUT:hello.exe hello.obj

@@ -934,22 +934,24 @@ compilation error messages displayed in the Visual Studio console output
 window. This can be remedied by adding the Visual C/C++ <literal>/FC</literal>
 compiler option to the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-CCFLAGS"><envar>$CCFLAGS</envar></link> variable so that the compiler will
 print the full path name of any files that cause compilation errors. </para>
-<para xmlns="http://www.scons.org/dbxsd/v1.0"> Example usage: </para> <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">barsrcs = ['bar.cpp'],
-barincs = ['bar.h'],
+<para xmlns="http://www.scons.org/dbxsd/v1.0"> Example usage: </para>
+    <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
+barsrcs = ['bar.cpp']
+barincs = ['bar.h']
 barlocalincs = ['StdAfx.h']
 barresources = ['bar.rc','resource.h']
 barmisc = ['bar_readme.txt']
 
 dll = env.SharedLibrary(target = 'bar.dll',
                         source = barsrcs)
-
+buildtarget = [s for s in dll if str(s).endswith('dll')]
 env.MSVSProject(target = 'Bar' + env['MSVSPROJECTSUFFIX'],
                 srcs = barsrcs,
                 incs = barincs,
                 localincs = barlocalincs,
                 resources = barresources,
                 misc = barmisc,
-                buildtarget = dll,
+                buildtarget = buildtarget,
                 variant = 'Release')
 </example_commands>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">Starting with version 2.4 of
@@ -1743,6 +1745,81 @@ Example:
 env.Program(target = 'foo', source = ['foo.o', 'bar.c', 'baz.f'])
 </example_commands>
 </listitem>
+  </varlistentry>
+  <varlistentry id="b-ProgramAllAtOnce">
+    <term>
+      <function>ProgramAllAtOnce()</function>
+    </term>
+    <term>
+      <function>env.ProgramAllAtOnce()</function>
+    </term>
+    <listitem>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      Builds an executable from D sources without first creating individual
+      objects for each file.
+    </para>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      D sources can be compiled file-by-file as C and C++ source are, and
+      D is integrated into the <filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename> Object and Program builders for
+      this model of build. D codes can though do whole source
+      meta-programming (some of the testing frameworks do this). For this
+      it is imperative that all sources are compiled and linked in a single call of
+      the D compiler. This builder serves that purpose.
+    </para>
+    <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
+      env.ProgramAllAtOnce('executable', ['mod_a.d, mod_b.d', 'mod_c.d'])
+    </example_commands>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      This command will compile the modules mod_a, mod_b, and mod_c in a
+      single compilation process without first creating object files for
+      the modules. Some of the D compilers will create executable.o others
+      will not.
+    </para>
+  
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      Builds an executable from D sources without first creating individual
+      objects for each file.
+    </para>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      D sources can be compiled file-by-file as C and C++ source are, and
+      D is integrated into the <filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename> Object and Program builders for
+      this model of build. D codes can though do whole source
+      meta-programming (some of the testing frameworks do this). For this
+      it is imperative that all sources are compiled and linked in a single call of
+      the D compiler. This builder serves that purpose.
+    </para>
+    <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
+      env.ProgramAllAtOnce('executable', ['mod_a.d, mod_b.d', 'mod_c.d'])
+    </example_commands>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      This command will compile the modules mod_a, mod_b, and mod_c in a
+      single compilation process without first creating object files for
+      the modules. Some of the D compilers will create executable.o others
+      will not.
+    </para>
+  
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      Builds an executable from D sources without first creating individual
+      objects for each file.
+    </para>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      D sources can be compiled file-by-file as C and C++ source are, and
+      D is integrated into the <filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename> Object and Program builders for
+      this model of build. D codes can though do whole source
+      meta-programming (some of the testing frameworks do this). For this
+      it is imperative that all sources are compiled and linked in a single call of
+      the D compiler. This builder serves that purpose.
+    </para>
+    <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
+      env.ProgramAllAtOnce('executable', ['mod_a.d, mod_b.d', 'mod_c.d'])
+    </example_commands>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      This command will compile the modules mod_a, mod_b, and mod_c in a
+      single compilation process without first creating object files for
+      the modules. Some of the D compilers will create executable.o others
+      will not.
+    </para>
+  </listitem>
   </varlistentry>
   <varlistentry id="b-RES">
     <term>

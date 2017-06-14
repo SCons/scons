@@ -134,7 +134,7 @@ for the platform on which SCons is running.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 Sets construction variables for D language compiler DMD.
 </para>
-<para>Sets:  &cv-link-DC;, &cv-link-DCOM;, &cv-link-DDEBUG;, &cv-link-DDEBUGPREFIX;, &cv-link-DDEBUGSUFFIX;, &cv-link-DFILESUFFIX;, &cv-link-DFLAGPREFIX;, &cv-link-DFLAGS;, &cv-link-DFLAGSUFFIX;, &cv-link-DINCPREFIX;, &cv-link-DINCSUFFIX;, &cv-link-DLIB;, &cv-link-DLIBCOM;, &cv-link-DLIBDIRPREFIX;, &cv-link-DLIBDIRSUFFIX;, &cv-link-DLIBFLAGPREFIX;, &cv-link-DLIBFLAGSUFFIX;, &cv-link-DLIBLINKPREFIX;, &cv-link-DLIBLINKSUFFIX;, &cv-link-DLINK;, &cv-link-DLINKCOM;, &cv-link-DLINKFLAGS;, &cv-link-DPATH;, &cv-link-DVERPREFIX;, &cv-link-DVERSIONS;, &cv-link-DVERSUFFIX;, &cv-link-RPATHPREFIX;, &cv-link-RPATHSUFFIX;, &cv-link-SHDC;, &cv-link-SHDCOM;, &cv-link-SHDLINK;, &cv-link-SHDLINKCOM;, &cv-link-SHDLINKFLAGS;, &cv-link-_DDEBUGFLAGS;, &cv-link-_DFLAGS;, &cv-link-_DINCFLAGS;, &cv-link-_DLIBDIRFLAGS;, &cv-link-_DLIBFLAGS;, &cv-link-_DLIBFLAGS;, &cv-link-_DVERFLAGS;, &cv-link-_RPATH;.</para></listitem>
+<para>Sets:  &cv-link-DC;, &cv-link-DCOM;, &cv-link-DDEBUG;, &cv-link-DDEBUGPREFIX;, &cv-link-DDEBUGSUFFIX;, &cv-link-DFILESUFFIX;, &cv-link-DFLAGPREFIX;, &cv-link-DFLAGS;, &cv-link-DFLAGSUFFIX;, &cv-link-DINCPREFIX;, &cv-link-DINCSUFFIX;, &cv-link-DLIB;, &cv-link-DLIBCOM;, &cv-link-DLIBDIRPREFIX;, &cv-link-DLIBDIRSUFFIX;, &cv-link-DLIBFLAGPREFIX;, &cv-link-DLIBFLAGSUFFIX;, &cv-link-DLIBLINKPREFIX;, &cv-link-DLIBLINKSUFFIX;, &cv-link-DLINK;, &cv-link-DLINKCOM;, &cv-link-DLINKFLAGPREFIX;, &cv-link-DLINKFLAGS;, &cv-link-DLINKFLAGSUFFIX;, &cv-link-DPATH;, &cv-link-DVERPREFIX;, &cv-link-DVERSIONS;, &cv-link-DVERSUFFIX;, &cv-link-RPATHPREFIX;, &cv-link-RPATHSUFFIX;, &cv-link-SHDC;, &cv-link-SHDCOM;, &cv-link-SHDLINK;, &cv-link-SHDLINKCOM;, &cv-link-SHDLINKFLAGS;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-docbook">
     <term>docbook</term>
@@ -378,7 +378,7 @@ Set construction variables for the <application xmlns="http://www.scons.org/dbxs
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 Sets construction variables for the D language compiler GDC.
 </para>
-<para>Sets:  &cv-link-DC;, &cv-link-DCOM;, &cv-link-DDEBUG;, &cv-link-DDEBUGPREFIX;, &cv-link-DDEBUGSUFFIX;, &cv-link-DFILESUFFIX;, &cv-link-DFLAGPREFIX;, &cv-link-DFLAGS;, &cv-link-DFLAGSUFFIX;, &cv-link-DINCPREFIX;, &cv-link-DINCSUFFIX;, &cv-link-DLIB;, &cv-link-DLIBCOM;, &cv-link-DLIBFLAGPREFIX;, &cv-link-DLIBFLAGSUFFIX;, &cv-link-DLINK;, &cv-link-DLINKCOM;, &cv-link-DLINKFLAGPREFIX;, &cv-link-DLINKFLAGS;, &cv-link-DLINKFLAGSUFFIX;, &cv-link-DPATH;, &cv-link-DVERPREFIX;, &cv-link-DVERSIONS;, &cv-link-DVERSUFFIX;, &cv-link-RPATHPREFIX;, &cv-link-RPATHSUFFIX;, &cv-link-SHDC;, &cv-link-SHDCOM;, &cv-link-SHDLINK;, &cv-link-SHDLINKCOM;, &cv-link-SHDLINKFLAGS;, &cv-link-_DDEBUGFLAGS;, &cv-link-_DFLAGS;, &cv-link-_DINCFLAGS;, &cv-link-_DLIBFLAGS;, &cv-link-_DVERFLAGS;, &cv-link-_RPATH;.</para></listitem>
+<para>Sets:  &cv-link-DC;, &cv-link-DCOM;, &cv-link-DDEBUG;, &cv-link-DDEBUGPREFIX;, &cv-link-DDEBUGSUFFIX;, &cv-link-DFILESUFFIX;, &cv-link-DFLAGPREFIX;, &cv-link-DFLAGS;, &cv-link-DFLAGSUFFIX;, &cv-link-DINCPREFIX;, &cv-link-DINCSUFFIX;, &cv-link-DLIB;, &cv-link-DLIBCOM;, &cv-link-DLIBDIRPREFIX;, &cv-link-DLIBDIRSUFFIX;, &cv-link-DLIBFLAGPREFIX;, &cv-link-DLIBFLAGSUFFIX;, &cv-link-DLIBLINKPREFIX;, &cv-link-DLIBLINKSUFFIX;, &cv-link-DLINK;, &cv-link-DLINKCOM;, &cv-link-DLINKFLAGPREFIX;, &cv-link-DLINKFLAGS;, &cv-link-DLINKFLAGSUFFIX;, &cv-link-DPATH;, &cv-link-DVERPREFIX;, &cv-link-DVERSIONS;, &cv-link-DVERSUFFIX;, &cv-link-RPATHPREFIX;, &cv-link-RPATHSUFFIX;, &cv-link-SHDC;, &cv-link-SHDCOM;, &cv-link-SHDLINK;, &cv-link-SHDLINKCOM;, &cv-link-SHDLINKFLAGS;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-gettext">
     <term>gettext</term>
@@ -597,7 +597,7 @@ Sets construction variables for the <application xmlns="http://www.scons.org/dbx
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 Sets construction variables for the D language compiler LDC2.
 </para>
-<para>Sets:  &cv-link-DC;, &cv-link-DCOM;, &cv-link-DDEBUG;, &cv-link-DDEBUGPREFIX;, &cv-link-DDEBUGSUFFIX;, &cv-link-DFILESUFFIX;, &cv-link-DFLAGPREFIX;, &cv-link-DFLAGS;, &cv-link-DFLAGSUFFIX;, &cv-link-DINCPREFIX;, &cv-link-DINCSUFFIX;, &cv-link-DLIB;, &cv-link-DLIBCOM;, &cv-link-DLIBDIRPREFIX;, &cv-link-DLIBDIRSUFFIX;, &cv-link-DLIBFLAGPREFIX;, &cv-link-DLIBFLAGSUFFIX;, &cv-link-DLIBLINKPREFIX;, &cv-link-DLIBLINKSUFFIX;, &cv-link-DLINK;, &cv-link-DLINKCOM;, &cv-link-DLINKFLAGPREFIX;, &cv-link-DLINKFLAGS;, &cv-link-DLINKFLAGSUFFIX;, &cv-link-DPATH;, &cv-link-DVERPREFIX;, &cv-link-DVERSIONS;, &cv-link-DVERSUFFIX;, &cv-link-RPATHPREFIX;, &cv-link-RPATHSUFFIX;, &cv-link-SHDC;, &cv-link-SHDCOM;, &cv-link-SHDLINK;, &cv-link-SHDLINKCOM;, &cv-link-SHDLINKFLAGS;, &cv-link-_DDEBUGFLAGS;, &cv-link-_DFLAGS;, &cv-link-_DINCFLAGS;, &cv-link-_DLIBDIRFLAGS;, &cv-link-_DLIBFLAGS;, &cv-link-_DLIBFLAGS;, &cv-link-_DVERFLAGS;, &cv-link-_RPATH;.</para></listitem>
+<para>Sets:  &cv-link-DC;, &cv-link-DCOM;, &cv-link-DDEBUG;, &cv-link-DDEBUGPREFIX;, &cv-link-DDEBUGSUFFIX;, &cv-link-DFILESUFFIX;, &cv-link-DFLAGPREFIX;, &cv-link-DFLAGS;, &cv-link-DFLAGSUFFIX;, &cv-link-DINCPREFIX;, &cv-link-DINCSUFFIX;, &cv-link-DLIB;, &cv-link-DLIBCOM;, &cv-link-DLIBDIRPREFIX;, &cv-link-DLIBDIRSUFFIX;, &cv-link-DLIBFLAGPREFIX;, &cv-link-DLIBFLAGSUFFIX;, &cv-link-DLIBLINKPREFIX;, &cv-link-DLIBLINKSUFFIX;, &cv-link-DLINK;, &cv-link-DLINKCOM;, &cv-link-DLINKFLAGPREFIX;, &cv-link-DLINKFLAGS;, &cv-link-DLINKFLAGSUFFIX;, &cv-link-DPATH;, &cv-link-DVERPREFIX;, &cv-link-DVERSIONS;, &cv-link-DVERSUFFIX;, &cv-link-RPATHPREFIX;, &cv-link-RPATHSUFFIX;, &cv-link-SHDC;, &cv-link-SHDCOM;, &cv-link-SHDLINK;, &cv-link-SHDLINKCOM;, &cv-link-SHDLINKFLAGS;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-lex">
     <term>lex</term>
@@ -762,19 +762,19 @@ Sets construction variables for the
 </para>
 <para>Sets:  &cv-link-AS;, &cv-link-ASCOM;, &cv-link-ASFLAGS;, &cv-link-ASPPCOM;, &cv-link-ASPPFLAGS;.</para><para>Uses:  &cv-link-ASCOMSTR;, &cv-link-ASPPCOMSTR;.</para></listitem>
   </varlistentry>
-  <varlistentry id="t-Packaging">
-    <term>Packaging</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the <function xmlns="http://www.scons.org/dbxsd/v1.0">Package</function> Builder.
-</para>
-</listitem>
-  </varlistentry>
   <varlistentry id="t-packaging">
     <term>packaging</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 A framework for building binary and source packages.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="t-Packaging">
+    <term>Packaging</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Sets construction variables for the <function xmlns="http://www.scons.org/dbxsd/v1.0">Package</function> Builder.
 </para>
 </listitem>
   </varlistentry>
