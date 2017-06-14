@@ -5,7 +5,7 @@
                             Change Log
 
 
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
+RELEASE 3.0.0.alpha.20170614 - Mon, 14 Jun 2017 12:23:56 -0400
 
   From William Blevins:
     - Updated D language scanner support to latest: 2.071.1. (PR #1924)

@@ -18,7 +18,7 @@ So that everyone using SCons can help each other learn how to use it more
 effectively, please go to http://scons.org/lists.html#users to sign up for
 the scons-users mailing list.
 
-RELEASE 3.0.0 Alpha
+RELEASE 3.0.0.alpha.20170614 - Mon, 14 Jun 2017 12:23:56 -0400
 
   Please consult the RELEASE.txt file for a summary of changes since the last
   release and consult the CHANGES.txt file for complete a list of changes
