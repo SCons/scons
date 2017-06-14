@@ -10,5 +10,4 @@ scons: internal stack trace:
     executor.prepare()
   File "bootstrap/src/engine/SCons/Executor.py", line 430, in prepare
     raise SCons.Errors.StopError(msg % (s, self.batches[0].targets[0]))
-[?1034h
 </screen>
