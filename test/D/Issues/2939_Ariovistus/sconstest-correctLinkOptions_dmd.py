@@ -1,5 +1,5 @@
 """
-Test compiling and executing using the gdc tool.
+Test compiling and executing using the dmd tool.
 """
 
 #

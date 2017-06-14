@@ -1,5 +1,6 @@
 """
-Test compiling and executing using the ldc tool.
+Test to check for issue reported in tigris bug 2994
+http://scons.tigris.org/issues/show_bug.cgi?id=2994
 """
 
 #
@@ -27,8 +28,32 @@ Test compiling and executing using the ldc tool.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-from Common.correctLinkOptions import testForTool
-testForTool('ldc')
+import TestSCons
+
+from os.path import abspath, dirname, join
+
+import sys
+sys.path.insert(1, abspath(dirname(__file__) + '/../../../Support'))
+
+from executablesSearch import isExecutableOfToolAvailable
+
+
+def testForTool(tool):
+
+    test = TestSCons.TestSCons()
+
+    if not isExecutableOfToolAvailable(test, tool) :
+        test.skip_test("Required executable for tool '{0}' not found, skipping test.\n".format(tool))
+
+    test.dir_fixture('Project')
+    test.write('SConstruct', open('SConstruct_template', 'r').read().format('tools=["{0}", "link"]'.format(tool)))
+
+    test.run()
+    test.fail_test('main.o' not in test.stdout())
+    test.run(arguments='change=1')
+    test.fail_test('is up to date' in test.stdout())
+
+    test.pass_test()
 
 # Local Variables:
 # tab-width:4

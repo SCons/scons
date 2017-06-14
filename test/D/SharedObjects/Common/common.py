@@ -32,6 +32,7 @@ import TestSCons
 from SCons.Environment import Base
 
 from os.path import abspath, dirname
+from subprocess import check_output
 
 import sys
 sys.path.insert(1, abspath(dirname(__file__) + '/../../Support'))
@@ -46,7 +47,11 @@ def testForTool(tool):
         test.skip_test("Required executable for tool '{0}' not found, skipping test.\n".format(tool))
 
     if tool == 'gdc':
-        test.skip_test('gdc in GCC distribution does not, as at version 5.3.1, support shared libraries.\n')
+        result = check_output(('gdc', '--version'))
+        version = result.decode().splitlines()[0].split()[3]
+        major, minor, debug = [int(x) for x in version.split('.')]
+        if (major < 6) or (major == 6 and minor < 3):
+            test.skip_test('gdc prior to version 6.0.0 does not support shared libraries.\n')
 
     if tool == 'dmd' and Base()['DC'] == 'gdmd':
         test.skip_test('gdmd does not recognize the -shared option so cannot support linking of shared objects.\n')
