@@ -18,14 +18,40 @@ So that everyone using SCons can help each other learn how to use it more
 effectively, please go to http://scons.org/lists.html#users to sign up for
 the scons-users mailing list.
 
-RELEASE VERSION/DATE TO BE FILLED IN LATER
+RELEASE 3.0.0 Alpha
 
   Please consult the RELEASE.txt file for a summary of changes since the last
   release and consult the CHANGES.txt file for complete a list of changes
   since last release.  This announcement highlights only the important
   changes.
+    Please note the following important changes since release 2.5.1:
+       *IT IS NOT READY FOR PRODUCTION USE YET.*
 
-    -  Please note the following important changes since release 2.4.1:
+       This is the initial release supporting both python 3.5+ and 2.7.x and pypy
+       There are some important changes:
+
+       - Any print statements must now use python 3 syntax of "print()"
+       - All node content should be in bytes. This is the default in python 2.7.x,
+         in Python 3 all strings are by default unicode. byte and/or bytearray
+         should be used if you construct content for return by a custom node type's
+         get_content() method.
+       - This is some (as yet unresolved issue) using Literal()'s in some context with
+         Python 3
+       - pypy should be supported, please report any issues to the user's mailing list.
+       - Currently if you switch back and forth between python 2.7.x and 3.5+ you will
+         need to remove your sconsign file.  This should be resolves shortly, but
+         regardless switching between python 2.7.x and 3.5+ will not use compatible
+         sconsigns and as such incremental builds should be expected to rebuild
+         anything changed since the previous scons run with the same version of python.
+
+       - Removed deprecated tools CVS, Perforce, BitKeeper, RCS, SCCS, Subversion.
+       - Removed deprecated module SCons.Sig
+       - See CHANGES.txt for more details on other changes
+
+
+
+
+    Please note the following important changes since release 2.4.1:
        We're enhancing implicit language scanning functionality to improve
        correctness.  SCons now honors scanner keys for implicit dependencies
        and correctly changes scanner type (if necessary) when traversing 
