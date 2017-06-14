@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q</userinput>
 scons: *** No targets specified and no Default() targets found.  Stop.
-Found nothing to build
+[?1034hFound nothing to build
 % <userinput>scons -Q .</userinput>
-cc -o prog1.o -c prog1.c
+[?1034hcc -o prog1.o -c prog1.c
 cc -o prog1 prog1.o
 cc -o prog2.o -c prog2.c
 cc -o prog2 prog2.o

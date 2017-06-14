@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">C:\&gt;<userinput>scons -Q</userinput>
-cl /Foprog.obj /c prog.c /nologo
+[?1034hcl /Foprog.obj /c prog.c /nologo
 link /nologo /OUT:prog.exe /LIBPATH:\usr\lib /LIBPATH:\usr\local\lib m.lib prog.obj
 embedManifestExeCheck(target, source, env)
 </screen>

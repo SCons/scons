@@ -2,7 +2,7 @@
 <screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>ls src</userinput>
 hello.c
 % <userinput>scons -Q</userinput>
-cc -o build/hello.o -c build/hello.c
+[?1034hcc -o build/hello.o -c build/hello.c
 cc -o build/hello build/hello.o
 % <userinput>ls build</userinput>
 hello  hello.c  hello.o

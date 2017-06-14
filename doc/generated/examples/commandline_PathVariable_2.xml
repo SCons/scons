@@ -3,4 +3,5 @@
 
 scons: *** Path for option CONFIG does not exist: /does/not/exist
 File "/home/my/project/SConstruct", line 6, in &lt;module&gt;
+[?1034h
 </screen>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">C:\&gt;<userinput>scons -Q</userinput>
-cl /Fogoodbye.obj /c goodbye.c /nologo
+[?1034hcl /Fogoodbye.obj /c goodbye.c /nologo
 cl /Fohello.obj /c hello.c /nologo
 link /nologo /OUT:hello.exe /LIBPATH:\usr\dir1 /LIBPATH:dir2 foo1.lib foo2.lib hello.obj goodbye.obj
 embedManifestExeCheck(target, source, env)
