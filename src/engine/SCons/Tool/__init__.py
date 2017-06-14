@@ -118,7 +118,7 @@ class Tool(object):
         if hasattr(module, 'options'):
             self.options = module.options
 
-    def _load_dotted_module(self, short_name, full_name, searchpaths=None):
+    def _load_dotted_module_py2(self, short_name, full_name, searchpaths=None):
         splitname = short_name.split('.')
         index = 0
         srchpths = searchpaths
@@ -139,7 +139,7 @@ class Tool(object):
                 try:
                     file = None
                     try:
-                        mod, file = self._load_dotted_module(self.name, self.name, self.toolpath)
+                        mod, file = self._load_dotted_module_py2(self.name, self.name, self.toolpath)
                         return mod
                     finally:
                         if file:
@@ -179,8 +179,9 @@ class Tool(object):
             found_name = self.name
             add_to_scons_tools_namespace = False
             for path in self.toolpath:
-                file_path = os.path.join(path, "%s.py"%self.name)
-                file_package = os.path.join(path, self.name)
+                sepname = self.name.replace('.', os.path.sep)
+                file_path = os.path.join(path, "%s.py"%sepname)
+                file_package = os.path.join(path, sepname)
 
                 if debug: sys.stderr.write("Trying:%s %s\n"%(file_path, file_package))
 
@@ -242,7 +243,7 @@ class Tool(object):
             try:
                 smpath = sys.modules['SCons.Tool'].__path__
                 try:
-                    module, file = self._load_dotted_module(self.name, full_name, smpath)
+                    module, file = self._load_dotted_module_py2(self.name, full_name, smpath)
                     setattr(SCons.Tool, self.name, module)
                     if file:
                         file.close()
