@@ -189,6 +189,7 @@ class Tool(object):
                     if debug: print("file_Path:%s FOUND"%file_path)
                     break
                 elif os.path.isdir(file_package):
+                    file_package = os.path.join(file_package, '__init__.py')
                     spec = importlib.util.spec_from_file_location(self.name, file_package)
                     if debug: print("PACKAGE:%s Found"%file_package)
                     break
