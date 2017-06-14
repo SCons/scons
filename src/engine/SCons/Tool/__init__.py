@@ -145,7 +145,8 @@ class Tool(object):
                         if file:
                             file.close()
                 except ImportError as e:
-                    if str(e)!="No module named %s"%self.name:
+                    splitname = self.name.split('.')
+                    if str(e)!="No module named %s"%splitname[0]:
                         raise SCons.Errors.EnvironmentError(e)
                     try:
                         import zipimport
