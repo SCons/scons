@@ -11,11 +11,11 @@ scripts, allowing you to use the full power of a real scripting language
 to solve build problems.  You do not, however, need to know Python to
 use SCons effectively.
 
-Please go to http://www.scons.org/download.php to get the latest production
+Please go to http://scons.org/pages/download.html to get the latest production
 release of SCons.
 
 So that everyone using SCons can help each other learn how to use it more
-effectively, please go to http://scons.org/lists.php#users to sign up for
+effectively, please go to http://scons.org/lists.html#users to sign up for
 the scons-users mailing list.
 
 RELEASE VERSION/DATE TO BE FILLED IN LATER
