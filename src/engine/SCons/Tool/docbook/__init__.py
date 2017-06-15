@@ -43,6 +43,8 @@ import SCons.Script
 import SCons.Tool
 import SCons.Util
 
+
+__debug_tool_location = False
 # Get full path to this script
 scriptpath = os.path.dirname(os.path.realpath(__file__))
 
@@ -182,8 +184,12 @@ def __detect_cl_tool(env, chainkey, cdict, cpriority=None):
         if cpriority is None:
             cpriority = cdict.keys()
         for cltool in cpriority:
+            if __debug_tool_location:
+                print("DocBook: Looking for %s"%cltool)
             clpath = env.WhereIs(cltool)
             if clpath:
+                if __debug_tool_location:
+                    print("DocBook: Found:%s"%cltool)
                 env[chainkey] = clpath
                 if not env[chainkey + 'COM']:
                     env[chainkey + 'COM'] = cdict[cltool]
@@ -204,7 +210,7 @@ def _detect(env):
         __detect_cl_tool(env, 'DOCBOOK_XSLTPROC', xsltproc_com, xsltproc_com_priority)
         __detect_cl_tool(env, 'DOCBOOK_XMLLINT', xmllint_com)
 
-    __detect_cl_tool(env, 'DOCBOOK_FOP', fop_com)
+    __detect_cl_tool(env, 'DOCBOOK_FOP', fop_com, ['fop','xep','jw'])
 
 #
 # Scanners
