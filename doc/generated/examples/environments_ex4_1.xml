@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q</userinput>
-cc -o foo-dbg.o -c -g foo.c
+[?1034hcc -o foo-dbg.o -c -g foo.c
 cc -o foo-dbg foo-dbg.o
 cc -o foo-opt.o -c -O2 foo.c
 cc -o foo-opt foo-opt.o

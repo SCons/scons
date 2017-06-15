@@ -3,4 +3,5 @@
 
 scons: *** Invalid value for option COLOR: magenta.  Valid values are: ('red', 'green', 'blue')
 File "/home/my/project/SConstruct", line 5, in &lt;module&gt;
+[?1034h
 </screen>

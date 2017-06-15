@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q</userinput>
-scons: `.' is up to date.
+[?1034hscons: `.' is up to date.
 Build succeeded.
 % <userinput>scons -Q fail=1</userinput>
 scons: *** [target] Source `source' not found, needed by target `target'.
-FAILED!!!!
+[?1034hFAILED!!!!
 Failed building target: Source `source' not found, needed by target `target'.
 </screen>

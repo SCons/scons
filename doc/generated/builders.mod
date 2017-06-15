@@ -45,6 +45,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY b-POTUpdate "<function xmlns='http://www.scons.org/dbxsd/v1.0'>POTUpdate</function>">
 <!ENTITY b-POUpdate "<function xmlns='http://www.scons.org/dbxsd/v1.0'>POUpdate</function>">
 <!ENTITY b-Program "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Program</function>">
+<!ENTITY b-ProgramAllAtOnce "<function xmlns='http://www.scons.org/dbxsd/v1.0'>ProgramAllAtOnce</function>">
 <!ENTITY b-RES "<function xmlns='http://www.scons.org/dbxsd/v1.0'>RES</function>">
 <!ENTITY b-RMIC "<function xmlns='http://www.scons.org/dbxsd/v1.0'>RMIC</function>">
 <!ENTITY b-RPCGenClient "<function xmlns='http://www.scons.org/dbxsd/v1.0'>RPCGenClient</function>">
@@ -100,6 +101,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY b-env-POTUpdate "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.POTUpdate</function>">
 <!ENTITY b-env-POUpdate "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.POUpdate</function>">
 <!ENTITY b-env-Program "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Program</function>">
+<!ENTITY b-env-ProgramAllAtOnce "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.ProgramAllAtOnce</function>">
 <!ENTITY b-env-RES "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.RES</function>">
 <!ENTITY b-env-RMIC "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.RMIC</function>">
 <!ENTITY b-env-RPCGenClient "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.RPCGenClient</function>">
@@ -165,6 +167,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY b-link-POTUpdate "<link linkend='b-POTUpdate' xmlns='http://www.scons.org/dbxsd/v1.0'><function>POTUpdate</function></link>">
 <!ENTITY b-link-POUpdate "<link linkend='b-POUpdate' xmlns='http://www.scons.org/dbxsd/v1.0'><function>POUpdate</function></link>">
 <!ENTITY b-link-Program "<link linkend='b-Program' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Program</function></link>">
+<!ENTITY b-link-ProgramAllAtOnce "<link linkend='b-ProgramAllAtOnce' xmlns='http://www.scons.org/dbxsd/v1.0'><function>ProgramAllAtOnce</function></link>">
 <!ENTITY b-link-RES "<link linkend='b-RES' xmlns='http://www.scons.org/dbxsd/v1.0'><function>RES</function></link>">
 <!ENTITY b-link-RMIC "<link linkend='b-RMIC' xmlns='http://www.scons.org/dbxsd/v1.0'><function>RMIC</function></link>">
 <!ENTITY b-link-RPCGenClient "<link linkend='b-RPCGenClient' xmlns='http://www.scons.org/dbxsd/v1.0'><function>RPCGenClient</function></link>">
@@ -220,6 +223,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY b-link-env-POTUpdate "<link linkend='b-POTUpdate' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.POTUpdate</function></link>">
 <!ENTITY b-link-env-POUpdate "<link linkend='b-POUpdate' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.POUpdate</function></link>">
 <!ENTITY b-link-env-Program "<link linkend='b-Program' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Program</function></link>">
+<!ENTITY b-link-env-ProgramAllAtOnce "<link linkend='b-ProgramAllAtOnce' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.ProgramAllAtOnce</function></link>">
 <!ENTITY b-link-env-RES "<link linkend='b-RES' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.RES</function></link>">
 <!ENTITY b-link-env-RMIC "<link linkend='b-RMIC' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.RMIC</function></link>">
 <!ENTITY b-link-env-RPCGenClient "<link linkend='b-RPCGenClient' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.RPCGenClient</function></link>">

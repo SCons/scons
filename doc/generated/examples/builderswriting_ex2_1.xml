@@ -3,4 +3,5 @@
 AttributeError: 'SConsEnvironment' object has no attribute 'Program':
   File "/home/my/project/SConstruct", line 4:
     env.Program('hello.c')
+[?1034h
 </screen>

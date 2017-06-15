@@ -7,16 +7,17 @@ UnicodeDecodeError: 'utf8' codec can't decode byte 0xc2 in position 249: invalid
     return MethodWrapper.__call__(self, target, source, *args, **kw)
   File "bootstrap/src/engine/SCons/Environment.py", line 224:
     return self.method(*nargs, **kwargs)
-  File "bootstrap/src/engine/SCons/Builder.py", line 632:
+  File "bootstrap/src/engine/SCons/Builder.py", line 634:
     return self._execute(env, target, source, OverrideWarner(kw), ekw)
   File "bootstrap/src/engine/SCons/Builder.py", line 540:
     source = self.src_builder_sources(env, source, overwarn)
-  File "bootstrap/src/engine/SCons/Builder.py", line 745:
+  File "bootstrap/src/engine/SCons/Builder.py", line 747:
     tlist = bld._execute(env, None, [s], overwarn)
   File "bootstrap/src/engine/SCons/Builder.py", line 556:
     _node_errors(self, env, tlist, slist)
   File "bootstrap/src/engine/SCons/Builder.py", line 302:
     msg = "Two environments with different actions were specified for the same target: %s\n(action 1: %s)\n(action 2: %s)" % (t,t_contents.decode('utf-8'),contents.decode('utf-8'))
-  File "/usr/lib/python2.7/encodings/utf_8.py", line 16:
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/encodings/utf_8.py", line 16:
     return codecs.utf_8_decode(input, errors, True)
+[?1034h
 </screen>
