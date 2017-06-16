@@ -102,16 +102,16 @@ def generate(env):
     env['DLINKFLAGS'] = SCons.Util.CLVar('')
     env['DLINKCOM'] = '$DLINK -of=$TARGET $DLINKFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS'
 
-    env['DSHLINK'] = '$DC'
-    env['DSHLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared -defaultlib=phobos2-ldc')
+    env['SHDLINK'] = '$DC'
+    env['SHDLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared -defaultlib=phobos2-ldc')
 
     #### START DEPRECATION 2017-05-21
     # Hack for Fedora the packages of which use the wrong name :-(
     if os.path.exists('/usr/lib64/libphobos-ldc.so') or os.path.exists('/usr/lib32/libphobos-ldc.so') or os.path.exists('/usr/lib/libphobos-ldc.so'):
-        env['DSHLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared -defaultlib=phobos-ldc')
+        env['SHDLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared -defaultlib=phobos-ldc')
     #### END DEPRECATION 2017-05-21
 
-    env['SHDLINKCOM'] = '$DLINK -of=$TARGET $DSHLINKFLAGS $__DSHLIBVERSIONFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS'
+    env['SHDLINKCOM'] = '$DLINK -of=$TARGET $SHDLINKFLAGS $__SHDLIBVERSIONFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS'
 
     env['DLIBLINKPREFIX'] = '' if env['PLATFORM'] == 'win32' else '-L-l'
     env['DLIBLINKSUFFIX'] = '.lib' if env['PLATFORM'] == 'win32' else ''
@@ -137,15 +137,15 @@ def generate(env):
     env['_DRPATH'] = '${_concat(DRPATHPREFIX, RPATH, DRPATHSUFFIX, __env__)}'
 
     # Support for versioned libraries
-    env['_DSHLIBVERSIONFLAGS'] = '$DSHLIBVERSIONFLAGS -L-soname=$_DSHLIBSONAME'
-    env['_DSHLIBSONAME'] = '${DShLibSonameGenerator(__env__,TARGET)}'
+    env['_SHDLIBVERSIONFLAGS'] = '$SHDLIBVERSIONFLAGS -L-soname=$_SHDLIBSONAME'
+    env['_SHDLIBSONAME'] = '${DShLibSonameGenerator(__env__,TARGET)}'
     # NOTE: this is a quick hack, the soname will only work if there is
     # c/c++ linker loaded which provides callback for the ShLibSonameGenerator
     env['DShLibSonameGenerator'] = SCons.Tool.ShLibSonameGenerator
-    # NOTE: this is only for further reference, currently $DSHLIBVERSION does
+    # NOTE: this is only for further reference, currently $SHDLIBVERSION does
     # not work, the user must use $SHLIBVERSION
-    env['DSHLIBVERSION'] = '$SHLIBVERSION'
-    env['DSHLIBVERSIONFLAGS'] = []
+    env['SHDLIBVERSION'] = '$SHLIBVERSION'
+    env['SHDLIBVERSIONFLAGS'] = []
 
     SCons.Tool.createStaticLibBuilder(env)
 

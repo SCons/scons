@@ -63,8 +63,11 @@ Sets construction variables for D language compiler DMD.
 <item>DLIBFLAGSUFFIX</item>
 <item>DLINKFLAGPREFIX</item>
 <item>DLINKFLAGSUFFIX</item>
-<item>RPATHPREFIX</item>
-<item>RPATHSUFFIX</item>
+<item>DRPATHPREFIX</item>
+<item>DRPATHSUFFIX</item>
+<item>DShLibSonameGenerator</item>
+<item>SHDLIBVERSION</item>
+<item>SHDLIBVERSIONFLAGS</item>
 </sets>
 <uses>
 </uses>
