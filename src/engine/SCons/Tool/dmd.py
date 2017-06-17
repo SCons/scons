@@ -75,7 +75,7 @@ def generate(env):
     static_obj.add_emitter('.d', SCons.Defaults.StaticObjectEmitter)
     shared_obj.add_emitter('.d', SCons.Defaults.SharedObjectEmitter)
 
-    env['DC'] = env.Detect(['dmd', 'gdmd'])
+    env['DC'] = env.Detect(['dmd', 'ldmd2', 'gdmd']) or 'dmd'
     env['DCOM'] = '$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -c -of$TARGET $SOURCES'
     env['_DINCFLAGS'] = '${_concat(DINCPREFIX, DPATH, DINCSUFFIX, __env__, RDirs, TARGET, SOURCE)}'
     env['_DVERFLAGS'] = '${_concat(DVERPREFIX, DVERSIONS, DVERSUFFIX, __env__)}'
