@@ -50,7 +50,7 @@ def testForTool(tool):
         libraryname = 'libstuff.so'
         filename = 'stuff.os'
     elif platform == 'darwin':
-        if tool == 'gdc':
+        if tool == 'dmd' or tool == 'gdc':
             test.skip_test('Dynamic libraries not yet supported by dmd and gdc on OSX.\n')
         libraryname = 'libstuff.dylib'
         filename = 'stuff.os'
