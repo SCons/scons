@@ -111,7 +111,7 @@ def generate(env):
         env['DSHLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared -defaultlib=phobos-ldc')
     #### END DEPRECATION 2017-05-21
 
-    env['SHDLINKCOM'] = '$DLINK -of=$TARGET $DSHLINKFLAGS $__DSHLIBVERSIONFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS'
+    env['SHDLINKCOM'] = '$DLINK -of=$TARGET $DSHLINKFLAGS $__DSHLIBVERSIONFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS -L-ldruntime-ldc'
 
     env['DLIBLINKPREFIX'] = '' if env['PLATFORM'] == 'win32' else '-L-l'
     env['DLIBLINKSUFFIX'] = '.lib' if env['PLATFORM'] == 'win32' else ''
@@ -132,7 +132,7 @@ def generate(env):
 
     # __RPATH is set to $_RPATH in the platform specification if that
     # platform supports it.
-    env['DRPATHPREFIX'] = '-L-rpath='
+    env['DRPATHPREFIX'] = '-L-Wl,-rpath,' if env['PLATFORM'] == 'darwin' else '-L-rpath='
     env['DRPATHSUFFIX'] = ''
     env['_DRPATH'] = '${_concat(DRPATHPREFIX, RPATH, DRPATHSUFFIX, __env__)}'
 
