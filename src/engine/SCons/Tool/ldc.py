@@ -111,7 +111,7 @@ def generate(env):
         env['DSHLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared -defaultlib=phobos-ldc')
     #### END DEPRECATION 2017-05-21
 
-    env['SHDLINKCOM'] = '$DLINK -of=$TARGET $DSHLINKFLAGS $__DSHLIBVERSIONFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS'
+    env['SHDLINKCOM'] = '$DLINK -of=$TARGET $DSHLINKFLAGS $__DSHLIBVERSIONFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS -L-ldruntime-ldc'
 
     env['DLIBLINKPREFIX'] = '' if env['PLATFORM'] == 'win32' else '-L-l'
     env['DLIBLINKSUFFIX'] = '.lib' if env['PLATFORM'] == 'win32' else ''
