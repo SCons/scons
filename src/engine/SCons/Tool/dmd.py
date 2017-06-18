@@ -129,7 +129,7 @@ def generate(env):
 
     # __RPATH is set to $_RPATH in the platform specification if that
     # platform supports it.
-    env['DRPATHPREFIX'] = '-L-rpath='
+    env['DRPATHPREFIX'] = '-L-rpath,' if env['PLATFORM'] == 'darwin' else '-L-rpath='
     env['DRPATHSUFFIX'] = ''
     env['_DRPATH'] = '${_concat(DRPATHPREFIX, RPATH, DRPATHSUFFIX, __env__)}'
 
