@@ -2187,6 +2187,22 @@ platform name when the Environment is constructed. Changing the PATH
 variable after the Environment is constructed will not cause the tools to
 be redetected.</para>
 
+<para> One feature now present within Scons is the ability to have nested tools.
+Tools which can be located within a subdirectory in the toolpath.
+With a nested tool name the dot represents a directory seperator</para>
+
+<programlisting>
+# namespaced builder
+env = Environment(ENV = os.environ, tools = ['SubDir1.SubDir2.SomeTool'])
+env.SomeTool(targets, sources)
+
+# Search Paths
+# SCons\Tool\SubDir1\SubDir2\SomeTool.py
+# SCons\Tool\SubDir1\SubDir2\SomeTool\__init__.py
+# .\site_scons\site_tools\SubDir1\SubDir2\SomeTool.py
+# .\site_scons\site_tools\SubDir1\SubDir2\SomeTool\__init__.py
+</programlisting>
+
 <para>SCons supports the following tool specifications out of the box:</para>
 
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->

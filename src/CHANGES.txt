@@ -7,6 +7,10 @@
 
 RELEASE 3.0.0.alpha.20170614 - Mon, 14 Jun 2017 12:23:56 -0400
 
+  From Richard West:
+    - Added nested / namespace tool support
+    - Added a small fix to the python3 tool loader when loading a tool as a package
+
   From William Blevins:
     - Updated D language scanner support to latest: 2.071.1. (PR #1924)
       https://dlang.org/spec/module.html accessed 11 August 2016
