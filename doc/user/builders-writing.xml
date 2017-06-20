@@ -880,6 +880,53 @@ env2.Foo('file2')
 
   </section>
 
+  <section>
+  <title>Nested and namespace builders;</title>
+
+    <para>
+    &SCons; now supports the ability for a Builder to be located within a sub-directory of the toolpath.
+	This is similar to namespacing within python.
+
+    Normally when loading a tool into the environment, scons will search for the tool within two locations
+    </para>
+
+    <sconstruct>
+# Regular non namespace target
+env = Environment(ENV = os.environ, tools = ['SomeTool'])
+env.SomeTool(targets, sources)
+    </sconstruct>
+
+    <para>
+    The locations would include
+	<filename>SCons\Tool\SomeTool.py</filename>
+    <filename>SCons\Tool\SomeTool\__init__.py</filename>
+    <filename>.\site_scons\site_tools\SomeTool.py</filename>
+	<filename>.\site_scons\site_tools\SomeTool\__init__.py</filename>
+
+    If a toolpath is specified this is also searched as well.
+	With nested or namespaced tools we can use the dot notation to specify a sub-directoty that the tool is located under
+    </para>
+
+    <sconstruct>
+# namespaced target
+env = Environment(ENV = os.environ, tools = ['SubDir1.SubDir2.SomeTool'])
+env.SomeTool(targets, sources)
+    </sconstruct>
+
+    <para>
+    With this example the search locations would include
+	<filename>SCons\Tool\SubDir1\SubDir2\SomeTool.py</filename>
+    <filename>SCons\Tool\SubDir1\SubDir2\SomeTool\__init__.py</filename>
+    <filename>.\site_scons\site_tools\SubDir1\SubDir2\SomeTool.py</filename>
+	<filename>.\site_scons\site_tools\SubDir1\SubDir2\SomeTool\__init__.py</filename>
+
+    It's important to note when creating tools within sub-directories, there needs to be a __init__.py file within each directory.
+	This file can just be empty however.
+	This is the same constraint used by python when loading modules from within sub-directories (packages).
+
+    </para>
+  </section>
+
   <!--
 
   <section>
