@@ -810,7 +810,7 @@ def run_test(t, io_lock, async=True):
     if head:
         fixture_dirs.append(head)
     fixture_dirs.append(os.path.join(scriptpath, 'test', 'fixture'))
-    os.environ['FIXTURE_DIRS'] = ':'.join(fixture_dirs)
+    os.environ['FIXTURE_DIRS'] = ';'.join(fixture_dirs)
 
     test_start_time = time_func()
     if execute_tests:
