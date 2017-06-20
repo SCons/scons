@@ -1,0 +1,15 @@
+# Test where tools are located under site_scons/site_tools
+env1 = Environment(tools=['subdir1.Site_TestTool1', 'subdir1.subdir2.Site_TestTool2', 'subdir1.Site_TestTool3'])
+print("env1['Site_TestTool1'] =", env1.get('Site_TestTool1'))
+print("env1['Site_TestTool2'] =", env1.get('Site_TestTool2'))
+print("env1['Site_TestTool3'] =", env1.get('Site_TestTool3'))
+
+# Test where toolpath is set in the env constructor
+env2 = Environment(tools=['subdir1.Toolpath_TestTool1', 'subdir1.subdir2.Toolpath_TestTool2', 'subdir1.Toolpath_TestTool3'], toolpath=['tools'])
+print("env2['Toolpath_TestTool1'] =", env2.get('Toolpath_TestTool1'))
+print("env2['Toolpath_TestTool2'] =", env2.get('Toolpath_TestTool2'))
+print("env2['Toolpath_TestTool3'] =", env2.get('Toolpath_TestTool3'))
+
+base = Environment(tools=[], toolpath=['tools'])
+derived = base.Clone(tools=['subdir1.Toolpath_TestTool1'])
+print("derived['Toolpath_TestTool1'] =", derived.get('Toolpath_TestTool1'))

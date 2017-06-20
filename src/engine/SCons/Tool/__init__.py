@@ -118,6 +118,16 @@ class Tool(object):
         if hasattr(module, 'options'):
             self.options = module.options
 
+    def _load_dotted_module_py2(self, short_name, full_name, searchpaths=None):
+        splitname = short_name.split('.')
+        index = 0
+        srchpths = searchpaths
+        for item in splitname:
+            file, path, desc = imp.find_module(item, srchpths)
+            mod = imp.load_module(full_name, file, path, desc)
+            srchpths = [path]
+        return mod, file
+
     def _tool_module(self):
         oldpythonpath = sys.path
         sys.path = self.toolpath + sys.path
@@ -127,15 +137,16 @@ class Tool(object):
             # Py 2 code
             try:
                 try:
-                    file, path, desc = imp.find_module(self.name, self.toolpath)
+                    file = None
                     try:
-                        return imp.load_module(self.name, file, path, desc)
-
+                        mod, file = self._load_dotted_module_py2(self.name, self.name, self.toolpath)
+                        return mod
                     finally:
                         if file:
                             file.close()
                 except ImportError as e:
-                    if str(e)!="No module named %s"%self.name:
+                    splitname = self.name.split('.')
+                    if str(e)!="No module named %s"%splitname[0]:
                         raise SCons.Errors.EnvironmentError(e)
                     try:
                         import zipimport
@@ -169,8 +180,9 @@ class Tool(object):
             found_name = self.name
             add_to_scons_tools_namespace = False
             for path in self.toolpath:
-                file_path = os.path.join(path, "%s.py"%self.name)
-                file_package = os.path.join(path, self.name)
+                sepname = self.name.replace('.', os.path.sep)
+                file_path = os.path.join(path, "%s.py"%sepname)
+                file_package = os.path.join(path, sepname)
 
                 if debug: sys.stderr.write("Trying:%s %s\n"%(file_path, file_package))
 
@@ -179,6 +191,7 @@ class Tool(object):
                     if debug: print("file_Path:%s FOUND"%file_path)
                     break
                 elif os.path.isdir(file_package):
+                    file_package = os.path.join(file_package, '__init__.py')
                     spec = importlib.util.spec_from_file_location(self.name, file_package)
                     if debug: print("PACKAGE:%s Found"%file_package)
                     break
@@ -231,8 +244,7 @@ class Tool(object):
             try:
                 smpath = sys.modules['SCons.Tool'].__path__
                 try:
-                    file, path, desc = imp.find_module(self.name, smpath)
-                    module = imp.load_module(full_name, file, path, desc)
+                    module, file = self._load_dotted_module_py2(self.name, full_name, smpath)
                     setattr(SCons.Tool, self.name, module)
                     if file:
                         file.close()
