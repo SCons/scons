@@ -77,8 +77,11 @@ RELEASE 3.0.0.alpha.20170614 - Mon, 14 Jun 2017 12:23:56 -0400
   From Russel Winder:
     - Reordered the default D tools from "dmd, gdc, ldc" to "dmd, ldc, gdc".
     - Add a ProgramAllAtOnce builder to the dmd, ldc, and gdc tools. (PR #448)
-    - Deprecate a file name exception for very old Fedora LDC installation.
+    - Remove a file name exception for very old Fedora LDC installation.
     - gdc can now handle building shared objects (tested for version 6.3.0).
+    - Remove establishing the SharedLibrary builder in the dmd, ldc, and gdc
+      tools, must now include the ar tool to get this builder as is required for
+      other compiler tools.
 
 RELEASE 2.5.1 - Mon, 03 Nov 2016 13:37:42 -0400
 

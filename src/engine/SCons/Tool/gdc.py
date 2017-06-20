@@ -128,8 +128,6 @@ def generate(env):
     env['DSHLIBVERSION'] = '$SHLIBVERSION'
     env['DSHLIBVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS'
 
-    SCons.Tool.createStaticLibBuilder(env)
-
     env['BUILDERS']['ProgramAllAtOnce'] = SCons.Builder.Builder(
         action='$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -o $TARGET $DLINKFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS',
         emitter=DCommon.allAtOnceEmitter,
