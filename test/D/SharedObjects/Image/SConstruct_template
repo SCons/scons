@@ -1,10 +1,7 @@
 # -*- mode:python; coding:utf-8; -*-
 
-import os
-
 environment = Environment(
-    tools=['{}', 'link'])
-
-environment['ENV']['HOME'] = os.environ['HOME']  # Hack for gdmd
+    tools=['{0}', 'link']
+)
 
 environment.SharedLibrary('answer', 'code.d')
