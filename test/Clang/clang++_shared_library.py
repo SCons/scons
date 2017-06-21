@@ -26,11 +26,26 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
+from SCons.Environment import Base
+
 _exe = TestSCons._exe
 test = TestSCons.TestSCons()
 
 if not test.where_is('clang'):
     test.skip_test("Could not find 'clang++', skipping test.\n")
+
+platform = Base()['PLATFORM']
+if platform == 'posix':
+    filename = 'foo.os'
+    libraryname = 'libfoo.so'
+elif platform == 'darwin':
+    filename = 'foo.os'
+    libraryname = 'libfoo.dylib'
+elif platform == 'win32':
+    filename = 'foo.obj'
+    libraryname = 'foo.dll'
+else:
+    test.fail_test()
 
 test.write('SConstruct', """\
 env = Environment(tools=['clang++', 'link'])
@@ -45,7 +60,8 @@ int bar() {
 
 test.run()
 
-test.must_exist(test.workpath('libfoo.so'))
+test.must_exist(test.workpath(filename))
+test.must_exist(test.workpath(libraryname))
 
 test.pass_test()
 
