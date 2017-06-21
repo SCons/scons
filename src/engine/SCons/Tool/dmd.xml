@@ -163,8 +163,6 @@ List of linker flags.
 </summary>
 </cvar>
 
-
-
 <cvar name="SHDC">
 <summary>
 <para>
@@ -207,7 +205,6 @@ List of linker flags.
 </summary>
 </cvar>
 
-<!-- The following are re-added because their removal breaks doc validation -->
 <cvar name="DVERSUFFIX">
   <summary>
     <para>
@@ -344,10 +341,6 @@ List of linker flags.
     </para>
  </summary>
 </cvar>
-
-
-<!-- Validation fix to here -->
-
 
 <builder name="ProgramAllAtOnce">
   <summary>
