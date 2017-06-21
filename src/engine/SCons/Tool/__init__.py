@@ -101,7 +101,10 @@ for suffix in LaTeXSuffixes:
 # Tool aliases are needed for those tools whos module names also
 # occur in the python standard library. This causes module shadowing and
 # can break using python library functions under python3
-TOOL_ALIASES = {'gettext':'gettext_tool'}
+TOOL_ALIASES = {
+    'gettext':'gettext_tool',
+    'clang++': 'clangxx',
+}
 
 class Tool(object):
     def __init__(self, name, toolpath=[], **kw):
