@@ -50,11 +50,10 @@ def testForTool(tool):
         libraryname = 'libstuff.so'
         filename = 'stuff.os'
     elif platform == 'darwin':
+        if tool == 'dmd' or tool == 'gdc':
+            test.skip_test('Dynamic libraries not yet supported by dmd and gdc on OSX.\n')
         libraryname = 'libstuff.dylib'
         filename = 'stuff.os'
-        # As at 2014-09-14, DMD 2.066, LDC master head, and GDC 4.9.1 do not support
-        # shared libraries on OSX.
-        test.skip_test('Dynamic libraries not yet supported on OSX.\n')
     elif platform == 'win32':
         libraryname = 'stuff.dll'
         filename = 'stuff.obj'
