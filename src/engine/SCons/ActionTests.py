@@ -2055,7 +2055,12 @@ class ObjectContentsTestCase(unittest.TestCase):
         # See definition above
         o = TestClass()
         c = SCons.Action._object_contents(o)
-        expected = bytearray("(i__main__\nTestClass\np1\n(dp2\nS'a'\nS'a'\nsS'b'\nS'b'\nsb.", 'utf-8')
+
+        if TestCmd.PY3:
+            expected = bytearray(r'ccopy_reg\n_reconstructor\nq\x00(c__main__\nTestClass\nq\x01c__builtin__\nobject\nq\x02Ntq\x03Rq\x04}q\x05(X\x01\x00\x00\x00bq\x06h\x06X\x01\x00\x00\x00aq\x07h\x07ub.','utf-8')
+        else:
+            expected = bytearray(b'(c__main__\nTestClass\nq\x01oq\x02}q\x03(U\x01aU\x01aU\x01bU\x01bub.')
+
         assert expected == c, "Got\n" + repr(c) + "\nExpected\n" + repr(expected)
 
     # @unittest.skip("Results vary between py2 and py3, not sure if test makes sense to implement")
@@ -2064,7 +2069,10 @@ class ObjectContentsTestCase(unittest.TestCase):
 
         code = compile("print('Hello, World!')", '<string>', 'exec')
         c = SCons.Action._code_contents(code)
-        expected = bytearray("0, 0, 0, 0,(N.),(),(d\x00\x00GHd\x01\x00S)", 'utf-8')
+        if TestCmd.PY3:
+            expected = bytearray(b'0, 0, 0, 0,(N.),(X\x05\x00\x00\x00printq\x00.),(e\x00\x00d\x00\x00\x83\x01\x00\x01d\x01\x00S)','utf-8')
+        else:
+            expected = bytearray(b"0, 0, 0, 0,(N.),(),(d\x00\x00GHd\x01\x00S)")
         assert expected == c, "Got\n" + repr(c) + "\nExpected\n" + repr(expected)
 
 
