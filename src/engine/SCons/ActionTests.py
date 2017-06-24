@@ -1605,7 +1605,6 @@ class FunctionActionTestCase(unittest.TestCase):
 
         a = factory(GlobalFunc)
         c = a.get_contents(target=[], source=[], env=Environment())
-        # assert c in func_matches, repr(c)
         assert c in func_matches, "Got\n"+repr(c)+"\nExpected one of \n"+"\n".join([repr(f) for f in func_matches])
 
 
@@ -2057,7 +2056,7 @@ class ObjectContentsTestCase(unittest.TestCase):
         c = SCons.Action._object_contents(o)
 
         if TestCmd.PY3:
-            expected = bytearray(r'ccopy_reg\n_reconstructor\nq\x00(c__main__\nTestClass\nq\x01c__builtin__\nobject\nq\x02Ntq\x03Rq\x04}q\x05(X\x01\x00\x00\x00bq\x06h\x06X\x01\x00\x00\x00aq\x07h\x07ub.','utf-8')
+            expected = bytearray(b'ccopy_reg\n_reconstructor\nq\x00(c__main__\nTestClass\nq\x01c__builtin__\nobject\nq\x02Ntq\x03Rq\x04}q\x05(X\x01\x00\x00\x00bq\x06h\x06X\x01\x00\x00\x00aq\x07h\x07ub.')
         else:
             expected = bytearray(b'(c__main__\nTestClass\nq\x01oq\x02}q\x03(U\x01aU\x01aU\x01bU\x01bub.')
 
@@ -2070,7 +2069,7 @@ class ObjectContentsTestCase(unittest.TestCase):
         code = compile("print('Hello, World!')", '<string>', 'exec')
         c = SCons.Action._code_contents(code)
         if TestCmd.PY3:
-            expected = bytearray(b'0, 0, 0, 0,(N.),(X\x05\x00\x00\x00printq\x00.),(e\x00\x00d\x00\x00\x83\x01\x00\x01d\x01\x00S)','utf-8')
+            expected = bytearray(b'0, 0, 0, 0,(N.),(X\x05\x00\x00\x00printq\x00.),(e\x00\x00d\x00\x00\x83\x01\x00\x01d\x01\x00S)')
         else:
             expected = bytearray(b"0, 0, 0, 0,(N.),(),(d\x00\x00GHd\x01\x00S)")
         assert expected == c, "Got\n" + repr(c) + "\nExpected\n" + repr(expected)
