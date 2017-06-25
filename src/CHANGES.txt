@@ -7,6 +7,10 @@
 
 RELEASE 3.0.0.alpha.20170614 - Mon, 14 Jun 2017 12:23:56 -0400
 
+NOTE: This is a major release.  You should expect that some targets may rebuild when upgrading.
+Significant changes in some python action signatures. Also switching between PY 2 and PY 3.5, 3.6
+may cause rebuilds.  In no case should rebuilds not happen. 
+
   From Richard West:
     - Added nested / namespace tool support
     - Added a small fix to the python3 tool loader when loading a tool as a package

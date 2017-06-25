@@ -1428,10 +1428,16 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         def LocalFunc():
             pass
 
-        func_matches = [
-            b"0, 0, 0, 0,(),(),(d\000\000S),(),()",
-            b"0, 0, 0, 0,(),(),(d\x00\x00S),(),()",
-            ]
+        if TestCmd.IS_PY3 and TestCmd.IS_WINDOWS:
+            func_matches = [
+                b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()',  # PY 3.6
+                b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()',  # PY 3.5
+                ]
+        else:
+            func_matches = [
+                b"0, 0, 0, 0,(),(),(d\000\000S),(),()",
+                b"0, 0, 0, 0,(),(),(d\x00\x00S),(),()",
+                ]
 
         meth_matches = [
             b"1, 1, 0, 0,(),(),(d\000\000S),(),()",
@@ -1590,15 +1596,26 @@ class FunctionActionTestCase(unittest.TestCase):
         def LocalFunc():
             pass
 
-        func_matches = [
-            b"0, 0, 0, 0,(),(),(d\000\000S),(),()",
-            b"0, 0, 0, 0,(),(),(d\x00\x00S),(),()",
+        if TestCmd.IS_PY3 and TestCmd.IS_WINDOWS:
+            func_matches = [
+                b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()',  # py 3.6
+                b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()'   # py 3.5
+                ]
+            meth_matches = [
+                b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()',  # py 3.6
+                b'1, 1, 0, 0,(),(),(d\x00\x00S),(),()',  # py 3.5
             ]
 
-        meth_matches = [
-            b"1, 1, 0, 0,(),(),(d\000\000S),(),()",
-            b"1, 1, 0, 0,(),(),(d\x00\x00S),(),()",
-        ]
+        else:
+            func_matches = [
+                b"0, 0, 0, 0,(),(),(d\000\000S),(),()",
+                b"0, 0, 0, 0,(),(),(d\x00\x00S),(),()",
+                ]
+
+            meth_matches = [
+                b"1, 1, 0, 0,(),(),(d\000\000S),(),()",
+                b"1, 1, 0, 0,(),(),(d\x00\x00S),(),()",
+            ]
 
         def factory(act, **kw):
             return SCons.Action.FunctionAction(act, kw)
@@ -1641,7 +1658,7 @@ class FunctionActionTestCase(unittest.TestCase):
         lc = LocalClass()
         a = factory(lc.LocalMethod)
         c = a.get_contents(target=[], source=[], env=Environment())
-        assert c in meth_matches, repr(c)
+        assert c in meth_matches,  "Got\n"+repr(c)+"\nExpected one of \n"+"\n".join([repr(f) for f in meth_matches])
 
     def test_strfunction(self):
         """Test the FunctionAction.strfunction() method
@@ -1807,10 +1824,16 @@ class LazyActionTestCase(unittest.TestCase):
         def LocalFunc():
             pass
 
-        func_matches = [
-            b"0, 0, 0, 0,(),(),(d\000\000S),(),()",
-            b"0, 0, 0, 0,(),(),(d\x00\x00S),(),()",
-            ]
+        if TestCmd.IS_PY3 and TestCmd.IS_WINDOWS:
+            func_matches = [
+                b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()',
+                b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()'
+                ]
+        else:
+            func_matches = [
+                b"0, 0, 0, 0,(),(),(d\000\000S),(),()",
+                b"0, 0, 0, 0,(),(),(d\x00\x00S),(),()",
+                ]
 
         meth_matches = [
             b"1, 1, 0, 0,(),(),(d\000\000S),(),()",
@@ -1858,10 +1881,16 @@ class ActionCallerTestCase(unittest.TestCase):
         def LocalFunc():
             pass
 
-        matches = [
-            b"d\000\000S",
-            b"d\\x00\\x00S"
-        ]
+        if TestCmd.IS_PY3 and TestCmd.IS_WINDOWS:
+            matches = [
+                b'd\x00S\x00',
+                b'd\x00\x00S'
+            ]
+        else:
+            matches = [
+                b"d\000\000S",
+                b"d\\x00\\x00S"
+            ]
 
         af = SCons.Action.ActionFactory(GlobalFunc, strfunc)
         ac = SCons.Action.ActionCaller(af, [], {})
@@ -1873,10 +1902,11 @@ class ActionCallerTestCase(unittest.TestCase):
         c = ac.get_contents([], [], Environment())
         assert c in matches, "Got\n"+repr(c)+"\nExpected one of \n"+"\n".join([repr(f) for f in matches])
 
-        matches = [
-            b'd\000\000S',
-            b"d\x00\x00S"
-        ]
+        # TODO: Same as above, why redefine?
+        # matches = [
+        #     b'd\000\000S',
+        #     b"d\x00\x00S"
+        # ]
 
         class LocalActFunc(object):
             def __call__(self):
@@ -2043,8 +2073,12 @@ class ObjectContentsTestCase(unittest.TestCase):
             return a
 
         c = SCons.Action._function_contents(func1)
-        expected = bytearray('3, 3, 0, 0,(),(),(|\x00\x00S),(),()','utf-8')
-        assert expected == c, "Got\n"+repr(c)+"\nExpected \n"+repr(expected)+"\n"
+        if TestCmd.IS_PY3 and TestCmd.IS_WINDOWS:
+            expected = [b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()',
+                        b'3, 3, 0, 0,(),(),(|\x00\x00S),(),()']
+        else:
+            expected = [b'3, 3, 0, 0,(),(),(|\x00\x00S),(),()']
+        assert c in expected, "Got\n"+repr(c)+"\nExpected one of \n"+"\n".join([repr(e) for e in expected])
 
 
     # @unittest.skip("Results vary between py2 and py3, not sure if test makes sense to implement")
@@ -2055,12 +2089,20 @@ class ObjectContentsTestCase(unittest.TestCase):
         o = TestClass()
         c = SCons.Action._object_contents(o)
 
-        if TestCmd.PY3:
-            expected = bytearray(b'ccopy_reg\n_reconstructor\nq\x00(c__main__\nTestClass\nq\x01c__builtin__\nobject\nq\x02Ntq\x03Rq\x04}q\x05(X\x01\x00\x00\x00bq\x06h\x06X\x01\x00\x00\x00aq\x07h\x07ub.')
+        if TestCmd.IS_PY3:
+            if TestCmd.IS_WINDOWS:
+                expected = [b'ccopy_reg\n_reconstructor\nq\x00(c__main__\nTestClass\nq\x01c__builtin__\nobject\nq\x02Ntq\x03Rq\x04}q\x05(X\x01\x00\x00\x00aq\x06h\x06X\x01\x00\x00\x00bq\x07h\x07ub.', # py 3.6
+                b'ccopy_reg\n_reconstructor\nq\x00(c__main__\nTestClass\nq\x01c__builtin__\nobject\nq\x02Ntq\x03Rq\x04}q\x05(X\x01\x00\x00\x00bq\x06h\x06X\x01\x00\x00\x00aq\x07h\x07ub.', # py 3.5
+                ]
+            else:
+                expected = [b'ccopy_reg\n_reconstructor\nq\x00(c__main__\nTestClass\nq\x01c__builtin__\nobject\nq\x02Ntq\x03Rq\x04}q\x05(X\x01\x00\x00\x00bq\x06h\x06X\x01\x00\x00\x00aq\x07h\x07ub.']
         else:
-            expected = bytearray(b'(c__main__\nTestClass\nq\x01oq\x02}q\x03(U\x01aU\x01aU\x01bU\x01bub.')
+            if TestCmd.IS_WINDOWS:
+                expected = [b'(c__main__\nTestClass\nq\x01oq\x02}q\x03(U\x01aU\x01aU\x01bU\x01bub.']
+            else:
+                expected = [b'(c__main__\nTestClass\nq\x01oq\x02}q\x03(U\x01aU\x01aU\x01bU\x01bub.']
 
-        assert expected == c, "Got\n" + repr(c) + "\nExpected\n" + repr(expected)
+        assert c in expected, "Got\n"+repr(c)+"\nExpected one of \n"+"\n".join([repr(e) for e in expected])
 
     # @unittest.skip("Results vary between py2 and py3, not sure if test makes sense to implement")
     def test_code_contents(self):
@@ -2068,11 +2110,16 @@ class ObjectContentsTestCase(unittest.TestCase):
 
         code = compile("print('Hello, World!')", '<string>', 'exec')
         c = SCons.Action._code_contents(code)
-        if TestCmd.PY3:
-            expected = bytearray(b'0, 0, 0, 0,(N.),(X\x05\x00\x00\x00printq\x00.),(e\x00\x00d\x00\x00\x83\x01\x00\x01d\x01\x00S)')
+        if TestCmd.IS_PY3:
+            if TestCmd.IS_WINDOWS:
+                expected = [b'0, 0, 0, 0,(N.),(X\x05\x00\x00\x00printq\x00.),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)',
+                            b'0, 0, 0, 0,(N.),(X\x05\x00\x00\x00printq\x00.),(e\x00\x00d\x00\x00\x83\x01\x00\x01d\x01\x00S)'
+                            ]
+            else:
+                expected = [b'0, 0, 0, 0,(N.),(X\x05\x00\x00\x00printq\x00.),(e\x00\x00d\x00\x00\x83\x01\x00\x01d\x01\x00S)']
         else:
-            expected = bytearray(b"0, 0, 0, 0,(N.),(),(d\x00\x00GHd\x01\x00S)")
-        assert expected == c, "Got\n" + repr(c) + "\nExpected\n" + repr(expected)
+            expected = [b"0, 0, 0, 0,(N.),(),(d\x00\x00GHd\x01\x00S)"]
+        assert c in expected, "Got\n"+repr(c)+"\nExpected one of \n"+"\n".join([repr(e) for e in expected])
 
 
 
