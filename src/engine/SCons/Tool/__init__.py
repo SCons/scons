@@ -225,7 +225,7 @@ class Tool(object):
                 # Not sure what to do in the case that there already
                 # exists sys.modules[self.name] but the source file is
                 # different.. ?
-                spec.loader.exec_module(module)
+                module = spec.loader.load_module(spec.name)
 
                 sys.modules[found_name] = module
                 if add_to_scons_tools_namespace:
