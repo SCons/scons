@@ -9,7 +9,7 @@ RELEASE 3.0.0.alpha.20170614 - Mon, 14 Jun 2017 12:23:56 -0400
 
 NOTE: This is a major release.  You should expect that some targets may rebuild when upgrading.
 Significant changes in some python action signatures. Also switching between PY 2 and PY 3.5, 3.6
-may cause rebuilds.  In no case should rebuilds not happen. 
+may cause rebuilds.  In no case should rebuilds not happen.
 
   From Richard West:
     - Added nested / namespace tool support
@@ -43,6 +43,7 @@ may cause rebuilds.  In no case should rebuilds not happen.
       avoid too many open files.
     - Add __main__.py for `python -m SCons` in case it is on PYTHONPATH.
     - Always use highest available pickle protocol for efficiency.
+    - Remove unused command line fallback for the zip tool.
 
   From Gaurav Juvekar:
     - Fix issue #2832: Expand construction variables in 'chdir' argument of builders. (PR #463)
