@@ -438,7 +438,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
                     return s
                 else:
                     key = s[1:]
-                    if key[0] == '{' or key.find('.') >= 0:
+                    if key[0] == '{' or '.' in key:
                         if key[0] == '{':
                             key = key[1:-1]
                         try:
