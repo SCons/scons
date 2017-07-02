@@ -40,31 +40,23 @@ import SCons.Defaults
 import SCons.Node.FS
 import SCons.Util
 
-try:
-    import zipfile
-    internal_zip = 1
-except ImportError:
-    internal_zip = 0
+import zipfile
 
-if internal_zip:
-    zipcompression = zipfile.ZIP_DEFLATED
-    def zip(target, source, env):
-        compression = env.get('ZIPCOMPRESSION', 0)
-        zf = zipfile.ZipFile(str(target[0]), 'w', compression)
-        for s in source:
-            if s.isdir():
-                for dirpath, dirnames, filenames in os.walk(str(s)):
-                    for fname in filenames:
-                        path = os.path.join(dirpath, fname)
-                        if os.path.isfile(path):
-                            zf.write(path, os.path.relpath(path, str(env.get('ZIPROOT', ''))))
-            else:
-                zf.write(str(s), os.path.relpath(str(s), str(env.get('ZIPROOT', ''))))
-        zf.close()
-else:
-    zipcompression = 0
-    zip = "$ZIP $ZIPFLAGS ${TARGET.abspath} $SOURCES"
+zipcompression = zipfile.ZIP_DEFLATED
+def zip(target, source, env):
+    compression = env.get('ZIPCOMPRESSION', 0)
+    zf = zipfile.ZipFile(str(target[0]), 'w', compression)
+    for s in source:
+        if s.isdir():
+            for dirpath, dirnames, filenames in os.walk(str(s)):
+                for fname in filenames:
+                    path = os.path.join(dirpath, fname)
+                    if os.path.isfile(path):
 
+                        zf.write(path, os.path.relpath(path, str(env.get('ZIPROOT', ''))))
+        else:
+            zf.write(str(s), os.path.relpath(str(s), str(env.get('ZIPROOT', ''))))
+    zf.close()
 
 zipAction = SCons.Action.Action(zip, varlist=['ZIPCOMPRESSION'])
 
@@ -91,7 +83,7 @@ def generate(env):
     env['ZIPROOT']    = SCons.Util.CLVar('')
 
 def exists(env):
-    return internal_zip or env.Detect('zip')
+    return True
 
 # Local Variables:
 # tab-width:4

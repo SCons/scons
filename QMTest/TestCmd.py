@@ -307,7 +307,8 @@ import traceback
 import types
 
 
-PY3 = sys.version_info[0] == 3
+IS_PY3 = sys.version_info[0] == 3
+IS_WINDOWS = sys.platform == 'win32'
 
 
 class null(object):
@@ -1245,7 +1246,7 @@ class TestCmd(object):
         file = self.canonicalize(file)
         if mode[0] != 'r':
             raise ValueError("mode must begin with 'r'")
-        if PY3 and 'b' not in mode:
+        if IS_PY3 and 'b' not in mode:
             return open(file, mode, newline=newline).read()
         else:
             return open(file, mode).read()
