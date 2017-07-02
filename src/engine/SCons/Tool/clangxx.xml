@@ -32,7 +32,7 @@ Set construction variables for the Clang C++ compiler.
 <sets>
 <item>CXX</item>
 <item>SHCXXFLAGS</item>
-<item><!--STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME--></item>
+<item>STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME</item>
 <item>SHOBJSUFFIX</item>
 <item>CXXVERSION</item>
 </sets>
