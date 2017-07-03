@@ -101,7 +101,10 @@ for suffix in LaTeXSuffixes:
 # Tool aliases are needed for those tools whos module names also
 # occur in the python standard library. This causes module shadowing and
 # can break using python library functions under python3
-TOOL_ALIASES = {'gettext':'gettext_tool'}
+TOOL_ALIASES = {
+    'gettext':'gettext_tool',
+    'clang++': 'clangxx',
+}
 
 class Tool(object):
     def __init__(self, name, toolpath=[], **kw):
@@ -225,7 +228,7 @@ class Tool(object):
                 # Not sure what to do in the case that there already
                 # exists sys.modules[self.name] but the source file is
                 # different.. ?
-                spec.loader.exec_module(module)
+                module = spec.loader.load_module(spec.name)
 
                 sys.modules[found_name] = module
                 if add_to_scons_tools_namespace:

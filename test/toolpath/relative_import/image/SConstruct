@@ -1,0 +1,10 @@
+env = Environment(tools=['TestTool1', 'TestTool1.TestTool1_2'], toolpath=['tools'])
+
+# Test a relative import within the root of the tools directory
+print("env['TestTool1'] =", env.get('TestTool1'))
+print("env['TestTool1_1'] =", env.get('TestTool1_1'))
+
+# Test a relative import within a sub dir
+print("env['TestTool1_2'] =", env.get('TestTool1_2'))
+print("env['TestTool1_2_1'] =", env.get('TestTool1_2_1'))
+print("env['TestTool1_2_2'] =", env.get('TestTool1_2_2'))
