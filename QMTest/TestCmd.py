@@ -1407,29 +1407,22 @@ class TestCmd(object):
             self.timer = threading.Timer(float(timeout), self._timeout)
             self.timer.start()
 
-        if sys.version_info[0] == 3 and sys.platform == 'win32':
+        if IS_PY3 and sys.platform == 'win32':
             # Set this otherwist stdout/stderr pipes default to
             # windows default locale cp1252 which will throw exception
             # if using non-ascii characters.
             # For example test/Install/non-ascii-name.py
             os.environ['PYTHONIOENCODING'] = 'utf-8'
 
-        if sys.version_info[0] == 2 or sys.version_info[0:2] < (3, 6):
-            p = Popen(cmd,
-                      stdin=stdin,
-                      stdout=subprocess.PIPE,
-                      stderr=stderr_value,
-                      env=os.environ,
-                      universal_newlines=False)
-        else:
-            # this will only work on py3.6, encoding
-            p = Popen(cmd,
-                      stdin=stdin,
-                      stdout=subprocess.PIPE,
-                      stderr=stderr_value,
-                      env=os.environ,
-                      universal_newlines=universal_newlines,
-                      encoding='utf-8')
+        # It seems that all pythons up to py3.6 still set text mode if you set encoding.
+        # TODO: File enhancement request on python to propagate universal_newlines even
+        # if encoding is set.hg c
+        p = Popen(cmd,
+                  stdin=stdin,
+                  stdout=subprocess.PIPE,
+                  stderr=stderr_value,
+                  env=os.environ,
+                  universal_newlines=False)
 
         self.process = p
         return p
@@ -1452,7 +1445,9 @@ class TestCmd(object):
 
         if not stream:
             return stream
-        elif sys.version_info[0] == 3 and sys.version_info[1] < 6:
+        # TODO: Run full tests on both platforms and see if this fixes failures
+        # It seems that py3.6 still sets text mode if you set encoding.
+        elif sys.version_info[0] == 3:# TODO and sys.version_info[1] < 6:
             stream = stream.decode('utf-8')
             stream = stream.replace('\r\n', '\n')
         elif sys.version_info[0] == 2:
@@ -1521,7 +1516,7 @@ class TestCmd(object):
         if is_List(stdin):
             stdin = ''.join(stdin)
 
-        if stdin and sys.version_info[0] == 3 and sys.version_info[1] < 6:
+        if stdin and IS_PY3 and sys.version_info[1] < 6:
             stdin = bytearray(stdin,'utf-8')
 
         # TODO(sgk):  figure out how to re-use the logic in the .finish()
