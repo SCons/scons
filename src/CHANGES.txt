@@ -87,6 +87,7 @@ may cause rebuilds.  In no case should rebuilds not happen.
     - Remove establishing the SharedLibrary builder in the dmd, ldc, and gdc
       tools, must now include the ar tool to get this builder as is required for
       other compiler tools.
+    - Add clang and clang++ tools based on Paweł Tomulik's work.
 
 RELEASE 2.5.1 - Mon, 03 Nov 2016 13:37:42 -0400
 
