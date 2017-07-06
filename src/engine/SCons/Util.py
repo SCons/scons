@@ -1506,9 +1506,8 @@ def MD5signature(s):
 
 
 def MD5filesignature(fname, chunksize=65536):
-    f = open(fname, "rb")
-    result = f.read()
-    f.close()
+    with open(fname, "rb") as f:
+        result = f.read()
     return result
 
 try:
