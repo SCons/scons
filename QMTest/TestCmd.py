@@ -1516,8 +1516,8 @@ class TestCmd(object):
         if is_List(stdin):
             stdin = ''.join(stdin)
 
-        if stdin and IS_PY3 and sys.version_info[1] < 6:
-            stdin = bytearray(stdin,'utf-8')
+        if stdin and IS_PY3:#  and sys.version_info[1] < 6:
+            stdin = to_bytes(stdin)
 
         # TODO(sgk):  figure out how to re-use the logic in the .finish()
         # method above.  Just calling it from here causes problems with
