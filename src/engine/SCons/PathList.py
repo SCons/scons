@@ -104,11 +104,11 @@ class _PathList(object):
         pl = []
         for p in pathlist:
             try:
-                index = p.find('$')
+                found = '$' in p
             except (AttributeError, TypeError):
                 type = TYPE_OBJECT
             else:
-                if index == -1:
+                if not found:
                     type = TYPE_STRING_NO_SUBST
                 else:
                     type = TYPE_STRING_SUBST

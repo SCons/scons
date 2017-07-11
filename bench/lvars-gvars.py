@@ -45,6 +45,12 @@ def Func4(var, gvars, lvars):
         except NameError:
             x = ''
 
+def Func5(var, gvars, lvars):
+    """Chained get with default values"""
+    for i in IterationList:
+        x = lvars.get(var,gvars.get(var,''))
+
+
 # Data to pass to the functions on each run.  Each entry is a
 # three-element tuple:
 #
