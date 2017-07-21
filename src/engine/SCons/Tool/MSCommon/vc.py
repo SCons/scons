@@ -82,7 +82,7 @@ _ARCH_TO_CANONICAL = {
     "itanium"   : "ia64",
     "x86"       : "x86",
     "x86_64"    : "amd64",
-    "x86_amd64" : "x86_amd64",	# Cross compile to 64 bit from 32bits
+    "x86_amd64" : "x86_amd64", # Cross compile to 64 bit from 32bits
 }
 
 # Given a (host, target) tuple, return the argument for the bat file. Both host
