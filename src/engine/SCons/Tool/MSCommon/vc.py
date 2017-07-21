@@ -82,7 +82,7 @@ _ARCH_TO_CANONICAL = {
     "itanium"   : "ia64",
     "x86"       : "x86",
     "x86_64"    : "amd64",
-    "x86_amd64" : "x86_amd64", # Cross compile to 64 bit from 32bits
+    "x86_amd64" : "x86_amd64",	# Cross compile to 64 bit from 32bits
 }
 
 # Given a (host, target) tuple, return the argument for the bat file. Both host
@@ -185,18 +185,17 @@ _VCVER_TO_PRODUCT_DIR = {
 }
 
 def msvc_version_to_maj_min(msvc_version):
-    
     msvc_version_numeric = ''.join([x for  x in msvc_version if x in string_digits + '.'])
 
     t = msvc_version_numeric.split(".")
     if not len(t) == 2:
-       raise ValueError("Unrecognized version %s (%s)" % (msvc_version,msvc_version_numeric))
+        raise ValueError("Unrecognized version %s (%s)" % (msvc_version,msvc_version_numeric))
     try:
-       maj = int(t[0])
-       min = int(t[1])
-       return maj, min
+        maj = int(t[0])
+        min = int(t[1])
+        return maj, min
     except ValueError as e:
-       raise ValueError("Unrecognized version %s (%s)" % (msvc_version,msvc_version_numeric))
+        raise ValueError("Unrecognized version %s (%s)" % (msvc_version,msvc_version_numeric))
 
 def is_host_target_supported(host_target, msvc_version):
     """Return True if the given (host, target) tuple is supported given the
@@ -435,6 +434,14 @@ def msvc_find_valid_batch_script(env,version):
                 (host_target, version)
             SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
         arg = _HOST_TARGET_ARCH_TO_BAT_ARCH[host_target]
+        
+        # Get just version numbers
+        maj, min = msvc_version_to_maj_min(version)
+        # VS2015+
+        if maj >= 14:
+            if env.get('UWP_APP') == '1':
+                # Initialize environment variables with store/universal paths
+                arg += ' store'
 
         # Try to locate a batch file for this host/target platform combo
         try:

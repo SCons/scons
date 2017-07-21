@@ -352,6 +352,8 @@ constructor; setting it later has no effect.
 
 <para>
 Valid values for Windows are
+<literal>14.0</literal>,
+<literal>14.0Exp</literal>,
 <literal>12.0</literal>,
 <literal>12.0Exp</literal>,
 <literal>11.0</literal>,
@@ -437,6 +439,29 @@ and <literal>ia64</literal> (Itanium).
 For example, if you want to compile 64-bit binaries, you would set
 <literal>TARGET_ARCH='x86_64'</literal> in your SCons environment.
 </para>
+</summary>
+</cvar>
+
+<cvar name="UWP_APP">
+<summary>
+<para>
+Build libraries for a Universal Windows Platform (UWP) Application.
+</para>
+
+<para>
+If &cv-UWP_APP; is set, the Visual Studio environment will be set up to point
+to the Windows Store compatible libraries and Visual Studio runtimes. In doing so,
+any libraries that are built will be able to be used in a UWP App and published
+to the Windows Store.
+This flag will only have an effect with Visual Studio 2015+.
+This variable must be passed as an argument to the Environment()
+constructor; setting it later has no effect.
+</para>
+
+<para>
+Valid values are '1' or '0'
+</para>
+
 </summary>
 </cvar>
 
