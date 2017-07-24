@@ -442,14 +442,14 @@ For example, if you want to compile 64-bit binaries, you would set
 </summary>
 </cvar>
 
-<cvar name="UWP_APP">
+<cvar name="MSVC_UWP_APP">
 <summary>
 <para>
 Build libraries for a Universal Windows Platform (UWP) Application.
 </para>
 
 <para>
-If &cv-UWP_APP; is set, the Visual Studio environment will be set up to point
+If &cv-MSVC_UWP_APP; is set, the Visual Studio environment will be set up to point
 to the Windows Store compatible libraries and Visual Studio runtimes. In doing so,
 any libraries that are built will be able to be used in a UWP App and published
 to the Windows Store.

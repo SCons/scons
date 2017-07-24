@@ -439,7 +439,7 @@ def msvc_find_valid_batch_script(env,version):
         maj, min = msvc_version_to_maj_min(version)
         # VS2015+
         if maj >= 14:
-            if env.get('UWP_APP') == '1':
+            if env.get('MSVC_UWP_APP') == '1':
                 # Initialize environment variables with store/universal paths
                 arg += ' store'
 
