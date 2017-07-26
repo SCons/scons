@@ -46,14 +46,14 @@ def AreVCStoreLibPathsInLIBPATH(output):
     (vclibstore_path_present, vclibstorerefs_path_present) = (False, False)
     for path in libpaths:
         # Look for the Store VC Lib paths in the LIBPATH:
-        # [VS install path]\VC\LIB\store\ and 
+        # [VS install path]\VC\LIB\store[\arch] and 
         # [VS install path]\VC\LIB\store\references
         # For example,
         # C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\LIB\store\amd64
         # C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\LIB\store\references
-        if 'vc\\lib\\store\\references' in path:
+        if r'vc\lib\store\references' in path:
             vclibstorerefs_path_present = True
-        elif 'vc\\lib\\store' in path:
+        elif r'vc\lib\store' in path:
             vclibstore_path_present = True
 
     return (vclibstore_path_present, vclibstorerefs_path_present)
@@ -76,7 +76,7 @@ else:
     help_vars = None
 env = Environment(tools=['default', 'msvc'], variables=help_vars)
 # Print the ENV LIBPATH to stdout
-print ('env[ENV][LIBPATH]=%s' % env.get('ENV').get('LIBPATH'))
+print('env[ENV][LIBPATH]=%s' % env.get('ENV').get('LIBPATH'))
 """)
 
 # Test setting MSVC_UWP_APP is '1' (True)
