@@ -30,17 +30,23 @@ the desired effect.
 """
 
 import TestSCons
+import SCons.Tool.MSCommon.vc as msvc
 
 def AreVCStoreLibPathsInLIBPATH(output):
+    libpath = None
+    msvc_version = None
     lines = output.splitlines()
     for line in lines:
         if 'env[ENV][LIBPATH]=' in line:
             idx_eq = line.find('=')
             libpath = line[idx_eq + 1:]
+        elif 'env[MSVC_VERSION]=' in line:
+            idx_eq = line.find('=')
+            msvc_version = line[idx_eq + 1:]
 
-    if not libpath:
-        # Couldn't find the libpath in the output
-        return (False, False)
+    if not libpath or not msvc_version:
+        # Couldn't find the libpath or msvc version in the output
+        return (False, False, None)
 
     libpaths = libpath.lower().split(';')
     (vclibstore_path_present, vclibstorerefs_path_present) = (False, False)
@@ -56,7 +62,7 @@ def AreVCStoreLibPathsInLIBPATH(output):
         elif r'vc\lib\store' in path:
             vclibstore_path_present = True
 
-    return (vclibstore_path_present, vclibstorerefs_path_present)
+    return (vclibstore_path_present, vclibstorerefs_path_present, msvc_version)
 
 _python_ = TestSCons._python_
 
@@ -77,21 +83,37 @@ else:
 env = Environment(tools=['default', 'msvc'], variables=help_vars)
 # Print the ENV LIBPATH to stdout
 print('env[ENV][LIBPATH]=%s' % env.get('ENV').get('LIBPATH'))
+print('env[MSVC_VERSION]=%s' % env.get('MSVC_VERSION'))
 """)
+
+installed_msvc_versions = msvc.cached_get_installed_vcs()
+# MSVC guaranteed to be at least one version on the system or else skip_if_not_msvc() function
+# would have skipped the test
+greatest_msvc_version_on_system = installed_msvc_versions[0]
+maj, min = msvc.msvc_version_to_maj_min(greatest_msvc_version_on_system)
+
+# We always use the greatest MSVC version installed on the system
 
 # Test setting MSVC_UWP_APP is '1' (True)
 test.run(arguments = "MSVC_UWP_APP=1")
-(vclibstore_path_present, vclibstorerefs_path_present) = AreVCStoreLibPathsInLIBPATH(test.stdout())
-test.fail_test((vclibstore_path_present is False) or (vclibstorerefs_path_present is False))
+(vclibstore_path_present, vclibstorerefs_path_present, msvc_version) = AreVCStoreLibPathsInLIBPATH(test.stdout())
+test.fail_test(msvc_version != greatest_msvc_version_on_system)
+# VS2015+
+if maj >= 14:
+    test.fail_test((vclibstore_path_present is False) or (vclibstorerefs_path_present is False))
+else:
+    test.fail_test((vclibstore_path_present is True) or (vclibstorerefs_path_present is True))
 
 # Test setting MSVC_UWP_APP is '0' (False)
 test.run(arguments = "MSVC_UWP_APP=0")
-(vclibstore_path_present, vclibstorerefs_path_present) = AreVCStoreLibPathsInLIBPATH(test.stdout())
+(vclibstore_path_present, vclibstorerefs_path_present, msvc_version) = AreVCStoreLibPathsInLIBPATH(test.stdout())
+test.fail_test(msvc_version != greatest_msvc_version_on_system)
 test.fail_test((vclibstore_path_present is True) or (vclibstorerefs_path_present is True))
 
 # Test not setting MSVC_UWP_APP
 test.run(arguments = "")
-(vclibstore_path_present, vclibstorerefs_path_present) = AreVCStoreLibPathsInLIBPATH(test.stdout())
+(vclibstore_path_present, vclibstorerefs_path_present, msvc_version) = AreVCStoreLibPathsInLIBPATH(test.stdout())
+test.fail_test(msvc_version != greatest_msvc_version_on_system)
 test.fail_test((vclibstore_path_present is True) or (vclibstorerefs_path_present is True))
 
 test.pass_test()
