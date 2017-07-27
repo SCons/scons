@@ -33,13 +33,30 @@ test.dir_fixture('image')
 
 test.run(arguments = '.', stdout = """\
 scons: Reading SConscript files ...
-env1['Site_TestTool1'] = 1
-env1['Site_TestTool2'] = 1
-env1['Site_TestTool3'] = 1
+Test where tools are located under site_scons/site_tools
+env1['Toolpath_TestTool1'] = 1
+env1['Toolpath_TestTool2'] = 1
+env1['Toolpath_TestTool1_1'] = 1
+env1['Toolpath_TestTool1_2'] = 1
+env1['Toolpath_TestTool2_1'] = 1
+env1['Toolpath_TestTool2_2'] = 1
+Test where toolpath is set in the env constructor
 env2['Toolpath_TestTool1'] = 1
 env2['Toolpath_TestTool2'] = 1
-env2['Toolpath_TestTool3'] = 1
-derived['Toolpath_TestTool1'] = 1
+env2['Toolpath_TestTool1_1'] = 1
+env2['Toolpath_TestTool1_2'] = 1
+env2['Toolpath_TestTool2_1'] = 1
+env2['Toolpath_TestTool2_2'] = 1
+Test a Clone
+derived['Toolpath_TestTool1_1'] = 1
+Test using syspath as the toolpath
+Lets pretend that tools_example within Libs is actually a module installed via pip
+env3['Toolpath_TestTool1'] = 1
+env3['Toolpath_TestTool2'] = 1
+env3['Toolpath_TestTool1_1'] = 1
+env3['Toolpath_TestTool1_2'] = 1
+env3['Toolpath_TestTool2_1'] = 1
+env3['Toolpath_TestTool2_2'] = 1
 scons: done reading SConscript files.
 scons: Building targets ...
 scons: `.' is up to date.
