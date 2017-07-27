@@ -95,7 +95,9 @@ maj, min = msvc.msvc_version_to_maj_min(greatest_msvc_version_on_system)
 # Test setting MSVC_UWP_APP is '1' (True)
 test.run(arguments = "MSVC_UWP_APP=1")
 (vclibstore_path_present, vclibstorerefs_path_present, msvc_version) = AreVCStoreLibPathsInLIBPATH(test.stdout())
-test.fail_test(msvc_version != greatest_msvc_version_on_system)
+test.fail_test(msvc_version != greatest_msvc_version_on_system,
+               message='MSVC_VERSION (%s) does not match expected greatest version on system (%s)' \
+               % (msvc_version, greatest_msvc_version_on_system))
 # VS2015+
 if maj >= 14:
     test.fail_test((vclibstore_path_present is False) or (vclibstorerefs_path_present is False),
@@ -107,14 +109,18 @@ else:
 # Test setting MSVC_UWP_APP is '0' (False)
 test.run(arguments = "MSVC_UWP_APP=0")
 (vclibstore_path_present, vclibstorerefs_path_present, msvc_version) = AreVCStoreLibPathsInLIBPATH(test.stdout())
-test.fail_test(msvc_version != greatest_msvc_version_on_system)
+test.fail_test(msvc_version != greatest_msvc_version_on_system,
+               message='MSVC_VERSION (%s) does not match expected greatest version on system (%s)' \
+               % (msvc_version, greatest_msvc_version_on_system))
 test.fail_test((vclibstore_path_present is True) or (vclibstorerefs_path_present is True),
                    message='VC Store LIBPATHs present when MSVC_UWP_APP=0 (msvc_version=%s)' % msvc_version)
 
 # Test not setting MSVC_UWP_APP
 test.run(arguments = "")
 (vclibstore_path_present, vclibstorerefs_path_present, msvc_version) = AreVCStoreLibPathsInLIBPATH(test.stdout())
-test.fail_test(msvc_version != greatest_msvc_version_on_system)
+test.fail_test(msvc_version != greatest_msvc_version_on_system,
+               message='MSVC_VERSION (%s) does not match expected greatest version on system (%s)' \
+               % (msvc_version, greatest_msvc_version_on_system))
 test.fail_test((vclibstore_path_present is True) or (vclibstorerefs_path_present is True),
                    message='VC Store LIBPATHs present when MSVC_UWP_APP not set (msvc_version=%s)' % msvc_version)
 
