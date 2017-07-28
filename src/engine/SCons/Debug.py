@@ -97,7 +97,8 @@ def dumpLoggedInstances(classes, file=sys.stdout):
 if sys.platform[:5] == "linux":
     # Linux doesn't actually support memory usage stats from getrusage().
     def memory():
-        mstr = open('/proc/self/stat').read()
+        with open('/proc/self/stat') as f:
+            mstr = f.read()
         mstr = mstr.split()[22]
         return int(mstr)
 elif sys.platform[:6] == 'darwin':
@@ -233,6 +234,7 @@ def Trace(msg, file=None, mode='w', tstamp=None):
         PreviousTime = now
     fp.write(msg)
     fp.flush()
+    fp.close()
 
 # Local Variables:
 # tab-width:4

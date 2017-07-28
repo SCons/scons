@@ -379,7 +379,8 @@ class PreProcessor(object):
         return None
 
     def read_file(self, file):
-        return open(file).read()
+        with open(file) as f:
+            return f.read()
 
     # Start and stop processing include lines.
 
