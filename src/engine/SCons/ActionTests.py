@@ -98,7 +98,9 @@ scons_env = SCons.Environment.Environment()
 
 # Capture all the stuff the Actions will print,
 # so it doesn't clutter the output.
-sys.stdout = io.StringIO()
+
+# TODO.. uncomment
+# sys.stdout = io.StringIO()
 
 class CmdStringHolder(object):
     def __init__(self, cmd, literal=None):
@@ -2054,7 +2056,7 @@ class ActionCompareTestCase(unittest.TestCase):
         assert dog.get_name(env) == 'DOG', dog.get_name(env)
 
 
-class TestClass:
+class TestClass(object):
     """A test class used by ObjectContentsTestCase.test_object_contents"""
     def __init__(self):
         self.a = "a"
@@ -2081,7 +2083,6 @@ class ObjectContentsTestCase(unittest.TestCase):
         assert c in expected, "Got\n"+repr(c)+"\nExpected one of \n"+"\n".join([repr(e) for e in expected])
 
 
-    # @unittest.skip("Results vary between py2 and py3, not sure if test makes sense to implement")
     def test_object_contents(self):
         """Test that Action._object_contents works"""
 
@@ -2089,20 +2090,18 @@ class ObjectContentsTestCase(unittest.TestCase):
         o = TestClass()
         c = SCons.Action._object_contents(o)
 
-        if TestCmd.IS_PY3:
-            if TestCmd.IS_WINDOWS:
-                expected = [b'ccopy_reg\n_reconstructor\nq\x00(c__main__\nTestClass\nq\x01c__builtin__\nobject\nq\x02Ntq\x03Rq\x04}q\x05(X\x01\x00\x00\x00aq\x06h\x06X\x01\x00\x00\x00bq\x07h\x07ub.', # py 3.6
-                b'ccopy_reg\n_reconstructor\nq\x00(c__main__\nTestClass\nq\x01c__builtin__\nobject\nq\x02Ntq\x03Rq\x04}q\x05(X\x01\x00\x00\x00bq\x06h\x06X\x01\x00\x00\x00aq\x07h\x07ub.', # py 3.5
-                ]
-            else:
-                expected = [b'ccopy_reg\n_reconstructor\nq\x00(c__main__\nTestClass\nq\x01c__builtin__\nobject\nq\x02Ntq\x03Rq\x04}q\x05(X\x01\x00\x00\x00bq\x06h\x06X\x01\x00\x00\x00aq\x07h\x07ub.']
-        else:
-            if TestCmd.IS_WINDOWS:
-                expected = [b'(c__main__\nTestClass\nq\x01oq\x02}q\x03(U\x01aU\x01aU\x01bU\x01bub.']
-            else:
-                expected = [b'(c__main__\nTestClass\nq\x01oq\x02}q\x03(U\x01aU\x01aU\x01bU\x01bub.']
+        # c = SCons.Action._object_instance_content(o)
 
-        assert c in expected, "Got\n"+repr(c)+"\nExpected one of \n"+"\n".join([repr(e) for e in expected])
+        # Since the python bytecode has per version differences, we need different expected results per version
+        if TestCmd.IS_PY3:
+            if sys.version_info[:2] == (3,5):
+                expected = bytearray(b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,({str:builtins}[[[(<class \'object\'>, ()), [(<class \'str\'>, (<class \'object\'>,))]]]]{{}},{str:builtins}[[[(<class \'object\'>, ()), [(<class \'str\'>, (<class \'object\'>,))]]]]{{}}),({str:builtins}[[[(<class \'object\'>, ()), [(<class \'str\'>, (<class \'object\'>,))]]]]{{}},{str:builtins}[[[(<class \'object\'>, ()), [(<class \'str\'>, (<class \'object\'>,))]]]]{{}}),(d\x01\x00|\x00\x00_\x00\x00d\x02\x00|\x00\x00_\x01\x00d\x00\x00S),(),(),2, 2, 0, 0,(),(),(d\x00\x00S),(),()}}")
+            elif sys.version_info[:2] == (3,6):
+                expected = bytearray(b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,({str:builtins}[[[(<class \'object\'>, ()), [(<class \'str\'>, (<class \'object\'>,))]]]]{{}},{str:builtins}[[[(<class \'object\'>, ()), [(<class \'str\'>, (<class \'object\'>,))]]]]{{}}),({str:builtins}[[[(<class \'object\'>, ()), [(<class \'str\'>, (<class \'object\'>,))]]]]{{}},{str:builtins}[[[(<class \'object\'>, ()), [(<class \'str\'>, (<class \'object\'>,))]]]]{{}}),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}")
+        else:
+            expected = bytearray(b"{TestClass:__main__}[[[(<type \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<type \'object\'>,))]]]]{{1, 1, 0, 0,({str:__builtin__}[[[(<type \'basestring\'>, (<type \'object\'>,)), [(<type \'str\'>, (<type \'basestring\'>,))]]]]{{}},{str:__builtin__}[[[(<type \'basestring\'>, (<type \'object\'>,)), [(<type \'str\'>, (<type \'basestring\'>,))]]]]{{}}),({str:__builtin__}[[[(<type \'basestring\'>, (<type \'object\'>,)), [(<type \'str\'>, (<type \'basestring\'>,))]]]]{{}},{str:__builtin__}[[[(<type \'basestring\'>, (<type \'object\'>,)), [(<type \'str\'>, (<type \'basestring\'>,))]]]]{{}}),(d\x01\x00|\x00\x00_\x00\x00d\x02\x00|\x00\x00_\x01\x00d\x00\x00S),(),(),2, 2, 0, 0,(),(),(d\x00\x00S),(),()}}")
+
+        assert c == expected, "Got\n"+repr(c)+"\nExpected \n"+"\n"+repr(expected)
 
     # @unittest.skip("Results vary between py2 and py3, not sure if test makes sense to implement")
     def test_code_contents(self):
@@ -2122,9 +2121,6 @@ class ObjectContentsTestCase(unittest.TestCase):
         assert c in expected, "Got\n"+repr(c)+"\nExpected one of \n"+"\n".join([repr(e) for e in expected])
 
 
-
-
-
 if __name__ == "__main__":
     suite = unittest.TestSuite()
     tclasses = [ _ActionActionTestCase,
@@ -2142,7 +2138,8 @@ if __name__ == "__main__":
         names = unittest.getTestCaseNames(tclass, 'test_')
         suite.addTests(list(map(tclass, names)))
 
-    TestUnit.run(suite)
+    # TestUnit.run(suite)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4
