@@ -329,8 +329,6 @@ def _function_contents(func):
     contents.append(b')')
 
     retval = bytearray(b'').join(contents)
-
-    # print("ReTVAL:%s"%retval)
     return retval
 
 
@@ -350,7 +348,7 @@ def _object_instance_content(obj):
     inst_class_hierarchy = bytearray(repr(inspect.getclasstree([obj.__class__,])),'utf-8')
     # print("ICH:%s : %s"%(inst_class_hierarchy, repr(obj)))
 
-    properties = [(p, getattr(obj, p, "None")) for p in dir(obj) if p[:2] != '__' and not inspect.ismethod(getattr(obj, p))]
+    properties = [(p, getattr(obj, p, "None")) for p in dir(obj) if not (p[:2] == '__' or inspect.ismethod(getattr(obj, p)) or inspect.isbuiltin(getattr(obj,p))) ]
     properties.sort()
     properties_str = ','.join(["%s=%s"%(p[0],p[1]) for p in properties])
     properties_bytes = bytearray(properties_str,'utf-8')
@@ -373,7 +371,9 @@ def _object_instance_content(obj):
     retval.extend(inst_class_hierarchy)
     retval.extend(b']]{{')
     retval.extend(bytearray(b",").join(method_contents))
-    retval.extend(b"}}")
+    retval.extend(b"}}{{{")
+    retval.extend(properties_bytes)
+    retval.extend(b'}}}')
     return retval
 
     # print("class          :%s"%inst_class)
