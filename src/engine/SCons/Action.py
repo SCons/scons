@@ -257,13 +257,7 @@ def _code_contents(code):
     # function. Note that we have to call _object_contents on each
     # constants because the code object of nested functions can
     # show-up among the constants.
-    #
-    # Note that we also always ignore the first entry of co_consts
-    # which contains the function doc string. We assume that the
-    # function does not access its doc string.
-    # NOTE: This is not necessarily true. If no docstring, then co_consts[0] does
-    # have a string which is used.
-    z = [_object_contents(cc) for cc in code.co_consts[1:]]
+    z = [_object_contents(cc) for cc in code.co_consts]
     contents.extend(b',(')
     contents.extend(bytearray(',', 'utf-8').join(z))
     contents.extend(b')')
@@ -341,6 +335,11 @@ def _object_instance_content(obj):
     """
     retval = bytearray()
 
+    if obj is None:
+        return b'N.'
+
+    if isinstance(obj, SCons.Util.BaseStringTypes):
+        return SCons.Util.to_bytes(obj)
 
     inst_class = obj.__class__
     inst_class_name = bytearray(obj.__class__.__name__,'utf-8')
