@@ -1428,27 +1428,12 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         def LocalFunc():
             pass
 
-        if TestCmd.IS_PY3 and TestCmd.IS_WINDOWS:
-            func_matches = [
-                b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()',  # PY 3.6
-                b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()',  # PY 3.5
-                ]
-        else:
-            func_matches = [
-                b"0, 0, 0, 0,(),(),(d\000\000S),(),()",
-                b"0, 0, 0, 0,(),(),(d\x00\x00S),(),()",
-                ]
-
         # Since the python bytecode has per version differences, we need different expected results per version
         func_matches = {
             (2,7) : bytearray(b'0, 0, 0, 0,(N.),(),(d\x00\x00S),(),()'),
             (3,5) : bytearray(b'0, 0, 0, 0,(N.),(),(d\x00\x00S),(),()'),
             (3,6) : bytearray(b'0, 0, 0, 0,(N.),(),(d\x00S\x00),(),()'),
         }
-
-        # c = SCons.Action._function_contents(func1)
-        # assert c == expected[sys.version_info[:2]], "Got\n"+repr(c)+"\nExpected \n"+"\n"+repr(expected[sys.version_info[:2]])
-
 
         meth_matches = [
             b"1, 1, 0, 0,(),(),(d\000\000S),(),()",
@@ -1837,17 +1822,6 @@ class LazyActionTestCase(unittest.TestCase):
             (3,5) : bytearray(b'0, 0, 0, 0,(N.),(),(d\x00\x00S),(),()'),
             (3,6) : bytearray(b'0, 0, 0, 0,(N.),(),(d\x00S\x00),(),()'),
         }
-
-        # if TestCmd.IS_PY3 and TestCmd.IS_WINDOWS:
-        #     func_matches = [
-        #         b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()',
-        #         b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()'
-        #         ]
-        # else:
-        #     func_matches = [
-        #         b"0, 0, 0, 0,(),(),(d\000\000S),(),()",
-        #         b"0, 0, 0, 0,(),(),(d\x00\x00S),(),()",
-        #         ]
 
         meth_matches = [
             b"1, 1, 0, 0,(),(),(d\000\000S),(),()",
