@@ -56,7 +56,3 @@ print("env3['Toolpath_TestTool2_1'] =", env3.get('Toolpath_TestTool2_1'))
 print("env3['Toolpath_TestTool2_2'] =", env3.get('Toolpath_TestTool2_2'))
 
 sys.path = oldsyspath
-
-# TODO
-# 1. add docs for below
-# 3. redo test output capture

@@ -1765,4 +1765,128 @@ env.AppendENVPath('LIB', '/usr/local/lib')
 
   </section>
 
+
+  <section id="sect-environment-toolpath">
+  <title>Using the toolpath for external Tools</title>
+
+    <section>
+    <title>The default tool search path</title>
+
+      <para>
+      Normally when using a tool from the construction environment,
+      several different search locations are checked by default.
+      This includes the <literal>Scons/Tools/</literal> directory
+      inbuilt to scons and the directory <literal>site_scons/site_tools</literal>
+      relative to the root SConstruct file.
+      </para>
+
+      <sconstruct>
+# Inbuilt tool or tool located within site_tools
+env = Environment(ENV = os.environ, tools = ['SomeTool'])
+env.SomeTool(targets, sources)
+
+# The search locations would include by default
+SCons/Tool/SomeTool.py
+SCons/Tool/SomeTool/__init__.py
+./site_scons/site_tools/SomeTool.py
+./site_scons/site_tools/SomeTool/__init__.py
+      </sconstruct>
+
+    </section>
+
+	<section>
+    <title>Providing an external directory to toolpath</title>
+
+      <para>
+      In some cases you may want to specify a different location to search for tools.
+      The Environment constructor contains an option for this called toolpath
+      This can be used to add additional search directories.
+      </para>
+
+      <sconstruct>
+# Tool located within the toolpath directory option
+env = Environment(ENV = os.environ, tools = ['SomeTool'], toolpath = ['/opt/SomeToolPath', '/opt/SomeToolPath2'])
+env.SomeTool(targets, sources)
+
+# The search locations in this example would include:
+/opt/SomeToolPath/SomeTool.py
+/opt/SomeToolPath/SomeTool/__init__.py
+/opt/SomeToolPath2/SomeTool.py
+/opt/SomeToolPath2/SomeTool/__init__.py
+SCons/Tool/SomeTool.py
+SCons/Tool/SomeTool/__init__.py
+./site_scons/site_tools/SomeTool.py
+./site_scons/site_tools/SomeTool/__init__.py
+      </sconstruct>
+
+    </section>
+
+	<section>
+    <title>Nested Tools within a toolpath</title>
+
+      <para>
+      &SCons; 3.0 now supports the ability for a Builder to be located
+	  within a sub-directory / sub-package of the toolpath.
+	  This is similar to namespacing within python.
+	  With nested or namespaced tools we can use the dot notation
+	  to specify a sub-directory that the tool is located under.
+      </para>
+
+      <sconstruct>
+# namespaced target
+env = Environment(ENV = os.environ, tools = ['SubDir1.SubDir2.SomeTool'], toolpath = ['/opt/SomeToolPath'])
+env.SomeTool(targets, sources)
+
+# With this example the search locations would include
+/opt/SomeToolPath/SubDir1/SubDir2/SomeTool.py
+/opt/SomeToolPath/SubDir1/SubDir2/SomeTool/__init__.py
+SCons/Tool/SubDir1/SubDir2/SomeTool.py
+SCons/Tool/SubDir1/SubDir2/SomeTool/__init__.py
+./site_scons/site_tools/SubDir1/SubDir2/SomeTool.py
+./site_scons/site_tools/SubDir1/SubDir2/SomeTool/__init__.py
+      </sconstruct>
+
+      <para>
+      It's important to note when creating tools within sub-directories,
+	  there needs to be a __init__.py file within each directory.
+	  This file can just be empty.
+	  This is the same constraint used by python when loading modules
+	  from within sub-directories (packages).
+      </para>
+    </section>
+
+	<section>
+    <title>Using sys.path within the toolpath</title>
+
+      <para>
+      Using the toolpath option with sys.path
+	  we can also include tools installed via the pip package manager.
+	  </para>
+
+      <sconstruct>
+# namespaced target using sys.path within toolpath
+env = Environment(ENV = os.environ, tools = ['someinstalledpackage.SomeTool'], toolpath = sys.path)
+env.SomeTool(targets, sources)
+      </sconstruct>
+
+      <para>
+      By supplying sys.path to the toolpath argument
+	  and by using the nested syntax we can have scons search
+	  the sys.path (which will include packages installed via pip).
+      </para>
+
+<sconstruct>
+# For Windows based on the python version and install directory, this may be something like
+C:\Python35\Lib\site-packages\someinstalledpackage\SomeTool.py
+C:\Python35\Lib\site-packages\someinstalledpackage\SomeTool\__init__.py
+
+# For Linux this could be something like:
+/usr/lib/python3/dist-packages/someinstalledpackage/SomeTool.py
+/usr/lib/python3/dist-packages/someinstalledpackage/SomeTool/__init__.py
+</sconstruct>
+
+    </section>
+
+  </section>
+
 </chapter>
