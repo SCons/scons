@@ -92,19 +92,18 @@ maj, min = msvc.msvc_version_to_maj_min(greatest_msvc_version_on_system)
 
 # We always use the greatest MSVC version installed on the system
 
+if maj < 14:
+    # Skip the test if MSVC version is less than VS2015
+    test.skip_test("Available MSVC doesn't support App store ")
+
 # Test setting MSVC_UWP_APP is '1' (True)
 test.run(arguments = "MSVC_UWP_APP=1")
 (vclibstore_path_present, vclibstorerefs_path_present, msvc_version) = AreVCStoreLibPathsInLIBPATH(test.stdout())
 test.fail_test(msvc_version != greatest_msvc_version_on_system,
                message='MSVC_VERSION (%s) does not match expected greatest version on system (%s)' \
                % (msvc_version, greatest_msvc_version_on_system))
-# VS2015+
-if maj >= 14:
-    test.fail_test((vclibstore_path_present is False) or (vclibstorerefs_path_present is False),
-                   message='VC Store LIBPATHs NOT present when MSVC_UWP_APP=1 (msvc_version=%s)' % msvc_version)
-else:
-    test.fail_test((vclibstore_path_present is True) or (vclibstorerefs_path_present is True),
-                   message='VC Store LIBPATHs present for unsupported version when MSVC_UWP_APP=1 (msvc_version=%s)' % msvc_version)
+test.fail_test((vclibstore_path_present is False) or (vclibstorerefs_path_present is False),
+               message='VC Store LIBPATHs NOT present when MSVC_UWP_APP=1 (msvc_version=%s)' % msvc_version)
 
 # Test setting MSVC_UWP_APP is '0' (False)
 test.run(arguments = "MSVC_UWP_APP=0")
@@ -113,7 +112,7 @@ test.fail_test(msvc_version != greatest_msvc_version_on_system,
                message='MSVC_VERSION (%s) does not match expected greatest version on system (%s)' \
                % (msvc_version, greatest_msvc_version_on_system))
 test.fail_test((vclibstore_path_present is True) or (vclibstorerefs_path_present is True),
-                   message='VC Store LIBPATHs present when MSVC_UWP_APP=0 (msvc_version=%s)' % msvc_version)
+               message='VC Store LIBPATHs present when MSVC_UWP_APP=0 (msvc_version=%s)' % msvc_version)
 
 # Test not setting MSVC_UWP_APP
 test.run(arguments = "")
@@ -122,7 +121,7 @@ test.fail_test(msvc_version != greatest_msvc_version_on_system,
                message='MSVC_VERSION (%s) does not match expected greatest version on system (%s)' \
                % (msvc_version, greatest_msvc_version_on_system))
 test.fail_test((vclibstore_path_present is True) or (vclibstorerefs_path_present is True),
-                   message='VC Store LIBPATHs present when MSVC_UWP_APP not set (msvc_version=%s)' % msvc_version)
+               message='VC Store LIBPATHs present when MSVC_UWP_APP not set (msvc_version=%s)' % msvc_version)
 
 test.pass_test()
 
