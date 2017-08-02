@@ -105,6 +105,8 @@ import pickle
 import re
 import sys
 import subprocess
+import itertools
+import inspect
 
 import SCons.Debug
 from SCons.Debug import logInstanceCreation
@@ -195,8 +197,11 @@ def _object_contents(obj):
                 except AttributeError as ae:
                     # Should be a pickle-able Python object.
                     try:
-                        return pickle.dumps(obj, ACTION_SIGNATURE_PICKLE_PROTOCOL)
-                    except (pickle.PicklingError, TypeError, AttributeError):
+                        return _object_instance_content(obj)
+                        # pickling an Action instance or object doesn't yield a stable
+                        # content as instance property may be dumped in different orders
+                        # return pickle.dumps(obj, ACTION_SIGNATURE_PICKLE_PROTOCOL)
+                    except (pickle.PicklingError, TypeError, AttributeError) as ex:
                         # This is weird, but it seems that nested classes
                         # are unpickable. The Python docs say it should
                         # always be a PicklingError, but some Python
@@ -205,7 +210,7 @@ def _object_contents(obj):
                         return bytearray(repr(obj), 'utf-8')
 
 
-def _code_contents(code):
+def _code_contents(code, docstring=None):
     """Return the signature contents of a code object.
 
     By providing direct access to the code object of the
@@ -252,12 +257,7 @@ def _code_contents(code):
     # function. Note that we have to call _object_contents on each
     # constants because the code object of nested functions can
     # show-up among the constants.
-    #
-    # Note that we also always ignore the first entry of co_consts
-    # which contains the function doc string. We assume that the
-    # function does not access its doc string.
-    # NOTE: This is not necessarily true. If no docstring, then co_consts[0] does
-    # have a string which is used.
+
     z = [_object_contents(cc) for cc in code.co_consts[1:]]
     contents.extend(b',(')
     contents.extend(bytearray(',', 'utf-8').join(z))
@@ -296,7 +296,7 @@ def _function_contents(func):
     func.__closure__  - None or a tuple of cells that contain bindings for the function's free variables.
     """
 
-    contents = [_code_contents(func.__code__)]
+    contents = [_code_contents(func.__code__, func.__doc__)]
 
     # The function contents depends on the value of defaults arguments
     if func.__defaults__:
@@ -308,15 +308,12 @@ def _function_contents(func):
         defaults.extend(b')')
 
         contents.append(defaults)
-
-        # contents.append(bytearray(',(','utf-8') + b','.join(function_defaults_contents) + bytearray(')','utf-8'))
     else:
         contents.append(b',()')
 
     # The function contents depends on the closure captured cell values.
     closure = func.__closure__ or []
 
-    #xxx = [_object_contents(x.cell_contents) for x in closure]
     try:
         closure_contents = [_object_contents(x.cell_contents) for x in closure]
     except AttributeError:
@@ -325,10 +322,66 @@ def _function_contents(func):
     contents.append(b',(')
     contents.append(bytearray(b',').join(closure_contents))
     contents.append(b')')
-    # contents.append(b'BBBBBBBB')
 
-    return bytearray(b'').join(contents)
+    retval = bytearray(b'').join(contents)
+    return retval
 
+
+def _object_instance_content(obj):
+    """
+    Returns consistant content for a action class or an instance thereof
+    :param obj: Should be either and action class or an instance thereof
+    :return: bytearray or bytes representing the obj suitable for generating
+             a signiture from.
+    """
+    retval = bytearray()
+
+    if obj is None:
+        return b'N.'
+
+    if isinstance(obj, SCons.Util.BaseStringTypes):
+        return SCons.Util.to_bytes(obj)
+
+    inst_class = obj.__class__
+    inst_class_name = bytearray(obj.__class__.__name__,'utf-8')
+    inst_class_module = bytearray(obj.__class__.__module__,'utf-8')
+    inst_class_hierarchy = bytearray(repr(inspect.getclasstree([obj.__class__,])),'utf-8')
+    # print("ICH:%s : %s"%(inst_class_hierarchy, repr(obj)))
+
+    properties = [(p, getattr(obj, p, "None")) for p in dir(obj) if not (p[:2] == '__' or inspect.ismethod(getattr(obj, p)) or inspect.isbuiltin(getattr(obj,p))) ]
+    properties.sort()
+    properties_str = ','.join(["%s=%s"%(p[0],p[1]) for p in properties])
+    properties_bytes = bytearray(properties_str,'utf-8')
+
+    methods = [p for p in dir(obj) if inspect.ismethod(getattr(obj, p))]
+    methods.sort()
+
+    method_contents = []
+    for m in methods:
+        # print("Method:%s"%m)
+        v = _function_contents(getattr(obj, m))
+        # print("[%s->]V:%s [%s]"%(m,v,type(v)))
+        method_contents.append(v)
+
+    retval = bytearray(b'{')
+    retval.extend(inst_class_name)
+    retval.extend(b":")
+    retval.extend(inst_class_module)
+    retval.extend(b'}[[')
+    retval.extend(inst_class_hierarchy)
+    retval.extend(b']]{{')
+    retval.extend(bytearray(b",").join(method_contents))
+    retval.extend(b"}}{{{")
+    retval.extend(properties_bytes)
+    retval.extend(b'}}}')
+    return retval
+
+    # print("class          :%s"%inst_class)
+    # print("class_name     :%s"%inst_class_name)
+    # print("class_module   :%s"%inst_class_module)
+    # print("Class hier     :\n%s"%pp.pformat(inst_class_hierarchy))
+    # print("Inst Properties:\n%s"%pp.pformat(properties))
+    # print("Inst Methods   :\n%s"%pp.pformat(methods))
 
 def _actionAppend(act1, act2):
     # This function knows how to slap two actions together.
