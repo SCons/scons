@@ -210,7 +210,7 @@ def _object_contents(obj):
                         return bytearray(repr(obj), 'utf-8')
 
 
-def _code_contents(code):
+def _code_contents(code, docstring=None):
     """Return the signature contents of a code object.
 
     By providing direct access to the code object of the
@@ -257,7 +257,8 @@ def _code_contents(code):
     # function. Note that we have to call _object_contents on each
     # constants because the code object of nested functions can
     # show-up among the constants.
-    z = [_object_contents(cc) for cc in code.co_consts]
+
+    z = [_object_contents(cc) for cc in code.co_consts[1:]]
     contents.extend(b',(')
     contents.extend(bytearray(',', 'utf-8').join(z))
     contents.extend(b')')
@@ -295,7 +296,7 @@ def _function_contents(func):
     func.__closure__  - None or a tuple of cells that contain bindings for the function's free variables.
     """
 
-    contents = [_code_contents(func.__code__)]
+    contents = [_code_contents(func.__code__, func.__doc__)]
 
     # The function contents depends on the value of defaults arguments
     if func.__defaults__:
