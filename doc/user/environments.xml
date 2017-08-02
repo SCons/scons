@@ -1782,7 +1782,7 @@ env.AppendENVPath('LIB', '/usr/local/lib')
 
       <sconstruct>
 # Inbuilt tool or tool located within site_tools
-env = Environment(ENV = os.environ, tools = ['SomeTool'])
+env = Environment(tools = ['SomeTool'])
 env.SomeTool(targets, sources)
 
 # The search locations would include by default
@@ -1805,7 +1805,7 @@ SCons/Tool/SomeTool/__init__.py
 
       <sconstruct>
 # Tool located within the toolpath directory option
-env = Environment(ENV = os.environ, tools = ['SomeTool'], toolpath = ['/opt/SomeToolPath', '/opt/SomeToolPath2'])
+env = Environment(tools = ['SomeTool'], toolpath = ['/opt/SomeToolPath', '/opt/SomeToolPath2'])
 env.SomeTool(targets, sources)
 
 # The search locations in this example would include:
@@ -1834,7 +1834,7 @@ SCons/Tool/SomeTool/__init__.py
 
       <sconstruct>
 # namespaced target
-env = Environment(ENV = os.environ, tools = ['SubDir1.SubDir2.SomeTool'], toolpath = ['/opt/SomeToolPath'])
+env = Environment(tools = ['SubDir1.SubDir2.SomeTool'], toolpath = ['/opt/SomeToolPath'])
 env.SomeTool(targets, sources)
 
 # With this example the search locations would include
@@ -1865,7 +1865,7 @@ SCons/Tool/SubDir1/SubDir2/SomeTool/__init__.py
 
       <sconstruct>
 # namespaced target using sys.path within toolpath
-env = Environment(ENV = os.environ, tools = ['someinstalledpackage.SomeTool'], toolpath = sys.path)
+env = Environment(tools = ['someinstalledpackage.SomeTool'], toolpath = sys.path)
 env.SomeTool(targets, sources)
       </sconstruct>
 
