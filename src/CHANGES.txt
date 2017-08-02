@@ -40,6 +40,8 @@ may cause rebuilds.  In no case should rebuilds not happen.
       tool found is used)
     - Fixed MSVSProject example code (http://scons.tigris.org/issues/show_bug.cgi?id=2979)
     - Defined MS SDK 10.0 and Changed VS 2015 to use SDK 10.0
+    - Changes to Action Function and Action Class signiture creation.  NOTE: This will cause rebuilds
+      for many builds when upgrading to SCons 3.0
 
   From Daniel Holth:
     - Add basic support for PyPy (by deleting __slots__ from Node with a

@@ -2368,19 +2368,21 @@ class OverrideEnvironment(Base):
 
 Environment = Base
 
-# An entry point for returning a proxy subclass instance that overrides
-# the subst*() methods so they don't actually perform construction
-# variable substitution.  This is specifically intended to be the shim
-# layer in between global function calls (which don't want construction
-# variable substitution) and the DefaultEnvironment() (which would
-# substitute variables if left to its own devices)."""
-#
-# We have to wrap this in a function that allows us to delay definition of
-# the class until it's necessary, so that when it subclasses Environment
-# it will pick up whatever Environment subclass the wrapper interface
-# might have assigned to SCons.Environment.Environment.
 
 def NoSubstitutionProxy(subject):
+    """
+    An entry point for returning a proxy subclass instance that overrides
+    the subst*() methods so they don't actually perform construction
+    variable substitution.  This is specifically intended to be the shim
+    layer in between global function calls (which don't want construction
+    variable substitution) and the DefaultEnvironment() (which would
+    substitute variables if left to its own devices).
+
+    We have to wrap this in a function that allows us to delay definition of
+    the class until it's necessary, so that when it subclasses Environment
+    it will pick up whatever Environment subclass the wrapper interface
+    might have assigned to SCons.Environment.Environment.
+    """
     class _NoSubstitutionProxy(Environment):
         def __init__(self, subject):
             self.__dict__['__subject'] = subject
