@@ -20,6 +20,7 @@ may cause rebuilds.  In no case should rebuilds not happen.
     - Added a small fix to the python3 tool loader when loading a tool as a package
     - Added additional documentation to the user manual on using toolpaths with the environment
       This includes the use of sys.path to search for tools installed via pip or package managers
+    - Added support for a PyPackageDir function for use with the toolpath
 
   From William Blevins:
     - Updated D language scanner support to latest: 2.071.1. (PR #1924)

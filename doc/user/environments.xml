@@ -1887,6 +1887,38 @@ C:\Python35\Lib\site-packages\someinstalledpackage\SomeTool\__init__.py
 
     </section>
 
+	<section>
+    <title>Using the &PyPackageDir; function to add to the toolpath</title>
+
+      <para>
+      In some cases you may want to use a tool
+      located within a installed external pip package.
+      This is possible by the use of sys.path within the toolpath.
+      However in that situaion you need to provide a prefix to the toolname
+      to indicate where it is located within sys.path
+      </para>
+
+      <sconstruct>
+# namespaced target using sys.path
+env = Environment(tools = ['tools_example.subdir1.subdir2.SomeTool'], toolpath = sys.path)
+env.SomeTool(targets, sources)
+      </sconstruct>
+
+      <para>
+      To avoid the use of a prefix within the name of the tool,
+      we can use the <function>PyPackageDir(modulename)</function> function to locate the directory of the python package.
+      <function>PyPackageDir</function> returns a Dir object which represents the path of the directory
+      for the python package / module specified as a parameter.
+      </para>
+
+      <sconstruct>
+# namespaced target using sys.path
+env = Environment(tools = ['SomeTool'], toolpath = [PyPackageDir('tools_example.subdir1.subdir2')])
+env.SomeTool(targets, sources)
+      </sconstruct>
+
+    </section>
+
   </section>
 
 </chapter>

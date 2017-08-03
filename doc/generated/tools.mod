@@ -18,6 +18,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-as "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>as</literal>">
 <!ENTITY t-bcc32 "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>bcc32</literal>">
 <!ENTITY t-cc "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>cc</literal>">
+<!ENTITY t-clang "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>clang</literal>">
+<!ENTITY t-clangxx "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>clangxx</literal>">
 <!ENTITY t-cvf "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>cvf</literal>">
 <!ENTITY t-cXX "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>cXX</literal>">
 <!ENTITY t-cyglink "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>cyglink</literal>">
@@ -124,6 +126,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-link-as "<link linkend='t-as' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>as</literal></link>">
 <!ENTITY t-link-bcc32 "<link linkend='t-bcc32' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>bcc32</literal></link>">
 <!ENTITY t-link-cc "<link linkend='t-cc' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>cc</literal></link>">
+<!ENTITY t-link-clang "<link linkend='t-clang' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>clang</literal></link>">
+<!ENTITY t-link-clangxx "<link linkend='t-clangxx' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>clangxx</literal></link>">
 <!ENTITY t-link-cvf "<link linkend='t-cvf' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>cvf</literal></link>">
 <!ENTITY t-link-cXX "<link linkend='t-cXX' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>cXX</literal></link>">
 <!ENTITY t-link-cyglink "<link linkend='t-cyglink' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>cyglink</literal></link>">
