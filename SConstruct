@@ -385,22 +385,33 @@ def SCons_revision(target, source, env):
     """
     t = str(target[0])
     s = source[0].rstr()
-    with open(s, 'r') as fp:
-        contents = fp.read()
-    # Note:  We construct the __*__ substitution strings here
-    # so that they don't get replaced when this file gets
-    # copied into the tree for packaging.
-    contents = contents.replace('__BUILD'     + '__', env['BUILD'])
-    contents = contents.replace('__BUILDSYS'  + '__', env['BUILDSYS'])
-    contents = contents.replace('__COPYRIGHT' + '__', env['COPYRIGHT'])
-    contents = contents.replace('__DATE'      + '__', env['DATE'])
-    contents = contents.replace('__DEVELOPER' + '__', env['DEVELOPER'])
-    contents = contents.replace('__FILE'      + '__', str(source[0]).replace('\\', '/'))
-    contents = contents.replace('__MONTH_YEAR'+ '__', env['MONTH_YEAR'])
-    contents = contents.replace('__REVISION'  + '__', env['REVISION'])
-    contents = contents.replace('__VERSION'   + '__', env['VERSION'])
-    contents = contents.replace('__NULL'      + '__', '')
-    open(t, 'w').write(contents)
+
+    try:
+        with open(s, 'r') as fp:
+            contents = fp.read()
+
+
+        # Note:  We construct the __*__ substitution strings here
+        # so that they don't get replaced when this file gets
+        # copied into the tree for packaging.
+        contents = contents.replace('__BUILD'     + '__', env['BUILD'])
+        contents = contents.replace('__BUILDSYS'  + '__', env['BUILDSYS'])
+        contents = contents.replace('__COPYRIGHT' + '__', env['COPYRIGHT'])
+        contents = contents.replace('__DATE'      + '__', env['DATE'])
+        contents = contents.replace('__DEVELOPER' + '__', env['DEVELOPER'])
+        contents = contents.replace('__FILE'      + '__', str(source[0]).replace('\\', '/'))
+        contents = contents.replace('__MONTH_YEAR'+ '__', env['MONTH_YEAR'])
+        contents = contents.replace('__REVISION'  + '__', env['REVISION'])
+        contents = contents.replace('__VERSION'   + '__', env['VERSION'])
+        contents = contents.replace('__NULL'      + '__', '')
+        open(t, 'w').write(contents)
+    except UnicodeDecodeError as e:
+        print("Error decoding file:%s just copying no revision edit")
+        with open(s, 'rb') as fp:
+            contents = fp.read()
+            open(t, 'wb').write(contents)
+
+
     os.chmod(t, os.stat(s)[0])
 
 
@@ -593,43 +604,6 @@ finally:
         os.unlink(tfname)
     except EnvironmentError:
         pass
-
-#
-# The original packaging scheme would have have required us to push
-# the Python version number into the package name (python1.5-scons,
-# python2.0-scons, etc.), which would have required a definition
-# like the following.  Leave this here in case we ever decide to do
-# this in the future, but note that this would require some modification
-# to src/engine/setup.py before it would really work.
-#
-#python2_scons = {
-#        'pkg'          : 'python2-' + project,
-#        'src_subdir'   : 'engine',
-#        'inst_subdir'  : os.path.join('lib', 'python2.2', 'site-packages'),
-#
-#        'debian_deps'  : [
-#                            'debian/changelog',
-#                            'debian/control',
-#                            'debian/copyright',
-#                            'debian/dirs',
-#                            'debian/docs',
-#                            'debian/postinst',
-#                            'debian/prerm',
-#                            'debian/rules',
-#                          ],
-#
-#        'files'        : [
-#                            'LICENSE.txt',
-#                            'README.txt',
-#                            'setup.cfg',
-#                            'setup.py',
-#                          ],
-#        'filemap'      : {
-#                            'LICENSE.txt' : '../LICENSE.txt',
-#                          },
-#        'buildermap'    : {},
-#}
-#
 
 scons_script = {
         'pkg'           : project + '-script',
@@ -836,6 +810,7 @@ for p in [ scons ]:
 
         builder = p['buildermap'].get(b, env.SCons_revision)
         x = builder(os.path.join(build, b), s)
+
         Local(x)
 
     #
@@ -944,11 +919,14 @@ for p in [ scons ]:
         ebuild = os.path.join(gentoo, 'scons-%s.ebuild' % version)
         digest = os.path.join(gentoo, 'files', 'digest-scons-%s' % version)
         env.Command(ebuild, os.path.join('gentoo', 'scons.ebuild.in'), SCons_revision)
+
         def Digestify(target, source, env):
-            import md5
+            import hashlib
             src = source[0].rfile()
-            contents = open(str(src)).read()
-            sig = md5.new(contents).hexdigest()
+            contents = open(str(src),'rb').read()
+            m = hashlib.md5()
+            m.update(contents)
+            sig = m.hexdigest()
             bytes = os.stat(str(src))[6]
             open(str(target[0]), 'w').write("MD5 %s %s %d\n" % (sig,
                                                                 src.name,
@@ -1268,7 +1246,11 @@ if sfiles:
         Local(src_tar_gz, src_zip)
 
         for file in sfiles:
-            env.SCons_revision(os.path.join(b_ps, file), file)
+            if file.endswith('jpg') or file.endswith('png'):
+                # don't revision binary files.
+                env.Install(os.path.dirname(os.path.join(b_ps,file)), file)
+            else:
+                env.SCons_revision(os.path.join(b_ps, file), file)
 
         b_ps_files = [os.path.join(b_ps, x) for x in sfiles]
         cmds = [

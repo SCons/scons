@@ -1,4 +1,4 @@
 def generate(env):
-    env['Site_TestTool2'] = 1
+    env['Toolpath_TestTool2_1'] = 1
 def exists(env):
     return 1
