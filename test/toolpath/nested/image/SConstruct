@@ -39,6 +39,10 @@ dir_path = Dir('.').srcnode().abspath
 dir_path = os.path.join(dir_path, 'Libs')
 sys.path.append(dir_path)
 
+searchpaths = []
+for item in sys.path:
+    if os.path.isdir(item): searchpaths.append(item)
+
 toollist = ['tools_example.Toolpath_TestTool1',
             'tools_example.Toolpath_TestTool2',
             'tools_example.subdir1.Toolpath_TestTool1_1',
@@ -47,12 +51,19 @@ toollist = ['tools_example.Toolpath_TestTool1',
             'tools_example.subdir1.subdir2.Toolpath_TestTool2_2',
 	    ]
 
-env3 = Environment(tools=toollist, toolpath=sys.path)
+env3 = Environment(tools=toollist, toolpath=searchpaths)
 print("env3['Toolpath_TestTool1'] =", env3.get('Toolpath_TestTool1'))
 print("env3['Toolpath_TestTool2'] =", env3.get('Toolpath_TestTool2'))
 print("env3['Toolpath_TestTool1_1'] =", env3.get('Toolpath_TestTool1_1'))
 print("env3['Toolpath_TestTool1_2'] =", env3.get('Toolpath_TestTool1_2'))
 print("env3['Toolpath_TestTool2_1'] =", env3.get('Toolpath_TestTool2_1'))
 print("env3['Toolpath_TestTool2_2'] =", env3.get('Toolpath_TestTool2_2'))
+
+
+print('Test using PyPackageDir')
+toollist = ['Toolpath_TestTool2_1', 'Toolpath_TestTool2_2']
+env4 = Environment(tools = toollist, toolpath = [PyPackageDir('tools_example.subdir1.subdir2')])
+print("env4['Toolpath_TestTool2_1'] =", env4.get('Toolpath_TestTool2_1'))
+print("env4['Toolpath_TestTool2_2'] =", env4.get('Toolpath_TestTool2_2'))
 
 sys.path = oldsyspath

@@ -1781,7 +1781,7 @@ env.AppendENVPath('LIB', '/usr/local/lib')
       </para>
 
       <sconstruct>
-# Inbuilt tool or tool located within site_tools
+# Builtin tool or tool located within site_tools
 env = Environment(tools = ['SomeTool'])
 env.SomeTool(targets, sources)
 
@@ -1847,11 +1847,12 @@ SCons/Tool/SubDir1/SubDir2/SomeTool/__init__.py
       </sconstruct>
 
       <para>
-      It's important to note when creating tools within sub-directories,
-	  there needs to be a __init__.py file within each directory.
-	  This file can just be empty.
-	  This is the same constraint used by python when loading modules
-	  from within sub-directories (packages).
+      For python2 It's important to note when creating tools within sub-directories,
+      there needs to be a __init__.py file within each directory.
+      This file can just be empty.
+      This is the same constraint used by python when loading modules
+      from within sub-directories (packages).
+      For python3 this appears to be no longer a requirement.
       </para>
     </section>
 
@@ -1859,20 +1860,30 @@ SCons/Tool/SubDir1/SubDir2/SomeTool/__init__.py
     <title>Using sys.path within the toolpath</title>
 
       <para>
-      Using the toolpath option with sys.path
-	  we can also include tools installed via the pip package manager.
-	  </para>
+      If we want to access tools externally to scons on the sys.path
+      (one example would be tools installed via the pip package manager)
+      One way to do this is to use sys.path with the toolpath.
+
+      One thing to watch out for with this approach is that sys.path
+      can sometimes contains paths to .egg files instead of directories.
+      So we need to filter those out with this approach.
+      </para>
 
       <sconstruct>
 # namespaced target using sys.path within toolpath
-env = Environment(tools = ['someinstalledpackage.SomeTool'], toolpath = sys.path)
+
+searchpaths = []
+for item in sys.path:
+    if os.path.isdir(item): searchpaths.append(item)
+
+env = Environment(tools = ['someinstalledpackage.SomeTool'], toolpath = searchpaths)
 env.SomeTool(targets, sources)
       </sconstruct>
 
       <para>
-      By supplying sys.path to the toolpath argument
-	  and by using the nested syntax we can have scons search
-	  the sys.path (which will include packages installed via pip).
+      By using sys.path with the toolpath argument
+      and by using the nested syntax we can have scons search
+      packages installed via pip for Tools.
       </para>
 
 <sconstruct>
@@ -1884,6 +1895,40 @@ C:\Python35\Lib\site-packages\someinstalledpackage\SomeTool\__init__.py
 /usr/lib/python3/dist-packages/someinstalledpackage/SomeTool.py
 /usr/lib/python3/dist-packages/someinstalledpackage/SomeTool/__init__.py
 </sconstruct>
+
+    </section>
+
+	<section>
+    <title>Using the &PyPackageDir; function to add to the toolpath</title>
+
+      <para>
+      In some cases you may want to use a tool
+      located within a installed external pip package.
+      This is possible by the use of sys.path with the toolpath.
+      However in that situation you need to provide a prefix to the toolname
+      to indicate where it is located within sys.path
+      </para>
+
+      <sconstruct>
+searchpaths = []
+for item in sys.path:
+    if os.path.isdir(item): searchpaths.append(item)
+env = Environment(tools = ['tools_example.subdir1.subdir2.SomeTool'], toolpath = searchpaths)
+env.SomeTool(targets, sources)
+      </sconstruct>
+
+      <para>
+      To avoid the use of a prefix within the name of the tool or filtering sys.path for directories,
+      we can use the <function>PyPackageDir(modulename)</function> function to locate the directory of the python package.
+      <function>PyPackageDir</function> returns a Dir object which represents the path of the directory
+      for the python package / module specified as a parameter.
+      </para>
+
+      <sconstruct>
+# namespaced target using sys.path
+env = Environment(tools = ['SomeTool'], toolpath = [PyPackageDir('tools_example.subdir1.subdir2')])
+env.SomeTool(targets, sources)
+      </sconstruct>
 
     </section>
 

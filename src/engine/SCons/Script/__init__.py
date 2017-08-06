@@ -337,6 +337,7 @@ GlobalDefaultEnvironmentFunctions = [
     'Local',
     'ParseDepends',
     'Precious',
+    'PyPackageDir',
     'Repository',
     'Requires',
     'SConsignFile',

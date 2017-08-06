@@ -304,6 +304,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-MSSDK_VERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSSDK_VERSION</envar>">
 <!ENTITY cv-MSVC_BATCH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSVC_BATCH</envar>">
 <!ENTITY cv-MSVC_USE_SCRIPT "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSVC_USE_SCRIPT</envar>">
+<!ENTITY cv-MSVC_UWP_APP "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSVC_UWP_APP</envar>">
 <!ENTITY cv-MSVC_VERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSVC_VERSION</envar>">
 <!ENTITY cv-MSVS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSVS</envar>">
 <!ENTITY cv-MSVS_ARCH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSVS_ARCH</envar>">
@@ -927,6 +928,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-MSSDK_VERSION "<link linkend='cv-MSSDK_VERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSSDK_VERSION</envar></link>">
 <!ENTITY cv-link-MSVC_BATCH "<link linkend='cv-MSVC_BATCH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSVC_BATCH</envar></link>">
 <!ENTITY cv-link-MSVC_USE_SCRIPT "<link linkend='cv-MSVC_USE_SCRIPT' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSVC_USE_SCRIPT</envar></link>">
+<!ENTITY cv-link-MSVC_UWP_APP "<link linkend='cv-MSVC_UWP_APP' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSVC_UWP_APP</envar></link>">
 <!ENTITY cv-link-MSVC_VERSION "<link linkend='cv-MSVC_VERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSVC_VERSION</envar></link>">
 <!ENTITY cv-link-MSVS "<link linkend='cv-MSVS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSVS</envar></link>">
 <!ENTITY cv-link-MSVS_ARCH "<link linkend='cv-MSVS_ARCH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSVS_ARCH</envar></link>">

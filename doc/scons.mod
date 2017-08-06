@@ -243,6 +243,7 @@
 <!ENTITY PrependENVPath "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PrependENVPath</function>">
 <!ENTITY PrependUnique "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PrependUnique</function>">
 <!ENTITY Progress "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Progress</function>">
+<!ENTITY PyPackageDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PyPackageDir</function>">
 <!ENTITY Replace "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Replace</function>">
 <!ENTITY Repository "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Repository</function>">
 <!ENTITY Requires "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Requires</function>">
