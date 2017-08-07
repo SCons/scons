@@ -63,6 +63,13 @@ may cause rebuilds.  In no case should rebuilds not happen.
   From Rick Lupton:
     - Update LaTeX scanner to understand \import and related commands
 
+  From Steve Robinson:
+    - Add support for Visual Studio 2017.  This support requires vswhere.exe a helper
+      tool installed with newer installs of 2017. SCons expects it to be located at
+      "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe"
+      It can be downloaded separately at     
+      https://github.com/Microsoft/vswhere
+
   From Paweł Tomulik:
     - Fixed the issue with LDMODULEVERSIONFLAGS reported by Tim Jennes
       (https://pairlist4.pair.net/pipermail/scons-users/2016-May/004893.html).
