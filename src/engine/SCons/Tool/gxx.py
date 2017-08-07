@@ -41,7 +41,7 @@ import SCons.Tool
 import SCons.Util
 
 from . import gcc
-cplusplus = __import__(__package__+'.c++', globals(), locals(), ['*'])
+import cxx
 
 compilers = ['g++']
 
@@ -52,7 +52,7 @@ def generate(env):
     if 'CXX' not in env:
         env['CXX']    = env.Detect(compilers) or compilers[0]
 
-    cplusplus.generate(env)
+    cxx.generate(env)
 
     # platform specific settings
     if env['PLATFORM'] == 'aix':
