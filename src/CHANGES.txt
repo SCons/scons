@@ -55,6 +55,7 @@ may cause rebuilds.  In no case should rebuilds not happen.
   From Alexey Klimkin:
     - Use memoization to optimize PATH evaluation across all dependencies per
       node. (PR #345)
+    - Use set() where it is applicable (PR #344)
 
   From M. Limber:
     - Fixed msvs.py for Visual Studio Express editions that would report
