@@ -1983,6 +1983,15 @@ class Base(SubstitutionEnvironment):
             return result
         return self.fs.Dir(s, *args, **kw)
 
+    def PyPackageDir(self, modulename):
+        s = self.subst(modulename)
+        if SCons.Util.is_Sequence(s):
+            result=[]
+            for e in s:
+                result.append(self.fs.PyPackageDir(e))
+            return result
+        return self.fs.PyPackageDir(s)
+
     def NoClean(self, *targets):
         """Tags a target so that it will not be cleaned by -c"""
         tlist = []

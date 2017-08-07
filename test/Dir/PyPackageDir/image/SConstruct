@@ -1,0 +1,29 @@
+import sys, os
+
+oldsyspath = sys.path
+dir_path = Dir('.').srcnode().abspath
+dir_path = os.path.join(dir_path, 'syspath')
+sys.path.append(dir_path)
+
+def TestPyPackageDir(env, modname):
+    packagepath = env.PyPackageDir(modname).abspath
+    # Convert from an absolute path back to a relative one for testing
+    commonprefix = os.path.commonprefix([dir_path, packagepath])
+    relpath = os.path.relpath(packagepath, commonprefix)
+    relpath = relpath.replace(os.sep, '/')
+    print(relpath)
+
+print("Test identification of directory for a given python package")
+env = Environment()
+TestPyPackageDir(env, 'testmod1')
+TestPyPackageDir(env, 'testmod2')
+TestPyPackageDir(env, 'submod1.testmod3')
+TestPyPackageDir(env, 'submod1.submod2.testmod4')
+
+print("Test parameter substitution")
+env = Environment(FOO = 'submod1.submod2.testmod4')
+TestPyPackageDir(env, '${FOO}')
+env = Environment(FOO = 'submod1.submod2', BAR = 'testmod4')
+TestPyPackageDir(env, '${FOO}.${BAR}')
+
+sys.path = oldsyspath
