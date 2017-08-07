@@ -88,6 +88,7 @@ may cause rebuilds.  In no case should rebuilds not happen.
     - Fixed PCHPDBFLAGS causing a deprecation warning on MSVC v8 and later when
       using PCHs and PDBs together.
 
+
   From Richard West:
     - Added nested / namespace tool support
     - Added a small fix to the python3 tool loader when loading a tool as a package
@@ -104,6 +105,9 @@ may cause rebuilds.  In no case should rebuilds not happen.
       tools, must now include the ar tool to get this builder as is required for
       other compiler tools.
     - Add clang and clang++ tools based on Paweł Tomulik's work.
+ 
+  From Tom Tanner:
+    - Allow nested $( ... $) sections
 
 RELEASE 2.5.1 - Mon, 03 Nov 2016 13:37:42 -0400
 
