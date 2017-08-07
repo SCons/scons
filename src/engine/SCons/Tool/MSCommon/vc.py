@@ -37,6 +37,7 @@ __doc__ = """Module for Visual C/C++ detection and configuration.
 import SCons.compat
 import SCons.Util
 
+import subprocess
 import os
 import platform
 from string import digits as string_digits
@@ -135,9 +136,11 @@ def get_host_target(env):
 
 # If you update this, update SupportedVSList in Tool/MSCommon/vs.py, and the
 # MSVC_VERSION documentation in Tool/msvc.xml.
-_VCVER = ["14.0", "14.0Exp", "12.0", "12.0Exp", "11.0", "11.0Exp", "10.0", "10.0Exp", "9.0", "9.0Exp","8.0", "8.0Exp","7.1", "7.0", "6.0"]
+_VCVER = ["14.1", "14.0", "14.0Exp", "12.0", "12.0Exp", "11.0", "11.0Exp", "10.0", "10.0Exp", "9.0", "9.0Exp","8.0", "8.0Exp","7.1", "7.0", "6.0"]
 
 _VCVER_TO_PRODUCT_DIR = {
+    '14.1' : [
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'')], # Visual Studio 2017 doesn't set this registry key anymore
     '14.0' : [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\14.0\Setup\VC\ProductDir')],
     '14.0Exp' : [
@@ -222,6 +225,29 @@ def is_host_target_supported(host_target, msvc_version):
 
     return True
 
+
+def find_vc_pdir_vswhere(msvc_version):
+    """
+    Find the vswhere.exe install.
+    Run it asking for specified version and get MSVS  install location
+    :param msvc_version:
+    :return: MSVC install dir
+    """
+    vswhere_path = os.path.join(
+        'C:\\',
+        'Program Files (x86)',
+        'Microsoft Visual Studio',
+        'Installer',
+        'vswhere.exe'
+    )
+    vswhere_cmd = [vswhere_path, '-version', msvc_version, '-property', 'installationPath']
+
+    sp = subprocess.Popen(vswhere_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    vsdir, err = sp.communicate()
+    vc_pdir = os.path.join(vsdir.rstrip(), 'VC')
+    return vc_pdir
+
+
 def find_vc_pdir(msvc_version):
     """Try to find the product directory for the given
     version.
@@ -240,16 +266,19 @@ def find_vc_pdir(msvc_version):
     for hkroot, key in hkeys:
         try:
             comps = None
-            if common.is_win64():
-                try:
-                    # ordinally at win64, try Wow6432Node first.
-                    comps = common.read_reg(root + 'Wow6432Node\\' + key, hkroot)
-                except SCons.Util.WinError as e:
-                    # at Microsoft Visual Studio for Python 2.7, value is not in Wow6432Node
-                    pass
-            if not comps:
-                # not Win64, or Microsoft Visual Studio for Python 2.7
-                comps = common.read_reg(root + key, hkroot)
+            if not key:
+                comps = find_vc_pdir_vswhere(msvc_version)
+            else:
+                if common.is_win64():
+                    try:
+                        # ordinally at win64, try Wow6432Node first.
+                        comps = common.read_reg(root + 'Wow6432Node\\' + key, hkroot)
+                    except SCons.Util.WinError as e:
+                        # at Microsoft Visual Studio for Python 2.7, value is not in Wow6432Node
+                        pass
+                if not comps:
+                    # not Win64, or Microsoft Visual Studio for Python 2.7
+                    comps = common.read_reg(root + key, hkroot)
         except SCons.Util.WinError as e:
             debug('find_vc_dir(): no VC registry key {}'.format(repr(key)))
         else:
@@ -281,8 +310,10 @@ def find_batch_file(env,msvc_version,host_arch,target_arch):
     elif vernum < 7:
         pdir = os.path.join(pdir, "Bin")
         batfilename = os.path.join(pdir, "vcvars32.bat")
-    else: # >= 8
+    elif 8 <= vernum <= 14:
         batfilename = os.path.join(pdir, "vcvarsall.bat")
+    else:  # vernum >= 14.1  VS2017 and above
+        batfilename = os.path.join(pdir, "Auxiliary", "Build", "vcvarsall.bat")
 
     if not os.path.exists(batfilename):
         debug("Not found: %s" % batfilename)
