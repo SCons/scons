@@ -228,7 +228,7 @@ def is_host_target_supported(host_target, msvc_version):
 
 def find_vc_pdir_vswhere(msvc_version):
     """
-    Find the vswhere.exe install.
+    Find the MSVC product directory using vswhere.exe .
     Run it asking for specified version and get MSVS  install location
     :param msvc_version:
     :return: MSVC install dir
