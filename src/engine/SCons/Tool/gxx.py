@@ -41,7 +41,7 @@ import SCons.Tool
 import SCons.Util
 
 from . import gcc
-import cxx
+from . import cxx
 
 compilers = ['g++']
 
