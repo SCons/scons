@@ -1241,8 +1241,8 @@ class CommandActionTestCase(unittest.TestCase):
                    (env["foo"], env["bar"])
 
         # The number 1 is there to make sure all args get converted to strings.
-        a = SCons.Action.CommandAction(["|", "$(", "$foo", "|", "$bar",
-                                        "$)", "|", "$baz", 1])
+        a = SCons.Action.CommandAction(["|", "$(", "$foo", "|", "$(", "$bar",
+                                        "$)", "stuff",  "$)", "|", "$baz", 1])
         c = a.get_contents(target=[], source=[],
                            env=Environment(foo = 'FFF', bar = 'BBB',
                                            baz = CmdGen))
@@ -1257,7 +1257,7 @@ class CommandActionTestCase(unittest.TestCase):
         c = a.get_contents(target=DummyNode('ttt'), source = DummyNode('sss'),
                            env=SpecialEnvironment(foo = 'GGG', bar = 'CCC',
                                                   baz = 'ZZZ'))
-        assert c == b'subst_target_source: | $( $foo | $bar $) | $baz 1', c
+        assert c == b'subst_target_source: | $( $foo | $( $bar $) stuff $) | $baz 1', c
 
         # We've discussed using the real target and source names in a
         # CommandAction's signature contents.  This would have have the

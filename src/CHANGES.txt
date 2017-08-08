@@ -55,6 +55,7 @@ may cause rebuilds.  In no case should rebuilds not happen.
   From Alexey Klimkin:
     - Use memoization to optimize PATH evaluation across all dependencies per
       node. (PR #345)
+    - Use set() where it is applicable (PR #344)
 
   From M. Limber:
     - Fixed msvs.py for Visual Studio Express editions that would report
@@ -62,6 +63,13 @@ may cause rebuilds.  In no case should rebuilds not happen.
 
   From Rick Lupton:
     - Update LaTeX scanner to understand \import and related commands
+
+  From Steve Robinson:
+    - Add support for Visual Studio 2017.  This support requires vswhere.exe a helper
+      tool installed with newer installs of 2017. SCons expects it to be located at
+      "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe"
+      It can be downloaded separately at     
+      https://github.com/Microsoft/vswhere
 
   From Paweł Tomulik:
     - Fixed the issue with LDMODULEVERSIONFLAGS reported by Tim Jennes
@@ -81,11 +89,13 @@ may cause rebuilds.  In no case should rebuilds not happen.
     - Fixed PCHPDBFLAGS causing a deprecation warning on MSVC v8 and later when
       using PCHs and PDBs together.
 
+
   From Richard West:
     - Added nested / namespace tool support
     - Added a small fix to the python3 tool loader when loading a tool as a package
     - Added additional documentation to the user manual on using toolpaths with the environment
       This includes the use of sys.path to search for tools installed via pip or package managers
+    - Added support for a PyPackageDir function for use with the toolpath
 
   From Russel Winder:
     - Reordered the default D tools from "dmd, gdc, ldc" to "dmd, ldc, gdc".
@@ -96,6 +106,9 @@ may cause rebuilds.  In no case should rebuilds not happen.
       tools, must now include the ar tool to get this builder as is required for
       other compiler tools.
     - Add clang and clang++ tools based on Paweł Tomulik's work.
+ 
+  From Tom Tanner:
+    - Allow nested $( ... $) sections
 
 RELEASE 2.5.1 - Mon, 03 Nov 2016 13:37:42 -0400
 

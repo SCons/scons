@@ -338,24 +338,28 @@ SUBST_RAW = 1
 SUBST_SIG = 2
 
 _rm = re.compile(r'\$[()]')
-_remove = re.compile(r'\$\([^\$]*(\$[^\)][^\$]*)*\$\)')
+_rm_split = re.compile(r'(\$[()])')
 
 # Indexed by the SUBST_* constants above.
-_regex_remove = [ _rm, None, _remove ]
+_regex_remove = [ _rm, None, _rm_split ]
 
 def _rm_list(list):
     return [l for l in list if not l in ('$(', '$)')]
 
 def _remove_list(list):
     result = []
-    do_append = result.append
+    depth = 0
     for l in list:
         if l == '$(':
-            do_append = lambda x: None
+            depth += 1
         elif l == '$)':
-            do_append = result.append
-        else:
-            do_append(l)
+            depth -= 1
+            if depth < 0:
+                break
+        elif depth == 0:
+            result.append(l)
+    if depth != 0:
+        return None
     return result
 
 # Indexed by the SUBST_* constants above.
@@ -562,12 +566,19 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
     except KeyError:
         pass
 
+    res = result
     if is_String(result):
         # Remove $(-$) pairs and any stuff in between,
         # if that's appropriate.
         remove = _regex_remove[mode]
         if remove:
-            result = remove.sub('', result)
+            if mode == SUBST_SIG:
+                result = _list_remove[mode](remove.split(result))
+                if result is None:
+                    raise SCons.Errors.UserError("Unbalanced $(/$) in: " + res)
+                result = ' '.join(result)
+            else:
+                result = remove.sub('', result)
         if mode != SUBST_RAW:
             # Compress strings of white space characters into
             # a single space.
@@ -576,6 +587,8 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
         remove = _list_remove[mode]
         if remove:
             result = remove(result)
+            if result is None:
+                raise SCons.Errors.UserError("Unbalanced $(/$) in: " + str(res))
 
     return result
 

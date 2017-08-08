@@ -57,6 +57,9 @@ env3['Toolpath_TestTool1_1'] = 1
 env3['Toolpath_TestTool1_2'] = 1
 env3['Toolpath_TestTool2_1'] = 1
 env3['Toolpath_TestTool2_2'] = 1
+Test using PyPackageDir
+env4['Toolpath_TestTool2_1'] = 1
+env4['Toolpath_TestTool2_2'] = 1
 scons: done reading SConscript files.
 scons: Building targets ...
 scons: `.' is up to date.

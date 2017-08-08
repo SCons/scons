@@ -1172,12 +1172,12 @@ def tool_list(platform, env):
         ars = ['ar', 'mslib']
     else:
         "prefer GNU tools on all other platforms"
-        linkers = ['gnulink', 'mslink', 'ilink']
-        c_compilers = ['gcc', 'msvc', 'intelc', 'icc', 'cc']
-        cxx_compilers = ['g++', 'msvc', 'intelc', 'icc', 'cxx']
+        linkers = ['gnulink', 'ilink']
+        c_compilers = ['gcc',  'intelc', 'icc', 'cc']
+        cxx_compilers = ['g++', 'intelc', 'icc', 'cxx']
         assemblers = ['gas', 'nasm', 'masm']
         fortran_compilers = ['gfortran', 'g77', 'ifort', 'ifl', 'f95', 'f90', 'f77']
-        ars = ['ar', 'mslib']
+        ars = ['ar',]
 
     if not str(platform) == 'win32':
         other_plat_tools += ['m4', 'rpm']

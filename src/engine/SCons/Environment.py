@@ -167,7 +167,7 @@ def _set_SCANNERS(env, key, value):
 
 def _delete_duplicates(l, keep_last):
     """Delete duplicates from a sequence, keeping the first or last."""
-    seen={}
+    seen=set()
     result=[]
     if keep_last:           # reverse in & out, then keep first
         l.reverse()
@@ -175,7 +175,7 @@ def _delete_duplicates(l, keep_last):
         try:
             if i not in seen:
                 result.append(i)
-                seen[i]=1
+                seen.add(i)
         except TypeError:
             # probably unhashable.  Just keep it.
             result.append(i)
@@ -1982,6 +1982,15 @@ class Base(SubstitutionEnvironment):
                 result.append(self.fs.Dir(e, *args, **kw))
             return result
         return self.fs.Dir(s, *args, **kw)
+
+    def PyPackageDir(self, modulename):
+        s = self.subst(modulename)
+        if SCons.Util.is_Sequence(s):
+            result=[]
+            for e in s:
+                result.append(self.fs.PyPackageDir(e))
+            return result
+        return self.fs.PyPackageDir(s)
 
     def NoClean(self, *targets):
         """Tags a target so that it will not be cleaned by -c"""

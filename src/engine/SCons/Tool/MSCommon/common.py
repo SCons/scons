@@ -130,6 +130,13 @@ def normalize_env(env, keys, force=False):
     if sys32_dir not in normenv['PATH']:
         normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_dir
 
+    # Without Wbem in PATH, vcvarsall.bat has a "'wmic' is not recognized"
+    # error starting with Visual Studio 2017, although the script still
+    # seems to work anyway.
+    sys32_wbem_dir = os.path.join(sys32_dir, 'Wbem')
+    if sys32_wbem_dir not in normenv['PATH']:
+        normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_wbem_dir
+
     debug("PATH: %s"%normenv['PATH'])
 
     return normenv

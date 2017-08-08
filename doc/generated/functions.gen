@@ -3320,6 +3320,31 @@ Multiple targets can be passed in to a single call to
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="f-PyPackageDir">
+    <term>
+      <literal>PyPackageDir(modulename)</literal>
+    </term>
+    <term>
+      <literal>env.PyPackageDir(modulename)</literal>
+    </term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+This returns a Directory Node similar to Dir.
+The python module / package is looked up and if located
+the directory is returned for the location.
+<varname>modulename</varname>
+Is a named python package / module to
+lookup the directory for it's location.
+</para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+If
+<varname>modulename</varname>
+is a list, SCons returns a list of Dir nodes.
+Construction variables are expanded in
+<varname>modulename</varname>.
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="f-Replace">
     <term>
       <literal>env.Replace(key=val, [...])</literal>

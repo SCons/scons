@@ -41,6 +41,7 @@ import re
 import stat
 import sys
 import tempfile
+import time
 
 import bootstrap
 
@@ -98,8 +99,12 @@ zip = whereis('zip')
 #
 date = ARGUMENTS.get('DATE')
 if not date:
-    import time
     date = time.strftime("%Y/%m/%d %H:%M:%S", time.localtime(time.time()))
+
+# Datestring for debian
+# Should look like: Mon, 03 Nov 2016 13:37:42 -0700
+deb_date = time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime())
+
 
 developer = ARGUMENTS.get('DEVELOPER')
 if not developer:
@@ -398,6 +403,8 @@ def SCons_revision(target, source, env):
         contents = contents.replace('__BUILDSYS'  + '__', env['BUILDSYS'])
         contents = contents.replace('__COPYRIGHT' + '__', env['COPYRIGHT'])
         contents = contents.replace('__DATE'      + '__', env['DATE'])
+        contents = contents.replace('__DEB_DATE'  + '__', env['DEB_DATE'])
+
         contents = contents.replace('__DEVELOPER' + '__', env['DEVELOPER'])
         contents = contents.replace('__FILE'      + '__', str(source[0]).replace('\\', '/'))
         contents = contents.replace('__MONTH_YEAR'+ '__', env['MONTH_YEAR'])
@@ -463,6 +470,7 @@ env = Environment(
                    BUILDSYS            = build_system,
                    COPYRIGHT           = copyright,
                    DATE                = date,
+                   DEB_DATE            = deb_date,
                    DEVELOPER           = developer,
                    DISTDIR             = os.path.join(build_dir, 'dist'),
                    MONTH_YEAR          = month_year,
@@ -1046,9 +1054,9 @@ for p in [ scons ]:
         # Our Debian packaging builds directly into build/dist,
         # so we don't need to Install() the .debs.
         # The built deb is called just x.y.z, not x.y.z.final.0 so strip those off:
-        deb_version = '.'.join(version.split('.')[0:3])
+        deb_version = version #'.'.join(version.split('.')[0:3])
         deb = os.path.join(build_dir, 'dist', "%s_%s_all.deb" % (pkg, deb_version))
-        # print("Building deb into %s (version=%s)"%(deb, deb_version))
+        print("Building deb into %s (version=%s)"%(deb, deb_version))
         for d in p['debian_deps']:
             b = env.SCons_revision(os.path.join(build, d), d)
             env.Depends(deb, b)

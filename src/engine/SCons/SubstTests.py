@@ -183,6 +183,9 @@ class SubstTestCase(unittest.TestCase):
         'HHH'       : 'III',
         'FFFIII'    : 'BADNEWS',
 
+        'THING1'    : "$(STUFF$)",
+        'THING2'    : "$THING1",
+
         'LITERAL'   : TestLiteral("$XXX"),
 
         # Test that we can expand to and return a function.
@@ -405,6 +408,11 @@ class scons_subst_TestCase(SubstTestCase):
             "test",
             "test",
 
+        "test $( $THING2 $)",
+            "test $( $(STUFF$) $)",
+            "test STUFF",
+            "test",
+
         "$AAA ${AAA}A $BBBB $BBB",
             "a aA  b",
             "a aA b",
@@ -541,6 +549,23 @@ class scons_subst_TestCase(SubstTestCase):
                 "SyntaxError `invalid syntax (<string>, line 1)' trying to evaluate `$foo.bar.3.0'",
             ]
             assert str(e) in expect, e
+        else:
+            raise AssertionError("did not catch expected UserError")
+
+    def test_subst_balance_errors(self):
+        """Test scons_subst():  handling syntax errors"""
+        env = DummyEnv(self.loc)
+        try:
+            scons_subst('$(', env, mode=SUBST_SIG)
+        except SCons.Errors.UserError as e:
+            assert str(e) == "Unbalanced $(/$) in: $(", str(e)
+        else:
+            raise AssertionError("did not catch expected UserError")
+
+        try:
+            scons_subst('$)', env, mode=SUBST_SIG)
+        except SCons.Errors.UserError as e:
+            assert str(e) == "Unbalanced $(/$) in: $)", str(e)
         else:
             raise AssertionError("did not catch expected UserError")
 
