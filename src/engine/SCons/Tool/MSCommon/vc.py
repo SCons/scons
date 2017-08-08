@@ -242,10 +242,14 @@ def find_vc_pdir_vswhere(msvc_version):
     )
     vswhere_cmd = [vswhere_path, '-version', msvc_version, '-property', 'installationPath']
 
-    sp = subprocess.Popen(vswhere_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    vsdir, err = sp.communicate()
-    vc_pdir = os.path.join(vsdir.rstrip(), 'VC')
-    return vc_pdir
+    if os.path.exists(vswhere_path):
+        sp = subprocess.Popen(vswhere_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        vsdir, err = sp.communicate()
+        vc_pdir = os.path.join(vsdir.rstrip(), 'VC')
+        return vc_pdir
+    else:
+        # No vswhere on system, no install info available
+        return None
 
 
 def find_vc_pdir(msvc_version):
@@ -268,6 +272,9 @@ def find_vc_pdir(msvc_version):
             comps = None
             if not key:
                 comps = find_vc_pdir_vswhere(msvc_version)
+                if not comps:
+                    debug('find_vc_dir(): no VC found via vswhere for version {}'.format(repr(key)))
+                    raise SCons.Util.WinError
             else:
                 if common.is_win64():
                     try:
