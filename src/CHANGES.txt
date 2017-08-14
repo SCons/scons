@@ -11,17 +11,6 @@ NOTE: This is a major release.  You should expect that some targets may rebuild 
 Significant changes in some python action signatures. Also switching between PY 2 and PY 3.5, 3.6
 may cause rebuilds.  In no case should rebuilds not happen.
 
-  From Ibrahim Esmat:
-    - Added the capability to build Windows Store Compatible libraries that can be used
-      with Universal Windows Platform (UWP) Apps and published to the store
-
-  From Richard West:
-    - Added nested / namespace tool support
-    - Added a small fix to the python3 tool loader when loading a tool as a package
-    - Added additional documentation to the user manual on using toolpaths with the environment
-      This includes the use of sys.path to search for tools installed via pip or package managers
-    - Added support for a PyPackageDir function for use with the toolpath
-
   From William Blevins:
     - Updated D language scanner support to latest: 2.071.1. (PR #1924)
       https://dlang.org/spec/module.html accessed 11 August 2016
@@ -46,6 +35,10 @@ may cause rebuilds.  In no case should rebuilds not happen.
     - Changes to Action Function and Action Class signiture creation.  NOTE: This will cause rebuilds
       for many builds when upgrading to SCons 3.0
 
+  From Ibrahim Esmat:
+    - Added the capability to build Windows Store Compatible libraries that can be used
+      with Universal Windows Platform (UWP) Apps and published to the store
+
   From Daniel Holth:
     - Add basic support for PyPy (by deleting __slots__ from Node with a
       metaclass on PyPy); wrap most-used open() calls in 'with' statements to
@@ -62,6 +55,7 @@ may cause rebuilds.  In no case should rebuilds not happen.
   From Alexey Klimkin:
     - Use memoization to optimize PATH evaluation across all dependencies per
       node. (PR #345)
+    - Use set() where it is applicable (PR #344)
 
   From M. Limber:
     - Fixed msvs.py for Visual Studio Express editions that would report
@@ -69,6 +63,13 @@ may cause rebuilds.  In no case should rebuilds not happen.
 
   From Rick Lupton:
     - Update LaTeX scanner to understand \import and related commands
+
+  From Steve Robinson:
+    - Add support for Visual Studio 2017.  This support requires vswhere.exe a helper
+      tool installed with newer installs of 2017. SCons expects it to be located at
+      "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe"
+      It can be downloaded separately at     
+      https://github.com/Microsoft/vswhere
 
   From Paweł Tomulik:
     - Fixed the issue with LDMODULEVERSIONFLAGS reported by Tim Jennes
@@ -88,6 +89,14 @@ may cause rebuilds.  In no case should rebuilds not happen.
     - Fixed PCHPDBFLAGS causing a deprecation warning on MSVC v8 and later when
       using PCHs and PDBs together.
 
+
+  From Richard West:
+    - Added nested / namespace tool support
+    - Added a small fix to the python3 tool loader when loading a tool as a package
+    - Added additional documentation to the user manual on using toolpaths with the environment
+      This includes the use of sys.path to search for tools installed via pip or package managers
+    - Added support for a PyPackageDir function for use with the toolpath
+
   From Russel Winder:
     - Reordered the default D tools from "dmd, gdc, ldc" to "dmd, ldc, gdc".
     - Add a ProgramAllAtOnce builder to the dmd, ldc, and gdc tools. (PR #448)
@@ -97,6 +106,9 @@ may cause rebuilds.  In no case should rebuilds not happen.
       tools, must now include the ar tool to get this builder as is required for
       other compiler tools.
     - Add clang and clang++ tools based on Paweł Tomulik's work.
+ 
+  From Tom Tanner:
+    - Allow nested $( ... $) sections
 
 RELEASE 2.5.1 - Mon, 03 Nov 2016 13:37:42 -0400
 
@@ -333,34 +345,39 @@ RELEASE 2.3.3 - Sun, 24 Aug 2014 21:08:33 -0400
 
 RELEASE 2.3.2
 
+  From Dirk Baechle:
+    - Update XML doc editor configuration
+    - Fix: Allow varlist to be specified as list of strings for Actions (#2754)
+
   From veon on bitbucket:
     - Fixed handling of nested ifs in CPP scanner PreProcessor class.
+
+  From Shane Gannon:
+    - Support for Visual Studio 2013 (12.0)
 
   From Michael Haubenwallner:
     - Respect user's CC/CXX values; don't always overwrite in generate()
     - Delegate linker Tool.exists() to CC/CXX Tool.exists().
 
+  From Rob Managan:
+    - Updated the TeX builder to support use of the -synctex=1
+      option and the files it creates.
+    - Updated the TeX builder to correctly clean auxiliary files when
+      the biblatex package is used.
+
+  From Gary Oberbrunner:
+    - get default RPM architecture more robustly when building RPMs
+
   From Amir Szekely:
     - Fixed NoClean() for multi-target builders (#2353).
+
+  From Paweł Tomulik:
+    - Fix SConf tests that write output
 
   From Russel Winder:
     - Revamp of the D language support. Tools for DMD, GDC and LDC provided
       and integrated with the C and C++ linking. NOTE: This is only tested
       with D v2. Support for D v1 is now deprecated.
-
-  From Paweł Tomulik:
-    - Fix SConf tests that write output
-
->>>>>>> other
-  From Gary Oberbrunner:
-    - get default RPM architecture more robustly when building RPMs
-
-  From Shane Gannon:
-    - Support for Visual Studio 2013 (12.0)
-
-  From Sye van der Veen:
-    - Support for Visual Studio 12.0Exp, and fixes for earlier MSVS
-      versions.
 
   From Anatoly Techtonik:
     - Several improvements for running scons.py from source:
@@ -376,15 +393,10 @@ RELEASE 2.3.2
       SCons initialization (it will still be possible to use these tools
       explicitly)
 
-  From Dirk Baechle:
-    - Update XML doc editor configuration
-    - Fix: Allow varlist to be specified as list of strings for Actions (#2754)
+  From Sye van der Veen:
+    - Support for Visual Studio 12.0Exp, and fixes for earlier MSVS
+      versions.
 
-  From Rob Managan:
-    - Updated the TeX builder to support use of the -synctex=1
-      option and the files it creates.
-    - Updated the TeX builder to correctly clean auxiliary files when
-      the biblatex package is used.
 
 RELEASE 2.3.1
 

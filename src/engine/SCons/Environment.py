@@ -167,7 +167,7 @@ def _set_SCANNERS(env, key, value):
 
 def _delete_duplicates(l, keep_last):
     """Delete duplicates from a sequence, keeping the first or last."""
-    seen={}
+    seen=set()
     result=[]
     if keep_last:           # reverse in & out, then keep first
         l.reverse()
@@ -175,7 +175,7 @@ def _delete_duplicates(l, keep_last):
         try:
             if i not in seen:
                 result.append(i)
-                seen[i]=1
+                seen.add(i)
         except TypeError:
             # probably unhashable.  Just keep it.
             result.append(i)

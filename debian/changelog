@@ -1,3 +1,9 @@
+scons (__VERSION__) unstable; urgency=low
+
+  * Maintenance Release
+
+ -- __DEVELOPER__ <bill@baddogconsulting.com>  __DATE__
+
 scons (2.5.1) unstable; urgency=low
 
   * Maintenance Release
