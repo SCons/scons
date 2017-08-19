@@ -319,6 +319,7 @@ def createProgBuilder(env):
 
     return program
 
+
 def createStaticLibBuilder(env):
     """This is a utility function that creates the StaticLibrary
     Builder in an Environment if it is not there already.
