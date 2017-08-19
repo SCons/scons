@@ -1765,4 +1765,173 @@ env.AppendENVPath('LIB', '/usr/local/lib')
 
   </section>
 
+
+  <section id="sect-environment-toolpath">
+  <title>Using the toolpath for external Tools</title>
+
+    <section>
+    <title>The default tool search path</title>
+
+      <para>
+      Normally when using a tool from the construction environment,
+      several different search locations are checked by default.
+      This includes the <literal>Scons/Tools/</literal> directory
+      inbuilt to scons and the directory <literal>site_scons/site_tools</literal>
+      relative to the root SConstruct file.
+      </para>
+
+      <sconstruct>
+# Builtin tool or tool located within site_tools
+env = Environment(tools = ['SomeTool'])
+env.SomeTool(targets, sources)
+
+# The search locations would include by default
+SCons/Tool/SomeTool.py
+SCons/Tool/SomeTool/__init__.py
+./site_scons/site_tools/SomeTool.py
+./site_scons/site_tools/SomeTool/__init__.py
+      </sconstruct>
+
+    </section>
+
+	<section>
+    <title>Providing an external directory to toolpath</title>
+
+      <para>
+      In some cases you may want to specify a different location to search for tools.
+      The Environment constructor contains an option for this called toolpath
+      This can be used to add additional search directories.
+      </para>
+
+      <sconstruct>
+# Tool located within the toolpath directory option
+env = Environment(tools = ['SomeTool'], toolpath = ['/opt/SomeToolPath', '/opt/SomeToolPath2'])
+env.SomeTool(targets, sources)
+
+# The search locations in this example would include:
+/opt/SomeToolPath/SomeTool.py
+/opt/SomeToolPath/SomeTool/__init__.py
+/opt/SomeToolPath2/SomeTool.py
+/opt/SomeToolPath2/SomeTool/__init__.py
+SCons/Tool/SomeTool.py
+SCons/Tool/SomeTool/__init__.py
+./site_scons/site_tools/SomeTool.py
+./site_scons/site_tools/SomeTool/__init__.py
+      </sconstruct>
+
+    </section>
+
+	<section>
+    <title>Nested Tools within a toolpath</title>
+
+      <para>
+      &SCons; 3.0 now supports the ability for a Builder to be located
+	  within a sub-directory / sub-package of the toolpath.
+	  This is similar to namespacing within python.
+	  With nested or namespaced tools we can use the dot notation
+	  to specify a sub-directory that the tool is located under.
+      </para>
+
+      <sconstruct>
+# namespaced target
+env = Environment(tools = ['SubDir1.SubDir2.SomeTool'], toolpath = ['/opt/SomeToolPath'])
+env.SomeTool(targets, sources)
+
+# With this example the search locations would include
+/opt/SomeToolPath/SubDir1/SubDir2/SomeTool.py
+/opt/SomeToolPath/SubDir1/SubDir2/SomeTool/__init__.py
+SCons/Tool/SubDir1/SubDir2/SomeTool.py
+SCons/Tool/SubDir1/SubDir2/SomeTool/__init__.py
+./site_scons/site_tools/SubDir1/SubDir2/SomeTool.py
+./site_scons/site_tools/SubDir1/SubDir2/SomeTool/__init__.py
+      </sconstruct>
+
+      <para>
+      For python2 It's important to note when creating tools within sub-directories,
+      there needs to be a __init__.py file within each directory.
+      This file can just be empty.
+      This is the same constraint used by python when loading modules
+      from within sub-directories (packages).
+      For python3 this appears to be no longer a requirement.
+      </para>
+    </section>
+
+	<section>
+    <title>Using sys.path within the toolpath</title>
+
+      <para>
+      If we want to access tools externally to scons on the sys.path
+      (one example would be tools installed via the pip package manager)
+      One way to do this is to use sys.path with the toolpath.
+
+      One thing to watch out for with this approach is that sys.path
+      can sometimes contains paths to .egg files instead of directories.
+      So we need to filter those out with this approach.
+      </para>
+
+      <sconstruct>
+# namespaced target using sys.path within toolpath
+
+searchpaths = []
+for item in sys.path:
+    if os.path.isdir(item): searchpaths.append(item)
+
+env = Environment(tools = ['someinstalledpackage.SomeTool'], toolpath = searchpaths)
+env.SomeTool(targets, sources)
+      </sconstruct>
+
+      <para>
+      By using sys.path with the toolpath argument
+      and by using the nested syntax we can have scons search
+      packages installed via pip for Tools.
+      </para>
+
+<sconstruct>
+# For Windows based on the python version and install directory, this may be something like
+C:\Python35\Lib\site-packages\someinstalledpackage\SomeTool.py
+C:\Python35\Lib\site-packages\someinstalledpackage\SomeTool\__init__.py
+
+# For Linux this could be something like:
+/usr/lib/python3/dist-packages/someinstalledpackage/SomeTool.py
+/usr/lib/python3/dist-packages/someinstalledpackage/SomeTool/__init__.py
+</sconstruct>
+
+    </section>
+
+	<section>
+    <title>Using the &PyPackageDir; function to add to the toolpath</title>
+
+      <para>
+      In some cases you may want to use a tool
+      located within a installed external pip package.
+      This is possible by the use of sys.path with the toolpath.
+      However in that situation you need to provide a prefix to the toolname
+      to indicate where it is located within sys.path
+      </para>
+
+      <sconstruct>
+searchpaths = []
+for item in sys.path:
+    if os.path.isdir(item): searchpaths.append(item)
+env = Environment(tools = ['tools_example.subdir1.subdir2.SomeTool'], toolpath = searchpaths)
+env.SomeTool(targets, sources)
+      </sconstruct>
+
+      <para>
+      To avoid the use of a prefix within the name of the tool or filtering sys.path for directories,
+      we can use the <function>PyPackageDir(modulename)</function> function to locate the directory of the python package.
+      <function>PyPackageDir</function> returns a Dir object which represents the path of the directory
+      for the python package / module specified as a parameter.
+      </para>
+
+      <sconstruct>
+# namespaced target using sys.path
+env = Environment(tools = ['SomeTool'], toolpath = [PyPackageDir('tools_example.subdir1.subdir2')])
+env.SomeTool(targets, sources)
+      </sconstruct>
+
+    </section>
+
+  </section>
+
 </chapter>

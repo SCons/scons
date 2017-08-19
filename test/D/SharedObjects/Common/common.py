@@ -63,9 +63,6 @@ def testForTool(tool):
     elif platform == 'darwin':
         filename = 'code.o'
         libraryname = 'libanswer.dylib'
-        # As at 2014-09-14, DMD 2.066, LDC master head, and GDC 4.9.1 do not support
-        # shared libraries on OSX.
-        test.skip_test('Dynamic libraries not yet supported on OSX.\n')
     elif platform == 'win32':
         filename = 'code.obj'
         libraryname = 'answer.dll'
@@ -75,7 +72,7 @@ def testForTool(tool):
     test.dir_fixture('Image')
     test.write('SConstruct', open('SConstruct_template', 'r').read().format(tool))
 
-    if tool == 'dmd':
+    if Base()['DC'] == 'gdmd':
         # The gdmd executable in Debian Unstable as at 2012-05-12, version 4.6.3 puts out messages on stderr
         # that cause inappropriate failure of the tests, so simply ignore them.
         test.run(stderr=None)

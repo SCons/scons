@@ -95,6 +95,22 @@ Sets construction variables for generic POSIX C copmilers.
 </para>
 <para>Sets:  &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CCFLAGS;, &cv-link-CFILESUFFIX;, &cv-link-CFLAGS;, &cv-link-CPPDEFPREFIX;, &cv-link-CPPDEFSUFFIX;, &cv-link-FRAMEWORKPATH;, &cv-link-FRAMEWORKS;, &cv-link-INCPREFIX;, &cv-link-INCSUFFIX;, &cv-link-SHCC;, &cv-link-SHCCCOM;, &cv-link-SHCCFLAGS;, &cv-link-SHCFLAGS;, &cv-link-SHOBJSUFFIX;.</para><para>Uses:  &cv-link-PLATFORM;.</para></listitem>
   </varlistentry>
+  <varlistentry id="t-clang">
+    <term>clang</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Set construction variables for the Clang C compiler.
+</para>
+<para>Sets:  &cv-link-CC;, &cv-link-CCVERSION;, &cv-link-SHCCFLAGS;.</para></listitem>
+  </varlistentry>
+  <varlistentry id="t-clangxx">
+    <term>clangxx</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Set construction variables for the Clang C++ compiler.
+</para>
+<para>Sets:  &cv-link-CXX;, &cv-link-CXXVERSION;, &cv-link-SHCXXFLAGS;, &cv-link-SHOBJSUFFIX;, &cv-link-STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME;.</para></listitem>
+  </varlistentry>
   <varlistentry id="t-cvf">
     <term>cvf</term>
     <listitem>

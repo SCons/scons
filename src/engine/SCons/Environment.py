@@ -167,7 +167,7 @@ def _set_SCANNERS(env, key, value):
 
 def _delete_duplicates(l, keep_last):
     """Delete duplicates from a sequence, keeping the first or last."""
-    seen={}
+    seen=set()
     result=[]
     if keep_last:           # reverse in & out, then keep first
         l.reverse()
@@ -175,7 +175,7 @@ def _delete_duplicates(l, keep_last):
         try:
             if i not in seen:
                 result.append(i)
-                seen[i]=1
+                seen.add(i)
         except TypeError:
             # probably unhashable.  Just keep it.
             result.append(i)
@@ -1983,6 +1983,15 @@ class Base(SubstitutionEnvironment):
             return result
         return self.fs.Dir(s, *args, **kw)
 
+    def PyPackageDir(self, modulename):
+        s = self.subst(modulename)
+        if SCons.Util.is_Sequence(s):
+            result=[]
+            for e in s:
+                result.append(self.fs.PyPackageDir(e))
+            return result
+        return self.fs.PyPackageDir(s)
+
     def NoClean(self, *targets):
         """Tags a target so that it will not be cleaned by -c"""
         tlist = []
@@ -2368,19 +2377,21 @@ class OverrideEnvironment(Base):
 
 Environment = Base
 
-# An entry point for returning a proxy subclass instance that overrides
-# the subst*() methods so they don't actually perform construction
-# variable substitution.  This is specifically intended to be the shim
-# layer in between global function calls (which don't want construction
-# variable substitution) and the DefaultEnvironment() (which would
-# substitute variables if left to its own devices)."""
-#
-# We have to wrap this in a function that allows us to delay definition of
-# the class until it's necessary, so that when it subclasses Environment
-# it will pick up whatever Environment subclass the wrapper interface
-# might have assigned to SCons.Environment.Environment.
 
 def NoSubstitutionProxy(subject):
+    """
+    An entry point for returning a proxy subclass instance that overrides
+    the subst*() methods so they don't actually perform construction
+    variable substitution.  This is specifically intended to be the shim
+    layer in between global function calls (which don't want construction
+    variable substitution) and the DefaultEnvironment() (which would
+    substitute variables if left to its own devices).
+
+    We have to wrap this in a function that allows us to delay definition of
+    the class until it's necessary, so that when it subclasses Environment
+    it will pick up whatever Environment subclass the wrapper interface
+    might have assigned to SCons.Environment.Environment.
+    """
     class _NoSubstitutionProxy(Environment):
         def __init__(self, subject):
             self.__dict__['__subject'] = subject
