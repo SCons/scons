@@ -36,6 +36,7 @@ may cause rebuilds.  In no case should rebuilds not happen.
     - Changes to Action Function and Action Class signiture creation.  NOTE: This will cause rebuilds
       for many builds when upgrading to SCons 3.0
     - Fixed Bug #3027 - "Cross Compiling issue: cannot override ranlib"
+    - Fixed Bug #3020 - "Download link in user guide wrong. python setup.py install --version-lib broken"
 
   From Ibrahim Esmat:
     - Added the capability to build Windows Store Compatible libraries that can be used

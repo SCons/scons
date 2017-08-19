@@ -289,7 +289,7 @@ Python 2.5.1
       that makes installation extremely easy.
       Download the <filename>scons-&buildversion;.win32.exe</filename>
       file from the &SCons; download page at
-      <ulink url="http://www.scons.org/download.php">http://www.scons.org/download.php</ulink>.
+      <ulink url="http://scons.org/pages/download.html">http://scons.org/pages/download.html</ulink>.
       Then all you need to do is execute the file
       (usually by clicking on its icon in Windows Explorer).
       These will take you through a small
