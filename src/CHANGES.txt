@@ -37,6 +37,7 @@ may cause rebuilds.  In no case should rebuilds not happen.
       for many builds when upgrading to SCons 3.0
     - Fixed Bug #3027 - "Cross Compiling issue: cannot override ranlib"
     - Fixed Bug #3020 - "Download link in user guide wrong. python setup.py install --version-lib broken"
+    - Fixed Bug #2486 - Added SetOption('silent',True) - Previously this value was not allowed to be set.
 
   From Ibrahim Esmat:
     - Added the capability to build Windows Store Compatible libraries that can be used
