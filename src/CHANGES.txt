@@ -38,6 +38,8 @@ may cause rebuilds.  In no case should rebuilds not happen.
     - Fixed Bug #3027 - "Cross Compiling issue: cannot override ranlib"
     - Fixed Bug #3020 - "Download link in user guide wrong. python setup.py install --version-lib broken"
     - Fixed Bug #2486 - Added SetOption('silent',True) - Previously this value was not allowed to be set.
+    - Fixed Bug #3040 - Non-unicode character in CHANGES.txt
+    - Fixed Bug #2622 - AlwaysBuild + MSVC regression.
 
   From Ibrahim Esmat:
     - Added the capability to build Windows Store Compatible libraries that can be used
