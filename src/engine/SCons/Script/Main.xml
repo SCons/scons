@@ -781,6 +781,14 @@ which corresponds to --random; and
 </listitem>
 </varlistentry>
 <varlistentry>
+<term><literal>silent</literal></term>
+<listitem>
+<para>
+which corresponds to --silent.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
 <term><literal>stack_size</literal></term>
 <listitem>
 <para>
