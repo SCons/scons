@@ -319,6 +319,7 @@ def createProgBuilder(env):
 
     return program
 
+
 def createStaticLibBuilder(env):
     """This is a utility function that creates the StaticLibrary
     Builder in an Environment if it is not there already.
@@ -913,7 +914,7 @@ def CreateJarBuilder(env):
         jar_com = SCons.Action.Action('$JARCOM', '$JARCOMSTR')
         java_jar = SCons.Builder.Builder(action = jar_com,
                                          suffix = '$JARSUFFIX',
-                                         src_suffix = '$JAVACLASSSUFIX',
+                                         src_suffix = '$JAVACLASSSUFFIX',
                                          src_builder = 'JavaClassFile',
                                          source_factory = fs.Entry)
         env['BUILDERS']['Jar'] = java_jar
