@@ -151,7 +151,7 @@ def generate(env):
 
 
 def exists(env):
-    return env.Detect(['dmd', 'gdmd'])
+    return env.Detect(['dmd', 'ldmd2', 'gdmd'])
 
 
 # Local Variables:
