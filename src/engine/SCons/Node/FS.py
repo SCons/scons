@@ -2656,7 +2656,7 @@ class File(Base):
         try:
             return contents.decode()
         except (UnicodeDecodeError, AttributeError) as e:
-            return contents
+            return contents.decode('utf-8')
 
 
     def get_content_hash(self):

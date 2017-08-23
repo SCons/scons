@@ -1315,6 +1315,14 @@ class FSTestCase(_tempdirTestCase):
         assert eval('f1.get_text_contents() == u"Foo\x1aBar"'), \
                f1.get_text_contents()
 
+        # Check for string which doesn't have BOM and isn't valid
+        # ASCII
+        test_string = b'Gan\xef\xbf\xbdauge'
+        test.write('latin1_file', test_string)
+        f1 = fs.File(test.workpath("latin1_file"))
+        assert f1.get_text_contents() == test_string.decode('utf-8'), \
+               f1.get_text_contents()
+
         def nonexistent(method, s):
             try:
                 x = method(s, create = 0)
