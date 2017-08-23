@@ -41,6 +41,11 @@ file.close()
 
 test.write('SConstruct', """
 MyBuild = Builder(action = r'%(_python_)s build.py $TARGET')
+
+silent = ARGUMENTS.get('QUIET',0)
+if silent:
+    SetOption('silent',True)
+
 env = Environment(BUILDERS = { 'MyBuild' : MyBuild })
 env.MyBuild(target = 'f1.out', source = 'f1.in')
 env.MyBuild(target = 'f2.out', source = 'f2.in')
@@ -71,6 +76,15 @@ test.fail_test(not os.path.exists(test.workpath('f2.out')))
 test.subdir( 'sub' )
 test.write(['sub','SConstruct'],"")
 test.run(arguments = '-s -C sub', stdout = "" )
+
+test.unlink('f1.out')
+test.unlink('f2.out')
+
+test.run(arguments = 'QUIET=1 f1.out f2.out', stdout = "scons: Reading SConscript files ...\nscons: done reading SConscript files.\n")
+test.fail_test(not os.path.exists(test.workpath('f1.out')))
+test.fail_test(not os.path.exists(test.workpath('f2.out')))
+
+
 
 test.pass_test()
  

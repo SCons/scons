@@ -11,6 +11,7 @@ NOTE: This is a major release.  You should expect that some targets may rebuild 
 Significant changes in some python action signatures. Also switching between PY 2 and PY 3.5, 3.6
 may cause rebuilds.  In no case should rebuilds not happen.
 
+
   From William Blevins:
     - Updated D language scanner support to latest: 2.071.1. (PR #1924)
       https://dlang.org/spec/module.html accessed 11 August 2016
@@ -34,6 +35,14 @@ may cause rebuilds.  In no case should rebuilds not happen.
     - Defined MS SDK 10.0 and Changed VS 2015 to use SDK 10.0
     - Changes to Action Function and Action Class signiture creation.  NOTE: This will cause rebuilds
       for many builds when upgrading to SCons 3.0
+    - Fixed Bug #3027 - "Cross Compiling issue: cannot override ranlib"
+    - Fixed Bug #3020 - "Download link in user guide wrong. python setup.py install --version-lib broken"
+    - Fixed Bug #2486 - Added SetOption('silent',True) - Previously this value was not allowed to be set.
+    - Fixed Bug #3040 - Non-unicode character in CHANGES.txt
+    - Fixed Bug #2622 - AlwaysBuild + MSVC regression.
+    - Fixed Bug #3025 - (Credit to Florian : User flow86 on tigris) - Fix typo JAVACLASSSUFIX should have been
+                        JAVACLASSSUFFIX
+
 
   From Ibrahim Esmat:
     - Added the capability to build Windows Store Compatible libraries that can be used

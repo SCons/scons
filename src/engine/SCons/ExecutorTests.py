@@ -74,8 +74,12 @@ class MyNode(object):
         self.pre_actions = pre
         self.post_actions = post
         self.missing_val = None
+        self.always_build = False
+        self.up_to_date = False
+
     def __str__(self):
         return self.name
+
     def build(self):
         executor = SCons.Executor.Executor(MyAction(self.pre_actions +
                                                     [self.builder.action] +
@@ -99,6 +103,9 @@ class MyNode(object):
         return 'cs-'+calc+'-'+self.name
     def disambiguate(self):
         return self
+
+    def is_up_to_date(self):
+        return self.up_to_date
 
 class MyScanner(object):
     def __init__(self, prefix):
@@ -454,6 +461,24 @@ class ExecutorTestCase(unittest.TestCase):
 
         r = x.get_unignored_sources(None, [s1, s3])
         assert r == [s2], list(map(str, r))
+
+    def test_changed_sources_for_alwaysBuild(self):
+        """
+        Ensure if a target is marked always build that the sources are always marked changed sources
+        :return:
+        """
+        env = MyEnvironment()
+        s1 = MyNode('s1')
+        s2 = MyNode('s2')
+        t1 = MyNode('t1')
+        t1.up_to_date = True
+        t1.always_build = True
+
+        x = SCons.Executor.Executor('b', env, [{}], [t1], [s1, s2])
+
+        changed_sources = x._get_changed_sources()
+        assert changed_sources == [s1, s2], "If target marked AlwaysBuild sources should always be marked changed"
+
 
 
 
