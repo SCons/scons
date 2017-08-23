@@ -5,7 +5,7 @@
                             Change Log
 
 
-RELEASE 3.0.0.alpha.20170614 - Mon, 14 Jun 2017 12:23:56 -0400
+RELEASE 3.0.0.alpha.20170821 - Mon, 21 Aug 2017 16:15:02 -0700
 
 NOTE: This is a major release.  You should expect that some targets may rebuild when upgrading.
 Significant changes in some python action signatures. Also switching between PY 2 and PY 3.5, 3.6
