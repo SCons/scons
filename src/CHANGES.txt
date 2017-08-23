@@ -81,7 +81,7 @@ may cause rebuilds.  In no case should rebuilds not happen.
       https://github.com/Microsoft/vswhere
 
   From Paweł Tomulik:
-    - Fixed the issue with LDMODULEVERSIONFLAGS reported by Tim Jennes
+    - Fixed the issue with LDMODULEVERSIONFLAGS reported by Tim Jenness
       (https://pairlist4.pair.net/pipermail/scons-users/2016-May/004893.html).
       An error was causing "-Wl,Bsymbolic" being added to linker's command-line
       even when there was no specified value in LDMODULEVERSION and thus no
