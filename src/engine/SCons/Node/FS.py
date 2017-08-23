@@ -2654,9 +2654,9 @@ class File(Base):
         if contents[:len(codecs.BOM_UTF16_BE)] == codecs.BOM_UTF16_BE:
             return contents[len(codecs.BOM_UTF16_BE):].decode('utf-16-be')
         try:
-            return contents.decode()
+            return contents.decode('utf-8',errors='backslashreplace')
         except (UnicodeDecodeError, AttributeError) as e:
-            return contents.decode('utf-8')
+            return contents
 
 
     def get_content_hash(self):
