@@ -56,16 +56,22 @@ def testForTool(tool):
     if tool == 'dmd' and Base()['DC'] == 'gdmd':
         test.skip_test('gdmd does not recognize the -shared option so cannot support linking of shared objects.\n')
 
+    code_root = 'code'
+    library_root = 'answer'
+
     platform = Base()['PLATFORM']
     if platform == 'posix':
-        filename = 'code.o'
-        libraryname = 'libanswer.so'
+        code_name = code_root + '.o'
+        library_name = 'lib' + library_root + '.so'
     elif platform == 'darwin':
-        filename = 'code.o'
-        libraryname = 'libanswer.dylib'
+        code_name = code_root + '.o'
+        library_name = 'lib' + library_root + '.dylib'
+        # As at 2017-08-22, DMD 2.075.1, LDC 1.2.0 (D 2.072.2), and GDC 7.2.0 (D 2.068.2)
+        # it is not clear if shared libraries are supported on macOS.
+        # test.skip_test('Dynamic libraries not yet supported on macOS.\n')
     elif platform == 'win32':
-        filename = 'code.obj'
-        libraryname = 'answer.dll'
+        code_name = code_root + '.obj'
+        library_name = library_root + '.dll'
     else:
         test.fail_test()
 
@@ -79,8 +85,8 @@ def testForTool(tool):
     else:
         test.run()
 
-    test.must_exist(test.workpath(filename))
-    test.must_exist(test.workpath(libraryname))
+    test.must_exist(test.workpath(code_name))
+    test.must_exist(test.workpath(library_name))
 
     test.pass_test()
 
