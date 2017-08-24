@@ -492,14 +492,14 @@ following packages will be built::
         build/dist/scons-2.5.0-1.noarch.rpm
         build/dist/scons-2.5.0-1.src.rpm
         build/dist/scons-2.5.0.linux-i686.tar.gz
-        build/dist/scons-3.0.0.alpha.20170614.tar.gz
-        build/dist/scons-3.0.0.alpha.20170614.win32.exe
-        build/dist/scons-3.0.0.alpha.20170614.zip
-        build/dist/scons-doc-3.0.0.alpha.20170614.tar.gz
-        build/dist/scons-local-3.0.0.alpha.20170614.tar.gz
-        build/dist/scons-local-3.0.0.alpha.20170614.zip
-        build/dist/scons-src-3.0.0.alpha.20170614.tar.gz
-        build/dist/scons-src-3.0.0.alpha.20170614.zip
+        build/dist/scons-3.0.0.alpha.20170821.tar.gz
+        build/dist/scons-3.0.0.alpha.20170821.win32.exe
+        build/dist/scons-3.0.0.alpha.20170821.zip
+        build/dist/scons-doc-3.0.0.alpha.20170821.tar.gz
+        build/dist/scons-local-3.0.0.alpha.20170821.tar.gz
+        build/dist/scons-local-3.0.0.alpha.20170821.zip
+        build/dist/scons-src-3.0.0.alpha.20170821.tar.gz
+        build/dist/scons-src-3.0.0.alpha.20170821.zip
         build/dist/scons_3.0.0.alpha.20170614-1_all.deb
 
 The SConstruct file is supposed to be smart enough to avoid trying to build
