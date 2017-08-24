@@ -1317,10 +1317,10 @@ class FSTestCase(_tempdirTestCase):
 
         # Check for string which doesn't have BOM and isn't valid
         # ASCII
-        test_string = b'Gan\xef\xbf\xbdauge'
+        test_string = b'Gan\xdfauge'
         test.write('latin1_file', test_string)
         f1 = fs.File(test.workpath("latin1_file"))
-        assert f1.get_text_contents() == test_string.decode('utf-8'), \
+        assert f1.get_text_contents() == test_string.decode('latin-1'), \
                f1.get_text_contents()
 
         def nonexistent(method, s):
