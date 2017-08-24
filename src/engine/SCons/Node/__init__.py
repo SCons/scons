@@ -211,7 +211,7 @@ def get_contents_dir(node):
 
 def get_contents_file(node):
     if not node.rexists():
-        return ''
+        return b''
     fname = node.rfile().get_abspath()
     try:
         with open(fname, "rb") as fp:

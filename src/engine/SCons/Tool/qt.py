@@ -144,6 +144,8 @@ class _Automoc(object):
                 # c or fortran source
                 continue
             #cpp_contents = comment.sub('', cpp.get_text_contents())
+            if debug:
+                print("scons: qt: Getting contents of %s" % cpp)
             cpp_contents = cpp.get_text_contents()
             h=None
             for h_ext in header_extensions:
