@@ -46,7 +46,7 @@ import time
 import bootstrap
 
 project = 'scons'
-default_version = '3.0.0.alpha.20170614'
+default_version = '3.0.0.alpha.20170821'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 platform = distutils.util.get_platform()

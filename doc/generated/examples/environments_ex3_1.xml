@@ -17,7 +17,6 @@ UnicodeDecodeError: 'utf8' codec can't decode byte 0xc2 in position 249: invalid
     _node_errors(self, env, tlist, slist)
   File "bootstrap/src/engine/SCons/Builder.py", line 302:
     msg = "Two environments with different actions were specified for the same target: %s\n(action 1: %s)\n(action 2: %s)" % (t,t_contents.decode('utf-8'),contents.decode('utf-8'))
-  File "/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/encodings/utf_8.py", line 16:
+  File "/usr/lib/python2.7/encodings/utf_8.py", line 16:
     return codecs.utf_8_decode(input, errors, True)
-[?1034h
 </screen>
