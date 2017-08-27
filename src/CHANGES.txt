@@ -33,6 +33,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       This was introduced by a pull request to allow recursive variable evaluations to yield a string
       such as "$( $( some stuff $) $)".
 
+  From Philippe Coval:
+    - Fix pending pending children side effects bug (Credit to Emil Stanchev)
+
 RELEASE 3.0.0 - Mon, 18 Sep 2017 08:32:04 -0700
 
 NOTE: This is a major release.  You should expect that some targets may rebuild when upgrading.

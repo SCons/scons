@@ -1016,6 +1016,27 @@ class Taskmaster(object):
                 to_visit = to_visit | parents
                 pending_children = pending_children - parents
 
+                # Clean up the other branches of side effect
+                for se in node.get_side_effects():
+                    waiting_s_e = se.get_waiting_s_e()
+                    pending_children = pending_children - waiting_s_e
+                    stack = set(waiting_s_e)
+                    if T:
+                        for n in waiting_s_e:
+                            T.write(self.trace_message('       removing side effect parent %s from the pending children set\n' %
+                                    self.trace_node(n)))
+                    while stack:
+                        n = stack.pop()
+                        waiting_parents = n.waiting_parents
+                        n.waiting_parents = set()
+                        stack = stack | waiting_parents
+                        pending_children = pending_children - waiting_parents
+
+                    for p in waiting_parents:
+                        p.ref_count = p.ref_count - 1
+                        if T: T.write(self.trace_message('       removing parent %s from the pending children set\n' %
+                                                           self.trace_node(p)))
+
                 for p in parents:
                     p.ref_count = p.ref_count - 1
                     if T: T.write(self.trace_message('       removing parent %s from the pending children set\n' %
