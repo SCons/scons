@@ -120,6 +120,20 @@ test.finish(scons, stdout = expect_stdout, match=TestSCons.match_re)
 
 test.pass_test()
 
+actual_output_to_be_handled="""
+Actual output
+python3.6 ~/devel/scons/hg/scons/src/script/scons.py -Q --interactive
+scons>>> build foo.obj
+/opt/local/bin/python3.6 mycc.py foo.obj foo.cpp
+scons>>> build foo.obj
+scons: `foo.obj' is up to date.
+scons>>> b foo.obj
+/opt/local/bin/python3.6 mycc.py foo.obj foo.cpp
+scons>>> build foo.obj
+scons: `foo.obj' is up to date.
+scons>>>
+"""
+
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil
