@@ -63,8 +63,11 @@ Sets construction variables for D language compiler DMD.
 <item>DLIBFLAGSUFFIX</item>
 <item>DLINKFLAGPREFIX</item>
 <item>DLINKFLAGSUFFIX</item>
-<item>RPATHPREFIX</item>
-<item>RPATHSUFFIX</item>
+<item>DRPATHPREFIX</item>
+<item>DRPATHSUFFIX</item>
+<item>DShLibSonameGenerator</item>
+<item>SHDLIBVERSION</item>
+<item>SHDLIBVERSIONFLAGS</item>
 </sets>
 <uses>
 </uses>
@@ -160,8 +163,6 @@ List of linker flags.
 </summary>
 </cvar>
 
-
-
 <cvar name="SHDC">
 <summary>
 <para>
@@ -204,7 +205,6 @@ List of linker flags.
 </summary>
 </cvar>
 
-<!-- The following are re-added because their removal breaks doc validation -->
 <cvar name="DVERSUFFIX">
   <summary>
     <para>
@@ -341,10 +341,6 @@ List of linker flags.
     </para>
  </summary>
 </cvar>
-
-
-<!-- Validation fix to here -->
-
 
 <builder name="ProgramAllAtOnce">
   <summary>
