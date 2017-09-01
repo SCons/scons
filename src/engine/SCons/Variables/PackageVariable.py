@@ -13,18 +13,18 @@ Usage example:
       x11=yes  (will search for the package installation dir)
       x11=/usr/local/X11 (will check this path for existence)
 
-  To replace autoconf's --with-xxx=yyy 
+  To replace autoconf's --with-xxx=yyy ::
 
-  opts = Variables()
-  opts.Add(PackageVariable('x11',
-                         'use X11 installed here (yes = search some places',
-                         'yes'))
-  ...
-  if env['x11'] == True:
-      dir = ... search X11 in some standard places ...
-      env['x11'] = dir 
-  if env['x11']:
-      ... build with x11 ...
+      opts = Variables()
+      opts.Add(PackageVariable('x11',
+                             'use X11 installed here (yes = search some places',
+                             'yes'))
+      ...
+      if env['x11'] == True:
+          dir = ... search X11 in some standard places ...
+          env['x11'] = dir
+      if env['x11']:
+          ... build with x11 ...
 """
 
 #

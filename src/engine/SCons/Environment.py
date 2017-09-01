@@ -2189,13 +2189,16 @@ class Base(SubstitutionEnvironment):
         """This function converts a string or list into a list of strings
         or Nodes.  This makes things easier for users by allowing files to
         be specified as a white-space separated list to be split.
+
         The input rules are:
             - A single string containing names separated by spaces. These will be
               split apart at the spaces.
             - A single Node instance
             - A list containing either strings or Node instances. Any strings
               in the list are not split at spaces.
+
         In all cases, the function returns a list of Nodes and strings."""
+
         if SCons.Util.is_List(arg):
             return list(map(self.subst, arg))
         elif SCons.Util.is_String(arg):

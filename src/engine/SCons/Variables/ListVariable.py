@@ -7,17 +7,17 @@ separated by comma. After the option has been processed, the option
 value holds either the named list elements, all list elements or no
 list elements at all.
 
-Usage example:
+Usage example::
 
-  list_of_libs = Split('x11 gl qt ical')
+    list_of_libs = Split('x11 gl qt ical')
 
-  opts = Variables()
-  opts.Add(ListVariable('shared',
+    opts = Variables()
+    opts.Add(ListVariable('shared',
                       'libraries to build as shared libraries',
                       'all',
                       elems = list_of_libs))
-  ...
-  for lib in list_of_libs:
+    ...
+    for lib in list_of_libs:
      if lib in env['shared']:
          env.SharedObject(...)
      else:

@@ -706,11 +706,12 @@ def CheckProg(context, prog_name):
 def _YesNoResult(context, ret, key, text, comment = None):
     """
     Handle the result of a test with a "yes" or "no" result.
-    "ret" is the return value: empty if OK, error message when not.
-    "key" is the name of the symbol to be defined (HAVE_foo).
-    "text" is the source code of the program used for testing.
-    "comment" is the C comment to add above the line defining the symbol (the
-    comment is automatically put inside a /* */). If None, no comment is added.
+
+    :Parameters:
+      - `ret` is the return value: empty if OK, error message when not.
+      - `key` is the name of the symbol to be defined (HAVE_foo).
+      - `text` is the source code of the program used for testing.
+      - `comment` is the C comment to add above the line defining the symbol (the comment is automatically put inside a /\* \*/). If None, no comment is added.
     """
     if key:
         _Have(context, key, not ret, comment)
@@ -724,18 +725,20 @@ def _YesNoResult(context, ret, key, text, comment = None):
 def _Have(context, key, have, comment = None):
     """
     Store result of a test in context.havedict and context.headerfilename.
-    "key" is a "HAVE_abc" name.  It is turned into all CAPITALS and non-
-    alphanumerics are replaced by an underscore.
+
+    :Parameters:
+      - `key` - is a "HAVE_abc" name.  It is turned into all CAPITALS and non-alphanumerics are replaced by an underscore.
+      - `have`   - value as it should appear in the header file, include quotes when desired and escape special characters!
+      - `comment` is the C comment to add above the line defining the symbol (the comment is automatically put inside a /\* \*/). If None, no comment is added.
+
+
     The value of "have" can be:
-    1      - Feature is defined, add "#define key".
-    0      - Feature is not defined, add "/* #undef key */".
-             Adding "undef" is what autoconf does.  Not useful for the
-             compiler, but it shows that the test was done.
-    number - Feature is defined to this number "#define key have".
-             Doesn't work for 0 or 1, use a string then.
-    string - Feature is defined to this string "#define key have".
-             Give "have" as is should appear in the header file, include quotes
-             when desired and escape special characters!
+      - 1      - Feature is defined, add "#define key".
+      - 0      - Feature is not defined, add "/\* #undef key \*/". Adding "undef" is what autoconf does.  Not useful for the compiler, but it shows that the test was done.
+      - number - Feature is defined to this number "#define key have". Doesn't work for 0 or 1, use a string then.
+      - string - Feature is defined to this string "#define key have".
+
+
     """
     key_up = key.upper()
     key_up = re.sub('[^A-Z0-9_]', '_', key_up)
@@ -786,10 +789,11 @@ def _lang2suffix(lang):
     When "lang" is empty or None C is assumed.
     Returns a tuple (lang, suffix, None) when it works.
     For an unrecognized language returns (None, None, msg).
+
     Where:
-        lang   = the unified language name
-        suffix = the suffix, including the leading dot
-        msg    = an error message
+      - lang   = the unified language name
+      - suffix = the suffix, including the leading dot
+      - msg    = an error message
     """
     if not lang or lang in ["C", "c"]:
         return ("C", ".c", None)

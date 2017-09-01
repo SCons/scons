@@ -231,16 +231,17 @@ class DisplayEngine(object):
     def set_mode(self, mode):
         self.print_it = mode
 
+
 def render_tree(root, child_func, prune=0, margin=[0], visited=None):
     """
     Render a tree of nodes into an ASCII tree view.
-    root - the root node of the tree
-    child_func - the function called to get the children of a node
-    prune - don't visit the same node twice
-    margin - the format of the left margin to use for children of root.
-       1 results in a pipe, and 0 results in no pipe.
-    visited - a dictionary of visited nodes in the current branch if not prune,
-       or in the whole tree if prune.
+
+    :Parameters:
+        - `root`:       the root node of the tree
+        - `child_func`: the function called to get the children of a node
+        - `prune`:      don't visit the same node twice
+        - `margin`:     the format of the left margin to use for children of root. 1 results in a pipe, and 0 results in no pipe.
+        - `visited`:    a dictionary of visited nodes in the current branch if not prune, or in the whole tree if prune.
     """
 
     rname = str(root)
@@ -281,14 +282,13 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
     lines directly instead of creating a string representation in memory,
     so that huge trees can be printed.
 
-    root - the root node of the tree
-    child_func - the function called to get the children of a node
-    prune - don't visit the same node twice
-    showtags - print status information to the left of each node line
-    margin - the format of the left margin to use for children of root.
-       1 results in a pipe, and 0 results in no pipe.
-    visited - a dictionary of visited nodes in the current branch if not prune,
-       or in the whole tree if prune.
+    :Parameters:
+        - `root`       - the root node of the tree
+        - `child_func` - the function called to get the children of a node
+        - `prune`      - don't visit the same node twice
+        - `showtags`   - print status information to the left of each node line
+        - `margin`     - the format of the left margin to use for children of root. 1 results in a pipe, and 0 results in no pipe.
+        - `visited`    - a dictionary of visited nodes in the current branch if not prune, or in the whole tree if prune.
     """
 
     rname = str(root)
@@ -1454,19 +1454,20 @@ def make_path_relative(path):
 
 def AddMethod(obj, function, name=None):
     """
-    Adds either a bound method to an instance or the function itself
-    (or an unbound method in Python 2) to a class.
+    Adds either a bound method to an instance or the function itself (or an unbound method in Python 2) to a class.
     If name is ommited the name of the specified function
     is used by default.
-    Example:
-      a = A()
-      def f(self, x, y):
+
+    Example::
+
+        a = A()
+        def f(self, x, y):
         self.z = x + y
-      AddMethod(f, A, "add")
-      a.add(2, 4)
-      print(a.z)
-      AddMethod(lambda self, i: self.l[i], a, "listIndex")
-      print(a.listIndex(5))
+        AddMethod(f, A, "add")
+        a.add(2, 4)
+        print(a.z)
+        AddMethod(lambda self, i: self.l[i], a, "listIndex")
+        print(a.listIndex(5))
     """
     if name is None:
         name = function.__name__

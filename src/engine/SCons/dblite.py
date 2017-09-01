@@ -40,8 +40,8 @@ except NameError:
 dblite_suffix = '.dblite'
 
 # TODO: Does commenting this out break switching from py2/3?
-# if bytes is not str:
-#     dblite_suffix += '.p3'
+if bytes is not str:
+    dblite_suffix += '.p3'
 tmp_suffix = '.tmp'
 
 

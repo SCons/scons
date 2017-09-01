@@ -222,9 +222,10 @@ def _code_contents(code, docstring=None):
     recompilations from moving a Python function.
 
     See:
-      * https://docs.python.org/2/library/inspect.html
-      * http://python-reference.readthedocs.io/en/latest/docs/code/index.html
-    For info on what each co_ variable provides
+      - https://docs.python.org/2/library/inspect.html
+      - http://python-reference.readthedocs.io/en/latest/docs/code/index.html
+
+    For info on what each co\_ variable provides
 
     The signature is as follows (should be byte/chars):
     co_argcount, len(co_varnames), len(co_cellvars), len(co_freevars),
@@ -281,8 +282,7 @@ def _code_contents(code, docstring=None):
 
 
 def _function_contents(func):
-    """Return the signature contents of a function.
-
+    """
     The signature is as follows (should be byte/chars):
     < _code_contents (see above) from func.__code__ >
     ,( comma separated _object_contents for function argument defaults)
@@ -290,10 +290,12 @@ def _function_contents(func):
 
 
     See also: https://docs.python.org/3/reference/datamodel.html
-    func.__code__     - The code object representing the compiled function body.
-    func.__defaults__ - A tuple containing default argument values for those arguments
-                        that have defaults, or None if no arguments have a default value
-    func.__closure__  - None or a tuple of cells that contain bindings for the function's free variables.
+      - func.__code__     - The code object representing the compiled function body.
+      - func.__defaults__ - A tuple containing default argument values for those arguments that have defaults, or None if no arguments have a default value
+      - func.__closure__  - None or a tuple of cells that contain bindings for the function's free variables.
+
+    :Returns:
+      Signature contents of a function. (in bytes)
     """
 
     contents = [_code_contents(func.__code__, func.__doc__)]
@@ -330,9 +332,12 @@ def _function_contents(func):
 def _object_instance_content(obj):
     """
     Returns consistant content for a action class or an instance thereof
-    :param obj: Should be either and action class or an instance thereof
-    :return: bytearray or bytes representing the obj suitable for generating
-             a signiture from.
+
+    :Parameters:
+      - `obj` Should be either and action class or an instance thereof
+
+    :Returns:
+      bytearray or bytes representing the obj suitable for generating a signature from.
     """
     retval = bytearray()
 

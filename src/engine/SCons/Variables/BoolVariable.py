@@ -2,12 +2,12 @@
 
 This file defines the option type for SCons implementing true/false values.
 
-Usage example:
+Usage example::
 
-  opts = Variables()
-  opts.Add(BoolVariable('embedded', 'build for an embedded system', 0))
-  ...
-  if env['embedded'] == 1:
+    opts = Variables()
+    opts.Add(BoolVariable('embedded', 'build for an embedded system', 0))
+    ...
+    if env['embedded'] == 1:
     ...
 """
 

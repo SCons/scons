@@ -78,8 +78,10 @@ def modify_env_var(env, var, abspath):
     return save
 
 class FindENVPathDirs(object):
-    """A class to bind a specific *PATH variable name to a function that
-    will return all of the *path directories."""
+    """
+    A class to bind a specific E{*}PATH variable name to a function that
+    will return all of the E{*}path directories.
+    """
     def __init__(self, variable):
         self.variable = variable
     def __call__(self, env, dir=None, target=None, source=None, argument=None):
@@ -96,7 +98,8 @@ class FindENVPathDirs(object):
 
 
 def LaTeXScanner():
-    """Return a prototype Scanner instance for scanning LaTeX source files
+    """
+    Return a prototype Scanner instance for scanning LaTeX source files
     when built with latex.
     """
     ds = LaTeX(name = "LaTeXScanner",
@@ -107,7 +110,8 @@ def LaTeXScanner():
     return ds
 
 def PDFLaTeXScanner():
-    """Return a prototype Scanner instance for scanning LaTeX source files
+    """
+    Return a prototype Scanner instance for scanning LaTeX source files
     when built with pdflatex.
     """
     ds = LaTeX(name = "PDFLaTeXScanner",
@@ -118,7 +122,8 @@ def PDFLaTeXScanner():
     return ds
 
 class LaTeX(SCons.Scanner.Base):
-    """Class for scanning LaTeX files for included files.
+    """
+    Class for scanning LaTeX files for included files.
 
     Unlike most scanners, which use regular expressions that just
     return the included file name, this returns a tuple consisting
@@ -135,10 +140,12 @@ class LaTeX(SCons.Scanner.Base):
     
     The actual subset and search order may be altered by
     DeclareGraphicsExtensions command. This complication is ignored.
-    The default order corresponds to experimentation with teTeX
+    The default order corresponds to experimentation with teTeX::
+
         $ latex --version
         pdfeTeX 3.141592-1.21a-2.2 (Web2C 7.5.4)
         kpathsea version 3.5.4
+
     The order is:
         ['.eps', '.ps'] for latex
         ['.png', '.pdf', '.jpg', '.tif'].
@@ -150,8 +157,7 @@ class LaTeX(SCons.Scanner.Base):
     env['TEXINPUTS'] for "lstinputlisting" keyword
     env['BIBINPUTS'] for "bibliography" keyword
     env['BSTINPUTS'] for "bibliographystyle" keyword
-    env['INDEXSTYLE'] for "makeindex" keyword, no scanning support needed
-                      just allows user to set it if needed.
+    env['INDEXSTYLE'] for "makeindex" keyword, no scanning support needed just allows user to set it if needed.
 
     FIXME: also look for the class or style in document[class|style]{}
     FIXME: also look for the argument of bibliographystyle{}

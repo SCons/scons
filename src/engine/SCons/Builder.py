@@ -1,4 +1,5 @@
-"""SCons.Builder
+"""
+SCons.Builder
 
 Builder object subsystem.
 
@@ -31,7 +32,7 @@ There is also a proxy that looks like a Builder:
 Builders and their proxies have the following public interface methods
 used by other modules:
 
-    __call__()
+    - __call__()
         THE public interface.  Calling a Builder object (with the
         use of internal helper methods) sets up the target and source
         dependencies, appropriate mapping to a specific action, and the
@@ -39,12 +40,12 @@ used by other modules:
         variable.  This also takes care of warning about possible mistakes
         in keyword arguments.
 
-    add_emitter()
+    - add_emitter()
         Adds an emitter for a specific file suffix, used by some Tool
         modules to specify that (for example) a yacc invocation on a .y
         can create a .h *and* a .c file.
 
-    add_action()
+    - add_action()
         Adds an action for a specific file suffix, heavily used by
         Tool modules to add their specific action(s) for turning
         a source file into an object file to the global static
@@ -52,23 +53,23 @@ used by other modules:
 
 There are the following methods for internal use within this module:
 
-    _execute()
+    - _execute()
         The internal method that handles the heavily lifting when a
         Builder is called.  This is used so that the __call__() methods
         can set up warning about possible mistakes in keyword-argument
         overrides, and *then* execute all of the steps necessary so that
         the warnings only occur once.
 
-    get_name()
+    - get_name()
         Returns the Builder's name within a specific Environment,
         primarily used to try to return helpful information in error
         messages.
 
-    adjust_suffix()
-    get_prefix()
-    get_suffix()
-    get_src_suffix()
-    set_src_suffix()
+    - adjust_suffix()
+    - get_prefix()
+    - get_suffix()
+    - get_src_suffix()
+    - set_src_suffix()
         Miscellaneous stuff for handling the prefix and suffix
         manipulation we use in turning source file names into target
         file names.

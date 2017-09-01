@@ -459,9 +459,9 @@ class SConfBase(object):
         If value is None (default), then #define name is written. If value is not
         none, then #define name value is written.
 
-        comment is a string which will be put as a C comment in the
-        header, to explain the meaning of the value (appropriate C comments /* and
-        */ will be put automatically."""
+        comment is a string which will be put as a C comment in the header, to explain the meaning of the value
+        (appropriate C comments will be added automatically).
+        """
         lines = []
         if comment:
             comment_str = "/* %s */" % comment

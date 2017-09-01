@@ -34,7 +34,7 @@ values in a consistent way. In particular, it requires that the class uses a
 dictionary named "_memo" to store the cached values.
 
 Here is an example of wrapping a method that returns a computed value,
-with no input parameters:
+with no input parameters::
 
     @SCons.Memoize.CountMethodCall
     def foo(self):
@@ -51,7 +51,7 @@ with no input parameters:
         return result
 
 Here is an example of wrapping a method that will return different values
-based on one or more input arguments:
+based on one or more input arguments::
 
     def _bar_key(self, argument):                               # Memoization
         return argument                                         # Memoization

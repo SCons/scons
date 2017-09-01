@@ -26,7 +26,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 __doc__ = """
 SCons C Pre-Processor module
 """
-#TODO 2.3 and before has no sorted()
 import SCons.compat
 
 import os
@@ -543,9 +542,11 @@ class PreProcessor(object):
 
         This handles recursive expansion of values without "" or <>
         surrounding the name until an initial " or < is found, to handle
+
                 #include FILE
-        where FILE is a #define somewhere else.
-        """
+
+        where FILE is a #define somewhere else."""
+
         s = t[1]
         while not s[0] in '<"':
             #print("s =", s)

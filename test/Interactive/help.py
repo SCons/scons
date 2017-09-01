@@ -57,15 +57,12 @@ scons.send('h\n')
 scons.send('?\n')
 
 help_text = """\
-build [TARGETS]         Build the specified TARGETS and their dependencies.
-                        'b' is a synonym.
-clean [TARGETS]         Clean (remove) the specified TARGETS and their
-                        dependencies.  'c' is a synonym.
+
+build [TARGETS]         Build the specified TARGETS and their dependencies. 'b' is a synonym.
+clean [TARGETS]         Clean (remove) the specified TARGETS and their dependencies.  'c' is a synonym.
 exit                    Exit SCons interactive mode.
-help [COMMAND]          Prints help for the specified COMMAND.  'h' and
-                        '?' are synonyms.
-shell [COMMANDLINE]     Execute COMMANDLINE in a subshell.  'sh' and '!'
-                        are synonyms.
+help [COMMAND]          Prints help for the specified COMMAND.  'h' and '?' are synonyms.
+shell [COMMANDLINE]     Execute COMMANDLINE in a subshell.  'sh' and '!' are synonyms.
 version                 Prints SCons version information.
 """
 

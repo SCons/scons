@@ -25,16 +25,19 @@ from __future__ import print_function
 import sys
 
 __doc__ = """
-Generic Taskmaster module for the SCons build engine.
-
-This module contains the primary interface(s) between a wrapping user
-interface and the SCons build engine.  There are two key classes here:
-
+    Generic Taskmaster module for the SCons build engine.
+    =====================================================
+    
+    This module contains the primary interface(s) between a wrapping user
+    interface and the SCons build engine.  There are two key classes here:
+    
     Taskmaster
+    ----------
         This is the main engine for walking the dependency graph and
         calling things to decide what does or doesn't need to be built.
 
     Task
+    ----
         This is the base class for allowing a wrapping interface to
         decide what does or doesn't actually need to be done.  The
         intention is for a wrapping interface to subclass this as
@@ -42,7 +45,7 @@ interface and the SCons build engine.  There are two key classes here:
 
         The canonical example is the SCons native Python interface,
         which has Task subclasses that handle its specific behavior,
-        like printing "`foo' is up to date" when a top-level target
+        like printing "'foo' is up to date" when a top-level target
         doesn't need to be built, and handling the -c option by removing
         targets as its "build" action.  There is also a separate subclass
         for suppressing this output when the -q option is used.
@@ -689,14 +692,14 @@ class Taskmaster(object):
         at node A. The Taskmaster first considers whether node A's
         child B is up-to-date. Then, recursively, node B needs to
         check whether node C is up-to-date. This leaves us with a
-        dependency graph looking like:
+        dependency graph looking like::
 
-                                      Next candidate \
-                                                      \
-        Node A (Pending) --> Node B(Pending) --> Node C (NoState)
-                ^                                     |
-                |                                     |
-                +-------------------------------------+
+                                          Next candidate \
+                                                          \
+            Node A (Pending) --> Node B(Pending) --> Node C (NoState)
+                    ^                                     |
+                    |                                     |
+                    +-------------------------------------+
 
         Now, when the Taskmaster examines the Node C's child Node A,
         it finds that Node A is in the "pending" state. Therefore,
@@ -705,15 +708,14 @@ class Taskmaster(object):
         Pending children indicate that the Taskmaster has potentially
         loop back through a cycle. We say potentially because it could
         also occur when a DAG is evaluated in parallel. For example,
-        consider the following graph:
+        consider the following graph::
 
-
-        Node A (Pending) --> Node B(Pending) --> Node C (Pending) --> ...
-                |                                     ^
-                |                                     |
-                +----------> Node D (NoState) --------+
-                                  /
-                  Next candidate /
+            Node A (Pending) --> Node B(Pending) --> Node C (Pending) --> ...
+                    |                                     ^
+                    |                                     |
+                    +----------> Node D (NoState) --------+
+                                      /
+                      Next candidate /
 
         The Taskmaster first evaluates the nodes A, B, and C and
         starts building some children of node C. Assuming, that the

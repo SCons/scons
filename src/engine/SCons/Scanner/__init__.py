@@ -62,8 +62,10 @@ def Scanner(function, *args, **kw):
 
 
 class FindPathDirs(object):
-    """A class to bind a specific *PATH variable name to a function that
-    will return all of the *path directories."""
+    """
+    A class to bind a specific E{*}PATH variable name to a function that
+    will return all of the E{*}path directories.
+    """
     def __init__(self, variable):
         self.variable = variable
     def __call__(self, env, dir=None, target=None, source=None, argument=None):

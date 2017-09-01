@@ -99,17 +99,14 @@ except ImportError:
 
 class SConsInteractiveCmd(cmd.Cmd):
     """\
-    build [TARGETS]         Build the specified TARGETS and their dependencies.
-                            'b' is a synonym.
-    clean [TARGETS]         Clean (remove) the specified TARGETS and their
-                            dependencies.  'c' is a synonym.
-    exit                    Exit SCons interactive mode.
-    help [COMMAND]          Prints help for the specified COMMAND.  'h' and
-                            '?' are synonyms.
-    shell [COMMANDLINE]     Execute COMMANDLINE in a subshell.  'sh' and '!'
-                            are synonyms.
-    version                 Prints SCons version information.
-    """
+
+build [TARGETS]         Build the specified TARGETS and their dependencies. 'b' is a synonym.
+clean [TARGETS]         Clean (remove) the specified TARGETS and their dependencies.  'c' is a synonym.
+exit                    Exit SCons interactive mode.
+help [COMMAND]          Prints help for the specified COMMAND.  'h' and '?' are synonyms.
+shell [COMMANDLINE]     Execute COMMANDLINE in a subshell.  'sh' and '!' are synonyms.
+version                 Prints SCons version information.
+"""
 
     synonyms = {
         'b'     : 'build',

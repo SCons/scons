@@ -115,13 +115,13 @@ class Variables(object):
         """
         Add an option.
 
-        key - the name of the variable, or a list or tuple of arguments
-        help - optional help text for the options
-        default - optional default value
-        validator - optional function that is called to validate the option's value
-                    Called with (key, value, environment)
-        converter - optional function that is called to convert the option's value before
-                    putting it in the environment.
+
+        @param key: the name of the variable, or a list or tuple of arguments
+        @param help: optional help text for the options
+        @param default: optional default value
+        @param validator: optional function that is called to validate the option's value
+        @type validator: Called with (key, value, environment)
+        @param converter: optional function that is called to convert the option's value before putting it in the environment.
         """
 
         if SCons.Util.is_List(key) or isinstance(key, tuple):
@@ -141,14 +141,17 @@ class Variables(object):
         Each list element is a tuple/list of arguments to be passed on
         to the underlying method for adding options.
 
-        Example:
-          opt.AddVariables(
+        Example::
+
+            opt.AddVariables(
             ('debug', '', 0),
             ('CC', 'The C compiler'),
             ('VALIDATE', 'An option for testing validation', 'notset',
              validator, None),
             )
+
         """
+
         for o in optlist:
             self._do_add(*o)
 

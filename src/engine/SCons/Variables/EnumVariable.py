@@ -3,14 +3,14 @@
 This file defines the option type for SCons allowing only specified
 input-values.
 
-Usage example:
+Usage example::
 
-  opts = Variables()
-  opts.Add(EnumVariable('debug', 'debug output and symbols', 'no',
+    opts = Variables()
+    opts.Add(EnumVariable('debug', 'debug output and symbols', 'no',
                       allowed_values=('yes', 'no', 'full'),
                       map={}, ignorecase=2))
-  ...
-  if env['debug'] == 'full':
+    ...
+    if env['debug'] == 'full':
     ...
 """
 
@@ -69,16 +69,14 @@ def EnumVariable(key, help, default, allowed_values, map={}, ignorecase=0):
 
     'ignorecase' defines the behaviour of the validator:
 
-    If ignorecase == 0, the validator/converter are case-sensitive.
-    If ignorecase == 1, the validator/converter are case-insensitive.
-    If ignorecase == 2, the validator/converter is case-insensitive and
-                        the converted value will always be lower-case.
+        If ignorecase == 0, the validator/converter are case-sensitive.
+        If ignorecase == 1, the validator/converter are case-insensitive.
+        If ignorecase == 2, the validator/converter is case-insensitive and the converted value will always be lower-case.
 
-    The 'validator' tests whether the value is in the list of allowed
-    values. The 'converter' converts input values according to the
-    given 'map'-dictionary (unmapped input values are returned
-    unchanged). 
+    The 'validator' tests whether the value is in the list of allowed values. The 'converter' converts input values
+    according to the given 'map'-dictionary (unmapped input values are returned unchanged).
     """
+
     help = '%s (%s)' % (help, '|'.join(allowed_values))
     # define validator
     if ignorecase >= 1:

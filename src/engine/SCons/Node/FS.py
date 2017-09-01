@@ -559,14 +559,13 @@ class Base(SCons.Node.Node):
         our relative and absolute paths, identify our parent
         directory, and indicate that this node should use
         signatures."""
+
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS.Base')
         SCons.Node.Node.__init__(self)
 
-        # Filenames and paths are probably reused and are intern'ed to
-        # save some memory.
-
-        #: Filename with extension as it was specified when the object was
-        #: created; to obtain filesystem path, use Python str() function
+        # Filenames and paths are probably reused and are intern'ed to save some memory.
+        # Filename with extension as it was specified when the object was
+        # created; to obtain filesystem path, use Python str() function
         self.name = SCons.Util.silent_intern(name)
         self.fs = fs #: Reference to parent Node.FS object
 
@@ -2255,8 +2254,8 @@ class RootDir(Dir):
             name = drive
             dirname = drive + OS_SEP
 
-        #: Filename with extension as it was specified when the object was
-        #: created; to obtain filesystem path, use Python str() function
+        # Filename with extension as it was specified when the object was
+        # created; to obtain filesystem path, use Python str() function
         self.name = SCons.Util.silent_intern(name)
         self.fs = fs #: Reference to parent Node.FS object
 
@@ -2959,7 +2958,7 @@ class File(Base):
          We'd like to remove a lot more attributes like self.sources
          and self.sources_set, but they might get used
          in a next build step. For example, during configuration
-         the source files for a built *.o file are used to figure out
+         the source files for a built E{*}.o file are used to figure out
          which linker to use for the resulting Program (gcc vs. g++)!
          That's why we check for the 'keep_targetinfo' attribute,
          config Nodes and the Interactive mode just don't allow
@@ -3448,20 +3447,15 @@ class FileFinder(object):
     @SCons.Memoize.CountDictCall(_find_file_key)
     def find_file(self, filename, paths, verbose=None):
         """
-        find_file(str, [Dir()]) -> [nodes]
+        Find a node corresponding to either a derived file or a file that exists already.
 
-        filename - a filename to find
-        paths - a list of directory path *nodes* to search in.  Can be
-                represented as a list, a tuple, or a callable that is
-                called with no arguments and returns the list or tuple.
+        Only the first file found is returned, and none is returned if no file is found.
 
-        returns - the node created from the found file.
+        filename: A filename to find
+        paths: A list of directory path *nodes* to search in.  Can be represented as a list, a tuple, or a callable that is called with no arguments and returns the list or tuple.
 
-        Find a node corresponding to either a derived file or a file
-        that exists already.
+        returns The node created from the found file.
 
-        Only the first file found is returned, and none is returned
-        if no file is found.
         """
         memo_key = self._find_file_key(filename, paths)
         try:

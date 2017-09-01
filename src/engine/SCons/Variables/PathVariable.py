@@ -8,8 +8,7 @@ Arguments to PathVariable are:
   option-name  = name of this option on the command line (e.g. "prefix")
   option-help  = help string for option
   option-dflt  = default value for this option
-  validator    = [optional] validator for option value.  Predefined
-                 validators are:
+  validator    = [optional] validator for option value.  Predefined validators are:
 
                      PathAccept -- accepts any path setting; no validation
                      PathIsDir  -- path must be an existing directory
@@ -25,7 +24,7 @@ Arguments to PathVariable are:
                  and the env is the env to which the Options have been
                  added.
 
-Usage example:
+Usage example::
 
   Examples:
       prefix=/usr/local
@@ -34,8 +33,8 @@ Usage example:
 
   opts = Variables()
   opts.Add(PathVariable('qtdir',
-                      'where the root of Qt is installed',
-                      qtdir, PathIsDir))
+                        'where the root of Qt is installed',
+                        qtdir, PathIsDir))
   opts.Add(PathVariable('qt_includes',
                       'where the Qt includes are installed',
                       '$qtdir/includes', PathIsDirCreate))
