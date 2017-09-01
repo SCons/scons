@@ -23,6 +23,14 @@ PYTHON_PACKAGES = [
     'gcc',
     'make',
     'zlib1g-dev',
+    'libreadline-gplv2-dev',
+    'libncursesw5-dev',
+    'libssl-dev',
+    'libsqlite3-dev',
+    'tk-dev',
+    'libgdbm-dev',
+    'libc6-dev',
+    'libbz2-dev'
 ]
 
 BUILDING_PACKAGES = [
@@ -86,7 +94,7 @@ TESTING_PACKAGES = [
 ]
 
 BUILDBOT_PACKAGES = [
-    'buildbot',
+    'buildbot-worker',
     'cron',
 ]
 
@@ -163,6 +171,7 @@ Usage:  scons_dev_master.py [-hnqy] [--password PASSWORD] [--username USER]
     testing_packages = ' '.join(TESTING_PACKAGES)
     buildbot_packages = ' '.join(BUILDBOT_PACKAGES)
     python_packages = ' '.join(PYTHON_PACKAGES)
+    doc_packages = ' '.join(DOCUMENTATION_PACKAGES)
 
     cmd = CommandRunner(locals())
 
@@ -174,6 +183,8 @@ Usage:  scons_dev_master.py [-hnqy] [--password PASSWORD] [--username USER]
             cmd.run('hg clone" %(scons_url)s')
         elif arg == 'building':
             cmd.run('%(sudo)s apt-get %(yesflag)s install %(building_packages)s')
+        elif arg == 'docs':
+            cmd.run('%(sudo)s apt-get %(yesflag)s install %(doc_packages)s')
         elif arg == 'testing':
             cmd.run('%(sudo)s apt-get %(yesflag)s install %(testing_packages)s')
         elif arg == 'buildbot':
