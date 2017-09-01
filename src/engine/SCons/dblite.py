@@ -40,10 +40,9 @@ except NameError:
 dblite_suffix = '.dblite'
 
 # TODO: Does commenting this out break switching from py2/3?
-if bytes is not str:
-    dblite_suffix += '.p3'
+# if bytes is not str:
+#     dblite_suffix += '.p3'
 tmp_suffix = '.tmp'
-
 
 
 class dblite(object):
@@ -63,10 +62,12 @@ class dblite(object):
     _pickle_dump = staticmethod(pickle.dump)
     _pickle_protocol = PICKLE_PROTOCOL
     _os_chmod = os.chmod
+
     try:
         _os_chown = os.chown
     except AttributeError:
         _os_chown = None
+
     _os_rename = os.rename
     _os_unlink = os.unlink
     _shutil_copyfile = shutil.copyfile
@@ -75,6 +76,7 @@ class dblite(object):
     def __init__(self, file_base_name, flag, mode):
         assert flag in (None, "r", "w", "c", "n")
         if (flag is None): flag = "r"
+
         base, ext = os.path.splitext(file_base_name)
         if ext == dblite_suffix:
             # There's already a suffix on the file name, don't add one.
@@ -83,10 +85,12 @@ class dblite(object):
         else:
             self._file_name = file_base_name + dblite_suffix
             self._tmp_name = file_base_name + tmp_suffix
+
         self._flag = flag
         self._mode = mode
         self._dict = {}
         self._needs_sync = 00000
+
         if self._os_chown is not None and (os.geteuid() == 0 or os.getuid() == 0):
             # running as root; chown back to current owner/group when done
             try:
@@ -101,6 +105,7 @@ class dblite(object):
         else:
             self._chown_to = -1  # don't chown
             self._chgrp_to = -1  # don't chgrp
+
         if (self._flag == "n"):
             self._open(self._file_name, "wb", self._mode)
         else:
@@ -112,7 +117,7 @@ class dblite(object):
                 self._open(self._file_name, "wb", self._mode)
             else:
                 p = f.read()
-                if (len(p) > 0):
+                if len(p) > 0:
                     try:
                         self._dict = pickle.loads(p)
                     except (pickle.UnpicklingError, EOFError, KeyError):
@@ -135,6 +140,7 @@ class dblite(object):
         f = self._open(self._tmp_name, "wb", self._mode)
         self._pickle_dump(self._dict, f, self._pickle_protocol)
         f.close()
+
         # Windows doesn't allow renaming if the file exists, so unlink
         # it first, chmod'ing it to make sure we can do so.  On UNIX, we
         # may not be able to chmod the file if it's owned by someone else
