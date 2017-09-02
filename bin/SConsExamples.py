@@ -418,6 +418,8 @@ scons_py = os.path.join('bootstrap', 'src', 'script', 'scons.py')
 if not os.path.exists(scons_py):
     scons_py = os.path.join('src', 'script', 'scons.py')
 
+scons_py = os.path.join(os.getcwd(), scons_py)
+
 scons_lib_dir = os.path.join(os.getcwd(), 'bootstrap', 'src', 'engine')
 if not os.path.exists(scons_lib_dir):
     scons_lib_dir = os.path.join(os.getcwd(), 'src', 'engine')
@@ -612,10 +614,6 @@ ToolList = {
                  ('ar', ['ARCOM', 'RANLIBCOM'], Cat, []),
                  ('tar', 'TARCOM', Null, []),
                  ('zip', 'ZIPCOM', Null, []),
-                 ('BitKeeper', 'BITKEEPERCOM', Cat, []),
-                 ('CVS', 'CVSCOM', Cat, []),
-                 ('RCS', 'RCS_COCOM', Cat, []),
-                 ('SCCS', 'SCCSCOM', Cat, []),
                  ('javac', 'JAVACCOM', JavaCCom, []),
                  ('javah', 'JAVAHCOM', JavaHCom, []),
                  ('jar', 'JARCOM', JarCom, []),
@@ -626,10 +624,6 @@ ToolList = {
                  ('mslib', 'ARCOM', Cat, []),
                  ('tar', 'TARCOM', Null, []),
                  ('zip', 'ZIPCOM', Null, []),
-                 ('BitKeeper', 'BITKEEPERCOM', Cat, []),
-                 ('CVS', 'CVSCOM', Cat, []),
-                 ('RCS', 'RCS_COCOM', Cat, []),
-                 ('SCCS', 'SCCSCOM', Cat, []),
                  ('javac', 'JAVACCOM', JavaCCom, []),
                  ('javah', 'JAVAHCOM', JavaHCom, []),
                  ('jar', 'JARCOM', JarCom, []),
@@ -736,7 +730,11 @@ def command_edit(args, c, test, dict):
 
 def command_ls(args, c, test, dict):
     def ls(a):
-        return ['  '.join(sorted([x for x in os.listdir(a) if x[0] != '.']))]
+        try:
+            return ['  '.join(sorted([x for x in os.listdir(a) if x[0] != '.']))]
+        except OSError as e:
+            # This should never happen. Pop into debugger
+            import pdb; pdb.set_trace()
     if args:
         l = []
         for a in args:
