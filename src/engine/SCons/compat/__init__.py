@@ -96,7 +96,9 @@ rename_module('pickle', 'cPickle')
 # Negative numbers choose the highest available protocol.
 import pickle
 
-PICKLE_PROTOCOL = pickle.HIGHEST_PROTOCOL
+# Was pickle.HIGHEST_PROTOCOL
+# Changed to 2 so py3.5+'s pickle will be compatible with py2.7.
+PICKLE_PROTOCOL = 2
 
 # TODO: FIXME
 # In 3.x, 'profile' automatically loads the fast version if available.

@@ -119,7 +119,10 @@ class dblite(object):
                 p = f.read()
                 if len(p) > 0:
                     try:
-                        self._dict = pickle.loads(p)
+                        if bytes is not str:
+                            self._dict = pickle.loads(p, encoding='bytes')
+                        else:
+                            self._dict = pickle.loads(p)
                     except (pickle.UnpicklingError, EOFError, KeyError):
                         # Note how we catch KeyErrors too here, which might happen
                         # when we don't have cPickle available (default pickle
