@@ -776,11 +776,16 @@ for p in [ scons ]:
         for sp in p['subpkgs']:
             ssubdir = sp['src_subdir']
             isubdir = p['subinst_dirs'][sp['pkg']]
+
+            
             MANIFEST_in = File(os.path.join(src, ssubdir, 'MANIFEST.in')).rstr()
             MANIFEST_in_list.append(MANIFEST_in)
             files = bootstrap.parseManifestLines(os.path.join(src, ssubdir), open(MANIFEST_in).readlines())
+
             raw_files.extend(files)
             src_files.extend([os.path.join(ssubdir, x) for x in files])
+
+               
             for f in files:
                 r = os.path.join(sp['rpm_dir'], f)
                 rpm_files.append(r)
