@@ -64,6 +64,8 @@ SCons/Tool/c++.py
 SCons/Tool/cxx.py
 SCons/Tool/cc.py
 SCons/Tool/cyglink.py
+SCons/Tool/clang.py
+SCons/Tool/clangxx.py
 SCons/Tool/cvf.py
 SCons/Tool/DCommon.py
 SCons/Tool/default.py
