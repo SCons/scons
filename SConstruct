@@ -8,7 +8,7 @@ from __future__ import print_function
 copyright_years = '2001 - 2017'
 
 # This gets inserted into the man pages to reflect the month of release.
-month_year = 'MONTH YEAR'
+month_year = 'September 2017'
 
 #
 # __COPYRIGHT__
@@ -46,7 +46,7 @@ import time
 import bootstrap
 
 project = 'scons'
-default_version = '3.0.0.alpha.20170821'
+default_version = '3.0.0'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 platform = distutils.util.get_platform()

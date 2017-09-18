@@ -1,8 +1,8 @@
-scons (__VERSION__) unstable; urgency=low
+scons (3.0.0) unstable; urgency=low
 
   * Maintenance Release
 
- -- __DEVELOPER__ <bill@baddogconsulting.com>  __DATE__
+ -- William Deegan <bill@baddogconsulting.com>  Mon, 18 Sep 2017 08:32:04 -0700
 
 scons (2.5.1) unstable; urgency=low
 
