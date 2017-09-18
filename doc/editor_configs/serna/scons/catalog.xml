@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog"
+         prefer="public">
+  <public publicId="-//SCONS//DTD DocBook V4.5-Based extension V1.0//EN"
+           uri="dtd/scons.dtd"/>
+  <system systemId="http://www.scons.org/dtd/scons.dtd"
+           uri="dtd/scons.dtd"/>
+  <uri name="http://www.scons.org/dbxsd/v1.0/scons.xsd"
+       uri="xsd/scons.xsd"/>
+  <uriSuffix uriSuffix="scons.xsd"
+       uri="xsd/scons.xsd"/>           
+</catalog>

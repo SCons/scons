@@ -1,0 +1,69 @@
+import sys, os
+
+toollist = ['Toolpath_TestTool1',
+            'Toolpath_TestTool2',
+            'subdir1.Toolpath_TestTool1_1',
+            'subdir1.Toolpath_TestTool1_2',
+            'subdir1.subdir2.Toolpath_TestTool2_1',
+            'subdir1.subdir2.Toolpath_TestTool2_2',
+	    ]
+
+print('Test where tools are located under site_scons/site_tools')
+env1 = Environment(tools=toollist)
+print("env1['Toolpath_TestTool1'] =", env1.get('Toolpath_TestTool1'))
+print("env1['Toolpath_TestTool2'] =", env1.get('Toolpath_TestTool2'))
+print("env1['Toolpath_TestTool1_1'] =", env1.get('Toolpath_TestTool1_1'))
+print("env1['Toolpath_TestTool1_2'] =", env1.get('Toolpath_TestTool1_2'))
+print("env1['Toolpath_TestTool2_1'] =", env1.get('Toolpath_TestTool2_1'))
+print("env1['Toolpath_TestTool2_2'] =", env1.get('Toolpath_TestTool2_2'))
+
+print('Test where toolpath is set in the env constructor')
+env2 = Environment(tools=toollist, toolpath=['Libs/tools_example'])
+print("env2['Toolpath_TestTool1'] =", env2.get('Toolpath_TestTool1'))
+print("env2['Toolpath_TestTool2'] =", env2.get('Toolpath_TestTool2'))
+print("env2['Toolpath_TestTool1_1'] =", env2.get('Toolpath_TestTool1_1'))
+print("env2['Toolpath_TestTool1_2'] =", env2.get('Toolpath_TestTool1_2'))
+print("env2['Toolpath_TestTool2_1'] =", env2.get('Toolpath_TestTool2_1'))
+print("env2['Toolpath_TestTool2_2'] =", env2.get('Toolpath_TestTool2_2'))
+
+print('Test a Clone')
+base = Environment(tools=[], toolpath=['Libs/tools_example'])
+derived = base.Clone(tools=['subdir1.Toolpath_TestTool1_1'])
+print("derived['Toolpath_TestTool1_1'] =", derived.get('Toolpath_TestTool1_1'))
+
+
+print('Test using syspath as the toolpath')
+print('Lets pretend that tools_example within Libs is actually a module installed via pip')
+oldsyspath = sys.path
+dir_path = Dir('.').srcnode().abspath
+dir_path = os.path.join(dir_path, 'Libs')
+sys.path.append(dir_path)
+
+searchpaths = []
+for item in sys.path:
+    if os.path.isdir(item): searchpaths.append(item)
+
+toollist = ['tools_example.Toolpath_TestTool1',
+            'tools_example.Toolpath_TestTool2',
+            'tools_example.subdir1.Toolpath_TestTool1_1',
+            'tools_example.subdir1.Toolpath_TestTool1_2',
+            'tools_example.subdir1.subdir2.Toolpath_TestTool2_1',
+            'tools_example.subdir1.subdir2.Toolpath_TestTool2_2',
+	    ]
+
+env3 = Environment(tools=toollist, toolpath=searchpaths)
+print("env3['Toolpath_TestTool1'] =", env3.get('Toolpath_TestTool1'))
+print("env3['Toolpath_TestTool2'] =", env3.get('Toolpath_TestTool2'))
+print("env3['Toolpath_TestTool1_1'] =", env3.get('Toolpath_TestTool1_1'))
+print("env3['Toolpath_TestTool1_2'] =", env3.get('Toolpath_TestTool1_2'))
+print("env3['Toolpath_TestTool2_1'] =", env3.get('Toolpath_TestTool2_1'))
+print("env3['Toolpath_TestTool2_2'] =", env3.get('Toolpath_TestTool2_2'))
+
+
+print('Test using PyPackageDir')
+toollist = ['Toolpath_TestTool2_1', 'Toolpath_TestTool2_2']
+env4 = Environment(tools = toollist, toolpath = [PyPackageDir('tools_example.subdir1.subdir2')])
+print("env4['Toolpath_TestTool2_1'] =", env4.get('Toolpath_TestTool2_1'))
+print("env4['Toolpath_TestTool2_2'] =", env4.get('Toolpath_TestTool2_2'))
+
+sys.path = oldsyspath

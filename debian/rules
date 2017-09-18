@@ -1,0 +1,113 @@
+#!/usr/bin/make -f
+# Sample debian/rules that uses debhelper.
+# GNU copyright 1997 to 1999 by Joey Hess.
+
+########
+# Overridable variables added to support building test .deb files
+# as part of routine SCons builds.  --SK
+BUILDDEB_OPTIONS=
+PYTHON_VERSION=`python -V 2>&1| cut -d" " -f2 | cut -d"." -f1-2`
+PYTHON_PATH=/usr/bin/python
+PYTHON=$(PYTHON_PATH)$(PYTHON_VERSION)
+#######
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This is the debhelper compatability version to use.
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	# Add here commands to configure the package.
+	
+
+	touch configure-stamp
+
+build: configure-stamp build-stamp
+build-stamp:
+	dh_testdir
+	$(PYTHON) setup.py build
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+	rm -rf build/
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_prep
+	dh_installdirs
+
+	# Add here commands to install the package into debian/scons.
+	@########
+	@# The SCons project uses Aegis for development, which requires
+	@# that targets be removed explicitly before they're created.
+	@# (They could be symlinks to checked-in read-only copies in the
+	@# repository.)  We also can't assume that the proper directories
+	@# already exist on our non-Debian test build systems.  Hence,
+	@# we do a lot of mkdir -p and rm -f here...  --SK
+	@########
+	mkdir -p debian/scons/usr/lib/python$(PYTHON_VERSION)/site-packages/
+	rm -rf debian/scons/usr/lib/python$(PYTHON_VERSION)/site-packages/SCons
+	cp -r build/lib*/SCons debian/scons/usr/lib/python$(PYTHON_VERSION)/site-packages/
+
+	mkdir -p debian/scons/usr/bin/
+	rm -f debian/scons/usr/bin/scons
+	rm -f debian/scons/usr/bin/sconsign
+ifeq ($(PYTHON),python)
+	cp build/scripts/scons debian/scons/usr/bin/scons
+	cp build/scripts/sconsign debian/scons/usr/bin/sconsign
+else
+	sed '1s|.*|#!/usr/bin/python2.2|' build/scripts/scons > debian/scons/usr/bin/scons
+	sed '1s|.*|#!/usr/bin/python2.2|' build/scripts/sconsign > debian/scons/usr/bin/sconsign
+endif
+	chmod +x debian/scons/usr/bin/scons
+	chmod +x debian/scons/usr/bin/sconsign
+
+	mkdir -p debian/scons/usr/share/man/man1/
+	rm -f debian/scons/usr/share/man/man1/scons.1
+	rm -f debian/scons/usr/share/man/man1/sconsign.1
+	cp scons.1 debian/scons/usr/share/man/man1/
+	cp sconsign.1 debian/scons/usr/share/man/man1/
+
+	mkdir -p debian/scons/usr/share/doc/scons
+	rm -f debian/scons/usr/share/doc/scons/changelog
+	rm -f debian/scons/usr/share/doc/scons/README.txt
+	rm -f debian/scons/usr/share/doc/scons/CHANGES.txt
+	rm -f debian/scons/usr/share/doc/scons/*.gz
+	rm -f debian/scons/usr/share/doc/scons/copyright
+
+	cp README.txt debian/scons/usr/share/doc/scons/
+	cp CHANGES.txt debian/scons/usr/share/doc/scons/
+
+	gzip -9 debian/scons/usr/share/doc/scons/*
+
+	cp debian/changelog debian/scons/usr/share/doc/scons/changelog
+
+	cp debian/copyright debian/scons/usr/share/doc/scons/
+
+# Build architecture-independent files here.
+binary-indep: build install
+	dh_testdir
+	dh_testroot
+	#dh_installdocs
+	dh_installchangelogs 
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb $(BUILDDEB_OPTIONS)
+
+# Build architecture-dependent files here.
+binary-arch: build install
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure

@@ -1,0 +1,15 @@
+# -*- mode:python; coding:utf-8; -*-
+
+import os
+
+environment = Environment(
+)
+#    CFLAGS=['-m64'],
+#    DLINKFLAGS=['-m64'],
+#    DFLAGS=['-m64', '-O'])
+
+environment.Program('proj', [
+'proj.d',
+'dmod.d',
+'cmod.c',
+])

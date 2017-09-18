@@ -1,0 +1,9 @@
+# -*- mode:python; coding:utf-8; -*-
+
+env=Environment({})
+
+change = ARGUMENTS.get('change', 0)
+if int(change):
+    env.Append(DFLAGS = '-I.')
+
+env.Program('proj', ['main.d'])

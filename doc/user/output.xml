@@ -1,0 +1,726 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+    
+    <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
+    %builders-mod;
+    <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
+    %functions-mod;
+    <!ENTITY % tools-mod SYSTEM "../generated/tools.mod">
+    %tools-mod;
+    <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
+    %variables-mod;
+]>
+
+<chapter id="chap-output"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Controlling Build Output</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <para>
+
+  A key aspect of creating a usable build configuration
+  is providing good output from the build
+  so its users can readily understand
+  what the build is doing
+  and get information about how to control the build.
+  &SCons; provides several ways of
+  controlling output from the build configuration
+  to help make the build
+  more useful and understandable.
+
+  </para>
+
+  <section>
+  <title>Providing Build Help:  the &Help; Function</title>
+
+    <para>
+
+    It's often very useful to be able to give
+    users some help that describes the
+    specific targets, build options, etc.,
+    that can be used for your build.
+    &SCons; provides the &Help; function
+    to allow you to specify this help text:
+
+    </para>
+
+    <scons_example name="output_ex1">
+       <file name="SConstruct" printme="1">
+Help("""
+Type: 'scons program' to build the production program,
+      'scons debug' to build the debug version.
+""")
+       </file>
+    </scons_example>
+
+    <para>
+
+    Optionally, one can specify the append flag:
+
+    </para>
+
+    <scons_example name="output_ex1_a">
+       <file name="SConstruct" printme="1">
+Help("""
+Type: 'scons program' to build the production program,
+      'scons debug' to build the debug version.
+""", append=True)
+       </file>
+    </scons_example>
+
+    <para>
+
+    (Note the above use of the Python triple-quote syntax,
+    which comes in very handy for
+    specifying multi-line strings like help text.)
+
+    </para>
+
+    <para>
+
+    When the &SConstruct; or &SConscript; files
+    contain such a call to the &Help; function,
+    the specified help text will be displayed in response to
+    the &SCons; <literal>-h</literal> option:
+
+    </para>
+
+    <scons_output example="output_ex1" suffix="1">
+       <scons_output_command>scons -h</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    The &SConscript; files may contain
+    multiple calls to the &Help; function,
+    in which case the specified text(s)
+    will be concatenated when displayed.
+    This allows you to split up the
+    help text across multiple &SConscript; files.
+    In this situation, the order in
+    which the &SConscript; files are called
+    will determine the order in which the &Help; functions are called,
+    which will determine the order in which
+    the various bits of text will get concatenated.
+
+    </para>
+
+    <para>
+
+    When used with &AddOption; Help("text", append=False) will clobber any help output associated with AddOption().
+    To preserve the help output from AddOption(), set append=True.
+
+    </para>
+
+    <para>
+
+    Another use would be to make the help text conditional
+    on some variable.
+    For example, suppose you only want to display
+    a line about building a Windows-only
+    version of a program when actually
+    run on Windows.
+    The following &SConstruct; file:
+
+    </para>
+
+    <scons_example name="output_ex2">
+       <file name="SConstruct" printme="1">
+env = Environment()
+
+Help("\nType: 'scons program' to build the production program.\n")
+
+if env['PLATFORM'] == 'win32':
+    Help("\nType: 'scons windebug' to build the Windows debug version.\n")
+       </file>
+    </scons_example>
+
+    <para>
+
+    Will display the complete help text on Windows:
+
+    </para>
+
+    <scons_output example="output_ex2" os="win32" suffix="1">
+       <scons_output_command>scons -h</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    But only show the relevant option on a Linux or UNIX system:
+
+    </para>
+
+    <scons_output example="output_ex2" os="posix" suffix="2">
+       <scons_output_command>scons -h</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    If there is no &Help; text in the &SConstruct; or
+    &SConscript; files,
+    &SCons; will revert to displaying its
+    standard list that describes the &SCons; command-line
+    options.
+    This list is also always displayed whenever
+    the <literal>-H</literal> option is used.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Controlling How &SCons; Prints Build Commands:  the <envar>$*COMSTR</envar> Variables</title>
+
+    <para>
+
+    Sometimes the commands executed
+    to compile object files or link programs
+    (or build other targets)
+    can get very long,
+    long enough to make it difficult for users
+    to distinguish error messages or
+    other important build output
+    from the commands themselves.
+    All of the default <envar>$*COM</envar> variables
+    that specify the command lines
+    used to build various types of target files
+    have a corresponding <envar>$*COMSTR</envar> variable
+    that can be set to an alternative
+    string that will be displayed
+    when the target is built.
+
+    </para>
+
+    <para>
+
+    For example, suppose you want to
+    have &SCons; display a
+    <literal>"Compiling"</literal>
+    message whenever it's compiling an object file,
+    and a
+    <literal>"Linking"</literal>
+    when it's linking an executable.
+    You could write a &SConstruct; file
+    that looks like:
+
+    </para>
+
+    <scons_example name="output_COMSTR">
+       <file name="SConstruct" printme="1">
+env = Environment(CCCOMSTR = "Compiling $TARGET",
+                  LINKCOMSTR = "Linking $TARGET")
+env.Program('foo.c')
+       </file>
+       <file name="foo.c">
+foo.c
+       </file>
+    </scons_example>
+
+    <para>
+
+    Which would then yield the output:
+
+    </para>
+
+    <!--
+
+    <scons_output example="output_COMSTR" os="posix" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    -->
+
+    <screen>
+% <userinput>scons -Q</userinput>
+Compiling foo.o
+Linking foo
+    </screen>
+
+    <para>
+
+    &SCons; performs complete variable substitution
+    on <envar>$*COMSTR</envar> variables,
+    so they have access to all of the
+    standard variables like &cv-TARGET; &cv-SOURCES;, etc.,
+    as well as any construction variables
+    that happen to be configured in
+    the construction environment
+    used to build a specific target.
+
+    </para>
+
+    <para>
+
+    Of course, sometimes it's still important to
+    be able to see the exact command
+    that &SCons; will execute to build a target.
+    For example, you may simply need to verify
+    that &SCons; is configured to supply
+    the right options to the compiler,
+    or a developer may want to
+    cut-and-paste a compile command
+    to add a few options
+    for a custom test.
+
+    </para>
+
+    <para>
+
+    One common way to give users
+    control over whether or not
+    &SCons; should print the actual command line
+    or a short, configured summary
+    is to add support for a
+    <varname>VERBOSE</varname>
+    command-line variable to your &SConstruct; file.
+    A simple configuration for this might look like:
+
+    </para>
+
+    <scons_example name="output_COMSTR-VERBOSE">
+       <file name="SConstruct" printme="1">
+env = Environment()
+if ARGUMENTS.get('VERBOSE') != "1':
+    env['CCCOMSTR'] = "Compiling $TARGET"
+    env['LINKCOMSTR'] = "Linking $TARGET"
+env.Program('foo.c')
+       </file>
+       <file name="foo.c">
+foo.c
+       </file>
+    </scons_example>
+
+    <para>
+
+
+    By only setting the appropriate
+    <envar>$*COMSTR</envar> variables
+    if the user specifies
+    <literal>VERBOSE=1</literal>
+    on the command line,
+    the user has control
+    over how &SCons;
+    displays these particular command lines:
+
+    </para>
+
+    <!--
+
+    <scons_output example="output_COMSTR-VERBOSE" os="posix" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
+       <scons_output_command>scons -Q -c</scons_output_command>
+       <scons_output_command>scons -Q VERBOSE=1</scons_output_command>
+    </scons_output>
+
+    -->
+
+    <screen>
+% <userinput>scons -Q</userinput>
+Compiling foo.o
+Linking foo
+% <userinput>scons -Q -c</userinput>
+Removed foo.o
+Removed foo
+% <userinput>scons -Q VERBOSE=1</userinput>
+cc -o foo.o -c foo.c
+cc -o foo foo.o
+    </screen>
+
+  </section>
+
+  <section>
+  <title>Providing Build Progress Output:  the &Progress; Function</title>
+
+    <para>
+
+    Another aspect of providing good build output
+    is to give the user feedback
+    about what &SCons; is doing
+    even when nothing is being built at the moment.
+    This can be especially true for large builds
+    when most of the targets are already up-to-date.
+    Because &SCons; can take a long time
+    making absolutely sure that every
+    target is, in fact, up-to-date
+    with respect to a lot of dependency files,
+    it can be easy for users to mistakenly
+    conclude that &SCons; is hung
+    or that there is some other problem with the build.
+
+    </para>
+
+    <para>
+
+    One way to deal with this perception
+    is to configure &SCons; to print something to
+    let the user know what it's "thinking about."
+    The &Progress; function
+    allows you to specify a string
+    that will be printed for every file
+    that &SCons; is "considering"
+    while it is traversing the dependency graph
+    to decide what targets are or are not up-to-date.
+
+    </para>
+
+    <scons_example name="output_Progress-TARGET">
+      <file name="SConstruct" printme="1">
+Progress('Evaluating $TARGET\n')
+Program('f1.c')
+Program('f2.c')
+      </file>
+      <file name="f1.c">
+f1.c
+      </file>
+      <file name="f2.c">
+f2.c
+      </file>
+    </scons_example>
+
+    <para>
+
+    Note that the &Progress; function does not
+    arrange for a newline to be printed automatically
+    at the end of the string (as does the Python
+    <literal>print</literal> statement),
+    and we must specify the
+    <literal>\n</literal>
+    that we want printed at the end of the configured string.
+    This configuration, then,
+    will have &SCons;
+    print that it is <literal>Evaluating</literal>
+    each file that it encounters
+    in turn as it traverses the dependency graph:
+
+    </para>
+
+    <scons_output example="output_Progress-TARGET" os="posix" suffix="1">
+       <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    Of course, normally you don't want to add
+    all of these additional lines to your build output,
+    as that can make it difficult for the user
+    to find errors or other important messages.
+    A more useful way to display
+    this progress might be
+    to have the file names printed
+    directly to the user's screen,
+    not to the same standard output
+    stream where build output is printed,
+    and to use a carriage return character
+    (<literal>\r</literal>)
+    so that each file name gets re-printed on the same line.
+    Such a configuration would look like:
+
+    </para>
+
+    <sconstruct>
+Progress('$TARGET\r',
+         file=open('/dev/tty', 'w'),
+         overwrite=True)
+Program('f1.c')
+Program('f2.c')
+    </sconstruct>
+
+    <para>
+
+    Note that we also specified the
+    <literal>overwrite=True</literal> argument
+    to the &Progress; function,
+    which causes &SCons; to
+    "wipe out" the previous string with space characters
+    before printing the next &Progress; string.
+    Without the
+    <literal>overwrite=True</literal> argument,
+    a shorter file name would not overwrite
+    all of the charactes in a longer file name that 
+    precedes it,
+    making it difficult to tell what the
+    actual file name is on the output.
+    Also note that we opened up the
+    <filename>/dev/tty</filename> file
+    for direct access (on POSIX) to
+    the user's screen.
+    On Windows, the equivalent would be to open
+    the <filename>con:</filename> file name.
+
+    </para>
+
+    <para>
+
+    Also, it's important to know that although you can use
+    <literal>$TARGET</literal> to substitute the name of
+    the node in the string,
+    the &Progress; function does <emphasis>not</emphasis>
+    perform general variable substitution
+    (because there's not necessarily a construction
+    environment involved in evaluating a node
+    like a source file, for example).
+
+    </para>
+
+    <para>
+
+    You can also specify a list of strings
+    to the &Progress; function,
+    in which case &SCons; will
+    display each string in turn.
+    This can be used to implement a "spinner"
+    by having &SCons; cycle through a
+    sequence of strings:
+
+    </para>
+
+    <sconstruct>
+Progress(['-\r', '\\\r', '|\r', '/\r'], interval=5)
+Program('f1.c')
+Program('f2.c')
+    </sconstruct>
+
+    <para>
+
+    Note that here we have also used the
+    <literal>interval=</literal>
+    keyword argument to have &SCons;
+    only print a new "spinner" string
+    once every five evaluated nodes.
+    Using an <literal>interval=</literal> count,
+    even with strings that use <literal>$TARGET</literal> like
+    our examples above,
+    can be a good way to lessen the
+    work that &SCons; expends printing &Progress; strings,
+    while still giving the user feedback
+    that indicates &SCons; is still
+    working on evaluating the build.
+
+    </para>
+
+    <para>
+
+    Lastly, you can have direct control
+    over how to print each evaluated node
+    by passing a Python function
+    (or other Python callable)
+    to the &Progress; function.
+    Your function will be called
+    for each evaluated node,
+    allowing you to
+    implement more sophisticated logic
+    like adding a counter:
+
+    </para>
+
+    <scons_example name="output_Progress-callable">
+      <file name="SConstruct" printme="1">
+screen = open('/dev/tty', 'w')
+count = 0
+def progress_function(node)
+    count += 1
+    screen.write('Node %4d: %s\r' % (count, node))
+
+Progress(progress_function)
+      </file>
+    </scons_example>
+
+    <para>
+
+    Of course, if you choose,
+    you could completely ignore the
+    <varname>node</varname> argument to the function,
+    and just print a count,
+    or anything else you wish.
+
+    </para>
+
+    <para>
+
+    (Note that there's an obvious follow-on question here:
+    how would you find the total number of nodes
+    that <emphasis>will be</emphasis>
+    evaluated so you can tell the user how
+    close the build is to finishing?
+    Unfortunately, in the general case,
+    there isn't a good way to do that,
+    short of having &SCons; evaluate its
+    dependency graph twice,
+    first to count the total and
+    the second time to actually build the targets.
+    This would be necessary because
+    you can't know in advance which
+    target(s) the user actually requested
+    to be built.
+    The entire build may consist of thousands of Nodes,
+    for example,
+    but maybe the user specifically requested
+    that only a single object file be built.)
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Printing Detailed Build Status:  the &GetBuildFailures; Function</title>
+
+    <para>
+
+    SCons, like most build tools, returns zero status to
+    the shell on success and nonzero status on failure.
+    Sometimes it's useful to give more information about
+    the build status at the end of the run, for instance
+    to print an informative message, send an email, or
+    page the poor slob who broke the build.
+
+    </para>
+
+    <para>
+
+    SCons provides a &GetBuildFailures; method that
+    you can use in a python <function>atexit</function> function
+    to get a list of objects describing the actions that failed
+    while attempting to build targets.  There can be more
+    than one if you're using <literal>-j</literal>.  Here's a 
+    simple example:
+
+    </para>
+
+    <scons_example name="output_gbf1">
+      <file name="SConstruct" printme="1">
+import atexit
+
+def print_build_failures():
+    from SCons.Script import GetBuildFailures
+    for bf in GetBuildFailures():
+        print("%s failed: %s" % (bf.node, bf.errstr))
+atexit.register(print_build_failures)
+      </file>
+    </scons_example>
+
+    <para>
+
+    The <function>atexit.register</function> call
+    registers <function>print_build_failures</function>
+    as an <function>atexit</function> callback, to be called
+    before &SCons; exits.  When that function is called,
+    it calls &GetBuildFailures; to fetch the list of failed objects.
+    See the man page
+    for the detailed contents of the returned objects;
+    some of the more useful attributes are 
+    <literal>.node</literal>,
+    <literal>.errstr</literal>,
+    <literal>.filename</literal>, and
+    <literal>.command</literal>.
+    The <literal>filename</literal> is not necessarily
+    the same file as the <literal>node</literal>; the
+    <literal>node</literal> is the target that was
+    being built when the error occurred, while the 
+    <literal>filename</literal>is the file or dir that
+    actually caused the error.
+    Note:  only call &GetBuildFailures; at the end of the
+    build; calling it at any other time is undefined.
+
+    </para>
+
+    <para>   
+
+    Here is a more complete example showing how to
+    turn each element of &GetBuildFailures; into a string:
+
+    </para>
+
+    <scons_example name="output_gbf2">
+      <file name="SConstruct" printme="1">
+# Make the build fail if we pass fail=1 on the command line
+if ARGUMENTS.get('fail', 0):
+    Command('target', 'source', ['/bin/false'])
+
+def bf_to_str(bf):
+    """Convert an element of GetBuildFailures() to a string
+    in a useful way."""
+    import SCons.Errors
+    if bf is None: # unknown targets product None in list
+        return '(unknown tgt)'
+    elif isinstance(bf, SCons.Errors.StopError):
+        return str(bf)
+    elif bf.node:
+        return str(bf.node) + ': ' + bf.errstr
+    elif bf.filename:
+        return bf.filename + ': ' + bf.errstr
+    return 'unknown failure: ' + bf.errstr
+import atexit
+
+def build_status():
+    """Convert the build status to a 2-tuple, (status, msg)."""
+    from SCons.Script import GetBuildFailures
+    bf = GetBuildFailures()
+    if bf:
+        # bf is normally a list of build failures; if an element is None,
+        # it's because of a target that scons doesn't know anything about.
+        status = 'failed'
+        failures_message = "\n".join(["Failed building %s" % bf_to_str(x)
+                           for x in bf if x is not None])
+    else:
+        # if bf is None, the build completed successfully.
+        status = 'ok'
+        failures_message = ''
+    return (status, failures_message)
+
+def display_build_status():
+    """Display the build status.  Called by atexit.
+    Here you could do all kinds of complicated things."""
+    status, failures_message = build_status()
+    if status == 'failed':
+       print("FAILED!!!!")  # could display alert, ring bell, etc.
+    elif status == 'ok':
+       print("Build succeeded.")
+    print(failures_message)
+
+atexit.register(display_build_status)
+      </file>
+    </scons_example>
+
+    <para>
+    
+    When this runs, you'll see the appropriate output:
+
+    </para>
+
+    <scons_output example="output_gbf2" suffix="1">
+          <scons_output_command>scons -Q</scons_output_command>
+          <scons_output_command>scons -Q fail=1</scons_output_command>
+    </scons_output>
+
+  </section>
+
+</chapter>

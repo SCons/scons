@@ -1,0 +1,10 @@
+# -*- mode:python; coding:utf-8; -*-
+
+# The core difference between this test and the one of SharedObjectSuffixIssue
+# is that here we explicitly use the relevant D tool and things work.
+
+environment = Environment(
+    tools=['{0}', 'link']
+)
+
+environment.SharedLibrary('answer', 'code.d')

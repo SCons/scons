@@ -1,0 +1,11 @@
+from __future__ import print_function
+
+env  = Environment(tools=['default', 'packaging'])
+prog = env.Install( 'bin/', ["f1", "f2"] )
+env.File( "f3" )
+
+src_files = sorted(map(str, env.FindSourceFiles()))
+oth_files = sorted(map(str, env.FindInstalledFiles()))
+
+print(src_files)
+print(oth_files)

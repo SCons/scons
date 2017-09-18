@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="dmd">
+<summary>
+<para>
+Sets construction variables for D language compiler DMD.
+</para>
+</summary>
+<sets>
+<item>DC</item>
+<item>DCOM</item>
+<item>SHDC</item>
+<item>SHDCOM</item>
+<item>DPATH</item>
+<item>DFLAGS</item>
+<item>DVERSIONS</item>
+<item>DDEBUG</item>
+<item>DINCPREFIX</item>
+<item>DINCSUFFIX</item>
+<item>DVERPREFIX</item>
+<item>DVERSUFFIX</item>
+<item>DDEBUGPREFIX</item>
+<item>DDEBUGSUFFIX</item>
+<item>DFLAGPREFIX</item>
+<item>DFLAGSUFFIX</item>
+<item>DFILESUFFIX</item>
+<item>DLINK</item>
+<item>DLINKFLAGS</item>
+<item>DLINKCOM</item>
+<item>SHDLINK</item>
+<item>SHDLINKFLAGS</item>
+<item>SHDLINKCOM</item>
+<item>DLIBLINKPREFIX</item>
+<item>DLIBLINKSUFFIX</item>
+<item>DLIBDIRPREFIX</item>
+<item>DLIBDIRSUFFIX</item>
+<item>DLIB</item>
+<item>DLIBCOM</item>
+<item>DLIBFLAGPREFIX</item>
+<item>DLIBFLAGSUFFIX</item>
+<item>DLINKFLAGPREFIX</item>
+<item>DLINKFLAGSUFFIX</item>
+<item>DRPATHPREFIX</item>
+<item>DRPATHSUFFIX</item>
+<item>DShLibSonameGenerator</item>
+<item>SHDLIBVERSION</item>
+<item>SHDLIBVERSIONFLAGS</item>
+</sets>
+<uses>
+</uses>
+</tool>
+
+<cvar name="DC">
+<summary>
+<para>
+The D compiler to use.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DCOM">
+<summary>
+<para>
+  The command line used to compile a D file to an object file.
+  Any options specified in the &cv-link-DFLAGS; construction variable
+  is included on this command line.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DDEBUG">
+<summary>
+<para>
+  List of debug tags to enable when compiling.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DFLAGS">
+<summary>
+<para>
+  General options that are passed to the D compiler.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLIB">
+<summary>
+<para>
+  Name of the lib tool to use for D codes.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLIBCOM">
+<summary>
+<para>
+  The command line to use when creating libraries.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLINK">
+<summary>
+<para>
+  Name of the linker to use for linking systems including D sources.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLINKCOM">
+<summary>
+<para>
+  The command line to use when linking systems including D sources.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLINKFLAGS">
+<summary>
+<para>
+List of linker flags.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DPATH">
+<summary>
+<para>
+  List of paths to search for import modules.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DVERSIONS">
+<summary>
+<para>
+  List of version tags to enable when compiling.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHDC">
+<summary>
+<para>
+  The name of the compiler to use when compiling D source
+  destined to be in a shared objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHDCOM">
+<summary>
+<para>
+  The command line to use when compiling code to be part of shared objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHDLINK">
+<summary>
+<para>
+  The linker to use when creating shared objects for code bases
+  include D sources.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHDLINKCOM">
+<summary>
+<para>
+  The command line to use when generating shared objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHDLINKFLAGS">
+<summary>
+<para>
+  The list of flags to use when generating a shared object.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DVERSUFFIX">
+  <summary>
+    <para>
+      DVERSUFFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DVERPREFIX">
+  <summary>
+    <para>
+      DVERPREFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DLINKFLAGSUFFIX">
+  <summary>
+    <para>
+      DLINKFLAGSUFFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DLINKFLAGPREFIX">
+  <summary>
+    <para>
+      DLINKFLAGPREFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DLIBLINKSUFFIX">
+  <summary>
+    <para>
+      DLIBLINKSUFFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DLIBLINKPREFIX">
+  <summary>
+    <para>
+      DLIBLINKPREFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DLIBFLAGSUFFIX">
+  <summary>
+    <para>
+      DLIBFLAGSUFFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DLIBFLAGPREFIX">
+  <summary>
+    <para>
+      DLIBFLAGPREFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DLIBDIRSUFFIX">
+  <summary>
+    <para>
+      DLIBLINKSUFFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DLIBDIRPREFIX">
+  <summary>
+    <para>
+      DLIBLINKPREFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DINCSUFFIX">
+  <summary>
+    <para>
+      DLIBFLAGSUFFIX.
+    </para>
+ </summary>
+</cvar>
+
+
+<cvar name="DINCPREFIX">
+  <summary>
+    <para>
+      DINCPREFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DFLAGSUFFIX">
+  <summary>
+    <para>
+      DFLAGSUFFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DFLAGPREFIX">
+  <summary>
+    <para>
+      DFLAGPREFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DFILESUFFIX">
+  <summary>
+    <para>
+      DFILESUFFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DDEBUGPREFIX">
+  <summary>
+    <para>
+      DDEBUGPREFIX.
+    </para>
+ </summary>
+</cvar>
+
+<cvar name="DDEBUGSUFFIX">
+  <summary>
+    <para>
+      DDEBUGSUFFIX.
+    </para>
+ </summary>
+</cvar>
+
+<builder name="ProgramAllAtOnce">
+  <summary>
+    <para>
+      Builds an executable from D sources without first creating individual
+      objects for each file.
+    </para>
+    <para>
+      D sources can be compiled file-by-file as C and C++ source are, and
+      D is integrated into the &scons; Object and Program builders for
+      this model of build. D codes can though do whole source
+      meta-programming (some of the testing frameworks do this). For this
+      it is imperative that all sources are compiled and linked in a single call of
+      the D compiler. This builder serves that purpose.
+    </para>
+    <example_commands>
+      env.ProgramAllAtOnce('executable', ['mod_a.d, mod_b.d', 'mod_c.d'])
+    </example_commands>
+    <para>
+      This command will compile the modules mod_a, mod_b, and mod_c in a
+      single compilation process without first creating object files for
+      the modules. Some of the D compilers will create executable.o others
+      will not.
+    </para>
+  </summary>
+</builder>
+
+</sconsdoc>
