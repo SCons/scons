@@ -5,6 +5,13 @@
                             Change Log
 
 
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From John Doe:
+
+    - Whatever John Doe did.
+
+
 RELEASE 3.0.0 - Mon, 18 Sep 2017 08:32:04 -0700
 
 NOTE: This is a major release.  You should expect that some targets may rebuild when upgrading.
