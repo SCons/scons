@@ -74,10 +74,11 @@ SCons/Tool/docbook/__init__.py
 SCons/Tool/dvi.py
 SCons/Tool/dvipdf.py
 SCons/Tool/dvips.py
+SCons/Tool/f03.py
+SCons/Tool/f08.py
 SCons/Tool/f77.py
 SCons/Tool/f90.py
 SCons/Tool/f95.py
-SCons/Tool/f03.py
 SCons/Tool/filesystem.py
 SCons/Tool/fortran.py
 SCons/Tool/FortranCommon.py
