@@ -18,14 +18,13 @@ So that everyone using SCons can help each other learn how to use it more
 effectively, please go to http://scons.org/lists.html#users to sign up for
 the scons-users mailing list.
 
-RELEASE 3.0.0.alpha.20170821 - Mon, 21 Aug 2017 16:15:02 -0700
+RELEASE 3.0.0 - Mon, 18 Sep 2017 08:32:04 -0700
 
   Please consult the RELEASE.txt file for a summary of changes since the last
   release and consult the CHANGES.txt file for complete a list of changes
   since last release.  This announcement highlights only the important
   changes.
     Please note the following important changes since release 2.5.1:
-       *IT IS NOT READY FOR PRODUCTION USE*
 
        This is the initial release supporting both python 3.5+ and 2.7.x and pypy
        There are some important changes:
@@ -35,7 +34,7 @@ RELEASE 3.0.0.alpha.20170821 - Mon, 21 Aug 2017 16:15:02 -0700
          in Python 3 all strings are by default unicode. byte and/or bytearray
          should be used if you construct content for return by a custom node type's
          get_content() method.
-       - This is some (as yet unresolved issue) using Literal()'s in some context with
+       - There are some (as yet unresolved issue) using Literal()'s in some context with
          Python 3
        - pypy should be supported, please report any issues to the user's mailing list.
        - Currently if you switch back and forth between python 2.7.x and 3.5+ you will

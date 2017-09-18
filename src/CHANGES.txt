@@ -5,11 +5,11 @@
                             Change Log
 
 
-RELEASE 3.0.0.alpha.20170821 - Mon, 21 Aug 2017 16:15:02 -0700
+RELEASE 3.0.0 - Mon, 18 Sep 2017 08:32:04 -0700
 
 NOTE: This is a major release.  You should expect that some targets may rebuild when upgrading.
-Significant changes in some python action signatures. Also switching between PY 2 and PY 3.5, 3.6
-may cause rebuilds.  In no case should rebuilds not happen.
+Significant changes in some python action signatures. Also switching between PY 2.7 and PY 3.5, 3.6
+will cause rebuilds.
 
 
   From William Blevins:
@@ -79,6 +79,9 @@ may cause rebuilds.  In no case should rebuilds not happen.
       "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe"
       It can be downloaded separately at     
       https://github.com/Microsoft/vswhere
+ 
+  From Tom Tanner:
+    - Allow nested $( ... $) sections
 
   From Paweł Tomulik:
     - Fixed the issue with LDMODULEVERSIONFLAGS reported by Tim Jenness
@@ -115,9 +118,6 @@ may cause rebuilds.  In no case should rebuilds not happen.
       tools, must now include the ar tool to get this builder as is required for
       other compiler tools.
     - Add clang and clang++ tools based on Paweł Tomulik's work.
- 
-  From Tom Tanner:
-    - Allow nested $( ... $) sections
 
 RELEASE 2.5.1 - Mon, 03 Nov 2016 13:37:42 -0400
 

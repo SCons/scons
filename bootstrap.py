@@ -184,9 +184,15 @@ def main():
     scons_py = os.path.join('src', 'script', 'scons.py')
     src_engine = os.path.join('src', 'engine')
     MANIFEST_in = find(os.path.join(src_engine, 'MANIFEST.in'))
-    
-    files = [ scons_py ] + [os.path.join(src_engine, x)
-                            for x in parseManifestLines(os.path.join(script_dir, src_engine), open(MANIFEST_in).readlines())]
+    MANIFEST_xml_in = find(os.path.join(src_engine, 'MANIFEST-xml.in'))
+    manifest_files = [os.path.join(src_engine, x)
+                            for x in parseManifestLines(os.path.join(script_dir, src_engine),
+                                                        open(MANIFEST_in).readlines())]
+
+    manifest_xml_files = [os.path.join(src_engine, x)
+                            for x in parseManifestLines(os.path.join(script_dir, src_engine),
+                                                        open(MANIFEST_xml_in).readlines())]
+    files = [ scons_py ] + manifest_files + manifest_xml_files
     
     for file in files:
         src = find(file)

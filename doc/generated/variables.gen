@@ -837,11 +837,27 @@ The D compiler to use.
     <para xmlns="http://www.scons.org/dbxsd/v1.0">
       DDEBUGPREFIX.
     </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DDEBUGPREFIX.
+    </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DDEBUGPREFIX.
+    </para>
  </listitem>
   </varlistentry>
   <varlistentry id="cv-DDEBUGSUFFIX">
     <term>DDEBUGSUFFIX</term>
     <listitem>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DDEBUGSUFFIX.
+    </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DDEBUGSUFFIX.
+    </para>
+ 
     <para xmlns="http://www.scons.org/dbxsd/v1.0">
       DDEBUGSUFFIX.
     </para>
@@ -876,11 +892,27 @@ section of an RPM
     <para xmlns="http://www.scons.org/dbxsd/v1.0">
       DFILESUFFIX.
     </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DFILESUFFIX.
+    </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DFILESUFFIX.
+    </para>
  </listitem>
   </varlistentry>
   <varlistentry id="cv-DFLAGPREFIX">
     <term>DFLAGPREFIX</term>
     <listitem>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DFLAGPREFIX.
+    </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DFLAGPREFIX.
+    </para>
+ 
     <para xmlns="http://www.scons.org/dbxsd/v1.0">
       DFLAGPREFIX.
     </para>
@@ -908,6 +940,14 @@ section of an RPM
     <para xmlns="http://www.scons.org/dbxsd/v1.0">
       DFLAGSUFFIX.
     </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DFLAGSUFFIX.
+    </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DFLAGSUFFIX.
+    </para>
  </listitem>
   </varlistentry>
   <varlistentry id="cv-DINCPREFIX">
@@ -916,11 +956,27 @@ section of an RPM
     <para xmlns="http://www.scons.org/dbxsd/v1.0">
       DINCPREFIX.
     </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DINCPREFIX.
+    </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DINCPREFIX.
+    </para>
  </listitem>
   </varlistentry>
   <varlistentry id="cv-DINCSUFFIX">
     <term>DINCSUFFIX</term>
     <listitem>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DLIBFLAGSUFFIX.
+    </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DLIBFLAGSUFFIX.
+    </para>
+ 
     <para xmlns="http://www.scons.org/dbxsd/v1.0">
       DLIBFLAGSUFFIX.
     </para>
@@ -987,11 +1043,27 @@ into a list of Dir instances relative to the target being built.
     <para xmlns="http://www.scons.org/dbxsd/v1.0">
       DLIBLINKPREFIX.
     </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DLIBLINKPREFIX.
+    </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DLIBLINKPREFIX.
+    </para>
  </listitem>
   </varlistentry>
   <varlistentry id="cv-DLIBDIRSUFFIX">
     <term>DLIBDIRSUFFIX</term>
     <listitem>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DLIBLINKSUFFIX.
+    </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DLIBLINKSUFFIX.
+    </para>
+ 
     <para xmlns="http://www.scons.org/dbxsd/v1.0">
       DLIBLINKSUFFIX.
     </para>
@@ -1003,11 +1075,27 @@ into a list of Dir instances relative to the target being built.
     <para xmlns="http://www.scons.org/dbxsd/v1.0">
       DLIBFLAGPREFIX.
     </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DLIBFLAGPREFIX.
+    </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DLIBFLAGPREFIX.
+    </para>
  </listitem>
   </varlistentry>
   <varlistentry id="cv-DLIBFLAGSUFFIX">
     <term>DLIBFLAGSUFFIX</term>
     <listitem>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DLIBFLAGSUFFIX.
+    </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DLIBFLAGSUFFIX.
+    </para>
+ 
     <para xmlns="http://www.scons.org/dbxsd/v1.0">
       DLIBFLAGSUFFIX.
     </para>
@@ -1019,11 +1107,27 @@ into a list of Dir instances relative to the target being built.
     <para xmlns="http://www.scons.org/dbxsd/v1.0">
       DLIBLINKPREFIX.
     </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DLIBLINKPREFIX.
+    </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DLIBLINKPREFIX.
+    </para>
  </listitem>
   </varlistentry>
   <varlistentry id="cv-DLIBLINKSUFFIX">
     <term>DLIBLINKSUFFIX</term>
     <listitem>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DLIBLINKSUFFIX.
+    </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DLIBLINKSUFFIX.
+    </para>
+ 
     <para xmlns="http://www.scons.org/dbxsd/v1.0">
       DLIBLINKSUFFIX.
     </para>
@@ -1067,6 +1171,14 @@ into a list of Dir instances relative to the target being built.
     <para xmlns="http://www.scons.org/dbxsd/v1.0">
       DLINKFLAGPREFIX.
     </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DLINKFLAGPREFIX.
+    </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DLINKFLAGPREFIX.
+    </para>
  </listitem>
   </varlistentry>
   <varlistentry id="cv-DLINKFLAGS">
@@ -1088,6 +1200,14 @@ List of linker flags.
   <varlistentry id="cv-DLINKFLAGSUFFIX">
     <term>DLINKFLAGSUFFIX</term>
     <listitem>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DLINKFLAGSUFFIX.
+    </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DLINKFLAGSUFFIX.
+    </para>
+ 
     <para xmlns="http://www.scons.org/dbxsd/v1.0">
       DLINKFLAGSUFFIX.
     </para>
@@ -1306,6 +1426,30 @@ for <literal>saxon</literal> and <literal>saxon-xslt</literal>, respectively.
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-DRPATHPREFIX">
+    <term>DRPATHPREFIX</term>
+    <listitem>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                DRPATHPREFIX.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-DRPATHSUFFIX">
+    <term>DRPATHSUFFIX</term>
+    <listitem>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                DRPATHSUFFIX.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-DShLibSonameGenerator">
+    <term>DShLibSonameGenerator</term>
+    <listitem>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                DShLibSonameGenerator.
+            </para>
+        </listitem>
+  </varlistentry>
   <varlistentry id="cv-DSUFFIXES">
     <term>DSUFFIXES</term>
     <listitem>
@@ -1323,6 +1467,14 @@ The default list is:
   <varlistentry id="cv-DVERPREFIX">
     <term>DVERPREFIX</term>
     <listitem>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DVERPREFIX.
+    </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DVERPREFIX.
+    </para>
+ 
     <para xmlns="http://www.scons.org/dbxsd/v1.0">
       DVERPREFIX.
     </para>
@@ -1347,6 +1499,14 @@ The default list is:
   <varlistentry id="cv-DVERSUFFIX">
     <term>DVERSUFFIX</term>
     <listitem>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DVERSUFFIX.
+    </para>
+ 
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
+      DVERSUFFIX.
+    </para>
+ 
     <para xmlns="http://www.scons.org/dbxsd/v1.0">
       DVERSUFFIX.
     </para>
@@ -5839,6 +5999,22 @@ to generate shared-library objects.
   The command line to use when compiling code to be part of shared objects.
 </para>
 </listitem>
+  </varlistentry>
+  <varlistentry id="cv-SHDLIBVERSION">
+    <term>SHDLIBVERSION</term>
+    <listitem>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                SHDLIBVERSION.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-SHDLIBVERSIONFLAGS">
+    <term>SHDLIBVERSIONFLAGS</term>
+    <listitem>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                SHDLIBVERSIONFLAGS.
+            </para>
+        </listitem>
   </varlistentry>
   <varlistentry id="cv-SHDLINK">
     <term>SHDLINK</term>

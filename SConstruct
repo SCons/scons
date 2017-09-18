@@ -8,7 +8,7 @@ from __future__ import print_function
 copyright_years = '2001 - 2017'
 
 # This gets inserted into the man pages to reflect the month of release.
-month_year = 'MONTH YEAR'
+month_year = 'September 2017'
 
 #
 # __COPYRIGHT__
@@ -46,7 +46,7 @@ import time
 import bootstrap
 
 project = 'scons'
-default_version = '3.0.0.alpha.20170821'
+default_version = '3.0.0'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 platform = distutils.util.get_platform()
@@ -776,11 +776,16 @@ for p in [ scons ]:
         for sp in p['subpkgs']:
             ssubdir = sp['src_subdir']
             isubdir = p['subinst_dirs'][sp['pkg']]
+
+            
             MANIFEST_in = File(os.path.join(src, ssubdir, 'MANIFEST.in')).rstr()
             MANIFEST_in_list.append(MANIFEST_in)
             files = bootstrap.parseManifestLines(os.path.join(src, ssubdir), open(MANIFEST_in).readlines())
+
             raw_files.extend(files)
             src_files.extend([os.path.join(ssubdir, x) for x in files])
+
+               
             for f in files:
                 r = os.path.join(sp['rpm_dir'], f)
                 rpm_files.append(r)
