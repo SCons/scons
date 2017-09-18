@@ -1,3 +1,8 @@
+SCONS HAS MIGRATED TO GITHUB
+############################
+New repo https://github.com/SConsProject/scons
+
+
 SCons - a software construction tool
 ####################################
 
