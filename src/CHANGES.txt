@@ -11,6 +11,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
     - Whatever John Doe did.
 
+  From Thomas Berg:
+    - Fixed a regression in scons-3.0.0 where "from __future__ import print_function" was imposed
+      on the scope where SConstruct is executed, breaking existing builds using PY 2.7.
 
 RELEASE 3.0.0 - Mon, 18 Sep 2017 08:32:04 -0700
 

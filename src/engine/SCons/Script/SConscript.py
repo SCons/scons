@@ -5,8 +5,6 @@ files.
 
 """
 
-from __future__ import print_function
-
 #
 # __COPYRIGHT__
 #
