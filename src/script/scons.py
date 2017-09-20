@@ -65,7 +65,7 @@ Python < 3.5 is not yet supported.\n"
     sys.exit(1)
 
 
-script_dir = sys.path[0]
+script_dir = os.path.dirname(os.path.realpath(__file__))
 
 if script_dir in sys.path:
     sys.path.remove(script_dir)
