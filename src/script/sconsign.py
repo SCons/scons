@@ -57,7 +57,7 @@ import sys
 # engine modules if they're in either directory.
 
 
-script_dir = sys.path[0]
+script_dir = os.path.dirname(os.path.realpath(__file__))
 
 if script_dir in sys.path:
     sys.path.remove(script_dir)
