@@ -90,7 +90,7 @@ dh_builddeb = whereis('dh_builddeb')
 fakeroot = whereis('fakeroot')
 gzip = whereis('gzip')
 rpmbuild = whereis('rpmbuild')
-hg = os.path.exists('.hg') and whereis('hg')
+git = os.path.exists('.git') and whereis('git')
 unzip = whereis('unzip')
 zip = whereis('zip')
 
@@ -122,29 +122,24 @@ version = ARGUMENTS.get('VERSION', '')
 if not version:
     version = default_version
 
-hg_status_lines = []
+git_status_lines = []
 
-if hg:
-    cmd = "%s status --all 2> /dev/null" % hg
-    hg_status_lines = os.popen(cmd, "r").readlines()
+if git:
+    cmd = "%s status 2> /dev/null" % git
+    git_status_lines = os.popen(cmd, "r").readlines()
 
 revision = ARGUMENTS.get('REVISION', '')
 def generate_build_id(revision):
     return revision
 
-if not revision and hg:
-    hg_heads = os.popen("%s heads 2> /dev/null" % hg, "r").read()
-    cs = re.search('changeset:\s+(\S+)', hg_heads)
-    if cs:
-        revision = cs.group(1)
-        b = re.search('branch:\s+(\S+)', hg_heads)
-        if b:
-            revision = b.group(1) + ':' + revision
-        def generate_build_id(revision):
-            result = revision
-            if [l for l in hg_status_lines if l[0] in 'AMR!']:
-                result = result + '[MODIFIED]'
-            return result
+if not revision and git:
+    git_hash = os.popen("%s rev-parse HEAD 2> /dev/null" % git, "r").read().strip()
+    def generate_build_id(revision):
+        result = git_hash
+        if [l for l in git_status_lines if 'modified' in l]:
+            result = result + '[MODIFIED]'
+        return result
+    revision = git_hash
 
 checkpoint = ARGUMENTS.get('CHECKPOINT', '')
 if checkpoint:
@@ -234,8 +229,8 @@ command_line_variables = [
                         "variable from the list $USERNAME, $LOGNAME, $USER."),
 
     ("REVISION=",       "The revision number of the source being built.  " +
-                        "The default is the Subversion revision returned " +
-                        "'hg heads', with an appended string of " +
+                        "The default is the git hash returned " +
+                        "'git rev-parse HEAD', with an appended string of " +
                         "'[MODIFIED]' if there are any changes in the " +
                         "working copy."),
 
@@ -1227,18 +1222,17 @@ SConscript('doc/SConscript')
 # source archive from the project files and files in the change.
 #
 
+
 sfiles = None
-if hg_status_lines:
-    slines = [l for l in hg_status_lines if l[0] in 'ACM']
+if git_status_lines:
+    slines = [l for l in git_status_lines if 'modified:' in l]
     sfiles = [l.split()[-1] for l in slines]
 else:
    print("Not building in a Mercurial tree; skipping building src package.")
 
 if sfiles:
     remove_patterns = [
-        '.hgt/*',
-        '.svnt/*',
-        '*.aeignore',
+        '*.gitignore',
         '*.hgignore',
         'www/*',
     ]

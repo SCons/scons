@@ -32,3 +32,6 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+
+# SCons files
+.sconsign.*
