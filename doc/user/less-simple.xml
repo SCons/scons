@@ -644,4 +644,61 @@ Program('bar', bar_files)
 
   </section>
 
+  <section>
+  <title>Overriding construction variables when calling a Builder</title>
+
+    <para>
+
+    It is possible to override or add construction variables
+    when calling a builder method by passing additional keyword arguments.
+    These overridden or added variables will only be in effect when
+    building the target, so they will not affect other parts of the build.
+    For example, if you want to add additional libraries for just one program:
+
+    </para>
+
+    <programlisting>
+env.Program('hello', 'hello.c', LIBS=['gl', 'glut'])
+    </programlisting>
+
+    <para>
+
+    or generate a shared library with a non-standard suffix:
+
+    </para>
+
+    <programlisting>
+env.SharedLibrary('word', 'word.cpp',
+                  SHLIBSUFFIX='.ocx',
+                  LIBSUFFIXES=['.ocx'])
+    </programlisting>
+
+    <para>
+
+    It is also possible to use the <literal>parse_flags</literal> keyword argument in an
+    override:
+
+    </para>
+
+    <para>
+
+    This example adds 'include' to &cv-link-CPPPATH;,
+    'EBUG' to &cv-link-CPPDEFINES;, and 'm' to &cv-link-LIBS;.
+
+    </para>
+
+    <programlisting>
+env = Program('hello', 'hello.c', parse_flags = '-Iinclude -DEBUG -lm')
+    </programlisting>
+
+    <para>
+
+    Within the call to the builder action the environment is not cloned,
+    instead an OverrideEnvironment() is created which is more
+    light weight than a whole Environment()
+
+    </para>
+
+  </section>
+
 </chapter>

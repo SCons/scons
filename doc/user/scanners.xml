@@ -410,6 +410,59 @@ kscan = Scanner(function = kfile_scan,
     This is important since many files get scanned in a typical build.
     
     </para>
-    </section>
+  </section>
+
+  <section>
+  <title>Using scanners with Builders</title>
+
+    <para>
+
+	One approach for the use of scanners is with builders.
+    There are two optional parameters we can use with a builder
+    <literal>source_scanner</literal> and <literal>target_scanner</literal>.
+
+    </para>
+
+    <scons_example name="scanners_builders">
+      <file name="SConstruct" printme="1">
+
+def kfile_scan(node, env, path, arg):
+    contents = node.get_text_contents()
+    return env.File(include_re.findall(contents))
+
+kscan = Scanner(function = kfile_scan,
+            skeys = ['.k'],
+            path_function = FindPathDirs('KPATH'))
+
+def build_function(target, source, env):
+    # Code to build "target" from "source"
+    return None
+
+bld = Builder(action = build_function,
+            suffix = '.foo',
+            source_scanner = kscan
+            src_suffix = '.input')
+env = Environment(BUILDERS = {'Foo' : bld})
+env.Foo('file')
+
+      </file>
+    </scons_example>
+
+    <para>
+
+    An emiter function can modify the list of sources or targets
+    passed to the action function when the builder is triggered.
+
+    </para>
+
+	<para>
+
+    A scanner function will not affect the list of sources or targets
+    seen by the builder during the build action. The scanner function
+    will however affect if the builder should be rebuilt (if any of
+    the files sourced by the scanner have changed for example).
+
+    </para>
+  </section>
 
 </chapter>
