@@ -450,7 +450,7 @@ env.Foo('file')
 
     <para>
 
-    An emiter function can modify the list of sources or targets
+    An emitter function can modify the list of sources or targets
     passed to the action function when the builder is triggered.
 
     </para>
