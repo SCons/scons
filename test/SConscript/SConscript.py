@@ -37,7 +37,7 @@ import foo
 
 assert foo.foo == 4
 
-print("SConstruct", os.getcwd())
+print("SConstruct "+ os.getcwd())
 SConscript('SConscript')
 
 x1 = "SConstruct x1"

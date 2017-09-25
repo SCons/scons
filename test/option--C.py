@@ -51,7 +51,7 @@ test.subdir('sub', ['sub', 'dir'])
 
 test.write('SConstruct', """
 import os
-print("SConstruct", os.getcwd())
+print("SConstruct "+os.getcwd())
 """)
 
 test.write(['sub', 'SConstruct'], """

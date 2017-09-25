@@ -50,14 +50,14 @@ test.write(['sub1', 'SConscript'], """\
 env = Environment()
 env.Import("x")
 print("sub1/SConscript")
-print("x =", x)
+print("x = %s"%x)
 """)
 
 test.write(['sub2', 'SConscript'], """\
 env = Environment()
 env.Import("y")
 print("sub2/SConscript")
-print("y =", y)
+print("y = %s"%y)
 """)
 
 test.write('s1', "\n")
