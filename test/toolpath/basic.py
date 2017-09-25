@@ -35,65 +35,65 @@ def foo(env):
     env['TOOL_FOO'] = 1
 
 env1 = Environment(tools=[foo, 'bar'], toolpath=['tools'])
-print("env1['TOOL_FOO'] =", env1.get('TOOL_FOO'))
-print("env1['TOOL_BAR'] =", env1.get('TOOL_BAR'))
+print("env1['TOOL_FOO'] = %s"%env1.get('TOOL_FOO'))
+print("env1['TOOL_BAR'] = %s"%env1.get('TOOL_BAR'))
 
 # pick a built-in tool with pretty simple behavior
 env2 = Environment(tools=['zip'])
-print("env2['ZIP'] =", env2.get('ZIP'))
-print("env2['TOOL_zip1'] =", env2.get('TOOL_zip1'))
-print("env2['TOOLDIR_zip'] =", env2.get('TOOLDIR_zip'))
+print("env2['ZIP'] = %s"%env2.get('ZIP'))
+print("env2['TOOL_zip1'] = %s"%env2.get('TOOL_zip1'))
+print("env2['TOOLDIR_zip'] = %s"%env2.get('TOOLDIR_zip'))
 
 # Only find tools in current dir, or Scons.Tool.TOOLNAME
 env3 = Environment(tools=['zip'], toolpath=['.'])
-print("env3['ZIP'] =", env3.get('ZIP'))
-print("env3['TOOL_zip1'] =", env3.get('TOOL_zip1'))
-print("env3['TOOLDIR_zip'] =", env3.get('TOOLDIR_zip'))
+print("env3['ZIP'] = %s"%env3.get('ZIP'))
+print("env3['TOOL_zip1'] = %s"%env3.get('TOOL_zip1'))
+print("env3['TOOLDIR_zip'] = %s"%env3.get('TOOLDIR_zip'))
 
 env4 = Environment(tools=['zip'], toolpath=['tools'])
-print("env4['ZIP'] =", env4.get('ZIP'))
-print("env4['TOOL_zip1'] =", env4.get('TOOL_zip1'))
-print("env4['TOOLDIR_zip'] =", env4.get('TOOLDIR_zip'))
+print("env4['ZIP'] = %s"%env4.get('ZIP'))
+print("env4['TOOL_zip1'] = %s"%env4.get('TOOL_zip1'))
+print("env4['TOOLDIR_zip'] = %s"%env4.get('TOOLDIR_zip'))
 
 # Should pick up from tools dir, and then current dir
 env5 = Environment(tools=['zip'], toolpath=['tools', '.'])
-print("env5['ZIP'] =", env5.get('ZIP'))
-print("env5['TOOL_zip1'] =", env5.get('TOOL_zip1'))
-print("env5['TOOLDIR_zip'] =", env5.get('TOOLDIR_zip'))
+print("env5['ZIP'] = %s"%env5.get('ZIP'))
+print("env5['TOOL_zip1'] = %s"%env5.get('TOOL_zip1'))
+print("env5['TOOLDIR_zip'] = %s"%env5.get('TOOLDIR_zip'))
 
 
 # Should pick up from current dir, and then tools dir
 env6 = Environment(tools=['zip'], toolpath=['.', 'tools'])
-print("env6['ZIP'] =", env6.get('ZIP'))
-print("env6['TOOL_zip1'] =", env6.get('TOOL_zip1'))
-print("env6['TOOLDIR_zip'] =", env6.get('TOOLDIR_zip'))
+print("env6['ZIP'] = %s"%env6.get('ZIP'))
+print("env6['TOOL_zip1'] = %s"%env6.get('TOOL_zip1'))
+print("env6['TOOLDIR_zip'] = %s"%env6.get('TOOLDIR_zip'))
 
 env7 = Environment(TOOLPATH="tools", tools=['zip'], toolpath=['$TOOLPATH'])
-print("env7['ZIP'] =", env7.get('ZIP'))
-print("env7['TOOL_zip1'] =", env7.get('TOOL_zip1'))
-print("env7['TOOLDIR_zip'] =", env7.get('TOOLDIR_zip'))
+print("env7['ZIP'] = %s"%env7.get('ZIP'))
+print("env7['TOOL_zip1'] = %s"%env7.get('TOOL_zip1'))
+print("env7['TOOLDIR_zip'] = %s"%env7.get('TOOLDIR_zip'))
 
 env8 = Environment(tools=[])
 env8.Tool('zip', toolpath=['tools'])
-print("env8['ZIP'] =", env8.get('ZIP'))
-print("env8['TOOL_zip1'] =", env8.get('TOOL_zip1'))
-print("env8['TOOLDIR_zip'] =", env8.get('TOOLDIR_zip'))
+print("env8['ZIP'] = %s"%env8.get('ZIP'))
+print("env8['TOOL_zip1'] = %s"%env8.get('TOOL_zip1'))
+print("env8['TOOLDIR_zip'] = %s"%env8.get('TOOLDIR_zip'))
 
 env9 = Environment(tools=[])
 Tool('zip', toolpath=['tools'])(env9)
-print("env9['ZIP'] =", env9.get('ZIP'))
-print("env9['TOOL_zip1'] =", env9.get('TOOL_zip1'))
-print("env9['TOOLDIR_zip'] =", env9.get('TOOLDIR_zip'))
+print("env9['ZIP'] = %s"%env9.get('ZIP'))
+print("env9['TOOL_zip1'] = %s"%env9.get('TOOL_zip1'))
+print("env9['TOOLDIR_zip'] = %s"%env9.get('TOOLDIR_zip'))
 
 env0 = Environment(TOOLPATH='tools', tools=[])
 env0.Tool('zip', toolpath=['$TOOLPATH'])
-print("env0['ZIP'] =", env0.get('ZIP'))
-print("env0['TOOL_zip1'] =", env0.get('TOOL_zip1'))
-print("env0['TOOLDIR_zip'] =", env0.get('TOOLDIR_zip'))
+print("env0['ZIP'] = %s"%env0.get('ZIP'))
+print("env0['TOOL_zip1'] = %s"%env0.get('TOOL_zip1'))
+print("env0['TOOLDIR_zip'] = %s"%env0.get('TOOLDIR_zip'))
 
 base = Environment(tools=[], toolpath=['tools'])
 derived = base.Clone(tools=['bar'])
-print("derived['TOOL_BAR'] =", derived.get('TOOL_BAR'))
+print("derived['TOOL_BAR'] = %s"%derived.get('TOOL_BAR'))
 """)
 
 test.write('zip.py', r"""

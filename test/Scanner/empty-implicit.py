@@ -37,7 +37,7 @@ test.write('SConstruct', r"""
 import os.path
 
 def scan(node, env, envkey, arg):
-    print('XScanner: node =', os.path.split(str(node))[1])
+    print('XScanner: node = '+os.path.split(str(node))[1])
     return []
 
 def exists_check(node, env):

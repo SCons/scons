@@ -41,12 +41,12 @@ print("SConscript " + os.getcwd())
 
 test.write(subdir_BuildThis, """
 import os
-print("subdir/BuildThis", os.getcwd())
+print("subdir/BuildThis "+ os.getcwd())
 """)
 
 test.write('Build2', """
 import os
-print("Build2", os.getcwd())
+print("Build2 "+ os.getcwd())
 """)
 
 wpath = test.workpath()

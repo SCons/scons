@@ -39,13 +39,8 @@ x = SConscript('SConscript2')
 y, z = SConscript('SConscript3')
 a4, b4 = SConscript('SConscript4')
 foo, bar = SConscript('SConscript5')
-print("x =", x)
-print("y =", y)
-print("z =", z)
-print("a4 =", a4)
-print("b4 =", b4)
-print("foo =", foo)
-print("bar =", bar)
+for var in ['x','y','z','a4','b4','foo','bar']:
+    print("%s = %s"%(var,globals()[var]))
 """)
 
 test.write('SConscript1', """\
