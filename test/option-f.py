@@ -35,16 +35,19 @@ test.subdir('subdir')
 subdir_BuildThis = os.path.join('subdir', 'Buildthis')
 
 test.write('SConscript', """
+from __future__ import print_function
 import os
 print("SConscript " + os.getcwd())
 """)
 
 test.write(subdir_BuildThis, """
+from __future__ import print_function
 import os
 print("subdir/BuildThis", os.getcwd())
 """)
 
 test.write('Build2', """
+from __future__ import print_function
 import os
 print("Build2", os.getcwd())
 """)

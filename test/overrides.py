@@ -33,6 +33,7 @@ test = TestSCons.TestSCons()
 _python_ = TestSCons._python_
 
 test.write('SConstruct', """
+from __future__ import print_function
 env = Environment(CCFLAGS='-DFOO', LIBS=['a'])
 def build(target, source, env):
     print("env['CC'] =", env['CC'])

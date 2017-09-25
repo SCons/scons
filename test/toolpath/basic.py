@@ -31,6 +31,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
+from __future__ import print_function
 def foo(env):
     env['TOOL_FOO'] = 1
 

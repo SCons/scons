@@ -33,6 +33,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', r"""
+from __future__ import print_function
 import os.path
 
 def scan(node, env, envkey, arg):

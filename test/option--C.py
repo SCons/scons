@@ -50,6 +50,7 @@ wpath_sub_foo_bar = test.workpath('sub', 'foo', 'bar')
 test.subdir('sub', ['sub', 'dir'])
 
 test.write('SConstruct', """
+from __future__ import print_function
 import os
 print("SConstruct", os.getcwd())
 """)
