@@ -38,6 +38,8 @@ test = TestSCons.TestSCons()
 subfn = os.path.join('sub', 'foo')
 
 test.write('SConstruct', """\
+from __future__ import print_function
+
 def exists(node):
     if node.exists():
         print(str(node), "exists")

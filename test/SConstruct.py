@@ -40,6 +40,7 @@ scons: \*\*\* No SConstruct file found.
 wpath = test.workpath()
 
 test.write('sconstruct', """
+from __future__ import print_function
 import os
 print("sconstruct", os.getcwd())
 """)
@@ -50,6 +51,7 @@ test.run(arguments = ".",
 
 
 test.write('Sconstruct', """
+from __future__ import print_function
 import os
 print("Sconstruct", os.getcwd())
 """)
@@ -59,6 +61,7 @@ test.run(arguments = ".",
                                    build_str = "scons: `.' is up to date.\n"))
 
 test.write('SConstruct', """
+from __future__ import print_function
 import os
 print("SConstruct", os.getcwd())
 """)

@@ -32,6 +32,7 @@ test.write('foo.py', "foo = 4\n")
 
 
 test.write('SConstruct', """\
+from __future__ import print_function
 import os
 import foo
 

@@ -34,6 +34,8 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
+from __future__ import print_function
+
 SConscript('SConscript1')
 x = SConscript('SConscript2')
 y, z = SConscript('SConscript3')

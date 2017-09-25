@@ -43,6 +43,7 @@ SConscript('subdir/SConscript')
 """)
 
 SConscript_contents = """\
+from __future__ import print_function
 Import("opts")
 env = Environment()
 opts.Update(env)

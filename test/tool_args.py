@@ -37,6 +37,7 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 # Test passing kw args to Tool constructor
+from __future__ import print_function
 env1 = Environment(tools=[Tool('FooTool', toolpath=['.'], kw1='kw1val')])
 print("env1['TOOL_FOO'] =", env1.get('TOOL_FOO'))
 print("env1['kw1'] =", env1.get('kw1'))

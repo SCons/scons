@@ -47,6 +47,7 @@ env.SConscript(['s3', 's4'])
 """)
 
 test.write(['sub1', 'SConscript'], """\
+from __future__ import print_function
 env = Environment()
 env.Import("x")
 print("sub1/SConscript")
@@ -54,6 +55,7 @@ print("x =", x)
 """)
 
 test.write(['sub2', 'SConscript'], """\
+from __future__ import print_function
 env = Environment()
 env.Import("y")
 print("sub2/SConscript")
