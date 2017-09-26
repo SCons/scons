@@ -46,6 +46,7 @@ import SCons.Builder
 import SCons.Debug
 from SCons.Debug import logInstanceCreation
 import SCons.Defaults
+from SCons.EnvironmentValues import EnvironmentValues, EnvironmentValue, EnvironmentValueParseError
 import SCons.Errors
 import SCons.Memoize
 import SCons.Node
@@ -375,6 +376,9 @@ class SubstitutionEnvironment(object):
         self._dict = kw.copy()
         self._init_special()
         self.added_methods = []
+
+        # Testing EnvironmentValues
+        self._env_values = EnvironmentValues(**kw)
         #self._memo = {}
 
     def _init_special(self):
@@ -407,6 +411,11 @@ class SubstitutionEnvironment(object):
             del self._dict[key]
 
     def __getitem__(self, key):
+
+        # TEST EnvironmentValues
+        # if hasattr(self, '_env_values'):
+        #     print("XXX->%s  == %s"%(self._dict[key],self._env_values[key].value))
+
         return self._dict[key]
 
     def __setitem__(self, key, value):
@@ -433,6 +442,10 @@ class SubstitutionEnvironment(object):
                and not _is_valid_var.match(key):
                     raise SCons.Errors.UserError("Illegal construction variable `%s'" % key)
             self._dict[key] = value
+
+            # Testing
+            if hasattr(self,'_env_values'):
+                self._env_values[key] = value
 
     def get(self, key, default=None):
         """Emulates the get() method of dictionaries."""
@@ -920,6 +933,10 @@ class Base(SubstitutionEnvironment):
         self._init_special()
         self.added_methods = []
 
+        # Testing EnvironmentValues
+        # self._env_values = EnvironmentValues(**SCons.Defaults.ConstructionEnvironment)
+
+
         # We don't use AddMethod, or define these as methods in this
         # class, because we *don't* want these functions to be bound
         # methods.  They need to operate independently so that the
@@ -949,16 +966,17 @@ class Base(SubstitutionEnvironment):
         self._dict['TARGET_OS']      = self._dict.get('TARGET_OS',None)
         self._dict['TARGET_ARCH']    = self._dict.get('TARGET_ARCH',None)
 
-
         # Apply the passed-in and customizable variables to the
         # environment before calling the tools, because they may use
         # some of them during initialization.
         if 'options' in kw:
-            # Backwards compatibility:  they may stll be using the
+            # Backwards compatibility:  they may still be using the
             # old "options" keyword.
             variables = kw['options']
             del kw['options']
+
         self.Replace(**kw)
+
         keys = list(kw.keys())
         if variables:
             keys = keys + list(variables.keys())
@@ -989,6 +1007,11 @@ class Base(SubstitutionEnvironment):
 
         # Finally, apply any flags to be merged in
         if parse_flags: self.MergeFlags(parse_flags)
+
+
+        # Testing EnvironmentValues
+        self._env_values = EnvironmentValues(**self._dict)
+
 
     #######################################################################
     # Utility methods that are primarily for internal use by SCons.
@@ -2309,10 +2332,12 @@ class OverrideEnvironment(Base):
             return self.__dict__['overrides'][key]
         except KeyError:
             return self.__dict__['__subject'].__getitem__(key)
+
     def __setitem__(self, key, value):
         if not is_valid_construction_var(key):
             raise SCons.Errors.UserError("Illegal construction variable `%s'" % key)
         self.__dict__['overrides'][key] = value
+
     def __delitem__(self, key):
         try:
             del self.__dict__['overrides'][key]

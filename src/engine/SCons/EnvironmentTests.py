@@ -3579,6 +3579,10 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
     def setUp(self):
         env = Environment()
         env._dict = {'XXX' : 'x', 'YYY' : 'y'}
+
+        # Testing EnvironmentValues
+        env._env_values = EnvironmentValues(**env._dict)
+
         env2 = OverrideEnvironment(env, {'XXX' : 'x2'})
         env3 = OverrideEnvironment(env2, {'XXX' : 'x3', 'YYY' : 'y3', 'ZZZ' : 'z3'})
         self.envs = [ env, env2, env3 ]
@@ -3933,6 +3937,7 @@ class NoSubstitutionProxyTestCase(unittest.TestCase,TestEnvironmentFixture):
         assert x == 'x ttt sss y', x
         x = proxy.subst_target_source(*args, **kw)
         assert x == ' ttt sss ', x
+
 
 class EnvironmentVariableTestCase(unittest.TestCase):
 
