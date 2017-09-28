@@ -1,9 +1,9 @@
 import unittest
 
-from  SCons.EnvironmentValues import EnvironmentValues, EnvironmentValue, ValueTypes
+from SCons.EnvironmentValues import EnvironmentValues, EnvironmentValue, ValueTypes
 
 
-class testEnvironmentValue(unittest.TestCase):
+class TestEnvironmentValue(unittest.TestCase):
     """
     Test the class which holds a single environment value
     """
@@ -17,7 +17,7 @@ class testEnvironmentValue(unittest.TestCase):
         self.assertEqual(one.var_type, ValueTypes.PARSED)
         self.assertEqual(one.depends_on,
                          {'LDMODULE', 'TARGET', '__LDMODULEVERSIONFLAGS', 'SOURCES', 'LDMODULEFLAGS', '_LIBFLAGS',
-                          '_LIBDIRFLAGS', '__RPATH'}, "depends_on:%s\n  (AD:%s)\n(P:%s)"%(one.depends_on,one.all_dependencies, one._parsed))
+                          '_LIBDIRFLAGS', '__RPATH'}, "depends_on:%s\n  (AD:%s)\n(P:%s)" % (one.depends_on, one.all_dependencies, one._parsed))
 
     def test_function_call(self):
         # TODO: Should this be callable?
@@ -78,11 +78,11 @@ class testEnvironmentValue(unittest.TestCase):
         self.assertEqual(one.var_type, ValueTypes.CALLABLE)
 
     def test_dict_value(self):
-        one = EnvironmentValue('ENV',{})
+        one = EnvironmentValue('ENV', {})
 
         one['ENV']['BLAH'] = 1
 
-        self.assertEqual(one['ENV']['BLAH'],1)
+        self.assertEqual(one['ENV']['BLAH'], 1)
 
 
 class TestEnvironmentValues(unittest.TestCase):
@@ -121,9 +121,17 @@ class TestEnvironmentValues(unittest.TestCase):
 
         # Now try getting for signature which should skip escaped part of string
         xxx_sig = env.subst('XXX', for_signature=True)
-        self.assertEqual(xxx_sig,'One')  # Should we have trailing space?
+        self.assertEqual(xxx_sig, 'One')  # Should we have trailing space?
 
+    def test_simple_callable_function(self):
+        def foo(target, source, env, for_signature):
+            return "bar"
 
+        # Will expand $BAR to "bar baz"
+        env = EnvironmentValues(FOO=foo, BAR="$FOO baz")
+
+        bar = env.subst('BAR')
+        self.assertEqual(bar, 'bar baz')
 
 if __name__ == '__main__':
     unittest.main()
