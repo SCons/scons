@@ -336,6 +336,10 @@ class scons_subst_TestCase(SubstTestCase):
         # Test double-dollar-sign behavior.
         "$$FFF$HHH",            "$FFFIII",
 
+        # Test double-dollar-sign before open paren. It's not meant
+        # to be signature escaping
+        'echo $$(pwd) > XYZ',   'echo $(pwd) > XYZ',
+
         # Test that a Literal will stop dollar-sign substitution.
         "$XXX $LITERAL $FFF",   "GGG $XXX GGG",
 
