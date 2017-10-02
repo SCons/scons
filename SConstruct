@@ -160,20 +160,6 @@ if build_id is None:
 import os.path
 import distutils.command
 
-no_winpack_templates = not os.path.exists(os.path.join(os.path.split(distutils.command.__file__)[0],'wininst-9.0.exe'))
-skip_win_packages = ARGUMENTS.get('SKIP_WIN_PACKAGES',False) or no_winpack_templates
-
-if sys.version_info[0] > 2:
-    # TODO: Resolve this issue. Currently fails when run on windows with
-    #   File "/opt/local/Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/distutils/command/bdist_wininst.py", line 262, in create_exe
-    #   cfgdata = cfgdata.encode("mbcs")
-    #  LookupError: unknown encoding: mbcs
-    print("Temporary PY3: Skipping windows package builds")
-    skip_win_packages = True
-
-if skip_win_packages:
-    print("Skipping the build of Windows packages...")
-
 python_ver = sys.version[0:3]
 
 #
@@ -238,7 +224,6 @@ command_line_variables = [
                         "is the hard-coded value '%s' " % default_version +
                         "from this SConstruct file."),
 
-    ("SKIP_WIN_PACKAGES=", "If set, skip building win32 and win64 packages."),
 ]
 
 Default('.', build_dir)
@@ -850,12 +835,6 @@ for p in [ scons ]:
 
     distutils_formats = []
     distutils_targets = []
-
-    if not skip_win_packages:
-        win64_exe = os.path.join(build, 'dist', "%s.win-amd64.exe" % pkg_version)
-        win32_exe = os.path.join(build, 'dist', "%s.win32.exe" % pkg_version)
-        distutils_targets.extend([ win32_exe , win64_exe ])
-
     dist_distutils_targets = []
 
     for target in distutils_targets:
@@ -1095,11 +1074,6 @@ for p in [ scons ]:
 
         commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY sdist --formats=%s" %  \
                             ','.join(distutils_formats))
-
-    if not skip_win_packages:
-        commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY bdist_wininst --plat-name=win32 --user-access-control auto")
-
-        commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY bdist_wininst --plat-name=win-amd64 --user-access-control auto")
 
     env.Command(distutils_targets, build_src_files, commands)
 
