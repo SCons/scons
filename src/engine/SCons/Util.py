@@ -481,10 +481,7 @@ def to_String_for_subst(s,
     if isinstance(s, BaseStringTypes):
         return s
     elif isinstance(s, SequenceTypes):
-        l = []
-        for e in s:
-            l.append(to_String_for_subst(e))
-        return ' '.join( s )
+        return ' '.join([to_String_for_subst(e) for e in s])
     elif isinstance(s, UserString):
         # s.data can only be either a unicode or a regular
         # string. Please see the UserString initializer.
