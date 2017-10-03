@@ -1,0 +1,1 @@
+from SConsRevision import SCons_revision
