@@ -132,10 +132,10 @@ foo = Environment(tools = ['javac', 'jar'],
                   JAR = r'%(where_jar)s')
 jar = foo.Dictionary('JAR')
 bar = foo.Clone(JAR = r'%(_python_)s wrapper_with_args.py ' + jar)
-foo.Java(target = 'classes', source = 'com/sub/foo')
-bar.Java(target = 'classes', source = 'com/sub/bar')
-foo.Jar(target = 'foo', source = 'classes/com/sub/foo')
-bar.Jar(target = 'bar', source = 'classes/com/sub/bar')
+foo_classes = foo.Java(target = 'classes', source = 'com/sub/foo')
+bar_classes = bar.Java(target = 'classes', source = 'com/sub/bar')
+foo.Jar(target = 'foo', source = foo_classes)
+bar.Jar(target = 'bar', source = bar_classes)
 """ % locals())
 
 test.subdir('com',
@@ -229,7 +229,7 @@ public class Example6
 
 test.run(arguments = '.')
 
-expected_wrapper_out = "wrapper_with_args.py %(where_jar)s cf bar.jar classes/com/sub/bar\n"
+expected_wrapper_out = "wrapper_with_args.py %(where_jar)s cf bar.jar -C classes com/sub/bar/Example4.class -C classes com/sub/bar/Example5.class -C classes com/sub/bar/Example6.class\n"
 expected_wrapper_out = expected_wrapper_out.replace('/', os.sep)
 test.must_match('wrapper.out',
                 expected_wrapper_out % locals(), mode='r')
