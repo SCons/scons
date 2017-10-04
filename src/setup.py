@@ -76,16 +76,6 @@ import distutils.command.build_scripts
 import distutils.msvccompiler
 
 
-def get_build_version():
-    """ monkey patch distutils msvc version if we're not on windows.
-    We need to use vc version 9 for python 2.7.x and it defaults to 6
-    for non-windows platforms and there is no way to override it besides
-    monkey patching"""
-    return 9
-
-
-distutils.msvccompiler.get_build_version = get_build_version
-
 _install = distutils.command.install.install
 _install_data = distutils.command.install_data.install_data
 _install_lib = distutils.command.install_lib.install_lib

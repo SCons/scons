@@ -30,9 +30,6 @@ import os.path
 Import('build_dir', 'env')
 
 files = [
-    'classes.qmc',
-    'configuration',
-    'scons_tdb.py',
     'TestCmd.py',
     'TestCommon.py',
     'TestRuntest.py',

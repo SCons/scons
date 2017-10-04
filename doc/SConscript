@@ -63,6 +63,7 @@ env = env.Clone()
 
 build = os.path.join(build_dir, 'doc')
 
+
 epydoc_cli = whereis('epydoc')
 gs = whereis('gs')
 lynx = whereis('lynx')
@@ -586,7 +587,7 @@ else:
     tar_deps.append(htmldir)
     tar_list.append(htmldir)
 
-    if not epydoc_cli:
+    if sys.platform == 'darwin' or not epydoc_cli:
         print("doc: command line epydoc is not found, skipping PDF/PS/Tex output")
     else:
         # PDF and PostScript and TeX are built from the

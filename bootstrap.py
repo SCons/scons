@@ -117,12 +117,12 @@ def main():
     
     search = [script_dir]
     
-    def find(file, search=search):
-        for dir in search:
-            f = os.path.join(dir, file)
-            if os.path.exists(f):
-                return os.path.normpath(f)
-        sys.stderr.write("could not find `%s' in search path:\n" % file)
+    def find(filename, search=search):
+        for dir_name in search:
+            filepath = os.path.join(dir_name, filename)
+            if os.path.exists(filepath):
+                return os.path.normpath(filepath)
+        sys.stderr.write("could not find `%s' in search path:\n" % filename)
         sys.stderr.write("\t" + "\n\t".join(search) + "\n")
         sys.exit(2)
     
@@ -147,11 +147,9 @@ def main():
                 sys.exit(1)
         elif arg[:16] == '--bootstrap_dir=':
             bootstrap_dir = arg[16:]
-    
         elif arg == '--bootstrap_force':
             def must_copy(dst, src):
                 return 1
-    
         elif arg == '--bootstrap_src':
             try:
                 search.insert(0, command_line_args.pop(0))
@@ -160,10 +158,8 @@ def main():
                 sys.exit(1)
         elif arg[:16] == '--bootstrap_src=':
             search.insert(0, arg[16:])
-    
         elif arg == '--bootstrap_update':
             update_only = 1
-    
         elif arg in ('-C', '--directory'):
             try:
                 dir = command_line_args.pop(0)
@@ -176,49 +172,46 @@ def main():
             os.chdir(arg[2:])
         elif arg[:12] == '--directory=':
             os.chdir(arg[12:])
-    
         else:
             pass_through_args.append(arg)
-    
-    
+
     scons_py = os.path.join('src', 'script', 'scons.py')
     src_engine = os.path.join('src', 'engine')
     MANIFEST_in = find(os.path.join(src_engine, 'MANIFEST.in'))
     MANIFEST_xml_in = find(os.path.join(src_engine, 'MANIFEST-xml.in'))
     manifest_files = [os.path.join(src_engine, x)
-                            for x in parseManifestLines(os.path.join(script_dir, src_engine),
-                                                        open(MANIFEST_in).readlines())]
+                      for x in parseManifestLines(os.path.join(script_dir, src_engine),
+                                                  open(MANIFEST_in).readlines())]
 
     manifest_xml_files = [os.path.join(src_engine, x)
-                            for x in parseManifestLines(os.path.join(script_dir, src_engine),
-                                                        open(MANIFEST_xml_in).readlines())]
-    files = [ scons_py ] + manifest_files + manifest_xml_files
-    
-    for file in files:
-        src = find(file)
-        dst = os.path.join(bootstrap_dir, file)
+                          for x in parseManifestLines(os.path.join(script_dir, src_engine),
+                                                      open(MANIFEST_xml_in).readlines())]
+    files = [scons_py] + manifest_files + manifest_xml_files
+
+    for filename in files:
+        src = find(filename)
+        dst = os.path.join(bootstrap_dir, filename)
         if must_copy(dst, src):
             dir = os.path.split(dst)[0]
             if not os.path.isdir(dir):
                 os.makedirs(dir)
-            try: os.unlink(dst)
-            except: pass
+            try:
+                os.unlink(dst)
+            except Exception as e:
+                pass
 
-            shutil.copyfile(src,dst)
-    
+            shutil.copyfile(src, dst)
+
     if update_only:
         sys.exit(0)
-    
-    args = [
-                sys.executable,
-                os.path.join(bootstrap_dir, scons_py)
-           ] + pass_through_args
-    
+
+    args = [sys.executable, os.path.join(bootstrap_dir, scons_py)] + pass_through_args
+
     sys.stdout.write(" ".join(args) + '\n')
     sys.stdout.flush()
-    
+
     os.environ['SCONS_LIB_DIR'] = os.path.join(bootstrap_dir, src_engine)
-    
+
     sys.exit(subprocess.Popen(args, env=os.environ).wait())
 
 if __name__ == "__main__":
