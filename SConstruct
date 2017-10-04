@@ -34,6 +34,7 @@ month_year = 'September 2017'
 #
 
 import distutils.util
+import distutils.command
 import fnmatch
 import os
 import os.path
@@ -42,6 +43,10 @@ import stat
 import sys
 import tempfile
 import time
+import socket
+import textwrap
+
+
 
 import bootstrap
 
@@ -49,47 +54,16 @@ project = 'scons'
 default_version = '3.0.0'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
-platform = distutils.util.get_platform()
-
-def is_windows():
-   if platform.startswith('win'):
-      return True
-   else:
-      return False
-
 SConsignFile()
 
-#
-# An internal "whereis" routine to figure out if a given program
-# is available on this system.
-#
-def whereis(file):
-    exts = ['']
-    if is_windows():
-        exts += ['.exe']
-    for dir in os.environ['PATH'].split(os.pathsep):
-        f = os.path.join(dir, file)
-        for ext in exts:
-            f_ext = f + ext
-            if os.path.isfile(f_ext):
-                try:
-                    st = os.stat(f_ext)
-                except:
-                    continue
-                if stat.S_IMODE(st[stat.ST_MODE]) & 0o111:
-                    return f_ext
-    return None
 
 #
 # We let the presence or absence of various utilities determine whether
 # or not we bother to build certain pieces of things.  This should allow
 # people to still do SCons packaging work even if they don't have all
-# of the utilities installed (e.g. RPM).
+# of the utilities installed
 #
-dh_builddeb = whereis('dh_builddeb')
-fakeroot = whereis('fakeroot')
 gzip = whereis('gzip')
-rpmbuild = whereis('rpmbuild')
 git = os.path.exists('.git') and whereis('git')
 unzip = whereis('unzip')
 zip = whereis('zip')
@@ -101,11 +75,6 @@ date = ARGUMENTS.get('DATE')
 if not date:
     date = time.strftime("%Y/%m/%d %H:%M:%S", time.localtime(time.time()))
 
-# Datestring for debian
-# Should look like: Mon, 03 Nov 2016 13:37:42 -0700
-deb_date = time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime())
-
-
 developer = ARGUMENTS.get('DEVELOPER')
 if not developer:
     for variable in ['USERNAME', 'LOGNAME', 'USER']:
@@ -115,7 +84,6 @@ if not developer:
 
 build_system = ARGUMENTS.get('BUILD_SYSTEM')
 if not build_system:
-    import socket
     build_system = socket.gethostname().split('.')[0]
 
 version = ARGUMENTS.get('VERSION', '')
@@ -125,7 +93,7 @@ if not version:
 git_status_lines = []
 
 if git:
-    cmd = "%s status 2> /dev/null" % git
+    cmd = "%s ls-files 2> /dev/null" % git
     git_status_lines = os.popen(cmd, "r").readlines()
 
 revision = ARGUMENTS.get('REVISION', '')
@@ -144,7 +112,6 @@ if not revision and git:
 checkpoint = ARGUMENTS.get('CHECKPOINT', '')
 if checkpoint:
     if checkpoint == 'd':
-        import time
         checkpoint = time.strftime('%Y%m%d', time.localtime(time.time()))
     elif checkpoint == 'r':
         checkpoint = 'r' + revision
@@ -157,8 +124,6 @@ if build_id is None:
     else:
         build_id = ''
 
-import os.path
-import distutils.command
 
 python_ver = sys.version[0:3]
 
@@ -229,29 +194,14 @@ command_line_variables = [
 Default('.', build_dir)
 
 packaging_flavors = [
-    ('deb',             "A .deb package.  (This is currently not supported.)"),
-
-    ('rpm',             "A RedHat Package Manager file."),
-
     ('tar-gz',          "The normal .tar.gz file for end-user installation."),
-
-    ('src-tar-gz',      "A .tar.gz file containing all the source " +
-                        "(including tests and documentation)."),
-
     ('local-tar-gz',    "A .tar.gz file for dropping into other software " +
                         "for local use."),
-
     ('zip',             "The normal .zip file for end-user installation."),
-
-    ('src-zip',         "A .zip file containing all the source " +
-                        "(including tests and documentation)."),
-
     ('local-zip',       "A .zip file for dropping into other software " +
                         "for local use."),
 ]
 
-test_deb_dir          = os.path.join(build_dir, "test-deb")
-test_rpm_dir          = os.path.join(build_dir, "test-rpm")
 test_tar_gz_dir       = os.path.join(build_dir, "test-tar-gz")
 test_src_tar_gz_dir   = os.path.join(build_dir, "test-src-tar-gz")
 test_local_tar_gz_dir = os.path.join(build_dir, "test-local-tar-gz")
@@ -273,7 +223,6 @@ else:
 
 
 
-import textwrap
 
 indent_fmt = '  %-26s  '
 
@@ -309,97 +258,13 @@ for variable, help_text in command_line_variables:
 
 
 
-zcat = 'gzip -d -c'
-
-#
-# Figure out if we can handle .zip files.
-#
-zipit = None
-unzipit = None
-try:
-    import zipfile
-
-    def zipit(env, target, source):
-        print("Zipping %s:" % str(target[0]))
-        def visit(arg, dirname, filenames):
-            for filename in filenames:
-                path = os.path.join(dirname, filename)
-                if os.path.isfile(path):
-                    arg.write(path)
-        # default ZipFile compression is ZIP_STORED
-        zf = zipfile.ZipFile(str(target[0]), 'w', compression=zipfile.ZIP_DEFLATED)
-        olddir = os.getcwd()
-        os.chdir(env['CD'])
-        try:
-            for dirname, dirnames, filenames in os.walk(env['PSV']):
-                visit(zf, dirname, filenames)
-        finally:
-            os.chdir(olddir)
-        zf.close()
-
-    def unzipit(env, target, source):
-        print("Unzipping %s:" % str(source[0]))
-        zf = zipfile.ZipFile(str(source[0]), 'r')
-        for name in zf.namelist():
-            dest = os.path.join(env['UNPACK_ZIP_DIR'], name)
-            dir = os.path.dirname(dest)
-            try:
-                os.makedirs(dir)
-            except:
-                pass
-            print(dest,name)
-            # if the file exists, then delete it before writing
-            # to it so that we don't end up trying to write to a symlink:
-            if os.path.isfile(dest) or os.path.islink(dest):
-                os.unlink(dest)
-            if not os.path.isdir(dest):
-                with open(dest, 'wb') as fp:
-                    fp.write(zf.read(name))
-
-except ImportError:
-    if unzip and zip:
-        zipit = "cd $CD && $ZIP $ZIPFLAGS $( ${TARGET.abspath} $) $PSV"
-        unzipit = "$UNZIP $UNZIPFLAGS $SOURCES"
-
 
 revaction = SCons_revision
 revbuilder = Builder(action = Action(SCons_revision,
                                      varlist=['COPYRIGHT', 'VERSION']))
 
-def soelim(target, source, env):
-    """
-    Interpolate files included in [gnt]roff source files using the
-    .so directive.
 
-    This behaves somewhat like the soelim(1) wrapper around groff, but
-    makes us independent of whether the actual underlying implementation
-    includes an soelim() command or the corresponding command-line option
-    to groff(1).  The key behavioral difference is that this doesn't
-    recursively include .so files from the include file.  Not yet, anyway.
-    """
-    t = str(target[0])
-    s = str(source[0])
-    dir, f = os.path.split(s)
-    tfp = open(t, 'w')
-    sfp = open(s, 'r')
-    for line in sfp.readlines():
-        if line[:4] in ['.so ', "'so "]:
-            sofile = os.path.join(dir, line[4:-1])
-            tfp.write(open(sofile, 'r').read())
-        else:
-            tfp.write(line)
-    sfp.close()
-    tfp.close()
-
-def soscan(node, env, path):
-    c = node.get_text_contents()
-    return re.compile(r"^[\.']so\s+(\S+)", re.M).findall(c)
-
-soelimbuilder = Builder(action = Action(soelim),
-                        source_scanner = Scanner(soscan))
-
-# When copying local files from a Repository (Aegis),
-# just make copies, don't symlink them.
+# Just make copies, don't symlink them.
 SetOption('duplicate', 'copy')
 
 env = Environment(
@@ -426,11 +291,6 @@ env = Environment(
 
                    ZCAT                = zcat,
 
-                   RPMBUILD            = rpmbuild,
-                   RPM2CPIO            = 'rpm2cpio',
-
-                   TEST_DEB_DIR        = test_deb_dir,
-                   TEST_RPM_DIR        = test_rpm_dir,
                    TEST_SRC_TAR_GZ_DIR = test_src_tar_gz_dir,
                    TEST_SRC_ZIP_DIR    = test_src_zip_dir,
                    TEST_TAR_GZ_DIR     = test_tar_gz_dir,
@@ -464,14 +324,13 @@ Version_values = [Value(version), Value(build_id)]
 # separate packages.
 #
 
-from distutils.sysconfig import get_python_lib;
+from distutils.sysconfig import get_python_lib
 
 
 python_scons = {
         'pkg'           : 'python-' + project,
         'src_subdir'    : 'engine',
         'inst_subdir'   : get_python_lib(),
-        'rpm_dir'       : '/usr/lib/scons',
 
         'debian_deps'   : [
                             'debian/changelog',
@@ -497,67 +356,16 @@ python_scons = {
 
         'buildermap'    : {},
 
-        'extra_rpm_files' : [],
-
         'explicit_deps' : {
                             'SCons/__init__.py' : Version_values,
                           },
 }
 
-# Figure out the name of a .egg-info file that might be generated
-# as part of the RPM package.  There are two complicating factors.
-#
-# First, the RPM spec file we generate will just execute "python", not
-# necessarily the one in sys.executable.  If *that* version of python has
-# a distutils that knows about Python eggs, then setup.py will generate a
-# .egg-info file, so we have to execute any distutils logic in a subshell.
-#
-# Second, we can't just have the subshell check for the existence of the
-# distutils.command.install_egg_info module and generate the expected
-# file name by hand, the way we used to, because different systems can
-# have slightly different .egg-info naming conventions.  (Specifically,
-# Ubuntu overrides the default behavior to remove the Python version
-# string from the .egg-info file name.)  The right way to do this is to
-# actually call into the install_egg_info() class to have it generate
-# the expected name for us.
-#
-# This is all complicated enough that we do it by writing an in-line
-# script to a temporary file and then feeding it to a separate invocation
-# of "python" to tell us the actual name of the generated .egg-info file.
-
-print_egg_info_name = """
-try:
-    from distutils.dist import Distribution
-    from distutils.command.install_egg_info import install_egg_info
-except ImportError:
-    pass
-else:
-    dist = Distribution({'name' : "scons", 'version' : '%s'})
-    i = install_egg_info(dist)
-    i.finalize_options()
-    import os.path
-    print(os.path.split(i.outputs[0])[1])
-""" % version
-
-try:
-    fd, tfname = tempfile.mkstemp()
-    tfp = os.fdopen(fd, "w")
-    tfp.write(print_egg_info_name)
-    tfp.close()
-    egg_info_file = os.popen("python %s" % tfname).read()[:-1]
-    if egg_info_file:
-        python_scons['extra_rpm_files'].append(egg_info_file)
-finally:
-    try:
-        os.unlink(tfname)
-    except EnvironmentError:
-        pass
 
 scons_script = {
         'pkg'           : project + '-script',
         'src_subdir'    : 'script',
         'inst_subdir'   : 'bin',
-        'rpm_dir'       : '/usr/bin',
 
         'debian_deps'   : [
                             'debian/changelog',
@@ -587,13 +395,6 @@ scons_script = {
                            },
 
         'buildermap'    : {},
-
-        'extra_rpm_files' : [
-                            'scons-' + version,
-                            'sconsign-' + version,
-                            'scons-time-' + version,
-                            'scons-configure-cache-' + version,
-                          ],
 
         'explicit_deps' : {
                             'scons'       : Version_values,
@@ -625,7 +426,6 @@ scons = {
                             'sconsign.1',
                             'scons-time.1',
                             'script/scons.bat',
-                            #'script/scons-post-install.py',
                             'setup.cfg',
                             'setup.py',
                           ],
@@ -699,12 +499,13 @@ for p in [ scons ]:
     # destination files.
     #
     manifest_in = File(os.path.join(src, 'MANIFEST.in')).rstr()
-    src_files = bootstrap.parseManifestLines(src, open(manifest_in).readlines())
+    manifest_in_lines = open(manifest_in).readlines()
+    src_files = bootstrap.parseManifestLines(src, manifest_in_lines)
     raw_files = src_files[:]
     dst_files = src_files[:]
-    rpm_files = []
 
     MANIFEST_in_list = []
+
 
     if 'subpkgs' in p:
         #
@@ -717,7 +518,6 @@ for p in [ scons ]:
             ssubdir = sp['src_subdir']
             isubdir = p['subinst_dirs'][sp['pkg']]
 
-            
             MANIFEST_in = File(os.path.join(src, ssubdir, 'MANIFEST.in')).rstr()
             MANIFEST_in_list.append(MANIFEST_in)
             files = bootstrap.parseManifestLines(os.path.join(src, ssubdir), open(MANIFEST_in).readlines())
@@ -726,14 +526,6 @@ for p in [ scons ]:
             src_files.extend([os.path.join(ssubdir, x) for x in files])
 
                
-            for f in files:
-                r = os.path.join(sp['rpm_dir'], f)
-                rpm_files.append(r)
-                if f[-3:] == ".py":
-                    rpm_files.append(r + 'c')
-            for f in sp.get('extra_rpm_files', []):
-                r = os.path.join(sp['rpm_dir'], f)
-                rpm_files.append(r)
             files = [os.path.join(isubdir, x) for x in files]
             dst_files.extend(files)
             for k, f in sp['filemap'].items():
@@ -929,91 +721,6 @@ for p in [ scons ]:
                 os.path.join(unpack_zip_dir, pkg_version, 'setup.py'),
         ])
 
-    if not rpmbuild:
-        msg = "@echo \"Warning:  Can not build 'rpm':  no rpmbuild utility found\""
-        AlwaysBuild(Alias('rpm', [], msg))
-    else:
-        topdir = os.path.join(build, 'build',
-                              'bdist.' + platform, 'rpm')
-
-        buildroot = os.path.join(build_dir, 'rpm-buildroot')
-
-        BUILDdir = os.path.join(topdir, 'BUILD', pkg + '-' + version)
-        RPMSdir = os.path.join(topdir, 'RPMS', 'noarch')
-        SOURCESdir = os.path.join(topdir, 'SOURCES')
-        SPECSdir = os.path.join(topdir, 'SPECS')
-        SRPMSdir = os.path.join(topdir, 'SRPMS')
-
-        specfile_in = os.path.join('rpm', "%s.spec.in" % pkg)
-        specfile = os.path.join(SPECSdir, "%s-1.spec" % pkg_version)
-        sourcefile = os.path.join(SOURCESdir, "%s.tar.gz" % pkg_version);
-        noarch_rpm = os.path.join(RPMSdir, "%s-1.noarch.rpm" % pkg_version)
-        src_rpm = os.path.join(SRPMSdir, "%s-1.src.rpm" % pkg_version)
-
-        def spec_function(target, source, env):
-            """Generate the RPM .spec file from the template file.
-
-            This fills in the %files portion of the .spec file with a
-            list generated from our MANIFEST(s), so we don't have to
-            maintain multiple lists.
-            """
-            c = open(str(source[0]), 'r').read()
-            c = c.replace('__VERSION' + '__', env['VERSION'])
-            c = c.replace('__RPM_FILES' + '__', env['RPM_FILES'])
-            open(str(target[0]), 'w').write(c)
-
-        rpm_files.sort()
-        rpm_files_str = "\n".join(rpm_files) + "\n"
-        rpm_spec_env = env.Clone(RPM_FILES = rpm_files_str)
-        rpm_spec_action = Action(spec_function, varlist=['RPM_FILES'])
-        rpm_spec_env.Command(specfile, specfile_in, rpm_spec_action)
-
-        env.InstallAs(sourcefile, tar_gz)
-        Local(sourcefile)
-
-        targets = [ noarch_rpm, src_rpm ]
-        cmd = "$RPMBUILD --define '_topdir $(%s$)' --buildroot %s -ba $SOURCES" % (topdir, buildroot)
-        if not os.path.isdir(BUILDdir):
-            cmd = ("$( mkdir -p %s; $)" % BUILDdir) + cmd
-        t = env.Command(targets, specfile, cmd)
-        env.Depends(t, sourcefile)
-
-        dist_noarch_rpm = env.Install('$DISTDIR', noarch_rpm)
-        dist_src_rpm    = env.Install('$DISTDIR', src_rpm)
-        Local(dist_noarch_rpm, dist_src_rpm)
-        AddPostAction(dist_noarch_rpm, Chmod(dist_noarch_rpm, 0o644))
-        AddPostAction(dist_src_rpm, Chmod(dist_src_rpm, 0o644))
-
-        dfiles = [os.path.join(test_rpm_dir, 'usr', x) for x in dst_files]
-        env.Command(dfiles,
-                    dist_noarch_rpm,
-                    "$RPM2CPIO $SOURCES | (cd $TEST_RPM_DIR && cpio -id)")
-
-    if dh_builddeb and fakeroot:
-        # Our Debian packaging builds directly into build/dist,
-        # so we don't need to Install() the .debs.
-        # The built deb is called just x.y.z, not x.y.z.final.0 so strip those off:
-        deb_version = version #'.'.join(version.split('.')[0:3])
-        deb = os.path.join(build_dir, 'dist', "%s_%s_all.deb" % (pkg, deb_version))
-        print("Building deb into %s (version=%s)"%(deb, deb_version))
-        for d in p['debian_deps']:
-            b = env.SCons_revision(os.path.join(build, d), d)
-            env.Depends(deb, b)
-            Local(b)
-        env.Command(deb, build_src_files, [
-            "cd %s && fakeroot make -f debian/rules PYTHON=$PYTHON BUILDDEB_OPTIONS=--destdir=../../build/dist binary" % build,
-                    ])
-
-        old = os.path.join('lib', 'scons', '')
-        new = os.path.join('lib', 'python' + python_ver, 'site-packages', '')
-        def xxx(s, old=old, new=new):
-            if s[:len(old)] == old:
-                s = new + s[len(old):]
-            return os.path.join('usr', s)
-        dfiles = [os.path.join(test_deb_dir, xxx(x)) for x in dst_files]
-        env.Command(dfiles,
-                    deb,
-                    "dpkg --fsys-tarfile $SOURCES | (cd $TEST_DEB_DIR && tar -xf -)")
 
 
     #
@@ -1123,26 +830,12 @@ SConscript('QMTest/SConscript')
 #
 #
 #
+sp = env.Install(build_dir, 'runtest.py')
+Local(sp)
 files = [
     'runtest.py',
 ]
 
-def copy(target, source, env):
-    t = str(target[0])
-    s = str(source[0])
-    open(t, 'wb').write(open(s, 'rb').read())
-
-for file in files:
-    # Guarantee that real copies of these files always exist in
-    # build/.  If there's a symlink there, then this is an Aegis
-    # build and we blow them away now so that they'll get "built" later.
-    p = os.path.join(build_dir, file)
-    if os.path.islink(p):
-        os.unlink(p)
-    if not os.path.isabs(p):
-        p = '#' + p
-    sp = env.Command(p, file, copy)
-    Local(sp)
 
 #
 # Documentation.
@@ -1152,7 +845,7 @@ Export('build_dir', 'env', 'whereis', 'revaction')
 SConscript('doc/SConscript')
 
 #
-# If we're running in a Subversion working directory, pack up a complete
+# If we're running in a Git working directory, pack up a complete
 # source archive from the project files and files in the change.
 #
 
@@ -1162,7 +855,7 @@ if git_status_lines:
     slines = [l for l in git_status_lines if 'modified:' in l]
     sfiles = [l.split()[-1] for l in slines]
 else:
-   print("Not building in a Mercurial tree; skipping building src package.")
+   print("Not building in a Git tree; skipping building src package.")
 
 if sfiles:
     remove_patterns = [
