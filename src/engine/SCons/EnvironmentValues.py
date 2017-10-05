@@ -65,6 +65,23 @@ class ValueTypes(object):
     ESCAPE_END = 9
 
 
+class SubstModes(object):
+    """
+    Enum to store subst mode values.
+    From Manpage:
+    The optional raw argument may be set to:
+    0 (Default) By default, leading or trailing white space will be removed
+      from the result. and all sequences of white space will be compressed
+      to a single space character. Additionally, any $( and $) character
+      sequences will be stripped from the returned string
+    1 if you want to preserve white space and $(-$) sequences.
+    2 if you want to strip all characters between any $( and $) pairs
+      (as is done for signature calculation).
+    """
+    NORMAL = 0
+    RAW = 1
+    FOR_SIGNATURE = 2
+
 class EnvironmentValueParseError(Exception):
     """
     TODO: Should this be some kind of SCons exception
@@ -225,15 +242,31 @@ class EnvironmentValue(object):
         # print("[%s] parsed:%s\n  Depends on:%s"%(self.name, self._parsed, self.depends_on))
         # print("--->%s"%all_dependencies)
 
-    def subst(self, env, ignore_undefined=False, for_signature=False):
+    def subst(self, env, raw=0, target=None, source=None, conv=None):
         """
         Expand string
         :param env:
-        :param ignore_undefined: If we run into undefined value evaluating the string, should we error or continue
-        :param for_signature: Are we expanding for use in signature
-        :return:
+        :param raw: 0 = leading or trailing white space will be removed from the result. and all sequences of white
+                        space will be compressed to a single space character. Additionally, any $( and $) character
+                        sequences will be stripped from the returned string
+                    1 = preserve white space and $(-$) sequences.
+                    2 = strip all characters between any $( and $) pairs (as is done for signature calculation)
+        :param target: list of target Nodes
+        :param source: list of source Nodes - Both target and source must be set if $TARGET, $TARGETS, $SOURCE and
+                       $SOURCES are to be available for expansion
+        :param conv: may specify a conversion function that will be used in place of the default. For example,
+                     if you want Python objects (including SCons Nodes) to be returned as Python objects, you can use
+                     the Python lambda idiom to pass in an unnamed function that simply returns its unconverted argument.
+        :return: expanded string
         """
 
+        for_signature = raw == SubstModes.RAW
+
+        # TODO: Figure out how to handle this properly.  May involve seeing if source & targets is specified. Or checking
+        #       against list of variables which are "ok" to leave undefined and unexpanded in the returned string and/or
+        #       the cached values.  This is likely important for caching CCCOM where the TARGET/SOURCES will change
+        #       and there is still much value in caching whatever else can be cached from such strings
+        ignore_undefined = False
 
         try:
             if self.cached and not for_signature:
@@ -248,21 +281,28 @@ class EnvironmentValue(object):
             if not ignore_undefined:
                 if self.depends_on != env.key_set:
                     # TODO: Raise error missing key
+                    # TODO: May want to make sure the difference also doesn't match TARGET,TARGETS,SOURCE,SOURCES, etc..
                     pass
             else:
                 missing_values = self.depends_on - env.key_set
 
             # check all parts of value and see if any are PARSED (and not yet cached).
-            #   If so add those to list and process that list (DO NOT RECURSE.. slow), also in working list, replace value
-            #   with expanded parsed value
+            #   If so add those to list and process that list (DO NOT RECURSE.. slow), also in working list,
+            #   replace value with expanded parsed value
             # We should end up with a list of EnvironmentValue(s) (Not the object, just the plural)
             parsed_values = [v for (t,v) in self.all_dependencies if t in (ValueTypes.VARIABLE, ValueTypes.CALLABLE) and not env[v].is_cached(env)]
             string_values = [v for (t,v) in self.all_dependencies if t not in (ValueTypes.VARIABLE, ValueTypes.CALLABLE) or env[v].is_cached(env)]
             print("Parsed values:%s  for %s [%s]"%(parsed_values, self._parsed, string_values))
 
-            while len(parsed_values) != 0:
+            while False and len(parsed_values) != 0:
                 # TODO: expand parsed values
-                pass
+                for pv in parsed_values:
+                    if env[pv].var_type == ValueTypes.CALLABLE:
+                        print("CALLABLE VAL:%s"%pv)
+                    elif env[pv].var_type == ValueTypes.PARSED:
+                        print("PARSED   VAL:%s"%pv)
+                    else:
+                        print("AAHAHAHHAH BROKEN")
 
 
             # Handle undefined with some proper SCons exception
@@ -310,7 +350,6 @@ class EnvironmentValues(object):
             self.values[k] = EnvironmentValue(k, kw[k])
         self.key_set = set(self.values.keys())
 
-
     def __setitem__(self, key, value):
         self.values[key] = EnvironmentValue(key, value)
         self.key_set.add(key)
@@ -321,17 +360,42 @@ class EnvironmentValues(object):
     def __getitem__(self, item):
         return self.values[item]
 
-
-    def subst(self, item, ignore_undefined=False, for_signature=False):
+    def subst(self, item, raw=0, target=None, source=None, conv=None):
         """
-        Recursively expand string for provided key
-        :param item:
-        :param ignore_undefined: If we run into undefined value evaluating the string, should we error or continue
-        :param for_signature: Are we expanding for use in signature
-        :return:
+        Recursively Expand string
+        :param env:
+        :param raw: 0 = leading or trailing white space will be removed from the result. and all sequences of white
+                        space will be compressed to a single space character. Additionally, any $( and $) character
+                        sequences will be stripped from the returned string
+                    1 = preserve white space and $(-$) sequences.
+                    2 = strip all characters between any $( and $) pairs (as is done for signature calculation)
+        :param target: list of target Nodes
+        :param source: list of source Nodes - Both target and source must be set if $TARGET, $TARGETS, $SOURCE and
+                       $SOURCES are to be available for expansion
+        :param conv: may specify a conversion function that will be used in place of the default. For example,
+                     if you want Python objects (including SCons Nodes) to be returned as Python objects, you can use
+                     the Python lambda idiom to pass in an unnamed function that simply returns its unconverted argument.
+        :return: expanded string
         """
 
         if self.values[item].var_type == ValueTypes.STRING:
             return self.values[item].value
         elif self.values[item].var_type == ValueTypes.PARSED:
-            return self.values[item].subst(self, ignore_undefined, for_signature)
+            return self.values[item].subst(self, raw=raw, target=target, source=source, conv=conv)
+        elif self.values[item].var_type == ValueTypes.CALLABLE:
+            # From Subst.py
+            # try:
+            #     s = s(target=lvars['TARGETS'],
+            #           source=lvars['SOURCES'],
+            #           env=self.env,
+            #           for_signature=(self.mode != SUBST_CMD))
+            # except TypeError:
+            #     # This probably indicates that it's a callable
+            #     # object that doesn't match our calling arguments
+            #     # (like an Action).
+            #     if self.mode == SUBST_RAW:
+            #         return s
+            #     s = self.conv(s)
+            # return self.substitute(s, lvars)
+            retval = self.values[item].value(target, source, self, (raw == 2))
+            return retval

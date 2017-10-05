@@ -1,6 +1,6 @@
 import unittest
 
-from SCons.EnvironmentValues import EnvironmentValues, EnvironmentValue, ValueTypes
+from SCons.EnvironmentValues import EnvironmentValues, EnvironmentValue, ValueTypes, SubstModes
 
 
 class TestEnvironmentValue(unittest.TestCase):
@@ -120,7 +120,7 @@ class TestEnvironmentValues(unittest.TestCase):
         self.assertEqual(xxx, 'One Two')
 
         # Now try getting for signature which should skip escaped part of string
-        xxx_sig = env.subst('XXX', for_signature=True)
+        xxx_sig = env.subst('XXX', raw=SubstModes.NORMAL)
         self.assertEqual(xxx_sig, 'One')  # Should we have trailing space?
 
     def test_simple_callable_function(self):
@@ -129,6 +129,9 @@ class TestEnvironmentValues(unittest.TestCase):
 
         # Will expand $BAR to "bar baz"
         env = EnvironmentValues(FOO=foo, BAR="$FOO baz")
+
+        foo = env.subst('FOO')
+        self.assertEqual(foo, 'bar')
 
         bar = env.subst('BAR')
         self.assertEqual(bar, 'bar baz')
