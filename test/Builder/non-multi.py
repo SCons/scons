@@ -43,13 +43,18 @@ B = Builder(action=build, multi=0)
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'file7.out', source = 'file7.in')
 env.B(target = 'file7.out', source = 'file7.in')
+env.B(target = 'file8.out', source = 'file8.in', arg=1)
+env.B(target = 'file8.out', source = 'file8.in', arg=1)
 """)
 
 test.write('file7.in', 'file7.in\n')
+test.write('file8.in', 'file8.in\n')
 
 test.run(arguments='file7.out')
+test.run(arguments='file8.out')
 
 test.must_match('file7.out', "file7.in\n")
+test.must_match('file8.out', "file8.in\n")
 
 test.pass_test()
 

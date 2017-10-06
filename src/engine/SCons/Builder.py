@@ -291,7 +291,14 @@ def _node_errors(builder, env, tlist, slist):
         if t.side_effect:
             raise UserError("Multiple ways to build the same target were specified for: %s" % t)
         if t.has_explicit_builder():
-            if not t.env is None and not t.env is env:
+            # Check for errors when the environments are different
+            # No error if environments are the same Environment instance
+            if (not t.env is None and not t.env is env and
+                    # Check OverrideEnvironment case - no error if wrapped Environments
+                    # are the same instance, and overrides lists match
+                    not (getattr(t.env, '__subject', 0) is getattr(env, '__subject', 1) and
+                         getattr(t.env, 'overrides', 0) == getattr(env, 'overrides', 1) and
+                         not builder.multi)):
                 action = t.builder.action
                 t_contents = t.builder.action.get_contents(tlist, slist, t.env)
                 contents = builder.action.get_contents(tlist, slist, env)

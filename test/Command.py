@@ -78,6 +78,8 @@ env.Command(target = 'f3.out', source = 'f3.in',
 Command(target = 'f4.out', source = 'sub', action = sub)
 env.Command(target = 'f5.out', source = 'f5.in', action = buildIt,
             XYZZY='XYZZY is set')
+env.Command(target = 'f5.out', source = 'f5.in', action = buildIt,
+            XYZZY='XYZZY is set')
 Command(target = 'f6.out', source = 'f6.in',
         action = r'%(_python_)s build.py f6.out f6.in')
 env.Command(target = 'f7.out', source = 'f7.in',
