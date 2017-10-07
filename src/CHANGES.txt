@@ -11,6 +11,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
     - Whatever John Doe did.
 
+  From Daniel Moody:
+    - Updated the Jar Builder tool in Tool/__init.py so that is doesn't force class files as
+      sources, allowing directories to be passed, which was causing test/Java/JAR.py to fail.
+
   From William Deegan:
     - Fix issue where code in utility routine to_String_for_subst() had code whose result was never
       properly returned.  
