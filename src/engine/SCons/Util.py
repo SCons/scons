@@ -1619,6 +1619,17 @@ def to_str (s):
         return s
     return str (s, 'utf-8')
 
+
+
+# No cmp in py3, so we'll define it.
+def cmp(a, b):
+    """
+    Define cmp because it's no longer available in python3
+    Works under python 2 as well
+    """
+    return (a > b) - (a < b)
+
+
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil

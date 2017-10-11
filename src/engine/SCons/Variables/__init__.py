@@ -30,6 +30,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 import sys
+from functools import cmp_to_key
 
 import SCons.Environment
 import SCons.Errors
@@ -287,9 +288,13 @@ class Variables(object):
 
         env - an environment that is used to get the current values
               of the options.
+        cmp - Either a function as follows: The specific sort function should take two arguments and return -1, 0 or 1 
+              or a boolean to indicate if it should be sorted.
         """
 
-        if sort:
+        if callable(sort):
+            options = sorted(self.options, key=cmp_to_key(lambda x,y: sort(x.key,y.key)))
+        elif sort is True:
             options = sorted(self.options, key=lambda x: x.key)
         else:
             options = self.options

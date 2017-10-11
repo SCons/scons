@@ -4056,7 +4056,9 @@ and return
 -1, 0 or 1
 (like the standard Python
 <emphasis>cmp</emphasis>
-function).</para>
+function).
+
+Optionally a Boolean value of True for <emphasis>sort</emphasis> will cause a standard alphabetical sort to be performed</para>
 
 <literallayout class="monospaced">
 Help(vars.GenerateHelpText(env))
