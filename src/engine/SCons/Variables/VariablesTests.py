@@ -32,6 +32,7 @@ import TestUnit
 import SCons.Variables
 import SCons.Subst
 import SCons.Warnings
+from SCons.Util import cmp
 
 
 class Environment(object):
@@ -49,12 +50,6 @@ class Environment(object):
         return key in self.dict
 
 
-def cmp(a, b):
-    """
-    Define cmp because it's no longer available in python3
-    Works under python 2 as well
-    """
-    return (a > b) - (a < b)
 
 
 def check(key, value, env):
