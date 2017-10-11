@@ -15,6 +15,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix issue where code in utility routine to_String_for_subst() had code whose result was never
       properly returned.  
       (Found by: James Rinkevich https://pairlist4.pair.net/pipermail/scons-users/2017-October/006358.html )
+    - Fixed Variables.GenerateHelpText() to now use the sort parameter. Due to incorrect 2to3 fixer changes 
+      8 years ago it was being used as a boolean parameter.  Now you can specify sort to be a callable, or boolean
+      value. (True = normal sort). Manpage also updated.
 
   From Thomas Berg:
     - Fixed a regression in scons-3.0.0 where "from __future__ import print_function" was imposed

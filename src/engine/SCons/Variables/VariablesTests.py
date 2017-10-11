@@ -487,8 +487,28 @@ B: b - alpha test
     default: 42
     actual: 54
 """
+
+        expectBackwards = """
+B: b - alpha test
+    default: 42
+    actual: 54
+
+ANSWER: THE answer to THE question
+    default: 42
+    actual: 54
+
+A: a - alpha test
+    default: 42
+    actual: 54
+"""
         text = opts.GenerateHelpText(env, sort=cmp)
         assert text == expectAlpha, text
+
+        textBool = opts.GenerateHelpText(env, sort=True)
+        assert text == expectAlpha, text
+
+        textBackwards = opts.GenerateHelpText(env, sort=lambda x, y: cmp(y, x))
+        assert textBackwards == expectBackwards, "Expected:\n%s\nGot:\n%s\n"%(textBackwards, expectBackwards) 
 
     def test_FormatVariableHelpText(self):
         """Test generating custom format help text"""
