@@ -239,6 +239,68 @@ test.must_exist('bar.jar')
 
 test.up_to_date(arguments = '.')
 
+#######
+# test java source files as source to Jar builder
+
+# make some directories to test in
+test.subdir('testdir2',
+            ['testdir2', 'com'],
+            ['testdir2', 'com', 'javasource'])
+
+# simple SConstruct which passes the 3 .java as source
+test.write(['testdir2', 'SConstruct'], """
+foo = Environment()
+foo.Jar(target = 'foo', source = [
+    'com/javasource/JavaFile1.java', 
+    'com/javasource/JavaFile2.java',
+    'com/javasource/JavaFile3.java'
+])
+""")
+
+test.write(['testdir2', 'com', 'javasource', 'JavaFile1.java'], """\
+package com.javasource;
+
+public class JavaFile1
+{
+     public static void main(String[] args)
+     {
+
+     }
+}
+""")
+
+test.write(['testdir2', 'com', 'javasource', 'JavaFile2.java'], """\
+package com.javasource;
+
+public class JavaFile2
+{
+     public static void main(String[] args)
+     {
+
+     }
+}
+""")
+
+test.write(['testdir2', 'com', 'javasource', 'JavaFile3.java'], """\
+package com.javasource;
+
+public class JavaFile3
+{
+     public static void main(String[] args)
+     {
+
+     }
+}
+""")
+
+test.run(chdir='testdir2')
+
+if("jar cf foo.jar com/javasource/JavaFile1.java com/javasource/JavaFile2.java " +
+   "com/javasource/JavaFile3.java" not in test.stdout()):
+    test.fail_test()
+
+test.must_exist(['testdir2','foo.jar'])
+
 test.pass_test()
 
 # Local Variables:

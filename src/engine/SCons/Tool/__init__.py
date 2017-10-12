@@ -914,8 +914,6 @@ def CreateJarBuilder(env):
         jar_com = SCons.Action.Action('$JARCOM', '$JARCOMSTR')
         java_jar = SCons.Builder.Builder(action = jar_com,
                                          suffix = '$JARSUFFIX',
-                                         src_suffix = '$JAVACLASSSUFFIX',
-                                         src_builder = 'JavaClassFile',
                                          source_factory = fs.Entry)
         env['BUILDERS']['Jar'] = java_jar
     return java_jar
