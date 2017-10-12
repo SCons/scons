@@ -54,7 +54,7 @@ class TestEnvironmentValue(unittest.TestCase):
         self.assertEqual(one.var_type, ValueTypes.PARSED)
         self.assertEqual(one.depends_on,
                          {'LDMODULE', 'TARGET', '__LDMODULEVERSIONFLAGS', 'SOURCES', 'LDMODULEFLAGS', '_LIBFLAGS',
-                          '_LIBDIRFLAGS', '__RPATH'}, "depends_on:%s\n  (AD:%s)\n(P:%s)" % (one.depends_on, one.all_dependencies, one._parsed))
+                          '_LIBDIRFLAGS', '__RPATH'}, "depends_on:%s\n  (AD:%s)\n  (P:%s)" % (one.depends_on, one.all_dependencies, one._parsed))
 
     def test_function_call(self):
         # TODO: Should this be callable?
