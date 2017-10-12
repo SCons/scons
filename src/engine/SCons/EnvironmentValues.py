@@ -254,11 +254,10 @@ class EnvironmentValue(object):
 
         for (t,v,i) in all_dependencies:
             print("%s, %s, %s"%(t,v,i))
-        depend_list = [v for (t,v,i) in all_dependencies if t in (ValueTypes.VARIABLE, ValueTypes.CALLABLE)]
+        depend_list = [v for (t,v,i) in all_dependencies
+                       if t in (ValueTypes.VARIABLE_OR_CALLABLE, ValueTypes.VARIABLE, ValueTypes.CALLABLE)]
 
         self.depends_on = set(depend_list)
-        # print("[%s] parsed:%s\n  Depends on:%s"%(self.name, self._parsed, self.depends_on))
-        # print("--->%s"%all_dependencies)
 
 
     def create_lvar_dict(self, target, source):
