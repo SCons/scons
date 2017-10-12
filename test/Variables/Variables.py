@@ -320,8 +320,8 @@ opts.Add('UNSPECIFIED',
 
 env = Environment(variables=opts)
 
-def compare(a,b):
-    return a < b
+def compare(a, b):
+    return (a > b) - (a < b)
 
 Help('Variables settable in custom.py or on the command line:\\n' + opts.GenerateHelpText(env,sort=compare))
 
