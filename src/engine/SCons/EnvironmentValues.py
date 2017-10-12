@@ -61,8 +61,9 @@ class ValueTypes(object):
     COLLECTION = 5
     WHITESPACE = 6
     FUNCTION_CALL = 7
-    ESCAPE_START = 8
-    ESCAPE_END = 9
+    ESCAPE_START = 8  # $(
+    ESCAPE_END = 9    # $)
+    VARIABLE_OR_CALLABLE = 10
 
 
 class SubstModes(object):
@@ -100,6 +101,7 @@ class EnvironmentValue(object):
         self.var_type = ValueTypes.UNKNOWN
         self._parsed = []
         self.depends_on = set()
+        all_dependencies = []
 
         self.set_value(name,value)
 
@@ -160,8 +162,7 @@ class EnvironmentValue(object):
             # likely callable? either way we don't parse
             print("Value:%s"%self.value)
 
-    @staticmethod
-    def _parse_function_call_dependencies(item):
+    def _parse_function_call_dependencies(self, item):
         """
         Parse a function all for all it's parameters.
         _stripixes(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, LIBPREFIXES, LIBSUFFIXES, __env__)
@@ -169,22 +170,26 @@ class EnvironmentValue(object):
         LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, LIBPREFIXES, LIBSUFFIXES, __env__
         Plus the function itself
         _stripixes
+
+        Adds list of parameters to the set of variables this object depends on
         :param item: subst string which is function call to be parsed
         :return: set of dependencies
         """
-        retval = []
-
         function_name, remainder = item.split('(')
 
-        retval.append((ValueTypes.CALLABLE,function_name))
         if remainder[-1] != ')':
             # This shouldn't happen raise Exception
             raise EnvironmentValueParseError("No closing paren parsing Environment value function call "+item)
         else:
             parameters = remainder[:-1].split(',')
 
-        retval.extend([(ValueTypes.VARIABLE, v) for v in parameters])
-        return retval
+        # Now add all parameters to list of variables the string generated from this EnvironmentValue
+        # depends upon
+        self.depends_on.add(function_name)
+        for p in parameters:
+            self.depends_on.add(p)
+
+        return parameters
 
     def find_dependencies(self):
         """
@@ -192,32 +197,37 @@ class EnvironmentValue(object):
         :return:
         """
         all_dependencies = []
-        for v in self._parsed:
+        skipped = 0  # count the number of skipped blank spaces
+        for i, v in enumerate(self._parsed):
             # print("Processing [%s]"%v)
 
             if v == ' ':
+                skipped += 1
                 continue
 
+            # index for all_dependencies adjusted to account for values we skipped from self._parsed
+            index = i - skipped
+
             if len(v) == 1:  # Was v == ' '
-                all_dependencies.append((ValueTypes.STRING, v))
+                all_dependencies.append((ValueTypes.STRING, v, index))
                 continue
             s0, s1 = v[:2]
             if s0 != '$':
                 # Not a variable so we don't care
-                all_dependencies.append((ValueTypes.STRING, v))
+                all_dependencies.append((ValueTypes.STRING, v, index))
                 continue
             if s0 == '$' and s1 == '(':
                 # Escaping of value from signature calculations
-                all_dependencies.append((ValueTypes.ESCAPE_START, v))
+                all_dependencies.append((ValueTypes.ESCAPE_START, v, index))
                 continue
             if s0 == '$' and s1 == ')':
                 # Escaping of value from signature calculations
-                all_dependencies.append((ValueTypes.ESCAPE_END, v))
+                all_dependencies.append((ValueTypes.ESCAPE_END, v, index))
                 continue
 
             if s1 == '$':
                 # A literal dollar sign so we don't care
-                all_dependencies.append((ValueTypes.STRING, s1))
+                all_dependencies.append((ValueTypes.STRING, s1, index))
                 # continue
             if s1 == '{':
                 # TODO: Must label as callable, or eval-able
@@ -225,24 +235,77 @@ class EnvironmentValue(object):
                 # Can be x.property or x(VAR1,VAR2)
                 # If we can detect all info which affects this then we can cache
                 value = v[2:-1]
+
                 if '(' in value:
                     # Parse call to see if we can determine other dependencies from parameters
-                    all_dependencies.extend(self._parse_function_call_dependencies(value))
+                    self._parse_function_call_dependencies(value)
+                    all_dependencies.append((ValueTypes.FUNCTION_CALL,value, index))
                 else:
-                    all_dependencies.append((ValueTypes.CALLABLE,v[2:-1]))
+                    all_dependencies.append((ValueTypes.CALLABLE,v[2:-1], index))
             elif '.' in v:
-                all_dependencies.append((ValueTypes.CALLABLE,v[1:]))
+                all_dependencies.append((ValueTypes.CALLABLE,v[1:], index))
             else:
-                # Plain Variable, capture it
-                all_dependencies.append((ValueTypes.VARIABLE,v[1:]))
+                # Plain Variable or callable. So label VARIABLE_OR_CALLABLE
+                all_dependencies.append((ValueTypes.VARIABLE_OR_CALLABLE,v[1:], index))
 
         self.all_dependencies = all_dependencies
-        depend_list = [v for (t,v) in all_dependencies if t in (ValueTypes.VARIABLE, ValueTypes.CALLABLE)]
+
+        dl = []
+
+        for (t,v,i) in all_dependencies:
+            print("%s, %s, %s"%(t,v,i))
+        depend_list = [v for (t,v,i) in all_dependencies if t in (ValueTypes.VARIABLE, ValueTypes.CALLABLE)]
+
         self.depends_on = set(depend_list)
         # print("[%s] parsed:%s\n  Depends on:%s"%(self.name, self._parsed, self.depends_on))
         # print("--->%s"%all_dependencies)
 
-    def subst(self, env, raw=0, target=None, source=None, conv=None):
+
+    def create_lvar_dict(self, target, source):
+        """Create a dictionary for substitution of special
+        construction variables.
+
+        This translates the following special arguments:
+
+        target - the target (object or array of objects),
+                 used to generate the TARGET and TARGETS
+                 construction variables
+
+        source - the source (object or array of objects),
+                 used to generate the SOURCES and SOURCE
+                 construction variables
+        """
+        retval = {'TARGETS': target, 'TARGET': target,
+                  'CHANGED_TARGETS': '$TARGETS', 'UNCHANGED_TARGETS': '$TARGETS',
+                  'SOURCES': source, 'SOURCE': source,
+                  'CHANGED_SOURCES': '$SOURCES', 'UNCHANGED_SOURCES': '$SOURCES'}
+
+        return retval
+
+    def eval_callable(self, to_call, parsed_values, string_values, target=None, source=None, gvars={}, lvars={}, for_sig=False):
+        """
+        Evaluate a callable and return the generated string.
+        (Note we'll need to handle recursive expansion)
+        :param to_call: The callable to call..
+        :param gvars:
+        :param lvars:
+        :return:
+        """
+
+        if 'TARGET' not in lvars:
+            d = self.create_lvar_dict(target, source)
+            if d:
+                lvars = lvars.copy()
+                lvars.update(d)
+
+        s = to_call(target=lvars['TARGETS'],
+              source=lvars['SOURCES'],
+              env=gvars,
+              for_signature=for_sig)
+
+        return s
+
+    def subst(self, env, raw=0, target=None, source=None, gvars={}, lvars={}, conv=None):
         """
         Expand string
         :param env:
@@ -260,7 +323,7 @@ class EnvironmentValue(object):
         :return: expanded string
         """
 
-        for_signature = raw == SubstModes.RAW
+        for_signature = raw == SubstModes.FOR_SIGNATURE
 
         # TODO: Figure out how to handle this properly.  May involve seeing if source & targets is specified. Or checking
         #       against list of variables which are "ok" to leave undefined and unexpanded in the returned string and/or
@@ -290,28 +353,58 @@ class EnvironmentValue(object):
             #   If so add those to list and process that list (DO NOT RECURSE.. slow), also in working list,
             #   replace value with expanded parsed value
             # We should end up with a list of EnvironmentValue(s) (Not the object, just the plural)
-            parsed_values = [v for (t,v) in self.all_dependencies if t in (ValueTypes.VARIABLE, ValueTypes.CALLABLE) and not env[v].is_cached(env)]
-            string_values = [v for (t,v) in self.all_dependencies if t not in (ValueTypes.VARIABLE, ValueTypes.CALLABLE) or env[v].is_cached(env)]
+            # parsed_values = [v for (t, v, i) in self.all_dependencies
+            #                  if t in (ValueTypes.VARIABLE, ValueTypes.CALLABLE) and not env[v].is_cached(env)]
+            # string_values = [v for (t, v, i) in self.all_dependencies
+            #                  if t not in (ValueTypes.VARIABLE, ValueTypes.CALLABLE) or env[v].is_cached(env)]
+            # print("Parsed values:%s  for %s [%s]"%(parsed_values, self._parsed, string_values))
+
+            # Create pre-sized arrays to hold string values and non-string values.
+            string_values = [None] * len(self.all_dependencies)
+            parsed_values = [None] * len(self.all_dependencies)
+
+            for (t, v, i) in self.all_dependencies:
+                if t not in (ValueTypes.ESCAPE_START, ValueTypes.ESCAPE_END, ValueTypes.STRING) and env[v].is_cached(env):
+                    string_values[i] = (env[v].value, t)
+                elif t in (ValueTypes.ESCAPE_START, ValueTypes.ESCAPE_END):
+                    string_values[i] = (v, t)
+                elif t in (ValueTypes.VARIABLE, ValueTypes.CALLABLE, ValueTypes.VARIABLE_OR_CALLABLE):
+                    parsed_values[i] = (t,v,i)
+                else:
+                    string_values[i] = (v, t)
+
             print("Parsed values:%s  for %s [%s]"%(parsed_values, self._parsed, string_values))
 
-            while False and len(parsed_values) != 0:
+            # Now resolve all non-string values.
+            while any(parsed_values):
                 # TODO: expand parsed values
                 for pv in parsed_values:
-                    if env[pv].var_type == ValueTypes.CALLABLE:
-                        print("CALLABLE VAL:%s"%pv)
-                    elif env[pv].var_type == ValueTypes.PARSED:
-                        print("PARSED   VAL:%s"%pv)
+                    if pv is None:
+                        continue
+                    (t,v,i) = pv
+
+                    # We should be able to resolve now if it's a variable or a callable.
+                    if t == ValueTypes.VARIABLE_OR_CALLABLE:
+                        t = env[v].var_type
+
+                    if t == ValueTypes.CALLABLE:
+                        to_call = env[v].value
+                        string_values[i] = (self.eval_callable(to_call, parsed_values, string_values, target=target,
+                                                               source=source, gvars=env, lvars={}, for_sig=for_signature), ValueTypes.STRING)
+                        print("CALLABLE VAL:%s->%s"%(pv[1], string_values[i]))
+                        parsed_values[i] = None
+                    elif t == ValueTypes.PARSED:
+                        print("PARSED   VAL:%s"%pv[0])
                     else:
                         print("AAHAHAHHAH BROKEN")
 
-
             # Handle undefined with some proper SCons exception
-            subst_value = " ".join([env[v].value for (t,v) in self.all_dependencies if t not in (ValueTypes.ESCAPE_START, ValueTypes.ESCAPE_END)])
+            subst_value = " ".join([v for (v, t) in string_values if t not in (ValueTypes.ESCAPE_START, ValueTypes.ESCAPE_END)])
 
             # Create and cache for signature if possible.
             in_escape_count = 0
             escape_values = []
-            for (t,v) in self.all_dependencies:
+            for (v, t) in string_values:
                 if t == ValueTypes.ESCAPE_START:
                     # Increase escape level.. allow wrapped escapes $( $( $x $) $)
                     in_escape_count +=1
@@ -321,7 +414,7 @@ class EnvironmentValue(object):
                     # Skip value
                     continue
                 else:
-                    escape_values.append(env[v].value)
+                    escape_values.append(v)
 
             if in_escape_count != 0:
                 # TODO: Throw exception as unbalanced escapes
@@ -360,7 +453,7 @@ class EnvironmentValues(object):
     def __getitem__(self, item):
         return self.values[item]
 
-    def subst(self, item, raw=0, target=None, source=None, conv=None):
+    def subst(self, item, raw=0, target=None, source=None, gvars={}, lvars={}, conv=None):
         """
         Recursively Expand string
         :param env:
@@ -375,13 +468,21 @@ class EnvironmentValues(object):
         :param conv: may specify a conversion function that will be used in place of the default. For example,
                      if you want Python objects (including SCons Nodes) to be returned as Python objects, you can use
                      the Python lambda idiom to pass in an unnamed function that simply returns its unconverted argument.
+        :param gvars: Specify the global variables. Defaults to empty dict, which will yield using this EnvironmentValues
+                      symbols.
+        :param lvars: Specify local variables to evaluation the variable with. Usually this is provided by executor.
         :return: expanded string
         """
+
+        if not gvars:
+            gvars = self.values
+
+        # TODO: Fill in gvars, lvars as env.Subst() does..
 
         if self.values[item].var_type == ValueTypes.STRING:
             return self.values[item].value
         elif self.values[item].var_type == ValueTypes.PARSED:
-            return self.values[item].subst(self, raw=raw, target=target, source=source, conv=conv)
+            return self.values[item].subst(self, raw=raw, target=target, source=source, gvars=gvars, lvars=lvars, conv=conv)
         elif self.values[item].var_type == ValueTypes.CALLABLE:
             # From Subst.py
             # try:

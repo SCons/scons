@@ -1,7 +1,44 @@
 import unittest
+import os.path
 
 from SCons.EnvironmentValues import EnvironmentValues, EnvironmentValue, ValueTypes, SubstModes
 
+
+class DummyNode(object):
+    """Simple node work-alike."""
+    def __init__(self, name):
+        self.name = os.path.normpath(name)
+
+    def __str__(self):
+        return self.name
+
+    def is_literal(self):
+        return 1
+
+    def rfile(self):
+        return self
+
+    def get_subst_proxy(self):
+        return self
+
+
+class MyNode(DummyNode):
+    """Simple node work-alike with some extra stuff for testing."""
+
+    def __init__(self, name):
+        DummyNode.__init__(self, name)
+
+        class Attribute(object):
+            pass
+
+        self.attribute = Attribute()
+        self.attribute.attr1 = 'attr$1-' + os.path.basename(name)
+        self.attribute.attr2 = 'attr$2-' + os.path.basename(name)
+
+    def get_stuff(self, extra):
+        return self.name + extra
+
+    foo = 1
 
 class TestEnvironmentValue(unittest.TestCase):
     """
@@ -120,21 +157,33 @@ class TestEnvironmentValues(unittest.TestCase):
         self.assertEqual(xxx, 'One Two')
 
         # Now try getting for signature which should skip escaped part of string
-        xxx_sig = env.subst('XXX', raw=SubstModes.NORMAL)
+        xxx_sig = env.subst('XXX', raw=SubstModes.FOR_SIGNATURE)
         self.assertEqual(xxx_sig, 'One')  # Should we have trailing space?
 
     def test_simple_callable_function(self):
         def foo(target, source, env, for_signature):
             return "bar"
 
+        t1 = MyNode('t1')
+        t2 = MyNode('t2')
+        s1 = MyNode('s1')
+        s2 = MyNode('s2')
+
+
         # Will expand $BAR to "bar baz"
         env = EnvironmentValues(FOO=foo, BAR="$FOO baz")
 
-        foo = env.subst('FOO')
+        foo = env.subst('FOO',
+                        target=[t1, t2],
+                        source=[s1, s2])
+
         self.assertEqual(foo, 'bar')
 
-        bar = env.subst('BAR')
+        bar = env.subst('BAR',
+                        target=[t1, t2],
+                        source=[s1, s2])
         self.assertEqual(bar, 'bar baz')
+
 
 if __name__ == '__main__':
     unittest.main()
