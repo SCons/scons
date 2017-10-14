@@ -222,8 +222,10 @@ class Tool(object):
 
             # Don't reload a tool we already loaded.
             sys_modules_value = sys.modules.get(found_name,False)
+
+            found_module = None
             if sys_modules_value and sys_modules_value.__file__ == spec.origin:
-                return sys.modules[found_name]
+                found_module = sys.modules[found_name]
             else:
                 # Not sure what to do in the case that there already
                 # exists sys.modules[self.name] but the source file is
@@ -235,7 +237,11 @@ class Tool(object):
                     # If we found it in SCons.Tool, then add it to the module
                     setattr(SCons.Tool, self.name, module)
 
-                return module
+                found_module = module
+            
+            if found_module is not None:
+                sys.path = oldpythonpath
+                return found_module
 
 
         sys.path = oldpythonpath
