@@ -853,14 +853,18 @@ and ultimately removed.</para>
   <varlistentry>
   <term>--debug=time</term>
   <listitem>
-<para>Prints various time profiling information:
-the time spent executing each individual build command;
-the total build time (time SCons ran from beginning to end);
-the total time spent reading and executing SConscript files;
-the total time spent SCons itself spend running
-(that is, not counting reading and executing SConscript files);
-and both the total time spent executing all build commands
-and the elapsed wall-clock time spent executing those build commands.
+<para>Prints various time profiling information:</para>
+<itemizedlist>
+<listitem>The time spent executing each individual build command</listitem>
+<listitem>The total build time (time SCons ran from beginning to end)</listitem>
+<listitem>The total time spent reading and executing SConscript files</listitem>
+<listitem>The total time spent SCons itself spend running
+(that is, not counting reading and executing SConscript files)</listitem>
+<listitem>The total time spent executing all build commands</listitem>
+<listitem>The elapsed wall-clock time spent executing those build commands</listitem>
+<listitem>The time spent processing each file passed to the <emphasis>SConscript()</emphasis> function</listitem>
+</itemizedlist>
+<para>
 (When
 <command>scons</command>
 is executed without the
@@ -884,7 +888,8 @@ be significantly smaller than the
 total time spent executing all the build commands,
 since multiple build commands and
 intervening SCons processing
-should take place in parallel.)</para>
+should take place in parallel.)
+</para>
 
   </listitem>
   </varlistentry>
