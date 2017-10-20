@@ -65,6 +65,22 @@ class ValueTypes(object):
     ESCAPE_END = 9    # $)
     VARIABLE_OR_CALLABLE = 10
 
+    strings = ['UNKNOWN',
+               'STRING',
+               'CALLABLE',
+               'VARIABLE',
+               'PARSED',
+               'COLLECTION',
+               'WHITESPACE',
+               'FUNCTION_CALL',
+               'ESCAPE_START',
+               'ESCAPE_END',
+               'VARIABLE_OR_CALLABLE']
+
+    @staticmethod
+    def enum_name(value):
+        return ValueTypes.strings[value]
+
 
 class SubstModes(object):
     """
@@ -255,7 +271,7 @@ class EnvironmentValue(object):
         dl = []
 
         for (t,v,i) in all_dependencies:
-            print("%s, %s, %s"%(t,v,i))
+            print("%20s, %5s, %s"%(ValueTypes.enum_name(t),i,v))
 
         depend_list = [v for (t,v,i) in all_dependencies
                        if t in (ValueTypes.VARIABLE_OR_CALLABLE, ValueTypes.VARIABLE, ValueTypes.CALLABLE)]
