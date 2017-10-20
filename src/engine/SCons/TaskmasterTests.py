@@ -34,6 +34,7 @@ import TestUnit
 
 import SCons.Taskmaster
 import SCons.Errors
+import SCons.Job
 
 
 built_text = None
@@ -181,8 +182,17 @@ class Node(object):
         wp.add(node)
         return 1
 
+    def add_to_waiting_s_e(self, node):
+        self.waiting_s_e.add(node)
+    
     def get_state(self):
         return self.state
+    
+    def get_side_effects(self):
+        return self.side_effects
+
+    def get_waiting_s_e(self):
+        return self.waiting_s_e
 
     def set_state(self, state):
         self.state = state
@@ -235,7 +245,7 @@ class Node(object):
                 def get_all_prerequisites(self):
                     return []
                 def get_action_side_effects(self):
-                    return []
+                    return [se for t in self.targets for se in t.side_effects]
             self.executor = Executor()
             self.executor.targets = self.targets
         return self.executor
@@ -1007,6 +1017,26 @@ class TaskmasterTestCase(unittest.TestCase):
         t.execute()
         assert built_text is None, built_text
         assert cache_text == ["n7 retrieved", "n8 retrieved"], cache_text
+    
+    def test_pending_children_side_effects(self):
+        n1 = Node("n1")
+        n2 = Node("n2")
+        n3 = Node("n3")
+        n4 = Node("n4")
+        side_effect = Node("se")
+
+        def build_error():
+            import time; time.sleep(2)
+            raise SystemError("Node failed.")
+        n1.build = build_error
+        n1.side_effects = [side_effect]
+        n2.side_effects = [side_effect]
+
+        n3.kids = [n2]
+        n4.kids = [n1, n2, n3]
+        tm = SCons.Taskmaster.Taskmaster([n4])
+        jobs = SCons.Job.Jobs(2, tm)
+        jobs.run()
 
     def test_cached_execute(self):
         """Test executing a task with cached targets
