@@ -152,7 +152,7 @@ class EnvironmentValue(object):
                 elif self.value == ' ':
                     self.var_type = ValueTypes.SPACE
                 else:
-                    self.cached = self.value
+                    self.cached = (self.value, self.value)
             elif isinstance(self.value, (list, dict, tuple, UserDict, UserList)):
                 # Not string and not a callable, Should be some value
                 # like dict, tuple, list
@@ -181,7 +181,9 @@ class EnvironmentValue(object):
             # This shouldn't happen raise Exception
             raise EnvironmentValueParseError("No closing paren parsing Environment value function call "+item)
         else:
-            parameters = remainder[:-1].split(',')
+            # drop commas and spaces
+            # TODO: (Should we parse vs split and drop all white space?)
+            parameters = remainder[:-1].split(', ')
 
         # Now add all parameters to list of variables the string generated from this EnvironmentValue
         # depends upon
@@ -239,7 +241,7 @@ class EnvironmentValue(object):
                 if '(' in value:
                     # Parse call to see if we can determine other dependencies from parameters
                     self._parse_function_call_dependencies(value)
-                    all_dependencies.append((ValueTypes.FUNCTION_CALL,value, index))
+                    all_dependencies.append((ValueTypes.FUNCTION_CALL, value, index))
                 else:
                     all_dependencies.append((ValueTypes.CALLABLE,v[2:-1], index))
             elif '.' in v:
@@ -254,13 +256,13 @@ class EnvironmentValue(object):
 
         for (t,v,i) in all_dependencies:
             print("%s, %s, %s"%(t,v,i))
+
         depend_list = [v for (t,v,i) in all_dependencies
                        if t in (ValueTypes.VARIABLE_OR_CALLABLE, ValueTypes.VARIABLE, ValueTypes.CALLABLE)]
 
-        self.depends_on = set(depend_list)
+        self.depends_on = self.depends_on.union(set(depend_list))
 
-
-    def create_lvar_dict(self, target, source):
+    def create_local_var_dict(self, target, source):
         """Create a dictionary for substitution of special
         construction variables.
 
@@ -281,7 +283,8 @@ class EnvironmentValue(object):
 
         return retval
 
-    def eval_callable(self, to_call, parsed_values, string_values, target=None, source=None, gvars={}, lvars={}, for_sig=False):
+    def eval_callable(self, to_call, parsed_values, string_values,
+                      target=None, source=None, gvars={}, lvars={}, for_sig=False):
         """
         Evaluate a callable and return the generated string.
         (Note we'll need to handle recursive expansion)
@@ -292,7 +295,7 @@ class EnvironmentValue(object):
         """
 
         if 'TARGET' not in lvars:
-            d = self.create_lvar_dict(target, source)
+            d = self.create_local_var_dict(target, source)
             if d:
                 lvars = lvars.copy()
                 lvars.update(d)
@@ -330,6 +333,10 @@ class EnvironmentValue(object):
         #       and there is still much value in caching whatever else can be cached from such strings
         ignore_undefined = False
 
+        use_cache_item = 0
+        if for_signature:
+            use_cache_item = 1
+
         try:
             if self.cached and not for_signature:
                 return self.cached[0]
@@ -364,7 +371,7 @@ class EnvironmentValue(object):
 
             for (t, v, i) in self.all_dependencies:
                 if t not in (ValueTypes.ESCAPE_START, ValueTypes.ESCAPE_END, ValueTypes.STRING) and env[v].is_cached(env):
-                    string_values[i] = (env[v].value, t)
+                    string_values[i] = (env[v].cached[use_cache_item], t)
                 elif t in (ValueTypes.ESCAPE_START, ValueTypes.ESCAPE_END):
                     string_values[i] = (v, t)
                 elif t in (ValueTypes.VARIABLE, ValueTypes.CALLABLE, ValueTypes.VARIABLE_OR_CALLABLE):
@@ -389,11 +396,16 @@ class EnvironmentValue(object):
                     if t == ValueTypes.CALLABLE:
                         to_call = env[v].value
                         string_values[i] = (self.eval_callable(to_call, parsed_values, string_values, target=target,
-                                                               source=source, gvars=env, lvars={}, for_sig=for_signature), ValueTypes.STRING)
+                                                               source=source, gvars=env, lvars={}, for_sig=for_signature),
+                                            ValueTypes.STRING)
                         print("CALLABLE VAL:%s->%s"%(pv[1], string_values[i]))
                         parsed_values[i] = None
                     elif t == ValueTypes.PARSED:
-                        print("PARSED   VAL:%s"%pv[0])
+                        print("PARSED   Type:%s VAL:%s"%(pv[0],pv[1]))
+                        string_values[i] = (env[v].subst(env, raw, target, source, gvars, lvars, conv),
+                                            ValueTypes.STRING)
+                        print("%s->%s" % (v,string_values[i]))
+                        parsed_values[i] = None
                     else:
                         print("AAHAHAHHAH BROKEN")
 

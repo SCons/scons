@@ -51,20 +51,22 @@ class TestEnvironmentValue(unittest.TestCase):
         self.assertEqual(one._parsed,
                          ['$LDMODULE', ' ', '-o', ' ', '$TARGET', ' ', '$LDMODULEFLAGS', ' ', '$__LDMODULEVERSIONFLAGS',
                           ' ', '$__RPATH', ' ', '$SOURCES', ' ', '$_LIBDIRFLAGS', ' ', '$_LIBFLAGS'])
+
         self.assertEqual(one.var_type, ValueTypes.PARSED)
+
         self.assertEqual(one.depends_on,
                          {'LDMODULE', 'TARGET', '__LDMODULEVERSIONFLAGS', 'SOURCES', 'LDMODULEFLAGS', '_LIBFLAGS',
-                          '_LIBDIRFLAGS', '__RPATH'}, "depends_on:%s\n  (AD:%s)\n  (P:%s)" % (one.depends_on, one.all_dependencies, one._parsed))
+                          '_LIBDIRFLAGS', '__RPATH'},
+                         "depends_on:%s\n  (AD:%s)\n  (P:%s)" % (one.depends_on, one.all_dependencies, one._parsed))
 
     def test_function_call(self):
-        # TODO: Should this be callable?
         one = EnvironmentValue('_LIBFLAGS',
                                '${_stripixes(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, LIBPREFIXES, LIBSUFFIXES, __env__)}')
         self.assertEqual(one._parsed,
                          ['${_stripixes(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, LIBPREFIXES, LIBSUFFIXES, __env__)}'])
         self.assertEqual(one.var_type, ValueTypes.PARSED)
         self.assertEqual(one.depends_on,
-                         {' LIBLINKSUFFIX', ' LIBPREFIXES', 'LIBLINKPREFIX', ' LIBSUFFIXES', ' __env__', ' LIBS',
+                         {'LIBLINKSUFFIX', 'LIBPREFIXES', 'LIBLINKPREFIX', 'LIBSUFFIXES', '__env__', 'LIBS',
                           '_stripixes'})
 
     def test_plain_string_value(self):
@@ -111,8 +113,10 @@ class TestEnvironmentValue(unittest.TestCase):
             return "bar"
 
         one = EnvironmentValue('FOO', foo)
-        # self.assertEqual(one._parsed, ['${_stripixes(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, LIBPREFIXES, LIBSUFFIXES, __env__)}'])
         self.assertEqual(one.var_type, ValueTypes.CALLABLE)
+
+        # Test that callable is retrievable and callable and value is proper.
+        self.assertEqual(one.value(None, None, None, None), "bar")
 
     def test_dict_value(self):
         one = EnvironmentValue('ENV', {})
@@ -135,15 +139,25 @@ class TestEnvironmentValues(unittest.TestCase):
         self.assertEqual(sorted(env2.values.keys()), sorted(['X2', 'XX', 'X1', 'XXX']))
 
     def test_expanding_values(self):
-        env1 = EnvironmentValues(XXX='$X', X='One')
+        env = EnvironmentValues(XXX='$X', X='One', XXXX='$XXX',
+                                YYY='$Y', Y='Two', YYYY='$YYY')
 
         # vanilla string should equal itself
-        x = env1.subst('X')
+        x = env.subst('X')
         self.assertEqual(x, 'One')
 
         # Single level expansion
-        xxx = env1.subst('XXX')
+        xxx = env.subst('XXX')
         self.assertEqual(xxx, 'One')
+
+        # Double level expansion
+        xxxx = env.subst('XXXX')
+        self.assertEqual(xxxx, 'One')
+
+        # Now reverse evaluation
+        # Double level expansion
+        yyyy = env.subst('YYYY')
+        self.assertEqual(yyyy, 'Two')
 
     def test_escape_values(self):
         env = EnvironmentValues(X='One', XX='Two', XXX='$X $($XX$)')
