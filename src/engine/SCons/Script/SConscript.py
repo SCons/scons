@@ -44,12 +44,15 @@ import SCons.Script.Main
 import SCons.Tool
 import SCons.Util
 
+from . import Main
+
 import collections
 import os
 import os.path
 import re
 import sys
 import traceback
+import time
 
 class SConscriptReturn(Exception):
     pass
@@ -247,11 +250,17 @@ def _SConscript(fs, *files, **kw):
                     try:
                         try:
 #                            _file_ = SCons.Util.to_str(_file_)
+                            if Main.print_time:
+                                time1 = time.time()
                             exec(compile(_file_.read(), _file_.name, 'exec'),
                                  call_stack[-1].globals)
                         except SConscriptReturn:
                             pass
                     finally:
+                        if Main.print_time:
+                            time2 = time.time()
+                            print('SConscript:%s  took %0.3f ms' % (f.get_abspath(), (time2 - time1) * 1000.0))
+
                         if old_file is not None:
                             call_stack[-1].globals.update({__file__:old_file})
                 else:

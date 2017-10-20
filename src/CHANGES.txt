@@ -23,6 +23,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       8 years ago it was being used as a boolean parameter.  Now you can specify sort to be a callable, or boolean
       value. (True = normal sort). Manpage also updated.
     - Fixed Tool loading logic from exploding sys.path with many site_scons/site_tools prepended on py3.
+    - Added additional output with time to process each SConscript file when using --debug=time.
 
   From Thomas Berg:
     - Fixed a regression in scons-3.0.0 where "from __future__ import print_function" was imposed
