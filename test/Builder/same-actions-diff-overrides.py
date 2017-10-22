@@ -25,36 +25,32 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify that a builder without "multi" set can still be called multiple
-times if the calls are the same.
+Verify that two calls to a builder with different overrides, but the same
+action, generate a warning
 """
 
 import TestSCons
 
 test = TestSCons.TestSCons(match=TestSCons.match_re)
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
 def build(env, target, source):
-    file = open(str(target[0]), 'wb')
-    for s in source:
-        file.write(open(str(s), 'rb').read())
+    file = open(str(target[0]), 'w')
+    file.write('1')
 
-B = Builder(action=build, multi=0)
+B = Builder(action=build)
 env = Environment(BUILDERS = { 'B' : B })
-env.B(target = 'file7.out', source = 'file7.in')
-env.B(target = 'file7.out', source = 'file7.in')
-env.B(target = 'file8.out', source = 'file8.in', arg=1)
-env.B(target = 'file8.out', source = 'file8.in', arg=1)
+env.B('out.txt', [], arg=1)
+env.B('out.txt', [], arg=2)
 """)
 
-test.write('file7.in', 'file7.in\n')
-test.write('file8.in', 'file8.in\n')
+expect = TestSCons.re_escape("""
+scons: warning: Two different environments were specified for target out.txt,
+\tbut they appear to have the same action: build(target, source, env)
+""") + TestSCons.file_expr
 
-test.run(arguments='file7.out')
-test.run(arguments='file8.out')
-
-test.must_match('file7.out', "file7.in\n")
-test.must_match('file8.out', "file8.in\n")
+test.run(arguments='out.txt', status=0, stderr=expect)
+test.must_match('out.txt', '1')
 
 test.pass_test()
 
