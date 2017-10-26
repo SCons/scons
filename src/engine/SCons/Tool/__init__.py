@@ -913,15 +913,25 @@ def createCFileBuilders(env):
 #  Create common Java builders
 
 def CreateJarBuilder(env):
+    """The Jar builder expects a list of class files
+    which it can package into a jar file.
+
+    The jar tool provides an interface for passing other types
+    of java files such as .java, directories or swig interfaces
+    and will build them to class files in which it can package
+    into the jar.
+    """
     try:
-        java_jar = env['BUILDERS']['Jar']
+        java_jar = env['BUILDERS']['JarFile']
     except KeyError:
         fs = SCons.Node.FS.get_default_fs()
         jar_com = SCons.Action.Action('$JARCOM', '$JARCOMSTR')
         java_jar = SCons.Builder.Builder(action = jar_com,
                                          suffix = '$JARSUFFIX',
+                                         src_suffix = '$JAVACLASSSUFFIX',
+                                         src_builder = 'JavaClassFile',
                                          source_factory = fs.Entry)
-        env['BUILDERS']['Jar'] = java_jar
+        env['BUILDERS']['JarFile'] = java_jar
     return java_jar
 
 def CreateJavaHBuilder(env):
