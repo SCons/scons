@@ -25,7 +25,6 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -248,6 +247,7 @@ test.subdir('testdir2',
             ['testdir2', 'com', 'javasource'])
 
 # simple SConstruct which passes the 3 .java as source
+# and extracts the jar back to classes
 test.write(['testdir2', 'SConstruct'], """
 foo = Environment()
 foo.Jar(target = 'foo', source = [
@@ -255,6 +255,8 @@ foo.Jar(target = 'foo', source = [
     'com/javasource/JavaFile2.java',
     'com/javasource/JavaFile3.java'
 ])
+foo.Command(foo.Dir('test'), 'foo.jar', Mkdir("test") )
+foo.Command('JavaFile1.class', foo.Dir('test'), foo['JAR'] + ' xvf ../foo.jar', chdir='test')
 """)
 
 test.write(['testdir2', 'com', 'javasource', 'JavaFile1.java'], """\
@@ -295,11 +297,18 @@ public class JavaFile3
 
 test.run(chdir='testdir2')
 
-if("jar cf foo.jar com/javasource/JavaFile1.java com/javasource/JavaFile2.java " +
-   "com/javasource/JavaFile3.java" not in test.stdout()):
+# check the output and make sure the java files got converted to classes
+if("jar cf foo.jar " +
+   "-C com/javasource/JavaFile1 com/javasource/JavaFile1.class " +
+   "-C com/javasource/JavaFile2 com/javasource/JavaFile2.class " +
+   "-C com/javasource/JavaFile3 com/javasource/JavaFile3.class" not in test.stdout()):
     test.fail_test()
 
+# make sure there are class in the jar
 test.must_exist(['testdir2','foo.jar'])
+test.must_exist(['testdir2', 'test', 'com', 'javasource', 'JavaFile1.class'])
+test.must_exist(['testdir2', 'test', 'com', 'javasource', 'JavaFile2.class'])
+test.must_exist(['testdir2', 'test', 'com', 'javasource', 'JavaFile3.class'])
 
 test.pass_test()
 
