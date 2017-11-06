@@ -635,9 +635,13 @@ class SubstitutionEnvironment(object):
         environment, and doesn't even create a wrapper object if there
         are no overrides.
         """
-        if not overrides: return self
+        if not overrides:
+            return self
+
         o = copy_non_reserved_keywords(overrides)
-        if not o: return self
+        if not o:
+            return self
+
         overrides = {}
         merges = None
         for key, value in o.items():
@@ -646,7 +650,8 @@ class SubstitutionEnvironment(object):
             else:
                 overrides[key] = SCons.Subst.scons_subst_once(value, self, key)
         env = OverrideEnvironment(self, overrides)
-        if merges: env.MergeFlags(merges)
+        if merges:
+            env.MergeFlags(merges)
         return env
 
     def ParseFlags(self, *flags):
