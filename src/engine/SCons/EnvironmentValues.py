@@ -99,6 +99,7 @@ class SubstModes(object):
     RAW = 1
     FOR_SIGNATURE = 2
 
+
 class EnvironmentValueParseError(Exception):
     """
     TODO: Should this be some kind of SCons exception
@@ -278,7 +279,8 @@ class EnvironmentValue(object):
 
         self.depends_on = self.depends_on.union(set(depend_list))
 
-    def create_local_var_dict(self, target, source):
+    @staticmethod
+    def create_local_var_dict(target, source):
         """Create a dictionary for substitution of special
         construction variables.
 
