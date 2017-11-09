@@ -40,6 +40,7 @@ class MyNode(DummyNode):
 
     foo = 1
 
+
 class TestEnvironmentValue(unittest.TestCase):
     """
     Test the class which holds a single environment value
@@ -197,6 +198,34 @@ class TestEnvironmentValues(unittest.TestCase):
                         target=[t1, t2],
                         source=[s1, s2])
         self.assertEqual(bar, 'bar baz')
+
+    def test_setitem(self):
+        env = EnvironmentValues(X='One', XX='Two', XXX='$X $($XX$)')
+
+        # vanilla string should equal itself
+        x = env.subst('X')
+        self.assertEqual(x, 'One')
+
+        env['Y'] = '$X'
+
+        xxx = env.subst('XXX')
+
+        # Change the value to XX and make sure the value of XXX
+        # changed
+        env['XX'] = 'BLAH'
+        xxx_2 = env.subst('XXX')
+        self.assertNotEqual(xxx, xxx_2)
+        self.assertEqual(xxx_2, "One BLAH")
+
+        # now set XX to a function and verify that the value changed
+        # and that the value is correct with the new function
+        def foo(target, source, env, for_signature):
+            return "bar"
+        env['XX'] = foo
+        xxx_3 = env.subst('XXX')
+        print("1:%s 2:%s 3:%s"%(xxx, xxx_2, xxx_3))
+        self.assertNotEqual(xxx_3, xxx_2)
+        self.assertEqual(xxx_3, 'One bar')
 
 
 if __name__ == '__main__':

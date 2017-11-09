@@ -279,6 +279,36 @@ class EnvironmentValue(object):
 
         self.depends_on = self.depends_on.union(set(depend_list))
 
+    def update(self, key, all_values):
+        """
+        A key in the parent environment has changed/been set, update this value
+        :param key:
+        :param all_values:
+        :return:
+        """
+
+        # remove the cache because it's been invalidated
+        try:
+            del self.cached
+        except AttributeError as e:
+            # there was no cached... ignore
+            pass
+
+        # update self.all_dependencies to see if the type has changed.
+        for (t,v,i) in self.all_dependencies:
+            if v == key:
+                print("Matching key:%s -> (%s/%s/%s)"%(key,ValueTypes.enum_name(t),v,i))
+
+                if callable(all_values[key].value):
+                    t = ValueTypes.CALLABLE
+                else:
+                    t = ValueTypes.VARIABLE
+
+                print("Now         :%s -> (%s/%s/%s)"%(key,ValueTypes.enum_name(t),v,i))
+
+                # This needs to trigger update of this variable as well..
+                self.all_dependencies[i] = (t, v, i)
+
     @staticmethod
     def create_local_var_dict(target, source):
         """Create a dictionary for substitution of special
@@ -345,10 +375,10 @@ class EnvironmentValue(object):
 
         for_signature = raw == SubstModes.FOR_SIGNATURE
 
-        # TODO: Figure out how to handle this properly.  May involve seeing if source & targets is specified. Or checking
-        #       against list of variables which are "ok" to leave undefined and unexpanded in the returned string and/or
-        #       the cached values.  This is likely important for caching CCCOM where the TARGET/SOURCES will change
-        #       and there is still much value in caching whatever else can be cached from such strings
+        # TODO:Figure out how to handle this properly.  May involve seeing if source & targets is specified. Or checking
+        #      against list of variables which are "ok" to leave undefined and unexpanded in the returned string and/or
+        #      the cached values.  This is likely important for caching CCCOM where the TARGET/SOURCES will change
+        #      and there is still much value in caching whatever else can be cached from such strings
         ignore_undefined = False
 
         use_cache_item = 0
@@ -473,14 +503,51 @@ class EnvironmentValues(object):
         self.key_set = set(self.values.keys())
 
     def __setitem__(self, key, value):
+        print("SETITEM:%s->%s"%(key,value))
         self.values[key] = EnvironmentValue(key, value)
         self.key_set.add(key)
+
+        # TODO: Now reevaluate any keys which depend on this value for better caching?
+        self.update_cached_values(key)
 
     def __contains__(self, item):
         return item in self.values
 
     def __getitem__(self, item):
         return self.values[item]
+
+    def update_cached_values(self, key):
+        """
+        Key has been set/changed. We need to effectively flush the cached subst values
+        (If there are any).
+        Also we may change the type of parsed parts of values.
+
+        TODO: Does this need to recursively be re-evaluated?
+
+        :param key: The changed key in the environment.
+        :return:
+        """
+
+        # Find all variables which depend on the key
+
+        to_update = [v for v in self.values if key in self.values[v].depends_on]
+
+        # then recursively find all the other EnvironmentValue depending on
+        # any keys which depend on the EnvironmentValue which depend on the key
+
+        new_values_to_update = len(to_update)
+
+        while new_values_to_update:
+            new_values_to_update = False
+            check_values = list(to_update)
+            for v in check_values:
+                for ov in self.values:
+                    if v in self.values[ov].depends_on:
+                        new_values_to_update = True
+                        to_update.append(ov)
+
+        for v in to_update:
+            self.values[v].update(key, self.values)
 
     def subst(self, item, raw=0, target=None, source=None, gvars={}, lvars={}, conv=None):
         """
