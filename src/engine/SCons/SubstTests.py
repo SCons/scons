@@ -238,7 +238,8 @@ class SubstTestCase(unittest.TestCase):
     def basic_comparisons(self, function, convert):
         env = DummyEnv(self.loc)
         cases = self.basic_cases[:]
-        kwargs = {'target' : self.target, 'source' : self.source,
+        kwargs = {'target' : self.target,
+                  'source' : self.source,
                   'gvars' : env.Dictionary()}
 
         failed = 0
@@ -259,6 +260,7 @@ class SubstTestCase(unittest.TestCase):
             del cases[:2]
         fmt = "%d %s() cases failed"
         assert failed == 0, fmt % (failed, function.__name__)
+
 
 class scons_subst_TestCase(SubstTestCase):
 
