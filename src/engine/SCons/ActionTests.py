@@ -160,14 +160,6 @@ class Environment(object):
         for k, v in kw.items():
             res.d[k] = v
         return res
-    def sig_dict(self):
-        d = {}
-        for k,v in self.items(): d[k] = v
-        d['TARGETS'] = ['__t1__', '__t2__', '__t3__', '__t4__', '__t5__', '__t6__']
-        d['TARGET'] = d['TARGETS'][0]
-        d['SOURCES'] = ['__s1__', '__s2__', '__s3__', '__s4__', '__s5__', '__s6__']
-        d['SOURCE'] = d['SOURCES'][0]
-        return d
 
 class DummyNode(object):
     def __init__(self, name):

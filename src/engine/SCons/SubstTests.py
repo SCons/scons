@@ -66,12 +66,6 @@ class DummyEnv(object):
     def get(self, key, default):
         return self.dict.get(key, default)
 
-    def sig_dict(self):
-        dict = self.dict.copy()
-        dict["TARGETS"] = 'tsig'
-        dict["SOURCES"] = 'ssig'
-        return dict
-
 def cs(target=None, source=None, env=None, for_signature=None):
     return 'cs'
 
