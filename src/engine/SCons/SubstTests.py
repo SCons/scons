@@ -641,7 +641,8 @@ class scons_subst_TestCase(SubstTestCase):
         result = scons_subst('$XXX', env, gvars={'XXX' : 'yyy'})
         assert result == 'yyy', result
 
-class CLVar_TestCase(unittest.TestCase):
+
+class TestCLVar(unittest.TestCase):
     def test_CLVar(self):
         """Test scons_subst() and scons_subst_list() with CLVar objects"""
 
@@ -654,7 +655,7 @@ class CLVar_TestCase(unittest.TestCase):
         cmd = SCons.Util.CLVar("test $FOO $BAR $CALL test")
 
         newcmd = scons_subst(cmd, env, gvars=env.Dictionary())
-        assert newcmd == ['test', 'foo', 'bar', 'call', 'test'], newcmd
+        self.assertEqual(newcmd, ['test', 'foo', 'bar', 'call', 'test'], newcmd)
 
         cmd_list = scons_subst_list(cmd, env, gvars=env.Dictionary())
         assert len(cmd_list) == 1, cmd_list
@@ -1238,22 +1239,9 @@ class subst_dict_TestCase(unittest.TestCase):
         SOURCES = sorted([str(x) for x in d['SOURCES']])
         assert SOURCES == ['s3', 'v-rstr-s4', 'v-s5'], SOURCES
 
+
 if __name__ == "__main__":
-    suite = unittest.TestSuite()
-    tclasses = [
-        CLVar_TestCase,
-        LiteralTestCase,
-        SpecialAttrWrapperTestCase,
-        quote_spaces_TestCase,
-        scons_subst_TestCase,
-        scons_subst_list_TestCase,
-        scons_subst_once_TestCase,
-        subst_dict_TestCase,
-    ]
-    for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(list(map(tclass, names)))
-    TestUnit.run(suite)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4
