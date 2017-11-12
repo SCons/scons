@@ -33,7 +33,6 @@ Environment
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-
 import copy
 import os
 import sys
@@ -61,8 +60,10 @@ import SCons.Tool
 import SCons.Util
 import SCons.Warnings
 
+
 class _Null(object):
     pass
+
 
 _null = _Null
 
@@ -81,15 +82,18 @@ semi_deepcopy_dict = SCons.Util.semi_deepcopy_dict
 # which seem to mess up its ability to reference SCons directly.
 UserError = SCons.Errors.UserError
 
+
 def alias_builder(env, target, source):
     pass
 
-AliasBuilder = SCons.Builder.Builder(action = alias_builder,
-                                     target_factory = SCons.Node.Alias.default_ans.Alias,
-                                     source_factory = SCons.Node.FS.Entry,
-                                     multi = 1,
-                                     is_explicit = None,
+
+AliasBuilder = SCons.Builder.Builder(action=alias_builder,
+                                     target_factory=SCons.Node.Alias.default_ans.Alias,
+                                     source_factory=SCons.Node.FS.Entry,
+                                     multi=1,
+                                     is_explicit=None,
                                      name='AliasBuilder')
+
 
 def apply_tools(env, tools, toolpath):
     # Store the toolpath in the Environment.
@@ -102,10 +106,11 @@ def apply_tools(env, tools, toolpath):
     for tool in [_f for _f in tools if _f]:
         if SCons.Util.is_List(tool) or isinstance(tool, tuple):
             toolname = tool[0]
-            toolargs = tool[1] # should be a dict of kw args
+            toolargs = tool[1]  # should be a dict of kw args
             tool = env.Tool(toolname, **toolargs)
         else:
             env.Tool(tool)
+
 
 # These names are (or will be) controlled by SCons; users should never
 # set or override them.  This warning can optionally be turned off,
@@ -122,10 +127,11 @@ reserved_construction_var_names = [
 ]
 
 future_reserved_construction_var_names = [
-    #'HOST_OS',
-    #'HOST_ARCH',
-    #'HOST_CPU',
-    ]
+    # 'HOST_OS',
+    # 'HOST_ARCH',
+    # 'HOST_CPU',
+]
+
 
 def copy_non_reserved_keywords(dict):
     result = semi_deepcopy(dict)
@@ -136,14 +142,17 @@ def copy_non_reserved_keywords(dict):
             del result[k]
     return result
 
+
 def _set_reserved(env, key, value):
     msg = "Ignoring attempt to set reserved variable `$%s'"
     SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning, msg % key)
+
 
 def _set_future_reserved(env, key, value):
     env._dict[key] = value
     msg = "`$%s' will be reserved in a future release and setting it will become ignored"
     SCons.Warnings.warn(SCons.Warnings.FutureReservedVariableWarning, msg % key)
+
 
 def _set_BUILDERS(env, key, value):
     try:
@@ -158,19 +167,22 @@ def _set_BUILDERS(env, key, value):
             raise SCons.Errors.UserError('%s is not a Builder.' % repr(v))
     bd.update(value)
 
+
 def _del_SCANNERS(env, key):
     del env._dict[key]
     env.scanner_map_delete()
+
 
 def _set_SCANNERS(env, key, value):
     env._dict[key] = value
     env.scanner_map_delete()
 
+
 def _delete_duplicates(l, keep_last):
     """Delete duplicates from a sequence, keeping the first or last."""
-    seen=set()
-    result=[]
-    if keep_last:           # reverse in & out, then keep first
+    seen = set()
+    result = []
+    if keep_last:  # reverse in & out, then keep first
         l.reverse()
     for i in l:
         try:
@@ -183,7 +195,6 @@ def _delete_duplicates(l, keep_last):
     if keep_last:
         result.reverse()
     return result
-
 
 
 # The following is partly based on code in a comment added by Peter
@@ -212,6 +223,7 @@ class MethodWrapper(object):
     a new underlying object being copied (without which we wouldn't need
     to save that info).
     """
+
     def __init__(self, object, method, name=None):
         if name is None:
             name = method.__name__
@@ -230,6 +242,7 @@ class MethodWrapper(object):
         the specified new object.
         """
         return self.__class__(new_object, self.method, self.name)
+
 
 class BuilderWrapper(MethodWrapper):
     """
@@ -250,6 +263,7 @@ class BuilderWrapper(MethodWrapper):
     Tool/qt.py module does, or did).  There shouldn't be a lot attribute
     fetching or setting on these, so a little extra work shouldn't hurt.
     """
+
     def __call__(self, target=None, source=_null, *args, **kw):
         if source is _null:
             source = target
@@ -282,22 +296,24 @@ class BuilderWrapper(MethodWrapper):
         else:
             self.__dict__[name] = value
 
-    # This allows a Builder to be executed directly
-    # through the Environment to which it's attached.
-    # In practice, we shouldn't need this, because
-    # builders actually get executed through a Node.
-    # But we do have a unit test for this, and can't
-    # yet rule out that it would be useful in the
-    # future, so leave it for now.
-    #def execute(self, **kw):
-    #    kw['env'] = self.env
-    #    self.builder.execute(**kw)
+            # This allows a Builder to be executed directly
+            # through the Environment to which it's attached.
+            # In practice, we shouldn't need this, because
+            # builders actually get executed through a Node.
+            # But we do have a unit test for this, and can't
+            # yet rule out that it would be useful in the
+            # future, so leave it for now.
+            # def execute(self, **kw):
+            #    kw['env'] = self.env
+            #    self.builder.execute(**kw)
+
 
 class BuilderDict(UserDict):
     """This is a dictionary-like class used by an Environment to hold
     the Builders.  We need to do this because every time someone changes
     the Builders in the Environment's BUILDERS dictionary, we must
     update the Environment's attributes."""
+
     def __init__(self, dict, env):
         # Set self.env before calling the superclass initialization,
         # because it will end up calling our other methods, which will
@@ -308,7 +324,7 @@ class BuilderDict(UserDict):
     def __semi_deepcopy__(self):
         # These cannot be copied since they would both modify the same builder object, and indeed
         # just copying would modify the original builder
-        raise TypeError( 'cannot semi_deepcopy a BuilderDict' )
+        raise TypeError('cannot semi_deepcopy a BuilderDict')
 
     def __setitem__(self, item, val):
         try:
@@ -329,15 +345,14 @@ class BuilderDict(UserDict):
             self.__setitem__(i, v)
 
 
-
 _is_valid_var = re.compile(r'[_a-zA-Z]\w*$')
+
 
 def is_valid_construction_var(varstr):
     """Return if the specified string is a legitimate construction
     variable.
     """
     return _is_valid_var.match(varstr)
-
 
 
 class SubstitutionEnvironment(object):
@@ -379,7 +394,7 @@ class SubstitutionEnvironment(object):
 
         # Testing EnvironmentValues
         self._env_values = EnvironmentValues(**kw)
-        #self._memo = {}
+        # self._memo = {}
 
     def _init_special(self):
         """Initial the dispatch tables for special handling of
@@ -439,12 +454,12 @@ class SubstitutionEnvironment(object):
             # global, pre-compiled regular expression directly is more
             # efficient than calling another function or a method.
             if key not in self._dict \
-               and not _is_valid_var.match(key):
-                    raise SCons.Errors.UserError("Illegal construction variable `%s'" % key)
+                    and not _is_valid_var.match(key):
+                raise SCons.Errors.UserError("Illegal construction variable `%s'" % key)
             self._dict[key] = value
 
             # Testing
-            if hasattr(self,'_env_values'):
+            if hasattr(self, '_env_values'):
                 self._env_values[key] = value
 
     def get(self, key, default=None):
@@ -589,17 +604,17 @@ class SubstitutionEnvironment(object):
     def backtick(self, command):
         import subprocess
         # common arguments
-        kw = { 'stdin' : 'devnull',
-               'stdout' : subprocess.PIPE,
-               'stderr' : subprocess.PIPE,
-               'universal_newlines' : True,
-             }
+        kw = {'stdin': 'devnull',
+              'stdout': subprocess.PIPE,
+              'stderr': subprocess.PIPE,
+              'universal_newlines': True,
+              }
         # if the command is a list, assume it's been quoted
         # othewise force a shell
         if not SCons.Util.is_List(command): kw['shell'] = True
         # run constructed command
         p = SCons.Action._subproc(self, command, **kw)
-        out,err = p.communicate()
+        out, err = p.communicate()
         status = p.wait()
         if err:
             sys.stderr.write(u"" + err)
@@ -665,19 +680,19 @@ class SubstitutionEnvironment(object):
         the result of that evaluation is then added to the dict.
         """
         dict = {
-            'ASFLAGS'       : SCons.Util.CLVar(''),
-            'CFLAGS'        : SCons.Util.CLVar(''),
-            'CCFLAGS'       : SCons.Util.CLVar(''),
-            'CXXFLAGS'      : SCons.Util.CLVar(''),
-            'CPPDEFINES'    : [],
-            'CPPFLAGS'      : SCons.Util.CLVar(''),
-            'CPPPATH'       : [],
-            'FRAMEWORKPATH' : SCons.Util.CLVar(''),
-            'FRAMEWORKS'    : SCons.Util.CLVar(''),
-            'LIBPATH'       : [],
-            'LIBS'          : [],
-            'LINKFLAGS'     : SCons.Util.CLVar(''),
-            'RPATH'         : [],
+            'ASFLAGS': SCons.Util.CLVar(''),
+            'CFLAGS': SCons.Util.CLVar(''),
+            'CCFLAGS': SCons.Util.CLVar(''),
+            'CXXFLAGS': SCons.Util.CLVar(''),
+            'CPPDEFINES': [],
+            'CPPFLAGS': SCons.Util.CLVar(''),
+            'CPPPATH': [],
+            'FRAMEWORKPATH': SCons.Util.CLVar(''),
+            'FRAMEWORKS': SCons.Util.CLVar(''),
+            'LIBPATH': [],
+            'LIBS': [],
+            'LINKFLAGS': SCons.Util.CLVar(''),
+            'RPATH': [],
         }
 
         def do_parse(arg):
@@ -694,7 +709,7 @@ class SubstitutionEnvironment(object):
                 arg = self.backtick(arg[1:])
 
             # utility function to deal with -D option
-            def append_define(name, dict = dict):
+            def append_define(name, dict=dict):
                 t = name.split('=')
                 if len(t) == 1:
                     dict['CPPDEFINES'].append(name)
@@ -722,28 +737,28 @@ class SubstitutionEnvironment(object):
             # IBM compilers may also accept -qframeworkdir=foo
 
             params = shlex.split(arg)
-            append_next_arg_to = None   # for multi-word args
+            append_next_arg_to = None  # for multi-word args
             for arg in params:
                 if append_next_arg_to:
-                   if append_next_arg_to == 'CPPDEFINES':
-                       append_define(arg)
-                   elif append_next_arg_to == '-include':
-                       t = ('-include', self.fs.File(arg))
-                       dict['CCFLAGS'].append(t)
-                   elif append_next_arg_to == '-isysroot':
-                       t = ('-isysroot', arg)
-                       dict['CCFLAGS'].append(t)
-                       dict['LINKFLAGS'].append(t)
-                   elif append_next_arg_to == '-isystem':
-                       t = ('-isystem', arg)
-                       dict['CCFLAGS'].append(t)
-                   elif append_next_arg_to == '-arch':
-                       t = ('-arch', arg)
-                       dict['CCFLAGS'].append(t)
-                       dict['LINKFLAGS'].append(t)
-                   else:
-                       dict[append_next_arg_to].append(arg)
-                   append_next_arg_to = None
+                    if append_next_arg_to == 'CPPDEFINES':
+                        append_define(arg)
+                    elif append_next_arg_to == '-include':
+                        t = ('-include', self.fs.File(arg))
+                        dict['CCFLAGS'].append(t)
+                    elif append_next_arg_to == '-isysroot':
+                        t = ('-isysroot', arg)
+                        dict['CCFLAGS'].append(t)
+                        dict['LINKFLAGS'].append(t)
+                    elif append_next_arg_to == '-isystem':
+                        t = ('-isystem', arg)
+                        dict['CCFLAGS'].append(t)
+                    elif append_next_arg_to == '-arch':
+                        t = ('-arch', arg)
+                        dict['CCFLAGS'].append(t)
+                        dict['LINKFLAGS'].append(t)
+                    else:
+                        dict[append_next_arg_to].append(arg)
+                    append_next_arg_to = None
                 elif not arg[0] in ['-', '+']:
                     dict['LIBS'].append(self.fs.File(arg))
                 elif arg == '-dylib_file':
@@ -801,10 +816,10 @@ class SubstitutionEnvironment(object):
                 elif arg == '-mwindows':
                     dict['LINKFLAGS'].append(arg)
                 elif arg[:5] == '-std=':
-                    if arg[5:].find('++')!=-1:
-                        key='CXXFLAGS'
+                    if arg[5:].find('++') != -1:
+                        key = 'CXXFLAGS'
                     else:
-                        key='CFLAGS'
+                        key = 'CFLAGS'
                     dict[key].append(arg)
                 elif arg[0] == '+':
                     dict['CCFLAGS'].append(arg)
@@ -880,13 +895,16 @@ def default_decide_source(dependency, target, prev_ni):
     f = SCons.Defaults.DefaultEnvironment().decide_source
     return f(dependency, target, prev_ni)
 
+
 def default_decide_target(dependency, target, prev_ni):
     f = SCons.Defaults.DefaultEnvironment().decide_target
     return f(dependency, target, prev_ni)
 
+
 def default_copy_from_cache(src, dst):
     f = SCons.Defaults.DefaultEnvironment().copy_from_cache
     return f(src, dst)
+
 
 class Base(SubstitutionEnvironment):
     """Base class for "real" construction Environments.  These are the
@@ -917,7 +935,7 @@ class Base(SubstitutionEnvironment):
                  tools=None,
                  toolpath=None,
                  variables=None,
-                 parse_flags = None,
+                 parse_flags=None,
                  **kw):
         """
         Initialization of a basic SCons construction environment,
@@ -964,12 +982,12 @@ class Base(SubstitutionEnvironment):
         self._dict['PLATFORM'] = str(platform)
         platform(self)
 
-        self._dict['HOST_OS']      = self._dict.get('HOST_OS',None)
-        self._dict['HOST_ARCH']    = self._dict.get('HOST_ARCH',None)
+        self._dict['HOST_OS'] = self._dict.get('HOST_OS', None)
+        self._dict['HOST_ARCH'] = self._dict.get('HOST_ARCH', None)
 
         # Now set defaults for TARGET_{OS|ARCH}
-        self._dict['TARGET_OS']      = self._dict.get('TARGET_OS',None)
-        self._dict['TARGET_ARCH']    = self._dict.get('TARGET_ARCH',None)
+        self._dict['TARGET_OS'] = self._dict.get('TARGET_OS', None)
+        self._dict['TARGET_ARCH'] = self._dict.get('TARGET_ARCH', None)
 
         # Apply the passed-in and customizable variables to the
         # environment before calling the tools, because they may use
@@ -1013,10 +1031,8 @@ class Base(SubstitutionEnvironment):
         # Finally, apply any flags to be merged in
         if parse_flags: self.MergeFlags(parse_flags)
 
-
         # Testing EnvironmentValues
         self._env_values = EnvironmentValues(**self._dict)
-
 
     #######################################################################
     # Utility methods that are primarily for internal use by SCons.
@@ -1063,9 +1079,12 @@ class Base(SubstitutionEnvironment):
                 # return the FS method that corresponds to the Node's
                 # name--that is, we return self.fs.Dir if they want a Dir,
                 # self.fs.File for a File, etc.
-                try: name = factory.__name__
-                except AttributeError: pass
-                else: factory = None
+                try:
+                    name = factory.__name__
+                except AttributeError:
+                    pass
+                else:
+                    factory = None
         if not factory:
             # They passed us None, or we picked up a name from a specified
             # class, so return the FS method.  (Note that we *don't*
@@ -1096,7 +1115,7 @@ class Base(SubstitutionEnvironment):
             if not SCons.Util.is_List(scanners):
                 scanners = [scanners]
             else:
-                scanners = scanners[:] # copy so reverse() doesn't mod original
+                scanners = scanners[:]  # copy so reverse() doesn't mod original
             scanners.reverse()
             for scanner in scanners:
                 for k in scanner.get_skeys(self):
@@ -1238,14 +1257,14 @@ class Base(SubstitutionEnvironment):
     # allow Dirs and strings beginning with # for top-relative
     # Note this uses the current env's fs (in self).
     def _canonicalize(self, path):
-        if not SCons.Util.is_String(path): # typically a Dir
+        if not SCons.Util.is_String(path):  # typically a Dir
             path = str(path)
         if path and path[0] == '#':
             path = str(self.fs.Dir(path))
         return path
 
-    def AppendENVPath(self, name, newpath, envname = 'ENV',
-                      sep = os.pathsep, delete_existing=1):
+    def AppendENVPath(self, name, newpath, envname='ENV',
+                      sep=os.pathsep, delete_existing=1):
         """Append path elements to the path 'name' in the 'ENV'
         dictionary for this environment.  Will only add any particular
         path once, and will normpath and normcase all paths to help
@@ -1281,7 +1300,7 @@ class Base(SubstitutionEnvironment):
             if key not in self._dict or self._dict[key] in ('', None):
                 self._dict[key] = val
             elif SCons.Util.is_Dict(self._dict[key]) and \
-                 SCons.Util.is_Dict(val):
+                    SCons.Util.is_Dict(val):
                 self._dict[key].update(val)
             elif SCons.Util.is_List(val):
                 dk = self._dict[key]
@@ -1391,9 +1410,9 @@ class Base(SubstitutionEnvironment):
                                 val = [val]
                         elif SCons.Util.is_Dict(val):
                             tmp = []
-                            for i,j in val.items():
+                            for i, j in val.items():
                                 if j is not None:
-                                    tmp.append((i,j))
+                                    tmp.append((i, j))
                                 else:
                                     tmp.append(i)
                             val = tmp
@@ -1402,7 +1421,7 @@ class Base(SubstitutionEnvironment):
                     self._dict[key] = dk + val
         self.scanner_map_delete(kw)
 
-    def Clone(self, tools=[], toolpath=None, parse_flags = None, **kw):
+    def Clone(self, tools=[], toolpath=None, parse_flags=None, **kw):
         """Return a copy of a construction Environment.  The
         copy is like a Python "deep copy"--that is, independent
         copies are made recursively of each objects--except that
@@ -1515,7 +1534,7 @@ class Base(SubstitutionEnvironment):
         """Return the first available program in progs.
         """
         if not SCons.Util.is_List(progs):
-            progs = [ progs ]
+            progs = [progs]
         for prog in progs:
             path = self.WhereIs(prog)
             if path: return prog
@@ -1529,7 +1548,7 @@ class Base(SubstitutionEnvironment):
             dlist = dlist[0]
         return dlist
 
-    def Dump(self, key = None):
+    def Dump(self, key=None):
         """
         Using the standard Python pretty printer, return the contents of the
         scons build environment as a string.
@@ -1556,11 +1575,11 @@ class Base(SubstitutionEnvironment):
         suffix - construction variable for the suffix.
         """
 
-        suffix = self.subst('$'+suffix)
-        prefix = self.subst('$'+prefix)
+        suffix = self.subst('$' + suffix)
+        prefix = self.subst('$' + prefix)
 
         for path in paths:
-            dir,name = os.path.split(str(path))
+            dir, name = os.path.split(str(path))
             if name[:len(prefix)] == prefix and name[-len(suffix):] == suffix:
                 return path
 
@@ -1578,6 +1597,7 @@ class Base(SubstitutionEnvironment):
         if function is None:
             def parse_conf(env, cmd, unique=unique):
                 return env.MergeFlags(cmd, unique)
+
             function = parse_conf
         if SCons.Util.is_List(command):
             command = ' '.join(command)
@@ -1619,8 +1639,8 @@ class Base(SubstitutionEnvironment):
                 targets.extend(td[0])
             if len(targets) > 1:
                 raise SCons.Errors.UserError(
-                            "More than one dependency target found in `%s':  %s"
-                                            % (filename, targets))
+                    "More than one dependency target found in `%s':  %s"
+                    % (filename, targets))
         for target, depends in tdlist:
             self.Depends(target, depends)
 
@@ -1693,7 +1713,7 @@ class Base(SubstitutionEnvironment):
                                 orig[val] = None
         self.scanner_map_delete(kw)
 
-    def PrependENVPath(self, name, newpath, envname = 'ENV', sep = os.pathsep,
+    def PrependENVPath(self, name, newpath, envname='ENV', sep=os.pathsep,
                        delete_existing=1):
         """Prepend path elements to the path 'name' in the 'ENV'
         dictionary for this environment.  Will only add any particular
@@ -1730,7 +1750,7 @@ class Base(SubstitutionEnvironment):
             if key not in self._dict or self._dict[key] in ('', None):
                 self._dict[key] = val
             elif SCons.Util.is_Dict(self._dict[key]) and \
-                 SCons.Util.is_Dict(val):
+                    SCons.Util.is_Dict(val):
                 self._dict[key].update(val)
             elif SCons.Util.is_List(val):
                 dk = self._dict[key]
@@ -1767,7 +1787,7 @@ class Base(SubstitutionEnvironment):
         except KeyError:
             pass
         else:
-            kwbd = BuilderDict(kwbd,self)
+            kwbd = BuilderDict(kwbd, self)
             del kw['BUILDERS']
             self.__setitem__('BUILDERS', kwbd)
         kw = copy_non_reserved_keywords(kw)
@@ -1785,18 +1805,18 @@ class Base(SubstitutionEnvironment):
         new_prefix - construction variable for the new prefix.
         new_suffix - construction variable for the new suffix.
         """
-        old_prefix = self.subst('$'+old_prefix)
-        old_suffix = self.subst('$'+old_suffix)
+        old_prefix = self.subst('$' + old_prefix)
+        old_suffix = self.subst('$' + old_suffix)
 
-        new_prefix = self.subst('$'+new_prefix)
-        new_suffix = self.subst('$'+new_suffix)
+        new_prefix = self.subst('$' + new_prefix)
+        new_suffix = self.subst('$' + new_suffix)
 
-        dir,name = os.path.split(str(path))
+        dir, name = os.path.split(str(path))
         if name[:len(old_prefix)] == old_prefix:
             name = name[len(old_prefix):]
         if name[-len(old_suffix):] == old_suffix:
             name = name[:-len(old_suffix)]
-        return os.path.join(dir, new_prefix+name+new_suffix)
+        return os.path.join(dir, new_prefix + name + new_suffix)
 
     def SetDefault(self, **kw):
         for k in list(kw.keys()):
@@ -1833,7 +1853,7 @@ class Base(SubstitutionEnvironment):
                 pass
         elif SCons.Util.is_String(pathext):
             pathext = self.subst(pathext)
-        prog = SCons.Util.CLVar(self.subst(prog)) # support "program --with-args"
+        prog = SCons.Util.CLVar(self.subst(prog))  # support "program --with-args"
         path = SCons.Util.WhereIs(prog[0], path, pathext, reject)
         if path: return path
         return None
@@ -1851,6 +1871,7 @@ class Base(SubstitutionEnvironment):
             if SCons.Util.is_String(a):
                 a = self.subst(a)
             return a
+
         nargs = list(map(subst_string, args))
         nkw = self.subst_kw(kw)
         return SCons.Action.Action(*nargs, **nkw)
@@ -1901,10 +1922,10 @@ class Base(SubstitutionEnvironment):
 
         nkw = self.subst_kw(kw)
         nkw.update({
-            'action'            : SCons.Action.Action(action),
-            'source_factory'    : self.fs.Entry,
-            'multi'             : 1,
-            'is_explicit'       : None,
+            'action': SCons.Action.Action(action),
+            'source_factory': self.fs.Entry,
+            'multi': 1,
+            'is_explicit': None,
         })
         bld = SCons.Builder.Builder(**nkw)
 
@@ -1982,13 +2003,16 @@ class Base(SubstitutionEnvironment):
         be any type that the Builder constructor will accept
         for an action."""
         bkw = {
-            'action' : action,
-            'target_factory' : self.fs.Entry,
-            'source_factory' : self.fs.Entry,
+            'action': action,
+            'target_factory': self.fs.Entry,
+            'source_factory': self.fs.Entry,
         }
-        try: bkw['source_scanner'] = kw['source_scanner']
-        except KeyError: pass
-        else: del kw['source_scanner']
+        try:
+            bkw['source_scanner'] = kw['source_scanner']
+        except KeyError:
+            pass
+        else:
+            del kw['source_scanner']
         bld = SCons.Builder.Builder(**bkw)
         return bld(self, target, source, **kw)
 
@@ -2005,7 +2029,7 @@ class Base(SubstitutionEnvironment):
         """
         s = self.subst(name)
         if SCons.Util.is_Sequence(s):
-            result=[]
+            result = []
             for e in s:
                 result.append(self.fs.Dir(e, *args, **kw))
             return result
@@ -2014,7 +2038,7 @@ class Base(SubstitutionEnvironment):
     def PyPackageDir(self, modulename):
         s = self.subst(modulename)
         if SCons.Util.is_Sequence(s):
-            result=[]
+            result = []
             for e in s:
                 result.append(self.fs.PyPackageDir(e))
             return result
@@ -2043,7 +2067,7 @@ class Base(SubstitutionEnvironment):
         """
         s = self.subst(name)
         if SCons.Util.is_Sequence(s):
-            result=[]
+            result = []
             for e in s:
                 result.append(self.fs.Entry(e, *args, **kw))
             return result
@@ -2071,7 +2095,7 @@ class Base(SubstitutionEnvironment):
         """
         s = self.subst(name)
         if SCons.Util.is_Sequence(s):
-            result=[]
+            result = []
             for e in s:
                 result.append(self.fs.File(e, *args, **kw))
             return result
@@ -2114,8 +2138,8 @@ class Base(SubstitutionEnvironment):
                 ret.append(targ)
             else:
                 for t in self.arg2nodes(targ, self.fs.Entry):
-                   t.set_local()
-                   ret.append(t)
+                    t.set_local()
+                    ret.append(t)
         return ret
 
     def Precious(self, *targets):
@@ -2177,7 +2201,8 @@ class Base(SubstitutionEnvironment):
 
         for side_effect in side_effects:
             if side_effect.multiple_side_effect_has_builder():
-                raise SCons.Errors.UserError("Multiple ways to build the same target were specified for: %s" % str(side_effect))
+                raise SCons.Errors.UserError(
+                    "Multiple ways to build the same target were specified for: %s" % str(side_effect))
             side_effect.add_source(targets)
             side_effect.side_effect = 1
             self.Precious(side_effect)
@@ -2254,7 +2279,7 @@ class Base(SubstitutionEnvironment):
         elif type == 'source':
             self.decide_target = self._changed_source
         else:
-            raise UserError("Unknown target signature type '%s'"%type)
+            raise UserError("Unknown target signature type '%s'" % type)
 
     def Value(self, value, built_value=None):
         """
@@ -2272,6 +2297,7 @@ class Base(SubstitutionEnvironment):
         node = self.arg2nodes(node, self.fs.Entry)[0]
 
         sources = []
+
         def build_source(ss):
             for s in ss:
                 if isinstance(s, SCons.Node.FS.Dir):
@@ -2280,13 +2306,15 @@ class Base(SubstitutionEnvironment):
                     build_source(s.sources)
                 elif isinstance(s.disambiguate(), SCons.Node.FS.File):
                     sources.append(s)
+
         build_source(node.all_children())
 
         def final_source(node):
             while (node != node.srcnode()):
-              node = node.srcnode()
+                node = node.srcnode()
             return node
-        sources = list(map( final_source, sources ));
+
+        sources = list(map(final_source, sources));
         # remove duplicates
         return list(set(sources))
 
@@ -2328,6 +2356,7 @@ class OverrideEnvironment(Base):
     # Methods that make this class act like a proxy.
     def __getattr__(self, name):
         return getattr(self.__dict__['__subject'], name)
+
     def __setattr__(self, name, value):
         setattr(self.__dict__['__subject'], name, value)
 
@@ -2357,27 +2386,32 @@ class OverrideEnvironment(Base):
                 raise
             result = None
         return result
+
     def get(self, key, default=None):
         """Emulates the get() method of dictionaries."""
         try:
             return self.__dict__['overrides'][key]
         except KeyError:
             return self.__dict__['__subject'].get(key, default)
+
     def has_key(self, key):
         try:
             self.__dict__['overrides'][key]
             return 1
         except KeyError:
             return key in self.__dict__['__subject']
+
     def __contains__(self, key):
         if self.__dict__['overrides'].__contains__(key):
             return 1
         return self.__dict__['__subject'].__contains__(key)
+
     def Dictionary(self):
         """Emulates the items() method of dictionaries."""
         d = self.__dict__['__subject'].Dictionary().copy()
         d.update(self.__dict__['overrides'])
         return d
+
     def items(self):
         """Emulates the items() method of dictionaries."""
         return list(self.Dictionary().items())
@@ -2402,6 +2436,7 @@ class OverrideEnvironment(Base):
         kw = copy_non_reserved_keywords(kw)
         self.__dict__['overrides'].update(semi_deepcopy(kw))
 
+
 # The entry point that will be used by the external world
 # to refer to a construction environment.  This allows the wrapper
 # interface to extend a construction environment for its own purposes
@@ -2425,19 +2460,24 @@ def NoSubstitutionProxy(subject):
     it will pick up whatever Environment subclass the wrapper interface
     might have assigned to SCons.Environment.Environment.
     """
+
     class _NoSubstitutionProxy(Environment):
         def __init__(self, subject):
             self.__dict__['__subject'] = subject
+
         def __getattr__(self, name):
             return getattr(self.__dict__['__subject'], name)
+
         def __setattr__(self, name, value):
             return setattr(self.__dict__['__subject'], name, value)
+
         def executor_to_lvars(self, kwdict):
             if 'executor' in kwdict:
                 kwdict['lvars'] = kwdict['executor'].get_lvars()
                 del kwdict['executor']
             else:
                 kwdict['lvars'] = {}
+
         def raw_to_mode(self, dict):
             try:
                 raw = dict['raw']
@@ -2446,10 +2486,13 @@ def NoSubstitutionProxy(subject):
             else:
                 del dict['raw']
                 dict['mode'] = raw
+
         def subst(self, string, *args, **kwargs):
             return string
+
         def subst_kw(self, kw, *args, **kwargs):
             return kw
+
         def subst_list(self, string, *args, **kwargs):
             nargs = (string, self,) + args
             nkw = kwargs.copy()
@@ -2457,6 +2500,7 @@ def NoSubstitutionProxy(subject):
             self.executor_to_lvars(nkw)
             self.raw_to_mode(nkw)
             return SCons.Subst.scons_subst_list(*nargs, **nkw)
+
         def subst_target_source(self, string, *args, **kwargs):
             nargs = (string, self,) + args
             nkw = kwargs.copy()
@@ -2464,6 +2508,7 @@ def NoSubstitutionProxy(subject):
             self.executor_to_lvars(nkw)
             self.raw_to_mode(nkw)
             return SCons.Subst.scons_subst(*nargs, **nkw)
+
     return _NoSubstitutionProxy(subject)
 
 # Local Variables:
