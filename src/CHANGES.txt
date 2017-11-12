@@ -5,7 +5,7 @@
                             Change Log
 
 
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
+RELEASE 3.0.1 - Mon, 12 Nov 2017 15:31:33 -0700
 
   From John Doe:
 
