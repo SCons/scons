@@ -7,10 +7,6 @@
 
 RELEASE 3.0.1 - Mon, 12 Nov 2017 15:31:33 -0700
 
-  From John Doe:
-
-    - Whatever John Doe did.
-
   From Daniel Moody:
     - Updated the Jar Builder tool in Tool/__init.py so that is doesn't force class files as
       sources, allowing directories to be passed, which was causing test/Java/JAR.py to fail.
