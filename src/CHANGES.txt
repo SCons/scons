@@ -7,10 +7,6 @@
 
 RELEASE 3.0.1 - Mon, 12 Nov 2017 15:31:33 -0700
 
-  From John Doe:
-
-    - Whatever John Doe did.
-
   From Daniel Moody:
     - Jar can take multiple targets, and will make a duplicate jar from the sources for each target
     - Added some warnings in case the Jar builder makes an implicit target
