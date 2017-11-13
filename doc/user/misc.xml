@@ -268,9 +268,9 @@ hello.c
     <scons_example name="misc_FindFile1a">
       <file name="SConstruct" printme="1">
 # one directory
-print(FindFile('missing', '.'))
+print("%s"%FindFile('missing', '.'))
 t = FindFile('exists', '.')
-print(t.__class__, t)
+print("%s %s"%(t.__class__, t))
       </file>
       <file name="exists">
  exists
@@ -287,7 +287,7 @@ print(t.__class__, t)
 includes = [ '.', 'include', 'src/include']
 headers = [ 'nonesuch.h', 'config.h', 'private.h', 'dist.h']
 for hdr in headers:
-    print('%-12s' % ('%s:' % hdr), FindFile(hdr, includes))
+    print('%-12s: %s'%(hdr, FindFile(hdr, includes)))
       </file>
       <file name="config.h">
 exists
