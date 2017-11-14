@@ -95,10 +95,22 @@ def Jar(env, target = None, source = [], *args, **kw):
     Builders.
     """
 
+    # mutiple targets pass so build each target the same from the 
+    # same source
+    #TODO Maybe this should only be done once, and the result copied
+    #     for each target since it should result in the same?
+    if SCons.Util.is_List(target) and SCons.Util.is_List(source):
+        jars = []
+        for single_target in target:
+            jars += env.Jar( target = single_target, source = source, *args, **kw)
+        return jars
+
     # jar target should not be a list so assume they passed
     # no target and want implicit target to be made and the arg
     # was actaully the list of sources
-    if SCons.Util.is_List(target):
+    if SCons.Util.is_List(target) and source == []:
+        SCons.Warning.Warning("Making implicit target jar file, " +
+                              "and treating the list as sources")
         source = target
         target = None
 
@@ -117,10 +129,6 @@ def Jar(env, target = None, source = [], *args, **kw):
         target = [target]
     if not SCons.Util.is_List(source):
         source = [source]
-
-    # Pad the target list with repetitions of the last element in the
-    # list so we have a target for every source element.
-    target = target + ([target[-1]] * (len(source) - len(target)))
 
     # setup for checking through all the sources and handle accordingly
     java_class_suffix = env.subst('$JAVACLASSSUFFIX')
