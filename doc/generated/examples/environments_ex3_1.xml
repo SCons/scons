@@ -1,22 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q</userinput>
-UnicodeDecodeError: 'utf8' codec can't decode byte 0xc2 in position 547: invalid continuation byte:
-  File "/home/my/project/SConstruct", line 6:
-    dbg.Program('foo', 'foo.c')
-  File "bootstrap/src/engine/SCons/Environment.py", line 260:
-    return MethodWrapper.__call__(self, target, source, *args, **kw)
-  File "bootstrap/src/engine/SCons/Environment.py", line 224:
-    return self.method(*nargs, **kwargs)
-  File "bootstrap/src/engine/SCons/Builder.py", line 635:
-    return self._execute(env, target, source, OverrideWarner(kw), ekw)
-  File "bootstrap/src/engine/SCons/Builder.py", line 541:
-    source = self.src_builder_sources(env, source, overwarn)
-  File "bootstrap/src/engine/SCons/Builder.py", line 748:
-    tlist = bld._execute(env, None, [s], overwarn)
-  File "bootstrap/src/engine/SCons/Builder.py", line 557:
-    _node_errors(self, env, tlist, slist)
-  File "bootstrap/src/engine/SCons/Builder.py", line 303:
-    msg = "Two environments with different actions were specified for the same target: %s\n(action 1: %s)\n(action 2: %s)" % (t,t_contents.decode('utf-8'),contents.decode('utf-8'))
-  File "/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/encodings/utf_8.py", line 16:
-    return codecs.utf_8_decode(input, errors, True)
+
+scons: *** Two environments with different actions were specified for the same target: foo.o
+File "/home/my/project/SConstruct", line 6, in &lt;module&gt;
 </screen>
