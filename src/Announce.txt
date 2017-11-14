@@ -24,6 +24,18 @@ RELEASE 3.0.1 - Mon, 14 Nov 2017 08:28:09 -0700
   release and consult the CHANGES.txt file for complete a list of changes
   since last release.  This announcement highlights only the important
   changes.
+
+    Please note the following important changes since release 3.0.0:
+       - Any print statements no long need to use use python 3 syntax of "print()" 
+         if they are being run by python 2.7
+       - Added additional output with time to process each SConscript file when using --debug=time.
+       - Fix broken subst logic where a string with "$$(abc)" was being treated as "$(abc) and the
+         logic for removing the signature escapes was then failing because there was no closing "$)".
+         This was introduced by a pull request to allow recursive variable evaluations to yield a string
+         such as "$( $( some stuff $) $)".
+       - Jar can take multiple targets, and will make a duplicate jar from the sources for each target
+
+
     Please note the following important changes since release 2.5.1:
 
        This is the initial release supporting both python 3.5+ and 2.7.x and pypy
