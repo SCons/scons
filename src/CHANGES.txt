@@ -12,6 +12,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Whatever John Doe did.
 
   From Daniel Moody:
+    - Jar can take multiple targets, and will make a duplicate jar from the sources for each target
+    - Added some warnings in case the Jar builder makes an implicit target
     - Added Jar method and changed jar build to be more specific. Jar method will take in
       directories or classes as source. Added more tests to JAR to ensure the jar was 
       packaged with the correct compiled class files.
