@@ -5,7 +5,7 @@
                             Change Log
 
 
-RELEASE 3.0.1 - Mon, 12 Nov 2017 15:31:33 -0700
+RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
   From Daniel Moody:
     - Jar can take multiple targets, and will make a duplicate jar from the sources for each target
