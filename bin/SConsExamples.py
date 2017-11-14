@@ -305,6 +305,11 @@ def createAllExampleOutputs(dpath):
     examples = readAllExampleInfos(dpath)
     total = len(examples)
     idx = 0
+
+    if len(sys.argv) > 1:
+        examples_to_run = sys.argv[1:]
+        examples = { k:v for k,v in examples.items() if k in examples_to_run }
+
     for key, value in examples.items():
         # Process all scons_output tags
         print("%.2f%s (%d/%d) %s" % (float(idx + 1) * 100.0 / float(total),
@@ -763,8 +768,10 @@ def ExecuteCommand(args, c, t, dict):
 
 
 def create_scons_output(e):
-    # The real raison d'etre for this script, this is where we
-    # actually execute SCons to fetch the output.
+    """
+    The real raison d'etre for this script, this is where we
+    actually execute SCons to fetch the output.
+    """
 
     # Loop over all outputs for the example
     for o in e.outputs:
