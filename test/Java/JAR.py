@@ -247,16 +247,25 @@ test.subdir('testdir2',
             ['testdir2', 'com', 'javasource'])
 
 # simple SConstruct which passes the 3 .java as source
-# and extracts the jar back to classes
+# and extracts the jars back to classes
 test.write(['testdir2', 'SConstruct'], """
 foo = Environment()
-foo.Jar(target = 'foo', source = [
+foo.Jar(target = 'foobar', source = [
     'com/javasource/JavaFile1.java', 
     'com/javasource/JavaFile2.java',
     'com/javasource/JavaFile3.java'
 ])
-foo.Command(foo.Dir('test'), 'foo.jar', Mkdir("test") )
-foo.Command('JavaFile1.class', foo.Dir('test'), foo['JAR'] + ' xvf ../foo.jar', chdir='test')
+foo.Jar(target = ['foo', 'bar'], source = [
+    'com/javasource/JavaFile1.java', 
+    'com/javasource/JavaFile2.java',
+    'com/javasource/JavaFile3.java'
+])
+foo.Command("foobarTest", [], Mkdir("foobarTest") )
+foo.Command('foobarTest/com/javasource/JavaFile3.java', 'foobar.jar', foo['JAR'] + ' xvf ../foobar.jar', chdir='foobarTest')
+foo.Command("fooTest", [], Mkdir("fooTest") )
+foo.Command('fooTest/com/javasource/JavaFile3.java', 'foo.jar', foo['JAR'] + ' xvf ../foo.jar', chdir='fooTest')
+foo.Command("barTest", [], Mkdir("barTest") )
+foo.Command('barTest/com/javasource/JavaFile3.java', 'bar.jar', foo['JAR'] + ' xvf ../bar.jar', chdir='barTest')
 """)
 
 test.write(['testdir2', 'com', 'javasource', 'JavaFile1.java'], """\
@@ -304,13 +313,25 @@ if("jar cf foo.jar " +
    "-C com/javasource/JavaFile3 com/javasource/JavaFile3.class" not in test.stdout()):
     test.fail_test()
 
+#test single target jar
+test.must_exist(['testdir2','foobar.jar'])
+test.must_exist(['testdir2', 'foobarTest', 'com', 'javasource', 'JavaFile1.class'])
+test.must_exist(['testdir2', 'foobarTest', 'com', 'javasource', 'JavaFile2.class'])
+test.must_exist(['testdir2', 'foobarTest', 'com', 'javasource', 'JavaFile3.class'])
+
 # make sure there are class in the jar
 test.must_exist(['testdir2','foo.jar'])
-test.must_exist(['testdir2', 'test', 'com', 'javasource', 'JavaFile1.class'])
-test.must_exist(['testdir2', 'test', 'com', 'javasource', 'JavaFile2.class'])
-test.must_exist(['testdir2', 'test', 'com', 'javasource', 'JavaFile3.class'])
+test.must_exist(['testdir2', 'fooTest', 'com', 'javasource', 'JavaFile1.class'])
+test.must_exist(['testdir2', 'fooTest', 'com', 'javasource', 'JavaFile2.class'])
+test.must_exist(['testdir2', 'fooTest', 'com', 'javasource', 'JavaFile3.class'])
 
+# make sure both jars got createds
+test.must_exist(['testdir2','bar.jar'])
+test.must_exist(['testdir2', 'barTest', 'com', 'javasource', 'JavaFile1.class'])
+test.must_exist(['testdir2', 'barTest', 'com', 'javasource', 'JavaFile2.class'])
+test.must_exist(['testdir2', 'barTest', 'com', 'javasource', 'JavaFile3.class'])
 test.pass_test()
+
 
 # Local Variables:
 # tab-width:4
