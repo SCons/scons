@@ -12,7 +12,20 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Whatever John Doe did.
 
   From Daniel Moody:
-    - Updated the Jar Builder tool in Tool/__init.py so that is doesn't force class files as
+    - Jar can take multiple targets, and will make a duplicate jar from the sources for each target
+    - Added some warnings in case the Jar builder makes an implicit target
+    - Added Jar method and changed jar build to be more specific. Jar method will take in
+      directories or classes as source. Added more tests to JAR to ensure the jar was 
+      packaged with the correct compiled class files.
+    - Added a No result test case to handle bug which seems unrelated to java in the 
+      swig-dependencies.py test, more info here: http://scons.tigris.org/issues/show_bug.cgi?id=2907
+    - Added a travis script to test on ubuntu trusty now that the project is on github
+      so that Continuus Integration tests can be run automatically. It tests most case and considers 
+      no result a pass as well. Improving this script can install more dependincies allowing for more 
+      tests to be run.
+    
+  From Daniel Moody:
+    - Updated the Jar Builder tool in Tool/__init__.py so that is doesn't force class files as
       sources, allowing directories to be passed, which was causing test/Java/JAR.py to fail.
 
   From William Deegan:
