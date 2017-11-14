@@ -84,6 +84,7 @@ class EnvironmentValue(object):
         """
         parts = []
         for c in self.value:
+            pass
 
 
 
