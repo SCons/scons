@@ -95,6 +95,15 @@ def Jar(env, target = None, source = [], *args, **kw):
     Builders.
     """
 
+    # jar target should not be a list so assume they passed
+    # no target and want implicit target to be made and the arg
+    # was actaully the list of sources
+    if SCons.Util.is_List(target) and source == []:
+        SCons.Warnings.Warning("Making implicit target jar file, " +
+                              "and treating the list as sources")
+        source = target
+        target = None
+
     # mutiple targets pass so build each target the same from the 
     # same source
     #TODO Maybe this should only be done once, and the result copied
@@ -105,15 +114,6 @@ def Jar(env, target = None, source = [], *args, **kw):
             jars += env.Jar( target = single_target, source = source, *args, **kw)
         return jars
 
-    # jar target should not be a list so assume they passed
-    # no target and want implicit target to be made and the arg
-    # was actaully the list of sources
-    if SCons.Util.is_List(target) and source == []:
-        SCons.Warning.Warning("Making implicit target jar file, " +
-                              "and treating the list as sources")
-        source = target
-        target = None
-
     # they passed no target so make a target implicitly
     if target == None:
         try:
@@ -121,7 +121,7 @@ def Jar(env, target = None, source = [], *args, **kw):
             target = os.path.splitext(str(source[0]))[0] + env.subst('$JARSUFFIX')
         except:
             # something strange is happening but attempt anyways
-            SCons.Warning.Warning("Could not make implicit target from sources, using directory")
+            SCons.Warnings.Warning("Could not make implicit target from sources, using directory")
             target = os.path.basename(str(env.Dir('.'))) + env.subst('$JARSUFFIX')
 
     # make lists out of our target and sources
