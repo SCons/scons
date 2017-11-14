@@ -662,21 +662,27 @@ SConscript('SConstruct')
 """
 
 # "Commands" that we will execute in our examples.
-def command_scons(args, c, test, dict):
+def command_scons(args, command, test, values):
+    """
+    Fake scons command
+    """
     save_vals = {}
     delete_keys = []
     try:
-        ce = c.environment
+        ce = command.environment
     except AttributeError:
         pass
     else:
-        for arg in c.environment.split():
+        for arg in command.environment.split():
             key, val = arg.split('=')
             try:
                 save_vals[key] = os.environ[key]
             except KeyError:
                 delete_keys.append(key)
             os.environ[key] = val
+
+    test.write(test.workpath('WORK/SConstruct_created'), Stdin % values)
+
     test.run(interpreter=sys.executable,
              program=scons_py,
              # We use ToolSurrogates to capture win32 output by "building"
@@ -686,7 +692,7 @@ def command_scons(args, c, test, dict):
              # Visual C installed.
              arguments='--warn=no-visual-c-missing -f - ' + ' '.join(args),
              chdir=test.workpath('WORK'),
-             stdin=Stdin % dict)
+             stdin=Stdin % values)
     os.environ.update(save_vals)
     for key in delete_keys:
         del(os.environ[key])
@@ -703,7 +709,7 @@ def command_scons(args, c, test, dict):
     #    sys.stderr.write(err)
     return lines
 
-def command_touch(args, c, test, dict):
+def command_touch(args, command, test, values):
     if args[0] == '-t':
         t = int(time.mktime(time.strptime(args[1], '%Y%m%d%H%M')))
         times = (t, t)
@@ -719,7 +725,7 @@ def command_touch(args, c, test, dict):
         os.utime(file, times)
     return []
 
-def command_edit(args, c, test, dict):
+def command_edit(args, c, test, values):
     if c.edit is None:
         add_string = 'void edit(void) { ; }\n'
     else:
@@ -733,7 +739,7 @@ def command_edit(args, c, test, dict):
         open(file, 'wb').write(contents + add_string)
     return []
 
-def command_ls(args, c, test, dict):
+def command_ls(args, c, test, values):
     def ls(a):
         try:
             return ['  '.join(sorted([x for x in os.listdir(a) if x[0] != '.']))]
@@ -748,7 +754,7 @@ def command_ls(args, c, test, dict):
     else:
         return ls(test.workpath('WORK'))
 
-def command_sleep(args, c, test, dict):
+def command_sleep(args, c, test, values):
     time.sleep(int(args[0]))
 
 CommandDict = {
@@ -759,12 +765,12 @@ CommandDict = {
     'sleep' : command_sleep,
 }
 
-def ExecuteCommand(args, c, t, dict):
+def ExecuteCommand(args, c, t, values):
     try:
         func = CommandDict[args[0]]
     except KeyError:
-        func = lambda args, c, t, dict: []
-    return func(args[1:], c, t, dict)
+        func = lambda args, c, t, values: []
+    return func(args[1:], c, t, values)
 
 
 def create_scons_output(e):
@@ -844,37 +850,37 @@ def create_scons_output(e):
         sroot = stf.newEtreeNode("screen", True)
         curchild = None
         content = ""
-        for c in o.commands:
+        for command in o.commands:
             content += Prompt[o.os]
             if curchild is not None:
-                if not c.output:
+                if not command.output:
                     # Append content as tail
                     curchild.tail = content
                     content = "\n"
                     # Add new child for userinput tag
                     curchild = stf.newEtreeNode("userinput")
-                    d = c.cmd.replace('__ROOT__', '')
+                    d = command.cmd.replace('__ROOT__', '')
                     curchild.text = d
                     sroot.append(curchild)
                 else:
-                    content += c.output + '\n'
+                    content += command.output + '\n'
             else:
-                if not c.output:
+                if not command.output:
                     # Add first text to root
                     sroot.text = content
                     content = "\n"
                     # Add new child for userinput tag
                     curchild = stf.newEtreeNode("userinput")
-                    d = c.cmd.replace('__ROOT__', '')
+                    d = command.cmd.replace('__ROOT__', '')
                     curchild.text = d
                     sroot.append(curchild)
                 else:
-                    content += c.output + '\n'
+                    content += command.output + '\n'
             # Execute command and capture its output
-            cmd_work = c.cmd.replace('__ROOT__', t.workpath('ROOT'))
+            cmd_work = command.cmd.replace('__ROOT__', t.workpath('ROOT'))
             args = cmd_work.split()
-            lines = ExecuteCommand(args, c, t, {'osname':o.os, 'tools':o.tools})
-            if not c.output and lines:
+            lines = ExecuteCommand(args, command, t, {'osname':o.os, 'tools':o.tools})
+            if not command.output and lines:
                 ncontent = '\n'.join(lines)
                 ncontent = address_re.sub(r' at 0x700000&gt;', ncontent)
                 ncontent = engine_re.sub(r' File "bootstrap/src/engine/SCons/', ncontent)
