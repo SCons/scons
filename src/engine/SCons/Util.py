@@ -1013,6 +1013,7 @@ def Split(arg):
     else:
         return [arg]
 
+
 class CLVar(UserList):
     """A class for command-line construction variables.
 
@@ -1032,10 +1033,17 @@ class CLVar(UserList):
     def __str__(self):
         return ' '.join(self.data)
 
+    # Need these two a CLVar can be a dict() key.
+    def __hash__(self):
+        return hash(self.__str__())
+    def __eq__(self, other):
+        return str(self) == str(other)
+
 # A dictionary that preserves the order in which items are added.
 # Submitted by David Benjamin to ActiveState's Python Cookbook web site:
 #     http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/107747
 # Including fixes/enhancements from the follow-on discussions.
+# TODO: Replace with collections.OrderedDict ? (bdbaddog)
 class OrderedDict(UserDict):
     def __init__(self, dict = None):
         self._keys = []
