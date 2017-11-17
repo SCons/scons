@@ -461,6 +461,8 @@ else:
             return self.decorateWithHeader(t)
 
         def validateXml(self, fpath, xmlschema_context):
+            retval = True
+        
             # Create validation context
             validation_context = xmlschema_context.schemaNewValidCtxt()
             # Set error/warning handlers
@@ -470,17 +472,19 @@ else:
             doc = libxml2.readFile(fpath, None, libxml2.XML_PARSE_NOENT)
             doc.xincludeProcessFlags(libxml2.XML_PARSE_NOENT)
             err = validation_context.schemaValidateDoc(doc)
-            # Cleanup
-            doc.freeDoc()
-            del validation_context
         
             if err or eh.errors:
                 for e in eh.errors:
                     print(e.rstrip("\n"))
+                # import pdb; pdb.set_trace()
                 print("%s fails to validate" % fpath)
-                return False
+                retval = False
                 
-            return True
+            # Cleanup
+            doc.freeDoc()
+            del validation_context
+    
+            return retval
 
         def findAll(self, root, tag, ns=None, xpath_context=None, nsmap=None):
             if hasattr(root, 'xpathEval') and xpath_context:

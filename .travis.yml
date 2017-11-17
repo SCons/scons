@@ -1,0 +1,16 @@
+dist: trusty
+before_install:
+  - sudo apt-get -y install clang gdc docbook-xml xsltproc libxml2-dev libxslt-dev python-pip python-dev fop docbook-xsl-doc-pdf texlive-full biber texmaker build-essential libpcre3-dev autoconf automake libtool bison subversion git
+  - sudo pip install lxml
+  - sudo wget http://master.dl.sourceforge.net/project/d-apt/files/d-apt.list -O /etc/apt/sources.list.d/d-apt.list
+  - wget -qO - https://dlang.org/d-keyring.gpg | sudo apt-key add -
+  - sudo apt-get update && sudo apt-get -y --allow-unauthenticated install dmd-bin 
+  - wget https://github.com/ldc-developers/ldc/releases/download/v1.4.0/ldc2-1.4.0-linux-x86_64.tar.xz
+  - tar xf ldc2-1.4.0-linux-x86_64.tar.xz
+  - sudo cp -rf ldc2-1.4.0-linux-x86_64/* /
+  - wget https://github.com/swig/swig/archive/rel-3.0.12.tar.gz
+  - tar xzf rel-3.0.12.tar.gz
+  - cd swig-rel-3.0.12 && ./autogen.sh && ./configure --prefix=/usr && make && sudo make install && cd ..
+
+script: 
+  - python runtest.py -a || if [[ $? == 2 ]]; then exit 0; else exit 1; fi
