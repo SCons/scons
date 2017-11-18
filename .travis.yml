@@ -1,7 +1,10 @@
 dist: trusty
 before_install:
-  - sudo apt-get -y install clang gdc docbook-xml xsltproc libxml2-dev libxslt-dev python-pip python-dev fop docbook-xsl-doc-pdf texlive-full biber texmaker build-essential libpcre3-dev autoconf automake libtool bison subversion git
+  - sudo add-apt-repository ppa:deadsnakes/ppa
+  - sudo apt-get update
+  - sudo apt-get -y install clang gdc docbook-xml xsltproc libxml2-dev libxslt-dev python3.5 python3-pip python-pip python-dev fop docbook-xsl-doc-pdf texlive-full biber texmaker build-essential libpcre3-dev autoconf automake libtool bison subversion git
   - sudo pip install lxml
+  - sudo pip3 install lxml
   - sudo wget http://master.dl.sourceforge.net/project/d-apt/files/d-apt.list -O /etc/apt/sources.list.d/d-apt.list
   - wget -qO - https://dlang.org/d-keyring.gpg | sudo apt-key add -
   - sudo apt-get update && sudo apt-get -y --allow-unauthenticated install dmd-bin 
@@ -12,5 +15,12 @@ before_install:
   - tar xzf rel-3.0.12.tar.gz
   - cd swig-rel-3.0.12 && ./autogen.sh && ./configure --prefix=/usr && make && sudo make install && cd ..
 
+matrix:
+  include:
+    - python: '3.5' # this is not strictly necessary
+      env: PYTHONCOM=/usr/bin/python3.5
+    - python: '2.7'
+      env: PYTHONCOM=/usr/bin/python
+
 script: 
-  - python runtest.py -a || if [[ $? == 2 ]]; then exit 0; else exit 1; fi
+  - $PYTHONCOM runtest.py -a || if [[ $? == 2 ]]; then exit 0; else exit 1; fi
