@@ -36,7 +36,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.Subst
 import SCons.Util
 from SCons.Node.FS import _my_normcase
+import collections
 import os
+import sys
 
 def jarSources(target, source, env, for_signature):
     """Only include sources that are not a manifest file."""
@@ -129,6 +131,24 @@ def Jar(env, target = None, source = [], *args, **kw):
         target = [target]
     if not SCons.Util.is_List(source):
         source = [source]
+ 
+    # this will handle the case where the source list may
+    # have list of sources inside of it, we want to get the
+    # source list into a single level list for simplicity
+    def convert_to_single_list(source_list):
+        if source_list == []:
+            return source_list
+        # basestring is not in python3 so handle this difference
+        if (sys.version_info > (3, 0)):
+            if isinstance(source_list[0], collections.Iterable) and not isinstance(source_list[0], (str, bytes)):
+                return convert_to_single_list(source_list[0]) + convert_to_single_list(source_list[1:])
+        else:
+            if isinstance(source_list[0], collections.Iterable) and not isinstance(source_list[0], basestring):
+                return convert_to_single_list(source_list[0]) + convert_to_single_list(source_list[1:])
+        return source_list[:1] + convert_to_single_list(source_list[1:])
+       
+    # recursivly flatten source list
+    single_source_list = convert_to_single_list(source)
 
     # setup for checking through all the sources and handle accordingly
     java_class_suffix = env.subst('$JAVACLASSSUFFIX')
@@ -161,7 +181,7 @@ def Jar(env, target = None, source = [], *args, **kw):
     # loop through the sources and handle each accordingly
     # the goal here is to get all the source files into a class
     # file or a directory that contains class files
-    for s in source:
+    for s in single_source_list:
         s = env.subst(s)
         if isinstance(s, SCons.Node.FS.Base):
             if isinstance(s, SCons.Node.FS.File):
