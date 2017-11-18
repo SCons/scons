@@ -1,6 +1,6 @@
 dist: trusty
 before_install:
-  - sudo add-apt-repository ppa:deadsnakes/ppa
+  - sudo add-apt-repository -y ppa:deadsnakes/ppa
   - sudo apt-get update
   - sudo apt-get -y install clang gdc docbook-xml xsltproc libxml2-dev libxslt-dev python3.5 python3-pip python-pip python-dev fop docbook-xsl-doc-pdf texlive-full biber texmaker build-essential libpcre3-dev autoconf automake libtool bison subversion git
   - sudo pip install lxml
