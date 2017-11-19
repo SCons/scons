@@ -161,7 +161,7 @@ def Jar(env, target = None, source = [], *args, **kw):
     # loop through the sources and handle each accordingly
     # the goal here is to get all the source files into a class
     # file or a directory that contains class files
-    for s in source:
+    for s in SCons.Util.flatten(source):
         s = env.subst(s)
         if isinstance(s, SCons.Node.FS.Base):
             if isinstance(s, SCons.Node.FS.File):

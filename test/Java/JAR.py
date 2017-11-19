@@ -330,6 +330,93 @@ test.must_exist(['testdir2','bar.jar'])
 test.must_exist(['testdir2', 'barTest', 'com', 'javasource', 'JavaFile1.class'])
 test.must_exist(['testdir2', 'barTest', 'com', 'javasource', 'JavaFile2.class'])
 test.must_exist(['testdir2', 'barTest', 'com', 'javasource', 'JavaFile3.class'])
+
+
+#######
+# test list of lists
+
+# make some directories to test in
+test.subdir('listOfLists',
+            ['listOfLists', 'src'],
+            ['listOfLists', 'src', 'com'],
+            ['listOfLists', 'src', 'com', 'javasource'],
+            ['listOfLists', 'src', 'com', 'resource'])
+
+# simple SConstruct which passes the 3 .java as source
+# and extracts the jars back to classes
+test.write(['listOfLists', 'SConstruct'], """
+foo = Environment()
+list_of_class_files = foo.Java('src', source=['src'])
+resources = ['src/com/resource/resource1.txt', 'src/com/resource/resource2.txt']
+contents = [list_of_class_files, resources]
+foo.Jar(target = 'lists', source = contents + ['MANIFEST.mf'], JARCHDIR='src')
+foo.Command("listsTest", [], Mkdir("listsTest") )
+foo.Command('listsTest/src/com/javasource/JavaFile3.java', 'lists.jar', foo['JAR'] + ' xvf ../lists.jar', chdir='listsTest')
+""")
+
+test.write(['listOfLists', 'src', 'com', 'javasource', 'JavaFile1.java'], """\
+package com.javasource;
+
+public class JavaFile1
+{
+     public static void main(String[] args)
+     {
+
+     }
+}
+""")
+
+test.write(['listOfLists', 'src', 'com', 'javasource', 'JavaFile2.java'], """\
+package com.javasource;
+
+public class JavaFile2
+{
+     public static void main(String[] args)
+     {
+
+     }
+}
+""")
+
+test.write(['listOfLists', 'src', 'com', 'javasource', 'JavaFile3.java'], """\
+package com.javasource;
+
+public class JavaFile3
+{
+     public static void main(String[] args)
+     {
+
+     }
+}
+""")
+
+test.write(['listOfLists', 'MANIFEST.mf'],
+"""Manifest-Version: 1.0
+MyManifestTest: Test
+""")
+
+test.write(['listOfLists', 'src', 'com', 'resource', 'resource1.txt'], """\
+this is a resource file
+""")
+
+test.write(['listOfLists', 'src', 'com', 'resource', 'resource2.txt'], """\
+this is another resource file
+""")
+
+
+test.run(chdir='listOfLists')
+
+#test single target jar
+test.must_exist(['listOfLists','lists.jar'])
+
+# make sure there are class in the jar
+test.must_exist(['listOfLists', 'listsTest', 'com', 'javasource', 'JavaFile1.class'])
+test.must_exist(['listOfLists', 'listsTest', 'com', 'javasource', 'JavaFile2.class'])
+test.must_exist(['listOfLists', 'listsTest', 'com', 'javasource', 'JavaFile3.class'])
+test.must_exist(['listOfLists', 'listsTest', 'com', 'resource', 'resource1.txt'])
+test.must_exist(['listOfLists', 'listsTest', 'com', 'resource', 'resource2.txt'])
+test.must_exist(['listOfLists', 'listsTest', 'META-INF', 'MANIFEST.MF'])
+test.must_contain(['listOfLists', 'listsTest', 'META-INF', 'MANIFEST.MF'], b"MyManifestTest: Test" )
 test.pass_test()
 
 
