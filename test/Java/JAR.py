@@ -342,14 +342,18 @@ test.subdir('listOfLists',
             ['listOfLists', 'src', 'com', 'javasource'],
             ['listOfLists', 'src', 'com', 'resource'])
 
-# simple SConstruct which passes the 3 .java as source
-# and extracts the jars back to classes
+# test varient dir and lists of lists
 test.write(['listOfLists', 'SConstruct'], """
 foo = Environment()
-list_of_class_files = foo.Java('src', source=['src'])
-resources = ['src/com/resource/resource1.txt', 'src/com/resource/resource2.txt']
+foo.VariantDir('build', 'src', duplicate=0)
+sourceFiles = ["src/com/javasource/JavaFile1.java", "src/com/javasource/JavaFile2.java", "src/com/javasource/JavaFile3.java",]
+list_of_class_files = foo.Java('build', source=sourceFiles)
+resources = ['build/com/resource/resource1.txt', 'build/com/resource/resource2.txt']
+for resource in resources:
+    foo.Command(resource, list_of_class_files, Copy(resource, resource.replace('build','src')))
+foo.Command('build/MANIFEST.mf', list_of_class_files, Copy('build/MANIFEST.mf', 'MANIFEST.mf'))
 contents = [list_of_class_files, resources]
-foo.Jar(target = 'lists', source = contents + ['MANIFEST.mf'], JARCHDIR='src')
+foo.Jar(target = 'lists', source = contents + ['build/MANIFEST.mf'], JARCHDIR='build')
 foo.Command("listsTest", [], Mkdir("listsTest") )
 foo.Command('listsTest/src/com/javasource/JavaFile3.java', 'lists.jar', foo['JAR'] + ' xvf ../lists.jar', chdir='listsTest')
 """)

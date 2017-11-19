@@ -190,7 +190,7 @@ def Jar(env, target = None, source = [], *args, **kw):
                     # check the target nodes to make sure it will be built, then add
                     # it as a source
                     for node in get_all_targets(env):
-                        if(s in str(node) and os.path.splitext(str(node))[1] == ""):
+                        if(s == str(node)):
                             target_classes.append(node)
     # at this point all our sources have been converted to classes or directories of class
     # so pass it to the Jar builder
