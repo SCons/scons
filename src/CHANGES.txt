@@ -8,6 +8,7 @@
 RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
   From Daniel Moody:
+    - Updated Jar builder to flatten source list which could contain embedded lists
     - Jar can take multiple targets, and will make a duplicate jar from the sources for each target
     - Added some warnings in case the Jar builder makes an implicit target
     - Added Jar method and changed jar build to be more specific. Jar method will take in
