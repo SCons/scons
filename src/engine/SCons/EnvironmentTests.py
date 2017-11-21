@@ -139,10 +139,6 @@ class CLVar(UL):
         return UL.__add__(self, CLVar(other))
     def __radd__(self, other):
         return UL.__radd__(self, CLVar(other))
-    def __coerce__(self, other):
-        return (self, CLVar(other))
-
-
 
 class DummyNode(object):
     def __init__(self, name):
