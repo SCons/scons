@@ -52,7 +52,7 @@ def jarSources(target, source, env, for_signature):
     result = []
     for src in source:
         contents = src.get_text_contents()
-        if contents.startswith("Manifest-Version"):
+        if not contents.startswith("Manifest-Version"):
             if jarchdir_set:
                 _chdir = jarchdir
             else:
