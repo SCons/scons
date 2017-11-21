@@ -1029,8 +1029,6 @@ class CLVar(UserList):
         return UserList.__add__(self, CLVar(other))
     def __radd__(self, other):
         return UserList.__radd__(self, CLVar(other))
-    def __coerce__(self, other):
-        return (self, CLVar(other))
     def __str__(self):
         return ' '.join(self.data)
 
