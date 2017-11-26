@@ -123,7 +123,7 @@ class MyTestSCons(TestSCons.TestSCons):
         else:
             kw['program'] = self.where_is("pip")
         if(kw['program'] == None):
-            print("Cannot pip not installed, throwing no result.")
+            print("Cannot find pip, throwing no result.")
             test.no_result(2)
         kw['stderr'] = None
         return TestSCons.TestSCons.run(self, *args, **kw)

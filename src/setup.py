@@ -76,13 +76,13 @@ import distutils.command.build_scripts
 import distutils.msvccompiler
 
 # this workaround tries to detect if pip is being used to install scons,
-# in which case it needs to use setuptools to install, otherwise it can use dsitutils
+# in which case it needs to use setuptools to install, otherwise it can use distutils
 # This was created for this bug: 
 # http://scons.tigris.org/issues/show_bug.cgi?id=2769
 # taken from this PR: 
 # https://bitbucket.org/scons/scons/pull-requests/113/fix-for-bug-2769-which-should-allow-scons/diff
-# Real solution would involve removing distutils (could break users who use old setups)
-# or change our install to inherit from setup tools (does that break distutils?)
+# Real solution would involve removing distutils (could break users who use old setups?)
+# or change our install to inherit from setup tools (would that break distutils?)
 # more info here:
 # https://groups.google.com/forum/#!topic/pypa-dev/oHYN8ubWE8k
 with_setuptools = False
