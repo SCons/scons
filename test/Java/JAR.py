@@ -134,7 +134,7 @@ bar = foo.Clone(JAR = r'%(_python_)s wrapper_with_args.py ' + jar)
 foo.Java(target = 'classes', source = 'com/sub/foo')
 bar.Java(target = 'classes', source = 'com/sub/bar')
 foo.Jar(target = 'foo', source = 'classes/com/sub/foo')
-bar.Jar(target = 'bar', source = 'classes/com/sub/bar')
+bar.Jar(target = 'bar', source = Dir('classes/com/sub/bar'))
 """ % locals())
 
 test.subdir('com',
@@ -421,6 +421,146 @@ test.must_exist(['listOfLists', 'listsTest', 'com', 'resource', 'resource1.txt']
 test.must_exist(['listOfLists', 'listsTest', 'com', 'resource', 'resource2.txt'])
 test.must_exist(['listOfLists', 'listsTest', 'META-INF', 'MANIFEST.MF'])
 test.must_contain(['listOfLists', 'listsTest', 'META-INF', 'MANIFEST.MF'], b"MyManifestTest: Test" )
+
+#######
+# test different style of passing in dirs
+
+# make some directories to test in
+test.subdir('testdir3',
+            ['testdir3', 'com'],
+            ['testdir3', 'com', 'sub'],
+            ['testdir3', 'com', 'sub', 'foo'],
+            ['testdir3', 'com', 'sub', 'bar'])
+
+# Create the jars then extract them back to check contents
+test.write(['testdir3', 'SConstruct'], """
+foo = Environment()
+bar = foo.Clone()
+foo.Java(target = 'classes', source = 'com/sub/foo')
+bar.Java(target = 'classes', source = 'com/sub/bar')
+foo.Jar(target = 'foo', source = 'classes/com/sub/foo', JARCHDIR='classes')
+bar.Jar(target = 'bar', source = Dir('classes/com/sub/bar'), JARCHDIR='classes')
+foo.Command("fooTest", 'foo.jar', Mkdir("fooTest") )
+foo.Command('doesnt_exist1', "fooTest", foo['JAR'] + ' xvf ../foo.jar', chdir='fooTest')
+bar.Command("barTest", 'bar.jar', Mkdir("barTest") )
+bar.Command('doesnt_exist2', 'barTest', bar['JAR'] + ' xvf ../bar.jar', chdir='barTest')
+""")
+
+test.write(['testdir3', 'com', 'sub', 'foo', 'Example1.java'], """\
+package com.sub.foo;
+
+public class Example1
+{
+
+     public static void main(String[] args)
+     {
+
+     }
+
+}
+""")
+
+test.write(['testdir3', 'com', 'sub', 'foo', 'Example2.java'], """\
+package com.sub.foo;
+
+public class Example2
+{
+
+     public static void main(String[] args)
+     {
+
+     }
+
+}
+""")
+
+test.write(['testdir3', 'com', 'sub', 'foo', 'Example3.java'], """\
+package com.sub.foo;
+
+public class Example3
+{
+
+     public static void main(String[] args)
+     {
+
+     }
+
+}
+""")
+
+test.write(['testdir3', 'com', 'sub', 'foo', 'NonJava.txt'], """\
+testfile
+""")
+
+test.write(['testdir3', 'com', 'sub', 'bar', 'Example4.java'], """\
+package com.sub.bar;
+
+public class Example4
+{
+
+     public static void main(String[] args)
+     {
+
+     }
+
+}
+""")
+
+test.write(['testdir3', 'com', 'sub', 'bar', 'Example5.java'], """\
+package com.sub.bar;
+
+public class Example5
+{
+
+     public static void main(String[] args)
+     {
+
+     }
+
+}
+""")
+
+test.write(['testdir3', 'com', 'sub', 'bar', 'Example6.java'], """\
+package com.sub.bar;
+
+public class Example6
+{
+
+     public static void main(String[] args)
+     {
+
+     }
+
+}
+""")
+
+test.write(['testdir3', 'com', 'sub', 'bar', 'NonJava.txt'], """\
+testfile
+""")
+
+test.run(chdir='testdir3')
+
+# check the output and make sure the java files got converted to classes
+
+
+# make sure there are class in the jar
+test.must_exist(['testdir3','foo.jar'])
+test.must_exist(['testdir3', 'fooTest', 'com', 'sub', 'foo', 'Example1.class'])
+test.must_exist(['testdir3', 'fooTest', 'com', 'sub', 'foo', 'Example2.class'])
+test.must_exist(['testdir3', 'fooTest', 'com', 'sub', 'foo', 'Example3.class'])
+# TODO: determine expected behavior with resource files, should they be 
+#       automatically copied in or specified in seperate commands
+#test.must_exist(['testdir3', 'fooTest', 'com', 'sub', 'foo', 'NonJava.txt'])
+
+# make sure both jars got createds
+test.must_exist(['testdir3','bar.jar'])
+test.must_exist(['testdir3', 'barTest', 'com', 'sub', 'bar', 'Example4.class'])
+test.must_exist(['testdir3', 'barTest', 'com', 'sub', 'bar', 'Example5.class'])
+test.must_exist(['testdir3', 'barTest', 'com', 'sub', 'bar', 'Example6.class'])
+# TODO: determine expected behavior with resource files, should they be 
+#       automatically copied in or specified in seperate commands
+#test.must_exist(['testdir3', 'fooTest', 'com', 'sub', 'bar', 'NonJava.txt'])
+
 test.pass_test()
 
 

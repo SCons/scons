@@ -145,6 +145,13 @@ def Jar(env, target = None, source = [], *args, **kw):
         else:
             return [env.fs.File(s)]
 
+    def dir_to_class(s):
+        dir_targets = env.JavaClassDir(source = s, *args, **kw)
+        if(dir_targets == []):
+            return [env.fs.Dir(s)]
+        else:
+            return dir_targets
+
     # In the case that we are passed just string to a node which is directory
     # but does not exist, we need to check all the current targets to see if
     # that directory is going to exist so we can add it as a source to Jar builder
@@ -169,14 +176,13 @@ def Jar(env, target = None, source = [], *args, **kw):
                 target_classes.extend(file_to_class(s))
             else:
                 # found a dir so make sure its a dir of class files
-                target_classes.extend(env.JavaClassDir(source = env.fs.Dir(s), *args, **kw))
+                target_classes.extend(dir_to_class(s))
         else:
             if os.path.isfile(s):
                 # found a file that exists on the FS, make sure its a class file
                 target_classes.extend(file_to_class(s))
             elif os.path.isdir(s):
-                # found a dir on the FS, add it as a dir of class files
-                target_classes.append(env.fs.Dir(s))
+                target_classes.extend(dir_to_class(s))
             elif s[-len(java_suffix):] == java_suffix or s[-len(java_class_suffix):] == java_class_suffix:
                 # found a file that may not exists and is only a string
                 # so add it after converting it to a class file
