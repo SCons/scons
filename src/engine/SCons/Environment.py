@@ -539,13 +539,17 @@ class SubstitutionEnvironment(object):
         lvars['__env__'] = self
         if executor:
             lvars.update(executor.get_lvars())
+
+        # TODO: Wire in assert to check against new subst caching logic.
         return SCons.Subst.scons_subst(string, self, raw, target, source, gvars, lvars, conv)
 
     def subst_kw(self, kw, raw=0, target=None, source=None):
         nkw = {}
         for k, v in kw.items():
+            # TODO: Wire in assert to check against new subst caching logic.
             k = self.subst(k, raw, target, source)
             if SCons.Util.is_String(v):
+                # TODO: Wire in assert to check against new subst caching logic.
                 v = self.subst(v, raw, target, source)
             nkw[k] = v
         return nkw
@@ -558,6 +562,8 @@ class SubstitutionEnvironment(object):
         lvars['__env__'] = self
         if executor:
             lvars.update(executor.get_lvars())
+
+        # TODO: Wire in assert to check against new subst caching logic.
         return SCons.Subst.scons_subst_list(string, self, raw, target, source, gvars, lvars, conv)
 
     def subst_path(self, path, target=None, source=None):
@@ -585,6 +591,7 @@ class SubstitutionEnvironment(object):
         r = []
         for p in path:
             if SCons.Util.is_String(p):
+                # TODO: Wire in assert to check against new subst caching logic.
                 p = self.subst(p, target=target, source=source, conv=s)
                 if SCons.Util.is_List(p):
                     if len(p) == 1:
@@ -610,8 +617,10 @@ class SubstitutionEnvironment(object):
               'universal_newlines': True,
               }
         # if the command is a list, assume it's been quoted
-        # othewise force a shell
-        if not SCons.Util.is_List(command): kw['shell'] = True
+        # otherwise force a shell
+        if not SCons.Util.is_List(command):
+            kw['shell'] = True
+
         # run constructed command
         p = SCons.Action._subproc(self, command, **kw)
         out, err = p.communicate()
@@ -2310,7 +2319,7 @@ class Base(SubstitutionEnvironment):
         build_source(node.all_children())
 
         def final_source(node):
-            while (node != node.srcnode()):
+            while node != node.srcnode():
                 node = node.srcnode()
             return node
 
