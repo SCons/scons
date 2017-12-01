@@ -36,9 +36,6 @@ venv.bak/
 # SCons files
 .sconsign.*
 
-# Tool output
+# Coverage files
 .coverage
-htmlcov
-
-# VS Code
-.vscode
+htmlcov/
