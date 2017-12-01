@@ -290,7 +290,7 @@ class NullNodeList(SCons.Util.NullSeq):
 NullNodesList = NullNodeList()
 
 
-def subst_dict(target, source):
+def create_subst_target_source_dict(target, source):
     """Create a dictionary for substitution of special
     construction variables.
 
@@ -589,7 +589,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
     # we could get rid of this call completely and just rely on the
     # Executor setting the variables.
     if 'TARGET' not in lvars:
-        d = subst_dict(target, source)
+        d = create_subst_target_source_dict(target, source)
         if d:
             lvars = lvars.copy()
             lvars.update(d)
@@ -643,7 +643,8 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
     return result
 
 
-def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None):
+def scons_subst_list(strSubst, env, mode=SUBST_RAW,
+                     target=None, source=None, gvars={}, lvars={}, conv=None):
     """Substitute construction variables in a string (or list or other
     object) and separate the arguments into a command list.
 
@@ -711,7 +712,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                     self.close_strip('$)')
                 else:
                     key = s[1:]
-                    if key[0] == '{' or key.find('.') >= 0:
+                    if key[0] == '{' or '.' in key:
                         if key[0] == '{':
                             key = key[1:-1]
                         try:
@@ -893,7 +894,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
     # we could get rid of this call completely and just rely on the
     # Executor setting the variables.
     if 'TARGET' not in lvars:
-        d = subst_dict(target, source)
+        d = create_subst_target_source_dict(target, source)
         if d:
             lvars = lvars.copy()
             lvars.update(d)

@@ -98,33 +98,53 @@ else:
     def cvt(str):
         return str.replace('/', os.sep)
 
+
 class SubstTestCase(unittest.TestCase):
+    """
+    Base class for all Subst tests
+
+    """
+
     class MyNode(DummyNode):
         """Simple node work-alike with some extra stuff for testing."""
         def __init__(self, name):
             DummyNode.__init__(self, name)
+
             class Attribute(object):
                 pass
+
             self.attribute = Attribute()
             self.attribute.attr1 = 'attr$1-' + os.path.basename(name)
             self.attribute.attr2 = 'attr$2-' + os.path.basename(name)
+
         def get_stuff(self, extra):
             return self.name + extra
         foo = 1
 
     class TestLiteral(object):
+        """
+        Dummy class for testing Literal()s
+        """
+
         def __init__(self, literal):
             self.literal = literal
+
         def __str__(self):
             return self.literal
+
         def is_literal(self):
             return 1
 
     class TestCallable(object):
+        """
+        Dummy class for testing callables
+        """
         def __init__(self, value):
             self.value = value
+
         def __call__(self):
             pass
+
         def __str__(self):
             return self.value
 
@@ -230,6 +250,17 @@ class SubstTestCase(unittest.TestCase):
     }
 
     def basic_comparisons(self, function, convert):
+        """
+        Compare expected output from input specified by self.basic_cases.
+        With:
+            * target(s) specified by self.target
+            * source(s) specified by self.sources
+        :param function: Function to run against the inputs
+        :param convert: Function run to convert expected output (In most cases swapping
+               dirsep to platform native
+        :return: None
+        """
+
         env = DummyEnv(self.loc)
         cases = self.basic_cases[:]
         kwargs = {'target' : self.target,
@@ -817,8 +848,10 @@ class scons_subst_list_TestCase(SubstTestCase):
 
     def test_scons_subst_list(self):
         """Test scons_subst_list():  basic substitution"""
+
         def convert_lists(expect):
             return [list(map(cvt, l)) for l in expect]
+
         return self.basic_comparisons(scons_subst_list, convert_lists)
 
     subst_list_cases = [
@@ -1196,7 +1229,7 @@ class subst_dict_TestCase(unittest.TestCase):
         """
         t = DummyNode('t')
         s = DummyNode('s')
-        d = subst_dict(target=t, source=s)
+        d = create_subst_target_source_dict(target=t, source=s)
         assert str(d['TARGETS'][0]) == 't', d['TARGETS']
         assert str(d['TARGET']) == 't', d['TARGET']
         assert str(d['SOURCES'][0]) == 's', d['SOURCES']
@@ -1206,7 +1239,7 @@ class subst_dict_TestCase(unittest.TestCase):
         t2 = DummyNode('t2')
         s1 = DummyNode('s1')
         s2 = DummyNode('s2')
-        d = subst_dict(target=[t1, t2], source=[s1, s2])
+        d = create_subst_target_source_dict(target=[t1, t2], source=[s1, s2])
         TARGETS = sorted([str(x) for x in d['TARGETS']])
         assert TARGETS == ['t1', 't2'], d['TARGETS']
         assert str(d['TARGET']) == 't1', d['TARGET']
@@ -1233,7 +1266,7 @@ class subst_dict_TestCase(unittest.TestCase):
         s3 = DummyNode('s3')
         s4 = N('s4')
         s5 = V('s5')
-        d = subst_dict(target=[t3, t4, t5], source=[s3, s4, s5])
+        d = create_subst_target_source_dict(target=[t3, t4, t5], source=[s3, s4, s5])
         TARGETS = sorted([str(x) for x in d['TARGETS']])
         assert TARGETS == ['t4', 'v-t3', 'v-t5'], TARGETS
         SOURCES = sorted([str(x) for x in d['SOURCES']])

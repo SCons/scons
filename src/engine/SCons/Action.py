@@ -562,7 +562,6 @@ class ActionBase(object):
             return result
         else:
             raise Exception("WE SHOULD NEVER GET HERE - #2 result should be bytearray not:%s" % type(result))
-            # return b''.join(result)
 
     def __add__(self, other):
         return _actionAppend(self, other)

@@ -1026,16 +1026,23 @@ class CLVar(UserList):
     """
     def __init__(self, seq = []):
         UserList.__init__(self, Split(seq))
+        self.version = 0
+
     def __add__(self, other):
+        self.version +=1
         return UserList.__add__(self, CLVar(other))
+
     def __radd__(self, other):
+        self.version +=1
         return UserList.__radd__(self, CLVar(other))
+
     def __str__(self):
         return ' '.join(self.data)
 
     # Need these two a CLVar can be a dict() key.
     def __hash__(self):
         return hash(self.__str__())
+
     def __eq__(self, other):
         return str(self) == str(other)
 

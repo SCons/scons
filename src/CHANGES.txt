@@ -57,24 +57,8 @@ RELEASE 3.0.1 - Mon, 12 Nov 2017 15:31:33 -0700
       sources, allowing directories to be passed, which was causing test/Java/JAR.py to fail.
 
   From William Deegan:
-    - Fix issue where code in utility routine to_String_for_subst() had code whose result was never
-      properly returned.  
-      (Found by: James Rinkevich https://pairlist4.pair.net/pipermail/scons-users/2017-October/006358.html )
-    - Fixed Variables.GenerateHelpText() to now use the sort parameter. Due to incorrect 2to3 fixer changes 
-      8 years ago it was being used as a boolean parameter.  Now you can specify sort to be a callable, or boolean
-      value. (True = normal sort). Manpage also updated.
-    - Fixed Tool loading logic from exploding sys.path with many site_scons/site_tools prepended on py3.
-    - Added additional output with time to process each SConscript file when using --debug=time.
 
-  From Thomas Berg:
-    - Fixed a regression in scons-3.0.0 where "from __future__ import print_function" was imposed
-      on the scope where SConstruct is executed, breaking existing builds using PY 2.7.
-
-  From William Deegan:
-    - Fix broken subst logic where a string with "$$(abc)" was being treated as "$(abc) and the
-      logic for removing the signature escapes was then failing because there was no closing "$)".
-      This was introduced by a pull request to allow recursive variable evaluations to yield a string
-      such as "$( $( some stuff $) $)".
+    - Rename internal function subst_dict() to create_subst_target_source_dict()
 
   From Zachary Tessler:
     - Fix incorrect warning for repeated identical builder calls that use overrides
