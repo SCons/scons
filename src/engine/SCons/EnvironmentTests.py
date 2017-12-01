@@ -32,7 +32,7 @@ import io
 import os
 import sys
 import unittest
-from collections import UserDict as UD, UserList as UL
+from collections import UserDict, UserList
 
 import TestCmd
 import TestUnit
@@ -130,15 +130,16 @@ class Scanner(object):
 
 
 
-class CLVar(UL):
+class CLVar(UserList):
     def __init__(self, seq):
         if isinstance(seq, str):
             seq = seq.split()
-        UL.__init__(self, seq)
+        UserList.__init__(self, seq)
     def __add__(self, other):
-        return UL.__add__(self, CLVar(other))
+        return UserList.__add__(self, CLVar(other))
     def __radd__(self, other):
-        return UL.__radd__(self, CLVar(other))
+        return UserList.__radd__(self, CLVar(other))
+
 
 class DummyNode(object):
     def __init__(self, name):
@@ -1468,87 +1469,87 @@ def exists(env):
         cases = [
             'a1',       'A1',           'a1A1',
             'a2',       ['A2'],         ['a2', 'A2'],
-            'a3',       UL(['A3']),     UL(['a', '3', 'A3']),
+            'a3',       UserList(['A3']),     UserList(['a', '3', 'A3']),
             'a4',       '',             'a4',
             'a5',       [],             ['a5'],
-            'a6',       UL([]),         UL(['a', '6']),
+            'a6',       UserList([]),         UserList(['a', '6']),
             'a7',       [''],           ['a7', ''],
-            'a8',       UL(['']),       UL(['a', '8', '']),
+            'a8',       UserList(['']),       UserList(['a', '8', '']),
 
             ['e1'],     'E1',           ['e1', 'E1'],
             ['e2'],     ['E2'],         ['e2', 'E2'],
-            ['e3'],     UL(['E3']),     UL(['e3', 'E3']),
+            ['e3'],     UserList(['E3']),     UserList(['e3', 'E3']),
             ['e4'],     '',             ['e4'],
             ['e5'],     [],             ['e5'],
-            ['e6'],     UL([]),         UL(['e6']),
+            ['e6'],     UserList([]),         UserList(['e6']),
             ['e7'],     [''],           ['e7', ''],
-            ['e8'],     UL(['']),       UL(['e8', '']),
+            ['e8'],     UserList(['']),       UserList(['e8', '']),
 
-            UL(['i1']), 'I1',           UL(['i1', 'I', '1']),
-            UL(['i2']), ['I2'],         UL(['i2', 'I2']),
-            UL(['i3']), UL(['I3']),     UL(['i3', 'I3']),
-            UL(['i4']), '',             UL(['i4']),
-            UL(['i5']), [],             UL(['i5']),
-            UL(['i6']), UL([]),         UL(['i6']),
-            UL(['i7']), [''],           UL(['i7', '']),
-            UL(['i8']), UL(['']),       UL(['i8', '']),
+            UserList(['i1']), 'I1',           UserList(['i1', 'I', '1']),
+            UserList(['i2']), ['I2'],         UserList(['i2', 'I2']),
+            UserList(['i3']), UserList(['I3']),     UserList(['i3', 'I3']),
+            UserList(['i4']), '',             UserList(['i4']),
+            UserList(['i5']), [],             UserList(['i5']),
+            UserList(['i6']), UserList([]),         UserList(['i6']),
+            UserList(['i7']), [''],           UserList(['i7', '']),
+            UserList(['i8']), UserList(['']),       UserList(['i8', '']),
 
             {'d1':1},   'D1',           {'d1':1, 'D1':None},
             {'d2':1},   ['D2'],         {'d2':1, 'D2':None},
-            {'d3':1},   UL(['D3']),     {'d3':1, 'D3':None},
+            {'d3':1},   UserList(['D3']),     {'d3':1, 'D3':None},
             {'d4':1},   {'D4':1},       {'d4':1, 'D4':1},
-            {'d5':1},   UD({'D5':1}),   UD({'d5':1, 'D5':1}),
+            {'d5':1},   UserDict({'D5':1}),   UserDict({'d5':1, 'D5':1}),
 
-            UD({'u1':1}), 'U1',         UD({'u1':1, 'U1':None}),
-            UD({'u2':1}), ['U2'],       UD({'u2':1, 'U2':None}),
-            UD({'u3':1}), UL(['U3']),   UD({'u3':1, 'U3':None}),
-            UD({'u4':1}), {'U4':1},     UD({'u4':1, 'U4':1}),
-            UD({'u5':1}), UD({'U5':1}), UD({'u5':1, 'U5':1}),
+            UserDict({'u1':1}), 'U1',         UserDict({'u1':1, 'U1':None}),
+            UserDict({'u2':1}), ['U2'],       UserDict({'u2':1, 'U2':None}),
+            UserDict({'u3':1}), UserList(['U3']),   UserDict({'u3':1, 'U3':None}),
+            UserDict({'u4':1}), {'U4':1},     UserDict({'u4':1, 'U4':1}),
+            UserDict({'u5':1}), UserDict({'U5':1}), UserDict({'u5':1, 'U5':1}),
 
             '',         'M1',           'M1',
             '',         ['M2'],         ['M2'],
-            '',         UL(['M3']),     UL(['M3']),
+            '',         UserList(['M3']),     UserList(['M3']),
             '',         '',             '',
             '',         [],             [],
-            '',         UL([]),         UL([]),
+            '',         UserList([]),         UserList([]),
             '',         [''],           [''],
-            '',         UL(['']),       UL(['']),
+            '',         UserList(['']),       UserList(['']),
 
             [],         'N1',           ['N1'],
             [],         ['N2'],         ['N2'],
-            [],         UL(['N3']),     UL(['N3']),
+            [],         UserList(['N3']),     UserList(['N3']),
             [],         '',             [],
             [],         [],             [],
-            [],         UL([]),         UL([]),
+            [],         UserList([]),         UserList([]),
             [],         [''],           [''],
-            [],         UL(['']),       UL(['']),
+            [],         UserList(['']),       UserList(['']),
 
-            UL([]),     'O1',           ['O', '1'],
-            UL([]),     ['O2'],         ['O2'],
-            UL([]),     UL(['O3']),     UL(['O3']),
-            UL([]),     '',             UL([]),
-            UL([]),     [],             UL([]),
-            UL([]),     UL([]),         UL([]),
-            UL([]),     [''],           UL(['']),
-            UL([]),     UL(['']),       UL(['']),
+            UserList([]), 'O1',           ['O', '1'],
+            UserList([]),     ['O2'],         ['O2'],
+            UserList([]),     UserList(['O3']),     UserList(['O3']),
+            UserList([]), '',             UserList([]),
+            UserList([]),     [],             UserList([]),
+            UserList([]),     UserList([]),         UserList([]),
+            UserList([]),     [''],           UserList(['']),
+            UserList([]),     UserList(['']),       UserList(['']),
 
             [''],       'P1',           ['', 'P1'],
             [''],       ['P2'],         ['', 'P2'],
-            [''],       UL(['P3']),     UL(['', 'P3']),
+            [''],       UserList(['P3']),     UserList(['', 'P3']),
             [''],       '',             [''],
             [''],       [],             [''],
-            [''],       UL([]),         UL(['']),
+            [''],       UserList([]),         UserList(['']),
             [''],       [''],           ['', ''],
-            [''],       UL(['']),       UL(['', '']),
+            [''],       UserList(['']),       UserList(['', '']),
 
-            UL(['']),   'Q1',           ['', 'Q', '1'],
-            UL(['']),   ['Q2'],         ['', 'Q2'],
-            UL(['']),   UL(['Q3']),     UL(['', 'Q3']),
-            UL(['']),   '',             UL(['']),
-            UL(['']),   [],             UL(['']),
-            UL(['']),   UL([]),         UL(['']),
-            UL(['']),   [''],           UL(['', '']),
-            UL(['']),   UL(['']),       UL(['', '']),
+            UserList(['']), 'Q1',           ['', 'Q', '1'],
+            UserList(['']),   ['Q2'],         ['', 'Q2'],
+            UserList(['']),   UserList(['Q3']),     UserList(['', 'Q3']),
+            UserList(['']), '',             UserList(['']),
+            UserList(['']),   [],             UserList(['']),
+            UserList(['']),   UserList([]),         UserList(['']),
+            UserList(['']),   [''],           UserList(['', '']),
+            UserList(['']),   UserList(['']),       UserList(['', '']),
         ]
 
         env = Environment()
@@ -1573,10 +1574,10 @@ def exists(env):
             del cases[:3]
         assert failed == 0, "%d Append() cases failed" % failed
 
-        env['UL'] = UL(['foo'])
+        env['UL'] = UserList(['foo'])
         env.Append(UL = 'bar')
         result = env['UL']
-        assert isinstance(result, UL), repr(result)
+        assert isinstance(result, UserList), repr(result)
         assert result == ['foo', 'b', 'a', 'r'], result
 
         env['CLVar'] = CLVar(['foo'])
@@ -2154,87 +2155,87 @@ f5: \
         cases = [
             'a1',       'A1',           'A1a1',
             'a2',       ['A2'],         ['A2', 'a2'],
-            'a3',       UL(['A3']),     UL(['A3', 'a', '3']),
+            'a3',       UserList(['A3']),     UserList(['A3', 'a', '3']),
             'a4',       '',             'a4',
             'a5',       [],             ['a5'],
-            'a6',       UL([]),         UL(['a', '6']),
+            'a6',       UserList([]),         UserList(['a', '6']),
             'a7',       [''],           ['', 'a7'],
-            'a8',       UL(['']),       UL(['', 'a', '8']),
+            'a8',       UserList(['']),       UserList(['', 'a', '8']),
 
             ['e1'],     'E1',           ['E1', 'e1'],
             ['e2'],     ['E2'],         ['E2', 'e2'],
-            ['e3'],     UL(['E3']),     UL(['E3', 'e3']),
+            ['e3'],     UserList(['E3']),     UserList(['E3', 'e3']),
             ['e4'],     '',             ['e4'],
             ['e5'],     [],             ['e5'],
-            ['e6'],     UL([]),         UL(['e6']),
+            ['e6'],     UserList([]),         UserList(['e6']),
             ['e7'],     [''],           ['', 'e7'],
-            ['e8'],     UL(['']),       UL(['', 'e8']),
+            ['e8'],     UserList(['']),       UserList(['', 'e8']),
 
-            UL(['i1']), 'I1',           UL(['I', '1', 'i1']),
-            UL(['i2']), ['I2'],         UL(['I2', 'i2']),
-            UL(['i3']), UL(['I3']),     UL(['I3', 'i3']),
-            UL(['i4']), '',             UL(['i4']),
-            UL(['i5']), [],             UL(['i5']),
-            UL(['i6']), UL([]),         UL(['i6']),
-            UL(['i7']), [''],           UL(['', 'i7']),
-            UL(['i8']), UL(['']),       UL(['', 'i8']),
+            UserList(['i1']), 'I1',           UserList(['I', '1', 'i1']),
+            UserList(['i2']), ['I2'],         UserList(['I2', 'i2']),
+            UserList(['i3']), UserList(['I3']),     UserList(['I3', 'i3']),
+            UserList(['i4']), '',             UserList(['i4']),
+            UserList(['i5']), [],             UserList(['i5']),
+            UserList(['i6']), UserList([]),         UserList(['i6']),
+            UserList(['i7']), [''],           UserList(['', 'i7']),
+            UserList(['i8']), UserList(['']),       UserList(['', 'i8']),
 
             {'d1':1},   'D1',           {'d1':1, 'D1':None},
             {'d2':1},   ['D2'],         {'d2':1, 'D2':None},
-            {'d3':1},   UL(['D3']),     {'d3':1, 'D3':None},
+            {'d3':1},   UserList(['D3']),     {'d3':1, 'D3':None},
             {'d4':1},   {'D4':1},       {'d4':1, 'D4':1},
-            {'d5':1},   UD({'D5':1}),   UD({'d5':1, 'D5':1}),
+            {'d5':1},   UserDict({'D5':1}),   UserDict({'d5':1, 'D5':1}),
 
-            UD({'u1':1}), 'U1',         UD({'u1':1, 'U1':None}),
-            UD({'u2':1}), ['U2'],       UD({'u2':1, 'U2':None}),
-            UD({'u3':1}), UL(['U3']),   UD({'u3':1, 'U3':None}),
-            UD({'u4':1}), {'U4':1},     UD({'u4':1, 'U4':1}),
-            UD({'u5':1}), UD({'U5':1}), UD({'u5':1, 'U5':1}),
+            UserDict({'u1':1}), 'U1',         UserDict({'u1':1, 'U1':None}),
+            UserDict({'u2':1}), ['U2'],       UserDict({'u2':1, 'U2':None}),
+            UserDict({'u3':1}), UserList(['U3']),   UserDict({'u3':1, 'U3':None}),
+            UserDict({'u4':1}), {'U4':1},     UserDict({'u4':1, 'U4':1}),
+            UserDict({'u5':1}), UserDict({'U5':1}), UserDict({'u5':1, 'U5':1}),
 
             '',         'M1',           'M1',
             '',         ['M2'],         ['M2'],
-            '',         UL(['M3']),     UL(['M3']),
+            '',         UserList(['M3']),     UserList(['M3']),
             '',         '',             '',
             '',         [],             [],
-            '',         UL([]),         UL([]),
+            '',         UserList([]),         UserList([]),
             '',         [''],           [''],
-            '',         UL(['']),       UL(['']),
+            '',         UserList(['']),       UserList(['']),
 
             [],         'N1',           ['N1'],
             [],         ['N2'],         ['N2'],
-            [],         UL(['N3']),     UL(['N3']),
+            [],         UserList(['N3']),     UserList(['N3']),
             [],         '',             [],
             [],         [],             [],
-            [],         UL([]),         UL([]),
+            [],         UserList([]),         UserList([]),
             [],         [''],           [''],
-            [],         UL(['']),       UL(['']),
+            [],         UserList(['']),       UserList(['']),
 
-            UL([]),     'O1',           UL(['O', '1']),
-            UL([]),     ['O2'],         UL(['O2']),
-            UL([]),     UL(['O3']),     UL(['O3']),
-            UL([]),     '',             UL([]),
-            UL([]),     [],             UL([]),
-            UL([]),     UL([]),         UL([]),
-            UL([]),     [''],           UL(['']),
-            UL([]),     UL(['']),       UL(['']),
+            UserList([]), 'O1',           UserList(['O', '1']),
+            UserList([]),     ['O2'],         UserList(['O2']),
+            UserList([]),     UserList(['O3']),     UserList(['O3']),
+            UserList([]), '',             UserList([]),
+            UserList([]),     [],             UserList([]),
+            UserList([]),     UserList([]),         UserList([]),
+            UserList([]),     [''],           UserList(['']),
+            UserList([]),     UserList(['']),       UserList(['']),
 
             [''],       'P1',           ['P1', ''],
             [''],       ['P2'],         ['P2', ''],
-            [''],       UL(['P3']),     UL(['P3', '']),
+            [''],       UserList(['P3']),     UserList(['P3', '']),
             [''],       '',             [''],
             [''],       [],             [''],
-            [''],       UL([]),         UL(['']),
+            [''],       UserList([]),         UserList(['']),
             [''],       [''],           ['', ''],
-            [''],       UL(['']),       UL(['', '']),
+            [''],       UserList(['']),       UserList(['', '']),
 
-            UL(['']),   'Q1',           UL(['Q', '1', '']),
-            UL(['']),   ['Q2'],         UL(['Q2', '']),
-            UL(['']),   UL(['Q3']),     UL(['Q3', '']),
-            UL(['']),   '',             UL(['']),
-            UL(['']),   [],             UL(['']),
-            UL(['']),   UL([]),         UL(['']),
-            UL(['']),   [''],           UL(['', '']),
-            UL(['']),   UL(['']),       UL(['', '']),
+            UserList(['']), 'Q1',           UserList(['Q', '1', '']),
+            UserList(['']),   ['Q2'],         UserList(['Q2', '']),
+            UserList(['']),   UserList(['Q3']),     UserList(['Q3', '']),
+            UserList(['']), '',             UserList(['']),
+            UserList(['']),   [],             UserList(['']),
+            UserList(['']),   UserList([]),         UserList(['']),
+            UserList(['']),   [''],           UserList(['', '']),
+            UserList(['']),   UserList(['']),       UserList(['', '']),
         ]
 
         env = Environment()
@@ -2259,10 +2260,10 @@ f5: \
             del cases[:3]
         assert failed == 0, "%d Prepend() cases failed" % failed
 
-        env['UL'] = UL(['foo'])
+        env['UL'] = UserList(['foo'])
         env.Prepend(UL = 'bar')
         result = env['UL']
-        assert isinstance(result, UL), repr(result)
+        assert isinstance(result, UserList), repr(result)
         assert result == ['b', 'a', 'r', 'foo'], result
 
         env['CLVar'] = CLVar(['foo'])
