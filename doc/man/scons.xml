@@ -1871,15 +1871,6 @@ These warnings are enabled by default.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>--warn=no-md5-module, --warn=no-no-md5-module</term>
-  <listitem>
-<para>Enables or disables warnings about the version of Python
-not having an MD5 checksum module available.
-These warnings are enabled by default.</para>
-
-  </listitem>
-  </varlistentry>
-  <varlistentry>
   <term>--warn=no-metaclass-support, --warn=no-no-metaclass-support</term>
   <listitem>
 <para>Enables or disables warnings about the version of Python

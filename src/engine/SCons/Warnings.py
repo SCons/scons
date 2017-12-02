@@ -74,9 +74,6 @@ class MisleadingKeywordsWarning(WarningOnByDefault):
 class MissingSConscriptWarning(WarningOnByDefault):
     pass
 
-class NoMD5ModuleWarning(WarningOnByDefault):
-    pass
-
 class NoMetaclassSupportWarning(WarningOnByDefault):
     pass
 
