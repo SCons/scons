@@ -74,9 +74,6 @@ class MisleadingKeywordsWarning(WarningOnByDefault):
 class MissingSConscriptWarning(WarningOnByDefault):
     pass
 
-class NoMetaclassSupportWarning(WarningOnByDefault):
-    pass
-
 class NoObjectCountWarning(WarningOnByDefault):
     pass
 
