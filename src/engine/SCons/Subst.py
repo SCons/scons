@@ -651,6 +651,11 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW,
     The companion scons_subst() function (above) handles basic
     substitutions within strings, so see that function instead
     if that's what you're looking for.
+
+    :param strSubst: Either a string (potentially with embedded newlines),
+                     or a list of command line arguments
+    :return:  a list of lists of substituted values (First dimension is separate command line,
+              second dimension is "words" in the command line)
     """
 
     class ListSubber(collections.UserList):
@@ -684,7 +689,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW,
             self.in_strip = None
             self.next_line()
 
-        def expand(self, s, lvars, within_list):
+        def expand(self, token, lvars, within_list=False):
             """Expand a single "token" as necessary, appending the
             expansion to the current result.
 
@@ -693,16 +698,20 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW,
             substitute() method to re-expand things as necessary, so that
             the results of expansions of side-by-side strings still get
             re-evaluated separately, not smushed together.
+
+            :param lvars:  Local variables (typically TARGET,SOURCE,etc..)
+            :param within_list: Indicate if we're expanding within the context of a list
+                                (not expanding a string)
             """
 
-            if is_String(s):
+            if is_String(token):
                 try:
-                    s0, s1 = s[:2]
+                    s0, s1 = token[:2]
                 except (IndexError, ValueError):
-                    self.append(s)
+                    self.append(token)
                     return
                 if s0 != '$':
-                    self.append(s)
+                    self.append(token)
                     return
                 if s1 == '$':
                     self.append('$')
@@ -711,25 +720,25 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW,
                 elif s1 == ')':
                     self.close_strip('$)')
                 else:
-                    key = s[1:]
+                    key = token[1:]
                     if key[0] == '{' or '.' in key:
                         if key[0] == '{':
                             key = key[1:-1]
                         try:
-                            s = eval(key, self.gvars, lvars)
+                            token = eval(key, self.gvars, lvars)
                         except KeyboardInterrupt:
                             raise
                         except Exception as e:
                             if e.__class__ in AllowableExceptions:
                                 return
-                            raise_exception(e, lvars['TARGETS'], s)
+                            raise_exception(e, lvars['TARGETS'], token)
                     else:
                         if key in lvars:
-                            s = lvars[key]
+                            token = lvars[key]
                         elif key in self.gvars:
-                            s = self.gvars[key]
+                            token = self.gvars[key]
                         elif not NameError in AllowableExceptions:
-                            raise_exception(NameError(), lvars['TARGETS'], s)
+                            raise_exception(NameError(), lvars['TARGETS'], token)
                         else:
                             return
 
@@ -741,37 +750,42 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW,
                     lv = lvars.copy()
                     var = key.split('.')[0]
                     lv[var] = ''
-                    self.substitute(s, lv, 0)
+                    self.substitute(token, lv, within_list=False)
                     self.this_word()
-            elif is_Sequence(s):
-                for a in s:
-                    self.substitute(a, lvars, 1)
+            elif is_Sequence(token):
+                for element in token:
+                    self.substitute(element, lvars, within_list=True)
                     self.next_word()
-            elif callable(s):
+            elif callable(token):
                 try:
-                    s = s(target=lvars['TARGETS'],
-                          source=lvars['SOURCES'],
-                          env=self.env,
-                          for_signature=(self.mode != SUBST_CMD))
+                    token = token(target=lvars['TARGETS'],
+                                  source=lvars['SOURCES'],
+                                  env=self.env,
+                                  for_signature=(self.mode != SUBST_CMD))
                 except TypeError:
                     # This probably indicates that it's a callable
                     # object that doesn't match our calling arguments
                     # (like an Action).
                     if self.mode == SUBST_RAW:
-                        self.append(s)
+                        self.append(token)
                         return
-                    s = self.conv(s)
-                self.substitute(s, lvars, within_list)
-            elif s is None:
+                    token = self.conv(token)
+                self.substitute(token, lvars, within_list=within_list)
+            elif token is None:
                 self.this_word()
             else:
-                self.append(s)
+                self.append(token)
 
-        def substitute(self, args, lvars, within_list):
+        def substitute(self, args, lvars, within_list=False):
             """Substitute expansions in an argument or list of arguments.
 
             This serves as a wrapper for splitting up a string into
             separate tokens.
+
+            :param lvars:  Local variables (typically TARGET,SOURCE,etc..)
+            :param within_list: Indicate if we're expanding within the context of a list
+                                (not expanding a string)
+
             """
 
             if is_String(args) and not isinstance(args, CmdStringHolder):
@@ -786,9 +800,9 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW,
                         else:
                             self.next_word()
                     else:
-                        self.expand(a, lvars, within_list)
+                        self.expand(a, lvars, within_list=within_list)
             else:
-                self.expand(args, lvars, within_list)
+                self.expand(args, lvars, within_list=within_list)
 
         def next_line(self):
             """Arrange for the next word to start a new line.  This
@@ -908,7 +922,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW,
     gvars['__builtins__'] = __builtins__
 
     ls = ListSubber(env, mode, conv, gvars)
-    ls.substitute(strSubst, lvars, 0)
+    ls.substitute(strSubst, lvars, within_list=False)
 
     try:
         del gvars['__builtins__']
