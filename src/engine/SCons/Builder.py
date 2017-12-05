@@ -742,6 +742,8 @@ class BuilderBase(object):
 
         result = []
         for s in SCons.Util.flatten(source):
+            if s is None:
+                continue
             if SCons.Util.is_String(s):
                 match_suffix = match_src_suffix(env.subst(s))
                 if not match_suffix and not '.' in s:
