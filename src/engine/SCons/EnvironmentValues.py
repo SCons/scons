@@ -1,17 +1,8 @@
 import re
-from SCons.Util import is_String
+from SCons.Util import is_String, is_Sequence, CLVar
+from SCons.Subst import CmdStringHolder
 
 from collections import UserDict, UserList
-
-# try:
-#     from UserDict import UserDict
-# except ImportError as e:
-#     from collections import UserDict
-#
-# try:
-#     from UserList import UserList
-# except ImportError as e:
-#     from collections import UserList
 
 
 _is_valid_var = re.compile(r'[_a-zA-Z]\w*$')
@@ -64,6 +55,7 @@ class ValueTypes(object):
     ESCAPE_START = 8  # $(
     ESCAPE_END = 9    # $)
     VARIABLE_OR_CALLABLE = 10
+    SHELL_REDIRECT = 11
 
     strings = ['UNKNOWN',
                'STRING',
@@ -75,7 +67,10 @@ class ValueTypes(object):
                'FUNCTION_CALL',
                'ESCAPE_START',
                'ESCAPE_END',
-               'VARIABLE_OR_CALLABLE']
+               'VARIABLE_OR_CALLABLE',
+               'SHELL_REDIRECT']
+
+    SHELL_REDIRECT_CHARACTERS = '<>|'
 
     @staticmethod
     def enum_name(value):
@@ -170,10 +165,23 @@ class EnvironmentValue(object):
                     self.var_type = ValueTypes.SPACE
                 else:
                     self.cached = (self.value, self.value)
+            elif isinstance(self.value, CLVar):
+                # TODO: Handle CLVar's being set and invalidating cache...
+                self.var_type = ValueTypes.STRING
+                self._parsed = self.value
+                has_variables = [s for s in self.value if '$' in s]
+                if has_variables:
+                    self.var_type = ValueTypes.PARSED
+                else:
+                    self.cached = (str(self.value), str(self.value))
+
             elif isinstance(self.value, (list, dict, tuple, UserDict, UserList)):
                 # Not string and not a callable, Should be some value
                 # like dict, tuple, list
                 self.var_type = ValueTypes.COLLECTION
+
+                #TODO Handle lists
+                #TODO Handle Dicts
             pass
         except TypeError:
             # likely callable? either way we don't parse
@@ -364,6 +372,7 @@ class EnvironmentValue(object):
                         sequences will be stripped from the returned string
                     1 = preserve white space and $(-$) sequences.
                     2 = strip all characters between any $( and $) pairs (as is done for signature calculation)
+                    Must be one of the SubstModes values.
         :param target: list of target Nodes
         :param source: list of source Nodes - Both target and source must be set if $TARGET, $TARGETS, $SOURCE and
                        $SOURCES are to be available for expansion
@@ -558,6 +567,7 @@ class EnvironmentValues(object):
                         sequences will be stripped from the returned string
                     1 = preserve white space and $(-$) sequences.
                     2 = strip all characters between any $( and $) pairs (as is done for signature calculation)
+                    Must be one of the SubstModes values.
         :param target: list of target Nodes
         :param source: list of source Nodes - Both target and source must be set if $TARGET, $TARGETS, $SOURCE and
                        $SOURCES are to be available for expansion
@@ -575,24 +585,97 @@ class EnvironmentValues(object):
 
         # TODO: Fill in gvars, lvars as env.Subst() does..
 
-        if self.values[item].var_type == ValueTypes.STRING:
-            return self.values[item].value
-        elif self.values[item].var_type == ValueTypes.PARSED:
-            return self.values[item].subst(self, raw=raw, target=target, source=source, gvars=gvars, lvars=lvars, conv=conv)
-        elif self.values[item].var_type == ValueTypes.CALLABLE:
-            # From Subst.py
-            # try:
-            #     s = s(target=lvars['TARGETS'],
-            #           source=lvars['SOURCES'],
-            #           env=self.env,
-            #           for_signature=(self.mode != SUBST_CMD))
-            # except TypeError:
-            #     # This probably indicates that it's a callable
-            #     # object that doesn't match our calling arguments
-            #     # (like an Action).
-            #     if self.mode == SUBST_RAW:
-            #         return s
-            #     s = self.conv(s)
-            # return self.substitute(s, lvars)
-            retval = self.values[item].value(target, source, self, (raw == 2))
-            return retval
+        try:
+            if self.values[item].var_type == ValueTypes.STRING:
+                return self.values[item].value
+            elif self.values[item].var_type == ValueTypes.PARSED:
+                return self.values[item].subst(self, raw=raw, target=target, source=source, gvars=gvars, lvars=lvars, conv=conv)
+            elif self.values[item].var_type == ValueTypes.CALLABLE:
+                # From Subst.py
+                # try:
+                #     s = s(target=lvars['TARGETS'],
+                #           source=lvars['SOURCES'],
+                #           env=self.env,
+                #           for_signature=(self.mode != SUBST_CMD))
+                # except TypeError:
+                #     # This probably indicates that it's a callable
+                #     # object that doesn't match our calling arguments
+                #     # (like an Action).
+                #     if self.mode == SUBST_RAW:
+                #         return s
+                #     s = self.conv(s)
+                # return self.substitute(s, lvars)
+                retval = self.values[item].value(target, source, self, (raw == 2))
+                return retval
+        except KeyError as e:
+            # import pdb; pdb.set_trace()
+            if is_String(item):
+                # The value requested to be substituted doesn't exist in the EnvironmentVariables.
+                # So, let's create a new value?
+                # Currently we're naming it the same as it's content.
+                # TODO: Should we keep these separate from the variables? We're caching both..
+                self.values[item] = EnvironmentValue(item, item)
+                return self.values[item].subst(self, raw=raw, target=target, source=source, gvars=gvars, lvars=lvars, conv=conv)
+            elif is_Sequence(item):
+                retseq = []
+                for v in item:
+                    val = EnvironmentValue(None, v)
+                    retseq.append(val.subst(self, raw=raw, target=target, source=source, gvars=gvars, lvars=lvars, conv=conv))
+                return retseq
+
+    def subst_list(self, listSubstVal, env, mode=SubstModes.RAW,
+                   target=None, source=None, gvars={}, lvars={}, conv=None):
+        """Substitute construction variables in a string (or list or other
+        object) and separate the arguments into a command list.
+
+        The companion scons_subst() function (above) handles basic
+        substitutions within strings, so see that function instead
+        if that's what you're looking for.
+
+        :param listSubstVal: Either a string (potentially with embedded newlines),
+                     or a list of command line arguments
+        :return:  a list of lists of substituted values (First dimension is separate command line,
+                  second dimension is "words" in the command line)
+
+        """
+
+        import pdb; pdb.set_trace()
+
+        for_signature = mode == SubstModes.FOR_SIGNATURE
+
+        retval = [[]]
+        retval_index = 0
+
+        if is_String(listSubstVal) and not isinstance(listSubstVal, CmdStringHolder):
+            listSubstVal = str(listSubstVal)  # In case it's a UserString.
+            listSubstVal = _separate_args.findall(listSubstVal)
+
+            try:
+                print("subst_list:IsString:%s" % listSubstVal.data)
+            except TypeError as e:
+                print("LKDJFKLSDJF")
+
+            # for a in args:
+            #     if a[0] in ' \t\n\r\f\v':
+            #         if '\n' in a:
+            #             self.next_line()
+            #         elif within_list:
+            #             self.append(a)
+            #         else:
+            #             self.next_word()
+            #     else:
+            #         self.expand(a, lvars, within_list)
+        else:
+            # self.expand(args, lvars, within_list)
+            print("subst_list:NotString:%s" % repr(listSubstVal))
+            parts = []
+            for element in listSubstVal:
+                e_value = EnvironmentValue(element,element)
+                parts.append(e_value)
+                retval[retval_index].append(e_value.subst(self, raw=mode,
+                                                          target=target, source=source,
+                                                          gvars=gvars, lvars=lvars, conv=conv))
+            print("subst_list:%s"%[x.value for x in parts])
+
+
+        return retval
