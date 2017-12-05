@@ -114,6 +114,11 @@ import SCons.Errors
 import SCons.Util
 import SCons.Subst
 
+# Enums for subst.
+SUBST_RAW = SCons.Subst.SUBST_RAW
+SUBST_CMD = SCons.Subst.SUBST_CMD
+SUBST_SIG = SCons.Subst.SUBST_SIG
+
 # we use these a lot, so try to optimize them
 is_String = SCons.Util.is_String
 is_List = SCons.Util.is_List
@@ -847,9 +852,9 @@ class CommandAction(_ActionAction):
 
     def process(self, target, source, env, executor=None):
         if executor:
-            result = env.subst_list(self.cmd_list, 0, executor=executor)
+            result = env.subst_list(self.cmd_list, SUBST_CMD, executor=executor)
         else:
-            result = env.subst_list(self.cmd_list, 0, target, source)
+            result = env.subst_list(self.cmd_list, SUBST_CMD, target, source)
         silent = None
         ignore = None
         while True:
@@ -870,7 +875,6 @@ class CommandAction(_ActionAction):
         if self.cmdstr is None:
             return None
         if self.cmdstr is not _null:
-            from SCons.Subst import SUBST_RAW
             if executor:
                 c = env.subst(self.cmdstr, SUBST_RAW, executor=executor)
             else:
@@ -951,7 +955,6 @@ class CommandAction(_ActionAction):
         This strips $(-$) and everything in between the string,
         since those parts don't affect signatures.
         """
-        from SCons.Subst import SUBST_SIG
         cmd = self.cmd_list
         if is_List(cmd):
             cmd = ' '.join(map(str, cmd))
@@ -968,7 +971,6 @@ class CommandAction(_ActionAction):
             icd = env.subst(icd)
         if not icd or icd in ('0', 'None'):
             return []
-        from SCons.Subst import SUBST_SIG
         if executor:
             cmd_list = env.subst_list(self.cmd_list, SUBST_SIG, executor=executor)
         else:
@@ -1147,7 +1149,6 @@ class FunctionAction(_ActionAction):
         if self.cmdstr is None:
             return None
         if self.cmdstr is not _null:
-            from SCons.Subst import SUBST_RAW
             if executor:
                 c = env.subst(self.cmdstr, SUBST_RAW, executor=executor)
             else:
