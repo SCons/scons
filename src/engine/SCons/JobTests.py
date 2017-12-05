@@ -27,17 +27,40 @@ import random
 import math
 import sys
 import time
+import os
 
 import TestUnit
 
 import SCons.Job
 
 
+def get_cpu_nums():
+    # Linux, Unix and MacOS:
+    if hasattr( os, "sysconf" ):
+        if "SC_NPROCESSORS_ONLN" in os.sysconf_names:
+            # Linux & Unix:
+            ncpus = os.sysconf( "SC_NPROCESSORS_ONLN" )
+        if isinstance(ncpus, int) and ncpus > 0:
+            return ncpus
+        else: # OSX:
+            return int( os.popen2( "sysctl -n hw.ncpu")[1].read() )
+    # Windows:
+    if "NUMBER_OF_PROCESSORS" in os.environ:
+        ncpus = int( os.environ[ "NUMBER_OF_PROCESSORS" ] );
+    if ncpus > 0:
+        return ncpus
+    return 1 # Default
+
 # a large number
 num_sines = 10000
 
 # how many parallel jobs to perform for the test
-num_jobs = 11
+num_jobs = get_cpu_nums()*2
+
+# in case we werent able to detect num cpus for this test
+# just make a hardcoded suffcient large number, though not future proof
+if(num_jobs == 2):
+    num_jobs = 33
 
 # how many tasks to perform for the test
 num_tasks = num_jobs*5
