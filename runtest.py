@@ -178,8 +178,8 @@ Options:
   -X                          Test script is executable, don't feed to Python.
   -x --exec SCRIPT            Test SCRIPT.
      --xml file               Save results to file in SCons XML format.
-     --exclude-list FILE      List of test to exclude in the current selection of test
-                              mostly meant to easily exclude tests from -a option
+     --exclude-list FILE      List of tests to exclude in the current selection of test,
+                              mostly meant to easily exclude tests from the -a option
 
 Environment Variables:
 
