@@ -25,6 +25,7 @@ script:
 # then it is a real failure not related to intermittent travis failures
   - n=0; while [[ $n -lt 10 ]]; do coverage run --rcfile=$PWD/.coveragerc runtest.py src/engine/SCons/JobTests.py && break; n=$((n+1)); done; if [ "$n" -gt "9" ]; then false; fi
 # exclude JobTest.py becuase we already ran that
+  - echo "src/engine/SCons/JobTests.py" > exclude.test
   - coverage run --rcfile=$PWD/.coveragerc runtest.py -a --exclude-list exclude.test || if [[ $? == 2 ]]; then true; else false; fi
 
 after_success:
