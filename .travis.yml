@@ -12,8 +12,8 @@ before_install:
   - tar xzf rel-3.0.12.tar.gz
   - cd swig-rel-3.0.12 && ./autogen.sh && ./configure --prefix=/usr && make && sudo make install && cd ..
   - sudo pip install coverage
-  - sudo echo "import coverage" >> /usr/lib/python2.7/sitecustomize.py
-  - sudo echo "coverage.process_startup()" >> /usr/lib/python2.7/sitecustomize.py 
+  - echo "import coverage" | sudo tee --append /usr/lib/python2.7/sitecustomize.py
+  - echo "coverage.process_startup()" | sudo tee --append /usr/lib/python2.7/sitecustomize.py 
 
 script: 
   - export COVERAGE_PROCESS_START=$PWD/.coveragerc
