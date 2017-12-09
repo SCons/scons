@@ -72,6 +72,10 @@
 #                       This is (will be) used for reporting results back
 #                       to a central SCons test monitoring infrastructure.
 #
+#       --exclude-list file 
+#                       list of tests to exclude in the current selection of test
+#                       mostly meant to easily exclude tests from -a option
+#
 # (Note:  There used to be a -v option that specified the SCons
 # version to be tested, when we were installing in a version-specific
 # library directory.  If we ever resurrect that as the default, then
@@ -126,6 +130,7 @@ suppress_stdout = False
 suppress_stderr = False
 allow_pipe_files = True
 quit_on_failure = False
+excludelistfile = None
 
 usagestr = """\
 Usage: runtest.py [OPTIONS] [TEST ...]
@@ -173,6 +178,8 @@ Options:
   -X                          Test script is executable, don't feed to Python.
   -x --exec SCRIPT            Test SCRIPT.
      --xml file               Save results to file in SCons XML format.
+     --exclude-list FILE      List of tests to exclude in the current selection of test,
+                              mostly meant to easily exclude tests from the -a option
 
 Environment Variables:
 
@@ -224,7 +231,7 @@ opts, args = getopt.getopt(args, "b:def:hj:klnP:p:qsv:Xx:t",
                              'quit-on-failure',
                              'short-progress', 'time',
                              'version=', 'exec=',
-                             'verbose='])
+                             'verbose=', 'exclude-list='])
 
 for o, a in opts:
     if o in ['-b', '--baseline']:
@@ -284,7 +291,8 @@ for o, a in opts:
         scons_exec = 1
     elif o in ['-x', '--exec']:
         scons = a
-
+    elif o in ['--exclude-list']:
+        excludelistfile = a
 
 
 # --- setup stdout/stderr ---
@@ -642,7 +650,7 @@ if old_pythonpath:
 # ---[ test discovery ]------------------------------------
 
 tests = []
-
+excludetests = []
 unittests = []
 endtests = []
 
@@ -734,7 +742,7 @@ else:
     tests.extend(unittests)
     tests.extend(endtests)
     tests.sort()
-
+    
 if not tests:
     sys.stderr.write(usagestr + """
 runtest.py:  No tests were found.
@@ -743,9 +751,15 @@ runtest.py:  No tests were found.
 """)
     sys.exit(1)
 
+if excludelistfile:
+    excludetests = open(excludelistfile, 'r').readlines()
+    excludetests = [x for x in excludetests if x[0] != '#']
+    excludetests = [x[:-1] for x in excludetests]
+    excludetests = [x.strip() for x in excludetests]
+    excludetests = [x for x in excludetests if len(x) > 0]
 
 # ---[ test processing ]-----------------------------------
-
+tests = [t for t in tests if t not in excludetests]
 tests = [Test(t) for t in tests]
 
 if list_only:
