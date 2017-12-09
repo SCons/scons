@@ -11,6 +11,15 @@ before_install:
   - wget https://github.com/swig/swig/archive/rel-3.0.12.tar.gz
   - tar xzf rel-3.0.12.tar.gz
   - cd swig-rel-3.0.12 && ./autogen.sh && ./configure --prefix=/usr && make && sudo make install && cd ..
+  - sudo pip install coverage
+  - sudo echo "import coverage" >> /usr/lib/python2.7/sitecustomize.py
+  - sudo echo "coverage.process_startup()" >> /usr/lib/python2.7/sitecustomize.py 
 
 script: 
-  - python runtest.py -a || if [[ $? == 2 ]]; then exit 0; else exit 1; fi
+  - export COVERAGE_PROCESS_START=$PWD/.coveragerc
+  - echo "[run]" >> .coveragerc
+  - echo "source = $PWD/src" >> .coveragerc
+  - echo "parallel = True" >> .coveragerc
+  - coverage run --rcfile=$PWD/.coverage runtest.py -a || if [[ $? == 2 ]]; then exit 0; else exit 1; fi
+  - coverage combine
+  - coverage report
