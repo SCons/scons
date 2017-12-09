@@ -1,4 +1,17 @@
 dist: trusty
+
+matrix:
+  include:
+    - env: BUILD_JOB_NUM=1
+    - env: BUILD_JOB_NUM=2
+    - env: BUILD_JOB_NUM=3
+    - env: BUILD_JOB_NUM=4
+    - env: BUILD_JOB_NUM=5
+    - env: BUILD_JOB_NUM=6
+    - env: BUILD_JOB_NUM=7
+    - env: BUILD_JOB_NUM=8
+
+
 before_install:
   - sudo apt-get -y install clang gdc docbook-xml xsltproc libxml2-dev libxslt-dev python-pip python-dev fop docbook-xsl-doc-pdf texlive-full biber texmaker build-essential libpcre3-dev autoconf automake libtool bison subversion git
   - sudo pip install lxml
@@ -17,6 +30,7 @@ before_install:
   - echo "coverage.process_startup()" | sudo tee --append /usr/lib/python2.7/sitecustomize.py 
 
 script: 
+  - export TOTAL_BUILD_JOBS=8
   - export COVERAGE_PROCESS_START=$PWD/.coveragerc
   - echo "[run]" >> .coveragerc
   - echo "source = $PWD/src" >> .coveragerc
@@ -25,8 +39,18 @@ script:
 # then it is a real failure not related to intermittent travis failures
   - n=0; while [[ $n -lt 10 ]]; do coverage run --rcfile=$PWD/.coveragerc runtest.py src/engine/SCons/JobTests.py && break; n=$((n+1)); done; if [ "$n" -gt "9" ]; then false; fi
 # exclude JobTest.py becuase we already ran that
-  - echo "src/engine/SCons/JobTests.py" > exclude.test
-  - coverage run --rcfile=$PWD/.coveragerc runtest.py -a --exclude-list exclude.test || if [[ $? == 2 ]]; then true; else false; fi
+  - echo "src/engine/SCons/JobTests.py" > exclude_jobtest
+# also exclude this test since it overides the exit function which doesnt work with coverage 
+# more info here: https://coverage.readthedocs.io/en/coverage-4.4.2/subprocess.html#
+# TODO: figure out how to cover test/exitfns.py
+  - echo "test/exitfns.py" >> exclude_jobtest
+  - python runtest.py -l -a --exclude-list exclude_jobtest > all_tests
+  - let "start = ($(wc -l < all_tests) / ${TOTAL_BUILD_JOBS}) * (${BUILD_JOB_NUM} - 1)"; true;
+  - let "end = ($(wc -l < all_tests) / ${TOTAL_BUILD_JOBS}) * ${BUILD_JOB_NUM}"
+  - if (( ${BUILD_JOB_NUM} == ${TOTAL_BUILD_JOBS} )); then end=$(wc -l < all_tests); fi
+  - if (( ${start} == 0 )); then start=1; fi
+  - sed -n ${start},${end}p all_tests > build_tests
+  - coverage run --rcfile=$PWD/.coveragerc runtest.py -f build_tests || if [[ $? == 2 ]]; then true; else false; fi
 
 after_success:
   - coverage combine
