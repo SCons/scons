@@ -21,7 +21,11 @@ script:
   - echo "[run]" >> .coveragerc
   - echo "source = $PWD/src" >> .coveragerc
   - echo "parallel = True" >> .coveragerc
-  - coverage run --rcfile=$PWD/.coveragerc runtest.py -a || if [[ $? == 2 ]]; then true; else false; fi
+# WORKAROUND: attempt to retry JobTests.py if it fails and then continue if it passes, if it fails ten times
+# then it is a real failure not related to intermittent travis failures
+  - n=0; while [[ $n -lt 10 ]]; do coverage run --rcfile=$PWD/.coveragerc runtest.py src/engine/SCons/JobTests.py && break; n=$((n+1)); done; if [ "$n" -gt "9" ]; then false; fi
+# exclude JobTest.py becuase we already ran that
+  - coverage run --rcfile=$PWD/.coveragerc runtest.py -a --exclude-list exclude.test || if [[ $? == 2 ]]; then true; else false; fi
 
 after_success:
   - coverage combine
