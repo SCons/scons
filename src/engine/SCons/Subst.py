@@ -58,7 +58,10 @@ def raise_exception(exception, target, s):
 
 
 class Literal(object):
-    """A wrapper for a string.  If you use this object wrapped
+    """
+    A string which should be expanded no further.
+    (A $ is a $ not a request to recursively evaluate..)
+    A wrapper for a string.  If you use this object wrapped
     around a string, then it will be interpreted as literal.
     When passed to the command interpreter, all special
     characters will be escaped."""
