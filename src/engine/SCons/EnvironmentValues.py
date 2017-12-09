@@ -3,6 +3,7 @@ from SCons.Util import is_String, is_Sequence, CLVar
 from SCons.Subst import CmdStringHolder
 
 from collections import UserDict, UserList
+from numbers import Number
 
 
 _is_valid_var = re.compile(r'[_a-zA-Z]\w*$')
@@ -55,7 +56,10 @@ class ValueTypes(object):
     ESCAPE_START = 8  # $(
     ESCAPE_END = 9    # $)
     VARIABLE_OR_CALLABLE = 10
-    SHELL_REDIRECT = 11
+    SHELL_REDIRECT = 11  # see SHELL_REDIRECT_CHARACTERS below
+    NUMBER = 12
+    LITERAL = 13 # This is a string which should be expanded no further.
+    NONE = 14
 
     strings = ['UNKNOWN',
                'STRING',
@@ -68,7 +72,10 @@ class ValueTypes(object):
                'ESCAPE_START',
                'ESCAPE_END',
                'VARIABLE_OR_CALLABLE',
-               'SHELL_REDIRECT']
+               'SHELL_REDIRECT',
+               'NUMBER',
+               'LITERAL',
+               'NONE']
 
     SHELL_REDIRECT_CHARACTERS = '<>|'
 
@@ -165,6 +172,9 @@ class EnvironmentValue(object):
                     self.var_type = ValueTypes.SPACE
                 else:
                     self.cached = (self.value, self.value)
+            elif self.value is None:
+                self.var_type = ValueTypes.NONE
+                self.cached = (self.value, self.value)
             elif isinstance(self.value, CLVar):
                 # TODO: Handle CLVar's being set and invalidating cache...
                 self.var_type = ValueTypes.STRING
@@ -182,6 +192,18 @@ class EnvironmentValue(object):
 
                 #TODO Handle lists
                 #TODO Handle Dicts
+            elif isinstance(self.value, Number):
+                self.var_type = ValueTypes.NUMBER
+            else:
+                # check if a Literal
+                try:
+                    if self.value.is_literal():
+                        self.var_type = ValueTypes.LITERAL
+                        self.cached = (str(self.value), str(self.value))
+                except AttributeError as e:
+                    # Not a literal?
+                    print("NOT LITERAL WHAT IS IT Value:%s" % self.value)
+
             pass
         except TypeError:
             # likely callable? either way we don't parse
@@ -463,8 +485,16 @@ class EnvironmentValue(object):
                                             ValueTypes.STRING)
                         print("%s->%s" % (v,string_values[i]))
                         parsed_values[i] = None
+                    elif t in (ValueTypes.STRING, ValueTypes.NUMBER):
+                        # The variable resolved to a string or a number. No need to process further.
+                        print("STR/Num  Type:%s VAL:%s"%(pv[0],pv[1]))
+                        string_values[i] = (env[v].value,t )
+                        print("%s->%s" % (v,string_values[i]))
+                        parsed_values[i] = None
+
                     else:
                         print("AAHAHAHHAH BROKEN")
+                        # import pdb; pdb.set_trace()
 
             # Handle undefined with some proper SCons exception
             subst_value = " ".join([v for (v, t) in string_values if t not in (ValueTypes.ESCAPE_START, ValueTypes.ESCAPE_END)])
@@ -558,7 +588,8 @@ class EnvironmentValues(object):
         for v in to_update:
             self.values[v].update(key, self.values)
 
-    def subst(self, item, raw=0, target=None, source=None, gvars={}, lvars={}, conv=None):
+    @staticmethod
+    def subst(item, env, raw=0, target=None, source=None, gvars={}, lvars={}, conv=None):
         """
         Recursively Expand string
         :param env:
@@ -581,16 +612,16 @@ class EnvironmentValues(object):
         """
 
         if not gvars:
-            gvars = self.values
+            gvars = env.values
 
         # TODO: Fill in gvars, lvars as env.Subst() does..
 
         try:
-            if self.values[item].var_type == ValueTypes.STRING:
-                return self.values[item].value
-            elif self.values[item].var_type == ValueTypes.PARSED:
-                return self.values[item].subst(self, raw=raw, target=target, source=source, gvars=gvars, lvars=lvars, conv=conv)
-            elif self.values[item].var_type == ValueTypes.CALLABLE:
+            if env.values[item].var_type == ValueTypes.STRING:
+                return env.values[item].value
+            elif env.values[item].var_type == ValueTypes.PARSED:
+                return env.values[item].subst(env, raw=raw, target=target, source=source, gvars=gvars, lvars=lvars, conv=conv)
+            elif env.values[item].var_type == ValueTypes.CALLABLE:
                 # From Subst.py
                 # try:
                 #     s = s(target=lvars['TARGETS'],
@@ -605,7 +636,7 @@ class EnvironmentValues(object):
                 #         return s
                 #     s = self.conv(s)
                 # return self.substitute(s, lvars)
-                retval = self.values[item].value(target, source, self, (raw == 2))
+                retval = env.values[item].value(target, source, env, (raw == 2))
                 return retval
         except KeyError as e:
             # import pdb; pdb.set_trace()
@@ -614,15 +645,16 @@ class EnvironmentValues(object):
                 # So, let's create a new value?
                 # Currently we're naming it the same as it's content.
                 # TODO: Should we keep these separate from the variables? We're caching both..
-                self.values[item] = EnvironmentValue(item, item)
-                return self.values[item].subst(self, raw=raw, target=target, source=source, gvars=gvars, lvars=lvars, conv=conv)
+                env.values[item] = EnvironmentValue(item, item)
+                return env.values[item].subst(env, raw=raw, target=target, source=source, gvars=gvars, lvars=lvars, conv=conv)
             elif is_Sequence(item):
                 retseq = []
                 for v in item:
                     val = EnvironmentValue(None, v)
-                    retseq.append(val.subst(self, raw=raw, target=target, source=source, gvars=gvars, lvars=lvars, conv=conv))
+                    retseq.append(val.subst(env, raw=raw, target=target, source=source, gvars=gvars, lvars=lvars, conv=conv))
                 return retseq
 
+    @staticmethod
     def subst_list(self, listSubstVal, env, mode=SubstModes.RAW,
                    target=None, source=None, gvars={}, lvars={}, conv=None):
         """Substitute construction variables in a string (or list or other
@@ -647,6 +679,8 @@ class EnvironmentValues(object):
         retval_index = 0
 
         if is_String(listSubstVal) and not isinstance(listSubstVal, CmdStringHolder):
+            # TODO: Implement splitting into multiple commands if there's a NEWLINE in the string.
+
             listSubstVal = str(listSubstVal)  # In case it's a UserString.
             listSubstVal = _separate_args.findall(listSubstVal)
 
@@ -666,13 +700,14 @@ class EnvironmentValues(object):
             #     else:
             #         self.expand(a, lvars, within_list)
         else:
+            # TODO: Implement splitting into multiple commands if there's a NEWLINE in any element.
             # self.expand(args, lvars, within_list)
             print("subst_list:NotString:%s" % repr(listSubstVal))
             parts = []
             for element in listSubstVal:
                 e_value = EnvironmentValue(element,element)
                 parts.append(e_value)
-                retval[retval_index].append(e_value.subst(self, raw=mode,
+                retval[retval_index].append(e_value.subst(env, raw=mode,
                                                           target=target, source=source,
                                                           gvars=gvars, lvars=lvars, conv=conv))
             print("subst_list:%s"%[x.value for x in parts])

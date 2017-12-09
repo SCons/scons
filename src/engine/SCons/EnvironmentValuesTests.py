@@ -40,6 +40,14 @@ class MyNode(DummyNode):
 
     foo = 1
 
+class TestLiteral(object):
+    def __init__(self, literal):
+        self.literal = literal
+    def __str__(self):
+        return self.literal
+    def is_literal(self):
+        return 1
+
 
 class TestEnvironmentValue(unittest.TestCase):
     """
@@ -126,6 +134,22 @@ class TestEnvironmentValue(unittest.TestCase):
 
         self.assertEqual(one['ENV']['BLAH'], 1)
 
+    def test_literal_value(self):
+        """ Check handling a Literal() value (One which should not be recursively evaluated)"""
+        one = EnvironmentValue('LITERAL',TestLiteral('$XXX'))
+        self.assertEqual(one.var_type, ValueTypes.LITERAL,
+                         "Should be a Literal not:%s"%ValueTypes.enum_name(one.var_type))
+        self.assertEqual(one.cached, ('$XXX','$XXX'),
+                         "Cached value should be tuple with two elements of $XXX not:%s"%repr(one.cached))
+
+    def test_none_value(self):
+        """ Check handling a Literal() value (One which should not be recursively evaluated)"""
+        one = EnvironmentValue('MY_NONE',None)
+        self.assertEqual(one.var_type, ValueTypes.NONE,
+                         "Should be a NONE not:%s"%ValueTypes.enum_name(one.var_type))
+        self.assertEqual(one.cached, (None,None),
+                         "Cached value should be tuple with two elements of None not:%s"%repr(one.cached))
+
 
 class TestEnvironmentValues(unittest.TestCase):
     def test_simple_environmentValues(self):
@@ -144,35 +168,35 @@ class TestEnvironmentValues(unittest.TestCase):
                                 YYY='$Y', Y='Two', YYYY='$YYY')
 
         # vanilla string should equal itself
-        x = env.subst('X')
+        x = env.subst('X', env)
         self.assertEqual(x, 'One')
 
         # Single level expansion
-        xxx = env.subst('XXX')
+        xxx = env.subst('XXX', env)
         self.assertEqual(xxx, 'One')
 
         # Double level expansion
-        xxxx = env.subst('XXXX')
+        xxxx = env.subst('XXXX', env)
         self.assertEqual(xxxx, 'One')
 
         # Now reverse evaluation
         # Double level expansion
-        yyyy = env.subst('YYYY')
+        yyyy = env.subst('YYYY', env)
         self.assertEqual(yyyy, 'Two')
 
     def test_escape_values(self):
         env = EnvironmentValues(X='One', XX='Two', XXX='$X $($XX$)')
 
         # vanilla string should equal itself
-        x = env.subst('X')
+        x = env.subst('X', env)
         self.assertEqual(x, 'One')
 
         # Single level expansion
-        xxx = env.subst('XXX')
+        xxx = env.subst('XXX', env)
         self.assertEqual(xxx, 'One Two')
 
         # Now try getting for signature which should skip escaped part of string
-        xxx_sig = env.subst('XXX', raw=SubstModes.FOR_SIGNATURE)
+        xxx_sig = env.subst('XXX', env, raw=SubstModes.FOR_SIGNATURE)
         self.assertEqual(xxx_sig, 'One')  # Should we have trailing space?
 
     def test_simple_callable_function(self):
@@ -188,13 +212,13 @@ class TestEnvironmentValues(unittest.TestCase):
         # Will expand $BAR to "bar baz"
         env = EnvironmentValues(FOO=foo, BAR="$FOO baz")
 
-        foo = env.subst('FOO',
+        foo = env.subst('FOO', env,
                         target=[t1, t2],
                         source=[s1, s2])
 
         self.assertEqual(foo, 'bar')
 
-        bar = env.subst('BAR',
+        bar = env.subst('BAR', env,
                         target=[t1, t2],
                         source=[s1, s2])
         self.assertEqual(bar, 'bar baz')
@@ -203,17 +227,17 @@ class TestEnvironmentValues(unittest.TestCase):
         env = EnvironmentValues(X='One', XX='Two', XXX='$X $($XX$)')
 
         # vanilla string should equal itself
-        x = env.subst('X')
+        x = env.subst('X', env)
         self.assertEqual(x, 'One')
 
         env['Y'] = '$X'
 
-        xxx = env.subst('XXX')
+        xxx = env.subst('XXX', env)
 
         # Change the value to XX and make sure the value of XXX
         # changed
         env['XX'] = 'BLAH'
-        xxx_2 = env.subst('XXX')
+        xxx_2 = env.subst('XXX', env)
         self.assertNotEqual(xxx, xxx_2)
         self.assertEqual(xxx_2, "One BLAH")
 
@@ -222,7 +246,7 @@ class TestEnvironmentValues(unittest.TestCase):
         def foo(target, source, env, for_signature):
             return "bar"
         env['XX'] = foo
-        xxx_3 = env.subst('XXX')
+        xxx_3 = env.subst('XXX', env)
         print("1:%s 2:%s 3:%s"%(xxx, xxx_2, xxx_3))
         self.assertNotEqual(xxx_3, xxx_2)
         self.assertEqual(xxx_3, 'One bar')
