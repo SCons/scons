@@ -27,6 +27,7 @@ __doc__ = """
 CacheDir support
 """
 
+import hashlib
 import json
 import os
 import stat
@@ -134,12 +135,6 @@ warned = dict()
 class CacheDir(object):
 
     def __init__(self, path):
-        try:
-            import hashlib
-        except ImportError:
-            msg = "No hashlib or MD5 module available, CacheDir() not supported"
-            SCons.Warnings.warn(SCons.Warnings.NoMD5ModuleWarning, msg)
-            path = None
         self.path = path
         self.current_cache_debug = None
         self.debugFP = None
