@@ -133,7 +133,7 @@ def Jar(env, target = None, source = [], *args, **kw):
     # setup for checking through all the sources and handle accordingly
     java_class_suffix = env.subst('$JAVACLASSSUFFIX')
     java_suffix = env.subst('$JAVASUFFIX')
-    target_classes = []
+    target_nodes = []
 
     # function for determining what to do with a file and not a directory
     # if its already a class file then it can be used as a
@@ -144,6 +144,24 @@ def Jar(env, target = None, source = [], *args, **kw):
             return env.JavaClassFile(source = s, *args, **kw)
         else:
             return [env.fs.File(s)]
+
+    # function for calling the JavaClassDir builder if a directory is
+    # passed as a source to Jar builder. The JavaClassDir builder will
+    # return an empty list if there were not target classes built from
+    # the directory, in this case assume the user wanted the directory
+    # copied into the jar as is (it contains other files such as
+    # resources or class files compiled from proir commands)
+    # TODO: investigate the expexcted behavior for directories that
+    #       have mixed content, such as Java files along side other files
+    #       files.
+    def dir_to_class(s):
+        dir_targets = env.JavaClassDir(source = s, *args, **kw)
+        if(dir_targets == []):
+            # no classes files could be built from the source dir
+            # so pass the dir as is.
+            return [env.fs.Dir(s)]
+        else:
+            return dir_targets
 
     # In the case that we are passed just string to a node which is directory
     # but does not exist, we need to check all the current targets to see if
@@ -161,40 +179,40 @@ def Jar(env, target = None, source = [], *args, **kw):
     # loop through the sources and handle each accordingly
     # the goal here is to get all the source files into a class
     # file or a directory that contains class files
-    for s in source:
+    for s in SCons.Util.flatten(source):
         s = env.subst(s)
         if isinstance(s, SCons.Node.FS.Base):
             if isinstance(s, SCons.Node.FS.File):
                 # found a file so make sure its a class file
-                target_classes.extend(file_to_class(s))
+                target_nodes.extend(file_to_class(s))
             else:
-                # found a dir so make sure its a dir of class files
-                target_classes.extend(env.JavaClassDir(source = env.fs.Dir(s), *args, **kw))
+                # found a dir so get the class files out of it
+                target_nodes.extend(dir_to_class(s))
         else:
             if os.path.isfile(s):
                 # found a file that exists on the FS, make sure its a class file
-                target_classes.extend(file_to_class(s))
+                target_nodes.extend(file_to_class(s))
             elif os.path.isdir(s):
-                # found a dir on the FS, add it as a dir of class files
-                target_classes.append(env.fs.Dir(s))
+                # found a dir so get the class files out of it
+                target_nodes.extend(dir_to_class(s))
             elif s[-len(java_suffix):] == java_suffix or s[-len(java_class_suffix):] == java_class_suffix:
                 # found a file that may not exists and is only a string
                 # so add it after converting it to a class file
-                target_classes.extend(file_to_class(s))
+                target_nodes.extend(file_to_class(s))
             else:
                 # found a swig file so add it after converting it to class files
                 if(os.path.splitext(str(s))[1] == ".i"):
-                    target_classes.extend(env.JavaClassFile(source = s, *args, **kw))
+                    target_nodes.extend(env.JavaClassFile(source = s, *args, **kw))
                 else:
-                    # found a directory that does not yet exist, but can exist as a node
-                    # check the target nodes to make sure it will be built, then add
-                    # it as a source
+                    # The final else case handles anything not caught above and makes
+                    # sure other nodes that are sources for this jar get add as
+                    # a source to the JarFile builder
                     for node in get_all_targets(env):
-                        if(s in str(node) and os.path.splitext(str(node))[1] == ""):
-                            target_classes.append(node)
+                        if(s == str(node)):
+                            target_nodes.append(node)
     # at this point all our sources have been converted to classes or directories of class
     # so pass it to the Jar builder
-    return env.JarFile(target = target, source = target_classes, *args, **kw)
+    return env.JarFile(target = target, source = target_nodes, *args, **kw)
 
 def generate(env):
     """Add Builders and construction variables for jar to an Environment."""

@@ -134,7 +134,7 @@ bar = foo.Clone(JAR = r'%(_python_)s wrapper_with_args.py ' + jar)
 foo.Java(target = 'classes', source = 'com/sub/foo')
 bar.Java(target = 'classes', source = 'com/sub/bar')
 foo.Jar(target = 'foo', source = 'classes/com/sub/foo')
-bar.Jar(target = 'bar', source = 'classes/com/sub/bar')
+bar.Jar(target = 'bar', source = Dir('classes/com/sub/bar'))
 """ % locals())
 
 test.subdir('com',
@@ -330,6 +330,237 @@ test.must_exist(['testdir2','bar.jar'])
 test.must_exist(['testdir2', 'barTest', 'com', 'javasource', 'JavaFile1.class'])
 test.must_exist(['testdir2', 'barTest', 'com', 'javasource', 'JavaFile2.class'])
 test.must_exist(['testdir2', 'barTest', 'com', 'javasource', 'JavaFile3.class'])
+
+
+#######
+# test list of lists
+
+# make some directories to test in
+test.subdir('listOfLists',
+            ['listOfLists', 'src'],
+            ['listOfLists', 'src', 'com'],
+            ['listOfLists', 'src', 'com', 'javasource'],
+            ['listOfLists', 'src', 'com', 'resource'])
+
+# test varient dir and lists of lists
+test.write(['listOfLists', 'SConstruct'], """
+foo = Environment()
+foo.VariantDir('build', 'src', duplicate=0)
+sourceFiles = ["src/com/javasource/JavaFile1.java", "src/com/javasource/JavaFile2.java", "src/com/javasource/JavaFile3.java",]
+list_of_class_files = foo.Java('build', source=sourceFiles)
+resources = ['build/com/resource/resource1.txt', 'build/com/resource/resource2.txt']
+for resource in resources:
+    foo.Command(resource, list_of_class_files, Copy(resource, resource.replace('build','src')))
+foo.Command('build/MANIFEST.mf', list_of_class_files, Copy('build/MANIFEST.mf', 'MANIFEST.mf'))
+contents = [list_of_class_files, resources]
+foo.Jar(target = 'lists', source = contents + ['build/MANIFEST.mf'], JARCHDIR='build')
+foo.Command("listsTest", [], Mkdir("listsTest") )
+foo.Command('listsTest/src/com/javasource/JavaFile3.java', 'lists.jar', foo['JAR'] + ' xvf ../lists.jar', chdir='listsTest')
+""")
+
+test.write(['listOfLists', 'src', 'com', 'javasource', 'JavaFile1.java'], """\
+package com.javasource;
+
+public class JavaFile1
+{
+     public static void main(String[] args)
+     {
+
+     }
+}
+""")
+
+test.write(['listOfLists', 'src', 'com', 'javasource', 'JavaFile2.java'], """\
+package com.javasource;
+
+public class JavaFile2
+{
+     public static void main(String[] args)
+     {
+
+     }
+}
+""")
+
+test.write(['listOfLists', 'src', 'com', 'javasource', 'JavaFile3.java'], """\
+package com.javasource;
+
+public class JavaFile3
+{
+     public static void main(String[] args)
+     {
+
+     }
+}
+""")
+
+test.write(['listOfLists', 'MANIFEST.mf'],
+"""Manifest-Version: 1.0
+MyManifestTest: Test
+""")
+
+test.write(['listOfLists', 'src', 'com', 'resource', 'resource1.txt'], """\
+this is a resource file
+""")
+
+test.write(['listOfLists', 'src', 'com', 'resource', 'resource2.txt'], """\
+this is another resource file
+""")
+
+
+test.run(chdir='listOfLists')
+
+#test single target jar
+test.must_exist(['listOfLists','lists.jar'])
+
+# make sure there are class in the jar
+test.must_exist(['listOfLists', 'listsTest', 'com', 'javasource', 'JavaFile1.class'])
+test.must_exist(['listOfLists', 'listsTest', 'com', 'javasource', 'JavaFile2.class'])
+test.must_exist(['listOfLists', 'listsTest', 'com', 'javasource', 'JavaFile3.class'])
+test.must_exist(['listOfLists', 'listsTest', 'com', 'resource', 'resource1.txt'])
+test.must_exist(['listOfLists', 'listsTest', 'com', 'resource', 'resource2.txt'])
+test.must_exist(['listOfLists', 'listsTest', 'META-INF', 'MANIFEST.MF'])
+test.must_contain(['listOfLists', 'listsTest', 'META-INF', 'MANIFEST.MF'], b"MyManifestTest: Test" )
+
+#######
+# test different style of passing in dirs
+
+# make some directories to test in
+test.subdir('testdir3',
+            ['testdir3', 'com'],
+            ['testdir3', 'com', 'sub'],
+            ['testdir3', 'com', 'sub', 'foo'],
+            ['testdir3', 'com', 'sub', 'bar'])
+
+# Create the jars then extract them back to check contents
+test.write(['testdir3', 'SConstruct'], """
+foo = Environment()
+bar = foo.Clone()
+foo.Java(target = 'classes', source = 'com/sub/foo')
+bar.Java(target = 'classes', source = 'com/sub/bar')
+foo.Jar(target = 'foo', source = 'classes/com/sub/foo', JARCHDIR='classes')
+bar.Jar(target = 'bar', source = Dir('classes/com/sub/bar'), JARCHDIR='classes')
+foo.Command("fooTest", 'foo.jar', Mkdir("fooTest") )
+foo.Command('doesnt_exist1', "fooTest", foo['JAR'] + ' xvf ../foo.jar', chdir='fooTest')
+bar.Command("barTest", 'bar.jar', Mkdir("barTest") )
+bar.Command('doesnt_exist2', 'barTest', bar['JAR'] + ' xvf ../bar.jar', chdir='barTest')
+""")
+
+test.write(['testdir3', 'com', 'sub', 'foo', 'Example1.java'], """\
+package com.sub.foo;
+
+public class Example1
+{
+
+     public static void main(String[] args)
+     {
+
+     }
+
+}
+""")
+
+test.write(['testdir3', 'com', 'sub', 'foo', 'Example2.java'], """\
+package com.sub.foo;
+
+public class Example2
+{
+
+     public static void main(String[] args)
+     {
+
+     }
+
+}
+""")
+
+test.write(['testdir3', 'com', 'sub', 'foo', 'Example3.java'], """\
+package com.sub.foo;
+
+public class Example3
+{
+
+     public static void main(String[] args)
+     {
+
+     }
+
+}
+""")
+
+test.write(['testdir3', 'com', 'sub', 'foo', 'NonJava.txt'], """\
+testfile
+""")
+
+test.write(['testdir3', 'com', 'sub', 'bar', 'Example4.java'], """\
+package com.sub.bar;
+
+public class Example4
+{
+
+     public static void main(String[] args)
+     {
+
+     }
+
+}
+""")
+
+test.write(['testdir3', 'com', 'sub', 'bar', 'Example5.java'], """\
+package com.sub.bar;
+
+public class Example5
+{
+
+     public static void main(String[] args)
+     {
+
+     }
+
+}
+""")
+
+test.write(['testdir3', 'com', 'sub', 'bar', 'Example6.java'], """\
+package com.sub.bar;
+
+public class Example6
+{
+
+     public static void main(String[] args)
+     {
+
+     }
+
+}
+""")
+
+test.write(['testdir3', 'com', 'sub', 'bar', 'NonJava.txt'], """\
+testfile
+""")
+
+test.run(chdir='testdir3')
+
+# check the output and make sure the java files got converted to classes
+
+
+# make sure there are class in the jar
+test.must_exist(['testdir3','foo.jar'])
+test.must_exist(['testdir3', 'fooTest', 'com', 'sub', 'foo', 'Example1.class'])
+test.must_exist(['testdir3', 'fooTest', 'com', 'sub', 'foo', 'Example2.class'])
+test.must_exist(['testdir3', 'fooTest', 'com', 'sub', 'foo', 'Example3.class'])
+# TODO: determine expected behavior with resource files, should they be 
+#       automatically copied in or specified in seperate commands
+#test.must_exist(['testdir3', 'fooTest', 'com', 'sub', 'foo', 'NonJava.txt'])
+
+# make sure both jars got createds
+test.must_exist(['testdir3','bar.jar'])
+test.must_exist(['testdir3', 'barTest', 'com', 'sub', 'bar', 'Example4.class'])
+test.must_exist(['testdir3', 'barTest', 'com', 'sub', 'bar', 'Example5.class'])
+test.must_exist(['testdir3', 'barTest', 'com', 'sub', 'bar', 'Example6.class'])
+# TODO: determine expected behavior with resource files, should they be 
+#       automatically copied in or specified in seperate commands
+#test.must_exist(['testdir3', 'fooTest', 'com', 'sub', 'bar', 'NonJava.txt'])
+
 test.pass_test()
 
 

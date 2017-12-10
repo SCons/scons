@@ -8,6 +8,8 @@
 RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
   From Daniel Moody:
+    - Updated Jar builder to handle nodes and directories better
+    - Updated Jar builder to flatten source list which could contain embedded lists
     - Removed some magic numbers from jar.py on behalf of Mats Wichmann (mats@linux.com)
 
   From Daniel Moody:
