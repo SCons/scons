@@ -10,6 +10,9 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From Daniel Moody:
     - Updated Jar builder to handle nodes and directories better
     - Updated Jar builder to flatten source list which could contain embedded lists
+    - Removed some magic numbers from jar.py on behalf of Mats Wichmann (mats@linux.com)
+
+  From Daniel Moody:
     - Jar can take multiple targets, and will make a duplicate jar from the sources for each target
     - Added some warnings in case the Jar builder makes an implicit target
     - Added Jar method and changed jar build to be more specific. Jar method will take in
@@ -49,6 +52,9 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From Zachary Tessler:
     - Fix incorrect warning for repeated identical builder calls that use overrides
 
+  From Andrew Featherstone
+    - Removed unused --warn options from the man page and source code. 
+ 
 RELEASE 3.0.0 - Mon, 18 Sep 2017 08:32:04 -0700
 
 NOTE: This is a major release.  You should expect that some targets may rebuild when upgrading.
