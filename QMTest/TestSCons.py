@@ -784,6 +784,16 @@ class TestSCons(TestCommon):
         print("Could not determine JAVA_HOME: %s is not a directory" % home)
         self.fail_test()
 
+    def java_mac_check(self, where_java_bin, java_bin_name):
+        # on Mac there is a place holder java installed to start the java install process
+        # so we need to check the output in this case, more info here:
+        # http://anas.pk/2015/09/02/solution-no-java-runtime-present-mac-yosemite/
+        sp = subprocess.Popen([where_java_bin, "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = sp.communicate()
+        sp.wait()
+        if("No Java runtime" in str(stderr)):
+            self.skip_test("Could not find Java " + java_bin_name + ", skipping test(s).\n")
+
     def java_where_jar(self, version=None):
         ENV = self.java_ENV(version)
         if self.detect_tool('jar', ENV=ENV):
@@ -792,6 +802,9 @@ class TestSCons(TestCommon):
             where_jar = self.where_is('jar', ENV['PATH'])
         if not where_jar:
             self.skip_test("Could not find Java jar, skipping test(s).\n")
+        elif sys.platform == "darwin": 
+            self.java_mac_check(where_jar, 'jar')
+
         return where_jar
 
     def java_where_java(self, version=None):
@@ -800,8 +813,12 @@ class TestSCons(TestCommon):
         """
         ENV = self.java_ENV(version)
         where_java = self.where_is('java', ENV['PATH'])
+
         if not where_java:
             self.skip_test("Could not find Java java, skipping test(s).\n")
+        elif sys.platform == "darwin":
+            self.java_mac_check(where_java, 'java')
+
         return where_java
 
     def java_where_javac(self, version=None):
@@ -815,6 +832,9 @@ class TestSCons(TestCommon):
             where_javac = self.where_is('javac', ENV['PATH'])
         if not where_javac:
             self.skip_test("Could not find Java javac, skipping test(s).\n")
+        elif sys.platform == "darwin":
+            self.java_mac_check(where_javac, 'javac')
+
         self.run(program = where_javac,
                  arguments = '-version',
                  stderr=None,
