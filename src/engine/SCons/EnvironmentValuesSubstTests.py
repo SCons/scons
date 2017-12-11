@@ -20,7 +20,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-from __future__ import print_function
+from __future__ import print_function, division
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -38,6 +38,10 @@ import SCons.Errors
 # from SCons.Subst import *
 from SCons.Subst import Literal
 from SCons.EnvironmentValues import *
+
+SUBST_RAW = SubstModes.RAW
+SUBST_CMD = SubstModes.NORMAL
+SUBST_SIG = SubstModes.FOR_SIGNATURE
 
 from SCons.SubstTests import escape_list
 
@@ -249,9 +253,10 @@ class SubstTestCase(unittest.TestCase):
     def basic_comparisons(self, function, convert):
         # env = DummyEnv(self.loc)
 
-        # import pdb;pdb.set_trace()
         env = EnvironmentValues(**self.loc)
         cases = self.basic_cases[:]
+        total_tests = len(cases)/2
+
         kwargs = {'target' : self.target,
                   'source' : self.source,
                   'gvars' : env.values}
@@ -272,8 +277,8 @@ class SubstTestCase(unittest.TestCase):
                     print("    input %s => \n%s did not match \n%s" % (repr(input), repr(result), repr(expect)))
                     failed = failed + 1
             del cases[:2]
-        fmt = "%d %s() cases failed"
-        assert failed == 0, fmt % (failed, function.__name__)
+        fmt = "%d of %d [%d %%] %s() cases failed"
+        assert failed == 0, fmt % (failed, total_tests, (failed/total_tests)*100, function.__name__)
 
 
 class EnvVariablesSubstTestCase(SubstTestCase):
@@ -1070,6 +1075,8 @@ class EnvVarsSubtListTestCase(SubstTestCase):
         result = EnvironmentValues.subst_list('$XXX', env, gvars={'XXX' : 'yyy'})
         assert result == [['yyy']], result
 
+
+@unittest.skip("subst_once not yet implemented")
 class subst_once_TestCase(unittest.TestCase):
 
     loc = {
@@ -1137,6 +1144,8 @@ class subst_once_TestCase(unittest.TestCase):
             del cases[:3]
         assert failed == 0, "%d subst() cases failed" % failed
 
+
+@unittest.skip("quote_spaces not reimplemented")
 class quote_spaces_TestCase(unittest.TestCase):
     def test_quote_spaces(self):
         """Test the quote_spaces() method..."""
@@ -1207,6 +1216,7 @@ class SpecialAttrWrapperTestCase(unittest.TestCase):
         cmd_list = escape_list(cmd_list[0], escape_func)
         assert cmd_list == ['BAZ', '**BLEH**'], cmd_list
 
+@unittest.skip("subst_dict still uses subst.py's implementation")
 class subst_dict_TestCase(unittest.TestCase):
     def test_subst_dict(self):
         """Test substituting dictionary values in an Action
@@ -1256,24 +1266,9 @@ class subst_dict_TestCase(unittest.TestCase):
         SOURCES = sorted([str(x) for x in d['SOURCES']])
         assert SOURCES == ['s3', 'v-rstr-s4', 'v-s5'], SOURCES
 
+
 if __name__ == "__main__":
     unittest.main()
-
-    # suite = unittest.TestSuite()
-    # tclasses = [
-    #     CLVar_TestCase,
-    #     LiteralTestCase,
-    #     SpecialAttrWrapperTestCase,
-    #     quote_spaces_TestCase,
-    #     EnvVariablesSubstTestCase,
-    #     EnvVarsSubtListTestCase,
-    #     scons_subst_once_TestCase,
-    #     subst_dict_TestCase,
-    # ]
-    # for tclass in tclasses:
-    #     names = unittest.getTestCaseNames(tclass, 'test_')
-    #     suite.addTests(list(map(tclass, names)))
-    # TestUnit.run(suite)
 
 # Local Variables:
 # tab-width:4
