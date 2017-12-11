@@ -558,6 +558,14 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
                 args = str(args)  # In case it's a UserString.
                 try:
                     def sub_match(match):
+                        """
+                        This is called for ever non-overlapping match in _dollar_exps.
+                        self.conf is going to either be SCons.Util.to_String_for_subst or
+                        SCons.Util.to_String_for_signature.  Which will return a string.
+                        see: https://docs.python.org/2/library/re.html#re.sub
+                        :param match:
+                        :return: A string.
+                        """
                         return self.conv(self.expand(match.group(1), lvars))
 
                     result = _dollar_exps.sub(sub_match, args)
