@@ -196,7 +196,7 @@ class TestEnvironmentValues(unittest.TestCase):
         self.assertEqual(xxx, 'One Two')
 
         # Now try getting for signature which should skip escaped part of string
-        xxx_sig = env.subst('XXX', env, raw=SubstModes.FOR_SIGNATURE)
+        xxx_sig = env.subst('XXX', env, mode=SubstModes.FOR_SIGNATURE)
         self.assertEqual(xxx_sig, 'One')  # Should we have trailing space?
 
     def test_simple_callable_function(self):
@@ -247,7 +247,7 @@ class TestEnvironmentValues(unittest.TestCase):
             return "bar"
         env['XX'] = foo
         xxx_3 = env.subst('XXX', env)
-        print("1:%s 2:%s 3:%s"%(xxx, xxx_2, xxx_3))
+        # print("1:%s 2:%s 3:%s"%(xxx, xxx_2, xxx_3))
         self.assertNotEqual(xxx_3, xxx_2)
         self.assertEqual(xxx_3, 'One bar')
 
