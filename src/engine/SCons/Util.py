@@ -472,6 +472,7 @@ def to_String(s,
     else:
         return str(s)
 
+
 def to_String_for_subst(s,
                         isinstance=isinstance, str=str, to_String=to_String,
                         BaseStringTypes=BaseStringTypes, SequenceTypes=SequenceTypes,
@@ -488,6 +489,7 @@ def to_String_for_subst(s,
         return s.data
     else:
         return str(s)
+
 
 def to_String_for_signature(obj, to_String_for_subst=to_String_for_subst,
                             AttributeError=AttributeError):
