@@ -1,7 +1,7 @@
 SCons - a software construction tool
 ####################################
 
-.. image:: https://ci.appveyor.com/api/projects/status/github/ajf58/scons
+.. image:: https://ci.appveyor.com/api/projects/status/github/ajf58/scons?svg=true
    :target: https://ci.appveyor.com/project/ajf58/scons
    :alt: AppVeyor CI Status
 
