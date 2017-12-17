@@ -17,6 +17,7 @@ install:
   - pip install lxml
   - choco install dmd
   - choco install ldc
+  - choco install swig
 
 build: off
 
