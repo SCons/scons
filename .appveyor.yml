@@ -19,4 +19,4 @@ install:
 build: off
 
 test_script:
-  - cmd: (python runtest.py -a) || if %errorlevel% == 2 then exit 0 else exit 1
+  - cmd: python runtest.py -a || if %errorlevel% == 2 then exit 0 else exit 1
