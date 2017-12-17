@@ -16,5 +16,7 @@ install:
   - python --version
   - pip install lxml
 
+build: off
+
 test_script:
   - python runtest.py -a || if [[ $? == 2 ]]; then exit 0; else exit 1; fi
