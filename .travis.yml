@@ -23,6 +23,13 @@ jobs:
         - python runtest.py -a --exclude-list exclude_jobtest || if [[ $? == 2 ]]; then true; else false; fi
       before_script: skip
       after_success: skip
+      python: 2.7
+
+    - <<: *test_job
+      python: 3.5
+    - <<: *test_job
+      python: 3.6
+
 
     - &coverage_jobs
       stage: Coverage
