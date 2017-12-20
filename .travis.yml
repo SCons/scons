@@ -1,5 +1,10 @@
 dist: trusty
 language: python
+python:
+  - "2.7"
+  - "3.5"
+  - "pypy"
+
 install:
   - sudo apt-get -y install clang gdc docbook-xml xsltproc libxml2-dev libxslt-dev python-pip python-dev fop docbook-xsl-doc-pdf texlive-full biber texmaker build-essential libpcre3-dev autoconf automake libtool bison subversion git
   - sudo pip install lxml
