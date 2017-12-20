@@ -15,7 +15,6 @@ install:
   - "set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - python --version
   - pip install lxml
-  - choco install clang
   - choco install dmd
   - choco install ldc
   - choco install swig
