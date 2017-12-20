@@ -1,25 +1,72 @@
+image: Visual Studio 2017
 shallow_clone: true
-
-environment:
-  matrix:
-    # Match the Python versions currently tested at http://buildbot.scons.org/#/,
-    # but include 32 and 64-bit variants.
-    - PYTHON: "C:\\Python27"
-    - PYTHON: "C:\\Python27-x64"
-    - PYTHON: "C:\\Python35"
-    - PYTHON: "C:\\Python35-x64"
-    - PYTHON: "C:\\Python36"
-    - PYTHON: "C:\\Python36-x64"
 
 install:
   - "set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - python --version
   - pip install lxml
+  - pip install pypiwin32
   - choco install dmd
   - choco install ldc
   - choco install swig
+  - choco install vswhere
+
+environment:
+  matrix:
+    - PYTHON: "C:\\Python27"
+      BUILD_JOB_NUM: 1
+    - PYTHON: "C:\\Python27"
+      BUILD_JOB_NUM: 2
+    - PYTHON: "C:\\Python27"
+      BUILD_JOB_NUM: 3
+    - PYTHON: "C:\\Python27"
+      BUILD_JOB_NUM: 4
+
+#    - PYTHON: "C:\\Python35"
+#      BUILD_JOB_NUM: 1
+#    - PYTHON: "C:\\Python35"
+#      BUILD_JOB_NUM: 2
+#    - PYTHON: "C:\\Python35"
+#      BUILD_JOB_NUM: 3
+#    - PYTHON: "C:\\Python35"
+#      BUILD_JOB_NUM: 4
+#
+#    - PYTHON: "C:\\Python36"
+#      BUILD_JOB_NUM: 1
+#    - PYTHON: "C:\\Python36"
+#      BUILD_JOB_NUM: 2
+#    - PYTHON: "C:\\Python36"
+#      BUILD_JOB_NUM: 3
+#    - PYTHON: "C:\\Python36"
+#      BUILD_JOB_NUM: 4
+#
+#    - PYTHON: "C:\\Python27-x64"
+#      BUILD_JOB_NUM: 1
+#    - PYTHON: "C:\\Python27-x64"
+#      BUILD_JOB_NUM: 2
+#    - PYTHON: "C:\\Python27-x64"
+#      BUILD_JOB_NUM: 3
+#    - PYTHON: "C:\\Python27-x64"
+#      BUILD_JOB_NUM: 4
+#
+#    - PYTHON: "C:\\Python35-x64"
+#      BUILD_JOB_NUM: 1
+#    - PYTHON: "C:\\Python35-x64"
+#      BUILD_JOB_NUM: 2
+#    - PYTHON: "C:\\Python35-x64"
+#      BUILD_JOB_NUM: 3
+#    - PYTHON: "C:\\Python35-x64"
+#      BUILD_JOB_NUM: 4
+#      
+#    - PYTHON: "C:\\Python36-x64"
+#      BUILD_JOB_NUM: 1
+#    - PYTHON: "C:\\Python36-x64"
+#      BUILD_JOB_NUM: 2
+#    - PYTHON: "C:\\Python36-x64"
+#      BUILD_JOB_NUM: 3
+#    - PYTHON: "C:\\Python36-x64"
+#      BUILD_JOB_NUM: 4
 
 build: off
-
-test_script:
-  - cmd: python runtest.py -a || if %errorlevel% == 2 then exit 0 else exit 1
+build_script:
+  - cmd: python runtest.py -l -a > all_tests.txt & powershell -Command "& {$TOTAL_BUILD_JOBS = 4; $Lines = (Get-Content all_tests.txt | Measure-Object -line).Lines; $start = ($Lines / $TOTAL_BUILD_JOBS) * ($Env:BUILD_JOB_NUM - 1); $end = ($Lines / $TOTAL_BUILD_JOBS) * $Env:BUILD_JOB_NUM; if($Env:BUILD_JOB_NUM -eq $TOTAL_BUILD_JOBS){ $end = $Lines }; if ( $start -eq 0 ){ $start = 1 }; get-content all_tests.txt | select -first ($end - $start) -skip ($start - 1) | Out-File -Encoding ASCII build_tests.txt}" & powershell -Command "& {python runtest.py -f build_tests.txt; if($LastExitCode -eq 2) { $host.SetShouldExit(0 )}}"
