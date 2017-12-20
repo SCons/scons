@@ -68,6 +68,7 @@ jobs:
         - echo "[run]" >> .coveragerc
         - echo "source = $PWD/src" >> .coveragerc
         - echo "parallel = True" >> .coveragerc
+        - printf "omit =\n\t*Tests.py\n\tsrc/test_*\n\tsrc/setup.py\n" >> .coveragerc
       # Not including this workaround in the coverage report, because it will result
       # in constantly changing coverage reports depending on the number of times
       # the JobTests.py had to run to pass
