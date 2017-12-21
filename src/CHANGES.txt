@@ -7,6 +7,9 @@
 
 RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Mats Wichmann:
+    - Updated manpage scons.xml to fix a nested list problem
+    
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code. 
 
