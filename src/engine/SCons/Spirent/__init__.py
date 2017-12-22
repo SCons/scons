@@ -119,7 +119,7 @@ class GraphWriter(object):
                 self._write_edge(f, parent_id, node_id)
                 for child in node.all_children():
                     self._walk_tree_write_nodes(f, node_id, child, visited)
-        elif node.exists() and not os.path.isabs(path):
+        elif isinstance(node, SCons.Node.FS.File) and node.exists() and not os.path.isabs(path):
             self._write_edge(f, parent_id, node_id)
             self._write_source_node(f, node_id, path, self._get_node_hash(path), self._get_node_mode(path))
             for child in node.all_children():
