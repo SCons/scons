@@ -7,6 +7,9 @@
 
 RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Mats Wichmann:
+    - Updated manpage scons.xml to fix a nested list problem
+    
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code. 
 
@@ -57,6 +60,8 @@ RELEASE 3.0.1 - Mon, 12 Nov 2017 15:31:33 -0700
   From Zachary Tessler:
     - Fix incorrect warning for repeated identical builder calls that use overrides
 
+  From Andrew Featherstone
+    - Removed unused --warn options from the man page and source code. 
  
 RELEASE 3.0.0 - Mon, 18 Sep 2017 08:32:04 -0700
 
