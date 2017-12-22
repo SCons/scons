@@ -92,17 +92,11 @@ import stat
 import sys
 import time
 
-try:
-    import threading
-    try:                        # python3
-        from queue import Queue
-    except ImportError as e:    # python2
-        from Queue import Queue
-    threading_ok = True
-except ImportError:
-    print("Can't import threading or queue")
-    threading_ok = False
-
+import threading
+try:                        # python3
+    from queue import Queue
+except ImportError as e:    # python2
+    from Queue import Queue
 import subprocess
 
 
@@ -864,7 +858,7 @@ class RunTest(threading.Thread):
             run_test(t, io_lock, True)
             self.queue.task_done()
 
-if jobs > 1 and threading_ok:
+if jobs > 1:
     print("Running tests using %d jobs"%jobs)
     # Start worker threads
     queue = Queue()
@@ -878,9 +872,6 @@ if jobs > 1 and threading_ok:
         queue.put(t)
     queue.join()
 else:
-    # Run tests serially
-    if jobs > 1:
-        print("Ignoring -j%d option; no python threading module available."%jobs)
     for t in tests:
         run_test(t, None, False)
 

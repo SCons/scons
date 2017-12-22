@@ -1,0 +1,27 @@
+image: Visual Studio 2017
+shallow_clone: true
+
+environment:
+  matrix:
+    # Match the Python versions currently tested at http://buildbot.scons.org/#/,
+    # but include 32 and 64-bit variants.
+    - PYTHON: "C:\\Python27"
+    - PYTHON: "C:\\Python27-x64"
+    - PYTHON: "C:\\Python35"
+    - PYTHON: "C:\\Python35-x64"
+    - PYTHON: "C:\\Python36"
+    - PYTHON: "C:\\Python36-x64"
+
+install:
+  - "set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - python --version
+  - pip install lxml
+  - choco install dmd
+  - choco install ldc
+  - choco install swig
+  - choco install vswhere
+
+build: off
+
+test_script:
+  - cmd: python runtest.py -a -j 2 || if %errorlevel% == 2 then exit 0 else exit 1
