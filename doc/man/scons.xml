@@ -852,18 +852,31 @@ and ultimately removed.</para>
   </varlistentry>
   <varlistentry>
   <term>--debug=time</term>
-<listitem>
+  <listitem>
 <para>Prints various time profiling information:</para>
-<itemizedlist>
-<listitem>The time spent executing each individual build command</listitem>
-<listitem>The total build time (time SCons ran from beginning to end)</listitem>
-<listitem>The total time spent reading and executing SConscript files</listitem>
-<listitem>The total time spent SCons itself spend running
-(that is, not counting reading and executing SConscript files)</listitem>
-<listitem>The total time spent executing all build commands</listitem>
-<listitem>The elapsed wall-clock time spent executing those build commands</listitem>
-<listitem>The time spent processing each file passed to the <emphasis>SConscript()</emphasis> function</listitem>
-</itemizedlist>
+  <itemizedlist>
+    <listitem>
+<para>The time spent executing each individual build command</para>
+    </listitem>
+    <listitem>
+<para>The total build time (time SCons ran from beginning to end)</para>
+    </listitem>
+    <listitem>
+<para>The total time spent reading and executing SConscript files</para>
+    </listitem>
+    <listitem>
+<para>The total time spent SCons itself spend running
+(that is, not counting reading and executing SConscript files)</para>
+    </listitem>
+    <listitem>
+<para>The total time spent executing all build commands</para></listitem>
+<listitem>
+<para>The elapsed wall-clock time spent executing those build commands</para>
+    </listitem>
+    <listitem>
+<para>The time spent processing each file passed to the <emphasis>SConscript()</emphasis> function</para>
+    </listitem>
+  </itemizedlist>
 <para>
 (When
 <command>scons</command>
