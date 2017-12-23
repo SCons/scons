@@ -25,12 +25,17 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
+from SCons.Environment import Base
 
 _exe = TestSCons._exe
 test = TestSCons.TestSCons()
 
 if not test.where_is('clang'):
     test.skip_test("Could not find 'clang', skipping test.\n")
+
+platform = Base()['PLATFORM']
+if 'win32' == platform:
+    test.skip_test("clang is not part of default environment on windows, skipping test.\n")
 
 ##  This will likely NOT use clang
 

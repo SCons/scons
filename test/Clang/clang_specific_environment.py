@@ -25,6 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
+from SCons.Environment import Base
 
 _exe = TestSCons._exe
 test = TestSCons.TestSCons()
@@ -32,10 +33,17 @@ test = TestSCons.TestSCons()
 if not test.where_is('clang'):
     test.skip_test("Could not find 'clang', skipping test.\n")
 
+env_str = "env = Environment(tools=['clang', 'link'])"
+platform = Base()['PLATFORM']
+if platform == 'win32':
+    # add the environment, otherwise the environment will consist of only vcvarsall.bat variables
+    # and not clang
+    env_str = "import os\nenv = Environment(tools=['clang', 'link'], ENV = os.environ)"
+
 test.write('SConstruct', """\
-env = Environment(tools=['clang', 'link'])
+%s
 env.Program('foo.c')
-""")
+""" % env_str)
 
 test.write('foo.c', """\
 #include <stdio.h>

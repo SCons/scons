@@ -33,6 +33,8 @@ test = TestSCons.TestSCons()
 if not test.where_is('clang'):
     test.skip_test("Could not find 'clang', skipping test.\n")
 
+env_str = "env = Environment(tools=['clang', 'link'])"
+
 platform = Base()['PLATFORM']
 if platform == 'posix':
     filename = 'foo.os'
@@ -41,15 +43,18 @@ elif platform == 'darwin':
     filename = 'foo.os'
     libraryname = 'libfoo.dylib'
 elif platform == 'win32':
-    filename = 'foo.obj'
+    filename = 'foo.os'
     libraryname = 'foo.dll'
+    # add the environment, otherwise the environment will consist of only vcvarsall.bat variables
+    # and not clang
+    env_str = "import os\nenv = Environment(tools=['clang', 'link'], ENV = os.environ)"
 else:
     test.fail_test()
 
 test.write('SConstruct', """\
-env = Environment(tools=['clang', 'link'])
+%s
 env.SharedLibrary('foo', 'foo.c')
-""")
+""" % env_str)
 
 test.write('foo.c', """\
 int bar() {

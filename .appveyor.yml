@@ -10,6 +10,8 @@ install:
   - choco install ldc
   - choco install swig
   - choco install vswhere
+  # set path for clang tests
+  - "set PATH=C:\\cygwin64\\bin;C:\\msys64;%PATH%"
 
 environment:
   matrix:
