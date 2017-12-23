@@ -33,6 +33,8 @@ test = TestSCons.TestSCons()
 if not test.where_is('clang++'):
     test.skip_test("Could not find 'clang++', skipping test.\n")
 
+env_str = "env = Environment(tools=['clang++', 'link'])"
+
 platform = Base()['PLATFORM']
 if platform == 'posix':
     filename = 'foo.os'
