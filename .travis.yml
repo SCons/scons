@@ -33,6 +33,7 @@ matrix:
   allow_failures:
     - python: 3.5
     - python: 3.6
+    - python: pypy
 
 jobs:
   include:
@@ -52,6 +53,8 @@ jobs:
       python: 3.5
     - <<: *test_job
       python: 3.6
+    - <<: *test_job
+      python: pypy
 
 
     - &coverage_jobs
