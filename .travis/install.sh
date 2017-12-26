@@ -25,7 +25,7 @@ sudo cp -rf ldc2-1.4.0-linux-x86_64/* /
 ls -l /usr/lib/*python*{so,a}*
 
 # For now skip swig if py27
-if [[ "$PYVER" -ne "py27" ]]; then
+if [[ "$PYVER" -eq "py27" ]]; then
     # dependencies for swig tests
     wget https://github.com/swig/swig/archive/rel-3.0.12.tar.gz
     tar xzf rel-3.0.12.tar.gz
