@@ -18,7 +18,7 @@ sudo wget http://master.dl.sourceforge.net/project/d-apt/files/d-apt.list -O /et
 wget -qO - https://dlang.org/d-keyring.gpg | sudo apt-key add -
 sudo apt-get update && sudo apt-get -y --allow-unauthenticated install dmd-bin 
 # dependencies for ldc tests
-wget https:/ldc2/github.com/ldc-developers/ldc/releases/download/v1.4.0/ldc2-1.4.0-linux-x86_64.tar.xz
+wget https://github.com/ldc-developers/ldc/releases/download/v1.4.0/ldc2-1.4.0-linux-x86_64.tar.xz
 tar xf ldc2-1.4.0-linux-x86_64.tar.xz
 sudo cp -rf ldc2-1.4.0-linux-x86_64/* /
 
