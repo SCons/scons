@@ -7,16 +7,11 @@ install:
 # python 3 is not fulling passing at this time
 # so allow failure so the coverage stage can be reached with python 2
 matrix:
-  include:
-    - python: 2.7
-      env: PYVER=27
   allow_failures:
     - python: 3.5
-      env: PYVER=35
     - python: 3.6
-      env: PYVER=36
     - python: pypy
-      env: PYVER=pypy
+
 
 jobs:
   include:
@@ -31,13 +26,23 @@ jobs:
       before_script: skip
       after_success: skip
       python: 2.7
+      env: PYVER=27
+      sudo: required
 
     - <<: *test_job
       python: 3.5
+      env: PYVER=35
+      sudo: required
+
     - <<: *test_job
       python: 3.6
+      env: PYVER=36
+      sudo: required
+
     - <<: *test_job
       python: pypy
+      env: PYVER=pypy
+      sudo: required
 
 
     - &coverage_jobs
