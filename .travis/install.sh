@@ -20,7 +20,7 @@ sudo apt-get update && sudo apt-get -y --allow-unauthenticated install dmd-bin
 # dependencies for ldc tests
 wget https:/ldc2/github.com/ldc-developers/ldc/releases/download/v1.4.0/ldc2-1.4.0-linux-x86_64.tar.xz
 tar xf ldc2-1.4.0-linux-x86_64.tar.xz
-sudo cp -rf -1.4.0-linux-x86_64/* /
+sudo cp -rf ldc2-1.4.0-linux-x86_64/* /
 
 ls -l /usr/lib/*python*{so,a}*
 
