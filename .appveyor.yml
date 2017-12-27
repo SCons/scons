@@ -71,6 +71,6 @@ environment:
 
 build: off
 build_script:
-  - cmd: echo "src/engine/SCons/JobTests.py" > exclude_jobs.txt
+  - cmd: echo src\engine\SCons\JobTests.py > exclude_jobs.txt
   - cmd: python runtest.py -l -a --exclude-list exclude_jobs.txt > all_tests.txt 
   - cmd: powershell "./.appveyor/runtest.ps1"
