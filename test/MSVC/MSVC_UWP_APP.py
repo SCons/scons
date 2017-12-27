@@ -78,7 +78,7 @@ if ARGUMENTS.get('MSVC_UWP_APP'):
                   allowed_values=('0', '1')))
 else:
     help_vars = None
-env = Environment(tools=['default', 'msvc'], variables=help_vars)
+env = Environment(tools=['default', 'msvc'], variables=help_vars, MSVC_VERSION = '14.0' )
 # Print the ENV LIBPATH to stdout
 print('env[ENV][LIBPATH]=%s' % env.get('ENV').get('LIBPATH'))
 print('env[MSVC_VERSION]=%s' % env.get('MSVC_VERSION'))
