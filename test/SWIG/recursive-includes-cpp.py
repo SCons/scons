@@ -30,12 +30,16 @@ in cases of recursive inclusion.
 """
 
 import os
+import sys
 import TestSCons
 from SCons.Defaults import DefaultEnvironment
 
 DefaultEnvironment( tools = [ 'swig' ] )
 
 test = TestSCons.TestSCons()
+
+if sys.platform == 'win32':
+    test.skip_test('test not setup for windows, skipping test')
 
 # Check for prerequisites of this test.
 for pre_req in ['swig', 'python']:
