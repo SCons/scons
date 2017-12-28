@@ -4,8 +4,8 @@ function Retry-Command
     param (
     [Parameter(Mandatory=$true)][string]$command, 
     [Parameter(Mandatory=$false)][hashtable]$args, 
-    [Parameter(Mandatory=$false)][int]$retries = 5, 
-    [Parameter(Mandatory=$false)][int]$secondsDelay = 2
+    [Parameter(Mandatory=$false)][int]$retries = 30, 
+    [Parameter(Mandatory=$false)][int]$secondsDelay = 10
     )
     
     # Setting ErrorAction to Stop is important. This ensures any errors that occur in the command are 
