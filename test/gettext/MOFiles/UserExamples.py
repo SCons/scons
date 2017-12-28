@@ -31,11 +31,15 @@ Make sure, that the examples given in user guide all work.
 
 import TestSCons
 import os
+import sys 
 
 test = TestSCons.TestSCons()
 
 if not test.where_is('msgfmt'):
     test.skip_test("Could not find 'msgfmt'; skipping test(s)\n")
+
+if sys.platform == 'win32':
+    test.skip_test('test not setup for windows; skipping test\n')
 
 en_po_contents = """\
 # English translations for PACKAGE package.

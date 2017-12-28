@@ -29,6 +29,7 @@ Test YACC and YACCFLAGS with a live yacc compiler.
 """
 
 import TestSCons
+import sys
 
 _exe = TestSCons._exe
 _python_ = TestSCons._python_
@@ -39,6 +40,9 @@ yacc = test.where_is('yacc') or test.where_is('bison')
 
 if not yacc:
     test.skip_test('No yacc or bison found; skipping test.\n')
+
+if sys.platform == 'win32':
+    test.skip_test('test not setup for windows; skipping test\n')
 
 test.file_fixture('wrapper.py')
 

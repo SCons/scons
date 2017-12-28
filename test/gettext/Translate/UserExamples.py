@@ -30,6 +30,7 @@ Ensure that examples given in user guide work.
 
 import TestSCons
 from os import path
+import sys
 
 test = TestSCons.TestSCons()
 
@@ -44,7 +45,9 @@ if not test.where_is('msgfmt'):
     # which depends on msgfmt.
     test.skip_test("could not find 'msgfmt'; skipping test(s)\n")
 
-
+if sys.platform == 'win32':
+    test.skip_test('test not setup for windows; skipping test\n')
+    
 #############################################################################
 # Translate: Example 1
 #############################################################################

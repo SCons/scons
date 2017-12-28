@@ -29,11 +29,15 @@ Make sure, that the examples given in user guide all work.
 """
 
 import TestSCons
+import sys
 
 test = TestSCons.TestSCons()
 
 if not test.where_is('msginit'):
     test.skip_test("Could not find 'msginit'; skipping test(s)\n")
+
+if sys.platform == 'win32':
+    test.skip_test('test not setup for windows; skipping test\n')
 
 pot_contents = """\
 # SOME DESCRIPTIVE TITLE.
