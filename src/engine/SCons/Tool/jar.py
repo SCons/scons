@@ -189,13 +189,21 @@ def Jar(env, target = None, source = [], *args, **kw):
                 # found a dir so get the class files out of it
                 target_nodes.extend(dir_to_class(s))
         else:
-            if os.path.isfile(s):
-                # found a file that exists on the FS, make sure its a class file
-                target_nodes.extend(file_to_class(s))
-            elif os.path.isdir(s):
-                # found a dir so get the class files out of it
-                target_nodes.extend(dir_to_class(s))
-            elif s[-len(java_suffix):] == java_suffix or s[-len(java_class_suffix):] == java_class_suffix:
+            try:
+                # source is string try to convert it to file
+                target_nodes.extend(file_to_class(env.fs.File(s)))
+                continue
+            except:
+                pass
+            
+            try:
+                # source is string try to covnert it to dir
+                target_nodes.extend(dir_to_class(env.fs.Dir(s)))
+                continue
+            except:
+                pass
+
+            if s[-len(java_suffix):] == java_suffix or s[-len(java_class_suffix):] == java_class_suffix:
                 # found a file that may not exists and is only a string
                 # so add it after converting it to a class file
                 target_nodes.extend(file_to_class(s))

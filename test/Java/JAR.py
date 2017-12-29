@@ -337,6 +337,7 @@ test.must_exist(['testdir2', 'barTest', 'com', 'javasource', 'JavaFile3.class'])
 
 # make some directories to test in
 test.subdir('listOfLists',
+            ['manifest_dir'],
             ['listOfLists', 'src'],
             ['listOfLists', 'src', 'com'],
             ['listOfLists', 'src', 'com', 'javasource'],
@@ -346,14 +347,14 @@ test.subdir('listOfLists',
 test.write(['listOfLists', 'SConstruct'], """
 foo = Environment()
 foo.VariantDir('build', 'src', duplicate=0)
+foo.VariantDir('test', '../manifest_dir', duplicate=0)
 sourceFiles = ["src/com/javasource/JavaFile1.java", "src/com/javasource/JavaFile2.java", "src/com/javasource/JavaFile3.java",]
 list_of_class_files = foo.Java('build', source=sourceFiles)
 resources = ['build/com/resource/resource1.txt', 'build/com/resource/resource2.txt']
 for resource in resources:
     foo.Command(resource, list_of_class_files, Copy(resource, resource.replace('build','src')))
-foo.Command('build/MANIFEST.mf', list_of_class_files, Copy('build/MANIFEST.mf', 'MANIFEST.mf'))
 contents = [list_of_class_files, resources]
-foo.Jar(target = 'lists', source = contents + ['build/MANIFEST.mf'], JARCHDIR='build')
+foo.Jar(target = 'lists', source = contents + ['test/MANIFEST.mf'], JARCHDIR='build')
 foo.Command("listsTest", [], Mkdir("listsTest") )
 foo.Command('listsTest/src/com/javasource/JavaFile3.java', 'lists.jar', foo['JAR'] + ' xvf ../lists.jar', chdir='listsTest')
 """)
@@ -394,7 +395,7 @@ public class JavaFile3
 }
 """)
 
-test.write(['listOfLists', 'MANIFEST.mf'],
+test.write(['manifest_dir','MANIFEST.mf'],
 """Manifest-Version: 1.0
 MyManifestTest: Test
 """)
