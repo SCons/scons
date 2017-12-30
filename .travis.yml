@@ -51,16 +51,30 @@ jobs:
       before_script:
         - sudo pip install coverage
         - sudo pip install coveralls
-        - echo "import coverage" | sudo tee --append /usr/lib/python2.7/sitecustomize.py
-        - echo "coverage.process_startup()" | sudo tee --append /usr/lib/python2.7/sitecustomize.py 
+        # set this ensure user sites are available
+        - export PYTHONNOUSERSITE=
+        # we need to preserve the test directories because they have the coverage data
+        - export PRESERVE=1
+        # attempt to get a location where we can store the usercustomize.py fiel
+        - python -m site
+        - export PYSITEDIR=$(python -m site --user-site)
+        - sudo mkdir -p $PYSITEDIR
+        - sudo touch ${PYSITEDIR}/usercustomize.py
+        # write the usercustomize.py file so all python processes use coverage and know where the config file is
+        - echo "import os" | sudo tee --append ${PYSITEDIR}/usercustomize.py
+        - echo "os.environ['COVERAGE_PROCESS_START'] = '$PWD/.coveragerc'" | sudo tee --append ${PYSITEDIR}/usercustomize.py
+        - echo "import coverage" | sudo tee --append ${PYSITEDIR}/usercustomize.py
+        - echo "coverage.process_startup()" | sudo tee --append ${PYSITEDIR}/usercustomize.py
 
       script: 
         - export TOTAL_BUILD_JOBS=8
+        # write the coverage config file
         - export COVERAGE_PROCESS_START=$PWD/.coveragerc
         - echo "[run]" >> .coveragerc
         - echo "source = $PWD/src" >> .coveragerc
         - echo "parallel = True" >> .coveragerc
-        - printf "omit =\n\t*Tests.py\n\tsrc/test_*\n\tsrc/setup.py\n" >> .coveragerc
+        - printf "omit =\n\t*Tests.py\n\tsrc/test_*\n\tsrc/setup.py\n\n" >> .coveragerc
+        - echo "[path] = $PWD" >> .coveragerc
       # Not including this workaround in the coverage report, because it will result
       # in constantly changing coverage reports depending on the number of times
       # the JobTests.py had to run to pass
@@ -78,10 +92,21 @@ jobs:
         - if (( ${BUILD_JOB_NUM} == ${TOTAL_BUILD_JOBS} )); then end=$(wc -l < all_tests); fi
         - if (( ${start} == 0 )); then start=1; fi
         - sed -n ${start},${end}p all_tests > build_tests
-        - coverage run --rcfile=$PWD/.coveragerc runtest.py -f build_tests || if [[ $? == 2 ]]; then true; else false; fi
+        - coverage run -p --rcfile=$PWD/.coveragerc runtest.py -f build_tests || if [[ $? == 2 ]]; then true; else false; fi
 
       after_success:
-        - coverage combine
+        # get all the coverage data files from the tests and configure them into 
+        # a command line arg list of directories
+        - find /tmp -name '.coverage.*' -print > coverage_reports.txt
+        # get just the directories
+        - sed -i 's/\/\.coverage\..*$//g' coverage_reports.txt
+        # remove duplicates
+        - awk '!seen[$0]++' coverage_reports.txt > coverage_reports.txt.tmp
+        - mv coverage_reports.txt.tmp coverage_reports.txt
+        # switch newlines for spaces
+        - sed -i -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g' coverage_reports.txt
+        # use all the tmp dir's as locations to collect coverage data
+        - coverage combine $PWD `cat coverage_reports.txt`
         - coverage report
         - coveralls --rcfile=$PWD/.coveragerc
 
@@ -101,4 +126,4 @@ jobs:
       env: BUILD_JOB_NUM=7
     - <<: *coverage_jobs
       env: BUILD_JOB_NUM=8
-    
+
