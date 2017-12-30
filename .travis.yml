@@ -82,10 +82,6 @@ jobs:
       # - n=0; while [[ $n -lt 10 ]]; do coverage run --rcfile=$PWD/.coveragerc runtest.py src/engine/SCons/JobTests.py && break; n=$((n+1)); done; if [ "$n" -gt "9" ]; then false; fi
       # exclude JobTest.py becuase we already ran that
         - echo "src/engine/SCons/JobTests.py" > exclude_jobtest
-      # also exclude this test since it overides the exit function which doesnt work with coverage 
-      # more info here: https://coverage.readthedocs.io/en/coverage-4.4.2/subprocess.html#
-      # TODO: figure out how to cover test/exitfns.py
-        - echo "test/exitfns.py" >> exclude_jobtest
         - python runtest.py -l -a --exclude-list exclude_jobtest > all_tests
         - let "start = ($(wc -l < all_tests) / ${TOTAL_BUILD_JOBS}) * (${BUILD_JOB_NUM} - 1)"; true;
         - let "end = ($(wc -l < all_tests) / ${TOTAL_BUILD_JOBS}) * ${BUILD_JOB_NUM}"
