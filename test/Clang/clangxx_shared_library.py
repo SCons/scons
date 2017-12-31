@@ -35,7 +35,7 @@ if not test.where_is('clang++'):
 
 env_str = "env = Environment(tools=['clang++', 'link'])"
 
-if sys.platform == 'posix':
+if 'linux' in sys.platform:
     filename = 'foo.os'
     libraryname = 'libfoo.so'
 elif sys.platform == 'darwin':
