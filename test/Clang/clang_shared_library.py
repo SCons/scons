@@ -25,7 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
-from SCons.Environment import Base
+import sys
 
 _exe = TestSCons._exe
 test = TestSCons.TestSCons()
@@ -33,23 +33,27 @@ test = TestSCons.TestSCons()
 if not test.where_is('clang'):
     test.skip_test("Could not find 'clang', skipping test.\n")
 
-platform = Base()['PLATFORM']
-if platform == 'posix':
+env_str = "env = Environment(tools=['clang', 'link'])"
+
+if 'linux' in sys.platform:
     filename = 'foo.os'
     libraryname = 'libfoo.so'
-elif platform == 'darwin':
+elif sys.platform == 'darwin':
     filename = 'foo.os'
     libraryname = 'libfoo.dylib'
-elif platform == 'win32':
-    filename = 'foo.obj'
+elif sys.platform == 'win32':
+    filename = 'foo.os'
     libraryname = 'foo.dll'
+    # add the environment, otherwise the environment will consist of only vcvarsall.bat variables
+    # and not clang
+    env_str = "import os\nenv = Environment(tools=['clang', 'link'], ENV = os.environ)"
 else:
     test.fail_test()
 
 test.write('SConstruct', """\
-env = Environment(tools=['clang', 'link'])
+%s
 env.SharedLibrary('foo', 'foo.c')
-""")
+""" % env_str)
 
 test.write('foo.c', """\
 int bar() {

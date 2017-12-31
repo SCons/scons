@@ -40,7 +40,8 @@ python = test.where_is('python')
 if not python:
     test,skip_test('Can not find installed "python", skipping test.\n')
 
-
+swig = swig.replace('\\','/')
+python = python.replace('\\','/')
 test.subdir('inc1', 'inc2')
 
 test.write(['inc2', 'dependency.i'], """\

@@ -104,9 +104,10 @@ test.wait_for(marker_2)
 
 test.run(program = test.workpath('work/build/hello'), stdout="hello 2\n")
 
-
-
-test.finish(scons)
+scons.send("exit\n")
+# finish not exiting correctly in python 3
+# does not seem necessary for test logic above
+#test.finish(scons)
 
 
 

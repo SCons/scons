@@ -18,9 +18,9 @@ jobs:
     - &test_job
       stage: Test
       script: 
-      # WORKAROUND: attempt to retry JobTests.py if it fails and then continue if it passes, if it fails ten times
+      # WORKAROUND: attempt to retry JobTests.py if it fails and then continue if it passes, if it fails a number of times
       # then it is a real failure not related to intermittent travis failures
-        - n=0; while [[ $n -lt 10 ]]; do python runtest.py src/engine/SCons/JobTests.py && break; n=$((n+1)); done; if [ "$n" -gt "9" ]; then false; fi
+        - n=0; while [[ $n -lt 30 ]]; do sleep 10; python runtest.py src/engine/SCons/JobTests.py && break; n=$((n+1)); done; if [ "$n" -gt "29" ]; then false; fi
         - echo "src/engine/SCons/JobTests.py" > exclude_jobtest
         - python runtest.py -a --exclude-list exclude_jobtest || if [[ $? == 2 ]]; then true; else false; fi
       before_script: skip

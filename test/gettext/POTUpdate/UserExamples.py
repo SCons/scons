@@ -31,11 +31,14 @@ documentation all work.
 
 import TestSCons
 from os import path
-
+import sys 
 test = TestSCons.TestSCons()
 
 if not test.where_is('xgettext'):
     test.skip_test("Could not find 'xgettext', skipping test(s).\n")
+
+if sys.platform == 'win32':
+    test.skip_test('test not setup for windows; skipping test\n')
 
 #############################################################################
 # POTUpdate: Example 1
