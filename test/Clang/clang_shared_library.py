@@ -35,14 +35,13 @@ if not test.where_is('clang'):
 
 env_str = "env = Environment(tools=['clang', 'link'])"
 
-platform = Base()['PLATFORM']
-if platform == 'posix':
+if sys.platform == 'posix':
     filename = 'foo.os'
     libraryname = 'libfoo.so'
-elif platform == 'darwin':
+elif sys.platform == 'darwin':
     filename = 'foo.os'
     libraryname = 'libfoo.dylib'
-elif platform == 'win32':
+elif sys.platform == 'win32':
     filename = 'foo.os'
     libraryname = 'foo.dll'
     # add the environment, otherwise the environment will consist of only vcvarsall.bat variables
