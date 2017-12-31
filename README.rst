@@ -16,6 +16,10 @@ SCons - a software construction tool
 .. image:: https://travis-ci.org/SCons/scons.svg?branch=master
    :target: https://travis-ci.org/SCons/scons
    :alt: Travis CI build status
+
+.. image:: https://ci.appveyor.com/api/projects/status/github/SCons/scons?svg=true&branch=master
+   :target: https://ci.appveyor.com/project/SCons/scons
+   :alt: AppVeyor CI Status
    
 .. image:: https://coveralls.io/repos/github/SCons/scons/badge.svg
    :target: https://coveralls.io/github/SCons/scons
