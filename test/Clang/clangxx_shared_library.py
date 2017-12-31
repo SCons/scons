@@ -25,7 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
-from SCons.Environment import Base
+import sys
 
 _exe = TestSCons._exe
 test = TestSCons.TestSCons()
@@ -35,7 +35,7 @@ if not test.where_is('clang++'):
 
 env_str = "env = Environment(tools=['clang++', 'link'])"
 
-platform = Base()['PLATFORM']
+platform = sys.platform
 if platform == 'posix':
     filename = 'foo.os'
     libraryname = 'libfoo.so'
