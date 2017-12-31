@@ -75,8 +75,33 @@ import distutils.command.install_scripts
 import distutils.command.build_scripts
 import distutils.msvccompiler
 
+# this workaround tries to detect if pip is being used to install scons,
+# in which case it needs to use setuptools to install, otherwise it can use distutils
+# This was created for this bug: 
+# http://scons.tigris.org/issues/show_bug.cgi?id=2769
+# taken from this PR: 
+# https://bitbucket.org/scons/scons/pull-requests/113/fix-for-bug-2769-which-should-allow-scons/diff
+# Real solution would involve removing distutils (could break users who use old setups?)
+# or change our install to inherit from setup tools (would that break distutils?)
+# more info here:
+# https://groups.google.com/forum/#!topic/pypa-dev/oHYN8ubWE8k
+with_setuptools = False
+if( 'USE_SETUPTOOLS' in os.environ
+    or os.path.basename(os.path.dirname(__file__)).startswith('pip-')
+    or '--single-version-externally-managed' in sys.argv):
+    try:
+        from setuptools import setup
+        from setuptools.command.install import install
+        with_setuptools = True
+    except:
+        with_setuptools = False
 
-_install = distutils.command.install.install
+if with_setuptools is False:
+    import warnings
+    from distutils.command.install import install
+    from distutils.core import setup    
+
+_install = install
 _install_data = distutils.command.install_data.install_data
 _install_lib = distutils.command.install_lib.install_lib
 _install_scripts = distutils.command.install_scripts.install_scripts
@@ -496,7 +521,7 @@ arguments = {
                                             'docbook-xsl-1.76.1/xhtml/*',
                                             'docbook-xsl-1.76.1/xhtml-1_1/*',
                                             'utils/*']},
-    'data_files': [('man/man1', man_pages)],
+    'data_files': [('man/man1', ['../build/doc/man/' + man_page for man_page in man_pages])],
     'scripts': scripts,
     'cmdclass': {'install': install,
                  'install_lib': install_lib,
@@ -505,7 +530,9 @@ arguments = {
                  'build_scripts': build_scripts}
 }
 
-distutils.core.setup(**arguments)
+# use the imported setup function from either setuptools or distutils
+# determined eariler in this script
+setup(**arguments)
 
 if Installed:
     for i in Installed:
