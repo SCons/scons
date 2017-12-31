@@ -53,13 +53,12 @@ jobs:
         - sudo pip install coveralls
         # set this ensure user sites are available
         - export PYTHONNOUSERSITE=
-        # we need to preserve the test directories because they have the coverage data
-        - export PRESERVE=1
-        # attempt to get a location where we can store the usercustomize.py fiel
+        # attempt to get a location where we can store the usercustomize.py file
         - python -m site
         - export PYSITEDIR=$(python -m site --user-site)
         - sudo mkdir -p $PYSITEDIR
         - sudo touch ${PYSITEDIR}/usercustomize.py
+        - export COVERAGE_FILE=$PWD/.coverage_file
         # write the usercustomize.py file so all python processes use coverage and know where the config file is
         - echo "import os" | sudo tee --append ${PYSITEDIR}/usercustomize.py
         - echo "os.environ['COVERAGE_PROCESS_START'] = '$PWD/.coveragerc'" | sudo tee --append ${PYSITEDIR}/usercustomize.py
@@ -91,18 +90,7 @@ jobs:
         - coverage run -p --rcfile=$PWD/.coveragerc runtest.py -f build_tests || if [[ $? == 2 ]]; then true; else false; fi
 
       after_success:
-        # get all the coverage data files from the tests and configure them into 
-        # a command line arg list of directories
-        - find /tmp -name '.coverage.*' -print > coverage_reports.txt
-        # get just the directories
-        - sed -i 's/\/\.coverage\..*$//g' coverage_reports.txt
-        # remove duplicates
-        - awk '!seen[$0]++' coverage_reports.txt > coverage_reports.txt.tmp
-        - mv coverage_reports.txt.tmp coverage_reports.txt
-        # switch newlines for spaces
-        - sed -i -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g' coverage_reports.txt
-        # use all the tmp dir's as locations to collect coverage data
-        - coverage combine $PWD `cat coverage_reports.txt`
+        - coverage combine
         - coverage report
         - coveralls --rcfile=$PWD/.coveragerc
 
