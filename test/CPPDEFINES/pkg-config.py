@@ -29,7 +29,7 @@ Verify merging with MergeFlags to CPPPDEFINES with various data types.
 """
 
 import TestSCons
-from SCons.Environment import Base
+import sys
 
 test = TestSCons.TestSCons()
 
@@ -37,7 +37,7 @@ pkg_config_path = test.where_is('pkg-config')
 if not pkg_config_path:
     test.skip_test("Could not find 'pkg-config' in system PATH, skipping test.\n")
     
-if Base()['PLATFORM'] == 'win32':
+if sys.platform == 'win32':
     test.skip_test("pkg-config test not setup for windows, skipping test.\n")
 
 test.write('bug.pc', """\
