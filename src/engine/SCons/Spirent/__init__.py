@@ -26,7 +26,7 @@ class GraphWriter(object):
         if isinstance(act, SCons.Action.CommandAction):
             return [act.strfunction(target, source, env)]
         elif isinstance(act, SCons.Action.CommandGeneratorAction):
-            return self._get_node_cmdlines(node, act._generate(target, source, env, 0), target, source, env)
+            return self._get_node_cmdlines(node, act._generate(target, source, env, 1), target, source, env)
         elif isinstance(act, SCons.Action.ListAction):
             cs = []
             for a in act.list:
