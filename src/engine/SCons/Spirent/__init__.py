@@ -105,7 +105,7 @@ class GraphWriter(object):
                 target = [node]
                 source = node.sources
                 env = node.env or node.builder.env
-                builder_id = id(act.get_presig(target, source, env))
+                builder_id = abs(hash(str(act.get_presig(target, source, env))))
                 if builder_id not in visited:
                     visited.add(builder_id)
                     cmdlines = self._get_node_cmdlines(node, act, target, source, env)
