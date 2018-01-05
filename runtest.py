@@ -799,7 +799,7 @@ def run_test(t, io_lock, async=True):
     if options.runner and t.path in unittests:
         # For example --runner TestUnit.TAPTestRunner
         command_args.append('--runner ' + options.runner)
-    t.command_args = [python] + command_args
+    t.command_args = [escape(python)] + command_args
     t.command_str = " ".join([escape(python)] + command_args)
     if printcommand:
         if print_progress:

@@ -7,11 +7,14 @@
 
 RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Gary Oberbrunner:
+    - Fix bug when Installing multiple subdirs outside the source tree
+
   From Mats Wichmann:
     - Updated manpage scons.xml to fix a nested list problem
-    
+
   From Andrew Featherstone
-    - Removed unused --warn options from the man page and source code. 
+    - Removed unused --warn options from the man page and source code.
 
   From Daniel Moody:
     - Updated Jar builder to handle nodes and directories better
