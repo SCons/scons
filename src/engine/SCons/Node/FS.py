@@ -328,7 +328,12 @@ Unlink = SCons.Action.Action(UnlinkFunc, None)
 
 def MkdirFunc(target, source, env):
     t = target[0]
-    if not t.exists():
+    # This os.path.exists test looks redundant, but it's possible
+    # when using Install() to install multiple dirs outside the
+    # source tree to get a case where t.exists() is true but
+    # the path does already exist, so this prevents spurious
+    # build failures in that case. See test/Install/multi-dir.
+    if not t.exists() and not os.path.exists(t.get_abspath()):
         t.fs.mkdir(t.get_abspath())
     return 0
 
