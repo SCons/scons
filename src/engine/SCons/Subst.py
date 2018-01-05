@@ -443,7 +443,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
     handles separating command lines into lists of arguments, so see
     that function if that's what you're looking for.
     """
-    if isinstance(strSubst, str) and strSubst.find('$') < 0:
+    if isinstance(strSubst, str) and '$' not in strSubst:
         return strSubst
 
     class StringSubber(object):
