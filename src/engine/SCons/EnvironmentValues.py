@@ -1,6 +1,6 @@
 import re
 from SCons.Util import is_String, is_Sequence, CLVar
-from SCons.Subst import CmdStringHolder
+from SCons.Subst import CmdStringHolder, create_subst_target_source_dict, AllowableExceptions, raise_exception
 
 from collections import UserDict, UserList
 from numbers import Number
@@ -67,6 +67,7 @@ class ValueTypes(object):
     NUMBER = 12
     LITERAL = 13 # This is a string which should be expanded no further.
     NONE = 14
+    EVALUABLE = 15
 
     strings = ['UNKNOWN',
                'STRING',
@@ -82,7 +83,9 @@ class ValueTypes(object):
                'SHELL_REDIRECT',
                'NUMBER',
                'LITERAL',
-               'NONE']
+               'NONE',
+               'EVALUABLE',
+               ]
 
     SHELL_REDIRECT_CHARACTERS = '<>|'
 
@@ -127,7 +130,7 @@ class EnvironmentValue(object):
         self.var_type = ValueTypes.UNKNOWN
         self._parsed = []
         self.depends_on = set()
-        all_dependencies = []
+        self.all_dependencies = []
 
         self.set_value(name,value)
 
@@ -153,6 +156,7 @@ class EnvironmentValue(object):
                 self.find_dependencies()
 
     def __getitem__(self, item):
+        return self.value[item]
         return self.value
 
     def __setitem__(self, key, value):
@@ -181,7 +185,7 @@ class EnvironmentValue(object):
                     self.cached = (self.value, self.value)
             elif self.value is None:
                 self.var_type = ValueTypes.NONE
-                self.cached = (self.value, self.value)
+                self.cached = ('', '')
             elif isinstance(self.value, CLVar):
                 # TODO: Handle CLVar's being set and invalidating cache...
                 self.var_type = ValueTypes.STRING
@@ -263,12 +267,16 @@ class EnvironmentValue(object):
         for i, v in enumerate(self._parsed):
             # debug("Processing [%s]"%v)
 
-            if v == ' ':
-                skipped += 1
-                continue
+            # if v == ' ':
+            #     skipped += 1
+            #     continue
 
             # index for all_dependencies adjusted to account for values we skipped from self._parsed
-            index = i - skipped
+            index = i # - skipped
+
+            if v == ' ':
+                all_dependencies.append((ValueTypes.STRING, v, index))
+                continue
 
             if len(v) == 1:  # Was v == ' '
                 all_dependencies.append((ValueTypes.STRING, v, index))
@@ -290,7 +298,7 @@ class EnvironmentValue(object):
             if s1 == '$':
                 # A literal dollar sign so we don't care
                 all_dependencies.append((ValueTypes.STRING, s1, index))
-                # continue
+                continue
             if s1 == '{':
                 # TODO: Must label as callable, or eval-able
                 # This is a function call and/or requires python evaluation
@@ -298,14 +306,16 @@ class EnvironmentValue(object):
                 # If we can detect all info which affects this then we can cache
                 value = v[2:-1]
 
-                if '(' in value:
-                    # Parse call to see if we can determine other dependencies from parameters
-                    self._parse_function_call_dependencies(value)
-                    all_dependencies.append((ValueTypes.FUNCTION_CALL, value, index))
+                if '.' in value or '[' in value:
+                    all_dependencies.append((ValueTypes.EVALUABLE, value, index))
+                elif '(' in value:
+                        # Parse call to see if we can determine other dependencies from parameters
+                        self._parse_function_call_dependencies(value)
+                        all_dependencies.append((ValueTypes.FUNCTION_CALL, value, index))
                 else:
                     all_dependencies.append((ValueTypes.CALLABLE,v[2:-1], index))
             elif '.' in v:
-                all_dependencies.append((ValueTypes.CALLABLE,v[1:], index))
+                all_dependencies.append((ValueTypes.EVALUABLE, v[1:], index))
             else:
                 # Plain Variable or callable. So label VARIABLE_OR_CALLABLE
                 all_dependencies.append((ValueTypes.VARIABLE_OR_CALLABLE,v[1:], index))
@@ -314,13 +324,21 @@ class EnvironmentValue(object):
 
         dl = []
 
-        for (t,v,i) in all_dependencies:
-            debug("%20s, %5s, %s"%(ValueTypes.enum_name(t),i,v))
+        self.debug_print_parsed_parts(all_dependencies)
 
         depend_list = [v for (t,v,i) in all_dependencies
                        if t in (ValueTypes.VARIABLE_OR_CALLABLE, ValueTypes.VARIABLE, ValueTypes.CALLABLE)]
 
         self.depends_on = self.depends_on.union(set(depend_list))
+
+    def debug_print_parsed_parts(self, all_dependencies):
+        for (index, val) in enumerate(all_dependencies):
+            if val:
+                (t, v, i) = val
+                debug("[%4d] %20s, %5s, %s" % (index, ValueTypes.enum_name(t), i, v))
+            else:
+                debug("[%4d] %20s, %5s, %s" % (index,"None","None","None"))
+
 
     def update(self, key, all_values):
         """
@@ -391,10 +409,16 @@ class EnvironmentValue(object):
                 lvars = lvars.copy()
                 lvars.update(d)
 
-        s = to_call(target=lvars['TARGETS'],
-              source=lvars['SOURCES'],
-              env=gvars,
-              for_signature=for_sig)
+        try:
+            s = to_call(target=lvars['TARGETS'],
+                        source=lvars['SOURCES'],
+                        env=gvars,
+                        for_signature=for_sig)
+        except TypeError as e:
+            # TODO: Handle conv/convert paremeters...
+            s = str(to_call)
+
+        # TODO: Now we should ensure the value from callable is then substituted as it can return $XYZ..
 
         return s
 
@@ -462,16 +486,79 @@ class EnvironmentValue(object):
             parsed_values = [None] * len(self.all_dependencies)
 
             for (t, v, i) in self.all_dependencies:
-                if t not in (ValueTypes.ESCAPE_START, ValueTypes.ESCAPE_END, ValueTypes.STRING) and env[v].is_cached(env):
+                if t not in (ValueTypes.ESCAPE_START, ValueTypes.ESCAPE_END, ValueTypes.STRING) and v in env \
+                        and env[v].is_cached(env):
                     string_values[i] = (env[v].cached[use_cache_item], t)
                 elif t in (ValueTypes.ESCAPE_START, ValueTypes.ESCAPE_END):
                     string_values[i] = (v, t)
-                elif t in (ValueTypes.VARIABLE, ValueTypes.CALLABLE, ValueTypes.VARIABLE_OR_CALLABLE):
+                elif t in (ValueTypes.VARIABLE, ValueTypes.CALLABLE, ValueTypes.EVALUABLE):
+                    parsed_values[i] = (t,v,i)
+                elif t == ValueTypes.CALLABLE:
+                    try:
+                        v  = lvars[v]
+                    except KeyError as e:
+                        v  = env[v].value
+
+                elif t == ValueTypes.VARIABLE_OR_CALLABLE:
+                    if v in env or v in lvars:
+                        try:
+                            if callable(lvars[v]):
+                                t = ValueTypes.CALLABLE
+                                v = lvars[v]
+                            else:
+                                t = ValueTypes.PARSED
+                        except KeyError as e:
+                            try:
+                                if callable(env[v].value):
+                                    t = ValueTypes.CALLABLE
+                                    v = env[v].value
+                                else:
+                                    t = ValueTypes.PARSED
+                            except KeyError as e:
+                                t = ValueTypes.PARSED
+
                     parsed_values[i] = (t,v,i)
                 else:
                     string_values[i] = (v, t)
 
             debug("Parsed values:%s  for %s [%s]"%(parsed_values, self._parsed, string_values))
+
+            # Now we should be able to resolve if value is a callable or a variable.
+            # if unsure, we'll leave as callable.
+            for pv in parsed_values:
+                if pv is None:
+                    continue
+                (t, v, i) = pv
+
+                nt = t
+                # We should be able to resolve now if it's a variable or a callable.
+                if t == ValueTypes.EVALUABLE:
+                    if '(' in v:
+                        nt = ValueTypes.EVALUABLE
+                    elif '.' not in v and '[' not in v:
+                        nt = ValueTypes.PARSED
+                        if v not in lvars and v in env:
+                            nt = env[v].var_type
+                        elif v in lvars:
+                            nt = ValueTypes.PARSED # Should we have lvars type?
+                        else:
+                            if NameError not in AllowableExceptions:
+                                raise_exception(NameError(v), lvars['TARGETS'], self.value)
+                            else:
+                                # It's ok to have an undefined variable. Just replace with blank.
+                                string_values[i] = ''
+                                parsed_values[i] = None
+
+                    else:
+                        # Something else where eval'ing it should suffice to yield a good value.
+                        t = ValueTypes.EVALUABLE
+                if nt != t:
+                    # We've modified the type, so update parsed values
+                    parsed_values[i] = (nt, v, i)
+
+            debug("==============================")
+            debug("After resolving unknown types:")
+            self.debug_print_parsed_parts(parsed_values)
 
             # Now resolve all non-string values.
             while any(parsed_values):
@@ -481,22 +568,63 @@ class EnvironmentValue(object):
                         continue
                     (t,v,i) = pv
 
-                    # We should be able to resolve now if it's a variable or a callable.
-                    if t == ValueTypes.VARIABLE_OR_CALLABLE:
-                        t = env[v].var_type
+
+                    # # Below should only apply if it's a variable and it's not defined.
+                    # # not for callables. callables can come from CALLABLE or VARIABLE_OR_CALLABLE
+                    #
+                    # if NameError not in AllowableExceptions:
+                    #     raise_exception(NameError(v), lvars['TARGETS'], self.value)
+                    # else:
+                    #     # It's ok to have an undefined variable. Just replace with blank.
+                    #     string_values[i] = ''
+                    #     parsed_values[i] = None
+                    #     continue
+
+                    # At this point it's possible to determine if we guessed callable correctly
+                    # or if it's actually evalable
+                    if t == ValueTypes.CALLABLE:
+                        if callable(v):
+                            t = ValueTypes.CALLABLE
+                        else:
+                            debug("Swapped to EVALUABLE:%s"%v)
+                            t = ValueTypes.EVALUABLE
 
                     if t == ValueTypes.CALLABLE:
-                        to_call = env[v].value
+                        to_call = v
+
                         string_values[i] = (self.eval_callable(to_call, parsed_values, string_values, target=target,
-                                                               source=source, gvars=env, lvars={}, for_sig=for_signature),
+                                                               source=source, gvars=env, lvars=lvars, for_sig=for_signature),
                                             ValueTypes.STRING)
-                        debug("CALLABLE VAL:%s->%s"%(pv[1], string_values[i]))
                         parsed_values[i] = None
                     elif t == ValueTypes.PARSED:
                         debug("PARSED   Type:%s VAL:%s"%(pv[0],pv[1]))
-                        string_values[i] = (env[v].subst(env, mode, target, source, gvars, lvars, conv),
-                                            ValueTypes.STRING)
-                        debug("%s->%s" % (v,string_values[i]))
+
+                        try:
+                            try:
+                                value = lvars[v]
+                            except KeyError as e:
+                                value = env[v].value
+
+                            # Shortcut self reference
+                            if isinstance(value, Number):
+                                string_values[i] = (value, ValueTypes.NUMBER)
+                            elif is_String(value) and len(value) >1 and value[0] == '$' and value[1:] == v:
+                                # TODO: Is this worth doing? (Check line profiling once we get all functionality working)
+                                # Special case, variables value references itself and only itself
+                                string_values[i] = ('', ValueTypes.STRING)
+                            else:
+                                # TODO: Handle other recursive loops by empty stringing this value before recursing with copy of lvar?
+                                string_values[i] = (env[v].subst(env, mode, target, source, gvars, lvars, conv),
+                                                    ValueTypes.STRING)
+                            debug("%s->%s" % (v,string_values[i]))
+                        except KeyError as e:
+                            # Must be lvar
+                            if v[0] == '{' or '.' in v:
+                                value = eval(v, gvars, lvars)
+                            else:
+                                value = str(lvars[v])
+
+                            string_values[i] = (value, ValueTypes.STRING)
                         parsed_values[i] = None
                     elif t == ValueTypes.STRING:
                         # The variable resolved to a string . No need to process further.
@@ -517,38 +645,72 @@ class EnvironmentValue(object):
                         debug("COLLECTION  Type:%s VAL:%s" % (t,v))
                         value = env[v].value
 
-                        #TODO: Finish implementation
-                        # import pdb; pdb.set_trace()
+                        # TODO: Finish implementation
+                        # This is very simple implementation which ignores nested collections and values which
+                        # need to be further evaluated.(subst'd)
                         string_values[i] = (" ".join(value), t)
                         parsed_values[i] = None
+                    elif t == ValueTypes.EVALUABLE:
+                        try:
+                            sval = eval(v, gvars, lvars)
+                        except AllowableExceptions as e:
+                            sval = ''
 
+                        string_values[i] = (sval, ValueTypes.NUMBER)
+                        parsed_values[i] = None
+                    elif t == ValueTypes.VARIABLE_OR_CALLABLE and v not in lvars and v not in gvars:
+                        string_values[i] = ('', ValueTypes.STRING) # not defined so blank string
+                        parsed_values[i] = None
                     else:
                         debug("AAHAHAHHAH BROKEN")
                         import pdb; pdb.set_trace()
 
             # Handle undefined with some proper SCons exception
-            subst_value = " ".join([v for (v, t) in string_values if t not in (ValueTypes.ESCAPE_START, ValueTypes.ESCAPE_END)])
+            # subst_value = " ".join([str(v) for (v, t) in string_values if t not in (ValueTypes.ESCAPE_START, ValueTypes.ESCAPE_END) or v != ''])
 
             # Create and cache for signature if possible.
             in_escape_count = 0
             escape_values = []
+            subst_string_values = []
             for (v, t) in string_values:
+                sval = str(v)
+                if not len(sval):
+                    continue
+
                 if t == ValueTypes.ESCAPE_START:
                     # Increase escape level.. allow wrapped escapes $( $( $x $) $)
                     in_escape_count +=1
+                    continue
                 elif t == ValueTypes.ESCAPE_END:
                     in_escape_count -= 1
-                elif in_escape_count > 0:
-                    # Skip value
                     continue
+                elif in_escape_count > 0:
+                    # Don't add to escape_values, but do add to string values
+                    pass
                 else:
-                    escape_values.append(v)
+                    escape_values.append(sval)
+
+                subst_string_values.append(sval)
+
+            subst_value = "".join(subst_string_values)
+
+            # SubstModes.NORMAL we strip whitespace and remove duplicate whitespace
+            # Compress strings of white space characters into
+            # a single space.
+            subst_value = _space_sep.sub(' ', subst_value).strip()
+
+
 
             if in_escape_count != 0:
                 # TODO: Throw exception as unbalanced escapes
                 pass
 
-            signature_string = " ".join(escape_values)
+            signature_string = "".join(escape_values)
+
+            # If mode = SubstModes.RAW we need to not do this.
+            # TODO: Properly implement SubstModes.RAW
+            signature_string = _space_sep.sub(' ', signature_string).strip()
+
 
             debug("HERE:%s  Escaped:%s"%(subst_value, signature_string))
 
@@ -641,10 +803,19 @@ class EnvironmentValues(object):
         :return: expanded string
         """
 
+        if item == 'test ${TARGETS[:]} ${SOURCES[0]}':
+        #     import pdb; pdb.set_trace()
+            pass
+
         if not gvars:
             gvars = env.values
 
         # TODO: Fill in gvars, lvars as env.Subst() does..
+        if 'TARGET' not in lvars:
+            d = create_subst_target_source_dict(target, source)
+            if d:
+                lvars = lvars.copy()
+                lvars.update(d)
 
         try:
             if env.values[item].var_type == ValueTypes.STRING:

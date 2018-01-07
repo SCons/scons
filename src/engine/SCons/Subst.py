@@ -559,7 +559,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
                 try:
                     def sub_match(match):
                         """
-                        This is called for ever non-overlapping match in _dollar_exps.
+                        This is called for every non-overlapping match in _dollar_exps.
                         self.conf is going to either be SCons.Util.to_String_for_subst or
                         SCons.Util.to_String_for_signature.  Which will return a string.
                         see: https://docs.python.org/2/library/re.html#re.sub

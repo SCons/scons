@@ -68,6 +68,16 @@ class TestEnvironmentValue(unittest.TestCase):
                           '_LIBDIRFLAGS', '__RPATH'},
                          "depends_on:%s\n  (AD:%s)\n  (P:%s)" % (one.depends_on, one.all_dependencies, one._parsed))
 
+    def test_dollar_in_string(self):
+        one=EnvironmentValue('COMSTR','$$FFF$HHH')
+        self.assertEqual(one._parsed,['$$','FFF','$HHH'])
+        self.assertEqual(one.all_dependencies,[(ValueTypes.STRING,'$',0), (ValueTypes.STRING,'FFF',1),
+                                               (ValueTypes.VARIABLE_OR_CALLABLE, 'HHH', 2)])
+        self.assertEqual(one.depends_on,{'HHH'})
+
+        # import pdb; pdb.set_trace()
+        # two=EnvironmentValue('MYSTUFF', '${TARGETS[:]}')
+
     def test_function_call(self):
         one = EnvironmentValue('_LIBFLAGS',
                                '${_stripixes(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, LIBPREFIXES, LIBSUFFIXES, __env__)}')
@@ -130,6 +140,7 @@ class TestEnvironmentValue(unittest.TestCase):
     def test_dict_value(self):
         one = EnvironmentValue('ENV', {})
 
+        one['ENV'] = {}
         one['ENV']['BLAH'] = 1
 
         self.assertEqual(one['ENV']['BLAH'], 1)
@@ -147,8 +158,17 @@ class TestEnvironmentValue(unittest.TestCase):
         one = EnvironmentValue('MY_NONE',None)
         self.assertEqual(one.var_type, ValueTypes.NONE,
                          "Should be a NONE not:%s"%ValueTypes.enum_name(one.var_type))
-        self.assertEqual(one.cached, (None,None),
+        self.assertEqual(one.cached, ('',''),
                          "Cached value should be tuple with two elements of None not:%s"%repr(one.cached))
+
+    def test_evalable_value(self):
+        """ Check handing  ${TARGETS[:]} ${SOURCES[0]}"""
+        one = EnvironmentValue('ONE','test ${TARGETS[:]} ${SOURCES[0]}')
+        self.assertEqual(one._parsed, ['test', ' ', '${TARGETS[:]}', ' ', '${SOURCES[0]}'])
+        self.assertEqual(one.all_dependencies,
+                         [(1, 'test', 0), (1, ' ', 1),
+                          (15, 'TARGETS[:]', 2), (1, ' ', 3), (15, 'SOURCES[0]', 4)] )
+
 
 
 class TestEnvironmentValues(unittest.TestCase):

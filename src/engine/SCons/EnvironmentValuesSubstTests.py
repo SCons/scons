@@ -30,6 +30,7 @@ import collections
 import os
 import sys
 import unittest
+import traceback
 
 import TestUnit
 
@@ -136,16 +137,20 @@ class SubstTestCase(unittest.TestCase):
     class TestLiteral(object):
         def __init__(self, literal):
             self.literal = literal
+
         def __str__(self):
             return self.literal
+
         def is_literal(self):
             return 1
 
     class TestCallable(object):
         def __init__(self, value):
             self.value = value
+
         def __call__(self):
             pass
+
         def __str__(self):
             return self.value
 
@@ -268,6 +273,8 @@ class SubstTestCase(unittest.TestCase):
             try:
                 result = function(input, env, **kwargs)
             except Exception as e:
+                ex_type, ex, tb = sys.exc_info()
+                traceback.print_tb(tb)
                 fmt = "    input %s generated %s (%s)"
                 print(fmt % (repr(input), e.__class__.__name__, repr(e)))
                 failed = failed + 1
