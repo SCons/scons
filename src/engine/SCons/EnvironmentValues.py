@@ -858,7 +858,7 @@ class EnvironmentValues(object):
                 return retseq
 
     @staticmethod
-    def subst_list(self, listSubstVal, env, mode=SubstModes.RAW,
+    def subst_list(listSubstVal, env, mode=SubstModes.RAW,
                    target=None, source=None, gvars={}, lvars={}, conv=None):
         """Substitute construction variables in a string (or list or other
         object) and separate the arguments into a command list.
@@ -873,9 +873,6 @@ class EnvironmentValues(object):
                   second dimension is "words" in the command line)
 
         """
-
-        import pdb; pdb.set_trace()
-
         for_signature = mode == SubstModes.FOR_SIGNATURE
 
         retval = [[]]
