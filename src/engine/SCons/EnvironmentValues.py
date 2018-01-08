@@ -491,13 +491,15 @@ class EnvironmentValue(object):
                     string_values[i] = (env[v].cached[use_cache_item], t)
                 elif t in (ValueTypes.ESCAPE_START, ValueTypes.ESCAPE_END):
                     string_values[i] = (v, t)
-                elif t in (ValueTypes.VARIABLE, ValueTypes.CALLABLE, ValueTypes.EVALUABLE):
+                elif t in (ValueTypes.VARIABLE, ValueTypes.EVALUABLE):
                     parsed_values[i] = (t,v,i)
                 elif t == ValueTypes.CALLABLE:
                     try:
                         v  = lvars[v]
                     except KeyError as e:
                         v  = env[v].value
+
+                    parsed_values[i] = (t,v,i)
 
                 elif t == ValueTypes.VARIABLE_OR_CALLABLE:
                     if v in env or v in lvars:
