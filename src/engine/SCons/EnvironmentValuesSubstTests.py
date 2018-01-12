@@ -37,7 +37,7 @@ import TestUnit
 import SCons.Errors
 
 # from SCons.Subst import *
-from SCons.Subst import Literal
+from SCons.Subst import Literal, SpecialAttrWrapper
 from SCons.EnvironmentValues import *
 
 SUBST_RAW = SubstModes.RAW
@@ -66,19 +66,23 @@ class DummyNode(object):
 
 
 class DummyEnv(object):
+    """
+    Simple Environment() work-alike.
+    """
     def __init__(self, dict={}):
-        self.dict = dict
+        self.envVal = EnvironmentValues(**dict)
+
 
     def Dictionary(self, key = None):
         if not key:
-            return self.dict
-        return self.dict[key]
+            return self.envVal.values
+        return self.envVal.values[key]
 
     def __getitem__(self, key):
-        return self.dict[key]
+        return self.envVal.values[key]
 
     def get(self, key, default):
-        return self.dict.get(key, default)
+        return self.envVal.values.get(key, default)
 
 
 def cs(target=None, source=None, env=None, for_signature=None):
@@ -125,11 +129,13 @@ class SubstTestCase(unittest.TestCase):
         """Simple node work-alike with some extra stuff for testing."""
         def __init__(self, name):
             DummyNode.__init__(self, name)
+
             class Attribute(object):
                 pass
             self.attribute = Attribute()
             self.attribute.attr1 = 'attr$1-' + os.path.basename(name)
             self.attribute.attr2 = 'attr$2-' + os.path.basename(name)
+
         def get_stuff(self, extra):
             return self.name + extra
         foo = 1
@@ -525,17 +531,18 @@ class EnvVariablesSubstTestCase(SubstTestCase):
         result = EnvironmentValues.subst("$TARGET $SOURCES", env,
                                   target=[t1, t2],
                                   source=[s1, s2])
-        assert result == "t1 s1 s2", result
+        self.assertEqual(result,"t1 s1 s2", result)
+
         result = EnvironmentValues.subst("$TARGET $SOURCES", env,
                                   target=[t1, t2],
                                   source=[s1, s2],
                                   gvars={})
-        assert result == "t1 s1 s2", result
+        self.assertEqual(result,"t1 s1 s2", result)
 
         result = EnvironmentValues.subst("$TARGET $SOURCES", env, target=[], source=[])
-        assert result == " ", result
+        self.assertEqual(result," ", result)
         result = EnvironmentValues.subst("$TARGETS $SOURCE", env, target=[], source=[])
-        assert result == " ", result
+        self.assertEqual(result," ", result)
 
     def test_subst_callable_expansion(self):
         """Test EnvironmentValues.subst():  expanding a callable"""
@@ -844,6 +851,13 @@ class EnvVarsSubtListTestCase(SubstTestCase):
         '${_defines(DEFS)}',     [['Q1="q1"', 'Q2="a"']],
     ]
 
+    basic_cases = [
+        "$TARGETS",
+        [
+            ["foo/bar.exe", "/bar/baz with spaces.obj", "../foo/baz.obj"],
+        ],
+    ]
+
     def test_subst_list(self):
         """Test EnvironmentValues.subst_list():  basic substitution"""
         def convert_lists(expect):
@@ -915,34 +929,38 @@ class EnvVarsSubtListTestCase(SubstTestCase):
     def test_subst_target_source(self):
         """Test EnvironmentValues.subst_list():  target= and source= arguments"""
         env = DummyEnv(self.loc)
+
         gvars = env.Dictionary()
         t1 = self.MyNode('t1')
         t2 = self.MyNode('t2')
         s1 = self.MyNode('s1')
         s2 = self.MyNode('s2')
-        result = EnvironmentValues.subst_list("$TARGET $SOURCES", env,
-                                  target=[t1, t2],
-                                  source=[s1, s2],
-                                  gvars=gvars)
-        assert result == [['t1', 's1', 's2']], result
-        result = EnvironmentValues.subst_list("$TARGET $SOURCES", env,
-                                  target=[t1, t2],
-                                  source=[s1, s2],
-                                  gvars={})
-        assert result == [['t1', 's1', 's2']], result
+        result = EnvironmentValues.subst_list("$TARGET $SOURCES", env.envVal,
+                                              target=[t1, t2],
+                                              source=[s1, s2],
+                                              gvars=gvars)
+        self.assertEqual(result, [['t1', 's1', 's2']])
+
+        # Blanked out gvars..
+        result = EnvironmentValues.subst_list("$TARGET $SOURCES", env.envVal,
+                                              target=[t1, t2],
+                                              source=[s1, s2],
+                                              gvars={})
+        self.assertEqual(result, [['t1', 's1', 's2']], result)
 
         # Test interpolating a callable.
         _t = DummyNode('t')
         _s = DummyNode('s')
         cmd_list = EnvironmentValues.subst_list("testing $CMDGEN1 $TARGETS $SOURCES",
-                                    env, target=_t, source=_s,
-                                    gvars=gvars)
+                                                env.envVal, target=_t, source=_s,
+                                                gvars=gvars)
         assert cmd_list == [['testing', 'foo', 'bar with spaces.out', 't', 's']], cmd_list
 
     def test_subst_escape(self):
         """Test EnvironmentValues.subst_list():  escape functionality"""
         env = DummyEnv(self.loc)
         gvars = env.Dictionary()
+
         def escape_func(foo):
             return '**' + foo + '**'
         cmd_list = EnvironmentValues.subst_list("abc $LITERALS xyz", env, gvars=gvars)

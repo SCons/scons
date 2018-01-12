@@ -2,6 +2,7 @@ import unittest
 import os.path
 
 from SCons.EnvironmentValues import EnvironmentValues, EnvironmentValue, ValueTypes, SubstModes
+from SCons.EnvironmentValuesSubstTests import CmdGen1, CmdGen2
 
 
 class DummyNode(object):
@@ -40,11 +41,14 @@ class MyNode(DummyNode):
 
     foo = 1
 
+
 class TestLiteral(object):
     def __init__(self, literal):
         self.literal = literal
+
     def __str__(self):
         return self.literal
+
     def is_literal(self):
         return 1
 
@@ -170,7 +174,6 @@ class TestEnvironmentValue(unittest.TestCase):
                           (15, 'TARGETS[:]', 2), (1, ' ', 3), (15, 'SOURCES[0]', 4)] )
 
 
-
 class TestEnvironmentValues(unittest.TestCase):
     def test_simple_environmentValues(self):
         """Test comparing SubstitutionEnvironments
@@ -185,7 +188,8 @@ class TestEnvironmentValues(unittest.TestCase):
 
     def test_expanding_values(self):
         env = EnvironmentValues(XXX='$X', X='One', XXXX='$XXX',
-                                YYY='$Y', Y='Two', YYYY='$YYY')
+                                YYY='$Y', Y='Two', YYYY='$YYY',
+                                ZZZZ='$Z', ZZZY="$Z $Y")
 
         # vanilla string should equal itself
         x = env.subst('X', env)
@@ -203,6 +207,14 @@ class TestEnvironmentValues(unittest.TestCase):
         # Double level expansion
         yyyy = env.subst('YYYY', env)
         self.assertEqual(yyyy, 'Two')
+
+        # Now eval something who value doesn't exist
+        zzzz = env.subst('ZZZZ', env)
+        self.assertEqual(zzzz,'')
+
+        # Now eval something who value doesn't exist
+        zzzy = env.subst('ZZZZ', env)
+        self.assertEqual(zzzy,'')
 
     def test_escape_values(self):
         env = EnvironmentValues(X='One', XX='Two', XXX='$X $($XX$)')
@@ -230,7 +242,7 @@ class TestEnvironmentValues(unittest.TestCase):
 
 
         # Will expand $BAR to "bar baz"
-        env = EnvironmentValues(FOO=foo, BAR="$FOO baz")
+        env = EnvironmentValues(FOO=foo, BAR="$FOO baz", CMDGEN1=CmdGen1, CMDGEN2=CmdGen2)
 
         foo = env.subst('FOO', env,
                         target=[t1, t2],
@@ -242,6 +254,15 @@ class TestEnvironmentValues(unittest.TestCase):
                         target=[t1, t2],
                         source=[s1, s2])
         self.assertEqual(bar, 'bar baz')
+
+        _t = DummyNode('t')
+        _s = DummyNode('s')
+
+        xar = env.subst('$CMDGEN1', env,
+                        target=_t,
+                        source=_s)
+        self.assertEqual(xar, 'bar')
+
 
     def test_setitem(self):
         env = EnvironmentValues(X='One', XX='Two', XXX='$X $($XX$)')

@@ -180,7 +180,8 @@ class EnvironmentValue(object):
                     self.var_type = ValueTypes.PARSED
                     # print(result)
                 elif self.value == ' ':
-                    self.var_type = ValueTypes.SPACE
+                    pass
+                    # self.var_type = ValueTypes.SPACE
                 else:
                     self.cached = (self.value, self.value)
             elif self.value is None:
@@ -417,6 +418,7 @@ class EnvironmentValue(object):
         except TypeError as e:
             # TODO: Handle conv/convert paremeters...
             s = str(to_call)
+            raise Exception("Not handled eval_callable not normal params")
 
         # TODO: Now we should ensure the value from callable is then substituted as it can return $XYZ..
 
@@ -475,11 +477,7 @@ class EnvironmentValue(object):
             #   If so add those to list and process that list (DO NOT RECURSE.. slow), also in working list,
             #   replace value with expanded parsed value
             # We should end up with a list of EnvironmentValue(s) (Not the object, just the plural)
-            # parsed_values = [v for (t, v, i) in self.all_dependencies
-            #                  if t in (ValueTypes.VARIABLE, ValueTypes.CALLABLE) and not env[v].is_cached(env)]
-            # string_values = [v for (t, v, i) in self.all_dependencies
-            #                  if t not in (ValueTypes.VARIABLE, ValueTypes.CALLABLE) or env[v].is_cached(env)]
-            # debug("Parsed values:%s  for %s [%s]"%(parsed_values, self._parsed, string_values))
+
 
             # Create pre-sized arrays to hold string values and non-string values.
             string_values = [None] * len(self.all_dependencies)
@@ -583,7 +581,7 @@ class EnvironmentValue(object):
                     #     continue
 
                     # At this point it's possible to determine if we guessed callable correctly
-                    # or if it's actually evalable
+                    # or if it's actually evaluable
                     if t == ValueTypes.CALLABLE:
                         if callable(v):
                             t = ValueTypes.CALLABLE
@@ -594,9 +592,22 @@ class EnvironmentValue(object):
                     if t == ValueTypes.CALLABLE:
                         to_call = v
 
-                        string_values[i] = (self.eval_callable(to_call, parsed_values, string_values, target=target,
-                                                               source=source, gvars=env, lvars=lvars, for_sig=for_signature),
-                                            ValueTypes.STRING)
+                        call_value = self.eval_callable(to_call, parsed_values, string_values, target=target,
+                                                        source=source, gvars=env, lvars=lvars, for_sig=for_signature)
+
+                        if '$' not in call_value:
+                            string_values[i] = (call_value,ValueTypes.STRING)
+                        else:
+                            # v = env.subst(call_value,)
+                            try:
+                                string_values[i] = env[call_value].subst(env, mode, target, source, gvars, lvars, conv)
+                            except KeyError as e:
+                                ev = EnvironmentValue(call_value,call_value)
+                                string_values[i] = ev.subst(env, mode, target, source, gvars, lvars, conv)
+
+
+                            raise Exception('CALLABLE yields something to be further substed:[%s]->{%s}'%(call_value, string_values[i]))
+                            string_values[i] = env[call_val].subst(env, mode, target, source, gvars, lvars, conv)
                         parsed_values[i] = None
                     elif t == ValueTypes.PARSED:
                         debug("PARSED   Type:%s VAL:%s"%(pv[0],pv[1]))
@@ -641,7 +652,7 @@ class EnvironmentValue(object):
                         debug("%s->%s" % (v,string_values[i]))
                         parsed_values[i] = None
 
-                    elif t==ValueTypes.COLLECTION:
+                    elif t == ValueTypes.COLLECTION:
                         # Handle list, tuple, or dictionary
                         # Basically iterate all items, evaluating each, and then join them together with a space
                         debug("COLLECTION  Type:%s VAL:%s" % (t,v))
@@ -667,8 +678,6 @@ class EnvironmentValue(object):
                         debug("AAHAHAHHAH BROKEN")
                         import pdb; pdb.set_trace()
 
-            # Handle undefined with some proper SCons exception
-            # subst_value = " ".join([str(v) for (v, t) in string_values if t not in (ValueTypes.ESCAPE_START, ValueTypes.ESCAPE_END) or v != ''])
 
             # Create and cache for signature if possible.
             in_escape_count = 0
@@ -700,8 +709,6 @@ class EnvironmentValue(object):
             # Compress strings of white space characters into
             # a single space.
             subst_value = _space_sep.sub(' ', subst_value).strip()
-
-
 
             if in_escape_count != 0:
                 # TODO: Throw exception as unbalanced escapes
@@ -763,21 +770,27 @@ class EnvironmentValues(object):
 
         # Find all variables which depend on the key
 
-        to_update = [v for v in self.values if key in self.values[v].depends_on]
+        to_update = set([v for v in self.values if key in self.values[v].depends_on])
 
         # then recursively find all the other EnvironmentValue depending on
         # any keys which depend on the EnvironmentValue which depend on the key
 
         new_values_to_update = len(to_update)
+        count = 0
 
         while new_values_to_update:
             new_values_to_update = False
-            check_values = list(to_update)
-            for v in check_values:
-                for ov in self.values:
-                    if v in self.values[ov].depends_on:
-                        new_values_to_update = True
-                        to_update.append(ov)
+
+            # Check if 
+            next_recursion_to_update = set([value for value in self.values
+                                            for update_value in to_update
+                                            if value not in update_value and
+                                               update_value in self.values[value].depends_on])
+
+            new_values_to_update = len(next_recursion_to_update) > 0
+
+            debug("Pass [%6d]"%count)
+            count +=1
 
         for v in to_update:
             self.values[v].update(key, self.values)
@@ -823,7 +836,8 @@ class EnvironmentValues(object):
             if env.values[item].var_type == ValueTypes.STRING:
                 return env.values[item].value
             elif env.values[item].var_type == ValueTypes.PARSED:
-                return env.values[item].subst(env, mode=mode, target=target, source=source, gvars=gvars, lvars=lvars, conv=conv)
+                return env.values[item].subst(env, mode=mode, target=target, source=source, gvars=gvars,
+                                              lvars=lvars, conv=conv)
             elif env.values[item].var_type == ValueTypes.CALLABLE:
                 # From Subst.py
                 # try:
@@ -839,7 +853,7 @@ class EnvironmentValues(object):
                 #         return s
                 #     s = self.conv(s)
                 # return self.substitute(s, lvars)
-                retval = env.values[item].value(target, source, env, (mode == 2))
+                retval = env.values[item].value(target, source, env, (mode == SubstModes.FOR_SIGNATURE))
                 return retval
         except KeyError as e:
             # import pdb; pdb.set_trace()
@@ -849,12 +863,14 @@ class EnvironmentValues(object):
                 # Currently we're naming it the same as it's content.
                 # TODO: Should we keep these separate from the variables? We're caching both..
                 env.values[item] = EnvironmentValue(item, item)
-                return env.values[item].subst(env, mode=mode, target=target, source=source, gvars=gvars, lvars=lvars, conv=conv)
+                return env.values[item].subst(env, mode=mode, target=target, source=source, gvars=gvars,
+                                              lvars=lvars, conv=conv)
             elif is_Sequence(item):
                 retseq = []
                 for v in item:
                     val = EnvironmentValue(None, v)
-                    retseq.append(val.subst(env, mode=mode, target=target, source=source, gvars=gvars, lvars=lvars, conv=conv))
+                    retseq.append(val.subst(env, mode=mode, target=target, source=source, gvars=gvars,
+                                            lvars=lvars, conv=conv))
                 return retseq
 
     @staticmethod
@@ -863,31 +879,51 @@ class EnvironmentValues(object):
         """Substitute construction variables in a string (or list or other
         object) and separate the arguments into a command list.
 
-        The companion scons_subst() function (above) handles basic
-        substitutions within strings, so see that function instead
-        if that's what you're looking for.
+        The companion subst() function (above) handles basic substitutions within strings, so see
+        that function instead if that's what you're looking for.
 
         :param listSubstVal: Either a string (potentially with embedded newlines),
                      or a list of command line arguments
+        :param env:
+        :param mode:
+        :param target:
+        :param source:
+        :param gvars:
+        :param lvars:
+        :param conv:
         :return:  a list of lists of substituted values (First dimension is separate command line,
                   second dimension is "words" in the command line)
 
         """
         for_signature = mode == SubstModes.FOR_SIGNATURE
 
+        # TODO: Fill in gvars, lvars as env.Subst() does..
+        if 'TARGET' not in lvars:
+            d = create_subst_target_source_dict(target, source)
+            if d:
+                lvars = lvars.copy()
+                lvars.update(d)
+
         retval = [[]]
         retval_index = 0
 
         if is_String(listSubstVal) and not isinstance(listSubstVal, CmdStringHolder):
-            # TODO: Implement splitting into multiple commands if there's a NEWLINE in the string.
-
             listSubstVal = str(listSubstVal)  # In case it's a UserString.
             listSubstVal = _separate_args.findall(listSubstVal)
 
+            # Drop white space from splits. We'll be (likely) joining the elements with white space
+            # and/or providing directly as arguments to popen().
+            listSubstVal = [i for i in listSubstVal if i[0] not in ' \t\r\f\v']
+
             try:
-                debug("subst_list:IsString:%s" % listSubstVal.data)
+                debug("subst_list:IsString:%s" % listSubstVal)
             except TypeError as e:
                 debug("LKDJFKLSDJF")
+        else:
+            debug("subst_list:NotString:%s" % repr(listSubstVal))
+
+        for element in listSubstVal:
+            # TODO: Implement splitting into multiple commands if there's a NEWLINE in any element.
 
             # for a in args:
             #     if a[0] in ' \t\n\r\f\v':
@@ -899,18 +935,30 @@ class EnvironmentValues(object):
             #             self.next_word()
             #     else:
             #         self.expand(a, lvars, within_list)
-        else:
-            # TODO: Implement splitting into multiple commands if there's a NEWLINE in any element.
-            # self.expand(args, lvars, within_list)
-            debug("subst_list:NotString:%s" % repr(listSubstVal))
-            parts = []
-            for element in listSubstVal:
-                e_value = EnvironmentValue(element,element)
-                parts.append(e_value)
-                retval[retval_index].append(e_value.subst(env, mode=mode,
-                                                          target=target, source=source,
-                                                          gvars=gvars, lvars=lvars, conv=conv))
-            debug("subst_list:%s"%[x.value for x in parts])
+            if '\n' in element:
+                retval_index += 1
+                retval.append([])
 
+            e_value = EnvironmentValue(element, element)
+            this_value = e_value.subst(env, mode=mode,
+                                       target=target, source=source,
+                                       gvars=gvars, lvars=lvars, conv=conv)
+
+            args = [a for a in _separate_args.findall(this_value) if a not in ' \t\r\f\v']
+
+            # Now we need to determine if we need to recurse/evaluate this_value
+            if '$' not in this_value:
+                # no more evaluation needed
+                retval[retval_index].extend(args)
+            else:
+                # Need to handle multiple levels of recursion, also it's possible
+                # that escaping could span several levels of recursion so $( at top , and $)
+                # several levels lower. (This would be unwise.. do we need to enable this)
+                this_value_2 = EnvironmentValues.subst_list(this_value, env, mode, target, source, gvars, lvars, conv)
+
+                debug("need to recurse")
+                raise Exception("need to recurse in subst_list: [%s]->{%s}"%(this_value, this_value_2))
+
+        debug("subst_list:%s" % [x for x in retval[retval_index]])
 
         return retval
