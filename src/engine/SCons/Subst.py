@@ -796,7 +796,6 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW,
             :param lvars:  Local variables (typically TARGET,SOURCE,etc..)
             :param within_list: Indicate if we're expanding within the context of a list
                                 (not expanding a string)
-
             """
 
             if is_String(args) and not isinstance(args, CmdStringHolder):
