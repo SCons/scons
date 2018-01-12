@@ -781,13 +781,17 @@ class EnvironmentValues(object):
         while new_values_to_update:
             new_values_to_update = False
 
-            # Check if 
+            # Create a list of all values which need to be update by our current list
+            # of to_update variables. This should recursively give us a list of
+            # all variables invalidated by the key being changed.
             next_recursion_to_update = set([value for value in self.values
                                             for update_value in to_update
                                             if value not in update_value and
                                                update_value in self.values[value].depends_on])
 
             new_values_to_update = len(next_recursion_to_update) > 0
+            if new_values_to_update:
+                to_update.update(next_recursion_to_update)
 
             debug("Pass [%6d]"%count)
             count +=1
