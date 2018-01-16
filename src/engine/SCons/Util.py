@@ -1608,11 +1608,15 @@ class NullSeq(Null):
 del __revision__
 
 def to_bytes (s):
+    if s is None:
+        return b'None'
     if isinstance (s, (bytes, bytearray)) or bytes is str:
         return s
     return bytes (s, 'utf-8')
 
 def to_str (s):
+    if s is None:
+        return 'None'
     if bytes is str or is_String(s):
         return s
     return str (s, 'utf-8')
