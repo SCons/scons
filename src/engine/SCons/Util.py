@@ -1617,7 +1617,6 @@ def to_bytes (s):
 def to_str (s):
     if s is None:
         return 'None'
-    print("to_str %s", repr(s))
     if bytes is str or is_String(s):
         return s
     return str (s, 'utf-8')
