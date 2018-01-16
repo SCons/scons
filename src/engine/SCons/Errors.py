@@ -95,7 +95,7 @@ class BuildError(Exception):
 
         # py3: errstr should be string and not bytes.
 
-        self.errstr = SCons.Util.to_str(errstr)
+        self.errstr = SCons.Util.to_String(errstr)
         self.status = status
         self.exitstatus = exitstatus
         self.filename = filename
@@ -176,8 +176,8 @@ def convert_to_BuildError(status, exc_info=None):
             filename = status.filename
         except AttributeError:
             filename = None
-        
-        buildError = BuildError( 
+
+        buildError = BuildError(
             errstr=status.args[0],
             status=status.errno,
             exitstatus=2,
@@ -195,7 +195,7 @@ def convert_to_BuildError(status, exc_info=None):
         except AttributeError:
             filename = None
 
-        buildError = BuildError( 
+        buildError = BuildError(
             errstr=status.strerror,
             status=status.errno,
             exitstatus=2,
@@ -217,7 +217,7 @@ def convert_to_BuildError(status, exc_info=None):
             errstr="Error %s" % status,
             status=status,
             exitstatus=2)
-    
+
     #import sys
     #sys.stderr.write("convert_to_BuildError: status %s => (errstr %s, status %s)\n"%(status,buildError.errstr, buildError.status))
     return buildError

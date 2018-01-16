@@ -312,6 +312,10 @@ class UtilTestCase(unittest.TestCase):
         assert to_String(1) == "1", to_String(1)
         assert to_String([ 1, 2, 3]) == str([1, 2, 3]), to_String([1,2,3])
         assert to_String("foo") == "foo", to_String("foo")
+        assert to_String(None) == 'None'
+        # test low level string converters too
+        assert to_str(None) == 'None'
+        assert to_bytes(None) == b'None'
 
         s1=UserString('blah')
         assert to_String(s1) == s1, s1

@@ -9,6 +9,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
   From Gary Oberbrunner:
     - Fix bug when Installing multiple subdirs outside the source tree
+    - fix to_str to handle None without raising exception
 
   From Mats Wichmann:
     - Updated manpage scons.xml to fix a nested list problem
