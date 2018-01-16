@@ -66,11 +66,14 @@ class DummyEnv(object):
     def get(self, key, default):
         return self.dict.get(key, default)
 
+
 def cs(target=None, source=None, env=None, for_signature=None):
     return 'cs'
 
+
 def cl(target=None, source=None, env=None, for_signature=None):
     return ['cl']
+
 
 def CmdGen1(target, source, env, for_signature):
     # Nifty trick...since Environment references are interpolated,
@@ -79,6 +82,7 @@ def CmdGen1(target, source, env, for_signature):
     assert str(target) == 't', target
     assert str(source) == 's', source
     return "${CMDGEN2('foo', %d)}" % for_signature
+
 
 class CmdGen2(object):
     def __init__(self, mystr, forsig):
@@ -90,6 +94,7 @@ class CmdGen2(object):
         assert str(source) == 's', source
         assert for_signature == self.expect_for_signature, for_signature
         return [ self.mystr, env.Dictionary('BAR') ]
+
 
 if os.sep == '/':
     def cvt(str):

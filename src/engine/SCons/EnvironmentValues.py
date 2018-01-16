@@ -478,7 +478,6 @@ class EnvironmentValue(object):
             #   replace value with expanded parsed value
             # We should end up with a list of EnvironmentValue(s) (Not the object, just the plural)
 
-
             # Create pre-sized arrays to hold string values and non-string values.
             string_values = [None] * len(self.all_dependencies)
             parsed_values = [None] * len(self.all_dependencies)
@@ -498,7 +497,8 @@ class EnvironmentValue(object):
                         v  = env[v].value
 
                     parsed_values[i] = (t,v,i)
-
+                elif t == ValueTypes.FUNCTION_CALL:
+                    parsed_values[i] = (t,v,i)
                 elif t == ValueTypes.VARIABLE_OR_CALLABLE:
                     if v in env or v in lvars:
                         try:
@@ -595,19 +595,19 @@ class EnvironmentValue(object):
                         call_value = self.eval_callable(to_call, parsed_values, string_values, target=target,
                                                         source=source, gvars=env, lvars=lvars, for_sig=for_signature)
 
-                        if '$' not in call_value:
+                        # TODO: Handle return value not being a string, (a collection for example)
+
+                        if is_String(call_value) and '$' not in call_value:
                             string_values[i] = (call_value,ValueTypes.STRING)
+                        elif is_Sequence(call_value):
+                            string_values[i] = " ".join(call_value)
                         else:
-                            # v = env.subst(call_value,)
                             try:
                                 string_values[i] = env[call_value].subst(env, mode, target, source, gvars, lvars, conv)
                             except KeyError as e:
                                 ev = EnvironmentValue(call_value,call_value)
-                                string_values[i] = ev.subst(env, mode, target, source, gvars, lvars, conv)
+                                string_values[i] = (ev.subst(env, mode, target, source, gvars, lvars, conv), ValueTypes.STRING)
 
-
-                            raise Exception('CALLABLE yields something to be further substed:[%s]->{%s}'%(call_value, string_values[i]))
-                            string_values[i] = env[call_val].subst(env, mode, target, source, gvars, lvars, conv)
                         parsed_values[i] = None
                     elif t == ValueTypes.PARSED:
                         debug("PARSED   Type:%s VAL:%s"%(pv[0],pv[1]))
@@ -663,14 +663,18 @@ class EnvironmentValue(object):
                         # need to be further evaluated.(subst'd)
                         string_values[i] = (" ".join(value), t)
                         parsed_values[i] = None
-                    elif t == ValueTypes.EVALUABLE:
+                    elif t in (ValueTypes.EVALUABLE, ValueTypes.FUNCTION_CALL):
                         try:
+                            # Note: this may return a calllable or a string or a number or an object.
+                            # If it's callable, then it needs be executed by the logic above for ValueTypes.CALLABLE.
                             sval = eval(v, gvars, lvars)
                         except AllowableExceptions as e:
                             sval = ''
-
-                        string_values[i] = (sval, ValueTypes.NUMBER)
-                        parsed_values[i] = None
+                        if is_String(sval):
+                            string_values[i] = (sval, ValueTypes.NUMBER)
+                            parsed_values[i] = None
+                        elif callable(sval):
+                            parsed_values[i] = (ValueTypes.CALLABLE, sval, i)
                     elif t == ValueTypes.VARIABLE_OR_CALLABLE and v not in lvars and v not in gvars:
                         string_values[i] = ('', ValueTypes.STRING) # not defined so blank string
                         parsed_values[i] = None
@@ -738,13 +742,17 @@ class EnvironmentValues(object):
     """
     def __init__(self, **kw):
         self.values = {}
+        self._dict = {}
         for k in kw:
             self.values[k] = EnvironmentValue(k, kw[k])
+            self._dict[k] = kw[k]
         self.key_set = set(self.values.keys())
 
     def __setitem__(self, key, value):
-        debug("SETITEM:%s->%s"%(key,value))
+        debug("SETITEM:[%s]%s->%s"%(id(self),key,value))
         self.values[key] = EnvironmentValue(key, value)
+        self._dict[key] = value
+
         self.key_set.add(key)
 
         # TODO: Now reevaluate any keys which depend on this value for better caching?
@@ -755,6 +763,14 @@ class EnvironmentValues(object):
 
     def __getitem__(self, item):
         return self.values[item]
+
+    def Dictionary(self, *args):
+        if not args:
+            return self._dict
+        dlist = [self._dict[x] for x in args]
+        if len(dlist) == 1:
+            dlist = dlist[0]
+        return dlist
 
     def update_cached_values(self, key):
         """
@@ -827,7 +843,7 @@ class EnvironmentValues(object):
             pass
 
         if not gvars:
-            gvars = env.values
+            gvars = env._dict
 
         # TODO: Fill in gvars, lvars as env.Subst() does..
         if 'TARGET' not in lvars:

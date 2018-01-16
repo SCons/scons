@@ -216,6 +216,13 @@ class TestEnvironmentValues(unittest.TestCase):
         zzzy = env.subst('ZZZZ', env)
         self.assertEqual(zzzy,'')
 
+        # Test 10 levels deep.
+        env['AAA_0'] = '$X'
+        for i in range(1,10):
+            env['AAA_%d'%i] = '$AAA_%d'%(i-1)
+        ten_levels = env.subst('$AAA_9', env)
+        self.assertEqual(ten_levels, 'One')
+
     def test_escape_values(self):
         env = EnvironmentValues(X='One', XX='Two', XXX='$X $($XX$)')
 
@@ -240,7 +247,6 @@ class TestEnvironmentValues(unittest.TestCase):
         s1 = MyNode('s1')
         s2 = MyNode('s2')
 
-
         # Will expand $BAR to "bar baz"
         env = EnvironmentValues(FOO=foo, BAR="$FOO baz", CMDGEN1=CmdGen1, CMDGEN2=CmdGen2)
 
@@ -258,11 +264,11 @@ class TestEnvironmentValues(unittest.TestCase):
         _t = DummyNode('t')
         _s = DummyNode('s')
 
+        # CMDGEN1 calls CmdGen2
         xar = env.subst('$CMDGEN1', env,
                         target=_t,
                         source=_s)
-        self.assertEqual(xar, 'bar')
-
+        self.assertEqual(xar, 'bar bar with spaces.out')
 
     def test_setitem(self):
         env = EnvironmentValues(X='One', XX='Two', XXX='$X $($XX$)')
