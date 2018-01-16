@@ -60,6 +60,7 @@ import SCons.Node.FS
 import SCons.Platform
 import SCons.SConf
 import SCons.Script
+import SCons.Spirent
 import SCons.Taskmaster
 import SCons.Util
 import SCons.Warnings
@@ -1098,6 +1099,10 @@ def _main(parser):
                                           targets, target_top)
 
     else:
+        # Write the build graph
+        graph = os.environ.get("SCONS_GRAPH")
+        if graph:
+            SCons.Spirent.GraphWriter().write(graph, fs.Top)
 
         # Build the targets
         nodes = _build_targets(fs, options, targets, target_top)
