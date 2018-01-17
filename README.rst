@@ -19,10 +19,10 @@ SCons - a software construction tool
 
 .. image:: https://ci.appveyor.com/api/projects/status/github/SCons/scons?svg=true&branch=master
    :target: https://ci.appveyor.com/project/SCons/scons
-   :alt: AppVeyor CI Status
+   :alt: AppVeyor CI build Status
    
-.. image:: https://coveralls.io/repos/github/SCons/scons/badge.svg
-   :target: https://coveralls.io/github/SCons/scons
+.. image:: https://coveralls.io/repos/github/SCons/scons/badge.svg?branch=master
+   :target: https://coveralls.io/github/SCons/scons?branch=master
    :alt: Coveralls.io Coverage Status
 
 
