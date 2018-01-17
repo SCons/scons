@@ -251,7 +251,7 @@ through the automatically-generated
 &cv-link-_FORTRANINCFLAGS;
 construction variable,
 which is constructed by
-respectiviely prepending and appending the values of the
+respectively prepending and appending the values of the
 &cv-link-INCPREFIX; and &cv-link-INCSUFFIX;
 construction variables
 to the beginning and end
