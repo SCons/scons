@@ -305,7 +305,8 @@ containing the command-line options
 for specifying directories to be searched
 by the resource compiler.
 The value of &cv-RCINCFLAGS; is created
-by appending &cv-RCINCPREFIX; and &cv-RCINCSUFFIX;
+by respectively prepending and appending
+&cv-RCINCPREFIX; and &cv-RCINCSUFFIX;
 to the beginning and end
 of each directory in &cv-CPPPATH;.
 </para>
@@ -317,7 +318,7 @@ of each directory in &cv-CPPPATH;.
 <para>
 The prefix (flag) used to specify an include directory
 on the resource compiler command line.
-This will be appended to the beginning of each directory
+This will be prepended to the beginning of each directory
 in the &cv-CPPPATH; construction variable
 when the &cv-RCINCFLAGS; variable is expanded.
 </para>
