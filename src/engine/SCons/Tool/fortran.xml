@@ -125,7 +125,8 @@ containing the Fortran compiler command-line options
 for specifying directories to be searched for include
 files and module files.
 The value of &cv-link-_FORTRANINCFLAGS; is created
-by prepending/appending &cv-link-INCPREFIX; and &cv-link-INCSUFFIX;
+by respectively prepending and appending
+&cv-link-INCPREFIX; and &cv-link-INCSUFFIX;
 to the beginning and end
 of each directory in &cv-link-FORTRANPATH;.
 </para>
@@ -148,7 +149,7 @@ for module files, as well.
 <para>
 The prefix used to specify a module directory on the Fortran compiler command
 line.
-This will be appended to the beginning of the directory
+This will be prepended to the beginning of the directory
 in the &cv-link-FORTRANMODDIR; construction variables
 when the &cv-link-_FORTRANMODFLAG; variables is automatically generated.
 </para>
@@ -160,7 +161,7 @@ when the &cv-link-_FORTRANMODFLAG; variables is automatically generated.
 <para>
 The suffix used to specify a module directory on the Fortran compiler command
 line.
-This will be appended to the beginning of the directory
+This will be appended to the end of the directory
 in the &cv-link-FORTRANMODDIR; construction variables
 when the &cv-link-_FORTRANMODFLAG; variables is automatically generated.
 </para>
@@ -176,8 +177,8 @@ for specifying the directory location where the Fortran
 compiler should place any module files that happen to get
 generated during compilation.
 The value of &cv-link-_FORTRANMODFLAG; is created
-by prepending/appending &cv-link-FORTRANMODDIRPREFIX; and
-&cv-link-FORTRANMODDIRSUFFIX;
+by respectively prepending and appending
+&cv-link-FORTRANMODDIRPREFIX; and &cv-link-FORTRANMODDIRSUFFIX;
 to the beginning and end of the directory in &cv-link-FORTRANMODDIR;.
 </para>
 </summary>
@@ -250,7 +251,7 @@ through the automatically-generated
 &cv-link-_FORTRANINCFLAGS;
 construction variable,
 which is constructed by
-appending the values of the
+respectively prepending and appending the values of the
 &cv-link-INCPREFIX; and &cv-link-INCSUFFIX;
 construction variables
 to the beginning and end

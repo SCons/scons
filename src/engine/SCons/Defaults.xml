@@ -76,7 +76,8 @@ An automatically-generated construction variable
 containing the C preprocessor command-line options
 to define values.
 The value of &cv-_CPPDEFFLAGS; is created
-by appending &cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX;
+by respectively prepending and appending
+&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX;
 to the beginning and end
 of each definition in &cv-CPPDEFINES;.
 </para>
@@ -99,7 +100,8 @@ If &cv-CPPDEFINES; is a string,
 the values of the
 &cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX;
 construction variables
-will be added to the beginning and end.
+will be respectively prepended and appended to the beginning and end
+of each definition in &cv-CPPDEFINES;.
 </para>
 
 <example_commands>
@@ -113,7 +115,7 @@ If &cv-CPPDEFINES; is a list,
 the values of the
 &cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX;
 construction variables
-will be appended to the beginning and end
+will be respectively prepended and appended to the beginning and end
 of each element in the list.
 If any element is a list or tuple,
 then the first item is the name being
@@ -131,7 +133,7 @@ If &cv-CPPDEFINES; is a dictionary,
 the values of the
 &cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX;
 construction variables
-will be appended to the beginning and end
+will be respectively prepended and appended to the beginning and end
 of each item from the dictionary.
 The key of each dictionary item
 is a name being defined
@@ -159,7 +161,7 @@ env = Environment(CPPDEFINES={'B':2, 'A':None})
 <para>
 The prefix used to specify preprocessor definitions
 on the C compiler command line.
-This will be appended to the beginning of each definition
+This will be prepended to the beginning of each definition
 in the &cv-CPPDEFINES; construction variable
 when the &cv-_CPPDEFFLAGS; variable is automatically generated.
 </para>
@@ -185,7 +187,7 @@ An automatically-generated construction variable
 containing the C preprocessor command-line options
 for specifying directories to be searched for include files.
 The value of &cv-_CPPINCFLAGS; is created
-by appending &cv-INCPREFIX; and &cv-INCSUFFIX;
+by respectively prepending and appending &cv-INCPREFIX; and &cv-INCSUFFIX;
 to the beginning and end
 of each directory in &cv-CPPPATH;.
 </para>
@@ -227,7 +229,7 @@ through the automatically-generated
 &cv-_CPPINCFLAGS;
 construction variable,
 which is constructed by
-appending the values of the
+respectively prepending and appending the value of the
 &cv-INCPREFIX; and &cv-INCSUFFIX;
 construction variables
 to the beginning and end
@@ -304,7 +306,7 @@ The default list is:
 <para>
 The prefix used to specify an include directory on the C compiler command
 line.
-This will be appended to the beginning of each directory
+This will be prepended to the beginning of each directory
 in the &cv-CPPPATH; and &cv-FORTRANPATH; construction variables
 when the &cv-_CPPINCFLAGS; and &cv-_FORTRANINCFLAGS;
 variables are automatically generated.
@@ -388,7 +390,7 @@ An automatically-generated construction variable
 containing the linker command-line options
 for specifying directories to be searched for library.
 The value of &cv-_LIBDIRFLAGS; is created
-by appending &cv-LIBDIRPREFIX; and &cv-LIBDIRSUFFIX;
+by respectively prepending and appending &cv-LIBDIRPREFIX; and &cv-LIBDIRSUFFIX;
 to the beginning and end
 of each directory in &cv-LIBPATH;.
 </para>
@@ -399,7 +401,7 @@ of each directory in &cv-LIBPATH;.
 <summary>
 <para>
 The prefix used to specify a library directory on the linker command line.
-This will be appended to the beginning of each directory
+This will be prepended to the beginning of each directory
 in the &cv-LIBPATH; construction variable
 when the &cv-_LIBDIRFLAGS; variable is automatically generated.
 </para>
@@ -424,7 +426,7 @@ An automatically-generated construction variable
 containing the linker command-line options
 for specifying libraries to be linked with the resulting target.
 The value of &cv-_LIBFLAGS; is created
-by appending &cv-LIBLINKPREFIX; and &cv-LIBLINKSUFFIX;
+by respectively prepending and appending &cv-LIBLINKPREFIX; and &cv-LIBLINKSUFFIX;
 to the beginning and end
 of each filename in &cv-LIBS;.
 </para>
@@ -435,7 +437,7 @@ of each filename in &cv-LIBS;.
 <summary>
 <para>
 The prefix used to specify a library to link on the linker command line.
-This will be appended to the beginning of each library
+This will be prepended to the beginning of each library
 in the &cv-LIBS; construction variable
 when the &cv-_LIBFLAGS; variable is automatically generated.
 </para>
@@ -489,7 +491,7 @@ through the automatically-generated
 &cv-_LIBDIRFLAGS;
 construction variable,
 which is constructed by
-appending the values of the
+respectively prepending and appending the values of the
 &cv-LIBDIRPREFIX; and &cv-LIBDIRSUFFIX;
 construction variables
 to the beginning and end
@@ -520,7 +522,7 @@ through the automatically-generated
 &cv-_LIBFLAGS;
 construction variable,
 which is constructed by
-appending the values of the
+respectively prepending and appending the values of the
 &cv-LIBLINKPREFIX; and &cv-LIBLINKSUFFIX;
 construction variables
 to the beginning and end
