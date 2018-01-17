@@ -1036,6 +1036,11 @@ SConscript( sconscript )
     # to use cygwin compilers on cmd.exe -> uncomment following line
     #Configure_lib = 'm'
 
+    def coverage_run(self):
+        """ Check if the the tests are being run under coverage.
+        """
+        return 'COVERAGE_PROCESS_START' in os.environ or 'COVERAGE_FILE' in os.environ
+
     def skip_if_not_msvc(self, check_platform=True):
         """ Check whether we are on a Windows platform and skip the
             test if not. This check can be omitted by setting
