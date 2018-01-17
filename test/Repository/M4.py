@@ -37,7 +37,7 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 
 # TODO: figure out how to write the coverage data to the locked folder or maybe somewhere else
-if 'COVERAGE_PROCESS_START' in os.environ:
+if test.coverage_run():
     test.skip_test("this test locks the folder for writing meaning coverage data can not be written; skipping test.")
 
 test.subdir('work', 'repository', ['repository', 'src'])
