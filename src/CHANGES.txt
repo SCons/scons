@@ -7,6 +7,12 @@
 
 RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Ray Donnelly:
+    - Do not assume execeutables launched via scons.bat can handle unnormalised paths.
+      Python 3.6 cannot for a start: https://bugs.python.org/issue32457. To be exact
+      this means we must not add '..', and instead use 'pushd' and '%CD%' to add the
+      parent directory to PATH.
+
   From Gary Oberbrunner:
     - Fix bug when Installing multiple subdirs outside the source tree
     - fix to_str to handle None without raising exception
