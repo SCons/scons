@@ -22,6 +22,13 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Updated Jar builder to flatten source list which could contain embedded lists
     - Removed some magic numbers from jar.py on behalf of Mats Wichmann (mats@linux.com)
 
+  From William Deegan:
+    - Updated logic for mingw and clang on win32 to search default tool install paths if not
+      found in normal SCons PATH.  If the user specifies PATH or tool specific paths they
+      will be used and the default paths below will be ignored.
+      - Default path for clang/clangxx : C:\Program Files\LLVM\bin
+      - Default path for mingw         : c:\MinGW\bin
+
 RELEASE 3.0.1 - Mon, 12 Nov 2017 15:31:33 -0700
 
   From Daniel Moody:
