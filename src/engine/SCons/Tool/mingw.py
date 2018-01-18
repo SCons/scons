@@ -42,26 +42,6 @@ import SCons.Defaults
 import SCons.Tool
 import SCons.Util
 
-# This is what we search for to find mingw:
-key_program = 'mingw32-gcc'
-
-def find(env):
-    # First search in the SCons path
-    path=env.WhereIs(key_program)
-    if (path):
-        return path
-    # then the OS path:
-    path=SCons.Util.WhereIs(key_program)
-    if (path):
-        return path
-
-    # If that doesn't work try default location for mingw
-    save_path=env['ENV']['PATH']
-    env.AppendENVPath('PATH',r'c:\MinGW\bin')
-    path =env.WhereIs(key_program)
-    if not path:
-        env['ENV']['PATH']=save_path
-    return path
 
 def shlib_generator(target, source, env, for_signature):
     cmd = SCons.Util.CLVar(['$SHLINK', '$SHLINKFLAGS']) 
@@ -126,12 +106,15 @@ res_builder = SCons.Builder.Builder(action=res_action, suffix='.o',
                                     source_scanner=SCons.Tool.SourceFileScanner)
 SCons.Tool.SourceFileScanner.add_scanner('.rc', SCons.Defaults.CScan)
 
+# This is what we search for to find mingw:
+key_program = 'mingw32-gcc'
+
+
 def generate(env):
-    mingw = find(env)
+    mingw = SCons.Tool.find_program_path(env, key_program, default_paths=[r'c:\MinGW\bin',])
     if mingw:
-        dir = os.path.dirname(mingw)
-        env.PrependENVPath('PATH', dir )
-        
+        mingw_bin_dir = os.path.dirname(mingw)
+        env.AppendENVPath('PATH', mingw_bin_dir)
 
     # Most of mingw is the same as gcc and friends...
     gnu_tools = ['gcc', 'g++', 'gnulink', 'ar', 'gas', 'gfortran', 'm4']
