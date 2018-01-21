@@ -13,6 +13,9 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       have ".." in them and end up crashing.  This is done by cd'ing into the directory
       we want to add to the path and then useing %CD% to give us the normalized directory
       See bug filed under Python 3.6: https://bugs.python.org/issue32457.
+      Note: On Win32 PATH's which have not been normalized may cause undefined behavior
+      by other executables being run by SCons (or any subprocesses of executables being run by SCons).
+      Resolving this issue should eliminate that possibility going forward.
 
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
