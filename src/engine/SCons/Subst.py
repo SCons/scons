@@ -954,7 +954,7 @@ def scons_subst_once(strSubst, env, key):
 
     We do this with some straightforward, brute-force code here...
     """
-    if isinstance(strSubst, str) and strSubst.find('$') < 0:
+    if isinstance(strSubst, str) and '$' not in strSubst:
         return strSubst
 
     matchlist = ['$' + key, '${' + key + '}']
