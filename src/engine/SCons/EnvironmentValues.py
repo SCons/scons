@@ -905,7 +905,6 @@ class EnvironmentValues(object):
         if not gvars:
             gvars = env._dict
 
-        # TODO: Fill in gvars, lvars as env.Subst() does..
         if 'TARGET' not in lvars:
             d = create_subst_target_source_dict(target, source)
             if d:
@@ -937,7 +936,6 @@ class EnvironmentValues(object):
                 retval = env.values[item].value(target, source, env, (mode == SubstModes.FOR_SIGNATURE))
                 return retval
         except KeyError as e:
-            # import pdb; pdb.set_trace()
             if is_String(item):
                 # The value requested to be substituted doesn't exist in the EnvironmentVariables.
                 # So, let's create a new value?
