@@ -701,6 +701,7 @@ class TestCLVar(unittest.TestCase):
         assert cmd_list[0][3] == "call", cmd_list[0][3]
         assert cmd_list[0][4] == "test", cmd_list[0][4]
 
+
 class scons_subst_list_TestCase(SubstTestCase):
 
     basic_cases = [
@@ -1227,6 +1228,7 @@ class SpecialAttrWrapperTestCase(unittest.TestCase):
         cmd_list = scons_subst_list(input_list, None, mode=SUBST_SIG, gvars=gvars)
         cmd_list = escape_list(cmd_list[0], escape_func)
         assert cmd_list == ['BAZ', '**BLEH**'], cmd_list
+
 
 class subst_dict_TestCase(unittest.TestCase):
     def test_subst_dict(self):
