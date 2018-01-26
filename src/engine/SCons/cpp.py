@@ -99,8 +99,19 @@ e = '^\s*#\s*(' + '|'.join(l) + ')(.*)$'
 # And last but not least, compile the expression.
 CPP_Expression = re.compile(e, re.M)
 
+# A list with RE to cleanup CPP Expressions (tuples)
+# We should remove all comments and carriage returns (\r) before evaluating
+CPP_Expression_Cleaner_List = [
+    "/\*.*\*/",
+    "/\*.*",
+    "//.*",
+    "\r"
+]
+CPP_Expression_Cleaner_RE = re.compile(
+    "\s*(" + "|".join(CPP_Expression_Cleaner_List) + ")")
 
-
+def Cleanup_CPP_Expressions(ts):
+    return [(t[0], CPP_Expression_Cleaner_RE.sub("", t[1])) for t in ts]
 
 #
 # Second "subsystem" of regular expressions that we set up:
@@ -118,7 +129,6 @@ CPP_to_Python_Ops_Dict = {
     '||'        : ' or ',
     '?'         : ' and ',
     ':'         : ' or ',
-    '\r'        : '',
 }
 
 CPP_to_Python_Ops_Sub = lambda m: CPP_to_Python_Ops_Dict[m.group(0)]
@@ -141,12 +151,10 @@ CPP_to_Python_Ops_Expression = re.compile(expr)
 # A separate list of expressions to be evaluated and substituted
 # sequentially, not all at once.
 CPP_to_Python_Eval_List = [
-    ['defined\s+(\w+)',         '"\\1" in __dict__'],
-    ['defined\s*\((\w+)\)',     '"\\1" in __dict__'],
-    ['/\*.*\*/',                ''],
-    ['/\*.*',                   ''],
-    ['//.*',                    ''],
-    ['(0x[0-9A-Fa-f]*)[UL]+',   '\\1'],
+    ['defined\s+(\w+)',                 '"\\1" in __dict__'],
+    ['defined\s*\((\w+)\)',             '"\\1" in __dict__'],
+    ['(0x[0-9A-Fa-f]+)(?:L|UL)?',  '\\1'],
+    ['(\d+)(?:L|UL)?',  '\\1'],
 ]
 
 # Replace the string representations of the regular expressions in the
@@ -284,7 +292,13 @@ class PreProcessor(object):
         global CPP_Expression, Table
         contents = line_continuations.sub('', contents)
         cpp_tuples = CPP_Expression.findall(contents)
-        return  [(m[0],) + Table[m[0]].match(m[1]).groups() for m in cpp_tuples]
+        cpp_tuples = Cleanup_CPP_Expressions(cpp_tuples)
+        result = []
+        for t in cpp_tuples:
+            m = Table[t[0]].match(t[1])
+            if m:
+                result.append((t[0],) + m.groups())
+        return result
 
     def __call__(self, file):
         """
@@ -354,8 +368,10 @@ class PreProcessor(object):
         track #define values.
         """
         t = CPP_to_Python(' '.join(t[1:]))
-        try: return eval(t, self.cpp_namespace)
-        except (NameError, TypeError): return 0
+        try:
+            return eval(t, self.cpp_namespace)
+        except (NameError, TypeError, SyntaxError):
+            return 0
 
     def initialize_result(self, fname):
         self.result = [fname]
@@ -482,7 +498,11 @@ class PreProcessor(object):
         try:
             expansion = int(expansion)
         except (TypeError, ValueError):
-            pass
+            # handle "defined" chain "! (defined (A) || defined (B)" ...
+            if "defined " in expansion:
+                self.cpp_namespace[name] = self.eval_expression(t[2:])
+                return
+
         if args:
             evaluator = FunctionEvaluator(name, args[1:-1], expansion)
             self.cpp_namespace[name] = evaluator
@@ -508,15 +528,21 @@ class PreProcessor(object):
         Default handling of a #include line.
         """
         t = self.resolve_include(t)
+        if not t:
+            return
         include_file = self.find_include_file(t)
-        if include_file:
-            #print("include_file =", include_file)
-            self.result.append(include_file)
-            contents = self.read_file(include_file)
-            new_tuples = [('scons_current_file', include_file)] + \
-                         self.tupleize(contents) + \
-                         [('scons_current_file', self.current_file)]
-            self.tuples[:] = new_tuples + self.tuples
+        if not include_file:
+            return
+        # print("include_file =", include_file)
+        self.result.append(include_file)
+        # handle infinite recursion
+        for t in self.tuples:
+            if t[0] == 'scons_current_file' and t[1] == include_file:
+                return
+        new_tuples = [('scons_current_file', include_file)] + \
+                     self.tupleize(self.read_file(include_file)) + \
+                     [('scons_current_file', self.current_file)]
+        self.tuples[:] = new_tuples + self.tuples
 
     # Date: Tue, 22 Nov 2005 20:26:09 -0500
     # From: Stefan Seefeld <seefeld@sympatico.ca>
@@ -542,18 +568,25 @@ class PreProcessor(object):
 
         This handles recursive expansion of values without "" or <>
         surrounding the name until an initial " or < is found, to handle
-
                 #include FILE
-
-        where FILE is a #define somewhere else."""
-
-        s = t[1]
+        where FILE is a #define somewhere else.
+        """
+        s = t[1].strip()
         while not s[0] in '<"':
-            #print("s =", s)
             try:
                 s = self.cpp_namespace[s]
             except KeyError:
                 m = function_name.search(s)
+
+                # Date: Mon, 28 Nov 2016 17:47:13 UTC
+                # From: Ivan Kravets <ikravets@platformio.org>
+                #
+                # Ignore `#include` directive that depends on dynamic macro
+                # which is not located in state TABLE
+                # For example, `#include MYCONFIG_FILE`
+                if not m:
+                    return None
+
                 s = self.cpp_namespace[m.group(1)]
                 if callable(s):
                     args = function_arg_separator.split(m.group(2))

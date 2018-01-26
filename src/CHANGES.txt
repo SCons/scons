@@ -33,6 +33,17 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Updated manpage scons.xml to fix a nested list problem
     - Updated doc terminionly: use prepend instead of append as appropriate
 
+  From Ivan Kravets, PlatformIO
+    - New conditional C Scanner (`SCons.Scanner.C.CConditionalScanner()`)
+      which interprets C/C Preprocessor conditional syntax (#ifdef, #if, #else,
+      #elif, #define, etc.)
+    - Improvements for virtual C Pre-Processor:
+      * Handle UNSIGNED LONG and LONG numeric constants in DEC (keep support for HEX)
+      * Skip unrecognized directives, such as `#if( defined ...)`
+      * Ignore `#include DYNAMIC_INCLUDE` directive that depends on a dynamic
+        macro which is not located in a state TABLE.
+      * Cleanup CPP expressions before evaluating (strip comments, carriage returns)
+
 RELEASE 3.0.1 - Mon, 12 Nov 2017 15:31:33 -0700
 
   From Daniel Moody:

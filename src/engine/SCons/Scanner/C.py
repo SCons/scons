@@ -1,6 +1,6 @@
 """SCons.Scanner.C
 
-This module implements the dependency scanner for C/C++ code. 
+This module implements the dependency scanner for C/C++ code.
 
 """
 
@@ -72,7 +72,11 @@ def dictify_CPPDEFINES(env):
         result = {}
         for c in cppdefines:
             if SCons.Util.is_Sequence(c):
-                result[c[0]] = c[1]
+                # handle tuple with 1 item (e.g. tuple("DEFINE", ))
+                if len(c) > 1:
+                    result[c[0]] = c[1]
+                else:
+                    result[c[0]] = None
             else:
                 result[c] = None
         return result
@@ -108,21 +112,27 @@ class SConsCPPScannerWrapper(object):
     def select(self, node):
         return self
 
+
+def CConditionalScanner():
+    """
+    Return an advanced conditional Scanner instance for scanning source files
+
+    Interprets C/C++ Preprocessor conditional syntax
+    (#ifdef, #if, defined, #else, #elif, etc.).
+    """
+    return SConsCPPScannerWrapper("CScanner", "CPPPATH")
+
+
 def CScanner():
-    """Return a prototype Scanner instance for scanning source files
-    that use the C pre-processor"""
+    """Return a simplified classic Scanner instance for scanning source files
 
-    # Here's how we would (or might) use the CPP scanner code above that
-    # knows how to evaluate #if/#ifdef/#else/#elif lines when searching
-    # for #includes.  This is commented out for now until we add the
-    # right configurability to let users pick between the scanners.
-    #return SConsCPPScannerWrapper("CScanner", "CPPPATH")
+    Takes into account the type of bracketing used to include the file, and
+    uses classic CPP rules for searching for the files based on the bracketing.
+    """
+    return SCons.Scanner.ClassicCPP(
+        "CScanner", "$CPPSUFFIXES", "CPPPATH",
+        '^[ \t]*#[ \t]*(?:include|import)[ \t]*(<|")([^>"]+)(>|")')
 
-    cs = SCons.Scanner.ClassicCPP("CScanner",
-                                  "$CPPSUFFIXES",
-                                  "CPPPATH",
-                                  '^[ \t]*#[ \t]*(?:include|import)[ \t]*(<|")([^>"]+)(>|")')
-    return cs
 
 # Local Variables:
 # tab-width:4
