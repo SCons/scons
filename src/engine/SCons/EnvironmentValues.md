@@ -1,4 +1,4 @@
-#Objects:
+# Objects:
   * EnvironmentValue
     * This will hold a single value, and all if it's information
       * all tokens
@@ -18,7 +18,7 @@
     * Has staticmethod to evaluate a list
     
 # String Tokenizing
-##Given a string what tokens can we definitively identify without context
+## Given a string what tokens can we definitively identify without context
   * Plain string (No $)
   * White space
   * Escape open $( and Escape close $)
@@ -28,13 +28,13 @@
   * Evaluable only (Contains a . or a [ inside ${ })
   * Function call  ${SOMEFUNCTION(ARG1,ARG2)}
   
-##What types of tokens are only identifyable given context (values of other variables)
+## What types of tokens are only identifyable given context (values of other variables)
   * Callable
   * Variable when the token could have been either Variable or Callable
   
   
 
-#Caching
+# Caching
   * What can we cache?
     * Simple string replacement:
       * $A='B'
