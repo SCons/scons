@@ -1,10 +1,9 @@
 # Objects:
   * EnvironmentValue
     * This will hold a single value, and all if it's information
-      * all tokens
-      * the type of the value
-      * cached evaluation.  - Perhaps this should be move up to EnvironmentValues as the value really depends on the context and the context comes from EnvironmentValues
-      * method to expand the value into a string?
+      * The value broken into tokens
+      * The type of the value
+      * A method to expand the value into a string?
       * What should this do?
         * Store value
         * Store tokenized version of value
@@ -14,8 +13,10 @@
         * Store value type? (It may not be possible to know this without knowing the contents/types of other values?)
   * EnvironmentValues
     * Hold a dictionary of all variables and their EnvironmentValue objects
-    * Has staticmethod to evaluate a string
-    * Has staticmethod to evaluate a list
+    * Has staticmethod to evaluate a string ( *subst()* )
+    * Has staticmethod to evaluate a list ( *subst_list()* )
+    * Holds all caches, and each symbols direct dependencies. (To enable invalidating cached values)
+    * Holds a collection of EnvironmentValue objects, addressable by the string they contain. In some cases this is the variable itself, in other cases this is a string or list of elements passed to *subst()* or *subst_list()* which is being stored to be able to be cached.
     
 # String Tokenizing
 ## Given a string what tokens can we definitively identify without context
