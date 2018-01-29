@@ -61,6 +61,9 @@
     * Functions which don't tell us they can be cached
       * def A(x): return 'ZZ'
       * $Z='${A("BB")}'
+    * Strings which will be evaluated
+      * $AA='${B.absdir}'
+      * $BB="${if A=='zz' then 'XXX'}"
 
 # subst() Functionality
   * Each evaluation can yield one or more (in a list or dictionary) of the following
