@@ -17,6 +17,23 @@
     * Has staticmethod to evaluate a string
     * Has staticmethod to evaluate a list
     
+# String Tokenizing
+##Given a string what tokens can we definitively identify without context
+  * Plain string (No $)
+  * White space
+  * Escape open $( and Escape close $)
+  * Special variable (SOURCES, TARGETS, SOURCE, TARGET, CHANGED_SOURCES, 
+                      CHANGED_TARGETS, UNCHANGED_SOURCES, UNCHANGED_TARGETS)
+  * Variable or Callable ( Prefixed by $ must begin with alphabetic or underscore)
+  * Evaluable only (Contains a . or a [ inside ${ })
+  * Function call  ${SOMEFUNCTION(ARG1,ARG2)}
+  
+##What types of tokens are only identifyable given context (values of other variables)
+  * Callable
+  * Variable when the token could have been either Variable or Callable
+  
+  
+
 #Caching
   * What can we cache?
     * Simple string replacement:
