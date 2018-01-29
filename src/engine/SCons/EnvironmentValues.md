@@ -1,6 +1,6 @@
 # Objects:
   * EnvironmentValue
-    * This will hold a single value, and all if it's information
+    * This will hold a single value, and all if it's non context dependent information
       * The value broken into tokens
       * The type of the value
       * A method to expand the value into a string?
