@@ -81,7 +81,6 @@ import SCons.Action
 import SCons.Builder
 import SCons.Environment
 import SCons.Node.FS
-import SCons.Options
 import SCons.Platform
 import SCons.Scanner
 import SCons.SConf
@@ -162,12 +161,6 @@ ListVariable            = SCons.Variables.ListVariable
 PackageVariable         = SCons.Variables.PackageVariable
 PathVariable            = SCons.Variables.PathVariable
 
-# Deprecated names that will go away some day.
-BoolOption              = SCons.Options.BoolOption
-EnumOption              = SCons.Options.EnumOption
-ListOption              = SCons.Options.ListOption
-PackageOption           = SCons.Options.PackageOption
-PathOption              = SCons.Options.PathOption
 
 # Action factories.
 Chmod                   = SCons.Defaults.Chmod

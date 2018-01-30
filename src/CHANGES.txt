@@ -17,6 +17,10 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       by other executables being run by SCons (or any subprocesses of executables being run by SCons).
       Resolving this issue should eliminate that possibility going forward.
 
+  From William Deegan:
+    - Remove long deprecated SCons.Options code and tests.  This removes BoolOption,EnumOption,
+      ListOption,PackageOption, and PathOption which have been replaced by *Variable() many years ago.
+
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
 
