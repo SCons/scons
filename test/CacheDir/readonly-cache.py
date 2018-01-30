@@ -28,8 +28,11 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify accessing cache works even if it's read-only.
 """
 
+import glob
 import os
 import TestSCons
+import time
+from stat import *
 
 test = TestSCons.TestSCons()
 
@@ -42,9 +45,21 @@ test.write('file.in', "file.in\n")
 
 test.run(arguments = '--debug=explain --cache-debug=- .')
 
+cachefile = glob.glob("cache/??/*")[0]
+
+time0 = os.stat(cachefile).st_mtime
+
+time.sleep(.1)
+
 test.unlink('file.out')
 
 test.run(arguments = '--debug=explain --cache-debug=- .')
+
+time1  = os.stat(cachefile).st_mtime
+
+# make sure that mtime has been updated on cache use
+if time1 <= time0:
+    test.fail_test()
 
 test.unlink('file.out')
 
