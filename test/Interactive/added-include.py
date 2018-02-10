@@ -41,7 +41,7 @@ test.write('foo.h.in', """
 test.write('foo.c', """
 #include <stdio.h>
 
-int main()
+int main(void)
 {
     printf("foo.c\\n");
     return 0;
@@ -81,7 +81,7 @@ test.write('foo.c', """
 
 #include <stdio.h>
 
-int main()
+int main(void)
 {
     printf("%s\\n", FOO_STRING);
     return 0;

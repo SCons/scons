@@ -39,7 +39,7 @@ test.skip_if_not_msvc()
 test.write('Main.cpp', """\
 #include "Precompiled.h"
  
-int main()
+int main(void)
 {
     return testf();
 }

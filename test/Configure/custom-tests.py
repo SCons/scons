@@ -41,12 +41,12 @@ CR  = test.CR   # cached rebuild (up to date)
 NCF = test.NCF  # non-cached build failure
 CF  = test.CF   # cached build failure
 
-compileOK = '#include <stdio.h>\\nint main() {printf("Hello");return 0;}'
+compileOK = '#include <stdio.h>\\nint main(void) {printf("Hello");return 0;}'
 compileFAIL = "syntax error"
 linkOK = compileOK
-linkFAIL = "void myFunc(); int main() { myFunc(); }"
+linkFAIL = "void myFunc(); int main(void) { myFunc(); }"
 runOK = compileOK
-runFAIL = "int main() { return 1; }"
+runFAIL = "int main(void) { return 1; }"
 
 test.write('pyAct.py', """\
 from __future__ import print_function
