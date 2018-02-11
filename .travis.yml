@@ -4,8 +4,7 @@ language: python
 install:
     - ./.travis/install.sh
 
-# python 3 is not fulling passing at this time
-# so allow failure so the coverage stage can be reached with python 2
+# pypy is not passing, but allow failures for coverage stage to be reached
 matrix:
   allow_failures:
     - python: pypy
