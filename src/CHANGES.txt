@@ -7,6 +7,10 @@
 
 RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Daniel Moody:
+    - Made a small change to scons main __init__.py to set the pickling protocal 
+      to choose the latest which fixed 2 failing test varient dir test from Interactive
+
   From Ray Donnelly:
     - Fix the PATH created by scons.bat (and other .bat files) to provide a normalized
       PATH.  Some pythons in the 3.6 series are no longer able to handle paths which
