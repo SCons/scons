@@ -30,7 +30,7 @@ import os
 _exe = TestSCons._exe
 test = TestSCons.TestSCons()
 
-if not test.where_is('clang') and not test.where_is('ar'):
+if not test.where_is('clang') or not test.where_is('ar'):
     test.skip_test("Could not find 'clang' and 'ar', skipping test.\n")
 
 clang_dir = os.path.dirname(test.where_is('clang'))
