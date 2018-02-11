@@ -25,17 +25,21 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
+import os
 
 _exe = TestSCons._exe
 test = TestSCons.TestSCons()
 
-if not test.where_is('clang'):
+if not test.where_is('clang++'):
     test.skip_test("Could not find 'clang++', skipping test.\n")
+
+clang_dir = os.path.dirname(test.where_is('clang++'))
 
 test.write('SConstruct', """\
 env = Environment(tools=['clang++', 'ar'])
+env.PrependENVPath('PATH', r'%s')
 env.StaticLibrary('foo', 'foo.cpp')
-""")
+""" % clang_dir)
 
 test.write('foo.cpp', """\
 int bar() {
