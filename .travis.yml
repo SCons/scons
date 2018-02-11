@@ -8,8 +8,6 @@ install:
 # so allow failure so the coverage stage can be reached with python 2
 matrix:
   allow_failures:
-    - python: 3.5
-    - python: 3.6
     - python: pypy
 
 
