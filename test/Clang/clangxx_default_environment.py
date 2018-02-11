@@ -34,7 +34,7 @@ if not test.where_is('clang++'):
     test.skip_test("Could not find 'clang++', skipping test.\n")
 
 if 'win32' == sys.platform:
-    test.skip_test("this test is not setup for clang++ in default msvs environment, skipping test.\n")
+    test.skip_test("This test is not setup for clang++ in default msvs environment, skipping test.\n")
 
 ## This will likely NOT use clang++.
 

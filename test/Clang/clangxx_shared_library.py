@@ -43,7 +43,7 @@ elif sys.platform == 'darwin':
     filename = 'foo.os'
     libraryname = 'libfoo.dylib'
 elif sys.platform == 'win32':
-    filename = 'foo.obj'
+    filename = 'foo.os'
     libraryname = 'foo.dll'
 else:
     print("Could not determine platform.")
