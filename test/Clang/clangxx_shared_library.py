@@ -25,32 +25,36 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
-
-from SCons.Environment import Base
+import sys
+import os
 
 _exe = TestSCons._exe
 test = TestSCons.TestSCons()
 
-if not test.where_is('clang'):
+if not test.where_is('clang++'):
     test.skip_test("Could not find 'clang++', skipping test.\n")
 
-platform = Base()['PLATFORM']
-if platform == 'posix':
+clang_dir = os.path.dirname(test.where_is('clang++'))
+
+if 'linux' in sys.platform:
     filename = 'foo.os'
     libraryname = 'libfoo.so'
-elif platform == 'darwin':
+elif sys.platform == 'darwin':
     filename = 'foo.os'
     libraryname = 'libfoo.dylib'
-elif platform == 'win32':
-    filename = 'foo.obj'
+elif sys.platform == 'win32':
+    filename = 'foo.os'
     libraryname = 'foo.dll'
 else:
+    print("Could not determine platform.")
     test.fail_test()
+
 
 test.write('SConstruct', """\
 env = Environment(tools=['clang++', 'link'])
+env.PrependENVPath('PATH', r'%s')
 env.SharedLibrary('foo', 'foo.cpp')
-""")
+""" % clang_dir)
 
 test.write('foo.cpp', """\
 int bar() {

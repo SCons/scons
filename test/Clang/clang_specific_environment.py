@@ -25,6 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
+import os
 
 _exe = TestSCons._exe
 test = TestSCons.TestSCons()
@@ -32,10 +33,13 @@ test = TestSCons.TestSCons()
 if not test.where_is('clang'):
     test.skip_test("Could not find 'clang', skipping test.\n")
 
+clang_dir = os.path.dirname(test.where_is('clang'))
+
 test.write('SConstruct', """\
 env = Environment(tools=['clang', 'link'])
+env.PrependENVPath('PATH', r'%s')
 env.Program('foo.c')
-""")
+""" % clang_dir)
 
 test.write('foo.c', """\
 #include <stdio.h>

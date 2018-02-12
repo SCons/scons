@@ -25,12 +25,16 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
+import sys
 
 _exe = TestSCons._exe
 test = TestSCons.TestSCons()
 
-if not test.where_is('clang'):
+if not test.where_is('clang++'):
     test.skip_test("Could not find 'clang++', skipping test.\n")
+
+if 'win32' == sys.platform:
+    test.skip_test("This test is not setup for clang++ in default msvs environment, skipping test.\n")
 
 ## This will likely NOT use clang++.
 
