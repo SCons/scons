@@ -98,7 +98,7 @@ import pickle
 
 # Was pickle.HIGHEST_PROTOCOL
 # Changed to 2 so py3.5+'s pickle will be compatible with py2.7.
-PICKLE_PROTOCOL = -2
+PICKLE_PROTOCOL = pickle.HIGHEST_PROTOCOL
 
 # TODO: FIXME
 # In 3.x, 'profile' automatically loads the fast version if available.
