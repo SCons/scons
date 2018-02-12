@@ -56,7 +56,7 @@ env.Program('main', 'main.cpp', CPPDEFINES=['FOO'], LIBS=[])
 
 test.write('main.cpp', r"""
 #include "foo5.h"
-int main() { foo5(); return 0; }
+int main(void) { foo5(); return 0; }
 """)
 
 test.run()

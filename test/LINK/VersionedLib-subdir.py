@@ -58,7 +58,7 @@ test.write('main.c', """
 __declspec(dllimport)
 #endif
 int foo();
-int main()
+int main(void)
 {
   return foo();
 }

@@ -39,7 +39,7 @@
 #           env.Program('foo')
 #         </file>
 #         <file name="foo.c">
-#           int main() { printf("foo.c\n"); }
+#           int main(void) { printf("foo.c\n"); }
 #         </file>
 #       </scons_example>
 #

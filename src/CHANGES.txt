@@ -37,6 +37,12 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Updated manpage scons.xml to fix a nested list problem
     - Updated doc terminionly: use prepend instead of append as appropriate
 
+  From Jonathon Reinhart:
+    - Replace all instances of `int main()` in C code with `int main(void)`.
+      Specifically, this fixes the test cases use by Configure.CheckCC() which
+      would fail when using -Wstrict-prototypes.
+
+
 RELEASE 3.0.1 - Mon, 12 Nov 2017 15:31:33 -0700
 
   From Daniel Moody:

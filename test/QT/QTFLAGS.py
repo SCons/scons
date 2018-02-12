@@ -127,7 +127,7 @@ test.write(['work1', 'main.cpp'], """
 #include "uic-another_ui_file.hpp"
 void mocFromCpp();
 
-int main() {
+int main(void) {
   mocFromH();
   mocFromCpp();
   an_ui_file();
@@ -189,7 +189,7 @@ env2.Program('main.cpp')
 """ % {'QTDIR':QT})
 
 test.write(['work2', 'main.cpp'], """
-int main() { return 0; }
+int main(void) { return 0; }
 """)
 
 # Ignore stderr, because if Qt is not installed,

@@ -46,7 +46,7 @@ env.Program('main', 'main.cpp', CPPDEFINES=['FOO'], LIBS=[])
 
 test.write('main.cpp', r"""
 #include "foo6.h"
-int main() { foo6(); return 0; }
+int main(void) { foo6(); return 0; }
 """)
 
 test.write(['qt', 'include', 'foo6.h'], """\

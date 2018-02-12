@@ -60,7 +60,7 @@ extern int yyparse();
 int yyerror(char *s);
 int yylex();
 
-int main()
+int main(void)
 {
     return yyparse();
 }
@@ -108,7 +108,7 @@ file_hpp = 'file.hpp'
 test.write("hello.cpp", """\
 #include "%(file_hpp)s"
 
-int main()
+int main(void)
 {
 }
 """ % locals())
