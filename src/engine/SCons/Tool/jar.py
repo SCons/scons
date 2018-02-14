@@ -163,19 +163,6 @@ def Jar(env, target = None, source = [], *args, **kw):
         else:
             return dir_targets
 
-    # In the case that we are passed just string to a node which is directory
-    # but does not exist, we need to check all the current targets to see if
-    # that directory is going to exist so we can add it as a source to Jar builder
-    def get_all_targets(env, node='.'):
-        def get_all_targets_iter(env, node):
-            if node.has_builder():
-                yield node
-            for kid in node.all_children():
-                for kid in get_all_targets(env, kid):
-                    yield kid
-        node = env.arg2nodes(node, env.fs.Entry)[0]
-        return list(get_all_targets_iter(env, node))
-
     # loop through the sources and handle each accordingly
     # the goal here is to get all the source files into a class
     # file or a directory that contains class files
@@ -189,27 +176,22 @@ def Jar(env, target = None, source = [], *args, **kw):
                 # found a dir so get the class files out of it
                 target_nodes.extend(dir_to_class(s))
         else:
-            if os.path.isfile(s):
-                # found a file that exists on the FS, make sure its a class file
-                target_nodes.extend(file_to_class(s))
-            elif os.path.isdir(s):
-                # found a dir so get the class files out of it
-                target_nodes.extend(dir_to_class(s))
-            elif s[-len(java_suffix):] == java_suffix or s[-len(java_class_suffix):] == java_class_suffix:
-                # found a file that may not exists and is only a string
-                # so add it after converting it to a class file
-                target_nodes.extend(file_to_class(s))
-            else:
-                # found a swig file so add it after converting it to class files
-                if(os.path.splitext(str(s))[1] == ".i"):
-                    target_nodes.extend(env.JavaClassFile(source = s, *args, **kw))
-                else:
-                    # The final else case handles anything not caught above and makes
-                    # sure other nodes that are sources for this jar get add as
-                    # a source to the JarFile builder
-                    for node in get_all_targets(env):
-                        if(s == str(node)):
-                            target_nodes.append(node)
+            try:
+                # source is string try to convert it to file
+                target_nodes.extend(file_to_class(env.fs.File(s)))
+                continue
+            except:
+                pass
+            
+            try:
+                # source is string try to covnert it to dir
+                target_nodes.extend(dir_to_class(env.fs.Dir(s)))
+                continue
+            except:
+                pass
+
+            SCons.Warnings.Warning("File: " + str(s) + " could not be identified as File or Directory, skipping.")
+            
     # at this point all our sources have been converted to classes or directories of class
     # so pass it to the Jar builder
     return env.JarFile(target = target, source = target_nodes, *args, **kw)
