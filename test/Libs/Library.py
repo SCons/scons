@@ -152,7 +152,7 @@ void nrd() {
 
 test.write('uses-nrd.c', r"""
 void nrd();
-int main() {
+int main(void) {
     nrd();
     return 0;
 }

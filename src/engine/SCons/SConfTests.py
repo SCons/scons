@@ -115,9 +115,9 @@ class SConfTestCase(unittest.TestCase):
 
         def checks(self, sconf, TryFuncString):
             TryFunc = self.SConf.SConfBase.__dict__[TryFuncString]
-            res1 = TryFunc( sconf, "int main() { return 0; }\n", ".c" )
+            res1 = TryFunc( sconf, "int main(void) { return 0; }\n", ".c" )
             res2 = TryFunc( sconf,
-                            '#include "no_std_header.h"\nint main() {return 0; }\n',
+                            '#include "no_std_header.h"\nint main(void) {return 0; }\n',
                             '.c' )
             return (res1,res2)
 
@@ -254,7 +254,7 @@ class SConfTestCase(unittest.TestCase):
         def checks(sconf):
             prog = """
 #include <stdio.h>
-int main() {
+int main(void) {
   printf( "Hello" );
   return 0;
 }
@@ -755,7 +755,7 @@ int main() {
             prog = """
 #include <stdio.h>
 
-int main() {
+int main(void) {
   printf( "Hello" );
   return 0;
 }

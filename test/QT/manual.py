@@ -119,7 +119,7 @@ test.write('main.cpp', r"""
 #include "eee.h"
 #include "uic_fff.hpp"
 
-int main() {
+int main(void) {
   aaa(); bbb(); ccc(); ddd(); eee(); fff(); return 0;
 }
 """)

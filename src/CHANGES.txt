@@ -7,12 +7,24 @@
 
 RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
-  From Gary Oberbrunner:
-    - Fix bug when Installing multiple subdirs outside the source tree
-    - fix to_str to handle None without raising exception
+  From Daniel Moody:
+    - Set the pickling protocal back to highest which was causing issues 
+      with variant dir tests. This will cause issues if reading sconsigns
+      pickled with the previous lower protocal.
+      
+  From Ray Donnelly:
+    - Fix the PATH created by scons.bat (and other .bat files) to provide a normalized
+      PATH.  Some pythons in the 3.6 series are no longer able to handle paths which
+      have ".." in them and end up crashing.  This is done by cd'ing into the directory
+      we want to add to the path and then useing %CD% to give us the normalized directory
+      See bug filed under Python 3.6: https://bugs.python.org/issue32457.
+      Note: On Win32 PATH's which have not been normalized may cause undefined behavior
+      by other executables being run by SCons (or any subprocesses of executables being run by SCons).
+      Resolving this issue should eliminate that possibility going forward.
 
-  From Mats Wichmann:
-    - Updated manpage scons.xml to fix a nested list problem
+  From William Deegan:
+    - Remove long deprecated SCons.Options code and tests.  This removes BoolOption,EnumOption,
+      ListOption,PackageOption, and PathOption which have been replaced by *Variable() many years ago.
 
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
@@ -28,6 +40,20 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       will be used and the default paths below will be ignored.
       - Default path for clang/clangxx : C:\Program Files\LLVM\bin
       - Default path for mingw         : c:\MinGW\bin
+
+  From Gary Oberbrunner:
+    - Fix bug when Installing multiple subdirs outside the source tree
+    - fix to_str to handle None without raising exception
+
+  From Mats Wichmann:
+    - Updated manpage scons.xml to fix a nested list problem
+    - Updated doc terminionly: use prepend instead of append as appropriate
+
+  From Jonathon Reinhart:
+    - Replace all instances of `int main()` in C code with `int main(void)`.
+      Specifically, this fixes the test cases use by Configure.CheckCC() which
+      would fail when using -Wstrict-prototypes.
+
 
 RELEASE 3.0.1 - Mon, 12 Nov 2017 15:31:33 -0700
 

@@ -680,7 +680,7 @@ class TestCommon(TestCmd):
         The parameters are the same as the base TestCmd.run() method,
         with the addition of:
 
-                options Extra options that get appended to the beginning
+                options Extra options that get prepended to the beginning
                         of the arguments.
 
                 stdout  The expected standard output from

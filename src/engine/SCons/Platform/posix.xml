@@ -46,7 +46,7 @@ An automatically-generated construction variable
 containing the rpath flags to be used when linking
 a program with shared libraries.
 The value of &cv-_RPATH; is created
-by appending &cv-RPATHPREFIX; and &cv-RPATHSUFFIX;
+by respectively prepending &cv-RPATHPREFIX; and appending &cv-RPATHSUFFIX;
 to the beginning and end
 of each directory in &cv-RPATH;.
 </para>
@@ -58,7 +58,7 @@ of each directory in &cv-RPATH;.
 <para>
 The prefix used to specify a directory to be searched for
 shared libraries when running programs.
-This will be appended to the beginning of each directory
+This will be prepended to the beginning of each directory
 in the &cv-RPATH; construction variable
 when the &cv-_RPATH; variable is automatically generated.
 </para>

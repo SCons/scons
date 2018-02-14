@@ -25,8 +25,14 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
-
+import os
 test = TestSCons.TestSCons()
+
+# also exclude these tests since it overides the exit function which doesnt work with coverage 
+# # more info here: https://coverage.readthedocs.io/en/coverage-4.4.2/subprocess.html#
+# TODO: figure out how to cover tests which use exit functions
+if test.coverage_run():
+    test.skip_test("This test replaces the exit function which is needed by coverage to write test data; skipping test.")
 
 sconstruct = """
 from SCons.exitfuncs import *

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -23,25 +24,54 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-__doc__ = """Place-holder for the old SCons.Options module hierarchy
-
-This is for backwards compatibility.  The new equivalent is the Variables/
-class hierarchy.  These will have deprecation warnings added (some day),
-and will then be removed entirely (some day).
+"""
+Verify accessing cache works even if it's read-only.
 """
 
-import SCons.Variables
-import SCons.Warnings
+import glob
+import os
+import TestSCons
+import time
+from stat import *
 
-warned = False
+test = TestSCons.TestSCons()
 
-def EnumOption(*args, **kw):
-    global warned
-    if not warned:
-        msg = "The EnumOption() function is deprecated; use the EnumVariable() function instead."
-        SCons.Warnings.warn(SCons.Warnings.DeprecatedOptionsWarning, msg)
-        warned = True
-    return SCons.Variables.EnumVariable(*args, **kw)
+test.write(['SConstruct'], """\
+CacheDir('cache')
+Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))
+""")
+
+test.write('file.in', "file.in\n")
+
+test.run(arguments = '--debug=explain --cache-debug=- .')
+
+cachefile = glob.glob("cache/??/*")[0]
+
+time0 = os.stat(cachefile).st_mtime
+
+time.sleep(.1)
+
+test.unlink('file.out')
+
+test.run(arguments = '--debug=explain --cache-debug=- .')
+
+time1  = os.stat(cachefile).st_mtime
+
+# make sure that mtime has been updated on cache use
+if time1 <= time0:
+    test.fail_test()
+
+test.unlink('file.out')
+
+for root, dirs, files in os.walk("cache",topdown=False):
+	for file in files:
+		os.chmod(os.path.join(root,file),0o444)
+	for dir in dirs:
+		os.chmod(os.path.join(root,dir),0o555)
+
+test.run(arguments = '--debug=explain --cache-debug=- .')
+
+test.pass_test()
 
 # Local Variables:
 # tab-width:4

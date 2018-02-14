@@ -56,6 +56,10 @@ def CacheRetrieveFunc(target, source, env):
             fs.symlink(fs.readlink(cachefile), t.get_internal_path())
         else:
             env.copy_from_cache(cachefile, t.get_internal_path())
+            try:
+                os.utime(cachefile, None)
+            except OSError:
+                pass
         st = fs.stat(cachefile)
         fs.chmod(t.get_internal_path(), stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
     return 0
