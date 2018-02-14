@@ -46,6 +46,8 @@ import sys
 import SCons.Tool
 import SCons.Util
 import SCons.Tool.cxx
+from SCons.Tool.clang import get_clang_install_dirs
+
 
 compilers = ['clang++']
 
@@ -68,7 +70,7 @@ def generate(env):
         env['SHOBJSUFFIX'] = '.pic.o'
     elif env['PLATFORM'] == 'win32':
         # Ensure that we have a proper path for clang++
-        clangxx = SCons.Tool.find_program_path(env, compilers[0], default_paths=[r'C:\Program Files\LLVM\bin',])
+        clangxx = SCons.Tool.find_program_path(env, compilers[0], default_paths=get_clang_install_dirs(env['PLATFORM']))
         if clangxx:
             clangxx_bin_dir = os.path.dirname(clangxx)
             env.AppendENVPath('PATH', clangxx_bin_dir)
