@@ -678,7 +678,7 @@ class _ActionAction(ActionBase):
                 source = executor.get_all_sources()
             t = ' and '.join(map(str, target))
             l = '\n  '.join(self.presub_lines(env))
-            out = u"Building %s with action:\n  %s\n" % (t, l)
+            out = "Building %s with action:\n  %s\n" % (t, l)
             sys.stdout.write(out)
         cmd = None
         if show and self.strfunction:
