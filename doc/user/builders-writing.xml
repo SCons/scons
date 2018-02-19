@@ -812,7 +812,7 @@ env.Foo('file')
     <scons_example name="builderswriting_MY_EMITTER">
 
       <file name="SConstruct" printme="1">
-bld = Builder(action = 'my_command $SOURCES &gt; $TARGET',
+bld = Builder(action = './my_command $SOURCES &gt; $TARGET',
               suffix = '.foo',
               src_suffix = '.input',
               emitter = '$MY_EMITTER')
