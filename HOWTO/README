@@ -22,8 +22,3 @@ new-tool.txt
 release.txt
 	Steps to go through when releasing a new version of SCons.
 
-subrelease.txt
-	Steps to go through when releasing a new subsidiary version
-	of SCons--for example, 0.95.1 after we've released 0.95.
-	So far, we've only done this to get some early testing on major
-	refactorings.
