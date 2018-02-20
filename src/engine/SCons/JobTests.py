@@ -87,7 +87,6 @@ class Task(object):
         self.taskmaster = taskmaster
         self.was_executed = 0
         self.was_prepared = 0
-        
 
     def prepare(self):
         self.was_prepared = 1
@@ -105,19 +104,19 @@ class Task(object):
         self.taskmaster.guard.acquire()
         self.taskmaster.begin_list.append(self.i)
         self.taskmaster.guard.release()
-        
+
         # while task is executing, represent this in the parallel_list
-		# and then turn it off
+        # and then turn it off
         self.taskmaster.parallel_list[self.i] = 1
         self._do_something()
         self.taskmaster.parallel_list[self.i] = 0
-		
+
         # check if task was executing while another was also executing
         for j in range(1, self.taskmaster.num_tasks):
             if(self.taskmaster.parallel_list[j+1] == 1):
                 self.taskmaster.found_parallel = True
                 break
-        
+
         self.was_executed = 1
 
         self.taskmaster.guard.acquire()
@@ -126,7 +125,7 @@ class Task(object):
 
     def executed(self):
         self.taskmaster.num_executed = self.taskmaster.num_executed + 1
-		
+
         self.taskmaster.test_case.failUnless(self.was_prepared,
                                   "the task wasn't prepared")
         self.taskmaster.test_case.failUnless(self.was_executed,
@@ -152,7 +151,7 @@ class RandomTask(Task):
         for i in range(random.randrange(0, 1000 + num_sines, 1)):
             x = math.sin(i)
         time.sleep(0.1)
-        
+
 class ExceptionTask(object):
     """A dummy task class for testing purposes."""
 
