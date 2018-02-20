@@ -52,7 +52,7 @@ def get_cpu_nums():
     return 1 # Default
 
 # a large number
-num_sines = 10000
+num_sines = 500
 
 # how many parallel jobs to perform for the test
 num_jobs = get_cpu_nums()*2
@@ -148,9 +148,9 @@ class Task(object):
 class RandomTask(Task):
     def _do_something(self):
         # do something that will take some random amount of time:
-        for i in range(random.randrange(0, 1000 + num_sines, 1)):
+        for i in range(random.randrange(0, 100 + num_sines, 1)):
             x = math.sin(i)
-        time.sleep(0.1)
+        time.sleep(0.01)
 
 class ExceptionTask(object):
     """A dummy task class for testing purposes."""
@@ -282,7 +282,7 @@ class ParallelTestCase(unittest.TestCase):
 
         class SleepTask(Task):
             def _do_something(self):
-                time.sleep(0.1)
+                time.sleep(0.01)
 
         global SaveThreadPool
         SaveThreadPool = SCons.Job.ThreadPool
@@ -292,7 +292,7 @@ class ParallelTestCase(unittest.TestCase):
                 ThreadPoolCallList.append('put(%s)' % task.i)
                 return SaveThreadPool.put(self, task)
             def get(self):
-                time.sleep(0.5)
+                time.sleep(0.05)
                 result = SaveThreadPool.get(self)
                 ThreadPoolCallList.append('get(%s)' % result[0].i)
                 return result
