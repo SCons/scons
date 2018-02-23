@@ -53,9 +53,6 @@ class TestLiteral(object):
         return 1
 
 
-
-
-
 class TestEnvironmentValues(unittest.TestCase):
     def test_simple_environmentValues(self):
         """Test comparing SubstitutionEnvironments
@@ -109,7 +106,7 @@ class TestEnvironmentValues(unittest.TestCase):
         env = EnvironmentValues(X='One', XX='Two', XXX='$X $($XX$)')
 
         # vanilla string should equal itself
-        x = env.subst('X', env)
+        x = env.subst('$X', env)
         self.assertEqual(x, 'One')
 
         # Single level expansion

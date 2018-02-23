@@ -470,6 +470,10 @@ class EnvironmentValue(object):
             string_values = [None] * len(self.all_dependencies)
             parsed_values = [None] * len(self.all_dependencies)
 
+            # Next take the dependencies and stick them in either string_values or parsed_values
+            # parsed_values indicates they need further processing to be turned into plain strings
+
+
             # Break parts in to simple strings or parts to be further evaluated
             for (t, v, i) in self.all_dependencies:
                 if t not in (ValueTypes.ESCAPE_START, ValueTypes.ESCAPE_END, ValueTypes.STRING) and v in env \

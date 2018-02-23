@@ -38,6 +38,7 @@ import SCons.Errors
 
 from SCons.Subst import *
 
+
 class DummyNode(object):
     """Simple node work-alike."""
     def __init__(self, name):
@@ -50,6 +51,7 @@ class DummyNode(object):
         return self
     def get_subst_proxy(self):
         return self
+
 
 class DummyEnv(object):
     def __init__(self, dict={}):
