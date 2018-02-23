@@ -9,10 +9,12 @@ from SCons.Subst import AllowableExceptions, raise_exception
 
 _debug = True
 if _debug:
-    def debug(a):
-        print(a)
+    def debug(fmt, *args):
+        # format when needed
+        print(fmt % args)
 else:
-    def debug(a):
+    # avoid any formatting overhead
+    def debug(*unused):
         pass
 
 
@@ -328,9 +330,9 @@ class EnvironmentValue(object):
         for (index, val) in enumerate(all_dependencies):
             if val:
                 (t, v, i) = val
-                debug("[%4d] %20s, %5s, %s" % (index, ValueTypes.enum_name(t), i, v))
+                debug("[%4d] %20s, %5s, %s",index, ValueTypes.enum_name(t), i, v)
             else:
-                debug("[%4d] %20s, %5s, %s" % (index,"None","None","None"))
+                debug("[%4d] %20s, %5s, %s",index,"None","None","None")
 
     def update(self, key, all_values):
         """
@@ -350,14 +352,14 @@ class EnvironmentValue(object):
         # update self.all_dependencies to see if the type has changed.
         for (t,v,i) in self.all_dependencies:
             if v == key:
-                debug("Matching key:%s -> (%s/%s/%s)"%(key,ValueTypes.enum_name(t),v,i))
+                debug("Matching key:%s -> (%s/%s/%s)",key,ValueTypes.enum_name(t),v,i)
 
                 if callable(all_values[key].value):
                     t = ValueTypes.CALLABLE
                 else:
                     t = ValueTypes.VARIABLE
 
-                debug("Now         :%s -> (%s/%s/%s)"%(key,ValueTypes.enum_name(t),v,i))
+                debug("Now         :%s -> (%s/%s/%s)",key,ValueTypes.enum_name(t),v,i)
 
                 # This needs to trigger update of this variable as well..
                 self.all_dependencies[i] = (t, v, i)
@@ -513,7 +515,7 @@ class EnvironmentValue(object):
                 else:
                     string_values[i] = (v, t)
 
-            debug("Parsed values:%s  for %s [%s]"%(parsed_values, self._parsed, string_values))
+            debug("Parsed values:%s  for %s [%s]",parsed_values, self._parsed, string_values)
 
             # Now we should be able to resolve if value is a callable or a variable.
             # if unsure, we'll leave as callable.
@@ -577,7 +579,7 @@ class EnvironmentValue(object):
                         if callable(v):
                             t = ValueTypes.CALLABLE
                         else:
-                            debug("Swapped to EVALUABLE:%s"%v)
+                            debug("Swapped to EVALUABLE:%s",v)
                             t = ValueTypes.EVALUABLE
 
 
@@ -618,7 +620,7 @@ class EnvironmentValue(object):
 
                         parsed_values[i] = None
                     elif t == ValueTypes.PARSED:
-                        debug("PARSED   Type:%s VAL:%s"%(pv[0],pv[1]))
+                        debug("PARSED   Type:%s VAL:%s",pv[0],pv[1])
 
                         try:
                             try:
@@ -637,7 +639,7 @@ class EnvironmentValue(object):
                                 # TODO: Handle other recursive loops by empty stringing this value before recursing with copy of lvar?
                                 string_values[i] = (env[v].subst(env, mode, target, source, gvars, lvars, conv),
                                                     ValueTypes.STRING)
-                            debug("%s->%s" % (v,string_values[i]))
+                            debug("%s->%s", v,string_values[i])
                         except KeyError as e:
                             # Must be lvar
                             if v[0] == '{' or '.' in v:
@@ -649,20 +651,20 @@ class EnvironmentValue(object):
                         parsed_values[i] = None
                     elif t == ValueTypes.STRING:
                         # The variable resolved to a string . No need to process further.
-                        debug("STR      Type:%s VAL:%s"%(pv[0],pv[1]))
-                        string_values[i] = (env[v].value,t )
-                        debug("%s->%s" % (v,string_values[i]))
+                        debug("STR      Type:%s VAL:%s", pv[0],pv[1])
+                        string_values[i] = (env[v].value, t)
+                        debug("%s->%s", v, string_values[i])
                         parsed_values[i] = None
                     elif t == ValueTypes.NUMBER:
                         # The variable resolved to a number. No need to process further.
-                        debug("Num      Type:%s VAL:%s"%(pv[0],pv[1]))
+                        debug("Num      Type:%s VAL:%s", pv[0], pv[1])
                         string_values[i] = (str(env[v].value), t)
-                        debug("%s->%s" % (v,string_values[i]))
+                        debug("%s->%s", v,string_values[i])
                         parsed_values[i] = None
                     elif t == ValueTypes.COLLECTION:
                         # Handle list, tuple, or dictionary
                         # Basically iterate all items, evaluating each, and then join them together with a space
-                        debug("COLLECTION  Type:%s VAL:%s" % (t,v))
+                        debug("COLLECTION  Type:%s VAL:%s", t, v)
                         value = env[v].value
 
                         # TODO: Finish implementation
@@ -732,7 +734,7 @@ class EnvironmentValue(object):
             signature_string = _space_sep.sub(' ', signature_string).strip()
 
 
-            debug("HERE:%s  Escaped:%s"%(subst_value, signature_string))
+            debug("HERE:%s  Escaped:%s", subst_value, signature_string)
 
             # Cache both values
             self.cached = (subst_value, signature_string)
