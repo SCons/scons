@@ -380,11 +380,21 @@ _rm_split = re.compile(r'(?<!\$)(\$[()])')
 _regex_remove = [_rm, None, _rm_split]
 
 
-def _rm_list(list):
-    return [l for l in list if not l in ('$(', '$)')]
+def _remove_escape_items_from_list(items):
+    """
+    Remove string escapes $( and $)
+    :param items:
+    :return: list of tokens minus string escape tokens
+    """
+    return [l for l in items if not l in ('$(', '$)')]
 
 
-def _remove_list(list):
+def _remove_escaped_items_from_list(list):
+    """
+    Returns list with all items inside escapes ( $( and $) )removed
+    :param list:
+    :return: list.
+    """
     result = []
     depth = 0
     for l in list:
@@ -402,7 +412,7 @@ def _remove_list(list):
 
 
 # Indexed by the SUBST_* constants above.
-_list_remove = [_rm_list, None, _remove_list]
+_list_remove = [_remove_escape_items_from_list, None, _remove_escaped_items_from_list]
 
 # Regular expressions for splitting strings and handling substitutions,
 # for use by the scons_subst() and scons_subst_list() functions:
@@ -434,6 +444,148 @@ _separate_args = re.compile(r'(%s|\s+|[^\s\$]+|\$)' % _dollar_exps_str)
 _space_sep = re.compile(r'[\t ]+(?![^{]*})')
 
 
+class StringSubber(object):
+    """A class to construct the results of a scons_subst() call.
+
+    This binds a specific construction environment, mode, target and
+    source with two methods (substitute() and expand()) that handle
+    the expansion.
+    """
+
+    def __init__(self, env, mode, conv, gvars):
+        self.env = env
+        self.mode = mode
+        self.conv = conv
+        self.gvars = gvars
+
+    def expand(self, s, lvars):
+        """Expand a single "token" as necessary, returning an
+        appropriate string containing the expansion.
+
+        This handles expanding different types of things (strings,
+        lists, callables) appropriately.  It calls the wrapper
+        substitute() method to re-expand things as necessary, so that
+        the results of expansions of side-by-side strings still get
+        re-evaluated separately, not smushed together.
+        """
+        if is_String(s):
+            try:
+                s0, s1 = s[:2]
+            except (IndexError, ValueError):
+                return s
+            if s0 != '$':
+                return s
+            if s1 == '$':
+                # In this case keep the double $'s which we'll later
+                # swap for a single dollar sign as we need to retain
+                # this information to properly avoid matching "$("" when
+                # the actual text was "$$(""  (or "$)"" when "$$)"" )
+                return '$$'
+            elif s1 in '()':
+                return s
+            else:
+                key = s[1:]
+                if key[0] == '{' or '.' in key:
+                    if key[0] == '{':
+                        key = key[1:-1]
+                    try:
+                        s = eval(key, self.gvars, lvars)
+                    except KeyboardInterrupt:
+                        raise
+                    except Exception as e:
+                        if e.__class__ in AllowableExceptions:
+                            return ''
+                        raise_exception(e, lvars['TARGETS'], s)
+                else:
+                    if key in lvars:
+                        s = lvars[key]
+                    elif key in self.gvars:
+                        s = self.gvars[key]
+                    elif not NameError in AllowableExceptions:
+                        raise_exception(NameError(key), lvars['TARGETS'], s)
+                    else:
+                        return ''
+
+                # Before re-expanding the result, handle
+                # recursive expansion by copying the local
+                # variable dictionary and overwriting a null
+                # string for the value of the variable name
+                # we just expanded.
+                #
+                # This could potentially be optimized by only
+                # copying lvars when s contains more expansions,
+                # but lvars is usually supposed to be pretty
+                # small, and deeply nested variable expansions
+                # are probably more the exception than the norm,
+                # so it should be tolerable for now.
+                lv = lvars.copy()
+                var = key.split('.')[0]
+                lv[var] = ''
+                return self.substitute(s, lv)
+        elif is_Sequence(s):
+            def func(l, conv=self.conv, substitute=self.substitute, lvars=lvars):
+                return conv(substitute(l, lvars))
+
+            return list(map(func, s))
+        elif callable(s):
+            try:
+                s = s(target=lvars['TARGETS'],
+                      source=lvars['SOURCES'],
+                      env=self.env,
+                      for_signature=(self.mode != SUBST_CMD))
+            except TypeError:
+                # This probably indicates that it's a callable
+                # object that doesn't match our calling arguments
+                # (like an Action).
+                if self.mode == SUBST_RAW:
+                    return s
+                s = self.conv(s)
+            return self.substitute(s, lvars)
+        elif s is None:
+            return ''
+        else:
+            return s
+
+    def substitute(self, args, lvars):
+        """Substitute expansions in an argument or list of arguments.
+
+        This serves as a wrapper for splitting up a string into
+        separate tokens.
+        """
+        if is_String(args) and not isinstance(args, CmdStringHolder):
+            args = str(args)  # In case it's a UserString.
+            try:
+                def sub_match(match):
+                    """
+                    This is called for every non-overlapping match in dollar_exps.
+                    self.conf is going to either be SCons.Util.to_String_for_subst or
+                    SCons.Util.to_String_for_signature.  Which will return a string.
+                    see: https://docs.python.org/2/library/re.html#re.sub
+                    :param match:
+                    :return: A string.
+                    """
+                    return self.conv(self.expand(match.group(1), lvars))
+
+                result = _dollar_exps.sub(sub_match, args)
+            except TypeError:
+                # If the internal conversion routine doesn't return
+                # strings (it could be overridden to return Nodes, for
+                # example), then the 1.5.2 re module will throw this
+                # exception.  Back off to a slower, general-purpose
+                # algorithm that works for all data types.
+                args = _separate_args.findall(args)
+                result = []
+                for a in args:
+                    result.append(self.conv(self.expand(a, lvars)))
+                if len(result) == 1:
+                    result = result[0]
+                else:
+                    result = ''.join(map(str, result))
+            return result
+        else:
+            return self.expand(args, lvars)
+
+
 def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None):
     """Expand a string or list containing construction variable
     substitutions.
@@ -446,146 +598,6 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
     if isinstance(strSubst, str) and '$' not in strSubst:
         return strSubst
 
-    class StringSubber(object):
-        """A class to construct the results of a scons_subst() call.
-
-        This binds a specific construction environment, mode, target and
-        source with two methods (substitute() and expand()) that handle
-        the expansion.
-        """
-
-        def __init__(self, env, mode, conv, gvars):
-            self.env = env
-            self.mode = mode
-            self.conv = conv
-            self.gvars = gvars
-
-        def expand(self, s, lvars):
-            """Expand a single "token" as necessary, returning an
-            appropriate string containing the expansion.
-
-            This handles expanding different types of things (strings,
-            lists, callables) appropriately.  It calls the wrapper
-            substitute() method to re-expand things as necessary, so that
-            the results of expansions of side-by-side strings still get
-            re-evaluated separately, not smushed together.
-            """
-            if is_String(s):
-                try:
-                    s0, s1 = s[:2]
-                except (IndexError, ValueError):
-                    return s
-                if s0 != '$':
-                    return s
-                if s1 == '$':
-                    # In this case keep the double $'s which we'll later
-                    # swap for a single dollar sign as we need to retain
-                    # this information to properly avoid matching "$("" when
-                    # the actual text was "$$(""  (or "$)"" when "$$)"" )
-                    return '$$'
-                elif s1 in '()':
-                    return s
-                else:
-                    key = s[1:]
-                    if key[0] == '{' or '.' in key:
-                        if key[0] == '{':
-                            key = key[1:-1]
-                        try:
-                            s = eval(key, self.gvars, lvars)
-                        except KeyboardInterrupt:
-                            raise
-                        except Exception as e:
-                            if e.__class__ in AllowableExceptions:
-                                return ''
-                            raise_exception(e, lvars['TARGETS'], s)
-                    else:
-                        if key in lvars:
-                            s = lvars[key]
-                        elif key in self.gvars:
-                            s = self.gvars[key]
-                        elif not NameError in AllowableExceptions:
-                            raise_exception(NameError(key), lvars['TARGETS'], s)
-                        else:
-                            return ''
-
-                    # Before re-expanding the result, handle
-                    # recursive expansion by copying the local
-                    # variable dictionary and overwriting a null
-                    # string for the value of the variable name
-                    # we just expanded.
-                    #
-                    # This could potentially be optimized by only
-                    # copying lvars when s contains more expansions,
-                    # but lvars is usually supposed to be pretty
-                    # small, and deeply nested variable expansions
-                    # are probably more the exception than the norm,
-                    # so it should be tolerable for now.
-                    lv = lvars.copy()
-                    var = key.split('.')[0]
-                    lv[var] = ''
-                    return self.substitute(s, lv)
-            elif is_Sequence(s):
-                def func(l, conv=self.conv, substitute=self.substitute, lvars=lvars):
-                    return conv(substitute(l, lvars))
-
-                return list(map(func, s))
-            elif callable(s):
-                try:
-                    s = s(target=lvars['TARGETS'],
-                          source=lvars['SOURCES'],
-                          env=self.env,
-                          for_signature=(self.mode != SUBST_CMD))
-                except TypeError:
-                    # This probably indicates that it's a callable
-                    # object that doesn't match our calling arguments
-                    # (like an Action).
-                    if self.mode == SUBST_RAW:
-                        return s
-                    s = self.conv(s)
-                return self.substitute(s, lvars)
-            elif s is None:
-                return ''
-            else:
-                return s
-
-        def substitute(self, args, lvars):
-            """Substitute expansions in an argument or list of arguments.
-
-            This serves as a wrapper for splitting up a string into
-            separate tokens.
-            """
-            if is_String(args) and not isinstance(args, CmdStringHolder):
-                args = str(args)  # In case it's a UserString.
-                try:
-                    def sub_match(match):
-                        """
-                        This is called for every non-overlapping match in dollar_exps.
-                        self.conf is going to either be SCons.Util.to_String_for_subst or
-                        SCons.Util.to_String_for_signature.  Which will return a string.
-                        see: https://docs.python.org/2/library/re.html#re.sub
-                        :param match:
-                        :return: A string.
-                        """
-                        return self.conv(self.expand(match.group(1), lvars))
-
-                    result = _dollar_exps.sub(sub_match, args)
-                except TypeError:
-                    # If the internal conversion routine doesn't return
-                    # strings (it could be overridden to return Nodes, for
-                    # example), then the 1.5.2 re module will throw this
-                    # exception.  Back off to a slower, general-purpose
-                    # algorithm that works for all data types.
-                    args = _separate_args.findall(args)
-                    result = []
-                    for a in args:
-                        result.append(self.conv(self.expand(a, lvars)))
-                    if len(result) == 1:
-                        result = result[0]
-                    else:
-                        result = ''.join(map(str, result))
-                return result
-            else:
-                return self.expand(args, lvars)
 
     if conv is None:
         conv = _strconv[mode]
@@ -654,22 +666,8 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
     return result
 
 
-def scons_subst_list(strSubst, env, mode=SUBST_RAW,
-                     target=None, source=None, gvars={}, lvars={}, conv=None):
-    """Substitute construction variables in a string (or list or other
-    object) and separate the arguments into a command list.
 
-    The companion scons_subst() function (above) handles basic
-    substitutions within strings, so see that function instead
-    if that's what you're looking for.
-
-    :param strSubst: Either a string (potentially with embedded newlines),
-                     or a list of command line arguments
-    :return:  a list of lists of substituted values (First dimension is separate command line,
-              second dimension is "words" in the command line)
-    """
-
-    class ListSubber(collections.UserList):
+class ListSubber(collections.UserList):
         """A class to construct the results of a scons_subst_list() call.
 
         Like StringSubber, this class binds a specific construction
@@ -904,6 +902,23 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW,
             """Handle the "close strip" $) token."""
             self.add_strip(x)
             self.in_strip = None
+
+
+def scons_subst_list(strSubst, env, mode=SUBST_RAW,
+                     target=None, source=None, gvars={}, lvars={}, conv=None):
+    """Substitute construction variables in a string (or list or other
+    object) and separate the arguments into a command list.
+
+    The companion scons_subst() function (above) handles basic
+    substitutions within strings, so see that function instead
+    if that's what you're looking for.
+
+    :param strSubst: Either a string (potentially with embedded newlines),
+                     or a list of command line arguments
+    :return:  a list of lists of substituted values (First dimension is separate command line,
+              second dimension is "words" in the command line)
+    """
+
 
     if conv is None:
         conv = _strconv[mode]
