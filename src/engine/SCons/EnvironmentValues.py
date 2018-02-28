@@ -4,6 +4,7 @@ from numbers import Number
 from SCons.Util import is_String, is_Sequence, CLVar
 from SCons.Subst import CmdStringHolder, create_subst_target_source_dict, AllowableExceptions, raise_exception
 from SCons.EnvironmentValue import EnvironmentValue, ValueTypes, separate_args, SubstModes
+import SCons.Environment
 
 # _is_valid_var = re.compile(r'[_a-zA-Z]\w*$')
 #
@@ -30,6 +31,7 @@ class EnvironmentValues(object):
         self.values = dict((k, EnvironmentValue(v)) for k, v in kw.items())
         self._dict = kw.copy()
         self.key_set = set(kw.keys())
+        self.cached_values = {}
 
     def __setitem__(self, key, value):
         debug("SETITEM:[%s]%s->%s", id(self), key, value)
@@ -103,7 +105,7 @@ class EnvironmentValues(object):
             self.values[k].update(key, self.values)
 
     @staticmethod
-    def split_dependencies(value, string_values, parsed_values):
+    def split_dependencies(value, string_values, parsed_values, reserved_name_set):
         """
         Split the dependencies for the value into strings and items which need further processing
         (parsed_values
@@ -229,7 +231,7 @@ class EnvironmentValues(object):
                     try:
                         value = lvars[v]
                     except KeyError as e:
-                        value = env[v].value
+                        value = self.values[v].value
 
                     # Shortcut self reference
                     if isinstance(value, Number):
@@ -240,7 +242,7 @@ class EnvironmentValues(object):
                         string_values[i] = ('', ValueTypes.STRING)
                     else:
                         # TODO: Handle other recursive loops by empty stringing this value before recursing with copy of lvar?
-                        string_values[i] = (env[v].subst(env, mode, target, source, gvars, lvars, conv),
+                        string_values[i] = (self.subst(v, self, mode, target, source, gvars, lvars, conv),
                                             ValueTypes.STRING)
                     debug("%s->%s" % (v, string_values[i]))
                 except KeyError as e:
@@ -322,14 +324,13 @@ class EnvironmentValues(object):
                 parsed_values[i] = None
             else:
                 debug("AAHAHAHHAH BROKEN")
-                import pdb;
-                pdb.set_trace()
+                import pdb; pdb.set_trace()
 
     @staticmethod
-    def subst(item, env, mode=0, target=None, source=None, gvars={}, lvars={}, conv=None):
+    def subst(substString, env, mode=0, target=None, source=None, gvars={}, lvars={}, conv=None):
         """
         Recursively Expand string
-        :param item: The string to be expanded.
+        :param substString: The string to be expanded.
         :param env:
         :param mode: 0 = leading or trailing white space will be removed from the result. and all sequences of white
                         space will be compressed to a single space character. Additionally, any $( and $) character
@@ -351,6 +352,13 @@ class EnvironmentValues(object):
 
         for_signature = mode == SubstModes.FOR_SIGNATURE
 
+        # subst called with plain string, just return it.
+        if '$' not in substString:
+            return substString
+
+        # TODO: Case to shortcut.  substString = "$VAR" and env['VAR'] = simple string. This happens enough to make it worth optimizing
+        # if ' ' not in substString and substString[0]=='$' and
+
         # TODO:Figure out how to handle this properly.  May involve seeing if source & targets is specified. Or checking
         #      against list of variables which are "ok" to leave undefined and unexpanded in the returned string and/or
         #      the cached values.  This is likely important for caching CCCOM where the TARGET/SOURCES will change
@@ -364,6 +372,14 @@ class EnvironmentValues(object):
         if not gvars:
             gvars = env._dict
 
+        overrides = set()
+        if lvars:
+            # keys in lvars is going to be overrides
+            overrides = overrides.union(lvars.keys())
+
+            # remove reserved vars from the list
+            overrides -= SCons.Environment.reserved_construction_var_names_set
+
         if 'TARGET' not in lvars:
             d = create_subst_target_source_dict(target, source)
             if d:
@@ -374,36 +390,37 @@ class EnvironmentValues(object):
         # If evaluation returns a list from a single element insert that new list at the point the element
         # being evaluated was previously at.
 
-        # First retrieve the value (If it exists)
 
         try:
-            val = env.values[item]
+            # First retrieve the value by substString and the applicable overrides.
+            val = env.cached_values[(substString, overrides)]
         except KeyError as e:
             # No such value create one
-            val = EnvironmentValue(item)
+            val = EnvironmentValue(substString)
 
         string_values = [None] * len(val.all_dependencies)
         parsed_values = [None] * len(val.all_dependencies)
 
-        env.split_dependencies(val, string_values, parsed_values)
+        env.split_dependencies(val, string_values, parsed_values,
+                               SCons.Environment.reserved_construction_var_names_set)
 
         while any(parsed_values):
             # Now we can use the context (env, gvars, lvars) to decide
             # any uncertain types in parsed_values
             env.resolve_unassigned_types(parsed_values, string_values, gvars, lvars)
 
-            # Now evaluate the parsed values. Not that some of these may expand into
+            # Now evaluate the parsed values. Note that some of these may expand into
             # multiple values and require expansion of parsed_values and string_values array
             env.evaluate_parsed_values(parsed_values, string_values, source, target, gvars, lvars, for_signature)
 
         try:
-            var_type = env.values[item].var_type
+            var_type = env.values[substString].var_type
 
             if var_type == ValueTypes.STRING:
-                return env.values[item].value
+                return env.values[substString].value
             elif var_type == ValueTypes.PARSED:
-                return env.values[item].subst(env, mode=mode, target=target, source=source, gvars=gvars,
-                                              lvars=lvars, conv=conv)
+                return env.values[substString].subst(env, mode=mode, target=target, source=source, gvars=gvars,
+                                                     lvars=lvars, conv=conv)
             elif var_type == ValueTypes.CALLABLE:
                 # From Subst.py
                 # try:
@@ -420,20 +437,20 @@ class EnvironmentValues(object):
                 #     s = self.conv(s)
                 # return self.substitute(s, lvars)
                 # TODO: This can return a non-plain-string result which needs to be further processed.
-                retval = env.values[item].value(target, source, env, (mode == SubstModes.FOR_SIGNATURE))
+                retval = env.values[substString].value(target, source, env, (mode == SubstModes.FOR_SIGNATURE))
                 return retval
         except KeyError as e:
-            if is_String(item):
+            if is_String(substString):
                 # The value requested to be substituted doesn't exist in the EnvironmentVariables.
                 # So, let's create a new value?
                 # Currently we're naming it the same as it's content.
                 # TODO: Should we keep these separate from the variables? We're caching both..
-                env.values[item] = EnvironmentValue(item)
-                return env.values[item].subst(env, mode=mode, target=target, source=source, gvars=gvars,
-                                              lvars=lvars, conv=conv)
-            elif is_Sequence(item):
+                env.values[substString] = EnvironmentValue(substString)
+                return env.values[substString].subst(env, mode=mode, target=target, source=source, gvars=gvars,
+                                                     lvars=lvars, conv=conv)
+            elif is_Sequence(substString):
                 return [EnvironmentValue(v).subst(env, mode=mode, target=target, source=source, gvars=gvars,
-                                                  lvars=lvars, conv=conv) for v in item]
+                                                  lvars=lvars, conv=conv) for v in substString]
 
     @staticmethod
     def subst_list(listSubstVal, env, mode=SubstModes.RAW,

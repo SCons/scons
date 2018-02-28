@@ -1,13 +1,34 @@
 import unittest
 
 from SCons.EnvironmentValue import EnvironmentValue, ValueTypes
-from SCons.EnvironmentValuesTests import TestLiteral
+from TestLiteral import TestLiteral
+import SCons.Environment
 
 
 class TestEnvironmentValue(unittest.TestCase):
     """
     Test the class which holds a single environment value
     """
+
+    def test_reserved_values(self):
+        """
+        Test that reserved values are properly labled.
+        :return:
+        """
+
+        all_vars = []
+        for v in SCons.Environment.reserved_construction_var_names_set:
+            all_vars.append('$%s'%v)
+            all_vars.append('${%s}'%v)
+            all_vars.append('${%s.abspath}'%v)
+            all_vars.append('${__mycall(%s)}'%v)
+        var_string = " ".join(all_vars)
+
+        avenv = EnvironmentValue(var_string)
+
+        self.assertEqual(avenv.depends_on.difference(SCons.Environment.reserved_construction_var_names_set),
+                         set(['__mycall']),"Check that all reserved contruction var names are in depends list")
+        import pdb; pdb.set_trace()
 
     def test_parse_simple_values(self):
         one = EnvironmentValue('$LDMODULE -o $TARGET $LDMODULEFLAGS $__LDMODULEVERSIONFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS')

@@ -17,8 +17,6 @@ else:
     def debug(*unused):
         pass
 
-
-
 # Regular expressions for splitting strings and handling substitutions,
 # for use by the scons_subst() and scons_subst_list() functions:
 #
@@ -48,6 +46,7 @@ separate_args = re.compile(r'(%s|\s+|[^\s\$]+|\$)' % dollar_exps_str)
 # space characters in the string result from the scons_subst() function.
 _space_sep = re.compile(r'[\t ]+(?![^{]*})')
 
+
 class SubstModes(object):
     """
     Enum to store subst mode values.
@@ -64,6 +63,7 @@ class SubstModes(object):
     NORMAL = 0
     RAW = 1
     FOR_SIGNATURE = 2
+
 
 class ValueTypes(object):
     """
@@ -85,6 +85,7 @@ class ValueTypes(object):
     LITERAL = 13  # This is a string which should be expanded no further.
     NONE = 14
     EVALUABLE = 15
+    RESERVED = 16
 
     strings = ['UNKNOWN',
                'STRING',
@@ -102,6 +103,7 @@ class ValueTypes(object):
                'LITERAL',
                'NONE',
                'EVALUABLE',
+               'RESERVED'
                ]
 
     SHELL_REDIRECT_CHARACTERS = '<>|'
@@ -109,7 +111,6 @@ class ValueTypes(object):
     @staticmethod
     def enum_name(value):
         return ValueTypes.strings[value]
-
 
 
 class EnvironmentValueParseError(Exception):
@@ -150,7 +151,6 @@ class EnvironmentValue(object):
             self.var_type = ValueTypes.CALLABLE
         else:
             self.parse_value()
-
 
     def __getitem__(self, item):
         return self.value[item]

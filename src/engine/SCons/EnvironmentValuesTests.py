@@ -1,7 +1,7 @@
 import unittest
 import os.path
 
-from SCons.EnvironmentValues import EnvironmentValues, EnvironmentValue, ValueTypes, SubstModes
+from SCons.EnvironmentValues import EnvironmentValues, SubstModes
 from SCons.EnvironmentValuesSubstTests import CmdGen1, CmdGen2
 
 
@@ -40,17 +40,6 @@ class MyNode(DummyNode):
         return self.name + extra
 
     foo = 1
-
-
-class TestLiteral(object):
-    def __init__(self, literal):
-        self.literal = literal
-
-    def __str__(self):
-        return self.literal
-
-    def is_literal(self):
-        return 1
 
 
 class TestEnvironmentValues(unittest.TestCase):
