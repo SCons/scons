@@ -598,7 +598,6 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
     if isinstance(strSubst, str) and '$' not in strSubst:
         return strSubst
 
-
     if conv is None:
         conv = _strconv[mode]
 
