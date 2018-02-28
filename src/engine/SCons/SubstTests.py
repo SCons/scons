@@ -295,8 +295,8 @@ class SubstTestCase(unittest.TestCase):
 
 
 class scons_subst_TestCase(SubstTestCase):
+    """Basic tests of substitution functionality."""
 
-    # Basic tests of substitution functionality.
     basic_cases = [
         # Basics:  strings without expansions are left alone, and
         # the simplest possible expansion to a null-string value.
@@ -644,11 +644,12 @@ class scons_subst_TestCase(SubstTestCase):
             raise AssertionError("did not catch expected UserError")
 
     def test_subst_raw_function(self):
-        """Test scons_subst():  fetch function with SUBST_RAW plus conv"""
-        # Test that the combination of SUBST_RAW plus a pass-through
-        # conversion routine allows us to fetch a function through the
-        # dictionary.  CommandAction uses this to allow delayed evaluation
-        # of $SPAWN variables.
+        """Test scons_subst():  fetch function with SUBST_RAW plus conv
+          Test that the combination of SUBST_RAW plus a pass-through
+          conversion routine allows us to fetch a function through the
+          dictionary.  CommandAction uses this to allow delayed evaluation
+          of $SPAWN variables.
+        """
         env = DummyEnv(self.loc)
         gvars = env.Dictionary()
         x = lambda x: x
