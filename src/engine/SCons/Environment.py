@@ -45,7 +45,8 @@ import SCons.Builder
 import SCons.Debug
 from SCons.Debug import logInstanceCreation
 import SCons.Defaults
-from SCons.EnvironmentValues import EnvironmentValues, EnvironmentValue, EnvironmentValueParseError
+
+import SCons.EnvironmentValues
 import SCons.Errors
 import SCons.Memoize
 import SCons.Node
@@ -125,6 +126,8 @@ reserved_construction_var_names = [
     'UNCHANGED_SOURCES',
     'UNCHANGED_TARGETS',
 ]
+
+reserved_construction_var_names_set = set(reserved_construction_var_names)
 
 future_reserved_construction_var_names = [
     # 'HOST_OS',
@@ -393,7 +396,7 @@ class SubstitutionEnvironment(object):
         self.added_methods = []
 
         # Testing EnvironmentValues
-        self._env_values = EnvironmentValues(**kw)
+        self._env_values = SCons.EnvironmentValues(**kw)
         # self._memo = {}
 
     def _init_special(self):
