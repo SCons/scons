@@ -301,12 +301,12 @@ class EnvironmentValue(object):
                 # If we can detect all info which affects this then we can cache
                 value = v[2:-1]
 
-                if '.' in value or '[' in value:
-                    all_dependencies.append((ValueTypes.EVALUABLE, value, index))
-                elif '(' in value:
+                if '(' in value:
                         # Parse call to see if we can determine other dependencies from parameters
                         self._parse_function_call_dependencies(value)
                         all_dependencies.append((ValueTypes.FUNCTION_CALL, value, index))
+                elif '.' in value or '[' in value:
+                    all_dependencies.append((ValueTypes.EVALUABLE, value, index))
                 else:
                     all_dependencies.append((ValueTypes.CALLABLE,v[2:-1], index))
             elif '.' in v:
