@@ -1,3 +1,20 @@
+# Usage
+
+## Setting variables
+  * Variables can be set to contain
+    1. Plain strings
+    1. Strings with multiple tokens (white space separated)
+    1. Lists of strings
+    1. Strings to be evaluated by Python (Surrounded by ${ })
+    1. Strings with variable references in them (prefixed by $ or wrapped with ${})
+    
+# Subst usage
+  * Called one of two ways
+    * subst() meant to return a string (a single command line or other)
+    * subst_list() meant to return an array of arrays (an array of array of command line arguments suitable for os.system or similar)
+  * All usage must refer to variables values via $ or ${}
+    * "$(" "$)" are used to escape parts of the line which shouldn't be used for a signature  
+
 # Objects:
   * EnvironmentValue
     * This will hold a single value, and all if it's non context dependent information
@@ -28,14 +45,17 @@
   * Variable or Callable ( Prefixed by $ must begin with alphabetic or underscore)
   * Evaluable only (Contains a . or a [ inside ${ })
   * Function call  ${SOMEFUNCTION(ARG1,ARG2)}
+  * Quote?
   
-## What types of tokens are only identifyable given context (values of other variables)
+## What types of tokens are only identifiable given context (values of other variables)
   * Callable
   * Variable when the token could have been either Variable or Callable
   
   
 
 # Caching
+  * Where do we cache it?
+    * In the EnvironmentValues - (since this will have the context)
   * What can we cache?
     * Simple string replacement:
       * $A='B'
@@ -65,6 +85,9 @@
     * Strings which will be evaluated
       * $AA='${B.absdir}'
       * $BB="${if A=='zz' then 'XXX'}"
+  * We never cache evaluated special variables (See above.. TARGET..etc). But we can cache the rest of such command lines subject to limitations below.
+  * All caching is lists of tokens (both string and as yet unconverted). Flattened?
+
 
 # subst() Functionality
   * Each evaluation can yield one or more (in a list or dictionary) of the following
@@ -81,5 +104,23 @@
   * It's expected to return an array of return values. Each array is effectively a single command line and should also contain a list of the results
     * When there's effectively only a single line, then only return_value[0] has anything in it.
     * When there's a newline in the list being evaluated, that instructions subst_list to create a new list and add to the return value array
-      * return_value[1]=[].. then append the results of succesive evaluations there to the end (unless it hits another end of line character)
+      * return_value[1]=[].. then append the results of successive evaluations there to the end (unless it hits another end of line character)
   * Each item in the list item being worked on is evaluated similar to subst()?
+  
+# Subst Algorithm
+  * Check if plain string and no '$', then just return the string. (optimization)
+  * Get global variable dictionary
+    * These are all EnvironmentValue objects
+  * Get (or create) local variable dictionary
+    * Only overrides are EnvironmentValue objects
+    * **NOTE**: This is what  OverRideEnvironments use to pass their overrides in addition to the TARGET/SOURCE which is normally in local variable dictionary
+  * One issue which complicates things is that (at least) the Special variables are different and aren't EnvironmentValue objects (pre-tokenized)
+  * Is it (probably) worth creating some shortcut logic where if the value we're trying to subst is only one token and that token is a plain string, we just return it. Though we may have to take into account that it's a simple string with multiple tokens "a simple string" rather than something like ".obj"
+  * Create an EnvironmentValue from the string to be substituted.
+  * Walk each token and evaluate
+    * Plain string. Do nothing
+    * $VALUE - env.Subst
+    * ${VALUE} - env.Subst
+    * ${VALUE.method} - Evaluable
+    * Whitespace?
+    * Escape?
