@@ -245,7 +245,7 @@ class PreProcessor(object):
     """
     The main workhorse class for handling C pre-processing.
     """
-    def __init__(self, current=os.curdir, cpppath=(), dict={}, all=0):
+    def __init__(self, current=os.curdir, cpppath=(), dict={}, all=False):
         global Table
 
         cpppath = tuple(cpppath)
@@ -263,8 +263,8 @@ class PreProcessor(object):
         self.cpp_namespace = dict.copy()
         self.cpp_namespace['__dict__'] = self.cpp_namespace
 
-        if all:
-           self.do_include = self.all_include
+        # IF all=True, return all found includes without nested parsing
+        self.all = all
 
         # For efficiency, a dispatch table maps each C preprocessor
         # directive (#if, #define, etc.) to the method that should be
@@ -563,6 +563,10 @@ class PreProcessor(object):
             return
         self.result.append(include_file)
         # print include_file, len(self.tuples)
+
+        if self.all:
+            return
+
         new_tuples = [('scons_current_file', include_file)] + \
                      self.tupleize(self.read_file(include_file)) + \
                      [('scons_current_file', self.current_file)]
@@ -619,10 +623,6 @@ class PreProcessor(object):
                 return None
         return (t[0], s[0], s[1:-1])
 
-    def all_include(self, t):
-        """
-        """
-        self.result.append(self.resolve_include(t))
 
 class DumbPreProcessor(PreProcessor):
     """A preprocessor that ignores all #if/#elif/#else/#endif directives

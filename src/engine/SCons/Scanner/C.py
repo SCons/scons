@@ -96,10 +96,11 @@ class SConsCPPScannerWrapper(object):
     def __init__(self, name, variable):
         self.name = name
         self.path = SCons.Scanner.FindPathDirs(variable)
-    def __call__(self, node, env, path = ()):
+    def __call__(self, node, env, path = (), all=False):
         cpp = SConsCPPScanner(current = node.get_dir(),
                               cpppath = path,
-                              dict = dictify_CPPDEFINES(env))
+                              dict = dictify_CPPDEFINES(env),
+                              all = all)
         result = cpp(node)
         for included, includer in cpp.missing:
             fmt = "No dependency generated for file: %s (included from: %s) -- file not found"
