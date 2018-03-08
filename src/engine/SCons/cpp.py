@@ -239,6 +239,9 @@ function_arg_separator = re.compile(',\s*')
 
 
 class PreProcessor(object):
+
+    FILE_TUPLES_CACHE = None
+
     """
     The main workhorse class for handling C pre-processing.
     """
@@ -277,7 +280,54 @@ class PreProcessor(object):
             d[op] = getattr(self, 'do_' + op)
         self.default_table = d
 
-    # Controlling methods.
+    def __call__(self, file):
+        """
+        Pre-processes a file.
+
+        This is the main public entry point.
+        """
+        self.current_file = file
+        return self.process_file(file)
+
+    def process_file(self, file):
+        """
+        Pre-processes a file.
+
+        This is the main internal entry point.
+        """
+        return self._process_tuples(self.tupleize_file(file), file)
+
+    def process_contents(self, contents):
+        """
+        Pre-processes a file contents.
+
+        Is used by tests
+        """
+        return self._process_tuples(self.tupleize(contents))
+
+    def _process_tuples(self, tuples, file=None):
+        self.stack = []
+        self.dispatch_table = self.default_table.copy()
+        self.current_file = file
+        self.tuples = tuples
+
+        self.initialize_result(file)
+        while self.tuples:
+            t = self.tuples.pop(0)
+            # Uncomment to see the list of tuples being processed (e.g.,
+            # to validate the CPP lines are being translated correctly).
+            # print(t)
+            self.dispatch_table[t[0]](t)
+        return self.finalize_result(file)
+
+    def tupleize_file(self, file):
+        if not PreProcessor.FILE_TUPLES_CACHE:
+            PreProcessor.FILE_TUPLES_CACHE = {}
+        file_tuples = PreProcessor.FILE_TUPLES_CACHE.get(file)
+        if not file_tuples:
+            file_tuples = self._parse_tuples(self.read_file(file))
+            PreProcessor.FILE_TUPLES_CACHE[file] = file_tuples
+        return self._match_tuples(file_tuples)
 
     def tupleize(self, contents):
         """
@@ -289,45 +339,22 @@ class PreProcessor(object):
         The remaining elements are specific to the type of directive, as
         pulled apart by the regular expression.
         """
-        global CPP_Expression, Table
+        return self._match_tuples(self._parse_tuples(contents))
+
+    def _parse_tuples(self, contents):
+        global CPP_Expression
         contents = line_continuations.sub('', contents)
-        cpp_tuples = CPP_Expression.findall(contents)
-        cpp_tuples = Cleanup_CPP_Expressions(cpp_tuples)
+        tuples = CPP_Expression.findall(contents)
+        return Cleanup_CPP_Expressions(tuples)
+
+    def _match_tuples(self, tuples):
+        global Table
         result = []
-        for t in cpp_tuples:
+        for t in tuples:
             m = Table[t[0]].match(t[1])
             if m:
                 result.append((t[0],) + m.groups())
         return result
-
-    def __call__(self, file):
-        """
-        Pre-processes a file.
-
-        This is the main public entry point.
-        """
-        self.current_file = file
-        return self.process_contents(self.read_file(file), file)
-
-    def process_contents(self, contents, fname=None):
-        """
-        Pre-processes a file contents.
-
-        This is the main internal entry point.
-        """
-        self.stack = []
-        self.dispatch_table = self.default_table.copy()
-        self.current_file = fname
-        self.tuples = self.tupleize(contents)
-
-        self.initialize_result(fname)
-        while self.tuples:
-            t = self.tuples.pop(0)
-            # Uncomment to see the list of tuples being processed (e.g.,
-            # to validate the CPP lines are being translated correctly).
-            #print(t)
-            self.dispatch_table[t[0]](t)
-        return self.finalize_result(fname)
 
     # Dispatch table stack manipulation methods.
 
@@ -535,6 +562,7 @@ class PreProcessor(object):
         if not include_file or include_file in self.result:
             return
         self.result.append(include_file)
+        # print include_file, len(self.tuples)
         new_tuples = [('scons_current_file', include_file)] + \
                      self.tupleize(self.read_file(include_file)) + \
                      [('scons_current_file', self.current_file)]
