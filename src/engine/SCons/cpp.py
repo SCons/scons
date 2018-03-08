@@ -245,7 +245,7 @@ class PreProcessor(object):
     """
     The main workhorse class for handling C pre-processing.
     """
-    def __init__(self, current=os.curdir, cpppath=(), dict={}, all=False):
+    def __init__(self, current=os.curdir, cpppath=(), dict={}, all=0, depth=-1):
         global Table
 
         cpppath = tuple(cpppath)
@@ -263,8 +263,15 @@ class PreProcessor(object):
         self.cpp_namespace = dict.copy()
         self.cpp_namespace['__dict__'] = self.cpp_namespace
 
-        # IF all=True, return all found includes without nested parsing
-        self.all = all
+        # Return all includes without resolving
+        if all:
+           self.do_include = self.all_include
+
+        # Max depth of nested includes:
+        # -1 = unlimited
+        # 0 - disabled nesting
+        # >0 - number of allowed nested includes
+        self.depth = depth
 
         # For efficiency, a dispatch table maps each C preprocessor
         # directive (#if, #define, etc.) to the method that should be
@@ -564,8 +571,14 @@ class PreProcessor(object):
         self.result.append(include_file)
         # print include_file, len(self.tuples)
 
-        if self.all:
-            return
+        # Handle maximum depth of nested includes
+        if self.depth != -1:
+            current_depth = 0
+            for t in self.tuples:
+                if t[0] != "scons_current_file":
+                    current_depth += 1
+            if current_depth >= self.depth:
+                return
 
         new_tuples = [('scons_current_file', include_file)] + \
                      self.tupleize(self.read_file(include_file)) + \
@@ -622,6 +635,11 @@ class PreProcessor(object):
             if not s:
                 return None
         return (t[0], s[0], s[1:-1])
+
+    def all_include(self, t):
+        """
+        """
+        self.result.append(self.resolve_include(t))
 
 
 class DumbPreProcessor(PreProcessor):
