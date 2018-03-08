@@ -531,14 +531,10 @@ class PreProcessor(object):
         if not t:
             return
         include_file = self.find_include_file(t)
-        if not include_file:
+        # avoid infinite recursion
+        if not include_file or include_file in self.result:
             return
-        # print("include_file =", include_file)
         self.result.append(include_file)
-        # handle infinite recursion
-        for t in self.tuples:
-            if t[0] == 'scons_current_file' and t[1] == include_file:
-                return
         new_tuples = [('scons_current_file', include_file)] + \
                      self.tupleize(self.read_file(include_file)) + \
                      [('scons_current_file', self.current_file)]
