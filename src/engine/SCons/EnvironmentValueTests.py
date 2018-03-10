@@ -28,8 +28,15 @@ class TestEnvironmentValue(unittest.TestCase):
 
         self.assertEqual(avenv.depends_on.difference(SCons.Environment.reserved_construction_var_names_set),
                          set(['__mycall']),"Check that all reserved contruction var names are in depends list")
-        import pdb; pdb.set_trace()
+
         xx = EnvironmentValue('${__mycall(TARGETS.abspath)}')
+        self.assertEqual(xx.depends_on, ['__mycall','TARGETS'],
+                         "Check function parsing strips attribute references off arguments")
+
+        yy = EnvironmentValue('${__mycall(TARGETS[3])}')
+        self.assertEqual(yy.depends_on,['__mycall','TARGETS'],
+                         "Check function parsing strips array indexes off arguments")
+
 
     def test_parse_simple_values(self):
         one = EnvironmentValue('$LDMODULE -o $TARGET $LDMODULEFLAGS $__LDMODULEVERSIONFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS')

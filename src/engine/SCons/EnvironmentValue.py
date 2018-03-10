@@ -260,6 +260,14 @@ class EnvironmentValue(object):
         # depends upon
         self.depends_on.add(function_name)
         for p in parameters:
+            # TODO: Should we strip attribute and array selectors from parameters?
+            # TARGET[0] -> TARGET,  TARGET.abspath -> TARGET
+
+            if '.' in p:
+                p = p.split('.',1)[0]
+            if '[' in p:
+                p = p.split('[',1)[0]
+
             self.depends_on.add(p)
 
         return parameters
@@ -302,9 +310,9 @@ class EnvironmentValue(object):
                 value = v[2:-1]
 
                 if '(' in value:
-                        # Parse call to see if we can determine other dependencies from parameters
-                        self._parse_function_call_dependencies(value)
-                        all_dependencies.append((ValueTypes.FUNCTION_CALL, value, index))
+                    # Parse call to see if we can determine other dependencies from parameters
+                    self._parse_function_call_dependencies(value)
+                    all_dependencies.append((ValueTypes.FUNCTION_CALL, value, index))
                 elif '.' in value or '[' in value:
                     all_dependencies.append((ValueTypes.EVALUABLE, value, index))
                 else:
@@ -317,13 +325,13 @@ class EnvironmentValue(object):
 
         self.all_dependencies = all_dependencies
 
-        # Dump out debug info
         self.debug_print_parsed_parts(all_dependencies)
 
         depend_list = [v for (t,v,i) in all_dependencies
                        if t in (ValueTypes.VARIABLE_OR_CALLABLE, ValueTypes.VARIABLE, ValueTypes.CALLABLE)]
 
         self.depends_on = self.depends_on.union(set(depend_list))
+        
 
     @staticmethod
     def debug_print_parsed_parts(all_dependencies):

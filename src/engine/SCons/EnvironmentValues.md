@@ -124,3 +124,5 @@
     * ${VALUE.method} - Evaluable
     * Whitespace?
     * Escape?
+    * Check if the variable is one of the reserved construction variables. (We need to be sure we don't cache these)
+    
