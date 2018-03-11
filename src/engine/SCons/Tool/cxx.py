@@ -84,7 +84,7 @@ def generate(env):
     env['CPPDEFSUFFIX']  = ''
     env['INCPREFIX']  = '-I'
     env['INCSUFFIX']  = ''
-    env['SHOBJSUFFIX'] = '.os'
+    env['SHOBJSUFFIX'] = '.so'
     env['OBJSUFFIX'] = '.o'
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 0
 
