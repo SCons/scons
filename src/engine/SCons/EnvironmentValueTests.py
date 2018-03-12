@@ -29,13 +29,6 @@ class TestEnvironmentValue(unittest.TestCase):
         self.assertEqual(avenv.depends_on.difference(SCons.Environment.reserved_construction_var_names_set),
                          set(['__mycall']),"Check that all reserved contruction var names are in depends list")
 
-        xx = EnvironmentValue('${__mycall(TARGETS.abspath)}')
-        self.assertEqual(xx.depends_on, ['__mycall','TARGETS'],
-                         "Check function parsing strips attribute references off arguments")
-
-        yy = EnvironmentValue('${__mycall(TARGETS[3])}')
-        self.assertEqual(yy.depends_on,['__mycall','TARGETS'],
-                         "Check function parsing strips array indexes off arguments")
 
 
     def test_parse_simple_values(self):
@@ -69,6 +62,15 @@ class TestEnvironmentValue(unittest.TestCase):
         self.assertEqual(one.depends_on,
                          {'LIBLINKSUFFIX', 'LIBPREFIXES', 'LIBLINKPREFIX', 'LIBSUFFIXES', '__env__', 'LIBS',
                           '_stripixes'})
+
+        xx = EnvironmentValue('${__mycall(TARGETS.abspath)}')
+        self.assertEqual(xx.depends_on, {'__mycall','TARGETS'},
+                         "Check function parsing strips attribute references off arguments :%s"%xx.depends_on)
+
+        yy = EnvironmentValue('${__mycall(TARGETS[3])}')
+        self.assertEqual(yy.depends_on,{'__mycall','TARGETS'},
+                         "Check function parsing strips array indexes off arguments")
+
 
     def test_plain_string_value(self):
         value = '/abc/dev/g++ -o something.obj something.c -DABC'
