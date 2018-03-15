@@ -972,6 +972,9 @@ def scons_subst_once(strSubst, env, key):
         return strSubst
 
     matchlist = ['$' + key, '${' + key + '}']
+
+    # TODO: Need to implement this function for the EnvironmentValue(s) approach.
+    # Get the value of the key we're working on
     val = env.get(key, '')
 
     def sub_match(match, val=val, matchlist=matchlist):
