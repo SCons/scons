@@ -126,6 +126,7 @@ class EnvironmentValue(object):
     We're going to keep track of variables which feed into this values evaluation
     """
     def __init__(self, value):
+        # TODO: Should cache initialziation by keeping hash all previous values, since we don't evaluate in context in the Value itself.
         self.value = value
         self.var_type = ValueTypes.UNKNOWN
         self._parsed = []
