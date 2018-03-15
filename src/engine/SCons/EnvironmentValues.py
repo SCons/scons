@@ -146,6 +146,23 @@ class EnvironmentValues(object):
             (t, v, i) = pv
 
             nt = t
+
+            # Resolve whether callable or a variable
+            if t == ValueTypes.VARIABLE_OR_CALLABLE:
+                if v in lvars:
+                    if callable(lvars[v]):
+                        nt = ValueTypes.CALLABLE
+                    else:
+                        nt = ValueTypes.PARSED
+                elif v in gvars:
+                    if callable(self[v].value):
+                        nt = ValueTypes.CALLABLE
+                    else:
+                        nt = ValueTypes.PARSED
+                else:
+                    nt = ValueTypes.PARSED
+
+
             # We should be able to resolve now if it's a variable or a callable.
             if t == ValueTypes.EVALUABLE:
                 if '(' in v:
@@ -176,7 +193,7 @@ class EnvironmentValues(object):
         debug("After resolving unknown types:")
         EnvironmentValue.debug_print_parsed_parts(parsed_values)
 
-    def evaluate_parsed_values(self, parsed_values, string_values, source, target, gvars, lvars, for_signature):
+    def evaluate_parsed_values(self, parsed_values, string_values, source, target, gvars, lvars, mode, conv=None):
         """
         Walk the list of parsed values and evaluate each in turn.  Possible return values for each are:
         * A plain string (No $ values)
@@ -191,6 +208,8 @@ class EnvironmentValues(object):
         :param lvars:
         :return:
         """
+
+        for_signature = mode == SubstModes.FOR_SIGNATURE
 
         for pv in parsed_values:
             if pv is None:
@@ -242,6 +261,7 @@ class EnvironmentValues(object):
                         string_values[i] = ('', ValueTypes.STRING)
                     else:
                         # TODO: Handle other recursive loops by empty stringing this value before recursing with copy of lvar?
+                        # TODO: This should insert the return values into the arrays at the current position, not be a string
                         string_values[i] = (self.subst(v, self, mode, target, source, gvars, lvars, conv),
                                             ValueTypes.STRING)
                     debug("%s->%s" % (v, string_values[i]))
@@ -393,7 +413,10 @@ class EnvironmentValues(object):
 
         try:
             # First retrieve the value by substString and the applicable overrides.
-            val = env.cached_values[(substString, overrides)]
+            # TODO: Transpose overrides set into something which is cacheable. String for now, but maybe tuple instead?
+            override_string = "-".join(sorted(overrides))
+
+            val = env.cached_values[(substString, override_string)]
         except KeyError as e:
             # No such value create one
             val = EnvironmentValue(substString)
@@ -411,7 +434,7 @@ class EnvironmentValues(object):
 
             # Now evaluate the parsed values. Note that some of these may expand into
             # multiple values and require expansion of parsed_values and string_values array
-            env.evaluate_parsed_values(parsed_values, string_values, source, target, gvars, lvars, for_signature)
+            env.evaluate_parsed_values(parsed_values, string_values, source, target, gvars, lvars, mode, conv)
 
         try:
             var_type = env.values[substString].var_type
