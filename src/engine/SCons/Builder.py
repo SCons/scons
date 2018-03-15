@@ -183,6 +183,7 @@ class CallableSelector(SCons.Util.Selector):
             value = value(env, source)
         return value
 
+
 class DictEmitter(SCons.Util.Selector):
     """A callable dictionary that maps file suffixes to emitters.
     When called, it finds the right emitter in its dictionary for the
@@ -196,6 +197,7 @@ class DictEmitter(SCons.Util.Selector):
         if emitter:
             target, source = emitter(target, source, env)
         return (target, source)
+
 
 class ListEmitter(collections.UserList):
     """A callable list of emitters that calls each in sequence,
@@ -214,6 +216,7 @@ misleading_keywords = {
     'targets'   : 'target',
     'sources'   : 'source',
 }
+
 
 class OverrideWarner(collections.UserDict):
     """A class for warning about keyword arguments that we use as
@@ -236,6 +239,7 @@ class OverrideWarner(collections.UserDict):
                 msg = "Did you mean to use `%s' instead of `%s'?" % (alt, k)
                 SCons.Warnings.warn(SCons.Warnings.MisleadingKeywordsWarning, msg)
         self.already_warned = 1
+
 
 def Builder(**kw):
     """A factory for builder objects."""
