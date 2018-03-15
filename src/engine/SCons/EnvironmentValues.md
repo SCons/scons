@@ -126,3 +126,8 @@
     * Escape?
     * Check if the variable is one of the reserved construction variables. (We need to be sure we don't cache these)
     
+    
+#def scons_subst_once(strSubst, env, key):
+  * Need to re-implement this such that it works with the new Subst implementation.
+  * Basically if we're working on key X and the call has X='$X other stuff', X should end up with the contents of X and the other stuff. Give X="fun stuff $OTHER", X="fun stuff $OTHER other stuff" after the call with the above.
+    
