@@ -547,14 +547,22 @@ class Variable_Method_Caller(object):
             frame = frame.f_back
         return None
 
-# if $version_var is not empty, returns env[flags_var], otherwise returns None
+
 def __libversionflags(env, version_var, flags_var):
+    """
+    if $version_var is not empty, returns env[flags_var], otherwise returns None
+    :param env:
+    :param version_var:
+    :param flags_var:
+    :return:
+    """
     try:
         if env.subst('$'+version_var):
             return env[flags_var]
     except KeyError:
         pass
     return None
+
 
 ConstructionEnvironment = {
     'BUILDERS'      : {},
@@ -565,7 +573,6 @@ ConstructionEnvironment = {
     'DSUFFIXES'     : SCons.Tool.DSuffixes,
     'ENV'           : {},
     'IDLSUFFIXES'   : SCons.Tool.IDLSuffixes,
-#    'LATEXSUFFIXES' : SCons.Tool.LaTeXSuffixes, # moved to the TeX tools generate functions
     '_concat'       : _concat,
     '_defines'      : _defines,
     '_stripixes'    : _stripixes,

@@ -216,7 +216,7 @@ class EnvironmentValues(object):
                 continue
             (t, v, i) = pv
 
-            # # Below should only apply if it's a variable and it's not defined.
+            # TODO: # Below should only apply if it's a variable and it's not defined.
             # # not for callables. callables can come from CALLABLE or VARIABLE_OR_CALLABLE
             #
             # if NameError not in AllowableExceptions:
@@ -238,27 +238,39 @@ class EnvironmentValues(object):
 
             # Now handle all the various types which can be in the value.
             if t == ValueTypes.STRING:
+                # should yield single value
+
                 # The variable resolved to a string . No need to process further.
                 debug("STR      Type:%s VAL:%s" % (pv[0], pv[1]))
-                string_values[i] = (env[v].value, t)
+                string_values[i] = (gvars[v], t)
                 debug("%s->%s" % (v, string_values[i]))
                 parsed_values[i] = None
             elif t == ValueTypes.PARSED:
+                # Can be multiple values
                 debug("PARSED   Type:%s VAL:%s" % (pv[0], pv[1]))
 
                 try:
+                    #TODO: The quandry is should value be an EnvironmentValue or a string. Handling both here is probably wrong..
                     try:
                         value = lvars[v]
+                        # Create an EnvironmentValue here? (We shouldn't end up with lots of throwaways here.. unless one of the reserved values?
                     except KeyError as e:
                         value = self.values[v].value
 
-                    # Shortcut self reference
+                    # TODO: ? Shortcut self reference
+
                     if isinstance(value, Number):
                         string_values[i] = (value, ValueTypes.NUMBER)
-                    elif is_String(value) and len(value) > 1 and value[0] == '$' and value[1:] == v:
-                        # TODO: Is this worth doing? (Check line profiling once we get all functionality working)
-                        # Special case, variables value references itself and only itself
-                        string_values[i] = ('', ValueTypes.STRING)
+                        parsed_values[i] = None
+                    elif is_String(value) and len(value) > 1:
+                        if value[0] == '$' and value[1:] == v:
+                            # Special case, variables value references itself and only itself
+                            string_values[i] = ('', ValueTypes.STRING)
+                            parsed_values[i] = None
+                        else:
+                            string_values[i] = (value, ValueTypes.STRING)
+                            parsed_values[i] = None
+
                     else:
                         # TODO: Handle other recursive loops by empty stringing this value before recursing with copy of lvar?
                         # TODO: This should insert the return values into the arrays at the current position, not be a string
@@ -266,15 +278,17 @@ class EnvironmentValues(object):
                                             ValueTypes.STRING)
                     debug("%s->%s" % (v, string_values[i]))
                 except KeyError as e:
-                    # Must be lvar
+                    # TODO: probably get rid of this logic... Was neither lvar or gvar?
                     if v[0] == '{' or '.' in v:
                         value = eval(v, gvars, lvars)
                     else:
                         value = str(lvars[v])
 
                     string_values[i] = (value, ValueTypes.STRING)
-                parsed_values[i] = None
+                    # TODO: ? below?
+                    parsed_values[i] = None
             elif t == ValueTypes.CALLABLE:
+                # Can return multiple values
                 to_call = v
 
                 call_value = self.eval_callable(to_call, parsed_values, string_values, target=target,
@@ -311,12 +325,16 @@ class EnvironmentValues(object):
 
                 parsed_values[i] = None
             elif t == ValueTypes.NUMBER:
+                # yields single value
+
                 # The variable resolved to a number. No need to process further.
                 debug("Num      Type:%s VAL:%s" % (pv[0], pv[1]))
                 string_values[i] = (str(env[v].value), t)
                 debug("%s->%s" % (v, string_values[i]))
                 parsed_values[i] = None
             elif t == ValueTypes.COLLECTION:
+                # TODO:  How many values?
+
                 # Handle list, tuple, or dictionary
                 # Basically iterate all items, evaluating each, and then join them together with a space
                 debug("COLLECTION  Type:%s VAL:%s" % (t, v))
@@ -328,6 +346,8 @@ class EnvironmentValues(object):
                 string_values[i] = (" ".join(value), t)
                 parsed_values[i] = None
             elif t in (ValueTypes.EVALUABLE, ValueTypes.FUNCTION_CALL):
+                # Can yield multiple values
+
                 try:
                     # Note: this may return a callable or a string or a number or an object.
                     # If it's callable, then it needs be executed by the logic above for ValueTypes.CALLABLE.
@@ -340,9 +360,12 @@ class EnvironmentValues(object):
                 elif callable(sval):
                     parsed_values[i] = (ValueTypes.CALLABLE, sval, i)
             elif t == ValueTypes.VARIABLE_OR_CALLABLE and v not in lvars and v not in gvars:
+                # Handle when variable is NOT defined by having blank string
+
                 string_values[i] = ('', ValueTypes.STRING)  # not defined so blank string
                 parsed_values[i] = None
             else:
+                # SHOULD NEVER GET HERE. Drop into debugger if so.
                 debug("AAHAHAHHAH BROKEN")
                 import pdb; pdb.set_trace()
 
@@ -436,44 +459,46 @@ class EnvironmentValues(object):
             # multiple values and require expansion of parsed_values and string_values array
             env.evaluate_parsed_values(parsed_values, string_values, source, target, gvars, lvars, mode, conv)
 
-        try:
-            var_type = env.values[substString].var_type
+        return " ".join([s for s,t in string_values])
 
-            if var_type == ValueTypes.STRING:
-                return env.values[substString].value
-            elif var_type == ValueTypes.PARSED:
-                return env.values[substString].subst(env, mode=mode, target=target, source=source, gvars=gvars,
-                                                     lvars=lvars, conv=conv)
-            elif var_type == ValueTypes.CALLABLE:
-                # From Subst.py
-                # try:
-                #     s = s(target=lvars['TARGETS'],
-                #           source=lvars['SOURCES'],
-                #           env=self.env,
-                #           for_signature=(self.mode != SUBST_CMD))
-                # except TypeError:
-                #     # This probably indicates that it's a callable
-                #     # object that doesn't match our calling arguments
-                #     # (like an Action).
-                #     if self.mode == SUBST_RAW:
-                #         return s
-                #     s = self.conv(s)
-                # return self.substitute(s, lvars)
-                # TODO: This can return a non-plain-string result which needs to be further processed.
-                retval = env.values[substString].value(target, source, env, (mode == SubstModes.FOR_SIGNATURE))
-                return retval
-        except KeyError as e:
-            if is_String(substString):
-                # The value requested to be substituted doesn't exist in the EnvironmentVariables.
-                # So, let's create a new value?
-                # Currently we're naming it the same as it's content.
-                # TODO: Should we keep these separate from the variables? We're caching both..
-                env.values[substString] = EnvironmentValue(substString)
-                return env.values[substString].subst(env, mode=mode, target=target, source=source, gvars=gvars,
-                                                     lvars=lvars, conv=conv)
-            elif is_Sequence(substString):
-                return [EnvironmentValue(v).subst(env, mode=mode, target=target, source=source, gvars=gvars,
-                                                  lvars=lvars, conv=conv) for v in substString]
+        # try:
+        #     var_type = env.values[substString].var_type
+        #
+        #     if var_type == ValueTypes.STRING:
+        #         return env.values[substString].value
+        #     elif var_type == ValueTypes.PARSED:
+        #         return env.values[substString].subst(env, mode=mode, target=target, source=source, gvars=gvars,
+        #                                              lvars=lvars, conv=conv)
+        #     elif var_type == ValueTypes.CALLABLE:
+        #         # From Subst.py
+        #         # try:
+        #         #     s = s(target=lvars['TARGETS'],
+        #         #           source=lvars['SOURCES'],
+        #         #           env=self.env,
+        #         #           for_signature=(self.mode != SUBST_CMD))
+        #         # except TypeError:
+        #         #     # This probably indicates that it's a callable
+        #         #     # object that doesn't match our calling arguments
+        #         #     # (like an Action).
+        #         #     if self.mode == SUBST_RAW:
+        #         #         return s
+        #         #     s = self.conv(s)
+        #         # return self.substitute(s, lvars)
+        #         # TODO: This can return a non-plain-string result which needs to be further processed.
+        #         retval = env.values[substString].value(target, source, env, (mode == SubstModes.FOR_SIGNATURE))
+        #         return retval
+        # except KeyError as e:
+        #     if is_String(substString):
+        #         # The value requested to be substituted doesn't exist in the EnvironmentVariables.
+        #         # So, let's create a new value?
+        #         # Currently we're naming it the same as it's content.
+        #         # TODO: Should we keep these separate from the variables? We're caching both..
+        #         env.values[substString] = EnvironmentValue(substString)
+        #         return env.values[substString].subst(env, mode=mode, target=target, source=source, gvars=gvars,
+        #                                              lvars=lvars, conv=conv)
+        #     elif is_Sequence(substString):
+        #         return [EnvironmentValue(v).subst(env, mode=mode, target=target, source=source, gvars=gvars,
+        #                                           lvars=lvars, conv=conv) for v in substString]
 
     @staticmethod
     def subst_list(listSubstVal, env, mode=SubstModes.RAW,

@@ -523,6 +523,7 @@ class StringSubber(object):
                 lv[var] = ''
                 return self.substitute(s, lv)
         elif is_Sequence(s):
+            # If passed a sequence, return a sequence of evaluated values.
             def func(l, conv=self.conv, substitute=self.substitute, lvars=lvars):
                 return conv(substitute(l, lvars))
 
