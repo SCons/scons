@@ -104,7 +104,7 @@ class TestEnvironmentValues(unittest.TestCase):
 
         # Now try getting for signature which should skip escaped part of string
         xxx_sig = env.subst('$XXX', env, mode=SubstModes.FOR_SIGNATURE)
-        self.assertEqual(xxx_sig, 'One', "Should have been 'One' Was '%s'"%xxx)  # Should we have trailing space?
+        self.assertEqual(xxx_sig, 'One', "Should have been 'One' Was '%s'"%xxx_sig)  # Should we have trailing space?
 
     def test_simple_callable_function(self):
         def foo(target, source, env, for_signature):
@@ -142,29 +142,29 @@ class TestEnvironmentValues(unittest.TestCase):
         env = EnvironmentValues(X='One', XX='Two', XXX='$X $($XX$)')
 
         # vanilla string should equal itself
-        x = env.subst('X', env)
+        x = env.subst('$X', env)
         self.assertEqual(x, 'One')
 
         env['Y'] = '$X'
 
-        xxx = env.subst('XXX', env)
+        xxx = env.subst('$XXX', env)
 
         # Change the value to XX and make sure the value of XXX
         # changed
         env['XX'] = 'BLAH'
-        xxx_2 = env.subst('XXX', env)
+        xxx_2 = env.subst('$XXX', env)
         self.assertNotEqual(xxx, xxx_2)
-        self.assertEqual(xxx_2, "One BLAH")
+        self.assertEqual(xxx_2, "One BLAH", "Should have been 'One BLAH' Was '%s'"%xxx_2)
 
         # now set XX to a function and verify that the value changed
         # and that the value is correct with the new function
         def foo(target, source, env, for_signature):
             return "bar"
         env['XX'] = foo
-        xxx_3 = env.subst('XXX', env)
+        xxx_3 = env.subst('$XXX', env)
         # print("1:%s 2:%s 3:%s"%(xxx, xxx_2, xxx_3))
         self.assertNotEqual(xxx_3, xxx_2)
-        self.assertEqual(xxx_3, 'One bar')
+        self.assertEqual(xxx_3, 'One bar', "Should have been 'One bar' Was '%s'"%xxx_3)
 
 
 if __name__ == '__main__':

@@ -379,7 +379,7 @@ class EnvironmentValue(object):
                 if callable(all_values[key].value):
                     t = ValueTypes.CALLABLE
                 else:
-                    t = ValueTypes.VARIABLE
+                    t = ValueTypes.VARIABLE_OR_CALLABLE
 
                 debug("Now         :%s -> (%s/%s/%s)",key,ValueTypes.enum_name(t),v,i)
 
@@ -408,35 +408,5 @@ class EnvironmentValue(object):
 
         return retval
 
-    def eval_callable(self, to_call, parsed_values, string_values,
-                      target=None, source=None, gvars={}, lvars={}, for_sig=False):
-        """
-        Evaluate a callable and return the generated string.
-        (Note we'll need to handle recursive expansion)
-        :param to_call: The callable to call..
-        :param gvars:
-        :param lvars:
-        :return:
-        """
-
-        if 'TARGET' not in lvars:
-            d = self.create_local_var_dict(target, source)
-            if d:
-                lvars = lvars.copy()
-                lvars.update(d)
-
-        try:
-            s = to_call(target=lvars['TARGETS'],
-                        source=lvars['SOURCES'],
-                        env=gvars,
-                        for_signature=for_sig)
-        except TypeError as e:
-            # TODO: Handle conv/convert parameters...
-            s = str(to_call)
-            raise Exception("Not handled eval_callable not normal params")
-
-        # TODO: Now we should ensure the value from callable is then substituted as it can return $XYZ..
-
-        return s
 
 

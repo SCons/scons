@@ -326,36 +326,41 @@ class EnvironmentValues(object):
                 call_value = self.eval_callable(to_call, parsed_values, string_values, target=target,
                                                 source=source, gvars=gvars, lvars=lvars, for_sig=for_signature)
 
-                # TODO: Handle return value not being a string, (a collection for example)
+                value = EnvironmentValue.factory(call_value)
 
-                if is_String(call_value) and '$' not in call_value:
-                    string_values[i] = (call_value, ValueTypes.STRING)
-                elif is_Sequence(call_value):
-                    # TODO: Handle if need to put back in parsed_values.. (check for $ in any element)
-                    # and/or call subst..
-                    string_values[i] = (" ".join(call_value), ValueTypes.STRING)
-                    part_string_value = []
-                    for part in call_value:
-                        if is_String(part) and '$' not in part:
-                            part_string_value.append(part)
-                        else:
-                            try:
-                                part_string_value.append(self[part].subst(env, mode, target, source, gvars,
-                                                                          lvars, conv))
-                            except KeyError as e:
-                                ev = EnvironmentValue(call_value)
-                                string_values[i] = (
-                                    ev.subst(env, mode, target, source, gvars, lvars, conv), ValueTypes.STRING)
-
+                # Now use value.var_type to decide how to proceed.
+                if value.var_type == ValueTypes.NUMBER:
+                    string_values[i] = (value, ValueTypes.NUMBER)
+                    parsed_values[i] = None
+                elif value.var_type == ValueTypes.STRING:
+                    if value[0] == '$' and value[1:] == v:
+                        # Special case, variables value references itself and only itself
+                        string_values[i] = ('', ValueTypes.STRING)
+                        parsed_values[i] = None
+                    else:
+                        string_values[i] = (value.value, ValueTypes.STRING)
+                        parsed_values[i] = None
                 else:
-                    # Returned value has a $ in it.
-                    try:
-                        string_values[i] = env[call_value].subst(env, mode, target, source, gvars, lvars, conv)
-                    except KeyError as e:
-                        ev = EnvironmentValue(call_value)
-                        string_values[i] = (ev.subst(env, mode, target, source, gvars, lvars, conv), ValueTypes.STRING)
+                    # TODO: Handle other recursive loops by empty stringing this value before recursing with copy of lvar?
+                    # TODO: This should insert the return values into the arrays at the current position, not be a string
+                    print("Here")
+                    # string_values[i] = (self.subst(v, self, mode, target, source, gvars, lvars, conv),
+                    #                     ValueTypes.STRING)
+                    parsed_values[i:i + 1] = value.all_dependencies
+                    string_values[i:i + 1] = [None] * len(value.all_dependencies)
 
-                parsed_values[i] = None
+                    # now update the rest of parsed_values with new index numbers
+                    parsed_values = [(pn, tn, ii) for (ii, (pn, tn, ix)) in enumerate(parsed_values)]
+
+                # # TODO: Handle return value not being a string, (a collection for example)
+                #
+                # if is_String(call_value) and '$' not in call_value:
+                #     string_values[i] = (call_value, ValueTypes.STRING)
+                # elif is_Sequence(call_value):
+                #     # TODO: Handle if need to put back in parsed_values.. (check for $ in any element)
+                #     # and/or call subst..
+
+
             elif t == ValueTypes.NUMBER:
                 # yields single value
 
@@ -403,7 +408,39 @@ class EnvironmentValues(object):
             else:
                 # SHOULD NEVER GET HERE. Drop into debugger if so.
                 debug("AAHAHAHHAH BROKEN")
-                import pdb; pdb.set_trace()
+                # import pdb; pdb.set_trace()
+
+
+    def eval_callable(self, to_call, parsed_values, string_values,
+                      target=None, source=None, gvars={}, lvars={}, for_sig=False):
+        """
+        Evaluate a callable and return the generated string.
+        (Note we'll need to handle recursive expansion)
+        :param to_call: The callable to call..
+        :param gvars:
+        :param lvars:
+        :return:
+        """
+
+        if 'TARGET' not in lvars:
+            d = self.create_local_var_dict(target, source)
+            if d:
+                lvars = lvars.copy()
+                lvars.update(d)
+
+        try:
+            s = to_call(target=lvars['TARGETS'],
+                        source=lvars['SOURCES'],
+                        env=gvars,
+                        for_signature=for_sig)
+        except TypeError as e:
+            # TODO: Handle conv/convert parameters...
+            s = str(to_call)
+            raise Exception("Not handled eval_callable not normal params")
+
+        # TODO: Now we should ensure the value from callable is then substituted as it can return $XYZ..
+
+        return s
 
     @staticmethod
     def subst(substString, env, mode=0, target=None, source=None, gvars={}, lvars={}, conv=None):
