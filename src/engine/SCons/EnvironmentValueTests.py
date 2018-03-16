@@ -154,5 +154,14 @@ class TestEnvironmentValue(unittest.TestCase):
                           (15, 'TARGETS[:]', 2), (1, ' ', 3), (15, 'SOURCES[0]', 4)] )
 
 
+    def test_caching(self):
+        """ check that factory method is doing proper caching"""
+        value = '/abc/dev/g++ -o something.obj something.c -DABC'
+
+        x=EnvironmentValue.factory(value)
+        y=EnvironmentValue.factory(value)
+        self.assertEqual(x,y)
+
+
 if __name__ == '__main__':
     unittest.main()
