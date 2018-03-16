@@ -60,28 +60,28 @@ class TestEnvironmentValues(unittest.TestCase):
                                 ZZZZ='$Z', ZZZY="$Z $Y")
 
         # vanilla string should equal itself
-        x = env.subst('X', env)
+        x = env.subst('$X', env)
         self.assertEqual(x, 'One')
 
         # Single level expansion
-        xxx = env.subst('XXX', env)
+        xxx = env.subst('$XXX', env)
         self.assertEqual(xxx, 'One')
 
         # Double level expansion
-        xxxx = env.subst('XXXX', env)
+        xxxx = env.subst('$XXXX', env)
         self.assertEqual(xxxx, 'One')
 
         # Now reverse evaluation
         # Double level expansion
-        yyyy = env.subst('YYYY', env)
+        yyyy = env.subst('$YYYY', env)
         self.assertEqual(yyyy, 'Two')
 
         # Now eval something who value doesn't exist
-        zzzz = env.subst('ZZZZ', env)
+        zzzz = env.subst('$ZZZZ', env)
         self.assertEqual(zzzz,'')
 
         # Now eval something who value doesn't exist
-        zzzy = env.subst('ZZZZ', env)
+        zzzy = env.subst('$ZZZZ', env)
         self.assertEqual(zzzy,'')
 
         # Test 10 levels deep.
@@ -118,13 +118,13 @@ class TestEnvironmentValues(unittest.TestCase):
         # Will expand $BAR to "bar baz"
         env = EnvironmentValues(FOO=foo, BAR="$FOO baz", CMDGEN1=CmdGen1, CMDGEN2=CmdGen2)
 
-        foo = env.subst('FOO', env,
+        foo = env.subst('$FOO', env,
                         target=[t1, t2],
                         source=[s1, s2])
 
         self.assertEqual(foo, 'bar')
 
-        bar = env.subst('BAR', env,
+        bar = env.subst('$BAR', env,
                         target=[t1, t2],
                         source=[s1, s2])
         self.assertEqual(bar, 'bar baz')

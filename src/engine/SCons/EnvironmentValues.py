@@ -2,9 +2,14 @@ import re
 from numbers import Number
 
 from SCons.Util import is_String, is_Sequence, CLVar
-from SCons.Subst import CmdStringHolder, create_subst_target_source_dict, AllowableExceptions, raise_exception
+from SCons.Subst import CmdStringHolder, create_subst_target_source_dict, AllowableExceptions as subst_allowable_exceptions, raise_exception
 from SCons.EnvironmentValue import EnvironmentValue, ValueTypes, separate_args, SubstModes
 import SCons.Environment
+
+# AllowableExceptions = (IndexError, NameError)
+
+# TODO: allow updating similar to Subst.SetAllowableExceptions()
+AllowableExceptions = (KeyError,)
 
 # _is_valid_var = re.compile(r'[_a-zA-Z]\w*$')
 #
@@ -310,15 +315,10 @@ class EnvironmentValues(object):
 
                     debug("%s->%s" % (v, string_values[i]))
                 except KeyError as e:
-                    # TODO: probably get rid of this logic... Was neither lvar or gvar?
-                    if v[0] == '{' or '.' in v:
-                        value = eval(v, gvars, lvars)
-                    else:
-                        value = str(lvars[v])
+                    if KeyError in AllowableExceptions:
+                        string_values[i] = ('', ValueTypes.STRING)
+                        parsed_values[i] = None
 
-                    string_values[i] = (value, ValueTypes.STRING)
-                    # TODO: ? below?
-                    parsed_values[i] = None
             elif t == ValueTypes.CALLABLE:
                 # Can return multiple values
                 to_call = v
