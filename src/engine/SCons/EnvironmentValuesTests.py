@@ -99,7 +99,7 @@ class TestEnvironmentValues(unittest.TestCase):
         self.assertEqual(x, 'One')
 
         # Single level expansion
-        xxx = env.subst('XXX', env)
+        xxx = env.subst('$XXX', env)
         self.assertEqual(xxx, 'One Two')
 
         # Now try getting for signature which should skip escaped part of string
