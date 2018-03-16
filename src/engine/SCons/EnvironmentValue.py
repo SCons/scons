@@ -42,9 +42,6 @@ dollar_exps_str = r'\$[\$\(\)]|\$[_a-zA-Z][\.\w]*|\${[^}]*}'
 dollar_exps = re.compile(r'(%s)' % dollar_exps_str)
 separate_args = re.compile(r'(%s|\s+|[^\s\$]+|\$)' % dollar_exps_str)
 
-# This regular expression is used to replace strings of multiple white
-# space characters in the string result from the scons_subst() function.
-_space_sep = re.compile(r'[\t ]+(?![^{]*})')
 
 
 class SubstModes(object):

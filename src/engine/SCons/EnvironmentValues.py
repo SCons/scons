@@ -11,6 +11,11 @@ import SCons.Environment
 # _rm = re.compile(r'\$[()]')
 # _remove = re.compile(r'\$\([^\$]*(\$[^\)][^\$]*)*\$\)')
 
+# This regular expression is used to replace strings of multiple white
+# space characters in the string result from the scons_subst() function.
+space_sep = re.compile(r'[\t ]+(?![^{]*})')
+
+
 _debug = True
 if _debug:
     def debug(fmt, *args):
@@ -20,6 +25,29 @@ else:
     # avoid any formatting overhead
     def debug(*unused):
         pass
+
+
+def remove_escaped_items_from_list(list):
+    """
+    Returns list with all items inside escapes ( $( and $) )removed
+    :param list:
+    :return: list.
+    """
+    result = []
+    depth = 0
+    for l,t in list:
+        if l == '$(':
+            depth += 1
+        elif l == '$)':
+            depth -= 1
+            if depth < 0:
+                break
+        elif depth == 0:
+            result.append((l,t))
+    if depth != 0:
+        return None
+    return result
+
 
 
 class EnvironmentValues(object):
@@ -211,7 +239,7 @@ class EnvironmentValues(object):
 
         for_signature = mode == SubstModes.FOR_SIGNATURE
 
-        for pv in parsed_values:
+        for pv in parsed_values[:]:
             if pv is None:
                 continue
             (t, v, i) = pv
@@ -241,41 +269,45 @@ class EnvironmentValues(object):
                 # should yield single value
 
                 # The variable resolved to a string . No need to process further.
-                debug("STR      Type:%s VAL:%s" % (pv[0], pv[1]))
-                string_values[i] = (gvars[v], t)
+                debug("STR      Type:%s VAL:%s" % (t, v))
+                string_values[i] = (v, t)
                 debug("%s->%s" % (v, string_values[i]))
                 parsed_values[i] = None
             elif t == ValueTypes.PARSED:
                 # Can be multiple values
-                debug("PARSED   Type:%s VAL:%s" % (pv[0], pv[1]))
+                debug("PARSED   Type:%s VAL:%s" % (t, v))
 
                 try:
-                    #TODO: The quandry is should value be an EnvironmentValue or a string. Handling both here is probably wrong..
+                    # Now get an EnvironmentValue object to continue processing.
                     try:
-                        value = lvars[v]
-                        # Create an EnvironmentValue here? (We shouldn't end up with lots of throwaways here.. unless one of the reserved values?
+                        value = EnvironmentValue.factory(lvars[v])
                     except KeyError as e:
-                        value = self.values[v].value
+                        value = self.values[v]
 
-                    # TODO: ? Shortcut self reference
-
-                    if isinstance(value, Number):
+                    # Now use value.var_type to decide how to proceed.
+                    if value.var_type == ValueTypes.NUMBER:
                         string_values[i] = (value, ValueTypes.NUMBER)
                         parsed_values[i] = None
-                    elif is_String(value) and len(value) > 1:
+                    elif value.var_type == ValueTypes.STRING:
                         if value[0] == '$' and value[1:] == v:
                             # Special case, variables value references itself and only itself
                             string_values[i] = ('', ValueTypes.STRING)
                             parsed_values[i] = None
                         else:
-                            string_values[i] = (value, ValueTypes.STRING)
+                            string_values[i] = (value.value, ValueTypes.STRING)
                             parsed_values[i] = None
-
                     else:
                         # TODO: Handle other recursive loops by empty stringing this value before recursing with copy of lvar?
                         # TODO: This should insert the return values into the arrays at the current position, not be a string
-                        string_values[i] = (self.subst(v, self, mode, target, source, gvars, lvars, conv),
-                                            ValueTypes.STRING)
+                        print("Here")
+                        # string_values[i] = (self.subst(v, self, mode, target, source, gvars, lvars, conv),
+                        #                     ValueTypes.STRING)
+                        parsed_values[i:i+1] = value.all_dependencies
+                        string_values[i:i+1] = [None] * len(value.all_dependencies)
+
+                        # now update the rest of parsed_values with new index numbers
+                        parsed_values = [(pn, tn, ii) for (ii, (pn, tn, ix)) in enumerate(parsed_values)]
+
                     debug("%s->%s" % (v, string_values[i]))
                 except KeyError as e:
                     # TODO: probably get rid of this logic... Was neither lvar or gvar?
@@ -363,6 +395,10 @@ class EnvironmentValues(object):
                 # Handle when variable is NOT defined by having blank string
 
                 string_values[i] = ('', ValueTypes.STRING)  # not defined so blank string
+                parsed_values[i] = None
+            elif t in (ValueTypes.ESCAPE_START, ValueTypes.ESCAPE_END):
+                # Propagate escapes into string_values. Escaping is not done here.
+                string_values[i] = (v, t)
                 parsed_values[i] = None
             else:
                 # SHOULD NEVER GET HERE. Drop into debugger if so.
@@ -459,8 +495,20 @@ class EnvironmentValues(object):
             # multiple values and require expansion of parsed_values and string_values array
             env.evaluate_parsed_values(parsed_values, string_values, source, target, gvars, lvars, mode, conv)
 
-        return " ".join([s for s,t in string_values])
 
+        # Now handle subst mode during string expansion.
+        if for_signature:
+            string_values = remove_escaped_items_from_list(string_values)
+        elif mode == SubstModes.NORMAL:
+            string_values = [(s,t) for (s,t) in string_values if s not in ('$(','$)')]
+        # else Remaining mode is RAW where we don't strip anything.
+
+        retval = " ".join([s for s,t in string_values])
+
+        if mode in (SubstModes.FOR_SIGNATURE, SubstModes.NORMAL):
+            retval = space_sep.sub(' ', retval).strip()
+
+        return retval
         # try:
         #     var_type = env.values[substString].var_type
         #
@@ -568,7 +616,7 @@ class EnvironmentValues(object):
                 retval_index += 1
                 retval.append([])
 
-            e_value = EnvironmentValue(element, element)
+            e_value = EnvironmentValue(element)
             this_value = e_value.subst(env, mode=mode,
                                        target=target, source=source,
                                        gvars=gvars, lvars=lvars, conv=conv)

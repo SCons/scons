@@ -100,11 +100,11 @@ class TestEnvironmentValues(unittest.TestCase):
 
         # Single level expansion
         xxx = env.subst('$XXX', env)
-        self.assertEqual(xxx, 'One Two')
+        self.assertEqual(xxx, 'One Two', "Should have been 'One Two' Was '%s'"%xxx)
 
         # Now try getting for signature which should skip escaped part of string
-        xxx_sig = env.subst('XXX', env, mode=SubstModes.FOR_SIGNATURE)
-        self.assertEqual(xxx_sig, 'One')  # Should we have trailing space?
+        xxx_sig = env.subst('$XXX', env, mode=SubstModes.FOR_SIGNATURE)
+        self.assertEqual(xxx_sig, 'One', "Should have been 'One' Was '%s'"%xxx)  # Should we have trailing space?
 
     def test_simple_callable_function(self):
         def foo(target, source, env, for_signature):
