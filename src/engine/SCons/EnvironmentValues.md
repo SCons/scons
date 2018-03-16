@@ -114,7 +114,7 @@
   * Get (or create) local variable dictionary
     * Only overrides are EnvironmentValue objects
     * **NOTE**: This is what  OverRideEnvironments use to pass their overrides in addition to the TARGET/SOURCE which is normally in local variable dictionary
-  * One issue which complicates things is that (at least) the Special variables are different and aren't EnvironmentValue objects (pre-tokenized)
+  * Convert referenced Special variables to EnvironmentValue objects when needed. (They will be generated via factory and cached)
   * Is it (probably) worth creating some shortcut logic where if the value we're trying to subst is only one token and that token is a plain string, we just return it. Though we may have to take into account that it's a simple string with multiple tokens "a simple string" rather than something like ".obj"
   * Create an EnvironmentValue from the string to be substituted.
   * Walk each token and evaluate
@@ -130,4 +130,7 @@
 #def scons_subst_once(strSubst, env, key):
   * Need to re-implement this such that it works with the new Subst implementation.
   * Basically if we're working on key X and the call has X='$X other stuff', X should end up with the contents of X and the other stuff. Give X="fun stuff $OTHER", X="fun stuff $OTHER other stuff" after the call with the above.
+  
+# EnvironmentValue
+  * These objects need to be unique (for any given string value, there is only one EnvironmentValue object)
     
