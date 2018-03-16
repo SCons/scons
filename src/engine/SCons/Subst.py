@@ -666,7 +666,6 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
     return result
 
 
-
 class ListSubber(collections.UserList):
         """A class to construct the results of a scons_subst_list() call.
 
