@@ -115,7 +115,6 @@ class TestEnvironmentValues(unittest.TestCase):
         s1 = MyNode('s1')
         s2 = MyNode('s2')
 
-        # Will expand $BAR to "bar baz"
         env = EnvironmentValues(FOO=foo, BAR="$FOO baz", CMDGEN1=CmdGen1, CMDGEN2=CmdGen2)
 
         foo = env.subst('$FOO', env,
@@ -124,6 +123,7 @@ class TestEnvironmentValues(unittest.TestCase):
 
         self.assertEqual(foo, 'bar')
 
+        # Will expand $BAR to "bar baz"
         bar = env.subst('$BAR', env,
                         target=[t1, t2],
                         source=[s1, s2])
@@ -136,7 +136,7 @@ class TestEnvironmentValues(unittest.TestCase):
         xar = env.subst('$CMDGEN1', env,
                         target=_t,
                         source=_s)
-        self.assertEqual(xar, 'bar bar with spaces.out')
+        self.assertEqual(xar, 'foo bar baz')
 
     def test_setitem(self):
         env = EnvironmentValues(X='One', XX='Two', XXX='$X $($XX$)')

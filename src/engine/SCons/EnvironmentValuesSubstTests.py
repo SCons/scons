@@ -113,15 +113,15 @@ class CmdGen2(object):
         assert str(target) == 't', target
         assert str(source) == 's', source
         assert for_signature == self.expect_for_signature, for_signature
-        return [ self.mystr, env.Dictionary('BAR') ]
+        return [self.mystr, env.Dictionary('BAR')]
 
 
 if os.sep == '/':
-    def cvt(str):
-        return str
+    def cvt(s):
+        return s
 else:
-    def cvt(str):
-        return str.replace('/', os.sep)
+    def cvt(s):
+        return s.replace('/', os.sep)
 
 
 class SubstTestCase(unittest.TestCase):
