@@ -283,9 +283,6 @@ class EnvironmentValues(object):
 
                 # The variable resolved to a string . No need to process further.
                 debug("STR      Type:%s VAL:%s" % (t, v))
-                string_values[i] = (v, t)
-                parsed_values[i] = None
-
                 new_string_values.append((v,t))
                 new_parsed_values.append(None)
                 debug("%s->%s" % (v, string_values[i]))
@@ -303,23 +300,16 @@ class EnvironmentValues(object):
 
                     # Now use value.var_type to decide how to proceed.
                     if value.var_type == ValueTypes.NUMBER:
-                        string_values[i] = (value, ValueTypes.NUMBER)
-                        parsed_values[i] = None
-
                         new_string_values.append((value, ValueTypes.NUMBER))
                         new_parsed_values.append(None)
 
                     elif value.var_type == ValueTypes.STRING:
                         if value[0] == '$' and value[1:] == v:
                             # Special case, variables value references itself and only itself
-                            string_values[i] = ('', ValueTypes.STRING)
-                            parsed_values[i] = None
                             new_string_values.append(('', ValueTypes.STRING))
                             new_parsed_values.append(None)
 
                         else:
-                            string_values[i] = (value.value, ValueTypes.STRING)
-                            parsed_values[i] = None
                             new_string_values.append((value.value, ValueTypes.STRING))
                             new_parsed_values.append(None)
 
@@ -327,23 +317,12 @@ class EnvironmentValues(object):
                         # TODO: Handle other recursive loops by empty stringing this value before recursing with copy of lvar?
                         # TODO: This should insert the return values into the arrays at the current position, not be a string
                         print("Here")
-                        # string_values[i] = (self.subst(v, self, mode, target, source, gvars, lvars, conv),
-                        #                     ValueTypes.STRING)
-                        parsed_values[i:i+1] = value.all_dependencies
-                        string_values[i:i+1] = [None] * len(value.all_dependencies)
-
-                        # now update the rest of parsed_values with new index numbers
-                        parsed_values = [(pn, tn, ii) for (ii, (pn, tn, ix)) in enumerate(parsed_values)]
-
                         new_parsed_values.extend(value.all_dependencies)
                         new_string_values.extend([None] * len(value.all_dependencies))
 
                     debug("%s->%s" % (v, string_values[i]))
                 except KeyError as e:
                     if KeyError in AllowableExceptions:
-                        string_values[i] = ('', ValueTypes.STRING)
-                        parsed_values[i] = None
-
                         new_string_values.append(('', ValueTypes.STRING))
                         new_parsed_values.append(None)
 
@@ -357,9 +336,6 @@ class EnvironmentValues(object):
                 new_values = []
                 if is_String(call_value):
                     if  '$' not in call_value:
-                        string_values[i] = (call_value, ValueTypes.STRING)
-                        parsed_values[i] = None
-
                         new_string_values.append((call_value, ValueTypes.STRING))
                         new_parsed_values.append(None)
 
@@ -376,36 +352,21 @@ class EnvironmentValues(object):
                 for val in new_values:
                     # Now use value.var_type to decide how to proceed.
                     if val.var_type == ValueTypes.NUMBER:
-                        string_values[i] = (val, ValueTypes.NUMBER)
-                        parsed_values[i] = None
-
                         new_string_values.append((val, ValueTypes.NUMBER))
                         new_parsed_values.append(None)
 
                     elif val.var_type == ValueTypes.STRING:
                         if val[0] == '$' and val[1:] == v:
                             # Special case, variables value references itself and only itself
-                            string_values[i] = ('', ValueTypes.STRING)
-                            parsed_values[i] = None
-
                             new_string_values.append(('', ValueTypes.STRING))
                             new_parsed_values.append(None)
 
                         else:
-                            string_values[i] = (val.value, ValueTypes.STRING)
-                            parsed_values[i] = None
-
                             new_string_values.append((val.value, ValueTypes.STRING))
                             new_parsed_values.append(None)
 
                     else:
                         # TODO: Handle other recursive loops by empty stringing this value before recursing with copy of lvar?
-                        parsed_values[i:i + 1] = val.all_dependencies
-                        string_values[i:i + 1] = [None] * len(val.all_dependencies)
-
-                        # now update the rest of parsed_values with new index numbers
-                        parsed_values = [(pn, tn, ii) for (ii, (pn, tn, ix)) in enumerate(parsed_values)]
-
                         new_parsed_values.extend(val.all_dependencies)
                         new_string_values.extend([None] * len(val.all_dependencies))
 
@@ -417,10 +378,7 @@ class EnvironmentValues(object):
 
                 # The variable resolved to a number. No need to process further.
                 debug("Num      Type:%s VAL:%s" % (pv[0], pv[1]))
-                string_values[i] = (str(env[v].value), t)
-                debug("%s->%s" % (v, string_values[i]))
-                parsed_values[i] = None
-
+                debug("%s->%s" % (v, (str(env[v].value), t)))
                 new_string_values.append(str(env[v].value), t)
                 new_parsed_values.append(None)
 
@@ -435,8 +393,6 @@ class EnvironmentValues(object):
                 # TODO: Finish implementation
                 # This is very simple implementation which ignores nested collections and values which
                 # need to be further evaluated.(subst'd)
-                string_values[i] = (" ".join(value), t)
-                parsed_values[i] = None
 
                 new_string_values.append((" ".join(value), t))
                 new_parsed_values.append(None)
@@ -450,33 +406,22 @@ class EnvironmentValues(object):
                     sval = eval(v, gvars, lvars)
                 except AllowableExceptions as e:
                     sval = ''
-                if is_String(sval):
-                    string_values[i] = (sval, ValueTypes.NUMBER)
-                    parsed_values[i] = None
 
+                if is_String(sval):
                     new_string_values.append((sval, ValueTypes.NUMBER))
                     new_parsed_values.append(None)
 
                 elif callable(sval):
-                    parsed_values[i] = (ValueTypes.CALLABLE, sval, i)
-
                     new_parsed_values.append((ValueTypes.CALLABLE, sval, i))
                     new_string_values.append(None)
 
             elif t == ValueTypes.VARIABLE_OR_CALLABLE and v not in lvars and v not in gvars:
                 # Handle when variable is NOT defined by having blank string
-
-                string_values[i] = ('', ValueTypes.STRING)  # not defined so blank string
-                parsed_values[i] = None
-
                 new_string_values.append(('', ValueTypes.STRING))
                 new_parsed_values.append(None)
 
             elif t in (ValueTypes.ESCAPE_START, ValueTypes.ESCAPE_END):
                 # Propagate escapes into string_values. Escaping is not done here.
-                string_values[i] = (v, t)
-                parsed_values[i] = None
-
                 new_string_values.append((v, t))
                 new_parsed_values.append(None)
 
@@ -488,7 +433,7 @@ class EnvironmentValues(object):
         # Now correct index # for each item in new_parsed_values
         parsed_values = [pv is not None and (pv[0], pv[1], i) or None for (i, pv) in enumerate(new_parsed_values)]
         string_values = new_string_values
-        return (parsed_values, string_values)
+        return parsed_values, string_values
 
     def eval_callable(self, to_call, parsed_values, string_values,
                       target=None, source=None, gvars={}, lvars={}, for_sig=False):
