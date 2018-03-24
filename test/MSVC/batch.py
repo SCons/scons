@@ -32,6 +32,7 @@ explicit suffix settings so that the test should work when run on any
 platform.
 """
 
+import os
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -97,8 +98,8 @@ test.run(arguments = 'MSVC_BATCH=1 .')
 
 test.must_match('prog.exe', "prog.c\nf1.c\nf2.c\n", mode='r')
 test.must_match('fake_cl.log', """\
-/Fo.\\ prog.c f1.c f2.c
-""", mode='r')
+/Fo.%s prog.c f1.c f2.c
+"""%os.sep, mode='r')
 
 test.up_to_date(options = 'MSVC_BATCH=1', arguments = '.')
 
@@ -110,9 +111,9 @@ test.run(arguments = 'MSVC_BATCH=1 .')
 
 test.must_match('prog.exe', "prog.c\nf1.c 2\nf2.c\n", mode='r')
 test.must_match('fake_cl.log', """\
-/Fo.\\ prog.c f1.c f2.c
-/Fo.\\ f1.c
-""", mode='r')
+/Fo.%s prog.c f1.c f2.c
+/Fo.%s f1.c
+"""%(os.sep, os.sep), mode='r')
 
 test.up_to_date(options = 'MSVC_BATCH=1', arguments = '.')
 
