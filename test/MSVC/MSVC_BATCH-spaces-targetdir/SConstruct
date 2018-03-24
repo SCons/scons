@@ -1,0 +1,8 @@
+import os.path
+
+env=Environment(MSVC_BATCH=True)
+
+td='tar ge tdir'
+VariantDir(td,'src')
+env.Program(os.path.join(td,'test_program'),
+            [os.path.join(td,a) for a in ['a.c','b.c','c.c']])

@@ -195,7 +195,10 @@ def msvc_output_flag(target, source, env, for_signature):
         # that the test(s) for this can be run on non-Windows systems
         # without having a hard-coded backslash mess up command-line
         # argument parsing.
-        return '/Fo${TARGET.dir}' + os.sep
+        # Adding double os.sep's as if the TARGET.dir has a space or otherwise
+        # needs to be quoted they are needed per MSVC's odd behavior
+        # See: https://github.com/SCons/scons/issues/3106
+        return '/Fo${TARGET.dir}' + os.sep*2
 
 CAction = SCons.Action.Action("$CCCOM", "$CCCOMSTR",
                               batch_key=msvc_batch_key,

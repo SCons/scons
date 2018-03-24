@@ -72,6 +72,7 @@ for infile in sys.argv[2:]:
 """)
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 cccom = r'%(_python_)s fake_cl.py $_MSVC_OUTPUT_FLAG $CHANGED_SOURCES'
 linkcom = r'%(_python_)s fake_link.py ${TARGET.windows} $SOURCES'
 env = Environment(tools=['msvc', 'mslink'],
@@ -96,7 +97,7 @@ test.run(arguments = 'MSVC_BATCH=1 .')
 
 test.must_match('prog.exe', "prog.c\nf1.c\nf2.c\n", mode='r')
 test.must_match('fake_cl.log', """\
-/Fo. prog.c f1.c f2.c
+/Fo.\\ prog.c f1.c f2.c
 """, mode='r')
 
 test.up_to_date(options = 'MSVC_BATCH=1', arguments = '.')
@@ -109,8 +110,8 @@ test.run(arguments = 'MSVC_BATCH=1 .')
 
 test.must_match('prog.exe', "prog.c\nf1.c 2\nf2.c\n", mode='r')
 test.must_match('fake_cl.log', """\
-/Fo. prog.c f1.c f2.c
-/Fo. f1.c
+/Fo.\\ prog.c f1.c f2.c
+/Fo.\\ f1.c
 """, mode='r')
 
 test.up_to_date(options = 'MSVC_BATCH=1', arguments = '.')
