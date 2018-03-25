@@ -156,7 +156,12 @@ def generate(env):
     env['PROGSUFFIX'] = '.exe'
 
 def exists(env):
-    return find(env)
+    mingw = SCons.Tool.find_program_path(env, key_program, default_paths=[r'c:\MinGW\bin',])
+    if mingw:
+        mingw_bin_dir = os.path.dirname(mingw)
+        env.AppendENVPath('PATH', mingw_bin_dir)
+
+    return mingw
 
 # Local Variables:
 # tab-width:4
