@@ -25,6 +25,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From William Deegan:
     - Remove long deprecated SCons.Options code and tests.  This removes BoolOption,EnumOption,
       ListOption,PackageOption, and PathOption which have been replaced by *Variable() many years ago.
+    - Re-Enable parallel SCons (-j) when running via Pypy
 
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
