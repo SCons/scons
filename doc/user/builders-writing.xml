@@ -812,7 +812,7 @@ env.Foo('file')
     <scons_example name="builderswriting_MY_EMITTER">
 
       <file name="SConstruct" printme="1">
-bld = Builder(action = 'my_command $SOURCES &gt; $TARGET',
+bld = Builder(action = './my_command $SOURCES &gt; $TARGET',
               suffix = '.foo',
               src_suffix = '.input',
               emitter = '$MY_EMITTER')
@@ -826,9 +826,6 @@ env2 = Environment(BUILDERS = {'Foo' : bld},
                    MY_EMITTER = modify2)
 env1.Foo('file1')
 env2.Foo('file2')
-import os
-env1['ENV']['PATH'] = env2['ENV']['PATH'] + os.pathsep + os.getcwd()
-env2['ENV']['PATH'] = env2['ENV']['PATH'] + os.pathsep + os.getcwd()
         </file>
         <file name="file1.input">
 file1.input
@@ -847,23 +844,6 @@ cat
         </file>
 
     </scons_example>
-
-    <sconstruct>
-bld = Builder(action = 'my_command $SOURCES &gt; $TARGET',
-              suffix = '.foo',
-              src_suffix = '.input',
-              emitter = '$MY_EMITTER')
-def modify1(target, source, env):
-    return target, source + ['modify1.in']
-def modify2(target, source, env):
-    return target, source + ['modify2.in']
-env1 = Environment(BUILDERS = {'Foo' : bld},
-                   MY_EMITTER = modify1)
-env2 = Environment(BUILDERS = {'Foo' : bld},
-                   MY_EMITTER = modify2)
-env1.Foo('file1')
-env2.Foo('file2')
-    </sconstruct>
 
     <para>
 

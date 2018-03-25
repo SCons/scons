@@ -280,8 +280,6 @@ sconscript_reading = 0
 def Variables(files=[], args=ARGUMENTS):
     return SCons.Variables.Variables(files, args)
 
-def Options(files=[], args=ARGUMENTS):
-    return SCons.Options.Options(files, args)
 
 # The list of global functions to add to the SConscript name space
 # that end up calling corresponding methods or Builders in the
