@@ -46,7 +46,7 @@ import sys
 import SCons.Tool
 import SCons.Util
 import SCons.Tool.cxx
-from SCons.Tool.clang import get_clang_install_dirs
+from SCons.Tool.clangCommon import get_clang_install_dirs
 
 
 compilers = ['clang++']

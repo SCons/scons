@@ -13,4 +13,5 @@ clang_win32_dirs = [
 def get_clang_install_dirs(platform):
     if platform == 'win32':
         return clang_win32_dirs
-    else return []
+    else:
+        return []
