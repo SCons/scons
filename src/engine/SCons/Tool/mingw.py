@@ -43,6 +43,14 @@ import SCons.Tool
 import SCons.Util
 
 
+mingw_paths = [
+    r'c:\MinGW\bin',
+    r'C:\cygwin64\bin',
+    r'C:\msys64',
+    r'C:\cygwin\bin',
+    r'C:\msys',
+]
+
 def shlib_generator(target, source, env, for_signature):
     cmd = SCons.Util.CLVar(['$SHLINK', '$SHLINKFLAGS']) 
 
@@ -111,7 +119,7 @@ key_program = 'mingw32-gcc'
 
 
 def generate(env):
-    mingw = SCons.Tool.find_program_path(env, key_program, default_paths=[r'c:\MinGW\bin',])
+    mingw = SCons.Tool.find_program_path(env, key_program, default_paths=mingw_paths)
     if mingw:
         mingw_bin_dir = os.path.dirname(mingw)
         env.AppendENVPath('PATH', mingw_bin_dir)
@@ -156,7 +164,7 @@ def generate(env):
     env['PROGSUFFIX'] = '.exe'
 
 def exists(env):
-    mingw = SCons.Tool.find_program_path(env, key_program, default_paths=[r'c:\MinGW\bin',])
+    mingw = SCons.Tool.find_program_path(env, key_program, default_paths=mingw_paths)
     if mingw:
         mingw_bin_dir = os.path.dirname(mingw)
         env.AppendENVPath('PATH', mingw_bin_dir)
