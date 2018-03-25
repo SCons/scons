@@ -48,6 +48,7 @@ import sys
 import time
 import traceback
 import sysconfig
+import platform
 
 import SCons.CacheDir
 import SCons.Debug
@@ -1253,7 +1254,8 @@ def _build_targets(fs, options, targets, target_top):
     BuildTask.options = options
 
 
-    python_has_threads = sysconfig.get_config_var('WITH_THREAD')
+    is_pypy = platform.python_implementation() == 'PyPy'
+    python_has_threads = sysconfig.get_config_var('WITH_THREAD') or is_pypy
     # to check if python configured with threads.
     global num_jobs
     num_jobs = options.num_jobs
