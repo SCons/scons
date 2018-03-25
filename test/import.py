@@ -75,6 +75,8 @@ ignore = ('__init__.py',
         '386asm.py', 'linkloc.py',
         # Directory of common stuff for MSVC and MSVS
         'MSCommon',
+        # clang common
+        "clangCommon",
         # Sun pkgchk and pkginfo common stuff
         'sun_pkg.py',
         # RPM utilities
