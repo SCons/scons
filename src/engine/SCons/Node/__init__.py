@@ -1406,6 +1406,60 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             return None
         return self._tags.get(key, None)
 
+
+    def _build_dependency_map(self, binfo):
+        """
+        Build mapping from file -> signiture
+
+        Args:
+            self - self
+            binfo - buildinfo from node being considered
+
+        Returns: 
+            dictionary of file->signiture mappings
+        """
+
+        # For an "empty" binfo properties like bsources
+        # do not exist: check this to avoid exception.
+        if (len(binfo.bsourcesigs) + len(binfo.bdependsigs) + \
+                len(binfo.bimplicitsigs)) == 0:
+            return{}
+
+        pairs = [
+            (binfo.bsources, binfo.bsourcesigs),
+            (binfo.bdepends, binfo.bdependsigs),
+            (binfo.bimplicit, binfo.bimplicitsigs)
+           ]
+
+        m = {}
+        for children, signatures in pairs:
+            for child, signature in zip(children, signatures):
+                schild = str(child)
+                m[schild] = signature
+        return m
+
+    def _get_previous_signatures(self, dmap, children):
+        """
+        Return a list of corresponding csigs from previous
+        build in order of the node/files in children.
+
+        Args:
+            self - self
+            dmap - Dictionary of file -> csig
+            children - List of children
+        
+        Returns:
+            List of csigs for provided list of children
+        """
+        prev = []
+        for c in map(str, children):
+            # If there is no previous signature,
+            # we place None in the corresponding position.
+            prev.append(dmap.get(c))
+        return prev
+
+
+
     def changed(self, node=None, allowcache=False):
         """
         Returns if the node is up-to-date with respect to the BuildInfo
@@ -1437,27 +1491,37 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         result = False
 
         bi = node.get_stored_info().binfo
-        then = bi.bsourcesigs + bi.bdependsigs + bi.bimplicitsigs
+        # then = bi.bsourcesigs + bi.bdependsigs + bi.bimplicitsigs
+        # TODO: Can we move this into the if diff below?
+        dmap = self._build_dependency_map(bi)
         children = self.children()
 
-        diff = len(children) - len(then)
+        # diff = len(children) - len(then)
+        diff = len(children) - len(dmap)
         if diff:
             # The old and new dependency lists are different lengths.
             # This always indicates that the Node must be rebuilt.
-            # We also extend the old dependency list with enough None
-            # entries to equal the new dependency list, for the benefit
-            # of the loop below that updates node information.
-            then.extend([None] * diff)
-            if t: Trace(': old %s new %s' % (len(then), len(children)))
+
+            # TODO: Below is from new logic
+            # # We also extend the old dependency list with enough None
+            # # entries to equal the new dependency list, for the benefit
+            # # of the loop below that updates node information.
+            # then.extend([None] * diff)
+            # if t: Trace(': old %s new %s' % (len(then), len(children)))
+
             result = True
+
+        # Now build new then based on map built above.
+        then = self._get_previous_signatures(dmap, children)
 
         for child, prev_ni in zip(children, then):
             if _decider_map[child.changed_since_last_build](child, self, prev_ni):
                 if t: Trace(': %s changed' % child)
                 result = True
 
-        contents = self.get_executor().get_contents()
         if self.has_builder():
+            contents = self.get_executor().get_contents()
+
             import SCons.Util
             newsig = SCons.Util.MD5signature(contents)
             if bi.bactsig != newsig:
