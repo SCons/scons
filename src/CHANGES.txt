@@ -48,6 +48,11 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       Specifically, this fixes the test cases use by Configure.CheckCC() which
       would fail when using -Wstrict-prototypes.
 
+  From Fredrik Medley:
+    - Fix exception when printing of EnviromentError messages.
+      Specifically, this fixes error reporting of the race condition when
+      initializing the cache which error previously was hidden.
+
 
 RELEASE 3.0.1 - Mon, 12 Nov 2017 15:31:33 -0700
 
