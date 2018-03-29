@@ -3752,38 +3752,7 @@ class AbsolutePathTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suite = unittest.TestSuite()
-    suite.addTest(VariantDirTestCase())
-    suite.addTest(find_fileTestCase())
-    suite.addTest(StringDirTestCase())
-    suite.addTest(stored_infoTestCase())
-    suite.addTest(has_src_builderTestCase())
-    suite.addTest(prepareTestCase())
-    suite.addTest(SConstruct_dirTestCase())
-    suite.addTest(clearTestCase())
-    suite.addTest(disambiguateTestCase())
-    suite.addTest(postprocessTestCase())
-    suite.addTest(SpecialAttrTestCase())
-    suite.addTest(SaveStringsTestCase())
-    tclasses = [
-        AbsolutePathTestCase,
-        BaseTestCase,
-        CacheDirTestCase,
-        DirTestCase,
-        DirBuildInfoTestCase,
-        DirNodeInfoTestCase,
-        EntryTestCase,
-        FileTestCase,
-        FileBuildInfoTestCase,
-        FileNodeInfoTestCase,
-        FSTestCase,
-        GlobTestCase,
-        RepositoryTestCase,
-    ]
-    for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(list(map(tclass, names)))
-    TestUnit.run(suite)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4
