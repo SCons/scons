@@ -3253,11 +3253,24 @@ class File(Base):
         return self.state != SCons.Node.up_to_date
 
     def changed_timestamp_then_content(self, target, prev_ni):
+        """
+        Used when decider for file is Timestamp-MD5
+
+        NOTE: If the timestamp hasn't change this will skip md5'ing the
+              file and just copy the prev_ni provided.  If the prev_ni
+              is wrong. It will propogate it.
+              See: https://github.com/SCons/scons/issues/2980
+        
+        Args:
+            self - self
+            target -
+            prev_ni - The NodeInfo object loaded from previous builds .sconsign
+
+        Returns: 
+            Boolean - Indicates if node(File) has changed.
+        """
         if not self.changed_timestamp_match(target, prev_ni):
             try:
-                if str(self) == 'beta.h' and prev_ni.csig == '2ff783593a2224d0574181661ab5f1b7':
-                    print("in problem code")
-                print('Setting csig [%s]:%s'%(str(self),prev_ni.csig))
                 self.get_ninfo().csig = prev_ni.csig
             except AttributeError:
                 pass
