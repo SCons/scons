@@ -690,10 +690,15 @@ class Base(SCons.Node.Node):
 
     @SCons.Memoize.CountMethodCall
     def stat(self):
-        try: return self._memo['stat']
-        except KeyError: pass
-        try: result = self.fs.stat(self.get_abspath())
-        except os.error: result = None
+        try: 
+            return self._memo['stat']
+        except KeyError: 
+            pass
+        try: 
+            result = self.fs.stat(self.get_abspath())
+        except os.error: 
+            result = None
+
         self._memo['stat'] = result
         return result
 
@@ -705,13 +710,17 @@ class Base(SCons.Node.Node):
 
     def getmtime(self):
         st = self.stat()
-        if st: return st[stat.ST_MTIME]
-        else: return None
+        if st: 
+            return st[stat.ST_MTIME]
+        else: 
+            return None
 
     def getsize(self):
         st = self.stat()
-        if st: return st[stat.ST_SIZE]
-        else: return None
+        if st: 
+            return st[stat.ST_SIZE]
+        else: 
+            return None
 
     def isdir(self):
         st = self.stat()
@@ -3246,6 +3255,9 @@ class File(Base):
     def changed_timestamp_then_content(self, target, prev_ni):
         if not self.changed_timestamp_match(target, prev_ni):
             try:
+                if str(self) == 'beta.h' and prev_ni.csig == '2ff783593a2224d0574181661ab5f1b7':
+                    print("in problem code")
+                print('Setting csig [%s]:%s'%(str(self),prev_ni.csig))
                 self.get_ninfo().csig = prev_ni.csig
             except AttributeError:
                 pass
