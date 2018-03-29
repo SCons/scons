@@ -1491,13 +1491,11 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         result = False
 
         bi = node.get_stored_info().binfo
-        # then = bi.bsourcesigs + bi.bdependsigs + bi.bimplicitsigs
+        then = bi.bsourcesigs + bi.bdependsigs + bi.bimplicitsigs
         # TODO: Can we move this into the if diff below?
-        dmap = self._build_dependency_map(bi)
         children = self.children()
 
-        # diff = len(children) - len(then)
-        diff = len(children) - len(dmap)
+        diff = len(children) - len(then)
         if diff:
             # The old and new dependency lists are different lengths.
             # This always indicates that the Node must be rebuilt.
@@ -1508,11 +1506,13 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             # # of the loop below that updates node information.
             # then.extend([None] * diff)
             # if t: Trace(': old %s new %s' % (len(then), len(children)))
+            dmap = self._build_dependency_map(bi)
 
+            # Now build new then based on map built above.
+            then = self._get_previous_signatures(dmap, children)
+            
             result = True
 
-        # Now build new then based on map built above.
-        then = self._get_previous_signatures(dmap, children)
 
         for child, prev_ni in zip(children, then):
             if _decider_map[child.changed_since_last_build](child, self, prev_ni):

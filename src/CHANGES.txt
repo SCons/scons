@@ -15,7 +15,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Fix the PATH created by scons.bat (and other .bat files) to provide a normalized
       PATH.  Some pythons in the 3.6 series are no longer able to handle paths which
       have ".." in them and end up crashing.  This is done by cd'ing into the directory
-      we want to add to the path and then useing %CD% to give us the normalized directory
+      we want to add to the path and then using %CD% to give us the normalized directory
       See bug filed under Python 3.6: https://bugs.python.org/issue32457.
       Note: On Win32 PATH's which have not been normalized may cause undefined behavior
       by other executables being run by SCons (or any subprocesses of executables being run by SCons).
@@ -55,7 +55,9 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Fix new logic which populates JAVAINCLUDES to handle the case where javac is not found.
     - Fix GH Issue #3225 SCons.Util.Flatten() doesn't handle MappingView's produced by dictionary as return
       values from dict().{items(), keys(), values()}.
-      
+    - Fix issue #2980 with credit to William Blevins.  This is an issue where using TimeStamp-MD5 Decider
+      and CacheDir can yield incorrect md5's being written into the .sconsign.
+
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
 
