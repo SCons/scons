@@ -60,6 +60,11 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       William Blevins patch and the current code is that the more complicated creation of file to csig
       map is only done when the count of children for the current node doesn't match the previous count
       which is loaded from the sconsign.
+    - Fix issue #2980 with credit to Piotr Bartosik (and William Blevins).  This is an issue where using
+      TimeStamp-MD5 Decider and CacheDir can yield incorrect md5's being written into the .sconsign.  
+      The difference between Piotr Bartosik's patch and the current code is that the more complicated 
+      creation of file to csig map is only done when the count of children for the current node doesn't 
+      match the previous count which is loaded from the sconsign.
 
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
