@@ -39,6 +39,15 @@ scons: \*\*\* No SConstruct file found.
 
 wpath = test.workpath()
 
+test.write('SConstruct.py', """
+import os
+print("SConstruct.py "+os.getcwd())
+""")
+
+test.run(arguments = ".",
+         stdout = test.wrap_stdout(read_str = 'SConstruct.py %s\n' % wpath,
+                                   build_str = "scons: `.' is up to date.\n"))
+
 test.write('sconstruct', """
 import os
 print("sconstruct "+os.getcwd())
