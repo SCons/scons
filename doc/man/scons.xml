@@ -105,8 +105,9 @@ rebuild them.</para>
 searches for a file named
 <emphasis>SConstruct</emphasis>,
 <emphasis>Sconstruct</emphasis>,
-or
 <emphasis>sconstruct</emphasis>
+or
+<emphasis>SConstruct.py</emphasis>
 (in that order) in the current directory and reads its
 configuration from the first file found.
 An alternate file name may be
@@ -635,8 +636,9 @@ yet have any results in the cache.</para>
 before searching for the
 <emphasis>SConstruct</emphasis>,
 <emphasis>Sconstruct</emphasis>,
-or
 <emphasis>sconstruct</emphasis>
+or
+<emphasis>SConstruct.py</emphasis>
 file, or doing anything
 else.  Multiple
 <option>-C</option>
@@ -649,8 +651,9 @@ equivalent to
 except that it will search for
 <emphasis>SConstruct</emphasis>,
 <emphasis>Sconstruct</emphasis>,
-or
 <emphasis>sconstruct</emphasis>
+or
+<emphasis>SConstruct.py</emphasis>
 in the specified directory.)</para>
 
 <!--  .TP -->
@@ -1658,9 +1661,10 @@ scons --tree=all,prune,status target
   <listitem>
 <para>Walks up the directory structure until an
 <emphasis>SConstruct ,</emphasis>
-<emphasis>Sconstruct</emphasis>
-or
+<emphasis>Sconstruct ,</emphasis>
 <emphasis>sconstruct</emphasis>
+or
+<emphasis>SConstruct.py</emphasis>
 file is found, and uses that
 as the top of the directory tree.
 If no targets are specified on the command line,
