@@ -32,6 +32,7 @@ import json
 import os
 import stat
 import sys
+import time
 
 import SCons.Action
 import SCons.Warnings
@@ -145,56 +146,84 @@ class CacheDir(object):
         self.config = dict()
         if path is None:
             return
+
+        # A note: There is a race hazard here, if two processes start and
+        # attempt to write the cache config at the same time.
+
+        if not os.path.isdir(path):
+            try:
+                # The implementation of os.makedirs() seems to be
+                # safe for multiple processes creating the same directory,
+                # apart from the last entry.
+                os.makedirs(path)
+            except OSError:
+                if not os.path.isdir(path):
+                    msg = "Failed to create cache directory " + path
+                    raise SCons.Errors.EnvironmentError(msg)
+
         # See if there's a config file in the cache directory. If there is,
         # use it. If there isn't, and the directory exists and isn't empty,
         # produce a warning. If the directory doesn't exist or is empty,
         # write a config file.
         config_file = os.path.join(path, 'config')
+        tmp_base = 'config.tmp'
+        tmp_file = os.path.join(path, tmp_base)
+        lock_base = 'config.lock'
+        lock_file = os.path.join(path, lock_base)
+
         if not os.path.exists(config_file):
-            # A note: There is a race hazard here, if two processes start and
-            # attempt to create the cache directory at the same time. However,
-            # python doesn't really give you the option to do exclusive file
-            # creation (it doesn't even give you the option to error on opening
-            # an existing file for writing...). The ordering of events here
-            # as an attempt to alleviate this, on the basis that it's a pretty
-            # unlikely occurence (it'd require two builds with a brand new cache
-            # directory)
-            if os.path.isdir(path) and len(os.listdir(path)) != 0:
-                self.config['prefix_len'] = 1
-                # When building the project I was testing this on, the warning
-                # was output over 20 times. That seems excessive
-                global warned
-                if self.path not in warned:
-                    msg = "Please upgrade your cache by running " +\
-                          " scons-configure-cache.py " +  self.path
-                    SCons.Warnings.warn(SCons.Warnings.CacheVersionWarning, msg)
-                    warned[self.path] = True
-            else:
-                if not os.path.isdir(path):
-                    try:
-                        os.makedirs(path)
-                    except OSError:
-                        # If someone else is trying to create the directory at
-                        # the same time as me, bad things will happen
-                        msg = "Failed to create cache directory " + path
-                        raise SCons.Errors.EnvironmentError(msg)
-                        
-                self.config['prefix_len'] = 2
-                if not os.path.exists(config_file):
-                    try:
-                        with open(config_file, 'w') as config:
-                            json.dump(self.config, config)
-                    except:
-                        msg = "Failed to write cache configuration for " + path
-                        raise SCons.Errors.EnvironmentError(msg)
-        else:
+            # Lock the whole process of creating the directory and config file.
+            lock = os.open(lock_file, os.O_RDWR | os.O_CREAT | os.O_TRUNC)
             try:
-                with open(config_file) as config:
-                    self.config = json.load(config)
-            except ValueError:
-                msg = "Failed to read cache configuration for " + path
-                raise SCons.Errors.EnvironmentError(msg)
-            
+                try:
+                    if sys.platform == 'win32':
+                        import msvcrt
+                        msvcrt.locking(lock, msvcrt.LK_LOCK, 1)
+                    else:
+                        import fcntl
+                        fcntl.flock(lock, fcntl.LOCK_EX)
+                except IOError:
+                    msg = "Failed to acquire cache initialization lock " + lock_file
+                    raise SCons.Errors.EnvironmentError(msg)
+                # We've got the lock, but check again if cache directory was
+                # initialized just as we tried to acquire the lock.
+                if not os.path.exists(config_file):
+                    # Note that os.listdir(path) will contain at least the
+                    # lock file but not the config file.
+                    if any(f not in [tmp_base, lock_base] for f in os.listdir(path)):
+                        self.config['prefix_len'] = 1
+                        # When building the project I was testing this on, the warning
+                        # was output over 20 times. That seems excessive
+                        global warned
+                        if self.path not in warned:
+                            msg = "Please upgrade your cache by running " +\
+                                  " scons-configure-cache.py " +  self.path
+                            SCons.Warnings.warn(SCons.Warnings.CacheVersionWarning, msg)
+                            warned[self.path] = True
+                    else:
+                        self.config['prefix_len'] = 2
+                        try:
+                            with open(tmp_file, 'w') as config:
+                                json.dump(self.config, config)
+                            os.rename(tmp_file, config_file)
+                        except:
+                            msg = "Failed to write cache configuration for " + path
+                            raise SCons.Errors.EnvironmentError(msg)
+            finally:
+                # Clean up the temporary lock file.
+                os.close(lock)
+                try:
+                    os.remove(lock_file)
+                except OSError:
+                    # Other processes might have removed the lock file already.
+                    pass
+        try:
+            with open(config_file) as config:
+                self.config = json.load(config)
+        except ValueError:
+            msg = "Failed to read cache configuration for " + path
+            raise SCons.Errors.EnvironmentError(msg)
+
 
     def CacheDebug(self, fmt, target, cachefile):
         if cache_debug != self.current_cache_debug:

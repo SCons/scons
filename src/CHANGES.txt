@@ -130,6 +130,10 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From Hao Wu
     - Replace usage of unittest.TestSuite with unittest.main() (fix #3113)
 
+  From Fredrik Medley:
+    - Fix race condition bug when initializing a scons cache directory at the
+      same time from multiple threads or processes.
+
 
 
 
