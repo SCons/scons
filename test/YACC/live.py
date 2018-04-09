@@ -29,6 +29,8 @@ Test YACC and YACCFLAGS with a live yacc compiler.
 """
 
 import TestSCons
+import sys
+import os
 
 _exe = TestSCons._exe
 _python_ = TestSCons._python_
@@ -40,12 +42,16 @@ yacc = test.where_is('yacc') or test.where_is('bison')
 if not yacc:
     test.skip_test('No yacc or bison found; skipping test.\n')
 
+if sys.platform == 'win32':
+    if not test.where_is('gcc'):
+        test.skip_test('No gcc found on windows; skipping test.\n')
+
 test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
-foo = Environment(YACCFLAGS='-d')
+foo = Environment(YACCFLAGS='-d', tools = ['default', 'yacc'])
 yacc = foo.Dictionary('YACC')
-bar = Environment(YACC = r'%(_python_)s wrapper.py ' + yacc)
+bar = Environment(YACC = r'%(_python_)s wrapper.py ' + yacc, tools = ['default', 'yacc'])
 foo.Program(target = 'foo', source = 'foo.y')
 bar.Program(target = 'bar', source = 'bar.y')
 foo.Program(target = 'hello', source = ['hello.cpp'])
@@ -152,7 +158,7 @@ test.run(arguments = 'bar' + _exe)
 
 test.up_to_date(arguments = 'bar' + _exe)
 
-test.must_match(test.workpath('wrapper.out'), "wrapper.py\n")
+test.must_match(test.workpath('wrapper.out'), "wrapper.py" + os.linesep)
 
 test.run(program = test.workpath('bar'), stdin = "b\n", stdout = "bar.y\n")
 
