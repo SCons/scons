@@ -114,7 +114,7 @@ def generate(env):
     cxx_file.add_action('.yy', YaccAction)
     cxx_file.add_emitter('.yy', yyEmitter)
 
-    if(sys.platform == 'win32'):
+    if sys.platform == 'win32':
         bison = SCons.Tool.find_program_path(env, 'bison', default_paths=['C:\\cygwin64\\bin', 'C:\\cygwin\\bin', 'C:\\msys', 'C:\\msys64' ])
         if bison:
             bison_bin_dir = os.path.dirname(bison)
