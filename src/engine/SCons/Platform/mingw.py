@@ -1,4 +1,9 @@
-#!/usr/bin/env python
+"""SCons.Platform.mingw
+
+Platform-specific initialization for the MinGW system.
+
+"""
+
 #
 # __COPYRIGHT__
 #
@@ -24,47 +29,11 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
 import sys
 
-import TestSCons
-
-_python_ = TestSCons._python_
-_exe = TestSCons._exe
-
+MINGW_DEFAULT_PATHS = []
 if sys.platform == 'win32':
-    compiler = 'msvc'
-    linker = 'mslink'
-else:
-    compiler = 'gcc'
-    linker = 'gnulink'
-
-test = TestSCons.TestSCons()
-
-test.dir_fixture('YACC-fixture')
-
-test.write('SConstruct', """
-env = Environment(YACC = r'%(_python_)s myyacc.py', tools=['default', 'yacc'])
-env.CFile(target = 'aaa', source = 'aaa.y')
-env.CFile(target = 'bbb', source = 'bbb.yacc')
-env.CXXFile(target = 'ccc', source = 'ccc.yy')
-env.CFile(target = 'ddd', source = 'ddd.ym')
-""" % locals())
-
-test.run(arguments = '.', stderr = None)
-
-test.must_match('aaa.c',        "aaa.y" + os.linesep + "myyacc.py" + os.linesep)
-test.must_match('bbb.c',        "bbb.yacc" + os.linesep + "myyacc.py" + os.linesep)
-test.must_match('ccc.cc',       "ccc.yacc" + os.linesep + "myyacc.py" + os.linesep)
-test.must_match('ddd.m',        "ddd.yacc" + os.linesep + "myyacc.py" + os.linesep)
-
-
-
-
-test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:
+    MINGW_DEFAULT_PATHS = [
+        r'C:\msys64',
+        r'C:\msys'
+    ]
