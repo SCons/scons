@@ -19,6 +19,8 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
    - Fixed handling of side-effects in task master (fixes #3013).
 
   From Daniel Moody:
+    - Add common location for default paths for cygwin and mingw in Platform modules
+    - Updated YACC tool to work on windows with Cygwin/MinGW setups
     - Set the pickling protocal back to highest which was causing issues 
       with variant dir tests. This will cause issues if reading sconsigns
       pickled with the previous lower protocal.
