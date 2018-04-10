@@ -39,6 +39,8 @@ import sys
 import SCons.Defaults
 import SCons.Tool
 import SCons.Util
+from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
+from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
 
 YaccAction = SCons.Action.Action("$YACCCOM", "$YACCCOMSTR")
 
@@ -115,7 +117,7 @@ def generate(env):
     cxx_file.add_emitter('.yy', yyEmitter)
 
     if sys.platform == 'win32':
-        bison = SCons.Tool.find_program_path(env, 'bison', default_paths=['C:\\cygwin64\\bin', 'C:\\cygwin\\bin', 'C:\\msys', 'C:\\msys64' ])
+        bison = SCons.Tool.find_program_path(env, 'bison', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
         if bison:
             bison_bin_dir = os.path.dirname(bison)
             env.AppendENVPath('PATH', bison_bin_dir)

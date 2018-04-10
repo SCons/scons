@@ -1,10 +1,7 @@
-"""SCons.Platform.cygwin
+"""SCons.Platform.mingw
 
-Platform-specific initialization for Cygwin systems.
+Platform-specific initialization for the MinGW system.
 
-There normally shouldn't be any need to import this module directly.  It
-will usually be imported through the generic SCons.Platform.Platform()
-selection method.
 """
 
 #
@@ -34,31 +31,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
 
-from . import posix
-from SCons.Platform import TempFileMunge
-
-CYGWIN_DEFAULT_PATHS = []
+MINGW_DEFAULT_PATHS = []
 if sys.platform == 'win32':
-    CYGWIN_DEFAULT_PATHS = [
-        r'C:\cygwin64\bin',
-        r'C:\cygwin\bin'
+    MINGW_DEFAULT_PATHS = [
+        r'C:\msys64',
+        r'C:\msys'
     ]
-
-def generate(env):
-    posix.generate(env)
-
-    env['PROGPREFIX']  = ''
-    env['PROGSUFFIX']  = '.exe'
-    env['SHLIBPREFIX'] = ''
-    env['SHLIBSUFFIX'] = '.dll'
-    env['LIBPREFIXES'] = [ '$LIBPREFIX', '$SHLIBPREFIX', '$IMPLIBPREFIX' ]
-    env['LIBSUFFIXES'] = [ '$LIBSUFFIX', '$SHLIBSUFFIX', '$IMPLIBSUFFIX' ]
-    env['TEMPFILE']    = TempFileMunge
-    env['TEMPFILEPREFIX'] = '@'
-    env['MAXLINELENGTH']  = 2048
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:
