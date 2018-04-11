@@ -3256,7 +3256,7 @@ class File(Base):
         """
         Used when decider for file is Timestamp-MD5
 
-        NOTE: If the timestamp hasn't change this will skip md5'ing the
+        NOTE: If the timestamp hasn't changed this will skip md5'ing the
               file and just copy the prev_ni provided.  If the prev_ni
               is wrong. It will propogate it.
               See: https://github.com/SCons/scons/issues/2980
