@@ -27,10 +27,22 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 #############################################################################
 def generate(env,**kw):
+  import sys
+  import os
   import SCons.Tool
+  from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
+  from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
+
   from SCons.Tool.GettextCommon \
     import  _translate, tool_list
   for t in tool_list(env['PLATFORM'], env):
+    if sys.platform == 'win32':
+        tool = SCons.Tool.find_program_path(env, t, default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
+        if tool:
+            tool_bin_dir = os.path.dirname(tool)
+            env.AppendENVPath('PATH', tool_bin_dir)
+        else:
+            SCons.Warnings.Warning(t + ' tool requested, but binary not found in ENV PATH')
     env.Tool(t)
   env.AddMethod(_translate, 'Translate')
 #############################################################################

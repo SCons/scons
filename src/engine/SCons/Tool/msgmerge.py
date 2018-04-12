@@ -68,8 +68,21 @@ def _POUpdateBuilderWrapper(env, target=None, source=_null, **kw):
 
 #############################################################################
 def generate(env,**kw):
-  """ Generate the `xgettext` tool """
+  """ Generate the `msgmerge` tool """
+  import sys
+  import os
+  import SCons.Tool
   from SCons.Tool.GettextCommon import _detect_msgmerge
+  from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
+  from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
+
+  if sys.platform == 'win32':
+      msgmerge = SCons.Tool.find_program_path(env, 'msgmerge', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
+      if msgmerge:
+          msgmerge_bin_dir = os.path.dirname(msgmerge)
+          env.AppendENVPath('PATH', msgmerge_bin_dir)
+      else:
+          SCons.Warnings.Warning('msgmerge tool requested, but binary not found in ENV PATH')
   try:
     env['MSGMERGE'] = _detect_msgmerge(env)
   except:
