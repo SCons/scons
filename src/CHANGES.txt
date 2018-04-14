@@ -11,6 +11,9 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Add SConstruct.py and sconstruct.py to the search path for the root SConstruct file.
       Allows easier debugging within Visual Studio
 
+  From Bernard Blackham:
+   - Fixed handling of side-effects in task master (fixes #3013).
+
   From Daniel Moody:
     - Set the pickling protocal back to highest which was causing issues 
       with variant dir tests. This will cause issues if reading sconsigns
