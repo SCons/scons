@@ -7,6 +7,10 @@
 
 RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Richard West:
+    - Add SConstruct.py, Sconstruct.py, sconstruct.py to the search path for the root SConstruct file.
+      Allows easier debugging within Visual Studio
+
   From Bernard Blackham:
    - Fixed handling of side-effects in task master (fixes #3013).
 
