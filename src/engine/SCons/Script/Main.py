@@ -623,7 +623,7 @@ def _SConstruct_exists(dirname='', repositories=[], filelist=None):
     current directory.
     """
     if not filelist:
-        filelist = ['SConstruct', 'Sconstruct', 'sconstruct', 'SConstruct.py', 'sconstruct.py']
+        filelist = ['SConstruct', 'Sconstruct', 'sconstruct', 'SConstruct.py', 'Sconstruct.py', 'sconstruct.py']
     for file in filelist:
         sfile = os.path.join(dirname, file)
         if os.path.isfile(sfile):

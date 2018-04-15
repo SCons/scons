@@ -107,6 +107,7 @@ searches for a file named
 <emphasis>Sconstruct</emphasis>,
 <emphasis>sconstruct</emphasis>,
 <emphasis>SConstruct.py</emphasis>
+<emphasis>Sconstruct.py</emphasis>
 or
 <emphasis>sconstruct.py</emphasis>
 (in that order) in the current directory and reads its
@@ -639,6 +640,7 @@ before searching for the
 <emphasis>Sconstruct</emphasis>,
 <emphasis>sconstruct</emphasis>,
 <emphasis>SConstruct.py</emphasis>
+<emphasis>Sconstruct.py</emphasis>
 or
 <emphasis>sconstruct.py</emphasis>
 file, or doing anything
@@ -655,6 +657,7 @@ except that it will search for
 <emphasis>Sconstruct</emphasis>,
 <emphasis>sconstruct</emphasis>,
 <emphasis>SConstruct.py</emphasis>
+<emphasis>Sconstruct.py</emphasis>
 or
 <emphasis>sconstruct.py</emphasis>
 in the specified directory.)</para>
@@ -1667,6 +1670,7 @@ scons --tree=all,prune,status target
 <emphasis>Sconstruct ,</emphasis>
 <emphasis>sconstruct ,</emphasis>
 <emphasis>SConstruct.py</emphasis>
+<emphasis>Sconstruct.py</emphasis>
 or
 <emphasis>sconstruct.py</emphasis>
 file is found, and uses that

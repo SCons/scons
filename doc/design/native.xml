@@ -64,8 +64,9 @@
  <para>
 
   By default, the &SCons; utility searches for a file named
-  &SConstruct;, &Sconstruct;, &sconstruct;, &SConstruct.py or &sconstruct.py; (in that order) in the
-  current directory, and reads its configuration from the first file
+  &SConstruct;, &Sconstruct;, &sconstruct;, &SConstruct.py, &Sconstruct.py
+  or &sconstruct.py; (in that order) in the current directory,
+  and reads its configuration from the first file
   found.  A <option>-f</option> command-line option exists to read a
   different file name.
 

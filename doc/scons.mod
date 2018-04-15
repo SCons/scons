@@ -138,6 +138,7 @@
 <!ENTITY Sconstruct "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>Sconstruct</filename>">
 <!ENTITY sconstruct "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>sconstruct</filename>">
 <!ENTITY SConstruct.py "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>SConstruct.py</filename>">
+<!ENTITY Sconstruct.py "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>Sconstruct.py</filename>">
 <!ENTITY sconstruct.py "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>sconstruct.py</filename>">
 <!ENTITY sconsign "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>.sconsign</filename>">
 <!ENTITY src "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>src</filename>">
