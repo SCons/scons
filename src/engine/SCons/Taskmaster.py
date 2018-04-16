@@ -470,14 +470,23 @@ class Task(object):
                 pending_children.discard(t)
             for p in t.waiting_parents:
                 parents[p] = parents.get(p, 0) + 1
+            t.waiting_parents = set()
 
         for t in targets:
             if t.side_effects is not None:
                 for s in t.side_effects:
                     if s.get_state() == NODE_EXECUTING:
                         s.set_state(NODE_NO_STATE)
+                        
+                    # The side-effects may have been transferred to
+                    # NODE_NO_STATE by executed_with{,out}_callbacks, but was
+                    # not taken out of the waiting parents/pending children
+                    # data structures. Check for that now.
+                    if s.get_state() == NODE_NO_STATE and s.waiting_parents:
+                        pending_children.discard(s)
                         for p in s.waiting_parents:
                             parents[p] = parents.get(p, 0) + 1
+                        s.waiting_parents = set()
                     for p in s.waiting_s_e:
                         if p.ref_count == 0:
                             self.tm.candidates.append(p)

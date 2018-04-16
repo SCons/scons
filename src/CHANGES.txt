@@ -7,6 +7,13 @@
 
 RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Richard West:
+    - Add SConstruct.py, Sconstruct.py, sconstruct.py to the search path for the root SConstruct file.
+      Allows easier debugging within Visual Studio
+
+  From Bernard Blackham:
+   - Fixed handling of side-effects in task master (fixes #3013).
+
   From Daniel Moody:
     - Set the pickling protocal back to highest which was causing issues 
       with variant dir tests. This will cause issues if reading sconsigns
@@ -27,6 +34,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       ListOption,PackageOption, and PathOption which have been replaced by *Variable() many years ago.
     - Fix issue # 3106 MSVC if using MSVC_BATCH and target dir had a space would fail due to quirk in
       MSVC's handling of escaped targetdirs when batch compiling.
+    - Re-Enable parallel SCons (-j) when running via Pypy
 
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
@@ -48,6 +56,11 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Replace all instances of `int main()` in C code with `int main(void)`.
       Specifically, this fixes the test cases use by Configure.CheckCC() which
       would fail when using -Wstrict-prototypes.
+
+  From Fredrik Medley:
+    - Fix exception when printing of EnviromentError messages.
+      Specifically, this fixes error reporting of the race condition when
+      initializing the cache which error previously was hidden.
 
 
 RELEASE 3.0.1 - Mon, 12 Nov 2017 15:31:33 -0700
