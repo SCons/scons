@@ -32,6 +32,8 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From William Deegan:
     - Remove long deprecated SCons.Options code and tests.  This removes BoolOption,EnumOption,
       ListOption,PackageOption, and PathOption which have been replaced by *Variable() many years ago.
+    - Fix issue # 3106 MSVC if using MSVC_BATCH and target dir had a space would fail due to quirk in
+      MSVC's handling of escaped targetdirs when batch compiling.
     - Re-Enable parallel SCons (-j) when running via Pypy
 
   From Andrew Featherstone
