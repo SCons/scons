@@ -1458,8 +1458,6 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             prev.append(dmap.get(c))
         return prev
 
-
-
     def changed(self, node=None, allowcache=False):
         """
         Returns if the node is up-to-date with respect to the BuildInfo
@@ -1492,7 +1490,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
 
         bi = node.get_stored_info().binfo
         previous_children = bi.bsourcesigs + bi.bdependsigs + bi.bimplicitsigs
-        # TODO: Can we move this into the if diff below?
+
         children = self.children()
 
         diff = len(children) - len(previous_children)
@@ -1515,6 +1513,8 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             
             result = True
 
+        # TODO: There are still possible errors due to timestamp-MD5 + cachedir + changed implicit or regular dependencies (but the same # of such as the previous build).
+
 
         for child, prev_ni in zip(children, previous_children):
             if _decider_map[child.changed_since_last_build](child, self, prev_ni):
@@ -1524,7 +1524,6 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         if self.has_builder():
             contents = self.get_executor().get_contents()
 
-            import SCons.Util
             newsig = SCons.Util.MD5signature(contents)
             if bi.bactsig != newsig:
                 if t: Trace(': bactsig %s != newsig %s' % (bi.bactsig, newsig))
