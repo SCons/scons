@@ -132,7 +132,7 @@ try:
     # Without this, python can randomly crash while using -jN.
     # See the python bug at http://bugs.python.org/issue6476
     # and SCons issue at
-    # http://scons.tigris.org/issues/show_bug.cgi?id=2449
+    # https://github.com/SCons/scons/issues/2449
     def spawnve(mode, file, args, env):
         spawn_lock.acquire()
         try:

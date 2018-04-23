@@ -30,7 +30,7 @@ the dependency on the library.  (On earlier versions of the Microsoft
 toolchain this wouldn't show up unless the library already existed
 on disk.)
 
-Issue 1363:  http://scons.tigris.org/issues/show_bug.cgi?id=1363
+Issue 1363: https://github.com/SCons/scons/issues/1363
 """
 
 import TestSCons

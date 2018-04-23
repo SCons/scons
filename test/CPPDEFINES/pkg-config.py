@@ -70,7 +70,7 @@ class OrderedPrintingDict(OrderedDict):
     def __semi_deepcopy__(self):
         return self.copy()
 """ + """
-# http://scons.tigris.org/issues/show_bug.cgi?id=2671
+# https://github.com/SCons/scons/issues/2671
 # Passing test cases
 env_1 = Environment(CPPDEFINES=[('DEBUG','1'), 'TEST'])
 env_1.ParseConfig('PKG_CONFIG_PATH=. %(pkg_config_path)s --cflags bug')
@@ -89,7 +89,7 @@ env_4 = Environment(CPPDEFINES=OrderedPrintingDict([('DEBUG', 1), ('TEST', None)
 env_4.MergeFlags('-DSOMETHING -DVARIABLE=2')
 print(env_4.subst('$_CPPDEFFLAGS'))
 
-# http://scons.tigris.org/issues/show_bug.cgi?id=1738
+# https://github.com/SCons/scons/issues/1738
 env_1738_1 = Environment(tools=['default'])
 env_1738_1.ParseConfig('PKG_CONFIG_PATH=. %(pkg_config_path)s --cflags --libs bug')
 env_1738_1.Append(CPPDEFINES={'value' : '1'})
