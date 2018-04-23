@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
-# Query the scons.tigris.org database for the issues of interest.
-# The typical triage query is found on http://www.scons.org/wiki/BugParty
+# Query gihub issue tracker for the issues of interest.
+# The typical triage query is found on
+# https://github.com/scons/scons/wiki/BugParty
+# FIXME: this needs reworking for github, and wiki needs updating
 
 # Download the issues from Issuezilla as XML; this creates a file
 # named 'issues.xml'.  Run this script in the dir containing

@@ -7,9 +7,6 @@
 
 RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
-  From Mats Wichmann:
-    - xml validity fixes from SConstruct.py change
-
   From Richard West:
     - Add SConstruct.py, Sconstruct.py, sconstruct.py to the search path for the root SConstruct file.
       Allows easier debugging within Visual Studio
@@ -54,6 +51,8 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From Mats Wichmann:
     - Updated manpage scons.xml to fix a nested list problem
     - Updated doc terminiology: use prepend instead of append as appropriate
+    - xml validity fixes from SConstruct.py change
+    - update wiki links to new github location
 
   From Jonathon Reinhart:
     - Replace all instances of `int main()` in C code with `int main(void)`.

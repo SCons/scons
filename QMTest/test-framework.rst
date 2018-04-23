@@ -346,7 +346,7 @@ SCons, it is ``test/packaging/sandbox-test/sandbox-test.py``.
 
 For even more examples you should check out one of the external Tools, e.g. the
 *Qt4* Tool at https://bitbucket.org/dirkbaechle/scons_qt4. Also visit the SCons
-Tools Index at http://www.scons.org/wiki/ToolsIndex for a complete
+Tools Index at https://github.com/SCons/scons/wiki/ToolsIndex for a complete
 list of available Tools, though not all may have tests yet.
 
 How to convert old tests
