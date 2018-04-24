@@ -112,7 +112,7 @@ def object_emitter(target, source, env, parent_emitter):
     #
     # See issue #2505 for a discussion of what to do if it turns
     # out this assumption causes trouble in the wild:
-    # http://scons.tigris.org/issues/show_bug.cgi?id=2505
+    # https://github.com/SCons/scons/issues/2505
     if 'PCH' in env:
         pch = env['PCH']
         if str(target[0]) != SCons.Util.splitext(str(pch))[0] + '.obj':
