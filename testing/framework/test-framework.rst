@@ -19,7 +19,7 @@ There are three types of SCons tests:
 *End-to-End Tests*
   End-to-end tests of SCons are all Python scripts (``*.py``) underneath
   the ``test/`` subdirectory.  They use the test infrastructure modules in the
-  ``QMTest`` subdirectory.
+  ``testing/framework`` subdirectory.
 
 *Unit Tests*
   Unit tests for individual SCons modules live underneath the
@@ -98,9 +98,6 @@ Running Tests
 
 The standard set of SCons tests are run from the top-level source directory
 by the ``runtest.py`` script.
-There is a ``--qmtest`` option that checks whether the ``QMTest`` package
-is installed on your system. If it can be found, then the ``runtest.py`` script
-will use it to carry out the tests.
 
 Help is available through the ``-h`` option:
 
@@ -385,9 +382,9 @@ Finally, you shouldn't forget to clean up and remove the temporary test director
 Test Infrastructure
 ===================
 
-The test API is in ``QMTest/TestSCons.py``.  ``TestSCons`` is a subclass of
+The test API is in ``testing/framework/TestSCons.py``.  ``TestSCons`` is a subclass of
 ``TestCommon``, which is a subclass of ``TestCmd``; all those python files are
-in ``QMTest``. Start in ``QMTest/TestCmd.py`` for the base API definitions,
+in ``testing/framework``. Start in ``testing/framework/TestCmd.py`` for the base API definitions,
 like how to create files (``test.write()``) and run commands (``test.run()``).
 
 You want to use ``TestSCons`` for the end-to-end tests in ``test``, but ``TestCmd``
@@ -423,7 +420,7 @@ Here's an easy sample::
   if not intelc:
       test.skip_test("Could not load 'intelc' Tool; skipping test(s).\n")
 
-See ``QMTest/TestSCons.py`` for the ``detect_tool`` method.  It calls the tool's
+See ``testing/framework/TestSCons.py`` for the ``detect_tool`` method.  It calls the tool's
 ``generate()`` method, and then looks for the given prog (tool name by default) in
 ``env['ENV']['PATH']``.
 

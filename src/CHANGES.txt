@@ -35,6 +35,8 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Fix issue # 3106 MSVC if using MSVC_BATCH and target dir had a space would fail due to quirk in
       MSVC's handling of escaped targetdirs when batch compiling.
     - Re-Enable parallel SCons (-j) when running via Pypy
+    - Move SCons test framework files to testing/framework and remove all references to QMtest.  
+      QMTest has not been used by SCons for some time now.
 
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
