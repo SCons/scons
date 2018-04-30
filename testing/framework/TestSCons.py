@@ -42,7 +42,7 @@ python_version_deprecated = (2, 7, 0)
 
 # In the checked-in source, the value of SConsVersion in the following
 # line must remain "__ VERSION __" (without the spaces) so the built
-# version in build/QMTest/TestSCons.py contains the actual version
+# version in build/testing/framework/TestSCons.py contains the actual version
 # string of the packages that have been built.
 SConsVersion = '__VERSION__'
 if SConsVersion == '__' + 'VERSION' + '__':

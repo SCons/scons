@@ -4,7 +4,7 @@ This directory contains our end-to-end SCons tests.
 
 They are all meant to be run essentially standalone, with the exception
 of the TestSCons.py module and the other modules imported by the various
-tests.  These modules are in the QMTest/ subdirectory, and PYTHONPATH
+tests.  These modules are in the testing/framework/ subdirectory, and PYTHONPATH
 needs to be set up correctly so that the test scripts can find them,
 and so that the SCons script itself can find the build engine modules.
 
@@ -56,4 +56,4 @@ semblance of uniformity, here are the naming conventions for tests:
 
 For some more information about running the tests and writing them, please
 refer to the documentation for the testing framework. It can be found in
-the 'QMTest' folder, as file 'test-framework.rst'.
+the 'testing/framework' folder, as file 'test-framework.rst'.
