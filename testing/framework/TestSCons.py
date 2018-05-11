@@ -695,7 +695,7 @@ class TestSCons(TestCommon):
             if version:
                 if sys.platform == 'win32':
                     patterns = [
-                        'C:/Program Files/Java/jdk%s*/bin'%version,
+                        'C:/Program Files*/Java/jdk%s*/bin'%version,
                     ]
                 else:
                     patterns = [
@@ -707,7 +707,7 @@ class TestSCons(TestCommon):
             else:
                 if sys.platform == 'win32':
                     patterns = [
-                        'C:/Program Files/Java/jdk*/bin',
+                        'C:/Program Files*/Java/jdk*/bin',
                     ]
                 else:
                     patterns = [
