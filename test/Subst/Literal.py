@@ -45,6 +45,8 @@ pre=\$ORIGIN
 
 test.run(arguments='-Q -q', stdout=expect)
 
+test.pass_test()
+
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil
