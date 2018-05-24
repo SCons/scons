@@ -139,6 +139,7 @@ def exists_entry(node):
     node.disambiguate()
     return _exists_map[node._func_exists](node)
 
+
 def exists_file(node):
     # Duplicate from source path if we are set up to do this.
     if node.duplicate and not node.is_derived() and not node.linked:
@@ -1136,7 +1137,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             binfo.bactsig = SCons.Util.MD5signature(executor.get_contents())
 
         if self._specific_sources:
-            sources = [ s for s in self.sources if not s in ignore_set]
+            sources = [s for s in self.sources if not s in ignore_set]
 
         else:
             sources = executor.get_unignored_sources(self, self.ignore)
@@ -1146,11 +1147,13 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         binfo.bsourcesigs = [s.get_ninfo() for s in binfo.bsources]
 
 
-        binfo.bdepends = self.depends
-        binfo.bdependsigs = [d.get_ninfo() for d in self.depends if d not in ignore_set]
+        binfo.bdepends = [d for d in self.depends if d not in ignore_set]
+        binfo.bdependsigs = [d.get_ninfo() for d in self.depends]
 
-        binfo.bimplicit = self.implicit or []
-        binfo.bimplicitsigs = [i.get_ninfo() for i in binfo.bimplicit if i not in ignore_set]
+        # TODO: If anything matches the ignore_set: bimplicit and bimplicitsigs will have different lengths and potentially the items in each list will not represent the same file. (any item but the last one matches any item in ignore_set)
+        # binfo.bimplicit = self.implicit or []
+        binfo.bimplicit = [i for i in self.implicit or [] if i not in ignore_set]
+        binfo.bimplicitsigs = [i.get_ninfo() for i in binfo.bimplicit]
 
 
         return binfo
@@ -1406,24 +1409,23 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             return None
         return self._tags.get(key, None)
 
-
     def _build_dependency_map(self, binfo):
         """
-        Build mapping from file -> signiture
+        Build mapping from file -> signature
 
         Args:
             self - self
             binfo - buildinfo from node being considered
 
         Returns: 
-            dictionary of file->signiture mappings
+            dictionary of file->signature mappings
         """
 
         # For an "empty" binfo properties like bsources
         # do not exist: check this to avoid exception.
         if (len(binfo.bsourcesigs) + len(binfo.bdependsigs) + \
                 len(binfo.bimplicitsigs)) == 0:
-            return{}
+            return {}
 
         pairs = [
             (binfo.bsources, binfo.bsourcesigs),
@@ -1452,10 +1454,33 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             List of csigs for provided list of children
         """
         prev = []
-        for c in map(str, children):
-            # If there is no previous signature,
-            # we place None in the corresponding position.
-            prev.append(dmap.get(c))
+
+        for c in children:
+            c_str = str(c).replace('\\','/')
+            df = dmap.get(c_str)
+            if df:
+                prev.append(df)
+                continue
+
+            try:
+                # We're not finding the file as listed in the
+                # current children list in the list loaded from
+                # SConsign. So let's see if it was previously
+                # retrieved from the repo.
+                # Also since we only have find_repo_file() on File objects
+                # Handle if we have any other Node type not having that method
+                for rf in c.find_repo_file():
+                    rfs = str(rf)
+                    df = dmap.get(rfs)
+                    if df:
+                        prev.append(df)
+                        break
+                else:
+                    prev.append(None)
+            except AttributeError as e:
+                prev.append(None)
+
+        # prev = [dmap.get(str(c), dmap.get(str(c.find_repo_file()[0]))) for c in children]
         return prev
 
     def changed(self, node=None, allowcache=False):
@@ -1482,39 +1507,30 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         @see: FS.File.changed(), FS.File.release_target_info()
         """
         t = 0
-        if t: Trace('changed(%s [%s], %s)' % (self, classname(self), node))
+        if t:
+            Trace('changed(%s [%s], %s)' % (self, classname(self), node))
         if node is None:
             node = self
 
         result = False
 
-        bi = node.get_stored_info().binfo
-        previous_children = bi.bsourcesigs + bi.bdependsigs + bi.bimplicitsigs
-
         children = self.children()
 
-        diff = len(children) - len(previous_children)
+        bi = node.get_stored_info().binfo
+        # previous_children = bi.bsourcesigs + bi.bdependsigs + bi.bimplicitsigs
+        previous_map_by_file_name = self._build_dependency_map(bi)
+
+        # Now build new then based on map built above.
+        previous_children = self._get_previous_signatures(previous_map_by_file_name, children)
+
+        diff = len(children) - len(previous_map_by_file_name)
         if diff:
             # The old and new dependency lists are different lengths.
             # This always indicates that the Node must be rebuilt.
-
-            # TODO: Below is from new logic
-            # # We also extend the old dependency list with enough None
-            # # entries to equal the new dependency list, for the benefit
-            # # of the loop below that updates node information.
-            # then.extend([None] * diff)
             
-            if t: Trace(': old %s new %s' % (len(previous_children), len(children)))
-            
-            dmap = self._build_dependency_map(bi)
-
-            # Now build new then based on map built above.
-            previous_children = self._get_previous_signatures(dmap, children)
+            if t: Trace(': old %s new %s' % (len(v), len(children)))
             
             result = True
-
-        # TODO: There are still possible errors due to timestamp-MD5 + cachedir + changed implicit or regular dependencies (but the same # of such as the previous build).
-
 
         for child, prev_ni in zip(children, previous_children):
             if _decider_map[child.changed_since_last_build](child, self, prev_ni):
@@ -1530,7 +1546,8 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
                 result = True
 
         if not result:
-            if t: Trace(': up to date')
+            if t:
+                Trace(': up to date')
 
         if t: Trace('\n')
 
