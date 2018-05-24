@@ -3326,9 +3326,12 @@ class File(Base):
         result = self
         if not self.exists():
             norm_name = _my_normcase(self.name)
-            for dir in self.dir.get_all_rdirs():
-                try: node = dir.entries[norm_name]
-                except KeyError: node = dir.file_on_disk(self.name)
+            for repo_dir in self.dir.get_all_rdirs():
+                try:
+                    node = repo_dir.entries[norm_name]
+                except KeyError:
+                    node = repo_dir.file_on_disk(self.name)
+
                 if node and node.exists() and \
                    (isinstance(node, File) or isinstance(node, Entry)
                     or not node.is_derived()):
@@ -3349,6 +3352,28 @@ class File(Base):
                         break
         self._memo['rfile'] = result
         return result
+
+    def find_repo_file(self):
+        """
+        For this node, find if there exists a corresponding file in one or more repositories
+        :return: list of corresponding files in repositories
+        """
+        retvals = []
+
+        norm_name = _my_normcase(self.name)
+        for repo_dir in self.dir.get_all_rdirs():
+            try:
+                node = repo_dir.entries[norm_name]
+            except KeyError:
+                node = repo_dir.file_on_disk(self.name)
+
+            if node and node.exists() and \
+                    (isinstance(node, File) or isinstance(node, Entry) \
+                     or not node.is_derived()):
+                retvals.append(node)
+
+        return retvals
+
 
     def rstr(self):
         return str(self.rfile())
