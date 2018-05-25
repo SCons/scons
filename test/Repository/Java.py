@@ -59,7 +59,7 @@ opts = '-Y ' + test.workpath('rep1')
 #
 test.write(['rep1', 'SConstruct'], """
 env = Environment(tools = ['javac'],
-                  JAVAC = r'%s')
+                  JAVAC = r'"%s"')
 env.Java(target = 'classes', source = 'src')
 """ % javac)
 

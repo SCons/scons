@@ -29,6 +29,7 @@ Test building Java applications when using Repositories.
 """
 
 import TestSCons
+import os
 
 python = TestSCons.python
 
@@ -82,8 +83,8 @@ opts = '-Y ' + test.workpath('rep1')
 #
 test.write(['rep1', 'SConstruct'], """
 env = Environment(tools = ['javac', 'rmic'],
-                  JAVAC = r'%s',
-                  RMIC = r'%s')
+                  JAVAC = r'"%s"',
+                  RMIC = r'"%s"')
 classes = env.Java(target = 'classes', source = 'src')
 # Brute-force removal of the "Hello" class.
 classes = [c for c in classes if str(c).find('Hello') == -1]
@@ -302,7 +303,7 @@ public class Foo2 extends UnicastRemoteObject implements Hello {
 test.run(chdir = 'work1', options = opts, arguments = ".")
 
 expect = [
-    ' src/Foo1.java src/Foo2.java',
+    ' src' + os.sep + 'Foo1.java src' + os.sep + 'Foo2.java',
     ' com.sub.foo.Foo1 com.sub.foo.Foo2',
 ]
 
@@ -350,8 +351,8 @@ test.up_to_date(chdir = 'work2', options = opts, arguments = ".")
 #
 test.write(['work3', 'SConstruct'], """
 env = Environment(tools = ['javac', 'rmic'],
-                  JAVAC = r'%s',
-                  RMIC = r'%s')
+                  JAVAC = r'"%s"',
+                  RMIC = r'"%s"')
 classes = env.Java(target = 'classes', source = 'src')
 # Brute-force removal of the "Hello" class.
 classes = [c for c in classes if str(c).find('Hello') == -1]
