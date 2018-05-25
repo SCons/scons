@@ -68,12 +68,14 @@ test.write("mod.i", """\
 #include "main.h"
 """)
 
+
 if sys.platform == 'win32':
     if(sys.maxsize > 2**32):
         TARGET_ARCH = "TARGET_ARCH = 'x86_64',"
     else:
         TARGET_ARCH = "TARGET_ARCH = 'x86',"
-
+else:
+    TARGET_ARCH = ""
 test.write('SConstruct', """\
 import distutils.sysconfig
 import sys
