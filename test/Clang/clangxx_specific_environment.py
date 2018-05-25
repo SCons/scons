@@ -34,7 +34,7 @@ if not test.where_is('clang'):
 
 test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
-env = Environment(tools=['mingw','clang++', 'link'])
+env = Environment(tools=['clang++', 'link'])
 env.Program('foo.cpp')
 """)
 
