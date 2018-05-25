@@ -33,7 +33,8 @@ if not test.where_is('clang'):
     test.skip_test("Could not find 'clang', skipping test.\n")
 
 test.write('SConstruct', """\
-env = Environment(tools=['clang', 'ar'])
+DefaultEnvironment(tools=[])
+env = Environment(tools=['mingw','clang', 'ar'])
 env.StaticLibrary('foo', 'foo.c')
 """)
 
