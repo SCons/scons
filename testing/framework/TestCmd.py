@@ -309,7 +309,7 @@ import types
 
 IS_PY3 = sys.version_info[0] == 3
 IS_WINDOWS = sys.platform == 'win32'
-
+IS_64_BIT = sys.maxsize > 2**32
 
 class null(object):
     pass

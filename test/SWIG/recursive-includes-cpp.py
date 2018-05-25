@@ -32,6 +32,7 @@ in cases of recursive inclusion.
 import os
 import sys
 import TestSCons
+import TestCmd
 from SCons.Defaults import DefaultEnvironment
 
 DefaultEnvironment( tools = [ 'swig' ] )
@@ -69,8 +70,8 @@ test.write("mod.i", """\
 """)
 
 
-if sys.platform == 'win32':
-    if(sys.maxsize > 2**32):
+if TestCmd.IS_WINDOWS:
+    if TestCmd.IS_64_BIT:
         TARGET_ARCH = "TARGET_ARCH = 'x86_64',"
     else:
         TARGET_ARCH = "TARGET_ARCH = 'x86',"
