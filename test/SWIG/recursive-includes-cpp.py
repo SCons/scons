@@ -126,14 +126,14 @@ expectMod = """\
 
 # Validate that the recursive dependencies are found with SWIG scanning first.
 test.run( arguments = '--tree=all mod_wrap'+object_suffix +' main'+object_suffix)
-print(test.stdout())
+
 test.must_contain_all( test.stdout(), expectMain )
 test.must_contain_all( test.stdout(), expectMod )
 
 
 # Validate that the recursive dependencies are found consistently.
 test.run( arguments = '--tree=all main'+object_suffix +' mod_wrap'+object_suffix)
-print(test.stdout())
+
 test.must_contain_all( test.stdout(), expectMain )
 test.must_contain_all( test.stdout(), expectMod )
 
