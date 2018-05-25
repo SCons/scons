@@ -42,7 +42,7 @@ python_version_deprecated = (2, 7, 0)
 
 # In the checked-in source, the value of SConsVersion in the following
 # line must remain "__ VERSION __" (without the spaces) so the built
-# version in build/QMTest/TestSCons.py contains the actual version
+# version in build/testing/framework/TestSCons.py contains the actual version
 # string of the packages that have been built.
 SConsVersion = '__VERSION__'
 if SConsVersion == '__' + 'VERSION' + '__':
@@ -692,20 +692,29 @@ class TestSCons(TestCommon):
             env = SCons.Environment.Environment()
             self._java_env[version] = env
 
-
             if version:
-                patterns = [
-                    '/usr/java/jdk%s*/bin'    % version,
-                    '/usr/lib/jvm/*-%s*/bin' % version,
-                    '/usr/local/j2sdk%s*/bin' % version,
-                ]
+                if sys.platform == 'win32':
+                    patterns = [
+                        'C:/Program Files*/Java/jdk%s*/bin'%version,
+                    ]
+                else:
+                    patterns = [
+                        '/usr/java/jdk%s*/bin'    % version,
+                        '/usr/lib/jvm/*-%s*/bin' % version,
+                        '/usr/local/j2sdk%s*/bin' % version,
+                    ]
                 java_path = self.paths(patterns) + [env['ENV']['PATH']]
             else:
-                patterns = [
-                    '/usr/java/latest/bin',
-                    '/usr/lib/jvm/*/bin',
-                    '/usr/local/j2sdk*/bin',
-                ]
+                if sys.platform == 'win32':
+                    patterns = [
+                        'C:/Program Files*/Java/jdk*/bin',
+                    ]
+                else:
+                    patterns = [
+                        '/usr/java/latest/bin',
+                        '/usr/lib/jvm/*/bin',
+                        '/usr/local/j2sdk*/bin',
+                    ]
                 java_path = self.paths(patterns) + [env['ENV']['PATH']]
 
             env['ENV']['PATH'] = os.pathsep.join(java_path)

@@ -267,7 +267,7 @@ class Foo { }
 """)
 
 # Test private inner class instantiation, courtesy Tilo Prutz:
-#   http://scons.tigris.org/issues/show_bug.cgi?id=1594
+#   https://github.com/SCons/scons/issues/1594
 test.write(['src6', 'TestSCons.java'], """\
 class test
 {

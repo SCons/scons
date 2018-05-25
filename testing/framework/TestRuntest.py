@@ -97,7 +97,7 @@ class TestRuntest(TestCommon):
         The superclass TestCommon.__init__() will change directory (chdir)
         to the workspace directory, so an explicit "chdir = '.'" on all
         of the run() method calls is not necessary.  This initialization
-        also copies the runtest.py and QMTest/ subdirectory tree to the
+        also copies the runtest.py and testing/framework/ subdirectory tree to the
         temporary directory, duplicating how this test infrastructure
         appears in a normal workspace.
         """
@@ -115,7 +115,7 @@ class TestRuntest(TestCommon):
         except KeyError:
             things_to_copy = [
                 'runtest.py',
-                'QMTest',
+                'testing/framework',
             ]
         else:
             del kw['things_to_copy']

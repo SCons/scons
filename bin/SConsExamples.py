@@ -416,8 +416,8 @@ def exampleNamesAreUnique(dpath):
 #
 # ###############################################################
 
-sys.path.append(os.path.join(os.getcwd(), 'QMTest'))
-sys.path.append(os.path.join(os.getcwd(), 'build', 'QMTest'))
+sys.path.append(os.path.join(os.getcwd(), 'testing/framework'))
+sys.path.append(os.path.join(os.getcwd(), 'build', 'testing/framework'))
 
 scons_py = os.path.join('bootstrap', 'src', 'script', 'scons.py')
 if not os.path.exists(scons_py):

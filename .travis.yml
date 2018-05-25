@@ -1,6 +1,10 @@
 dist: trusty
 language: python
 
+addons:
+    apt:
+      update: true
+
 install:
     - ./.travis/install.sh
 
