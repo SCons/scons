@@ -82,8 +82,8 @@ opts = '-Y ' + test.workpath('rep1')
 #
 test.write(['rep1', 'SConstruct'], """
 env = Environment(tools = ['javac', 'rmic'],
-                  JAVAC = r'%s',
-                  RMIC = r'%s')
+                  JAVAC = r'"%s"',
+                  RMIC = r'"%s"')
 classes = env.Java(target = 'classes', source = 'src')
 # Brute-force removal of the "Hello" class.
 classes = [c for c in classes if str(c).find('Hello') == -1]
@@ -350,8 +350,8 @@ test.up_to_date(chdir = 'work2', options = opts, arguments = ".")
 #
 test.write(['work3', 'SConstruct'], """
 env = Environment(tools = ['javac', 'rmic'],
-                  JAVAC = r'%s',
-                  RMIC = r'%s')
+                  JAVAC = r'"%s"',
+                  RMIC = r'"%s"')
 classes = env.Java(target = 'classes', source = 'src')
 # Brute-force removal of the "Hello" class.
 classes = [c for c in classes if str(c).find('Hello') == -1]
