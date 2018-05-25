@@ -44,6 +44,13 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Re-Enable parallel SCons (-j) when running via Pypy
     - Move SCons test framework files to testing/framework and remove all references to QMtest.  
       QMTest has not been used by SCons for some time now.
+    - Updated logic for mingw and clang on win32 to search default tool install paths if not
+      found in normal SCons PATH.  If the user specifies PATH or tool specific paths they
+      will be used and the default paths below will be ignored.
+      - Default path for clang/clangxx : C:\Program Files\LLVM\bin
+      - Default path for mingw         : C:\MinGW\bin and/or  C:\mingw-w64\*\mingw64\bin
+      - Key program to locate mingw    : mingw32-make (as the gcc with mingw prefix has no fixed name)
+
 
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.

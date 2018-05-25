@@ -35,6 +35,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
+import glob
 
 import SCons.Action
 import SCons.Builder
@@ -115,10 +116,28 @@ res_builder = SCons.Builder.Builder(action=res_action, suffix='.o',
 SCons.Tool.SourceFileScanner.add_scanner('.rc', SCons.Defaults.CScan)
 
 # This is what we search for to find mingw:
-key_program = 'mingw32-gcc'
+# key_program = 'mingw32-gcc'
+key_program = 'mingw32-make'
+
+
+
+def find_version_specific_mingw_paths():
+    """
+    One example of default mingw install paths is:
+    C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev2\mingw64\bin
+
+    Use glob'ing to find such and add to mingw_paths
+    """
+    new_paths = glob.glob(r"C:\mingw-w64\*\mingw64\bin")
+    
+    return new_paths
 
 
 def generate(env):
+    global mingw_paths
+    # Check for reasoanble mingw default paths
+    mingw_paths +=find_version_specific_mingw_paths() 
+
     mingw = SCons.Tool.find_program_path(env, key_program, default_paths=mingw_paths)
     if mingw:
         mingw_bin_dir = os.path.dirname(mingw)
