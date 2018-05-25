@@ -67,7 +67,7 @@ package's <literal>docbook</literal> folder to
 <itemizedlist><listitem><para>the SCons User's Guide, chap. 19.7 "Where to put your custom Builders and Tools" and
 </para>
 </listitem>
-<listitem><para>the SCons Tools Wiki page at <ulink url="http://scons.org/wiki/ToolsIndex">http://scons.org/wiki/ToolsIndex</ulink>.
+<listitem><para>the SCons Tools Wiki page at <ulink url="https://github.com/SCons/scons/wiki/ToolsIndex">http://github.com/SCons/scons/wiki/ToolsIndex</ulink>.
 </para>
 </listitem>
 </itemizedlist>

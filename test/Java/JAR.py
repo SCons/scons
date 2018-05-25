@@ -52,6 +52,7 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(tools = ['jar'],
                   JAR = r'%(_python_)s myjar.py')
 env.Jar(target = 'test1.jar', source = 'test1.class')
@@ -70,6 +71,7 @@ test.must_match('test1.jar', "test1.class\nline 3\n", mode='r')
 if os.path.normcase('.class') == os.path.normcase('.CLASS'):
 
     test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(tools = ['jar'],
                   JAR = r'%(_python_)s myjar.py')
 env.Jar(target = 'test2.jar', source = 'test2.CLASS')
@@ -95,6 +97,7 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(tools = ['jar'],
                   JAR = r'%(_python_)s myjar2.py',
                   JARFLAGS='cvf')
@@ -126,6 +129,7 @@ where_jar = test.java_where_jar()
 test.file_fixture('wrapper_with_args.py')
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 foo = Environment(tools = ['javac', 'jar'],
                   JAVAC = r'%(where_javac)s',
                   JAR = r'%(where_jar)s')
@@ -249,6 +253,8 @@ test.subdir('testdir2',
 # simple SConstruct which passes the 3 .java as source
 # and extracts the jars back to classes
 test.write(['testdir2', 'SConstruct'], """
+DefaultEnvironment(tools=[])
+
 foo = Environment()
 foo.Jar(target = 'foobar', source = [
     'com/javasource/JavaFile1.java', 
@@ -345,6 +351,8 @@ test.subdir('listOfLists',
 
 # test varient dir and lists of lists
 test.write(['listOfLists', 'SConstruct'], """
+DefaultEnvironment(tools=[])
+
 foo = Environment()
 foo.VariantDir('build', 'src', duplicate=0)
 foo.VariantDir('test', '../manifest_dir', duplicate=0)
@@ -435,6 +443,8 @@ test.subdir('testdir3',
 
 # Create the jars then extract them back to check contents
 test.write(['testdir3', 'SConstruct'], """
+DefaultEnvironment(tools=[])
+
 foo = Environment()
 bar = foo.Clone()
 foo.Java(target = 'classes', source = 'com/sub/foo')

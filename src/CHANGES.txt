@@ -7,6 +7,17 @@
 
 RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Philipp Maierhöfer
+    - Added a __hash__ method to the class Scons.Subst.Literal. Required when substituting Literal
+      objects when SCons runs with Python 3.
+
+  From Richard West:
+    - Add SConstruct.py, Sconstruct.py, sconstruct.py to the search path for the root SConstruct file.
+      Allows easier debugging within Visual Studio
+
+  From Bernard Blackham:
+   - Fixed handling of side-effects in task master (fixes #3013).
+
   From Daniel Moody:
     - Updated gettext tools to setup default paths for windows with Cygwin/MinGW setups
     - Add common location for default paths for cygwin and mingw in Platform modules
@@ -28,6 +39,18 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From William Deegan:
     - Remove long deprecated SCons.Options code and tests.  This removes BoolOption,EnumOption,
       ListOption,PackageOption, and PathOption which have been replaced by *Variable() many years ago.
+    - Fix issue # 3106 MSVC if using MSVC_BATCH and target dir had a space would fail due to quirk in
+      MSVC's handling of escaped targetdirs when batch compiling.
+    - Re-Enable parallel SCons (-j) when running via Pypy
+    - Move SCons test framework files to testing/framework and remove all references to QMtest.  
+      QMTest has not been used by SCons for some time now.
+    - Updated logic for mingw and clang on win32 to search default tool install paths if not
+      found in normal SCons PATH.  If the user specifies PATH or tool specific paths they
+      will be used and the default paths below will be ignored.
+      - Default path for clang/clangxx : C:\Program Files\LLVM\bin
+      - Default path for mingw         : C:\MinGW\bin and/or  C:\mingw-w64\*\mingw64\bin
+      - Key program to locate mingw    : mingw32-make (as the gcc with mingw prefix has no fixed name)
+
 
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
@@ -50,12 +73,20 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
   From Mats Wichmann:
     - Updated manpage scons.xml to fix a nested list problem
-    - Updated doc terminionly: use prepend instead of append as appropriate
+    - Updated doc terminiology: use prepend instead of append as appropriate
+    - xml validity fixes from SConstruct.py change
+    - update wiki links to new github location
+    - update bug links to new github location
 
   From Jonathon Reinhart:
     - Replace all instances of `int main()` in C code with `int main(void)`.
       Specifically, this fixes the test cases use by Configure.CheckCC() which
       would fail when using -Wstrict-prototypes.
+
+  From Fredrik Medley:
+    - Fix exception when printing of EnviromentError messages.
+      Specifically, this fixes error reporting of the race condition when
+      initializing the cache which error previously was hidden.
 
 
 RELEASE 3.0.1 - Mon, 12 Nov 2017 15:31:33 -0700

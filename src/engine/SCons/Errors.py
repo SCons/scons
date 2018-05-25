@@ -190,14 +190,13 @@ def convert_to_BuildError(status, exc_info=None):
         # error, which might be different from the target being built
         # (for example, failure to create the directory in which the
         # target file will appear).
-        try:
-            filename = status.filename
-        except AttributeError:
-            filename = None
+        filename = getattr(status, 'filename', None)
+        strerror = getattr(status, 'strerror', str(status))
+        errno = getattr(status, 'errno', 2)
 
         buildError = BuildError(
-            errstr=status.strerror,
-            status=status.errno,
+            errstr=strerror,
+            status=errno,
             exitstatus=2,
             filename=filename,
             exc_info=exc_info)

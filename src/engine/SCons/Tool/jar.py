@@ -140,7 +140,7 @@ def Jar(env, target = None, source = [], *args, **kw):
     # source for jar, otherwise turn it into a class file then
     # return the source
     def file_to_class(s):
-        if(str(_my_normcase(s)).endswith(java_suffix)):
+        if _my_normcase(str(s)).endswith(java_suffix):
             return env.JavaClassFile(source = s, *args, **kw)
         else:
             return [env.fs.File(s)]

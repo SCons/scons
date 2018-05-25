@@ -43,7 +43,7 @@ env_1738_2.Append(CPPDEFINES={'value' : '1'})
 print(env_1738_2.subst('$_CPPDEFFLAGS'))
 #env_1738_2.Object('test_1738_2', 'main.c')
 
-# http://scons.tigris.org/issues/show_bug.cgi?id=2300
+# https://github.com/SCons/scons/issues/2300
 env_2300_1 = Environment(CPPDEFINES = 'foo', CPPDEFPREFIX='-D')
 env_2300_1.Append(CPPDEFINES='bar')
 print(env_2300_1.subst('$_CPPDEFFLAGS'))
@@ -52,8 +52,8 @@ env_2300_2 = Environment(CPPDEFINES = ['foo'], CPPDEFPREFIX='-D') # note the lis
 env_2300_2.Append(CPPDEFINES='bar')
 print(env_2300_2.subst('$_CPPDEFFLAGS'))
 
-# http://scons.tigris.org/issues/show_bug.cgi?id=1152
-# http://scons.tigris.org/issues/show_bug.cgi?id=2900
+# https://github.com/SCons/scons/issues/1152
+# https://github.com/SCons/scons/issues/2900
 # Python3 dicts dont preserve order. Hence we supply subclass of OrderedDict
 # whose __str__ and __repr__ act like a normal dict.
 from collections import OrderedDict

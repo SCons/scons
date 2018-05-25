@@ -27,7 +27,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 """
 Verify that a simple scanner that returns Dir nodes works correctly.
 
-Submitted as http://scons.tigris.org/issues/show_bug.cgi?id=2534
+Submitted as https://github.com/SCons/scons/issues/2534
 """
 
 import TestSCons

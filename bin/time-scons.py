@@ -43,7 +43,7 @@ TimeSCons_revision = 4569
 # The pieces of the TimeSCons infrastructure that are necessary to
 # produce consistent timings, even when the rest of the tree is from
 # an earlier revision that doesn't have these pieces.
-TimeSCons_pieces = ['QMTest', 'timings', 'runtest.py']
+TimeSCons_pieces = ['testing/framework', 'timings', 'runtest.py']
 
 
 class CommandRunner(object):

@@ -20,10 +20,10 @@ in various files:
   - The RELEASE header line in src/CHANGES.txt and src/Announce.txt.
   - The version string at the top of src/RELEASE.txt.
   - The version string in the 'default_version' variable in SConstruct
-    and QMTest/TestSCons.py.
-  - The copyright years in SConstruct and QMTest/TestSCons.py.
+    and testing/framework/TestSCons.py.
+  - The copyright years in SConstruct and testing/framework/TestSCons.py.
   - The month and year (used for documentation) in SConstruct.
-  - The unsupported and deprecated Python floors in QMTest/TestSCons.py
+  - The unsupported and deprecated Python floors in testing/framework/TestSCons.py
     and src/engine/SCons/Script/Main.py
   - The version string in the filenames in README.
 
@@ -315,9 +315,9 @@ for suf in ['tar', 'win32', 'zip', 'rpm', 'exe', 'deb']:
           '-%s.%s' % (version_string, suf),
           count = 0)
 
-# Update QMTest/TestSCons.py
+# Update testing/framework/TestSCons.py
 
-t = UpdateFile(os.path.join('QMTest', 'TestSCons.py'))
+t = UpdateFile(os.path.join('testing','framework', 'TestSCons.py'))
 if DEBUG: t.file = '/tmp/TestSCons.py'
 t.replace_assign('copyright_years', repr(copyright_years))
 t.replace_assign('default_version', repr(version_string))

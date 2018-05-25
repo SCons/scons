@@ -51,7 +51,7 @@ def isExecutableOfToolAvailable(test, tool):
 
 if __name__ == '__main__':
     import unittest
-    sys.path.append(os.path.abspath('../../../QMTest'))
+    sys.path.append(os.path.abspath('../../../testing/framework'))
 
     import TestSCons
 

@@ -1,8 +1,4 @@
-"""
-Test to check for issue reported in github issue 2994
-https://github.com/SCons/scons/issues/2994
-"""
-
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -28,35 +24,26 @@ https://github.com/SCons/scons/issues/2994
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Test materials for Github Issue 3013 submitted by Stefan Ross:
+https://github.com/SCons/scons/issues/3013
+"""
+
 import TestSCons
 
-from os.path import abspath, dirname, join
+test = TestSCons.TestSCons()
 
-import sys
-sys.path.insert(1, abspath(dirname(__file__) + '/../../../Support'))
+test.dir_fixture('files')
 
-from executablesSearch import isExecutableOfToolAvailable
+test.run(
+    arguments = '-j2'
+)
 
-
-def testForTool(tool):
-
-    test = TestSCons.TestSCons()
-
-    if not isExecutableOfToolAvailable(test, tool) :
-        test.skip_test("Required executable for tool '{0}' not found, skipping test.\n".format(tool))
-
-    test.dir_fixture('Project')
-    test.write('SConstruct', open('SConstruct_template', 'r').read().format('tools=["{0}", "link"]'.format(tool)))
-
-    test.run()
-    test.fail_test('main.o' not in test.stdout())
-    test.run(arguments='change=1')
-    test.fail_test('is up to date' in test.stdout())
-
-    test.pass_test()
+test.pass_test()
 
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil
 # End:
 # vim: set expandtab tabstop=4 shiftwidth=4:
+
