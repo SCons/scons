@@ -70,9 +70,9 @@ test.write("mod.i", """\
 
 if sys.platform == 'win32':
     if(sys.maxsize > 2**32):
-        TARGET_ARCH = 'x86_64'
+        TARGET_ARCH = "TARGET_ARCH = 'x86_64',"
     else:
-        TARGET_ARCH = 'x86'
+        TARGET_ARCH = "TARGET_ARCH = 'x86',"
 
 test.write('SConstruct', """\
 import distutils.sysconfig
@@ -80,7 +80,7 @@ import sys
 import os
 
 env = Environment(
-    TARGET_ARCH = '""" + TARGET_ARCH +"""',
+    """ + TARGET_ARCH + """
     SWIGFLAGS = [
         '-python'
     ],
