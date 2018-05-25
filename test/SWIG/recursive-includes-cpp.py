@@ -80,7 +80,7 @@ import sys
 import os
 
 env = Environment(
-    TARGET_ARCH = '""" + TARGET_ARCH +"""'
+    TARGET_ARCH = '""" + TARGET_ARCH +"""',
     SWIGFLAGS = [
         '-python'
     ],
