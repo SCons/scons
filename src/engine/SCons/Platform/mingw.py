@@ -1,4 +1,9 @@
-#!/usr/bin/env python
+"""SCons.Platform.mingw
+
+Platform-specific initialization for the MinGW system.
+
+"""
+
 #
 # __COPYRIGHT__
 #
@@ -24,38 +29,11 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
+import sys
 
-_exe = TestSCons._exe
-test = TestSCons.TestSCons()
-
-if not test.where_is('clang'):
-    test.skip_test("Could not find 'clang++', skipping test.\n")
-
-test.write('SConstruct', """\
-DefaultEnvironment(tools=[])
-env = Environment(tools=['clang++', 'link'])
-env.Program('foo.cpp')
-""")
-
-test.write('foo.cpp', """\
-#include <iostream>
-int main(int argc, char ** argv) {
-    std::cout << "Hello!" << std::endl;
-    return 0;
-}
-""")
-
-test.run()
-
-test.run(program=test.workpath('foo'+_exe))
-
-test.fail_test(not test.stdout() == 'Hello!\n')
-
-test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:
+MINGW_DEFAULT_PATHS = []
+if sys.platform == 'win32':
+    MINGW_DEFAULT_PATHS = [
+        r'C:\msys64',
+        r'C:\msys'
+    ]

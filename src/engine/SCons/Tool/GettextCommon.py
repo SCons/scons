@@ -447,7 +447,7 @@ def _detect_msgfmt(env):
     """ Detects *msgmfmt(1)* program. """
     if 'MSGFMT' in env:
         return env['MSGFMT']
-    msgfmt = env.Detect('msgfmt');
+    msgfmt = env.Detect('msgfmt')
     if msgfmt:
         return msgfmt
     raise SCons.Errors.StopError(MsgfmtNotFound, "Could not detect msgfmt")

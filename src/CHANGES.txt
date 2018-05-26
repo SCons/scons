@@ -7,6 +7,10 @@
 
 RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Philipp Maierhöfer
+    - Added a __hash__ method to the class Scons.Subst.Literal. Required when substituting Literal
+      objects when SCons runs with Python 3.
+
   From Richard West:
     - Add SConstruct.py, Sconstruct.py, sconstruct.py to the search path for the root SConstruct file.
       Allows easier debugging within Visual Studio
@@ -15,6 +19,9 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
    - Fixed handling of side-effects in task master (fixes #3013).
 
   From Daniel Moody:
+    - Updated gettext tools to setup default paths for windows with Cygwin/MinGW setups
+    - Add common location for default paths for cygwin and mingw in Platform modules
+    - Updated YACC tool to work on windows with Cygwin/MinGW setups
     - Set the pickling protocal back to highest which was causing issues 
       with variant dir tests. This will cause issues if reading sconsigns
       pickled with the previous lower protocal.
@@ -37,6 +44,13 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Re-Enable parallel SCons (-j) when running via Pypy
     - Move SCons test framework files to testing/framework and remove all references to QMtest.  
       QMTest has not been used by SCons for some time now.
+    - Updated logic for mingw and clang on win32 to search default tool install paths if not
+      found in normal SCons PATH.  If the user specifies PATH or tool specific paths they
+      will be used and the default paths below will be ignored.
+      - Default path for clang/clangxx : C:\Program Files\LLVM\bin
+      - Default path for mingw         : C:\MinGW\bin and/or  C:\mingw-w64\*\mingw64\bin
+      - Key program to locate mingw    : mingw32-make (as the gcc with mingw prefix has no fixed name)
+
 
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
@@ -45,6 +59,13 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Updated Jar builder to handle nodes and directories better
     - Updated Jar builder to flatten source list which could contain embedded lists
     - Removed some magic numbers from jar.py on behalf of Mats Wichmann (mats@linux.com)
+
+  From William Deegan:
+    - Updated logic for mingw and clang on win32 to search default tool install paths if not
+      found in normal SCons PATH.  If the user specifies PATH or tool specific paths they
+      will be used and the default paths below will be ignored.
+      - Default path for clang/clangxx : C:\Program Files\LLVM\bin
+      - Default path for mingw         : c:\MinGW\bin
 
   From Gary Oberbrunner:
     - Fix bug when Installing multiple subdirs outside the source tree

@@ -63,8 +63,8 @@ opts = '-Y ' + test.workpath('rep1')
 #
 test.write(['rep1', 'SConstruct'], """
 env = Environment(tools = ['javac', 'javah'],
-                  JAVAC = r'%s',
-                  JAVAH = r'%s')
+                  JAVAC = r'"%s"',
+                  JAVAH = r'"%s"')
 classes = env.Java(target = 'classes', source = 'src')
 env.JavaH(target = 'outdir', source = classes)
 """ % (javac, javah))
@@ -207,8 +207,8 @@ test.up_to_date(chdir = 'work2', options = opts, arguments = ".")
 #
 test.write(['work3', 'SConstruct'], """
 env = Environment(tools = ['javac', 'javah'],
-                  JAVAC = r'%s',
-                  JAVAH = r'%s')
+                  JAVAC = r'"%s"',
+                  JAVAH = r'"%s"')
 classes = env.Java(target = 'classes', source = 'src')
 hfiles = env.JavaH(target = 'outdir', source = classes)
 Local(hfiles)

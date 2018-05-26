@@ -24,33 +24,26 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Verify that Literal objects expand correctly in ${_concat()}.
+"""
+
 import TestSCons
 
-_exe = TestSCons._exe
 test = TestSCons.TestSCons()
 
-if not test.where_is('clang'):
-    test.skip_test("Could not find 'clang++', skipping test.\n")
-
 test.write('SConstruct', """\
-DefaultEnvironment(tools=[])
-env = Environment(tools=['clang++', 'link'])
-env.Program('foo.cpp')
-""")
-
-test.write('foo.cpp', """\
-#include <iostream>
-int main(int argc, char ** argv) {
-    std::cout << "Hello!" << std::endl;
-    return 0;
-}
+env = Environment(PRE='pre=', MID=Literal('\$$ORIGIN'), SUF='')
+print(env.subst('${_concat(PRE, MID, SUF, __env__)}'))
 """)
 
 test.run()
 
-test.run(program=test.workpath('foo'+_exe))
+expect = """\
+pre=\$ORIGIN
+"""
 
-test.fail_test(not test.stdout() == 'Hello!\n')
+test.run(arguments='-Q -q', stdout=expect)
 
 test.pass_test()
 

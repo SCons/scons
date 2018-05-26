@@ -2,7 +2,7 @@ image: Visual Studio 2017
 shallow_clone: true
 
 install:
-  - "set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - "set PATH=%PYTHON%;%PYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;%PATH%"
   - python --version
   - pip install lxml
   - pip install pypiwin32
