@@ -35,6 +35,8 @@ test = TestSCons.TestSCons()
 pkg_config_path = test.where_is('pkg-config')
 if not pkg_config_path:
     test.skip_test("Could not find 'pkg-config' in system PATH, skipping test.\n")
+    
+pkg_config_path.replace("\\", "/")
 
 test.write('bug.pc', """\
 prefix=/usr
@@ -73,7 +75,7 @@ class OrderedPrintingDict(OrderedDict):
 # https://github.com/SCons/scons/issues/2671
 # Passing test cases
 env_1 = Environment(CPPDEFINES=[('DEBUG','1'), 'TEST'])
-env_1.ParseConfig('PKG_CONFIG_PATH=. %(pkg_config_path)s --cflags bug')
+env_1.ParseConfig('PKG_CONFIG_PATH=. "%(pkg_config_path)s" --cflags bug')
 print(env_1.subst('$_CPPDEFFLAGS'))
 
 env_2 = Environment(CPPDEFINES=[('DEBUG','1'), 'TEST'])
@@ -82,7 +84,7 @@ print(env_2.subst('$_CPPDEFFLAGS'))
 
 # Failing test cases
 env_3 = Environment(CPPDEFINES=OrderedPrintingDict([('DEBUG', 1), ('TEST', None)]))
-env_3.ParseConfig('PKG_CONFIG_PATH=. %(pkg_config_path)s --cflags bug')
+env_3.ParseConfig('PKG_CONFIG_PATH=. "%(pkg_config_path)s" --cflags bug')
 print(env_3.subst('$_CPPDEFFLAGS'))
 
 env_4 = Environment(CPPDEFINES=OrderedPrintingDict([('DEBUG', 1), ('TEST', None)]))
@@ -91,7 +93,7 @@ print(env_4.subst('$_CPPDEFFLAGS'))
 
 # https://github.com/SCons/scons/issues/1738
 env_1738_1 = Environment(tools=['default'])
-env_1738_1.ParseConfig('PKG_CONFIG_PATH=. %(pkg_config_path)s --cflags --libs bug')
+env_1738_1.ParseConfig('PKG_CONFIG_PATH=. "%(pkg_config_path)s" --cflags --libs bug')
 env_1738_1.Append(CPPDEFINES={'value' : '1'})
 print(env_1738_1.subst('$_CPPDEFFLAGS'))
 """%locals() )
