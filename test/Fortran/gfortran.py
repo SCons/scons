@@ -26,7 +26,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that the gfortran tool compiles a .f90 file to an executable,
-placing module files in the directory specified by FORTRANMODDIR.
+one time with and one time without placing module files in a subdirectory
+specified by FORTRANMODDIR.
 """
 
 import TestSCons
@@ -41,7 +42,7 @@ if not gfortran:
     test.skip_test("Could not find gfortran tool, skipping test.\n")
 
 test.write('SConstruct', """
-env = Environment(tools=['gfortran','link'], F90PATH='modules', FORTRANMODDIR='modules')
+env = Environment(tools=['gfortran','link'])
 env.Program('test1', 'test1.f90')
 """)
 
@@ -64,7 +65,36 @@ end program main
 test.run(arguments = '.')
 
 test.must_exist('test1' + _exe)
-test.must_exist(['modules', 'test1mod.mod'])
+test.must_exist('test1mod.mod')
+
+test.up_to_date(arguments = '.')
+
+
+test.write('SConstruct', """
+env = Environment(tools=['gfortran','link'], F90PATH='modules', FORTRANMODDIR='modules')
+env.Program('test2', 'test2.f90')
+""")
+
+test.write('test2.f90', """\
+module test2mod
+  implicit none
+  contains
+  subroutine hello
+    implicit none
+    print *, "hello"
+  end subroutine hello
+end module test2mod
+program main
+  use test2mod
+  implicit none
+  call hello()
+end program main
+""")
+
+test.run(arguments = '.')
+
+test.must_exist('test2' + _exe)
+test.must_exist(['modules', 'test2mod.mod'])
 
 test.up_to_date(arguments = '.')
 
