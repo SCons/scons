@@ -10,6 +10,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From Philipp Maierhöfer
     - Added a __hash__ method to the class Scons.Subst.Literal. Required when substituting Literal
       objects when SCons runs with Python 3.
+    - Added missing FORTRANMODDIRPREFIX to the gfortran tool.
 
   From Richard West:
     - Add SConstruct.py, Sconstruct.py, sconstruct.py to the search path for the root SConstruct file.

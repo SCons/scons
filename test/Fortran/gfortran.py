@@ -1,14 +1,4 @@
-"""SCons.Tool.gfortran
-
-Tool-specific initialization for gfortran, the GNU Fortran 95/Fortran
-2003 compiler.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -34,30 +24,51 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Util
+"""
+Verify that the gfortran tool compiles a .f90 file to an executable,
+placing module files in the directory specified by FORTRANMODDIR.
+"""
 
-from . import fortran
+import TestSCons
 
-def generate(env):
-    """Add Builders and construction variables for gfortran to an
-    Environment."""
-    fortran.generate(env)
+test = TestSCons.TestSCons()
 
-    for dialect in ['F77', 'F90', 'FORTRAN', 'F95', 'F03', 'F08']:
-        env['%s' % dialect] = 'gfortran'
-        env['SH%s' % dialect] = '$%s' % dialect
-        if env['PLATFORM'] in ['cygwin', 'win32']:
-            env['SH%sFLAGS' % dialect] = SCons.Util.CLVar('$%sFLAGS' % dialect)
-        else:
-            env['SH%sFLAGS' % dialect] = SCons.Util.CLVar('$%sFLAGS -fPIC' % dialect)
+_exe = TestSCons._exe
 
-        env['INC%sPREFIX' % dialect] = "-I"
-        env['INC%sSUFFIX' % dialect] = ""
+gfortran = test.detect_tool('gfortran')
 
-    env['FORTRANMODDIRPREFIX'] = "-J"
+if not gfortran:
+    test.skip_test("Could not find gfortran tool, skipping test.\n")
 
-def exists(env):
-    return env.Detect('gfortran')
+test.write('SConstruct', """
+env = Environment(tools=['gfortran','link'], F90PATH='modules', FORTRANMODDIR='modules')
+env.Program('test1', 'test1.f90')
+""")
+
+test.write('test1.f90', """\
+module test1mod
+  implicit none
+  contains
+  subroutine hello
+    implicit none
+    print *, "hello"
+  end subroutine hello
+end module test1mod
+program main
+  use test1mod
+  implicit none
+  call hello()
+end program main
+""")
+
+test.run(arguments = '.')
+
+test.must_exist('test1' + _exe)
+test.must_exist(['modules', 'test1mod.mod'])
+
+test.up_to_date(arguments = '.')
+
+test.pass_test()
 
 # Local Variables:
 # tab-width:4
