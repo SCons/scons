@@ -31,7 +31,7 @@ Verify the following things:
 * The dependency scanner does not expect a module file to be created
   from a "module procedure" statement.
 * The dependency scanner expects the module files to be created in the correct
-  module directory (is is verified by the test.up_to_date()).
+  module directory (this is verified by the test.up_to_date()).
 """
 
 import TestSCons
@@ -58,17 +58,17 @@ for t in sys.argv[3:] + modules:
 """)
 
 test.write('SConstruct', """
-env = Environment(FORTRANCOM = r'%(_python_)s myfortran.py $_FORTRANMODFLAG $SOURCE $TARGET',
+env = Environment(F90COM = r'%(_python_)s myfortran.py $_FORTRANMODFLAG $SOURCE $TARGET',
                   FORTRANMODDIRPREFIX='moduledir=', FORTRANMODDIR='modules')
-env.Object(target = 'test1.obj', source = 'test1.f')
-env.Object(target = 'sub2/test2.obj', source = 'test1.f',
+env.Object(target = 'test1.obj', source = 'test1.f90')
+env.Object(target = 'sub2/test2.obj', source = 'test1.f90',
            FORTRANMODDIR='${TARGET.dir}')
-env.Object(target = 'sub3/test3.obj', source = 'test1.f',
-           FORTRANCOM = r'%(_python_)s myfortran.py moduledir=$FORTRANMODDIR $SOURCE $TARGET',
+env.Object(target = 'sub3/test3.obj', source = 'test1.f90',
+           F90COM = r'%(_python_)s myfortran.py moduledir=$FORTRANMODDIR $SOURCE $TARGET',
            FORTRANMODDIR='${TARGET.dir}')
 """ % locals())
 
-test.write('test1.f', """\
+test.write('test1.f90', """\
 module mod_foo
   implicit none
   interface q
@@ -83,7 +83,7 @@ end module mod_foo
 program test
   use mod_foo
   implicit none
-  print *, 'test.f'
+  print *, 'test1.f90'
   call p
   call q
 end
