@@ -10,6 +10,9 @@ NOTE: Please include a reference to any Issues resolved by your changes in the b
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Simon Tegelid
+    - Fix using TEMPFILE in multiple actions in an action list.
+
   From William Deegan:
     - Fix broken clang + MSVC 2019 combination by using MSVC configuration logic to 
       propagate'VCINSTALLDIR' and 'VCToolsInstallDir' which clang tools use to locate
