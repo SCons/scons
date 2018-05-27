@@ -751,21 +751,24 @@ class Base(SCons.Node.Node):
     def get_path(self, dir=None):
         """Return path relative to the current working directory of the
         Node.FS.Base object that owns us."""
+        if not dir:
+            dir = self.fs.getcwd()
+            dir_not_set = True
+        else:
+            dir_not_set = False
         if self == dir:
             return '.'
         path_elems = self.get_path_elements()
         pathname = ''
-        if(dir):
-            try: i = path_elems.index(dir)
-            except ValueError:
-                pathname = os.path.relpath(path_elems[:-1][-1].abspath, self.fs.Dir(dir).abspath) + os.sep + pathname
-            else:
-                for p in path_elems[i+1:-1]:
+        try: i = path_elems.index(dir)
+        except ValueError:
+            if dir_not_set:
+                for p in path_elems[:-1]:
                     pathname += p.dirname
+            else:
+                pathname = os.path.relpath(path_elems[:-1][-1].abspath, self.fs.Dir(dir).abspath) + os.sep + pathname
         else:
-            if self == self.fs.getcwd():
-                return '.'
-            for p in path_elems[:-1]:
+            for p in path_elems[i+1:-1]:
                 pathname += p.dirname
         return pathname + path_elems[-1].name
 
