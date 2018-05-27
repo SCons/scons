@@ -760,6 +760,7 @@ class Base(SCons.Node.Node):
         try: i = path_elems.index(dir)
         except ValueError:
             for p in path_elems[:-1]:
+                pathname = os.path.relpath(self.fs.Dir('.').abspath, self.fs.Dir(dir).abspath) + os.sep
                 pathname += p.dirname
         else:
             for p in path_elems[i+1:-1]:
