@@ -51,6 +51,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Suppress missing SConscript deprecation warning if `must_exist=False`
       is used.
 
+  From Simon Tegelid
+    - Fix using TEMPFILE in multiple actions in an action list.
+
+
 
 RELEASE 4.0.1 - Mon, 16 Jul 2020 16:06:40 -0700
 

@@ -192,7 +192,6 @@ class TempFileMungeTestCase(unittest.TestCase):
         SCons.Action.print_actions = old_actions
         assert file_content != env['TEMPFILEARGJOINBYTE'].join(['test','command','line'])
 
-
     def test_tempfilecreation_once(self):
         # Init class with cmd, such that the fully expanded
         # string reads "a test command line".
@@ -225,6 +224,7 @@ class TempFileMungeTestCase(unittest.TestCase):
         SCons.Action.print_actions = old_actions
         assert cmd != defined_cmd, cmd
         assert cmd == getattr(target[0].attributes, 'tempfile_cmdlist', None)
+
 
 
 class PlatformEscapeTestCase(unittest.TestCase):
