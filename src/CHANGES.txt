@@ -15,8 +15,9 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From Richard West:
     - Add SConstruct.py, Sconstruct.py, sconstruct.py to the search path for the root SConstruct file.
       Allows easier debugging within Visual Studio
-    - Set the default pip installation directory to be non version specific
-      to aid with development of external tools (such as using pytest)
+    - Change setup.py to change the install directory (via  pip, or setup.py install) from scons-#.#.#
+      to scons (Yielding <pythondir>/lib/scons/SCons/ instead of <pythondir>/lib/scons/SCons-#.#.#/).
+      This changes SCons to better comply with normal Python installation practices.
 
   From Bernard Blackham:
    - Fixed handling of side-effects in task master (fixes #3013).
