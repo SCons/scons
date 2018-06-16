@@ -3,6 +3,7 @@ set -x
 
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     echo "OSX"
+    brew install python --framework --universal
 else
     # dependencies for clang tests
     sudo apt-get -y install clang
