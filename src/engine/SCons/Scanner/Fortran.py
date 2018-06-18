@@ -292,14 +292,15 @@ def FortranScan(path_variable="FORTRANPATH"):
 #   ^\s*               : any amount of white space
 #   MODULE             : match the string MODULE, case insensitive
 #   \s+                : match one or more white space characters
-#   (?!PROCEDURE)      : but *don't* match if the next word matches
-#                        PROCEDURE (negative lookahead assertion),
-#                        case insensitive
+#   (?!PROCEDURE|SUBROUTINE|FUNCTION)
+#                      : but *don't* match if the next word matches
+#                        PROCEDURE, SUBROUTINE or FUNCTION (negative
+#                        lookahead assertion), case insensitive
 #   (\w+)              : match one or more alphanumeric characters
 #                        that make up the defined module name and
 #                        save it in a group
 
-    def_regex = """(?i)^\s*MODULE\s+(?!PROCEDURE)(\w+)"""
+    def_regex = """(?i)^\s*MODULE\s+(?!PROCEDURE|SUBROUTINE|FUNCTION)(\w+)"""
 
     scanner = F90Scanner("FortranScan",
                          "$FORTRANSUFFIXES",
