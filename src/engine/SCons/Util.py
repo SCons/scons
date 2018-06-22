@@ -1610,9 +1610,13 @@ del __revision__
 def to_bytes (s):
     if s is None:
         return b'None'
+    if not PY3 and isinstance(s, UnicodeType):
+        # PY2, must encode unicode
+        return bytes(s, 'utf-8')
     if isinstance (s, (bytes, bytearray)) or bytes is str:
+        # Above case not covered here as py2 bytes and strings are the same
         return s
-    return bytes (s, 'utf-8')
+    return bytes(s, 'utf-8')
 
 def to_str (s):
     if s is None:
