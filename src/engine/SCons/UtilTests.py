@@ -307,6 +307,14 @@ class UtilTestCase(unittest.TestCase):
         if HasUnicode:
             exec("assert not is_Tuple(u'')")
 
+    def test_to_Bytes(self):
+        """ Test the to_Bytes method"""
+        if not PY3:
+            self.assertEqual(to_bytes(UnicodeType('Hello')),
+                             bytearray(u'Hello', 'utf-8'),
+                             "Check that to_bytes creates byte array when presented with unicode string. PY2 only")
+
+
     def test_to_String(self):
         """Test the to_String() method."""
         assert to_String(1) == "1", to_String(1)
@@ -843,17 +851,8 @@ class flattenTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suite = unittest.TestSuite()
-    tclasses = [ dictifyTestCase,
-                 flattenTestCase,
-                 MD5TestCase,
-                 NodeListTestCase,
-                 UtilTestCase,
-               ]
-    for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(list(map(tclass, names)))
-    TestUnit.run(suite)
+    unittest.main()
+
 
 # Local Variables:
 # tab-width:4
