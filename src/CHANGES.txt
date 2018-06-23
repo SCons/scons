@@ -65,6 +65,10 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       The difference between Piotr Bartosik's patch and the current code is that the more complicated 
       creation of file to csig map is only done when the count of children for the current node doesn't 
       match the previous count which is loaded from the sconsign.
+    - Move SCons test framework files to testing/framework and remove all references to QMtest.
+      QMTest has not been used by SCons for some time now.
+    - Fixed issue causing stack trace when python Action function contains a unicode string when being
+      run with Python 2.7
 
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
