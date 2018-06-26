@@ -319,9 +319,10 @@ int main(void) {
             (ret, output) = sconf.TryAction(action=actionFAIL)
             assert not ret and output == "", (ret, output)
 
-            # GH Issue #3141 - unicode text and py2.7 crashes.
-            (ret, output) = sconf.TryAction(action=actionUnicode)
-            assert ret and output == u'2\xa2\n', (ret, output)
+            if not TestCmd.IS_PY3:
+                # GH Issue #3141 - unicode text and py2.7 crashes.
+                (ret, output) = sconf.TryAction(action=actionUnicode)
+                assert ret and output == u'2\xa2\n', (ret, output)
 
         finally:
             sconf.Finish()
