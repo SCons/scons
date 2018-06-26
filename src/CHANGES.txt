@@ -45,6 +45,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Re-Enable parallel SCons (-j) when running via Pypy
     - Move SCons test framework files to testing/framework and remove all references to QMtest.  
       QMTest has not been used by SCons for some time now.
+    - Fix GH Issue #3141 unicode string in a TryAction() with python 2.7 crashes.
 
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
