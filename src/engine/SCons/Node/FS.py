@@ -1065,21 +1065,22 @@ _classEntry = Entry
 
 
 class LocalFS(object):
+    """
+    This class implements an abstraction layer for operations involving
+    a local file system.  Essentially, this wraps any function in
+    the os, os.path or shutil modules that we use to actually go do
+    anything with or to the local file system.
 
-    # This class implements an abstraction layer for operations involving
-    # a local file system.  Essentially, this wraps any function in
-    # the os, os.path or shutil modules that we use to actually go do
-    # anything with or to the local file system.
-    #
-    # Note that there's a very good chance we'll refactor this part of
-    # the architecture in some way as we really implement the interface(s)
-    # for remote file system Nodes.  For example, the right architecture
-    # might be to have this be a subclass instead of a base class.
-    # Nevertheless, we're using this as a first step in that direction.
-    #
-    # We're not using chdir() yet because the calling subclass method
-    # needs to use os.chdir() directly to avoid recursion.  Will we
-    # really need this one?
+    Note that there's a very good chance we'll refactor this part of
+    the architecture in some way as we really implement the interface(s)
+    for remote file system Nodes.  For example, the right architecture
+    might be to have this be a subclass instead of a base class.
+    Nevertheless, we're using this as a first step in that direction.
+
+    We're not using chdir() yet because the calling subclass method
+    needs to use os.chdir() directly to avoid recursion.  Will we
+    really need this one?
+    """
     #def chdir(self, path):
     #    return os.chdir(path)
     def chmod(self, path, mode):
@@ -3258,7 +3259,7 @@ class File(Base):
 
         NOTE: If the timestamp hasn't changed this will skip md5'ing the
               file and just copy the prev_ni provided.  If the prev_ni
-              is wrong. It will propogate it.
+              is wrong. It will propagate it.
               See: https://github.com/SCons/scons/issues/2980
         
         Args:
@@ -3271,6 +3272,7 @@ class File(Base):
         """
         if not self.changed_timestamp_match(target, prev_ni):
             try:
+                # NOTE: We're modifying the current node's csig in a query.
                 self.get_ninfo().csig = prev_ni.csig
             except AttributeError:
                 pass
@@ -3284,6 +3286,12 @@ class File(Base):
             return 1
 
     def changed_timestamp_match(self, target, prev_ni):
+        """
+        Return True if the timestamps don't match or if there is no previous timestamp
+        :param target:
+        :param prev_ni: Information about the node from the previous build
+        :return:
+        """
         try:
             return self.get_timestamp() != prev_ni.timestamp
         except AttributeError:
