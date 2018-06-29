@@ -49,3 +49,4 @@ htmlcov
 *.bkp
 *.bak
 *~
+!/test/Decider/switch-rebuild.py

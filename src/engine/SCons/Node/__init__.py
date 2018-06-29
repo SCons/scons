@@ -1150,8 +1150,6 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         binfo.bdepends = [d for d in self.depends if d not in ignore_set]
         binfo.bdependsigs = [d.get_ninfo() for d in self.depends]
 
-        # TODO: If anything matches the ignore_set: bimplicit and bimplicitsigs will have different lengths and potentially the items in each list will not represent the same file. (any item but the last one matches any item in ignore_set)
-        # binfo.bimplicit = self.implicit or []
         binfo.bimplicit = [i for i in self.implicit or [] if i not in ignore_set]
         binfo.bimplicitsigs = [i.get_ninfo() for i in binfo.bimplicit]
 
@@ -1449,36 +1447,72 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             self - self
             dmap - Dictionary of file -> csig
             children - List of children
-        
+
         Returns:
             List of csigs for provided list of children
         """
         prev = []
 
         for c in children:
-            c_str = str(c).replace('\\','/')
-            df = dmap.get(c_str)
+
+            # First try the simple name for node
+            try:
+                # Check if we have something derived from Node.FS.Base
+                c.fs
+                c_str = str(c)
+                if os.altsep:
+                    c_str = c_str.replace(os.sep, os.altsep)
+                df = dmap.get(c_str)
+                if not df:
+                    try:
+                        # this should yield a path which matches what's in the sconsign
+                        c_str = c.get_path()
+                        if os.altsep:
+                            c_str = c_str.replace(os.sep, os.altsep)
+
+                        df = dmap.get(c_str)
+                    except AttributeError as e:
+                        import pdb;
+                        pdb.set_trace()
+            except AttributeError as e:
+                # We have a non file node, likely Value
+                c_str = str(c)
+                df = dmap.get(c_str)
+
             if df:
                 prev.append(df)
                 continue
 
-            try:
-                # We're not finding the file as listed in the
-                # current children list in the list loaded from
-                # SConsign. So let's see if it was previously
-                # retrieved from the repo.
-                # Also since we only have find_repo_file() on File objects
-                # Handle if we have any other Node type not having that method
-                for rf in c.find_repo_file():
-                    rfs = str(rf)
-                    df = dmap.get(rfs)
-                    if df:
-                        prev.append(df)
-                        break
-                else:
-                    prev.append(None)
-            except AttributeError as e:
-                prev.append(None)
+            prev.append(None)
+            continue
+
+            # TODO: This may not be necessary at all..
+            # try:
+            #     # We're not finding the file as listed in the
+            #     # current children list in the list loaded from
+            #     # SConsign. So let's see if it was previously
+            #     # retrieved from the repo.
+            #     # Also since we only have find_repo_file() on File objects
+            #     # Handle if we have any other Node type not having that method
+            #     for rf in c.find_repo_file():
+            #         rfs = str(rf)
+            #         df = dmap.get(rfs)
+            #         if df:
+            #             prev.append(df)
+            #             break
+            #     else:
+            #         print("CHANGE_DEBUG: file:%s PREV_BUILD_FILES:%s" % (c_str, ",".join(dmap.keys())))
+
+            #         # TODO: may want to use c.fs.File(...,create=0). Though that doesn't resolve
+            #         #  test/Repository/JavaH.py failure while below does.
+            #         possibles = [(f,v) for f,v in dmap.items() if c.Entry('#/%s'%f).rfile() == c]
+            #         if len(possibles) == 1:
+            #             prev.append(possibles[0][1])
+            #         else:
+            #             prev.append(None)
+            # except AttributeError as e:
+            #     print("CHANGE_DEBUG (Exception): file:%s PREV_BUILD_FILES:%s" % (c_str, ",".join(dmap.keys())))
+            #     prev.append(None)
 
         # prev = [dmap.get(str(c), dmap.get(str(c.find_repo_file()[0]))) for c in children]
         return prev
@@ -1506,6 +1540,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
 
         @see: FS.File.changed(), FS.File.release_target_info()
         """
+
         t = 0
         if t:
             Trace('changed(%s [%s], %s)' % (self, classname(self), node))
@@ -1536,6 +1571,8 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             if _decider_map[child.changed_since_last_build](child, self, prev_ni):
                 if t: Trace(': %s changed' % child)
                 result = True
+            # TODO: What if we remove matched items here. Then we can compare csigs
+            #       for the unmatched vs current child?
 
         if self.has_builder():
             contents = self.get_executor().get_contents()
@@ -1698,7 +1735,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
 
         removed = [x for x in old_bkids if not x in new_bkids]
         if removed:
-            removed = list(map(stringify, removed))
+            removed = [stringify(r) for r in removed]
             fmt = "`%s' is no longer a dependency\n"
             lines.extend([fmt % s for s in removed])
 
