@@ -6,31 +6,14 @@
 
 
 RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
-  
+
   From Matthew Marinets
     - Fixed an issue that caused the Java emitter to incorrectly parse arguments to constructors that 
       implemented a class.
-  
-  From Philipp Maierhöfer
-    - Added a __hash__ method to the class Scons.Subst.Literal. Required when substituting Literal
-      objects when SCons runs with Python 3.
-    - Added missing FORTRANMODDIRPREFIX to the gfortran tool.
-
-  From Richard West:
-    - Add SConstruct.py, Sconstruct.py, sconstruct.py to the search path for the root SConstruct file.
-      Allows easier debugging within Visual Studio
-    - Change setup.py to change the install directory (via  pip, or setup.py install) from scons-#.#.#
-      to scons (Yielding <pythondir>/lib/scons/SCons/ instead of <pythondir>/lib/scons/SCons-#.#.#/).
-      This changes SCons to better comply with normal Python installation practices.
 
   From Bernard Blackham:
    - Fixed handling of side-effects in task master (fixes #3013).
 
-  From Daniel Moody:
-    - Set the pickling protocal back to highest which was causing issues 
-      with variant dir tests. This will cause issues if reading sconsigns
-      pickled with the previous lower protocal.
-      
   From Ray Donnelly:
     - Fix the PATH created by scons.bat (and other .bat files) to provide a normalized
       PATH.  Some pythons in the 3.6 series are no longer able to handle paths which
@@ -49,18 +32,47 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Re-Enable parallel SCons (-j) when running via Pypy
     - Move SCons test framework files to testing/framework and remove all references to QMtest.  
       QMTest has not been used by SCons for some time now.
+    - Fix GH Issue #3141 unicode string in a TryAction() with python 2.7 crashes.
+    - Fixed issue causing stack trace when python Action function contains a unicode string when being
+      run with Python 2.7
 
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
+
+  From Philipp Maierhöfer
+    - Added a __hash__ method to the class Scons.Subst.Literal. Required when substituting Literal
+      objects when SCons runs with Python 3.
+    - Added missing FORTRANMODDIRPREFIX to the gfortran tool.
+
+  From Fredrik Medley:
+    - Fix exception when printing of EnviromentError messages.
+      Specifically, this fixes error reporting of the race condition when
+      initializing the cache which error previously was hidden.
 
   From Daniel Moody:
     - Updated Jar builder to handle nodes and directories better
     - Updated Jar builder to flatten source list which could contain embedded lists
     - Removed some magic numbers from jar.py on behalf of Mats Wichmann (mats@linux.com)
+    - Set the pickling protocal back to highest which was causing issues
+      with variant dir tests. This will cause issues if reading sconsigns
+      pickled with the previous lower protocal.
+
 
   From Gary Oberbrunner:
     - Fix bug when Installing multiple subdirs outside the source tree
     - fix to_str to handle None without raising exception
+
+  From Jonathon Reinhart:
+    - Replace all instances of `int main()` in C code with `int main(void)`.
+      Specifically, this fixes the test cases use by Configure.CheckCC() which
+      would fail when using -Wstrict-prototypes.
+
+  From Richard West:
+    - Add SConstruct.py, Sconstruct.py, sconstruct.py to the search path for the root SConstruct file.
+      Allows easier debugging within Visual Studio
+    - Change setup.py to change the install directory (via  pip, or setup.py install) from scons-#.#.#
+      to scons (Yielding <pythondir>/lib/scons/SCons/ instead of <pythondir>/lib/scons/SCons-#.#.#/).
+      This changes SCons to better comply with normal Python installation practices.
 
   From Mats Wichmann:
     - Updated manpage scons.xml to fix a nested list problem
@@ -69,15 +81,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - update wiki links to new github location
     - update bug links to new github location
 
-  From Jonathon Reinhart:
-    - Replace all instances of `int main()` in C code with `int main(void)`.
-      Specifically, this fixes the test cases use by Configure.CheckCC() which
-      would fail when using -Wstrict-prototypes.
 
-  From Fredrik Medley:
-    - Fix exception when printing of EnviromentError messages.
-      Specifically, this fixes error reporting of the race condition when
-      initializing the cache which error previously was hidden.
 
 
 RELEASE 3.0.1 - Mon, 12 Nov 2017 15:31:33 -0700
