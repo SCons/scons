@@ -6,7 +6,11 @@
 
 
 RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
-
+  
+  From Matthew Marinets
+    - Fixed an issue that caused the Java emitter to incorrectly parse arguments to constructors that 
+      implemented a class.
+  
   From Philipp Maierhöfer
     - Added a __hash__ method to the class Scons.Subst.Literal. Required when substituting Literal
       objects when SCons runs with Python 3.
