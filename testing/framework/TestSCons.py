@@ -1262,7 +1262,7 @@ SConscript( sconscript )
         this platform and its associated include path, library path,
         and library name.
         """
-        python = self.where_is('python')
+        python = os.environ.get('python_executable',self.where_is('python'))
         if not python:
             self.skip_test('Can not find installed "python", skipping test.\n')
 
