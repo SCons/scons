@@ -288,9 +288,21 @@ def _POTUpdateBuilder(env, **kw):
 #############################################################################
 def generate(env, **kw):
     """ Generate `xgettext` tool """
+    import sys
+    import os
     import SCons.Util
+    import SCons.Tool
     from SCons.Tool.GettextCommon import RPaths, _detect_xgettext
+    from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
+    from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
 
+    if sys.platform == 'win32':
+        xgettext = SCons.Tool.find_program_path(env, 'xgettext', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
+        if xgettext:
+            xgettext_bin_dir = os.path.dirname(xgettext)
+            env.AppendENVPath('PATH', xgettext_bin_dir)
+        else:
+            SCons.Warnings.Warning('xgettext tool requested, but binary not found in ENV PATH')
     try:
         env['XGETTEXT'] = _detect_xgettext(env)
     except:

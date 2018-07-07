@@ -29,12 +29,14 @@ Verify merging with MergeFlags to CPPPDEFINES with various data types.
 """
 
 import TestSCons
+import TestCmd
 
 test = TestSCons.TestSCons()
 
 pkg_config_path = test.where_is('pkg-config')
 if not pkg_config_path:
     test.skip_test("Could not find 'pkg-config' in system PATH, skipping test.\n")
+pkg_config_path = pkg_config_path.replace("\\", "/")
 
 test.write('bug.pc', """\
 prefix=/usr
@@ -55,7 +57,18 @@ int main(int argc, char *argv[])
 }
 """)
 
+if TestCmd.IS_WINDOWS:
+    pkg_config_file = 'bug.pc'
+    pkg_config_tools = 'mingw'
+    pkg_config_cl_path = ""
+else:
+    pkg_config_file = 'bug'
+    pkg_config_tools = 'default'
+    pkg_config_cl_path = "PKG_CONFIG_PATH=."
+
 test.write('SConstruct', """\
+import os
+import sys
 # Python3 dicts dont preserve order. Hence we supply subclass of OrderedDict
 # whose __str__ and __repr__ act like a normal dict.
 from collections import OrderedDict
@@ -72,26 +85,28 @@ class OrderedPrintingDict(OrderedDict):
 """ + """
 # https://github.com/SCons/scons/issues/2671
 # Passing test cases
-env_1 = Environment(CPPDEFINES=[('DEBUG','1'), 'TEST'])
-env_1.ParseConfig('PKG_CONFIG_PATH=. %(pkg_config_path)s --cflags bug')
+env_1 = Environment(CPPDEFINES=[('DEBUG','1'), 'TEST'], tools = ['%(pkg_config_tools)s'])
+if sys.platform == 'win32':
+    os.environ['PKG_CONFIG_PATH'] = env_1.Dir('.').abspath.replace("\\\\" , "/")
+env_1.ParseConfig('%(pkg_config_cl_path)s "%(pkg_config_path)s" --cflags %(pkg_config_file)s')
 print(env_1.subst('$_CPPDEFFLAGS'))
 
-env_2 = Environment(CPPDEFINES=[('DEBUG','1'), 'TEST'])
+env_2 = Environment(CPPDEFINES=[('DEBUG','1'), 'TEST'], tools = ['%(pkg_config_tools)s'])
 env_2.MergeFlags('-DSOMETHING -DVARIABLE=2')
 print(env_2.subst('$_CPPDEFFLAGS'))
 
 # Failing test cases
-env_3 = Environment(CPPDEFINES=OrderedPrintingDict([('DEBUG', 1), ('TEST', None)]))
-env_3.ParseConfig('PKG_CONFIG_PATH=. %(pkg_config_path)s --cflags bug')
+env_3 = Environment(CPPDEFINES=OrderedPrintingDict([('DEBUG', 1), ('TEST', None)]), tools = ['%(pkg_config_tools)s'])
+env_3.ParseConfig('%(pkg_config_cl_path)s "%(pkg_config_path)s" --cflags %(pkg_config_file)s')
 print(env_3.subst('$_CPPDEFFLAGS'))
 
-env_4 = Environment(CPPDEFINES=OrderedPrintingDict([('DEBUG', 1), ('TEST', None)]))
+env_4 = Environment(CPPDEFINES=OrderedPrintingDict([('DEBUG', 1), ('TEST', None)]), tools = ['%(pkg_config_tools)s'])
 env_4.MergeFlags('-DSOMETHING -DVARIABLE=2')
 print(env_4.subst('$_CPPDEFFLAGS'))
 
 # https://github.com/SCons/scons/issues/1738
-env_1738_1 = Environment(tools=['default'])
-env_1738_1.ParseConfig('PKG_CONFIG_PATH=. %(pkg_config_path)s --cflags --libs bug')
+env_1738_1 = Environment(tools = ['%(pkg_config_tools)s'])
+env_1738_1.ParseConfig('%(pkg_config_cl_path)s "%(pkg_config_path)s" --cflags --libs %(pkg_config_file)s')
 env_1738_1.Append(CPPDEFINES={'value' : '1'})
 print(env_1738_1.subst('$_CPPDEFFLAGS'))
 """%locals() )

@@ -32,8 +32,17 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import sys
+
 from . import posix
 from SCons.Platform import TempFileMunge
+
+CYGWIN_DEFAULT_PATHS = []
+if sys.platform == 'win32':
+    CYGWIN_DEFAULT_PATHS = [
+        r'C:\cygwin64\bin',
+        r'C:\cygwin\bin'
+    ]
 
 def generate(env):
     posix.generate(env)
