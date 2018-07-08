@@ -78,7 +78,7 @@ if TestCmd.IS_WINDOWS:
 else:
     TARGET_ARCH = ""
 test.write('SConstruct', """\
-import distutils.sysconfig
+import sysconfig
 import sys
 import os
 
@@ -88,7 +88,7 @@ env = Environment(
         '-python'
     ],
     CPPPATH = [ 
-        distutils.sysconfig.get_python_inc()
+        sysconfig.get_config_var("INCLUDEPY")
     ],
     SHLIBPREFIX = "",
     tools = [ 'default', 'swig' ]
@@ -96,6 +96,7 @@ env = Environment(
 
 if sys.platform == 'darwin':
     env['LIBS']=['python%d.%d'%(sys.version_info[0],sys.version_info[1])]
+    env.Append(LIBPATH=[sysconfig.get_config_var("LIBDIR")])
 elif sys.platform == 'win32':
     env.Append(LIBS=['python%d%d'%(sys.version_info[0],sys.version_info[1])])
     env.Append(LIBPATH=[os.path.dirname(sys.executable) + "/libs"])

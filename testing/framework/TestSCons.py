@@ -1261,13 +1261,16 @@ SConscript( sconscript )
         Returns a path to a Python executable suitable for testing on
         this platform and its associated include path, library path,
         and library name.
+        Returns:
+            (path to python, include path, library path, library name)
         """
-        python = os.environ.get('python_executable',self.where_is('python'))
+        python = os.environ.get('python_executable', self.where_is('python'))
         if not python:
             self.skip_test('Can not find installed "python", skipping test.\n')
 
-        self.run(program = python, stdin = """\
-import os, sys
+        if sys.platform == 'win32':
+            self.run(program=python, stdin="""\
+import sysconfig
 try:
     if sys.platform == 'win32':
         py_ver = 'python%d%d' % sys.version_info[:2]
@@ -1288,6 +1291,16 @@ except:
     print(os.path.join(sys.prefix, 'include', py_ver))
     print(os.path.join(sys.prefix, 'lib', py_ver, 'config'))
 print(py_ver)
+                """)
+        else:
+            self.run(program=python, stdin="""\
+import sys, sysconfig
+print(sysconfig.get_config_var("INCLUDEPY"))
+print(sysconfig.get_config_var("LIBDIR"))
+py_library_ver = sysconfig.get_config_var("LDVERSION")
+if not py_library_ver:
+    py_library_ver = '%d.%d' % sys.version_info[:2]
+print("python"+py_library_ver)
 """)
 
         return [python] + self.stdout().strip().split('\n')
