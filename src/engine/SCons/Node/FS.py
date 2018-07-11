@@ -3263,8 +3263,8 @@ class File(Base):
               See: https://github.com/SCons/scons/issues/2980
         
         Args:
-            self - self
-            target -
+            self - dependency
+            target - target
             prev_ni - The NodeInfo object loaded from previous builds .sconsign
 
         Returns: 
