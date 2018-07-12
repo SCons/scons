@@ -1270,7 +1270,7 @@ SConscript( sconscript )
 
         if sys.platform == 'win32':
             self.run(program=python, stdin="""\
-import sysconfig
+import sysconfig, sys
 try:
     if sys.platform == 'win32':
         py_ver = 'python%d%d' % sys.version_info[:2]
