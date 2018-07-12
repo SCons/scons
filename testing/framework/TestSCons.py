@@ -1270,12 +1270,9 @@ SConscript( sconscript )
 
         if sys.platform == 'win32':
             self.run(program=python, stdin="""\
-import sysconfig, sys
+import sysconfig, sys, os.path
 try:
-    if sys.platform == 'win32':
         py_ver = 'python%d%d' % sys.version_info[:2]
-    else:
-        py_ver = 'python%d.%d' % sys.version_info[:2]
 except AttributeError:
     py_ver = 'python' + sys.version[:3]
 # print include and lib path
