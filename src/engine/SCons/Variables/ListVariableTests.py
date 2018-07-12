@@ -27,8 +27,6 @@ import copy
 import sys
 import unittest
 
-import TestUnit
-
 import SCons.Errors
 import SCons.Variables
 
@@ -125,8 +123,7 @@ class ListVariableTestCase(unittest.TestCase):
         n = l.__class__(copy.copy(l))
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(ListVariableTestCase, 'test_')
-    TestUnit.run(suite)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4

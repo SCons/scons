@@ -26,8 +26,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import sys
 import unittest
 
-import TestUnit
-
 import SCons.Warnings
 
 class TestOutput(object):
@@ -127,8 +125,7 @@ class WarningsTestCase(unittest.TestCase):
         assert to.out == "Foo", to.out
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(WarningsTestCase, 'test_')
-    TestUnit.run(suite)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4

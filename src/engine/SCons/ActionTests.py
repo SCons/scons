@@ -50,7 +50,6 @@ import SCons.Environment
 import SCons.Errors
 
 import TestCmd
-import TestUnit
 
 # Initial setup of the common environment for all tests,
 # a temporary working directory containing a

@@ -33,8 +33,6 @@ from types import *
 import unittest
 
 import TestCmd
-import TestUnit
-
 
 sys.stdout = io.StringIO()
 

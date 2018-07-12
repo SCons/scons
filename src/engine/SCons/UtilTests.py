@@ -32,7 +32,6 @@ import unittest
 from collections import UserDict, UserList, UserString
 
 import TestCmd
-import TestUnit
 
 import SCons.Errors
 

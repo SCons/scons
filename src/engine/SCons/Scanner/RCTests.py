@@ -29,7 +29,6 @@ import collections
 import os
 
 import TestCmd
-import TestUnit
 
 import SCons.Scanner.RC
 import SCons.Node.FS
@@ -167,7 +166,7 @@ def suite():
     return suite
 
 if __name__ == "__main__":
-    TestUnit.run(suite())
+    unittest.main()
 
 # Local Variables:
 # tab-width:4

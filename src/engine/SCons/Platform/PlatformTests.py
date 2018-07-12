@@ -28,8 +28,6 @@ import SCons.compat
 import collections
 import unittest
 
-import TestUnit
-
 import SCons.Errors
 import SCons.Platform
 import SCons.Environment
@@ -204,17 +202,8 @@ class PlatformEscapeTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suite = unittest.TestSuite()
+    unittest.main()
     
-    tclasses = [ PlatformTestCase,
-                 TempFileMungeTestCase,
-                 PlatformEscapeTestCase,
-                ]
-    for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(list(map(tclass, names)))
-    
-    TestUnit.run(suite)
 
 # Local Variables:
 # tab-width:4
