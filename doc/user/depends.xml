@@ -518,7 +518,7 @@ cc -o hello hello.o
         <file name="SConstruct" printme="1">
 Program('hello.c')
 def decide_if_changed(dependency, target, prev_ni):
-    if self.get_timestamp() != prev_ni.timestamp:
+    if dependency.get_timestamp() != prev_ni.timestamp:
         dep = str(dependency)
         tgt = str(target)
         if specific_part_of_file_has_changed(dep, tgt):
