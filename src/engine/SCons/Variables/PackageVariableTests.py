@@ -30,8 +30,6 @@ import SCons.Errors
 import SCons.Variables
 
 import TestCmd
-import TestUnit
-
 
 class PackageVariableTestCase(unittest.TestCase):
     def test_PackageVariable(self):
@@ -115,8 +113,7 @@ class PackageVariableTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(PackageVariableTestCase, 'test_')
-    TestUnit.run(suite)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4

@@ -26,8 +26,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import sys
 import unittest
 
-import TestUnit
-
 import SCons.Errors
 import SCons.Node.Alias
 
@@ -113,16 +111,7 @@ class AliasBuildInfoTestCase(unittest.TestCase):
         bi = SCons.Node.Alias.AliasBuildInfo()
 
 if __name__ == "__main__":
-    suite = unittest.TestSuite()
-    tclasses = [
-        AliasTestCase,
-        AliasBuildInfoTestCase,
-        AliasNodeInfoTestCase,
-    ]
-    for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(list(map(tclass, names)))
-    TestUnit.run(suite)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4

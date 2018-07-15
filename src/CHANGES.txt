@@ -102,6 +102,9 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From Hao Wu
     - typo in customized decider example in user guide 
 
+  From Hao Wu
+    - Replace usage of unittest.TestSuite with unittest.main() (fix #3113)
+
 
 
 
