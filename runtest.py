@@ -787,7 +787,7 @@ tests_passing = 0
 tests_failing = 0
 
 
-def run_test(t, io_lock, async=True):
+def run_test(t, io_lock, run_async=True):
     global tests_completed, tests_passing, tests_failing
     header = ""
     command_args = ['-tt']

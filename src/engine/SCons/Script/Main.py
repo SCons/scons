@@ -1255,7 +1255,11 @@ def _build_targets(fs, options, targets, target_top):
 
 
     is_pypy = platform.python_implementation() == 'PyPy'
-    python_has_threads = sysconfig.get_config_var('WITH_THREAD') or is_pypy
+    # As of 3.7, python removed support for threadless platforms.
+    # See https://www.python.org/dev/peps/pep-0011/
+    is_37_or_later = sys.version_info.major > 3 or \
+        sys.version_info.major == 3 and sys.version_info.minor >= 7
+    python_has_threads = sysconfig.get_config_var('WITH_THREAD') or is_pypy or is_37_or_later
     # to check if python configured with threads.
     global num_jobs
     num_jobs = options.num_jobs
