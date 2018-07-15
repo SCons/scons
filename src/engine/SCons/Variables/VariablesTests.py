@@ -27,7 +27,6 @@ import sys
 import unittest
 
 import TestSCons
-import TestUnit
 
 import SCons.Variables
 import SCons.Subst
@@ -60,7 +59,9 @@ def check(key, value, env):
 def checkSave(file, expected):
     gdict = {}
     ldict = {}
-    exec(open(file, 'r').read(), gdict, ldict)
+    with open(file, 'r') as f:
+        exec(f.read(), gdict, ldict)
+
     assert expected == ldict, "%s\n...not equal to...\n%s" % (expected, ldict)
 
 class VariablesTestCase(unittest.TestCase):
@@ -690,13 +691,7 @@ class UnknownVariablesTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suite = unittest.TestSuite()
-    tclasses = [ VariablesTestCase,
-                 UnknownVariablesTestCase ]
-    for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(list(map(tclass, names)))
-    TestUnit.run(suite)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4

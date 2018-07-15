@@ -28,8 +28,6 @@ import os
 import sys
 import unittest
 
-import TestUnit
-
 import SCons.Errors
 
 
@@ -126,8 +124,7 @@ class ErrorsTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(ErrorsTestCase, 'test_')
-    TestUnit.run(suite)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4

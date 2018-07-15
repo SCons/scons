@@ -27,8 +27,6 @@ import os.path
 import sys
 import unittest
 
-import TestUnit
-
 import SCons.Scanner.IDL
 import SCons.Tool.JavaCommon
 
@@ -568,12 +566,7 @@ public class Foo
 
 
 if __name__ == "__main__":
-    suite = unittest.TestSuite()
-    tclasses = [ parse_javaTestCase ]
-    for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(list(map(tclass, names)))
-    TestUnit.run(suite)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4
