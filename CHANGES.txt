@@ -27,6 +27,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Mats Wichmann:
     - Complete tests for Dictionary, env.keys() and env.values() for
       OverrideEnvironment. Enable env.setdefault() method, add tests.
+    - Add support for indicating warnings to be treated as errors,
+      both via a new --werror= flag (syntax like --warn), and via
+      SetOption('werror').
 
   From Joachim Kuebart:
     - Suppress missing SConscript deprecation warning if `must_exist=False`

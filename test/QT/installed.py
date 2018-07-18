@@ -53,7 +53,7 @@ try:
     if 'PATH' in ENV:
         ENV_PATH = PATH + os.pathsep + ENV['PATH']
     else:
-        Exit(0) # this is certainly a weird system :-)
+        Exit(1) # this is certainly a weird system :-)
 except KeyError:
     ENV_PATH=ENV.get('PATH', '')
 
@@ -69,7 +69,7 @@ conf = env.Configure()
 if not conf.CheckLib(env.subst("$QT_LIB"), autoadd=0):
     conf.env['QT_LIB'] = 'qt-mt'
     if not conf.CheckLib(env.subst("$QT_LIB"), autoadd=0):
-         Exit(0)
+         Exit(1)
 env = conf.Finish()
 VariantDir('bld', '.')
 env.Program('bld/test_realqt', ['bld/mocFromCpp.cpp',

@@ -591,7 +591,7 @@ def _scons_user_error(e):
     if print_stacktrace:
         traceback.print_exception(etype, value, tb)
     filename, lineno, routine, dummy = find_deepest_user_frame(traceback.extract_tb(tb))
-    sys.stderr.write("\nscons: *** %s\n" % value)
+    sys.stderr.write("\nscons: *** %s\n" % e)
     sys.stderr.write('File "%s", line %d, in %s\n' % (filename, lineno, routine))
     sys.exit(2)
 
@@ -857,14 +857,19 @@ def _main(parser):
     # suppress) appropriate warnings about anything that might happen,
     # as configured by the user.
 
-    default_warnings = [ SCons.Warnings.WarningOnByDefault,
-                         SCons.Warnings.DeprecatedWarning,
-                       ]
+    default_warnings = [
+        SCons.Warnings.WarningOnByDefault,
+        SCons.Warnings.DeprecatedWarning,
+    ]
+    default_werrors = []
 
     for warning in default_warnings:
         SCons.Warnings.enableWarningClass(warning)
+    for werror in default_werrors:
+        SCons.Warnings.enableWarningClassException(werror)
     SCons.Warnings._warningOut = _scons_internal_warning
-    SCons.Warnings.process_warn_strings(options.warn)
+    SCons.Warnings.process_warn_strings(options.warn, flavor="warn")
+    SCons.Warnings.process_warn_strings(options.werror, flavor="error")
 
     # Now that we have the warnings configuration set up, we can actually
     # issue (or suppress) any warnings about warning-worthy things that
@@ -1053,7 +1058,8 @@ def _main(parser):
     # the list of deprecated warning classes will find that disabling
     # first and not issue the warning.
     #SCons.Warnings.enableWarningClass(SCons.Warnings.PythonVersionWarning)
-    SCons.Warnings.process_warn_strings(options.warn)
+    SCons.Warnings.process_warn_strings(options.warn, flavor="warn")
+    SCons.Warnings.process_warn_strings(options.werror, flavor="error")
 
     # Now that we've read the SConscript files, we can check for the
     # warning about deprecated Python versions--delayed until here

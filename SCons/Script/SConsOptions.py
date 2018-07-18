@@ -136,18 +136,17 @@ class SConsValues(optparse.Values):
         'max_drift',
         'md5_chunksize',
         'no_exec',
+        'no_progress',
         'num_jobs',
         'random',
+        'silent',
         'stack_size',
         'warn',
-        'silent',
-        'no_progress'
+        'werror',
     ]
 
     def set_option(self, name, value):
-        """
-        Sets an option from an SConscript file.
-        """
+        """Sets an option from an SConscript file."""
         if name not in self.settable:
             raise SCons.Errors.UserError("This option is not settable from a SConscript file: %s"%name)
 
@@ -197,10 +196,14 @@ class SConsValues(optparse.Values):
             if SCons.Util.is_String(value):
                 value = [value]
             value = self.__SConscript_settings__.get(name, []) + value
-            SCons.Warnings.process_warn_strings(value)
+            SCons.Warnings.process_warn_strings(value, flavor="warn")
         elif name == 'no_progress':
             SCons.Script.Main.progress_display.set_mode(False)
-
+        elif name == 'werror':
+            if SCons.Util.is_String(value):
+                value = [value]
+            value = self.__SConscript_settings__.get(name, []) + value
+            SCons.Warnings.process_warn_strings(value, flavor="error")
 
         self.__SConscript_settings__[name] = value
 
@@ -895,6 +898,18 @@ def Parser(version):
                   dest="warn", default=[],
                   action="callback", callback=opt_warn,
                   help="Enable or disable warnings.",
+                  metavar="WARNING-SPEC")
+
+    def opt_werror(option, opt, value, parser, tree_options=tree_options):
+        if SCons.Util.is_String(value):
+            value = value.split(',')
+        parser.values.werror.extend(value)
+
+    op.add_option('--werror', '--werr',
+                  nargs=1, type="string",
+                  dest="werror", default=[],
+                  action="callback", callback=opt_werror,
+                  help="Enable or disable exceptions on warnings.",
                   metavar="WARNING-SPEC")
 
     op.add_option('-Y', '--repository', '--srcdir',

@@ -1909,7 +1909,7 @@ after other processing.</para>
     <option>--warn=no-<replaceable>type</replaceable></option>
   </term>
   <listitem>
-<para>Enable or disable (with the no- prefix) warnings.
+<para>Enable or disable (with the <literal>no-</literal> prefix) warnings.
 <replaceable>type</replaceable>
 specifies the type of warnings to be enabled or disabled:</para>
 
@@ -2051,7 +2051,7 @@ feature not working when
 &scons;
 is run with the Python
 <option>-O</option>
-option or from optimized Python (.pyo) modules.</para>
+option or from optimized Python (<filename>.pyo</filename>) modules.</para>
   </listitem>
   </varlistentry>
 
@@ -2110,6 +2110,21 @@ These warnings are enabled by default.</para>
   </listitem>
   </varlistentry>
   </variablelist> <!-- end nested list -->
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
+  <term>
+    <option>--werror=<replaceable>type</replaceable></option>,
+    <option>--werror=no-<replaceable>type</replaceable></option>
+  </term>
+  <listitem>
+<para>Enable or disable (with the <literal>no-</literal> prefix)
+treatement of warnings as errors.
+<replaceable>type</replaceable>
+specifies the type of warnings to be enabled or disabled -
+see the <option>--warn</option> option for the list.
+</para>
   </listitem>
   </varlistentry>
 
