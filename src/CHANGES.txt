@@ -93,6 +93,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       This changes SCons to better comply with normal Python installation practices.
 
   From Mats Wichmann:
+    - Recognize new java 9, 10 (as 9.0 and 10.0)
     - Updated manpage scons.xml to fix a nested list problem
     - Updated doc terminiology: use prepend instead of append as appropriate
     - xml validity fixes from SConstruct.py change
