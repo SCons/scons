@@ -140,6 +140,7 @@ class SConsValues(optparse.Values):
         'random',
         'stack_size',
         'warn',
+        'werror',
         'silent'
     ]
 
@@ -197,6 +198,11 @@ class SConsValues(optparse.Values):
                 value = [value]
             value = self.__SConscript_settings__.get(name, []) + value
             SCons.Warnings.process_warn_strings(value)
+        elif name == 'werror':
+            if SCons.Util.is_String(value):
+                value = [value]
+            value = self.__SConscript_settings__.get(name, []) + value
+            SCons.Warnings.process_werror_strings(value)
 
         self.__SConscript_settings__[name] = value
 
@@ -910,6 +916,18 @@ def Parser(version):
                   dest="warn", default=[],
                   action="callback", callback=opt_warn,
                   help="Enable or disable warnings.",
+                  metavar="WARNING-SPEC")
+
+    def opt_werror(option, opt, value, parser, tree_options=tree_options):
+        if SCons.Util.is_String(value):
+            value = value.split(',')
+        parser.values.werror.extend(value)
+
+    op.add_option('--werr', '--werror',
+                  nargs=1, type="string",
+                  dest="werror", default=[],
+                  action="callback", callback=opt_werror,
+                  help="Enable or disable exceptions on warnings.",
                   metavar="WARNING-SPEC")
 
     op.add_option('-Y', '--repository', '--srcdir',

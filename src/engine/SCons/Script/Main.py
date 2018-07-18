@@ -846,11 +846,15 @@ def _main(parser):
     default_warnings = [ SCons.Warnings.WarningOnByDefault,
                          SCons.Warnings.DeprecatedWarning,
                        ]
+    default_werrors = []
 
     for warning in default_warnings:
         SCons.Warnings.enableWarningClass(warning)
+    for werror in default_werrors:
+        SCons.Warnings.enableWarningClassException(werror)
     SCons.Warnings._warningOut = _scons_internal_warning
     SCons.Warnings.process_warn_strings(options.warn)
+    SCons.Warnings.process_werror_strings(options.werror)
 
     # Now that we have the warnings configuration set up, we can actually
     # issue (or suppress) any warnings about warning-worthy things that
@@ -1040,6 +1044,7 @@ def _main(parser):
     # first and not issue the warning.
     #SCons.Warnings.enableWarningClass(SCons.Warnings.PythonVersionWarning)
     SCons.Warnings.process_warn_strings(options.warn)
+    SCons.Warnings.process_werror_strings(options.werror)
 
     # Now that we've read the SConscript files, we can check for the
     # warning about deprecated Python versions--delayed until here
