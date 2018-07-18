@@ -45,6 +45,7 @@ from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import collections
 import copy
 from itertools import chain
@@ -381,6 +382,7 @@ class NodeInfoBase(object):
         """
         state = other.__getstate__()
         self.__setstate__(state)
+
     def format(self, field_list=None, names=0):
         if field_list is None:
             try:
@@ -1214,7 +1216,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         return _exists_map[self._func_exists](self)
 
     def rexists(self):
-        """Does this node exist locally or in a repositiory?"""
+        """Does this node exist locally or in a repository?"""
         # There are no repositories by default:
         return _rexists_map[self._func_rexists](self)
 
@@ -1464,6 +1466,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
                     c_str = c_str.replace(os.sep, os.altsep)
                 df = dmap.get(c_str)
                 if not df:
+                    print("No Luck1:%s"%c_str)
                     try:
                         # this should yield a path which matches what's in the sconsign
                         c_str = c.get_path()
@@ -1471,6 +1474,10 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
                             c_str = c_str.replace(os.sep, os.altsep)
 
                         df = dmap.get(c_str)
+                        if not df:
+                            print("No Luck:%s"%[str(s) for s in c.find_repo_file()])
+                            print("       :%s"%c.rfile())
+
                     except AttributeError as e:
                         import pdb;
                         pdb.set_trace()
@@ -1482,9 +1489,13 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             if df:
                 prev.append(df)
                 continue
+            else:
+                print("CHANGE_DEBUG: file:%s PREV_BUILD_FILES:%s" % (c_str, ",".join(dmap.keys())))
 
             prev.append(None)
             continue
+
+            c.find_repo_file()
 
             # TODO: This may not be necessary at all..
             # try:
@@ -1550,9 +1561,12 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         result = False
 
         children = self.children()
-
         bi = node.get_stored_info().binfo
-        # previous_children = bi.bsourcesigs + bi.bdependsigs + bi.bimplicitsigs
+
+        # then_names = bi.bsources + bi.bdepends + bi.bimplicit
+        # print("CHANGED : %s"%[str(s) for s in then_names])
+        # print("CHILDREN: %s"%[str(s) for s in children])
+
         previous_map_by_file_name = self._build_dependency_map(bi)
 
         # Now build new then based on map built above.
