@@ -285,11 +285,13 @@ def set_duplicate(duplicate):
             Link_Funcs.append(link_dict[func])
 
 def LinkFunc(target, source, env):
-    # Relative paths cause problems with symbolic links, so
-    # we use absolute paths, which may be a problem for people
-    # who want to move their soft-linked src-trees around. Those
-    # people should use the 'hard-copy' mode, softlinks cannot be
-    # used for that; at least I have no idea how ...
+    """
+    Relative paths cause problems with symbolic links, so
+    we use absolute paths, which may be a problem for people
+    who want to move their soft-linked src-trees around. Those
+    people should use the 'hard-copy' mode, softlinks cannot be
+    used for that; at least I have no idea how ...
+    """
     src = source[0].get_abspath()
     dest = target[0].get_abspath()
     dir, file = os.path.split(dest)
