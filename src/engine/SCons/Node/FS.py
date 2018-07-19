@@ -56,6 +56,7 @@ import SCons.Util
 import SCons.Warnings
 
 from SCons.Debug import Trace
+from . import DeciderNeedsNode
 
 print_duplicate = 0
 
@@ -3255,7 +3256,87 @@ class File(Base):
     def changed_state(self, target, prev_ni):
         return self.state != SCons.Node.up_to_date
 
-    def changed_timestamp_then_content(self, target, prev_ni):
+
+    def _build_dependency_map(self, binfo):
+        """
+        Build mapping from file -> signature
+
+        Args:
+            self - self
+            binfo - buildinfo from node being considered
+
+        Returns:
+            dictionary of file->signature mappings
+        """
+
+        # For an "empty" binfo properties like bsources
+        # do not exist: check this to avoid exception.
+        if (len(binfo.bsourcesigs) + len(binfo.bdependsigs) + \
+                len(binfo.bimplicitsigs)) == 0:
+            return {}
+
+        pairs = [
+            (binfo.bsources, binfo.bsourcesigs),
+            (binfo.bdepends, binfo.bdependsigs),
+            (binfo.bimplicit, binfo.bimplicitsigs)
+           ]
+
+        m = {}
+        for children, signatures in pairs:
+            for child, signature in zip(children, signatures):
+                schild = str(child)
+                m[schild] = signature
+        return m
+
+    def _get_previous_signatures(self, dmap):
+        """
+        Return a list of corresponding csigs from previous
+        build in order of the node/files in children.
+
+        Args:
+            self - self
+            dmap - Dictionary of file -> csig
+            children - List of children
+
+        Returns:
+            List of csigs for provided list of children
+        """
+        prev = []
+
+
+
+        # First try the simple name for node
+        c_str = str(self)
+        if os.altsep:
+            c_str = c_str.replace(os.sep, os.altsep)
+        df = dmap.get(c_str)
+        if not df:
+            print("No Luck1:%s"%c_str)
+            try:
+                # this should yield a path which matches what's in the sconsign
+                c_str = self.get_path()
+                if os.altsep:
+                    c_str = c_str.replace(os.sep, os.altsep)
+
+                df = dmap.get(c_str)
+                if not df:
+                    print("No Luck:%s"%[str(s) for s in self.find_repo_file()])
+                    print("       :%s"%self.rfile())
+
+            except AttributeError as e:
+                import pdb;
+                pdb.set_trace()
+
+
+        if df:
+            return df
+        else:
+            print("CHANGE_DEBUG: file:%s PREV_BUILD_FILES:%s" % (c_str, ",".join(dmap.keys())))
+            pass
+
+        return None
+
+    def changed_timestamp_then_content(self, target, prev_ni, node=None):
         """
         Used when decider for file is Timestamp-MD5
 
@@ -3272,6 +3353,14 @@ class File(Base):
         Returns: 
             Boolean - Indicates if node(File) has changed.
         """
+        if node is None:
+            raise DeciderNeedsNode(self.changed_timestamp_then_content)
+
+        # Now get sconsign name -> csig map and then get proper prev_ni if possible
+        bi = node.get_stored_info().binfo
+        dmap = self._build_dependency_map(bi)
+        prev_ni = self._get_previous_signatures(dmap)
+
         if not self.changed_timestamp_match(target, prev_ni):
             try:
                 # NOTE: We're modifying the current node's csig in a query.
@@ -3315,7 +3404,9 @@ class File(Base):
                         # ...and they'd like a local copy.
                         e = LocalCopy(self, r, None)
                         if isinstance(e, SCons.Errors.BuildError):
-                            raise
+                            # Likely this should be re-raising exception e
+                            # (which would be BuildError)
+                            raise e
                         SCons.Node.store_info_map[self.store_info](self)
                     if T: Trace(' 1\n')
                     return 1

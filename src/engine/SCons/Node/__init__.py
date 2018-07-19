@@ -248,6 +248,21 @@ _target_from_source_map = {0 : target_from_source_none,
 # used by it.
 #
 
+
+class DeciderNeedsNode(Exception):
+    """
+    Indicate that the decider needs the node as well as the target and the dependency.
+    Normally the node and the target are the same, but in the case of repository
+    They may be different. Also the NodeInfo is retrieved from the node
+    """
+    def __init__(self, call_this_decider):
+        """
+        :param call_this_decider: to return the decider to call directly since deciders
+               are called through several levels of indirection
+        """
+        self.decider = call_this_decider
+
+
 #
 # First, the single decider functions
 #
@@ -271,6 +286,7 @@ def changed_since_last_build_node(node, target, prev_ni):
     """
     raise NotImplementedError
 
+
 def changed_since_last_build_alias(node, target, prev_ni):
     cur_csig = node.get_csig()
     try:
@@ -278,18 +294,23 @@ def changed_since_last_build_alias(node, target, prev_ni):
     except AttributeError:
         return 1
 
+
 def changed_since_last_build_entry(node, target, prev_ni):
     node.disambiguate()
     return _decider_map[node.changed_since_last_build](node, target, prev_ni)
 
+
 def changed_since_last_build_state_changed(node, target, prev_ni):
-    return (node.state != SCons.Node.up_to_date)
+    return node.state != SCons.Node.up_to_date
+
 
 def decide_source(node, target, prev_ni):
     return target.get_build_env().decide_source(node, target, prev_ni)
 
+
 def decide_target(node, target, prev_ni):
     return target.get_build_env().decide_target(node, target, prev_ni)
+
 
 def changed_since_last_build_python(node, target, prev_ni):
     cur_csig = node.get_csig()
@@ -1409,125 +1430,6 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             return None
         return self._tags.get(key, None)
 
-    def _build_dependency_map(self, binfo):
-        """
-        Build mapping from file -> signature
-
-        Args:
-            self - self
-            binfo - buildinfo from node being considered
-
-        Returns: 
-            dictionary of file->signature mappings
-        """
-
-        # For an "empty" binfo properties like bsources
-        # do not exist: check this to avoid exception.
-        if (len(binfo.bsourcesigs) + len(binfo.bdependsigs) + \
-                len(binfo.bimplicitsigs)) == 0:
-            return {}
-
-        pairs = [
-            (binfo.bsources, binfo.bsourcesigs),
-            (binfo.bdepends, binfo.bdependsigs),
-            (binfo.bimplicit, binfo.bimplicitsigs)
-           ]
-
-        m = {}
-        for children, signatures in pairs:
-            for child, signature in zip(children, signatures):
-                schild = str(child)
-                m[schild] = signature
-        return m
-
-    def _get_previous_signatures(self, dmap, children):
-        """
-        Return a list of corresponding csigs from previous
-        build in order of the node/files in children.
-
-        Args:
-            self - self
-            dmap - Dictionary of file -> csig
-            children - List of children
-
-        Returns:
-            List of csigs for provided list of children
-        """
-        prev = []
-
-        for c in children:
-
-            # First try the simple name for node
-            try:
-                # Check if we have something derived from Node.FS.Base
-                c.fs
-                c_str = str(c)
-                if os.altsep:
-                    c_str = c_str.replace(os.sep, os.altsep)
-                df = dmap.get(c_str)
-                if not df:
-                    print("No Luck1:%s"%c_str)
-                    try:
-                        # this should yield a path which matches what's in the sconsign
-                        c_str = c.get_path()
-                        if os.altsep:
-                            c_str = c_str.replace(os.sep, os.altsep)
-
-                        df = dmap.get(c_str)
-                        if not df:
-                            print("No Luck:%s"%[str(s) for s in c.find_repo_file()])
-                            print("       :%s"%c.rfile())
-
-                    except AttributeError as e:
-                        import pdb;
-                        pdb.set_trace()
-            except AttributeError as e:
-                # We have a non file node, likely Value
-                c_str = str(c)
-                df = dmap.get(c_str)
-
-            if df:
-                prev.append(df)
-                continue
-            else:
-                print("CHANGE_DEBUG: file:%s PREV_BUILD_FILES:%s" % (c_str, ",".join(dmap.keys())))
-
-            prev.append(None)
-            continue
-
-            c.find_repo_file()
-
-            # TODO: This may not be necessary at all..
-            # try:
-            #     # We're not finding the file as listed in the
-            #     # current children list in the list loaded from
-            #     # SConsign. So let's see if it was previously
-            #     # retrieved from the repo.
-            #     # Also since we only have find_repo_file() on File objects
-            #     # Handle if we have any other Node type not having that method
-            #     for rf in c.find_repo_file():
-            #         rfs = str(rf)
-            #         df = dmap.get(rfs)
-            #         if df:
-            #             prev.append(df)
-            #             break
-            #     else:
-            #         print("CHANGE_DEBUG: file:%s PREV_BUILD_FILES:%s" % (c_str, ",".join(dmap.keys())))
-
-            #         # TODO: may want to use c.fs.File(...,create=0). Though that doesn't resolve
-            #         #  test/Repository/JavaH.py failure while below does.
-            #         possibles = [(f,v) for f,v in dmap.items() if c.Entry('#/%s'%f).rfile() == c]
-            #         if len(possibles) == 1:
-            #             prev.append(possibles[0][1])
-            #         else:
-            #             prev.append(None)
-            # except AttributeError as e:
-            #     print("CHANGE_DEBUG (Exception): file:%s PREV_BUILD_FILES:%s" % (c_str, ",".join(dmap.keys())))
-            #     prev.append(None)
-
-        # prev = [dmap.get(str(c), dmap.get(str(c.find_repo_file()[0]))) for c in children]
-        return prev
-
     def changed(self, node=None, allowcache=False):
         """
         Returns if the node is up-to-date with respect to the BuildInfo
@@ -1551,54 +1453,48 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
 
         @see: FS.File.changed(), FS.File.release_target_info()
         """
-
         t = 0
-        if t:
-            Trace('changed(%s [%s], %s)' % (self, classname(self), node))
+        if t: Trace('changed(%s [%s], %s)' % (self, classname(self), node))
         if node is None:
             node = self
 
         result = False
 
-        children = self.children()
         bi = node.get_stored_info().binfo
+        then = bi.bsourcesigs + bi.bdependsigs + bi.bimplicitsigs
+        children = self.children()
 
-        # then_names = bi.bsources + bi.bdepends + bi.bimplicit
-        # print("CHANGED : %s"%[str(s) for s in then_names])
-        # print("CHILDREN: %s"%[str(s) for s in children])
-
-        previous_map_by_file_name = self._build_dependency_map(bi)
-
-        # Now build new then based on map built above.
-        previous_children = self._get_previous_signatures(previous_map_by_file_name, children)
-
-        diff = len(children) - len(previous_map_by_file_name)
+        diff = len(children) - len(then)
         if diff:
             # The old and new dependency lists are different lengths.
             # This always indicates that the Node must be rebuilt.
-            
-            if t: Trace(': old %s new %s' % (len(v), len(children)))
-            
+            # We also extend the old dependency list with enough None
+            # entries to equal the new dependency list, for the benefit
+            # of the loop below that updates node information.
+            then.extend([None] * diff)
+            if t: Trace(': old %s new %s' % (len(then), len(children)))
             result = True
 
-        for child, prev_ni in zip(children, previous_children):
-            if _decider_map[child.changed_since_last_build](child, self, prev_ni):
-                if t: Trace(': %s changed' % child)
-                result = True
-            # TODO: What if we remove matched items here. Then we can compare csigs
-            #       for the unmatched vs current child?
+        for child, prev_ni in zip(children, then):
+            try:
+                if _decider_map[child.changed_since_last_build](child, self, prev_ni):
+                    if t: Trace(': %s changed' % child)
+                    result = True
+            except DeciderNeedsNode as e:
+                if e.decider(self, prev_ni, node=node):
+                    if t: Trace(': %s changed' % child)
+                    result = True
 
+        contents = self.get_executor().get_contents()
         if self.has_builder():
-            contents = self.get_executor().get_contents()
-
+            import SCons.Util
             newsig = SCons.Util.MD5signature(contents)
             if bi.bactsig != newsig:
                 if t: Trace(': bactsig %s != newsig %s' % (bi.bactsig, newsig))
                 result = True
 
         if not result:
-            if t:
-                Trace(': up to date')
+            if t: Trace(': up to date')
 
         if t: Trace('\n')
 
@@ -1756,8 +1652,14 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         for k in new_bkids:
             if not k in old_bkids:
                 lines.append("`%s' is a new dependency\n" % stringify(k))
-            elif _decider_map[k.changed_since_last_build](k, self, osig[k]):
-                lines.append("`%s' changed\n" % stringify(k))
+            else:
+                try:
+                    changed = _decider_map[k.changed_since_last_build](k, self, osig[k])
+                except DeciderNeedsNode as e:
+                    changed = e.decider(self, osig[k], node=self)
+
+                if changed:
+                    lines.append("`%s' changed\n" % stringify(k))
 
         if len(lines) == 0 and old_bkids != new_bkids:
             lines.append("the dependency order changed:\n" +
