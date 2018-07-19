@@ -7,6 +7,10 @@
 
 RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Matthew Marinets
+    - Fixed an issue that caused the Java emitter to incorrectly parse arguments to constructors that 
+      implemented a class.
+
   From Bernard Blackham:
    - Fixed handling of side-effects in task master (fixes #3013).
 
