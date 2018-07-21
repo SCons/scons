@@ -147,6 +147,9 @@ class DeprecatedSigModuleWarning(MandatoryDeprecatedWarning):
 class DeprecatedBuilderKeywordsWarning(MandatoryDeprecatedWarning):
     pass
 
+class DeprecatedMissingSConscriptWarning(DeprecatedWarning):
+    pass
+
 
 # The below is a list of 2-tuples.  The first element is a class object.
 # The second element is true if that class is enabled, false if it is disabled.
@@ -179,8 +182,8 @@ def warn(clazz, *args):
     global _enabled, _warningAsException, _warningOut
 
     warning = clazz(args)
-    for clazz, flag in _enabled:
-        if isinstance(warning, clazz):
+    for cls, flag in _enabled:
+        if isinstance(warning, cls):
             if flag:
                 if _warningAsException:
                     raise warning
