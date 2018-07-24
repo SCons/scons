@@ -102,6 +102,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - xml validity fixes from SConstruct.py change
     - update wiki links to new github location
     - update bug links to new github location
+    - convert TestCmd.read to use with statement on open (quiets 17 py3 warnings)
     
   From Hao Wu
     - typo in customized decider example in user guide 
