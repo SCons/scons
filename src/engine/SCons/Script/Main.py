@@ -720,54 +720,89 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
     sys.path = [os.path.abspath(site_dir)] + sys.path
     site_init_file = os.path.join(site_dir, site_init_filename)
     site_tools_dir = os.path.join(site_dir, site_tools_dirname)
-    if os.path.exists(site_init_file):
-        import imp, re
-        try:
+
+    if SCons.Util.PY2 or SCons.Util.PY34:
+        if os.path.exists(site_init_file):
+            import imp, re
             try:
-                fp, pathname, description = imp.find_module(site_init_modname,
-                                                            [site_dir])
-                # Load the file into SCons.Script namespace.  This is
-                # opaque and clever; m is the module object for the
-                # SCons.Script module, and the exec ... in call executes a
-                # file (or string containing code) in the context of the
-                # module's dictionary, so anything that code defines ends
-                # up adding to that module.  This is really short, but all
-                # the error checking makes it longer.
+                try:
+                    fp, pathname, description = imp.find_module(site_init_modname,
+                                                                [site_dir])
+                    # Load the file into SCons.Script namespace.  This is
+                    # opaque and clever; m is the module object for the
+                    # SCons.Script module, and the exec ... in call executes a
+                    # file (or string containing code) in the context of the
+                    # module's dictionary, so anything that code defines ends
+                    # up adding to that module.  This is really short, but all
+                    # the error checking makes it longer.
+                    try:
+                        m = sys.modules['SCons.Script']
+                    except Exception as e:
+                        fmt = 'cannot import site_init.py: missing SCons.Script module {}'
+                        raise SCons.Errors.InternalError(fmt.format(repr(e)))
+                    try:
+                        sfx = description[0]
+                        modname = os.path.basename(pathname)[:-len(sfx)]
+                        site_m = {"__file__": pathname, "__name__": modname, "__doc__": None}
+                        re_special = re.compile("__[^_]+__")
+                        for k in list(m.__dict__.keys()):
+                            if not re_special.match(k):
+                                site_m[k] = m.__dict__[k]
+
+                        # This is the magic.
+                        exec(compile(fp.read(), fp.name, 'exec'), site_m)
+                    except KeyboardInterrupt:
+                        raise
+                    except Exception as e:
+                        fmt = '*** Error loading site_init file %s:\n'
+                        sys.stderr.write(fmt % repr(site_init_file))
+                        raise
+                    else:
+                        for k in site_m:
+                            if not re_special.match(k):
+                                m.__dict__[k] = site_m[k]
+                except KeyboardInterrupt:
+                    raise
+                except ImportError as e:
+                    fmt = '*** cannot import site init file %s:\n'
+                    sys.stderr.write(fmt % repr(site_init_file))
+                    raise
+            finally:
+                if fp:
+                    fp.close()
+    else:  # Python >= 3.5
+        if os.path.exists(site_init_file):
+            import importlib.util, importlib.machinery
+            try:
+                loader_details = (
+                    importlib.machinery.ExtensionFileLoader,
+                    importlib.machinery.EXTENSION_SUFFIXES
+                )
+                finder = importlib.machinery.FileFinder(site_dir,
+                                                        loader_details)
+                spec = finder.find_spec(site_init_modname)
                 try:
                     m = sys.modules['SCons.Script']
                 except Exception as e:
                     fmt = 'cannot import site_init.py: missing SCons.Script module %s'
                     raise SCons.Errors.InternalError(fmt % repr(e))
                 try:
-                    sfx = description[0]
-                    modname = os.path.basename(pathname)[:-len(sfx)]
-                    site_m = {"__file__": pathname, "__name__": modname, "__doc__": None}
-                    re_special = re.compile("__[^_]+__")
-                    for k in list(m.__dict__.keys()):
-                        if not re_special.match(k):
-                            site_m[k] = m.__dict__[k]
-
+                    mod = importlib.util.module_from_spec(spec)
                     # This is the magic.
-                    exec(compile(fp.read(), fp.name, 'exec'), site_m)
+                    exec(mod.__loader__.get_code(mod.__name__), m.__dict__)
                 except KeyboardInterrupt:
                     raise
                 except Exception as e:
-                    fmt = '*** Error loading site_init file %s:\n'
-                    sys.stderr.write(fmt % repr(site_init_file))
+                    fmt = '*** Error loading site_init file {}:\n'
+                    sys.stderr.write(fmt.format(repr(site_init_file)))
                     raise
-                else:
-                    for k in site_m:
-                        if not re_special.match(k):
-                            m.__dict__[k] = site_m[k]
             except KeyboardInterrupt:
                 raise
             except ImportError as e:
                 fmt = '*** cannot import site init file %s:\n'
                 sys.stderr.write(fmt % repr(site_init_file))
                 raise
-        finally:
-            if fp:
-                fp.close()
+
     if os.path.exists(site_tools_dir):
         # prepend to DefaultToolpath
         SCons.Tool.DefaultToolpath.insert(0, os.path.abspath(site_tools_dir))

@@ -38,9 +38,7 @@ tool definition.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
-import re
 import os
-import shutil
 
 import SCons.Builder
 import SCons.Errors
@@ -57,6 +55,7 @@ try:
 except ImportError:
     # Python 2.7
     from collections import Callable
+import SCons.Util
 
 DefaultToolpath = []
 
@@ -142,7 +141,7 @@ class Tool(object):
         sys.path = self.toolpath + sys.path
         # sys.stderr.write("Tool:%s\nPATH:%s\n"%(self.name,sys.path))
 
-        if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] in (0, 1, 2, 3, 4)):
+        if SCons.Util.PY2 or SCons.Util.PY34:
             # Py 2 code
             try:
                 try:

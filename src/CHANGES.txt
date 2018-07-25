@@ -215,8 +215,10 @@ RELEASE 3.1.0 - Mon, 20 Jul 2019 16:59:23 -0700
 
 RELEASE 3.0.5 - Mon, 26 Mar 2019 15:04:42 -0700
 
-  From William Deegan:
+  From Matěj Cepl
+    - replace use of imp library for Python >= 3.5 with importlib; no change in functionality
 
+  From William Deegan:
     - Fix Issue #3283 - Handle using --config=force in combination with Decider('MD5-timestamp').
       3.0.2 in fix for issue #2980 added that deciders can throw DeciderNeedsNode exception.
       The Configure logic directly calls the decider when using --config=force but wasn't handling

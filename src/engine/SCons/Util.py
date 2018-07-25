@@ -38,6 +38,8 @@ import hashlib
 PY3 = sys.version_info[0] == 3
 PYPY = hasattr(sys, 'pypy_translation_info')
 
+PY2 = sys.version_info[0] == 2
+PY34 = sys.version_info[0] == 3 and sys.version_info[1] <= 4
 
 try:
     from collections import UserDict, UserList, UserString

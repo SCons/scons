@@ -31,7 +31,7 @@ import SCons.Defaults
 import SCons.Environment
 from SCons.Variables import *
 from SCons.Errors import *
-from SCons.Util import is_List, make_path_relative
+from SCons.Util import is_List, is_String, make_path_relative, PY2, PY34
 from SCons.Warnings import warn, Warning
 
 import os
@@ -68,7 +68,7 @@ def Tag(env, target, source, *more_tags, **kw_tags):
     for x in more_tags:
         kw_tags[x] = ''
 
-    if not SCons.Util.is_List(target):
+    if not is_List(target):
         target=[target]
     else:
         # hmm, sometimes the target list, is a list of a list
@@ -263,12 +263,12 @@ def putintopackageroot(target, source, env, pkgroot, honor_install_location=1):
     All attributes of the source file will be copied to the new file.
     """
     # make sure the packageroot is a Dir object.
-    if SCons.Util.is_String(pkgroot):  pkgroot=env.Dir(pkgroot)
-    if not SCons.Util.is_List(source): source=[source]
+    if is_String(pkgroot):  pkgroot=env.Dir(pkgroot)
+    if not is_List(source): source=[source]
 
     new_source = []
     for file in source:
-        if SCons.Util.is_String(file): file = env.File(file)
+        if is_String(file): file = env.File(file)
 
         if file.is_under(pkgroot):
             new_source.append(file)

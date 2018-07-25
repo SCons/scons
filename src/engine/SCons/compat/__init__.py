@@ -66,6 +66,15 @@ import importlib
 PYPY = hasattr(sys, 'pypy_translation_info')
 
 
+def import_as(module, name):
+    """
+    Imports the specified module (from our local directory) as the
+    specified name, returning the loaded module object.
+    """
+    sys.modules[name] = importlib.import_module(module)
+    return sys.modules[name]
+
+
 def rename_module(new, old):
     """
     Attempt to import the old module and load it under the new name.

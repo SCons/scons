@@ -47,14 +47,15 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
 
-import importlib
 import os
+import importlib
 import sys
 import tempfile
 
 import SCons.Errors
 import SCons.Subst
 import SCons.Tool
+import SCons.Util
 
 
 def platform_default():
@@ -110,7 +111,7 @@ def platform_module(name = platform_default()):
                     mod = importer.load_module(full_name)
                 except ImportError:
                     raise SCons.Errors.UserError("No platform named '%s'" % name)
-            setattr(SCons.Platform, name, mod)
+                setattr(SCons.Platform, name, mod)
     return sys.modules[full_name]
 
 
