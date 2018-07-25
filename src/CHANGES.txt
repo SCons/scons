@@ -104,6 +104,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - update bug links to new github location
     - convert TestCmd.read to use with statement on open (quiets 17 py3 warnings)
     - quiet warning in UtilTests.py
+    - fix tests specifying octal constants for Py3
     
   From Hao Wu
     - typo in customized decider example in user guide 
