@@ -268,6 +268,15 @@ class TestCommon(TestCmd):
     def must_contain(self, file, required, mode = 'rb', find = None):
         """Ensures that the specified file contains the required text.
         """
+        if 'b' in mode:
+            # Python 3: reading a file in binary mode returns a 
+            # bytes object. We cannot find the index of a different
+            # (str) type in that, so encode "required". For Py2
+            # it is all just strings, so it still works.
+            try:
+                required = required.encode()
+            except AttributeError:
+                pass    # in case it's encoded already
         file_contents = self.read(file, mode)
         if find is None:
             def find(o, l):
