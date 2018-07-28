@@ -153,14 +153,14 @@ def Return(*vars, **kw):
 
 stack_bottom = '% Stack boTTom %' # hard to define a variable w/this name :)
 
-def handle_missing_SConscript(f, must_exist):
+def handle_missing_SConscript(f, must_exist=None):
     """Take appropriate action on missing file in SConscript() call.
 
     The action may be to raise an exception, or print a warning.
     On first warning, also print a deprecation warning.
     """
 
-    if SCons.Script._no_missing_sconscript or must_exist:
+    if must_exist or (SCons.Script._no_missing_sconscript and must_exist is not False):
         msg = "Fatal: missing SConscript '%s'" % f.get_internal_path()
         raise SCons.Errors.UserError(msg)
 
@@ -285,7 +285,7 @@ def _SConscript(fs, *files, **kw):
                         if old_file is not None:
                             call_stack[-1].globals.update({__file__:old_file})
                 else:
-                    handle_missing_SConscript(f, kw.get('must_exist', False))
+                    handle_missing_SConscript(f, kw.get('must_exist', None))
 
         finally:
             SCons.Script.sconscript_reading = SCons.Script.sconscript_reading - 1
@@ -568,6 +568,7 @@ class SConsEnvironment(SCons.Environment.Base):
 
         files, exports = self._get_SConscript_filenames(ls, subst_kw)
         subst_kw['exports'] = exports
+        
         return _SConscript(self.fs, *files, **subst_kw)
 
     def SConscriptChdir(self, flag):
