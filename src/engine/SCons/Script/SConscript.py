@@ -543,6 +543,31 @@ class SConsEnvironment(SCons.Environment.Base):
             raise SCons.Errors.UserError("Import of non-existent variable '%s'"%x)
 
     def SConscript(self, *ls, **kw):
+        """Execute SCons configuration files.
+
+        Parameters:
+            *ls (str or list): configuration file(s) to execute.
+
+        Keyword arguments:
+            dirs (list): execute SConscript in each listed directory.
+            name (str): execute script 'name' (used with 'dirs').
+            exports (list or dict): locally export variables the script(s)
+              can import.
+            variant_dir (str): mirror sources needed for build to variant_dir
+             to allow building there.
+            duplicate (bool): pysically duplicate sources instead of just
+              adjusting paths of derived files (used only with 'variant_dir')
+              (default is True).
+            must_exist (bool): fail if a requested script is missing
+              (default is False, default is deprecated).
+
+        Returns:
+            variables returned by the called script
+
+        Raises:
+            UserError if a script is not found and such exceptions are enabled.
+        """
+
         if 'build_dir' in kw:
             msg = """The build_dir keyword has been deprecated; use the variant_dir keyword instead."""
             SCons.Warnings.warn(SCons.Warnings.DeprecatedBuildDirWarning, msg)
@@ -568,7 +593,6 @@ class SConsEnvironment(SCons.Environment.Base):
 
         files, exports = self._get_SConscript_filenames(ls, subst_kw)
         subst_kw['exports'] = exports
-        
         return _SConscript(self.fs, *files, **subst_kw)
 
     def SConscriptChdir(self, flag):
