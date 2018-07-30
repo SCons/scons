@@ -97,9 +97,12 @@ test.run(arguments = '-f Build2 -f SConscript .', stdout=expect)
 test.run(arguments = '-f no_such_file .',
          stdout = test.wrap_stdout("scons: `.' is up to date.\n"),
          stderr = None)
-test.fail_test(not test.match_re(test.stderr(), """
-scons: warning: Ignoring missing SConscript 'no_such_file'
-""" + TestSCons.file_expr))
+expect = """
+scons: warning: Calling missing SConscript without error is deprecated.
+Transition by adding must_exist=0 to SConscript calls.
+Missing SConscript 'no_such_file'"""
+stderr = test.stderr()
+test.must_contain_all(test.stderr(), expect)
 
 test.pass_test()
 

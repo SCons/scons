@@ -165,10 +165,10 @@ def handle_missing_SConscript(f, must_exist=None):
         raise SCons.Errors.UserError(msg)
 
     if SCons.Script._warn_missing_sconscript_deprecated:
-        msg = "Calling missing SConscripts without error is deprecated.\n" + \
+        msg = "Calling missing SConscript without error is deprecated.\n" + \
               "Transition by adding must_exist=0 to SConscript calls.\n" + \
               "Missing SConscript '%s'" % f.get_internal_path()
-        SCons.Warnings.warn(SCons.Warnings.DeprecatedMissingSConscriptWarning, msg)
+        SCons.Warnings.warn(SCons.Warnings.MissingSConscriptWarning, msg)
         SCons.Script._warn_missing_sconscript_deprecated = False
     else:
         msg = "Ignoring missing SConscript '%s'" % f.get_internal_path()

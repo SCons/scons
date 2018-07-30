@@ -72,7 +72,7 @@ try:
 except SCons.Errors.UserError as e:
     if _warningOut:
         _warningOut(e)
-# 6. must_exist=False should override system setting
+# 6. must_exist=False overrides system setting, should emit warning
 try:
     SConscript('missing/SConscript', must_exist=False)
 except SCons.Errors.UserError as e:
@@ -83,7 +83,7 @@ except SCons.Errors.UserError as e:
 # we should see two exceptions as "Fatal" and
 # and see four warnings, the first having the depr message
 warn1 = """
-scons: warning: Calling missing SConscripts without error is deprecated.
+scons: warning: Calling missing SConscript without error is deprecated.
 Transition by adding must_exist=0 to SConscript calls.
 Missing SConscript 'missing/SConscript'
 """ + test.python_file_line(SConstruct_path, 7)
