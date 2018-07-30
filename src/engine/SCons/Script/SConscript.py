@@ -156,8 +156,16 @@ stack_bottom = '% Stack boTTom %' # hard to define a variable w/this name :)
 def handle_missing_SConscript(f, must_exist=None):
     """Take appropriate action on missing file in SConscript() call.
 
-    The action may be to raise an exception, or print a warning.
-    On first warning, also print a deprecation warning.
+    Print a warning or raise an exception on missing file.
+    On first warning, print a deprecation message.
+
+    Args:
+        f (str): path of missing configuration file
+        must_exist (bool): raise exception if file does not exist
+
+    Raises:
+        UserError if 'must_exist' is True or if global
+          SCons.Script._no_missing_sconscript is True.
     """
 
     if must_exist or (SCons.Script._no_missing_sconscript and must_exist is not False):
@@ -550,22 +558,22 @@ class SConsEnvironment(SCons.Environment.Base):
 
         Keyword arguments:
             dirs (list): execute SConscript in each listed directory.
-            name (str): execute script 'name' (used with 'dirs').
-            exports (list or dict): locally export variables the script(s)
-              can import.
-            variant_dir (str): mirror sources needed for build to variant_dir
-             to allow building there.
-            duplicate (bool): pysically duplicate sources instead of just
+            name (str): execute script 'name' (used only with 'dirs').
+            exports (list or dict): locally export variables the
+              called script(s) can import.
+            variant_dir (str): mirror sources needed for the build in
+             a variant directory to allow building in it.
+            duplicate (bool): physically duplicate sources instead of just
               adjusting paths of derived files (used only with 'variant_dir')
               (default is True).
             must_exist (bool): fail if a requested script is missing
               (default is False, default is deprecated).
 
         Returns:
-            variables returned by the called script
+            list of variables returned by the called script
 
         Raises:
-            UserError if a script is not found and such exceptions are enabled.
+            UserError: a script is not found and such exceptions are enabled.
         """
 
         if 'build_dir' in kw:
