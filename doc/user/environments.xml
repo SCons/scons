@@ -385,9 +385,9 @@ environment, of directory names, suffixes, etc.
     <para>
 
     A &consenv;
-    is a distinct object creating within
+    is a distinct object created within
     a &SConscript; file and
-    and which contains values that
+    which contains values that
     affect how &SCons; decides
     what action to use to build a target,
     and even to define which targets
@@ -1630,7 +1630,7 @@ env['ENV']['PATH'] = '/usr/local/bin:/bin:/usr/bin'
 
     But doing so makes your &SConscript; file less portable,
     (although in this case that may not be a huge concern
-    since the directories you list are likley system-specific, anyway).
+    since the directories you list are likely system-specific, anyway).
 
     </para>
 

@@ -564,6 +564,49 @@ public class Foo
         assert expect == classes, (expect, classes)
 
 
+    def test_in_function_class_declaration(self):
+        """
+        Test that implementing a class in a function call doesn't confuse SCons.
+        """
+
+        input = """
+package com.Matthew;
+
+public class AnonDemo {
+
+    public static void main(String[] args) {
+        new AnonDemo().execute();
+    }
+
+    public void execute() {
+        Foo bar = new Foo(new Foo() {
+            @Override
+            public int getX() { return this.x; }
+        }) {
+            @Override
+            public int getX() { return this.x; }
+        };
+    }
+
+    public abstract class Foo {
+        public int x;
+        public abstract int getX();
+
+        public Foo(Foo f) {
+            this.x = f.x;
+        }
+
+        public Foo() {}
+    }
+}
+"""
+        expect = ['AnonDemo$1',
+                  'AnonDemo$2',
+                  'AnonDemo$Foo',
+                  'AnonDemo']
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input, '1.8')
+        assert expect == classes, (expect, classes)
+
 
 if __name__ == "__main__":
     unittest.main()

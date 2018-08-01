@@ -571,7 +571,7 @@ int main() { printf("Hello, world!\n"); }
         The <emphasis>content signature</emphasis>,
         or MD5 checksum, of the contents of the
         <varname>dependency</varname>
-        file the list time the &target; was built.
+        file the last time the &target; was built.
         </para>
         </listitem>
 
@@ -583,7 +583,7 @@ int main() { printf("Hello, world!\n"); }
         <listitem>
         <para>
         The size in bytes of the <varname>dependency</varname>
-        file the list time the target was built.
+        file the last time the target was built.
         </para>
         </listitem>
 
@@ -595,7 +595,7 @@ int main() { printf("Hello, world!\n"); }
         <listitem>
         <para>
         The modification time of the <varname>dependency</varname>
-        file the list time the &target; was built.
+        file the last time the &target; was built.
         </para>
         </listitem>
 

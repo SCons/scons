@@ -7,6 +7,10 @@
 
 RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
+  From Matthew Marinets
+    - Fixed an issue that caused the Java emitter to incorrectly parse arguments to constructors that 
+      implemented a class.
+
   From Bernard Blackham:
    - Fixed handling of side-effects in task master (fixes #3013).
 
@@ -99,6 +103,9 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - xml validity fixes from SConstruct.py change
     - update wiki links to new github location
     - update bug links to new github location
+    - convert TestCmd.read to use with statement on open (quiets 17 py3 warnings)
+    - quiet warning in UtilTests.py
+    - fix tests specifying octal constants for Py3
     
   From Hao Wu
     - typo in customized decider example in user guide 

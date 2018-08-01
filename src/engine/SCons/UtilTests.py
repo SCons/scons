@@ -488,8 +488,10 @@ class UtilTestCase(unittest.TestCase):
         filename = tempfile.mktemp()
         str = '1234567890 ' + filename
         try:
-            open(filename, 'w').write(str)
-            assert open(get_native_path(filename)).read() == str
+            with open(filename, 'w') as f:
+                f.write(str)
+            with open(get_native_path(filename)) as f:
+                assert f.read() == str
         finally:
             try:
                 os.unlink(filename)
