@@ -2485,7 +2485,7 @@ class FileNodeInfo(SCons.Node.NodeInfoBase):
 
 
 class FileBuildInfo(SCons.Node.BuildInfoBase):
-    __slots__ = ()
+    __slots__ = ('dependency_map')
     current_version_id = 2
 
     def convert_to_sconsign(self):
@@ -3261,6 +3261,9 @@ class File(Base):
         """
         Build mapping from file -> signature
 
+        This method also updates binfo.dependency_map to avoid rebuilding
+        the map for every dependency of the node we're workingon.
+
         Args:
             self - self
             binfo - buildinfo from node being considered
@@ -3286,6 +3289,9 @@ class File(Base):
             for child, signature in zip(children, signatures):
                 schild = str(child)
                 m[schild] = signature
+
+        # store this info so we can avoid regenerating it.
+        binfo.dependency_map = m
         return m
 
     def _get_previous_signatures(self, dmap):
@@ -3358,8 +3364,13 @@ class File(Base):
 
         # Now get sconsign name -> csig map and then get proper prev_ni if possible
         bi = node.get_stored_info().binfo
-        dmap = self._build_dependency_map(bi)
-        prev_ni = self._get_previous_signatures(dmap)
+        try:
+            dependency_map = bi.dependency_map
+        except AttributeError as e:
+            dependency_map = self._build_dependency_map(bi)
+
+
+        prev_ni = self._get_previous_signatures(dependency_map)
 
         if not self.changed_timestamp_match(target, prev_ni):
             try:
