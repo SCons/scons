@@ -51,10 +51,9 @@ def package(env, target, source, PACKAGEROOT, NAME, VERSION,
     if str(target[0])!="%s-%s"%(NAME, VERSION):
         raise UserError( "Setting target is not supported for rpm." )
     else:
-        # This should be overridable from the construction environment,
-        # which it is by using ARCHITECTURE=.
+        # Deduce the build architecture, but allow it to be overridden
+        # by setting ARCHITECTURE in the construction env.
         buildarchitecture = SCons.Tool.rpmutils.defaultMachine()
-
         if 'ARCHITECTURE' in kw:
             buildarchitecture = kw['ARCHITECTURE']
 
@@ -126,20 +125,18 @@ def build_specfile(target, source, env):
     """ Builds a RPM specfile from a dictionary with string metadata and
     by analyzing a tree of nodes.
     """
-    file = open(target[0].get_abspath(), 'w')
+    with open(target[0].get_abspath(), 'w') as file:
+        try:
+            file.write(build_specfile_header(env))
+            file.write(build_specfile_sections(env))
+            file.write(build_specfile_filesection(env, source))
 
-    try:
-        file.write( build_specfile_header(env) )
-        file.write( build_specfile_sections(env) )
-        file.write( build_specfile_filesection(env, source) )
-        file.close()
+            # call a user specified function
+            if 'CHANGE_SPECFILE' in env:
+                env['CHANGE_SPECFILE'](target, source)
 
-        # call a user specified function
-        if 'CHANGE_SPECFILE' in env:
-            env['CHANGE_SPECFILE'](target, source)
-
-    except KeyError as e:
-        raise SCons.Errors.UserError( '"%s" package field for RPM is missing.' % e.args[0] )
+        except KeyError as e:
+            raise SCons.Errors.UserError('"%s" package field for RPM is missing.' % e.args[0])
 
 
 #
@@ -211,6 +208,7 @@ def build_specfile_header(spec):
         'X_RPM_URL'           : 'Url: %s\n',
         'SOURCE_URL'          : 'Source: %s\n',
         'SUMMARY_'            : 'Summary(%s): %s\n',
+        'ARCHITECTURE'        : 'BuildArch: %s\n',
         'X_RPM_DISTRIBUTION'  : 'Distribution: %s\n',
         'X_RPM_ICON'          : 'Icon: %s\n',
         'X_RPM_PACKAGER'      : 'Packager: %s\n',
@@ -232,16 +230,23 @@ def build_specfile_header(spec):
         'X_RPM_BUILDROOT'     : 'BuildRoot: %s\n', }
 
     # fill in default values:
-    # Adding a BuildRequires renders the .rpm unbuildable under System, which
+    # Adding a BuildRequires renders the .rpm unbuildable under systems which
     # are not managed by rpm, since the database to resolve this dependency is
     # missing (take Gentoo as an example)
-#    if not s.has_key('x_rpm_BuildRequires'):
-#        s['x_rpm_BuildRequires'] = 'scons'
+    #if 'X_RPM_BUILDREQUIRES' not in spec:
+    #    spec['X_RPM_BUILDREQUIRES'] = 'scons'
 
     if 'X_RPM_BUILDROOT' not in spec:
         spec['X_RPM_BUILDROOT'] = '%{_tmppath}/%{name}-%{version}-%{release}'
 
     str = str + SimpleTagCompiler(optional_header_fields, mandatory=0).compile( spec )
+
+    # github #3164: if we don't turn off debug package generation
+    # the tests which build packages all fail.  This just slams
+    # a flag into the specfile header, could make it an X_RPM_NODEBUGPKGS
+    # which is controllable by an environment setting.
+    str += '%global debug_package %{nil}\n'
+
     return str
 
 #

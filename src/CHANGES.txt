@@ -120,6 +120,10 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - quiet py3 warning in UtilTests.py
     - fix tests specifying octal constants for py3
     - fix must_contain tests for py3
+    - rpm package generation: fix supplying a build architecture; disable
+      auto debug package generation on certain rpmbuild versions; adjust some tests
+      to be resistant to automatic supplying of build-id file on certain rpmbuild
+      versions; a little doc and comment cleanup.
     
   From Hao Wu
     - typo in customized decider example in user guide 

@@ -109,8 +109,10 @@ test.must_exist( machine_rpm2 )
 test.must_exist( src_rpm2 )
 
 test.must_not_exist( 'bin/main' )
-test.fail_test( not os.popen('rpm -qpl %s' % machine_rpm).read()=='/bin/main\n')
-test.fail_test( not os.popen('rpm -qpl %s' % src_rpm).read()=='foo-1.2.3.spec\nfoo-1.2.3.tar.gz\n')
+out = os.popen( 'rpm -qpl %s' % machine_rpm).read()
+test.must_contain_all_lines( out, '/bin/main')
+out = os.popen( 'rpm -qpl %s' % src_rpm).read()
+test.fail_test( not out == 'foo-1.2.3.spec\nfoo-1.2.3.tar.gz\n')
 
 test.pass_test()
 
