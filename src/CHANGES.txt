@@ -103,6 +103,16 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - xml validity fixes from SConstruct.py change
     - update wiki links to new github location
     - update bug links to new github location
+    - Make it easier for SConscript() call to fail on missing script.
+      It was possible to call SCons.Warnings.warningAsException
+      (not documented as a user API) to make all warnings fail. Now
+      SConscript can take an optional must_exist flag which if true fails
+      if the script does not exist.  Not failing on missing script is
+      now considered deprecated, and the first instance will print a
+      deprecation message.  It is now also possible to flip the scons
+      behavior (which still defaults to warn, not fail) by calling
+      SCons.Script.set_missing_sconscript_error, which is also not a
+      documented interface at the moment.
     - convert TestCmd.read to use with statement on open (quiets 17 py3 warnings)
     - quiet warning in UtilTests.py
     - fix tests specifying octal constants for Py3
