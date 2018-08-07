@@ -61,7 +61,7 @@ import SCons.Defaults
 def ExpHeaderScanner(node, env, path):
    return []
 def generate(env):
-   HeaderAction=SCons.Action.Action([SCons.Defaults.Copy('$TARGET','$SOURCE'),SCons.Defaults.Chmod('$TARGET',0755)])
+   HeaderAction=SCons.Action.Action([SCons.Defaults.Copy('$TARGET','$SOURCE'),SCons.Defaults.Chmod('$TARGET',0o755)])
    HeaderBuilder= SCons.Builder.Builder(action=HeaderAction)
    env['BUILDERS']['ExportHeaders'] = HeaderBuilder
 def exists(env):

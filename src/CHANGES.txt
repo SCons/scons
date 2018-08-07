@@ -97,6 +97,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       This changes SCons to better comply with normal Python installation practices.
 
   From Mats Wichmann:
+    - Recognize new java 9, 10 (as 9.0 and 10.0)
     - Updated manpage scons.xml to fix a nested list problem
     - Updated doc terminiology: use prepend instead of append as appropriate
     - xml validity fixes from SConstruct.py change
@@ -112,8 +113,9 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       behavior (which still defaults to warn, not fail) by calling
       SCons.Script.set_missing_sconscript_error, which is also not a
       documented interface at the moment.
-
-Begin adding support for SConscript() failing on missing script
+    - convert TestCmd.read to use with statement on open (quiets 17 py3 warnings)
+    - quiet warning in UtilTests.py
+    - fix tests specifying octal constants for Py3
     
   From Hao Wu
     - typo in customized decider example in user guide 

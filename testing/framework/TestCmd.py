@@ -1247,9 +1247,11 @@ class TestCmd(object):
         if mode[0] != 'r':
             raise ValueError("mode must begin with 'r'")
         if IS_PY3 and 'b' not in mode:
-            return open(file, mode, newline=newline).read()
+            with open(file, mode, newline=newline) as f:
+                return f.read()
         else:
-            return open(file, mode).read()
+            with open(file, mode) as f:
+                return f.read()
 
     def rmdir(self, dir):
         """Removes the specified dir name.

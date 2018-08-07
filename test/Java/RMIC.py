@@ -108,6 +108,10 @@ if java_version.count('.') == 1:
 # If it's 1.8 or higher, we skip the further RMIC test
 # because we'll get warnings about the deprecated API...
 # it's just not state-of-the-art anymore.
+# Recent java versions (9 and greater) are back to being
+# marketed as a simple version, but java_where_javac() will
+# still return a dotted version, like 10.0. If this changes,
+# will need to rework this rule.
 # Note, how we allow simple version strings like "5" and
 # "6" to successfully pass this test.
 if curver < (1, 8):
