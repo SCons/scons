@@ -36,6 +36,11 @@ jobs:
       sudo: required
 
     - <<: *test_job
+      python: 3.7
+      env: PYVER=37
+      sudo: required
+
+    - <<: *test_job
       python: pypy
       env: PYVER=pypy
       sudo: required
