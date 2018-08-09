@@ -29,6 +29,7 @@ Test handling of must_exist flag and global setting requiring the
 file to exist in an SConscript call
 '''
 
+import os
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -82,31 +83,33 @@ except SCons.Errors.UserError as e:
 
 # we should see two exceptions as "Fatal" and
 # and see four warnings, the first having the depr message
+# need to build the path in the expected msg in an OS-agnostic way
+missing = os.path.normpath('missing/SConscript')
 warn1 = """
 scons: warning: Calling missing SConscript without error is deprecated.
 Transition by adding must_exist=0 to SConscript calls.
-Missing SConscript 'missing/SConscript'
-""" + test.python_file_line(SConstruct_path, 7)
+Missing SConscript '{}'
+""".format(missing) + test.python_file_line(SConstruct_path, 7)
 
 warn2 = """
-scons: warning: Ignoring missing SConscript 'missing/SConscript'
-""" + test.python_file_line(SConstruct_path, 13)
+scons: warning: Ignoring missing SConscript '{}'
+""".format(missing) + test.python_file_line(SConstruct_path, 13)
 
 err1 = """
-scons: warning: Fatal: missing SConscript 'missing/SConscript'
-""" + test.python_file_line(SConstruct_path, 22)
+scons: warning: Fatal: missing SConscript '{}'
+""".format(missing) + test.python_file_line(SConstruct_path, 22)
 
 warn3 = """
-scons: warning: Ignoring missing SConscript 'missing/SConscript'
-""" + test.python_file_line(SConstruct_path, 25)
+scons: warning: Ignoring missing SConscript '{}'
+""".format(missing) + test.python_file_line(SConstruct_path, 25)
 
 err2 = """
-scons: warning: Fatal: missing SConscript 'missing/SConscript'
-""" + test.python_file_line(SConstruct_path, 35)
+scons: warning: Fatal: missing SConscript '{}'
+""".format(missing) + test.python_file_line(SConstruct_path, 35)
 
 warn4 = """
-scons: warning: Ignoring missing SConscript 'missing/SConscript'
-""" + test.python_file_line(SConstruct_path, 38)
+scons: warning: Ignoring missing SConscript '{}'
+""".format(missing) + test.python_file_line(SConstruct_path, 38)
 
 expect_stderr = warn1 + warn2 + err1 + warn3 + err2 + warn4
 test.run(arguments = ".", stderr = expect_stderr)
