@@ -605,7 +605,7 @@ class VariantDirTestCase(unittest.TestCase):
                 print("File `%s' alter_targets() `%s' != expected `%s'" % (f, tp, expect))
                 errors = errors + 1
 
-        self.failIf(errors)
+        self.assertFalse(errors)
 
 class BaseTestCase(_tempdirTestCase):
     def test_stat(self):
