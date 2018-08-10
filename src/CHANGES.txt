@@ -114,8 +114,9 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       SCons.Script.set_missing_sconscript_error, which is also not a
       documented interface at the moment.
     - convert TestCmd.read to use with statement on open (quiets 17 py3 warnings)
-    - quiet warning in UtilTests.py
-    - fix tests specifying octal constants for Py3
+    - quiet py3 warning in UtilTests.py
+    - fix tests specifying octal constants for py3
+    - fix must_contain tests for py3
     
   From Hao Wu
     - typo in customized decider example in user guide 
