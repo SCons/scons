@@ -132,7 +132,10 @@ def initialize_do_splitdrive():
     global do_splitdrive
     global has_unc
     drive, path = os.path.splitdrive('X:/foo')
-    has_unc = hasattr(os.path, 'splitunc')
+    # splitunc is removed from python 3.7 and newer  
+    # so we can also just test if splitdrive works with UNC
+    has_unc = (hasattr(os.path, 'splitunc') 
+        or os.path.splitdrive(r'\\split\drive\test')[0] == r'\\split\drive')
 
     do_splitdrive = not not drive or has_unc
 

@@ -265,9 +265,26 @@ class TestCommon(TestCmd):
             print("Unwritable files: `%s'" % "', `".join(unwritable))
         self.fail_test(missing + unwritable)
 
-    def must_contain(self, file, required, mode = 'rb', find = None):
-        """Ensures that the specified file contains the required text.
+    def must_contain(self, file, required, mode='rb', find=None):
+        """Ensures specified file contains the required text.
+
+        Args:
+            file (string): name of file to search in.
+            required (string): text to search for. For the default
+              find function, type must match the return type from
+              reading the file; current implementation will convert.
+            mode (string): file open mode.
+            find (func): optional custom search routine. Must take the
+              form "find(output, line)" returning non-zero on success
+              and None on failure.
+
+        Calling test exits FAILED if search result is false
         """
+        if 'b' in mode:
+            # Python 3: reading a file in binary mode returns a 
+            # bytes object. We cannot find the index of a different
+            # (str) type in that, so convert.
+            required = to_bytes(required)
         file_contents = self.read(file, mode)
         if find is None:
             def find(o, l):
