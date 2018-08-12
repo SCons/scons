@@ -8,9 +8,9 @@
 #
 #  - unit tests        - included in *Tests.py files from src/ dir
 #  - end-to-end tests  - these are *.py files in test/ directory that
-#                        require custom SCons framework from QMTest/
+#                        require custom SCons framework from testing/
 #
-# This script adds src/ and QMTest/ directories to PYTHONPATH,
+# This script adds src/ and testing/ directories to PYTHONPATH,
 # performs test discovery and processes them according to options.
 #
 # With -p (--package) option, script tests specified package from
@@ -625,10 +625,8 @@ old_pythonpath = os.environ.get('PYTHONPATH')
 #        should be able to go away.
 pythonpaths = [ pythonpath_dir ]
 
-# Add path of the QMTest folder to PYTHONPATH
-# [ ] move used parts from QMTest to testing/framework/
 scriptpath = os.path.dirname(os.path.realpath(__file__))
-pythonpaths.append(os.path.join(scriptpath, 'QMTest'))
+
 # Add path for testing framework to PYTHONPATH
 pythonpaths.append(os.path.join(scriptpath, 'testing', 'framework'))
 
@@ -789,7 +787,7 @@ tests_passing = 0
 tests_failing = 0
 
 
-def run_test(t, io_lock, async=True):
+def run_test(t, io_lock, run_async=True):
     global tests_completed, tests_passing, tests_failing
     header = ""
     command_args = ['-tt']

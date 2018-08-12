@@ -30,7 +30,9 @@ in cases of recursive inclusion.
 """
 
 import os
+import sys
 import TestSCons
+import TestCmd
 from SCons.Defaults import DefaultEnvironment
 
 DefaultEnvironment( tools = [ 'swig' ] )
@@ -41,6 +43,11 @@ test = TestSCons.TestSCons()
 for pre_req in ['swig', 'python']:
     if not test.where_is(pre_req):
         test.skip_test('Can not find installed "' + pre_req + '", skipping test.%s' % os.linesep)
+
+if sys.platform == 'win32':
+    python_lib = os.path.dirname(sys.executable) + "/libs/" + ('python%d%d'%(sys.version_info[0],sys.version_info[1])) + '.lib'
+    if( not os.path.isfile(python_lib)):
+        test.skip_test('Can not find python lib at "' + python_lib + '", skipping test.%s' % os.linesep)
 
 test.write("recursive.h", """\
 /* An empty header file. */
@@ -62,27 +69,40 @@ test.write("mod.i", """\
 #include "main.h"
 """)
 
-test.write('SConstruct', """\
-import distutils.sysconfig
-import sys
 
-DefaultEnvironment( tools = [ 'swig' ] )
+if TestCmd.IS_WINDOWS:
+    if TestCmd.IS_64_BIT:
+        TARGET_ARCH = "TARGET_ARCH = 'x86_64',"
+    else:
+        TARGET_ARCH = "TARGET_ARCH = 'x86',"
+else:
+    TARGET_ARCH = ""
+test.write('SConstruct', """\
+import sysconfig
+import sys
+import os
 
 env = Environment(
+    """ + TARGET_ARCH + """
     SWIGFLAGS = [
         '-python'
     ],
     CPPPATH = [ 
-        distutils.sysconfig.get_python_inc()
+        sysconfig.get_config_var("INCLUDEPY")
     ],
-    SHLIBPREFIX = ""
+    SHLIBPREFIX = "",
+    tools = [ 'default', 'swig' ]
 )
 
 if sys.platform == 'darwin':
     env['LIBS']=['python%d.%d'%(sys.version_info[0],sys.version_info[1])]
+    env.Append(LIBPATH=[sysconfig.get_config_var("LIBDIR")])
+elif sys.platform == 'win32':
+    env.Append(LIBS=['python%d%d'%(sys.version_info[0],sys.version_info[1])])
+    env.Append(LIBPATH=[os.path.dirname(sys.executable) + "/libs"])
 
 env.SharedLibrary(
-    'mod.so',
+    'mod',
     [
         "mod.i",
         "main.c",
@@ -90,27 +110,33 @@ env.SharedLibrary(
 )
 """)
 
+if sys.platform == 'win32':
+    object_suffix = ".obj"
+else:
+    object_suffix = ".os"
+
 expectMain = """\
-+-main.os
++-main%s
   +-main.c
   +-main.h
-  +-recursive.h"""
+  +-recursive.h""" % object_suffix
 
 expectMod = """\
-+-mod_wrap.os
++-mod_wrap%s
   +-mod_wrap.c
   | +-mod.i
   | +-main.h
-  | +-recursive.h"""
+  | +-recursive.h""" % object_suffix
 
 # Validate that the recursive dependencies are found with SWIG scanning first.
-test.run( arguments = '--tree=all mod_wrap.os main.os' )
+test.run( arguments = '--tree=all mod_wrap'+object_suffix +' main'+object_suffix)
 
 test.must_contain_all( test.stdout(), expectMain )
 test.must_contain_all( test.stdout(), expectMod )
 
+
 # Validate that the recursive dependencies are found consistently.
-test.run( arguments = '--tree=all main.os mod_wrap.os' )
+test.run( arguments = '--tree=all main'+object_suffix +' mod_wrap'+object_suffix)
 
 test.must_contain_all( test.stdout(), expectMain )
 test.must_contain_all( test.stdout(), expectMod )

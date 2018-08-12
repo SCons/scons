@@ -32,8 +32,6 @@ import unittest
 
 from collections import UserDict
 
-import TestUnit
-
 import SCons.Errors
 
 from SCons.Subst import *
@@ -1243,21 +1241,7 @@ class subst_dict_TestCase(unittest.TestCase):
         assert SOURCES == ['s3', 'v-rstr-s4', 'v-s5'], SOURCES
 
 if __name__ == "__main__":
-    suite = unittest.TestSuite()
-    tclasses = [
-        CLVar_TestCase,
-        LiteralTestCase,
-        SpecialAttrWrapperTestCase,
-        quote_spaces_TestCase,
-        scons_subst_TestCase,
-        scons_subst_list_TestCase,
-        scons_subst_once_TestCase,
-        subst_dict_TestCase,
-    ]
-    for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(list(map(tclass, names)))
-    TestUnit.run(suite)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4

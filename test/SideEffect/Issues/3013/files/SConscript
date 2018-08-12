@@ -1,0 +1,5 @@
+Import('env')
+
+primary = env.make_file('output', 'test.cpp')
+this_causes_problems = env.SideEffect('output_side_effect', 'output')
+

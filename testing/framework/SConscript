@@ -50,9 +50,9 @@ def copy(target, source, env):
 
 for file in files:
     # Guarantee that real copies of these files always exist in
-    # build/QMTest.  If there's a symlink there, then this is an Aegis
+    # build/testing/framework.  If there's a symlink there, then this is an Aegis
     # build and we blow them away now so that they'll get "built" later.
-    p = os.path.join(build_dir, 'QMTest', file)
+    p = os.path.join(build_dir, 'testing','framework', file)
     if os.path.islink(p):
         os.unlink(p)
     if not os.path.isabs(p):

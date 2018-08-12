@@ -42,7 +42,7 @@ python_version_deprecated = (2, 7, 0)
 
 # In the checked-in source, the value of SConsVersion in the following
 # line must remain "__ VERSION __" (without the spaces) so the built
-# version in build/QMTest/TestSCons.py contains the actual version
+# version in build/testing/framework/TestSCons.py contains the actual version
 # string of the packages that have been built.
 SConsVersion = '__VERSION__'
 if SConsVersion == '__' + 'VERSION' + '__':
@@ -692,20 +692,29 @@ class TestSCons(TestCommon):
             env = SCons.Environment.Environment()
             self._java_env[version] = env
 
-
             if version:
-                patterns = [
-                    '/usr/java/jdk%s*/bin'    % version,
-                    '/usr/lib/jvm/*-%s*/bin' % version,
-                    '/usr/local/j2sdk%s*/bin' % version,
-                ]
+                if sys.platform == 'win32':
+                    patterns = [
+                        'C:/Program Files*/Java/jdk%s*/bin'%version,
+                    ]
+                else:
+                    patterns = [
+                        '/usr/java/jdk%s*/bin'    % version,
+                        '/usr/lib/jvm/*-%s*/bin' % version,
+                        '/usr/local/j2sdk%s*/bin' % version,
+                    ]
                 java_path = self.paths(patterns) + [env['ENV']['PATH']]
             else:
-                patterns = [
-                    '/usr/java/latest/bin',
-                    '/usr/lib/jvm/*/bin',
-                    '/usr/local/j2sdk*/bin',
-                ]
+                if sys.platform == 'win32':
+                    patterns = [
+                        'C:/Program Files*/Java/jdk*/bin',
+                    ]
+                else:
+                    patterns = [
+                        '/usr/java/latest/bin',
+                        '/usr/lib/jvm/*/bin',
+                        '/usr/local/j2sdk*/bin',
+                    ]
                 java_path = self.paths(patterns) + [env['ENV']['PATH']]
 
             env['ENV']['PATH'] = os.pathsep.join(java_path)
@@ -1252,18 +1261,18 @@ SConscript( sconscript )
         Returns a path to a Python executable suitable for testing on
         this platform and its associated include path, library path,
         and library name.
+        Returns:
+            (path to python, include path, library path, library name)
         """
-        python = self.where_is('python')
+        python = os.environ.get('python_executable', self.where_is('python'))
         if not python:
             self.skip_test('Can not find installed "python", skipping test.\n')
 
-        self.run(program = python, stdin = """\
-import os, sys
+        if sys.platform == 'win32':
+            self.run(program=python, stdin="""\
+import sysconfig, sys, os.path
 try:
-    if sys.platform == 'win32':
         py_ver = 'python%d%d' % sys.version_info[:2]
-    else:
-        py_ver = 'python%d.%d' % sys.version_info[:2]
 except AttributeError:
     py_ver = 'python' + sys.version[:3]
 # print include and lib path
@@ -1279,6 +1288,16 @@ except:
     print(os.path.join(sys.prefix, 'include', py_ver))
     print(os.path.join(sys.prefix, 'lib', py_ver, 'config'))
 print(py_ver)
+                """)
+        else:
+            self.run(program=python, stdin="""\
+import sys, sysconfig
+print(sysconfig.get_config_var("INCLUDEPY"))
+print(sysconfig.get_config_var("LIBDIR"))
+py_library_ver = sysconfig.get_config_var("LDVERSION")
+if not py_library_ver:
+    py_library_ver = '%d.%d' % sys.version_info[:2]
+print("python"+py_library_ver)
 """)
 
         return [python] + self.stdout().strip().split('\n')

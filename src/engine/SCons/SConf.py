@@ -609,7 +609,7 @@ class SConfBase(object):
         ok = self.TryBuild(self.env.SConfActionBuilder, text, extension)
         del self.env['BUILDERS']['SConfActionBuilder']
         if ok:
-            outputStr = self.lastTarget.get_contents().decode()
+            outputStr = self.lastTarget.get_text_contents()
             return (1, outputStr)
         return (0, "")
 

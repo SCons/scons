@@ -53,10 +53,10 @@ env.CFile(target = 'ddd', source = 'ddd.ym')
 
 test.run(arguments = '.', stderr = None)
 
-test.must_match('aaa.c',        "aaa.y\nmyyacc.py\n")
-test.must_match('bbb.c',        "bbb.yacc\nmyyacc.py\n")
-test.must_match('ccc.cc',       "ccc.yacc\nmyyacc.py\n")
-test.must_match('ddd.m',        "ddd.yacc\nmyyacc.py\n")
+test.must_match('aaa.c',        "aaa.y" + os.linesep + "myyacc.py" + os.linesep)
+test.must_match('bbb.c',        "bbb.yacc" + os.linesep + "myyacc.py" + os.linesep)
+test.must_match('ccc.cc',       "ccc.yacc" + os.linesep + "myyacc.py" + os.linesep)
+test.must_match('ddd.m',        "ddd.yacc" + os.linesep + "myyacc.py" + os.linesep)
 
 
 

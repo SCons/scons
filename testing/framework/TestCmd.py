@@ -309,7 +309,7 @@ import types
 
 IS_PY3 = sys.version_info[0] == 3
 IS_WINDOWS = sys.platform == 'win32'
-
+IS_64_BIT = sys.maxsize > 2**32
 
 class null(object):
     pass
@@ -1247,9 +1247,11 @@ class TestCmd(object):
         if mode[0] != 'r':
             raise ValueError("mode must begin with 'r'")
         if IS_PY3 and 'b' not in mode:
-            return open(file, mode, newline=newline).read()
+            with open(file, mode, newline=newline) as f:
+                return f.read()
         else:
-            return open(file, mode).read()
+            with open(file, mode) as f:
+                return f.read()
 
     def rmdir(self, dir):
         """Removes the specified dir name.

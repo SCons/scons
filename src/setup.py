@@ -247,10 +247,12 @@ class install_lib(_install_lib):
             if Options.standalone_lib:
                 # ...but they asked for a standalone directory.
                 self.install_dir = os.path.join(prefix, "scons")
-            elif Options.version_lib or not Options.standard_lib:
+            elif Options.version_lib:
                 # ...they asked for a version-specific directory,
-                # or they get it by default.
                 self.install_dir = os.path.join(prefix, "scons-%s" % Version)
+            elif not Options.standard_lib:
+                # default.
+                self.install_dir = os.path.join(prefix, "scons")
 
         msg = "Installed SCons library modules into %s" % self.install_dir
         Installed.append(msg)

@@ -34,7 +34,7 @@ import TestRuntest
 # Needed to ensure we're using the correct year
 this_year=time.localtime()[0]
 
-TestSCons      = 'QMTest/TestSCons.py'             .split('/')
+TestSCons      = 'testing/framework/TestSCons.py'             .split('/')
 README         = 'README.rst'                      .split('/')
 ReleaseConfig  = 'ReleaseConfig'                   .split('/')
 SConstruct     = 'SConstruct'                      .split('/')

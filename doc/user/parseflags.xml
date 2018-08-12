@@ -57,7 +57,7 @@
 
  &SCons; construction environments have a &ParseFlags; method
  that takes a set of typical command-line options
- and distrbutes them into the appropriate construction variables.
+ and distributes them into the appropriate construction variables.
  Historically, it was created to support the &ParseConfig; method,
  so it focuses on options used by the GNU Compiler Collection (GCC)
  for the C and C++ toolchains.

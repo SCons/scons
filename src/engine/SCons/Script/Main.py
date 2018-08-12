@@ -623,7 +623,7 @@ def _SConstruct_exists(dirname='', repositories=[], filelist=None):
     current directory.
     """
     if not filelist:
-        filelist = ['SConstruct', 'Sconstruct', 'sconstruct']
+        filelist = ['SConstruct', 'Sconstruct', 'sconstruct', 'SConstruct.py', 'Sconstruct.py', 'sconstruct.py']
     for file in filelist:
         sfile = os.path.join(dirname, file)
         if os.path.isfile(sfile):
@@ -1255,7 +1255,10 @@ def _build_targets(fs, options, targets, target_top):
 
 
     is_pypy = platform.python_implementation() == 'PyPy'
-    python_has_threads = sysconfig.get_config_var('WITH_THREAD') or is_pypy
+    # As of 3.7, python removed support for threadless platforms.
+    # See https://www.python.org/dev/peps/pep-0011/
+    is_37_or_later = sys.version_info >= (3, 7)
+    python_has_threads = sysconfig.get_config_var('WITH_THREAD') or is_pypy or is_37_or_later
     # to check if python configured with threads.
     global num_jobs
     num_jobs = options.num_jobs

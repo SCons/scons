@@ -27,7 +27,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 """
 Test the Execute() functions clears the memoized values of affected target Nodes
 when used with Delete(). Derived from
-http://scons.tigris.org/issues/show_bug.cgi?id=1307
+https://github.com/SCons/scons/issues/1307
 """
 
 import TestSCons
