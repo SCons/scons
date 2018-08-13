@@ -48,7 +48,10 @@ if test.javac_is_gcj:
 
 
 test.write('SConstruct', """
-env = Environment()
+import os
+env = Environment(tools = ['javac', 'jar'],
+                  JAVAC = r'%(where_javac)s',
+                  JAR = r'%(where_jar)s')
 env['JAVAVERSION'] = '%(java_version)s'
 classes = env.Java(target = 'build', source = 'source')
 env.Jar(target = 'anon.jar', source = classes)
