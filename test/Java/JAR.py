@@ -274,7 +274,7 @@ foo.Command("fooTest", [], Mkdir("fooTest") )
 foo.Command('fooTest/com/javasource/JavaFile3.java', 'foo.jar', foo['JAR'] + ' xvf ../foo.jar', chdir='fooTest')
 foo.Command("barTest", [], Mkdir("barTest") )
 foo.Command('barTest/com/javasource/JavaFile3.java', 'bar.jar', foo['JAR'] + ' xvf ../bar.jar', chdir='barTest')
-""")
+""" % locals())
 
 test.write(['testdir2', 'com', 'javasource', 'JavaFile1.java'], """\
 package com.javasource;
@@ -369,7 +369,7 @@ contents = [list_of_class_files, resources]
 foo.Jar(target = 'lists', source = contents + ['test/MANIFEST.mf'], JARCHDIR='build')
 foo.Command("listsTest", [], Mkdir("listsTest") )
 foo.Command('listsTest/src/com/javasource/JavaFile3.java', 'lists.jar', foo['JAR'] + ' xvf ../lists.jar', chdir='listsTest')
-""")
+""" % locals())
 
 test.write(['listOfLists', 'src', 'com', 'javasource', 'JavaFile1.java'], """\
 package com.javasource;
@@ -461,7 +461,7 @@ foo.Command("fooTest", 'foo.jar', Mkdir("fooTest") )
 foo.Command('doesnt_exist1', "fooTest", foo['JAR'] + ' xvf ../foo.jar', chdir='fooTest')
 bar.Command("barTest", 'bar.jar', Mkdir("barTest") )
 bar.Command('doesnt_exist2', 'barTest', bar['JAR'] + ' xvf ../bar.jar', chdir='barTest')
-""")
+""" % locals())
 
 test.write(['testdir3', 'com', 'sub', 'foo', 'Example1.java'], """\
 package com.sub.foo;
