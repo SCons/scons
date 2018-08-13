@@ -62,16 +62,16 @@ public class Example1
 """)
 
 expect = test.wrap_stdout("""\
-%s -d classes -sourcepath src src.Example1\.java(?:\n|\r\n?)\
-%s cvf test.jar -C classes src.Example1\.class(?:\n|\r\n?)\
+.*%s -d classes -sourcepath src src.Example1\.java(?:\n|\r\n?)\
+.*%s cvf test.jar -C classes src.Example1\.class(?:\n|\r\n?)\
 .*(?:\n|\r\n?)\
 adding: src.Example1\.class.*(?:\n|\r\n?)\
-""" % (where_javac.replace(os.sep, '.'), where_jar.replace(os.sep, '.')))
+""" % (os.path.basename(where_javac), os.path.basename(where_jar)))
 
 test.run(arguments = '.',	
          match=TestSCons.match_re_dotall,	
          stdout = expect)
-         
+
 test.must_exist('test.jar')
 
 
