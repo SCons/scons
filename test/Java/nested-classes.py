@@ -36,6 +36,7 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 where_javac, java_version = test.java_where_javac()
+where_jar = test.java_where_jar()
 
 # Work around javac 1.4 not reporting its version:
 java_version = java_version or "1.4"

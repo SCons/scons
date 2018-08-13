@@ -255,7 +255,9 @@ test.subdir('testdir2',
 test.write(['testdir2', 'SConstruct'], """
 DefaultEnvironment(tools=[])
 
-foo = Environment()
+foo = Environment(tools = ['javac', 'jar'],
+                  JAVAC = r'%(where_javac)s',
+                  JAR = r'%(where_jar)s')
 foo.Jar(target = 'foobar', source = [
     'com/javasource/JavaFile1.java', 
     'com/javasource/JavaFile2.java',
@@ -353,7 +355,9 @@ test.subdir('listOfLists',
 test.write(['listOfLists', 'SConstruct'], """
 DefaultEnvironment(tools=[])
 
-foo = Environment()
+foo = Environment(tools = ['javac', 'jar'],
+                  JAVAC = r'%(where_javac)s',
+                  JAR = r'%(where_jar)s')
 foo.VariantDir('build', 'src', duplicate=0)
 foo.VariantDir('test', '../manifest_dir', duplicate=0)
 sourceFiles = ["src/com/javasource/JavaFile1.java", "src/com/javasource/JavaFile2.java", "src/com/javasource/JavaFile3.java",]
@@ -445,7 +449,9 @@ test.subdir('testdir3',
 test.write(['testdir3', 'SConstruct'], """
 DefaultEnvironment(tools=[])
 
-foo = Environment()
+foo = Environment(tools = ['javac', 'jar'],
+                  JAVAC = r'%(where_javac)s',
+                  JAR = r'%(where_jar)s')
 bar = foo.Clone()
 foo.Java(target = 'classes', source = 'com/sub/foo')
 bar.Java(target = 'classes', source = 'com/sub/bar')
