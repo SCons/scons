@@ -40,15 +40,14 @@ import os
 
 def jarSources(target, source, env, for_signature):
     """Only include sources that are not a manifest file."""
-    try:
-        env['JARCHDIR']
-    except KeyError:
-        jarchdir_set = False
-    else:
+    if env.get('JARCHDIR'):
         jarchdir_set = True
         jarchdir = env.subst('$JARCHDIR', target=target, source=source)
         if jarchdir:
             jarchdir = env.fs.Dir(jarchdir)
+    else:
+        jarchdir_set = False
+        
     result = []
     for src in source:
         contents = src.get_text_contents()
