@@ -84,29 +84,6 @@ public class b {}
 """)
 
 test.write(['in', 's.class'], "s.class\n")
-
-# Okay, this is bogus, but we're going with it for testing purposes.
-# If jar gets a command line like:
-#
-#	jar cf out/t.jar -C out /tmp/tmpXYZZY/in/t.class
-#
-# Empirically, it doesn't seem to treat the absolute path name
-# of the argument class file as an absolute path, but looks for
-# "out/tmp/tmpXYZZY/in/t.class".  SCons, however, still looks for it in
-# the path name specified on the command line.  To make this test work,
-# we're going to just create the t.class file in both locations, and
-# we can revisit this if someone actually tries to use ${TARGET.dir}
-# in a real-life expansion.  Right now, it at least makes sure things
-# don't blow up (i.e., validates that we pass the right arguments to
-# env.subst() in the code that handle jar).
-
-p = test.workpath('out')
-for d in test.workpath('in').split(os.sep):
-    p = p + d
-    test.subdir(p)
-    p = p + os.sep
-
-test.write([p, 't.class'], "t.class\n")
 test.write(['in', 't.class'], "t.class\n")
 
 test.write('Inner$Class.class', "Inner$Class.class\n")
