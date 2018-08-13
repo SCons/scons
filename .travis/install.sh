@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -x
 
-sudo ln -s /usr/local/bin/clang /usr/bin/clang
-sudo ln -s /usr/local/bin/clang++ /usr/bin/clang++
+sudo ln -s /usr/local/clang-5.0.0/bin/clang /usr/bin/clang
+sudo ln -s /usr/local/clang-5.0.0/bin/clang++ /usr/bin/clang++
 
 return
 
