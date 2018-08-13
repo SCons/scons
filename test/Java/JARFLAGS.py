@@ -25,7 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-
+import re
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -62,19 +62,18 @@ public class Example1
 """)
 
 expect = test.wrap_stdout("""\
-%(where_javac)s -d classes -sourcepath src src/Example1\.java
-%(where_jar)s cvf test.jar -C classes src/Example1\.class
-.*
-adding: src/Example1\.class.*
-""" % locals())
+%s -d classes -sourcepath src src.Example1\.java(?:\n|\r\n?)\
+%s cvf test.jar -C classes src.Example1\.class(?:\n|\r\n?)\
+.*(?:\n|\r\n?)\
+adding: src.Example1\.class.*(?:\n|\r\n?)\
+""" % (where_javac.replace(os.sep, '.'), where_jar.replace(os.sep, '.')))
 
-expect = expect.replace('/', os.sep)
-
-test.run(arguments = '.',
-         match=TestSCons.match_re_dotall,
-         stdout = expect)
+test.run(arguments = '.')
 
 test.must_exist('test.jar')
+
+regex = re.compile(expect)
+test.fail_test(condition = not regex.match(test.stdout()))
 
 test.pass_test()
 
