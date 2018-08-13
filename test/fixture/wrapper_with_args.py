@@ -4,7 +4,7 @@ import sys
 path = os.path.join(os.path.dirname(os.path.relpath(__file__)), 'wrapper.out')
 
 args = []
-for arg in sys.argv[1:]
+for arg in sys.argv[1:]:
     if ' ' in arg:
         args.append('"' + arg + '"')
     else:
