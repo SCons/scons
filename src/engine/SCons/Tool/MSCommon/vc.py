@@ -361,7 +361,9 @@ def get_installed_vcs():
             VC_DIR = find_vc_pdir(ver)
             if VC_DIR:
                 debug('found VC %s' % ver)
-                if os.path.exists(os.path.join(VC_DIR, r'bin\cl.exe')):
+                # check to see if the x86 or 64 bit compiler is in the bin dir
+                if (os.path.exists(os.path.join(VC_DIR, r'bin\cl.exe'))
+                    or os.path.exists(os.path.join(VC_DIR, r'bin\amd64\cl.exe'))):
                     installed_versions.append(ver)
                 else:
                     debug('find_vc_pdir no cl.exe found %s' % ver)
@@ -571,6 +573,7 @@ def msvc_setup_env(env):
         debug('vc.py:msvc_setup_env() env:%s -> %s'%(k,v))
         env.PrependENVPath(k, v, delete_existing=True)
     
+    # final check to issue a warning if the compiler is not present
     msvc_cl = find_program_path(env, 'cl')
     if not msvc_cl:
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, 
