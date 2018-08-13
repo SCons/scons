@@ -107,6 +107,7 @@ import sys
 import subprocess
 import itertools
 import inspect
+import atexit
 
 import SCons.Debug
 from SCons.Debug import logInstanceCreation
@@ -772,12 +773,15 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
     io = kw.get('stdin')
     if is_String(io) and io == 'devnull':
         kw['stdin'] = open(os.devnull)
+        atexit.register(kw['stdin'].close)
     io = kw.get('stdout')
     if is_String(io) and io == 'devnull':
         kw['stdout'] = open(os.devnull, 'w')
+        atexit.register(kw['stdout'].close)
     io = kw.get('stderr')
     if is_String(io) and io == 'devnull':
         kw['stderr'] = open(os.devnull, 'w')
+        atexit.register(kw['stderr'].close)
 
     # Figure out what shell environment to use
     ENV = kw.get('env', None)

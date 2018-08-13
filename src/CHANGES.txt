@@ -120,6 +120,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - quiet py3 warning in UtilTests.py
     - fix tests specifying octal constants for py3
     - fix must_contain tests for py3
+    - if test opens os.devnull, register with atexit so file opens do not leak.
     
   From Hao Wu
     - typo in customized decider example in user guide 
