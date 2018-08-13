@@ -47,9 +47,8 @@ java_version = java_version or "1.4"
 if test.javac_is_gcj:
     test.skip_test('Test not valid for gcj (gnu java); skipping test(s).\n')
 
-
+# use the java binaries found from the test environment
 test.write('SConstruct', """
-import os
 env = Environment(tools = ['javac', 'jar'],
                   JAVAC = r'%(where_javac)s',
                   JAR = r'%(where_jar)s')

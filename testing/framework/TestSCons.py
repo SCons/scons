@@ -814,6 +814,8 @@ class TestSCons(TestCommon):
         elif sys.platform == "darwin": 
             self.java_mac_check(where_jar, 'jar')
 
+        # since we are return a path to a binary
+        # protect paths with space by adding quotes
         if ' ' in where_jar:
             where_jar = '"' + where_jar + '"'
         return where_jar
@@ -830,6 +832,8 @@ class TestSCons(TestCommon):
         elif sys.platform == "darwin":
             self.java_mac_check(where_java, 'java')
 
+        # since we are return a path to a binary
+        # protect paths with space by adding quotes
         if ' ' in where_java:
             where_java = '"' + where_java + '"'
         return where_java
@@ -867,6 +871,9 @@ class TestSCons(TestCommon):
             else:
                 version = None
                 self.javac_is_gcj = False
+
+        # since we are return a path to a binary
+        # protect paths with space by adding quotes
         if ' ' in where_javac:
             where_javac = '"' + where_javac + '"'
         return where_javac, version
@@ -879,6 +886,9 @@ class TestSCons(TestCommon):
             where_javah = self.where_is('javah', ENV['PATH'])
         if not where_javah:
             self.skip_test("Could not find Java javah, skipping test(s).\n")
+
+        # since we are return a path to a binary
+        # protect paths with space by adding quotes
         if ' ' in where_javah:
             where_javah = '"' + where_javah + '"'
         return where_javah
@@ -891,6 +901,9 @@ class TestSCons(TestCommon):
             where_rmic = self.where_is('rmic', ENV['PATH'])
         if not where_rmic:
             self.skip_test("Could not find Java rmic, skipping non-simulated test(s).\n")
+
+        # since we are return a path to a binary
+        # protect paths with space by adding quotes
         if ' ' in where_rmic:
             where_rmic = '"' + where_rmic + '"'
         return where_rmic

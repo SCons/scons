@@ -753,7 +753,9 @@ class Base(SCons.Node.Node):
 
     def get_path(self, dir=None):
         """Return path relative to the current working directory of the
-        Node.FS.Base object that owns us."""
+        Node.FS.Base object that owns us or the passed directory argument"""
+        # record if the dir arg was set with a flag
+        # so later we can take this into account
         if not dir:
             dir = self.fs.getcwd()
             dir_not_set = True
@@ -765,9 +767,11 @@ class Base(SCons.Node.Node):
         pathname = ''
         try: i = path_elems.index(dir)
         except ValueError:
+            # if dir arg was not set, then return the path from the base object
             if dir_not_set:
                 for p in path_elems[:-1]:
                     pathname += p.dirname
+            # else the dir was set and relative path from the dir arg is expected.
             else:
                 pathname = os.path.relpath(path_elems[:-1][-1].abspath, self.fs.Dir(dir).abspath) + os.sep + pathname
         else:

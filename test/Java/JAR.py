@@ -252,6 +252,7 @@ test.subdir('testdir2',
 
 # simple SConstruct which passes the 3 .java as source
 # and extracts the jars back to classes
+# passing in the java binaries from the test environment
 test.write(['testdir2', 'SConstruct'], """
 DefaultEnvironment(tools=[])
 
@@ -312,6 +313,9 @@ public class JavaFile3
 }
 """)
 
+# use a regex to determine if the output looks
+# ignoreing seperator (the wrong one would fail the test anyways)
+# and also test the binary is the one we passed in the SConstruct
 expect = test.wrap_stdout("""\
 .*%s cf foo.jar -C com.javasource.JavaFile1 com.javasource.JavaFile1.class \
 -C com.javasource.JavaFile2 com.javasource.JavaFile2.class \
@@ -321,6 +325,10 @@ expect = test.wrap_stdout("""\
 test.run(chdir='testdir2',	
          match=TestSCons.match_re_dotall,	
          stdout = expect)
+
+# make sure it was the specific binary we used
+if where_jar not in test.stdout():
+    test.fail_test()
 
 #test single target jar
 test.must_exist(['testdir2','foobar.jar'])
@@ -353,6 +361,7 @@ test.subdir('listOfLists',
             ['listOfLists', 'src', 'com', 'resource'])
 
 # test varient dir and lists of lists
+# passing in the java binaries from the test environment
 test.write(['listOfLists', 'SConstruct'], """
 DefaultEnvironment(tools=[])
 
@@ -447,6 +456,7 @@ test.subdir('testdir3',
             ['testdir3', 'com', 'sub', 'bar'])
 
 # Create the jars then extract them back to check contents
+# passing in the java binaries from the test environment
 test.write(['testdir3', 'SConstruct'], """
 DefaultEnvironment(tools=[])
 

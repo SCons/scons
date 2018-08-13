@@ -25,7 +25,6 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import re
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -61,6 +60,9 @@ public class Example1
 }
 """)
 
+# use regex to match output as its more flexable
+# ignore os seperator because the test will fail if they are the 
+# wrong kind, check for either kind of newline
 expect = test.wrap_stdout("""\
 .*%s -d classes -sourcepath src src.Example1\.java(?:\n|\r\n?)\
 .*%s cvf test.jar -C classes src.Example1\.class(?:\n|\r\n?)\
@@ -72,12 +74,11 @@ test.run(arguments = '.',
          match=TestSCons.match_re_dotall,	
          stdout = expect)
 
+# make sure the binary we specified was used
 if where_javac not in test.stdout() or where_jar not in test.stdout():
     test.fail_test()
 
 test.must_exist('test.jar')
-
-
 
 test.pass_test()
 
