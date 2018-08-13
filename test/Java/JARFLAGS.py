@@ -72,6 +72,9 @@ test.run(arguments = '.',
          match=TestSCons.match_re_dotall,	
          stdout = expect)
 
+if where_javac not in test.stdout() or where_jar not in test.stdout():
+    test.fail_test()
+
 test.must_exist('test.jar')
 
 
