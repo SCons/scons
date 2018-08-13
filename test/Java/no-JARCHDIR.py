@@ -66,7 +66,7 @@ test.run(arguments = '.')
 
 
 
-test.run(program = where_jar, arguments = 'tf x.jar')
+test.run(program = where_jar[1:-1], arguments = 'tf x.jar')
 
 expect = """\
 foo/bar/a.class
@@ -94,7 +94,7 @@ test.run(arguments = '.')
 
 
 
-test.run(program = where_jar, arguments = 'tf x.jar')
+test.run(program = where_jar[1:-1], arguments = 'tf x.jar')
 
 expect = """\
 classes/foo/bar/a.class
