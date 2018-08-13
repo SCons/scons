@@ -48,8 +48,8 @@ j2 = env.Java(target = 'class2', source = 'com2/Example2.java')
 env.JavaH(target = 'outdir', source = [j1, j2], JAVACLASSPATH = 'class2')
 """ % locals())
 
-test.subdir('com1', 'com2')
-
+test.subdir('com1')
+test.subdir('com2')
 test.write(['com1', 'Example1.java'], """\
 package com;
 
