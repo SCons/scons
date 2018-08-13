@@ -312,14 +312,15 @@ public class JavaFile3
 }
 """)
 
-test.run(chdir='testdir2')
+expect = test.wrap_stdout("""\
+.*%s cf foo.jar -C com.javasource.JavaFile1 com.javasource.JavaFile1.class \
+-C com.javasource.JavaFile2 com.javasource.JavaFile2.class \
+-C com.javasource.JavaFile3 com.javasource.JavaFile3.class.*\
+""" % os.path.basename(where_jar))
 
-# check the output and make sure the java files got converted to classes
-if("jar cf foo.jar " +
-   "-C com/javasource/JavaFile1 com/javasource/JavaFile1.class " +
-   "-C com/javasource/JavaFile2 com/javasource/JavaFile2.class " +
-   "-C com/javasource/JavaFile3 com/javasource/JavaFile3.class" not in test.stdout()):
-    test.fail_test()
+test.run(chdir='testdir2',	
+         match=TestSCons.match_re_dotall,	
+         stdout = expect)
 
 #test single target jar
 test.must_exist(['testdir2','foobar.jar'])
