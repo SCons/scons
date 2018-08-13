@@ -13,5 +13,5 @@ environment:
 
 build: off
 build_script:
-  - cmd: python runtest.py test/Java/JARCHDIR.py
+  - cmd: python runtest.py test/Java
   

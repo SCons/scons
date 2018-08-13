@@ -15,7 +15,7 @@ jobs:
   include:
     - &test_job
       stage: Test
-      script: python runtest.py test/Java/JARCHDIR.py
+      script: python runtest.py test/Java
       before_script: skip
       after_success: skip
       python: 2.7
