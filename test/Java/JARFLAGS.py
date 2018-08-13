@@ -68,12 +68,13 @@ expect = test.wrap_stdout("""\
 adding: src.Example1\.class.*(?:\n|\r\n?)\
 """ % (where_javac.replace(os.sep, '.'), where_jar.replace(os.sep, '.')))
 
-test.run(arguments = '.')
-
+test.run(arguments = '.',	
+         match=TestSCons.match_re_dotall,	
+         stdout = expect)
+         
 test.must_exist('test.jar')
 
-regex = re.compile(expect)
-test.fail_test(condition = not regex.match(test.stdout()))
+
 
 test.pass_test()
 
