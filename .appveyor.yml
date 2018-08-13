@@ -5,13 +5,86 @@ install:
   - "set PATH=%PYTHON%;%PYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;%PATH%"
   - python --version
   - pip install pypiwin32
+  - set STATIC_DEPS=true & pip install lxml
+  - choco install --allow-empty-checksums dmd
+  - choco install --allow-empty-checksums ldc
+  - choco install --allow-empty-checksums swig
+  - choco install --allow-empty-checksums vswhere  
 
 environment:
   matrix:
     - PYTHON: "C:\\Python27"
       BUILD_JOB_NUM: 1
+    - PYTHON: "C:\\Python27"
+      BUILD_JOB_NUM: 2
+    - PYTHON: "C:\\Python27"
+      BUILD_JOB_NUM: 3
+    - PYTHON: "C:\\Python27"
+      BUILD_JOB_NUM: 4
+
+    - PYTHON: "C:\\Python35"
+      BUILD_JOB_NUM: 1
+    - PYTHON: "C:\\Python35"
+      BUILD_JOB_NUM: 2
+    - PYTHON: "C:\\Python35"
+      BUILD_JOB_NUM: 3
+    - PYTHON: "C:\\Python35"
+      BUILD_JOB_NUM: 4
+
+    - PYTHON: "C:\\Python36"
+      BUILD_JOB_NUM: 1
+    - PYTHON: "C:\\Python36"
+      BUILD_JOB_NUM: 2
+    - PYTHON: "C:\\Python36"
+      BUILD_JOB_NUM: 3
+    - PYTHON: "C:\\Python36"
+      BUILD_JOB_NUM: 4
+
+    - PYTHON: "C:\\Python37"
+      BUILD_JOB_NUM: 1
+    - PYTHON: "C:\\Python37"
+      BUILD_JOB_NUM: 2
+    - PYTHON: "C:\\Python37"
+      BUILD_JOB_NUM: 3
+    - PYTHON: "C:\\Python37"
+      BUILD_JOB_NUM: 4
+
+    # - PYTHON: "C:\\Python27-x64"
+    #   BUILD_JOB_NUM: 1
+    # - PYTHON: "C:\\Python27-x64"
+    #   BUILD_JOB_NUM: 2
+    # - PYTHON: "C:\\Python27-x64"
+    #   BUILD_JOB_NUM: 3
+    # - PYTHON: "C:\\Python27-x64"
+    #   BUILD_JOB_NUM: 4
+
+    # - PYTHON: "C:\\Python35-x64"
+    #   BUILD_JOB_NUM: 1
+    # - PYTHON: "C:\\Python35-x64"
+    #   BUILD_JOB_NUM: 2
+    # - PYTHON: "C:\\Python35-x64"
+    #   BUILD_JOB_NUM: 3
+    # - PYTHON: "C:\\Python35-x64"
+    #   BUILD_JOB_NUM: 4
+      
+    # - PYTHON: "C:\\Python36-x64"
+    #   BUILD_JOB_NUM: 1
+    # - PYTHON: "C:\\Python36-x64"
+    #   BUILD_JOB_NUM: 2
+    # - PYTHON: "C:\\Python36-x64"
+    #   BUILD_JOB_NUM: 3
+    # - PYTHON: "C:\\Python36-x64"
+    #   BUILD_JOB_NUM: 4
 
 build: off
 build_script:
-  - cmd: python runtest.py test/Java
-  
+  - cmd: python runtest.py -l -a > all_tests.txt 
+  - ps: >-
+      $TOTAL_BUILD_JOBS = 4;
+      $Lines = (Get-Content all_tests.txt | Measure-Object -line).Lines;
+      $start = ($Lines / $TOTAL_BUILD_JOBS) * ($Env:BUILD_JOB_NUM - 1);
+      $end = ($Lines / $TOTAL_BUILD_JOBS) * $Env:BUILD_JOB_NUM;
+      if ( $Env:BUILD_JOB_NUM -eq $TOTAL_BUILD_JOBS){ $end = $Lines };
+      if ( $start -eq 0 ){ $start = 1 };
+      get-content all_tests.txt | select -first ($end - $start) -skip ($start - 1) | Out-File -Encoding ASCII build_tests.txt;
+  - cmd: powershell -Command "& { python runtest.py -j 2 -f build_tests.txt; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
