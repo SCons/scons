@@ -18,7 +18,9 @@ jobs:
   include:
     - &test_job
       stage: Test
-      script: python runtest.py -a || if [[ $? == 2 ]]; then true; else false; fi
+      script:
+        - export PATH=/usr/local/bin:$PATH 
+        - python runtest.py -a || if [[ $? == 2 ]]; then true; else false; fi
       before_script: skip
       after_success: skip
       python: 2.7
@@ -67,6 +69,7 @@ jobs:
         - echo "coverage.process_startup()" | sudo tee --append ${PYSITEDIR}/usercustomize.py
 
       script: 
+        - export PATH=/usr/local/bin:$PATH 
         - export TOTAL_BUILD_JOBS=8
         # write the coverage config file
         - export COVERAGE_PROCESS_START=$PWD/.coveragerc

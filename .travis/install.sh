@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -x
 
-# dependencies for clang tests
-sudo apt-get -y install clang 
 # dependencies for gdc tests
 sudo apt-get -y install gdc 
 # dependencies for docbook tests
