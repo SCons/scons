@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -x
 
+sudo ln -s /usr/local/bin/clang /usr/bin/clang
+sudo ln -s /usr/local/bin/clang++ /usr/bin/clang++
+
+return
+
 # dependencies for gdc tests
 sudo apt-get -y install gdc 
 # dependencies for docbook tests
