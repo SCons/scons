@@ -825,7 +825,7 @@ for p in [ scons ]:
 #
 Export('build_dir', 'env')
 
-SConscript('testing/SConscript')
+SConscript('testing/framework/SConscript')
 
 #
 #
