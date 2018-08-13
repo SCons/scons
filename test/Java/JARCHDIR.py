@@ -42,8 +42,6 @@ test = TestSCons.TestSCons()
 where_javac, java_version = test.java_where_javac()
 where_jar = test.java_where_jar()
 
-where_javac = '"' + where_javac + '"'
-where_jar = '"' + where_jar + '"'
 
 
 test.write('SConstruct', """

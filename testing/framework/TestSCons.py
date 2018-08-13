@@ -814,7 +814,7 @@ class TestSCons(TestCommon):
         elif sys.platform == "darwin": 
             self.java_mac_check(where_jar, 'jar')
 
-        return where_jar
+        return '"' + where_jar + '"'
 
     def java_where_java(self, version=None):
         """
@@ -828,7 +828,7 @@ class TestSCons(TestCommon):
         elif sys.platform == "darwin":
             self.java_mac_check(where_java, 'java')
 
-        return where_java
+        return '"' + where_java + '"'
 
     def java_where_javac(self, version=None):
         """
@@ -863,7 +863,7 @@ class TestSCons(TestCommon):
             else:
                 version = None
                 self.javac_is_gcj = False
-        return where_javac, version
+        return '"' + where_javac + '"', version
 
     def java_where_javah(self, version=None):
         ENV = self.java_ENV(version)
@@ -873,7 +873,7 @@ class TestSCons(TestCommon):
             where_javah = self.where_is('javah', ENV['PATH'])
         if not where_javah:
             self.skip_test("Could not find Java javah, skipping test(s).\n")
-        return where_javah
+        return '"' + where_javah + '"'
 
     def java_where_rmic(self, version=None):
         ENV = self.java_ENV(version)
@@ -883,7 +883,7 @@ class TestSCons(TestCommon):
             where_rmic = self.where_is('rmic', ENV['PATH'])
         if not where_rmic:
             self.skip_test("Could not find Java rmic, skipping non-simulated test(s).\n")
-        return where_rmic
+        return '"' + where_rmic + '"'
 
     
     def java_get_class_files(self, dir):
