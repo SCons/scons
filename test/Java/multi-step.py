@@ -50,7 +50,7 @@ where_java_include=test.java_where_includes()
 msvc_link = ''
 msvc_cl = ''
 if sys.platform == 'win32':
-    VC_DIR = find_vc_pdir(get_default_version())
+    VC_DIR = find_vc_pdir(get_default_version(test.Environment()))
     if VC_DIR:
         # defaulting to 32 bit since it can also work on 64 bit windows
         msvc_link = os.path.join(VC_DIR, r'bin\link.exe')
