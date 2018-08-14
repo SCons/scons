@@ -32,6 +32,7 @@ capabilities of the various Java Builders.
 
 import os
 import sys
+import platform
 
 import TestSCons
 from SCons.Tool.MSCommon.vc import find_vc_pdir
@@ -52,9 +53,11 @@ msvc_cl = ''
 if sys.platform == 'win32':
     VC_DIR = find_vc_pdir(get_default_version(test.Environment()))
     if VC_DIR:
-        # defaulting to 32 bit since it can also work on 64 bit windows
-        msvc_link = os.path.join(VC_DIR, r'bin\link.exe')
-        msvc_cl = os.path.join(VC_DIR, r'bin\cl.exe')
+        arch = '/'
+        if platform.machine().endswith('64'):
+            arch = '/amd64/'
+        msvc_link = os.path.join(VC_DIR, 'bin%slink.exe')
+        msvc_cl = os.path.join(VC_DIR, 'bin%scl.exe')
     else:
         test.skip_test('Could not find MSVC compiler, skipping test.\n')
 
