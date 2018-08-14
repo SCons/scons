@@ -737,14 +737,23 @@ class TestSCons(TestCommon):
 
         if not version:
             version=''
-            jni_dirs = ['/System/Library/Frameworks/JavaVM.framework/Headers/jni.h',
-                        '/usr/lib/jvm/default-java/include/jni.h',
-                        '/usr/lib/jvm/java-*-oracle/include/jni.h']
+            if sys.platform == 'win32':
+                jni_dirs = ['C:/Program Files*/Java/jdk*/include/jni.h']
+            elif sys.platform == 'darwin':
+                jni_dirs = ['/System/Library/Frameworks/JavaVM.framework/Headers/jni.h']
+            else:
+                jni_dirs = ['/usr/lib/jvm/default-java/include/jni.h',
+                            '/usr/lib/jvm/java-*-oracle/include/jni.h']
         else:
-            jni_dirs = ['/System/Library/Frameworks/JavaVM.framework/Versions/%s*/Headers/jni.h'%version]
-        jni_dirs.extend(['/usr/lib/jvm/java-*-sun-%s*/include/jni.h'%version,
-                         '/usr/lib/jvm/java-%s*-openjdk*/include/jni.h'%version,
-                         '/usr/java/jdk%s*/include/jni.h'%version])
+            if sys.platform == 'win32':
+                jni_dirs = [ 'C:/Program Files*/Java/jdk%s*/bin'%version]
+            elif sys.platform == 'darwin':
+                jni_dirs = ['/System/Library/Frameworks/JavaVM.framework/Versions/%s*/Headers/jni.h'%version]
+            else:
+                jni_dirs = ['/usr/lib/jvm/java-*-sun-%s*/include/jni.h'%version,
+                            '/usr/lib/jvm/java-%s*-openjdk*/include/jni.h'%version,
+                            '/usr/java/jdk%s*/include/jni.h'%version]
+
         dirs = self.paths(jni_dirs)
         if not dirs:
             return None
