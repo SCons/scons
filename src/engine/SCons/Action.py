@@ -107,7 +107,6 @@ import sys
 import subprocess
 import itertools
 import inspect
-import atexit
 
 import SCons.Debug
 from SCons.Debug import logInstanceCreation
@@ -116,8 +115,7 @@ import SCons.Util
 import SCons.Subst
 
 # we use these a lot, so try to optimize them
-is_String = SCons.Util.is_String
-is_List = SCons.Util.is_List
+from SCons.Util import is_String, is_List
 
 class _null(object):
     pass
@@ -773,15 +771,12 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
     io = kw.get('stdin')
     if is_String(io) and io == 'devnull':
         kw['stdin'] = open(os.devnull)
-        atexit.register(kw['stdin'].close)
     io = kw.get('stdout')
     if is_String(io) and io == 'devnull':
         kw['stdout'] = open(os.devnull, 'w')
-        atexit.register(kw['stdout'].close)
     io = kw.get('stderr')
     if is_String(io) and io == 'devnull':
         kw['stderr'] = open(os.devnull, 'w')
-        atexit.register(kw['stderr'].close)
 
     # Figure out what shell environment to use
     ENV = kw.get('env', None)
@@ -807,7 +802,7 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
     kw['env'] = new_env
 
     try:
-        return subprocess.Popen(cmd, **kw)
+        pobj =  subprocess.Popen(cmd, **kw)
     except EnvironmentError as e:
         if error == 'raise': raise
         # return a dummy Popen instance that only returns error
@@ -821,7 +816,14 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
                 def readline(self): return ''
                 def __iter__(self): return iter(())
             stdout = stderr = f()
-        return dummyPopen(e)
+        pobj = dummyPopen(e)
+    finally:
+        # clean up open file handles stored in parent's kw
+        import io
+        for k, v in kw.items():
+            if hasattr(v, 'close'):
+                v.close()
+        return pobj
 
 
 class CommandAction(_ActionAction):
