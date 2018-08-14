@@ -55,10 +55,14 @@ if not msvs_version in test.msvs_versions():
 
 test.run(arguments = '-n -q -Q -f -', stdin = """\
 env = Environment(tools = ['msvc'], MSVS_VERSION='%(msvs_version)s')
-sconsEnv = repr(env['ENV'])
-print("os.environ.update(" + sconsEnv + ")")
+if env.WhereIs('cl'):
+    print("os.environ.update(%%s)" %% repr(env['ENV']))
 """ % locals())
 
+if(test.stdout() == ""):
+    msg = "Visual Studio %s missing cl.exe; skipping test.\n" % msvs_version
+    test.skip_test(msg)
+    
 exec(test.stdout())
 
 

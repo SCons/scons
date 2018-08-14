@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 set -x
 
-# dependencies for clang tests
-sudo apt-get -y install clang 
+# setup clang for clang tests using local clang installation
+sudo ln -s /usr/local/clang-5.0.0/bin/clang /usr/bin/clang
+sudo ln -s /usr/local/clang-5.0.0/bin/clang++ /usr/bin/clang++
+
 # dependencies for gdc tests
 sudo apt-get -y install gdc 
 # dependencies for docbook tests
