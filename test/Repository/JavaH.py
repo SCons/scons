@@ -106,18 +106,26 @@ public class Foo3
 # so we'll detect if we try to write into it accidentally.
 test.writable('repository', 0)
 
+# the test framework uses os.path.isabs which
+# doesn't work with paths that include the quotes for 
+# spacing, so we have to remove the quotes here for the 
+# program argument
+java_no_quotes = java
+if java[0] == '"' and java[-1:] == '"':
+    java_no_quotes = java[1:-1]
+
 #
 test.run(chdir = 'work1', options = opts, arguments = ".")
 
-test.run(program = java,
+test.run(program = java_no_quotes,
          arguments = "-cp %s Foo1" % work1_classes,
          stdout = "rep1/src/Foo1.java\n")
 
-test.run(program = java,
+test.run(program = java_no_quotes,
          arguments = "-cp %s Foo2" % work1_classes,
          stdout = "rep1/src/Foo2.java\n")
 
-test.run(program = java,
+test.run(program = java_no_quotes,
          arguments = "-cp %s Foo3" % work1_classes,
          stdout = "rep1/src/Foo3.java\n")
 
@@ -165,15 +173,15 @@ public class Foo3
 
 test.run(chdir = 'work1', options = opts, arguments = ".")
 
-test.run(program = java,
+test.run(program = java_no_quotes,
          arguments = "-cp %s Foo1" % work1_classes,
          stdout = "work1/src/Foo1.java\n")
 
-test.run(program = java,
+test.run(program = java_no_quotes,
          arguments = "-cp %s Foo2" % work1_classes,
          stdout = "work1/src/Foo2.java\n")
 
-test.run(program = java,
+test.run(program = java_no_quotes,
          arguments = "-cp %s Foo3" % work1_classes,
          stdout = "work1/src/Foo3.java\n")
 
@@ -184,15 +192,15 @@ test.writable('rep1', 1)
 
 test.run(chdir = 'rep1', options = opts, arguments = ".")
 
-test.run(program = java,
+test.run(program = java_no_quotes,
          arguments = "-cp %s Foo1" % rep1_classes,
          stdout = "rep1/src/Foo1.java\n")
 
-test.run(program = java,
+test.run(program = java_no_quotes,
          arguments = "-cp %s Foo2" % rep1_classes,
          stdout = "rep1/src/Foo2.java\n")
 
-test.run(program = java,
+test.run(program = java_no_quotes,
          arguments = "-cp %s Foo3" % rep1_classes,
          stdout = "rep1/src/Foo3.java\n")
 
@@ -273,15 +281,15 @@ test.fail_test(not os.path.exists(test.workpath('work3', 'outdir', 'Foo3.h')))
 #
 #test.run(chdir = 'work2', options = opts, arguments = ".")
 #
-#test.run(program = java,
+#test.run(program = java_no_quotes,
 #         arguments = "-cp %s Foo1" % work2_classes,
 #         stdout = "work2/src/Foo1.java\n")
 #
-#test.run(program = java,
+#test.run(program = java_no_quotes,
 #         arguments = "-cp %s Foo2" % work2_classes,
 #         stdout = "work2/src/Foo2.java\n")
 #
-#test.run(program = java,
+#test.run(program = java_no_quotes,
 #         arguments = "-cp %s Foo3" % work2_classes,
 #         stdout = "work2/src/Foo3.java\n")
 #
