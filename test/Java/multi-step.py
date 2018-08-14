@@ -178,8 +178,13 @@ public class Hello extends Applet {
 """)
 
 test.write(['src', 'javah', 'MyID.cc'], """\
+#ifdef _MSC_VER 
+#define EXPORT_SYMBOLS __declspec(dllexport)
+#else
+#define EXPORT_SYMBOLS 
+#endif
 #include "MyID.h"
-int getMyID()
+EXPORT_SYMBOLS int getMyID()
 {
    return 0;
 }
@@ -575,7 +580,7 @@ body
 """)
 
 test.run(arguments = '.')
-print(test.stdout())
+
 test.must_exist(['buildout', 'javah', 'myid.jar'])
 test.must_exist(['buildout', 'javah', 'MyID', 'MyID.class'])
 
