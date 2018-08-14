@@ -56,8 +56,8 @@ if sys.platform == 'win32':
         arch = '/'
         if platform.machine().endswith('64'):
             arch = '/amd64/'
-        msvc_link = os.path.join(VC_DIR, 'bin%slink.exe')
-        msvc_cl = os.path.join(VC_DIR, 'bin%scl.exe')
+        msvc_link = os.path.join(VC_DIR, 'bin%slink.exe' % arch )
+        msvc_cl = os.path.join(VC_DIR, 'bin%scl.exe' % arch)
     else:
         test.skip_test('Could not find MSVC compiler, skipping test.\n')
 
