@@ -8,8 +8,9 @@
 RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
   From Daniel Moody:
-    - Updated FS.py to handle removal of splitunc function from python 3.7
-    - Updated the vc.py to ignore MSVS versions where not compiler could be found
+    - Updated FS.py to handle removal of splitunc function from python 3.7.
+    - Updated the vc.py to ignore MSVS versions where not compiler could be found.
+    - Updated FS.py get_path to return the relative path if a passed dir argument is provided.
 
   From Matthew Marinets:
     - Fixed an issue that caused the Java emitter to incorrectly parse arguments to constructors that 
@@ -17,7 +18,6 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
   From Bernard Blackham:
    - Fixed handling of side-effects in task master (fixes #3013).
-
       
   From Ray Donnelly:
     - Fix the PATH created by scons.bat (and other .bat files) to provide a normalized
