@@ -31,14 +31,33 @@ capabilities of the various Java Builders.
 """
 
 import os
+import sys
 
 import TestSCons
+from SCons.Tool.MSCommon.vc import find_vc_pdir
+from SCons.Tool.MSCommon.vc import get_default_version
 
 test = TestSCons.TestSCons()
 
 where_javac, java_version = test.java_where_javac()
 where_javah = test.java_where_javah()
 where_java_include=test.java_where_includes()
+
+# on windows we will assume MSVC compiler for this test
+# due to MSVC linker be called link.exe which is the
+# same name as GNU's link.exe, we will explictily get the
+# compiler and linker for windows to ensure MSVC is used
+msvc_link = ''
+msvc_cl = ''
+if sys.platform == 'win32':
+    VC_DIR = find_vc_pdir(get_default_version())
+    if VC_DIR:
+        # defaulting to 32 bit since it can also work on 64 bit windows
+        msvc_link = os.path.join(VC_DIR, r'bin\link.exe')
+        msvc_cl = os.path.join(VC_DIR, r'bin\cl.exe')
+    else:
+        test.skip_test('Could not find MSVC compiler, skipping test.\n')
+
 
 swig = test.where_is('swig')
 if not swig:
@@ -74,10 +93,13 @@ test.subdir(['src'],
 
 test.write(['SConstruct'], """\
 import os,sys
-env=Environment(tools = ['default', 'javac', 'javah', 'swig', 'mslink'],
+env=Environment(tools = ['default', 'javac', 'javah', 'swig'],
                 CPPPATH=%(where_java_include)s,                 
                 JAVAC = r'%(where_javac)s',
                 JAVAH = r'%(where_javah)s')
+if sys.platform == 'win32'
+    env['CC'] = r'"%(msvc_cl)s"'
+    env['LINK'] = r'"%(msvc_link)s"'
 Export('env')
 env.PrependENVPath('PATH',os.environ.get('PATH',[]))
 env['INCPREFIX']='-I'
