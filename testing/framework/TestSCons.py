@@ -795,12 +795,11 @@ class TestSCons(TestCommon):
                         # This works on OSX 10.10
                         home = '/System/Library/Frameworks/JavaVM.framework/Versions/Current/'
         else:
-            jar = self.java_where_jar(version)
-            home = os.path.normpath('%s/..'%jar)
+            jar = self.java_where_jar(version)[1:-1]
+            home = os.path.normpath(os.path.join(os.path.dirname(jar), '..'))
         if os.path.isdir(home):
             return home
-        print("Could not determine JAVA_HOME: %s is not a directory" % home)
-        self.fail_test()
+        self.skip_test("Could not determine JAVA_HOME: %s is not a directory\n" % home)
 
     def java_mac_check(self, where_java_bin, java_bin_name):
         # on Mac there is a place holder java installed to start the java install process

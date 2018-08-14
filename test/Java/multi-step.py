@@ -97,7 +97,7 @@ env=Environment(tools = ['default', 'javac', 'javah', 'swig'],
                 CPPPATH=%(where_java_include)s,                 
                 JAVAC = r'%(where_javac)s',
                 JAVAH = r'%(where_javah)s')
-if sys.platform == 'win32'
+if sys.platform == 'win32':
     env['CC'] = r'"%(msvc_cl)s"'
     env['LINK'] = r'"%(msvc_link)s"'
 Export('env')
