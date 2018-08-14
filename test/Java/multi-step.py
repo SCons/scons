@@ -575,7 +575,7 @@ body
 """)
 
 test.run(arguments = '.')
-
+print(test.stdout())
 test.must_exist(['buildout', 'javah', 'myid.jar'])
 test.must_exist(['buildout', 'javah', 'MyID', 'MyID.class'])
 
