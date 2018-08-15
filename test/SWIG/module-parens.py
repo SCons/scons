@@ -29,7 +29,6 @@ Verify that we handle %module(directors="1") statements, both with and
 without white space before the opening parenthesis.
 """
 
-import os.path
 import sys
 import TestSCons
 
@@ -39,11 +38,8 @@ swig = test.where_is('swig')
 if not swig:
     test.skip_test('Can not find installed "swig", skipping test.\n')
 
-python, python_include, python_libpath, python_lib = \
+python, python_include, python_libpath, python_lib, python_h = \
              test.get_platform_python_info()
-Python_h = os.path.join(python_include, 'Python.h')
-if not os.path.exists(Python_h):
-    test.skip_test('Can not find %s, skipping test.\n' % Python_h)
 
 # swig-python expects specific filenames.
 # the platform specific suffix won't necessarily work.
