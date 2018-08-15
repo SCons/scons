@@ -819,7 +819,6 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
         pobj = dummyPopen(e)
     finally:
         # clean up open file handles stored in parent's kw
-        import io
         for k, v in kw.items():
             if hasattr(v, 'close'):
                 v.close()
