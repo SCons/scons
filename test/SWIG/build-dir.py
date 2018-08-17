@@ -48,8 +48,8 @@ else:
 
 test.subdir(['source'])
 
-python, python_include, python_libpath, python_lib, python_h = \
-             test.get_platform_python_info()
+python, python_include, python_libpath, python_lib = \
+             test.get_platform_python_info(python_h_required=True)
 
 if sys.platform == 'win32' and sys.maxsize <= 2**32:
     swig_arch_var="TARGET_ARCH='x86',"
