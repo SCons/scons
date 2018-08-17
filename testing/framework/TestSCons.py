@@ -1256,21 +1256,25 @@ SConscript( sconscript )
         # see also sys.prefix documentation
         return python_minor_version_string()
 
-    def get_platform_python_info(self):
+    def get_platform_python_info(self, python_h_required=False):
         """
         Returns a path to a Python executable suitable for testing on
-        this platform and its associated include path, library path,
-        library name, and the path to the Python.h header if found.
-        If the Python executable or Python header is not found,
-        the test is skipped.
+        this platform and its associated include path, library path and
+        library name.
 
-        Returns:
-            (path to python, include path, library path, library name, header path)
+        If the Python executable or Python header (if required)
+        is not found, the test is skipped.
+
+        Returns a tuple:
+            (path to python, include path, library path, library name)
         """
         python = os.environ.get('python_executable', self.where_is('python'))
         if not python:
             self.skip_test('Can not find installed "python", skipping test.\n')
 
+        # construct a program to run in the intended environment
+        # in order to fetch the characteristics of that Python.
+        # Windows Python doesn't store all the info in config vars.
         if sys.platform == 'win32':
             self.run(program=python, stdin="""\
 import sysconfig, sys, os.path
@@ -1315,11 +1319,11 @@ if os.path.exists(Python_h):
 else:
     print("False")
 """)
-        detected = self.stdout().strip().split('\n')
-        if detected[3] == "False":
+        incpath, libpath, libname, python_h = self.stdout().strip().split('\n')
+        if python_h == "False" and python_h_required:
             self.skip_test('Can not find required "Python.h", skipping test.\n')
 
-        return [python] + detected
+        return (python, incpath, libpath, libname)
 
     def start(self, *args, **kw):
         """
