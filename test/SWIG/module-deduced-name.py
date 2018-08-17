@@ -31,7 +31,6 @@ emitter should return the basename of the module only.
 """
 
 import TestSCons
-import os
 import sys
 
 test = TestSCons.TestSCons()
@@ -41,10 +40,7 @@ if not swig:
     test.skip_test('Cannot find installed "swig", skipping test.\n')
 
 python, python_include, python_libpath, python_lib = \
-             test.get_platform_python_info()
-Python_h = os.path.join(python_include, 'Python.h')
-if not os.path.exists(Python_h):
-    test.skip_test('Cannot find %s, skipping test.\n' % Python_h)
+             test.get_platform_python_info(python_h_required=True)
 
 # On Windows, build a 32-bit exe if on 32-bit python.
 if sys.platform == 'win32' and sys.maxsize <= 2**32:
