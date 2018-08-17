@@ -115,8 +115,7 @@ import SCons.Util
 import SCons.Subst
 
 # we use these a lot, so try to optimize them
-is_String = SCons.Util.is_String
-is_List = SCons.Util.is_List
+from SCons.Util import is_String, is_List
 
 class _null(object):
     pass
@@ -803,7 +802,7 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
     kw['env'] = new_env
 
     try:
-        return subprocess.Popen(cmd, **kw)
+        pobj =  subprocess.Popen(cmd, **kw)
     except EnvironmentError as e:
         if error == 'raise': raise
         # return a dummy Popen instance that only returns error
@@ -817,7 +816,13 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
                 def readline(self): return ''
                 def __iter__(self): return iter(())
             stdout = stderr = f()
-        return dummyPopen(e)
+        pobj = dummyPopen(e)
+    finally:
+        # clean up open file handles stored in parent's kw
+        for k, v in kw.items():
+            if hasattr(v, 'close'):
+                v.close()
+        return pobj
 
 
 class CommandAction(_ActionAction):

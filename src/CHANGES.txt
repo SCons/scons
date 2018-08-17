@@ -9,6 +9,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
   From Daniel Moody:
     - Updated FS.py to handle removal of splitunc function from python 3.7
+    - Updated the vc.py to ignore MSVS versions where not compiler could be found
 
   From Matthew Marinets:
     - Fixed an issue that caused the Java emitter to incorrectly parse arguments to constructors that 
@@ -121,6 +122,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - fix tests specifying octal constants for py3
     - fix must_contain tests for py3
     - one swig test now checks for Python.h instead of failing
+    - if test opens os.devnull, register with atexit so file opens do not leak.
     
   From Hao Wu
     - typo in customized decider example in user guide 
