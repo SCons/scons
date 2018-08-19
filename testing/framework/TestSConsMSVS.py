@@ -699,7 +699,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
             python = sys.executable
 
         if project_guid is None:
-            project_guid = "{E5466E26-0003-F18B-8F8A-BCD76C86388D}"
+            project_guid = "{B0CC4EE9-0174-51CD-A06A-41D0713E928A}"
 
         if 'SCONS_LIB_DIR' in os.environ:
             exec_script_main = "from os.path import join; import sys; sys.path = [ r'%s' ] + sys.path; import SCons.Script; SCons.Script.main()" % os.environ['SCONS_LIB_DIR']

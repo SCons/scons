@@ -161,7 +161,7 @@ def generate_guids(root):
     To handle this requirement, the uuid is generated with an md5 hashing the
     whole subtree of a xml node.
     """
-    from hashlib import md5
+    import uuid
 
     # specify which tags need a guid and in which attribute this should be stored.
     needs_id = { 'Product'   : 'Id',
@@ -175,10 +175,8 @@ def generate_guids(root):
         node_list = root.getElementsByTagName(key)
         attribute = value
         for node in node_list:
-            hash = md5(node.toxml()).hexdigest()
-            hash_str = '%s-%s-%s-%s-%s' % ( hash[:8], hash[8:12], hash[12:16], hash[16:20], hash[20:] )
-            node.attributes[attribute] = hash_str
-
+            hash = uuid.uuid5(uuid.NAMESPACE_URL, node.toxml())
+            node.attributes[attribute] = str(hash)
 
 
 def string_wxsfile(target, source, env):
