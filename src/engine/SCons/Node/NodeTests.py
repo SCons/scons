@@ -595,7 +595,10 @@ class NodeTestCase(unittest.TestCase):
             node = SCons.Node.Node()
             node._func_get_contents = 4
             result = node.get_csig()
-            assert result == '550a141f12de6341fba65b0ad0433500', result
+            if SCons.Util.md5 == 'md5':
+                assert result == '550a141f12de6341fba65b0ad0433500', result
+            elif SCons.Util.md5 == 'sha1':
+                assert result == '9a3e61b6bcc8abec08f195526c3132d5a4a98cc0', result
         finally:
             SCons.Node.Node.NodeInfo = SCons.Node.NodeInfoBase
 
@@ -612,7 +615,10 @@ class NodeTestCase(unittest.TestCase):
             node = SCons.Node.Node()
             node._func_get_contents = 4
             result = node.get_cachedir_csig()
-            assert result == '15de21c670ae7c3f6f3f1f37029303c9', result
+            if SCons.Util.md5 == 'md5':
+                assert result == '15de21c670ae7c3f6f3f1f37029303c9', result
+            elif SCons.Util.md5 == 'sha1':
+                assert result == 'cfa1150f1787186742a9a884b73a43d8cf219f9b', result
         finally:
             SCons.Node.Node.NodeInfo = SCons.Node.NodeInfoBase
 

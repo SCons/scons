@@ -3575,7 +3575,10 @@ class CacheDirTestCase(unittest.TestCase):
 
         f9 = fs.File('f9')
         r = f9.get_cachedir_csig()
-        assert r == 'd41d8cd98f00b204e9800998ecf8427e', r
+        if SCons.Util.md5 == 'md5':
+            assert r == 'd41d8cd98f00b204e9800998ecf8427e', r
+        elif SCons.Util.md5 == 'sha1':
+            assert r == 'da39a3ee5e6b4b0d3255bfef95601890afd80709', r
 
 
 class clearTestCase(unittest.TestCase):

@@ -32,6 +32,7 @@ value of Decider('timestamp-newer').
 
 import TestSCons
 import TestSConsign
+import SCons.Util
 
 _python_ = TestSCons._python_
 
@@ -143,7 +144,12 @@ test.sleep()
 
 test.run(arguments = '. --max-drift=1')
 
-sig_re = r'[0-9a-fA-F]{32}'
+if SCons.Util.md5 == 'md5':
+    sig_re = r'[0-9a-fA-F]{32}'
+elif SCons.Util.md5 == 'sha1':
+    sig_re = r'[0-9a-fA-F]{40}'
+elif SCons.Util.md5 == 'sha256':
+    sig_re = r'[0-9a-fA-F]{64}'
 date_re = r'\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d'
 
 test.run_sconsign(arguments = "-e hello.exe -e hello.obj sub1/.sconsign",

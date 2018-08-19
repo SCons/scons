@@ -32,6 +32,7 @@ the default dblite module and default .dblite suffix work correctly.
 import re,sys
 
 import TestSConsign
+import SCons.Util
 
 test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
 
@@ -109,7 +110,12 @@ test.sleep()
 
 test.run(arguments = '. --max-drift=1')
 
-sig_re = r'[0-9a-fA-F]{32}'
+if SCons.Util.md5 == 'md5':
+    sig_re = r'[0-9a-fA-F]{32}'
+elif SCons.Util.md5 == 'sha1':
+    sig_re = r'[0-9a-fA-F]{40}'
+elif SCons.Util.md5 == 'sha256':
+    sig_re = r'[0-9a-fA-F]{64}'
 date_re = r'\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d'
 
 if sys.platform == 'win32':

@@ -1445,51 +1445,63 @@ def RenameFunction(function, name):
 
 if hasattr(hashlib, 'md5'):
     md5 = True
-
-    def MD5signature(s):
-        """
-        Generate md5 signature of a string
-
-        :param s: either string or bytes. Normally should be bytes
-        :return: String of hex digits representing the signature
-        """
-        m = hashlib.md5()
-
-        try:
-            m.update(to_bytes(s))
-        except TypeError as e:
-            m.update(to_bytes(str(s)))
-
-        return m.hexdigest()
-
-    def MD5filesignature(fname, chunksize=65536):
-        """
-        Generate the md5 signature of a file
-
-        :param fname: file to hash
-        :param chunksize: chunk size to read
-        :return: String of Hex digits representing the signature
-        """
-        m = hashlib.md5()
-        with open(fname, "rb") as f:
-            while True:
-                blck = f.read(chunksize)
-                if not blck:
-                    break
-                m.update(to_bytes(blck))
-        return m.hexdigest()
+    hashfunc = hashlib.md5
+elif hasattr(hashlib, 'sha1'):
+    # failover to sha1 if md5 is missing
+    md5 = 'sha1'
+    hashfunc = hashlib.sha1
+elif hasattr(hashlib, 'sha256'):
+    # failover to sha256 if sha1 is missing
+    md5 = 'sha256'
+    hashfunc = hashlib.sha256
 else:
-    # if md5 algorithm not available, just return data unmodified
-    # could add alternative signature scheme here
+    # if md5 and sha1 both not available (should be impossible),
+    # just return data unmodified
     md5 = False
+#
+#    def MD5signature(s):
+#        return str(s)
+#
+#    def MD5filesignature(fname, chunksize=65536):
+#        with open(fname, "rb") as f:
+#            result = f.read()
+#        return result
 
-    def MD5signature(s):
-        return str(s)
 
-    def MD5filesignature(fname, chunksize=65536):
-        with open(fname, "rb") as f:
-            result = f.read()
-        return result
+def MD5signature(s):
+    """
+    Generate signature of a string
+
+    :param s: either string or bytes. Normally should be bytes
+    :return: String of hex digits representing the signature
+    """
+    m = hashfunc()
+
+    try:
+        m.update(to_bytes(s))
+    except TypeError as e:
+        m.update(to_bytes(str(s)))
+
+    return m.hexdigest()
+
+
+def MD5filesignature(fname, chunksize=65536):
+    """
+    Generate the signature of a file
+
+    :param fname: file to hash
+    :param chunksize: chunk size to read
+    :return: String of Hex digits representing the signature
+    """
+    m = hashfunc()
+
+    with open(fname, "rb") as f:
+        while True:
+            blck = f.read(chunksize)
+            if not blck:
+                break
+            m.update(to_bytes(blck))
+        return m.hexdigest()
 
 
 def MD5collect(signatures):
@@ -1515,7 +1527,6 @@ def silent_intern(x):
         return sys.intern(x)
     except TypeError:
         return x
-
 
 
 # From Dinu C. Gherman,
@@ -1547,6 +1558,7 @@ class Null(object):
         return self
     def __delattr__(self, name):
         return self
+
 
 class NullSeq(Null):
     def __len__(self):

@@ -776,17 +776,28 @@ class MD5TestCase(unittest.TestCase):
         """
         s = list(map(MD5signature, ('111', '222', '333')))
 
-        assert '698d51a19d8a121ce581499d7b701668' == MD5collect(s[0:1])
-        assert '8980c988edc2c78cc43ccb718c06efd5' == MD5collect(s[0:2])
-        assert '53fd88c84ff8a285eb6e0a687e55b8c7' == MD5collect(s)
+        if SCons.Util.md5 == 'md5':
+            assert MD5collect(s[0:1]) == '698d51a19d8a121ce581499d7b701668', MD5collect(s[0:1])
+            assert MD5collect(s[0:2]) == '8980c988edc2c78cc43ccb718c06efd5', MD5collect(s[0:2])
+            assert MD5collect(s) == '53fd88c84ff8a285eb6e0a687e55b8c7', MD5collect(s)
+        elif SCons.Util.md5 == 'sha1':
+            assert MD5collect(s[0:1]) == '6216f8a75fd5bb3d5f22b6f9958cdede3fc086c2', MD5collect(s[0:1])
+            assert MD5collect(s[0:2]) == '42eda1b5dcb3586bccfb1c69f22f923145271d97', MD5collect(s[0:2])
+            assert MD5collect(s) == '2eb2f7be4e883ebe52034281d818c91e1cf16256', MD5collect(s)
 
     def test_MD5signature(self):
         """Test generating a signature"""
         s = MD5signature('111')
-        assert '698d51a19d8a121ce581499d7b701668' == s, s
+        if SCons.Util.md5 == 'md5':
+            assert s == '698d51a19d8a121ce581499d7b701668', s
+        elif SCons.Util.md5 == 'sha1':
+            assert s == '6216f8a75fd5bb3d5f22b6f9958cdede3fc086c2', s
 
         s = MD5signature('222')
-        assert 'bcbe3365e6ac95ea2c0343a2395834dd' == s, s
+        if SCons.Util.md5 == 'md5':
+            assert s == 'bcbe3365e6ac95ea2c0343a2395834dd', s
+        elif SCons.Util.md5 == 'sha1':
+            assert s == '1c6637a8f2e1f75e06ff9984894d6bd16a3a36a9', s
 
 
 class NodeListTestCase(unittest.TestCase):

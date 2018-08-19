@@ -27,7 +27,6 @@ __doc__ = """
 CacheDir support
 """
 
-import hashlib
 import json
 import os
 import stat

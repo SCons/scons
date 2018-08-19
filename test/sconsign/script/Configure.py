@@ -34,6 +34,7 @@ import re
 
 import TestSCons
 import TestSConsign
+import SCons.Util
 
 _obj = TestSCons._obj
 
@@ -67,7 +68,12 @@ env = conf.Finish()
 
 test.run(arguments = '.')
 
-sig_re = r'[0-9a-fA-F]{32}'
+if SCons.Util.md5 == 'md5':
+    sig_re = r'[0-9a-fA-F]{32}'
+elif SCons.Util.md5 == 'sha1':
+    sig_re = r'[0-9a-fA-F]{40}'
+elif SCons.Util.md5 == 'sha256':
+    sig_re = r'[0-9a-fA-F]{64}'
 date_re = r'\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d'
 
 # Note:  There's a space at the end of the '.*': line, because the

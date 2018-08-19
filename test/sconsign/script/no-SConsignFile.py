@@ -31,6 +31,7 @@ Verify that the sconsign script works when using an individual
 
 import TestSCons
 import TestSConsign
+import SCons.Util
 
 _python_ = TestSCons._python_
 
@@ -143,7 +144,12 @@ test.write(['sub2', 'inc2.h'], r"""\
 
 test.run(arguments = '--implicit-cache --tree=prune .')
 
-sig_re = r'[0-9a-fA-F]{32}'
+if SCons.Util.md5 == 'md5':
+    sig_re = r'[0-9a-fA-F]{32}'
+elif SCons.Util.md5 == 'sha1':
+    sig_re = r'[0-9a-fA-F]{40}'
+elif SCons.Util.md5 == 'sha256':
+    sig_re = r'[0-9a-fA-F]{64}'
 
 expect = r"""hello.c: %(sig_re)s \d+ \d+
 hello.exe: %(sig_re)s \d+ \d+
