@@ -52,6 +52,7 @@ try:
 except OSError:
     test.skip_test('could not determine nasm version; skipping test\n')
 else:
+    stdout = stdout.decode()
     version = stdout.split()[2].split('.')
     if int(version[0]) ==0 and int(version[1]) < 98:
         test.skip_test("skipping test of nasm version %s\n" % version)
