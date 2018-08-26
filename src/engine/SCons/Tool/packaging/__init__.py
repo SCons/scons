@@ -107,7 +107,7 @@ def Package(env, target=None, source=None, **kw):
         from SCons.Script import GetOption
         kw['PACKAGETYPE'] = GetOption('package_type')
 
-    if kw['PACKAGETYPE'] == None:
+    if kw['PACKAGETYPE'] is None:
         if 'Tar' in env['BUILDERS']:
             kw['PACKAGETYPE']='targz'
         elif 'Zip' in env['BUILDERS']:
@@ -295,10 +295,8 @@ def stripinstallbuilder(target, source, env):
     It also warns about files which have no install builder attached.
     """
     def has_no_install_location(file):
-        return not (file.has_builder() and\
-            hasattr(file.builder, 'name') and\
-            (file.builder.name=="InstallBuilder" or\
-             file.builder.name=="InstallAsBuilder"))
+        return not file.has_builder() and hasattr(file.builder, 'name') \
+               and file.builder.name in ["InstallBuilder", "InstallAsBuilder"]
 
     if len([src for src in source if has_no_install_location(src)]):
         warn(Warning, "there are files to package which have no\

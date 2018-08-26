@@ -78,7 +78,7 @@ class F90Scanner(SCons.Scanner.Classic):
     def scan(self, node, env, path=()):
 
         # cache the includes list in node so we only scan it once:
-        if node.includes != None:
+        if node.includes is not None:
             mods_and_includes = node.includes
         else:
             # retrieve all included filenames

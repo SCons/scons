@@ -1000,7 +1000,7 @@ def CheckLib(context, library = None, symbol = "main",
     compiles without flags.
     """
 
-    if library == []:
+    if not library:
         library = [None]
 
     if not SCons.Util.is_List(library):

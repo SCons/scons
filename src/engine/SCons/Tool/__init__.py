@@ -238,7 +238,7 @@ class Tool(object):
                     setattr(SCons.Tool, self.name, module)
 
                 found_module = module
-            
+
             if found_module is not None:
                 sys.path = oldpythonpath
                 return found_module
@@ -1081,11 +1081,11 @@ class ToolInitializer(object):
                 env.Tool(tool)
                 return
 
-	# If we fall through here, there was no tool module found.
-	# This is where we can put an informative error message
-	# about the inability to find the tool.   We'll start doing
-	# this as we cut over more pre-defined Builder+Tools to use
-	# the ToolInitializer class.
+        # If we fall through here, there was no tool module found.
+        # This is where we can put an informative error message
+        # about the inability to find the tool.   We'll start doing
+        # this as we cut over more pre-defined Builder+Tools to use
+        # the ToolInitializer class.
 
 def Initializers(env):
     ToolInitializer(env, ['install'], ['_InternalInstall', '_InternalInstallAs', '_InternalInstallVersionedLib'])

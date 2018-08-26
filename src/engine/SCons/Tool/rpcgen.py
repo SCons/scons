@@ -43,7 +43,7 @@ rpcgen_service  = cmd % ('m', '$RPCGENSERVICEFLAGS')
 rpcgen_xdr      = cmd % ('c', '$RPCGENXDRFLAGS')
 
 def generate(env):
-    "Add RPCGEN Builders and construction variables for an Environment."
+    """Add RPCGEN Builders and construction variables for an Environment."""
     
     client  = Builder(action=rpcgen_client,  suffix='_clnt.c', src_suffix='.x')
     header  = Builder(action=rpcgen_header,  suffix='.h',      src_suffix='.x')
