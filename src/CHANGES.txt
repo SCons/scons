@@ -123,6 +123,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - fix must_contain tests for py3
     - one swig test now checks for Python.h instead of failing
     - if test opens os.devnull, register with atexit so file opens do not leak.
+    - win32.py handle exception object appropriately for class
     
   From Hao Wu
     - typo in customized decider example in user guide 
