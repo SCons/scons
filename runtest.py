@@ -99,7 +99,6 @@ except ImportError as e:    # python2
     from Queue import Queue
 import subprocess
 
-
 cwd = os.getcwd()
 
 baseline = 0
@@ -770,10 +769,14 @@ os.environ["python_executable"] = python
 # but time.time() does a better job on Linux systems, so let that be
 # the non-Windows default.
 
-if sys.platform == 'win32':
-    time_func = time.clock
-else:
-    time_func = time.time
+#TODO: clean up when py2 support is dropped
+try:
+    time_func = time.perf_counter
+except AttributeError:
+    if sys.platform == 'win32':
+        time_func = time.clock
+    else:
+        time_func = time.time
 
 if print_times:
     print_time_func = lambda fmt, time: sys.stdout.write(fmt % time)
