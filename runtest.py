@@ -772,7 +772,7 @@ os.environ["python_executable"] = python
 #TODO: clean up when py2 support is dropped
 try:
     time_func = time.perf_counter
-else:
+except AttributeError:
     if sys.platform == 'win32':
         time_func = time.clock
     else:
