@@ -95,10 +95,11 @@ import time
 import threading
 try:                        # python3
     from queue import Queue
+    PY3=True
 except ImportError as e:    # python2
     from Queue import Queue
+    PY3=False
 import subprocess
-
 
 cwd = os.getcwd()
 
@@ -770,10 +771,13 @@ os.environ["python_executable"] = python
 # but time.time() does a better job on Linux systems, so let that be
 # the non-Windows default.
 
-if sys.platform == 'win32':
-    time_func = time.clock
+if PY3:
+    time_func = time.perf_counter
 else:
-    time_func = time.time
+    if sys.platform == 'win32':
+        time_func = time.clock
+    else:
+        time_func = time.time
 
 if print_times:
     print_time_func = lambda fmt, time: sys.stdout.write(fmt % time)
