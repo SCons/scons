@@ -123,9 +123,10 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - fix must_contain tests for py3
     - one swig test now checks for Python.h instead of failing
     - if test opens os.devnull, register with atexit so file opens do not leak.
-    - for py3, use time.perf_counter instead of depr time.clock, which is
-      used in win32 case for py2. py37 depr warnings were failing a bunch
-      of tests on windows since warn messes up expected stderr.
+    - use time.perf_counter instead of time.clock if it exists.
+      time.clock deprecated since py3.3, due to remove in 3.8. deprecation
+      warnings from py3.7 were failing a bunch of tests on Windows since they
+      mess up expected stderr.
     
   From Hao Wu
     - typo in customized decider example in user guide 
