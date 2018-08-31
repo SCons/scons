@@ -33,3 +33,7 @@ if [[ "$PYVER" == 27 ]]; then
     tar xzf rel-3.0.12.tar.gz
     cd swig-rel-3.0.12 && ./autogen.sh && ./configure --prefix=/usr && make && sudo make install && cd ..
 fi
+
+# Clear this flag as newer Oracle Java's will echo to stderr any values set in it which breaks several java
+# tests
+unset _JAVA_OPTIONS
