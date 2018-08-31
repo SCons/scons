@@ -200,7 +200,7 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
         except OSError as e:
             # catch any error
             try:
-                ret = exitvalmap[e[0]]
+                ret = exitvalmap[e.errno]
             except KeyError:
                 sys.stderr.write("scons: unknown OSError exception code %d - %s: %s\n" % (e.errno, cmd, e.strerror))
             if stderr is not None:
