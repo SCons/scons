@@ -37,7 +37,9 @@ jobs:
 
     - <<: *test_job
       python: 3.7
-      env: PYVER=37
+      env: 
+        - PYVER=37
+        - _JAVA_OPTIONS=
       sudo: required
       dist: xenial  # required for Python 3.7 (travis-ci/travis-ci#9069)
 
