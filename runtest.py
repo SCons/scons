@@ -618,6 +618,10 @@ os.environ['SCONS_VERSION'] = version
 
 old_pythonpath = os.environ.get('PYTHONPATH')
 
+# Clear _JAVA_OPTIONS which java tools output to stderr when run breaking tests
+if '_JAVA_OPTIONS' in os.environ:
+    del os.environ['_JAVA_OPTIONS']
+
 # FIXME: the following is necessary to pull in half of the testing
 #        harness from $srcdir/etc. Those modules should be transfered
 #        to testing/, in which case this manipulation of PYTHONPATH
