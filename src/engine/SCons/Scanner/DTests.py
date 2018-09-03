@@ -41,6 +41,7 @@ class DummyEnvironment(collections.UserDict):
         self.fs = SCons.Node.FS.FS(test.workpath(''))
 
     def Dictionary(self, *args):
+        # note dummy Dictionary ignores args
         return self.data
 
     def subst(self, strSubst, target=None, source=None, conv=None):

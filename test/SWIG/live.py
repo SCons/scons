@@ -77,7 +77,7 @@ foo = Environment(SWIGFLAGS='-python',
                   LIBS='%(python_lib)s',
                   )
 
-swig = foo.Dictionary('SWIG')
+swig = foo.Dictionary()['SWIG']
 bar = foo.Clone(SWIG = [r'%(python)s', 'wrapper.py', swig])
 foo.LoadableModule(target = 'foo', source = ['foo.c', 'foo.i'])
 bar.LoadableModule(target = 'bar', source = ['bar.c', 'bar.i'])

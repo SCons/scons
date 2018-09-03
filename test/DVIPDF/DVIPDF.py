@@ -117,7 +117,7 @@ os.system(cmd)
     test.write('SConstruct', """
 import os
 foo = Environment(ENV = { 'PATH' : os.environ['PATH'] })
-dvipdf = foo.Dictionary('DVIPDF')
+dvipdf = foo.Dictionary()['DVIPDF']
 bar = Environment(ENV = { 'PATH' : os.environ['PATH'] },
                   DVIPDF = r'%(_python_)s wrapper.py ' + dvipdf)
 foo.PDF(target = 'foo.pdf',

@@ -88,7 +88,7 @@ if tar:
 
     test.write('SConstruct', """
 foo = Environment()
-tar = foo.Dictionary('TAR')
+tar = foo.Dictionary()['TAR']
 bar = Environment(TAR = r'%(_python_)s wrapper.py ' + tar)
 f3 = Environment(TARFLAGS = '-c -z', TARSUFFIX = '.tar.gz')
 f4 = Environment(TARFLAGS = '-c -z', TARSUFFIX = '.tgz')

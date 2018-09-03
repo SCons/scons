@@ -37,7 +37,7 @@ test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
 foo = Environment(LIBS = ['foo'], LIBPATH = ['.'])
-ar = foo.Dictionary('AR')
+ar = foo.Dictionary()['AR']
 bar = Environment(LIBS = ['bar'], LIBPATH = ['.'], AR = r'%(_python_)s wrapper.py ' + ar)
 foo.Library(target = 'foo', source = 'foo.c')
 bar.Library(target = 'bar', source = 'bar.c')

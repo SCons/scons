@@ -48,7 +48,7 @@ if not latex:
 test.write('SConstruct', """
 import os
 env = Environment(ENV = { 'PATH' : os.environ['PATH'] })
-dvipdf = env.Dictionary('DVIPDF')
+dvipdf = env.Dictionary()['DVIPDF']
 env.PDF(target = 'foo.pdf',
         source = env.DVI(target = 'foo.dvi', source = 'foo.tex'))
 """)

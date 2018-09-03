@@ -1496,9 +1496,10 @@ class Base(SubstitutionEnvironment):
     def Dictionary(self, *args):
         if not args:
             return self._dict
-        dlist = [self._dict[x] for x in args]
-        if len(dlist) == 1:
-            dlist = dlist[0]
+        try:
+            dlist = {key: self._dict[key] for key in self._dict.viewkeys() & args}
+        except AttributeError:  # python3
+            dlist = {key: self._dict[key] for key in self._dict.keys() & args}
         return dlist
 
     def Dump(self, key = None):
@@ -2344,7 +2345,7 @@ class OverrideEnvironment(Base):
             return 1
         return self.__dict__['__subject'].__contains__(key)
     def Dictionary(self):
-        """Emulates the items() method of dictionaries."""
+        """obtain internal dictionary"""
         d = self.__dict__['__subject'].Dictionary().copy()
         d.update(self.__dict__['overrides'])
         return d

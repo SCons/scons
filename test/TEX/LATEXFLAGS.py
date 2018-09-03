@@ -86,7 +86,7 @@ if latex:
 import os
 ENV = { 'PATH' : os.environ['PATH'] }
 foo = Environment(ENV = ENV, LATEXFLAGS = '--output-comment Commentary')
-latex = foo.Dictionary('LATEX')
+latex = foo.Dictionary()['LATEX']
 bar = Environment(ENV = ENV, LATEX = r'%(_python_)s wrapper.py ' + latex)
 foo.DVI(target = 'foo.dvi', source = 'foo.ltx')
 bar.DVI(target = 'bar', source = 'bar.latex')

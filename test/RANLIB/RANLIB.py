@@ -43,7 +43,7 @@ test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
 foo = Environment(LIBS = ['foo'], LIBPATH = ['.'])
-ranlib = foo.Dictionary('RANLIB')
+ranlib = foo.Dictionary()['RANLIB']
 bar = Environment(LIBS = ['bar'], LIBPATH = ['.'],
                   RANLIB = r'%(_python_)s wrapper.py ' + ranlib)
 foo.Library(target = 'foo', source = 'foo.c')

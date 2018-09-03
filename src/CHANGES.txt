@@ -13,6 +13,15 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Use importlib to dynamically load tool and platform modules instead of imp module
     - sconsign: default to .sconsign.dblite if no filename is specified.
       Be more informative in case of unsupported pickle protocol (py2 only).
+    - convert Dictionary() to behave as documented - always return a dict.
+      Although the "new" behavior is as documented, this does represent
+      a change to behavior: the old way, if Dictionary() is called with
+      one arg it returned the value for that key; if called with multiple
+      args it returned a list of values for those keys, now it returns
+      a dict which is a subset of the full environment.  To update
+      older usage, change references like env.Dictionary('FOO') to be
+      either env.Dictionary()['FOO'] or env.Dictionary('FOO')['FOO'].
+      No change is needed for calls to Dictionary() with no arguments.
 
   From John Doe:
 

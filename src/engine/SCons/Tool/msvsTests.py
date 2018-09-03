@@ -371,7 +371,7 @@ class DummyEnv(object):
     def Dictionary(self, key = None):
         if not key:
             return self.dict
-        return self.dict[key]
+        return {key: self.dict[key]}
 
     def __setitem__(self,key,value):
         self.dict[key] = value

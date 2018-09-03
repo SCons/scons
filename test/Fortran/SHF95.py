@@ -83,7 +83,7 @@ if g95:
 
     test.write('SConstruct', """
 foo = Environment(SHF95 = '%(fc)s')
-shf95 = foo.Dictionary('SHF95')
+shf95 = foo.Dictionary()['SHF95']
 bar = foo.Clone(SHF95 = r'%(_python_)s wrapper.py ' + shf95)
 foo.SharedObject(target = 'foo/foo', source = 'foo.f95')
 bar.SharedObject(target = 'bar/bar', source = 'bar.f95')

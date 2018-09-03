@@ -86,7 +86,7 @@ os.system(cmd)
     test.write('SConstruct', """\
 import os
 foo = Environment(ENV = { 'PATH' : os.environ['PATH'] })
-gs = foo.Dictionary('GS')
+gs = foo.Dictionary()['GS']
 bar = Environment(ENV = { 'PATH' : os.environ['PATH'] },
                   GS = r'%(_python_)s wrapper.py ' + gs)
 foo.PDF(target = 'foo.pdf', source = 'foo.ps')

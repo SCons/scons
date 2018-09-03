@@ -54,7 +54,7 @@ os.system(" ".join(sys.argv[2:]))
 """)
 
 test.write('SConstruct', """
-cxx = Environment().Dictionary('CXX')
+cxx = Environment().Dictionary()['CXX']
 foo = Environment(CXX = r'%(_python_)s versioned.py "${CXXVERSION}" ' + cxx)
 foo.Program(target = 'foo', source = 'foo.cpp')
 """ % locals())

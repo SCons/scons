@@ -92,7 +92,7 @@ if tex:
 import os
 ENV = { 'PATH' : os.environ['PATH'] }
 foo = Environment(ENV = ENV)
-tex = foo.Dictionary('TEX')
+tex = foo.Dictionary()['TEX']
 bar = Environment(ENV = ENV, TEX = r'%(_python_)s wrapper.py ' + tex)
 foo.DVI(target = 'foo.dvi', source = 'foo.tex')
 foo.DVI(target = 'foo-latex.dvi', source = 'foo-latex.tex')

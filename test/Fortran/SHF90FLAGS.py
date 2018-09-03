@@ -85,7 +85,7 @@ if g90:
 
     test.write('SConstruct', """
 foo = Environment(SHF90 = '%(fc)s')
-shf90 = foo.Dictionary('SHF90')
+shf90 = foo.Dictionary()['SHF90']
 bar = foo.Clone(SHF90 = r'%(_python_)s wrapper.py ' + shf90)
 bar.Append(SHF90FLAGS = '-Ix')
 foo.SharedLibrary(target = 'foo/foo', source = 'foo.f90')

@@ -82,7 +82,7 @@ if f77:
 
     test.write('SConstruct', """
 foo = Environment(SHF77 = '%(fc)s')
-shf77 = foo.Dictionary('SHF77')
+shf77 = foo.Dictionary()['SHF77']
 bar = foo.Clone(SHF77 = r'%(_python_)s wrapper.py ' + shf77, tools = ['default', 'f77'], F77FILESUFFIXES = ['.f'])
 foo.SharedObject(target = 'foo/foo', source = 'foo.f')
 bar.SharedObject(target = 'bar/bar', source = 'bar.f')

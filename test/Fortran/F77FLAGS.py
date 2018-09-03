@@ -65,7 +65,7 @@ if g77:
 
     test.write('SConstruct', """
 foo = Environment(F77 = '%(fc)s', tools = ['default', 'f77'], F77FILESUFFIXES = [".f"])
-f77 = foo.Dictionary('F77')
+f77 = foo.Dictionary()['F77']
 bar = foo.Clone(F77 = r'%(_python_)s wrapper.py ' + f77, F77FLAGS = '-I%(directory)s')
 foo.Program(target = 'foo', source = 'foo.f')
 bar.Program(target = 'bar', source = 'bar.f')

@@ -134,7 +134,7 @@ os.system(cmd)
 import os
 ENV = { 'PATH' : os.environ['PATH'] }
 foo = Environment(ENV = ENV)
-dvips = foo.Dictionary('DVIPS')
+dvips = foo.Dictionary()['DVIPS']
 bar = Environment(ENV = ENV, DVIPS = r'%(_python_)s wrapper.py ' + dvips)
 foo.PostScript(target = 'foo.ps', source = 'foo.tex')
 bar.PostScript(target = 'bar1', source = 'bar1.tex')

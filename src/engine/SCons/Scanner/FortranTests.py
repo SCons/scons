@@ -217,7 +217,7 @@ class DummyEnvironment(object):
         if not args:
             return { 'FORTRANPATH': self.path, 'FORTRANMODSUFFIX' : ".mod" }
         elif len(args) == 1 and args[0] == 'FORTRANPATH':
-            return self.path
+            return { 'FORTRANPATH': self.path }
         else:
             raise KeyError("Dummy environment only has FORTRANPATH attribute.")
 

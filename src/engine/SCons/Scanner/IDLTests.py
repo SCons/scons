@@ -198,7 +198,7 @@ class DummyEnvironment(object):
         if not args:
             return { 'CPPPATH': self.path }
         elif len(args) == 1 and args[0] == 'CPPPATH':
-            return self.path
+            return { 'CPPPATH': self.path }
         else:
             raise KeyError("Dummy environment only has CPPPATH attribute.")
 

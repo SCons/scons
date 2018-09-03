@@ -54,10 +54,11 @@ class DummyEnvironment(object):
     def Dictionary(self, *args):
         if not args:
             return self._dict
-        elif len(args) == 1:
-            return self._dict[args[0]]
-        else:
-            return [self._dict[x] for x in args]
+        try:
+            dlist = {key: self._dict[key] for key in self._dict.viewkeys() & args}
+        except AttributeError:  # python3
+            dlist = {key: self._dict[key] for key in self._dict.keys() & args}
+        return dlist
 
     def has_key(self, key):
         return key in self.Dictionary()

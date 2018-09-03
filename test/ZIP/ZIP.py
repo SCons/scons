@@ -93,7 +93,7 @@ test.write('SConstruct', """\
 def marker(target, source, env):
     open(r'%s', 'wb').write(b"marker\\n")
 f1 = Environment()
-zipcom = f1.Dictionary('ZIPCOM')
+zipcom = f1.Dictionary()['ZIPCOM']
 if not isinstance(zipcom, list):
     zipcom = [zipcom]
 f2 = Environment(ZIPCOM = [Action(marker)] + zipcom)

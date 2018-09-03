@@ -86,7 +86,7 @@ if g95:
 
     test.write('SConstruct', """
 foo = Environment(F95 = '%(fc)s')
-f95 = foo.Dictionary('F95')
+f95 = foo.Dictionary()['F95']
 bar = foo.Clone(F95 = r'%(_python_)s wrapper.py ' + f95)
 foo.Program(target = 'foo', source = 'foo.f95')
 bar.Program(target = 'bar', source = 'bar.f95')

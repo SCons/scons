@@ -36,7 +36,7 @@ test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
 foo = Environment()
-shcxx = foo.Dictionary('SHCXX')
+shcxx = foo.Dictionary()['SHCXX']
 bar = Environment(SHCXX = r'%(_python_)s wrapper.py ' + shcxx)
 foo.SharedObject(target = 'foo/foo', source = 'foo.cpp')
 bar.SharedObject(target = 'bar/bar', source = 'bar.cpp')

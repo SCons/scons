@@ -56,7 +56,7 @@ class DummyEnv(object):
     def Dictionary(self, key = None):
         if not key:
             return self.dict
-        return self.dict[key]
+        return {key: self.dict[key]}
 
     def __getitem__(self, key):
         return self.dict[key]
@@ -93,7 +93,7 @@ class CmdGen2(object):
         assert str(target) == 't', target
         assert str(source) == 's', source
         assert for_signature == self.expect_for_signature, for_signature
-        return [ self.mystr, env.Dictionary('BAR') ]
+        return [ self.mystr, env.Dictionary()['BAR'] ]
 
 if os.sep == '/':
     def cvt(str):

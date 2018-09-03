@@ -79,7 +79,7 @@ if fortran:
 
     test.write('SConstruct', """
 foo = Environment(SHFORTRAN = '%(fc)s')
-shfortran = foo.Dictionary('SHFORTRAN')
+shfortran = foo.Dictionary()['SHFORTRAN']
 bar = foo.Clone(SHFORTRAN = r'%(_python_)s wrapper.py ' + shfortran)
 bar.Append(SHFORTRANFLAGS = '-I%(directory)s')
 foo.SharedLibrary(target = 'foo/foo', source = 'foo.f')

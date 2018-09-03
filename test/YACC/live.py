@@ -47,7 +47,7 @@ test.file_fixture('wrapper.py')
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 foo = Environment(YACCFLAGS='-d', tools = ['default', 'yacc'])
-yacc = foo.Dictionary('YACC')
+yacc = foo.Dictionary()['YACC']
 bar = Environment(YACC = r'%(_python_)s wrapper.py ' + yacc, tools = ['default', 'yacc'])
 foo.Program(target = 'foo', source = 'foo.y')
 bar.Program(target = 'bar', source = 'bar.y')

@@ -113,7 +113,7 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-cc = Environment().Dictionary('CC')
+cc = Environment().Dictionary()['CC']
 env = Environment(LINK = r'%(_python_)s mylink.py',
                   LINKFLAGS = [],
                   CC = r'%(_python_)s mycc.py',
@@ -129,7 +129,7 @@ test.must_match('test1' + _exe, "This is a .c file.\n", mode='r')
 if os.path.normcase('.c') == os.path.normcase('.C'):
 
     test.write('SConstruct', """
-cc = Environment().Dictionary('CC')
+cc = Environment().Dictionary()['CC']
 env = Environment(LINK = r'%(_python_)s mylink.py',
                   CC = r'%(_python_)s mycc.py',
                   CXX = cc)
@@ -143,7 +143,7 @@ test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
 foo = Environment()
-cc = foo.Dictionary('CC')
+cc = foo.Dictionary()['CC']
 bar = Environment(CC = r'%(_python_)s wrapper.py ' + cc)
 foo.Program(target = 'foo', source = 'foo.c')
 bar.Program(target = 'bar', source = 'bar.c')

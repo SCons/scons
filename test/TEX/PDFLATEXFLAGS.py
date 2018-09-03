@@ -86,7 +86,7 @@ if pdflatex:
 import os
 ENV = { 'PATH' : os.environ['PATH'] }
 foo = Environment(ENV = ENV, PDFLATEXFLAGS = '--output-comment Commentary')
-pdflatex = foo.Dictionary('PDFLATEX')
+pdflatex = foo.Dictionary()['PDFLATEX']
 bar = Environment(ENV = ENV, PDFLATEX = r'%(_python_)s wrapper.py ' + pdflatex)
 foo.PDF(target = 'foo.pdf', source = 'foo.ltx')
 bar.PDF(target = 'bar', source = 'bar.latex')

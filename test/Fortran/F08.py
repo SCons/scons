@@ -86,7 +86,7 @@ if g08:
 
     test.write('SConstruct', """
 foo = Environment(F08 = '%(fc)s')
-f08 = foo.Dictionary('F08')
+f08 = foo.Dictionary()['F08']
 bar = foo.Clone(F08 = r'%(_python_)s wrapper.py ' + f08)
 foo.Program(target = 'foo', source = 'foo.f08')
 bar.Program(target = 'bar', source = 'bar.f08')

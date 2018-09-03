@@ -129,7 +129,7 @@ test.file_fixture('wrapper_with_args.py')
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 foo = Environment(tools = ['javac', 'jar'])
-# jar = foo.Dictionary('JAR')
+# jar = foo.Dictionary()['JAR']
 bar = foo.Clone(JAR = r'%(_python_)s wrapper_with_args.py jar')
 foo.Java(target = 'classes', source = 'com/sub/foo')
 bar.Java(target = 'classes', source = 'com/sub/bar')

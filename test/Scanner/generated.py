@@ -57,7 +57,7 @@ import os
 import Mylib
 
 BStaticLibMerge = Builder(generator = Mylib.Gen_StaticLibMerge)
-builders = Environment().Dictionary('BUILDERS')
+builders = Environment().Dictionary()['BUILDERS']
 builders["StaticLibMerge"] = BStaticLibMerge
 
 env = Environment(BUILDERS = builders)

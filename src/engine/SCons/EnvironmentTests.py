@@ -1124,7 +1124,7 @@ env4.builder1.env, env3)
         assert 'ENV' in env.Dictionary()
 
         env = self.TestEnvironment(ENV = { 'PATH' : '/foo:/bar' })
-        assert env.Dictionary('ENV')['PATH'] == '/foo:/bar'
+        assert env.Dictionary()['ENV']['PATH'] == '/foo:/bar'
 
     def test_ReservedVariables(self):
         """Test warning generation when reserved variable names are set"""
@@ -1735,9 +1735,9 @@ def exists(env):
 
         env3 = env1.Clone(XXX = 'x3', ZZZ = 'z3')
         assert env3 == env3
-        assert env3.Dictionary('XXX') == 'x3'
-        assert env3.Dictionary('YYY') == 'y'
-        assert env3.Dictionary('ZZZ') == 'z3'
+        assert env3.Dictionary()['XXX'] == 'x3'
+        assert env3.Dictionary()['YYY'] == 'y'
+        assert env3.Dictionary()['ZZZ'] == 'z3'
         assert env1 == env1copy
 
         # Ensure that lists and dictionaries are
@@ -1747,13 +1747,13 @@ def exists(env):
         env1 = self.TestEnvironment(XXX=TestA(), YYY = [ 1, 2, 3 ],
                            ZZZ = { 1:2, 3:4 })
         env2=env1.Clone()
-        env2.Dictionary('YYY').append(4)
-        env2.Dictionary('ZZZ')[5] = 6
-        assert env1.Dictionary('XXX') is env2.Dictionary('XXX')
-        assert 4 in env2.Dictionary('YYY')
-        assert not 4 in env1.Dictionary('YYY')
-        assert 5 in env2.Dictionary('ZZZ')
-        assert 5 not in env1.Dictionary('ZZZ')
+        env2.Dictionary()['YYY'].append(4)
+        env2.Dictionary()['ZZZ'][5] = 6
+        assert env1.Dictionary()['XXX'] == env2.Dictionary()['XXX']
+        assert 4 in env2.Dictionary()['YYY']
+        assert not 4 in env1.Dictionary()['YYY']
+        assert 5 in env2.Dictionary()['ZZZ']
+        assert 5 not in env1.Dictionary()['ZZZ']
 
         #
         env1 = self.TestEnvironment(BUILDERS = {'b1' : Builder()})
@@ -1942,12 +1942,12 @@ def generate(env):
         defaults that get inserted.
         """
         env = self.TestEnvironment(XXX = 'x', YYY = 'y', ZZZ = 'z')
-        assert env.Dictionary('XXX') == 'x'
-        assert env.Dictionary('YYY') == 'y'
-        assert env.Dictionary('XXX', 'ZZZ') == ['x', 'z']
-        xxx, zzz = env.Dictionary('XXX', 'ZZZ')
-        assert xxx == 'x'
-        assert zzz == 'z'
+        assert env.Dictionary()['XXX'] == 'x'
+        assert env.Dictionary()['YYY'] == 'y'
+        assert not {'x', 'z'}.difference(env.Dictionary('XXX', 'ZZZ').values())
+        xxx = env.Dictionary('XXX', 'ZZZ')
+        assert xxx['XXX'] == 'x'
+        assert xxx['ZZZ'] == 'z'
         assert 'BUILDERS' in env.Dictionary()
         assert 'CC' in env.Dictionary()
         assert 'CCFLAGS' in env.Dictionary()
@@ -1955,7 +1955,7 @@ def generate(env):
 
         assert env['XXX'] == 'x'
         env['XXX'] = 'foo'
-        assert env.Dictionary('XXX') == 'foo'
+        assert env.Dictionary()['XXX'] == 'foo'
         del env['XXX']
         assert 'XXX' not in env.Dictionary()
 
@@ -2929,8 +2929,12 @@ def generate(env):
     def test_Dump(self):
         """Test the Dump() method"""
 
+        # this is to format the expected string
+        import pprint
+        pp = pprint.PrettyPrinter(indent=2)
+        expect = pp.pformat({'FOO': 'foo'})
         env = self.TestEnvironment(FOO = 'foo')
-        assert env.Dump('FOO') == "'foo'", env.Dump('FOO')
+        assert env.Dump('FOO') == expect, env.Dump('FOO')
         assert len(env.Dump()) > 200, env.Dump()    # no args version
 
     def test_Environment(self):

@@ -40,7 +40,7 @@ test.dir_fixture('CCVERSION-fixture')
 test.file_fixture(os.path.join('CC-fixture', 'foo.c'))
 
 test.write('SConstruct', """
-cc = Environment().Dictionary('CC')
+cc = Environment().Dictionary()['CC']
 foo = Environment(CC = r'%(_python_)s versioned.py "${CCVERSION}" ' + cc)
 foo.Program(target = 'foo', source = 'foo.c')
 """ % locals())

@@ -122,7 +122,7 @@ os.system(cmd)
 import os
 ENV = {'PATH' : os.environ['PATH']}
 foo = Environment(DVIPDFFLAGS = '-N', ENV = ENV)
-dvipdf = foo.Dictionary('DVIPDF')
+dvipdf = foo.Dictionary()['DVIPDF']
 bar = Environment(DVIPDF = r'%(_python_)s wrapper.py ' + dvipdf, ENV = ENV)
 foo.PDF(target = 'foo.pdf',
         source = foo.DVI(target = 'foo.dvi', source = 'foo.tex'))

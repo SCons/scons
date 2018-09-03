@@ -71,7 +71,7 @@ test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 foo = Environment(tools=['m4'],
                   M4=r'%(m4)s', M4FLAGS='-DFFF=fff')
-m4 = foo.Dictionary('M4')
+m4 = foo.Dictionary()['M4']
 bar = Environment(tools=['m4'],
                   M4 = r'%(_python_)s wrapper.py ' + m4, M4FLAGS='-DBBB=bbb')
 foo.M4(target = 'foo.x', source = 'foo.x.m4')

@@ -112,7 +112,7 @@ foo = Environment(tools = ['javac', 'javah', 'install'])
 jv = %(java_version)s
 if jv:
     foo['JAVAVERSION'] = jv
-javah = foo.Dictionary('JAVAH')
+javah = foo.Dictionary()['JAVAH']
 bar = foo.Clone(JAVAH = r'%(_python_)s wrapper_with_args.py ' + javah)
 foo.Java(target = 'class1', source = 'com/sub/foo')
 bar_classes = bar.Java(target = 'class2', source = 'com/sub/bar')

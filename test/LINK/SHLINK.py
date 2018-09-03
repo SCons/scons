@@ -38,7 +38,7 @@ test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
 foo = Environment()
-shlink = foo.Dictionary('SHLINK')
+shlink = foo.Dictionary()['SHLINK']
 bar = Environment(SHLINK = r'%(_python_)s wrapper.py ' + shlink)
 foo.SharedLibrary(target = 'foo', source = 'foo.c')
 bar.SharedLibrary(target = 'bar', source = 'bar.c')

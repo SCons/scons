@@ -90,7 +90,7 @@ if g90:
 
     test.write('SConstruct', """
 foo = Environment(F90 = '%(fc)s')
-f90 = foo.Dictionary('F90')
+f90 = foo.Dictionary()['F90']
 bar = foo.Clone(F90 = r'%(_python_)s wrapper.py ' + f90)
 foo.Program(target = 'foo', source = 'foo.f90')
 bar.Program(target = 'bar', source = 'bar.f90')

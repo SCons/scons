@@ -187,7 +187,7 @@ test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
 foo = Environment()
-cxx = foo.Dictionary('CXX')
+cxx = foo.Dictionary()['CXX']
 bar = Environment(CXX = r'%(_python_)s wrapper.py ' + cxx)
 foo.Program(target = 'foo', source = 'foo.cxx')
 bar.Program(target = 'bar', source = 'bar.cxx')

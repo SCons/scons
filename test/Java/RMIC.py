@@ -132,7 +132,7 @@ foo.RMIC(target = 'outdir1',
                     'class1/com/sub/foo/Example2'],
           JAVACLASSDIR = 'class1')
 
-rmic = foo.Dictionary('RMIC')
+rmic = foo.Dictionary()['RMIC']
 bar = foo.Clone(RMIC = r'%(_python_)s wrapper_with_args.py ' + rmic)
 bar_classes = bar.Java(target = 'class2', source = 'com/sub/bar')
 # XXX This is kind of a Python brute-force way to do what Ant

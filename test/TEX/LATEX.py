@@ -103,8 +103,8 @@ import os
 ENV = { 'PATH' : os.environ['PATH'],
         'TEXINPUTS' : [ 'subdir', os.environ.get('TEXINPUTS', '') ] }
 foo = Environment(ENV = ENV)
-latex = foo.Dictionary('LATEX')
-makeindex = foo.Dictionary('MAKEINDEX')
+latex = foo.Dictionary()['LATEX']
+makeindex = foo.Dictionary()['MAKEINDEX']
 python_path = r'%(_python_)s'
 bar = Environment(ENV = ENV,
                   LATEX = python_path + ' wrapper.py ' + latex,

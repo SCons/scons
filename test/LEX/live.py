@@ -44,7 +44,7 @@ test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
 foo = Environment()
-lex = foo.Dictionary('LEX')
+lex = foo.Dictionary()['LEX']
 bar = Environment(LEX = r'%(_python_)s wrapper.py ' + lex,
                   LEXFLAGS = '-b')
 foo.Program(target = 'foo', source = 'foo.l')

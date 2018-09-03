@@ -89,7 +89,7 @@ if pdftex:
 import os
 ENV = { 'PATH' : os.environ['PATH'] }
 foo = Environment(ENV = ENV)
-pdftex = foo.Dictionary('PDFTEX')
+pdftex = foo.Dictionary()['PDFTEX']
 bar = Environment(ENV = ENV, PDFTEX = r'%(_python_)s wrapper.py ' + pdftex)
 foo.PDF(target = 'foo.pdf', source = 'foo.tex')
 bar.PDF(target = 'bar', source = 'bar.tex')

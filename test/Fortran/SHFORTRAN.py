@@ -78,7 +78,7 @@ if fortran:
 
     test.write('SConstruct', """
 foo = Environment(SHFORTRAN = '%(fc)s')
-shfortran = foo.Dictionary('SHFORTRAN')
+shfortran = foo.Dictionary()['SHFORTRAN']
 bar = foo.Clone(SHFORTRAN = r'%(_python_)s wrapper.py ' + shfortran)
 foo.SharedObject(target = 'foo/foo', source = 'foo.f')
 bar.SharedObject(target = 'bar/bar', source = 'bar.f')

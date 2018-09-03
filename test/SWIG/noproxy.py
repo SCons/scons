@@ -72,7 +72,7 @@ foo = Environment(SWIGFLAGS=['-python', '-noproxy'],
                   LIBS='%(python_lib)s',
                   )
 
-swig = foo.Dictionary('SWIG')
+swig = foo.Dictionary()['SWIG']
 bar = foo.Clone(SWIG = [r'%(python)s', 'wrapper.py', swig])
 foo.CFile(target = 'dependent', source = ['dependent.i'])
 """ % locals())
