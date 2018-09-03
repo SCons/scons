@@ -136,6 +136,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       time.clock deprecated since py3.3, due to remove in 3.8. deprecation
       warnings from py3.7 were failing a bunch of tests on Windows since they
       mess up expected stderr.
+    - updated the test-framework.rst documentation.
     
   From Hao Wu
     - typo in customized decider example in user guide 
