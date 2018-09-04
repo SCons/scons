@@ -198,7 +198,8 @@ def build_specfile_header(spec):
         'PACKAGEVERSION' : '%%define release %s\nRelease: %%{release}\n',
         'X_RPM_GROUP'    : 'Group: %s\n',
         'SUMMARY'        : 'Summary: %s\n',
-        'LICENSE'        : 'License: %s\n', }
+        'LICENSE'        : 'License: %s\n',
+    }
 
     str = str + SimpleTagCompiler(mandatory_header_fields).compile( spec )
 
@@ -227,7 +228,8 @@ def build_specfile_header(spec):
         'X_RPM_PREFIX'        : 'Prefix: %s\n',
 
         # internal use
-        'X_RPM_BUILDROOT'     : 'BuildRoot: %s\n', }
+        'X_RPM_BUILDROOT'     : 'BuildRoot: %s\n',
+    }
 
     # fill in default values:
     # Adding a BuildRequires renders the .rpm unbuildable under systems which
@@ -241,11 +243,17 @@ def build_specfile_header(spec):
 
     str = str + SimpleTagCompiler(optional_header_fields, mandatory=0).compile( spec )
 
+    # Add any extra specfile definitions the user may have supplied.
+    # These flags get no processing, they are just added.
     # github #3164: if we don't turn off debug package generation
-    # the tests which build packages all fail.  This just slams
-    # a flag into the specfile header, could make it an X_RPM_NODEBUGPKGS
-    # which is controllable by an environment setting.
-    str += '%global debug_package %{nil}\n'
+    # the tests which build packages all fail.  If there are no
+    # extra flags, default to adding this one. If the user wants
+    # to turn this back on, supply the flag set to None.
+
+    if 'X_RPM_EXTRADEFS' not in spec:
+        spec['X_RPM_EXTRADEFS'] = ['%global debug_package %{nil}']
+    for extra in spec['X_RPM_EXTRADEFS']:
+        str += extra + '\n'
 
     return str
 

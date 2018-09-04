@@ -121,9 +121,12 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - fix tests specifying octal constants for py3
     - fix must_contain tests for py3
     - rpm package generation: fix supplying a build architecture; disable
-      auto debug package generation on certain rpmbuild versions; adjust some tests
-      to be resistant to automatic supplying of build-id file on certain rpmbuild
-      versions; a little doc and comment cleanup.
+      auto debug package generation on certain rpmbuild versions; adjust some
+      tests to be resistant to automatic supplying of build-id file on
+      certain rpmbuild versions; tests now use a file fixture for the 
+      repeated (trivial) main.c program. A little doc and comment cleanup.
+      A new tag is added, X_RPM_EXTRADEFS, to allow supplying custom settings
+      to the specfile without adding specific logic for each one to scons.
     
   From Hao Wu
     - typo in customized decider example in user guide 

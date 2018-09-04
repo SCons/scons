@@ -30,7 +30,6 @@ Test the ability to add file tags
 
 import os
 import SCons.Tool.rpmutils
-
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -50,13 +49,8 @@ rpm_build_root = test.workpath('rpm_build_root')
 # Test adding an attr tag to the built program.
 #
 test.subdir('src')
-
-test.write( [ 'src', 'main.c' ], r"""
-int main( int argc, char* argv[] )
-{
-return 0;
-}
-""")
+mainpath = os.path.join('src', 'main.c')
+test.file_fixture(mainpath, mainpath)
 
 test.write('SConstruct', """
 import os

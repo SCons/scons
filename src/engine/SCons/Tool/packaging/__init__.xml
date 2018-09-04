@@ -471,6 +471,38 @@ field in the RPM
 </summary>
 </cvar>
 
+<cvar name="X_RPM_EXTRADEFS">
+<summary>
+<para>
+A list used to supply extra defintions or flags
+to be added to the RPM <filename>.spec<filename> file.
+Each item is added as-is with a carriage return appended.
+This is useful if some specific RPM feature not otherwise
+anticipated by SCons needs to be turned on or off.
+Note if this variable is omitted, SCons will by
+default supply the value
+<literal>'%global debug_package %{nil}'</literal>
+to disable debug package generation.
+To enable debug package generation, include this
+variable set either to None, or to a custom
+list that does not include the default line.
+Added in version 3.1.
+</para>
+
+<example_commands>
+env.Package(
+    NAME             = 'foo',
+...
+    X_RPM_EXTRADEFS = [
+        '%define _unpackaged_files_terminate_build 0'
+        '%define _missing_doc_files_terminate_build 0'
+    ],
+... )
+</example_commands>
+
+</summary>
+</cvar>
+
 <cvar name="X_RPM_GROUP">
 <summary>
 <para>
