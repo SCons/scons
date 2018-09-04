@@ -136,6 +136,11 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       time.clock deprecated since py3.3, due to remove in 3.8. deprecation
       warnings from py3.7 were failing a bunch of tests on Windows since they
       mess up expected stderr.
+    - Prefer Py3's inspect.getfullargspec over deprecated inspect.getargspec.
+      Switched to "new" (standard in Py2.7) usage of receiving a namedtuple -
+      we were unpacking to a four-tuple, two of the items of which were unused;
+      getfullargspec returns a named tuple with seven elements so it is a
+      cleaner drop-in replacement using the namedtuple.
     
   From Hao Wu
     - typo in customized decider example in user guide 

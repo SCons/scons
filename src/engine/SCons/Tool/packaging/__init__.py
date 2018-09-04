@@ -163,15 +163,21 @@ def Package(env, target=None, source=None, **kw):
         # this exception means that a needed argument for the packager is
         # missing. As our packagers get their "tags" as named function
         # arguments we need to find out which one is missing.
-        from inspect import getargspec
-        args,varargs,varkw,defaults=getargspec(packager.package)
-        if defaults!=None:
-            args=args[:-len(defaults)] # throw away arguments with default values
+        #TODO: getargspec deprecated in Py3. cleanup when Py2.7 dropped.
+        try:
+            from inspect import getfullargspec
+        except ImportError:
+            from inspect import getargspec
+        argspec = getargspec(packager.package)
+        args = argspec.args
+        if argspec.defaults:
+            # throw away arguments with default values
+            args = args[:-len(argspec.defaults)]
         args.remove('env')
         args.remove('target')
         args.remove('source')
         # now remove any args for which we have a value in kw.
-        args=[x for x in args if x not in kw]
+        args = [x for x in args if x not in kw]
 
         if len(args)==0:
             raise # must be a different error, so re-raise
