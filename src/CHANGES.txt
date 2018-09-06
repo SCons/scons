@@ -104,9 +104,9 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Recognize new java 9, 10 (as 9.0 and 10.0)
     - Updated manpage scons.xml to fix a nested list problem
     - Updated doc terminiology: use prepend instead of append as appropriate
-    - xml validity fixes from SConstruct.py change
-    - update wiki links to new github location
-    - update bug links to new github location
+    - XML validity fixes from SConstruct.py change
+    - Update wiki links to new github location
+    - Update bug links to new github location
     - Make it easier for SConscript() call to fail on missing script.
       It was possible to call SCons.Warnings.warningAsException
       (not documented as a user API) to make all warnings fail. Now
@@ -117,14 +117,22 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       behavior (which still defaults to warn, not fail) by calling
       SCons.Script.set_missing_sconscript_error, which is also not a
       documented interface at the moment.
-    - convert TestCmd.read to use with statement on open (quiets 17 py3 warnings)
-    - quiet py3 warning in UtilTests.py
-    - fix tests specifying octal constants for py3
-    - fix must_contain tests for py3
-    - one swig test now checks for Python.h instead of failing
-    - if test opens os.devnull, register with atexit so file opens do not leak.
+    - Convert TestCmd.read to use with statement on open (quiets 17 py3 warnings)
+    - Quiet py3 warning in UtilTests.py
+    - Fix tests specifying octal constants for py3
+    - Fix must_contain tests for py3
+    - RPM package generation: 
+       - Fix supplying a build architecture
+       - Disable auto debug package generation on certain rpmbuild versions
+       - Adjust some tests to only supply build-id file on certain rpmbuild versions
+       - Tests now use a file fixture for the repeated (trivial) main.c program. 
+       - Document and comment cleanup.
+       - Added new Environment Value X_RPM_EXTRADEFS to supply custom settings
+         to the specfile without adding specific logic for each one to scons.
+    - One swig test now checks for Python.h instead of failing
+    - If test opens os.devnull, register with atexit so file opens do not leak.
     - Fix bugs in Win32 process spawn logic to handle OSError exception correctly.
-    - use time.perf_counter instead of time.clock if it exists.
+    - Use time.perf_counter instead of time.clock if it exists.
       time.clock deprecated since py3.3, due to remove in 3.8. deprecation
       warnings from py3.7 were failing a bunch of tests on Windows since they
       mess up expected stderr.

@@ -106,7 +106,9 @@ This is used to fill in the
 <literal>Architecture:</literal>
 field in an Ipkg
 <filename>control</filename> file,
-and as part of the name of a generated RPM file.
+and the <literal>BuildArch:</literal> field
+in the RPM <filename>.spec</filename> file,
+as well as forming part of the name of a generated RPM package file.
 </para>
 </summary>
 </cvar>
@@ -120,7 +122,6 @@ the <filename>control</filename> for Ipkg,
 the <filename>.wxs</filename> for MSI).
 If set, the function will be called
 after the SCons template for the file has been written.
-XXX
 </para>
 </summary>
 </cvar>
@@ -164,10 +165,10 @@ section of an RPM
 <cvar name="LICENSE">
 <summary>
 <para>
-The abbreviated name of the license under which
-this project is released (gpl, lpgl, bsd etc.).
+The abbreviated name, preferably the SPDX code, of the license under which
+this project is released (GPL-3.0, LGPL-2.1, BSD-2-Clause etc.).
 See http://www.opensource.org/licenses/alphabetical
-for a list of license names.
+for a list of license names and SPDX codes.
 </para>
 </summary>
 </cvar>
@@ -383,6 +384,7 @@ This is used to fill in the
 <literal>BuildRequires:</literal>
 field in the RPM
 <filename>.spec</filename> file.
+Note this should only be used on a host managed by rpm as the dependencies will not be resolvable at build time otherwise.
 </para>
 </summary>
 </cvar>
@@ -441,7 +443,8 @@ field in the RPM
 <para>
 This is used to fill in the
 <literal>Epoch:</literal>
-field in the controlling information for RPM packages.
+field in the RPM
+<filename>.spec</filename> file.
 </para>
 </summary>
 </cvar>
@@ -465,6 +468,38 @@ This is used to fill in the
 field in the RPM
 <filename>.spec</filename> file.
 </para>
+</summary>
+</cvar>
+
+<cvar name="X_RPM_EXTRADEFS">
+<summary>
+<para>
+A list used to supply extra defintions or flags
+to be added to the RPM <filename>.spec<filename> file.
+Each item is added as-is with a carriage return appended.
+This is useful if some specific RPM feature not otherwise
+anticipated by SCons needs to be turned on or off.
+Note if this variable is omitted, SCons will by
+default supply the value
+<literal>'%global debug_package %{nil}'</literal>
+to disable debug package generation.
+To enable debug package generation, include this
+variable set either to None, or to a custom
+list that does not include the default line.
+Added in version 3.1.
+</para>
+
+<example_commands>
+env.Package(
+    NAME             = 'foo',
+...
+    X_RPM_EXTRADEFS = [
+        '%define _unpackaged_files_terminate_build 0'
+        '%define _missing_doc_files_terminate_build 0'
+    ],
+... )
+</example_commands>
+
 </summary>
 </cvar>
 

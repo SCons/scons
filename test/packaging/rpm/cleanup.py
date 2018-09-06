@@ -28,6 +28,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Assert that files created by the RPM packager will be removed by 'scons -c'.
 """
 
+import os
 import TestSCons
 import SCons.Tool.rpmutils
 
@@ -47,13 +48,8 @@ if not rpm:
 rpm_build_root = test.workpath('rpm_build_root')
 
 test.subdir('src')
-
-test.write( [ 'src', 'main.c' ], r"""
-int main( int argc, char* argv[] )
-{
-  return 0;
-}
-""")
+mainpath = os.path.join('src', 'main.c')
+test.file_fixture(mainpath, mainpath)
 
 test.write('SConstruct', """
 env=Environment(tools=['default', 'packaging'])
