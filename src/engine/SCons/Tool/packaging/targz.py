@@ -1,6 +1,6 @@
 """SCons.Tool.Packaging.targz
 
-The targz SRC packager.
+The targz packager.
 """
 
 #

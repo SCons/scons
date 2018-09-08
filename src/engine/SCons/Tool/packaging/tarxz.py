@@ -1,11 +1,11 @@
-"""SCons.Tool.Packaging.tarbz2
+"""SCons.Tool.Packaging.tarxz
 
-The tarbz2 packager.
+The tarxz packager.
 """
 
 #
 # __COPYRIGHT__
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -32,10 +32,10 @@ from SCons.Tool.packaging import stripinstallbuilder, putintopackageroot
 
 def package(env, target, source, PACKAGEROOT, **kw):
     bld = env['BUILDERS']['Tar']
-    bld.set_suffix('.tar.bz2')
+    bld.set_suffix('.tar.xz')
     target, source = putintopackageroot(target, source, env, PACKAGEROOT)
     target, source = stripinstallbuilder(target, source, env)
-    return bld(env, target, source, TARFLAGS='-jc')
+    return bld(env, target, source, TARFLAGS='-Jc')
 
 # Local Variables:
 # tab-width:4

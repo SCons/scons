@@ -81,9 +81,9 @@ env.Package( NAME        = 'libfoo',
              source      = [ 'src/main.c', 'SConstruct' ] )
 """)
 
-test.run(stderr = None)
+test.run(stderr=None)
 
-test.must_exist( 'src.tar.gz' )
+test.must_exist('src.tar.gz')
 
 #
 # TEST: default package name creation with overridden packager.
@@ -98,9 +98,26 @@ env.Package( NAME        = 'libfoo',
              source      = [ 'src/main.c', 'SConstruct' ] )
 """)
 
-test.run(stderr = None)
+test.run(stderr=None)
 
-test.must_exist( 'libfoo-1.2.3.tar.bz2' )
+test.must_exist('libfoo-1.2.3.tar.bz2')
+
+#
+# TEST: default package name creation with another packager.
+#
+
+test.write('SConstruct', """
+env=Environment(tools=['default', 'packaging'])
+env.Program( 'src/main.c' )
+env.Package( NAME        = 'libfoo',
+             VERSION     = '1.2.3',
+             PACKAGETYPE = 'src_tarxz',
+             source      = [ 'src/main.c', 'SConstruct' ] )
+""")
+
+test.run(stderr=None)
+
+test.must_exist('libfoo-1.2.3.tar.xz')
 
 test.pass_test()
 
