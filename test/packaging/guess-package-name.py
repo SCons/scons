@@ -38,9 +38,13 @@ import TestSCons
 python = TestSCons.python
 test = TestSCons.TestSCons()
 tar = test.detect('TAR', 'tar')
+bzip = test.where_is('bzip2')
 
 if not tar:
     test.skip_test('tar not found; skipping test\n')
+
+if not bzip:
+    test.skip_test('bzip2 not found; skipping test\n')
 
 #
 # TEST: default package name creation.

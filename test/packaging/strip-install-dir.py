@@ -49,7 +49,17 @@ env.Package( NAME    = 'foo',
             )
 """)
 
-expected = """scons: Reading SConscript files ...
+import sys
+if sys.platform == 'win32':
+    expected = """scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+Copy file(s): "main.c" to "foo-1.2.3\\bin\\main.c"
+tar -zc -f foo-1.2.3.tar.gz foo-1.2.3\\bin\\main.c
+scons: done building targets.
+"""
+else:
+    expected = """scons: Reading SConscript files ...
 scons: done reading SConscript files.
 scons: Building targets ...
 Copy file(s): "main.c" to "foo-1.2.3/bin/main.c"
