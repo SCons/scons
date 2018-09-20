@@ -28,6 +28,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test the ability to create a rpm package from a explicit target name.
 """
 
+import os
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -44,13 +45,8 @@ if not rpm:
 rpm_build_root = test.workpath('rpm_build_root')
 
 test.subdir('src')
-
-test.write( [ 'src', 'main.c' ], r"""
-int main( int argc, char* argv[] )
-{
-  return 0;
-}
-""")
+mainpath = os.path.join('src', 'main.c')
+test.file_fixture(mainpath, mainpath)
 
 test.write('SConstruct', """
 import os

@@ -33,7 +33,6 @@ These are x-rpm-Group, description, summary and the lang_xx file tag.
 
 import os
 import SCons.Tool.rpmutils
-
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -52,12 +51,7 @@ rpm_build_root = test.workpath('rpm_build_root')
 #
 # test INTERNATIONAL PACKAGE META-DATA
 #
-test.write( [ 'main.c' ], r"""
-int main( int argc, char* argv[] )
-{
-  return 0;
-}
-""")
+test.file_fixture('src/main.c', 'main.c')
 
 test.write('SConstruct', """
 # -*- coding: utf-8 -*-
@@ -123,13 +117,8 @@ test.fail_test( out != 'Application/office-hello-this should be really long' )
 #
 # test INTERNATIONAL PACKAGE TAGS
 #
-
-test.write( [ 'main.c' ], r"""
-int main( int argc, char* argv[] )
-{
-  return 0;
-}
-""")
+mainpath = os.path.join('src', 'main.c')
+test.file_fixture(mainpath)
 
 test.write( ['man.de'], '' )
 test.write( ['man.en'], '' )
