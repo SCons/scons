@@ -2485,6 +2485,12 @@ class FileNodeInfo(SCons.Node.NodeInfoBase):
 
 
 class FileBuildInfo(SCons.Node.BuildInfoBase):
+    """
+    This is info loaded from sconsign.
+    We're adding dependency_map to cache file->csig mapping
+    for all dependencies.  Currently this is only used when using
+    MD5-timestamp decider. (It's needed because
+    """
     __slots__ = ('dependency_map')
     current_version_id = 2
 
@@ -3289,6 +3295,8 @@ class File(Base):
             for child, signature in zip(children, signatures):
                 schild = str(child)
                 m[schild] = signature
+
+
 
         # store this info so we can avoid regenerating it.
         binfo.dependency_map = m
