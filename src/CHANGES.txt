@@ -101,7 +101,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       This changes SCons to better comply with normal Python installation practices.
 
   From Mats Wichmann:
-    - Recognize new java 9, 10 (as 9.0 and 10.0)
+    - Recognize new java 9, 10, 11 (as 9.0 and 10.0, 11.0)
     - Updated manpage scons.xml to fix a nested list problem
     - Updated doc terminiology: use prepend instead of append as appropriate
     - XML validity fixes from SConstruct.py change
@@ -129,14 +129,18 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
        - Document and comment cleanup.
        - Added new Environment Value X_RPM_EXTRADEFS to supply custom settings
          to the specfile without adding specific logic for each one to scons.
-    - One swig test now checks for Python.h instead of failing
+    - The test for Python.h needed by swig tests is moved to get_python_platform
+      so it does not have to be repeated in every test; picks up one failure
+      which did not make the (previously needed) check.
     - If test opens os.devnull, register with atexit so file opens do not leak.
     - Fix bugs in Win32 process spawn logic to handle OSError exception correctly.
     - Use time.perf_counter instead of time.clock if it exists.
       time.clock deprecated since py3.3, due to remove in 3.8. deprecation
       warnings from py3.7 were failing a bunch of tests on Windows since they
       mess up expected stderr.
-    - updated the test-framework.rst documentation.
+    - Updated the test-framework.rst documentation.
+    - Remove obsoleted internal implementaiton of OrderedDict.
+    - Test for tar packaging fixups
     
   From Hao Wu
     - typo in customized decider example in user guide 
