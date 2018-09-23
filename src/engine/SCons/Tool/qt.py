@@ -217,8 +217,7 @@ def _detect(env):
     if not QTDIR:
         QTDIR = os.environ.get('QTDIR',None)
     if not QTDIR:
-        try_paths = os.pathsep.join([env['ENV']['PATH'],QT_BIN_DIR])
-        moc = env.WhereIs('moc',try_paths)
+        moc = env.WhereIs('moc') or env.WhereIs('moc',QT_BIN_DIR)
         if moc:
             QTDIR = os.path.dirname(os.path.dirname(moc))
             SCons.Warnings.warn(
