@@ -39,6 +39,7 @@ import SCons.Util
 # the -rpath option, so we use the "link" tool instead of "gnulink".
 from . import link
 
+
 def generate(env):
     """Add Builders and construction variables for applelink to an
     Environment."""
@@ -67,8 +68,6 @@ def generate(env):
     env['LDMODULESUFFIX'] = '' 
     env['LDMODULEFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -bundle')
     env['LDMODULECOM'] = '$LDMODULE -o ${TARGET} $LDMODULEFLAGS $SOURCES $_LIBDIRFLAGS $_LIBFLAGS $_FRAMEWORKPATH $_FRAMEWORKS $FRAMEWORKSFLAGS'
-
-
 
 def exists(env):
     return env['PLATFORM'] == 'darwin'

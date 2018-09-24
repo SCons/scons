@@ -49,7 +49,7 @@ main(int argc, char *argv[])
 #  Test issue # 2580
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
-env = Environment()
+env = Environment(PLATFORM='darwin')
                   
 env.Object(
 	target = '#foo.o',
