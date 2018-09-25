@@ -24,42 +24,42 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
-This tests the SRC 'targz' packager, which does the following:
- - create a targz package containing the specified files.
-"""
+import os
 
 import TestSCons
 
-python = TestSCons.python
+_python_ = TestSCons._python_
+_exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-tar = test.detect('TAR', 'tar')
-if not tar:
-    test.skip_test('tar not found, skipping test\n')
 
-test.subdir('src')
-
-test.write(['src', 'main.c'], r"""
-int main( int argc, char* argv[] )
+test.write('foo.c', r"""
+#include <stdio.h>
+#include <stdlib.h>
+int
+main(int argc, char *argv[])
 {
-  return 0;
+        argv[argc++] = "--";
+        printf("foo.c\n");
+        exit (0);
 }
 """)
 
+#  Test issue # 2580
 test.write('SConstruct', """
-Program( 'src/main.c' )
-env=Environment(tools=['default', 'packaging'])
-env.Package( PACKAGETYPE  = 'src_targz',
-             target       = 'src.tar.gz',
-             PACKAGEROOT  = 'test',
-             source       = [ 'src/main.c', 'SConstruct' ] )
-""")
+DefaultEnvironment(tools=[])
+env = Environment(PLATFORM='darwin')
+                  
+env.Object(
+	target = '#foo.o',
+	source = ['foo.c'],
+	FRAMEWORKS = ['Ogre'],
+	FRAMEWORKPATH = ['#frameworks']
+)
+""" % locals())
 
-test.run(arguments='', stderr=None)
-
-test.must_exist('src.tar.gz')
+test.run(arguments='-Q', stdout='gcc -o foo.o -c -Fframeworks foo.c\n')
 
 test.pass_test()
 
