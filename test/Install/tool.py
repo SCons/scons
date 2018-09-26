@@ -36,6 +36,7 @@ test = TestSCons.TestSCons()
 test.subdir('iii')
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(tools = [])
 env.Install('iii', 'foo.in')
 env.InstallAs('foo.out', 'foo.in')

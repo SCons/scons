@@ -39,7 +39,8 @@ test = TestSCons.TestSCons()
 test.subdir(['test'])
 
 test.write(['SConstruct'], """\
-env = Environment()
+DefaultEnvironment(tools=[])
+env = Environment(tools=[]) 
 i = env.Install("#/install", "#/test/#testfile.txt#");
 env.Default(i);
 """)
