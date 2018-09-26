@@ -39,7 +39,8 @@ test = TestSCons.TestSCons()
 
 test.write(['SConstruct'], """\
 import SCons.Defaults
-env = Environment()
+DefaultEnvironment(tools=[])
+env = Environment(tools=[]) 
 env['BUILDERS']['C'] = Builder(action = Copy('$TARGET', '$SOURCE'),
                                source_scanner = SCons.Defaults.CScan)
 env['BUILDERS']['Mod'] = Builder(action = r'%(_python_)s mod.py')
