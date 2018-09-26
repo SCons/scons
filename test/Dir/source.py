@@ -42,6 +42,7 @@ test.subdir('tstamp', [ 'tstamp', 'subdir' ],
             'cmd-content', [ 'cmd-content', 'subdir' ])
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 def writeTarget(target, source, env):
     f=open(str(target[0]), 'w')
     f.write("stuff\\n")
@@ -52,7 +53,7 @@ test_bld_dir = Builder(action=writeTarget,
                        source_factory=Dir,
                        source_scanner=DirScanner)
 test_bld_file = Builder(action=writeTarget)
-env = Environment()
+env = Environment(tools=[])
 env['BUILDERS']['TestDir'] = test_bld_dir
 env['BUILDERS']['TestFile'] = test_bld_file
 

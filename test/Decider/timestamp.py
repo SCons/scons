@@ -37,11 +37,12 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
-m = Environment()
+DefaultEnvironment(tools=[])
+m = Environment(tools=[])
 m.Decider('timestamp-match')
 m.Command('match1.out', 'match1.in', Copy('$TARGET', '$SOURCE'))
 m.Command('match2.out', 'match2.in', Copy('$TARGET', '$SOURCE'))
-n = Environment()
+n = Environment(tools=[])
 n.Decider('timestamp-newer')
 n.Command('newer1.out', 'newer1.in', Copy('$TARGET', '$SOURCE'))
 n.Command('newer2.out', 'newer2.in', Copy('$TARGET', '$SOURCE'))

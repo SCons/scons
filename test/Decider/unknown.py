@@ -34,6 +34,7 @@ import TestSCons
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 Decider('fiddle-dee-dee')
 """)
 

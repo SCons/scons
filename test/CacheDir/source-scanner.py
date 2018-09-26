@@ -43,6 +43,7 @@ cache = test.workpath('cache')
 test.subdir('cache', 'subdir')
 
 test.write(['subdir', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
 import SCons
 
 CacheDir(r'%(cache)s')

@@ -34,12 +34,13 @@ import TestSCons
 test = TestSCons.TestSCons(match=TestSCons.match_re_dotall)
 
 base_sconstruct_contents = """\
+DefaultEnvironment(tools=[])
 Decider('%s')
 
 def build(env, target, source):
     open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
 B = Builder(action=build)
-env = Environment(BUILDERS = { 'B' : B })
+env = Environment(tools=[], BUILDERS = { 'B' : B })
 env.B(target='switch.out', source='switch.in')
 """
 

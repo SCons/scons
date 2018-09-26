@@ -37,6 +37,7 @@ from stat import *
 test = TestSCons.TestSCons()
 
 test.write(['SConstruct'], """\
+DefaultEnvironment(tools=[])
 CacheDir('cache')
 Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))
 """)

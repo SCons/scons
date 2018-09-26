@@ -13,17 +13,19 @@ def TestPyPackageDir(env, modname):
     relpath = relpath.replace(os.sep, '/')
     print(relpath)
 
+DefaultEnvironment(tools=[])
+
 print("Test identification of directory for a given python package")
-env = Environment()
+env = Environment(tools=[])
 TestPyPackageDir(env, 'testmod1')
 TestPyPackageDir(env, 'testmod2')
 TestPyPackageDir(env, 'submod1.testmod3')
 TestPyPackageDir(env, 'submod1.submod2.testmod4')
 
 print("Test parameter substitution")
-env = Environment(FOO = 'submod1.submod2.testmod4')
+env = Environment(tools=[], FOO = 'submod1.submod2.testmod4')
 TestPyPackageDir(env, '${FOO}')
-env = Environment(FOO = 'submod1.submod2', BAR = 'testmod4')
+env = Environment(tools=[], FOO = 'submod1.submod2', BAR = 'testmod4')
 TestPyPackageDir(env, '${FOO}.${BAR}')
 
 sys.path = oldsyspath

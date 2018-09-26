@@ -47,8 +47,9 @@ build(sys.argv[1],sys.argv[2],sys.argv[3:])
 """)
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 B = Builder(action=r'%(_python_)s build.py $foo $TARGET $SOURCES', multi=1)
-env = Environment(BUILDERS = { 'B' : B })
+env = Environment(tools=[], BUILDERS = { 'B' : B })
 env.B(target = 'file03.out', source = 'file03a.in', foo=1)
 env.B(target = 'file03.out', source = 'file03b.in', foo=2)
 """ % locals())

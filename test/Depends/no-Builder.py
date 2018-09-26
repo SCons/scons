@@ -34,7 +34,8 @@ test = TestSCons.TestSCons()
 
 #
 test.write('SConstruct', """\
-env = Environment()
+DefaultEnvironment(tools=[])
+env = Environment(tools=[])
 file1 = File('file1')
 file2 = File('file2')
 env.Depends(file1, [[file2, 'file3']])

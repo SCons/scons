@@ -33,6 +33,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 import os.path
 file_in = File('file.in')
 file_out = File('file.out')

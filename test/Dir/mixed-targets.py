@@ -46,12 +46,13 @@ def copier(target, source, env):
     shutil.copytree(str(source[0]), 'build')
     return 0
 
+DefaultEnvironment(tools=[])
 Copier = Builder(action = copier,
                  target_scanner = SCons.Defaults.DirEntryScanner,
                  target_factory = Entry,
                  source_factory = Entry)
 
-env = Environment(BUILDERS = {'Copier': Copier})
+env = Environment(tools=[], BUILDERS = {'Copier': Copier})
 env.Copier(['build/dir', 'build/file1'], ['src'])
 """)
 

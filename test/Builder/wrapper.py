@@ -34,6 +34,8 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
+
 import os.path
 import string
 def cat(target, source, env):
@@ -49,7 +51,8 @@ def Wrapper(env, target, source):
     env.Cat(t1, source)
     t2 = 't2-'+str(target[0])
     env.Cat(t2, source)
-env = Environment(BUILDERS = {'Cat' : Cat,
+env = Environment(tools=[],
+                  BUILDERS = {'Cat' : Cat,
                               'Wrapper' : Wrapper})
 env.Wrapper('f1.out', 'f1.in')
 env.Wrapper('f2.in')

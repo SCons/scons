@@ -47,7 +47,7 @@ def cat(env, source, target):
     for src in source:
         f.write(open(str(src), "r").read())
     f.close()
-env = Environment(BUILDERS={'Cat':Builder(action=cat)})
+env = Environment(tools=[], BUILDERS={'Cat':Builder(action=cat)})
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')
@@ -65,7 +65,8 @@ test.write(['src', 'ccc.in'], "ccc.in\n")
 
 #
 test.write('SConstruct', """\
-env = Environment(TWO = '2')
+DefaultEnvironment(tools=[])
+env = Environment(tools=[], TWO = '2')
 CacheDir(r'%s')
 VariantDir('build', 'src', duplicate=0)
 SConscript('build/SConscript')
