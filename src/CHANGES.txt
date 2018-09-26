@@ -149,6 +149,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Updated the test-framework.rst documentation.
     - Remove obsoleted internal implementaiton of OrderedDict.
     - Test for tar packaging fixups
+    - Stop using deprecated unittest asserts
     
   From Hao Wu
     - typo in customized decider example in user guide 

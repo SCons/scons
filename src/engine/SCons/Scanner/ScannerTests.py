@@ -132,16 +132,16 @@ class BaseTestCase(unittest.TestCase):
         scanned = scanner(filename, env, path)
         scanned_strs = [str(x) for x in scanned]
 
-        self.failUnless(self.filename == filename, "the filename was passed incorrectly")
-        self.failUnless(self.env == env, "the environment was passed incorrectly")
-        self.failUnless(scanned_strs == deps, "the dependencies were returned incorrectly")
+        self.assertTrue(self.filename == filename, "the filename was passed incorrectly")
+        self.assertTrue(self.env == env, "the environment was passed incorrectly")
+        self.assertTrue(scanned_strs == deps, "the dependencies were returned incorrectly")
         for d in scanned:
-            self.failUnless(not isinstance(d, str), "got a string in the dependencies")
+            self.assertTrue(not isinstance(d, str), "got a string in the dependencies")
 
         if len(args) > 0:
-            self.failUnless(self.arg == args[0], "the argument was passed incorrectly")
+            self.assertTrue(self.arg == args[0], "the argument was passed incorrectly")
         else:
-            self.failIf(hasattr(self, "arg"), "an argument was given when it shouldn't have been")
+            self.assertFalse(hasattr(self, "arg"), "an argument was given when it shouldn't have been")
 
     def test___call__dict(self):
         """Test calling Scanner.Base objects with a dictionary"""
@@ -245,7 +245,7 @@ class BaseTestCase(unittest.TestCase):
         dict[s] = 777
         i = hash(id(s))
         h = hash(list(dict.keys())[0])
-        self.failUnless(h == i,
+        self.assertTrue(h == i,
                         "hash Scanner base class expected %s, got %s" % (i, h))
 
     def test_scan_check(self):
@@ -260,7 +260,7 @@ class BaseTestCase(unittest.TestCase):
         self.checked = {}
         path = s.path(env)
         scanned = s(DummyNode('x'), env, path)
-        self.failUnless(self.checked['x'] == 1,
+        self.assertTrue(self.checked['x'] == 1,
                         "did not call check function")
 
     def test_recursive(self):
@@ -269,42 +269,42 @@ class BaseTestCase(unittest.TestCase):
 
         s = SCons.Scanner.Base(function = self.func)
         n = s.recurse_nodes(nodes)
-        self.failUnless(n == [],
+        self.assertTrue(n == [],
                         "default behavior returned nodes: %s" % n)
 
         s = SCons.Scanner.Base(function = self.func, recursive = None)
         n = s.recurse_nodes(nodes)
-        self.failUnless(n == [],
+        self.assertTrue(n == [],
                         "recursive = None returned nodes: %s" % n)
 
         s = SCons.Scanner.Base(function = self.func, recursive = 1)
         n = s.recurse_nodes(nodes)
-        self.failUnless(n == n,
+        self.assertTrue(n == n,
                         "recursive = 1 didn't return all nodes: %s" % n)
 
         def odd_only(nodes):
             return [n for n in nodes if n % 2]
         s = SCons.Scanner.Base(function = self.func, recursive = odd_only)
         n = s.recurse_nodes(nodes)
-        self.failUnless(n == [1, 3],
+        self.assertTrue(n == [1, 3],
                         "recursive = 1 didn't return all nodes: %s" % n)
 
     def test_get_skeys(self):
         """Test the Scanner.Base get_skeys() method"""
         s = SCons.Scanner.Base(function = self.func)
         sk = s.get_skeys()
-        self.failUnless(sk == [],
+        self.assertTrue(sk == [],
                         "did not initialize to expected []")
 
         s = SCons.Scanner.Base(function = self.func, skeys = ['.1', '.2'])
         sk = s.get_skeys()
-        self.failUnless(sk == ['.1', '.2'],
+        self.assertTrue(sk == ['.1', '.2'],
                         "sk was %s, not ['.1', '.2']")
 
         s = SCons.Scanner.Base(function = self.func, skeys = '$LIST')
         env = DummyEnvironment(LIST = ['.3', '.4'])
         sk = s.get_skeys(env)
-        self.failUnless(sk == ['.3', '.4'],
+        self.assertTrue(sk == ['.3', '.4'],
                         "sk was %s, not ['.3', '.4']")
 
     def test_select(self):
@@ -432,19 +432,19 @@ class CurrentTestCase(unittest.TestCase):
         path = s.path(env)
         hnb = HasNoBuilder()
         s(hnb, env, path)
-        self.failUnless(hnb.called_has_builder, "did not call has_builder()")
-        self.failUnless(not hnb.called_is_up_to_date, "did call is_up_to_date()")
-        self.failUnless(hnb.func_called, "did not call func()")
+        self.assertTrue(hnb.called_has_builder, "did not call has_builder()")
+        self.assertTrue(not hnb.called_is_up_to_date, "did call is_up_to_date()")
+        self.assertTrue(hnb.func_called, "did not call func()")
         inc = IsNotCurrent()
         s(inc, env, path)
-        self.failUnless(inc.called_has_builder, "did not call has_builder()")
-        self.failUnless(inc.called_is_up_to_date, "did not call is_up_to_date()")
-        self.failUnless(not inc.func_called, "did call func()")
+        self.assertTrue(inc.called_has_builder, "did not call has_builder()")
+        self.assertTrue(inc.called_is_up_to_date, "did not call is_up_to_date()")
+        self.assertTrue(not inc.func_called, "did call func()")
         ic = IsCurrent()
         s(ic, env, path)
-        self.failUnless(ic.called_has_builder, "did not call has_builder()")
-        self.failUnless(ic.called_is_up_to_date, "did not call is_up_to_date()")
-        self.failUnless(ic.func_called, "did not call func()")
+        self.assertTrue(ic.called_has_builder, "did not call has_builder()")
+        self.assertTrue(ic.called_is_up_to_date, "did not call is_up_to_date()")
+        self.assertTrue(ic.func_called, "did not call func()")
 
 class ClassicTestCase(unittest.TestCase):
 
@@ -566,7 +566,7 @@ class ClassicTestCase(unittest.TestCase):
 
         s = SCons.Scanner.Classic("Test", [], None, "", function=self.func, recursive=1)
         n = s.recurse_nodes(nodes)
-        self.failUnless(n == n,
+        self.assertTrue(n == n,
                         "recursive = 1 didn't return all nodes: %s" % n)
 
         def odd_only(nodes):
@@ -574,7 +574,7 @@ class ClassicTestCase(unittest.TestCase):
 
         s = SCons.Scanner.Classic("Test", [], None, "", function=self.func, recursive=odd_only)
         n = s.recurse_nodes(nodes)
-        self.failUnless(n == [1, 3],
+        self.assertTrue(n == [1, 3],
                         "recursive = 1 didn't return all nodes: %s" % n)
 
 
