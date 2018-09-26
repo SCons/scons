@@ -44,7 +44,9 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(PYTHON = r'%(_python_)s',
+DefaultEnvironment(tools=[])
+env = Environment(tools=[],
+                  PYTHON = r'%(_python_)s',
                   SLEEP_CAT = r'sleep_cat.py',
                   CATCOM = '$PYTHON $SLEEP_CAT $SECONDS $TARGET $SOURCES',
                   SECONDS = ARGUMENTS.get('SLEEP', '0'))

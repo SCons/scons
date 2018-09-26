@@ -31,7 +31,8 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
-env=Environment()
+DefaultEnvironment(tools=[])
+env=Environment(tools=[])
 dest=env.Command('foo.out', 'SConstruct',
    [Copy('$TARGET', '$SOURCE'),
     Copy('${TARGET}.extra', '$SOURCE')])
