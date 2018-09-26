@@ -54,11 +54,13 @@ fp.write('TIMESTAMP=%s\\n' % args[3])
 os.chmod(build_py, 0o755)
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 arg = 'a_long_ignored_argument'
 extra_arguments = arg
 while len(extra_arguments) <= 1024:
     extra_arguments = extra_arguments + ' ' + arg
-env = Environment(FILECOM=[r'%(build_py)s',
+env = Environment(tools=[],
+                  FILECOM=[r'%(build_py)s',
                            '$TARGET', '$SOURCE',
                            '$FILEFLAG',
                            '$(', '$TIMESTAMP', '$)',
