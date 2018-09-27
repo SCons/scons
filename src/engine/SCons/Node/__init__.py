@@ -1485,9 +1485,9 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
                     if t: Trace(': %s changed' % child)
                     result = True
 
-        contents = self.get_executor().get_contents()
         if self.has_builder():
             import SCons.Util
+            contents = self.get_executor().get_contents()
             newsig = SCons.Util.MD5signature(contents)
             if bi.bactsig != newsig:
                 if t: Trace(': bactsig %s != newsig %s' % (bi.bactsig, newsig))

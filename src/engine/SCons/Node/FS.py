@@ -43,6 +43,7 @@ import stat
 import sys
 import time
 import codecs
+from itertools import izip, chain
 
 import SCons.Action
 import SCons.Debug
@@ -2483,6 +2484,12 @@ class FileNodeInfo(SCons.Node.NodeInfoBase):
             if key not in ('__weakref__',):
                 setattr(self, key, value)
 
+    def __eq__(self, other):
+        return self.csig == other.csig and self.timestamp == other.timestamp and self.size == other.size
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
 
 class FileBuildInfo(SCons.Node.BuildInfoBase):
     """
@@ -2493,6 +2500,12 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
     """
     __slots__ = ('dependency_map')
     current_version_id = 2
+
+    def __setattr__(self, key, value):
+        if key != 'dependency_map' and hasattr(self, 'dependency_map'):
+            del self.dependency_map
+
+        return super(FileBuildInfo, self).__setattr__(key, value)
 
     def convert_to_sconsign(self):
         """
@@ -3263,12 +3276,14 @@ class File(Base):
         return self.state != SCons.Node.up_to_date
 
 
+    # Caching node -> string mapping for the below method
+    __dmap_cache = {}
+    __dmap_sig_cache = {}
+
+
     def _build_dependency_map(self, binfo):
         """
         Build mapping from file -> signature
-
-        This method also updates binfo.dependency_map to avoid rebuilding
-        the map for every dependency of the node we're workingon.
 
         Args:
             self - self
@@ -3281,26 +3296,15 @@ class File(Base):
         # For an "empty" binfo properties like bsources
         # do not exist: check this to avoid exception.
         if (len(binfo.bsourcesigs) + len(binfo.bdependsigs) + \
-                len(binfo.bimplicitsigs)) == 0:
+            len(binfo.bimplicitsigs)) == 0:
             return {}
-
-        pairs = [
-            (binfo.bsources, binfo.bsourcesigs),
-            (binfo.bdepends, binfo.bdependsigs),
-            (binfo.bimplicit, binfo.bimplicitsigs)
-           ]
-
-        m = {}
-        for children, signatures in pairs:
-            for child, signature in zip(children, signatures):
-                schild = str(child)
-                m[schild] = signature
-
 
 
         # store this info so we can avoid regenerating it.
-        binfo.dependency_map = m
-        return m
+        binfo.dependency_map = { str(child):signature for child, signature in izip(chain(binfo.bsources, binfo.bdepends, binfo.bimplicit),
+                                     chain(binfo.bsourcesigs, binfo.bdependsigs, binfo.bimplicitsigs))}
+
+        return binfo.dependency_map
 
     def _get_previous_signatures(self, dmap):
         """
@@ -3310,45 +3314,31 @@ class File(Base):
         Args:
             self - self
             dmap - Dictionary of file -> csig
-            children - List of children
 
         Returns:
             List of csigs for provided list of children
         """
         prev = []
 
-
-
         # First try the simple name for node
         c_str = str(self)
         if os.altsep:
             c_str = c_str.replace(os.sep, os.altsep)
-        df = dmap.get(c_str)
+        df = dmap.get(c_str, None)
         if not df:
-            print("No Luck1:%s"%c_str)
             try:
                 # this should yield a path which matches what's in the sconsign
                 c_str = self.get_path()
                 if os.altsep:
                     c_str = c_str.replace(os.sep, os.altsep)
 
-                df = dmap.get(c_str)
-                if not df:
-                    print("No Luck:%s"%[str(s) for s in self.find_repo_file()])
-                    print("       :%s"%self.rfile())
+                df = dmap.get(c_str, None)
 
             except AttributeError as e:
                 import pdb;
                 pdb.set_trace()
 
-
-        if df:
-            return df
-        else:
-            print("CHANGE_DEBUG: file:%s PREV_BUILD_FILES:%s" % (c_str, ",".join(dmap.keys())))
-            pass
-
-        return None
+        return df
 
     def changed_timestamp_then_content(self, target, prev_ni, node=None):
         """
@@ -3372,11 +3362,12 @@ class File(Base):
 
         # Now get sconsign name -> csig map and then get proper prev_ni if possible
         bi = node.get_stored_info().binfo
+        rebuilt = False
         try:
             dependency_map = bi.dependency_map
         except AttributeError as e:
             dependency_map = self._build_dependency_map(bi)
-
+            rebuilt = True
 
         prev_ni = self._get_previous_signatures(dependency_map)
 
