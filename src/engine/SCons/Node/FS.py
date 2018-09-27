@@ -43,7 +43,7 @@ import stat
 import sys
 import time
 import codecs
-from itertools import izip, chain
+from itertools import chain
 
 import SCons.Action
 import SCons.Debug
@@ -3301,7 +3301,7 @@ class File(Base):
 
 
         # store this info so we can avoid regenerating it.
-        binfo.dependency_map = { str(child):signature for child, signature in izip(chain(binfo.bsources, binfo.bdepends, binfo.bimplicit),
+        binfo.dependency_map = { str(child):signature for child, signature in zip(chain(binfo.bsources, binfo.bdepends, binfo.bimplicit),
                                      chain(binfo.bsourcesigs, binfo.bdependsigs, binfo.bimplicitsigs))}
 
         return binfo.dependency_map
