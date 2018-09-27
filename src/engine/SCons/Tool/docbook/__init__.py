@@ -166,6 +166,8 @@ xsltproc_com_priority = ['xsltproc', 'saxon', 'saxon-xslt', 'xalan']
 #       see: http://saxon.sourceforge.net/
 xsltproc_com = {'xsltproc' : '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -o $TARGET $DOCBOOK_XSL $SOURCE',
                 'saxon' : '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -o $TARGET $DOCBOOK_XSL $SOURCE $DOCBOOK_XSLTPROCPARAMS',
+                # Note if saxon-xslt is version 5.5 the proper arguments are: (swap order of docbook_xsl and source)
+                #  'saxon-xslt' : '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -o $TARGET $SOURCE $DOCBOOK_XSL  $DOCBOOK_XSLTPROCPARAMS',
                 'saxon-xslt' : '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -o $TARGET $DOCBOOK_XSL $SOURCE $DOCBOOK_XSLTPROCPARAMS',
                 'xalan' : '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -q -out $TARGET -xsl $DOCBOOK_XSL -in $SOURCE'}
 xmllint_com = {'xmllint' : '$DOCBOOK_XMLLINT $DOCBOOK_XMLLINTFLAGS --xinclude $SOURCE > $TARGET'}
