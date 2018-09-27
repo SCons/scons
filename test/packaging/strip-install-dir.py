@@ -27,6 +27,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 """
 Test stripping the InstallBuilder of the Package source file.
 """
+import os
 
 import TestSCons
 
@@ -52,10 +53,10 @@ env.Package( NAME    = 'foo',
 expected = """scons: Reading SConscript files ...
 scons: done reading SConscript files.
 scons: Building targets ...
-Copy file(s): "main.c" to "foo-1.2.3/bin/main.c"
-tar -zc -f foo-1.2.3.tar.gz foo-1.2.3/bin/main.c
+Copy file(s): "main.c" to "foo-1.2.3{os_sep}bin{os_sep}main.c"
+tar -zc -f foo-1.2.3.tar.gz foo-1.2.3{os_sep}bin{os_sep}main.c
 scons: done building targets.
-"""
+""".format(os_sep=os.sep)
 
 test.run(arguments='', stderr = None, stdout=expected)
 
