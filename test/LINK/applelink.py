@@ -50,7 +50,6 @@ main(int argc, char *argv[])
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 env = Environment(PLATFORM='darwin')
-                  
 env.Object(
 	target = '#foo.o',
 	source = ['foo.c'],
@@ -59,7 +58,7 @@ env.Object(
 )
 """ % locals())
 
-test.run(arguments='-Q', stdout='gcc -o foo.o -c -Fframeworks foo.c\n')
+test.run(arguments='-Q -n', stdout='gcc -o foo.o -c -Fframeworks foo.c\n')
 
 test.pass_test()
 
