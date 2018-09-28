@@ -2524,7 +2524,6 @@ class FileTestCase(_tempdirTestCase):
                 self.csig = csig
                 self.timestamp = timestamp
 
-
         #Create nodes
         fs = SCons.Node.FS.FS()
         d = self.fs.Dir('.')
@@ -2537,8 +2536,6 @@ class FileTestCase(_tempdirTestCase):
         i2 = ChangedNode('beta.h',d,fs) # beta.h
         i3 = ChangedNode('gamma.h',d,fs) # gamma.h - In the bug beta.h's csig from binfo overwrites this ones
         i4 = ChangedNode('/usr/bin/g++',d,fs) # /usr/bin/g++
-
-
 
         node.add_source([s1])
         node.add_dependency([])
