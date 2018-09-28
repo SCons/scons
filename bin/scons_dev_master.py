@@ -11,11 +11,12 @@ import sys
 from Command import CommandRunner, Usage
 
 INITIAL_PACKAGES = [
-    'mercurial',
+    'git',
 ]
 
 INSTALL_PACKAGES = [
     'wget',
+    'xz-utils',
 ]
 
 PYTHON_PACKAGES = [
@@ -60,8 +61,7 @@ DOCUMENTATION_PACKAGES = [
     'gcc-doc',
     'pkg-config',
     'python-doc',
-    'sun-java5-doc',
-    'sun-java6-doc',
+    'openjdk-8-doc',
     'swig-doc',
     'texlive-doc',
 ]
@@ -70,21 +70,22 @@ TESTING_PACKAGES = [
     'bison',
     'cssc',
     'cvs',
+    'hg',
     'flex',
     'g++',
     'gcc',
     'gcj',
     'ghostscript',
-#    'libgcj7-dev',
     'm4',
     'openssh-client',
     'openssh-server',
     'python-profiler',
     'python-all-dev',
+    'python3-all-dev',
+    'pypy-dev',
     'rcs',
     'rpm',
-#    'sun-java5-jdk',
-    'sun-java6-jdk',
+    'openjdk-8-jdk',
     'swig',
     'texlive-base-bin',
     'texlive-extra-utils',
@@ -131,7 +132,7 @@ Usage:  scons_dev_master.py [-hnqy] [--password PASSWORD] [--username USER]
         buildbot                Install packages for running BuildBot
 """
 
-    scons_url = 'https://bdbaddog@bitbucket.org/scons/scons'
+    scons_url = 'https://github.com/SCons/scons.git'
     sudo = 'sudo'
     password = '""'
     username = 'guest'
@@ -180,13 +181,15 @@ Usage:  scons_dev_master.py [-hnqy] [--password PASSWORD] [--username USER]
             cmd.run('%(sudo)s apt-get %(yesflag)s upgrade')
         elif arg == 'checkout':
             cmd.run('%(sudo)s apt-get %(yesflag)s install %(initial_packages)s')
-            cmd.run('hg clone" %(scons_url)s')
+            cmd.run('git clone" %(scons_url)s')
         elif arg == 'building':
             cmd.run('%(sudo)s apt-get %(yesflag)s install %(building_packages)s')
         elif arg == 'docs':
             cmd.run('%(sudo)s apt-get %(yesflag)s install %(doc_packages)s')
         elif arg == 'testing':
             cmd.run('%(sudo)s apt-get %(yesflag)s install %(testing_packages)s')
+            #TODO: maybe copy ipkg-build from openwrt git
+            #cmd.run('%(sudo)s wget https://raw.githubusercontent.com/openwrt/openwrt/master/scripts/ipkg-build SOMEWHERE')
         elif arg == 'buildbot':
             cmd.run('%(sudo)s apt-get %(yesflag)s install %(buildbot_packages)s')
         elif arg == 'python-versions':

@@ -1,4 +1,4 @@
-"""SCons.Tool.Packaging.targz
+"""SCons.Tool.Packaging.src_targz
 
 The targz SRC packager.
 """

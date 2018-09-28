@@ -1,11 +1,7 @@
-"""SCons.Tool.Packaging.tarbz2
-
-The tarbz2 packager.
-"""
-
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -28,14 +24,48 @@ The tarbz2 packager.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-from SCons.Tool.packaging import stripinstallbuilder, putintopackageroot
+"""
+This tests the SRC xz packager, which does the following:
+ - create a tar package from the specified files
+"""
 
-def package(env, target, source, PACKAGEROOT, **kw):
-    bld = env['BUILDERS']['Tar']
-    bld.set_suffix('.tar.bz2')
-    target, source = putintopackageroot(target, source, env, PACKAGEROOT)
-    target, source = stripinstallbuilder(target, source, env)
-    return bld(env, target, source, TARFLAGS='-jc')
+import TestSCons
+
+python = TestSCons.python
+
+test = TestSCons.TestSCons()
+
+tar = test.detect('TAR', 'tar')
+if not tar:
+    test.skip_test('tar not found, skipping test\n')
+
+xz = test.where_is('xz')
+if not xz:
+    test.skip_test('tar found, but helper xz not found, skipping test\n')
+
+test.subdir('src')
+
+test.write([ 'src', 'main.c'], r"""
+int main( int argc, char* argv[] )
+{
+  return 0;
+}
+""")
+
+test.write('SConstruct', """
+Program( 'src/main.c' )
+env=Environment(tools=['default', 'packaging'])
+env.Package( PACKAGETYPE  = 'src_tarxz',
+             target       = 'src.tar.xz',
+             PACKAGEROOT  = 'test',
+             source       = [ 'src/main.c', 'SConstruct' ] )
+""")
+
+test.run(arguments='', stderr=None)
+
+test.must_exist('src.tar.xz')
+
+test.pass_test()
 
 # Local Variables:
 # tab-width:4

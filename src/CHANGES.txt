@@ -151,6 +151,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Test for tar packaging fixups
     - Stop using deprecated unittest asserts
     - messages in strip-install-dir test now os-neutral
+    - Add xz compression format to packaging choices.
     
   From Hao Wu
     - typo in customized decider example in user guide 

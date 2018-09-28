@@ -1,4 +1,4 @@
-"""SCons.Tool.Packaging.tarbz2
+"""SCons.Tool.Packaging.src_tarbz2
 
 The tarbz2 SRC packager.
 """

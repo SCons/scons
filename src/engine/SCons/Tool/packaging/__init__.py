@@ -37,7 +37,11 @@ from SCons.Warnings import warn, Warning
 import os
 import imp
 
-__all__ = [ 'src_targz', 'src_tarbz2', 'src_zip', 'tarbz2', 'targz', 'zip', 'rpm', 'msi', 'ipk' ]
+__all__ = [
+    'src_targz', 'src_tarbz2', 'src_xz', 'src_zip',
+    'targz', 'tarbz2', 'xz', 'zip',
+    'rpm', 'msi', 'ipk',
+]
 
 #
 # Utility and Builder function
