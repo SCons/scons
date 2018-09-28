@@ -14,12 +14,13 @@ install:
   - python --version
   - pip install pypiwin32
   - set STATIC_DEPS=true & pip install lxml
+
   - choco install --allow-empty-checksums dmd
   - choco install --allow-empty-checksums ldc
   - choco install --allow-empty-checksums swig
   - choco install --allow-empty-checksums vswhere
   - choco install --allow-empty-checksums xsltproc
-
+  - choco install --allow-empty-checksums wixtoolset
 
 environment:
   matrix:
