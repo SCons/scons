@@ -50,7 +50,7 @@ test.write('src/main.c', '')
 
 test.write('SConstruct', """
 VariantDir('build', 'src')
-env=Environment(tools=['default', 'packaging'])
+env=Environment(tools=['packaging', 'filesystem', 'zip'])
 env.Package( NAME        = 'libfoo',
              PACKAGEROOT = 'build/libfoo',
              VERSION     = '1.2.3',
@@ -74,7 +74,7 @@ test.write('src/main.c', '')
 
 test.write('SConstruct', """
 VariantDir('build', 'src')
-env=Environment(tools=['default', 'packaging'])
+env=Environment(tools=['packaging', 'filesystem', 'tar'])
 env.Package( NAME        = 'libfoo',
              VERSION     = '1.2.3',
              PAKCAGETYPE = 'src_targz',

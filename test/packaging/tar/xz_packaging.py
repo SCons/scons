@@ -54,7 +54,7 @@ int main( int argc, char* argv[] )
 
 test.write('SConstruct', """
 Program( 'src/main.c' )
-env=Environment(tools=['default', 'packaging'])
+env=Environment(tools=['packaging', 'filesystem', 'tar'])
 env.Package( PACKAGETYPE  = 'src_tarxz',
              target       = 'src.tar.xz',
              PACKAGEROOT  = 'test',
