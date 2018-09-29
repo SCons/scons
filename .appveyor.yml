@@ -61,6 +61,7 @@ environment:
       BUILD_JOB_NUM: 4
 
 
+<<<<<<< HEAD
 before_build:
     - ps: dir "C:\Program Files\Git\usr\bin\x*.exe"
     - ps: |
@@ -68,6 +69,25 @@ before_build:
           Remove-Item  "C:\Program Files\Git\usr\bin\xsltproc.EXE" -ErrorAction Ignore
         }
     - ps: dir "C:\Program Files\Git\usr\bin\x*.exe"
+=======
+    # - PYTHON: "C:\\Python35-x64"
+    #   BUILD_JOB_NUM: 1
+    # - PYTHON: "C:\\Python35-x64"
+    #   BUILD_JOB_NUM: 2
+    # - PYTHON: "C:\\Python35-x64"
+    #   BUILD_JOB_NUM: 3
+    # - PYTHON: "C:\\Python35-x64"
+    #   BUILD_JOB_NUM: 4
+
+    # - PYTHON: "C:\\Python36-x64"
+    #   BUILD_JOB_NUM: 1
+    # - PYTHON: "C:\\Python36-x64"
+    #   BUILD_JOB_NUM: 2
+    # - PYTHON: "C:\\Python36-x64"
+    #   BUILD_JOB_NUM: 3
+    # - PYTHON: "C:\\Python36-x64"
+    #   BUILD_JOB_NUM: 4
+>>>>>>> typo, it is wixtoolset
 
 build: off
 
