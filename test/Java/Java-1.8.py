@@ -37,7 +37,7 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 test.dir_fixture('java_version_image')
 
-version = '1.6'
+version = '1.8'
 where_javac, java_version = test.java_where_javac(version)
 javac_path=os.path.dirname(where_javac)
 
