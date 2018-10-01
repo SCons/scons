@@ -37,6 +37,7 @@ test.subdir('src')
 test.subdir('src/sub1')
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 VariantDir('var1', 'src')
 VariantDir('var2', 'src')
 
@@ -48,7 +49,7 @@ SConscript('src/sub1/SConscript', src_dir = 'src', variant_dir = 'var3', duplica
 """)
 
 test.write(['src', 'SConscript'], """\
-env = Environment() 
+env = Environment(tools=[]) 
 
 def concatenate(target, source, env):
     fp = open(str(target[0]), 'wb')
@@ -63,7 +64,7 @@ env.Concatenate('fex.out', sorted(Glob('f*.in', exclude = 'f1.in'), key=lambda t
 """)
 
 test.write(['src', 'sub1', 'SConscript'], """\
-env = Environment()
+env = Environment(tools=[])
 
 def concatenate(target, source, env):
     fp = open(str(target[0]), 'wb')

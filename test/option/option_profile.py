@@ -48,6 +48,7 @@ except ImportError:
     test.skip_test('No pstats module, skipping test.\n')
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 Command('file.out', 'file.in', Copy("$TARGET", "$SOURCE"))
 """)
 

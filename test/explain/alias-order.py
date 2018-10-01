@@ -38,7 +38,8 @@ args = '--debug=explain target2.dat'
 
 test.subdir('src')
 test.write(['src', 'SConstruct'],"""
-env = Environment()
+DefaultEnvironment(tools=[])
+env = Environment(tools=[])
 
 def action( source, target, env ):
     f = open( str(target[0]), 'wb' )

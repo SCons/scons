@@ -48,7 +48,8 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(tools=['default', 'm4'],
+DefaultEnvironment(tools=[])
+env = Environment(tools=['m4'],
                   M4COM = r'%(_python_)s mym4.py $TARGET $SOURCES',
                   M4COMSTR = 'M4ing $TARGET from $SOURCE')
 env.M4(target = 'aaa.out', source = 'aaa.in')

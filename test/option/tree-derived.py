@@ -34,6 +34,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(OBJSUFFIX = '.ooo', PROGSUFFIX = '.xxx')
 env.Program('foo', Split('foo.c bar.c'))
 """)

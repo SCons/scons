@@ -39,9 +39,10 @@ file.close()
 """)
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 SetOption('md5_chunksize', 128)
 B = Builder(action = r'%(_python_)s build.py $TARGETS $SOURCES')
-env = Environment(BUILDERS = { 'B' : B })
+env = Environment(tools=[], BUILDERS = { 'B' : B })
 f1 = env.B(target = 'f1.out', source = 'f1.in')
 f2 = env.B(target = 'f2.out', source = 'f2.in')
 Requires(f2, f1)
@@ -102,13 +103,14 @@ get_stat(["test.stat"], ["test.big"])
 """)
 
 test2.write('SConstruct', """
+DefaultEnvironment(tools=[])
 import os
 def get_stat(target, source, env):
     stat = os.stat(source[0].get_abspath())
     dest = open(target[0].get_abspath(),'w')
     dest.write(str(stat))
     dest.close()
-env = Environment()
+env = Environment(tools=[])
 env.Command('test.big', 'SConstruct', 'dd if=/dev/zero of=test.big seek=100 bs=1M count=0 2>/dev/null')
 env.AlwaysBuild('test.big')
 env.Command('test.stat', 'test.big', Action(get_stat))

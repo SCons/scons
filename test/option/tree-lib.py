@@ -38,6 +38,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(LIBPREFIX='',
                   LIBSUFFIX='.lib',
                   OBJSUFFIX='.obj',

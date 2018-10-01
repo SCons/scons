@@ -46,8 +46,9 @@ file.close()
 """)
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 B = Builder(action = r'%(_python_)s build.py $TARGETS $SOURCES')
-env = Environment(BUILDERS = { 'B' : B })
+env = Environment(tools=[], BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
 
 mode = ARGUMENTS.get('MODE')

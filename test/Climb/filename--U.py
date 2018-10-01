@@ -36,6 +36,7 @@ test = TestSCons.TestSCons()
 test.subdir('subdir', 'other')
 
 test.write('main.scons', """\
+DefaultEnvironment(tools=[])
 print("main.scons")
 SConscript('subdir/sub.scons')
 """)
