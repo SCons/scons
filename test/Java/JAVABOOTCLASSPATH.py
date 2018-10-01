@@ -84,9 +84,11 @@ public class Example2
 
 bootclasspath = os.pathsep.join(['dir1', 'dir2'])
 
+os_sep = os.sep
+
 expect = """\
-%(where_javac)s -bootclasspath %(bootclasspath)s -d class -sourcepath com com/Example1.java
-%(where_javac)s -bootclasspath %(bootclasspath)s -d class -sourcepath com com/Example2.java
+%(where_javac)s -bootclasspath %(bootclasspath)s -d class -sourcepath com com%(os_sep)sExample1.java
+%(where_javac)s -bootclasspath %(bootclasspath)s -d class -sourcepath com com%(os_sep)sExample2.java
 """ % locals()
 
 test.run(arguments = '-Q -n .', stdout = expect)

@@ -43,14 +43,14 @@ test.write('SConstruct', """
 env = Environment(tools = ['javac', 'javah'],
                   JAVAC = r'%(where_javac)s',
                   JAVAH = r'%(where_javah)s')
-j1 = env.Java(target = 'class1', source = 'com1/Example1.java')
-j2 = env.Java(target = 'class2', source = 'com2/Example2.java')
+j1 = env.Java(target = 'class1', source = 'source1/Example1.java')
+j2 = env.Java(target = 'class2', source = 'source2/Example2.java')
 env.JavaH(target = 'outdir', source = [j1, j2], JAVACLASSPATH = 'class2')
 """ % locals())
 
-test.subdir('com1', 'com2')
+test.subdir('source1', 'source2')
 
-test.write(['com1', 'Example1.java'], """\
+test.write(['source1', 'Example1.java'], """
 package com;
 
 public class Example1
@@ -64,7 +64,7 @@ public class Example1
 }
 """)
 
-test.write(['com2', 'Example2.java'], """\
+test.write(['source2', 'Example2.java'], """
 package com;
 
 public class Example2

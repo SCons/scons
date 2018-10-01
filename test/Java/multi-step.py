@@ -31,14 +31,36 @@ capabilities of the various Java Builders.
 """
 
 import os
+import sys
+import platform
 
 import TestSCons
+from SCons.Tool.MSCommon.vc import find_vc_pdir
+from SCons.Tool.MSCommon.vc import get_default_version
 
 test = TestSCons.TestSCons()
 
 where_javac, java_version = test.java_where_javac()
 where_javah = test.java_where_javah()
 where_java_include=test.java_where_includes()
+
+# on windows we will assume MSVC compiler for this test
+# due to MSVC linker be called link.exe which is the
+# same name as GNU's link.exe, we will explictily get the
+# compiler and linker for windows to ensure MSVC is used
+msvc_link = ''
+msvc_cl = ''
+if sys.platform == 'win32':
+    VC_DIR = find_vc_pdir(get_default_version(test.Environment()))
+    if VC_DIR:
+        arch = '/'
+        if platform.machine().endswith('64'):
+            arch = '/amd64/'
+        msvc_link = os.path.join(VC_DIR, 'bin%slink.exe' % arch )
+        msvc_cl = os.path.join(VC_DIR, 'bin%scl.exe' % arch)
+    else:
+        test.skip_test('Could not find MSVC compiler, skipping test.\n')
+
 
 swig = test.where_is('swig')
 if not swig:
@@ -78,6 +100,9 @@ env=Environment(tools = ['default', 'javac', 'javah', 'swig'],
                 CPPPATH=%(where_java_include)s,                 
                 JAVAC = r'%(where_javac)s',
                 JAVAH = r'%(where_javah)s')
+if sys.platform == 'win32':
+    env['CC'] = r'"%(msvc_cl)s"'
+    env['LINK'] = r'"%(msvc_link)s"'
 Export('env')
 env.PrependENVPath('PATH',os.environ.get('PATH',[]))
 env['INCPREFIX']='-I'
@@ -153,8 +178,13 @@ public class Hello extends Applet {
 """)
 
 test.write(['src', 'javah', 'MyID.cc'], """\
+#ifdef _MSC_VER 
+#define EXPORT_SYMBOLS __declspec(dllexport)
+#else
+#define EXPORT_SYMBOLS 
+#endif
 #include "MyID.h"
-int getMyID()
+EXPORT_SYMBOLS int getMyID()
 {
    return 0;
 }

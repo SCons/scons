@@ -252,10 +252,13 @@ test.subdir('testdir2',
 
 # simple SConstruct which passes the 3 .java as source
 # and extracts the jars back to classes
+# passing in the java binaries from the test environment
 test.write(['testdir2', 'SConstruct'], """
 DefaultEnvironment(tools=[])
 
-foo = Environment()
+foo = Environment(tools = ['javac', 'jar'],
+                  JAVAC = r'%(where_javac)s',
+                  JAR = r'%(where_jar)s')
 foo.Jar(target = 'foobar', source = [
     'com/javasource/JavaFile1.java', 
     'com/javasource/JavaFile2.java',
@@ -272,7 +275,7 @@ foo.Command("fooTest", [], Mkdir("fooTest") )
 foo.Command('fooTest/com/javasource/JavaFile3.java', 'foo.jar', foo['JAR'] + ' xvf ../foo.jar', chdir='fooTest')
 foo.Command("barTest", [], Mkdir("barTest") )
 foo.Command('barTest/com/javasource/JavaFile3.java', 'bar.jar', foo['JAR'] + ' xvf ../bar.jar', chdir='barTest')
-""")
+""" % locals())
 
 test.write(['testdir2', 'com', 'javasource', 'JavaFile1.java'], """\
 package com.javasource;
@@ -310,13 +313,21 @@ public class JavaFile3
 }
 """)
 
-test.run(chdir='testdir2')
+# use a regex to determine if the output looks
+# ignoreing seperator (the wrong one would fail the test anyways)
+# and also test the binary is the one we passed in the SConstruct
+expect = test.wrap_stdout("""\
+.*%s cf foo.jar -C com.javasource.JavaFile1 com.javasource.JavaFile1.class \
+-C com.javasource.JavaFile2 com.javasource.JavaFile2.class \
+-C com.javasource.JavaFile3 com.javasource.JavaFile3.class.*\
+""" % os.path.basename(where_jar))
 
-# check the output and make sure the java files got converted to classes
-if("jar cf foo.jar " +
-   "-C com/javasource/JavaFile1 com/javasource/JavaFile1.class " +
-   "-C com/javasource/JavaFile2 com/javasource/JavaFile2.class " +
-   "-C com/javasource/JavaFile3 com/javasource/JavaFile3.class" not in test.stdout()):
+test.run(chdir='testdir2',	
+         match=TestSCons.match_re_dotall,	
+         stdout = expect)
+
+# make sure it was the specific binary we used
+if where_jar not in test.stdout():
     test.fail_test()
 
 #test single target jar
@@ -350,10 +361,13 @@ test.subdir('listOfLists',
             ['listOfLists', 'src', 'com', 'resource'])
 
 # test varient dir and lists of lists
+# passing in the java binaries from the test environment
 test.write(['listOfLists', 'SConstruct'], """
 DefaultEnvironment(tools=[])
 
-foo = Environment()
+foo = Environment(tools = ['javac', 'jar'],
+                  JAVAC = r'%(where_javac)s',
+                  JAR = r'%(where_jar)s')
 foo.VariantDir('build', 'src', duplicate=0)
 foo.VariantDir('test', '../manifest_dir', duplicate=0)
 sourceFiles = ["src/com/javasource/JavaFile1.java", "src/com/javasource/JavaFile2.java", "src/com/javasource/JavaFile3.java",]
@@ -365,7 +379,7 @@ contents = [list_of_class_files, resources]
 foo.Jar(target = 'lists', source = contents + ['test/MANIFEST.mf'], JARCHDIR='build')
 foo.Command("listsTest", [], Mkdir("listsTest") )
 foo.Command('listsTest/src/com/javasource/JavaFile3.java', 'lists.jar', foo['JAR'] + ' xvf ../lists.jar', chdir='listsTest')
-""")
+""" % locals())
 
 test.write(['listOfLists', 'src', 'com', 'javasource', 'JavaFile1.java'], """\
 package com.javasource;
@@ -442,10 +456,13 @@ test.subdir('testdir3',
             ['testdir3', 'com', 'sub', 'bar'])
 
 # Create the jars then extract them back to check contents
+# passing in the java binaries from the test environment
 test.write(['testdir3', 'SConstruct'], """
 DefaultEnvironment(tools=[])
 
-foo = Environment()
+foo = Environment(tools = ['javac', 'jar'],
+                  JAVAC = r'%(where_javac)s',
+                  JAR = r'%(where_jar)s')
 bar = foo.Clone()
 foo.Java(target = 'classes', source = 'com/sub/foo')
 bar.Java(target = 'classes', source = 'com/sub/bar')
@@ -455,7 +472,7 @@ foo.Command("fooTest", 'foo.jar', Mkdir("fooTest") )
 foo.Command('doesnt_exist1', "fooTest", foo['JAR'] + ' xvf ../foo.jar', chdir='fooTest')
 bar.Command("barTest", 'bar.jar', Mkdir("barTest") )
 bar.Command('doesnt_exist2', 'barTest', bar['JAR'] + ' xvf ../bar.jar', chdir='barTest')
-""")
+""" % locals())
 
 test.write(['testdir3', 'com', 'sub', 'foo', 'Example1.java'], """\
 package com.sub.foo;

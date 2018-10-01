@@ -737,14 +737,23 @@ class TestSCons(TestCommon):
 
         if not version:
             version=''
-            jni_dirs = ['/System/Library/Frameworks/JavaVM.framework/Headers/jni.h',
-                        '/usr/lib/jvm/default-java/include/jni.h',
-                        '/usr/lib/jvm/java-*-oracle/include/jni.h']
+            if sys.platform == 'win32':
+                jni_dirs = ['C:/Program Files*/Java/jdk*/include/jni.h']
+            elif sys.platform == 'darwin':
+                jni_dirs = ['/System/Library/Frameworks/JavaVM.framework/Headers/jni.h']
+            else:
+                jni_dirs = ['/usr/lib/jvm/default-java/include/jni.h',
+                            '/usr/lib/jvm/java-*-oracle/include/jni.h']
         else:
-            jni_dirs = ['/System/Library/Frameworks/JavaVM.framework/Versions/%s*/Headers/jni.h'%version]
-        jni_dirs.extend(['/usr/lib/jvm/java-*-sun-%s*/include/jni.h'%version,
-                         '/usr/lib/jvm/java-%s*-openjdk*/include/jni.h'%version,
-                         '/usr/java/jdk%s*/include/jni.h'%version])
+            if sys.platform == 'win32':
+                jni_dirs = [ 'C:/Program Files*/Java/jdk%s*/bin'%version]
+            elif sys.platform == 'darwin':
+                jni_dirs = ['/System/Library/Frameworks/JavaVM.framework/Versions/%s*/Headers/jni.h'%version]
+            else:
+                jni_dirs = ['/usr/lib/jvm/java-*-sun-%s*/include/jni.h'%version,
+                            '/usr/lib/jvm/java-%s*-openjdk*/include/jni.h'%version,
+                            '/usr/java/jdk%s*/include/jni.h'%version]
+
         dirs = self.paths(jni_dirs)
         if not dirs:
             return None
@@ -786,12 +795,11 @@ class TestSCons(TestCommon):
                         # This works on OSX 10.10
                         home = '/System/Library/Frameworks/JavaVM.framework/Versions/Current/'
         else:
-            jar = self.java_where_jar(version)
-            home = os.path.normpath('%s/..'%jar)
+            jar = self.java_where_jar(version)[1:-1]
+            home = os.path.normpath(os.path.join(os.path.dirname(jar), '..'))
         if os.path.isdir(home):
             return home
-        print("Could not determine JAVA_HOME: %s is not a directory" % home)
-        self.fail_test()
+        self.skip_test("Could not determine JAVA_HOME: %s is not a directory\n" % home)
 
     def java_mac_check(self, where_java_bin, java_bin_name):
         # on Mac there is a place holder java installed to start the java install process
@@ -814,6 +822,10 @@ class TestSCons(TestCommon):
         elif sys.platform == "darwin":
             self.java_mac_check(where_jar, 'jar')
 
+        # since we are return a path to a binary
+        # protect paths with space by adding quotes
+        if ' ' in where_jar:
+            where_jar = '"' + where_jar + '"'
         return where_jar
 
     def java_where_java(self, version=None):
@@ -828,6 +840,10 @@ class TestSCons(TestCommon):
         elif sys.platform == "darwin":
             self.java_mac_check(where_java, 'java')
 
+        # since we are return a path to a binary
+        # protect paths with space by adding quotes
+        if ' ' in where_java:
+            where_java = '"' + where_java + '"'
         return where_java
 
     def java_where_javac(self, version=None):
@@ -863,6 +879,11 @@ class TestSCons(TestCommon):
             else:
                 version = None
                 self.javac_is_gcj = False
+
+        # since we are return a path to a binary
+        # protect paths with space by adding quotes
+        if ' ' in where_javac:
+            where_javac = '"' + where_javac + '"'
         return where_javac, version
 
     def java_where_javah(self, version=None):
@@ -873,6 +894,11 @@ class TestSCons(TestCommon):
             where_javah = self.where_is('javah', ENV['PATH'])
         if not where_javah:
             self.skip_test("Could not find Java javah, skipping test(s).\n")
+
+        # since we are return a path to a binary
+        # protect paths with space by adding quotes
+        if ' ' in where_javah:
+            where_javah = '"' + where_javah + '"'
         return where_javah
 
     def java_where_rmic(self, version=None):
@@ -883,6 +909,11 @@ class TestSCons(TestCommon):
             where_rmic = self.where_is('rmic', ENV['PATH'])
         if not where_rmic:
             self.skip_test("Could not find Java rmic, skipping non-simulated test(s).\n")
+
+        # since we are return a path to a binary
+        # protect paths with space by adding quotes
+        if ' ' in where_rmic:
+            where_rmic = '"' + where_rmic + '"'
         return where_rmic
 
 

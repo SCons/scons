@@ -64,9 +64,15 @@ jar = env.Jar('x.jar', env.Java(target = 'classes', source = 'src'))
 
 test.run(arguments = '.')
 
+# the test framework uses os.path.isabs which
+# doesn't work with paths that include the quotes for 
+# spacing, so we have to remove the quotes here for the 
+# program argument
+program = where_jar
+if where_jar[0] == '"' and where_jar[-1:] == '"':
+    program = where_jar[1:-1]
 
-
-test.run(program = where_jar, arguments = 'tf x.jar')
+test.run(program = program, arguments = 'tf x.jar')
 
 expect = """\
 foo/bar/a.class
@@ -94,7 +100,7 @@ test.run(arguments = '.')
 
 
 
-test.run(program = where_jar, arguments = 'tf x.jar')
+test.run(program = program, arguments = 'tf x.jar')
 
 expect = """\
 classes/foo/bar/a.class
