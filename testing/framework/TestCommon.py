@@ -242,11 +242,16 @@ class TestCommon(TestCmd):
         if options:
             if arguments is None:
                 return options
+
+            # If not list, then split into lists
+            # this way we're not losing arguments specified with
+            # Spaces in quotes.
             if isinstance(options, str):
-                options = [options]
+                options = options.split()
             if isinstance(arguments, str):
-                arguments = [arguments]
-            arguments = ' '.join(options + arguments)
+                arguments = arguments.split()
+            arguments = options + arguments
+
         return arguments
 
     def must_be_writable(self, *files):

@@ -43,6 +43,8 @@ javac_path=os.path.dirname(where_javac)
 
 test.verbose_set(1)
 
+if ' ' in javac_path:
+    javac_path ='"%s"'%javac_path
 java_arguments=["--javac_path=%s"%javac_path,"--java_version=%s"%version]
 
 test.run(arguments = ['.']+java_arguments)
@@ -125,7 +127,7 @@ test.up_to_date(options=["--debug=explain"]+java_arguments,
                 arguments = '.')
 
 test.run(arguments = ['.']+java_arguments)
-
+\
 classes_must_not_exist('class1', expect_1)
 classes_must_not_exist('class2', expect_2)
 classes_must_not_exist('class3', expect_3)

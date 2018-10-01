@@ -418,6 +418,10 @@ class TestSCons(TestCommon):
 #        TestCommon.run(self, *args, **kw)
 
     def up_to_date(self, arguments = '.', read_str = "", **kw):
+        """Asserts that all of the targets listed in arguments is
+        up to date, but does not make any assumptions on other targets.
+        This function is most useful in conjunction with the -n option.
+        """
         s = ""
         for arg in arguments.split():
             s = s + "scons: `%s' is up to date.\n" % arg

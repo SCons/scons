@@ -12,6 +12,8 @@ AddOption('--java_version',
           type='string')
 
 path=GetOption('javac_path')
+if path[0] == "'":
+    path = path[1:-1]
 
 version = GetOption('java_version')
 
