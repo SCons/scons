@@ -32,6 +32,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import os.path
 import re
+import glob
 
 java_parsing = 1
 
@@ -390,6 +391,32 @@ else:
         the path to the file is the same as the package name.
         """
         return os.path.split(file)
+
+
+
+java_win32_version_dir_glob = 'C:/Program Files*/Java/jdk%s*/bin'
+java_win32_dir_glob = 'C:/Program Files*/Java/jdk*/bin'
+
+
+def get_java_install_dirs(platform, version=None):
+    """
+    Using patterns above find the java jdk install dir
+    :param platform:
+    :param version:
+    :return: list of default paths for java.
+    """
+    paths = []
+    if platform == 'win32':
+        if version:
+            paths = glob.glob(java_win32_version_dir_glob%version)
+        else:
+            paths = glob.glob(java_win32_dir_glob)
+    else:
+        # do nothing for now
+        pass
+
+    return paths
+
 
 # Local Variables:
 # tab-width:4

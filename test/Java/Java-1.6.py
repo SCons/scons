@@ -41,7 +41,7 @@ version = '1.6'
 where_javac, java_version = test.java_where_javac(version)
 javac_path=os.path.dirname(where_javac)
 
-test.verbose_set(1)
+# test.verbose_set(1)
 
 if ' ' in javac_path:
     javac_path ='"%s"'%javac_path

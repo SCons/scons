@@ -39,7 +39,7 @@ from collections import OrderedDict
 import SCons.Action
 import SCons.Builder
 from SCons.Node.FS import _my_normcase
-from SCons.Tool.JavaCommon import parse_java_file
+from SCons.Tool.JavaCommon import parse_java_file, get_java_install_dirs
 import SCons.Util
 
 def classname(path):
@@ -207,6 +207,14 @@ def generate(env):
     java_class_dir.emitter = emit_java_classes
 
     env.AddMethod(Java)
+
+    if env['PLATFORM'] == 'win32':
+        # Ensure that we have a proper path for clang
+        clang = SCons.Tool.find_program_path(env, 'javac',
+                                             default_paths=get_java_install_dirs(env['PLATFORM']))
+        if clang:
+            clang_bin_dir = os.path.dirname(clang)
+            env.AppendENVPath('PATH', clang_bin_dir)
 
     env['JAVAC']                    = 'javac'
     env['JAVACFLAGS']               = SCons.Util.CLVar('')
