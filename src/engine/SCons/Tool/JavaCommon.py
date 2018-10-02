@@ -397,6 +397,9 @@ else:
 java_win32_version_dir_glob = 'C:/Program Files*/Java/jdk%s*/bin'
 java_win32_dir_glob = 'C:/Program Files*/Java/jdk*/bin'
 
+java_macos_include_dir = '/System/Library/Frameworks/JavaVM.framework/Headers/'
+java_macos_version_include_dir = '/System/Library/Frameworks/JavaVM.framework/Versions/%s*/Headers/'
+
 
 def get_java_install_dirs(platform, version=None):
     """
@@ -418,6 +421,28 @@ def get_java_install_dirs(platform, version=None):
     paths=sorted(paths)
 
     return paths
+
+def get_java_include_paths(env, javac, version):
+    """
+    Return java include paths
+    :param platform:
+    :param javac:
+    :return:
+    """
+    paths = []
+    if env['PLATFORM'] == 'win32':
+        javac_bin_dir = os.path.dirname(javac)
+        java_inc_dir = os.path.normpath(os.path.join(javac_bin_dir, '..', 'include'))
+        paths = [java_inc_dir, os.path.join(java_inc_dir, 'win32')]
+    elif env['PLATFORM'] == 'darwin':
+        if not version:
+            paths = [java_macos_include_dir]
+        else:
+            paths = sorted(glob.glob(java_macos_version_include_dir%version))
+
+    return paths
+
+
 
 
 # Local Variables:

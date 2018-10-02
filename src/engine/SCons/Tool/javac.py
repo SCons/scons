@@ -39,7 +39,7 @@ from collections import OrderedDict
 import SCons.Action
 import SCons.Builder
 from SCons.Node.FS import _my_normcase
-from SCons.Tool.JavaCommon import parse_java_file, get_java_install_dirs
+from SCons.Tool.JavaCommon import parse_java_file, get_java_install_dirs, get_java_include_paths
 import SCons.Util
 
 def classname(path):
@@ -208,19 +208,20 @@ def generate(env):
 
     env.AddMethod(Java)
 
+    version = env.get('JAVAVERSION', None)
+
+    javac = SCons.Tool.find_program_path(env, 'javac')
     if env['PLATFORM'] == 'win32':
         # Ensure that we have a proper path for javac
-        version = env.get('JAVAVERSION', None)
-        # import pdb; pdb.set_trace()
         paths=get_java_install_dirs(env['PLATFORM'], version=version)
-        # print("JAVA PATHS:%s"%paths)
         javac = SCons.Tool.find_program_path(env, 'javac',
                                              default_paths=paths)
         if javac:
             javac_bin_dir = os.path.dirname(javac)
             env.AppendENVPath('PATH', javac_bin_dir)
-            java_inc_dir = os.path.normpath(os.path.join(javac_bin_dir,'..','include'))
-            env['JAVAINCLUDES'] = [ java_inc_dir, os.path.join(java_inc_dir,'win32')]
+
+    env['JAVAINCLUDES'] = get_java_include_paths(env, javac, version)
+
 
     env['JAVAC']                    = 'javac'
     env['JAVACFLAGS']               = SCons.Util.CLVar('')
