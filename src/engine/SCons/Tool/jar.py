@@ -32,11 +32,13 @@ selection method.
 #
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+import os
 
 import SCons.Subst
 import SCons.Util
 from SCons.Node.FS import _my_normcase
-import os
+from SCons.Tool.JavaCommon import get_java_install_dirs
+
 
 def jarSources(target, source, env, for_signature):
     """Only include sources that are not a manifest file."""
@@ -205,6 +207,14 @@ def generate(env):
     SCons.Tool.CreateJavaClassDirBuilder(env)
 
     env.AddMethod(Jar)
+
+    if env['PLATFORM'] == 'win32':
+        # Ensure that we have a proper path for clang
+        jar = SCons.Tool.find_program_path(env, 'jar',
+                                             default_paths=get_java_install_dirs(env['PLATFORM']))
+        if jar:
+            jar_bin_dir = os.path.dirname(jar)
+            env.AppendENVPath('PATH', jar_bin_dir)
 
     env['JAR']        = 'jar'
     env['JARFLAGS']   = SCons.Util.CLVar('cf')

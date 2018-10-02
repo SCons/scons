@@ -35,12 +35,11 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+# will skip tests when needed tools not present.
 where_javac, java_version = test.java_where_javac()
 where_jar = test.java_where_jar()
 
 test.subdir('src')
-
-
 
 test.write(['src', 'a.java'], """\
 package foo.bar;
@@ -52,20 +51,13 @@ package foo.bar;
 public class b {}
 """)
 
-
-
 test.write('SConstruct', """\
-env = Environment(tools    = ['javac', 'jar'],
-                  JAVAC = r'%(where_javac)s',
-                  JAR = r'%(where_jar)s')
+env = Environment(tools    = ['javac', 'jar'])
 
 jar = env.Jar('x.jar', env.Java(target = 'classes', source = 'src'))
 """ % locals())
 
 test.run(arguments = '.')
-
-
-
 test.run(program = where_jar, arguments = 'tf x.jar')
 
 expect = """\
@@ -75,24 +67,16 @@ foo/bar/b.class
 
 test.must_contain_all_lines(test.stdout(), [expect])
 
-
-
 test.run(arguments = '-c')
-
-
 
 test.write('SConstruct', """\
 env = Environment(tools    = ['javac', 'jar'],
-                  JAVAC = r'%(where_javac)s',
-                  JAR = r'%(where_jar)s',
                   JARCHDIR = None)
 
 jar = env.Jar('x.jar', env.Java(target = 'classes', source = 'src'))
 """ % locals())
 
 test.run(arguments = '.')
-
-
 
 test.run(program = where_jar, arguments = 'tf x.jar')
 
@@ -102,9 +86,6 @@ classes/foo/bar/b.class
 """
 
 test.must_contain_all_lines(test.stdout(), [expect])
-
-
-
 test.pass_test()
 
 # Local Variables:

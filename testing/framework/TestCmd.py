@@ -1612,7 +1612,8 @@ class TestCmd(object):
             new = os.path.join(self.workdir, sub)
             try:
                 os.mkdir(new)
-            except OSError:
+            except OSError as e:
+                print("Got error :%s"%e)
                 pass
             else:
                 count = count + 1

@@ -40,7 +40,6 @@ if not swig:
 
 where_javac, java_version = test.java_where_javac()
 where_javah = test.java_where_javah()
-#where_jar = test.java_where_jar()
 
 where_java_include=test.java_where_includes()
 
@@ -51,12 +50,10 @@ test.subdir(['foo'],
 test.write(['SConstruct'], """\
 import os
 
-env = Environment(ENV = os.environ,
-                  CPPPATH=%(where_java_include)s,                 
-                  JAVAC = r'%(where_javac)s',
-                  JAVAH = r'%(where_javah)s')
-
-env.Append(CPPFLAGS = ' -g -Wall')
+env = Environment(ENV = os.environ)
+if env['PLATFORM'] != 'win32':
+    env.Append(CPPFLAGS = ' -g -Wall')
+env['CPPPATH'] ='$JAVAINCLUDES'
         
 Export('env')
 
@@ -79,13 +76,28 @@ int fooAdd(int a, int b) {
 """)
 
 test.write(['foo', 'foo.h'], """\
+#ifdef _MSC_VER
+__declspec(dllexport)
+#endif
 int fooAdd(int, int);
 """)
 
 test.write(['java', 'Java_foo_interface.i'], """\
 #include "foo.h"
 
+#include <windows.i>
+
 %module foopack
+
+%{
+
+#ifdef _MSC_VER
+__declspec(dllexport)
+#endif
+int hello(){
+    return 1;
+}
+%}
 """)
 
 test.write(['java', 'SConscript'], """\
@@ -103,7 +115,7 @@ libadd = ['foo',]
 libpath = ['#foo',]
 
 #swigflags = '-c++ -java -Wall -package foopack -Ifoo'
-swigflags = '-c++ -java -Wall -Ifoo'
+swigflags = '-c++ -java -Wall -Ifoo -DTEST_$PLATFORM'
 
 Java_foo_interface = env.SharedLibrary(
     'Java_foo_interface', 

@@ -402,7 +402,7 @@ def get_java_install_dirs(platform, version=None):
     """
     Using patterns above find the java jdk install dir
     :param platform:
-    :param version:
+    :param version: If specified, only look for java sdk's of this version
     :return: list of default paths for java.
     """
     paths = []
@@ -414,6 +414,8 @@ def get_java_install_dirs(platform, version=None):
     else:
         # do nothing for now
         pass
+
+    paths=sorted(paths)
 
     return paths
 

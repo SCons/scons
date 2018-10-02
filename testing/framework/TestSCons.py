@@ -857,11 +857,15 @@ class TestSCons(TestCommon):
                 fmt = "Could not find javac for Java version %s, skipping test(s).\n"
                 self.skip_test(fmt % version)
         else:
-            m = re.search(r'javac (\d\.\d)', self.stderr())
+            m = re.search(r'javac (\d\.*\d)', self.stderr())
+            # Java 11 outputs this to stdout
+            if not m:
+                m = re.search(r'javac (\d\.*\d)', self.stdout())
+                
             if m:
                 version = m.group(1)
                 self.javac_is_gcj = False
-            elif self.stderr().find('gcj'):
+            elif self.stderr().find('gcj') != -1:
                 version='1.2'
                 self.javac_is_gcj = True
             else:

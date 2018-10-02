@@ -40,6 +40,8 @@ import SCons.Builder
 import SCons.Node.FS
 import SCons.Tool.javac
 import SCons.Util
+from SCons.Tool.JavaCommon import get_java_install_dirs
+
 
 def emit_java_headers(target, source, env):
     """Create and return lists of Java stub header files that will
@@ -119,6 +121,14 @@ def generate(env):
     """Add Builders and construction variables for javah to an Environment."""
     java_javah = SCons.Tool.CreateJavaHBuilder(env)
     java_javah.emitter = emit_java_headers
+
+    if env['PLATFORM'] == 'win32':
+        # Ensure that we have a proper path for clang
+        javah = SCons.Tool.find_program_path(env, 'javah',
+                                             default_paths=get_java_install_dirs(env['PLATFORM']))
+        if javah:
+            javah_bin_dir = os.path.dirname(javah)
+            env.AppendENVPath('PATH', javah_bin_dir)
 
     env['_JAVAHOUTFLAG']    = JavaHOutFlagGenerator
     env['JAVAH']            = 'javah'

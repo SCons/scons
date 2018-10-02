@@ -302,16 +302,16 @@ public class JavaFile3
 }
 """)
 
-test.run(chdir='testdir2')
 
 # check the output and make sure the java files got converted to classes
-compare_string = "jar cf foo.jar -C com/javasource/JavaFile1 com/javasource/JavaFile1.class -C com/javasource/JavaFile2 com/javasource/JavaFile2.class -C com/javasource/JavaFile3 com/javasource/JavaFile3.class"
+# use regex . for dirsep so this will work on both windows and other platforms.
+expect = ".*jar cf foo.jar -C com.javasource.JavaFile1 com.javasource.JavaFile1.class -C com.javasource.JavaFile2 com.javasource.JavaFile2.class -C com.javasource.JavaFile3 com.javasource.JavaFile3.class.*"
 
-if sys.platform == 'win32':
-    compare_string = compare_string.replace('/','\\')
+test.run(chdir='testdir2',	
+         match=TestSCons.match_re_dotall,	
+         stdout = expect)
 
-if(compare_string not in test.stdout()):
-    test.fail_test()
+
 
 #test single target jar
 test.must_exist(['testdir2','foobar.jar'])

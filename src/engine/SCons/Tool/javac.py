@@ -209,12 +209,18 @@ def generate(env):
     env.AddMethod(Java)
 
     if env['PLATFORM'] == 'win32':
-        # Ensure that we have a proper path for clang
-        clang = SCons.Tool.find_program_path(env, 'javac',
-                                             default_paths=get_java_install_dirs(env['PLATFORM']))
-        if clang:
-            clang_bin_dir = os.path.dirname(clang)
-            env.AppendENVPath('PATH', clang_bin_dir)
+        # Ensure that we have a proper path for javac
+        version = env.get('JAVAVERSION', None)
+        # import pdb; pdb.set_trace()
+        paths=get_java_install_dirs(env['PLATFORM'], version=version)
+        # print("JAVA PATHS:%s"%paths)
+        javac = SCons.Tool.find_program_path(env, 'javac',
+                                             default_paths=paths)
+        if javac:
+            javac_bin_dir = os.path.dirname(javac)
+            env.AppendENVPath('PATH', javac_bin_dir)
+            java_inc_dir = os.path.normpath(os.path.join(javac_bin_dir,'..','include'))
+            env['JAVAINCLUDES'] = [ java_inc_dir, os.path.join(java_inc_dir,'win32')]
 
     env['JAVAC']                    = 'javac'
     env['JAVACFLAGS']               = SCons.Util.CLVar('')

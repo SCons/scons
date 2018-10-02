@@ -35,12 +35,8 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-where_javac, java_version = test.java_where_javac()
-
-
 test.write('SConstruct', """
-env = Environment(tools = ['javac', 'javah'],
-                  JAVAC = r'%(where_javac)s')
+env = Environment(tools = ['javac', 'javah'])
 env.Java(target = 'class1', source = 'com/Example1.java')
 env.Java(target = 'class2', source = ['com/Example2.java', 'com/Example3.java'])
 """ % locals())
