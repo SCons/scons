@@ -400,6 +400,13 @@ java_win32_dir_glob = 'C:/Program Files*/Java/jdk*/bin'
 java_macos_include_dir = '/System/Library/Frameworks/JavaVM.framework/Headers/'
 java_macos_version_include_dir = '/System/Library/Frameworks/JavaVM.framework/Versions/%s*/Headers/'
 
+java_linux_include_dirs = ['/usr/lib/jvm/default-java/include',
+                        '/usr/lib/jvm/java-*-oracle/include']
+java_linux_version_include_dirs = ['/usr/lib/jvm/java-*-sun-%s*/include',
+                                   '/usr/lib/jvm/java-%s*-openjdk*/include',
+                                   '/usr/java/jdk%s*/include']
+
+
 
 def get_java_install_dirs(platform, version=None):
     """
@@ -439,7 +446,19 @@ def get_java_include_paths(env, javac, version):
             paths = [java_macos_include_dir]
         else:
             paths = sorted(glob.glob(java_macos_version_include_dir%version))
+    else:
+        base_paths=[]
+        if not version:
+            for p in java_linux_include_dirs:
+                base_paths.extend(glob.glob(p))
+        else:
+            for p in java_linux_version_include_dirs:
+                base_paths.extend(glob.glob(p%version))
 
+        for p in base_paths:
+            paths.extend([p, os.path.join(p,'linux')])
+            
+    #print("PATHS:%s"%paths)
     return paths
 
 
