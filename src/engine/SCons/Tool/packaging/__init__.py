@@ -295,8 +295,9 @@ def stripinstallbuilder(target, source, env):
     It also warns about files which have no install builder attached.
     """
     def has_no_install_location(file):
-        return not file.has_builder() and hasattr(file.builder, 'name') \
-               and file.builder.name in ["InstallBuilder", "InstallAsBuilder"]
+        return not (file.has_builder() and hasattr(file.builder, 'name')
+                    and file.builder.name in ["InstallBuilder", "InstallAsBuilder"])
+
 
     if len([src for src in source if has_no_install_location(src)]):
         warn(Warning, "there are files to package which have no\
