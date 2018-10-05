@@ -325,7 +325,7 @@ class TestCommon(TestCmd):
         of output being searched, and only shows up in failure output.
 
         An optional fourth argument can be used to supply a different
-        function, of the form "find(output, line), to use when searching
+        function, of the form "find(output, line)", to use when searching
         for lines in the output.
         """
         if is_List(output):
@@ -348,7 +348,7 @@ class TestCommon(TestCmd):
         of output being searched, and only shows up in failure output.
 
         An optional fourth argument can be used to supply a different
-        function, of the form "find(output, line), to use when searching
+        function, of the form "find(output, line)", to use when searching
         for lines in the output.
         """
         missing = []
@@ -377,7 +377,7 @@ class TestCommon(TestCmd):
         of output being searched, and only shows up in failure output.
 
         An optional fourth argument can be used to supply a different
-        function, of the form "find(output, line), to use when searching
+        function, of the form "find(output, line)", to use when searching
         for lines in the output.
         """
         for line in lines:
@@ -402,7 +402,7 @@ class TestCommon(TestCmd):
         of output being searched, and only shows up in failure output.
 
         An optional fourth argument can be used to supply a different
-        function, of the form "find(output, line), to use when searching
+        function, of the form "find(output, line)", to use when searching
         for lines in the output.  The function must return the index
         of the found line in the output, or None if the line is not found.
         """
@@ -516,7 +516,7 @@ class TestCommon(TestCmd):
         of output being searched, and only shows up in failure output.
 
         An optional fourth argument can be used to supply a different
-        function, of the form "find(output, line), to use when searching
+        function, of the form "find(output, line)", to use when searching
         for lines in the output.
         """
         unexpected = []
