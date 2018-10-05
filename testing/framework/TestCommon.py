@@ -275,8 +275,8 @@ class TestCommon(TestCmd):
               reading the file; current implementation will convert.
             mode (string): file open mode.
             find (func): optional custom search routine. Must take the
-              form "find(output, line)" returning non-zero on success
-              and None on failure.
+              form "find(output, line)" non-negative integer on success
+              and None, or -1, on failure.
 
         Calling test exits FAILED if search result is false
         """
@@ -292,7 +292,7 @@ class TestCommon(TestCmd):
                     return o.index(l)
                 except ValueError:
                     return None
-        if find(file_contents, required) is None:
+        if find(file_contents, required) in (None,-1):
             print("File `%s' does not contain required string." % file)
             print(self.banner('Required string '))
             print(required)
@@ -321,7 +321,7 @@ class TestCommon(TestCmd):
         if is_List(output):
             output = os.newline.join(output)
 
-        if find(output, input) is None:
+        if find(output, input) in (None, -1):
             if title is None:
                 title = 'output'
             print('Missing expected input from {}:'.format(title))
@@ -352,7 +352,7 @@ class TestCommon(TestCmd):
             output = '\n'.join(output)
 
         for line in lines:
-            if find(output, line) is None:
+            if find(output, line) in (None, -1):
                 missing.append(line)
 
         if missing:
@@ -383,7 +383,7 @@ class TestCommon(TestCmd):
                 except ValueError:
                     return None
         for line in lines:
-            if find(output, line) is not None:
+            if find(output, line) not in (None, -1):
                 return
 
         if title is None:
@@ -425,7 +425,7 @@ class TestCommon(TestCmd):
         missing = []
         for line in exp:
             found = find(out, line)
-            if found is None:
+            if found in (None, -1):
                 missing.append(line)
             else:
                 out.pop(found)
@@ -514,7 +514,7 @@ class TestCommon(TestCmd):
                 except ValueError:
                     return None
 
-        if find(file_contents, banned) is not None:
+        if find(file_contents, banned) not in (None, -1):
             print("File `%s' contains banned string." % file)
             print(self.banner('Banned string '))
             print(banned)
@@ -541,7 +541,7 @@ class TestCommon(TestCmd):
                     return None
         unexpected = []
         for line in lines:
-            if find(output, line) is not None:
+            if find(output, line) not in (None, -1):
                 unexpected.append(line)
 
         if unexpected:
