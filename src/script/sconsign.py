@@ -275,7 +275,7 @@ def map_bkids(entry, name):
     result = []
     for i in range(len(bkids)):
         result.append(nodeinfo_string(bkids[i], bkidsigs[i], "        "))
-    if result == []:
+    if not result:
         return None
     return "\n        ".join(result)
 

@@ -115,7 +115,7 @@ def Jar(env, target = None, source = [], *args, **kw):
         return jars
 
     # they passed no target so make a target implicitly
-    if target == None:
+    if target is None:
         try:
             # make target from the first source file
             target = os.path.splitext(str(source[0]))[0] + env.subst('$JARSUFFIX')

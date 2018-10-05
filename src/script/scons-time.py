@@ -58,12 +58,12 @@ def make_temp_file(**kw):
     return result
 
 def HACK_for_exec(cmd, *args):
-    '''
+    """
     For some reason, Python won't allow an exec() within a function
     that also declares an internal function (including lambda functions).
     This function is a hack that calls exec() in a function with no
     internal functions.
-    '''
+    """
     if not args:          exec(cmd)
     elif len(args) == 1:  exec(cmd, args[0])
     else:                 exec(cmd, args[0], args[1])
@@ -147,7 +147,7 @@ class Gnuplotter(Plotter):
         return line.plot_string()
 
     def vertical_bar(self, x, type, label, comment):
-        if self.get_min_x() <= x and x <= self.get_max_x():
+        if self.get_min_x() <= x <= self.get_max_x():
             points = [(x, 0), (x, self.max_graph_value(self.get_max_y()))]
             self.line(points, type, label, comment)
 

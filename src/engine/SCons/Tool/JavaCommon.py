@@ -389,7 +389,7 @@ else:
         is that the file name matches the public class name, and that
         the path to the file is the same as the package name.
         """
-        return os.path.split(file)
+        return os.path.split(fn)
 
 # Local Variables:
 # tab-width:4
