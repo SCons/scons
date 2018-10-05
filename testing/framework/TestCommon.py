@@ -292,14 +292,13 @@ class TestCommon(TestCmd):
                     return o.index(l)
                 except ValueError:
                     return None
-        contains = find(file_contents, required)
-        if not contains:
+        if find(file_contents, required) is None:
             print("File `%s' does not contain required string." % file)
             print(self.banner('Required string '))
             print(required)
             print(self.banner('%s contents ' % file))
             print(file_contents)
-            self.fail_test(not contains)
+            self.fail_test()
 
     def must_contain_all(self, output, input, title=None, find=None):
         """Ensures that the specified output string (first argument)
@@ -514,14 +513,14 @@ class TestCommon(TestCmd):
                     return o.index(l)
                 except ValueError:
                     return None
-        contains = find(file_contents, banned)
-        if contains:
+
+        if find(file_contents, banned) is not None:
             print("File `%s' contains banned string." % file)
             print(self.banner('Banned string '))
             print(banned)
             print(self.banner('%s contents ' % file))
             print(file_contents)
-            self.fail_test(contains)
+            self.fail_test()
 
     def must_not_contain_any_line(self, output, lines, title=None, find=None):
         """Ensures that the specified output string (first argument)
