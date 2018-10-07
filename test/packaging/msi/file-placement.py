@@ -59,6 +59,7 @@ env.Package( NAME         = 'foo',
              SUMMARY      = 'balalalalal',
              DESCRIPTION  = 'this should be reallly really long',
              VENDOR       = 'Nanosoft_2000',
+             X_MSI_LANGUAGE = '1003',
              source       = [ f1 ],
            )
 """)
@@ -100,6 +101,7 @@ env.Package( NAME         = 'foo',
              SUMMARY      = 'balalalalal',
              DESCRIPTION  = 'this should be reallly really long',
              VENDOR       = 'Nanosoft_2000',
+             X_MSI_LANGUAGE = '1003',
              LICENSE      = 'afl',
              source       = [ f1, f2, f3, f4, f5, f6, f7 ],
             )
@@ -150,6 +152,7 @@ env.Package( NAME         = 'foo',
              DESCRIPTION  = 'this should be reallly really long',
              VENDOR       = 'Nanosoft_2000',
              LICENSE      = 'afl',
+             X_MSI_LANGUAGE = '1003',
              source       = [ f1, f2, f3, f4 ],
             )
 """)

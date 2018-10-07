@@ -67,6 +67,7 @@ env.Package( NAME         = 'foo',
              SUMMARY      = 'balalalalal',
              DESCRIPTION  = 'this should be reallly really long',
              VENDOR       = 'Nanosoft_2000',
+             X_MSI_LANGUAGE = '1003',
              source       = env.FindInstalledFiles(),
              target       = "mypackage.msi",
             )
