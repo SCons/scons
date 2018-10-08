@@ -6,6 +6,7 @@
 
 
 RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
+
   From Daniel Moody:
     - Updated FS.py to handle removal of splitunc function from python 3.7
     - Updated the vc.py to ignore MSVS versions where not compiler could be found
@@ -16,7 +17,6 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
   From Bernard Blackham:
    - Fixed handling of side-effects in task master (fixes #3013).
-
 
   From Ray Donnelly:
     - Fix the PATH created by scons.bat (and other .bat files) to provide a normalized
@@ -96,8 +96,9 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       would fail when using -Wstrict-prototypes.
 
   From Paweł Tomulik:
-    - Fixed must_contain(), must_not_contain(), etc. to work with substrings
-      located at zero offset.
+    - In the testing framework, module TestCommon, fixed must_contain(),
+      must_not_contain(), and related methods of TestCommon class to work with
+      substrings located at zero offset.
 
   From Richard West:
     - Add SConstruct.py, Sconstruct.py, sconstruct.py to the search path for the root SConstruct file.
