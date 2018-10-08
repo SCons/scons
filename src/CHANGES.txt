@@ -12,13 +12,12 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Updated the vc.py to ignore MSVS versions where not compiler could be found
 
   From Matthew Marinets:
-    - Fixed an issue that caused the Java emitter to incorrectly parse arguments to constructors that 
+    - Fixed an issue that caused the Java emitter to incorrectly parse arguments to constructors that
       implemented a class.
 
   From Bernard Blackham:
    - Fixed handling of side-effects in task master (fixes #3013).
 
-      
   From Ray Donnelly:
     - Fix the PATH created by scons.bat (and other .bat files) to provide a normalized
       PATH.  Some pythons in the 3.6 series are no longer able to handle paths which
@@ -35,7 +34,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Fix issue # 3106 MSVC if using MSVC_BATCH and target dir had a space would fail due to quirk in
       MSVC's handling of escaped targetdirs when batch compiling.
     - Re-Enable parallel SCons (-j) when running via Pypy
-    - Move SCons test framework files to testing/framework and remove all references to QMtest.  
+    - Move SCons test framework files to testing/framework and remove all references to QMtest.
       QMTest has not been used by SCons for some time now.
     - Updated logic for mingw and clang on win32 to search default tool install paths if not
       found in normal SCons PATH.  If the user specifies PATH or tool specific paths they
@@ -74,7 +73,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Updated gettext tools to setup default paths for windows with Cygwin/MinGW setups
     - Add common location for default paths for cygwin and mingw in Platform modules
     - Updated YACC tool to work on windows with Cygwin/MinGW setups
-    - Set the pickling protocal back to highest which was causing issues 
+    - Set the pickling protocal back to highest which was causing issues
       with variant dir tests. This will cause issues if reading sconsigns
       pickled with the previous lower protocal.
 
@@ -95,6 +94,11 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Replace all instances of `int main()` in C code with `int main(void)`.
       Specifically, this fixes the test cases use by Configure.CheckCC() which
       would fail when using -Wstrict-prototypes.
+
+  From Paweł Tomulik:
+    - In the testing framework, module TestCommon, fixed must_contain(),
+      must_not_contain(), and related methods of TestCommon class to work with
+      substrings located at zero offset.
 
   From Richard West:
     - Add SConstruct.py, Sconstruct.py, sconstruct.py to the search path for the root SConstruct file.
@@ -124,11 +128,11 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Quiet py3 warning in UtilTests.py
     - Fix tests specifying octal constants for py3
     - Fix must_contain tests for py3
-    - RPM package generation: 
+    - RPM package generation:
        - Fix supplying a build architecture
        - Disable auto debug package generation on certain rpmbuild versions
        - Adjust some tests to only supply build-id file on certain rpmbuild versions
-       - Tests now use a file fixture for the repeated (trivial) main.c program. 
+       - Tests now use a file fixture for the repeated (trivial) main.c program.
        - Document and comment cleanup.
        - Added new Environment Value X_RPM_EXTRADEFS to supply custom settings
          to the specfile without adding specific logic for each one to scons.
@@ -154,9 +158,9 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Add xz compression format to packaging choices.
     - Syntax cleanups - trailing blanks, use "is" to compare with None, etc.
       Three uses of variables not defined are changed.
-    
+
   From Hao Wu
-    - typo in customized decider example in user guide 
+    - typo in customized decider example in user guide
 
   From Hao Wu
     - Replace usage of unittest.TestSuite with unittest.main() (fix #3113)
@@ -170,24 +174,24 @@ RELEASE 3.0.1 - Mon, 12 Nov 2017 15:31:33 -0700
     - Jar can take multiple targets, and will make a duplicate jar from the sources for each target
     - Added some warnings in case the Jar builder makes an implicit target
     - Added Jar method and changed jar build to be more specific. Jar method will take in
-      directories or classes as source. Added more tests to JAR to ensure the jar was 
+      directories or classes as source. Added more tests to JAR to ensure the jar was
       packaged with the correct compiled class files.
-    - Added a No result test case to handle bug which seems unrelated to java in the 
+    - Added a No result test case to handle bug which seems unrelated to java in the
       swig-dependencies.py test, more info here: http://scons.tigris.org/issues/show_bug.cgi?id=2907
     - Added a travis script to test on ubuntu trusty now that the project is on github
-      so that Continuus Integration tests can be run automatically. It tests most case and considers 
-      no result a pass as well. Improving this script can install more dependincies allowing for more 
+      so that Continuus Integration tests can be run automatically. It tests most case and considers
+      no result a pass as well. Improving this script can install more dependincies allowing for more
       tests to be run.
-    
+
   From Daniel Moody:
     - Updated the Jar Builder tool in Tool/__init__.py so that is doesn't force class files as
       sources, allowing directories to be passed, which was causing test/Java/JAR.py to fail.
 
   From William Deegan:
     - Fix issue where code in utility routine to_String_for_subst() had code whose result was never
-      properly returned.  
+      properly returned.
       (Found by: James Rinkevich https://pairlist4.pair.net/pipermail/scons-users/2017-October/006358.html )
-    - Fixed Variables.GenerateHelpText() to now use the sort parameter. Due to incorrect 2to3 fixer changes 
+    - Fixed Variables.GenerateHelpText() to now use the sort parameter. Due to incorrect 2to3 fixer changes
       8 years ago it was being used as a boolean parameter.  Now you can specify sort to be a callable, or boolean
       value. (True = normal sort). Manpage also updated.
     - Fixed Tool loading logic from exploding sys.path with many site_scons/site_tools prepended on py3.
@@ -206,7 +210,7 @@ RELEASE 3.0.1 - Mon, 12 Nov 2017 15:31:33 -0700
   From Zachary Tessler:
     - Fix incorrect warning for repeated identical builder calls that use overrides
 
- 
+
 RELEASE 3.0.0 - Mon, 18 Sep 2017 08:32:04 -0700
 
 NOTE: This is a major release.  You should expect that some targets may rebuild when upgrading.
@@ -279,9 +283,9 @@ will cause rebuilds.
     - Add support for Visual Studio 2017.  This support requires vswhere.exe a helper
       tool installed with newer installs of 2017. SCons expects it to be located at
       "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe"
-      It can be downloaded separately at     
+      It can be downloaded separately at
       https://github.com/Microsoft/vswhere
- 
+
   From Tom Tanner:
     - Allow nested $( ... $) sections
 

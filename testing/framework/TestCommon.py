@@ -206,6 +206,28 @@ def separate_files(flist):
             missing.append(f)
     return existing, missing
 
+def contains(seq, subseq, find):
+    # Returns True or False.
+    if find is None:
+        return subseq in seq
+    else:
+        f = find(seq, subseq)
+        return f not in (None, -1) and f is not False
+
+def find_index(seq, subseq, find):
+    # Returns either an index of the subseq within the seq, or None.
+    # Accepts a function find(seq, subseq), which returns an integer on success
+    # and either: None, False, or -1, on failure.
+    if find is None:
+        try:
+            return seq.index(subseq)
+        except ValueError:
+            return None
+    else:
+        i = find(seq, subseq)
+        return None if (i in (None, -1) or i is False) else i
+
+
 if os.name == 'posix':
     def _failed(self, status = 0):
         if self.status is None or status is None:
@@ -275,8 +297,8 @@ class TestCommon(TestCmd):
               reading the file; current implementation will convert.
             mode (string): file open mode.
             find (func): optional custom search routine. Must take the
-              form "find(output, line)" returning non-zero on success
-              and None on failure.
+              form "find(output, line)" non-negative integer on success
+              and None, False, or -1, on failure.
 
         Calling test exits FAILED if search result is false
         """
@@ -286,20 +308,14 @@ class TestCommon(TestCmd):
             # (str) type in that, so convert.
             required = to_bytes(required)
         file_contents = self.read(file, mode)
-        if find is None:
-            def find(o, l):
-                try:
-                    return o.index(l)
-                except ValueError:
-                    return None
-        contains = find(file_contents, required)
-        if not contains:
+
+        if not contains(file_contents, required, find):
             print("File `%s' does not contain required string." % file)
             print(self.banner('Required string '))
             print(required)
             print(self.banner('%s contents ' % file))
             print(file_contents)
-            self.fail_test(not contains)
+            self.fail_test()
 
     def must_contain_all(self, output, input, title=None, find=None):
         """Ensures that the specified output string (first argument)
@@ -309,20 +325,13 @@ class TestCommon(TestCmd):
         of output being searched, and only shows up in failure output.
 
         An optional fourth argument can be used to supply a different
-        function, of the form "find(line, output), to use when searching
+        function, of the form "find(output, line)", to use when searching
         for lines in the output.
         """
-        if find is None:
-            def find(o, i):
-                try:
-                    return o.index(i)
-                except ValueError:
-                    return None
-
         if is_List(output):
             output = os.newline.join(output)
 
-        if find(output, input) is None:
+        if not contains(output, input, find):
             if title is None:
                 title = 'output'
             print('Missing expected input from {}:'.format(title))
@@ -339,21 +348,15 @@ class TestCommon(TestCmd):
         of output being searched, and only shows up in failure output.
 
         An optional fourth argument can be used to supply a different
-        function, of the form "find(line, output), to use when searching
+        function, of the form "find(output, line)", to use when searching
         for lines in the output.
         """
-        if find is None:
-            def find(o, l):
-                try:
-                    return o.index(l)
-                except ValueError:
-                    return None
         missing = []
         if is_List(output):
             output = '\n'.join(output)
 
         for line in lines:
-            if find(output, line) is None:
+            if not contains(output, line, find):
                 missing.append(line)
 
         if missing:
@@ -374,17 +377,11 @@ class TestCommon(TestCmd):
         of output being searched, and only shows up in failure output.
 
         An optional fourth argument can be used to supply a different
-        function, of the form "find(line, output), to use when searching
+        function, of the form "find(output, line)", to use when searching
         for lines in the output.
         """
-        if find is None:
-            def find(o, l):
-                try:
-                    return o.index(l)
-                except ValueError:
-                    return None
         for line in lines:
-            if find(output, line) is not None:
+            if contains(output, line, find):
                 return
 
         if title is None:
@@ -405,7 +402,7 @@ class TestCommon(TestCmd):
         of output being searched, and only shows up in failure output.
 
         An optional fourth argument can be used to supply a different
-        function, of the form "find(line, output), to use when searching
+        function, of the form "find(output, line)", to use when searching
         for lines in the output.  The function must return the index
         of the found line in the output, or None if the line is not found.
         """
@@ -417,19 +414,13 @@ class TestCommon(TestCmd):
         if sorted(out) == sorted(exp):
             # early out for exact match
             return
-        if find is None:
-            def find(o, l):
-                try:
-                    return o.index(l)
-                except ValueError:
-                    return None
         missing = []
         for line in exp:
-            found = find(out, line)
-            if found is None:
+            i = find_index(out, line, find)
+            if i is None:
                 missing.append(line)
             else:
-                out.pop(found)
+                out.pop(i)
 
         if not missing and not out:
             # all lines were matched
@@ -508,20 +499,14 @@ class TestCommon(TestCmd):
         """Ensures that the specified file doesn't contain the banned text.
         """
         file_contents = self.read(file, mode)
-        if find is None:
-            def find(o, l):
-                try:
-                    return o.index(l)
-                except ValueError:
-                    return None
-        contains = find(file_contents, banned)
-        if contains:
+
+        if contains(file_contents, banned, find):
             print("File `%s' contains banned string." % file)
             print(self.banner('Banned string '))
             print(banned)
             print(self.banner('%s contents ' % file))
             print(file_contents)
-            self.fail_test(contains)
+            self.fail_test()
 
     def must_not_contain_any_line(self, output, lines, title=None, find=None):
         """Ensures that the specified output string (first argument)
@@ -531,18 +516,12 @@ class TestCommon(TestCmd):
         of output being searched, and only shows up in failure output.
 
         An optional fourth argument can be used to supply a different
-        function, of the form "find(line, output), to use when searching
+        function, of the form "find(output, line)", to use when searching
         for lines in the output.
         """
-        if find is None:
-            def find(o, l):
-                try:
-                    return o.index(l)
-                except ValueError:
-                    return None
         unexpected = []
         for line in lines:
-            if find(output, line) is not None:
+            if contains(output, line, find):
                 unexpected.append(line)
 
         if unexpected:
