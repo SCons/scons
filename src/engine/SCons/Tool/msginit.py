@@ -77,8 +77,22 @@ def _POInitBuilderWrapper(env, target=None, source=_null, **kw):
 #############################################################################
 def generate(env,**kw):
   """ Generate the `msginit` tool """
+  import sys
+  import os
   import SCons.Util
+  import SCons.Tool
   from SCons.Tool.GettextCommon import _detect_msginit
+  from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
+  from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
+
+  if sys.platform == 'win32':
+      msginit = SCons.Tool.find_program_path(env, 'msginit', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
+      if msginit:
+          msginit_bin_dir = os.path.dirname(msginit)
+          env.AppendENVPath('PATH', msginit_bin_dir)
+      else:
+          SCons.Warnings.Warning('msginit tool requested, but binary not found in ENV PATH')
+
   try:
     env['MSGINIT'] = _detect_msginit(env)
   except:

@@ -609,7 +609,7 @@ class SConfBase(object):
         ok = self.TryBuild(self.env.SConfActionBuilder, text, extension)
         del self.env['BUILDERS']['SConfActionBuilder']
         if ok:
-            outputStr = self.lastTarget.get_contents().decode()
+            outputStr = self.lastTarget.get_text_contents()
             return (1, outputStr)
         return (0, "")
 
@@ -1000,7 +1000,7 @@ def CheckLib(context, library = None, symbol = "main",
     compiles without flags.
     """
 
-    if library == []:
+    if not library:
         library = [None]
 
     if not SCons.Util.is_List(library):

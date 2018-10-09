@@ -42,6 +42,7 @@ test = TestSCons.TestSCons()
 test.subdir('outside', 'sub')
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 import os.path
 
 def cat(env, source, target):
@@ -51,7 +52,7 @@ def cat(env, source, target):
         f.write(open(str(src), "rb").read())
     f.close()
 
-env = Environment(DESTDIR='dest')
+env = Environment(tools=[], DESTDIR='dest')
 env.Append(BUILDERS={'Cat':Builder(action=cat)})
 
 env.SconsInternalInstallFunc = env.Install

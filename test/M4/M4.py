@@ -46,7 +46,8 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(tools=['default', 'm4'],
+DefaultEnvironment(tools=[])
+env = Environment(tools=['m4'],
                   M4 = r'%(_python_)s mym4.py')
 env.M4(target = 'aaa.x', source = 'aaa.x.m4')
 """ % locals())
@@ -76,10 +77,11 @@ if m4:
     test.file_fixture('wrapper.py')
 
     test.write('SConstruct', """
-foo = Environment(tools=['default', 'm4'],
+DefaultEnvironment(tools=[])
+foo = Environment(tools=['m4'],
                   M4=r'%(m4)s', M4FLAGS='-DFFF=fff')
 m4 = foo.Dictionary('M4')
-bar = Environment(tools=['default', 'm4'],
+bar = Environment(tools=['m4'],
                   M4 = r'%(_python_)s wrapper.py ' + m4, M4FLAGS='-DBBB=bbb')
 foo.M4(target = 'foo.x', source = 'foo.x.m4')
 bar.M4(target = 'bar', source = 'bar.m4')

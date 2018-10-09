@@ -68,7 +68,7 @@ test.write('SConstruct', SConscript_contents)
 
 test.write('main.cpp', """\
 #include <stdio.h>
-int main() {
+int main(void) {
   printf("hello, world!\\n");
 }
 """)

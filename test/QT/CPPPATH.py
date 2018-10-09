@@ -47,7 +47,7 @@ env.Program(target = 'aaa', source = 'aaa.cpp', CPPPATH=['$CPPPATH', './local_in
 
 test.write('aaa.cpp', r"""
 #include "aaa.h"
-int main() { aaa(); return 0; }
+int main(void) { aaa(); return 0; }
 """)
 
 test.write('aaa.h', r"""

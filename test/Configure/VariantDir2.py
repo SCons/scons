@@ -41,7 +41,7 @@ SConscript('SConscript', variant_dir='build', src='.')
 test.write('SConscript', """\
 env = Environment()
 config = env.Configure(conf_dir='sconf', log_file='config.log')
-config.TryRun("int main() {}", ".c")
+config.TryRun("int main(void) {}", ".c")
 config.Finish()
 """)
 

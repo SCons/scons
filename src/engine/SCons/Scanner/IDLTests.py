@@ -159,7 +159,7 @@ test.write(['work', 'src', 'fff.c'], """
 #include <iii.idl>
 #include <jjj.idl>
 
-int main()
+int main(void)
 {
     return 0;
 }
@@ -168,7 +168,7 @@ int main()
 test.write([ 'work', 'src', 'aaa.c'], """
 #include "bbb.idl"
 
-int main()
+int main(void)
 {
    return 0;
 }
@@ -179,7 +179,7 @@ test.write([ 'work', 'src', 'bbb.idl'], "\n")
 test.write([ 'repository', 'src', 'ccc.c'], """
 #include "ddd.idl"
 
-int main()
+int main(void)
 {
    return 0;
 }
@@ -243,7 +243,7 @@ if os.path.normcase('foo') == os.path.normcase('FOO'):
 def deps_match(self, deps, headers):
     scanned = list(map(my_normpath, list(map(str, deps))))
     expect = list(map(my_normpath, headers))
-    self.failUnless(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
+    self.assertTrue(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
 
 # define some tests:
 

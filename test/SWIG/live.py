@@ -28,7 +28,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test SWIG behavior with a live, installed SWIG.
 """
 
-import os.path
+import os
 import sys
 
 import TestSCons
@@ -47,10 +47,13 @@ if not swig:
     test.skip_test('Can not find installed "swig", skipping test.\n')
 
 python, python_include, python_libpath, python_lib = \
-             test.get_platform_python_info()
-Python_h = os.path.join(python_include, 'Python.h')
-if not os.path.exists(Python_h):
-    test.skip_test('Can not find %s, skipping test.\n' % Python_h)
+             test.get_platform_python_info(python_h_required=True)
+
+swig = swig.replace('\\','/')
+python = python.replace('\\','/')
+python_include = python_include.replace('\\','/')
+python_libpath = python_libpath.replace('\\','/')
+python_lib = python_lib.replace('\\','/')
 
 # handle testing on other platforms:
 ldmodule_prefix = '_'
@@ -142,7 +145,7 @@ test.up_to_date(arguments = ldmodule_prefix+'foo' + _dll)
 
 test.run(arguments = ldmodule_prefix+'bar' + _dll)
 
-test.must_match('wrapper.out', "wrapper.py\n")
+test.must_match('wrapper.out', "wrapper.py" + os.linesep)
 
 test.run(program = python, stdin = """\
 from __future__ import print_function

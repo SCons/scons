@@ -34,7 +34,8 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
-env = Environment()
+DefaultEnvironment(tools=[])
+env = Environment(tools=[]) 
 env.Install('install', 'file1')
 env.Install('install', 'file1')
 """)

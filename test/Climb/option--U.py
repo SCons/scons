@@ -43,8 +43,9 @@ file.close()
 """)
 
 test.write('SConstruct', r"""
+DefaultEnvironment(tools=[])
 import SCons.Defaults
-env = Environment()
+env = Environment(tools=[])
 env['BUILDERS']['B'] = Builder(action=r'%(_python_)s build.py $TARGET $SOURCES', multi=1)
 Default(env.B(target = 'sub1/foo.out', source = 'sub1/foo.in'))
 Export('env')
@@ -83,7 +84,7 @@ test.must_not_exist(test.workpath('sub2/xxx.out'))
 test.unlink(['sub1', 'foo.out'])
 
 test.write('SConscript', """\
-env = Environment()
+env = Environment(tools=[], )
 assert env.GetLaunchDir() == r'%s'
 """%test.workpath('sub1'))
 test.run(arguments = '-U',

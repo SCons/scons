@@ -61,7 +61,7 @@ env.Program( 'TestProgram', 'TestProgram.c' )
 test.write('TestProgram.c', """\
 #include <stdio.h>
 
-int main() {
+int main(void) {
   printf( "Hello\\n" );
 }
 """)

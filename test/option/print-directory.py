@@ -32,7 +32,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', "")
+test.write('SConstruct', "DefaultEnvironment(tools=[])\n")
 
 test.run(arguments = '-w .',
          stderr = "Warning:  ignoring -w option\n")

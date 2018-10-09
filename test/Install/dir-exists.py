@@ -35,6 +35,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 Execute(Mkdir('a'))
 Execute(Mkdir('b'))
 f=Command('a/f', None, 'echo hi > $TARGET')

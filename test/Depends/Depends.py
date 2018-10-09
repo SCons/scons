@@ -51,9 +51,10 @@ SUBDIR_foo_dep = os.path.join('$SUBDIR', 'foo.dep')
 SUBDIR_f3_out = os.path.join('$SUBDIR', 'f3.out')
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 Foo = Builder(action = r'%(_python_)s build.py $TARGET $SOURCES subdir/foo.dep')
 Bar = Builder(action = r'%(_python_)s build.py $TARGET $SOURCES subdir/bar.dep')
-env = Environment(BUILDERS = { 'Foo' : Foo, 'Bar' : Bar }, SUBDIR='subdir')
+env = Environment(tools=[], BUILDERS = { 'Foo' : Foo, 'Bar' : Bar }, SUBDIR='subdir')
 env.Depends(target = ['f1.out', 'f2.out'], dependency = r'%(SUBDIR_foo_dep)s')
 env.Depends(target = r'%(SUBDIR_f3_out)s', dependency = 'subdir/bar.dep')
 env.Foo(target = 'f1.out', source = 'f1.in')

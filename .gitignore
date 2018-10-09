@@ -11,6 +11,7 @@ __pycache__/
 build/**
 bootstrap/**
 .idea/
+src/build/**
 
 
 # Translations

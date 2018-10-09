@@ -60,7 +60,7 @@ or this:
 
 <example_commands>
 env = Environment()
-env['BUILDERS]['NewBuilder'] = foo
+env['BUILDERS']['NewBuilder'] = foo
 </example_commands>
 </summary>
 </cvar>

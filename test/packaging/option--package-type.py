@@ -26,6 +26,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test the --package-type option.
+
+Side effect: also tests that we can produce a noarch package
+by supplying the ARCHITECTURE tag.
 """
 
 import TestSCons
@@ -63,12 +66,13 @@ env.Package( NAME           = 'foo',
              X_RPM_INSTALL  = r'%(_python_)s %(scons)s --install-sandbox="$RPM_BUILD_ROOT" "$RPM_BUILD_ROOT"',
              DESCRIPTION    = 'this should be really long',
              source         = [ prog ],
-             SOURCE_URL     = 'http://foo.org/foo-1.2.3.tar.gz'
+             SOURCE_URL     = 'http://foo.org/foo-1.2.3.tar.gz',
+             ARCHITECTURE   = 'noarch'
             )
 """ % locals())
 
 src_rpm = 'foo-1.2.3-0.src.rpm'
-machine_rpm = 'foo-1.2.3-0.%s.rpm' % SCons.Tool.rpmutils.defaultMachine()
+machine_rpm = 'foo-1.2.3-0.noarch.rpm'
 
 test.run(arguments='package PACKAGETYPE=rpm', stderr = None)
 

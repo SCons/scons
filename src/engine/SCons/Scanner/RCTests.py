@@ -29,7 +29,6 @@ import collections
 import os
 
 import TestCmd
-import TestUnit
 
 import SCons.Scanner.RC
 import SCons.Node.FS
@@ -117,7 +116,7 @@ if os.path.normcase('foo') == os.path.normcase('FOO'):
 def deps_match(self, deps, headers):
     scanned = sorted(map(my_normpath, list(map(str, deps))))
     expect = sorted(map(my_normpath, headers))
-    self.failUnless(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
+    self.assertTrue(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
 
 # define some tests:
 
@@ -167,7 +166,7 @@ def suite():
     return suite
 
 if __name__ == "__main__":
-    TestUnit.run(suite())
+    unittest.main()
 
 # Local Variables:
 # tab-width:4

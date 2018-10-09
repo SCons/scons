@@ -41,13 +41,14 @@ test.subdir('sub1',
             'sub4', ['sub4', 'dir'])
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 def cat(env, source, target):
     target = str(target[0])
     f = open(target, "wb")
     for src in source:
         f.write(open(str(src), "rb").read())
     f.close()
-env = Environment()
+env = Environment(tools=[])
 env.Append(BUILDERS = {'Cat' : Builder(action=cat)})
 env.Cat(target = 'sub1/f1a.out', source = 'sub1/f1a.in')
 env.Cat(target = 'sub1/f1b.out', source = 'sub1/f1b.in')

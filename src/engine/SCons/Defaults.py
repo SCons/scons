@@ -342,6 +342,7 @@ Touch = ActionFactory(touch_func,
 
 # Internal utility functions
 
+
 def _concat(prefix, list, suffix, env, f=lambda x: x, target=None, source=None):
     """
     Creates a new list from 'list' by first interpolating each element
@@ -357,6 +358,7 @@ def _concat(prefix, list, suffix, env, f=lambda x: x, target=None, source=None):
         list = l
 
     return _concat_ixes(prefix, list, suffix, env)
+
 
 def _concat_ixes(prefix, list, suffix, env):
     """
@@ -394,6 +396,7 @@ def _concat_ixes(prefix, list, suffix, env):
                     result[-1] = result[-1]+suffix
 
     return result
+
 
 def _stripixes(prefix, itms, suffix, stripprefixes, stripsuffixes, env, c=None):
     """

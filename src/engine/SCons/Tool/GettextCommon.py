@@ -390,7 +390,7 @@ def _detect_xgettext(env):
     """ Detects *xgettext(1)* binary """
     if 'XGETTEXT' in env:
         return env['XGETTEXT']
-    xgettext = env.Detect('xgettext');
+    xgettext = env.Detect('xgettext')
     if xgettext:
         return xgettext
     raise SCons.Errors.StopError(XgettextNotFound, "Could not detect xgettext")
@@ -409,7 +409,7 @@ def _detect_msginit(env):
     """ Detects *msginit(1)* program. """
     if 'MSGINIT' in env:
         return env['MSGINIT']
-    msginit = env.Detect('msginit');
+    msginit = env.Detect('msginit')
     if msginit:
         return msginit
     raise SCons.Errors.StopError(MsginitNotFound, "Could not detect msginit")
@@ -428,7 +428,7 @@ def _detect_msgmerge(env):
     """ Detects *msgmerge(1)* program. """
     if 'MSGMERGE' in env:
         return env['MSGMERGE']
-    msgmerge = env.Detect('msgmerge');
+    msgmerge = env.Detect('msgmerge')
     if msgmerge:
         return msgmerge
     raise SCons.Errors.StopError(MsgmergeNotFound, "Could not detect msgmerge")
@@ -447,7 +447,7 @@ def _detect_msgfmt(env):
     """ Detects *msgmfmt(1)* program. """
     if 'MSGFMT' in env:
         return env['MSGFMT']
-    msgfmt = env.Detect('msgfmt');
+    msgfmt = env.Detect('msgfmt')
     if msgfmt:
         return msgfmt
     raise SCons.Errors.StopError(MsgfmtNotFound, "Could not detect msgfmt")

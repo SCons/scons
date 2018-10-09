@@ -55,6 +55,7 @@ file.close()
 cache = test.workpath('cache')
 
 test.write(['src1', 'SConstruct'], """
+DefaultEnvironment(tools=[])
 def cat(env, source, target):
     target = str(target[0])
     open('cat.out', 'a').write(target + "\\n")
@@ -62,7 +63,8 @@ def cat(env, source, target):
     for src in source:
         f.write(open(str(src), "r").read())
     f.close()
-env = Environment(BUILDERS={'Internal':Builder(action=cat),
+env = Environment(tools=[], 
+                  BUILDERS={'Internal':Builder(action=cat),
                             'External':Builder(action=r'%(_python_)s build.py $TARGET $SOURCES')})
 env.External('aaa.out', 'aaa.in')
 env.External('bbb.out', 'bbb.in')

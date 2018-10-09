@@ -34,8 +34,9 @@ import TestSCons
 test = TestSCons.TestSCons(match=TestSCons.match_re)
 
 test.write('SConstruct', """\
-e1 = Environment()
-e2 = Environment()
+DefaultEnvironment(tools=[])
+e1 = Environment(tools=[])
+e2 = Environment(tools=[])
 
 e1.Command('out.txt', [], 'echo 1 > $TARGET')
 e2.Command('out.txt', [], 'echo 2 > $TARGET')

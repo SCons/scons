@@ -40,11 +40,12 @@ multiple_bar = test.workpath('multiple', 'bar')
 multiple_foo = test.workpath('multiple', 'foo')
 
 test.write(['multiple', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
 def touch(env, source, target):
     open('foo', 'w').write("")
     open('bar', 'w').write("")
 CacheDir(r'%(cache)s')
-env = Environment()
+env = Environment(tools=[])
 env.Command(['foo', 'bar'], ['input'], touch)
 """ % locals())
 

@@ -29,6 +29,7 @@ Test building Java applications when using Repositories.
 """
 
 import TestSCons
+import os
 
 python = TestSCons.python
 
@@ -50,6 +51,10 @@ if java_version.count('.') == 1:
 # If it's 1.8 or higher, we skip the further RMIC test
 # because we'll get warnings about the deprecated API...
 # it's just not state-of-the-art anymore.
+# Recent java versions (9 and greater) are back to being
+# marketed as a simple version, but java_where_javac() will
+# still return a dotted version, like 10.0. If this changes,
+# will need to rework this rule.
 # Note, how we allow simple version strings like "5" and
 # "6" to successfully pass this test.
 if curver >= (1, 8):
@@ -82,8 +87,8 @@ opts = '-Y ' + test.workpath('rep1')
 #
 test.write(['rep1', 'SConstruct'], """
 env = Environment(tools = ['javac', 'rmic'],
-                  JAVAC = r'%s',
-                  RMIC = r'%s')
+                  JAVAC = r'"%s"',
+                  RMIC = r'"%s"')
 classes = env.Java(target = 'classes', source = 'src')
 # Brute-force removal of the "Hello" class.
 classes = [c for c in classes if str(c).find('Hello') == -1]
@@ -302,7 +307,7 @@ public class Foo2 extends UnicastRemoteObject implements Hello {
 test.run(chdir = 'work1', options = opts, arguments = ".")
 
 expect = [
-    ' src/Foo1.java src/Foo2.java',
+    ' src' + os.sep + 'Foo1.java src' + os.sep + 'Foo2.java',
     ' com.sub.foo.Foo1 com.sub.foo.Foo2',
 ]
 
@@ -350,8 +355,8 @@ test.up_to_date(chdir = 'work2', options = opts, arguments = ".")
 #
 test.write(['work3', 'SConstruct'], """
 env = Environment(tools = ['javac', 'rmic'],
-                  JAVAC = r'%s',
-                  RMIC = r'%s')
+                  JAVAC = r'"%s"',
+                  RMIC = r'"%s"')
 classes = env.Java(target = 'classes', source = 'src')
 # Brute-force removal of the "Hello" class.
 classes = [c for c in classes if str(c).find('Hello') == -1]

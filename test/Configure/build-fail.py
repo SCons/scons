@@ -58,7 +58,7 @@ def _check(context):
         result = context.TryRun('''
         #include "%s"
 
-        int main() { return 0; }
+        int main(void) { return 0; }
         ''' % inc, '.cpp')[0]
         if result:
             import sys

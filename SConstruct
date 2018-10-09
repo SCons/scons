@@ -132,7 +132,7 @@ python_ver = sys.version[0:3]
 # for the doc toolchain.
 #
 addpaths = [os.path.abspath(os.path.join(os.getcwd(), 'bin')),
-            os.path.abspath(os.path.join(os.getcwd(), 'QMTest'))]
+            os.path.abspath(os.path.join(os.getcwd(), 'testing/framework'))]
 for a in addpaths:
     if a not in sys.path:
         sys.path.append(a)
@@ -634,7 +634,7 @@ for p in [ scons ]:
         # Run setup.py in the unpacked subdirectory to "install" everything
         # into our build/test subdirectory.  The runtest.py script will set
         # PYTHONPATH so that the tests only look under build/test-{package},
-        # and under QMTest (for the testing modules TestCmd.py, TestSCons.py,
+        # and under testing/framework (for the testing modules TestCmd.py, TestSCons.py,
         # etc.).  This makes sure that our tests pass with what
         # we really packaged, not because of something hanging around in
         # the development directory.
@@ -704,7 +704,7 @@ for p in [ scons ]:
         # Run setup.py in the unpacked subdirectory to "install" everything
         # into our build/test subdirectory.  The runtest.py script will set
         # PYTHONPATH so that the tests only look under build/test-{package},
-        # and under QMTest (for the testing modules TestCmd.py, TestSCons.py,
+        # and under testing/framework (for the testing modules TestCmd.py, TestSCons.py,
         # etc.).  This makes sure that our tests pass with what
         # we really packaged, not because of something hanging around in
         # the development directory.
@@ -825,7 +825,7 @@ for p in [ scons ]:
 #
 Export('build_dir', 'env')
 
-SConscript('QMTest/SConscript')
+SConscript('testing/framework/SConscript')
 
 #
 #
@@ -926,7 +926,7 @@ if sfiles:
             # Run setup.py in the unpacked subdirectory to "install" everything
             # into our build/test subdirectory.  The runtest.py script will set
             # PYTHONPATH so that the tests only look under build/test-{package},
-            # and under QMTest (for the testing modules TestCmd.py,
+            # and under testing/framework (for the testing modules TestCmd.py,
             # TestSCons.py, etc.).  This makes sure that our tests pass with
             # what we really packaged, not because of something hanging around
             # in the development directory.
@@ -980,7 +980,7 @@ if sfiles:
             # Run setup.py in the unpacked subdirectory to "install" everything
             # into our build/test subdirectory.  The runtest.py script will set
             # PYTHONPATH so that the tests only look under build/test-{package},
-            # and under QMTest (for the testing modules TestCmd.py,
+            # and under testing/framework (for the testing modules TestCmd.py,
             # TestSCons.py, etc.).  This makes sure that our tests pass with
             # what we really packaged, not because of something hanging
             # around in the development directory.
@@ -1018,7 +1018,7 @@ if sfiles:
 for pf, help_text in packaging_flavors:
     Alias(pf, [
         os.path.join(build_dir, 'test-'+pf),
-        os.path.join(build_dir, 'QMTest'),
+        os.path.join(build_dir, 'testing/framework'),
         os.path.join(build_dir, 'runtest.py'),
     ])
 

@@ -39,7 +39,8 @@ test = TestSCons.TestSCons()
 args = "--debug=explain"
 
 test.write('SConstruct', """\
-env = Environment()
+DefaultEnvironment(tools=[])
+env = Environment(tools=[])
 
 def action( source, target, env ):
     target[0].get_csig()

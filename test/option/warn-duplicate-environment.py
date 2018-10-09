@@ -34,6 +34,7 @@ test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 def build(env, target, source):
     file = open(str(target[0]), 'wb')
     for s in source:
@@ -44,7 +45,7 @@ if WARN:
     SetOption('warn', WARN)
 
 B = Builder(action=build, multi=1)
-env = Environment(BUILDERS = { 'B' : B })
+env = Environment(tools=[], BUILDERS = { 'B' : B })
 env2 = env.Clone(DIFFERENT_VARIABLE = 'true')
 env.B(target = 'file1.out', source = 'file1a.in')
 env2.B(target = 'file1.out', source = 'file1b.in')

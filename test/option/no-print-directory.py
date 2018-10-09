@@ -32,7 +32,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', "")
+test.write('SConstruct', "DefaultEnvironment(tools=[])\n")
 
 test.run(arguments = '--no-print-directory .',
          stderr = "Warning:  ignoring --no-print-directory option\n")

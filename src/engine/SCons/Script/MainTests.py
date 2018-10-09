@@ -25,8 +25,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import unittest
 
-import TestUnit
-
 import SCons.Errors
 import SCons.Script.Main
 
@@ -41,12 +39,7 @@ import SCons.Script.Main
 # of private functionality.
 
 if __name__ == "__main__":
-    suite = unittest.TestSuite()
-    tclasses = []
-    for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(list(map(tclass, names)))
-    TestUnit.run(suite)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4

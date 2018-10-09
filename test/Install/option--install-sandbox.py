@@ -49,7 +49,8 @@ file1_out       = target+os.path.join( target,
 
 #
 test.write('SConstruct', r"""
-env = Environment(SUBDIR='subdir')
+DefaultEnvironment(tools=[])
+env = Environment(tools=[], SUBDIR='subdir')
 f1 = env.Install(r'%(destdir)s', 'file1.out')
 f2 = env.InstallAs(['file2.out', r'%(_SUBDIR_file3_out)s'],
                    ['file2.in', r'%(_SUBDIR_file3_in)s'])

@@ -55,7 +55,7 @@ test = TestSCons.TestSCons()
 test.subdir('cache', 'alpha', 'beta')
 
 foo_c = """
-int main(){ return 0; }
+int main(void){ return 0; }
 """
 
 sconstruct = """

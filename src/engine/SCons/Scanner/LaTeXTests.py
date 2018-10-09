@@ -31,7 +31,6 @@ import sys
 import unittest
 
 import TestCmd
-import TestUnit
 
 import SCons.Node.FS
 import SCons.Scanner.LaTeX
@@ -123,7 +122,7 @@ def deps_match(self, deps, headers):
     global my_normpath
     scanned = list(map(my_normpath, list(map(str, deps))))
     expect = list(map(my_normpath, headers))
-    self.failUnless(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
+    self.assertTrue(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
 
 
 class LaTeXScannerTestCase1(unittest.TestCase):
@@ -156,16 +155,8 @@ class LaTeXScannerTestCase3(unittest.TestCase):
          files = ['inc5.xyz', 'subdir/inc4.eps']
          deps_match(self, deps, files)
 
-
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(LaTeXScannerTestCase1())
-    suite.addTest(LaTeXScannerTestCase2())
-    suite.addTest(LaTeXScannerTestCase3())
-    return suite
-
 if __name__ == "__main__":
-    TestUnit.run(suite())
+    unittest.main()
 
 # Local Variables:
 # tab-width:4

@@ -163,7 +163,7 @@ def _set_BUILDERS(env, key, value):
         for k in list(bd.keys()):
             del bd[k]
     except KeyError:
-        bd = BuilderDict(kwbd, env)
+        bd = BuilderDict(bd, env)
         env._dict[key] = bd
     for k, v in value.items():
         if not SCons.Builder.is_a_Builder(v):
@@ -2326,7 +2326,8 @@ class Base(SubstitutionEnvironment):
                 node = node.srcnode()
             return node
 
-        sources = list(map(final_source, sources));
+        sources = list(map(final_source, sources))
+
         # remove duplicates
         return list(set(sources))
 

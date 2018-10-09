@@ -37,6 +37,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 import re
+import glob
 
 import SCons.Action
 import SCons.Builder
@@ -44,6 +45,8 @@ import SCons.Defaults
 import SCons.Scanner
 import SCons.Tool
 import SCons.Util
+import SCons.Tool.cxx
+cplusplus = SCons.Tool.cxx
 
 class ToolQtWarning(SCons.Warnings.Warning):
     pass
@@ -60,11 +63,32 @@ header_extensions = [".h", ".hxx", ".hpp", ".hh"]
 if SCons.Util.case_sensitive_suffixes('.h', '.H'):
     header_extensions.append('.H')
 
-import SCons.Tool.cxx
-cplusplus = SCons.Tool.cxx
-#cplusplus = __import__('cxx', globals(), locals(), [])
-
 cxx_suffixes = cplusplus.CXXSuffixes
+
+
+#
+def find_platform_specific_qt_paths():
+    """
+    If the platform has non-standard paths which it installs QT in,return the likely default path
+    :return:
+    """
+
+    # qt_bin_dirs = []
+    qt_bin_dir = None
+    if os.path.isfile('/etc/redhat-release'):
+        with open('/etc/redhat-release','r') as rr:
+            lines = rr.readlines()
+            distro = lines[0].split()[0]
+        if distro == 'CentOS':
+            # Centos installs QT under /usr/{lib,lib64}/qt{4,5,-3.3}/bin
+            # so we need to handle this differently
+            # qt_bin_dirs = glob.glob('/usr/lib64/qt*/bin')
+            qt_bin_dir = '/usr/lib64/qt-3.3/bin'
+
+    return qt_bin_dir
+
+
+QT_BIN_DIR = find_platform_specific_qt_paths()
 
 def checkMocIncluded(target, source, env):
     moc = target[0]
@@ -188,13 +212,12 @@ AutomocStatic = _Automoc('StaticObject')
 
 def _detect(env):
     """Not really safe, but fast method to detect the QT library"""
-    QTDIR = None
-    if not QTDIR:
-        QTDIR = env.get('QTDIR',None)
+
+    QTDIR = env.get('QTDIR',None)
     if not QTDIR:
         QTDIR = os.environ.get('QTDIR',None)
     if not QTDIR:
-        moc = env.WhereIs('moc')
+        moc = env.WhereIs('moc') or env.WhereIs('moc',QT_BIN_DIR)
         if moc:
             QTDIR = os.path.dirname(os.path.dirname(moc))
             SCons.Warnings.warn(

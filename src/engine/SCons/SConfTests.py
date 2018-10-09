@@ -33,8 +33,6 @@ from types import *
 import unittest
 
 import TestCmd
-import TestUnit
-
 
 sys.stdout = io.StringIO()
 
@@ -115,9 +113,9 @@ class SConfTestCase(unittest.TestCase):
 
         def checks(self, sconf, TryFuncString):
             TryFunc = self.SConf.SConfBase.__dict__[TryFuncString]
-            res1 = TryFunc( sconf, "int main() { return 0; }\n", ".c" )
+            res1 = TryFunc( sconf, "int main(void) { return 0; }\n", ".c" )
             res2 = TryFunc( sconf,
-                            '#include "no_std_header.h"\nint main() {return 0; }\n',
+                            '#include "no_std_header.h"\nint main(void) {return 0; }\n',
                             '.c' )
             return (res1,res2)
 
@@ -254,7 +252,7 @@ class SConfTestCase(unittest.TestCase):
         def checks(sconf):
             prog = """
 #include <stdio.h>
-int main() {
+int main(void) {
   printf( "Hello" );
   return 0;
 }
@@ -300,10 +298,15 @@ int main() {
         """Test SConf.TryAction
         """
         def actionOK(target, source, env):
-            open(str(target[0]), "w").write( "RUN OK\n" )
+            open(str(target[0]), "w").write("RUN OK\n")
             return None
         def actionFAIL(target, source, env):
             return 1
+        def actionUnicode(target, source, env):
+            open(str(target[0]), "wb").write('2\302\242\n')
+            return None
+
+
         self._resetSConfState()
         sconf = self.SConf.SConf(self.scons_env,
                                   conf_dir=self.test.workpath('config.tests'),
@@ -313,6 +316,12 @@ int main() {
             assert ret and output.encode('utf-8') == bytearray("RUN OK"+os.linesep,'utf-8'), (ret, output)
             (ret, output) = sconf.TryAction(action=actionFAIL)
             assert not ret and output == "", (ret, output)
+
+            if not TestCmd.IS_PY3:
+                # GH Issue #3141 - unicode text and py2.7 crashes.
+                (ret, output) = sconf.TryAction(action=actionUnicode)
+                assert ret and output == u'2\xa2\n', (ret, output)
+
         finally:
             sconf.Finish()
 
@@ -755,7 +764,7 @@ int main() {
             prog = """
 #include <stdio.h>
 
-int main() {
+int main(void) {
   printf( "Hello" );
   return 0;
 }
@@ -779,8 +788,7 @@ int main() {
 
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(SConfTestCase, 'test_')
-    TestUnit.run(suite)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4

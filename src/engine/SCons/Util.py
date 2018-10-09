@@ -37,21 +37,18 @@ import pprint
 PY3 = sys.version_info[0] == 3
 
 try:
+    from collections import UserDict, UserList, UserString
+except ImportError:
     from UserDict import UserDict
-except ImportError as e:
-    from collections import UserDict
-
-try:
     from UserList import UserList
-except ImportError as e:
-    from collections import UserList
-
-from collections import Iterable
+    from UserString import UserString
 
 try:
-    from UserString import UserString
-except ImportError as e:
-    from collections import UserString
+    from collections.abc import Iterable
+except ImportError:
+    from collections import Iterable
+
+from collections import OrderedDict
 
 # Don't "from types import ..." these because we need to get at the
 # types module later to look for UnicodeType.
@@ -63,7 +60,7 @@ MethodType      = types.MethodType
 FunctionType    = types.FunctionType
 
 try:
-    unicode
+    _ = type(unicode)
 except NameError:
     UnicodeType = str
 else:
@@ -106,7 +103,7 @@ def containsOnly(str, set):
     return 1
 
 def splitext(path):
-    "Same as os.path.splitext() but faster."
+    """Same as os.path.splitext() but faster."""
     sep = rightmost_separator(path, os.sep)
     dot = path.rfind('.')
     # An ext is only real if it has at least one non-digit char
@@ -1048,60 +1045,7 @@ class CLVar(UserList):
     def __eq__(self, other):
         return str(self) == str(other)
 
-# A dictionary that preserves the order in which items are added.
-# Submitted by David Benjamin to ActiveState's Python Cookbook web site:
-#     http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/107747
-# Including fixes/enhancements from the follow-on discussions.
-# TODO: Replace with collections.OrderedDict ? (bdbaddog)
-class OrderedDict(UserDict):
-    def __init__(self, dict = None):
-        self._keys = []
-        UserDict.__init__(self, dict)
 
-    def __delitem__(self, key):
-        UserDict.__delitem__(self, key)
-        self._keys.remove(key)
-
-    def __setitem__(self, key, item):
-        UserDict.__setitem__(self, key, item)
-        if key not in self._keys: self._keys.append(key)
-
-    def clear(self):
-        UserDict.clear(self)
-        self._keys = []
-
-    def copy(self):
-        dict = OrderedDict()
-        dict.update(self)
-        return dict
-
-    def items(self):
-        return list(zip(self._keys, list(self.values())))
-
-    def keys(self):
-        return self._keys[:]
-
-    def popitem(self):
-        try:
-            key = self._keys[-1]
-        except IndexError:
-            raise KeyError('dictionary is empty')
-
-        val = self[key]
-        del self[key]
-
-        return (key, val)
-
-    def setdefault(self, key, failobj = None):
-        UserDict.setdefault(self, key, failobj)
-        if key not in self._keys: self._keys.append(key)
-
-    def update(self, dict):
-        for (key, val) in dict.items():
-            self.__setitem__(key, val)
-
-    def values(self):
-        return list(map(self.get, self._keys))
 
 class Selector(OrderedDict):
     """A callable ordered dictionary that maps file suffixes to
@@ -1443,8 +1387,8 @@ def make_path_relative(path):
 # The original idea for AddMethod() and RenameFunction() come from the
 # following post to the ActiveState Python Cookbook:
 #
-#	ASPN: Python Cookbook : Install bound methods in an instance
-#	http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/223613
+#   ASPN: Python Cookbook : Install bound methods in an instance
+#   http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/223613
 #
 # That code was a little fragile, though, so the following changes
 # have been wrung on it:
@@ -1461,8 +1405,8 @@ def make_path_relative(path):
 #   the "new" module, as alluded to in Alex Martelli's response to the
 #   following Cookbook post:
 #
-#	ASPN: Python Cookbook : Dynamically added methods to a class
-#	http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/81732
+#   ASPN: Python Cookbook : Dynamically added methods to a class
+#   http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/81732
 
 def AddMethod(obj, function, name=None):
     """
@@ -1624,14 +1568,20 @@ class NullSeq(Null):
 
 del __revision__
 
-def to_bytes (s):
+
+def to_bytes(s):
     if s is None:
         return b'None'
+    if not PY3 and isinstance(s, UnicodeType):
+        # PY2, must encode unicode
+        return bytearray(s, 'utf-8')
     if isinstance (s, (bytes, bytearray)) or bytes is str:
+        # Above case not covered here as py2 bytes and strings are the same
         return s
-    return bytes (s, 'utf-8')
+    return bytes(s, 'utf-8')
 
-def to_str (s):
+
+def to_str(s):
     if s is None:
         return 'None'
     if bytes is str or is_String(s):
@@ -1639,8 +1589,6 @@ def to_str (s):
     return str (s, 'utf-8')
 
 
-
-# No cmp in py3, so we'll define it.
 def cmp(a, b):
     """
     Define cmp because it's no longer available in python3

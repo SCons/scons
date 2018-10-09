@@ -34,6 +34,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
+from collections import OrderedDict
 
 import SCons.Action
 import SCons.Builder
@@ -70,7 +71,7 @@ def emit_java_classes(target, source, env):
         if isinstance(entry, SCons.Node.FS.File):
             slist.append(entry)
         elif isinstance(entry, SCons.Node.FS.Dir):
-            result = SCons.Util.OrderedDict()
+            result = OrderedDict()
             dirnode = entry.rdir()
             def find_java_files(arg, dirpath, filenames):
                 java_files = sorted([n for n in filenames

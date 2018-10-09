@@ -496,8 +496,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-_SHLIBSONAME "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_SHLIBSONAME</envar>">
 <!ENTITY cv-SHLIBSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLIBSUFFIX</envar>">
 <!ENTITY cv-SHLIBVERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLIBVERSION</envar>">
-<!ENTITY cv-_SHLIBVERSIONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_SHLIBVERSIONFLAGS</envar>">
 <!ENTITY cv-SHLIBVERSIONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLIBVERSIONFLAGS</envar>">
+<!ENTITY cv-_SHLIBVERSIONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_SHLIBVERSIONFLAGS</envar>">
 <!ENTITY cv-SHLINK "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLINK</envar>">
 <!ENTITY cv-SHLINKCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLINKCOM</envar>">
 <!ENTITY cv-SHLINKCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLINKCOMSTR</envar>">
@@ -584,6 +584,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-X_RPM_EPOCH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$X_RPM_EPOCH</envar>">
 <!ENTITY cv-X_RPM_EXCLUDEARCH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$X_RPM_EXCLUDEARCH</envar>">
 <!ENTITY cv-X_RPM_EXLUSIVEARCH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$X_RPM_EXLUSIVEARCH</envar>">
+<!ENTITY cv-X_RPM_EXTRADEFS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$X_RPM_EXTRADEFS</envar>">
 <!ENTITY cv-X_RPM_GROUP "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$X_RPM_GROUP</envar>">
 <!ENTITY cv-X_RPM_GROUP_lang "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$X_RPM_GROUP_lang</envar>">
 <!ENTITY cv-X_RPM_ICON "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$X_RPM_ICON</envar>">
@@ -1125,8 +1126,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-_SHLIBSONAME "<link linkend='cv-_SHLIBSONAME' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_SHLIBSONAME</envar></link>">
 <!ENTITY cv-link-SHLIBSUFFIX "<link linkend='cv-SHLIBSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLIBSUFFIX</envar></link>">
 <!ENTITY cv-link-SHLIBVERSION "<link linkend='cv-SHLIBVERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLIBVERSION</envar></link>">
-<!ENTITY cv-link-_SHLIBVERSIONFLAGS "<link linkend='cv-_SHLIBVERSIONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_SHLIBVERSIONFLAGS</envar></link>">
 <!ENTITY cv-link-SHLIBVERSIONFLAGS "<link linkend='cv-SHLIBVERSIONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLIBVERSIONFLAGS</envar></link>">
+<!ENTITY cv-link-_SHLIBVERSIONFLAGS "<link linkend='cv-_SHLIBVERSIONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_SHLIBVERSIONFLAGS</envar></link>">
 <!ENTITY cv-link-SHLINK "<link linkend='cv-SHLINK' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLINK</envar></link>">
 <!ENTITY cv-link-SHLINKCOM "<link linkend='cv-SHLINKCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLINKCOM</envar></link>">
 <!ENTITY cv-link-SHLINKCOMSTR "<link linkend='cv-SHLINKCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLINKCOMSTR</envar></link>">
@@ -1213,6 +1214,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-X_RPM_EPOCH "<link linkend='cv-X_RPM_EPOCH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$X_RPM_EPOCH</envar></link>">
 <!ENTITY cv-link-X_RPM_EXCLUDEARCH "<link linkend='cv-X_RPM_EXCLUDEARCH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$X_RPM_EXCLUDEARCH</envar></link>">
 <!ENTITY cv-link-X_RPM_EXLUSIVEARCH "<link linkend='cv-X_RPM_EXLUSIVEARCH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$X_RPM_EXLUSIVEARCH</envar></link>">
+<!ENTITY cv-link-X_RPM_EXTRADEFS "<link linkend='cv-X_RPM_EXTRADEFS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$X_RPM_EXTRADEFS</envar></link>">
 <!ENTITY cv-link-X_RPM_GROUP "<link linkend='cv-X_RPM_GROUP' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$X_RPM_GROUP</envar></link>">
 <!ENTITY cv-link-X_RPM_GROUP_lang "<link linkend='cv-X_RPM_GROUP_lang' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$X_RPM_GROUP_lang</envar></link>">
 <!ENTITY cv-link-X_RPM_ICON "<link linkend='cv-X_RPM_ICON' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$X_RPM_ICON</envar></link>">

@@ -37,11 +37,12 @@ test = TestSCons.TestSCons()
 test.subdir(['src'])
 
 SConstruct_contents = """\
+DefaultEnvironment(tools=[])
 import SCons.Script
 
 SetOption( 'implicit_cache', 1 )
 
-env = Environment()
+env = Environment(tools=[])
 act = Action([Touch('${TARGETS[0]}'),Touch('${TARGETS[1]}')])
 env.Append(BUILDERS = {'BuildMe':Builder(action=act,source_scanner=SCons.Script.SourceFileScanner)} )
 

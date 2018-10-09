@@ -75,8 +75,22 @@ def _create_mo_file_builder(env, **kw):
 #############################################################################
 def generate(env,**kw):
   """ Generate `msgfmt` tool """
+  import sys
+  import os
   import SCons.Util
+  import SCons.Tool
   from SCons.Tool.GettextCommon import _detect_msgfmt
+  from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
+  from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
+
+  if sys.platform == 'win32':
+      msgfmt = SCons.Tool.find_program_path(env, 'msgfmt', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
+      if msgfmt:
+          msgfmt_bin_dir = os.path.dirname(msgfmt)
+          env.AppendENVPath('PATH', msgfmt_bin_dir)
+      else:
+          SCons.Warnings.Warning('msgfmt tool requested, but binary not found in ENV PATH')
+
   try:
     env['MSGFMT'] = _detect_msgfmt(env)
   except:

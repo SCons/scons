@@ -63,7 +63,7 @@ foo_c = env.Substfile('foo.c.in', SUBST_DICT = {'__A__' : '0' })
 foo = env.Program(foo_c)
 """)
 
-test.write('src/foo.c.in', """ int main() { return __A__;}
+test.write('src/foo.c.in', """ int main(void) { return __A__;}
 """)
 
 test.run(arguments = 'package')

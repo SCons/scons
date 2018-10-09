@@ -89,6 +89,8 @@ class Literal(object):
     def __neq__(self, other):
         return not self.__eq__(other)
 
+    def __hash__(self):
+        return hash(self.lstr)
 
 class SpecialAttrWrapper(object):
     """This is a wrapper for what we call a 'Node special attribute.'

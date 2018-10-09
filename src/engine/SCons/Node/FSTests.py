@@ -605,7 +605,7 @@ class VariantDirTestCase(unittest.TestCase):
                 print("File `%s' alter_targets() `%s' != expected `%s'" % (f, tp, expect))
                 errors = errors + 1
 
-        self.failIf(errors)
+        self.assertFalse(errors)
 
 class BaseTestCase(_tempdirTestCase):
     def test_stat(self):
@@ -1657,7 +1657,12 @@ class FSTestCase(_tempdirTestCase):
             import ntpath
             x = test.workpath(*dirs)
             drive, path = ntpath.splitdrive(x)
-            unc, path = ntpath.splitunc(path)
+            try:
+                unc, path = ntpath.splitunc(path)
+            except AttributeError:
+                # could be python 3.7 or newer, make sure splitdrive can do UNC
+                assert ntpath.splitdrive(r'\\split\drive\test')[0] == r'\\split\drive'
+                pass
             path = strip_slash(path)
             return '//' + path[1:]
 

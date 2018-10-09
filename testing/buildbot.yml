@@ -9,7 +9,7 @@
 #   ansible-playbook -i hosts buildbot.yml -e 'botuser=sconsy'
 #
 # Tested with Ansible 1.5.0, based on
-# http://scons.org/wiki/InstallingBuildbotSlaves
+# https://github.com/SCons/scons/wiki/InstallingBuildbotSlaves
 # Send questions to:
 #
 #   anatoly techtonik <techtonik@gmail.com>

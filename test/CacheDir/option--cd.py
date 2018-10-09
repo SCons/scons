@@ -39,6 +39,7 @@ test = TestSCons.TestSCons()
 test.subdir('cache', 'src')
 
 test.write(['src', 'SConstruct'], """
+DefaultEnvironment(tools=[])
 def cat(env, source, target):
     target = str(target[0])
     open('cat.out', 'a').write(target + "\\n")
@@ -46,7 +47,7 @@ def cat(env, source, target):
     for src in source:
         f.write(open(str(src), "r").read())
     f.close()
-env = Environment(BUILDERS={'Cat':Builder(action=cat)})
+env = Environment(tools=[], BUILDERS={'Cat':Builder(action=cat)})
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')

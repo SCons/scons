@@ -74,7 +74,7 @@ test.write(['src', 'foo.c'], """
 
 #define FOO_PRINT_STRING "Hello from foo.c"
 
-int main()
+int main(void)
 {
     printf(FOO_PRINT_STRING "\\n");
     return 0;
@@ -115,7 +115,7 @@ test.write(['src', 'foo.c'], """
 #include "foo.h"
 #include <stdio.h>
 
-int main()
+int main(void)
 {
     printf(FOO_PRINT_STRING "\\n");
     return 0;

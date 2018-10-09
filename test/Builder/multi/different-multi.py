@@ -34,6 +34,8 @@ import TestSCons
 test = TestSCons.TestSCons(match=TestSCons.match_re)
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
+
 def build(env, target, source):
     file = open(str(target[0]), 'wb')
     for s in source:
@@ -47,7 +49,7 @@ def build2(env, target, source):
 # or how we mess with the Builder internals.
 B = Builder(action=build, multi=1, name='B')
 C = Builder(action=build2, multi=1, name='C')
-env = Environment(BUILDERS = { 'B' : B, 'C' : C })
+env = Environment(tools=[], BUILDERS = { 'B' : B, 'C' : C })
 env.B(target = 'file8.out', source = 'file8.in')
 env.C(target = 'file8.out', source = 'file8.in')
 """)

@@ -73,7 +73,7 @@ def linux_ver_normalize(vstr):
     m = re.match(r'([0-9]+)\.([0-9]+)\.([0-9]+)', vstr)
     if m:
         vmaj,vmin,build = m.groups()
-        return float(vmaj) * 10. + float(vmin) + float(build) / 1000.;
+        return float(vmaj) * 10. + float(vmin) + float(build) / 1000.
     else:
         f = float(vstr)
         if is_windows:

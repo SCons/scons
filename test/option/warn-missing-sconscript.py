@@ -34,10 +34,11 @@ test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 
 test.write("SConstruct", """\
+DefaultEnvironment(tools=[])
 def build(target, source, env):
     pass
 
-env=Environment()
+env=Environment(tools=[])
 env['BUILDERS']['test'] = Builder(action=build)
 env.test(target='foo', source='foo.c')
 WARN = ARGUMENTS.get('WARN')
@@ -51,8 +52,15 @@ test.write("foo.c","""
 """)
 
 expect = r"""
-scons: warning: Ignoring missing SConscript 'no_such_file'
+scons: warning: Calling missing SConscript without error is deprecated.
+Transition by adding must_exist=0 to SConscript calls.
+Missing SConscript 'no_such_file'
 """ + TestSCons.file_expr
+
+# this is the old message:
+#expect = r"""
+#scons: warning: Ignoring missing SConscript 'no_such_file'
+"" + TestSCons.file_expr
 
 test.run(arguments = '--warn=missing-sconscript .', stderr = expect)
 
@@ -60,7 +68,7 @@ test.run(arguments = '--warn=no-missing-sconscript .', stderr = "")
 
 test.run(arguments = 'WARN=missing-sconscript .', stderr = expect)
 
-test.run(arguments = 'WARN=no-missing-sconscript .')
+test.run(arguments = 'WARN=no-missing-sconscript .', stderr = "")
 
 
 test.pass_test()

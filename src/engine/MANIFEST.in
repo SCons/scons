@@ -19,7 +19,6 @@ SCons/Node/__init__.py
 SCons/Node/Alias.py
 SCons/Node/FS.py
 SCons/Node/Python.py
-SCons/Options/*.py
 SCons/PathList.py
 SCons/Platform/__init__.py
 SCons/Platform/aix.py
@@ -28,6 +27,7 @@ SCons/Platform/darwin.py
 SCons/Platform/hpux.py
 SCons/Platform/irix.py
 SCons/Platform/os2.py
+SCons/Platform/mingw.py
 SCons/Platform/posix.py
 SCons/Platform/sunos.py
 SCons/Platform/win32.py

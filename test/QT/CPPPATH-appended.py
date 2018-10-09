@@ -57,7 +57,7 @@ env.Program(target = 'aaa', source = 'aaa.cpp')
 
 test.write(['sub', 'aaa.cpp'], r"""
 #include "aaa.h"
-int main() { aaa(); return 0; }
+int main(void) { aaa(); return 0; }
 """)
 
 test.write(['sub', 'aaa.h'], r"""

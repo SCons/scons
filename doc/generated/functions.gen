@@ -3523,16 +3523,16 @@ below, for a complete explanation of the arguments and behavior.
   </varlistentry>
   <varlistentry id="f-SConscript">
     <term>
-      <literal>SConscript(scripts, [exports, variant_dir, duplicate])</literal>
+      <literal>SConscript(scripts, [exports, variant_dir, duplicate, must_exist])</literal>
     </term>
     <term>
-      <literal>env.SConscript(scripts, [exports, variant_dir, duplicate])</literal>
+      <literal>env.SConscript(scripts, [exports, variant_dir, duplicate, must_exist])</literal>
     </term>
     <term>
-      <literal>SConscript(dirs=subdirs, [name=script, exports, variant_dir, duplicate])</literal>
+      <literal>SConscript(dirs=subdirs, [name=script, exports, variant_dir, duplicate, must_exist])</literal>
     </term>
     <term>
-      <literal>env.SConscript(dirs=subdirs, [name=script, exports, variant_dir, duplicate])</literal>
+      <literal>env.SConscript(dirs=subdirs, [name=script, exports, variant_dir, duplicate, must_exist])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3731,6 +3731,17 @@ is equivalent to
 and what about this alternative?
 TODO??? SConscript('build/SConscript', src_dir='src')
 -->
+</para>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The optional
+<varname>must_exist</varname>
+argument, if true, causes an exception to be raised if a requested
+<filename xmlns="http://www.scons.org/dbxsd/v1.0">SConscript</filename> file is not found. The current default is false,
+causing only a warning to be omitted, but this behavior is deprecated.
+For scripts which truly intend to be optional, transition to
+explicty supplying
+<literal>must_exist=False</literal> to the call.
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">

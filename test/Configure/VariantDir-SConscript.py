@@ -96,7 +96,7 @@ test.write(['sub', 'TestProgram.c'], """\
 #include "TestProgram.h"
 #include <stdio.h>
 
-int main() {
+int main(void) {
   printf( "Hello\\n" );
 }
 """)

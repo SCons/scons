@@ -32,8 +32,6 @@ import unittest
 
 from collections import UserDict
 
-import TestUnit
-
 import SCons.Errors
 
 from SCons.Subst import *

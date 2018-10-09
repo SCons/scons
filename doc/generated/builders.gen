@@ -1206,13 +1206,15 @@ the following packagers available:
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
  * msi - Microsoft Installer
- * rpm - Redhat Package Manger
+ * rpm - RPM Package Manger
  * ipkg - Itsy Package Management System
- * tarbz2 - compressed tar
- * targz - compressed tar
+ * tarbz2 - bzip2 compressed tar
+ * targz - gzip compressed tar
+ * tarxz - xz compressed tar
  * zip - zip file
- * src_tarbz2 - compressed tar source
- * src_targz - compressed tar source
+ * src_tarbz2 - bzip2 compressed tar source
+ * src_targz - gzip compressed tar source
+ * src_tarxz - xz compressed tar source
  * src_zip - zip file source
 </para>
 

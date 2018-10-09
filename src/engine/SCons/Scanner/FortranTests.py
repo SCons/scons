@@ -258,7 +258,7 @@ class DummyEnvironment(object):
 def deps_match(self, deps, headers):
     scanned = list(map(os.path.normpath, list(map(str, deps))))
     expect = list(map(os.path.normpath, headers))
-    self.failUnless(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
+    self.assertTrue(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
 
 # define some tests:
 

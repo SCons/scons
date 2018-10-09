@@ -57,7 +57,7 @@ test.write('main.c', """
 __declspec(dllimport)
 #endif
 int foo();
-int main() { return foo(); }
+int main(void) { return foo(); }
 """)
 
 test.write('SConstruct', """

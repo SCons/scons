@@ -23,10 +23,10 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import errno
+import os
 import sys
 import unittest
-
-import TestUnit
 
 import SCons.Errors
 
@@ -100,9 +100,31 @@ class ErrorsTestCase(unittest.TestCase):
         except SCons.Errors.ExplicitExit as e:
             assert e.node == "node"
 
+    def test_convert_EnvironmentError_to_BuildError(self):
+        """Test the convert_to_BuildError function on EnvironmentError
+        exceptions.
+        """
+        ee = SCons.Errors.EnvironmentError("test env error")
+        be = SCons.Errors.convert_to_BuildError(ee)
+        assert be.errstr == "test env error"
+        assert be.status == 2
+        assert be.exitstatus == 2
+        assert be.filename is None
+
+    def test_convert_OSError_to_BuildError(self):
+        """Test the convert_to_BuildError function on OSError
+        exceptions.
+        """
+        ose = OSError(7, 'test oserror')
+        be = SCons.Errors.convert_to_BuildError(ose)
+        assert be.errstr == 'test oserror'
+        assert be.status == 7
+        assert be.exitstatus == 2
+        assert be.filename is None
+
+
 if __name__ == "__main__":
-    suite = unittest.makeSuite(ErrorsTestCase, 'test_')
-    TestUnit.run(suite)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4

@@ -34,6 +34,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env1 = Environment(DESTDIR='sub1', tools=[])
 
 # Call env1.Install() but not env1.InstallAs() *before* we clone it.

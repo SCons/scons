@@ -33,7 +33,8 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
-env = Environment()
+DefaultEnvironment(tools=[])
+env = Environment(tools=[])
 
 # We name the files 'Tfile' so that they will sort after the SConstruct
 # file regardless of whether the test is being run on a case-sensitive

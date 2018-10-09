@@ -51,7 +51,9 @@ This is used to fill in the
 <literal>Architecture:</literal>
 field in an Ipkg
 <filename>control</filename> file,
-and as part of the name of a generated RPM file.
+and the <literal>BuildArch:</literal> field
+in the RPM <filename>.spec</filename> file,
+as well as forming part of the name of a generated RPM package file.
 </para>
 </listitem>
   </varlistentry>
@@ -240,7 +242,7 @@ or this:
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env = Environment()
-env['BUILDERS]['NewBuilder'] = foo
+env['BUILDERS']['NewBuilder'] = foo
 </example_commands>
 </listitem>
   </varlistentry>
@@ -389,7 +391,6 @@ the <filename>control</filename> for Ipkg,
 the <filename>.wxs</filename> for MSI).
 If set, the function will be called
 after the SCons template for the file has been written.
-XXX
 </para>
 </listitem>
   </varlistentry>
@@ -480,7 +481,8 @@ An automatically-generated construction variable
 containing the C preprocessor command-line options
 to define values.
 The value of <envar xmlns="http://www.scons.org/dbxsd/v1.0">$_CPPDEFFLAGS</envar> is created
-by appending <envar xmlns="http://www.scons.org/dbxsd/v1.0">$CPPDEFPREFIX</envar> and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$CPPDEFSUFFIX</envar>
+by respectively prepending and appending
+<envar xmlns="http://www.scons.org/dbxsd/v1.0">$CPPDEFPREFIX</envar> and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$CPPDEFSUFFIX</envar>
 to the beginning and end
 of each definition in <envar xmlns="http://www.scons.org/dbxsd/v1.0">$CPPDEFINES</envar>.
 </para>
@@ -503,7 +505,8 @@ If <envar xmlns="http://www.scons.org/dbxsd/v1.0">$CPPDEFINES</envar> is a strin
 the values of the
 <envar xmlns="http://www.scons.org/dbxsd/v1.0">$CPPDEFPREFIX</envar> and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$CPPDEFSUFFIX</envar>
 construction variables
-will be added to the beginning and end.
+will be respectively prepended and appended to the beginning and end
+of each definition in <envar xmlns="http://www.scons.org/dbxsd/v1.0">$CPPDEFINES</envar>.
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -517,7 +520,7 @@ If <envar xmlns="http://www.scons.org/dbxsd/v1.0">$CPPDEFINES</envar> is a list,
 the values of the
 <envar xmlns="http://www.scons.org/dbxsd/v1.0">$CPPDEFPREFIX</envar> and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$CPPDEFSUFFIX</envar>
 construction variables
-will be appended to the beginning and end
+will be respectively prepended and appended to the beginning and end
 of each element in the list.
 If any element is a list or tuple,
 then the first item is the name being
@@ -535,7 +538,7 @@ If <envar xmlns="http://www.scons.org/dbxsd/v1.0">$CPPDEFINES</envar> is a dicti
 the values of the
 <envar xmlns="http://www.scons.org/dbxsd/v1.0">$CPPDEFPREFIX</envar> and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$CPPDEFSUFFIX</envar>
 construction variables
-will be appended to the beginning and end
+will be respectively prepended and appended to the beginning and end
 of each item from the dictionary.
 The key of each dictionary item
 is a name being defined
@@ -563,7 +566,7 @@ env = Environment(CPPDEFINES={'B':2, 'A':None})
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The prefix used to specify preprocessor definitions
 on the C compiler command line.
-This will be appended to the beginning of each definition
+This will be prepended to the beginning of each definition
 in the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$CPPDEFINES</envar> construction variable
 when the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$_CPPDEFFLAGS</envar> variable is automatically generated.
 </para>
@@ -619,7 +622,7 @@ An automatically-generated construction variable
 containing the C preprocessor command-line options
 for specifying directories to be searched for include files.
 The value of <envar xmlns="http://www.scons.org/dbxsd/v1.0">$_CPPINCFLAGS</envar> is created
-by appending <envar xmlns="http://www.scons.org/dbxsd/v1.0">$INCPREFIX</envar> and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$INCSUFFIX</envar>
+by respectively prepending and appending <envar xmlns="http://www.scons.org/dbxsd/v1.0">$INCPREFIX</envar> and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$INCSUFFIX</envar>
 to the beginning and end
 of each directory in <envar xmlns="http://www.scons.org/dbxsd/v1.0">$CPPPATH</envar>.
 </para>
@@ -661,7 +664,7 @@ through the automatically-generated
 <envar xmlns="http://www.scons.org/dbxsd/v1.0">$_CPPINCFLAGS</envar>
 construction variable,
 which is constructed by
-appending the values of the
+respectively prepending and appending the value of the
 <envar xmlns="http://www.scons.org/dbxsd/v1.0">$INCPREFIX</envar> and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$INCSUFFIX</envar>
 construction variables
 to the beginning and end
@@ -2602,7 +2605,8 @@ containing the Fortran compiler command-line options
 for specifying directories to be searched for include
 files and module files.
 The value of <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-_FORTRANINCFLAGS"><envar>$_FORTRANINCFLAGS</envar></link> is created
-by prepending/appending <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-INCPREFIX"><envar>$INCPREFIX</envar></link> and <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-INCSUFFIX"><envar>$INCSUFFIX</envar></link>
+by respectively prepending and appending
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-INCPREFIX"><envar>$INCPREFIX</envar></link> and <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-INCSUFFIX"><envar>$INCSUFFIX</envar></link>
 to the beginning and end
 of each directory in <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FORTRANPATH"><envar>$FORTRANPATH</envar></link>.
 </para>
@@ -2625,7 +2629,7 @@ for module files, as well.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The prefix used to specify a module directory on the Fortran compiler command
 line.
-This will be appended to the beginning of the directory
+This will be prepended to the beginning of the directory
 in the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FORTRANMODDIR"><envar>$FORTRANMODDIR</envar></link> construction variables
 when the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-_FORTRANMODFLAG"><envar>$_FORTRANMODFLAG</envar></link> variables is automatically generated.
 </para>
@@ -2637,7 +2641,7 @@ when the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-_FORTRANMODFL
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The suffix used to specify a module directory on the Fortran compiler command
 line.
-This will be appended to the beginning of the directory
+This will be appended to the end of the directory
 in the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FORTRANMODDIR"><envar>$FORTRANMODDIR</envar></link> construction variables
 when the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-_FORTRANMODFLAG"><envar>$_FORTRANMODFLAG</envar></link> variables is automatically generated.
 </para>
@@ -2653,8 +2657,8 @@ for specifying the directory location where the Fortran
 compiler should place any module files that happen to get
 generated during compilation.
 The value of <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-_FORTRANMODFLAG"><envar>$_FORTRANMODFLAG</envar></link> is created
-by prepending/appending <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FORTRANMODDIRPREFIX"><envar>$FORTRANMODDIRPREFIX</envar></link> and
-<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FORTRANMODDIRSUFFIX"><envar>$FORTRANMODDIRSUFFIX</envar></link>
+by respectively prepending and appending
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FORTRANMODDIRPREFIX"><envar>$FORTRANMODDIRPREFIX</envar></link> and <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FORTRANMODDIRSUFFIX"><envar>$FORTRANMODDIRSUFFIX</envar></link>
 to the beginning and end of the directory in <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FORTRANMODDIR"><envar>$FORTRANMODDIR</envar></link>.
 </para>
 </listitem>
@@ -2727,7 +2731,7 @@ through the automatically-generated
 <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-_FORTRANINCFLAGS"><envar>$_FORTRANINCFLAGS</envar></link>
 construction variable,
 which is constructed by
-appending the values of the
+respectively prepending and appending the values of the
 <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-INCPREFIX"><envar>$INCPREFIX</envar></link> and <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-INCSUFFIX"><envar>$INCSUFFIX</envar></link>
 construction variables
 to the beginning and end
@@ -2940,15 +2944,6 @@ is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
     <term>HOST_ARCH</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-        The name of the host hardware architecture used to create the Environment.
-        If a platform is specified when creating the Environment, then
-        that Platform's logic will handle setting this value.
-        This value is immutable, and should not be changed by the user after
-        the Environment is initialized.
-        Currently only set for Win32.
-</para>
-    
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Sets the host architecture for Visual Studio compiler. If not set,
 default to the detected host architecture: note that this may depend
 on the python you are using.
@@ -2964,7 +2959,16 @@ Valid values are the same as for <envar xmlns="http://www.scons.org/dbxsd/v1.0">
 This is currently only used on Windows, but in the future it will be
 used on other OSes as well.
 </para>
-</listitem>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The name of the host hardware architecture used to create the Environment.
+        If a platform is specified when creating the Environment, then
+        that Platform's logic will handle setting this value.
+        This value is immutable, and should not be changed by the user after
+        the Environment is initialized.
+        Currently only set for Win32.
+</para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-HOST_OS">
     <term>HOST_OS</term>
@@ -3087,7 +3091,7 @@ env = Environment(IMPLICIT_COMMAND_DEPENDENCIES = 0)
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The prefix used to specify an include directory on the C compiler command
 line.
-This will be appended to the beginning of each directory
+This will be prepended to the beginning of each directory
 in the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$CPPPATH</envar> and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$FORTRANPATH</envar> construction variables
 when the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$_CPPINCFLAGS</envar> and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$_FORTRANINCFLAGS</envar>
 variables are automatically generated.
@@ -3698,7 +3702,7 @@ An automatically-generated construction variable
 containing the linker command-line options
 for specifying directories to be searched for library.
 The value of <envar xmlns="http://www.scons.org/dbxsd/v1.0">$_LIBDIRFLAGS</envar> is created
-by appending <envar xmlns="http://www.scons.org/dbxsd/v1.0">$LIBDIRPREFIX</envar> and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$LIBDIRSUFFIX</envar>
+by respectively prepending and appending <envar xmlns="http://www.scons.org/dbxsd/v1.0">$LIBDIRPREFIX</envar> and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$LIBDIRSUFFIX</envar>
 to the beginning and end
 of each directory in <envar xmlns="http://www.scons.org/dbxsd/v1.0">$LIBPATH</envar>.
 </para>
@@ -3709,7 +3713,7 @@ of each directory in <envar xmlns="http://www.scons.org/dbxsd/v1.0">$LIBPATH</en
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The prefix used to specify a library directory on the linker command line.
-This will be appended to the beginning of each directory
+This will be prepended to the beginning of each directory
 in the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$LIBPATH</envar> construction variable
 when the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$_LIBDIRFLAGS</envar> variable is automatically generated.
 </para>
@@ -3742,7 +3746,7 @@ An automatically-generated construction variable
 containing the linker command-line options
 for specifying libraries to be linked with the resulting target.
 The value of <envar xmlns="http://www.scons.org/dbxsd/v1.0">$_LIBFLAGS</envar> is created
-by appending <envar xmlns="http://www.scons.org/dbxsd/v1.0">$LIBLINKPREFIX</envar> and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$LIBLINKSUFFIX</envar>
+by respectively prepending and appending <envar xmlns="http://www.scons.org/dbxsd/v1.0">$LIBLINKPREFIX</envar> and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$LIBLINKSUFFIX</envar>
 to the beginning and end
 of each filename in <envar xmlns="http://www.scons.org/dbxsd/v1.0">$LIBS</envar>.
 </para>
@@ -3753,7 +3757,7 @@ of each filename in <envar xmlns="http://www.scons.org/dbxsd/v1.0">$LIBS</envar>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The prefix used to specify a library to link on the linker command line.
-This will be appended to the beginning of each library
+This will be prepended to the beginning of each library
 in the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$LIBS</envar> construction variable
 when the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$_LIBFLAGS</envar> variable is automatically generated.
 </para>
@@ -3807,7 +3811,7 @@ through the automatically-generated
 <envar xmlns="http://www.scons.org/dbxsd/v1.0">$_LIBDIRFLAGS</envar>
 construction variable,
 which is constructed by
-appending the values of the
+respectively prepending and appending the values of the
 <envar xmlns="http://www.scons.org/dbxsd/v1.0">$LIBDIRPREFIX</envar> and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$LIBDIRSUFFIX</envar>
 construction variables
 to the beginning and end
@@ -3863,7 +3867,7 @@ through the automatically-generated
 <envar xmlns="http://www.scons.org/dbxsd/v1.0">$_LIBFLAGS</envar>
 construction variable,
 which is constructed by
-appending the values of the
+respectively prepending and appending the values of the
 <envar xmlns="http://www.scons.org/dbxsd/v1.0">$LIBLINKPREFIX</envar> and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$LIBLINKSUFFIX</envar>
 construction variables
 to the beginning and end
@@ -3930,10 +3934,10 @@ and these suffixes.
     <term>LICENSE</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-The abbreviated name of the license under which
-this project is released (gpl, lpgl, bsd etc.).
+The abbreviated name, preferably the SPDX code, of the license under which
+this project is released (GPL-3.0, LGPL-2.1, BSD-2-Clause etc.).
 See http://www.opensource.org/licenses/alphabetical
-for a list of license names.
+for a list of license names and SPDX codes.
 </para>
 </listitem>
   </varlistentry>
@@ -5601,7 +5605,8 @@ containing the command-line options
 for specifying directories to be searched
 by the resource compiler.
 The value of <envar xmlns="http://www.scons.org/dbxsd/v1.0">$RCINCFLAGS</envar> is created
-by appending <envar xmlns="http://www.scons.org/dbxsd/v1.0">$RCINCPREFIX</envar> and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$RCINCSUFFIX</envar>
+by respectively prepending and appending
+<envar xmlns="http://www.scons.org/dbxsd/v1.0">$RCINCPREFIX</envar> and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$RCINCSUFFIX</envar>
 to the beginning and end
 of each directory in <envar xmlns="http://www.scons.org/dbxsd/v1.0">$CPPPATH</envar>.
 </para>
@@ -5613,7 +5618,7 @@ of each directory in <envar xmlns="http://www.scons.org/dbxsd/v1.0">$CPPPATH</en
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The prefix (flag) used to specify an include directory
 on the resource compiler command line.
-This will be appended to the beginning of each directory
+This will be prepended to the beginning of each directory
 in the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$CPPPATH</envar> construction variable
 when the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$RCINCFLAGS</envar> variable is expanded.
 </para>
@@ -5735,7 +5740,7 @@ An automatically-generated construction variable
 containing the rpath flags to be used when linking
 a program with shared libraries.
 The value of <envar xmlns="http://www.scons.org/dbxsd/v1.0">$_RPATH</envar> is created
-by appending <envar xmlns="http://www.scons.org/dbxsd/v1.0">$RPATHPREFIX</envar> and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$RPATHSUFFIX</envar>
+by respectively prepending <envar xmlns="http://www.scons.org/dbxsd/v1.0">$RPATHPREFIX</envar> and appending <envar xmlns="http://www.scons.org/dbxsd/v1.0">$RPATHSUFFIX</envar>
 to the beginning and end
 of each directory in <envar xmlns="http://www.scons.org/dbxsd/v1.0">$RPATH</envar>.
 </para>
@@ -5763,7 +5768,7 @@ path, you must make it absolute yourself.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The prefix used to specify a directory to be searched for
 shared libraries when running programs.
-This will be appended to the beginning of each directory
+This will be prepended to the beginning of each directory
 in the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$RPATH</envar> construction variable
 when the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$_RPATH</envar> variable is automatically generated.
 </para>
@@ -6610,6 +6615,16 @@ Example <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION">
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-SHLIBVERSIONFLAGS">
+    <term>SHLIBVERSIONFLAGS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Extra flags added to <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLINKCOM"><envar>$SHLINKCOM</envar></link> when building versioned
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link>. These flags are only used when <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> is
+set.
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-_SHLIBVERSIONFLAGS">
     <term>_SHLIBVERSIONFLAGS</term>
     <listitem>
@@ -6620,16 +6635,6 @@ is set). <literal>_SHLIBVERSIONFLAGS</literal> usually adds <link xmlns="http://
 and some extra dynamically generated options (such as
 <literal>-Wl,-soname=$_SHLIBSONAME</literal>. It is unused by "plain"
 (unversioned) shared libraries.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-SHLIBVERSIONFLAGS">
-    <term>SHLIBVERSIONFLAGS</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Extra flags added to <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLINKCOM"><envar>$SHLINKCOM</envar></link> when building versioned
-<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link>. These flags are only used when <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> is
-set.
 </para>
 </listitem>
   </varlistentry>
@@ -6935,7 +6940,8 @@ An automatically-generated construction variable
 containing the SWIG command-line options
 for specifying directories to be searched for included files.
 The value of <envar xmlns="http://www.scons.org/dbxsd/v1.0">$_SWIGINCFLAGS</envar> is created
-by appending <envar xmlns="http://www.scons.org/dbxsd/v1.0">$SWIGINCPREFIX</envar> and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$SWIGINCSUFFIX</envar>
+by respectively prepending and appending
+<envar xmlns="http://www.scons.org/dbxsd/v1.0">$SWIGINCPREFIX</envar> and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$SWIGINCSUFFIX</envar>
 to the beginning and end
 of each directory in <envar xmlns="http://www.scons.org/dbxsd/v1.0">$SWIGPATH</envar>.
 </para>
@@ -6946,7 +6952,7 @@ of each directory in <envar xmlns="http://www.scons.org/dbxsd/v1.0">$SWIGPATH</e
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The prefix used to specify an include directory on the SWIG command line.
-This will be appended to the beginning of each directory
+This will be prepended to the beginning of each directory
 in the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$SWIGPATH</envar> construction variable
 when the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$_SWIGINCFLAGS</envar> variable is automatically generated.
 </para>
@@ -7020,7 +7026,7 @@ through the automatically-generated
 <envar xmlns="http://www.scons.org/dbxsd/v1.0">$_SWIGINCFLAGS</envar>
 construction variable,
 which is constructed by
-appending the values of the
+respectively prepending and appending the values of the
 <envar xmlns="http://www.scons.org/dbxsd/v1.0">$SWIGINCPREFIX</envar> and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$SWIGINCSUFFIX</envar>
 construction variables
 to the beginning and end
@@ -7095,13 +7101,6 @@ that may not be set or used in a construction environment.
     <term>TARGET_ARCH</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-        The name of the target hardware architecture for the compiled objects
-        created by this Environment.
-        This defaults to the value of HOST_ARCH, and the user can override it.
-        Currently only set for Win32.
-</para>
-    
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Sets the target architecture for Visual Studio compiler (i.e. the arch
 of the binaries generated by the compiler). If not set, default to
 <envar xmlns="http://www.scons.org/dbxsd/v1.0">$HOST_ARCH</envar>, or, if that is unset, to the architecture of the
@@ -7126,7 +7125,14 @@ and <literal>ia64</literal> (Itanium).
 For example, if you want to compile 64-bit binaries, you would set
 <literal>TARGET_ARCH='x86_64'</literal> in your SCons environment.
 </para>
-</listitem>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The name of the target hardware architecture for the compiled objects
+        created by this Environment.
+        This defaults to the value of HOST_ARCH, and the user can override it.
+        Currently only set for Win32.
+</para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-TARGET_OS">
     <term>TARGET_OS</term>
@@ -7542,6 +7548,7 @@ This is used to fill in the
 <literal>BuildRequires:</literal>
 field in the RPM
 <filename>.spec</filename> file.
+Note this should only be used on a host managed by rpm as the dependencies will not be resolvable at build time otherwise.
 </para>
 </listitem>
   </varlistentry>
@@ -7600,7 +7607,8 @@ field in the RPM
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 This is used to fill in the
 <literal>Epoch:</literal>
-field in the controlling information for RPM packages.
+field in the RPM
+<filename>.spec</filename> file.
 </para>
 </listitem>
   </varlistentry>
@@ -7624,6 +7632,38 @@ This is used to fill in the
 field in the RPM
 <filename>.spec</filename> file.
 </para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-X_RPM_EXTRADEFS">
+    <term>X_RPM_EXTRADEFS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+A list used to supply extra defintions or flags
+to be added to the RPM <filename>.spec</filename> file.
+Each item is added as-is with a carriage return appended.
+This is useful if some specific RPM feature not otherwise
+anticipated by SCons needs to be turned on or off.
+Note if this variable is omitted, SCons will by
+default supply the value
+<literal>'%global debug_package %{nil}'</literal>
+to disable debug package generation.
+To enable debug package generation, include this
+variable set either to None, or to a custom
+list that does not include the default line.
+Added in version 3.1.
+</para>
+
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
+env.Package(
+    NAME             = 'foo',
+...
+    X_RPM_EXTRADEFS = [
+        '%define _unpackaged_files_terminate_build 0'
+        '%define _missing_doc_files_terminate_build 0'
+    ],
+... )
+</example_commands>
+
 </listitem>
   </varlistentry>
   <varlistentry id="cv-X_RPM_GROUP">

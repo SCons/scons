@@ -130,7 +130,7 @@ except:
     # Bug ticket reported also this seems work fine when running outsite
     # the test framework
     test.skip_test('Throwing no result for this test because of bug ' +
-        'related here: http://scons.tigris.org/issues/show_bug.cgi?id=2907\n')
+        'related here: https://github.com/SCons/scons/issues/2907\n')
     pass
 #test.must_exist(['java', 'classes', 'foopack', 'foopack.class'])
 #test.must_exist(['java', 'classes', 'foopack', 'foopackJNI.class'])
