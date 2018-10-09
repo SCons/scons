@@ -2494,9 +2494,17 @@ class FileNodeInfo(SCons.Node.NodeInfoBase):
 class FileBuildInfo(SCons.Node.BuildInfoBase):
     """
     This is info loaded from sconsign.
-    We're adding dependency_map to cache file->csig mapping
-    for all dependencies.  Currently this is only used when using
-    MD5-timestamp decider. (It's needed because
+
+    Attributes unique to FileBuildInfo:
+        dependency_map : Caches file->csig mapping
+                    for all dependencies.  Currently this is only used when using
+                    MD5-timestamp decider.
+                    It's used to ensure that we copy the correct
+                    csig from previous build to be written to .sconsign when current build
+                    is done. Previously the matching of csig to file was strictly by order
+                    they appeared in bdepends, bsources, or bimplicit, and so a change in order
+                    or count of any of these could yield writing wrong csig, and then false positive
+                    rebuilds
     """
     __slots__ = ('dependency_map')
     current_version_id = 2
