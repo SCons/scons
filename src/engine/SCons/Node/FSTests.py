@@ -2464,7 +2464,7 @@ class FileTestCase(_tempdirTestCase):
     def test_changed(self):
         """ 
         Verify that changes between BuildInfo's list of souces, depends, and implicit 
-        dependencies do not corrupt content signiture values written to .SConsign
+        dependencies do not corrupt content signature values written to .SConsign
         when using CacheDir and Timestamp-MD5 decider.
         This is for issue #2980
         """
