@@ -1169,13 +1169,17 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         binfo.bsources = [s for s in sources if s not in seen and not seen.add(s)]
         binfo.bsourcesigs = [s.get_ninfo() for s in binfo.bsources]
 
-
         binfo.bdepends = [d for d in self.depends if d not in ignore_set]
         binfo.bdependsigs = [d.get_ninfo() for d in self.depends]
 
-        binfo.bimplicit = [i for i in self.implicit or [] if i not in ignore_set]
-        binfo.bimplicitsigs = [i.get_ninfo() for i in binfo.bimplicit]
-
+        # Because self.implicit is initialized to None (and not empty list [])
+        # we have to handle this case
+        if not self.implicit:
+            binfo.bimplicit = []
+            binfo.bimplicitsigs = []
+        else:
+            binfo.bimplicit = [i for i in self.implicit if i not in ignore_set]
+            binfo.bimplicitsigs = [i.get_ninfo() for i in binfo.bimplicit]
 
         return binfo
 
