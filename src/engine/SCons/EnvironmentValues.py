@@ -188,7 +188,7 @@ class EnvironmentValues(object):
                     else:
                         nt = ValueTypes.PARSED
                 elif v in gvars:
-                    if callable(self[v].value):
+                    if callable(v):
                         nt = ValueTypes.CALLABLE
                     else:
                         nt = ValueTypes.PARSED
@@ -270,12 +270,12 @@ class EnvironmentValues(object):
 
             # At this point it's possible to determine if we guessed callable correctly
             # or if it's actually evaluable
-            if t == ValueTypes.CALLABLE:
-                if callable(v):
-                    t = ValueTypes.CALLABLE
-                else:
-                    debug("Swapped to EVALUABLE:%s" % v)
-                    t = ValueTypes.EVALUABLE
+            # if t == ValueTypes.CALLABLE:
+            #     if callable(v):
+            #         t = ValueTypes.CALLABLE
+            #     else:
+            #         debug("Swapped to EVALUABLE:%s" % v)
+            #         t = ValueTypes.EVALUABLE
 
             # Now handle all the various types which can be in the value.
             if t == ValueTypes.STRING:
@@ -304,18 +304,21 @@ class EnvironmentValues(object):
                         new_parsed_values.append(None)
 
                     elif value.var_type == ValueTypes.STRING:
-                        if value[0] == '$' and value[1:] == v:
+                        if len(value.value) > 1 and value.value[0] == '$' and value.value[1:] == v:
                             # Special case, variables value references itself and only itself
                             new_string_values.append(('', ValueTypes.STRING))
                             new_parsed_values.append(None)
-
                         else:
                             new_string_values.append((value.value, ValueTypes.STRING))
                             new_parsed_values.append(None)
-
+                    elif value.var_type == ValueTypes.PARSED and value.value[0] == '$' and value.value[1:] == v:
+                        # Handle when the value of the current value is a self reference 'R'='$R'.
+                        # This prevents infinite recursion during evalualation and mimics previous
+                        # functionality
+                        new_string_values.append(('', ValueTypes.STRING))
+                        new_parsed_values.append(None)
                     else:
                         # TODO: Handle other recursive loops by empty stringing this value before recursing with copy of lvar?
-                        # TODO: This should insert the return values into the arrays at the current position, not be a string
                         print("Here")
                         new_parsed_values.extend(value.all_dependencies)
                         new_string_values.extend([None] * len(value.all_dependencies))
@@ -328,14 +331,15 @@ class EnvironmentValues(object):
 
             elif t == ValueTypes.CALLABLE:
                 # Can return multiple values
-                to_call = v
+                # TODO: should this be self.values[v].value ?
+                to_call = self.values[v].value
 
                 call_value = self.eval_callable(to_call, parsed_values, string_values, target=target,
                                                 source=source, gvars=gvars, lvars=lvars, for_sig=for_signature)
 
                 new_values = []
                 if is_String(call_value):
-                    if  '$' not in call_value:
+                    if '$' not in call_value:
                         new_string_values.append((call_value, ValueTypes.STRING))
                         new_parsed_values.append(None)
 
@@ -403,9 +407,14 @@ class EnvironmentValues(object):
                 try:
                     # Note: this may return a callable or a string or a number or an object.
                     # If it's callable, then it needs be executed by the logic above for ValueTypes.CALLABLE.
+                    # TODO Fix gvars to have contents of variables rather than evaluating to EnvironmentValue object...
                     sval = eval(v, gvars, lvars)
                 except AllowableExceptions as e:
                     sval = ''
+
+                # try:
+                #     sval = sval.value
+
 
                 if is_String(sval):
                     new_string_values.append((sval, ValueTypes.NUMBER))
@@ -539,7 +548,7 @@ class EnvironmentValues(object):
             val = env.cached_values[(substString, override_string)]
         except KeyError as e:
             # No such value create one
-            val = EnvironmentValue(substString)
+            val = EnvironmentValue.factory(substString)
 
         string_values = [None] * len(val.all_dependencies)
         parsed_values = [None] * len(val.all_dependencies)
@@ -678,7 +687,7 @@ class EnvironmentValues(object):
                 retval.append([])
 
             e_value = EnvironmentValue(element)
-            this_value = e_value.subst(env, mode=mode,
+            this_value = EnvironmentValues.subst(env, mode=mode,
                                        target=target, source=source,
                                        gvars=gvars, lvars=lvars, conv=conv)
 

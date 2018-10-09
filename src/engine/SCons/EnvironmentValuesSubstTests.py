@@ -268,9 +268,9 @@ class SubstTestCase(unittest.TestCase):
         cases = self.basic_cases[:]
         total_tests = len(cases)/2
 
-        kwargs = {'target' : self.target,
-                  'source' : self.source,
-                  'gvars' : env.values}
+        kwargs = {'target': self.target,
+                  'source': self.source,
+                  'gvars': env.values}
 
         failed = 0
         while cases:
@@ -424,6 +424,13 @@ class EnvVariablesSubstTestCase(SubstTestCase):
 
     def test_scons_subst(self):
         """Test EnvironmentValues.subst():  basic substitution"""
+
+        self.basic_cases = [
+            # Basics:  strings without expansions are left alone, and
+            # the simplest possible expansion to a null-string value.
+            '$CALLABLE1',            'callable-1',
+        ]
+
         return self.basic_comparisons(EnvironmentValues.subst, cvt)
 
     subst_cases = [
@@ -689,7 +696,7 @@ class TestCLVar(unittest.TestCase):
 
         cmd = SCons.Util.CLVar("test $FOO $BAR $CALL test")
 
-        newcmd = env.subst(cmd)
+        newcmd = EnvironmentValues.subst(cmd, env)
         self.assertEqual(newcmd, ['test', 'foo', 'bar', 'call', 'test'], newcmd)
 
         # Now build do as a list

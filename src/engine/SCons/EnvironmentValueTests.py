@@ -115,7 +115,7 @@ class TestEnvironmentValue(unittest.TestCase):
         def foo(target, source, env, for_signature):
             return "bar"
 
-        one = EnvironmentValue(foo)
+        one = EnvironmentValue.factory(foo)
         self.assertEqual(one.var_type, ValueTypes.CALLABLE)
 
         # Test that callable is retrievable and callable and value is proper.

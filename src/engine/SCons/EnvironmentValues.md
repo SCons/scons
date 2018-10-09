@@ -134,3 +134,7 @@
 # EnvironmentValue
   * These objects need to be unique (for any given string value, there is only one EnvironmentValue object)
     
+    
+# TODO:
+  * intern() strings we want to never be duplicated
+  * use __missing__ method on dict'like objects to handle when key is not found.

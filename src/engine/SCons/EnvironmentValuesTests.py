@@ -160,7 +160,9 @@ class TestEnvironmentValues(unittest.TestCase):
         # and that the value is correct with the new function
         def foo(target, source, env, for_signature):
             return "bar"
+
         env['XX'] = foo
+
         xxx_3 = env.subst('$XXX', env)
         # print("1:%s 2:%s 3:%s"%(xxx, xxx_2, xxx_3))
         self.assertNotEqual(xxx_3, xxx_2)
