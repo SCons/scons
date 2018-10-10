@@ -1459,6 +1459,11 @@ else:
         md5 = True
 
         def MD5signature(s):
+            """
+            Generate a String of Hex digits representing the md5 signature of the string
+            :param s: either string or bytes. Normally should be bytes
+            :return: String of hex digits
+            """
             m = hashlib.md5()
 
             try:
@@ -1469,6 +1474,11 @@ else:
             return m.hexdigest()
 
         def MD5filesignature(fname, chunksize=65536):
+            """
+            :param fname:
+            :param chunksize:
+            :return: String of Hex digits
+            """
             m = hashlib.md5()
             f = open(fname, "rb")
             while True:
@@ -1478,6 +1488,7 @@ else:
                 m.update(to_bytes(blck))
             f.close()
             return m.hexdigest()
+
 
 def MD5collect(signatures):
     """

@@ -137,6 +137,10 @@ class Value(SCons.Node.Node):
         return contents
 
     def get_contents(self):
+        """
+        Get contents for signature calculations.
+        :return: bytes
+        """
         text_contents = self.get_text_contents()
         try:
             return text_contents.encode()
@@ -155,12 +159,17 @@ class Value(SCons.Node.Node):
     def get_csig(self, calc=None):
         """Because we're a Python value node and don't have a real
         timestamp, we get to ignore the calculator and just use the
-        value contents."""
+        value contents.
+
+        Returns string. Ideally string of hex digits. (Not bytes)
+        """
         try:
             return self.ninfo.csig
         except AttributeError:
             pass
-        contents = self.get_contents()
+
+        contents = self.get_text_contents()
+
         self.get_ninfo().csig = contents
         return contents
 

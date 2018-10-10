@@ -3382,6 +3382,8 @@ class File(Base):
         because multiple targets built by the same action will all
         have the same build signature, and we have to differentiate
         them somehow.
+
+        Signature should normally be string of hex digits.
         """
         try:
             return self.cachesig
@@ -3391,10 +3393,13 @@ class File(Base):
         # Collect signatures for all children
         children = self.children()
         sigs = [n.get_cachedir_csig() for n in children]
+
         # Append this node's signature...
         sigs.append(self.get_contents_sig())
+
         # ...and it's path
         sigs.append(self.get_internal_path())
+
         # Merge this all into a single signature
         result = self.cachesig = SCons.Util.MD5collect(sigs)
         return result
