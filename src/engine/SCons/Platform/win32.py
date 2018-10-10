@@ -39,6 +39,8 @@ import tempfile
 
 from SCons.Platform.posix import exitvalmap
 from SCons.Platform import TempFileMunge
+from SCons.Platform.VE import ImportVirtualenv
+from SCons.Platform.VE import ignore_virtualenv, enable_virtualenv
 import SCons.Util
 
 try:
@@ -436,7 +438,7 @@ def generate(env):
         if v:
             env['ENV']['COMSPEC'] = v
 
-    env.AppendENVPath('PATH', get_system_root() + '\System32')
+    env.AppendENVPath('PATH', get_system_root() + '\\System32')
 
     env['ENV']['PATHEXT'] = '.COM;.EXE;.BAT;.CMD'
     env['OBJPREFIX']      = ''
@@ -461,6 +463,9 @@ def generate(env):
 
     env['HOST_OS']        = 'win32'
     env['HOST_ARCH']      = get_architecture().arch
+
+    if enable_virtualenv and not ignore_virtualenv:
+        ImportVirtualenv(env)
 
 
 # Local Variables:

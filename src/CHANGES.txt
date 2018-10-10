@@ -104,6 +104,14 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - In the testing framework, module TestCommon, fixed must_contain(),
       must_not_contain(), and related methods of TestCommon class to work with
       substrings located at zero offset.
+    - Added virtualenv support. A new function Virtualenv() determines whether
+      SCons runs in a virtualenv. The search PATH may also be extended to
+      prefer executables from the current virtualenv over the ones provided by
+      base environment. New option --enable-virtualenv provided to import some
+      virtualenv-related variables to SCons and extend every env['ENV']['PATH']
+      automatically. New option --ignore-virtualenv disables this. Two
+      environment variables, SCONS_ENABLE_VIRTUALENV and
+      SCONS_IGNORE_VIRTUALENV are supported for the same purpose.
 
   From Richard West:
     - Add SConstruct.py, Sconstruct.py, sconstruct.py to the search path for the root SConstruct file.
