@@ -48,6 +48,8 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Add alternate path to QT install for Centos in qt tool: /usr/lib64/qt-3.3/bin
     - Fix GH Issue #2580 - # in FRAMEWORKPATH doesn't get properly expanded. The # is left in the
       command line.
+    - Fix GH Issue #3212 - Use of Py3 and CacheDir + Configure's TryCompile (or likely and Python Value Nodes)
+      yielded trying to combine strings and bytes which threw exception.
 
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
