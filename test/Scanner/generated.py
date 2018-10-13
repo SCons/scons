@@ -34,6 +34,7 @@ factors triggered the bug Scott saw, and partly because the real-world
 complexity is valuable in its own right.
 """
 
+import sys
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -282,7 +283,7 @@ recurse_env.Command([lib_fullname] + lib_objs,
 """)
 
 test.write(['src', 'lib_geng', 'MAKE-HEADER.py'], """\
-#!/usr/bin/env python
+#!/usr/bin/env python%s
 
 import os
 import os.path
@@ -293,7 +294,7 @@ os.chdir(os.path.split(sys.argv[0])[0])
 
 for h in ['libg_gx.h', 'libg_gy.h', 'libg_gz.h']:
     open(h, 'w').write('')
-""")
+""" % sys.version_info[0])
 
 test.write(['src', 'lib_geng', 'SConstruct'], """\
 import os

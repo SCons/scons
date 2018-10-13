@@ -140,7 +140,7 @@ public:
 """)
 
 test.write(['source', 'test.py'], """\
-#!/usr/bin/env python
+#!/usr/bin/env python%s
 from __future__ import print_function
 
 import linalg
@@ -155,9 +155,9 @@ x[4] = 11.1
 
 
 for i, v in enumerate(x):
-    print("\tx[%d] = %g" % (i, v))
+    print("\tx[%%d] = %%g" %% (i, v))
 
-""")
+""" % sys.version_info[0])
 
 test.run(arguments = '.')
 

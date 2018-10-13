@@ -30,6 +30,7 @@ beginning of the TEMPFILE invocation of a long command line.
 """
 
 import os
+import sys
 import stat
 
 import TestSCons
@@ -37,11 +38,11 @@ import TestSCons
 test = TestSCons.TestSCons(match = TestSCons.match_re)
 
 test.write('echo.py', """\
-#!/usr/bin/env python
+#!/usr/bin/env python%s
 from __future__ import print_function
 import sys
 print(sys.argv)
-""")
+""" % sys.version_info[0])
 
 echo_py = test.workpath('echo.py')
 

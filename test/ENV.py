@@ -25,7 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-
+import sys
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -47,12 +47,12 @@ env2.Bld(target = 'env2.out', source = 'input')
 """ % locals())
 
 test.write('build.py',
-r"""#!/usr/bin/env python
+r"""#!/usr/bin/env python%s
 import os
 import sys
 contents = open(sys.argv[2], 'r').read()
-open(sys.argv[1], 'w').write("build.py %s\n%s" % (os.environ['X'], contents))
-""")
+open(sys.argv[1], 'w').write("build.py %%s\n%%s" %% (os.environ['X'], contents))
+""" % sys.version_info[0])
 
 test.write('input', "input file\n")
 

@@ -34,6 +34,7 @@ TargetSignatures('content') but we now rely on the default behavior
 being the equivalent of Decider('content').
 """
 
+import sys
 import os.path
 
 import TestSCons
@@ -43,10 +44,10 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 
 test.write('getrevision', """
-#!/usr/bin/env python
+#!/usr/bin/env python%s
 from __future__ import print_function
 print(open('revnum.in','r').read().strip(), end='')
-""")
+""" % sys.version_info[0])
 
 test.write('SConstruct', """
 import re

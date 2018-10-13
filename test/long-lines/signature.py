@@ -30,7 +30,7 @@ surrounded by $( $) from the signature calculation.
 """
 
 import os
-
+import sys
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -38,7 +38,7 @@ test = TestSCons.TestSCons()
 build_py = test.workpath('build.py')
 
 test.write(build_py, """\
-#!/usr/bin/env python
+#!/usr/bin/env python%s
 import sys
 if sys.argv[1][0] == '@':
     args = open(sys.argv[1][1:], 'rb').read()
@@ -47,9 +47,9 @@ else:
     args = sys.argv[1:]
 fp = open(args[0], 'wb')
 fp.write(open(args[1], 'rb').read())
-fp.write('FILEFLAG=%s\\n' % args[2])
-fp.write('TIMESTAMP=%s\\n' % args[3])
-""")
+fp.write('FILEFLAG=%%s\\n' %% args[2])
+fp.write('TIMESTAMP=%%s\\n' %% args[3])
+""" % sys.version_info[0])
 
 os.chmod(build_py, 0o755)
 

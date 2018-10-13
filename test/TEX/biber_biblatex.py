@@ -32,6 +32,7 @@ Test courtesy Rob Managan.
 
 import TestSCons
 import os
+import sys
 
 test = TestSCons.TestSCons()
 
@@ -49,13 +50,13 @@ if not gloss==0:
 
 
 test.write(['SConstruct'], """\
-#!/usr/bin/env python
+#!/usr/bin/env python%s
 
 import os
 env = Environment(ENV=os.environ)
 env['BIBTEX'] = 'biber'
 main_output = env.PDF('bibertest.tex')
-""")
+""" % sys.version_info[0])
 
 
 sources_bib_content = r"""

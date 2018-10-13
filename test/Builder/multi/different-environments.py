@@ -36,15 +36,15 @@ test = TestSCons.TestSCons(match=TestSCons.match_re)
 
 _python_ = TestSCons._python_
 
-test.write('build.py', r"""#!/usr/bin/env python
+test.write('build.py', r"""#!/usr/bin/env python%s
 import sys
 def build(num, target, source):
     file = open(str(target), 'wb')
-    file.write('%s\n'%num)
+    file.write('%%s\n' %% num)
     for s in source:
         file.write(open(str(s), 'rb').read())
 build(sys.argv[1],sys.argv[2],sys.argv[3:])
-""")
+""" % sys.version_info[0])
 
 test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
