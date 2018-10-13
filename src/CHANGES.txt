@@ -160,6 +160,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Add xz compression format to packaging choices.
     - Syntax cleanups - trailing blanks, use "is" to compare with None, etc.
       Three uses of variables not defined are changed.
+    - Some script changes in trying to find scons engine
 
   From Hao Wu
     - typo in customized decider example in user guide
