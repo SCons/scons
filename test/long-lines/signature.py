@@ -42,12 +42,12 @@ test.write(build_py, """\
 #!%(_python_)s
 import sys
 if sys.argv[1][0] == '@':
-    args = open(sys.argv[1][1:], 'rb').read()
+    args = open(sys.argv[1][1:], 'r').read()
     args = args.split()
 else:
     args = sys.argv[1:]
-fp = open(args[0], 'wb')
-fp.write(open(args[1], 'rb').read())
+fp = open(args[0], 'w')
+fp.write(open(args[1], 'r').read())
 fp.write('FILEFLAG=%%s\\n' %% args[2])
 fp.write('TIMESTAMP=%%s\\n' %% args[3])
 """ % locals())
@@ -75,17 +75,17 @@ env.Command('file.out', 'file.in',
             '${TEMPFILE(FILECOM)}')
 """ % locals())
 
-test.write('file.in', "file.in\n")
+test.write('file.in', "file.in\n", mode='w')
 
 test.run(arguments='FILEFLAG=first TIMESTAMP=20090207 .')
 
-test.must_match('file.out', "file.in\nFILEFLAG=first\nTIMESTAMP=20090207\n")
+test.must_match('file.out', "file.in\nFILEFLAG=first\nTIMESTAMP=20090207\n", mode='r')
 
 test.up_to_date(options='FILEFLAG=first TIMESTAMP=20090208', arguments = '.')
 
 test.run(arguments='FILEFLAG=second TIMESTAMP=20090208 .')
 
-test.must_match('file.out', "file.in\nFILEFLAG=second\nTIMESTAMP=20090208\n")
+test.must_match('file.out', "file.in\nFILEFLAG=second\nTIMESTAMP=20090208\n", mode='r')
 
 test.up_to_date(options='FILEFLAG=second TIMESTAMP=20090209', arguments = '.')
 
