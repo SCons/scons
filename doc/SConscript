@@ -131,8 +131,9 @@ if skip_doc:
     if not os.path.isdir(scdir):
         os.makedirs(scdir)
 
-    import datetime
-    today = datetime.date.today().strftime("%m/%d/%Y")
+    import time
+    today = time.strftime("%Y-%m-%d",
+        time.gmtime(int(os.environ.get('SOURCE_DATE_EPOCH', time.time()))))
     version = env.subst('$VERSION')
     for m in man_page_list:
         man, _ = os.path.splitext(m)
