@@ -37,6 +37,7 @@ test = TestSCons.TestSCons()
 test.subdir('src')
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 VariantDir('var1', 'src')
 VariantDir('var2', 'src')
 
@@ -45,7 +46,7 @@ SConscript('var2/SConscript')
 """)
 
 test.write(['src', 'SConscript'], """\
-env = Environment() 
+env = Environment(tools=[]) 
 
 def concatenate(target, source, env):
     fp = open(str(target[0]), 'wb')

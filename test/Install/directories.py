@@ -46,10 +46,12 @@ test.subdir('outside',
             ['work', 'dir4', 'sub'])
 
 test.write(['work', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
+env = Environment(tools=[]) 
+
 Install('../outside',  'dir1')
 InstallAs('../outside/d2', 'dir2')
 
-env = Environment()
 env.Install('../outside',  'dir3')
 env.InstallAs('../outside/d4',  'dir4')
 """)

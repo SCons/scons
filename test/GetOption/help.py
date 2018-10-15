@@ -33,6 +33,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 if GetOption('help'):
    print("GetOption('help') set")
 else:

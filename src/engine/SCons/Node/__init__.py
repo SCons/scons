@@ -155,7 +155,7 @@ def exists_file(node):
                     # The source file does not exist.  Make sure no old
                     # copy remains in the variant directory.
                     if print_duplicate:
-                        print("dup: no src for %s, unlinking old variant copy"%self)
+                        print("dup: no src for %s, unlinking old variant copy" % node)
                     if exists_base(node) or node.islink():
                         node.fs.unlink(node.get_internal_path())
                     # Return None explicitly because the Base.exists() call
@@ -665,7 +665,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
                 executor.cleanup()
 
     def reset_executor(self):
-        "Remove cached executor; forces recompute when needed."
+        """Remove cached executor; forces recompute when needed."""
         try:
             delattr(self, 'executor')
         except AttributeError:

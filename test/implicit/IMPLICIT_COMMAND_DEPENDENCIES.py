@@ -64,9 +64,11 @@ extra = ''
 test.write('generate_build_py.py', generate_build_py_py_contents % locals())
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 generate = Builder(action = r'%(_python_)s $GENERATE $TARGET')
 build = Builder(action = r'$BUILD_PY $TARGET $SOURCES')
-env = Environment(BUILDERS = {
+env = Environment(tools=[],
+                  BUILDERS = {
                         'GenerateBuild' : generate,
                         'BuildFile' : build,
                   },

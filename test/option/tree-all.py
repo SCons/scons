@@ -39,6 +39,7 @@ LINK = test.detect('LINK')
 if LINK is None: LINK = CC
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(OBJSUFFIX = '.ooo', PROGSUFFIX = '.xxx')
 env.Program('Foo', Split('Foo.c Bar.c'))
 """)

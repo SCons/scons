@@ -63,6 +63,7 @@ platforms = [
 
 for platform in platforms:
     test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 print("Platform %(platform)s")
 env = Environment(platform = '%(platform)s', tools=[])
 import SCons.Platform.%(platform)s
@@ -152,22 +153,24 @@ error_output = {
 # An SConstruct for importing Tool names that have illegal characters
 # for Python variable names.
 indirect_import = """\
+DefaultEnvironment(tools=[])
 print("Tool %(tool)s (indirect)")
 env = Environment(tools = ['%(tool)s'])
 
 SCons = __import__('SCons.Tool.%(tool)s', globals(), locals(), [])
 m = getattr(SCons.Tool, '%(tool)s')
-env = Environment()
+env = Environment(tools=[])
 m.generate(env)
 """
 
 # An SConstruct for importing Tool names "normally."
 direct_import = """\
+DefaultEnvironment(tools=[])
 print("Tool %(tool)s (direct)")
 env = Environment(tools = ['%(tool)s'])
 
 import SCons.Tool.%(tool)s
-env = Environment()
+env = Environment(tools=[])
 SCons.Tool.%(tool)s.exists(env)
 SCons.Tool.%(tool)s.generate(env)
 """

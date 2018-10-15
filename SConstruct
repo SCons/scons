@@ -73,7 +73,7 @@ zip = whereis('zip')
 #
 date = ARGUMENTS.get('DATE')
 if not date:
-    date = time.strftime("%Y/%m/%d %H:%M:%S", time.localtime(time.time()))
+    date = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(int(os.environ.get('SOURCE_DATE_EPOCH', time.time()))))
 
 developer = ARGUMENTS.get('DEVELOPER')
 if not developer:

@@ -103,7 +103,7 @@ def containsOnly(str, set):
     return 1
 
 def splitext(path):
-    "Same as os.path.splitext() but faster."
+    """Same as os.path.splitext() but faster."""
     sep = rightmost_separator(path, os.sep)
     dot = path.rfind('.')
     # An ext is only real if it has at least one non-digit char
@@ -1370,8 +1370,8 @@ def make_path_relative(path):
 # The original idea for AddMethod() and RenameFunction() come from the
 # following post to the ActiveState Python Cookbook:
 #
-#	ASPN: Python Cookbook : Install bound methods in an instance
-#	http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/223613
+#   ASPN: Python Cookbook : Install bound methods in an instance
+#   http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/223613
 #
 # That code was a little fragile, though, so the following changes
 # have been wrung on it:
@@ -1388,8 +1388,8 @@ def make_path_relative(path):
 #   the "new" module, as alluded to in Alex Martelli's response to the
 #   following Cookbook post:
 #
-#	ASPN: Python Cookbook : Dynamically added methods to a class
-#	http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/81732
+#   ASPN: Python Cookbook : Dynamically added methods to a class
+#   http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/81732
 
 def AddMethod(obj, function, name=None):
     """
@@ -1459,6 +1459,11 @@ else:
         md5 = True
 
         def MD5signature(s):
+            """
+            Generate a String of Hex digits representing the md5 signature of the string
+            :param s: either string or bytes. Normally should be bytes
+            :return: String of hex digits
+            """
             m = hashlib.md5()
 
             try:
@@ -1469,6 +1474,11 @@ else:
             return m.hexdigest()
 
         def MD5filesignature(fname, chunksize=65536):
+            """
+            :param fname:
+            :param chunksize:
+            :return: String of Hex digits
+            """
             m = hashlib.md5()
             f = open(fname, "rb")
             while True:
@@ -1478,6 +1488,7 @@ else:
                 m.update(to_bytes(blck))
             f.close()
             return m.hexdigest()
+
 
 def MD5collect(signatures):
     """

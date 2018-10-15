@@ -790,7 +790,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                 for multibibmatch in multibib_re.finditer(content):
                     if Verbose:
                         print("multibib match ",multibibmatch.group(1))
-                    if multibibmatch != None:
+                    if multibibmatch is not None:
                         baselist = multibibmatch.group(1).split(',')
                         if Verbose:
                             print("multibib list ", baselist)

@@ -149,9 +149,9 @@ def splitFully(path):
     return [base]
 
 def makeHierarchy(sources):
-    '''Break a list of files into a hierarchy; for each value, if it is a string,
+    """Break a list of files into a hierarchy; for each value, if it is a string,
        then it is a file.  If it is a dictionary, it is a folder.  The string is
-       the original path of the file.'''
+       the original path of the file."""
 
     hierarchy = {}
     for file in sources:
@@ -189,7 +189,7 @@ class _UserGenerator(object):
         elif SCons.Util.is_List(env['variant']):
             variants = env['variant']
 
-        if 'DebugSettings' not in env or env['DebugSettings'] == None:
+        if 'DebugSettings' not in env or env['DebugSettings'] is None:
             dbg_settings = []
         elif SCons.Util.is_Dict(env['DebugSettings']):
             dbg_settings = [env['DebugSettings']]
@@ -1287,7 +1287,7 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
                       'Other Files': ''}
 
         cats = sorted([k for k in list(categories.keys()) if self.sources[k]],
-		              key = lambda a: a.lower())
+                      key = lambda a: a.lower())
 
         # print vcxproj.filters file first
         self.filters_file.write('\t<ItemGroup>\n')
@@ -1519,7 +1519,7 @@ class _GenerateV7DSW(_DSWGenerator):
                 name = base
             self.file.write('Project("%s") = "%s", "%s", "%s"\n'
                             % (external_makefile_guid, name, dspinfo['SLN_RELATIVE_FILE_PATH'], dspinfo['GUID']))
-            if self.version_num >= 7.1 and self.version_num < 8.0:
+            if 7.1 <= self.version_num < 8.0:
                 self.file.write('\tProjectSection(ProjectDependencies) = postProject\n'
                                 '\tEndProjectSection\n')
             self.file.write('EndProject\n')

@@ -29,7 +29,8 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
-env = Environment()
+DefaultEnvironment(tools=[])
+env = Environment(tools=[])
 """)
 
 test.run(arguments = "--debug=pdb", stdin = "n\ns\nq\n")
