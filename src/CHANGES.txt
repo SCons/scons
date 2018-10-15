@@ -6,14 +6,7 @@
 
 
 RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
-
-  From Daniel Moody:
-    - Updated FS.py to handle removal of splitunc function from python 3.7
-    - Updated the vc.py to ignore MSVS versions where not compiler could be found
-
-  From Matthew Marinets:
-    - Fixed an issue that caused the Java emitter to incorrectly parse arguments to constructors that
-      implemented a class.
+** Please add to this version's notes ordered by contributors last name. NOT newest at top of list **
 
   From Bernard Blackham:
    - Fixed handling of side-effects in task master (fixes #3013).
@@ -50,7 +43,12 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       command line.
     - Fix GH Issue #3212 - Use of Py3 and CacheDir + Configure's TryCompile (or likely and Python Value Nodes)
       yielded trying to combine strings and bytes which threw exception.
-
+    - Updated logic for mingw and clang on win32 to search default tool install paths if not
+      found in normal SCons PATH.  If the user specifies PATH or tool specific paths they
+      will be used and the default paths below will be ignored.
+      - Default path for clang/clangxx : C:\Program Files\LLVM\bin
+      - Default path for mingw         : c:\MinGW\bin
+      
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
 
@@ -59,6 +57,10 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       objects when SCons runs with Python 3.
     - Added missing FORTRANMODDIRPREFIX to the gfortran tool.
 
+  From Matthew Marinets:
+    - Fixed an issue that caused the Java emitter to incorrectly parse arguments to constructors that
+      implemented a class.
+      
   From Fredrik Medley:
     - Fix exception when printing of EnviromentError messages.
       Specifically, this fixes error reporting of the race condition when
@@ -78,14 +80,8 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Set the pickling protocal back to highest which was causing issues
       with variant dir tests. This will cause issues if reading sconsigns
       pickled with the previous lower protocal.
-
-
-  From William Deegan:
-    - Updated logic for mingw and clang on win32 to search default tool install paths if not
-      found in normal SCons PATH.  If the user specifies PATH or tool specific paths they
-      will be used and the default paths below will be ignored.
-      - Default path for clang/clangxx : C:\Program Files\LLVM\bin
-      - Default path for mingw         : c:\MinGW\bin
+    - Updated FS.py to handle removal of splitunc function from python 3.7
+    - Updated the vc.py to ignore MSVS versions where not compiler could be found
 
   From Gary Oberbrunner:
     - Fix bug when Installing multiple subdirs outside the source tree
@@ -163,16 +159,13 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Some script changes in trying to find scons engine
 
   From Bernhard M. Wiedemann:
-    - Allow to override build date with SOURCE_DATE_EPOCH for SCons itself,
-      but not for software built with SCons.
-    - Datestamps in docs and embedded in code use ISO 8601 format and UTC
+    - Update SCons' internal scons build logic to allow overriding build date 
+      with SOURCE_DATE_EPOCH for SCons itself.
+    - Change the datestamps in SCons' docs and embedded in code use ISO 8601 format and UTC
 
   From Hao Wu
-    - typo in customized decider example in user guide
-
-  From Hao Wu
+    - Typo in customized decider example in user guide
     - Replace usage of unittest.TestSuite with unittest.main() (fix #3113)
-
 
 
 
