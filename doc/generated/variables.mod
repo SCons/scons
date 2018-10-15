@@ -232,6 +232,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-JAVAHCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$JAVAHCOM</envar>">
 <!ENTITY cv-JAVAHCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$JAVAHCOMSTR</envar>">
 <!ENTITY cv-JAVAHFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$JAVAHFLAGS</envar>">
+<!ENTITY cv-JAVAINCLUDES "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$JAVAINCLUDES</envar>">
 <!ENTITY cv-JAVASOURCEPATH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$JAVASOURCEPATH</envar>">
 <!ENTITY cv-JAVASUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$JAVASUFFIX</envar>">
 <!ENTITY cv-JAVAVERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$JAVAVERSION</envar>">
@@ -496,8 +497,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-_SHLIBSONAME "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_SHLIBSONAME</envar>">
 <!ENTITY cv-SHLIBSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLIBSUFFIX</envar>">
 <!ENTITY cv-SHLIBVERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLIBVERSION</envar>">
-<!ENTITY cv-SHLIBVERSIONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLIBVERSIONFLAGS</envar>">
 <!ENTITY cv-_SHLIBVERSIONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_SHLIBVERSIONFLAGS</envar>">
+<!ENTITY cv-SHLIBVERSIONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLIBVERSIONFLAGS</envar>">
 <!ENTITY cv-SHLINK "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLINK</envar>">
 <!ENTITY cv-SHLINKCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLINKCOM</envar>">
 <!ENTITY cv-SHLINKCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLINKCOMSTR</envar>">
@@ -862,6 +863,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-JAVAHCOM "<link linkend='cv-JAVAHCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$JAVAHCOM</envar></link>">
 <!ENTITY cv-link-JAVAHCOMSTR "<link linkend='cv-JAVAHCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$JAVAHCOMSTR</envar></link>">
 <!ENTITY cv-link-JAVAHFLAGS "<link linkend='cv-JAVAHFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$JAVAHFLAGS</envar></link>">
+<!ENTITY cv-link-JAVAINCLUDES "<link linkend='cv-JAVAINCLUDES' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$JAVAINCLUDES</envar></link>">
 <!ENTITY cv-link-JAVASOURCEPATH "<link linkend='cv-JAVASOURCEPATH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$JAVASOURCEPATH</envar></link>">
 <!ENTITY cv-link-JAVASUFFIX "<link linkend='cv-JAVASUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$JAVASUFFIX</envar></link>">
 <!ENTITY cv-link-JAVAVERSION "<link linkend='cv-JAVAVERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$JAVAVERSION</envar></link>">
@@ -1126,8 +1128,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-_SHLIBSONAME "<link linkend='cv-_SHLIBSONAME' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_SHLIBSONAME</envar></link>">
 <!ENTITY cv-link-SHLIBSUFFIX "<link linkend='cv-SHLIBSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLIBSUFFIX</envar></link>">
 <!ENTITY cv-link-SHLIBVERSION "<link linkend='cv-SHLIBVERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLIBVERSION</envar></link>">
-<!ENTITY cv-link-SHLIBVERSIONFLAGS "<link linkend='cv-SHLIBVERSIONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLIBVERSIONFLAGS</envar></link>">
 <!ENTITY cv-link-_SHLIBVERSIONFLAGS "<link linkend='cv-_SHLIBVERSIONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_SHLIBVERSIONFLAGS</envar></link>">
+<!ENTITY cv-link-SHLIBVERSIONFLAGS "<link linkend='cv-SHLIBVERSIONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLIBVERSIONFLAGS</envar></link>">
 <!ENTITY cv-link-SHLINK "<link linkend='cv-SHLINK' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLINK</envar></link>">
 <!ENTITY cv-link-SHLINKCOM "<link linkend='cv-SHLINKCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLINKCOM</envar></link>">
 <!ENTITY cv-link-SHLINKCOMSTR "<link linkend='cv-SHLINKCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLINKCOMSTR</envar></link>">
