@@ -162,6 +162,11 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       Three uses of variables not defined are changed.
     - Some script changes in trying to find scons engine
 
+  From Bernhard M. Wiedemann:
+    - Allow to override build date with SOURCE_DATE_EPOCH for SCons itself,
+      but not for software built with SCons.
+    - Datestamps in docs and embedded in code use ISO 8601 format and UTC
+
   From Hao Wu
     - typo in customized decider example in user guide
 
