@@ -37,7 +37,8 @@ test.subdir('repository', 'work1')
 repository = test.workpath('repository')
 
 test.write(['repository', 'SConstruct'], """\
-env = Environment()
+DefaultEnvironment(tools=[])
+env = Environment(tools=[])
 env.Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))
 """)
 

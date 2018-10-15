@@ -221,7 +221,9 @@ class CacheDir(object):
             return None, None
 
         sig = node.get_cachedir_bsig()
+
         subdir = sig[:self.config['prefix_len']].upper()
+
         dir = os.path.join(self.path, subdir)
         return dir, os.path.join(dir, sig)
 

@@ -33,7 +33,8 @@ test = TestSCons.TestSCons()
 test.subdir('sub1')
 
 test.write('SConstruct', """\
-env=Environment()
+DefaultEnvironment(tools=[])
+env=Environment(tools=[])
 Export('env')
 env.SConscript('SConscript', variant_dir='Build')
 """)

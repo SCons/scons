@@ -34,6 +34,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(OBJSUFFIX = '.obj',
                   SHOBJSUFFIX = '.shobj',
                   LIBPREFIX = '',

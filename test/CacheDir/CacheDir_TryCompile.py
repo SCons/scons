@@ -25,49 +25,42 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify the ability to use the -u option with the -f option to
-specify a different top-level file name.
+Test that CacheDir functions with TryCompile.
+
+With Py3 there was an issue where the generated cache signature from Python Value nodes
+could be bytes instead of a string which would fail when combining cache signatures
+which ended up a mixture of bytes and strings.
 """
+
+import os
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.subdir('subdir', 'other')
+cache = test.workpath('cache')
 
-test.write('main.scons', """\
+test.subdir('cache', 'src')
+
+test.write(['src', 'SConstruct'], """\
 DefaultEnvironment(tools=[])
-print("main.scons")
-SConscript('subdir/sub.scons')
-""")
+env = Environment()
+env.CacheDir(r'%(cache)s')
 
-test.write(['subdir', 'sub.scons'], """\
-print("subdir/sub.scons")
-""")
+conf = Configure(env)
 
-read_str = """\
-main.scons
-subdir/sub.scons
-"""
+conf.TryCompile('int a;', '.c')
 
-expect = "scons: Entering directory `%s'\n" % test.workpath() \
-         + test.wrap_stdout(read_str = read_str,
-                            build_str = "scons: `subdir' is up to date.\n")
+env = conf.Finish()
+""" % locals())
 
-test.run(chdir='subdir', arguments='-u -f main.scons .', stdout=expect)
+# Verify that a normal build works correctly, and clean up.
+# This should populate the cache with our derived files.
+test.run(chdir = 'src', arguments = '.')
 
+test.up_to_date(chdir = 'src', arguments = '.')
 
-
-expect = test.wrap_stdout(read_str = "subdir/sub.scons\n",
-                          build_str = "scons: `.' is up to date.\n")
-
-test.run(chdir='other', arguments='-u -f ../subdir/sub.scons .', stdout=expect)
-
-test.run(chdir='other',
-         arguments='-u -f %s .' % test.workpath('subdir', 'sub.scons'),
-         stdout=expect)
-
-
+test.run(chdir = 'src', arguments = '-c .')
 
 test.pass_test()
 

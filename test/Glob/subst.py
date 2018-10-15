@@ -34,7 +34,8 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
-env = Environment(PATTERN = 'f*.in')
+DefaultEnvironment(tools=[])
+env = Environment(tools=[], PATTERN = 'f*.in')
 
 def copy(target, source, env):
     fp = open(str(target[0]), 'wb')

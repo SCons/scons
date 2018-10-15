@@ -47,6 +47,7 @@ work_src_yyy = test.workpath('work', 'src', 'yyy')
 opts = "-Y " + test.workpath('repository')
 
 test.write(['repository', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
 def cat(env, source, target):
     target = str(target[0])
     f = open(target, "wb")
@@ -60,7 +61,7 @@ File('../repository/mmm.in')
 m = Glob('m*.in')
 assert str(m[0]) == 'mmm.in'
 
-env = Environment(BUILDERS={'Build':Builder(action=cat)})
+env = Environment(tools=[], BUILDERS={'Build':Builder(action=cat)})
 env.Build('aaa.out', Glob('a*.in'))
 env.Build('bbb.out', Glob('b*.in'))
 env.Build('ccc.out', Glob('c*.in'))

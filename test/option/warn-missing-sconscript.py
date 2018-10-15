@@ -34,10 +34,11 @@ test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 
 test.write("SConstruct", """\
+DefaultEnvironment(tools=[])
 def build(target, source, env):
     pass
 
-env=Environment()
+env=Environment(tools=[])
 env['BUILDERS']['test'] = Builder(action=build)
 env.test(target='foo', source='foo.c')
 WARN = ARGUMENTS.get('WARN')

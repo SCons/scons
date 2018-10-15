@@ -36,6 +36,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 SetOption('implicit_cache', 1)
 env=Environment(CPPPATH=['i1', 'i2'])
 env.Object('foo.c')

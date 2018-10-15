@@ -40,6 +40,7 @@ test.subdir('d',
             ['d', '3'])
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 SetOption('implicit_cache', 1)
 SetOption('max_drift', 1)
 

@@ -33,6 +33,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 def kfile_scan(node, env, target):
     raise Exception("kfile_scan error")
 
@@ -40,7 +41,7 @@ kscan = Scanner(name = 'kfile',
                 function = kfile_scan,
                 skeys = ['.k'])
 
-env = Environment()
+env = Environment(tools=[])
 env.Append(SCANNERS = [kscan])
 
 env.Command('foo', 'foo.k', Copy('$TARGET', '$SOURCE'))

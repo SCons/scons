@@ -128,8 +128,8 @@ class LaTeX(SCons.Scanner.Base):
     Unlike most scanners, which use regular expressions that just
     return the included file name, this returns a tuple consisting
     of the keyword for the inclusion ("include", "includegraphics",
-    "input", or "bibliography"), and then the file name itself.  
-    Based on a quick look at LaTeX documentation, it seems that we 
+    "input", or "bibliography"), and then the file name itself.
+    Based on a quick look at LaTeX documentation, it seems that we
     should append .tex suffix for the "include" keywords, append .tex if
     there is no extension for the "input" keyword, and need to add .bib
     for the "bibliography" keyword that does not accept extensions by itself.
@@ -137,7 +137,7 @@ class LaTeX(SCons.Scanner.Base):
     Finally, if there is no extension for an "includegraphics" keyword
     latex will append .ps or .eps to find the file, while pdftex may use .pdf,
     .jpg, .tif, .mps, or .png.
-    
+
     The actual subset and search order may be altered by
     DeclareGraphicsExtensions command. This complication is ignored.
     The default order corresponds to experimentation with teTeX::
@@ -333,7 +333,7 @@ class LaTeX(SCons.Scanner.Base):
         line_continues_a_comment = False
         for line in text.splitlines():
             line,comment = self.comment_re.findall(line)[0]
-            if line_continues_a_comment == True:
+            if line_continues_a_comment:
                 out[-1] = out[-1] + line.lstrip()
             else:
                 out.append(line)
@@ -349,7 +349,7 @@ class LaTeX(SCons.Scanner.Base):
         # path_dict = dict(list(path))
         # add option for whitespace (\s) before the '['
         noopt_cre = re.compile('\s*\[.*$')
-        if node.includes != None:
+        if node.includes is not None:
             includes = node.includes
         else:
             text = self.canonical_text(node.get_text_contents())
@@ -386,8 +386,8 @@ class LaTeX(SCons.Scanner.Base):
         directory of the main file just as latex does"""
 
         path_dict = dict(list(path))
-        
-        queue = [] 
+
+        queue = []
         queue.extend( self.scan(node) )
         seen = {}
 
@@ -402,7 +402,7 @@ class LaTeX(SCons.Scanner.Base):
         source_dir = node.get_dir()
         #for include in includes:
         while queue:
-            
+
             include = queue.pop()
             inc_type, inc_subdir, inc_filename = include
 

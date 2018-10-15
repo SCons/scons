@@ -48,7 +48,7 @@ exitvalmap = {
 }
 
 def escape(arg):
-    "escape shell special characters" 
+    """escape shell special characters"""
     slash = '\\'
     special = '"$'
 

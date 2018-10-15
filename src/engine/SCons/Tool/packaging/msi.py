@@ -114,8 +114,7 @@ def gen_dos_short_file_name(file, filename_set):
     # thisis1.txt, thisis2.txt etc.
     duplicate, num = not None, 1
     while duplicate:
-        shortname = "%s%s" % (fname[:8-len(str(num))].upper(),\
-                              str(num))
+        shortname = "%s%s" % (fname[:8-len(str(num))].upper(), str(num))
         if len(ext) >= 2:
             shortname = "%s%s" % (shortname, ext[:4].upper())
 
@@ -301,7 +300,7 @@ def build_wxsfile_file_section(root, files, NAME, VERSION, VENDOR, filename_set,
                                if c.nodeName == 'Directory'
                                and c.attributes['LongName'].value == escape(d)] 
 
-            if already_created != []:
+            if already_created:
                 Directory = already_created[0]
                 dir_parts.remove(d)
                 upper_dir += d

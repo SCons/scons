@@ -49,8 +49,9 @@ file.close()
 
 
 test.write(['work1', 'SConstruct'], """
+DefaultEnvironment(tools=[])
 B = Builder(action = r'%(_python_)s ../build.py $TARGETS $SOURCES')
-env = Environment(BUILDERS = { 'B' : B })
+env = Environment(tools=[], BUILDERS = { 'B' : B })
 f1 = env.B(target = 'f1.out', source = 'f1.in')
 f2 = env.B(target = 'f2.out', source = 'f2.in')
 Requires(f2, f1)
