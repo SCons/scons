@@ -26,6 +26,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import TestSCons
+import sys
 
 _python_ = TestSCons._python_
 
@@ -119,22 +120,13 @@ test.run(arguments='classes.jar')
 test.must_match('classes.jar',
                 'cvfm classes.jar foo.mf -C testdir bar.class\n', mode='r')
 
-
-
-where_javac, java_version = test.java_where_javac()
-where_jar = test.java_where_jar()
-
-
-
 test.file_fixture('wrapper_with_args.py')
 
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
-foo = Environment(tools = ['javac', 'jar'],
-                  JAVAC = r'%(where_javac)s',
-                  JAR = r'%(where_jar)s')
-jar = foo.Dictionary('JAR')
-bar = foo.Clone(JAR = r'%(_python_)s wrapper_with_args.py ' + jar)
+foo = Environment(tools = ['javac', 'jar'])
+# jar = foo.Dictionary('JAR')
+bar = foo.Clone(JAR = r'%(_python_)s wrapper_with_args.py jar')
 foo.Java(target = 'classes', source = 'com/sub/foo')
 bar.Java(target = 'classes', source = 'com/sub/bar')
 foo.Jar(target = 'foo', source = 'classes/com/sub/foo')
@@ -232,7 +224,7 @@ public class Example6
 
 test.run(arguments = '.')
 
-expected_wrapper_out = "wrapper_with_args.py %(where_jar)s cf bar.jar classes/com/sub/bar\n"
+expected_wrapper_out = "wrapper_with_args.py jar cf bar.jar classes/com/sub/bar\n"
 expected_wrapper_out = expected_wrapper_out.replace('/', os.sep)
 test.must_match('wrapper.out',
                 expected_wrapper_out % locals(), mode='r')
@@ -310,14 +302,16 @@ public class JavaFile3
 }
 """)
 
-test.run(chdir='testdir2')
 
 # check the output and make sure the java files got converted to classes
-if("jar cf foo.jar " +
-   "-C com/javasource/JavaFile1 com/javasource/JavaFile1.class " +
-   "-C com/javasource/JavaFile2 com/javasource/JavaFile2.class " +
-   "-C com/javasource/JavaFile3 com/javasource/JavaFile3.class" not in test.stdout()):
-    test.fail_test()
+# use regex . for dirsep so this will work on both windows and other platforms.
+expect = ".*jar cf foo.jar -C com.javasource.JavaFile1 com.javasource.JavaFile1.class -C com.javasource.JavaFile2 com.javasource.JavaFile2.class -C com.javasource.JavaFile3 com.javasource.JavaFile3.class.*"
+
+test.run(chdir='testdir2',	
+         match=TestSCons.match_re_dotall,	
+         stdout = expect)
+
+
 
 #test single target jar
 test.must_exist(['testdir2','foobar.jar'])

@@ -418,6 +418,10 @@ class TestSCons(TestCommon):
 #        TestCommon.run(self, *args, **kw)
 
     def up_to_date(self, arguments = '.', read_str = "", **kw):
+        """Asserts that all of the targets listed in arguments is
+        up to date, but does not make any assumptions on other targets.
+        This function is most useful in conjunction with the -n option.
+        """
         s = ""
         for arg in arguments.split():
             s = s + "scons: `%s' is up to date.\n" % arg
@@ -853,11 +857,15 @@ class TestSCons(TestCommon):
                 fmt = "Could not find javac for Java version %s, skipping test(s).\n"
                 self.skip_test(fmt % version)
         else:
-            m = re.search(r'javac (\d\.\d)', self.stderr())
+            m = re.search(r'javac (\d\.*\d)', self.stderr())
+            # Java 11 outputs this to stdout
+            if not m:
+                m = re.search(r'javac (\d\.*\d)', self.stdout())
+                
             if m:
                 version = m.group(1)
                 self.javac_is_gcj = False
-            elif self.stderr().find('gcj'):
+            elif self.stderr().find('gcj') != -1:
                 version='1.2'
                 self.javac_is_gcj = True
             else:
