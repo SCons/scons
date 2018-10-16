@@ -51,6 +51,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Fix Java tools to search reasonable default paths for Win32, Linux, macOS.  Add required paths
       for swig and java native interface to JAVAINCLUDES.  You should add these to your CPPPATH if you need
       to compile with them.  This handles spaces in paths in default Java paths on windows.
+    - Fix new logic which populates JAVAINCLUDES to handle the case where javac is not found.
       
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
