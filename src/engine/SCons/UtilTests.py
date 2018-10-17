@@ -877,6 +877,12 @@ class flattenTestCase(unittest.TestCase):
         result = flatten('xyz')
         assert result == ['xyz'], result
 
+    def test_dictionary_values(self):
+        """Test flattening the dictionary values"""
+        items = {"a": 1, "b": 2, "c": 3}
+        result = flatten(items.values())
+        self.assertEquals(sorted(result),[1,2,3])
+
 
 if __name__ == "__main__":
     unittest.main()
