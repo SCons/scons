@@ -62,11 +62,8 @@ test.run()
 
 import sys
 
-if sys.platform == 'win32':
-    # Handle carriage returns.
-    test.must_match(test.workpath('aaa.x'), "line 1\r\nmym4.py\r\nline 3\r\n")
-else:
-    test.must_match(test.workpath('aaa.x'), "line 1\nmym4.py\nline 3\n")
+expect = "line 1\nmym4.py\nline 3\n".replace("\n", os.linesep)
+test.must_match(test.workpath('aaa.x'), expect)
 
 
 
@@ -99,11 +96,14 @@ bar.M4(target = 'bar', source = 'bar.m4')
 
     test.up_to_date(arguments = '.')
 
-    test.must_match('wrapper.out', "wrapper.py\n")
+    expect = "wrapper.py\n".replace("\n", os.linesep)
+    test.must_match('wrapper.out', expect)
 
-    test.must_match('foo.x', "line 1\nfff\nline 3\n")
+    expect = "line 1\nfff\nline 3\n".replace("\n", os.linesep)
+    test.must_match('foo.x', expect)
 
-    test.must_match('bar', "line 1\nbbb\nline 3\n")
+    expect = "line 1\nbbb\nline 3\n".replace("\n", os.linesep)
+    test.must_match('bar', expect)
 
 test.pass_test()
 
