@@ -875,13 +875,13 @@ class flattenTestCase(unittest.TestCase):
     def test_scalar(self):
         """Test flattening a scalar"""
         result = flatten('xyz')
-        assert result == ['xyz'], result
+        self.assertEqual(result,['xyz'], result)
 
     def test_dictionary_values(self):
         """Test flattening the dictionary values"""
         items = {"a": 1, "b": 2, "c": 3}
         result = flatten(items.values())
-        self.assertEquals(sorted(result),[1,2,3])
+        self.assertEqual(sorted(result),[1,2,3])
 
 
 if __name__ == "__main__":
