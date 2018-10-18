@@ -65,7 +65,7 @@ test.write("module.i", """\
 test.write('SConstruct', """
 foo = Environment(SWIGFLAGS='-python',
                   %(swig_arch_var)s
-                  CPPPATH=['%(python_include)s'],
+                  CPPPATH=[r'%(python_include)s'],
                   LDMODULEPREFIX='%(ldmodule_prefix)s',
                   LDMODULESUFFIX='%(_dll)s',
                   SWIG=[r'%(swig)s'],

@@ -861,7 +861,7 @@ class TestSCons(TestCommon):
             # Java 11 outputs this to stdout
             if not m:
                 m = re.search(r'javac (\d\.*\d)', self.stdout())
-                
+
             if m:
                 version = m.group(1)
                 self.javac_is_gcj = False
@@ -1286,11 +1286,9 @@ SConscript( sconscript )
         if sys.platform == 'win32':
             self.run(program=python, stdin="""\
 import sysconfig, sys, os.path
-try:
-        py_ver = 'python%d%d' % sys.version_info[:2]
-except AttributeError:
-    py_ver = 'python' + sys.version[:3]
-# print include and lib path
+py_ver = 'python%d%d' % sys.version_info[:2]
+# use distutils to help find include and lib path
+# TODO: PY3 fine to use sysconfig.get_config_var("INCLUDEPY")
 try:
     import distutils.sysconfig
     exec_prefix = distutils.sysconfig.EXEC_PREFIX
@@ -1298,12 +1296,23 @@ try:
     print(include)
     lib_path = os.path.join(exec_prefix, 'libs')
     if not os.path.exists(lib_path):
+        # check for virtualenv path.
+        # this might not build anything different than first try.
+        def venv_path():
+            if hasattr(sys, 'real_prefix'):
+                return sys.real_prefix
+            if hasattr(sys, 'base_prefix'):
+                return sys.base_prefix
+        lib_path = os.path.join(venv_path(), 'libs')
+    if not os.path.exists(lib_path):
+        # not clear this is useful: 'lib' does not contain linkable libs
         lib_path = os.path.join(exec_prefix, 'lib')
     print(lib_path)
 except:
     include = os.path.join(sys.prefix, 'include', py_ver)
     print(include)
-    print(os.path.join(sys.prefix, 'lib', py_ver, 'config'))
+    lib_path = os.path.join(sys.prefix, 'lib', py_ver, 'config')
+    print(lib_path)
 print(py_ver)
 Python_h = os.path.join(include, "Python.h")
 if os.path.exists(Python_h):

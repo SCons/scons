@@ -44,7 +44,7 @@ except ImportError:
     from UserString import UserString
 
 try:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, MappingView
 except ImportError:
     from collections import Iterable
 
@@ -368,7 +368,13 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
 
 DictTypes = (dict, UserDict)
 ListTypes = (list, UserList)
-SequenceTypes = (list, tuple, UserList)
+
+try:
+    # Handle getting dictionary views.
+    SequenceTypes = (list, tuple, UserList, MappingView)
+except NameError:
+    SequenceTypes = (list, tuple, UserList)
+
 
 # Note that profiling data shows a speed-up when comparing
 # explicitly with str and unicode instead of simply comparing
