@@ -35,6 +35,10 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
+# Keep this logic because it skips the test if javac or jar not found.
+where_javac, java_version = test.java_where_javac()
+where_jar = test.java_where_jar()
+
 test.write('SConstruct', """
 env = Environment(tools = ['javac', 'javah'])
 env.Java(target = 'class1', source = 'com/Example1.java')
