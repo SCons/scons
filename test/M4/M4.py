@@ -86,23 +86,23 @@ bar.M4(target = 'bar', source = 'bar.m4')
 
     test.write('foo.x.m4', "line 1\n"
                            "FFF\n"
-                           "line 3\n")
+                           "line 3\n", mode='w')
 
     test.write('bar.m4', "line 1\n"
                          "BBB\n"
-                         "line 3\n")
+                         "line 3\n", mode='w')
 
     test.run(arguments = '.')
 
     test.up_to_date(arguments = '.')
 
-    expect = "wrapper.py\n".replace("\n", os.linesep)
+    expect = "wrapper.py\n"
     test.must_match('wrapper.out', expect)
 
-    expect = "line 1\nfff\nline 3\n".replace("\n", os.linesep)
+    expect = "line 1\nfff\nline 3\n"
     test.must_match('foo.x', expect)
 
-    expect = "line 1\nbbb\nline 3\n".replace("\n", os.linesep)
+    expect = "line 1\nbbb\nline 3\n"
     test.must_match('bar', expect)
 
 test.pass_test()
