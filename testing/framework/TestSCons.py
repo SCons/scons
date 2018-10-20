@@ -418,6 +418,10 @@ class TestSCons(TestCommon):
 #        TestCommon.run(self, *args, **kw)
 
     def up_to_date(self, arguments = '.', read_str = "", **kw):
+        """Asserts that all of the targets listed in arguments is
+        up to date, but does not make any assumptions on other targets.
+        This function is most useful in conjunction with the -n option.
+        """
         s = ""
         for arg in arguments.split():
             s = s + "scons: `%s' is up to date.\n" % arg
@@ -564,7 +568,7 @@ class TestSCons(TestCommon):
         Returns a Python error line for output comparisons.
 
         The exec of the traceback line gives us the correct format for
-        this version of Python. 
+        this version of Python.
 
             File "<string>", line 1, <module>
 
@@ -607,7 +611,7 @@ class TestSCons(TestCommon):
         pattern = to_bytes(pattern)
         repl = to_bytes(repl)
         return re.sub(pattern, repl, str, count, flags)
-    
+
     def normalize_pdf(self, s):
         s = self.to_bytes_re_sub(r'/(Creation|Mod)Date \(D:[^)]*\)',
                        r'/\1Date (D:XXXX)', s)
@@ -811,7 +815,7 @@ class TestSCons(TestCommon):
             where_jar = self.where_is('jar', ENV['PATH'])
         if not where_jar:
             self.skip_test("Could not find Java jar, skipping test(s).\n")
-        elif sys.platform == "darwin": 
+        elif sys.platform == "darwin":
             self.java_mac_check(where_jar, 'jar')
 
         return where_jar
@@ -853,11 +857,15 @@ class TestSCons(TestCommon):
                 fmt = "Could not find javac for Java version %s, skipping test(s).\n"
                 self.skip_test(fmt % version)
         else:
-            m = re.search(r'javac (\d\.\d)', self.stderr())
+            m = re.search(r'javac (\d\.*\d)', self.stderr())
+            # Java 11 outputs this to stdout
+            if not m:
+                m = re.search(r'javac (\d\.*\d)', self.stdout())
+
             if m:
                 version = m.group(1)
                 self.javac_is_gcj = False
-            elif self.stderr().find('gcj'):
+            elif self.stderr().find('gcj') != -1:
                 version='1.2'
                 self.javac_is_gcj = True
             else:
@@ -885,7 +893,7 @@ class TestSCons(TestCommon):
             self.skip_test("Could not find Java rmic, skipping non-simulated test(s).\n")
         return where_rmic
 
-    
+
     def java_get_class_files(self, dir):
         result = []
         for dirpath, dirnames, filenames in os.walk(dir):
@@ -1078,7 +1086,7 @@ SConscript( sconscript )
                           doCheckLog=True, doCheckStdout=True):
         """
         Used to verify the expected output from using Configure()
-        via the contents of one or both of stdout or config.log file. 
+        via the contents of one or both of stdout or config.log file.
         The checks, results, cached parameters all are zipped together
         for use in comparing results.
 
@@ -1160,19 +1168,19 @@ SConscript( sconscript )
             sconstruct = sconstruct
 
             log = r'file\ \S*%s\,line \d+:' % re.escape(sconstruct) + ls
-            if doCheckLog: 
+            if doCheckLog:
                 lastEnd = matchPart(log, logfile, lastEnd)
 
             log = "\t" + re.escape("Configure(confdir = %s)" % sconf_dir) + ls
-            if doCheckLog: 
+            if doCheckLog:
                 lastEnd = matchPart(log, logfile, lastEnd)
-            
+
             rdstr = ""
             cnt = 0
             for check,result,cache_desc in zip(checks, results, cached):
                 log   = re.escape("scons: Configure: " + check) + ls
 
-                if doCheckLog: 
+                if doCheckLog:
                     lastEnd = matchPart(log, logfile, lastEnd)
 
                 log = ""
@@ -1217,7 +1225,7 @@ SConscript( sconscript )
                 rdstr = rdstr + re.escape(check) + re.escape(result) + "\n"
                 log=log + re.escape("scons: Configure: " + result) + ls + ls
 
-                if doCheckLog: 
+                if doCheckLog:
                     lastEnd = matchPart(log, logfile, lastEnd)
 
                 log = ""
@@ -1256,51 +1264,83 @@ SConscript( sconscript )
         # see also sys.prefix documentation
         return python_minor_version_string()
 
-    def get_platform_python_info(self):
+    def get_platform_python_info(self, python_h_required=False):
         """
         Returns a path to a Python executable suitable for testing on
-        this platform and its associated include path, library path,
-        and library name.
-        Returns:
+        this platform and its associated include path, library path and
+        library name.
+
+        If the Python executable or Python header (if required)
+        is not found, the test is skipped.
+
+        Returns a tuple:
             (path to python, include path, library path, library name)
         """
         python = os.environ.get('python_executable', self.where_is('python'))
         if not python:
             self.skip_test('Can not find installed "python", skipping test.\n')
 
+        # construct a program to run in the intended environment
+        # in order to fetch the characteristics of that Python.
+        # Windows Python doesn't store all the info in config vars.
         if sys.platform == 'win32':
             self.run(program=python, stdin="""\
 import sysconfig, sys, os.path
-try:
-        py_ver = 'python%d%d' % sys.version_info[:2]
-except AttributeError:
-    py_ver = 'python' + sys.version[:3]
-# print include and lib path
+py_ver = 'python%d%d' % sys.version_info[:2]
+# use distutils to help find include and lib path
+# TODO: PY3 fine to use sysconfig.get_config_var("INCLUDEPY")
 try:
     import distutils.sysconfig
     exec_prefix = distutils.sysconfig.EXEC_PREFIX
-    print(distutils.sysconfig.get_python_inc())
+    include = distutils.sysconfig.get_python_inc()
+    print(include)
     lib_path = os.path.join(exec_prefix, 'libs')
     if not os.path.exists(lib_path):
+        # check for virtualenv path.
+        # this might not build anything different than first try.
+        def venv_path():
+            if hasattr(sys, 'real_prefix'):
+                return sys.real_prefix
+            if hasattr(sys, 'base_prefix'):
+                return sys.base_prefix
+        lib_path = os.path.join(venv_path(), 'libs')
+    if not os.path.exists(lib_path):
+        # not clear this is useful: 'lib' does not contain linkable libs
         lib_path = os.path.join(exec_prefix, 'lib')
     print(lib_path)
 except:
-    print(os.path.join(sys.prefix, 'include', py_ver))
-    print(os.path.join(sys.prefix, 'lib', py_ver, 'config'))
+    include = os.path.join(sys.prefix, 'include', py_ver)
+    print(include)
+    lib_path = os.path.join(sys.prefix, 'lib', py_ver, 'config')
+    print(lib_path)
 print(py_ver)
-                """)
+Python_h = os.path.join(include, "Python.h")
+if os.path.exists(Python_h):
+    print(Python_h)
+else:
+    print("False")
+""")
         else:
             self.run(program=python, stdin="""\
-import sys, sysconfig
-print(sysconfig.get_config_var("INCLUDEPY"))
+import sys, sysconfig, os.path
+include = sysconfig.get_config_var("INCLUDEPY")
+print(include)
 print(sysconfig.get_config_var("LIBDIR"))
 py_library_ver = sysconfig.get_config_var("LDVERSION")
 if not py_library_ver:
     py_library_ver = '%d.%d' % sys.version_info[:2]
 print("python"+py_library_ver)
+Python_h = os.path.join(include, "Python.h")
+if os.path.exists(Python_h):
+    print(Python_h)
+else:
+    print("False")
 """)
+        incpath, libpath, libname, python_h = self.stdout().strip().split('\n')
+        if python_h == "False" and python_h_required:
+            self.skip_test('Can not find required "Python.h", skipping test.\n')
 
-        return [python] + self.stdout().strip().split('\n')
+        return (python, incpath, libpath, libname)
 
     def start(self, *args, **kw):
         """

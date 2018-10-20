@@ -35,258 +35,19 @@ import TestSCons
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
+test.dir_fixture('java_version_image')
 
-where_javac, java_version = test.java_where_javac('1.6')
+version = '1.6'
+where_javac, java_version = test.java_where_javac(version)
+javac_path=os.path.dirname(where_javac)
 
+# test.verbose_set(1)
 
+if ' ' in javac_path:
+    javac_path ='"%s"'%javac_path
+java_arguments=["--javac_path=%s"%javac_path,"--java_version=%s"%version]
 
-test.write('SConstruct', """
-env = Environment(tools = ['javac'],
-                  JAVAVERSION = '1.6',
-                  JAVAC = r'%(where_javac)s')
-env.Java(target = 'class1', source = 'com/sub/foo')
-env.Java(target = 'class2', source = 'com/sub/bar')
-env.Java(target = 'class3', source = ['src1', 'src2'])
-env.Java(target = 'class4', source = ['src4'])
-env.Java(target = 'class5', source = ['src5'])
-env.Java(target = 'class6', source = ['src6'])
-""" % locals())
-
-test.subdir('com',
-            ['com', 'sub'],
-            ['com', 'sub', 'foo'],
-            ['com', 'sub', 'bar'],
-            'src1',
-            'src2',
-            'src4',
-            'src5',
-            'src6')
-
-test.write(['com', 'sub', 'foo', 'Example1.java'], """\
-package com.sub.foo;
-
-public class Example1
-{
-
-     public static void main(String[] args)
-     {
-
-     }
-
-}
-""")
-
-test.write(['com', 'sub', 'foo', 'Example2.java'], """\
-package com.other;
-
-public class Example2
-{
-
-     public static void main(String[] args)
-     {
-
-     }
-
-}
-""")
-
-test.write(['com', 'sub', 'foo', 'Example3.java'], """\
-package com.sub.foo;
-
-public class Example3
-{
-
-     public static void main(String[] args)
-     {
-
-     }
-
-}
-""")
-
-test.write(['com', 'sub', 'bar', 'Example4.java'], """\
-package com.sub.bar;
-
-public class Example4
-{
-
-     public static void main(String[] args)
-     {
-
-     }
-
-}
-""")
-
-test.write(['com', 'sub', 'bar', 'Example5.java'], """\
-package com.other;
-
-public class Example5
-{
-
-     public static void main(String[] args)
-     {
-
-     }
-
-}
-""")
-
-test.write(['com', 'sub', 'bar', 'Example6.java'], """\
-package com.sub.bar;
-
-public class Example6
-{
-
-     public static void main(String[] args)
-     {
-
-     }
-
-}
-""")
-
-test.write(['src1', 'Example7.java'], """\
-public class Example7
-{
-
-     public static void main(String[] args)
-     {
-
-     }
-
-}
-""")
-
-# Acid-test file for parsing inner Java classes, courtesy Chad Austin.
-test.write(['src2', 'Test.java'], """\
-class Empty {
-}
-
-interface Listener {
-  public void execute();
-}
-
-public
-class
-Test {
-  class Inner {
-    void go() {
-      use(new Listener() {
-        public void execute() {
-          System.out.println("In Inner");
-        }
-      });
-    }
-    String s1 = "class A";
-    String s2 = "new Listener() { }";
-    /* class B */
-    /* new Listener() { } */
-  }
-
-  public static void main(String[] args) {
-    new Test().run();
-  }
-
-  void run() {
-    use(new Listener() {
-      public void execute() {
-        use(new Listener( ) {
-          public void execute() {
-            System.out.println("Inside execute()");
-          }
-        });
-      }
-    });
-
-    new Inner().go();
-  }
-
-  void use(Listener l) {
-    l.execute();
-  }
-}
-
-class Private {
-  void run() {
-    new Listener() {
-      public void execute() {
-      }
-    };
-  }
-}
-""")
-
-# Testing nested anonymous inner classes, courtesy Brandon Mansfield.
-test.write(['src4', 'NestedExample.java'], """\
-// import java.util.*;
-
-public class NestedExample
-{
-        public NestedExample()
-        {
-                new Thread() {
-                        public void start()
-                        {
-                                new Thread() {
-                                        public void start()
-                                        {
-                                                try {Thread.sleep(200);}
-                                                catch (Exception e) {}
-                                        }
-                                };
-                                while (true)
-                                {
-                                        try {Thread.sleep(200);}
-                                        catch (Exception e) {}
-                                }
-                        }
-                };
-        }
-
-
-        public static void main(String argv[])
-        {
-                new NestedExample();
-        }
-}
-""")
-
-# Test not finding an anonymous class when the second token after a
-# "new" is a closing brace.  This duplicates a test from the unit tests,
-# but lets us make sure that we correctly determine that everything is
-# up-to-date after the build.
-test.write(['src5', 'TestSCons.java'], """\
-class TestSCons {
-    public static void main(String[] args) {
-        Foo[] fooArray = new Foo[] { new Foo() };
-    }
-}
-
-class Foo { }
-""")
-
-# Test private inner class instantiation, courtesy Tilo Prutz:
-#   https://github.com/SCons/scons/issues/1594
-test.write(['src6', 'TestSCons.java'], """\
-class test
-{
-    test()
-    {
-        super();
-        new inner();
-    }
-
-    static class inner
-    {
-        private inner() {}
-    }
-}
-""")
-
-
-
-test.run(arguments = '.')
+test.run(arguments = ['.']+java_arguments)
 
 expect_1 = [
     test.workpath('class1', 'com', 'other', 'Example2.class'),
@@ -362,9 +123,10 @@ classes_must_match('class6', expect_6)
 
 test.fail_test(failed)
 
-test.up_to_date(options='--debug=explain', arguments = '.')
+test.up_to_date(options=["--debug=explain"]+java_arguments,
+                arguments = '.')
 
-test.run(arguments = '-c .')
+test.run(arguments = ['-c','.']+java_arguments)
 
 classes_must_not_exist('class1', expect_1)
 classes_must_not_exist('class2', expect_2)

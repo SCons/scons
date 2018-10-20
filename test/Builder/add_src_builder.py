@@ -38,6 +38,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 copy_out = Builder(action = Copy('$TARGET', '$SOURCE'),
                                  suffix = '.out',
                                  src_suffix = '.mid')
@@ -46,7 +47,7 @@ copy_mid = Builder(action = Copy('$TARGET', '$SOURCE'),
                                  suffix = '.mid', \
                                  src_suffix = '.in')
 
-env = Environment()
+env = Environment(tools=[])
 env['BUILDERS']['CopyOut'] = copy_out
 env['BUILDERS']['CopyMid'] = copy_mid
 

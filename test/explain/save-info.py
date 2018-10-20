@@ -69,6 +69,7 @@ sys.exit(0)
 """)
 
 test.write(['src', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
 import re
 
 include_re = re.compile(r'^include\s+(\S+)$', re.M)
@@ -85,7 +86,7 @@ kscan = Scanner(name = 'kfile',
 
 cat = Builder(action = r'%(_python_)s %(cat_py)s $TARGET $SOURCES')
 
-env = Environment()
+env = Environment(tools=[])
 env.Append(BUILDERS = {'Cat':cat},
            SCANNERS = kscan)
 

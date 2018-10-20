@@ -72,7 +72,7 @@ env.MSVSSolution(target = 'Test.dsw',
                  variant = 'Release')
 """%{'HOST_ARCH':host_arch})
 
-test.run(arguments=".")
+test.run()
 
 test.must_exist(test.workpath('Test.dsp'))
 dsp = test.read('Test.dsp', 'r')

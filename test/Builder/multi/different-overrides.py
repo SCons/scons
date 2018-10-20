@@ -34,13 +34,14 @@ import TestSCons
 test = TestSCons.TestSCons(match=TestSCons.match_re)
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 def build(env, target, source):
     file = open(str(target[0]), 'wb')
     for s in source:
         file.write(open(str(s), 'rb').read())
 
 B = Builder(action=build, multi=1)
-env = Environment(BUILDERS = { 'B' : B })
+env = Environment(tools=[], BUILDERS = { 'B' : B })
 env.B(target = 'file3.out', source = 'file3a.in', foo=1)
 env.B(target = 'file3.out', source = 'file3b.in', foo=2)
 """)

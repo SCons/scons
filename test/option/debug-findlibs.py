@@ -42,6 +42,7 @@ ofp.close()
 """)
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 env = Environment(OBJSUFFIX = '.ooo', PROGSUFFIX = '.xxx',
                   LIBPATH = ['sub1', 'sub2', '.'],
                   LIBS = ['iii', 'jjj', 'kkk', 'lll', 'mmm'],

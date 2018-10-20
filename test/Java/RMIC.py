@@ -32,6 +32,8 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
+# test.verbose_set(1)
+
 test.write('myrmic.py', r"""
 import os
 import sys
@@ -74,7 +76,6 @@ test.run(arguments = '.', stderr = None)
 test.must_match(['outdir', 'test1.class'], "test1.java\nline 3\n", mode='r')
 
 if os.path.normcase('.java') == os.path.normcase('.JAVA'):
-
     test.write('SConstruct', """\
 env = Environment(tools = ['rmic'],
                   RMIC = r'%(_python_)s myrmic.py')
@@ -103,20 +104,28 @@ if java_version.count('.') == 1:
         curver = (int(major), int(minor))
     except:
         pass
+elif java_version.count('.') == 0:
+    # java 11?
+    try:
+        curver = (int(java_version), 0)
+    except:
+        pass
 
 # Check the version of the found Java compiler.
 # If it's 1.8 or higher, we skip the further RMIC test
 # because we'll get warnings about the deprecated API...
 # it's just not state-of-the-art anymore.
+# Recent java versions (9 and greater) are back to being
+# marketed as a simple version, but java_where_javac() will
+# still return a dotted version, like 10.0. If this changes,
+# will need to rework this rule.
 # Note, how we allow simple version strings like "5" and
 # "6" to successfully pass this test.
 if curver < (1, 8):
     test.file_fixture('wrapper_with_args.py')
 
     test.write('SConstruct', """
-foo = Environment(tools = ['javac', 'rmic'],
-                  JAVAC = r'%(where_javac)s',
-                  RMIC = r'%(where_rmic)s')
+foo = Environment(tools = ['javac', 'rmic'])
 foo.Java(target = 'class1', source = 'com/sub/foo')
 foo.RMIC(target = 'outdir1',
           source = ['class1/com/sub/foo/Example1.class',
@@ -157,7 +166,7 @@ package com.sub.foo;
 
 import java.rmi.Naming;
 import java.rmi.RemoteException;
-import java.rmi.RMISecurityManager;
+import java.lang.SecurityManager;
 import java.rmi.server.UnicastRemoteObject;
 
 public class Example1 extends UnicastRemoteObject implements Hello {
@@ -174,7 +183,7 @@ public class Example1 extends UnicastRemoteObject implements Hello {
 
     public static void main(String args[]) {
         if (System.getSecurityManager() == null) {
-            System.setSecurityManager(new RMISecurityManager());
+            System.setSecurityManager(new SecurityManager());
         }
 
         try {
@@ -196,7 +205,7 @@ package com.sub.foo;
 
 import java.rmi.Naming;
 import java.rmi.RemoteException;
-import java.rmi.RMISecurityManager;
+import java.lang.SecurityManager;
 import java.rmi.server.UnicastRemoteObject;
 
 public class Example2 extends UnicastRemoteObject implements Hello {
@@ -213,7 +222,7 @@ public class Example2 extends UnicastRemoteObject implements Hello {
 
     public static void main(String args[]) {
         if (System.getSecurityManager() == null) {
-            System.setSecurityManager(new RMISecurityManager());
+            System.setSecurityManager(new SecurityManager());
         }
 
         try {
@@ -246,7 +255,7 @@ package com.sub.bar;
 
 import java.rmi.Naming;
 import java.rmi.RemoteException;
-import java.rmi.RMISecurityManager;
+import java.lang.SecurityManager;
 import java.rmi.server.UnicastRemoteObject;
 
 public class Example3 extends UnicastRemoteObject implements Hello {
@@ -263,7 +272,7 @@ public class Example3 extends UnicastRemoteObject implements Hello {
 
     public static void main(String args[]) {
         if (System.getSecurityManager() == null) {
-            System.setSecurityManager(new RMISecurityManager());
+            System.setSecurityManager(new SecurityManager());
         }
 
         try {
@@ -285,7 +294,7 @@ package com.sub.bar;
 
 import java.rmi.Naming;
 import java.rmi.RemoteException;
-import java.rmi.RMISecurityManager;
+import java.lang.SecurityManager;
 import java.rmi.server.UnicastRemoteObject;
 
 public class Example4 extends UnicastRemoteObject implements Hello {
@@ -302,7 +311,7 @@ public class Example4 extends UnicastRemoteObject implements Hello {
 
     public static void main(String args[]) {
         if (System.getSecurityManager() == null) {
-            System.setSecurityManager(new RMISecurityManager());
+            System.setSecurityManager(new SecurityManager());
         }
 
         try {
@@ -322,7 +331,7 @@ public class Example4 extends UnicastRemoteObject implements Hello {
     test.run(arguments = '.')
     
     test.must_match('wrapper.out',
-                    "wrapper_with_args.py %s -d outdir2 -classpath class2 com.sub.bar.Example3 com.sub.bar.Example4\n" % where_rmic,
+                    "wrapper_with_args.py rmic -d outdir2 -classpath class2 com.sub.bar.Example3 com.sub.bar.Example4\n",
                     mode='r')
     
     test.must_exist(test.workpath('outdir1', 'com', 'sub', 'foo', 'Example1_Stub.class'))

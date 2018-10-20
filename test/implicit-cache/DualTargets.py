@@ -34,6 +34,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 import os.path
 
 def emitter(target, source, env):
@@ -49,7 +50,7 @@ def source_scan(node, env, path):
     return [base + '.lib']
 
 
-env = Environment()
+env = Environment(tools=[])
 env['BUILDERS']['DualTarget'] = Builder(
     action = Action(
         [ 

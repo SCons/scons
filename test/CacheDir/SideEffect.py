@@ -37,6 +37,7 @@ test.subdir('cache', 'work')
 cache = test.workpath('cache')
 
 test.write(['work', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
 def copy(source, target):
     open(target, "w").write(open(source, "r").read())
 
@@ -51,7 +52,7 @@ def build(env, source, target):
 CacheDir(r'%(cache)s')
 
 Build = Builder(action=build)
-env = Environment(BUILDERS={'Build':Build}, SUBDIR='subdir')
+env = Environment(tools=[], BUILDERS={'Build':Build}, SUBDIR='subdir')
 env.Build('f1.out', 'f1.in')
 env.Build('f2.out', 'f2.in')
 env.Build('f3.out', 'f3.in')

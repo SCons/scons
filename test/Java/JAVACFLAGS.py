@@ -36,7 +36,6 @@ test.subdir('src')
 
 test.write('SConstruct', """
 env = Environment(tools = ['javac'],
-                  JAVAC = r'%(where_javac)s',
                   JAVACFLAGS = '-O')
 env.Java(target = 'classes', source = 'src')
 """ % locals())
@@ -55,7 +54,7 @@ public class Example1
 }
 """)
 
-expected_wrapper_out = "%(where_javac)s -O -d classes -sourcepath src src/Example1.java\n"
+expected_wrapper_out = "javac -O -d classes -sourcepath src src/Example1.java\n"
 expected_wrapper_out = expected_wrapper_out.replace('/', os.sep)
 test.run(arguments = '.',
          stdout = test.wrap_stdout(expected_wrapper_out % locals()))

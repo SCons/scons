@@ -44,6 +44,9 @@ for pre_req in ['swig', 'python']:
     if not test.where_is(pre_req):
         test.skip_test('Can not find installed "' + pre_req + '", skipping test.%s' % os.linesep)
 
+python, python_include, python_libpath, python_lib = \
+             test.get_platform_python_info(python_h_required=True)
+
 if sys.platform == 'win32':
     python_lib = os.path.dirname(sys.executable) + "/libs/" + ('python%d%d'%(sys.version_info[0],sys.version_info[1])) + '.lib'
     if( not os.path.isfile(python_lib)):

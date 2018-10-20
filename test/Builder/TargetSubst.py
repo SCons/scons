@@ -35,7 +35,8 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
-env = Environment()
+DefaultEnvironment(tools=[])
+env = Environment(tools=[])
 builder = Builder(action=Copy('$TARGET', '$SOURCE'))
 tgt = builder(env, target="${SOURCE}.out", source="infile")
 """)

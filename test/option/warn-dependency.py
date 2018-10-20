@@ -34,12 +34,13 @@ test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 
 test.write("SConstruct", """\
+DefaultEnvironment(tools=[])
 import SCons.Defaults
 
 def build(target, source, env):
     pass
 
-env=Environment()
+env=Environment(tools=[])
 env['BUILDERS']['test'] = Builder(action=build,
                                   source_scanner=SCons.Defaults.ObjSourceScan)
 env.test(target='foo', source='foo.c')

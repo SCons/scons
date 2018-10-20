@@ -38,9 +38,10 @@ test = TestSCons.TestSCons()
 
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 import shutil
 
-env = Environment()
+env = Environment(tools=[])
 mode = int(ARGUMENTS.get('mode'))
 if mode:
     def DifferentCopy(target, source, env):

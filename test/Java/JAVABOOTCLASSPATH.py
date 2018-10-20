@@ -42,7 +42,6 @@ where_javah = test.java_where_javah()
 
 test.write('SConstruct', """
 env = Environment(tools = ['javac', 'javah'],
-                  JAVAC = r'%(where_javac)s',
                   JAVABOOTCLASSPATH = ['dir1', 'dir2'])
 j1 = env.Java(target = 'class', source = 'com/Example1.java')
 j2 = env.Java(target = 'class', source = 'com/Example2.java')
@@ -85,11 +84,11 @@ public class Example2
 bootclasspath = os.pathsep.join(['dir1', 'dir2'])
 
 expect = """\
-%(where_javac)s -bootclasspath %(bootclasspath)s -d class -sourcepath com com/Example1.java
-%(where_javac)s -bootclasspath %(bootclasspath)s -d class -sourcepath com com/Example2.java
+javac -bootclasspath %(bootclasspath)s -d class -sourcepath com com.Example1\.java
+javac -bootclasspath %(bootclasspath)s -d class -sourcepath com com.Example2\.java
 """ % locals()
 
-test.run(arguments = '-Q -n .', stdout = expect)
+test.run(arguments = '-Q -n .', stdout = expect, match=TestSCons.match_re)
 
 test.pass_test()
 

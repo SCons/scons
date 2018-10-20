@@ -357,12 +357,12 @@ Return('val1 val2')
 
 <scons_function name="SConscript">
 <arguments>
-(scripts, [exports, variant_dir, duplicate])
-<!-- (scripts, [exports, variant_dir, src_dir, duplicate]) -->
+(scripts, [exports, variant_dir, duplicate, must_exist])
+<!-- (scripts, [exports, variant_dir, src_dir, duplicate, must_exist]) -->
 </arguments>
 <arguments>
-(dirs=subdirs, [name=script, exports, variant_dir, duplicate])
-<!-- (dirs=subdirs, [name=script, exports, variant_dir, src_dir, duplicate]) -->
+(dirs=subdirs, [name=script, exports, variant_dir, duplicate, must_exist])
+<!-- (dirs=subdirs, [name=script, exports, variant_dir, src_dir, duplicate, must_exist]) -->
 </arguments>
 <summary>
 <para>
@@ -561,6 +561,17 @@ is equivalent to
 and what about this alternative?
 TODO??? SConscript('build/SConscript', src_dir='src')
 -->
+</para>
+
+<para>
+The optional
+<varname>must_exist</varname>
+argument, if true, causes an exception to be raised if a requested
+&SConscript; file is not found. The current default is false,
+causing only a warning to be omitted, but this behavior is deprecated.
+For scripts which truly intend to be optional, transition to
+explicty supplying
+<literal>must_exist=False</literal> to the call.
 </para>
 
 <para>

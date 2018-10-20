@@ -35,7 +35,8 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
-env = Environment(FOO = 'fff', BAR = 'bbb')
+DefaultEnvironment(tools=[])
+env = Environment(tools=[], FOO = 'fff', BAR = 'bbb')
 print(Dir('ddd'))
 print(Dir('$FOO'))
 print(Dir('${BAR}_$BAR'))
@@ -58,12 +59,13 @@ scons: `.' is up to date.
 
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 import os
 def my_mkdir(target=None, source=None, env=None):
     os.mkdir(str(target[0]))
 
 MDBuilder = Builder(action=my_mkdir, target_factory=Dir)
-env = Environment()
+env = Environment(tools=[])
 env.Append(BUILDERS = {'MD':MDBuilder})
 env.MD(target='sub1', source=['SConstruct'])
 env.MD(target='sub2', source=['SConstruct'], OVERRIDE='foo')

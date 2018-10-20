@@ -44,7 +44,7 @@ test.dir_fixture('image')
 # Normal invocation
 test.run()
 test.must_exist(test.workpath('manual_xi.xml'))
-test.must_contain(test.workpath('manual_xi.xml'),'<para>This is an included text.')
+test.must_contain(test.workpath('manual_xi.xml'),'<para>This is an included text.', mode='r')
 
 # Change included file
 test.write('include.txt', 'This is another text.')

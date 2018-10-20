@@ -29,7 +29,6 @@ Verify that swig-generated modules are removed.
 The %module directive specifies the module name.
 """
 
-import os.path
 import sys
 
 import TestSCons
@@ -48,10 +47,7 @@ if not swig:
     test.skip_test('Can not find installed "swig", skipping test.\n')
 
 python, python_include, python_libpath, python_lib = \
-             test.get_platform_python_info()
-Python_h = os.path.join(python_include, 'Python.h')
-if not os.path.exists(Python_h):
-    test.skip_test('Can not find %s, skipping test.\n' % Python_h)
+             test.get_platform_python_info(python_h_required=True)
 
 # handle testing on other platforms:
 ldmodule_prefix = '_'
@@ -69,7 +65,7 @@ test.write("module.i", """\
 test.write('SConstruct', """
 foo = Environment(SWIGFLAGS='-python',
                   %(swig_arch_var)s
-                  CPPPATH=['%(python_include)s'],
+                  CPPPATH=[r'%(python_include)s'],
                   LDMODULEPREFIX='%(ldmodule_prefix)s',
                   LDMODULESUFFIX='%(_dll)s',
                   SWIG=[r'%(swig)s'],

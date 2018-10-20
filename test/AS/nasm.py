@@ -47,17 +47,18 @@ if sys.platform.find('linux') == -1:
     test.skip_test("skipping test on non-Linux platform '%s'\n" % sys.platform)
 
 try:
-    import popen2
-    stdout = popen2.popen2('nasm -v')[0]
+    import subprocess
+    stdout = subprocess.check_output(['nasm','-v'])
 except OSError:
     test.skip_test('could not determine nasm version; skipping test\n')
 else:
-    version = stdout.read().split()[2]
-    if version[:4] != '0.98':
+    stdout = stdout.decode()
+    version = stdout.split()[2].split('.')
+    if int(version[0]) ==0 and int(version[1]) < 98:
         test.skip_test("skipping test of nasm version %s\n" % version)
 
     machine = os.uname()[4]
-    if not machine in ('i386', 'i486', 'i586', 'i686'):
+    if not machine in ('i386', 'i486', 'i586', 'i686', 'x86_64'):
         fmt = "skipping test of nasm %s on non-x86 machine '%s'\n"
         test.skip_test(fmt % (version, machine))
 
@@ -78,6 +79,8 @@ test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
 eee = Environment(tools = ['gcc', 'gnulink', 'nasm'],
+                  CFLAGS = ['-m32'],
+                  LINKFLAGS = '-m32',
                   ASFLAGS = '-f %(nasm_format)s')
 fff = eee.Clone(AS = r'%(_python_)s wrapper.py ' + WhereIs('nasm'))
 eee.Program(target = 'eee', source = ['eee.asm', 'eee_main.c'])
@@ -99,6 +102,7 @@ name:
 """)
 
 test.write('eee_main.c', r"""
+#include <stdio.h>
 extern char name[];
 
 int

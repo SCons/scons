@@ -276,6 +276,16 @@ def HelpFunction(text, append=False):
 # Will be non-zero if we are reading an SConscript file.
 sconscript_reading = 0
 
+_no_missing_sconscript = False
+_warn_missing_sconscript_deprecated = True
+
+def set_missing_sconscript_error(flag=1):
+    """Set behavior on missing file in SConscript() call. Returns previous value"""
+    global _no_missing_sconscript
+    old = _no_missing_sconscript
+    _no_missing_sconscript = flag
+    return old
+
 #
 def Variables(files=[], args=ARGUMENTS):
     return SCons.Variables.Variables(files, args)

@@ -306,6 +306,23 @@ class must_contain_TestCase(TestCommonTestCase):
         stderr = run_env.stderr()
         assert stderr == "PASSED\n", stderr
 
+    def test_success_index_0(self):
+        """Test must_contain():  success at index 0"""
+        run_env = self.run_env
+
+        script = lstrip("""\
+        from TestCommon import TestCommon
+        tc = TestCommon(workdir='')
+        tc.write('file1', "file1 contents\\n")
+        tc.must_contain('file1', "file1 c")
+        tc.pass_test()
+        """)
+        run_env.run(program=sys.executable, stdin=script)
+        stdout = run_env.stdout()
+        assert stdout == "", stdout
+        stderr = run_env.stderr()
+        assert stderr == "PASSED\n", stderr
+
     def test_file_missing(self):
         """Test must_contain():  file missing"""
         run_env = self.run_env
@@ -1145,6 +1162,9 @@ class must_match_TestCase(TestCommonTestCase):
         """)
 
         expect = lstrip("""\
+        match_re: mismatch at line 0:
+          search re='^file1$'
+          line='file1 does not match'
         Unexpected contents of `file1'
         contents =======================================================================
         1c1
@@ -1314,6 +1334,31 @@ class must_not_contain_TestCase(TestCommonTestCase):
         File `file1' contains banned string.
         Banned string ==================================================================
         1 does contain c
+        file1 contents =================================================================
+        file1 does contain contents
+
+        """)
+        run_env.run(program=sys.executable, stdin=script)
+        stdout = run_env.stdout()
+        assert stdout == expect, repr(stdout)
+        stderr = run_env.stderr()
+        assert stderr.find("FAILED") != -1, stderr
+
+    def test_failure_index_0(self):
+        """Test must_not_contain():  failure at index 0"""
+        run_env = self.run_env
+
+        script = lstrip("""\
+        from TestCommon import TestCommon
+        tc = TestCommon(workdir='')
+        tc.write('file1', "file1 does contain contents\\n")
+        tc.must_not_contain('file1', "file1 does")
+        tc.run()
+        """)
+        expect = lstrip("""\
+        File `file1' contains banned string.
+        Banned string ==================================================================
+        file1 does
         file1 contents =================================================================
         file1 does contain contents
 
@@ -1812,6 +1857,7 @@ class run_TestCase(TestCommonTestCase):
         """)
 
         expect_stdout = lstrip("""\
+        match_re: expected 1 lines, found 2
         STDOUT =========================================================================
 
         STDERR =========================================================================
@@ -2024,6 +2070,9 @@ class run_TestCase(TestCommonTestCase):
         """)
 
         expect_stdout = lstrip("""\
+        match_re: mismatch at line 0:
+          search re='^Not found$'
+          line='%(pass_script)s:  STDOUT:  []'
         STDOUT =========================================================================
         1c1
         < Not found
@@ -2053,6 +2102,9 @@ class run_TestCase(TestCommonTestCase):
         """)
 
         expect_stdout = lstrip("""\
+        match_re: mismatch at line 0:
+          search re='^Not found$'
+          line='%(stderr_script)s:  STDERR:  []'
         STDOUT =========================================================================
 
         STDERR =========================================================================
@@ -2286,14 +2338,14 @@ class variables_TestCase(TestCommonTestCase):
             'dll_suffix',
         ]
 
-        script = "from __future__ import print_function" + \
+        script = "from __future__ import print_function\n" + \
                  "import TestCommon\n" + \
                  '\n'.join([ "print(TestCommon.%s)\n" % v for v in variables ])
         run_env.run(program=sys.executable, stdin=script)
         stderr = run_env.stderr()
         assert stderr == "", stderr
 
-        script = "from __future__ import print_function" + \
+        script = "from __future__ import print_function\n" + \
                  "from TestCommon import *\n" + \
                  '\n'.join([ "print(%s)" % v for v in variables ])
         run_env.run(program=sys.executable, stdin=script)

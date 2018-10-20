@@ -30,17 +30,14 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.subdir('src')
-
+# Keep this logic because it skips the test if javac or jar not found.
 where_javac, java_version = test.java_where_javac()
 where_jar = test.java_where_jar()
 
-
+test.subdir('src')
 
 test.write('SConstruct', """
 env = Environment(tools = ['javac', 'jar'],
-                  JAVAC = r'%(where_javac)s',
-                  JAR = r'%(where_jar)s',
                   JARFLAGS = 'cvf')
 env['JARFLAGS'] = 'cvf'
 class_files = env.Java(target = 'classes', source = 'src')
@@ -62,13 +59,12 @@ public class Example1
 """)
 
 expect = test.wrap_stdout("""\
-%(where_javac)s -d classes -sourcepath src src/Example1\.java
-%(where_jar)s cvf test.jar -C classes src/Example1\.class
+javac -d classes -sourcepath src src.Example1\.java
+jar cvf test.jar -C classes src.Example1\.class
 .*
-adding: src/Example1\.class.*
+adding: src.Example1\.class.*
 """ % locals())
 
-expect = expect.replace('/', os.sep)
 
 test.run(arguments = '.',
          match=TestSCons.match_re_dotall,

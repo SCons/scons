@@ -48,6 +48,7 @@ f6_sep = f6_txt.replace(os.sep, '/')
 _SUBDIR_f4_out = os.path.join('$SUBDIR', 'f4.out')
 
 test.write(['work', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
 def cat(env, source, target):
     target = str(target[0])
     f = open(target, "w")
@@ -60,7 +61,7 @@ def my_install(dest, source, env):
     shutil.copy2(source, dest)
     open('my_install.out', 'a').write(dest)
 
-env1 = Environment()
+env1 = Environment(tools=[])
 env1.Append(BUILDERS={'Cat':Builder(action=cat)})
 env3 = env1.Clone(INSTALL = my_install)
 

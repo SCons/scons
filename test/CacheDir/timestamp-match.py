@@ -33,6 +33,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write(['SConstruct'], """\
+DefaultEnvironment(tools=[])
 Decider('timestamp-match')
 CacheDir('cache')
 Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))

@@ -36,24 +36,24 @@ python = TestSCons.python
 test = TestSCons.TestSCons()
 
 tar = test.detect('TAR', 'tar')
-bzip = test.where_is('bzip2')
-
 if not tar:
-    test.skip_test('tar not found; skipping test\n')
-if not bzip:
-    test.skip_test('bzip2 not found; skipping test\n')
+    test.skip_test('tar not found, skipping test\n')
 
-if tar:
-  test.subdir('src')
 
-  test.write( [ 'src', 'main.c' ], r"""
+bz2 = test.where_is('bzip2')
+if not bz2:
+    test.skip_test('tar found, but helper bzip2 not found, skipping test\n')
+
+test.subdir('src')
+
+test.write([ 'src', 'main.c'], r"""
 int main( int argc, char* argv[] )
 {
   return 0;
 }
 """)
 
-  test.write('SConstruct', """
+test.write('SConstruct', """
 Program( 'src/main.c' )
 env=Environment(tools=['default', 'packaging'])
 env.Package( PACKAGETYPE  = 'src_tarbz2',
@@ -62,9 +62,9 @@ env.Package( PACKAGETYPE  = 'src_tarbz2',
              source       = [ 'src/main.c', 'SConstruct' ] )
 """)
 
-  test.run(arguments='', stderr = None)
+test.run(arguments='', stderr=None)
 
-  test.must_exist( 'src.tar.bz2' )
+test.must_exist('src.tar.bz2')
 
 test.pass_test()
 
