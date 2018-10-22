@@ -76,6 +76,9 @@ def sconsign_dir(node):
 _sconsign_map = {0 : sconsign_none,
                  1 : sconsign_dir}
 
+class FileBuildInfoFileToCsigMappingError(Exception):
+    pass
+
 class EntryProxyAttributeError(AttributeError):
     """
     An AttributeError subclass for recording and displaying the name
@@ -2510,6 +2513,11 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
     current_version_id = 2
 
     def __setattr__(self, key, value):
+
+        # If any attributes are changed in FileBuildInfo, we need to
+        # invalidate the cached map of file name to content signature
+        # heald in dependency_map. Currently only used with
+        # MD5-timestamp decider
         if key != 'dependency_map' and hasattr(self, 'dependency_map'):
             del self.dependency_map
 
@@ -3343,8 +3351,7 @@ class File(Base):
                 df = dmap.get(c_str, None)
 
             except AttributeError as e:
-                import pdb;
-                pdb.set_trace()
+                raise FileBuildInfoFileToCsigMappingError("No mapping from file name to content signature for :%s"%c_str)
 
         return df
 
@@ -3361,11 +3368,15 @@ class File(Base):
             self - dependency
             target - target
             prev_ni - The NodeInfo object loaded from previous builds .sconsign
+            node - Node instance.  This is the only changed* function which requires
+                   node to function. So if we detect that it's not passed.
+                   we throw DeciderNeedsNode, and caller should handle this and pass node.
 
         Returns: 
             Boolean - Indicates if node(File) has changed.
         """
         if node is None:
+            # We need required node argument to get BuildInfo to function
             raise DeciderNeedsNode(self.changed_timestamp_then_content)
 
         # Now get sconsign name -> csig map and then get proper prev_ni if possible
