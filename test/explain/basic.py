@@ -51,7 +51,7 @@ inc_bbb_k = test.workpath('inc', 'bbb.k')
 
 
 
-test.write(cat_py, r"""
+test.write(cat_py, r"""\
 from __future__ import print_function
 
 import sys

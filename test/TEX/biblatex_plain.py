@@ -32,7 +32,6 @@ Test courtesy Rob Managan.
 
 import TestSCons
 import os
-import sys
 
 test = TestSCons.TestSCons()
 

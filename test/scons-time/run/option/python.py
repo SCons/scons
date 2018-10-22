@@ -29,9 +29,10 @@ Verify the run --python option to specify an alternatie Python executable.
 """
 
 import os
-import sys
 
 import TestSCons_time
+
+_python_ = TestSCons_time._python_
 
 test = TestSCons_time.TestSCons_time()
 
@@ -40,7 +41,7 @@ test.write_sample_project('foo.tar.gz')
 my_python_py = test.workpath('my_python.py')
 
 test.write(my_python_py, """\
-#!/usr/bin/env python%s
+#!%(_python_)s
 import sys
 profile = ''
 for arg in sys.argv[1:]:
@@ -48,7 +49,7 @@ for arg in sys.argv[1:]:
         profile = arg[10:]
         break
 sys.stdout.write('my_python.py: %%s\\n' %% profile)
-""" % sys.version_info[0])
+""" % locals())
 
 os.chmod(my_python_py, 0o755)
 

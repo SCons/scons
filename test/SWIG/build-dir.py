@@ -139,9 +139,10 @@ public:
 };
 """)
 
+## _python_ = TestSCons._python_
 ## XXX: @ptomulik: looks like it was unused?
 ## test.write(['source', 'test.py'], """\
-## #!/usr/bin/env python%s
+## #!%(_python_)s
 ## from __future__ import print_function
 ##
 ## import linalg
@@ -158,7 +159,7 @@ public:
 ## for i, v in enumerate(x):
 ##     print("\tx[%%d] = %%g" %% (i, v))
 ##
-## """ % sys.version_info[0])
+## """ % locals())
 
 test.run(arguments = '.')
 

@@ -31,7 +31,8 @@ Verify that the sconsign script works when using an individual
 
 import TestSCons
 import TestSConsign
-import sys
+
+_python_ = TestSCons._python_
 
 test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
 
@@ -50,7 +51,7 @@ test.subdir('sub1', 'sub2')
 fake_cc_py = test.workpath('fake_cc.py')
 fake_link_py = test.workpath('fake_link.py')
 
-test.write(fake_cc_py, r"""#!/usr/bin/env python%s
+test.write(fake_cc_py, r"""#!%(_python_)s
 import os
 import re
 import sys
@@ -80,9 +81,9 @@ def process(infp, outfp):
 process(input, output)
 
 sys.exit(0)
-""" % sys.version_info[0])
+""" % locals())
 
-test.write(fake_link_py, r"""#!/usr/bin/env python%s
+test.write(fake_link_py, r"""#!%(_python_)s
 import sys
 
 output = open(sys.argv[1], 'wb')
@@ -93,7 +94,7 @@ output.write('fake_link.py:  %%s\n' %% sys.argv)
 output.write(input.read())
 
 sys.exit(0)
-""" % sys.version_info[0])
+""" % locals())
 
 test.chmod(fake_cc_py, 0o755)
 test.chmod(fake_link_py, 0o755)

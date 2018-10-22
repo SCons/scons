@@ -29,9 +29,10 @@ Verify specifying an alternate Python executable in a config file.
 """
 
 import os
-import sys
 
 import TestSCons_time
+
+_python_ = TestSCons_time._python_
 
 test = TestSCons_time.TestSCons_time()
 
@@ -44,7 +45,7 @@ python = r'%(my_python_py)s'
 """ % locals())
 
 test.write(my_python_py, """\
-#!/usr/bin/env python%s
+#!%(_python_)s
 from __future__ import print_function
 import sys
 profile = ''
@@ -53,7 +54,7 @@ for arg in sys.argv[1:]:
         profile = arg[10:]
         break
 print('my_python.py: %%s' %% profile)
-""" % sys.version_info[0])
+""" % locals())
 
 os.chmod(my_python_py, 0o755)
 
