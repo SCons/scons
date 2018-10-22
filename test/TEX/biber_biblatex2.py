@@ -55,8 +55,6 @@ if not biblatex==0:
 
 
 test.write(['SConstruct'], """\
-#!/usr/bin/env python
-
 import os
 env = Environment(ENV=os.environ)
 main_output = env.PDF('bibertest.tex')

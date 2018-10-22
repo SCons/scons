@@ -36,7 +36,6 @@ being the equivalent of Decider('content').
 """
 
 import os
-
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -59,7 +58,6 @@ fake_cc_py = test.workpath('fake_cc.py')
 fake_link_py = test.workpath('fake_link.py')
 
 test.write(fake_cc_py, """\
-#!/usr/bin/env python
 import sys
 ofp = open(sys.argv[1], 'w')
 ofp.write('fake_cc.py:  %s\\n' % sys.argv)
@@ -68,7 +66,6 @@ for s in sys.argv[2:]:
 """)
 
 test.write(fake_link_py, """\
-#!/usr/bin/env python
 import sys
 ofp = open(sys.argv[1], 'w')
 ofp.write('fake_link.py:  %s\\n' % sys.argv)
