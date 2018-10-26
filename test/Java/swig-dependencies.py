@@ -40,8 +40,9 @@ if not swig:
 
 where_javac, java_version = test.java_where_javac()
 where_javah = test.java_where_javah()
-
-where_java_include=test.java_where_includes()
+where_java_include = test.java_where_includes()
+if not where_java_include:
+    test.skip_test('Can not find installed Java include files, skipping test.\n')
 
 test.subdir(['foo'],
             ['java'],
@@ -53,7 +54,7 @@ import os
 env = Environment(ENV = os.environ)
 if env['PLATFORM'] != 'win32':
     env.Append(CPPFLAGS = ' -g -Wall')
-env['CPPPATH'] ='$JAVAINCLUDES'
+env['CPPPATH'] = ['$JAVAINCLUDES', %(where_java_include)s]
         
 Export('env')
 

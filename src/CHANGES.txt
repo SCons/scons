@@ -165,6 +165,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       Three uses of variables not defined are changed.
     - Some script changes in trying to find scons engine
     - Update (pep8) configure-cache script, add a --show option.
+    - Fix the two java tests which use SWIG to discover/use path to jni.h.
 
   From Bernhard M. Wiedemann:
     - Update SCons' internal scons build logic to allow overriding build date 
