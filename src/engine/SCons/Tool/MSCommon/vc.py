@@ -241,7 +241,7 @@ def find_vc_pdir_vswhere(msvc_version):
         'Installer',
         'vswhere.exe'
     )
-    vswhere_cmd = [vswhere_path, '-version', msvc_version, '-property', 'installationPath']
+    vswhere_cmd = [vswhere_path, '-products', '*', '-version', msvc_version, '-property', 'installationPath']
 
     if os.path.exists(vswhere_path):
         sp = subprocess.Popen(vswhere_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -355,15 +355,30 @@ def cached_get_installed_vcs():
 
 def get_installed_vcs():
     installed_versions = []
+
+    def clfind(name, path):
+        '''Search for a filename in a given path.
+
+        Look for a filename (normally cl.exe) underneath a path.  No need
+        to return the path found, someplace else will dig deeper, this is
+        just used to confirm a given suite contains that file.  Note it
+        does not promise the cl.exe is the combination of host/target we
+        actually need, that is also done elsewhere.
+        '''
+        for root, _, files in os.walk(path):
+            if name in files:
+                debug('get_installed_vcs cl.exe found %s' % os.path.join(root, name))
+                return True
+        return False
+
     for ver in _VCVER:
         debug('trying to find VC %s' % ver)
         try:
             VC_DIR = find_vc_pdir(ver)
             if VC_DIR:
                 debug('found VC %s' % ver)
-                # check to see if the x86 or 64 bit compiler is in the bin dir
-                if (os.path.exists(os.path.join(VC_DIR, r'bin\cl.exe'))
-                    or os.path.exists(os.path.join(VC_DIR, r'bin\amd64\cl.exe'))):
+                # now make sure there's a cl.exe in that path
+                if clfind('cl.exe', VC_DIR):
                     installed_versions.append(ver)
                 else:
                     debug('find_vc_pdir no cl.exe found %s' % ver)

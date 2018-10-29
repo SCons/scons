@@ -176,6 +176,9 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Update (pep8) configure-cache script, add a --show option.
     - Fix for a couple of "what if tool not found" exceptions in framework.
     - Add Textfile/Substfile to default environment. (issue #3147)
+    - Improve finding of Microsoft compiler: add a 'products' wildcard
+      in case Build Tools only is installed; search for cl.exe in located
+      path instead of just looking for a couple of built-in locations.
 
   From Bernhard M. Wiedemann:
     - Update SCons' internal scons build logic to allow overriding build date 
