@@ -27,16 +27,21 @@ SCons Packaging Tool.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.Defaults
 import SCons.Environment
 from SCons.Variables import *
 from SCons.Errors import *
 from SCons.Util import is_List, make_path_relative
 from SCons.Warnings import warn, Warning
 
-import os, imp
-import SCons.Defaults
+import os
+import imp
 
-__all__ = [ 'src_targz', 'src_tarbz2', 'src_zip', 'tarbz2', 'targz', 'zip', 'rpm', 'msi', 'ipk' ]
+__all__ = [
+    'src_targz', 'src_tarbz2', 'src_xz', 'src_zip',
+    'targz', 'tarbz2', 'xz', 'zip',
+    'rpm', 'msi', 'ipk',
+]
 
 #
 # Utility and Builder function
@@ -102,7 +107,7 @@ def Package(env, target=None, source=None, **kw):
         from SCons.Script import GetOption
         kw['PACKAGETYPE'] = GetOption('package_type')
 
-    if kw['PACKAGETYPE'] == None:
+    if kw['PACKAGETYPE'] is None:
         if 'Tar' in env['BUILDERS']:
             kw['PACKAGETYPE']='targz'
         elif 'Zip' in env['BUILDERS']:
@@ -163,15 +168,22 @@ def Package(env, target=None, source=None, **kw):
         # this exception means that a needed argument for the packager is
         # missing. As our packagers get their "tags" as named function
         # arguments we need to find out which one is missing.
-        from inspect import getargspec
-        args,varargs,varkw,defaults=getargspec(packager.package)
-        if defaults!=None:
-            args=args[:-len(defaults)] # throw away arguments with default values
+        #TODO: getargspec deprecated in Py3. cleanup when Py2.7 dropped.
+        try:
+            from inspect import getfullargspec
+            argspec = getfullargspec(packager.package)
+        except ImportError:
+            from inspect import getargspec
+            argspec = getargspec(packager.package)
+        args = argspec.args
+        if argspec.defaults:
+            # throw away arguments with default values
+            args = args[:-len(argspec.defaults)]
         args.remove('env')
         args.remove('target')
         args.remove('source')
         # now remove any args for which we have a value in kw.
-        args=[x for x in args if x not in kw]
+        args = [x for x in args if x not in kw]
 
         if len(args)==0:
             raise # must be a different error, so re-raise
@@ -283,10 +295,9 @@ def stripinstallbuilder(target, source, env):
     It also warns about files which have no install builder attached.
     """
     def has_no_install_location(file):
-        return not (file.has_builder() and\
-            hasattr(file.builder, 'name') and\
-            (file.builder.name=="InstallBuilder" or\
-             file.builder.name=="InstallAsBuilder"))
+        return not (file.has_builder() and hasattr(file.builder, 'name')
+                    and file.builder.name in ["InstallBuilder", "InstallAsBuilder"])
+
 
     if len([src for src in source if has_no_install_location(src)]):
         warn(Warning, "there are files to package which have no\

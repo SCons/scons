@@ -46,6 +46,7 @@ src_all = test.workpath('src', 'all')
 test.subdir('cache', 'src')
 
 test.write(['src', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
 CacheDir(r'%(cache)s')
 SConscript('SConscript')
 """ % locals())
@@ -58,7 +59,7 @@ def cat(env, source, target):
     for src in source:
         f.write(open(str(src), "r").read())
     f.close()
-env_cache = Environment(BUILDERS={'Cat':Builder(action=cat)})
+env_cache = Environment(tools=[], BUILDERS={'Cat':Builder(action=cat)})
 env_nocache = env_cache.Clone()
 env_nocache.CacheDir(None)
 env_cache.Cat('aaa.out', 'aaa.in')

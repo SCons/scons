@@ -61,7 +61,7 @@ if env['PLATFORM'] == 'darwin':
 
 test.write('aaa.cpp', r"""
 #include "aaa.h"
-int main() { aaa(); return 0; }
+int main(void) { aaa(); return 0; }
 """)
 
 test.write('aaa.h', r"""

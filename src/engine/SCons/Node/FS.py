@@ -132,7 +132,10 @@ def initialize_do_splitdrive():
     global do_splitdrive
     global has_unc
     drive, path = os.path.splitdrive('X:/foo')
-    has_unc = hasattr(os.path, 'splitunc')
+    # splitunc is removed from python 3.7 and newer
+    # so we can also just test if splitdrive works with UNC
+    has_unc = (hasattr(os.path, 'splitunc')
+        or os.path.splitdrive(r'\\split\drive\test')[0] == r'\\split\drive')
 
     do_splitdrive = not not drive or has_unc
 
@@ -1394,10 +1397,10 @@ class FS(LocalFS):
             if not isinstance(d, SCons.Node.Node):
                 d = self.Dir(d)
             self.Top.addRepository(d)
-    
+
     def PyPackageDir(self, modulename):
         """Locate the directory of a given python module name
-		
+
         For example scons might resolve to
         Windows: C:\Python27\Lib\site-packages\scons-2.5.1
         Linux: /usr/lib/scons
@@ -3302,7 +3305,7 @@ class File(Base):
                 try: node = dir.entries[norm_name]
                 except KeyError: node = dir.file_on_disk(self.name)
                 if node and node.exists() and \
-                   (isinstance(node, File) or isinstance(node, Entry) \
+                   (isinstance(node, File) or isinstance(node, Entry)
                     or not node.is_derived()):
                         result = node
                         # Copy over our local attributes to the repository
@@ -3379,6 +3382,8 @@ class File(Base):
         because multiple targets built by the same action will all
         have the same build signature, and we have to differentiate
         them somehow.
+
+        Signature should normally be string of hex digits.
         """
         try:
             return self.cachesig
@@ -3388,10 +3393,13 @@ class File(Base):
         # Collect signatures for all children
         children = self.children()
         sigs = [n.get_cachedir_csig() for n in children]
+
         # Append this node's signature...
         sigs.append(self.get_contents_sig())
+
         # ...and it's path
         sigs.append(self.get_internal_path())
+
         # Merge this all into a single signature
         result = self.cachesig = SCons.Util.MD5collect(sigs)
         return result

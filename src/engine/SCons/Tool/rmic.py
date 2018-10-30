@@ -40,6 +40,9 @@ import SCons.Builder
 import SCons.Node.FS
 import SCons.Util
 
+from SCons.Tool.JavaCommon import get_java_install_dirs
+
+
 def emit_rmic_classes(target, source, env):
     """Create and return lists of Java RMI stub and skeleton
     class files to be created from a set of class files.
@@ -104,6 +107,18 @@ RMICBuilder = SCons.Builder.Builder(action = RMICAction,
 def generate(env):
     """Add Builders and construction variables for rmic to an Environment."""
     env['BUILDERS']['RMIC'] = RMICBuilder
+
+    if env['PLATFORM'] == 'win32':
+        version = env.get('JAVAVERSION', None)
+        default_paths=get_java_install_dirs(env['PLATFORM'], version=version)
+
+        # Ensure that we have a proper path for rmic
+        rmic = SCons.Tool.find_program_path(env, 'rmic', default_paths=default_paths)
+
+        # print("RMIC: %s"%rmic)
+        if rmic:
+            rmic_bin_dir = os.path.dirname(rmic)
+            env.AppendENVPath('PATH', rmic_bin_dir)
 
     env['RMIC']            = 'rmic'
     env['RMICFLAGS']       = SCons.Util.CLVar('')

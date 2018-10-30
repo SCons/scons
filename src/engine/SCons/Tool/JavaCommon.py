@@ -32,10 +32,15 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import os.path
 import re
+import glob
 
 java_parsing = 1
 
 default_java_version = '1.4'
+
+# a switch for which jdk versions to use the Scope state for smarter
+# anonymous inner class parsing.
+scopeStateVersions = ('1.8')
 
 if java_parsing:
     # Parse Java files for class names.
@@ -64,8 +69,9 @@ if java_parsing:
         interfaces, and anonymous inner classes."""
         def __init__(self, version=default_java_version):
 
-            if not version in ('1.1', '1.2', '1.3','1.4', '1.5', '1.6', '1.7',
-                               '1.8', '5', '6'):
+            if not version in ('1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7',
+                               '1.8', '5', '6', '9.0', '10.0', '11.0'):
+
                 msg = "Java version %s not supported" % version
                 raise NotImplementedError(msg)
 
@@ -115,8 +121,8 @@ if java_parsing:
                 ret = SkipState(1, self)
                 self.skipState = ret
                 return ret
-        
-        def __getAnonStack(self):
+
+        def _getAnonStack(self):
             return self.anonStacksStack[-1]
 
         def openBracket(self):
@@ -125,15 +131,16 @@ if java_parsing:
         def closeBracket(self):
             self.brackets = self.brackets - 1
             if len(self.stackBrackets) and \
-               self.brackets == self.stackBrackets[-1]:
+                            self.brackets == self.stackBrackets[-1]:
                 self.listOutputs.append('$'.join(self.listClasses))
                 self.localClasses.pop()
                 self.listClasses.pop()
                 self.anonStacksStack.pop()
                 self.stackBrackets.pop()
             if len(self.stackAnonClassBrackets) and \
-               self.brackets == self.stackAnonClassBrackets[-1]:
-                self.__getAnonStack().pop()
+                            self.brackets == self.stackAnonClassBrackets[-1] and \
+                            self.version not in scopeStateVersions:
+                self._getAnonStack().pop()
                 self.stackAnonClassBrackets.pop()
 
         def parseToken(self, token):
@@ -171,20 +178,86 @@ if java_parsing:
             if self.version in ('1.1', '1.2', '1.3', '1.4'):
                 clazz = self.listClasses[0]
                 self.listOutputs.append('%s$%d' % (clazz, self.nextAnon))
-            elif self.version in ('1.5', '1.6', '1.7', '1.8', '5', '6'):
+            elif self.version in ('1.5', '1.6', '1.7', '1.8', '5', '6', '9.0', '10.0', '11.0'):
                 self.stackAnonClassBrackets.append(self.brackets)
                 className = []
                 className.extend(self.listClasses)
-                self.__getAnonStack()[-1] = self.__getAnonStack()[-1] + 1
-                for anon in self.__getAnonStack():
+                self._getAnonStack()[-1] = self._getAnonStack()[-1] + 1
+                for anon in self._getAnonStack():
                     className.append(str(anon))
                 self.listOutputs.append('$'.join(className))
 
             self.nextAnon = self.nextAnon + 1
-            self.__getAnonStack().append(0)
+            self._getAnonStack().append(0)
 
         def setPackage(self, package):
             self.package = package
+
+    class ScopeState(object):
+        """
+        A state that parses code within a scope normally,
+        within the confines of a scope.
+        """
+        def __init__(self, old_state):
+            self.outer_state = old_state.outer_state
+            self.old_state = old_state
+            self.brackets = 0
+
+        def __getClassState(self):
+            try:
+                return self.classState
+            except AttributeError:
+                ret = ClassState(self)
+                self.classState = ret
+                return ret
+
+        def __getAnonClassState(self):
+            try:
+                return self.anonState
+            except AttributeError:
+                ret = SkipState(1, AnonClassState(self))
+                self.anonState = ret
+                return ret
+
+        def __getSkipState(self):
+            try:
+                return self.skipState
+            except AttributeError:
+                ret = SkipState(1, self)
+                self.skipState = ret
+                return ret
+
+        def openBracket(self):
+            self.brackets = self.brackets + 1
+
+        def closeBracket(self):
+            self.brackets = self.brackets - 1
+
+        def parseToken(self, token):
+            # if self.brackets == 0:
+            #     return self.old_state.parseToken(token)
+            if token[:2] == '//':
+                return IgnoreState('\n', self)
+            elif token == '/*':
+                return IgnoreState('*/', self)
+            elif token == '{':
+                self.openBracket()
+            elif token == '}':
+                self.closeBracket()
+                if self.brackets == 0:
+                    self.outer_state._getAnonStack().pop()
+                    return self.old_state
+            elif token in ['"', "'"]:
+                return IgnoreState(token, self)
+            elif token == "new":
+                # anonymous inner class
+                return self.__getAnonClassState()
+            elif token == '.':
+                # Skip the attribute, it might be named "class", in which
+                # case we don't want to treat the following token as
+                # an inner class name...
+                return self.__getSkipState()
+            return self
 
     class AnonClassState(object):
         """A state that looks for anonymous inner classes."""
@@ -212,13 +285,15 @@ if java_parsing:
                 if token == 'new':
                     # look further for anonymous inner class
                     return SkipState(1, AnonClassState(self))
-                elif token in [ '"', "'" ]:
+                elif token in ['"', "'"]:
                     return IgnoreState(token, self)
                 elif token == ')':
                     self.brace_level = self.brace_level - 1
                 return self
             if token == '{':
                 self.outer_state.addAnonClass()
+                if self.outer_state.version in scopeStateVersions:
+                    return ScopeState(old_state = self.old_state).parseToken(token)
             return self.old_state.parseToken(token)
 
     class SkipState(object):
@@ -245,10 +320,10 @@ if java_parsing:
             # If that's an inner class which is declared in a method, it
             # requires an index prepended to the class-name, e.g.
             # 'Foo$1Inner'
-            # http://scons.tigris.org/issues/show_bug.cgi?id=2087
+            # https://github.com/SCons/scons/issues/2087
             if self.outer_state.localClasses and \
-                self.outer_state.stackBrackets[-1] > \
-                self.outer_state.stackBrackets[-2]+1:
+                            self.outer_state.stackBrackets[-1] > \
+                                    self.outer_state.stackBrackets[-2]+1:
                 locals = self.outer_state.localClasses[-1]
                 try:
                     idx = locals[token]
@@ -315,7 +390,82 @@ else:
         is that the file name matches the public class name, and that
         the path to the file is the same as the package name.
         """
-        return os.path.split(file)
+        return os.path.split(fn)
+
+
+
+java_win32_version_dir_glob = 'C:/Program Files*/Java/jdk%s*/bin'
+java_win32_dir_glob = 'C:/Program Files*/Java/jdk*/bin'
+
+java_macos_include_dir = '/System/Library/Frameworks/JavaVM.framework/Headers/'
+java_macos_version_include_dir = '/System/Library/Frameworks/JavaVM.framework/Versions/%s*/Headers/'
+
+java_linux_include_dirs = ['/usr/lib/jvm/default-java/include',
+                        '/usr/lib/jvm/java-*-oracle/include']
+java_linux_version_include_dirs = ['/usr/lib/jvm/java-*-sun-%s*/include',
+                                   '/usr/lib/jvm/java-%s*-openjdk*/include',
+                                   '/usr/java/jdk%s*/include']
+
+
+
+def get_java_install_dirs(platform, version=None):
+    """
+    Using patterns above find the java jdk install dir
+    :param platform:
+    :param version: If specified, only look for java sdk's of this version
+    :return: list of default paths for java.
+    """
+    paths = []
+    if platform == 'win32':
+        if version:
+            paths = glob.glob(java_win32_version_dir_glob%version)
+        else:
+            paths = glob.glob(java_win32_dir_glob)
+    else:
+        # do nothing for now
+        pass
+
+    paths=sorted(paths)
+
+    return paths
+
+def get_java_include_paths(env, javac, version):
+    """
+    Return java include paths
+    :param platform:
+    :param javac:
+    :return:
+    """
+    paths = []
+    if not javac:
+        # there are no paths if we've not detected javac.
+        pass
+    elif env['PLATFORM'] == 'win32':
+        javac_bin_dir = os.path.dirname(javac)
+        java_inc_dir = os.path.normpath(os.path.join(javac_bin_dir, '..', 'include'))
+        paths = [java_inc_dir, os.path.join(java_inc_dir, 'win32')]
+    elif env['PLATFORM'] == 'darwin':
+        if not version:
+            paths = [java_macos_include_dir]
+        else:
+            paths = sorted(glob.glob(java_macos_version_include_dir%version))
+    else:
+        base_paths=[]
+        if not version:
+            for p in java_linux_include_dirs:
+                base_paths.extend(glob.glob(p))
+        else:
+            for p in java_linux_version_include_dirs:
+                base_paths.extend(glob.glob(p%version))
+
+        for p in base_paths:
+            paths.extend([p, os.path.join(p,'linux')])
+            
+    #print("PATHS:%s"%paths)
+    return paths
+
+
+
 
 # Local Variables:
 # tab-width:4

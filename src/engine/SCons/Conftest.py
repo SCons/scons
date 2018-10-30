@@ -136,7 +136,7 @@ def CheckBuilder(context, text = None, language = None):
 
     if not text:
         text = """
-int main() {
+int main(void) {
     return 0;
 }
 """
@@ -157,7 +157,7 @@ def CheckCC(context):
     """
     context.Display("Checking whether the C compiler works... ")
     text = """
-int main()
+int main(void)
 {
     return 0;
 }
@@ -177,7 +177,7 @@ def CheckSHCC(context):
     """
     context.Display("Checking whether the (shared) C compiler works... ")
     text = """
-int foo()
+int foo(void)
 {
     return 0;
 }
@@ -197,7 +197,7 @@ def CheckCXX(context):
     """
     context.Display("Checking whether the C++ compiler works... ")
     text = """
-int main()
+int main(void)
 {
     return 0;
 }
@@ -217,7 +217,7 @@ def CheckSHCXX(context):
     """
     context.Display("Checking whether the (shared) C++ compiler works... ")
     text = """
-int main()
+int main(void)
 {
     return 0;
 }
@@ -290,7 +290,7 @@ char %s();""" % function_name
 #include <assert.h>
 %(hdr)s
 
-int main() {
+int main(void) {
 #if defined (__stub_%(name)s) || defined (__stub___%(name)s)
   fail fail fail
 #else
@@ -400,7 +400,7 @@ def CheckType(context, type_name, fallback = None,
 %(include)s
 %(header)s
 
-int main() {
+int main(void) {
   if ((%(name)s *) 0)
     return 0;
   if (sizeof (%(name)s))
@@ -465,7 +465,7 @@ def CheckTypeSize(context, type_name, header = None, language = None, expect = N
         src = src + r"""
 typedef %s scons_check_type;
 
-int main()
+int main(void)
 {
     static int test_array[1 - 2 * !(((long int) (sizeof(scons_check_type))) == %d)];
     test_array[0] = 0;
@@ -498,7 +498,7 @@ int main()
         src = src + """
 #include <stdlib.h>
 #include <stdio.h>
-int main() {
+int main(void) {
     printf("%d", (int)sizeof(""" + type_name + """));
     return 0;
 }
@@ -560,7 +560,7 @@ def CheckDeclaration(context, symbol, includes = None, language = None):
     context.Display('Checking whether %s is declared... ' % symbol)
 
     src = src + r"""
-int main()
+int main(void)
 {
 #ifndef %s
     (void) %s;

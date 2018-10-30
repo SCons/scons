@@ -36,7 +36,8 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
-m = Environment()
+DefaultEnvironment(tools=[])
+m = Environment(tools=[])
 m.Decider('MD5-timestamp')
 m.Command('content1.out', 'content1.in', Copy('$TARGET', '$SOURCE'))
 m.Command('content2.out', 'content2.in', Copy('$TARGET', '$SOURCE'))

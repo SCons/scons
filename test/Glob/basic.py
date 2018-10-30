@@ -33,7 +33,8 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
-env = Environment() 
+DefaultEnvironment(tools=[])
+env = Environment(tools=[]) 
 
 def concatenate(target, source, env):
     fp = open(str(target[0]), 'wb')

@@ -34,11 +34,12 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
+from collections import OrderedDict
 
 import SCons.Action
 import SCons.Builder
 from SCons.Node.FS import _my_normcase
-from SCons.Tool.JavaCommon import parse_java_file
+from SCons.Tool.JavaCommon import parse_java_file, get_java_install_dirs, get_java_include_paths
 import SCons.Util
 
 def classname(path):
@@ -70,7 +71,7 @@ def emit_java_classes(target, source, env):
         if isinstance(entry, SCons.Node.FS.File):
             slist.append(entry)
         elif isinstance(entry, SCons.Node.FS.Dir):
-            result = SCons.Util.OrderedDict()
+            result = OrderedDict()
             dirnode = entry.rdir()
             def find_java_files(arg, dirpath, filenames):
                 java_files = sorted([n for n in filenames
@@ -206,6 +207,21 @@ def generate(env):
     java_class_dir.emitter = emit_java_classes
 
     env.AddMethod(Java)
+
+    version = env.get('JAVAVERSION', None)
+
+    javac = SCons.Tool.find_program_path(env, 'javac')
+    if env['PLATFORM'] == 'win32':
+        # Ensure that we have a proper path for javac
+        paths=get_java_install_dirs(env['PLATFORM'], version=version)
+        javac = SCons.Tool.find_program_path(env, 'javac',
+                                             default_paths=paths)
+        if javac:
+            javac_bin_dir = os.path.dirname(javac)
+            env.AppendENVPath('PATH', javac_bin_dir)
+
+    env['JAVAINCLUDES'] = get_java_include_paths(env, javac, version)
+
 
     env['JAVAC']                    = 'javac'
     env['JAVACFLAGS']               = SCons.Util.CLVar('')

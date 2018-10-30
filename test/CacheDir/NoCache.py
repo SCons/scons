@@ -35,6 +35,7 @@ test = TestSCons.TestSCons()
 test.subdir('cache', 'alpha', 'beta')
 
 sconstruct = """
+DefaultEnvironment(tools=[])
 import os
 CacheDir(r'%s')
 

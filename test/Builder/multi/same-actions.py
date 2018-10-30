@@ -34,13 +34,15 @@ import TestSCons
 test = TestSCons.TestSCons(match=TestSCons.match_re)
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
+
 def build(env, target, source):
     file = open(str(target[0]), 'wb')
     for s in source:
         file.write(open(str(s), 'rb').read())
 
 B = Builder(action=build, multi=1)
-env = Environment(BUILDERS = { 'B' : B })
+env = Environment(tools=[], BUILDERS = { 'B' : B })
 env2 = env.Clone(DIFFERENT_VARIABLE = 'true')
 env.B(target = 'file5.out', source = 'file5a.in')
 env2.B(target = 'file5.out', source = 'file5b.in')

@@ -30,7 +30,6 @@ import copy
 import sys
 import unittest
 
-import TestUnit
 
 import SCons.Taskmaster
 import SCons.Errors
@@ -1239,8 +1238,7 @@ Taskmaster: No candidate anymore.
 
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(TaskmasterTestCase, 'test_')
-    TestUnit.run(suite)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4

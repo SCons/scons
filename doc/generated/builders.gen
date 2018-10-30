@@ -572,75 +572,77 @@ env.Jar(target = 'bar.jar',
       <function>env.Java()</function>
     </term>
     <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Builds one or more Java class files.
-The sources may be any combination of explicit
-<filename>.java</filename> files,
-or directory trees which will be scanned
-for <filename>.java</filename> files.
-</para>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                Builds one or more Java class files.
+                The sources may be any combination of explicit
+                <filename>.java</filename>
+                files,
+                or directory trees which will be scanned
+                for <filename>.java</filename> files.
+            </para>
 
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-SCons will parse each source <filename>.java</filename> file
-to find the classes
-(including inner classes)
-defined within that file,
-and from that figure out the
-target <filename>.class</filename> files that will be created.
-The class files will be placed underneath
-the specified target directory.
-</para>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                SCons will parse each source <filename>.java</filename> file
+                to find the classes
+                (including inner classes)
+                defined within that file,
+                and from that figure out the
+                target <filename>.class</filename> files that will be created.
+                The class files will be placed underneath
+                the specified target directory.
+            </para>
 
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-SCons will also search each Java file
-for the Java package name,
-which it assumes can be found on a line
-beginning with the string
-<literal>package</literal>
-in the first column;
-the resulting <filename>.class</filename> files
-will be placed in a directory reflecting
-the specified package name.
-For example,
-the file
-<filename>Foo.java</filename>
-defining a single public
-<classname>Foo</classname>
-class and
-containing a package name of
-<classname>sub.dir</classname>
-will generate a corresponding
-<filename>sub/dir/Foo.class</filename>
-class file.
-</para>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                SCons will also search each Java file
+                for the Java package name,
+                which it assumes can be found on a line
+                beginning with the string
+                <literal>package</literal>
+                in the first column;
+                the resulting <filename>.class</filename> files
+                will be placed in a directory reflecting
+                the specified package name.
+                For example,
+                the file
+                <filename>Foo.java</filename>
+                defining a single public
+                <classname>Foo</classname>
+                class and
+                containing a package name of
+                <classname>sub.dir</classname>
+                will generate a corresponding
+                <filename>sub/dir/Foo.class</filename>
+                class file.
+            </para>
 
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Examples:
-</para>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                Examples:
+            </para>
 
-<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
-env.Java(target = 'classes', source = 'src')
-env.Java(target = 'classes', source = ['src1', 'src2'])
-env.Java(target = 'classes', source = ['File1.java', 'File2.java'])
-</example_commands>
+            <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
+                env.Java(target = 'classes', source = 'src')
+                env.Java(target = 'classes', source = ['src1', 'src2'])
+                env.Java(target = 'classes', source = ['File1.java', 'File2.java'])
+            </example_commands>
 
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Java source files can use the native encoding for the underlying OS.
-Since SCons compiles in simple ASCII mode by default,
-the compiler will generate warnings about unmappable characters,
-which may lead to errors as the file is processed further.
-In this case, the user must specify the <literal>LANG</literal>
-environment variable to tell the compiler what encoding is used.
-For portibility, it's best if the encoding is hard-coded
-so that the compile will work if it is done on a system
-with a different encoding.
-</para>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                Java source files can use the native encoding for the underlying OS.
+                Since SCons compiles in simple ASCII mode by default,
+                the compiler will generate warnings about unmappable characters,
+                which may lead to errors as the file is processed further.
+                In this case, the user must specify the
+                <literal>LANG</literal>
+                environment variable to tell the compiler what encoding is used.
+                For portibility, it's best if the encoding is hard-coded
+                so that the compile will work if it is done on a system
+                with a different encoding.
+            </para>
 
-<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
-env = Environment()
-env['ENV']['LANG'] = 'en_GB.UTF-8'
-</example_commands>
-</listitem>
+            <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
+                env = Environment()
+                env['ENV']['LANG'] = 'en_GB.UTF-8'
+            </example_commands>
+        </listitem>
   </varlistentry>
   <varlistentry id="b-JavaH">
     <term>
@@ -1206,13 +1208,15 @@ the following packagers available:
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
  * msi - Microsoft Installer
- * rpm - Redhat Package Manger
+ * rpm - RPM Package Manger
  * ipkg - Itsy Package Management System
- * tarbz2 - compressed tar
- * targz - compressed tar
+ * tarbz2 - bzip2 compressed tar
+ * targz - gzip compressed tar
+ * tarxz - xz compressed tar
  * zip - zip file
- * src_tarbz2 - compressed tar source
- * src_targz - compressed tar source
+ * src_tarbz2 - bzip2 compressed tar source
+ * src_targz - gzip compressed tar source
+ * src_tarxz - xz compressed tar source
  * src_zip - zip file source
 </para>
 

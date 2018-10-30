@@ -107,6 +107,7 @@ import sys
 import subprocess
 import itertools
 import inspect
+from collections import OrderedDict
 
 import SCons.Debug
 from SCons.Debug import logInstanceCreation
@@ -115,8 +116,7 @@ import SCons.Util
 import SCons.Subst
 
 # we use these a lot, so try to optimize them
-is_String = SCons.Util.is_String
-is_List = SCons.Util.is_List
+from SCons.Util import is_String, is_List
 
 class _null(object):
     pass
@@ -803,7 +803,7 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
     kw['env'] = new_env
 
     try:
-        return subprocess.Popen(cmd, **kw)
+        pobj =  subprocess.Popen(cmd, **kw)
     except EnvironmentError as e:
         if error == 'raise': raise
         # return a dummy Popen instance that only returns error
@@ -817,7 +817,13 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
                 def readline(self): return ''
                 def __iter__(self): return iter(())
             stdout = stderr = f()
-        return dummyPopen(e)
+        pobj = dummyPopen(e)
+    finally:
+        # clean up open file handles stored in parent's kw
+        for k, v in kw.items():
+            if hasattr(v, 'close'):
+                v.close()
+        return pobj
 
 
 class CommandAction(_ActionAction):
@@ -837,8 +843,8 @@ class CommandAction(_ActionAction):
         _ActionAction.__init__(self, **kw)
         if is_List(cmd):
             if [c for c in cmd if is_List(c)]:
-                raise TypeError("CommandAction should be given only " \
-                      "a single command")
+                raise TypeError("CommandAction should be given only "
+                                "a single command")
         self.cmd_list = cmd
 
     def __str__(self):
@@ -1289,7 +1295,7 @@ class ListAction(ActionBase):
         return result
 
     def get_varlist(self, target, source, env, executor=None):
-        result = SCons.Util.OrderedDict()
+        result = OrderedDict()
         for act in self.list:
             for var in act.get_varlist(target, source, env, executor):
                 result[var] = True

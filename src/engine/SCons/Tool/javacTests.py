@@ -24,8 +24,6 @@
 import os
 import unittest
 
-import TestUnit
-
 import SCons.Tool.javac
 
 class DummyNode(object):
@@ -40,14 +38,14 @@ class pathoptTestCase(unittest.TestCase):
         popt = SCons.Tool.javac.pathopt('-foopath', 'FOOPATH')
         env = {'FOOPATH': path}
         actual = popt(None, None, env, None)
-        self.assertEquals(expect, actual)
+        self.assertEqual(expect, actual)
 
     def assert_pathopt_default(self, expect, path, default):
         popt = SCons.Tool.javac.pathopt('-foopath', 'FOOPATH', default='DPATH')
         env = {'FOOPATH': path,
                'DPATH': default}
         actual = popt(None, None, env, None)
-        self.assertEquals(expect, actual)
+        self.assertEqual(expect, actual)
 
     def test_unset(self):
         self.assert_pathopt([], None)
@@ -101,5 +99,4 @@ class pathoptTestCase(unittest.TestCase):
             '')
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(pathoptTestCase, 'test_')
-    TestUnit.run(suite)
+    unittest.main()

@@ -34,8 +34,9 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 import os.path
-env = Environment()
+env = Environment(tools=[])
 env.Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))
 def my_decider(dependency, target, prev_ni):
     return os.path.exists('has-changed')

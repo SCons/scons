@@ -5,8 +5,8 @@ This directory contains timing configurations for SCons.
 Each configuration exists in a subdirectory.  The controlling script
 is named TimeSCons-run.py for the configuration.  The TimeSCons-run.py
 scripts use TestSCons.TimeSCons, a subclass of TestSCons.TestSCons (both
-defined in ../QMTest/TestSCons.py), to manage execution of the timing
-runs.
+defined in ../testing/framework/TestSCons.py), to manage execution of the
+timing runs.
 
 Unlike the TestSCons.TestSCons base class, the TestSCons.TimeSCons
 subclass copies the contents of its containing directory to the temporary

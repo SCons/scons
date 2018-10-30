@@ -2,7 +2,8 @@
 # outside the source tree can cause SCons to fail to create the dest
 # dir.
 import os, os.path, shutil
-env=Environment()
+DefaultEnvironment(tools=[])
+env=Environment(tools=[])
 dst='../build'
 env.Install(os.path.join(dst,'__foo/bar/baz'), 'a')
 env.Install(os.path.join(dst,'__foo/bar/baz/a/b'), 'x/y')

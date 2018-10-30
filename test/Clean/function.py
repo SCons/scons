@@ -51,8 +51,9 @@ subd_foon_in = os.path.join('subd', 'foon.in')
 subd_foox_in = os.path.join('subd', 'foox.in')
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 B = Builder(action = r'%(_python_)s build.py $TARGETS $SOURCES')
-env = Environment(BUILDERS = { 'B' : B }, FOO = 'foo2')
+env = Environment(tools=[], BUILDERS = { 'B' : B }, FOO = 'foo2')
 env.B(target = 'foo1.out', source = 'foo1.in')
 env.B(target = 'foo2.out', source = 'foo2.xxx')
 foo2_xxx = env.B(target = 'foo2.xxx', source = 'foo2.in')

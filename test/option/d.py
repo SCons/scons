@@ -32,7 +32,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', "")
+test.write('SConstruct', "DefaultEnvironment(tools=[])\n")
 
 test.run(arguments = '-d .',
          stderr = "Warning:  ignoring -d option\n")
@@ -44,6 +44,7 @@ test.pass_test()
 test.subdir('subdir')
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment()
 env.Program(target = 'aaa', source = 'aaa.c')
 env.Program(target = 'bbb', source = 'bbb.c')

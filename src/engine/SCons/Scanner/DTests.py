@@ -26,7 +26,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import unittest
 
 import TestCmd
-import TestUnit
 
 import SCons.Scanner.D
 
@@ -80,7 +79,7 @@ def deps_match(self, deps, headers):
     global my_normpath
     scanned = list(map(my_normpath, list(map(str, deps))))
     expect = list(map(my_normpath, headers))
-    self.failUnless(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
+    self.assertTrue(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
 
 """
 Examples from https://dlang.org/spec/module.html
@@ -266,14 +265,7 @@ class DScannerTestCase(unittest.TestCase):
         self.helper('multiline.d', ['A.d'])
 
 if __name__ == "__main__":
-    suite = unittest.TestSuite()
-    tclasses = [
-        DScannerTestCase,
-    ]
-    for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(list(map(tclass, names)))
-    TestUnit.run(suite)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4

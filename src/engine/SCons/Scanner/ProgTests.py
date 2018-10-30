@@ -28,7 +28,6 @@ import sys
 import unittest
 
 import TestCmd
-import TestUnit
 
 import SCons.Node.FS
 import SCons.Scanner.Prog
@@ -274,7 +273,7 @@ def suite():
     return suite
 
 if __name__ == "__main__":
-    TestUnit.run(suite())
+    unittest.main()
 
 # Local Variables:
 # tab-width:4

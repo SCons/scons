@@ -34,19 +34,21 @@ test = TestSCons.TestSCons(match=TestSCons.match_re)
 
 _python_ = TestSCons._python_
 
-test.write('build.py', r"""#!/usr/bin/env python
+test.write('build.py', r"""\
 import sys
 def build(num, target, source):
     file = open(str(target), 'wb')
-    file.write(bytearray('%s\n'%num,'utf-8'))
+    file.write(bytearray('%s\n'% num,'utf-8'))
     for s in source:
         file.write(open(str(s), 'rb').read())
 build(sys.argv[1],sys.argv[2],sys.argv[3:])
 """)
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
+
 B = Builder(action=r'%(_python_)s build.py $foo $TARGET $SOURCES', multi=1)
-env = Environment(BUILDERS = { 'B' : B })
+env = Environment(tools=[], BUILDERS = { 'B' : B })
 env.B(target = 'file4.out', source = 'file4a.in', foo=3)
 env.B(target = 'file4.out', source = 'file4b.in', foo=3)
 """ % locals())

@@ -43,7 +43,7 @@ test.write('main.c', """\
 
 void foo();
 void bar();
-int main() {
+int main(void) {
     foo();
     bar();
     exit (0);

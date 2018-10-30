@@ -53,6 +53,7 @@ test = TestSCons.TestSCons()
 test.subdir('include', 'subdir', ['subdir', 'include'], 'inc2')
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(CPPPATH = Split('inc2 include'))
 obj = env.Object(target='prog', source='subdir/prog.c')
 env.Program(target='prog', source=obj)

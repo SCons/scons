@@ -36,9 +36,10 @@ test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 def cat(target, source, env):
     open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
-env = Environment(BUILDERS={'Cat':Builder(action=Action(cat))})
+env = Environment(tools=[], BUILDERS={'Cat':Builder(action=Action(cat))})
 env.Cat('file.out', 'file.in')
 """)
 

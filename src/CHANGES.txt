@@ -6,6 +6,10 @@
 
 
 RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
+** Please add to this version's notes ordered by contributors last name. NOT newest at top of list **
+
+  From Bernard Blackham:
+   - Fixed handling of side-effects in task master (fixes #3013).
 
   From Ray Donnelly:
     - Fix the PATH created by scons.bat (and other .bat files) to provide a normalized
@@ -17,21 +21,161 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       by other executables being run by SCons (or any subprocesses of executables being run by SCons).
       Resolving this issue should eliminate that possibility going forward.
 
+  From William Deegan:
+    - Remove long deprecated SCons.Options code and tests.  This removes BoolOption,EnumOption,
+      ListOption,PackageOption, and PathOption which have been replaced by *Variable() many years ago.
+    - Fix issue # 3106 MSVC if using MSVC_BATCH and target dir had a space would fail due to quirk in
+      MSVC's handling of escaped targetdirs when batch compiling.
+    - Re-Enable parallel SCons (-j) when running via Pypy
+    - Move SCons test framework files to testing/framework and remove all references to QMtest.
+      QMTest has not been used by SCons for some time now.
+    - Updated logic for mingw and clang on win32 to search default tool install paths if not
+      found in normal SCons PATH.  If the user specifies PATH or tool specific paths they
+      will be used and the default paths below will be ignored.
+      - Default path for clang/clangxx : C:\Program Files\LLVM\bin
+      - Default path for mingw         : C:\MinGW\bin and/or  C:\mingw-w64\*\mingw64\bin
+      - Key program to locate mingw    : mingw32-make (as the gcc with mingw prefix has no fixed name)
+    - Fix GH Issue #3141 unicode string in a TryAction() with python 2.7 crashes.
+    - Fixed issue causing stack trace when python Action function contains a unicode string when being
+      run with Python 2.7
+    - Add alternate path to QT install for Centos in qt tool: /usr/lib64/qt-3.3/bin
+    - Fix GH Issue #2580 - # in FRAMEWORKPATH doesn't get properly expanded. The # is left in the
+      command line.
+    - Fix GH Issue #3212 - Use of Py3 and CacheDir + Configure's TryCompile (or likely and Python Value Nodes)
+      yielded trying to combine strings and bytes which threw exception.
+    - Updated logic for mingw and clang on win32 to search default tool install paths if not
+      found in normal SCons PATH.  If the user specifies PATH or tool specific paths they
+      will be used and the default paths below will be ignored.
+      - Default path for clang/clangxx : C:\Program Files\LLVM\bin
+      - Default path for mingw         : c:\MinGW\bin
+    - Fix Java tools to search reasonable default paths for Win32, Linux, macOS.  Add required paths
+      for swig and java native interface to JAVAINCLUDES.  You should add these to your CPPPATH if you need
+      to compile with them.  This handles spaces in paths in default Java paths on windows.
+    - Fix new logic which populates JAVAINCLUDES to handle the case where javac is not found.
+    - Fix GH Issue #3225 SCons.Util.Flatten() doesn't handle MappingView's produced by dictionary as return
+      values from dict().{items(), keys(), values()}.
+      
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
+
+  From Philipp Maierhöfer
+    - Added a __hash__ method to the class Scons.Subst.Literal. Required when substituting Literal
+      objects when SCons runs with Python 3.
+    - Added missing FORTRANMODDIRPREFIX to the gfortran tool.
+
+  From Matthew Marinets:
+    - Fixed an issue that caused the Java emitter to incorrectly parse arguments to constructors that
+      implemented a class.
+      
+  From Fredrik Medley:
+    - Fix exception when printing of EnviromentError messages.
+      Specifically, this fixes error reporting of the race condition when
+      initializing the cache which error previously was hidden.
 
   From Daniel Moody:
     - Updated Jar builder to handle nodes and directories better
     - Updated Jar builder to flatten source list which could contain embedded lists
     - Removed some magic numbers from jar.py on behalf of Mats Wichmann (mats@linux.com)
+    - Set the pickling protocal back to highest which was causing issues
+      with variant dir tests. This will cause issues if reading sconsigns
+      pickled with the previous lower protocal.
+    - Updated swig to setup default paths for windows
+    - Updated gettext tools to setup default paths for windows with Cygwin/MinGW setups
+    - Add common location for default paths for cygwin and mingw in Platform modules
+    - Updated YACC tool to work on windows with Cygwin/MinGW setups
+    - Set the pickling protocal back to highest which was causing issues
+      with variant dir tests. This will cause issues if reading sconsigns
+      pickled with the previous lower protocal.
+    - Updated FS.py to handle removal of splitunc function from python 3.7
+    - Updated the vc.py to ignore MSVS versions where not compiler could be found
 
   From Gary Oberbrunner:
     - Fix bug when Installing multiple subdirs outside the source tree
     - fix to_str to handle None without raising exception
+    - Fix -jN for python 3.7
+
+  From Jonathon Reinhart:
+    - Replace all instances of `int main()` in C code with `int main(void)`.
+      Specifically, this fixes the test cases use by Configure.CheckCC() which
+      would fail when using -Wstrict-prototypes.
+
+  From Paweł Tomulik:
+    - In the testing framework, module TestCommon, fixed must_contain(),
+      must_not_contain(), and related methods of TestCommon class to work with
+      substrings located at zero offset.
+
+  From Richard West:
+    - Add SConstruct.py, Sconstruct.py, sconstruct.py to the search path for the root SConstruct file.
+      Allows easier debugging within Visual Studio
+    - Change setup.py to change the install directory (via  pip, or setup.py install) from scons-#.#.#
+      to scons (Yielding <pythondir>/lib/scons/SCons/ instead of <pythondir>/lib/scons/SCons-#.#.#/).
+      This changes SCons to better comply with normal Python installation practices.
 
   From Mats Wichmann:
+    - Recognize new java 9, 10, 11 (as 9.0 and 10.0, 11.0)
     - Updated manpage scons.xml to fix a nested list problem
-    - Updated doc terminionly: use prepend instead of append as appropriate
+    - Updated doc terminiology: use prepend instead of append as appropriate
+    - XML validity fixes from SConstruct.py change
+    - Update wiki links to new github location
+    - Update bug links to new github location
+    - Make it easier for SConscript() call to fail on missing script.
+      It was possible to call SCons.Warnings.warningAsException
+      (not documented as a user API) to make all warnings fail. Now
+      SConscript can take an optional must_exist flag which if true fails
+      if the script does not exist.  Not failing on missing script is
+      now considered deprecated, and the first instance will print a
+      deprecation message.  It is now also possible to flip the scons
+      behavior (which still defaults to warn, not fail) by calling
+      SCons.Script.set_missing_sconscript_error, which is also not a
+      documented interface at the moment.
+    - Convert TestCmd.read to use with statement on open (quiets 17 py3 warnings)
+    - Quiet py3 warning in UtilTests.py
+    - Fix tests specifying octal constants for py3
+    - Fix must_contain tests for py3
+    - RPM package generation:
+       - Fix supplying a build architecture
+       - Disable auto debug package generation on certain rpmbuild versions
+       - Adjust some tests to only supply build-id file on certain rpmbuild versions
+       - Tests now use a file fixture for the repeated (trivial) main.c program.
+       - Document and comment cleanup.
+       - Added new Environment Value X_RPM_EXTRADEFS to supply custom settings
+         to the specfile without adding specific logic for each one to scons.
+    - The test for Python.h needed by swig tests is moved to get_python_platform
+      so it does not have to be repeated in every test; picks up one failure
+      which did not make the (previously needed) check. Windows version
+      of get_python_platform needed some rework in case running in virtualenv.
+    - If test opens os.devnull, register with atexit so file opens do not leak.
+    - Fix bugs in Win32 process spawn logic to handle OSError exception correctly.
+    - Use time.perf_counter instead of time.clock if it exists.
+      time.clock deprecated since py3.3, due to remove in 3.8. deprecation
+      warnings from py3.7 were failing a bunch of tests on Windows since they
+      mess up expected stderr.
+    - Prefer Py3's inspect.getfullargspec over deprecated inspect.getargspec.
+      Switched to "new" (standard in Py2.7) usage of receiving a namedtuple -
+      we were unpacking to a four-tuple, two of the items of which were unused;
+      getfullargspec returns a named tuple with seven elements so it is a
+      cleaner drop-in replacement using the namedtuple.
+    - Updated the test-framework.rst documentation.
+    - Remove obsoleted internal implementaiton of OrderedDict.
+    - Test for tar packaging fixups
+    - Stop using deprecated unittest asserts
+    - messages in strip-install-dir test now os-neutral
+    - Add xz compression format to packaging choices.
+    - Syntax cleanups - trailing blanks, use "is" to compare with None, etc.
+      Three uses of variables not defined are changed.
+    - Some script changes in trying to find scons engine
+    - Update (pep8) configure-cache script, add a --show option.
+
+  From Bernhard M. Wiedemann:
+    - Update SCons' internal scons build logic to allow overriding build date 
+      with SOURCE_DATE_EPOCH for SCons itself.
+    - Change the datestamps in SCons' docs and embedded in code use ISO 8601 format and UTC
+
+  From Hao Wu
+    - Typo in customized decider example in user guide
+    - Replace usage of unittest.TestSuite with unittest.main() (fix #3113)
+
+
 
   From Ivan Kravets, PlatformIO
     - New conditional C Scanner (`SCons.Scanner.C.CConditionalScanner()`)
@@ -50,24 +194,24 @@ RELEASE 3.0.1 - Mon, 12 Nov 2017 15:31:33 -0700
     - Jar can take multiple targets, and will make a duplicate jar from the sources for each target
     - Added some warnings in case the Jar builder makes an implicit target
     - Added Jar method and changed jar build to be more specific. Jar method will take in
-      directories or classes as source. Added more tests to JAR to ensure the jar was 
+      directories or classes as source. Added more tests to JAR to ensure the jar was
       packaged with the correct compiled class files.
-    - Added a No result test case to handle bug which seems unrelated to java in the 
+    - Added a No result test case to handle bug which seems unrelated to java in the
       swig-dependencies.py test, more info here: http://scons.tigris.org/issues/show_bug.cgi?id=2907
     - Added a travis script to test on ubuntu trusty now that the project is on github
-      so that Continuus Integration tests can be run automatically. It tests most case and considers 
-      no result a pass as well. Improving this script can install more dependincies allowing for more 
+      so that Continuus Integration tests can be run automatically. It tests most case and considers
+      no result a pass as well. Improving this script can install more dependincies allowing for more
       tests to be run.
-    
+
   From Daniel Moody:
     - Updated the Jar Builder tool in Tool/__init__.py so that is doesn't force class files as
       sources, allowing directories to be passed, which was causing test/Java/JAR.py to fail.
 
   From William Deegan:
     - Fix issue where code in utility routine to_String_for_subst() had code whose result was never
-      properly returned.  
+      properly returned.
       (Found by: James Rinkevich https://pairlist4.pair.net/pipermail/scons-users/2017-October/006358.html )
-    - Fixed Variables.GenerateHelpText() to now use the sort parameter. Due to incorrect 2to3 fixer changes 
+    - Fixed Variables.GenerateHelpText() to now use the sort parameter. Due to incorrect 2to3 fixer changes
       8 years ago it was being used as a boolean parameter.  Now you can specify sort to be a callable, or boolean
       value. (True = normal sort). Manpage also updated.
     - Fixed Tool loading logic from exploding sys.path with many site_scons/site_tools prepended on py3.
@@ -86,7 +230,7 @@ RELEASE 3.0.1 - Mon, 12 Nov 2017 15:31:33 -0700
   From Zachary Tessler:
     - Fix incorrect warning for repeated identical builder calls that use overrides
 
- 
+
 RELEASE 3.0.0 - Mon, 18 Sep 2017 08:32:04 -0700
 
 NOTE: This is a major release.  You should expect that some targets may rebuild when upgrading.
@@ -159,9 +303,9 @@ will cause rebuilds.
     - Add support for Visual Studio 2017.  This support requires vswhere.exe a helper
       tool installed with newer installs of 2017. SCons expects it to be located at
       "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe"
-      It can be downloaded separately at     
+      It can be downloaded separately at
       https://github.com/Microsoft/vswhere
- 
+
   From Tom Tanner:
     - Allow nested $( ... $) sections
 

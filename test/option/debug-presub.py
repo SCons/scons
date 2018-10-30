@@ -37,6 +37,7 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 def cat(env, source, target):
     target = str(target[0])
     f = open(target, "wb")
@@ -47,7 +48,8 @@ FILE = Builder(action="$FILECOM")
 TEMP = Builder(action="$TEMPCOM")
 LIST = Builder(action="$LISTCOM")
 FUNC = Builder(action=cat)
-env = Environment(PYTHON=r'%(_python_)s',
+env = Environment(tools=[],
+                  PYTHON=r'%(_python_)s',
                   BUILDERS = {'FILE':FILE, 'TEMP':TEMP, 'LIST':LIST, 'FUNC':FUNC},
                   FILECOM="$PYTHON cat.py $SOURCES $TARGET",
                   TEMPCOM="$PYTHON cat.py $SOURCES temp\\n$PYTHON cat.py temp $TARGET",

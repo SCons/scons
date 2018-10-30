@@ -35,7 +35,8 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
-env = Environment()
+DefaultEnvironment(tools=[])
+env = Environment(tools=[])
 
 tbuilder = Builder(action=Copy('$TARGET', '$SOURCE'),
                    suffix='.dll',

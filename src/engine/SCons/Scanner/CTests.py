@@ -50,7 +50,7 @@ test.write('f1.cpp',"""
 #include \"f1.h\"
 #endif
 
-int main()
+int main(void)
 {
    return 0;
 }
@@ -69,7 +69,7 @@ test.write('f2.cpp',"""
 
 #import <f4.h>
 
-int main()
+int main(void)
 {
    return 0;
 }
@@ -88,7 +88,7 @@ test.write('f3.cpp',"""
 
 const char* x = "#include <never.h>"
 
-int main()
+int main(void)
 {
    return 0;
 }
@@ -122,7 +122,7 @@ test.write('fa.cpp',"""
 #include \"fa.h\"
 #include <fb.h>
 
-int main()
+int main(void)
 {
    return 0;
 }
@@ -144,7 +144,7 @@ test.write(['work', 'src', 'fff.c'], """
 #include <iii.h>
 #include <jjj.h>
 
-int main()
+int main(void)
 {
     return 0;
 }
@@ -153,7 +153,7 @@ int main()
 test.write([ 'work', 'src', 'aaa.c'], """
 #include "bbb.h"
 
-int main()
+int main(void)
 {
    return 0;
 }
@@ -164,7 +164,7 @@ test.write([ 'work', 'src', 'bbb.h'], "\n")
 test.write([ 'repository', 'src', 'ccc.c'], """
 #include "ddd.h"
 
-int main()
+int main(void)
 {
    return 0;
 }
@@ -227,7 +227,7 @@ def deps_match(self, deps, headers):
     global my_normpath
     scanned = list(map(my_normpath, list(map(str, deps))))
     expect = list(map(my_normpath, headers))
-    self.failUnless(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
+    self.assertTrue(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
 
 # define some tests:
 

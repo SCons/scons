@@ -1,6 +1,6 @@
 """
-Test to check for issue reported in tigris bug 2994
-http://scons.tigris.org/issues/show_bug.cgi?id=2994
+Test to check for issue reported in github issue 2994
+https://github.com/SCons/scons/issues/2994
 """
 
 #

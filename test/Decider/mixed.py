@@ -34,9 +34,10 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 import os.path
-denv = Environment()
-env = Environment()
+denv = Environment(tools=[])
+env = Environment(tools=[])
 n1_in = File('n1.in')
 n2_in = File('n2.in')
 n3_in = File('n3.in')

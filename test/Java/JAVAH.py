@@ -108,9 +108,7 @@ if test.javac_is_gcj:
 test.file_fixture('wrapper_with_args.py')
 
 test.write('SConstruct', """
-foo = Environment(tools = ['javac', 'javah', 'install'],
-                  JAVAC = r'%(where_javac)s',
-                  JAVAH = r'%(where_javah)s')
+foo = Environment(tools = ['javac', 'javah', 'install'])
 jv = %(java_version)s
 if jv:
     foo['JAVAVERSION'] = jv
@@ -282,7 +280,7 @@ class Private {
 
 test.run(arguments = '.')
 
-test.must_match('wrapper.out', "wrapper_with_args.py %(where_javah)s -d outdir2 -classpath class2 com.sub.bar.Example4 com.other.Example5 com.sub.bar.Example6\n" % locals(),
+test.must_match('wrapper.out', "wrapper_with_args.py javah -d outdir2 -classpath class2 com.sub.bar.Example4 com.other.Example5 com.sub.bar.Example6\n" % locals(),
                 mode='r')
 
 test.must_exist(['outdir1', 'com_sub_foo_Example1.h'])

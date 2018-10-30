@@ -26,8 +26,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import sys
 import unittest
 
-import TestUnit
-
 import SCons.Errors
 import SCons.Node.Python
 
@@ -90,15 +88,15 @@ class ValueTestCase(unittest.TestCase):
         """
         v1 = SCons.Node.Python.Value('aaa')
         csig = v1.get_csig(None)
-        assert csig.decode() == 'aaa', csig
+        assert csig == 'aaa', csig
 
         v2 = SCons.Node.Python.Value(7)
         csig = v2.get_csig(None)
-        assert csig.decode() == '7', csig
+        assert csig == '7', csig
 
         v3 = SCons.Node.Python.Value(None)
         csig = v3.get_csig(None)
-        assert csig.decode() == 'None', csig
+        assert csig == 'None', csig
 
 class ValueNodeInfoTestCase(unittest.TestCase):
     def test___init__(self):
@@ -113,16 +111,7 @@ class ValueBuildInfoTestCase(unittest.TestCase):
         bi = SCons.Node.Python.ValueBuildInfo()
 
 if __name__ == "__main__":
-    suite = unittest.TestSuite()
-    tclasses = [
-        ValueTestCase,
-        ValueBuildInfoTestCase,
-        ValueNodeInfoTestCase,
-    ]
-    for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(list(map(tclass, names)))
-    TestUnit.run(suite)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4

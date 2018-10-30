@@ -38,11 +38,12 @@ test = TestSCons.TestSCons()
 test.subdir('cache')
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 def touch(env, source, target):
     open('foo', 'w').write("")
     open('bar', 'w').write("")
 CacheDir(r'%s')
-env = Environment()
+env = Environment(tools=[], )
 env.Command(['foo', 'bar'], ['input'], touch)
 """ % (test.workpath('cache')))
 

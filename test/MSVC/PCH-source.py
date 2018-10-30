@@ -28,7 +28,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test use of pre-compiled headers when the source .cpp file shows
 up in both the env.PCH() and the env.Program() source list.
 
-Issue 2505:  http://scons.tigris.org/issues/show_bug.cgi?id=2505
+Issue 2505:  http://github.com/SCons/scons/issues/2505
 """
 
 import TestSCons

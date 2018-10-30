@@ -43,7 +43,6 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 
 test.write('getrevision', """
-#!/usr/bin/env python
 from __future__ import print_function
 print(open('revnum.in','r').read().strip(), end='')
 """)

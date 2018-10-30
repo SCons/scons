@@ -8,9 +8,9 @@
 #
 #  - unit tests        - included in *Tests.py files from src/ dir
 #  - end-to-end tests  - these are *.py files in test/ directory that
-#                        require custom SCons framework from QMTest/
+#                        require custom SCons framework from testing/
 #
-# This script adds src/ and QMTest/ directories to PYTHONPATH,
+# This script adds src/ and testing/ directories to PYTHONPATH,
 # performs test discovery and processes them according to options.
 #
 # With -p (--package) option, script tests specified package from
@@ -98,7 +98,6 @@ try:                        # python3
 except ImportError as e:    # python2
     from Queue import Queue
 import subprocess
-
 
 cwd = os.getcwd()
 
@@ -619,16 +618,18 @@ os.environ['SCONS_VERSION'] = version
 
 old_pythonpath = os.environ.get('PYTHONPATH')
 
+# Clear _JAVA_OPTIONS which java tools output to stderr when run breaking tests
+if '_JAVA_OPTIONS' in os.environ:
+    del os.environ['_JAVA_OPTIONS']
+
 # FIXME: the following is necessary to pull in half of the testing
 #        harness from $srcdir/etc. Those modules should be transfered
 #        to testing/, in which case this manipulation of PYTHONPATH
 #        should be able to go away.
 pythonpaths = [ pythonpath_dir ]
 
-# Add path of the QMTest folder to PYTHONPATH
-# [ ] move used parts from QMTest to testing/framework/
 scriptpath = os.path.dirname(os.path.realpath(__file__))
-pythonpaths.append(os.path.join(scriptpath, 'QMTest'))
+
 # Add path for testing framework to PYTHONPATH
 pythonpaths.append(os.path.join(scriptpath, 'testing', 'framework'))
 
@@ -772,10 +773,14 @@ os.environ["python_executable"] = python
 # but time.time() does a better job on Linux systems, so let that be
 # the non-Windows default.
 
-if sys.platform == 'win32':
-    time_func = time.clock
-else:
-    time_func = time.time
+#TODO: clean up when py2 support is dropped
+try:
+    time_func = time.perf_counter
+except AttributeError:
+    if sys.platform == 'win32':
+        time_func = time.clock
+    else:
+        time_func = time.time
 
 if print_times:
     print_time_func = lambda fmt, time: sys.stdout.write(fmt % time)
@@ -789,7 +794,7 @@ tests_passing = 0
 tests_failing = 0
 
 
-def run_test(t, io_lock, async=True):
+def run_test(t, io_lock, run_async=True):
     global tests_completed, tests_passing, tests_failing
     header = ""
     command_args = ['-tt']

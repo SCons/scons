@@ -35,6 +35,7 @@ import os
 import TestSCons
 
 test = TestSCons.TestSCons()
+# test.verbose_set(1)
 
 where_javac, java_version = test.java_where_javac()
 where_javah = test.java_where_javah()
@@ -49,9 +50,6 @@ if not swig:
 # and so will always fail 
 if test.javac_is_gcj:
     test.skip_test('Test not valid for gcj (gnu java); skipping test(s).\n')
-
-
-
 
 test.subdir(['src'],
             ['src', 'HelloApplet'],
@@ -75,9 +73,7 @@ test.subdir(['src'],
 test.write(['SConstruct'], """\
 import os,sys
 env=Environment(tools = ['default', 'javac', 'javah', 'swig'],
-                CPPPATH=%(where_java_include)s,                 
-                JAVAC = r'%(where_javac)s',
-                JAVAH = r'%(where_javah)s')
+                CPPPATH=["$JAVAINCLUDES"])
 Export('env')
 env.PrependENVPath('PATH',os.environ.get('PATH',[]))
 env['INCPREFIX']='-I'
@@ -154,6 +150,9 @@ public class Hello extends Applet {
 
 test.write(['src', 'javah', 'MyID.cc'], """\
 #include "MyID.h"
+#ifdef _MSC_VER
+__declspec(dllexport)
+#endif
 int getMyID()
 {
    return 0;

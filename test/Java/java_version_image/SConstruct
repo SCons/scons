@@ -1,0 +1,35 @@
+
+AddOption('--javac_path',
+          dest='javac_path',
+          action='store',
+          default='/usr/bin',
+          type='string')
+
+AddOption('--java_version',
+          dest='java_version',
+          action='store',
+          default='1.6',
+          type='string')
+
+path=GetOption('javac_path')
+if path[0] == "'":
+    path = path[1:-1]
+
+version = GetOption('java_version')
+
+env = Environment(tools = ['javac'],
+                  JAVAVERSION = version,
+                  )
+
+
+env.AppendENVPath('PATH',path)
+
+# print('PATH:%s'%env['ENV']['PATH'])
+
+
+env.Java(target = 'class1', source = 'com/sub/foo')
+env.Java(target = 'class2', source = 'com/sub/bar')
+env.Java(target = 'class3', source = ['src1', 'src2'])
+env.Java(target = 'class4', source = ['src4'])
+env.Java(target = 'class5', source = ['src5'])
+env.Java(target = 'class6', source = ['src6'])

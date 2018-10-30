@@ -28,7 +28,6 @@ import sys
 import unittest
 
 import TestCmd
-import TestUnit
 
 import SCons.Node.FS
 import SCons.Scanner.Dir
@@ -121,14 +120,8 @@ class DirEntryScannerTestCase(DirScannerTestBase):
         sss = list(map(str, deps))
         assert sss == [], sss
 
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(DirScannerTestCase())
-    suite.addTest(DirEntryScannerTestCase())
-    return suite
-
 if __name__ == "__main__":
-    TestUnit.run(suite())
+    unittest.main()
 
 # Local Variables:
 # tab-width:4

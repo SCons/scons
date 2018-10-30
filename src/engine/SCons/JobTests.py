@@ -52,7 +52,7 @@ def get_cpu_nums():
     return 1 # Default
 
 # a large number
-num_sines = 10000
+num_sines = 500
 
 # how many parallel jobs to perform for the test
 num_jobs = get_cpu_nums()*2
@@ -98,14 +98,24 @@ class Task(object):
         return True
 
     def execute(self):
-        self.taskmaster.test_case.failUnless(self.was_prepared,
+        self.taskmaster.test_case.assertTrue(self.was_prepared,
                                   "the task wasn't prepared")
 
         self.taskmaster.guard.acquire()
         self.taskmaster.begin_list.append(self.i)
         self.taskmaster.guard.release()
 
+        # while task is executing, represent this in the parallel_list
+        # and then turn it off
+        self.taskmaster.parallel_list[self.i] = 1
         self._do_something()
+        self.taskmaster.parallel_list[self.i] = 0
+
+        # check if task was executing while another was also executing
+        for j in range(1, self.taskmaster.num_tasks):
+            if(self.taskmaster.parallel_list[j+1] == 1):
+                self.taskmaster.found_parallel = True
+                break
 
         self.was_executed = 1
 
@@ -116,26 +126,29 @@ class Task(object):
     def executed(self):
         self.taskmaster.num_executed = self.taskmaster.num_executed + 1
 
-        self.taskmaster.test_case.failUnless(self.was_prepared,
+        self.taskmaster.test_case.assertTrue(self.was_prepared,
                                   "the task wasn't prepared")
-        self.taskmaster.test_case.failUnless(self.was_executed,
+        self.taskmaster.test_case.assertTrue(self.was_executed,
                                   "the task wasn't really executed")
-        self.taskmaster.test_case.failUnless(isinstance(self, Task),
+        self.taskmaster.test_case.assertTrue(isinstance(self, Task),
                                   "the task wasn't really a Task instance")
 
     def failed(self):
         self.taskmaster.num_failed = self.taskmaster.num_failed + 1
         self.taskmaster.stop = 1
-        self.taskmaster.test_case.failUnless(self.was_prepared,
+        self.taskmaster.test_case.assertTrue(self.was_prepared,
                                   "the task wasn't prepared")
 
     def postprocess(self):
         self.taskmaster.num_postprocessed = self.taskmaster.num_postprocessed + 1
 
+    def exception_set(self):
+        pass
+
 class RandomTask(Task):
     def _do_something(self):
         # do something that will take some random amount of time:
-        for i in range(random.randrange(0, num_sines, 1)):
+        for i in range(random.randrange(0, 100 + num_sines, 1)):
             x = math.sin(i)
         time.sleep(0.01)
 
@@ -158,17 +171,17 @@ class ExceptionTask(object):
     def executed(self):
         self.taskmaster.num_executed = self.taskmaster.num_executed + 1
 
-        self.taskmaster.test_case.failUnless(self.was_prepared,
+        self.taskmaster.test_case.assertTrue(self.was_prepared,
                                   "the task wasn't prepared")
-        self.taskmaster.test_case.failUnless(self.was_executed,
+        self.taskmaster.test_case.assertTrue(self.was_executed,
                                   "the task wasn't really executed")
-        self.taskmaster.test_case.failUnless(self.__class__ is Task,
+        self.taskmaster.test_case.assertTrue(self.__class__ is Task,
                                   "the task wasn't really a Task instance")
 
     def failed(self):
         self.taskmaster.num_failed = self.taskmaster.num_failed + 1
         self.taskmaster.stop = 1
-        self.taskmaster.test_case.failUnless(self.was_prepared,
+        self.taskmaster.test_case.assertTrue(self.was_prepared,
                                   "the task wasn't prepared")
 
     def postprocess(self):
@@ -190,7 +203,10 @@ class Taskmaster(object):
         self.num_executed = 0
         self.num_failed = 0
         self.num_postprocessed = 0
+        self.parallel_list = [0] * (n+1)
+        self.found_parallel = False
         self.Task = Task
+        
         # 'guard' guards 'task_begin_list' and 'task_end_list'
         try:
             import threading
@@ -222,12 +238,7 @@ class Taskmaster(object):
 
     def tasks_were_serial(self):
         "analyze the task order to see if they were serial"
-        serial = 1 # assume the tasks were serial
-        for i in range(num_tasks):
-            serial = serial and (self.begin_list[i]
-                                 == self.end_list[i]
-                                 == (i + 1))
-        return serial
+        return not self.found_parallel
 
     def exception_set(self):
         pass
@@ -251,15 +262,15 @@ class ParallelTestCase(unittest.TestCase):
         jobs = SCons.Job.Jobs(num_jobs, taskmaster)
         jobs.run()
 
-        self.failUnless(not taskmaster.tasks_were_serial(),
+        self.assertTrue(not taskmaster.tasks_were_serial(),
                         "the tasks were not executed in parallel")
-        self.failUnless(taskmaster.all_tasks_are_executed(),
+        self.assertTrue(taskmaster.all_tasks_are_executed(),
                         "all the tests were not executed")
-        self.failUnless(taskmaster.all_tasks_are_iterated(),
+        self.assertTrue(taskmaster.all_tasks_are_iterated(),
                         "all the tests were not iterated over")
-        self.failUnless(taskmaster.all_tasks_are_postprocessed(),
+        self.assertTrue(taskmaster.all_tasks_are_postprocessed(),
                         "all the tests were not postprocessed")
-        self.failIf(taskmaster.num_failed,
+        self.assertFalse(taskmaster.num_failed,
                     "some task(s) failed to execute")
 
         # Verify that parallel jobs will pull all of the completed tasks
@@ -271,7 +282,7 @@ class ParallelTestCase(unittest.TestCase):
 
         class SleepTask(Task):
             def _do_something(self):
-                time.sleep(0.1)
+                time.sleep(0.01)
 
         global SaveThreadPool
         SaveThreadPool = SCons.Job.ThreadPool
@@ -281,7 +292,7 @@ class ParallelTestCase(unittest.TestCase):
                 ThreadPoolCallList.append('put(%s)' % task.i)
                 return SaveThreadPool.put(self, task)
             def get(self):
-                time.sleep(0.5)
+                time.sleep(0.05)
                 result = SaveThreadPool.get(self)
                 ThreadPoolCallList.append('get(%s)' % result[0].i)
                 return result
@@ -314,15 +325,15 @@ class SerialTestCase(unittest.TestCase):
         jobs = SCons.Job.Jobs(1, taskmaster)
         jobs.run()
 
-        self.failUnless(taskmaster.tasks_were_serial(),
+        self.assertTrue(taskmaster.tasks_were_serial(),
                         "the tasks were not executed in series")
-        self.failUnless(taskmaster.all_tasks_are_executed(),
+        self.assertTrue(taskmaster.all_tasks_are_executed(),
                         "all the tests were not executed")
-        self.failUnless(taskmaster.all_tasks_are_iterated(),
+        self.assertTrue(taskmaster.all_tasks_are_iterated(),
                         "all the tests were not iterated over")
-        self.failUnless(taskmaster.all_tasks_are_postprocessed(),
+        self.assertTrue(taskmaster.all_tasks_are_postprocessed(),
                         "all the tests were not postprocessed")
-        self.failIf(taskmaster.num_failed,
+        self.assertFalse(taskmaster.num_failed,
                     "some task(s) failed to execute")
 
 class NoParallelTestCase(unittest.TestCase):
@@ -335,18 +346,18 @@ class NoParallelTestCase(unittest.TestCase):
         try:
             taskmaster = Taskmaster(num_tasks, self, RandomTask)
             jobs = SCons.Job.Jobs(2, taskmaster)
-            self.failUnless(jobs.num_jobs == 1,
+            self.assertTrue(jobs.num_jobs == 1,
                             "unexpected number of jobs %d" % jobs.num_jobs)
             jobs.run()
-            self.failUnless(taskmaster.tasks_were_serial(),
+            self.assertTrue(taskmaster.tasks_were_serial(),
                             "the tasks were not executed in series")
-            self.failUnless(taskmaster.all_tasks_are_executed(),
+            self.assertTrue(taskmaster.all_tasks_are_executed(),
                             "all the tests were not executed")
-            self.failUnless(taskmaster.all_tasks_are_iterated(),
+            self.assertTrue(taskmaster.all_tasks_are_iterated(),
                             "all the tests were not iterated over")
-            self.failUnless(taskmaster.all_tasks_are_postprocessed(),
+            self.assertTrue(taskmaster.all_tasks_are_postprocessed(),
                             "all the tests were not postprocessed")
-            self.failIf(taskmaster.num_failed,
+            self.assertFalse(taskmaster.num_failed,
                         "some task(s) failed to execute")
         finally:
             SCons.Job.Parallel = save_Parallel
@@ -360,13 +371,13 @@ class SerialExceptionTestCase(unittest.TestCase):
         jobs = SCons.Job.Jobs(1, taskmaster)
         jobs.run()
 
-        self.failIf(taskmaster.num_executed,
+        self.assertFalse(taskmaster.num_executed,
                     "a task was executed")
-        self.failUnless(taskmaster.num_iterated == 1,
+        self.assertTrue(taskmaster.num_iterated == 1,
                     "exactly one task should have been iterated")
-        self.failUnless(taskmaster.num_failed == 1,
+        self.assertTrue(taskmaster.num_failed == 1,
                     "exactly one task should have failed")
-        self.failUnless(taskmaster.num_postprocessed == 1,
+        self.assertTrue(taskmaster.num_postprocessed == 1,
                     "exactly one task should have been postprocessed")
 
 class ParallelExceptionTestCase(unittest.TestCase):
@@ -377,13 +388,13 @@ class ParallelExceptionTestCase(unittest.TestCase):
         jobs = SCons.Job.Jobs(num_jobs, taskmaster)
         jobs.run()
 
-        self.failIf(taskmaster.num_executed,
+        self.assertFalse(taskmaster.num_executed,
                     "a task was executed")
-        self.failUnless(taskmaster.num_iterated >= 1,
+        self.assertTrue(taskmaster.num_iterated >= 1,
                     "one or more task should have been iterated")
-        self.failUnless(taskmaster.num_failed >= 1,
+        self.assertTrue(taskmaster.num_failed >= 1,
                     "one or more tasks should have failed")
-        self.failUnless(taskmaster.num_postprocessed >= 1,
+        self.assertTrue(taskmaster.num_postprocessed >= 1,
                     "one or more tasks should have been postprocessed")
 
 #---------------------------------------------------------------------
@@ -514,10 +525,10 @@ class _SConsTaskTest(unittest.TestCase):
 
         for N in testnodes:
             state = N.get_state()
-            self.failUnless(state in [SCons.Node.no_state, N.expect_to_be],
+            self.assertTrue(state in [SCons.Node.no_state, N.expect_to_be],
                             "Node %s got unexpected result: %s" % (N, state))
 
-        self.failUnless([N for N in testnodes if N.get_state()],
+        self.assertTrue([N for N in testnodes if N.get_state()],
                         "no nodes ran at all.")
 
 

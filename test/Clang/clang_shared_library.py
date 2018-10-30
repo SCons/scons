@@ -33,20 +33,22 @@ test = TestSCons.TestSCons()
 if not test.where_is('clang'):
     test.skip_test("Could not find 'clang', skipping test.\n")
 
-platform = Base()['PLATFORM']
+base = Base()
+platform = base['PLATFORM']
 if platform == 'posix':
-    filename = 'foo.os'
+    filename_options = ['foo.os']
     libraryname = 'libfoo.so'
 elif platform == 'darwin':
-    filename = 'foo.os'
+    filename_options = ['foo.os']
     libraryname = 'libfoo.dylib'
 elif platform == 'win32':
-    filename = 'foo.obj'
+    filename_options = ['foo.obj','foo.os']
     libraryname = 'foo.dll'
 else:
     test.fail_test()
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 env = Environment(tools=['clang', 'link'])
 env.SharedLibrary('foo', 'foo.c')
 """)
@@ -59,7 +61,7 @@ int bar() {
 
 test.run()
 
-test.must_exist(test.workpath(filename))
+test.must_exist_one_of([test.workpath(f) for f in filename_options])
 test.must_exist(test.workpath(libraryname))
 
 test.pass_test()

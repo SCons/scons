@@ -29,7 +29,6 @@ Make sure SWIG works when a VariantDir (or variant_dir) is used.
 Test case courtesy Joe Maruszewski.
 """
 
-import os.path
 import sys
 
 import TestSCons
@@ -50,10 +49,7 @@ else:
 test.subdir(['source'])
 
 python, python_include, python_libpath, python_lib = \
-             test.get_platform_python_info()
-Python_h = os.path.join(python_include, 'Python.h')
-if not os.path.exists(Python_h):
-    test.skip_test('Can not find %s, skipping test.\n' % Python_h)
+             test.get_platform_python_info(python_h_required=True)
 
 if sys.platform == 'win32' and sys.maxsize <= 2**32:
     swig_arch_var="TARGET_ARCH='x86',"
@@ -143,25 +139,27 @@ public:
 };
 """)
 
-test.write(['source', 'test.py'], """\
-#!/usr/bin/env python
-from __future__ import print_function
-
-import linalg
-
-
-x = linalg.Vector(5)
-print(x)
-
-x[1] = 99.5
-x[3] = 8.3
-x[4] = 11.1
-
-
-for i, v in enumerate(x):
-    print("\tx[%d] = %g" % (i, v))
-
-""")
+## _python_ = TestSCons._python_
+## XXX: @ptomulik: looks like it was unused?
+## test.write(['source', 'test.py'], """\
+## #!%(_python_)s
+## from __future__ import print_function
+##
+## import linalg
+##
+##
+## x = linalg.Vector(5)
+## print(x)
+##
+## x[1] = 99.5
+## x[3] = 8.3
+## x[4] = 11.1
+##
+##
+## for i, v in enumerate(x):
+##     print("\tx[%%d] = %%g" %% (i, v))
+##
+## """ % locals())
 
 test.run(arguments = '.')
 

@@ -26,10 +26,15 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import TestSCons
+import sys
 
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
+
+# Keep this logic because it skips the test if javac or jar not found.
+where_javac, java_version = test.java_where_javac()
+where_jar = test.java_where_jar()
 
 test.write('myjar.py', r"""
 import sys
@@ -52,6 +57,7 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(tools = ['jar'],
                   JAR = r'%(_python_)s myjar.py')
 env.Jar(target = 'test1.jar', source = 'test1.class')
@@ -70,6 +76,7 @@ test.must_match('test1.jar', "test1.class\nline 3\n", mode='r')
 if os.path.normcase('.class') == os.path.normcase('.CLASS'):
 
     test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(tools = ['jar'],
                   JAR = r'%(_python_)s myjar.py')
 env.Jar(target = 'test2.jar', source = 'test2.CLASS')
@@ -95,6 +102,7 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(tools = ['jar'],
                   JAR = r'%(_python_)s myjar2.py',
                   JARFLAGS='cvf')
@@ -116,21 +124,13 @@ test.run(arguments='classes.jar')
 test.must_match('classes.jar',
                 'cvfm classes.jar foo.mf -C testdir bar.class\n', mode='r')
 
-
-
-where_javac, java_version = test.java_where_javac()
-where_jar = test.java_where_jar()
-
-
-
 test.file_fixture('wrapper_with_args.py')
 
 test.write('SConstruct', """
-foo = Environment(tools = ['javac', 'jar'],
-                  JAVAC = r'%(where_javac)s',
-                  JAR = r'%(where_jar)s')
-jar = foo.Dictionary('JAR')
-bar = foo.Clone(JAR = r'%(_python_)s wrapper_with_args.py ' + jar)
+DefaultEnvironment(tools=[])
+foo = Environment(tools = ['javac', 'jar'])
+# jar = foo.Dictionary('JAR')
+bar = foo.Clone(JAR = r'%(_python_)s wrapper_with_args.py jar')
 foo.Java(target = 'classes', source = 'com/sub/foo')
 bar.Java(target = 'classes', source = 'com/sub/bar')
 foo.Jar(target = 'foo', source = 'classes/com/sub/foo')
@@ -228,7 +228,7 @@ public class Example6
 
 test.run(arguments = '.')
 
-expected_wrapper_out = "wrapper_with_args.py %(where_jar)s cf bar.jar classes/com/sub/bar\n"
+expected_wrapper_out = "wrapper_with_args.py jar cf bar.jar classes/com/sub/bar\n"
 expected_wrapper_out = expected_wrapper_out.replace('/', os.sep)
 test.must_match('wrapper.out',
                 expected_wrapper_out % locals(), mode='r')
@@ -249,6 +249,8 @@ test.subdir('testdir2',
 # simple SConstruct which passes the 3 .java as source
 # and extracts the jars back to classes
 test.write(['testdir2', 'SConstruct'], """
+DefaultEnvironment(tools=[])
+
 foo = Environment()
 foo.Jar(target = 'foobar', source = [
     'com/javasource/JavaFile1.java', 
@@ -304,14 +306,16 @@ public class JavaFile3
 }
 """)
 
-test.run(chdir='testdir2')
 
 # check the output and make sure the java files got converted to classes
-if("jar cf foo.jar " +
-   "-C com/javasource/JavaFile1 com/javasource/JavaFile1.class " +
-   "-C com/javasource/JavaFile2 com/javasource/JavaFile2.class " +
-   "-C com/javasource/JavaFile3 com/javasource/JavaFile3.class" not in test.stdout()):
-    test.fail_test()
+# use regex . for dirsep so this will work on both windows and other platforms.
+expect = ".*jar cf foo.jar -C com.javasource.JavaFile1 com.javasource.JavaFile1.class -C com.javasource.JavaFile2 com.javasource.JavaFile2.class -C com.javasource.JavaFile3 com.javasource.JavaFile3.class.*"
+
+test.run(chdir='testdir2',	
+         match=TestSCons.match_re_dotall,	
+         stdout = expect)
+
+
 
 #test single target jar
 test.must_exist(['testdir2','foobar.jar'])
@@ -337,6 +341,7 @@ test.must_exist(['testdir2', 'barTest', 'com', 'javasource', 'JavaFile3.class'])
 
 # make some directories to test in
 test.subdir('listOfLists',
+            ['manifest_dir'],
             ['listOfLists', 'src'],
             ['listOfLists', 'src', 'com'],
             ['listOfLists', 'src', 'com', 'javasource'],
@@ -344,16 +349,18 @@ test.subdir('listOfLists',
 
 # test varient dir and lists of lists
 test.write(['listOfLists', 'SConstruct'], """
+DefaultEnvironment(tools=[])
+
 foo = Environment()
 foo.VariantDir('build', 'src', duplicate=0)
+foo.VariantDir('test', '../manifest_dir', duplicate=0)
 sourceFiles = ["src/com/javasource/JavaFile1.java", "src/com/javasource/JavaFile2.java", "src/com/javasource/JavaFile3.java",]
 list_of_class_files = foo.Java('build', source=sourceFiles)
 resources = ['build/com/resource/resource1.txt', 'build/com/resource/resource2.txt']
 for resource in resources:
     foo.Command(resource, list_of_class_files, Copy(resource, resource.replace('build','src')))
-foo.Command('build/MANIFEST.mf', list_of_class_files, Copy('build/MANIFEST.mf', 'MANIFEST.mf'))
 contents = [list_of_class_files, resources]
-foo.Jar(target = 'lists', source = contents + ['build/MANIFEST.mf'], JARCHDIR='build')
+foo.Jar(target = 'lists', source = contents + ['test/MANIFEST.mf'], JARCHDIR='build')
 foo.Command("listsTest", [], Mkdir("listsTest") )
 foo.Command('listsTest/src/com/javasource/JavaFile3.java', 'lists.jar', foo['JAR'] + ' xvf ../lists.jar', chdir='listsTest')
 """)
@@ -394,7 +401,7 @@ public class JavaFile3
 }
 """)
 
-test.write(['listOfLists', 'MANIFEST.mf'],
+test.write(['manifest_dir','MANIFEST.mf'],
 """Manifest-Version: 1.0
 MyManifestTest: Test
 """)
@@ -434,6 +441,8 @@ test.subdir('testdir3',
 
 # Create the jars then extract them back to check contents
 test.write(['testdir3', 'SConstruct'], """
+DefaultEnvironment(tools=[])
+
 foo = Environment()
 bar = foo.Clone()
 foo.Java(target = 'classes', source = 'com/sub/foo')

@@ -60,6 +60,7 @@ test.write('mypass.py', contents)
 test.write('myfail.py', contents)
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 Command('f03', 'f03.in', r'@%(_python_)s mypass.py -   f03 $TARGET $SOURCE')
 Command('f04', 'f04.in', r'@%(_python_)s myfail.py f03 f04 $TARGET $SOURCE')
 Command('f05', 'f05.in', r'@%(_python_)s myfail.py f04 f05 $TARGET $SOURCE')

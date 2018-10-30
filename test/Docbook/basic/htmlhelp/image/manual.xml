@@ -72,7 +72,7 @@
 
         <listitem>
           <para>the SCons Tools Wiki page at <ulink
-          url="http://scons.org/wiki/ToolsIndex">http://scons.org/wiki/ToolsIndex</ulink>.</para>
+          url="https://github.com/SCons/scons/wiki/ToolsIndex">https://github.com/SCons/scons/wiki/ToolsIndex</ulink>.</para>
         </listitem>
       </itemizedlist>
     </section>

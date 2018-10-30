@@ -54,6 +54,8 @@ def generate(env):
         env['INC%sPREFIX' % dialect] = "-I"
         env['INC%sSUFFIX' % dialect] = ""
 
+    env['FORTRANMODDIRPREFIX'] = "-J"
+
 def exists(env):
     return env.Detect('gfortran')
 

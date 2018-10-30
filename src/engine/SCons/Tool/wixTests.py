@@ -33,7 +33,6 @@ from SCons.Tool.wix import *
 from SCons.Environment import Environment
 
 import TestCmd
-import TestUnit
 
 
 # create fake candle and light, so the tool's exists() method will succeed
@@ -53,8 +52,7 @@ class WixTestCase(unittest.TestCase):
         assert env.subst('$WIXSRCSUF') == '.wxs'
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(WixTestCase, 'test_')
-    TestUnit.run(suite)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4

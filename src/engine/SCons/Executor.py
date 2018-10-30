@@ -450,6 +450,8 @@ class Executor(object, with_metaclass(NoSlotsPyPy)):
         """Fetch the signature contents.  This is the main reason this
         class exists, so we can compute this once and cache it regardless
         of how many target or source Nodes there are.
+
+        Returns bytes
         """
         try:
             return self._memo['get_contents']

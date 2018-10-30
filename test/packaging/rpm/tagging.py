@@ -30,7 +30,6 @@ Test the ability to add file tags
 
 import os
 import SCons.Tool.rpmutils
-
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -50,13 +49,8 @@ rpm_build_root = test.workpath('rpm_build_root')
 # Test adding an attr tag to the built program.
 #
 test.subdir('src')
-
-test.write( [ 'src', 'main.c' ], r"""
-int main( int argc, char* argv[] )
-{
-return 0;
-}
-""")
+mainpath = os.path.join('src', 'main.c')
+test.file_fixture(mainpath, mainpath)
 
 test.write('SConstruct', """
 import os
@@ -91,9 +85,12 @@ src_rpm = 'foo-1.2.3-0.src.rpm'
 machine_rpm = 'foo-1.2.3-0.%s.rpm' % SCons.Tool.rpmutils.defaultMachine()
 
 test.must_exist( machine_rpm )
+out = os.popen('rpm -qpl %s' % machine_rpm).read()
+test.must_contain_all_lines( out, '/bin/main')
+
 test.must_exist( src_rpm )
-test.fail_test( not os.popen('rpm -qpl %s' % machine_rpm).read()=='/bin/main\n')
-test.fail_test( not os.popen('rpm -qpl %s' % src_rpm).read()=='foo-1.2.3.spec\nfoo-1.2.3.tar.gz\n')
+out = os.popen('rpm -qpl %s' % src_rpm).read()
+test.fail_test( not out == 'foo-1.2.3.spec\nfoo-1.2.3.tar.gz\n')
 
 expect = '(0755, root, users) /bin/main'
 test.must_contain_all_lines(test.read('foo-1.2.3.spec',mode='r'), [expect])

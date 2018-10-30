@@ -1,0 +1,21 @@
+env = Environment()
+
+def make_file(target, source, env):
+    with open(str(target[0]), 'w') as f:
+        f.write('gobldygook')
+    with open(str(target[0]) + '_side_effect', 'w') as side_effect:
+        side_effect.write('anything')
+
+env.Append(
+    BUILDERS={'make_file': Builder(action=Action(make_file))}
+)
+
+env.objdir = 'build'
+
+SConscript(
+    'SConscript',
+    variant_dir=env.objdir,
+    exports={'env':env},
+    duplicate=0
+)
+

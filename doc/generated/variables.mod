@@ -232,6 +232,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-JAVAHCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$JAVAHCOM</envar>">
 <!ENTITY cv-JAVAHCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$JAVAHCOMSTR</envar>">
 <!ENTITY cv-JAVAHFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$JAVAHFLAGS</envar>">
+<!ENTITY cv-JAVAINCLUDES "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$JAVAINCLUDES</envar>">
 <!ENTITY cv-JAVASOURCEPATH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$JAVASOURCEPATH</envar>">
 <!ENTITY cv-JAVASUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$JAVASUFFIX</envar>">
 <!ENTITY cv-JAVAVERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$JAVAVERSION</envar>">
@@ -584,6 +585,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-X_RPM_EPOCH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$X_RPM_EPOCH</envar>">
 <!ENTITY cv-X_RPM_EXCLUDEARCH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$X_RPM_EXCLUDEARCH</envar>">
 <!ENTITY cv-X_RPM_EXLUSIVEARCH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$X_RPM_EXLUSIVEARCH</envar>">
+<!ENTITY cv-X_RPM_EXTRADEFS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$X_RPM_EXTRADEFS</envar>">
 <!ENTITY cv-X_RPM_GROUP "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$X_RPM_GROUP</envar>">
 <!ENTITY cv-X_RPM_GROUP_lang "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$X_RPM_GROUP_lang</envar>">
 <!ENTITY cv-X_RPM_ICON "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$X_RPM_ICON</envar>">
@@ -861,6 +863,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-JAVAHCOM "<link linkend='cv-JAVAHCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$JAVAHCOM</envar></link>">
 <!ENTITY cv-link-JAVAHCOMSTR "<link linkend='cv-JAVAHCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$JAVAHCOMSTR</envar></link>">
 <!ENTITY cv-link-JAVAHFLAGS "<link linkend='cv-JAVAHFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$JAVAHFLAGS</envar></link>">
+<!ENTITY cv-link-JAVAINCLUDES "<link linkend='cv-JAVAINCLUDES' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$JAVAINCLUDES</envar></link>">
 <!ENTITY cv-link-JAVASOURCEPATH "<link linkend='cv-JAVASOURCEPATH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$JAVASOURCEPATH</envar></link>">
 <!ENTITY cv-link-JAVASUFFIX "<link linkend='cv-JAVASUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$JAVASUFFIX</envar></link>">
 <!ENTITY cv-link-JAVAVERSION "<link linkend='cv-JAVAVERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$JAVAVERSION</envar></link>">
@@ -1213,6 +1216,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-X_RPM_EPOCH "<link linkend='cv-X_RPM_EPOCH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$X_RPM_EPOCH</envar></link>">
 <!ENTITY cv-link-X_RPM_EXCLUDEARCH "<link linkend='cv-X_RPM_EXCLUDEARCH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$X_RPM_EXCLUDEARCH</envar></link>">
 <!ENTITY cv-link-X_RPM_EXLUSIVEARCH "<link linkend='cv-X_RPM_EXLUSIVEARCH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$X_RPM_EXLUSIVEARCH</envar></link>">
+<!ENTITY cv-link-X_RPM_EXTRADEFS "<link linkend='cv-X_RPM_EXTRADEFS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$X_RPM_EXTRADEFS</envar></link>">
 <!ENTITY cv-link-X_RPM_GROUP "<link linkend='cv-X_RPM_GROUP' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$X_RPM_GROUP</envar></link>">
 <!ENTITY cv-link-X_RPM_GROUP_lang "<link linkend='cv-X_RPM_GROUP_lang' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$X_RPM_GROUP_lang</envar></link>">
 <!ENTITY cv-link-X_RPM_ICON "<link linkend='cv-X_RPM_ICON' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$X_RPM_ICON</envar></link>">

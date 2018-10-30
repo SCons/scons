@@ -29,7 +29,6 @@ Verify a lot of the basic operation of the --debug=explain option.
 """
 
 import os
-
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -52,7 +51,7 @@ inc_bbb_k = test.workpath('inc', 'bbb.k')
 
 
 
-test.write(cat_py, r"""#!/usr/bin/env python
+test.write(cat_py, r"""\
 from __future__ import print_function
 
 import sys
@@ -81,6 +80,7 @@ sys.exit(0)
 
 
 SConstruct_contents = """\
+DefaultEnvironment(tools=[])
 import re
 
 include_re = re.compile(r'^include\s+(\S+)$', re.M)
@@ -98,7 +98,7 @@ kscan = Scanner(name = 'kfile',
 cat = Builder(action = [[r'%(python)s', r'%(cat_py)s', '$TARGET', '$SOURCES']])
 one_cat = Builder( action = [[r'%(python)s', r'%(cat_py)s', '$TARGET', '${SOURCES[0]}']])
 
-env = Environment()
+env = Environment(tools=[])
 env.Append(BUILDERS = {'Cat':cat, 'OneCat':one_cat},
            SCANNERS = kscan)
 env.PrependENVPath('PATHEXT', '.PY')

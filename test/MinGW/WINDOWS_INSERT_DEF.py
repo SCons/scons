@@ -31,8 +31,11 @@ Make sure that WINDOWS_INSERT_DEF isn't ignored when using MinGW.
 import sys
 import TestSCons
 
+import SCons.Tool
 import SCons.Tool.mingw
 import SCons.Defaults
+from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
+from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
 
 test = TestSCons.TestSCons()
 
@@ -40,7 +43,8 @@ if sys.platform not in ('cygwin', 'win32'):
     test.skip_test(
         "Skipping mingw test on non-Windows platform: %s" % sys.platform)
 
-if not SCons.Tool.mingw.find(SCons.Defaults.DefaultEnvironment()):
+gcc = SCons.Tool.find_program_path(test.Environment(), 'gcc', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
+if not gcc:
     test.skip_test("Skipping mingw test, no MinGW found.\n")
 
 test.write('hello.c', r"""

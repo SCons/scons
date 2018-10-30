@@ -132,7 +132,7 @@ try:
     # Without this, python can randomly crash while using -jN.
     # See the python bug at http://bugs.python.org/issue6476
     # and SCons issue at
-    # http://scons.tigris.org/issues/show_bug.cgi?id=2449
+    # https://github.com/SCons/scons/issues/2449
     def spawnve(mode, file, args, env):
         spawn_lock.acquire()
         try:
@@ -200,11 +200,11 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
         except OSError as e:
             # catch any error
             try:
-                ret = exitvalmap[e[0]]
+                ret = exitvalmap[e.errno]
             except KeyError:
-                sys.stderr.write("scons: unknown OSError exception code %d - %s: %s\n" % (e[0], cmd, e[1]))
+                sys.stderr.write("scons: unknown OSError exception code %d - %s: %s\n" % (e.errno, cmd, e.strerror))
             if stderr is not None:
-                stderr.write("scons: %s: %s\n" % (cmd, e[1]))
+                stderr.write("scons: %s: %s\n" % (cmd, e.strerror))
         # copy child output from tempfiles to our streams
         # and do clean up stuff
         if stdout is not None and stdoutRedirected == 0:

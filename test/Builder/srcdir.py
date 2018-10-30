@@ -48,6 +48,8 @@ o.close()
 """)
 
 test.write(['src', 'SConstruct'], """\
+DefaultEnvironment(tools=[])
+
 Command('output',
         ['file1', File('file2'), r'%(file3)s', 'file4'],
         r'%(_python_)s cat.py $TARGET $SOURCES',
