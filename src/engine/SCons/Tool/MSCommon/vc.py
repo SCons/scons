@@ -202,21 +202,21 @@ def msvc_version_to_maj_min(msvc_version):
         raise ValueError("Unrecognized version %s (%s)" % (msvc_version,msvc_version_numeric))
 
 def is_host_target_supported(host_target, msvc_version):
-    """Return True if the given (host, target) tuple is supported given the
-    msvc version.
+    """Check if the given (host, target) tuple is supported for given version.
 
-    Parameters
-    ----------
-    host_target: tuple
-        tuple of (canonalized) host-target, e.g. ("x86", "amd64") for cross
-        compilation from 32 bits windows to 64 bits.
-    msvc_version: str
-        msvc version (major.minor, e.g. 10.0)
+    Args:
+        host_target: tuple
+            tuple of (canonalized) host-targets, e.g. ("x86", "amd64")
+            for cross compilation from 32 bit Windows to 64 bits.
+        msvc_version: str
+            msvc version (major.minor, e.g. 10.0)
 
-    Note
-    ----
-    This only check whether a given version *may* support the given (host,
-    target), not that the toolchain is actually present on the machine.
+    Returns:
+        bool:
+
+    Note:
+        This only checks whether a given version *may* support the given (host,
+        target), not that the toolchain is actually present on the machine.
     """
     # We assume that any Visual Studio version supports x86 as a target
     if host_target[1] != "x86":
@@ -229,10 +229,11 @@ def is_host_target_supported(host_target, msvc_version):
 
 def find_vc_pdir_vswhere(msvc_version):
     """
-    Find the MSVC product directory using vswhere.exe .
+    Find the MSVC product directory using vswhere.exe.
+
     Run it asking for specified version and get MSVS  install location
     :param msvc_version:
-    :return: MSVC install dir
+    :return: MSVC install dir or None
     """
     vswhere_path = os.path.join(
         'C:\\',
@@ -256,13 +257,25 @@ def find_vc_pdir_vswhere(msvc_version):
 
 
 def find_vc_pdir(msvc_version):
-    """Try to find the product directory for the given
-    version.
+    """Try to find the product directory for the given version.
 
-    Note
-    ----
-    If for some reason the requested version could not be found, an
-    exception which inherits from VisualCException will be raised."""
+    Tries to look up the path using a registry key from the table
+    _VCVER_TO_PRODUCT_DIR; if there is no key, calls find_vc_pdir_wshere
+    for help instead.
+
+    Args:
+        msvc_version: str
+            msvc version (major.minor, e.g. 10.0)
+
+    Returns:
+        str: Path found in registry, or None
+
+    Raises:
+        UnsupportedVersion: if the version is not known by this file.
+        MissingConfiguration: found version but the directory is missing.
+
+        Both exceptions inherit from VisualCException.
+    """
     root = 'Software\\'
     try:
         hkeys = _VCVER_TO_PRODUCT_DIR[msvc_version]
@@ -354,16 +367,24 @@ def cached_get_installed_vcs():
     return __INSTALLED_VCS_RUN
 
 def get_installed_vcs():
+    '''Query which versions of compiler suites are installed.
+
+    Returns:
+        list: version strings from _VCVER that appear to be installed.
+    '''
     installed_versions = []
 
     def clfind(name, path):
         '''Search for a filename in a given path.
 
-        Look for a filename (normally cl.exe) underneath a path.  No need
+        Look for 'name' (normally cl.exe) recursively in 'path'.  No need
         to return the path found, someplace else will dig deeper, this is
-        just used to confirm a given suite contains that file.  Note it
-        does not promise the cl.exe is the combination of host/target we
-        actually need, that is also done elsewhere.
+        just used to confirm a given suite from _VCVER contains that file.
+        Note it does not promise the cl.exe is the combination of
+        host/target we actually need, that is also done elsewhere.
+
+        Returns:
+            bool:
         '''
         for root, _, files in os.walk(path):
             if name in files:
@@ -496,7 +517,7 @@ def msvc_find_valid_batch_script(env,version):
                 (host_target, version)
             SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
         arg = _HOST_TARGET_ARCH_TO_BAT_ARCH[host_target]
-        
+
         # Get just version numbers
         maj, min = msvc_version_to_maj_min(version)
         # VS2015+
@@ -587,11 +608,11 @@ def msvc_setup_env(env):
     for k, v in d.items():
         debug('vc.py:msvc_setup_env() env:%s -> %s'%(k,v))
         env.PrependENVPath(k, v, delete_existing=True)
-    
+
     # final check to issue a warning if the compiler is not present
     msvc_cl = find_program_path(env, 'cl')
     if not msvc_cl:
-        SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, 
+        SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning,
             "Could not find MSVC compiler 'cl.exe', it may need to be installed separately with Visual Studio")
 
 def msvc_exists(version=None):
