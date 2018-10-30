@@ -1590,7 +1590,10 @@ class TestCmd(object):
         elif run < 0:
             run = len(self._stdout) + run
         run = run - 1
-        return self._stdout[run]
+        try:
+            return self._stdout[run]
+        except IndexError:
+            return None
 
     def subdir(self, *subdirs):
         """Create new subdirectories under the temporary working

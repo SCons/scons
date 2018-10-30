@@ -310,7 +310,7 @@ class TestSCons(TestCommon):
             if v != prog:
                 return None
             result = env.WhereIs(prog)
-            if norm and os.sep != '/':
+            if result and norm and os.sep != '/':
                 result = result.replace(os.sep, '/')
             return result
 

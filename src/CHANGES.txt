@@ -165,6 +165,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       Three uses of variables not defined are changed.
     - Some script changes in trying to find scons engine
     - Update (pep8) configure-cache script, add a --show option.
+    - Fix for a couple of "what if tool not found" exceptions in framework.
 
   From Bernhard M. Wiedemann:
     - Update SCons' internal scons build logic to allow overriding build date 
