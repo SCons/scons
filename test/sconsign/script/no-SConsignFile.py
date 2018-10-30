@@ -57,8 +57,8 @@ import re
 import sys
 
 path = sys.argv[1].split()
-output = open(sys.argv[2], 'wb')
-input = open(sys.argv[3], 'rb')
+output = open(sys.argv[2], 'w')
+input = open(sys.argv[3], 'r')
 
 output.write('fake_cc.py:  %%s\n' %% sys.argv)
 
@@ -66,7 +66,7 @@ def find_file(f):
     for dir in path:
         p = dir + os.sep + f
         if os.path.exists(p):
-            return open(p, 'rb')
+            return open(p, 'r')
     return None
 
 def process(infp, outfp):
@@ -86,8 +86,8 @@ sys.exit(0)
 test.write(fake_link_py, r"""#!%(_python_)s
 import sys
 
-output = open(sys.argv[1], 'wb')
-input = open(sys.argv[2], 'rb')
+output = open(sys.argv[1], 'w')
+input = open(sys.argv[2], 'r')
 
 output.write('fake_link.py:  %%s\n' %% sys.argv)
 
