@@ -49,8 +49,6 @@ if not gloss==0:
 
 
 test.write(['SConstruct'], """\
-#!/usr/bin/env python
-
 import os
 env = Environment(ENV=os.environ)
 env['BIBTEX'] = 'biber'

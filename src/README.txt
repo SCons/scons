@@ -28,8 +28,7 @@ the latest version by checking the SCons download page at:
 EXECUTION REQUIREMENTS
 ======================
 
-Running SCons requires Python version 2.7.*.  Currently it does not 
-run on the Python 3.x release.  There should be
+Running SCons requires Python version 2.7.* or 3.5.* and above.  There should be
 no other dependencies or requirements to run SCons.  (There is, however,
 an additional requirement to *install* SCons from this particular
 package; see the next section.)
@@ -146,7 +145,7 @@ of small examples for getting started using SCons.
 
 Additional documentation for SCons is available at:
 
-        http://www.scons.org/doc.html
+        https://scons.org/documentation.html
 
 
 LICENSING

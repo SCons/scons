@@ -37,7 +37,6 @@ import TestSCons
 test = TestSCons.TestSCons(match = TestSCons.match_re)
 
 test.write('echo.py', """\
-#!/usr/bin/env python
 from __future__ import print_function
 import sys
 print(sys.argv)

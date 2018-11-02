@@ -37,9 +37,13 @@ import SCons.Errors
 
 from SCons.Util import *
 
-try: eval('unicode')
-except NameError: HasUnicode = False
-else:             HasUnicode = True
+try:
+    eval('unicode')
+except NameError:
+    HasUnicode = False
+else:
+    HasUnicode = True
+
 
 class OutBuffer(object):
     def __init__(self):
@@ -48,47 +52,59 @@ class OutBuffer(object):
     def write(self, str):
         self.buffer = self.buffer + str
 
+
 class dictifyTestCase(unittest.TestCase):
     def test_dictify(self):
         """Test the dictify() function"""
         r = SCons.Util.dictify(['a', 'b', 'c'], [1, 2, 3])
-        assert r == {'a':1, 'b':2, 'c':3}, r
+        assert r == {'a': 1, 'b': 2, 'c': 3}, r
 
         r = {}
         SCons.Util.dictify(['a'], [1], r)
         SCons.Util.dictify(['b'], [2], r)
         SCons.Util.dictify(['c'], [3], r)
-        assert r == {'a':1, 'b':2, 'c':3}, r
+        assert r == {'a': 1, 'b': 2, 'c': 3}, r
+
 
 class UtilTestCase(unittest.TestCase):
     def test_splitext(self):
-        assert splitext('foo') == ('foo','')
-        assert splitext('foo.bar') == ('foo','.bar')
-        assert splitext(os.path.join('foo.bar', 'blat')) == (os.path.join('foo.bar', 'blat'),'')
+        assert splitext('foo') == ('foo', '')
+        assert splitext('foo.bar') == ('foo', '.bar')
+        assert splitext(os.path.join('foo.bar', 'blat')) == (os.path.join('foo.bar', 'blat'), '')
 
     class Node(object):
         def __init__(self, name, children=[]):
             self.children = children
             self.name = name
             self.nocache = None
+
         def __str__(self):
             return self.name
+
         def exists(self):
             return 1
+
         def rexists(self):
             return 1
+
         def has_builder(self):
             return 1
+
         def has_explicit_builder(self):
             return 1
+
         def side_effect(self):
             return 1
+
         def precious(self):
             return 1
+
         def always_build(self):
             return 1
+
         def is_up_to_date(self):
             return 1
+
         def noclean(self):
             return 1
 
@@ -115,7 +131,7 @@ class UtilTestCase(unittest.TestCase):
 """
 
         lines = expect.split('\n')[:-1]
-        lines = ['[E BSPACN ]'+l for l in lines]
+        lines = ['[E BSPACN ]' + l for l in lines]
         withtags = '\n'.join(lines) + '\n'
 
         return foo, expect, withtags
@@ -150,13 +166,14 @@ class UtilTestCase(unittest.TestCase):
 """
 
         lines = expect.split('\n')[:-1]
-        lines = ['[E BSPACN ]'+l for l in lines]
+        lines = ['[E BSPACN ]' + l for l in lines]
         withtags = '\n'.join(lines) + '\n'
 
         return blat_o, expect, withtags
 
     def test_render_tree(self):
         """Test the render_tree() function"""
+
         def get_children(node):
             return node.children
 
@@ -177,6 +194,7 @@ class UtilTestCase(unittest.TestCase):
 
     def test_print_tree(self):
         """Test the print_tree() function"""
+
         def get_children(node):
             return node.children
 
@@ -243,7 +261,7 @@ class UtilTestCase(unittest.TestCase):
         assert is_Dict(UserDict())
 
         # os.environ is not a dictionary in python 3
-        if sys.version_info < (3,0):
+        if sys.version_info < (3, 0):
             assert is_Dict(os.environ)
 
         try:
@@ -313,42 +331,42 @@ class UtilTestCase(unittest.TestCase):
                              bytearray(u'Hello', 'utf-8'),
                              "Check that to_bytes creates byte array when presented with unicode string. PY2 only")
 
-
     def test_to_String(self):
         """Test the to_String() method."""
         assert to_String(1) == "1", to_String(1)
-        assert to_String([ 1, 2, 3]) == str([1, 2, 3]), to_String([1,2,3])
+        assert to_String([1, 2, 3]) == str([1, 2, 3]), to_String([1, 2, 3])
         assert to_String("foo") == "foo", to_String("foo")
         assert to_String(None) == 'None'
         # test low level string converters too
         assert to_str(None) == 'None'
         assert to_bytes(None) == b'None'
 
-        s1=UserString('blah')
+        s1 = UserString('blah')
         assert to_String(s1) == s1, s1
         assert to_String(s1) == 'blah', s1
 
         class Derived(UserString):
             pass
+
         s2 = Derived('foo')
         assert to_String(s2) == s2, s2
         assert to_String(s2) == 'foo', s2
 
         if HasUnicode:
-            s3=UserString(unicode('bar'))
+            s3 = UserString(unicode('bar'))
             assert to_String(s3) == s3, s3
             assert to_String(s3) == unicode('bar'), s3
             assert isinstance(to_String(s3), unicode), \
-                   type(to_String(s3))
+                type(to_String(s3))
 
         if HasUnicode:
             s4 = unicode('baz')
             assert to_String(s4) == unicode('baz'), to_String(s4)
             assert isinstance(to_String(s4), unicode), \
-                   type(to_String(s4))
+                type(to_String(s4))
 
     def test_WhereIs(self):
-        test = TestCmd.TestCmd(workdir = '')
+        test = TestCmd.TestCmd(workdir='')
 
         sub1_xxx_exe = test.workpath('sub1', 'xxx.exe')
         sub2_xxx_exe = test.workpath('sub2', 'xxx.exe')
@@ -371,17 +389,17 @@ class UtilTestCase(unittest.TestCase):
         env_path = os.environ['PATH']
 
         try:
-            pathdirs_1234 = [ test.workpath('sub1'),
-                              test.workpath('sub2'),
-                              test.workpath('sub3'),
-                              test.workpath('sub4'),
-                            ] + env_path.split(os.pathsep)
+            pathdirs_1234 = [test.workpath('sub1'),
+                             test.workpath('sub2'),
+                             test.workpath('sub3'),
+                             test.workpath('sub4'),
+                             ] + env_path.split(os.pathsep)
 
-            pathdirs_1243 = [ test.workpath('sub1'),
-                              test.workpath('sub2'),
-                              test.workpath('sub4'),
-                              test.workpath('sub3'),
-                            ] + env_path.split(os.pathsep)
+            pathdirs_1243 = [test.workpath('sub1'),
+                             test.workpath('sub2'),
+                             test.workpath('sub4'),
+                             test.workpath('sub3'),
+                             ] + env_path.split(os.pathsep)
 
             os.environ['PATH'] = os.pathsep.join(pathdirs_1234)
             wi = WhereIs('xxx.exe')
@@ -391,9 +409,9 @@ class UtilTestCase(unittest.TestCase):
             wi = WhereIs('xxx.exe', os.pathsep.join(pathdirs_1243))
             assert wi == test.workpath(sub4_xxx_exe), wi
 
-            wi = WhereIs('xxx.exe',reject = sub3_xxx_exe)
+            wi = WhereIs('xxx.exe', reject=sub3_xxx_exe)
             assert wi == test.workpath(sub4_xxx_exe), wi
-            wi = WhereIs('xxx.exe', pathdirs_1243, reject = sub3_xxx_exe)
+            wi = WhereIs('xxx.exe', pathdirs_1243, reject=sub3_xxx_exe)
             assert wi == test.workpath(sub4_xxx_exe), wi
 
             os.environ['PATH'] = os.pathsep.join(pathdirs_1243)
@@ -405,19 +423,19 @@ class UtilTestCase(unittest.TestCase):
             assert wi == test.workpath(sub3_xxx_exe), wi
 
             if sys.platform == 'win32':
-                wi = WhereIs('xxx', pathext = '')
+                wi = WhereIs('xxx', pathext='')
                 assert wi is None, wi
 
-                wi = WhereIs('xxx', pathext = '.exe')
+                wi = WhereIs('xxx', pathext='.exe')
                 assert wi == test.workpath(sub4_xxx_exe), wi
 
-                wi = WhereIs('xxx', path = pathdirs_1234, pathext = '.BAT;.EXE')
+                wi = WhereIs('xxx', path=pathdirs_1234, pathext='.BAT;.EXE')
                 assert wi.lower() == test.workpath(sub3_xxx_exe).lower(), wi
 
                 # Test that we return a normalized path even when
                 # the path contains forward slashes.
                 forward_slash = test.workpath('') + '/sub3'
-                wi = WhereIs('xxx', path = forward_slash, pathext = '.EXE')
+                wi = WhereIs('xxx', path=forward_slash, pathext='.EXE')
                 assert wi.lower() == test.workpath(sub3_xxx_exe).lower(), wi
 
             del os.environ['PATH']
@@ -437,24 +455,27 @@ class UtilTestCase(unittest.TestCase):
         assert get_environment_var("$BAR ") == None, get_environment_var("$BAR ")
         assert get_environment_var("FOO$BAR") == None, get_environment_var("FOO$BAR")
         assert get_environment_var("$FOO[0]") == None, get_environment_var("$FOO[0]")
-        assert get_environment_var("${some('complex expression')}") == None, get_environment_var("${some('complex expression')}")
+        assert get_environment_var("${some('complex expression')}") == None, get_environment_var(
+            "${some('complex expression')}")
 
     def test_Proxy(self):
         """Test generic Proxy class."""
+
         class Subject(object):
             def foo(self):
                 return 1
+
             def bar(self):
                 return 2
 
-        s=Subject()
+        s = Subject()
         s.baz = 3
 
         class ProxyTest(Proxy):
             def bar(self):
                 return 4
 
-        p=ProxyTest(s)
+        p = ProxyTest(s)
 
         assert p.foo() == 1, p.foo()
         assert p.bar() == 4, p.bar()
@@ -503,49 +524,49 @@ class UtilTestCase(unittest.TestCase):
         p1 = r'C:\dir\num\one;C:\dir\num\two'
         p2 = r'C:\mydir\num\one;C:\mydir\num\two'
         # have to include the pathsep here so that the test will work on UNIX too.
-        p1 = PrependPath(p1,r'C:\dir\num\two',sep = ';')
-        p1 = PrependPath(p1,r'C:\dir\num\three',sep = ';')
-        p2 = PrependPath(p2,r'C:\mydir\num\three',sep = ';')
-        p2 = PrependPath(p2,r'C:\mydir\num\one',sep = ';')
-        assert(p1 == r'C:\dir\num\three;C:\dir\num\two;C:\dir\num\one')
-        assert(p2 == r'C:\mydir\num\one;C:\mydir\num\three;C:\mydir\num\two')
+        p1 = PrependPath(p1, r'C:\dir\num\two', sep=';')
+        p1 = PrependPath(p1, r'C:\dir\num\three', sep=';')
+        p2 = PrependPath(p2, r'C:\mydir\num\three', sep=';')
+        p2 = PrependPath(p2, r'C:\mydir\num\one', sep=';')
+        assert (p1 == r'C:\dir\num\three;C:\dir\num\two;C:\dir\num\one')
+        assert (p2 == r'C:\mydir\num\one;C:\mydir\num\three;C:\mydir\num\two')
 
     def test_AppendPath(self):
         """Test appending to a path."""
         p1 = r'C:\dir\num\one;C:\dir\num\two'
         p2 = r'C:\mydir\num\one;C:\mydir\num\two'
         # have to include the pathsep here so that the test will work on UNIX too.
-        p1 = AppendPath(p1,r'C:\dir\num\two',sep = ';')
-        p1 = AppendPath(p1,r'C:\dir\num\three',sep = ';')
-        p2 = AppendPath(p2,r'C:\mydir\num\three',sep = ';')
-        p2 = AppendPath(p2,r'C:\mydir\num\one',sep = ';')
-        assert(p1 == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
-        assert(p2 == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one')
+        p1 = AppendPath(p1, r'C:\dir\num\two', sep=';')
+        p1 = AppendPath(p1, r'C:\dir\num\three', sep=';')
+        p2 = AppendPath(p2, r'C:\mydir\num\three', sep=';')
+        p2 = AppendPath(p2, r'C:\mydir\num\one', sep=';')
+        assert (p1 == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
+        assert (p2 == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one')
 
     def test_PrependPathPreserveOld(self):
         """Test prepending to a path while preserving old paths"""
         p1 = r'C:\dir\num\one;C:\dir\num\two'
         # have to include the pathsep here so that the test will work on UNIX too.
-        p1 = PrependPath(p1,r'C:\dir\num\two',sep = ';', delete_existing=0)
-        p1 = PrependPath(p1,r'C:\dir\num\three',sep = ';')
-        assert(p1 == r'C:\dir\num\three;C:\dir\num\one;C:\dir\num\two')
+        p1 = PrependPath(p1, r'C:\dir\num\two', sep=';', delete_existing=0)
+        p1 = PrependPath(p1, r'C:\dir\num\three', sep=';')
+        assert (p1 == r'C:\dir\num\three;C:\dir\num\one;C:\dir\num\two')
 
     def test_AppendPathPreserveOld(self):
         """Test appending to a path while preserving old paths"""
         p1 = r'C:\dir\num\one;C:\dir\num\two'
         # have to include the pathsep here so that the test will work on UNIX too.
-        p1 = AppendPath(p1,r'C:\dir\num\one',sep = ';', delete_existing=0)
-        p1 = AppendPath(p1,r'C:\dir\num\three',sep = ';')
-        assert(p1 == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
+        p1 = AppendPath(p1, r'C:\dir\num\one', sep=';', delete_existing=0)
+        p1 = AppendPath(p1, r'C:\dir\num\three', sep=';')
+        assert (p1 == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
 
     def test_addPathIfNotExists(self):
         """Test the AddPathIfNotExists() function"""
-        env_dict = { 'FOO' : os.path.normpath('/foo/bar') + os.pathsep + \
-                     os.path.normpath('/baz/blat'),
-                     'BAR' : os.path.normpath('/foo/bar') + os.pathsep + \
-                     os.path.normpath('/baz/blat'),
-                     'BLAT' : [ os.path.normpath('/foo/bar'),
-                                os.path.normpath('/baz/blat') ] }
+        env_dict = {'FOO': os.path.normpath('/foo/bar') + os.pathsep + \
+                           os.path.normpath('/baz/blat'),
+                    'BAR': os.path.normpath('/foo/bar') + os.pathsep + \
+                           os.path.normpath('/baz/blat'),
+                    'BLAT': [os.path.normpath('/foo/bar'),
+                             os.path.normpath('/baz/blat')]}
         AddPathIfNotExists(env_dict, 'FOO', os.path.normpath('/foo/bar'))
         AddPathIfNotExists(env_dict, 'BAR', os.path.normpath('/bar/foo'))
         AddPathIfNotExists(env_dict, 'BAZ', os.path.normpath('/foo/baz'))
@@ -558,9 +579,9 @@ class UtilTestCase(unittest.TestCase):
                os.path.normpath('/foo/bar') + os.pathsep + \
                os.path.normpath('/baz/blat'), env_dict['BAR']
         assert env_dict['BAZ'] == os.path.normpath('/foo/baz'), env_dict['BAZ']
-        assert env_dict['BLAT'] == [ os.path.normpath('/baz/foo'),
-                                     os.path.normpath('/foo/bar'),
-                                     os.path.normpath('/baz/blat') ], env_dict['BLAT' ]
+        assert env_dict['BLAT'] == [os.path.normpath('/baz/foo'),
+                                    os.path.normpath('/foo/bar'),
+                                    os.path.normpath('/baz/blat')], env_dict['BLAT']
 
     def test_CLVar(self):
         """Test the command-line construction variable class"""
@@ -669,10 +690,11 @@ class UtilTestCase(unittest.TestCase):
 
             def __str__(self):
                 return self.name
+
             def get_suffix(self):
                 return os.path.splitext(self.name)[1]
 
-        s = Selector({'a' : 'AAA', 'b' : 'BBB'})
+        s = Selector({'a': 'AAA', 'b': 'BBB'})
         assert s['a'] == 'AAA', s['a']
         assert s['b'] == 'BBB', s['b']
         exc_caught = None
@@ -692,7 +714,7 @@ class UtilTestCase(unittest.TestCase):
 
         env = DummyEnv()
 
-        s = Selector({'.d' : 'DDD', '.e' : 'EEE'})
+        s = Selector({'.d': 'DDD', '.e': 'EEE'})
         ret = s(env, [])
         assert ret is None, ret
         ret = s(env, [MyNode('foo.d')])
@@ -705,9 +727,9 @@ class UtilTestCase(unittest.TestCase):
         ret = s(env, [MyNode('bar.x')])
         assert ret == 'XXX', ret
 
-        env = DummyEnv({'FSUFF' : '.f', 'GSUFF' : '.g'})
+        env = DummyEnv({'FSUFF': '.f', 'GSUFF': '.g'})
 
-        s = Selector({'$FSUFF' : 'FFF', '$GSUFF' : 'GGG'})
+        s = Selector({'$FSUFF': 'FFF', '$GSUFF': 'GGG'})
         ret = s(env, [MyNode('foo.f')])
         assert ret == 'FFF', ret
         ret = s(env, [MyNode('bar.g')])
@@ -793,9 +815,11 @@ class MD5TestCase(unittest.TestCase):
         s = MD5signature('222')
         assert 'bcbe3365e6ac95ea2c0343a2395834dd' == s, s
 
+
 class NodeListTestCase(unittest.TestCase):
     def test_simple_attributes(self):
         """Test simple attributes of a NodeList class"""
+
         class TestClass(object):
             def __init__(self, name, child=None):
                 self.child = child
@@ -806,18 +830,21 @@ class NodeListTestCase(unittest.TestCase):
         t3 = TestClass('t3')
 
         nl = NodeList([t1, t2, t3])
-        assert nl.bar == [ 't1', 't2', 't3' ], nl.bar
-        assert nl[0:2].child.bar == [ 't1child', 't2child' ], \
-               nl[0:2].child.bar
+        assert nl.bar == ['t1', 't2', 't3'], nl.bar
+        assert nl[0:2].child.bar == ['t1child', 't2child'], \
+            nl[0:2].child.bar
 
     def test_callable_attributes(self):
         """Test callable attributes of a NodeList class"""
+
         class TestClass(object):
             def __init__(self, name, child=None):
                 self.child = child
                 self.bar = name
+
             def foo(self):
                 return self.bar + "foo"
+
             def getself(self):
                 return self
 
@@ -826,13 +853,13 @@ class NodeListTestCase(unittest.TestCase):
         t3 = TestClass('t3')
 
         nl = NodeList([t1, t2, t3])
-        assert nl.foo() == [ 't1foo', 't2foo', 't3foo' ], nl.foo()
-        assert nl.bar == [ 't1', 't2', 't3' ], nl.bar
-        assert nl.getself().bar == [ 't1', 't2', 't3' ], nl.getself().bar
-        assert nl[0:2].child.foo() == [ 't1childfoo', 't2childfoo' ], \
-               nl[0:2].child.foo()
-        assert nl[0:2].child.bar == [ 't1child', 't2child' ], \
-               nl[0:2].child.bar
+        assert nl.foo() == ['t1foo', 't2foo', 't3foo'], nl.foo()
+        assert nl.bar == ['t1', 't2', 't3'], nl.bar
+        assert nl.getself().bar == ['t1', 't2', 't3'], nl.getself().bar
+        assert nl[0:2].child.foo() == ['t1childfoo', 't2childfoo'], \
+            nl[0:2].child.foo()
+        assert nl[0:2].child.bar == ['t1child', 't2child'], \
+            nl[0:2].child.bar
 
     def test_null(self):
         """Test a null NodeList"""
@@ -848,12 +875,17 @@ class flattenTestCase(unittest.TestCase):
     def test_scalar(self):
         """Test flattening a scalar"""
         result = flatten('xyz')
-        assert result == ['xyz'], result
+        self.assertEqual(result,['xyz'], result)
+
+    def test_dictionary_values(self):
+        """Test flattening the dictionary values"""
+        items = {"a": 1, "b": 2, "c": 3}
+        result = flatten(items.values())
+        self.assertEqual(sorted(result),[1,2,3])
 
 
 if __name__ == "__main__":
     unittest.main()
-
 
 # Local Variables:
 # tab-width:4
