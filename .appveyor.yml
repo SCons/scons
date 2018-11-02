@@ -3,11 +3,11 @@
 image: Visual Studio 2017
 shallow_clone: true
 
-cache:
-  - downloads -> appveyor.yml
-  - '%LOCALAPPDATA%\pip\Cache'
-  - C:\ProgramData\chocolatey\bin -> appveyor.yml
-  - C:\ProgramData\chocolatey\lib -> appveyor.yml
+#cache:
+#  - downloads -> appveyor.yml
+#  - '%LOCALAPPDATA%\pip\Cache'
+#  - C:\ProgramData\chocolatey\bin -> appveyor.yml
+#  - C:\ProgramData\chocolatey\lib -> appveyor.yml
 
 install:
   - "set PATH=%PYTHON%;%PYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;%PATH%"
