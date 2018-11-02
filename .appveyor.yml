@@ -17,7 +17,9 @@ install:
   - choco install --allow-empty-checksums dmd
   - choco install --allow-empty-checksums ldc
   - choco install --allow-empty-checksums swig
-  - choco install --allow-empty-checksums vswhere  
+  - choco install --allow-empty-checksums vswhere
+  - choco install --allow-empty-checksums xsltproc  
+
 
 environment:
   matrix:
