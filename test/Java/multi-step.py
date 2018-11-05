@@ -72,7 +72,14 @@ test.subdir(['src'],
 
 test.write(['SConstruct'], """\
 import os,sys
-env=Environment(tools = ['default', 'javac', 'javah', 'swig'],
+
+if sys.platform == 'win32':
+    # Ensure tests don't pick up link from mingw or cygwin
+    tools = ['msvc', 'mslink', 'jar', 'javac', 'javah', 'swig']
+else:
+    tools = ['default', 'javac', 'javah', 'swig']
+
+env=Environment(tools = tools,
                 CPPPATH=["$JAVAINCLUDES"])
 Export('env')
 env.PrependENVPath('PATH',os.environ.get('PATH',[]))
