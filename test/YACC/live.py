@@ -158,7 +158,7 @@ test.run(arguments = 'bar' + _exe)
 
 test.up_to_date(arguments = 'bar' + _exe)
 
-test.must_match(test.workpath('wrapper.out'), "wrapper.py" + os.linesep)
+test.must_match(test.workpath('wrapper.out'), "wrapper.py\n")
 
 test.run(program = test.workpath('bar'), stdin = "b\n", stdout = "bar.y\n")
 

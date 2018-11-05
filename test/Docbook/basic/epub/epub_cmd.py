@@ -34,18 +34,17 @@ test = TestSCons.TestSCons()
 xsltproc = test.where_is('xsltproc')
 if not xsltproc:
     test.skip_test('No xsltproc executable found, skipping test.\n')
-
 test.dir_fixture('image')
 
 # Normal invocation
-test.run(arguments=['-f','SConstruct.cmd'], stderr=None)
+test.run(arguments=['-f','SConstruct.cmd','DOCBOOK_XSLTPROC=%s'%xsltproc], stderr=None)
 test.must_exist(test.workpath('manual.epub'))
 test.must_exist(test.workpath('OEBPS','toc.ncx'))
 test.must_exist(test.workpath('OEBPS','content.opf'))
 test.must_exist(test.workpath('META-INF','container.xml'))
 
 # Cleanup
-test.run(arguments=['-f','SConstruct.cmd','-c'])
+test.run(arguments=['-f','SConstruct.cmd','-c','DOCBOOK_XSLTPROC=%s'%xsltproc])
 test.must_not_exist(test.workpath('manual.epub'))
 test.must_not_exist(test.workpath('OEBPS'))
 test.must_not_exist(test.workpath('META-INF'))
