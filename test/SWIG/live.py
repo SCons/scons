@@ -145,7 +145,7 @@ test.up_to_date(arguments = ldmodule_prefix+'foo' + _dll)
 
 test.run(arguments = ldmodule_prefix+'bar' + _dll)
 
-test.must_match('wrapper.out', "wrapper.py" + os.linesep)
+test.must_match('wrapper.out', "wrapper.py\n")
 
 test.run(program = python, stdin = """\
 from __future__ import print_function

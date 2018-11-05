@@ -1,5 +1,13 @@
+#version: '3.0.1.{build}'
+
 image: Visual Studio 2017
 shallow_clone: true
+
+#cache:
+#  - downloads -> appveyor.yml
+#  - '%LOCALAPPDATA%\pip\Cache'
+#  - C:\ProgramData\chocolatey\bin -> appveyor.yml
+#  - C:\ProgramData\chocolatey\lib -> appveyor.yml
 
 install:
   - "set PATH=%PYTHON%;%PYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;%PATH%"
@@ -9,7 +17,10 @@ install:
   - choco install --allow-empty-checksums dmd
   - choco install --allow-empty-checksums ldc
   - choco install --allow-empty-checksums swig
-  - choco install --allow-empty-checksums vswhere  
+  - choco install --allow-empty-checksums vswhere
+  - choco install --allow-empty-checksums xsltproc
+  - choco install --allow-empty-checksums git.install
+
 
 environment:
   matrix:

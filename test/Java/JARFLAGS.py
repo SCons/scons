@@ -30,6 +30,10 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+# Keep this logic because it skips the test if javac or jar not found.
+where_javac, java_version = test.java_where_javac()
+where_jar = test.java_where_jar()
+
 test.subdir('src')
 
 test.write('SConstruct', """

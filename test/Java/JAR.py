@@ -32,6 +32,10 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
+# Keep this logic because it skips the test if javac or jar not found.
+where_javac, java_version = test.java_where_javac()
+where_jar = test.java_where_jar()
+
 test.write('myjar.py', r"""
 import sys
 args = sys.argv[1:]

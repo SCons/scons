@@ -52,6 +52,9 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       for swig and java native interface to JAVAINCLUDES.  You should add these to your CPPPATH if you need
       to compile with them.  This handles spaces in paths in default Java paths on windows.
     - Added more java paths to match install for Centos 7 of openjdk
+    - Fix new logic which populates JAVAINCLUDES to handle the case where javac is not found.
+    - Fix GH Issue #3225 SCons.Util.Flatten() doesn't handle MappingView's produced by dictionary as return
+      values from dict().{items(), keys(), values()}.
       
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
@@ -162,6 +165,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Syntax cleanups - trailing blanks, use "is" to compare with None, etc.
       Three uses of variables not defined are changed.
     - Some script changes in trying to find scons engine
+    - Update (pep8) configure-cache script, add a --show option.
 
   From Bernhard M. Wiedemann:
     - Update SCons' internal scons build logic to allow overriding build date 

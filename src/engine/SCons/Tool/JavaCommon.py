@@ -439,7 +439,10 @@ def get_java_include_paths(env, javac, version):
     :return:
     """
     paths = []
-    if env['PLATFORM'] == 'win32':
+    if not javac:
+        # there are no paths if we've not detected javac.
+        pass
+    elif env['PLATFORM'] == 'win32':
         javac_bin_dir = os.path.dirname(javac)
         java_inc_dir = os.path.normpath(os.path.join(javac_bin_dir, '..', 'include'))
         paths = [java_inc_dir, os.path.join(java_inc_dir, 'win32')]

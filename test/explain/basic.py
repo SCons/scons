@@ -29,7 +29,6 @@ Verify a lot of the basic operation of the --debug=explain option.
 """
 
 import os
-
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -52,7 +51,7 @@ inc_bbb_k = test.workpath('inc', 'bbb.k')
 
 
 
-test.write(cat_py, r"""#!/usr/bin/env python
+test.write(cat_py, r"""\
 from __future__ import print_function
 
 import sys

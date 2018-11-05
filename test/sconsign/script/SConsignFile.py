@@ -30,9 +30,10 @@ using the signatures in an SConsignFile().
 """
 
 import re
-
 import TestSCons
 import TestSConsign
+
+_python_ = TestSCons._python_
 
 test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
 
@@ -41,22 +42,22 @@ test.subdir('sub1', 'sub2')
 fake_cc_py = test.workpath('fake_cc.py')
 fake_link_py = test.workpath('fake_link.py')
 
-test.write(fake_cc_py, r"""#!/usr/bin/env python
+test.write(fake_cc_py, r"""#!%(_python_)s
 import os
 import re
 import sys
 
 path = sys.argv[1].split()
-output = open(sys.argv[2], 'wb')
-input = open(sys.argv[3], 'rb')
+output = open(sys.argv[2], 'w')
+input = open(sys.argv[3], 'r')
 
-output.write('fake_cc.py:  %s\n' % sys.argv)
+output.write('fake_cc.py:  %%s\n' %% sys.argv)
 
 def find_file(f):
     for dir in path:
         p = dir + os.sep + f
         if os.path.exists(p):
-            return open(p, 'rb')
+            return open(p, 'r')
     return None
 
 def process(infp, outfp):
@@ -71,20 +72,20 @@ def process(infp, outfp):
 process(input, output)
 
 sys.exit(0)
-""")
+""" % locals())
 
-test.write(fake_link_py, r"""#!/usr/bin/env python
+test.write(fake_link_py, r"""#!%(_python_)s
 import sys
 
-output = open(sys.argv[1], 'wb')
-input = open(sys.argv[2], 'rb')
+output = open(sys.argv[1], 'w')
+input = open(sys.argv[2], 'r')
 
-output.write('fake_link.py:  %s\n' % sys.argv)
+output.write('fake_link.py:  %%s\n' %% sys.argv)
 
 output.write(input.read())
 
 sys.exit(0)
-""")
+""" % locals())
 
 test.chmod(fake_cc_py, 0o755)
 test.chmod(fake_link_py, 0o755)
