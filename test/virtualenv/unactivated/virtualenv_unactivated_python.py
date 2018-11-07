@@ -32,17 +32,17 @@ a regular environment or in an activated virtualenv.
 """
 
 import TestSCons
-import SCons.Platform.VE
+import SCons.Platform.virtualenv
 import sys
 import os
 import re
 
 test = TestSCons.TestSCons()
 
-if not SCons.Platform.VE.Virtualenv():
+if not SCons.Platform.virtualenv.Virtualenv():
     test.skip_test("No virtualenv detected, skipping\n")
 
-if SCons.Platform.VE.select_paths_in_venv(os.getenv('PATH')):
+if SCons.Platform.virtualenv.select_paths_in_venv(os.getenv('PATH')):
     test.skip_test("Virtualenv detected and it looks like activated, skipping\n")
 
 test.write('SConstruct', """
@@ -52,7 +52,7 @@ print("sys.executable: %s" % repr(sys.executable))
 print("env.WhereIs('python'): %s" % repr(env.WhereIs('python')))
 """)
 
-if SCons.Platform.VE.virtualenv_enabled_by_default:
+if SCons.Platform.virtualenv.virtualenv_enabled_by_default:
     test.run(['-Q'])
 else:
     test.run(['-Q', '--enable-virtualenv'])
@@ -81,9 +81,9 @@ can't determine env.WhereIs('python') from stdout:
 python = eval(m.group('py'))
 
 # running without activating virtualenv (by just /path/to/virtualenv/bin/python runtest.py ...).
-test.fail_test(not SCons.Platform.VE.IsInVirtualenv(interpreter),
+test.fail_test(not SCons.Platform.virtualenv.IsInVirtualenv(interpreter),
                message="sys.executable points outside of virtualenv")
-test.fail_test(SCons.Platform.VE.IsInVirtualenv(python),
+test.fail_test(SCons.Platform.virtualenv.IsInVirtualenv(python),
                message="env.WhereIs('python') points to virtualenv")
 
 test.pass_test()

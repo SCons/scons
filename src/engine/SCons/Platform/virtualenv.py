@@ -1,4 +1,4 @@
-"""SCons.Platform.VE
+"""SCons.Platform.virtualenv
 
 Support for virtualenv.
 """
@@ -33,31 +33,15 @@ import sys
 import SCons.Util
 
 
-def _get_bool_envvar(name, default=False):
-    try:
-        var = os.environ[name]
-    except KeyError:
-        return default
-    try:
-        return bool(int(var))
-    except ValueError:
-        if str(var).lower() in ('true', 'yes', 'y', 'on'):
-            return True
-        elif str(var).lower() in ('false', 'no', 'n', 'off'):
-            return False
-        else:
-            return default
-
-
 virtualenv_enabled_by_default = False
 
 
 def _enable_virtualenv_default():
-    return _get_bool_envvar('SCONS_ENABLE_VIRTUALENV', virtualenv_enabled_by_default)
+    return SCons.Util.get_bool_envvar('SCONS_ENABLE_VIRTUALENV', virtualenv_enabled_by_default)
 
 
 def _ignore_virtualenv_default():
-    return _get_bool_envvar('SCONS_IGNORE_VIRTUALENV', False)
+    return SCons.Util.get_bool_envvar('SCONS_IGNORE_VIRTUALENV', False)
 
 
 enable_virtualenv = _enable_virtualenv_default()

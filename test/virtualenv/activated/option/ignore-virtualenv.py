@@ -29,22 +29,22 @@ Ensure that the --ignore-virtualenv flag works.
 """
 
 import TestSCons
-import SCons.Platform.VE
+import SCons.Platform.virtualenv
 import sys
 import os
 import re
 
 test = TestSCons.TestSCons()
 
-if not SCons.Platform.VE.Virtualenv():
+if not SCons.Platform.virtualenv.Virtualenv():
     test.skip_test("No virtualenv detected, skipping\n")
 
-if not SCons.Platform.VE.select_paths_in_venv(os.getenv('PATH','')):
+if not SCons.Platform.virtualenv.select_paths_in_venv(os.getenv('PATH','')):
     test.skip_test("Virtualenv detected but looks like unactivated, skipping\n")
 
 test.write('SConstruct', """
 import sys
-import SCons.Platform.VE
+import SCons.Platform.virtualenv
 env = DefaultEnvironment(tools=[])
 print("sys.executable: %s" % repr(sys.executable))
 print("env.WhereIs('python'): %s" % repr(env.WhereIs('python')))
@@ -76,9 +76,9 @@ can't determine env.WhereIs('python') from stdout:
 
 python = eval(m.group('py'))
 
-test.fail_test(not SCons.Platform.VE.IsInVirtualenv(interpreter),
+test.fail_test(not SCons.Platform.virtualenv.IsInVirtualenv(interpreter),
                message="sys.executable points outside of virtualenv")
-test.fail_test(SCons.Platform.VE.IsInVirtualenv(python),
+test.fail_test(SCons.Platform.virtualenv.IsInVirtualenv(python),
                message="env.WhereIs('python') points to virtualenv")
 
 test.pass_test()

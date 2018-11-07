@@ -41,8 +41,8 @@ import select
 
 import SCons.Util
 from SCons.Platform import TempFileMunge
-from SCons.Platform.VE import ImportVirtualenv
-from SCons.Platform.VE import ignore_virtualenv, enable_virtualenv
+from SCons.Platform.virtualenv import ImportVirtualenv
+from SCons.Platform.virtualenv import ignore_virtualenv, enable_virtualenv
 
 exitvalmap = {
     2 : 127,

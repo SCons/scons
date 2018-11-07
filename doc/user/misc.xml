@@ -654,7 +654,7 @@ env.Command('directory_build_info',
     </para>
 
     <para>
-      This issue may be overcame by using <literal>--enable-virtualenv</literal>
+      This issue may be overcome by using <literal>--enable-virtualenv</literal>
       option. The option automatically imports virtualenv-related environment
       variables to all created construction environment <literal>env['ENV']</literal>,
       and modifies SCons PATH appropriately to prefer virtualenv's executables.

@@ -25,16 +25,16 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Check if SCons.Platform.VE.Virtualenv() works in SConscripts.
+Check if SCons.Platform.virtualenv.Virtualenv() works in SConscripts.
 """
 
 import TestSCons
-import SCons.Platform.VE
+import SCons.Platform.virtualenv
 import sys
 
 test = TestSCons.TestSCons()
 
-ve = SCons.Platform.VE.Virtualenv()
+ve = SCons.Platform.virtualenv.Virtualenv()
 if not ve:
     test.skip_test("Virtualenv is not active, skipping\n")
 
@@ -42,7 +42,7 @@ test.write('SConstruct', """
 print("virtualenv: %r" % Virtualenv())
 """)
 
-if SCons.Platform.VE.virtualenv_enabled_by_default:
+if SCons.Platform.virtualenv.virtualenv_enabled_by_default:
     test.run(['-Q'])
 else:
     test.run(['-Q', '--enable-virtualenv'])

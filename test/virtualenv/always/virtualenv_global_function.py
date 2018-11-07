@@ -31,7 +31,7 @@ contains the virtualenv's bin path).
 """
 
 import TestSCons
-import SCons.Platform.VE
+import SCons.Platform.virtualenv
 import re
 
 test = TestSCons.TestSCons()
@@ -53,7 +53,7 @@ can't determine Virtualenv() result from stdout:
 """ % s)
 
 scons_ve = m.group('ve')
-our_ve = "%r" % SCons.Platform.VE.Virtualenv()
+our_ve = "%r" % SCons.Platform.virtualenv.Virtualenv()
 
 # runing in activated virtualenv (after "activate") - PATH includes virtualenv's bin directory
 test.fail_test(scons_ve != our_ve,

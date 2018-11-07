@@ -38,7 +38,7 @@ except ImportError:
 _ = gettext
 
 import SCons.Node.FS
-import SCons.Platform.VE
+import SCons.Platform.virtualenv
 import SCons.Warnings
 
 OptionValueError        = optparse.OptionValueError
@@ -707,7 +707,7 @@ def Parser(version):
                   action="callback", callback=opt_duplicate,
                   help=opt_duplicate_help)
 
-    if not SCons.Platform.VE.virtualenv_enabled_by_default:
+    if not SCons.Platform.virtualenv.virtualenv_enabled_by_default:
         op.add_option('--enable-virtualenv',
                      dest="enable_virtualenv",
                      action="store_true",

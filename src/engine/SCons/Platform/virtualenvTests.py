@@ -30,7 +30,7 @@ import unittest
 import os
 import sys
 
-import SCons.Platform.VE
+import SCons.Platform.virtualenv
 import SCons.Util
 
 class Environment(collections.UserDict):
@@ -110,26 +110,6 @@ class SysPrefixes(object):
             sys.prefix = s['prefix']
         del self._stored
 
-class OsEnviron(object):
-    """Used to temporarily mock os.environ"""
-    def __init__(self, environ):
-        self._environ = environ
-
-    def start(self):
-        self._stored = os.environ
-        os.environ = self._environ
-
-    def stop(self):
-        os.environ = self._stored
-        del self._stored
-
-    def __enter__(self):
-        self.start()
-        return os.environ
-
-    def __exit__(self, *args):
-        self.stop()
-
 def _p(p):
     """Converts path string **p** from posix format to os-specific format."""
     drive = []
@@ -137,42 +117,6 @@ def _p(p):
             drive = ['C:']
     pieces = p.split('/')
     return os.path.sep.join(drive + pieces)
-
-class _get_bool_envvar_TestCase(unittest.TestCase):
-    def test_missing(self):
-        with OsEnviron(dict()):
-            var = SCons.Platform.VE._get_bool_envvar('FOO')
-            assert var is False, "var should be False, not %s" % repr(var)
-        with OsEnviron({'FOO': '1'}):
-            var = SCons.Platform.VE._get_bool_envvar('BAR')
-            assert var is False, "var should be False, not %s" % repr(var)
-
-    def test_true(self):
-        for foo in [ 'TRUE', 'True', 'true',
-                     'YES', 'Yes', 'yes',
-                     'Y', 'y',
-                     'ON', 'On', 'on',
-                     '1', '20', '-1']:
-            with OsEnviron({'FOO': foo}):
-                var = SCons.Platform.VE._get_bool_envvar('FOO')
-                assert var is True, 'var should be True, not %s' % repr(var)
-
-    def test_false(self):
-        for foo in [ 'FALSE', 'False', 'false',
-                     'NO', 'No', 'no',
-                     'N', 'n',
-                     'OFF', 'Off', 'off',
-                     '0']:
-            with OsEnviron({'FOO': foo}):
-                var = SCons.Platform.VE._get_bool_envvar('FOO', True)
-                assert var is False, 'var should be True, not %s' % repr(var)
-
-    def test_default(self):
-        with OsEnviron({'FOO': 'other'}):
-            var = SCons.Platform.VE._get_bool_envvar('FOO', True)
-            assert var is True, 'var should be True, not %s' % repr(var)
-            var = SCons.Platform.VE._get_bool_envvar('FOO', False)
-            assert var is False, 'var should be False, not %s' % repr(var)
 
 
 class _is_path_in_TestCase(unittest.TestCase):
@@ -184,7 +128,7 @@ class _is_path_in_TestCase(unittest.TestCase):
                         (_p('/foo/bar'), _p('/foo/bar/geez')),
                         (_p('/'), _p('/foo')),
                         (_p('foo'), _p('foo/bar')) ]:
-            assert SCons.Platform.VE._is_path_in(*args) is False, "_is_path_in(%r, %r) should be False" % args
+            assert SCons.Platform.virtualenv._is_path_in(*args) is False, "_is_path_in(%r, %r) should be False" % args
 
     def test__true(self):
         for args in [   (_p('/foo'), _p('/')),
@@ -193,7 +137,7 @@ class _is_path_in_TestCase(unittest.TestCase):
                         (_p('/foo//bar//geez'), _p('/foo/bar')),
                         (_p('/foo/bar/geez'), _p('/foo//bar')),
                         (_p('/foo/bar/geez'), _p('//foo//bar')) ]:
-            assert SCons.Platform.VE._is_path_in(*args) is True, "_is_path_in(%r, %r) should be True" % args
+            assert SCons.Platform.virtualenv._is_path_in(*args) is True, "_is_path_in(%r, %r) should be True" % args
 
 class IsInVirtualenvTestCase(unittest.TestCase):
     def test_false(self):
@@ -203,7 +147,7 @@ class IsInVirtualenvTestCase(unittest.TestCase):
                         _p('/foo'),
                         _p('/prefix'),
                         _p('/prefix/foo') ]:
-                assert SCons.Platform.VE.IsInVirtualenv(p) is False, "IsInVirtualenv(%r) should be False" % p
+                assert SCons.Platform.virtualenv.IsInVirtualenv(p) is False, "IsInVirtualenv(%r) should be False" % p
 
         # "with virtualenv"
         with SysPrefixes(_p('/virtualenv/prefix'), real_prefix=_p('/real/prefix')):
@@ -213,7 +157,7 @@ class IsInVirtualenvTestCase(unittest.TestCase):
                         _p('/virtualenv/prefix/bar/..'),
                         _p('/virtualenv/prefix/bar/../../bleah'),
                         _p('/virtualenv/bleah') ]:
-                assert SCons.Platform.VE.IsInVirtualenv(p) is False, "IsInVirtualenv(%r) should be False" % p
+                assert SCons.Platform.virtualenv.IsInVirtualenv(p) is False, "IsInVirtualenv(%r) should be False" % p
 
         # "with venv"
         with SysPrefixes(_p('/virtualenv/prefix'), base_prefix=_p('/base/prefix')):
@@ -223,20 +167,20 @@ class IsInVirtualenvTestCase(unittest.TestCase):
                         _p('/virtualenv/prefix/bar/..'),
                         _p('/virtualenv/prefix/bar/../../bleah'),
                         _p('/virtualenv/bleah') ]:
-                assert SCons.Platform.VE.IsInVirtualenv(p) is False, "IsInVirtualenv(%r) should be False" % p
+                assert SCons.Platform.virtualenv.IsInVirtualenv(p) is False, "IsInVirtualenv(%r) should be False" % p
 
     def test_true(self):
         # "with virtualenv"
         with SysPrefixes(_p('/virtualenv/prefix'), real_prefix=_p('/real/prefix')):
             for p in [  _p('/virtualenv/prefix/foo'),
                         _p('/virtualenv/prefix/foo/bar') ]:
-                assert SCons.Platform.VE.IsInVirtualenv(p) is True, "IsInVirtualenv(%r) should be True" % p
+                assert SCons.Platform.virtualenv.IsInVirtualenv(p) is True, "IsInVirtualenv(%r) should be True" % p
 
         # "with venv"
         with SysPrefixes(_p('/virtualenv/prefix'), base_prefix=_p('/base/prefix')):
             for p in [  _p('/virtualenv/prefix/foo'),
                         _p('/virtualenv/prefix/foo/bar') ]:
-                assert SCons.Platform.VE.IsInVirtualenv(p) is True, "IsInVirtualenv(%r) should be True" % p
+                assert SCons.Platform.virtualenv.IsInVirtualenv(p) is True, "IsInVirtualenv(%r) should be True" % p
 
 class _inject_venv_pathTestCase(unittest.TestCase):
     def path_list(self):
@@ -252,13 +196,13 @@ class _inject_venv_pathTestCase(unittest.TestCase):
         env = Environment()
         path_string = os.path.pathsep.join(self.path_list())
         with SysPrefixes(_p('/virtualenv/prefix'), real_prefix=_p('/real/prefix')):
-            SCons.Platform.VE._inject_venv_path(env, path_string)
+            SCons.Platform.virtualenv._inject_venv_path(env, path_string)
             assert env['ENV']['PATH'] == _p('/virtualenv/prefix/bin'), env['ENV']['PATH']
 
     def test_with_path_list(self):
         env = Environment()
         with SysPrefixes(_p('/virtualenv/prefix'), real_prefix=_p('/real/prefix')):
-            SCons.Platform.VE._inject_venv_path(env, self.path_list())
+            SCons.Platform.virtualenv._inject_venv_path(env, self.path_list())
             assert env['ENV']['PATH'] == _p('/virtualenv/prefix/bin'), env['ENV']['PATH']
 
 class VirtualenvTestCase(unittest.TestCase):
@@ -267,10 +211,10 @@ class VirtualenvTestCase(unittest.TestCase):
             return "Virtualenv() should be None, not %s" % repr(given)
 
         with SysPrefixes(_p('/prefix')):
-            ve = SCons.Platform.VE.Virtualenv()
+            ve = SCons.Platform.virtualenv.Virtualenv()
             assert ve is None , _msg(ve)
         with SysPrefixes(_p('/base/prefix'), base_prefix=_p('/base/prefix')):
-            ve = SCons.Platform.VE.Virtualenv()
+            ve = SCons.Platform.virtualenv.Virtualenv()
             assert ve is None, _msg(ve)
 
     def test_not_none(self):
@@ -278,13 +222,13 @@ class VirtualenvTestCase(unittest.TestCase):
             return "Virtualenv() should == %r, not %s" % (_p(expected), repr(given))
 
         with SysPrefixes(_p('/virtualenv/prefix'), real_prefix=_p('/real/prefix')):
-            ve = SCons.Platform.VE.Virtualenv()
+            ve = SCons.Platform.virtualenv.Virtualenv()
             assert ve == _p('/virtualenv/prefix'), _msg('/virtualenv/prefix', ve)
         with SysPrefixes(_p('/same/prefix'), real_prefix=_p('/same/prefix')):
-            ve = SCons.Platform.VE.Virtualenv()
+            ve = SCons.Platform.virtualenv.Virtualenv()
             assert ve == _p('/same/prefix'),  _msg('/same/prefix', ve)
         with SysPrefixes(_p('/virtualenv/prefix'), base_prefix=_p('/base/prefix')):
-            ve = SCons.Platform.VE.Virtualenv()
+            ve = SCons.Platform.virtualenv.Virtualenv()
             assert ve == _p('/virtualenv/prefix'),  _msg('/virtualenv/prefix', ve)
 
 

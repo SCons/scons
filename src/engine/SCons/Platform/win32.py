@@ -39,8 +39,8 @@ import tempfile
 
 from SCons.Platform.posix import exitvalmap
 from SCons.Platform import TempFileMunge
-from SCons.Platform.VE import ImportVirtualenv
-from SCons.Platform.VE import ignore_virtualenv, enable_virtualenv
+from SCons.Platform.virtualenv import ImportVirtualenv
+from SCons.Platform.virtualenv import ignore_virtualenv, enable_virtualenv
 import SCons.Util
 
 try:
