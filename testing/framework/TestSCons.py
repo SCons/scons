@@ -293,16 +293,25 @@ class TestSCons(TestCommon):
 
     def detect(self, var, prog=None, ENV=None, norm=None):
         """
-        Detect a program named 'prog' by first checking the construction
-        variable named 'var' and finally searching the path used by
-        SCons. If either method fails to detect the program, then false
-        is returned, otherwise the full path to prog is returned. If
-        prog is None, then the value of the environment variable will be
-        used as prog.
+        Return the detected path to a tool program.
+
+        Searches first the named construction variable, then
+        the SCons path.
+
+        Args:
+            var: name of construction variable to check for tool name.
+            prog: tool program to check for.
+            ENV: if present, kwargs to initialize an environment that
+                will be created to perform the lookup.
+            norm: if true, normalize any returned path looked up in
+                the environment to use UNIX-style path separators.
+
+        Returns: full path to the tool, or None.
+
         """
         env = self.Environment(ENV)
         if env:
-            v = env.subst('$'+var)
+            v = env.subst('$' + var)
             if not v:
                 return None
             if prog is None:
@@ -310,7 +319,7 @@ class TestSCons(TestCommon):
             if v != prog:
                 return None
             result = env.WhereIs(prog)
-            if norm and os.sep != '/':
+            if result and norm and os.sep != '/':
                 result = result.replace(os.sep, '/')
             return result
 
