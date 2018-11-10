@@ -283,9 +283,8 @@ def map_bkids(entry, _):
         bkidsigs = entry.bsourcesigs + entry.bdependsigs + entry.bimplicitsigs
     except AttributeError:
         return None
-    result = []
-    for bkid, bkidsig in zip(bkids, bkidsigs):
-        result.append(nodeinfo_string(bkid, bkidsig, "        "))
+    result = [nodeinfo_string(bkid, bkidsig, "        ")
+              for bkid, bkidsig in zip(bkids, bkidsigs)]
     if not result:
         return None
     return "\n        ".join(result)
