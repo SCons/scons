@@ -453,7 +453,10 @@ class Do_SConsignDB(object):
 
     @staticmethod
     def printentries(dir, val):
-        print('=== ' + dir.decode() + ':')
+        try:
+            print('=== ' + dir + ':')
+        except TypeError:
+            print('=== ' + dir.decode() + ':')
         printentries(pickle.loads(val), dir)
 
 
