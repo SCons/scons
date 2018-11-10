@@ -25,7 +25,7 @@
 -->
 
 <!-- lifted from troff+man by doclifter -->
-<refentry id='sconsign1' 
+<refentry id='sconsign1'
           xmlns="http://www.scons.org/dbxsd/v1.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
@@ -42,7 +42,7 @@
 <!-- body begins here -->
 <refsynopsisdiv id='synopsis'>
 <cmdsynopsis>
-  <command>sconsign</command>    
+  <command>sconsign</command>
     <arg choice='opt' rep='repeat'><replaceable>options</replaceable></arg>
     <arg choice='plain'><replaceable>file</replaceable></arg>
     <arg choice='opt'><replaceable>...</replaceable></arg>
@@ -51,7 +51,7 @@
 
 
 <refsect1 id='description'><title>DESCRIPTION</title>
-<para>The 
+<para>The
 <command>sconsign</command>
 command
 displays the contents of one or more
@@ -94,17 +94,21 @@ was specified by the
 function).
 Any
 <emphasis>file</emphasis>
-argument that does not end in
-<markup>.dbm</markup>
+argument that ends in
+<markup>.dblite</markup>
 is assumed to be a traditional
 <markup>.sconsign</markup>
 file containing the signature entries
 for a single directory.
+If neither of those is true,
+<command>sconsign</command>
+attempts to guess the format (but will
+probably get it wrong).
 An explicit format
 may be specified using the
 <option>-f</option>
 or
-<option>--file=</option>
+<option>--format=</option>
 options.</para>
 
 </refsect1>
