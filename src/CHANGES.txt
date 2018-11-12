@@ -24,8 +24,6 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From William Deegan:
     - Remove long deprecated SCons.Options code and tests.  This removes BoolOption,EnumOption,
       ListOption,PackageOption, and PathOption which have been replaced by *Variable() many years ago.
-    - Fix issue # 3106 MSVC if using MSVC_BATCH and target dir had a space would fail due to quirk in
-      MSVC's handling of escaped targetdirs when batch compiling.
     - Re-Enable parallel SCons (-j) when running via Pypy
     - Move SCons test framework files to testing/framework and remove all references to QMtest.
       QMTest has not been used by SCons for some time now.
@@ -35,40 +33,28 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       - Default path for clang/clangxx : C:\Program Files\LLVM\bin
       - Default path for mingw         : C:\MinGW\bin and/or  C:\mingw-w64\*\mingw64\bin
       - Key program to locate mingw    : mingw32-make (as the gcc with mingw prefix has no fixed name)
-    - Fix GH Issue #3141 unicode string in a TryAction() with python 2.7 crashes.
     - Fixed issue causing stack trace when python Action function contains a unicode string when being
       run with Python 2.7
     - Add alternate path to QT install for Centos in qt tool: /usr/lib64/qt-3.3/bin
-    - Fix GH Issue #2580 - # in FRAMEWORKPATH doesn't get properly expanded. The # is left in the
-      command line.
-    - Fix GH Issue #3212 - Use of Py3 and CacheDir + Configure's TryCompile (or likely and Python Value Nodes)
-      yielded trying to combine strings and bytes which threw exception.
-    - Updated logic for mingw and clang on win32 to search default tool install paths if not
-      found in normal SCons PATH.  If the user specifies PATH or tool specific paths they
-      will be used and the default paths below will be ignored.
-      - Default path for clang/clangxx : C:\Program Files\LLVM\bin
-      - Default path for mingw         : c:\MinGW\bin
     - Fix Java tools to search reasonable default paths for Win32, Linux, macOS.  Add required paths
       for swig and java native interface to JAVAINCLUDES.  You should add these to your CPPPATH if you need
       to compile with them.  This handles spaces in paths in default Java paths on windows.
     - Added more java paths to match install for Centos 7 of openjdk
     - Fix new logic which populates JAVAINCLUDES to handle the case where javac is not found.
-    - Fix GH Issue #3225 SCons.Util.Flatten() doesn't handle MappingView's produced by dictionary as return
-      values from dict().{items(), keys(), values()}.
-    - Fix issue #2980 with credit to William Blevins.  This is an issue where using TimeStamp-MD5 Decider
-      and CacheDir can yield incorrect md5's being written into the .sconsign.  The difference between
-      William Blevins patch and the current code is that the more complicated creation of file to csig
-      map is only done when the count of children for the current node doesn't match the previous count
-      which is loaded from the sconsign.
+    - Fix GH Issue #2580 - # in FRAMEWORKPATH doesn't get properly expanded. The # is left in the
+      command line.
     - Fix issue #2980 with credit to Piotr Bartosik (and William Blevins).  This is an issue where using
       TimeStamp-MD5 Decider and CacheDir can yield incorrect md5's being written into the .sconsign.  
       The difference between Piotr Bartosik's patch and the current code is that the more complicated 
       creation of file to csig map is only done when the count of children for the current node doesn't 
       match the previous count which is loaded from the sconsign.
-    - Move SCons test framework files to testing/framework and remove all references to QMtest.
-      QMTest has not been used by SCons for some time now.
-    - Fixed issue causing stack trace when python Action function contains a unicode string when being
-      run with Python 2.7
+    - Fix issue # 3106 MSVC if using MSVC_BATCH and target dir had a space would fail due to quirk in
+      MSVC's handling of escaped targetdirs when batch compiling.
+    - Fix GH Issue #3141 unicode string in a TryAction() with python 2.7 crashes.
+    - Fix GH Issue #3212 - Use of Py3 and CacheDir + Configure's TryCompile (or likely and Python Value Nodes)
+      yielded trying to combine strings and bytes which threw exception.
+    - Fix GH Issue #3225 SCons.Util.Flatten() doesn't handle MappingView's produced by dictionary as return
+      values from dict().{items(), keys(), values()}.
 
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
