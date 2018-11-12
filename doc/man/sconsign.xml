@@ -102,9 +102,9 @@ file containing the signature entries
 for a single directory.
 If neither of those is true,
 <command>sconsign</command>
-attempts to guess the format (but will
-probably get it wrong).
-An explicit format
+attempts to guess the format.
+If that does not work, 
+an explicit format
 may be specified using the
 <option>-f</option>
 or
