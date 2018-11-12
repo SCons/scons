@@ -1134,7 +1134,10 @@ class FSTestCase(_tempdirTestCase):
             e1 = fs.Entry(p)
             e2 = fs.Entry(path)
             assert e1 is e2, (e1, e2)
-            assert str(e1) is str(e2), (str(e1), str(e2))
+            a=str(e1)
+            b=str(e2)
+            assert a == b, ("Strings should match for same file/node\n%s\n%s"%(a,b))
+
 
         # Test for a bug in 0.04 that did not like looking up
         # dirs with a trailing slash on Windows.
