@@ -1598,16 +1598,16 @@ def cmp(a, b):
 
 
 def get_env_bool(env, name, default=False):
-    """
-    Get a value of an environment variable converting it to boolean.
+    """Get a value of env[name] converted to boolean. The value of env[name] is
+    interpreted as follows: 'true', 'yes', 'y', 'on' (case insensitive) and
+    anything convertible to int that yields non-zero integer are True values;
+    '0', 'false', 'no', 'n' and 'off' (case insensitive) are False values. For
+    all other cases, default value is returned.
 
-    - FOO=1, FOO=123, FOO=true, FOO=yes, FOO=y, FOO=on are examples of ``True``
-      values.
-    - FOO=0, FOO=false, FOO=no, FOO=n, FOO=off are examples of ``False``
-      values.
-
-    If a variable can't be converted to a boolean, default value is returned
-    (``False`` by default).
+    :Parameters:
+        - `env`     - dict or dict-like object, a convainer with variables
+        - `name`    - name of the variable in env to be returned
+        - `default` - returned when env[name] does not exist or can't be converted to bool
     """
     try:
         var = env[name]
