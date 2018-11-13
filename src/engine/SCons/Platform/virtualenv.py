@@ -37,11 +37,11 @@ virtualenv_enabled_by_default = False
 
 
 def _enable_virtualenv_default():
-    return SCons.Util.get_bool_envvar('SCONS_ENABLE_VIRTUALENV', virtualenv_enabled_by_default)
+    return SCons.Util.get_os_env_bool('SCONS_ENABLE_VIRTUALENV', virtualenv_enabled_by_default)
 
 
 def _ignore_virtualenv_default():
-    return SCons.Util.get_bool_envvar('SCONS_IGNORE_VIRTUALENV', False)
+    return SCons.Util.get_os_env_bool('SCONS_IGNORE_VIRTUALENV', False)
 
 
 enable_virtualenv = _enable_virtualenv_default()
