@@ -625,4 +625,53 @@ env.Command('directory_build_info',
 
   </section>
 
+  <section>
+  <title>Virtual environments (virtualenvs)</title>
+
+    <para>
+
+      Virtualenv is a tool to create isolated Python environments.
+      A python application (such as SCons) may be executed within
+      an activated virtualenv. The activation of virtualenv modifies
+      current environment by defining some virtualenv-specific variables
+      and modifying search PATH, such that executables installed within
+      virtualenv's home directory are preferred over the ones installed
+      outside of it.
+
+    </para>
+
+    <para>
+
+      Normally, SCons uses hard-coded PATH when searching for external
+      executables, so it always picks-up executables from these pre-defined
+      locations. This applies also to python interpreter, which is invoked
+      by some custom SCons tools or test suites. This means, when running
+      SCons in a virtualenv, an eventual invocation of python interpreter from
+      SCons script will most probably jump out of virtualenv and execute
+      python executable found in hard-coded SCons PATH, not the one which is
+      executing SCons. Some users may consider this as an inconsistency.
+
+    </para>
+
+    <para>
+      This issue may be overcome by using <literal>--enable-virtualenv</literal>
+      option. The option automatically imports virtualenv-related environment
+      variables to all created construction environment <literal>env['ENV']</literal>,
+      and modifies SCons PATH appropriately to prefer virtualenv's executables.
+      Setting environment variable <literal>SCONS_ENABLE_VIRTUALENV=1</literal>
+      will have same effect. If virtualenv support is enabled system-vide
+      by the environment variable, it may be suppressed with
+      <literal>--ignore-virtualenv</literal> option.
+    </para>
+
+    <para>
+      Inside of SConscript, a global function <literal>Virtualenv</literal> is
+      available. It returns a path to virtualenv's home directory, or
+      <literal>None</literal> if SCons is not running from virtualenv. Note,
+      that this function returns a path even if SCons is run from an
+      unactivated virtualenv.
+    </para>
+
+  </section>
+
 </chapter>

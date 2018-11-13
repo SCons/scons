@@ -87,6 +87,7 @@ def platform_default():
     else:
         return sys.platform
 
+
 def platform_module(name = platform_default()):
     """Return the imported module for the platform.
 
@@ -117,10 +118,12 @@ def platform_module(name = platform_default()):
             setattr(SCons.Platform, name, mod)
     return sys.modules[full_name]
 
+
 def DefaultToolList(platform, env):
     """Select a default tool list for the specified platform.
     """
     return SCons.Tool.tool_list(platform, env)
+
 
 class PlatformSpec(object):
     def __init__(self, name, generate):
@@ -132,6 +135,7 @@ class PlatformSpec(object):
 
     def __str__(self):
         return self.name
+
 
 class TempFileMunge(object):
     """A callable class.  You can set an Environment variable to this,

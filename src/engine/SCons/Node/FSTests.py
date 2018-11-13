@@ -41,6 +41,7 @@ import SCons.Errors
 import SCons.Node.FS
 import SCons.Util
 import SCons.Warnings
+import SCons.Environment
 
 built_it = None
 
@@ -1133,7 +1134,10 @@ class FSTestCase(_tempdirTestCase):
             e1 = fs.Entry(p)
             e2 = fs.Entry(path)
             assert e1 is e2, (e1, e2)
-            assert str(e1) is str(e2), (str(e1), str(e2))
+            a=str(e1)
+            b=str(e2)
+            assert a == b, ("Strings should match for same file/node\n%s\n%s"%(a,b))
+
 
         # Test for a bug in 0.04 that did not like looking up
         # dirs with a trailing slash on Windows.
@@ -2460,6 +2464,139 @@ class FileTestCase(_tempdirTestCase):
         assert not build_f1.exists(), "%s did not realize that %s disappeared" % (build_f1, src_f1)
         assert not os.path.exists(build_f1.get_abspath()), "%s did not get removed after %s was removed" % (build_f1, src_f1)
 
+    def test_changed(self):
+        """ 
+        Verify that changes between BuildInfo's list of souces, depends, and implicit 
+        dependencies do not corrupt content signature values written to .SConsign
+        when using CacheDir and Timestamp-MD5 decider.
+        This is for issue #2980
+        """
+        # node should have
+        # 1 source (for example main.cpp)
+        # 0 depends
+        # N implicits (for example ['alpha.h', 'beta.h', 'gamma.h', '/usr/bin/g++'])
+
+        class ChangedNode(SCons.Node.FS.File):
+            def __init__(self, name, directory=None, fs=None):
+                SCons.Node.FS.File.__init__(self, name, directory, fs)
+                self.name = name
+                self.Tag('found_includes', [])
+                self.stored_info = None
+                self.build_env = None
+                self.changed_since_last_build = 4
+                self.timestamp = 1
+
+            def get_stored_info(self):
+                return self.stored_info
+
+            def get_build_env(self):
+                return self.build_env
+
+            def get_timestamp(self):
+                """ Fake timestamp so they always match"""
+                return self.timestamp
+
+            def get_contents(self):
+                return self.name
+
+            def get_ninfo(self):
+                """ mocked to ensure csig will equal the filename"""
+                try:
+                    return self.ninfo
+                except AttributeError:
+                    self.ninfo = FakeNodeInfo(self.name, self.timestamp)
+                    return self.ninfo
+
+            def get_csig(self):
+                ninfo = self.get_ninfo()
+                try:
+                    return ninfo.csig
+                except AttributeError:
+                    pass
+
+                return "Should Never Happen"
+
+        class ChangedEnvironment(SCons.Environment.Base):
+
+            def __init__(self):
+                SCons.Environment.Base.__init__(self)
+                self.decide_source = self._changed_timestamp_then_content
+
+        class FakeNodeInfo(object):
+            def __init__(self, csig, timestamp):
+                self.csig = csig
+                self.timestamp = timestamp
+
+        #Create nodes
+        fs = SCons.Node.FS.FS()
+        d = self.fs.Dir('.')
+
+        node = ChangedNode('main.o',d,fs)  # main.o
+        s1 = ChangedNode('main.cpp',d,fs) # main.cpp
+        s1.timestamp = 2 # this changed
+        i1 = ChangedNode('alpha.h',d,fs) # alpha.h - The bug is caused because the second build adds this file
+        i1.timestamp = 2 # This is the new file.
+        i2 = ChangedNode('beta.h',d,fs) # beta.h
+        i3 = ChangedNode('gamma.h',d,fs) # gamma.h - In the bug beta.h's csig from binfo overwrites this ones
+        i4 = ChangedNode('/usr/bin/g++',d,fs) # /usr/bin/g++
+
+        node.add_source([s1])
+        node.add_dependency([])
+        node.implicit = [i1, i2, i3, i4]
+        node.implicit_set = set()
+        # node._add_child(node.implicit, node.implicit_set, [n7, n8, n9])
+        # node._add_child(node.implicit, node.implicit_set, [n10, n11, n12])
+
+        # Mock out node's scan method
+        # node.scan = lambda *args: None
+
+        # Mock out nodes' children() ?
+        # Should return Node's.
+        # All those nodes should have changed_since_last_build set to match Timestamp-MD5's
+        # decider method...
+
+        # Generate sconsign entry needed
+        sconsign_entry = SCons.SConsign.SConsignEntry()
+        sconsign_entry.binfo = node.new_binfo()
+        sconsign_entry.ninfo = node.new_ninfo()
+
+        # mock out loading info from sconsign
+        # This will cause node.get_stored_info() to return our freshly created sconsign_entry
+        node.stored_info = sconsign_entry
+
+        # binfo = information from previous build (from sconsign)
+        # We'll set the following attributes (which are lists): "bsources", "bsourcesigs",
+        # "bdepends","bdependsigs", "bimplicit", "bimplicitsigs"
+        bi = sconsign_entry.binfo
+        bi.bsources = ['main.cpp']
+        bi.bsourcesigs=[FakeNodeInfo('main.cpp',1),]
+
+        bi.bdepends = []
+        bi.bdependsigs = []
+
+        bi.bimplicit = ['beta.h','gamma.h']
+        bi.bimplicitsigs = [FakeNodeInfo('beta.h',1), FakeNodeInfo('gamma.h',1)]
+
+        ni = sconsign_entry.ninfo
+        # We'll set the following attributes (which are lists): sources, depends, implicit lists
+
+        #Set timestamp-md5
+        #Call changed
+        #Check results
+        node.build_env = ChangedEnvironment()
+
+        changed = node.changed()
+
+        # change to true to debug
+        if False:
+            print("Changed:%s"%changed)
+            print("%15s -> csig:%s"%(s1.name, s1.ninfo.csig))
+            print("%15s -> csig:%s"%(i1.name, i1.ninfo.csig))
+            print("%15s -> csig:%s"%(i2.name, i2.ninfo.csig))
+            print("%15s -> csig:%s"%(i3.name, i3.ninfo.csig))
+            print("%15s -> csig:%s"%(i4.name, i4.ninfo.csig))
+
+        self.assertEqual(i2.name,i2.ninfo.csig, "gamma.h's fake csig should equal gamma.h but equals:%s"%i2.ninfo.csig)
 
 
 class GlobTestCase(_tempdirTestCase):
@@ -3752,38 +3889,7 @@ class AbsolutePathTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suite = unittest.TestSuite()
-    suite.addTest(VariantDirTestCase())
-    suite.addTest(find_fileTestCase())
-    suite.addTest(StringDirTestCase())
-    suite.addTest(stored_infoTestCase())
-    suite.addTest(has_src_builderTestCase())
-    suite.addTest(prepareTestCase())
-    suite.addTest(SConstruct_dirTestCase())
-    suite.addTest(clearTestCase())
-    suite.addTest(disambiguateTestCase())
-    suite.addTest(postprocessTestCase())
-    suite.addTest(SpecialAttrTestCase())
-    suite.addTest(SaveStringsTestCase())
-    tclasses = [
-        AbsolutePathTestCase,
-        BaseTestCase,
-        CacheDirTestCase,
-        DirTestCase,
-        DirBuildInfoTestCase,
-        DirNodeInfoTestCase,
-        EntryTestCase,
-        FileTestCase,
-        FileBuildInfoTestCase,
-        FileNodeInfoTestCase,
-        FSTestCase,
-        GlobTestCase,
-        RepositoryTestCase,
-    ]
-    for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(list(map(tclass, names)))
-    TestUnit.run(suite)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4
