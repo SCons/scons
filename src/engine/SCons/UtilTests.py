@@ -905,13 +905,50 @@ class OsEnviron(object):
         self.stop()
 
 
-class get_bool_envvarTestCase(unittest.TestCase):
+class get_env_boolTestCase(unittest.TestCase):
+    def test_missing(self):
+        env = dict()
+        var = get_env_bool(env, 'FOO')
+        assert var is False, "var should be False, not %s" % repr(var)
+        env = {'FOO': '1'}
+        var = get_env_bool(env, 'BAR')
+        assert var is False, "var should be False, not %s" % repr(var)
+
+    def test_true(self):
+        for foo in [ 'TRUE', 'True', 'true',
+                     'YES', 'Yes', 'yes',
+                     'Y', 'y',
+                     'ON', 'On', 'on',
+                     '1', '20', '-1']:
+            env = {'FOO': foo}
+            var = get_env_bool(env, 'FOO')
+            assert var is True, 'var should be True, not %s' % repr(var)
+
+    def test_false(self):
+        for foo in [ 'FALSE', 'False', 'false',
+                     'NO', 'No', 'no',
+                     'N', 'n',
+                     'OFF', 'Off', 'off',
+                     '0']:
+            env = {'FOO': foo}
+            var = get_env_bool(env, 'FOO', True)
+            assert var is False, 'var should be True, not %s' % repr(var)
+
+    def test_default(self):
+        env = {'FOO': 'other'}
+        var = get_env_bool(env, 'FOO', True)
+        assert var is True, 'var should be True, not %s' % repr(var)
+        var = get_env_bool(env, 'FOO', False)
+        assert var is False, 'var should be False, not %s' % repr(var)
+
+
+class get_os_env_boolTestCase(unittest.TestCase):
     def test_missing(self):
         with OsEnviron(dict()):
-            var = get_bool_envvar('FOO')
+            var = get_os_env_bool('FOO')
             assert var is False, "var should be False, not %s" % repr(var)
         with OsEnviron({'FOO': '1'}):
-            var = get_bool_envvar('BAR')
+            var = get_os_env_bool('BAR')
             assert var is False, "var should be False, not %s" % repr(var)
 
     def test_true(self):
@@ -921,7 +958,7 @@ class get_bool_envvarTestCase(unittest.TestCase):
                      'ON', 'On', 'on',
                      '1', '20', '-1']:
             with OsEnviron({'FOO': foo}):
-                var = get_bool_envvar('FOO')
+                var = get_os_env_bool('FOO')
                 assert var is True, 'var should be True, not %s' % repr(var)
 
     def test_false(self):
@@ -931,14 +968,14 @@ class get_bool_envvarTestCase(unittest.TestCase):
                      'OFF', 'Off', 'off',
                      '0']:
             with OsEnviron({'FOO': foo}):
-                var = get_bool_envvar('FOO', True)
+                var = get_os_env_bool('FOO', True)
                 assert var is False, 'var should be True, not %s' % repr(var)
 
     def test_default(self):
         with OsEnviron({'FOO': 'other'}):
-            var = get_bool_envvar('FOO', True)
+            var = get_os_env_bool('FOO', True)
             assert var is True, 'var should be True, not %s' % repr(var)
-            var = get_bool_envvar('FOO', False)
+            var = get_os_env_bool('FOO', False)
             assert var is False, 'var should be False, not %s' % repr(var)
 
 
