@@ -346,6 +346,24 @@ nested_ifs_input = """
 
 
 
+ifndef_input = """
+#define DEFINED 0
+
+#ifndef	DEFINED
+#include "file45-no"
+#else
+#include "file45-yes"
+#endif
+
+#ifndef	NOT_DEFINED
+#include <file46-yes>
+#else
+#include <file46-no>
+#endif
+"""
+
+
+
 #    pp_class = PreProcessor
 #    #pp_class = DumbPreProcessor
 
@@ -424,6 +442,12 @@ class cppTestCase(unittest.TestCase):
     def test_nested_ifs(self):
         expect = self.nested_ifs_expect
         result = self.cpp.process_contents(nested_ifs_input)
+        assert expect == result, (expect, result)
+
+    def test_ifndef(self):
+        """Test basic #ifndef processing"""
+        expect = self.ifndef_expect
+        result = self.cpp.process_contents(ifndef_input)
         assert expect == result, (expect, result)
 
 class cppAllTestCase(cppTestCase):
@@ -513,6 +537,11 @@ class PreProcessorTestCase(cppAllTestCase):
         ('include', '"', 'file7-yes'),
     ]
 
+    ifndef_expect = [
+        ('include', '"', 'file45-yes'),
+        ('include', '<', 'file46-yes'),
+    ]
+    
 class DumbPreProcessorTestCase(cppAllTestCase):
     cpp_class = cpp.DumbPreProcessor
 
@@ -626,6 +655,12 @@ class DumbPreProcessorTestCase(cppAllTestCase):
     ]
 
 
+    ifndef_expect = [
+        ('include', '"', 'file45-no'),
+        ('include', '"', 'file45-yes'),
+        ('include', '<', 'file46-yes'),
+        ('include', '<', 'file46-no'),
+    ]
 
 import os
 import re
