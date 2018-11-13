@@ -36,7 +36,7 @@ import SCons.Action
 class Environment(collections.UserDict):
     def Detect(self, cmd):
         return cmd
-    
+
     def AppendENVPath(self, key, value):
         pass
 
@@ -174,9 +174,9 @@ class TempFileMungeTestCase(unittest.TestCase):
         SCons.Action.print_actions = 0
         # Create an instance of object derived class to allow setattrb
         class Node(object) :
-            class Attrs(object): 
+            class Attrs(object):
                 pass
-            def __init__(self): 
+            def __init__(self):
                 self.attributes = self.Attrs()
         target = [Node()]
         cmd = t(target, None, env, 0)
@@ -203,7 +203,7 @@ class PlatformEscapeTestCase(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-    
+
 
 # Local Variables:
 # tab-width:4

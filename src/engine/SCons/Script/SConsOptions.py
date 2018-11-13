@@ -38,6 +38,7 @@ except ImportError:
 _ = gettext
 
 import SCons.Node.FS
+import SCons.Platform.virtualenv
 import SCons.Warnings
 
 OptionValueError        = optparse.OptionValueError
@@ -706,6 +707,12 @@ def Parser(version):
                   action="callback", callback=opt_duplicate,
                   help=opt_duplicate_help)
 
+    if not SCons.Platform.virtualenv.virtualenv_enabled_by_default:
+        op.add_option('--enable-virtualenv',
+                     dest="enable_virtualenv",
+                     action="store_true",
+                     help="Import certain virtualenv variables to SCons")
+
     op.add_option('-f', '--file', '--makefile', '--sconstruct',
                   nargs=1, type="string",
                   dest="file", default=[],
@@ -732,6 +739,11 @@ def Parser(version):
                   action="append",
                   help="Search DIR for imported Python modules.",
                   metavar="DIR")
+
+    op.add_option('--ignore-virtualenv',
+                 dest="ignore_virtualenv",
+                 action="store_true",
+                 help="Do not import virtualenv variables to SCons")
 
     op.add_option('--implicit-cache',
                   dest='implicit_cache', default=False,
@@ -906,6 +918,7 @@ def Parser(version):
                   action="append",
                   help="Search REPOSITORY for source and target files.")
 
+
     # Options from Make and Cons classic that we do not yet support,
     # but which we may support someday and whose (potential) meanings
     # we don't want to change.  These all get a "the -X option is not
@@ -978,7 +991,6 @@ def Parser(version):
                   action="callback", callback=opt_not_yet,
                   # help="Warn when an undefined variable is referenced."
                   help=SUPPRESS_HELP)
-
     return op
 
 # Local Variables:

@@ -1597,6 +1597,32 @@ def cmp(a, b):
     return (a > b) - (a < b)
 
 
+def get_bool_envvar(name, default=False):
+    """
+    Get a value of OS environment variable converting it to boolean.
+
+    - FOO=1, FOO=123, FOO=true, FOO=yes, FOO=y, FOO=on are examples of ``True``
+      values.
+    - FOO=0, FOO=false, FOO=no, FOO=n, FOO=off are examples of ``False``
+      values.
+
+    If a variable can't be converted to a boolean, default value is returned
+    (``False`` by default)
+    """
+    try:
+        var = os.environ[name]
+    except KeyError:
+        return default
+    try:
+        return bool(int(var))
+    except ValueError:
+        if str(var).lower() in ('true', 'yes', 'y', 'on'):
+            return True
+        elif str(var).lower() in ('false', 'no', 'n', 'off'):
+            return False
+        else:
+            return default
+
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil
