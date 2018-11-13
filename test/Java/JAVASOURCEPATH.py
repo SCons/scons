@@ -39,8 +39,7 @@ test = TestSCons.TestSCons()
 where_javac, java_version = test.java_where_javac()
 
 test.write('SConstruct', """
-env = Environment(tools = ['javac', 'javah'],
-                  JAVAC = r'%(where_javac)s')
+env = Environment(tools = ['javac', 'javah'])
 bar = env.Java(target = 'bar/classes',
          source = 'bar/src/TestBar.java',
          JAVASOURCEPATH = ['foo/src'])

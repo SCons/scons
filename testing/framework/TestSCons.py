@@ -293,16 +293,25 @@ class TestSCons(TestCommon):
 
     def detect(self, var, prog=None, ENV=None, norm=None):
         """
-        Detect a program named 'prog' by first checking the construction
-        variable named 'var' and finally searching the path used by
-        SCons. If either method fails to detect the program, then false
-        is returned, otherwise the full path to prog is returned. If
-        prog is None, then the value of the environment variable will be
-        used as prog.
+        Return the detected path to a tool program.
+
+        Searches first the named construction variable, then
+        the SCons path.
+
+        Args:
+            var: name of construction variable to check for tool name.
+            prog: tool program to check for.
+            ENV: if present, kwargs to initialize an environment that
+                will be created to perform the lookup.
+            norm: if true, normalize any returned path looked up in
+                the environment to use UNIX-style path separators.
+
+        Returns: full path to the tool, or None.
+
         """
         env = self.Environment(ENV)
         if env:
-            v = env.subst('$'+var)
+            v = env.subst('$' + var)
             if not v:
                 return None
             if prog is None:
@@ -310,7 +319,7 @@ class TestSCons(TestCommon):
             if v != prog:
                 return None
             result = env.WhereIs(prog)
-            if norm and os.sep != '/':
+            if result and norm and os.sep != '/':
                 result = result.replace(os.sep, '/')
             return result
 
@@ -333,7 +342,7 @@ class TestSCons(TestCommon):
             return None
         return env.Detect([prog])
 
-    def where_is(self, prog, path=None):
+    def where_is(self, prog, path=None, pathext=None):
         """
         Given a program, search for it in the specified external PATH,
         or in the actual external PATH if none is specified.
@@ -343,26 +352,14 @@ class TestSCons(TestCommon):
         if self.external:
             if isinstance(prog, str):
                 prog = [prog]
-            import stat
-            paths = path.split(os.pathsep)
             for p in prog:
-                for d in paths:
-                    f = os.path.join(d, p)
-                    if os.path.isfile(f):
-                        try:
-                            st = os.stat(f)
-                        except OSError:
-                            # os.stat() raises OSError, not IOError if the file
-                            # doesn't exist, so in this case we let IOError get
-                            # raised so as to not mask possibly serious disk or
-                            # network issues.
-                            continue
-                        if stat.S_IMODE(st[stat.ST_MODE]) & 0o111:
-                            return os.path.normpath(f)
+                result = TestCmd.where_is(self, p, path, pathext)
+                if result:
+                    return os.path.normpath(result)
         else:
             import SCons.Environment
             env = SCons.Environment.Environment()
-            return env.WhereIs(prog, path)
+            return env.WhereIs(prog, path, pathext)
 
         return None
 
@@ -418,6 +415,10 @@ class TestSCons(TestCommon):
 #        TestCommon.run(self, *args, **kw)
 
     def up_to_date(self, arguments = '.', read_str = "", **kw):
+        """Asserts that all of the targets listed in arguments is
+        up to date, but does not make any assumptions on other targets.
+        This function is most useful in conjunction with the -n option.
+        """
         s = ""
         for arg in arguments.split():
             s = s + "scons: `%s' is up to date.\n" % arg
@@ -853,11 +854,15 @@ class TestSCons(TestCommon):
                 fmt = "Could not find javac for Java version %s, skipping test(s).\n"
                 self.skip_test(fmt % version)
         else:
-            m = re.search(r'javac (\d\.\d)', self.stderr())
+            m = re.search(r'javac (\d\.*\d)', self.stderr())
+            # Java 11 outputs this to stdout
+            if not m:
+                m = re.search(r'javac (\d\.*\d)', self.stdout())
+
             if m:
                 version = m.group(1)
                 self.javac_is_gcj = False
-            elif self.stderr().find('gcj'):
+            elif self.stderr().find('gcj') != -1:
                 version='1.2'
                 self.javac_is_gcj = True
             else:
@@ -1278,11 +1283,9 @@ SConscript( sconscript )
         if sys.platform == 'win32':
             self.run(program=python, stdin="""\
 import sysconfig, sys, os.path
-try:
-        py_ver = 'python%d%d' % sys.version_info[:2]
-except AttributeError:
-    py_ver = 'python' + sys.version[:3]
-# print include and lib path
+py_ver = 'python%d%d' % sys.version_info[:2]
+# use distutils to help find include and lib path
+# TODO: PY3 fine to use sysconfig.get_config_var("INCLUDEPY")
 try:
     import distutils.sysconfig
     exec_prefix = distutils.sysconfig.EXEC_PREFIX
@@ -1290,12 +1293,23 @@ try:
     print(include)
     lib_path = os.path.join(exec_prefix, 'libs')
     if not os.path.exists(lib_path):
+        # check for virtualenv path.
+        # this might not build anything different than first try.
+        def venv_path():
+            if hasattr(sys, 'real_prefix'):
+                return sys.real_prefix
+            if hasattr(sys, 'base_prefix'):
+                return sys.base_prefix
+        lib_path = os.path.join(venv_path(), 'libs')
+    if not os.path.exists(lib_path):
+        # not clear this is useful: 'lib' does not contain linkable libs
         lib_path = os.path.join(exec_prefix, 'lib')
     print(lib_path)
 except:
     include = os.path.join(sys.prefix, 'include', py_ver)
     print(include)
-    print(os.path.join(sys.prefix, 'lib', py_ver, 'config'))
+    lib_path = os.path.join(sys.prefix, 'lib', py_ver, 'config')
+    print(lib_path)
 print(py_ver)
 Python_h = os.path.join(include, "Python.h")
 if os.path.exists(Python_h):

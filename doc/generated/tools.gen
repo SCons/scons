@@ -586,10 +586,10 @@ Sets construction variables for the <application xmlns="http://www.scons.org/dbx
   <varlistentry id="t-javac">
     <term>javac</term>
     <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the <application xmlns="http://www.scons.org/dbxsd/v1.0">javac</application> compiler.
-</para>
-<para>Sets:  &cv-link-JAVABOOTCLASSPATH;, &cv-link-JAVAC;, &cv-link-JAVACCOM;, &cv-link-JAVACFLAGS;, &cv-link-JAVACLASSPATH;, &cv-link-JAVACLASSSUFFIX;, &cv-link-JAVASOURCEPATH;, &cv-link-JAVASUFFIX;.</para><para>Uses:  &cv-link-JAVACCOMSTR;.</para></listitem>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                Sets construction variables for the <application xmlns="http://www.scons.org/dbxsd/v1.0">javac</application> compiler.
+            </para>
+        <para>Sets:  &cv-link-JAVABOOTCLASSPATH;, &cv-link-JAVAC;, &cv-link-JAVACCOM;, &cv-link-JAVACFLAGS;, &cv-link-JAVACLASSPATH;, &cv-link-JAVACLASSSUFFIX;, &cv-link-JAVAINCLUDES;, &cv-link-JAVASOURCEPATH;, &cv-link-JAVASUFFIX;.</para><para>Uses:  &cv-link-JAVACCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-javah">
     <term>javah</term>
@@ -778,19 +778,19 @@ Sets construction variables for the
 </para>
 <para>Sets:  &cv-link-AS;, &cv-link-ASCOM;, &cv-link-ASFLAGS;, &cv-link-ASPPCOM;, &cv-link-ASPPFLAGS;.</para><para>Uses:  &cv-link-ASCOMSTR;, &cv-link-ASPPCOMSTR;.</para></listitem>
   </varlistentry>
-  <varlistentry id="t-Packaging">
-    <term>Packaging</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the <function xmlns="http://www.scons.org/dbxsd/v1.0">Package</function> Builder.
-</para>
-</listitem>
-  </varlistentry>
   <varlistentry id="t-packaging">
     <term>packaging</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 A framework for building binary and source packages.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="t-Packaging">
+    <term>Packaging</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Sets construction variables for the <function xmlns="http://www.scons.org/dbxsd/v1.0">Package</function> Builder.
 </para>
 </listitem>
   </varlistentry>

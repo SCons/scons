@@ -44,7 +44,7 @@ except ImportError:
     from UserString import UserString
 
 try:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, MappingView
 except ImportError:
     from collections import Iterable
 
@@ -368,7 +368,13 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
 
 DictTypes = (dict, UserDict)
 ListTypes = (list, UserList)
-SequenceTypes = (list, tuple, UserList)
+
+try:
+    # Handle getting dictionary views.
+    SequenceTypes = (list, tuple, UserList, MappingView)
+except NameError:
+    SequenceTypes = (list, tuple, UserList)
+
 
 # Note that profiling data shows a speed-up when comparing
 # explicitly with str and unicode instead of simply comparing
@@ -1476,6 +1482,11 @@ else:
         md5 = True
 
         def MD5signature(s):
+            """
+            Generate a String of Hex digits representing the md5 signature of the string
+            :param s: either string or bytes. Normally should be bytes
+            :return: String of hex digits
+            """
             m = hashlib.md5()
 
             try:
@@ -1486,6 +1497,11 @@ else:
             return m.hexdigest()
 
         def MD5filesignature(fname, chunksize=65536):
+            """
+            :param fname:
+            :param chunksize:
+            :return: String of Hex digits
+            """
             m = hashlib.md5()
             f = open(fname, "rb")
             while True:
@@ -1495,6 +1511,7 @@ else:
                 m.update(to_bytes(blck))
             f.close()
             return m.hexdigest()
+
 
 def MD5collect(signatures):
     """
@@ -1596,6 +1613,32 @@ def cmp(a, b):
     """
     return (a > b) - (a < b)
 
+
+def get_bool_envvar(name, default=False):
+    """
+    Get a value of OS environment variable converting it to boolean.
+
+    - FOO=1, FOO=123, FOO=true, FOO=yes, FOO=y, FOO=on are examples of ``True``
+      values.
+    - FOO=0, FOO=false, FOO=no, FOO=n, FOO=off are examples of ``False``
+      values.
+
+    If a variable can't be converted to a boolean, default value is returned
+    (``False`` by default)
+    """
+    try:
+        var = os.environ[name]
+    except KeyError:
+        return default
+    try:
+        return bool(int(var))
+    except ValueError:
+        if str(var).lower() in ('true', 'yes', 'y', 'on'):
+            return True
+        elif str(var).lower() in ('false', 'no', 'n', 'off'):
+            return False
+        else:
+            return default
 
 # Local Variables:
 # tab-width:4

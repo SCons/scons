@@ -25,7 +25,6 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -47,7 +46,7 @@ env2.Bld(target = 'env2.out', source = 'input')
 """ % locals())
 
 test.write('build.py',
-r"""#!/usr/bin/env python
+r"""\
 import os
 import sys
 contents = open(sys.argv[2], 'r').read()

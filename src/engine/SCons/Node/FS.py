@@ -43,6 +43,7 @@ import stat
 import sys
 import time
 import codecs
+from itertools import chain
 
 import SCons.Action
 import SCons.Debug
@@ -56,6 +57,7 @@ import SCons.Util
 import SCons.Warnings
 
 from SCons.Debug import Trace
+from . import DeciderNeedsNode
 
 print_duplicate = 0
 
@@ -73,6 +75,9 @@ def sconsign_dir(node):
 
 _sconsign_map = {0 : sconsign_none,
                  1 : sconsign_dir}
+
+class FileBuildInfoFileToCsigMappingError(Exception):
+    pass
 
 class EntryProxyAttributeError(AttributeError):
     """
@@ -285,11 +290,13 @@ def set_duplicate(duplicate):
             Link_Funcs.append(link_dict[func])
 
 def LinkFunc(target, source, env):
-    # Relative paths cause problems with symbolic links, so
-    # we use absolute paths, which may be a problem for people
-    # who want to move their soft-linked src-trees around. Those
-    # people should use the 'hard-copy' mode, softlinks cannot be
-    # used for that; at least I have no idea how ...
+    """
+    Relative paths cause problems with symbolic links, so
+    we use absolute paths, which may be a problem for people
+    who want to move their soft-linked src-trees around. Those
+    people should use the 'hard-copy' mode, softlinks cannot be
+    used for that; at least I have no idea how ...
+    """
     src = source[0].get_abspath()
     dest = target[0].get_abspath()
     dir, file = os.path.split(dest)
@@ -690,10 +697,15 @@ class Base(SCons.Node.Node):
 
     @SCons.Memoize.CountMethodCall
     def stat(self):
-        try: return self._memo['stat']
-        except KeyError: pass
-        try: result = self.fs.stat(self.get_abspath())
-        except os.error: result = None
+        try: 
+            return self._memo['stat']
+        except KeyError: 
+            pass
+        try: 
+            result = self.fs.stat(self.get_abspath())
+        except os.error: 
+            result = None
+
         self._memo['stat'] = result
         return result
 
@@ -705,13 +717,17 @@ class Base(SCons.Node.Node):
 
     def getmtime(self):
         st = self.stat()
-        if st: return st[stat.ST_MTIME]
-        else: return None
+        if st: 
+            return st[stat.ST_MTIME]
+        else: 
+            return None
 
     def getsize(self):
         st = self.stat()
-        if st: return st[stat.ST_SIZE]
-        else: return None
+        if st: 
+            return st[stat.ST_SIZE]
+        else: 
+            return None
 
     def isdir(self):
         st = self.stat()
@@ -1056,21 +1072,22 @@ _classEntry = Entry
 
 
 class LocalFS(object):
+    """
+    This class implements an abstraction layer for operations involving
+    a local file system.  Essentially, this wraps any function in
+    the os, os.path or shutil modules that we use to actually go do
+    anything with or to the local file system.
 
-    # This class implements an abstraction layer for operations involving
-    # a local file system.  Essentially, this wraps any function in
-    # the os, os.path or shutil modules that we use to actually go do
-    # anything with or to the local file system.
-    #
-    # Note that there's a very good chance we'll refactor this part of
-    # the architecture in some way as we really implement the interface(s)
-    # for remote file system Nodes.  For example, the right architecture
-    # might be to have this be a subclass instead of a base class.
-    # Nevertheless, we're using this as a first step in that direction.
-    #
-    # We're not using chdir() yet because the calling subclass method
-    # needs to use os.chdir() directly to avoid recursion.  Will we
-    # really need this one?
+    Note that there's a very good chance we'll refactor this part of
+    the architecture in some way as we really implement the interface(s)
+    for remote file system Nodes.  For example, the right architecture
+    might be to have this be a subclass instead of a base class.
+    Nevertheless, we're using this as a first step in that direction.
+
+    We're not using chdir() yet because the calling subclass method
+    needs to use os.chdir() directly to avoid recursion.  Will we
+    really need this one?
+    """
     #def chdir(self, path):
     #    return os.chdir(path)
     def chmod(self, path, mode):
@@ -2470,10 +2487,41 @@ class FileNodeInfo(SCons.Node.NodeInfoBase):
             if key not in ('__weakref__',):
                 setattr(self, key, value)
 
+    def __eq__(self, other):
+        return self.csig == other.csig and self.timestamp == other.timestamp and self.size == other.size
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
 
 class FileBuildInfo(SCons.Node.BuildInfoBase):
-    __slots__ = ()
+    """
+    This is info loaded from sconsign.
+
+    Attributes unique to FileBuildInfo:
+        dependency_map : Caches file->csig mapping
+                    for all dependencies.  Currently this is only used when using
+                    MD5-timestamp decider.
+                    It's used to ensure that we copy the correct
+                    csig from previous build to be written to .sconsign when current build
+                    is done. Previously the matching of csig to file was strictly by order
+                    they appeared in bdepends, bsources, or bimplicit, and so a change in order
+                    or count of any of these could yield writing wrong csig, and then false positive
+                    rebuilds
+    """
+    __slots__ = ('dependency_map')
     current_version_id = 2
+
+    def __setattr__(self, key, value):
+
+        # If any attributes are changed in FileBuildInfo, we need to
+        # invalidate the cached map of file name to content signature
+        # heald in dependency_map. Currently only used with
+        # MD5-timestamp decider
+        if key != 'dependency_map' and hasattr(self, 'dependency_map'):
+            del self.dependency_map
+
+        return super(FileBuildInfo, self).__setattr__(key, value)
 
     def convert_to_sconsign(self):
         """
@@ -3243,9 +3291,108 @@ class File(Base):
     def changed_state(self, target, prev_ni):
         return self.state != SCons.Node.up_to_date
 
-    def changed_timestamp_then_content(self, target, prev_ni):
+
+    # Caching node -> string mapping for the below method
+    __dmap_cache = {}
+    __dmap_sig_cache = {}
+
+
+    def _build_dependency_map(self, binfo):
+        """
+        Build mapping from file -> signature
+
+        Args:
+            self - self
+            binfo - buildinfo from node being considered
+
+        Returns:
+            dictionary of file->signature mappings
+        """
+
+        # For an "empty" binfo properties like bsources
+        # do not exist: check this to avoid exception.
+        if (len(binfo.bsourcesigs) + len(binfo.bdependsigs) + \
+            len(binfo.bimplicitsigs)) == 0:
+            return {}
+
+
+        # store this info so we can avoid regenerating it.
+        binfo.dependency_map = { str(child):signature for child, signature in zip(chain(binfo.bsources, binfo.bdepends, binfo.bimplicit),
+                                     chain(binfo.bsourcesigs, binfo.bdependsigs, binfo.bimplicitsigs))}
+
+        return binfo.dependency_map
+
+    def _get_previous_signatures(self, dmap):
+        """
+        Return a list of corresponding csigs from previous
+        build in order of the node/files in children.
+
+        Args:
+            self - self
+            dmap - Dictionary of file -> csig
+
+        Returns:
+            List of csigs for provided list of children
+        """
+        prev = []
+
+        # First try the simple name for node
+        c_str = str(self)
+        if os.altsep:
+            c_str = c_str.replace(os.sep, os.altsep)
+        df = dmap.get(c_str, None)
+        if not df:
+            try:
+                # this should yield a path which matches what's in the sconsign
+                c_str = self.get_path()
+                if os.altsep:
+                    c_str = c_str.replace(os.sep, os.altsep)
+
+                df = dmap.get(c_str, None)
+
+            except AttributeError as e:
+                raise FileBuildInfoFileToCsigMappingError("No mapping from file name to content signature for :%s"%c_str)
+
+        return df
+
+    def changed_timestamp_then_content(self, target, prev_ni, node=None):
+        """
+        Used when decider for file is Timestamp-MD5
+
+        NOTE: If the timestamp hasn't changed this will skip md5'ing the
+              file and just copy the prev_ni provided.  If the prev_ni
+              is wrong. It will propagate it.
+              See: https://github.com/SCons/scons/issues/2980
+        
+        Args:
+            self - dependency
+            target - target
+            prev_ni - The NodeInfo object loaded from previous builds .sconsign
+            node - Node instance.  This is the only changed* function which requires
+                   node to function. So if we detect that it's not passed.
+                   we throw DeciderNeedsNode, and caller should handle this and pass node.
+
+        Returns: 
+            Boolean - Indicates if node(File) has changed.
+        """
+        if node is None:
+            # We need required node argument to get BuildInfo to function
+            raise DeciderNeedsNode(self.changed_timestamp_then_content)
+
+        # Now get sconsign name -> csig map and then get proper prev_ni if possible
+        bi = node.get_stored_info().binfo
+        rebuilt = False
+        try:
+            dependency_map = bi.dependency_map
+        except AttributeError as e:
+            dependency_map = self._build_dependency_map(bi)
+            rebuilt = True
+
+        prev_ni = self._get_previous_signatures(dependency_map)
+
         if not self.changed_timestamp_match(target, prev_ni):
             try:
+                # NOTE: We're modifying the current node's csig in a query.
                 self.get_ninfo().csig = prev_ni.csig
             except AttributeError:
                 pass
@@ -3259,6 +3406,12 @@ class File(Base):
             return 1
 
     def changed_timestamp_match(self, target, prev_ni):
+        """
+        Return True if the timestamps don't match or if there is no previous timestamp
+        :param target:
+        :param prev_ni: Information about the node from the previous build
+        :return:
+        """
         try:
             return self.get_timestamp() != prev_ni.timestamp
         except AttributeError:
@@ -3280,7 +3433,9 @@ class File(Base):
                         # ...and they'd like a local copy.
                         e = LocalCopy(self, r, None)
                         if isinstance(e, SCons.Errors.BuildError):
-                            raise
+                            # Likely this should be re-raising exception e
+                            # (which would be BuildError)
+                            raise e
                         SCons.Node.store_info_map[self.store_info](self)
                     if T: Trace(' 1\n')
                     return 1
@@ -3301,9 +3456,12 @@ class File(Base):
         result = self
         if not self.exists():
             norm_name = _my_normcase(self.name)
-            for dir in self.dir.get_all_rdirs():
-                try: node = dir.entries[norm_name]
-                except KeyError: node = dir.file_on_disk(self.name)
+            for repo_dir in self.dir.get_all_rdirs():
+                try:
+                    node = repo_dir.entries[norm_name]
+                except KeyError:
+                    node = repo_dir.file_on_disk(self.name)
+
                 if node and node.exists() and \
                    (isinstance(node, File) or isinstance(node, Entry)
                     or not node.is_derived()):
@@ -3324,6 +3482,28 @@ class File(Base):
                         break
         self._memo['rfile'] = result
         return result
+
+    def find_repo_file(self):
+        """
+        For this node, find if there exists a corresponding file in one or more repositories
+        :return: list of corresponding files in repositories
+        """
+        retvals = []
+
+        norm_name = _my_normcase(self.name)
+        for repo_dir in self.dir.get_all_rdirs():
+            try:
+                node = repo_dir.entries[norm_name]
+            except KeyError:
+                node = repo_dir.file_on_disk(self.name)
+
+            if node and node.exists() and \
+                    (isinstance(node, File) or isinstance(node, Entry) \
+                     or not node.is_derived()):
+                retvals.append(node)
+
+        return retvals
+
 
     def rstr(self):
         return str(self.rfile())
@@ -3382,6 +3562,8 @@ class File(Base):
         because multiple targets built by the same action will all
         have the same build signature, and we have to differentiate
         them somehow.
+
+        Signature should normally be string of hex digits.
         """
         try:
             return self.cachesig
@@ -3391,10 +3573,13 @@ class File(Base):
         # Collect signatures for all children
         children = self.children()
         sigs = [n.get_cachedir_csig() for n in children]
+
         # Append this node's signature...
         sigs.append(self.get_contents_sig())
+
         # ...and it's path
         sigs.append(self.get_internal_path())
+
         # Merge this all into a single signature
         result = self.cachesig = SCons.Util.MD5collect(sigs)
         return result

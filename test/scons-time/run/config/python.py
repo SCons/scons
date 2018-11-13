@@ -32,6 +32,8 @@ import os
 
 import TestSCons_time
 
+_python_ = TestSCons_time._python_
+
 test = TestSCons_time.TestSCons_time()
 
 test.write_sample_project('foo.tar.gz')
@@ -43,7 +45,7 @@ python = r'%(my_python_py)s'
 """ % locals())
 
 test.write(my_python_py, """\
-#!/usr/bin/env python
+#!%(_python_)s
 from __future__ import print_function
 import sys
 profile = ''
@@ -51,8 +53,8 @@ for arg in sys.argv[1:]:
     if arg.startswith('--profile='):
         profile = arg[10:]
         break
-print('my_python.py: %s' % profile)
-""")
+print('my_python.py: %%s' %% profile)
+""" % locals())
 
 os.chmod(my_python_py, 0o755)
 

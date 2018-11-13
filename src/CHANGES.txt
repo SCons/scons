@@ -6,14 +6,7 @@
 
 
 RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
-
-  From Daniel Moody:
-    - Updated FS.py to handle removal of splitunc function from python 3.7
-    - Updated the vc.py to ignore MSVS versions where not compiler could be found
-
-  From Matthew Marinets:
-    - Fixed an issue that caused the Java emitter to incorrectly parse arguments to constructors that
-      implemented a class.
+** Please add to this version's notes ordered by contributors last name. NOT newest at top of list **
 
   From Bernard Blackham:
    - Fixed handling of side-effects in task master (fixes #3013).
@@ -22,7 +15,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Fix the PATH created by scons.bat (and other .bat files) to provide a normalized
       PATH.  Some pythons in the 3.6 series are no longer able to handle paths which
       have ".." in them and end up crashing.  This is done by cd'ing into the directory
-      we want to add to the path and then useing %CD% to give us the normalized directory
+      we want to add to the path and then using %CD% to give us the normalized directory
       See bug filed under Python 3.6: https://bugs.python.org/issue32457.
       Note: On Win32 PATH's which have not been normalized may cause undefined behavior
       by other executables being run by SCons (or any subprocesses of executables being run by SCons).
@@ -31,8 +24,6 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From William Deegan:
     - Remove long deprecated SCons.Options code and tests.  This removes BoolOption,EnumOption,
       ListOption,PackageOption, and PathOption which have been replaced by *Variable() many years ago.
-    - Fix issue # 3106 MSVC if using MSVC_BATCH and target dir had a space would fail due to quirk in
-      MSVC's handling of escaped targetdirs when batch compiling.
     - Re-Enable parallel SCons (-j) when running via Pypy
     - Move SCons test framework files to testing/framework and remove all references to QMtest.
       QMTest has not been used by SCons for some time now.
@@ -42,12 +33,28 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       - Default path for clang/clangxx : C:\Program Files\LLVM\bin
       - Default path for mingw         : C:\MinGW\bin and/or  C:\mingw-w64\*\mingw64\bin
       - Key program to locate mingw    : mingw32-make (as the gcc with mingw prefix has no fixed name)
-    - Fix GH Issue #3141 unicode string in a TryAction() with python 2.7 crashes.
     - Fixed issue causing stack trace when python Action function contains a unicode string when being
       run with Python 2.7
     - Add alternate path to QT install for Centos in qt tool: /usr/lib64/qt-3.3/bin
+    - Fix Java tools to search reasonable default paths for Win32, Linux, macOS.  Add required paths
+      for swig and java native interface to JAVAINCLUDES.  You should add these to your CPPPATH if you need
+      to compile with them.  This handles spaces in paths in default Java paths on windows.
+    - Added more java paths to match install for Centos 7 of openjdk
+    - Fix new logic which populates JAVAINCLUDES to handle the case where javac is not found.
     - Fix GH Issue #2580 - # in FRAMEWORKPATH doesn't get properly expanded. The # is left in the
       command line.
+    - Fix issue #2980 with credit to Piotr Bartosik (and William Blevins).  This is an issue where using
+      TimeStamp-MD5 Decider and CacheDir can yield incorrect md5's being written into the .sconsign.  
+      The difference between Piotr Bartosik's patch and the current code is that the more complicated 
+      creation of file to csig map is only done when the count of children for the current node doesn't 
+      match the previous count which is loaded from the sconsign.
+    - Fix issue # 3106 MSVC if using MSVC_BATCH and target dir had a space would fail due to quirk in
+      MSVC's handling of escaped targetdirs when batch compiling.
+    - Fix GH Issue #3141 unicode string in a TryAction() with python 2.7 crashes.
+    - Fix GH Issue #3212 - Use of Py3 and CacheDir + Configure's TryCompile (or likely and Python Value Nodes)
+      yielded trying to combine strings and bytes which threw exception.
+    - Fix GH Issue #3225 SCons.Util.Flatten() doesn't handle MappingView's produced by dictionary as return
+      values from dict().{items(), keys(), values()}.
 
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
@@ -57,6 +64,10 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       objects when SCons runs with Python 3.
     - Added missing FORTRANMODDIRPREFIX to the gfortran tool.
 
+  From Matthew Marinets:
+    - Fixed an issue that caused the Java emitter to incorrectly parse arguments to constructors that
+      implemented a class.
+      
   From Fredrik Medley:
     - Fix exception when printing of EnviromentError messages.
       Specifically, this fixes error reporting of the race condition when
@@ -76,14 +87,8 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Set the pickling protocal back to highest which was causing issues
       with variant dir tests. This will cause issues if reading sconsigns
       pickled with the previous lower protocal.
-
-
-  From William Deegan:
-    - Updated logic for mingw and clang on win32 to search default tool install paths if not
-      found in normal SCons PATH.  If the user specifies PATH or tool specific paths they
-      will be used and the default paths below will be ignored.
-      - Default path for clang/clangxx : C:\Program Files\LLVM\bin
-      - Default path for mingw         : c:\MinGW\bin
+    - Updated FS.py to handle removal of splitunc function from python 3.7
+    - Updated the vc.py to ignore MSVS versions where not compiler could be found
 
   From Gary Oberbrunner:
     - Fix bug when Installing multiple subdirs outside the source tree
@@ -99,6 +104,14 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - In the testing framework, module TestCommon, fixed must_contain(),
       must_not_contain(), and related methods of TestCommon class to work with
       substrings located at zero offset.
+    - Added virtualenv support. A new function Virtualenv() determines whether
+      SCons runs in a virtualenv. The search PATH may also be extended to
+      prefer executables from the current virtualenv over the ones provided by
+      base environment. New option --enable-virtualenv provided to import some
+      virtualenv-related variables to SCons and extend every env['ENV']['PATH']
+      automatically. New option --ignore-virtualenv disables this. Two
+      environment variables, SCONS_ENABLE_VIRTUALENV and
+      SCONS_IGNORE_VIRTUALENV are supported for the same purpose.
 
   From Richard West:
     - Add SConstruct.py, Sconstruct.py, sconstruct.py to the search path for the root SConstruct file.
@@ -138,7 +151,8 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
          to the specfile without adding specific logic for each one to scons.
     - The test for Python.h needed by swig tests is moved to get_python_platform
       so it does not have to be repeated in every test; picks up one failure
-      which did not make the (previously needed) check.
+      which did not make the (previously needed) check. Windows version
+      of get_python_platform needed some rework in case running in virtualenv.
     - If test opens os.devnull, register with atexit so file opens do not leak.
     - Fix bugs in Win32 process spawn logic to handle OSError exception correctly.
     - Use time.perf_counter instead of time.clock if it exists.
@@ -158,13 +172,18 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Add xz compression format to packaging choices.
     - Syntax cleanups - trailing blanks, use "is" to compare with None, etc.
       Three uses of variables not defined are changed.
+    - Some script changes in trying to find scons engine
+    - Update (pep8) configure-cache script, add a --show option.
+    - Fix for a couple of "what if tool not found" exceptions in framework.
+
+  From Bernhard M. Wiedemann:
+    - Update SCons' internal scons build logic to allow overriding build date 
+      with SOURCE_DATE_EPOCH for SCons itself.
+    - Change the datestamps in SCons' docs and embedded in code use ISO 8601 format and UTC
 
   From Hao Wu
-    - typo in customized decider example in user guide
-
-  From Hao Wu
+    - Typo in customized decider example in user guide
     - Replace usage of unittest.TestSuite with unittest.main() (fix #3113)
-
 
 
 

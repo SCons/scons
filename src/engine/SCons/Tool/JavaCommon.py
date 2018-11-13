@@ -32,6 +32,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import os.path
 import re
+import glob
 
 java_parsing = 1
 
@@ -390,6 +391,83 @@ else:
         the path to the file is the same as the package name.
         """
         return os.path.split(fn)
+
+
+
+java_win32_version_dir_glob = 'C:/Program Files*/Java/jdk%s*/bin'
+java_win32_dir_glob = 'C:/Program Files*/Java/jdk*/bin'
+
+java_macos_include_dir = '/System/Library/Frameworks/JavaVM.framework/Headers/'
+java_macos_version_include_dir = '/System/Library/Frameworks/JavaVM.framework/Versions/%s*/Headers/'
+
+java_linux_include_dirs = ['/usr/lib/jvm/default-java/include',
+                        '/usr/lib/jvm/java-*/include']
+# Need to match path like below (from Centos 7)
+# /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.191.b12-0.el7_5.x86_64/include/
+java_linux_version_include_dirs = ['/usr/lib/jvm/java-*-sun-%s*/include',
+                                   '/usr/lib/jvm/java-%s*-openjdk*/include',
+                                   '/usr/java/jdk%s*/include']
+
+
+
+def get_java_install_dirs(platform, version=None):
+    """
+    Using patterns above find the java jdk install dir
+    :param platform:
+    :param version: If specified, only look for java sdk's of this version
+    :return: list of default paths for java.
+    """
+    paths = []
+    if platform == 'win32':
+        if version:
+            paths = glob.glob(java_win32_version_dir_glob%version)
+        else:
+            paths = glob.glob(java_win32_dir_glob)
+    else:
+        # do nothing for now
+        pass
+
+    paths=sorted(paths)
+
+    return paths
+
+def get_java_include_paths(env, javac, version):
+    """
+    Return java include paths
+    :param platform:
+    :param javac:
+    :return:
+    """
+    paths = []
+    if not javac:
+        # there are no paths if we've not detected javac.
+        pass
+    elif env['PLATFORM'] == 'win32':
+        javac_bin_dir = os.path.dirname(javac)
+        java_inc_dir = os.path.normpath(os.path.join(javac_bin_dir, '..', 'include'))
+        paths = [java_inc_dir, os.path.join(java_inc_dir, 'win32')]
+    elif env['PLATFORM'] == 'darwin':
+        if not version:
+            paths = [java_macos_include_dir]
+        else:
+            paths = sorted(glob.glob(java_macos_version_include_dir%version))
+    else:
+        base_paths=[]
+        if not version:
+            for p in java_linux_include_dirs:
+                base_paths.extend(glob.glob(p))
+        else:
+            for p in java_linux_version_include_dirs:
+                base_paths.extend(glob.glob(p%version))
+
+        for p in base_paths:
+            paths.extend([p, os.path.join(p,'linux')])
+            
+    #print("PATHS:%s"%paths)
+    return paths
+
+
+
 
 # Local Variables:
 # tab-width:4

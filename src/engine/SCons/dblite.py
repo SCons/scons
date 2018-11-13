@@ -75,7 +75,8 @@ class dblite(object):
 
     def __init__(self, file_base_name, flag, mode):
         assert flag in (None, "r", "w", "c", "n")
-        if (flag is None): flag = "r"
+        if flag is None:
+            flag = "r"
 
         base, ext = os.path.splitext(file_base_name)
         if ext == dblite_suffix:
@@ -106,13 +107,13 @@ class dblite(object):
             self._chown_to = -1  # don't chown
             self._chgrp_to = -1  # don't chgrp
 
-        if (self._flag == "n"):
+        if self._flag == "n":
             self._open(self._file_name, "wb", self._mode)
         else:
             try:
                 f = self._open(self._file_name, "rb")
             except IOError as e:
-                if (self._flag != "c"):
+                if self._flag != "c":
                     raise e
                 self._open(self._file_name, "wb", self._mode)
             else:
@@ -132,7 +133,7 @@ class dblite(object):
                             corruption_warning(self._file_name)
 
     def close(self):
-        if (self._needs_sync):
+        if self._needs_sync:
             self.sync()
 
     def __del__(self):

@@ -30,6 +30,7 @@ import sys
 import TestSCons
 
 test = TestSCons.TestSCons()
+test.verbose_set(1)
 
 test.write('SConstruct', """
 import sys
