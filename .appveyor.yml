@@ -62,10 +62,6 @@ environment:
 
 build: off
 
-# Remove bogus xsltproc.exe from git install if it's there
-before_build:
-    - ps: Remove-Item  "C:\Program Files\Git\usr\bin\xsltproc.EXE" -ErrorAction Ignore
-
 build_script:
   - cmd: python runtest.py -l -a > all_tests.txt
   - ps: >-
