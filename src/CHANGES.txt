@@ -186,8 +186,8 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Replace usage of unittest.TestSuite with unittest.main() (fix #3113)
 
   From Arda Fu
-    - Fix cpp scanner regex logic to treat ifndef. Previously it was not properly 
-      differentiating between if, ifdef, and ifndef
+    - Fix cpp scanner regex logic to treat ifndef for py3.5+. Previously it was 
+      not properly differentiating between if, ifdef, and ifndef.
 
 
 RELEASE 3.0.1 - Mon, 12 Nov 2017 15:31:33 -0700
