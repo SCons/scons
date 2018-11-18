@@ -180,7 +180,7 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       in case 2017 Build Tools only is installed as it is considered a separate
       product from the default Visual Studio; search for cl.exe in located
       path instead of just looking for a couple of built-in locations as
-      2017 products are putting cl.exe deeper down the heirarchy.
+      2017 products are putting cl.exe deeper down the hierarchy.
 
   From Bernhard M. Wiedemann:
     - Update SCons' internal scons build logic to allow overriding build date 
