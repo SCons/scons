@@ -29,6 +29,7 @@ This module implements the dependency scanner for C/C++ code.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+
 import SCons.Node.FS
 import SCons.Scanner
 import SCons.Util
@@ -46,16 +47,25 @@ class SConsCPPScanner(SCons.cpp.PreProcessor):
     def __init__(self, *args, **kw):
         SCons.cpp.PreProcessor.__init__(self, *args, **kw)
         self.missing = []
+        self._known_paths = tuple()
+
     def initialize_result(self, fname):
         self.result = SCons.Util.UniqueList([fname])
-    def finalize_result(self, fname):
-        return self.result[1:]
+
     def find_include_file(self, t):
         keyword, quote, fname = t
-        result = SCons.Node.FS.find_file(fname, self.searchpath[quote])
-        if not result:
+        result = SCons.Node.FS.find_file(
+            fname, self._known_paths + self.searchpath[quote])
+        if result:
+            result_path = result.get_abspath()
+            for p in self.searchpath[quote]:
+                if result_path.startswith(p.get_abspath()):
+                    self._known_paths.add(p)
+                    break
+        else:
             self.missing.append((fname, self.current_file))
         return result
+
     def read_file(self, file):
         try:
             with open(str(file.rfile())) as fp:
