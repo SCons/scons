@@ -997,6 +997,12 @@ the mechanisms in the specified order.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
+  <term>--enable-virtualenv</term>
+  <listitem>
+<para>Import virtualenv-related variables to SCons.</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
   <term>-f<emphasis> file</emphasis>, --file=<emphasis>file</emphasis>, --makefile=<emphasis>file</emphasis>, --sconstruct=<emphasis>file</emphasis></term>
   <listitem>
 <para>Use
@@ -1051,6 +1057,12 @@ are used, the directories are searched in the order specified.</para>
 
   </listitem>
   </varlistentry>
+   <varlistentry>
+   <term>--ignore-virtualenv</term>
+   <listitem>
+<para>Suppress importing virtualenv-related variables to SCons.</para>
+   </listitem>
+   </varlistentry>
   <varlistentry>
   <term>--implicit-cache</term>
   <listitem>

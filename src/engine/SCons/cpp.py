@@ -82,9 +82,9 @@ del op_list
 # Create a list of the expressions we'll use to match all of the
 # preprocessor directives.  These are the same as the directives
 # themselves *except* that we must use a negative lookahead assertion
-# when matching "if" so it doesn't match the "if" in "ifdef."
+# when matching "if" so it doesn't match the "if" in "ifdef" or "ifndef".
 override = {
-    'if'                        : 'if(?!def)',
+    'if'                        : 'if(?!n?def)',
 }
 l = [override.get(x, x) for x in list(Table.keys())]
 

@@ -884,6 +884,101 @@ class flattenTestCase(unittest.TestCase):
         self.assertEqual(sorted(result),[1,2,3])
 
 
+class OsEnviron(object):
+    """Used to temporarily mock os.environ"""
+    def __init__(self, environ):
+        self._environ = environ
+
+    def start(self):
+        self._stored = os.environ
+        os.environ = self._environ
+
+    def stop(self):
+        os.environ = self._stored
+        del self._stored
+
+    def __enter__(self):
+        self.start()
+        return os.environ
+
+    def __exit__(self, *args):
+        self.stop()
+
+
+class get_env_boolTestCase(unittest.TestCase):
+    def test_missing(self):
+        env = dict()
+        var = get_env_bool(env, 'FOO')
+        assert var is False, "var should be False, not %s" % repr(var)
+        env = {'FOO': '1'}
+        var = get_env_bool(env, 'BAR')
+        assert var is False, "var should be False, not %s" % repr(var)
+
+    def test_true(self):
+        for foo in [ 'TRUE', 'True', 'true',
+                     'YES', 'Yes', 'yes',
+                     'Y', 'y',
+                     'ON', 'On', 'on',
+                     '1', '20', '-1']:
+            env = {'FOO': foo}
+            var = get_env_bool(env, 'FOO')
+            assert var is True, 'var should be True, not %s' % repr(var)
+
+    def test_false(self):
+        for foo in [ 'FALSE', 'False', 'false',
+                     'NO', 'No', 'no',
+                     'N', 'n',
+                     'OFF', 'Off', 'off',
+                     '0']:
+            env = {'FOO': foo}
+            var = get_env_bool(env, 'FOO', True)
+            assert var is False, 'var should be True, not %s' % repr(var)
+
+    def test_default(self):
+        env = {'FOO': 'other'}
+        var = get_env_bool(env, 'FOO', True)
+        assert var is True, 'var should be True, not %s' % repr(var)
+        var = get_env_bool(env, 'FOO', False)
+        assert var is False, 'var should be False, not %s' % repr(var)
+
+
+class get_os_env_boolTestCase(unittest.TestCase):
+    def test_missing(self):
+        with OsEnviron(dict()):
+            var = get_os_env_bool('FOO')
+            assert var is False, "var should be False, not %s" % repr(var)
+        with OsEnviron({'FOO': '1'}):
+            var = get_os_env_bool('BAR')
+            assert var is False, "var should be False, not %s" % repr(var)
+
+    def test_true(self):
+        for foo in [ 'TRUE', 'True', 'true',
+                     'YES', 'Yes', 'yes',
+                     'Y', 'y',
+                     'ON', 'On', 'on',
+                     '1', '20', '-1']:
+            with OsEnviron({'FOO': foo}):
+                var = get_os_env_bool('FOO')
+                assert var is True, 'var should be True, not %s' % repr(var)
+
+    def test_false(self):
+        for foo in [ 'FALSE', 'False', 'false',
+                     'NO', 'No', 'no',
+                     'N', 'n',
+                     'OFF', 'Off', 'off',
+                     '0']:
+            with OsEnviron({'FOO': foo}):
+                var = get_os_env_bool('FOO', True)
+                assert var is False, 'var should be True, not %s' % repr(var)
+
+    def test_default(self):
+        with OsEnviron({'FOO': 'other'}):
+            var = get_os_env_bool('FOO', True)
+            assert var is True, 'var should be True, not %s' % repr(var)
+            var = get_os_env_bool('FOO', False)
+            assert var is False, 'var should be False, not %s' % repr(var)
+
+
 if __name__ == "__main__":
     unittest.main()
 

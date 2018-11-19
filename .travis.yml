@@ -8,6 +8,11 @@ addons:
     apt:
       update: true
 
+os:
+  - linux
+
+sudo: required
+
 install:
     - ./.travis/install.sh
 
@@ -15,7 +20,6 @@ install:
 matrix:
   allow_failures:
     - python: pypy
-
 
 jobs:
   include:

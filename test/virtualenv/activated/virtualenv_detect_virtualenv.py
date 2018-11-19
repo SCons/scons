@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2001-2010 The SCons Foundation
+# __COPYRIGHT__
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -22,32 +22,32 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+
 """
-Test the EPUB builder while using
-the xsltproc executable, if it exists.
+Check if SCons.Platform.virtualenv.Virtualenv() works in SConscripts.
 """
 
 import TestSCons
+import SCons.Platform.virtualenv
+import sys
 
 test = TestSCons.TestSCons()
 
-xsltproc = test.where_is('xsltproc')
-if not xsltproc:
-    test.skip_test('No xsltproc executable found, skipping test.\n')
-test.dir_fixture('image')
+ve = SCons.Platform.virtualenv.Virtualenv()
+if not ve:
+    test.skip_test("Virtualenv is not active, skipping\n")
 
-# Normal invocation
-test.run(arguments=['-f','SConstruct.cmd','DOCBOOK_XSLTPROC=%s'%xsltproc], stderr=None)
-test.must_exist(test.workpath('manual.epub'))
-test.must_exist(test.workpath('OEBPS','toc.ncx'))
-test.must_exist(test.workpath('OEBPS','content.opf'))
-test.must_exist(test.workpath('META-INF','container.xml'))
+test.write('SConstruct', """
+print("virtualenv: %r" % Virtualenv())
+""")
 
-# Cleanup
-test.run(arguments=['-f','SConstruct.cmd','-c','DOCBOOK_XSLTPROC=%s'%xsltproc])
-test.must_not_exist(test.workpath('manual.epub'))
-test.must_not_exist(test.workpath('OEBPS'))
-test.must_not_exist(test.workpath('META-INF'))
+if SCons.Platform.virtualenv.virtualenv_enabled_by_default:
+    test.run(['-Q'])
+else:
+    test.run(['-Q', '--enable-virtualenv'])
+
+test.must_contain_all_lines(test.stdout(), ['virtualenv: %r' % ve])
 
 test.pass_test()
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2001-2010 The SCons Foundation
+# __COPYRIGHT__
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -22,32 +22,42 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+
 """
-Test the EPUB builder while using
-the xsltproc executable, if it exists.
+Check which python executable is running scons and which python executable
+would be used by scons, when we run under activated virtualenv (i.e. PATH
+contains the virtualenv's bin path).
 """
 
 import TestSCons
+import SCons.Platform.virtualenv
+import re
 
 test = TestSCons.TestSCons()
 
-xsltproc = test.where_is('xsltproc')
-if not xsltproc:
-    test.skip_test('No xsltproc executable found, skipping test.\n')
-test.dir_fixture('image')
+test.write('SConstruct', """
+print("Virtualenv(): %r" % Virtualenv())
+""")
 
-# Normal invocation
-test.run(arguments=['-f','SConstruct.cmd','DOCBOOK_XSLTPROC=%s'%xsltproc], stderr=None)
-test.must_exist(test.workpath('manual.epub'))
-test.must_exist(test.workpath('OEBPS','toc.ncx'))
-test.must_exist(test.workpath('OEBPS','content.opf'))
-test.must_exist(test.workpath('META-INF','container.xml'))
+test.run(['-Q'])
 
-# Cleanup
-test.run(arguments=['-f','SConstruct.cmd','-c','DOCBOOK_XSLTPROC=%s'%xsltproc])
-test.must_not_exist(test.workpath('manual.epub'))
-test.must_not_exist(test.workpath('OEBPS'))
-test.must_not_exist(test.workpath('META-INF'))
+s = test.stdout()
+m = re.search(r"^Virtualenv\(\):\s*(?P<ve>.+\S)\s*$", s, re.MULTILINE)
+if not m:
+    test.fail_test(message="""\
+can't determine Virtualenv() result from stdout:
+========= STDOUT =========
+%s
+==========================
+""" % s)
+
+scons_ve = m.group('ve')
+our_ve = "%r" % SCons.Platform.virtualenv.Virtualenv()
+
+# runing in activated virtualenv (after "activate") - PATH includes virtualenv's bin directory
+test.fail_test(scons_ve != our_ve,
+               message="Virtualenv() from SCons != Virtualenv() from caller script (%r != %r)" % (scons_ve, our_ve))
 
 test.pass_test()
 

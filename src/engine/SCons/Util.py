@@ -1597,6 +1597,37 @@ def cmp(a, b):
     return (a > b) - (a < b)
 
 
+def get_env_bool(env, name, default=False):
+    """Get a value of env[name] converted to boolean. The value of env[name] is
+    interpreted as follows: 'true', 'yes', 'y', 'on' (case insensitive) and
+    anything convertible to int that yields non-zero integer are True values;
+    '0', 'false', 'no', 'n' and 'off' (case insensitive) are False values. For
+    all other cases, default value is returned.
+
+    :Parameters:
+        - `env`     - dict or dict-like object, a convainer with variables
+        - `name`    - name of the variable in env to be returned
+        - `default` - returned when env[name] does not exist or can't be converted to bool
+    """
+    try:
+        var = env[name]
+    except KeyError:
+        return default
+    try:
+        return bool(int(var))
+    except ValueError:
+        if str(var).lower() in ('true', 'yes', 'y', 'on'):
+            return True
+        elif str(var).lower() in ('false', 'no', 'n', 'off'):
+            return False
+        else:
+            return default
+
+
+def get_os_env_bool(name, default=False):
+    """Same as get_env_bool(os.environ, name, default)."""
+    return get_env_bool(os.environ, name, default)
+
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil

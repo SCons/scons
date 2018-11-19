@@ -45,6 +45,7 @@ from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import collections
 import copy
 from itertools import chain
@@ -138,6 +139,7 @@ def exists_entry(node):
     directory."""
     node.disambiguate()
     return _exists_map[node._func_exists](node)
+
 
 def exists_file(node):
     # Duplicate from source path if we are set up to do this.
@@ -246,6 +248,21 @@ _target_from_source_map = {0 : target_from_source_none,
 # used by it.
 #
 
+
+class DeciderNeedsNode(Exception):
+    """
+    Indicate that the decider needs the node as well as the target and the dependency.
+    Normally the node and the target are the same, but in the case of repository
+    They may be different. Also the NodeInfo is retrieved from the node
+    """
+    def __init__(self, call_this_decider):
+        """
+        :param call_this_decider: to return the decider to call directly since deciders
+               are called through several levels of indirection
+        """
+        self.decider = call_this_decider
+
+
 #
 # First, the single decider functions
 #
@@ -269,6 +286,7 @@ def changed_since_last_build_node(node, target, prev_ni):
     """
     raise NotImplementedError
 
+
 def changed_since_last_build_alias(node, target, prev_ni):
     cur_csig = node.get_csig()
     try:
@@ -276,18 +294,23 @@ def changed_since_last_build_alias(node, target, prev_ni):
     except AttributeError:
         return 1
 
+
 def changed_since_last_build_entry(node, target, prev_ni):
     node.disambiguate()
     return _decider_map[node.changed_since_last_build](node, target, prev_ni)
 
+
 def changed_since_last_build_state_changed(node, target, prev_ni):
-    return (node.state != SCons.Node.up_to_date)
+    return node.state != SCons.Node.up_to_date
+
 
 def decide_source(node, target, prev_ni):
     return target.get_build_env().decide_source(node, target, prev_ni)
 
+
 def decide_target(node, target, prev_ni):
     return target.get_build_env().decide_target(node, target, prev_ni)
+
 
 def changed_since_last_build_python(node, target, prev_ni):
     cur_csig = node.get_csig()
@@ -380,6 +403,7 @@ class NodeInfoBase(object):
         """
         state = other.__getstate__()
         self.__setstate__(state)
+
     def format(self, field_list=None, names=0):
         if field_list is None:
             try:
@@ -1136,7 +1160,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             binfo.bactsig = SCons.Util.MD5signature(executor.get_contents())
 
         if self._specific_sources:
-            sources = [ s for s in self.sources if not s in ignore_set]
+            sources = [s for s in self.sources if not s in ignore_set]
 
         else:
             sources = executor.get_unignored_sources(self, self.ignore)
@@ -1145,13 +1169,17 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         binfo.bsources = [s for s in sources if s not in seen and not seen.add(s)]
         binfo.bsourcesigs = [s.get_ninfo() for s in binfo.bsources]
 
+        binfo.bdepends = [d for d in self.depends if d not in ignore_set]
+        binfo.bdependsigs = [d.get_ninfo() for d in self.depends]
 
-        binfo.bdepends = self.depends
-        binfo.bdependsigs = [d.get_ninfo() for d in self.depends if d not in ignore_set]
-
-        binfo.bimplicit = self.implicit or []
-        binfo.bimplicitsigs = [i.get_ninfo() for i in binfo.bimplicit if i not in ignore_set]
-
+        # Because self.implicit is initialized to None (and not empty list [])
+        # we have to handle this case
+        if not self.implicit:
+            binfo.bimplicit = []
+            binfo.bimplicitsigs = []
+        else:
+            binfo.bimplicit = [i for i in self.implicit if i not in ignore_set]
+            binfo.bimplicitsigs = [i.get_ninfo() for i in binfo.bimplicit]
 
         return binfo
 
@@ -1213,7 +1241,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         return _exists_map[self._func_exists](self)
 
     def rexists(self):
-        """Does this node exist locally or in a repositiory?"""
+        """Does this node exist locally or in a repository?"""
         # There are no repositories by default:
         return _rexists_map[self._func_rexists](self)
 
@@ -1452,13 +1480,18 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             result = True
 
         for child, prev_ni in zip(children, then):
-            if _decider_map[child.changed_since_last_build](child, self, prev_ni):
-                if t: Trace(': %s changed' % child)
-                result = True
+            try:
+                if _decider_map[child.changed_since_last_build](child, self, prev_ni):
+                    if t: Trace(': %s changed' % child)
+                    result = True
+            except DeciderNeedsNode as e:
+                if e.decider(self, prev_ni, node=node):
+                    if t: Trace(': %s changed' % child)
+                    result = True
 
-        contents = self.get_executor().get_contents()
         if self.has_builder():
             import SCons.Util
+            contents = self.get_executor().get_contents()
             newsig = SCons.Util.MD5signature(contents)
             if bi.bactsig != newsig:
                 if t: Trace(': bactsig %s != newsig %s' % (bi.bactsig, newsig))
@@ -1607,7 +1640,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         # so we only print them after running them through this lambda
         # to turn them into the right relative Node and then return
         # its string.
-        def stringify( s, E=self.dir.Entry ) :
+        def stringify( s, E=self.dir.Entry):
             if hasattr( s, 'dir' ) :
                 return str(E(s))
             return str(s)
@@ -1616,15 +1649,21 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
 
         removed = [x for x in old_bkids if not x in new_bkids]
         if removed:
-            removed = list(map(stringify, removed))
+            removed = [stringify(r) for r in removed]
             fmt = "`%s' is no longer a dependency\n"
             lines.extend([fmt % s for s in removed])
 
         for k in new_bkids:
             if not k in old_bkids:
                 lines.append("`%s' is a new dependency\n" % stringify(k))
-            elif _decider_map[k.changed_since_last_build](k, self, osig[k]):
-                lines.append("`%s' changed\n" % stringify(k))
+            else:
+                try:
+                    changed = _decider_map[k.changed_since_last_build](k, self, osig[k])
+                except DeciderNeedsNode as e:
+                    changed = e.decider(self, osig[k], node=self)
+
+                if changed:
+                    lines.append("`%s' changed\n" % stringify(k))
 
         if len(lines) == 0 and old_bkids != new_bkids:
             lines.append("the dependency order changed:\n" +

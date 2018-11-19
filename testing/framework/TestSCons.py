@@ -293,16 +293,25 @@ class TestSCons(TestCommon):
 
     def detect(self, var, prog=None, ENV=None, norm=None):
         """
-        Detect a program named 'prog' by first checking the construction
-        variable named 'var' and finally searching the path used by
-        SCons. If either method fails to detect the program, then false
-        is returned, otherwise the full path to prog is returned. If
-        prog is None, then the value of the environment variable will be
-        used as prog.
+        Return the detected path to a tool program.
+
+        Searches first the named construction variable, then
+        the SCons path.
+
+        Args:
+            var: name of construction variable to check for tool name.
+            prog: tool program to check for.
+            ENV: if present, kwargs to initialize an environment that
+                will be created to perform the lookup.
+            norm: if true, normalize any returned path looked up in
+                the environment to use UNIX-style path separators.
+
+        Returns: full path to the tool, or None.
+
         """
         env = self.Environment(ENV)
         if env:
-            v = env.subst('$'+var)
+            v = env.subst('$' + var)
             if not v:
                 return None
             if prog is None:
@@ -310,7 +319,7 @@ class TestSCons(TestCommon):
             if v != prog:
                 return None
             result = env.WhereIs(prog)
-            if norm and os.sep != '/':
+            if result and norm and os.sep != '/':
                 result = result.replace(os.sep, '/')
             return result
 
@@ -333,7 +342,7 @@ class TestSCons(TestCommon):
             return None
         return env.Detect([prog])
 
-    def where_is(self, prog, path=None):
+    def where_is(self, prog, path=None, pathext=None):
         """
         Given a program, search for it in the specified external PATH,
         or in the actual external PATH if none is specified.
@@ -343,26 +352,14 @@ class TestSCons(TestCommon):
         if self.external:
             if isinstance(prog, str):
                 prog = [prog]
-            import stat
-            paths = path.split(os.pathsep)
             for p in prog:
-                for d in paths:
-                    f = os.path.join(d, p)
-                    if os.path.isfile(f):
-                        try:
-                            st = os.stat(f)
-                        except OSError:
-                            # os.stat() raises OSError, not IOError if the file
-                            # doesn't exist, so in this case we let IOError get
-                            # raised so as to not mask possibly serious disk or
-                            # network issues.
-                            continue
-                        if stat.S_IMODE(st[stat.ST_MODE]) & 0o111:
-                            return os.path.normpath(f)
+                result = TestCmd.where_is(self, p, path, pathext)
+                if result:
+                    return os.path.normpath(result)
         else:
             import SCons.Environment
             env = SCons.Environment.Environment()
-            return env.WhereIs(prog, path)
+            return env.WhereIs(prog, path, pathext)
 
         return None
 

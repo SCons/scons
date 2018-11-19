@@ -59,6 +59,7 @@ import SCons.Job
 import SCons.Node
 import SCons.Node.FS
 import SCons.Platform
+import SCons.Platform.virtualenv
 import SCons.SConf
 import SCons.Script
 import SCons.Taskmaster
@@ -862,6 +863,13 @@ def _main(parser):
         delayed_warnings.extend(dw)
     for warning_type, message in delayed_warnings:
         SCons.Warnings.warn(warning_type, message)
+
+    if not SCons.Platform.virtualenv.virtualenv_enabled_by_default:
+        if options.enable_virtualenv:
+            SCons.Platform.virtualenv.enable_virtualenv = True
+
+    if options.ignore_virtualenv:
+        SCons.Platform.virtualenv.ignore_virtualenv = True
 
     if options.diskcheck:
         SCons.Node.FS.set_diskcheck(options.diskcheck)

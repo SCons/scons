@@ -82,6 +82,7 @@ import SCons.Builder
 import SCons.Environment
 import SCons.Node.FS
 import SCons.Platform
+import SCons.Platform.virtualenv
 import SCons.Scanner
 import SCons.SConf
 import SCons.Subst
@@ -149,6 +150,7 @@ Environment             = SCons.Environment.Environment
 #OptParser               = SCons.SConsOptions.OptParser
 FindPathDirs            = SCons.Scanner.FindPathDirs
 Platform                = SCons.Platform.Platform
+Virtualenv              = SCons.Platform.virtualenv.Virtualenv
 Return                  = _SConscript.Return
 Scanner                 = SCons.Scanner.Base
 Tool                    = SCons.Tool.Tool
@@ -375,7 +377,9 @@ GlobalDefaultBuilders = [
     'SharedObject',
     'StaticLibrary',
     'StaticObject',
+    'Substfile',
     'Tar',
+    'Textfile',
     'TypeLibrary',
     'Zip',
     'Package',

@@ -1579,18 +1579,28 @@ class TestCmd(object):
         return self._stderr[run]
 
     def stdout(self, run=None):
-        """Returns the standard output from the specified run number.
-        If there is no specified run number, then returns the standard
-        output of the last run.  If the run number is less than zero,
-        then returns the standard output from that many runs back from
-        the current run.
+        """
+        Returns the stored standard output from a given run.
+
+        Args:
+            run: run number to select.  If run number is omitted,
+            return the standard output of the most recent run.
+            If negative, use as a relative offset, so that -2
+            means the run two prior to the most recent.
+
+        Returns:
+            selected stdout string or None if there are no
+            stored runs.
         """
         if not run:
             run = len(self._stdout)
         elif run < 0:
             run = len(self._stdout) + run
         run = run - 1
-        return self._stdout[run]
+        try:
+            return self._stdout[run]
+        except IndexError:
+            return None
 
     def subdir(self, *subdirs):
         """Create new subdirectories under the temporary working

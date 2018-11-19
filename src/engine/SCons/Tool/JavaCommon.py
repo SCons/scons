@@ -401,7 +401,9 @@ java_macos_include_dir = '/System/Library/Frameworks/JavaVM.framework/Headers/'
 java_macos_version_include_dir = '/System/Library/Frameworks/JavaVM.framework/Versions/%s*/Headers/'
 
 java_linux_include_dirs = ['/usr/lib/jvm/default-java/include',
-                        '/usr/lib/jvm/java-*-oracle/include']
+                        '/usr/lib/jvm/java-*/include']
+# Need to match path like below (from Centos 7)
+# /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.191.b12-0.el7_5.x86_64/include/
 java_linux_version_include_dirs = ['/usr/lib/jvm/java-*-sun-%s*/include',
                                    '/usr/lib/jvm/java-%s*-openjdk*/include',
                                    '/usr/java/jdk%s*/include']

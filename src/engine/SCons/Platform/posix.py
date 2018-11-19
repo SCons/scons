@@ -41,6 +41,8 @@ import select
 
 import SCons.Util
 from SCons.Platform import TempFileMunge
+from SCons.Platform.virtualenv import ImportVirtualenv
+from SCons.Platform.virtualenv import ignore_virtualenv, enable_virtualenv
 
 exitvalmap = {
     2 : 127,
@@ -118,6 +120,9 @@ def generate(env):
     # GDC is GCC family, but DMD and LDC have different options.
     # Must be able to have GCC and DMD work in the same build, so:
     env['__DRPATH'] = '$_DRPATH'
+
+    if enable_virtualenv and not ignore_virtualenv:
+        ImportVirtualenv(env)
 
 # Local Variables:
 # tab-width:4

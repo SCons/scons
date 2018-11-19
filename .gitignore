@@ -8,8 +8,8 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/**
-bootstrap/**
+/build/**
+/bootstrap/**
 .idea/
 src/build/**
 
@@ -27,8 +27,6 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-
-
 
 # mypy
 .mypy_cache/
@@ -49,3 +47,4 @@ htmlcov
 *.bkp
 *.bak
 *~
+!/test/Decider/switch-rebuild.py

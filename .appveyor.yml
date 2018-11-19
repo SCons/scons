@@ -1,5 +1,13 @@
+#version: '3.0.1.{build}'
+
 image: Visual Studio 2017
 shallow_clone: true
+
+cache:
+  - downloads -> appveyor.yml
+  - '%LOCALAPPDATA%\pip\Cache'
+  - C:\ProgramData\chocolatey\bin -> appveyor.yml
+  - C:\ProgramData\chocolatey\lib -> appveyor.yml
 
 install:
   - "set PATH=%PYTHON%;%PYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;%PATH%"
@@ -9,7 +17,9 @@ install:
   - choco install --allow-empty-checksums dmd
   - choco install --allow-empty-checksums ldc
   - choco install --allow-empty-checksums swig
-  - choco install --allow-empty-checksums vswhere  
+  - choco install --allow-empty-checksums vswhere
+  - choco install --allow-empty-checksums xsltproc
+
 
 environment:
   matrix:
@@ -49,36 +59,19 @@ environment:
     - PYTHON: "C:\\Python37"
       BUILD_JOB_NUM: 4
 
-    # - PYTHON: "C:\\Python27-x64"
-    #   BUILD_JOB_NUM: 1
-    # - PYTHON: "C:\\Python27-x64"
-    #   BUILD_JOB_NUM: 2
-    # - PYTHON: "C:\\Python27-x64"
-    #   BUILD_JOB_NUM: 3
-    # - PYTHON: "C:\\Python27-x64"
-    #   BUILD_JOB_NUM: 4
 
-    # - PYTHON: "C:\\Python35-x64"
-    #   BUILD_JOB_NUM: 1
-    # - PYTHON: "C:\\Python35-x64"
-    #   BUILD_JOB_NUM: 2
-    # - PYTHON: "C:\\Python35-x64"
-    #   BUILD_JOB_NUM: 3
-    # - PYTHON: "C:\\Python35-x64"
-    #   BUILD_JOB_NUM: 4
-      
-    # - PYTHON: "C:\\Python36-x64"
-    #   BUILD_JOB_NUM: 1
-    # - PYTHON: "C:\\Python36-x64"
-    #   BUILD_JOB_NUM: 2
-    # - PYTHON: "C:\\Python36-x64"
-    #   BUILD_JOB_NUM: 3
-    # - PYTHON: "C:\\Python36-x64"
-    #   BUILD_JOB_NUM: 4
+before_build:
+    - ps: dir "C:\Program Files\Git\usr\bin\x*.exe"
+    - ps: |
+        if (Test-Path "C:\Program Files\Git\usr\bin\xsltproc.EXE" ) {
+          Remove-Item  "C:\Program Files\Git\usr\bin\xsltproc.EXE" -ErrorAction Ignore
+        }
+    - ps: dir "C:\Program Files\Git\usr\bin\x*.exe"
 
 build: off
+
 build_script:
-  - cmd: python runtest.py -l -a > all_tests.txt 
+  - cmd: python runtest.py -l -a > all_tests.txt
   - ps: >-
       $TOTAL_BUILD_JOBS = 4;
       $Lines = (Get-Content all_tests.txt | Measure-Object -line).Lines;
