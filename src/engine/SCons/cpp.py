@@ -447,7 +447,7 @@ class PreProcessor(object):
         d = self.dispatch_table
         p = self.stack[-1] if self.stack else self.default_table
 
-        for k in ('import', 'include', 'include_next'):
+        for k in ('import', 'include', 'include_next', 'define', 'undef'):
             d[k] = p[k]
 
     def stop_handling_includes(self, t=None):
@@ -463,6 +463,8 @@ class PreProcessor(object):
         d['import'] = self.do_nothing
         d['include'] =  self.do_nothing
         d['include_next'] =  self.do_nothing
+        d['define'] =  self.do_nothing
+        d['undef'] =  self.do_nothing
 
     # Default methods for handling all of the preprocessor directives.
     # (Note that what actually gets called for a given directive at any
