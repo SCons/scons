@@ -500,7 +500,7 @@ def msvc_find_valid_batch_script(env,version):
     platforms = get_host_target(env)
     debug("vc.py: msvs_find_valid_batch_script(): host_platform %s, target_platform %s req_target_platform:%s" % platforms)
 
-    host_platform, target_platform, req_target_platform) = platforms
+    host_platform, target_platform, req_target_platform = platforms
     try_target_archs = [target_platform]
 
     # VS2012 has a "cross compile" environment to build 64 bit
