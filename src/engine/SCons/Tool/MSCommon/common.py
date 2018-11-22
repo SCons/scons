@@ -46,7 +46,7 @@ elif LOGFILE:
         debug = lambda message: open(LOGFILE, 'a').write(message + '\n')
     else:
         logging.basicConfig(filename=LOGFILE, level=logging.DEBUG)
-        debug = logging.debug
+        debug = logging.getLogger(name=__name__).debug
 else:
     debug = lambda x: None
 

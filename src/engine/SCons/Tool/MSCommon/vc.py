@@ -80,15 +80,17 @@ _ARCH_TO_CANONICAL = {
     "i486"      : "x86",
     "i586"      : "x86",
     "i686"      : "x86",
-    "ia64"      : "ia64",
-    "itanium"   : "ia64",
+    "ia64"      : "ia64",      # deprecated
+    "itanium"   : "ia64",      # deprecated
     "x86"       : "x86",
     "x86_64"    : "amd64",
     "x86_amd64" : "x86_amd64", # Cross compile to 64 bit from 32bits
+    "arm"       : "arm",
+    "arm64"     : "arm64",
 }
 
-# Given a (host, target) tuple, return the argument for the bat file. Both host
-# and targets should be canonalized.
+# Given a (host, target) tuple, return the argument for the bat file.
+# Both host and targets should be canonalized.
 _HOST_TARGET_ARCH_TO_BAT_ARCH = {
     ("x86", "x86"): "x86",
     ("x86", "amd64"): "x86_amd64",
@@ -96,7 +98,12 @@ _HOST_TARGET_ARCH_TO_BAT_ARCH = {
     ("amd64", "x86_amd64"): "x86_amd64", # This is present in (at least) VS2012 express
     ("amd64", "amd64"): "amd64",
     ("amd64", "x86"): "x86",
-    ("x86", "ia64"): "x86_ia64"
+    ("x86", "ia64"): "x86_ia64",         # gone since 14.0
+    #("arm", "arm"): "arm",              # since 14.0, maybe gone 14.1?
+    #("x86", "arm"): "x86_arm",          # since 14.0
+    #("x86", "arm64"): "x86_arm64",      # since 14.1
+    #("amd64", "arm"): "amd64_arm",      # since 14.0
+    #("amd64", "arm64"): "amd64_arm64",  # since 14.1
 }
 
 def get_host_target(env):
@@ -247,9 +254,12 @@ def find_vc_pdir_vswhere(msvc_version):
     if os.path.exists(vswhere_path):
         sp = subprocess.Popen(vswhere_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         vsdir, err = sp.communicate()
-        vsdir = vsdir.decode("mbcs")
-        vsdir = vsdir.rstrip()
-        vc_pdir = os.path.join(vsdir, 'VC')
+        vsdir = vsdir.decode("mbcs").splitlines()
+        # vswhere could easily return multiple lines
+        # we could define a way to pick the one we prefer, but since
+        # this data is currently only used to make a check for existence,
+        # returning the first hit should be good enough for now.
+        vc_pdir = os.path.join(vsdir[0], 'VC')
         return vc_pdir
     else:
         # No vswhere on system, no install info available
@@ -257,7 +267,7 @@ def find_vc_pdir_vswhere(msvc_version):
 
 
 def find_vc_pdir(msvc_version):
-    """Try to find the product directory for the given version.
+    """Find the product directory for the given version.
 
     Tries to look up the path using a registry key from the table
     _VCVER_TO_PRODUCT_DIR; if there is no key, calls find_vc_pdir_wshere
@@ -289,8 +299,10 @@ def find_vc_pdir(msvc_version):
             if not key:
                 comps = find_vc_pdir_vswhere(msvc_version)
                 if not comps:
-                    debug('find_vc_dir(): no VC found via vswhere for version {}'.format(repr(key)))
+                    debug('find_vc_pdir_vswhere(): no VC found for version {}'.format(repr(msvc_version)))
                     raise SCons.Util.WinError
+                debug('find_vc_pdir_vswhere(): VC found: {}'.format(repr(msvc_version)))
+                return comps
             else:
                 if common.is_win64():
                     try:
@@ -322,7 +334,7 @@ def find_batch_file(env,msvc_version,host_arch,target_arch):
     if pdir is None:
         raise NoVersionFound("No version of Visual Studio found")
 
-    debug('vc.py: find_batch_file() pdir:{}'.format(pdir))
+    debug('vc.py: find_batch_file() in {}'.format(pdir))
 
     # filter out e.g. "Exp" from the version name
     msvc_ver_numeric = ''.join([x for x in msvc_version if x in string_digits + "."])
@@ -483,19 +495,19 @@ def msvc_setup_env_once(env):
         env["MSVC_SETUP_RUN"] = True
 
 def msvc_find_valid_batch_script(env,version):
-    debug('vc.py:msvc_find_valid_batch_script()')
     # Find the host platform, target platform, and if present the requested
     # target platform
-    (host_platform, target_platform,req_target_platform) = get_host_target(env)
+    platforms = get_host_target(env)
+    debug("vc.py: msvs_find_valid_batch_script(): host_platform %s, target_platform %s req_target_platform:%s" % platforms)
 
+    host_platform, target_platform, req_target_platform) = platforms
     try_target_archs = [target_platform]
-    debug("msvs_find_valid_batch_script(): req_target_platform %s target_platform:%s"%(req_target_platform,target_platform))
 
     # VS2012 has a "cross compile" environment to build 64 bit
     # with x86_amd64 as the argument to the batch setup script
-    if req_target_platform in ('amd64','x86_64'):
+    if req_target_platform in ('amd64', 'x86_64'):
         try_target_archs.append('x86_amd64')
-    elif not req_target_platform and target_platform in ['amd64','x86_64']:
+    elif not req_target_platform and target_platform in ['amd64', 'x86_64']:
         # There may not be "native" amd64, but maybe "cross" x86_amd64 tools
         try_target_archs.append('x86_amd64')
         # If the user hasn't specifically requested a TARGET_ARCH, and
@@ -542,9 +554,11 @@ def msvc_find_valid_batch_script(env,version):
 
         # Try to use the located batch file for this host/target platform combo
         debug('vc.py:msvc_find_valid_batch_script() use_script 2 %s, args:%s\n' % (repr(vc_script), arg))
+        found = None
         if vc_script:
             try:
                 d = script_env(vc_script, args=arg)
+                found = vc_script
             except BatchFileExecutionError as e:
                 debug('vc.py:msvc_find_valid_batch_script() use_script 3: failed running VC script %s: %s: Error:%s'%(repr(vc_script),arg,e))
                 vc_script=None
@@ -553,6 +567,7 @@ def msvc_find_valid_batch_script(env,version):
             debug('vc.py:msvc_find_valid_batch_script() use_script 4: trying sdk script: %s'%(sdk_script))
             try:
                 d = script_env(sdk_script)
+                found = sdk_script
             except BatchFileExecutionError as e:
                 debug('vc.py:msvc_find_valid_batch_script() use_script 5: failed running SDK script %s: Error:%s'%(repr(sdk_script),e))
                 continue
@@ -560,7 +575,7 @@ def msvc_find_valid_batch_script(env,version):
             debug('vc.py:msvc_find_valid_batch_script() use_script 6: Neither VC script nor SDK script found')
             continue
 
-        debug("vc.py:msvc_find_valid_batch_script() Found a working script/target: %s %s"%(repr(sdk_script),arg))
+        debug("vc.py:msvc_find_valid_batch_script() Found a working script/target: %s/%s"%(repr(found),arg))
         break # We've found a working target_platform, so stop looking
 
     # If we cannot find a viable installed compiler, reset the TARGET_ARCH
