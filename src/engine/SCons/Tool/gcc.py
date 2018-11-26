@@ -42,6 +42,7 @@ import SCons.Util
 
 compilers = ['gcc', 'cc']
 
+
 def generate(env):
     """Add Builders and construction variables for gcc to an Environment."""
 
@@ -59,9 +60,11 @@ def generate(env):
     if version:
         env['CCVERSION'] = version
 
+
 def exists(env):
     # is executable, and is a GNU compiler (or accepts '--version' at least)
     return detect_version(env, env.Detect(env.get('CC', compilers)))
+
 
 def detect_version(env, cc):
     """Return the version of the GNU compiler, or None if it is not a GNU compiler."""
@@ -69,16 +72,16 @@ def detect_version(env, cc):
     if not cc:
         return None
     version = None
-    #pipe = SCons.Action._subproc(env, SCons.Util.CLVar(cc) + ['-dumpversion'],
+    # pipe = SCons.Action._subproc(env, SCons.Util.CLVar(cc) + ['-dumpversion'],
     pipe = SCons.Action._subproc(env, SCons.Util.CLVar(cc) + ['--version'],
-                                 stdin = 'devnull',
-                                 stderr = 'devnull',
-                                 stdout = subprocess.PIPE)
+                                 stdin='devnull',
+                                 stderr='devnull',
+                                 stdout=subprocess.PIPE)
     # -dumpversion was added in GCC 3.0.  As long as we're supporting
     # GCC versions older than that, we should use --version and a
     # regular expression.
-    #line = pipe.stdout.read().strip()
-    #if line:
+    # line = pipe.stdout.read().strip()
+    # if line:
     #    version = line
     line = SCons.Util.to_str(pipe.stdout.readline())
     match = re.search(r'[0-9]+(\.[0-9]+)+', line)
