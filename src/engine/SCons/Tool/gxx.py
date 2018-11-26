@@ -45,12 +45,13 @@ from . import cxx
 
 compilers = ['g++']
 
+
 def generate(env):
     """Add Builders and construction variables for g++ to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
     if 'CXX' not in env:
-        env['CXX']    = env.Detect(compilers) or compilers[0]
+        env['CXX'] = env.Detect(compilers) or compilers[0]
 
     cxx.generate(env)
 
@@ -67,6 +68,7 @@ def generate(env):
     version = gcc.detect_version(env, env['CXX'])
     if version:
         env['CXXVERSION'] = version
+
 
 def exists(env):
     # is executable, and is a GNU compiler (or accepts '--version' at least)
