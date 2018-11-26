@@ -24,6 +24,8 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import sys
+
 import TestSCons
 
 _exe = TestSCons._exe
@@ -32,11 +34,23 @@ test = TestSCons.TestSCons()
 if not test.where_is('clang'):
     test.skip_test("Could not find 'clang++', skipping test.\n")
 
+if sys.platform == 'win32':
+    foo_lib = 'foo.lib'
+    archiver = 'mslib'
+    import SCons.Tool.MSCommon as msc
+    if not msc.msvc_exists():
+        foo_lib = 'libfoo.a'
+        archiver = 'ar'
+else:
+    foo_lib = 'libfoo.a'
+    archiver = 'ar'
+
+
 test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
-env = Environment(tools=['mingw','clang++', 'ar'])
+env = Environment(tools=['mingw','clang++', '%s'])
 env.StaticLibrary('foo', 'foo.cpp')
-""")
+""" % archiver)
 
 test.write('foo.cpp', """\
 int bar() {
@@ -46,7 +60,7 @@ int bar() {
 
 test.run()
 
-test.must_exist(test.workpath('libfoo.a'))
+test.must_exist(test.workpath(foo_lib))
 
 test.pass_test()
 
