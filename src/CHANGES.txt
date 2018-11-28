@@ -55,6 +55,9 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       yielded trying to combine strings and bytes which threw exception.
     - Fix GH Issue #3225 SCons.Util.Flatten() doesn't handle MappingView's produced by dictionary as return
       values from dict().{items(), keys(), values()}.
+    - Fix GH Issue #3136 no longer wrap io.{BufferedReader,BufferedWriter,BufferedRWPair,BufferedRandom,TextIOWrapper
+      with logic to set HANDLE_FLAG_INHERIT flag on the file handle.  Python 3.4+ automatically sets this according
+      to Python docs: https://docs.python.org/3/library/os.html#fd-inheritance
 
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
