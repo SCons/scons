@@ -32,11 +32,22 @@ test = TestSCons.TestSCons()
 if not test.where_is('clang'):
     test.skip_test("Could not find 'clang++', skipping test.\n")
 
+if test.IS_WINDOWS:
+    foo_lib = 'foo.lib'
+    archiver = 'mslib'
+    # TODO: other Windows combinations exist (not depending on
+    # mslib (lib.exe) from MS Build Tools / Visual Studio).
+    # Expand this if there is demand.
+else:
+    foo_lib = 'libfoo.a'
+    archiver = 'ar'
+
+
 test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
-env = Environment(tools=['mingw','clang++', 'ar'])
+env = Environment(tools=['mingw','clang++', '%s'])
 env.StaticLibrary('foo', 'foo.cpp')
-""")
+""" % archiver)
 
 test.write('foo.cpp', """\
 int bar() {
@@ -46,7 +57,7 @@ int bar() {
 
 test.run()
 
-test.must_exist(test.workpath('libfoo.a'))
+test.must_exist(test.workpath(foo_lib))
 
 test.pass_test()
 
