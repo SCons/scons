@@ -25,6 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
+from TestCmd import IS_WINDOWS
 
 _exe = TestSCons._exe
 test = TestSCons.TestSCons()
@@ -32,7 +33,7 @@ test = TestSCons.TestSCons()
 if not test.where_is('clang'):
     test.skip_test("Could not find 'clang++', skipping test.\n")
 
-if test.IS_WINDOWS:
+if IS_WINDOWS:
     foo_lib = 'foo.lib'
     archiver = 'mslib'
     # TODO: other Windows combinations exist (not depending on
