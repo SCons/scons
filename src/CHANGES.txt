@@ -176,7 +176,6 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Update (pep8) configure-cache script, add a --show option.
     - Fix for a couple of "what if tool not found" exceptions in framework.
     - Add Textfile/Substfile to default environment. (issue #3147)
-    - Make the clang StaticLibrary tests work on win32.
 
   From Bernhard M. Wiedemann:
     - Update SCons' internal scons build logic to allow overriding build date 

@@ -24,8 +24,6 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import sys
-
 import TestSCons
 
 _exe = TestSCons._exe
@@ -34,13 +32,12 @@ test = TestSCons.TestSCons()
 if not test.where_is('clang'):
     test.skip_test("Could not find 'clang++', skipping test.\n")
 
-if sys.platform == 'win32':
+if test.IS_WINDOWS:
     foo_lib = 'foo.lib'
     archiver = 'mslib'
-    import SCons.Tool.MSCommon as msc
-    if not msc.msvc_exists():
-        foo_lib = 'libfoo.a'
-        archiver = 'ar'
+    # TODO: other Windows combinations exist (not depending on
+    # mslib (lib.exe) from MS Build Tools / Visual Studio).
+    # Expand this if there is demand.
 else:
     foo_lib = 'libfoo.a'
     archiver = 'ar'
