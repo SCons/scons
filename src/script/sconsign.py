@@ -244,9 +244,21 @@ Print_Entries = []
 Print_Flags = Flagger()
 Verbose = 0
 Readable = 0
+Warns = 0
+
 
 
 def default_mapper(entry, name):
+    '''
+    Stringify an entry that doesn't have an explicit mapping.
+
+    Args:
+        entry:  entry
+        name: field name
+
+    Returns: str
+
+    '''
     try:
         val = eval("entry." + name)
     except:
@@ -259,7 +271,17 @@ def default_mapper(entry, name):
     return str(val)
 
 
-def map_action(entry, name):
+def map_action(entry, _):
+    '''
+    Stringify an action entry and signature.
+
+    Args:
+        entry: action entry
+        second argument is not used
+
+    Returns: str
+
+    '''
     try:
         bact = entry.bact
         bactsig = entry.bactsig
@@ -268,6 +290,16 @@ def map_action(entry, name):
     return '%s [%s]' % (bactsig, bact)
 
 def map_timestamp(entry, _):
+    '''
+    Stringify a timestamp entry.
+
+    Args:
+        entry: timestamp entry
+        second argument is not used
+
+    Returns: str
+
+    '''
     try:
         timestamp = entry.timestamp
     except AttributeError:
@@ -278,13 +310,32 @@ def map_timestamp(entry, _):
         return str(timestamp)
 
 def map_bkids(entry, _):
+    '''
+    Stringify an implicit entry.
+
+    Args:
+        entry:
+        second argument is not used
+
+    Returns: str
+
+    '''
     try:
         bkids = entry.bsources + entry.bdepends + entry.bimplicit
         bkidsigs = entry.bsourcesigs + entry.bdependsigs + entry.bimplicitsigs
     except AttributeError:
         return None
-    result = [nodeinfo_string(bkid, bkidsig, "        ")
-              for bkid, bkidsig in zip(bkids, bkidsigs)]
+
+    if len(bkids) != len(bkidsigs):
+        global Warns
+        Warns += 1
+        # add warning to result rather than direct print so it will line up
+        msg = "Warning: missing information, {} ids but {} sigs"
+        result = [msg.format(len(bkids), len(bkidsigs))]
+    else:
+        result = []
+    result += [nodeinfo_string(bkid, bkidsig, "        ")
+               for bkid, bkidsig in zip(bkids, bkidsigs)]
     if not result:
         return None
     return "\n        ".join(result)
@@ -580,6 +631,8 @@ else:
         else:
             Do_SConsignDir(a)
 
+    if Warns:
+        print("NOTE: there were %d warnings, please check output" % Warns)
 sys.exit(0)
 
 # Local Variables:
