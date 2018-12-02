@@ -90,9 +90,8 @@
   <title>Installing Python</title>
 
     <para>
-
     Because &SCons; is written in Python,
-    you must obviously have Python installed on your system
+    you need to have Python installed on your system
     to use &SCons;.
     Before you try to install Python,
     you should check to see if Python is already
@@ -102,27 +101,25 @@
     or
     <userinput>python --version</userinput>
     at your system's command-line prompt.
-
+    For Linux/Unix/MacOS/BSD type systems this looks like:
     </para>
 
     <screen>
 $ <userinput>python -V</userinput>
-Python 2.5.1
+Python 3.7.1
     </screen>
 
     <para>
-
-    And on a Windows system with Python installed:
-
+    In a cmd shell or PowerShell on a Windows system
+    (note PoweShell needs it spelled "python.exe" rather than "python"):
     </para>
 
     <screen>
 C:\><userinput>python -V</userinput>
-Python 2.5.1
+Python 3.7.1
     </screen>
 
     <para>
-
     If Python is not installed on your system,
     you will see an error message
     stating something like "command not found"
@@ -132,254 +129,71 @@ Python 2.5.1
     (on Windows).
     In that case, you need to install Python
     before you can install &SCons;.
-
     </para>
 
     <para>
-
-    The standard location for information
+    Downloading and installing Python differs a bit depending
+    on the system you are using.  The standard location for information
     about downloading and installing Python is
     <ulink url="http://www.python.org/download/">http://www.python.org/download/</ulink>.
-    See that page for information about
-    how to download and install Python on your system.
-
+    See that page and associated links to get started.
     </para>
 
     <para>
+    For Linux systems, Python is
+    almost certainly available as a supported package, possibly
+    installed by default; this is often preferred to installing
+    by other means.  Many such systems have separate packages for
+    Python 2 and Python 3. It is also possible to install the source
+    and build it; some software such as <filename>pyenv</filename> can
+    automate this and allow multiple Python versions to be present
+    on the system if that is of interest.
+    </para>
 
-    &SCons; will work with any 2.x version of Python from 2.7 on;
-    3.0 and later are not yet supported.
+    <para>
+    On MacOS, the python.org packages work well, but many
+    people prefer to install using other methods such as MacPorts
+    or Homebrew.
+    </para>
+
+    <para>
+    &SCons; will work with Python 2.7.x or with Python 3.5 or later.
     If you need to install Python and have a choice,
-    we recommend using the most recent 2.x Python version available.
+    we recommend using the most recent Python version available.
     Newer Pythons have significant improvements
     that help speed up the performance of &SCons;.
-
     </para>
 
   </section>
 
   <section>
-  <title>Installing &SCons; From Pre-Built Packages</title>
+  <title>Installing &SCons;</title>
 
     <para>
-
-    &SCons; comes pre-packaged for installation on a number of systems,
-    including Linux and Windows systems.
-    You do not need to read this entire section,
-    you should need to read only the section
-    appropriate to the type of system you're running on.
-
+    The canoncial way to install &SCons; is from the Python Package
+    Index (PyPi):
     </para>
 
-    <section>
-    <title>Installing &SCons; on Red Hat (and Other RPM-based) Linux Systems</title>
+    <screen>
+% <userinput>python -m pip install scons</userinput>
+    </screen>
 
-      <para>
+    <para>
+    In some situations it may be preferable to install add-on packages
+    like &SCons; in a virtualenv; that is a discussion beyond the scope of
+    this document, but there are numerous Internet resources on the topic.
+    The same command would be used, just with the virtualenv activated.
+    </para>
 
-      &SCons; comes in RPM (Red Hat Package Manager) format,
-      pre-built and ready to install on Red Hat Linux,
-      Fedora,
-      or any other Linux distribution that uses RPM.
-      Your distribution may
-      already have an &SCons; RPM built specifically for it;
-      many do, including SUSE, Mandrake and Fedora.
-      You can check for the availability of an &SCons; RPM
-      on your distribution's download servers,
-      or by consulting an RPM search site like
-      <ulink url="http://www.rpmfind.net/">http://www.rpmfind.net/</ulink> or
-      <ulink url="http://rpm.pbone.net/">http://rpm.pbone.net/</ulink>.
-
-      </para>
-
-      <para>
-
-      If your distribution supports installation via
-      <application>yum</application>,
-      you should be able to install &SCons; by running:
-
-      </para>
-
-      <screen>
-# <userinput>yum install scons</userinput>
-      </screen>
-
-      <para>
-
-      If your Linux distribution does not already have
-      a specific &SCons; RPM file,
-      you can download and install from the
-      generic RPM provided by the &SCons; project.
-      This will install the
-      SCons script(s) in <filename>/usr/bin</filename>,
-      and the SCons library modules in
-      <filename>/usr/lib/scons</filename>.
-
-      </para>
-
-      <para>
-
-      To install from the command line, simply download the
-      appropriate <filename>.rpm</filename> file,
-      and then run:
-
-      </para>
-
-      <screen>
-# <userinput>rpm -Uvh scons-&buildversion;-1.noarch.rpm</userinput>
-      </screen>
-
-      <para>
-
-      Or, you can use a graphical RPM package manager.
-      See your package manager application's documentation
-      for specific instructions about
-      how to use it to install a downloaded RPM.
-
-      </para>
-
-    </section>
-
-    <section>
-    <title>Installing &SCons; on Debian Linux Systems</title>
-
-      <para>
-
-      Debian Linux systems use a different package management
-      format that also makes it very easy to install &SCons;.
-
-      </para>
-
-      <para>
-
-      If your system is connected to the Internet,
-      you can install the latest official Debian package
-      by running:
-
-      </para>
-
-      <screen>
-# <userinput>apt-get install scons</userinput>
-      </screen>
-
-      <!--
-
-      <para>
-
-      Alternatively,
-      you can download the Debian package built
-      by the &SCons; project
-      and install it manually by running:
-
-      </para>
-
-      <screen>
-# <userinput>db-XXX scons-*.deb</userinput>
-      </screen>
-
-      -->
-
-    </section>
-
-    <section>
-    <title>Installing &SCons; on Windows Systems</title>
-
-      <para>
-
-      &SCons; provides a Windows installer
-      that makes installation extremely easy.
-      Download the <filename>scons-&buildversion;.win32.exe</filename>
-      file from the &SCons; download page at
-      <ulink url="http://scons.org/pages/download.html">http://scons.org/pages/download.html</ulink>.
-      Then all you need to do is execute the file
-      (usually by clicking on its icon in Windows Explorer).
-      These will take you through a small
-      sequence of windows that will install
-      &SCons; on your system.
-
-      <!--
-      Things are a little more complicated
-      if you are using the Cygwin version of Python.
-      This is because Cygwin
-      tries to make a Windows system look more
-      POSIX-like (or UNIX-like or Linux-like, if you prefer)
-      by having the Cygwin utilities,
-      including Cygwin Python,
-      interpret file name arguments on the command line
-      using the forward-slash (<filename>/</filename>)
-      as the directory separator,
-      instead of the normal Windows behavior of the
-      backslash (<filename>\</filename>) as the directory separator.
-      -->
-
-      </para>
-
-      <!--
-
-      <section>
-      <title>Installing &SCons; on Windows Systems Without Cygwin Python</title>
-
-        <para>
-
-        XXX
-
-        </para>
-
-      </section>
-
-      <section>
-      <title>Installing &SCons; on Windows Systems With Cygwin Python</title>
-
-        <para>
-
-        XXX
-
-        </para>
-
-      </section>
-
-      -->
-
-      <!--
-
-      XXX - don't have the kinks worked out on how to
-      get these to display properly in all formats,
-      so comment them out for now.
-
-      <screenshot>
-      <mediaobject>
-        <imageobject>
-          <imagedata fileref="SCons-win32-install-1.jpg" format="jpg" align="center">
-        </imageobject>
-      </mediaobject>
-      </screenshot>
-
-      <screenshot>
-      <mediaobject>
-        <imageobject>
-          <imagedata fileref="SCons-win32-install-2.jpg" format="jpg" align="center">
-        </imageobject>
-      </mediaobject>
-      </screenshot>
-
-      <screenshot>
-      <mediaobject>
-        <imageobject>
-          <imagedata fileref="SCons-win32-install-3.jpg" format="jpg" align="center">
-        </imageobject>
-      </mediaobject>
-      </screenshot>
-
-      <screenshot>
-      <mediaobject>
-        <imageobject>
-          <imagedata fileref="SCons-win32-install-4.jpg" format="jpg" align="center">
-        </imageobject>
-      </mediaobject>
-      </screenshot>
-
-      -->
-
-    </section>
+    <para>
+    &SCons; comes pre-packaged for installation on many Linux systems.
+    Check your package installation system, such as yum, dnf, zypper,
+    apt-get, aptitude, etc. to see if there is an scons package available.
+    Many people prefer to install distribution-native packages if available,
+    as they provide a central point of management and updating.
+    Some distributions have two &SCons; packages available, one which
+    uses Python 2 and one which uses Python 3.
+    </para>
 
   </section>
 
@@ -387,11 +201,10 @@ Python 2.5.1
   <title>Building and Installing &SCons; on Any System</title>
 
     <para>
-
     If a pre-built &SCons; package is not available for your system,
+    and installing using <filename>pip</filename> is not suitable,
     then you can still easily build and install &SCons; using the native
     Python <filename>distutils</filename> package.
-
     </para>
 
     <para>
@@ -429,11 +242,11 @@ Python 2.5.1
     install the &scons; script
     in the python which is used to run the setup.py's scripts directory
     (<filename>/usr/local/bin</filename> or
-    <filename>C:\Python25\Scripts</filename>),
+    <filename>C:\Python27\Scripts</filename>),
     and will install the &SCons; build engine
     in the corresponding library directory for the python used
     (<filename>/usr/local/lib/scons</filename> or
-    <filename>C:\Python25\scons</filename>).
+    <filename>C:\Python27\scons</filename>).
     Because these are system directories,
     you may need root (on Linux or UNIX) or Administrator (on Windows)
     privileges to install &SCons; like this.
@@ -489,7 +302,7 @@ Python 2.5.1
       in the
       <filename>/usr/lib/scons-&buildversion;</filename>
       or
-      <filename>C:\Python25\scons-&buildversion;</filename>
+      <filename>C:\Python27\scons-&buildversion;</filename>
       directory, for example.
 
       </para>
