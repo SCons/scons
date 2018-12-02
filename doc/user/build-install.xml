@@ -132,8 +132,7 @@ Python 3.7.1
     </para>
 
     <para>
-    Downloading and installing Python differs a bit depending
-    on the system you are using.  The standard location for information
+    The standard location for information
     about downloading and installing Python is
     <ulink url="http://www.python.org/download/">http://www.python.org/download/</ulink>.
     See that page and associated links to get started.
@@ -143,15 +142,18 @@ Python 3.7.1
     For Linux systems, Python is
     almost certainly available as a supported package, possibly
     installed by default; this is often preferred to installing
-    by other means.  Many such systems have separate packages for
-    Python 2 and Python 3. It is also possible to install the source
-    and build it; some software such as <filename>pyenv</filename> can
-    automate this and allow multiple Python versions to be present
-    on the system if that is of interest.
+    by other means, and is easier than installing from source code.
+    Many such systems have separate packages for
+    Python 2 and Python 3. Building from source may still be a
+    useful option if you need a version that is not offered by
+    the distribution you are using.
     </para>
 
     <para>
-    On MacOS, the python.org packages work well, but many
+    MacOS comes with a version of Python, but it is somewhat old
+    and has been known to have some problems - it works well
+    for the system software that uses it, however.  The python.org
+    packages work well for installing a "better" Python, while some
     people prefer to install using other methods such as MacPorts
     or Homebrew.
     </para>
@@ -186,13 +188,16 @@ Python 3.7.1
     </para>
 
     <para>
-    &SCons; comes pre-packaged for installation on many Linux systems.
-    Check your package installation system, such as yum, dnf, zypper,
-    apt-get, aptitude, etc. to see if there is an scons package available.
+    &SCons; comes pre-packaged for installation on many Linux systems
+    Check your package installation system
+    to see if there is an &SCons; package available.
     Many people prefer to install distribution-native packages if available,
-    as they provide a central point of management and updating.
+    as they provide a central point for management and updating.
     Some distributions have two &SCons; packages available, one which
-    uses Python 2 and one which uses Python 3.
+    uses Python 2 and one which uses Python 3. If you need a specific
+    version of &SCons; that is different from the package available,
+    <filename>pip</filename> has a version option or you can follow
+    the instructions in the next section.
     </para>
 
   </section>
