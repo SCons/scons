@@ -172,7 +172,7 @@ Python 3.7.1
   <title>Installing &SCons;</title>
 
     <para>
-    The canoncial way to install &SCons; is from the Python Package
+    The canonical way to install &SCons; is from the Python Package
     Index (PyPi):
     </para>
 
