@@ -1,6 +1,6 @@
 """SCons.Tool.applelink
 
-Tool-specific initialization for the Apple gnu-like linker.
+Tool-specific initialization for the Apple's gnu-like linker.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -40,6 +40,73 @@ import SCons.Util
 from . import link
 
 
+
+def _applelib_versioned_lib_suffix(env, suffix, version):
+    """For suffix='.dylib' and version='0.1.2' it returns '.0.1.2.dylib'"""
+    Verbose = False
+    if Verbose:
+        print("_applelib_versioned_lib_suffix: suffix={:r}".format(suffix))
+        print("_applelib_versioned_lib_suffix: version={:r}".format(version))
+    if not version in suffix:
+        suffix = "." + version + suffix
+    if Verbose:
+        print("_applelib_versioned_lib_suffix: return suffix={:r}".format(suffix))
+    return suffix
+
+
+def _applelib_versioned_lib_soname(env, libnode, version, prefix, suffix, name_func):
+    """For libnode='/optional/dir/libfoo.X.Y.Z.dylib' it returns 'libfoo.X.dylib'"""
+    Verbose = False
+    if Verbose:
+        print("_applelib_versioned_lib_soname: version={!r}".format(version))
+    name = name_func(env, libnode, version, prefix, suffix)
+    if Verbose:
+        print("_applelib_versioned_lib_soname: name={!r}".format(name))
+    major = version.split('.')[0]
+    (libname,_suffix) = name.split('.')
+    soname = '.'.join([libname, major, _suffix])
+    if Verbose:
+        print("_applelib_versioned_lib_soname: soname={!r}".format(soname))
+    return soname
+
+def _applelib_versioned_shlib_soname(env, libnode, version, prefix, suffix):
+    return _applelib_versioned_lib_soname(env, libnode, version, prefix, suffix, link._versioned_shlib_name)
+
+
+# User programmatically describes how SHLIBVERSION maps to values for compat/current.
+
+def _applelib_currentVersionFromSoVersion(source, target, env, for_signature):
+    """
+    -Wl,current_version=2.3
+    """
+
+    if env.get('APPLELINK_CURRENT_VERSION', False):
+        version_string = env['SHLIBVERSION']
+    elif env.get('SHLIBVERSION', False):
+        version_string = env['SHLIBVERSION']
+    else:
+        return ""
+
+    version_string = ".".join(version_string.split('.')[:3])
+
+    return "-Wl,-current_version,%s" % version_string
+
+
+def _applelib_compatVersionFromSoVersion(source, target, env, for_signature):
+    """
+    -Wl,compat_version=2.0
+    """
+
+    if env.get('APPLELINK_COMPAT_VERSION', False):
+        version_string = env['SHLIBVERSION']
+    elif env.get('SHLIBVERSION', False):
+        version_string = ".".join(env['SHLIBVERSION'].split('.')[:2] + ['0'])
+    else:
+        return ""
+
+    return "-Wl,-compatibility_version,%s" % version_string
+
+
 def generate(env):
     """Add Builders and construction variables for applelink to an
     Environment."""
@@ -57,9 +124,18 @@ def generate(env):
     # TODO: Work needed to generate versioned shared libraries
     # Leaving this commented out, and also going to disable versioned library checking for now
     # see: http://docstore.mik.ua/orelly/unix3/mac/ch05_04.htm  for proper naming
-    #link._setup_versioned_lib_variables(env, tool = 'applelink')#, use_soname = use_soname)
-    #env['LINKCALLBACKS'] = link._versioned_lib_callbacks()
+    link._setup_versioned_lib_variables(env, tool = 'applelink')#, use_soname = use_soname)
+    env['LINKCALLBACKS'] = link._versioned_lib_callbacks()
 
+    # 'VersionedShLibSuffix': _versioned_lib_suffix,
+    env['LINKCALLBACKS']['VersionedShLibSuffix'] = _applelib_versioned_lib_suffix
+    env['LINKCALLBACKS']['VersionedShLibSoname'] = _applelib_versioned_shlib_soname
+
+
+    env['APPLELINK_CURRENT_VERSION'] = _applelib_currentVersionFromSoVersion
+    env['APPLELINK_COMPATIBILITY_VERSION'] = _applelib_compatVersionFromSoVersion
+    env['_SHLIBVERSIONFLAGS'] = '$APPLELINK_CURRENT_VERSION $APPLELINK_COMPATIBILITY_VERSION '
+    env['_LDMODULEVERSIONFLAGS'] = '$APPLELINK_CURRENT_VERSION $APPLELINK_COMPATIBILITY_VERSION '
 
     # override the default for loadable modules, which are different
     # on OS X than dynamic shared libs.  echoing what XCode does for

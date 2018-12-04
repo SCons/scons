@@ -57,6 +57,7 @@ test.run(arguments = ['-c'])
 
 for versionvar in ['SHLIBVERSION', 'LDMODULEVERSION']:
     test = TestSCons.TestSCons()
+    test.verbose_set(1)
     test.write('foo.c', foo_c_src)
     test.write('SConstruct', "LoadableModule('foo','foo.c',%s='1.2.3')\n" % versionvar)
     test.run(stdout = versionflags, match = TestSCons.match_re_dotall)

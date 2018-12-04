@@ -46,15 +46,13 @@ from SCons.Tool.FortranCommon import isfortran
 
 from SCons.Tool.DCommon import isD
 
-import SCons.Tool.cxx
-
-cplusplus = SCons.Tool.cxx
+from SCons.Tool.cxx import iscplusplus
 
 issued_mixed_link_warning = False
 
 
 def smart_link(source, target, env, for_signature):
-    has_cplusplus = cplusplus.iscplusplus(source)
+    has_cplusplus = iscplusplus(source)
     has_fortran = isfortran(env, source)
     has_d = isD(env, source)
     if has_cplusplus and has_fortran and not has_d:
@@ -113,7 +111,7 @@ def ldmod_emitter(target, source, env):
 # This is generic enough to be included here...
 def _versioned_lib_name(env, libnode, version, prefix, suffix, prefix_generator, suffix_generator, **kw):
     """For libnode='/optional/dir/libfoo.so.X.Y.Z' it returns 'libfoo.so'"""
-    Verbose = True
+    Verbose = False
 
     if Verbose:
         print("_versioned_lib_name: libnode={!r}".format(libnode.get_path()))
@@ -142,15 +140,15 @@ def _versioned_lib_name(env, libnode, version, prefix, suffix, prefix_generator,
 
 
 def _versioned_shlib_name(env, libnode, version, prefix, suffix, **kw):
-    pg = SCons.Tool.ShLibPrefixGenerator
-    sg = SCons.Tool.ShLibSuffixGenerator
-    return _versioned_lib_name(env, libnode, version, prefix, suffix, pg, sg, **kw)
+    prefix_generator = SCons.Tool.ShLibPrefixGenerator
+    suffix_generator = SCons.Tool.ShLibSuffixGenerator
+    return _versioned_lib_name(env, libnode, version, prefix, suffix, prefix_generator, suffix_generator, **kw)
 
 
 def _versioned_ldmod_name(env, libnode, version, prefix, suffix, **kw):
-    pg = SCons.Tool.LdModPrefixGenerator
-    sg = SCons.Tool.LdModSuffixGenerator
-    return _versioned_lib_name(env, libnode, version, prefix, suffix, pg, sg, **kw)
+    prefix_generator = SCons.Tool.LdModPrefixGenerator
+    suffix_generator = SCons.Tool.LdModSuffixGenerator
+    return _versioned_lib_name(env, libnode, version, prefix, suffix, prefix_generator, suffix_generator, **kw)
 
 
 def _versioned_lib_suffix(env, suffix, version):
@@ -193,7 +191,7 @@ def _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, so
     """Generate link names that should be created for a versioned shared library.
        Returns a dictionary in the form { linkname : linktarget }
     """
-    Verbose = True
+    Verbose = False
 
     if Verbose:
         print("_versioned_lib_symlinks: libnode={!r}".format(libnode.get_path()))
@@ -215,6 +213,8 @@ def _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, so
         print("_versioned_lib_symlinks: name={!r}".format(name))
 
     soname = soname_func(env, libnode, version, prefix, suffix)
+    if Verbose:
+        print("_versioned_lib_symlinks: soname={!r}".format(soname))
 
     link0 = env.fs.File(soname, linkdir)
     link1 = env.fs.File(name, linkdir)
@@ -234,11 +234,8 @@ def _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, so
 
 
 def _versioned_shlib_symlinks(env, libnode, version, prefix, suffix):
-    name_func = _versioned_shlib_name
-    soname_func = _versioned_shlib_soname
-
-    # nf = env['LINKCALLBACKS']['VersionedShLibName']
-    # sf = env['LINKCALLBACKS']['VersionedShLibSoname']
+    name_func = env['LINKCALLBACKS']['VersionedShLibName']
+    soname_func = env['LINKCALLBACKS']['VersionedShLibSoname']
 
     return _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, soname_func)
 
@@ -246,6 +243,10 @@ def _versioned_shlib_symlinks(env, libnode, version, prefix, suffix):
 def _versioned_ldmod_symlinks(env, libnode, version, prefix, suffix):
     name_func = _versioned_ldmod_name
     soname_func = _versioned_ldmod_soname
+
+    name_func = env['LINKCALLBACKS']['VersionedLdModName']
+    soname_func = env['LINKCALLBACKS']['VersionedLdModSoname']
+
     return _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, soname_func)
 
 
