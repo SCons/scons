@@ -40,6 +40,12 @@ import SCons.Util
 from . import link
 
 
+class AppleLinkInvalidCurrentVersionException(Exception):
+    pass
+
+class AppleLinkInvalidCompatibityVersionException(Exception):
+    pass
+
 
 def _applelib_versioned_lib_suffix(env, suffix, version):
     """For suffix='.dylib' and version='0.1.2' it returns '.0.1.2.dylib'"""
@@ -74,6 +80,33 @@ def _applelib_versioned_shlib_soname(env, libnode, version, prefix, suffix):
 
 
 # User programmatically describes how SHLIBVERSION maps to values for compat/current.
+_applelib_max_version_values = (65535, 255, 255)
+def _applelib_check_valid_version(version_string):
+    """
+    Check that the version # is valid.
+    X[.Y[.Z]]
+    where X 0-65535
+    where Y either not specified or 0-255
+    where Z either not specified or 0-255
+    :param version_string:
+    :return:
+    """
+    parts = version_string.split('.')
+    if len(parts) > 3:
+        return False, "Version string has too many periods"
+    if len(parts) <= 0:
+        return False, "Version string unspecified"
+
+    for (i, p) in enumerate(parts):
+        try:
+            p_i = int(p)
+        except ValueError as e:
+            return False, "Version component %s (from %s) is not a number"%(p, version_string)
+        if p_i < 0 or p_i > _applelib_max_version_values[i]:
+            return False, "Version component %s (from %s) is not valid value should be between 0 and %d"%(p, version_string, _applelib_max_version_values[i])
+
+    return True, ""
+
 
 def _applelib_currentVersionFromSoVersion(source, target, env, for_signature):
     """
@@ -87,8 +120,12 @@ def _applelib_currentVersionFromSoVersion(source, target, env, for_signature):
     else:
         return ""
 
-    print("Versino_String:%s"%version_string)
+    print("Version_String:%s"%version_string)
     version_string = ".".join(version_string.split('.')[:3])
+
+    valid, reason = _applelib_check_valid_version(version_string)
+    if not valid:
+        raise AppleLinkInvalidCurrentVersionException(reason)
 
     return "-Wl,-current_version,%s" % version_string
 
@@ -104,6 +141,10 @@ def _applelib_compatVersionFromSoVersion(source, target, env, for_signature):
         version_string = ".".join(env['SHLIBVERSION'].split('.')[:2] + ['0'])
     else:
         return ""
+
+    valid, reason = _applelib_check_valid_version(version_string)
+    if not valid:
+        raise AppleLinkInvalidCompatibityVersionException(reason)
 
     return "-Wl,-compatibility_version,%s" % version_string
 
@@ -122,16 +163,11 @@ def generate(env):
     env['SHLINKCOM'] = env['SHLINKCOM'] + ' $_FRAMEWORKPATH $_FRAMEWORKS $FRAMEWORKSFLAGS'
 
 
-    # TODO: Work needed to generate versioned shared libraries
-    # Leaving this commented out, and also going to disable versioned library checking for now
     # see: http://docstore.mik.ua/orelly/unix3/mac/ch05_04.htm  for proper naming
     link._setup_versioned_lib_variables(env, tool = 'applelink')#, use_soname = use_soname)
     env['LINKCALLBACKS'] = link._versioned_lib_callbacks()
-
-    # 'VersionedShLibSuffix': _versioned_lib_suffix,
     env['LINKCALLBACKS']['VersionedShLibSuffix'] = _applelib_versioned_lib_suffix
     env['LINKCALLBACKS']['VersionedShLibSoname'] = _applelib_versioned_shlib_soname
-
 
     env['_APPLELINK_CURRENT_VERSION'] = _applelib_currentVersionFromSoVersion
     env['_APPLELINK_COMPATIBILITY_VERSION'] = _applelib_compatVersionFromSoVersion
