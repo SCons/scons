@@ -164,7 +164,7 @@ else:
         pass
     else:
         # Split /usr/libfoo/python*/os.py to /usr/libfoo/python*.
-        libpath, tail = os.path.split(libpath)
+        libpath, _ = os.path.split(libpath)
         # Split /usr/libfoo/python* to /usr/libfoo
         libpath, tail = os.path.split(libpath)
         # Check /usr/libfoo/scons*.
@@ -194,6 +194,7 @@ import pickle
 import imp
 
 import SCons.SConsign
+
 
 def my_whichdb(filename):
     if filename[-7:] == ".dblite":
@@ -225,13 +226,17 @@ def my_import(mname):
         fp, pathname, description = imp.find_module(mname)
     return imp.load_module(mname, fp, pathname, description)
 
+
 class Flagger(object):
     default_value = 1
+
     def __setitem__(self, item, value):
         self.__dict__[item] = value
         self.default_value = 0
+
     def __getitem__(self, item):
         return self.__dict__.get(item, self.default_value)
+
 
 Do_Call = None
 Print_Directories = []
@@ -239,10 +244,23 @@ Print_Entries = []
 Print_Flags = Flagger()
 Verbose = 0
 Readable = 0
+Warns = 0
+
+
 
 def default_mapper(entry, name):
+    '''
+    Stringify an entry that doesn't have an explicit mapping.
+
+    Args:
+        entry:  entry
+        name: field name
+
+    Returns: str
+
+    '''
     try:
-        val = eval("entry."+name)
+        val = eval("entry." + name)
     except:
         val = None
     if sys.version_info.major >= 3 and isinstance(val, bytes):
@@ -252,7 +270,18 @@ def default_mapper(entry, name):
         val = val.decode()
     return str(val)
 
-def map_action(entry, name):
+
+def map_action(entry, _):
+    '''
+    Stringify an action entry and signature.
+
+    Args:
+        entry: action entry
+        second argument is not used
+
+    Returns: str
+
+    '''
     try:
         bact = entry.bact
         bactsig = entry.bactsig
@@ -260,7 +289,17 @@ def map_action(entry, name):
         return None
     return '%s [%s]' % (bactsig, bact)
 
-def map_timestamp(entry, name):
+def map_timestamp(entry, _):
+    '''
+    Stringify a timestamp entry.
+
+    Args:
+        entry: timestamp entry
+        second argument is not used
+
+    Returns: str
+
+    '''
     try:
         timestamp = entry.timestamp
     except AttributeError:
@@ -270,18 +309,37 @@ def map_timestamp(entry, name):
     else:
         return str(timestamp)
 
-def map_bkids(entry, name):
+def map_bkids(entry, _):
+    '''
+    Stringify an implicit entry.
+
+    Args:
+        entry:
+        second argument is not used
+
+    Returns: str
+
+    '''
     try:
         bkids = entry.bsources + entry.bdepends + entry.bimplicit
         bkidsigs = entry.bsourcesigs + entry.bdependsigs + entry.bimplicitsigs
     except AttributeError:
         return None
-    result = []
-    for i in range(len(bkids)):
-        result.append(nodeinfo_string(bkids[i], bkidsigs[i], "        "))
+
+    if len(bkids) != len(bkidsigs):
+        global Warns
+        Warns += 1
+        # add warning to result rather than direct print so it will line up
+        msg = "Warning: missing information, {} ids but {} sigs"
+        result = [msg.format(len(bkids), len(bkidsigs))]
+    else:
+        result = []
+    result += [nodeinfo_string(bkid, bkidsig, "        ")
+               for bkid, bkidsig in zip(bkids, bkidsigs)]
     if not result:
         return None
     return "\n        ".join(result)
+
 
 map_field = {
     'action'    : map_action,
@@ -293,6 +351,7 @@ map_name = {
     'implicit'  : 'bkids',
 }
 
+
 def field(name, entry, verbose=Verbose):
     if not Print_Flags[name]:
         return None
@@ -302,6 +361,7 @@ def field(name, entry, verbose=Verbose):
     if verbose:
         val = name + ": " + val
     return val
+
 
 def nodeinfo_raw(name, ninfo, prefix=""):
     # This just formats the dictionary, which we would normally use str()
@@ -318,6 +378,7 @@ def nodeinfo_raw(name, ninfo, prefix=""):
         name = repr(name)
     return name + ': {' + ', '.join(l) + '}'
 
+
 def nodeinfo_cooked(name, ninfo, prefix=""):
     try:
         field_list = ninfo.field_list
@@ -325,14 +386,18 @@ def nodeinfo_cooked(name, ninfo, prefix=""):
         field_list = []
     if '\n' in name:
         name = repr(name)
-    outlist = [name+':'] + [_f for _f in [field(x, ninfo, Verbose) for x in field_list] if _f]
+    outlist = [name + ':'] + [
+        f for f in [field(x, ninfo, Verbose) for x in field_list] if f
+    ]
     if Verbose:
         sep = '\n    ' + prefix
     else:
         sep = ' '
     return sep.join(outlist)
 
+
 nodeinfo_string = nodeinfo_cooked
+
 
 def printfield(name, entry, prefix=""):
     outlist = field("implicit", entry, 0)
@@ -347,13 +412,15 @@ def printfield(name, entry, prefix=""):
         else:
             print("        " + outact)
 
+
 def printentries(entries, location):
     if Print_Entries:
         for name in Print_Entries:
             try:
                 entry = entries[name]
             except KeyError:
-                sys.stderr.write("sconsign: no entry `%s' in `%s'\n" % (name, location))
+                err = "sconsign: no entry `%s' in `%s'\n" % (name, location)
+                sys.stderr.write(err)
             else:
                 try:
                     ninfo = entry.ninfo
@@ -372,6 +439,7 @@ def printentries(entries, location):
             else:
                 print(nodeinfo_string(name, entry.ninfo))
             printfield(name, entry.binfo)
+
 
 class Do_SConsignDB(object):
     def __init__(self, dbm_name, dbm):
@@ -407,15 +475,17 @@ class Do_SConsignDB(object):
                     # Nope, that file doesn't even exist, so report that
                     # fact back.
                     print_e = e
-                sys.stderr.write("sconsign: %s\n" % (print_e))
+                sys.stderr.write("sconsign: %s\n" % print_e)
                 return
         except KeyboardInterrupt:
             raise
         except pickle.UnpicklingError:
-            sys.stderr.write("sconsign: ignoring invalid `%s' file `%s'\n" % (self.dbm_name, fname))
+            sys.stderr.write("sconsign: ignoring invalid `%s' file `%s'\n"
+                             % (self.dbm_name, fname))
             return
         except Exception as e:
-            sys.stderr.write("sconsign: ignoring invalid `%s' file `%s': %s\n" % (self.dbm_name, fname, e))
+            sys.stderr.write("sconsign: ignoring invalid `%s' file `%s': %s\n"
+                             % (self.dbm_name, fname, e))
             return
 
         if Print_Directories:
@@ -423,34 +493,43 @@ class Do_SConsignDB(object):
                 try:
                     val = db[dir]
                 except KeyError:
-                    sys.stderr.write("sconsign: no dir `%s' in `%s'\n" % (dir, args[0]))
+                    err = "sconsign: no dir `%s' in `%s'\n" % (dir, args[0])
+                    sys.stderr.write(err)
                 else:
                     self.printentries(dir, val)
         else:
             for dir in sorted(db.keys()):
                 self.printentries(dir, db[dir])
 
-    def printentries(self, dir, val):
-        print('=== ' + dir + ':')
+    @staticmethod
+    def printentries(dir, val):
+        try:
+            print('=== ' + dir + ':')
+        except TypeError:
+            print('=== ' + dir.decode() + ':')
         printentries(pickle.loads(val), dir)
+
 
 def Do_SConsignDir(name):
     try:
         fp = open(name, 'rb')
     except (IOError, OSError) as e:
-        sys.stderr.write("sconsign: %s\n" % (e))
+        sys.stderr.write("sconsign: %s\n" % e)
         return
     try:
         sconsign = SCons.SConsign.Dir(fp)
     except KeyboardInterrupt:
         raise
     except pickle.UnpicklingError:
-        sys.stderr.write("sconsign: ignoring invalid .sconsign file `%s'\n" % (name))
+        err = "sconsign: ignoring invalid .sconsign file `%s'\n" % (name)
+        sys.stderr.write(err)
         return
     except Exception as e:
-        sys.stderr.write("sconsign: ignoring invalid .sconsign file `%s': %s\n" % (name, e))
+        err = "sconsign: ignoring invalid .sconsign file `%s': %s\n" % (name, e)
+        sys.stderr.write(err)
         return
     printentries(sconsign.entries, args[0])
+
 
 ##############################################################################
 
@@ -493,8 +572,7 @@ for o, a in opts:
     elif o in ('-f', '--format'):
         # Try to map the given DB format to a known module
         # name, that we can then try to import...
-        Module_Map = {'dblite'   : 'SCons.dblite',
-                      'sconsign' : None}
+        Module_Map = {'dblite': 'SCons.dblite', 'sconsign': None}
         dbm_name = Module_Map.get(a, a)
         if dbm_name:
             try:
@@ -502,6 +580,7 @@ for o, a in opts:
                     dbm = my_import(dbm_name)
                 else:
                     import SCons.dblite
+
                     dbm = SCons.dblite
                     # Ensure that we don't ignore corrupt DB files,
                     # this was handled by calling my_import('SCons.dblite')
@@ -530,7 +609,6 @@ for o, a in opts:
     elif o in ('-v', '--verbose'):
         Verbose = 1
 
-
 if Do_Call:
     for a in args:
         Do_Call(a)
@@ -538,11 +616,12 @@ else:
     for a in args:
         dbm_name = whichdb(a)
         if dbm_name:
-            Map_Module = {'SCons.dblite' : 'dblite'}
+            Map_Module = {'SCons.dblite': 'dblite'}
             if dbm_name != "SCons.dblite":
                 dbm = my_import(dbm_name)
             else:
                 import SCons.dblite
+
                 dbm = SCons.dblite
                 # Ensure that we don't ignore corrupt DB files,
                 # this was handled by calling my_import('SCons.dblite')
@@ -552,6 +631,8 @@ else:
         else:
             Do_SConsignDir(a)
 
+    if Warns:
+        print("NOTE: there were %d warnings, please check output" % Warns)
 sys.exit(0)
 
 # Local Variables:
