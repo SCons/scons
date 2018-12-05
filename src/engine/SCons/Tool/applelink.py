@@ -81,12 +81,13 @@ def _applelib_currentVersionFromSoVersion(source, target, env, for_signature):
     """
 
     if env.get('APPLELINK_CURRENT_VERSION', False):
-        version_string = env['SHLIBVERSION']
+        version_string = env['APPLELINK_CURRENT_VERSION']
     elif env.get('SHLIBVERSION', False):
         version_string = env['SHLIBVERSION']
     else:
         return ""
 
+    print("Versino_String:%s"%version_string)
     version_string = ".".join(version_string.split('.')[:3])
 
     return "-Wl,-current_version,%s" % version_string
@@ -97,8 +98,8 @@ def _applelib_compatVersionFromSoVersion(source, target, env, for_signature):
     -Wl,compat_version=2.0
     """
 
-    if env.get('APPLELINK_COMPAT_VERSION', False):
-        version_string = env['SHLIBVERSION']
+    if env.get('APPLELINK_COMPATIBILITY_VERSION', False):
+        version_string = env['APPLELINK_COMPATIBILITY_VERSION']
     elif env.get('SHLIBVERSION', False):
         version_string = ".".join(env['SHLIBVERSION'].split('.')[:2] + ['0'])
     else:
@@ -132,10 +133,10 @@ def generate(env):
     env['LINKCALLBACKS']['VersionedShLibSoname'] = _applelib_versioned_shlib_soname
 
 
-    env['APPLELINK_CURRENT_VERSION'] = _applelib_currentVersionFromSoVersion
-    env['APPLELINK_COMPATIBILITY_VERSION'] = _applelib_compatVersionFromSoVersion
-    env['_SHLIBVERSIONFLAGS'] = '$APPLELINK_CURRENT_VERSION $APPLELINK_COMPATIBILITY_VERSION '
-    env['_LDMODULEVERSIONFLAGS'] = '$APPLELINK_CURRENT_VERSION $APPLELINK_COMPATIBILITY_VERSION '
+    env['_APPLELINK_CURRENT_VERSION'] = _applelib_currentVersionFromSoVersion
+    env['_APPLELINK_COMPATIBILITY_VERSION'] = _applelib_compatVersionFromSoVersion
+    env['_SHLIBVERSIONFLAGS'] = '$_APPLELINK_CURRENT_VERSION $_APPLELINK_COMPATIBILITY_VERSION '
+    env['_LDMODULEVERSIONFLAGS'] = '$_APPLELINK_CURRENT_VERSION $_APPLELINK_COMPATIBILITY_VERSION '
 
     # override the default for loadable modules, which are different
     # on OS X than dynamic shared libs.  echoing what XCode does for
