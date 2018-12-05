@@ -34,31 +34,9 @@ _exe   = TestSCons._exe
 test = TestSCons.TestSCons()
 
 
-test.write('foo.c', r"""
-#include <stdio.h>
-#include <stdlib.h>
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        printf("foo.c\n");
-        exit (0);
-}
-""")
-
 #  Test issue # 2580
-test.write('SConstruct', """
-DefaultEnvironment(tools=[])
-env = Environment(PLATFORM='darwin')
-env.Object(
-	target = '#foo.o',
-	source = ['foo.c'],
-	FRAMEWORKS = ['Ogre'],
-	FRAMEWORKPATH = ['#frameworks']
-)
-""" % locals())
-
-test.run(arguments='-Q -n', stdout='gcc -o foo.o -c -Fframeworks foo.c\n')
+test.dir_fixture('applelink_image')
+test.run(arguments='-f SConstruct_gh2580 -Q -n', stdout='gcc -o foo.o -c -Fframeworks foo.c\n')
 
 test.pass_test()
 
