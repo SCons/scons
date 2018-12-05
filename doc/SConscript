@@ -574,7 +574,7 @@ else:
     e = os.path.join('#src', 'engine')
     manifest_in = File(os.path.join(e, 'MANIFEST.in')).rstr()
     sources = bootstrap.parseManifestLines(e, open(manifest_in).readlines())
-    sources = [x for x in sources if x.find('Platform') == -1]
+#    sources = [x for x in sources if x.find('Platform') == -1]
     sources = [x for x in sources if x.find('Tool') == -1]
     # XXX
     sources = [x for x in sources if x.find('Options') == -1]

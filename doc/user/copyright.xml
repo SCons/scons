@@ -33,12 +33,9 @@
 
 -->
 
-<blockquote>
- <para>
-
-  SCons User's Guide Copyright (c) 2004, 2005, 2006, 2007 Steven Knight
-
- </para>
-</blockquote>
+    <copyright>
+      <year>2004 - 2018</year>
+      <holder>The SCons Foundation</holder>
+    </copyright>
 
 </legalnotice>

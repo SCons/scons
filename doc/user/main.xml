@@ -74,13 +74,6 @@
 
     <corpauthor>Steven Knight and the SCons Development Team</corpauthor>
 
-    <pubdate>2004 - 2017</pubdate>
-
-    <copyright>
-      <year>2004 - 2017</year>
-      <holder>The SCons Foundation</holder>
-    </copyright>
-
     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="copyright.xml"/>
 
     <releaseinfo>version &buildversion;</releaseinfo>
