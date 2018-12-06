@@ -38,8 +38,8 @@ if <link linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> is set. O
             </para>
             <para>
                 The value is specified as X[.Y[.Z]] where X is between 1 and 65535, Y can be omitted or between 1 and
-                255, Z can be omitted or between 1 and 255. This value will be set to <link linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> if not
-                specified.
+                255, Z can be omitted or between 1 and 255. This value will be derived from <link linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> if not
+                specified. The lowest digit will be dropped and replaced by a 0.
             </para>
             <para>See MacOS's ld manpage for more details</para>
         </listitem>
@@ -53,8 +53,8 @@ if <link linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> is set. O
             </para>
             <para>
                 The value is specified as X[.Y[.Z]] where X is between 1 and 65535, Y can be omitted or between 1 and
-                255, Z can be omitted or between 1 and 255. This value will be derived from <link linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> if not
-                specified. The lowest digit will be dropped and replaced by a 0.
+                255, Z can be omitted or between 1 and 255. This value will be set to <link linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> if not
+                specified.
             </para>
             <para>See MacOS's ld manpage for more details</para>
 
