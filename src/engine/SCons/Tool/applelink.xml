@@ -59,8 +59,8 @@ See its __doc__ string for a discussion of the format.
             </para>
             <para>
                 The value is specified as X[.Y[.Z]] where X is between 1 and 65535, Y can be omitted or between 1 and
-                255, Z can be omitted or between 1 and 255. This value will be set to &cv-link-SHLIBVERSION; if not
-                specified.
+                255, Z can be omitted or between 1 and 255. This value will be derived from &cv-link-SHLIBVERSION; if not
+                specified. The lowest digit will be dropped and replaced by a 0.
             </para>
             <para>See MacOS's ld manpage for more details</para>
         </summary>
@@ -76,8 +76,8 @@ See its __doc__ string for a discussion of the format.
             </para>
             <para>
                 The value is specified as X[.Y[.Z]] where X is between 1 and 65535, Y can be omitted or between 1 and
-                255, Z can be omitted or between 1 and 255. This value will be derived from &cv-link-SHLIBVERSION; if not
-                specified. The lowest digit will be dropped and replaced by a 0.
+                255, Z can be omitted or between 1 and 255. This value will be set to &cv-link-SHLIBVERSION; if not
+                specified.
             </para>
             <para>See MacOS's ld manpage for more details</para>
 

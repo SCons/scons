@@ -1,0 +1,23 @@
+
+
+vars = Variables(None, ARGUMENTS)
+vars.Add('SHLIBVERSION', 'Set the SHLIBVERSION', 0)
+vars.Add('APPLELINK_CURRENT_VERSION', 'Set APPLELINK_CURRENT_VERSION', 0)
+vars.Add('APPLELINK_COMPATIBILITY_VERSION', 'Set APPLELINK_COMPATIBILITY_VERSION', 0)
+
+env = Environment(variables = vars, tools=['gcc', 'applelink'])
+
+obj = env.SharedObject('foo.c')
+
+# sl = env.SharedLibrary('foo', obj)
+
+sl = env.SharedLibrary('foo', obj)
+lm = env.LoadableModule('fool', obj)
+
+env.InstallVersionedLib(target='#/install',
+                        source=sl)
+
+env.InstallVersionedLib(target='#/install',
+                        source=lm)
+
+print("SHLIBVERSION=%s"%env['SHLIBVERSION'])

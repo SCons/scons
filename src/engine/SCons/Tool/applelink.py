@@ -43,7 +43,7 @@ from . import link
 class AppleLinkInvalidCurrentVersionException(Exception):
     pass
 
-class AppleLinkInvalidCompatibityVersionException(Exception):
+class AppleLinkInvalidCompatibilityVersionException(Exception):
     pass
 
 
@@ -93,9 +93,9 @@ def _applelib_check_valid_version(version_string):
     """
     parts = version_string.split('.')
     if len(parts) > 3:
-        return False, "Version string has too many periods"
+        return False, "Version string has too many periods [%s]"%version_string
     if len(parts) <= 0:
-        return False, "Version string unspecified"
+        return False, "Version string unspecified [%s]"%version_string
 
     for (i, p) in enumerate(parts):
         try:
@@ -120,7 +120,6 @@ def _applelib_currentVersionFromSoVersion(source, target, env, for_signature):
     else:
         return ""
 
-    print("Version_String:%s"%version_string)
     version_string = ".".join(version_string.split('.')[:3])
 
     valid, reason = _applelib_check_valid_version(version_string)
@@ -144,7 +143,7 @@ def _applelib_compatVersionFromSoVersion(source, target, env, for_signature):
 
     valid, reason = _applelib_check_valid_version(version_string)
     if not valid:
-        raise AppleLinkInvalidCompatibityVersionException(reason)
+        raise AppleLinkInvalidCompatibilityVersionException(reason)
 
     return "-Wl,-compatibility_version,%s" % version_string
 
@@ -181,6 +180,11 @@ def generate(env):
     env['LDMODULESUFFIX'] = '' 
     env['LDMODULEFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -bundle')
     env['LDMODULECOM'] = '$LDMODULE -o ${TARGET} $LDMODULEFLAGS $SOURCES $_LIBDIRFLAGS $_LIBFLAGS $_FRAMEWORKPATH $_FRAMEWORKS $FRAMEWORKSFLAGS'
+
+    #
+    env['__SHLIBVERSIONFLAGS'] = '${__libversionflags(__env__,"SHLIBVERSION","_SHLIBVERSIONFLAGS")}'
+
+
 
 def exists(env):
     return env['PLATFORM'] == 'darwin'
