@@ -55,6 +55,15 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       yielded trying to combine strings and bytes which threw exception.
     - Fix GH Issue #3225 SCons.Util.Flatten() doesn't handle MappingView's produced by dictionary as return
       values from dict().{items(), keys(), values()}.
+    - Fix GH Issue #3241 - Properly support versioned shared libraries for MacOS.  We've also introduced two
+      new env variables APPLELINK_CURRENT_VERSION and APPLELINK_COMPATIBILITY_VERSION which will specify
+      what is passed to the linkers -current_version and -compatibility_version flags.  If not specified
+      they will be derived from SHLIBVERSION as such:
+      - APPLELINK_CURRENT_VERSION = SHLIBVERSION
+      - APPLELINK_COMPATIBILITY_VERSION = all but the last digit in SHLIBVERSION with .0 appended.
+      Note that the values of the above will be validated. Valid format for either APPLELINK variable is
+      X[.Y[.Z]] where 0 <= X <= 65535, 0 <= Y <= 255, 0 <= Z <= 255.
+      The new variables have been added to the documents and should show up in user guide and manpage.
 
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
