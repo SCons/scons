@@ -32,7 +32,8 @@ _python_ = TestSCons._python_
 _exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
-#test.verbose_set(1)
+
+# test.verbose_set(1)
 
 #  Test issue # 2580
 test.dir_fixture('applelink_image')
@@ -41,9 +42,9 @@ test.run(arguments='-f SConstruct_gh2580 -Q -n', stdout='gcc -o foo.o -c -Fframe
 # Now test combinations of SHLIBVERSION, APPLELINK_CURRENT_VERSION, APPLELINK_COMPATIBILITY_VERSION
 
 if sys.platform == 'darwin':
-    extra_flags=''
+    extra_flags = ''
 else:
-    extra_flags=' -n '
+    extra_flags = ' -n '
 
 for SHLIBVERSION, APPLELINK_CURRENT_VERSION, APPLELINK_COMPATIBILITY_VERSION, should_error in [
     ('1.2.3', '', '', False),
@@ -69,7 +70,8 @@ for SHLIBVERSION, APPLELINK_CURRENT_VERSION, APPLELINK_COMPATIBILITY_VERSION, sh
         expected_status = 2
 
     test.run(
-        arguments='{extra_flags} -f SConstruct_CurVers_CompatVers SHLIBVERSION={SHLIBVERSION} APPLELINK_CURRENT_VERSION={APPLELINK_CURRENT_VERSION} APPLELINK_COMPATIBILITY_VERSION={APPLELINK_COMPATIBILITY_VERSION}'.format(**locals()),
+        arguments='{extra_flags} -f SConstruct_CurVers_CompatVers SHLIBVERSION={SHLIBVERSION} APPLELINK_CURRENT_VERSION={APPLELINK_CURRENT_VERSION} APPLELINK_COMPATIBILITY_VERSION={APPLELINK_COMPATIBILITY_VERSION}'.format(
+            **locals()),
         stdout=expected_stdout,
         stderr=expected_stderr,
         match=TestSCons.match_re_dotall,
@@ -85,7 +87,7 @@ for SHLIBVERSION, APPLELINK_CURRENT_VERSION, APPLELINK_COMPATIBILITY_VERSION, sh
             **locals())
 
         test.run(program='/usr/bin/otool', arguments='-L libfoo.%s.dylib' % SHLIBVERSION, stdout=otool_output)
- 
+
 test.pass_test()
 
 # Local Variables:
