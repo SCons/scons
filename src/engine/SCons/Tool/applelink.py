@@ -53,7 +53,7 @@ def _applelib_versioned_lib_suffix(env, suffix, version):
     if Verbose:
         print("_applelib_versioned_lib_suffix: suffix={:r}".format(suffix))
         print("_applelib_versioned_lib_suffix: version={:r}".format(version))
-    if not version in suffix:
+    if version not in suffix:
         suffix = "." + version + suffix
     if Verbose:
         print("_applelib_versioned_lib_suffix: return suffix={:r}".format(suffix))
@@ -100,7 +100,7 @@ def _applelib_check_valid_version(version_string):
     for (i, p) in enumerate(parts):
         try:
             p_i = int(p)
-        except ValueError as e:
+        except ValueError:
             return False, "Version component %s (from %s) is not a number"%(p, version_string)
         if p_i < 0 or p_i > _applelib_max_version_values[i]:
             return False, "Version component %s (from %s) is not valid value should be between 0 and %d"%(p, version_string, _applelib_max_version_values[i])
