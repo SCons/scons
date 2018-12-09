@@ -1607,6 +1607,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         return self
 
     def explain(self):
+        """Prepare explanation for why node needs rebuilding."""
         if not self.exists():
             return "building `%s' because it doesn't exist\n" % self
 
@@ -1634,28 +1635,56 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         osig = dict(list(zip(old_bkids, old_bkidsigs)))
         nsig = dict(list(zip(new_bkids, new_bkidsigs)))
 
-        # The sources and dependencies we'll want to report are all stored
-        # as relative paths to this target's directory, but we want to
-        # report them relative to the top-level SConstruct directory,
-        # so we only print them after running them through this lambda
-        # to turn them into the right relative Node and then return
-        # its string.
         def stringify( s, E=self.dir.Entry):
-            if hasattr( s, 'dir' ) :
+            """
+            Return path string relative to the SConstruct dir.
+
+            Similar to the string representation of the node except
+            that if the node has a 'dir' attribute the path is local
+            and needs to be transformed relative to the top.
+
+            Args:
+                s: source or dependency node
+                E: class to instantiate to get full path
+            """
+            if hasattr(s, 'dir'):
                 return str(E(s))
             return str(s)
 
         lines = []
 
-        removed = [x for x in old_bkids if not x in new_bkids]
+        # Detecting removed/added dependencies is a little tricky.
+        # Equality tests between bkids miss the case of different objects
+        # which represent the same file, as in the case of a source
+        # file which includes a changed header file (this seems to
+        # happen only if a variant dir is in effect).
+        # The Node classes cannot easily implement an equality method
+        # to compare the paths for other reasons, so we have to do
+        # some extra manual work here.
+        removed = [x for x in old_bkids if x not in new_bkids]
         if removed:
-            removed = [stringify(r) for r in removed]
+            # Additional check: skip if the paths are the same
+            new_paths = [stringify(n) for n in new_bkids]
+            removed = [stringify(r) for r in removed if stringify(r) not in new_paths]
             fmt = "`%s' is no longer a dependency\n"
             lines.extend([fmt % s for s in removed])
 
+        old_paths = [stringify(o) for o in old_bkids]
         for k in new_bkids:
-            if not k in old_bkids:
-                lines.append("`%s' is a new dependency\n" % stringify(k))
+            if k not in old_bkids:
+                # Additional check: skip if the paths are the same
+                if stringify(k) not in old_paths:
+                    lines.append("`%s' is a new dependency\n" % stringify(k))
+                else:
+                    # TODO: if did not find bkid, but do find a matching
+                    # path entry, skip printing the "new" message.
+                    # Split these tests because we do not want to take the
+                    # outer else, where we would not be able to look up
+                    # k in osig. Thus, in case k is actually also changed,
+                    # it would go unexplained. As an experiment, say
+                    # something in preference to saying nothing. Note
+                    # either way affects following test on len(lines) == 0
+                    lines.append("`%s' might be changed\n" % stringify(k))
             else:
                 try:
                     changed = _decider_map[k.changed_since_last_build](k, self, osig[k])
@@ -1665,27 +1694,30 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
                 if changed:
                     lines.append("`%s' changed\n" % stringify(k))
 
+        # TODO: old_bkids can be != new_bkids even if the dependency order
+        # did not change (as above), so if we logged no explains from the
+        # previous blocks was can report two identical lists of deps.
         if len(lines) == 0 and old_bkids != new_bkids:
             lines.append("the dependency order changed:\n" +
                          "%sold: %s\n" % (' '*15, list(map(stringify, old_bkids))) +
                          "%snew: %s\n" % (' '*15, list(map(stringify, new_bkids))))
 
-        if len(lines) == 0:
+        #if len(lines) == 0:   # GH #2996 report even if other reason found
+        if old.bactsig != new.bactsig:
             def fmt_with_title(title, strlines):
                 lines = strlines.split('\n')
                 sep = '\n' + ' '*(15 + len(title))
                 return ' '*15 + title + sep.join(lines) + '\n'
-            if old.bactsig != new.bactsig:
-                if old.bact == new.bact:
-                    lines.append("the contents of the build action changed\n" +
-                                 fmt_with_title('action: ', new.bact))
+            if old.bact == new.bact:
+                lines.append("the contents of the build action changed\n" +
+                             fmt_with_title('action: ', new.bact))
 
-                    # lines.append("the contents of the build action changed [%s] [%s]\n"%(old.bactsig,new.bactsig) +
-                    #              fmt_with_title('action: ', new.bact))
-                else:
-                    lines.append("the build action changed:\n" +
-                                 fmt_with_title('old: ', old.bact) +
-                                 fmt_with_title('new: ', new.bact))
+                # lines.append("the contents of the build action changed [%s] [%s]\n"%(old.bactsig,new.bactsig) +
+                #              fmt_with_title('action: ', new.bact))
+            else:
+                lines.append("the build action changed:\n" +
+                             fmt_with_title('old: ', old.bact) +
+                             fmt_with_title('new: ', new.bact))
 
         if len(lines) == 0:
             return "rebuilding `%s' for unknown reasons\n" % self
