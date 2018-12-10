@@ -43,6 +43,9 @@ See its __doc__ string for a discussion of the format.
             <item>LDMODULECOM</item>
             <item>APPLELINK_CURRENT_VERSION</item>
             <item>APPLELINK_COMPATIBILITY_VERSION</item>
+            <item>APPLELINK_NO_CURRENT_VERSION</item>
+            <item>APPLELINK_NO_COMPATIBILITY_VERSION</item>
+
         </sets>
         <uses>
             <item>FRAMEWORKSFLAGS</item>
@@ -59,10 +62,27 @@ See its __doc__ string for a discussion of the format.
             </para>
             <para>
                 The value is specified as X[.Y[.Z]] where X is between 1 and 65535, Y can be omitted or between 1 and
-                255, Z can be omitted or between 1 and 255. This value will be derived from &cv-link-SHLIBVERSION; if not
+                255, Z can be omitted or between 1 and 255. This value will be derived from &cv-link-SHLIBVERSION; if
+                not
                 specified. The lowest digit will be dropped and replaced by a 0.
             </para>
+            <para>
+                If the &cv-link-APPLELINK_NO_COMPATIBILITY_VERSION; is set then no -compatibility_version will be
+                output.
+            </para>
             <para>See MacOS's ld manpage for more details</para>
+        </summary>
+    </cvar>
+
+    <cvar name="APPLELINK_NO_COMPATIBILITY_VERSION">
+        <summary>
+            <para>
+                Set this to any True (1|True|non-empty string) value to disable adding -compatibility_version flag when
+                generating versioned shared libraries.
+            </para>
+            <para>
+                This overrides &cv-link-APPLELINK_COMPATIBILITY_VERSION;.
+            </para>
         </summary>
     </cvar>
 
@@ -79,10 +99,28 @@ See its __doc__ string for a discussion of the format.
                 255, Z can be omitted or between 1 and 255. This value will be set to &cv-link-SHLIBVERSION; if not
                 specified.
             </para>
+            <para>
+                If the &cv-link-APPLELINK_NO_CURRENT_VERSION; is set then no -current_version will be
+                output.
+            </para>
             <para>See MacOS's ld manpage for more details</para>
 
         </summary>
     </cvar>
+
+
+    <cvar name="APPLELINK_CURRENT_VERSION">
+        <summary>
+            <para>
+                Set this to any True (1|True|non-empty string) value to disable adding -current_version flag when
+                generating versioned shared libraries.
+            </para>
+            <para>
+                This overrides &cv-link-APPLELINK_CURRENT_VERSION;.
+            </para>
+        </summary>
+    </cvar>
+
 
     <cvar name="FRAMEWORKSFLAGS">">
         <summary>

@@ -110,10 +110,20 @@ def _applelib_check_valid_version(version_string):
 
 def _applelib_currentVersionFromSoVersion(source, target, env, for_signature):
     """
-    -Wl,current_version=2.3
-    """
+    A generator function to create the -Wl,-current_version flag if needed.
+    If env['APPLELINK_NO_CURRENT_VERSION'] contains a true value no flag will be generated
+    Otherwise if APPLELINK_CURRENT_VERSION is not specified, env['SHLIBVERSION']
+    will be used.
 
-    if env.get('APPLELINK_CURRENT_VERSION', False):
+    :param source:
+    :param target:
+    :param env:
+    :param for_signature:
+    :return: A string providing the flag to specify the current_version of the shared library
+    """
+    if env.get('APPLELINK_NO_CURRENT_VERSION', False):
+        return ""
+    elif env.get('APPLELINK_CURRENT_VERSION', False):
         version_string = env['APPLELINK_CURRENT_VERSION']
     elif env.get('SHLIBVERSION', False):
         version_string = env['SHLIBVERSION']
@@ -131,14 +141,27 @@ def _applelib_currentVersionFromSoVersion(source, target, env, for_signature):
 
 def _applelib_compatVersionFromSoVersion(source, target, env, for_signature):
     """
-    -Wl,compat_version=2.0
-    """
+    A generator function to create the -Wl,-compatibility_version flag if needed.
+    If env['APPLELINK_NO_COMPATIBILITY_VERSION'] contains a true value no flag will be generated
+    Otherwise if APPLELINK_COMPATIBILITY_VERSION is not specified
+    the first two parts of env['SHLIBVERSION'] will be used with a .0 appended.
 
-    if env.get('APPLELINK_COMPATIBILITY_VERSION', False):
+    :param source:
+    :param target:
+    :param env:
+    :param for_signature:
+    :return: A string providing the flag to specify the compatibility_version of the shared library
+    """
+    if env.get('APPLELINK_NO_COMPATIBILITY_VERSION', False):
+        return ""
+    elif env.get('APPLELINK_COMPATIBILITY_VERSION', False):
         version_string = env['APPLELINK_COMPATIBILITY_VERSION']
     elif env.get('SHLIBVERSION', False):
         version_string = ".".join(env['SHLIBVERSION'].split('.')[:2] + ['0'])
     else:
+        return ""
+
+    if version_string is None:
         return ""
 
     valid, reason = _applelib_check_valid_version(version_string)
@@ -181,7 +204,6 @@ def generate(env):
     env['LDMODULEFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -bundle')
     env['LDMODULECOM'] = '$LDMODULE -o ${TARGET} $LDMODULEFLAGS $SOURCES $_LIBDIRFLAGS $_LIBFLAGS $_FRAMEWORKPATH $_FRAMEWORKS $FRAMEWORKSFLAGS'
 
-    #
     env['__SHLIBVERSIONFLAGS'] = '${__libversionflags(__env__,"SHLIBVERSION","_SHLIBVERSIONFLAGS")}'
 
 
