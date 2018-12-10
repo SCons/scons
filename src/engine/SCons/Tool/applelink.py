@@ -1,6 +1,6 @@
 """SCons.Tool.applelink
 
-Tool-specific initialization for the Apple's gnu-like linker.
+Tool-specific initialization for Apple's gnu-like linker.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
