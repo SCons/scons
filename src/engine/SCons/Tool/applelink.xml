@@ -45,7 +45,8 @@ See its __doc__ string for a discussion of the format.
             <item>APPLELINK_COMPATIBILITY_VERSION</item>
             <item>APPLELINK_NO_CURRENT_VERSION</item>
             <item>APPLELINK_NO_COMPATIBILITY_VERSION</item>
-
+            <item>_APPLELINK_CURRENT_VERSION</item>
+            <item>_APPLELINK_COMPATIBILITY_VERSION</item>
         </sets>
         <uses>
             <item>FRAMEWORKSFLAGS</item>
@@ -87,6 +88,19 @@ See its __doc__ string for a discussion of the format.
     </cvar>
 
 
+    <cvar name="_APPLELINK_COMPATIBILITY_VERSION">
+        <summary>
+            <para>
+                A macro (by default a generator function) used to create the linker flags to specify
+                apple's linker's -compatibility_version flag.
+                The default generator uses &cv-link-APPLELINK_COMPATIBILITY_VERSION;
+                and &cv-link-APPLELINK_NO_COMPATIBILITY_VERSION; and  &cv-link-SHLIBVERSION;
+                to determine the correct flag.
+            </para>
+        </summary>
+    </cvar>
+
+
     <cvar name="APPLELINK_CURRENT_VERSION">
         <summary>
             <para>
@@ -117,6 +131,16 @@ See its __doc__ string for a discussion of the format.
             </para>
             <para>
                 This overrides &cv-link-APPLELINK_CURRENT_VERSION;.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="_APPLELINK_CURRENT_VERSION">
+        <summary>
+            <para>
+                A macro (by default a generator function) used to create the linker flags to specify apple's linker's
+                -current_version flag.  The default generator uses &cv-link-APPLELINK_CURRENT_VERSION; and
+                &cv-link-APPLELINK_NO_CURRENT_VERSION; and  &cv-link-SHLIBVERSION; to determine the correct flag.
             </para>
         </summary>
     </cvar>
