@@ -51,12 +51,12 @@ def _applelib_versioned_lib_suffix(env, suffix, version):
     """For suffix='.dylib' and version='0.1.2' it returns '.0.1.2.dylib'"""
     Verbose = False
     if Verbose:
-        print("_applelib_versioned_lib_suffix: suffix={:r}".format(suffix))
-        print("_applelib_versioned_lib_suffix: version={:r}".format(version))
+        print("_applelib_versioned_lib_suffix: suffix={!r}".format(suffix))
+        print("_applelib_versioned_lib_suffix: version={!r}".format(version))
     if version not in suffix:
         suffix = "." + version + suffix
     if Verbose:
-        print("_applelib_versioned_lib_suffix: return suffix={:r}".format(suffix))
+        print("_applelib_versioned_lib_suffix: return suffix={!r}".format(suffix))
     return suffix
 
 
