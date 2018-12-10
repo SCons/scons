@@ -10,8 +10,12 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 
 <!ENTITY cv-__LDMODULEVERSIONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$__LDMODULEVERSIONFLAGS</envar>">
 <!ENTITY cv-__SHLIBVERSIONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$__SHLIBVERSIONFLAGS</envar>">
+<!ENTITY cv-_APPLELINK_COMPATIBILITY_VERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_APPLELINK_COMPATIBILITY_VERSION</envar>">
 <!ENTITY cv-APPLELINK_COMPATIBILITY_VERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$APPLELINK_COMPATIBILITY_VERSION</envar>">
+<!ENTITY cv-_APPLELINK_CURRENT_VERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_APPLELINK_CURRENT_VERSION</envar>">
 <!ENTITY cv-APPLELINK_CURRENT_VERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$APPLELINK_CURRENT_VERSION</envar>">
+<!ENTITY cv-APPLELINK_NO_COMPATIBILITY_VERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$APPLELINK_NO_COMPATIBILITY_VERSION</envar>">
+<!ENTITY cv-APPLELINK_NO_CURRENT_VERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$APPLELINK_NO_CURRENT_VERSION</envar>">
 <!ENTITY cv-AR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$AR</envar>">
 <!ENTITY cv-ARCHITECTURE "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$ARCHITECTURE</envar>">
 <!ENTITY cv-ARCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$ARCOM</envar>">
@@ -643,8 +647,12 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 
 <!ENTITY cv-link-__LDMODULEVERSIONFLAGS "<link linkend='cv-__LDMODULEVERSIONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$__LDMODULEVERSIONFLAGS</envar></link>">
 <!ENTITY cv-link-__SHLIBVERSIONFLAGS "<link linkend='cv-__SHLIBVERSIONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$__SHLIBVERSIONFLAGS</envar></link>">
+<!ENTITY cv-link-_APPLELINK_COMPATIBILITY_VERSION "<link linkend='cv-_APPLELINK_COMPATIBILITY_VERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_APPLELINK_COMPATIBILITY_VERSION</envar></link>">
 <!ENTITY cv-link-APPLELINK_COMPATIBILITY_VERSION "<link linkend='cv-APPLELINK_COMPATIBILITY_VERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$APPLELINK_COMPATIBILITY_VERSION</envar></link>">
+<!ENTITY cv-link-_APPLELINK_CURRENT_VERSION "<link linkend='cv-_APPLELINK_CURRENT_VERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_APPLELINK_CURRENT_VERSION</envar></link>">
 <!ENTITY cv-link-APPLELINK_CURRENT_VERSION "<link linkend='cv-APPLELINK_CURRENT_VERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$APPLELINK_CURRENT_VERSION</envar></link>">
+<!ENTITY cv-link-APPLELINK_NO_COMPATIBILITY_VERSION "<link linkend='cv-APPLELINK_NO_COMPATIBILITY_VERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$APPLELINK_NO_COMPATIBILITY_VERSION</envar></link>">
+<!ENTITY cv-link-APPLELINK_NO_CURRENT_VERSION "<link linkend='cv-APPLELINK_NO_CURRENT_VERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$APPLELINK_NO_CURRENT_VERSION</envar></link>">
 <!ENTITY cv-link-AR "<link linkend='cv-AR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$AR</envar></link>">
 <!ENTITY cv-link-ARCHITECTURE "<link linkend='cv-ARCHITECTURE' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$ARCHITECTURE</envar></link>">
 <!ENTITY cv-link-ARCOM "<link linkend='cv-ARCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$ARCOM</envar></link>">

@@ -123,7 +123,7 @@ See its __doc__ string for a discussion of the format.
     </cvar>
 
 
-    <cvar name="APPLELINK_CURRENT_VERSION">
+    <cvar name="APPLELINK_NO_CURRENT_VERSION">
         <summary>
             <para>
                 Set this to any True (1|True|non-empty string) value to disable adding -current_version flag when

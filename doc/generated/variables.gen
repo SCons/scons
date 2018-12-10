@@ -29,6 +29,17 @@ if <link linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> is set. O
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-_APPLELINK_COMPATIBILITY_VERSION">
+    <term>_APPLELINK_COMPATIBILITY_VERSION</term>
+    <listitem><para>
+                A macro (by default a generator function) used to create the linker flags to specify
+                apple's linker's -compatibility_version flag.
+                The default generator uses <link linkend="cv-APPLELINK_COMPATIBILITY_VERSION"><envar>$APPLELINK_COMPATIBILITY_VERSION</envar></link>
+                and <link linkend="cv-APPLELINK_NO_COMPATIBILITY_VERSION"><envar>$APPLELINK_NO_COMPATIBILITY_VERSION</envar></link> and  <link linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link>
+                to determine the correct flag.
+            </para>
+        </listitem>
+  </varlistentry>
   <varlistentry id="cv-APPLELINK_COMPATIBILITY_VERSION">
     <term>APPLELINK_COMPATIBILITY_VERSION</term>
     <listitem><para>
@@ -38,10 +49,24 @@ if <link linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> is set. O
             </para>
             <para>
                 The value is specified as X[.Y[.Z]] where X is between 1 and 65535, Y can be omitted or between 1 and
-                255, Z can be omitted or between 1 and 255. This value will be derived from <link linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> if not
+                255, Z can be omitted or between 1 and 255. This value will be derived from <link linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> if
+                not
                 specified. The lowest digit will be dropped and replaced by a 0.
             </para>
+            <para>
+                If the <link linkend="cv-APPLELINK_NO_COMPATIBILITY_VERSION"><envar>$APPLELINK_NO_COMPATIBILITY_VERSION</envar></link> is set then no -compatibility_version will be
+                output.
+            </para>
             <para>See MacOS's ld manpage for more details</para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-_APPLELINK_CURRENT_VERSION">
+    <term>_APPLELINK_CURRENT_VERSION</term>
+    <listitem><para>
+                A macro (by default a generator function) used to create the linker flags to specify apple's linker's
+                -current_version flag.  The default generator uses <link linkend="cv-APPLELINK_CURRENT_VERSION"><envar>$APPLELINK_CURRENT_VERSION</envar></link> and
+                <link linkend="cv-APPLELINK_NO_CURRENT_VERSION"><envar>$APPLELINK_NO_CURRENT_VERSION</envar></link> and  <link linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> to determine the correct flag.
+            </para>
         </listitem>
   </varlistentry>
   <varlistentry id="cv-APPLELINK_CURRENT_VERSION">
@@ -56,8 +81,34 @@ if <link linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> is set. O
                 255, Z can be omitted or between 1 and 255. This value will be set to <link linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> if not
                 specified.
             </para>
+            <para>
+                If the <link linkend="cv-APPLELINK_NO_CURRENT_VERSION"><envar>$APPLELINK_NO_CURRENT_VERSION</envar></link> is set then no -current_version will be
+                output.
+            </para>
             <para>See MacOS's ld manpage for more details</para>
 
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-APPLELINK_NO_COMPATIBILITY_VERSION">
+    <term>APPLELINK_NO_COMPATIBILITY_VERSION</term>
+    <listitem><para>
+                Set this to any True (1|True|non-empty string) value to disable adding -compatibility_version flag when
+                generating versioned shared libraries.
+            </para>
+            <para>
+                This overrides <link linkend="cv-APPLELINK_COMPATIBILITY_VERSION"><envar>$APPLELINK_COMPATIBILITY_VERSION</envar></link>.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-APPLELINK_NO_CURRENT_VERSION">
+    <term>APPLELINK_NO_CURRENT_VERSION</term>
+    <listitem><para>
+                Set this to any True (1|True|non-empty string) value to disable adding -current_version flag when
+                generating versioned shared libraries.
+            </para>
+            <para>
+                This overrides <link linkend="cv-APPLELINK_CURRENT_VERSION"><envar>$APPLELINK_CURRENT_VERSION</envar></link>.
+            </para>
         </listitem>
   </varlistentry>
   <varlistentry id="cv-AR">

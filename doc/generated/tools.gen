@@ -55,7 +55,7 @@ Sets construction variables for the IBM Visual Age linker.
                 Sets construction variables for the Apple linker
                 (similar to the GNU linker).
             </para>
-        <para>Sets:  &amp;cv-link-APPLELINK_COMPATIBILITY_VERSION;, &amp;cv-link-APPLELINK_CURRENT_VERSION;, &amp;cv-link-FRAMEWORKPATHPREFIX;, &amp;cv-link-LDMODULECOM;, &amp;cv-link-LDMODULEFLAGS;, &amp;cv-link-LDMODULEPREFIX;, &amp;cv-link-LDMODULESUFFIX;, &amp;cv-link-LINKCOM;, &amp;cv-link-SHLINKCOM;, &amp;cv-link-SHLINKFLAGS;, &amp;cv-link-_FRAMEWORKPATH;, &amp;cv-link-_FRAMEWORKS;.</para><para>Uses:  &amp;cv-link-FRAMEWORKSFLAGS;.</para></listitem>
+        <para>Sets:  &amp;cv-link-APPLELINK_COMPATIBILITY_VERSION;, &amp;cv-link-APPLELINK_CURRENT_VERSION;, &amp;cv-link-APPLELINK_NO_COMPATIBILITY_VERSION;, &amp;cv-link-APPLELINK_NO_CURRENT_VERSION;, &amp;cv-link-FRAMEWORKPATHPREFIX;, &amp;cv-link-LDMODULECOM;, &amp;cv-link-LDMODULEFLAGS;, &amp;cv-link-LDMODULEPREFIX;, &amp;cv-link-LDMODULESUFFIX;, &amp;cv-link-LINKCOM;, &amp;cv-link-SHLINKCOM;, &amp;cv-link-SHLINKFLAGS;, &amp;cv-link-_APPLELINK_COMPATIBILITY_VERSION;, &amp;cv-link-_APPLELINK_CURRENT_VERSION;, &amp;cv-link-_FRAMEWORKPATH;, &amp;cv-link-_FRAMEWORKS;.</para><para>Uses:  &amp;cv-link-FRAMEWORKSFLAGS;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-ar">
     <term>ar</term>
