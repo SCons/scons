@@ -64,6 +64,9 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       Note that the values of the above will be validated. Valid format for either APPLELINK variable is
       X[.Y[.Z]] where 0 <= X <= 65535, 0 <= Y <= 255, 0 <= Z <= 255.
       The new variables have been added to the documents and should show up in user guide and manpage.
+    - Fix GH Issue #3136 no longer wrap io.{BufferedReader,BufferedWriter,BufferedRWPair,BufferedRandom,TextIOWrapper
+      with logic to set HANDLE_FLAG_INHERIT flag on the file handle.  Python 3.4+ automatically sets this according
+      to Python docs: https://docs.python.org/3/library/os.html#fd-inheritance
 
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
