@@ -42,6 +42,8 @@ if 'gnulink' in tool_list:
     versionflags = r".+ -Wl,-Bsymbolic -Wl,-soname=libfoo.so.1( .+)+"
 elif 'sunlink' in tool_list:
     versionflags = r".+ -h libfoo.so.1( .+)+"
+elif 'applelink' in tool_list:
+    versionflags = r".+ -dynamiclib -Wl,-current_version,1.2.3 -Wl,-compatibility_version,1.2.0( .+)+"
 else:
     test.skip_test('No testable linkers found, skipping the test\n')
 
