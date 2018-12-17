@@ -150,15 +150,6 @@ Python 3.7.1
     </para>
 
     <para>
-    MacOS comes with a version of Python, but it is somewhat old
-    and has been known to have some problems - it works well
-    for the system software that uses it, however.  The python.org
-    packages work well for installing a "better" Python, while some
-    people prefer to install using other methods such as MacPorts
-    or Homebrew.
-    </para>
-
-    <para>
     &SCons; will work with Python 2.7.x or with Python 3.5 or later.
     If you need to install Python and have a choice,
     we recommend using the most recent Python version available.
@@ -181,11 +172,14 @@ Python 3.7.1
     </screen>
 
     <para>
-    In some situations it may be preferable to install add-on packages
-    like &SCons; in a virtualenv; that is a discussion beyond the scope of
-    this document, but there are numerous Internet resources on the topic.
-    The same command would be used, just with the virtualenv activated.
+    If you prefer not to install to the Python system location,
+    or do not have privileges to do so, you can add a flag to
+    install to a location specific to your own account:
     </para>
+
+    <screen>
+% <userinput>python -m pip install --user scons</userinput>
+    </screen>
 
     <para>
     &SCons; comes pre-packaged for installation on many Linux systems
@@ -213,17 +207,14 @@ Python 3.7.1
     </para>
 
     <para>
-
     The first step is to download either the
     <filename>scons-&buildversion;.tar.gz</filename>
     or <filename>scons-&buildversion;.zip</filename>,
     which are available from the SCons download page at
     <ulink url="http://www.scons.org/download.html">http://www.scons.org/download.html</ulink>.
-
     </para>
 
     <para>
-
     Unpack the archive you downloaded,
     using a utility like <application>tar</application>
     on Linux or UNIX,
@@ -233,7 +224,6 @@ Python 3.7.1
     usually in your local directory.
     Then change your working directory to that directory
     and install &SCons; by executing the following commands:
-
     </para>
 
     <screen>
