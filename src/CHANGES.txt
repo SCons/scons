@@ -148,6 +148,8 @@ RELEASE 3.0.2 - Mon, 31 Dec 2018 16:00:12 -0700
       pickled with the previous lower protocal.
     - Updated FS.py to handle removal of splitunc function from python 3.7
     - Updated the vc.py to ignore MSVS versions where not compiler could be found
+    - Avoid the --debug=explain problem where nodes are reported as
+      removed, then added (sometiems even if the file itself did not change).
 
   From Gary Oberbrunner:
     - Fix bug when Installing multiple subdirs outside the source tree

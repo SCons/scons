@@ -1625,15 +1625,15 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             old_bkids    = old.bsources    + old.bdepends    + old.bimplicit
             old_bkidsigs = old.bsourcesigs + old.bdependsigs + old.bimplicitsigs
         except AttributeError:
-            return "Cannot explain why `%s' is being rebuilt: No previous build information found\n" % self
+            return "Cannot explain why `%s' is being rebuilt: No previous build information available.\n" % self
 
         new = self.get_binfo()
 
         new_bkids    = new.bsources    + new.bdepends    + new.bimplicit
         new_bkidsigs = new.bsourcesigs + new.bdependsigs + new.bimplicitsigs
 
-        osig = dict(list(zip(old_bkids, old_bkidsigs)))
-        nsig = dict(list(zip(new_bkids, new_bkidsigs)))
+        osig = {k: v for k, v in zip(old_bkids, old_bkidsigs)}
+        nsig = {k: v for k, v in zip(new_bkids, new_bkidsigs)}
 
         def stringify( s, E=self.dir.Entry):
             """
