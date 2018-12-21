@@ -436,7 +436,7 @@ class NodeInfoBase(object):
         """
         state = getattr(self, '__dict__', {}).copy()
         for obj in type(self).mro():
-            for name in getattr(obj,'__slots__',()):
+            for name in getattr(obj, '__slots__', ()):
                 if hasattr(self, name):
                     state[name] = getattr(self, name)
 
@@ -500,7 +500,7 @@ class BuildInfoBase(object):
         """
         state = getattr(self, '__dict__', {}).copy()
         for obj in type(self).mro():
-            for name in getattr(obj,'__slots__',()):
+            for name in getattr(obj, '__slots__', ()):
                 if hasattr(self, name):
                     state[name] = getattr(self, name)
 
@@ -951,7 +951,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         """
         return []
 
-    def get_implicit_deps(self, env, initial_scanner, path_func, kw = {}):
+    def get_implicit_deps(self, env, initial_scanner, path_func, kw={}):
         """Return a list of implicit dependencies for this node.
 
         This method exists to handle recursive invocation of the scanner
@@ -1160,7 +1160,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             binfo.bactsig = SCons.Util.MD5signature(executor.get_contents())
 
         if self._specific_sources:
-            sources = [s for s in self.sources if not s in ignore_set]
+            sources = [s for s in self.sources if s not in ignore_set]
 
         else:
             sources = executor.get_unignored_sources(self, self.ignore)
@@ -1212,27 +1212,27 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
     #
     #
 
-    def set_precious(self, precious = 1):
+    def set_precious(self, precious=1):
         """Set the Node's precious value."""
         self.precious = precious
 
-    def set_pseudo(self, pseudo = True):
+    def set_pseudo(self, pseudo=True):
         """Set the Node's precious value."""
         self.pseudo = pseudo
 
-    def set_noclean(self, noclean = 1):
+    def set_noclean(self, noclean=1):
         """Set the Node's noclean value."""
         # Make sure noclean is an integer so the --debug=stree
         # output in Util.py can use it as an index.
         self.noclean = noclean and 1 or 0
 
-    def set_nocache(self, nocache = 1):
+    def set_nocache(self, nocache=1):
         """Set the Node's nocache value."""
         # Make sure nocache is an integer so the --debug=stree
         # output in Util.py can use it as an index.
         self.nocache = nocache and 1 or 0
 
-    def set_always_build(self, always_build = 1):
+    def set_always_build(self, always_build=1):
         """Set the Node's always_build value."""
         self.always_build = always_build
 
@@ -1545,6 +1545,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
                         path = self.get_build_scanner_path(scanner)
                     else:
                         path = None
+
                     def f(node, env=env, scanner=scanner, path=path):
                         return node.get_found_includes(env, scanner, path)
                     return SCons.Util.render_tree(s, f, 1)
@@ -1607,7 +1608,17 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         return self
 
     def explain(self):
-        """Prepare explanation for why node needs rebuilding."""
+        """
+        Prepare explanation for why node needs building.
+
+        This method is called only if the user has asked for explanations
+        as a debugging aid AND once the decision to build has already
+        been made. Thus, we don't have to figure out "if", only "why",
+        and performance isn't critical since user asked for debugging.
+
+        Returns: (str)
+            A string of one or more lines containing the explanation
+        """
         if not self.exists():
             return "building `%s' because it doesn't exist\n" % self
 
@@ -1629,13 +1640,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
 
         new = self.get_binfo()
 
-        new_bkids    = new.bsources    + new.bdepends    + new.bimplicit
-        new_bkidsigs = new.bsourcesigs + new.bdependsigs + new.bimplicitsigs
-
-        osig = {k: v for k, v in zip(old_bkids, old_bkidsigs)}
-        nsig = {k: v for k, v in zip(new_bkids, new_bkidsigs)}
-
-        def stringify( s, E=self.dir.Entry):
+        def stringify(s, E=self.dir.Entry):
             """
             Return path string relative to the SConstruct dir.
 
@@ -1651,91 +1656,90 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
                 return str(E(s))
             return str(s)
 
+        new_bkids    = new.bsources    + new.bdepends    + new.bimplicit
+        new_bkidsigs = new.bsourcesigs + new.bdependsigs + new.bimplicitsigs
+
+        # because there are circumstances were we see different node
+        # objects referring to the same file, do checks by name, but
+        # also keep the nodes around because we will need info from them.
+        osig = {stringify(k): (k, v) for k, v in zip(old_bkids, old_bkidsigs)}
+        nsig = {stringify(k): (k, v) for k, v in zip(new_bkids, new_bkidsigs)}
+
+        osig_set, nsig_set = set(osig.keys()), set(nsig.keys())
+        removed = osig_set - nsig_set
+        added = nsig_set - osig_set
+        common = osig_set & nsig_set
+
         lines = []
 
-        # Detecting removed/added dependencies is a little tricky.
-        # Equality tests between bkids miss the case of different objects
-        # which represent the same file, as in the case of a source
-        # file which includes a changed header file (this seems to
-        # happen only if a variant dir is in effect).
-        # The Node classes cannot easily implement an equality method
-        # to compare the paths for other reasons, so we have to do
-        # some extra manual work here.
-        removed = [x for x in old_bkids if x not in new_bkids]
         if removed:
-            # Additional check: skip if the paths are the same
-            new_paths = [stringify(n) for n in new_bkids]
-            removed = [stringify(r) for r in removed if stringify(r) not in new_paths]
             fmt = "`%s' is no longer a dependency\n"
             lines.extend([fmt % s for s in removed])
 
-        old_paths = [stringify(o) for o in old_bkids]
-        for k in new_bkids:
-            if k not in old_bkids:
-                # Additional check: skip if the paths are the same
-                if stringify(k) not in old_paths:
-                    lines.append("`%s' is a new dependency\n" % stringify(k))
-                else:
-                    # TODO: if did not find bkid, but do find a matching
-                    # path entry, skip printing the "new" message.
-                    # Split these tests because we do not want to take the
-                    # outer else, where we would not be able to look up
-                    # k in osig. Thus, in case k is actually also changed,
-                    # it would go unexplained. As an experiment, say
-                    # something in preference to saying nothing. Note
-                    # either way affects following test on len(lines) == 0
-                    lines.append("`%s' might be changed\n" % stringify(k))
-            else:
-                try:
-                    changed = _decider_map[k.changed_since_last_build](k, self, osig[k])
-                except DeciderNeedsNode as e:
-                    changed = e.decider(self, osig[k], node=self)
+        if added:
+            fmt = "`%s' is a new dependency\n"
+            lines.extend([fmt % s for s in added])
 
-                if changed:
-                    lines.append("`%s' changed\n" % stringify(k))
+        for path in common:
+            bkid, sig = osig[path]
+            try:
+                changed = _decider_map[bkid.changed_since_last_build](bkid, self, sig)
+            except DeciderNeedsNode as e:
+                changed = e.decider(self, sig, node=self)
+            if changed:
+                lines.append("`%s' changed\n" % path)
 
-        # TODO: old_bkids can be != new_bkids even if the dependency order
-        # did not change (as above), so if we logged no explains from the
-        # previous blocks was can report two identical lists of deps.
-        if len(lines) == 0 and old_bkids != new_bkids:
-            lines.append("the dependency order changed:\n" +
-                         "%sold: %s\n" % (' '*15, list(map(stringify, old_bkids))) +
-                         "%snew: %s\n" % (' '*15, list(map(stringify, new_bkids))))
+        # TODO: possible old_bkids != new_bkids even with the dependency order
+        # TODO: unchanged, so if we have logged no explains (lines is still empty) 
+        # TODO: we could report a change, and then show two identical lists of deps.
+        if not lines and old_bkids != new_bkids:
+            lines.append(''.join(["the dependency order changed:\n",
+                                  "%sold: %s\n" % (' '*15, osig.keys()),
+                                  "%snew: %s\n" % (' '*15, nsig.keys())]))
 
-        #if len(lines) == 0:   # GH #2996 report even if other reason found
+        # if len(lines) == 0:   # GH #2996 report even if other reason found
         if old.bactsig != new.bactsig:
             def fmt_with_title(title, strlines):
                 lines = strlines.split('\n')
                 sep = '\n' + ' '*(15 + len(title))
                 return ' '*15 + title + sep.join(lines) + '\n'
+
             if old.bact == new.bact:
                 lines.append("the contents of the build action changed\n" +
                              fmt_with_title('action: ', new.bact))
 
-                # lines.append("the contents of the build action changed [%s] [%s]\n"%(old.bactsig,new.bactsig) +
-                #              fmt_with_title('action: ', new.bact))
             else:
-                lines.append("the build action changed:\n" +
-                             fmt_with_title('old: ', old.bact) +
-                             fmt_with_title('new: ', new.bact))
+                lines.append(''.join(["the build action changed:\n",
+                                      fmt_with_title('old: ', old.bact),
+                                      fmt_with_title('new: ', new.bact)]))
 
-        if len(lines) == 0:
+        if not lines:
             return "rebuilding `%s' for unknown reasons\n" % self
 
         preamble = "rebuilding `%s' because" % self
         if len(lines) == 1:
-            return "%s %s"  % (preamble, lines[0])
+            return "%s %s" % (preamble, lines[0])
         else:
             lines = ["%s:\n" % preamble] + lines
-            return ( ' '*11).join(lines)
+            return (' '*11).join(lines)
+
 
 class NodeList(collections.UserList):
     def __str__(self):
         return str(list(map(str, self.data)))
 
-def get_children(node, parent): return node.children()
-def ignore_cycle(node, stack): pass
-def do_nothing(node, parent): pass
+
+def get_children(node, parent):
+    return node.children()
+
+
+def ignore_cycle(node, stack):
+    pass
+
+
+def do_nothing(node, parent):
+    pass
+
 
 class Walker(object):
     """An iterator for walking a Node tree.
