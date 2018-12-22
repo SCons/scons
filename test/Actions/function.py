@@ -35,7 +35,7 @@ test = TestSCons.TestSCons()
 #
 # Test that the signature of function action includes all the
 # necessary pieces.
-# 
+#
 
 test.write('SConstruct', r"""
 import re
@@ -56,6 +56,7 @@ options.AddVariables(
     ('extracode', 'Extra code for the builder function', ''),
     ('extraarg', 'Extra arg builder function', ''),
     ('nestedfuncexp', 'Expression for the nested function', 'xxx - b'),
+    ('literal_in_listcomp', 'Literal inside list comprehension', '2'),
 )
 
 optEnv = Environment(options=options, tools=[])
@@ -78,6 +79,7 @@ def toto(header='%(header)s', trailer='%(trailer)s'):
         f.write(bytearray(trailer+'\\n','utf-8'))
         f.write(bytearray(str(foo())+'\\n','utf-8'))
         f.write(bytearray(r.match('aaaa').group(1)+'\\n','utf-8'))
+        f.write(bytearray(str(sum([x*%(literal_in_listcomp)s for x in [1,2]]))+'\\n', 'utf-8'))
         %(extracode)s
         try:
            f.write(bytearray(str(xarg),'utf-8')+b'\\n')
@@ -92,7 +94,7 @@ exec( withClosure % optEnv )
 
 genHeaderBld = SCons.Builder.Builder(
     action = SCons.Action.Action(
-        toto(), 
+        toto(),
         'Generating $TARGET',
         varlist=['ENVDEPS']
         ),
@@ -147,57 +149,63 @@ def runtest(arguments, expectedOutFile, expectedRebuild=True, stderr=""):
 # slow buildbot slaves (*cough* Solaris *cough*).
 
 sys.stdout.write('Original build.\n')
-runtest('', """Head:0:1:Tail\n18\naaa\n""")
+runtest('', """Head:0:1:Tail\n18\naaa\n6\n""")
 
 sys.stdout.write('Changing a docstring should not cause a rebuild.\n')
-runtest('docstring=ThisBuilderDoesXAndY', """Head:0:1:Tail\n18\naaa\n""", False)
-runtest('docstring=SuperBuilder', """Head:0:1:Tail\n18\naaa\n""", False)
-runtest('docstring=', """Head:0:1:Tail\n18\naaa\n""", False)
+runtest('docstring=ThisBuilderDoesXAndY', """Head:0:1:Tail\n18\naaa\n6\n""", False)
+runtest('docstring=SuperBuilder', """Head:0:1:Tail\n18\naaa\n6\n""", False)
+runtest('docstring=', """Head:0:1:Tail\n18\naaa\n6\n""", False)
 
 sys.stdout.write('Changing a variable in the varlist should cause a rebuild.\n')
-runtest('NbDeps=3', """Head:0:1:2:Tail\n18\naaa\n""")
-runtest('NbDeps=4', """Head:0:1:2:3:Tail\n18\naaa\n""")
-runtest('', """Head:0:1:Tail\n18\naaa\n""")
+runtest('NbDeps=3', """Head:0:1:2:Tail\n18\naaa\n6\n""")
+runtest('NbDeps=4', """Head:0:1:2:3:Tail\n18\naaa\n6\n""")
+runtest('', """Head:0:1:Tail\n18\naaa\n6\n""")
 
 sys.stdout.write('Changing the function code should cause a rebuild.\n')
-runtest('extracode=f.write(bytearray("XX\\n","utf-8"))', """Head:0:1:Tail\n18\naaa\nXX\n""")
-runtest('extracode=a=2', """Head:0:1:Tail\n18\naaa\n""")
-runtest('', """Head:0:1:Tail\n18\naaa\n""")
+runtest('extracode=f.write(bytearray("XX\\n","utf-8"))', """Head:0:1:Tail\n18\naaa\n6\nXX\n""")
+runtest('extracode=a=2', """Head:0:1:Tail\n18\naaa\n6\n""")
+runtest('', """Head:0:1:Tail\n18\naaa\n6\n""")
 
 sys.stdout.write('Changing a constant in the function code should cause a rebuild.\n')
-runtest('separator=,', """Head:0,1,Tail\n18\naaa\n""")
-runtest('separator=;', """Head:0;1;Tail\n18\naaa\n""")
-runtest('', """Head:0:1:Tail\n18\naaa\n""")
+runtest('separator=,', """Head:0,1,Tail\n18\naaa\n6\n""")
+runtest('separator=;', """Head:0;1;Tail\n18\naaa\n6\n""")
+runtest('', """Head:0:1:Tail\n18\naaa\n6\n""")
 
 sys.stdout.write('Changing the code of a nested function should cause a rebuild.\n')
-runtest('nestedfuncexp=b-xxx', """Head:0:1:Tail\n-18\naaa\n""")
-runtest('nestedfuncexp=b+xxx', """Head:0:1:Tail\n32\naaa\n""")
-runtest('', """Head:0:1:Tail\n18\naaa\n""")
+runtest('nestedfuncexp=b-xxx', """Head:0:1:Tail\n-18\naaa\n6\n""")
+runtest('nestedfuncexp=b+xxx', """Head:0:1:Tail\n32\naaa\n6\n""")
+runtest('', """Head:0:1:Tail\n18\naaa\n6\n""")
 
 sys.stdout.write('Adding an extra argument should cause a rebuild.\n')
-runtest('extraarg=,xarg=2', """Head:0:1:Tail\n18\naaa\n2\n""")
-runtest('extraarg=,xarg=5', """Head:0:1:Tail\n18\naaa\n5\n""")
-runtest('', """Head:0:1:Tail\n18\naaa\n""")
+runtest('extraarg=,xarg=2', """Head:0:1:Tail\n18\naaa\n6\n2\n""")
+runtest('extraarg=,xarg=5', """Head:0:1:Tail\n18\naaa\n6\n5\n""")
+runtest('', """Head:0:1:Tail\n18\naaa\n6\n""")
 
 sys.stdout.write('Changing the value of a default argument should cause a rebuild:  a value.\n')
-runtest('b=0', """Head:0:1:Tail\n25\naaa\n""")
-runtest('b=9', """Head:0:1:Tail\n16\naaa\n""")
-runtest('', """Head:0:1:Tail\n18\naaa\n""")
+runtest('b=0', """Head:0:1:Tail\n25\naaa\n6\n""")
+runtest('b=9', """Head:0:1:Tail\n16\naaa\n6\n""")
+runtest('', """Head:0:1:Tail\n18\naaa\n6\n""")
 
 sys.stdout.write('Changing the value of a default argument should cause a rebuild:  an object.\n')
-runtest('regexp=(aaaa)', """Head:0:1:Tail\n18\naaaa\n""")
-runtest('regexp=aa(a+)', """Head:0:1:Tail\n18\naa\n""")
-runtest('', """Head:0:1:Tail\n18\naaa\n""")
+runtest('regexp=(aaaa)', """Head:0:1:Tail\n18\naaaa\n6\n""")
+runtest('regexp=aa(a+)', """Head:0:1:Tail\n18\naa\n6\n""")
+runtest('', """Head:0:1:Tail\n18\naaa\n6\n""")
 
 sys.stdout.write('Changing the value of a closure cell value should cause a rebuild:  a value.\n')
-runtest('closure_cell_value=32', """Head:0:1:Tail\n25\naaa\n""")
-runtest('closure_cell_value=7', """Head:0:1:Tail\n0\naaa\n""")
-runtest('', """Head:0:1:Tail\n18\naaa\n""")
+runtest('closure_cell_value=32', """Head:0:1:Tail\n25\naaa\n6\n""")
+runtest('closure_cell_value=7', """Head:0:1:Tail\n0\naaa\n6\n""")
+runtest('', """Head:0:1:Tail\n18\naaa\n6\n""")
 
 sys.stdout.write('Changing the value of a closure cell value should cause a rebuild:  a default argument.\n')
-runtest('header=MyHeader:', """MyHeader:0:1:Tail\n18\naaa\n""")
-runtest('trailer=MyTrailer', """Head:0:1:MyTrailer\n18\naaa\n""")
-runtest('', """Head:0:1:Tail\n18\naaa\n""")
+runtest('header=MyHeader:', """MyHeader:0:1:Tail\n18\naaa\n6\n""")
+runtest('trailer=MyTrailer', """Head:0:1:MyTrailer\n18\naaa\n6\n""")
+runtest('', """Head:0:1:Tail\n18\naaa\n6\n""")
+
+sys.stdout.write('Changing the value of a literal in a list comprehension should cause a rebuild.\n')
+runtest('literal_in_listcomp=3', """Head:0:1:Tail\n18\naaa\n9\n""")
+runtest('literal_in_listcomp=4', """Head:0:1:Tail\n18\naaa\n12\n""")
+runtest('', """Head:0:1:Tail\n18\naaa\n6\n""")
+
 
 test.pass_test()
 

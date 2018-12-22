@@ -258,8 +258,7 @@ def _code_contents(code, docstring=None):
     # function. Note that we have to call _object_contents on each
     # constants because the code object of nested functions can
     # show-up among the constants.
-
-    z = [_object_contents(cc) for cc in code.co_consts[1:]]
+    z = [_object_contents(cc) for cc in code.co_consts if cc != docstring]
     contents.extend(b',(')
     contents.extend(bytearray(',', 'utf-8').join(z))
     contents.extend(b')')

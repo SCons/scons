@@ -112,6 +112,11 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       Specifically, this fixes the test cases use by Configure.CheckCC() which
       would fail when using -Wstrict-prototypes.
 
+  From Zachary Tessler:
+    - Fix calculation of signatures for FunctionActions that contain list (or set,...)
+      comprehensions whose expressions involve constant literals. Those constants had
+      been ignored in signatures, so changing them did not cause targets to be rebuilt.
+
   From Paweł Tomulik:
     - In the testing framework, module TestCommon, fixed must_contain(),
       must_not_contain(), and related methods of TestCommon class to work with
