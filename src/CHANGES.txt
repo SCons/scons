@@ -55,6 +55,18 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       yielded trying to combine strings and bytes which threw exception.
     - Fix GH Issue #3225 SCons.Util.Flatten() doesn't handle MappingView's produced by dictionary as return
       values from dict().{items(), keys(), values()}.
+    - Fix GH Issue #3241 - Properly support versioned shared libraries for MacOS.  We've also introduced two
+      new env variables APPLELINK_CURRENT_VERSION and APPLELINK_COMPATIBILITY_VERSION which will specify
+      what is passed to the linkers -current_version and -compatibility_version flags.  If not specified
+      they will be derived from SHLIBVERSION as such:
+      - APPLELINK_CURRENT_VERSION = SHLIBVERSION
+      - APPLELINK_COMPATIBILITY_VERSION = all but the last digit in SHLIBVERSION with .0 appended.
+      Note that the values of the above will be validated. Valid format for either APPLELINK variable is
+      X[.Y[.Z]] where 0 <= X <= 65535, 0 <= Y <= 255, 0 <= Z <= 255.
+      The new variables have been added to the documents and should show up in user guide and manpage.
+    - Fix GH Issue #3136 no longer wrap io.{BufferedReader,BufferedWriter,BufferedRWPair,BufferedRandom,TextIOWrapper
+      with logic to set HANDLE_FLAG_INHERIT flag on the file handle.  Python 3.4+ automatically sets this according
+      to Python docs: https://docs.python.org/3/library/os.html#fd-inheritance
 
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
@@ -99,6 +111,11 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Replace all instances of `int main()` in C code with `int main(void)`.
       Specifically, this fixes the test cases use by Configure.CheckCC() which
       would fail when using -Wstrict-prototypes.
+
+  From Zachary Tessler:
+    - Fix calculation of signatures for FunctionActions that contain list (or set,...)
+      comprehensions whose expressions involve constant literals. Those constants had
+      been ignored in signatures, so changing them did not cause targets to be rebuilt.
 
   From Paweł Tomulik:
     - In the testing framework, module TestCommon, fixed must_contain(),
@@ -178,6 +195,9 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Add Textfile/Substfile to default environment. (issue #3147)
     - sconsign: a couple of python3 fixes; be more tolerant of implicit
       entries which have no signatures; minor PEP8 changes.
+    - Fix a couple of type mistakes (list-> string, filter type -> list)
+    - Fix a couple of type mistakes in packaging tools: list-> string in msi,
+      filter type -> list in ipk
 
   From Bernhard M. Wiedemann:
     - Update SCons' internal scons build logic to allow overriding build date 

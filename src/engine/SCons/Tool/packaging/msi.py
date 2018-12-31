@@ -63,8 +63,8 @@ def convert_to_id(s, id_set):
     """
     charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYabcdefghijklmnopqrstuvwxyz0123456789_.'
     if s[0] in '0123456789.':
-        s += '_'+s
-    id = [c for c in s if c in charset]
+        s = '_' + s
+    id = ''.join([c for c in s if c in charset])
 
     # did we already generate an id for this file?
     try:
@@ -108,7 +108,7 @@ def gen_dos_short_file_name(file, filename_set):
 
     # strip forbidden characters.
     forbidden = '."/[]:;=, '
-    fname = [c for c in fname if c not in forbidden]
+    fname = ''.join([c for c in fname if c not in forbidden])
 
     # check if we already generated a filename with the same number:
     # thisis1.txt, thisis2.txt etc.
