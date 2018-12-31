@@ -195,6 +195,9 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Add Textfile/Substfile to default environment. (issue #3147)
     - sconsign: a couple of python3 fixes; be more tolerant of implicit
       entries which have no signatures; minor PEP8 changes.
+    - Fix a couple of type mistakes (list-> string, filter type -> list)
+    - Fix a couple of type mistakes in packaging tools: list-> string in msi,
+      filter type -> list in ipk
 
   From Bernhard M. Wiedemann:
     - Update SCons' internal scons build logic to allow overriding build date 
