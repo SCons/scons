@@ -5,6 +5,13 @@
                             Change Log
 
 
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From John Doe:
+
+    - Whatever John Doe did.
+
+
 RELEASE 3.0.2 - Mon, 31 Dec 2018 16:00:12 -0700
 
   From Bernard Blackham:
