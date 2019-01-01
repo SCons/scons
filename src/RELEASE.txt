@@ -1,73 +1,81 @@
-  A new SCons checkpoint release, 3.0.1, is now available
-  on the SCons download page:
+  A new SCons release, 3.0.2, is now available on the SCons download page:
 
-          http://www.scons.org/download.php
+          https://scons.org/pages/download.html
 
-  XXX The primary purpose of this release ... XXX
 
-  A SCons "checkpoint release" is intended to provide early access to
-  new features so they can be tested in the field before being released
-  for adoption by other software distributions.
-
-  Note that a checkpoint release is developed using the same test-driven
-  development methodology as all SCons releases.  Existing SCons
-  functionality should all work as it does in previous releases (except
-  for any changes identified in the release notes) and early adopters
-  should be able to use a checkpoint release safely for production work
-  with existing SConscript files.  If not, it represents not only a bug
-  in SCons but also a hole in the regression test suite, and we want to
-  hear about it.
-
-  New features may be more lightly tested than in past releases,
-  especially as concerns their interaction with all of the other
-  functionality in SCons.  We are especially interested in hearing bug
-  reports about new functionality.
-
-  We do not recommend that downstream distributions (Debian, Fedora,
-  etc.) package a checkpoint release, mainly to avoid confusing the
-  "public" release numbering with the long checkpoint release names.
-
-  Here is a summary of the changes since 1.3.0:
+  Here is a summary of the changes since 3.0.1:
 
   NEW FUNCTIONALITY
 
-    - List new features (presumably why a checkpoint is being released)
+    - Properly support versioned shared libraries for MacOS.  We've also introduced two
+      new env variables APPLELINK_CURRENT_VERSION and APPLELINK_COMPATIBILITY_VERSION which will specify
+      what is passed to the linkers -current_version and -compatibility_version flags.  If not specified
+      they will be derived from SHLIBVERSION as such:
+          - APPLELINK_CURRENT_VERSION = SHLIBVERSION
+          - APPLELINK_COMPATIBILITY_VERSION = all but the last digit in SHLIBVERSION with .0 appended.
+          Note that the values of the above will be validated. Valid format for either APPLELINK variable is
+          X[.Y[.Z]] where 0 <= X <= 65535, 0 <= Y <= 255, 0 <= Z <= 255.
+    - Add flag must_exist to SConscript() call to fail on missing script.
+        Not failing on missing script is now considered deprecated, and the first instance will print a
+        deprecation message.
+    - Add xz compression format to packaging choices.
+    - Add Textfile/Substfile to default environment. (issue #3147)
+    - Added virtualenv support. A new function Virtualenv() determines whether
+        SCons runs in a virtualenv. The search PATH may also be extended to
+        prefer executables from the current virtualenv over the ones provided by
+        base environment. New option --enable-virtualenv provided to import some
+        virtualenv-related variables to SCons and extend every env['ENV']['PATH']
+        automatically. New option --ignore-virtualenv disables this. Two
+        environment variables, SCONS_ENABLE_VIRTUALENV and
+        SCONS_IGNORE_VIRTUALENV are supported for the same purpose.
 
   DEPRECATED FUNCTIONALITY
 
-    - List anything that's been deprecated since the last release
+    - Going forward calling SConscript on a non-existing SConscript file will issue a warning.  Currently
+      it will issue a deprecation notice.
 
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
-    - List modifications to existing features, where the previous behavior
-      wouldn't actually be considered a bug
+    - Recognize new java 9, 10, 11 (as 9.0 and 10.0, 11.0)
 
   FIXES
 
-    - List fixes of outright bugs
+    - Fix issue #2980 with credit to Piotr Bartosik (and William Blevins).  This is an issue where using
+         TimeStamp-MD5 Decider and CacheDir can yield incorrect md5's being written into the .sconsign.  
+         The difference between Piotr Bartosik's patch and the current code is that the more complicated 
+         creation of file to csig map is only done when the count of children for the current node doesn't 
+         match the previous count which is loaded from the sconsign.
 
-  IMPROVEMENTS
 
-    - List improvements that wouldn't be visible to the user in the
-      documentation:  performance improvements (describe the circumstances
-      under which they would be observed), or major code cleanups
-
-  PACKAGING
-
-    - List changes in the way SCons is packaged and/or released
-
-  DOCUMENTATION
-
-    - List any significant changes to the documentation (not individual
-      typo fixes, even if they're mentioned in src/CHANGES.txt to give
-      the contributor credit)
-
-  DEVELOPMENT
-
-    - List visible changes in the way SCons is developed
-
-  Thanks to CURLY, LARRY, and MOE for their contributions to this release.
+  Thanks to Bernard Blackham, William Deegan, Ray Donnelly, Andrew Featherstone, Arda Fu, 
+  Philipp Maierhöfer,  Matthew Marinets, Fredrik Medley, Daniel Moody, Gary Oberbrunner, 
+  Jonathon Reinhart, Zachary Tessler, Paweł Tomulik, Richard West, Mats Wichmann, Bernhard M. Wiedemann,
+  and Hao Wu for their contributions to this release.
   Contributors are listed alphabetically by their last name.
+
+git shortlog --no-merges -ns 3.0.1..HEAD
+   226  William Deegan
+    79  Daniel Moody
+    72  Mats Wichmann
+    17  Paweł Tomulik
+    16  Andrew Featherstone
+     8  grbd
+     7  maiphi
+     6  Gary Oberbrunner
+     6  Daniel
+     4  Hao Wu
+     3  Gabriel Russell
+     2  MatthewMarinets
+     2  Jonathon Reinhart
+     2  ArdaFu
+     1  Bernhard M. Wiedemann
+     1  Isaac Pascual Monells
+     1  Fredrik Medley
+     1  Philipp Maierhoefer
+     1  Piotr Kasprzyk
+     1  Ray Donnelly
+     1  Zachary Tessler
+     1  cclauss
 
 __COPYRIGHT__
 __FILE__ __REVISION__ __DATE__ __DEVELOPER__

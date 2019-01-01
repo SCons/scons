@@ -66,6 +66,7 @@ if not sys.platform == 'win32':
 else:
     is_win32 = 1
 
+import setuptools
 import distutils
 import distutils.core
 import distutils.command.install
