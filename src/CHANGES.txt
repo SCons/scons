@@ -5,7 +5,7 @@
                             Change Log
 
 
-RELEASE 3.0.2 - Mon, 31 Dec 2018 15:14:21 -0700
+RELEASE 3.0.2 - Mon, 31 Dec 2018 16:00:12 -0700
 
   From Bernard Blackham:
     - Fixed handling of side-effects in task master (fixes #3013).
