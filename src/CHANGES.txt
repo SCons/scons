@@ -11,6 +11,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
     - Whatever John Doe did.
 
+  From Mats Wichmann:
+    - Update some doc examples for Py3: map() now returns an interable
+      instead of a list.
+
 
 RELEASE 3.0.2 - Mon, 31 Dec 2018 16:00:12 -0700
 
