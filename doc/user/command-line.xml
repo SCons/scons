@@ -2200,9 +2200,8 @@ prog2.c
         internal &SCons; nodes,
         so you need to convert the list elements to strings
         if you want to print them or look for a specific target name.
-        Fortunately, you can do this easily
-        by using the Python <function>map</function> function
-        to run the list through <function>str</function>:
+        You can do this easily by calling the <function>str</function>
+        on the elements in a list comprehension:
 
         </para>
 
@@ -2210,7 +2209,7 @@ prog2.c
            <file name="SConstruct" printme="1">
 prog1 = Program('prog1.c')
 Default(prog1)
-print("DEFAULT_TARGETS is %s"%map(str, DEFAULT_TARGETS))
+print("DEFAULT_TARGETS is %s" % [str(t) for t in DEFAULT_TARGETS])
            </file>
            <file name="prog1.c">
 prog1.c
@@ -2244,10 +2243,10 @@ prog1.c
            <file name="SConstruct" printme="1">
 prog1 = Program('prog1.c')
 Default(prog1)
-print("DEFAULT_TARGETS is now %s"%map(str, DEFAULT_TARGETS))
+print("DEFAULT_TARGETS is now %s" % [str(t) for t in DEFAULT_TARGETS])
 prog2 = Program('prog2.c')
 Default(prog2)
-print("DEFAULT_TARGETS is now %s"%map(str, DEFAULT_TARGETS))
+print("DEFAULT_TARGETS is now %s" % [str(t) for t in DEFAULT_TARGETS])
            </file>
            <file name="prog1.c">
 prog1.c
@@ -2338,7 +2337,7 @@ else:
 prog1 = Program('prog1.c')
 Program('prog2.c')
 Default(prog1)
-print ("BUILD_TARGETS is %s"%map(str, BUILD_TARGETS))
+print ("BUILD_TARGETS is %s" % [str(t) for t in BUILD_TARGETS])
         </file>
         <file name="prog1.c">
 prog1.c
