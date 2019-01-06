@@ -5,7 +5,7 @@
                             Change Log
 
 
-RELEASE 3.0.3 - Sat, 02 Jan 2018 19:44:18 -0700
+RELEASE 3.0.3 - Mon, 05 Jan 2019 20:05:22 -0400
   NOTE: 3.0.2 release was dropped because there was a packaging bug. Please consider all 3.0.2
         content.
 
