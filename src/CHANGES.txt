@@ -6,6 +6,8 @@
 
 
 RELEASE 3.0.3 - Sat, 02 Jan 2018 19:44:18 -0700
+  NOTE: 3.0.2 release was dropped because there was a packaging bug. Please consider all 3.0.2
+        content.
 
   From William Deegan:
 
