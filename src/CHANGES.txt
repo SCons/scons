@@ -5,11 +5,11 @@
                             Change Log
 
 
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
+RELEASE 3.0.3 - Sat, 02 Jan 2018 19:44:18 -0700
 
-  From John Doe:
+  From William Deegan:
 
-    - Whatever John Doe did.
+    - Fixes to packaging logic.
 
   From Mats Wichmann:
     - Update some doc examples for Py3: map() now returns an interable
