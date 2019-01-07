@@ -65,6 +65,7 @@ SCons/Tool/c++.py
 SCons/Tool/cxx.py
 SCons/Tool/cc.py
 SCons/Tool/cyglink.py
+SCons/Tool/clangCommon/__init__.py
 SCons/Tool/clang.py
 SCons/Tool/clangxx.py
 SCons/Tool/cvf.py
@@ -178,3 +179,5 @@ SCons/Tool/msgfmt.py
 SCons/Tool/msginit.py
 SCons/Tool/msgmerge.py
 SCons/Tool/xgettext.py
+SCons/Tool/docbook/docbook-xsl-1.76.1/**
+SCons/Tool/docbook/utils/**
