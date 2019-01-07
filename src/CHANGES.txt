@@ -5,13 +5,14 @@
                             Change Log
 
 
-RELEASE 3.0.3 - Mon, 05 Jan 2019 20:05:22 -0400
+RELEASE 3.0.3 - Mon, 07 Jan 2019 20:05:22 -0400
   NOTE: 3.0.2 release was dropped because there was a packaging bug. Please consider all 3.0.2
         content.
 
   From William Deegan:
 
-    - Fixes to packaging logic.
+    - Fixes to packaging logic.  Ensuring the SCons.Tool.clangCommon module and the docbook xsl files are added
+      to the packages.
 
   From Mats Wichmann:
     - Update some doc examples for Py3: map() now returns an interable
