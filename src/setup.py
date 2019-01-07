@@ -425,6 +425,7 @@ arguments = {
                  "SCons.Script",
                  "SCons.Tool",
                  "SCons.Tool.docbook",
+                 'SCons.Tool.clangCommon',
                  "SCons.Tool.MSCommon",
                  "SCons.Tool.packaging",
                  "SCons.Variables",
