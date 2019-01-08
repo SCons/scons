@@ -11,12 +11,13 @@ RELEASE 3.0.3 - Mon, 07 Jan 2019 20:05:22 -0400
 
   From William Deegan:
 
-    - Fixes to packaging logic.  Ensuring the SCons.Tool.clangCommon module and the docbook xsl files are added
-      to the packages.
+    - Fixes to packaging logic.  Ensuring the SCons.Tool.clangCommon module is added
+      to the release packages.
+    - Modify scons.bat script to check for scons python script without .py extension if no file
+      scons.py exists. This enables an all platform wheel to work.
 
   From Mats Wichmann:
-    - Update some doc examples for Py3: map() now returns an interable
-      instead of a list.
+    - Update doc examples to work with Python 3.5+:  map() now returns an iterable instead of a list.
 
 
 RELEASE 3.0.2 - Mon, 31 Dec 2018 16:00:12 -0700

@@ -179,5 +179,5 @@ SCons/Tool/msgfmt.py
 SCons/Tool/msginit.py
 SCons/Tool/msgmerge.py
 SCons/Tool/xgettext.py
-SCons/Tool/docbook/docbook-xsl-1.76.1/**
-SCons/Tool/docbook/utils/**
+#SCons/Tool/docbook/docbook-xsl-1.76.1/**
+#SCons/Tool/docbook/utils/**
