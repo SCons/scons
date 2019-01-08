@@ -59,7 +59,7 @@
   Contributors are listed alphabetically by their last name.
 
 git shortlog --no-merges -ns 3.0.1..HEAD
-   235  William Deegan
+   254  William Deegan
     79  Daniel Moody
     73  Mats Wichmann
     17  Paweł Tomulik
