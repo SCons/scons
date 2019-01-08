@@ -325,7 +325,7 @@ class install_scripts(_install_scripts):
             base = os.path.basename(src)
             scons = os.path.join(self.install_dir, base)
             scons_ver = scons + '-' + Version
-            if sys.platform == "win32":
+            if is_win32:
                 scons = scons + '.py'
                 scons_ver = scons_ver + '.py'
             create_version_script(src, scons_ver)
@@ -414,8 +414,8 @@ arguments = {
     'version': Version,
     'description': description,
     'long_description': long_description,
-    'author': 'Steven Knight',
-    'author_email': 'knight@baldmt.com',
+    'author': 'William Deegan',
+    'author_email': 'bill@baddogconsulting.com',
     'url': "http://www.scons.org/",
     'packages': ["SCons",
                  "SCons.compat",
@@ -424,7 +424,9 @@ arguments = {
                  "SCons.Scanner",
                  "SCons.Script",
                  "SCons.Tool",
+                 "SCons.Tool.clangCommon",
                  "SCons.Tool.docbook",
+                 'SCons.Tool.clangCommon',
                  "SCons.Tool.MSCommon",
                  "SCons.Tool.packaging",
                  "SCons.Variables",

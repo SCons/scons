@@ -42,6 +42,7 @@ BUILDING_PACKAGES = [
     'python-epydoc',
     'rpm',
     'tar',
+    'lynx'
     
     # additional packages that Bill Deegan's web page suggests
     #'docbook-to-man',
@@ -70,11 +71,12 @@ TESTING_PACKAGES = [
     'bison',
     'cssc',
     'cvs',
-    'hg',
     'flex',
     'g++',
     'gcc',
-    'gcj',
+    # not on ubuntu 18.04
+    #    'gcj',
+    #    'hg',
     'ghostscript',
     'm4',
     'openssh-client',
