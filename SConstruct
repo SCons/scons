@@ -5,7 +5,7 @@
 
 from __future__ import print_function
 
-copyright_years = '2001 - 2018'
+copyright_years = '2001 - 2019'
 
 # This gets inserted into the man pages to reflect the month of release.
 month_year = 'January 2019'
