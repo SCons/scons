@@ -114,7 +114,7 @@ date_re = r'\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d'
 
 if sys.platform == 'win32':
     import SCons.Tool.MSCommon as msc
-    if msc.msvc_exists():
+    if msc.msvc_exists(test.Environment()):
         manifest = r"""
 embedManifestExeCheck\(target, source, env\)"""
     else:

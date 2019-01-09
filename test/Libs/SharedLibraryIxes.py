@@ -42,7 +42,7 @@ isWindows = sys.platform == 'win32'
 isMingw = False
 if isWindows:
     import SCons.Tool.MSCommon as msc
-    if not msc.msvc_exists():
+    if not msc.msvc_exists(test.Environment()):
         # We can't seem to find any MSVC version, so we assume
         # that MinGW is installed instead. Accordingly, we use the
         # standard gcc/g++ conventions for lib prefixes and suffixes

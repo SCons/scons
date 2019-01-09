@@ -1990,7 +1990,7 @@ def generate(env):
     env['SCONS_HOME'] = os.environ.get('SCONS_HOME')
 
 def exists(env):
-    return msvc_exists()
+    return msvc_exists(env)
 
 # Local Variables:
 # tab-width:4

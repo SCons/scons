@@ -28,15 +28,15 @@ import os
 import sys
 import TestSCons
 
+test = TestSCons.TestSCons()
+
 if sys.platform == 'win32':
     lib_ = ''
     import SCons.Tool.MSCommon as msc
-    if not msc.msvc_exists():
+    if not msc.msvc_exists(test.Environment()):
         lib_ = 'lib'
 else:
     lib_ = 'lib'
-
-test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 env = Environment(LIBSUFFIX = '.xxx',

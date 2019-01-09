@@ -1072,7 +1072,7 @@ SConscript( sconscript )
 
         try:
             import SCons.Tool.MSCommon as msc
-            if not msc.msvc_exists():
+            if not msc.msvc_exists(self.Environment()):
                 msg = "No MSVC toolchain found...skipping test\n"
                 self.skip_test(msg)
         except:

@@ -344,16 +344,16 @@ def find_batch_file(env,msvc_version,host_arch,target_arch):
 
 __INSTALLED_VCS_RUN = None
 
-def cached_get_installed_vcs():
+def cached_get_installed_vcs(env):
     global __INSTALLED_VCS_RUN
 
     if __INSTALLED_VCS_RUN is None:
-        ret = get_installed_vcs()
+        ret = get_installed_vcs(env)
         __INSTALLED_VCS_RUN = ret
 
     return __INSTALLED_VCS_RUN
 
-def get_installed_vcs():
+def get_installed_vcs(env):
     installed_versions = []
     for ver in _VCVER:
         debug('trying to find VC %s' % ver)
@@ -362,11 +362,10 @@ def get_installed_vcs():
             if VC_DIR:
                 debug('found VC %s' % ver)
                 # check to see if the x86 or 64 bit compiler is in the bin dir
-                if (os.path.exists(os.path.join(VC_DIR, r'bin\cl.exe'))
-                    or os.path.exists(os.path.join(VC_DIR, r'bin\amd64\cl.exe'))):
+                if msvc_find_valid_batch_script(env,ver):
                     installed_versions.append(ver)
                 else:
-                    debug('find_vc_pdir no cl.exe found %s' % ver)
+                    debug('find_vc_pdir no vcvars script found %s' % ver)
             else:
                 debug('find_vc_pdir return None for ver %s' % ver)
         except VisualCException as e:
@@ -423,7 +422,7 @@ def get_default_version(env):
                     % (msvc_version, msvs_version))
         return msvs_version
     if not msvc_version:
-        installed_vcs = cached_get_installed_vcs()
+        installed_vcs = cached_get_installed_vcs(env)
         debug('installed_vcs:%s' % installed_vcs)
         if not installed_vcs:
             #msg = 'No installed VCs'
@@ -500,7 +499,7 @@ def msvc_find_valid_batch_script(env,version):
             warn_msg = "VC version %s not installed.  " + \
                        "C/C++ compilers are most likely not set correctly.\n" + \
                        " Installed versions are: %s"
-            warn_msg = warn_msg % (version, cached_get_installed_vcs())
+            warn_msg = warn_msg % (version, cached_get_installed_vcs(env))
             SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
             continue
 
@@ -579,8 +578,8 @@ def msvc_setup_env(env):
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, 
             "Could not find MSVC compiler 'cl.exe', it may need to be installed separately with Visual Studio")
 
-def msvc_exists(version=None):
-    vcs = cached_get_installed_vcs()
+def msvc_exists(env, version=None):
+    vcs = cached_get_installed_vcs(env)
     if version is None:
         return len(vcs) > 0
     return version in vcs

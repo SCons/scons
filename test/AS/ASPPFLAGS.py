@@ -42,7 +42,7 @@ o_c = ' -x -c'
 if sys.platform == 'win32':
     import SCons.Tool.MSCommon as msc
 
-    if msc.msvc_exists():
+    if msc.msvc_exists(test.Environment()):
         o_c = ' -x'
 
 test.write('SConstruct', """
