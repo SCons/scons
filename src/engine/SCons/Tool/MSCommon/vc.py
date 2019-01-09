@@ -99,6 +99,9 @@ _HOST_TARGET_ARCH_TO_BAT_ARCH = {
     ("x86", "ia64"): "x86_ia64"
 }
 
+def get_msvc_version_numeric(msvc_version):
+    return ''.join([x for  x in msvc_version if x in string_digits + '.'])
+
 def get_host_target(env):
     debug('vc.py:get_host_target()')
 
@@ -189,7 +192,7 @@ _VCVER_TO_PRODUCT_DIR = {
 }
 
 def msvc_version_to_maj_min(msvc_version):
-    msvc_version_numeric = ''.join([x for  x in msvc_version if x in string_digits + '.'])
+    msvc_version_numeric = get_msvc_version_numeric(msvc_version)
 
     t = msvc_version_numeric.split(".")
     if not len(t) == 2:
@@ -312,7 +315,7 @@ def find_batch_file(env,msvc_version,host_arch,target_arch):
     debug('vc.py: find_batch_file() pdir:{}'.format(pdir))
 
     # filter out e.g. "Exp" from the version name
-    msvc_ver_numeric = ''.join([x for x in msvc_version if x in string_digits + "."])
+    msvc_ver_numeric = get_msvc_version_numeric(msvc_version)
     vernum = float(msvc_ver_numeric)
     if 7 <= vernum < 8:
         pdir = os.path.join(pdir, os.pardir, "Common7", "Tools")
@@ -361,11 +364,16 @@ def get_installed_vcs(env):
             VC_DIR = find_vc_pdir(ver)
             if VC_DIR:
                 debug('found VC %s' % ver)
+                ver_num = float(get_msvc_version_numeric(ver))
                 # check to see if the x86 or 64 bit compiler is in the bin dir
-                if msvc_find_valid_batch_script(env,ver):
+                if (ver_num > 14 and msvc_find_valid_batch_script(env,ver)):
+                    installed_versions.append(ver)
+                elif (ver_num <= 14 
+                and (os.path.exists(os.path.join(VC_DIR, r'bin\cl.exe'))
+                or os.path.exists(os.path.join(VC_DIR, r'bin\amd64\cl.exe')))):
                     installed_versions.append(ver)
                 else:
-                    debug('find_vc_pdir no vcvars script found %s' % ver)
+                    debug('find_vc_pdir no compiler found %s' % ver)
             else:
                 debug('find_vc_pdir return None for ver %s' % ver)
         except VisualCException as e:
