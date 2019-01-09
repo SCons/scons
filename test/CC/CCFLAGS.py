@@ -29,12 +29,10 @@ import TestSCons
 
 _obj = TestSCons._obj
 
-test = TestSCons.TestSCons()
-
 if sys.platform == 'win32':
     import SCons.Tool.MSCommon as msc
     
-    if not msc.msvc_exists(test.Environment()):
+    if not msc.msvc_exists():
         fooflags = '-DFOO'
         barflags = '-DBAR'
     else:
@@ -43,6 +41,8 @@ if sys.platform == 'win32':
 else:
     fooflags = '-DFOO'
     barflags = '-DBAR'
+
+test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 foo = Environment(CCFLAGS = '%s')

@@ -409,7 +409,7 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
     return False
 
 
-def cached_get_installed_vcs(env):
+def cached_get_installed_vcs(env=None):
     global __INSTALLED_VCS_RUN
 
     if __INSTALLED_VCS_RUN is None:
@@ -643,7 +643,7 @@ def msvc_setup_env(env):
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, 
             "Could not find MSVC compiler 'cl.exe', it may need to be installed separately with Visual Studio")
 
-def msvc_exists(env, version=None):
+def msvc_exists(env=None, version=None):
     vcs = cached_get_installed_vcs(env)
     if version is None:
         return len(vcs) > 0
