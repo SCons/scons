@@ -366,7 +366,7 @@ def get_installed_vcs(env):
                 debug('found VC %s' % ver)
                 ver_num = float(get_msvc_version_numeric(ver))
                 # check to see if the x86 or 64 bit compiler is in the bin dir
-                if (ver_num > 14 and msvc_find_valid_batch_script(env,ver)):
+                if (ver_num > 14 and msvc_find_valid_batch_script(env,ver,False)):
                     installed_versions.append(ver)
                 elif (ver_num <= 14 
                 and (os.path.exists(os.path.join(VC_DIR, r'bin\cl.exe'))
@@ -453,7 +453,7 @@ def msvc_setup_env_once(env):
         msvc_setup_env(env)
         env["MSVC_SETUP_RUN"] = True
 
-def msvc_find_valid_batch_script(env,version):
+def msvc_find_valid_batch_script(env,version,modify_env=True):
     debug('vc.py:msvc_find_valid_batch_script()')
     # Find the host platform, target platform, and if present the requested
     # target platform
@@ -479,7 +479,8 @@ def msvc_find_valid_batch_script(env,version):
     d = None
     for tp in try_target_archs:
         # Set to current arch.
-        env['TARGET_ARCH']=tp
+        if modify_env:
+            env['TARGET_ARCH']=tp
 
         debug("vc.py:msvc_find_valid_batch_script() trying target_platform:%s"%tp)
         host_target = (host_platform, tp)
@@ -536,7 +537,7 @@ def msvc_find_valid_batch_script(env,version):
 
     # If we cannot find a viable installed compiler, reset the TARGET_ARCH
     # To it's initial value
-    if not d:
+    if not d and modify_env:
         env['TARGET_ARCH']=req_target_platform
 
     return d
