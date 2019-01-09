@@ -350,8 +350,12 @@ __INSTALLED_VCS_RUN = None
 def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
     ver_num = float(get_msvc_version_numeric(msvc_version))
     found_cl = False
-    (host_platform, target_platform,req_target_platform) = get_host_target(env)
-    
+    if env:
+        (host_platform, target_platform,req_target_platform) = get_host_target(env)
+    else:
+        host_platform = platform.machine().lower()
+        target_platform = host_platform
+
     # check to see if the x86 or 64 bit compiler is in the bin dir
     if ver_num > 14:
         try:
@@ -414,7 +418,7 @@ def cached_get_installed_vcs(env):
 
     return __INSTALLED_VCS_RUN
 
-def get_installed_vcs(env):
+def get_installed_vcs(env=None):
     installed_versions = []
     for ver in _VCVER:
         debug('trying to find VC %s' % ver)

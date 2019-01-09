@@ -29,6 +29,8 @@ import TestSCons
 
 _obj = TestSCons._obj
 
+test = TestSCons.TestSCons()
+
 if sys.platform == 'win32':
     import SCons.Tool.MSCommon as msc
     
@@ -41,8 +43,6 @@ if sys.platform == 'win32':
 else:
     fooflags = '-DFOO'
     barflags = '-DBAR'
-
-test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 foo = Environment(CCFLAGS = '%s')
