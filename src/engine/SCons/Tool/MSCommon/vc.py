@@ -347,6 +347,65 @@ def find_batch_file(env,msvc_version,host_arch,target_arch):
 
 __INSTALLED_VCS_RUN = None
 
+def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
+    ver_num = float(get_msvc_version_numeric(msvc_version))
+    found_cl = False
+    (host_platform, target_platform,req_target_platform) = get_host_target(env)
+    
+    # check to see if the x86 or 64 bit compiler is in the bin dir
+    if ver_num > 14:
+        try:
+            f = open(os.path.join(vc_dir, r'Auxiliary\Build\Microsoft.VCToolsVersion.default.txt'))
+            vc_specific_version = f.readlines()[0].strip()
+        except:
+            return False
+
+        if host_platform in ('amd64','x86_64'):
+            host_dir = "Hostx64"
+        elif host_platform in ('i386','i686','x86'):
+            host_dir = "Hostx86"
+        else:
+            return False
+
+        if target_platform in ('amd64','x86_64'):
+            target_dir = "x64"
+        elif target_platform in ('i386','i686','x86'):
+            target_dir = "x86"
+        else:
+            return False
+        
+        if os.path.exists(os.path.join(vc_dir, r'Tools\MSVC', vc_specific_version, 'bin', host_dir, target_dir, 'cl.exe')):
+            return True
+    elif ver_num <= 14:
+        if host_platform in ('amd64','x86_64'):
+            host_dir = "amd64"
+        elif host_platform in ('i386','i686','x86'):
+            host_dir = "x86"
+        else:
+            return False
+
+    
+        if target_platform in ('amd64','x86_64'):
+            target_dir = "amd64"
+        elif target_platform in ('i386','i686','x86'):
+            target_dir = "x86"
+        elif target_platform in ('ia64'):
+            target_dir = "ia64"
+        else:
+            return False
+        
+        host_target_dir = _HOST_TARGET_ARCH_TO_BAT_ARCH[(host_dir, target_dir)]
+        if host_target_dir == 'x86':
+            host_target_dir == ''
+        else:
+            host_target_dir += '\\'
+        cl_dir = 'bin\\' + host_target_dir + 'cl.exe'
+        print(os.path.join(vc_dir, cl_dir))
+        if os.path.exists(os.path.join(vc_dir, cl_dir)):
+            return True
+    return False
+
+
 def cached_get_installed_vcs(env):
     global __INSTALLED_VCS_RUN
 
@@ -364,13 +423,7 @@ def get_installed_vcs(env):
             VC_DIR = find_vc_pdir(ver)
             if VC_DIR:
                 debug('found VC %s' % ver)
-                ver_num = float(get_msvc_version_numeric(ver))
-                # check to see if the x86 or 64 bit compiler is in the bin dir
-                if (ver_num > 14 and msvc_find_valid_batch_script(env,ver,False)):
-                    installed_versions.append(ver)
-                elif (ver_num <= 14 
-                and (os.path.exists(os.path.join(VC_DIR, r'bin\cl.exe'))
-                or os.path.exists(os.path.join(VC_DIR, r'bin\amd64\cl.exe')))):
+                if _check_cl_exists_in_vc_dir(env, VC_DIR, ver):
                     installed_versions.append(ver)
                 else:
                     debug('find_vc_pdir no compiler found %s' % ver)
