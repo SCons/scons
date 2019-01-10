@@ -27,19 +27,17 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import TestSCons
 import sys
 
-test = TestSCons.TestSCons()
-
 if sys.platform == 'win32':
     _exe = '.exe'
     bar_lib = 'bar.lib'
     import SCons.Tool.MSCommon as msc
-    if not msc.msvc_exists(test.Environment()):
+    if not msc.msvc_exists():
         bar_lib = 'libbar.a'
 else:
     _exe = ''
     bar_lib = 'libbar.a'
 
-
+test = TestSCons.TestSCons()
 
 test.subdir('sub1', 'sub2')
 

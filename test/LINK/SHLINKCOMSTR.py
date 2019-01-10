@@ -73,7 +73,7 @@ test.must_match('test3.dll', "test1.c\ntest2.c\n")
 
 if sys.platform == "win32":
     import SCons.Tool.MSCommon as msc
-    if msc.msvc_exists(test.Environment()):
+    if msc.msvc_exists():
         # Now test an actual compile and link.  Since MS Windows
         # resets the link actions, this could fail even if the above
         # test passed.
