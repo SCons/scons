@@ -11,6 +11,8 @@ addons:
 os:
   - linux
 
+sudo: required
+
 install:
     - ./.travis/install.sh
 
@@ -81,7 +83,10 @@ jobs:
         - echo "source = $PWD/src" >> .coveragerc
         - echo "parallel = True" >> .coveragerc
         - printf "omit =\n\t*Tests.py\n\tsrc/test_*\n\tsrc/setup.py\n\n" >> .coveragerc
-        - echo "[path] = $PWD" >> .coveragerc
+        - echo "[path]" >> .coveragerc
+        - echo "source = $PWD" >> .coveragerc
+        - echo "[report]" >> .coveragerc
+        - printf "omit =\n\t*Tests.py\n\tsrc/test_*\n\tsrc/setup.py\n\n" >> .coveragerc
         # get a list of all the tests to split them up
         - python runtest.py -l -a > all_tests
         - let "start = ($(wc -l < all_tests) / ${TOTAL_BUILD_JOBS}) * (${BUILD_JOB_NUM} - 1)"; true;
@@ -112,4 +117,3 @@ jobs:
       env: BUILD_JOB_NUM=7
     - <<: *coverage_jobs
       env: BUILD_JOB_NUM=8
-

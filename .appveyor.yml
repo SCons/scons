@@ -1,6 +1,8 @@
 #version: '3.0.1.{build}'
 
-image: Visual Studio 2017
+image: 
+  - Visual Studio 2017
+  - Visual Studio 2015
 shallow_clone: true
 
 cache:
@@ -12,25 +14,30 @@ cache:
 install:
   - "set PATH=%PYTHON%;%PYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;%PATH%"
   - python --version
-  - pip install pypiwin32
-  - set STATIC_DEPS=true & pip install lxml
+  - pip install -U pip setuptools wheel 
+  - pip install -U pypiwin32 coverage coveralls
+  - set STATIC_DEPS=true & pip install -U lxml
   - choco install --allow-empty-checksums dmd
   - choco install --allow-empty-checksums ldc
   - choco install --allow-empty-checksums swig
   - choco install --allow-empty-checksums vswhere
   - choco install --allow-empty-checksums xsltproc
 
-
 environment:
+  COVERAGE: 0
   matrix:
     - PYTHON: "C:\\Python27"
       BUILD_JOB_NUM: 1
+      COVERAGE: 1
     - PYTHON: "C:\\Python27"
       BUILD_JOB_NUM: 2
+      COVERAGE: 1
     - PYTHON: "C:\\Python27"
       BUILD_JOB_NUM: 3
+      COVERAGE: 1
     - PYTHON: "C:\\Python27"
       BUILD_JOB_NUM: 4
+      COVERAGE: 1
 
     - PYTHON: "C:\\Python35"
       BUILD_JOB_NUM: 1
@@ -43,12 +50,16 @@ environment:
 
     - PYTHON: "C:\\Python36"
       BUILD_JOB_NUM: 1
+      COVERAGE: 1
     - PYTHON: "C:\\Python36"
       BUILD_JOB_NUM: 2
+      COVERAGE: 1
     - PYTHON: "C:\\Python36"
       BUILD_JOB_NUM: 3
+      COVERAGE: 1
     - PYTHON: "C:\\Python36"
       BUILD_JOB_NUM: 4
+      COVERAGE: 1
 
     - PYTHON: "C:\\Python37"
       BUILD_JOB_NUM: 1
@@ -59,6 +70,21 @@ environment:
     - PYTHON: "C:\\Python37"
       BUILD_JOB_NUM: 4
 
+matrix:	
+  exclude:	
+    # test python 2 on Visual Studio 2015 image
+    - image: Visual Studio 2015	
+      PYTHON: "C:\\Python37"	
+    - image: Visual Studio 2015	
+      PYTHON: "C:\\Python36"	
+    - image: Visual Studio 2015	
+      PYTHON: "C:\\Python35"
+    # test python 3 on Visual Studio 2017 image
+    - image: Visual Studio 2017	
+      PYTHON: "C:\\Python27"
+
+# total build jobs:
+# 4 python versions X 4 Jobs each = 16 Jobs
 
 before_build:
     - ps: dir "C:\Program Files\Git\usr\bin\x*.exe"
@@ -72,6 +98,20 @@ build: off
 
 build_script:
   - cmd: python runtest.py -l -a > all_tests.txt
+  # setup coverage is set in environment
+  - ps: |
+      if ($env:COVERAGE -eq 1){ 
+        $env:COVERAGE_PROCESS_START = "$($env:APPVEYOR_BUILD_FOLDER)/.coveragerc";
+        $env:PYTHONNOUSERSITE = "";
+        $env:PYSITEDIR = python -m site --user-site;
+        New-Item -ItemType Directory -Force -Path "$($env:PYSITEDIR)";
+        $env:COVERAGE_FILE = "$($env:APPVEYOR_BUILD_FOLDER)/.coverage_file";
+        $usercustomizeText = "import os`r`nos.environ['COVERAGE_PROCESS_START'] = '$($env:COVERAGE_PROCESS_START)'`r`nimport coverage`r`ncoverage.process_startup()";
+        $usercustomizeText|Set-Content "$($env:PYSITEDIR)/usercustomize.py";
+        $coveragercFile = "[run]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)/src`r`nparallel = True`r`nomit =`r`n`t#Tests.py`r`n`tsrc\test_*`r`n`tsrc\setup.py`r`n`r`n[path]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)`r`n[report]`r`nomit =`r`n`t#Tests.py`r`n`tsrc\test_*`r`n`tsrc\setup.py`r`n`r`n"
+        $coveragercFile|Set-Content "$env:COVERAGE_PROCESS_START";
+      }
+  # setup portion of tests for this build job (1-4)
   - ps: >-
       $TOTAL_BUILD_JOBS = 4;
       $Lines = (Get-Content all_tests.txt | Measure-Object -line).Lines;
@@ -80,4 +120,11 @@ build_script:
       if ( $Env:BUILD_JOB_NUM -eq $TOTAL_BUILD_JOBS){ $end = $Lines };
       if ( $start -eq 0 ){ $start = 1 };
       get-content all_tests.txt | select -first ($end - $start) -skip ($start - 1) | Out-File -Encoding ASCII build_tests.txt;
-  - cmd: powershell -Command "& { python runtest.py -j 2 -f build_tests.txt; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
+  # NOTE: running powershell from cmd on purpose because it formats the output
+  # correctly
+  - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py -f build_tests.txt} else { python runtest.py -j 2 -f build_tests.txt }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
+
+on_success:
+  - coverage combine
+  - coverage report
+  - coveralls --rcfile=$PWD/.coveragerc
