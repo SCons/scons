@@ -84,9 +84,9 @@ _ARCH_TO_CANONICAL = {
     "itanium"   : "ia64",      # deprecated
     "x86"       : "x86",
     "x86_64"    : "amd64",
-    "x86_amd64" : "x86_amd64", # Cross compile to 64 bit from 32bits
     "arm"       : "arm",
     "arm64"     : "arm64",
+    "aarch64"   : "arm64",
 }
 
 # Given a (host, target) tuple, return the argument for the bat file.
@@ -372,6 +372,20 @@ def find_batch_file(env,msvc_version,host_arch,target_arch):
 
 __INSTALLED_VCS_RUN = None
 
+def _get_host_target_dir(host_platform, target_platform):
+
+    host_target_dir = _HOST_TARGET_ARCH_TO_BAT_ARCH.get((host_platform, target_platform), False)
+
+    if not host_target_dir:
+        debug('_check_cl_exists_in_vc_dir(): unsupported host/target combination' + host_target_dir)
+        return False
+    elif host_target_dir in 'x86':
+        host_target_dir == ''
+    else:
+        host_target_dir += '\\'
+
+    return host_target_dir
+
 def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
     
     # determine if there is a specific target platform we want to build for and
@@ -383,6 +397,11 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
         host_platform = platform.machine().lower()
         target_platform = host_platform
 
+    host_platform = _ARCH_TO_CANONICAL[host_platform]
+    target_platform = _ARCH_TO_CANONICAL[target_platform]
+
+    debug('_check_cl_exists_in_vc_dir(): host platform %s, target platform %s' % (host_platform, target_platform))
+
     ver_num = float(get_msvc_version_numeric(msvc_version))
 
     # make sure the cl.exe exists meaning the tool is installed
@@ -390,58 +409,71 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
         # 2017 and newer allowed multiple versions of the VC toolset to be installed at the same time.
         # Just get the default tool version for now
         #TODO: support setting a specific minor VC version
+        default_toolset_file = os.path.join(vc_dir, r'Auxiliary\Build\Microsoft.VCToolsVersion.default.txt')
         try:
-            f = open(os.path.join(vc_dir, r'Auxiliary\Build\Microsoft.VCToolsVersion.default.txt'))
+            f = open(default_toolset_file)
             vc_specific_version = f.readlines()[0].strip()
         except OSError: 
+            debug('_check_cl_exists_in_vc_dir(): failed to open ' + default_toolset_file)
             return False
         except IndexError:
+            debug('_check_cl_exists_in_vc_dir(): failed to get MSVC version from ' + default_toolset_file)
             return False
 
-        if host_platform in ('amd64','x86_64'):
+        if host_platform == 'amd64':
             host_dir = "Hostx64"
-        elif host_platform in ('i386','i686','x86'):
+        elif host_platform == 'x86':
             host_dir = "Hostx86"
         else:
+            debug('_check_cl_exists_in_vc_dir(): unsupported host platform ' + host_platform)
             return False
 
-        if target_platform in ('amd64','x86_64'):
+        if target_platform == 'amd64':
             target_dir = "x64"
-        elif target_platform in ('i386','i686','x86'):
-            target_dir = "x86"
+        elif target_platform in ('x86', 'arm', 'arm64'):
+            target_dir = target_platform
         else:
+            debug('_check_cl_exists_in_vc_dir(): unsupported target platform ' + target_platform)
             return False
-        
-        if os.path.exists(os.path.join(vc_dir, r'Tools\MSVC', vc_specific_version, 'bin', host_dir, target_dir, 'cl.exe')):
+
+        cl_path = os.path.join(vc_dir, r'Tools\MSVC', vc_specific_version, 'bin', host_dir, target_dir, 'cl.exe')
+        debug('_check_cl_exists_in_vc_dir(): checking for cl.exe at ' + cl_path)
+        if os.path.exists(cl_path):
+            debug('_check_cl_exists_in_vc_dir(): found cl.exe!')
             return True
 
-    elif ver_num <= 14:
+    elif ver_num <= 14 and ver_num >= 8:
 
-        if host_platform in ('amd64','x86_64'):
-            host_platform = "amd64"
-        elif host_platform in ('i386','i686','x86'):
-            host_platform = "x86"
-        else:
+        if host_platform not in ('amd64','x86'):
+            debug('_check_cl_exists_in_vc_dir(): unsupported host platform ' + host_platform)
             return False
 
-        if target_platform in ('amd64','x86_64'):
-            target_platform = "amd64"
-        elif target_platform in ('i386','i686','x86'):
-            target_platform = "x86"
-        elif target_platform in ('ia64'):
-            target_platform = "ia64"
-        else:
+        if target_platform not in ('amd64','x86', 'ia64', 'arm' , 'arm64'):
+            debug('_check_cl_exists_in_vc_dir(): unsupported target platform ' + target_platform)
             return False
         
-        host_target_dir = _HOST_TARGET_ARCH_TO_BAT_ARCH[(host_platform, target_platform)]
-        if host_target_dir == 'x86':
-            host_target_dir == ''
-        else:
-            host_target_dir += '\\'
+        cl_path = os.path.join(vc_dir, 'bin\\' + _get_host_target_dir(host_platform, target_platform) + 'cl.exe')
+        debug('_check_cl_exists_in_vc_dir(): checking for cl.exe at ' + cl_path)
 
-        if os.path.exists(os.path.join(vc_dir, 'bin\\' + host_target_dir + 'cl.exe')):
+        cl_path_exists = os.path.exists(cl_path)
+        if not cl_path_exists and host_platform == 'amd64':
+            # older versions of visual studio only had x86 binaries, so if the host platform is amd64, we need to check cross compile options (x86 binary compiles some other target on a 64 bit os)
+            cl_path = os.path.join(vc_dir, 'bin\\' + _get_host_target_dir('x86', target_platform) + 'cl.exe')
+            debug('_check_cl_exists_in_vc_dir(): checking for cl.exe at ' + cl_path)
+            cl_path_exists = os.path.exists(cl_path)
+
+        if cl_path_exists:
+            debug('_check_cl_exists_in_vc_dir(): found cl.exe!')
             return True
 
+    elif ver_num < 8 and ver_num >= 6:
+        # not sure about these versions so if a VC dir was found, consider it possibly valid
+        # and let the batch script run, and any issues can get caught there
+        return os.path.exists(vc_dir)
+    else:
+        # version not support return false
+        debug('_check_cl_exists_in_vc_dir(): unsupported MSVC version: ' + str(ver_num))
+   
     return False
 
 def cached_get_installed_vcs(env=None):

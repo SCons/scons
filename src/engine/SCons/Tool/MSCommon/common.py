@@ -206,7 +206,7 @@ def get_output(vcbat, args = None, env = None):
     output = stdout.decode("mbcs")
     return output
 
-def parse_output(output, keep=("INCLUDE", "LIB", "LIBPATH", "PATH")):
+def parse_output(output, keep=("INCLUDE", "LIB", "LIBPATH", "PATH", 'VSCMD_ARG_app_plat')):
     """
     Parse output from running visual c++/studios vcvarsall.bat and running set
     To capture the values listed in keep
