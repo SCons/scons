@@ -1,0 +1,35 @@
+
+
+vars = Variables(None, ARGUMENTS)
+vars.Add('SHLIBVERSION', 'Set the SHLIBVERSION', 0)
+vars.Add('APPLELINK_CURRENT_VERSION', 'Set APPLELINK_CURRENT_VERSION', 0)
+vars.Add('APPLELINK_COMPATIBILITY_VERSION', 'Set APPLELINK_COMPATIBILITY_VERSION', 0)
+vars.Add('APPLELINK_NO_CURRENT_VERSION', 'Set APPLELINK_NO_CURRENT_VERSION', 0)
+vars.Add('APPLELINK_NO_COMPATIBILITY_VERSION', 'Set APPLELINK_NO_COMPATIBILITY_VERSION', 0)
+
+env = Environment(variables = vars, tools=['gcc', 'applelink'])
+
+if env['APPLELINK_NO_CURRENT_VERSION'] == '0':
+    env['APPLELINK_NO_CURRENT_VERSION'] = 0
+
+if env['APPLELINK_NO_COMPATIBILITY_VERSION'] == '0':
+    env['APPLELINK_NO_COMPATIBILITY_VERSION'] = 0
+
+
+print("SHLIBVERSION                      =[%s]"%env.get('SHLIBVERSION', False))
+print("APPLELINK_CURRENT_VERSION         =[%s]"%env.get('APPLELINK_CURRENT_VERSION', False))
+print("APPLELINK_COMPATIBILITY_VERSION   =[%s]"%env.get('APPLELINK_COMPATIBILITY_VERSION', False))
+print("APPLELINK_NO_CURRENT_VERSION      =[%s]"%env.get('APPLELINK_NO_CURRENT_VERSION', False))
+print("APPLELINK_NO_COMPATIBILITY_VERSION=[%s]"%env.get('APPLELINK_NO_COMPATIBILITY_VERSION', False))
+
+obj = env.SharedObject('foo.c')
+
+sl = env.SharedLibrary('foo', obj)
+lm = env.LoadableModule('fool', obj)
+
+env.InstallVersionedLib(target='#/install',
+                        source=sl)
+
+env.InstallVersionedLib(target='#/install',
+                        source=lm)
+

@@ -22,6 +22,8 @@ popd
 @REM try the script named as the .bat file in current dir, then in Scripts subdir
 set scriptname=%~dp0%~n0.py
 if not exist "%scriptname%" set scriptname=%~dp0Scripts\%~n0.py
+@REM Handle when running from wheel where the script has no .py extension
+if not exist "%scriptname%" set scriptname=%~dp0%~n0
 python "%scriptname%" %*
 endlocal & set SCONS_ERRORLEVEL=%ERRORLEVEL%
 

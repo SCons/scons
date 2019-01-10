@@ -20,6 +20,17 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import print_function
+
+
+import distutils.command.build_scripts
+import distutils.command.install_scripts
+import distutils.command.install_lib
+import distutils.command.install_data
+import distutils.command.install
+import distutils.core
+import distutils
+# import setuptools
 """
 NOTE: Installed SCons is not importable like usual Python packages. It is
       executed explicitly with command line scripts. This allows multiple
@@ -32,7 +43,6 @@ NOTE: Installed SCons is not importable like usual Python packages. It is
       below is dedicated to make it happen on various platforms.
 """
 
-from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -65,15 +75,6 @@ if not sys.platform == 'win32':
         pass
 else:
     is_win32 = 1
-
-import distutils
-import distutils.core
-import distutils.command.install
-import distutils.command.install_data
-import distutils.command.install_lib
-import distutils.command.install_scripts
-import distutils.command.build_scripts
-import distutils.msvccompiler
 
 
 _install = distutils.command.install.install
@@ -165,7 +166,7 @@ class install(_install):
         self.no_scons_script = 0
         self.no_version_script = 0
         self.install_bat = 0
-        self.no_install_bat = not is_win32
+        self.no_install_bat = False  # not is_win32
         self.install_man = 0
         self.no_install_man = is_win32
         self.standard_lib = 0
@@ -325,8 +326,8 @@ class install_scripts(_install_scripts):
             scons = os.path.join(self.install_dir, base)
             scons_ver = scons + '-' + Version
             if is_win32:
-                scons += '.py'
-                scons_ver += '.py'
+                scons = scons + '.py'
+                scons_ver = scons_ver + '.py'
             create_version_script(src, scons_ver)
             create_basename_script(src, scons, scons_ver)
 
@@ -354,7 +355,8 @@ class install_scripts(_install_scripts):
                     # Use symbolic versions of permissions so this script doesn't fail to parse under python3.x
                     exec_and_read_permission = stat.S_IXOTH | stat.S_IXUSR | stat.S_IXGRP | stat.S_IROTH | stat.S_IRUSR | stat.S_IRGRP
                     mode_mask = 4095  # Octal 07777 used because python3 has different octal syntax than python 2
-                    mode = ((os.stat(file)[stat.ST_MODE]) | exec_and_read_permission) & mode_mask
+                    mode = ((os.stat(file)[stat.ST_MODE]) |
+                            exec_and_read_permission) & mode_mask
                     # log.info("changing mode of %s to %o", file, mode)
                     os.chmod(file, mode)
                     # --- /distutils copy/paste ---
@@ -412,8 +414,8 @@ arguments = {
     'version': Version,
     'description': description,
     'long_description': long_description,
-    'author': 'Steven Knight',
-    'author_email': 'knight@baldmt.com',
+    'author': 'William Deegan',
+    'author_email': 'bill@baddogconsulting.com',
     'url': "http://www.scons.org/",
     'packages': ["SCons",
                  "SCons.compat",
@@ -422,7 +424,9 @@ arguments = {
                  "SCons.Scanner",
                  "SCons.Script",
                  "SCons.Tool",
+                 "SCons.Tool.clangCommon",
                  "SCons.Tool.docbook",
+                 'SCons.Tool.clangCommon',
                  "SCons.Tool.MSCommon",
                  "SCons.Tool.packaging",
                  "SCons.Variables",
@@ -503,7 +507,7 @@ arguments = {
                  'install_lib': install_lib,
                  'install_data': install_data,
                  'install_scripts': install_scripts,
-                 'build_scripts': build_scripts}
+                 'build_scripts': build_scripts},
 }
 
 distutils.core.setup(**arguments)
