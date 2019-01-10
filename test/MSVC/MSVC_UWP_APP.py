@@ -108,7 +108,7 @@ env = Environment(tools=['default', 'msvc'], variables=help_vars, MSVC_VERSION='
 # Print the ENV LIBPATH to stdout
 print('env[ENV][LIBPATH]=%s' % env.get('ENV').get('LIBPATH'))
 print('env[MSVC_VERSION]=%s' % env.get('MSVC_VERSION'))
-    """)
+""")
 
     # Test setting MSVC_UWP_APP is '1' (True)
     test.run(arguments = "MSVC_UWP_APP=1")
@@ -142,13 +142,12 @@ else:
     help_vars = None
 env = Environment(tools=['default', 'msvc'], variables=help_vars, MSVC_VERSION='14.1')
 # Print the ENV LIBPATH to stdout
-print(str(env.get('ENV')))
 print('env[ENV][LIBPATH]=%s' % env.get('ENV').get('LIBPATH'))
 print('env[MSVC_VERSION]=%s' % env.get('MSVC_VERSION'))
 print('env[ENV][VSCMD_ARG_app_plat]=%s' % env.get('ENV').get('VSCMD_ARG_app_plat'))
-    """)
+""")
 
-    # 2017 adds 
+    # Test setting MSVC_UWP_APP is '1' (True)
     test.run(arguments = "MSVC_UWP_APP=1")
     (vclibstore_path_present, vclibstorerefs_path_present, msvc_version) = AreVCStoreLibPathsInLIBPATH(test.stdout())
     test.fail_test((vclibstore_path_present is False) or (vclibstorerefs_path_present is False),

@@ -106,6 +106,8 @@ _HOST_TARGET_ARCH_TO_BAT_ARCH = {
     ("amd64", "arm64"): "amd64_arm64",  # since 14.1
 }
 
+_CL_EXE_NAME = 'cl.exe'
+
 def get_msvc_version_numeric(msvc_version):
     return ''.join([x for  x in msvc_version if x in string_digits + '.'])
 
@@ -436,10 +438,10 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
             debug('_check_cl_exists_in_vc_dir(): unsupported target platform ' + target_platform)
             return False
 
-        cl_path = os.path.join(vc_dir, r'Tools\MSVC', vc_specific_version, 'bin', host_dir, target_dir, 'cl.exe')
-        debug('_check_cl_exists_in_vc_dir(): checking for cl.exe at ' + cl_path)
+        cl_path = os.path.join(vc_dir, r'Tools\MSVC', vc_specific_version, 'bin', host_dir, target_dir, _CL_EXE_NAME)
+        debug('_check_cl_exists_in_vc_dir(): checking for ' + _CL_EXE_NAME + ' at ' + cl_path)
         if os.path.exists(cl_path):
-            debug('_check_cl_exists_in_vc_dir(): found cl.exe!')
+            debug('_check_cl_exists_in_vc_dir(): found ' + _CL_EXE_NAME + '!')
             return True
 
     elif ver_num <= 14 and ver_num >= 8:
@@ -452,24 +454,27 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
             debug('_check_cl_exists_in_vc_dir(): unsupported target platform ' + target_platform)
             return False
         
-        cl_path = os.path.join(vc_dir, 'bin\\' + _get_host_target_dir(host_platform, target_platform) + 'cl.exe')
-        debug('_check_cl_exists_in_vc_dir(): checking for cl.exe at ' + cl_path)
+        cl_path = os.path.join(vc_dir, 'bin\\' + _get_host_target_dir(host_platform, target_platform) + _CL_EXE_NAME)
+        debug('_check_cl_exists_in_vc_dir(): checking for ' + _CL_EXE_NAME + ' at ' + cl_path)
 
         cl_path_exists = os.path.exists(cl_path)
         if not cl_path_exists and host_platform == 'amd64':
             # older versions of visual studio only had x86 binaries, so if the host platform is amd64, we need to check cross compile options (x86 binary compiles some other target on a 64 bit os)
-            cl_path = os.path.join(vc_dir, 'bin\\' + _get_host_target_dir('x86', target_platform) + 'cl.exe')
-            debug('_check_cl_exists_in_vc_dir(): checking for cl.exe at ' + cl_path)
+            cl_path = os.path.join(vc_dir, 'bin\\' + _get_host_target_dir('x86', target_platform) + _CL_EXE_NAME)
+            debug('_check_cl_exists_in_vc_dir(): checking for ' + _CL_EXE_NAME + ' at ' + cl_path)
             cl_path_exists = os.path.exists(cl_path)
 
         if cl_path_exists:
-            debug('_check_cl_exists_in_vc_dir(): found cl.exe!')
+            debug('_check_cl_exists_in_vc_dir(): found ' + _CL_EXE_NAME + '!')
             return True
 
     elif ver_num < 8 and ver_num >= 6:
-        # not sure about these versions so if a VC dir was found, consider it possibly valid
-        # and let the batch script run, and any issues can get caught there
-        return os.path.exists(vc_dir)
+        # not sure about these versions so if a walk the VC dir (could be slow)
+        for root, _, files in os.walk(vc_dir):
+            if _CL_EXE_NAME in files:
+                debug('get_installed_vcs ' + _CL_EXE_NAME + ' found %s' % os.path.join(root, _CL_EXE_NAME))
+                return True
+        return False
     else:
         # version not support return false
         debug('_check_cl_exists_in_vc_dir(): unsupported MSVC version: ' + str(ver_num))
@@ -712,7 +717,7 @@ def msvc_setup_env(env):
     msvc_cl = find_program_path(env, 'cl')
     if not msvc_cl:
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning,
-            "Could not find MSVC compiler 'cl.exe', it may need to be installed separately with Visual Studio")
+            "Could not find MSVC compiler 'cl', it may need to be installed separately with Visual Studio")
 
 def msvc_exists(env=None, version=None):
     vcs = cached_get_installed_vcs(env)
