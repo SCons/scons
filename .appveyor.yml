@@ -37,9 +37,9 @@ install:
   - sh: which python$PYTHON
   - sh: python$PYTHON
   - sh: export PYSITEDIR=$(python$PYTHON -m site --user-site)
-  - sh: python$PYTHON -m pip install -U pip setuptools wheel 
-  - sh: python$PYTHON -m pip install -U coverage==4.0.3 coveralls codecov
-  - sh: STATIC_DEPS=true & python$PYTHON -m pip install -U lxml
+  - sh: python$PYTHON -m pip install --user -U pip setuptools wheel 
+  - sh: python$PYTHON -m pip install --user -U coverage==4.0.3 coveralls codecov
+  - sh: STATIC_DEPS=true & python$PYTHON -m pip install --user -U lxml
 
 environment:
   COVERAGE: 0
