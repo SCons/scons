@@ -35,31 +35,36 @@ install:
   - sh: wget https://bootstrap.pypa.io/get-pip.py
   - sh: sudo -H python$PYTHON get-pip.py
   - sh: which python$PYTHON
-  - sh: python$PYTHON
+  - sh: python$PYTHON --version
   - sh: export PYSITEDIR=$(python$PYTHON -m site --user-site)
   - sh: python$PYTHON -m pip install --user -U pip setuptools wheel 
   - sh: python$PYTHON -m pip install --user -U coverage==4.0.3 coveralls codecov
   - sh: STATIC_DEPS=true & python$PYTHON -m pip install --user -U lxml
+  - sh: ./.travis/install.sh
 
 environment:
   COVERAGE: 0
   matrix:
     - WINPYTHON: "Python27"
       PYTHON: "2.7"
+      PYVER: 27
       BUILD_JOB_NUM: 1
       COVERAGE: 1
 
     - WINPYTHON: "Python36"
       PYTHON: "3.6"
+      PYVER: 36
       BUILD_JOB_NUM: 1
       COVERAGE: 1
 
     - WINPYTHON: "Python35"
       PYTHON: "3.5"
+      PYVER: 35
       BUILD_JOB_NUM: 1
 
     - WINPYTHON: "Python37"
       PYTHON: "3.7"
+      PYVER: 37
       BUILD_JOB_NUM: 1
 
 matrix:	
