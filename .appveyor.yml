@@ -103,7 +103,7 @@ build_script:
         $env:COVERAGE_PROCESS_START = "$($env:APPVEYOR_BUILD_FOLDER)/.coveragerc";
         $env:PYTHONNOUSERSITE = "";
         New-Item -ItemType Directory -Force -Path "$($env:PYSITEDIR)";
-        $env:COVERAGE_FILE = "$($env:APPVEYOR_BUILD_FOLDER)/.coverage_file";
+        $env:COVERAGE_FILE = "$($env:APPVEYOR_BUILD_FOLDER)/.coverage";
         $usercustomizeText = "import os`r`nos.environ['COVERAGE_PROCESS_START'] = '$($env:COVERAGE_PROCESS_START)'`r`nimport coverage`r`ncoverage.process_startup()";
         $usercustomizeText|Set-Content "$($env:PYSITEDIR)/usercustomize.py";
         $coveragercFile = "[run]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)/src`r`nparallel = True`r`nomit =`r`n`t#Tests.py`r`n`tsrc\test_*`r`n`tsrc\setup.py`r`n`r`n[path]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)`r`n[report]`r`nomit =`r`n`t#Tests.py`r`n`tsrc\test_*`r`n`tsrc\setup.py`r`n`r`n"
