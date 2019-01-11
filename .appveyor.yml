@@ -12,7 +12,7 @@ cache:
 install:
   - python --version
   - "set PATH=%PYTHON%;%PYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;%PATH%"
-  - FOR /F "tokens=*" %%g IN ('python -m site --user-base') do (SET PATH=%%g;%PATH%)
+  - FOR /F "tokens=*" %%g IN ('python -m site --user-base') do (SET PATH="%%g;%PATH%")
   - set
   - pip install --user -U pip setuptools wheel 
   - pip install --user -U pypiwin32 coverage coveralls
