@@ -130,5 +130,5 @@ on_success:
       {
         coverage combine
         coverage report
-        coveralls --rcfile=$PWD/.coveragerc
+        coveralls --rcfile="$($env:COVERAGE_PROCESS_START)"
       }
