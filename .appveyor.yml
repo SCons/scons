@@ -127,10 +127,6 @@ build_script:
   - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py -f build_tests.txt} else { python runtest.py -j 2 -f build_tests.txt }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
 
 on_success:
-  - ps: |
-      if ($env:COVERAGE -eq 1)
-      {
-        coverage combine
-        coverage report
-        coveralls --rcfile="$($env:COVERAGE_PROCESS_START)"
-      }
+  - cmd: if %COVERAGE% equ 1 coverage combine
+  - cmd: if %COVERAGE% equ 1 coverage report
+  - cmd: if %COVERAGE% equ 1 coveralls --rcfile="%COVERAGE_PROCESS_START%"
