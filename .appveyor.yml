@@ -16,7 +16,7 @@ install:
   # add python and python user-base to path for pip installs
   - cmd: for /F "tokens=*" %%g in ('%WINPYTHON%\\python.exe -m site --user-base') do (set PYUSERBASESITE=%%g)
   - cmd: for /F "tokens=*" %%g in ('%WINPYTHON%\\python.exe -m site --user-site') do (set PYSITEDIR=%%g)
-  - cmd: "set PATH=%WINPYTHON%;%WINPYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;C:\\ProgramData\\chocolatey\\bin;%PYUSERBASESITE%;%PYUSERBASESITE%\\Scripts;%PATH%"
+  - cmd: "set PATH=%PYUSERBASESITE%;%PYUSERBASESITE%\\Scripts;%WINPYTHON%;%WINPYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;C:\\ProgramData\\chocolatey\\bin;%PATH%"
   - cmd: set
   - cmd: "%WINPYTHON%\\python.exe --version"
   - cmd: "%WINPYTHON%\\python.exe -m pip install --user -U pip setuptools wheel"
@@ -132,8 +132,8 @@ before_build:
 build: off
 
 build_script:
-  - cmd: "echo test/ENV.py > all_tests.txt & echo test/ENV.py >> all_tests.txt & echo test/ENV.py >> all_tests.txt & echo test/ENV.py >> all_tests.txt"
-  - sh: echo test/ENV.py > all_tests.txt & echo test/ENV.py >> all_tests.txt & echo test/ENV.py >> all_tests.txt & echo test/ENV.py >> all_tests.txt"
+  - cmd: "%WINPYTHON%/python.exe runtest.py -l -a > all_tests.txt"
+  - sh: $LINUXPYTHON runtest.py -l -a > all_tests.txt
   # setup coverage is set in environment
   - ps: |
       if ($env:COVERAGE -eq 1){ 
@@ -157,8 +157,8 @@ build_script:
       get-content all_tests.txt | select -first ($end - $start) -skip ($start - 1) | Out-File -Encoding ASCII build_tests.txt;
   # NOTE: running powershell from cmd on purpose because it formats the output
   # correctly
-  - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py -f build_tests.txt} else { %WINPYTHON%/python.exe runtest.py -j 2 -f build_tests.txt }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
-  - sh: if [ "$COVERAGE" -eq "1" ]; then coverage run -p --rcfile="$COVERAGE_PROCESS_START" runtest.py -f build_tests.txt || if [[ $? == 2 ]]; then true; else false; fi; else $LINUXPYTHON runtest.py -j 2 -f build_tests.txt || if [[ $? == 2 ]]; then true; else false; fi
+  - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py test/ENV.py} else { %WINPYTHON%/python.exe runtest.py -j 2 test/ENV.py }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
+  - sh: if [ "$COVERAGE" -eq "1" ]; then coverage run -p --rcfile="$COVERAGE_PROCESS_START" runtest.py test/ENV.py || if [[ $? == 2 ]]; then true; else false; fi; else $LINUXPYTHON runtest.py -j 2 test/ENV.py || if [[ $? == 2 ]]; then true; else false; fi
 
 on_success:
   - cmd: if %COVERAGE% equ 1 coverage combine
