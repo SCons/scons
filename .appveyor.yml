@@ -126,9 +126,11 @@ build_script:
 on_success:
   - cmd: if %COVERAGE% equ 1 coverage combine
   - cmd: if %COVERAGE% equ 1 coverage report
+  - cmd: if %COVERAGE% equ 1 coverage xml
   - cmd: if %COVERAGE% equ 1 coveralls --rcfile="%COVERAGE_PROCESS_START%"
   - cmd: if %COVERAGE% equ 1 codecov -t %CODECOV_TOKEN%
   - sh: if [ "$COVERAGE" -eq "1" ]; then coverage combine; fi
   - sh: if [ "$COVERAGE" -eq "1" ]; then coverage report; fi
+  - sh: if [ "$COVERAGE" -eq "1" ]; then coverage xml; fi
   - sh: if [ "$COVERAGE" -eq "1" ]; then coveralls --rcfile="$COVERAGE_PROCESS_START"; fi
   - sh: if [ "$COVERAGE" -eq "1" ]; then codecov -t $CODECOV_TOKEN; fi
