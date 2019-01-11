@@ -32,7 +32,7 @@ install:
   - sh: export PATH=$('$LINUXPYTHON -m site --user-base'):$('$LINUXPYTHON -m site --user-base')/Scripts:$PATH
   - sh: $LINUXPYTHON --version
   - sh: $LINUXPYTHON -m pip install --user -U pip setuptools wheel 
-  - sh: $LINUXPYTHON -m pip install --user -U pypiwin32 coverage coveralls
+  - sh: $LINUXPYTHON -m pip install --user -U coverage coveralls
   - sh: STATIC_DEPS=true & $LINUXPYTHON -m pip install --user -U lxml
   
 
