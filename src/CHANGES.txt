@@ -5,6 +5,13 @@
                             Change Log
 
 
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From John Doe:
+
+    - Whatever John Doe did.
+
+
 RELEASE 3.0.3 - Mon, 07 Jan 2019 20:05:22 -0400
   NOTE: 3.0.2 release was dropped because there was a packaging bug. Please consider all 3.0.2
         content.
