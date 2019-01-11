@@ -14,14 +14,14 @@ cache:
 install:
   ### WINDOWS ###
   # add python and python user-base to path for pip installs
-  - cmd: for /F "tokens=*" %%g in ('%WINPYTHON%\\python.exe -m site --user-base') do (set PYUSERBASESITE=%%g)
-  - cmd: for /F "tokens=*" %%g in ('%WINPYTHON%\\python.exe -m site --user-site') do (set PYSITEDIR=%%g)
-  - cmd: "set PATH=%PYUSERBASESITE%;%PYUSERBASESITE%\\Scripts;%WINPYTHON%;%WINPYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;C:\\ProgramData\\chocolatey\\bin;%PATH%"
+  - cmd: for /F "tokens=*" %%g in ('C:\\%WINPYTHON%\\python.exe -m site --user-base') do (set PYUSERBASESITE=%%g)
+  - cmd: for /F "tokens=*" %%g in ('C:\\%WINPYTHON%\\python.exe -m site --user-site') do (set PYSITEDIR=%%g)
+  - cmd: "set PATH=%PYUSERBASESITE%;%PYUSERBASESITE%\\%WINPYTHON%\\Scripts;%PYUSERBASESITE%\\Scripts;C:\\%WINPYTHON%;C:\\%WINPYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;C:\\ProgramData\\chocolatey\\bin;%PATH%"
   - cmd: set
-  - cmd: "%WINPYTHON%\\python.exe --version"
-  - cmd: "%WINPYTHON%\\python.exe -m pip install --user -U pip setuptools wheel"
-  - cmd: "%WINPYTHON%\\python.exe -m pip install --user -U pypiwin32 coverage coveralls"
-  - cmd: set STATIC_DEPS=true & %WINPYTHON%\\python.exe -m pip install --user -U lxml
+  - cmd: "C:\\%WINPYTHON%\\python.exe --version"
+  - cmd: "C:\\%WINPYTHON%\\python.exe -m pip install --user -U pip setuptools wheel"
+  - cmd: "C:\\%WINPYTHON%\\python.exe -m pip install --user -U pypiwin32 coverage coveralls"
+  - cmd: set STATIC_DEPS=true & C:\\%WINPYTHON%\\python.exe -m pip install --user -U lxml
   # install 3rd party tools to test with
   - cmd: choco install --allow-empty-checksums dmd
   - cmd: choco install --allow-empty-checksums ldc
@@ -39,21 +39,21 @@ install:
 environment:
   COVERAGE: 0
   matrix:
-    - WINPYTHON: "C:\\Python27"
+    - WINPYTHON: "Python27"
       LINUXPYTHON: "/usr/bin/python2.7"
       BUILD_JOB_NUM: 1
       COVERAGE: 1
 
-    - WINPYTHON: "C:\\Python36"
+    - WINPYTHON: "Python36"
       LINUXPYTHON: "/usr/bin/python3.6"
       BUILD_JOB_NUM: 1
       COVERAGE: 1
 
-    - WINPYTHON: "C:\\Python35"
+    - WINPYTHON: "Python35"
       LINUXPYTHON: "/usr/bin/python3.5"
       BUILD_JOB_NUM: 1
 
-    - WINPYTHON: "C:\\Python37"
+    - WINPYTHON: "Python37"
       LINUXPYTHON: "/usr/bin/python3.7"
       BUILD_JOB_NUM: 1
 
@@ -61,20 +61,20 @@ matrix:
   exclude:	
     # test python 2 on Visual Studio 2015 image
     - image: Visual Studio 2015	
-      WINPYTHON: "C:\\Python37"	
+      WINPYTHON: "Python37"	
     - image: Visual Studio 2015	
-      WINPYTHON: "C:\\Python36"	
+      WINPYTHON: "Python36"	
     - image: Visual Studio 2015	
-      WINPYTHON: "C:\\Python35"
+      WINPYTHON: "Python35"
     # test python 3 on Visual Studio 2017 image
     - image: Visual Studio 2017	
-      WINPYTHON: "C:\\Python27"
+      WINPYTHON: "Python27"
 
     # test python 2 on Visual Studio 2015 image
     - image: Ubuntu	
-      WINPYTHON: "C:\\Python37"	
+      WINPYTHON: "Python37"	
     - image: Ubuntu		
-      WINPYTHON: "C:\\Python35"
+      WINPYTHON: "Python35"
 
 # total build jobs:
 # 4 python versions X 4 Jobs each = 16 Jobs
@@ -90,7 +90,7 @@ before_build:
 build: off
 
 build_script:
-  - cmd: "%WINPYTHON%/python.exe runtest.py -l -a > all_tests.txt"
+  - cmd: "C:\\%WINPYTHON%\\python.exe runtest.py -l -a > all_tests.txt"
   - sh: $LINUXPYTHON runtest.py -l -a > all_tests.txt
   # setup coverage is set in environment
   - ps: |
@@ -115,7 +115,7 @@ build_script:
       get-content all_tests.txt | select -first ($end - $start) -skip ($start - 1) | Out-File -Encoding ASCII build_tests.txt;
   # NOTE: running powershell from cmd on purpose because it formats the output
   # correctly
-  - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py test/ENV.py} else { %WINPYTHON%/python.exe runtest.py -j 2 test/ENV.py }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
+  - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py test/ENV.py} else { C:\\%WINPYTHON%\\python.exe runtest.py -j 2 test/ENV.py }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
   - sh: if [ "$COVERAGE" -eq "1" ]; then coverage run -p --rcfile="$COVERAGE_PROCESS_START" runtest.py test/ENV.py || if [[ $? == 2 ]]; then true; else false; fi; else $LINUXPYTHON runtest.py -j 2 test/ENV.py || if [[ $? == 2 ]]; then true; else false; fi
 
 on_success:
