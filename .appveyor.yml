@@ -112,7 +112,7 @@ build_script:
         }
         else
         {
-          $coveragercFile = "[run]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)/src1nparallel = True`nomit =`n`t#Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`n[path]`nsource = $($env:APPVEYOR_BUILD_FOLDER)`n[report]`nomit =`n`t#Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`n"
+          $coveragercFile = "[run]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)/src`nparallel = True`nomit =`n`t#Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`n[path]`nsource = $($env:APPVEYOR_BUILD_FOLDER)`n[report]`nomit =`n`t#Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`n"
         }
         $coveragercFile|Set-Content "$env:COVERAGE_PROCESS_START";
       }
@@ -133,11 +133,11 @@ build_script:
 on_success:
   - cmd: if %COVERAGE% equ 1 coverage combine
   - cmd: if %COVERAGE% equ 1 coverage report
-  - cmd: if %COVERAGE% equ 1 coverage xml
+  - cmd: if %COVERAGE% equ 1 coverage xml -o coverage_xml.xml
   - cmd: if %COVERAGE% equ 1 coveralls --rcfile="%COVERAGE_PROCESS_START%"
-  - cmd: if %COVERAGE% equ 1 codecov -t %CODECOV_TOKEN%
+  - cmd: if %COVERAGE% equ 1 codecov -t %CODECOV_TOKEN% --file coverage_xml.xml
   - sh: if [ "$COVERAGE" -eq "1" ]; then coverage combine; fi
   - sh: if [ "$COVERAGE" -eq "1" ]; then coverage report; fi
-  - sh: if [ "$COVERAGE" -eq "1" ]; then coverage xml; fi
+  - sh: if [ "$COVERAGE" -eq "1" ]; then coverage xml -o coverage_xml.xml; fi
   - sh: if [ "$COVERAGE" -eq "1" ]; then coveralls --rcfile="$COVERAGE_PROCESS_START"; fi
-  - sh: if [ "$COVERAGE" -eq "1" ]; then codecov -t $CODECOV_TOKEN; fi
+  - sh: if [ "$COVERAGE" -eq "1" ]; then codecov -t $CODECOV_TOKEN --file coverage_xml.xml; fi
