@@ -1,7 +1,7 @@
 ## Remove this paragraph
 Please have a look at our developer documentation before submitting your Pull Request.
 
-http://scons.org/guidelines.html
+https://scons.org/guidelines.html
 
 
 ## Contributor Checklist:
