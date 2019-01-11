@@ -35,6 +35,9 @@ install:
   - sh: $LINUXPYTHON -m pip install --user -U pip setuptools wheel 
   - sh: $LINUXPYTHON -m pip install --user -U coverage==4.0.3 coveralls
   - sh: STATIC_DEPS=true & $LINUXPYTHON -m pip install --user -U lxml
+  - sh: sudo apt-get update
+  - sh: sudo apt-get install python
+
   
 
 environment:
@@ -42,20 +45,24 @@ environment:
   matrix:
     - WINPYTHON: "Python27"
       LINUXPYTHON: "/usr/bin/python2.7"
+      PYTHON: "2.7"
       BUILD_JOB_NUM: 1
       COVERAGE: 1
 
     - WINPYTHON: "Python36"
       LINUXPYTHON: "/usr/bin/python3.6"
+      PYTHON: "3.6"
       BUILD_JOB_NUM: 1
       COVERAGE: 1
 
     - WINPYTHON: "Python35"
       LINUXPYTHON: "/usr/bin/python3.5"
+      PYTHON: "3.5"
       BUILD_JOB_NUM: 1
 
     - WINPYTHON: "Python37"
       LINUXPYTHON: "/usr/bin/python3.7"
+      PYTHON: "3.7"
       BUILD_JOB_NUM: 1
 
 matrix:	
@@ -76,6 +83,8 @@ matrix:
       WINPYTHON: "Python37"	
     - image: Ubuntu		
       WINPYTHON: "Python35"
+
+stack: python %PYTHON%
 
 # total build jobs:
 # 4 python versions X 4 Jobs each = 16 Jobs
