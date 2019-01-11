@@ -30,7 +30,7 @@ install:
   - cmd: choco install --allow-empty-checksums xsltproc
   ### LINUX ###
   - sh: export PATH=$($LINUXPYTHON -m site --user-base):$($LINUXPYTHON -m site --user-base)/Scripts:$PATH
-  - sh: export $PYSITEDIR=$LINUXPYTHON -m site --user-site
+  - sh: export $PYSITEDIR=$($LINUXPYTHON -m site --user-site)
   - sh: $LINUXPYTHON --version
   - sh: $LINUXPYTHON -m pip install --user -U pip setuptools wheel 
   - sh: $LINUXPYTHON -m pip install --user -U coverage==4.0.3 coveralls
