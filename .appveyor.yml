@@ -3,6 +3,8 @@
 image: 
   - Visual Studio 2015
   - Visual Studio 2017
+  - Ubuntu
+
 cache:
   - downloads -> appveyor.yml
   - '%LOCALAPPDATA%\pip\Cache'
@@ -13,77 +15,101 @@ install:
   - python --version
   # add python and python user-base to path for pip installs
   - cmd: "set PATH=%PYTHON%;%PYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;%PATH%"
-  - cmd: for /F "tokens=*" %%g in ('python -m site --user-base') do (set PYUSERBASESITE=%%g)
+  - cmd: for /F "tokens=*" %%g in ('%WINPYTHON%\\python.exe -m site --user-base') do (set PYUSERBASESITE=%%g)
+  - cmd: for /F "tokens=*" %%g in ('%WINPYTHON%\\python.exe -m site --user-site') do (set PYSITEDIR=%%g)
   - cmd: "set PATH=%PYUSERBASESITE%;%PYUSERBASESITE%\\Scripts;%PATH%"
-  - set
+  - sh: export PATH=$('$LINUXPYTHON -m site --user-base'):$('$LINUXPYTHON -m site --user-base')/Scripts:$PATH
   - pip install --user -U pip setuptools wheel 
   - pip install --user -U pypiwin32 coverage coveralls
-  - set STATIC_DEPS=true & pip install --user -U lxml
-  - choco install --allow-empty-checksums dmd
-  - choco install --allow-empty-checksums ldc
-  - choco install --allow-empty-checksums swig
-  - choco install --allow-empty-checksums vswhere
-  - choco install --allow-empty-checksums xsltproc
+  - cmd: set STATIC_DEPS=true & pip install --user -U lxml
+  - sh: STATIC_DEPS=true & pip install --user -U lxml
+  - cmd: choco install --allow-empty-checksums dmd
+  - cmd: choco install --allow-empty-checksums ldc
+  - cmd: choco install --allow-empty-checksums swig
+  - cmd: choco install --allow-empty-checksums vswhere
+  - cmd: choco install --allow-empty-checksums xsltproc
 
 environment:
   COVERAGE: 0
   matrix:
-    - PYTHON: "C:\\Python27"
+    - WINPYTHON: "C:\\Python27"
+      LINUXPYTHON: "/usr/bin/python2.7"
       BUILD_JOB_NUM: 1
       COVERAGE: 1
-    - PYTHON: "C:\\Python27"
+    - WINPYTHON: "C:\\Python27"
+      LINUXPYTHON: "/usr/bin/python2.7"
       BUILD_JOB_NUM: 2
       COVERAGE: 1
-    - PYTHON: "C:\\Python27"
+    - WINPYTHON: "C:\\Python27"
+      LINUXPYTHON: "/usr/bin/python2.7"
       BUILD_JOB_NUM: 3
       COVERAGE: 1
-    - PYTHON: "C:\\Python27"
+    - WINPYTHON: "C:\\Python27"
+      LINUXPYTHON: "/usr/bin/python2.7"
       BUILD_JOB_NUM: 4
       COVERAGE: 1
 
-    - PYTHON: "C:\\Python36"
+    - WINPYTHON: "C:\\Python36"
+      LINUXPYTHON: "/usr/bin/python3.6"
       BUILD_JOB_NUM: 1
       COVERAGE: 1
-    - PYTHON: "C:\\Python36"
+    - WINPYTHON: "C:\\Python36"
+      LINUXPYTHON: "/usr/bin/python3.6"
       BUILD_JOB_NUM: 2
       COVERAGE: 1
-    - PYTHON: "C:\\Python36"
+    - WINPYTHON: "C:\\Python36"
+      LINUXPYTHON: "/usr/bin/python3.6"
       BUILD_JOB_NUM: 3
       COVERAGE: 1
-    - PYTHON: "C:\\Python36"
+    - WINPYTHON: "C:\\Python36"
+      LINUXPYTHON: "/usr/bin/python3.6"
       BUILD_JOB_NUM: 4
       COVERAGE: 1
 
-    - PYTHON: "C:\\Python35"
+    - WINPYTHON: "C:\\Python35"
+      LINUXPYTHON: "/usr/bin/python3.5"
       BUILD_JOB_NUM: 1
-    - PYTHON: "C:\\Python35"
+    - WINPYTHON: "C:\\Python35"
+      LINUXPYTHON: "/usr/bin/python3.5"
       BUILD_JOB_NUM: 2
-    - PYTHON: "C:\\Python35"
+    - WINPYTHON: "C:\\Python35"
+      LINUXPYTHON: "/usr/bin/python3.5"
       BUILD_JOB_NUM: 3
-    - PYTHON: "C:\\Python35"
+    - WINPYTHON: "C:\\Python35"
+      LINUXPYTHON: "/usr/bin/python3.5"
       BUILD_JOB_NUM: 4
 
-    - PYTHON: "C:\\Python37"
+    - WINPYTHON: "C:\\Python37"
+      LINUXPYTHON: "/usr/bin/python3.7"
       BUILD_JOB_NUM: 1
-    - PYTHON: "C:\\Python37"
+    - WINPYTHON: "C:\\Python37"
+      LINUXPYTHON: "/usr/bin/python3.7"
       BUILD_JOB_NUM: 2
-    - PYTHON: "C:\\Python37"
+    - WINPYTHON: "C:\\Python37"
+      LINUXPYTHON: "/usr/bin/python3.7"
       BUILD_JOB_NUM: 3
-    - PYTHON: "C:\\Python37"
+    - WINPYTHON: "C:\\Python37"
+      LINUXPYTHON: "/usr/bin/python3.7"
       BUILD_JOB_NUM: 4
 
 matrix:	
   exclude:	
     # test python 2 on Visual Studio 2015 image
     - image: Visual Studio 2015	
-      PYTHON: "C:\\Python37"	
+      WINPYTHON: "C:\\Python37"	
     - image: Visual Studio 2015	
-      PYTHON: "C:\\Python36"	
+      WINPYTHON: "C:\\Python36"	
     - image: Visual Studio 2015	
-      PYTHON: "C:\\Python35"
+      WINPYTHON: "C:\\Python35"
     # test python 3 on Visual Studio 2017 image
     - image: Visual Studio 2017	
-      PYTHON: "C:\\Python27"
+      WINPYTHON: "C:\\Python27"
+
+    # test python 2 on Visual Studio 2015 image
+    - image: Ubuntu	
+      WINPYTHON: "C:\\Python37"	
+    - image: Ubuntu		
+      WINPYTHON: "C:\\Python35"
 
 # total build jobs:
 # 4 python versions X 4 Jobs each = 16 Jobs
@@ -99,13 +125,13 @@ before_build:
 build: off
 
 build_script:
-  - cmd: python runtest.py -l -a > all_tests.txt
+  - cmd: "%WINPYTHON%/python.exe runtest.py -l test/ENV.py > all_tests.txt"
+  - sh: $LINUXPYTHON runtest.py -l test/ENV.py > all_tests.txt
   # setup coverage is set in environment
   - ps: |
       if ($env:COVERAGE -eq 1){ 
         $env:COVERAGE_PROCESS_START = "$($env:APPVEYOR_BUILD_FOLDER)/.coveragerc";
         $env:PYTHONNOUSERSITE = "";
-        $env:PYSITEDIR = python -m site --user-site;
         New-Item -ItemType Directory -Force -Path "$($env:PYSITEDIR)";
         $env:COVERAGE_FILE = "$($env:APPVEYOR_BUILD_FOLDER)/.coverage_file";
         $usercustomizeText = "import os`r`nos.environ['COVERAGE_PROCESS_START'] = '$($env:COVERAGE_PROCESS_START)'`r`nimport coverage`r`ncoverage.process_startup()";
@@ -124,9 +150,13 @@ build_script:
       get-content all_tests.txt | select -first ($end - $start) -skip ($start - 1) | Out-File -Encoding ASCII build_tests.txt;
   # NOTE: running powershell from cmd on purpose because it formats the output
   # correctly
-  - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py -f build_tests.txt} else { python runtest.py -j 2 -f build_tests.txt }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
+  - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py -f build_tests.txt} else { %WINPYTHON%/python.exe runtest.py -j 2 -f build_tests.txt }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
+  - sh: if [ "$COVERAGE" -eq "1" ]; then coverage run -p --rcfile="$COVERAGE_PROCESS_START" runtest.py -f build_tests.txt || if [[ $? == 2 ]]; then true; else false; fi; else $LINUXPYTHON runtest.py -j 2 -f build_tests.txt || if [[ $? == 2 ]]; then true; else false; fi
 
 on_success:
   - cmd: if %COVERAGE% equ 1 coverage combine
   - cmd: if %COVERAGE% equ 1 coverage report
   - cmd: if %COVERAGE% equ 1 coveralls --rcfile="%COVERAGE_PROCESS_START%"
+  - sh: if [ "$COVERAGE" -eq "1" ]; then coverage combine; fi
+  - sh: if [ "$COVERAGE" -eq "1" ]; then coverage report; fi
+  - sh: if [ "$COVERAGE" -eq "1" ]; then coveralls --rcfile="$COVERAGE_PROCESS_START"; fi
