@@ -50,13 +50,59 @@ environment:
       PYVER: 27
       BUILD_JOB_NUM: 1
       COVERAGE: 1
+    - WINPYTHON: "Python27"
+      PYTHON: "2.7"
+      PYVER: 27
+      BUILD_JOB_NUM: 2
+      COVERAGE: 1
+    - WINPYTHON: "Python27"
+      PYTHON: "2.7"
+      PYVER: 27
+      BUILD_JOB_NUM: 3
+      COVERAGE: 1
+    - WINPYTHON: "Python27"
+      PYTHON: "2.7"
+      PYVER: 27
+      BUILD_JOB_NUM: 4
+      COVERAGE: 1
 
     - WINPYTHON: "Python36"
       PYTHON: "3.6"
       PYVER: 36
       BUILD_JOB_NUM: 1
       COVERAGE: 1
+    - WINPYTHON: "Python36"
+      PYTHON: "3.6"
+      PYVER: 36
+      BUILD_JOB_NUM: 2
+      COVERAGE: 1
+    - WINPYTHON: "Python36"
+      PYTHON: "3.6"
+      PYVER: 36
+      BUILD_JOB_NUM: 3
+      COVERAGE: 1
+    - WINPYTHON: "Python36"
+      PYTHON: "3.6"
+      PYVER: 36
+      BUILD_JOB_NUM: 4
+      COVERAGE: 1
 
+    - WINPYTHON: "Python35"
+      PYTHON: "3.5"
+      PYVER: 35
+      BUILD_JOB_NUM: 1
+    - WINPYTHON: "Python35"
+      PYTHON: "3.5"
+      PYVER: 35
+      BUILD_JOB_NUM: 2
+    - WINPYTHON: "Python35"
+      PYTHON: "3.5"
+      PYVER: 35
+      BUILD_JOB_NUM: 3
+    - WINPYTHON: "Python35"
+      PYTHON: "3.5"
+      PYVER: 35
+      BUILD_JOB_NUM: 4
     - WINPYTHON: "Python35"
       PYTHON: "3.5"
       PYVER: 35
@@ -66,6 +112,18 @@ environment:
       PYTHON: "3.7"
       PYVER: 37
       BUILD_JOB_NUM: 1
+    - WINPYTHON: "Python37"
+      PYTHON: "3.7"
+      PYVER: 37
+      BUILD_JOB_NUM: 2
+    - WINPYTHON: "Python37"
+      PYTHON: "3.7"
+      PYVER: 37
+      BUILD_JOB_NUM: 3
+    - WINPYTHON: "Python37"
+      PYTHON: "3.7"
+      PYVER: 37
+      BUILD_JOB_NUM: 4
 
 matrix:	
   exclude:	
@@ -85,9 +143,6 @@ matrix:
       WINPYTHON: "Python37"	
     - image: Ubuntu		
       WINPYTHON: "Python35"
-
-# total build jobs:
-# 4 python versions X 4 Jobs each = 16 Jobs
 
 before_build:
     - ps: |
