@@ -115,8 +115,8 @@ build_script:
           $coveragercFile = "[run]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)/src`nparallel = True`nomit =`n`t#Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`n[path]`nsource = $($env:APPVEYOR_BUILD_FOLDER)`n[report]`nomit =`n`t#Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`n"
         }
         Get-Content -Path 
-        $coveragercFile|Set-Content "$env:COVERAGE_PROCESS_START";
-        Get-Content -Path "$env:COVERAGE_PROCESS_START"
+        $coveragercFile|Set-Content "$($env:COVERAGE_PROCESS_START)";
+        Get-Content -Path "$($env:COVERAGE_PROCESS_START)"
       }
   # setup portion of tests for this build job (1-4)
   - ps: >-
