@@ -14,15 +14,14 @@ cache:
 install:
   ### WINDOWS ###
   # add python and python user-base to path for pip installs
-  - cmd: where python
-  - cmd: "python --version"
-  - cmd: for /F "tokens=*" %%g in ('python -m site --user-base') do (set PYUSERBASESITE=%%g)
-  - cmd: for /F "tokens=*" %%g in ('python -m site --user-site') do (set PYSITEDIR=%%g)
+  - cmd: "C:\\%WINPYTHON%\\python.exe --version"
+  - cmd: for /F "tokens=*" %%g in ('C:\\%WINPYTHON%\\python.exe -m site --user-base') do (set PYUSERBASESITE=%%g)
+  - cmd: for /F "tokens=*" %%g in ('C:\\%WINPYTHON%\\python.exe -m site --user-site') do (set PYSITEDIR=%%g)
   - cmd: "set PATH=%PYUSERBASESITE%;%PYUSERBASESITE%\\%WINPYTHON%\\Scripts;%PYUSERBASESITE%\\Scripts;C:\\%WINPYTHON%;C:\\%WINPYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;C:\\ProgramData\\chocolatey\\bin;%PATH%"
   - cmd: set
-  - cmd: python -m pip install --user -U pip setuptools wheel
-  - cmd: python -m pip install --user -U pypiwin32 coverage coveralls
-  - cmd: set STATIC_DEPS=true & python -m pip install --user -U lxml
+  - cmd: "C:\\%WINPYTHON%\\python.exe -m pip install --user -U pip setuptools wheel"
+  - cmd: "C:\\%WINPYTHON%\\python.exe -m pip install --user -U pypiwin32 coverage coveralls"
+  - cmd: set STATIC_DEPS=true & C:\\%WINPYTHON%\\python.exe -m pip install --user -U lxml
   # install 3rd party tools to test with
   - cmd: choco install --allow-empty-checksums dmd
   - cmd: choco install --allow-empty-checksums ldc
@@ -31,12 +30,11 @@ install:
   - cmd: choco install --allow-empty-checksums xsltproc
   ### LINUX ###
   - sh: which python
-  - sh: python --version
-  - sh: export PATH=$(python -m site --user-base):$(python -m site --user-base)/Scripts:$PATH
+  - sh: python
   - sh: export PYSITEDIR=$(python -m site --user-site)
-  - sh: python -m pip install --user -U pip setuptools wheel 
-  - sh: python -m pip install --user -U coverage==4.0.3 coveralls
-  - sh: STATIC_DEPS=true & python -m pip install --user -U lxml
+  - sh: python -m pip install -U pip setuptools wheel 
+  - sh: python -m pip install -U coverage==4.0.3 coveralls
+  - sh: STATIC_DEPS=true & python -m pip install -U lxml
 
 environment:
   COVERAGE: 0
@@ -97,7 +95,8 @@ before_build:
 build: off
 
 build_script:
-  - python runtest.py -l -a > all_tests.txt
+  - cmd: "C:\\%WINPYTHON%\\python.exe runtest.py -l -a > all_tests.txt"
+  - sh: python runtest.py -l -a > all_tests.txt
   # setup coverage is set in environment
   - ps: |
       if ($env:COVERAGE -eq 1){ 
@@ -121,7 +120,7 @@ build_script:
       get-content all_tests.txt | select -first ($end - $start) -skip ($start - 1) | Out-File -Encoding ASCII build_tests.txt;
   # NOTE: running powershell from cmd on purpose because it formats the output
   # correctly
-  - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py test/ENV.py} else { python runtest.py -j 2 test/ENV.py }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
+  - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py test/ENV.py} else { C:\\%WINPYTHON%\\python.exe runtest.py -j 2 test/ENV.py }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
   - sh: if [ "$COVERAGE" -eq "1" ]; then coverage run -p --rcfile="$COVERAGE_PROCESS_START" runtest.py test/ENV.py || if [[ $? == 2 ]]; then true; else false; fi; else python runtest.py -j 2 test/ENV.py || if [[ $? == 2 ]]; then true; else false; fi; fi
 
 on_success:
