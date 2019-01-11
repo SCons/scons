@@ -14,11 +14,11 @@ cache:
 install:
   ### WINDOWS ###
   # add python and python user-base to path for pip installs
+  - cmd: "C:\\%WINPYTHON%\\python.exe --version"
   - cmd: for /F "tokens=*" %%g in ('C:\\%WINPYTHON%\\python.exe -m site --user-base') do (set PYUSERBASESITE=%%g)
   - cmd: for /F "tokens=*" %%g in ('C:\\%WINPYTHON%\\python.exe -m site --user-site') do (set PYSITEDIR=%%g)
   - cmd: "set PATH=%PYUSERBASESITE%;%PYUSERBASESITE%\\%WINPYTHON%\\Scripts;%PYUSERBASESITE%\\Scripts;C:\\%WINPYTHON%;C:\\%WINPYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;C:\\ProgramData\\chocolatey\\bin;%PATH%"
   - cmd: set
-  - cmd: "C:\\%WINPYTHON%\\python.exe --version"
   - cmd: "C:\\%WINPYTHON%\\python.exe -m pip install --user -U pip setuptools wheel"
   - cmd: "C:\\%WINPYTHON%\\python.exe -m pip install --user -U pypiwin32 coverage coveralls"
   - cmd: set STATIC_DEPS=true & C:\\%WINPYTHON%\\python.exe -m pip install --user -U lxml
@@ -29,16 +29,13 @@ install:
   - cmd: choco install --allow-empty-checksums vswhere
   - cmd: choco install --allow-empty-checksums xsltproc
   ### LINUX ###
+  - sh: which python
+  - sh: python --version
   - sh: export PATH=$($LINUXPYTHON -m site --user-base):$($LINUXPYTHON -m site --user-base)/Scripts:$PATH
   - sh: export PYSITEDIR=$($LINUXPYTHON -m site --user-site)
-  - sh: $LINUXPYTHON --version
   - sh: $LINUXPYTHON -m pip install --user -U pip setuptools wheel 
   - sh: $LINUXPYTHON -m pip install --user -U coverage==4.0.3 coveralls
   - sh: STATIC_DEPS=true & $LINUXPYTHON -m pip install --user -U lxml
-  - sh: sudo apt-get update
-  - sh: sudo apt-get install python
-
-  
 
 environment:
   COVERAGE: 0
