@@ -12,22 +12,29 @@ cache:
   - C:\ProgramData\chocolatey\lib -> appveyor.yml
 
 install:
-  - python --version
+  ### WINDOWS ###
   # add python and python user-base to path for pip installs
-  - cmd: "set PATH=%PYTHON%;%PYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;%PATH%"
   - cmd: for /F "tokens=*" %%g in ('%WINPYTHON%\\python.exe -m site --user-base') do (set PYUSERBASESITE=%%g)
   - cmd: for /F "tokens=*" %%g in ('%WINPYTHON%\\python.exe -m site --user-site') do (set PYSITEDIR=%%g)
-  - cmd: "set PATH=%PYUSERBASESITE%;%PYUSERBASESITE%\\Scripts;%PATH%"
-  - sh: export PATH=$('$LINUXPYTHON -m site --user-base'):$('$LINUXPYTHON -m site --user-base')/Scripts:$PATH
-  - pip install --user -U pip setuptools wheel 
-  - pip install --user -U pypiwin32 coverage coveralls
-  - cmd: set STATIC_DEPS=true & pip install --user -U lxml
-  - sh: STATIC_DEPS=true & pip install --user -U lxml
+  - cmd: "set PATH=%WINPYTHON%;%WINPYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;C:\\ProgramData\\chocolatey\\bin;%PYUSERBASESITE%;%PYUSERBASESITE%\\Scripts;%PATH%"
+  - cmd: set
+  - cmd: "%WINPYTHON%\\python.exe --version"
+  - cmd: "%WINPYTHON%\\python.exe -m pip install --user -U pip setuptools wheel"
+  - cmd: "%WINPYTHON%\\python.exe -m pip install --user -U pypiwin32 coverage coveralls"
+  - cmd: set STATIC_DEPS=true & %WINPYTHON%\\python.exe -m pip install --user -U lxml
+  # install 3rd party tools to test with
   - cmd: choco install --allow-empty-checksums dmd
   - cmd: choco install --allow-empty-checksums ldc
   - cmd: choco install --allow-empty-checksums swig
   - cmd: choco install --allow-empty-checksums vswhere
   - cmd: choco install --allow-empty-checksums xsltproc
+  ### LINUX ###
+  - sh: export PATH=$('$LINUXPYTHON -m site --user-base'):$('$LINUXPYTHON -m site --user-base')/Scripts:$PATH
+  - sh: $LINUXPYTHON --version
+  - sh: $LINUXPYTHON -m pip install --user -U pip setuptools wheel 
+  - sh: $LINUXPYTHON -m pip install --user -U pypiwin32 coverage coveralls
+  - sh: STATIC_DEPS=true & $LINUXPYTHON -m pip install --user -U lxml
+  
 
 environment:
   COVERAGE: 0
@@ -125,8 +132,8 @@ before_build:
 build: off
 
 build_script:
-  - cmd: "test/ENV.py > all_tests.txt & test/ENV.py >> all_tests.txt & test/ENV.py >> all_tests.txt& test/ENV.py >> all_tests.txt"
-  - sh: test/ENV.py > all_tests.txt & test/ENV.py >> all_tests.txt & test/ENV.py >> all_tests.txt& test/ENV.py >> all_tests.txt"
+  - cmd: "echo test/ENV.py > all_tests.txt & echo test/ENV.py >> all_tests.txt & echo test/ENV.py >> all_tests.txt & echo test/ENV.py >> all_tests.txt"
+  - sh: echo test/ENV.py > all_tests.txt & echo test/ENV.py >> all_tests.txt & echo test/ENV.py >> all_tests.txt & echo test/ENV.py >> all_tests.txt"
   # setup coverage is set in environment
   - ps: |
       if ($env:COVERAGE -eq 1){ 
