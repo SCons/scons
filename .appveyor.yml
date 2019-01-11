@@ -29,12 +29,17 @@ install:
   - cmd: choco install --allow-empty-checksums vswhere
   - cmd: choco install --allow-empty-checksums xsltproc
   ### LINUX ###
-  - sh: which python
-  - sh: python
-  - sh: export PYSITEDIR=$(python -m site --user-site)
-  - sh: python -m pip install -U pip setuptools wheel 
-  - sh: python -m pip install -U coverage==4.0.3 coveralls codecov
-  - sh: STATIC_DEPS=true & python -m pip install -U lxml
+  - sh: sudo add-apt-repository -y ppa:deadsnakes/ppa
+  - sh: sudo apt-get update
+  - sh: sudo apt-get -y install python$PYTHON
+  - sh: wget https://bootstrap.pypa.io/get-pip.py
+  - sh: sudo -H python$PYTHON get-pip.py
+  - sh: which python$PYTHON
+  - sh: python$PYTHON
+  - sh: export PYSITEDIR=$(python$PYTHON -m site --user-site)
+  - sh: python$PYTHON -m pip install -U pip setuptools wheel 
+  - sh: python$PYTHON -m pip install -U coverage==4.0.3 coveralls codecov
+  - sh: STATIC_DEPS=true & python$PYTHON -m pip install -U lxml
 
 environment:
   COVERAGE: 0
@@ -76,8 +81,6 @@ matrix:
     - image: Ubuntu		
       WINPYTHON: "Python35"
 
-stack: python %PYTHON%
-
 # total build jobs:
 # 4 python versions X 4 Jobs each = 16 Jobs
 
@@ -96,7 +99,7 @@ build: off
 
 build_script:
   - cmd: "C:\\%WINPYTHON%\\python.exe runtest.py -l -a > all_tests.txt"
-  - sh: python runtest.py -l -a > all_tests.txt
+  - sh: python$PYTHON runtest.py -l -a > all_tests.txt
   # setup coverage is set in environment
   - ps: |
       if ($env:COVERAGE -eq 1){ 
@@ -114,7 +117,6 @@ build_script:
         {
           $coveragercFile = "[run]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)/src`nparallel = True`nomit =`n`t#Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`n[path]`nsource = $($env:APPVEYOR_BUILD_FOLDER)`n[report]`nomit =`n`t#Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`n"
         }
-        Get-Content -Path 
         $coveragercFile|Set-Content "$($env:COVERAGE_PROCESS_START)";
         Get-Content -Path "$($env:COVERAGE_PROCESS_START)"
       }
@@ -130,7 +132,7 @@ build_script:
   # NOTE: running powershell from cmd on purpose because it formats the output
   # correctly
   - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py test/ENV.py} else { C:\\%WINPYTHON%\\python.exe runtest.py -j 2 test/ENV.py }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
-  - sh: if [ "$COVERAGE" -eq "1" ]; then coverage run -p --rcfile="$COVERAGE_PROCESS_START" runtest.py test/ENV.py || if [[ $? == 2 ]]; then true; else false; fi; else python runtest.py -j 2 test/ENV.py || if [[ $? == 2 ]]; then true; else false; fi; fi
+  - sh: if [ "$COVERAGE" -eq "1" ]; then coverage run -p --rcfile="$COVERAGE_PROCESS_START" runtest.py test/ENV.py || if [[ $? == 2 ]]; then true; else false; fi; else python$PYTHON runtest.py -j 2 test/ENV.py || if [[ $? == 2 ]]; then true; else false; fi; fi
 
 on_success:
   - cmd: if %COVERAGE% equ 1 coverage combine
