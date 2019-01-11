@@ -11,9 +11,10 @@ cache:
 
 install:
   - python --version
+  # add python and python user-base to path for pip installs
   - cmd: "set PATH=%PYTHON%;%PYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;%PATH%"
-  - cmd: FOR /F "tokens=*" %%g IN ('python -m site --user-base') do (SET PYBASESITE=%%g)
-  - cmd: "set PATH=%PYBASESITE%;%PATH%"
+  - cmd: for /F "tokens=*" %%g in ('python -m site --user-base') do (set PYUSERBASESITE=%%g)
+  - cmd: "set PATH=%PYUSERBASESITE%;%PYUSERBASESITE%\\Scripts;%PATH%"
   - set
   - pip install --user -U pip setuptools wheel 
   - pip install --user -U pypiwin32 coverage coveralls
