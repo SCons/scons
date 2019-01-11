@@ -10,8 +10,11 @@ cache:
   - C:\ProgramData\chocolatey\lib -> appveyor.yml
 
 install:
-  - "set PATH=%PYTHON%;%PYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;%PATH%"
   - python --version
+  - cmd: "set PATH=%PYTHON%;%PYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;%PATH%"
+  - cmd: FOR /F "tokens=*" %%g IN ('python -m site --user-base') do (SET PYBASESITE=%%g)
+  - cmd: "set PATH=%PYBASESITE%;%PATH%"
+  - set
   - pip install --user -U pip setuptools wheel 
   - pip install --user -U pypiwin32 coverage coveralls
   - set STATIC_DEPS=true & pip install --user -U lxml
