@@ -12,9 +12,7 @@ cache:
 install:
   - python --version
   - "set PATH=%PYTHON%;%PYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;%PATH%"
-  - ps: >-
-      $env:PYUSERBASEDIR = python -m site --user-base;
-      [Environment]::SetEnvironmentVariable("Path", $env:PYUSERBASEDIR + ";" + $env:Path, [EnvironmentVariableTarget]::Machine)
+  - FOR /F "tokens=*" %g IN ('python -m site --user-base') do (SET PATH=%g;%PATH%)
   - set
   - pip install --user -U pip setuptools wheel 
   - pip install --user -U pypiwin32 coverage coveralls
