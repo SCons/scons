@@ -29,10 +29,10 @@ install:
   - cmd: choco install --allow-empty-checksums vswhere
   - cmd: choco install --allow-empty-checksums xsltproc
   ### LINUX ###
-  - sh: export PATH=$('$LINUXPYTHON -m site --user-base'):$('$LINUXPYTHON -m site --user-base')/Scripts:$PATH
+  - sh: export PATH=$($LINUXPYTHON -m site --user-base):$($LINUXPYTHON -m site --user-base)/Scripts:$PATH
   - sh: $LINUXPYTHON --version
   - sh: $LINUXPYTHON -m pip install --user -U pip setuptools wheel 
-  - sh: $LINUXPYTHON -m pip install --user -U coverage coveralls
+  - sh: $LINUXPYTHON -m pip install --user -U coverage==4.0.3 coveralls
   - sh: STATIC_DEPS=true & $LINUXPYTHON -m pip install --user -U lxml
   
 
@@ -80,13 +80,16 @@ matrix:
 # 4 python versions X 4 Jobs each = 16 Jobs
 
 before_build:
-    - ps: dir "C:\Program Files\Git\usr\bin\x*.exe"
     - ps: |
-        if (Test-Path "C:\Program Files\Git\usr\bin\xsltproc.EXE" ) {
-          Remove-Item  "C:\Program Files\Git\usr\bin\xsltproc.EXE" -ErrorAction Ignore
+        if ($isWindows) 
+        {
+          dir "C:\Program Files\Git\usr\bin\x*.exe"
+          if (Test-Path "C:\Program Files\Git\usr\bin\xsltproc.EXE" ) {
+            Remove-Item  "C:\Program Files\Git\usr\bin\xsltproc.EXE" -ErrorAction Ignore
+          }
+          dir "C:\Program Files\Git\usr\bin\x*.exe"
         }
-    - ps: dir "C:\Program Files\Git\usr\bin\x*.exe"
-
+  
 build: off
 
 build_script:
