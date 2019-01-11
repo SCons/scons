@@ -125,8 +125,8 @@ before_build:
 build: off
 
 build_script:
-  - cmd: "%WINPYTHON%/python.exe runtest.py -l test/ENV.py > all_tests.txt"
-  - sh: $LINUXPYTHON runtest.py -l test/ENV.py > all_tests.txt
+  - cmd: "test/ENV.py > all_tests.txt & test/ENV.py >> all_tests.txt & test/ENV.py >> all_tests.txt& test/ENV.py >> all_tests.txt"
+  - sh: test/ENV.py > all_tests.txt & test/ENV.py >> all_tests.txt & test/ENV.py >> all_tests.txt& test/ENV.py >> all_tests.txt"
   # setup coverage is set in environment
   - ps: |
       if ($env:COVERAGE -eq 1){ 
