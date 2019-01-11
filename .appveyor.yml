@@ -20,7 +20,7 @@ install:
   - cmd: "set PATH=%PYUSERBASESITE%;%PYUSERBASESITE%\\%WINPYTHON%\\Scripts;%PYUSERBASESITE%\\Scripts;C:\\%WINPYTHON%;C:\\%WINPYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;C:\\ProgramData\\chocolatey\\bin;%PATH%"
   - cmd: set
   - cmd: "C:\\%WINPYTHON%\\python.exe -m pip install --user -U pip setuptools wheel"
-  - cmd: "C:\\%WINPYTHON%\\python.exe -m pip install --user -U pypiwin32 coverage coveralls"
+  - cmd: "C:\\%WINPYTHON%\\python.exe -m pip install --user -U pypiwin32 coverage coveralls codecov"
   - cmd: set STATIC_DEPS=true & C:\\%WINPYTHON%\\python.exe -m pip install --user -U lxml
   # install 3rd party tools to test with
   - cmd: choco install --allow-empty-checksums dmd
@@ -131,4 +131,4 @@ on_success:
   - sh: if [ "$COVERAGE" -eq "1" ]; then coverage combine; fi
   - sh: if [ "$COVERAGE" -eq "1" ]; then coverage report; fi
   - sh: if [ "$COVERAGE" -eq "1" ]; then coveralls --rcfile="$COVERAGE_PROCESS_START"; fi
-  - sh: if [ "$COVERAGE" -eq "1" ]; codecov -t $CODECOV_TOKEN; fi
+  - sh: if [ "$COVERAGE" -eq "1" ]; then codecov -t $CODECOV_TOKEN; fi
