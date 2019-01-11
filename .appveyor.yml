@@ -1,9 +1,9 @@
 #version: '3.0.1.{build}'
 
 image: 
+  - Ubuntu
   - Visual Studio 2015
   - Visual Studio 2017
-  - Ubuntu
 
 cache:
   - downloads -> appveyor.yml
