@@ -1,10 +1,8 @@
 #version: '3.0.1.{build}'
 
 image: 
-  - Visual Studio 2017
   - Visual Studio 2015
-shallow_clone: true
-
+  - Visual Studio 2017
 cache:
   - downloads -> appveyor.yml
   - '%LOCALAPPDATA%\pip\Cache'
@@ -14,9 +12,9 @@ cache:
 install:
   - "set PATH=%PYTHON%;%PYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;%PATH%"
   - python --version
-  - pip install -U pip setuptools wheel 
-  - pip install -U pypiwin32 coverage coveralls
-  - set STATIC_DEPS=true & pip install -U lxml
+  - pip install --user -U pip setuptools wheel 
+  - pip install --user -U pypiwin32 coverage coveralls
+  - set STATIC_DEPS=true & pip install --user -U lxml
   - choco install --allow-empty-checksums dmd
   - choco install --allow-empty-checksums ldc
   - choco install --allow-empty-checksums swig
@@ -39,27 +37,27 @@ environment:
       BUILD_JOB_NUM: 4
       COVERAGE: 1
 
-    - PYTHON: "C:\\Python35"
+    - PYTHON: "C:\\Python36"
       BUILD_JOB_NUM: 1
-    - PYTHON: "C:\\Python35"
+      COVERAGE: 1
+    - PYTHON: "C:\\Python36"
       BUILD_JOB_NUM: 2
-    - PYTHON: "C:\\Python35"
+      COVERAGE: 1
+    - PYTHON: "C:\\Python36"
       BUILD_JOB_NUM: 3
-    - PYTHON: "C:\\Python35"
+      COVERAGE: 1
+    - PYTHON: "C:\\Python36"
       BUILD_JOB_NUM: 4
+      COVERAGE: 1
 
-    - PYTHON: "C:\\Python36"
+    - PYTHON: "C:\\Python35"
       BUILD_JOB_NUM: 1
-      COVERAGE: 1
-    - PYTHON: "C:\\Python36"
+    - PYTHON: "C:\\Python35"
       BUILD_JOB_NUM: 2
-      COVERAGE: 1
-    - PYTHON: "C:\\Python36"
+    - PYTHON: "C:\\Python35"
       BUILD_JOB_NUM: 3
-      COVERAGE: 1
-    - PYTHON: "C:\\Python36"
+    - PYTHON: "C:\\Python35"
       BUILD_JOB_NUM: 4
-      COVERAGE: 1
 
     - PYTHON: "C:\\Python37"
       BUILD_JOB_NUM: 1
