@@ -8,6 +8,7 @@ image:
 cache:
   - downloads -> appveyor.yml
   - '%LOCALAPPDATA%\pip\Cache'
+  - /var/cache/apt/archives -> appveyor.yml
   - C:\ProgramData\chocolatey\bin -> appveyor.yml
   - C:\ProgramData\chocolatey\lib -> appveyor.yml
 
