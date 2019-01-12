@@ -10,11 +10,12 @@ addons:
 
 os:
   - linux
+  - windows
 
 sudo: required
 
 install:
-    - ./.travis/install.sh
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./.travis/install.sh; fi
 
 # pypy is not passing, but allow failures for coverage stage to be reached
 matrix:
