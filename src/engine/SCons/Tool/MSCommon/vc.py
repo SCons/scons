@@ -88,6 +88,28 @@ _ARCH_TO_CANONICAL = {
     "arm64"     : "arm64",
     "aarch64"   : "arm64",
 }
+ 
+_HOST_TRGT_TO_CL_DIR_GREATER_THAN_14 = {
+    ("amd64","amd64")  : "Hostx64\\x64",
+    ("amd64","x86")    : "Hostx64\\x86",
+    ("amd64","arm")    : "Hostx64\\arm",
+    ("amd64","arm64")  : "Hostx64\\arm64",
+    ("x86","amd64")    : "Hostx86\\x64",
+    ("x86","x86")      : "Hostx86\\x86",
+    ("x86","arm")      : "Hostx86\\arm",
+    ("x86","arm64")    : "Hostx86\\arm64",
+}
+
+_HOST_TRGT_TO_CL_DIR = {
+    ("amd64","amd64")  : "amd64",
+    ("amd64","x86")    : "amd64_x86",
+    ("amd64","arm")    : "amd64_arm",
+    ("amd64","arm64")  : "amd64_arm64",
+    ("x86","amd64")    : "x86_amd64",
+    ("x86","x86")      : "",
+    ("x86","arm")      : "x86_arm",
+    ("x86","arm64")    : "x86_arm64",
+}
 
 # Given a (host, target) tuple, return the argument for the bat file.
 # Both host and targets should be canonalized.
@@ -422,23 +444,12 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
             debug('_check_cl_exists_in_vc_dir(): failed to get MSVC version from ' + default_toolset_file)
             return False
 
-        if host_platform == 'amd64':
-            host_dir = "Hostx64"
-        elif host_platform == 'x86':
-            host_dir = "Hostx86"
-        else:
-            debug('_check_cl_exists_in_vc_dir(): unsupported host platform ' + host_platform)
+        host_trgt_dir = _HOST_TRGT_TO_CL_DIR_GREATER_THAN_14.get((host_platform, target_platform), None)
+        if not host_trgt_dir:
+            debug('_check_cl_exists_in_vc_dir(): unsupported host/target platform combo')
             return False
 
-        if target_platform == 'amd64':
-            target_dir = "x64"
-        elif target_platform in ('x86', 'arm', 'arm64'):
-            target_dir = target_platform
-        else:
-            debug('_check_cl_exists_in_vc_dir(): unsupported target platform ' + target_platform)
-            return False
-
-        cl_path = os.path.join(vc_dir, r'Tools\MSVC', vc_specific_version, 'bin', host_dir, target_dir, _CL_EXE_NAME)
+        cl_path = os.path.join(vc_dir, r'Tools\MSVC', vc_specific_version, 'bin', host_trgt_dir, _CL_EXE_NAME)
         debug('_check_cl_exists_in_vc_dir(): checking for ' + _CL_EXE_NAME + ' at ' + cl_path)
         if os.path.exists(cl_path):
             debug('_check_cl_exists_in_vc_dir(): found ' + _CL_EXE_NAME + '!')
@@ -446,21 +457,23 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
 
     elif ver_num <= 14 and ver_num >= 8:
 
-        if host_platform not in ('amd64','x86'):
-            debug('_check_cl_exists_in_vc_dir(): unsupported host platform ' + host_platform)
-            return False
-
-        if target_platform not in ('amd64','x86', 'ia64', 'arm' , 'arm64'):
-            debug('_check_cl_exists_in_vc_dir(): unsupported target platform ' + target_platform)
+        host_trgt_dir = _HOST_TRGT_TO_CL_DIR.get((host_platform, target_platform), None)
+        if not host_trgt_dir:
+            debug('_check_cl_exists_in_vc_dir(): unsupported host/target platform combo')
             return False
         
-        cl_path = os.path.join(vc_dir, 'bin\\' + _get_host_target_dir(host_platform, target_platform) + _CL_EXE_NAME)
+        cl_path = os.path.join(vc_dir, 'bin',  host_trgt_dir, _CL_EXE_NAME)
         debug('_check_cl_exists_in_vc_dir(): checking for ' + _CL_EXE_NAME + ' at ' + cl_path)
 
         cl_path_exists = os.path.exists(cl_path)
         if not cl_path_exists and host_platform == 'amd64':
             # older versions of visual studio only had x86 binaries, so if the host platform is amd64, we need to check cross compile options (x86 binary compiles some other target on a 64 bit os)
-            cl_path = os.path.join(vc_dir, 'bin\\' + _get_host_target_dir('x86', target_platform) + _CL_EXE_NAME)
+
+            host_trgt_dir = _HOST_TRGT_TO_CL_DIR.get(('x86', target_platform), None)
+            if not host_trgt_dir:
+                return False
+
+            cl_path = os.path.join(vc_dir, 'bin', host_trgt_dir, _CL_EXE_NAME)
             debug('_check_cl_exists_in_vc_dir(): checking for ' + _CL_EXE_NAME + ' at ' + cl_path)
             cl_path_exists = os.path.exists(cl_path)
 
