@@ -362,8 +362,15 @@ def get_installed_vcs():
             if VC_DIR:
                 debug('found VC %s' % ver)
                 # check to see if the x86 or 64 bit compiler is in the bin dir
-                if (os.path.exists(os.path.join(VC_DIR, r'bin\cl.exe'))
-                    or os.path.exists(os.path.join(VC_DIR, r'bin\amd64\cl.exe'))):
+                found_cl = False
+                for dir,dirs,files in os.walk(VC_DIR):
+                    for f in files:
+                        if f == "cl.exe":
+                            found_cl = True
+                            break
+                    if found_cl:
+                        break
+                if found_cl:
                     installed_versions.append(ver)
                 else:
                     debug('find_vc_pdir no cl.exe found %s' % ver)
