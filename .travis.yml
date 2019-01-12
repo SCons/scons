@@ -1,5 +1,4 @@
 dist: trusty
-language: python
 
 notifications:
   irc: "chat.freenode.net#scons"
@@ -29,9 +28,11 @@ jobs:
       python: 2.7
       env: PYVER=27
       sudo: required
+      language: python
 
     - <<: *test_job
       os: windows
+      language: c
 
     - <<: *test_job
       python: 3.5
@@ -59,6 +60,7 @@ jobs:
     - &coverage_jobs
       stage: Coverage
       os: linux
+      language: python
       before_script:
         - sudo pip install coverage
         - sudo pip install coveralls
