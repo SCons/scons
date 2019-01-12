@@ -467,8 +467,9 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
 
         cl_path_exists = os.path.exists(cl_path)
         if not cl_path_exists and host_platform == 'amd64':
-            # older versions of visual studio only had x86 binaries, so if the host platform is amd64, we need to check cross compile options (x86 binary compiles some other target on a 64 bit os)
-
+            # older versions of visual studio only had x86 binaries, 
+            # so if the host platform is amd64, we need to check cross 
+            # compile options (x86 binary compiles some other target on a 64 bit os)
             host_trgt_dir = _HOST_TRGT_TO_CL_DIR.get(('x86', target_platform), None)
             if not host_trgt_dir:
                 return False
