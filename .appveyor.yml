@@ -1,9 +1,9 @@
 #version: '3.0.1.{build}'
 
 image: 
-  - Ubuntu
   - Visual Studio 2015
   - Visual Studio 2017
+  - Ubuntu
 
 cache:
   - downloads -> appveyor.yml
@@ -42,6 +42,8 @@ install:
   - sh: python$PYTHON -m pip install --user -U coverage==4.0.3 coveralls codecov
   - sh: STATIC_DEPS=true & python$PYTHON -m pip install --user -U lxml
   - sh: ./.travis/install.sh
+  # java 9 and greater prints to stderr when this is set, failing several java tests
+  - sh: unset JAVA_TOOL_OPTIONS 
   - sh: printenv
 
 
@@ -174,11 +176,11 @@ build_script:
         $usercustomizeText|Set-Content "$($env:PYSITEDIR)/usercustomize.py";
         if ($isWindows) 
         {
-          $coveragercFile = "[run]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)/src`r`nparallel = True`r`nomit =`r`n`t#Tests.py`r`n`tsrc\test_*`r`n`tsrc\setup.py`r`n`r`n[path]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)`r`n[report]`r`nomit =`r`n`t#Tests.py`r`n`tsrc\test_*`r`n`tsrc\setup.py`r`n`r`n"
+          $coveragercFile = "[run]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)/src`r`nparallel = True`r`nomit =`r`n`t#Tests.py`r`n`tsrc\test_*`r`n`tsrc\setup.py`r`n`r`ndisable_warnings = trace-changed`r`n[path]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)`r`n[report]`r`nomit =`r`n`t#Tests.py`r`n`tsrc\test_*`r`n`tsrc\setup.py`r`n`r`n"
         }
         else
         {
-          $coveragercFile = "[run]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)/src`nparallel = True`nomit =`n`t#Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`n[path]`nsource = $($env:APPVEYOR_BUILD_FOLDER)`n[report]`nomit =`n`t#Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`n"
+          $coveragercFile = "[run]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)/src`nparallel = True`nomit =`n`t#Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`ndisable_warnings = trace-changed`n[path]`nsource = $($env:APPVEYOR_BUILD_FOLDER)`n[report]`nomit =`n`t#Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`n"
         }
         $coveragercFile|Set-Content "$($env:COVERAGE_PROCESS_START)";
         Get-Content -Path "$($env:COVERAGE_PROCESS_START)"
