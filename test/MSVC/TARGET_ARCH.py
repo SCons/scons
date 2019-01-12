@@ -29,6 +29,8 @@ Test the ability to configure the $TARGET_ARCH construction variable.
 """
 
 import TestSCons
+import SCons.Tool.MSCommon.vc as msvc
+from SCons.Tool.MSCommon.vc import get_msvc_version_numeric
 
 _python_ = TestSCons._python_
 
@@ -55,6 +57,26 @@ env_xx = Environment(tools=['default', 'msvc'],
 test.run(arguments = ".", status=2, stderr=None)
 test.must_contain_any_line(test.stderr(), "Unrecognized target architecture")
 test.must_contain_any_line(test.stderr(), "Valid architectures")
+
+test.write('SConstruct', """
+env = Environment(tools=['default', 'msvc'],
+                  TARGET_ARCH = 'arm', MSVC_VERSION='11.0')
+if env.Detect('cl'):
+    env.Command('checkarm', [], 'cl')
+""" % locals())
+test.run(arguments = ".", stderr = None)
+if test.stderr().strip() is not "" and "ARM" not in test.stderr():
+    test.fail_test()
+
+test.write('SConstruct', """
+env = Environment(tools=['default', 'msvc'],
+                  TARGET_ARCH = 'arm64', MSVC_VERSION='11.0')
+if env.Detect('cl'):
+    env.Command('checkarm64', [], 'cl')
+""" % locals())
+test.run(arguments = ".", stderr = None)
+if test.stderr().strip() is not "" and "ARM64" not in test.stderr():
+    test.fail_test()
 
 test.pass_test()
 
