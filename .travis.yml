@@ -8,10 +8,6 @@ addons:
     apt:
       update: true
 
-os:
-  - linux
-  - windows
-
 sudo: required
 
 install:
@@ -25,6 +21,7 @@ matrix:
 jobs:
   include:
     - &test_job
+      os: linux
       stage: Test
       script: python runtest.py -a || if [[ $? == 2 ]]; then true; else false; fi
       before_script: skip
@@ -32,6 +29,9 @@ jobs:
       python: 2.7
       env: PYVER=27
       sudo: required
+
+    - <<: *test_job
+      os: windows
 
     - <<: *test_job
       python: 3.5
@@ -58,7 +58,7 @@ jobs:
 
     - &coverage_jobs
       stage: Coverage
-      
+      os: linux
       before_script:
         - sudo pip install coverage
         - sudo pip install coveralls
