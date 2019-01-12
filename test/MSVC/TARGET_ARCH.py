@@ -29,8 +29,6 @@ Test the ability to configure the $TARGET_ARCH construction variable.
 """
 
 import TestSCons
-import SCons.Tool.MSCommon.vc as msvc
-from SCons.Tool.MSCommon.vc import get_msvc_version_numeric
 
 _python_ = TestSCons._python_
 

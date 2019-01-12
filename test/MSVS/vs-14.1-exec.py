@@ -43,7 +43,7 @@ if sys.platform != 'win32':
 
 msvs_version = '14.1'
 
-if not msvs_version in test.msvs_versions():
+if msvs_version not in test.msvs_versions():
     msg = "Visual Studio %s not installed; skipping test.\n" % msvs_version
     test.skip_test(msg)
 

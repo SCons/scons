@@ -29,8 +29,6 @@ Test that we can generate Visual Studio 14.1 project (.vcxproj) and
 solution (.sln) files that contain SCC information and look correct.
 """
 
-import os
-
 import TestSConsMSVS
 
 test = TestSConsMSVS.TestSConsMSVS()
