@@ -14,7 +14,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Improved support for VC14.1 and Visual Studio 2017, as well as arm and arm64 targets.
 
   From Mats Wichmann:
-    - Update doc examples to work with Python 3.5+:  map() now returns an iterable instead of a list.
     - Improve finding of Microsoft compiler: add a 'products' wildcard
       in case 2017 Build Tools only is installed as it is considered a separate
       product from the default Visual Studio
@@ -28,6 +27,10 @@ RELEASE 3.0.3 - Mon, 07 Jan 2019 20:05:22 -0400
       to the release packages.
     - Modify scons.bat script to check for scons python script without .py extension if no file
       scons.py exists. This enables an all platform wheel to work.
+
+  From Mats Wichmann:
+    - Update doc examples to work with Python 3.5+:  map() now returns an iterable instead of a list.
+
 
 RELEASE 3.0.2 - Mon, 31 Dec 2018 16:00:12 -0700
 

@@ -413,20 +413,6 @@ def find_batch_file(env,msvc_version,host_arch,target_arch):
 
 __INSTALLED_VCS_RUN = None
 
-def _get_host_target_dir(host_platform, target_platform):
-
-    host_target_dir = _HOST_TARGET_ARCH_TO_BAT_ARCH.get((host_platform, target_platform), False)
-
-    if not host_target_dir:
-        debug('_check_cl_exists_in_vc_dir(): unsupported host/target combination' + host_target_dir)
-        return False
-    elif host_target_dir in 'x86':
-        host_target_dir == ''
-    else:
-        host_target_dir += '\\'
-
-    return host_target_dir
-
 def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
     """Find the cl.exe on the filesystem in the vc_dir depending on 
     TARGET_ARCH, HOST_ARCH and the msvc version. TARGET_ARCH and 
