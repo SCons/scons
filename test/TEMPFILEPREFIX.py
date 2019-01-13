@@ -67,6 +67,55 @@ xxx.py foo.out foo.in
 xxx.py -via\\S+
 """)
 
+test.write('SConstruct', """
+import os
+
+def print_cmd_line(s, targets, sources, env):
+    pass
+
+env = Environment(
+    BUILDCOM = '${TEMPFILE("xxx.py $TARGET $SOURCES")}',
+    MAXLINELENGTH = 16,
+    TEMPFILEPREFIX = '-via',
+    PRINT_CMD_LINE_FUNC=print_cmd_line
+)
+env.AppendENVPath('PATH', os.curdir)
+env.Command('foo.out', 'foo.in', '$BUILDCOM')
+""")
+
+test.run(arguments = '-n -Q .',
+         stdout = """""")
+
+test.write('SConstruct', """
+import os
+from SCons.Platform import TempFileMunge
+
+class TestTempFileMunge(TempFileMunge):
+
+    def __init__(self, cmd, cmdstr = None):
+        super(TestTempFileMunge, self).__init__(cmd, cmdstr)
+
+    def _print_cmd_str(self, target, source, env, cmdstr):
+        super(TestTempFileMunge, self)._print_cmd_str(target, source, None, cmdstr)
+       
+env = Environment(
+    TEMPFILE = TestTempFileMunge,
+    BUILDCOM = '${TEMPFILE("xxx.py $TARGET $SOURCES")}',
+    MAXLINELENGTH = 16,
+    TEMPFILEPREFIX = '-via',
+
+)
+env.AppendENVPath('PATH', os.curdir)
+env.Command('foo.out', 'foo.in', '$BUILDCOM')
+""")
+
+test.run(arguments = '-n -Q .',
+         stdout = """\
+Using tempfile \\S+ for command line:
+xxx.py foo.out foo.in
+xxx.py -via\\S+
+""")
+
 test.pass_test()
 
 # Local Variables:
