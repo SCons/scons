@@ -1,7 +1,8 @@
-# Please bring your issue to the SCons users mailing list before filing an issue here
-# See: http://scons.org/bugs.html
+## Please bring your issue to the SCons users mailing list before filing an issue here
+## See: https://scons.org/bugs.html
 
-# If the issue is confirmed to be a bug please include the following information
+## If the issue is confirmed to be a bug please include the following information
+
 * Link to SCons Users thread discussing your issue.
 * Version of SCons
 * Version of Python
