@@ -89,6 +89,8 @@ _ARCH_TO_CANONICAL = {
     "aarch64"   : "arm64",
 }
  
+# get path to the cl.exe dir for newer VS versions
+# based off a tuple of (host, target) platforms
 _HOST_TRGT_TO_CL_DIR_GREATER_THAN_14 = {
     ("amd64","amd64")  : "Hostx64\\x64",
     ("amd64","x86")    : "Hostx64\\x86",
@@ -100,6 +102,8 @@ _HOST_TRGT_TO_CL_DIR_GREATER_THAN_14 = {
     ("x86","arm64")    : "Hostx86\\arm64",
 }
 
+# get path to the cl.exe dir for older VS versions
+# based off a tuple of (host, target) platforms
 _HOST_TRGT_TO_CL_DIR = {
     ("amd64","amd64")  : "amd64",
     ("amd64","x86")    : "amd64_x86",
@@ -131,6 +135,19 @@ _HOST_TARGET_ARCH_TO_BAT_ARCH = {
 _CL_EXE_NAME = 'cl.exe'
 
 def get_msvc_version_numeric(msvc_version):
+    """Get the raw version numbers from a MSVC_VERSION string, so it 
+    could be cast to float or other numeric values. For example, '14.0Exp' 
+    would get converted to '14.0'.
+
+    Args:
+        msvc_version: str
+            string representing the version number, could contain non
+            digit characters
+
+    Returns:
+        str: the value converted to a numeric only string
+
+    """
     return ''.join([x for  x in msvc_version if x in string_digits + '.'])
 
 def get_host_target(env):
@@ -411,6 +428,25 @@ def _get_host_target_dir(host_platform, target_platform):
     return host_target_dir
 
 def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
+    """Find the cl.exe on the filesystem in the vc_dir depending on 
+    TARGET_ARCH, HOST_ARCH and the msvc version. TARGET_ARCH and 
+    HOST_ARCH can be extracted from the passed env, unless its None, 
+    which then the native platform is assumed the host and target.
+
+    Args:
+        env: Environment
+            a construction environment, usually if this is passed its
+            because there is a desired TARGET_ARCH to be used when searching 
+            for a cl.exe
+        vc_dir: str
+            the path to the VC dir in the MSVC installation
+        msvc_version: str
+            msvc version (major.minor, e.g. 10.0)
+
+    Returns:
+        bool:
+
+    """
     
     # determine if there is a specific target platform we want to build for and
     # use that to find a list of valid VCs, default is host platform == target platform
