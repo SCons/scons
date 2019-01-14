@@ -31,10 +31,6 @@ jobs:
       language: python
 
     - <<: *test_job
-      os: windows
-      language: c
-
-    - <<: *test_job
       python: 3.5
       env: PYVER=35
       sudo: required
@@ -61,6 +57,8 @@ jobs:
       stage: Coverage
       os: linux
       language: python
+      python: 2.7
+      env: PYVER=27
       before_script:
         - sudo pip install coverage
         - sudo pip install coveralls
@@ -103,6 +101,7 @@ jobs:
         - coverage combine
         - coverage report
         - coveralls --rcfile=$PWD/.coveragerc
+        - bash <(curl -s https://codecov.io/bash)
 
       env: BUILD_JOB_NUM=1
 
@@ -120,3 +119,44 @@ jobs:
       env: BUILD_JOB_NUM=7
     - <<: *coverage_jobs
       env: BUILD_JOB_NUM=8
+
+    - <<: *coverage_jobs
+      python: 3.6
+      env: 
+        - PYVER=36
+        - BUILD_JOB_NUM=1
+    - <<: *coverage_jobs
+      python: 3.6
+      env: 
+        - PYVER=36
+        - BUILD_JOB_NUM=2
+    - <<: *coverage_jobs
+      python: 3.6
+      env: 
+        - PYVER=36
+        - BUILD_JOB_NUM=3
+    - <<: *coverage_jobs
+      python: 3.6
+      env: 
+        - PYVER=36
+        - BUILD_JOB_NUM=4
+    - <<: *coverage_jobs
+      python: 3.6
+      env: 
+        - PYVER=36
+        - BUILD_JOB_NUM=5
+    - <<: *coverage_jobs
+      python: 3.6
+      env: 
+        - PYVER=36
+        - BUILD_JOB_NUM=6
+    - <<: *coverage_jobs
+      python: 3.6
+      env: 
+        - PYVER=36
+        - BUILD_JOB_NUM=7
+    - <<: *coverage_jobs
+      python: 3.6
+      env: 
+        - PYVER=36
+        - BUILD_JOB_NUM=8

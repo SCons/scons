@@ -139,15 +139,23 @@ matrix:
       WINPYTHON: "Python36"	
     - image: Visual Studio 2015	
       WINPYTHON: "Python35"
-    # test python 3 on Visual Studio 2017 image
+
+    # test python 3.6 on Visual Studio 2017 image
     - image: Visual Studio 2017	
       WINPYTHON: "Python27"
+    - image: Visual Studio 2017	
+      WINPYTHON: "Python35"
+    - image: Visual Studio 2017	
+      WINPYTHON: "Python37" 
 
-    # test python 2 on Visual Studio 2015 image
+    # test python 2 on Ubuntu
     - image: Ubuntu	
       WINPYTHON: "Python37"	
     - image: Ubuntu		
       WINPYTHON: "Python35"
+    - image: Ubuntu		
+      WINPYTHON: "Python36"
+
 
 before_build:
     - ps: |
@@ -176,11 +184,11 @@ build_script:
         $usercustomizeText|Set-Content "$($env:PYSITEDIR)/usercustomize.py";
         if ($isWindows) 
         {
-          $coveragercFile = "[run]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)/src`r`nparallel = True`r`nomit =`r`n`t#Tests.py`r`n`tsrc\test_*`r`n`tsrc\setup.py`r`n`r`ndisable_warnings = trace-changed`r`n[path]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)`r`n[report]`r`nomit =`r`n`t#Tests.py`r`n`tsrc\test_*`r`n`tsrc\setup.py`r`n`r`n"
+          $coveragercFile = "[run]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)/src`r`nparallel = True`r`ndisable_warnings = trace-changed`r`nomit =`r`n`t#Tests.py`r`n`tsrc\test_*`r`n`tsrc\setup.py`r`n`r`n[path]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)`r`n[report]`r`nomit =`r`n`t#Tests.py`r`n`tsrc\test_*`r`n`tsrc\setup.py`r`n`r`n"
         }
         else
         {
-          $coveragercFile = "[run]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)/src`nparallel = True`nomit =`n`t#Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`ndisable_warnings = trace-changed`n[path]`nsource = $($env:APPVEYOR_BUILD_FOLDER)`n[report]`nomit =`n`t#Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`n"
+          $coveragercFile = "[run]`nsource = $($env:APPVEYOR_BUILD_FOLDER)/src`nparallel = True`ndisable_warnings = trace-changed`nomit =`n`t#Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`n[path]`nsource = $($env:APPVEYOR_BUILD_FOLDER)`n[report]`nomit =`n`t#Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`n"
         }
         $coveragercFile|Set-Content "$($env:COVERAGE_PROCESS_START)";
         Get-Content -Path "$($env:COVERAGE_PROCESS_START)"
