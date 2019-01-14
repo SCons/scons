@@ -91,7 +91,7 @@ _ARCH_TO_CANONICAL = {
  
 # get path to the cl.exe dir for newer VS versions
 # based off a tuple of (host, target) platforms
-_HOST_TRGT_TO_CL_DIR_GREATER_THAN_14 = {
+_HOST_TARGET_TO_CL_DIR_GREATER_THAN_14 = {
     ("amd64","amd64")  : "Hostx64\\x64",
     ("amd64","x86")    : "Hostx64\\x86",
     ("amd64","arm")    : "Hostx64\\arm",
@@ -104,7 +104,7 @@ _HOST_TRGT_TO_CL_DIR_GREATER_THAN_14 = {
 
 # get path to the cl.exe dir for older VS versions
 # based off a tuple of (host, target) platforms
-_HOST_TRGT_TO_CL_DIR = {
+_HOST_TARGET_TO_CL_DIR = {
     ("amd64","amd64")  : "amd64",
     ("amd64","x86")    : "amd64_x86",
     ("amd64","arm")    : "amd64_arm",
@@ -457,16 +457,16 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
         #TODO: support setting a specific minor VC version
         default_toolset_file = os.path.join(vc_dir, r'Auxiliary\Build\Microsoft.VCToolsVersion.default.txt')
         try:
-            f = open(default_toolset_file)
-            vc_specific_version = f.readlines()[0].strip()
-        except OSError: 
-            debug('_check_cl_exists_in_vc_dir(): failed to open ' + default_toolset_file)
+            with open(default_toolset_file) as f:
+                vc_specific_version = f.readlines()[0].strip()
+        except IOError: 
+            debug('_check_cl_exists_in_vc_dir(): failed to read ' + default_toolset_file)
             return False
         except IndexError:
-            debug('_check_cl_exists_in_vc_dir(): failed to get MSVC version from ' + default_toolset_file)
+            debug('_check_cl_exists_in_vc_dir(): failed to find MSVC version in ' + default_toolset_file)
             return False
 
-        host_trgt_dir = _HOST_TRGT_TO_CL_DIR_GREATER_THAN_14.get((host_platform, target_platform), None)
+        host_trgt_dir = _HOST_TARGET_TO_CL_DIR_GREATER_THAN_14.get((host_platform, target_platform), None)
         if not host_trgt_dir:
             debug('_check_cl_exists_in_vc_dir(): unsupported host/target platform combo')
             return False
@@ -479,7 +479,7 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
 
     elif ver_num <= 14 and ver_num >= 8:
 
-        host_trgt_dir = _HOST_TRGT_TO_CL_DIR.get((host_platform, target_platform), None)
+        host_trgt_dir = _HOST_TARGET_TO_CL_DIR.get((host_platform, target_platform), None)
         if not host_trgt_dir:
             debug('_check_cl_exists_in_vc_dir(): unsupported host/target platform combo')
             return False
@@ -492,7 +492,7 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
             # older versions of visual studio only had x86 binaries, 
             # so if the host platform is amd64, we need to check cross 
             # compile options (x86 binary compiles some other target on a 64 bit os)
-            host_trgt_dir = _HOST_TRGT_TO_CL_DIR.get(('x86', target_platform), None)
+            host_trgt_dir = _HOST_TARGET_TO_CL_DIR.get(('x86', target_platform), None)
             if not host_trgt_dir:
                 return False
 
