@@ -40,7 +40,8 @@ install:
   - sh: python$PYTHON --version
   - sh: export PYSITEDIR=$(python$PYTHON -m site --user-site)
   - sh: python$PYTHON -m pip install --user -U pip setuptools wheel 
-  - sh: python$PYTHON -m pip install --user -U coverage==4.0.3 coveralls codecov
+  - sh: python$PYTHON -m pip install --user -U coveralls 
+  - sh: python$PYTHON -m pip install --user -U coverage codecov
   - sh: STATIC_DEPS=true & python$PYTHON -m pip install --user -U lxml
   - sh: ./.travis/install.sh
   # java 9 and greater prints to stderr when this is set, failing several java tests
