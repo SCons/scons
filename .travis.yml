@@ -60,8 +60,7 @@ jobs:
       python: 2.7
       env: PYVER=27
       before_script:
-        - sudo pip install coverage
-        - sudo pip install coveralls
+        - sudo pip install -U coverage coveralls codecov
         # set this ensure user sites are available
         - export PYTHONNOUSERSITE=
         # attempt to get a location where we can store the usercustomize.py file
@@ -100,8 +99,9 @@ jobs:
       after_success:
         - coverage combine
         - coverage report
+        - coverage xml -o coverage_xml.xml;
         - coveralls --rcfile=$PWD/.coveragerc
-        - bash <(curl -s https://codecov.io/bash)
+        - codecov -t $CODECOV_TOKEN --file coverage_xml.xml
 
       env: BUILD_JOB_NUM=1
 
