@@ -46,6 +46,9 @@ install:
   - sh: ./.travis/install.sh
   # java 9 and greater prints to stderr when this is set, failing several java tests
   - sh: unset JAVA_TOOL_OPTIONS 
+  # workaround for https://github.com/codecov/codecov-python/pull/188
+  - sh: export CI=True
+  - sh: export APPVEYOR=True
   - sh: printenv
 
 
