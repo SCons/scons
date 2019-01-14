@@ -167,7 +167,8 @@ def generate(env):
 
     env['SHOBJSUFFIX'] = '.o'
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
-
+    if 'CCFLAGS' in env:
+        env['CCFLAGS'] = SCons.Util.CLVar(str(env['CCFLAGS']).replace('/nologo', ''))
     env['RC'] = 'windres'
     env['RCFLAGS'] = SCons.Util.CLVar('')
     env['RCINCFLAGS'] = '$( ${_concat(RCINCPREFIX, CPPPATH, RCINCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'
