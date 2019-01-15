@@ -199,6 +199,8 @@ build_script:
         Get-Content -Path "$($env:COVERAGE_PROCESS_START)"
       }
   # setup portion of tests for this build job (1-4)
+  # exclude VS 10 untill this is resolved: 
+  # https://help.appveyor.com/discussions/problems/19283-visual-studio-2010-trial-license-has-expired
   - ps: >-
       $TOTAL_BUILD_JOBS = 4;
       $Lines = (Get-Content all_tests.txt | Measure-Object -line).Lines;
@@ -207,8 +209,6 @@ build_script:
       if ( $Env:BUILD_JOB_NUM -eq $TOTAL_BUILD_JOBS){ $end = $Lines };
       if ( $start -eq 0 ){ $start = 1 };
       get-content all_tests.txt | select -first ($end - $start) -skip ($start - 1) | Out-File -Encoding ASCII build_tests.txt;
-      # exclude VS 10 untill this is resolved: 
-      # https://help.appveyor.com/discussions/problems/19283-visual-studio-2010-trial-license-has-expired
       Set-Content -Path 'exclude_list.txt' -Value 'test\MSVS\vs-10-exec.py'
   # NOTE: running powershell from cmd on purpose because it formats the output
   # correctly
