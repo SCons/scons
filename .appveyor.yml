@@ -38,7 +38,7 @@ install:
   # workaround for https://github.com/codecov/codecov-python/pull/188
   - sh: export CI=True
   - sh: export APPVEYOR=True
-  - sh: printenv
+  - sh: printenv | grep JAVA_TOOL_OPTIONS
 
 
 environment:
