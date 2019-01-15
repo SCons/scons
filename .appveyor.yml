@@ -2,7 +2,9 @@
 
 image: 
   - Ubuntu
- 
+  - Visual Studio 2015
+  - Visual Studio 2017
+  
 cache:
   - downloads -> appveyor.yml
   - '%LOCALAPPDATA%\pip\Cache'
@@ -28,17 +30,26 @@ install:
   - cmd: choco install --allow-empty-checksums xsltproc
   - cmd: set
   ### LINUX ###
-  #- sh: ./.travis/install.sh
+  - sh: sudo add-apt-repository -y ppa:deadsnakes/ppa
+  # allow the CI to continue even if some pkg in the pkglist may not be up to date
+  - sh: sudo apt-get update || true
+  - sh: sudo apt-get -y install python$PYTHON
+  - sh: wget https://bootstrap.pypa.io/get-pip.py
+  - sh: sudo -H python$PYTHON get-pip.py
+  - sh: which python$PYTHON
+  - sh: python$PYTHON --version
+  - sh: export PYSITEDIR=$(python$PYTHON -m site --user-site)
+  - sh: python$PYTHON -m pip install --user -U pip setuptools wheel 
+  - sh: python$PYTHON -m pip install --user -U coveralls 
+  - sh: python$PYTHON -m pip install --user -U coverage codecov
+  - sh: STATIC_DEPS=true & python$PYTHON -m pip install --user -U lxml
+  - sh: ./.travis/install.sh
   # java 9 and greater prints to stderr when this is set, failing several java tests
-  - sh: echo "unset JAVA_TOOL_OPTIONS" | sudo tee --append ~/.bashrc
-  - sh: echo "unset JAVA_TOOL_OPTIONS" | sudo tee --append ~/.profile
-  - sh: echo "unset JAVA_TOOL_OPTIONS" | sudo tee --append /etc/environment
-  - sh: echo "unset JAVA_TOOL_OPTIONS" | sudo tee --append /etc/profile
-  - sh: unset JAVA_TOOL_OPTIONS
+  - sh: unset JAVA_TOOL_OPTIONS >> ~/.bashrc
   # workaround for https://github.com/codecov/codecov-python/pull/188
   - sh: export CI=True
   - sh: export APPVEYOR=True
-  - sh: printenv | grep JAVA_TOOL_OPTIONS
+  - sh: printenv
 
 
 environment:
@@ -150,5 +161,71 @@ matrix:
     - image: Ubuntu		
       WINPYTHON: "Python36"
 
+
+before_build:
+    - ps: |
+        if ($isWindows) 
+        {
+          dir "C:\Program Files\Git\usr\bin\x*.exe"
+          if (Test-Path "C:\Program Files\Git\usr\bin\xsltproc.EXE" ) {
+            Remove-Item  "C:\Program Files\Git\usr\bin\xsltproc.EXE" -ErrorAction Ignore
+          }
+          dir "C:\Program Files\Git\usr\bin\x*.exe"
+        }
   
 build: off
+
+build_script:
+  - cmd: "C:\\%WINPYTHON%\\python.exe runtest.py -l -a > all_tests.txt"
+  - sh: python$PYTHON runtest.py -l -a > all_tests.txt
+  # setup coverage is set in environment
+  - ps: |
+      if ($env:COVERAGE -eq 1){ 
+        $env:COVERAGE_PROCESS_START = "$($env:APPVEYOR_BUILD_FOLDER)/.coveragerc";
+        $env:PYTHONNOUSERSITE = "";
+        New-Item -ItemType Directory -Force -Path "$($env:PYSITEDIR)";
+        $env:COVERAGE_FILE = "$($env:APPVEYOR_BUILD_FOLDER)/.coverage";
+        $usercustomizeText = "import os`r`nos.environ['COVERAGE_PROCESS_START'] = '$($env:COVERAGE_PROCESS_START)'`r`nimport coverage`r`ncoverage.process_startup()";
+        $usercustomizeText|Set-Content "$($env:PYSITEDIR)/usercustomize.py";
+        if ($isWindows) 
+        {
+          $coveragercFile = "[run]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)/src`r`nparallel = True`r`ndisable_warnings = trace-changed`r`nomit =`r`n`t*Tests.py`r`n`tsrc\test_*`r`n`tsrc\setup.py`r`n`r`n[path]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)`r`n[report]`r`nomit =`r`n`t*Tests.py`r`n`tsrc\test_*`r`n`tsrc\setup.py`r`n`r`n"
+        }
+        else
+        {
+          $coveragercFile = "[run]`nsource = $($env:APPVEYOR_BUILD_FOLDER)/src`nparallel = True`ndisable_warnings = trace-changed`nomit =`n`t*Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`n[path]`nsource = $($env:APPVEYOR_BUILD_FOLDER)`n[report]`nomit =`n`t*Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`n"
+        }
+        $coveragercFile|Set-Content "$($env:COVERAGE_PROCESS_START)";
+        Get-Content -Path "$($env:COVERAGE_PROCESS_START)"
+      }
+  # setup portion of tests for this build job (1-4)
+  # exclude VS 10 untill this is resolved: 
+  # https://help.appveyor.com/discussions/problems/19283-visual-studio-2010-trial-license-has-expired
+  - ps: >-
+      $TOTAL_BUILD_JOBS = 4;
+      $Lines = (Get-Content all_tests.txt | Measure-Object -line).Lines;
+      $start = ($Lines / $TOTAL_BUILD_JOBS) * ($Env:BUILD_JOB_NUM - 1);
+      $end = ($Lines / $TOTAL_BUILD_JOBS) * $Env:BUILD_JOB_NUM;
+      if ( $Env:BUILD_JOB_NUM -eq $TOTAL_BUILD_JOBS){ $end = $Lines };
+      if ( $start -eq 0 ){ $start = 1 };
+      get-content all_tests.txt | select -first ($end - $start) -skip ($start - 1) | Out-File -Encoding ASCII build_tests.txt;
+      Set-Content -Path 'exclude_list.txt' -Value 'test\MSVS\vs-10-exec.py'
+
+  # NOTE: running powershell from cmd on purpose because it formats the output
+  # correctly
+  - cmd: "C:\\%WINPYTHON%\\python.exe runtest.py -l test/Java >> exclude_list.txt"
+  - sh: python$PYTHON runtest.py -l test/Java >> exclude_list.txt
+  - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py --exclude-list exclude_list.txt -f build_tests.txt } else { C:\\%WINPYTHON%\\python.exe runtest.py -j 2 --exclude-list exclude_list.txt -f build_tests.txt }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
+  - sh: if [ "$COVERAGE" -eq "1" ]; then coverage run -p --rcfile="$COVERAGE_PROCESS_START" runtest.py --exclude-list exclude_list.txt -f build_tests.txt || if [[ $? == 2 ]]; then true; else false; fi; else python$PYTHON runtest.py -j 2 --exclude-list exclude_list.txt -f build_tests.txt || if [[ $? == 2 ]]; then true; else false; fi; fi
+
+on_success:
+  - cmd: if %COVERAGE% equ 1 coverage combine
+  - cmd: if %COVERAGE% equ 1 coverage report
+  - cmd: if %COVERAGE% equ 1 coverage xml -o coverage_xml.xml
+  #- cmd: if %COVERAGE% equ 1 coveralls --rcfile="%COVERAGE_PROCESS_START%"
+  - cmd: if %COVERAGE% equ 1 codecov --file coverage_xml.xml
+  - sh: if [ "$COVERAGE" -eq "1" ]; then coverage combine; fi
+  - sh: if [ "$COVERAGE" -eq "1" ]; then coverage report; fi
+  - sh: if [ "$COVERAGE" -eq "1" ]; then coverage xml -o coverage_xml.xml; fi
+  #- sh: if [ "$COVERAGE" -eq "1" ]; then coveralls --rcfile="$COVERAGE_PROCESS_START"; fi
+  - sh: if [ "$COVERAGE" -eq "1" ]; then codecov --file coverage_xml.xml; fi
