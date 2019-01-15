@@ -46,7 +46,7 @@ elif LOGFILE:
         debug = lambda message: open(LOGFILE, 'a').write(message + '\n')
     else:
         logging.basicConfig(filename=LOGFILE, level=logging.DEBUG)
-        debug = logging.debug
+        debug = logging.getLogger(name=__name__).debug
 else:
     debug = lambda x: None
 
@@ -206,7 +206,7 @@ def get_output(vcbat, args = None, env = None):
     output = stdout.decode("mbcs")
     return output
 
-def parse_output(output, keep=("INCLUDE", "LIB", "LIBPATH", "PATH")):
+def parse_output(output, keep=("INCLUDE", "LIB", "LIBPATH", "PATH", 'VSCMD_ARG_app_plat')):
     """
     Parse output from running visual c++/studios vcvarsall.bat and running set
     To capture the values listed in keep

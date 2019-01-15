@@ -1096,12 +1096,17 @@ V10DSPCommandLine = """\
 \t\t<NMakeForcedUsingAssemblies Condition="'$(Configuration)|$(Platform)'=='%(variant)s|%(platform)s'">$(NMakeForcedUsingAssemblies)</NMakeForcedUsingAssemblies>
 """
 
+V15DSPHeader = """\
+<?xml version="1.0" encoding="%(encoding)s"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+"""
+
 class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
     """Generates a Project file for MSVS 2010"""
 
-    def __init__(self, dspfile, source, env):
+    def __init__(self, dspfile, header, source, env):
         _DSPGenerator.__init__(self, dspfile, source, env)
-        self.dspheader = V10DSPHeader
+        self.dspheader = header
         self.dspconfiguration = V10DSPProjectConfiguration
         self.dspglobals = V10DSPGlobals
 
@@ -1501,7 +1506,9 @@ class _GenerateV7DSW(_DSWGenerator):
     def PrintSolution(self):
         """Writes a solution file"""
         self.file.write('Microsoft Visual Studio Solution File, Format Version %s\n' % self.versionstr)
-        if self.version_num >= 12.0:
+        if self.version_num > 14.0:
+            self.file.write('# Visual Studio 15\n')
+        elif self.version_num >= 12.0:
             self.file.write('# Visual Studio 14\n')
         elif self.version_num >= 11.0:
             self.file.write('# Visual Studio 11\n')
@@ -1679,8 +1686,11 @@ def GenerateDSP(dspfile, source, env):
     version_num = 6.0
     if 'MSVS_VERSION' in env:
         version_num, suite = msvs_parse_version(env['MSVS_VERSION'])
-    if version_num >= 10.0:
-        g = _GenerateV10DSP(dspfile, source, env)
+    if version_num > 14.0:
+        g = _GenerateV10DSP(dspfile, V15DSPHeader, source, env)
+        g.Build()
+    elif version_num >= 10.0:
+        g = _GenerateV10DSP(dspfile, V10DSPHeader, source, env)
         g.Build()
     elif version_num >= 7.0:
         g = _GenerateV7DSP(dspfile, source, env)
@@ -1990,7 +2000,7 @@ def generate(env):
     env['SCONS_HOME'] = os.environ.get('SCONS_HOME')
 
 def exists(env):
-    return msvc_exists()
+    return msvc_exists(env)
 
 # Local Variables:
 # tab-width:4
