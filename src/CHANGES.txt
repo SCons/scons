@@ -18,6 +18,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       described in the patch attached to issue #2431.
     - scons.py and sconsign.py stopped working if script called as a symlink
       to location in scons-local location.
+    - Fix issue running scons using a symlink to scons.py in an scons-local dir
 
   From Daniel Moody:
     - Improved support for VC14.1 and Visual Studio 2017, as well as arm and arm64 targets.
