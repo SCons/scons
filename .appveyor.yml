@@ -5,7 +5,6 @@ image:
   - Visual Studio 2015
   - Visual Studio 2017
   
-
 cache:
   - downloads -> appveyor.yml
   - '%LOCALAPPDATA%\pip\Cache'
@@ -32,7 +31,8 @@ install:
   - cmd: set
   ### LINUX ###
   - sh: sudo add-apt-repository -y ppa:deadsnakes/ppa
-  - sh: sudo apt-get update
+  # allow the CI to continue even if some pkg in the pkglist may not be up to date
+  - sh: sudo apt-get update || true
   - sh: sudo apt-get -y install python$PYTHON
   - sh: wget https://bootstrap.pypa.io/get-pip.py
   - sh: sudo -H python$PYTHON get-pip.py
