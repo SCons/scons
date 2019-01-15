@@ -43,7 +43,7 @@ install:
   - sh: python$PYTHON -m pip install --user -U coveralls 
   - sh: python$PYTHON -m pip install --user -U coverage codecov
   - sh: STATIC_DEPS=true & python$PYTHON -m pip install --user -U lxml
-  - sh: ./.travis/install.sh
+  #- sh: ./.travis/install.sh
   # java 9 and greater prints to stderr when this is set, failing several java tests
   - sh: unset JAVA_TOOL_OPTIONS >> ~/.bashrc
   # workaround for https://github.com/codecov/codecov-python/pull/188
@@ -212,7 +212,7 @@ build_script:
       Set-Content -Path 'exclude_list.txt' -Value 'test\MSVS\vs-10-exec.py'
   # NOTE: running powershell from cmd on purpose because it formats the output
   # correctly
-  - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py --exclude-list exclude_list.txt -f build_tests.txt} else { C:\\%WINPYTHON%\\python.exe runtest.py -j 2 --exclude-list exclude_list.txt -f build_tests.txt }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
+  - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py --exclude-list test/Java/no-JARCHDIR.py -f build_tests.txt} else { C:\\%WINPYTHON%\\python.exe runtest.py -j 2 --exclude-list exclude_list.txt -f build_tests.txt }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
   - sh: if [ "$COVERAGE" -eq "1" ]; then coverage run -p --rcfile="$COVERAGE_PROCESS_START" runtest.py -f build_tests.txt|| if [[ $? == 2 ]]; then true; else false; fi; else python$PYTHON runtest.py -j 2 -f build_tests.txt || if [[ $? == 2 ]]; then true; else false; fi; fi
 
 on_success:
