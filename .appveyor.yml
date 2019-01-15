@@ -45,7 +45,10 @@ install:
   - sh: STATIC_DEPS=true & python$PYTHON -m pip install --user -U lxml
   #- sh: ./.travis/install.sh
   # java 9 and greater prints to stderr when this is set, failing several java tests
-  - sh: echo "unset JAVA_TOOL_OPTIONS" >> ~/.bashrc; echo "unset JAVA_TOOL_OPTIONS" >> ~/.profile; echo "unset JAVA_TOOL_OPTIONS" >> /etc/environment; echo "unset JAVA_TOOL_OPTIONS" >> /etc/profile;
+  - sh: echo "unset JAVA_TOOL_OPTIONS" | sudo tee --append ~/.bashrc
+  - sh: echo "unset JAVA_TOOL_OPTIONS" | sudo tee --append ~/.profile
+  - sh: echo "unset JAVA_TOOL_OPTIONS" | sudo tee --append /etc/environment
+  - sh: echo "unset JAVA_TOOL_OPTIONS" | sudo tee --append /etc/profile
   # workaround for https://github.com/codecov/codecov-python/pull/188
   - sh: export CI=True
   - sh: export APPVEYOR=True
