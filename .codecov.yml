@@ -39,7 +39,4 @@ coverage:
     changes: no
         
 
-comment:
-  layout: "header, diff"
-  behavior: new
-  require_changes: no
+comment: off
