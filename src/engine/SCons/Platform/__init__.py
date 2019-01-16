@@ -144,15 +144,20 @@ class TempFileMunge(object):
     line limitation.
 
     Example usage:
-    env["TEMPFILE"] = TempFileMunge
-    env["LINKCOM"] = "${TEMPFILE('$LINK $TARGET $SOURCES','$LINKCOMSTR')}"
+        env["TEMPFILE"] = TempFileMunge
+        env["LINKCOM"] = "${TEMPFILE('$LINK $TARGET $SOURCES','$LINKCOMSTR')}"
 
     By default, the name of the temporary file used begins with a
-    prefix of '@'.  This may be configred for other tool chains by
-    setting '$TEMPFILEPREFIX'.
+    prefix of '@'.  This may be configured for other tool chains by
+    setting '$TEMPFILEPREFIX':
+        env["TEMPFILEPREFIX"] = '-@'        # diab compiler
+        env["TEMPFILEPREFIX"] = '-via'      # arm tool chain
+        env["TEMPFILEPREFIX"] = ''          # (the empty string) PC Lint
 
-    env["TEMPFILEPREFIX"] = '-@'        # diab compiler
-    env["TEMPFILEPREFIX"] = '-via'      # arm tool chain
+    You can configure the extension of the temporary file through the
+    TEMPFILEEXTENSION variable, which defaults to '.lnk' (see comments
+    in the code below):
+        env["TEMPFILEEXTENSION"] = '.lnt'   # PC Lint
     """
     def __init__(self, cmd, cmdstr = None):
         self.cmd = cmd
@@ -194,16 +199,21 @@ class TempFileMunge(object):
 
         # We do a normpath because mktemp() has what appears to be
         # a bug in Windows that will use a forward slash as a path
-        # delimiter.  Windows's link mistakes that for a command line
+        # delimiter.  Windows' link mistakes that for a command line
         # switch and barfs.
         #
         # We use the .lnk suffix for the benefit of the Phar Lap
         # linkloc linker, which likes to append an .lnk suffix if
         # none is given.
-        (fd, tmp) = tempfile.mkstemp('.lnk', text=True)
+        if env.has_key('TEMPFILEEXTENSION'):
+            extension = env.subst('$TEMPFILEEXTENSION')
+        else:
+            extension = '.lnk'  # TODO: better way to pick default?
+        (fd, tmp) = tempfile.mkstemp(extension, text=True)
+
         native_tmp = SCons.Util.get_native_path(os.path.normpath(tmp))
 
-        if env.get('SHELL',None) == 'sh':
+        if env.get('SHELL', None) == 'sh':
             # The sh shell will try to escape the backslashes in the
             # path, so unescape them.
             native_tmp = native_tmp.replace('\\', r'\\\\')
@@ -216,8 +226,9 @@ class TempFileMunge(object):
             # Windows path names.
             rm = 'del'
 
-        prefix = env.subst('$TEMPFILEPREFIX')
-        if not prefix:
+        if env.has_key('TEMPFILEPREFIX'):
+            prefix = env.subst('$TEMPFILEPREFIX')
+        else:
             prefix = '@'
 
         args = list(map(SCons.Subst.quote_spaces, cmd[1:]))
