@@ -205,12 +205,11 @@ class TempFileMunge(object):
         # We use the .lnk suffix for the benefit of the Phar Lap
         # linkloc linker, which likes to append an .lnk suffix if
         # none is given.
-        if env.has_key('TEMPFILESUFFIX'):
-            suffix = env.subst('$TEMPFILESUFFIX')
-        else:
-            suffix = '.lnk'  # TODO: better way to pick default?
-        fd, tmp = tempfile.mkstemp(suffix, text=True)
+        suffix = env.subst('$TEMPFILESUFFIX')
+        if not suffix:
+            suffix = '.lnk'
 
+        fd, tmp = tempfile.mkstemp(suffix, text=True)
         native_tmp = SCons.Util.get_native_path(os.path.normpath(tmp))
 
         if env.get('SHELL', None) == 'sh':
@@ -226,9 +225,8 @@ class TempFileMunge(object):
             # Windows path names.
             rm = 'del'
 
-        if env.has_key('TEMPFILEPREFIX'):
-            prefix = env.subst('$TEMPFILEPREFIX')
-        else:
+        prefix = env.subst('$TEMPFILEPREFIX')
+        if not prefix:
             prefix = '@'
 
         args = list(map(SCons.Subst.quote_spaces, cmd[1:]))
