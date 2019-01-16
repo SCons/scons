@@ -232,11 +232,27 @@ The suffix used for shared object file names.
 <summary>
 <para>
 The prefix for a temporary file used
-to execute lines longer than $MAXLINELENGTH.
-The default is '@'.
-This may be set for toolchains that use other values,
-such as '-@' for the diab compiler
+to store lines lines longer than $MAXLINELENGTH
+as operations which call out to a shell will fail
+if the line is too long, which particularly
+impacts linking.
+The default is '@', which works for the Microsoft
+and GNU toolchains on Windows.
+Set this appropriately for other toolchains,
+for example '-@' for the diab compiler
 or '-via' for ARM toolchain.
+</para>
+</summary>
+</cvar>
+
+<cvar name="TEMPFILESUFFIX">
+<summary>
+<para>
+The suffix used for the temporary file name
+used for long command lines. The name should
+include the dot ('.') if one is wanted as
+it will not be added automatically.
+The default is '.lnk'.
 </para>
 </summary>
 </cvar>

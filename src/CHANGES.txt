@@ -14,8 +14,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Improve finding of Microsoft compiler: add a 'products' wildcard
       in case 2017 Build Tools only is installed as it is considered a separate
       product from the default Visual Studio
-    - Add TEMPFILEEXTENSION as in the patch attached to issue #2431,
-      updated to current codebase.
+    - Add TEMPFILESUFFIX to allow a customizable filename extension, as
+      described in the patch attached to issue #2431.
 
   From Daniel Moody:
     - Improved support for VC14.1 and Visual Studio 2017, as well as arm and arm64 targets.

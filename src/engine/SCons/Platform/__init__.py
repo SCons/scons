@@ -205,11 +205,11 @@ class TempFileMunge(object):
         # We use the .lnk suffix for the benefit of the Phar Lap
         # linkloc linker, which likes to append an .lnk suffix if
         # none is given.
-        if env.has_key('TEMPFILEEXTENSION'):
-            extension = env.subst('$TEMPFILEEXTENSION')
+        if env.has_key('TEMPFILESUFFIX'):
+            suffix = env.subst('$TEMPFILESUFFIX')
         else:
-            extension = '.lnk'  # TODO: better way to pick default?
-        (fd, tmp) = tempfile.mkstemp(extension, text=True)
+            suffix = '.lnk'  # TODO: better way to pick default?
+        fd, tmp = tempfile.mkstemp(suffix, text=True)
 
         native_tmp = SCons.Util.get_native_path(os.path.normpath(tmp))
 
