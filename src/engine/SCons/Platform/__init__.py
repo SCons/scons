@@ -194,7 +194,7 @@ class TempFileMunge(object):
         node = target[0] if SCons.Util.is_List(target) else target
         cmdlist = getattr(node.attributes, 'tempfile_cmdlist', None) \
                     if node is not None else None
-        if cmdlist is not None :
+        if cmdlist is not None:
             return cmdlist
 
         # We do a normpath because mktemp() has what appears to be
@@ -202,11 +202,12 @@ class TempFileMunge(object):
         # delimiter.  Windows' link mistakes that for a command line
         # switch and barfs.
         #
-        # We use the .lnk suffix for the benefit of the Phar Lap
+        # Default to the .lnk suffix for the benefit of the Phar Lap
         # linkloc linker, which likes to append an .lnk suffix if
         # none is given.
-        suffix = env.subst('$TEMPFILESUFFIX')
-        if not suffix:
+        if env.has_key('TEMPFILESUFFIX'):
+            suffix = env.subst('$TEMPFILESUFFIX')
+        else:
             suffix = '.lnk'
 
         fd, tmp = tempfile.mkstemp(suffix, text=True)
