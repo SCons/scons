@@ -19,6 +19,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Improved support for VC14.1 and Visual Studio 2017, as well as arm and arm64 targets.
     - Update TempFileMunge class to use PRINT_CMD_LINE_FUNC
 
+  From Tobias Herzog
+    - Enhance cpp scanner regex logic to detect if/elif expressions without whitespaces but
+      parenthesis like "#if(defined FOO)" or "#elif!(BAR)" correctly.
+
 RELEASE 3.0.3 - Mon, 07 Jan 2019 20:05:22 -0400
   NOTE: 3.0.2 release was dropped because there was a packaging bug. Please consider all 3.0.2
         content.

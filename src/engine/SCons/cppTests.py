@@ -363,6 +363,62 @@ ifndef_input = """
 """
 
 
+if_defined_no_space_input = """
+#define DEFINED 0
+
+#if(defined DEFINED)
+#include "file47-yes"
+#endif
+
+#if(!defined DEFINED)
+#include <file48-no>
+#elif(!defined DEFINED)
+#include <file49-no>
+#else
+#include <file50-yes>
+#endif
+
+#if!(defined DEFINED)
+#include "file51-no"
+#elif!(defined DEFINED)
+#include <file52-no>
+#else
+#include "file53-yes"
+#endif
+"""
+
+if_no_space_input = """
+#define DEFINED 0
+
+#if(DEFINED)
+#include "file54-no"
+#endif
+
+#if!(DEFINED)
+#include <file55-yes>
+#elif!(DEFINED)
+#include <file56-no>
+#endif
+
+#if(DEFINED)
+#include "file57-no"
+#elif(!DEFINED)
+#include <file58-yes>
+#endif
+
+#if!( DEFINED)
+#include "file59-yes"
+#elif!( DEFINED)
+#include <file60-no>
+#endif
+
+#if( DEFINED)
+#include "file61-no"
+#elif(! DEFINED)
+#include <file62-yes>
+#endif
+"""
+
 
 #    pp_class = PreProcessor
 #    #pp_class = DumbPreProcessor
@@ -449,6 +505,19 @@ class cppTestCase(unittest.TestCase):
         expect = self.ifndef_expect
         result = self.cpp.process_contents(ifndef_input)
         assert expect == result, (expect, result)
+
+    def test_if_defined_no_space(self):
+        """Test #if(defined, i.e.without space but parenthesis"""
+        expect = self.if_defined_no_space_expect
+        result = self.cpp.process_contents(if_defined_no_space_input)
+        assert expect == result, (expect, result)
+
+    def test_if_no_space(self):
+        """Test #if(, i.e. without space but parenthesis"""
+        expect = self.if_no_space_expect
+        result = self.cpp.process_contents(if_no_space_input)
+        assert expect == result, (expect, result)
+
 
 class cppAllTestCase(cppTestCase):
     def setUp(self):
@@ -541,7 +610,20 @@ class PreProcessorTestCase(cppAllTestCase):
         ('include', '"', 'file45-yes'),
         ('include', '<', 'file46-yes'),
     ]
-    
+
+    if_defined_no_space_expect = [
+        ('include', '"', 'file47-yes'),
+        ('include', '<', 'file50-yes'),
+        ('include', '"', 'file53-yes'),
+    ]
+
+    if_no_space_expect = [
+        ('include', '<', 'file55-yes'),
+        ('include', '<', 'file58-yes'),
+        ('include', '"', 'file59-yes'),
+        ('include', '<', 'file62-yes'),
+    ]
+
 class DumbPreProcessorTestCase(cppAllTestCase):
     cpp_class = cpp.DumbPreProcessor
 
@@ -654,12 +736,33 @@ class DumbPreProcessorTestCase(cppAllTestCase):
         ('include', '"', 'file7-yes')
     ]
 
-
     ifndef_expect = [
         ('include', '"', 'file45-no'),
         ('include', '"', 'file45-yes'),
         ('include', '<', 'file46-yes'),
         ('include', '<', 'file46-no'),
+    ]
+
+    if_defined_no_space_expect = [
+        ('include', '"', 'file47-yes'),
+        ('include', '<', 'file48-no'),
+        ('include', '<', 'file49-no'),
+        ('include', '<', 'file50-yes'),
+        ('include', '"', 'file51-no'),
+        ('include', '<', 'file52-no'),
+        ('include', '"', 'file53-yes'),
+    ]
+
+    if_no_space_expect = [
+        ('include', '"', 'file54-no'),
+        ('include', '<', 'file55-yes'),
+        ('include', '<', 'file56-no'),
+        ('include', '"', 'file57-no'),
+        ('include', '<', 'file58-yes'),
+        ('include', '"', 'file59-yes'),
+        ('include', '<', 'file60-no'),
+        ('include', '"', 'file61-no'),
+        ('include', '<', 'file62-yes'),
     ]
 
 import os
