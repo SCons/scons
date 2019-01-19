@@ -1,8 +1,11 @@
 #version: '3.0.1.{build}'
 
-image: Visual Studio 2017
-shallow_clone: true
-
+image: 
+  - Ubuntu
+  - Visual Studio 2015
+  - Visual Studio 2017
+  
+  
 cache:
   - downloads -> appveyor.yml
   - '%LOCALAPPDATA%\pip\Cache'
@@ -10,69 +13,191 @@ cache:
   - C:\ProgramData\chocolatey\lib -> appveyor.yml
 
 install:
-  - "set PATH=%PYTHON%;%PYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;%PATH%"
-  - python --version
-  - pip install pypiwin32
-  - set STATIC_DEPS=true & pip install lxml
-  - choco install --allow-empty-checksums dmd
-  - choco install --allow-empty-checksums ldc
-  - choco install --allow-empty-checksums swig
-  - choco install --allow-empty-checksums vswhere
-  - choco install --allow-empty-checksums xsltproc
+  ### WINDOWS ###
+  # add python and python user-base to path for pip installs
+  - cmd: "C:\\%WINPYTHON%\\python.exe --version"
+  - cmd: for /F "tokens=*" %%g in ('C:\\%WINPYTHON%\\python.exe -m site --user-base') do (set PYUSERBASESITE=%%g)
+  - cmd: for /F "tokens=*" %%g in ('C:\\%WINPYTHON%\\python.exe -m site --user-site') do (set PYSITEDIR=%%g)
+  - cmd: "set PATH=%PYUSERBASESITE%;%PYUSERBASESITE%\\%WINPYTHON%\\Scripts;%PYUSERBASESITE%\\Scripts;C:\\%WINPYTHON%;C:\\%WINPYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;C:\\ProgramData\\chocolatey\\bin;%PATH%"
+  - cmd: "C:\\%WINPYTHON%\\python.exe -m pip install --user -U pip setuptools wheel"
+  - cmd: "C:\\%WINPYTHON%\\python.exe -m pip install --user -U pypiwin32 coverage codecov"
+  - cmd: set STATIC_DEPS=true & C:\\%WINPYTHON%\\python.exe -m pip install --user -U lxml
+  # install 3rd party tools to test with
+  - cmd: choco install --allow-empty-checksums dmd ldc swig vswhere xsltproc
+  - cmd: set
+
+  ### LINUX ###
+  - sh: sudo add-apt-repository -y ppa:deadsnakes/ppa
+  # allow the CI to continue even if some pkg in the pkglist may not be up to date
+  - sh: sudo apt-get update || true
+  - sh: sudo apt-get -y install python$PYTHON
+  - sh: wget https://bootstrap.pypa.io/get-pip.py
+  - sh: sudo -H python$PYTHON get-pip.py
+  - sh: which python$PYTHON
+  - sh: python$PYTHON --version
+  - sh: export PYSITEDIR=$(python$PYTHON -m site --user-site)
+  - sh: python$PYTHON -m pip install --user -U pip setuptools wheel 
+  - sh: python$PYTHON -m pip install --user -U coverage codecov
+  - sh: STATIC_DEPS=true python$PYTHON -m pip install --user -U lxml || true
+  - sh: ./.travis/install.sh
+  # workaround for https://github.com/codecov/codecov-python/pull/188
+  - sh: export CI=True
+  - sh: export APPVEYOR=True
+  - sh: printenv
 
 
 environment:
   matrix:
-    - PYTHON: "C:\\Python27"
+    - WINPYTHON: "Python27"
+      PYTHON: "2.7"
+      PYVER: 27
       BUILD_JOB_NUM: 1
-    - PYTHON: "C:\\Python27"
+      COVERAGE: 1
+    - WINPYTHON: "Python27"
+      PYTHON: "2.7"
+      PYVER: 27
       BUILD_JOB_NUM: 2
-    - PYTHON: "C:\\Python27"
+      COVERAGE: 1
+    - WINPYTHON: "Python27"
+      PYTHON: "2.7"
+      PYVER: 27
       BUILD_JOB_NUM: 3
-    - PYTHON: "C:\\Python27"
+      COVERAGE: 1
+    - WINPYTHON: "Python27"
+      PYTHON: "2.7"
+      PYVER: 27
       BUILD_JOB_NUM: 4
+      COVERAGE: 1
 
-    - PYTHON: "C:\\Python35"
+    - WINPYTHON: "Python36"
+      PYTHON: "3.6"
+      PYVER: 36
       BUILD_JOB_NUM: 1
-    - PYTHON: "C:\\Python35"
+      COVERAGE: 1
+    - WINPYTHON: "Python36"
+      PYTHON: "3.6"
+      PYVER: 36
       BUILD_JOB_NUM: 2
-    - PYTHON: "C:\\Python35"
+      COVERAGE: 1
+    - WINPYTHON: "Python36"
+      PYTHON: "3.6"
+      PYVER: 36
       BUILD_JOB_NUM: 3
-    - PYTHON: "C:\\Python35"
+      COVERAGE: 1
+    - WINPYTHON: "Python36"
+      PYTHON: "3.6"
+      PYVER: 36
       BUILD_JOB_NUM: 4
+      COVERAGE: 1
 
-    - PYTHON: "C:\\Python36"
+    - WINPYTHON: "Python35"
+      PYTHON: "3.5"
+      PYVER: 35
       BUILD_JOB_NUM: 1
-    - PYTHON: "C:\\Python36"
+    - WINPYTHON: "Python35"
+      PYTHON: "3.5"
+      PYVER: 35
       BUILD_JOB_NUM: 2
-    - PYTHON: "C:\\Python36"
+    - WINPYTHON: "Python35"
+      PYTHON: "3.5"
+      PYVER: 35
       BUILD_JOB_NUM: 3
-    - PYTHON: "C:\\Python36"
+    - WINPYTHON: "Python35"
+      PYTHON: "3.5"
+      PYVER: 35
       BUILD_JOB_NUM: 4
+    - WINPYTHON: "Python35"
+      PYTHON: "3.5"
+      PYVER: 35
+      BUILD_JOB_NUM: 1
 
-    - PYTHON: "C:\\Python37"
+    - WINPYTHON: "Python37"
+      PYTHON: "3.7"
+      PYVER: 37
       BUILD_JOB_NUM: 1
-    - PYTHON: "C:\\Python37"
+      COVERAGE: 1
+    - WINPYTHON: "Python37"
+      PYTHON: "3.7"
+      PYVER: 37
       BUILD_JOB_NUM: 2
-    - PYTHON: "C:\\Python37"
+      COVERAGE: 1
+    - WINPYTHON: "Python37"
+      PYTHON: "3.7"
+      PYVER: 37
       BUILD_JOB_NUM: 3
-    - PYTHON: "C:\\Python37"
+      COVERAGE: 1
+    - WINPYTHON: "Python37"
+      PYTHON: "3.7"
+      PYVER: 37
       BUILD_JOB_NUM: 4
+      COVERAGE: 1
+
+matrix:	
+  exclude:	
+    # test python 2.7 on Visual Studio 2015 image
+    - image: Visual Studio 2015	
+      WINPYTHON: "Python37"	
+    - image: Visual Studio 2015	
+      WINPYTHON: "Python36"	
+    - image: Visual Studio 2015	
+      WINPYTHON: "Python35"
+
+    # test python 3.6 on Visual Studio 2017 image
+    - image: Visual Studio 2017	
+      WINPYTHON: "Python27"
+    - image: Visual Studio 2017	
+      WINPYTHON: "Python35"
+    - image: Visual Studio 2017	
+      WINPYTHON: "Python37" 
+
+    # test python 3.7 on Ubuntu
+    - image: Ubuntu	
+      WINPYTHON: "Python27"	
+    - image: Ubuntu		
+      WINPYTHON: "Python35"
+    - image: Ubuntu		
+      WINPYTHON: "Python36"
 
 
 before_build:
-    - ps: dir "C:\Program Files\Git\usr\bin\x*.exe"
     - ps: |
-        if (Test-Path "C:\Program Files\Git\usr\bin\xsltproc.EXE" ) {
-          Remove-Item  "C:\Program Files\Git\usr\bin\xsltproc.EXE" -ErrorAction Ignore
+        if ($isWindows) 
+        {
+          dir "C:\Program Files\Git\usr\bin\x*.exe"
+          if (Test-Path "C:\Program Files\Git\usr\bin\xsltproc.EXE" ) {
+            Remove-Item  "C:\Program Files\Git\usr\bin\xsltproc.EXE" -ErrorAction Ignore
+          }
+          dir "C:\Program Files\Git\usr\bin\x*.exe"
         }
-    - ps: dir "C:\Program Files\Git\usr\bin\x*.exe"
-
+  
 build: off
 
 build_script:
-  - cmd: python runtest.py -l -a > all_tests.txt
-  - ps: >-
+  # get tests all tests
+  - cmd: "C:\\%WINPYTHON%\\python.exe runtest.py -l -a > all_tests.txt"
+  - sh: python$PYTHON runtest.py -l -a > all_tests.txt
+
+  # setup coverage is set in environment
+  - ps: |
+      if ($env:COVERAGE -eq 1){ 
+        $env:COVERAGE_PROCESS_START = "$($env:APPVEYOR_BUILD_FOLDER)/.coveragerc";
+        $env:PYTHONNOUSERSITE = "";
+        New-Item -ItemType Directory -Force -Path "$($env:PYSITEDIR)";
+        $env:COVERAGE_FILE = "$($env:APPVEYOR_BUILD_FOLDER)/.coverage";
+        $usercustomizeText = "import os`r`nos.environ['COVERAGE_PROCESS_START'] = '$($env:COVERAGE_PROCESS_START)'`r`nimport coverage`r`ncoverage.process_startup()";
+        $usercustomizeText|Set-Content "$($env:PYSITEDIR)/usercustomize.py";
+        if ($isWindows) 
+        {
+          $coveragercFile = "[run]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)/src`r`nparallel = True`r`ndisable_warnings = trace-changed`r`nomit =`r`n`t*Tests.py`r`n`tsrc\test_*`r`n`tsrc\setup.py`r`n`r`n[path]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)`r`n[report]`r`nomit =`r`n`t*Tests.py`r`n`tsrc\test_*`r`n`tsrc\setup.py`r`n`r`n"
+        }
+        else
+        {
+          $coveragercFile = "[run]`nsource = $($env:APPVEYOR_BUILD_FOLDER)/src`nparallel = True`ndisable_warnings = trace-changed`nomit =`n`t*Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`n[path]`nsource = $($env:APPVEYOR_BUILD_FOLDER)`n[report]`nomit =`n`t*Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`n"
+        }
+        $coveragercFile|Set-Content "$($env:COVERAGE_PROCESS_START)";
+      }
+  # setup portion of tests for this build job (1-4)
+  - ps: |
       $TOTAL_BUILD_JOBS = 4;
       $Lines = (Get-Content all_tests.txt | Measure-Object -line).Lines;
       $start = ($Lines / $TOTAL_BUILD_JOBS) * ($Env:BUILD_JOB_NUM - 1);
@@ -80,4 +205,43 @@ build_script:
       if ( $Env:BUILD_JOB_NUM -eq $TOTAL_BUILD_JOBS){ $end = $Lines };
       if ( $start -eq 0 ){ $start = 1 };
       get-content all_tests.txt | select -first ($end - $start) -skip ($start - 1) | Out-File -Encoding ASCII build_tests.txt;
-  - cmd: powershell -Command "& { python runtest.py -j 2 -f build_tests.txt; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
+
+  # exclude VS 10.0 because it hangs the testing until this is resolved: 
+  # https://help.appveyor.com/discussions/problems/19283-visual-studio-2010-trial-license-has-expired
+  - ps: |
+      New-Item -Name exclude_list.txt -ItemType File
+      $workaround_image = "Visual Studio 2015"
+      if ($env:APPVEYOR_BUILD_WORKER_IMAGE -eq $workaround_image){ 
+        Add-Content -Path 'exclude_list.txt' -Value 'test\MSVS\vs-10.0-exec.py'
+      }
+
+  # NOTE: running powershell from cmd on purpose because it formats the output
+  # correctly
+  - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py --exclude-list exclude_list.txt -f build_tests.txt } else { C:\\%WINPYTHON%\\python.exe runtest.py -j 2 --exclude-list exclude_list.txt -f build_tests.txt }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
+
+  # unset JAVA_TOOL_OPTIONS because newer java prints this to stderr
+  - sh: |
+      unset JAVA_TOOL_OPTIONS
+      if [ "$COVERAGE" -eq "1" ]; then 
+        coverage run -p --rcfile="$COVERAGE_PROCESS_START" runtest.py --exclude-list exclude_list.txt -f build_tests.txt || if [[ $? == 2 ]]; then true; else false; fi; 
+      else
+        python$PYTHON runtest.py -j 2 --exclude-list exclude_list.txt -f build_tests.txt || if [[ $? == 2 ]]; then true; else false; fi; 
+      fi
+
+  # run converage 
+on_finish:
+  - ps: |
+      if ($env:COVERAGE -eq 1)
+      { 
+        & coverage combine
+        & coverage report
+        & coverage xml -o coverage_xml.xml
+      }
+  # running in powershell causes an error so running in platform
+  # shells
+  - cmd: if %COVERAGE% equ 1 codecov -X gcov --file coverage_xml.xml
+  - sh: if [ $COVERAGE -eq 1 ]; then codecov -X gcov --file coverage_xml.xml; fi
+    # not using coveralls, so leaving it commented out in case we switch back
+    #- cmd: "C:\\%WINPYTHON%\\python.exe -m pip install --user -U coveralls"
+    #- sh: python$PYTHON -m pip install --user -U coveralls 
+    #- ps: coveralls --rcfile="$($env:COVERAGE_PROCESS_START)"
