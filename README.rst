@@ -21,9 +21,9 @@ SCons - a software construction tool
    :target: https://ci.appveyor.com/project/SCons/scons
    :alt: AppVeyor CI build Status
    
-.. image:: https://coveralls.io/repos/github/SCons/scons/badge.svg?branch=master
-   :target: https://coveralls.io/github/SCons/scons?branch=master
-   :alt: Coveralls.io Coverage Status
+.. image:: https://codecov.io/gh/dmoody256/scons/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/dmoody256/scons
+   :alt: CodeCov Coverage Status
 
 
 Welcome to the SCons development tree.  The real purpose of this tree is to
