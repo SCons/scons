@@ -2,7 +2,7 @@
 
                  SCons - a software construction tool
 
-                         Version __VERSION__
+                         Version 3.0.3
 
 
 This is SCons, a tool for building software (and other files).  SCons is
@@ -56,7 +56,7 @@ provided Python-standard setup script as follows:
 
 By default, the above command will do the following:
 
-    --  Install the version-numbered "scons-__VERSION__" and "sconsign-__VERSION__"
+    --  Install the version-numbered "scons-3.0.3" and "sconsign-3.0.3"
         scripts in the default system script directory (/usr/bin or
         C:\Python*\Scripts, for example).  This can be disabled by
         specifying the "--no-version-script" option on the command
@@ -70,17 +70,17 @@ By default, the above command will do the following:
         making it the default on your system.
 
         On UNIX or Linux systems, you can have the "scons" and "sconsign"
-        scripts be hard links or symbolic links to the "scons-__VERSION__" and
-        "sconsign-__VERSION__" scripts by specifying the "--hardlink-scons"
+        scripts be hard links or symbolic links to the "scons-3.0.3" and
+        "sconsign-3.0.3" scripts by specifying the "--hardlink-scons"
         or "--symlink-scons" options on the command line.
 
-    --  Install "scons-__VERSION__.bat" and "scons.bat" wrapper scripts in the
+    --  Install "scons-3.0.3.bat" and "scons.bat" wrapper scripts in the
         Python prefix directory on Windows (C:\Python*, for example).
         This can be disabled by specifying the "--no-install-bat" option
         on the command line.
 
         On UNIX or Linux systems, the "--install-bat" option may be
-        specified to have "scons-__VERSION__.bat" and "scons.bat" files
+        specified to have "scons-3.0.3.bat" and "scons.bat" files
         installed in the default system script directory, which is useful
         if you want to install SCons in a shared file system directory
         that can be used to execute SCons from both UNIX/Linux and
@@ -88,7 +88,7 @@ By default, the above command will do the following:
 
     --  Install the SCons build engine (a Python module) in an
         appropriate version-numbered SCons library directory
-        (/usr/lib/scons-__VERSION__ or C:\Python*\scons-__VERSION__, for example).
+        (/usr/lib/scons-3.0.3 or C:\Python*\scons-3.0.3, for example).
         See below for more options related to installing the build
         engine library.
 
@@ -246,4 +246,4 @@ many contributors, including but not at all limited to:
 
 \... and many others.
 
-Copyright (c) 2001 - 2015 The SCons Foundation
+Copyright (c) 2001 - 2019 The SCons Foundation
