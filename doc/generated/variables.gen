@@ -4487,6 +4487,7 @@ constructor; setting it later has no effect.
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 Valid values for Windows are
+<literal>14.1</literal>,
 <literal>14.0</literal>,
 <literal>14.0Exp</literal>,
 <literal>12.0</literal>,
@@ -6719,16 +6720,6 @@ Example <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION">
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-SHLIBVERSIONFLAGS">
-    <term>SHLIBVERSIONFLAGS</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Extra flags added to <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLINKCOM"><envar>$SHLINKCOM</envar></link> when building versioned
-<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link>. These flags are only used when <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> is
-set.
-</para>
-</listitem>
-  </varlistentry>
   <varlistentry id="cv-_SHLIBVERSIONFLAGS">
     <term>_SHLIBVERSIONFLAGS</term>
     <listitem>
@@ -6739,6 +6730,16 @@ is set). <literal>_SHLIBVERSIONFLAGS</literal> usually adds <link xmlns="http://
 and some extra dynamically generated options (such as
 <literal>-Wl,-soname=$_SHLIBSONAME</literal>. It is unused by "plain"
 (unversioned) shared libraries.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-SHLIBVERSIONFLAGS">
+    <term>SHLIBVERSIONFLAGS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Extra flags added to <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLINKCOM"><envar>$SHLINKCOM</envar></link> when building versioned
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link>. These flags are only used when <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> is
+set.
 </para>
 </listitem>
   </varlistentry>
@@ -7221,18 +7222,24 @@ This variable must be passed as an argument to the Environment()
 constructor; setting it later has no effect.  
 This is currently only used on Windows, but in the future it will be
 used on other OSes as well.
+If this is set and MSVC_VERSION is not set, this will search for 
+all installed MSVC's that support the TARGET_ARCH, selecting the 
+latest version for use.
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 Valid values for Windows are
 <literal>x86</literal>,
+<literal>arm</literal>,
 <literal>i386</literal>
 (for 32 bits); 
 <literal>amd64</literal>,
+<literal>arm64</literal>,
 <literal>emt64</literal>,
 <literal>x86_64</literal>
 (for 64 bits);
 and <literal>ia64</literal> (Itanium).
+
 For example, if you want to compile 64-bit binaries, you would set
 <literal>TARGET_ARCH='x86_64'</literal> in your SCons environment.
 </para>
@@ -7272,11 +7279,27 @@ The suffix used for tar file names.
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The prefix for a temporary file used
-to execute lines longer than $MAXLINELENGTH.
-The default is '@'.
-This may be set for toolchains that use other values,
-such as '-@' for the diab compiler
+to store lines lines longer than $MAXLINELENGTH
+as operations which call out to a shell will fail
+if the line is too long, which particularly
+impacts linking.
+The default is '@', which works for the Microsoft
+and GNU toolchains on Windows.
+Set this appropriately for other toolchains,
+for example '-@' for the diab compiler
 or '-via' for ARM toolchain.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-TEMPFILESUFFIX">
+    <term>TEMPFILESUFFIX</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The suffix used for the temporary file name
+used for long command lines. The name should
+include the dot ('.') if one is wanted as
+it will not be added automatically.
+The default is '.lnk'.
 </para>
 </listitem>
   </varlistentry>
