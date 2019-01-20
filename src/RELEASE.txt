@@ -1,4 +1,4 @@
-  A new SCons checkpoint release, 3.0.4.alpha.yyyymmdd, is now available
+  A new SCons release, 3.0.4, is now available
   on the SCons download page:
 
           http://www.scons.org/download.php
