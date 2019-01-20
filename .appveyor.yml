@@ -1,7 +1,8 @@
 #version: '3.0.1.{build}'
 
-image: 
-  - Ubuntu
+image:
+  # linux builds disabled for now 
+  # - Ubuntu
   - Visual Studio 2015
   - Visual Studio 2017
   

@@ -21,8 +21,8 @@ SCons - a software construction tool
    :target: https://ci.appveyor.com/project/SCons/scons
    :alt: AppVeyor CI build Status
    
-.. image:: https://codecov.io/gh/dmoody256/scons/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/dmoody256/scons
+.. image:: https://codecov.io/gh/SCons/scons/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/SCons/scons
    :alt: CodeCov Coverage Status
 
 

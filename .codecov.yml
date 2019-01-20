@@ -5,7 +5,7 @@ codecov:
 
 ignore:
   # ignore test files in the source
-  # this is redundent and should not be in the report anyways
+  # this is redundant and should not be in the report anyways
   # because the coveragerc file ignores them
   - "*Test.py"
   - "setup.py"
