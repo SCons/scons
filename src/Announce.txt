@@ -24,6 +24,12 @@ RELEASE VERSION/DATE TO BE FILLED IN LATER
   release and consult the CHANGES.txt file for complete a list of changes
   since last release.  This announcement highlights only the important
   changes.
+    Please note the following important changes since release 3.0.3:
+       - Added TEMPFILESUFFIX to allow user to specify suffix for tempfiles used for long command lines
+       - Initial support for ARM architectures with Microsoft Visual Studio 2017. You must set TARGET_ARCH
+         to arm or arm64 to enable.
+       - Fixed issue detecting installs of Microsoft Visual Studio 2017 as well as Microsoft build tools 2017.
+
     Please note the following important changes since release 2.5.1:
 
        This is the initial release supporting both python 3.5+ and 2.7.x and pypy
