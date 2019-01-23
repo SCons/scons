@@ -5,6 +5,13 @@
                             Change Log
 
 
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From John Doe:
+
+    - Whatever John Doe did.
+
+
 RELEASE 3.0.4 - Mon, 20 Jan 2019 22:49:27 +0000
 
   From Mats Wichmann:
