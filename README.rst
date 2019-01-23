@@ -765,5 +765,5 @@ many contributors, including but not at all limited to:
 
 \... and many others.
 
-Copyright (c) 2001 - 2018 The SCons Foundation
+Copyright (c) 2001 - 2019 The SCons Foundation
 

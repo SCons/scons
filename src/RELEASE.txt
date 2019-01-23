@@ -2,7 +2,8 @@
   on the SCons download page:
 
           http://www.scons.org/download.php
-
+  Or via pypi:
+          pip install scons
 
   Here is a summary of the changes since 3.0.3:
 
