@@ -40,8 +40,8 @@ test = TestSCons.TestSCons()
 dvips = test.where_is('dvips')
 latex = test.where_is('latex')
 
-if not dvips or not latex:
-    test.skip_test("Could not find dvips or latex; skipping test(s).\n")
+if not all((dvips, latex)):
+    test.skip_test("Could not find 'dvips' and/or 'latex'; skipping test(s).\n")
 
 NCR = test.NCR  # non-cached rebuild
 
