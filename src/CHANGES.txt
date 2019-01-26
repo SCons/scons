@@ -11,6 +11,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
     - Whatever John Doe did.
 
+  From Mats Wichmann:
+    - Quiet open file ResourceWarnings on Python >= 3.6 caused by
+      not using a context manager around Popen.stdout
+
 
 RELEASE 3.0.4 - Mon, 20 Jan 2019 22:49:27 +0000
 
