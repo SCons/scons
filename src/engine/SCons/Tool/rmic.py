@@ -118,7 +118,7 @@ def generate(env):
         # print("RMIC: %s"%rmic)
         if rmic:
             rmic_bin_dir = os.path.dirname(rmic)
-            env.AppendENVPath('PATH', rmic_bin_dir)
+            env.AppendENVPath('PATH', rmic_bin_dir, delete_existing=0)
 
     env['RMIC']            = 'rmic'
     env['RMICFLAGS']       = SCons.Util.CLVar('')

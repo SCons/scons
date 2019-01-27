@@ -40,7 +40,7 @@ def generate(env,**kw):
         tool = SCons.Tool.find_program_path(env, t, default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
         if tool:
             tool_bin_dir = os.path.dirname(tool)
-            env.AppendENVPath('PATH', tool_bin_dir)
+            env.AppendENVPath('PATH', tool_bin_dir, delete_existing=0)
         else:
             SCons.Warnings.Warning(t + ' tool requested, but binary not found in ENV PATH')
     env.Tool(t)

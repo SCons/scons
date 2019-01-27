@@ -187,7 +187,7 @@ def generate(env):
         swig = SCons.Tool.find_program_path(env, 'swig', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS + [r'C:\ProgramData\chocolatey\bin'] )
         if swig:
             swig_bin_dir = os.path.dirname(swig)
-            env.AppendENVPath('PATH', swig_bin_dir)
+            env.AppendENVPath('PATH', swig_bin_dir, delete_existing=0)
         else:
             SCons.Warnings.Warning('swig tool requested, but binary not found in ENV PATH')
 

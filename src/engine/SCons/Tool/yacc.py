@@ -120,7 +120,7 @@ def generate(env):
         bison = SCons.Tool.find_program_path(env, 'bison', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
         if bison:
             bison_bin_dir = os.path.dirname(bison)
-            env.AppendENVPath('PATH', bison_bin_dir)
+            env.AppendENVPath('PATH', bison_bin_dir, delete_existing=0)
         else:
             SCons.Warnings.Warning('yacc tool requested, but bison binary not found in ENV PATH')
 

@@ -141,7 +141,7 @@ def generate(env):
     mingw = SCons.Tool.find_program_path(env, key_program, default_paths=mingw_paths)
     if mingw:
         mingw_bin_dir = os.path.dirname(mingw)
-        env.AppendENVPath('PATH', mingw_bin_dir)
+        env.AppendENVPath('PATH', mingw_bin_dir, delete_existing=0)
 
     # Most of mingw is the same as gcc and friends...
     gnu_tools = ['gcc', 'g++', 'gnulink', 'ar', 'gas', 'gfortran', 'm4']
@@ -186,7 +186,7 @@ def exists(env):
     mingw = SCons.Tool.find_program_path(env, key_program, default_paths=mingw_paths)
     if mingw:
         mingw_bin_dir = os.path.dirname(mingw)
-        env.AppendENVPath('PATH', mingw_bin_dir)
+        env.AppendENVPath('PATH', mingw_bin_dir, delete_existing=0)
 
     return mingw
 

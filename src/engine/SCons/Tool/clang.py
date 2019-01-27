@@ -60,7 +60,7 @@ def generate(env):
                                              default_paths=get_clang_install_dirs(env['PLATFORM']))
         if clang:
             clang_bin_dir = os.path.dirname(clang)
-            env.AppendENVPath('PATH', clang_bin_dir)
+            env.AppendENVPath('PATH', clang_bin_dir, delete_existing=0)
 
     env['CC'] = env.Detect(compilers) or 'clang'
     if env['PLATFORM'] in ['cygwin', 'win32']:

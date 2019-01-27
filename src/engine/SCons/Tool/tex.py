@@ -861,7 +861,7 @@ def generate_darwin(env):
         except:
             ospath = None
         if ospath:
-            env.AppendENVPath('PATH', ospath)
+            env.AppendENVPath('PATH', ospath, delete_existing=0)
 
 def generate_common(env):
     """Add internal Builders and construction variables for LaTeX to an Environment."""

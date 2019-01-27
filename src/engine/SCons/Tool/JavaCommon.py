@@ -463,7 +463,6 @@ def get_java_include_paths(env, javac, version):
         for p in base_paths:
             paths.extend([p, os.path.join(p,'linux')])
             
-    #print("PATHS:%s"%paths)
     return paths
 
 

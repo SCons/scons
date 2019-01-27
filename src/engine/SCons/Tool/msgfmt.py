@@ -87,7 +87,7 @@ def generate(env,**kw):
       msgfmt = SCons.Tool.find_program_path(env, 'msgfmt', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
       if msgfmt:
           msgfmt_bin_dir = os.path.dirname(msgfmt)
-          env.AppendENVPath('PATH', msgfmt_bin_dir)
+          env.AppendENVPath('PATH', msgfmt_bin_dir, delete_existing=0)
       else:
           SCons.Warnings.Warning('msgfmt tool requested, but binary not found in ENV PATH')
 

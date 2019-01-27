@@ -300,7 +300,7 @@ def generate(env, **kw):
         xgettext = SCons.Tool.find_program_path(env, 'xgettext', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
         if xgettext:
             xgettext_bin_dir = os.path.dirname(xgettext)
-            env.AppendENVPath('PATH', xgettext_bin_dir)
+            env.AppendENVPath('PATH', xgettext_bin_dir, delete_existing=0)
         else:
             SCons.Warnings.Warning('xgettext tool requested, but binary not found in ENV PATH')
     try:

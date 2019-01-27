@@ -1336,8 +1336,8 @@ def find_program_path(env, key_program, default_paths=[]):
     for p in default_paths:
         env.AppendENVPath('PATH', p)
     path = env.WhereIs(key_program)
-    if not path:
-        env['ENV']['PATH'] = save_path
+    # replace the env as it was and return the path the program was found in
+    env['ENV']['PATH'] = save_path
     return path
 
 # Local Variables:

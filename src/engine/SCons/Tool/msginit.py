@@ -89,7 +89,7 @@ def generate(env,**kw):
       msginit = SCons.Tool.find_program_path(env, 'msginit', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
       if msginit:
           msginit_bin_dir = os.path.dirname(msginit)
-          env.AppendENVPath('PATH', msginit_bin_dir)
+          env.AppendENVPath('PATH', msginit_bin_dir, delete_existing=0)
       else:
           SCons.Warnings.Warning('msginit tool requested, but binary not found in ENV PATH')
 

@@ -128,7 +128,7 @@ def generate(env):
                                              default_paths=get_java_install_dirs(env['PLATFORM']))
         if javah:
             javah_bin_dir = os.path.dirname(javah)
-            env.AppendENVPath('PATH', javah_bin_dir)
+            env.AppendENVPath('PATH', javah_bin_dir, delete_existing=0)
 
     env['_JAVAHOUTFLAG']    = JavaHOutFlagGenerator
     env['JAVAH']            = 'javah'

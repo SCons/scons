@@ -73,7 +73,7 @@ def generate(env):
         clangxx = SCons.Tool.find_program_path(env, compilers[0], default_paths=get_clang_install_dirs(env['PLATFORM']))
         if clangxx:
             clangxx_bin_dir = os.path.dirname(clangxx)
-            env.AppendENVPath('PATH', clangxx_bin_dir)
+            env.AppendENVPath('PATH', clangxx_bin_dir, delete_existing=0)
 
     # determine compiler version
     if env['CXX']:

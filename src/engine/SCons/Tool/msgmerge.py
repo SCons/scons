@@ -80,7 +80,7 @@ def generate(env,**kw):
       msgmerge = SCons.Tool.find_program_path(env, 'msgmerge', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
       if msgmerge:
           msgmerge_bin_dir = os.path.dirname(msgmerge)
-          env.AppendENVPath('PATH', msgmerge_bin_dir)
+          env.AppendENVPath('PATH', msgmerge_bin_dir, delete_existing=0)
       else:
           SCons.Warnings.Warning('msgmerge tool requested, but binary not found in ENV PATH')
   try:
