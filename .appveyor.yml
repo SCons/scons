@@ -17,12 +17,11 @@ install:
   ### WINDOWS ###
   # add python and python user-base to path for pip installs
   - cmd: "C:\\%WINPYTHON%\\python.exe --version"
-  - cmd: for /F "tokens=*" %%g in ('C:\\%WINPYTHON%\\python.exe -m site --user-base') do (set PYUSERBASESITE=%%g)
   - cmd: for /F "tokens=*" %%g in ('C:\\%WINPYTHON%\\python.exe -m site --user-site') do (set PYSITEDIR=%%g)
-  - cmd: "set PATH=%PYUSERBASESITE%;%PYUSERBASESITE%\\%WINPYTHON%\\Scripts;%PYUSERBASESITE%\\Scripts;C:\\%WINPYTHON%;C:\\%WINPYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;C:\\ProgramData\\chocolatey\\bin;%PATH%"
-  - cmd: "C:\\%WINPYTHON%\\python.exe -m pip install --user -U pip setuptools wheel"
-  - cmd: "C:\\%WINPYTHON%\\python.exe -m pip install --user -U pypiwin32 coverage codecov"
-  - cmd: set STATIC_DEPS=true & C:\\%WINPYTHON%\\python.exe -m pip install --user -U lxml
+  - cmd: "set PATH=C:\\%WINPYTHON%;C:\\%WINPYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;C:\\ProgramData\\chocolatey\\bin;%PATH%"
+  - cmd: "C:\\%WINPYTHON%\\python.exe -m pip install -U --progress-bar off pip setuptools wheel "
+  - cmd: "C:\\%WINPYTHON%\\python.exe -m pip install -U --progress-bar off pypiwin32 coverage codecov"
+  - cmd: set STATIC_DEPS=true & C:\\%WINPYTHON%\\python.exe -m pip install -U --progress-bar off lxml
   # install 3rd party tools to test with
   - cmd: choco install --allow-empty-checksums dmd ldc swig vswhere xsltproc
   - cmd: set
@@ -37,13 +36,10 @@ install:
   - sh: which python$PYTHON
   - sh: python$PYTHON --version
   - sh: export PYSITEDIR=$(python$PYTHON -m site --user-site)
-  - sh: python$PYTHON -m pip install --user -U pip setuptools wheel 
-  - sh: python$PYTHON -m pip install --user -U coverage codecov
-  - sh: STATIC_DEPS=true python$PYTHON -m pip install --user -U lxml || true
+  - sh: python$PYTHON -m pip install --user -U --progress-bar off pip setuptools wheel 
+  - sh: python$PYTHON -m pip install --user -U --progress-bar off coverage codecov
+  - sh: STATIC_DEPS=true python$PYTHON -m pip install --user -U --progress-bar off lxml
   - sh: ./.travis/install.sh
-  # workaround for https://github.com/codecov/codecov-python/pull/188
-  - sh: export CI=True
-  - sh: export APPVEYOR=True
   - sh: printenv
 
 
@@ -95,61 +91,51 @@ environment:
       PYTHON: "3.5"
       PYVER: 35
       BUILD_JOB_NUM: 1
+      COVERAGE: 0
     - WINPYTHON: "Python35"
       PYTHON: "3.5"
       PYVER: 35
       BUILD_JOB_NUM: 2
+      COVERAGE: 0
     - WINPYTHON: "Python35"
       PYTHON: "3.5"
       PYVER: 35
       BUILD_JOB_NUM: 3
+      COVERAGE: 0
     - WINPYTHON: "Python35"
       PYTHON: "3.5"
       PYVER: 35
       BUILD_JOB_NUM: 4
-    - WINPYTHON: "Python35"
-      PYTHON: "3.5"
-      PYVER: 35
-      BUILD_JOB_NUM: 1
+      COVERAGE: 0
 
     - WINPYTHON: "Python37"
       PYTHON: "3.7"
       PYVER: 37
       BUILD_JOB_NUM: 1
-      COVERAGE: 1
+      COVERAGE: 0
     - WINPYTHON: "Python37"
       PYTHON: "3.7"
       PYVER: 37
       BUILD_JOB_NUM: 2
-      COVERAGE: 1
+      COVERAGE: 0
     - WINPYTHON: "Python37"
       PYTHON: "3.7"
       PYVER: 37
       BUILD_JOB_NUM: 3
-      COVERAGE: 1
+      COVERAGE: 0
     - WINPYTHON: "Python37"
       PYTHON: "3.7"
       PYVER: 37
       BUILD_JOB_NUM: 4
-      COVERAGE: 1
+      COVERAGE: 0
 
 matrix:	
   exclude:	
-    # test python 2.7 on Visual Studio 2015 image
+    # test python 3.6 on Visual Studio 2015 image
     - image: Visual Studio 2015	
-      WINPYTHON: "Python37"	
-    - image: Visual Studio 2015	
-      WINPYTHON: "Python36"	
+      WINPYTHON: "Python37"
     - image: Visual Studio 2015	
       WINPYTHON: "Python35"
-
-    # test python 3.6 on Visual Studio 2017 image
-    - image: Visual Studio 2017	
-      WINPYTHON: "Python27"
-    - image: Visual Studio 2017	
-      WINPYTHON: "Python35"
-    - image: Visual Studio 2017	
-      WINPYTHON: "Python37" 
 
     # test python 3.7 on Ubuntu
     - image: Ubuntu	
@@ -158,7 +144,6 @@ matrix:
       WINPYTHON: "Python35"
     - image: Ubuntu		
       WINPYTHON: "Python36"
-
 
 before_build:
     - ps: |

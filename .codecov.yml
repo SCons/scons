@@ -16,6 +16,16 @@ coverage:
   round: down
   range: "70...100"
 
+  notify:
+    irc:
+      default:
+        server: "chat.freenode.net#scons"
+        branches: master
+        threshold: null
+        message: "Coverage {{changed}} for {{owner}}/{{repo}}"  # customize the message
+        flags: null
+        paths: null
+
   status:
     project:
       default:
