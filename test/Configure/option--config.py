@@ -122,6 +122,25 @@ test.checkLogAndStdout( ["Checking for C header file non_system_header0.h... ",
                      [((".c", CR), (_obj, NCR))]],
                     "config.log", ".sconf_temp", "SConstruct")
 
+
+# Check the combination of --config=force and Decider('MD5-timestamp')
+# On second run there was an issue where the decider would throw DeciderNeedsNode
+# exception which the configure code didn't handle.
+SConstruct_path = test.workpath('SConstruct')
+test.write(SConstruct_path, """
+env = Environment()
+env.Decider('MD5-timestamp')
+conf = Configure(env)
+conf.TryLink('int main(){return 0;}','.c')
+env = conf.Finish()
+""")
+test.run(arguments='--config=force')
+# On second run the sconsign is loaded and decider doesn't just indicate need to rebuild
+test.run(arguments='--config=force')
+test.must_not_contain(test.workpath('config.log'),"TypeError: 'NoneType' object is not callable")
+
+
+
 test.pass_test()
 
 # Local Variables:
