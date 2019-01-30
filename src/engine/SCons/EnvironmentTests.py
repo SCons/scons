@@ -1623,9 +1623,9 @@ def exists(env):
         env1.AppendENVPath('PATH',r'C:\dir\num\two', sep = ';')
         env1.AppendENVPath('PATH',r'C:\dir\num\three', sep = ';')
         env1.AppendENVPath('MYPATH',r'C:\mydir\num\three','MYENV', sep = ';')
-        env1.AppendENVPath('MYPATH',r'C:\mydir\num\one','MYENV', sep = ';')
+        env1.AppendENVPath('MYPATH',r'C:\mydir\num\one','MYENV', sep = ';', delete_existing=1)
         # this should do nothing since delete_existing is 0
-        env1.AppendENVPath('MYPATH',r'C:\mydir\num\three','MYENV', sep = ';', delete_existing=0)
+        env1.AppendENVPath('MYPATH',r'C:\mydir\num\three','MYENV', sep = ';')
         assert(env1['ENV']['PATH'] == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
         assert(env1['MYENV']['MYPATH'] == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one')
 
