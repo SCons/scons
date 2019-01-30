@@ -7,9 +7,13 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From John Doe:
+  From William Deegan:
 
-    - Whatever John Doe did.
+    - Fix Issue #3283 - Handle using --config=force in combination with Decider('MD5-timestamp').
+      3.0.2 in fix for issue #2980 added that deciders can throw DeciderNeedsNode exception.
+      The Configure logic directly calls the decider when using --config=force but wasn't handling
+      that exception.  This would yield minimally configure tests using TryLink() not running and
+      leaving TypeError Nonetype exception in config.log
 
   From Daniel Moody:
     - Change the default for AppendENVPath to delete_existing=0, so path
