@@ -21,9 +21,9 @@ SCons - a software construction tool
    :target: https://ci.appveyor.com/project/SCons/scons
    :alt: AppVeyor CI build Status
    
-.. image:: https://coveralls.io/repos/github/SCons/scons/badge.svg?branch=master
-   :target: https://coveralls.io/github/SCons/scons?branch=master
-   :alt: Coveralls.io Coverage Status
+.. image:: https://codecov.io/gh/SCons/scons/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/SCons/scons
+   :alt: CodeCov Coverage Status
 
 
 Welcome to the SCons development tree.  The real purpose of this tree is to
@@ -499,13 +499,13 @@ about `Executing SCons Without Installing`_)::
 Depending on the utilities installed on your system, any or all of the
 following packages will be built::
 
-        build/dist/scons-3.0.3.tar.gz
-        build/dist/scons-3.0.3.zip
-        build/dist/scons-doc-3.0.3.tar.gz
-        build/dist/scons-local-3.0.3.tar.gz
-        build/dist/scons-local-3.0.3.zip
-        build/dist/scons-src-3.0.3.tar.gz
-        build/dist/scons-src-3.0.3.zip
+        build/dist/scons-3.0.4.tar.gz
+        build/dist/scons-3.0.4.zip
+        build/dist/scons-doc-3.0.4.tar.gz
+        build/dist/scons-local-3.0.4.tar.gz
+        build/dist/scons-local-3.0.4.zip
+        build/dist/scons-src-3.0.4.tar.gz
+        build/dist/scons-src-3.0.4.zip
 
 The SConstruct file is supposed to be smart enough to avoid trying to build
 packages for which you don't have the proper utilities installed.  For
@@ -765,5 +765,5 @@ many contributors, including but not at all limited to:
 
 \... and many others.
 
-Copyright (c) 2001 - 2018 The SCons Foundation
+Copyright (c) 2001 - 2019 The SCons Foundation
 

@@ -68,32 +68,40 @@ def exists(env):
 
 def detect_version(env, cc):
     """Return the version of the GNU compiler, or None if it is not a GNU compiler."""
+    version = None
     cc = env.subst(cc)
     if not cc:
-        return None
-    version = None
+        return version
+
+    # -dumpversion was added in GCC 3.0.  As long as we're supporting
+    # GCC versions older than that, we should use --version and a
+    # regular expression.
     # pipe = SCons.Action._subproc(env, SCons.Util.CLVar(cc) + ['-dumpversion'],
     pipe = SCons.Action._subproc(env, SCons.Util.CLVar(cc) + ['--version'],
                                  stdin='devnull',
                                  stderr='devnull',
                                  stdout=subprocess.PIPE)
-    # -dumpversion was added in GCC 3.0.  As long as we're supporting
-    # GCC versions older than that, we should use --version and a
-    # regular expression.
-    # line = pipe.stdout.read().strip()
+    if pipe.wait() != 0:
+        return version
+
+    with pipe.stdout:
+        # -dumpversion variant:
+        # line = pipe.stdout.read().strip()
+        # --version variant:
+        line = SCons.Util.to_str(pipe.stdout.readline())
+        # Non-GNU compiler's output (like AIX xlc's) may exceed the stdout buffer:
+        # So continue with reading to let the child process actually terminate.
+        while SCons.Util.to_str(pipe.stdout.readline()):
+            pass
+
+    # -dumpversion variant:
     # if line:
-    #    version = line
-    line = SCons.Util.to_str(pipe.stdout.readline())
+    #     version = line
+    # --version variant:
     match = re.search(r'[0-9]+(\.[0-9]+)+', line)
     if match:
         version = match.group(0)
-    # Non-GNU compiler's output (like AIX xlc's) may exceed the stdout buffer:
-    # So continue with reading to let the child process actually terminate.
-    while SCons.Util.to_str(pipe.stdout.readline()):
-        pass
-    ret = pipe.wait()
-    if ret != 0:
-        return None
+
     return version
 
 # Local Variables:

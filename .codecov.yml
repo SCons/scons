@@ -1,0 +1,50 @@
+codecov:
+  notify:
+    # calculate coverge even when we fail
+    require_ci_to_pass: no
+
+ignore:
+  # ignore test files in the source
+  # this is redundant and should not be in the report anyways
+  # because the coveragerc file ignores them
+  - "*Test.py"
+  - "setup.py"
+  - "test_*"
+
+coverage:
+  precision: 2
+  round: down
+  range: "70...100"
+
+  notify:
+    irc:
+      default:
+        server: "chat.freenode.net#scons"
+        branches: master
+        threshold: null
+        message: "Coverage {{changed}} for {{owner}}/{{repo}}"  # customize the message
+        flags: null
+        paths: null
+
+  status:
+    project:
+      default:
+        # compare against the current coverage 
+        # that PR is attempt to merge to
+        # don't consider a drop in coverage success
+        target: auto
+        threshold: null
+        base: pr
+
+    patch:
+      default:
+        # considering only the lines changed 
+        # make sure all new lines in the PR are covered
+        # to consider a success
+        target: 100
+        threshold: null
+        base: pr
+
+    changes: no
+
+comment: off
