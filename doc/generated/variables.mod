@@ -10,6 +10,12 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 
 <!ENTITY cv-__LDMODULEVERSIONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$__LDMODULEVERSIONFLAGS</envar>">
 <!ENTITY cv-__SHLIBVERSIONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$__SHLIBVERSIONFLAGS</envar>">
+<!ENTITY cv-_APPLELINK_COMPATIBILITY_VERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_APPLELINK_COMPATIBILITY_VERSION</envar>">
+<!ENTITY cv-APPLELINK_COMPATIBILITY_VERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$APPLELINK_COMPATIBILITY_VERSION</envar>">
+<!ENTITY cv-_APPLELINK_CURRENT_VERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_APPLELINK_CURRENT_VERSION</envar>">
+<!ENTITY cv-APPLELINK_CURRENT_VERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$APPLELINK_CURRENT_VERSION</envar>">
+<!ENTITY cv-APPLELINK_NO_COMPATIBILITY_VERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$APPLELINK_NO_COMPATIBILITY_VERSION</envar>">
+<!ENTITY cv-APPLELINK_NO_CURRENT_VERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$APPLELINK_NO_CURRENT_VERSION</envar>">
 <!ENTITY cv-AR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$AR</envar>">
 <!ENTITY cv-ARCHITECTURE "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$ARCHITECTURE</envar>">
 <!ENTITY cv-ARCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$ARCOM</envar>">
@@ -538,6 +544,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-TARGETS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TARGETS</envar>">
 <!ENTITY cv-TARSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TARSUFFIX</envar>">
 <!ENTITY cv-TEMPFILEPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEMPFILEPREFIX</envar>">
+<!ENTITY cv-TEMPFILESUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEMPFILESUFFIX</envar>">
 <!ENTITY cv-TEX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEX</envar>">
 <!ENTITY cv-TEXCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEXCOM</envar>">
 <!ENTITY cv-TEXCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEXCOMSTR</envar>">
@@ -641,6 +648,12 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 
 <!ENTITY cv-link-__LDMODULEVERSIONFLAGS "<link linkend='cv-__LDMODULEVERSIONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$__LDMODULEVERSIONFLAGS</envar></link>">
 <!ENTITY cv-link-__SHLIBVERSIONFLAGS "<link linkend='cv-__SHLIBVERSIONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$__SHLIBVERSIONFLAGS</envar></link>">
+<!ENTITY cv-link-_APPLELINK_COMPATIBILITY_VERSION "<link linkend='cv-_APPLELINK_COMPATIBILITY_VERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_APPLELINK_COMPATIBILITY_VERSION</envar></link>">
+<!ENTITY cv-link-APPLELINK_COMPATIBILITY_VERSION "<link linkend='cv-APPLELINK_COMPATIBILITY_VERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$APPLELINK_COMPATIBILITY_VERSION</envar></link>">
+<!ENTITY cv-link-_APPLELINK_CURRENT_VERSION "<link linkend='cv-_APPLELINK_CURRENT_VERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_APPLELINK_CURRENT_VERSION</envar></link>">
+<!ENTITY cv-link-APPLELINK_CURRENT_VERSION "<link linkend='cv-APPLELINK_CURRENT_VERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$APPLELINK_CURRENT_VERSION</envar></link>">
+<!ENTITY cv-link-APPLELINK_NO_COMPATIBILITY_VERSION "<link linkend='cv-APPLELINK_NO_COMPATIBILITY_VERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$APPLELINK_NO_COMPATIBILITY_VERSION</envar></link>">
+<!ENTITY cv-link-APPLELINK_NO_CURRENT_VERSION "<link linkend='cv-APPLELINK_NO_CURRENT_VERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$APPLELINK_NO_CURRENT_VERSION</envar></link>">
 <!ENTITY cv-link-AR "<link linkend='cv-AR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$AR</envar></link>">
 <!ENTITY cv-link-ARCHITECTURE "<link linkend='cv-ARCHITECTURE' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$ARCHITECTURE</envar></link>">
 <!ENTITY cv-link-ARCOM "<link linkend='cv-ARCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$ARCOM</envar></link>">
@@ -1169,6 +1182,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-TARGETS "<link linkend='cv-TARGETS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TARGETS</envar></link>">
 <!ENTITY cv-link-TARSUFFIX "<link linkend='cv-TARSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TARSUFFIX</envar></link>">
 <!ENTITY cv-link-TEMPFILEPREFIX "<link linkend='cv-TEMPFILEPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEMPFILEPREFIX</envar></link>">
+<!ENTITY cv-link-TEMPFILESUFFIX "<link linkend='cv-TEMPFILESUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEMPFILESUFFIX</envar></link>">
 <!ENTITY cv-link-TEX "<link linkend='cv-TEX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEX</envar></link>">
 <!ENTITY cv-link-TEXCOM "<link linkend='cv-TEXCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEXCOM</envar></link>">
 <!ENTITY cv-link-TEXCOMSTR "<link linkend='cv-TEXCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEXCOMSTR</envar></link>">

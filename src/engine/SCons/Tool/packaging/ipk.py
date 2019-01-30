@@ -26,9 +26,11 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
+
 import SCons.Builder
 import SCons.Node.FS
-import os
+import SCons.Util
 
 from SCons.Tool.packaging import stripinstallbuilder, putintopackageroot
 
@@ -119,7 +121,9 @@ def build_specfiles(source, target, env):
         try:
             return opened_files[needle]
         except KeyError:
-            file=filter(lambda x: x.get_path().rfind(needle)!=-1, haystack)[0]
+            files = filter(lambda x: x.get_path().rfind(needle) != -1, haystack)
+            # Py3: filter returns an iterable, not a list
+            file = list(files)[0]
             opened_files[needle]=open(file.get_abspath(), 'w')
             return opened_files[needle]
 

@@ -43,10 +43,13 @@ import re
 # that we want to fetch, using the regular expressions to which the lists
 # of preprocessor directives map.
 cpp_lines_dict = {
-    # Fetch the rest of a #if/#elif/#ifdef/#ifndef as one argument,
+    # Fetch the rest of a #if/#elif as one argument,
+    # with white space optional.
+    ('if', 'elif')      : '\s*(.+)',
+
+    # Fetch the rest of a #ifdef/#ifndef as one argument,
     # separated from the keyword by white space.
-    ('if', 'elif', 'ifdef', 'ifndef',)
-                        : '\s+(.+)',
+    ('ifdef', 'ifndef',): '\s+(.+)',
 
     # Fetch the rest of a #import/#include/#include_next line as one
     # argument, with white space optional.
@@ -82,9 +85,9 @@ del op_list
 # Create a list of the expressions we'll use to match all of the
 # preprocessor directives.  These are the same as the directives
 # themselves *except* that we must use a negative lookahead assertion
-# when matching "if" so it doesn't match the "if" in "ifdef."
+# when matching "if" so it doesn't match the "if" in "ifdef" or "ifndef".
 override = {
-    'if'                        : 'if(?!def)',
+    'if'                        : 'if(?!n?def)',
 }
 l = [override.get(x, x) for x in list(Table.keys())]
 

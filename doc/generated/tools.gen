@@ -57,11 +57,11 @@ Sets construction variables for the IBM Visual Age linker.
   <varlistentry id="t-applelink">
     <term>applelink</term>
     <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the Apple linker
-(similar to the GNU linker).
-</para>
-<para>Sets:  &cv-link-FRAMEWORKPATHPREFIX;, &cv-link-LDMODULECOM;, &cv-link-LDMODULEFLAGS;, &cv-link-LDMODULEPREFIX;, &cv-link-LDMODULESUFFIX;, &cv-link-LINKCOM;, &cv-link-SHLINKCOM;, &cv-link-SHLINKFLAGS;, &cv-link-_FRAMEWORKPATH;, &cv-link-_FRAMEWORKS;.</para><para>Uses:  &cv-link-FRAMEWORKSFLAGS;.</para></listitem>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                Sets construction variables for the Apple linker
+                (similar to the GNU linker).
+            </para>
+        <para>Sets:  &cv-link-APPLELINK_COMPATIBILITY_VERSION;, &cv-link-APPLELINK_CURRENT_VERSION;, &cv-link-APPLELINK_NO_COMPATIBILITY_VERSION;, &cv-link-APPLELINK_NO_CURRENT_VERSION;, &cv-link-FRAMEWORKPATHPREFIX;, &cv-link-LDMODULECOM;, &cv-link-LDMODULEFLAGS;, &cv-link-LDMODULEPREFIX;, &cv-link-LDMODULESUFFIX;, &cv-link-LINKCOM;, &cv-link-SHLINKCOM;, &cv-link-SHLINKFLAGS;, &cv-link-_APPLELINK_COMPATIBILITY_VERSION;, &cv-link-_APPLELINK_CURRENT_VERSION;, &cv-link-_FRAMEWORKPATH;, &cv-link-_FRAMEWORKS;.</para><para>Uses:  &cv-link-FRAMEWORKSFLAGS;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-ar">
     <term>ar</term>

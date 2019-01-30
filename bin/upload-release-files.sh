@@ -19,17 +19,10 @@ SF_TOPDIR='/home/frs/project/scons'
 cd build/dist
 cp -f ../../src/CHANGES.txt ../../src/RELEASE.txt ../../src/Announce.txt ../../src/README.txt .
 
-cp scons-$VERSION.win32.exe scons-$VERSION-setup.exe
-cp scons-$VERSION.win-amd64.exe scons-$VERSION-amd64-setup.exe
-
 set -x
 
 # Upload main scons release files:
 $RSYNC $RSYNCOPTS \
-  scons-$VERSION-1.noarch.rpm \
-  scons-$VERSION-1.src.rpm \
-  scons-$VERSION-setup.exe \
-  scons-$VERSION-amd64-setup.exe \
   scons-$VERSION.tar.gz \
   scons-$VERSION.zip \
   Announce.txt CHANGES.txt RELEASE.txt \
@@ -43,11 +36,11 @@ $RSYNC $RSYNCOPTS \
   $SF_USER@$SF_MACHINE:$SF_TOPDIR/scons-local/$VERSION/
 
 # Source packages:
-$RSYNC $RSYNCOPTS \
-  scons-src-$VERSION.tar.gz \
-  scons-src-$VERSION.zip \
-  Announce.txt CHANGES.txt RELEASE.txt \
-  $SF_USER@$SF_MACHINE:$SF_TOPDIR/scons-src/$VERSION/
+#$RSYNC $RSYNCOPTS \
+#  scons-src-$VERSION.tar.gz \
+#  scons-src-$VERSION.zip \
+#  Announce.txt CHANGES.txt RELEASE.txt \
+#  $SF_USER@$SF_MACHINE:$SF_TOPDIR/scons-src/$VERSION/
 
 # Readme
 $RSYNC $RSYNCOPTS \
@@ -80,7 +73,7 @@ ssh scons@scons.org "
   cd ..
   rm latest; ln -s $VERSION latest
   rm production; ln -s $VERSION production
-  for f in HTML PDF EPUB PS TEXT; do rm \$f; ln -s $VERSION/\$f \$f; done
+  for f in HTML PDF EPUB PS TEXT; do rm -f \$f; ln -s $VERSION/\$f \$f; done
 "
 echo '*****'
 echo '***** Now manually update index.php, includes/versions.php and news-raw.xhtml on scons.org.'

@@ -135,21 +135,31 @@ def _swigEmitter(target, source, env):
 
 def _get_swig_version(env, swig):
     """Run the SWIG command line tool to get and return the version number"""
+    version = None
     swig = env.subst(swig)
+    if not swig:
+        return version
     pipe = SCons.Action._subproc(env, SCons.Util.CLVar(swig) + ['-version'],
                                  stdin = 'devnull',
                                  stderr = 'devnull',
                                  stdout = subprocess.PIPE)
-    if pipe.wait() != 0: return
+    if pipe.wait() != 0:
+        return version
 
     # MAYBE:   out = SCons.Util.to_str (pipe.stdout.read())
-    out = SCons.Util.to_str(pipe.stdout.read())
+    with pipe.stdout:
+        out = SCons.Util.to_str(pipe.stdout.read())
+
     match = re.search('SWIG Version\s+(\S+).*', out, re.MULTILINE)
     if match:
-        if verbose: print("Version is:%s"%match.group(1))
-        return match.group(1)
+        version = match.group(1)
+        if verbose:
+            print("Version is: %s" % version)
     else:
-        if verbose: print("Unable to detect version: [%s]"%out)
+        if verbose:
+            print("Unable to detect version: [%s]" % out)
+
+    return version
 
 def generate(env):
     """Add Builders and construction variables for swig to an Environment."""

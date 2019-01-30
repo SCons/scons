@@ -144,15 +144,20 @@ class TempFileMunge(object):
     line limitation.
 
     Example usage:
-    env["TEMPFILE"] = TempFileMunge
-    env["LINKCOM"] = "${TEMPFILE('$LINK $TARGET $SOURCES','$LINKCOMSTR')}"
+        env["TEMPFILE"] = TempFileMunge
+        env["LINKCOM"] = "${TEMPFILE('$LINK $TARGET $SOURCES','$LINKCOMSTR')}"
 
     By default, the name of the temporary file used begins with a
-    prefix of '@'.  This may be configred for other tool chains by
-    setting '$TEMPFILEPREFIX'.
+    prefix of '@'.  This may be configured for other tool chains by
+    setting '$TEMPFILEPREFIX':
+        env["TEMPFILEPREFIX"] = '-@'        # diab compiler
+        env["TEMPFILEPREFIX"] = '-via'      # arm tool chain
+        env["TEMPFILEPREFIX"] = ''          # (the empty string) PC Lint
 
-    env["TEMPFILEPREFIX"] = '-@'        # diab compiler
-    env["TEMPFILEPREFIX"] = '-via'      # arm tool chain
+    You can configure the extension of the temporary file through the
+    TEMPFILEEXTENSION variable, which defaults to '.lnk' (see comments
+    in the code below):
+        env["TEMPFILEEXTENSION"] = '.lnt'   # PC Lint
     """
     def __init__(self, cmd, cmdstr = None):
         self.cmd = cmd
@@ -189,21 +194,26 @@ class TempFileMunge(object):
         node = target[0] if SCons.Util.is_List(target) else target
         cmdlist = getattr(node.attributes, 'tempfile_cmdlist', None) \
                     if node is not None else None
-        if cmdlist is not None :
+        if cmdlist is not None:
             return cmdlist
 
         # We do a normpath because mktemp() has what appears to be
         # a bug in Windows that will use a forward slash as a path
-        # delimiter.  Windows's link mistakes that for a command line
+        # delimiter.  Windows' link mistakes that for a command line
         # switch and barfs.
         #
-        # We use the .lnk suffix for the benefit of the Phar Lap
+        # Default to the .lnk suffix for the benefit of the Phar Lap
         # linkloc linker, which likes to append an .lnk suffix if
         # none is given.
-        (fd, tmp) = tempfile.mkstemp('.lnk', text=True)
+        if env.has_key('TEMPFILESUFFIX'):
+            suffix = env.subst('$TEMPFILESUFFIX')
+        else:
+            suffix = '.lnk'
+
+        fd, tmp = tempfile.mkstemp(suffix, text=True)
         native_tmp = SCons.Util.get_native_path(os.path.normpath(tmp))
 
-        if env.get('SHELL',None) == 'sh':
+        if env.get('SHELL', None) == 'sh':
             # The sh shell will try to escape the backslashes in the
             # path, so unescape them.
             native_tmp = native_tmp.replace('\\', r'\\\\')
@@ -243,8 +253,9 @@ class TempFileMunge(object):
                                source) if self.cmdstr is not None else ''
             # Print our message only if XXXCOMSTR returns an empty string
             if len(cmdstr) == 0 :
-                print("Using tempfile "+native_tmp+" for command line:\n"+
-                      str(cmd[0]) + " " + " ".join(args))
+                cmdstr = ("Using tempfile "+native_tmp+" for command line:\n"+
+                    str(cmd[0]) + " " + " ".join(args))
+                self._print_cmd_str(target, source, env, cmdstr)
 
         # Store the temporary file command list into the target Node.attributes
         # to avoid creating two temporary files one for print and one for execute.
@@ -255,6 +266,23 @@ class TempFileMunge(object):
             except AttributeError:
                 pass
         return cmdlist
+
+    def _print_cmd_str(self, target, source, env, cmdstr):
+        # check if the user has specified a cmd line print function
+        print_func = None
+        try:
+            get = env.get
+        except AttributeError:
+            pass
+        else:
+            print_func = get('PRINT_CMD_LINE_FUNC')
+
+        # use the default action cmd line print if user did not supply one
+        if not print_func:
+            action = SCons.Action._ActionAction()
+            action.print_cmd_line(cmdstr, target, source, env)
+        else:
+            print_func(cmdstr, target, source, env)
 
 
 def Platform(name = platform_default()):

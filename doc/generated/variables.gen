@@ -31,6 +31,94 @@ if <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><enva
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-_APPLELINK_COMPATIBILITY_VERSION">
+    <term>_APPLELINK_COMPATIBILITY_VERSION</term>
+    <listitem>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                A macro (by default a generator function) used to create the linker flags to specify
+                apple's linker's -compatibility_version flag.
+                The default generator uses <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-APPLELINK_COMPATIBILITY_VERSION"><envar>$APPLELINK_COMPATIBILITY_VERSION</envar></link>
+                and <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-APPLELINK_NO_COMPATIBILITY_VERSION"><envar>$APPLELINK_NO_COMPATIBILITY_VERSION</envar></link> and  <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link>
+                to determine the correct flag.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-APPLELINK_COMPATIBILITY_VERSION">
+    <term>APPLELINK_COMPATIBILITY_VERSION</term>
+    <listitem>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                On Mac OS X this is used to set the linker flag:
+
+                -compatibility_version
+            </para>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                The value is specified as X[.Y[.Z]] where X is between 1 and 65535, Y can be omitted or between 1 and
+                255, Z can be omitted or between 1 and 255. This value will be derived from <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> if
+                not
+                specified. The lowest digit will be dropped and replaced by a 0.
+            </para>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                If the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-APPLELINK_NO_COMPATIBILITY_VERSION"><envar>$APPLELINK_NO_COMPATIBILITY_VERSION</envar></link> is set then no -compatibility_version will be
+                output.
+            </para>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">See MacOS's ld manpage for more details</para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-_APPLELINK_CURRENT_VERSION">
+    <term>_APPLELINK_CURRENT_VERSION</term>
+    <listitem>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                A macro (by default a generator function) used to create the linker flags to specify apple's linker's
+                -current_version flag.  The default generator uses <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-APPLELINK_CURRENT_VERSION"><envar>$APPLELINK_CURRENT_VERSION</envar></link> and
+                <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-APPLELINK_NO_CURRENT_VERSION"><envar>$APPLELINK_NO_CURRENT_VERSION</envar></link> and  <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> to determine the correct flag.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-APPLELINK_CURRENT_VERSION">
+    <term>APPLELINK_CURRENT_VERSION</term>
+    <listitem>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                On Mac OS X this is used to set the linker flag:
+
+                -current_version
+            </para>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                The value is specified as X[.Y[.Z]] where X is between 1 and 65535, Y can be omitted or between 1 and
+                255, Z can be omitted or between 1 and 255. This value will be set to <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> if not
+                specified.
+            </para>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                If the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-APPLELINK_NO_CURRENT_VERSION"><envar>$APPLELINK_NO_CURRENT_VERSION</envar></link> is set then no -current_version will be
+                output.
+            </para>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">See MacOS's ld manpage for more details</para>
+
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-APPLELINK_NO_COMPATIBILITY_VERSION">
+    <term>APPLELINK_NO_COMPATIBILITY_VERSION</term>
+    <listitem>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                Set this to any True (1|True|non-empty string) value to disable adding -compatibility_version flag when
+                generating versioned shared libraries.
+            </para>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                This overrides <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-APPLELINK_COMPATIBILITY_VERSION"><envar>$APPLELINK_COMPATIBILITY_VERSION</envar></link>.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-APPLELINK_NO_CURRENT_VERSION">
+    <term>APPLELINK_NO_CURRENT_VERSION</term>
+    <listitem>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                Set this to any True (1|True|non-empty string) value to disable adding -current_version flag when
+                generating versioned shared libraries.
+            </para>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                This overrides <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-APPLELINK_CURRENT_VERSION"><envar>$APPLELINK_CURRENT_VERSION</envar></link>.
+            </para>
+        </listitem>
+  </varlistentry>
   <varlistentry id="cv-AR">
     <term>AR</term>
     <listitem>
@@ -2801,107 +2889,107 @@ The default list is:
   <varlistentry id="cv-FRAMEWORKPATH">
     <term>FRAMEWORKPATH</term>
     <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-On Mac OS X with gcc,
-a list containing the paths to search for frameworks.
-Used by the compiler to find framework-style includes like
-#include &lt;Fmwk/Header.h&gt;.
-Used by the linker to find user-specified frameworks when linking (see
-<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FRAMEWORKS"><envar>$FRAMEWORKS</envar></link>).
-For example:
-</para>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                On Mac OS X with gcc,
+                a list containing the paths to search for frameworks.
+                Used by the compiler to find framework-style includes like
+                #include &lt;Fmwk/Header.h&gt;.
+                Used by the linker to find user-specified frameworks when linking (see
+                <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FRAMEWORKS"><envar>$FRAMEWORKS</envar></link>).
+                For example:
+            </para>
 
-<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
- env.AppendUnique(FRAMEWORKPATH='#myframeworkdir')
-</example_commands>
+            <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
+                env.AppendUnique(FRAMEWORKPATH='#myframeworkdir')
+            </example_commands>
 
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-will add
-</para>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                will add
+            </para>
 
-<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
-  ... -Fmyframeworkdir
-</example_commands>
+            <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
+                ... -Fmyframeworkdir
+            </example_commands>
 
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-to the compiler and linker command lines.
-</para>
-</listitem>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                to the compiler and linker command lines.
+            </para>
+        </listitem>
   </varlistentry>
   <varlistentry id="cv-_FRAMEWORKPATH">
     <term>_FRAMEWORKPATH</term>
     <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-On Mac OS X with gcc, an automatically-generated construction variable
-containing the linker command-line options corresponding to
-<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FRAMEWORKPATH"><envar>$FRAMEWORKPATH</envar></link>.
-</para>
-</listitem>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                On Mac OS X with gcc, an automatically-generated construction variable
+                containing the linker command-line options corresponding to
+                <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FRAMEWORKPATH"><envar>$FRAMEWORKPATH</envar></link>.
+            </para>
+        </listitem>
   </varlistentry>
   <varlistentry id="cv-FRAMEWORKPATHPREFIX">
     <term>FRAMEWORKPATHPREFIX</term>
     <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-On Mac OS X with gcc, the prefix to be used for the FRAMEWORKPATH entries.
-(see <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FRAMEWORKPATH"><envar>$FRAMEWORKPATH</envar></link>).
-The default value is
-<option>-F</option>.
-</para>
-</listitem>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                On Mac OS X with gcc, the prefix to be used for the FRAMEWORKPATH entries.
+                (see <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FRAMEWORKPATH"><envar>$FRAMEWORKPATH</envar></link>).
+                The default value is
+                <option>-F</option>.
+            </para>
+        </listitem>
   </varlistentry>
   <varlistentry id="cv-FRAMEWORKPREFIX">
     <term>FRAMEWORKPREFIX</term>
     <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-On Mac OS X with gcc,
-the prefix to be used for linking in frameworks
-(see <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FRAMEWORKS"><envar>$FRAMEWORKS</envar></link>).
-The default value is
-<option>-framework</option>.
-</para>
-</listitem>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                On Mac OS X with gcc,
+                the prefix to be used for linking in frameworks
+                (see <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FRAMEWORKS"><envar>$FRAMEWORKS</envar></link>).
+                The default value is
+                <option>-framework</option>.
+            </para>
+        </listitem>
   </varlistentry>
   <varlistentry id="cv-_FRAMEWORKS">
     <term>_FRAMEWORKS</term>
     <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-On Mac OS X with gcc,
-an automatically-generated construction variable
-containing the linker command-line options
-for linking with FRAMEWORKS.
-</para>
-</listitem>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                On Mac OS X with gcc,
+                an automatically-generated construction variable
+                containing the linker command-line options
+                for linking with FRAMEWORKS.
+            </para>
+        </listitem>
   </varlistentry>
   <varlistentry id="cv-FRAMEWORKS">
     <term>FRAMEWORKS</term>
     <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-On Mac OS X with gcc, a list of the framework names to be linked into a
-program or shared library or bundle.
-The default value is the empty list.
-For example:
-</para>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                On Mac OS X with gcc, a list of the framework names to be linked into a
+                program or shared library or bundle.
+                The default value is the empty list.
+                For example:
+            </para>
 
-<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
- env.AppendUnique(FRAMEWORKS=Split('System Cocoa SystemConfiguration'))
-</example_commands>
+            <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
+                env.AppendUnique(FRAMEWORKS=Split('System Cocoa SystemConfiguration'))
+            </example_commands>
 
-</listitem>
+        </listitem>
   </varlistentry>
   <varlistentry id="cv-FRAMEWORKSFLAGS">
     <term>FRAMEWORKSFLAGS</term>
     <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-On Mac OS X with gcc,
-general user-supplied frameworks options to be added at
-the end of a command
-line building a loadable module.
-(This has been largely superseded by
-the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FRAMEWORKPATH"><envar>$FRAMEWORKPATH</envar></link>, <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FRAMEWORKPATHPREFIX"><envar>$FRAMEWORKPATHPREFIX</envar></link>,
-<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FRAMEWORKPREFIX"><envar>$FRAMEWORKPREFIX</envar></link> and <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FRAMEWORKS"><envar>$FRAMEWORKS</envar></link> variables
-described above.)
-</para>
-</listitem>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+                On Mac OS X with gcc,
+                general user-supplied frameworks options to be added at
+                the end of a command
+                line building a loadable module.
+                (This has been largely superseded by
+                the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FRAMEWORKPATH"><envar>$FRAMEWORKPATH</envar></link>, <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FRAMEWORKPATHPREFIX"><envar>$FRAMEWORKPATHPREFIX</envar></link>,
+                <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FRAMEWORKPREFIX"><envar>$FRAMEWORKPREFIX</envar></link> and <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-FRAMEWORKS"><envar>$FRAMEWORKS</envar></link> variables
+                described above.)
+            </para>
+        </listitem>
   </varlistentry>
   <varlistentry id="cv-GS">
     <term>GS</term>
@@ -2944,6 +3032,15 @@ is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
     <term>HOST_ARCH</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The name of the host hardware architecture used to create the Environment.
+        If a platform is specified when creating the Environment, then
+        that Platform's logic will handle setting this value.
+        This value is immutable, and should not be changed by the user after
+        the Environment is initialized.
+        Currently only set for Win32.
+</para>
+    
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Sets the host architecture for Visual Studio compiler. If not set,
 default to the detected host architecture: note that this may depend
 on the python you are using.
@@ -2959,16 +3056,7 @@ Valid values are the same as for <envar xmlns="http://www.scons.org/dbxsd/v1.0">
 This is currently only used on Windows, but in the future it will be
 used on other OSes as well.
 </para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-        The name of the host hardware architecture used to create the Environment.
-        If a platform is specified when creating the Environment, then
-        that Platform's logic will handle setting this value.
-        This value is immutable, and should not be changed by the user after
-        the Environment is initialized.
-        Currently only set for Win32.
-</para>
-    </listitem>
+</listitem>
   </varlistentry>
   <varlistentry id="cv-HOST_OS">
     <term>HOST_OS</term>
@@ -3210,7 +3298,7 @@ The command line used to call the Java archive tool.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The string displayed when the Java archive tool
 is called
-If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-JARCOM"><envar>$JARCOM</envar></link> (the command line) is displayed.
+If this is not set, then <envar xmlns="http://www.scons.org/dbxsd/v1.0">$JARCOM</envar> (the command line) is displayed.
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3220,7 +3308,7 @@ env = Environment(JARCOMSTR = "JARchiving $SOURCES into $TARGET")
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The string displayed when the Java archive tool
 is called
-If this is not set, then <envar xmlns="http://www.scons.org/dbxsd/v1.0">$JARCOM</envar> (the command line) is displayed.
+If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-JARCOM"><envar>$JARCOM</envar></link> (the command line) is displayed.
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -4399,6 +4487,7 @@ constructor; setting it later has no effect.
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 Valid values for Windows are
+<literal>14.1</literal>,
 <literal>14.0</literal>,
 <literal>14.0Exp</literal>,
 <literal>12.0</literal>,
@@ -7117,6 +7206,13 @@ that may not be set or used in a construction environment.
     <term>TARGET_ARCH</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The name of the target hardware architecture for the compiled objects
+        created by this Environment.
+        This defaults to the value of HOST_ARCH, and the user can override it.
+        Currently only set for Win32.
+</para>
+    
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Sets the target architecture for Visual Studio compiler (i.e. the arch
 of the binaries generated by the compiler). If not set, default to
 <envar xmlns="http://www.scons.org/dbxsd/v1.0">$HOST_ARCH</envar>, or, if that is unset, to the architecture of the
@@ -7126,29 +7222,28 @@ This variable must be passed as an argument to the Environment()
 constructor; setting it later has no effect.  
 This is currently only used on Windows, but in the future it will be
 used on other OSes as well.
+If this is set and MSVC_VERSION is not set, this will search for 
+all installed MSVC's that support the TARGET_ARCH, selecting the 
+latest version for use.
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 Valid values for Windows are
 <literal>x86</literal>,
+<literal>arm</literal>,
 <literal>i386</literal>
 (for 32 bits); 
 <literal>amd64</literal>,
+<literal>arm64</literal>,
 <literal>emt64</literal>,
 <literal>x86_64</literal>
 (for 64 bits);
 and <literal>ia64</literal> (Itanium).
+
 For example, if you want to compile 64-bit binaries, you would set
 <literal>TARGET_ARCH='x86_64'</literal> in your SCons environment.
 </para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-        The name of the target hardware architecture for the compiled objects
-        created by this Environment.
-        This defaults to the value of HOST_ARCH, and the user can override it.
-        Currently only set for Win32.
-</para>
-    </listitem>
+</listitem>
   </varlistentry>
   <varlistentry id="cv-TARGET_OS">
     <term>TARGET_OS</term>
@@ -7184,11 +7279,27 @@ The suffix used for tar file names.
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The prefix for a temporary file used
-to execute lines longer than $MAXLINELENGTH.
-The default is '@'.
-This may be set for toolchains that use other values,
-such as '-@' for the diab compiler
+to store lines lines longer than $MAXLINELENGTH
+as operations which call out to a shell will fail
+if the line is too long, which particularly
+impacts linking.
+The default is '@', which works for the Microsoft
+and GNU toolchains on Windows.
+Set this appropriately for other toolchains,
+for example '-@' for the diab compiler
 or '-via' for ARM toolchain.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-TEMPFILESUFFIX">
+    <term>TEMPFILESUFFIX</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The suffix used for the temporary file name
+used for long command lines. The name should
+include the dot ('.') if one is wanted as
+it will not be added automatically.
+The default is '.lnk'.
 </para>
 </listitem>
   </varlistentry>

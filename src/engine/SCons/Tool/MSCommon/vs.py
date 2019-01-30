@@ -68,9 +68,9 @@ class VisualStudio(object):
         SCons.Tool.MSCommon.vc.get_installed_vcs()
         dir = SCons.Tool.MSCommon.vc.find_vc_pdir(self.vc_version)
         if not dir:
-            debug('find_vs_dir():  no installed VC %s' % self.vc_version)
+            debug('find_vs_dir_by_vc():  no installed VC %s' % self.vc_version)
             return None
-        return dir
+        return os.path.abspath(os.path.join(dir, os.pardir))
 
     def find_vs_dir_by_reg(self):
         root = 'Software\\'
@@ -95,12 +95,11 @@ class VisualStudio(object):
         First try to find by registry, and if that fails find via VC dir
         """
 
-
-        if True:
-            vs_dir=self.find_vs_dir_by_reg()
-            return vs_dir
-        else:
-            return self.find_vs_dir_by_vc()
+        vs_dir=self.find_vs_dir_by_reg()
+        if not vs_dir:
+            vs_dir = self.find_vs_dir_by_vc()
+        debug('find_vs_dir(): found VS in ' + str(vs_dir ))
+        return vs_dir
 
     def find_executable(self):
         vs_dir = self.get_vs_dir()

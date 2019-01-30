@@ -5,21 +5,54 @@
                             Change Log
 
 
-RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
-** Please add to this version's notes ordered by contributors last name. NOT newest at top of list **
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From John Doe:
+
+    - Whatever John Doe did.
+
+  From Mats Wichmann:
+    - Quiet open file ResourceWarnings on Python >= 3.6 caused by
+      not using a context manager around Popen.stdout
+
+
+RELEASE 3.0.4 - Mon, 20 Jan 2019 22:49:27 +0000
+
+  From Mats Wichmann:
+    - Improve finding of Microsoft compiler: add a 'products' wildcard
+      in case 2017 Build Tools only is installed as it is considered a separate
+      product from the default Visual Studio
+    - Add TEMPFILESUFFIX to allow a customizable filename extension, as
+      described in the patch attached to issue #2431.
+
+  From Daniel Moody:
+    - Improved support for VC14.1 and Visual Studio 2017, as well as arm and arm64 targets.
+      Issues #3268 & Issue #3222
+    - Initial support for ARM targets with Visual Studio 2017 - Issue #3182 (You must set TARGET_ARCH for this to work)
+    - Update TempFileMunge class to use PRINT_CMD_LINE_FUNC
+
+  From Tobias Herzog
+    - Enhance cpp scanner regex logic to detect if/elif expressions without whitespaces but
+      parenthesis like "#if(defined FOO)" or "#elif!(BAR)" correctly.
+
+RELEASE 3.0.3 - Mon, 07 Jan 2019 20:05:22 -0400
+  NOTE: 3.0.2 release was dropped because there was a packaging bug. Please consider all 3.0.2
+        content.
+
+  From William Deegan:
+    - Fixes to packaging logic.  Ensuring the SCons.Tool.clangCommon module is added
+      to the release packages.
+    - Modify scons.bat script to check for scons python script without .py extension if no file
+      scons.py exists. This enables an all platform wheel to work.
+
+  From Mats Wichmann:
+    - Update doc examples to work with Python 3.5+:  map() now returns an iterable instead of a list.
+
+
+RELEASE 3.0.2 - Mon, 31 Dec 2018 16:00:12 -0700
 
   From Bernard Blackham:
-   - Fixed handling of side-effects in task master (fixes #3013).
-
-  From Ray Donnelly:
-    - Fix the PATH created by scons.bat (and other .bat files) to provide a normalized
-      PATH.  Some pythons in the 3.6 series are no longer able to handle paths which
-      have ".." in them and end up crashing.  This is done by cd'ing into the directory
-      we want to add to the path and then using %CD% to give us the normalized directory
-      See bug filed under Python 3.6: https://bugs.python.org/issue32457.
-      Note: On Win32 PATH's which have not been normalized may cause undefined behavior
-      by other executables being run by SCons (or any subprocesses of executables being run by SCons).
-      Resolving this issue should eliminate that possibility going forward.
+    - Fixed handling of side-effects in task master (fixes #3013).
 
   From William Deegan:
     - Remove long deprecated SCons.Options code and tests.  This removes BoolOption,EnumOption,
@@ -55,9 +88,35 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
       yielded trying to combine strings and bytes which threw exception.
     - Fix GH Issue #3225 SCons.Util.Flatten() doesn't handle MappingView's produced by dictionary as return
       values from dict().{items(), keys(), values()}.
+    - Fix GH Issue #3241 - Properly support versioned shared libraries for MacOS.  We've also introduced two
+      new env variables APPLELINK_CURRENT_VERSION and APPLELINK_COMPATIBILITY_VERSION which will specify
+      what is passed to the linkers -current_version and -compatibility_version flags.  If not specified
+      they will be derived from SHLIBVERSION as such:
+      - APPLELINK_CURRENT_VERSION = SHLIBVERSION
+      - APPLELINK_COMPATIBILITY_VERSION = all but the last digit in SHLIBVERSION with .0 appended.
+      Note that the values of the above will be validated. Valid format for either APPLELINK variable is
+      X[.Y[.Z]] where 0 <= X <= 65535, 0 <= Y <= 255, 0 <= Z <= 255.
+      The new variables have been added to the documents and should show up in user guide and manpage.
+    - Fix GH Issue #3136 no longer wrap io.{BufferedReader,BufferedWriter,BufferedRWPair,BufferedRandom,TextIOWrapper
+      with logic to set HANDLE_FLAG_INHERIT flag on the file handle.  Python 3.4+ automatically sets this according
+      to Python docs: https://docs.python.org/3/library/os.html#fd-inheritance
+
+  From Ray Donnelly:
+    - Fix the PATH created by scons.bat (and other .bat files) to provide a normalized
+      PATH.  Some pythons in the 3.6 series are no longer able to handle paths which
+      have ".." in them and end up crashing.  This is done by cd'ing into the directory
+      we want to add to the path and then using %CD% to give us the normalized directory
+      See bug filed under Python 3.6: https://bugs.python.org/issue32457.
+      Note: On Win32 PATH's which have not been normalized may cause undefined behavior
+      by other executables being run by SCons (or any subprocesses of executables being run by SCons).
+      Resolving this issue should eliminate that possibility going forward.
 
   From Andrew Featherstone
     - Removed unused --warn options from the man page and source code.
+
+  From Arda Fu
+    - Fix cpp scanner regex logic to treat ifndef for py3.5+. Previously it was 
+      not properly differentiating between if, ifdef, and ifndef.
 
   From Philipp Maierhöfer
     - Added a __hash__ method to the class Scons.Subst.Literal. Required when substituting Literal
@@ -99,6 +158,11 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Replace all instances of `int main()` in C code with `int main(void)`.
       Specifically, this fixes the test cases use by Configure.CheckCC() which
       would fail when using -Wstrict-prototypes.
+
+  From Zachary Tessler:
+    - Fix calculation of signatures for FunctionActions that contain list (or set,...)
+      comprehensions whose expressions involve constant literals. Those constants had
+      been ignored in signatures, so changing them did not cause targets to be rebuilt.
 
   From Paweł Tomulik:
     - In the testing framework, module TestCommon, fixed must_contain(),
@@ -175,6 +239,12 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Some script changes in trying to find scons engine
     - Update (pep8) configure-cache script, add a --show option.
     - Fix for a couple of "what if tool not found" exceptions in framework.
+    - Add Textfile/Substfile to default environment. (issue #3147)
+    - sconsign: a couple of python3 fixes; be more tolerant of implicit
+      entries which have no signatures; minor PEP8 changes.
+    - Fix a couple of type mistakes (list-> string, filter type -> list)
+    - Fix a couple of type mistakes in packaging tools: list-> string in msi,
+      filter type -> list in ipk
 
   From Bernhard M. Wiedemann:
     - Update SCons' internal scons build logic to allow overriding build date 
@@ -184,8 +254,6 @@ RELEASE 3.1.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From Hao Wu
     - Typo in customized decider example in user guide
     - Replace usage of unittest.TestSuite with unittest.main() (fix #3113)
-
-
 
 RELEASE 3.0.1 - Mon, 12 Nov 2017 15:31:33 -0700
 

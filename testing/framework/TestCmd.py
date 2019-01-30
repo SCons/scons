@@ -1093,7 +1093,13 @@ class TestCmd(object):
                     diff_function = self.simple_diff
         if name is not None:
             print(self.banner(name))
-        args = (a.splitlines(), b.splitlines()) + args
+
+        if not is_List(a):
+            a=a.splitlines()
+        if not is_List(b):
+            b=b.splitlines()
+
+        args = (a, b) + args
         for line in diff_function(*args, **kw):
             print(line)
 
