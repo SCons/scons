@@ -5,8 +5,7 @@ image:
   # - Ubuntu
   - Visual Studio 2015
   - Visual Studio 2017
-  
-  
+
 cache:
   - downloads -> appveyor.yml
   - '%LOCALAPPDATA%\pip\Cache'
@@ -42,7 +41,9 @@ install:
   - sh: ./.travis/install.sh
   - sh: printenv
 
-
+# build matrix will be number of images multiplied 
+# by each '-' below, split jobs into groups of 4
+# to avoid timeing out
 environment:
   matrix:
     - WINPYTHON: "Python27"
@@ -129,13 +130,21 @@ environment:
       BUILD_JOB_NUM: 4
       COVERAGE: 0
 
+# remove sets of build jobs based on critia below
+# to fine tune the number and platforms tested
 matrix:	
   exclude:	
-    # test python 3.6 on Visual Studio 2015 image
+    # test python 3.5, 3.6 on Visual Studio 2015 image
     - image: Visual Studio 2015	
       WINPYTHON: "Python37"
     - image: Visual Studio 2015	
+      WINPYTHON: "Python27"
+
+    # test python 2.7, 3.7 on Visual Studio 2015 image
+    - image: Visual Studio 2017
       WINPYTHON: "Python35"
+    - image: Visual Studio 2017	
+      WINPYTHON: "Python36"
 
     # test python 3.7 on Ubuntu
     - image: Ubuntu	
@@ -145,6 +154,7 @@ matrix:
     - image: Ubuntu		
       WINPYTHON: "Python36"
 
+# remove some binaries we dont to be found
 before_build:
     - ps: |
         if ($isWindows) 
@@ -159,11 +169,12 @@ before_build:
 build: off
 
 build_script:
-  # get tests all tests
+  # get all tests into a list
   - cmd: "C:\\%WINPYTHON%\\python.exe runtest.py -l -a > all_tests.txt"
   - sh: python$PYTHON runtest.py -l -a > all_tests.txt
 
-  # setup coverage is set in environment
+  # setup coverage by creating the coverage config file, and adding coverage 
+  # to the usercustomize so that all python processes start with coverage
   - ps: |
       if ($env:COVERAGE -eq 1){ 
         $env:COVERAGE_PROCESS_START = "$($env:APPVEYOR_BUILD_FOLDER)/.coveragerc";
@@ -182,6 +193,7 @@ build_script:
         }
         $coveragercFile|Set-Content "$($env:COVERAGE_PROCESS_START)";
       }
+
   # setup portion of tests for this build job (1-4)
   - ps: |
       $TOTAL_BUILD_JOBS = 4;
@@ -201,10 +213,12 @@ build_script:
         Add-Content -Path 'exclude_list.txt' -Value 'test\MSVS\vs-10.0-exec.py'
       }
 
+  # Windows run the tests
   # NOTE: running powershell from cmd on purpose because it formats the output
   # correctly
   - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py --exclude-list exclude_list.txt -f build_tests.txt } else { C:\\%WINPYTHON%\\python.exe runtest.py -j 2 --exclude-list exclude_list.txt -f build_tests.txt }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
 
+  # linux run the tests
   # unset JAVA_TOOL_OPTIONS because newer java prints this to stderr
   - sh: |
       unset JAVA_TOOL_OPTIONS
@@ -214,7 +228,7 @@ build_script:
         python$PYTHON runtest.py -j 2 --exclude-list exclude_list.txt -f build_tests.txt || if [[ $? == 2 ]]; then true; else false; fi; 
       fi
 
-  # run converage 
+# run converage even if there was a test failure
 on_finish:
   - ps: |
       if ($env:COVERAGE -eq 1)
@@ -223,7 +237,7 @@ on_finish:
         & coverage report
         & coverage xml -o coverage_xml.xml
       }
-  # running in powershell causes an error so running in platform
+  # running codecov in powershell causes an error so running in platform
   # shells
   - cmd: if %COVERAGE% equ 1 codecov -X gcov --file coverage_xml.xml
   - sh: if [ $COVERAGE -eq 1 ]; then codecov -X gcov --file coverage_xml.xml; fi
