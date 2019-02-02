@@ -11,6 +11,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
     - Whatever John Doe did.
 
+  From Daniel Moody:
+    - Change the default for AppendENVPath to delete_existing=0, so path
+      order will not be changed, unless explicitly set (Issue #3276)
+
   From Mats Wichmann:
     - Quiet open file ResourceWarnings on Python >= 3.6 caused by
       not using a context manager around Popen.stdout
