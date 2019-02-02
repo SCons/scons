@@ -38,6 +38,10 @@ Multiple calls to
 &f-Default;
 are legal,
 and add to the list of default targets.
+As noted above, both forms of this call affect the
+same global list of default targets; the
+construction environment method applies
+construction variable expansion to the targets.
 </para>
 
 <para>
