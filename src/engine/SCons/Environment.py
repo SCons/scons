@@ -1217,7 +1217,7 @@ class Base(SubstitutionEnvironment):
         return path
 
     def AppendENVPath(self, name, newpath, envname = 'ENV',
-                      sep = os.pathsep, delete_existing=1):
+                      sep = os.pathsep, delete_existing=0):
         """Append path elements to the path 'name' in the 'ENV'
         dictionary for this environment.  Will only add any particular
         path once, and will normpath and normcase all paths to help

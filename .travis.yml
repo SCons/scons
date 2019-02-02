@@ -14,10 +14,17 @@ os:
 install:
     - ./.travis/install.sh
 
-# pypy is not passing, but allow failures for coverage stage to be reached
+# pypy is not passing atm, but still report build success for now
+# allow coverage to fail, so we can still do testing for all platforms
 matrix:
   allow_failures:
-    - stage: Test
+    - python: pypy
+    - stage: Coverage
+
+# run coverage first as its still useful to collect
+stages:
+  - Coverage
+  - Test
 
 jobs:
   include:
