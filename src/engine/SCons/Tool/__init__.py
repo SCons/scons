@@ -1314,7 +1314,7 @@ def tool_list(platform, env):
     return [x for x in tools if x]
 
 
-def find_program_path(env, key_program, default_paths=[]):
+def find_program_path(env, key_program, default_paths=[], append=False):
     """
     Find the location of key_program and then return the path it was located at.
     Checking the default install locations.
@@ -1336,7 +1336,8 @@ def find_program_path(env, key_program, default_paths=[]):
     for p in default_paths:
         env.AppendENVPath('PATH', p)
     path = env.WhereIs(key_program)
-    env['ENV']['PATH'] = save_path
+    if not append or not path:
+        env['ENV']['PATH'] = save_path
     return path
 
 # Local Variables:
