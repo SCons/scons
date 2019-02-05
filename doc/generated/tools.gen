@@ -750,8 +750,9 @@ Sets construction variables for the Microsoft Visual C/C++ compiler.
   </varlistentry>
   <varlistentry id="t-msvs">
     <term>msvs</term>
-    <listitem> <para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for Microsoft Visual Studio. </para> <para>Sets:  &cv-link-MSVSBUILDCOM;, &cv-link-MSVSCLEANCOM;, &cv-link-MSVSENCODING;, &cv-link-MSVSPROJECTCOM;, &cv-link-MSVSREBUILDCOM;, &cv-link-MSVSSCONS;, &cv-link-MSVSSCONSCOM;, &cv-link-MSVSSCONSCRIPT;, &cv-link-MSVSSCONSFLAGS;, &cv-link-MSVSSOLUTIONCOM;.</para></listitem>
+    <listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">Sets construction variables for Microsoft Visual Studio.</para>
+    <para>Sets:  &cv-link-MSVSBUILDCOM;, &cv-link-MSVSCLEANCOM;, &cv-link-MSVSENCODING;, &cv-link-MSVSPROJECTCOM;, &cv-link-MSVSREBUILDCOM;, &cv-link-MSVSSCONS;, &cv-link-MSVSSCONSCOM;, &cv-link-MSVSSCONSCRIPT;, &cv-link-MSVSSCONSFLAGS;, &cv-link-MSVSSOLUTIONCOM;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-mwcc">
     <term>mwcc</term>
@@ -778,19 +779,19 @@ Sets construction variables for the
 </para>
 <para>Sets:  &cv-link-AS;, &cv-link-ASCOM;, &cv-link-ASFLAGS;, &cv-link-ASPPCOM;, &cv-link-ASPPFLAGS;.</para><para>Uses:  &cv-link-ASCOMSTR;, &cv-link-ASPPCOMSTR;.</para></listitem>
   </varlistentry>
-  <varlistentry id="t-packaging">
-    <term>packaging</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-A framework for building binary and source packages.
-</para>
-</listitem>
-  </varlistentry>
   <varlistentry id="t-Packaging">
     <term>Packaging</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 Sets construction variables for the <function xmlns="http://www.scons.org/dbxsd/v1.0">Package</function> Builder.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="t-packaging">
+    <term>packaging</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+A framework for building binary and source packages.
 </para>
 </listitem>
   </varlistentry>
