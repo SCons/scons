@@ -18,6 +18,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Daniel Moody:
     - Change the default for AppendENVPath to delete_existing=0, so path
       order will not be changed, unless explicitly set (Issue #3276)
+    - fix bug where no msvc's are found and an empty list is indexed
 
   From Mats Wichmann:
     - Quiet open file ResourceWarnings on Python >= 3.6 caused by
