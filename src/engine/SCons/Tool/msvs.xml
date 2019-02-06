@@ -463,11 +463,14 @@ env.MSVSSolution(target='Bar' + env['MSVSSOLUTIONSUFFIX'], projects=['bar' + env
     </summary>
   </cvar> <cvar name="MSVS_ARCH">
     <summary>
-      <para>Sets the architecture for which the generated project(s)
-      should build.</para> <para>
+      <para>Sets the architecture for which the generated project(s) should build.</para>
+      <para>
         The default value is <literal>x86</literal>.
         <literal>amd64</literal> is also supported by &SCons; for
-        some Visual Studio versions. Trying to set &cv-MSVS_ARCH;
+        most Visual Studio versions. Since Visual Studio 2015
+        <literal>arm</literal> is supported, and since Visual Studio
+        2017 <literal>arm64</literal> is supported.
+        Trying to set &cv-MSVS_ARCH;
         to an architecture that's not supported for a given Visual
         Studio version will generate an error.
       </para>
