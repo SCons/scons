@@ -335,7 +335,7 @@ python_scons = {
         'debian_deps'   : [
                             'debian/changelog',
                             'debian/compat',
-                            'debian/control',	    
+                            'debian/control',
                             'debian/copyright',
                             'debian/dirs',
                             'debian/docs',
@@ -499,8 +499,7 @@ for p in [ scons ]:
     # destination files.
     #
     manifest_in = File(os.path.join(src, 'MANIFEST.in')).rstr()
-    manifest_in_lines = open(manifest_in).readlines()
-    src_files = bootstrap.parseManifestLines(src, manifest_in_lines)
+    src_files = bootstrap.parseManifestLines(src, manifest_in)
     raw_files = src_files[:]
     dst_files = src_files[:]
 
@@ -520,12 +519,11 @@ for p in [ scons ]:
 
             MANIFEST_in = File(os.path.join(src, ssubdir, 'MANIFEST.in')).rstr()
             MANIFEST_in_list.append(MANIFEST_in)
-            files = bootstrap.parseManifestLines(os.path.join(src, ssubdir), open(MANIFEST_in).readlines())
+            files = bootstrap.parseManifestLines(os.path.join(src, ssubdir), MANIFEST_in)
 
             raw_files.extend(files)
             src_files.extend([os.path.join(ssubdir, x) for x in files])
 
-               
             files = [os.path.join(isubdir, x) for x in files]
             dst_files.extend(files)
             for k, f in sp['filemap'].items():
