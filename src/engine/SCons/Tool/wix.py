@@ -31,6 +31,8 @@ selection method.
 #
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+import os
+import glob
 
 import SCons.Builder
 import SCons.Action
@@ -39,13 +41,13 @@ import os
 def generate(env):
     """Add Builders and construction variables for WiX to an Environment."""
     if not exists(env):
-      return
+        return
 
     env['WIXCANDLEFLAGS'] = ['-nologo']
     env['WIXCANDLEINCLUDE'] = []
     env['WIXCANDLECOM'] = '$WIXCANDLE $WIXCANDLEFLAGS -I $WIXCANDLEINCLUDE -o ${TARGET} ${SOURCE}'
 
-    env['WIXLIGHTFLAGS'].append( '-nologo' )
+    env['WIXLIGHTFLAGS'].append('-nologo')
     env['WIXLIGHTCOM'] = "$WIXLIGHT $WIXLIGHTFLAGS -out ${TARGET} ${SOURCES}"
     env['WIXSRCSUF'] = '.wxs'
     env['WIXOBJSUF'] = '.wixobj'
@@ -62,39 +64,58 @@ def generate(env):
 
     env['BUILDERS']['WiX'] = linker_builder
 
+
 def exists(env):
     env['WIXCANDLE'] = 'candle.exe'
     env['WIXLIGHT']  = 'light.exe'
 
-    # try to find the candle.exe and light.exe tools and 
-    # add the install directory to light libpath.
+    def check_wix(e, p):
+        """try to find the candle and light tools; add to path if found."""
+        try:
+            files = os.listdir(p)
+            if e['WIXCANDLE'] in files and e['WIXLIGHT'] in files:
+                e.PrependENVPath('PATH', p)
+                # include appropriate flags if running WiX 2.0
+                if 'wixui.wixlib' in files and 'WixUI_en-us.wxl' in files:
+                    e['WIXLIGHTFLAGS'] = [os.path.join(p, 'wixui.wixlib'),
+                                          '-loc',
+                                          os.path.join(p, 'WixUI_en-us.wxl')]
+                else:
+                    e['WIXLIGHTFLAGS'] = []
+                return 1
+        except OSError:
+            pass  # ignore this, could be a stale PATH entry.
+        return None
+
+    # look in existing paths first
     for path in os.environ['PATH'].split(os.pathsep):
         if not path:
             continue
 
         # workaround for some weird python win32 bug.
-        if path[0] == '"' and path[-1:]=='"':
+        if path[0] == '"' and path[-1:] == '"':
             path = path[1:-1]
 
         # normalize the path
         path = os.path.normpath(path)
 
-        # search for the tools in the PATH environment variable
-        try:
-            files = os.listdir(path)
-            if env['WIXCANDLE'] in files and env['WIXLIGHT'] in files:
-                env.PrependENVPath('PATH', path)
-                # include appropriate flags if running WiX 2.0
-                if 'wixui.wixlib' in files and 'WixUI_en-us.wxl' in files:
-                    env['WIXLIGHTFLAGS'] = [ os.path.join( path, 'wixui.wixlib' ),
-                                             '-loc',
-                                             os.path.join( path, 'WixUI_en-us.wxl' ) ]
-                else:
-                    env['WIXLIGHTFLAGS'] = []
-                return 1
-        except OSError:
-            pass # ignore this, could be a stale PATH entry.
+        if check_wix(env, path):
+            return 1
 
+    # Wix is not in scons' PATH. Let's look in typical install locations.
+    wix_env = os.environ.get('WIX', None)
+    if wix_env:
+        wix_installs = [os.path.join(wix_env, 'bin')]
+    else:
+        wix_path = r'C:\Program Files (x86)\WiX Toolset v*.*\bin'
+        wix_installs = glob.glob(wix_path)
+    for path in wix_installs:
+        if check_wix(env, path):
+            return 1
+
+    # not found: don't leave remnants in the construction env
+    del env['WIXCANDLE']
+    del env['WIXLIGHT']
     return None
 
 # Local Variables:
