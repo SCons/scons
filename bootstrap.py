@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+from __future__ import print_function
 
 import os
 import os.path
@@ -74,15 +75,24 @@ the following SCons options:
         "eaten" by the bootstrap.py script.
 """
 
-def parseManifestLines(basedir, lines):
-    """ Scans the single lines of a MANIFEST file,
-        and returns the list of source files.
-        Has basic support for recursive globs '**',
-        filename wildcards of the form '*.xml' and
-        comment lines, starting with a '#'.
+def parseManifestLines(basedir, manifest):
+    """
+    Scans a MANIFEST file, and returns the list of source files.
+
+    Has basic support for recursive globs '**',
+    filename wildcards of the form '*.xml' and
+    comment lines, starting with a '#'.
+
+    :param basedir: base path to find files in. Note this does not
+                    run in an SCons context so path must not need
+                    further processing (e.g. no '#' signs)
+    :param manifest: path to manifest file
+    :returns: list of files
     """
     sources = []
     basewd = os.path.abspath(basedir)
+    with open(manifest) as m:
+        lines = m.readlines()
     for l in lines:
         if l.startswith('#'):
             # Skip comments
@@ -107,16 +117,16 @@ def parseManifestLines(basedir, lines):
 
 def main():
     script_dir = os.path.abspath(os.path.dirname(__file__))
-    
+
     bootstrap_dir = os.path.join(script_dir, 'bootstrap')
-    
+
     pass_through_args = []
     update_only = None
-    
+
     requires_an_argument = 'bootstrap.py:  %s requires an argument\n'
-    
+
     search = [script_dir]
-    
+
     def find(filename, search=search):
         for dir_name in search:
             filepath = os.path.join(dir_name, filename)
@@ -125,20 +135,20 @@ def main():
         sys.stderr.write("could not find `%s' in search path:\n" % filename)
         sys.stderr.write("\t" + "\n\t".join(search) + "\n")
         sys.exit(2)
-    
+
     def must_copy(dst, src):
         if not os.path.exists(dst):
             return 1
         return not filecmp.cmp(dst,src)
-    
+
     # Note:  We don't use the getopt module to process the command-line
     # arguments because we'd have to teach it about all of the SCons options.
-    
+
     command_line_args = sys.argv[1:]
-    
+
     while command_line_args:
         arg = command_line_args.pop(0)
-    
+
         if arg == '--bootstrap_dir':
             try:
                 bootstrap_dir = command_line_args.pop(0)
@@ -180,7 +190,7 @@ def main():
     MANIFEST_in = find(os.path.join(src_engine, 'MANIFEST.in'))
     manifest_files = [os.path.join(src_engine, x)
                       for x in parseManifestLines(os.path.join(script_dir, src_engine),
-                                                  open(MANIFEST_in).readlines())]
+                                                  MANIFEST_in)]
 
     files = [scons_py] + manifest_files
 
