@@ -115,6 +115,8 @@ test.write('foo2a.txt', foo2aText)
 test.write('bar2a.txt', foo2aText)
 check_times()
 
+# now that textfile is part of default tool list, run one testcase
+# without adding it explicitly as a tool to make sure.
 test.write('SConstruct', """
 textlist = ['This line has no substitutions',
             'This line has @subst@ substitutions',
@@ -125,7 +127,7 @@ sub1 = { '@subst@' : 'most' }
 sub2 = { '%subst%' : 'many' }
 sub3 = { '@subst@' : 'most' , '%subst%' : 'many' }
 
-env = Environment(tools = ['textfile'])
+env = Environment()
 
 t = env.Textfile('text', textlist)
 # no substitutions

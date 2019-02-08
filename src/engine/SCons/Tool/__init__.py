@@ -1305,6 +1305,8 @@ def tool_list(platform, env):
         'tex', 'latex', 'pdflatex', 'pdftex',
         # Archivers
         'tar', 'zip',
+        # File builders (text)
+        'textfile',
     ], env)
 
     tools = ([linker, c_compiler, cxx_compiler,
