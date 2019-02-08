@@ -298,13 +298,14 @@ def find_vc_pdir_vswhere(msvc_version):
     if os.path.exists(vswhere_path):
         sp = subprocess.Popen(vswhere_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         vsdir, err = sp.communicate()
-        vsdir = vsdir.decode("mbcs").splitlines()
-        # vswhere could easily return multiple lines
-        # we could define a way to pick the one we prefer, but since
-        # this data is currently only used to make a check for existence,
-        # returning the first hit should be good enough for now.
-        vc_pdir = os.path.join(vsdir[0], 'VC')
-        return vc_pdir
+        if vsdir:
+            vsdir = vsdir.decode("mbcs").splitlines()
+            # vswhere could easily return multiple lines
+            # we could define a way to pick the one we prefer, but since
+            # this data is currently only used to make a check for existence,
+            # returning the first hit should be good enough for now.
+            vc_pdir = os.path.join(vsdir[0], 'VC')
+            return vc_pdir
     else:
         # No vswhere on system, no install info available
         return None

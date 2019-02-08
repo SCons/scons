@@ -56,6 +56,7 @@ import SCons.Warnings
 import SCons.Conftest
 
 from SCons.Debug import Trace
+from SCons.Node import DeciderNeedsNode
 
 # Turn off the Conftest error logging
 SCons.Conftest.LogInputFiles = 0
@@ -330,8 +331,14 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
                     # that the correct .sconsign info will get calculated
                     # and keep the build state consistent.
                     def force_build(dependency, target, prev_ni,
-                                    env_decider=env.decide_source):
-                        env_decider(dependency, target, prev_ni)
+                                    env_decider=env.decide_source,
+                                    node=None):
+                        try:
+                            env_decider(dependency, target, prev_ni)
+                        except DeciderNeedsNode as e:
+                            e.decider(target, prev_ni, node=target)
+                        except Exception as e:
+                            raise e
                         return True
                     if env.decide_source.__code__ is not force_build.__code__:
                         env.Decider(force_build)
