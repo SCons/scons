@@ -188,8 +188,10 @@ def get_output(vcbat, args = None, env = None):
     # Use the .stdout and .stderr attributes directly because the
     # .communicate() method uses the threading module on Windows
     # and won't work under Pythons not built with threading.
-    stdout = popen.stdout.read()
-    stderr = popen.stderr.read()
+    with popen.stdout:
+        stdout = popen.stdout.read()
+    with popen.stderr:
+        stderr = popen.stderr.read()
 
     # Extra debug logic, uncomment if necessary
 #     debug('get_output():stdout:%s'%stdout)

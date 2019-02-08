@@ -88,7 +88,7 @@ _ARCH_TO_CANONICAL = {
     "arm64"     : "arm64",
     "aarch64"   : "arm64",
 }
- 
+
 # get path to the cl.exe dir for newer VS versions
 # based off a tuple of (host, target) platforms
 _HOST_TARGET_TO_CL_DIR_GREATER_THAN_14 = {
@@ -135,8 +135,8 @@ _HOST_TARGET_ARCH_TO_BAT_ARCH = {
 _CL_EXE_NAME = 'cl.exe'
 
 def get_msvc_version_numeric(msvc_version):
-    """Get the raw version numbers from a MSVC_VERSION string, so it 
-    could be cast to float or other numeric values. For example, '14.0Exp' 
+    """Get the raw version numbers from a MSVC_VERSION string, so it
+    could be cast to float or other numeric values. For example, '14.0Exp'
     would get converted to '14.0'.
 
     Args:
@@ -296,8 +296,10 @@ def find_vc_pdir_vswhere(msvc_version):
     vswhere_cmd = [vswhere_path, '-products', '*', '-version', msvc_version, '-property', 'installationPath']
 
     if os.path.exists(vswhere_path):
-        sp = subprocess.Popen(vswhere_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        vsdir, err = sp.communicate()
+        with subprocess.Popen(vswhere_cmd,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE) as sp:
+            vsdir, err = sp.communicate()
         if vsdir:
             vsdir = vsdir.decode("mbcs").splitlines()
             # vswhere could easily return multiple lines
@@ -415,15 +417,15 @@ def find_batch_file(env,msvc_version,host_arch,target_arch):
 __INSTALLED_VCS_RUN = None
 
 def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
-    """Find the cl.exe on the filesystem in the vc_dir depending on 
-    TARGET_ARCH, HOST_ARCH and the msvc version. TARGET_ARCH and 
-    HOST_ARCH can be extracted from the passed env, unless its None, 
+    """Find the cl.exe on the filesystem in the vc_dir depending on
+    TARGET_ARCH, HOST_ARCH and the msvc version. TARGET_ARCH and
+    HOST_ARCH can be extracted from the passed env, unless its None,
     which then the native platform is assumed the host and target.
 
     Args:
         env: Environment
             a construction environment, usually if this is passed its
-            because there is a desired TARGET_ARCH to be used when searching 
+            because there is a desired TARGET_ARCH to be used when searching
             for a cl.exe
         vc_dir: str
             the path to the VC dir in the MSVC installation
@@ -434,7 +436,7 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
         bool:
 
     """
-    
+
     # determine if there is a specific target platform we want to build for and
     # use that to find a list of valid VCs, default is host platform == target platform
     # and same for if no env is specified to extract target platform from
@@ -460,7 +462,7 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
         try:
             with open(default_toolset_file) as f:
                 vc_specific_version = f.readlines()[0].strip()
-        except IOError: 
+        except IOError:
             debug('_check_cl_exists_in_vc_dir(): failed to read ' + default_toolset_file)
             return False
         except IndexError:
@@ -484,14 +486,14 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
         if not host_trgt_dir:
             debug('_check_cl_exists_in_vc_dir(): unsupported host/target platform combo')
             return False
-        
+
         cl_path = os.path.join(vc_dir, 'bin',  host_trgt_dir, _CL_EXE_NAME)
         debug('_check_cl_exists_in_vc_dir(): checking for ' + _CL_EXE_NAME + ' at ' + cl_path)
 
         cl_path_exists = os.path.exists(cl_path)
         if not cl_path_exists and host_platform == 'amd64':
-            # older versions of visual studio only had x86 binaries, 
-            # so if the host platform is amd64, we need to check cross 
+            # older versions of visual studio only had x86 binaries,
+            # so if the host platform is amd64, we need to check cross
             # compile options (x86 binary compiles some other target on a 64 bit os)
             host_trgt_dir = _HOST_TARGET_TO_CL_DIR.get(('x86', target_platform), None)
             if not host_trgt_dir:
@@ -515,7 +517,7 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
     else:
         # version not support return false
         debug('_check_cl_exists_in_vc_dir(): unsupported MSVC version: ' + str(ver_num))
-   
+
     return False
 
 def cached_get_installed_vcs(env=None):
