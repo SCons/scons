@@ -1225,14 +1225,6 @@ builder method.
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-Builds a Binary Package of the given source files. 
-</para>
-
-<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
-env.Package(source = FindInstalledFiles())
-</example_commands>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds software distribution packages.
 Packages consist of files to install and packaging information.
 The former may be specified with the <varname xmlns="http://www.scons.org/dbxsd/v1.0">source</varname> parameter and may be left out,
@@ -1252,29 +1244,65 @@ They vary depending on chosen target packager.
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-The target packager may be selected with the "PACKAGETYPE" command line
+The <function xmlns="http://www.scons.org/dbxsd/v1.0">Package</function> Builder is activated by supplying the
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-packaging"><literal>packaging</literal></link> tool in the tools list.
+</para>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The target packager may be selected with the
+<option>--package-type</option> command line
 option or with the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$PACKAGETYPE</envar> construction variable. Currently
-the following packagers available:
+the following packagers are available:
 </para>
 
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
- * msi - Microsoft Installer
- * rpm - RPM Package Manger
- * ipkg - Itsy Package Management System
- * tarbz2 - bzip2 compressed tar
- * targz - gzip compressed tar
- * tarxz - xz compressed tar
- * zip - zip file
- * src_tarbz2 - bzip2 compressed tar source
- * src_targz - gzip compressed tar source
- * src_tarxz - xz compressed tar source
- * src_zip - zip file source
-</para>
+<!-- should define this as a list, but controlling the formatting
+     seems too hard - it wants to put a line break after the term,
+     which does not look good
+-->
+<!--variablelist spacing="compact">
+<varlistentry><term>msi</term>
+<listitem><para>Microsoft Installer</para></listitem></varlistentry>
+<varlistentry><term>rpm</term>
+<listitem><para>RPM Package Manger</para></listitem></varlistentry>
+<varlistentry><term>ipkg</term>
+<listitem><para>Itsy Package Management System</para></listitem></varlistentry>
+<varlistentry><term>tarbz2</term>
+<listitem><para>bzip2 compressed tar</para></listitem></varlistentry>
+<varlistentry><term>targz</term>
+<listitem><para>gzip compressed tar</para></listitem></varlistentry>
+<varlistentry><term>tarxz</term>
+<listitem><para>xz compressed tar</para></listitem></varlistentry>
+<varlistentry><term>zip</term>
+<listitem><para>zip file</para></listitem></varlistentry>
+<varlistentry><term>src_tarbz2</term>
+<listitem><para>bzip2 compressed tar source</para></listitem></varlistentry>
+<varlistentry><term>src_targz</term>
+<listitem><para>gzip compressed tar source</para></listitem></varlistentry>
+<varlistentry><term>src_tarxz</term>
+<listitem><para>xz compressed tar source</para></listitem></varlistentry>
+<varlistentry><term>src_zip</term>
+<listitem><para>zip file source</para></listitem></varlistentry>
+</variablelist-->
+<literallayout xmlns="http://www.scons.org/dbxsd/v1.0">
+msi - Microsoft Installer
+rpm - RPM Package Manger
+ipkg - Itsy Package Management System
+tarbz2 - bzip2 compressed tar
+targz - gzip compressed tar
+tarxz - xz compressed tar
+zip - zip file
+src_tarbz2 - bzip2 compressed tar source
+src_targz - gzip compressed tar source
+src_tarxz - xz compressed tar source
+src_zip - zip file source
+</literallayout>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-An updated list is always available under the "package_type" option when
+An updated list is always available under the
+<option>--package-type</option> option when
 running "scons --help" on a project that has packaging activated.
 </para>
+
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env = Environment(tools=['default', 'packaging'])
 env.Install('/bin/', 'my_program')

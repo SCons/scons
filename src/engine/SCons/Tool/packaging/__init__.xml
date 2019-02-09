@@ -23,7 +23,7 @@ See its __doc__ string for a discussion of the format.
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 
-<tool name="Packaging">
+<tool name="packaging">
 <summary>
 <para>
 Sets construction variables for the &b-Package; Builder.
@@ -57,29 +57,65 @@ They vary depending on chosen target packager.
 </para>
 
 <para>
-The target packager may be selected with the "PACKAGETYPE" command line
+The &b-Package; Builder is activated by supplying the
+&t-link-packaging; tool in the tools list.
+</para>
+
+<para>
+The target packager may be selected with the
+<option>--package-type</option> command line
 option or with the &cv-PACKAGETYPE; construction variable. Currently
-the following packagers available:
+the following packagers are available:
 </para>
 
-<para>
- * msi - Microsoft Installer
- * rpm - RPM Package Manger
- * ipkg - Itsy Package Management System
- * tarbz2 - bzip2 compressed tar
- * targz - gzip compressed tar
- * tarxz - xz compressed tar
- * zip - zip file
- * src_tarbz2 - bzip2 compressed tar source
- * src_targz - gzip compressed tar source
- * src_tarxz - xz compressed tar source
- * src_zip - zip file source
-</para>
+<!-- should define this as a list, but controlling the formatting
+     seems too hard - it wants to put a line break after the term,
+     which does not look good
+-->
+<!--variablelist spacing="compact">
+<varlistentry><term>msi</term>
+<listitem><para>Microsoft Installer</para></listitem></varlistentry>
+<varlistentry><term>rpm</term>
+<listitem><para>RPM Package Manger</para></listitem></varlistentry>
+<varlistentry><term>ipkg</term>
+<listitem><para>Itsy Package Management System</para></listitem></varlistentry>
+<varlistentry><term>tarbz2</term>
+<listitem><para>bzip2 compressed tar</para></listitem></varlistentry>
+<varlistentry><term>targz</term>
+<listitem><para>gzip compressed tar</para></listitem></varlistentry>
+<varlistentry><term>tarxz</term>
+<listitem><para>xz compressed tar</para></listitem></varlistentry>
+<varlistentry><term>zip</term>
+<listitem><para>zip file</para></listitem></varlistentry>
+<varlistentry><term>src_tarbz2</term>
+<listitem><para>bzip2 compressed tar source</para></listitem></varlistentry>
+<varlistentry><term>src_targz</term>
+<listitem><para>gzip compressed tar source</para></listitem></varlistentry>
+<varlistentry><term>src_tarxz</term>
+<listitem><para>xz compressed tar source</para></listitem></varlistentry>
+<varlistentry><term>src_zip</term>
+<listitem><para>zip file source</para></listitem></varlistentry>
+</variablelist-->
+<literallayout>
+msi - Microsoft Installer
+rpm - RPM Package Manger
+ipkg - Itsy Package Management System
+tarbz2 - bzip2 compressed tar
+targz - gzip compressed tar
+tarxz - xz compressed tar
+zip - zip file
+src_tarbz2 - bzip2 compressed tar source
+src_targz - gzip compressed tar source
+src_tarxz - xz compressed tar source
+src_zip - zip file source
+</literallayout>
 
 <para>
-An updated list is always available under the "package_type" option when
+An updated list is always available under the
+<option>--package-type</option> option when
 running "scons --help" on a project that has packaging activated.
 </para>
+
 <example_commands>
 env = Environment(tools=['default', 'packaging'])
 env.Install('/bin/', 'my_program')
@@ -198,20 +234,51 @@ placed if applicable.  The default value is "$NAME-$VERSION".
 Selects the package type to build.  Currently these are available:
 </para>
 
-<para>
- * msi - Microsoft Installer
- * rpm - Redhat Package Manger
- * ipkg - Itsy Package Management System
- * tarbz2 - compressed tar
- * targz - compressed tar
- * zip - zip file
- * src_tarbz2 - compressed tar source
- * src_targz - compressed tar source
- * src_zip - zip file source
-</para>
+<!-- should define this as a list, but controlling the formatting
+     seems too hard - it wants to put a line break after the term,
+     which does not look good
+-->
+<!--variablelist spacing="compact">
+<varlistentry><term>msi</term>
+<listitem><para>Microsoft Installer</para></listitem></varlistentry>
+<varlistentry><term>rpm</term>
+<listitem><para>RPM Package Manger</para></listitem></varlistentry>
+<varlistentry><term>ipkg</term>
+<listitem><para>Itsy Package Management System</para></listitem></varlistentry>
+<varlistentry><term>tarbz2</term>
+<listitem><para>bzip2 compressed tar</para></listitem></varlistentry>
+<varlistentry><term>targz</term>
+<listitem><para>gzip compressed tar</para></listitem></varlistentry>
+<varlistentry><term>tarxz</term>
+<listitem><para>xz compressed tar</para></listitem></varlistentry>
+<varlistentry><term>zip</term>
+<listitem><para>zip file</para></listitem></varlistentry>
+<varlistentry><term>src_tarbz2</term>
+<listitem><para>bzip2 compressed tar source</para></listitem></varlistentry>
+<varlistentry><term>src_targz</term>
+<listitem><para>gzip compressed tar source</para></listitem></varlistentry>
+<varlistentry><term>src_tarxz</term>
+<listitem><para>xz compressed tar source</para></listitem></varlistentry>
+<varlistentry><term>src_zip</term>
+<listitem><para>zip file source</para></listitem></varlistentry>
+</variablelist-->
+<literallayout>
+msi - Microsoft Installer
+rpm - RPM Package Manger
+ipkg - Itsy Package Management System
+tarbz2 - bzip2 compressed tar
+targz - gzip compressed tar
+tarxz - xz compressed tar
+zip - zip file
+src_tarbz2 - bzip2 compressed tar source
+src_targz - gzip compressed tar source
+src_tarxz - xz compressed tar source
+src_zip - zip file source
+</literallayout>
 
 <para>
-This may be overridden with the "package_type" command line option.
+This may be overridden with the <option>--package-type</option>
+command line option.
 </para>
 </summary>
 </cvar>
@@ -488,7 +555,7 @@ to disable debug package generation.
 To enable debug package generation, include this
 variable set either to None, or to a custom
 list that does not include the default line.
-Added in version 3.1.
+Added in version 3.0.2.
 </para>
 
 <example_commands>

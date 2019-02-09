@@ -3256,22 +3256,11 @@ selected for use.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The Java archive tool.
 </para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The Java archive tool.
-</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-JARCHDIR">
     <term>JARCHDIR</term>
     <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The directory to which the Java archive tool should change
-(using the
-<option>-C</option>
-option).
-</para>
-
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The directory to which the Java archive tool should change
 (using the
@@ -3286,25 +3275,11 @@ option).
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The command line used to call the Java archive tool.
 </para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The command line used to call the Java archive tool.
-</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-JARCOMSTR">
     <term>JARCOMSTR</term>
     <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The string displayed when the Java archive tool
-is called
-If this is not set, then <envar xmlns="http://www.scons.org/dbxsd/v1.0">$JARCOM</envar> (the command line) is displayed.
-</para>
-
-<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
-env = Environment(JARCOMSTR = "JARchiving $SOURCES into $TARGET")
-</example_commands>
-
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The string displayed when the Java archive tool
 is called
@@ -3327,26 +3302,11 @@ to create the necessary
 <command>jar</command>
 file.
 </para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-General options passed to the Java archive tool.
-By default this is set to
-<option>cf</option>
-to create the necessary
-<command>jar</command>
-file.
-</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-JARSUFFIX">
     <term>JARSUFFIX</term>
     <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The suffix for Java archives:
-<filename>.jar</filename>
-by default.
-</para>
-
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The suffix for Java archives:
 <filename>.jar</filename>
@@ -4933,20 +4893,51 @@ placed if applicable.  The default value is "$NAME-$VERSION".
 Selects the package type to build.  Currently these are available:
 </para>
 
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
- * msi - Microsoft Installer
- * rpm - Redhat Package Manger
- * ipkg - Itsy Package Management System
- * tarbz2 - compressed tar
- * targz - compressed tar
- * zip - zip file
- * src_tarbz2 - compressed tar source
- * src_targz - compressed tar source
- * src_zip - zip file source
-</para>
+<!-- should define this as a list, but controlling the formatting
+     seems too hard - it wants to put a line break after the term,
+     which does not look good
+-->
+<!--variablelist spacing="compact">
+<varlistentry><term>msi</term>
+<listitem><para>Microsoft Installer</para></listitem></varlistentry>
+<varlistentry><term>rpm</term>
+<listitem><para>RPM Package Manger</para></listitem></varlistentry>
+<varlistentry><term>ipkg</term>
+<listitem><para>Itsy Package Management System</para></listitem></varlistentry>
+<varlistentry><term>tarbz2</term>
+<listitem><para>bzip2 compressed tar</para></listitem></varlistentry>
+<varlistentry><term>targz</term>
+<listitem><para>gzip compressed tar</para></listitem></varlistentry>
+<varlistentry><term>tarxz</term>
+<listitem><para>xz compressed tar</para></listitem></varlistentry>
+<varlistentry><term>zip</term>
+<listitem><para>zip file</para></listitem></varlistentry>
+<varlistentry><term>src_tarbz2</term>
+<listitem><para>bzip2 compressed tar source</para></listitem></varlistentry>
+<varlistentry><term>src_targz</term>
+<listitem><para>gzip compressed tar source</para></listitem></varlistentry>
+<varlistentry><term>src_tarxz</term>
+<listitem><para>xz compressed tar source</para></listitem></varlistentry>
+<varlistentry><term>src_zip</term>
+<listitem><para>zip file source</para></listitem></varlistentry>
+</variablelist-->
+<literallayout xmlns="http://www.scons.org/dbxsd/v1.0">
+msi - Microsoft Installer
+rpm - RPM Package Manger
+ipkg - Itsy Package Management System
+tarbz2 - bzip2 compressed tar
+targz - gzip compressed tar
+tarxz - xz compressed tar
+zip - zip file
+src_tarbz2 - bzip2 compressed tar source
+src_targz - gzip compressed tar source
+src_tarxz - xz compressed tar source
+src_zip - zip file source
+</literallayout>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-This may be overridden with the "package_type" command line option.
+This may be overridden with the <option>--package-type</option>
+command line option.
 </para>
 </listitem>
   </varlistentry>
@@ -7846,7 +7837,7 @@ to disable debug package generation.
 To enable debug package generation, include this
 variable set either to None, or to a custom
 list that does not include the default line.
-Added in version 3.1.
+Added in version 3.0.2.
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
