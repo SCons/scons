@@ -40,14 +40,19 @@ import os
 
 def generate(env):
     """Add Builders and construction variables for WiX to an Environment."""
-    if not exists(env):
-        return
+    path = os.environ['PATH'].split(os.pathsep)
+    try:
+        path.insert(0, os.path.join(os.environ['WIX'], "bin"))
+    except KeyError:
+        pass
 
+    env['WIXCANDLE'] = env.WhereIs('candle', path)
     env['WIXCANDLEFLAGS'] = ['-nologo']
     env['WIXCANDLEINCLUDE'] = []
     env['WIXCANDLECOM'] = '$WIXCANDLE $WIXCANDLEFLAGS -I $WIXCANDLEINCLUDE -o ${TARGET} ${SOURCE}'
 
-    env['WIXLIGHTFLAGS'].append('-nologo')
+    env['WIXLIGHT'] = env.WhereIs('light', path)
+    env['WIXLIGHTFLAGS'] = ['-nologo']
     env['WIXLIGHTCOM'] = "$WIXLIGHT $WIXLIGHTFLAGS -out ${TARGET} ${SOURCES}"
     env['WIXSRCSUF'] = '.wxs'
     env['WIXOBJSUF'] = '.wixobj'
@@ -64,8 +69,21 @@ def generate(env):
 
     env['BUILDERS']['WiX'] = linker_builder
 
-
 def exists(env):
+    """simplified exists function for wix tool
+
+    old one is still here as old_exists.
+    Does depend on the OS path and the WIX setting.
+    We have to find this thing somehow...
+    """
+    path = os.environ['PATH'].split(os.pathsep)
+    try:
+        path.insert(0, os.path.join(os.environ['WIX'], "bin"))
+    except KeyError:
+        pass
+    return env.WhereIs('candle', path)
+
+def old_exists(env):
     env['WIXCANDLE'] = 'candle.exe'
     env['WIXLIGHT']  = 'light.exe'
 
