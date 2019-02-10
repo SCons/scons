@@ -296,9 +296,9 @@ def find_vc_pdir_vswhere(msvc_version):
     vswhere_cmd = [vswhere_path, '-products', '*', '-version', msvc_version, '-property', 'installationPath']
 
     if os.path.exists(vswhere_path):
-         #TODO PY27 cannot use Popen as context manager
-         # try putting it back to the old way for now
-         sp = subprocess.Popen(vswhere_cmd,
+        #TODO PY27 cannot use Popen as context manager
+        # try putting it back to the old way for now
+        sp = subprocess.Popen(vswhere_cmd,
                               stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE)
         vsdir, err = sp.communicate()
