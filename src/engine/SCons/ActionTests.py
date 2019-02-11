@@ -490,7 +490,7 @@ class _ActionActionTestCase(unittest.TestCase):
 
         a = SCons.Action._ActionAction(cmdstr='cmdstr')
         assert not hasattr(a, 'strfunction')
-        assert a.cmdstr is 'cmdstr', a.cmdstr
+        assert a.cmdstr == 'cmdstr', a.cmdstr
 
         a = SCons.Action._ActionAction(cmdstr=None)
         assert not hasattr(a, 'strfunction')
@@ -504,7 +504,7 @@ class _ActionActionTestCase(unittest.TestCase):
         assert a.presub is func1, a.presub
 
         a = SCons.Action._ActionAction(chdir=1)
-        assert a.chdir is 1, a.chdir
+        assert a.chdir == 1, a.chdir
 
         a = SCons.Action._ActionAction(exitstatfunc=func1)
         assert a.exitstatfunc is func1, a.exitstatfunc
@@ -518,8 +518,8 @@ class _ActionActionTestCase(unittest.TestCase):
             strfunction=func1,
             varlist=t,
         )
-        assert a.chdir is 'x', a.chdir
-        assert a.cmdstr is 'cmdstr', a.cmdstr
+        assert a.chdir == 'x', a.chdir
+        assert a.cmdstr == 'cmdstr', a.cmdstr
         assert a.exitstatfunc is func3, a.exitstatfunc
         assert a.presub is func2, a.presub
         assert a.strfunction is func1, a.strfunction

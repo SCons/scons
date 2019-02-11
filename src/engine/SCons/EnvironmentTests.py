@@ -963,7 +963,7 @@ class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
 
         self.assertRaises(AttributeError, getattr, bw, 'foobar')
         bw.foobar = 42
-        assert bw.foobar is 42
+        assert bw.foobar == 42
 
     # This unit test is currently disabled because we don't think the
     # underlying method it tests (Environment.BuilderWrapper.execute())
@@ -1777,15 +1777,15 @@ def exists(env):
         env2 = env1.Clone()
         env3 = env1.Clone(tools=[bar, baz])
 
-        assert env1.get('FOO') is 1
+        assert env1.get('FOO') == 1
         assert env1.get('BAR') is None
         assert env1.get('BAZ') is None
-        assert env2.get('FOO') is 1
+        assert env2.get('FOO') == 1
         assert env2.get('BAR') is None
         assert env2.get('BAZ') is None
-        assert env3.get('FOO') is 1
-        assert env3.get('BAR') is 2
-        assert env3.get('BAZ') is 3
+        assert env3.get('FOO') == 1
+        assert env3.get('BAR') == 2
+        assert env3.get('BAZ') == 3
 
         # Ensure that recursive variable substitution when copying
         # environments works properly.
