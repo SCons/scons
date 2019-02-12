@@ -797,7 +797,7 @@ tests_failing = 0
 def run_test(t, io_lock, run_async=True):
     global tests_completed, tests_passing, tests_failing
     header = ""
-    command_args = ['-tt']
+    command_args = []
     if debug:
         command_args.append(debug)
     command_args.append(t.path)
