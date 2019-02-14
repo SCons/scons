@@ -62,25 +62,28 @@ test = TestCmd.TestCmd(workdir='')
 
 test.write('act.py', """\
 import os, string, sys
-f = open(sys.argv[1], 'w')
-f.write("act.py: '" + "' '".join(sys.argv[2:]) + "'\\n")
-try:
-    if sys.argv[3]:
-        f.write("act.py: '" + os.environ[sys.argv[3]] + "'\\n")
-except:
-    pass
-f.close()
+
+with open(sys.argv[1], 'w') as f:
+    f.write("act.py: '" + "' '".join(sys.argv[2:]) + "'\\n")
+    try:
+        if sys.argv[3]:
+            f.write("act.py: '" + os.environ[sys.argv[3]] + "'\\n")
+    except:
+        pass
+
 if 'ACTPY_PIPE' in os.environ:
     if 'PIPE_STDOUT_FILE' in os.environ:
-         stdout_msg = open(os.environ['PIPE_STDOUT_FILE'], 'r').read()
+         with open(os.environ['PIPE_STDOUT_FILE'], 'r') as f:
+             stdout_msg = f.read()
     else:
          stdout_msg = "act.py: stdout: executed act.py %s\\n" % ' '.join(sys.argv[1:])
     sys.stdout.write( stdout_msg )
     if 'PIPE_STDERR_FILE' in os.environ:
-         stderr_msg = open(os.environ['PIPE_STDERR_FILE'], 'r').read()
+         with open(os.environ['PIPE_STDERR_FILE'], 'r') as f:
+             stderr_msg = f.read()
     else:
          stderr_msg = "act.py: stderr: executed act.py %s\\n" % ' '.join(sys.argv[1:])
-    sys.stderr.write( stderr_msg )
+    sys.stderr.write(stderr_msg)
 sys.exit(0)
 """)
 

@@ -48,7 +48,8 @@ L = len(P)
 C = Custom(P)
 
 def create(target, source, env):
-    open(str(target[0]), 'wb').write(source[0].get_contents())
+    with open(str(target[0]), 'wb') as f:
+        f.write(source[0].get_contents())
 
 env = Environment()
 env['BUILDERS']['B'] = Builder(action = create)
@@ -62,7 +63,9 @@ def create_value (target, source, env):
     target[0].write(source[0].get_contents())
 
 def create_value_file (target, source, env):
-    open(str(target[0]), 'wb').write(source[0].read())
+    #open(str(target[0]), 'wb').write(source[0].read())
+    with open(str(target[0]), 'wb') as f:
+        f.write(source[0].read())
 
 env['BUILDERS']['B2'] = Builder(action = create_value)
 env['BUILDERS']['B3'] = Builder(action = create_value_file)
@@ -75,7 +78,8 @@ env.B3('f5.out', V)
 test.write('put.py', """\
 import os
 import sys
-open(sys.argv[-1],'w').write(" ".join(sys.argv[1:-2]))
+with open(sys.argv[-1],'w') as f:
+    f.write(" ".join(sys.argv[1:-2]))
 """)
 
 # Run all of the tests with both types of source signature

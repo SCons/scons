@@ -24,8 +24,7 @@ from TestCommon import __all__
 # some of the scons_time tests may need regex-based matching:
 from TestSCons import search_re, search_re_in_list
 
-__all__.extend([ 'TestSCons_time',
-               ])
+__all__.extend(['TestSCons_time',])
 
 SConstruct = """\
 from __future__ import print_function
@@ -37,25 +36,30 @@ scons_py = """\
 #!/usr/bin/env python
 import os
 import sys
+
 def write_args(fp, args):
     fp.write(args[0] + '\\n')
     for arg in args[1:]:
         fp.write('    ' + arg + '\\n')
+
 write_args(sys.stdout, sys.argv)
 for arg in sys.argv[1:]:
     if arg[:10] == '--profile=':
-        profile = open(arg[10:], 'w')
-        profile.write('--profile\\n')
-        write_args(profile, sys.argv)
+        with open(arg[10:], 'w') as profile:
+            profile.write('--profile\\n')
+            write_args(profile, sys.argv)
         break
 sys.stdout.write('SCONS_LIB_DIR = ' + os.environ['SCONS_LIB_DIR'] + '\\n')
-exec(open('SConstruct', 'r').read())
+with open('SConstruct', 'r') as f:
+    script = f.read()
+exec(script)
 """
 
 aegis_py = """\
 #!/usr/bin/env python
 import os
 import sys
+
 script_dir = 'src/script'
 if not os.path.exists(script_dir):
     os.makedirs(script_dir)
@@ -68,6 +72,20 @@ svn_py = """\
 #!/usr/bin/env python
 import os
 import sys
+
+dir = sys.argv[-1]
+script_dir = dir + '/src/script'
+os.makedirs(script_dir)
+open(script_dir + '/scons.py', 'w').write(
+r'''%s''')
+""" % scons_py
+
+
+git_py = """\
+#!/usr/bin/env python
+import os
+import sys
+
 dir = sys.argv[-1]
 script_dir = dir + '/src/script'
 os.makedirs(script_dir)
@@ -236,6 +254,12 @@ class TestSCons_time(TestCommon):
     def write_fake_svn_py(self, name):
         name = self.workpath(name)
         self.write(name, svn_py)
+        os.chmod(name, 0o755)
+        return name
+
+    def write_fake_git_py(self, name):
+        name = self.workpath(name)
+        self.write(name, git_py)
         os.chmod(name, 0o755)
         return name
 
