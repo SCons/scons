@@ -7,13 +7,24 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From John Doe:
+  From William Deegan:
 
-    - Whatever John Doe did.
+    - Fix Issue #3283 - Handle using --config=force in combination with Decider('MD5-timestamp').
+      3.0.2 in fix for issue #2980 added that deciders can throw DeciderNeedsNode exception.
+      The Configure logic directly calls the decider when using --config=force but wasn't handling
+      that exception.  This would yield minimally configure tests using TryLink() not running and
+      leaving TypeError Nonetype exception in config.log
+
+  From Daniel Moody:
+    - Change the default for AppendENVPath to delete_existing=0, so path
+      order will not be changed, unless explicitly set (Issue #3276)
+    - Fixed bug which threw error when running SCons on windows system with no MSVC installed.
 
   From Mats Wichmann:
     - Quiet open file ResourceWarnings on Python >= 3.6 caused by
       not using a context manager around Popen.stdout
+    - Add the textfile tool to the default tool list
+    - Fix syntax on is/is not cluases: should not use with a literal
 
 
 RELEASE 3.0.4 - Mon, 20 Jan 2019 22:49:27 +0000
@@ -24,6 +35,7 @@ RELEASE 3.0.4 - Mon, 20 Jan 2019 22:49:27 +0000
       product from the default Visual Studio
     - Add TEMPFILESUFFIX to allow a customizable filename extension, as
       described in the patch attached to issue #2431.
+    - Doc updates around Default(), and the various *TARGETS variables.
 
   From Daniel Moody:
     - Improved support for VC14.1 and Visual Studio 2017, as well as arm and arm64 targets.
@@ -34,6 +46,7 @@ RELEASE 3.0.4 - Mon, 20 Jan 2019 22:49:27 +0000
   From Tobias Herzog
     - Enhance cpp scanner regex logic to detect if/elif expressions without whitespaces but
       parenthesis like "#if(defined FOO)" or "#elif!(BAR)" correctly.
+
 
 RELEASE 3.0.3 - Mon, 07 Jan 2019 20:05:22 -0400
   NOTE: 3.0.2 release was dropped because there was a packaging bug. Please consider all 3.0.2

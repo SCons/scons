@@ -210,7 +210,7 @@ def chmod_func(dest, mode):
             else:
                 raise SyntaxError("Could not find +, - or =")
             operation_list = operation.split(operator)
-            if len(operation_list) is not 2:
+            if len(operation_list) != 2:
                 raise SyntaxError("More than one operator found")
             user = operation_list[0].strip().replace("a", "ugo")
             permission = operation_list[1].strip()

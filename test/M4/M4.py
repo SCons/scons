@@ -36,8 +36,6 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
 test.write('mym4.py', """
 import sys
 contents = sys.stdin.read()
@@ -60,23 +58,16 @@ line 3
 
 test.run()
 
-import sys
-
-if sys.platform == 'win32':
-    # Handle carriage returns.
-    test.must_match(test.workpath('aaa.x'), "line 1\r\nmym4.py\r\nline 3\r\n")
-else:
-    test.must_match(test.workpath('aaa.x'), "line 1\nmym4.py\nline 3\n")
-
-
+test.must_match(test.workpath('aaa.x'), os.linesep.join(["line 1", "mym4.py", "line 3", ""]))
 
 m4 = test.where_is('m4')
 
-if m4:
+if not m4:
+    test.skip_test('M4 not found found; skipping test.\n')
 
-    test.file_fixture('wrapper.py')
+test.file_fixture('wrapper.py')
 
-    test.write('SConstruct', """
+test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 foo = Environment(tools=['m4'],
                   M4=r'%(m4)s', M4FLAGS='-DFFF=fff')
@@ -87,23 +78,18 @@ foo.M4(target = 'foo.x', source = 'foo.x.m4')
 bar.M4(target = 'bar', source = 'bar.m4')
 """ % locals())
 
-    test.write('foo.x.m4', "line 1\n"
-                           "FFF\n"
-                           "line 3\n")
+test.write('foo.x.m4',  os.linesep.join(["line 1", "FFF", "line 3"]))
 
-    test.write('bar.m4', "line 1\n"
-                         "BBB\n"
-                         "line 3\n")
+test.write('bar.m4', os.linesep.join(["line 1", "BBB", "line 3"]))
 
-    test.run(arguments = '.')
+test.run(arguments = '.')
+test.up_to_date(arguments = '.')
 
-    test.up_to_date(arguments = '.')
+test.must_match('wrapper.out', "wrapper.py\n")
 
-    test.must_match('wrapper.out', "wrapper.py\n")
+test.must_match('foo.x', os.linesep.join(["line 1", "fff", "line 3"]))
 
-    test.must_match('foo.x', "line 1\nfff\nline 3\n")
-
-    test.must_match('bar', "line 1\nbbb\nline 3\n")
+test.must_match('bar', os.linesep.join(["line 1", "bbb", "line 3"]))
 
 test.pass_test()
 

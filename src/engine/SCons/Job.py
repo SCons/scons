@@ -199,7 +199,7 @@ class Serial(object):
                 task.prepare()
                 if task.needs_execute():
                     task.execute()
-            except:
+            except Exception as e:
                 if self.interrupted():
                     try:
                         raise SCons.Errors.BuildError(

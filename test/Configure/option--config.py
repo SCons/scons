@@ -39,9 +39,9 @@ test = TestSCons.TestSCons()
 test.subdir('include')
 
 NCR = test.NCR  # non-cached rebuild
-CR  = test.CR   # cached rebuild (up to date)
+CR = test.CR  # cached rebuild (up to date)
 NCF = test.NCF  # non-cached build failure
-CF  = test.CF   # cached build failure
+CF = test.CF  # cached build failure
 
 SConstruct_path = test.workpath('SConstruct')
 
@@ -70,36 +70,36 @@ scons: *** "%(conftest_0_c)s" is not yet built and cache is forced.
 test.run(arguments='--config=cache', status=2, stderr=expect)
 
 test.run(arguments='--config=auto')
-test.checkLogAndStdout( ["Checking for C header file non_system_header0.h... ",
-                    "Checking for C header file non_system_header1.h... "],
-                    ["yes", "no"],
-                    [[((".c", NCR), (_obj, NCR))],
-                     [((".c", NCR), (_obj, NCF))]],
-                    "config.log", ".sconf_temp", "SConstruct")
+test.checkLogAndStdout(["Checking for C header file non_system_header0.h... ",
+                        "Checking for C header file non_system_header1.h... "],
+                       ["yes", "no"],
+                       [[((".c", NCR), (_obj, NCR))],
+                        [((".c", NCR), (_obj, NCF))]],
+                       "config.log", ".sconf_temp", "SConstruct")
 
 test.run(arguments='--config=auto')
-test.checkLogAndStdout( ["Checking for C header file non_system_header0.h... ",
-                    "Checking for C header file non_system_header1.h... "],
-                    ["yes", "no"],
-                    [[((".c", CR), (_obj, CR))],
-                     [((".c", CR), (_obj, CF))]],
-                    "config.log", ".sconf_temp", "SConstruct")
+test.checkLogAndStdout(["Checking for C header file non_system_header0.h... ",
+                        "Checking for C header file non_system_header1.h... "],
+                       ["yes", "no"],
+                       [[((".c", CR), (_obj, CR))],
+                        [((".c", CR), (_obj, CF))]],
+                       "config.log", ".sconf_temp", "SConstruct")
 
 test.run(arguments='--config=force')
-test.checkLogAndStdout( ["Checking for C header file non_system_header0.h... ",
-                    "Checking for C header file non_system_header1.h... "],
-                    ["yes", "no"],
-                    [[((".c", NCR), (_obj, NCR))],
-                     [((".c", NCR), (_obj, NCF))]],
-                    "config.log", ".sconf_temp", "SConstruct")
+test.checkLogAndStdout(["Checking for C header file non_system_header0.h... ",
+                        "Checking for C header file non_system_header1.h... "],
+                       ["yes", "no"],
+                       [[((".c", NCR), (_obj, NCR))],
+                        [((".c", NCR), (_obj, NCF))]],
+                       "config.log", ".sconf_temp", "SConstruct")
 
 test.run(arguments='--config=cache')
-test.checkLogAndStdout( ["Checking for C header file non_system_header0.h... ",
-                    "Checking for C header file non_system_header1.h... "],
-                    ["yes", "no"],
-                    [[((".c", CR), (_obj, CR))],
-                     [((".c", CR), (_obj, CF))]],
-                    "config.log", ".sconf_temp", "SConstruct")
+test.checkLogAndStdout(["Checking for C header file non_system_header0.h... ",
+                        "Checking for C header file non_system_header1.h... "],
+                       ["yes", "no"],
+                       [[((".c", CR), (_obj, CR))],
+                        [((".c", CR), (_obj, CF))]],
+                       "config.log", ".sconf_temp", "SConstruct")
 
 test.write(['include', 'non_system_header1.h'], """
 /* Another header */
@@ -107,20 +107,36 @@ test.write(['include', 'non_system_header1.h'], """
 test.unlink(['include', 'non_system_header0.h'])
 
 test.run(arguments='--config=cache')
-test.checkLogAndStdout( ["Checking for C header file non_system_header0.h... ",
-                    "Checking for C header file non_system_header1.h... "],
-                    ["yes", "no"],
-                    [[((".c", CR), (_obj, CR))],
-                     [((".c", CR), (_obj, CF))]],
-                    "config.log", ".sconf_temp", "SConstruct")
+test.checkLogAndStdout(["Checking for C header file non_system_header0.h... ",
+                        "Checking for C header file non_system_header1.h... "],
+                       ["yes", "no"],
+                       [[((".c", CR), (_obj, CR))],
+                        [((".c", CR), (_obj, CF))]],
+                       "config.log", ".sconf_temp", "SConstruct")
 
 test.run(arguments='--config=auto')
-test.checkLogAndStdout( ["Checking for C header file non_system_header0.h... ",
-                    "Checking for C header file non_system_header1.h... "],
-                    ["no", "yes"],
-                    [[((".c", CR), (_obj, NCF))],
-                     [((".c", CR), (_obj, NCR))]],
-                    "config.log", ".sconf_temp", "SConstruct")
+test.checkLogAndStdout(["Checking for C header file non_system_header0.h... ",
+                        "Checking for C header file non_system_header1.h... "],
+                       ["no", "yes"],
+                       [[((".c", CR), (_obj, NCF))],
+                        [((".c", CR), (_obj, NCR))]],
+                       "config.log", ".sconf_temp", "SConstruct")
+
+# Check the combination of --config=force and Decider('MD5-timestamp')
+# On second run there was an issue where the decider would throw DeciderNeedsNode
+# exception which the configure code didn't handle.
+SConstruct_path = test.workpath('SConstruct')
+test.write(SConstruct_path, """
+env = Environment()
+env.Decider('MD5-timestamp')
+conf = Configure(env)
+conf.TryLink('int main(){return 0;}','.c')
+env = conf.Finish()
+""")
+test.run(arguments='--config=force')
+# On second run the sconsign is loaded and decider doesn't just indicate need to rebuild
+test.run(arguments='--config=force')
+test.must_not_contain(test.workpath('config.log'), "TypeError: 'NoneType' object is not callable", mode='r')
 
 test.pass_test()
 

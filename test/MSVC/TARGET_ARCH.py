@@ -63,7 +63,7 @@ if env.Detect('cl'):
     env.Command('checkarm', [], 'cl')
 """ % locals())
 test.run(arguments = ".", stderr = None)
-if test.stderr().strip() is not "" and "ARM" not in test.stderr():
+if test.stderr().strip() != "" and "ARM" not in test.stderr():
     test.fail_test()
 
 test.write('SConstruct', """
@@ -73,7 +73,7 @@ if env.Detect('cl'):
     env.Command('checkarm64', [], 'cl')
 """ % locals())
 test.run(arguments = ".", stderr = None)
-if test.stderr().strip() is not "" and "ARM64" not in test.stderr():
+if test.stderr().strip() != "" and "ARM64" not in test.stderr():
     test.fail_test()
 
 test.pass_test()
