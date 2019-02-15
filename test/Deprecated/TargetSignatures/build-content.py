@@ -47,7 +47,8 @@ SetOption('warn', 'deprecated-target-signatures')
 env = Environment()
 
 def copy1(env, source, target):
-    open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
+    with open(str(target[0]), 'wb') as fo, open(str(source[0]), 'rb') as fi:
+        fo.write(fi.read())
 
 def copy2(env, source, target):
     %s

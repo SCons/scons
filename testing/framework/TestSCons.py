@@ -920,7 +920,8 @@ for opt, arg in cmd_opts:
     else: opt_string = opt_string + ' ' + opt
 output.write("/* mymoc.py%s */\\n" % opt_string)
 for a in args:
-    contents = open(a, 'r').read()
+    with open(a, 'r') as f:
+        contents = f.read()
     a = a.replace('\\\\', '\\\\\\\\')
     subst = r'{ my_qt_symbol( "' + a + '\\\\n" ); }'
     if impl:
