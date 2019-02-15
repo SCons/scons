@@ -150,6 +150,12 @@ def generate(env):
 
     #... but a few things differ:
     env['CC'] = 'gcc'
+    # make sure the msvc tool doesnt break us, it added a /flag
+    if 'CCFLAGS' in env:
+        # make sure its a CLVar to handle list or str cases
+        if type(env['CCFLAGS']) is not SCons.Util.CLVar:
+            env['CCFLAGS'] = SCons.Util.CLVar(env['CCFLAGS'])
+        env['CCFLAGS'] = SCons.Util.CLVar(str(env['CCFLAGS']).replace('/nologo', ''))
     env['SHCCFLAGS'] = SCons.Util.CLVar('$CCFLAGS')
     env['CXX'] = 'g++'
     env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
@@ -167,7 +173,6 @@ def generate(env):
 
     env['SHOBJSUFFIX'] = '.o'
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
-
     env['RC'] = 'windres'
     env['RCFLAGS'] = SCons.Util.CLVar('')
     env['RCINCFLAGS'] = '$( ${_concat(RCINCPREFIX, CPPPATH, RCINCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'

@@ -81,6 +81,8 @@ def _lib_emitter(target, source, env, **kw):
     if Verbose:
         print("_lib_emitter: target[0]={!r}".format(target[0].get_path()))
     for tgt in target:
+        if SCons.Util.is_String(tgt):
+            tgt = env.File(tgt)
         tgt.attributes.shared = 1
 
     try:

@@ -42,6 +42,8 @@ RELEASE 3.0.4 - Mon, 20 Jan 2019 22:49:27 +0000
       Issues #3268 & Issue #3222
     - Initial support for ARM targets with Visual Studio 2017 - Issue #3182 (You must set TARGET_ARCH for this to work)
     - Update TempFileMunge class to use PRINT_CMD_LINE_FUNC
+    - Update link tool to convert target to node before accessing node member
+    - Update mingw tool to remove MSVC like nologo CCFLAG
 
   From Tobias Herzog
     - Enhance cpp scanner regex logic to detect if/elif expressions without whitespaces but
