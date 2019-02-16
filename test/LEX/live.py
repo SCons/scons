@@ -28,6 +28,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test LEX and LEXFLAGS with a live lex.
 """
 
+import sys
+
 import TestSCons
 
 _exe = TestSCons._exe
@@ -40,15 +42,24 @@ lex = test.where_is('lex') or test.where_is('flex')
 if not lex:
     test.skip_test('No lex or flex found; skipping test.\n')
 
+tools = "'default'"
+if sys.platform == 'win32':
+    # make sure mingw is installed on win32
+    if not test.where_is('gcc'):
+        test.skip_test('No mingw on windows; skipping test.\n')
+    # lex on win32 has a dependencies on mingw for unix headers
+    # so add it as a tool to the environment.
+    tools += ", 'mingw'"
 
 
 test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
-foo = Environment()
+foo = Environment(tools=[%(tools)s])
 lex = foo.Dictionary('LEX')
 bar = Environment(LEX = r'%(_python_)s wrapper.py ' + lex,
-                  LEXFLAGS = '-b')
+                  LEXFLAGS = '-b',
+                  tools=[%(tools)s])
 foo.Program(target = 'foo', source = 'foo.l')
 bar.Program(target = 'bar', source = 'bar.l')
 """ % locals())
@@ -81,9 +92,6 @@ test.must_not_exist(test.workpath('wrapper.out'))
 test.must_not_exist(test.workpath('lex.backup'))
 
 test.run(program = test.workpath('foo'), stdin = "a\n", stdout = "Afoo.lA\n")
-
-
-
 
 test.run(arguments = 'bar' + _exe)
 
