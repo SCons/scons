@@ -4,15 +4,15 @@ SCons - a software construction tool
 .. image:: https://img.shields.io/badge/IRC-scons-blue.svg
    :target: http://webchat.freenode.net/?channels=%23scons&uio=d4
    :alt: IRC
-   
+
 .. image:: https://img.shields.io/sourceforge/dm/scons.svg
    :target: https://sourceforge.net/projects/scons
    :alt: Sourceforge Monthly Downloads
-   
+
 .. image:: https://img.shields.io/sourceforge/dt/scons.svg
    :target: https://sourceforge.net/projects/scons
    :alt: Sourceforge Total Downloads
-   
+
 .. image:: https://travis-ci.org/SCons/scons.svg?branch=master
    :target: https://travis-ci.org/SCons/scons
    :alt: Travis CI build status
@@ -20,7 +20,7 @@ SCons - a software construction tool
 .. image:: https://ci.appveyor.com/api/projects/status/github/SCons/scons?svg=true&branch=master
    :target: https://ci.appveyor.com/project/SCons/scons
    :alt: AppVeyor CI build Status
-   
+
 .. image:: https://codecov.io/gh/SCons/scons/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/SCons/scons
    :alt: CodeCov Coverage Status
@@ -72,7 +72,7 @@ version at the SCons download page:
 Execution Requirements
 ======================
 
-Running SCons requires Python version 2.7.* and Python 3.5 or higher.  
+Running SCons requires either Python version 2.7.* or Python 3.5 or higher.
 There should be no other dependencies or requirements to run SCons.
 
 The default SCons configuration assumes use of the Microsoft Visual C++
@@ -680,20 +680,20 @@ Reporting Bugs
 
 The SCons project welcomes bug reports and feature requests.
 
-Please make sure you send email with the problem or feature request to the SCons user's mailing list, 
-which you can join via the link below:
+Please make sure you send email with the problem or feature request to
+the SCons users mailing list, which you can join via the link below:
 
         http://two.pairlist.net/mailman/listinfo/scons-users
 
-Once you have discussed your issue on the users mailing list and the community has confirmed that 
-it is either a new bug or a duplicate of an existing bug, then please follow the instructions the c
-ommunity provides to file a new bug or to add yourself to the CC list for an existing bug
+Once you have discussed your issue on the users mailing list and the
+community has confirmed that it is either a new bug or a duplicate of an
+existing bug, then please follow the instructions the community provides
+to file a new bug or to add yourself to the CC list for an existing bug
 
-You can explore the list of existing bugs, which may include workarounds for the problem you've 
-run into on GitHub Issues:
+You can explore the list of existing bugs, which may include workarounds
+for the problem you've run into on GitHub Issues:
 
         https://github.com/SCons/scons/issues
-
 
 
 Mailing Lists
