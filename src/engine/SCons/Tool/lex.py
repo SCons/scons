@@ -74,26 +74,18 @@ def get_lex_path(env, append_paths=False):
     """
     # save existing path to reset if we don't want to append any paths
     envPath = env['ENV']['PATH']
-    
-    lex = SCons.Tool.find_program_path(env, 'lex', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
-    if lex:
-        if not append_paths:
-            env['ENV']['PATH'] = envPath
-        else:
-            lex_bin_dir = os.path.dirname(lex)
-            env.AppendENVPath('PATH', lex_bin_dir)
-        return lex
+    bins = ['lex', 'flex']
 
-    flex = SCons.Tool.find_program_path(env, 'flex', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
-    if flex:
-        if not append_paths:
-            env['ENV']['PATH'] = envPath
-        else:
-            flex_bin_dir = os.path.dirname(flex)
-            env.AppendENVPath('PATH', flex_bin_dir)
-        return flex
-    else:
-        SCons.Warnings.Warning('lex tool requested, but lex or flex binary not found in ENV PATH')
+    for prog in bins:
+        bin_path = SCons.Tool.find_program_path(env, prog, default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
+        if bin_path:
+            if not append_paths:
+                env['ENV']['PATH'] = envPath
+            else:
+                env.AppendENVPath('PATH', os.path.dirname(bin_path))
+            return bin_path
+
+    SCons.Warnings.Warning('lex tool requested, but lex or flex binary not found in ENV PATH')
 
 
 def generate(env):
