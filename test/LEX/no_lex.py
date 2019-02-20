@@ -25,68 +25,30 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify that we can set CFILESUFFIX to arbitrary values.
+Test Environments are functional and return None when no lex tool is found.
 """
-
-import os
 
 import TestSCons
 
-_python_ = TestSCons._python_
-
 test = TestSCons.TestSCons()
 
-test.write('mylex.py', """
-import getopt
-import sys
-if sys.platform == 'win32':
-    longopts = ['nounistd']
-else:
-    longopts = []
-cmd_opts, args = getopt.getopt(sys.argv[1:], 't', longopts)
-for a in args:
-    contents = open(a, 'rb').read()
-    sys.stdout.write((contents.replace(b'LEX', b'mylex.py')).decode())
-sys.exit(0)
-""")
-
 test.write('SConstruct', """
-env = Environment(LEX = r'%(_python_)s mylex.py', tools = ['lex'])
-env.CFile(target = 'foo', source = 'foo.l')
-env.Clone(CFILESUFFIX = '.xyz').CFile(target = 'bar', source = 'bar.l')
+import SCons
 
-# Make sure that calling a Tool on a construction environment *after*
-# we've set CFILESUFFIX doesn't overwrite the value.
-env2 = Environment(tools = [], CFILESUFFIX = '.env2')
-env2.Tool('lex')
-env2['LEX'] = r'%(_python_)s mylex.py'
-env2.CFile(target = 'f3', source = 'f3.l')
+def no_lex(env, key_program, default_paths=[]):
+    return None
+
+class TestEnvironment(SCons.Environment.Environment):
+    def Detect(self, progs):
+        return None
+
+SCons.Tool.find_program_path = no_lex
+
+foo = TestEnvironment(tools=['default', 'lex'])
+print(foo.Dictionary('LEX'))
 """ % locals())
 
-input = r"""
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        printf("LEX\n");
-        printf("%s\n");
-        exit (0);
-}
-"""
-
-test.write('foo.l', input % 'foo.l')
-
-test.write('bar.l', input % 'bar.l')
-
-test.write('f3.l', input % 'f3.l')
-
-test.run(arguments = '.')
-
-test.must_exist(test.workpath('foo.c'))
-
-test.must_exist(test.workpath('bar.xyz'))
-
-test.must_exist(test.workpath('f3.env2'))
+test.run(arguments = '-Q -s', stdout = 'None\n' )
 
 test.pass_test()
 
