@@ -2321,12 +2321,12 @@ that are not absolute path names
 <emphasis role="bold">/</emphasis>
 on POSIX systems
 or
-<emphasis role="bold">\fR
+<emphasis role="bold">\</emphasis>
 on Windows systems,
 with or without
 an optional drive letter)
 are interpreted relative to the directory containing the
-SConscript</emphasis>
+<emphasis role="bold">SConscript</emphasis>
 file being read.
 An initial
 <emphasis role="bold">#</emphasis>
