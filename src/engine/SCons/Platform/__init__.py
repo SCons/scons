@@ -155,9 +155,9 @@ class TempFileMunge(object):
         env["TEMPFILEPREFIX"] = ''          # (the empty string) PC Lint
 
     You can configure the extension of the temporary file through the
-    TEMPFILEEXTENSION variable, which defaults to '.lnk' (see comments
+    TEMPFILESUFFIX variable, which defaults to '.lnk' (see comments
     in the code below):
-        env["TEMPFILEEXTENSION"] = '.lnt'   # PC Lint
+        env["TEMPFILESUFFIX"] = '.lnt'   # PC Lint
     """
     def __init__(self, cmd, cmdstr = None):
         self.cmd = cmd
