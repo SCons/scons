@@ -70,7 +70,7 @@ if java_parsing:
         def __init__(self, version=default_java_version):
 
             if not version in ('1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7',
-                               '1.8', '5', '6', '9.0', '10.0', '11.0'):
+                               '1.8', '5', '6', '9.0', '10.0', '11.0', '11'):
 
                 msg = "Java version %s not supported" % version
                 raise NotImplementedError(msg)
