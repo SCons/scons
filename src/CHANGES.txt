@@ -14,6 +14,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       The Configure logic directly calls the decider when using --config=force but wasn't handling
       that exception.  This would yield minimally configure tests using TryLink() not running and
       leaving TypeError Nonetype exception in config.log
+    - Fix Issue #3303 - Handle --config=force overwriting the Environment passed into Configure()'s
+      Decider and not clearing it when the configure context is completed.
 
   From Daniel Moody:
     - Change the default for AppendENVPath to delete_existing=0, so path
