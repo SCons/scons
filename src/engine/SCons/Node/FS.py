@@ -3338,17 +3338,29 @@ class File(Base):
 
         # First try the simple name for node
         c_str = str(self)
+        df = dmap.get(c_str, None)
+        if df:
+            return df
+        
         if os.altsep:
             c_str = c_str.replace(os.sep, os.altsep)
-        df = dmap.get(c_str, None)
+            df = dmap.get(c_str, None)
+            if df:
+                return df
+
         if not df:
             try:
                 # this should yield a path which matches what's in the sconsign
                 c_str = self.get_path()
+                df = dmap.get(c_str, None)
+                if df:
+                    return df
+
                 if os.altsep:
                     c_str = c_str.replace(os.sep, os.altsep)
-
-                df = dmap.get(c_str, None)
+                    df = dmap.get(c_str, None)
+                    if df:
+                        return df
 
             except AttributeError as e:
                 raise FileBuildInfoFileToCsigMappingError("No mapping from file name to content signature for :%s"%c_str)
@@ -3388,16 +3400,23 @@ class File(Base):
             dependency_map = self._build_dependency_map(bi)
             rebuilt = True
 
-        prev_ni = self._get_previous_signatures(dependency_map)
+        new_prev_ni = self._get_previous_signatures(dependency_map)
+        new = self.changed_timestamp_match(target, new_prev_ni)
+        old = self.changed_timestamp_match(target, prev_ni)
 
-        if not self.changed_timestamp_match(target, prev_ni):
+        if old != new:
+            print("Mismatch self.changed_timestamp_match(%s, prev_ni) old:%s new:%s"%(str(target), old, new))
+            new_prev_ni = self._get_previous_signatures(dependency_map)
+
+
+        if not new:
             try:
                 # NOTE: We're modifying the current node's csig in a query.
-                self.get_ninfo().csig = prev_ni.csig
+                self.get_ninfo().csig = new_prev_ni.csig
             except AttributeError:
                 pass
             return False
-        return self.changed_content(target, prev_ni)
+        return self.changed_content(target, new_prev_ni)
 
     def changed_timestamp_newer(self, target, prev_ni):
         try:
