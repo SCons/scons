@@ -81,6 +81,8 @@ if not developer:
         developer = os.environ.get(variable)
         if developer:
             break
+    if os.environ.get('SOURCE_DATE_EPOCH'):
+        developer = '_reproducible'
 
 build_system = ARGUMENTS.get('BUILD_SYSTEM')
 if not build_system:
@@ -181,7 +183,9 @@ command_line_variables = [
 
     ("DEVELOPER=",      "The developer who created the packages.  " +
                         "The default is the first set environment " +
-                        "variable from the list $USERNAME, $LOGNAME, $USER."),
+                        "variable from the list $USERNAME, $LOGNAME, $USER." +
+                        "If the SOURCE_DATE_EPOCH env var is set, " +
+                        "'_reproducible' is the default."),
 
     ("REVISION=",       "The revision number of the source being built.  " +
                         "The default is the git hash returned " +

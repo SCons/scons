@@ -27,7 +27,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix syntax on is/is not cluases: should not use with a literal
 
   From Bernhard M. Wiedemann:
-    - Do not store build host name if reproducible builds are wanted
+    - Do not store build host+user name if reproducible builds are wanted
 
 
 RELEASE 3.0.4 - Mon, 20 Jan 2019 22:49:27 +0000
