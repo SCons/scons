@@ -194,7 +194,7 @@ class SConfTestCase(unittest.TestCase):
                         pass
                     def add_post_action(self, *actions):
                         pass
-                    def children(self):
+                    def children(self, scan = 1):
                         return []
                     def get_state(self):
                         return self.state
