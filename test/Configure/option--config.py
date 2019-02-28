@@ -122,6 +122,9 @@ test.checkLogAndStdout(["Checking for C header file non_system_header0.h... ",
                         [((".c", CR), (_obj, NCR))]],
                        "config.log", ".sconf_temp", "SConstruct")
 
+
+test.file_fixture('test_main.c')
+
 # Check the combination of --config=force and Decider('MD5-timestamp')
 # On second run there was an issue where the decider would throw DeciderNeedsNode
 # exception which the configure code didn't handle.
@@ -132,11 +135,18 @@ env.Decider('MD5-timestamp')
 conf = Configure(env)
 conf.TryLink('int main(){return 0;}','.c')
 env = conf.Finish()
+env.Program('test_main.c')
 """)
 test.run(arguments='--config=force')
 # On second run the sconsign is loaded and decider doesn't just indicate need to rebuild
 test.run(arguments='--config=force')
 test.must_not_contain(test.workpath('config.log'), "TypeError: 'NoneType' object is not callable", mode='r')
+
+# Now check to check that test_main.c didn't rebuild on second run above.
+# This fixes an issue where --config=force overwrites the Environments decider and is not reset when
+# the configure context is done.
+# https://github.com/SCons/scons/issues/3303
+test.fail_test(test.stdout().find('test_main.o') != -1)
 
 test.pass_test()
 
