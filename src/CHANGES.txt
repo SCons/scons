@@ -24,7 +24,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Quiet open file ResourceWarnings on Python >= 3.6 caused by
       not using a context manager around Popen.stdout
     - Add the textfile tool to the default tool list
-    - Fix syntax on is/is not cluases: should not use with a literal
+    - Fix syntax on is/is not clauses: should not use with a literal
+
+  From Bernhard M. Wiedemann:
+    - Do not store build host+user name if reproducible builds are wanted
 
 
 RELEASE 3.0.4 - Mon, 20 Jan 2019 22:49:27 +0000
