@@ -798,6 +798,8 @@ def run_test(t, io_lock, run_async=True):
     global tests_completed, tests_passing, tests_failing
     header = ""
     command_args = []
+    if sys.version_info[0] < 3:
+        command_args.append('-tt')
     if debug:
         command_args.append(debug)
     command_args.append(t.path)
