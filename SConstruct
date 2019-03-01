@@ -46,8 +46,6 @@ import time
 import socket
 import textwrap
 
-
-
 import bootstrap
 
 project = 'scons'
@@ -55,7 +53,6 @@ default_version = '3.0.4'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 SConsignFile()
-
 
 #
 # We let the presence or absence of various utilities determine whether
@@ -128,9 +125,6 @@ if build_id is None:
         build_id = generate_build_id(revision)
     else:
         build_id = ''
-
-
-python_ver = sys.version[0:3]
 
 #
 # Adding some paths to sys.path, this is mainly needed

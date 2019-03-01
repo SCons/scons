@@ -31,6 +31,7 @@ Test how we handle a passing test specified on the command line.
 import TestRuntest
 
 pythonstring = TestRuntest.pythonstring
+pythonflags = TestRuntest.pythonflags
 
 test = TestRuntest.TestRuntest()
 
@@ -39,7 +40,7 @@ test.subdir('test')
 test.write_passing_test(['test', 'pass.py'])
 
 expect_stdout = """\
-%(pythonstring)s -tt test/pass.py
+%(pythonstring)s%(pythonflags)s test/pass.py
 PASSING TEST STDOUT
 """ % locals()
 

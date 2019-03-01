@@ -33,6 +33,7 @@ import os
 import TestRuntest
 
 pythonstring = TestRuntest.pythonstring
+pythonflags = TestRuntest.pythonflags
 test_pass_py = os.path.join('test', 'pass.py')
 
 test = TestRuntest.TestRuntest()
@@ -42,7 +43,7 @@ test.subdir('test')
 test.write_passing_test(['test', 'pass.py'])
 
 expect_stdout = """\
-%(pythonstring)s -tt %(test_pass_py)s
+%(pythonstring)s%(pythonflags)s %(test_pass_py)s
 PASSING TEST STDOUT
 """ % locals()
 
