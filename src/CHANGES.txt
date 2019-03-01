@@ -21,7 +21,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fixed bug which threw error when running SCons on windows system with no MSVC installed.
     - Update link tool to convert target to node before accessing node member
     - Update mingw tool to remove MSVC like nologo CCFLAG
-    - Update lex tool to work in mingw environments
+    - Add default paths for lex tool on windows
+    - Add lex construction variable LEXUNISTD for turning off unix headers on windows
+    - Update lex tool to use win_flex on windows if available
 
   From Mats Wichmann:
     - Quiet open file ResourceWarnings on Python >= 3.6 caused by

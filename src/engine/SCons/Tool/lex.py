@@ -75,7 +75,7 @@ def get_lex_path(env, append_paths=False):
     """
     # save existing path to reset if we don't want to append any paths
     envPath = env['ENV']['PATH']
-    bins = ['win_flex', 'lex', 'flex']
+    bins = ['flex', 'lex', 'win_flex']
 
     for prog in bins:
         bin_path = SCons.Tool.find_program_path(
@@ -110,14 +110,16 @@ def generate(env):
     cxx_file.add_action(".ll", LexAction)
     cxx_file.add_emitter(".ll", lexEmitter)
 
+    env["LEXFLAGS"] = SCons.Util.CLVar("")
+
     if sys.platform == 'win32':
         get_lex_path(env, append_paths=True)
-        env["LEX"] = env.Detect(['win_flex', 'lex', 'flex'])
-        env["LEXUNISTD"] = SCons.Util.CLVar("--nounistd")
+        env["LEX"] = env.Detect(['flex', 'lex', 'win_flex'])
+        if not env.get("LEXUNISTD"):
+            env["LEXUNISTD"] = SCons.Util.CLVar("")
         env["LEXCOM"] = "$LEX $LEXUNISTD $LEXFLAGS -t $SOURCES > $TARGET"
     else:
         env["LEX"] = env.Detect(["flex", "lex"])
-        env["LEXFLAGS"] = SCons.Util.CLVar("")
         env["LEXCOM"] = "$LEX $LEXFLAGS -t $SOURCES > $TARGET"
 
 def exists(env):
