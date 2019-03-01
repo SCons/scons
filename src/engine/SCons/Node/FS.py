@@ -61,6 +61,8 @@ from . import DeciderNeedsNode
 
 print_duplicate = 0
 
+MD5_TIMESTAMP_DEBUG = False
+
 
 def sconsign_none(node):
     raise NotImplementedError
@@ -3335,9 +3337,16 @@ class File(Base):
             List of csigs for provided list of children
         """
         prev = []
+        # MD5_TIMESTAMP_DEBUG = False
 
+        if len(dmap) == 0:
+            if MD5_TIMESTAMP_DEBUG: print("Nothing dmap shortcutting")
+            return None
+
+        if MD5_TIMESTAMP_DEBUG: print("len(dmap):%d"%len(dmap))
         # First try the simple name for node
         c_str = str(self)
+        if MD5_TIMESTAMP_DEBUG: print("Checking   :%s"%c_str)
         df = dmap.get(c_str, None)
         if df:
             return df
@@ -3345,6 +3354,7 @@ class File(Base):
         if os.altsep:
             c_str = c_str.replace(os.sep, os.altsep)
             df = dmap.get(c_str, None)
+            if MD5_TIMESTAMP_DEBUG: print("-->%s"%df)
             if df:
                 return df
 
@@ -3353,12 +3363,14 @@ class File(Base):
                 # this should yield a path which matches what's in the sconsign
                 c_str = self.get_path()
                 df = dmap.get(c_str, None)
+                if MD5_TIMESTAMP_DEBUG: print("-->%s"%df)
                 if df:
                     return df
 
                 if os.altsep:
                     c_str = c_str.replace(os.sep, os.altsep)
                     df = dmap.get(c_str, None)
+                    if MD5_TIMESTAMP_DEBUG: print("-->%s"%df)
                     if df:
                         return df
 
@@ -3400,13 +3412,21 @@ class File(Base):
             dependency_map = self._build_dependency_map(bi)
             rebuilt = True
 
+        if len(dependency_map) == 0:
+            # If there's no dependency map, there's no need to find the
+            # prev_ni as there aren't any
+            # shortcut the rest of the logic
+            if MD5_TIMESTAMP_DEBUG: print("Skipping checks len(dmap)=0")
+            return True
         new_prev_ni = self._get_previous_signatures(dependency_map)
         new = self.changed_timestamp_match(target, new_prev_ni)
-        old = self.changed_timestamp_match(target, prev_ni)
 
-        if old != new:
-            print("Mismatch self.changed_timestamp_match(%s, prev_ni) old:%s new:%s"%(str(target), old, new))
-            new_prev_ni = self._get_previous_signatures(dependency_map)
+        if MD5_TIMESTAMP_DEBUG:
+            old = self.changed_timestamp_match(target, prev_ni)
+
+            if old != new:
+                print("Mismatch self.changed_timestamp_match(%s, prev_ni) old:%s new:%s"%(str(target), old, new))
+                new_prev_ni = self._get_previous_signatures(dependency_map)
 
 
         if not new:
