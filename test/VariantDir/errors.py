@@ -57,10 +57,10 @@ def fake_scan(node, env, target):
 
 def cat(env, source, target):
     target = str(target[0])
-    f = open(target, "w")
-    for src in source:
-        f.write(open(str(src), "r").read())
-    f.close()
+    with open(target, "w") as f:
+        for src in source:
+            with open(str(src), "r") as f2:
+                f.write(f2.read())
 
 env = Environment(BUILDERS={'Build':Builder(action=cat)},
                   SCANNERS=[Scanner(fake_scan, skeys = ['.in'])])
@@ -101,16 +101,15 @@ test.subdir(dir)
 SConscript = test.workpath(dir, 'SConscript')
 test.write(SConscript, '')
 os.chmod(SConscript, os.stat(SConscript)[stat.ST_MODE] & ~stat.S_IWUSR)
-f = open(SConscript, 'r')
-os.chmod(dir, os.stat(dir)[stat.ST_MODE] & ~stat.S_IWUSR)
+with open(SConscript, 'r'):
+    os.chmod(dir, os.stat(dir)[stat.ST_MODE] & ~stat.S_IWUSR)
 
-test.run(chdir = 'ro-SConscript',
-         arguments = ".",
-         status = 2,
-         stderr = "scons: *** Cannot duplicate `%s' in `build': Permission denied.  Stop.\n" % os.path.join('src', 'SConscript'))
+    test.run(chdir = 'ro-SConscript',
+             arguments = ".",
+             status = 2,
+             stderr = "scons: *** Cannot duplicate `%s' in `build': Permission denied.  Stop.\n" % os.path.join('src', 'SConscript'))
 
-os.chmod('ro-SConscript', os.stat('ro-SConscript')[stat.ST_MODE] | stat.S_IWUSR)
-f.close()
+    os.chmod('ro-SConscript', os.stat('ro-SConscript')[stat.ST_MODE] | stat.S_IWUSR)
 
 test.run(chdir = 'ro-SConscript',
          arguments = ".",
@@ -129,24 +128,22 @@ test.write([dir, 'SConscript'], '')
 file_in = test.workpath(dir, 'file.in')
 test.write(file_in, '')
 os.chmod(file_in, os.stat(file_in)[stat.ST_MODE] & ~stat.S_IWUSR)
-f = open(file_in, 'r')
-os.chmod(dir, os.stat(dir)[stat.ST_MODE] & ~stat.S_IWUSR)
+with open(file_in, 'r'):
+    os.chmod(dir, os.stat(dir)[stat.ST_MODE] & ~stat.S_IWUSR)
 
-test.run(chdir = 'ro-src',
-         arguments = ".",
-         status = 2,
-         stderr = """\
-scons: *** Cannot duplicate `%s' in `build': Permission denied.  Stop.
+    test.run(chdir = 'ro-src',
+             arguments = ".",
+             status = 2,
+             stderr = """\
+    scons: *** Cannot duplicate `%s' in `build': Permission denied.  Stop.
+    """ % (os.path.join('src', 'file.in')))
+
+    test.run(chdir = 'ro-src',
+             arguments = "-k .",
+             status = 2,
+             stderr = """\
+    scons: *** Cannot duplicate `%s' in `build': Permission denied.  Stop.
 """ % (os.path.join('src', 'file.in')))
-
-test.run(chdir = 'ro-src',
-         arguments = "-k .",
-         status = 2,
-         stderr = """\
-scons: *** Cannot duplicate `%s' in `build': Permission denied.  Stop.
-""" % (os.path.join('src', 'file.in')))
-
-f.close()
 
 # ensure that specifying multiple source directories for one
 # build directory results in an error message, rather
