@@ -3417,7 +3417,12 @@ class File(Base):
             # prev_ni as there aren't any
             # shortcut the rest of the logic
             if MD5_TIMESTAMP_DEBUG: print("Skipping checks len(dmap)=0")
+
+            # We still need to get the current file's csig
+            # This should be slightly faster than calling self.changed_content(target, new_prev_ni)
+            self.get_csig()
             return True
+
         new_prev_ni = self._get_previous_signatures(dependency_map)
         new = self.changed_timestamp_match(target, new_prev_ni)
 
