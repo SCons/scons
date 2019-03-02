@@ -135,14 +135,14 @@ with open(file_in, 'r'):
              arguments = ".",
              status = 2,
              stderr = """\
-    scons: *** Cannot duplicate `%s' in `build': Permission denied.  Stop.
-    """ % (os.path.join('src', 'file.in')))
+scons: *** Cannot duplicate `%s' in `build': Permission denied.  Stop.
+""" % (os.path.join('src', 'file.in')))
 
     test.run(chdir = 'ro-src',
              arguments = "-k .",
              status = 2,
              stderr = """\
-    scons: *** Cannot duplicate `%s' in `build': Permission denied.  Stop.
+scons: *** Cannot duplicate `%s' in `build': Permission denied.  Stop.
 """ % (os.path.join('src', 'file.in')))
 
 # ensure that specifying multiple source directories for one
