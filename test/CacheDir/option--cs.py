@@ -45,11 +45,12 @@ test.subdir('cache', 'src1', 'src2')
 
 test.write(['src1', 'build.py'], r"""
 import sys
-open('cat.out', 'a').write(sys.argv[1] + "\n")
-file = open(sys.argv[1], 'w')
-for src in sys.argv[2:]:
-    file.write(open(src, 'r').read())
-file.close()
+with open('cat.out', 'a') as f:
+    f.write(sys.argv[1] + "\n")
+with open(sys.argv[1], 'w') as f:
+    for src in sys.argv[2:]:
+        with open(src, 'r') as f2:
+            f.write(f2.read())
 """)
 
 cache = test.workpath('cache')
@@ -58,11 +59,12 @@ test.write(['src1', 'SConstruct'], """
 DefaultEnvironment(tools=[])
 def cat(env, source, target):
     target = str(target[0])
-    open('cat.out', 'a').write(target + "\\n")
-    f = open(target, "w")
-    for src in source:
-        f.write(open(str(src), "r").read())
-    f.close()
+    with open('cat.out', 'a') as f:
+        f.write(target + "\\n")
+    with open(target, "w") as f:
+        for src in source:
+            with open(str(src), "r") as f2:
+                f.write(f2.read())
 env = Environment(tools=[], 
                   BUILDERS={'Internal':Builder(action=cat),
                             'External':Builder(action=r'%(_python_)s build.py $TARGET $SOURCES')})

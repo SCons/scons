@@ -39,15 +39,16 @@ cache = test.workpath('cache')
 test.write(['work', 'SConstruct'], """\
 DefaultEnvironment(tools=[])
 def copy(source, target):
-    open(target, "w").write(open(source, "r").read())
+    with open(target, "w") as f, open(source, "r") as f2:
+        f.write(f2.read())
 
 def build(env, source, target):
     s = str(source[0])
     t = str(target[0])
     copy(s, t)
     if target[0].side_effects:
-        side_effect = open(str(target[0].side_effects[0]), "a")
-        side_effect.write(s + ' -> ' + t + '\\n')
+        with open(str(target[0].side_effects[0]), "a") as side_effect:
+            side_effect.write(s + ' -> ' + t + '\\n')
 
 CacheDir(r'%(cache)s')
 
