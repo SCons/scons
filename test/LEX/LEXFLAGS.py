@@ -25,6 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import sys
 
 import TestSCons
 
@@ -35,22 +36,25 @@ test = TestSCons.TestSCons()
 
 test.subdir('in')
 
-
-
 test.write('mylex.py', """
 import getopt
 import sys
-cmd_opts, args = getopt.getopt(sys.argv[1:], 'I:tx', [])
+import os
+if sys.platform == 'win32':
+    longopts = ['nounistd']
+else:
+    longopts = []
+cmd_opts, args = getopt.getopt(sys.argv[1:], 'I:tx', longopts)
 opt_string = ''
 i_arguments = ''
 for opt, arg in cmd_opts:
     if opt == '-I': i_arguments = i_arguments + ' ' + arg
     else: opt_string = opt_string + ' ' + opt
 for a in args:
-    contents = open(a, 'rb').read()
-    contents = contents.replace(b'LEXFLAGS', opt_string.encode())
-    contents = contents.replace(b'I_ARGS', i_arguments.encode())
-    sys.stdout.write(contents.decode())
+    contents = open(a, 'r').read()
+    contents = contents.replace('LEXFLAGS', opt_string)
+    contents = contents.replace('I_ARGS', i_arguments)
+    sys.stdout.write(contents)
 sys.exit(0)
 """)
 
@@ -61,13 +65,16 @@ env = Environment(LEX = r'%(_python_)s mylex.py',
 env.CFile(target = 'out/aaa', source = 'in/aaa.l')
 """ % locals())
 
-test.write(['in', 'aaa.l'],		"aaa.l\nLEXFLAGS\nI_ARGS\n")
+test.write(['in', 'aaa.l'], "aaa.l\nLEXFLAGS\nI_ARGS\n")
 
 test.run('.', stderr = None)
 
+lexflags = ' -x -t'
+if sys.platform == 'win32':
+    lexflags = ' --nounistd' + lexflags
 # Read in with mode='r' because mylex.py implicitley wrote to stdout
 # with mode='w'.
-test.must_match(['out', 'aaa.c'],	"aaa.l\n -x -t\n out in\n", mode='r')
+test.must_match(['out', 'aaa.c'],	"aaa.l\n%s\n out in\n" % lexflags, mode='r')
 
 
 

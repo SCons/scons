@@ -33,6 +33,7 @@ Sets construction variables for the &lex; lexical analyser.
 <item>LEX</item>
 <item>LEXFLAGS</item>
 <item>LEXCOM</item>
+<item>LEXUNISTD</item>
 </sets>
 <uses>
 <item>LEXCOMSTR</item>
@@ -74,6 +75,14 @@ env = Environment(LEXCOMSTR = "Lex'ing $TARGET from $SOURCES")
 <summary>
 <para>
 General options passed to the lexical analyzer generator.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LEXUNISTD">
+<summary>
+<para>
+Used only on windows environments to set a lex flag to prevent 'unistd.h' from being included. The default value is '--nounistd'.
 </para>
 </summary>
 </cvar>
