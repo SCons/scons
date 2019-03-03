@@ -33,6 +33,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       not using a context manager around Popen.stdout
     - Add the textfile tool to the default tool list
     - Fix syntax on is/is not clauses: should not use with a literal
+    - Properly retrieve exit code when catching SystemExit
 
   From Bernhard M. Wiedemann:
     - Do not store build host+user name if reproducible builds are wanted

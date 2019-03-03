@@ -1376,7 +1376,7 @@ def main():
             revert_io()
     except SystemExit as s:
         if s:
-            exit_status = s
+            exit_status = s.code
     except KeyboardInterrupt:
         print("scons: Build interrupted.")
         sys.exit(2)
