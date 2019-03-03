@@ -16,6 +16,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       leaving TypeError Nonetype exception in config.log
     - Fix Issue #3303 - Handle --config=force overwriting the Environment passed into Configure()'s
       Decider and not clearing it when the configure context is completed.
+    - Add default paths for yacc tool on windows to include cygwin, mingw, and chocolatey
 
   From Daniel Moody:
     - Change the default for AppendENVPath to delete_existing=0, so path
@@ -23,7 +24,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fixed bug which threw error when running SCons on windows system with no MSVC installed.
     - Update link tool to convert target to node before accessing node member
     - Update mingw tool to remove MSVC like nologo CCFLAG
-    - Add default paths for lex tool on windows
+    - Add default paths for lex tool on windows to include cygwin, mingw, and chocolatey
     - Add lex construction variable LEXUNISTD for turning off unix headers on windows
     - Update lex tool to use win_flex on windows if available
 
