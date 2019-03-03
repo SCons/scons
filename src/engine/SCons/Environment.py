@@ -2372,6 +2372,7 @@ class OverrideEnvironment(Base):
         kw = copy_non_reserved_keywords(kw)
         self.__dict__['overrides'].update(semi_deepcopy(kw))
 
+
 # The entry point that will be used by the external world
 # to refer to a construction environment.  This allows the wrapper
 # interface to extend a construction environment for its own purposes

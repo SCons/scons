@@ -25,45 +25,30 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test a list of tests to run in a file specified with the -f option.
+Test Environments are functional and return None when no lex tool is found.
 """
 
-import os.path
-import re
+import TestSCons
 
-import TestRuntest
+test = TestSCons.TestSCons()
 
-pythonstring = TestRuntest.pythonstring
-pythonflags = TestRuntest.pythonflags
-test_fail_py = os.path.join('test', 'fail.py')
-test_no_result_py = os.path.join('test', 'no_result.py')
-test_pass_py = os.path.join('test', 'pass.py')
+test.write('SConstruct', """
+import SCons
 
-test = TestRuntest.TestRuntest()
+def no_lex(env, key_program, default_paths=[]):
+    return None
 
-test.subdir('test')
+class TestEnvironment(SCons.Environment.Environment):
+    def Detect(self, progs):
+        return None
 
-test.write_failing_test(['test', 'fail.py'])
+SCons.Tool.find_program_path = no_lex
 
-test.write_no_result_test(['test', 'no_result.py'])
-
-test.write_passing_test(['test', 'pass.py'])
-
-test.write('t.txt', """\
-#%(test_fail_py)s
-%(test_pass_py)s
+foo = TestEnvironment(tools=['default', 'lex'])
+print(foo.Dictionary('LEX'))
 """ % locals())
 
-expect_stdout = """\
-%(pythonstring)s%(pythonflags)s %(test_pass_py)s
-PASSING TEST STDOUT
-""" % locals()
-
-expect_stderr = """\
-PASSING TEST STDERR
-"""
-
-test.run(arguments='-k -f t.txt', stdout=expect_stdout, stderr=expect_stderr)
+test.run(arguments = '-Q -s', stdout = 'None\n' )
 
 test.pass_test()
 

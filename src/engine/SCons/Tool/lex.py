@@ -34,10 +34,14 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
+import sys
 
 import SCons.Action
 import SCons.Tool
 import SCons.Util
+from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
+from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
+from SCons.Platform.win32 import CHOCO_DEFAULT_PATH
 
 LexAction = SCons.Action.Action("$LEXCOM", "$LEXCOMSTR")
 
@@ -64,6 +68,29 @@ def lexEmitter(target, source, env):
                 target.append(fileName)
     return (target, source)
 
+def get_lex_path(env, append_paths=False):
+    """
+    Find the a path containing the lex or flex binaries. If a construction 
+    environment is passed in then append the path to the ENV PATH.
+    """
+    # save existing path to reset if we don't want to append any paths
+    envPath = env['ENV']['PATH']
+    bins = ['flex', 'lex', 'win_flex']
+
+    for prog in bins:
+        bin_path = SCons.Tool.find_program_path(
+            env, 
+            prog, 
+            default_paths=CHOCO_DEFAULT_PATH + MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
+        if bin_path:
+            if not append_paths:
+                env['ENV']['PATH'] = envPath
+            else:
+                env.AppendENVPath('PATH', os.path.dirname(bin_path))
+            return bin_path
+    SCons.Warnings.Warning('lex tool requested, but lex or flex binary not found in ENV PATH')
+
+
 def generate(env):
     """Add Builders and construction variables for lex to an Environment."""
     c_file, cxx_file = SCons.Tool.createCFileBuilders(env)
@@ -83,12 +110,23 @@ def generate(env):
     cxx_file.add_action(".ll", LexAction)
     cxx_file.add_emitter(".ll", lexEmitter)
 
-    env["LEX"]      = env.Detect("flex") or "lex"
     env["LEXFLAGS"] = SCons.Util.CLVar("")
-    env["LEXCOM"] = "$LEX $LEXFLAGS -t $SOURCES > $TARGET"
+
+    if sys.platform == 'win32':
+        get_lex_path(env, append_paths=True)
+        env["LEX"] = env.Detect(['flex', 'lex', 'win_flex'])
+        if not env.get("LEXUNISTD"):
+            env["LEXUNISTD"] = SCons.Util.CLVar("")
+        env["LEXCOM"] = "$LEX $LEXUNISTD $LEXFLAGS -t $SOURCES > $TARGET"
+    else:
+        env["LEX"] = env.Detect(["flex", "lex"])
+        env["LEXCOM"] = "$LEX $LEXFLAGS -t $SOURCES > $TARGET"
 
 def exists(env):
-    return env.Detect(["flex", "lex"])
+    if sys.platform == 'win32':
+        return get_lex_path(env)
+    else:
+        return env.Detect(["flex", "lex"])
 
 # Local Variables:
 # tab-width:4

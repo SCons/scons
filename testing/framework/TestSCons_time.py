@@ -186,7 +186,9 @@ class TestSCons_time(TestCommon):
             kw['program'] = p
 
         if 'interpreter' not in kw:
-            kw['interpreter'] = [python, '-tt']
+            kw['interpreter'] = [python,]
+            if sys.version_info[0] < 3:
+                kw['interpreter'].append('-tt')
 
         if 'match' not in kw:
             kw['match'] = match_exact

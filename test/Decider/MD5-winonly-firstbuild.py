@@ -25,45 +25,31 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test a list of tests to run in a file specified with the -f option.
+Test but which only shows on windows when one generated file depends on another generated file
+In this case flex and yacc are an example.
 """
 
-import os.path
-import re
+import os
+import stat
 
-import TestRuntest
+import TestSCons
+from TestCmd import IS_WINDOWS
 
-pythonstring = TestRuntest.pythonstring
-pythonflags = TestRuntest.pythonflags
-test_fail_py = os.path.join('test', 'fail.py')
-test_no_result_py = os.path.join('test', 'no_result.py')
-test_pass_py = os.path.join('test', 'pass.py')
 
-test = TestRuntest.TestRuntest()
+test = TestSCons.TestSCons()
 
-test.subdir('test')
+if IS_WINDOWS:
+    yacc = test.where_is('yacc') or test.where_is('bison') or test.where_is('win_bison')
+    lex = test.where_is('flex') or test.where_is('lex') or test.where_is('win_flex')
+    # print("Lex:%s yacc:%s"%(lex,yacc))
+    if not yacc or not lex:
+        test.skip("On windows but no flex/lex/win_flex and yacc/bison/win_bison required for test")
+else:
+    test.skip("Windows only test")
 
-test.write_failing_test(['test', 'fail.py'])
 
-test.write_no_result_test(['test', 'no_result.py'])
-
-test.write_passing_test(['test', 'pass.py'])
-
-test.write('t.txt', """\
-#%(test_fail_py)s
-%(test_pass_py)s
-""" % locals())
-
-expect_stdout = """\
-%(pythonstring)s%(pythonflags)s %(test_pass_py)s
-PASSING TEST STDOUT
-""" % locals()
-
-expect_stderr = """\
-PASSING TEST STDERR
-"""
-
-test.run(arguments='-k -f t.txt', stdout=expect_stdout, stderr=expect_stderr)
+test.dir_fixture('MD5-winonly-fixture')
+test.run()
 
 test.pass_test()
 

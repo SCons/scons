@@ -271,6 +271,10 @@ def generate(env):
     env['SHOBJPREFIX']    = '$OBJPREFIX'
     env['SHOBJSUFFIX']    = '$OBJSUFFIX'
 
+    # MSVC probably wont support unistd.h so default
+    # without it for lex generation
+    env["LEXUNISTD"] = SCons.Util.CLVar("--nounistd")
+
     # Set-up ms tools paths
     msvc_setup_env_once(env)
 

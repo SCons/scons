@@ -247,7 +247,9 @@ class TestSCons(TestCommon):
             elif not self.external and not os.path.isabs(kw['program']):
                 kw['program'] = os.path.join(self.orig_cwd, kw['program'])
         if 'interpreter' not in kw and not os.environ.get('SCONS_EXEC'):
-            kw['interpreter'] = [python, '-tt']
+            kw['interpreter'] = [python,]
+            if sys.version_info[0] < 3:
+                kw['interpreter'].append('-tt')
         if 'match' not in kw:
             kw['match'] = match_exact
         if 'workdir' not in kw:

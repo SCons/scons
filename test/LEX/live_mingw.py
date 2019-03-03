@@ -25,8 +25,10 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test LEX and LEXFLAGS with a live lex.
+Test LEX and LEXFLAGS and unistd.h with a live lex in mingw environment.
 """
+
+import sys
 
 import TestSCons
 
@@ -35,7 +37,13 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-lex = test.where_is('win_flex') or test.where_is('lex') or test.where_is('flex')
+if sys.platform != 'win32':
+    test.skip_test('Not windows environment; skipping test.\n')
+
+if not test.where_is('gcc'):
+        test.skip_test('No mingw or cygwin on windows; skipping test.\n')
+
+lex = test.where_is('lex') or test.where_is('flex')
 
 if not lex:
     test.skip_test('No lex or flex found; skipping test.\n')
@@ -43,10 +51,12 @@ if not lex:
 test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
-foo = Environment()
+foo = Environment(tools=['default', 'mingw', 'lex'], LEXUNISTD="")
 lex = foo.Dictionary('LEX')
 bar = Environment(LEX = r'%(_python_)s wrapper.py ' + lex,
-                  LEXFLAGS = '-b')
+                  LEXFLAGS = '-b',
+                  LEXUNISTD="",
+                  tools=['default', 'mingw', 'lex'])
 foo.Program(target = 'foo', source = 'foo.l')
 bar.Program(target = 'bar', source = 'bar.l')
 """ % locals())
@@ -86,6 +96,7 @@ test.must_match(test.workpath('wrapper.out'), "wrapper.py\n")
 test.must_exist(test.workpath('lex.backup'))
 
 test.run(program = test.workpath('bar'), stdin = "b\n", stdout = "Bbar.lB\n")
+test.must_contain(test.workpath('bar.c'), "unistd.h")
 
 test.pass_test()
 

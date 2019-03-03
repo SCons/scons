@@ -46,8 +46,6 @@ import time
 import socket
 import textwrap
 
-
-
 import bootstrap
 
 project = 'scons'
@@ -55,7 +53,6 @@ default_version = '3.0.4'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 SConsignFile()
-
 
 #
 # We let the presence or absence of various utilities determine whether
@@ -81,10 +78,15 @@ if not developer:
         developer = os.environ.get(variable)
         if developer:
             break
+    if os.environ.get('SOURCE_DATE_EPOCH'):
+        developer = '_reproducible'
 
 build_system = ARGUMENTS.get('BUILD_SYSTEM')
 if not build_system:
-    build_system = socket.gethostname().split('.')[0]
+    if os.environ.get('SOURCE_DATE_EPOCH'):
+        build_system = '_reproducible'
+    else:
+        build_system = socket.gethostname().split('.')[0]
 
 version = ARGUMENTS.get('VERSION', '')
 if not version:
@@ -124,9 +126,6 @@ if build_id is None:
     else:
         build_id = ''
 
-
-python_ver = sys.version[0:3]
-
 #
 # Adding some paths to sys.path, this is mainly needed
 # for the doc toolchain.
@@ -159,7 +158,8 @@ command_line_variables = [
 
     ("BUILD_SYSTEM=",   "The system on which the packages were built.  " +
                         "The default is whatever hostname is returned " +
-                        "by socket.gethostname()."),
+                        "by socket.gethostname(). If SOURCE_DATE_EPOCH " +
+                        "env var is set, '_reproducible' is the default."),
 
     ("CHECKPOINT=",     "The specific checkpoint release being packaged, " +
                         "which will be appended to the VERSION string.  " +
@@ -177,7 +177,9 @@ command_line_variables = [
 
     ("DEVELOPER=",      "The developer who created the packages.  " +
                         "The default is the first set environment " +
-                        "variable from the list $USERNAME, $LOGNAME, $USER."),
+                        "variable from the list $USERNAME, $LOGNAME, $USER." +
+                        "If the SOURCE_DATE_EPOCH env var is set, " +
+                        "'_reproducible' is the default."),
 
     ("REVISION=",       "The revision number of the source being built.  " +
                         "The default is the git hash returned " +
