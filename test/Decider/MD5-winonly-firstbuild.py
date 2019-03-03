@@ -43,9 +43,9 @@ if IS_WINDOWS:
     lex = test.where_is('flex') or test.where_is('lex') or test.where_is('win_flex')
     # print("Lex:%s yacc:%s"%(lex,yacc))
     if not yacc or not lex:
-        test.skip("On windows but no flex/lex/win_flex and yacc/bison/win_bison required for test")
+        test.skip_test("On windows but no flex/lex/win_flex and yacc/bison/win_bison required for test")
 else:
-    test.skip("Windows only test")
+    test.skip_test("Windows only test")
 
 
 test.dir_fixture('MD5-winonly-fixture')
