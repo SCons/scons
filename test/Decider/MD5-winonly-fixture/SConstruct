@@ -1,0 +1,9 @@
+DefaultEnvironment(tools=[])
+env=Environment()
+env.Decider('MD5-timestamp')
+env.AppendENVPath('PATH', r'd:\mesa\flexbison')
+env.Tool('lex')
+env.Tool('yacc')
+env['YACCFLAGS'] = '-d'
+env.Append(LEXFLAGS = ['--wincompat'])
+env.SharedLibrary('dummy',['test_lex.l','test_parse.y'])
