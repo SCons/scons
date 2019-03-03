@@ -18,7 +18,7 @@ install:
 # allow coverage to fail, so we can still do testing for all platforms
 matrix:
   allow_failures:
-    - python: pypy
+    - python: pypy2, pypy3
     - stage: Coverage
 
 # run coverage first as its still useful to collect
@@ -62,10 +62,17 @@ jobs:
       dist: xenial  # required for Python 3.7 (travis-ci/travis-ci#9069)
 
     - <<: *test_job
-      python: pypy
+      python: pypy2
       env: 
         - PYVER=pypy
         - PYTHON=pypy
+      sudo: required
+
+    - <<: *test_job
+      python: pypy3
+      env: 
+        - PYVER=pypy3
+        - PYTHON=pypy3
       sudo: required
 
 
