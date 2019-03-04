@@ -63,10 +63,10 @@ jobs:
 
     - &slow_test_job
       stage: Test
-      script: python runtest.py -a -j 3 -t || if [[ $? == 2 ]]; then true; else false; fi
+      script: python runtest.py -a -j 4 -t || if [[ $? == 2 ]]; then true; else false; fi
       before_script: skip
       after_success: skip
-      python: pypy2
+      python: pypy
       env: 
         - PYVER=pypy
         - PYTHON=pypy
@@ -78,6 +78,7 @@ jobs:
         - PYVER=pypy3
         - PYTHON=pypy3
       sudo: required
+      dist: xenial
 
 
     - &coverage_jobs
