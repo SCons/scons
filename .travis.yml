@@ -18,7 +18,8 @@ install:
 # allow coverage to fail, so we can still do testing for all platforms
 matrix:
   allow_failures:
-    - python: pypy, pypy3
+    - python: pypy
+    - python: pypy3
     - stage: Coverage
 
 # run coverage first as its still useful to collect
