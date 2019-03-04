@@ -18,7 +18,7 @@ install:
 # allow coverage to fail, so we can still do testing for all platforms
 matrix:
   allow_failures:
-    - python: pypy2, pypy3
+    - python: pypy, pypy3
     - stage: Coverage
 
 # run coverage first as its still useful to collect
@@ -78,7 +78,6 @@ jobs:
         - PYVER=pypy3
         - PYTHON=pypy3
       sudo: required
-      dist: xenial
 
 
     - &coverage_jobs
