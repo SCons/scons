@@ -30,7 +30,7 @@ jobs:
   include:
     - &test_job
       stage: Test
-      script: python runtest.py -a || if [[ $? == 2 ]]; then true; else false; fi
+      script: python runtest.py -a -t || if [[ $? == 2 ]]; then true; else false; fi
       before_script: skip
       after_success: skip
       python: 2.7
@@ -61,14 +61,18 @@ jobs:
       sudo: required
       dist: xenial  # required for Python 3.7 (travis-ci/travis-ci#9069)
 
-    - <<: *test_job
+    - &slow_test_job
+      stage: Test
+      script: python runtest.py -a -j 3 -t || if [[ $? == 2 ]]; then true; else false; fi
+      before_script: skip
+      after_success: skip
       python: pypy2
       env: 
         - PYVER=pypy
         - PYTHON=pypy
       sudo: required
 
-    - <<: *test_job
+    - <<: *slow_test_job
       python: pypy3
       env: 
         - PYVER=pypy3
