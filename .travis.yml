@@ -18,7 +18,7 @@ install:
 # allow coverage to fail, so we can still do testing for all platforms
 matrix:
   allow_failures:
-    - python: pypy
+    - python: pypy, pypy3
     - stage: Coverage
 
 # run coverage first as its still useful to collect
@@ -30,7 +30,7 @@ jobs:
   include:
     - &test_job
       stage: Test
-      script: python runtest.py -a || if [[ $? == 2 ]]; then true; else false; fi
+      script: python runtest.py -a -t || if [[ $? == 2 ]]; then true; else false; fi
       before_script: skip
       after_success: skip
       python: 2.7
@@ -61,11 +61,22 @@ jobs:
       sudo: required
       dist: xenial  # required for Python 3.7 (travis-ci/travis-ci#9069)
 
-    - <<: *test_job
+    - &slow_test_job
+      stage: Test
+      script: python runtest.py -a -j 4 -t || if [[ $? == 2 ]]; then true; else false; fi
+      before_script: skip
+      after_success: skip
       python: pypy
       env: 
         - PYVER=pypy
         - PYTHON=pypy
+      sudo: required
+
+    - <<: *slow_test_job
+      python: pypy3
+      env: 
+        - PYVER=pypy3
+        - PYTHON=pypy3
       sudo: required
 
 
