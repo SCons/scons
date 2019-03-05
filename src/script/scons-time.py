@@ -814,7 +814,9 @@ class SConsTimer(object):
                 self.title = a
 
         if self.config_file:
-            exec(open(self.config_file, 'r').read(), self.__dict__)
+            with open(self.config_file, 'r') as f:
+                config = f.read()
+            exec(config, self.__dict__)
 
         if self.chdir:
             os.chdir(self.chdir)
@@ -933,7 +935,9 @@ class SConsTimer(object):
                 self.title = a
 
         if self.config_file:
-            HACK_for_exec(open(self.config_file, 'r').read(), self.__dict__)
+            with open(self.config_file, 'r') as f:
+                config = f.read()
+            HACK_for_exec(config, self.__dict__)
 
         if self.chdir:
             os.chdir(self.chdir)
@@ -1053,7 +1057,9 @@ class SConsTimer(object):
         object_name = args.pop(0)
 
         if self.config_file:
-            HACK_for_exec(open(self.config_file, 'r').read(), self.__dict__)
+            with open(self.config_file, 'r') as f:
+                config = f.read()
+            HACK_for_exec(config, self.__dict__)
 
         if self.chdir:
             os.chdir(self.chdir)
@@ -1191,7 +1197,9 @@ class SConsTimer(object):
             sys.exit(1)
 
         if self.config_file:
-            exec(open(self.config_file, 'r').read(), self.__dict__)
+            with open(self.config_file, 'r') as f:
+                config = f.read()
+            exec(config, self.__dict__)
 
         if args:
             self.archive_list = args

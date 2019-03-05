@@ -38,18 +38,18 @@ import os
 import sys
 
 def write_args(fp, args):
-    fp.write(args[0] + '\\n')
+    fp.write(args[0] + os.linesep)
     for arg in args[1:]:
-        fp.write('    ' + arg + '\\n')
+        fp.write('    ' + arg + os.linesep)
 
 write_args(sys.stdout, sys.argv)
 for arg in sys.argv[1:]:
     if arg[:10] == '--profile=':
         with open(arg[10:], 'w') as profile:
-            profile.write('--profile\\n')
+            profile.write('--profile' + os.linesep)
             write_args(profile, sys.argv)
         break
-sys.stdout.write('SCONS_LIB_DIR = ' + os.environ['SCONS_LIB_DIR'] + '\\n')
+sys.stdout.write('SCONS_LIB_DIR = ' + os.environ['SCONS_LIB_DIR'] + os.linesep)
 with open('SConstruct', 'r') as f:
     script = f.read()
 exec(script)
@@ -63,8 +63,8 @@ import sys
 script_dir = 'src/script'
 if not os.path.exists(script_dir):
     os.makedirs(script_dir)
-open(script_dir + '/scons.py', 'w').write(
-r'''%s''')
+with open(script_dir + '/scons.py', 'w') as f:
+    f.write(r'''%s''')
 """ % scons_py
 
 
@@ -76,8 +76,8 @@ import sys
 dir = sys.argv[-1]
 script_dir = dir + '/src/script'
 os.makedirs(script_dir)
-open(script_dir + '/scons.py', 'w').write(
-r'''%s''')
+with open(script_dir + '/scons.py', 'w') as f:
+    f.write(r'''%s''')
 """ % scons_py
 
 
@@ -89,8 +89,8 @@ import sys
 dir = sys.argv[-1]
 script_dir = dir + '/src/script'
 os.makedirs(script_dir)
-open(script_dir + '/scons.py', 'w').write(
-r'''%s''')
+with open(script_dir + '/scons.py', 'w') as f:
+    f.write(r'''%s''')
 """ % scons_py
 
 
@@ -297,13 +297,15 @@ class TestSCons_time(TestCommon):
             tar = tarfile.open(archive, mode[suffix])
             for name, content in files:
                 path = os.path.join(dir, name)
-                open(path, 'wb').write(bytearray(content,'utf-8'))
+                with open(path, 'wb') as f:
+                    f.write(bytearray(content,'utf-8'))
                 tarinfo = tar.gettarinfo(path, path)
                 tarinfo.uid = 111
                 tarinfo.gid = 111
                 tarinfo.uname = 'fake_user'
                 tarinfo.gname = 'fake_group'
-                tar.addfile(tarinfo, open(path, 'rb'))
+                with open(path, 'rb') as f:
+                    tar.addfile(tarinfo, f)
             tar.close()
             shutil.rmtree(dir)
             return self.workpath(archive)
@@ -322,7 +324,8 @@ class TestSCons_time(TestCommon):
             zip = zipfile.ZipFile(archive, 'w')
             for name, content in files:
                 path = os.path.join(dir, name)
-                open(path, 'w').write(content)
+                with open(path, 'w') as f:
+                    f.write(content)
                 zip.write(path)
             zip.close()
             shutil.rmtree(dir)
