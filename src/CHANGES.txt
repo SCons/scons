@@ -5,7 +5,7 @@
                             Change Log
 
 
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
+RELEASE 3.0.5.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
   From William Deegan:
 
