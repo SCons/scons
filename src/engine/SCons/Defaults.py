@@ -333,8 +333,8 @@ def touch_func(dest):
         if os.path.exists(file):
             atime = os.path.getatime(file)
         else:
-            open(file, 'w')
-            atime = mtime
+            with open(file, 'w'):
+                atime = mtime
         os.utime(file, (atime, mtime))
 
 Touch = ActionFactory(touch_func,

@@ -394,7 +394,8 @@ class DirFile(Dir):
                 # here, or in any of the following calls, would get
                 # raised, indicating something like a potentially
                 # serious disk or network issue.
-                open(self.sconsign, 'wb').write(open(fname, 'rb').read())
+                with open(self.sconsign, 'wb') as f, open(fname, 'rb') as f2:
+                    f.write(f2.read())
                 os.chmod(self.sconsign, mode)
         try:
             os.unlink(temp)

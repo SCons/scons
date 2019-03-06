@@ -680,7 +680,9 @@ class BuilderTestCase(unittest.TestCase):
     def test_single_source(self):
         """Test Builder with single_source flag set"""
         def func(target, source, env):
-            open(str(target[0]), "w")   # TODO: this just a throwaway?
+            """create the file"""
+            with open(str(target[0]), "w"):
+                pass
             if (len(source) == 1 and len(target) == 1):
                 env['CNT'][0] = env['CNT'][0] + 1
                 
