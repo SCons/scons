@@ -38,18 +38,18 @@ import os
 import sys
 
 def write_args(fp, args):
-    fp.write(args[0] + os.linesep)
+    fp.write(args[0] + '\\n')
     for arg in args[1:]:
-        fp.write('    ' + arg + os.linesep)
+        fp.write('    ' + arg + '\\n')
 
 write_args(sys.stdout, sys.argv)
 for arg in sys.argv[1:]:
     if arg[:10] == '--profile=':
         with open(arg[10:], 'w') as profile:
-            profile.write('--profile' + os.linesep)
+            profile.write('--profile\\n')
             write_args(profile, sys.argv)
         break
-sys.stdout.write('SCONS_LIB_DIR = ' + os.environ['SCONS_LIB_DIR'] + os.linesep)
+sys.stdout.write('SCONS_LIB_DIR = ' + os.environ['SCONS_LIB_DIR'] + '\\n')
 with open('SConstruct', 'r') as f:
     script = f.read()
 exec(script)
