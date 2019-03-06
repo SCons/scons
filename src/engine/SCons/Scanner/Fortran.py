@@ -187,7 +187,7 @@ def FortranScan(path_variable="FORTRANPATH"):
 #   (\w+)              : match the module name that is being USE'd
 #
 #
-    use_regex = "(?i)(?:^|;)\s*USE(?:\s+|(?:(?:\s*,\s*(?:NON_)?INTRINSIC)?\s*::))\s*(\w+)"
+    use_regex = r"(?i)(?:^|;)\s*USE(?:\s+|(?:(?:\s*,\s*(?:NON_)?INTRINSIC)?\s*::))\s*(\w+)"
 
 
 #   The INCLUDE statement regex matches the following:
@@ -275,7 +275,7 @@ def FortranScan(path_variable="FORTRANPATH"):
 #                        set of semicolon-separated INCLUDE statements
 #                        (as allowed by the F2003 standard)
 
-    include_regex = """(?i)(?:^|['">]\s*;)\s*INCLUDE\s+(?:\w+_)?[<"'](.+?)(?=["'>])"""
+    include_regex = r"""(?i)(?:^|['">]\s*;)\s*INCLUDE\s+(?:\w+_)?[<"'](.+?)(?=["'>])"""
 
 #   The MODULE statement regex finds module definitions by matching
 #   the following:
@@ -304,7 +304,7 @@ def FortranScan(path_variable="FORTRANPATH"):
 #                                        characters that make up the defined
 #                                        module name and save it in a group
 
-    def_regex = """(?i)^\s*MODULE\s+(?!PROCEDURE|SUBROUTINE|FUNCTION)(\w+)"""
+    def_regex = r"""(?i)^\s*MODULE\s+(?!PROCEDURE|SUBROUTINE|FUNCTION)(\w+)"""
 
     scanner = F90Scanner("FortranScan",
                          "$FORTRANSUFFIXES",
