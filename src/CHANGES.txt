@@ -37,7 +37,9 @@ RELEASE 3.0.5.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
   From Bernhard M. Wiedemann:
     - Do not store build host+user name if reproducible builds are wanted
-
+    
+  From Maciej Kumorek:
+    - Update the MSVC tool to include the nologo flag by default in RCFLAGS
 
 RELEASE 3.0.4 - Mon, 20 Jan 2019 22:49:27 +0000
 
