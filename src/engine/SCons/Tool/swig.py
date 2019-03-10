@@ -70,7 +70,9 @@ def _find_modules(src):
     directors = 0
     mnames = []
     try:
-        matches = _reModule.findall(open(src).read())
+        with open(src) as f:
+            data = f.read()
+        matches = _reModule.findall(data)
     except IOError:
         # If the file's not yet generated, guess the module name from the file stem
         matches = []
@@ -150,7 +152,7 @@ def _get_swig_version(env, swig):
     with pipe.stdout:
         out = SCons.Util.to_str(pipe.stdout.read())
 
-    match = re.search('SWIG Version\s+(\S+).*', out, re.MULTILINE)
+    match = re.search(r'SWIG Version\s+(\S+).*', out, re.MULTILINE)
     if match:
         version = match.group(1)
         if verbose:

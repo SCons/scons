@@ -81,7 +81,10 @@ else:
 # Get configuration information
 
 config = dict()
-exec(open('ReleaseConfig').read(), globals(), config)
+with open('ReleaseConfig') as f:
+    releaseconfig = f.read()
+exec(releaseconfig, globals(), config)
+
 
 try:
     version_tuple = config['version_tuple']
@@ -152,7 +155,8 @@ class UpdateFile(object):
         '''
         if orig is None: orig = file
         try:
-            self.content = open(orig, 'r').read()
+            with open(orig, 'r') as f:
+                self.content = f.read()
         except IOError:
             # Couldn't open file; don't try to write anything in __del__
             self.file = None
@@ -180,8 +184,8 @@ class UpdateFile(object):
 
     # Determine the pattern to match a version
 
-    _rel_types = '(alpha|beta|candidate|final)'
-    match_pat = '\d+\.\d+\.\d+\.' + _rel_types + '\.(\d+|yyyymmdd)'
+    _rel_types = r'(alpha|beta|candidate|final)'
+    match_pat = r'\d+\.\d+\.\d+\.' + _rel_types + r'\.(\d+|yyyymmdd)'
     match_rel = re.compile(match_pat)
 
     def replace_version(self, replacement = version_string, count = 1):
@@ -198,14 +202,14 @@ class UpdateFile(object):
         new_date = 'NEW DATE WILL BE INSERTED HERE'
     else:
         min = (time.daylight and time.altzone or time.timezone)//60
-        hr = min//60
-        min = -(min%60 + hr*100)
+        hr = min // 60
+        min = -(min % 60 + hr * 100)
         new_date =  (time.strftime('%a, %d %b %Y %X', release_date + (0,0,0))
                          + ' %+.4d' % min)
 
-    _days = '(Sun|Mon|Tue|Wed|Thu|Fri|Sat)'
-    _months = '(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oce|Nov|Dec)'
-    match_date = _days+', \d\d '+_months+' \d\d\d\d \d\d:\d\d:\d\d [+-]\d\d\d\d'
+    _days = r'(Sun|Mon|Tue|Wed|Thu|Fri|Sat)'
+    _months = r'(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oce|Nov|Dec)'
+    match_date = r''.join([_days, r', \d\d ', _months, r' \d\d\d\d \d\d:\d\d:\d\d [+-]\d\d\d\d'])
     match_date = re.compile(match_date)
 
     def replace_date(self, replacement = new_date, count = 1):
@@ -220,7 +224,8 @@ class UpdateFile(object):
         '''
         if self.file is not None and self.content != self.orig:
             print('Updating ' + self.file + '...')
-            open(self.file, 'w').write(self.content)
+            with open(self.file, 'w') as f:
+                f.write(self.content)
 
 if mode == 'post':
     # Set up for the next release series.
@@ -309,9 +314,9 @@ t.replace_assign('default_version', repr(version_string))
 
 t = UpdateFile('README.rst')
 if DEBUG: t.file = '/tmp/README.rst'
-t.sub('-' + t.match_pat + '\.', '-' + version_string + '.', count = 0)
+t.sub('-' + t.match_pat + r'\.', '-' + version_string + '.', count = 0)
 for suf in ['tar', 'win32', 'zip', 'rpm', 'exe', 'deb']:
-    t.sub('-(\d+\.\d+\.\d+)\.%s' % suf,
+    t.sub(r'-(\d+\.\d+\.\d+)\.%s' % suf,
           '-%s.%s' % (version_string, suf),
           count = 0)
 

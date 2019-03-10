@@ -520,7 +520,7 @@ class _DSPGenerator(object):
             config.cmdargs = cmdargs
             config.runfile = runfile
 
-            match = re.match('(.*)\|(.*)', variant)
+            match = re.match(r'(.*)\|(.*)', variant)
             if match:
                 config.variant = match.group(1)
                 config.platform = match.group(2)
@@ -1428,7 +1428,7 @@ class _GenerateV7DSW(_DSWGenerator):
         def AddConfig(self, variant, dswfile=dswfile):
             config = Config()
 
-            match = re.match('(.*)\|(.*)', variant)
+            match = re.match(r'(.*)\|(.*)', variant)
             if match:
                 config.variant = match.group(1)
                 config.platform = match.group(2)
