@@ -1568,12 +1568,12 @@ class Base(SubstitutionEnvironment):
         """
         filename = self.subst(filename)
         try:
-            fp = open(filename, 'r')
+            with open(filename, 'r') as fp:
+                lines = SCons.Util.LogicalLines(fp).readlines()
         except IOError:
             if must_exist:
                 raise
             return
-        lines = SCons.Util.LogicalLines(fp).readlines()
         lines = [l for l in lines if l[0] != '#']
         tdlist = []
         for line in lines:

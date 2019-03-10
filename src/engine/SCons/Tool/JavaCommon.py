@@ -358,7 +358,9 @@ if java_parsing:
             return self.outer_state
 
     def parse_java_file(fn, version=default_java_version):
-        return parse_java(open(fn, 'r').read(), version)
+        with open(fn, 'r') as f:
+            data = f.read()
+        return parse_java(data, version)
 
     def parse_java(contents, version=default_java_version, trace=None):
         """Parse a .java file and return a double of package directory,

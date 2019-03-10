@@ -5,7 +5,7 @@
                             Change Log
 
 
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
+RELEASE 3.0.5.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
   From William Deegan:
 
@@ -35,10 +35,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix syntax on is/is not clauses: should not use with a literal
     - Properly retrieve exit code when catching SystemExit
     - scons-time now uses context managers around file opens
+    - Fix regex patterns that were not specified as raw strings
 
   From Bernhard M. Wiedemann:
     - Do not store build host+user name if reproducible builds are wanted
-
+    
+  From Maciej Kumorek:
+    - Update the MSVC tool to include the nologo flag by default in RCFLAGS
 
 RELEASE 3.0.4 - Mon, 20 Jan 2019 22:49:27 +0000
 
