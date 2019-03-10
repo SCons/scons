@@ -34,6 +34,7 @@ RELEASE 3.0.5.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Add the textfile tool to the default tool list
     - Fix syntax on is/is not clauses: should not use with a literal
     - Properly retrieve exit code when catching SystemExit
+    - scons-time now uses context managers around file opens
     - Fix regex patterns that were not specified as raw strings
 
   From Bernhard M. Wiedemann:
