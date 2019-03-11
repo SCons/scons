@@ -112,7 +112,6 @@ Tool example:
     </tool>
 """
 
-import imp
 import os.path
 import re
 import sys
@@ -801,25 +800,47 @@ class SConsDocHandler(object):
         self.parseDomtree(t.root, t.xpath_context, t.nsmap)
         
 # lifted from Ka-Ping Yee's way cool pydoc module.
-def importfile(path):
-    """Import a Python source file or compiled file given its path."""
-    magic = imp.get_magic()
-    file = open(path, 'r')
-    if file.read(len(magic)) == magic:
-        kind = imp.PY_COMPILED
-    else:
-        kind = imp.PY_SOURCE
-    file.close()
-    filename = os.path.basename(path)
-    name, ext = os.path.splitext(filename)
-    file = open(path, 'r')
-    try:
-        module = imp.load_module(name, file, path, (ext, 'r', kind))
-    except ImportError as e:
-        sys.stderr.write("Could not import %s: %s\n" % (path, e))
-        return None
-    file.close()
-    return module
+if sys.version_info[0] == 2:
+    def importfile(path):
+        """Import a Python source file or compiled file given its path."""
+        import imp
+        magic = imp.get_magic()
+        file = open(path, 'r')
+        if file.read(len(magic)) == magic:
+            kind = imp.PY_COMPILED
+        else:
+            kind = imp.PY_SOURCE
+        file.close()
+        filename = os.path.basename(path)
+        name, ext = os.path.splitext(filename)
+        file = open(path, 'r')
+        try:
+            module = imp.load_module(name, file, path, (ext, 'r', kind))
+        except ImportError as e:
+            sys.stderr.write("Could not import %s: %s\n" % (path, e))
+            return None
+        file.close()
+        return module
+
+else:  # PY3 version, from newer pydoc
+    def importfile(path):
+        """Import a Python source file or compiled file given its path."""
+        import importlib
+        magic = importlib.util.MAGIC_NUMBER
+        with open(path, 'rb') as file:
+            is_bytecode = magic == file.read(len(magic))
+        filename = os.path.basename(path)
+        name, ext = os.path.splitext(filename)
+        if is_bytecode:
+            loader = importlib._bootstrap_external.SourcelessFileLoader(name, path)
+        else:
+            loader = importlib._bootstrap_external.SourceFileLoader(name, path)
+        # XXX We probably don't need to pass in the loader here.
+        spec = importlib.util.spec_from_file_location(name, path, loader=loader)
+        try:
+            return importlib._bootstrap._load(spec)
+        except:
+            raise ErrorDuringImport(path, sys.exc_info())
 
 # Local Variables:
 # tab-width:4

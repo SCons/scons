@@ -30,7 +30,7 @@ __all__.extend([ 'TestRuntest',
                  'pythonflags',
                ])
 
-if re.search('\s', python):
+if re.search(r'\s', python):
     pythonstring = _python_
 else:
     pythonstring = python

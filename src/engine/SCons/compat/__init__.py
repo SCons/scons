@@ -61,27 +61,18 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import sys
-import imp  # Use the "imp" module to protect imports from fixers.
+import importlib
 
 PYPY = hasattr(sys, 'pypy_translation_info')
 
 
-def import_as(module, name):
-    """
-    Imports the specified module (from our local directory) as the
-    specified name, returning the loaded module object.
-    """
-    dir = os.path.split(__file__)[0]
-    return imp.load_module(name, *imp.find_module(module, [dir]))
-
-
 def rename_module(new, old):
     """
-    Attempts to import the old module and load it under the new name.
+    Attempt to import the old module and load it under the new name.
     Used for purely cosmetic name changes in Python 3.x.
     """
     try:
-        sys.modules[new] = imp.load_module(old, *imp.find_module(old))
+        sys.modules[new] = importlib.import_module(old)
         return True
     except ImportError:
         return False

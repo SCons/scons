@@ -35,7 +35,7 @@ from SCons.Util import is_List, make_path_relative
 from SCons.Warnings import warn, Warning
 
 import os
-import imp
+import importlib
 
 __all__ = [
     'src_targz', 'src_tarbz2', 'src_xz', 'src_zip',
@@ -122,12 +122,12 @@ def Package(env, target=None, source=None, **kw):
     # load the needed packagers.
     def load_packager(type):
         try:
-            file,path,desc=imp.find_module(type, __path__)
-            return imp.load_module(type, file, path, desc)
+            # the specific packager is a relative import
+            return importlib.import_module("." + type, __name__)
         except ImportError as e:
             raise EnvironmentError("packager %s not available: %s"%(type,str(e)))
 
-    packagers=list(map(load_packager, PACKAGETYPE))
+    packagers = list(map(load_packager, PACKAGETYPE))
 
     # set up targets and the PACKAGEROOT
     try:
