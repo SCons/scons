@@ -107,7 +107,8 @@ def shlib_emitter(target, source, env):
     return (target, source)
                          
 
-shlib_action = SCons.Action.Action(shlib_generator, generator=1)
+shlib_action = SCons.Action.Action(shlib_generator, '$SHLINKCOMSTR', generator=1)
+ldmodule_action = SCons.Action.Action(shlib_generator, '$LDMODULECOMSTR', generator=1)
 
 res_action = SCons.Action.Action('$RCCOM', '$RCCOMSTR')
 
@@ -161,7 +162,7 @@ def generate(env):
     env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
     env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -shared')
     env['SHLINKCOM']   = shlib_action
-    env['LDMODULECOM'] = shlib_action
+    env['LDMODULECOM'] = ldmodule_action
     env.Append(SHLIBEMITTER = [shlib_emitter])
     env.Append(LDMODULEEMITTER = [shlib_emitter])
     env['AS'] = 'as'
