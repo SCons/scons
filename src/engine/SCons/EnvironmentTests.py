@@ -963,7 +963,7 @@ class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
 
         self.assertRaises(AttributeError, getattr, bw, 'foobar')
         bw.foobar = 42
-        assert bw.foobar is 42
+        assert bw.foobar == 42
 
     # This unit test is currently disabled because we don't think the
     # underlying method it tests (Environment.BuilderWrapper.execute())
@@ -1623,9 +1623,9 @@ def exists(env):
         env1.AppendENVPath('PATH',r'C:\dir\num\two', sep = ';')
         env1.AppendENVPath('PATH',r'C:\dir\num\three', sep = ';')
         env1.AppendENVPath('MYPATH',r'C:\mydir\num\three','MYENV', sep = ';')
-        env1.AppendENVPath('MYPATH',r'C:\mydir\num\one','MYENV', sep = ';')
+        env1.AppendENVPath('MYPATH',r'C:\mydir\num\one','MYENV', sep = ';', delete_existing=1)
         # this should do nothing since delete_existing is 0
-        env1.AppendENVPath('MYPATH',r'C:\mydir\num\three','MYENV', sep = ';', delete_existing=0)
+        env1.AppendENVPath('MYPATH',r'C:\mydir\num\three','MYENV', sep = ';')
         assert(env1['ENV']['PATH'] == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
         assert(env1['MYENV']['MYPATH'] == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one')
 
@@ -1777,15 +1777,15 @@ def exists(env):
         env2 = env1.Clone()
         env3 = env1.Clone(tools=[bar, baz])
 
-        assert env1.get('FOO') is 1
+        assert env1.get('FOO') == 1
         assert env1.get('BAR') is None
         assert env1.get('BAZ') is None
-        assert env2.get('FOO') is 1
+        assert env2.get('FOO') == 1
         assert env2.get('BAR') is None
         assert env2.get('BAZ') is None
-        assert env3.get('FOO') is 1
-        assert env3.get('BAR') is 2
-        assert env3.get('BAZ') is 3
+        assert env3.get('FOO') == 1
+        assert env3.get('BAR') == 2
+        assert env3.get('BAZ') == 3
 
         # Ensure that recursive variable substitution when copying
         # environments works properly.

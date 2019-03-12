@@ -70,7 +70,9 @@ def _find_modules(src):
     directors = 0
     mnames = []
     try:
-        matches = _reModule.findall(open(src).read())
+        with open(src) as f:
+            data = f.read()
+        matches = _reModule.findall(data)
     except IOError:
         # If the file's not yet generated, guess the module name from the file stem
         matches = []
@@ -135,21 +137,31 @@ def _swigEmitter(target, source, env):
 
 def _get_swig_version(env, swig):
     """Run the SWIG command line tool to get and return the version number"""
+    version = None
     swig = env.subst(swig)
+    if not swig:
+        return version
     pipe = SCons.Action._subproc(env, SCons.Util.CLVar(swig) + ['-version'],
                                  stdin = 'devnull',
                                  stderr = 'devnull',
                                  stdout = subprocess.PIPE)
-    if pipe.wait() != 0: return
+    if pipe.wait() != 0:
+        return version
 
     # MAYBE:   out = SCons.Util.to_str (pipe.stdout.read())
-    out = SCons.Util.to_str(pipe.stdout.read())
-    match = re.search('SWIG Version\s+(\S+).*', out, re.MULTILINE)
+    with pipe.stdout:
+        out = SCons.Util.to_str(pipe.stdout.read())
+
+    match = re.search(r'SWIG Version\s+(\S+).*', out, re.MULTILINE)
     if match:
-        if verbose: print("Version is:%s"%match.group(1))
-        return match.group(1)
+        version = match.group(1)
+        if verbose:
+            print("Version is: %s" % version)
     else:
-        if verbose: print("Unable to detect version: [%s]"%out)
+        if verbose:
+            print("Unable to detect version: [%s]" % out)
+
+    return version
 
 def generate(env):
     """Add Builders and construction variables for swig to an Environment."""

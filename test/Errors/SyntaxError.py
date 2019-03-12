@@ -44,7 +44,7 @@ test.run(stdout = "scons: Reading SConscript files ...\n",
 
       \^
 
-SyntaxError: invalid syntax
+SyntaxError: (invalid syntax|Unknown character)
 
 """, status=2)
 

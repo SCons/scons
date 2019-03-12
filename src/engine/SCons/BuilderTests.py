@@ -680,7 +680,9 @@ class BuilderTestCase(unittest.TestCase):
     def test_single_source(self):
         """Test Builder with single_source flag set"""
         def func(target, source, env):
-            open(str(target[0]), "w")
+            """create the file"""
+            with open(str(target[0]), "w"):
+                pass
             if (len(source) == 1 and len(target) == 1):
                 env['CNT'][0] = env['CNT'][0] + 1
                 
@@ -736,10 +738,12 @@ class BuilderTestCase(unittest.TestCase):
         """Testing handling lists of targets and source"""
         def function2(target, source, env, tlist = [outfile, outfile2], **kw):
             for t in target:
-                open(str(t), 'w').write("function2\n")
+                with open(str(t), 'w') as f:
+                    f.write("function2\n")
             for t in tlist:
                 if not t in list(map(str, target)):
-                    open(t, 'w').write("function2\n")
+                    with open(t, 'w') as f:
+                        f.write("function2\n")
             return 1
 
         env = Environment()
@@ -765,10 +769,12 @@ class BuilderTestCase(unittest.TestCase):
 
         def function3(target, source, env, tlist = [sub1_out, sub2_out]):
             for t in target:
-                open(str(t), 'w').write("function3\n")
+                with open(str(t), 'w') as f:
+                    f.write("function3\n")
             for t in tlist:
                 if not t in list(map(str, target)):
-                    open(t, 'w').write("function3\n")
+                    with open(t, 'w') as f:
+                        f.write("function3\n")
             return 1
 
         builder = SCons.Builder.Builder(action = function3)

@@ -8,7 +8,7 @@ from __future__ import print_function
 copyright_years = '2001 - 2019'
 
 # This gets inserted into the man pages to reflect the month of release.
-month_year = 'January 2019'
+month_year = 'MONTH YEAR'
 
 #
 # __COPYRIGHT__
@@ -46,16 +46,13 @@ import time
 import socket
 import textwrap
 
-
-
 import bootstrap
 
 project = 'scons'
-default_version = '3.0.3'
+default_version = '3.0.5.alpha.yyyymmdd'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 SConsignFile()
-
 
 #
 # We let the presence or absence of various utilities determine whether
@@ -81,10 +78,15 @@ if not developer:
         developer = os.environ.get(variable)
         if developer:
             break
+    if os.environ.get('SOURCE_DATE_EPOCH'):
+        developer = '_reproducible'
 
 build_system = ARGUMENTS.get('BUILD_SYSTEM')
 if not build_system:
-    build_system = socket.gethostname().split('.')[0]
+    if os.environ.get('SOURCE_DATE_EPOCH'):
+        build_system = '_reproducible'
+    else:
+        build_system = socket.gethostname().split('.')[0]
 
 version = ARGUMENTS.get('VERSION', '')
 if not version:
@@ -124,9 +126,6 @@ if build_id is None:
     else:
         build_id = ''
 
-
-python_ver = sys.version[0:3]
-
 #
 # Adding some paths to sys.path, this is mainly needed
 # for the doc toolchain.
@@ -159,7 +158,8 @@ command_line_variables = [
 
     ("BUILD_SYSTEM=",   "The system on which the packages were built.  " +
                         "The default is whatever hostname is returned " +
-                        "by socket.gethostname()."),
+                        "by socket.gethostname(). If SOURCE_DATE_EPOCH " +
+                        "env var is set, '_reproducible' is the default."),
 
     ("CHECKPOINT=",     "The specific checkpoint release being packaged, " +
                         "which will be appended to the VERSION string.  " +
@@ -177,7 +177,9 @@ command_line_variables = [
 
     ("DEVELOPER=",      "The developer who created the packages.  " +
                         "The default is the first set environment " +
-                        "variable from the list $USERNAME, $LOGNAME, $USER."),
+                        "variable from the list $USERNAME, $LOGNAME, $USER." +
+                        "If the SOURCE_DATE_EPOCH env var is set, " +
+                        "'_reproducible' is the default."),
 
     ("REVISION=",       "The revision number of the source being built.  " +
                         "The default is the git hash returned " +
@@ -335,7 +337,7 @@ python_scons = {
         'debian_deps'   : [
                             'debian/changelog',
                             'debian/compat',
-                            'debian/control',	    
+                            'debian/control',
                             'debian/copyright',
                             'debian/dirs',
                             'debian/docs',
@@ -499,8 +501,7 @@ for p in [ scons ]:
     # destination files.
     #
     manifest_in = File(os.path.join(src, 'MANIFEST.in')).rstr()
-    manifest_in_lines = open(manifest_in).readlines()
-    src_files = bootstrap.parseManifestLines(src, manifest_in_lines)
+    src_files = bootstrap.parseManifestLines(src, manifest_in)
     raw_files = src_files[:]
     dst_files = src_files[:]
 
@@ -520,12 +521,11 @@ for p in [ scons ]:
 
             MANIFEST_in = File(os.path.join(src, ssubdir, 'MANIFEST.in')).rstr()
             MANIFEST_in_list.append(MANIFEST_in)
-            files = bootstrap.parseManifestLines(os.path.join(src, ssubdir), open(MANIFEST_in).readlines())
+            files = bootstrap.parseManifestLines(os.path.join(src, ssubdir), MANIFEST_in)
 
             raw_files.extend(files)
             src_files.extend([os.path.join(ssubdir, x) for x in files])
 
-               
             files = [os.path.join(isubdir, x) for x in files]
             dst_files.extend(files)
             for k, f in sp['filemap'].items():

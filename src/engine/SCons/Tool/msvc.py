@@ -262,7 +262,7 @@ def generate(env):
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
 
     env['RC'] = 'rc'
-    env['RCFLAGS'] = SCons.Util.CLVar('')
+    env['RCFLAGS'] = SCons.Util.CLVar('/nologo')
     env['RCSUFFIXES']=['.rc','.rc2']
     env['RCCOM'] = '$RC $_CPPDEFFLAGS $_CPPINCFLAGS $RCFLAGS /fo$TARGET $SOURCES'
     env['BUILDERS']['RES'] = res_builder
@@ -270,6 +270,10 @@ def generate(env):
     env['OBJSUFFIX']      = '.obj'
     env['SHOBJPREFIX']    = '$OBJPREFIX'
     env['SHOBJSUFFIX']    = '$OBJSUFFIX'
+
+    # MSVC probably wont support unistd.h so default
+    # without it for lex generation
+    env["LEXUNISTD"] = SCons.Util.CLVar("--nounistd")
 
     # Set-up ms tools paths
     msvc_setup_env_once(env)

@@ -108,16 +108,19 @@ class dblite(object):
             self._chgrp_to = -1  # don't chgrp
 
         if self._flag == "n":
-            self._open(self._file_name, "wb", self._mode)
+            with self._open(self._file_name, "wb", self._mode):
+                pass  # just make sure it exists
         else:
             try:
                 f = self._open(self._file_name, "rb")
             except IOError as e:
                 if self._flag != "c":
                     raise e
-                self._open(self._file_name, "wb", self._mode)
+                with self._open(self._file_name, "wb", self._mode):
+                    pass  # just make sure it exists
             else:
                 p = f.read()
+                f.close()
                 if len(p) > 0:
                     try:
                         if bytes is not str:

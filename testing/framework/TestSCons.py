@@ -35,7 +35,7 @@ from TestCmd import PIPE
 # here provides some independent verification that what we packaged
 # conforms to what we expect.
 
-default_version = '3.0.3'
+default_version = '3.0.5.alpha.yyyymmdd'
 
 python_version_unsupported = (2, 6, 0)
 python_version_deprecated = (2, 7, 0)
@@ -247,7 +247,9 @@ class TestSCons(TestCommon):
             elif not self.external and not os.path.isabs(kw['program']):
                 kw['program'] = os.path.join(self.orig_cwd, kw['program'])
         if 'interpreter' not in kw and not os.environ.get('SCONS_EXEC'):
-            kw['interpreter'] = [python, '-tt']
+            kw['interpreter'] = [python,]
+            if sys.version_info[0] < 3:
+                kw['interpreter'].append('-tt')
         if 'match' not in kw:
             kw['match'] = match_exact
         if 'workdir' not in kw:
@@ -920,7 +922,8 @@ for opt, arg in cmd_opts:
     else: opt_string = opt_string + ' ' + opt
 output.write("/* mymoc.py%s */\\n" % opt_string)
 for a in args:
-    contents = open(a, 'r').read()
+    with open(a, 'r') as f:
+        contents = f.read()
     a = a.replace('\\\\', '\\\\\\\\')
     subst = r'{ my_qt_symbol( "' + a + '\\\\n" ); }'
     if impl:

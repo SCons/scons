@@ -38,6 +38,7 @@ test = TestRuntest.TestRuntest(match = TestCmd.match_re,
                                diff = TestCmd.diff_re)
 
 pythonstring = re.escape(TestRuntest.pythonstring)
+pythonflags = TestRuntest.pythonflags
 test_fail_py = re.escape(os.path.join('test', 'fail.py'))
 test_no_result_py = re.escape(os.path.join('test', 'no_result.py'))
 test_pass_py = re.escape(os.path.join('test', 'pass.py'))
@@ -58,7 +59,7 @@ expect = """\
   <results>
     <test>
       <file_name>%(test_fail_py)s</file_name>
-      <command_line>%(pythonstring)s -tt %(test_fail_py)s</command_line>
+      <command_line>%(pythonstring)s%(pythonflags)s %(test_fail_py)s</command_line>
       <exit_status>1</exit_status>
       <stdout>FAILING TEST STDOUT
 </stdout>
@@ -68,7 +69,7 @@ expect = """\
     </test>
     <test>
       <file_name>%(test_no_result_py)s</file_name>
-      <command_line>%(pythonstring)s -tt %(test_no_result_py)s</command_line>
+      <command_line>%(pythonstring)s%(pythonflags)s %(test_no_result_py)s</command_line>
       <exit_status>2</exit_status>
       <stdout>NO RESULT TEST STDOUT
 </stdout>
@@ -78,7 +79,7 @@ expect = """\
     </test>
     <test>
       <file_name>%(test_pass_py)s</file_name>
-      <command_line>%(pythonstring)s -tt %(test_pass_py)s</command_line>
+      <command_line>%(pythonstring)s%(pythonflags)s %(test_pass_py)s</command_line>
       <exit_status>0</exit_status>
       <stdout>PASSING TEST STDOUT
 </stdout>

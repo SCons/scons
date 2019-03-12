@@ -278,11 +278,12 @@ def _SConscript(fs, *files, **kw):
                         pass
                     try:
                         try:
-#                            _file_ = SCons.Util.to_str(_file_)
                             if Main.print_time:
                                 time1 = time.time()
-                            exec(compile(_file_.read(), _file_.name, 'exec'),
-                                 call_stack[-1].globals)
+                            scriptdata = _file_.read()
+                            scriptname = _file_.name
+                            _file_.close()
+                            exec(compile(scriptdata, scriptname, 'exec'), call_stack[-1].globals)
                         except SConscriptReturn:
                             pass
                     finally:
@@ -397,9 +398,9 @@ class SConsEnvironment(SCons.Environment.Base):
         something like 3.2b1."""
         version = version_string.split(' ')[0].split('.')
         v_major = int(version[0])
-        v_minor = int(re.match('\d+', version[1]).group())
+        v_minor = int(re.match(r'\d+', version[1]).group())
         if len(version) >= 3:
-            v_revision = int(re.match('\d+', version[2]).group())
+            v_revision = int(re.match(r'\d+', version[2]).group())
         else:
             v_revision = 0
         return v_major, v_minor, v_revision

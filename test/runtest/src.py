@@ -39,6 +39,7 @@ test.subdir(['src'],
             ['src', 'suite'])
 
 pythonstring = TestRuntest.pythonstring
+pythonflags = TestRuntest.pythonflags
 src_passTests_py = os.path.join('src', 'passTests.py')
 src_suite_passTests_py = os.path.join('src', 'suite', 'passTests.py')
 
@@ -51,9 +52,9 @@ test.write_passing_test(['src', 'suite', 'pass.py'])
 test.write_passing_test(['src', 'suite', 'passTests.py'])
 
 expect_stdout = """\
-%(pythonstring)s -tt %(src_passTests_py)s
+%(pythonstring)s%(pythonflags)s %(src_passTests_py)s
 PASSING TEST STDOUT
-%(pythonstring)s -tt %(src_suite_passTests_py)s
+%(pythonstring)s%(pythonflags)s %(src_suite_passTests_py)s
 PASSING TEST STDOUT
 """ % locals()
 

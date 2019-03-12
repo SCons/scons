@@ -503,8 +503,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-_SHLIBSONAME "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_SHLIBSONAME</envar>">
 <!ENTITY cv-SHLIBSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLIBSUFFIX</envar>">
 <!ENTITY cv-SHLIBVERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLIBVERSION</envar>">
-<!ENTITY cv-SHLIBVERSIONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLIBVERSIONFLAGS</envar>">
 <!ENTITY cv-_SHLIBVERSIONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_SHLIBVERSIONFLAGS</envar>">
+<!ENTITY cv-SHLIBVERSIONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLIBVERSIONFLAGS</envar>">
 <!ENTITY cv-SHLINK "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLINK</envar>">
 <!ENTITY cv-SHLINKCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLINKCOM</envar>">
 <!ENTITY cv-SHLINKCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLINKCOMSTR</envar>">
@@ -544,6 +544,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-TARGETS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TARGETS</envar>">
 <!ENTITY cv-TARSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TARSUFFIX</envar>">
 <!ENTITY cv-TEMPFILEPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEMPFILEPREFIX</envar>">
+<!ENTITY cv-TEMPFILESUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEMPFILESUFFIX</envar>">
 <!ENTITY cv-TEX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEX</envar>">
 <!ENTITY cv-TEXCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEXCOM</envar>">
 <!ENTITY cv-TEXCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEXCOMSTR</envar>">
@@ -1140,8 +1141,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-_SHLIBSONAME "<link linkend='cv-_SHLIBSONAME' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_SHLIBSONAME</envar></link>">
 <!ENTITY cv-link-SHLIBSUFFIX "<link linkend='cv-SHLIBSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLIBSUFFIX</envar></link>">
 <!ENTITY cv-link-SHLIBVERSION "<link linkend='cv-SHLIBVERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLIBVERSION</envar></link>">
-<!ENTITY cv-link-SHLIBVERSIONFLAGS "<link linkend='cv-SHLIBVERSIONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLIBVERSIONFLAGS</envar></link>">
 <!ENTITY cv-link-_SHLIBVERSIONFLAGS "<link linkend='cv-_SHLIBVERSIONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_SHLIBVERSIONFLAGS</envar></link>">
+<!ENTITY cv-link-SHLIBVERSIONFLAGS "<link linkend='cv-SHLIBVERSIONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLIBVERSIONFLAGS</envar></link>">
 <!ENTITY cv-link-SHLINK "<link linkend='cv-SHLINK' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLINK</envar></link>">
 <!ENTITY cv-link-SHLINKCOM "<link linkend='cv-SHLINKCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLINKCOM</envar></link>">
 <!ENTITY cv-link-SHLINKCOMSTR "<link linkend='cv-SHLINKCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLINKCOMSTR</envar></link>">
@@ -1181,6 +1182,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-TARGETS "<link linkend='cv-TARGETS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TARGETS</envar></link>">
 <!ENTITY cv-link-TARSUFFIX "<link linkend='cv-TARSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TARSUFFIX</envar></link>">
 <!ENTITY cv-link-TEMPFILEPREFIX "<link linkend='cv-TEMPFILEPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEMPFILEPREFIX</envar></link>">
+<!ENTITY cv-link-TEMPFILESUFFIX "<link linkend='cv-TEMPFILESUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEMPFILESUFFIX</envar></link>">
 <!ENTITY cv-link-TEX "<link linkend='cv-TEX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEX</envar></link>">
 <!ENTITY cv-link-TEXCOM "<link linkend='cv-TEXCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEXCOM</envar></link>">
 <!ENTITY cv-link-TEXCOMSTR "<link linkend='cv-TEXCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEXCOMSTR</envar></link>">

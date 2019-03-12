@@ -37,18 +37,15 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-yacc = test.where_is('yacc') or test.where_is('bison')
+yacc = test.where_is('yacc') or test.where_is('bison') or test.where_is('win_bison')
 
 if not yacc:
     test.skip_test('No yacc or bison found; skipping test.\n')
 
-if sys.platform == 'win32':
-    if not test.where_is('gcc'):
-        test.skip_test('No gcc found on windows; skipping test.\n')
-
 test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 foo = Environment(YACCFLAGS='-d', tools = ['default', 'yacc'])
 yacc = foo.Dictionary('YACC')
 bar = Environment(YACC = r'%(_python_)s wrapper.py ' + yacc, tools = ['default', 'yacc'])

@@ -482,8 +482,8 @@ class DummyRegistry(object):
     def parse(self, data):
         parents = [None, None]
         parents[0] = self.root
-        keymatch = re.compile('^\[(.*)\]$')
-        valmatch = re.compile('^(?:"(.*)"|[@])="(.*)"$')
+        keymatch = re.compile(r'^\[(.*)\]$')
+        valmatch = re.compile(r'^(?:"(.*)"|[@])="(.*)"$')
         for line in data:
             m1 = keymatch.match(line)
             if m1:

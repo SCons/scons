@@ -3032,15 +3032,6 @@ is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
     <term>HOST_ARCH</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-        The name of the host hardware architecture used to create the Environment.
-        If a platform is specified when creating the Environment, then
-        that Platform's logic will handle setting this value.
-        This value is immutable, and should not be changed by the user after
-        the Environment is initialized.
-        Currently only set for Win32.
-</para>
-    
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Sets the host architecture for Visual Studio compiler. If not set,
 default to the detected host architecture: note that this may depend
 on the python you are using.
@@ -3056,7 +3047,16 @@ Valid values are the same as for <envar xmlns="http://www.scons.org/dbxsd/v1.0">
 This is currently only used on Windows, but in the future it will be
 used on other OSes as well.
 </para>
-</listitem>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The name of the host hardware architecture used to create the Environment.
+        If a platform is specified when creating the Environment, then
+        that Platform's logic will handle setting this value.
+        This value is immutable, and should not be changed by the user after
+        the Environment is initialized.
+        Currently only set for Win32.
+</para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-HOST_OS">
     <term>HOST_OS</term>
@@ -3298,7 +3298,7 @@ The command line used to call the Java archive tool.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The string displayed when the Java archive tool
 is called
-If this is not set, then <envar xmlns="http://www.scons.org/dbxsd/v1.0">$JARCOM</envar> (the command line) is displayed.
+If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-JARCOM"><envar>$JARCOM</envar></link> (the command line) is displayed.
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3308,7 +3308,7 @@ env = Environment(JARCOMSTR = "JARchiving $SOURCES into $TARGET")
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The string displayed when the Java archive tool
 is called
-If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-JARCOM"><envar>$JARCOM</envar></link> (the command line) is displayed.
+If this is not set, then <envar xmlns="http://www.scons.org/dbxsd/v1.0">$JARCOM</envar> (the command line) is displayed.
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -4487,6 +4487,7 @@ constructor; setting it later has no effect.
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 Valid values for Windows are
+<literal>14.1</literal>,
 <literal>14.0</literal>,
 <literal>14.0Exp</literal>,
 <literal>12.0</literal>,
@@ -4510,254 +4511,311 @@ Versions ending in <literal>Exp</literal> refer to "Express" or
   </varlistentry>
   <varlistentry id="cv-MSVS">
     <term>MSVS</term>
-    <listitem> <para xmlns="http://www.scons.org/dbxsd/v1.0">
-When the Microsoft Visual Studio tools are initialized, they set up this
-dictionary with the following keys: </para><variablelist xmlns="http://www.scons.org/dbxsd/v1.0">
-    <varlistentry>
-      <term>VERSION</term>
-
-      <listitem>
-        <para>the version of MSVS being used (can be set via
-        <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-MSVS_VERSION"><envar>$MSVS_VERSION</envar></link>)</para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry>
-      <term>VERSIONS</term>
-
-      <listitem>
-        <para>the available versions of MSVS installed</para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry>
-      <term>VCINSTALLDIR</term>
-
-      <listitem>
-        <para>installed directory of Visual C++</para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry>
-      <term>VSINSTALLDIR</term>
-
-      <listitem>
-        <para>installed directory of Visual Studio</para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry>
-      <term>FRAMEWORKDIR</term>
-
-      <listitem>
-        <para>installed directory of the .NET framework</para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry>
-      <term>FRAMEWORKVERSIONS</term>
-
-      <listitem>
-        <para>list of installed versions of the .NET framework, sorted
-        latest to oldest.</para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry>
-      <term>FRAMEWORKVERSION</term>
-
-      <listitem>
-        <para>latest installed version of the .NET
-        framework</para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry>
-      <term>FRAMEWORKSDKDIR</term>
-
-      <listitem>
-        <para>installed location of the .NET SDK.</para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry>
-      <term>PLATFORMSDKDIR</term>
-
-      <listitem>
-        <para>installed location of the Platform SDK.</para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry>
-      <term>PLATFORMSDK_MODULES</term>
-
-      <listitem>
-        <para>dictionary of installed Platform SDK modules, where the
-        dictionary keys are keywords for the various modules, and the values
-        are 2-tuples where the first is the release date, and the second is
-        the version number.</para>
-      </listitem>
-    </varlistentry>
-  </variablelist><para xmlns="http://www.scons.org/dbxsd/v1.0">If a value isn't set, it wasn't available in the
-registry.</para></listitem>
+    <listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        When the Microsoft Visual Studio tools are initialized,
+        they set up this dictionary with the following keys:
+      </para>
+      <variablelist xmlns="http://www.scons.org/dbxsd/v1.0">
+        <varlistentry>
+          <term>VERSION</term> <listitem>
+            <para>the version of MSVS being used (can be set via
+            <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-MSVS_VERSION"><envar>$MSVS_VERSION</envar></link>)</para>
+          </listitem>
+        </varlistentry> <varlistentry>
+          <term>VERSIONS</term> <listitem>
+            <para>the available versions of MSVS installed</para>
+          </listitem>
+        </varlistentry> <varlistentry>
+          <term>VCINSTALLDIR</term> <listitem>
+            <para>installed directory of Visual C++</para>
+          </listitem>
+        </varlistentry> <varlistentry>
+          <term>VSINSTALLDIR</term> <listitem>
+            <para>installed directory of Visual Studio</para>
+          </listitem>
+        </varlistentry> <varlistentry>
+          <term>FRAMEWORKDIR</term> <listitem>
+            <para>installed directory of the .NET framework</para>
+          </listitem>
+        </varlistentry> <varlistentry>
+          <term>FRAMEWORKVERSIONS</term> <listitem>
+            <para>
+              list of installed versions of the .NET framework,
+              sorted latest to oldest.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>FRAMEWORKVERSION</term>
+          <listitem>
+            <para>latest installed version of the .NET framework</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>FRAMEWORKSDKDIR</term>
+          <listitem>
+            <para>installed location of the .NET SDK.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>PLATFORMSDKDIR</term>
+          <listitem>
+            <para>installed location of the Platform SDK.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>PLATFORMSDK_MODULES</term>
+          <listitem>
+            <para>
+              dictionary of installed Platform SDK modules, where the
+              dictionary keys are keywords for the various modules,
+              and the values are 2-tuples where the first is the
+              release date, and the second is the version number.
+            </para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">If a value is not set, it was not available in the registry.</para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVS_ARCH">
     <term>MSVS_ARCH</term>
-    <listitem> <para xmlns="http://www.scons.org/dbxsd/v1.0">Sets
-the architecture for which the generated project(s) should build. </para>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">The default value is <literal>x86</literal>. <literal>amd64</literal> is
-also supported by <application xmlns="http://www.scons.org/dbxsd/v1.0">SCons</application> for some Visual Studio versions. Trying to set
-<envar xmlns="http://www.scons.org/dbxsd/v1.0">$MSVS_ARCH</envar> to an architecture that's not supported for a given Visual
-Studio version will generate an error. </para> </listitem>
+    <listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">Sets the architecture for which the generated project(s) should build.</para>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The default value is <literal>x86</literal>.
+        <literal>amd64</literal> is also supported by <application xmlns="http://www.scons.org/dbxsd/v1.0">SCons</application> for
+        most Visual Studio versions. Since Visual Studio 2015
+        <literal>arm</literal> is supported, and since Visual Studio
+        2017 <literal>arm64</literal> is supported.
+        Trying to set <envar xmlns="http://www.scons.org/dbxsd/v1.0">$MSVS_ARCH</envar>
+        to an architecture that's not supported for a given Visual
+        Studio version will generate an error.
+      </para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVS_PROJECT_GUID">
     <term>MSVS_PROJECT_GUID</term>
-    <listitem> <para xmlns="http://www.scons.org/dbxsd/v1.0">The string placed in a generated
+    <listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The string placed in a generated
 Microsoft Visual Studio project file as the value of the
-<literal>ProjectGUID</literal> attribute. There is no default value. If not
-defined, a new GUID is generated. </para> </listitem>
+        <literal>ProjectGUID</literal> attribute. There is no default
+        value. If not
+defined, a new GUID is generated.
+
+      </para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVS_SCC_AUX_PATH">
     <term>MSVS_SCC_AUX_PATH</term>
-    <listitem> <para xmlns="http://www.scons.org/dbxsd/v1.0">The path name placed in a generated
+    <listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The path name placed in a generated
 Microsoft Visual Studio project file as the value of the
-<literal>SccAuxPath</literal> attribute if the
-<envar>MSVS_SCC_PROVIDER</envar> construction variable is also set. There is
-no default value. </para> </listitem>
+        <literal>SccAuxPath</literal> attribute if the
+        <envar>MSVS_SCC_PROVIDER</envar> construction variable is
+        also set. There is
+no default value.
+
+      </para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVS_SCC_CONNECTION_ROOT">
     <term>MSVS_SCC_CONNECTION_ROOT</term>
-    <listitem> <para xmlns="http://www.scons.org/dbxsd/v1.0">The root path of projects in
-your SCC workspace, i.e the path under which all project and solution files
-will be generated. It is used as a reference path from which the relative
-paths of the generated Microsoft Visual Studio project and solution files are
-computed. The relative project file path is placed as the value of the
-<literal>SccLocalPath</literal> attribute of the project file and as the
-values of the
-<literal>SccProjectFilePathRelativizedFromConnection[i]</literal> (where [i]
-ranges from 0 to the number of projects in the solution) attributes of the
-<literal>GlobalSection(SourceCodeControl)</literal> section of the Microsoft
-Visual Studio solution file. Similarly the relative solution file path is
-placed as the values of the <literal>SccLocalPath[i]</literal> (where [i]
-ranges from 0 to the number of projects in the solution) attributes of the
-<literal>GlobalSection(SourceCodeControl)</literal> section of the Microsoft
-Visual Studio solution file. This is used only if the
-<envar>MSVS_SCC_PROVIDER</envar> construction variable is also set. The
-default value is the current working directory. </para> </listitem>
+    <listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The root path of projects in your SCC workspace, i.e the
+        path under which all project and solution files will be
+        generated. It is used as a reference path from which the
+        relative paths of the generated Microsoft Visual Studio project
+        and solution files are computed. The relative project file path
+        is placed as the value of the <literal>SccLocalPath</literal>
+        attribute of the project file and as the values of the
+        <literal>SccProjectFilePathRelativizedFromConnection[i]</literal>
+        (where [i] ranges from 0 to the number of projects in the solution)
+        attributes of the <literal>GlobalSection(SourceCodeControl)</literal>
+        section of the Microsoft Visual Studio solution file. Similarly
+        the relative solution file path is placed as the values of the
+        <literal>SccLocalPath[i]</literal> (where [i] ranges from 0
+        to the number of projects in the solution) attributes of the
+        <literal>GlobalSection(SourceCodeControl)</literal> section of
+        the Microsoft Visual Studio solution file. This is used only if
+        the <envar>MSVS_SCC_PROVIDER</envar> construction variable is
+        also set. The default value is the current working directory.
+      </para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVS_SCC_PROJECT_NAME">
     <term>MSVS_SCC_PROJECT_NAME</term>
-    <listitem> <para xmlns="http://www.scons.org/dbxsd/v1.0">The project name placed in
-a generated Microsoft Visual Studio project file as the value of the
-<literal>SccProjectName</literal> attribute if the
-<envar>MSVS_SCC_PROVIDER</envar> construction variable is also set. In this
-case the string is also placed in the <literal>SccProjectName0</literal>
-attribute of the <literal>GlobalSection(SourceCodeControl)</literal> section
-of the Microsoft Visual Studio solution file. There is no default value.
-</para> </listitem>
+    <listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The project name placed in a generated Microsoft
+        Visual Studio project file as the value of the
+        <literal>SccProjectName</literal> attribute if the
+        <envar>MSVS_SCC_PROVIDER</envar> construction variable
+        is also set. In this case the string is also placed in
+        the <literal>SccProjectName0</literal> attribute of the
+        <literal>GlobalSection(SourceCodeControl)</literal> section
+        of the Microsoft Visual Studio solution file. There is no
+        default value.
+      </para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVS_SCC_PROVIDER">
     <term>MSVS_SCC_PROVIDER</term>
-    <listitem> <para xmlns="http://www.scons.org/dbxsd/v1.0">The
-string placed in a generated Microsoft Visual Studio project file as the value
-of the <literal>SccProvider</literal> attribute. The string is also placed in
-the <literal>SccProvider0</literal> attribute of the
-<literal>GlobalSection(SourceCodeControl)</literal> section of the Microsoft
-Visual Studio solution file. There is no default value. </para> </listitem>
+    <listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The string placed in a generated Microsoft
+        Visual Studio project file as the value of the
+        <literal>SccProvider</literal> attribute. The string is
+        also placed in the <literal>SccProvider0</literal> attribute
+        of the <literal>GlobalSection(SourceCodeControl)</literal>
+        section of the Microsoft Visual Studio solution file. There
+        is no default value.
+      </para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVS_VERSION">
     <term>MSVS_VERSION</term>
-    <listitem> <para xmlns="http://www.scons.org/dbxsd/v1.0">Sets the preferred version
-of Microsoft Visual Studio to use. </para> <para xmlns="http://www.scons.org/dbxsd/v1.0">If <envar xmlns="http://www.scons.org/dbxsd/v1.0">$MSVS_VERSION</envar> is not
-set, <application xmlns="http://www.scons.org/dbxsd/v1.0">SCons</application> will (by default) select the latest version of Visual Studio
-installed on your system. So, if you have version 6 and version 7 (MSVS .NET)
-installed, it will prefer version 7. You can override this by specifying the
-<envar>MSVS_VERSION</envar> variable in the Environment initialization,
-setting it to the appropriate version ('6.0' or '7.0', for example). If the
-specified version isn't installed, tool initialization will fail. </para>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">This is obsolete: use <envar xmlns="http://www.scons.org/dbxsd/v1.0">$MSVC_VERSION</envar> instead. If <envar xmlns="http://www.scons.org/dbxsd/v1.0">$MSVS_VERSION</envar> is
-set and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$MSVC_VERSION</envar> is not, <envar xmlns="http://www.scons.org/dbxsd/v1.0">$MSVC_VERSION</envar> will be set automatically
-to <envar xmlns="http://www.scons.org/dbxsd/v1.0">$MSVS_VERSION</envar>. If both are set to different values, scons will raise an
-error. </para> </listitem>
+    <listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">Sets the preferred version of Microsoft Visual Studio to use.</para>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        If <envar xmlns="http://www.scons.org/dbxsd/v1.0">$MSVS_VERSION</envar> is not set, <application xmlns="http://www.scons.org/dbxsd/v1.0">SCons</application> will (by default)
+        select the latest version of Visual Studio installed on your
+        system. So, if you have version 6 and version 7 (MSVS .NET)
+        installed, it will prefer version 7. You can override this by
+        specifying the <envar>MSVS_VERSION</envar> variable in the
+        Environment initialization, setting it to the appropriate
+        version ('6.0' or '7.0', for example). If the specified
+        version isn't installed, tool initialization will fail.
+      </para>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        This is obsolete: use <envar xmlns="http://www.scons.org/dbxsd/v1.0">$MSVC_VERSION</envar> instead. If
+        <envar xmlns="http://www.scons.org/dbxsd/v1.0">$MSVS_VERSION</envar> is set and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$MSVC_VERSION</envar> is
+        not, <envar xmlns="http://www.scons.org/dbxsd/v1.0">$MSVC_VERSION</envar> will be set automatically to
+        <envar xmlns="http://www.scons.org/dbxsd/v1.0">$MSVS_VERSION</envar>. If both are set to different values,
+        scons will raise an error.
+      </para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVSBUILDCOM">
     <term>MSVSBUILDCOM</term>
     <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">The build command line placed in a generated Microsoft Visual Studio
-project file. The default is to have Visual Studio invoke SCons with any
-specified build targets. </para> </listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The build command line placed in a generated Microsoft Visual
+        Studio project file. The default is to have Visual Studio
+        invoke SCons with any specified build targets.
+      </para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVSCLEANCOM">
     <term>MSVSCLEANCOM</term>
-    <listitem> <para xmlns="http://www.scons.org/dbxsd/v1.0">The clean command line placed in a generated Microsoft Visual
-Studio project file. The default is to have Visual Studio invoke SCons with
-the -c option to remove any specified targets. </para> </listitem>
+    <listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The clean command line placed in a generated Microsoft Visual
+        Studio project file. The default is to have Visual Studio
+        invoke SCons with the -c option to remove any specified
+        targets.
+      </para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVSENCODING">
     <term>MSVSENCODING</term>
-    <listitem> <para xmlns="http://www.scons.org/dbxsd/v1.0">The encoding string placed in a
-generated Microsoft Visual Studio project file. The default is encoding
-<literal>Windows-1252</literal>. </para> </listitem>
+    <listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The encoding string placed in a generated Microsoft
+        Visual Studio project file. The default is encoding
+        <literal>Windows-1252</literal>.
+      </para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVSPROJECTCOM">
     <term>MSVSPROJECTCOM</term>
-    <listitem> <para xmlns="http://www.scons.org/dbxsd/v1.0">The action used to generate Microsoft
-Visual Studio project files. </para> </listitem>
+    <listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">The action used to generate Microsoft Visual Studio project files.</para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVSPROJECTSUFFIX">
     <term>MSVSPROJECTSUFFIX</term>
-    <listitem> <para xmlns="http://www.scons.org/dbxsd/v1.0">The suffix used for Microsoft Visual
-Studio project (DSP) files. The default value is <filename>.vcproj</filename>
-when using Visual Studio version 7.x (.NET) or later version, and
-<filename>.dsp</filename> when using earlier versions of Visual Studio.
-</para> </listitem>
+    <listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The suffix used for Microsoft Visual Studio project (DSP)
+        files. The default value is <filename>.vcproj</filename>
+        when using Visual Studio version 7.x (.NET) or later version,
+        and <filename>.dsp</filename> when using earlier versions of
+        Visual Studio.
+      </para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVSREBUILDCOM">
     <term>MSVSREBUILDCOM</term>
-    <listitem> <para xmlns="http://www.scons.org/dbxsd/v1.0">The
-rebuild command line placed in a generated Microsoft Visual Studio project
-file. The default is to have Visual Studio invoke SCons with any specified
-rebuild targets. </para> </listitem>
+    <listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The rebuild command line placed in a generated Microsoft
+        Visual Studio project file. The default is to have Visual
+        Studio invoke SCons with any specified rebuild targets.
+
+      </para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVSSCONS">
     <term>MSVSSCONS</term>
     <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">The SCons used in generated Microsoft Visual Studio project files. The
-default is the version of SCons being used to generate the project file.
-</para> </listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The SCons used in generated Microsoft Visual Studio project
+        files. The default is the version of SCons being used to
+        generate the project file.
+      </para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVSSCONSCOM">
     <term>MSVSSCONSCOM</term>
-    <listitem> <para xmlns="http://www.scons.org/dbxsd/v1.0">The default
-SCons command used in generated Microsoft Visual Studio project files. </para>
-</listitem>
+    <listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The default SCons command used in generated Microsoft Visual
+        Studio project files.
+      </para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVSSCONSCRIPT">
     <term>MSVSSCONSCRIPT</term>
-    <listitem> <para xmlns="http://www.scons.org/dbxsd/v1.0">The sconscript
-file (that is, <filename xmlns="http://www.scons.org/dbxsd/v1.0">SConstruct</filename> or <filename xmlns="http://www.scons.org/dbxsd/v1.0">SConscript</filename> file) that will be invoked by
-Visual Studio project files (through the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-MSVSSCONSCOM"><envar>$MSVSSCONSCOM</envar></link> variable). The
-default is the same sconscript file that contains the call to <function xmlns="http://www.scons.org/dbxsd/v1.0">MSVSProject</function>
-to build the project file. </para> </listitem>
+    <listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The sconscript file (that is, <filename xmlns="http://www.scons.org/dbxsd/v1.0">SConstruct</filename> or <filename xmlns="http://www.scons.org/dbxsd/v1.0">SConscript</filename>
+        file) that will be invoked by Visual Studio project files
+        (through the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-MSVSSCONSCOM"><envar>$MSVSSCONSCOM</envar></link> variable). The default
+        is the same sconscript file that contains the call to
+        <function xmlns="http://www.scons.org/dbxsd/v1.0">MSVSProject</function> to build the project file.
+      </para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVSSCONSFLAGS">
     <term>MSVSSCONSFLAGS</term>
-    <listitem> <para xmlns="http://www.scons.org/dbxsd/v1.0">The
-SCons flags used in generated Microsoft Visual Studio project files. </para>
-</listitem>
+    <listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The SCons flags used in generated Microsoft Visual Studio project files.
+      </para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVSSOLUTIONCOM">
     <term>MSVSSOLUTIONCOM</term>
-    <listitem> <para xmlns="http://www.scons.org/dbxsd/v1.0">The action used to generate Microsoft
-Visual Studio solution files. </para> </listitem>
+    <listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">The action used to generate Microsoft Visual Studio solution files.</para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVSSOLUTIONSUFFIX">
     <term>MSVSSOLUTIONSUFFIX</term>
-    <listitem> <para xmlns="http://www.scons.org/dbxsd/v1.0">The suffix used for Microsoft
-Visual Studio solution (DSW) files. The default value is
-<filename>.sln</filename> when using Visual Studio version 7.x (.NET), and
-<filename>.dsw</filename> when using earlier versions of Visual Studio.
-</para> </listitem>
+    <listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The suffix used for Microsoft Visual Studio solution (DSW)
+        files. The default value is <filename>.sln</filename>
+        when using Visual Studio version 7.x (.NET), and
+        <filename>.dsw</filename> when using earlier versions of
+        Visual Studio.
+      </para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-MT">
     <term>MT</term>
@@ -5972,11 +6030,15 @@ below, for more information.
   </varlistentry>
   <varlistentry id="cv-SCONS_HOME">
     <term>SCONS_HOME</term>
-    <listitem> <para xmlns="http://www.scons.org/dbxsd/v1.0">The
-(optional) path to the SCons library directory, initialized from the external
-environment. If set, this is used to construct a shorter and more efficient
-search path in the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-MSVSSCONS"><envar>$MSVSSCONS</envar></link> command line executed from Microsoft
-Visual Studio project files. </para> </listitem>
+    <listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The (optional) path to the SCons library directory,
+        initialized from the external environment. If set, this is
+        used to construct a shorter and more efficient search path in
+        the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-MSVSSCONS"><envar>$MSVSSCONS</envar></link> command line executed from Microsoft
+        Visual Studio project files.
+      </para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-SHCC">
     <term>SHCC</term>
@@ -7205,13 +7267,6 @@ that may not be set or used in a construction environment.
     <term>TARGET_ARCH</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-        The name of the target hardware architecture for the compiled objects
-        created by this Environment.
-        This defaults to the value of HOST_ARCH, and the user can override it.
-        Currently only set for Win32.
-</para>
-    
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Sets the target architecture for Visual Studio compiler (i.e. the arch
 of the binaries generated by the compiler). If not set, default to
 <envar xmlns="http://www.scons.org/dbxsd/v1.0">$HOST_ARCH</envar>, or, if that is unset, to the architecture of the
@@ -7221,22 +7276,35 @@ This variable must be passed as an argument to the Environment()
 constructor; setting it later has no effect.  
 This is currently only used on Windows, but in the future it will be
 used on other OSes as well.
+If this is set and MSVC_VERSION is not set, this will search for 
+all installed MSVC's that support the TARGET_ARCH, selecting the 
+latest version for use.
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 Valid values for Windows are
 <literal>x86</literal>,
+<literal>arm</literal>,
 <literal>i386</literal>
 (for 32 bits); 
 <literal>amd64</literal>,
+<literal>arm64</literal>,
 <literal>emt64</literal>,
 <literal>x86_64</literal>
 (for 64 bits);
 and <literal>ia64</literal> (Itanium).
+
 For example, if you want to compile 64-bit binaries, you would set
 <literal>TARGET_ARCH='x86_64'</literal> in your SCons environment.
 </para>
-</listitem>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The name of the target hardware architecture for the compiled objects
+        created by this Environment.
+        This defaults to the value of HOST_ARCH, and the user can override it.
+        Currently only set for Win32.
+</para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-TARGET_OS">
     <term>TARGET_OS</term>
@@ -7272,11 +7340,27 @@ The suffix used for tar file names.
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The prefix for a temporary file used
-to execute lines longer than $MAXLINELENGTH.
-The default is '@'.
-This may be set for toolchains that use other values,
-such as '-@' for the diab compiler
+to store lines lines longer than $MAXLINELENGTH
+as operations which call out to a shell will fail
+if the line is too long, which particularly
+impacts linking.
+The default is '@', which works for the Microsoft
+and GNU toolchains on Windows.
+Set this appropriately for other toolchains,
+for example '-@' for the diab compiler
 or '-via' for ARM toolchain.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-TEMPFILESUFFIX">
+    <term>TEMPFILESUFFIX</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The suffix used for the temporary file name
+used for long command lines. The name should
+include the dot ('.') if one is wanted as
+it will not be added automatically.
+The default is '.lnk'.
 </para>
 </listitem>
   </varlistentry>

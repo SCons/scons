@@ -38,7 +38,11 @@ test = TestSCons.TestSCons()
 test.write('mylex.py', """
 import getopt
 import sys
-cmd_opts, args = getopt.getopt(sys.argv[1:], 't', [])
+if sys.platform == 'win32':
+    longopts = ['nounistd']
+else:
+    longopts = []
+cmd_opts, args = getopt.getopt(sys.argv[1:], 't', longopts)
 for a in args:
     contents = open(a, 'rb').read()
     sys.stdout.write(contents.replace(b'LEX', b'mylex.py').decode())

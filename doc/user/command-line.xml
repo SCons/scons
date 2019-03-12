@@ -1987,17 +1987,16 @@ foo.c
 
       <para>
 
-      One of the most basic things you can control
-      is which targets &SCons; will build by default--that is,
+      You can control
+      which targets &SCons; will build by default - that is,
       when there are no targets specified on the command line.
       As mentioned previously,
       &SCons; will normally build every target
-      in or below the current directory
-      by default--that is, when you don't
+      in or below the current directory unless you
       explicitly specify one or more targets
       on the command line.
       Sometimes, however, you may want
-      to specify explicitly that only
+      to specify that only
       certain programs, or programs in certain directories,
       should be built by default.
       You do this with the &Default; function:
@@ -2193,7 +2192,8 @@ prog2.c
         <para>
 
         &SCons; supports a &DEFAULT_TARGETS; variable
-        that lets you get at the current list of default targets.
+        that lets you get at the current list of default targets
+        specified by calls to the &Default; function or method.
         The &DEFAULT_TARGETS; variable has
         two important differences from the &COMMAND_LINE_TARGETS; variable.
         First, the &DEFAULT_TARGETS; variable is a list of
@@ -2233,7 +2233,7 @@ prog1.c
         <para>
 
         Second,
-        the contents of the &DEFAULT_TARGETS; list change
+        the contents of the &DEFAULT_TARGETS; list changes
         in response to calls to the &Default; function,
         as you can see from the following &SConstruct; file:
 
@@ -2351,7 +2351,9 @@ prog2.c
 
       Notice how the value of &BUILD_TARGETS;
       changes depending on whether a target is
-      specified on the command line:
+      specified on the command line - &BUILD_TARGETS;
+      takes from  &DEFAULT_TARGETS;
+      only if there are no &COMMAND_LINE_TARGETS;:
 
       </para>
 

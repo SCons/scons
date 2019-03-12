@@ -43,6 +43,11 @@ test_pass_py = os.path.join('test', 'pass.py')
 head, python = os.path.split(TestRuntest.python)
 head, dir = os.path.split(head)
 
+# deciding whether or not to use -tt flag here is dicey.
+# we'll go ahead and use TestRuntest.pythonflags, but it uses the
+# python version then in use, which could be different
+pythonflags = TestRuntest.pythonflags
+
 # We have to normalize the python path here, because some installations don't like
 # getting called with "/bin/../bin/python" as first argument, e.g. Fedora 17 Desktop.
 mypython = os.path.normpath(os.path.join(head, dir, os.path.pardir, dir, python))
@@ -60,7 +65,7 @@ test.subdir('test')
 test.write_passing_test(['test', 'pass.py'])
 
 expect_stdout = """\
-%(mypythonstring)s -tt %(test_pass_py)s
+%(mypythonstring)s%(pythonflags)s %(test_pass_py)s
 PASSING TEST STDOUT
 """ % locals()
 

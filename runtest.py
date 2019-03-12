@@ -345,7 +345,7 @@ sp.append(builddir)
 sp.append(cwd)
 
 #
-_ws = re.compile('\s')
+_ws = re.compile(r'\s')
 
 
 def escape(s):
@@ -672,12 +672,10 @@ def find_py(directory):
         if 'sconstest.skip' in filenames:
             continue
         try:
-            exclude_fp = open(os.path.join(dirpath, ".exclude_tests"))
+            with open(os.path.join(dirpath, ".exclude_tests")) as f:
+                excludes = [e.split("#", 1)[0].strip() for e in f.readlines()]
         except EnvironmentError:
             excludes = []
-        else:
-            excludes = [ e.split('#', 1)[0].strip()
-                         for e in exclude_fp.readlines() ]
         for fname in filenames:
             if fname.endswith(".py") and fname not in excludes:
                 result.append(os.path.join(dirpath, fname))
@@ -685,7 +683,8 @@ def find_py(directory):
 
 
 if testlistfile:
-    tests = open(testlistfile, 'r').readlines()
+    with open(testlistfile, 'r') as f:
+        tests = f.readlines()
     tests = [x for x in tests if x[0] != '#']
     tests = [x[:-1] for x in tests]
     tests = [x.strip() for x in tests]
@@ -747,7 +746,8 @@ runtest.py:  No tests were found.
     sys.exit(1)
 
 if excludelistfile:
-    excludetests = open(excludelistfile, 'r').readlines()
+    with open(excludelistfile, 'r') as f:
+        excludetests = f.readlines()
     excludetests = [x for x in excludetests if x[0] != '#']
     excludetests = [x[:-1] for x in excludetests]
     excludetests = [x.strip() for x in excludetests]
@@ -797,7 +797,9 @@ tests_failing = 0
 def run_test(t, io_lock, run_async=True):
     global tests_completed, tests_passing, tests_failing
     header = ""
-    command_args = ['-tt']
+    command_args = []
+    if sys.version_info[0] < 3:
+        command_args.append('-tt')
     if debug:
         command_args.append(debug)
     command_args.append(t.path)
@@ -925,6 +927,12 @@ if options.xml:
     #f.write("];\n")
     if options.xml != '-':
         f.close()
+
+if options.output:
+    if isinstance(sys.stdout, Tee):
+        sys.stdout.file.close()
+    if isinstance(sys.stderr, Tee):
+        sys.stderr.file.close()
 
 if len(fail):
     sys.exit(1)

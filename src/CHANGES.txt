@@ -5,11 +5,47 @@
                             Change Log
 
 
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
+RELEASE 3.0.5.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
 
-  From John Doe:
-    - Whatever John Doe did.
-  
+  From William Deegan:
+
+    - Fix Issue #3283 - Handle using --config=force in combination with Decider('MD5-timestamp').
+      3.0.2 in fix for issue #2980 added that deciders can throw DeciderNeedsNode exception.
+      The Configure logic directly calls the decider when using --config=force but wasn't handling
+      that exception.  This would yield minimally configure tests using TryLink() not running and
+      leaving TypeError Nonetype exception in config.log
+    - Fix Issue #3303 - Handle --config=force overwriting the Environment passed into Configure()'s
+      Decider and not clearing it when the configure context is completed.
+    - Add default paths for yacc tool on windows to include cygwin, mingw, and chocolatey
+    - Fix issue #2799 - Fix mingw tool to respect SHCCCOMSTR, SHLINKCOMSTR and LDMODULECOMSTR
+
+  From Daniel Moody:
+    - Change the default for AppendENVPath to delete_existing=0, so path
+      order will not be changed, unless explicitly set (Issue #3276)
+    - Fixed bug which threw error when running SCons on windows system with no MSVC installed.
+    - Update link tool to convert target to node before accessing node member
+    - Update mingw tool to remove MSVC like nologo CCFLAG
+    - Add default paths for lex tool on windows to include cygwin, mingw, and chocolatey
+    - Add lex construction variable LEXUNISTD for turning off unix headers on windows
+    - Update lex tool to use win_flex on windows if available
+
+  From Mats Wichmann:
+    - Quiet open file ResourceWarnings on Python >= 3.6 caused by
+      not using a context manager around Popen.stdout
+    - Add the textfile tool to the default tool list
+    - Fix syntax on is/is not clauses: should not use with a literal
+    - Properly retrieve exit code when catching SystemExit
+    - scons-time now uses context managers around file opens
+    - Fix regex patterns that were not specified as raw strings
+
+  From Bernhard M. Wiedemann:
+    - Do not store build host+user name if reproducible builds are wanted
+    
+  From Maciej Kumorek:
+    - Update the MSVC tool to include the nologo flag by default in RCFLAGS
+
+RELEASE 3.0.4 - Mon, 20 Jan 2019 22:49:27 +0000
+
   From Mats Wichmann:
     - Improve finding of Microsoft compiler: add a 'products' wildcard
       in case 2017 Build Tools only is installed as it is considered a separate
@@ -19,9 +55,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - scons.py and sconsign.py stopped working if script called as a symlink
       to location in scons-local location.
     - Fix issue running scons using a symlink to scons.py in an scons-local dir
+    - Doc updates around Default(), and the various *TARGETS variables.
 
   From Daniel Moody:
     - Improved support for VC14.1 and Visual Studio 2017, as well as arm and arm64 targets.
+      Issues #3268 & Issue #3222
+    - Initial support for ARM targets with Visual Studio 2017 - Issue #3182 (You must set TARGET_ARCH for this to work)
     - Update TempFileMunge class to use PRINT_CMD_LINE_FUNC
 
   From Tobias Herzog

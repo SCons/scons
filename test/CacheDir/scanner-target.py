@@ -48,9 +48,8 @@ CacheDir(r'%s')
 
 def docopy(target,source,env):
     data = source[0].get_contents()
-    f = open(target[0].rfile().get_abspath(), "wb")
-    f.write(data)
-    f.close()
+    with open(target[0].rfile().get_abspath(), "wb") as f:
+        f.write(data)
 
 def sillyScanner(node, env, dirs):
     print('This is never called (unless we build file.out)')
