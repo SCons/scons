@@ -17,6 +17,7 @@ RELEASE 3.0.5.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Fix Issue #3303 - Handle --config=force overwriting the Environment passed into Configure()'s
       Decider and not clearing it when the configure context is completed.
     - Add default paths for yacc tool on windows to include cygwin, mingw, and chocolatey
+    - Fix issue #2799 - Fix mingw tool to respect SHCCCOMSTR, SHLINKCOMSTR and LDMODULECOMSTR
 
   From Daniel Moody:
     - Change the default for AppendENVPath to delete_existing=0, so path
