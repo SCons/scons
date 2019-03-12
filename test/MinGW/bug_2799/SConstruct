@@ -1,0 +1,14 @@
+env = Environment(
+        tools = ['mingw'],
+        SHCCCOMSTR = 'SHCC $TARGET',
+        SHLINKCOMSTR = 'SHLINK $TARGET',
+        LDMODULECOMSTR = 'LDMODULE $TARGET',
+        SHOBSUFFIX='.o',
+        SHLIBSUFFIX='.so',
+        SHLIBPREFIX='lib',
+        LDMODULESUFFIX='.so',
+)
+
+env.SharedLibrary('testlib', 'shlib.c')
+
+env.LoadableModule('testmodule', 'module.c')
