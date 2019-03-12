@@ -68,7 +68,7 @@ Python 2.7 or >= 3.5 is required.\n"
 # Strip the script directory from sys.path so on case-insensitive
 # (WIN32) systems Python doesn't think that the "scons" script is the
 # "SCons" package.
-script_dir = os.path.dirname(__file__)
+script_dir = os.path.dirname(os.path.realpath(__file__))
 script_path = os.path.realpath(os.path.dirname(__file__))
 if script_path in sys.path:
     sys.path.remove(script_path)

@@ -52,6 +52,9 @@ RELEASE 3.0.4 - Mon, 20 Jan 2019 22:49:27 +0000
       product from the default Visual Studio
     - Add TEMPFILESUFFIX to allow a customizable filename extension, as
       described in the patch attached to issue #2431.
+    - scons.py and sconsign.py stopped working if script called as a symlink
+      to location in scons-local location.
+    - Fix issue running scons using a symlink to scons.py in an scons-local dir
     - Doc updates around Default(), and the various *TARGETS variables.
 
   From Daniel Moody:
