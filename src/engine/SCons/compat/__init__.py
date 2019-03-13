@@ -51,10 +51,7 @@ obsessive about it.)
 We name the compatibility modules with an initial '_scons_' (for example,
 _scons_subprocess.py is our compatibility module for subprocess) so
 that we can still try to import the real module name and fall back to
-our compatibility module if we get an ImportError.  The import_as()
-function defined below loads the module as the "real" name (without the
-'_scons'), after which all of the "import {module}" statements in the
-rest of our code will find our pre-loaded compatibility module.
+our compatibility module if we get an ImportError.
 """
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
@@ -64,15 +61,6 @@ import sys
 import importlib
 
 PYPY = hasattr(sys, 'pypy_translation_info')
-
-
-def import_as(module, name):
-    """
-    Imports the specified module (from our local directory) as the
-    specified name, returning the loaded module object.
-    """
-    sys.modules[name] = importlib.import_module(module)
-    return sys.modules[name]
 
 
 def rename_module(new, old):
