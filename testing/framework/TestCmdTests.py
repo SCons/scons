@@ -1578,15 +1578,15 @@ class read_TestCase(TestCmdTestCase):
         wdir_file4 = os.path.join(test.workdir, 'file4')
         wdir_file5 = os.path.join(test.workdir, 'file5')
 
-        with open(wdir_file1, 'wb'):
+        with open(wdir_file1, 'wb') as f:
             f.write("")
-        with open(wdir_file2, 'wb'):
+        with open(wdir_file2, 'wb') as f:
             f.write("Test\nfile\n#2.\n")
-        with open(wdir_foo_file3, 'wb'):
+        with open(wdir_foo_file3, 'wb') as f:
             f.write("Test\nfile\n#3.\n")
-        with open(wdir_file4, 'wb'):
+        with open(wdir_file4, 'wb') as f:
             f.write("Test\nfile\n#4.\n")
-        with open(wdir_file5, 'wb'):
+        with open(wdir_file5, 'wb') as f:
             f.write("Test\r\nfile\r\n#5.\r\n")
 
         try:
@@ -2816,17 +2816,17 @@ class symlink_TestCase(TestCmdTestCase):
         test.symlink('target1', 'file1')
         assert os.path.islink(wdir_file1)
         assert not os.path.exists(wdir_file1)
-        with open(wdir_target1, 'w'):
+        with open(wdir_target1, 'w') as f:
             f.write("")
         assert os.path.exists(wdir_file1)
 
         test.symlink('target2', ['foo', 'file2'])
         assert os.path.islink(wdir_foo_file2)
         assert not os.path.exists(wdir_foo_file2)
-        with open(wdir_target2, 'w'):
+        with open(wdir_target2, 'w') as f:
             f.write("")
         assert not os.path.exists(wdir_foo_file2)
-        with open(wdir_foo_target2, 'w'):
+        with open(wdir_foo_target2, 'w') as f:
             f.write("")
         assert os.path.exists(wdir_foo_file2)
 
@@ -2959,17 +2959,17 @@ class unlink_TestCase(TestCmdTestCase):
         wdir_foo_file4 = os.path.join(test.workdir, 'foo', 'file4')
         wdir_file5 = os.path.join(test.workdir, 'file5')
 
-        with open(wdir_file1, 'w'):
+        with open(wdir_file1, 'w') as f:
             f.write("")
-        with open(wdir_file2, 'w'):
+        with open(wdir_file2, 'w') as f:
             f.write("")
-        with open(wdir_foo_file3a, 'w'):
+        with open(wdir_foo_file3a, 'w') as f:
             f.write("")
-        with open(wdir_foo_file3b, 'w'):
+        with open(wdir_foo_file3b, 'w') as f:
             f.write("")
-        with open(wdir_foo_file4, 'w'):
+        with open(wdir_foo_file4, 'w') as f:
             f.write("")
-        with open(wdir_file5, 'w'):
+        with open(wdir_file5, 'w') as f:
             f.write("")
 
         try:
@@ -2999,7 +2999,7 @@ class unlink_TestCase(TestCmdTestCase):
         # For Windows, open the file.
         os.chmod(test.workdir, 0o500)
         os.chmod(wdir_file5, 0o400)
-        with open(wdir_file5, 'r') as f:
+        with open(wdir_file5, 'r'):
             try:
                 try:
                     test.unlink('file5')
@@ -3020,9 +3020,9 @@ class touch_TestCase(TestCmdTestCase):
         wdir_file1 = os.path.join(test.workdir, 'file1')
         wdir_sub_file2 = os.path.join(test.workdir, 'sub', 'file2')
 
-        with open(wdir_file1, 'w'):
+        with open(wdir_file1, 'w') as f:
             f.write("")
-        with open(wdir_sub_file2, 'w'):
+        with open(wdir_sub_file2, 'w') as f:
             f.write("")
 
         file1_old_time = os.path.getmtime(wdir_file1)
