@@ -444,10 +444,14 @@ class SConsTimer(object):
 
     def log_execute(self, command, log):
         command = self.subst(command, self.__dict__)
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
-        output = process.stdout.read()
-        process.stdout.close()
-        process.wait()
+        p = os.popen(command)
+        output = p.read()
+        p.close()
+        #TODO: convert to subrocess, os.popen is obsolete. This didn't work:
+        #process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
+        #output = process.stdout.read()
+        #process.stdout.close()
+        #process.wait()
         if self.verbose:
             sys.stdout.write(output)
         # TODO: Figure out
