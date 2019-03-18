@@ -178,6 +178,16 @@ SDK100VCSetupScripts =    {'x86'      : r'bin\vcvars32.bat',
 #
 # If you update this list, update the documentation in Tool/mssdk.xml.
 SupportedSDKList = [
+    WindowsSDK('10.0A',
+               sanity_check_file=r'bin\SetEnv.Cmd',
+               include_subdir='include',
+               lib_subdir={
+                   'x86'       : ['lib'],
+                   'x86_64'    : [r'lib\x64'],
+                   'ia64'      : [r'lib\ia64'],
+               },
+               vc_setup_scripts = SDK70VCSetupScripts,
+              ),
     WindowsSDK('10.0',
                sanity_check_file=r'bin\SetEnv.Cmd',
                include_subdir='include',
