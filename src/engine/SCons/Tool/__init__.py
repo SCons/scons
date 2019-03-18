@@ -41,7 +41,6 @@ import sys
 import re
 import os
 import shutil
-import importlib
 
 import SCons.Builder
 import SCons.Errors

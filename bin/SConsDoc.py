@@ -826,6 +826,7 @@ else:  # PY3 version, from newer pydoc
     def importfile(path):
         """Import a Python source file or compiled file given its path."""
         import importlib
+        from pydoc import ErrorDuringImport
         magic = importlib.util.MAGIC_NUMBER
         with open(path, 'rb') as file:
             is_bytecode = magic == file.read(len(magic))

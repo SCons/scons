@@ -3332,7 +3332,7 @@ class write_TestCase(TestCmdTestCase):
         with open(test.workpath('file8'), 'r') as f:
             assert f.read() == "Test file #8.\n"
         with open(test.workpath('file9'), 'rb') as f:
-        assert f.read() == "Test file #9.\r\n"
+            assert f.read() == "Test file #9.\r\n"
 
 
 class variables_TestCase(TestCmdTestCase):
