@@ -191,7 +191,6 @@ except ImportError as e:
 
 import time
 import pickle
-import imp
 
 import SCons.SConsign
 
@@ -217,6 +216,8 @@ whichdb = my_whichdb
 #dbm.whichdb = my_whichdb
 
 def my_import(mname):
+    import imp
+
     if '.' in mname:
         i = mname.rfind('.')
         parent = my_import(mname[:i])
