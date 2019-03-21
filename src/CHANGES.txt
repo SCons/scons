@@ -53,6 +53,8 @@ RELEASE 3.0.5 - Mon, 26 Mar 2019 15:04:42 -0700
     - Properly retrieve exit code when catching SystemExit
     - scons-time now uses context managers around file opens
     - Fix regex patterns that were not specified as raw strings
+    - Use importlib to dynamically load tool and platform modules instead of imp module.
+    - Define regex patterns as raw strings to avoid Python 3.8 warnings about unknown escapes.
 
   From Bernhard M. Wiedemann:
     - Do not store build host+user name if reproducible builds are wanted
