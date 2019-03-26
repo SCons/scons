@@ -286,13 +286,21 @@ def find_vc_pdir_vswhere(msvc_version):
     :param msvc_version:
     :return: MSVC install dir or None
     """
-    vswhere_path = os.path.join(
-        'C:\\',
-        'Program Files (x86)',
-        'Microsoft Visual Studio',
-        'Installer',
-        'vswhere.exe'
-    )
+
+    # For bug 3333 - support default location of vswhere for both 64 and 32 bit windows
+    # installs. 
+    for pf in ['Program Files (x86)', 'Program Files']:
+        vswhere_path = os.path.join(
+            'C:\\',
+            pf,
+            'Microsoft Visual Studio',
+            'Installer',
+            'vswhere.exe'
+        )
+        if os.path.exists(vswhere_path):
+            # If we found vswhere, then use it.
+            break
+
     vswhere_cmd = [vswhere_path, '-products', '*', '-version', msvc_version, '-property', 'installationPath']
 
     if os.path.exists(vswhere_path):
