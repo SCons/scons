@@ -19,6 +19,7 @@ RELEASE 3.0.5.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Add default paths for yacc tool on windows to include cygwin, mingw, and chocolatey
     - Fix issue #2799 - Fix mingw tool to respect SHCCCOMSTR, SHLINKCOMSTR and LDMODULECOMSTR
     - Fix Issue #3329 - Add support for MS SDK V10.0A (which is commonly installed with VS2017)
+    - Fix Issue #3333 - Add support for finding vswhere under 32 bit windows installs.
 
   From Daniel Moody:
     - Change the default for AppendENVPath to delete_existing=0, so path
