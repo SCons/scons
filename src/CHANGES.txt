@@ -5,7 +5,7 @@
                             Change Log
 
 
-RELEASE 3.0.5.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
+RELEASE 3.0.5 - Mon, 26 Mar 2019 15:04:42 -0700
 
   From William Deegan:
 
@@ -6464,7 +6464,3 @@ A brief overview of important functionality available in release 0.01:
 
   - Windows installer available.
 
-
-
-__COPYRIGHT__
-__FILE__ __REVISION__ __DATE__ __DEVELOPER__
