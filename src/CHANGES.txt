@@ -5,6 +5,13 @@
                             Change Log
 
 
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From John Doe:
+
+    - Whatever John Doe did.
+
+
 RELEASE 3.0.5 - Mon, 26 Mar 2019 15:04:42 -0700
 
   From William Deegan:
