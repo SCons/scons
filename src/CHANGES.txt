@@ -5,7 +5,7 @@
                             Change Log
 
 
-RELEASE 3.0.5.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
+RELEASE 3.0.5 - Mon, 26 Mar 2019 15:04:42 -0700
 
   From William Deegan:
 
@@ -20,6 +20,9 @@ RELEASE 3.0.5.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
     - Fix issue #2799 - Fix mingw tool to respect SHCCCOMSTR, SHLINKCOMSTR and LDMODULECOMSTR
     - Fix Issue #3329 - Add support for MS SDK V10.0A (which is commonly installed with VS2017)
     - Fix Issue #3333 - Add support for finding vswhere under 32 bit windows installs.
+
+  From Maciej Kumorek:
+    - Update the MSVC tool to include the nologo flag by default in RCFLAGS
 
   From Daniel Moody:
     - Change the default for AppendENVPath to delete_existing=0, so path
@@ -43,8 +46,6 @@ RELEASE 3.0.5.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
   From Bernhard M. Wiedemann:
     - Do not store build host+user name if reproducible builds are wanted
     
-  From Maciej Kumorek:
-    - Update the MSVC tool to include the nologo flag by default in RCFLAGS
 
 RELEASE 3.0.4 - Mon, 20 Jan 2019 22:49:27 +0000
 
@@ -6463,7 +6464,3 @@ A brief overview of important functionality available in release 0.01:
 
   - Windows installer available.
 
-
-
-__COPYRIGHT__
-__FILE__ __REVISION__ __DATE__ __DEVELOPER__

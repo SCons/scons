@@ -263,6 +263,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-LEXCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LEXCOM</envar>">
 <!ENTITY cv-LEXCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LEXCOMSTR</envar>">
 <!ENTITY cv-LEXFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LEXFLAGS</envar>">
+<!ENTITY cv-LEXUNISTD "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LEXUNISTD</envar>">
 <!ENTITY cv-_LIBDIRFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_LIBDIRFLAGS</envar>">
 <!ENTITY cv-LIBDIRPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LIBDIRPREFIX</envar>">
 <!ENTITY cv-LIBDIRSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LIBDIRSUFFIX</envar>">
@@ -901,6 +902,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-LEXCOM "<link linkend='cv-LEXCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LEXCOM</envar></link>">
 <!ENTITY cv-link-LEXCOMSTR "<link linkend='cv-LEXCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LEXCOMSTR</envar></link>">
 <!ENTITY cv-link-LEXFLAGS "<link linkend='cv-LEXFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LEXFLAGS</envar></link>">
+<!ENTITY cv-link-LEXUNISTD "<link linkend='cv-LEXUNISTD' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LEXUNISTD</envar></link>">
 <!ENTITY cv-link-_LIBDIRFLAGS "<link linkend='cv-_LIBDIRFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_LIBDIRFLAGS</envar></link>">
 <!ENTITY cv-link-LIBDIRPREFIX "<link linkend='cv-LIBDIRPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LIBDIRPREFIX</envar></link>">
 <!ENTITY cv-link-LIBDIRSUFFIX "<link linkend='cv-LIBDIRSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LIBDIRSUFFIX</envar></link>">
