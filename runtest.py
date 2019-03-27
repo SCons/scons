@@ -300,8 +300,7 @@ if not catch_output:
     # Without any output suppressed, we let the subprocess
     # write its stuff freely to stdout/stderr.
     def spawn_it(command_args):
-        p = subprocess.Popen(' '.join(command_args),
-                             shell=True)
+        p = subprocess.Popen(command_args, shell=False)
         return (None, None, p.wait())
 else:
     # Else, we catch the output of both pipes...
@@ -323,10 +322,10 @@ else:
             tmp_stdout = tempfile.TemporaryFile(mode='w+t')
             tmp_stderr = tempfile.TemporaryFile(mode='w+t')
             # Start subprocess...
-            p = subprocess.Popen(' '.join(command_args),
+            p = subprocess.Popen(command_args,
                                  stdout=tmp_stdout,
                                  stderr=tmp_stderr,
-                                 shell=True)
+                                 shell=False)
             # ... and wait for it to finish.
             ret = p.wait()
 
@@ -359,10 +358,10 @@ else:
         #   Hence a deadlock.
         # Be dragons here! Better don't use this!
         def spawn_it(command_args):
-            p = subprocess.Popen(' '.join(command_args),
+            p = subprocess.Popen(command_args,
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE,
-                                 shell=True)
+                                 shell=False)
             spawned_stdout = p.stdout.read()
             spawned_stderr = p.stderr.read()
             return (spawned_stderr, spawned_stdout, p.wait())
@@ -401,10 +400,10 @@ class PopenExecutor(Base):
             tmp_stdout = tempfile.TemporaryFile(mode='w+t')
             tmp_stderr = tempfile.TemporaryFile(mode='w+t')
             # Start subprocess...
-            p = subprocess.Popen(self.command_str,
+            p = subprocess.Popen(self.command_str.split(),
                                  stdout=tmp_stdout,
                                  stderr=tmp_stderr,
-                                 shell=True)
+                                 shell=False)
             # ... and wait for it to finish.
             self.status = p.wait()
 
@@ -421,13 +420,15 @@ class PopenExecutor(Base):
                 tmp_stderr.close()
     else:
         def execute(self):
-            p = subprocess.Popen(self.command_str,
+            p = subprocess.Popen(self.command_str.split(),
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE,
-                                 shell=True)
-            self.stdout = p.stdout.read()
-            self.stderr = p.stderr.read()
+                                 shell=False)
             self.status = p.wait()
+            with p.stdout:
+                self.stdout = p.stdout.read()
+            with p.stderr:
+                self.stderr = p.stderr.read()
 
 class XML(PopenExecutor):
     def header(self, f):
@@ -504,8 +505,9 @@ else:
         base = cwd
     elif baseline == '-':
         url = None
-        svn_info =  os.popen("svn info 2>&1", "r").read()
-        match = re.search('URL: (.*)', svn_info)
+        with os.popen("svn info 2>&1", "r") as p:
+            svn_info =  p.read()
+        match = re.search(r'URL: (.*)', svn_info)
         if match:
             url = match.group(1)
         if not url:
