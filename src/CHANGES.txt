@@ -13,6 +13,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Use importlib to dynamically load tool and platform modules instead of imp module
     - sconsign: default to .sconsign.dblite if no filename is specified.
       Be more informative in case of unsupported pickle protocol (py2 only).
+    - more fixes for newer Java versions (since 9): handle new jdk directory
+      naming (jdk-X.Y instead of jdkX.Y) on Windows; handle two-digit major
+      version. Docstrings improved.
 
   From John Doe:
 

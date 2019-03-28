@@ -70,7 +70,7 @@ if java_parsing:
         def __init__(self, version=default_java_version):
 
             if not version in ('1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7',
-                               '1.8', '5', '6', '9.0', '10.0', '11.0'):
+                               '1.8', '5', '6', '9.0', '10.0', '11.0', '12.0'):
 
                 msg = "Java version %s not supported" % version
                 raise NotImplementedError(msg)
@@ -178,7 +178,7 @@ if java_parsing:
             if self.version in ('1.1', '1.2', '1.3', '1.4'):
                 clazz = self.listClasses[0]
                 self.listOutputs.append('%s$%d' % (clazz, self.nextAnon))
-            elif self.version in ('1.5', '1.6', '1.7', '1.8', '5', '6', '9.0', '10.0', '11.0'):
+            elif self.version in ('1.5', '1.6', '1.7', '1.8', '5', '6', '9.0', '10.0', '11.0', '12.0'):
                 self.stackAnonClassBrackets.append(self.brackets)
                 className = []
                 className.extend(self.listClasses)
@@ -395,30 +395,27 @@ else:
         return os.path.split(fn)
 
 
-
-java_win32_version_dir_glob = 'C:/Program Files*/Java/jdk%s*/bin'
+# Glob patterns for use in finding where the JDK is.
+# These are pairs, *dir_glob used in the general case,
+# *version_dir_glob if matching only a specific version.
+# For now only used for Windows.
 java_win32_dir_glob = 'C:/Program Files*/Java/jdk*/bin'
-
-java_macos_include_dir = '/System/Library/Frameworks/JavaVM.framework/Headers/'
-java_macos_version_include_dir = '/System/Library/Frameworks/JavaVM.framework/Versions/%s*/Headers/'
-
-java_linux_include_dirs = ['/usr/lib/jvm/default-java/include',
-                        '/usr/lib/jvm/java-*/include']
-# Need to match path like below (from Centos 7)
-# /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.191.b12-0.el7_5.x86_64/include/
-java_linux_version_include_dirs = ['/usr/lib/jvm/java-*-sun-%s*/include',
-                                   '/usr/lib/jvm/java-%s*-openjdk*/include',
-                                   '/usr/java/jdk%s*/include']
-
-
+# On windows, since Java 9, there is a dash between 'jdk' and the version
+# string that wasn't there before. this glob should catch either way.
+java_win32_version_dir_glob = 'C:/Program Files*/Java/jdk*%s*/bin'
 
 def get_java_install_dirs(platform, version=None):
     """
-    Using patterns above find the java jdk install dir
-    :param platform:
+    Find the java jdk installation directories.
+
+    This list is intended to supply as "default paths" for use when looking
+    up actual java binaries.
+
+    :param platform: selector for search algorithm.
     :param version: If specified, only look for java sdk's of this version
     :return: list of default paths for java.
     """
+
     paths = []
     if platform == 'win32':
         if version:
@@ -426,25 +423,45 @@ def get_java_install_dirs(platform, version=None):
         else:
             paths = glob.glob(java_win32_dir_glob)
     else:
-        # do nothing for now
+        # other platforms, do nothing for now
         pass
 
-    paths=sorted(paths)
+    return sorted(paths)
 
-    return paths
+
+# Glob patterns for use in finding where the JDK headers are.
+# These are pairs, *dir_glob used in the general case,
+# *version_dir_glob if matching only a specific version.
+java_macos_include_dir = '/System/Library/Frameworks/JavaVM.framework/Headers/'
+java_macos_version_include_dir = '/System/Library/Frameworks/JavaVM.framework/Versions/%s*/Headers/'
+
+java_linux_include_dirs = [
+    '/usr/lib/jvm/default-java/include',
+    '/usr/lib/jvm/java-*/include'
+]
+# Need to match path like below (from Centos 7)
+# /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.191.b12-0.el7_5.x86_64/include/
+java_linux_version_include_dirs = [
+    '/usr/lib/jvm/java-*-sun-%s*/include',
+    '/usr/lib/jvm/java-%s*-openjdk*/include',
+    '/usr/java/jdk%s*/include'
+]
 
 def get_java_include_paths(env, javac, version):
     """
-    Return java include paths
-    :param platform:
-    :param javac:
-    :return:
+    Find java include paths for JNI building.
+
+    :param env: construction environment, used to extract platform.
+    :param javac: path to detected javac.
+    :return: list of paths.
     """
+
     paths = []
     if not javac:
         # there are no paths if we've not detected javac.
         pass
     elif env['PLATFORM'] == 'win32':
+        # on Windows, we have the right path to javac, so look locally
         javac_bin_dir = os.path.dirname(javac)
         java_inc_dir = os.path.normpath(os.path.join(javac_bin_dir, '..', 'include'))
         paths = [java_inc_dir, os.path.join(java_inc_dir, 'win32')]
@@ -467,8 +484,6 @@ def get_java_include_paths(env, javac, version):
             
     #print("PATHS:%s"%paths)
     return paths
-
-
 
 
 # Local Variables:

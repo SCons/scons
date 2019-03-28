@@ -210,15 +210,15 @@ def generate(env):
 
     version = env.get('JAVAVERSION', None)
 
-    javac = SCons.Tool.find_program_path(env, 'javac')
     if env['PLATFORM'] == 'win32':
         # Ensure that we have a proper path for javac
-        paths=get_java_install_dirs(env['PLATFORM'], version=version)
-        javac = SCons.Tool.find_program_path(env, 'javac',
-                                             default_paths=paths)
+        paths = get_java_install_dirs('win32', version=version)
+        javac = SCons.Tool.find_program_path(env, 'javac', default_paths=paths)
         if javac:
             javac_bin_dir = os.path.dirname(javac)
             env.AppendENVPath('PATH', javac_bin_dir)
+    else:
+        javac = SCons.Tool.find_program_path(env, 'javac')
 
     env['JAVAINCLUDES'] = get_java_include_paths(env, javac, version)
 

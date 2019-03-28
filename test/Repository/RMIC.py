@@ -46,6 +46,12 @@ if java_version.count('.') == 1:
         curver = (int(major), int(minor))
     except:
         pass
+elif java_version.count('.') == 0:
+    # java 11?
+    try:
+        curver = (int(java_version), 0)
+    except:
+        pass
 
 # Check the version of the found Java compiler.
 # If it's 1.8 or higher, we skip the further RMIC test
