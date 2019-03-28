@@ -13,6 +13,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Use importlib to dynamically load tool and platform modules instead of imp module
     - sconsign: default to .sconsign.dblite if no filename is specified.
       Be more informative in case of unsupported pickle protocol (py2 only).
+    - Fix issue #3336 - on Windows, paths were being added to PATH even if
+      tools were not found in those paths.
 
   From John Doe:
 

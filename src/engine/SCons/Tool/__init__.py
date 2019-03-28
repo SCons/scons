@@ -1318,28 +1318,31 @@ def tool_list(platform, env):
 
 def find_program_path(env, key_program, default_paths=[]):
     """
-    Find the location of key_program and then return the path it was located at.
-    Checking the default install locations.
-    Mainly for windows where tools aren't all installed in /usr/bin,etc
-    :param env: Current Environment()
-    :param key_program: Program we're using to locate the directory to add to PATH.
+    Find the location of a tool using various means.
+
+    Mainly for windows where tools aren't all installed in /usr/bin, etc.
+
+    :param env: Current Construction Environment.
+    :param key_program: Tool to locate.
+    :param default_paths: List of additional paths this tool might be found in.
     """
     # First search in the SCons path
     path = env.WhereIs(key_program)
-    if (path):
-        return path
-    # then the OS path:
-    path = SCons.Util.WhereIs(key_program)
-    if (path):
+    if path:
         return path
 
-    # If that doesn't work try default location for mingw
+    # Then in the OS path
+    path = SCons.Util.WhereIs(key_program)
+    if path:
+        return path
+
+    # Finally, add the defaults and check again. Do not change
+    # ['ENV']['PATH'] permananetly, the caller can do that if needed.
     save_path = env['ENV']['PATH']
     for p in default_paths:
         env.AppendENVPath('PATH', p)
     path = env.WhereIs(key_program)
-    if not path:
-        env['ENV']['PATH'] = save_path
+    env['ENV']['PATH'] = save_path
     return path
 
 # Local Variables:
