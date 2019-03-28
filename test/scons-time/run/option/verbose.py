@@ -72,7 +72,6 @@ scons_flags = '--debug=count --debug=memory --debug=time --debug=memoizer'
 
 
 expect = """\
-scons-time%(time_re)s: mkdir %(tmp_scons_time)s
 scons-time%(time_re)s: cd %(tmp_scons_time)s
 scons-time%(time_re)s: tar xzf %(foo_tar_gz)s
 scons-time%(time_re)s: cd foo

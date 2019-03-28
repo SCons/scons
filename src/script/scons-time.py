@@ -42,21 +42,6 @@ import sys
 import tempfile
 import time
 
-def make_temp_file(**kw):
-    try:
-        result = tempfile.mktemp(**kw)
-        result = os.path.realpath(result)
-    except TypeError:
-        try:
-            save_template = tempfile.template
-            prefix = kw['prefix']
-            del kw['prefix']
-            tempfile.template = prefix
-            result = tempfile.mktemp(**kw)
-        finally:
-            tempfile.template = save_template
-    return result
-
 def HACK_for_exec(cmd, *args):
     """
     For some reason, Python won't allow an exec() within a function
@@ -1239,7 +1224,7 @@ class SConsTimer(object):
         return os.path.join(dir, 'src', 'engine')
 
     def prep_aegis_run(self, commands, removals):
-        self.aegis_tmpdir = make_temp_file(prefix = self.name + '-aegis-')
+        self.aegis_tmpdir = tempfile.mkdtemp(prefix=self.name + '-aegis-')
         removals.append((shutil.rmtree, 'rm -rf %%s', self.aegis_tmpdir))
 
         self.aegis_parent_project = os.path.splitext(self.aegis_project)[0]
@@ -1247,21 +1232,19 @@ class SConsTimer(object):
         self.scons_lib_dir = self.scons_lib_dir_path(self.aegis_tmpdir)
 
         commands.extend([
-            'mkdir %(aegis_tmpdir)s',
             (lambda: os.chdir(self.aegis_tmpdir), 'cd %(aegis_tmpdir)s'),
             '%(aegis)s -cp -ind -p %(aegis_parent_project)s .',
             '%(aegis)s -cp -ind -p %(aegis_project)s -delta %(run_number)s .',
         ])
 
     def prep_subversion_run(self, commands, removals):
-        self.svn_tmpdir = make_temp_file(prefix = self.name + '-svn-')
+        self.svn_tmpdir = tempfile.mkdtemp(prefix=self.name + '-svn-')
         removals.append((shutil.rmtree, 'rm -rf %%s', self.svn_tmpdir))
 
         self.scons = self.scons_path(self.svn_tmpdir)
         self.scons_lib_dir = self.scons_lib_dir_path(self.svn_tmpdir)
 
         commands.extend([
-            'mkdir %(svn_tmpdir)s',
             '%(svn)s co %(svn_co_flag)s -r %(run_number)s %(subversion_url)s %(svn_tmpdir)s',
         ])
 
@@ -1308,11 +1291,9 @@ class SConsTimer(object):
         if self.targets2 is None:
             self.targets2 = self.targets
 
-        self.tmpdir = make_temp_file(prefix = self.name + '-')
+        self.tmpdir = tempfile.mkdtemp(prefix=self.name + '-')
 
         commands.extend([
-            'mkdir %(tmpdir)s',
-
             (os.chdir, 'cd %%s', self.tmpdir),
         ])
 
@@ -1365,7 +1346,6 @@ class SConsTimer(object):
 
         if not os.environ.get('PRESERVE'):
             commands.extend(removals)
-
             commands.append((shutil.rmtree, 'rm -rf %%s', self.tmpdir))
 
         self.run_command_list(commands, self.__dict__)
