@@ -41,6 +41,7 @@ import shutil
 import sys
 import tempfile
 import time
+import subprocess
 
 def HACK_for_exec(cmd, *args):
     """
@@ -418,7 +419,8 @@ class SConsTimer(object):
         if callable(action):
             action(*args)
         else:
-            os.system(action % args)
+            #os.system(action % args)
+            subprocess.call(action % args)
 
     def run_command_list(self, commands, dict):
         """
