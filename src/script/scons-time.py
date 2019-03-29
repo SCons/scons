@@ -233,14 +233,16 @@ def unzip(fname):
             os.makedirs(dir)
         except:
             pass
-        open(name, 'wb').write(zf.read(name))
+        with open(name, 'wb') as f:
+            f.write(zf.read(name))
 
 def read_tree(dir):
     for dirpath, dirnames, filenames in os.walk(dir):
         for fn in filenames:
             fn = os.path.join(dirpath, fn)
             if os.path.isfile(fn):
-                open(fn, 'rb').read()
+                with open(fn, 'rb') as f:
+                    f.read()
 
 def redirect_to_file(command, log):
     return '%s > %s 2>&1' % (command, log)
@@ -441,14 +443,14 @@ class SConsTimer(object):
 
     def log_execute(self, command, log):
         command = self.subst(command, self.__dict__)
-        output = os.popen(command).read()
+        with os.popen(command) as p:
+            output = p.read()
         if self.verbose:
             sys.stdout.write(output)
         # TODO: Figure out
         # Not sure we need to write binary here
-        open(log, 'w').write(output)
-
-    #
+        with open(log, 'w') as f:
+            f.write(str(output))
 
     def archive_splitext(self, path):
         """
@@ -613,7 +615,8 @@ class SConsTimer(object):
             search_string = self.time_string_all
         else:
             search_string = time_string
-        contents = open(file).read()
+        with open(file) as f:
+            contents = f.read()
         if not contents:
             sys.stderr.write('file %s has no contents!\n' % repr(file))
             return None
@@ -658,7 +661,8 @@ class SConsTimer(object):
             search_string = self.memory_string_all
         else:
             search_string = memory_string
-        lines = open(file).readlines()
+        with open(file) as f:
+            lines = f.readlines()
         lines = [ l for l in lines if l.startswith(search_string) ][-4:]
         result = [ int(l.split()[-1]) for l in lines[-4:] ]
         if len(result) == 1:
@@ -670,14 +674,14 @@ class SConsTimer(object):
         Returns the counts of the specified object_name.
         """
         object_string = ' ' + object_name + '\n'
-        lines = open(file).readlines()
+        with open(file) as f:
+            lines = f.readlines()
         line = [ l for l in lines if l.endswith(object_string) ][0]
         result = [ int(field) for field in line.split()[:4] ]
         if index is not None:
             result = result[index]
         return result
 
-    #
 
     command_alias = {}
 
@@ -1419,7 +1423,9 @@ class SConsTimer(object):
                 which = a
 
         if self.config_file:
-            HACK_for_exec(open(self.config_file, 'r').read(), self.__dict__)
+            with open(self.config_file, 'r') as f:
+                config = f.read()
+            HACK_for_exec(config, self.__dict__)
 
         if self.chdir:
             os.chdir(self.chdir)
