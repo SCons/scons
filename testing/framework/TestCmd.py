@@ -1663,7 +1663,7 @@ class TestCmd(object):
                 path = tempfile.mkdtemp(prefix=testprefix)
             except TypeError:
                 path = tempfile.mkdtemp()
-        else
+        else:
             os.mkdir(path)
 
         # Symlinks in the path will report things
