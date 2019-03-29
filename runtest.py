@@ -4,7 +4,7 @@
 #
 # runtest.py - wrapper script for running SCons tests
 #
-# SCons test suite consists of:
+# The SCons test suite consists of:
 #
 #  - unit tests        - included in *Tests.py files from src/ dir
 #  - end-to-end tests  - these are *.py files in test/ directory that
@@ -16,71 +16,59 @@
 # With -p (--package) option, script tests specified package from
 # build directory and sets PYTHONPATH to reference modules unpacked
 # during build process for testing purposes (build/test-*).
-#
-#       -a              Run all tests found under the current directory.
-#                       It is also possible to specify a list of
-#                       subdirectories to search.
-#
-#       -d              Debug.  Runs the script under the Python
-#                       debugger (pdb.py) so you don't have to
-#                       muck with PYTHONPATH yourself.
-#
-#       -e              Starts the script in external mode, for
-#                       testing separate Tools and packages.
-#
-#       -f file         Only execute the tests listed in the specified
-#                       file.
-#
-#       -k              Suppress printing of count and percent progress for
-#                       the single tests.
-#
-#       -l              List available tests and exit.
-#
-#       -n              No execute, just print command lines.
-#
-#       -o file         Save screen output to the specified log file.
-#
-#       -P Python       Use the specified Python interpreter.
-#
-#       -p package      Test against the specified package.
-#
-#       --passed        In the final summary, also report which tests
-#                       passed.  The default is to only report tests
-#                       which failed or returned NO RESULT.
-#
-#       -q              Quiet.  By default, runtest.py prints the
-#                       command line it will execute before
-#                       executing it.  This suppresses that print.
-#
-#       --quit-on-failure Quit on any test failure
-#
-#       -s              Short progress.  Prints only the command line
-#                       and a percentage value, based on the total and
-#                       current number of tests.
-#                       All stdout and stderr messages get suppressed (this
-#                       does only work with subprocess though)!
-#
-#       -t              Print the execution time of each test.
-#
-#       -X              The scons "script" is an executable; don't
-#                       feed it to Python.
-#
-#       -x scons        The scons script to use for tests.
-#
-#       --xml file      Save test results to the specified file in an
-#                       SCons-specific XML format.
-#                       This is (will be) used for reporting results back
-#                       to a central SCons test monitoring infrastructure.
-#
-#       --exclude-list file 
-#                       list of tests to exclude in the current selection of test
-#                       mostly meant to easily exclude tests from -a option
-#
-# (Note:  There used to be a -v option that specified the SCons
-# version to be tested, when we were installing in a version-specific
-# library directory.  If we ever resurrect that as the default, then
-# you can find the appropriate code in the 0.04 version of this script,
-# rather than reinventing that wheel.)
+
+"""
+Options:
+  -a --all                 Run all tests.
+  -b --baseline BASE       Run test scripts against baseline BASE.
+     --builddir DIR        Directory in which packages were built.
+  -d --debug               Run test scripts under the Python debugger.
+  -e --external            Run the script in external mode (for external Tools)
+  -f --file FILE           Only run tests listed in FILE.
+  -j --jobs JOBS           Run tests in JOBS parallel jobs.
+  -k --no-progress         Suppress count and percent progress messages.
+  -l --list                List available tests and exit.
+  -n --no-exec             No execute, just print command lines.
+     --nopipefiles         Do not use the "file pipe" workaround for Popen()
+                           for starting tests. WARNING: use only when too much
+                           file traffic is giving you trouble AND you can be 
+                           sure that none of your tests create output >65K 
+                           chars! You might run into some deadlocks else.
+  -o --output FILE         Save the output from a test run to the log file.
+  -P PYTHON                Use the specified Python interpreter.
+  -p --package PACKAGE     Test against the specified PACKAGE:
+                             deb           Debian
+                             local-tar-gz  .tar.gz standalone package
+                             local-zip     .zip standalone package
+                             rpm           Red Hat
+                             src-tar-gz    .tar.gz source package
+                             src-zip       .zip source package
+                             tar-gz        .tar.gz distribution
+                             zip           .zip distribution
+     --passed              Summarize which tests passed.
+  -q --quiet               Don't print the test being executed.
+     --quit-on-failure     Quit on any test failure.
+     --runner CLASS        Alternative test runner class for unit tests.
+  -s --short-progress      Short progress, prints only the command line.
+                           and a percentage value, based on the total and
+                           current number of tests.
+  -t --time                Print test execution time.
+  -v VERSION               Specify the SCons version.
+     --verbose=LEVEL       Set verbose level:
+                             1 = print executed commands,
+                             2 = print commands and non-zero output,
+                             3 = print commands and all output.
+  -X                       Test script is executable, don't feed to Python.
+  -x --exec SCRIPT         Test SCRIPT.
+     --xml file            Save results to file in SCons XML format.
+     --exclude-list FILE   List of tests to exclude in the current selection.
+                           Use to exclude tests when using the -a option.
+
+Environment Variables:
+  PRESERVE, PRESERVE_{PASS,FAIL,NO_RESULT}: preserve test subdirs
+  TESTCMD_VERBOSE: turn on verbosity in TestCommand\
+"""
+
 from __future__ import print_function
 
 
@@ -119,67 +107,19 @@ print_times = None
 python = None
 sp = []
 print_progress = 1
-suppress_stdout = False
-suppress_stderr = False
+catch_output = False
+suppress_output = False
 allow_pipe_files = True
 quit_on_failure = False
 excludelistfile = None
 
+script = sys.argv[0].split("/")[-1]
 usagestr = """\
-Usage: runtest.py [OPTIONS] [TEST ...]
-       runtest.py -h|--help
-"""
-helpstr = usagestr + """\
-Options:
-  -a --all                    Run all tests.
-  -b --baseline BASE          Run test scripts against baseline BASE.
-     --builddir DIR           Directory in which packages were built.
-  -d --debug                  Run test scripts under the Python debugger.
-  -e --external               Run the script in external mode (for testing separate Tools)
-  -f --file FILE              Run tests in specified FILE.
-  -k --no-progress            Suppress count and percent progress messages.
-  -l --list                   List available tests and exit.
-  -n --no-exec                No execute, just print command lines.
-     --nopipefiles            Doesn't use the "file pipe" workaround for subprocess.Popen()
-                              for starting tests. WARNING: Only use this when too much file
-                              traffic is giving you trouble AND you can be sure that none of
-                              your tests create output that exceed 65K chars! You might
-                              run into some deadlocks else.
-  -o --output FILE            Save the output from a test run to the log file.
-  -P PYTHON                   Use the specified Python interpreter.
-  -p --package PACKAGE        Test against the specified PACKAGE:
-                                deb           Debian
-                                local-tar-gz  .tar.gz standalone package
-                                local-zip     .zip standalone package
-                                rpm           Red Hat
-                                src-tar-gz    .tar.gz source package
-                                src-zip       .zip source package
-                                tar-gz        .tar.gz distribution
-                                zip           .zip distribution
-     --passed                 Summarize which tests passed.
-  -q --quiet                  Don't print the test being executed.
-     --quit-on-failure        Quit on any test failure
-     --runner CLASS           Alternative test runner class for unit tests
-  -s --short-progress         Short progress, prints only the command line
-                              and a percentage value, based on the total and
-                              current number of tests.
-  -t --time                   Print test execution time.
-  -v VERSION                  Specify the SCons version.
-     --verbose=LEVEL          Set verbose level: 1 = print executed commands,
-                                2 = print commands and non-zero output,
-                                3 = print commands and all output.
-  -X                          Test script is executable, don't feed to Python.
-  -x --exec SCRIPT            Test SCRIPT.
-     --xml file               Save results to file in SCons XML format.
-     --exclude-list FILE      List of tests to exclude in the current selection of test,
-                              mostly meant to easily exclude tests from the -a option
+Usage: %(script)s [OPTIONS] [TEST ...]
+       %(script)s -h|--help
+""" % locals()
 
-Environment Variables:
-
-  PRESERVE, PRESERVE_{PASS,FAIL,NO_RESULT}: preserve test subdirs
-  TESTCMD_VERBOSE: turn on verbosity in TestCommand\
-"""
-
+helpstr = usagestr + __doc__
 
 # "Pass-through" option parsing -- an OptionParser that ignores
 # unknown options and lets them pile up in the leftover argument
@@ -250,6 +190,9 @@ for o, a in opts:
         sys.exit(0)
     elif o in ['-j', '--jobs']:
         jobs = int(a)
+        # don't let tests write stdout/stderr directly if multi-job,
+        # or outputs will interleave and be hard to read
+        catch_output = True
     elif o in ['-k', '--no-progress']:
         print_progress = 0
     elif o in ['-l', '--list']:
@@ -266,14 +209,12 @@ for o, a in opts:
         python = a
     elif o in ['-q', '--quiet']:
         printcommand = 0
-        suppress_stdout = True
-        suppress_stderr = True
+        suppress_output = catch_output = True
     elif o in ['--quit-on-failure']:
         quit_on_failure = True
     elif o in ['-s', '--short-progress']:
         print_progress = 1
-        suppress_stdout = True
-        suppress_stderr = True
+        suppress_output = catch_output = True
     elif o in ['-t', '--time']:
         print_times = 1
     elif o in ['--verbose']:
@@ -355,12 +296,11 @@ def escape(s):
     return s
 
 
-if not suppress_stdout and not suppress_stderr:
+if not catch_output:
     # Without any output suppressed, we let the subprocess
     # write its stuff freely to stdout/stderr.
     def spawn_it(command_args):
-        p = subprocess.Popen(' '.join(command_args),
-                             shell=True)
+        p = subprocess.Popen(command_args, shell=False)
         return (None, None, p.wait())
 else:
     # Else, we catch the output of both pipes...
@@ -382,10 +322,10 @@ else:
             tmp_stdout = tempfile.TemporaryFile(mode='w+t')
             tmp_stderr = tempfile.TemporaryFile(mode='w+t')
             # Start subprocess...
-            p = subprocess.Popen(' '.join(command_args),
+            p = subprocess.Popen(command_args,
                                  stdout=tmp_stdout,
                                  stderr=tmp_stderr,
-                                 shell=True)
+                                 shell=False)
             # ... and wait for it to finish.
             ret = p.wait()
 
@@ -418,18 +358,19 @@ else:
         #   Hence a deadlock.
         # Be dragons here! Better don't use this!
         def spawn_it(command_args):
-            p = subprocess.Popen(' '.join(command_args),
+            p = subprocess.Popen(command_args,
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE,
-                                 shell=True)
+                                 shell=False)
             spawned_stdout = p.stdout.read()
             spawned_stderr = p.stderr.read()
             return (spawned_stderr, spawned_stdout, p.wait())
 
 
 class Base(object):
-    def __init__(self, path, spe=None):
+    def __init__(self, path, num, spe=None):
         self.path = path
+        self.num = num
         self.abspath = os.path.abspath(path)
         if spe:
             for dir in spe:
@@ -459,10 +400,10 @@ class PopenExecutor(Base):
             tmp_stdout = tempfile.TemporaryFile(mode='w+t')
             tmp_stderr = tempfile.TemporaryFile(mode='w+t')
             # Start subprocess...
-            p = subprocess.Popen(self.command_str,
+            p = subprocess.Popen(self.command_str.split(),
                                  stdout=tmp_stdout,
                                  stderr=tmp_stderr,
-                                 shell=True)
+                                 shell=False)
             # ... and wait for it to finish.
             self.status = p.wait()
 
@@ -479,13 +420,15 @@ class PopenExecutor(Base):
                 tmp_stderr.close()
     else:
         def execute(self):
-            p = subprocess.Popen(self.command_str,
+            p = subprocess.Popen(self.command_str.split(),
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE,
-                                 shell=True)
-            self.stdout = p.stdout.read()
-            self.stderr = p.stderr.read()
+                                 shell=False)
             self.status = p.wait()
+            with p.stdout:
+                self.stdout = p.stdout.read()
+            with p.stderr:
+                self.stderr = p.stderr.read()
 
 class XML(PopenExecutor):
     def header(self, f):
@@ -562,8 +505,9 @@ else:
         base = cwd
     elif baseline == '-':
         url = None
-        svn_info =  os.popen("svn info 2>&1", "r").read()
-        match = re.search('URL: (.*)', svn_info)
+        with os.popen("svn info 2>&1", "r") as p:
+            svn_info =  p.read()
+        match = re.search(r'URL: (.*)', svn_info)
         if match:
             url = match.group(1)
         if not url:
@@ -755,7 +699,7 @@ if excludelistfile:
 
 # ---[ test processing ]-----------------------------------
 tests = [t for t in tests if t not in excludetests]
-tests = [Test(t) for t in tests]
+tests = [Test(t, n+1) for n, t in enumerate(tests)]
 
 if list_only:
     for t in tests:
@@ -794,9 +738,33 @@ tests_passing = 0
 tests_failing = 0
 
 
-def run_test(t, io_lock, run_async=True):
+def log_result(t, io_lock):
     global tests_completed, tests_passing, tests_failing
-    header = ""
+    tests_completed += 1
+    if t.status == 0:
+        tests_passing += 1
+    else:
+        tests_failing += 1
+    if io_lock:
+        io_lock.acquire()
+    if suppress_output or catch_output:
+        sys.stdout.write(t.headline)
+    if not suppress_output:
+        if t.stdout:
+            print(t.stdout)
+        if t.stderr:
+            print(t.stderr)
+    print_time_func("Test execution time: %.1f seconds\n", t.test_time)
+    if io_lock:
+        io_lock.release()
+    if quit_on_failure and t.status == 1:
+        print("Exiting due to error")
+        print(t.status)
+        sys.exit(1)
+
+
+def run_test(t, io_lock, run_async=True):
+    t.headline = ""
     command_args = []
     if sys.version_info[0] < 3:
         command_args.append('-tt')
@@ -810,16 +778,15 @@ def run_test(t, io_lock, run_async=True):
     t.command_str = " ".join([escape(python)] + command_args)
     if printcommand:
         if print_progress:
-            tests_completed += 1
-            n = tests_completed # approx indicator of where we are
-            header += ("%d/%d (%.2f%s) %s\n" % (n, total_num_tests,
-                                                float(n)*100.0/float(total_num_tests),
+            t.headline += ("%d/%d (%.2f%s) %s\n" % (t.num, total_num_tests,
+                                                float(t.num)*100.0/float(total_num_tests),
                                                 '%',
                                                 t.command_str))
         else:
-            header += t.command_str + "\n"
-    if not suppress_stdout and not suppress_stderr:
-        sys.stdout.write(header)
+            t.headline += t.command_str + "\n"
+    if not suppress_output and not catch_output:
+        # defer printing the headline until test is done
+        sys.stdout.write(t.headline)
     head, tail = os.path.split(t.abspath)
     fixture_dirs = []
     if head:
@@ -830,28 +797,9 @@ def run_test(t, io_lock, run_async=True):
     test_start_time = time_func()
     if execute_tests:
         t.execute()
-
-    if t.status == 0:
-        tests_passing += 1
-    else:
-        tests_failing += 1
-
     t.test_time = time_func() - test_start_time
-    if io_lock:
-        io_lock.acquire()
-    if suppress_stdout or suppress_stderr:
-        sys.stdout.write(header)
-    if not suppress_stdout and t.stdout:
-        print(t.stdout)
-    if not suppress_stderr and t.stderr:
-        print(t.stderr)
-    print_time_func("Test execution time: %.1f seconds\n", t.test_time)
-    if io_lock:
-        io_lock.release()
-    if quit_on_failure and t.status == 1:
-        print("Exiting due to error")
-        print(t.status)
-        sys.exit(1)
+    log_result(t, io_lock)
+
 
 class RunTest(threading.Thread):
     def __init__(self, queue, io_lock):
@@ -862,7 +810,7 @@ class RunTest(threading.Thread):
     def run(self):
         while True:
             t = self.queue.get()
-            run_test(t, io_lock, True)
+            run_test(t, self.io_lock, True)
             self.queue.task_done()
 
 if jobs > 1:
@@ -870,13 +818,14 @@ if jobs > 1:
     # Start worker threads
     queue = Queue()
     io_lock = threading.Lock()
-    for i in range(1, jobs):
+    for _ in range(jobs):
         t = RunTest(queue, io_lock)
         t.daemon = True
         t.start()
     # Give tasks to workers
     for t in tests:
         queue.put(t)
+    # wait until all done
     queue.join()
 else:
     for t in tests:
