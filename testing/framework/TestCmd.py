@@ -368,7 +368,7 @@ else:
 
 testprefix = 'testcmd.'
 if os.name in ('posix', 'nt'):
-    testprefix += "%s." % str(os.getpid()
+    testprefix += "%s." % str(os.getpid())
 
 re_space = re.compile('\s')
 
