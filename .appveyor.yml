@@ -52,84 +52,84 @@ environment:
       PYVER: 27
       BUILD_JOB_NUM: 1
       COVERAGE: 1
-    - WINPYTHON: "Python27"
-      PYTHON: "2.7"
-      PYVER: 27
-      BUILD_JOB_NUM: 2
-      COVERAGE: 1
-    - WINPYTHON: "Python27"
-      PYTHON: "2.7"
-      PYVER: 27
-      BUILD_JOB_NUM: 3
-      COVERAGE: 1
-    - WINPYTHON: "Python27"
-      PYTHON: "2.7"
-      PYVER: 27
-      BUILD_JOB_NUM: 4
-      COVERAGE: 1
+    #- WINPYTHON: "Python27"
+    #  PYTHON: "2.7"
+    #  PYVER: 27
+    #  BUILD_JOB_NUM: 2
+    #  COVERAGE: 1
+    #- WINPYTHON: "Python27"
+    #  PYTHON: "2.7"
+    #  PYVER: 27
+    #  BUILD_JOB_NUM: 3
+    #  COVERAGE: 1
+    #- WINPYTHON: "Python27"
+    #  PYTHON: "2.7"
+    #  PYVER: 27
+    #  BUILD_JOB_NUM: 4
+    #  COVERAGE: 1
 
     - WINPYTHON: "Python36"
       PYTHON: "3.6"
       PYVER: 36
       BUILD_JOB_NUM: 1
       COVERAGE: 1
-    - WINPYTHON: "Python36"
-      PYTHON: "3.6"
-      PYVER: 36
-      BUILD_JOB_NUM: 2
-      COVERAGE: 1
-    - WINPYTHON: "Python36"
-      PYTHON: "3.6"
-      PYVER: 36
-      BUILD_JOB_NUM: 3
-      COVERAGE: 1
-    - WINPYTHON: "Python36"
-      PYTHON: "3.6"
-      PYVER: 36
-      BUILD_JOB_NUM: 4
-      COVERAGE: 1
+    #- WINPYTHON: "Python36"
+    #  PYTHON: "3.6"
+    #  PYVER: 36
+    #  BUILD_JOB_NUM: 2
+    #  COVERAGE: 1
+    #- WINPYTHON: "Python36"
+    #  PYTHON: "3.6"
+    #  PYVER: 36
+    #  BUILD_JOB_NUM: 3
+    #  COVERAGE: 1
+    #- WINPYTHON: "Python36"
+    #  PYTHON: "3.6"
+    #  PYVER: 36
+    #  BUILD_JOB_NUM: 4
+    #  COVERAGE: 1
 
     - WINPYTHON: "Python35"
       PYTHON: "3.5"
       PYVER: 35
       BUILD_JOB_NUM: 1
       COVERAGE: 0
-    - WINPYTHON: "Python35"
-      PYTHON: "3.5"
-      PYVER: 35
-      BUILD_JOB_NUM: 2
-      COVERAGE: 0
-    - WINPYTHON: "Python35"
-      PYTHON: "3.5"
-      PYVER: 35
-      BUILD_JOB_NUM: 3
-      COVERAGE: 0
-    - WINPYTHON: "Python35"
-      PYTHON: "3.5"
-      PYVER: 35
-      BUILD_JOB_NUM: 4
-      COVERAGE: 0
+    #- WINPYTHON: "Python35"
+    #  PYTHON: "3.5"
+    #  PYVER: 35
+    #  BUILD_JOB_NUM: 2
+    #  COVERAGE: 0
+    #- WINPYTHON: "Python35"
+    #  PYTHON: "3.5"
+    #  PYVER: 35
+    #  BUILD_JOB_NUM: 3
+    #  COVERAGE: 0
+    #- WINPYTHON: "Python35"
+    #  PYTHON: "3.5"
+    #  PYVER: 35
+    #  BUILD_JOB_NUM: 4
+    #  COVERAGE: 0
 
     - WINPYTHON: "Python37"
       PYTHON: "3.7"
       PYVER: 37
       BUILD_JOB_NUM: 1
       COVERAGE: 0
-    - WINPYTHON: "Python37"
-      PYTHON: "3.7"
-      PYVER: 37
-      BUILD_JOB_NUM: 2
-      COVERAGE: 0
-    - WINPYTHON: "Python37"
-      PYTHON: "3.7"
-      PYVER: 37
-      BUILD_JOB_NUM: 3
-      COVERAGE: 0
-    - WINPYTHON: "Python37"
-      PYTHON: "3.7"
-      PYVER: 37
-      BUILD_JOB_NUM: 4
-      COVERAGE: 0
+    #- WINPYTHON: "Python37"
+    #  PYTHON: "3.7"
+    #  PYVER: 37
+    #  BUILD_JOB_NUM: 2
+    #  COVERAGE: 0
+    #- WINPYTHON: "Python37"
+    #  PYTHON: "3.7"
+    #  PYVER: 37
+    #  BUILD_JOB_NUM: 3
+    #  COVERAGE: 0
+    #- WINPYTHON: "Python37"
+    #  PYTHON: "3.7"
+    #  PYVER: 37
+    #  BUILD_JOB_NUM: 4
+    #  COVERAGE: 0
 
 # remove sets of build jobs based on critia below
 # to fine tune the number and platforms tested
@@ -141,7 +141,7 @@ matrix:
     - image: Visual Studio 2015	
       WINPYTHON: "Python27"
 
-    # test python 2.7, 3.7 on Visual Studio 2015 image
+    # test python 2.7, 3.7 on Visual Studio 2017 image
     - image: Visual Studio 2017
       WINPYTHON: "Python35"
     - image: Visual Studio 2017	
@@ -171,8 +171,10 @@ build: off
 
 build_script:
   # get all tests into a list
-  - cmd: "C:\\%WINPYTHON%\\python.exe runtest.py -l -a > all_tests.txt"
-  - sh: python$PYTHON runtest.py -l -a > all_tests.txt
+  #- cmd: "C:\\%WINPYTHON%\\python.exe runtest.py -l -a > all_tests.txt"
+  - cmd: "C:\\%WINPYTHON%\\python.exe runtest.py -l test/scons-time > build_tests.txt"
+  #- sh: python$PYTHON runtest.py -l -a > all_tests.txt
+  - sh: python$PYTHON runtest.py -l test/scons-time > build_tests.txt
 
   # setup coverage by creating the coverage config file, and adding coverage 
   # to the usercustomize so that all python processes start with coverage
@@ -196,14 +198,14 @@ build_script:
       }
 
   # setup portion of tests for this build job (1-4)
-  - ps: |
-      $TOTAL_BUILD_JOBS = 4;
-      $Lines = (Get-Content all_tests.txt | Measure-Object -line).Lines;
-      $start = ($Lines / $TOTAL_BUILD_JOBS) * ($Env:BUILD_JOB_NUM - 1);
-      $end = ($Lines / $TOTAL_BUILD_JOBS) * $Env:BUILD_JOB_NUM;
-      if ( $Env:BUILD_JOB_NUM -eq $TOTAL_BUILD_JOBS){ $end = $Lines };
-      if ( $start -eq 0 ){ $start = 1 };
-      get-content all_tests.txt | select -first ($end - $start) -skip ($start - 1) | Out-File -Encoding ASCII build_tests.txt;
+  #- ps: |
+  #    $TOTAL_BUILD_JOBS = 4;
+  #    $Lines = (Get-Content all_tests.txt | Measure-Object -line).Lines;
+  #    $start = ($Lines / $TOTAL_BUILD_JOBS) * ($Env:BUILD_JOB_NUM - 1);
+  #    $end = ($Lines / $TOTAL_BUILD_JOBS) * $Env:BUILD_JOB_NUM;
+  #    if ( $Env:BUILD_JOB_NUM -eq $TOTAL_BUILD_JOBS){ $end = $Lines };
+  #    if ( $start -eq 0 ){ $start = 1 };
+  #    get-content all_tests.txt | select -first ($end - $start) -skip ($start - 1) | Out-File -Encoding ASCII build_tests.txt;
 
   # exclude VS 10.0 because it hangs the testing until this is resolved: 
   # https://help.appveyor.com/discussions/problems/19283-visual-studio-2010-trial-license-has-expired
@@ -217,7 +219,7 @@ build_script:
   # Windows run the tests
   # NOTE: running powershell from cmd on purpose because it formats the output
   # correctly
-  - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py --exclude-list exclude_list.txt -f build_tests.txt } else { C:\\%WINPYTHON%\\python.exe runtest.py -j 2 --exclude-list exclude_list.txt -f build_tests.txt }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
+  - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py -t --exclude-list exclude_list.txt -f build_tests.txt } else { C:\\%WINPYTHON%\\python.exe runtest.py -j 2 -t --exclude-list exclude_list.txt -f build_tests.txt }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
 
   # linux run the tests
   # unset JAVA_TOOL_OPTIONS because newer java prints this to stderr
@@ -226,7 +228,7 @@ build_script:
       if [ "$COVERAGE" -eq "1" ]; then 
         coverage run -p --rcfile="$COVERAGE_PROCESS_START" runtest.py --exclude-list exclude_list.txt -f build_tests.txt || if [[ $? == 2 ]]; then true; else false; fi; 
       else
-        python$PYTHON runtest.py -j 2 --exclude-list exclude_list.txt -f build_tests.txt || if [[ $? == 2 ]]; then true; else false; fi; 
+        python$PYTHON runtest.py -j 2 -t --exclude-list exclude_list.txt -f build_tests.txt || if [[ $? == 2 ]]; then true; else false; fi; 
       fi
 
 # run converage even if there was a test failure

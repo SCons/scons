@@ -29,6 +29,25 @@ stages:
 
 jobs:
   include:
+    # putting the two slow jobs first helps the dispatch
+    - &slow_test_job
+      stage: Test
+      script: python runtest.py -a -j 4 -t || if [[ $? == 2 ]]; then true; else false; fi
+      before_script: skip
+      after_success: skip
+      python: pypy
+      env: 
+        - PYVER=pypy
+        - PYTHON=pypy
+      sudo: required
+
+    - <<: *slow_test_job
+      python: pypy3
+      env: 
+        - PYVER=pypy3
+        - PYTHON=pypy3
+      sudo: required
+
     - &test_job
       stage: Test
       script: python runtest.py -a -t || if [[ $? == 2 ]]; then true; else false; fi
@@ -61,24 +80,6 @@ jobs:
         - PYTHON=3.7
       sudo: required
       dist: xenial  # required for Python 3.7 (travis-ci/travis-ci#9069)
-
-    - &slow_test_job
-      stage: Test
-      script: python runtest.py -a -j 4 -t || if [[ $? == 2 ]]; then true; else false; fi
-      before_script: skip
-      after_success: skip
-      python: pypy
-      env: 
-        - PYVER=pypy
-        - PYTHON=pypy
-      sudo: required
-
-    - <<: *slow_test_job
-      python: pypy3
-      env: 
-        - PYVER=pypy3
-        - PYTHON=pypy3
-      sudo: required
 
 
     - &coverage_jobs
