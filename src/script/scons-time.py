@@ -420,7 +420,7 @@ class SConsTimer(object):
             action(*args)
         else:
             #os.system(action % args)
-            subprocess.call(action % args)
+            subprocess.call((action % args).replace('"', '').split())
 
     def run_command_list(self, commands, dict):
         """
