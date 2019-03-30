@@ -1,6 +1,10 @@
 import os
 import sys
-if '--version' not in sys.argv and '-dumpversion' not in sys.argv:
+import subprocess
+
+if __name__ == '__main__':
     path = os.path.join(os.path.dirname(os.path.relpath(__file__)), 'wrapper.out')
-    open(path, 'wb').write(b"wrapper.py\n")
-os.system(" ".join(sys.argv[1:]))
+    if '--version' not in sys.argv and '-dumpversion' not in sys.argv:
+        with open(path, 'w') as f:
+            f.write("wrapper.py\n")
+    subprocess.call(sys.argv[1:])
