@@ -645,10 +645,10 @@ class _GenerateV6DSP(_DSPGenerator):
         if self.nokeep == 0:
             # now we pickle some data and add it to the file -- MSDEV will ignore it.
             pdata = pickle.dumps(self.configs,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata).decode()
+            pdata = base64.b64encode(pdata).decode()
             self.file.write(pdata + '\n')
             pdata = pickle.dumps(self.sources,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata).decode()
+            pdata = base64.b64encode(pdata).decode()
             self.file.write(pdata + '\n')
 
     def PrintSourceFiles(self):
@@ -917,10 +917,10 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
         if self.nokeep == 0:
             # now we pickle some data and add it to the file -- MSDEV will ignore it.
             pdata = pickle.dumps(self.configs,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata).decode()
+            pdata = base64.b64encode(pdata).decode()
             self.file.write('<!-- SCons Data:\n' + pdata + '\n')
             pdata = pickle.dumps(self.sources,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata).decode()
+            pdata = base64.b64encode(pdata).decode()
             self.file.write(pdata + '-->\n')
 
     def printSources(self, hierarchy, commonprefix):
@@ -1241,10 +1241,10 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
         if self.nokeep == 0:
             # now we pickle some data and add it to the file -- MSDEV will ignore it.
             pdata = pickle.dumps(self.configs,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata).decode()
+            pdata = base64.b64encode(pdata).decode()
             self.file.write('<!-- SCons Data:\n' + pdata + '\n')
             pdata = pickle.dumps(self.sources,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata).decode()
+            pdata = base64.b64encode(pdata).decode()
             self.file.write(pdata + '-->\n')
 
     def printFilters(self, hierarchy, name):
@@ -1617,7 +1617,7 @@ class _GenerateV7DSW(_DSWGenerator):
         self.file.write('EndGlobal\n')
         if self.nokeep == 0:
             pdata = pickle.dumps(self.configs,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata).decode()
+            pdata = base64.b64encode(pdata).decode()
             self.file.write(pdata)
             self.file.write('\n')
 

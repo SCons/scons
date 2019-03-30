@@ -188,7 +188,7 @@ def build_wxsfile(target, source, env):
     """ Compiles a .wxs file from the keywords given in env['msi_spec'] and
         by analyzing the tree of source nodes and their tags.
     """
-    file = open(target[0].get_abspath(), 'w')
+    f = open(target[0].get_abspath(), 'w')
 
     try:
         # Create a document with the Wix root tag
@@ -209,7 +209,7 @@ def build_wxsfile(target, source, env):
         build_license_file(target[0].get_dir(), env)
 
         # write the xml to a file
-        file.write( doc.toprettyxml() )
+        f.write( doc.toprettyxml() )
 
         # call a user specified function
         if 'CHANGE_SPECFILE' in env:
@@ -217,6 +217,8 @@ def build_wxsfile(target, source, env):
 
     except KeyError as e:
         raise SCons.Errors.UserError( '"%s" package field for MSI is missing.' % e.args[0] )
+    finally:
+        f.close()
 
 #
 # setup function
@@ -440,14 +442,13 @@ def build_license_file(directory, spec):
         pass # ignore this as X_MSI_LICENSE_TEXT is optional
 
     if name!='' or text!='':
-        file = open( os.path.join(directory.get_path(), 'License.rtf'), 'w' )
-        file.write('{\\rtf')
-        if text!='':
-             file.write(text.replace('\n', '\\par '))
-        else:
-             file.write(name+'\\par\\par')
-        file.write('}')
-        file.close()
+        with open(os.path.join(directory.get_path(), 'License.rtf'), 'w') as f:
+            f.write('{\\rtf')
+            if text!='':
+                 f.write(text.replace('\n', '\\par '))
+            else:
+                 file.write(name+'\\par\\par')
+            f.write('}')
 
 #
 # mandatory and optional package tags

@@ -352,9 +352,8 @@ def __build_lxml(target, source, env):
         result = transform(doc)
         
     try:
-        of = open(str(target[0]), "wb")
-        of.write(of.write(etree.tostring(result, pretty_print=True)))
-        of.close()
+        with open(str(target[0]), "wb") as of:
+            of.write(of.write(etree.tostring(result, pretty_print=True)))
     except:
         pass
 
@@ -440,25 +439,23 @@ def DocbookEpub(env, target, source=None, *args, **kw):
         function could be replaced by a call to the SCons Zip builder if support
         was added for different compression formats for separate source nodes.
         """
-        zf = zipfile.ZipFile(str(target[0]), 'w')
-        mime_file = open('mimetype', 'w')
-        mime_file.write('application/epub+zip')
-        mime_file.close()
-        zf.write(mime_file.name, compress_type = zipfile.ZIP_STORED)
-        for s in source:
-            if os.path.isfile(str(s)):
-                head, tail = os.path.split(str(s))
-                if not head:
-                    continue
-                s = head
-            for dirpath, dirnames, filenames in os.walk(str(s)):
-                for fname in filenames:
-                    path = os.path.join(dirpath, fname)
-                    if os.path.isfile(path):
-                        zf.write(path, os.path.relpath(path, str(env.get('ZIPROOT', ''))),
-                            zipfile.ZIP_DEFLATED)
-        zf.close()
-        
+        with zipfile.ZipFile(str(target[0]), 'w') as zf:
+            with open('mimetype', 'w') as mime_file:
+                mime_file.write('application/epub+zip')
+            zf.write(mime_file.name, compress_type = zipfile.ZIP_STORED)
+            for s in source:
+                if os.path.isfile(str(s)):
+                    head, tail = os.path.split(str(s))
+                    if not head:
+                        continue
+                    s = head
+                for dirpath, dirnames, filenames in os.walk(str(s)):
+                    for fname in filenames:
+                        path = os.path.join(dirpath, fname)
+                        if os.path.isfile(path):
+                            zf.write(path, os.path.relpath(path, str(env.get('ZIPROOT', ''))),
+                                zipfile.ZIP_DEFLATED)
+
     def add_resources(target, source, env):
         """Add missing resources to the OEBPS directory
 
@@ -701,9 +698,8 @@ def DocbookMan(env, target, source=None, *args, **kw):
                         
             except:
                 # Use simple regex parsing 
-                f = open(__ensure_suffix(str(s),'.xml'), 'r')
-                content = f.read()
-                f.close()
+                with open(__ensure_suffix(str(s),'.xml'), 'r') as f:
+                    content = f.read()
                 
                 for m in re_manvolnum.finditer(content):
                     volnum = m.group(1)

@@ -68,7 +68,8 @@ def generate(env):
         env['CXX']        = acc or 'aCC'
         env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS +Z')
         # determine version of aCC
-        line = os.popen(acc + ' -V 2>&1').readline().rstrip()
+        with os.popen(acc + ' -V 2>&1') as p:
+            line = p.readline().rstrip()
         if line.find('aCC: HP ANSI C++') == 0:
             env['CXXVERSION'] = line.split()[-1]
 

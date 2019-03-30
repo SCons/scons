@@ -480,7 +480,7 @@ class EntryProxy(SCons.Util.Proxy):
             return SCons.Subst.SpecialAttrWrapper(r, entry.name + "_posix")
 
     def __get_windows_path(self):
-        """Return the path with \ as the path separator,
+        r"""Return the path with \ as the path separator,
         regardless of platform."""
         if OS_SEP == '\\':
             return self
@@ -1418,7 +1418,7 @@ class FS(LocalFS):
             self.Top.addRepository(d)
 
     def PyPackageDir(self, modulename):
-        """Locate the directory of a given python module name
+        r"""Locate the directory of a given python module name
 
         For example scons might resolve to
         Windows: C:\Python27\Lib\site-packages\scons-2.5.1

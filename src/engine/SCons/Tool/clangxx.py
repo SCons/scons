@@ -85,7 +85,8 @@ def generate(env):
             return
         
         # clang -dumpversion is of no use
-        line = pipe.stdout.readline()
+        with pipe.stdout:
+            line = pipe.stdout.readline()
         if sys.version_info[0] > 2:
             line = line.decode()
         match = re.search(r'clang +version +([0-9]+(?:\.[0-9]+)+)', line)

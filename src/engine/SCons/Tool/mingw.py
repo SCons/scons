@@ -123,7 +123,7 @@ key_program = 'mingw32-make'
 
 
 def find_version_specific_mingw_paths():
-    """
+    r"""
     One example of default mingw install paths is:
     C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev2\mingw64\bin
 

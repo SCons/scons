@@ -211,7 +211,7 @@ def _object_contents(obj):
 
 
 def _code_contents(code, docstring=None):
-    """Return the signature contents of a code object.
+    r"""Return the signature contents of a code object.
 
     By providing direct access to the code object of the
     function, Python makes this extremely easy.  Hooray!

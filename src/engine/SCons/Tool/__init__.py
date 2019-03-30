@@ -51,7 +51,12 @@ import SCons.Scanner.D
 import SCons.Scanner.LaTeX
 import SCons.Scanner.Prog
 import SCons.Scanner.SWIG
-import collections
+try:
+    # Python 3
+    from collections.abc import Callable
+except ImportError:
+    # Python 2.7
+    from collections import Callable
 
 DefaultToolpath = []
 
@@ -378,7 +383,7 @@ def _call_linker_cb(env, callback, args, result=None):
         if Verbose:
             print('_call_linker_cb: env["LINKCALLBACKS"][%r] found' % callback)
             print('_call_linker_cb: env["LINKCALLBACKS"][%r]=%r' % (callback, cbfun))
-        if isinstance(cbfun, collections.Callable):
+        if isinstance(cbfun, Callable):
             if Verbose:
                 print('_call_linker_cb: env["LINKCALLBACKS"][%r] is callable' % callback)
             result = cbfun(env, *args)

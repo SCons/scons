@@ -679,7 +679,7 @@ if can_read_reg:
     HKEY_USERS         = hkey_mod.HKEY_USERS
 
     def RegGetValue(root, key):
-        """This utility function returns a value in the registry
+        r"""This utility function returns a value in the registry
         without having to open the key first.  Only available on
         Windows platforms with a version of Python that can read the
         registry.  Returns the same thing as
@@ -1002,7 +1002,9 @@ if sys.platform == 'cygwin':
     def get_native_path(path):
         """Transforms an absolute path into a native path for the system.  In
         Cygwin, this converts from a Cygwin path to a Windows one."""
-        return os.popen('cygpath -w ' + path).read().replace('\n', '')
+        with os.popen('cygpath -w ' + path) as p:
+            npath = p.read().replace('\n', '')
+        return npath
 else:
     def get_native_path(path):
         """Transforms an absolute path into a native path for the system.
@@ -1478,13 +1480,12 @@ if hasattr(hashlib, 'md5'):
         :return: String of Hex digits representing the signature
         """
         m = hashlib.md5()
-        f = open(fname, "rb")
-        while True:
-            blck = f.read(chunksize)
-            if not blck:
-                break
-            m.update(to_bytes(blck))
-        f.close()
+        with open(fname, "rb") as f:
+            while True:
+                blck = f.read(chunksize)
+                if not blck:
+                    break
+                m.update(to_bytes(blck))
         return m.hexdigest()
 else:
     # if md5 algorithm not available, just return data unmodified
@@ -1511,7 +1512,6 @@ def MD5collect(signatures):
         return signatures[0]
     else:
         return MD5signature(', '.join(signatures))
-
 
 
 def silent_intern(x):
