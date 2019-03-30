@@ -41,7 +41,6 @@ import shutil
 import sys
 import tempfile
 import time
-#import subprocess
 
 def HACK_for_exec(cmd, *args):
     """
@@ -422,7 +421,6 @@ class SConsTimer(object):
             action(*args)
         else:
             os.system(action % args)
-            #subprocess.call((action % args).replace('"', '').split())
 
     def run_command_list(self, commands, dict):
         """
@@ -1297,8 +1295,7 @@ class SConsTimer(object):
         if self.targets2 is None:
             self.targets2 = self.targets
 
-        #self.tmpdir = tempfile.mkdtemp(prefix=self.name + '-')
-        self.tmpdir = tempfile.mkdtemp(prefix=self.name + '-%s-' % os.getpid())
+        self.tmpdir = tempfile.mkdtemp(prefix=self.name + '-')
 
         commands.extend([
             (os.chdir, 'cd %%s', self.tmpdir),
