@@ -41,7 +41,7 @@ a[2] = 3
 test.run(status = 2, stderr = """\
 TypeError:( 'int')? object does not support item assignment:
   File ".+SConstruct", line 2:
-    a\[2\] = 3
+    a\\[2\\] = 3
 """)
 
 test.pass_test()

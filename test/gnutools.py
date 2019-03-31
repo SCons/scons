@@ -46,16 +46,16 @@ test.write(['gnutools','mygcc.py'], """
 import getopt
 import sys
 cmd_opts, args = getopt.getopt(sys.argv[1:], 'f:s:co:', [])
-output = None
+out = None
 opt_string = ''
 for opt, arg in cmd_opts:
-    if opt == '-o': output = open(arg, 'w')
+    if opt == '-o': out = arg
     else: opt_string = opt_string + ' ' + opt + arg
-output.write('gcc ' + opt_string + '\\n')
-for a in args:
-    contents = open(a, 'r').read()
-    output.write(contents)
-output.close()
+with open(out, 'w') as ofp:
+    ofp.write('gcc ' + opt_string + '\\n')
+    for a in args:
+        with open(a, 'r') as ifp:
+            ofp.write(ifp.read())
 sys.exit(0)
 """)
 
@@ -63,16 +63,16 @@ test.write(['gnutools','myg++.py'], """
 import getopt
 import sys
 cmd_opts, args = getopt.getopt(sys.argv[1:], 'f:s:co:', [])
-output = None
+out = None
 opt_string = ''
 for opt, arg in cmd_opts:
-    if opt == '-o': output = open(arg, 'w')
+    if opt == '-o': out = arg
     else: opt_string = opt_string + ' ' + opt + arg
-output.write('g++ ' + opt_string + '\\n')
-for a in args:
-    contents = open(a, 'r').read()
-    output.write(contents)
-output.close()
+with open(out, 'w') as ofp:
+    ofp.write('g++ ' + opt_string + '\\n')
+    for a in args:
+        with open(a, 'r') as ifp:
+            ofp.write(ifp.read())
 sys.exit(0)
 """)
 

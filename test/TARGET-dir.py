@@ -43,9 +43,10 @@ test.subdir('src', 'build1', 'build2')
 test.write('SConstruct', """
 def cat(env, source, target):
     target = str(target[0])
-    f = open(target, "wb")
-    for src in source:
-        f.write(open(str(src), "rb").read())
+    with open(target, "wb") as f:
+        for src in source:
+            with open(str(src), "rb") as ifp:
+                f.write(ifp.read())
     f.close()
 env = Environment(CPPPATH='${TARGET.dir}')
 env.Append(BUILDERS = {'Cat' : Builder(action=cat)})

@@ -73,6 +73,11 @@ Maintainer, Depends, and Description fields.''',
              X_IPK_DEPENDS    = 'libc6, grep', )
 """)
 
+with os.popen('id -un') as p:
+    IPKGUSER = p.read().strip()
+with os.popen('id -gn') as p:
+    IPKGGROUP = p.read().strip()
+
 expected="""scons: Reading SConscript files ...
 scons: done reading SConscript files.
 scons: Building targets ...
@@ -84,7 +89,7 @@ build_specfiles(["foo-0.0/CONTROL/control", "foo-0.0/CONTROL/conffiles", "foo-0.
 ipkg-build -o %s -g %s foo-0.0
 Packaged contents of foo-0.0 into %s/foo_0.0_arm.ipk
 scons: done building targets.
-"""%(os.popen('id -un').read().strip(), os.popen('id -gn').read().strip(), test.workpath())
+"""%(IPKGUSER, IPKGGROUP, test.workpath())
 
 test.run(arguments="--debug=stacktrace foo_0.0_arm.ipk", stdout=expected)
 test.must_exist( 'foo-0.0/CONTROL/control' )

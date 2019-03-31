@@ -37,7 +37,8 @@ import os.path
 import os
 
 def copy(source, target):
-    open(target, "wb").write(open(source, "rb").read())
+    with open(target, "wb") as ofp, open(source, "rb") as ifp:
+        ofp.write(ifp.read())
 
 def build(env, source, target):
     copy(str(source[0]), str(target[0]))

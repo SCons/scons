@@ -53,7 +53,8 @@ def echo(env, target, source):
     t = os.path.split(str(target[0]))[1]
     s = os.path.split(str(source[0]))[1]
     print('create %s from %s' % (t, s))
-    open(t, 'wb').write(open(s, 'rb').read())
+    with open(t, 'wb') as ofb, open(s, 'rb') as ifb:
+        ofb.write(ifb.read())
 
 Echo = Builder(action = Action(echo, None),
                src_suffix = '.x',

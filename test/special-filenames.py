@@ -49,7 +49,8 @@ attempt_file_names = [
 
 test.write("cat.py", """\
 import sys
-open(sys.argv[1], 'wb').write(open(sys.argv[2], 'rb').read())
+with open(sys.argv[1], 'wb') as f, open(sys.argv[2], 'rb') as ifp:
+    f.write(ifp.read())
 """)
 
 file_names = []

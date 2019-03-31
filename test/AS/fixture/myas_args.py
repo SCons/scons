@@ -21,12 +21,11 @@ if sys.platform == 'win32':
             out = a[3:]
             continue
         optstring = optstring + ' ' + a
-    infile = open(inf, 'rb')
-    outfile = open(out, 'wb')
-    outfile.write(bytearray(optstring + "\n",'utf-8'))
-    for l in infile.readlines():
-        if l[:3] != b'#as':
-            outfile.write(l)
+    with open(inf, 'rb') as ifp, open(out, 'wb') as ofp:
+        ofp.write(bytearray(optstring + "\n",'utf-8'))
+        for l in ifp.readlines():
+            if l[:3] != b'#as':
+                ofp.write(l)
     sys.exit(0)
 else:
     import getopt
@@ -37,12 +36,10 @@ else:
         if opt == '-o': out = arg
         else: optstring = optstring + ' ' + opt
 
-    infile = open(args[0], 'rb')
-    outfile = open(out, 'wb')
-    outfile.write(bytearray(optstring + "\n",'utf-8'))
-
-    for l in infile.readlines():
-        if l[:3] != b'#as':
-            outfile.write(l)
+    with open(args[0], 'rb') as ifp, open(out, 'wb') as ofp:
+        ofp.write(bytearray(optstring + "\n",'utf-8'))
+        for l in ifp.readlines():
+            if l[:3] != b'#as':
+                ofp.write(l)
 
     sys.exit(0)

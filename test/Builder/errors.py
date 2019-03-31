@@ -38,13 +38,10 @@ SConstruct_path = test.workpath('SConstruct')
 
 sconstruct = """
 def buildop(env, source, target):
-    outf = open(str(target[0]), 'wb')
-    inpf = open(str(source[0]), 'r')
-    for line in inpf.readlines():
-        if line.find(str(target[0])) == -1:
-            outf.write(line)
-    inpf.close()
-    outf.close()
+    with open(str(target[0]), 'wb') as outf, open(str(source[0]), 'r') as infp:
+        for line in inpf.readlines():
+            if line.find(str(target[0])) == -1:
+                outf.write(line)
 b1 = Builder(action=buildop, src_suffix='.a', suffix='.b')
 %s
 env=Environment(tools=[], BUILDERS={'b1':b1, 'b2':b2})
@@ -58,7 +55,7 @@ foo.b
 built
 """)
 
-python_file_line = test.python_file_line(SConstruct_path, 14)
+python_file_line = test.python_file_line(SConstruct_path, 11)
 
 ### Gross mistake in Builder spec
 

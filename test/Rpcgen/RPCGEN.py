@@ -38,12 +38,13 @@ import getopt
 import sys
 cmd_opts, args = getopt.getopt(sys.argv[1:], 'chlmo:', [])
 for opt, arg in cmd_opts:
-    if opt == '-o': output = open(arg, 'w')
-output.write(" ".join(sys.argv) + "\\n")
-for a in args:
-    contents = open(a, 'r').read()
-    output.write(contents.replace('RPCGEN', 'myrpcgen.py'))
-output.close()
+    if opt == '-o': out = arg
+with open(out, 'w') as ofp:
+    ofp.write(" ".join(sys.argv) + "\\n")
+    for a in args:
+        with open(a, 'r') as ifp:
+            contents = ifp.read()
+        ofp.write(contents.replace('RPCGEN', 'myrpcgen.py'))
 sys.exit(0)
 """)
 

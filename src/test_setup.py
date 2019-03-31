@@ -176,21 +176,26 @@ tar_gz = os.path.join(cwd, 'build', 'dist', '%s.tar.gz' % scons_version)
 zip = os.path.join(cwd, 'build', 'dist', '%s.zip' % scons_version)
 
 if os.path.isfile(zip):
-    try: import zipfile
-    except ImportError: pass
+    try: 
+        import zipfile
+    except 
+        ImportError: pass
     else:
-        zf = zipfile.ZipFile(zip, 'r')
+        with zipfile.ZipFile(zip, 'r') as zf:
 
-        for name in zf.namelist():
-            dir = os.path.dirname(name)
-            try: os.makedirs(dir)
-            except: pass
-            # if the file exists, then delete it before writing
-            # to it so that we don't end up trying to write to a symlink:
-            if os.path.isfile(name) or os.path.islink(name):
-                os.unlink(name)
-            if not os.path.isdir(name):
-                open(name, 'w').write(zf.read(name))
+            for name in zf.namelist():
+                dname = os.path.dirname(name)
+                try: 
+                    os.makedirs(dname)
+                except FileExistsError: 
+                    pass
+                # if the file exists, then delete it before writing
+                # to it so that we don't end up trying to write to a symlink:
+                if os.path.isfile(name) or os.path.islink(name):
+                    os.unlink(name)
+                if not os.path.isdir(name):
+                    with open(name, 'w') as ofp:
+                        ofp.write(zf.read(name))
 
 if not os.path.isdir(scons_version) and os.path.isfile(tar_gz):
     # Unpack the .tar.gz file.  This should create the scons_version/

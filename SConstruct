@@ -96,14 +96,16 @@ git_status_lines = []
 
 if git:
     cmd = "%s ls-files 2> /dev/null" % git
-    git_status_lines = os.popen(cmd, "r").readlines()
+    with os.popen(cmd, "r") as p:
+        git_status_lines = p.readlines()
 
 revision = ARGUMENTS.get('REVISION', '')
 def generate_build_id(revision):
     return revision
 
 if not revision and git:
-    git_hash = os.popen("%s rev-parse HEAD 2> /dev/null" % git, "r").read().strip()
+    with os.popen("%s rev-parse HEAD 2> /dev/null" % git, "r") as p:
+        git_hash = p.read().strip()
     def generate_build_id(revision):
         result = git_hash
         if [l for l in git_status_lines if 'modified' in l]:
@@ -570,10 +572,9 @@ for p in [ scons ]:
     def write_src_files(target, source, **kw):
         global src_files
         src_files.sort()
-        f = open(str(target[0]), 'w')
-        for file in src_files:
-            f.write(file + "\n")
-        f.close()
+        with open(str(target[0]), 'w') as f:
+            for file in src_files:
+                f.write(file + "\n")
         return 0
     env.Command(os.path.join(build, 'MANIFEST'),
                 MANIFEST_in_list,
@@ -662,14 +663,14 @@ for p in [ scons ]:
         def Digestify(target, source, env):
             import hashlib
             src = source[0].rfile()
-            contents = open(str(src),'rb').read()
+            with open(str(src),'rb') as f:
+                contents = f.read()
             m = hashlib.md5()
             m.update(contents)
             sig = m.hexdigest()
             bytes = os.stat(str(src))[6]
-            open(str(target[0]), 'w').write("MD5 %s %s %d\n" % (sig,
-                                                                src.name,
-                                                                bytes))
+            with open(str(target[0]), 'w') as f:
+                f.write("MD5 %s %s %d\n" % (sig, src.name, bytes))
         env.Command(digest, tar_gz, Digestify)
 
     if not zipit:

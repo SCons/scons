@@ -24,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Verify that we re-run LaTeX when a source file in \lstinputlisting
 changes.
 

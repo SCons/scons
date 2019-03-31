@@ -57,10 +57,10 @@ def stripquote(s):
     return s
 args = stripquote(sys.argv[2]).split()
 args = list(map(stripquote, args))
-ofp = open(args[2], 'wb')
-for f in args[3:] + ['extra.txt']:
-    ofp.write(open(f, 'rb').read())
-ofp.close()
+with open(args[2], 'wb') as ofp:
+    for f in args[3:] + ['extra.txt']:
+        with open(f, 'rb') as ifp:
+            ofp.write(ifp.read())
 sys.exit(0)
 """ % locals())
 

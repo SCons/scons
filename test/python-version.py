@@ -45,7 +45,7 @@ test.write('SetOption-python', "SetOption('warn', ['no-python-version'])\n")
 
 if TestSCons.unsupported_python_version():
 
-    error = "scons: \*\*\* SCons version \S+ does not run under Python version %s."
+    error = r"scons: \*\*\* SCons version \S+ does not run under Python version %s."
     error = error % re.escape(TestSCons.python_version_string()) + "\n"
     test.run(arguments = '-Q', status = 1, stderr = error)
 

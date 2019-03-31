@@ -41,10 +41,10 @@ DefaultEnvironment(tools=[])
 env = Environment(tools=[]) 
 
 def concatenate(target, source, env):
-    fp = open(str(target[0]), 'wb')
-    for s in source:
-        fp.write(open(str(s), 'rb').read())
-    fp.close()
+    with open(str(target[0]), 'wb') as ofp:
+        for s in source:
+            with open(str(s), 'rb') as ifp:
+                ofp.write(ifp.read())
 
 env['BUILDERS']['Concatenate'] = Builder(action=concatenate)
 

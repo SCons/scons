@@ -46,10 +46,9 @@ sources = sys.argv[sep+1:]
 for i in range(len(targets)):
     t = targets[i]
     s = sources[i]
-    fp = open(t, 'wb')
-    fp.write(bytearray('%s\\n','utf-8'))
-    fp.write(open(s, 'rb').read())
-    fp.close()
+    with open(t, 'wb') as fp, open(s, 'rb') as infp:
+        fp.write(bytearray('%s\\n','utf-8'))
+        fp.write(infp.read())
 sys.exit(0)
 """
 

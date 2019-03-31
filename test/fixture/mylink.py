@@ -22,9 +22,9 @@ if __name__ == '__main__':
                 break
             args = args[1:]
             if a[:5].lower() == '/out:': out = a[5:]
-        with open(args[0], 'r') as ifp, open(out, 'w') as ofp:
+        with open(args[0], 'rb') as ifp, open(out, 'wb') as ofp:
             for l in ifp.readlines():
-                if not l.startswith('#link'):
+                if not l.startswith(b'#link'):
                     ofp.write(l)
         sys.exit(0)
     else:
@@ -32,8 +32,8 @@ if __name__ == '__main__':
         opts, args = getopt.getopt(sys.argv[1:], 'o:')
         for opt, arg in opts:
             if opt == '-o': out = arg
-        with open(args[0], 'r') as ifp, open(out, 'w') as ofp:
+        with open(args[0], 'rb') as ifp, open(out, 'wb') as ofp:
             for l in ifp.readlines():
-                if not l.startswith('#link'):
+                if not l.startswith(b'#link'):
                     ofp.write(l)
         sys.exit(0)

@@ -124,7 +124,7 @@ e.Foo(target='foo.out', source='SConstruct')
 
 test.run(arguments = '-Q .',
          stdout = "",
-         stderr = """.*Error loading site_init file.*Huh\?.*""",
+         stderr = r".*Error loading site_init file.*Huh\?.*",
          status=2,
          match=TestSCons.match_re_dotall)
 

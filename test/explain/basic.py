@@ -67,13 +67,15 @@ def process(outfp, infp):
                 print("os.getcwd() =", os.getcwd())
                 raise
             process(outfp, fp)
+            fp.close()
         else:
             outfp.write(line)
 
-outfp = open(sys.argv[1], 'w')
-for f in sys.argv[2:]:
-    if f != '-':
-        process(outfp, open(f, 'r'))
+with open(sys.argv[1], 'w') as ofp:
+    for f in sys.argv[2:]:
+        if f != '-':
+            with open(f, 'r') as ifp:
+                process(ofp, ifp)
 
 sys.exit(0)
 """)

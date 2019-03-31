@@ -47,7 +47,9 @@ def testForTool(tool):
         test.skip_test("ncurses not apparently installed, skip this test.")
 
     test.dir_fixture('LinkingProblem')
-    test.write('SConstruct', open('SConstruct_template', 'r').read().format(tool))
+    with open('SConstruct_template', 'r') as f:
+        config = f.read().format(tool)
+    test.write('SConstruct', config)
 
     test.run()
 

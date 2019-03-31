@@ -94,25 +94,29 @@ machine_rpm = 'foo-1.2.3-0.%s.rpm' % SCons.Tool.rpmutils.defaultMachine()
 test.must_exist( src_rpm )
 test.must_exist( machine_rpm )
 
-test.must_not_exist( 'bin/main' )
+test.must_not_exist('bin/main')
 
 cmd = 'rpm -qp --queryformat \'%%{GROUP}-%%{SUMMARY}-%%{DESCRIPTION}\' %s'
 
 os.environ['LANGUAGE'] = 'de'
-out = os.popen( cmd % test.workpath(machine_rpm) ).read()
-test.fail_test( out != 'Applikation/büro-hallo-das sollte wirklich lang sein' )
+with os.popen(cmd % test.workpath(machine_rpm)) as p:
+    out = p.read()
+test.fail_test(out != 'Applikation/büro-hallo-das sollte wirklich lang sein')
 
 os.environ['LANGUAGE'] = 'fr'
-out = os.popen( cmd % test.workpath(machine_rpm) ).read()
-test.fail_test( out != 'Application/bureau-bonjour-ceci devrait être vraiment long' )
+with os.popen(cmd % test.workpath(machine_rpm)) as p:
+    out = p.read()
+test.fail_test(out != 'Application/bureau-bonjour-ceci devrait être vraiment long')
 
 os.environ['LANGUAGE'] = 'en'
-out = os.popen( cmd % test.workpath(machine_rpm) ).read()
-test.fail_test( out != 'Application/office-hello-this should be really long' )
+with os.popen(cmd % test.workpath(machine_rpm)) as p:
+    out = p.read()
+test.fail_test(out != 'Application/office-hello-this should be really long')
 
 os.environ['LC_ALL'] = 'ae'
-out = os.popen( cmd % test.workpath(machine_rpm) ).read()
-test.fail_test( out != 'Application/office-hello-this should be really long' )
+with os.popen(cmd % test.workpath(machine_rpm)) as p:
+    out = p.read()
+test.fail_test(out != 'Application/office-hello-this should be really long')
 
 #
 # test INTERNATIONAL PACKAGE TAGS

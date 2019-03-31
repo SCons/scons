@@ -36,10 +36,10 @@ test.write('sleep_cat.py', """\
 import sys
 import time
 time.sleep(int(sys.argv[1]))
-fp = open(sys.argv[2], 'wb')
-for arg in sys.argv[3:]:
-    fp.write(open(arg, 'rb').read())
-fp.close()
+with open(sys.argv[2], 'wb') as fp:
+    for arg in sys.argv[3:]:
+        with open(arg, 'rb') as infp:
+            fp.write(infp.read())
 sys.exit(0)
 """)
 

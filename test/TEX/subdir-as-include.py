@@ -24,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 This is an obscure test case. When
   1) a file without a suffix is included in a TeX build and
   2) there is a directory with the same name as that file,

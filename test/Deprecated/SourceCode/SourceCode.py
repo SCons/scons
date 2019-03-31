@@ -49,10 +49,10 @@ import os
 
 def cat(env, source, target):
     target = str(target[0])
-    f = open(target, "wb")
-    for src in source:
-        f.write(open(str(src), "rb").read())
-    f.close()
+    with open(target, "wb") as ofp:
+        for src in source:
+            with open(str(src), "rb") as ifp:
+                ofp.write(ifp.read())
 
 def sc_cat(env, source, target):
     source = []

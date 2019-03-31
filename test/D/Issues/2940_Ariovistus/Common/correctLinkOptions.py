@@ -61,7 +61,9 @@ def testForTool(tool):
         test.fail_test('No information about platform: ' + platform)
 
     test.dir_fixture('Project')
-    test.write('SConstruct', open('SConstruct_template', 'r').read().format('tools=["{0}", "link"]'.format(tool)))
+    with open('SConstruct_template', 'r') as f:
+        config = f.read().format('tools=["{0}", "link"]'.format(tool))
+    test.write('SConstruct', config)
 
     test.run()
 

@@ -87,7 +87,8 @@ exceptall_pat   = re.compile(r' *except(?: *| +Exception *, *[^: ]+):[^\n]*')
 
 uncaughtKeyboardInterrupt = 0
 for f in files:
-    contents = open(os.path.join(scons_lib_dir, f)).read()
+    with open(os.path.join(scons_lib_dir, f)) as ifp:
+        contents = ifp.read()
     try_except_lines = {}
     lastend = 0
     while True:

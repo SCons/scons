@@ -84,8 +84,8 @@ if moc:
     qtdir = os.path.dirname(os.path.dirname(moc))
     qtdir = qtdir.replace('\\', '\\\\' )
 
-    expect = """
-scons: warning: Could not detect qt, using moc executable as a hint \(QTDIR=%s\)
+    expect = \
+r"""scons: warning: Could not detect qt, using moc executable as a hint \(QTDIR=%s\)
 File "%s", line \d+, in (\?|<module>)
 """ % (qtdir, re.escape(SConstruct_path))
 else:

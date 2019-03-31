@@ -36,8 +36,6 @@ test = TestSCons.TestSCons()
 
 test.write('build.py', r"""
 import sys
-input = open(sys.argv[1], 'r')
-output = open(sys.argv[2], 'w')
 
 include_prefix = 'include%s ' % sys.argv[1][-1]
 
@@ -45,11 +43,13 @@ def process(infp, outfp):
     for line in infp.readlines():
         if line[:len(include_prefix)] == include_prefix:
             file = line[len(include_prefix):-1]
-            process(open(file, 'r'), outfp)
+            with open(file, 'r') as f:
+                process(f, outfp)
         else:
             outfp.write(line)
 
-process(input, output)
+with open(sys.argv[2], 'w') as ofp, open(sys.argv[1], 'r') as ifp:
+    process(ifp, ofp)
 
 sys.exit(0)
 """)

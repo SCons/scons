@@ -42,25 +42,25 @@ test = TestSCons.TestSCons(match = TestSCons.match_re)
 test.write('test_linker.py', r"""
 import sys
 if sys.argv[1] == '-o':
-    outfile = open(sys.argv[2], 'wb')
+    ofp = open(sys.argv[2], 'wb')
     infiles = sys.argv[3:]
 elif sys.argv[1][:5] == '/OUT:':
-    outfile = open(sys.argv[1][5:], 'wb')
+    ofp = open(sys.argv[1][5:], 'wb')
     infiles = sys.argv[2:]
 for infile in infiles:
-    with open(infile, 'rb') as f:
-        outfile.write(f.read())
-outfile.close()
+    with open(infile, 'rb') as ifp:
+        ofp.write(ifp.read())
+ofp.close()
 sys.exit(0)
 """)
 
 
 test.write('test_fortran.py', r"""
 import sys
-outfile = open(sys.argv[2], 'wb')
-for infile in sys.argv[4:]:
-    outfile.write(open(infile, 'rb').read())
-outfile.close()
+with open(sys.argv[2], 'wb') as ofp:
+    for infile in sys.argv[4:]:
+        with open(infile, 'rb') as ifp:
+            ofp.write(ifp.read())
 sys.exit(0)
 """)
 
@@ -70,8 +70,9 @@ import SCons.Tool.link
 def copier(target, source, env):
     s = str(source[0])
     t = str(target[0])
-    with open(t, 'wb') as fo, open(s, 'rb') as fi:
-        fo.write(fi.read())
+    with open(t, 'wb') as ofp, open(s, 'rb') as ifp:
+        ofp.write(ifp.read())
+
 env = Environment(CXX = r'%(_python_)s test_linker.py',
                   CXXCOM = Action(copier),
                   SMARTLINK = SCons.Tool.link.smart_link,

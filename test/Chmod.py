@@ -45,10 +45,10 @@ Execute(Chmod('d2', 0o777))
 Execute(Chmod(Dir('d2-Dir'), 0o777))
 def cat(env, source, target):
     target = str(target[0])
-    f = open(target, "wb")
-    for src in source:
-        f.write(open(str(src), "rb").read())
-    f.close()
+    with open(target, "wb") as f:
+        for src in source:
+            with open(str(src), "rb") as infp:
+                f.write(infp.read())
 Cat = Action(cat)
 env = Environment()
 env.Command('bar.out', 'bar.in', [Cat,

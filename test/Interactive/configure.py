@@ -51,15 +51,14 @@ env = Environment(CXXCOM = r'%(_python_)s mycc.py $TARGET $SOURCE',
 # Ensure that our 'compiler' works...
 def CheckMyCC(context):
     context.Message('Checking for MyCC compiler...')
-    result = context.TryBuild(context.env.Object, 
-                              'int main(void) {return 0;}', 
+    result = context.TryBuild(context.env.Object,
+                              'int main(void) {return 0;}',
                               '.cpp')
     context.Result(result)
     return result
-    
-conf = Configure(env, 
-                 custom_tests = {'CheckMyCC' : CheckMyCC})
-                 
+
+conf = Configure(env, custom_tests = {'CheckMyCC' : CheckMyCC})
+
 if conf.CheckMyCC():
     pass # build succeeded
 else:

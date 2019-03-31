@@ -41,10 +41,8 @@ test.subdir('work1', 'work2')
 
 test.write('build.py', r"""
 import sys
-contents = open(sys.argv[2], 'rb').read()
-file = open(sys.argv[1], 'wb')
-file.write(contents)
-file.close()
+with open(sys.argv[1], 'wb') as f, open(sys.argv[2], 'rb') as infp:
+    f.write(infp.read())
 """)
 
 

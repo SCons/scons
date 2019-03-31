@@ -47,7 +47,8 @@ import os.path
 if not os.path.exists('mkl'):
   os.mkdir('mkl')
 if not os.path.exists('test.c'):
-  open('test.c', 'w').write('int i;')
+  with open('test.c', 'w') as f:
+      f.write('int i;')
 
 env=Environment()
 env.SharedObject('all-defuns.obj', 'all-defuns.c')

@@ -45,7 +45,9 @@ def testForTool(tool):
         test.skip_test("Required executable for tool '{0}' not found, skipping test.\n".format(tool))
 
     test.dir_fixture('SingleStringCannotBeMultipleOptions')
-    test.write('SConstruct', open('SConstruct_template', 'r').read().format(tool))
+    with open('SConstruct_template', 'r') as f:
+        config = f.read().format(tool)
+    test.write('SConstruct', config)
 
     test.run(status=2, stdout=None, stderr=None)
 

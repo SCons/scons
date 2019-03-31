@@ -47,14 +47,16 @@ import re
 import sys
 # case insensitive matching, because Fortran is case insensitive
 mod_regex = "(?im)^\\s*MODULE\\s+(?!PROCEDURE)(\\w+)"
-contents = open(sys.argv[2]).read()
+with open(sys.argv[2]) as f:
+    contents = f.read()
 modules = re.findall(mod_regex, contents)
 (prefix, moddir) = sys.argv[1].split('=')
 if prefix != 'moduledir':
     sys.exit(1)
 modules = [os.path.join(moddir, m.lower()+'.mod') for m in modules]
 for t in sys.argv[3:] + modules:
-    open(t, 'wb').write(('myfortran.py wrote %s\n' % os.path.split(t)[1]).encode())
+    with open(t, 'wb') as f:
+        f.write(('myfortran.py wrote %s\n' % os.path.split(t)[1]).encode())
 """)
 
 test.write('SConstruct', """

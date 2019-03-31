@@ -9,10 +9,10 @@ has made a modification.
 import sys
 
 if __name__ == '__main__':
-    line = '/*' + sys.argv[1] + '*/\n'
-    with open(sys.argv[2], 'w') as ofp:
+    line = ('/*' + sys.argv[1] + '*/\n').encode()
+    with open(sys.argv[2], 'wb') as ofp:
         for f in sys.argv[3:]:
-            with open(f, 'r') as ifp:
+            with open(f, 'rb') as ifp:
                 lines = [l for l in ifp.readlines() if l != line]
                 for l in lines:
                     ofp.write(l)

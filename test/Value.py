@@ -63,7 +63,6 @@ def create_value (target, source, env):
     target[0].write(source[0].get_contents())
 
 def create_value_file (target, source, env):
-    #open(str(target[0]), 'wb').write(source[0].read())
     with open(str(target[0]), 'wb') as f:
         f.write(source[0].read())
 
