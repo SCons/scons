@@ -1080,7 +1080,7 @@ V10DSPPropertyGroupCondition = """\
 
 V10DSPImportGroupCondition = """\
 \t<ImportGroup Condition="'$(Configuration)|$(Platform)'=='%(variant)s|%(platform)s'" Label="PropertySheets">
-\t\t<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+\t\t<Import Project="$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
 \t</ImportGroup>
 """
 
@@ -1159,7 +1159,7 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
         name = self.name
         confkeys = sorted(self.configs.keys())
 
-        self.file.write('\t<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />\n')
+        self.file.write('\t<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.Default.props" />\n')
 
         toolset = ''
         if 'MSVC_VERSION' in self.env:
@@ -1170,7 +1170,7 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
             platform = self.configs[kind].platform
             self.file.write(V10DSPPropertyGroupCondition % locals())
 
-        self.file.write('\t<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />\n')
+        self.file.write('\t<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.props" />\n')
         self.file.write('\t<ImportGroup Label="ExtensionSettings">\n')
         self.file.write('\t</ImportGroup>\n')
 
@@ -1233,7 +1233,7 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
         self.filters_file.write('</Project>')
         self.filters_file.close()
 
-        self.file.write('\t<Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />\n'
+        self.file.write('\t<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />\n'
                         '\t<ImportGroup Label="ExtensionTargets">\n'
                         '\t</ImportGroup>\n'
                         '</Project>\n')

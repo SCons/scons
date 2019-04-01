@@ -370,7 +370,7 @@ testprefix = 'testcmd.'
 if os.name in ('posix', 'nt'):
     testprefix += "%s." % str(os.getpid())
 
-re_space = re.compile('\s')
+re_space = re.compile(r'\s')
 
 
 def _caller(tblist, skip):

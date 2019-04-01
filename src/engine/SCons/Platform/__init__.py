@@ -47,7 +47,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
 
-import imp
+import importlib
 import os
 import sys
 import tempfile
@@ -101,13 +101,8 @@ def platform_module(name = platform_default()):
             eval(full_name)
         else:
             try:
-                file, path, desc = imp.find_module(name,
-                                        sys.modules['SCons.Platform'].__path__)
-                try:
-                    mod = imp.load_module(full_name, file, path, desc)
-                finally:
-                    if file:
-                        file.close()
+                # the specific platform module is a relative import
+                mod = importlib.import_module("." + name, __name__)
             except ImportError:
                 try:
                     import zipimport

@@ -280,8 +280,10 @@ class chmod_TestCase(TestCmdTestCase):
         wdir_file1 = os.path.join(test.workdir, 'file1')
         wdir_sub_file2 = os.path.join(test.workdir, 'sub', 'file2')
 
-        open(wdir_file1, 'w').write("")
-        open(wdir_sub_file2, 'w').write("")
+        with open(wdir_file1, 'w') as f:
+            f.write("")
+        with open(wdir_sub_file2, 'w') as f:
+            f.write("")
 
         if sys.platform == 'win32':
 
@@ -1576,11 +1578,16 @@ class read_TestCase(TestCmdTestCase):
         wdir_file4 = os.path.join(test.workdir, 'file4')
         wdir_file5 = os.path.join(test.workdir, 'file5')
 
-        open(wdir_file1, 'wb').write("")
-        open(wdir_file2, 'wb').write("Test\nfile\n#2.\n")
-        open(wdir_foo_file3, 'wb').write("Test\nfile\n#3.\n")
-        open(wdir_file4, 'wb').write("Test\nfile\n#4.\n")
-        open(wdir_file5, 'wb').write("Test\r\nfile\r\n#5.\r\n")
+        with open(wdir_file1, 'wb') as f:
+            f.write("")
+        with open(wdir_file2, 'wb') as f:
+            f.write("Test\nfile\n#2.\n")
+        with open(wdir_foo_file3, 'wb') as f:
+            f.write("Test\nfile\n#3.\n")
+        with open(wdir_file4, 'wb') as f:
+            f.write("Test\nfile\n#4.\n")
+        with open(wdir_file5, 'wb') as f:
+            f.write("Test\r\nfile\r\n#5.\r\n")
 
         try:
             contents = test.read('no_file')
@@ -2343,16 +2350,15 @@ sys.stderr = Unbuffered(sys.stderr)
 
 sys.stdout.write('script_recv:  STDOUT\\n')
 sys.stderr.write('script_recv:  STDERR\\n')
-logfp = open(r'%s', 'wb')
-while 1:
-    line = sys.stdin.readline()
-    if not line:
-        break
-    logfp.write('script_recv:  ' + line)
-    sys.stdout.write('script_recv:  STDOUT:  ' + line)
-    sys.stderr.write('script_recv:  STDERR:  ' + line)
-logfp.close()
-        """ % t.recv_out_path
+with open(r'%s', 'wb') as logfp:
+    while 1:
+        line = sys.stdin.readline()
+        if not line:
+            break
+        logfp.write('script_recv:  ' + line)
+        sys.stdout.write('script_recv:  STDOUT:  ' + line)
+        sys.stderr.write('script_recv:  STDERR:  ' + line)
+""" % t.recv_out_path
         t.run_env.write(t.recv_script_path, text)
         os.chmod(t.recv_script_path, 0o644)  # XXX UNIX-specific
         return t
@@ -2621,7 +2627,8 @@ script_recv:  STDERR:  input
             p.stdin.write(input)
             p.stdin.close()
             p.wait()
-            result = open(t.recv_out_path, 'rb').read()
+            with open(t.recv_out_path, 'rb') as f:
+                result = f.read()
             expect = 'script_recv:  ' + input
             assert result == expect, repr(result)
 
@@ -2630,7 +2637,8 @@ script_recv:  STDERR:  input
             p.send(input)
             p.stdin.close()
             p.wait()
-            result = open(t.recv_out_path, 'rb').read()
+            with open(t.recv_out_path, 'rb') as f:
+                result = f.read()
             expect = 'script_recv:  ' + input
             assert result == expect, repr(result)
 
@@ -2689,7 +2697,8 @@ script_recv:  STDERR:  input to the receive script
 """
             assert stdout == expect_stdout, stdout
             assert stderr == expect_stderr, stderr
-            result = open(t.recv_out_path, 'rb').read()
+            with open(t.recv_out_path, 'rb') as f:
+                result = f.read()
             expect = ('script_recv:  ' + input) * 2
             assert result == expect, (result, stdout, stderr)
 
@@ -2807,15 +2816,18 @@ class symlink_TestCase(TestCmdTestCase):
         test.symlink('target1', 'file1')
         assert os.path.islink(wdir_file1)
         assert not os.path.exists(wdir_file1)
-        open(wdir_target1, 'w').write("")
+        with open(wdir_target1, 'w') as f:
+            f.write("")
         assert os.path.exists(wdir_file1)
 
         test.symlink('target2', ['foo', 'file2'])
         assert os.path.islink(wdir_foo_file2)
         assert not os.path.exists(wdir_foo_file2)
-        open(wdir_target2, 'w').write("")
+        with open(wdir_target2, 'w') as f:
+            f.write("")
         assert not os.path.exists(wdir_foo_file2)
-        open(wdir_foo_target2, 'w').write("")
+        with open(wdir_foo_target2, 'w') as f:
+            f.write("")
         assert os.path.exists(wdir_foo_file2)
 
 
@@ -2947,12 +2959,18 @@ class unlink_TestCase(TestCmdTestCase):
         wdir_foo_file4 = os.path.join(test.workdir, 'foo', 'file4')
         wdir_file5 = os.path.join(test.workdir, 'file5')
 
-        open(wdir_file1, 'w').write("")
-        open(wdir_file2, 'w').write("")
-        open(wdir_foo_file3a, 'w').write("")
-        open(wdir_foo_file3b, 'w').write("")
-        open(wdir_foo_file4, 'w').write("")
-        open(wdir_file5, 'w').write("")
+        with open(wdir_file1, 'w') as f:
+            f.write("")
+        with open(wdir_file2, 'w') as f:
+            f.write("")
+        with open(wdir_foo_file3a, 'w') as f:
+            f.write("")
+        with open(wdir_foo_file3b, 'w') as f:
+            f.write("")
+        with open(wdir_foo_file4, 'w') as f:
+            f.write("")
+        with open(wdir_file5, 'w') as f:
+            f.write("")
 
         try:
             contents = test.unlink('no_file')
@@ -2981,20 +2999,17 @@ class unlink_TestCase(TestCmdTestCase):
         # For Windows, open the file.
         os.chmod(test.workdir, 0o500)
         os.chmod(wdir_file5, 0o400)
-        f = open(wdir_file5, 'r')
-
-        try:
+        with open(wdir_file5, 'r'):
             try:
-                test.unlink('file5')
-            except OSError: # expect "Permission denied"
-                pass
-            except:
-                raise
-        finally:
-            os.chmod(test.workdir, 0o700)
-            os.chmod(wdir_file5, 0o600)
-            f.close()
-
+                try:
+                    test.unlink('file5')
+                except OSError: # expect "Permission denied"
+                    pass
+                except:
+                    raise
+            finally:
+                os.chmod(test.workdir, 0o700)
+                os.chmod(wdir_file5, 0o600)
 
 
 class touch_TestCase(TestCmdTestCase):
@@ -3005,8 +3020,10 @@ class touch_TestCase(TestCmdTestCase):
         wdir_file1 = os.path.join(test.workdir, 'file1')
         wdir_sub_file2 = os.path.join(test.workdir, 'sub', 'file2')
 
-        open(wdir_file1, 'w').write("")
-        open(wdir_sub_file2, 'w').write("")
+        with open(wdir_file1, 'w') as f:
+            f.write("")
+        with open(wdir_sub_file2, 'w') as f:
+            f.write("")
 
         file1_old_time = os.path.getmtime(wdir_file1)
         file2_old_time = os.path.getmtime(wdir_sub_file2)
@@ -3312,9 +3329,10 @@ class write_TestCase(TestCmdTestCase):
         if os.name != "nt":
             assert not os.path.exists(test.workpath('file10'))
 
-        assert open(test.workpath('file8'), 'r').read() == "Test file #8.\n"
-        assert open(test.workpath('file9'), 'rb').read() == "Test file #9.\r\n"
-
+        with open(test.workpath('file8'), 'r') as f:
+            assert f.read() == "Test file #8.\n"
+        with open(test.workpath('file9'), 'rb') as f:
+            assert f.read() == "Test file #9.\r\n"
 
 
 class variables_TestCase(TestCmdTestCase):
