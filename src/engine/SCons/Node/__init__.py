@@ -529,6 +529,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
 
     __slots__ = ['sources',
                  'sources_set',
+                 'target_peers',
                  '_specific_sources',
                  'depends',
                  'depends_set',
@@ -797,7 +798,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             # https://github.com/SCons/scons/issues/2811
             # https://jira.mongodb.org/browse/SERVER-33111
             try:
-                for peer in parent.attributes.target_peers:
+                for peer in parent.target_peers:
                     peer.implicit = None
             except AttributeError as e:
                 pass
