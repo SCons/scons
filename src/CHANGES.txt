@@ -10,6 +10,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Mats Wichmann:
     - scons-time takes more care closing files and uses safer mkdtemp to avoid
       possible races on multi-job runs.
+    - Use importlib to dynamically load tool and platform modules instead of imp module
 
   From John Doe:
 

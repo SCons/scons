@@ -41,6 +41,7 @@ import shutil
 import sys
 import tempfile
 import time
+import subprocess
 
 def HACK_for_exec(cmd, *args):
     """
@@ -443,8 +444,14 @@ class SConsTimer(object):
 
     def log_execute(self, command, log):
         command = self.subst(command, self.__dict__)
-        with os.popen(command) as p:
-            output = p.read()
+        p = os.popen(command)
+        output = p.read()
+        p.close()
+        #TODO: convert to subrocess, os.popen is obsolete. This didn't work:
+        #process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
+        #output = process.stdout.read()
+        #process.stdout.close()
+        #process.wait()
         if self.verbose:
             sys.stdout.write(output)
         # TODO: Figure out

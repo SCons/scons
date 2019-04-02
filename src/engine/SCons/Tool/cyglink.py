@@ -133,7 +133,7 @@ def _versioned_lib_suffix(env, suffix, version):
     if Verbose:
         print("_versioned_lib_suffix: suffix= ", suffix)
         print("_versioned_lib_suffix: version= ", version)
-    cygversion = re.sub('\.', '-', version)
+    cygversion = re.sub(r'\.', '-', version)
     if not suffix.startswith('-' + cygversion):
         suffix = '-' + cygversion + suffix
     if Verbose:

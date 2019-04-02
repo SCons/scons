@@ -37,8 +37,6 @@ tool definition.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import imp
-import importlib
 import sys
 import re
 import os
@@ -121,6 +119,8 @@ class Tool(object):
             self.options = module.options
 
     def _load_dotted_module_py2(self, short_name, full_name, searchpaths=None):
+        import imp
+
         splitname = short_name.split('.')
         index = 0
         srchpths = searchpaths

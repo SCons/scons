@@ -272,7 +272,8 @@ class TestSCons_time(TestCommon):
             d, f = os.path.split(path)
             if not os.path.isdir(d):
                 os.makedirs(d)
-            open(path, 'w').write(content)
+            with open(path, 'w') as f:
+                f.write(content)
         return dir
 
     def write_sample_tarfile(self, archive, dir, files):
