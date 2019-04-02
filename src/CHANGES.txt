@@ -7,14 +7,25 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From William Deegan:
+    - Enhanced --debug=explain output. Now the separate components of the dependency list are split up
+      as follows:
+      
+      scons: rebuilding `file3' because:
+           the dependency order changed:
+           ->Sources
+           Old:xxx	New:zzz
+           Old:yyy	New:yyy
+           Old:zzz	New:xxx
+           ->Depends
+           ->Implicit
+           Old:/usr/bin/python	New:/usr/bin/python
+
+
   From Mats Wichmann:
     - scons-time takes more care closing files and uses safer mkdtemp to avoid
       possible races on multi-job runs.
     - Use importlib to dynamically load tool and platform modules instead of imp module
-
-  From John Doe:
-
-    - Whatever John Doe did.
 
 
 RELEASE 3.0.5 - Mon, 26 Mar 2019 15:04:42 -0700
