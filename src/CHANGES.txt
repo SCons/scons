@@ -11,6 +11,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - scons-time takes more care closing files and uses safer mkdtemp to avoid
       possible races on multi-job runs.
     - Use importlib to dynamically load tool and platform modules instead of imp module
+    - sconsign: default to .sconsign.dblite if no filename is specified.
+      Be more informative in case of unsupported pickle protocol (py2 only).
 
   From John Doe:
 
