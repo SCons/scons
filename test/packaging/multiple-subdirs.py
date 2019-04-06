@@ -42,7 +42,7 @@ if not tar:
 test.subdir('one', 'two', 'three')
 
 test.write('SConstruct', """\
-env = Environment(tools=['default', 'packaging'])
+env = Environment(tools=['packaging', 'filesystem', 'tar'])
 Export('env')
 SConscript(dirs = ['one', 'two', 'three'])
 """)
