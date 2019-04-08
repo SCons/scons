@@ -447,7 +447,7 @@ def build_license_file(directory, spec):
             if text!='':
                  f.write(text.replace('\n', '\\par '))
             else:
-                 file.write(name+'\\par\\par')
+                 f.write(name+'\\par\\par')
             f.write('}')
 
 #

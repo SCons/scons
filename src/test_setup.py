@@ -178,8 +178,8 @@ zip = os.path.join(cwd, 'build', 'dist', '%s.zip' % scons_version)
 if os.path.isfile(zip):
     try: 
         import zipfile
-    except 
-        ImportError: pass
+    except ImportError:
+        pass
     else:
         with zipfile.ZipFile(zip, 'r') as zf:
 

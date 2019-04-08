@@ -785,7 +785,7 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
                 kw[stream] = DEVNULL
             else:
                 if sys.platform == 'win32':
-                    kw[stream] = msvcrt.get_osfhandle(open(os.devnull, "r+"))
+                    kw[stream] = msvcrt.get_osfhandle(os.open(os.devnull, os.O_RDWR))
                 else:
                     kw[stream] = open(os.devnull, "r+")
 
