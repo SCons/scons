@@ -1751,7 +1751,7 @@ def exists(env):
         env2.Dictionary()['ZZZ'][5] = 6
         assert env1.Dictionary()['XXX'] == env2.Dictionary()['XXX']
         assert 4 in env2.Dictionary()['YYY']
-        assert not 4 in env1.Dictionary()['YYY']
+        assert 4 not in env1.Dictionary()['YYY']
         assert 5 in env2.Dictionary()['ZZZ']
         assert 5 not in env1.Dictionary()['ZZZ']
 
@@ -1942,20 +1942,21 @@ def generate(env):
         defaults that get inserted.
         """
         env = self.TestEnvironment(XXX = 'x', YYY = 'y', ZZZ = 'z')
-        assert env.Dictionary()['XXX'] == 'x'
-        assert env.Dictionary()['YYY'] == 'y'
-        assert not {'x', 'z'}.difference(env.Dictionary('XXX', 'ZZZ').values())
+        assert env.Dictionary()['XXX'] == 'x', env.Dictionary()['XXX']
+        assert env.Dictionary()['YYY'] == 'y', env.Dictionary()['YYY']
+        assert set(env.Dictionary('XXX', 'ZZZ').values()) == {'x', 'z'}, \
+            set(env.Dictionary('XXX', 'ZZZ').values())
         xxx = env.Dictionary('XXX', 'ZZZ')
-        assert xxx['XXX'] == 'x'
-        assert xxx['ZZZ'] == 'z'
+        assert xxx['XXX'] == 'x', xxx['XXX']
+        assert xxx['ZZZ'] == 'z', xxx['ZZZ']
         assert 'BUILDERS' in env.Dictionary()
         assert 'CC' in env.Dictionary()
         assert 'CCFLAGS' in env.Dictionary()
         assert 'ENV' in env.Dictionary()
 
-        assert env['XXX'] == 'x'
+        assert env['XXX'] == 'x', env['XXX']
         env['XXX'] = 'foo'
-        assert env.Dictionary()['XXX'] == 'foo'
+        assert env.Dictionary()['XXX'] == 'foo', env.Dictionary()['XXX']
         del env['XXX']
         assert 'XXX' not in env.Dictionary()
 
@@ -1971,15 +1972,21 @@ def generate(env):
         paths = [os.path.join('dir', 'libfoo.a'),
                  os.path.join('dir', 'libfoo.so')]
 
-        assert paths[0] == env.FindIxes(paths, 'LIBPREFIX', 'LIBSUFFIX')
-        assert paths[1] == env.FindIxes(paths, 'SHLIBPREFIX', 'SHLIBSUFFIX')
-        assert None is env.FindIxes(paths, 'PREFIX', 'POST')
+        assert env.FindIxes(paths, 'LIBPREFIX', 'LIBSUFFIX') == paths[0], \
+            env.FindIxes(paths, 'LIBPREFIX', 'LIBSUFFIX')
+        assert env.FindIxes(paths, 'SHLIBPREFIX', 'SHLIBSUFFIX') == paths[1], \
+            env.FindIxes(paths, 'SHLIBPREFIX', 'SHLIBSUFFIX')
+        assert env.FindIxes(paths, 'PREFIX', 'POST') is None, \
+            env.FindIxes(paths, 'PREFIX', 'POST')
 
         paths = ['libfoo.a', 'prefoopost']
 
-        assert paths[0] == env.FindIxes(paths, 'LIBPREFIX', 'LIBSUFFIX')
-        assert None is env.FindIxes(paths, 'SHLIBPREFIX', 'SHLIBSUFFIX')
-        assert paths[1] == env.FindIxes(paths, 'PREFIX', 'SUFFIX')
+        assert env.FindIxes(paths, 'LIBPREFIX', 'LIBSUFFIX') == paths[0], \
+            env.FindIxes(paths, 'LIBPREFIX', 'LIBSUFFIX')
+        assert env.FindIxes(paths, 'SHLIBPREFIX', 'SHLIBSUFFIX') is None, \
+            env.FindIxes(paths, 'SHLIBPREFIX', 'SHLIBSUFFIX')
+        assert env.FindIxes(paths, 'PREFIX', 'SUFFIX') == paths[1], \
+            env.FindIxes(paths, 'PREFIX', 'SUFFIX')
 
     def test_ParseConfig(self):
         """Test the ParseConfig() method"""
@@ -2929,7 +2936,8 @@ def generate(env):
     def test_Dump(self):
         """Test the Dump() method"""
 
-        # this is to format the expected string
+        # this is to format the expected string to match,
+        # since Dump() uses the same method to format
         import pprint
         pp = pprint.PrettyPrinter(indent=2)
         expect = pp.pformat({'FOO': 'foo'})

@@ -45,7 +45,7 @@ class TestEnvironment(SCons.Environment.Environment):
 SCons.Tool.find_program_path = no_lex
 
 foo = TestEnvironment(tools=['default', 'lex'])
-print(foo.Dictionary('LEX'))
+print(foo.Dictionary()['LEX'])
 """ % locals())
 
 test.run(arguments = '-Q -s', stdout = 'None\n' )
