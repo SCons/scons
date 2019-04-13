@@ -70,11 +70,15 @@ def lexEmitter(target, source, env):
 
 def get_lex_path(env, append_paths=False):
     """
-    Find the a path containing the lex or flex binaries. If a construction 
-    environment is passed in then append the path to the ENV PATH.
+    Find the path to the lex tool, searching several possible names
+
+    Only called in the Windows case, so the default_path
+    can be Windows-specific
+
+    :param env: current construction environment
+    :param append_paths: if set, add the path to the tool to PATH
+    :return: path to lex tool, if found
     """
-    # save existing path to reset if we don't want to append any paths
-    envPath = env['ENV']['PATH']
     bins = ['flex', 'lex', 'win_flex']
 
     for prog in bins:
@@ -83,9 +87,7 @@ def get_lex_path(env, append_paths=False):
             prog, 
             default_paths=CHOCO_DEFAULT_PATH + MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
         if bin_path:
-            if not append_paths:
-                env['ENV']['PATH'] = envPath
-            else:
+            if append_paths:
                 env.AppendENVPath('PATH', os.path.dirname(bin_path))
             return bin_path
     SCons.Warnings.Warning('lex tool requested, but lex or flex binary not found in ENV PATH')
@@ -113,7 +115,8 @@ def generate(env):
     env["LEXFLAGS"] = SCons.Util.CLVar("")
 
     if sys.platform == 'win32':
-        get_lex_path(env, append_paths=True)
+        # ignore the return - we do not need the full path here
+        _ = get_lex_path(env, append_paths=True)
         env["LEX"] = env.Detect(['flex', 'lex', 'win_flex'])
         if not env.get("LEXUNISTD"):
             env["LEXUNISTD"] = SCons.Util.CLVar("")

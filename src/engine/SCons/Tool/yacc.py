@@ -100,11 +100,15 @@ def yyEmitter(target, source, env):
 
 def get_yacc_path(env, append_paths=False):
     """
-    Find the a path containing the lex or flex binaries. If a construction 
-    environment is passed in then append the path to the ENV PATH.
+    Find the path to the yacc tool, searching several possible names
+
+    Only called in the Windows case, so the default_path
+    can be Windows-specific
+
+    :param env: current construction environment
+    :param append_paths: if set, add the path to the tool to PATH
+    :return: path to yacc tool, if found
     """
-    # save existing path to reset if we don't want to append any paths
-    envPath = env['ENV']['PATH']
     bins = ['bison', 'yacc', 'win_bison']
 
     for prog in bins:
@@ -113,12 +117,11 @@ def get_yacc_path(env, append_paths=False):
             prog, 
             default_paths=CHOCO_DEFAULT_PATH + MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
         if bin_path:
-            if not append_paths:
-                env['ENV']['PATH'] = envPath
-            else:
+            if append_paths:
                 env.AppendENVPath('PATH', os.path.dirname(bin_path))
             return bin_path
-    SCons.Warnings.Warning('lex tool requested, but lex or flex binary not found in ENV PATH')
+    SCons.Warnings.Warning('yacc tool requested, but yacc or bison binary not found in ENV PATH')
+
 
 def generate(env):
     """Add Builders and construction variables for yacc to an Environment."""
@@ -148,7 +151,8 @@ def generate(env):
             SCons.Warnings.Warning('yacc tool requested, but bison binary not found in ENV PATH')
 
     if sys.platform == 'win32':
-        get_yacc_path(env, append_paths=True)
+        # ignore the return - we do not need the full path here
+        _ = get_yacc_path(env, append_paths=True)
         env["YACC"] = env.Detect(['bison', 'yacc', 'win_bison'])
     else:
         env["YACC"] = env.Detect(["bison", "yacc"])
@@ -162,7 +166,10 @@ def generate(env):
     env['YACCVCGFILESUFFIX'] = '.vcg'
 
 def exists(env):
-    return env.Detect(['bison', 'yacc'])
+    if sys.platform == 'win32':
+        return get_yacc_path(env)
+    else:
+        return env.Detect(['bison', 'yacc'])
 
 # Local Variables:
 # tab-width:4
