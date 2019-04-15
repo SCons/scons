@@ -45,6 +45,11 @@ from SCons.Platform.win32 import CHOCO_DEFAULT_PATH
 
 YaccAction = SCons.Action.Action("$YACCCOM", "$YACCCOMSTR")
 
+if sys.platform == 'win32':
+    BINS = ['bison', 'yacc', 'win_bison']
+else:
+    BINS = ["bison", "yacc"]
+
 def _yaccEmitter(target, source, env, ysuf, hsuf):
     yaccflags = env.subst("$YACCFLAGS", target=target, source=source)
     flags = SCons.Util.CLVar(yaccflags)
@@ -109,12 +114,10 @@ def get_yacc_path(env, append_paths=False):
     :param append_paths: if set, add the path to the tool to PATH
     :return: path to yacc tool, if found
     """
-    bins = ['bison', 'yacc', 'win_bison']
-
-    for prog in bins:
+    for prog in BINS:
         bin_path = SCons.Tool.find_program_path(
-            env, 
-            prog, 
+            env,
+            prog,
             default_paths=CHOCO_DEFAULT_PATH + MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
         if bin_path:
             if append_paths:
@@ -143,33 +146,21 @@ def generate(env):
     cxx_file.add_emitter('.yy', yyEmitter)
 
     if sys.platform == 'win32':
-        bison = SCons.Tool.find_program_path(env, 'bison', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
-        if bison:
-            bison_bin_dir = os.path.dirname(bison)
-            env.AppendENVPath('PATH', bison_bin_dir)
-        else:
-            SCons.Warnings.Warning('yacc tool requested, but bison binary not found in ENV PATH')
-
-    if sys.platform == 'win32':
-        # ignore the return - we do not need the full path here
+        # ignore the return, all we need is for the path to be added
         _ = get_yacc_path(env, append_paths=True)
-        env["YACC"] = env.Detect(['bison', 'yacc', 'win_bison'])
-    else:
-        env["YACC"] = env.Detect(["bison", "yacc"])
-    
+
+    env["YACC"] = env.Detect(BINS)
     env['YACCFLAGS'] = SCons.Util.CLVar('')
     env['YACCCOM']   = '$YACC $YACCFLAGS -o $TARGET $SOURCES'
     env['YACCHFILESUFFIX'] = '.h'
-
     env['YACCHXXFILESUFFIX'] = '.hpp'
-
     env['YACCVCGFILESUFFIX'] = '.vcg'
 
 def exists(env):
     if sys.platform == 'win32':
         return get_yacc_path(env)
     else:
-        return env.Detect(['bison', 'yacc'])
+        return env.Detect(BINS)
 
 # Local Variables:
 # tab-width:4
