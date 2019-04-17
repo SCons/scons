@@ -30,6 +30,7 @@ import unittest
 import SCons.Scanner.IDL
 import SCons.Tool.JavaCommon
 
+import TestSCons
 
 # Adding trace=trace to any of the parse_jave() calls below will cause
 # the parser to spit out trace messages of the tokens it sees and the
@@ -606,6 +607,55 @@ public class AnonDemo {
                   'AnonDemo']
         pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input, '1.8')
         assert expect == classes, (expect, classes)
+
+
+    def test_jdk_globs(self):
+        test = TestSCons.TestSCons(workdir='')
+
+        if sys.platform == 'win32':
+            test.subdir(['Program Files'],
+                        ['Program Files', 'Java'],
+                        ['Program Files', 'Java', 'jdk1.8.0_201'],
+                        ['Program Files', 'Java', 'jdk1.8.0_201', 'bin'],
+                        ['Program Files', 'Java', 'jdk-11.0.2'],
+                        ['Program Files', 'Java', 'jdk-11.0.2', 'bin'])
+
+            test.write(['Program Files', 'Java', 'jdk1.8.0_201', 'bin', 'javac.exe'], "echo Java 1.8")
+            test.write(['Program Files', 'Java', 'jdk-11.0.2', 'bin', 'javac.exe'], "echo Java 11.0")
+        else:
+            test.subdir(['jvm'],
+                        ['jvm', 'java'],
+                        ['jvm', 'java', 'bin'],
+                        ['jvm', 'java-11-openjdk-11.0.2'],
+                        ['jvm', 'java-11-openjdk-11.0.2', 'bin'],
+                        ['jvm', 'java-1.8-openjdk-1.8.0'],
+                        ['jvm', 'java-1.8-openjdk-1.8.0', 'bin'])
+
+            test.write(['jvm', 'java', 'bin', 'javac'], "echo Java 1.8")
+            test.write(['jvm', 'java-11-openjdk-11.0.2', 'bin', 'javac'], "echo Java 11.0")
+            test.write(['jvm', 'java-1.8-openjdk-1.8.0', 'bin', 'javac'], "echo Java 1.8")
+
+        for version in (None, "1.8", "11.0"):
+            if version:
+                if sys.platform == 'win32':
+                    patterns = [
+                        'Program Files*/Java/jdk*%s*/bin' % version,
+                    ]
+                else:
+                    patterns = [
+                        'jvm/*-%s*/bin' % version,
+                    ]
+            else:
+                if sys.platform == 'win32':
+                    patterns = [
+                        'Program Files*/Java/jdk*/bin',
+                    ]
+                else:
+                    patterns = [
+                        'jvm/*/bin',
+                    ]
+            java_path = test.paths(patterns)
+            assert java_path, "no java found by pattern %s" % patterns[0]
 
 
 if __name__ == "__main__":
