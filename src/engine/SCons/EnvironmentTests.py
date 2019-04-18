@@ -2433,16 +2433,16 @@ f5: \
         exc_caught = None
         try:
             env.Tool('does_not_exist')
-        except SCons.Errors.EnvironmentError:
+        except SCons.Errors.SConsEnvironmentError:
             exc_caught = 1
-        assert exc_caught, "did not catch expected EnvironmentError"
+        assert exc_caught, "did not catch expected SConsEnvironmentError"
 
         exc_caught = None
         try:
             env.Tool('$NONE')
-        except SCons.Errors.EnvironmentError:
+        except SCons.Errors.SConsEnvironmentError:
             exc_caught = 1
-        assert exc_caught, "did not catch expected EnvironmentError"
+        assert exc_caught, "did not catch expected SConsEnvironmentError"
 
         # Use a non-existent toolpath directory just to make sure we
         # can call Tool() with the keyword argument.

@@ -7,6 +7,10 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From William Deegan:
+    - Fix Issue #3350 - SCons Exception EnvironmentError is conflicting with Python's EnvironmentError.
+      Renamed to SConsEnvironmentError
+
   From Mats Wichmann:
     - scons-time takes more care closing files and uses safer mkdtemp to avoid
       possible races on multi-job runs.

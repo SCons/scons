@@ -125,7 +125,7 @@ def Package(env, target=None, source=None, **kw):
             # the specific packager is a relative import
             return importlib.import_module("." + type, __name__)
         except ImportError as e:
-            raise EnvironmentError("packager %s not available: %s"%(type,str(e)))
+            raise SConsEnvironmentError("packager %s not available: %s" % (type, str(e)))
 
     packagers = list(map(load_packager, PACKAGETYPE))
 
