@@ -221,7 +221,7 @@ def get_all_compiler_versions():
         versions = []
         try:
             while i < 100:
-                subkey = SCons.Util.RegEnumKey(k, i) # raises EnvironmentError
+                subkey = SCons.Util.RegEnumKey(k, i) # raises SConsEnvironmentError
                 # Check that this refers to an existing dir.
                 # This is not 100% perfect but should catch common
                 # installation issues like when the compiler was installed

@@ -1634,7 +1634,7 @@ class rmdir_TestCase(TestCmdTestCase):
         except EnvironmentError:
             pass
         else:
-            raise Exception("did not catch expected EnvironmentError")
+            raise Exception("did not catch expected SConsEnvironmentError")
 
         test.subdir(['sub'],
                     ['sub', 'dir'],
@@ -1649,7 +1649,7 @@ class rmdir_TestCase(TestCmdTestCase):
         except EnvironmentError:
             pass
         else:
-            raise Exception("did not catch expected EnvironmentError")
+            raise Exception("did not catch expected SConsEnvironmentError")
 
         assert os.path.isdir(s_d_o), "%s is gone?" % s_d_o
 
@@ -1658,7 +1658,7 @@ class rmdir_TestCase(TestCmdTestCase):
         except EnvironmentError:
             pass
         else:
-            raise Exception("did not catch expected EnvironmentError")
+            raise Exception("did not catch expected SConsEnvironmentError")
 
         assert os.path.isdir(s_d_o), "%s is gone?" % s_d_o
 
