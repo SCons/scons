@@ -188,7 +188,7 @@ class CacheDir(object):
                 self.config['prefix_len'] = 2
                 try:
                     json.dump(self.config, config)
-                except:
+                except Exception:
                     msg = "Failed to write cache configuration for " + path
                     raise SCons.Errors.EnvironmentError(msg)
         except FileExistsError:
@@ -247,7 +247,7 @@ class CacheDir(object):
                     try:
                         with open(config_file, 'w') as config:
                             json.dump(self.config, config)
-                    except:
+                    except Exception:
                         msg = "Failed to write cache configuration for " + path
                         raise SCons.Errors.SConsEnvironmentError(msg)
         else:

@@ -58,6 +58,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       drop one (unused) use; replace one.  Fix another instance of
       renaming to SConsEnvironmentError. Trailing whitespace.
       Consistently use not is/in (if not x is y -> if x is not y).
+    - Add a PY3-only function for setting up the cachedir that should be less
+      prone to races. Add a hack to the PY2 version (from Issue #3351) to
+      be less prone to a race in the check for old-style cache.
 
 
 RELEASE 3.0.5 - Mon, 26 Mar 2019 15:04:42 -0700
