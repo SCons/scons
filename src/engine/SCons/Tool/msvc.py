@@ -283,6 +283,12 @@ def generate(env):
 
     msvc_set_PCHPDBFLAGS(env)
 
+    # Issue #3350
+    # Change tempfile argument joining character from a bytearray space to a newline
+    # mslink will fail if any single line is too long, but is fine with many lines
+    # in a tempfile
+    env['TEMPFILEARGJOINBYTE'] = bytearray('\n')
+
 
     env['PCHCOM'] = '$CXX /Fo${TARGETS[1]} $CXXFLAGS $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Yc$PCHSTOP /Fp${TARGETS[0]} $CCPDBFLAGS $PCHPDBFLAGS'
     env['BUILDERS']['PCH'] = pch_builder
