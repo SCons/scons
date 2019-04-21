@@ -26,6 +26,23 @@ Tool specific initialization of `xgettext` tool.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
+import re
+import subprocess
+import sys
+
+import SCons.Action
+import SCons.Node.FS
+import SCons.Tool
+import SCons.Util
+from SCons.Builder import BuilderBase
+from SCons.Environment import _null
+from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
+from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
+from SCons.Tool.GettextCommon import _POTargetFactory
+from SCons.Tool.GettextCommon import RPaths, _detect_xgettext
+from SCons.Tool.GettextCommon import _xgettext_exists
+
 
 #############################################################################
 class _CmdRunner(object):
@@ -41,10 +58,6 @@ class _CmdRunner(object):
         self.commandstr = commandstr
 
     def __call__(self, target, source, env):
-        import SCons.Action
-        import subprocess
-        import os
-        import sys
         kw = {
             'stdin': 'devnull',
             'stdout': subprocess.PIPE,
@@ -57,11 +70,10 @@ class _CmdRunner(object):
         self.out, self.err = proc.communicate()
         self.status = proc.wait()
         if self.err:
-            sys.stderr.write(unicode(self.err))
+            sys.stderr.write(SCons.Util.UnicodeType(self.err))
         return self.status
 
     def strfunction(self, target, source, env):
-        import os
         comstr = self.commandstr
         if env.subst(comstr, target=target, source=source) == "":
             comstr = self.command
@@ -74,9 +86,6 @@ class _CmdRunner(object):
 #############################################################################
 def _update_pot_file(target, source, env):
     """ Action function for `POTUpdate` builder """
-    import re
-    import os
-    import SCons.Action
     nop = lambda target, source, env: 0
 
     # Save scons cwd and os cwd (NOTE: they may be different. After the job, we
@@ -154,10 +163,6 @@ def _update_pot_file(target, source, env):
 #############################################################################
 
 #############################################################################
-from SCons.Builder import BuilderBase
-
-
-#############################################################################
 class _POTBuilder(BuilderBase):
     def _execute(self, env, target, source, *args):
         if not target:
@@ -175,10 +180,6 @@ class _POTBuilder(BuilderBase):
 def _scan_xgettext_from_files(target, source, env, files=None, path=None):
     """ Parses `POTFILES.in`-like file and returns list of extracted file names.
     """
-    import re
-    import SCons.Util
-    import SCons.Node.FS
-
     if files is None:
         return 0
     if not SCons.Util.is_List(files):
@@ -230,10 +231,6 @@ def _scan_xgettext_from_files(target, source, env, files=None, path=None):
 #############################################################################
 def _pot_update_emitter(target, source, env):
     """ Emitter function for `POTUpdate` builder """
-    from SCons.Tool.GettextCommon import _POTargetFactory
-    import SCons.Util
-    import SCons.Node.FS
-
     if 'XGETTEXTFROM' in env:
         xfrom = env['XGETTEXTFROM']
     else:
@@ -261,10 +258,6 @@ def _pot_update_emitter(target, source, env):
 #############################################################################
 
 #############################################################################
-from SCons.Environment import _null
-
-
-#############################################################################
 def _POTUpdateBuilderWrapper(env, target=None, source=_null, **kw):
     return env._POTUpdateBuilder(target, source, **kw)
 
@@ -274,8 +267,6 @@ def _POTUpdateBuilderWrapper(env, target=None, source=_null, **kw):
 #############################################################################
 def _POTUpdateBuilder(env, **kw):
     """ Creates `POTUpdate` builder object """
-    import SCons.Action
-    from SCons.Tool.GettextCommon import _POTargetFactory
     kw['action'] = SCons.Action.Action(_update_pot_file, None)
     kw['suffix'] = '$POTSUFFIX'
     kw['target_factory'] = _POTargetFactory(env, alias='$POTUPDATE_ALIAS').File
@@ -288,13 +279,6 @@ def _POTUpdateBuilder(env, **kw):
 #############################################################################
 def generate(env, **kw):
     """ Generate `xgettext` tool """
-    import sys
-    import os
-    import SCons.Util
-    import SCons.Tool
-    from SCons.Tool.GettextCommon import RPaths, _detect_xgettext
-    from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
-    from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
 
     if sys.platform == 'win32':
         xgettext = SCons.Tool.find_program_path(env, 'xgettext', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
@@ -359,7 +343,6 @@ def generate(env, **kw):
 #############################################################################
 def exists(env):
     """ Check, whether the tool exists """
-    from SCons.Tool.GettextCommon import _xgettext_exists
     try:
         return _xgettext_exists(env)
     except:

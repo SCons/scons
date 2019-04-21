@@ -17,6 +17,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Use importlib to dynamically load tool and platform modules instead of imp module
     - sconsign: default to .sconsign.dblite if no filename is specified.
       Be more informative in case of unsupported pickle protocol (py2 only).
+    - assorted fixups for pylint: exception types, redefined functions, 
+      globals, etc.  Some old code removed to resolve issues (hashlib is
+      always present on modern Pythons; no longer need the code for
+      2.5-and-earlier optparse). cmp is not a builtin function in Py3,
+      drop one (unused) use; replace one.  Fix another instance of
+      renaming to SConsEnvironmentError.
 
   From John Doe:
 

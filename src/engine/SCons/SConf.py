@@ -247,6 +247,7 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
         # ConfigureCacheError and if yes, reraise the exception
         exc_type = self.exc_info()[0]
         if issubclass(exc_type, SConfError):
+            # TODO pylint E0704: bare raise not inside except
             raise
         elif issubclass(exc_type, SCons.Errors.BuildError):
             # we ignore Build Errors (occurs, when a test doesn't pass)

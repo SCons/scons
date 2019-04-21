@@ -41,10 +41,10 @@ from SCons.compat import with_metaclass, NoSlotsPyPy
 class Batch(object):
     """Remembers exact association between targets
     and sources of executor."""
-    
+
     __slots__ = ('targets',
                  'sources')
-    
+
     def __init__(self, targets=[], sources=[]):
         self.targets = targets
         self.sources = sources
@@ -127,13 +127,13 @@ def execute_action_list(obj, target, kw):
         status = act(*args, **kw)
         if isinstance(status, SCons.Errors.BuildError):
             status.executor = obj
-            raise status
+            raise status    # TODO pylint E0702: raising int not allowed
         elif status:
             msg = "Error %s" % status
             raise SCons.Errors.BuildError(
-                errstr=msg, 
+                errstr=msg,
                 node=obj.batches[0].targets,
-                executor=obj, 
+                executor=obj,
                 action=act)
     return status
 
@@ -597,7 +597,7 @@ class Null(object, with_metaclass(NoSlotsPyPy)):
     disassociate Builders from Nodes entirely, so we're not
     going to worry about unit tests for this--at least for now.
     """
-    
+
     __slots__ = ('pre_actions',
                  'post_actions',
                  'env',
@@ -613,7 +613,7 @@ class Null(object, with_metaclass(NoSlotsPyPy)):
                  'action_list',
                  '_do_execute',
                  '_execute_str')
-    
+
     def __init__(self, *args, **kw):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Executor.Null')
         self.batches = [Batch(kw['targets'][:], [])]
@@ -649,7 +649,7 @@ class Null(object, with_metaclass(NoSlotsPyPy)):
         """Morph this Null executor to a real Executor object."""
         batches = self.batches
         self.__class__ = Executor
-        self.__init__([])            
+        self.__init__([])
         self.batches = batches
 
     # The following methods require morphing this Null Executor to a
