@@ -33,12 +33,14 @@ import SCons.Platform
 import SCons.Environment
 import SCons.Action
 
+
 class Environment(collections.UserDict):
     def Detect(self, cmd):
         return cmd
 
     def AppendENVPath(self, key, value):
         pass
+
 
 class PlatformTestCase(unittest.TestCase):
     def test_Platform(self):
@@ -117,6 +119,7 @@ class PlatformTestCase(unittest.TestCase):
         SCons.Platform.Platform()(env)
         assert env != {}, env
 
+
 class TempFileMungeTestCase(unittest.TestCase):
     def test_MAXLINELENGTH(self):
         """ Test different values for MAXLINELENGTH with the same
@@ -138,18 +141,18 @@ class TempFileMungeTestCase(unittest.TestCase):
         env['OVERSIMPLIFIED'] = 'command'
         expanded_cmd = env.subst(defined_cmd)
         # Call the tempfile munger
-        cmd = t(None,None,env,0)
+        cmd = t(None, None, env, 0)
         assert cmd == defined_cmd, cmd
         # Let MAXLINELENGTH equal the string's length
         env['MAXLINELENGTH'] = len(expanded_cmd)
-        cmd = t(None,None,env,0)
+        cmd = t(None, None, env, 0)
         assert cmd == defined_cmd, cmd
         # Finally, let the actual tempfile mechanism kick in
         # Disable printing of actions...
         old_actions = SCons.Action.print_actions
         SCons.Action.print_actions = 0
         env['MAXLINELENGTH'] = len(expanded_cmd)-1
-        cmd = t(None,None,env,0)
+        cmd = t(None, None, env, 0)
         # ...and restoring its setting.
         SCons.Action.print_actions = old_actions
         assert cmd != defined_cmd, cmd
@@ -173,9 +176,11 @@ class TempFileMungeTestCase(unittest.TestCase):
         old_actions = SCons.Action.print_actions
         SCons.Action.print_actions = 0
         # Create an instance of object derived class to allow setattrb
-        class Node(object) :
+
+        class Node(object):
             class Attrs(object):
                 pass
+
             def __init__(self):
                 self.attributes = self.Attrs()
         target = [Node()]
@@ -184,6 +189,7 @@ class TempFileMungeTestCase(unittest.TestCase):
         SCons.Action.print_actions = old_actions
         assert cmd != defined_cmd, cmd
         assert cmd == getattr(target[0].attributes, 'tempfile_cmdlist', None)
+
 
 class PlatformEscapeTestCase(unittest.TestCase):
     def test_posix_escape(self):
