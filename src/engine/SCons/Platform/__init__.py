@@ -226,9 +226,10 @@ class TempFileMunge(object):
             prefix = '@'
 
         args = list(map(SCons.Subst.quote_spaces, cmd[1:]))
-        join_char = env.subst('TEMPFILEARGJOINBYTE')
+        join_char = env.get('TEMPFILEARGJOIN',bytearray(' '))
         os.write(fd, bytearray(join_char.join(args) + "\n",'utf-8'))
         os.close(fd)
+
         # XXX Using the SCons.Action.print_actions value directly
         # like this is bogus, but expedient.  This class should
         # really be rewritten as an Action that defines the
