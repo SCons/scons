@@ -73,7 +73,7 @@ class DummyLock(object):
     def release(self):
         pass
 
-class NoThreadsException(object):
+class NoThreadsException(Exception):
     "raised by the ParallelTestCase if threads are not supported"
 
     def __str__(self):
@@ -206,7 +206,7 @@ class Taskmaster(object):
         self.parallel_list = [0] * (n+1)
         self.found_parallel = False
         self.Task = Task
-        
+
         # 'guard' guards 'task_begin_list' and 'task_end_list'
         try:
             import threading

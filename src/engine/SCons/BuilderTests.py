@@ -409,10 +409,6 @@ class BuilderTestCase(unittest.TestCase):
         builder = SCons.Builder.Builder(generator=generator)
         assert builder.action.generator == generator
 
-    def test_get_name(self):
-        """Test the get_name() method
-        """
-
     def test_cmp(self):
         """Test simple comparisons of Builder objects
         """
@@ -552,7 +548,7 @@ class BuilderTestCase(unittest.TestCase):
 
     def test_src_suffix(self):
         """Test Builder creation with a specified source file suffix
-        
+
         Make sure that the '.' separator is appended to the
         beginning if it isn't already present.
         """
@@ -685,7 +681,7 @@ class BuilderTestCase(unittest.TestCase):
                 pass
             if (len(source) == 1 and len(target) == 1):
                 env['CNT'][0] = env['CNT'][0] + 1
-                
+
         env = Environment()
         infiles = []
         outfiles = []
@@ -732,8 +728,8 @@ class BuilderTestCase(unittest.TestCase):
             pass
         else:
             assert 0
-        
-        
+
+
     def test_lists(self):
         """Testing handling lists of targets and source"""
         def function2(target, source, env, tlist = [outfile, outfile2], **kw):
@@ -881,7 +877,7 @@ class BuilderTestCase(unittest.TestCase):
 
         def func(self):
             pass
-        
+
         scanner = SCons.Scanner.Base(func, name='fooscan')
 
         b1 = SCons.Builder.Builder(action='bld', target_scanner=scanner)
@@ -890,8 +886,8 @@ class BuilderTestCase(unittest.TestCase):
 
         assert b1 == b2
         assert b1 != b3
-        
-    def test_src_scanner(slf):
+
+    def test_src_scanner(self):
         """Testing ability to set a source file scanner through a builder."""
         class TestScanner(object):
             def key(self, env):
@@ -1245,7 +1241,7 @@ class BuilderTestCase(unittest.TestCase):
             for t in target:
                 t.builder = nb
             return [nn], source
-            
+
         builder=SCons.Builder.Builder(action='foo',
                                       emitter=emit,
                                       target_factory=MyNode,
@@ -1321,7 +1317,7 @@ class BuilderTestCase(unittest.TestCase):
         builder2 = SCons.Builder.Builder(action='foo',
                                          emitter='$EMITTERLIST',
                                          node_factory=MyNode)
-                                         
+
         env = Environment(EMITTERLIST = [emit2a, emit2b])
 
         tgts = builder2(env, target='target-2', source='aaa.2')
@@ -1419,7 +1415,7 @@ class BuilderTestCase(unittest.TestCase):
         b6 = SCons.Builder.Builder(action='foo')
         assert isinstance(b4, SCons.Builder.CompositeBuilder)
         assert isinstance(b4.action, SCons.Action.CommandGeneratorAction)
-        
+
         env = Environment(BUILDERS={'bldr1': b1,
                                     'bldr2': b2,
                                     'bldr3': b3,
@@ -1481,7 +1477,7 @@ class CompositeBuilderTestCase(unittest.TestCase):
 
         tgt = builder(env, source=[])
         assert tgt == [], tgt
-        
+
         assert isinstance(builder, SCons.Builder.CompositeBuilder)
         assert isinstance(builder.action, SCons.Action.CommandGeneratorAction)
 

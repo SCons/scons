@@ -101,10 +101,10 @@ class ErrorsTestCase(unittest.TestCase):
             assert e.node == "node"
 
     def test_convert_EnvironmentError_to_BuildError(self):
-        """Test the convert_to_BuildError function on EnvironmentError
+        """Test the convert_to_BuildError function on SConsEnvironmentError
         exceptions.
         """
-        ee = SCons.Errors.EnvironmentError("test env error")
+        ee = SCons.Errors.SConsEnvironmentError("test env error")
         be = SCons.Errors.convert_to_BuildError(ee)
         assert be.errstr == "test env error"
         assert be.status == 2

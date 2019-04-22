@@ -110,7 +110,7 @@ class PlatformTestCase(unittest.TestCase):
             p = SCons.Platform.Platform('_does_not_exist_')
         except SCons.Errors.UserError:
             pass
-        else:
+        else:   # TODO pylint E0704: bare raise not inside except
             raise
 
         env = Environment()

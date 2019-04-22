@@ -33,6 +33,7 @@ import re
 import types
 import codecs
 import pprint
+import hashlib
 
 PY3 = sys.version_info[0] == 3
 
@@ -656,13 +657,15 @@ except ImportError:
             pass
         RegError = _NoError
 
-WinError = None
+
 # Make sure we have a definition of WindowsError so we can
 # run platform-independent tests of Windows functionality on
 # platforms other than Windows.  (WindowsError is, in fact, an
 # OSError subclass on Windows.)
+
 class PlainWindowsError(OSError):
     pass
+
 try:
     WinError = WindowsError
 except NameError:
@@ -1176,10 +1179,13 @@ def unique(s):
 # ASPN: Python Cookbook: Remove duplicates from a sequence
 # First comment, dated 2001/10/13.
 # (Also in the printed Python Cookbook.)
+# This not currently used, in favor of the next function...
 
 def uniquer(seq, idfun=None):
-    if idfun is None:
-        def idfun(x): return x
+    def default_idfun(x):
+        return x
+    if not idfun:
+        idfun = default_idfun
     seen = {}
     result = []
     for item in seq:
@@ -1444,56 +1450,54 @@ def RenameFunction(function, name):
                         function.__defaults__)
 
 
-md5 = False
+if hasattr(hashlib, 'md5'):
+    md5 = True
 
+    def MD5signature(s):
+        """
+        Generate md5 signature of a string
 
-def MD5signature(s):
-    return str(s)
+        :param s: either string or bytes. Normally should be bytes
+        :return: String of hex digits representing the signature
+        """
+        m = hashlib.md5()
 
+        try:
+            m.update(to_bytes(s))
+        except TypeError as e:
+            m.update(to_bytes(str(s)))
 
-def MD5filesignature(fname, chunksize=65536):
-    with open(fname, "rb") as f:
-        result = f.read()
-    return result
+        return m.hexdigest()
 
-try:
-    import hashlib
-except ImportError:
-    pass
+    def MD5filesignature(fname, chunksize=65536):
+        """
+        Generate the md5 signature of a file
+
+        :param fname: file to hash
+        :param chunksize: chunk size to read
+        :return: String of Hex digits representing the signature
+        """
+        m = hashlib.md5()
+        f = open(fname, "rb")
+        while True:
+            blck = f.read(chunksize)
+            if not blck:
+                break
+            m.update(to_bytes(blck))
+        f.close()
+        return m.hexdigest()
 else:
-    if hasattr(hashlib, 'md5'):
-        md5 = True
+    # if md5 algorithm not available, just return data unmodified
+    # could add alternative signature scheme here
+    md5 = False
 
-        def MD5signature(s):
-            """
-            Generate a String of Hex digits representing the md5 signature of the string
-            :param s: either string or bytes. Normally should be bytes
-            :return: String of hex digits
-            """
-            m = hashlib.md5()
+    def MD5signature(s):
+        return str(s)
 
-            try:
-                m.update(to_bytes(s))
-            except TypeError as e:
-                m.update(to_bytes(str(s)))
-
-            return m.hexdigest()
-
-        def MD5filesignature(fname, chunksize=65536):
-            """
-            :param fname:
-            :param chunksize:
-            :return: String of Hex digits
-            """
-            m = hashlib.md5()
-            f = open(fname, "rb")
-            while True:
-                blck = f.read(chunksize)
-                if not blck:
-                    break
-                m.update(to_bytes(blck))
-            f.close()
-            return m.hexdigest()
+    def MD5filesignature(fname, chunksize=65536):
+        with open(fname, "rb") as f:
+            result = f.read()
+        return result
 
 
 def MD5collect(signatures):

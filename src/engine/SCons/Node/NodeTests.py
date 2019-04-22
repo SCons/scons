@@ -271,7 +271,7 @@ class NodeInfoBaseTestCase(unittest.TestCase):
 
         f = ni1.format()
         assert f == ['x', 'y', 'z'], f
- 
+
         field_list = ['xxx', 'zzz', 'aaa']
 
         f = ni1.format(field_list)
@@ -751,7 +751,7 @@ class NodeTestCase(unittest.TestCase):
         e = node.exists()
         assert e == 1, e
 
-    def test_exists(self):
+    def test_exists_repo(self):
         """Test evaluating whether a Node exists locally or in a repository.
         """
         node = SCons.Node.Node()
