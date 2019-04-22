@@ -7343,6 +7343,16 @@ The suffix used for tar file names.
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-TEMPFILEARGJOIN">
+    <term>TEMPFILEARGJOIN</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The string (or character) to be used to join the arguments passed to TEMPFILE when command line exceeds the limit set by <envar xmlns="http://www.scons.org/dbxsd/v1.0">$MAXLINELENGTH</envar>.
+The default value is a space. However for MSVC, MSLINK the default is a line seperator characters as defined by os.linesep.
+Note this value is used literally and not expanded by the subst logic.
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-TEMPFILEPREFIX">
     <term>TEMPFILEPREFIX</term>
     <listitem>
