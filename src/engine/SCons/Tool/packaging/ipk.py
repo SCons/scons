@@ -3,7 +3,7 @@
 
 #
 # __COPYRIGHT__
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -117,17 +117,17 @@ def build_specfiles(source, target, env):
     #
     #
     opened_files={}
-    def open_file(needle, haystack):
+    def open_file(needle, haystack=None):
         try:
             return opened_files[needle]
         except KeyError:
             files = filter(lambda x: x.get_path().rfind(needle) != -1, haystack)
             # Py3: filter returns an iterable, not a list
             file = list(files)[0]
-            opened_files[needle]=open(file.get_abspath(), 'w')
+            opened_files[needle] = open(file.get_abspath(), 'w')
             return opened_files[needle]
 
-    control_file=open_file('control', target)
+    control_file = open_file('control', target)
 
     if 'X_IPK_DESCRIPTION' not in env:
         env['X_IPK_DESCRIPTION']="%s\n %s"%(env['SUMMARY'],
@@ -149,7 +149,7 @@ Description: $X_IPK_DESCRIPTION
     control_file.write(env.subst(content))
 
     #
-    # now handle the various other files, which purpose it is to set post-, 
+    # now handle the various other files, which purpose it is to set post-,
     # pre-scripts and mark files as config files.
     #
     # We do so by filtering the source files for files which are marked with
@@ -161,14 +161,14 @@ Description: $X_IPK_DESCRIPTION
     # into the same named file.
     #
     for f in [x for x in source if 'PACKAGING_CONFIG' in dir(x)]:
-        config=open_file('conffiles')
+        config = open_file('conffiles')
         config.write(f.PACKAGING_INSTALL_LOCATION)
         config.write('\n')
 
     for str in 'POSTRM PRERM POSTINST PREINST'.split():
         name="PACKAGING_X_IPK_%s"%str
         for f in [x for x in source if name in dir(x)]:
-            file=open_file(name)
+            file = open_file(name)
             file.write(env[str])
 
     #

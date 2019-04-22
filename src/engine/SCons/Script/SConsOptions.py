@@ -226,39 +226,8 @@ class SConsOption(optparse.Option):
             fmt = "option %s: nargs='?' is incompatible with short options"
             raise SCons.Errors.UserError(fmt % self._short_opts[0])
 
-    try:
-        _orig_CONST_ACTIONS = optparse.Option.CONST_ACTIONS
-
-        _orig_CHECK_METHODS = optparse.Option.CHECK_METHODS
-
-    except AttributeError:
-        # optparse.Option had no CONST_ACTIONS before Python 2.5.
-
-        _orig_CONST_ACTIONS = ("store_const",)
-
-        def _check_const(self):
-            if self.action not in self.CONST_ACTIONS and self.const is not None:
-                raise OptionError(
-                    "'const' must not be supplied for action %r" % self.action,
-                    self)
-
-        # optparse.Option collects its list of unbound check functions
-        # up front.  This sucks because it means we can't just override
-        # the _check_const() function like a normal method, we have to
-        # actually replace it in the list.  This seems to be the most
-        # straightforward way to do that.
-
-        _orig_CHECK_METHODS = [optparse.Option._check_action,
-                     optparse.Option._check_type,
-                     optparse.Option._check_choice,
-                     optparse.Option._check_dest,
-                     _check_const,
-                     optparse.Option._check_nargs,
-                     optparse.Option._check_callback]
-
-    CHECK_METHODS = _orig_CHECK_METHODS + [_check_nargs_optional]
-
-    CONST_ACTIONS = _orig_CONST_ACTIONS + optparse.Option.TYPED_ACTIONS
+    CHECK_METHODS = optparse.Option.CHECK_METHODS + [_check_nargs_optional]
+    CONST_ACTIONS = optparse.Option.CONST_ACTIONS + optparse.Option.TYPED_ACTIONS
 
 class SConsOptionGroup(optparse.OptionGroup):
     """
@@ -364,7 +333,7 @@ class SConsOptionParser(optparse.OptionParser):
         in self.largs, so that any value overridden on the
         command line is immediately available if the user turns
         around and does a GetOption() right away.
-        
+
         We mimic the processing of the single args
         in the original OptionParser._process_args(), but here we
         allow exact matches for long-opts only (no partial
@@ -375,7 +344,7 @@ class SConsOptionParser(optparse.OptionParser):
         command-line arguments that
           1. haven't been processed so far (self.largs), but
           2. are possibly not added to the list of options yet.
-          
+
         So, when we only have a value for "--myargument" yet,
         a command-line argument of "--myarg=test" would set it.
         Responsible for this behaviour is the method
@@ -384,7 +353,7 @@ class SConsOptionParser(optparse.OptionParser):
         be unique.
         This would lead to further confusion, because we might want
         to add another option "--myarg" later on (see issue #2929).
-        
+
         """
         rargs = []
         largs_restore = []
@@ -401,7 +370,7 @@ class SConsOptionParser(optparse.OptionParser):
                     if "=" in l:
                         # Split into option and value
                         lopt = l.split("=", 1)
-                        
+
                     if lopt[0] in self._long_opt:
                         # Argument is already known
                         rargs.append('='.join(lopt))
@@ -416,7 +385,7 @@ class SConsOptionParser(optparse.OptionParser):
                         skip = True
                     else:
                         rargs.append(l)
-        
+
         # Parse the filtered list
         self.parse_args(rargs, self.values)
         # Restore the list of remaining arguments for the

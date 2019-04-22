@@ -67,14 +67,14 @@ class ToolTestCase(unittest.TestCase):
             SCons.Tool.Tool()
         except TypeError:
             pass
-        else:
+        else:   # TODO pylint E0704: bare raise not inside except
             raise
 
         try:
             p = SCons.Tool.Tool('_does_not_exist_')
         except SCons.Errors.SConsEnvironmentError:
             pass
-        else:
+        else:   # TODO pylint E0704: bare raise not inside except
             raise
 
 
