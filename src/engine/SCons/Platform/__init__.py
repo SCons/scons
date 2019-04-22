@@ -226,7 +226,7 @@ class TempFileMunge(object):
             prefix = '@'
 
         args = list(map(SCons.Subst.quote_spaces, cmd[1:]))
-        join_char = env.get('TEMPFILEARGJOIN',bytearray(' '))
+        join_char = env.get('TEMPFILEARGJOIN',' ')
         os.write(fd, bytearray(join_char.join(args) + "\n",'utf-8'))
         os.close(fd)
 
