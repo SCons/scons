@@ -26,6 +26,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os.path
 import sys
 import unittest
+import fnmatch
 
 import SCons.Scanner.IDL
 import SCons.Tool.JavaCommon
@@ -608,54 +609,75 @@ public class AnonDemo {
         pkg_dir, classes = SCons.Tool.JavaCommon.parse_java(input, '1.8')
         assert expect == classes, (expect, classes)
 
-
     def test_jdk_globs(self):
-        test = TestSCons.TestSCons(workdir='')
+        """
+        Verify that the java path globs work with specific examples.
+        :return:
+        """
+        from SCons.Tool.JavaCommon import java_linux_include_dirs_glob, java_linux_version_include_dirs_glob, java_win32_dir_glob, java_win32_version_dir_glob, java_macos_include_dir_glob, java_macos_version_include_dir_glob
 
-        if sys.platform == 'win32':
-            test.subdir(['Program Files'],
-                        ['Program Files', 'Java'],
-                        ['Program Files', 'Java', 'jdk1.8.0_201'],
-                        ['Program Files', 'Java', 'jdk1.8.0_201', 'bin'],
-                        ['Program Files', 'Java', 'jdk-11.0.2'],
-                        ['Program Files', 'Java', 'jdk-11.0.2', 'bin'])
+        # Test windows globs
+        win_java_dirs = [
+            ('C:/Program Files/Java/jdk1.8.0_201/bin', '1.8.0'),
+            ('C:/Program Files/Java/jdk-11.0.2/bin', '11.0.2'),
+            ('C:/Program Files/Java/jdk1.7.0_80/bin', '1.7.0')
+        ]
 
-            test.write(['Program Files', 'Java', 'jdk1.8.0_201', 'bin', 'javac.exe'], "echo Java 1.8")
-            test.write(['Program Files', 'Java', 'jdk-11.0.2', 'bin', 'javac.exe'], "echo Java 11.0")
-        else:
-            test.subdir(['jvm'],
-                        ['jvm', 'java'],
-                        ['jvm', 'java', 'bin'],
-                        ['jvm', 'java-11-openjdk-11.0.2'],
-                        ['jvm', 'java-11-openjdk-11.0.2', 'bin'],
-                        ['jvm', 'java-1.8-openjdk-1.8.0'],
-                        ['jvm', 'java-1.8-openjdk-1.8.0', 'bin'])
+        for (wjd, version) in win_java_dirs:
+            if not fnmatch.fnmatch(wjd, java_win32_dir_glob):
+                self.fail("Didn't properly match %s with pattern %s" % (wjd, java_win32_dir_glob))
+            if not fnmatch.fnmatch(wjd, java_win32_version_dir_glob % version):
+                self.fail("Didn't properly match %s with version (%s) specific pattern %s" % (
+                wjd, version, java_win32_version_dir_glob % version))
 
-            test.write(['jvm', 'java', 'bin', 'javac'], "echo Java 1.8")
-            test.write(['jvm', 'java-11-openjdk-11.0.2', 'bin', 'javac'], "echo Java 11.0")
-            test.write(['jvm', 'java-1.8-openjdk-1.8.0', 'bin', 'javac'], "echo Java 1.8")
+        non_win_java_include_dirs = [
+            ('/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.191.b12-0.el7_5.x86_64/include', '1.8.0'),
+            ('/usr/lib/jvm/java-1.8.0-openjdk-amd64/include', '1.8.0'),
+            ('/usr/lib/jvm/java-8-openjdk-amd64/include', '8'),
+        ]
 
-        for version in (None, "1.8", "11.0"):
-            if version:
-                if sys.platform == 'win32':
-                    patterns = [
-                        'Program Files*/Java/jdk*%s*/bin' % version,
-                    ]
-                else:
-                    patterns = [
-                        'jvm/*-%s*/bin' % version,
-                    ]
-            else:
-                if sys.platform == 'win32':
-                    patterns = [
-                        'Program Files*/Java/jdk*/bin',
-                    ]
-                else:
-                    patterns = [
-                        'jvm/*/bin',
-                    ]
-            java_path = test.paths(patterns)
-            assert java_path, "no java found by pattern %s" % patterns[0]
+        # Test non-windows/non-macos globs
+        for (wjd, version) in non_win_java_include_dirs:
+            match = False
+            globs_tried =[]
+            for jlig in java_linux_include_dirs_glob:
+                globs_tried.append(jlig)
+
+                if fnmatch.fnmatch(wjd, jlig):
+                    match = True
+                    break
+
+            if not match:
+                self.fail("Didn't properly match %s with pattern %s" % (wjd, globs_tried))
+
+            match = False
+            globs_tried = []
+            for jlvig in java_linux_version_include_dirs_glob:
+                globs_tried.append(jlvig%version)
+                if fnmatch.fnmatch(wjd, jlvig % version):
+                    match = True
+                    break
+
+            if not match:
+                self.fail("Didn't properly match %s with version (%s) specific pattern %s" % (
+                    wjd, version, globs_tried))
+
+        # Test macos globs
+        # Test windows globs
+        macos_java_dirs = [
+            # ('/System/Library/Frameworks/JavaVM.framework/Headers/', None),
+            ('/System/Library/Frameworks/JavaVM.framework/Versions/11.0.2/Headers/', '11.0.2'),
+        ]
+
+        if not fnmatch.fnmatch('/System/Library/Frameworks/JavaVM.framework/Headers/', java_macos_include_dir_glob):
+            self.fail("Didn't properly match %s with pattern %s" % ('/System/Library/Frameworks/JavaVM.framework/Headers/', java_macos_include_dir_glob))
+
+        for (wjd, version) in macos_java_dirs:
+            if not fnmatch.fnmatch(wjd, java_macos_version_include_dir_glob % version):
+                self.fail("Didn't properly match %s with version (%s) specific pattern %s" % (
+                wjd, version, java_macos_version_include_dir_glob % version))
+
+
 
 
 if __name__ == "__main__":
