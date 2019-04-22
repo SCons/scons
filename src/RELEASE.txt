@@ -31,7 +31,9 @@
 
   NEW FUNCTIONALITY
 
-    - List new features (presumably why a checkpoint is being released)
+    - Added variable TEMPFILEARGJOIN to specify how to join arguments written
+      to temp files used when command lines exceed MAXLINELENGTH when the
+      command uses $TEMPFILE{...}
 
   DEPRECATED FUNCTIONALITY
 
