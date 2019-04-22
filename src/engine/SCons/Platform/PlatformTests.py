@@ -27,6 +27,7 @@ import SCons.compat
 
 import collections
 import unittest
+import os
 
 import SCons.Errors
 import SCons.Platform
@@ -156,6 +157,41 @@ class TempFileMungeTestCase(unittest.TestCase):
         # ...and restoring its setting.
         SCons.Action.print_actions = old_actions
         assert cmd != defined_cmd, cmd
+
+    def test_TEMPFILEARGJOINBYTE(self):
+        """ 
+        Test argument join byte TEMPFILEARGJOINBYTE
+        """
+
+        # Init class with cmd, such that the fully expanded
+        # string reads "a test command line".
+        # Note, how we're using a command string here that is
+        # actually longer than the substituted one. This is to ensure
+        # that the TempFileMunge class internally really takes the
+        # length of the expanded string into account.
+        defined_cmd = "a $VERY $OVERSIMPLIFIED line"
+        t = SCons.Platform.TempFileMunge(defined_cmd)
+        env = SCons.Environment.SubstitutionEnvironment(tools=[])
+        # Setting the line length high enough...
+        env['MAXLINELENGTH'] = 1024
+        env['VERY'] = 'test'
+        env['OVERSIMPLIFIED'] = 'command'
+        env['TEMPFILEARGJOINBYTE'] = os.linesep
+        expanded_cmd = env.subst(defined_cmd)
+
+        # For tempfilemunge to operate.
+        old_actions = SCons.Action.print_actions
+        SCons.Action.print_actions = 0
+        env['MAXLINELENGTH'] = len(expanded_cmd)-1
+        cmd = t(None, None, env, 0)
+        # print("CMD is:%s"%cmd)
+
+        file_content = open(cmd[-1],'rb').read()
+        # print("Content is:[%s]"%file_content)
+        # ...and restoring its setting.
+        SCons.Action.print_actions = old_actions
+        assert file_content != env['TEMPFILEARGJOINBYTE'].join(['test','command','line'])
+
 
     def test_tempfilecreation_once(self):
         # Init class with cmd, such that the fully expanded
