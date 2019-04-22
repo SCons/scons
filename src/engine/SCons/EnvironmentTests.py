@@ -74,7 +74,7 @@ def diff_dict(d1, d2):
                    s2 = s2 + "    " + repr(k) + " : " + repr(d2[k]) + "\n"
            else:
                s1 = s1 + "    " + repr(k) + " : " + repr(d1[k]) + "\n"
-        elif k in env2:
+        elif k in d2:
            s2 = s2 + "    " + repr(k) + " : " + repr(d2[k]) + "\n"
     s1 = s1 + "}\n"
     s2 = s2 + "}\n"
@@ -263,39 +263,39 @@ class SubstitutionTestCase(unittest.TestCase):
         nodes = env.arg2nodes("Util.py UtilTests.py", Factory)
         assert len(nodes) == 1, nodes
         assert isinstance(nodes[0], X)
-        assert nodes[0].name == "Util.py UtilTests.py"
+        assert nodes[0].name == "Util.py UtilTests.py", nodes[0].name
 
         nodes = env.arg2nodes(u"Util.py UtilTests.py", Factory)
         assert len(nodes) == 1, nodes
         assert isinstance(nodes[0], X)
-        assert nodes[0].name == u"Util.py UtilTests.py"
+        assert nodes[0].name == u"Util.py UtilTests.py", nodes[0].name
 
         nodes = env.arg2nodes(["Util.py", "UtilTests.py"], Factory)
         assert len(nodes) == 2, nodes
         assert isinstance(nodes[0], X)
         assert isinstance(nodes[1], X)
-        assert nodes[0].name == "Util.py"
-        assert nodes[1].name == "UtilTests.py"
+        assert nodes[0].name == "Util.py", nodes[0].name
+        assert nodes[1].name == "UtilTests.py", nodes[1].name
 
         n1 = Factory("Util.py")
         nodes = env.arg2nodes([n1, "UtilTests.py"], Factory)
         assert len(nodes) == 2, nodes
         assert isinstance(nodes[0], X)
         assert isinstance(nodes[1], X)
-        assert nodes[0].name == "Util.py"
-        assert nodes[1].name == "UtilTests.py"
+        assert nodes[0].name == "Util.py", nodes[0].name
+        assert nodes[1].name == "UtilTests.py", nodes[1].name
 
         class SConsNode(SCons.Node.Node):
             pass
         nodes = env.arg2nodes(SConsNode())
         assert len(nodes) == 1, nodes
-        assert isinstance(nodes[0], SConsNode), node
+        assert isinstance(nodes[0], SConsNode), nodes[0]
 
         class OtherNode(object):
             pass
         nodes = env.arg2nodes(OtherNode())
         assert len(nodes) == 1, nodes
-        assert isinstance(nodes[0], OtherNode), node
+        assert isinstance(nodes[0], OtherNode), nodes[0]
 
         def lookup_a(str, F=Factory):
             if str[0] == 'a':
@@ -484,7 +484,7 @@ class SubstitutionTestCase(unittest.TestCase):
 
         env = SubstitutionEnvironment(AAA = '$BBB', BBB = '$CCC', CCC = 'c')
         l = env.subst_list("$AAA ${AAA}A ${AAA}B $BBB")
-        assert l == [["c", "cA", "cB", "c"]], mystr
+        assert l == [["c", "cA", "cB", "c"]], l
 
         env = SubstitutionEnvironment(AAA = '$BBB', BBB = '$CCC', CCC = [ 'a', 'b\nc' ])
         lst = env.subst_list([ "$AAA", "B $CCC" ])
@@ -1195,7 +1195,7 @@ env4.builder1.env, env3)
         test_it('foo.bar')
         test_it('foo-bar')
 
-    def test_autogenerate(dict):
+    def test_autogenerate(self):
         """Test autogenerating variables in a dictionary."""
 
         drive, p = os.path.splitdrive(os.getcwd())
@@ -1206,9 +1206,9 @@ env4.builder1.env, env3)
             drive, path = os.path.splitdrive(path)
             return drive.lower() + path
 
-        env = dict.TestEnvironment(LIBS = [ 'foo', 'bar', 'baz' ],
-                          LIBLINKPREFIX = 'foo',
-                          LIBLINKSUFFIX = 'bar')
+        env = self.TestEnvironment(LIBS = [ 'foo', 'bar', 'baz' ],
+                                   LIBLINKPREFIX = 'foo',
+                                   LIBLINKSUFFIX = 'bar')
 
         def RDirs(pathlist, fs=env.fs):
             return fs.Dir('xx').Rfindalldirs(pathlist)
@@ -3272,11 +3272,11 @@ def generate(env):
         s = e.src_builder()
         assert s is None, s
 
-    def test_SourceSignatures(type):
+    def test_SourceSignatures(self):
         """Test the SourceSignatures() method"""
         import SCons.Errors
 
-        env = type.TestEnvironment(M = 'MD5', T = 'timestamp')
+        env = self.TestEnvironment(M = 'MD5', T = 'timestamp')
 
         exc_caught = None
         try:
@@ -3312,7 +3312,7 @@ def generate(env):
 
     def test_Split(self):
         """Test the Split() method"""
-        env = self.TestEnvironment(FOO='fff', BAR='bbb')
+        env = self.TestEnvironment(FOO = 'fff', BAR = 'bbb')
         s = env.Split("foo bar")
         assert s == ["foo", "bar"], s
         s = env.Split("$FOO bar")
@@ -3326,11 +3326,11 @@ def generate(env):
         s = env.Split("$FOO$BAR")
         assert s == ["fffbbb"], s
 
-    def test_TargetSignatures(type):
+    def test_TargetSignatures(self):
         """Test the TargetSignatures() method"""
         import SCons.Errors
 
-        env = type.TestEnvironment(B = 'build', C = 'content')
+        env = self.TestEnvironment(B='build', C='content')
 
         exc_caught = None
         try:
@@ -3397,7 +3397,7 @@ def generate(env):
 
 
 
-    def test_Environment_global_variable(type):
+    def test_Environment_global_variable(self):
         """Test setting Environment variable to an Environment.Base subclass"""
         class MyEnv(SCons.Environment.Base):
             def xxx(self, string):

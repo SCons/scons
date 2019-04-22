@@ -38,8 +38,8 @@ import os
 import importlib
 
 __all__ = [
-    'src_targz', 'src_tarbz2', 'src_xz', 'src_zip',
-    'targz', 'tarbz2', 'xz', 'zip',
+    'src_targz', 'src_tarbz2', 'src_tarxz', 'src_zip',
+    'targz', 'tarbz2', 'tarxz', 'zip',
     'rpm', 'msi', 'ipk',
 ]
 
