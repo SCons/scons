@@ -122,7 +122,8 @@ import os
 Import('*')
 
 def mycopy(env, source, target):
-    open(str(target[0]),'w').write(open(str(source[0]),'r').read())
+    with open(str(target[0]), 'wt') as fo, open(str(source[0]), 'rt') as fi:
+        fo.write(fi.read())
 
 def exists_test(node):
     before = os.path.exists(str(node))  # doesn't exist yet in VariantDir

@@ -34,6 +34,7 @@ from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import os.path
 
 import SCons.Action
@@ -327,8 +328,14 @@ def generate(env):
     env['LDMODULEEMITTER'] = [ldmodEmitter]
     env['LDMODULECOM'] = compositeLdmodAction
 
+    # Issue #3350
+    # Change tempfile argument joining character from a space to a newline
+    # mslink will fail if any single line is too long, but is fine with many lines
+    # in a tempfile
+    env['TEMPFILEARGJOIN'] = os.linesep
+
 def exists(env):
-    return msvc_exists()
+    return msvc_exists(env)
 
 # Local Variables:
 # tab-width:4

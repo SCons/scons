@@ -263,6 +263,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-LEXCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LEXCOM</envar>">
 <!ENTITY cv-LEXCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LEXCOMSTR</envar>">
 <!ENTITY cv-LEXFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LEXFLAGS</envar>">
+<!ENTITY cv-LEXUNISTD "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LEXUNISTD</envar>">
 <!ENTITY cv-_LIBDIRFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_LIBDIRFLAGS</envar>">
 <!ENTITY cv-LIBDIRPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LIBDIRPREFIX</envar>">
 <!ENTITY cv-LIBDIRSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LIBDIRSUFFIX</envar>">
@@ -503,8 +504,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-_SHLIBSONAME "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_SHLIBSONAME</envar>">
 <!ENTITY cv-SHLIBSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLIBSUFFIX</envar>">
 <!ENTITY cv-SHLIBVERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLIBVERSION</envar>">
-<!ENTITY cv-SHLIBVERSIONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLIBVERSIONFLAGS</envar>">
 <!ENTITY cv-_SHLIBVERSIONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_SHLIBVERSIONFLAGS</envar>">
+<!ENTITY cv-SHLIBVERSIONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLIBVERSIONFLAGS</envar>">
 <!ENTITY cv-SHLINK "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLINK</envar>">
 <!ENTITY cv-SHLINKCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLINKCOM</envar>">
 <!ENTITY cv-SHLINKCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHLINKCOMSTR</envar>">
@@ -543,7 +544,9 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-TARGET_OS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TARGET_OS</envar>">
 <!ENTITY cv-TARGETS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TARGETS</envar>">
 <!ENTITY cv-TARSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TARSUFFIX</envar>">
+<!ENTITY cv-TEMPFILEARGJOIN "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEMPFILEARGJOIN</envar>">
 <!ENTITY cv-TEMPFILEPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEMPFILEPREFIX</envar>">
+<!ENTITY cv-TEMPFILESUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEMPFILESUFFIX</envar>">
 <!ENTITY cv-TEX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEX</envar>">
 <!ENTITY cv-TEXCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEXCOM</envar>">
 <!ENTITY cv-TEXCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEXCOMSTR</envar>">
@@ -900,6 +903,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-LEXCOM "<link linkend='cv-LEXCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LEXCOM</envar></link>">
 <!ENTITY cv-link-LEXCOMSTR "<link linkend='cv-LEXCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LEXCOMSTR</envar></link>">
 <!ENTITY cv-link-LEXFLAGS "<link linkend='cv-LEXFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LEXFLAGS</envar></link>">
+<!ENTITY cv-link-LEXUNISTD "<link linkend='cv-LEXUNISTD' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LEXUNISTD</envar></link>">
 <!ENTITY cv-link-_LIBDIRFLAGS "<link linkend='cv-_LIBDIRFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_LIBDIRFLAGS</envar></link>">
 <!ENTITY cv-link-LIBDIRPREFIX "<link linkend='cv-LIBDIRPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LIBDIRPREFIX</envar></link>">
 <!ENTITY cv-link-LIBDIRSUFFIX "<link linkend='cv-LIBDIRSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LIBDIRSUFFIX</envar></link>">
@@ -1140,8 +1144,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-_SHLIBSONAME "<link linkend='cv-_SHLIBSONAME' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_SHLIBSONAME</envar></link>">
 <!ENTITY cv-link-SHLIBSUFFIX "<link linkend='cv-SHLIBSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLIBSUFFIX</envar></link>">
 <!ENTITY cv-link-SHLIBVERSION "<link linkend='cv-SHLIBVERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLIBVERSION</envar></link>">
-<!ENTITY cv-link-SHLIBVERSIONFLAGS "<link linkend='cv-SHLIBVERSIONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLIBVERSIONFLAGS</envar></link>">
 <!ENTITY cv-link-_SHLIBVERSIONFLAGS "<link linkend='cv-_SHLIBVERSIONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_SHLIBVERSIONFLAGS</envar></link>">
+<!ENTITY cv-link-SHLIBVERSIONFLAGS "<link linkend='cv-SHLIBVERSIONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLIBVERSIONFLAGS</envar></link>">
 <!ENTITY cv-link-SHLINK "<link linkend='cv-SHLINK' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLINK</envar></link>">
 <!ENTITY cv-link-SHLINKCOM "<link linkend='cv-SHLINKCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLINKCOM</envar></link>">
 <!ENTITY cv-link-SHLINKCOMSTR "<link linkend='cv-SHLINKCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHLINKCOMSTR</envar></link>">
@@ -1180,7 +1184,9 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-TARGET_OS "<link linkend='cv-TARGET_OS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TARGET_OS</envar></link>">
 <!ENTITY cv-link-TARGETS "<link linkend='cv-TARGETS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TARGETS</envar></link>">
 <!ENTITY cv-link-TARSUFFIX "<link linkend='cv-TARSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TARSUFFIX</envar></link>">
+<!ENTITY cv-link-TEMPFILEARGJOIN "<link linkend='cv-TEMPFILEARGJOIN' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEMPFILEARGJOIN</envar></link>">
 <!ENTITY cv-link-TEMPFILEPREFIX "<link linkend='cv-TEMPFILEPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEMPFILEPREFIX</envar></link>">
+<!ENTITY cv-link-TEMPFILESUFFIX "<link linkend='cv-TEMPFILESUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEMPFILESUFFIX</envar></link>">
 <!ENTITY cv-link-TEX "<link linkend='cv-TEX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEX</envar></link>">
 <!ENTITY cv-link-TEXCOM "<link linkend='cv-TEXCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEXCOM</envar></link>">
 <!ENTITY cv-link-TEXCOMSTR "<link linkend='cv-TEXCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEXCOMSTR</envar></link>">

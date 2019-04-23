@@ -34,6 +34,7 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
+import os
 import re
 import sys
 
@@ -262,7 +263,7 @@ def generate(env):
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
 
     env['RC'] = 'rc'
-    env['RCFLAGS'] = SCons.Util.CLVar('')
+    env['RCFLAGS'] = SCons.Util.CLVar('/nologo')
     env['RCSUFFIXES']=['.rc','.rc2']
     env['RCCOM'] = '$RC $_CPPDEFFLAGS $_CPPINCFLAGS $RCFLAGS /fo$TARGET $SOURCES'
     env['BUILDERS']['RES'] = res_builder
@@ -271,6 +272,10 @@ def generate(env):
     env['SHOBJPREFIX']    = '$OBJPREFIX'
     env['SHOBJSUFFIX']    = '$OBJSUFFIX'
 
+    # MSVC probably wont support unistd.h so default
+    # without it for lex generation
+    env["LEXUNISTD"] = SCons.Util.CLVar("--nounistd")
+
     # Set-up ms tools paths
     msvc_setup_env_once(env)
 
@@ -278,6 +283,12 @@ def generate(env):
     env['CXXFILESUFFIX'] = '.cc'
 
     msvc_set_PCHPDBFLAGS(env)
+
+    # Issue #3350
+    # Change tempfile argument joining character from a space to a newline
+    # mslink will fail if any single line is too long, but is fine with many lines
+    # in a tempfile
+    env['TEMPFILEARGJOIN'] = os.linesep
 
 
     env['PCHCOM'] = '$CXX /Fo${TARGETS[1]} $CXXFLAGS $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Yc$PCHSTOP /Fp${TARGETS[0]} $CCPDBFLAGS $PCHPDBFLAGS'
@@ -289,7 +300,7 @@ def generate(env):
         env['ENV']['SystemRoot'] = SCons.Platform.win32.get_system_root()
 
 def exists(env):
-    return msvc_exists()
+    return msvc_exists(env)
 
 # Local Variables:
 # tab-width:4

@@ -48,7 +48,7 @@ test.subdir('src')
 test.write('src/main.c', '')
 
 test.write('SConstruct', """
-env = Environment(tools=['default', 'packaging'])
+env = Environment(tools=['packaging', 'filesystem', 'zip'])
 env.Package( NAME        = 'libfoo',
              PACKAGEROOT = 'libfoo',
              PACKAGETYPE = 'src_zip',
@@ -70,7 +70,7 @@ test.subdir('src')
 test.write('src/main.c', '')
 
 test.write('SConstruct', """
-env = Environment(tools=['default', 'packaging'])
+env = Environment(tools=['packaging', 'filesystem', 'zip'])
 env.Package( NAME        = 'libfoo',
              VERSION     = '1.2.3',
              PACKAGETYPE = 'src_zip',
@@ -93,7 +93,7 @@ test.subdir('temp')
 test.write('src/main.c', '')
 
 test.write('SConstruct', """
-env = Environment(tools=['default', 'packaging'])
+env = Environment(tools=['packaging', 'filesystem', 'tar'])
 env.Package( NAME        = 'libfoo',
              VERSION     = '1.2.3',
              PACKAGETYPE = 'src_targz',

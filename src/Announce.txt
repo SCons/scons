@@ -18,21 +18,37 @@ So that everyone using SCons can help each other learn how to use it more
 effectively, please go to http://scons.org/lists.html#users to sign up for
 the scons-users mailing list.
 
-RELEASE 3.0.3 - Mon, 07 Jan 2019 20:05:22 -0400
+RELEASE VERSION/DATE TO BE FILLED IN LATER
 
   Please consult the RELEASE.txt file for a summary of changes since the last
   release and consult the CHANGES.txt file for complete a list of changes
   since last release.  This announcement highlights only the important
   changes.
+    Please note the following important changes since release 3.0.4:
+      - Change the default for AppendENVPath to delete_existing=0, so path
+        order will not be changed, unless explicitly set (Issue #3276)
+      - Add lex construction variable LEXUNISTD for turning off unix headers on windows
+      - Update lex tool to use win_flex on windows if available
+      - Add the textfile tool to the default tool list
+      - The mingw tool now respects SHCCCOMSTR, SHLINKCOMSTR and LDMODULECOMSTR
+      - Add support for finding vswhere under 32 bit Windows installs
+
+
+    Please note the following important changes since release 3.0.3:
+       - Added TEMPFILESUFFIX to allow user to specify suffix for tempfiles used for long command lines
+       - Initial support for ARM architectures with Microsoft Visual Studio 2017. You must set TARGET_ARCH
+         to arm or arm64 to enable.
+       - Fixed issue detecting installs of Microsoft Visual Studio 2017 as well as Microsoft build tools 2017.
+
     Please note the following important changes since release 2.5.1:
 
        This is the initial release supporting both python 3.5+ and 2.7.x and pypy
        There are some important changes:
 
-      - Properly support versioned shared libraries for MacOS.  We've also introduced two
-        new env variables APPLELINK_CURRENT_VERSION and APPLELINK_COMPATIBILITY_VERSION which will specify
-        what is passed to the linkers -current_version and -compatibility_version flags.  If not specified
-        they will be derived from SHLIBVERSION as such:
+       - Properly support versioned shared libraries for MacOS.  We've also introduced two
+         new env variables APPLELINK_CURRENT_VERSION and APPLELINK_COMPATIBILITY_VERSION which will specify
+         what is passed to the linkers -current_version and -compatibility_version flags.  If not specified
+         they will be derived from SHLIBVERSION as such:
             - APPLELINK_CURRENT_VERSION = SHLIBVERSION
             - APPLELINK_COMPATIBILITY_VERSION = all but the last digit in SHLIBVERSION with .0 appended.
             Note that the values of the above will be validated. Valid format for either APPLELINK variable is
@@ -1299,6 +1315,3 @@ improve SCons for your needs.
 -- The SCons Development Team
    Gary Oberbrunner and Bill Deegan, maintainers
    Thanks to all the contributors for all your help!
-
-__COPYRIGHT__
-__FILE__ __REVISION__ __DATE__ __DEVELOPER__

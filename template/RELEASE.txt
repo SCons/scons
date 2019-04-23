@@ -1,7 +1,7 @@
   A new SCons checkpoint release, 2.0.0.beta.yyyymmdd, is now available
   on the SCons download page:
 
-          http://www.scons.org/download.php
+          https://scons.org/pages/download.html
 
   XXX The primary purpose of this release ... XXX
 

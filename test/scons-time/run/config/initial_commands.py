@@ -38,7 +38,8 @@ test.write_sample_project('foo.tar.gz')
 
 test.write('config', """\
 def touch(arg):
-    open(arg, 'w')
+    with open(arg, 'w'):
+        pass
 initial_commands = [(touch, 'touch %%%%s', r'%s')]
 """ % test.workpath('INITIAL'))
 

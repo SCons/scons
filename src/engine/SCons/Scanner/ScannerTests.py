@@ -461,7 +461,7 @@ class ClassicTestCase(unittest.TestCase):
     def test_find_include(self):
         """Test the Scanner.Classic find_include() method"""
         env = DummyEnvironment()
-        s = SCons.Scanner.Classic("t", ['.suf'], 'MYPATH', '^my_inc (\S+)')
+        s = SCons.Scanner.Classic("t", ['.suf'], 'MYPATH', r'^my_inc (\S+)')
 
         def _find_file(filename, paths):
             return paths[0]+'/'+filename
@@ -479,7 +479,7 @@ class ClassicTestCase(unittest.TestCase):
 
     def test_name(self):
         """Test setting the Scanner.Classic name"""
-        s = SCons.Scanner.Classic("my_name", ['.s'], 'MYPATH', '^my_inc (\S+)')
+        s = SCons.Scanner.Classic("my_name", ['.s'], 'MYPATH', r'^my_inc (\S+)')
         assert s.name == "my_name", s.name
 
     def test_scan(self):
@@ -505,7 +505,7 @@ class ClassicTestCase(unittest.TestCase):
                 return include, include
 
         env = DummyEnvironment()
-        s = MyScanner("t", ['.suf'], 'MYPATH', '^my_inc (\S+)')
+        s = MyScanner("t", ['.suf'], 'MYPATH', r'^my_inc (\S+)')
 
         # This set of tests is intended to test the scanning operation
         # of the Classic scanner.

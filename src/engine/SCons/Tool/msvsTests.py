@@ -482,8 +482,8 @@ class DummyRegistry(object):
     def parse(self, data):
         parents = [None, None]
         parents[0] = self.root
-        keymatch = re.compile('^\[(.*)\]$')
-        valmatch = re.compile('^(?:"(.*)"|[@])="(.*)"$')
+        keymatch = re.compile(r'^\[(.*)\]$')
+        valmatch = re.compile(r'^(?:"(.*)"|[@])="(.*)"$')
         for line in data:
             m1 = keymatch.match(line)
             if m1:
@@ -539,6 +539,10 @@ def DummyQueryValue(key, value):
 
 def DummyExists(path):
     return 1
+
+def DummyVsWhere(msvc_version):
+    # not testing versions with vswhere, so return none
+    return None
 
 class msvsTestCase(unittest.TestCase):
     """This test case is run several times with different defaults.
@@ -809,6 +813,7 @@ if __name__ == "__main__":
     SCons.Util.RegEnumKey      = DummyEnumKey
     SCons.Util.RegEnumValue    = DummyEnumValue
     SCons.Util.RegQueryValueEx = DummyQueryValue
+    SCons.Tool.MSCommon.vc.find_vc_pdir_vswhere = DummyVsWhere
 
     os.path.exists = DummyExists # make sure all files exist :-)
     os.path.isfile = DummyExists # make sure all files are files :-)

@@ -42,6 +42,33 @@ default_java_version = '1.4'
 # anonymous inner class parsing.
 scopeStateVersions = ('1.8')
 
+# Glob patterns for use in finding where the JDK is.
+# These are pairs, *dir_glob used in the general case,
+# *version_dir_glob if matching only a specific version.
+# For now only used for Windows.
+java_win32_dir_glob = 'C:/Program Files*/Java/jdk*/bin'
+# On windows, since Java 9, there is a dash between 'jdk' and the version
+# string that wasn't there before. this glob should catch either way.
+java_win32_version_dir_glob = 'C:/Program Files*/Java/jdk*%s*/bin'
+
+# Glob patterns for use in finding where the JDK headers are.
+# These are pairs, *dir_glob used in the general case,
+# *version_dir_glob if matching only a specific version.
+java_macos_include_dir_glob = '/System/Library/Frameworks/JavaVM.framework/Headers/'
+java_macos_version_include_dir_glob = '/System/Library/Frameworks/JavaVM.framework/Versions/%s*/Headers/'
+
+java_linux_include_dirs_glob = [
+    '/usr/lib/jvm/default-java/include',
+    '/usr/lib/jvm/java-*/include'
+]
+# Need to match path like below (from Centos 7)
+# /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.191.b12-0.el7_5.x86_64/include/
+java_linux_version_include_dirs_glob = [
+    '/usr/lib/jvm/java-*-sun-%s*/include',
+    '/usr/lib/jvm/java-%s*-openjdk*/include',
+    '/usr/java/jdk%s*/include'
+]
+
 if java_parsing:
     # Parse Java files for class names.
     #
@@ -64,14 +91,15 @@ if java_parsing:
                           r'\d*\.\d*|[A-Za-z_][\w\$\.]*|<[A-Za-z_]\w+>|' +
                           r'/\*|\*/|\[\])')
 
+
     class OuterState(object):
         """The initial state for parsing a Java file for classes,
         interfaces, and anonymous inner classes."""
+
         def __init__(self, version=default_java_version):
 
             if not version in ('1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7',
-                               '1.8', '5', '6', '9.0', '10.0', '11.0'):
-
+                               '1.8', '5', '6', '9.0', '10.0', '11.0', '12.0'):
                 msg = "Java version %s not supported" % version
                 raise NotImplementedError(msg)
 
@@ -131,15 +159,15 @@ if java_parsing:
         def closeBracket(self):
             self.brackets = self.brackets - 1
             if len(self.stackBrackets) and \
-                            self.brackets == self.stackBrackets[-1]:
+                    self.brackets == self.stackBrackets[-1]:
                 self.listOutputs.append('$'.join(self.listClasses))
                 self.localClasses.pop()
                 self.listClasses.pop()
                 self.anonStacksStack.pop()
                 self.stackBrackets.pop()
             if len(self.stackAnonClassBrackets) and \
-                            self.brackets == self.stackAnonClassBrackets[-1] and \
-                            self.version not in scopeStateVersions:
+                    self.brackets == self.stackAnonClassBrackets[-1] and \
+                    self.version not in scopeStateVersions:
                 self._getAnonStack().pop()
                 self.stackAnonClassBrackets.pop()
 
@@ -152,13 +180,13 @@ if java_parsing:
                 self.openBracket()
             elif token == '}':
                 self.closeBracket()
-            elif token in [ '"', "'" ]:
+            elif token in ['"', "'"]:
                 return IgnoreState(token, self)
             elif token == "new":
                 # anonymous inner class
                 if len(self.listClasses) > 0:
                     return self.__getAnonClassState()
-                return self.__getSkipState() # Skip the class name
+                return self.__getSkipState()  # Skip the class name
             elif token in ['class', 'interface', 'enum']:
                 if len(self.listClasses) == 0:
                     self.nextAnon = 1
@@ -178,7 +206,7 @@ if java_parsing:
             if self.version in ('1.1', '1.2', '1.3', '1.4'):
                 clazz = self.listClasses[0]
                 self.listOutputs.append('%s$%d' % (clazz, self.nextAnon))
-            elif self.version in ('1.5', '1.6', '1.7', '1.8', '5', '6', '9.0', '10.0', '11.0'):
+            elif self.version in ('1.5', '1.6', '1.7', '1.8', '5', '6', '9.0', '10.0', '11.0', '12.0'):
                 self.stackAnonClassBrackets.append(self.brackets)
                 className = []
                 className.extend(self.listClasses)
@@ -193,11 +221,13 @@ if java_parsing:
         def setPackage(self, package):
             self.package = package
 
+
     class ScopeState(object):
         """
         A state that parses code within a scope normally,
         within the confines of a scope.
         """
+
         def __init__(self, old_state):
             self.outer_state = old_state.outer_state
             self.old_state = old_state
@@ -259,13 +289,16 @@ if java_parsing:
                 return self.__getSkipState()
             return self
 
+
     class AnonClassState(object):
         """A state that looks for anonymous inner classes."""
+
         def __init__(self, old_state):
             # outer_state is always an instance of OuterState
             self.outer_state = old_state.outer_state
             self.old_state = old_state
             self.brace_level = 0
+
         def parseToken(self, token):
             # This is an anonymous class if and only if the next
             # non-whitespace token is a bracket. Everything between
@@ -293,26 +326,32 @@ if java_parsing:
             if token == '{':
                 self.outer_state.addAnonClass()
                 if self.outer_state.version in scopeStateVersions:
-                    return ScopeState(old_state = self.old_state).parseToken(token)
+                    return ScopeState(old_state=self.old_state).parseToken(token)
             return self.old_state.parseToken(token)
+
 
     class SkipState(object):
         """A state that will skip a specified number of tokens before
         reverting to the previous state."""
+
         def __init__(self, tokens_to_skip, old_state):
             self.tokens_to_skip = tokens_to_skip
             self.old_state = old_state
+
         def parseToken(self, token):
             self.tokens_to_skip = self.tokens_to_skip - 1
             if self.tokens_to_skip < 1:
                 return self.old_state
             return self
 
+
     class ClassState(object):
         """A state we go into when we hit a class or interface keyword."""
+
         def __init__(self, outer_state):
             # outer_state is always an instance of OuterState
             self.outer_state = outer_state
+
         def parseToken(self, token):
             # the next non-whitespace token should be the name of the class
             if token == '\n':
@@ -322,12 +361,12 @@ if java_parsing:
             # 'Foo$1Inner'
             # https://github.com/SCons/scons/issues/2087
             if self.outer_state.localClasses and \
-                            self.outer_state.stackBrackets[-1] > \
-                                    self.outer_state.stackBrackets[-2]+1:
+                    self.outer_state.stackBrackets[-1] > \
+                    self.outer_state.stackBrackets[-2] + 1:
                 locals = self.outer_state.localClasses[-1]
                 try:
                     idx = locals[token]
-                    locals[token] = locals[token]+1
+                    locals[token] = locals[token] + 1
                 except KeyError:
                     locals[token] = 1
                 token = str(locals[token]) + token
@@ -336,29 +375,39 @@ if java_parsing:
             self.outer_state.anonStacksStack.append([0])
             return self.outer_state
 
+
     class IgnoreState(object):
         """A state that will ignore all tokens until it gets to a
         specified token."""
+
         def __init__(self, ignore_until, old_state):
             self.ignore_until = ignore_until
             self.old_state = old_state
+
         def parseToken(self, token):
             if self.ignore_until == token:
                 return self.old_state
             return self
 
+
     class PackageState(object):
         """The state we enter when we encounter the package keyword.
         We assume the next token will be the package name."""
+
         def __init__(self, outer_state):
             # outer_state is always an instance of OuterState
             self.outer_state = outer_state
+
         def parseToken(self, token):
             self.outer_state.setPackage(token)
             return self.outer_state
 
+
     def parse_java_file(fn, version=default_java_version):
-        return parse_java(open(fn, 'r').read(), version)
+        with open(fn, 'r') as f:
+            data = f.read()
+        return parse_java(data, version)
+
 
     def parse_java(contents, version=default_java_version, trace=None):
         """Parse a .java file and return a double of package directory,
@@ -393,81 +442,68 @@ else:
         return os.path.split(fn)
 
 
-
-java_win32_version_dir_glob = 'C:/Program Files*/Java/jdk%s*/bin'
-java_win32_dir_glob = 'C:/Program Files*/Java/jdk*/bin'
-
-java_macos_include_dir = '/System/Library/Frameworks/JavaVM.framework/Headers/'
-java_macos_version_include_dir = '/System/Library/Frameworks/JavaVM.framework/Versions/%s*/Headers/'
-
-java_linux_include_dirs = ['/usr/lib/jvm/default-java/include',
-                        '/usr/lib/jvm/java-*/include']
-# Need to match path like below (from Centos 7)
-# /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.191.b12-0.el7_5.x86_64/include/
-java_linux_version_include_dirs = ['/usr/lib/jvm/java-*-sun-%s*/include',
-                                   '/usr/lib/jvm/java-%s*-openjdk*/include',
-                                   '/usr/java/jdk%s*/include']
-
-
-
 def get_java_install_dirs(platform, version=None):
     """
-    Using patterns above find the java jdk install dir
-    :param platform:
+    Find the java jdk installation directories.
+
+    This list is intended to supply as "default paths" for use when looking
+    up actual java binaries.
+
+    :param platform: selector for search algorithm.
     :param version: If specified, only look for java sdk's of this version
     :return: list of default paths for java.
     """
+
     paths = []
     if platform == 'win32':
         if version:
-            paths = glob.glob(java_win32_version_dir_glob%version)
+            paths = glob.glob(java_win32_version_dir_glob % version)
         else:
             paths = glob.glob(java_win32_dir_glob)
     else:
-        # do nothing for now
+        # other platforms, do nothing for now
         pass
 
-    paths=sorted(paths)
+    return sorted(paths)
 
-    return paths
 
 def get_java_include_paths(env, javac, version):
     """
-    Return java include paths
-    :param platform:
-    :param javac:
-    :return:
+    Find java include paths for JNI building.
+
+    :param env: construction environment, used to extract platform.
+    :param javac: path to detected javac.
+    :return: list of paths.
     """
+
     paths = []
     if not javac:
         # there are no paths if we've not detected javac.
         pass
     elif env['PLATFORM'] == 'win32':
+        # on Windows, we have the right path to javac, so look locally
         javac_bin_dir = os.path.dirname(javac)
         java_inc_dir = os.path.normpath(os.path.join(javac_bin_dir, '..', 'include'))
         paths = [java_inc_dir, os.path.join(java_inc_dir, 'win32')]
     elif env['PLATFORM'] == 'darwin':
         if not version:
-            paths = [java_macos_include_dir]
+            paths = [java_macos_include_dir_glob]
         else:
-            paths = sorted(glob.glob(java_macos_version_include_dir%version))
+            paths = sorted(glob.glob(java_macos_version_include_dir_glob % version))
     else:
-        base_paths=[]
+        base_paths = []
         if not version:
-            for p in java_linux_include_dirs:
+            for p in java_linux_include_dirs_glob:
                 base_paths.extend(glob.glob(p))
         else:
-            for p in java_linux_version_include_dirs:
-                base_paths.extend(glob.glob(p%version))
+            for p in java_linux_version_include_dirs_glob:
+                base_paths.extend(glob.glob(p % version))
 
         for p in base_paths:
-            paths.extend([p, os.path.join(p,'linux')])
-            
-    #print("PATHS:%s"%paths)
+            paths.extend([p, os.path.join(p, 'linux')])
+
+    # print("PATHS:%s"%paths)
     return paths
-
-
-
 
 # Local Variables:
 # tab-width:4

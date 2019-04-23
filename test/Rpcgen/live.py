@@ -49,6 +49,14 @@ if env['PLATFORM'] == 'darwin':
     # #include <stdlib.h> to get the declarations right.  Suppress the
     # warnings so the test passes.
     env.Append(CCFLAGS=['-w'])
+
+# on some Linux systems, RPC support has moved to libtirpc. Check for that.
+conf = Configure(env)
+env.Append(CPPPATH=['/usr/include/tirpc'])
+if conf.CheckLibWithHeader('tirpc', 'rpc/rpc.h', 'c'):
+    env.Append(LIBS=['tirpc'])
+env = conf.Finish()
+
 env.Program('rpcclnt', ['rpcclnt.c', 'do_rpcgen/rpcif_clnt.c'])
 env.RPCGenHeader('do_rpcgen/rpcif')
 env.RPCGenClient('do_rpcgen/rpcif')

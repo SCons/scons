@@ -49,12 +49,14 @@ SConscript('src/SConscript', variant_dir='build1', chdir=1, duplicate=1)
 test.write(['src', 'SConscript'], """\
 #f1_in = File('f1.in')
 #Command('f1.out', f1_in, Copy('$TARGET', '$SOURCE'))
-#open('f1.in', 'w').write("f1.in\\n")
+#with open('f1.in', 'w') as f:
+#    f.write("f1.in\\n")
 
 f2_in = File('f2.in')
 str(f2_in)
 Command('f2.out', f2_in, Copy('$TARGET', '$SOURCE'))
-open('f2.in', 'w').write("f2.in\\n")
+with open('f2.in', 'w') as f:
+    f.write("f2.in\\n")
 """)
 
 test.run(arguments = '--tree=all .')

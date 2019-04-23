@@ -37,7 +37,7 @@ import SCons.Scanner.LaTeX
 
 test = TestCmd.TestCmd(workdir = '')
 
-test.write('test1.latex',"""
+test.write('test1.latex',r"""
 \include{inc1}
 \input{inc2}
 include{incNO}
@@ -51,12 +51,12 @@ xyzzy \include{inc6}
 \subinputfrom{subdir}{inc3e}
 """)
 
-test.write('test2.latex',"""
+test.write('test2.latex',r"""
 \include{inc1}
 \include{inc3}
 """)
 
-test.write('test3.latex',"""
+test.write('test3.latex',r"""
 \includegraphics{inc4.eps}
 \includegraphics[width=60mm]{inc5.xyz}
 """)

@@ -46,7 +46,7 @@ elif LOGFILE:
         debug = lambda message: open(LOGFILE, 'a').write(message + '\n')
     else:
         logging.basicConfig(filename=LOGFILE, level=logging.DEBUG)
-        debug = logging.debug
+        debug = logging.getLogger(name=__name__).debug
 else:
     debug = lambda x: None
 
@@ -188,8 +188,10 @@ def get_output(vcbat, args = None, env = None):
     # Use the .stdout and .stderr attributes directly because the
     # .communicate() method uses the threading module on Windows
     # and won't work under Pythons not built with threading.
-    stdout = popen.stdout.read()
-    stderr = popen.stderr.read()
+    with popen.stdout:
+        stdout = popen.stdout.read()
+    with popen.stderr:
+        stderr = popen.stderr.read()
 
     # Extra debug logic, uncomment if necessary
 #     debug('get_output():stdout:%s'%stdout)
@@ -206,7 +208,7 @@ def get_output(vcbat, args = None, env = None):
     output = stdout.decode("mbcs")
     return output
 
-def parse_output(output, keep=("INCLUDE", "LIB", "LIBPATH", "PATH")):
+def parse_output(output, keep=("INCLUDE", "LIB", "LIBPATH", "PATH", 'VSCMD_ARG_app_plat')):
     """
     Parse output from running visual c++/studios vcvarsall.bat and running set
     To capture the values listed in keep

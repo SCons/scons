@@ -366,13 +366,11 @@ else:
     def is_String(e):
         return isinstance(e, (str, unicode, UserString))
 
-tempfile.template = 'testcmd.'
+testprefix = 'testcmd.'
 if os.name in ('posix', 'nt'):
-    tempfile.template = 'testcmd.' + str(os.getpid()) + '.'
-else:
-    tempfile.template = 'testcmd.'
+    testprefix += "%s." % str(os.getpid())
 
-re_space = re.compile('\s')
+re_space = re.compile(r'\s')
 
 
 def _caller(tblist, skip):
@@ -1227,7 +1225,7 @@ class TestCmd(object):
         the temporary working directories to be preserved for all
         conditions.
         """
-        if conditions is ():
+        if not conditions:
             conditions = ('pass_test', 'fail_test', 'no_result')
         for cond in conditions:
             self._preserve[cond] = 1
@@ -1662,10 +1660,11 @@ class TestCmd(object):
         """
         if path is None:
             try:
-                path = tempfile.mktemp(prefix=tempfile.template)
+                path = tempfile.mkdtemp(prefix=testprefix)
             except TypeError:
-                path = tempfile.mktemp()
-        os.mkdir(path)
+                path = tempfile.mkdtemp()
+        else:
+            os.mkdir(path)
 
         # Symlinks in the path will report things
         # differently from os.getcwd(), so chdir there

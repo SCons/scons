@@ -27,14 +27,17 @@ from TestCommon import __all__
 
 __all__.extend([ 'TestRuntest',
                  'pythonstring',
+                 'pythonflags',
                ])
 
-if re.search('\s', python):
+if re.search(r'\s', python):
     pythonstring = _python_
 else:
     pythonstring = python
 pythonstring = pythonstring.replace('\\', '\\\\')
-
+pythonflags = ''
+if sys.version_info[0] < 3:
+    pythonflags = ' -tt'
 
 failing_test_template = """\
 import sys
@@ -104,7 +107,10 @@ class TestRuntest(TestCommon):
         if 'program' not in kw:
             kw['program'] = 'runtest.py'
         if 'interpreter' not in kw:
-            kw['interpreter'] = [python, '-tt']
+            kw['interpreter'] = [python,]
+            if sys.version_info[0] < 3:
+                kw['interpreter'].append('-tt')
+
         if 'match' not in kw:
             kw['match'] = match_exact
         if 'workdir' not in kw:

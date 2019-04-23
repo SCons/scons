@@ -210,7 +210,7 @@ def chmod_func(dest, mode):
             else:
                 raise SyntaxError("Could not find +, - or =")
             operation_list = operation.split(operator)
-            if len(operation_list) is not 2:
+            if len(operation_list) != 2:
                 raise SyntaxError("More than one operator found")
             user = operation_list[0].strip().replace("a", "ugo")
             permission = operation_list[1].strip()
@@ -333,8 +333,8 @@ def touch_func(dest):
         if os.path.exists(file):
             atime = os.path.getatime(file)
         else:
-            open(file, 'w')
-            atime = mtime
+            with open(file, 'w'):
+                atime = mtime
         os.utime(file, (atime, mtime))
 
 Touch = ActionFactory(touch_func,
@@ -582,6 +582,7 @@ ConstructionEnvironment = {
     '__DSHLIBVERSIONFLAGS'   : '${__libversionflags(__env__,"DSHLIBVERSION","_DSHLIBVERSIONFLAGS")}',
 
     'TEMPFILE'      : NullCmdGenerator,
+    'TEMPFILEARGJOIN': ' ',
     'Dir'           : Variable_Method_Caller('TARGET', 'Dir'),
     'Dirs'          : Variable_Method_Caller('TARGET', 'Dirs'),
     'File'          : Variable_Method_Caller('TARGET', 'File'),

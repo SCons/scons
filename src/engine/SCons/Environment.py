@@ -1217,7 +1217,7 @@ class Base(SubstitutionEnvironment):
         return path
 
     def AppendENVPath(self, name, newpath, envname = 'ENV',
-                      sep = os.pathsep, delete_existing=1):
+                      sep = os.pathsep, delete_existing=0):
         """Append path elements to the path 'name' in the 'ENV'
         dictionary for this environment.  Will only add any particular
         path once, and will normpath and normcase all paths to help
@@ -1568,12 +1568,12 @@ class Base(SubstitutionEnvironment):
         """
         filename = self.subst(filename)
         try:
-            fp = open(filename, 'r')
+            with open(filename, 'r') as fp:
+                lines = SCons.Util.LogicalLines(fp).readlines()
         except IOError:
             if must_exist:
                 raise
             return
-        lines = SCons.Util.LogicalLines(fp).readlines()
         lines = [l for l in lines if l[0] != '#']
         tdlist = []
         for line in lines:
@@ -2371,6 +2371,7 @@ class OverrideEnvironment(Base):
     def Replace(self, **kw):
         kw = copy_non_reserved_keywords(kw)
         self.__dict__['overrides'].update(semi_deepcopy(kw))
+
 
 # The entry point that will be used by the external world
 # to refer to a construction environment.  This allows the wrapper

@@ -43,15 +43,18 @@ import re
 # that we want to fetch, using the regular expressions to which the lists
 # of preprocessor directives map.
 cpp_lines_dict = {
-    # Fetch the rest of a #if/#elif/#ifdef/#ifndef as one argument,
+    # Fetch the rest of a #if/#elif as one argument,
+    # with white space optional.
+    ('if', 'elif')      : r'\s*(.+)',
+
+    # Fetch the rest of a #ifdef/#ifndef as one argument,
     # separated from the keyword by white space.
-    ('if', 'elif', 'ifdef', 'ifndef',)
-                        : '\s+(.+)',
+    ('ifdef', 'ifndef',): r'\s+(.+)',
 
     # Fetch the rest of a #import/#include/#include_next line as one
     # argument, with white space optional.
     ('import', 'include', 'include_next',)
-                        : '\s*(.+)',
+                        : r'\s*(.+)',
 
     # We don't care what comes after a #else or #endif line.
     ('else', 'endif',)  : '',
@@ -61,10 +64,10 @@ cpp_lines_dict = {
     #   2) The optional parentheses and arguments (if it's a function-like
     #      macro, '' if it's not).
     #   3) The expansion value.
-    ('define',)         : '\s+([_A-Za-z][_A-Za-z0-9_]*)(\([^)]*\))?\s*(.*)',
+    ('define',)         : r'\s+([_A-Za-z][_A-Za-z0-9_]*)(\([^)]*\))?\s*(.*)',
 
     # Fetch the #undefed keyword from a #undef line.
-    ('undef',)          : '\s+([_A-Za-z][A-Za-z0-9_]*)',
+    ('undef',)          : r'\s+([_A-Za-z][A-Za-z0-9_]*)',
 }
 
 # Create a table that maps each individual C preprocessor directive to
@@ -94,7 +97,7 @@ l = [override.get(x, x) for x in list(Table.keys())]
 # a list of tuples, one for each preprocessor line.  The preprocessor
 # directive will be the first element in each tuple, and the rest of
 # the line will be the second element.
-e = '^\s*#\s*(' + '|'.join(l) + ')(.*)$'
+e = r'^\s*#\s*(' + '|'.join(l) + ')(.*)$'
 
 # And last but not least, compile the expression.
 CPP_Expression = re.compile(e, re.M)
@@ -108,7 +111,7 @@ CPP_Expression_Cleaner_List = [
     "\r"
 ]
 CPP_Expression_Cleaner_RE = re.compile(
-    "\s*(" + "|".join(CPP_Expression_Cleaner_List) + ")")
+    r"\s*(" + "|".join(CPP_Expression_Cleaner_List) + ")")
 
 def Cleanup_CPP_Expressions(ts):
     return [(t[0], CPP_Expression_Cleaner_RE.sub("", t[1])) for t in ts]
@@ -151,10 +154,10 @@ CPP_to_Python_Ops_Expression = re.compile(expr)
 # A separate list of expressions to be evaluated and substituted
 # sequentially, not all at once.
 CPP_to_Python_Eval_List = [
-    ['defined\s+(\w+)',                 '"\\1" in __dict__'],
-    ['defined\s*\((\w+)\)',             '"\\1" in __dict__'],
-    ['(0x[0-9A-Fa-f]+)(?:L|UL)?',  '\\1'],
-    ['(\d+)(?:L|UL)?',  '\\1'],
+    [r'defined\s+(\w+)',                 '"\\1" in __dict__'],
+    [r'defined\s*\((\w+)\)',             '"\\1" in __dict__'],
+    [r'(0x[0-9A-Fa-f]+)(?:L|UL)?',  '\\1'],
+    [r'(\d+)(?:L|UL)?',  '\\1'],
 ]
 
 # Replace the string representations of the regular expressions in the
@@ -170,7 +173,7 @@ def CPP_to_Python(s):
     """
     s = CPP_to_Python_Ops_Expression.sub(CPP_to_Python_Ops_Sub, s)
     for expr, repl in CPP_to_Python_Eval_List:
-        s = expr.sub(repl, s)
+        s = re.sub(expr, repl, s)
     return s
 
 
@@ -230,11 +233,11 @@ line_continuations = re.compile('\\\\\r?\n')
 # Search for a "function call" macro on an expansion.  Returns the
 # two-tuple of the "function" name itself, and a string containing the
 # arguments within the call parentheses.
-function_name = re.compile('(\S+)\(([^)]*)\)')
+function_name = re.compile(r'(\S+)\(([^)]*)\)')
 
 # Split a string containing comma-separated function call arguments into
 # the separate arguments.
-function_arg_separator = re.compile(',\s*')
+function_arg_separator = re.compile(r',\s*')
 
 
 

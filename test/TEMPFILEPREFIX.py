@@ -25,8 +25,9 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify that setting the $TEMPFILEPREFIX variable will append to the
-beginning of the TEMPFILE invocation of a long command line.
+Verify that setting the $TEMPFILEPREFIX variable will cause
+it to appear at the front of name of the generated tempfile
+used for long command lines.
 """
 
 import os
@@ -59,6 +60,55 @@ env.Command('foo.out', 'foo.in', '$BUILDCOM')
 """)
 
 test.write('foo.in', "foo.in\n")
+
+test.run(arguments = '-n -Q .',
+         stdout = """\
+Using tempfile \\S+ for command line:
+xxx.py foo.out foo.in
+xxx.py -via\\S+
+""")
+
+test.write('SConstruct', """
+import os
+
+def print_cmd_line(s, targets, sources, env):
+    pass
+
+env = Environment(
+    BUILDCOM = '${TEMPFILE("xxx.py $TARGET $SOURCES")}',
+    MAXLINELENGTH = 16,
+    TEMPFILEPREFIX = '-via',
+    PRINT_CMD_LINE_FUNC=print_cmd_line
+)
+env.AppendENVPath('PATH', os.curdir)
+env.Command('foo.out', 'foo.in', '$BUILDCOM')
+""")
+
+test.run(arguments = '-n -Q .',
+         stdout = """""")
+
+test.write('SConstruct', """
+import os
+from SCons.Platform import TempFileMunge
+
+class TestTempFileMunge(TempFileMunge):
+
+    def __init__(self, cmd, cmdstr = None):
+        super(TestTempFileMunge, self).__init__(cmd, cmdstr)
+
+    def _print_cmd_str(self, target, source, env, cmdstr):
+        super(TestTempFileMunge, self)._print_cmd_str(target, source, None, cmdstr)
+
+env = Environment(
+    TEMPFILE = TestTempFileMunge,
+    BUILDCOM = '${TEMPFILE("xxx.py $TARGET $SOURCES")}',
+    MAXLINELENGTH = 16,
+    TEMPFILEPREFIX = '-via',
+
+)
+env.AppendENVPath('PATH', os.curdir)
+env.Command('foo.out', 'foo.in', '$BUILDCOM')
+""")
 
 test.run(arguments = '-n -Q .',
          stdout = """\

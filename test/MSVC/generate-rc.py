@@ -39,16 +39,16 @@ fake_rc = test.workpath('fake_rc.py')
 
 test.write(fake_rc, """\
 import sys
-contents = open(sys.argv[2], 'r').read()
-open(sys.argv[1], 'w').write("fake_rc.py\\n" + contents)
+with open(sys.argv[1], 'w') as fo, open(sys.argv[2], 'r') as fi:
+    fo.write("fake_rc.py\\n" + fi.read())
 """)
 
 test.write('SConstruct', """
 def generate_rc(target, source, env):
     t = str(target[0])
     s = str(source[0])
-    tfp = open(t, 'w')
-    tfp.write('generate_rc\\n' + open(s, 'r').read())
+    with open(t, 'w') as fo, open(s, 'r') as fi:
+        fo.write('generate_rc\\n' + fi.read())
 
 env = Environment(tools=['msvc'],
                   RCCOM=r'%(_python_)s %(fake_rc)s $TARGET $SOURCE')

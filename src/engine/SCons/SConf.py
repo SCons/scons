@@ -56,6 +56,7 @@ import SCons.Warnings
 import SCons.Conftest
 
 from SCons.Debug import Trace
+from SCons.Node import DeciderNeedsNode
 
 # Turn off the Conftest error logging
 SCons.Conftest.LogInputFiles = 0
@@ -246,6 +247,7 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
         # ConfigureCacheError and if yes, reraise the exception
         exc_type = self.exc_info()[0]
         if issubclass(exc_type, SConfError):
+            # TODO pylint E0704: bare raise not inside except
             raise
         elif issubclass(exc_type, SCons.Errors.BuildError):
             # we ignore Build Errors (occurs, when a test doesn't pass)
@@ -323,18 +325,6 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
             s = sys.stdout = sys.stderr = Streamer(sys.stdout)
             try:
                 env = self.targets[0].get_build_env()
-                if cache_mode == FORCE:
-                    # Set up the Decider() to force rebuilds by saying
-                    # that every source has changed.  Note that we still
-                    # call the environment's underlying source decider so
-                    # that the correct .sconsign info will get calculated
-                    # and keep the build state consistent.
-                    def force_build(dependency, target, prev_ni,
-                                    env_decider=env.decide_source):
-                        env_decider(dependency, target, prev_ni)
-                        return True
-                    if env.decide_source.__code__ is not force_build.__code__:
-                        env.Decider(force_build)
                 env['PSTDOUT'] = env['PSTDERR'] = s
                 try:
                     sconf.cached = 0
@@ -405,12 +395,42 @@ class SConfBase(object):
         build tests in the VariantDir, not in the SourceDir)
         """
         global SConfFS
+
+        # Now create isolated override so setting source_decider doesn't affect parent Environment
+        if cache_mode == FORCE:
+            self.original_env = env
+            self.env = env.Clone()
+
+            # Set up the Decider() to force rebuilds by saying
+            # that every source has changed.  Note that we still
+            # call the environment's underlying source decider so
+            # that the correct .sconsign info will get calculated
+            # and keep the build state consistent.
+            def force_build(dependency, target, prev_ni,
+                            env_decider=env.decide_source,
+                            node=None):
+                try:
+                    env_decider(dependency, target, prev_ni)
+                except DeciderNeedsNode as e:
+                    e.decider(target, prev_ni, node=target)
+                except Exception as e:
+                    raise e
+                return True
+
+            if self.env.decide_source.__code__ is not force_build.__code__:
+                self.env.Decider(force_build)
+
+        else:
+            self.env = env
+
+        # print("Override env:%s"%env)
+
         if not SConfFS:
             SConfFS = SCons.Node.FS.default_fs or \
                       SCons.Node.FS.FS(env.fs.pathTop)
         if sconf_global is not None:
             raise SCons.Errors.UserError
-        self.env = env
+
         if log_file is not None:
             log_file = SConfFS.File(env.subst(log_file))
         self.logfile = log_file
@@ -449,6 +469,7 @@ class SConfBase(object):
                 env = sconf.Finish()
         """
         self._shutdown()
+
         return self.env
 
     def Define(self, name, value = None, comment = None):
@@ -502,6 +523,20 @@ class SConfBase(object):
             if not hasattr(n, 'attributes'):
                 n.attributes = SCons.Node.Node.Attrs()
             n.attributes.keep_targetinfo = 1
+
+            if True:
+                # Some checkers have intermediate files (for example anything that compiles a c file into a program to run
+                # Those files need to be set to not release their target info, otherwise taskmaster will throw a
+                # Nonetype not callable
+                for c in n.children(scan=False):
+                    # Keep debug code here.
+                    # print("Checking [%s] for builders and then setting keep_targetinfo"%c)
+                    if  c.has_builder():
+                        n.store_info = 0
+                        if not hasattr(c, 'attributes'):
+                            c.attributes = SCons.Node.Node.Attrs()
+                        c.attributes.keep_targetinfo = 1
+                    # pass
 
         ret = 1
 
@@ -739,10 +774,18 @@ class SConfBase(object):
             self.logstream.write("\n")
             self.logstream.close()
             self.logstream = None
-        # remove the SConfSourceBuilder from the environment
-        blds = self.env['BUILDERS']
-        del blds['SConfSourceBuilder']
-        self.env.Replace( BUILDERS=blds )
+
+        # Now reset the decider if we changed it due to --config=force
+        # We saved original Environment passed in and cloned it to isolate
+        # it from being changed.
+        if cache_mode == FORCE:
+            self.env.Decider(self.original_env.decide_source)
+
+            # remove the SConfSourceBuilder from the environment
+            blds = self.env['BUILDERS']
+            del blds['SConfSourceBuilder']
+            self.env.Replace( BUILDERS=blds )
+
         self.active = 0
         sconf_global = None
         if not self.config_h is None:

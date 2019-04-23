@@ -35,12 +35,10 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-lex = test.where_is('lex') or test.where_is('flex')
+lex = test.where_is('win_flex') or test.where_is('lex') or test.where_is('flex')
 
 if not lex:
     test.skip_test('No lex or flex found; skipping test.\n')
-
-
 
 test.file_fixture('wrapper.py')
 
@@ -82,17 +80,12 @@ test.must_not_exist(test.workpath('lex.backup'))
 
 test.run(program = test.workpath('foo'), stdin = "a\n", stdout = "Afoo.lA\n")
 
-
-
-
 test.run(arguments = 'bar' + _exe)
 
 test.must_match(test.workpath('wrapper.out'), "wrapper.py\n")
 test.must_exist(test.workpath('lex.backup'))
 
 test.run(program = test.workpath('bar'), stdin = "b\n", stdout = "Bbar.lB\n")
-
-
 
 test.pass_test()
 

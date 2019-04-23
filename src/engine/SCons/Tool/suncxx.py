@@ -56,7 +56,7 @@ def get_package_info(package_name, pkginfo, pkgchk):
         except EnvironmentError:
             pass
         else:
-            sadm_re = re.compile('^(\S*/bin/CC)(=\S*)? %s$' % package_name, re.M)
+            sadm_re = re.compile(r'^(\S*/bin/CC)(=\S*)? %s$' % package_name, re.M)
             sadm_match = sadm_re.search(sadm_contents)
             if sadm_match:
                 pathname = os.path.dirname(sadm_match.group(1))
@@ -69,7 +69,7 @@ def get_package_info(package_name, pkginfo, pkgchk):
             pass
         else:
             pkginfo_contents = p.communicate()[0]
-            version_re = re.compile('^ *VERSION:\s*(.*)$', re.M)
+            version_re = re.compile(r'^ *VERSION:\s*(.*)$', re.M)
             version_match = version_re.search(pkginfo_contents)
             if version_match:
                 version = version_match.group(1)

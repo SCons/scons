@@ -43,6 +43,10 @@ from SCons.Platform.virtualenv import ImportVirtualenv
 from SCons.Platform.virtualenv import ignore_virtualenv, enable_virtualenv
 import SCons.Util
 
+CHOCO_DEFAULT_PATH = [
+    r'C:\ProgramData\chocolatey\bin'
+]
+
 try:
     import msvcrt
     import win32api

@@ -232,13 +232,40 @@ The suffix used for shared object file names.
 <summary>
 <para>
 The prefix for a temporary file used
-to execute lines longer than $MAXLINELENGTH.
-The default is '@'.
-This may be set for toolchains that use other values,
-such as '-@' for the diab compiler
+to store lines lines longer than $MAXLINELENGTH
+as operations which call out to a shell will fail
+if the line is too long, which particularly
+impacts linking.
+The default is '@', which works for the Microsoft
+and GNU toolchains on Windows.
+Set this appropriately for other toolchains,
+for example '-@' for the diab compiler
 or '-via' for ARM toolchain.
 </para>
 </summary>
 </cvar>
+
+<cvar name="TEMPFILESUFFIX">
+<summary>
+<para>
+The suffix used for the temporary file name
+used for long command lines. The name should
+include the dot ('.') if one is wanted as
+it will not be added automatically.
+The default is '.lnk'.
+</para>
+</summary>
+</cvar>
+
+<cvar name="TEMPFILEARGJOIN">
+<summary>
+<para>
+The string (or character) to be used to join the arguments passed to TEMPFILE when command line exceeds the limit set by &cv-MAXLINELENGTH;.
+The default value is a space. However for MSVC, MSLINK the default is a line seperator characters as defined by os.linesep.
+Note this value is used literally and not expanded by the subst logic.
+</para>
+</summary>
+</cvar>
+
 
 </sconsdoc>
