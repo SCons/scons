@@ -149,7 +149,7 @@ class Tool(object):
                 except ImportError as e:
                     splitname = self.name.split('.')
                     if str(e) != "No module named %s" % splitname[0]:
-                        raise SCons.Errors.EnvironmentError(e)
+                        raise SCons.Errors.SConsEnvironmentError(e)
                     try:
                         import zipimport
                     except ImportError:
@@ -211,13 +211,13 @@ class Tool(object):
 
             if spec is None:
                 error_string = "No module named %s" % self.name
-                raise SCons.Errors.EnvironmentError(error_string)
+                raise SCons.Errors.SConsEnvironmentError(error_string)
 
             module = importlib.util.module_from_spec(spec)
             if module is None:
                 if debug: print("MODULE IS NONE:%s" % self.name)
                 error_string = "No module named %s" % self.name
-                raise SCons.Errors.EnvironmentError(error_string)
+                raise SCons.Errors.SConsEnvironmentError(error_string)
 
             # Don't reload a tool we already loaded.
             sys_modules_value = sys.modules.get(found_name, False)
@@ -258,7 +258,7 @@ class Tool(object):
                     return module
                 except ImportError as e:
                     if str(e) != "No module named %s" % self.name:
-                        raise SCons.Errors.EnvironmentError(e)
+                        raise SCons.Errors.SConsEnvironmentError(e)
                     try:
                         import zipimport
                         importer = zipimport.zipimporter(sys.modules['SCons.Tool'].__path__[0])
@@ -267,10 +267,10 @@ class Tool(object):
                         return module
                     except ImportError as e:
                         m = "No tool named '%s': %s" % (self.name, e)
-                        raise SCons.Errors.EnvironmentError(m)
+                        raise SCons.Errors.SConsEnvironmentError(m)
             except ImportError as e:
                 m = "No tool named '%s': %s" % (self.name, e)
-                raise SCons.Errors.EnvironmentError(m)
+                raise SCons.Errors.SConsEnvironmentError(m)
 
     def __call__(self, env, *args, **kw):
         if self.init_kw is not None:

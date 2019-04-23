@@ -103,9 +103,9 @@ implicit_deps_changed = 0
 
 # A variable that can be set to an interface-specific function be called
 # to annotate a Node with information about its creation.
-def do_nothing(node): pass
+def do_nothing_node(node): pass
 
-Annotate = do_nothing
+Annotate = do_nothing_node
 
 # Gets set to 'True' if we're running in interactive mode. Is
 # currently used to release parts of a target's info during

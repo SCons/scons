@@ -27,13 +27,38 @@ stages:
   - Coverage
   - Test
 
+# Note: Travis does not provide a way to specify the order of
+# jobs within a Stage, which are "run in parallel", but with
+# limitations: from observation four or five are kicked
+# off, then additional jobs as initial ones complete.
+# We want the slowest jobs in the first batch since the
+# faster ones are less than half the time of the slowest,
+# we should be able to finish the Test task in the time of the
+# slowest job rather than (a fast job + the slowest job).
+# Putting the pypy jobs first may help with this, though it's
+# apparently not guaranteed.
+
 jobs:
   include:
     - &test_job
       stage: Test
-      script: python runtest.py -a -t || if [[ $? == 2 ]]; then true; else false; fi
+      script: python runtest.py -a -t -j 2 || if [[ $? == 2 ]]; then true; else false; fi
       before_script: skip
       after_success: skip
+      python: pypy3
+      env: 
+        - PYVER=pypy3
+        - PYTHON=pypy3
+      sudo: required
+
+    - <<: *test_job
+      python: pypy
+      env: 
+        - PYVER=pypy
+        - PYTHON=pypy
+      sudo: required
+
+    - <<: *test_job
       python: 2.7
       env: 
         - PYVER=27
@@ -61,24 +86,6 @@ jobs:
         - PYTHON=3.7
       sudo: required
       dist: xenial  # required for Python 3.7 (travis-ci/travis-ci#9069)
-
-    - &slow_test_job
-      stage: Test
-      script: python runtest.py -a -j 4 -t || if [[ $? == 2 ]]; then true; else false; fi
-      before_script: skip
-      after_success: skip
-      python: pypy
-      env: 
-        - PYVER=pypy
-        - PYTHON=pypy
-      sudo: required
-
-    - <<: *slow_test_job
-      python: pypy3
-      env: 
-        - PYVER=pypy3
-        - PYTHON=pypy3
-      sudo: required
 
 
     - &coverage_jobs
@@ -128,7 +135,7 @@ jobs:
         - if (( ${BUILD_JOB_NUM} == ${TOTAL_BUILD_JOBS} )); then end=$(wc -l < all_tests); fi
         - if (( ${start} == 0 )); then start=1; fi
         - sed -n ${start},${end}p all_tests > build_tests
-        - coverage run -p --rcfile=$PWD/.coveragerc runtest.py -f build_tests || if [[ $? == 2 ]]; then true; else false; fi
+        - coverage run -p --rcfile=$PWD/.coveragerc runtest.py -f build_tests -j 2 || if [[ $? == 2 ]]; then true; else false; fi
         
       after_script:
         - coverage combine

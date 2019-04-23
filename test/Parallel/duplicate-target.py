@@ -49,14 +49,15 @@ test.write(['work', 'mycopy.py'], """\
 import sys
 import time
 time.sleep(int(sys.argv[1]))
-open(sys.argv[2], 'wb').write(open(sys.argv[3], 'rb').read())
+with open(sys.argv[2], 'wb') as ofp, open(sys.argv[3], 'rb') as ifp:
+    ofp.write(ifp.read())
 """)
 
 test.write(['work', 'mytar.py'], """\
 import sys
 import os.path
 
-fp = open(sys.argv[1], 'wb')
+ofp = open(sys.argv[1], 'wb')
 
 def visit(dirname):
     names = os.listdir(dirname)
@@ -66,10 +67,12 @@ def visit(dirname):
         if os.path.isdir(p):
             visit(p)
         elif os.path.isfile(p):
-            fp.write(open(p, 'rb').read())
+            with open(p, 'rb') as ifp:
+                ofp.write(ifp.read())
 
 for s in sys.argv[2:]:
     visit(s)
+ofp.close()
 """)
 
 test.write(['work', 'SConstruct'], """\

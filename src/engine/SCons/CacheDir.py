@@ -111,7 +111,7 @@ def CachePushFunc(target, source, env):
             # has beaten us creating the directory.
             if not fs.isdir(cachedir):
                 msg = errfmt % (str(target), cachefile)
-                raise SCons.Errors.EnvironmentError(msg)
+                raise SCons.Errors.SConsEnvironmentError(msg)
 
     try:
         if fs.islink(t.get_internal_path()):
@@ -177,8 +177,8 @@ class CacheDir(object):
                         # If someone else is trying to create the directory at
                         # the same time as me, bad things will happen
                         msg = "Failed to create cache directory " + path
-                        raise SCons.Errors.EnvironmentError(msg)
-                        
+                        raise SCons.Errors.SConsEnvironmentError(msg)
+
                 self.config['prefix_len'] = 2
                 if not os.path.exists(config_file):
                     try:
@@ -186,15 +186,15 @@ class CacheDir(object):
                             json.dump(self.config, config)
                     except:
                         msg = "Failed to write cache configuration for " + path
-                        raise SCons.Errors.EnvironmentError(msg)
+                        raise SCons.Errors.SConsEnvironmentError(msg)
         else:
             try:
                 with open(config_file) as config:
                     self.config = json.load(config)
             except ValueError:
                 msg = "Failed to read cache configuration for " + path
-                raise SCons.Errors.EnvironmentError(msg)
-            
+                raise SCons.Errors.SConsEnvironmentError(msg)
+
 
     def CacheDebug(self, fmt, target, cachefile):
         if cache_debug != self.current_cache_debug:

@@ -165,7 +165,7 @@ def CPP_to_Python(s):
     """
     s = CPP_to_Python_Ops_Expression.sub(CPP_to_Python_Ops_Sub, s)
     for expr, repl in CPP_to_Python_Eval_List:
-        s = expr.sub(repl, s)
+        s = re.sub(expr, repl, s)
     return s
 
 

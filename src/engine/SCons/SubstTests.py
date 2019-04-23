@@ -132,6 +132,7 @@ class SubstTestCase(unittest.TestCase):
         def __str__(self):
             return self.value
 
+    # only use of this is currently commented out below
     def function_foo(arg):
         pass
 
@@ -1046,7 +1047,7 @@ class scons_subst_list_TestCase(SubstTestCase):
         node = scons_subst_list("$NODE", env, mode=SUBST_SIG, conv=s, gvars=gvars)
         assert node == [[n1]], node
 
-    def test_subst_list_overriding_gvars(self):
+    def test_subst_list_overriding_gvars2(self):
         """Test scons_subst_list():  supplying an overriding gvars dictionary"""
         env = DummyEnv({'XXX' : 'xxx'})
         result = scons_subst_list('$XXX', env, gvars=env.Dictionary())
