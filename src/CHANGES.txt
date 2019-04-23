@@ -10,6 +10,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From William Deegan:
     - Fix Issue #3350 - SCons Exception EnvironmentError is conflicting with Python's EnvironmentError.
       Renamed to SConsEnvironmentError
+    - Fix Issue #3350 - mslink failing when too many objects.  This is resolved by adding TEMPFILEARGJOIN variable
+      which specifies what character to join all the argements output into the tempfile. The default remains a space
+      when mslink, msvc, or mslib tools are loaded they change the TEMPFILEARGJOIN to be a line separator (\r\n on win32)
 
   From Mats Wichmann:
     - scons-time takes more care closing files and uses safer mkdtemp to avoid
