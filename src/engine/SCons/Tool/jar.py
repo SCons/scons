@@ -209,9 +209,9 @@ def generate(env):
     env.AddMethod(Jar)
 
     if env['PLATFORM'] == 'win32':
-        # Ensure that we have a proper path for clang
-        jar = SCons.Tool.find_program_path(env, 'jar',
-                                             default_paths=get_java_install_dirs(env['PLATFORM']))
+        # Ensure that we have a proper path for jar
+        paths = get_java_install_dirs('win32')
+        jar = SCons.Tool.find_program_path(env, 'jar', default_paths=paths)
         if jar:
             jar_bin_dir = os.path.dirname(jar)
             env.AppendENVPath('PATH', jar_bin_dir)
