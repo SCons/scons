@@ -74,12 +74,12 @@ while args:
         time.sleep(int(args.pop(0)))
 contents = ''
 for ifile in args:
-    contents = contents + open(ifile, 'r').read()
+    with open(ifile, 'r') as ifp:
+        contents = contents + ifp.read()
 for ofile in outputs:
-    ofp = open(ofile, 'w')
-    ofp.write('%s:  building from %s\\n' % (ofile, " ".join(args)))
-    ofp.write(contents)
-    ofp.close()
+    with open(ofile, 'w') as ofp:
+        ofp.write('%s:  building from %s\\n' % (ofile, " ".join(args)))
+        ofp.write(contents)
 """)
 
 #
