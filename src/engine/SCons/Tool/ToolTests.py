@@ -23,6 +23,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import sys
 import unittest
 
@@ -33,29 +34,46 @@ import SCons.Tool
 from SCons.Environment import Environment
 
 
+class DummyEnvironment(object):
+    def __init__(self):
+        self.dict = {}
+    def Detect(self, progs):
+        if not SCons.Util.is_List(progs):
+            progs = [ progs ]
+        return progs[0]
+    def Append(self, **kw):
+        self.dict.update(kw)
+    def __getitem__(self, key):
+        return self.dict[key]
+    def __setitem__(self, key, val):
+        self.dict[key] = val
+    def __contains__(self, key):
+        return self.dict.__contains__(key)
+    def has_key(self, key):
+        return key in self.dict
+    def subst(self, string, *args, **kwargs):
+        return string
+
+    PHONY_PATH = "/usr/phony/bin"
+    def WhereIs(self, key_program):
+        # for pathfind test for Issue #3336:
+        # need to fake the case where extra paths are searched, and
+        # if one has a "hit" after some fails, the fails are left in
+        # the environment's PATH. So construct a positive answer if
+        # we see a magic known path component in PATH; answer in
+        # the negative otherwise.
+        paths = self['ENV']['PATH']
+        if self.PHONY_PATH in paths:
+            return os.path.join(self.PHONY_PATH, key_program)
+        return None
+    def AppendENVPath(self, pathvar, path):
+        # signature matches how called from find_program_path()
+        self['ENV'][pathvar] = self['ENV'][pathvar] + os.pathsep + path
+
+
 class ToolTestCase(unittest.TestCase):
     def test_Tool(self):
         """Test the Tool() function"""
-
-        class DummyEnvironment(object):
-            def __init__(self):
-                self.dict = {}
-            def Detect(self, progs):
-                if not SCons.Util.is_List(progs):
-                    progs = [ progs ]
-                return progs[0]
-            def Append(self, **kw):
-                self.dict.update(kw)
-            def __getitem__(self, key):
-                return self.dict[key]
-            def __setitem__(self, key, val):
-                self.dict[key] = val
-            def __contains__(self, key):
-                return self.dict.__contains__(key)
-            def has_key(self, key):
-                return key in self.dict
-            def subst(self, string, *args, **kwargs):
-                return string
 
         env = DummyEnvironment()
         env['BUILDERS'] = {}
@@ -85,15 +103,15 @@ class ToolTestCase(unittest.TestCase):
     def test_pathfind(self):
         """Test that find_program_path() does not alter PATH"""
 
+        env = DummyEnvironment()
         PHONY_PATHS = [
             r'C:\cygwin64\bin',
             r'C:\cygwin\bin',
             '/usr/local/dummy/bin',
+            env.PHONY_PATH,     # will be recognized by dummy WhereIs
         ]
-
-        # Note this test cannot use the dummy environment,
-        # as function being tested calls env.WhereIs()
-        env = Environment()
+        env['ENV'] = {}
+        env['ENV']['PATH'] = '/usr/local/bin:/opt/bin:/bin:/usr/bin'
         pre_path = env['ENV']['PATH']
         tool = SCons.Tool.find_program_path(env, 'no_tool', default_paths=PHONY_PATHS)
         assert env['ENV']['PATH'] == pre_path, env['ENV']['PATH']
