@@ -31,7 +31,6 @@ import TestUnit
 
 import SCons.Errors
 import SCons.Tool
-from SCons.Environment import Environment
 
 
 class DummyEnvironment(object):
@@ -113,7 +112,7 @@ class ToolTestCase(unittest.TestCase):
         env['ENV'] = {}
         env['ENV']['PATH'] = '/usr/local/bin:/opt/bin:/bin:/usr/bin'
         pre_path = env['ENV']['PATH']
-        tool = SCons.Tool.find_program_path(env, 'no_tool', default_paths=PHONY_PATHS)
+        _ = SCons.Tool.find_program_path(env, 'no_tool', default_paths=PHONY_PATHS)
         assert env['ENV']['PATH'] == pre_path, env['ENV']['PATH']
 
 
