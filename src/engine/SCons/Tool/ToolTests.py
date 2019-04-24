@@ -30,11 +30,14 @@ import TestUnit
 
 import SCons.Errors
 import SCons.Tool
+from SCons.Environment import Environment
+
 
 class ToolTestCase(unittest.TestCase):
     def test_Tool(self):
         """Test the Tool() function"""
-        class Environment(object):
+
+        class DummyEnvironment(object):
             def __init__(self):
                 self.dict = {}
             def Detect(self, progs):
@@ -53,7 +56,8 @@ class ToolTestCase(unittest.TestCase):
                 return key in self.dict
             def subst(self, string, *args, **kwargs):
                 return string
-        env = Environment()
+
+        env = DummyEnvironment()
         env['BUILDERS'] = {}
         env['ENV'] = {}
         env['PLATFORM'] = 'test'
@@ -76,6 +80,23 @@ class ToolTestCase(unittest.TestCase):
             pass
         else:   # TODO pylint E0704: bare raise not inside except
             raise
+
+
+    def test_pathfind(self):
+        """Test that find_program_path() does not alter PATH"""
+
+        PHONY_PATHS = [
+            r'C:\cygwin64\bin',
+            r'C:\cygwin\bin',
+            '/usr/local/dummy/bin',
+        ]
+
+        # Note this test cannot use the dummy environment,
+        # as function being tested calls env.WhereIs()
+        env = Environment()
+        pre_path = env['ENV']['PATH']
+        tool = SCons.Tool.find_program_path(env, 'no_tool', default_paths=PHONY_PATHS)
+        assert env['ENV']['PATH'] == pre_path, env['ENV']['PATH']
 
 
 if __name__ == "__main__":

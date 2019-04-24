@@ -104,7 +104,9 @@ TOOL_ALIASES = {
 
 
 class Tool(object):
-    def __init__(self, name, toolpath=[], **kw):
+    def __init__(self, name, toolpath=None, **kw):
+        if toolpath is None:
+            toolpath = []
 
         # Rename if there's a TOOL_ALIAS for this tool
         self.name = TOOL_ALIASES.get(name, name)
@@ -394,7 +396,8 @@ def _call_env_subst(env, string, *args, **kw):
 
 
 class _ShLibInfoSupport(object):
-    def get_libtype(self):
+    @property
+    def libtype(self):
         return 'ShLib'
 
     def get_lib_prefix(self, env, *args, **kw):
@@ -411,7 +414,8 @@ class _ShLibInfoSupport(object):
 
 
 class _LdModInfoSupport(object):
-    def get_libtype(self):
+    @property
+    def libtype(self):
         return 'LdMod'
 
     def get_lib_prefix(self, env, *args, **kw):
@@ -428,7 +432,8 @@ class _LdModInfoSupport(object):
 
 
 class _ImpLibInfoSupport(object):
-    def get_libtype(self):
+    @property
+    def libtype(self):
         return 'ImpLib'
 
     def get_lib_prefix(self, env, *args, **kw):
@@ -480,24 +485,20 @@ class _LibInfoGeneratorBase(object):
                         'ImpLib': _ImpLibInfoSupport}
 
     def __init__(self, libtype, infoname):
-        self.set_libtype(libtype)
-        self.set_infoname(infoname)
+        self.libtype = libtype
+        self.infoname = infoname
 
-    def set_libtype(self, libtype):
+    @property
+    def libtype(self):
+        return self._support.libtype
+
+    @libtype.setter
+    def libtype(self, libtype):
         try:
             support_class = self._support_classes[libtype]
         except KeyError:
             raise ValueError('unsupported libtype %r' % libtype)
         self._support = support_class()
-
-    def get_libtype(self):
-        return self._support.get_libtype()
-
-    def set_infoname(self, infoname):
-        self.infoname = infoname
-
-    def get_infoname(self):
-        return self.infoname
 
     def get_lib_prefix(self, env, *args, **kw):
         return self._support.get_lib_prefix(env, *args, **kw)
@@ -518,9 +519,8 @@ class _LibInfoGeneratorBase(object):
         try:
             libtype = kw['generator_libtype']
         except KeyError:
-            libtype = self.get_libtype()
-        infoname = self.get_infoname()
-        return 'Versioned%s%s' % (libtype, infoname)
+            libtype = self.libtype
+        return 'Versioned%s%s' % (libtype, self.infoname)
 
     def generate_versioned_lib_info(self, env, args, result=None, **kw):
         callback = self.get_versioned_lib_info_generator(**kw)
@@ -730,7 +730,7 @@ class _LibSonameGenerator(_LibInfoGeneratorBase):
 
         if not soname:
             # fallback to library name (as returned by appropriate _LibNameGenerator)
-            soname = _LibNameGenerator(self.get_libtype())(env, libnode)
+            soname = _LibNameGenerator(self.libtype)(env, libnode)
             if Verbose:
                 print("_LibSonameGenerator: FALLBACK: soname=%r" % soname)
 
@@ -1316,7 +1316,7 @@ def tool_list(platform, env):
     return [x for x in tools if x]
 
 
-def find_program_path(env, key_program, default_paths=[]):
+def find_program_path(env, key_program, default_paths=None):
     """
     Find the location of a tool using various means.
 
@@ -1338,6 +1338,8 @@ def find_program_path(env, key_program, default_paths=[]):
 
     # Finally, add the defaults and check again. Do not change
     # ['ENV']['PATH'] permananetly, the caller can do that if needed.
+    if default_paths is None:
+        return path
     save_path = env['ENV']['PATH']
     for p in default_paths:
         env.AppendENVPath('PATH', p)
