@@ -704,7 +704,7 @@ def CheckProg(context, prog_name):
 #
 
 def _YesNoResult(context, ret, key, text, comment = None):
-    """
+    r"""
     Handle the result of a test with a "yes" or "no" result.
 
     :Parameters:
@@ -723,7 +723,7 @@ def _YesNoResult(context, ret, key, text, comment = None):
 
 
 def _Have(context, key, have, comment = None):
-    """
+    r"""
     Store result of a test in context.havedict and context.headerfilename.
 
     :Parameters:
