@@ -18,6 +18,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Decider and not clearing it when the configure context is completed.
     - Add default paths for yacc tool on windows to include cygwin, mingw, and chocolatey
 
+  From Github User pdiener:
+    - Fix issue #3135 - Handle Fortran submodules and type bound procedures
+
   From Daniel Moody:
     - Change the default for AppendENVPath to delete_existing=0, so path
       order will not be changed, unless explicitly set (Issue #3276)

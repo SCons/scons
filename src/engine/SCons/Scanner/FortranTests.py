@@ -363,9 +363,9 @@ class FortranScannerTestCase9(unittest.TestCase):
 
         n = env.File('fff3.f')
 
-        def my_rexists(s1):
-            s1.Tag('rexists_called', 1)
-            return SCons.Node._rexists_map[s.GetTag('old_rexists')](s1)
+        def my_rexists(s):
+            s.Tag('rexists_called', 1)
+            return SCons.Node._rexists_map[s.GetTag('old_rexists')](s)
 
         n.Tag('old_rexists', n._func_rexists)
         SCons.Node._rexists_map[3] = my_rexists
@@ -528,6 +528,7 @@ class FortranScannerTestCase16(unittest.TestCase):
         test.unlink('f8.f')
         test.unlink('f9.f')
         test.unlink('f10.f')
+
 
 
 if __name__ == "__main__":
