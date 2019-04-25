@@ -974,6 +974,12 @@ class TestCmd(object):
         self.subdir(subdir)
         self.fixture_dirs = []
 
+        try:
+            self.fixture_dirs = (os.environ['FIXTURE_DIRS']).split(os.pathsep)
+        except KeyError:
+            pass
+
+
     def __del__(self):
         self.cleanup()
 
@@ -1630,6 +1636,7 @@ class TestCmd(object):
                 os.mkdir(new)
             except OSError as e:
                 print("Got error :%s"%e)
+                import pdb; pdb.set_trace()
                 pass
             else:
                 count = count + 1
