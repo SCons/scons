@@ -25,7 +25,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
-import sys
 import unittest
 
 import SCons.Scanner.Fortran
@@ -33,17 +32,16 @@ import SCons.Node.FS
 import SCons.Warnings
 
 import TestCmd
-import TestUnit
 
 original = os.getcwd()
 
-test = TestCmd.TestCmd(workdir = '')
+test = TestCmd.TestCmd(workdir='')
 
 os.chdir(test.workpath(''))
 
 # create some source files and headers:
 
-test.write('fff1.f',"""
+test.write('fff1.f', """
       PROGRAM FOO
       INCLUDE 'f1.f'
       include 'f2.f'
@@ -51,7 +49,7 @@ test.write('fff1.f',"""
       END
 """)
 
-test.write('fff2.f',"""
+test.write('fff2.f', """
       PROGRAM FOO
       INCLUDE 'f2.f'
       include 'd1/f2.f'
@@ -60,30 +58,28 @@ test.write('fff2.f',"""
       END
 """)
 
-test.write('fff3.f',"""
+test.write('fff3.f', """
       PROGRAM FOO
       INCLUDE 'f3.f' ; INCLUDE\t'd1/f3.f'
       STOP
       END
 """)
 
-
 # for Emacs -> "
 
 test.subdir('d1', ['d1', 'd2'])
 
-headers = ['fi.f', 'never.f',
-           'd1/f1.f', 'd1/f2.f', 'd1/f3.f', 'd1/fi.f',
-           'd1/d2/f1.f', 'd1/d2/f2.f', 'd1/d2/f3.f',
-           'd1/d2/f4.f', 'd1/d2/fi.f']
+test_headers = ['fi.f', 'never.f',
+                'd1/f1.f', 'd1/f2.f', 'd1/f3.f', 'd1/fi.f',
+                'd1/d2/f1.f', 'd1/d2/f2.f', 'd1/d2/f3.f',
+                'd1/d2/f4.f', 'd1/d2/fi.f']
 
-for h in headers:
+for h in test_headers:
     test.write(h, "\n")
-
 
 test.subdir('include', 'subdir', ['subdir', 'include'])
 
-test.write('fff4.f',"""
+test.write('fff4.f', """
       PROGRAM FOO
       INCLUDE 'f4.f'
       STOP
@@ -93,7 +89,7 @@ test.write('fff4.f',"""
 test.write('include/f4.f', "\n")
 test.write('subdir/include/f4.f', "\n")
 
-test.write('fff5.f',"""
+test.write('fff5.f', """
       PROGRAM FOO
       INCLUDE 'f5.f'
       INCLUDE 'not_there.f'
@@ -104,7 +100,7 @@ test.write('fff5.f',"""
 test.write('f5.f', "\n")
 
 test.subdir('repository', ['repository', 'include'],
-            [ 'repository', 'src' ])
+            ['repository', 'src'])
 test.subdir('work', ['work', 'src'])
 
 test.write(['repository', 'include', 'iii.f'], "\n")
@@ -117,26 +113,25 @@ test.write(['work', 'src', 'fff.f'], """
       END
 """)
 
-test.write([ 'work', 'src', 'aaa.f'], """
+test.write(['work', 'src', 'aaa.f'], """
       PROGRAM FOO
       INCLUDE 'bbb.f'
       STOP
       END
 """)
 
-test.write([ 'work', 'src', 'bbb.f'], "\n")
+test.write(['work', 'src', 'bbb.f'], "\n")
 
-test.write([ 'repository', 'src', 'ccc.f'], """
+test.write(['repository', 'src', 'ccc.f'], """
       PROGRAM FOO
       INCLUDE 'ddd.f'
       STOP
       END
 """)
 
-test.write([ 'repository', 'src', 'ddd.f'], "\n")
+test.write(['repository', 'src', 'ddd.f'], "\n")
 
-
-test.write('fff90a.f90',"""
+test.write('fff90a.f90', """
       PROGRAM FOO
 
 !  Test comments - these includes should NOT be picked up
@@ -194,17 +189,18 @@ USE mod25  ! Test USE statement at the beginning of line
       END
 """)
 
-modules = ['mod01.mod', 'mod02.mod', 'mod03.mod', 'mod04.mod', 'mod05.mod',
-           'mod06.mod', 'mod07.mod', 'mod08.mod', 'mod09.mod', 'mod10.mod',
-           'mod11.mod', 'mod12.mod', 'mod13.mod', 'mod14.mod', 'mod15.mod',
-           'mod16.mod', 'mod17.mod', 'mod18.mod', 'mod19.mod', 'mod20.mod',
-           'mod21.mod', 'mod22.mod', 'mod23.mod', 'mod24.mod', 'mod25.mod']
+test_modules = ['mod01.mod', 'mod02.mod', 'mod03.mod', 'mod04.mod', 'mod05.mod',
+                'mod06.mod', 'mod07.mod', 'mod08.mod', 'mod09.mod', 'mod10.mod',
+                'mod11.mod', 'mod12.mod', 'mod13.mod', 'mod14.mod', 'mod15.mod',
+                'mod16.mod', 'mod17.mod', 'mod18.mod', 'mod19.mod', 'mod20.mod',
+                'mod21.mod', 'mod22.mod', 'mod23.mod', 'mod24.mod', 'mod25.mod']
 
-for m in modules:
+for m in test_modules:
     test.write(m, "\n")
 
 test.subdir('modules')
 test.write(['modules', 'use.mod'], "\n")
+
 
 # define some helpers:
 
@@ -215,7 +211,7 @@ class DummyEnvironment(object):
 
     def Dictionary(self, *args):
         if not args:
-            return { 'FORTRANPATH': self.path, 'FORTRANMODSUFFIX' : ".mod" }
+            return {'FORTRANPATH': self.path, 'FORTRANMODSUFFIX': ".mod"}
         elif len(args) == 1 and args[0] == 'FORTRANPATH':
             return self.path
         else:
@@ -224,13 +220,13 @@ class DummyEnvironment(object):
     def has_key(self, key):
         return key in self.Dictionary()
 
-    def __getitem__(self,key):
+    def __getitem__(self, key):
         return self.Dictionary()[key]
 
-    def __setitem__(self,key,value):
+    def __setitem__(self, key, value):
         self.Dictionary()[key] = value
 
-    def __delitem__(self,key):
+    def __delitem__(self, key):
         del self.Dictionary()[key]
 
     def subst(self, arg, target=None, source=None, conv=None):
@@ -255,10 +251,12 @@ class DummyEnvironment(object):
     def File(self, filename):
         return self.fs.File(filename)
 
+
 def deps_match(self, deps, headers):
     scanned = list(map(os.path.normpath, list(map(str, deps))))
     expect = list(map(os.path.normpath, headers))
     self.assertTrue(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
+
 
 # define some tests:
 
@@ -275,6 +273,7 @@ class FortranScannerTestCase1(unittest.TestCase):
         test.unlink('f1.f')
         test.unlink('f2.f')
 
+
 class FortranScannerTestCase2(unittest.TestCase):
     def runTest(self):
         test.write('f1.f', "\n")
@@ -288,6 +287,7 @@ class FortranScannerTestCase2(unittest.TestCase):
         test.unlink('f1.f')
         test.unlink('f2.f')
 
+
 class FortranScannerTestCase3(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment([test.workpath("d1")])
@@ -296,6 +296,7 @@ class FortranScannerTestCase3(unittest.TestCase):
         deps = s(env.File('fff1.f'), env, path)
         headers = ['d1/f1.f', 'd1/f2.f']
         deps_match(self, deps, headers)
+
 
 class FortranScannerTestCase4(unittest.TestCase):
     def runTest(self):
@@ -308,6 +309,7 @@ class FortranScannerTestCase4(unittest.TestCase):
         deps_match(self, deps, headers)
         test.write(['d1', 'f2.f'], "\n")
 
+
 class FortranScannerTestCase5(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment([test.workpath("d1")])
@@ -317,6 +319,7 @@ class FortranScannerTestCase5(unittest.TestCase):
         headers = ['d1/f2.f', 'd1/d2/f2.f', 'd1/f2.f']
         deps_match(self, deps, headers)
 
+
 class FortranScannerTestCase6(unittest.TestCase):
     def runTest(self):
         test.write('f2.f', "\n")
@@ -324,9 +327,10 @@ class FortranScannerTestCase6(unittest.TestCase):
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
         deps = s(env.File('fff2.f'), env, path)
-        headers =  ['d1/f2.f', 'd1/d2/f2.f', 'f2.f']
+        headers = ['d1/f2.f', 'd1/d2/f2.f', 'f2.f']
         deps_match(self, deps, headers)
         test.unlink('f2.f')
+
 
 class FortranScannerTestCase7(unittest.TestCase):
     def runTest(self):
@@ -334,8 +338,9 @@ class FortranScannerTestCase7(unittest.TestCase):
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
         deps = s(env.File('fff2.f'), env, path)
-        headers =  ['d1/f2.f', 'd1/d2/f2.f', 'd1/d2/f2.f']
+        headers = ['d1/f2.f', 'd1/d2/f2.f', 'd1/d2/f2.f']
         deps_match(self, deps, headers)
+
 
 class FortranScannerTestCase8(unittest.TestCase):
     def runTest(self):
@@ -344,9 +349,10 @@ class FortranScannerTestCase8(unittest.TestCase):
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
         deps = s(env.File('fff2.f'), env, path)
-        headers =  ['d1/f2.f', 'd1/d2/f2.f', 'f2.f']
+        headers = ['d1/f2.f', 'd1/d2/f2.f', 'f2.f']
         deps_match(self, deps, headers)
         test.unlink('f2.f')
+
 
 class FortranScannerTestCase9(unittest.TestCase):
     def runTest(self):
@@ -356,9 +362,11 @@ class FortranScannerTestCase9(unittest.TestCase):
         path = s.path(env)
 
         n = env.File('fff3.f')
-        def my_rexists(s):
-            s.Tag('rexists_called', 1)
-            return SCons.Node._rexists_map[s.GetTag('old_rexists')](s)
+
+        def my_rexists(s1):
+            s1.Tag('rexists_called', 1)
+            return SCons.Node._rexists_map[s.GetTag('old_rexists')](s1)
+
         n.Tag('old_rexists', n._func_rexists)
         SCons.Node._rexists_map[3] = my_rexists
         n._func_rexists = 3
@@ -369,9 +377,10 @@ class FortranScannerTestCase9(unittest.TestCase):
         # scanned, essential for cooperation with VariantDir functionality.
         assert n.GetTag('rexists_called')
 
-        headers =  ['d1/f3.f', 'f3.f']
+        headers = ['d1/f3.f', 'f3.f']
         deps_match(self, deps, headers)
         test.unlink('f3.f')
+
 
 class FortranScannerTestCase10(unittest.TestCase):
     def runTest(self):
@@ -380,18 +389,20 @@ class FortranScannerTestCase10(unittest.TestCase):
         path = s.path(env)
         deps1 = s(env.File('fff4.f'), env, path)
         env.fs.chdir(env.Dir('subdir'))
-        dir = env.fs.getcwd()
+        test_dir = env.fs.getcwd()
         env.fs.chdir(env.Dir(''))
-        path = s.path(env, dir)
+        path = s.path(env, test_dir)
         deps2 = s(env.File('#fff4.f'), env, path)
-        headers1 =  list(map(test.workpath, ['include/f4.f']))
-        headers2 =  ['include/f4.f']
+        headers1 = [test.workpath(f) for f in ['include/f4.f']]
+        headers2 = ['include/f4.f']
         deps_match(self, deps1, headers1)
         deps_match(self, deps2, headers2)
+
 
 class FortranScannerTestCase11(unittest.TestCase):
     def runTest(self):
         SCons.Warnings.enableWarningClass(SCons.Warnings.DependencyWarning)
+
         class TestOut(object):
             def __call__(self, x):
                 self.out = x
@@ -407,7 +418,8 @@ class FortranScannerTestCase11(unittest.TestCase):
         # Did we catch the warning from not finding not_there.f?
         assert to.out
 
-        deps_match(self, deps, [ 'f5.f' ])
+        deps_match(self, deps, ['f5.f'])
+
 
 class FortranScannerTestCase12(unittest.TestCase):
     def runTest(self):
@@ -421,6 +433,7 @@ class FortranScannerTestCase12(unittest.TestCase):
         deps_match(self, deps, ['f4.f'])
         test.unlink('include/fff4.f')
 
+
 class FortranScannerTestCase13(unittest.TestCase):
     def runTest(self):
         os.chdir(test.workpath('work'))
@@ -429,15 +442,16 @@ class FortranScannerTestCase13(unittest.TestCase):
 
         # Create a derived file in a directory that does not exist yet.
         # This was a bug at one time.
-        f1=fs.File('include2/jjj.f')
-        f1.builder=1
-        env = DummyEnvironment(['include','include2'])
+        f1 = fs.File('include2/jjj.f')
+        f1.builder = 1
+        env = DummyEnvironment(['include', 'include2'])
         env.fs = fs
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
         deps = s(fs.File('src/fff.f'), env, path)
         deps_match(self, deps, [test.workpath('repository/include/iii.f'), 'include2/jjj.f'])
         os.chdir(test.workpath(''))
+
 
 class FortranScannerTestCase14(unittest.TestCase):
     def runTest(self):
@@ -451,14 +465,15 @@ class FortranScannerTestCase14(unittest.TestCase):
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
         deps1 = s(fs.File('build1/aaa.f'), env, path)
-        deps_match(self, deps1, [ 'build1/bbb.f' ])
+        deps_match(self, deps1, ['build1/bbb.f'])
         deps2 = s(fs.File('build2/aaa.f'), env, path)
-        deps_match(self, deps2, [ 'src/bbb.f' ])
+        deps_match(self, deps2, ['src/bbb.f'])
         deps3 = s(fs.File('build1/ccc.f'), env, path)
-        deps_match(self, deps3, [ 'build1/ddd.f' ])
+        deps_match(self, deps3, ['build1/ddd.f'])
         deps4 = s(fs.File('build2/ccc.f'), env, path)
-        deps_match(self, deps4, [ test.workpath('repository/src/ddd.f') ])
+        deps_match(self, deps4, [test.workpath('repository/src/ddd.f')])
         os.chdir(test.workpath(''))
+
 
 class FortranScannerTestCase15(unittest.TestCase):
     def runTest(self):
@@ -468,6 +483,7 @@ class FortranScannerTestCase15(unittest.TestCase):
                     return test.workpath("d1")
                 else:
                     return arg
+
         test.write(['d1', 'f2.f'], "      INCLUDE 'fi.f'\n")
         env = SubstEnvironment(["$junk"])
         s = SCons.Scanner.Fortran.FortranScan()
@@ -476,6 +492,7 @@ class FortranScannerTestCase15(unittest.TestCase):
         headers = ['d1/f1.f', 'd1/f2.f']
         deps_match(self, deps, headers)
         test.write(['d1', 'f2.f'], "\n")
+
 
 class FortranScannerTestCase16(unittest.TestCase):
     def runTest(self):
@@ -512,28 +529,9 @@ class FortranScannerTestCase16(unittest.TestCase):
         test.unlink('f9.f')
         test.unlink('f10.f')
 
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(FortranScannerTestCase1())
-    suite.addTest(FortranScannerTestCase2())
-    suite.addTest(FortranScannerTestCase3())
-    suite.addTest(FortranScannerTestCase4())
-    suite.addTest(FortranScannerTestCase5())
-    suite.addTest(FortranScannerTestCase6())
-    suite.addTest(FortranScannerTestCase7())
-    suite.addTest(FortranScannerTestCase8())
-    suite.addTest(FortranScannerTestCase9())
-    suite.addTest(FortranScannerTestCase10())
-    suite.addTest(FortranScannerTestCase11())
-    suite.addTest(FortranScannerTestCase12())
-    suite.addTest(FortranScannerTestCase13())
-    suite.addTest(FortranScannerTestCase14())
-    suite.addTest(FortranScannerTestCase15())
-    suite.addTest(FortranScannerTestCase16())
-    return suite
 
 if __name__ == "__main__":
-    TestUnit.run(suite())
+    unittest.main()
 
 # Local Variables:
 # tab-width:4
