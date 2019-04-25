@@ -1636,7 +1636,6 @@ class TestCmd(object):
                 os.mkdir(new)
             except OSError as e:
                 print("Got error :%s"%e)
-                import pdb; pdb.set_trace()
                 pass
             else:
                 count = count + 1
