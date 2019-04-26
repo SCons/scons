@@ -39,10 +39,10 @@ from SCons.Script import *
 def cat(target, source, env):
     t = str(target[0])
     os.mkdir(t + '.started')
-    fp = open(t, 'wb')
-    for s in source:
-        fp.write(open(str(s), 'rb').read())
-    fp.close()
+    with open(t, 'wb') as ofp:
+        for s in source:
+            with open(str(s), 'rb') as ifp:
+                ofp.write(ifp.read())
     os.mkdir(t + '.finished')
 
 def must_be_finished(target, source, env, dir):
@@ -63,10 +63,10 @@ def must_wait_for_f2_b_out(target, source, env):
     f2_b_started = 'f2-b.out.started'
     while not os.path.exists(f2_b_started):
         time.sleep(1)
-    fp = open(t, 'wb')
-    for s in source:
-        fp.write(open(str(s), 'rb').read())
-    fp.close()
+    with open(t, 'wb') as ofp:
+        for s in source:
+            with open(str(s), 'rb') as ifp:
+                ofp.write(ifp.read())
     os.mkdir(t + '.finished')
 
 def _f2_a_out_must_not_be_finished(target, source, env):

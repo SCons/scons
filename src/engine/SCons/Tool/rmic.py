@@ -110,11 +110,9 @@ def generate(env):
 
     if env['PLATFORM'] == 'win32':
         version = env.get('JAVAVERSION', None)
-        default_paths=get_java_install_dirs(env['PLATFORM'], version=version)
-
         # Ensure that we have a proper path for rmic
-        rmic = SCons.Tool.find_program_path(env, 'rmic', default_paths=default_paths)
-
+        paths = get_java_install_dirs('win32', version=version)
+        rmic = SCons.Tool.find_program_path(env, 'rmic', default_paths=paths)
         # print("RMIC: %s"%rmic)
         if rmic:
             rmic_bin_dir = os.path.dirname(rmic)

@@ -38,10 +38,9 @@ test = TestSCons.TestSCons()
 
 test.write('mycc.py', r"""
 import sys
-outfile = open(sys.argv[1], 'wb')
-infile = open(sys.argv[2], 'rb')
-for l in [l for l in infile.readlines() if l[:7] != '/*c++*/']:
-    outfile.write(l)
+with open(sys.argv[1], 'wb') as ofp, open(sys.argv[2], 'rb') as ifp:
+    for l in [l for l in ifp.readlines() if l[:7] != '/*c++*/']:
+        ofp.write(l)
 sys.exit(0)
 """)
 

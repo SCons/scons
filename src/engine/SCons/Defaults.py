@@ -582,6 +582,7 @@ ConstructionEnvironment = {
     '__DSHLIBVERSIONFLAGS'   : '${__libversionflags(__env__,"DSHLIBVERSION","_DSHLIBVERSIONFLAGS")}',
 
     'TEMPFILE'      : NullCmdGenerator,
+    'TEMPFILEARGJOIN': ' ',
     'Dir'           : Variable_Method_Caller('TARGET', 'Dir'),
     'Dirs'          : Variable_Method_Caller('TARGET', 'Dirs'),
     'File'          : Variable_Method_Caller('TARGET', 'File'),

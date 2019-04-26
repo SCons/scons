@@ -43,7 +43,7 @@ if not tar:
 test.write( 'main.c', '' )
 test.write('SConstruct', """
 prog = Install( '/bin', 'main.c' )
-env=Environment(tools=['default', 'packaging'])
+env=Environment(tools=['packaging', 'filesystem', 'tar'])
 env.Package( NAME    = 'foo',
              VERSION = '1.2.3',
              source  = [ prog ],

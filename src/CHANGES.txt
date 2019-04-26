@@ -20,12 +20,29 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
            ->Depends
            ->Implicit
            Old:/usr/bin/python	New:/usr/bin/python
-
+    - Fix Issue #3350 - SCons Exception EnvironmentError is conflicting with Python's EnvironmentError.
+      Renamed to SConsEnvironmentError
+    - Fix Issue #3350 - mslink failing when too many objects.  This is resolved by adding TEMPFILEARGJOIN variable
+      which specifies what character to join all the argements output into the tempfile. The default remains a space
+      when mslink, msvc, or mslib tools are loaded they change the TEMPFILEARGJOIN to be a line separator (\r\n on win32)
 
   From Mats Wichmann:
     - scons-time takes more care closing files and uses safer mkdtemp to avoid
       possible races on multi-job runs.
     - Use importlib to dynamically load tool and platform modules instead of imp module
+    - sconsign: default to .sconsign.dblite if no filename is specified.
+      Be more informative in case of unsupported pickle protocol (py2 only).
+    - Fix issue #3336 - on Windows, paths were being added to PATH even if
+      tools were not found in those paths.
+    - More fixes for newer Java versions (since 9): handle new jdk directory
+      naming (jdk-X.Y instead of jdkX.Y) on Windows; handle two-digit major
+      version. Docstrings improved.
+    - Fixups for pylint: exception types, redefined functions, 
+      globals, etc.  Some old code removed to resolve issues (hashlib is
+      always present on modern Pythons; no longer need the code for
+      2.5-and-earlier optparse). cmp is not a builtin function in Py3,
+      drop one (unused) use; replace one.  Fix another instance of
+      renaming to SConsEnvironmentError.
 
 
 RELEASE 3.0.5 - Mon, 26 Mar 2019 15:04:42 -0700

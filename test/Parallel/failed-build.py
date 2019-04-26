@@ -78,7 +78,8 @@ import os
 import sys
 import time
 os.mkdir('mycopy.started')
-open(sys.argv[1], 'wb').write(open(sys.argv[2], 'rb').read())
+with open(sys.argv[1], 'wb') as ofp, open(sys.argv[2], 'rb') as ifp:
+    ofp.write(ifp.read())
 for i in [1, 2, 3, 4, 5]:
     time.sleep(2)
     if os.path.exists('myfail.exiting'):

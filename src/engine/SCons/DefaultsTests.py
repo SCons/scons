@@ -69,11 +69,11 @@ class DefaultsTestCase(unittest.TestCase):
         test.write(file, "test\n")
         try:
             mkdir_func(file)
-        except os.error as e:
+        except OSError as e:
             pass
         else:
-            fail("expected os.error")
-        
+            self.fail("expected OSError")
+
 
 if __name__ == "__main__":
     unittest.main()

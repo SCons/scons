@@ -102,13 +102,13 @@ if java_version.count('.') == 1:
     major, minor = java_version.split('.')
     try:
         curver = (int(major), int(minor))
-    except:
+    except ValueError:
         pass
 elif java_version.count('.') == 0:
     # java 11?
     try:
         curver = (int(java_version), 0)
-    except:
+    except ValueError:
         pass
 
 # Check the version of the found Java compiler.

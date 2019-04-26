@@ -1554,19 +1554,19 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         assert c == func_matches[sys.version_info[:2]], "Got\n" + repr(c) + "\nExpected \n" + repr(
             func_matches[sys.version_info[:2]])
 
-        def f_global(target, source, env, for_signature):
+        def f_global2(target, source, env, for_signature):
             return SCons.Action.Action(GlobalFunc, varlist=['XYZ'])
 
-        def f_local(target, source, env, for_signature):
+        def f_local2(target, source, env, for_signature):
             return SCons.Action.Action(LocalFunc, varlist=['XYZ'])
 
         matches_foo = func_matches[sys.version_info[:2]] + b'foo'
 
-        a = self.factory(f_global)
+        a = self.factory(f_global2)
         c = a.get_contents(target=[], source=[], env=env)
         assert c in matches_foo, repr(c)
 
-        a = self.factory(f_local)
+        a = self.factory(f_local2)
         c = a.get_contents(target=[], source=[], env=env)
         assert c in matches_foo, repr(c)
 
