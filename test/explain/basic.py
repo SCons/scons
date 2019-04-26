@@ -332,7 +332,7 @@ scons: rebuilding `file3' because:
            Old:zzz	New:xxx
            ->Depends
            ->Implicit
-           Old:/usr/bin/python	New:/usr/bin/python
+           Old:%(_python_)s	New:%(_python_)s
 %(_python_)s %(cat_py)s file3 zzz yyy xxx
 """ % locals())
 
