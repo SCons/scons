@@ -800,7 +800,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             try:
                 for peer in parent.target_peers:
                     peer.implicit = None
-            except AttributeError as e:
+            except AttributeError:
                 pass
 
 
