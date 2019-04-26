@@ -41,7 +41,7 @@ if sys.platform != 'win32':
     test.skip_test('Not windows environment; skipping test.\n')
 
 if not test.where_is('gcc'):
-        test.skip_test('No mingw or cygwin on windows; skipping test.\n')
+        test.skip_test('No mingw or cygwin build environment found; skipping test.\n')
 
 lex = test.where_is('lex') or test.where_is('flex')
 

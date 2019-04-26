@@ -37,15 +37,14 @@
 </refmeta>
 <refnamediv id='name'>
 <refname>sconsign</refname>
-<refpurpose>print SCons .sconsign file information</refpurpose>
+<refpurpose>print SCons signature file information</refpurpose>
 </refnamediv>
 <!-- body begins here -->
 <refsynopsisdiv id='synopsis'>
 <cmdsynopsis>
   <command>sconsign</command>
     <arg choice='opt' rep='repeat'><replaceable>options</replaceable></arg>
-    <arg choice='plain'><replaceable>file</replaceable></arg>
-    <arg choice='opt'><replaceable>...</replaceable></arg>
+    <arg choice='opt' rep='repeat'><replaceable>file</replaceable></arg>
 </cmdsynopsis>
 </refsynopsisdiv>
 
@@ -54,30 +53,38 @@
 <para>The
 <command>sconsign</command>
 command
-displays the contents of one or more
-<markup>.sconsign</markup>
+displays the contents of one or more signature
+("<markup>sconsign</markup>")
 files specified by the user.</para>
 
 <para>By default,
 <command>sconsign</command>
 dumps the entire contents of the
 specified file(s).
-Each entry is printed in the following format:</para>
+Without the verbose option,
+each entry is printed in the following format:</para>
 
-<para>    file: signature timestamp length
-            implicit_dependency_1: signature timestamp length
-            implicit_dependency_2: signature timestamp length
-            action_signature [action string]</para>
+<literallayout class="monospaced">
+file: signature timestamp length
+        implicit_dependency_1: signature timestamp length
+        implicit_dependency_2: signature timestamp length
+        ...
+        action_signature [action string]
+</literallayout>
 
 <para><emphasis role="bold">None</emphasis>
 is printed
-in place of any missing timestamp, bsig, or csig
+in place of any missing timestamp, build signature ("bsig"),
+or content signature ("csig")
 values for
 any entry
 or any of its dependencies.
 If the entry has no implicit dependencies,
 or no build action,
-the lines are simply omitted.</para>
+the lines are simply omitted.
+The verbose option expands the display into a more human
+readable format.
+</para>
 
 <para>By default,
 <command>sconsign</command>
@@ -90,7 +97,7 @@ signature entries for
 more than one directory
 (that is,
 was specified by the
-<emphasis role="bold">SConsignFile ()</emphasis>
+<emphasis role="bold">SConsignFile</emphasis>
 function).
 Any
 <emphasis>file</emphasis>
@@ -103,13 +110,21 @@ for a single directory.
 If neither of those is true,
 <command>sconsign</command>
 attempts to guess the format.
-If that does not work, 
+If that does not work,
 an explicit format
 may be specified using the
 <option>-f</option>
 or
 <option>--format=</option>
-options.</para>
+options.
+</para>
+<para>
+If there are no
+<emphasis>file</emphasis>
+arguments, the name
+<filename>.sconsign.dblite</filename>
+is assumed.
+</para>
 
 </refsect1>
 
@@ -175,7 +190,7 @@ Legal values are
 <emphasis role="bold">dbm</emphasis>
 (the DBM format used
 when the
-<emphasis role="bold">SConsignFile</emphasis>()
+<emphasis role="bold">SConsignFile</emphasis>
 function is used)
 or
 <command>sconsign</command>
@@ -197,7 +212,7 @@ file in each directory).</para>
   <term>-i, --implicit</term>
   <listitem>
 <para>Prints the list of cached implicit dependencies
-for all entries or the the specified entries.</para>
+for all entries or for the specified entries.</para>
 
   </listitem>
   </varlistentry>
@@ -206,8 +221,8 @@ for all entries or the the specified entries.</para>
   <listitem>
 <para>Prints a pretty-printed representation
 of the raw Python dictionary that holds
-build information about individual entry
-(both the entry itself or its implicit dependencies).
+build information about individual entries
+(both the entry itself and its implicit dependencies).
 An entry's build action is still printed in its usual format.</para>
 
   </listitem>
@@ -244,7 +259,8 @@ for all entries or the specified entries.</para>
   <term>SCONS_LIB_DIR</term>
   <listitem>
 <para>Specifies the directory that contains the SCons Python module directory
-(e.g. /home/aroach/scons-src-0.01/src/engine).
+(e.g.
+<filename class='directory'>/home/aroach/scons-src-0.01/src/engine</filename>).
 on the command line.</para>
 
   </listitem>

@@ -1072,7 +1072,7 @@ class FSTestCase(_tempdirTestCase):
 
             def Dir_test(lpath, path_, abspath_, up_path_, sep=sep, func=_do_Dir_test):
                 return func(lpath, path_, abspath_, up_path_, sep)
-            
+
             Dir_test('/',           '/',           '/',               '/')
             Dir_test('',            './',          sub_dir,           sub)
             Dir_test('foo',         'foo/',        sub_dir_foo,       './')
@@ -1834,7 +1834,7 @@ class FSTestCase(_tempdirTestCase):
         # Should be a normalized Windows UNC path as below.
         assert str(f) == r'\\servername\C$\foo', \
         'UNC path %s got looked up as %s'%(path, f)
- 
+
     def test_unc_drive_letter(self):
         """Test drive-letter lookup for windows UNC-style directories"""
         if sys.platform not in ('win32',):
@@ -3534,11 +3534,11 @@ class clearTestCase(unittest.TestCase):
         e = fs.Entry('e')
         assert not e.exists()
         assert not e.rexists()
-        assert str(e) == 'e', str(d)
+        assert str(e) == 'e', str(e)
         e.clear()
         assert not e.exists()
         assert not e.rexists()
-        assert str(e) == 'e', str(d)
+        assert str(e) == 'e', str(e)
 
         d = fs.Dir(test.workpath('d'))
         test.subdir('d')

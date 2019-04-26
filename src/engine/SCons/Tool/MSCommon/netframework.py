@@ -68,7 +68,7 @@ def query_versions():
             # sequence comparison in python is lexicographical
             # which is exactly what we want.
             # Note we sort backwards so the highest version is first.
-            return cmp(bbl,aal)
+            return (aal > bbl) - (aal < bbl)
 
         versions.sort(versrt)
     else:

@@ -682,6 +682,9 @@ class TestSCons(TestCommon):
         """
         Initialize with a default external environment that uses a local
         Java SDK in preference to whatever's found in the default PATH.
+
+        :param version: if set, match only that version
+        :return: the new env.
         """
         if not self.external:
             try:
@@ -698,11 +701,11 @@ class TestSCons(TestCommon):
             if version:
                 if sys.platform == 'win32':
                     patterns = [
-                        'C:/Program Files*/Java/jdk%s*/bin'%version,
+                        'C:/Program Files*/Java/jdk*%s*/bin' % version,
                     ]
                 else:
                     patterns = [
-                        '/usr/java/jdk%s*/bin'    % version,
+                        '/usr/java/jdk%s*/bin' % version,
                         '/usr/lib/jvm/*-%s*/bin' % version,
                         '/usr/local/j2sdk%s*/bin' % version,
                     ]
@@ -727,7 +730,10 @@ class TestSCons(TestCommon):
 
     def java_where_includes(self,version=None):
         """
-        Return java include paths compiling java jni code
+        Find include path needed for compiling java jni code.
+
+        :param version: if set, match only that version
+        :return: path to java headers
         """
         import sys
 
@@ -761,6 +767,14 @@ class TestSCons(TestCommon):
         return result
 
     def java_where_java_home(self, version=None):
+        """
+        Find path to what would be JAVA_HOME.
+
+        SCons does not read JAVA_HOME from the environment, so deduce it.
+
+        :param version: if set, match only that version
+        :return: path where JDK components live
+        """
         if sys.platform[:6] == 'darwin':
             # osx 10.11, 10.12
             home_tool = '/usr/libexec/java_home'
@@ -807,6 +821,12 @@ class TestSCons(TestCommon):
             self.skip_test("Could not find Java " + java_bin_name + ", skipping test(s).\n")
 
     def java_where_jar(self, version=None):
+        """
+        Find java archiver jar.
+
+        :param version: if set, match only that version
+        :return: path to jar
+        """
         ENV = self.java_ENV(version)
         if self.detect_tool('jar', ENV=ENV):
             where_jar = self.detect('JAR', 'jar', ENV=ENV)
@@ -821,7 +841,10 @@ class TestSCons(TestCommon):
 
     def java_where_java(self, version=None):
         """
-        Return a path to the java executable.
+        Find java executable.
+
+        :param version: if set, match only that version
+        :return: path to the java rutime
         """
         ENV = self.java_ENV(version)
         where_java = self.where_is('java', ENV['PATH'])
@@ -835,7 +858,10 @@ class TestSCons(TestCommon):
 
     def java_where_javac(self, version=None):
         """
-        Return a path to the javac compiler.
+        Find java compiler.
+
+        :param version: if set, match only that version
+        :return: path to javac
         """
         ENV = self.java_ENV(version)
         if self.detect_tool('javac'):
@@ -851,15 +877,17 @@ class TestSCons(TestCommon):
                  arguments = '-version',
                  stderr=None,
                  status=None)
+        # Note recent versions output version info to stdout instead of stderr
         if version:
-            if self.stderr().find('javac %s' % version) == -1:
+            verf = 'javac %s' % version
+            if self.stderr().find(verf) == -1 and self.stdout().find(verf) == -1:
                 fmt = "Could not find javac for Java version %s, skipping test(s).\n"
                 self.skip_test(fmt % version)
         else:
-            m = re.search(r'javac (\d\.*\d)', self.stderr())
-            # Java 11 outputs this to stdout
+            version_re = r'javac (\d*\.*\d)'
+            m = re.search(version_re, self.stderr())
             if not m:
-                m = re.search(r'javac (\d\.*\d)', self.stdout())
+                m = re.search(version_re, self.stdout())
 
             if m:
                 version = m.group(1)
@@ -873,6 +901,16 @@ class TestSCons(TestCommon):
         return where_javac, version
 
     def java_where_javah(self, version=None):
+        """
+        Find java header generation tool.
+
+        TODO issue #3347 since JDK10, there is no separate javah command,
+        'javac -h' is used. We should not return a javah from a different
+        installed JDK - how to detect and what to return in this case?
+
+        :param version: if set, match only that version
+        :return: path to javah
+        """
         ENV = self.java_ENV(version)
         if self.detect_tool('javah'):
             where_javah = self.detect('JAVAH', 'javah', ENV=ENV)
@@ -883,6 +921,12 @@ class TestSCons(TestCommon):
         return where_javah
 
     def java_where_rmic(self, version=None):
+        """
+        Find java rmic tool.
+
+        :param version: if set, match only that version
+        :return: path to rmic
+        """
         ENV = self.java_ENV(version)
         if self.detect_tool('rmic'):
             where_rmic = self.detect('RMIC', 'rmic', ENV=ENV)
