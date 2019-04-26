@@ -7,6 +7,9 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Peter Diener:
+    - Additional fix to issue #3135 - Also handle 'pure' and 'elemental' type bound procedures
+
   From William Deegan:
 
     - Fix Issue #3283 - Handle using --config=force in combination with Decider('MD5-timestamp').
@@ -18,7 +21,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Decider and not clearing it when the configure context is completed.
     - Add default paths for yacc tool on windows to include cygwin, mingw, and chocolatey
 
-  From Github User pdiener:
+  From Peter Diener:
     - Fix issue #3135 - Handle Fortran submodules and type bound procedures
 
   From Daniel Moody:
