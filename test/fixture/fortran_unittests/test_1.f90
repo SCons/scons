@@ -5,6 +5,8 @@ module test_1
     contains
       procedure :: set_n
       procedure :: get_n
+      procedure :: increment_n
+      procedure :: decrement_n
   end type test_type_1
 
 
@@ -19,6 +21,14 @@ interface
     class(test_type_1), intent(in) :: this
     integer :: get_n
   end function get_n
+
+  module pure subroutine increment_n ( this )
+    class(test_type_1), intent(inout) :: this
+  end subroutine increment_n
+
+  module elemental subroutine decrement_n ( this )
+    class(test_type_1), intent(inout) :: this
+  end subroutine decrement_n
 
 end interface
 
@@ -42,5 +52,17 @@ contains
 
     get_n = this%n
   end procedure get_n
+
+  module pure subroutine increment_n ( this )
+    class(test_type_1), intent(inout) :: this
+
+    this%n = this%n+1
+  end subroutine increment_n
+
+  module elemental subroutine decrement_n ( this )
+    class(test_type_1), intent(inout) :: this
+
+    this%n = this%n-1
+  end subroutine decrement_n
 
 end submodule test_1_impl
