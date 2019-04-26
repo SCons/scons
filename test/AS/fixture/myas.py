@@ -23,11 +23,16 @@ if sys.platform == 'win32':
 
 else:
     import getopt
-    opts, args = getopt.getopt(sys.argv[1:], 'co:')
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], 'co:')
+    except getopt.GetoptError:
+        # we may be called with --version, just quit if so
+        sys.exit(0)
     for opt, arg in opts:
         if opt == '-o': out = arg
-    with open(args[0], 'rb') as ifp, open(out, 'wb') as ofp:
-        for l in ifp.readlines():
-            if l[:3] != b'#as':
-                ofp.write(l)
+    if args:
+        with open(args[0], 'rb') as ifp, open(out, 'wb') as ofp:
+            for l in ifp.readlines():
+                if l[:3] != b'#as':
+                    ofp.write(l)
     sys.exit(0)

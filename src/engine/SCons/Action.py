@@ -784,10 +784,7 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
             if DEVNULL:
                 kw[stream] = DEVNULL
             else:
-                if sys.platform == 'win32':
-                    kw[stream] = msvcrt.get_osfhandle(os.open(os.devnull, os.O_RDWR))
-                else:
-                    kw[stream] = open(os.devnull, "r+")
+                kw[stream] = open(os.devnull, "r+")
 
     # Figure out what shell environment to use
     ENV = kw.get('env', None)

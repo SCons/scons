@@ -695,6 +695,7 @@ class _GenerateV6DSP(_DSPGenerator):
         while line and line != '\n':
             line = dspfile.readline()
             datas = datas + line
+        dspfile.close()
 
         # OK, we've found our little pickled cache of data.
         try:
@@ -713,6 +714,7 @@ class _GenerateV6DSP(_DSPGenerator):
         while line and line != '\n':
             line = dspfile.readline()
             datas = datas + line
+        dspfile.close()
 
         # OK, we've found our little pickled cache of data.
         # it has a "# " in front of it, so we strip that.
@@ -1008,6 +1010,7 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
         while line and line != '\n':
             line = dspfile.readline()
             datas = datas + line
+        dspfile.close()
 
         # OK, we've found our little pickled cache of data.
         try:
@@ -1491,6 +1494,7 @@ class _GenerateV7DSW(_DSWGenerator):
         while line:
             line = dswfile.readline()
             datas = datas + line
+        dspfile.close()
 
         # OK, we've found our little pickled cache of data.
         try:
@@ -1738,6 +1742,7 @@ def GenerateProject(target, source, env):
             raise
 
         bdsp.write("This is just a placeholder file.\nThe real project file is here:\n%s\n" % dspfile.get_abspath())
+        bdsp.close()
 
     GenerateDSP(dspfile, source, env)
 
@@ -1754,6 +1759,7 @@ def GenerateProject(target, source, env):
                 raise
 
             bdsw.write("This is just a placeholder file.\nThe real workspace file is here:\n%s\n" % dswfile.get_abspath())
+            bdsw.close()
 
         GenerateDSW(dswfile, source, env)
 

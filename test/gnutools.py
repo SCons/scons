@@ -45,7 +45,11 @@ test.subdir('gnutools')
 test.write(['gnutools','mygcc.py'], """
 import getopt
 import sys
-cmd_opts, args = getopt.getopt(sys.argv[1:], 'f:s:co:', [])
+try:
+    cmd_opts, args = getopt.getopt(sys.argv[1:], 'f:s:co:', [])
+except getopt.GetoptError:
+    # we may be called with --version, just quit if so
+    sys.exit(0)
 out = None
 opt_string = ''
 for opt, arg in cmd_opts:
@@ -62,7 +66,11 @@ sys.exit(0)
 test.write(['gnutools','myg++.py'], """
 import getopt
 import sys
-cmd_opts, args = getopt.getopt(sys.argv[1:], 'f:s:co:', [])
+try:
+    cmd_opts, args = getopt.getopt(sys.argv[1:], 'f:s:co:', [])
+except getopt.GetoptError:
+    # we may be called with --version, just quit if so
+    sys.exit(0)
 out = None
 opt_string = ''
 for opt, arg in cmd_opts:

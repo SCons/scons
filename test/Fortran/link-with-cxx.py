@@ -39,23 +39,23 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons(match = TestSCons.match_re)
 
 
-test.write('test_linker.py', r"""
+test.write('test_linker.py', """\
 import sys
 if sys.argv[1] == '-o':
-    ofp = open(sys.argv[2], 'wb')
-    infiles = sys.argv[3:]
+    with open(sys.argv[2], 'wb') as ofp:
+        for infile in sys.argv[3:]:
+            with open(infile, 'rb') as ifp:
+                ofp.write(ifp.read())
 elif sys.argv[1][:5] == '/OUT:':
-    ofp = open(sys.argv[1][5:], 'wb')
-    infiles = sys.argv[2:]
-for infile in infiles:
-    with open(infile, 'rb') as ifp:
-        ofp.write(ifp.read())
-ofp.close()
+    with open(sys.argv[1][5:], 'wb') as ofp:
+        for infile in sys.argv[2:]:
+            with open(infile, 'rb') as ifp:
+                ofp.write(ifp.read())
 sys.exit(0)
 """)
 
 
-test.write('test_fortran.py', r"""
+test.write('test_fortran.py', """\
 import sys
 with open(sys.argv[2], 'wb') as ofp:
     for infile in sys.argv[4:]:

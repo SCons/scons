@@ -48,7 +48,7 @@ test.subdir('src')
 mainpath = os.path.join('src', 'main.c')
 test.file_fixture(mainpath, mainpath)
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
 import os
 
 env=Environment(tools=['default', 'packaging'])
@@ -77,7 +77,7 @@ env.Package( NAME           = 'foo',
 
 expect = """
 scons: *** Setting target is not supported for rpm.
-""" + test.python_file_line(test.workpath('SConstruct'), 24)
+""" + test.python_file_line(test.workpath('SConstruct'), 12)
 
 test.run(arguments='', status=2, stderr=expect)
 
