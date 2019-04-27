@@ -1170,7 +1170,7 @@ def _build_targets(fs, options, targets, target_top):
                 # -U, local SConscript Default() targets
                 target_top = fs.Dir(target_top)
                 def check_dir(x, target_top=target_top):
-                    if hasattr(x, 'cwd') and not x.cwd is None:
+                    if hasattr(x, 'cwd') and x.cwd is not None:
                         cwd = x.cwd.srcnode()
                         return cwd == target_top
                     else:

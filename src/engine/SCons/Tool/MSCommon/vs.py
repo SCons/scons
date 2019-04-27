@@ -520,7 +520,7 @@ def get_default_arch(env):
 
     if not msvs:
         arch = 'x86'
-    elif not arch in msvs.get_supported_arch():
+    elif arch not in msvs.get_supported_arch():
         fmt = "Visual Studio version %s does not support architecture %s"
         raise SCons.Errors.UserError(fmt % (env['MSVS_VERSION'], arch))
 

@@ -96,7 +96,7 @@ def _converter(val, allowedElems, mapdict):
     else:
         val = [_f for _f in val.split(',') if _f]
         val = [mapdict.get(v, v) for v in val]
-        notAllowed = [v for v in val if not v in allowedElems]
+        notAllowed = [v for v in val if v not in allowedElems]
         if notAllowed:
             raise ValueError("Invalid value(s) for option: %s" %
                              ','.join(notAllowed))

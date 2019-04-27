@@ -30,7 +30,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       always present on modern Pythons; no longer need the code for
       2.5-and-earlier optparse). cmp is not a builtin function in Py3,
       drop one (unused) use; replace one.  Fix another instance of
-      renaming to SConsEnvironmentError.
+      renaming to SConsEnvironmentError. Trailing whitespace.
+      Consistently use not is/in (if not x is y -> if x is not y).
 
 
 

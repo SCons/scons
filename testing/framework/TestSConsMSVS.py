@@ -38,18 +38,18 @@ expected_dspfile_6_0 = '''\
 CFG=Test - Win32 Release
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "Test.mak".
-!MESSAGE 
+!MESSAGE
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "Test.mak" CFG="Test - Win32 Release"
-!MESSAGE 
+!MESSAGE
 !MESSAGE Possible choices for configuration are:
-!MESSAGE 
+!MESSAGE
 !MESSAGE "Test - Win32 Release" (based on "Win32 (x86) External Target")
-!MESSAGE 
+!MESSAGE
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
@@ -85,7 +85,7 @@ CFG=Test - Win32 Release
 
 !IF  "$(CFG)" == "Test - Win32 Release"
 
-!ENDIF 
+!ENDIF
 
 # Begin Group "Header Files"
 
@@ -1150,7 +1150,7 @@ import SCons.Tool.MSCommon
 print("self.scons_version =%%s"%%repr(SCons.__%s__))
 print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
 """ % 'version'
-        
+
             self.run(arguments = '-n -q -Q -f -', stdin = input)
             exec(self.stdout())
 
@@ -1233,11 +1233,11 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
         finally:
             os.environ['SCONSFLAGS'] = save_sconsflags or ''
         return result
-    
+
     def get_vs_host_arch(self):
         """ Get an MSVS, SDK , and/or MSVS acceptable platform arch
         """
-        
+
         # Dict to 'canonalize' the arch
         _ARCH_TO_CANONICAL = {
             "x86": "x86",
@@ -1255,21 +1255,19 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
         # PROCESSOR_ARCHITECTURE.
         if not host_platform:
             host_platform = os.environ.get('PROCESSOR_ARCHITECTURE', '')
-                
-            
+
         try:
             host = _ARCH_TO_CANONICAL[host_platform]
         except KeyError as e:
             # Default to x86 for all other platforms
             host = 'x86'
-    
-   
+
         return host
 
     def validate_msvs_file(self,  file):
         try:
             x = ElementTree.parse(file)
-        except: 
+        except:
             print("--------------------------------------------------------------")
             print("--------------------------------------------------------------")
             print(traceback.format_exc())

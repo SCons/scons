@@ -886,7 +886,7 @@ def PrependPath(oldpath, newpath, sep = os.pathsep,
         # now we add them only if they are unique
         for path in newpaths:
             normpath = os.path.normpath(os.path.normcase(path))
-            if path and not normpath in normpaths:
+            if path and normpath not in normpaths:
                 paths.append(path)
                 normpaths.append(normpath)
 
@@ -966,7 +966,7 @@ def AppendPath(oldpath, newpath, sep = os.pathsep,
         # now we add them only if they are unique
         for path in newpaths:
             normpath = os.path.normpath(os.path.normcase(path))
-            if path and not normpath in normpaths:
+            if path and normpath not in normpaths:
                 paths.append(path)
                 normpaths.append(normpath)
         paths.reverse()
@@ -1537,7 +1537,7 @@ def silent_intern(x):
 class Null(object):
     """ Null objects always and reliably "do nothing." """
     def __new__(cls, *args, **kwargs):
-        if not '_instance' in vars(cls):
+        if '_instance' not in vars(cls):
             cls._instance = super(Null, cls).__new__(cls, *args, **kwargs)
         return cls._instance
     def __init__(self, *args, **kwargs):

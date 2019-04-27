@@ -608,7 +608,7 @@ class SubstitutionEnvironment(object):
         Removes the specified function's MethodWrapper from the
         added_methods list, so we don't re-bind it when making a clone.
         """
-        self.added_methods = [dm for dm in self.added_methods if not dm.method is function]
+        self.added_methods = [dm for dm in self.added_methods if dm.method is not function]
 
     def Override(self, overrides):
         """
@@ -1342,7 +1342,7 @@ class Base(SubstitutionEnvironment):
                             dk = list(filter(lambda x, val=val: x not in val, dk))
                             self._dict[key] = dk + [val]
                         else:
-                            if not val in dk:
+                            if val not in dk:
                                 self._dict[key] = dk + [val]
                 else:
                     if key == 'CPPDEFINES':
@@ -1722,7 +1722,7 @@ class Base(SubstitutionEnvironment):
                         dk = [x for x in dk if x not in val]
                         self._dict[key] = [val] + dk
                     else:
-                        if not val in dk:
+                        if val not in dk:
                             self._dict[key] = [val] + dk
                 else:
                     if delete_existing:

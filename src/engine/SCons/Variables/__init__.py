@@ -99,7 +99,7 @@ class Variables(object):
         option.converter = converter
 
         self.options.append(option)
-        
+
         # options might be added after the 'unknown' dict has been set up,
         # so we remove the key and all its aliases from that dict
         for alias in list(option.aliases) + [ option.key ]:
@@ -168,7 +168,7 @@ class Variables(object):
 
         # first set the defaults:
         for option in self.options:
-            if not option.default is None:
+            if option.default is not None:
                 values[option.key] = option.default
 
         # next set the value specified in the options file
@@ -288,7 +288,7 @@ class Variables(object):
 
         env - an environment that is used to get the current values
               of the options.
-        cmp - Either a function as follows: The specific sort function should take two arguments and return -1, 0 or 1 
+        cmp - Either a function as follows: The specific sort function should take two arguments and return -1, 0 or 1
               or a boolean to indicate if it should be sorted.
         """
 
