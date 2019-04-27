@@ -108,8 +108,6 @@ import subprocess
 import itertools
 import inspect
 from collections import OrderedDict
-if sys.platform == 'win32':
-    import msvcrt
 
 import SCons.Debug
 from SCons.Debug import logInstanceCreation

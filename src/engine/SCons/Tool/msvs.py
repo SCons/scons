@@ -1494,7 +1494,7 @@ class _GenerateV7DSW(_DSWGenerator):
         while line:
             line = dswfile.readline()
             datas = datas + line
-        dspfile.close()
+        dswfile.close()
 
         # OK, we've found our little pickled cache of data.
         try:
