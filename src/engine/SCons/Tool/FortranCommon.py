@@ -65,7 +65,7 @@ def _fortranEmitter(target, source, env):
        print("Could not locate " + str(node.name))
        return ([], [])
     # This has to match the def_regex in the Fortran scanner
-    mod_regex = r"""(?i)^\s*MODULE\s+(?!PROCEDURE|SUBROUTINE|FUNCTION)(\w+)"""
+    mod_regex = r"""(?i)^\s*MODULE\s+(?!PROCEDURE|SUBROUTINE|FUNCTION|PURE|ELEMENTAL)(\w+)"""
     cre = re.compile(mod_regex,re.M)
     # Retrieve all USE'd module names
     modules = cre.findall(node.get_text_contents())

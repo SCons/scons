@@ -12,4 +12,16 @@ program test_submodules
   print*,'var1%n = ', var1%get_n()
   print*,'var2%m = ', var2%get_m()
 
+  call var1%increment_n()
+  call var2%increment_m()
+
+  print*,'var1%n = ', var1%get_n()
+  print*,'var2%m = ', var2%get_m()
+
+  call var1%decrement_n()
+  call var2%decrement_m()
+
+  print*,'var1%n = ', var1%get_n()
+  print*,'var2%m = ', var2%get_m()
+
 end program test_submodules
