@@ -7,6 +7,10 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Peter Diener:
+    - Additional fix to issue #3135 - Also handle 'pure' and 'elemental' type bound procedures
+    - Fix issue #3135 - Handle Fortran submodules and type bound procedures
+
   From William Deegan:
     - Fix spurious rebuilds on second build for cases where builder has > 1 target and the source file
       is generated. This was causing the > 1th target to not have it's implicit list cleared when the source
@@ -62,7 +66,7 @@ RELEASE 3.0.5 - Mon, 26 Mar 2019 15:04:42 -0700
   From Maciej Kumorek:
     - Update the MSVC tool to include the nologo flag by default in RCFLAGS
 
-  From Daniel Moody:
+From Daniel Moody:
     - Change the default for AppendENVPath to delete_existing=0, so path
       order will not be changed, unless explicitly set (Issue #3276)
     - Fixed bug which threw error when running SCons on windows system with no MSVC installed.

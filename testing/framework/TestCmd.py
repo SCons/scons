@@ -972,6 +972,12 @@ class TestCmd(object):
         self.subdir(subdir)
         self.fixture_dirs = []
 
+        try:
+            self.fixture_dirs = (os.environ['FIXTURE_DIRS']).split(os.pathsep)
+        except KeyError:
+            pass
+
+
     def __del__(self):
         self.cleanup()
 
