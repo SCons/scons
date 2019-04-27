@@ -529,6 +529,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
 
     __slots__ = ['sources',
                  'sources_set',
+                 'target_peers',
                  '_specific_sources',
                  'depends',
                  'depends_set',
@@ -783,6 +784,25 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         # waiting for this Node to be built.
         for parent in self.waiting_parents:
             parent.implicit = None
+
+            # Handle issue where builder emits more than one target and
+            # the source file for the builder is generated.
+            # in that case only the first target was getting it's .implicit
+            # cleared when the source file is built (second scan). 
+            # leaving only partial implicits from scan before source file is generated
+            # typically the compiler only. Then scanned files are appended
+            # This is persisted to sconsign and rebuild causes false rebuilds
+            # because the ordering of the implicit list then changes to what it
+            # should have been.
+            # This is at least the following bugs
+            # https://github.com/SCons/scons/issues/2811
+            # https://jira.mongodb.org/browse/SERVER-33111
+            try:
+                for peer in parent.target_peers:
+                    peer.implicit = None
+            except AttributeError:
+                pass
+
 
         self.clear()
 

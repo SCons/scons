@@ -8,7 +8,16 @@
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From William Deegan:
-    - Fix Issue #3350 - SCons Exception EnvironmentError is conflicting with Python's EnvironmentError.
+    - Fix spurious rebuilds on second build for cases where builder has > 1 target and the source file
+      is generated. This was causing the > 1th target to not have it's implicit list cleared when the source
+      file was actually built, leaving an implicit list similar to follows for 2nd and higher target
+              ['/usr/bin/python', 'xxx', 'yyy', 'zzz']
+      This was getting persisted to SConsign and on rebuild it would be corrected to be similar to this
+              ['zzz', 'yyy', 'xxx', '/usr/bin/python']
+      Which would trigger a rebuild because the order changed.
+      The fix involved added logic to mark all shared targets as peers and then ensure they're implicit
+      list is all cleared together.
+    - Fix Issue #3349 - SCons Exception EnvironmentError is conflicting with Python's EnvironmentError.
       Renamed to SConsEnvironmentError
     - Fix Issue #3350 - mslink failing when too many objects.  This is resolved by adding TEMPFILEARGJOIN variable
       which specifies what character to join all the argements output into the tempfile. The default remains a space
