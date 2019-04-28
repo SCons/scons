@@ -41,8 +41,18 @@
 
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
-    - List modifications to existing features, where the previous behavior
-      wouldn't actually be considered a bug
+    - Enhanced --debug=explain output. Now the separate components of the dependency list are split up
+      as follows:
+
+      scons: rebuilding `file3' because:
+           the dependency order changed:
+           ->Sources
+           Old:xxx	New:zzz
+           Old:yyy	New:yyy
+           Old:zzz	New:xxx
+           ->Depends
+           ->Implicit
+           Old:/usr/bin/python	New:/usr/bin/python
 
   FIXES
 

@@ -324,9 +324,15 @@ env.Cat('file3', ['zzz', 'yyy', 'xxx'])
 python_sep = python.replace('\\', '\\\\')
 
 expect = test.wrap_stdout("""\
-scons: rebuilding `file3' because the dependency order changed:
-               old: ['xxx', 'yyy', 'zzz', '%(python_sep)s']
-               new: ['zzz', 'yyy', 'xxx', '%(python_sep)s']
+scons: rebuilding `file3' because:
+           the dependency order changed:
+           ->Sources
+           Old:xxx	New:zzz
+           Old:yyy	New:yyy
+           Old:zzz	New:xxx
+           ->Depends
+           ->Implicit
+           Old:%(_python_)s	New:%(_python_)s
 %(_python_)s %(cat_py)s file3 zzz yyy xxx
 """ % locals())
 
