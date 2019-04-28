@@ -35,6 +35,7 @@ import sys
 
 import SCons.Action
 import SCons.Warnings
+from SCons.Util import PY3
 
 cache_enabled = True
 cache_debug = False
@@ -154,7 +155,6 @@ class CacheDir(object):
         if path is None:
             return
 
-        from SCons.Util import PY3
         if PY3:
             self._readconfig3(path)
         else:
@@ -204,9 +204,9 @@ class CacheDir(object):
         """
         Python2 version of reading cache config.
 
-        See if there's a config file in the cache directory. If there is,
+        See if there is a config file in the cache directory. If there is,
         use it. If there isn't, and the directory exists and isn't empty,
-        produce a warning. If the directory doesn't exist or is empty,
+        produce a warning. If the directory does not exist or is empty,
         write a config file.
 
         :param path: path to the cache directory
@@ -215,14 +215,13 @@ class CacheDir(object):
         if not os.path.exists(config_file):
             # A note: There is a race hazard here, if two processes start and
             # attempt to create the cache directory at the same time. However,
-            # python doesn't really give you the option to do exclusive file
-            # creation (it doesn't even give you the option to error on opening
-            # an existing file for writing...). The ordering of events here
-            # as an attempt to alleviate this, on the basis that it's a pretty
-            # unlikely occurence (it'd require two builds with a brand new cache
+            # Python 2.x does not give you the option to do exclusive file
+            # creation (not even the option to error on opening ad existing
+            # file for writing...). The ordering of events here as an attempt
+            # to alleviate this, on the basis that it's a pretty unlikely
+            # occurence (would require two builds with a brand new cache
             # directory)
-            #if os.path.isdir(path) and len(os.listdir(path)) != 0:
-            if os.path.isdir(path) and len([f for f in os.listdir(path) if os.path.basename(f) != "config"]) != 0:
+            if os.path.isdir(path) and any(f != "config" for f in os.listdir(path)):
                 self.config['prefix_len'] = 1
                 # When building the project I was testing this on, the warning
                 # was output over 20 times. That seems excessive
