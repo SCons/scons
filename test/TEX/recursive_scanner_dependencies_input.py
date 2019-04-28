@@ -24,7 +24,8 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""Verify that we re-run LaTeX after changing a nested \input. This
+r"""
+Verify that we re-run LaTeX after changing a nested \input. This
 checks that recursive implicit dependencies are found correctly.
 """
 

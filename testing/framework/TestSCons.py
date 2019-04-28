@@ -949,7 +949,7 @@ class TestSCons(TestCommon):
     def Qt_dummy_installation(self, dir='qt'):
         # create a dummy qt installation
 
-        self.subdir( dir, [dir, 'bin'], [dir, 'include'], [dir, 'lib'] )
+        self.subdir(dir, [dir, 'bin'], [dir, 'include'], [dir, 'lib'])
 
         self.write([dir, 'bin', 'mymoc.py'], """\
 import getopt
@@ -957,23 +957,23 @@ import sys
 import re
 # -w and -z are fake options used in test/QT/QTFLAGS.py
 cmd_opts, args = getopt.getopt(sys.argv[1:], 'io:wz', [])
-output = None
 impl = 0
 opt_string = ''
 for opt, arg in cmd_opts:
-    if opt == '-o': output = open(arg, 'w')
+    if opt == '-o': outfile = arg
     elif opt == '-i': impl = 1
     else: opt_string = opt_string + ' ' + opt
-output.write("/* mymoc.py%s */\\n" % opt_string)
-for a in args:
-    with open(a, 'r') as f:
-        contents = f.read()
-    a = a.replace('\\\\', '\\\\\\\\')
-    subst = r'{ my_qt_symbol( "' + a + '\\\\n" ); }'
-    if impl:
-        contents = re.sub( r'#include.*', '', contents )
-    output.write(contents.replace('Q_OBJECT', subst))
-output.close()
+
+with open(outfile, 'w') as ofp:
+    ofp.write("/* mymoc.py%s */\\n" % opt_string)
+    for a in args:
+        with open(a, 'r') as ifp:
+            contents = ifp.read()
+        a = a.replace('\\\\', '\\\\\\\\')
+        subst = r'{ my_qt_symbol( "' + a + '\\\\n" ); }'
+        if impl:
+            contents = re.sub(r'#include.*', '', contents)
+        ofp.write(contents.replace('Q_OBJECT', subst))
 sys.exit(0)
 """)
 
@@ -988,7 +988,7 @@ source = None
 opt_string = ''
 for arg in sys.argv[1:]:
     if output_arg:
-        output = open(arg, 'w')
+        outfile = arg
         output_arg = 0
     elif impl_arg:
         impl = arg
@@ -1002,19 +1002,19 @@ for arg in sys.argv[1:]:
     else:
         if source:
             sys.exit(1)
-        source = open(arg, 'r')
-        sourceFile = arg
-output.write("/* myuic.py%s */\\n" % opt_string)
-if impl:
-    output.write( '#include "' + impl + '"\\n' )
-    includes = re.findall('<include.*?>(.*?)</include>', source.read())
-    for incFile in includes:
-        # this is valid for ui.h files, at least
-        if os.path.exists(incFile):
-            output.write('#include "' + incFile + '"\\n')
-else:
-    output.write( '#include "my_qobject.h"\\n' + source.read() + " Q_OBJECT \\n" )
-output.close()
+        source = sourceFile = arg
+
+with open(outfile, 'w') as ofp, open(source, 'r') as ifp:
+    ofp.write("/* myuic.py%s */\\n" % opt_string)
+    if impl:
+        ofp.write('#include "' + impl + '"\\n')
+        includes = re.findall('<include.*?>(.*?)</include>', ifp.read())
+        for incFile in includes:
+            # this is valid for ui.h files, at least
+            if os.path.exists(incFile):
+                ofp.write('#include "' + incFile + '"\\n')
+    else:
+        ofp.write('#include "my_qobject.h"\\n' + ifp.read() + " Q_OBJECT \\n")
 sys.exit(0)
 """ )
 
@@ -1027,7 +1027,7 @@ void my_qt_symbol(const char *arg);
 #include "../include/my_qobject.h"
 #include <stdio.h>
 void my_qt_symbol(const char *arg) {
-  fputs( arg, stdout );
+  fputs(arg, stdout);
 }
 """)
 
@@ -1035,9 +1035,9 @@ void my_qt_symbol(const char *arg) {
 env = Environment()
 import sys
 if sys.platform == 'win32':
-    env.StaticLibrary( 'myqt', 'my_qobject.cpp' )
+    env.StaticLibrary('myqt', 'my_qobject.cpp')
 else:
-    env.SharedLibrary( 'myqt', 'my_qobject.cpp' )
+    env.SharedLibrary('myqt', 'my_qobject.cpp')
 """)
 
         self.run(chdir = self.workpath(dir, 'lib'),
@@ -1080,7 +1080,7 @@ if ARGUMENTS.get('variant_dir', 0):
 else:
     sconscript = File('SConscript')
 Export("env dup")
-SConscript( sconscript )
+SConscript(sconscript)
 """ % (self.QT, self.QT_LIB, self.QT_MOC, self.QT_UIC))
 
 

@@ -63,21 +63,23 @@ test.subdir('python')
 test.write('SConstruct', """\
 import os.path
 
-env = Environment ()
+env = Environment()
 
-def at_copy_ext (target, source, env):
-    n = str (source[0])
-    s = open (n, 'rb').read ()
-    e = os.path.splitext (n)[1]
-    t = str (target[0]) + e
-    open (t, 'wb').write (s)
+def at_copy_ext(target, source, env):
+    n = str(source[0])
+    with open(n, 'rb') as f:
+        s = f.read()
+    e = os.path.splitext(n)[1]
+    t = str(target[0]) + e
+    with open(t, 'wb') as f:
+        f.write(s)
 
-AT_COPY_EXT = Builder (action = at_copy_ext, src_suffix=['.py', '.sh',])
-env.Append (BUILDERS = {'AT_COPY_EXT': AT_COPY_EXT})
+AT_COPY_EXT = Builder(action=at_copy_ext, src_suffix=['.py', '.sh',])
+env.Append(BUILDERS={'AT_COPY_EXT': AT_COPY_EXT})
 
-env.Alias ('minimal', ['python'])
+env.Alias('minimal', ['python'])
 
-Export ('env')
+Export('env')
 
 b = 'python/out-scons'
 
@@ -87,7 +89,7 @@ SConscript(b + '/SConscript')
 """)
 
 test.write(['python', 'SConscript'], """\
-Import ('env')
+Import('env')
 env.AT_COPY_EXT('foo.py')
 """)
 

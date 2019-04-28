@@ -1045,7 +1045,7 @@ env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='10.0',
                 HOST_ARCH='%(HOST_ARCH)s')
 
 testsrc = ['test1.cpp', 'test2.cpp']
-testincs = ['sdk_dir\\sdk.h']
+testincs = [r'sdk_dir\\sdk.h']
 testlocalincs = ['test.h']
 testresources = ['test.rc']
 testmisc = ['readme.txt']
@@ -1068,7 +1068,7 @@ env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='11.0',
                 HOST_ARCH='%(HOST_ARCH)s')
 
 testsrc = ['test1.cpp', 'test2.cpp']
-testincs = ['sdk_dir\\sdk.h']
+testincs = [r'sdk_dir\\sdk.h']
 testlocalincs = ['test.h']
 testresources = ['test.rc']
 testmisc = ['readme.txt']
@@ -1091,7 +1091,7 @@ env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='14.0',
                 HOST_ARCH='%(HOST_ARCH)s')
 
 testsrc = ['test1.cpp', 'test2.cpp']
-testincs = ['sdk_dir\\sdk.h']
+testincs = [r'sdk_dir\\sdk.h']
 testlocalincs = ['test.h']
 testresources = ['test.rc']
 testmisc = ['readme.txt']
@@ -1114,7 +1114,7 @@ env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='14.1',
                 HOST_ARCH='%(HOST_ARCH)s')
 
 testsrc = ['test1.cpp', 'test2.cpp']
-testincs = ['sdk_dir\\sdk.h']
+testincs = [r'sdk_dir\\sdk.h']
 testlocalincs = ['test.h']
 testresources = ['test.rc']
 testmisc = ['readme.txt']

@@ -44,17 +44,19 @@ opt_string = ''
 for opt, arg in cmd_opts:
     if opt == '-f': out = arg
     else: opt_string = opt_string + ' ' + opt
+
 def process(outfile, name):
     if os.path.isdir(name):
         for entry in sorted(os.listdir(name)):
             process(outfile, os.path.join(name, entry))
     else:
-        outfile.write(open(name, 'r').read())
-outfile = open(out, 'w')
-outfile.write('options: %s\\n' % opt_string)
-for infile in args:
-    process(outfile, infile)
-outfile.close()
+        with open(name, 'r') as ifp:
+            outfile.write(ifp.read())
+
+with open(out, 'w') as ofp:
+    ofp.write('options: %s\\n' % opt_string)
+    for infile in args:
+        process(ofp, infile)
 sys.exit(0)
 """)
 

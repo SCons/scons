@@ -1529,6 +1529,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
             (3, 5): bytearray(b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()'),
             (3, 6): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
+            (3, 8): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
         }
 
         meth_matches = [
@@ -1707,6 +1708,7 @@ class FunctionActionTestCase(unittest.TestCase):
             (3, 5): bytearray(b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()'),
             (3, 6): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
+            (3, 8): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
 
         }
 
@@ -1715,6 +1717,7 @@ class FunctionActionTestCase(unittest.TestCase):
             (3, 5): bytearray(b'1, 1, 0, 0,(),(),(d\x00\x00S),(),()'),
             (3, 6): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 7): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
+            (3, 8): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
         }
 
         def factory(act, **kw):
@@ -1959,6 +1962,7 @@ class LazyActionTestCase(unittest.TestCase):
             (3, 5): bytearray(b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()'),
             (3, 6): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
+            (3, 8): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
         }
 
         meth_matches = [
@@ -2017,6 +2021,7 @@ class ActionCallerTestCase(unittest.TestCase):
             (3, 5): b'd\x00\x00S',
             (3, 6): b'd\x00S\x00',
             (3, 7): b'd\x00S\x00',
+            (3, 8): b'd\x00S\x00',
 
         }
 
@@ -2217,6 +2222,7 @@ class ObjectContentsTestCase(unittest.TestCase):
             (3, 5): bytearray(b'3, 3, 0, 0,(),(),(|\x00\x00S),(),()'),
             (3, 6): bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),
             (3, 7): bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),
+            (3, 8): bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),
         }
 
         c = SCons.Action._function_contents(func1)
@@ -2242,6 +2248,8 @@ class ObjectContentsTestCase(unittest.TestCase):
                 b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"),
             (3, 7): bytearray(
                 b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"),
+            (3, 8): bytearray(
+                b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"),
         }
 
         assert c == expected[sys.version_info[:2]], "Got\n" + repr(c) + "\nExpected \n" + "\n" + repr(
@@ -2259,6 +2267,7 @@ class ObjectContentsTestCase(unittest.TestCase):
             (3, 5): bytearray(b'0, 0, 0, 0,(Hello, World!),(print),(e\x00\x00d\x00\x00\x83\x01\x00\x01d\x01\x00S)'),
             (3, 6): bytearray(b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'),
             (3, 7): bytearray(b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'),
+            (3, 8): bytearray(b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'),
         }
 
         assert c == expected[sys.version_info[:2]], "Got\n" + repr(c) + "\nExpected \n" + "\n" + repr(expected[

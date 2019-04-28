@@ -31,7 +31,8 @@ test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 test.write('SConstruct', """\
 def foo(env, target, source):
     print(str(target[0]))
-    open(str(target[0]), 'wt').write('foo')
+    with open(str(target[0]), 'wt') as f:
+        f.write('foo')
 
 def exit(env, target, source):
     raise Exception('exit')
@@ -51,7 +52,7 @@ test.write('exit.in', 'exit\n')
 # no longer exists or that line in the source file no longer exists,
 # so make sure the proper variations are supported in the following
 # regexp.
-expect = """scons: \*\*\* \[exit.out\] Exception : exit
+expect = r"""scons: \*\*\* \[exit.out\] Exception : exit
 Traceback \((most recent call|innermost) last\):
 (  File ".+", line \d+, in \S+
     [^\n]+

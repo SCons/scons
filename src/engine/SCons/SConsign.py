@@ -339,6 +339,11 @@ class DirFile(Dir):
             SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
                                 "Ignoring corrupt .sconsign file: %s"%self.sconsign)
 
+        try:
+            fp.close()
+        except AttributeError:
+            pass
+
         global sig_files
         sig_files.append(self)
 

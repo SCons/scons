@@ -45,16 +45,17 @@ generate_build_py_py_contents = """\
 import os
 import sys
 
-open(sys.argv[1], 'w').write('''\
+with open(sys.argv[1], 'w') as f:
+    f.write('''\
 #!/usr/bin/env %(python)s
 import os
 import sys
-fp = open(sys.argv[1], 'w')
-args = [os.path.split(sys.argv[0])[1]] + sys.argv[1:]
-fp.write(" ".join(args) + '\\\\n' + '%(extra)s')
-for infile in sys.argv[2:]:
-    fp.write(open(infile, 'r').read())
-fp.close()
+with open(sys.argv[1], 'w') as fp:
+    args = [os.path.split(sys.argv[0])[1]] + sys.argv[1:]
+    fp.write(" ".join(args) + '\\\\n' + '%(extra)s')
+    for infile in sys.argv[2:]:
+        with open(infile, 'r') as ifp:
+            fp.write(ifp.read())
 ''')
 os.chmod(sys.argv[1], 0o755)
 

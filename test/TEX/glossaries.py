@@ -24,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Validate that use of \glossaries in TeX source files causes SCons to
 be aware of the necessary created glossary files.
 

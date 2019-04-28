@@ -49,7 +49,8 @@ test = TestSCons.TestSCons()
 contents = r"""\
 import sys
 if sys.argv[0] == 'mypass.py':
-    open(sys.argv[3], 'wb').write(open(sys.argv[4], 'rb').read())
+    with open(sys.argv[3], 'wb') as ofp, open(sys.argv[4], 'rb') as ifp:
+        ofp.write(ifp.read())
     exit_value = 0
 elif sys.argv[0] == 'myfail.py':
     exit_value = 1
@@ -195,8 +196,7 @@ scons: *** [f12] f12: My SConsEnvironmentError
 scons: *** [f13] f13: My SConsEnvironmentError
 scons: *** [f14] InternalError : My InternalError
 """) + \
-"""\
-Traceback \((most recent call|innermost) last\):
+r"""Traceback \((most recent call|innermost) last\):
 (  File ".+", line \d+, in \S+
     [^\n]+
 )*(  File ".+", line \d+, in \S+

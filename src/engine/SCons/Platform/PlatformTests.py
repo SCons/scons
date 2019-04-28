@@ -186,7 +186,8 @@ class TempFileMungeTestCase(unittest.TestCase):
         cmd = t(None, None, env, 0)
         # print("CMD is:%s"%cmd)
 
-        file_content = open(cmd[-1],'rb').read()
+        with open(cmd[-1],'rb') as f:
+            file_content = f.read()
         # print("Content is:[%s]"%file_content)
         # ...and restoring its setting.
         SCons.Action.print_actions = old_actions

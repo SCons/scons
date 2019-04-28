@@ -41,7 +41,8 @@ else:
     longopts = []
 cmd_opts, args = getopt.getopt(sys.argv[1:], 't', longopts)
 for a in args:
-    contents = open(a, 'r').read()
+    with open(a, 'r') as f:
+        contents = f.read()
     sys.stdout.write(contents.replace('LEX', 'mylex.py'))
 sys.exit(0)
 """)

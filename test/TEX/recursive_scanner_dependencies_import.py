@@ -24,14 +24,14 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""Verify that we re-run LaTeX after changing a nested \import. This
+r"""
+Verify that we re-run LaTeX after changing a nested \import. This
 checks that recursive implicit dependencies are found correctly.
 
 This is a separate test from the
 recursive_scanner_dependencies_input.py test because \input and
 \include are handled specially by the PDF builder, whereas \import
 dependencies are found only by the scanner.
-
 """
 
 import os

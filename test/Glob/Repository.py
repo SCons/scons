@@ -50,10 +50,10 @@ test.write(['repository', 'SConstruct'], """\
 DefaultEnvironment(tools=[])
 def cat(env, source, target):
     target = str(target[0])
-    f = open(target, "wb")
-    for src in source:
-        f.write(open(str(src), "rb").read())
-    f.close()
+    with open(target, "wb") as ofp:
+        for src in source:
+            with open(str(src), "rb") as ifp:
+                ofp.write(ifp.read())
 
 # Verify that we can glob a repository-only Node that exists
 # only in memory, not on disk.

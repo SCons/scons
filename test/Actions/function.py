@@ -90,7 +90,7 @@ def toto(header='%(header)s', trailer='%(trailer)s'):
     return writeDeps
 '''
 
-exec( withClosure % optEnv )
+exec(withClosure % optEnv)
 
 genHeaderBld = SCons.Builder.Builder(
     action = SCons.Action.Action(

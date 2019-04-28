@@ -17,16 +17,14 @@ def soelim(target, source, env):
     t = str(target[0])
     s = str(source[0])
     dir, f = os.path.split(s)
-    tfp = open(t, 'w')
-    sfp = open(s, 'r')
-    for line in sfp.readlines():
-        if line[:4] in ['.so ', "'so "]:
-            sofile = os.path.join(dir, line[4:-1])
-            tfp.write(open(sofile, 'r').read())
-        else:
-            tfp.write(line)
-    sfp.close()
-    tfp.close()
+    with open(t, 'w') as tfp, open(s, 'r') as sfp:
+        for line in sfp.readlines():
+            if line[:4] in ['.so ', "'so "]:
+                sofile = os.path.join(dir, line[4:-1])
+                with open(sofile, 'r') as f:
+                    tfp.write(f.read())
+            else:
+                tfp.write(line)
 
 def soscan(node, env, path):
     c = node.get_text_contents()

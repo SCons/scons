@@ -211,7 +211,7 @@ def _object_contents(obj):
 
 
 def _code_contents(code, docstring=None):
-    """Return the signature contents of a code object.
+    r"""Return the signature contents of a code object.
 
     By providing direct access to the code object of the
     function, Python makes this extremely easy.  Hooray!
@@ -767,16 +767,22 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
     it'll have to be tweaked to get the full desired functionality.
     one special arg (so far?), 'error', to tell what to do with exceptions.
     """
-    # allow std{in,out,err} to be "'devnull'"
-    io = kw.get('stdin')
-    if is_String(io) and io == 'devnull':
-        kw['stdin'] = open(os.devnull)
-    io = kw.get('stdout')
-    if is_String(io) and io == 'devnull':
-        kw['stdout'] = open(os.devnull, 'w')
-    io = kw.get('stderr')
-    if is_String(io) and io == 'devnull':
-        kw['stderr'] = open(os.devnull, 'w')
+    # allow std{in,out,err} to be "'devnull'".  This is like
+    # subprocess.DEVNULL, which does not exist for Py2. Use the
+    # subprocess one if possible.
+    # Clean this up when Py2 support is dropped
+    try:
+        from subprocess import DEVNULL
+    except ImportError:
+        DEVNULL = None
+
+    for stream in 'stdin', 'stdout', 'stderr':
+        io = kw.get(stream)
+        if is_String(io) and io == 'devnull':
+            if DEVNULL:
+                kw[stream] = DEVNULL
+            else:
+                kw[stream] = open(os.devnull, "r+")
 
     # Figure out what shell environment to use
     ENV = kw.get('env', None)

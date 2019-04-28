@@ -40,10 +40,10 @@ test.subdir('build', 'src')
 
 test.write('build.py', r"""
 import sys
-fp = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    fp.write(open(f, 'rb').read())
-fp.close()
+with open(sys.argv[1], 'wb') as fp:
+    for f in sys.argv[2:]:
+        with open(f, 'rb') as ifp:
+            fp.write(ifp.read())
 sys.exit(1)
 """)
 

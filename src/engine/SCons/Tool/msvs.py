@@ -645,10 +645,10 @@ class _GenerateV6DSP(_DSPGenerator):
         if self.nokeep == 0:
             # now we pickle some data and add it to the file -- MSDEV will ignore it.
             pdata = pickle.dumps(self.configs,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata).decode()
+            pdata = base64.b64encode(pdata).decode()
             self.file.write(pdata + '\n')
             pdata = pickle.dumps(self.sources,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata).decode()
+            pdata = base64.b64encode(pdata).decode()
             self.file.write(pdata + '\n')
 
     def PrintSourceFiles(self):
@@ -695,6 +695,7 @@ class _GenerateV6DSP(_DSPGenerator):
         while line and line != '\n':
             line = dspfile.readline()
             datas = datas + line
+        dspfile.close()
 
         # OK, we've found our little pickled cache of data.
         try:
@@ -713,6 +714,7 @@ class _GenerateV6DSP(_DSPGenerator):
         while line and line != '\n':
             line = dspfile.readline()
             datas = datas + line
+        dspfile.close()
 
         # OK, we've found our little pickled cache of data.
         # it has a "# " in front of it, so we strip that.
@@ -917,10 +919,10 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
         if self.nokeep == 0:
             # now we pickle some data and add it to the file -- MSDEV will ignore it.
             pdata = pickle.dumps(self.configs,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata).decode()
+            pdata = base64.b64encode(pdata).decode()
             self.file.write('<!-- SCons Data:\n' + pdata + '\n')
             pdata = pickle.dumps(self.sources,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata).decode()
+            pdata = base64.b64encode(pdata).decode()
             self.file.write(pdata + '-->\n')
 
     def printSources(self, hierarchy, commonprefix):
@@ -1008,6 +1010,7 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
         while line and line != '\n':
             line = dspfile.readline()
             datas = datas + line
+        dspfile.close()
 
         # OK, we've found our little pickled cache of data.
         try:
@@ -1241,10 +1244,10 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
         if self.nokeep == 0:
             # now we pickle some data and add it to the file -- MSDEV will ignore it.
             pdata = pickle.dumps(self.configs,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata).decode()
+            pdata = base64.b64encode(pdata).decode()
             self.file.write('<!-- SCons Data:\n' + pdata + '\n')
             pdata = pickle.dumps(self.sources,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata).decode()
+            pdata = base64.b64encode(pdata).decode()
             self.file.write(pdata + '-->\n')
 
     def printFilters(self, hierarchy, name):
@@ -1491,6 +1494,7 @@ class _GenerateV7DSW(_DSWGenerator):
         while line:
             line = dswfile.readline()
             datas = datas + line
+        dswfile.close()
 
         # OK, we've found our little pickled cache of data.
         try:
@@ -1617,7 +1621,7 @@ class _GenerateV7DSW(_DSWGenerator):
         self.file.write('EndGlobal\n')
         if self.nokeep == 0:
             pdata = pickle.dumps(self.configs,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata).decode()
+            pdata = base64.b64encode(pdata).decode()
             self.file.write(pdata)
             self.file.write('\n')
 
@@ -1738,6 +1742,7 @@ def GenerateProject(target, source, env):
             raise
 
         bdsp.write("This is just a placeholder file.\nThe real project file is here:\n%s\n" % dspfile.get_abspath())
+        bdsp.close()
 
     GenerateDSP(dspfile, source, env)
 
@@ -1754,6 +1759,7 @@ def GenerateProject(target, source, env):
                 raise
 
             bdsw.write("This is just a placeholder file.\nThe real workspace file is here:\n%s\n" % dswfile.get_abspath())
+            bdsw.close()
 
         GenerateDSW(dswfile, source, env)
 

@@ -52,23 +52,23 @@ for opt, arg in opts:
     if opt == '-o': out = arg
     elif opt == '-M': modsubdir = arg
 import os
-infile = open(args[0], 'rb')
-outfile = open(out, 'wb')
-for l in infile.readlines():
-    if l[:7] == b'module ':
-        module = modsubdir + os.sep + l[7:-1].decode() + '.mod'
-        open(module, 'wb').write(('myfortran.py wrote %s\n' % module).encode())
-    if l[:length] != comment:
-        outfile.write(l)
+with open(out, 'wb') as ofp, open(args[0], 'rb') as ifp:
+    for l in ifp.readlines():
+        if l[:7] == b'module ':
+            module = modsubdir + os.sep + l[7:-1].decode() + '.mod'
+            with open(module, 'wb') as f:
+                f.write(('myfortran.py wrote %s\n' % module).encode())
+        if l[:length] != comment:
+            ofp.write(l)
 sys.exit(0)
 """)
 
 test.write('myar.py', """\
 import sys
-t = open(sys.argv[1], 'wb')
-for s in sys.argv[2:]:
-    t.write(open(s, 'rb').read())
-t.close
+with open(sys.argv[1], 'wb') as ofp:
+    for s in sys.argv[2:]:
+        with open(s, 'rb') as ifp:
+            ofp.write(ifp.read())
 sys.exit(0)
 """)
 

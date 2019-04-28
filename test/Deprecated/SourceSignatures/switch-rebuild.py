@@ -45,7 +45,8 @@ SetOption('warn', 'deprecated-source-signatures')
 SourceSignatures('%s')
 
 def build(env, target, source):
-    open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
+    with open(str(target[0]), 'wt') as ofp, open(str(source[0]), 'rt') as ifp:
+        ofp.write(ifp.read())
 B = Builder(action = build)
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'switch.out', source = 'switch.in')

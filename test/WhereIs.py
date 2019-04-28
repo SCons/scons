@@ -31,7 +31,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-subdir_SConscript = os.path.join('subdir', 'SConscript')
+subdir_SConscript = os.path.join('subdir/SConscript')
 sub1_xxx_exe = test.workpath('sub1', 'xxx.exe')
 sub2_xxx_exe = test.workpath('sub2', 'xxx.exe')
 sub3_xxx_exe = test.workpath('sub3', 'xxx.exe')

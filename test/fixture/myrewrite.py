@@ -1,7 +1,17 @@
+r"""
+Phony tool to modify a file in place for testing SCons.
+
+Drops lines that match a pattern.  Currently used to test
+ranlib-related behavior without invoking ranlib.
+"""
+
 import sys
-line = ('/*' + sys.argv[1] + '*/\n').encode()
-lines = open(sys.argv[2], 'rb').readlines()
-outfile = open(sys.argv[2], 'wb')
-for l in [l for l in lines if l != line]:
-    outfile.write(l)
-sys.exit(0)
+
+if __name__ == '__main__':
+    line = ('/*' + sys.argv[1] + '*/\n').encode()
+    with open(sys.argv[2], 'rb') as ifp:
+        lines = [ln for ln in ifp.readlines() if ln != line]
+    with open(sys.argv[2], 'wb') as ofp:
+        for ln in lines:
+            ofp.write(ln)
+    sys.exit(0)

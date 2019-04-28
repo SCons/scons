@@ -97,11 +97,8 @@ import os.path
 def buildIt(target, source, env):
     if not os.path.exists('build'):
         os.mkdir('build')
-    f1=open(str(source[0]), 'r')
-    f2=open(str(target[0]), 'w')
-    f2.write(f1.read())
-    f2.close()
-    f1.close()
+    with open(str(source[0]), 'r') as ifp, open(str(target[0]), 'w') as ofp:
+        ofp.write(ifp.read())
     return 0
 Import("env")
 env.Command(target='f2.c', source='f2.in', action=buildIt)

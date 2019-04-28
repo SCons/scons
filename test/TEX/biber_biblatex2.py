@@ -24,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Test creation of a Tex document that uses the biblatex package
 It uses the default backend, could be bibtex or biber. 
 Require both be installed

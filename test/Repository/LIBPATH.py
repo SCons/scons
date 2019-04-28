@@ -46,14 +46,13 @@ bbb_exe = env_yyy.Program('bbb', 'bbb.c')
 def write_LIBDIRFLAGS(env, target, source):
     pre = env.subst('$LIBDIRPREFIX')
     suf = env.subst('$LIBDIRSUFFIX')
-    f = open(str(target[0]), 'w')
-    for arg in env.subst('$_LIBDIRFLAGS', target=target).split():
-        if arg[:len(pre)] == pre:
-            arg = arg[len(pre):]
-        if arg[-len(suf):] == suf:
-            arg = arg[:-len(pre)]
-        f.write(arg + '\n')
-    f.close()
+    with open(str(target[0]), 'w') as f:
+        for arg in env.subst('$_LIBDIRFLAGS', target=target).split():
+            if arg[:len(pre)] == pre:
+                arg = arg[len(pre):]
+            if arg[-len(suf):] == suf:
+                arg = arg[:-len(pre)]
+            f.write(arg + '\n')
     return 0
 env_zzz.Command('zzz.out', aaa_exe, write_LIBDIRFLAGS)
 env_yyy.Command('yyy.out', bbb_exe, write_LIBDIRFLAGS)

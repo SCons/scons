@@ -39,16 +39,14 @@ test = TestSCons.TestSCons()
 test.write('mymidl.py', """
 import os.path
 import sys
-out_tlb = open(sys.argv[1], 'w')
 base = os.path.splitext(sys.argv[1])[0]
-out_h = open(base + '.h', 'w')
-out_c = open(base + '_i.c', 'w')
-for f in sys.argv[2:]:
-    infile = open(f, 'r')
-    for l in [l for l in infile.readlines() if l != '/*midl*/\\n']:
-        out_tlb.write(l)
-        out_h.write(l)
-        out_c.write(l)
+with open(sys.argv[1], 'w') as out_tlb, open(base + '.h', 'w') as out_h, open(base + '_i.c', 'w') as out_c:
+    for f in sys.argv[2:]:
+        with open(f, 'r') as ifp:
+            for l in [l for l in ifp.readlines() if l != '/*midl*/\\n']:
+                out_tlb.write(l)
+                out_h.write(l)
+                out_c.write(l)
 sys.exit(0)
 """)
 

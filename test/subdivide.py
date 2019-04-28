@@ -59,18 +59,20 @@ fake_link_py = test.workpath('fake_link.py')
 
 test.write(fake_cc_py, """\
 import sys
-ofp = open(sys.argv[1], 'w')
-ofp.write('fake_cc.py:  %s\\n' % sys.argv)
-for s in sys.argv[2:]:
-    ofp.write(open(s, 'r').read())
+with open(sys.argv[1], 'w') as ofp:
+    ofp.write('fake_cc.py:  %s\\n' % sys.argv)
+    for s in sys.argv[2:]:
+        with open(s, 'r') as ifp:
+            ofp.write(ifp.read())
 """)
 
 test.write(fake_link_py, """\
 import sys
-ofp = open(sys.argv[1], 'w')
-ofp.write('fake_link.py:  %s\\n' % sys.argv)
-for s in sys.argv[2:]:
-    ofp.write(open(s, 'r').read())
+with open(sys.argv[1], 'w') as ofp:
+    ofp.write('fake_link.py:  %s\\n' % sys.argv)
+    for s in sys.argv[2:]:
+        with open(s, 'r') as ifp:
+            ofp.write(ifp.read())
 """)
 
 test.chmod(fake_cc_py, 0o755)

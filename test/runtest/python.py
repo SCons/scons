@@ -55,7 +55,7 @@ mypython = os.path.normpath(os.path.join(head, dir, os.path.pardir, dir, python)
 def escape(s):
     return s.replace('\\', '\\\\')
 
-if re.search('\s', mypython):
+if re.search(r'\s', mypython):
     mypythonstring = '"%s"' % escape(mypython)
 else:
     mypythonstring = escape(mypython)

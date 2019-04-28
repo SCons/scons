@@ -66,11 +66,17 @@ if SCons.Util.case_sensitive_suffixes('.h', '.H'):
 cxx_suffixes = cplusplus.CXXSuffixes
 
 
-#
 def find_platform_specific_qt_paths():
     """
-    If the platform has non-standard paths which it installs QT in,return the likely default path
-    :return:
+    find non-standard QT paths
+
+    If the platform does not put QT tools in standard search paths,
+    the path is expected to be set using QTDIR. SCons violates
+    the normal rule of not pulling from the user's environment
+    in this case.  However, some test cases try to validate what
+    happens when QTDIR is unset, so we need to try to make a guess.
+
+    :return: a guess at a path
     """
 
     # qt_bin_dirs = []
@@ -83,6 +89,7 @@ def find_platform_specific_qt_paths():
             # Centos installs QT under /usr/{lib,lib64}/qt{4,5,-3.3}/bin
             # so we need to handle this differently
             # qt_bin_dirs = glob.glob('/usr/lib64/qt*/bin')
+            # TODO: all current Fedoras do the same, need to look deeper here.
             qt_bin_dir = '/usr/lib64/qt-3.3/bin'
 
     return qt_bin_dir

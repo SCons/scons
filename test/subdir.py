@@ -35,10 +35,8 @@ test.subdir('subdir')
 
 test.write('build.py', r"""
 import sys
-contents = open(sys.argv[2], 'r').read()
-file = open(sys.argv[1], 'w')
-file.write(contents)
-file.close()
+with open(sys.argv[1], 'w') as f, open(sys.argv[2], 'r') as ifp:
+    f.write(ifp.read())
 """)
 
 test.write('SConstruct', """

@@ -38,7 +38,8 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 def cat(target, source, env):
-    open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
+    with open(str(target[0]), 'wb') as f, open(str(source[0]), 'rb') as infp:
+        f.write(infp.read())
 env = Environment(BUILDERS={'Cat':Builder(action=Action(cat))})
 env.Cat('file.out', 'file.in')
 """)
@@ -49,7 +50,7 @@ test.write('file.in', "file.in\n")
 # show up in the output.
 
 def find_object_count(s, stdout):
-    re_string = '\d+ +\d+   %s' % re.escape(s)
+    re_string = r'\d+ +\d+   %s' % re.escape(s)
     return re.search(re_string, stdout)
 
 objects = [

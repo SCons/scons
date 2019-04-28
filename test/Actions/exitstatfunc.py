@@ -38,8 +38,8 @@ def always_succeed(s):
     return 0
 
 def copy_fail(target, source, env):
-    content = open(str(source[0]), 'rb').read()
-    open(str(target[0]), 'wb').write(content)
+    with open(str(source[0]), 'rb') as infp, open(str(target[0]), 'wb') as f:
+        f.write(infp.read())
     return 2
 
 a = Action(copy_fail, exitstatfunc=always_succeed)

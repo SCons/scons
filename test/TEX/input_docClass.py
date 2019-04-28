@@ -24,9 +24,9 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Test creation of a LaTeX document that uses \input{filename}
-to set the documentclass. When the file has .tex we have to search 
+to set the documentclass. When the file has .tex we have to search
 to find the documentclass command.
 
 Test courtesy Rob Managan.
@@ -53,13 +53,13 @@ r"""
 \input{theClass}
 
 \begin{document}
- 
+
 \title{Report Title}
 
 \author{A. N. Author}
- 
-\maketitle 
- 
+
+\maketitle
+
 \begin{abstract}
 there is no abstract
 \end{abstract}
@@ -73,7 +73,7 @@ The introduction is short.
 
 \section{Acknowledgements}
 
-The Acknowledgements are shown as well.  
+The Acknowledgements are shown as well.
 
 \end{document}
 """)

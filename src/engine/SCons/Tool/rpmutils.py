@@ -482,9 +482,11 @@ def updateRpmDicts(rpmrc, pyfile):
     """
     try:
         # Read old rpmutils.py file
-        oldpy = open(pyfile,"r").readlines()
+        with open(pyfile,"r") as f:
+            oldpy = f.readlines()
         # Read current rpmrc.in file
-        rpm = open(rpmrc,"r").readlines()
+        with open(rpmrc,"r") as f:
+            rpm = f.readlines()
         # Parse for data
         data = {}
         # Allowed section names that get parsed
@@ -511,24 +513,23 @@ def updateRpmDicts(rpmrc, pyfile):
                     # Insert data
                     data[key][tokens[1]] = tokens[2:]
         # Write new rpmutils.py file
-        out = open(pyfile,"w")
-        pm = 0
-        for l in oldpy:
-            if pm:
-                if l.startswith('# End of rpmrc dictionaries'):
-                    pm = 0
+        with open(pyfile,"w") as out:
+            pm = 0
+            for l in oldpy:
+                if pm:
+                    if l.startswith('# End of rpmrc dictionaries'):
+                        pm = 0
+                        out.write(l)
+                else:
                     out.write(l)
-            else:
-                out.write(l)
-                if l.startswith('# Start of rpmrc dictionaries'):
-                    pm = 1
-                    # Write data sections to single dictionaries
-                    for key, entries in data.items():
-                        out.write("%s = {\n" % key)
-                        for arch in sorted(entries.keys()):
-                            out.write("  '%s' : ['%s'],\n" % (arch, "','".join(entries[arch])))
-                        out.write("}\n\n")
-        out.close()
+                    if l.startswith('# Start of rpmrc dictionaries'):
+                        pm = 1
+                        # Write data sections to single dictionaries
+                        for key, entries in data.items():
+                            out.write("%s = {\n" % key)
+                            for arch in sorted(entries.keys()):
+                                out.write("  '%s' : ['%s'],\n" % (arch, "','".join(entries[arch])))
+                            out.write("}\n\n")
     except:
         pass
 

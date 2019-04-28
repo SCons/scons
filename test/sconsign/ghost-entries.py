@@ -51,10 +51,10 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
 def cat(target, source, env):
-    fp = open(str(target[0]), 'wb')
-    for s in source:
-        fp.write(open(str(s), 'rb').read())
-    fp.close()
+    with open(str(target[0]), 'wb') as fp:
+        for s in source:
+            with open(str(s), 'rb') as infp:
+                fp.write(infp.read())
 env=Environment()
 Export('env')
 env['BUILDERS']['Cat']=Builder(action=cat, multi=1)

@@ -34,11 +34,10 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 def copy_and_create_func(target, source, env):
-    with open(str(target[0]), 'w') as fp:
+    with open(str(target[0]), 'w') as ofp:
         for s in source:
-            with open(str(s), 'r') as f:
-                fp.write(f.read())
-    open('file.in', 'w').write("file.in 1\\n")
+            with open(str(s), 'r') as ifp:
+                ofp.write(ifp.read())
     with open('file.in', 'w') as f:
         f.write("file.in 1\\n")
     return None

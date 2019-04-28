@@ -77,7 +77,14 @@ test.write('mycopy.py', r"""\
 import os
 import sys
 import time
-os.mkdir('mycopy.started')
+try:
+    os.makedirs('mycopy.started', exist_ok=True)
+except TypeError:  # Python 2 has no exist_ok
+    try:
+        os.mkdir('mycopy.started')
+    except FileExistsError:
+        pass
+
 with open(sys.argv[1], 'wb') as ofp, open(sys.argv[2], 'rb') as ifp:
     ofp.write(ifp.read())
 for i in [1, 2, 3, 4, 5]:

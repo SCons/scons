@@ -63,7 +63,8 @@ else:
 src_engine_ = os.path.join(src_engine, '')
 
 MANIFEST = os.path.join(src_engine, 'MANIFEST.in')
-files = open(MANIFEST).read().split()
+with open(MANIFEST) as f:
+    files = f.read().split()
 
 files = [f for f in files if f[-3:] == '.py']
 
