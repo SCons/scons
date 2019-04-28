@@ -213,13 +213,13 @@ class CacheDir(object):
         """
         config_file = os.path.join(path, 'config')
         if not os.path.exists(config_file):
-            # A note: There is a race hazard here, if two processes start and
+            # A note: There is a race hazard here if two processes start and
             # attempt to create the cache directory at the same time. However,
             # Python 2.x does not give you the option to do exclusive file
-            # creation (not even the option to error on opening ad existing
-            # file for writing...). The ordering of events here as an attempt
+            # creation (not even the option to error on opening an existing
+            # file for writing...). The ordering of events here is an attempt
             # to alleviate this, on the basis that it's a pretty unlikely
-            # occurence (would require two builds with a brand new cache
+            # occurrence (would require two builds with a brand new cache
             # directory)
             if os.path.isdir(path) and any(f != "config" for f in os.listdir(path)):
                 self.config['prefix_len'] = 1
