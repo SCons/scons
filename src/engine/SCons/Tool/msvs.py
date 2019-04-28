@@ -685,17 +685,18 @@ class _GenerateV6DSP(_DSPGenerator):
             return # doesn't exist yet, so can't add anything to configs.
 
         line = dspfile.readline()
+        # skip until marker
         while line:
             if line.find("# End Project") > -1:
                 break
             line = dspfile.readline()
 
+        # read to get configs
         line = dspfile.readline()
         datas = line
         while line and line != '\n':
             line = dspfile.readline()
             datas = datas + line
-        dspfile.close()
 
         # OK, we've found our little pickled cache of data.
         try:
@@ -708,6 +709,7 @@ class _GenerateV6DSP(_DSPGenerator):
 
         self.configs.update(data)
 
+        # keep reading to get sources
         data = None
         line = dspfile.readline()
         datas = line
@@ -1000,17 +1002,18 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
             return # doesn't exist yet, so can't add anything to configs.
 
         line = dspfile.readline()
+        # skip until marker
         while line:
             if line.find('<!-- SCons Data:') > -1:
                 break
             line = dspfile.readline()
 
+        # read to get configs
         line = dspfile.readline()
         datas = line
         while line and line != '\n':
             line = dspfile.readline()
             datas = datas + line
-        dspfile.close()
 
         # OK, we've found our little pickled cache of data.
         try:
@@ -1023,12 +1026,14 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
 
         self.configs.update(data)
 
+        # keep reading to get sources
         data = None
         line = dspfile.readline()
         datas = line
         while line and line != '\n':
             line = dspfile.readline()
             datas = datas + line
+        dspfile.close()
 
         # OK, we've found our little pickled cache of data.
         try:
