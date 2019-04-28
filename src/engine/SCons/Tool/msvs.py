@@ -397,7 +397,7 @@ class _DSPGenerator(object):
         elif SCons.Util.is_List(env['variant']):
             variants = env['variant']
 
-        if 'buildtarget' not in env or env['buildtarget'] == None:
+        if 'buildtarget' not in env or env['buildtarget'] is None:
             buildtarget = ['']
         elif SCons.Util.is_String(env['buildtarget']):
             buildtarget = [env['buildtarget']]
@@ -418,7 +418,7 @@ class _DSPGenerator(object):
             for _ in variants:
                 buildtarget.append(bt)
 
-        if 'outdir' not in env or env['outdir'] == None:
+        if 'outdir' not in env or env['outdir'] is None:
             outdir = ['']
         elif SCons.Util.is_String(env['outdir']):
             outdir = [env['outdir']]
@@ -439,7 +439,7 @@ class _DSPGenerator(object):
             for v in variants:
                 outdir.append(s)
 
-        if 'runfile' not in env or env['runfile'] == None:
+        if 'runfile' not in env or env['runfile'] is None:
             runfile = buildtarget[-1:]
         elif SCons.Util.is_String(env['runfile']):
             runfile = [env['runfile']]
@@ -462,7 +462,7 @@ class _DSPGenerator(object):
 
         self.sconscript = env['MSVSSCONSCRIPT']
 
-        if 'cmdargs' not in env or env['cmdargs'] == None:
+        if 'cmdargs' not in env or env['cmdargs'] is None:
             cmdargs = [''] * len(variants)
         elif SCons.Util.is_String(env['cmdargs']):
             cmdargs = [env['cmdargs']] * len(variants)
@@ -537,7 +537,7 @@ class _DSPGenerator(object):
         self.platforms = []
         for key in list(self.configs.keys()):
             platform = self.configs[key].platform
-            if not platform in self.platforms:
+            if platform not in self.platforms:
                 self.platforms.append(platform)
 
     def Build(self):
@@ -553,16 +553,16 @@ V6DSPHeader = """\
 CFG=%(name)s - Win32 %(confkey)s
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "%(name)s.mak".
-!MESSAGE 
+!MESSAGE
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "%(name)s.mak" CFG="%(name)s - Win32 %(confkey)s"
-!MESSAGE 
+!MESSAGE
 !MESSAGE Possible choices for configuration are:
-!MESSAGE 
+!MESSAGE
 """
 
 class _GenerateV6DSP(_DSPGenerator):
@@ -580,7 +580,7 @@ class _GenerateV6DSP(_DSPGenerator):
         for kind in confkeys:
             self.file.write('!MESSAGE "%s - Win32 %s" (based on "Win32 (x86) External Target")\n' % (name, kind))
 
-        self.file.write('!MESSAGE \n\n')
+        self.file.write('!MESSAGE\n\n')
 
     def PrintProject(self):
         name = self.name
@@ -637,7 +637,7 @@ class _GenerateV6DSP(_DSPGenerator):
                 first = 1
             else:
                 self.file.write('!ELSEIF  "$(CFG)" == "%s - Win32 %s"\n\n' % (name,kind))
-        self.file.write('!ENDIF \n\n')
+        self.file.write('!ENDIF\n\n')
         self.PrintSourceFiles()
         self.file.write('# End Target\n'
                         '# End Project\n')
@@ -1451,7 +1451,7 @@ class _GenerateV7DSW(_DSWGenerator):
         self.platforms = []
         for key in list(self.configs.keys()):
             platform = self.configs[key].platform
-            if not platform in self.platforms:
+            if platform not in self.platforms:
                 self.platforms.append(platform)
 
         def GenerateProjectFilesInfo(self):
@@ -1730,7 +1730,7 @@ def GenerateProject(target, source, env):
     dspfile = builddspfile.srcnode()
 
     # this detects whether or not we're using a VariantDir
-    if not dspfile is builddspfile:
+    if dspfile is not builddspfile:
         try:
             bdsp = open(str(builddspfile), "w+")
         except IOError as detail:
@@ -1745,7 +1745,7 @@ def GenerateProject(target, source, env):
         builddswfile = target[1]
         dswfile = builddswfile.srcnode()
 
-        if not dswfile is builddswfile:
+        if dswfile is not builddswfile:
 
             try:
                 bdsw = open(str(builddswfile), "w+")
@@ -1785,7 +1785,7 @@ def projectEmitter(target, source, env):
         includepath = xmlify(';'.join([str(x) for x in includepath_Dirs]))
         source = source + "; ppdefs:%s incpath:%s"%(preprocdefs, includepath)
 
-        if 'buildtarget' in env and env['buildtarget'] != None:
+        if 'buildtarget' in env and env['buildtarget'] is not None:
             if SCons.Util.is_String(env['buildtarget']):
                 source = source + ' "%s"' % env['buildtarget']
             elif SCons.Util.is_List(env['buildtarget']):
@@ -1799,7 +1799,7 @@ def projectEmitter(target, source, env):
                 try: source = source + ' "%s"' % env['buildtarget'].get_abspath()
                 except AttributeError: raise SCons.Errors.InternalError("buildtarget can be a string, a node, a list of strings or nodes, or None")
 
-        if 'outdir' in env and env['outdir'] != None:
+        if 'outdir' in env and env['outdir'] is not None:
             if SCons.Util.is_String(env['outdir']):
                 source = source + ' "%s"' % env['outdir']
             elif SCons.Util.is_List(env['outdir']):

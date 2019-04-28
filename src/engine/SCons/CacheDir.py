@@ -209,7 +209,7 @@ class CacheDir(object):
             self.debugFP.write(fmt % (target, os.path.split(cachefile)[1]))
 
     def is_enabled(self):
-        return cache_enabled and not self.path is None
+        return cache_enabled and self.path is not None
 
     def is_readonly(self):
         return cache_readonly

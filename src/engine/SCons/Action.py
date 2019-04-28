@@ -1091,7 +1091,7 @@ class LazyAction(CommandGeneratorAction, CommandAction):
 
     def get_parent_class(self, env):
         c = env.get(self.var)
-        if is_String(c) and not '\n' in c:
+        if is_String(c) and '\n' not in c:
             return CommandAction
         return CommandGeneratorAction
 

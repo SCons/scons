@@ -162,7 +162,7 @@ def msvc_batch_key(action, env, target, source):
     # Note we need to do the env.subst so $MSVC_BATCH can be a reference to
     # another construction variable, which is why we test for False and 0
     # as strings.
-    if not 'MSVC_BATCH' in env or env.subst('$MSVC_BATCH') in ('0', 'False', '', None):
+    if 'MSVC_BATCH' not in env or env.subst('$MSVC_BATCH') in ('0', 'False', '', None):
         # We're not using batching; return no key.
         return None
     t = target[0]
@@ -188,7 +188,7 @@ def msvc_output_flag(target, source, env, for_signature):
     # len(source)==1 as batch mode can compile only one file
     # (and it also fixed problem with compiling only one changed file
     # with batch mode enabled)
-    if not 'MSVC_BATCH' in env or env.subst('$MSVC_BATCH') in ('0', 'False', '', None):
+    if 'MSVC_BATCH' not in env or env.subst('$MSVC_BATCH') in ('0', 'False', '', None):
         return '/Fo$TARGET'
     else:
         # The Visual C/C++ compiler requires a \ at the end of the /Fo

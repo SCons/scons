@@ -788,7 +788,7 @@ class SConfBase(object):
 
         self.active = 0
         sconf_global = None
-        if not self.config_h is None:
+        if self.config_h is not None:
             _ac_config_hs[self.config_h] = self.config_h_text
         self.env.fs = self.lastEnvFs
 

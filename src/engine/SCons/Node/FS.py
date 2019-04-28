@@ -282,7 +282,7 @@ def set_duplicate(duplicate):
         'copy' : _copy_func
     }
 
-    if not duplicate in Valid_Duplicates:
+    if duplicate not in Valid_Duplicates:
         raise SCons.Errors.InternalError("The argument of set_duplicate "
                                            "should be in Valid_Duplicates")
     global Link_Funcs
@@ -531,7 +531,7 @@ class EntryProxy(SCons.Util.Proxy):
         except KeyError:
             try:
                 attr = SCons.Util.Proxy.__getattr__(self, name)
-            except AttributeError as e:
+            except AttributeError:
                 # Raise our own AttributeError subclass with an
                 # overridden __str__() method that identifies the
                 # name of the entry that caused the exception.
@@ -699,13 +699,13 @@ class Base(SCons.Node.Node):
 
     @SCons.Memoize.CountMethodCall
     def stat(self):
-        try: 
+        try:
             return self._memo['stat']
-        except KeyError: 
+        except KeyError:
             pass
-        try: 
+        try:
             result = self.fs.stat(self.get_abspath())
-        except os.error: 
+        except os.error:
             result = None
 
         self._memo['stat'] = result
@@ -719,16 +719,16 @@ class Base(SCons.Node.Node):
 
     def getmtime(self):
         st = self.stat()
-        if st: 
+        if st:
             return st[stat.ST_MTIME]
-        else: 
+        else:
             return None
 
     def getsize(self):
         st = self.stat()
-        if st: 
+        if st:
             return st[stat.ST_SIZE]
-        else: 
+        else:
             return None
 
     def isdir(self):
@@ -1689,7 +1689,7 @@ class Dir(Base):
         return result
 
     def addRepository(self, dir):
-        if dir != self and not dir in self.repositories:
+        if dir != self and dir not in self.repositories:
             self.repositories.append(dir)
             dir._tpath = '.'
             self.__clearRepositoryCache()
@@ -1729,7 +1729,7 @@ class Dir(Base):
         if self is other:
             result = '.'
 
-        elif not other in self._path_elements:
+        elif other not in self._path_elements:
             try:
                 other_dir = other.get_dir()
             except AttributeError:
@@ -3350,7 +3350,7 @@ class File(Base):
         df = dmap.get(c_str, None)
         if df:
             return df
-        
+
         if os.altsep:
             c_str = c_str.replace(os.sep, os.altsep)
             df = dmap.get(c_str, None)
@@ -3387,7 +3387,7 @@ class File(Base):
               file and just copy the prev_ni provided.  If the prev_ni
               is wrong. It will propagate it.
               See: https://github.com/SCons/scons/issues/2980
-        
+
         Args:
             self - dependency
             target - target
@@ -3396,7 +3396,7 @@ class File(Base):
                    node to function. So if we detect that it's not passed.
                    we throw DeciderNeedsNode, and caller should handle this and pass node.
 
-        Returns: 
+        Returns:
             Boolean - Indicates if node(File) has changed.
         """
         if node is None:

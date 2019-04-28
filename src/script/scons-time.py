@@ -107,7 +107,7 @@ class Line(object):
             # in the line's index number.  We might want to represent
             # this some way rather than just drawing the line straight
             # between the two points on either side.
-            if not y is None:
+            if y is not None:
                 print(fmt % (x, y))
         print('e')
 
@@ -141,13 +141,13 @@ class Gnuplotter(Plotter):
         result = []
         for line in self.lines:
             result.extend(line.get_x_values())
-        return [r for r in result if not r is None]
+        return [r for r in result if r is not None]
 
     def get_all_y_values(self):
         result = []
         for line in self.lines:
             result.extend(line.get_y_values())
-        return [r for r in result if not r is None]
+        return [r for r in result if r is not None]
 
     def get_min_x(self):
         try:
@@ -252,7 +252,7 @@ def tee_to_file(command, log):
     return '%s 2>&1 | tee %s' % (command, log)
 
 
-    
+
 class SConsTimer(object):
     """
     Usage: scons-time SUBCOMMAND [ARGUMENTS]
@@ -348,7 +348,7 @@ class SConsTimer(object):
         'SCons'         : 'Total SCons execution time',
         'commands'      : 'Total command execution time',
     }
-    
+
     time_string_all = 'Total .* time'
 
     #
@@ -629,7 +629,7 @@ class SConsTimer(object):
             return None
         result = re.findall(r'%s: ([\d\.]*)' % search_string, contents)[-4:]
         result = [ float(r) for r in result ]
-        if not time_string is None:
+        if time_string is not None:
             try:
                 result = result[0]
             except IndexError:
@@ -921,7 +921,7 @@ class SConsTimer(object):
             elif o in ('-p', '--prefix'):
                 self.prefix = a
             elif o in ('--stage',):
-                if not a in self.stages:
+                if a not in self.stages:
                     sys.stderr.write('%s: mem: Unrecognized stage "%s".\n' % (self.name, a))
                     sys.exit(1)
                 stage = a
@@ -1035,7 +1035,7 @@ class SConsTimer(object):
             elif o in ('-p', '--prefix'):
                 self.prefix = a
             elif o in ('--stage',):
-                if not a in self.stages:
+                if a not in self.stages:
                     sys.stderr.write('%s: obj: Unrecognized stage "%s".\n' % (self.name, a))
                     sys.stderr.write('%s       Type "%s help obj" for help.\n' % (self.name_spaces, self.name))
                     sys.exit(1)
@@ -1423,7 +1423,7 @@ class SConsTimer(object):
             elif o in ('--title',):
                 self.title = a
             elif o in ('--which',):
-                if not a in list(self.time_strings.keys()):
+                if a not in list(self.time_strings.keys()):
                     sys.stderr.write('%s: time: Unrecognized timer "%s".\n' % (self.name, a))
                     sys.stderr.write('%s  Type "%s help time" for help.\n' % (self.name_spaces, self.name))
                     sys.exit(1)

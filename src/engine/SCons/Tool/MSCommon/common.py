@@ -117,7 +117,7 @@ def normalize_env(env, keys, force=False):
             normenv[k] = copy.deepcopy(env[k])
 
         for k in keys:
-            if k in os.environ and (force or not k in normenv):
+            if k in os.environ and (force or k not in normenv):
                 normenv[k] = os.environ[k]
 
     # This shouldn't be necessary, since the default environment should include system32,

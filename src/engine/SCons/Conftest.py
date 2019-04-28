@@ -354,7 +354,7 @@ def CheckHeader(context, header_name, header = None, language = None,
 
     context.Display("Checking for %s header file %s... " % (lang, header_name))
     ret = context.CompileProg(text, suffix)
-    _YesNoResult(context, ret, "HAVE_" + header_name, text, 
+    _YesNoResult(context, ret, "HAVE_" + header_name, text,
                  "Define to 1 if you have the <%s> header file." % header_name)
     return ret
 
@@ -439,7 +439,7 @@ def CheckTypeSize(context, type_name, header = None, language = None, expect = N
         Returns:
             status : int
                 0 if the check failed, or the found size of the type if the check succeeded."""
-    
+
     # Include "confdefs.h" first, so that the header can use HAVE_HEADER_H.
     if context.headerfilename:
         includetext = '#include "%s"' % context.headerfilename
@@ -454,8 +454,8 @@ def CheckTypeSize(context, type_name, header = None, language = None, expect = N
         context.Display("Cannot check for %s type: %s\n" % (type_name, msg))
         return msg
 
-    src = includetext + header 
-    if not expect is None:
+    src = includetext + header
+    if expect is not None:
         # Only check if the given size is the right one
         context.Display('Checking %s is %d bytes... ' % (type_name, expect))
 
@@ -477,7 +477,7 @@ int main(void)
         st = context.CompileProg(src % (type_name, expect), suffix)
         if not st:
             context.Display("yes\n")
-            _Have(context, "SIZEOF_%s" % type_name, expect, 
+            _Have(context, "SIZEOF_%s" % type_name, expect,
                   "The size of `%s', as computed by sizeof." % type_name)
             return expect
         else:
@@ -541,7 +541,7 @@ def CheckDeclaration(context, symbol, includes = None, language = None):
     Returns:
         status : bool
             True if the check failed, False if succeeded."""
-    
+
     # Include "confdefs.h" first, so that the header can use HAVE_HEADER_H.
     if context.headerfilename:
         includetext = '#include "%s"' % context.headerfilename
@@ -556,7 +556,7 @@ def CheckDeclaration(context, symbol, includes = None, language = None):
         context.Display("Cannot check for declaration %s: %s\n" % (symbol, msg))
         return msg
 
-    src = includetext + includes 
+    src = includetext + includes
     context.Display('Checking whether %s is declared... ' % symbol)
 
     src = src + r"""
@@ -677,7 +677,7 @@ return 0;
                      "Define to 1 if you have the `%s' library." % lib_name)
         if oldLIBS != -1 and (ret or not autoadd):
             context.SetLIBS(oldLIBS)
-            
+
         if not ret:
             return ret
 
@@ -751,7 +751,7 @@ def _Have(context, key, have, comment = None):
         line = "#define %s %d\n" % (key_up, have)
     else:
         line = "#define %s %s\n" % (key_up, str(have))
-    
+
     if comment is not None:
         lines = "\n/* %s */\n" % comment + line
     else:

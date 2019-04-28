@@ -1185,7 +1185,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             binfo.bactsig = SCons.Util.MD5signature(executor.get_contents())
 
         if self._specific_sources:
-            sources = [s for s in self.sources if not s in ignore_set]
+            sources = [s for s in self.sources if s not in ignore_set]
 
         else:
             sources = executor.get_unignored_sources(self, self.ignore)
@@ -1672,14 +1672,14 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
 
         lines = []
 
-        removed = [x for x in old_bkids if not x in new_bkids]
+        removed = [x for x in old_bkids if x not in new_bkids]
         if removed:
             removed = [stringify(r) for r in removed]
             fmt = "`%s' is no longer a dependency\n"
             lines.extend([fmt % s for s in removed])
 
         for k in new_bkids:
-            if not k in old_bkids:
+            if k not in old_bkids:
                 lines.append("`%s' is a new dependency\n" % stringify(k))
             else:
                 try:

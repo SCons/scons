@@ -350,7 +350,7 @@ _rm_split = re.compile(r'(?<!\$)(\$[()])')
 _regex_remove = [ _rm, None, _rm_split ]
 
 def _rm_list(list):
-    return [l for l in list if not l in ('$(', '$)')]
+    return [l for l in list if l not in ('$(', '$)')]
 
 def _remove_list(list):
     result = []
@@ -468,7 +468,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
                             s = lvars[key]
                         elif key in self.gvars:
                             s = self.gvars[key]
-                        elif not NameError in AllowableExceptions:
+                        elif NameError not in AllowableExceptions:
                             raise_exception(NameError(key), lvars['TARGETS'], s)
                         else:
                             return ''
@@ -690,7 +690,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                             s = lvars[key]
                         elif key in self.gvars:
                             s = self.gvars[key]
-                        elif not NameError in AllowableExceptions:
+                        elif NameError not in AllowableExceptions:
                             raise_exception(NameError(), lvars['TARGETS'], s)
                         else:
                             return
