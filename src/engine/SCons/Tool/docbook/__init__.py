@@ -353,7 +353,7 @@ def __build_lxml(target, source, env):
 
     try:
         with open(str(target[0]), "wb") as of:
-            of.write(of.write(etree.tostring(result, pretty_print=True)))
+            of.write(etree.tostring(result, pretty_print=True))
     except:
         pass
 
