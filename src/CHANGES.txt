@@ -61,6 +61,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Add a PY3-only function for setting up the cachedir that should be less
       prone to races. Add a hack to the PY2 version (from Issue #3351) to
       be less prone to a race in the check for old-style cache.
+    - docbook tool small error in xslt variant
 
 
 RELEASE 3.0.5 - Mon, 26 Mar 2019 15:04:42 -0700
