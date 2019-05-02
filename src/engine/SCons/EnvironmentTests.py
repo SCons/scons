@@ -800,7 +800,9 @@ sys.exit(0)
             "-fopenmp " + \
             "-mno-cygwin -mwindows " + \
             "-arch i386 -isysroot /tmp " + \
-            "-isystem /usr/include/foo " + \
+            "-iquote /usr/include/foo1 " + \
+            "-isystem /usr/include/foo2 " + \
+            "-idirafter /usr/include/foo3 " + \
             "+DD64 " + \
             "-DFOO -DBAR=value -D BAZ "
 
@@ -809,10 +811,12 @@ sys.exit(0)
         assert d['ASFLAGS'] == ['-as'], d['ASFLAGS']
         assert d['CFLAGS']  == ['-std=c99']
         assert d['CCFLAGS'] == ['-X', '-Wa,-as',
-                                  '-pthread', '-fopenmp', '-mno-cygwin',
-                                  ('-arch', 'i386'), ('-isysroot', '/tmp'),
-                                  ('-isystem', '/usr/include/foo'),
-                                  '+DD64'], repr(d['CCFLAGS'])
+                                '-pthread', '-fopenmp', '-mno-cygwin',
+                                ('-arch', 'i386'), ('-isysroot', '/tmp'),
+                                ('-iquote', '/usr/include/foo1'),
+                                ('-isystem', '/usr/include/foo2'),
+                                ('-idirafter', '/usr/include/foo3'),
+                                '+DD64'], repr(d['CCFLAGS'])
         assert d['CXXFLAGS'] == ['-std=c++0x'], repr(d['CXXFLAGS'])
         assert d['CPPDEFINES'] == ['FOO', ['BAR', 'value'], 'BAZ'], d['CPPDEFINES']
         assert d['CPPFLAGS'] == ['-Wp,-cpp'], d['CPPFLAGS']
@@ -2022,7 +2026,9 @@ def generate(env):
                                  "-pthread " + \
                                  "-mno-cygwin -mwindows " + \
                                  "-arch i386 -isysroot /tmp " + \
-                                 "-isystem /usr/include/foo " + \
+                                 "-iquote /usr/include/foo1 " + \
+                                 "-isystem /usr/include/foo2 " + \
+                                 "-idirafter /usr/include/foo3 " + \
                                  "+DD64 " + \
                                  "-DFOO -DBAR=value")
             env.ParseConfig("fake $COMMAND")
@@ -2031,7 +2037,9 @@ def generate(env):
             assert env['CCFLAGS'] == ['', '-X', '-Wa,-as',
                                       '-pthread', '-mno-cygwin',
                                       ('-arch', 'i386'), ('-isysroot', '/tmp'),
-                                      ('-isystem', '/usr/include/foo'),
+                                      ('-iquote', '/usr/include/foo1'),
+                                      ('-isystem', '/usr/include/foo2'),
+                                      ('-idirafter', '/usr/include/foo3'),
                                       '+DD64'], env['CCFLAGS']
             assert env['CPPDEFINES'] == ['FOO', ['BAR', 'value']], env['CPPDEFINES']
             assert env['CPPFLAGS'] == ['', '-Wp,-cpp'], env['CPPFLAGS']
