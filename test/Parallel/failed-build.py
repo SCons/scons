@@ -45,7 +45,8 @@ test = TestSCons.TestSCons()
 
 # We want to verify that -j 2 starts precisely two jobs, the first of
 # which fails and the second of which succeeds, and then stops processing
-# due to the first build failure.  To try to control the timing, the two
+# due to the first build failure - the second build job does not just
+# continue processing tasks.  To try to control the timing, the two
 # created build scripts use a pair of marker directories.
 #
 # The failure script waits until it sees the 'mycopy.started' directory
