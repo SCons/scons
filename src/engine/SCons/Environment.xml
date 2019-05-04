@@ -2294,6 +2294,9 @@ and added to the following construction variables:
 -frameworkdir=      FRAMEWORKPATH
 -include            CCFLAGS
 -isysroot           CCFLAGS, LINKFLAGS
+-isystem            CCFLAGS
+-iquote             CCFLAGS
+-idirafter          CCFLAGS
 -I                  CPPPATH
 -l                  LIBS
 -L                  LIBPATH
