@@ -62,6 +62,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       prone to races. Add a hack to the PY2 version (from Issue #3351) to
       be less prone to a race in the check for old-style cache.
     - Fix coding error in docbook tool only exercised when using python lxml 
+    - Recognize two additional GNU compiler header directory options in
+      ParseFlags: -iquote and -idirafter.
 
 
 RELEASE 3.0.5 - Mon, 26 Mar 2019 15:04:42 -0700
