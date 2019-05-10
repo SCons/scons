@@ -348,7 +348,7 @@ class LaTeX(SCons.Scanner.Base):
         # Cache the includes list in node so we only scan it once:
         # path_dict = dict(list(path))
         # add option for whitespace (\s) before the '['
-        noopt_cre = re.compile('\s*\[.*$')
+        noopt_cre = re.compile(r'\s*\[.*$')
         if node.includes is not None:
             includes = node.includes
         else:
