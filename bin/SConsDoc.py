@@ -155,8 +155,8 @@ if not has_etree:
                 except ImportError:
                     raise ImportError("Failed to import ElementTree from any known place")
 
-re_entity = re.compile("\&([^;]+);")
-re_entity_header = re.compile("<!DOCTYPE\s+sconsdoc\s+[^\]]+\]>")
+re_entity = re.compile(r"\&([^;]+);")
+re_entity_header = re.compile(r"<!DOCTYPE\s+sconsdoc\s+[^\]]+\]>")
 
 # Namespace for the SCons Docbook XSD
 dbxsd="http://www.scons.org/dbxsd/v1.0"
