@@ -1,4 +1,5 @@
 SCons/__init__.py
+SCons/__main__.py
 SCons/Action.py
 SCons/Builder.py
 SCons/compat/*.py
