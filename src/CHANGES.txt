@@ -66,6 +66,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       ParseFlags: -iquote and -idirafter.
     - Fix more re patterns that contain \ but not specified as raw strings
       (affects scanners for D, LaTeX, swig)
+      
+    From Michael Hartmann:
+    - Fix handling of Visual Studio cross compilers: correctly handle empty host_trgt_dir
 
 
 RELEASE 3.0.5 - Mon, 26 Mar 2019 15:04:42 -0700
