@@ -6,6 +6,9 @@
 
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
+  
+  From Bernd Kast:
+    - TempFileMunge is used to handle linking of larger projects (https://github.com/Nuitka/Nuitka/issues/279)
 
   From Peter Diener:
     - Additional fix to issue #3135 - Also handle 'pure' and 'elemental' type bound procedures
