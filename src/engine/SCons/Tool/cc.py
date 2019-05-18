@@ -81,10 +81,11 @@ def generate(env):
     if 'CC' not in env:
         env['CC']    = env.Detect(compilers) or compilers[0]
     env['CFLAGS']    = SCons.Util.CLVar('')
-    env['CCCOM']     = '$CC -o $TARGET -c $CFLAGS $CCFLAGS $_CCCOMCOM $SOURCES'
+    env["CCCOM"]     = "${TEMPFILE('$CC -o $TARGET -c $CFLAGS $CCFLAGS $_CCCOMCOM $SOURCES', '$CC')}"
+
     env['SHCC']      = '$CC'
     env['SHCFLAGS'] = SCons.Util.CLVar('$CFLAGS')
-    env['SHCCCOM']   = '$SHCC -o $TARGET -c $SHCFLAGS $SHCCFLAGS $_CCCOMCOM $SOURCES'
+    env['SHCCCOM']   = "${TEMPFILE('$SHCC -o $TARGET -c $SHCFLAGS $SHCCFLAGS $_CCCOMCOM $SOURCES', '$SHCC')}"   
 
     env['CPPDEFPREFIX']  = '-D'
     env['CPPDEFSUFFIX']  = ''
