@@ -312,7 +312,7 @@ def generate(env):
 
     env['SHLINK'] = '$LINK'
     env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -shared')
-    env['SHLINKCOM'] = "${TEMPFILE('$SHLINK -o $TARGET $SHLINKFLAGS $__SHLIBVERSIONFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'), '$SHLINK')}"
+    env['SHLINKCOM'] = "${TEMPFILE('$SHLINK -o $TARGET $SHLINKFLAGS $__SHLIBVERSIONFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS', '$SHLINK')}"
 
     # don't set up the emitter, because AppendUnique will generate a list
     # starting with None :-(
