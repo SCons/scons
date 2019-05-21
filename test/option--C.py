@@ -34,10 +34,10 @@ def match_normcase(lines, matches):
     if not isinstance(matches, list):
         matches = matches.split("\n")
     if len(lines) != len(matches):
-        return
-    for i in range(len(lines)):
-        if os.path.normcase(lines[i]) != os.path.normcase(matches[i]):
-            return
+        return None
+    for line, match in zip(lines, matches):
+        if os.path.normcase(line) != os.path.normcase(match):
+            return None
     return 1
 
 test = TestSCons.TestSCons(match=match_normcase)

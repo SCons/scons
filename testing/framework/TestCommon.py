@@ -278,6 +278,7 @@ class TestCommon(TestCmd):
 
     def must_be_writable(self, *files):
         """Ensures that the specified file(s) exist and are writable.
+
         An individual file can be specified as a list of directory names,
         in which case the pathname will be constructed by concatenating
         them.  Exits FAILED if any of the files does not exist or is
@@ -292,46 +293,47 @@ class TestCommon(TestCmd):
             print("Unwritable files: `%s'" % "', `".join(unwritable))
         self.fail_test(missing + unwritable)
 
-    def must_contain(self, file, required, mode='rb', find=None):
-        """Ensures specified file contains the required text.
-
-        Args:
-            file (string): name of file to search in.
-            required (string): text to search for. For the default
-              find function, type must match the return type from
-              reading the file; current implementation will convert.
-            mode (string): file open mode.
-            find (func): optional custom search routine. Must take the
-              form "find(output, line)" non-negative integer on success
-              and None, False, or -1, on failure.
+    def must_contain(self, fname, required, mode='rb', find=None):
+        """Ensures a file contains the required text.
 
         Calling test exits FAILED if search result is false
+
+        :param str fname: name of file to search in.
+        :param required: text to search for. For the default
+            find function, type must match the return type from
+            reading the file; current implementation will convert.
+        :type required: str or bytes
+        :param str mode: file open mode.
+        :param callable find: (optional) custom search routine. Must take the
+            form "find(output, line)", returning a true value on success
+            and a false value on failure.
         """
         if 'b' in mode:
-            # Python 3: reading a file in binary mode returns a 
+            # Python 3: reading a file in binary mode returns a
             # bytes object. We cannot find the index of a different
             # (str) type in that, so convert.
             required = to_bytes(required)
-        file_contents = self.read(file, mode)
+        file_contents = self.read(fname, mode)
 
         if not contains(file_contents, required, find):
             print("File `%s' does not contain required string." % file)
             print(self.banner('Required string '))
             print(required)
-            print(self.banner('%s contents ' % file))
+            print(self.banner('%s contents ' % fname))
             print(file_contents)
             self.fail_test()
 
     def must_contain_all(self, output, input, title=None, find=None):
-        """Ensures that the specified output string (first argument)
-        contains all of the specified input as a block (second argument).
+        """Ensures the output contains the input text as a block.
 
-        An optional third argument can be used to describe the type
-        of output being searched, and only shows up in failure output.
-
-        An optional fourth argument can be used to supply a different
-        function, of the form "find(output, line)", to use when searching
-        for lines in the output.
+        :param output: the text to search in
+        :type output: str or list[str]
+        :param str input: the text to searh for
+        :param str title: (optional) describe the type of output being
+            searched. Only used in failure reports.
+        :param callable find: (optional) custom search routine. Must take the
+            form "find(output, line)", returning a true value on success
+            and a false value on failure.
         """
         if is_List(output):
             output = os.newline.join(output)
@@ -595,6 +597,9 @@ class TestCommon(TestCmd):
         """
         Post-processes running a subcommand, checking for failure
         status and displaying output appropriately.
+
+        Calls the supplied match function if expected stdout/stderr
+        was supplied.
         """
         if _failed(self, status):
             expect = ''

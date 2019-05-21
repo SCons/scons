@@ -468,6 +468,14 @@ def pass_test(self=None, condition=1, function=None):
 
 def match_exact(lines=None, matches=None, newline=os.sep):
     """
+    Match function using exact match.
+
+    :param lines: regular expression(s) for matching
+    :type lines: str or list[str]
+    :param matches: retrieved output lines
+    :type matches: str or list[str]
+    :param newline: line separator
+    :returns: an object (1) on match, else None, like re.match
     """
 
     if isinstance(lines, bytes) or bytes is str:
@@ -478,30 +486,45 @@ def match_exact(lines=None, matches=None, newline=os.sep):
     if not is_List(matches):
         matches = matches.split(newline)
     if len(lines) != len(matches):
-        return
-    for i in range(len(lines)):
-        if lines[i] != matches[i]:
-            return
+        return None
+    for line, match in zip(lines, matches):
+        if line != match:
+            return None
     return 1
 
 
 def match_caseinsensitive(lines=None, matches=None):
     """
+    Match function using case-insensitive matching.
+
+    :param lines: regular expression(s) for matching
+    :type lines: str or list[str]
+    :param matches: retrieved output lines
+    :type matches: str or list[str]
+    :returns: True or False
+    :returns: an object (1) on match, else None, like re.match
     """
     if not is_List(lines):
         lines = lines.split("\n")
     if not is_List(matches):
         matches = matches.split("\n")
     if len(lines) != len(matches):
-        return
-    for i in range(len(lines)):
-        if lines[i].lower() != matches[i].lower():
-            return
+        return None
+    for line, match in zip(lines, matches):
+        if line != match:
+            return None
     return 1
 
 
 def match_re(lines=None, res=None):
     """
+    Match function using line-by-line regular expression match.
+
+    :param lines: regular expression(s) for matching
+    :type lines: str or list[str]
+    :param res: retrieved output lines
+    :type res: str or list[str]
+    :returns: an object (1) on match, else None, like re.match
     """
     if not is_List(lines):
         # CRs mess up matching (Windows) so split carefully
@@ -510,29 +533,39 @@ def match_re(lines=None, res=None):
         res = res.split("\n")
     if len(lines) != len(res):
         print("match_re: expected %d lines, found %d" % (len(res), len(lines)))
-        return
-    for i in range(len(lines)):
-        s = "^" + res[i] + "$"
+        return None
+    for i, (line, r) in enumerate(zip(lines, res)):
+        s = r"^{}$".format(r)
         try:
             expr = re.compile(s)
         except re.error as e:
             msg = "Regular expression error in %s: %s"
             raise re.error(msg % (repr(s), e.args[0]))
-        if not expr.search(lines[i]):
-            print("match_re: mismatch at line %d:\n  search re='%s'\n  line='%s'" % (
-                i, s, lines[i]))
-            return
+        if not expr.search(line):
+            miss_tmpl = "match_re: mismatch at line {}:\n  search re='{}'\n  line='{}'"
+            print(miss_tmpl.format(i+1, s, line))
+            return None
     return 1
 
 
 def match_re_dotall(lines=None, res=None):
     """
+    Match function using regular expression match.
+
+    Unlike match_re, the arguments are converted to strings (if necessary)
+    and must match exactly.
+
+    :param lines: regular expression(s) for matching
+    :type lines: str or list[str]
+    :param res: retrieved output lines
+    :type res: str or list[str]
+    :returns: a match object, or None as for re.match
     """
     if not isinstance(lines, str):
         lines = "\n".join(lines)
     if not isinstance(res, str):
         res = "\n".join(res)
-    s = "^" + res + "$"
+    s = r"^{}$".format(res)
     try:
         expr = re.compile(s, re.DOTALL)
     except re.error as e:
@@ -1246,6 +1279,7 @@ class TestCmd(object):
 
     def read(self, file, mode='rb', newline=None):
         """Reads and returns the contents of the specified file name.
+
         The file name may be a list, in which case the elements are
         concatenated with the os.path.join() method.  The file is
         assumed to be under the temporary working directory unless it
@@ -1265,6 +1299,7 @@ class TestCmd(object):
 
     def rmdir(self, dir):
         """Removes the specified dir name.
+
         The dir name may be a list, in which case the elements are
         concatenated with the os.path.join() method.  The dir is
         assumed to be under the temporary working directory unless it
@@ -1306,6 +1341,7 @@ class TestCmd(object):
         """Copies the contents of the specified folder srcdir from
         the directory of the called  script, to the current
         working directory.
+
         The srcdir name may be a list, in which case the elements are
         concatenated with the os.path.join() method.  The dstdir is
         assumed to be under the temporary working directory, it gets
@@ -1347,6 +1383,7 @@ class TestCmd(object):
     def file_fixture(self, srcfile, dstfile=None):
         """Copies the file srcfile from the directory of
         the called script, to the current working directory.
+
         The dstfile is assumed to be under the temporary working
         directory unless it is an absolute path name.
         If dstfile is specified its target directory gets created
@@ -1443,6 +1480,7 @@ class TestCmd(object):
     def fix_binary_stream(stream):
         """
         Handle stdout/stderr from popen when we specify universal_newlines = False.
+
         This will read from the pipes in binary mode, not decode the output,
         and not convert line endings to \n.
         We do this because in py3 (3.5) with universal_newlines=True, it will
@@ -1459,7 +1497,7 @@ class TestCmd(object):
             return stream
         # TODO: Run full tests on both platforms and see if this fixes failures
         # It seems that py3.6 still sets text mode if you set encoding.
-        elif sys.version_info[0] == 3:# TODO and sys.version_info[1] < 6:
+        elif sys.version_info[0] == 3:  # TODO and sys.version_info[1] < 6:
             stream = stream.decode('utf-8')
             stream = stream.replace('\r\n', '\n')
         elif sys.version_info[0] == 2:
