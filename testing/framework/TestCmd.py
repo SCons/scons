@@ -497,6 +497,12 @@ def match_caseinsensitive(lines=None, matches=None):
     """
     Match function using case-insensitive matching.
 
+    Only a simplistic comparsion is done, based on lowercasing the
+    strings. This has plenty of holes for unicode data using non-English
+    languages.
+
+    TODO: casefold() is better than lower() if we don't need Py2 support.
+
     :param lines: regular expression(s) for matching
     :type lines: str or list[str]
     :param matches: retrieved output lines
@@ -511,7 +517,7 @@ def match_caseinsensitive(lines=None, matches=None):
     if len(lines) != len(matches):
         return None
     for line, match in zip(lines, matches):
-        if line != match:
+        if line.lower() != match.lower():
             return None
     return 1
 
