@@ -497,9 +497,9 @@ def match_caseinsensitive(lines=None, matches=None):
     """
     Match function using case-insensitive matching.
 
-    Only a simplistic comparsion is done, based on lowercasing the
-    strings. This has plenty of holes for unicode data using non-English
-    languages.
+    Only a simplistic comparison is done, based on lowercasing the
+    strings. This has plenty of holes for unicode data using
+    non-English languages.
 
     TODO: casefold() is better than lower() if we don't need Py2 support.
 
@@ -526,9 +526,9 @@ def match_re(lines=None, res=None):
     """
     Match function using line-by-line regular expression match.
 
-    :param lines: regular expression(s) for matching
+    :param lines: data lines
     :type lines: str or list[str]
-    :param res: retrieved output lines
+    :param res: regular expression(s) for matching
     :type res: str or list[str]
     :returns: an object (1) on match, else None, like re.match
     """
@@ -540,8 +540,8 @@ def match_re(lines=None, res=None):
     if len(lines) != len(res):
         print("match_re: expected %d lines, found %d" % (len(res), len(lines)))
         return None
-    for i, (line, r) in enumerate(zip(lines, res)):
-        s = r"^{}$".format(r)
+    for i, (line, regex) in enumerate(zip(lines, res)):
+        s = r"^{}$".format(regex)
         try:
             expr = re.compile(s)
         except re.error as e:
@@ -549,7 +549,7 @@ def match_re(lines=None, res=None):
             raise re.error(msg % (repr(s), e.args[0]))
         if not expr.search(line):
             miss_tmpl = "match_re: mismatch at line {}:\n  search re='{}'\n  line='{}'"
-            print(miss_tmpl.format(i+1, s, line))
+            print(miss_tmpl.format(i, s, line))
             return None
     return 1
 
@@ -561,9 +561,9 @@ def match_re_dotall(lines=None, res=None):
     Unlike match_re, the arguments are converted to strings (if necessary)
     and must match exactly.
 
-    :param lines: regular expression(s) for matching
+    :param lines: data lines
     :type lines: str or list[str]
-    :param res: retrieved output lines
+    :param res: regular expression(s) for matching
     :type res: str or list[str]
     :returns: a match object, or None as for re.match
     """
@@ -583,9 +583,10 @@ def match_re_dotall(lines=None, res=None):
 def simple_diff(a, b, fromfile='', tofile='',
                 fromfiledate='', tofiledate='', n=3, lineterm='\n'):
     """
-    A function with the same calling signature as difflib.context_diff
-    (diff -c) and difflib.unified_diff (diff -u) but which prints
-    output like the simple, unadorned 'diff" command.
+    Compare a and b (lists of strings); return a delta in simple diff format.
+
+    Similar to difflib.context_diff and difflib.unified_diff but
+    output is like the simple, unadorned 'diff" command.
     """
     a = [to_str(q) for q in a]
     b = [to_str(q) for q in b]
@@ -612,6 +613,8 @@ def simple_diff(a, b, fromfile='', tofile='',
 def diff_re(a, b, fromfile='', tofile='',
             fromfiledate='', tofiledate='', n=3, lineterm='\n'):
     """
+    Compare a and b (lists of strings) where a are regexes.
+
     A simple "diff" of two sets of lines when the expected lines
     are regular expressions.  This is a really dumb thing that
     just compares each line in turn, so it doesn't look for
@@ -624,9 +627,8 @@ def diff_re(a, b, fromfile='', tofile='',
         a = a + [''] * (-diff)
     elif diff > 0:
         b = b + [''] * diff
-    i = 0
-    for aline, bline in zip(a, b):
-        s = "^" + aline + "$"
+    for i, (aline, bline) in enumerate(zip(a, b)):
+        s = r"^{}$".format(aline)
         try:
             expr = re.compile(s)
         except re.error as e:
@@ -637,7 +639,6 @@ def diff_re(a, b, fromfile='', tofile='',
             result.append('< ' + repr(a[i]))
             result.append('---')
             result.append('> ' + repr(b[i]))
-        i = i + 1
     return result
 
 
@@ -1069,7 +1070,7 @@ class TestCmd(object):
             condition = self.condition
         if self._preserve[condition]:
             for dir in self._dirlist:
-                print(u"Preserved directory " + dir + "\n")
+                print(u"Preserved directory " + dir)
         else:
             list = self._dirlist[:]
             list.reverse()
