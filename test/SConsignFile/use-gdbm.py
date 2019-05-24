@@ -37,7 +37,10 @@ test = TestSCons.TestSCons()
 try:
     import gdbm
 except ImportError:
-    test.skip_test('No gdbm in this version of Python; skipping test.\n')
+    try:
+        import dbm.gnu
+    except ImportError:
+        test.skip_test('No gdbm in this version of Python; skipping test.\n')
 
 test.subdir('subdir')
 
@@ -51,8 +54,12 @@ sys.exit(0)
 #
 test.write('SConstruct', """
 import sys
-import gdbm
-SConsignFile('.sconsign', gdbm)
+try:
+    import gdbm
+    SConsignFile('.sconsign', gdbm)
+except ImportError:
+    import dbm.gnu
+    SConsignFile('.sconsign', dbm.gnu)
 B = Builder(action = '%(_python_)s build.py $TARGETS $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'f1.out', source = 'f1.in')
@@ -72,7 +79,7 @@ test.must_exist(test.workpath('.sconsign'))
 test.must_not_exist(test.workpath('.sconsign.dblite'))
 test.must_not_exist(test.workpath('subdir', '.sconsign'))
 test.must_not_exist(test.workpath('subdir', '.sconsign.dblite'))
-  
+
 test.must_match('f1.out', "f1.in\n")
 test.must_match('f2.out', "f2.in\n")
 test.must_match(['subdir', 'f3.out'], "subdir/f3.in\n")

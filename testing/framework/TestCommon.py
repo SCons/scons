@@ -308,15 +308,15 @@ class TestCommon(TestCmd):
             form "find(output, line)", returning a true value on success
             and a false value on failure.
         """
+        file_contents = self.read(fname, mode)
         if 'b' in mode:
             # Python 3: reading a file in binary mode returns a
             # bytes object. We cannot find the index of a different
             # (str) type in that, so convert.
-            required = to_bytes(required)
-        file_contents = self.read(fname, mode)
+            file_contents = to_str(file_contents)
 
         if not contains(file_contents, required, find):
-            print("File `%s' does not contain required string." % file)
+            print("File `%s' does not contain required string." % fname)
             print(self.banner('Required string '))
             print(required)
             print(self.banner('%s contents ' % fname))
@@ -484,13 +484,18 @@ class TestCommon(TestCmd):
         print("Missing one of: `%s'" % "', `".join(missing))
         self.fail_test(missing)
 
-    def must_match(self, file, expect, mode = 'rb', match=None, message=None, newline=None):
+    def must_match(self, fname, expect, mode='rb', match=None, message=None, newline=None):
         """Matches the contents of the specified file (first argument)
         against the expected contents (second argument).  The expected
         contents are a list of lines or a string which will be split
         on newlines.
         """
-        file_contents = self.read(file, mode, newline)
+        file_contents = self.read(fname, mode, newline)
+        if 'b' in mode:
+            # Python 3: reading a file in binary mode returns a
+            # bytes object. We cannot find the index of a different
+            # (str) type in that, so convert.
+            file_contents = to_str(file_contents)
         if not match:
             match = self.match
         try:
@@ -498,20 +503,25 @@ class TestCommon(TestCmd):
         except KeyboardInterrupt:
             raise
         except:
-            print("Unexpected contents of `%s'" % file)
+            print("Unexpected contents of `%s'" % fname)
             self.diff(expect, file_contents, 'contents ')
             raise
 
-    def must_not_contain(self, file, banned, mode = 'rb', find = None):
+    def must_not_contain(self, fname, banned, mode='rb', find=None):
         """Ensures that the specified file doesn't contain the banned text.
         """
-        file_contents = self.read(file, mode)
+        file_contents = self.read(fname, mode)
+        if 'b' in mode:
+            # Python 3: reading a file in binary mode returns a
+            # bytes object. We cannot find the index of a different
+            # (str) type in that, so convert.
+            file_contents = to_str(file_contents)
 
         if contains(file_contents, banned, find):
-            print("File `%s' contains banned string." % file)
+            print("File `%s' contains banned string." % fname)
             print(self.banner('Banned string '))
             print(banned)
-            print(self.banner('%s contents ' % file))
+            print(self.banner('%s contents ' % fname))
             print(file_contents)
             self.fail_test()
 
@@ -656,7 +666,7 @@ class TestCommon(TestCmd):
             sys.stderr.write('Exception trying to execute: %s\n' % cmd_args)
             raise e
 
-    def finish(self, popen, stdout = None, stderr = '', status = 0, **kw):
+    def finish(self, popen, stdout=None, stderr='', status=0, **kw):
         """
         Finishes and waits for the process being run under control of
         the specified popen argument.  Additional arguments are similar
@@ -679,8 +689,8 @@ class TestCommon(TestCmd):
         self._complete(self.stdout(), stdout,
                        self.stderr(), stderr, status, match)
 
-    def run(self, options = None, arguments = None,
-                  stdout = None, stderr = '', status = 0, **kw):
+    def run(self, options=None, arguments=None,
+                  stdout=None, stderr='', status=0, **kw):
         """Runs the program under test, checking that the test succeeded.
 
         The parameters are the same as the base TestCmd.run() method,
@@ -701,9 +711,9 @@ class TestCommon(TestCmd):
                         command.  A value of None means don't
                         test exit status.
 
-        By default, this expects a successful exit (status = 0), does
-        not test standard output (stdout = None), and expects that error
-        output is empty (stderr = "").
+        By default, this expects a successful exit (status=0), does
+        not test standard output (stdout=None), and expects that error
+        output is empty (stderr="").
         """
         kw['arguments'] = self.options_arguments(options, arguments)
         try:

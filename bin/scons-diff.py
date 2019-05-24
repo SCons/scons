@@ -76,8 +76,8 @@ def quiet_diff(a, b, fromfile='', tofile='',
                fromfiledate='', tofiledate='', n=3, lineterm='\n'):
     """
     A function with the same calling signature as difflib.context_diff
-    (diff -c) and difflib.unified_diff (diff -u) but which prints
-    output like the simple, unadorned 'diff" command.
+    (diff -c) and difflib.unified_diff (diff -u) but which produces
+    output like the simple, unadorned 'diff" command with the -q option.
     """
     if a == b:
         return []
@@ -88,7 +88,7 @@ def simple_diff(a, b, fromfile='', tofile='',
                 fromfiledate='', tofiledate='', n=3, lineterm='\n'):
     """
     A function with the same calling signature as difflib.context_diff
-    (diff -c) and difflib.unified_diff (diff -u) but which prints
+    (diff -c) and difflib.unified_diff (diff -u) but which produces
     output like the simple, unadorned 'diff" command.
     """
     sm = difflib.SequenceMatcher(None, a, b)
