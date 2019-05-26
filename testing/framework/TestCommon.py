@@ -109,10 +109,12 @@ try:
     from collections import UserList
 except ImportError:
     # no 'collections' module or no UserList in collections
-    exec('from UserList import UserList')
+    from UserList import UserList
 
 from TestCmd import *
 from TestCmd import __all__
+
+from SCons.Util import to_str
 
 __all__.extend([ 'TestCommon',
                  'exe_suffix',
@@ -499,7 +501,7 @@ class TestCommon(TestCmd):
         if not match:
             match = self.match
         try:
-            self.fail_test(not match(to_str(file_contents), to_str(expect)), message=message)
+            self.fail_test(not match(file_contents, expect), message=message)
         except KeyboardInterrupt:
             raise
         except:
