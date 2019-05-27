@@ -38,7 +38,7 @@ import types
 import unittest
 try:
     from collections import UserList
-except:
+except ImportError:
     from UserList import UserList
 
 from SCons.Util import to_bytes, to_str
