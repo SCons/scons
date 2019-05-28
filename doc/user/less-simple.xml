@@ -2,7 +2,7 @@
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -257,7 +257,7 @@ Program('program', Glob('*.c'))
     (see <xref linkend="chap-variants"></xref>, below)
     and repositories
     (see <xref linkend="chap-repositories"></xref>, below),
-    excluding some files 
+    excluding some files
     and returning strings rather than Nodes.
 
     </para>
@@ -311,7 +311,7 @@ Program('hello', ['hello.c'])
     </para>
 
     <important>
-    
+
     <para>
 
     Although &SCons; functions
@@ -359,7 +359,7 @@ Program('program2', common_sources + ['program2.c'])
     <para>
 
     One drawback to the use of a Python list
-    for source files is that 
+    for source files is that
     each file name must be enclosed in quotes
     (either single quotes or double quotes).
     This can get cumbersome and difficult to read
@@ -675,8 +675,10 @@ env.SharedLibrary('word', 'word.cpp',
 
     <para>
 
-    It is also possible to use the <literal>parse_flags</literal> keyword argument in an
-    override:
+    It is also possible to use the <literal>parse_flags</literal>
+    keyword argument in an override to merge command-line
+    style arguments into the appropriate construction
+    variables (see &f-link-env-MergeFlags;).
 
     </para>
 
@@ -688,7 +690,7 @@ env.SharedLibrary('word', 'word.cpp',
     </para>
 
     <programlisting>
-env = Program('hello', 'hello.c', parse_flags = '-Iinclude -DEBUG -lm')
+env = Program('hello', 'hello.c', parse_flags='-Iinclude -DEBUG -lm')
     </programlisting>
 
     <para>
