@@ -36,11 +36,13 @@ test = TestSCons.TestSCons()
 
 try:
     import gdbm
+    use_dbm = "gdbm"
 except ImportError:
     try:
         import dbm.gnu
+        use_dbm = "dbm.gnu"
     except ImportError:
-        test.skip_test('No gdbm in this version of Python; skipping test.\n')
+        test.skip_test('No GNU dbm in this version of Python; skipping test.\n')
 
 test.subdir('subdir')
 
@@ -54,12 +56,8 @@ sys.exit(0)
 #
 test.write('SConstruct', """
 import sys
-try:
-    import gdbm
-    SConsignFile('.sconsign', gdbm)
-except ImportError:
-    import dbm.gnu
-    SConsignFile('.sconsign', dbm.gnu)
+import %(use_dbm)s
+SConsignFile('.sconsign', %(use_dbm)s)
 B = Builder(action = '%(_python_)s build.py $TARGETS $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'f1.out', source = 'f1.in')
