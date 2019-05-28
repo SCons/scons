@@ -136,13 +136,21 @@ environment:
 # to fine tune the number and platforms tested
 matrix:	
   exclude:	
-    # test python 3.5, 3.6 on Visual Studio 2015 image
+    # test python 3.5 on Visual Studio 2015 image
     - image: Visual Studio 2015	
       WINPYTHON: "Python37"
+    - image: Visual Studio 2015	
+      WINPYTHON: "Python27"
+    - image: Visual Studio 2015	
+      WINPYTHON: "Python36"
 
     # test python 3.6 on Visual Studio 2019 image
     - image: Visual Studio 2019	
+      WINPYTHON: "Python37"
+    - image: Visual Studio 2019	
       WINPYTHON: "Python27"
+    - image: Visual Studio 2019	
+      WINPYTHON: "Python35"
 
     # test python 2.7, 3.7 on Visual Studio 2017 image
     - image: Visual Studio 2017
