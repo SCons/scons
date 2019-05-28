@@ -5,6 +5,7 @@ image:
   # - Ubuntu
   - Visual Studio 2015
   - Visual Studio 2017
+  - Visual Studio 2019
 
 cache:
   - downloads -> appveyor.yml
@@ -138,10 +139,12 @@ matrix:
     # test python 3.5, 3.6 on Visual Studio 2015 image
     - image: Visual Studio 2015	
       WINPYTHON: "Python37"
-    - image: Visual Studio 2015	
+
+    # test python 3.6 on Visual Studio 2019 image
+    - image: Visual Studio 2019	
       WINPYTHON: "Python27"
 
-    # test python 2.7, 3.7 on Visual Studio 2015 image
+    # test python 2.7, 3.7 on Visual Studio 2017 image
     - image: Visual Studio 2017
       WINPYTHON: "Python35"
     - image: Visual Studio 2017	
