@@ -768,12 +768,12 @@ class UtilTestCase(unittest.TestCase):
     def test_LogicalLines(self):
         """Test the LogicalLines class"""
         content = u"""
-foo \
-bar \
+foo \\
+bar \\
 baz
 foo
-bling \
-bling \ bling
+bling \\
+bling \\ bling
 bling
 """
         fobj = io.StringIO(content)
