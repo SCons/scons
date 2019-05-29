@@ -275,7 +275,7 @@ class UtilTestCase(unittest.TestCase):
         assert not is_Dict(())
         assert not is_Dict("")
         if HasUnicode:
-            exec("assert not is_Dict(u'')")
+            exec ("assert not is_Dict(u'')")
 
     def test_is_List(self):
         assert is_List([])
@@ -291,12 +291,12 @@ class UtilTestCase(unittest.TestCase):
         assert not is_List({})
         assert not is_List("")
         if HasUnicode:
-            exec("assert not is_List(u'')")
+            exec ("assert not is_List(u'')")
 
     def test_is_String(self):
         assert is_String("")
         if HasUnicode:
-            exec("assert is_String(u'')")
+            exec ("assert is_String(u'')")
         assert is_String(UserString(''))
         try:
             class mystr(str):
@@ -322,7 +322,7 @@ class UtilTestCase(unittest.TestCase):
         assert not is_Tuple({})
         assert not is_Tuple("")
         if HasUnicode:
-            exec("assert not is_Tuple(u'')")
+            exec ("assert not is_Tuple(u'')")
 
     def test_to_Bytes(self):
         """ Test the to_Bytes method"""
@@ -875,17 +875,18 @@ class flattenTestCase(unittest.TestCase):
     def test_scalar(self):
         """Test flattening a scalar"""
         result = flatten('xyz')
-        self.assertEqual(result,['xyz'], result)
+        self.assertEqual(result, ['xyz'], result)
 
     def test_dictionary_values(self):
         """Test flattening the dictionary values"""
         items = {"a": 1, "b": 2, "c": 3}
         result = flatten(items.values())
-        self.assertEqual(sorted(result),[1,2,3])
+        self.assertEqual(sorted(result), [1, 2, 3])
 
 
 class OsEnviron(object):
     """Used to temporarily mock os.environ"""
+
     def __init__(self, environ):
         self._environ = environ
 
@@ -915,21 +916,21 @@ class get_env_boolTestCase(unittest.TestCase):
         assert var is False, "var should be False, not %s" % repr(var)
 
     def test_true(self):
-        for foo in [ 'TRUE', 'True', 'true',
-                     'YES', 'Yes', 'yes',
-                     'Y', 'y',
-                     'ON', 'On', 'on',
-                     '1', '20', '-1']:
+        for foo in ['TRUE', 'True', 'true',
+                    'YES', 'Yes', 'yes',
+                    'Y', 'y',
+                    'ON', 'On', 'on',
+                    '1', '20', '-1']:
             env = {'FOO': foo}
             var = get_env_bool(env, 'FOO')
             assert var is True, 'var should be True, not %s' % repr(var)
 
     def test_false(self):
-        for foo in [ 'FALSE', 'False', 'false',
-                     'NO', 'No', 'no',
-                     'N', 'n',
-                     'OFF', 'Off', 'off',
-                     '0']:
+        for foo in ['FALSE', 'False', 'false',
+                    'NO', 'No', 'no',
+                    'N', 'n',
+                    'OFF', 'Off', 'off',
+                    '0']:
             env = {'FOO': foo}
             var = get_env_bool(env, 'FOO', True)
             assert var is False, 'var should be True, not %s' % repr(var)
@@ -952,21 +953,21 @@ class get_os_env_boolTestCase(unittest.TestCase):
             assert var is False, "var should be False, not %s" % repr(var)
 
     def test_true(self):
-        for foo in [ 'TRUE', 'True', 'true',
-                     'YES', 'Yes', 'yes',
-                     'Y', 'y',
-                     'ON', 'On', 'on',
-                     '1', '20', '-1']:
+        for foo in ['TRUE', 'True', 'true',
+                    'YES', 'Yes', 'yes',
+                    'Y', 'y',
+                    'ON', 'On', 'on',
+                    '1', '20', '-1']:
             with OsEnviron({'FOO': foo}):
                 var = get_os_env_bool('FOO')
                 assert var is True, 'var should be True, not %s' % repr(var)
 
     def test_false(self):
-        for foo in [ 'FALSE', 'False', 'false',
-                     'NO', 'No', 'no',
-                     'N', 'n',
-                     'OFF', 'Off', 'off',
-                     '0']:
+        for foo in ['FALSE', 'False', 'false',
+                    'NO', 'No', 'no',
+                    'N', 'n',
+                    'OFF', 'Off', 'off',
+                    '0']:
             with OsEnviron({'FOO': foo}):
                 var = get_os_env_bool('FOO', True)
                 assert var is False, 'var should be True, not %s' % repr(var)
