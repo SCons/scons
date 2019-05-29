@@ -1633,7 +1633,7 @@ class TestCmd(object):
             try:
                 os.mkdir(new)
             except OSError as e:
-                print("Got error :%s"%e)
+                print("Got error creating dir:%s :%s"%(sub,e))
                 pass
             else:
                 count = count + 1

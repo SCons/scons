@@ -451,7 +451,9 @@ class VariantDirTestCase(unittest.TestCase):
         # Test against a former bug.  Make sure we can get a repository
         # path for the variant directory itself!
         fs = SCons.Node.FS.FS(test.workpath('work'))
-        test.subdir('work')
+
+        # not needed this subdir is created above near line 188
+        # test.subdir('work')
         fs.VariantDir('build/var3', 'src', duplicate=0)
         d1 = fs.Dir('build/var3')
         r = d1.rdir()
