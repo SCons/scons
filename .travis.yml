@@ -12,7 +12,9 @@ os:
   - linux
 
 install:
+    # needed for Docbook tests, must in virtualenv context
     - pip install lxml
+    # do the rest of the image setup
     - ./.travis/install.sh
 
 # pypy is not passing atm, but still report build success for now
@@ -86,7 +88,7 @@ jobs:
         - PYVER=37
         - PYTHON=3.7
       sudo: required
-      dist: xenial  # required for Python 3.7 (travis-ci/travis-ci#9069)
+      dist: xenial  # required for Python 3.7+ (travis-ci/travis-ci#9069)
 
 
     - &coverage_jobs

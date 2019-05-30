@@ -21,14 +21,15 @@ else
 
     # dependencies for gdc tests
     sudo apt-get -y install gdc
+    # dependencies for fortran tests
+    sudo apt-get -y install gfortran
     # dependencies for docbook tests
-    sudo apt-get -y install docbook-xml xsltproc libxml2-dev libxslt-dev fop docbook-xsl-doc-pdf
+    sudo apt-get -y install docbook-xml xsltproc libxml2-dev libxslt-dev fop docbook-xsl-doc-pdf docbook-xsl
     # dependencies for latex tests (try to skip the huge doc pkgs)
-    sudo apt-get -y --no-install-recommends install texlive texlive-latex3 biber texmaker ghostscript texlive-docbook-xsl texlive-bibtex-extra texlive-latex-extra
+    sudo apt-get -y --no-install-recommends install texlive texlive-latex3 biber texmaker ghostscript texlive-bibtex-extra texlive-latex-extra
     # need some things for building dependencies for other tests
+    # Note nearly all of these already provided by Travis image
     sudo apt-get -y install python-pip python-dev build-essential libpcre3-dev autoconf automake libtool bison subversion git
-    # dependencies for docbook tests continued
-    #sudo pip install lxml
     # dependencies for D tests
     sudo wget http://master.dl.sourceforge.net/project/d-apt/files/d-apt.list -O /etc/apt/sources.list.d/d-apt.list
     wget -qO - https://dlang.org/d-keyring.gpg | sudo apt-key add -
