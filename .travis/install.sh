@@ -24,9 +24,9 @@ else
     # dependencies for fortran tests
     sudo apt-get -y install gfortran
     # dependencies for docbook tests
-    sudo apt-get -y install docbook-xml xsltproc libxml2-dev libxslt-dev fop docbook-xsl-doc-pdf docbook-xsl
+    sudo apt-get -y install docbook-xml xsltproc libxml2-dev libxslt-dev fop docbook-xsl-doc-pdf docbook-xsl docbook-slides
     # dependencies for latex tests (try to skip the huge doc pkgs)
-    sudo apt-get -y --no-install-recommends install texlive texlive-latex3 biber texmaker ghostscript texlive-bibtex-extra texlive-latex-extra
+    sudo apt-get -y --no-install-recommends install texlive texlive-latex3 biber texmaker ghostscript texlive-bibtex-extra texlive-latex-extra texlive-font-utils
     # need some things for building dependencies for other tests
     # Note nearly all of these already provided by Travis image
     sudo apt-get -y install python-pip python-dev build-essential libpcre3-dev autoconf automake libtool bison subversion git
