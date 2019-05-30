@@ -21,8 +21,9 @@ install:
 # allow coverage to fail, so we can still do testing for all platforms
 matrix:
   allow_failures:
-    - python: pypy
-    - python: pypy3
+    - python: pypy2.7-6.0
+    - python: pypy3.5-6.0
+    - python: 3.8-dev
     - stage: Coverage
 
 # run coverage first as its still useful to collect
@@ -48,18 +49,20 @@ jobs:
       script: python runtest.py -a -t -j 2 || if [[ $? == 2 ]]; then true; else false; fi
       before_script: skip
       after_success: skip
-      python: pypy3
+      python: pypy3.5-6.0
       env: 
         - PYVER=pypy3
         - PYTHON=pypy3
       sudo: required
+      dist: xenial
 
     - <<: *test_job
-      python: pypy
+      python: pypy2.7-6.0
       env: 
         - PYVER=pypy
         - PYTHON=pypy
       sudo: required
+      dist: xenial
 
     - <<: *test_job
       python: 2.7
