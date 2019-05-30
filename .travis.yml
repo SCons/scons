@@ -12,6 +12,7 @@ os:
   - linux
 
 install:
+    - pip install lxml
     - ./.travis/install.sh
 
 # pypy is not passing atm, but still report build success for now
