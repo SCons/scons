@@ -43,9 +43,9 @@ if sys.platform != 'win32':
     msg = "Skipping drive-letter test on non-Windows platform '%s'\n" % sys.platform
     test.skip_test(msg)
 
+# start at the end looking for unused drive letter
 bad_drive = None
-for i in range(len(ascii_uppercase)-1, -1, -1):
-    d = ascii_uppercase[i]
+for d in reversed(ascii_uppercase):
     if not os.path.isdir(d + ':' + os.sep):
         bad_drive = d + ':'
         break
