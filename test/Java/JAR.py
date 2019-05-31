@@ -427,7 +427,7 @@ test.must_exist(['listOfLists', 'listsTest', 'com', 'javasource', 'JavaFile3.cla
 test.must_exist(['listOfLists', 'listsTest', 'com', 'resource', 'resource1.txt'])
 test.must_exist(['listOfLists', 'listsTest', 'com', 'resource', 'resource2.txt'])
 test.must_exist(['listOfLists', 'listsTest', 'META-INF', 'MANIFEST.MF'])
-test.must_contain(['listOfLists', 'listsTest', 'META-INF', 'MANIFEST.MF'], b"MyManifestTest: Test" )
+test.must_contain(['listOfLists', 'listsTest', 'META-INF', 'MANIFEST.MF'], "MyManifestTest: Test" )
 
 #######
 # test different style of passing in dirs
