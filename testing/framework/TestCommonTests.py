@@ -1840,7 +1840,7 @@ class run_TestCase(TestCommonTestCase):
         FAILED test of .*fail
         \\tat line \\d+ of .*TestCommon\\.py \\(_complete\\)
         \\tfrom line \\d+ of .*TestCommon\\.py \\(run\\)
-        \\tfrom line \\d+ of <stdin>( \(<module>\))?
+        \\tfrom line \\d+ of <stdin>( \\(<module>\\))?
         """)
         expect_stderr = re.compile(expect_stderr, re.M)
 
@@ -1891,10 +1891,11 @@ class run_TestCase(TestCommonTestCase):
 
         expect_stdout = lstrip("""\
         STDOUT =========================================================================
+        None
         STDERR =========================================================================
         """)
 
-        expect_stderr = lstrip("""\
+        expect_stderr_py2 = lstrip("""\
         Exception trying to execute: \\[%s, '[^']*pass'\\]
         Traceback \\((innermost|most recent call) last\\):
           File "<stdin>", line \\d+, in (\\?|<module>)
@@ -1906,7 +1907,28 @@ class run_TestCase(TestCommonTestCase):
             raise e
         TypeError: forced TypeError
         """ % re.escape(repr(sys.executable)))
-        expect_stderr = re.compile(expect_stderr, re.M)
+
+
+        expect_stderr_py3 = lstrip("""\
+        Exception trying to execute: \\[%s, '[^']*pass'\\]
+        Traceback \\((innermost|most recent call) last\\):
+          File "<stdin>", line \\d+, in (\\?|<module>)
+          File "[^"]+TestCommon.py", line \\d+, in run
+            TestCmd.run\\(self, \\*\\*kw\\)
+          File "[^"]+TestCmd.py", line \\d+, in run
+            .*
+          File "[^"]+TestCommon.py", line \\d+, in start
+            raise e
+          File "[^"]+TestCommon.py", line \\d+, in start
+            .*
+          File "<stdin>", line \\d+, in raise_exception
+        TypeError: forced TypeError
+        """ % re.escape(repr(sys.executable)))
+
+        if TestCmd.IS_PY3:
+            expect_stderr = re.compile(expect_stderr_py3, re.M)
+        else:
+            expect_stderr = re.compile(expect_stderr_py2, re.M)
 
         self.run_execution_test(script, expect_stdout, expect_stderr)
 
@@ -2022,7 +2044,7 @@ class run_TestCase(TestCommonTestCase):
         FAILED test of .*pass
         \\tat line \\d+ of .*TestCommon\\.py \\(_complete\\)
         \\tfrom line \\d+ of .*TestCommon\\.py \\(run\\)
-        \\tfrom line \\d+ of <stdin>( \(<module>\))?
+        \\tfrom line \\d+ of <stdin>( \\(<module>\\))?
         """)
         expect_stderr = re.compile(expect_stderr, re.M)
 
@@ -2052,7 +2074,7 @@ class run_TestCase(TestCommonTestCase):
         FAILED test of .*fail
         \\tat line \\d+ of .*TestCommon\\.py \\(_complete\\)
         \\tfrom line \\d+ of .*TestCommon\\.py \\(run\\)
-        \\tfrom line \\d+ of <stdin>( \(<module>\))?
+        \\tfrom line \\d+ of <stdin>( \\(<module>\\))?
         """)
         expect_stderr = re.compile(expect_stderr, re.M)
 
@@ -2084,7 +2106,7 @@ class run_TestCase(TestCommonTestCase):
         FAILED test of .*pass
         \\tat line \\d+ of .*TestCommon\\.py \\(_complete\\)
         \\tfrom line \\d+ of .*TestCommon\\.py \\(run\\)
-        \\tfrom line \\d+ of <stdin>( \(<module>\))?
+        \\tfrom line \\d+ of <stdin>( \\(<module>\\))?
         """)
         expect_stderr = re.compile(expect_stderr, re.M)
 
@@ -2118,7 +2140,7 @@ class run_TestCase(TestCommonTestCase):
         FAILED test of .*stderr
         \\tat line \\d+ of .*TestCommon\\.py \\(_complete\\)
         \\tfrom line \\d+ of .*TestCommon\\.py \\(run\\)
-        \\tfrom line \\d+ of <stdin>( \(<module>\))?
+        \\tfrom line \\d+ of <stdin>( \\(<module>\\))?
         """)
         expect_stderr = re.compile(expect_stderr, re.M)
 
@@ -2172,7 +2194,11 @@ class run_TestCase(TestCommonTestCase):
         tc.run()
         """)
 
-        self.SIGTERM = signal.SIGTERM
+        try:
+            # PY3: these are enums now
+            self.SIGTERM = signal.SIGTERM.value
+        except AttributeError:
+            self.SIGTERM = signal.SIGTERM
 
         # Script returns the signal value as a negative number.
         expect_stdout = lstrip("""\
