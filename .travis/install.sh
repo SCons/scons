@@ -21,32 +21,40 @@ else
 
     # dependencies for gdc tests
     sudo apt-get -y install gdc
+
     # dependencies for fortran tests
     sudo apt-get -y install gfortran
+
     # dependencies for docbook tests
     sudo apt-get -y install docbook-xml xsltproc libxml2-dev libxslt-dev fop docbook-xsl-doc-pdf docbook-xsl docbook-slides
+
     # dependencies for latex tests (try to skip the huge doc pkgs)
-    sudo apt-get -y --no-install-recommends install texlive texlive-latex3 biber texmaker ghostscript texlive-bibtex-extra texlive-latex-extra texlive-font-utils
+    sudo apt-get -y --no-install-recommends install texlive texlive-latex-recommended texlive-bibtex-extra texlive-latex-extra texlive-font-utils biber texmaker ghostscript
+
     # need some things for building dependencies for other tests
     # Note nearly all of these already provided by Travis image
     sudo apt-get -y install python-pip python-dev build-essential libpcre3-dev autoconf automake libtool bison subversion git
+
     # dependencies for D tests
+    # this got more convoluted with later Ubuntus
     sudo wget http://master.dl.sourceforge.net/project/d-apt/files/d-apt.list -O /etc/apt/sources.list.d/d-apt.list
-    wget -qO - https://dlang.org/d-keyring.gpg | sudo apt-key add -
-    sudo apt-get update && sudo apt-get -y --allow-unauthenticated install dmd-bin
+    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EBCF975E5BA24D5E
+    sudo apt-get update --allow-insecure-repositories && sudo apt-get -y --allow-unauthenticated install --reinstall d-apt-keyring
+    sudo apt-get update && sudo apt-get install dmd-compiler dub
+
     # dependencies for ldc tests
-    wget https://github.com/ldc-developers/ldc/releases/download/v1.4.0/ldc2-1.4.0-linux-x86_64.tar.xz
-    tar xf ldc2-1.4.0-linux-x86_64.tar.xz
-    sudo cp -rf ldc2-1.4.0-linux-x86_64/* /
+    wget https://github.com/ldc-developers/ldc/releases/download/v1.15.0/ldc2-1.15.0-linux-x86_64.tar.xz
+    tar xf ldc2-1.15.0-linux-x86_64.tar.xz
+    sudo cp -rf ldc2-1.15.0-linux-x86_64/* /
 
     ls -l /usr/lib/*python*{so,a}*
 
     # For now skip swig if py27
     #if [[ "$PYVER" == 27 ]]; then
         # dependencies for swig tests
-        wget https://github.com/swig/swig/archive/rel-3.0.12.tar.gz
-        tar xzf rel-3.0.12.tar.gz
-        cd swig-rel-3.0.12 && ./autogen.sh && ./configure --prefix=/usr && make && sudo make install && cd ..
+        wget https://github.com/swig/swig/archive/rel-4.0.0.tar.gz
+        tar xzf rel-4.0.0.tar.gz
+        cd swig-rel-4.0.0 && ./autogen.sh && ./configure --prefix=/usr && make && sudo make install && cd ..
     #fi
 
     which dvipdf
