@@ -44,6 +44,7 @@ import re
 import sys
 import types
 import unittest
+import subprocess
 
 import SCons.Action
 import SCons.Environment
@@ -2273,6 +2274,22 @@ class ObjectContentsTestCase(unittest.TestCase):
         assert c == expected[sys.version_info[:2]], "Got\n" + repr(c) + "\nExpected \n" + "\n" + repr(expected[
             sys.version_info[:2]])
 
+    def test_uncaught_exception_bubbles(self):
+        """Test that _subproc bubbles uncaught exceptions"""
+        try:
+            pobj = SCons.Action._subproc(Environment(),
+                                         None,
+                                         stdin='devnull',
+                                         stderr='devnull',
+                                         stdout=subprocess.PIPE)
+            pobj.wait()
+        except EnvironmentError:
+            pass
+        except Exception:
+            # pass the test
+            return
+
+        raise Exception("expected a non-EnvironmentError exception")
 
 if __name__ == "__main__":
     unittest.main()
