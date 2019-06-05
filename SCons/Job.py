@@ -31,6 +31,7 @@ import SCons.compat
 
 import os
 import signal
+import sys
 
 import SCons.Errors
 import SCons.Warnings
@@ -306,9 +307,9 @@ else:
             """Put task into request queue."""
             self.requestQueue.put(task)
 
-        def get(self):
+        def get(self, block=True):
             """Remove and return a result tuple from the results queue."""
-            return self.resultsQueue.get()
+            return self.resultsQueue.get(block=block)
 
         def preparation_failed(self, task):
             self.resultsQueue.put((task, False))
@@ -379,11 +380,12 @@ else:
             jobs = 0
 
             while True:
-                # Start up as many available tasks as we're
-                # allowed to.
-                while jobs < self.maxjobs:
+
+                # Process jobs until we find one that requires
+                # execution, and enqueue it.
+                while True:
                     task = self.taskmaster.next_task()
-                    if task is None:
+                    if not task:
                         break
 
                     try:
@@ -398,17 +400,41 @@ else:
                             # dispatch task
                             self.tp.put(task)
                             jobs += 1
+                            break
                         else:
                             task.executed()
                             task.postprocess()
 
-                if not task and not jobs: break
+                # If 'task' is true-ish, then we enqueued a new task,
+                # otherwise we didn't. If we didn't enqueue a task and
+                # we don't have any jobs pending, then there is
+                # nothing left to do.
+                if not (task or jobs):
+                    break
 
-                # Let any/all completed tasks finish up before we go
-                # back and put the next batch of tasks on the queue.
-                while True:
-                    task, ok = self.tp.get()
-                    jobs -= 1
+                # If we couldn't find any new tasks requiring
+                # execution, we need to wait for a completion.
+                block = (task is None)
+
+                # If we have reached our quota for outstanding jobs,
+                # we must wait for at least one job to complete before
+                # re-entering the loop above.
+                block |= (jobs == self.maxjobs)
+
+                while jobs:
+                    try:
+                        task, ok = self.tp.get(block=block)
+                        jobs -= 1
+                    except queue.Empty:
+                        # We did a non-blocking wait, but there was
+                        # nothing ready yet. See if we can find another
+                        # task to enqueue. If we can't we will end up
+                        # back in this loop but we will do a blocking
+                        # wait.
+                        break
+
+                    # We don't want to block more than once.
+                    block = False
 
                     if ok:
                         task.executed()
@@ -425,9 +451,6 @@ else:
                         task.failed()
 
                     task.postprocess()
-
-                    if self.tp.resultsQueue.empty():
-                        break
 
             self.tp.cleanup()
             self.taskmaster.cleanup()
