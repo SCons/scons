@@ -372,9 +372,9 @@ class LaTeX(SCons.Scanner.Base):
                     inc_list = include[2].split(',')
                 else:
                     inc_list = include[1].split(',')
-                for j in range(len(inc_list)):
-                    split_includes.append( (inc_type, inc_subdir, inc_list[j]) )
-            #
+                for inc in inc_list:
+                    split_includes.append((inc_type, inc_subdir, inc))
+
             includes = split_includes
             node.includes = includes
 
