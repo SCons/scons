@@ -20,6 +20,7 @@ matrix:
   allow_failures:
     - python: pypy
     - python: pypy3
+    - python: 3.8-dev
     - stage: Coverage
 
 # run coverage first as its still useful to collect
@@ -85,7 +86,15 @@ jobs:
         - PYVER=37
         - PYTHON=3.7
       sudo: required
-      dist: xenial  # required for Python 3.7 (travis-ci/travis-ci#9069)
+      dist: xenial  # required for Python >= 3.7
+
+    - <<: *test_job
+      python: 3.8-dev
+      env: 
+        - PYVER=38
+        - PYTHON=3.8
+      sudo: required
+      dist: xenial  # required for Python >= 3.7
 
 
     - &coverage_jobs
