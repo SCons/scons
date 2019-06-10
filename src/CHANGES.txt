@@ -9,6 +9,10 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Joseph Brill:
+    - Code to supply correct version-specifier argument to vswhere for
+      VS version selection.
+
   From Peter Diener:
     - Additional fix to issue #3135 - Also handle 'pure' and 'elemental' type bound procedures
     - Fix issue #3135 - Handle Fortran submodules and type bound procedures
@@ -48,14 +52,18 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
           def my_decider(dependency, target, prev_ni, repo_node):
       Where repo_node is the repository (or other) node to use to check if the node is out of date instead of dependency.
 
-
-
   From Michael Hartmann:
     - Fix handling of Visual Studio Compilers to properly reject any unknown HOST_PLATFORM or TARGET_PLATFORM
+
+  From Bert Huijben:
+    - Added support for Visual Studio 2019 toolset.
 
   From Mathew Robinson:
     - Update cache debug output to include cache hit rate.
     - No longer unintentionally hide exceptions in Action.py
+
+  From Leonard de Ruijter:
+    - Add logic to derive correct version argument to vswhere
 
   From Lukas Schrangl:
     - Enable LaTeX scanner to find more than one include per line
