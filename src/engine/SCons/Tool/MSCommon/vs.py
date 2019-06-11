@@ -198,6 +198,17 @@ class VisualStudio(object):
 # Tool/MSCommon/vc.py, and the MSVC_VERSION documentation in Tool/msvc.xml.
 
 SupportedVSList = [
+    # Visual Studio 2019
+    VisualStudio('14.2',
+                 vc_version='14.2',
+                 sdk_version='10.0A',
+                 hkeys=[],
+                 common_tools_var='VS160COMNTOOLS',
+                 executable_path=r'Common7\IDE\devenv.com',
+                 batch_file_path=r'VC\Auxiliary\Build\vcvars32.bat',
+                 supported_arch=['x86', 'amd64', "arm"],
+                 ),
+
     # Visual Studio 2017
     VisualStudio('14.1',
                  vc_version='14.1',

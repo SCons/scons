@@ -158,6 +158,8 @@ def get_output(vcbat, args = None, env = None):
         # VS100 and VS110: Still set, but modern MSVC setup scripts will
         # discard these if registry has values.  However Intel compiler setup
         # script still requires these as of 2013/2014.
+        'VS160COMNTOOLS',
+        'VS150COMNTOOLS',
         'VS140COMNTOOLS',
         'VS120COMNTOOLS',
         'VS110COMNTOOLS',
