@@ -13,6 +13,9 @@ os:
   - linux
 
 install:
+  # needed for Docbook tests, must be in virtualenv context
+  - pip install lxml
+  # do the rest of the image setup
   - ./.travis/install.sh
 
 # pypy is not passing atm, but still report build success for now
@@ -21,7 +24,6 @@ matrix:
   allow_failures:
     - python: pypy
     - python: pypy3
-    - python: 3.8-dev
     - stage: Coverage
 
 # run coverage first as its still useful to collect

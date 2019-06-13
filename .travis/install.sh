@@ -22,21 +22,19 @@ else
     # dependencies for gdc tests
     sudo apt-get -y install gdc
     # dependencies for docbook tests
-    sudo apt-get -y install docbook-xml xsltproc libxml2-dev libxslt-dev fop docbook-xsl-doc-pdf
+    sudo apt-get -y install docbook-xml docbook-xsl xsltproc libxml2-dev libxslt-dev fop docbook-xsl-doc-pdf docbook-slides
     # dependencies for latex tests (try to skip the huge doc pkgs)
     sudo apt-get -y --no-install-recommends install texlive texlive-latex3 biber texmaker ghostscript
     # need some things for building dependencies for other tests
     sudo apt-get -y install python-pip python-dev build-essential libpcre3-dev autoconf automake libtool bison subversion git
-    # dependencies for docbook tests continued
-    sudo pip install lxml
     # dependencies for D tests
     sudo wget http://master.dl.sourceforge.net/project/d-apt/files/d-apt.list -O /etc/apt/sources.list.d/d-apt.list
     wget -qO - https://dlang.org/d-keyring.gpg | sudo apt-key add -
     sudo apt-get update && sudo apt-get -y --allow-unauthenticated install dmd-bin
     # dependencies for ldc tests
-    wget https://github.com/ldc-developers/ldc/releases/download/v1.4.0/ldc2-1.4.0-linux-x86_64.tar.xz
-    tar xf ldc2-1.4.0-linux-x86_64.tar.xz
-    sudo cp -rf ldc2-1.4.0-linux-x86_64/* /
+    wget https://github.com/ldc-developers/ldc/releases/download/v1.15.0/ldc2-1.15.0-linux-x86_64.tar.xz
+    tar xf ldc2-1.15.0-linux-x86_64.tar.xz
+    sudo cp -rf ldc2-1.15.0-linux-x86_64/* /
 
     ls -l /usr/lib/*python*{so,a}*
 
