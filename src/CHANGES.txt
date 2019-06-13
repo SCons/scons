@@ -69,6 +69,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Mathew Robinson:
     - Update cache debug output to include cache hit rate.
+    - No longer unintentionally hide exceptions in Action.py
 
 RELEASE 3.0.5 - Mon, 26 Mar 2019 15:04:42 -0700
 

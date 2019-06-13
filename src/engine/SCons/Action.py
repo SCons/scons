@@ -808,7 +808,7 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
     kw['env'] = new_env
 
     try:
-        pobj =  subprocess.Popen(cmd, **kw)
+        pobj = subprocess.Popen(cmd, **kw)
     except EnvironmentError as e:
         if error == 'raise': raise
         # return a dummy Popen instance that only returns error
@@ -826,9 +826,10 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
     finally:
         # clean up open file handles stored in parent's kw
         for k, v in kw.items():
-            if hasattr(v, 'close'):
+            if inspect.ismethod(getattr(v, 'close', None)):
                 v.close()
-        return pobj
+
+    return pobj
 
 
 class CommandAction(_ActionAction):
