@@ -30,9 +30,7 @@ else
     # docbook-slides should be added but triggers GH #3393 so left out for now.
 
     # dependencies for latex tests (try to skip the huge doc pkgs)
-    sudo apt-get -y --no-install-recommends install texlive texlive-latex3 biber texmaker ghostscript
-    # Should add the following, holding off since it slows down provisioning:
-    # texlive-bibtex-extra texlive-latex-extra texlive-font-utils
+    sudo apt-get -y --no-install-recommends install texlive texlive-latex3 biber texmaker ghostscript texlive-bibtex-extra texlive-latex-extra texlive-font-utils
     # texlive-latex3 no longer exists, failover to texlive-latex-recommended
 
     # need some things for building dependencies for other tests
