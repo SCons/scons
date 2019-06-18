@@ -36,10 +36,8 @@ test.subdir('sub')
 
 build_py = r"""
 import sys
-contents = open(sys.argv[2], 'r').read()
-file = open(sys.argv[1], 'w')
-file.write(contents)
-file.close()
+with open(sys.argv[1], 'w') as f, open(sys.argv[2], 'r') as infp:
+    f.write(infp.read())
 """
 test.write('build.py', build_py)
 test.write(['expand_chdir_sub', 'subbuild.py'], build_py)
@@ -48,22 +46,20 @@ test.write('SConstruct', """
 import os
 
 def buildIt(env, target, source):
-    contents = open(str(source[0]), 'r').read()
-    file = open(str(target[0]), 'w')
-    xyzzy = env.get('XYZZY', '')
-    if xyzzy:
-        file.write(xyzzy + '\\n')
-    file.write(contents)
-    file.close()
+    with open(str(target[0]), 'w') as f, open(str(source[0]), 'r') as infp:
+        xyzzy = env.get('XYZZY', '')
+        if xyzzy:
+            f.write(xyzzy + '\\n')
+        f.write(infp.read())
     return 0
 
 def sub(env, target, source):
     target = str(target[0])
     source = str(source[0])
-    t = open(target, 'w')
-    for f in sorted(os.listdir(source)):
-        t.write(open(os.path.join(source, f), 'r').read())
-    t.close()
+    with open(target, 'w') as t:
+        for f in sorted(os.listdir(source)):
+            with open(os.path.join(source, f), 'r') as s:
+                t.write(s.read())
     return 0
 
 env = Environment(COPY_THROUGH_TEMP = r'%(_python_)s build.py .tmp $SOURCE' + '\\n' + r'%(_python_)s build.py $TARGET .tmp',

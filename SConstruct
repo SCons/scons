@@ -8,7 +8,7 @@ from __future__ import print_function
 copyright_years = '2001 - 2019'
 
 # This gets inserted into the man pages to reflect the month of release.
-month_year = 'January 2019'
+month_year = 'March 2019'
 
 #
 # __COPYRIGHT__
@@ -46,16 +46,13 @@ import time
 import socket
 import textwrap
 
-
-
 import bootstrap
 
 project = 'scons'
-default_version = '3.0.4'
+default_version = '3.0.5'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 SConsignFile()
-
 
 #
 # We let the presence or absence of various utilities determine whether
@@ -81,10 +78,15 @@ if not developer:
         developer = os.environ.get(variable)
         if developer:
             break
+    if os.environ.get('SOURCE_DATE_EPOCH'):
+        developer = '_reproducible'
 
 build_system = ARGUMENTS.get('BUILD_SYSTEM')
 if not build_system:
-    build_system = socket.gethostname().split('.')[0]
+    if os.environ.get('SOURCE_DATE_EPOCH'):
+        build_system = '_reproducible'
+    else:
+        build_system = socket.gethostname().split('.')[0]
 
 version = ARGUMENTS.get('VERSION', '')
 if not version:
@@ -94,14 +96,16 @@ git_status_lines = []
 
 if git:
     cmd = "%s ls-files 2> /dev/null" % git
-    git_status_lines = os.popen(cmd, "r").readlines()
+    with os.popen(cmd, "r") as p:
+        git_status_lines = p.readlines()
 
 revision = ARGUMENTS.get('REVISION', '')
 def generate_build_id(revision):
     return revision
 
 if not revision and git:
-    git_hash = os.popen("%s rev-parse HEAD 2> /dev/null" % git, "r").read().strip()
+    with os.popen("%s rev-parse HEAD 2> /dev/null" % git, "r") as p:
+        git_hash = p.read().strip()
     def generate_build_id(revision):
         result = git_hash
         if [l for l in git_status_lines if 'modified' in l]:
@@ -123,9 +127,6 @@ if build_id is None:
         build_id = generate_build_id(revision)
     else:
         build_id = ''
-
-
-python_ver = sys.version[0:3]
 
 #
 # Adding some paths to sys.path, this is mainly needed
@@ -159,7 +160,8 @@ command_line_variables = [
 
     ("BUILD_SYSTEM=",   "The system on which the packages were built.  " +
                         "The default is whatever hostname is returned " +
-                        "by socket.gethostname()."),
+                        "by socket.gethostname(). If SOURCE_DATE_EPOCH " +
+                        "env var is set, '_reproducible' is the default."),
 
     ("CHECKPOINT=",     "The specific checkpoint release being packaged, " +
                         "which will be appended to the VERSION string.  " +
@@ -177,7 +179,9 @@ command_line_variables = [
 
     ("DEVELOPER=",      "The developer who created the packages.  " +
                         "The default is the first set environment " +
-                        "variable from the list $USERNAME, $LOGNAME, $USER."),
+                        "variable from the list $USERNAME, $LOGNAME, $USER." +
+                        "If the SOURCE_DATE_EPOCH env var is set, " +
+                        "'_reproducible' is the default."),
 
     ("REVISION=",       "The revision number of the source being built.  " +
                         "The default is the git hash returned " +
@@ -568,10 +572,9 @@ for p in [ scons ]:
     def write_src_files(target, source, **kw):
         global src_files
         src_files.sort()
-        f = open(str(target[0]), 'w')
-        for file in src_files:
-            f.write(file + "\n")
-        f.close()
+        with open(str(target[0]), 'w') as f:
+            for file in src_files:
+                f.write(file + "\n")
         return 0
     env.Command(os.path.join(build, 'MANIFEST'),
                 MANIFEST_in_list,
@@ -660,14 +663,14 @@ for p in [ scons ]:
         def Digestify(target, source, env):
             import hashlib
             src = source[0].rfile()
-            contents = open(str(src),'rb').read()
+            with open(str(src),'rb') as f:
+                contents = f.read()
             m = hashlib.md5()
             m.update(contents)
             sig = m.hexdigest()
             bytes = os.stat(str(src))[6]
-            open(str(target[0]), 'w').write("MD5 %s %s %d\n" % (sig,
-                                                                src.name,
-                                                                bytes))
+            with open(str(target[0]), 'w') as f:
+                f.write("MD5 %s %s %d\n" % (sig, src.name, bytes))
         env.Command(digest, tar_gz, Digestify)
 
     if not zipit:

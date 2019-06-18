@@ -24,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Verify that sections of LaTeX output that use auxiliary files (a
 bibliography in our configuration below) are consistent when re-run
 after modifying the input file.

@@ -66,11 +66,17 @@ if SCons.Util.case_sensitive_suffixes('.h', '.H'):
 cxx_suffixes = cplusplus.CXXSuffixes
 
 
-#
 def find_platform_specific_qt_paths():
     """
-    If the platform has non-standard paths which it installs QT in,return the likely default path
-    :return:
+    find non-standard QT paths
+
+    If the platform does not put QT tools in standard search paths,
+    the path is expected to be set using QTDIR. SCons violates
+    the normal rule of not pulling from the user's environment
+    in this case.  However, some test cases try to validate what
+    happens when QTDIR is unset, so we need to try to make a guess.
+
+    :return: a guess at a path
     """
 
     # qt_bin_dirs = []
@@ -83,6 +89,7 @@ def find_platform_specific_qt_paths():
             # Centos installs QT under /usr/{lib,lib64}/qt{4,5,-3.3}/bin
             # so we need to handle this differently
             # qt_bin_dirs = glob.glob('/usr/lib64/qt*/bin')
+            # TODO: all current Fedoras do the same, need to look deeper here.
             qt_bin_dir = '/usr/lib64/qt-3.3/bin'
 
     return qt_bin_dir
@@ -97,7 +104,7 @@ def checkMocIncluded(target, source, env):
     # not really sure about the path transformations (moc.cwd? cpp.cwd?) :-/
     path = SCons.Defaults.CScan.path(env, moc.cwd)
     includes = SCons.Defaults.CScan(cpp, env, path)
-    if not moc in includes:
+    if moc not in includes:
         SCons.Warnings.warn(
             GeneratedMocFileNotIncluded,
             "Generated moc file '%s' is not included by '%s'" %
@@ -118,7 +125,7 @@ class _Automoc(object):
 
     def __init__(self, objBuilderName):
         self.objBuilderName = objBuilderName
-        
+
     def __call__(self, target, source, env):
         """
         Smart autoscan function. Gets the list of objects for the Program
@@ -133,25 +140,25 @@ class _Automoc(object):
             debug = int(env.subst('$QT_DEBUG'))
         except ValueError:
             debug = 0
-        
+
         # some shortcuts used in the scanner
         splitext = SCons.Util.splitext
         objBuilder = getattr(env, self.objBuilderName)
-  
+
         # some regular expressions:
         # Q_OBJECT detection
-        q_object_search = re.compile(r'[^A-Za-z0-9]Q_OBJECT[^A-Za-z0-9]') 
+        q_object_search = re.compile(r'[^A-Za-z0-9]Q_OBJECT[^A-Za-z0-9]')
         # cxx and c comment 'eater'
         #comment = re.compile(r'(//.*)|(/\*(([^*])|(\*[^/]))*\*/)')
         # CW: something must be wrong with the regexp. See also bug #998222
         #     CURRENTLY THERE IS NO TEST CASE FOR THAT
-        
+
         # The following is kind of hacky to get builders working properly (FIXME)
         objBuilderEnv = objBuilder.env
         objBuilder.env = env
         mocBuilderEnv = env.Moc.env
         env.Moc.env = env
-        
+
         # make a deep copy for the result; MocH objects will be appended
         out_sources = source[:]
 
@@ -164,7 +171,7 @@ class _Automoc(object):
             cpp = obj.sources[0]
             if not splitext(str(cpp))[1] in cxx_suffixes:
                 if debug:
-                    print("scons: qt: '%s' is no cxx file. Discarded." % str(cpp)) 
+                    print("scons: qt: '%s' is no cxx file. Discarded." % str(cpp))
                 # c or fortran source
                 continue
             #cpp_contents = comment.sub('', cpp.get_text_contents())
@@ -260,7 +267,7 @@ def uicScannerFunc(node, env, path):
     return result
 
 uicScanner = SCons.Scanner.Base(uicScannerFunc,
-                                name = "UicScanner", 
+                                name = "UicScanner",
                                 node_class = SCons.Node.FS.File,
                                 node_factory = SCons.Node.FS.File,
                                 recursive = 0)
@@ -336,7 +343,7 @@ def generate(env):
         mocBld.prefix[cxx] = '$QT_MOCCXXPREFIX'
         mocBld.suffix[cxx] = '$QT_MOCCXXSUFFIX'
 
-    # register the builders 
+    # register the builders
     env['BUILDERS']['Uic'] = uicBld
     env['BUILDERS']['Moc'] = mocBld
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)

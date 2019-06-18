@@ -61,6 +61,8 @@ from . import DeciderNeedsNode
 
 print_duplicate = 0
 
+MD5_TIMESTAMP_DEBUG = False
+
 
 def sconsign_none(node):
     raise NotImplementedError
@@ -280,7 +282,7 @@ def set_duplicate(duplicate):
         'copy' : _copy_func
     }
 
-    if not duplicate in Valid_Duplicates:
+    if duplicate not in Valid_Duplicates:
         raise SCons.Errors.InternalError("The argument of set_duplicate "
                                            "should be in Valid_Duplicates")
     global Link_Funcs
@@ -478,7 +480,7 @@ class EntryProxy(SCons.Util.Proxy):
             return SCons.Subst.SpecialAttrWrapper(r, entry.name + "_posix")
 
     def __get_windows_path(self):
-        """Return the path with \ as the path separator,
+        r"""Return the path with \ as the path separator,
         regardless of platform."""
         if OS_SEP == '\\':
             return self
@@ -529,7 +531,7 @@ class EntryProxy(SCons.Util.Proxy):
         except KeyError:
             try:
                 attr = SCons.Util.Proxy.__getattr__(self, name)
-            except AttributeError as e:
+            except AttributeError:
                 # Raise our own AttributeError subclass with an
                 # overridden __str__() method that identifies the
                 # name of the entry that caused the exception.
@@ -697,13 +699,13 @@ class Base(SCons.Node.Node):
 
     @SCons.Memoize.CountMethodCall
     def stat(self):
-        try: 
+        try:
             return self._memo['stat']
-        except KeyError: 
+        except KeyError:
             pass
-        try: 
+        try:
             result = self.fs.stat(self.get_abspath())
-        except os.error: 
+        except os.error:
             result = None
 
         self._memo['stat'] = result
@@ -717,16 +719,16 @@ class Base(SCons.Node.Node):
 
     def getmtime(self):
         st = self.stat()
-        if st: 
+        if st:
             return st[stat.ST_MTIME]
-        else: 
+        else:
             return None
 
     def getsize(self):
         st = self.stat()
-        if st: 
+        if st:
             return st[stat.ST_SIZE]
-        else: 
+        else:
             return None
 
     def isdir(self):
@@ -1416,7 +1418,7 @@ class FS(LocalFS):
             self.Top.addRepository(d)
 
     def PyPackageDir(self, modulename):
-        """Locate the directory of a given python module name
+        r"""Locate the directory of a given python module name
 
         For example scons might resolve to
         Windows: C:\Python27\Lib\site-packages\scons-2.5.1
@@ -1687,7 +1689,7 @@ class Dir(Base):
         return result
 
     def addRepository(self, dir):
-        if dir != self and not dir in self.repositories:
+        if dir != self and dir not in self.repositories:
             self.repositories.append(dir)
             dir._tpath = '.'
             self.__clearRepositoryCache()
@@ -1727,7 +1729,7 @@ class Dir(Base):
         if self is other:
             result = '.'
 
-        elif not other in self._path_elements:
+        elif other not in self._path_elements:
             try:
                 other_dir = other.get_dir()
             except AttributeError:
@@ -3335,25 +3337,24 @@ class File(Base):
             List of csigs for provided list of children
         """
         prev = []
-        DEBUG = False
+        # MD5_TIMESTAMP_DEBUG = False
 
         if len(dmap) == 0:
-            if DEBUG: print("Nothing dmap shortcutting")
+            if MD5_TIMESTAMP_DEBUG: print("Nothing dmap shortcutting")
             return None
 
-        if DEBUG: print("len(dmap):%d"%len(dmap))
+        if MD5_TIMESTAMP_DEBUG: print("len(dmap):%d"%len(dmap))
         # First try the simple name for node
         c_str = str(self)
-        if DEBUG: print("Checking   :%s"%c_str)
+        if MD5_TIMESTAMP_DEBUG: print("Checking   :%s"%c_str)
         df = dmap.get(c_str, None)
-        if DEBUG: print("-->%s"%df)
         if df:
             return df
-        
+
         if os.altsep:
             c_str = c_str.replace(os.sep, os.altsep)
             df = dmap.get(c_str, None)
-            if DEBUG: print("-->%s"%df)
+            if MD5_TIMESTAMP_DEBUG: print("-->%s"%df)
             if df:
                 return df
 
@@ -3362,14 +3363,14 @@ class File(Base):
                 # this should yield a path which matches what's in the sconsign
                 c_str = self.get_path()
                 df = dmap.get(c_str, None)
-                if DEBUG: print("-->%s"%df)
+                if MD5_TIMESTAMP_DEBUG: print("-->%s"%df)
                 if df:
                     return df
 
                 if os.altsep:
                     c_str = c_str.replace(os.sep, os.altsep)
                     df = dmap.get(c_str, None)
-                    if DEBUG: print("-->%s"%df)
+                    if MD5_TIMESTAMP_DEBUG: print("-->%s"%df)
                     if df:
                         return df
 
@@ -3386,7 +3387,7 @@ class File(Base):
               file and just copy the prev_ni provided.  If the prev_ni
               is wrong. It will propagate it.
               See: https://github.com/SCons/scons/issues/2980
-        
+
         Args:
             self - dependency
             target - target
@@ -3395,7 +3396,7 @@ class File(Base):
                    node to function. So if we detect that it's not passed.
                    we throw DeciderNeedsNode, and caller should handle this and pass node.
 
-        Returns: 
+        Returns:
             Boolean - Indicates if node(File) has changed.
         """
         if node is None:
@@ -3411,22 +3412,26 @@ class File(Base):
             dependency_map = self._build_dependency_map(bi)
             rebuilt = True
 
-        if len(dependency_map) != 0:
-            new_prev_ni = self._get_previous_signatures(dependency_map)
-        else:
-            new_prev_ni = None
-            # print("Empty dependency_map skipping lookup")
-            # If there's no previous dependency_map then there's no
-            # use in checking for timestamp match or content match
-            # So we can shortcut that and return True
-            return True
-        
-        new = self.changed_timestamp_match(target, new_prev_ni)
-        # old = self.changed_timestamp_match(target, prev_ni)
+        if len(dependency_map) == 0:
+            # If there's no dependency map, there's no need to find the
+            # prev_ni as there aren't any
+            # shortcut the rest of the logic
+            if MD5_TIMESTAMP_DEBUG: print("Skipping checks len(dmap)=0")
 
-        # if old != new:
-        #     print("Mismatch self.changed_timestamp_match(%s, prev_ni) old:%s new:%s"%(str(target), old, new))
-        #     new_prev_ni = self._get_previous_signatures(dependency_map)
+            # We still need to get the current file's csig
+            # This should be slightly faster than calling self.changed_content(target, new_prev_ni)
+            self.get_csig()
+            return True
+
+        new_prev_ni = self._get_previous_signatures(dependency_map)
+        new = self.changed_timestamp_match(target, new_prev_ni)
+
+        if MD5_TIMESTAMP_DEBUG:
+            old = self.changed_timestamp_match(target, prev_ni)
+
+            if old != new:
+                print("Mismatch self.changed_timestamp_match(%s, prev_ni) old:%s new:%s"%(str(target), old, new))
+                new_prev_ni = self._get_previous_signatures(dependency_map)
 
 
         if not new:

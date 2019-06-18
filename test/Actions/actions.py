@@ -32,10 +32,9 @@ test = TestSCons.TestSCons()
 
 test.write('build.py', r"""
 import sys
-file = open(sys.argv[1], 'wb')
-file.write((sys.argv[2] + "\n").encode())
-file.write(open(sys.argv[3], 'rb').read())
-file.close
+with open(sys.argv[1], 'wb') as f, open(sys.argv[3], 'rb') as infp:
+    f.write((sys.argv[2] + "\n").encode())
+    f.write(infp.read())
 sys.exit(0)
 """)
 

@@ -43,12 +43,11 @@ opt_string = ''
 for opt, arg in cmd_opts:
     opt_string = opt_string + ' ' + opt
 base_name = os.path.splitext(args[0])[0]
-infile = open(args[0], 'r')
-out_file = open(base_name+'.dvi', 'w')
-out_file.write(opt_string + "\n")
-for l in infile.readlines():
-    if l[0] != '\\':
-        out_file.write(l)
+with open(base_name+'.dvi', 'w') as ofp, open(args[0], 'r') as ifp:
+    ofp.write(opt_string + "\n")
+    for l in ifp.readlines():
+        if l[0] != '\\':
+            ofp.write(l)
 sys.exit(0)
 """)
 

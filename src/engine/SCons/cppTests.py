@@ -817,7 +817,8 @@ class fileTestCase(unittest.TestCase):
         return '\n'.join(map(strip_spaces, lines))
 
     def write(self, file, contents):
-        open(file, 'w').write(self.strip_initial_spaces(contents))
+        with open(file, 'w') as f:
+            f.write(self.strip_initial_spaces(contents))
 
     def test_basic(self):
         """Test basic file inclusion"""

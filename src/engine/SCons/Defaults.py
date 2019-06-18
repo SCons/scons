@@ -193,7 +193,7 @@ def chmod_func(dest, mode):
     SCons.Node.FS.invalidate_node_memos(dest)
     if not SCons.Util.is_List(dest):
         dest = [dest]
-    if SCons.Util.is_String(mode) and not 0 in [i in digits for i in mode]:
+    if SCons.Util.is_String(mode) and 0 not in [i in digits for i in mode]:
         mode = int(mode, 8)
     if not SCons.Util.is_String(mode):
         for element in dest:
@@ -333,8 +333,8 @@ def touch_func(dest):
         if os.path.exists(file):
             atime = os.path.getatime(file)
         else:
-            open(file, 'w')
-            atime = mtime
+            with open(file, 'w'):
+                atime = mtime
         os.utime(file, (atime, mtime))
 
 Touch = ActionFactory(touch_func,
@@ -582,6 +582,7 @@ ConstructionEnvironment = {
     '__DSHLIBVERSIONFLAGS'   : '${__libversionflags(__env__,"DSHLIBVERSION","_DSHLIBVERSIONFLAGS")}',
 
     'TEMPFILE'      : NullCmdGenerator,
+    'TEMPFILEARGJOIN': ' ',
     'Dir'           : Variable_Method_Caller('TARGET', 'Dir'),
     'Dirs'          : Variable_Method_Caller('TARGET', 'Dirs'),
     'File'          : Variable_Method_Caller('TARGET', 'File'),

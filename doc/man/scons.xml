@@ -2043,7 +2043,7 @@ env['BAR'] = 'bar'
 construction variables may also be set or modified by the
 <emphasis>parse_flags</emphasis>
 keyword argument, which applies the
-<emphasis role="bold">ParseFlags</emphasis>
+&f-link-env-MergeFlags;
 method (described below) to the argument value
 after all other processing is completed.
 This is useful either if the exact content of the flags is unknown
@@ -2051,7 +2051,7 @@ This is useful either if the exact content of the flags is unknown
 or if the flags are distributed to a number of construction variables.</para>
 
 <literallayout class="monospaced">
-env = Environment(parse_flags = '-Iinclude -DEBUG -lm')
+env = Environment(parse_flags='-Iinclude -DEBUG -lm')
 </literallayout>
 
 <para>This example adds 'include' to
@@ -2321,12 +2321,12 @@ that are not absolute path names
 <emphasis role="bold">/</emphasis>
 on POSIX systems
 or
-<emphasis role="bold">\fR
+<emphasis role="bold">\</emphasis>
 on Windows systems,
 with or without
 an optional drive letter)
 are interpreted relative to the directory containing the
-SConscript</emphasis>
+<emphasis role="bold">SConscript</emphasis>
 file being read.
 An initial
 <emphasis role="bold">#</emphasis>
@@ -2439,10 +2439,14 @@ see the descriptions of these variables, below, for more information.)</para>
 
 <para>It is also possible to use the
 <emphasis>parse_flags</emphasis>
-keyword argument in an override:</para>
+keyword argument in an override,
+to merge command-line style arguments
+into the appropriate construction variables
+(see &f-link-env-MergeFlags;).
+</para>
 
 <literallayout class="monospaced">
-env = Program('hello', 'hello.c', parse_flags = '-Iinclude -DEBUG -lm')
+env = Program('hello', 'hello.c', parse_flags='-Iinclude -DEBUG -lm')
 </literallayout>
 
 <para>This example adds 'include' to

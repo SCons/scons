@@ -33,6 +33,7 @@ import re
 import types
 import codecs
 import pprint
+import hashlib
 
 PY3 = sys.version_info[0] == 3
 
@@ -656,13 +657,15 @@ except ImportError:
             pass
         RegError = _NoError
 
-WinError = None
+
 # Make sure we have a definition of WindowsError so we can
 # run platform-independent tests of Windows functionality on
 # platforms other than Windows.  (WindowsError is, in fact, an
 # OSError subclass on Windows.)
+
 class PlainWindowsError(OSError):
     pass
+
 try:
     WinError = WindowsError
 except NameError:
@@ -676,7 +679,7 @@ if can_read_reg:
     HKEY_USERS         = hkey_mod.HKEY_USERS
 
     def RegGetValue(root, key):
-        """This utility function returns a value in the registry
+        r"""This utility function returns a value in the registry
         without having to open the key first.  Only available on
         Windows platforms with a version of Python that can read the
         registry.  Returns the same thing as
@@ -883,7 +886,7 @@ def PrependPath(oldpath, newpath, sep = os.pathsep,
         # now we add them only if they are unique
         for path in newpaths:
             normpath = os.path.normpath(os.path.normcase(path))
-            if path and not normpath in normpaths:
+            if path and normpath not in normpaths:
                 paths.append(path)
                 normpaths.append(normpath)
 
@@ -963,7 +966,7 @@ def AppendPath(oldpath, newpath, sep = os.pathsep,
         # now we add them only if they are unique
         for path in newpaths:
             normpath = os.path.normpath(os.path.normcase(path))
-            if path and not normpath in normpaths:
+            if path and normpath not in normpaths:
                 paths.append(path)
                 normpaths.append(normpath)
         paths.reverse()
@@ -999,7 +1002,9 @@ if sys.platform == 'cygwin':
     def get_native_path(path):
         """Transforms an absolute path into a native path for the system.  In
         Cygwin, this converts from a Cygwin path to a Windows one."""
-        return os.popen('cygpath -w ' + path).read().replace('\n', '')
+        with os.popen('cygpath -w ' + path) as p:
+            npath = p.read().replace('\n', '')
+        return npath
 else:
     def get_native_path(path):
         """Transforms an absolute path into a native path for the system.
@@ -1176,10 +1181,13 @@ def unique(s):
 # ASPN: Python Cookbook: Remove duplicates from a sequence
 # First comment, dated 2001/10/13.
 # (Also in the printed Python Cookbook.)
+# This not currently used, in favor of the next function...
 
 def uniquer(seq, idfun=None):
-    if idfun is None:
-        def idfun(x): return x
+    def default_idfun(x):
+        return x
+    if not idfun:
+        idfun = default_idfun
     seen = {}
     result = []
     for item in seq:
@@ -1444,56 +1452,53 @@ def RenameFunction(function, name):
                         function.__defaults__)
 
 
-md5 = False
+if hasattr(hashlib, 'md5'):
+    md5 = True
 
+    def MD5signature(s):
+        """
+        Generate md5 signature of a string
 
-def MD5signature(s):
-    return str(s)
+        :param s: either string or bytes. Normally should be bytes
+        :return: String of hex digits representing the signature
+        """
+        m = hashlib.md5()
 
+        try:
+            m.update(to_bytes(s))
+        except TypeError as e:
+            m.update(to_bytes(str(s)))
 
-def MD5filesignature(fname, chunksize=65536):
-    with open(fname, "rb") as f:
-        result = f.read()
-    return result
+        return m.hexdigest()
 
-try:
-    import hashlib
-except ImportError:
-    pass
-else:
-    if hasattr(hashlib, 'md5'):
-        md5 = True
+    def MD5filesignature(fname, chunksize=65536):
+        """
+        Generate the md5 signature of a file
 
-        def MD5signature(s):
-            """
-            Generate a String of Hex digits representing the md5 signature of the string
-            :param s: either string or bytes. Normally should be bytes
-            :return: String of hex digits
-            """
-            m = hashlib.md5()
-
-            try:
-                m.update(to_bytes(s))
-            except TypeError as e:
-                m.update(to_bytes(str(s)))
-
-            return m.hexdigest()
-
-        def MD5filesignature(fname, chunksize=65536):
-            """
-            :param fname:
-            :param chunksize:
-            :return: String of Hex digits
-            """
-            m = hashlib.md5()
-            f = open(fname, "rb")
+        :param fname: file to hash
+        :param chunksize: chunk size to read
+        :return: String of Hex digits representing the signature
+        """
+        m = hashlib.md5()
+        with open(fname, "rb") as f:
             while True:
                 blck = f.read(chunksize)
                 if not blck:
                     break
                 m.update(to_bytes(blck))
-            f.close()
-            return m.hexdigest()
+        return m.hexdigest()
+else:
+    # if md5 algorithm not available, just return data unmodified
+    # could add alternative signature scheme here
+    md5 = False
+
+    def MD5signature(s):
+        return str(s)
+
+    def MD5filesignature(fname, chunksize=65536):
+        with open(fname, "rb") as f:
+            result = f.read()
+        return result
 
 
 def MD5collect(signatures):
@@ -1507,7 +1512,6 @@ def MD5collect(signatures):
         return signatures[0]
     else:
         return MD5signature(', '.join(signatures))
-
 
 
 def silent_intern(x):
@@ -1533,7 +1537,7 @@ def silent_intern(x):
 class Null(object):
     """ Null objects always and reliably "do nothing." """
     def __new__(cls, *args, **kwargs):
-        if not '_instance' in vars(cls):
+        if '_instance' not in vars(cls):
             cls._instance = super(Null, cls).__new__(cls, *args, **kwargs)
         return cls._instance
     def __init__(self, *args, **kwargs):

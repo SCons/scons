@@ -34,6 +34,7 @@ import os
 import TestRuntest
 
 pythonstring = TestRuntest.pythonstring
+pythonflags = TestRuntest.pythonflags
 test_fail_py = os.path.join('test', 'fail.py')
 test_no_result_py = os.path.join('test', 'no_result.py')
 test_pass_py = os.path.join('test', 'pass.py')
@@ -49,11 +50,11 @@ test.write_no_result_test(['test', 'no_result.py'])
 test.write_passing_test(['test', 'pass.py'])
 
 expect_stdout = """\
-%(pythonstring)s -tt %(test_fail_py)s
+%(pythonstring)s%(pythonflags)s %(test_fail_py)s
 FAILING TEST STDOUT
-%(pythonstring)s -tt %(test_no_result_py)s
+%(pythonstring)s%(pythonflags)s %(test_no_result_py)s
 NO RESULT TEST STDOUT
-%(pythonstring)s -tt %(test_pass_py)s
+%(pythonstring)s%(pythonflags)s %(test_pass_py)s
 PASSING TEST STDOUT
 
 Failed the following test:

@@ -24,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Validate that use of \newglossary in TeX source files causes SCons to
 be aware of the necessary created glossary files.
 
@@ -72,7 +72,7 @@ test.write('newglossary.tex', r"""
 
 \newacronym{gnu}{GNU}{GNU's Not UNIX}
 \makeglossaries
-\glstoctrue 
+\glstoctrue
 %\loadglsentries[\acronymtype]{chapters/acronyms}
 \loadglsentries[symbol]{symbols}
 %\loadglsentries[definition]{defns}
@@ -97,7 +97,7 @@ a definition \gls{defPower}
 
 
 test.write('symbols.tex', r"""
-\newglossaryentry{mel}{name={Microelectronic Fundamentals},description={\nopostdesc},sort=d}  
+\newglossaryentry{mel}{name={Microelectronic Fundamentals},description={\nopostdesc},sort=d}
 \newsym{dynPower}{P_{dyn}}{P}{Dynamic power consumption}{mel}
 
 %\newcommand{\newsym}[5]{\newglossaryentry{#1}{name=\ensuremath{#2},description={\symtab{#2}{#4}},parent={#5},sort={#3}}}

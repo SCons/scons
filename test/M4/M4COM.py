@@ -38,11 +38,11 @@ test = TestSCons.TestSCons()
 
 test.write('mym4.py', """
 import sys
-outfile = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != b'/*m4*/\\n']:
-        outfile.write(l)
+with open(sys.argv[1], 'wb') as ofp:
+    for f in sys.argv[2:]:
+        with open(f, 'rb') as ifp:
+            for l in [l for l in ifp.readlines() if l != b'/*m4*/\\n']:
+                ofp.write(l)
 sys.exit(0)
 """)
 

@@ -44,6 +44,7 @@ import re
 import sys
 import types
 import unittest
+import subprocess
 
 import SCons.Action
 import SCons.Environment
@@ -62,25 +63,28 @@ test = TestCmd.TestCmd(workdir='')
 
 test.write('act.py', """\
 import os, string, sys
-f = open(sys.argv[1], 'w')
-f.write("act.py: '" + "' '".join(sys.argv[2:]) + "'\\n")
-try:
-    if sys.argv[3]:
-        f.write("act.py: '" + os.environ[sys.argv[3]] + "'\\n")
-except:
-    pass
-f.close()
+
+with open(sys.argv[1], 'w') as f:
+    f.write("act.py: '" + "' '".join(sys.argv[2:]) + "'\\n")
+    try:
+        if sys.argv[3]:
+            f.write("act.py: '" + os.environ[sys.argv[3]] + "'\\n")
+    except:
+        pass
+
 if 'ACTPY_PIPE' in os.environ:
     if 'PIPE_STDOUT_FILE' in os.environ:
-         stdout_msg = open(os.environ['PIPE_STDOUT_FILE'], 'r').read()
+         with open(os.environ['PIPE_STDOUT_FILE'], 'r') as f:
+             stdout_msg = f.read()
     else:
          stdout_msg = "act.py: stdout: executed act.py %s\\n" % ' '.join(sys.argv[1:])
     sys.stdout.write( stdout_msg )
     if 'PIPE_STDERR_FILE' in os.environ:
-         stderr_msg = open(os.environ['PIPE_STDERR_FILE'], 'r').read()
+         with open(os.environ['PIPE_STDERR_FILE'], 'r') as f:
+             stderr_msg = f.read()
     else:
          stderr_msg = "act.py: stderr: executed act.py %s\\n" % ' '.join(sys.argv[1:])
-    sys.stderr.write( stderr_msg )
+    sys.stderr.write(stderr_msg)
 sys.exit(0)
 """)
 
@@ -1526,6 +1530,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
             (3, 5): bytearray(b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()'),
             (3, 6): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
+            (3, 8): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
         }
 
         meth_matches = [
@@ -1551,19 +1556,19 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         assert c == func_matches[sys.version_info[:2]], "Got\n" + repr(c) + "\nExpected \n" + repr(
             func_matches[sys.version_info[:2]])
 
-        def f_global(target, source, env, for_signature):
+        def f_global2(target, source, env, for_signature):
             return SCons.Action.Action(GlobalFunc, varlist=['XYZ'])
 
-        def f_local(target, source, env, for_signature):
+        def f_local2(target, source, env, for_signature):
             return SCons.Action.Action(LocalFunc, varlist=['XYZ'])
 
         matches_foo = func_matches[sys.version_info[:2]] + b'foo'
 
-        a = self.factory(f_global)
+        a = self.factory(f_global2)
         c = a.get_contents(target=[], source=[], env=env)
         assert c in matches_foo, repr(c)
 
-        a = self.factory(f_local)
+        a = self.factory(f_local2)
         c = a.get_contents(target=[], source=[], env=env)
         assert c in matches_foo, repr(c)
 
@@ -1704,6 +1709,7 @@ class FunctionActionTestCase(unittest.TestCase):
             (3, 5): bytearray(b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()'),
             (3, 6): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
+            (3, 8): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
 
         }
 
@@ -1712,6 +1718,7 @@ class FunctionActionTestCase(unittest.TestCase):
             (3, 5): bytearray(b'1, 1, 0, 0,(),(),(d\x00\x00S),(),()'),
             (3, 6): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 7): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
+            (3, 8): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
         }
 
         def factory(act, **kw):
@@ -1956,6 +1963,7 @@ class LazyActionTestCase(unittest.TestCase):
             (3, 5): bytearray(b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()'),
             (3, 6): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
+            (3, 8): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
         }
 
         meth_matches = [
@@ -2014,6 +2022,7 @@ class ActionCallerTestCase(unittest.TestCase):
             (3, 5): b'd\x00\x00S',
             (3, 6): b'd\x00S\x00',
             (3, 7): b'd\x00S\x00',
+            (3, 8): b'd\x00S\x00',
 
         }
 
@@ -2214,6 +2223,7 @@ class ObjectContentsTestCase(unittest.TestCase):
             (3, 5): bytearray(b'3, 3, 0, 0,(),(),(|\x00\x00S),(),()'),
             (3, 6): bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),
             (3, 7): bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),
+            (3, 8): bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),
         }
 
         c = SCons.Action._function_contents(func1)
@@ -2239,6 +2249,8 @@ class ObjectContentsTestCase(unittest.TestCase):
                 b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"),
             (3, 7): bytearray(
                 b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"),
+            (3, 8): bytearray(
+                b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"),
         }
 
         assert c == expected[sys.version_info[:2]], "Got\n" + repr(c) + "\nExpected \n" + "\n" + repr(
@@ -2256,11 +2268,28 @@ class ObjectContentsTestCase(unittest.TestCase):
             (3, 5): bytearray(b'0, 0, 0, 0,(Hello, World!),(print),(e\x00\x00d\x00\x00\x83\x01\x00\x01d\x01\x00S)'),
             (3, 6): bytearray(b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'),
             (3, 7): bytearray(b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'),
+            (3, 8): bytearray(b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'),
         }
 
         assert c == expected[sys.version_info[:2]], "Got\n" + repr(c) + "\nExpected \n" + "\n" + repr(expected[
             sys.version_info[:2]])
 
+    def test_uncaught_exception_bubbles(self):
+        """Test that _subproc bubbles uncaught exceptions"""
+        try:
+            pobj = SCons.Action._subproc(Environment(),
+                                         None,
+                                         stdin='devnull',
+                                         stderr='devnull',
+                                         stdout=subprocess.PIPE)
+            pobj.wait()
+        except EnvironmentError:
+            pass
+        except Exception:
+            # pass the test
+            return
+
+        raise Exception("expected a non-EnvironmentError exception")
 
 if __name__ == "__main__":
     unittest.main()

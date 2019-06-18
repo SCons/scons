@@ -65,7 +65,8 @@ env = Environment(CPPPATH=['inc2', include])
 SConscript('variant/SConscript', "env")
 
 def copy(target, source, env):
-    open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
+    with open(str(target[0]), 'wt') as fo, open(str(source[0]), 'rt') as fi:
+        fo.write(fi.read())
 nodep = env.Command('nodeps.c', 'nodeps.in', action=copy)
 env.Program('nodeps', 'nodeps.c')
 

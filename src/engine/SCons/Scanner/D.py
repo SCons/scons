@@ -46,7 +46,7 @@ class D(SCons.Scanner.Classic):
             name = "DScanner",
             suffixes = '$DSUFFIXES',
             path_variable = 'DPATH',
-            regex = '(?:import\s+)([\w\s=,.]+)(?:\s*:[\s\w,=]+)?(?:;)'
+            regex = r'(?:import\s+)([\w\s=,.]+)(?:\s*:[\s\w,=]+)?(?:;)'
         )
 
     def find_include(self, include, source_dir, path):

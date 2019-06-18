@@ -24,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Validate that both .tex and .ltx files can handle a LaTeX-style
 bibliography (by calling $BIBTEX to generate a .bbl file) and
 correctly re-run to resolve undefined references.

@@ -37,9 +37,10 @@ test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
 
 def build(env, target, source):
-    file = open(str(target[0]), 'wb')
-    for s in source:
-        file.write(open(str(s), 'rb').read())
+    with open(str(target[0]), 'wb') as f:
+        for s in source:
+            with open(str(s), 'rb') as infp:
+                f.write(infp.read())
 
 def build2(env, target, source):
     build(env, target, source)

@@ -24,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Verify that we re-run LaTeX after running BibTeX in response to
 changes in a .bib file.
 

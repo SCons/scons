@@ -117,7 +117,7 @@ def normalize_env(env, keys, force=False):
             normenv[k] = copy.deepcopy(env[k])
 
         for k in keys:
-            if k in os.environ and (force or not k in normenv):
+            if k in os.environ and (force or k not in normenv):
                 normenv[k] = os.environ[k]
 
     # This shouldn't be necessary, since the default environment should include system32,
@@ -188,8 +188,10 @@ def get_output(vcbat, args = None, env = None):
     # Use the .stdout and .stderr attributes directly because the
     # .communicate() method uses the threading module on Windows
     # and won't work under Pythons not built with threading.
-    stdout = popen.stdout.read()
-    stderr = popen.stderr.read()
+    with popen.stdout:
+        stdout = popen.stdout.read()
+    with popen.stderr:
+        stderr = popen.stderr.read()
 
     # Extra debug logic, uncomment if necessary
 #     debug('get_output():stdout:%s'%stdout)

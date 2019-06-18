@@ -38,9 +38,13 @@ python = TestSCons.python
 test = TestSCons.TestSCons()
 
 zip = test.detect('ZIP', 'zip')
+tar = test.detect('TAR', 'tar')
 
 if not zip:
     test.skip_test('zip not found, skipping test\n')
+
+if not tar:
+    test.skip_test('tar not found, skipping test\n')
 
 test.subdir('src')
 

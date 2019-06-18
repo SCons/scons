@@ -17,12 +17,13 @@ install:
   # add python and python user-base to path for pip installs
   - cmd: "C:\\%WINPYTHON%\\python.exe --version"
   - cmd: for /F "tokens=*" %%g in ('C:\\%WINPYTHON%\\python.exe -m site --user-site') do (set PYSITEDIR=%%g)
-  - cmd: "set PATH=C:\\%WINPYTHON%;C:\\%WINPYTHON%\\Scripts;C:\\cygwin64\\bin;C:\\msys64;C:\\ProgramData\\chocolatey\\bin;%PATH%"
+  # use mingw 32 bit until #3291 is resolved
+  - cmd: "set PATH=C:\\%WINPYTHON%;C:\\%WINPYTHON%\\Scripts;C:\\ProgramData\\chocolatey\\bin;C:\\MinGW\\bin;C:\\MinGW\\msys\\1.0\\bin;C:\\cygwin\\bin;%PATH%"
   - cmd: "C:\\%WINPYTHON%\\python.exe -m pip install -U --progress-bar off pip setuptools wheel "
   - cmd: "C:\\%WINPYTHON%\\python.exe -m pip install -U --progress-bar off pypiwin32 coverage codecov"
   - cmd: set STATIC_DEPS=true & C:\\%WINPYTHON%\\python.exe -m pip install -U --progress-bar off lxml
   # install 3rd party tools to test with
-  - cmd: choco install --allow-empty-checksums dmd ldc swig vswhere xsltproc
+  - cmd: choco install --allow-empty-checksums dmd ldc swig vswhere xsltproc winflexbison
   - cmd: set
 
   ### LINUX ###
@@ -216,7 +217,7 @@ build_script:
   # Windows run the tests
   # NOTE: running powershell from cmd on purpose because it formats the output
   # correctly
-  - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py --exclude-list exclude_list.txt -f build_tests.txt } else { C:\\%WINPYTHON%\\python.exe runtest.py -j 2 --exclude-list exclude_list.txt -f build_tests.txt }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
+  - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py -j 2 --exclude-list exclude_list.txt -f build_tests.txt } else { C:\\%WINPYTHON%\\python.exe runtest.py -j 2 --exclude-list exclude_list.txt -f build_tests.txt }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
 
   # linux run the tests
   # unset JAVA_TOOL_OPTIONS because newer java prints this to stderr

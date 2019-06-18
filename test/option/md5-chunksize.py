@@ -32,10 +32,8 @@ test = TestSCons.TestSCons()
 
 test.write('build.py', r"""
 import sys
-contents = open(sys.argv[2], 'rb').read()
-file = open(sys.argv[1], 'wb')
-file.write(contents)
-file.close()
+with open(sys.argv[1], 'wb') as f, open(sys.argv[2], 'rb') as infp:
+    f.write(infp.read())
 """)
 
 test.write('SConstruct', """
@@ -107,9 +105,8 @@ DefaultEnvironment(tools=[])
 import os
 def get_stat(target, source, env):
     stat = os.stat(source[0].get_abspath())
-    dest = open(target[0].get_abspath(),'w')
-    dest.write(str(stat))
-    dest.close()
+    with open(target[0].get_abspath(),'w') as dest:
+        dest.write(str(stat))
 env = Environment(tools=[])
 env.Command('test.big', 'SConstruct', 'dd if=/dev/zero of=test.big seek=100 bs=1M count=0 2>/dev/null')
 env.AlwaysBuild('test.big')

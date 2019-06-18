@@ -397,7 +397,7 @@ class _DSPGenerator(object):
         elif SCons.Util.is_List(env['variant']):
             variants = env['variant']
 
-        if 'buildtarget' not in env or env['buildtarget'] == None:
+        if 'buildtarget' not in env or env['buildtarget'] is None:
             buildtarget = ['']
         elif SCons.Util.is_String(env['buildtarget']):
             buildtarget = [env['buildtarget']]
@@ -418,7 +418,7 @@ class _DSPGenerator(object):
             for _ in variants:
                 buildtarget.append(bt)
 
-        if 'outdir' not in env or env['outdir'] == None:
+        if 'outdir' not in env or env['outdir'] is None:
             outdir = ['']
         elif SCons.Util.is_String(env['outdir']):
             outdir = [env['outdir']]
@@ -439,7 +439,7 @@ class _DSPGenerator(object):
             for v in variants:
                 outdir.append(s)
 
-        if 'runfile' not in env or env['runfile'] == None:
+        if 'runfile' not in env or env['runfile'] is None:
             runfile = buildtarget[-1:]
         elif SCons.Util.is_String(env['runfile']):
             runfile = [env['runfile']]
@@ -462,7 +462,7 @@ class _DSPGenerator(object):
 
         self.sconscript = env['MSVSSCONSCRIPT']
 
-        if 'cmdargs' not in env or env['cmdargs'] == None:
+        if 'cmdargs' not in env or env['cmdargs'] is None:
             cmdargs = [''] * len(variants)
         elif SCons.Util.is_String(env['cmdargs']):
             cmdargs = [env['cmdargs']] * len(variants)
@@ -520,7 +520,7 @@ class _DSPGenerator(object):
             config.cmdargs = cmdargs
             config.runfile = runfile
 
-            match = re.match('(.*)\|(.*)', variant)
+            match = re.match(r'(.*)\|(.*)', variant)
             if match:
                 config.variant = match.group(1)
                 config.platform = match.group(2)
@@ -537,7 +537,7 @@ class _DSPGenerator(object):
         self.platforms = []
         for key in list(self.configs.keys()):
             platform = self.configs[key].platform
-            if not platform in self.platforms:
+            if platform not in self.platforms:
                 self.platforms.append(platform)
 
     def Build(self):
@@ -553,16 +553,16 @@ V6DSPHeader = """\
 CFG=%(name)s - Win32 %(confkey)s
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "%(name)s.mak".
-!MESSAGE 
+!MESSAGE
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "%(name)s.mak" CFG="%(name)s - Win32 %(confkey)s"
-!MESSAGE 
+!MESSAGE
 !MESSAGE Possible choices for configuration are:
-!MESSAGE 
+!MESSAGE
 """
 
 class _GenerateV6DSP(_DSPGenerator):
@@ -580,7 +580,7 @@ class _GenerateV6DSP(_DSPGenerator):
         for kind in confkeys:
             self.file.write('!MESSAGE "%s - Win32 %s" (based on "Win32 (x86) External Target")\n' % (name, kind))
 
-        self.file.write('!MESSAGE \n\n')
+        self.file.write('!MESSAGE\n\n')
 
     def PrintProject(self):
         name = self.name
@@ -637,7 +637,7 @@ class _GenerateV6DSP(_DSPGenerator):
                 first = 1
             else:
                 self.file.write('!ELSEIF  "$(CFG)" == "%s - Win32 %s"\n\n' % (name,kind))
-        self.file.write('!ENDIF \n\n')
+        self.file.write('!ENDIF\n\n')
         self.PrintSourceFiles()
         self.file.write('# End Target\n'
                         '# End Project\n')
@@ -645,10 +645,10 @@ class _GenerateV6DSP(_DSPGenerator):
         if self.nokeep == 0:
             # now we pickle some data and add it to the file -- MSDEV will ignore it.
             pdata = pickle.dumps(self.configs,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata).decode()
+            pdata = base64.b64encode(pdata).decode()
             self.file.write(pdata + '\n')
             pdata = pickle.dumps(self.sources,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata).decode()
+            pdata = base64.b64encode(pdata).decode()
             self.file.write(pdata + '\n')
 
     def PrintSourceFiles(self):
@@ -685,11 +685,13 @@ class _GenerateV6DSP(_DSPGenerator):
             return # doesn't exist yet, so can't add anything to configs.
 
         line = dspfile.readline()
+        # skip until marker
         while line:
             if line.find("# End Project") > -1:
                 break
             line = dspfile.readline()
 
+        # read to get configs
         line = dspfile.readline()
         datas = line
         while line and line != '\n':
@@ -707,12 +709,14 @@ class _GenerateV6DSP(_DSPGenerator):
 
         self.configs.update(data)
 
+        # keep reading to get sources
         data = None
         line = dspfile.readline()
         datas = line
         while line and line != '\n':
             line = dspfile.readline()
             datas = datas + line
+        dspfile.close()
 
         # OK, we've found our little pickled cache of data.
         # it has a "# " in front of it, so we strip that.
@@ -917,10 +921,10 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
         if self.nokeep == 0:
             # now we pickle some data and add it to the file -- MSDEV will ignore it.
             pdata = pickle.dumps(self.configs,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata).decode()
+            pdata = base64.b64encode(pdata).decode()
             self.file.write('<!-- SCons Data:\n' + pdata + '\n')
             pdata = pickle.dumps(self.sources,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata).decode()
+            pdata = base64.b64encode(pdata).decode()
             self.file.write(pdata + '-->\n')
 
     def printSources(self, hierarchy, commonprefix):
@@ -998,11 +1002,13 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
             return # doesn't exist yet, so can't add anything to configs.
 
         line = dspfile.readline()
+        # skip until marker
         while line:
             if line.find('<!-- SCons Data:') > -1:
                 break
             line = dspfile.readline()
 
+        # read to get configs
         line = dspfile.readline()
         datas = line
         while line and line != '\n':
@@ -1020,12 +1026,14 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
 
         self.configs.update(data)
 
+        # keep reading to get sources
         data = None
         line = dspfile.readline()
         datas = line
         while line and line != '\n':
             line = dspfile.readline()
             datas = datas + line
+        dspfile.close()
 
         # OK, we've found our little pickled cache of data.
         try:
@@ -1080,7 +1088,7 @@ V10DSPPropertyGroupCondition = """\
 
 V10DSPImportGroupCondition = """\
 \t<ImportGroup Condition="'$(Configuration)|$(Platform)'=='%(variant)s|%(platform)s'" Label="PropertySheets">
-\t\t<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+\t\t<Import Project="$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
 \t</ImportGroup>
 """
 
@@ -1159,7 +1167,7 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
         name = self.name
         confkeys = sorted(self.configs.keys())
 
-        self.file.write('\t<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />\n')
+        self.file.write('\t<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.Default.props" />\n')
 
         toolset = ''
         if 'MSVC_VERSION' in self.env:
@@ -1170,7 +1178,7 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
             platform = self.configs[kind].platform
             self.file.write(V10DSPPropertyGroupCondition % locals())
 
-        self.file.write('\t<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />\n')
+        self.file.write('\t<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.props" />\n')
         self.file.write('\t<ImportGroup Label="ExtensionSettings">\n')
         self.file.write('\t</ImportGroup>\n')
 
@@ -1233,7 +1241,7 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
         self.filters_file.write('</Project>')
         self.filters_file.close()
 
-        self.file.write('\t<Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />\n'
+        self.file.write('\t<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />\n'
                         '\t<ImportGroup Label="ExtensionTargets">\n'
                         '\t</ImportGroup>\n'
                         '</Project>\n')
@@ -1241,10 +1249,10 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
         if self.nokeep == 0:
             # now we pickle some data and add it to the file -- MSDEV will ignore it.
             pdata = pickle.dumps(self.configs,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata).decode()
+            pdata = base64.b64encode(pdata).decode()
             self.file.write('<!-- SCons Data:\n' + pdata + '\n')
             pdata = pickle.dumps(self.sources,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata).decode()
+            pdata = base64.b64encode(pdata).decode()
             self.file.write(pdata + '-->\n')
 
     def printFilters(self, hierarchy, name):
@@ -1428,7 +1436,7 @@ class _GenerateV7DSW(_DSWGenerator):
         def AddConfig(self, variant, dswfile=dswfile):
             config = Config()
 
-            match = re.match('(.*)\|(.*)', variant)
+            match = re.match(r'(.*)\|(.*)', variant)
             if match:
                 config.variant = match.group(1)
                 config.platform = match.group(2)
@@ -1451,7 +1459,7 @@ class _GenerateV7DSW(_DSWGenerator):
         self.platforms = []
         for key in list(self.configs.keys()):
             platform = self.configs[key].platform
-            if not platform in self.platforms:
+            if platform not in self.platforms:
                 self.platforms.append(platform)
 
         def GenerateProjectFilesInfo(self):
@@ -1491,6 +1499,7 @@ class _GenerateV7DSW(_DSWGenerator):
         while line:
             line = dswfile.readline()
             datas = datas + line
+        dswfile.close()
 
         # OK, we've found our little pickled cache of data.
         try:
@@ -1617,7 +1626,7 @@ class _GenerateV7DSW(_DSWGenerator):
         self.file.write('EndGlobal\n')
         if self.nokeep == 0:
             pdata = pickle.dumps(self.configs,PICKLE_PROTOCOL)
-            pdata = base64.encodestring(pdata).decode()
+            pdata = base64.b64encode(pdata).decode()
             self.file.write(pdata)
             self.file.write('\n')
 
@@ -1730,7 +1739,7 @@ def GenerateProject(target, source, env):
     dspfile = builddspfile.srcnode()
 
     # this detects whether or not we're using a VariantDir
-    if not dspfile is builddspfile:
+    if dspfile is not builddspfile:
         try:
             bdsp = open(str(builddspfile), "w+")
         except IOError as detail:
@@ -1738,6 +1747,7 @@ def GenerateProject(target, source, env):
             raise
 
         bdsp.write("This is just a placeholder file.\nThe real project file is here:\n%s\n" % dspfile.get_abspath())
+        bdsp.close()
 
     GenerateDSP(dspfile, source, env)
 
@@ -1745,7 +1755,7 @@ def GenerateProject(target, source, env):
         builddswfile = target[1]
         dswfile = builddswfile.srcnode()
 
-        if not dswfile is builddswfile:
+        if dswfile is not builddswfile:
 
             try:
                 bdsw = open(str(builddswfile), "w+")
@@ -1754,6 +1764,7 @@ def GenerateProject(target, source, env):
                 raise
 
             bdsw.write("This is just a placeholder file.\nThe real workspace file is here:\n%s\n" % dswfile.get_abspath())
+            bdsw.close()
 
         GenerateDSW(dswfile, source, env)
 
@@ -1785,7 +1796,7 @@ def projectEmitter(target, source, env):
         includepath = xmlify(';'.join([str(x) for x in includepath_Dirs]))
         source = source + "; ppdefs:%s incpath:%s"%(preprocdefs, includepath)
 
-        if 'buildtarget' in env and env['buildtarget'] != None:
+        if 'buildtarget' in env and env['buildtarget'] is not None:
             if SCons.Util.is_String(env['buildtarget']):
                 source = source + ' "%s"' % env['buildtarget']
             elif SCons.Util.is_List(env['buildtarget']):
@@ -1799,7 +1810,7 @@ def projectEmitter(target, source, env):
                 try: source = source + ' "%s"' % env['buildtarget'].get_abspath()
                 except AttributeError: raise SCons.Errors.InternalError("buildtarget can be a string, a node, a list of strings or nodes, or None")
 
-        if 'outdir' in env and env['outdir'] != None:
+        if 'outdir' in env and env['outdir'] is not None:
             if SCons.Util.is_String(env['outdir']):
                 source = source + ' "%s"' % env['outdir']
             elif SCons.Util.is_List(env['outdir']):

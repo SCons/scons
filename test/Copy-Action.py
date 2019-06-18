@@ -43,10 +43,10 @@ Execute(Copy(File('d2.out'), 'd2.in'))
 Execute(Copy('d3.out', File('f3.in')))
 def cat(env, source, target):
     target = str(target[0])
-    f = open(target, "w")
-    for src in source:
-        f.write(open(str(src), "r").read())
-    f.close()
+    with open(target, "w") as f:
+        for src in source:
+            with open(str(src), "r") as ifp:
+                f.write(ifp.read())
 Cat = Action(cat)
 env = Environment()
 env.Command('bar.out', 'bar.in', [Cat,

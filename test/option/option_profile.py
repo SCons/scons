@@ -26,17 +26,16 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
 
-if sys.version_info[0] < 3:
-    import io
-    _StringIO = io.StringIO
-    # TODO(2.6):  In 2.6 and beyond, the io.StringIO.write() method
-    # requires unicode strings.  This subclass can probably be removed
-    # when we drop support for Python 2.6.
-    class StringIO(_StringIO):
-        def write(self, s):
-            _StringIO.write(self, unicode(s))
-else:
+# TODO: Fixup StringIO usage when Py2.7 is dropped.
+# cheat a little bit: io.StringIO is "preferred" in Py2.7
+# since it forces you to be explicit about strings (it is unicode-only)
+# It's easier to use the unaware version. Which also doesn't come
+# with a context manager, so use contextlib.closing
+try:
+    from cStringIO import StringIO
+except ImportError:
     from io import StringIO
+import contextlib
 
 import TestSCons
 
@@ -61,14 +60,13 @@ test.must_contain_all_lines(test.stdout(), ['usage: scons [OPTION]'])
 
 try:
     save_stdout = sys.stdout
-    sys.stdout = StringIO()
+    with contextlib.closing(StringIO()) as sys.stdout:
+        stats = pstats.Stats(scons_prof)
+        stats.sort_stats('time')
 
-    stats = pstats.Stats(scons_prof)
-    stats.sort_stats('time')
+        stats.strip_dirs().print_stats()
 
-    stats.strip_dirs().print_stats()
-
-    s = sys.stdout.getvalue()
+        s = sys.stdout.getvalue()
 finally:
     sys.stdout = save_stdout
 
@@ -82,14 +80,13 @@ test.run(arguments = "--profile %s" % scons_prof)
 
 try:
     save_stdout = sys.stdout
-    sys.stdout = StringIO()
+    with contextlib.closing(StringIO()) as sys.stdout:
+        stats = pstats.Stats(scons_prof)
+        stats.sort_stats('time')
 
-    stats = pstats.Stats(scons_prof)
-    stats.sort_stats('time')
+        stats.strip_dirs().print_stats()
 
-    stats.strip_dirs().print_stats()
-
-    s = sys.stdout.getvalue()
+        s = sys.stdout.getvalue()
 finally:
     sys.stdout = save_stdout
 

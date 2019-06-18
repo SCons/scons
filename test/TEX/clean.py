@@ -24,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Check that all auxilary files created by LaTeX are properly cleaned by scons -c.
 """
 

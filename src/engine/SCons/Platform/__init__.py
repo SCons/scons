@@ -47,7 +47,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
 
-import imp
+import importlib
 import os
 import sys
 import tempfile
@@ -101,13 +101,8 @@ def platform_module(name = platform_default()):
             eval(full_name)
         else:
             try:
-                file, path, desc = imp.find_module(name,
-                                        sys.modules['SCons.Platform'].__path__)
-                try:
-                    mod = imp.load_module(full_name, file, path, desc)
-                finally:
-                    if file:
-                        file.close()
+                # the specific platform module is a relative import
+                mod = importlib.import_module("." + name, __name__)
             except ImportError:
                 try:
                     import zipimport
@@ -155,9 +150,9 @@ class TempFileMunge(object):
         env["TEMPFILEPREFIX"] = ''          # (the empty string) PC Lint
 
     You can configure the extension of the temporary file through the
-    TEMPFILEEXTENSION variable, which defaults to '.lnk' (see comments
+    TEMPFILESUFFIX variable, which defaults to '.lnk' (see comments
     in the code below):
-        env["TEMPFILEEXTENSION"] = '.lnt'   # PC Lint
+        env["TEMPFILESUFFIX"] = '.lnt'   # PC Lint
     """
     def __init__(self, cmd, cmdstr = None):
         self.cmd = cmd
@@ -231,8 +226,10 @@ class TempFileMunge(object):
             prefix = '@'
 
         args = list(map(SCons.Subst.quote_spaces, cmd[1:]))
-        os.write(fd, bytearray(" ".join(args) + "\n",'utf-8'))
+        join_char = env.get('TEMPFILEARGJOIN',' ')
+        os.write(fd, bytearray(join_char.join(args) + "\n",'utf-8'))
         os.close(fd)
+
         # XXX Using the SCons.Action.print_actions value directly
         # like this is bogus, but expedient.  This class should
         # really be rewritten as an Action that defines the

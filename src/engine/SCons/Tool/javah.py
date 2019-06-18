@@ -123,9 +123,9 @@ def generate(env):
     java_javah.emitter = emit_java_headers
 
     if env['PLATFORM'] == 'win32':
-        # Ensure that we have a proper path for clang
-        javah = SCons.Tool.find_program_path(env, 'javah',
-                                             default_paths=get_java_install_dirs(env['PLATFORM']))
+        # Ensure that we have a proper path for javah
+        paths = get_java_install_dirs('win32')
+        javah = SCons.Tool.find_program_path(env, 'javah', default_paths=paths)
         if javah:
             javah_bin_dir = os.path.dirname(javah)
             env.AppendENVPath('PATH', javah_bin_dir)

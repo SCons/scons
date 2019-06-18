@@ -37,10 +37,10 @@ test.subdir('work')
 test.write(['work', 'SConstruct'], """
 def cat(env, source, target):
     target = str(target[0])
-    f = open(target, "wb")
-    for src in source:
-        f.write(open(str(src), "rb").read())
-    f.close()
+    with open(target, "wb") as ofp:
+        for src in source:
+            with open(str(src), "rb") as ifp:
+                ofp.write(ifp.read())
 env = Environment(BUILDERS={'Cat':Builder(action=cat)})
 f1 = env.Cat('../file1.out', 'file1.in')
 f2 = env.Cat('../file2.out', ['file2a.in', 'file2b.in'])

@@ -24,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Test creation of a fully-featured TeX document (with bibunit
 driven bibliographies) in a variant_dir.
 

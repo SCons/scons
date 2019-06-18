@@ -37,7 +37,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import math, sys, os.path, glob, string, re
 
 is_windows = sys.platform == 'win32'
-is_win64 = is_windows and (os.environ['PROCESSOR_ARCHITECTURE'] == 'AMD64' or 
+is_win64 = is_windows and (os.environ['PROCESSOR_ARCHITECTURE'] == 'AMD64' or
                            ('PROCESSOR_ARCHITEW6432' in os.environ and
                             os.environ['PROCESSOR_ARCHITEW6432'] == 'AMD64'))
 is_linux = sys.platform.startswith('linux')
@@ -112,11 +112,6 @@ def check_abi(abi):
         raise SCons.Errors.UserError("Intel compiler: Invalid ABI %s, valid values are %s"% \
               (abi, list(valid_abis.keys())))
     return abi
-
-def vercmp(a, b):
-    """Compare strings as floats,
-    but Intel changed Linux naming convention at 9.0"""
-    return cmp(linux_ver_normalize(b), linux_ver_normalize(a))
 
 def get_version_from_list(v, vlist):
     """See if we can match v (string) in vlist (list of strings)
@@ -221,7 +216,7 @@ def get_all_compiler_versions():
         versions = []
         try:
             while i < 100:
-                subkey = SCons.Util.RegEnumKey(k, i) # raises EnvironmentError
+                subkey = SCons.Util.RegEnumKey(k, i) # raises SConsEnvironmentError
                 # Check that this refers to an existing dir.
                 # This is not 100% perfect but should catch common
                 # installation issues like when the compiler was installed
@@ -293,7 +288,7 @@ def get_all_compiler_versions():
             m = re.search(r'([0-9]{0,4})(?:_sp\d*)?\.([0-9][0-9.]*)$', d)
             if m:
                 versions.append("%s.%s"%(m.group(1), m.group(2)))
-            
+
     def keyfunc(str):
         """Given a dot-separated version string, return a tuple of ints representing it."""
         return [int(x) for x in str.split('.')]
@@ -383,7 +378,7 @@ def get_intel_compiler_top(version, abi):
                     top = d
                     break
             return top
-                    
+
         top = find_in_2016style_dir(version) or find_in_2011style_dir(version) or find_in_2010style_dir(version) or find_in_2008style_dir(version)
         # print "INTELC: top=",top
         if not top:

@@ -35,6 +35,7 @@ import sys
 
 import SCons.Action
 import SCons.Warnings
+from SCons.Util import PY3
 
 cache_enabled = True
 cache_debug = False
@@ -46,10 +47,12 @@ def CacheRetrieveFunc(target, source, env):
     t = target[0]
     fs = t.fs
     cd = env.get_CacheDir()
+    cd.requests += 1
     cachedir, cachefile = cd.cachepath(t)
     if not fs.exists(cachefile):
         cd.CacheDebug('CacheRetrieve(%s):  %s not in cache\n', t, cachefile)
         return 1
+    cd.hits += 1
     cd.CacheDebug('CacheRetrieve(%s):  retrieving from %s\n', t, cachefile)
     if SCons.Action.execute_actions:
         if fs.islink(cachefile):
@@ -111,7 +114,7 @@ def CachePushFunc(target, source, env):
             # has beaten us creating the directory.
             if not fs.isdir(cachedir):
                 msg = errfmt % (str(target), cachefile)
-                raise SCons.Errors.EnvironmentError(msg)
+                raise SCons.Errors.SConsEnvironmentError(msg)
 
     try:
         if fs.islink(t.get_internal_path()):
@@ -139,34 +142,97 @@ warned = dict()
 class CacheDir(object):
 
     def __init__(self, path):
+        """
+        Initialize a CacheDir object.
+
+        The cache configuration is stored in the object. It
+        is read from the config file in the supplied path if
+        one exists,  if not the config file is created and
+        the default config is written, as well as saved in the object.
+        """
+        self.requests = 0
+        self.hits = 0
         self.path = path
         self.current_cache_debug = None
         self.debugFP = None
         self.config = dict()
         if path is None:
             return
-        # See if there's a config file in the cache directory. If there is,
-        # use it. If there isn't, and the directory exists and isn't empty,
-        # produce a warning. If the directory doesn't exist or is empty,
-        # write a config file.
+
+        if PY3:
+            self._readconfig3(path)
+        else:
+            self._readconfig2(path)
+
+
+    def _readconfig3(self, path):
+        """
+        Python3 version of reading the cache config.
+
+        If directory or config file do not exist, create.  Take advantage
+        of Py3 capability in os.makedirs() and in file open(): just try
+        the operation and handle failure appropriately.
+
+        Omit the check for old cache format, assume that's old enough
+        there will be none of those left to worry about.
+
+        :param path: path to the cache directory
+        """
+        config_file = os.path.join(path, 'config')
+        try:
+            os.makedirs(path, exist_ok=True)
+        except FileExistsError:
+            pass
+        except OSError:
+            msg = "Failed to create cache directory " + path
+            raise SCons.Errors.EnvironmentError(msg)
+
+        try:
+            with open(config_file, 'x') as config:
+                self.config['prefix_len'] = 2
+                try:
+                    json.dump(self.config, config)
+                except Exception:
+                    msg = "Failed to write cache configuration for " + path
+                    raise SCons.Errors.EnvironmentError(msg)
+        except FileExistsError:
+            try:
+                with open(config_file) as config:
+                    self.config = json.load(config)
+            except ValueError:
+                msg = "Failed to read cache configuration for " + path
+                raise SCons.Errors.EnvironmentError(msg)
+
+
+    def _readconfig2(self, path):
+        """
+        Python2 version of reading cache config.
+
+        See if there is a config file in the cache directory. If there is,
+        use it. If there isn't, and the directory exists and isn't empty,
+        produce a warning. If the directory does not exist or is empty,
+        write a config file.
+
+        :param path: path to the cache directory
+        """
         config_file = os.path.join(path, 'config')
         if not os.path.exists(config_file):
-            # A note: There is a race hazard here, if two processes start and
+            # A note: There is a race hazard here if two processes start and
             # attempt to create the cache directory at the same time. However,
-            # python doesn't really give you the option to do exclusive file
-            # creation (it doesn't even give you the option to error on opening
-            # an existing file for writing...). The ordering of events here
-            # as an attempt to alleviate this, on the basis that it's a pretty
-            # unlikely occurence (it'd require two builds with a brand new cache
+            # Python 2.x does not give you the option to do exclusive file
+            # creation (not even the option to error on opening an existing
+            # file for writing...). The ordering of events here is an attempt
+            # to alleviate this, on the basis that it's a pretty unlikely
+            # occurrence (would require two builds with a brand new cache
             # directory)
-            if os.path.isdir(path) and len(os.listdir(path)) != 0:
+            if os.path.isdir(path) and any(f != "config" for f in os.listdir(path)):
                 self.config['prefix_len'] = 1
                 # When building the project I was testing this on, the warning
                 # was output over 20 times. That seems excessive
                 global warned
                 if self.path not in warned:
                     msg = "Please upgrade your cache by running " +\
-                          " scons-configure-cache.py " +  self.path
+                          "scons-configure-cache.py " +  self.path
                     SCons.Warnings.warn(SCons.Warnings.CacheVersionWarning, msg)
                     warned[self.path] = True
             else:
@@ -177,24 +243,24 @@ class CacheDir(object):
                         # If someone else is trying to create the directory at
                         # the same time as me, bad things will happen
                         msg = "Failed to create cache directory " + path
-                        raise SCons.Errors.EnvironmentError(msg)
-                        
+                        raise SCons.Errors.SConsEnvironmentError(msg)
+
                 self.config['prefix_len'] = 2
                 if not os.path.exists(config_file):
                     try:
                         with open(config_file, 'w') as config:
                             json.dump(self.config, config)
-                    except:
+                    except Exception:
                         msg = "Failed to write cache configuration for " + path
-                        raise SCons.Errors.EnvironmentError(msg)
+                        raise SCons.Errors.SConsEnvironmentError(msg)
         else:
             try:
                 with open(config_file) as config:
                     self.config = json.load(config)
             except ValueError:
                 msg = "Failed to read cache configuration for " + path
-                raise SCons.Errors.EnvironmentError(msg)
-            
+                raise SCons.Errors.SConsEnvironmentError(msg)
+
 
     def CacheDebug(self, fmt, target, cachefile):
         if cache_debug != self.current_cache_debug:
@@ -207,9 +273,19 @@ class CacheDir(object):
             self.current_cache_debug = cache_debug
         if self.debugFP:
             self.debugFP.write(fmt % (target, os.path.split(cachefile)[1]))
+            self.debugFP.write("requests: %d, hits: %d, misses: %d, hit rate: %.2f%%\n" %
+                               (self.requests, self.hits, self.misses, self.hit_ratio))
+
+    @property
+    def hit_ratio(self):
+        return (100.0 * self.hits / self.requests if self.requests > 0 else 100)
+
+    @property
+    def misses(self):
+        return self.requests - self.hits
 
     def is_enabled(self):
-        return cache_enabled and not self.path is None
+        return cache_enabled and self.path is not None
 
     def is_readonly(self):
         return cache_readonly

@@ -43,6 +43,10 @@ from SCons.Platform.virtualenv import ImportVirtualenv
 from SCons.Platform.virtualenv import ignore_virtualenv, enable_virtualenv
 import SCons.Util
 
+CHOCO_DEFAULT_PATH = [
+    r'C:\ProgramData\chocolatey\bin'
+]
+
 try:
     import msvcrt
     import win32api
@@ -189,7 +193,7 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
 
         # actually do the spawn
         try:
-            args = [sh, '/C', escape(' '.join(args)) ]
+            args = [sh, '/C', escape(' '.join(args))]
             ret = spawnve(os.P_WAIT, sh, args, env)
         except OSError as e:
             # catch any error
@@ -203,15 +207,17 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
         # and do clean up stuff
         if stdout is not None and stdoutRedirected == 0:
             try:
-                stdout.write(open( tmpFileStdout, "r" ).read())
-                os.remove( tmpFileStdout )
+                with open(tmpFileStdout, "r" ) as tmp:
+                    stdout.write(tmp.read())
+                os.remove(tmpFileStdout)
             except (IOError, OSError):
                 pass
 
         if stderr is not None and stderrRedirected == 0:
             try:
-                stderr.write(open( tmpFileStderr, "r" ).read())
-                os.remove( tmpFileStderr )
+                with open(tmpFileStderr, "r" ) as tmp:
+                    stderr.write(tmp.read())
+                os.remove(tmpFileStderr)
             except (IOError, OSError):
                 pass
         return ret

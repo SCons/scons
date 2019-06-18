@@ -348,7 +348,7 @@ class LaTeX(SCons.Scanner.Base):
         # Cache the includes list in node so we only scan it once:
         # path_dict = dict(list(path))
         # add option for whitespace (\s) before the '['
-        noopt_cre = re.compile('\s*\[.*$')
+        noopt_cre = re.compile(r'\s*\[.*$')
         if node.includes is not None:
             includes = node.includes
         else:
@@ -372,9 +372,9 @@ class LaTeX(SCons.Scanner.Base):
                     inc_list = include[2].split(',')
                 else:
                     inc_list = include[1].split(',')
-                for j in range(len(inc_list)):
-                    split_includes.append( (inc_type, inc_subdir, inc_list[j]) )
-            #
+                for inc in inc_list:
+                    split_includes.append((inc_type, inc_subdir, inc))
+
             includes = split_includes
             node.includes = includes
 

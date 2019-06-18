@@ -51,13 +51,15 @@ work2_sub3__sconsign = test.workpath('work2', 'sub3', '.sconsign')
 
 SConstruct_contents = """\
 def build1(target, source, env):
-    open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
+    with open(str(target[0]), 'wb') as fo, open(str(source[0]), 'rb') as fi:
+        fo.write(fi.read())
     return None
 
 def build2(target, source, env):
     import os
     import os.path
-    open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
+    with open(str(target[0]), 'wb') as fo, open(str(source[0]), 'rb') as fi:
+        fo.write(fi.read())
     dir, file = os.path.split(str(target[0]))
     os.chmod(dir, 0o555)
     return None
@@ -92,8 +94,10 @@ test.write(['work2', 'SConstruct'], SConstruct_contents)
 
 test.write(['work2', 'foo.in'], "work2/foo.in\n")
 
-pickle.dump({}, open(work2_sub1__sconsign, 'wb'), 1)
-pickle.dump({}, open(work2_sub2__sconsign, 'wb'), 1)
+with open(work2_sub1__sconsign, 'wb') as p:
+    pickle.dump({}, p, 1)
+with open(work2_sub2__sconsign, 'wb') as p:
+    pickle.dump({}, p, 1)
 
 os.chmod(work2_sub1__sconsign, 0o444)
 

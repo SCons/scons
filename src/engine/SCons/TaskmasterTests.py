@@ -1085,6 +1085,7 @@ class TaskmasterTestCase(unittest.TestCase):
         exception_values = [
             "integer division or modulo",
             "integer division or modulo by zero",
+            "integer division by zero",    # PyPy2
         ]
         assert str(exc_value) in exception_values, exc_value
 

@@ -77,11 +77,13 @@ env.Program('hello', 'hello.c',
 test.write('hello.c',"this ain't no c file!\n")
 
 test.write('mycc.py',"""
-open('hello.not_obj', 'w').write('this is no object file!')
+with open('hello.not_obj', 'w') as f:
+    f.write('this is no object file!')
 """)
 
 test.write('mylink.py',"""
-open('hello.not_exe', 'w').write('this is not a program!')
+with open('hello.not_exe', 'w') as f:
+    f.write('this is not a program!')
 """)
 
 test.run(arguments='hello.not_exe')
@@ -107,11 +109,13 @@ env.Program('goodbye', 'goodbye.c',
 test.write('goodbye.c',"this ain't no c file!\n")
 
 test.write('mycc.py',"""
-open('goodbye.not_obj', 'wt').write('this is no object file!')
+with open('goodbye.not_obj', 'wt') as f:
+    f.write('this is no object file!')
 """)
 
 test.write('mylink.py',"""
-open('goodbye.not_exe', 'wt').write('this is not a program!')
+with open('goodbye.not_exe', 'wt') as f:
+    f.write('this is not a program!')
 """)
 
 test.run(arguments='goodbye.not_exe', stderr=None)

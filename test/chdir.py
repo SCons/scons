@@ -91,11 +91,10 @@ other9_f19_in = test.workpath('other9', 'f19.in')
 
 test.write(cat_py, """\
 import sys
-ofp = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    ifp = open(f, 'rb')
-    ofp.write(ifp.read())
-ofp.close
+with open(sys.argv[1], 'wb') as ofp:
+    for f in sys.argv[2:]:
+        with open(f, 'rb') as ifp:
+            ofp.write(ifp.read())
 """)
 
 test.write(['work1', 'SConstruct'], """

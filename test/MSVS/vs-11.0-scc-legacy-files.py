@@ -46,11 +46,11 @@ SConscript_contents = """\
 env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='11.0',
                 CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
                 CPPPATH=['inc1', 'inc2'],
-                MSVS_SCC_LOCAL_PATH='C:\\MyMsVsProjects',
+                MSVS_SCC_LOCAL_PATH=r'C:\\MyMsVsProjects',
                 MSVS_SCC_PROJECT_NAME='Perforce Project')
 
 testsrc = ['test1.cpp', 'test2.cpp']
-testincs = ['sdk_dir\sdk.h']
+testincs = [r'sdk_dir\\sdk.h']
 testlocalincs = ['test.h']
 testresources = ['test.rc']
 testmisc = ['readme.txt']

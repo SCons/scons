@@ -41,10 +41,10 @@ Execute(Mkdir('d1'))
 Execute(Mkdir(Dir('#d1-Dir')))
 def cat(env, source, target):
     target = str(target[0])
-    f = open(target, "wb")
-    for src in source:
-        f.write(open(str(src), "rb").read())
-    f.close()
+    with open(target, "wb") as f:
+        for src in source:
+            with open(str(src), "rb") as ifp:
+                f.write(ifp.read())
 Cat = Action(cat)
 env = Environment()
 env.Command('f2.out', 'f2.in', [Cat, Mkdir("d3")])
@@ -126,14 +126,14 @@ test.write(['work2', 'SConstruct'], """\
 import os
 def catdir(env, source, target):
     target = str(target[0])
-    outfp = open(target, "wb")
-    for src in source:
-        s = str(src)
-        for f in sorted(os.listdir(s)):
-            f = os.path.join(s, f)
-            if os.path.isfile(f):
-                outfp.write(open(f, "rb").read())
-    outfp.close()
+    with open(target, "wb") as outfp:
+        for src in source:
+            s = str(src)
+            for f in sorted(os.listdir(s)):
+                f = os.path.join(s, f)
+                if os.path.isfile(f):
+                    with open(f, "rb") as infp:
+                        outfp.write(infp.read())
 CatDir = Builder(action = catdir)
 env = Environment(BUILDERS = {'CatDir' : CatDir})
 env.Command(Dir('hello'), None, [Mkdir('$TARGET')])

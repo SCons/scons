@@ -37,14 +37,15 @@ test = TestSCons.TestSCons()
 test.write('myfc.py', r"""
 import sys
 def do_file(outf, inf):
-    for line in open(inf, 'rb').readlines():
-        if line[:15] == b"      INCLUDE '":
-            do_file(outf, line[15:-2])
-        else:
-            outf.write(line)
-outf = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    do_file(outf, f)
+    with open(inf, 'rb') as inf:
+        for line in inf.readlines():
+            if line[:15] == b"      INCLUDE '":
+                do_file(outf, line[15:-2])
+            else:
+                outf.write(line)
+with open(sys.argv[1], 'wb') as outf:
+    for f in sys.argv[2:]:
+        do_file(outf, f)
 sys.exit(0)
 """)
 

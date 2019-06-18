@@ -52,11 +52,17 @@ def get_package_info(package_name, pkginfo, pkgchk):
         version = None
         pathname = None
         try:
-            sadm_contents = open('/var/sadm/install/contents', 'r').read()
+            from subprocess import DEVNULL # py3k
+        except ImportError:
+            DEVNULL = open(os.devnull, 'wb')
+
+        try:
+            with open('/var/sadm/install/contents', 'r') as f:
+                sadm_contents = f.read()
         except EnvironmentError:
             pass
         else:
-            sadm_re = re.compile('^(\S*/bin/CC)(=\S*)? %s$' % package_name, re.M)
+            sadm_re = re.compile(r'^(\S*/bin/CC)(=\S*)? %s$' % package_name, re.M)
             sadm_match = sadm_re.search(sadm_contents)
             if sadm_match:
                 pathname = os.path.dirname(sadm_match.group(1))
@@ -64,12 +70,12 @@ def get_package_info(package_name, pkginfo, pkgchk):
         try:
             p = subprocess.Popen([pkginfo, '-l', package_name],
                                  stdout=subprocess.PIPE,
-                                 stderr=open('/dev/null', 'w'))
+                                 stderr=DEVNULL)
         except EnvironmentError:
             pass
         else:
             pkginfo_contents = p.communicate()[0]
-            version_re = re.compile('^ *VERSION:\s*(.*)$', re.M)
+            version_re = re.compile(r'^ *VERSION:\s*(.*)$', re.M)
             version_match = version_re.search(pkginfo_contents)
             if version_match:
                 version = version_match.group(1)
@@ -78,7 +84,7 @@ def get_package_info(package_name, pkginfo, pkgchk):
             try:
                 p = subprocess.Popen([pkgchk, '-l', package_name],
                                      stdout=subprocess.PIPE,
-                                     stderr=open('/dev/null', 'w'))
+                                     stderr=DEVNULL)
             except EnvironmentError:
                 pass
             else:

@@ -24,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Verify that we execute TeX in a subdirectory (if that's where the document
 resides) by checking that all the auxiliary files get created there and
 not in the top-level directory. Test this when variantDir is used
@@ -73,8 +73,8 @@ Hi there.
 \end{document}
 """)
 
-test.write(['docs','content','chapter.tex'], """\
-Sub-document 1
+test.write(['docs','content','chapter.tex'],
+r"""Sub-document 1
 \input{content/subchap}
 
 """)
@@ -87,8 +87,8 @@ Sub-chapter 2
 #test.run(arguments = '.')
 #test.run(arguments = '.', stderr=None, stdout=None)
 
-# next line tests that side effect nodes get disambiguated 
-# and their directories created in a variantDir before 
+# next line tests that side effect nodes get disambiguated
+# and their directories created in a variantDir before
 # the builder tries to populate them and fails
 test.run(arguments = 'build/main.pdf', stderr=None, stdout=None)
 

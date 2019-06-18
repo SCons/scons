@@ -24,6 +24,16 @@ RELEASE VERSION/DATE TO BE FILLED IN LATER
   release and consult the CHANGES.txt file for complete a list of changes
   since last release.  This announcement highlights only the important
   changes.
+    Please note the following important changes since release 3.0.4:
+      - Change the default for AppendENVPath to delete_existing=0, so path
+        order will not be changed, unless explicitly set (Issue #3276)
+      - Add lex construction variable LEXUNISTD for turning off unix headers on windows
+      - Update lex tool to use win_flex on windows if available
+      - Add the textfile tool to the default tool list
+      - The mingw tool now respects SHCCCOMSTR, SHLINKCOMSTR and LDMODULECOMSTR
+      - Add support for finding vswhere under 32 bit Windows installs
+
+
     Please note the following important changes since release 3.0.3:
        - Added TEMPFILESUFFIX to allow user to specify suffix for tempfiles used for long command lines
        - Initial support for ARM architectures with Microsoft Visual Studio 2017. You must set TARGET_ARCH
@@ -1305,6 +1315,3 @@ improve SCons for your needs.
 -- The SCons Development Team
    Gary Oberbrunner and Bill Deegan, maintainers
    Thanks to all the contributors for all your help!
-
-__COPYRIGHT__
-__FILE__ __REVISION__ __DATE__ __DEVELOPER__

@@ -194,7 +194,7 @@ class SConfTestCase(unittest.TestCase):
                         pass
                     def add_post_action(self, *actions):
                         pass
-                    def children(self):
+                    def children(self, scan = 1):
                         return []
                     def get_state(self):
                         return self.state
@@ -298,12 +298,14 @@ int main(void) {
         """Test SConf.TryAction
         """
         def actionOK(target, source, env):
-            open(str(target[0]), "w").write("RUN OK\n")
+            with open(str(target[0]), "w") as f:
+                f.write("RUN OK\n")
             return None
         def actionFAIL(target, source, env):
             return 1
         def actionUnicode(target, source, env):
-            open(str(target[0]), "wb").write('2\302\242\n')
+            with open(str(target[0]), "wb") as f:
+                f.write('2\302\242\n')
             return None
 
 

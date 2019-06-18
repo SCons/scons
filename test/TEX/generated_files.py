@@ -24,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Test creation of a Tex document with generated tex files
 This checks whether the .bbl file is kept as a side effect
 Test creation with pdflatex

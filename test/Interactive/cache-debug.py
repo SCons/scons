@@ -106,6 +106,7 @@ scons>>> Removed foo.out
 scons>>> Touch\("4"\)
 scons>>> Retrieved `foo.out' from cache
 CacheRetrieve\(foo.out\):  retrieving from [0-9A-za-z]+
+requests: [0-9]+, hits: [0-9]+, misses: [0-9]+, hit rate: [0-9]+\.[0-9]{2,}%
 scons>>> Touch\("5"\)
 scons>>> 
 """

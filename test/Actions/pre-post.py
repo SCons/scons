@@ -47,13 +47,11 @@ env = Environment(XXX='bar%(_exe)s')
 
 def before(env, target, source):
     a=str(target[0])
-    f=open(a, "wb")
-    f.write(b"Foo\\n")
-    f.close()
+    with open(a, "wb") as f:
+        f.write(b"Foo\\n")
     os.chmod(a, os.stat(a)[stat.ST_MODE] | stat.S_IXUSR)
-    f=open("before.txt", "ab")
-    f.write((os.path.splitext(str(target[0]))[0] + "\\n").encode())
-    f.close()
+    with open("before.txt", "ab") as f:
+        f.write((os.path.splitext(str(target[0]))[0] + "\\n").encode())
 
 def after(env, target, source):
     t = str(target[0])
@@ -106,9 +104,11 @@ test.must_match(['work3', 'dir', 'file'], "build()\n")
 # work4 start
 test.write(['work4', 'SConstruct'], """\
 def pre_action(target, source, env):
-    open(str(target[0]), 'ab').write(('pre %%s\\n' %% source[0]).encode())
+    with open(str(target[0]), 'ab') as f:
+        f.write(('pre %%s\\n' %% source[0]).encode())
 def post_action(target, source, env):
-    open(str(target[0]), 'ab').write(('post %%s\\n' %% source[0]).encode())
+    with open(str(target[0]), 'ab') as f:
+        f.write(('post %%s\\n' %% source[0]).encode())
 env = Environment()
 o = env.Command(['pre-post', 'file.out'],
                 'file.in',

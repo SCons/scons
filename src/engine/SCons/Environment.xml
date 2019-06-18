@@ -549,7 +549,7 @@ string, in which case a list will be returned instead of a string.
 </para>
 
 <para>
-If 
+If
 <varname>delete_existing</varname>
 is 0, then adding a path that already exists
 will not move it to the end; it will stay where it is in the list.
@@ -588,7 +588,7 @@ then any value(s) that already exist in the
 construction variable will
 <emphasis>not</emphasis>
 be added again to the list.
-However, if delete_existing is 1, 
+However, if delete_existing is 1,
 existing matching values are removed first, so
 existing values in the arg list move to the end of the list.
 </para>
@@ -883,12 +883,14 @@ env4 = env.Clone(tools = ['msvc', MyTool])
 <para>
 The
 <varname>parse_flags</varname>
-keyword argument is also recognized:
+keyword argument is also recognized to allow merging command-line
+style arguments into the appropriate construction
+variables (see &f-link-env-MergeFlags;).
 </para>
 
 <example_commands>
 # create an environment for compiling programs that use wxWidgets
-wx_env = env.Clone(parse_flags = '!wx-config --cflags --cxxflags')
+wx_env = env.Clone(parse_flags='!wx-config --cflags --cxxflags')
 </example_commands>
 </summary>
 </scons_function>
@@ -1880,9 +1882,9 @@ as the dependency.
 </para>
 
 <para>
-Note that this will only remove the dependencies listed from 
-the files built by default.  It will still be built if that 
-dependency is needed by another object being built. 
+Note that this will only remove the dependencies listed from
+the files built by default.  It will still be built if that
+dependency is needed by another object being built.
 See the third and forth examples below.
 </para>
 
@@ -1954,8 +1956,8 @@ not as separate arguments to
 
 <para>
 New values are prepended to the environment variable by default,
-unless prepend=0 is specified.  
-Duplicate values are always eliminated, 
+unless prepend=0 is specified.
+Duplicate values are always eliminated,
 since this function calls
 &f-link-AppendENVPath;
 or
@@ -2294,6 +2296,9 @@ and added to the following construction variables:
 -frameworkdir=      FRAMEWORKPATH
 -include            CCFLAGS
 -isysroot           CCFLAGS, LINKFLAGS
+-isystem            CCFLAGS
+-iquote             CCFLAGS
+-idirafter          CCFLAGS
 -I                  CPPPATH
 -l                  LIBS
 -L                  LIBPATH
@@ -2489,7 +2494,7 @@ then any value(s) that already exist in the
 construction variable will
 <emphasis>not</emphasis>
 be added again to the list.
-However, if delete_existing is 1, 
+However, if delete_existing is 1,
 existing matching values are removed first, so
 existing values in the arg list move to the front of the list.
 </para>

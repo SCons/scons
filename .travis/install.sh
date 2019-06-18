@@ -23,8 +23,8 @@ else
     sudo apt-get -y install gdc
     # dependencies for docbook tests
     sudo apt-get -y install docbook-xml xsltproc libxml2-dev libxslt-dev fop docbook-xsl-doc-pdf
-    # dependencies for latex tests
-    sudo apt-get -y install texlive texlive-latex3 biber texmaker
+    # dependencies for latex tests (try to skip the huge doc pkgs)
+    sudo apt-get -y --no-install-recommends install texlive texlive-latex3 biber texmaker ghostscript
     # need some things for building dependencies for other tests
     sudo apt-get -y install python-pip python-dev build-essential libpcre3-dev autoconf automake libtool bison subversion git
     # dependencies for docbook tests continued
@@ -47,4 +47,6 @@ else
         tar xzf rel-3.0.12.tar.gz
         cd swig-rel-3.0.12 && ./autogen.sh && ./configure --prefix=/usr && make && sudo make install && cd ..
     fi
+
+    which dvipdf
 fi

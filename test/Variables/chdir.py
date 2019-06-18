@@ -52,7 +52,9 @@ print("VARIABLE = "+repr(env['VARIABLE']))
 test.write(['bin', 'opts.cfg'], """\
 import os
 os.chdir(os.path.split(__name__)[0])
-exec(open('opts2.cfg', 'r').read())
+with open('opts2.cfg', 'r') as f:
+    contents = f.read()
+exec(contents)
 """)
 
 test.write(['bin', 'opts2.cfg'], """\

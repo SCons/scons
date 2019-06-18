@@ -40,6 +40,7 @@ test.subdir('test', ['test', 'subdir'])
 
 files = {}
 files['pythonstring'] = TestRuntest.pythonstring
+files['pythonflags'] = TestRuntest.pythonflags
 
 files['one'] = os.path.join('test/subdir', 'test_one.py')
 files['two'] = os.path.join('test/subdir', 'two.py')
@@ -50,9 +51,9 @@ test.write_passing_test(files['two'])
 test.write_passing_test(files['three'])
 
 expect_stdout = """\
-%(pythonstring)s -tt %(one)s
+%(pythonstring)s%(pythonflags)s %(one)s
 PASSING TEST STDOUT
-%(pythonstring)s -tt %(two)s
+%(pythonstring)s%(pythonflags)s %(two)s
 PASSING TEST STDOUT
 """ % files
 

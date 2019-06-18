@@ -608,7 +608,7 @@ class SubstitutionEnvironment(object):
         Removes the specified function's MethodWrapper from the
         added_methods list, so we don't re-bind it when making a clone.
         """
-        self.added_methods = [dm for dm in self.added_methods if not dm.method is function]
+        self.added_methods = [dm for dm in self.added_methods if dm.method is not function]
 
     def Override(self, overrides):
         """
@@ -719,6 +719,12 @@ class SubstitutionEnvironment(object):
                    elif append_next_arg_to == '-isystem':
                        t = ('-isystem', arg)
                        dict['CCFLAGS'].append(t)
+                   elif append_next_arg_to == '-iquote':
+                       t = ('-iquote', arg)
+                       dict['CCFLAGS'].append(t)
+                   elif append_next_arg_to == '-idirafter':
+                       t = ('-idirafter', arg)
+                       dict['CCFLAGS'].append(t)
                    elif append_next_arg_to == '-arch':
                        t = ('-arch', arg)
                        dict['CCFLAGS'].append(t)
@@ -791,7 +797,7 @@ class SubstitutionEnvironment(object):
                 elif arg[0] == '+':
                     dict['CCFLAGS'].append(arg)
                     dict['LINKFLAGS'].append(arg)
-                elif arg in ['-include', '-isysroot', '-isystem', '-arch']:
+                elif arg in ['-include', '-isysroot', '-isystem', '-iquote', '-idirafter', '-arch']:
                     append_next_arg_to = arg
                 else:
                     dict['CCFLAGS'].append(arg)
@@ -1342,7 +1348,7 @@ class Base(SubstitutionEnvironment):
                             dk = list(filter(lambda x, val=val: x not in val, dk))
                             self._dict[key] = dk + [val]
                         else:
-                            if not val in dk:
+                            if val not in dk:
                                 self._dict[key] = dk + [val]
                 else:
                     if key == 'CPPDEFINES':
@@ -1568,12 +1574,12 @@ class Base(SubstitutionEnvironment):
         """
         filename = self.subst(filename)
         try:
-            fp = open(filename, 'r')
+            with open(filename, 'r') as fp:
+                lines = SCons.Util.LogicalLines(fp).readlines()
         except IOError:
             if must_exist:
                 raise
             return
-        lines = SCons.Util.LogicalLines(fp).readlines()
         lines = [l for l in lines if l[0] != '#']
         tdlist = []
         for line in lines:
@@ -1722,7 +1728,7 @@ class Base(SubstitutionEnvironment):
                         dk = [x for x in dk if x not in val]
                         self._dict[key] = [val] + dk
                     else:
-                        if not val in dk:
+                        if val not in dk:
                             self._dict[key] = [val] + dk
                 else:
                     if delete_existing:
@@ -2371,6 +2377,7 @@ class OverrideEnvironment(Base):
     def Replace(self, **kw):
         kw = copy_non_reserved_keywords(kw)
         self.__dict__['overrides'].update(semi_deepcopy(kw))
+
 
 # The entry point that will be used by the external world
 # to refer to a construction environment.  This allows the wrapper

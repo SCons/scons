@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 #
 # __COPYRIGHT__
@@ -25,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Test that the $PDFLATEXCOMSTR construction variable allows you to configure
 the C compilation output.
 """

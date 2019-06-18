@@ -35,20 +35,22 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', """
 def cat(target, source, env):
     target = str(target[0])
-    f = open(target, "wb")
-    for src in source:
-        f.write(open(str(src), "rb").read())
-    f.close()
+    with open(target, "wb") as f:
+        for src in source:
+            with open(str(src), "rb") as ifp:
+                f.write(ifp.read())
 
 def foo(target, source, env):
     target = list(map(str, target))
     source = list(map(str, source))
-    open('foo', 'wb').write(bytearray("foo(%s, %s)\\n" % (target, source),'utf-8'))
+    with open('foo', 'wb') as f:
+        f.write(bytearray("foo(%s, %s)\\n" % (target, source),'utf-8'))
 
 def bar(target, source, env):
     target = list(map(str, target))
     source = list(map(str, source))
-    open('bar', 'wb').write(bytearray("bar(%s, %s)\\n" % (target, source),'utf-8'))
+    with open('bar', 'wb') as f:
+        f.write(bytearray("bar(%s, %s)\\n" % (target, source),'utf-8'))
 
 env = Environment(BUILDERS = {'Cat':Builder(action=cat)})
 env.Alias(target = ['build-f1'], source = 'f1.out', action = foo)

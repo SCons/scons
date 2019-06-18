@@ -37,7 +37,8 @@ test = TestSCons.TestSCons()
 test.write("wrapper.py",
 """import os
 import sys
-open('%s', 'wb').write(("wrapper.py\\n").encode())
+with open('%s', 'wb') as f:
+    f.write(("wrapper.py\\n").encode())
 args = [s for s in sys.argv[1:] if s != 'fake_shlink_flag']
 os.system(" ".join(args))
 """ % test.workpath('wrapper.out').replace('\\', '\\\\'))

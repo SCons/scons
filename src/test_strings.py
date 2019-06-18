@@ -98,7 +98,8 @@ class Checker(object):
             for fname in filenames:
                 fpath = os.path.join(dirpath, fname)
                 if self.search_this(fpath) and not self.remove_this(fname, fpath):
-                    body = open(fpath, 'r').read()
+                    with open(fpath, 'r') as f:
+                        body = f.read()
                     for expr in self.expressions:
                         if not expr.search(body):
                             msg = '%s: missing %s' % (fpath, repr(expr.pattern))

@@ -39,9 +39,10 @@ test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
 def build(env, target, source):
     for t in target:
-        file = open(str(target[0]), 'wb')
-        for s in source:
-            file.write(open(str(s), 'rb').read())
+        with open(str(target[0]), 'wb') as f:
+            for s in source:
+                with open(str(s), 'rb') as infp:
+                    f.write(infp.read())
 
 B = Builder(action=build, multi=1)
 env = Environment(tools=[], BUILDERS = { 'B' : B })

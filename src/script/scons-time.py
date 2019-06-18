@@ -41,21 +41,7 @@ import shutil
 import sys
 import tempfile
 import time
-
-def make_temp_file(**kw):
-    try:
-        result = tempfile.mktemp(**kw)
-        result = os.path.realpath(result)
-    except TypeError:
-        try:
-            save_template = tempfile.template
-            prefix = kw['prefix']
-            del kw['prefix']
-            tempfile.template = prefix
-            result = tempfile.mktemp(**kw)
-        finally:
-            tempfile.template = save_template
-    return result
+import subprocess
 
 def HACK_for_exec(cmd, *args):
     """
@@ -121,7 +107,7 @@ class Line(object):
             # in the line's index number.  We might want to represent
             # this some way rather than just drawing the line straight
             # between the two points on either side.
-            if not y is None:
+            if y is not None:
                 print(fmt % (x, y))
         print('e')
 
@@ -155,13 +141,13 @@ class Gnuplotter(Plotter):
         result = []
         for line in self.lines:
             result.extend(line.get_x_values())
-        return [r for r in result if not r is None]
+        return [r for r in result if r is not None]
 
     def get_all_y_values(self):
         result = []
         for line in self.lines:
             result.extend(line.get_y_values())
-        return [r for r in result if not r is None]
+        return [r for r in result if r is not None]
 
     def get_min_x(self):
         try:
@@ -248,14 +234,16 @@ def unzip(fname):
             os.makedirs(dir)
         except:
             pass
-        open(name, 'wb').write(zf.read(name))
+        with open(name, 'wb') as f:
+            f.write(zf.read(name))
 
 def read_tree(dir):
     for dirpath, dirnames, filenames in os.walk(dir):
         for fn in filenames:
             fn = os.path.join(dirpath, fn)
             if os.path.isfile(fn):
-                open(fn, 'rb').read()
+                with open(fn, 'rb') as f:
+                    f.read()
 
 def redirect_to_file(command, log):
     return '%s > %s 2>&1' % (command, log)
@@ -264,7 +252,7 @@ def tee_to_file(command, log):
     return '%s 2>&1 | tee %s' % (command, log)
 
 
-    
+
 class SConsTimer(object):
     """
     Usage: scons-time SUBCOMMAND [ARGUMENTS]
@@ -360,7 +348,7 @@ class SConsTimer(object):
         'SCons'         : 'Total SCons execution time',
         'commands'      : 'Total command execution time',
     }
-    
+
     time_string_all = 'Total .* time'
 
     #
@@ -456,14 +444,20 @@ class SConsTimer(object):
 
     def log_execute(self, command, log):
         command = self.subst(command, self.__dict__)
-        output = os.popen(command).read()
+        p = os.popen(command)
+        output = p.read()
+        p.close()
+        #TODO: convert to subrocess, os.popen is obsolete. This didn't work:
+        #process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
+        #output = process.stdout.read()
+        #process.stdout.close()
+        #process.wait()
         if self.verbose:
             sys.stdout.write(output)
         # TODO: Figure out
         # Not sure we need to write binary here
-        open(log, 'w').write(output)
-
-    #
+        with open(log, 'w') as f:
+            f.write(str(output))
 
     def archive_splitext(self, path):
         """
@@ -628,13 +622,14 @@ class SConsTimer(object):
             search_string = self.time_string_all
         else:
             search_string = time_string
-        contents = open(file).read()
+        with open(file) as f:
+            contents = f.read()
         if not contents:
             sys.stderr.write('file %s has no contents!\n' % repr(file))
             return None
         result = re.findall(r'%s: ([\d\.]*)' % search_string, contents)[-4:]
         result = [ float(r) for r in result ]
-        if not time_string is None:
+        if time_string is not None:
             try:
                 result = result[0]
             except IndexError:
@@ -673,7 +668,8 @@ class SConsTimer(object):
             search_string = self.memory_string_all
         else:
             search_string = memory_string
-        lines = open(file).readlines()
+        with open(file) as f:
+            lines = f.readlines()
         lines = [ l for l in lines if l.startswith(search_string) ][-4:]
         result = [ int(l.split()[-1]) for l in lines[-4:] ]
         if len(result) == 1:
@@ -685,14 +681,14 @@ class SConsTimer(object):
         Returns the counts of the specified object_name.
         """
         object_string = ' ' + object_name + '\n'
-        lines = open(file).readlines()
+        with open(file) as f:
+            lines = f.readlines()
         line = [ l for l in lines if l.endswith(object_string) ][0]
         result = [ int(field) for field in line.split()[:4] ]
         if index is not None:
             result = result[index]
         return result
 
-    #
 
     command_alias = {}
 
@@ -814,7 +810,9 @@ class SConsTimer(object):
                 self.title = a
 
         if self.config_file:
-            exec(open(self.config_file, 'r').read(), self.__dict__)
+            with open(self.config_file, 'r') as f:
+                config = f.read()
+            exec(config, self.__dict__)
 
         if self.chdir:
             os.chdir(self.chdir)
@@ -923,7 +921,7 @@ class SConsTimer(object):
             elif o in ('-p', '--prefix'):
                 self.prefix = a
             elif o in ('--stage',):
-                if not a in self.stages:
+                if a not in self.stages:
                     sys.stderr.write('%s: mem: Unrecognized stage "%s".\n' % (self.name, a))
                     sys.exit(1)
                 stage = a
@@ -933,7 +931,9 @@ class SConsTimer(object):
                 self.title = a
 
         if self.config_file:
-            HACK_for_exec(open(self.config_file, 'r').read(), self.__dict__)
+            with open(self.config_file, 'r') as f:
+                config = f.read()
+            HACK_for_exec(config, self.__dict__)
 
         if self.chdir:
             os.chdir(self.chdir)
@@ -1035,7 +1035,7 @@ class SConsTimer(object):
             elif o in ('-p', '--prefix'):
                 self.prefix = a
             elif o in ('--stage',):
-                if not a in self.stages:
+                if a not in self.stages:
                     sys.stderr.write('%s: obj: Unrecognized stage "%s".\n' % (self.name, a))
                     sys.stderr.write('%s       Type "%s help obj" for help.\n' % (self.name_spaces, self.name))
                     sys.exit(1)
@@ -1053,7 +1053,9 @@ class SConsTimer(object):
         object_name = args.pop(0)
 
         if self.config_file:
-            HACK_for_exec(open(self.config_file, 'r').read(), self.__dict__)
+            with open(self.config_file, 'r') as f:
+                config = f.read()
+            HACK_for_exec(config, self.__dict__)
 
         if self.chdir:
             os.chdir(self.chdir)
@@ -1191,7 +1193,9 @@ class SConsTimer(object):
             sys.exit(1)
 
         if self.config_file:
-            exec(open(self.config_file, 'r').read(), self.__dict__)
+            with open(self.config_file, 'r') as f:
+                config = f.read()
+            exec(config, self.__dict__)
 
         if args:
             self.archive_list = args
@@ -1231,7 +1235,7 @@ class SConsTimer(object):
         return os.path.join(dir, 'src', 'engine')
 
     def prep_aegis_run(self, commands, removals):
-        self.aegis_tmpdir = make_temp_file(prefix = self.name + '-aegis-')
+        self.aegis_tmpdir = tempfile.mkdtemp(prefix=self.name + '-aegis-')
         removals.append((shutil.rmtree, 'rm -rf %%s', self.aegis_tmpdir))
 
         self.aegis_parent_project = os.path.splitext(self.aegis_project)[0]
@@ -1239,21 +1243,19 @@ class SConsTimer(object):
         self.scons_lib_dir = self.scons_lib_dir_path(self.aegis_tmpdir)
 
         commands.extend([
-            'mkdir %(aegis_tmpdir)s',
             (lambda: os.chdir(self.aegis_tmpdir), 'cd %(aegis_tmpdir)s'),
             '%(aegis)s -cp -ind -p %(aegis_parent_project)s .',
             '%(aegis)s -cp -ind -p %(aegis_project)s -delta %(run_number)s .',
         ])
 
     def prep_subversion_run(self, commands, removals):
-        self.svn_tmpdir = make_temp_file(prefix = self.name + '-svn-')
+        self.svn_tmpdir = tempfile.mkdtemp(prefix=self.name + '-svn-')
         removals.append((shutil.rmtree, 'rm -rf %%s', self.svn_tmpdir))
 
         self.scons = self.scons_path(self.svn_tmpdir)
         self.scons_lib_dir = self.scons_lib_dir_path(self.svn_tmpdir)
 
         commands.extend([
-            'mkdir %(svn_tmpdir)s',
             '%(svn)s co %(svn_co_flag)s -r %(run_number)s %(subversion_url)s %(svn_tmpdir)s',
         ])
 
@@ -1300,11 +1302,9 @@ class SConsTimer(object):
         if self.targets2 is None:
             self.targets2 = self.targets
 
-        self.tmpdir = make_temp_file(prefix = self.name + '-')
+        self.tmpdir = tempfile.mkdtemp(prefix=self.name + '-')
 
         commands.extend([
-            'mkdir %(tmpdir)s',
-
             (os.chdir, 'cd %%s', self.tmpdir),
         ])
 
@@ -1357,7 +1357,6 @@ class SConsTimer(object):
 
         if not os.environ.get('PRESERVE'):
             commands.extend(removals)
-
             commands.append((shutil.rmtree, 'rm -rf %%s', self.tmpdir))
 
         self.run_command_list(commands, self.__dict__)
@@ -1424,14 +1423,16 @@ class SConsTimer(object):
             elif o in ('--title',):
                 self.title = a
             elif o in ('--which',):
-                if not a in list(self.time_strings.keys()):
+                if a not in list(self.time_strings.keys()):
                     sys.stderr.write('%s: time: Unrecognized timer "%s".\n' % (self.name, a))
                     sys.stderr.write('%s  Type "%s help time" for help.\n' % (self.name_spaces, self.name))
                     sys.exit(1)
                 which = a
 
         if self.config_file:
-            HACK_for_exec(open(self.config_file, 'r').read(), self.__dict__)
+            with open(self.config_file, 'r') as f:
+                config = f.read()
+            HACK_for_exec(config, self.__dict__)
 
         if self.chdir:
             os.chdir(self.chdir)
