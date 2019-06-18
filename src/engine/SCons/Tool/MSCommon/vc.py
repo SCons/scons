@@ -60,7 +60,10 @@ class VisualCException(Exception):
 class UnsupportedVersion(VisualCException):
     pass
 
-class UnsupportedArch(VisualCException):
+class MSVCUnsupportedHostArch(VisualCException):
+    pass
+
+class MSVCUnsupportedTargetArch(VisualCException):
     pass
 
 class MissingConfiguration(VisualCException):
@@ -89,17 +92,15 @@ _ARCH_TO_CANONICAL = {
     "aarch64"   : "arm64",
 }
 
-# get path to the cl.exe dir for newer VS versions
-# based off a tuple of (host, target) platforms
 _HOST_TARGET_TO_CL_DIR_GREATER_THAN_14 = {
-    ("amd64","amd64")  : "Hostx64\\x64",
-    ("amd64","x86")    : "Hostx64\\x86",
-    ("amd64","arm")    : "Hostx64\\arm",
-    ("amd64","arm64")  : "Hostx64\\arm64",
-    ("x86","amd64")    : "Hostx86\\x64",
-    ("x86","x86")      : "Hostx86\\x86",
-    ("x86","arm")      : "Hostx86\\arm",
-    ("x86","arm64")    : "Hostx86\\arm64",
+    ("amd64","amd64")  : ("Hostx64","x64"),
+    ("amd64","x86")    : ("Hostx64","x86"),
+    ("amd64","arm")    : ("Hostx64","arm"),
+    ("amd64","arm64")  : ("Hostx64","arm64"),
+    ("x86","amd64")    : ("Hostx86","x64"),
+    ("x86","x86")      : ("Hostx86","x86"),
+    ("x86","arm")      : ("Hostx86","arm"),
+    ("x86","arm64")    : ("Hostx86","arm64"),
 }
 
 # get path to the cl.exe dir for older VS versions
@@ -174,15 +175,15 @@ def get_host_target(env):
 
     try:
         host = _ARCH_TO_CANONICAL[host_platform.lower()]
-    except KeyError as e:
+    except KeyError:
         msg = "Unrecognized host architecture %s"
-        raise ValueError(msg % repr(host_platform))
+        raise MSVCUnsupportedHostArch(msg % repr(host_platform))
 
     try:
         target = _ARCH_TO_CANONICAL[target_platform.lower()]
-    except KeyError as e:
+    except KeyError:
         all_archs = str(list(_ARCH_TO_CANONICAL.keys()))
-        raise ValueError("Unrecognized target architecture %s\n\tValid architectures: %s" % (target_platform, all_archs))
+        raise MSVCUnsupportedTargetArch("Unrecognized target architecture %s\n\tValid architectures: %s" % (target_platform, all_archs))
 
     return (host, target,req_target_platform)
 
@@ -425,6 +426,8 @@ def find_batch_file(env,msvc_version,host_arch,target_arch):
 
 
 __INSTALLED_VCS_RUN = None
+_VC_TOOLS_VERSION_FILE_PATH = ['Auxiliary', 'Build', 'Microsoft.VCToolsVersion.default.txt']
+_VC_TOOLS_VERSION_FILE = os.sep.join(_VC_TOOLS_VERSION_FILE_PATH)
 
 def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
     """Find the cl.exe on the filesystem in the vc_dir depending on
@@ -468,7 +471,7 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
         # 2017 and newer allowed multiple versions of the VC toolset to be installed at the same time.
         # Just get the default tool version for now
         #TODO: support setting a specific minor VC version
-        default_toolset_file = os.path.join(vc_dir, r'Auxiliary\Build\Microsoft.VCToolsVersion.default.txt')
+        default_toolset_file = os.path.join(vc_dir, _VC_TOOLS_VERSION_FILE)
         try:
             with open(default_toolset_file) as f:
                 vc_specific_version = f.readlines()[0].strip()
@@ -480,11 +483,16 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
             return False
 
         host_trgt_dir = _HOST_TARGET_TO_CL_DIR_GREATER_THAN_14.get((host_platform, target_platform), None)
+<<<<<<< Updated upstream
         if not host_trgt_dir:
             debug('_check_cl_exists_in_vc_dir(): unsupported host/target platform combo')
+=======
+        if host_trgt_dir is None:
+            debug('_check_cl_exists_in_vc_dir(): unsupported host/target platform combo: (%s,%s)'%(host_platform, target_platform))
+>>>>>>> Stashed changes
             return False
 
-        cl_path = os.path.join(vc_dir, r'Tools\MSVC', vc_specific_version, 'bin', host_trgt_dir, _CL_EXE_NAME)
+        cl_path = os.path.join(vc_dir, 'Tools','MSVC', vc_specific_version, 'bin',  host_trgt_dir[0], host_trgt_dir[1], _CL_EXE_NAME)
         debug('_check_cl_exists_in_vc_dir(): checking for ' + _CL_EXE_NAME + ' at ' + cl_path)
         if os.path.exists(cl_path):
             debug('_check_cl_exists_in_vc_dir(): found ' + _CL_EXE_NAME + '!')
