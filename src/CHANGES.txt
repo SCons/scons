@@ -72,10 +72,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       ParseFlags: -iquote and -idirafter.
     - Fix more re patterns that contain \ but not specified as raw strings
       (affects scanners for D, LaTeX, swig)
-<<<<<<< Updated upstream
-=======
       
->>>>>>> Stashed changes
 
   From Mathew Robinson:
     - Update cache debug output to include cache hit rate.
