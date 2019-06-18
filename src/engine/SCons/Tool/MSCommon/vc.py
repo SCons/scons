@@ -483,13 +483,8 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
             return False
 
         host_trgt_dir = _HOST_TARGET_TO_CL_DIR_GREATER_THAN_14.get((host_platform, target_platform), None)
-<<<<<<< Updated upstream
-        if not host_trgt_dir:
-            debug('_check_cl_exists_in_vc_dir(): unsupported host/target platform combo')
-=======
         if host_trgt_dir is None:
             debug('_check_cl_exists_in_vc_dir(): unsupported host/target platform combo: (%s,%s)'%(host_platform, target_platform))
->>>>>>> Stashed changes
             return False
 
         cl_path = os.path.join(vc_dir, 'Tools','MSVC', vc_specific_version, 'bin',  host_trgt_dir[0], host_trgt_dir[1], _CL_EXE_NAME)
