@@ -495,8 +495,10 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
 
     elif ver_num <= 14 and ver_num >= 8:
 
-        host_trgt_dir = _HOST_TARGET_TO_CL_DIR.get((host_platform, target_platform), None)
-        if not host_trgt_dir:
+        # Set default value to be -1 as "" which is the value for x86/x86 yields true when tested
+        # if not host_trgt_dir
+        host_trgt_dir = _HOST_TARGET_TO_CL_DIR.get((host_platform, target_platform), -1)
+        if host_trgt_dir == -1:
             debug('_check_cl_exists_in_vc_dir(): unsupported host/target platform combo')
             return False
 
@@ -508,8 +510,11 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
             # older versions of visual studio only had x86 binaries,
             # so if the host platform is amd64, we need to check cross
             # compile options (x86 binary compiles some other target on a 64 bit os)
-            host_trgt_dir = _HOST_TARGET_TO_CL_DIR.get(('x86', target_platform), None)
-            if not host_trgt_dir:
+        
+            # Set default value to be -1 as "" which is the value for x86/x86 yields true when tested
+            # if not host_trgt_dir
+            host_trgt_dir = _HOST_TARGET_TO_CL_DIR.get(('x86', target_platform), -1)
+            if host_trgt_dir == -1:
                 return False
 
             cl_path = os.path.join(vc_dir, 'bin', host_trgt_dir, _CL_EXE_NAME)
