@@ -497,8 +497,8 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
 
         # Set default value to be -1 as "" which is the value for x86/x86 yields true when tested
         # if not host_trgt_dir
-        host_trgt_dir = _HOST_TARGET_TO_CL_DIR.get((host_platform, target_platform), -1)
-        if host_trgt_dir == -1:
+        host_trgt_dir = _HOST_TARGET_TO_CL_DIR.get((host_platform, target_platform), None)
+        if host_trgt_dir is None:
             debug('_check_cl_exists_in_vc_dir(): unsupported host/target platform combo')
             return False
 
@@ -513,8 +513,8 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
         
             # Set default value to be -1 as "" which is the value for x86/x86 yields true when tested
             # if not host_trgt_dir
-            host_trgt_dir = _HOST_TARGET_TO_CL_DIR.get(('x86', target_platform), -1)
-            if host_trgt_dir == -1:
+            host_trgt_dir = _HOST_TARGET_TO_CL_DIR.get(('x86', target_platform), None)
+            if host_trgt_dir is None:
                 return False
 
             cl_path = os.path.join(vc_dir, 'bin', host_trgt_dir, _CL_EXE_NAME)
