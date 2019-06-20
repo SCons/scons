@@ -5,6 +5,8 @@
                             Change Log
 
 
+**PLEASE ADD YOUR NAME IN ALPHABETICAL ORDER TO AVOID NEEDED TO REORDER BELOW**
+
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Peter Diener:
@@ -40,6 +42,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       which specifies what character to join all the argements output into the tempfile. The default remains a space
       when mslink, msvc, or mslib tools are loaded they change the TEMPFILEARGJOIN to be a line separator (\r\n on win32)
 
+    From Michael Hartmann:
+    - Fix handling of Visual Studio Compilers to properly reject any unknown HOST_PLATFORM or TARGET_PLATFORM
+
+
   From Mats Wichmann:
     - scons-time takes more care closing files and uses safer mkdtemp to avoid
       possible races on multi-job runs.
@@ -66,6 +72,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       ParseFlags: -iquote and -idirafter.
     - Fix more re patterns that contain \ but not specified as raw strings
       (affects scanners for D, LaTeX, swig)
+      
 
   From Mathew Robinson:
     - Update cache debug output to include cache hit rate.
