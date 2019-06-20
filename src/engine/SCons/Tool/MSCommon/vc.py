@@ -562,6 +562,10 @@ def get_installed_vcs(env=None):
                     debug('find_vc_pdir no compiler found %s' % ver)
             else:
                 debug('find_vc_pdir return None for ver %s' % ver)
+        except (MSVCUnsupportedTargetArch, MSVCUnsupportedHostArch) as e:
+            # Allow this exception to propagate further as it should cause
+            # SCons to exit with an error code
+            raise
         except VisualCException as e:
             debug('did not find VC %s: caught exception %s' % (ver, str(e)))
     return installed_versions

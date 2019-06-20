@@ -34,7 +34,6 @@ import re
 
 import SCons.Util
 
-
 LOGFILE = os.environ.get('SCONS_MSCOMMON_DEBUG')
 if LOGFILE == '-':
     def debug(message):
