@@ -406,8 +406,8 @@ class SubstitutionEnvironment(object):
         else:
             del self._dict[key]
 
-    def __getitem__(self, key):
-        return self._dict[key]
+    def __getitem__(self, key, default=None):
+        return self._dict.get(key, default)
 
     def __setitem__(self, key, value):
         # This is heavily used.  This implementation is the best we have
