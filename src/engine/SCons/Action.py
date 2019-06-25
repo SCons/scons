@@ -534,7 +534,7 @@ class ActionBase(object):
         result = self.get_presig(target, source, env)
 
         if not isinstance(result,(bytes, bytearray)):
-            result = bytearray("",'utf-8').join([ SCons.Util.to_bytes(r) for r in result ])
+            result = bytearray(result, 'utf-8')
         else:
             # Make a copy and put in bytearray, without this the contents returned by get_presig
             # can be changed by the logic below, appending with each call and causing very
