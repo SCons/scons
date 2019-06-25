@@ -1408,7 +1408,7 @@ This SConstruct:
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env=Environment()
-print env.Dump('CCCOM')
+print(env.Dump('CCCOM'))
 </example_commands>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1425,7 +1425,7 @@ While this SConstruct:
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env=Environment()
-print env.Dump()
+print(env.Dump())
 </example_commands>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -4463,7 +4463,7 @@ Example:
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
-print env.subst("The C compiler is: $CC")
+print(env.subst("The C compiler is: $CC"))
 
 def compile(target, source, env):
     sourceDir = env.subst("${SOURCE.srcdir}",
@@ -4493,9 +4493,9 @@ Examples:
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
-# makes sure the built library will be installed with 0644 file
+# makes sure the built library will be installed with 0o644 file
 # access mode
-Tag( Library( 'lib.c' ), UNIX_ATTR="0644" )
+Tag( Library( 'lib.c' ), UNIX_ATTR="0o644" )
 
 # marks file2.txt to be a documentation file
 Tag( 'file2.txt', DOC )

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
 __COPYRIGHT__
 
@@ -1414,7 +1414,7 @@ This SConstruct:
 
 <example_commands>
 env=Environment()
-print env.Dump('CCCOM')
+print(env.Dump('CCCOM'))
 </example_commands>
 
 <para>
@@ -1431,7 +1431,7 @@ While this SConstruct:
 
 <example_commands>
 env=Environment()
-print env.Dump()
+print(env.Dump())
 </example_commands>
 
 <para>
@@ -3118,7 +3118,7 @@ Example:
 </para>
 
 <example_commands>
-print env.subst("The C compiler is: $CC")
+print(env.subst("The C compiler is: $CC"))
 
 def compile(target, source, env):
     sourceDir = env.subst("${SOURCE.srcdir}",

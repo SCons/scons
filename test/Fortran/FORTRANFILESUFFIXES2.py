@@ -43,7 +43,7 @@ env = Environment(LINK = r'%(_python_)s mylink.py',
                   FORTRAN = r'%(_python_)s myfortran.py fortran',
                   FORTRANFILESUFFIXES = ['.f', '.f95', '.f90', '.ffake'],
                   tools = ['default', 'fortran'])
-#print env.Dump()
+#print(env.Dump())
 env.Program(target = 'test01', source = 'test01.f')
 env.Program(target = 'test02', source = 'test02.f90')
 env.Program(target = 'test03', source = 'test03.f95')

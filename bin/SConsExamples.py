@@ -92,6 +92,7 @@ import os
 import re
 import sys
 import time
+import shutil
 
 import SConsDoc
 from SConsDoc import tf as stf
@@ -287,9 +288,8 @@ def ensureExampleOutputsExist(dpath):
                 fpath = os.path.join(generated_examples,
                                      key + '_' + r.name.replace("/", "_"))
                 # Write file
-                f = open(fpath, 'w')
-                f.write("%s\n" % content)
-                f.close()
+                with open(fpath, 'w') as f:
+                    f.write("%s\n" % content)
 
 perc = "%"
 
@@ -324,9 +324,8 @@ def createAllExampleOutputs(dpath):
                 fpath = os.path.join(generated_examples,
                                      key + '_' + r.name.replace("/", "_"))
                 # Write file
-                f = open(fpath, 'w')
-                f.write("%s\n" % content)
-                f.close()
+                with open(fpath, 'w') as f:
+                    f.write("%s\n" % content)
         idx += 1
 
 def collectSConsExampleNames(fpath):
@@ -458,6 +457,7 @@ import re
 import SCons.Action
 import SCons.Defaults
 import SCons.Node.FS
+import shutil
 
 platform = '%(osname)s'
 
@@ -540,30 +540,28 @@ def Null(target, source, env):
 
 def Cat(target, source, env):
     target = str(target[0])
-    f = open(target, "wb")
     for src in map(str, source):
-        f.write(open(src, "rb").read())
-    f.close()
+        shutil.copy(src, target)
 
 def CCCom(target, source, env):
-    target = str(target[0])
-    fp = open(target, "wb")
-    def process(source_file, fp=fp):
-        for line in open(source_file, "rb").readlines():
-            m = re.match(r'#include\s[<"]([^<"]+)[>"]', line)
-            if m:
-                include = m.group(1)
-                for d in [str(env.Dir('$CPPPATH')), '.']:
-                    f = os.path.join(d, include)
-                    if os.path.exists(f):
-                        process(f)
-                        break
-            elif line[:11] != "STRIP CCCOM":
-                fp.write(line)
-    for src in map(str, source):
-        process(src)
-        fp.write('debug = ' + ARGUMENTS.get('debug', '0') + '\\n')
-    fp.close()
+    def process(source_file, ofp):
+        with open(source_file, "r") as ifp:
+            for line in ifp.readlines():
+                m = re.match(r'#include\s[<"]([^<"]+)[>"]', line)
+                if m:
+                    include = m.group(1)
+                    for d in [str(env.Dir('$CPPPATH')), '.']:
+                        f = os.path.join(d, include)
+                        if os.path.exists(f):
+                            process(f, ofp)
+                            break
+                elif line[:11] != "STRIP CCCOM":
+                    ofp.write(line)
+
+    with open(str(target[0]), "w") as fp:
+        for src in map(str, source):
+            process(src, fp)
+            fp.write('debug = ' + ARGUMENTS.get('debug', '0') + '\\n')
 
 public_class_re = re.compile('^public class (\S+)', re.MULTILINE)
 
@@ -577,20 +575,23 @@ def JavaCCom(target, source, env):
     for t in tlist:
        not_copied[t] = 1
     for src in map(str, source):
-        contents = open(src, "rb").read()
+        with open(src, "r") as f:
+            contents = f.read()
         classes = public_class_re.findall(contents)
         for c in classes:
             for t in [x for x in tlist if x.find(c) != -1]:
-                open(t, "wb").write(contents)
+                with open(t, "w") as f:
+                    f.write(contents)
                 del not_copied[t]
     for t in not_copied.keys():
-        open(t, "wb").write("\\n")
+        with open(t, "w") as f:
+            f.write("\\n")
 
 def JavaHCom(target, source, env):
     tlist = map(str, target)
     slist = map(str, source)
     for t, s in zip(tlist, slist):
-        open(t, "wb").write(open(s, "rb").read())
+        shutil.copy(s, t)
 
 def JarCom(target, source, env):
     target = str(target[0])
@@ -599,10 +600,8 @@ def JarCom(target, source, env):
         for dirpath, dirnames, filenames in os.walk(src):
             class_files.extend([ os.path.join(dirpath, f)
                                  for f in filenames if f.endswith('.class') ])
-    f = open(target, "wb")
     for cf in class_files:
-        f.write(open(cf, "rb").read())
-    f.close()
+        shutil.copy(cf, target)
 
 # XXX Adding COLOR, COLORS and PACKAGE to the 'cc' varlist(s) by hand
 # here is bogus.  It's for the benefit of doc/user/command-line.in, which
@@ -721,7 +720,8 @@ def command_touch(args, command, test, values):
         if not os.path.isabs(file):
             file = os.path.join(test.workpath('WORK'), file)
         if not os.path.exists(file):
-            open(file, 'wb')
+            with open(file, 'w'):
+                pass
         os.utime(file, times)
     return []
 
@@ -735,8 +735,8 @@ def command_edit(args, c, test, values):
     for file in args:
         if not os.path.isabs(file):
             file = os.path.join(test.workpath('WORK'), file)
-        contents = open(file, 'rb').read()
-        open(file, 'wb').write(contents + add_string)
+        with open(file, 'a') as f:
+            f.write(add_string)
     return []
 
 def command_ls(args, c, test, values):
@@ -825,7 +825,7 @@ def create_scons_output(e):
             t.write(path, content)
             if hasattr(f, 'chmod'):
                 if len(f.chmod):
-                    os.chmod(path, int(f.chmod, 0))
+                    os.chmod(path, int(f.chmod, base=8))
 
         # Regular expressions for making the doc output consistent,
         # regardless of reported addresses or Python version.
