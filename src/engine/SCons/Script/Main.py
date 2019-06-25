@@ -64,8 +64,8 @@ import SCons.SConf
 import SCons.Script
 import SCons.Taskmaster
 import SCons.Util
+from SCons.Util import PY3
 import SCons.Warnings
-
 import SCons.Script.Interactive
 
 # Global variables
@@ -721,11 +721,20 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
     site_init_file = os.path.join(site_dir, site_init_filename)
     site_tools_dir = os.path.join(site_dir, site_tools_dirname)
     if os.path.exists(site_init_file):
-        import imp, re
+        if PY3:
+            import importlib
+        else:
+            import imp
+        import re
+
         try:
             try:
-                fp, pathname, description = imp.find_module(site_init_modname,
-                                                            [site_dir])
+                if PY3:
+                    spec = importlib.util.find_spec(site_init_modname)
+                    fp = open(spec.origin, 'r')
+                else:
+                    fp, pathname, description = imp.find_module(site_init_modname, [site_dir])
+
                 # Load the file into SCons.Script namespace.  This is
                 # opaque and clever; m is the module object for the
                 # SCons.Script module, and the exec ... in call executes a
@@ -739,9 +748,12 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
                     fmt = 'cannot import site_init.py: missing SCons.Script module %s'
                     raise SCons.Errors.InternalError(fmt % repr(e))
                 try:
-                    sfx = description[0]
-                    modname = os.path.basename(pathname)[:-len(sfx)]
-                    site_m = {"__file__": pathname, "__name__": modname, "__doc__": None}
+                    if PY3:
+                        site_m = {"__file__": spec.origin, "__name__": spec.name, "__doc__": None}
+                    else:
+                        sfx = description[0]
+                        modname = os.path.basename(pathname)[:-len(sfx)]
+                        site_m = {"__file__": pathname, "__name__": modname, "__doc__": None}
                     re_special = re.compile("__[^_]+__")
                     for k in list(m.__dict__.keys()):
                         if not re_special.match(k):
