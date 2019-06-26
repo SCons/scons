@@ -38,7 +38,7 @@ import os.path
 file_in = File('file.in')
 file_out = File('file.out')
 Command(file_out, file_in, Copy('$TARGET', '$SOURCE'))
-def my_decider(dependency, target, prev_ni):
+def my_decider(dependency, target, prev_ni, repo_node):
     return os.path.exists('has-changed')
 file_in.Decider(my_decider)
 """)

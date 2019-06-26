@@ -271,7 +271,7 @@ class DeciderNeedsNode(Exception):
 #
 # First, the single decider functions
 #
-def changed_since_last_build_node(node, target, prev_ni):
+def changed_since_last_build_node(node, target, prev_ni, repo_node=None):
     """
 
     Must be overridden in a specific subclass to return True if this
@@ -292,7 +292,7 @@ def changed_since_last_build_node(node, target, prev_ni):
     raise NotImplementedError
 
 
-def changed_since_last_build_alias(node, target, prev_ni):
+def changed_since_last_build_alias(node, target, prev_ni, repo_node=None):
     cur_csig = node.get_csig()
     try:
         return cur_csig != prev_ni.csig
@@ -300,24 +300,24 @@ def changed_since_last_build_alias(node, target, prev_ni):
         return 1
 
 
-def changed_since_last_build_entry(node, target, prev_ni):
+def changed_since_last_build_entry(node, target, prev_ni, repo_node=None):
     node.disambiguate()
-    return _decider_map[node.changed_since_last_build](node, target, prev_ni)
+    return _decider_map[node.changed_since_last_build](node, target, prev_ni, repo_node)
 
 
-def changed_since_last_build_state_changed(node, target, prev_ni):
+def changed_since_last_build_state_changed(node, target, prev_ni, repo_node=None):
     return node.state != SCons.Node.up_to_date
 
 
-def decide_source(node, target, prev_ni):
-    return target.get_build_env().decide_source(node, target, prev_ni)
+def decide_source(node, target, prev_ni, repo_node=None):
+    return target.get_build_env().decide_source(node, target, prev_ni, repo_node)
 
 
-def decide_target(node, target, prev_ni):
-    return target.get_build_env().decide_target(node, target, prev_ni)
+def decide_target(node, target, prev_ni, repo_node=None):
+    return target.get_build_env().decide_target(node, target, prev_ni, repo_node)
 
 
-def changed_since_last_build_python(node, target, prev_ni):
+def changed_since_last_build_python(node, target, prev_ni, repo_node=None):
     cur_csig = node.get_csig()
     try:
         return cur_csig != prev_ni.csig
@@ -1505,17 +1505,11 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             result = True
 
         for child, prev_ni in zip(children, then):
-            try:
-                if _decider_map[child.changed_since_last_build](child, self, prev_ni):
-                    if t: Trace(': %s changed' % child)
-                    result = True
-            except DeciderNeedsNode as e:
-                if e.decider(self, prev_ni, node=node):
-                    if t: Trace(': %s changed' % child)
-                    result = True
+            if _decider_map[child.changed_since_last_build](child, self, prev_ni, node):
+                if t: Trace(': %s changed' % child)
+                result = True
 
         if self.has_builder():
-            import SCons.Util
             contents = self.get_executor().get_contents()
             newsig = SCons.Util.MD5signature(contents)
             if bi.bactsig != newsig:
