@@ -3319,8 +3319,7 @@ class File(Base):
             return {}
 
 
-        # store this info so we can avoid regenerating it.
-        binfo.dependency_map = { str(child):signature for child, signature in zip(chain(binfo.bsources, binfo.bdepends, binfo.bimplicit),
+        binfo.dependency_map = { child:signature for child, signature in zip(chain(binfo.bsources, binfo.bdepends, binfo.bimplicit),
                                      chain(binfo.bsourcesigs, binfo.bdependsigs, binfo.bimplicitsigs))}
 
         return binfo.dependency_map
