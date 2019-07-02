@@ -187,7 +187,6 @@ class LaTeX(SCons.Scanner.Base):
         # lines), interfering with a match on the next line.
         # add option for whitespace before the '[options]' or the '{filename}'
         regex = r'''
-            ^[^%\n]*
             \\(
                 include
               | includegraphics(?:\s*\[[^\]]+\])?
