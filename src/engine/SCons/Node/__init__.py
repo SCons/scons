@@ -253,21 +253,6 @@ _target_from_source_map = {0 : target_from_source_none,
 # used by it.
 #
 
-
-class DeciderNeedsNode(Exception):
-    """
-    Indicate that the decider needs the node as well as the target and the dependency.
-    Normally the node and the target are the same, but in the case of repository
-    They may be different. Also the NodeInfo is retrieved from the node
-    """
-    def __init__(self, call_this_decider):
-        """
-        :param call_this_decider: to return the decider to call directly since deciders
-               are called through several levels of indirection
-        """
-        self.decider = call_this_decider
-
-
 #
 # First, the single decider functions
 #
