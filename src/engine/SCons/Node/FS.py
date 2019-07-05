@@ -2261,7 +2261,7 @@ class RootDir(Dir):
     this directory.
     """
 
-    __slots__ = ['_lookupDict']
+    __slots__ = ('_lookupDict', )
 
     def __init__(self, drive, fs):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS.RootDir')
@@ -2467,7 +2467,7 @@ class FileNodeInfo(SCons.Node.NodeInfoBase):
         """
         state = getattr(self, '__dict__', {}).copy()
         for obj in type(self).mro():
-            for name in getattr(obj,'__slots__',()):
+            for name in getattr(obj, '__slots__', ()):
                 if hasattr(self, name):
                     state[name] = getattr(self, name)
 
@@ -2511,7 +2511,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
                     or count of any of these could yield writing wrong csig, and then false positive
                     rebuilds
     """
-    __slots__ = ('dependency_map')
+    __slots__ = ('dependency_map', )
     current_version_id = 2
 
     def __setattr__(self, key, value):
