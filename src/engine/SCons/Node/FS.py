@@ -57,7 +57,6 @@ import SCons.Util
 import SCons.Warnings
 
 from SCons.Debug import Trace
-from . import DeciderNeedsNode
 
 print_duplicate = 0
 
@@ -2511,7 +2510,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
                     or count of any of these could yield writing wrong csig, and then false positive
                     rebuilds
     """
-    __slots__ = ('dependency_map', )
+    __slots__ = ['dependency_map', ]
     current_version_id = 2
 
     def __setattr__(self, key, value):
@@ -2635,7 +2634,6 @@ class File(Base):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS.File')
         Base.__init__(self, name, directory, fs)
         self._morph()
-        self.attributes.changed_timestamp_then_content = None
 
     def Entry(self, name):
         """Create an entry node named 'name' relative to
@@ -3387,7 +3385,7 @@ class File(Base):
             if df:
                 return df
 
-        # Strings didn't existing in map, add them and try again
+        # Strings don't exist in map, add them and try again
         # If there are no strings in this dmap, then add them.
         # This may not be necessary, we could walk the nodes in the dmap and check each string
         # rather than adding ALL the strings to dmap. In theory that would be n/2 vs 2n str() calls on node
