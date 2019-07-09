@@ -236,26 +236,17 @@ class Task(object):
         if T: T.write(self.trace_message(u'Task.execute()', self.node))
 
         try:
-            cached_targets = []
-            for t in self.targets:
-                if not t.retrieve_from_cache():
-                    break
-                cached_targets.append(t)
-            if len(cached_targets) < len(self.targets):
-                # Remove targets before building. It's possible that we
-                # partially retrieved targets from the cache, leaving
-                # them in read-only mode. That might cause the command
-                # to fail.
-                #
-                for t in cached_targets:
-                    try:
-                        t.fs.unlink(t.get_internal_path())
-                    except (IOError, OSError):
-                        pass
-                self.targets[0].build()
+            if self.tm.tm_owns_caching:
+                cached_targets = []
+                for t in self.targets:
+                    if not t.retrieve_from_cache():
+                        break
+                    cached_targets.append(t)
+                if not self.process_cached_targets(cached_targets):
+                    self.targets[0].build()
             else:
-                for t in cached_targets:
-                    t.cached = 1
+                # Job.py already took care of caching, so just build.
+                self.targets[0].build()
         except SystemExit:
             exc_value = sys.exc_info()[1]
             raise SCons.Errors.ExplicitExit(self.targets[0], exc_value.code)
@@ -268,6 +259,30 @@ class Task(object):
             buildError.node = self.targets[0]
             buildError.exc_info = sys.exc_info()
             raise buildError
+
+    def process_cached_targets(self, cached_targets):
+        """
+        Processes the list of cached targets, updating the task based on
+        whether all targets were retrieved from cache.
+
+        Returns True if all targets were retrieved from cache, False otherwise.
+        """
+        if len(cached_targets) < len(self.targets):
+            # Remove targets before building. It's possible that we
+            # partially retrieved targets from the cache, leaving
+            # them in read-only mode. That might cause the command
+            # to fail.
+            #
+            for t in cached_targets:
+                try:
+                    t.fs.unlink(t.get_internal_path())
+                except (IOError, OSError):
+                    pass
+            return False
+        else:
+            for t in cached_targets:
+                t.cached = 1
+            return True
 
     def executed_without_callbacks(self):
         """
@@ -630,6 +645,10 @@ class Taskmaster(object):
         self.trace = trace
         self.next_candidate = self.find_next_candidate
         self.pending_children = set()
+        self.tm_owns_caching = True
+
+    def set_tm_owns_caching(self, value):
+        self.tm_owns_caching = value
 
     def find_next_candidate(self):
         """

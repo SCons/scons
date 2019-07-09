@@ -546,7 +546,7 @@ class SConfBase(object):
             SConfFS.set_max_drift(0)
             tm = SCons.Taskmaster.Taskmaster(nodes, SConfBuildTask)
             # we don't want to build tests in parallel
-            jobs = SCons.Job.Jobs(1, tm )
+            jobs = SCons.Job.Jobs(1, tm, False)
             jobs.run()
             for n in nodes:
                 state = n.get_state()

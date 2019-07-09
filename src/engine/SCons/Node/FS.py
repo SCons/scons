@@ -2967,20 +2967,10 @@ class File(Base):
         if self.exists():
             self.get_build_env().get_CacheDir().push(self)
 
-    def retrieve_from_cache(self):
-        """Try to retrieve the node's content from a cache
-
-        This method is called from multiple threads in a parallel build,
-        so only do thread safe stuff here. Do thread unsafe stuff in
-        built().
-
-        Returns true if the node was successfully retrieved.
+    def should_retrieve_from_cache(self):
+        """Returns whether this node should be retrieved from the cache
         """
-        if self.nocache:
-            return None
-        if not self.is_derived():
-            return None
-        return self.get_build_env().get_CacheDir().retrieve(self)
+        return not self.nocache and self.is_derived()
 
     def visited(self):
         if self.exists() and self.executor is not None:

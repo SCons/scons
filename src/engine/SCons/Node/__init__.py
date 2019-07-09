@@ -706,6 +706,14 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         """
         pass
 
+    def should_retrieve_from_cache(self):
+        """Returns whether this node should be retrieved from the cache
+
+        By default nodes are not cacheable. Child classes should override this
+        method if the CacheDir class supports them.
+        """
+        return False
+
     def retrieve_from_cache(self):
         """Try to retrieve the node's content from a cache
 
@@ -713,9 +721,10 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         so only do thread safe stuff here. Do thread unsafe stuff in
         built().
 
-        Returns true if the node was successfully retrieved.
+        Returns true iff the node was successfully retrieved.
         """
-        return 0
+        return self.should_retrieve_from_cache() and \
+            self.get_build_env().get_CacheDir().retrieve(self)
 
     #
     # Taskmaster interface subsystem

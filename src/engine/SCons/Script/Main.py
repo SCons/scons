@@ -1270,7 +1270,7 @@ def _build_targets(fs, options, targets, target_top):
     # to check if python configured with threads.
     global num_jobs
     num_jobs = options.num_jobs
-    jobs = SCons.Job.Jobs(num_jobs, taskmaster)
+    jobs = SCons.Job.Jobs(num_jobs, taskmaster, options.parallel_v2)
     if num_jobs > 1:
         msg = None
         if sys.platform == 'win32':

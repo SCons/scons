@@ -193,7 +193,7 @@ class ExceptionTask(object):
 class Taskmaster(object):
     """A dummy taskmaster class for testing the job classes."""
 
-    def __init__(self, n, test_case, Task):
+    def __init__(self, n, test_case, Task, parallel_v2):
         """n is the number of dummy tasks to perform."""
 
         self.test_case = test_case
@@ -205,6 +205,7 @@ class Taskmaster(object):
         self.num_postprocessed = 0
         self.parallel_list = [0] * (n+1)
         self.found_parallel = False
+        self.parallel_v2 = parallel_v2
         self.Task = Task
 
         # 'guard' guards 'task_begin_list' and 'task_end_list'
@@ -219,6 +220,11 @@ class Taskmaster(object):
 
         # keep track of the order tasks are completed in
         self.end_list = []
+
+    def set_tm_owns_caching(self, value):
+        # If using ParallelV2 class, Taskmaster doesn't own caching.
+        self.test_case.assertNotEqual(value, self.parallel_v2)
+        pass
 
     def next_task(self):
         if self.stop or self.all_tasks_are_iterated():
@@ -258,8 +264,8 @@ class ParallelTestCase(unittest.TestCase):
         except:
             raise NoThreadsException()
 
-        taskmaster = Taskmaster(num_tasks, self, RandomTask)
-        jobs = SCons.Job.Jobs(num_jobs, taskmaster)
+        taskmaster = Taskmaster(num_tasks, self, RandomTask, False)
+        jobs = SCons.Job.Jobs(num_jobs, taskmaster, False)
         jobs.run()
 
         self.assertTrue(not taskmaster.tasks_were_serial(),
@@ -300,8 +306,8 @@ class ParallelTestCase(unittest.TestCase):
         SCons.Job.ThreadPool = WaitThreadPool
 
         try:
-            taskmaster = Taskmaster(3, self, SleepTask)
-            jobs = SCons.Job.Jobs(2, taskmaster)
+            taskmaster = Taskmaster(3, self, SleepTask, False)
+            jobs = SCons.Job.Jobs(2, taskmaster, False)
             jobs.run()
 
             # The key here is that we get(1) and get(2) from the
@@ -321,8 +327,8 @@ class SerialTestCase(unittest.TestCase):
     def runTest(self):
         "test a serial job"
 
-        taskmaster = Taskmaster(num_tasks, self, RandomTask)
-        jobs = SCons.Job.Jobs(1, taskmaster)
+        taskmaster = Taskmaster(num_tasks, self, RandomTask, False)
+        jobs = SCons.Job.Jobs(1, taskmaster, False)
         jobs.run()
 
         self.assertTrue(taskmaster.tasks_were_serial(),
@@ -344,8 +350,8 @@ class NoParallelTestCase(unittest.TestCase):
         save_Parallel = SCons.Job.Parallel
         SCons.Job.Parallel = NoParallel
         try:
-            taskmaster = Taskmaster(num_tasks, self, RandomTask)
-            jobs = SCons.Job.Jobs(2, taskmaster)
+            taskmaster = Taskmaster(num_tasks, self, RandomTask, False)
+            jobs = SCons.Job.Jobs(2, taskmaster, False)
             self.assertTrue(jobs.num_jobs == 1,
                             "unexpected number of jobs %d" % jobs.num_jobs)
             jobs.run()
@@ -367,8 +373,8 @@ class SerialExceptionTestCase(unittest.TestCase):
     def runTest(self):
         "test a serial job with tasks that raise exceptions"
 
-        taskmaster = Taskmaster(num_tasks, self, ExceptionTask)
-        jobs = SCons.Job.Jobs(1, taskmaster)
+        taskmaster = Taskmaster(num_tasks, self, ExceptionTask, False)
+        jobs = SCons.Job.Jobs(1, taskmaster, False)
         jobs.run()
 
         self.assertFalse(taskmaster.num_executed,
@@ -384,8 +390,8 @@ class ParallelExceptionTestCase(unittest.TestCase):
     def runTest(self):
         "test parallel jobs with tasks that raise exceptions"
 
-        taskmaster = Taskmaster(num_tasks, self, ExceptionTask)
-        jobs = SCons.Job.Jobs(num_jobs, taskmaster)
+        taskmaster = Taskmaster(num_tasks, self, ExceptionTask, False)
+        jobs = SCons.Job.Jobs(num_jobs, taskmaster, False)
         jobs.run()
 
         self.assertFalse(taskmaster.num_executed,
@@ -451,7 +457,7 @@ class badpreparenode (badnode):
 
 class _SConsTaskTest(unittest.TestCase):
 
-    def _test_seq(self, num_jobs):
+    def _test_seq(self, num_jobs, parallel_v2):
         for node_seq in [
             [goodnode],
             [badnode],
@@ -466,9 +472,9 @@ class _SConsTaskTest(unittest.TestCase):
             [goodnode, slowbadnode, slowgoodnode, badnode]
             ]:
 
-            self._do_test(num_jobs, node_seq)
+            self._do_test(num_jobs, node_seq, parallel_v2)
 
-    def _do_test(self, num_jobs, node_seq):
+    def _do_test(self, num_jobs, node_seq, parallel_v2):
 
         testnodes = []
         for tnum in range(num_tasks):
@@ -477,7 +483,7 @@ class _SConsTaskTest(unittest.TestCase):
         taskmaster = SCons.Taskmaster.Taskmaster(testnodes,
                                                  tasker=SCons.Taskmaster.AlwaysTask)
 
-        jobs = SCons.Job.Jobs(num_jobs, taskmaster)
+        jobs = SCons.Job.Jobs(num_jobs, taskmaster, parallel_v2)
 
         # Exceptions thrown by tasks are not actually propagated to
         # this level, but are instead stored in the Taskmaster.
@@ -535,13 +541,13 @@ class _SConsTaskTest(unittest.TestCase):
 class SerialTaskTest(_SConsTaskTest):
     def runTest(self):
         "test serial jobs with actual Taskmaster and Task"
-        self._test_seq(1)
+        self._test_seq(1, False)
 
 
 class ParallelTaskTest(_SConsTaskTest):
     def runTest(self):
         "test parallel jobs with actual Taskmaster and Task"
-        self._test_seq(num_jobs)
+        self._test_seq(num_jobs, False)
 
 
 

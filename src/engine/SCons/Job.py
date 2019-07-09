@@ -32,6 +32,11 @@ stop, and wait on jobs.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
+import SCons.Defaults
+import SCons.Util
+
+from collections import deque
+import datetime
 
 import os
 import signal
@@ -51,6 +56,8 @@ default_stack_size = 256
 
 interrupt_msg = 'Build interrupted.'
 
+display = SCons.Util.display
+
 
 class InterruptState(object):
     def __init__(self):
@@ -68,13 +75,16 @@ class Jobs(object):
     methods for starting, stopping, and waiting on all N jobs.
     """
 
-    def __init__(self, num, taskmaster):
+    def __init__(self, num, taskmaster, parallel_v2):
         """
         Create 'num' jobs using the given taskmaster.
 
         If 'num' is 1 or less, then a serial job will be used,
         otherwise a parallel job with 'num' worker threads will
         be used.
+
+        If 'parallel_v2' is True, use the newer, more aggressive parallel
+        job scheduler.
 
         The 'num_jobs' attribute will be set to the actual number of jobs
         allocated.  If more than one job is requested but the Parallel
@@ -89,13 +99,18 @@ class Jobs(object):
                 stack_size = default_stack_size
 
             try:
-                self.job = Parallel(taskmaster, num, stack_size)
+                if parallel_v2:
+                    self.job = ParallelV2(taskmaster, num, stack_size)
+                else:
+                    self.job = Parallel(taskmaster, num, stack_size)
                 self.num_jobs = num
             except NameError:
                 pass
         if self.job is None:
             self.job = Serial(taskmaster)
             self.num_jobs = 1
+
+        taskmaster.set_tm_owns_caching(not isinstance(self.job, ParallelV2))
 
     def run(self, postfunc=lambda: None):
         """Run the jobs.
@@ -400,33 +415,217 @@ else:
 
                 if not task and not jobs: break
 
-                # Let any/all completed tasks finish up before we go
-                # back and put the next batch of tasks on the queue.
-                while True:
-                    task, ok = self.tp.get()
-                    jobs = jobs - 1
-
-                    if ok:
-                        task.executed()
-                    else:
-                        if self.interrupted():
-                            try:
-                                raise SCons.Errors.BuildError(
-                                    task.targets[0], errstr=interrupt_msg)
-                            except:
-                                task.exception_set()
-
-                        # Let the failed() callback function arrange
-                        # for the build to stop if that's appropriate.
-                        task.failed()
-
-                    task.postprocess()
-
-                    if self.tp.resultsQueue.empty():
-                        break
+                jobs = jobs - self._processResults(jobs)
 
             self.tp.cleanup()
             self.taskmaster.cleanup()
+
+        def _processResults(self, jobs):
+            """Process all available results. This function will block while
+            waiting for the first result from the thread pool. If any
+            additional results are available, it will retrieve them and then
+            return.
+
+            The jobs parameter is the number of active jobs.
+
+            Returns the number of results that were retrieved.
+            """
+            results = 0
+
+            # Let any/all completed tasks finish up before we go
+            # back and put the next batch of tasks on the queue.
+            while True:
+                task, ok = self.tp.get()
+                results = results + 1
+
+                if ok:
+                    task.executed()
+                else:
+                    if self.interrupted():
+                        try:
+                            raise SCons.Errors.BuildError(
+                                task.targets[0], errstr=interrupt_msg)
+                        except:
+                            task.exception_set()
+
+                    # Let the failed() callback function arrange
+                    # for the build to stop if that's appropriate.
+                    task.failed()
+
+                task.postprocess()
+
+                # Checking jobs == results here avoids unnecessarily calling
+                # into empty() in that case. It is an expensive call because
+                # it grabs a mutex.
+                if jobs == results or self.tp.resultsQueue.empty():
+                    return results
+
+    class ParallelV2(Parallel):
+        def _gatherTasks(self, tasks, max_batch_size, exitOnJobComplete):
+            """
+            Compiles a list of tasks that need to be executed.
+            Exits if we run out of tasks or a job is complete.
+
+            Params:
+                self: Current object.
+                tasks (deque): List of tasks.
+                max_batch_size (Int): Length limit of tasks list. -1 if no limit.
+                exitOnJobComplete (Bool): True to exit if the results queue is
+                                          non-empty, False to not check it.
+            Returns:
+                Bool specifying whether any jobs are done with results in the
+                resultsQueue. If exitOnJobComplete was False, this is always
+                False.
+                Bool specifying whether any tasks are left.
+            """
+            limitResults = False if max_batch_size == -1 else True
+            taskNumber = 1
+            while not limitResults or len(tasks) < max_batch_size:
+                # Try to get the next available task.
+                task = self.taskmaster.next_task()
+                if task is None:
+                    return False, False
+
+                # Prepare the task for execution and see if it needs to be
+                # executed. If not, we can postprocess and forget about it.
+                try:
+                    task.prepare()
+                except:
+                    task.exception_set()
+                    task.failed()
+                    task.postprocess()
+                else:
+                    if task.needs_execute():
+                        tasks.append(task)
+                    else:
+                        task.executed()
+                        task.postprocess()
+
+                if exitOnJobComplete:
+                    # Check whether any jobs are complete. This is expensive
+                    # because resultsQueue.empty() acquires a mutex, so we do
+                    # so only every once in a while.
+                    taskNumber = taskNumber + 1
+                    if taskNumber % 10 == 0 and not self.tp.resultsQueue.empty():
+                        return True, True
+            return False, True
+
+        def _fetchFromCache(self, tasks, cacheDir):
+            """
+            Fetches the specified tasks from the cache.
+
+            Params:
+                tasks (deque): Tasks to fetch from the cache.
+                cacheDir (CacheDir): Cache owner.
+            Returns:
+                deque of tasks that still need to be executed.
+                True if at least one task was fetched from cache.
+            """
+            targets_to_retrieve = deque()
+            for task in tasks:
+                cache_candidates = [t for t in task.targets
+                                    if t.should_retrieve_from_cache()]
+                if len(cache_candidates) == len(task.targets):
+                    targets_to_retrieve.extend(cache_candidates)
+
+            retrieved_nodes = cacheDir.retrieve_nodes(targets_to_retrieve) \
+                if targets_to_retrieve else []
+
+            # Figure out which tasks were entirely fetched from cache.
+            tasks_to_execute = deque()
+            task_fetched = False
+            for task in tasks:
+                cached_targets = [t for t in task.targets
+                                  if t in retrieved_nodes]
+                if task.process_cached_targets(cached_targets):
+                    task.executed()
+                    task.postprocess()
+                    task_fetched = True
+            return tasks_to_execute, task_fetched
+
+        def start(self):
+            """Runs the full list of tasks."""
+            cache = SCons.Defaults.DefaultEnvironment().get_CacheDir()
+            cache_enabled = cache.is_enabled()
+            tasks_to_fetch = deque()
+            tasks_to_execute = deque()
+            jobs = 0
+            tasks_left = True
+            batch_size = 250
+
+            while True:
+                if tasks_left:
+                    if jobs > 0:
+                        # Keep gathering tasks while waiting but be interrupted
+                        # often to optimize for keeping jobs equal to
+                        # self.maxjobs as often as possible.
+                        jobs_done, tasks_left = self._gatherTasks(
+                            tasks_to_fetch, -1, True)
+                    else:
+                        # No active jobs. Grab some now to iterate over.
+                        display('Gathering some tasks for SCons.')
+                        jobs_done, tasks_left = self._gatherTasks(
+                            tasks_to_fetch, batch_size, False)
+                        display('Found %d tasks to evaluate.' %
+                                len(tasks_to_fetch))
+
+                    # This should be larger for subsequent runs of this loop
+                    # because we only expect it to be used again if most
+                    # deliverables came from cache. Otherwise, the initial batch
+                    # should serve as enough tasks to keep the thread pool busy
+                    # while we keep looking for more tasks.
+                    batch_size = 1000
+                else:
+                    # No tasks left, so trigger the code below to wait for the
+                    # the next job.
+                    jobs_done = True
+
+                    # Reset the batch size because the next time tasks_left is
+                    # True, we expect it to be a run over the next higher level
+                    # the tree that has been unblocked by the previous set of
+                    # leaf nodes.
+                    batch_size = 250
+
+                # If there are no tasks left and there are no active jobs,
+                # we are done.
+                if not tasks_to_fetch and not tasks_to_execute and jobs == 0:
+                    break
+
+                # If any jobs are done, we should process them now.
+                if jobs_done:
+                    jobs = jobs - self._processResults(jobs)
+
+                    # Tasks could have been unblocked, so we should check
+                    # again.
+                    tasks_left = True
+
+                # Check to see if we need to go to the cache for the tasks we
+                # have accumulated in tasks_to_fetch.
+                if tasks_to_fetch:
+                    if not cache_enabled:
+                        # No cache to fetch from, so execute all tasks.
+                        tasks_to_execute.extend(tasks_to_fetch)
+                        tasks_to_fetch.clear()
+                    elif jobs + len(tasks_to_execute) < self.maxjobs:
+                        # We don't have enough jobs to fill our queue, so it's
+                        # a good time to go to the cache.
+                        to_execute, any_fetched = self._fetchFromCache(
+                            tasks_to_fetch, cache)
+                        tasks_to_execute.extend(to_execute)
+
+                        if any_fetched:
+                            tasks_left = True
+
+                        tasks_to_fetch.clear()
+
+                # Now dispatch any more jobs if there is room.
+                while tasks_to_execute and jobs < self.maxjobs:
+                    self.tp.put(tasks_to_execute.popleft())
+                    jobs = jobs + 1
+
+            self.tp.cleanup()
+            self.taskmaster.cleanup()
+
 
 # Local Variables:
 # tab-width:4
