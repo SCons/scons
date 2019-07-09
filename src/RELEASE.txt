@@ -54,6 +54,14 @@
            ->Implicit
            Old:/usr/bin/python	New:/usr/bin/python
 
+
+    - Changed: Pseudo-builders now inherit OverrideEnvironments. For
+      example when calling a pseudo-builder from another
+      pseudo-builder the override variables passed to the first
+      pseudo-builder call had to be explicitly passed on to the
+      internal pseudo-builder call. Now the second pseudo-builder call
+      will automatically inherit these override values.
+
   FIXES
 
     - List fixes of outright bugs
