@@ -583,11 +583,6 @@ def Parser(version):
                   action="store_true",
                   help="Print build actions for files from CacheDir.")
 
-    op.add_option('--parallel-v2',
-                  dest='parallel_v2', default=False,
-                  action="store_true",
-                  help="Use the newer, more aggressive parallel scheduler.")
-
     def opt_invalid(group, value, options):
         errmsg  = "`%s' is not a valid %s option type, try:\n" % (value, group)
         return errmsg + "    %s" % ", ".join(options)
@@ -778,6 +773,11 @@ def Parser(version):
                   dest='no_site_dir', default=False,
                   action="store_true",
                   help="Don't search or use the usual site_scons dir.")
+
+    op.add_option('--parallel-v2',
+                  dest='parallel_v2', default=False,
+                  action="store_true",
+                  help="Use the newer, more aggressive parallel scheduler.")
 
     op.add_option('--profile',
                   nargs=1,
