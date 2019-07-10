@@ -36,7 +36,6 @@ import SCons.Defaults
 import SCons.Util
 
 from collections import deque
-import datetime
 
 import os
 import signal
@@ -93,7 +92,7 @@ class Jobs(object):
         """
 
         self.job = None
-        tm_owns_caching = False
+        tm_owns_caching = True
         if num > 1:
             stack_size = explicit_stack_size
             if stack_size is None:
@@ -102,7 +101,7 @@ class Jobs(object):
             try:
                 if parallel_v2:
                     self.job = ParallelV2(taskmaster, num, stack_size)
-                    tm_owns_caching = True
+                    tm_owns_caching = False
                 else:
                     self.job = Parallel(taskmaster, num, stack_size)
                 self.num_jobs = num
