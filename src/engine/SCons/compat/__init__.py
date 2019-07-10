@@ -80,7 +80,11 @@ def rename_module(new, old):
 
 # TODO: FIXME
 # In 3.x, 'pickle' automatically loads the fast version if available.
-rename_module('pickle', 'cPickle')
+if os.name != "nt":
+    # Windows needs to use the standard pickle module because cPickle
+    # does not have the dispatch dictionary. This will probably not be fixed
+    # in a future version of Python. See http://bugs.python.org/issue3385
+    rename_module('pickle', 'cPickle')
 
 # Default pickle protocol. Higher protocols are more efficient/featureful
 # but incompatible with older Python versions. On Python 2.7 this is 2.
