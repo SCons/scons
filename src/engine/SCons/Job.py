@@ -93,6 +93,7 @@ class Jobs(object):
         """
 
         self.job = None
+        tm_owns_caching = False
         if num > 1:
             stack_size = explicit_stack_size
             if stack_size is None:
@@ -101,6 +102,7 @@ class Jobs(object):
             try:
                 if parallel_v2:
                     self.job = ParallelV2(taskmaster, num, stack_size)
+                    tm_owns_caching = True
                 else:
                     self.job = Parallel(taskmaster, num, stack_size)
                 self.num_jobs = num
@@ -110,7 +112,7 @@ class Jobs(object):
             self.job = Serial(taskmaster)
             self.num_jobs = 1
 
-        taskmaster.set_tm_owns_caching(not isinstance(self.job, ParallelV2))
+        taskmaster.set_tm_owns_caching(tm_owns_caching)
 
     def run(self, postfunc=lambda: None):
         """Run the jobs.
