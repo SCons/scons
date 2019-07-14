@@ -864,17 +864,20 @@ class SubstitutionEnvironment(object):
         return self
 
 
-def default_decide_source(dependency, target, prev_ni):
+def default_decide_source(dependency, target, prev_ni, repo_node=None):
     f = SCons.Defaults.DefaultEnvironment().decide_source
-    return f(dependency, target, prev_ni)
+    return f(dependency, target, prev_ni, repo_node)
 
-def default_decide_target(dependency, target, prev_ni):
+
+def default_decide_target(dependency, target, prev_ni, repo_node=None):
     f = SCons.Defaults.DefaultEnvironment().decide_target
-    return f(dependency, target, prev_ni)
+    return f(dependency, target, prev_ni, repo_node)
+
 
 def default_copy_from_cache(src, dst):
     f = SCons.Defaults.DefaultEnvironment().copy_from_cache
     return f(src, dst)
+
 
 class Base(SubstitutionEnvironment):
     """Base class for "real" construction Environments.  These are the
@@ -1434,30 +1437,30 @@ class Base(SubstitutionEnvironment):
             _warn_copy_deprecated = False
         return self.Clone(*args, **kw)
 
-    def _changed_build(self, dependency, target, prev_ni):
-        if dependency.changed_state(target, prev_ni):
+    def _changed_build(self, dependency, target, prev_ni, repo_node=None):
+        if dependency.changed_state(target, prev_ni, repo_node):
             return 1
-        return self.decide_source(dependency, target, prev_ni)
+        return self.decide_source(dependency, target, prev_ni, repo_node)
 
-    def _changed_content(self, dependency, target, prev_ni):
-        return dependency.changed_content(target, prev_ni)
+    def _changed_content(self, dependency, target, prev_ni, repo_node=None):
+        return dependency.changed_content(target, prev_ni, repo_node)
 
-    def _changed_source(self, dependency, target, prev_ni):
+    def _changed_source(self, dependency, target, prev_ni, repo_node=None):
         target_env = dependency.get_build_env()
         type = target_env.get_tgt_sig_type()
         if type == 'source':
-            return target_env.decide_source(dependency, target, prev_ni)
+            return target_env.decide_source(dependency, target, prev_ni, repo_node)
         else:
-            return target_env.decide_target(dependency, target, prev_ni)
+            return target_env.decide_target(dependency, target, prev_ni, repo_node)
 
-    def _changed_timestamp_then_content(self, dependency, target, prev_ni):
-        return dependency.changed_timestamp_then_content(target, prev_ni)
+    def _changed_timestamp_then_content(self, dependency, target, prev_ni, repo_node=None):
+        return dependency.changed_timestamp_then_content(target, prev_ni, repo_node)
 
-    def _changed_timestamp_newer(self, dependency, target, prev_ni):
-        return dependency.changed_timestamp_newer(target, prev_ni)
+    def _changed_timestamp_newer(self, dependency, target, prev_ni, repo_node=None):
+        return dependency.changed_timestamp_newer(target, prev_ni, repo_node)
 
-    def _changed_timestamp_match(self, dependency, target, prev_ni):
-        return dependency.changed_timestamp_match(target, prev_ni)
+    def _changed_timestamp_match(self, dependency, target, prev_ni, repo_node=None):
+        return dependency.changed_timestamp_match(target, prev_ni, repo_node)
 
     def _copy_from_cache(self, src, dst):
         return self.fs.copy(src, dst)

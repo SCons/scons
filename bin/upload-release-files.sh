@@ -35,7 +35,7 @@ $RSYNC $RSYNCOPTS \
   Announce.txt CHANGES.txt RELEASE.txt \
   $SF_USER@$SF_MACHINE:$SF_TOPDIR/scons-local/$VERSION/
 
-Source packages:
+# Source packages:
 $RSYNC $RSYNCOPTS \
  scons-src-$VERSION.tar.gz \
  scons-src-$VERSION.zip \
@@ -46,7 +46,6 @@ $RSYNC $RSYNCOPTS \
 $RSYNC $RSYNCOPTS \
   README.txt  \
   $SF_USER@$SF_MACHINE:$SF_TOPDIR/
-
 
 
 #

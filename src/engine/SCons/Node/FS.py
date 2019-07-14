@@ -57,7 +57,6 @@ import SCons.Util
 import SCons.Warnings
 
 from SCons.Debug import Trace
-from . import DeciderNeedsNode
 
 print_duplicate = 0
 
@@ -2261,7 +2260,7 @@ class RootDir(Dir):
     this directory.
     """
 
-    __slots__ = ['_lookupDict']
+    __slots__ = ('_lookupDict', )
 
     def __init__(self, drive, fs):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS.RootDir')
@@ -2467,7 +2466,7 @@ class FileNodeInfo(SCons.Node.NodeInfoBase):
         """
         state = getattr(self, '__dict__', {}).copy()
         for obj in type(self).mro():
-            for name in getattr(obj,'__slots__',()):
+            for name in getattr(obj, '__slots__', ()):
                 if hasattr(self, name):
                     state[name] = getattr(self, name)
 
@@ -2511,7 +2510,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
                     or count of any of these could yield writing wrong csig, and then false positive
                     rebuilds
     """
-    __slots__ = ('dependency_map')
+    __slots__ = ['dependency_map', ]
     current_version_id = 2
 
     def __setattr__(self, key, value):
@@ -3283,14 +3282,14 @@ class File(Base):
             self._memo['changed'] = has_changed
         return has_changed
 
-    def changed_content(self, target, prev_ni):
+    def changed_content(self, target, prev_ni, repo_node=None):
         cur_csig = self.get_csig()
         try:
             return cur_csig != prev_ni.csig
         except AttributeError:
             return 1
 
-    def changed_state(self, target, prev_ni):
+    def changed_state(self, target, prev_ni, repo_node=None):
         return self.state != SCons.Node.up_to_date
 
 
@@ -3317,12 +3316,25 @@ class File(Base):
             len(binfo.bimplicitsigs)) == 0:
             return {}
 
-
-        # store this info so we can avoid regenerating it.
-        binfo.dependency_map = { str(child):signature for child, signature in zip(chain(binfo.bsources, binfo.bdepends, binfo.bimplicit),
+        binfo.dependency_map = { child:signature for child, signature in zip(chain(binfo.bsources, binfo.bdepends, binfo.bimplicit),
                                      chain(binfo.bsourcesigs, binfo.bdependsigs, binfo.bimplicitsigs))}
 
         return binfo.dependency_map
+
+    # @profile
+    def _add_strings_to_dependency_map(self, dmap):
+        """
+        In the case comparing node objects isn't sufficient, we'll add the strings for the nodes to the dependency map
+        :return:
+        """
+
+        first_string = str(next(iter(dmap)))
+
+        # print("DMAP:%s"%id(dmap))
+        if first_string not in dmap:
+                string_dict = {str(child): signature for child, signature in dmap.items()}
+                dmap.update(string_dict)
+        return dmap
 
     def _get_previous_signatures(self, dmap):
         """
@@ -3342,37 +3354,62 @@ class File(Base):
         if len(dmap) == 0:
             if MD5_TIMESTAMP_DEBUG: print("Nothing dmap shortcutting")
             return None
+        elif MD5_TIMESTAMP_DEBUG: print("len(dmap):%d"%len(dmap))
 
-        if MD5_TIMESTAMP_DEBUG: print("len(dmap):%d"%len(dmap))
-        # First try the simple name for node
-        c_str = str(self)
-        if MD5_TIMESTAMP_DEBUG: print("Checking   :%s"%c_str)
-        df = dmap.get(c_str, None)
+
+        # First try retrieving via Node
+        if MD5_TIMESTAMP_DEBUG: print("Checking if self is in  map:%s id:%s type:%s"%(str(self), id(self), type(self)))
+        df = dmap.get(self, False)
         if df:
             return df
 
+        # Now check if self's repository file is in map.
+        rf = self.rfile()
+        if MD5_TIMESTAMP_DEBUG: print("Checking if self.rfile  is in  map:%s id:%s type:%s"%(str(rf), id(rf), type(rf)))
+        rfm = dmap.get(rf, False)
+        if rfm:
+            return rfm
+
+        # get default string for node and then also string swapping os.altsep for os.sep (/ for \)
+        c_strs = [str(self)]
+
         if os.altsep:
-            c_str = c_str.replace(os.sep, os.altsep)
-            df = dmap.get(c_str, None)
-            if MD5_TIMESTAMP_DEBUG: print("-->%s"%df)
+            c_strs.append(c_strs[0].replace(os.sep, os.altsep))
+
+        # In some cases the dependency_maps' keys are already strings check.
+        # Check if either string is now in dmap.
+        for s in c_strs:
+            if MD5_TIMESTAMP_DEBUG: print("Checking if str(self) is in map  :%s" % s)
+            df = dmap.get(s, False)
             if df:
                 return df
 
+        # Strings don't exist in map, add them and try again
+        # If there are no strings in this dmap, then add them.
+        # This may not be necessary, we could walk the nodes in the dmap and check each string
+        # rather than adding ALL the strings to dmap. In theory that would be n/2 vs 2n str() calls on node
+        # if not dmap.has_strings:
+        dmap = self._add_strings_to_dependency_map(dmap)
+
+        # In some cases the dependency_maps' keys are already strings check.
+        # Check if either string is now in dmap.
+        for s in c_strs:
+            if MD5_TIMESTAMP_DEBUG: print("Checking if str(self) is in map (now with strings)  :%s" % s)
+            df = dmap.get(s, False)
+            if df:
+                return df
+
+        # Lastly use nodes get_path() to generate string and see if that's in dmap
         if not df:
             try:
                 # this should yield a path which matches what's in the sconsign
                 c_str = self.get_path()
-                df = dmap.get(c_str, None)
-                if MD5_TIMESTAMP_DEBUG: print("-->%s"%df)
-                if df:
-                    return df
-
                 if os.altsep:
                     c_str = c_str.replace(os.sep, os.altsep)
-                    df = dmap.get(c_str, None)
-                    if MD5_TIMESTAMP_DEBUG: print("-->%s"%df)
-                    if df:
-                        return df
+
+                if MD5_TIMESTAMP_DEBUG: print("Checking if self.get_path is in map (now with strings)  :%s" % s)
+
+                df = dmap.get(c_str, None)
 
             except AttributeError as e:
                 raise FileBuildInfoFileToCsigMappingError("No mapping from file name to content signature for :%s"%c_str)
@@ -3392,16 +3429,12 @@ class File(Base):
             self - dependency
             target - target
             prev_ni - The NodeInfo object loaded from previous builds .sconsign
-            node - Node instance.  This is the only changed* function which requires
-                   node to function. So if we detect that it's not passed.
-                   we throw DeciderNeedsNode, and caller should handle this and pass node.
+            node - Node instance.  Check this node for file existence/timestamp
+                   if specified.
 
         Returns:
             Boolean - Indicates if node(File) has changed.
         """
-        if node is None:
-            # We need required node argument to get BuildInfo to function
-            raise DeciderNeedsNode(self.changed_timestamp_then_content)
 
         # Now get sconsign name -> csig map and then get proper prev_ni if possible
         bi = node.get_stored_info().binfo
@@ -3433,7 +3466,6 @@ class File(Base):
                 print("Mismatch self.changed_timestamp_match(%s, prev_ni) old:%s new:%s"%(str(target), old, new))
                 new_prev_ni = self._get_previous_signatures(dependency_map)
 
-
         if not new:
             try:
                 # NOTE: We're modifying the current node's csig in a query.
@@ -3443,13 +3475,13 @@ class File(Base):
             return False
         return self.changed_content(target, new_prev_ni)
 
-    def changed_timestamp_newer(self, target, prev_ni):
+    def changed_timestamp_newer(self, target, prev_ni, repo_node=None):
         try:
             return self.get_timestamp() > target.get_timestamp()
         except AttributeError:
             return 1
 
-    def changed_timestamp_match(self, target, prev_ni):
+    def changed_timestamp_match(self, target, prev_ni, repo_node=None):
         """
         Return True if the timestamps don't match or if there is no previous timestamp
         :param target:
@@ -3462,14 +3494,18 @@ class File(Base):
             return 1
 
     def is_up_to_date(self):
+        """Check for whether the Node is current
+           In all cases self is the target we're checking to see if it's up to date
+        """
+
         T = 0
         if T: Trace('is_up_to_date(%s):' % self)
         if not self.exists():
             if T: Trace(' not self.exists():')
-            # The file doesn't exist locally...
+            # The file (always a target) doesn't exist locally...
             r = self.rfile()
             if r != self:
-                # ...but there is one in a Repository...
+                # ...but there is one (always a target) in a Repository...
                 if not self.changed(r):
                     if T: Trace(' changed(%s):' % r)
                     # ...and it's even up-to-date...
