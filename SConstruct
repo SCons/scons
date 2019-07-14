@@ -204,6 +204,11 @@ packaging_flavors = [
     ('zip',             "The normal .zip file for end-user installation."),
     ('local-zip',       "A .zip file for dropping into other software " +
                         "for local use."),
+    ('src-tar-gz',      "A .tar.gz file containing all the source " +
+                        "(including tests and documentation)."),
+    ('src-zip',         "A .zip file containing all the source " +
+                        "(including tests and documentation)."),
+
 ]
 
 test_tar_gz_dir       = os.path.join(build_dir, "test-tar-gz")
@@ -851,11 +856,9 @@ SConscript('doc/SConscript')
 #
 
 
-sfiles = None
-if git_status_lines:
-    slines = [l for l in git_status_lines if 'modified:' in l]
-    sfiles = [l.split()[-1] for l in slines]
-else:
+
+sfiles = [l.split()[-1] for l in git_status_lines]
+if not git_status_lines:
    print("Not building in a Git tree; skipping building src package.")
 
 if sfiles:
