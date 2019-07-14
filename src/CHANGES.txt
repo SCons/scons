@@ -50,9 +50,15 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
 
 
-    From Michael Hartmann:
+  From Michael Hartmann:
     - Fix handling of Visual Studio Compilers to properly reject any unknown HOST_PLATFORM or TARGET_PLATFORM
 
+  From Mathew Robinson:
+    - Update cache debug output to include cache hit rate.
+    - No longer unintentionally hide exceptions in Action.py
+
+  From Lukas Schrangl:
+    - Enable LaTeX scanner to find more than one include per line
 
   From Mats Wichmann:
     - scons-time takes more care closing files and uses safer mkdtemp to avoid
@@ -80,11 +86,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       ParseFlags: -iquote and -idirafter.
     - Fix more re patterns that contain \ but not specified as raw strings
       (affects scanners for D, LaTeX, swig)
-      
 
   From Mathew Robinson:
     - Update cache debug output to include cache hit rate.
     - No longer unintentionally hide exceptions in Action.py
+    - Allow builders and pseudo-builders to inherit from OverrideEnvironments
 
 RELEASE 3.0.5 - Mon, 26 Mar 2019 15:04:42 -0700
 
