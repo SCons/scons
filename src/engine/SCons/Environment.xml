@@ -1213,6 +1213,17 @@ size, or content signature.
 </para>
 </listitem>
 </varlistentry>
+    <varlistentry>
+<term><parameter>repo_node</parameter></term>
+<listitem>
+<para>
+Use this node instead of the one specified by
+<varname>dependency</varname>
+    to determine if the dependency has changed.
+</para>
+</listitem>
+</varlistentry>
+
 </variablelist>
 </para>
 
@@ -1249,7 +1260,7 @@ Example:
 </para>
 
 <example_commands>
-def my_decider(dependency, target, prev_ni):
+def my_decider(dependency, target, prev_ni, repo_node=None):
     return not os.path.exists(str(target))
 
 env.Decider(my_decider)

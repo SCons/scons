@@ -517,7 +517,7 @@ cc -o hello hello.o
       <scons_example name="depends_function">
         <file name="SConstruct" printme="1">
 Program('hello.c')
-def decide_if_changed(dependency, target, prev_ni):
+def decide_if_changed(dependency, target, prev_ni, repo_node=None):
     if dependency.get_timestamp() != prev_ni.timestamp:
         dep = str(dependency)
         tgt = str(target)
