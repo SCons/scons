@@ -561,6 +561,13 @@ int main() { printf("Hello, world!\n"); }
 
       </para>
 
+        <para>
+            The fourth argument <varname>repo_node</varname>,
+            is the &Node; to use if it is not None when comparing &BuildInfo;.
+            This is typically only set when the target node only exists in a
+            &Repository;
+        </para>
+
       <variablelist>
 
         <varlistentry>
@@ -637,7 +644,7 @@ int main() { printf("Hello, world!\n"); }
       <sconstruct>
 env = Environment()
 
-def config_file_decider(dependency, target, prev_ni):
+def config_file_decider(dependency, target, prev_ni, repo_node=None):
     import os.path
 
     # We always have to init the .csig value...
