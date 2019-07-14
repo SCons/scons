@@ -3316,7 +3316,6 @@ class File(Base):
             len(binfo.bimplicitsigs)) == 0:
             return {}
 
-
         binfo.dependency_map = { child:signature for child, signature in zip(chain(binfo.bsources, binfo.bdepends, binfo.bimplicit),
                                      chain(binfo.bsourcesigs, binfo.bdependsigs, binfo.bimplicitsigs))}
 
@@ -3430,9 +3429,8 @@ class File(Base):
             self - dependency
             target - target
             prev_ni - The NodeInfo object loaded from previous builds .sconsign
-            node - Node instance.  This is the only changed* function which requires
-                   node to function. So if we detect that it's not passed.
-                   we throw DeciderNeedsNode, and caller should handle this and pass node.
+            node - Node instance.  Check this node for file existance/timestamp
+                   if specified.
 
         Returns:
             Boolean - Indicates if node(File) has changed.
@@ -3496,14 +3494,18 @@ class File(Base):
             return 1
 
     def is_up_to_date(self):
+        """Check for whether the Node is current
+           In all cases self is the target we're checking to see if it's up to date
+        """
+
         T = 0
         if T: Trace('is_up_to_date(%s):' % self)
         if not self.exists():
             if T: Trace(' not self.exists():')
-            # The file doesn't exist locally...
+            # The file (always a target) doesn't exist locally...
             r = self.rfile()
             if r != self:
-                # ...but there is one in a Repository...
+                # ...but there is one (always a target) in a Repository...
                 if not self.changed(r):
                     if T: Trace(' changed(%s):' % r)
                     # ...and it's even up-to-date...
