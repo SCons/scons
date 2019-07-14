@@ -3429,7 +3429,7 @@ class File(Base):
             self - dependency
             target - target
             prev_ni - The NodeInfo object loaded from previous builds .sconsign
-            node - Node instance.  Check this node for file existance/timestamp
+            node - Node instance.  Check this node for file existence/timestamp
                    if specified.
 
         Returns:
