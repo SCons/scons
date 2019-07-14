@@ -3587,6 +3587,10 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
     def setUp(self):
         env = Environment()
         env._dict = {'XXX' : 'x', 'YYY' : 'y'}
+        def verify_value(env, key, value, *args, **kwargs):
+            """Verifies that key is value on the env this is called with."""
+            assert env[key] == value
+        env.AddMethod(verify_value)
         env2 = OverrideEnvironment(env, {'XXX' : 'x2'})
         env3 = OverrideEnvironment(env2, {'XXX' : 'x3', 'YYY' : 'y3', 'ZZZ' : 'z3'})
         self.envs = [ env, env2, env3 ]
@@ -3776,6 +3780,13 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
     #def test_WhereIs(self):
     #    """Test the OverrideEnvironment WhereIs() method"""
     #    pass
+
+    def test_PseudoBuilderInherits(self):
+        """Test that pseudo-builders inherit the overrided values."""
+        env, env2, env3 = self.envs
+        env.verify_value('XXX', 'x')
+        env2.verify_value('XXX', 'x2')
+        env3.verify_value('XXX', 'x3')
 
     def test_Dir(self):
         """Test the OverrideEnvironment Dir() method"""

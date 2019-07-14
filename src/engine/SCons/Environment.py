@@ -2308,7 +2308,20 @@ class OverrideEnvironment(Base):
 
     # Methods that make this class act like a proxy.
     def __getattr__(self, name):
-        return getattr(self.__dict__['__subject'], name)
+        attr = getattr(self.__dict__['__subject'], name)
+        # Here we check if attr is one of the Wrapper classes. For
+        # example when a pseudo-builder is being called from an
+        # OverrideEnvironment.
+        #
+        # These wrappers when they're constructed capture the
+        # Environment they are being constructed with and so will not
+        # have access to overrided values. So we rebuild them with the
+        # OverrideEnvironment so they have access to overrided values.
+        if isinstance(attr, (MethodWrapper, BuilderWrapper)):
+            return attr.clone(self)
+        else:
+            return attr
+        
     def __setattr__(self, name, value):
         setattr(self.__dict__['__subject'], name, value)
 
