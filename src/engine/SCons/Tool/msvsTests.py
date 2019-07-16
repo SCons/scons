@@ -32,6 +32,7 @@ import copy
 import TestCmd
 import TestUnit
 
+from SCons.Script import Dir
 from SCons.Tool.msvs import *
 from SCons.Tool.MSCommon.vs import SupportedVSList
 import SCons.Util
@@ -352,6 +353,36 @@ regdata_80 = r'''
 "VCXDCMakeTool"="*.xdc"
 '''.split('\n')
 
+regdata_140 = r'''
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\14.0\Setup\VS]
+"MSMDir"="C:\\Program Files (x86)\\Common Files\\Merge Modules\\"
+"ProductDir"="C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\"
+"VS7EnvironmentLocation"="C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE\\devenv.exe"
+"EnvironmentPath"="C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE\\devenv.exe"
+"EnvironmentDirectory"="C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE\\"
+"VS7CommonDir"="C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\"
+"VS7CommonBinDir"=""
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\14.0\Setup\VS\BuildNumber]
+"1033"="14.0"
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\14.0\Setup\VS\Community]
+"ProductDir"="C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\"
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\14.0\Setup\VS\JSLS_MSI]
+"Version"="14.0.25527"
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\14.0\Setup\VS\JSPS_MSI]
+"Version"="14.0.25527"
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\14.0\Setup\VS\Pro]
+"ProductDir"="C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\"
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\14.0\Setup\VS\professional]
+"IsInstallInProgress"="0"
+"CurrentOperation"="install"
+"SetupFeedUri"="http://go.microsoft.com/fwlink/?LinkID=659004&clcid=0x409"
+"SetupFeedLocalCache"="C:\\ProgramData\\Microsoft\\VisualStudioSecondaryInstaller\\14.0\\LastUsedFeed\\{68432bbb-c9a5-4a7b-bab3-ae5a49b28303}\\Feed.xml"
+"InstallResult"="0"
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\14.0\Setup\VS\SecondaryInstaller]
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\14.0\Setup\VS\SecondaryInstaller\AppInsightsTools]
+"Version"="7.0.20620.1"
+'''.split('\n')
+
 regdata_cv = r'''[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion]
 "ProgramFilesDir"="C:\Program Files"
 "CommonFilesDir"="C:\Program Files\Common Files"
@@ -384,6 +415,12 @@ class DummyEnv(object):
 
     def has_key(self,name):
         return name in self.dict
+
+    def get(self, name, value=None):
+        if self.has_key(name):
+            return self.dict[name]
+        else:
+            return value
 
 class RegKey(object):
     """key class for storing an 'open' registry key"""
@@ -607,13 +644,15 @@ class msvsTestCase(unittest.TestCase):
         version_num, suite = msvs_parse_version(self.highest_version)
         if version_num >= 10.0:
             function_test = _GenerateV10DSP
+            dspfile = 'test.vcxproj'
         elif version_num >= 7.0:
             function_test = _GenerateV7DSP
+            dspfile = 'test.dsp'
         else:
             function_test = _GenerateV6DSP
+            dspfile = 'test.dsp'
             
         str_function_test = str(function_test.__init__)
-        dspfile = 'test.dsp'
         source = 'test.cpp'
         
         # Create the cmdargs test list
@@ -623,50 +662,69 @@ class msvsTestCase(unittest.TestCase):
                         'debug=False target_arch=32',
                         'debug=True target_arch=x64', 
                         'debug=False target_arch=x64']
-        
-        # Tuple list :   (parameter,        dictionary of expected result per variant)
-        tests_cmdargs = [(None,            dict.fromkeys(list_variant, '')), 
-                         ('',              dict.fromkeys(list_variant, '')), 
-                         (list_cmdargs[0], dict.fromkeys(list_variant, list_cmdargs[0])),
-                         (list_cmdargs,    dict(list(zip(list_variant, list_cmdargs))))]
-        
+        list_cppdefines = ['_A', '_B', 'C', None]
+        list_cpppaths = [r'C:\test1', r'C:\test1;C:\test2', Dir('subdir'), None]
+
+        def TestParamsFromList(test_variant, test_list):
+            # Tuple list: (parameter, dictionary of expected result per variant)
+            dirpathfunc = lambda x: x.abspath if hasattr(x, 'abspath') else x
+            return [
+                (None, dict.fromkeys(test_variant, '')),
+                ('', dict.fromkeys(test_variant, '')),
+                (test_list[0], dict.fromkeys(test_variant, dirpathfunc(test_list[0]))),
+                (test_list, dict(list(zip(test_variant, [dirpathfunc(x) for x in test_list]))))
+            ]
+
+        tests_cmdargs = TestParamsFromList(list_variant, list_cmdargs)
+        tests_cppdefines = TestParamsFromList(list_variant, list_cppdefines)
+        tests_cpppaths = TestParamsFromList(list_variant, list_cpppaths)
+
         # Run the test for each test case
         for param_cmdargs, expected_cmdargs in tests_cmdargs:
-            debug('Testing %s. with :\n  variant = %s \n  cmdargs = "%s"' % \
-                  (str_function_test, list_variant, param_cmdargs))
-            param_configs = []
-            expected_configs = {}
-            for platform in ['Win32', 'x64']:
-                for variant in ['Debug', 'Release']:
-                    variant_platform = '%s|%s' % (variant, platform)
-                    runfile = '%s\\%s\\test.exe' % (platform, variant)
-                    buildtarget = '%s\\%s\\test.exe' % (platform, variant)
-                    outdir = '%s\\%s' % (platform, variant)
+            for param_cppdefines, expected_cppdefines in tests_cppdefines:
+                for param_cpppaths, expected_cpppaths in tests_cpppaths:
+                    debug('Testing %s. with :\n  variant = %s \n  cmdargs = "%s" \n  cppdefines = "%s" \n  cpppaths = "%s"' % \
+                          (str_function_test, list_variant, param_cmdargs, param_cppdefines, param_cpppaths))
+                    param_configs = []
+                    expected_configs = {}
+                    for platform in ['Win32', 'x64']:
+                        for variant in ['Debug', 'Release']:
+                            variant_platform = '%s|%s' % (variant, platform)
+                            runfile = '%s\\%s\\test.exe' % (platform, variant)
+                            buildtarget = '%s\\%s\\test.exe' % (platform, variant)
+                            outdir = '%s\\%s' % (platform, variant)
             
-                    # Create parameter list for this variant_platform
-                    param_configs.append([variant_platform, runfile, buildtarget, outdir])
+                            # Create parameter list for this variant_platform
+                            param_configs.append([variant_platform, runfile, buildtarget, outdir])
             
-                    # Create expected dictionary result for this variant_platform
-                    expected_configs[variant_platform] = \
-                    {'variant': variant, 'platform': platform, 
-                     'runfile': runfile,
-                     'buildtarget': buildtarget, 
-                     'outdir': outdir,
-                     'cmdargs': expected_cmdargs[variant_platform]}
-            
+                            # Create expected dictionary result for this variant_platform
+                            expected_configs[variant_platform] = {
+                                'variant': variant,
+                                'platform': platform,
+                                'runfile': runfile,
+                                'buildtarget': buildtarget,
+                                'outdir': outdir,
+                                'cmdargs': expected_cmdargs[variant_platform],
+                                'cppdefines': expected_cppdefines[variant_platform],
+                                'cpppaths': expected_cpppaths[variant_platform],
+                            }
+
             # Create parameter environment with final parameter dictionary
             param_dict = dict(list(zip(('variant', 'runfile', 'buildtarget', 'outdir'),
                                   [list(l) for l in zip(*param_configs)])))
             param_dict['cmdargs'] = param_cmdargs
+            param_dict['cppdefines'] = param_cppdefines
+            param_dict['cpppaths'] = param_cpppaths
 
             # Hack to be able to run the test with a 'DummyEnv'
             class _DummyEnv(DummyEnv):
-                def subst(self, string) : 
+                def subst(self, string, *args, **kwargs):
                     return string
             
             env = _DummyEnv(param_dict)
             env['MSVSSCONSCRIPT'] = ''
             env['MSVS_VERSION'] = self.highest_version
+            env['MSVSBUILDTARGET'] = 'target'
            
             # Call function to test
             genDSP = function_test(dspfile, source, env)
@@ -675,6 +733,11 @@ class msvsTestCase(unittest.TestCase):
             self.assertListEqual(list(genDSP.configs.keys()), list(expected_configs.keys()))
             for key in list(genDSP.configs.keys()):
                 self.assertDictEqual(genDSP.configs[key].__dict__, expected_configs[key])
+
+            genDSP.Build()
+
+            # Delete the resulting file so we don't leave anything behind.
+            os.remove(os.path.realpath(dspfile))
 
 class msvs6aTestCase(msvsTestCase):
     """Test MSVS 6 Registry"""
@@ -787,6 +850,18 @@ class msvs80TestCase(msvsTestCase):
     }
     default_install_loc = install_locs['8.0']
 
+class msvs140TestCase(msvsTestCase):
+    """Test MSVS 140 Registry"""
+    registry = DummyRegistry(regdata_140 + regdata_cv)
+    default_version = '14.0'
+    highest_version = '14.0'
+    number_of_versions = 2
+    install_locs = {
+        '14.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio 14.0',
+                  'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio 14.0\\VC'},
+    }
+    default_install_loc = install_locs['14.0']
+
 class msvsEmptyTestCase(msvsTestCase):
     """Test Empty Registry"""
     registry = DummyRegistry(regdata_none)
@@ -829,6 +904,7 @@ if __name__ == "__main__":
         msvs71TestCase,
         msvs8ExpTestCase,
         msvs80TestCase,
+        msvs140TestCase,
         msvsEmptyTestCase,
     ]
 
