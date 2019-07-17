@@ -32,7 +32,6 @@ import copy
 import TestCmd
 import TestUnit
 
-from SCons.Script import Dir
 from SCons.Tool.msvs import *
 from SCons.Tool.MSCommon.vs import SupportedVSList
 import SCons.Util
@@ -422,6 +421,12 @@ class DummyEnv(object):
         else:
             return value
 
+    def Dir(self, name):
+        # Depend upon SCons.Script.Dir so we can create a Directory object
+        # that doesn't actually exist on disk without problems or side effects.
+        return SCons.Script.Dir(name)
+        
+
 class RegKey(object):
     """key class for storing an 'open' registry key"""
     def __init__(self,key):
@@ -644,13 +649,17 @@ class msvsTestCase(unittest.TestCase):
         version_num, suite = msvs_parse_version(self.highest_version)
         if version_num >= 10.0:
             function_test = _GenerateV10DSP
-            dspfile = 'test.vcxproj'
+            suffix = '.vcxproj'
         elif version_num >= 7.0:
             function_test = _GenerateV7DSP
-            dspfile = 'test.dsp'
+            suffix = '.dsp'
         else:
             function_test = _GenerateV6DSP
-            dspfile = 'test.dsp'
+            suffix = '.dsp'
+
+        # Avoid any race conditions between the test cases when we test
+        # actually writing the files.
+        dspfile = 'test%s%s' % (hash(self), suffix)
             
         str_function_test = str(function_test.__init__)
         source = 'test.cpp'
@@ -662,17 +671,43 @@ class msvsTestCase(unittest.TestCase):
                         'debug=False target_arch=32',
                         'debug=True target_arch=x64', 
                         'debug=False target_arch=x64']
-        list_cppdefines = ['_A', '_B', 'C', None]
-        list_cpppaths = [r'C:\test1', r'C:\test1;C:\test2', Dir('subdir'), None]
+        list_cppdefines = [['_A', '_B', 'C'], ['_B', '_C_'], ['D'], []]
+        list_cpppaths = [[r'C:\test1'], [r'C:\test1;C:\test2'],
+                         [DummyEnv().Dir('subdir')], []]
 
         def TestParamsFromList(test_variant, test_list):
-            # Tuple list: (parameter, dictionary of expected result per variant)
-            dirpathfunc = lambda x: x.abspath if hasattr(x, 'abspath') else x
+            """
+            Generates test data based on the parameters passed in.
+
+            Returns tuple list:
+                1. Parameter.
+                2. Dictionary of expected result per variant.
+            """
+            def normalizeParam(param):
+                """
+                Converts the raw data based into the AddConfig function of
+                msvs.py to the expected result.
+
+                Expects the following behavior:
+                    1. A value of None will be converted to an empty list.
+                    2. A File or Directory object will be converted to an
+                       absolute path (because those objects can't be pickled).
+                    3. Otherwise, the parameter will be used.
+                """
+                if param is None:
+                    return []
+                elif isinstance(param, list):
+                    return [normalizeParam(p) for p in param]
+                elif hasattr(param, 'abspath'):
+                    return param.abspath
+                else:
+                    return param
+
             return [
                 (None, dict.fromkeys(test_variant, '')),
                 ('', dict.fromkeys(test_variant, '')),
-                (test_list[0], dict.fromkeys(test_variant, dirpathfunc(test_list[0]))),
-                (test_list, dict(list(zip(test_variant, [dirpathfunc(x) for x in test_list]))))
+                (test_list[0], dict.fromkeys(test_variant, normalizeParam(test_list[0]))),
+                (test_list, dict(list(zip(test_variant, [normalizeParam(x) for x in test_list]))))
             ]
 
         tests_cmdargs = TestParamsFromList(list_variant, list_cmdargs)
@@ -700,9 +735,9 @@ class msvsTestCase(unittest.TestCase):
                             # Create expected dictionary result for this variant_platform
                             expected_configs[variant_platform] = {
                                 'variant': variant,
-                                'platform': platform,
+                                'platform': platform, 
                                 'runfile': runfile,
-                                'buildtarget': buildtarget,
+                                'buildtarget': buildtarget, 
                                 'outdir': outdir,
                                 'cmdargs': expected_cmdargs[variant_platform],
                                 'cppdefines': expected_cppdefines[variant_platform],
@@ -737,7 +772,12 @@ class msvsTestCase(unittest.TestCase):
             genDSP.Build()
 
             # Delete the resulting file so we don't leave anything behind.
-            os.remove(os.path.realpath(dspfile))
+            for file in [dspfile, dspfile + '.filters']:
+                path = os.path.realpath(file)
+                try:
+                    os.remove(path)
+                except OSError:
+                    pass
 
 class msvs6aTestCase(msvsTestCase):
     """Test MSVS 6 Registry"""

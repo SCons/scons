@@ -47,7 +47,6 @@ import sys
 import SCons.Builder
 import SCons.Node.FS
 import SCons.Platform.win32
-import SCons.Script
 import SCons.Script.SConscript
 import SCons.PathList
 import SCons.Util
@@ -71,14 +70,14 @@ def xmlify(s):
     s = s.replace('\n', '&#x0A;')
     return s
 
-# Process a CPPPATH list in includes, given the env, target and source.
-# Returns a tuple of nodes.
 def processIncludes(includes, env, target, source):
-    return SCons.PathList.PathList(includes).subst_path(env, target, source)
-
-# Convert a file to its absolute path.
-def processSource(file):
-    return SCons.Script.File(file).abspath
+    """
+    Process a CPPPATH list in includes, given the env, target and source.
+    Returns a list of directory paths. These paths are absolute so we avoid
+    putting pound-prefixed paths in a Visual Studio project file.
+    """
+    return [env.Dir(i).abspath for i in
+            SCons.PathList.PathList(includes).subst_path(env, target, source)]
 
 
 external_makefile_guid = '{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}'
@@ -493,9 +492,7 @@ class _DSPGenerator(object):
 
         cmdargs = GetKeyFromEnv(env, 'cmdargs', variants)
         cppdefines = GetKeyFromEnv(env, 'cppdefines', variants)
-
-        dirpathfunc = lambda x: x.abspath if hasattr(x, 'abspath') else x
-        cpppaths = [dirpathfunc(path) for path in GetKeyFromEnv(env, 'cpppaths', variants)]
+        cpppaths = GetKeyFromEnv(env, 'cpppaths', variants)
 
         self.env = env
 
@@ -538,14 +535,16 @@ class _DSPGenerator(object):
         for n in sourcenames:
             self.sources[n].sort(key=lambda a: a.lower())
 
-        def AddConfig(self, variant, buildtarget, outdir, runfile, cmdargs, cppdefines=[], cpppaths=[], dspfile=dspfile):
+        def AddConfig(self, variant, buildtarget, outdir, runfile, cmdargs, cppdefines, cpppaths, dspfile=dspfile, env=env):
             config = Config()
             config.buildtarget = buildtarget
             config.outdir = outdir
             config.cmdargs = cmdargs
             config.cppdefines = cppdefines
-            config.cpppaths = cpppaths
             config.runfile = runfile
+
+            # Dir objects can't be pickled, so we need an absolute path here.
+            config.cpppaths = processIncludes(cpppaths, env, None, None)
 
             match = re.match(r'(.*)\|(.*)', variant)
             if match:
@@ -929,8 +928,7 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
             # so they could vary depending on the command being generated.  This code
             # assumes they don't.
             preprocdefs = xmlify(';'.join(processDefines(cppdefines)))
-            includepath_Dirs = processIncludes(cpppaths, self.env, None, None)
-            includepath = xmlify(';'.join([str(x) for x in includepath_Dirs]))
+            includepath = xmlify(';'.join(processIncludes(cpppaths, self.env, None, None)))
 
             if not env_has_buildtarget:
                 del self.env['MSVSBUILDTARGET']
@@ -1229,6 +1227,8 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
             buildtarget = self.configs[kind].buildtarget
             runfile     = self.configs[kind].runfile
             cmdargs = self.configs[kind].cmdargs
+            cpppaths = self.configs[kind].cpppaths
+            cppdefines = self.configs[kind].cppdefines
 
             env_has_buildtarget = 'MSVSBUILDTARGET' in self.env
             if not env_has_buildtarget:
@@ -1246,9 +1246,8 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
             # This isn't perfect; CPPDEFINES and CPPPATH can contain $TARGET and $SOURCE,
             # so they could vary depending on the command being generated.  This code
             # assumes they don't.
-            preprocdefs = xmlify(';'.join(processDefines(self.env.get('CPPDEFINES', []))))
-            includepath_Dirs = processIncludes(self.env.get('CPPPATH', []), self.env, None, None)
-            includepath = xmlify(';'.join([str(x) for x in includepath_Dirs]))
+            preprocdefs = xmlify(';'.join(processDefines(cppdefines)))
+            includepath = xmlify(';'.join(processIncludes(cpppaths, self.env, None, None)))
 
             if not env_has_buildtarget:
                 del self.env['MSVSBUILDTARGET']
@@ -1317,7 +1316,7 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
                 file = value
                 if commonprefix:
                     file = os.path.join(commonprefix, value)
-                file = processSource(file)
+                file = os.path.normpath(file)
 
                 self.file.write('\t\t<%s Include="%s" />\n' % (keywords[kind], file))
                 self.filters_file.write('\t\t<%s Include="%s">\n'
@@ -1828,8 +1827,7 @@ def projectEmitter(target, source, env):
 
         # Project file depends on CPPDEFINES and CPPPATH
         preprocdefs = xmlify(';'.join(processDefines(env.get('CPPDEFINES', []))))
-        includepath_Dirs = processIncludes(env.get('CPPPATH', []), env, None, None)
-        includepath = xmlify(';'.join([str(x) for x in includepath_Dirs]))
+        includepath = xmlify(';'.join(processIncludes(env.get('CPPPATH', []), env, None, None)))
         source = source + "; ppdefs:%s incpath:%s"%(preprocdefs, includepath)
 
         if 'buildtarget' in env and env['buildtarget'] is not None:
