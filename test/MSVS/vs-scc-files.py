@@ -29,8 +29,6 @@ Test that we can generate Visual Studio 10.0 project (.vcxproj) and
 solution (.sln) files that contain SCC information and look correct.
 """
 
-import os
-
 import TestSConsMSVS
 
 for vc_version in TestSConsMSVS.get_tested_proj_file_vc_versions():
