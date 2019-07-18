@@ -638,8 +638,7 @@ def get_tested_proj_file_vc_versions():
     """
     Returns all MSVC versions that we want to test project file creation for.
     """
-    #return ['8.0', '9.0', '10.0', '11.0', '12.0', '14.0', '14.1', '14.2']
-    return ['9.0']
+    return ['8.0', '9.0', '10.0', '11.0', '12.0', '14.0', '14.1', '14.2']
 
 
 class TestSConsMSVS(TestSCons):
