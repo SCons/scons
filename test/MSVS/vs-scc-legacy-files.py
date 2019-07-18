@@ -25,7 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test that we can generate Visual Studio 9.0 project (.vcproj) and
+Test that we can generate Visual Studio 10.0 or later project (.vcxproj) and
 solution (.sln) files that contain SCC information and look correct.
 """
 
@@ -33,29 +33,34 @@ import os
 
 import TestSConsMSVS
 
-test = TestSConsMSVS.TestSConsMSVS()
+for vc_version in TestSConsMSVS.get_tested_proj_file_vc_versions():
+    test = TestSConsMSVS.TestSConsMSVS()
 
-# Make the test infrastructure think we have this version of MSVS installed.
-test._msvs_versions = ['9.0']
+    # Make the test infrastructure think we have this version of MSVS installed.
+    test._msvs_versions = [vc_version]
 
+    dirs = ['inc1', 'inc2']
+    major, minor = test.parse_vc_version(vc_version)
+    project_file = 'Test.vcproj' if major <= 9 else 'Test.vcxproj'
+    filters_file = project_file + '.filters'
+    filters_file_expected = major >= 10
+    expected_slnfile = test.get_expected_sln_file_contents(vc_version, project_file)
+    expected_vcprojfile = test.get_expected_proj_file_contents(vc_version, dirs, project_file)
 
-
-expected_slnfile = TestSConsMSVS.expected_slnfile_9_0
-expected_vcprojfile = TestSConsMSVS.expected_vcprojfile_9_0
-SConscript_contents = """\
-env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='9.0',
+    SConscript_contents = """\
+env=Environment(platform='win32', tools=['msvs'], MSVS_VERSION='{vc_version}',
                 CPPDEFINES=['DEF1', 'DEF2',('DEF3','1234')],
                 CPPPATH=['inc1', 'inc2'],
                 MSVS_SCC_LOCAL_PATH=r'C:\\MyMsVsProjects',
                 MSVS_SCC_PROJECT_NAME='Perforce Project')
 
 testsrc = ['test1.cpp', 'test2.cpp']
-testincs = ['sdk.h']
+testincs = [r'sdk_dir\\sdk.h']
 testlocalincs = ['test.h']
 testresources = ['test.rc']
 testmisc = ['readme.txt']
 
-env.MSVSProject(target = 'Test.vcproj',
+env.MSVSProject(target = '{project_file}',
                 srcs = testsrc,
                 incs = testincs,
                 localincs = testlocalincs,
@@ -63,33 +68,40 @@ env.MSVSProject(target = 'Test.vcproj',
                 misc = testmisc,
                 buildtarget = 'Test.exe',
                 variant = 'Release')
-"""
+""".format(vc_version=vc_version, project_file=project_file)
 
-expected_vcproj_sccinfo = """\
+    if major < 10:
+        # VC8 and VC9 used key-value pair format.
+        expected_vcproj_sccinfo = """\
 \tSccProjectName="Perforce Project"
 \tSccLocalPath="C:\\MyMsVsProjects"
 """
+    else:
+        # VC10 and later use XML format.
+        expected_vcproj_sccinfo = """\
+\t\t<SccProjectName>Perforce Project</SccProjectName>
+\t\t<SccLocalPath>C:\\MyMsVsProjects</SccLocalPath>
+"""
+
+    test.write('SConstruct', SConscript_contents)
+
+    test.run(arguments=project_file)
+
+    test.must_exist(test.workpath(project_file))
+    vcproj = test.read(project_file, 'r')
+    expect = test.msvs_substitute(expected_vcprojfile, vc_version, None, 'SConstruct',
+                                  vcproj_sccinfo=expected_vcproj_sccinfo)
+    # don't compare the pickled data
+    assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
+
+    test.must_exist(test.workpath('Test.sln'))
+    sln = test.read('Test.sln', 'r')
+    expect = test.msvs_substitute(expected_slnfile, vc_version, None, 'SConstruct')
+    # don't compare the pickled data
+    assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
 
 
-test.write('SConstruct', SConscript_contents)
-
-test.run(arguments="Test.vcproj")
-
-test.must_exist(test.workpath('Test.vcproj'))
-vcproj = test.read('Test.vcproj', 'r')
-expect = test.msvs_substitute(expected_vcprojfile, '9.0', None, 'SConstruct',
-                              vcproj_sccinfo=expected_vcproj_sccinfo)
-# don't compare the pickled data
-assert vcproj[:len(expect)] == expect, test.diff_substr(expect, vcproj)
-
-test.must_exist(test.workpath('Test.sln'))
-sln = test.read('Test.sln', 'r')
-expect = test.msvs_substitute(expected_slnfile, '9.0', None, 'SConstruct')
-# don't compare the pickled data
-assert sln[:len(expect)] == expect, test.diff_substr(expect, sln)
-
-
-test.pass_test()
+    test.pass_test()
 
 # Local Variables:
 # tab-width:4

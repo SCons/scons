@@ -477,6 +477,13 @@ class _DSPGenerator(object):
         self.sconscript = env['MSVSSCONSCRIPT']
 
         def GetKeyFromEnv(env, key, variants):
+            """
+            Retrieves a specific key from the environment. If the key is
+            present, it is expected to either be a string or a list with length
+            equal to the number of variants. The function returns a list of
+            the desired value (e.g. cpp include paths) guaranteed to be of
+            length equal to the length of the variants list.
+            """
             if key not in env or env[key] is None:
                 return [''] * len(variants)
             elif SCons.Util.is_String(env[key]):
@@ -491,8 +498,19 @@ class _DSPGenerator(object):
                                                  (key, type(env[key])))
 
         cmdargs = GetKeyFromEnv(env, 'cmdargs', variants)
-        cppdefines = GetKeyFromEnv(env, 'cppdefines', variants)
-        cpppaths = GetKeyFromEnv(env, 'cpppaths', variants)
+
+        # The caller is allowed to put 'cppdefines' and/or 'cpppaths' in the
+        # environment, which is useful if they want to provide per-variant
+        # values for these. Otherwise, we fall back to using the global
+        # 'CPPDEFINES' and 'CPPPATH' functions.
+        if 'cppdefines' in env:
+            cppdefines = GetKeyFromEnv(env, 'cppdefines', variants)
+        else:
+            cppdefines = [env.get('CPPDEFINES', [])] * len(variants)
+        if 'cpppaths' in env:
+            cpppaths = GetKeyFromEnv(env, 'cpppaths', variants)
+        else:
+            cpppaths = [env.get('CPPPATH', [])] * len(variants)
 
         self.env = env
 
