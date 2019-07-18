@@ -50,37 +50,6 @@ class Batch(object):
         self.targets = targets
         self.sources = sources
 
-
-
-class TSList(collections.UserList):
-    """A class that implements $TARGETS or $SOURCES expansions by wrapping
-    an executor Method.  This class is used in the Executor.lvars()
-    to delay creation of NodeList objects until they're needed.
-
-    Note that we subclass collections.UserList purely so that the
-    is_Sequence() function will identify an object of this class as
-    a list during variable expansion.  We're not really using any
-    collections.UserList methods in practice.
-    """
-    def __init__(self, func):
-        self.func = func
-    def __getattr__(self, attr):
-        nl = self.func()
-        return getattr(nl, attr)
-    def __getitem__(self, i):
-        nl = self.func()
-        return nl[i]
-    def __getslice__(self, i, j):
-        nl = self.func()
-        i, j = max(i, 0), max(j, 0)
-        return nl[i:j]
-    def __str__(self):
-        nl = self.func()
-        return str(nl)
-    def __repr__(self):
-        nl = self.func()
-        return repr(nl)
-
 class TSObject(object):
     """A class that implements $TARGET or $SOURCE expansions by wrapping
     an Executor method.
@@ -172,10 +141,6 @@ class Executor(object, with_metaclass(NoSlotsPyPy)):
                  'builder_kw',
                  '_memo',
                  'lvars',
-                 '_changed_sources_list',
-                 '_changed_targets_list',
-                 '_unchanged_sources_list',
-                 '_unchanged_targets_list',
                  'action_list',
                  '_do_execute',
                  '_execute_str')
@@ -198,79 +163,38 @@ class Executor(object, with_metaclass(NoSlotsPyPy)):
         self._memo = {}
 
     def get_lvars(self):
-        try:
-            return self.lvars
-        except AttributeError:
-            self.lvars = {
-                'CHANGED_SOURCES' : TSList(self._get_changed_sources),
-                'CHANGED_TARGETS' : TSList(self._get_changed_targets),
-                'SOURCE' : TSObject(self._get_source),
-                'SOURCES' : TSList(self._get_sources),
-                'TARGET' : TSObject(self._get_target),
-                'TARGETS' : TSList(self._get_targets),
-                'UNCHANGED_SOURCES' : TSList(self._get_unchanged_sources),
-                'UNCHANGED_TARGETS' : TSList(self._get_unchanged_targets),
-            }
-            return self.lvars
-
-    def _get_changes(self):
         cs = []
         ct = []
         us = []
         ut = []
         for b in self.batches:
-            # don't add targets marked always build to unchanged lists
-            # add to changed list as they always need to build
             if not b.targets[0].always_build and b.targets[0].is_up_to_date():
                 us.extend(list(map(rfile, b.sources)))
                 ut.extend(b.targets)
             else:
                 cs.extend(list(map(rfile, b.sources)))
                 ct.extend(b.targets)
-        self._changed_sources_list = SCons.Util.NodeList(cs)
-        self._changed_targets_list = SCons.Util.NodeList(ct)
-        self._unchanged_sources_list = SCons.Util.NodeList(us)
-        self._unchanged_targets_list = SCons.Util.NodeList(ut)
 
-    def _get_changed_sources(self, *args, **kw):
-        try:
-            return self._changed_sources_list
-        except AttributeError:
-            self._get_changes()
-            return self._changed_sources_list
+        sources = [rfile(n).get_subst_proxy() for n in self.get_all_sources()]
+        source = ''
+        if len(sources) and sources[0]:
+            source = sources[0]
 
-    def _get_changed_targets(self, *args, **kw):
-        try:
-            return self._changed_targets_list
-        except AttributeError:
-            self._get_changes()
-            return self._changed_targets_list
+        targets = [n.get_subst_proxy() for n in self.get_all_targets()]
+        target = ''
+        if len(targets) and targets[0]:
+            target = targets[0]
 
-    def _get_source(self, *args, **kw):
-        return rfile(self.batches[0].sources[0]).get_subst_proxy()
-
-    def _get_sources(self, *args, **kw):
-        return SCons.Util.NodeList([rfile(n).get_subst_proxy() for n in self.get_all_sources()])
-
-    def _get_target(self, *args, **kw):
-        return self.batches[0].targets[0].get_subst_proxy()
-
-    def _get_targets(self, *args, **kw):
-        return SCons.Util.NodeList([n.get_subst_proxy() for n in self.get_all_targets()])
-
-    def _get_unchanged_sources(self, *args, **kw):
-        try:
-            return self._unchanged_sources_list
-        except AttributeError:
-            self._get_changes()
-            return self._unchanged_sources_list
-
-    def _get_unchanged_targets(self, *args, **kw):
-        try:
-            return self._unchanged_targets_list
-        except AttributeError:
-            self._get_changes()
-            return self._unchanged_targets_list
+        return {
+            'CHANGED_SOURCES' : SCons.Util.NodeList(cs),
+            'CHANGED_TARGETS' : SCons.Util.NodeList(ct),
+            'SOURCE' : source,
+            'SOURCES' : SCons.Util.NodeList(sources),
+            'TARGET' : target,
+            'TARGETS' : SCons.Util.NodeList(targets),
+            'UNCHANGED_SOURCES' : SCons.Util.NodeList(us),
+            'UNCHANGED_TARGETS' : SCons.Util.NodeList(ut),
+        }
 
     def get_action_targets(self):
         if not self.action_list:
@@ -606,10 +530,6 @@ class Null(object, with_metaclass(NoSlotsPyPy)):
                  'builder_kw',
                  '_memo',
                  'lvars',
-                 '_changed_sources_list',
-                 '_changed_targets_list',
-                 '_unchanged_sources_list',
-                 '_unchanged_targets_list',
                  'action_list',
                  '_do_execute',
                  '_execute_str')

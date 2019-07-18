@@ -23,6 +23,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import itertools
 import sys
 import unittest
 
@@ -105,6 +106,9 @@ class MyNode(object):
     def is_up_to_date(self):
         return self.up_to_date
 
+    def get_subst_proxy(self):
+        return self
+
 class MyScanner(object):
     def __init__(self, prefix):
         self.prefix = prefix
@@ -114,6 +118,12 @@ class MyScanner(object):
         return self
 
 class ExecutorTestCase(unittest.TestCase):
+    def __init__(self, *args, **kwargs):
+        super(ExecutorTestCase, self).__init__(*args, **kwargs)
+
+        # get_lvars() test cases compare long dicts. Any failures should
+        # be shown in their entirety.
+        self.maxDiff = None
 
     def test__init__(self):
         """Test creating an Executor"""
@@ -460,24 +470,81 @@ class ExecutorTestCase(unittest.TestCase):
         r = x.get_unignored_sources(None, [s1, s3])
         assert r == [s2], list(map(str, r))
 
-    def test_changed_sources_for_alwaysBuild(self):
+    def test_lvars_for_single_target(self):
         """
-        Ensure if a target is marked always build that the sources are always marked changed sources
+        Ensure that Executor.get_lvars returns the correct information for a
+        single-target build.
         :return:
         """
         env = MyEnvironment()
         s1 = MyNode('s1')
         s2 = MyNode('s2')
         t1 = MyNode('t1')
-        t1.up_to_date = True
-        t1.always_build = True
 
-        x = SCons.Executor.Executor('b', env, [{}], [t1], [s1, s2])
+        # Test all permutations of up_to_date and always_build.
+        opts = [True, False]
+        for up_to_date, always_build in itertools.product(opts, opts):
+            should_build = always_build or not up_to_date
 
-        changed_sources = x._get_changed_sources()
-        assert changed_sources == [s1, s2], "If target marked AlwaysBuild sources should always be marked changed"
+            t1.up_to_date = up_to_date
+            t1.always_build = always_build
+
+            x = SCons.Executor.Executor('b', env, [{}], [t1], [s1, s2])
+
+            actual_lvars = x.get_lvars()
+            expected_lvars = {
+                'CHANGED_SOURCES': [s1, s2] if should_build else [],
+                'CHANGED_TARGETS': [t1] if should_build else [],
+                'SOURCE': s1,
+                'SOURCES': [s1, s2],
+                'TARGET': t1,
+                'TARGETS': [t1],
+                'UNCHANGED_SOURCES': [] if should_build else [s1, s2],
+                'UNCHANGED_TARGETS': [] if should_build else [t1],
+            }
+
+            self.assertEqual(str(actual_lvars), str(expected_lvars))
 
 
+    def test_lvars_for_multiple_targets(self):
+        """
+        Ensure that Executor.get_lvars returns the correct information for a
+        multi-target build.
+        :return:
+        """
+        env = MyEnvironment()
+        s1 = MyNode('s1')
+        s2 = MyNode('s2')
+        t1 = MyNode('t1')
+        t2 = MyNode('t2')
+
+        # Test all permutations of up_to_date and always_build.
+        opts = [True, False]
+        for t1_up_to_date, t1_always_build, t2_up_to_date, t2_always_build in \
+                itertools.product(opts, opts, opts, opts):
+            # For better or for worse, the Executor has always only respected
+            # whether the first node needs to build.
+            should_build = t1_always_build or not t1_up_to_date
+
+            t1.up_to_date = t1_up_to_date
+            t1.always_build = t1_always_build
+            t2.up_to_date = t2_up_to_date
+            t2.always_build = t2_always_build
+
+            x = SCons.Executor.Executor('b', env, [{}], [t1, t2], [s1, s2])
+
+            actual_lvars = x.get_lvars()
+            expected_lvars = {
+                'CHANGED_SOURCES': [s1, s2] if should_build else [],
+                'CHANGED_TARGETS': [t1, t2] if should_build else [],
+                'SOURCE': s1,
+                'SOURCES': [s1, s2],
+                'TARGET': t1,
+                'TARGETS': [t1, t2],
+                'UNCHANGED_SOURCES': [] if should_build else [s1, s2],
+                'UNCHANGED_TARGETS': [] if should_build else [t1, t2],
+            }
+            self.assertEqual(str(actual_lvars), str(expected_lvars))
 
 
 if __name__ == "__main__":
