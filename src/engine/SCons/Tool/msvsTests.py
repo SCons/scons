@@ -34,6 +34,7 @@ import TestUnit
 
 from SCons.Tool.msvs import *
 from SCons.Tool.MSCommon.vs import SupportedVSList
+import SCons.Node.FS
 import SCons.Util
 import SCons.Warnings
 
@@ -393,6 +394,7 @@ regdata_none = []
 
 class DummyEnv(object):
     def __init__(self, dict=None):
+        self.fs = SCons.Node.FS.FS()
         if dict:
             self.dict = dict
         else:
@@ -422,10 +424,8 @@ class DummyEnv(object):
             return value
 
     def Dir(self, name):
-        # Depend upon SCons.Script.Dir so we can create a Directory object
-        # that doesn't actually exist on disk without problems or side effects.
-        return SCons.Script.Dir(name)
-        
+        return self.fs.Dir(name)
+
 
 class RegKey(object):
     """key class for storing an 'open' registry key"""
@@ -596,6 +596,11 @@ class msvsTestCase(unittest.TestCase):
         from SCons.Tool.MSCommon.vs import reset_installed_visual_studios
         reset_installed_visual_studios()
 
+        self.test = TestCmd.TestCmd(workdir='')
+        # FS doesn't like the cwd to be something other than its root.
+        os.chdir(self.test.workpath(""))
+        self.fs = SCons.Node.FS.FS()
+
     def test_get_default_version(self):
         """Test retrieval of the default visual studio version"""
 
@@ -673,7 +678,7 @@ class msvsTestCase(unittest.TestCase):
                         'debug=False target_arch=x64']
         list_cppdefines = [['_A', '_B', 'C'], ['_B', '_C_'], ['D'], []]
         list_cpppaths = [[r'C:\test1'], [r'C:\test1;C:\test2'],
-                         [DummyEnv().Dir('subdir')], []]
+                         [self.fs.Dir('subdir')], []]
 
         def TestParamsFromList(test_variant, test_list):
             """
