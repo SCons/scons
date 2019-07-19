@@ -9,6 +9,9 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Adam Gross:
+    - Upgrade and improve Visual Studio solution/project generation code
+
   From Peter Diener:
     - Additional fix to issue #3135 - Also handle 'pure' and 'elemental' type bound procedures
     - Fix issue #3135 - Handle Fortran submodules and type bound procedures
