@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
@@ -12,7 +12,7 @@
     %variables-mod;
 ]>
 
-<variablelist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.scons.org/dbxsd/v1.0" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<variablelist xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
   <varlistentry id="b-CFile">
     <term>
       <function>CFile()</function>
@@ -20,17 +20,18 @@
     <term>
       <function>env.CFile()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds a C source file given a lex (<filename>.l</filename>)
 or yacc (<filename>.y</filename>) input file.
-The suffix specified by the <link linkend="cv-CFILESUFFIX"><envar>$CFILESUFFIX</envar></link> construction variable
+The suffix specified by the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-CFILESUFFIX"><envar>$CFILESUFFIX</envar></link> construction variable
 (<filename>.c</filename> by default)
 is automatically added to the target
 if it is not already present.
 Example:
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 # builds foo.c
 env.CFile(target = 'foo.c', source = 'foo.l')
 # builds bar.c
@@ -45,12 +46,13 @@ env.CFile(target = 'bar', source = 'bar.y')
     <term>
       <function>env.Command()</function>
     </term>
-    <listitem><para>
-The <function>Command</function> "Builder" is actually implemented
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The <function xmlns="http://www.scons.org/dbxsd/v1.0">Command</function> "Builder" is actually implemented
 as a function that looks like a Builder,
 but actually takes an additional argument of the action
 from which the Builder should be made.
-See the <link linkend="f-Command"><function>Command</function></link> function description
+See the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="f-Command"><function>Command</function></link> function description
 for the calling syntax and details.
 </para>
 </listitem>
@@ -62,18 +64,19 @@ for the calling syntax and details.
     <term>
       <function>env.CXXFile()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds a C++ source file given a lex (<filename>.ll</filename>)
 or yacc (<filename>.yy</filename>)
 input file.
-The suffix specified by the <link linkend="cv-CXXFILESUFFIX"><envar>$CXXFILESUFFIX</envar></link> construction variable
+The suffix specified by the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-CXXFILESUFFIX"><envar>$CXXFILESUFFIX</envar></link> construction variable
 (<filename>.cc</filename> by default)
 is automatically added to the target
 if it is not already present.
 Example:
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 # builds foo.cc
 env.CXXFile(target = 'foo.cc', source = 'foo.ll')
 # builds bar.cc
@@ -88,19 +91,20 @@ env.CXXFile(target = 'bar', source = 'bar.yy')
     <term>
       <function>env.DocbookEpub()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 A pseudo-Builder, providing a Docbook toolchain for EPUB output.
 </para>
 
-<example_commands>env = Environment(tools=['docbook'])
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
 env.DocbookEpub('manual.epub', 'manual.xml')
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 or simply
 </para>
 
-<example_commands>env = Environment(tools=['docbook'])
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
 env.DocbookEpub('manual')
 </example_commands>
 
@@ -113,16 +117,17 @@ env.DocbookEpub('manual')
     <term>
       <function>env.DocbookHtml()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 A pseudo-Builder, providing a Docbook toolchain for HTML output.
 </para>
-<example_commands>env = Environment(tools=['docbook'])
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
 env.DocbookHtml('manual.html', 'manual.xml')
 </example_commands>
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 or simply
 </para>
-<example_commands>env = Environment(tools=['docbook'])
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
 env.DocbookHtml('manual')
 </example_commands>
 </listitem>
@@ -134,34 +139,35 @@ env.DocbookHtml('manual')
     <term>
       <function>env.DocbookHtmlChunked()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 A pseudo-Builder, providing a Docbook toolchain for chunked HTML output.
 It supports the <literal>base.dir</literal> parameter. The 
 <filename>chunkfast.xsl</filename> file (requires "EXSLT") is used as the
 default stylesheet. Basic syntax:
 </para>
 
-<example_commands>env = Environment(tools=['docbook'])
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
 env.DocbookHtmlChunked('manual')
 </example_commands>
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 where <filename>manual.xml</filename> is the input file.
 </para>
-<para>If you use the <literal>root.filename</literal> 
+<para xmlns="http://www.scons.org/dbxsd/v1.0">If you use the <literal>root.filename</literal> 
 parameter in your own stylesheets you have to specify the new target name.
 This ensures that the dependencies get correct, especially for the cleanup via <quote><literal>scons -c</literal></quote>:
 </para>
-<screen>env = Environment(tools=['docbook'])
+<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
 env.DocbookHtmlChunked('mymanual.html', 'manual', xsl='htmlchunk.xsl')
 </screen>
-<para>Some basic support for the <literal>base.dir</literal> is provided. You
+<para xmlns="http://www.scons.org/dbxsd/v1.0">Some basic support for the <literal>base.dir</literal> is provided. You
 can add the <literal>base_dir</literal> keyword to your Builder
 call, and the given prefix gets prepended to all the created filenames:
 </para>
-<screen>env = Environment(tools=['docbook'])
+<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
 env.DocbookHtmlChunked('manual', xsl='htmlchunk.xsl', base_dir='output/')
 </screen>
-<para>Make sure that you don't forget the trailing slash for the base folder, else
+<para xmlns="http://www.scons.org/dbxsd/v1.0">Make sure that you don't forget the trailing slash for the base folder, else
 your files get renamed only! 
 </para>
 </listitem>
@@ -173,34 +179,35 @@ your files get renamed only!
     <term>
       <function>env.DocbookHtmlhelp()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 A pseudo-Builder, providing a Docbook toolchain for HTMLHELP output.
 Its basic syntax is:
 </para>
 
-<example_commands>env = Environment(tools=['docbook'])
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
 env.DocbookHtmlhelp('manual')
 </example_commands>
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 where <filename>manual.xml</filename> is the input file.
 </para>
 
-<para>If you use the <literal>root.filename</literal> 
+<para xmlns="http://www.scons.org/dbxsd/v1.0">If you use the <literal>root.filename</literal> 
 parameter in your own stylesheets you have to specify the new target name.
 This ensures that the dependencies get correct, especially for the cleanup via <quote><literal>scons -c</literal></quote>:
 </para>
-<screen>env = Environment(tools=['docbook'])
+<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
 env.DocbookHtmlhelp('mymanual.html', 'manual', xsl='htmlhelp.xsl')
 </screen>
-<para>Some basic support for the <literal>base.dir</literal> parameter
+<para xmlns="http://www.scons.org/dbxsd/v1.0">Some basic support for the <literal>base.dir</literal> parameter
 is provided. You can add the <literal>base_dir</literal> keyword to
 your Builder call, and the given prefix gets prepended to all the
 created filenames:
 </para>
-<screen>env = Environment(tools=['docbook'])
+<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
 env.DocbookHtmlhelp('manual', xsl='htmlhelp.xsl', base_dir='output/')
 </screen>
-<para>Make sure that you don't forget the trailing slash for the base folder, else
+<para xmlns="http://www.scons.org/dbxsd/v1.0">Make sure that you don't forget the trailing slash for the base folder, else
 your files get renamed only! 
 </para>
 
@@ -213,15 +220,16 @@ your files get renamed only!
     <term>
       <function>env.DocbookMan()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 A pseudo-Builder, providing a Docbook toolchain for Man page output.
 Its basic syntax is:
 </para>
 
-<example_commands>env = Environment(tools=['docbook'])
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
 env.DocbookMan('manual')
 </example_commands>
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 where <filename>manual.xml</filename> is the input file. Note, that 
 you can specify a target name, but the actual output names are automatically
 set from the <literal>refname</literal> entries in your XML source.
@@ -235,19 +243,20 @@ set from the <literal>refname</literal> entries in your XML source.
     <term>
       <function>env.DocbookPdf()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 A pseudo-Builder, providing a Docbook toolchain for PDF output.
 </para>
 
-<example_commands>env = Environment(tools=['docbook'])
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
 env.DocbookPdf('manual.pdf', 'manual.xml')
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 or simply
 </para>
 
-<example_commands>env = Environment(tools=['docbook'])
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
 env.DocbookPdf('manual')
 </example_commands>
 
@@ -260,32 +269,33 @@ env.DocbookPdf('manual')
     <term>
       <function>env.DocbookSlidesHtml()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 A pseudo-Builder, providing a Docbook toolchain for HTML slides output.
 </para>
 
-<example_commands>env = Environment(tools=['docbook'])
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
 env.DocbookSlidesHtml('manual')
 </example_commands>
 
-<para>If you use the <literal>titlefoil.html</literal> parameter in
+<para xmlns="http://www.scons.org/dbxsd/v1.0">If you use the <literal>titlefoil.html</literal> parameter in
 your own stylesheets you have to give the new target name. This ensures
 that the dependencies get correct, especially for the cleanup via 
 <quote><literal>scons -c</literal></quote>:
 </para>
-<screen>env = Environment(tools=['docbook'])
+<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
 env.DocbookSlidesHtml('mymanual.html','manual', xsl='slideshtml.xsl')
 </screen>
 
-<para>Some basic support for the <literal>base.dir</literal> parameter 
+<para xmlns="http://www.scons.org/dbxsd/v1.0">Some basic support for the <literal>base.dir</literal> parameter 
 is provided. You
 can add the <literal>base_dir</literal> keyword to your Builder
 call, and the given prefix gets prepended to all the created filenames:
 </para>
-<screen>env = Environment(tools=['docbook'])
+<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
 env.DocbookSlidesHtml('manual', xsl='slideshtml.xsl', base_dir='output/')
 </screen>
-<para>Make sure that you don't forget the trailing slash for the base folder, else
+<para xmlns="http://www.scons.org/dbxsd/v1.0">Make sure that you don't forget the trailing slash for the base folder, else
 your files get renamed only! 
 </para>
 
@@ -298,19 +308,20 @@ your files get renamed only!
     <term>
       <function>env.DocbookSlidesPdf()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 A pseudo-Builder, providing a Docbook toolchain for PDF slides output.
 </para>
 
-<example_commands>env = Environment(tools=['docbook'])
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
 env.DocbookSlidesPdf('manual.pdf', 'manual.xml')
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 or simply
 </para>
 
-<example_commands>env = Environment(tools=['docbook'])
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
 env.DocbookSlidesPdf('manual')
 </example_commands>
 </listitem>
@@ -322,11 +333,12 @@ env.DocbookSlidesPdf('manual')
     <term>
       <function>env.DocbookXInclude()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 A pseudo-Builder, for resolving XIncludes in a separate processing step.
 </para>
 
-<example_commands>env = Environment(tools=['docbook'])
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
 env.DocbookXInclude('manual_xincluded.xml', 'manual.xml')
 </example_commands>
 </listitem>
@@ -338,15 +350,16 @@ env.DocbookXInclude('manual_xincluded.xml', 'manual.xml')
     <term>
       <function>env.DocbookXslt()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 A pseudo-Builder, applying a given XSL transformation to the input file.
 </para>
 
-<example_commands>env = Environment(tools=['docbook'])
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
 env.DocbookXslt('manual_transformed.xml', 'manual.xml', xsl='transform.xslt')
 </example_commands>
 
-<para>Note, that this builder requires the <literal>xsl</literal> parameter
+<para xmlns="http://www.scons.org/dbxsd/v1.0">Note, that this builder requires the <literal>xsl</literal> parameter
 to be set.
 </para>
 </listitem>
@@ -358,40 +371,41 @@ to be set.
     <term>
       <function>env.DVI()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds a <filename>.dvi</filename> file
 from a <filename>.tex</filename>,
 <filename>.ltx</filename> or <filename>.latex</filename> input file.
 If the source file suffix is <filename>.tex</filename>,
-<filename>scons</filename>
+<filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>
 will examine the contents of the file;
 if the string
 <literal>\documentclass</literal>
 or
 <literal>\documentstyle</literal>
 is found, the file is assumed to be a LaTeX file and
-the target is built by invoking the <link linkend="cv-LATEXCOM"><envar>$LATEXCOM</envar></link> command line;
-otherwise, the <link linkend="cv-TEXCOM"><envar>$TEXCOM</envar></link> command line is used.
+the target is built by invoking the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-LATEXCOM"><envar>$LATEXCOM</envar></link> command line;
+otherwise, the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-TEXCOM"><envar>$TEXCOM</envar></link> command line is used.
 If the file is a LaTeX file,
 the
-<function>DVI</function>
+<function xmlns="http://www.scons.org/dbxsd/v1.0">DVI</function>
 builder method will also examine the contents
 of the
 <filename>.aux</filename>
-file and invoke the <link linkend="cv-BIBTEX"><envar>$BIBTEX</envar></link> command line
+file and invoke the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-BIBTEX"><envar>$BIBTEX</envar></link> command line
 if the string
 <literal>bibdata</literal>
 is found,
-start <link linkend="cv-MAKEINDEX"><envar>$MAKEINDEX</envar></link> to generate an index if a
+start <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-MAKEINDEX"><envar>$MAKEINDEX</envar></link> to generate an index if a
 <filename>.ind</filename>
 file is found
 and will examine the contents
 <filename>.log</filename>
-file and re-run the <link linkend="cv-LATEXCOM"><envar>$LATEXCOM</envar></link> command
+file and re-run the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-LATEXCOM"><envar>$LATEXCOM</envar></link> command
 if the log file says it is necessary.
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 The suffix <filename>.dvi</filename>
 (hard-coded within TeX itself)
 is automatically added to the target
@@ -399,7 +413,7 @@ if it is not already present.
 Examples:
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 # builds from aaa.tex
 env.DVI(target = 'aaa.dvi', source = 'aaa.tex')
 # builds bbb.dvi
@@ -416,13 +430,14 @@ env.DVI(target = 'ccc.dvi', source = 'ccc.latex')
     <term>
       <function>env.Gs()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 A Builder for explicitly calling the <literal>gs</literal> executable.
 Depending on the underlying OS, the different names <literal>gs</literal>,
 <literal>gsos2</literal> and <literal>gswin32c</literal>
 are tried.
 </para>
-<example_commands>env = Environment(tools=['gs'])
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['gs'])
 env.Gs('cover.jpg','scons-scons.pdf',
        GSFLAGS='-dNOPAUSE -dBATCH -sDEVICE=jpeg -dFirstPage=1 -dLastPage=1 -q') 
        )
@@ -436,7 +451,8 @@ env.Gs('cover.jpg','scons-scons.pdf',
     <term>
       <function>env.Install()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Installs one or more source files or directories
 in the specified target,
 which must be a directory.
@@ -446,7 +462,7 @@ sources may be given as a string or as a node returned by
 a builder.
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.Install('/usr/local/bin', source = ['foo', 'bar'])
 </example_commands>
 </listitem>
@@ -458,7 +474,8 @@ env.Install('/usr/local/bin', source = ['foo', 'bar'])
     <term>
       <function>env.InstallAs()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Installs one or more source files or directories
 to specific names,
 allowing changing a file or directory name
@@ -470,7 +487,7 @@ source
 arguments list different numbers of files or directories.
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.InstallAs(target = '/usr/local/bin/foo',
               source = 'foo_debug')
 env.InstallAs(target = ['../lib/libfoo.a', '../lib/libbar.a'],
@@ -486,12 +503,13 @@ env.InstallAs(target = ['../lib/libfoo.a', '../lib/libbar.a'],
     <term>
       <function>env.InstallVersionedLib()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Installs a versioned shared library. The symlinks appropriate to the
 architecture will be generated based on symlinks of the source library.
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.InstallVersionedLib(target = '/usr/local/bin/foo',
               source = 'libxyz.1.5.2.so')
 </example_commands>
@@ -504,40 +522,41 @@ env.InstallVersionedLib(target = '/usr/local/bin/foo',
     <term>
       <function>env.Jar()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds a Java archive (<filename>.jar</filename>) file
 from the specified list of sources.
 Any directories in the source list
 will be searched for <filename>.class</filename> files).
 Any <filename>.java</filename> files in the source list
 will be compiled  to <filename>.class</filename> files
-by calling the <link linkend="b-Java"><function>Java</function></link> Builder.
+by calling the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-Java"><function>Java</function></link> Builder.
 </para>
 
-<para>
-If the <link linkend="cv-JARCHDIR"><envar>$JARCHDIR</envar></link> value is set, the
-<application>jar</application>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+If the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-JARCHDIR"><envar>$JARCHDIR</envar></link> value is set, the
+<application xmlns="http://www.scons.org/dbxsd/v1.0">jar</application>
 command will change to the specified directory using the
 <option>-C</option>
 option.
-If <envar>$JARCHDIR</envar> is not set explicitly,
-<application>SCons</application> will use the top of any subdirectory tree
+If <envar xmlns="http://www.scons.org/dbxsd/v1.0">$JARCHDIR</envar> is not set explicitly,
+<application xmlns="http://www.scons.org/dbxsd/v1.0">SCons</application> will use the top of any subdirectory tree
 in which Java <filename>.class</filename>
-were built by the <link linkend="b-Java"><function>Java</function></link> Builder.
+were built by the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-Java"><function>Java</function></link> Builder.
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 If the contents any of the source files begin with the string
 <literal>Manifest-Version</literal>,
 the file is assumed to be a manifest
 and is passed to the
-<application>jar</application>
+<application xmlns="http://www.scons.org/dbxsd/v1.0">jar</application>
 command with the
 <option>m</option>
 option set.
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.Jar(target = 'foo.jar', source = 'classes')
 
 env.Jar(target = 'bar.jar',
@@ -552,7 +571,8 @@ env.Jar(target = 'bar.jar',
     <term>
       <function>env.Java()</function>
     </term>
-    <listitem><para>
+    <listitem>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
                 Builds one or more Java class files.
                 The sources may be any combination of explicit
                 <filename>.java</filename>
@@ -561,7 +581,7 @@ env.Jar(target = 'bar.jar',
                 for <filename>.java</filename> files.
             </para>
 
-            <para>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
                 SCons will parse each source <filename>.java</filename> file
                 to find the classes
                 (including inner classes)
@@ -572,7 +592,7 @@ env.Jar(target = 'bar.jar',
                 the specified target directory.
             </para>
 
-            <para>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
                 SCons will also search each Java file
                 for the Java package name,
                 which it assumes can be found on a line
@@ -595,17 +615,17 @@ env.Jar(target = 'bar.jar',
                 class file.
             </para>
 
-            <para>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
                 Examples:
             </para>
 
-            <example_commands>
+            <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
                 env.Java(target = 'classes', source = 'src')
                 env.Java(target = 'classes', source = ['src1', 'src2'])
                 env.Java(target = 'classes', source = ['File1.java', 'File2.java'])
             </example_commands>
 
-            <para>
+            <para xmlns="http://www.scons.org/dbxsd/v1.0">
                 Java source files can use the native encoding for the underlying OS.
                 Since SCons compiles in simple ASCII mode by default,
                 the compiler will generate warnings about unmappable characters,
@@ -618,7 +638,7 @@ env.Jar(target = 'bar.jar',
                 with a different encoding.
             </para>
 
-            <example_commands>
+            <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
                 env = Environment()
                 env['ENV']['LANG'] = 'en_GB.UTF-8'
             </example_commands>
@@ -631,7 +651,8 @@ env.Jar(target = 'bar.jar',
     <term>
       <function>env.JavaH()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds C header and source files for
 implementing Java native methods.
 The target can be either a directory
@@ -641,29 +662,29 @@ will contain all of the definitions.
 The source can be the names of <filename>.class</filename> files,
 the names of <filename>.java</filename> files
 to be compiled into <filename>.class</filename> files
-by calling the <link linkend="b-Java"><function>Java</function></link> builder method,
+by calling the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-Java"><function>Java</function></link> builder method,
 or the objects returned from the
-<function>Java</function>
+<function xmlns="http://www.scons.org/dbxsd/v1.0">Java</function>
 builder method.
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 If the construction variable
-<link linkend="cv-JAVACLASSDIR"><envar>$JAVACLASSDIR</envar></link>
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-JAVACLASSDIR"><envar>$JAVACLASSDIR</envar></link>
 is set, either in the environment
 or in the call to the
-<function>JavaH</function>
+<function xmlns="http://www.scons.org/dbxsd/v1.0">JavaH</function>
 builder method itself,
 then the value of the variable
 will be stripped from the
 beginning of any <filename>.class</filename> file names.
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Examples:
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 # builds java_native.h
 classes = env.Java(target = 'classdir', source = 'src')
 env.JavaH(target = 'java_native.h', source = classes)
@@ -686,9 +707,10 @@ env.JavaH(target = 'export',
     <term>
       <function>env.Library()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 A synonym for the
-<function>StaticLibrary</function>
+<function xmlns="http://www.scons.org/dbxsd/v1.0">StaticLibrary</function>
 builder method.
 </para>
 </listitem>
@@ -700,10 +722,11 @@ builder method.
     <term>
       <function>env.LoadableModule()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 On most systems,
 this is the same as
-<function>SharedLibrary</function>.
+<function xmlns="http://www.scons.org/dbxsd/v1.0">SharedLibrary</function>.
 On Mac OS X (Darwin) platforms,
 this creates a loadable module bundle.
 </para>
@@ -716,9 +739,10 @@ this creates a loadable module bundle.
     <term>
       <function>env.M4()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds an output file from an M4 input file.
-This uses a default <link linkend="cv-M4FLAGS"><envar>$M4FLAGS</envar></link> value of
+This uses a default <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-M4FLAGS"><envar>$M4FLAGS</envar></link> value of
 <option>-E</option>,
 which considers all warnings to be fatal
 and stops on the first warning
@@ -726,7 +750,7 @@ when using the GNU version of m4.
 Example:
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.M4(target = 'foo.c', source = 'foo.c.m4')
 </example_commands>
 </listitem>
@@ -738,14 +762,15 @@ env.M4(target = 'foo.c', source = 'foo.c.m4')
     <term>
       <function>env.Moc()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds an output file from a moc input file. Moc input files are either
 header files or cxx files. This builder is only available after using the
-tool 'qt'. See the <link linkend="cv-QTDIR"><envar>$QTDIR</envar></link> variable for more information.
+tool 'qt'. See the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-QTDIR"><envar>$QTDIR</envar></link> variable for more information.
 Example:
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.Moc('foo.h') # generates moc_foo.cc
 env.Moc('foo.cpp') # generates foo.moc
 </example_commands>
@@ -758,47 +783,48 @@ env.Moc('foo.cpp') # generates foo.moc
     <term>
       <function>env.MOFiles()</function>
     </term>
-    <listitem><para>
-This builder belongs to <link linkend="t-msgfmt"><literal>msgfmt</literal></link> tool. The builder compiles
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+This builder belongs to <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-msgfmt"><literal>msgfmt</literal></link> tool. The builder compiles
 <literal>PO</literal> files to <literal>MO</literal> files.
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 1</emphasis>.
 Create <filename>pl.mo</filename> and <filename>en.mo</filename> by compiling
 <filename>pl.po</filename> and <filename>en.po</filename>:
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # ...
   env.MOFiles(['pl', 'en'])
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 2</emphasis>.
 Compile files for languages defined in <filename>LINGUAS</filename> file:
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # ...
   env.MOFiles(LINGUAS_FILE = 1)
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 3</emphasis>.
 Create <filename>pl.mo</filename> and <filename>en.mo</filename> by compiling
 <filename>pl.po</filename> and <filename>en.po</filename> plus files for
 languages defined in <filename>LINGUAS</filename> file:
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # ...
   env.MOFiles(['pl', 'en'], LINGUAS_FILE = 1)
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 4</emphasis>.
 Compile files for languages defined in <filename>LINGUAS</filename> file 
 (another version):
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # ...
   env['LINGUAS_FILE'] = 1
   env.MOFiles()
@@ -812,53 +838,52 @@ Compile files for languages defined in <filename>LINGUAS</filename> file
     <term>
       <function>env.MSVSProject()</function>
     </term>
-    <listitem><para>
+    <listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
         Builds a Microsoft Visual Studio project file, and by default
         builds a solution file as well.
       </para>
-      <para>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
         This builds a Visual Studio project file, based on the
         version of Visual Studio that is configured (either the
         latest installed version, or the version specified by
-        <link linkend="cv-MSVS_VERSION"><envar>$MSVS_VERSION</envar></link> in the Environment constructor). For
+        <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-MSVS_VERSION"><envar>$MSVS_VERSION</envar></link> in the Environment constructor). For
         Visual Studio 6, it will generate a <filename>.dsp</filename>
-        file. For Visual Studio 7, 8, and 9, it will
-        generate a <filename>.vcproj</filename> file.  For Visual
-        Studio 10 and later, it will generate a
-        <filename>.vcxproj</filename> file.
+        file. For Visual Studio 7 (.NET) and later versions, it will
+        generate a <filename>.vcproj</filename> file.
       </para>
-      <para>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
         By default, this also generates a solution file for the
         specified project, a <filename>.dsw</filename> file for
         Visual Studio 6 or a <filename>.sln</filename> file for
-        Visual Studio 7 and later. This behavior may be disabled by
+        Visual Studio 7 (.NET). This behavior may be disabled by
         specifying <literal>auto_build_solution=0</literal> when you
-        call <function>MSVSProject</function>, in which case you presumably want to
-        build the solution file(s) by calling the <function>MSVSSolution</function>
+        call <function xmlns="http://www.scons.org/dbxsd/v1.0">MSVSProject</function>, in which case you presumably want to
+        build the solution file(s) by calling the <function xmlns="http://www.scons.org/dbxsd/v1.0">MSVSSolution</function>
         Builder (see below).
       </para>
-      <para>
-        The <function>MSVSProject</function> builder takes several lists of filenames
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The <function xmlns="http://www.scons.org/dbxsd/v1.0">MSVSProject</function> builder takes several lists of filenames
         to be placed into the project file. These are currently
         limited to <literal>srcs</literal>, <literal>incs</literal>,
         <literal>localincs</literal>, <literal>resources</literal>, and
         <literal>misc</literal>. These are pretty self-explanatory,
         but it should be noted that these lists are added to the
-        <link linkend="cv-SOURCES"><envar>$SOURCES</envar></link> construction variable as strings, NOT as
+        <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SOURCES"><envar>$SOURCES</envar></link> construction variable as strings, NOT as
         SCons File Nodes.  This is because they represent file names
         to be added to the project file, not the source files used
         to build the project file.
       </para>
-      <para>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
         The above filename lists are all optional, although at least
         one must be specified for the resulting project file to
         be non-empty.
       </para>
-      <para>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
         In addition to the above lists of values, the following values
         may be specified:
       </para>
-      <variablelist>
+      <variablelist xmlns="http://www.scons.org/dbxsd/v1.0">
         <varlistentry>
           <term>target</term>
           <listitem>
@@ -866,7 +891,7 @@ Compile files for languages defined in <filename>LINGUAS</filename> file
               The name of the target <filename>.dsp</filename>
               or <filename>.vcproj</filename> file.
               The correct suffix for the version of Visual Studio
-              must be used, but the <link linkend="cv-MSVSPROJECTSUFFIX"><envar>$MSVSPROJECTSUFFIX</envar></link>
+              must be used, but the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-MSVSPROJECTSUFFIX"><envar>$MSVSPROJECTSUFFIX</envar></link>
               construction variable will be defined to the correct
               value (see example below).
             </para>
@@ -884,7 +909,7 @@ Compile files for languages defined in <filename>LINGUAS</filename> file
               separated from the variant name by a <literal>|</literal>
               (vertical pipe) character: <literal>Debug|Xbox</literal>.
               The default target platform is Win32. Multiple calls
-              to <function>MSVSProject</function> with different variants are allowed;
+              to <function xmlns="http://www.scons.org/dbxsd/v1.0">MSVSProject</function> with different variants are allowed;
               all variants will be added to the project file with
               their appropriate build targets and sources.
             </para>
@@ -900,36 +925,6 @@ Compile files for languages defined in <filename>LINGUAS</filename> file
               of <literal>variant</literal> entries, or be empty (not
               specified). If you give only one, it will automatically
               be propagated to all variants.
-            </para>
-          </listitem>
-        </varlistentry>
-        <varlistentry>
-          <term>cppdefines</term>
-          <listitem>
-            <para>
-              Preprocessor definitions for the different variants.
-              The number of <literal>cppdefines</literal> entries
-              must match the number of <literal>variant</literal>
-              entries, or be empty (not specified). If you give
-              only one, it will automatically be propagated to all
-              variants. If you don't give this parameter, SCons
-              will use the invoking environment's
-              <literal>CPPDEFINES</literal> entry for all variants.
-            </para>
-          </listitem>
-        </varlistentry>
-        <varlistentry>
-          <term>cpppaths</term>
-          <listitem>
-            <para>
-              Compiler include paths for the different variants.
-              The number of <literal>cpppaths</literal> entries
-              must match the number of <literal>variant</literal>
-              entries, or be empty (not specified). If you give
-              only one, it will automatically be propagated to all
-              variants. If you don't give this parameter, SCons
-              will use the invoking environment's
-              <literal>CPPPATH</literal> entry for all variants.
             </para>
           </listitem>
         </varlistentry>
@@ -960,20 +955,20 @@ Compile files for languages defined in <filename>LINGUAS</filename> file
           </listitem>
         </varlistentry>
       </variablelist>
-      <para>
-        Note that because <application>SCons</application> always executes its build commands
-        from the directory in which the <filename>SConstruct</filename> file is located,
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
+        Note that because <application xmlns="http://www.scons.org/dbxsd/v1.0">SCons</application> always executes its build commands
+        from the directory in which the <filename xmlns="http://www.scons.org/dbxsd/v1.0">SConstruct</filename> file is located,
         if you generate a project file in a different directory
-        than the <filename>SConstruct</filename> directory, users will not be able to
+        than the <filename xmlns="http://www.scons.org/dbxsd/v1.0">SConstruct</filename> directory, users will not be able to
         double-click on the file name in compilation error messages
         displayed in the Visual Studio console output window. This can
         be remedied by adding the Visual C/C++ <literal>/FC</literal>
-        compiler option to the <link linkend="cv-CCFLAGS"><envar>$CCFLAGS</envar></link> variable so that
+        compiler option to the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-CCFLAGS"><envar>$CCFLAGS</envar></link> variable so that
         the compiler will print the full path name of any files that
         cause compilation errors.
       </para>
-      <para>Example usage:</para>
-      <example_commands>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">Example usage:</para>
+      <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 barsrcs = ['bar.cpp']
 barincs = ['bar.h']
 barlocalincs = ['StdAfx.h']
@@ -992,13 +987,13 @@ env.MSVSProject(target='Bar' + env['MSVSPROJECTSUFFIX'],
                 buildtarget=buildtarget,
                 variant='Release')
       </example_commands>
-      <para>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
         Starting with version 2.4 of SCons it is
         also possible to specify the optional argument
         <parameter>DebugSettings</parameter>, which creates files
         for debugging under Visual Studio:
       </para>
-      <variablelist>
+      <variablelist xmlns="http://www.scons.org/dbxsd/v1.0">
         <varlistentry>
           <term>DebugSettings</term>
           <listitem>
@@ -1014,7 +1009,7 @@ env.MSVSProject(target='Bar' + env['MSVSPROJECTSUFFIX'],
           </listitem>
         </varlistentry>
       </variablelist>
-      <para>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
         Currently, only Visual Studio v9.0 and Visual Studio
         version v11 are implemented, for other versions no file
         is generated. To generate the user file, you just need to
@@ -1023,11 +1018,11 @@ env.MSVSProject(target='Bar' + env['MSVSPROJECTSUFFIX'],
         the dictionary is empty, or does not contain any good value,
         no file will be generated.
       </para>
-      <para>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
         Following is a more contrived example, involving the setup
         of a project for variants and DebugSettings:
       </para>
-      <example_commands>
+      <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 # Assuming you store your defaults in a file
 vars = Variables('variables.py')
 msvcver = vars.args.get('vc', '9')
@@ -1151,25 +1146,26 @@ env.MSVSProject(target='Bar' + env['MSVSPROJECTSUFFIX'],
     <term>
       <function>env.MSVSSolution()</function>
     </term>
-    <listitem><para>Builds a Microsoft Visual Studio solution file.</para>
-      <para>
+    <listitem>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">Builds a Microsoft Visual Studio solution file.</para>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">
         This builds a Visual Studio solution file, based on the
         version of Visual Studio that is configured (either the
         latest installed version, or the version specified by
-        <link linkend="cv-MSVS_VERSION"><envar>$MSVS_VERSION</envar></link> in the construction environment). For
+        <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-MSVS_VERSION"><envar>$MSVS_VERSION</envar></link> in the construction environment). For
         Visual Studio 6, it will generate a <filename>.dsw</filename>
         file. For Visual Studio 7 (.NET), it will generate a
         <filename>.sln</filename> file.
       </para>
-      <para>The following values must be specified:</para>
-      <variablelist>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">The following values must be specified:</para>
+      <variablelist xmlns="http://www.scons.org/dbxsd/v1.0">
         <varlistentry>
           <term>target</term>
           <listitem>
             <para>
               The name of the target .dsw or .sln file. The correct
               suffix for the version of Visual Studio must be used,
-              but the value <link linkend="cv-MSVSSOLUTIONSUFFIX"><envar>$MSVSSOLUTIONSUFFIX</envar></link> will be
+              but the value <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-MSVSSOLUTIONSUFFIX"><envar>$MSVSSOLUTIONSUFFIX</envar></link> will be
               defined to the correct value (see example below).
             </para>
           </listitem>
@@ -1188,7 +1184,7 @@ env.MSVSProject(target='Bar' + env['MSVSPROJECTSUFFIX'],
           <term>projects</term> <listitem>
             <para>
               A list of project file names, or Project nodes returned
-              by calls to the <function>MSVSProject</function> Builder, to be placed
+              by calls to the <function xmlns="http://www.scons.org/dbxsd/v1.0">MSVSProject</function> Builder, to be placed
               into the solution file. It should be noted that these
               file names are NOT added to the $SOURCES environment
               variable in form of files, but rather as strings.
@@ -1199,8 +1195,8 @@ env.MSVSProject(target='Bar' + env['MSVSPROJECTSUFFIX'],
           </listitem>
         </varlistentry>
       </variablelist>
-      <para>Example Usage:</para>
-      <example_commands>
+      <para xmlns="http://www.scons.org/dbxsd/v1.0">Example Usage:</para>
+      <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.MSVSSolution(target='Bar' + env['MSVSSOLUTIONSUFFIX'], projects=['bar' + env['MSVSPROJECTSUFFIX']], variant='Release')
       </example_commands>
     </listitem>
@@ -1212,9 +1208,10 @@ env.MSVSSolution(target='Bar' + env['MSVSSOLUTIONSUFFIX'], projects=['bar' + env
     <term>
       <function>env.Object()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 A synonym for the
-<function>StaticObject</function>
+<function xmlns="http://www.scons.org/dbxsd/v1.0">StaticObject</function>
 builder method.
 </para>
 </listitem>
@@ -1226,39 +1223,41 @@ builder method.
     <term>
       <function>env.Package()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds a Binary Package of the given source files. 
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.Package(source = FindInstalledFiles())
 </example_commands>
-<para>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds software distribution packages.
 Packages consist of files to install and packaging information.
-The former may be specified with the <varname>source</varname> parameter and may be left out,
-in which case the <function>FindInstalledFiles</function> function will collect
-all files that have an <function>Install</function> or <function>InstallAs</function> Builder attached.
-If the <varname>target</varname> is not specified
+The former may be specified with the <varname xmlns="http://www.scons.org/dbxsd/v1.0">source</varname> parameter and may be left out,
+in which case the <function xmlns="http://www.scons.org/dbxsd/v1.0">FindInstalledFiles</function> function will collect
+all files that have an <function xmlns="http://www.scons.org/dbxsd/v1.0">Install</function> or <function xmlns="http://www.scons.org/dbxsd/v1.0">InstallAs</function> Builder attached.
+If the <varname xmlns="http://www.scons.org/dbxsd/v1.0">target</varname> is not specified
 it will be deduced from additional information given to this Builder.
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 The packaging information is specified
 with the help of construction variables documented below.
 This information is called a tag to stress that
-some of them can also be attached to files with the <function>Tag</function> function.
+some of them can also be attached to files with the <function xmlns="http://www.scons.org/dbxsd/v1.0">Tag</function> function.
 The mandatory ones will complain if they were not specified.
 They vary depending on chosen target packager.
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 The target packager may be selected with the "PACKAGETYPE" command line
-option or with the <envar>$PACKAGETYPE</envar> construction variable. Currently
+option or with the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$PACKAGETYPE</envar> construction variable. Currently
 the following packagers available:
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
  * msi - Microsoft Installer
  * rpm - RPM Package Manger
  * ipkg - Itsy Package Management System
@@ -1272,11 +1271,11 @@ the following packagers available:
  * src_zip - zip file source
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 An updated list is always available under the "package_type" option when
 running "scons --help" on a project that has packaging activated.
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env = Environment(tools=['default', 'packaging'])
 env.Install('/bin/', 'my_program')
 env.Package( NAME           = 'foo',
@@ -1299,7 +1298,8 @@ env.Package( NAME           = 'foo',
     <term>
       <function>env.PCH()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds a Microsoft Visual C++ precompiled header.
 Calling this builder method
 returns a list of two targets: the PCH as the first element, and the object
@@ -1311,7 +1311,7 @@ conjunction with the PCH construction variable to force object files to use
 the precompiled header:
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env['PCH'] = env.PCH('StdAfx.cpp')[0]
 </example_commands>
 </listitem>
@@ -1323,20 +1323,21 @@ env['PCH'] = env.PCH('StdAfx.cpp')[0]
     <term>
       <function>env.PDF()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds a <filename>.pdf</filename> file
 from a <filename>.dvi</filename> input file
 (or, by extension, a <filename>.tex</filename>,
 <filename>.ltx</filename>,
 or
 <filename>.latex</filename> input file).
-The suffix specified by the <link linkend="cv-PDFSUFFIX"><envar>$PDFSUFFIX</envar></link> construction variable
+The suffix specified by the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-PDFSUFFIX"><envar>$PDFSUFFIX</envar></link> construction variable
 (<filename>.pdf</filename> by default)
 is added automatically to the target
 if it is not already present.  Example:
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 # builds from aaa.tex
 env.PDF(target = 'aaa.pdf', source = 'aaa.tex')
 # builds bbb.pdf from bbb.dvi
@@ -1351,99 +1352,100 @@ env.PDF(target = 'bbb', source = 'bbb.dvi')
     <term>
       <function>env.POInit()</function>
     </term>
-    <listitem><para>
-This builder belongs to <link linkend="t-msginit"><literal>msginit</literal></link> tool. The builder initializes missing
-<literal>PO</literal> file(s) if <link linkend="cv-POAUTOINIT"><envar>$POAUTOINIT</envar></link> is set.  If
-<link linkend="cv-POAUTOINIT"><envar>$POAUTOINIT</envar></link> is not set (default), <function>POInit</function> prints instruction for
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+This builder belongs to <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-msginit"><literal>msginit</literal></link> tool. The builder initializes missing
+<literal>PO</literal> file(s) if <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-POAUTOINIT"><envar>$POAUTOINIT</envar></link> is set.  If
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-POAUTOINIT"><envar>$POAUTOINIT</envar></link> is not set (default), <function xmlns="http://www.scons.org/dbxsd/v1.0">POInit</function> prints instruction for
 user (that is supposed to be a translator), telling how the
 <literal>PO</literal> file should be initialized. In normal projects
-<emphasis>you should not use <function>POInit</function> and use <link linkend="b-POUpdate"><function>POUpdate</function></link>
-instead</emphasis>. <link linkend="b-POUpdate"><function>POUpdate</function></link> chooses intelligently between
-<command>msgmerge(1)</command> and <command>msginit(1)</command>. <function>POInit</function>
+<emphasis>you should not use <function xmlns="http://www.scons.org/dbxsd/v1.0">POInit</function> and use <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-POUpdate"><function>POUpdate</function></link>
+instead</emphasis>. <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-POUpdate"><function>POUpdate</function></link> chooses intelligently between
+<command>msgmerge(1)</command> and <command>msginit(1)</command>. <function xmlns="http://www.scons.org/dbxsd/v1.0">POInit</function>
 always uses <command>msginit(1)</command> and should be regarded as builder for
 special purposes or for temporary use (e.g. for quick, one time initialization
 of a bunch of <literal>PO</literal> files) or for tests.
 </para>
 
-<para>
-Target nodes defined through <function>POInit</function> are not built by default (they're
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Target nodes defined through <function xmlns="http://www.scons.org/dbxsd/v1.0">POInit</function> are not built by default (they're
 <literal>Ignore</literal>d from <literal>'.'</literal> node) but are added to
 special <literal>Alias</literal> (<literal>'po-create'</literal> by default).
-The alias name may be changed through the <link linkend="cv-POCREATE_ALIAS"><envar>$POCREATE_ALIAS</envar></link>
+The alias name may be changed through the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-POCREATE_ALIAS"><envar>$POCREATE_ALIAS</envar></link>
 construction variable. All <literal>PO</literal> files defined through
-<function>POInit</function> may be easily initialized by <command>scons po-create</command>.
+<function xmlns="http://www.scons.org/dbxsd/v1.0">POInit</function> may be easily initialized by <command>scons po-create</command>.
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 1</emphasis>.
 Initialize <filename>en.po</filename> and <filename>pl.po</filename> from
 <filename>messages.pot</filename>:
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # ...
   env.POInit(['en', 'pl']) # messages.pot --&gt; [en.po, pl.po] 
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 2</emphasis>.
 Initialize <filename>en.po</filename> and <filename>pl.po</filename> from
 <filename>foo.pot</filename>:
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # ...
   env.POInit(['en', 'pl'], ['foo']) # foo.pot --&gt; [en.po, pl.po] 
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 3</emphasis>.
 Initialize <filename>en.po</filename> and <filename>pl.po</filename> from
-<filename>foo.pot</filename> but using <link linkend="cv-POTDOMAIN"><envar>$POTDOMAIN</envar></link> construction
+<filename>foo.pot</filename> but using <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-POTDOMAIN"><envar>$POTDOMAIN</envar></link> construction
 variable:
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # ...
   env.POInit(['en', 'pl'], POTDOMAIN='foo') # foo.pot --&gt; [en.po, pl.po] 
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 4</emphasis>.
 Initialize <literal>PO</literal> files for languages defined in
 <filename>LINGUAS</filename> file. The files will be initialized from template
 <filename>messages.pot</filename>:
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # ...
   env.POInit(LINGUAS_FILE = 1) # needs 'LINGUAS' file
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 5</emphasis>.
 Initialize <filename>en.po</filename> and <filename>pl.pl</filename>
 <literal>PO</literal> files plus files for languages defined in
 <filename>LINGUAS</filename> file. The files will be initialized from template
 <filename>messages.pot</filename>:
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # ...
   env.POInit(['en', 'pl'], LINGUAS_FILE = 1)
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 6</emphasis>.
 You may preconfigure your environment first, and then initialize
 <literal>PO</literal> files:
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # ...
   env['POAUTOINIT'] = 1
   env['LINGUAS_FILE'] = 1
   env['POTDOMAIN'] = 'foo'
   env.POInit()
 </example_commands>
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 which has same efect as:
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # ...
   env.POInit(POAUTOINIT = 1, LINGUAS_FILE = 1, POTDOMAIN = 'foo')
 </example_commands>
@@ -1456,20 +1458,21 @@ which has same efect as:
     <term>
       <function>env.PostScript()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds a <filename>.ps</filename> file
 from a <filename>.dvi</filename> input file
 (or, by extension, a <filename>.tex</filename>,
 <filename>.ltx</filename>,
 or
 <filename>.latex</filename> input file).
-The suffix specified by the <link linkend="cv-PSSUFFIX"><envar>$PSSUFFIX</envar></link> construction variable
+The suffix specified by the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-PSSUFFIX"><envar>$PSSUFFIX</envar></link> construction variable
 (<filename>.ps</filename> by default)
 is added automatically to the target
 if it is not already present.  Example:
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 # builds from aaa.tex
 env.PostScript(target = 'aaa.ps', source = 'aaa.tex')
 # builds bbb.ps from bbb.dvi
@@ -1484,23 +1487,24 @@ env.PostScript(target = 'bbb', source = 'bbb.dvi')
     <term>
       <function>env.POTUpdate()</function>
     </term>
-    <listitem><para>
-The builder belongs to <link linkend="t-xgettext"><literal>xgettext</literal></link> tool. The builder updates target
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The builder belongs to <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-xgettext"><literal>xgettext</literal></link> tool. The builder updates target
 <literal>POT</literal> file if exists or creates one if it doesn't. The node is
 not built by default (i.e. it is <literal>Ignore</literal>d from
 <literal>'.'</literal>), but only on demand (i.e.  when given
 <literal>POT</literal> file is required or when special alias is invoked). This
 builder adds its targe node (<filename>messages.pot</filename>, say) to a
 special alias (<literal>pot-update</literal> by default, see
-<link linkend="cv-POTUPDATE_ALIAS"><envar>$POTUPDATE_ALIAS</envar></link>) so you can update/create them easily with
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-POTUPDATE_ALIAS"><envar>$POTUPDATE_ALIAS</envar></link>) so you can update/create them easily with
 <command>scons pot-update</command>. The file is not written until there is no
 real change in internationalized messages (or in comments that enter
 <literal>POT</literal> file). 
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <note> <para>You may see <command>xgettext(1)</command> being invoked by the
-<link linkend="t-xgettext"><literal>xgettext</literal></link> tool even if there is no real change in internationalized
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-xgettext"><literal>xgettext</literal></link> tool even if there is no real change in internationalized
 messages (so the <literal>POT</literal> file is not being updated).  This
 happens every time  a source file has changed. In such case we invoke
 <command>xgettext(1)</command> and compare its output with the content of
@@ -1508,38 +1512,38 @@ happens every time  a source file has changed. In such case we invoke
 not.</para></note>
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 1.</emphasis>
 Let's create <filename>po/</filename> directory and place following
 <filename>SConstruct</filename> script there:
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # SConstruct in 'po/' subdir
   env = Environment( tools = ['default', 'xgettext'] )
   env.POTUpdate(['foo'], ['../a.cpp', '../b.cpp'])
   env.POTUpdate(['bar'], ['../c.cpp', '../d.cpp'])
 </example_commands>      
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Then invoke scons few times:
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   user@host:$ scons             # Does not create foo.pot nor bar.pot
   user@host:$ scons foo.pot     # Updates or creates foo.pot
   user@host:$ scons pot-update  # Updates or creates foo.pot and bar.pot
   user@host:$ scons -c          # Does not clean foo.pot nor bar.pot.
 </example_commands>
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 the results shall be as the comments above say.
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 2.</emphasis>
-The <function>POTUpdate</function> builder may be used with no target specified, in which
+The <function xmlns="http://www.scons.org/dbxsd/v1.0">POTUpdate</function> builder may be used with no target specified, in which
 case default target <filename>messages.pot</filename> will be used. The
-default target may also be overridden by setting <link linkend="cv-POTDOMAIN"><envar>$POTDOMAIN</envar></link> construction
-variable or providing it as an override to <function>POTUpdate</function> builder:
+default target may also be overridden by setting <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-POTDOMAIN"><envar>$POTDOMAIN</envar></link> construction
+variable or providing it as an override to <function xmlns="http://www.scons.org/dbxsd/v1.0">POTUpdate</function> builder:
 </para>
-<example_commands>    
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">    
   # SConstruct script
   env = Environment( tools = ['default', 'xgettext'] )
   env['POTDOMAIN'] = "foo"
@@ -1547,49 +1551,49 @@ variable or providing it as an override to <function>POTUpdate</function> builde
   env.POTUpdate(POTDOMAIN = "bar", source = ["c.cpp", "d.cpp"]) # and bar.pot
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 3.</emphasis>
 The sources may be specified within separate file, for example
 <filename>POTFILES.in</filename>:
 </para>
-<example_commands>      
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">      
   # POTFILES.in in 'po/' subdirectory
   ../a.cpp
   ../b.cpp
   # end of file
 </example_commands>    
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 The name of the file (<filename>POTFILES.in</filename>) containing the list of
-sources is provided via <link linkend="cv-XGETTEXTFROM"><envar>$XGETTEXTFROM</envar></link>:
+sources is provided via <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-XGETTEXTFROM"><envar>$XGETTEXTFROM</envar></link>:
 </para>
-<example_commands>      
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">      
   # SConstruct file in 'po/' subdirectory
   env = Environment( tools = ['default', 'xgettext'] )
   env.POTUpdate(XGETTEXTFROM = 'POTFILES.in')
 </example_commands>    
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 4.</emphasis>
-You may use <link linkend="cv-XGETTEXTPATH"><envar>$XGETTEXTPATH</envar></link> to define source search path. Assume, for
+You may use <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-XGETTEXTPATH"><envar>$XGETTEXTPATH</envar></link> to define source search path. Assume, for
 example, that you have files <filename>a.cpp</filename>,
 <filename>b.cpp</filename>, <filename>po/SConstruct</filename>,
 <filename>po/POTFILES.in</filename>. Then your <literal>POT</literal>-related
 files could look as below:
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # POTFILES.in in 'po/' subdirectory
   a.cpp
   b.cpp
   # end of file
 </example_commands>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # SConstruct file in 'po/' subdirectory
   env = Environment( tools = ['default', 'xgettext'] )
   env.POTUpdate(XGETTEXTFROM = 'POTFILES.in', XGETTEXTPATH='../')
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 5.</emphasis>
 Multiple search directories may be defined within a list, i.e.
 <literal>XGETTEXTPATH = ['dir1', 'dir2', ...]</literal>. The order in the list
@@ -1597,48 +1601,48 @@ determines the search order of source files. The path to the first file found
 is used.
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Let's create <filename>0/1/po/SConstruct</filename> script:
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # SConstruct file in '0/1/po/' subdirectory
   env = Environment( tools = ['default', 'xgettext'] )
   env.POTUpdate(XGETTEXTFROM = 'POTFILES.in', XGETTEXTPATH=['../', '../../'])
 </example_commands>
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 and <filename>0/1/po/POTFILES.in</filename>:
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # POTFILES.in in '0/1/po/' subdirectory
   a.cpp
   # end of file
 </example_commands>
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Write two <filename>*.cpp</filename> files, the first one is
 <filename>0/a.cpp</filename>:
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   /* 0/a.cpp */
   gettext("Hello from ../../a.cpp")
 </example_commands>
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 and the second is <filename>0/1/a.cpp</filename>:
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   /* 0/1/a.cpp */
   gettext("Hello from ../a.cpp")
 </example_commands>
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 then run scons. You'll obtain <literal>0/1/po/messages.pot</literal> with the
 message <literal>"Hello from ../a.cpp"</literal>. When you reverse order in
 <varname>$XGETTEXTFOM</varname>, i.e. when you write SConscript as
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # SConstruct file in '0/1/po/' subdirectory
   env = Environment( tools = ['default', 'xgettext'] )
   env.POTUpdate(XGETTEXTFROM = 'POTFILES.in', XGETTEXTPATH=['../../', '../'])
 </example_commands> 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 then the <filename>messages.pot</filename> will contain
 <literal>msgid "Hello from ../../a.cpp"</literal> line and not 
 <literal>msgid "Hello from ../a.cpp"</literal>.
@@ -1653,106 +1657,107 @@ then the <filename>messages.pot</filename> will contain
     <term>
       <function>env.POUpdate()</function>
     </term>
-    <listitem><para>
-The builder belongs to <link linkend="t-msgmerge"><literal>msgmerge</literal></link> tool. The builder updates
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The builder belongs to <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-msgmerge"><literal>msgmerge</literal></link> tool. The builder updates
 <literal>PO</literal> files with <command>msgmerge(1)</command>, or initializes
 missing <literal>PO</literal> files as described in documentation of
-<link linkend="t-msginit"><literal>msginit</literal></link> tool and <link linkend="b-POInit"><function>POInit</function></link> builder (see also
-<link linkend="cv-POAUTOINIT"><envar>$POAUTOINIT</envar></link>). Note, that <function>POUpdate</function> <emphasis>does not add its
-targets to <literal>po-create</literal> alias</emphasis> as <link linkend="b-POInit"><function>POInit</function></link>
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-msginit"><literal>msginit</literal></link> tool and <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-POInit"><function>POInit</function></link> builder (see also
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-POAUTOINIT"><envar>$POAUTOINIT</envar></link>). Note, that <function xmlns="http://www.scons.org/dbxsd/v1.0">POUpdate</function> <emphasis>does not add its
+targets to <literal>po-create</literal> alias</emphasis> as <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-POInit"><function>POInit</function></link>
 does.
 </para>
 
-<para>
-Target nodes defined through <function>POUpdate</function> are not built by default
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Target nodes defined through <function xmlns="http://www.scons.org/dbxsd/v1.0">POUpdate</function> are not built by default
 (they're <literal>Ignore</literal>d from <literal>'.'</literal> node). Instead,
 they are added automatically to special <literal>Alias</literal> 
 (<literal>'po-update'</literal> by default). The alias name may be changed
-through the <link linkend="cv-POUPDATE_ALIAS"><envar>$POUPDATE_ALIAS</envar></link> construction variable.  You can easily 
+through the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-POUPDATE_ALIAS"><envar>$POUPDATE_ALIAS</envar></link> construction variable.  You can easily 
 update <literal>PO</literal> files in your project by <command>scons
 po-update</command>.
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 1.</emphasis>
 Update <filename>en.po</filename> and <filename>pl.po</filename> from
-<filename>messages.pot</filename> template (see also <link linkend="cv-POTDOMAIN"><envar>$POTDOMAIN</envar></link>),
+<filename>messages.pot</filename> template (see also <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-POTDOMAIN"><envar>$POTDOMAIN</envar></link>),
 assuming that the later one exists or there is rule to build it (see
-<link linkend="b-POTUpdate"><function>POTUpdate</function></link>):
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-POTUpdate"><function>POTUpdate</function></link>):
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # ...
   env.POUpdate(['en','pl']) # messages.pot --&gt; [en.po, pl.po]
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 2.</emphasis>
 Update <filename>en.po</filename> and <filename>pl.po</filename> from
 <filename>foo.pot</filename> template:
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # ...
   env.POUpdate(['en', 'pl'], ['foo']) # foo.pot --&gt;  [en.po, pl.pl]
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 3.</emphasis>
 Update <filename>en.po</filename> and <filename>pl.po</filename> from
 <filename>foo.pot</filename> (another version):
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # ...
   env.POUpdate(['en', 'pl'], POTDOMAIN='foo') # foo.pot -- &gt; [en.po, pl.pl]
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 4.</emphasis>
 Update files for languages defined in <filename>LINGUAS</filename> file. The
 files are updated from <filename>messages.pot</filename> template:
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # ...
   env.POUpdate(LINGUAS_FILE = 1) # needs 'LINGUAS' file
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 5.</emphasis>
 Same as above, but update from <filename>foo.pot</filename> template:
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # ...
   env.POUpdate(LINGUAS_FILE = 1, source = ['foo'])
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 6.</emphasis>
 Update <filename>en.po</filename> and <filename>pl.po</filename> plus files for
 languages defined in <filename>LINGUAS</filename> file. The files are updated
 from <filename>messages.pot</filename> template:
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # produce 'en.po', 'pl.po' + files defined in 'LINGUAS':
   env.POUpdate(['en', 'pl' ], LINGUAS_FILE = 1) 
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 7.</emphasis>
-Use <link linkend="cv-POAUTOINIT"><envar>$POAUTOINIT</envar></link> to automatically initialize <literal>PO</literal> file
+Use <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-POAUTOINIT"><envar>$POAUTOINIT</envar></link> to automatically initialize <literal>PO</literal> file
 if it doesn't exist:
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # ...
   env.POUpdate(LINGUAS_FILE = 1, POAUTOINIT = 1)
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 8.</emphasis>
 Update <literal>PO</literal> files for languages defined in
 <filename>LINGUAS</filename> file. The files are updated from
 <filename>foo.pot</filename> template. All necessary settings are
 pre-configured via environment.
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # ...
   env['POAUTOINIT'] = 1
   env['LINGUAS_FILE'] = 1
@@ -1769,28 +1774,29 @@ pre-configured via environment.
     <term>
       <function>env.Program()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds an executable given one or more object files
 or C, C++, D, or Fortran source files.
 If any C, C++, D or Fortran source files are specified,
 then they will be automatically
 compiled to object files using the
-<function>Object</function>
+<function xmlns="http://www.scons.org/dbxsd/v1.0">Object</function>
 builder method;
 see that builder method's description for
 a list of legal source file suffixes
 and how they are interpreted.
 The target executable file prefix
-(specified by the <link linkend="cv-PROGPREFIX"><envar>$PROGPREFIX</envar></link> construction variable; nothing by default)
+(specified by the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-PROGPREFIX"><envar>$PROGPREFIX</envar></link> construction variable; nothing by default)
 and suffix
-(specified by the <link linkend="cv-PROGSUFFIX"><envar>$PROGSUFFIX</envar></link> construction variable;
+(specified by the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-PROGSUFFIX"><envar>$PROGSUFFIX</envar></link> construction variable;
 by default, <filename>.exe</filename> on Windows systems,
 nothing on POSIX systems)
 are automatically added to the target if not already present.
 Example:
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.Program(target = 'foo', source = ['foo.o', 'bar.c', 'baz.f'])
 </example_commands>
 </listitem>
@@ -1802,64 +1808,67 @@ env.Program(target = 'foo', source = ['foo.o', 'bar.c', 'baz.f'])
     <term>
       <function>env.ProgramAllAtOnce()</function>
     </term>
-    <listitem><para>
+    <listitem>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
       Builds an executable from D sources without first creating individual
       objects for each file.
     </para>
-    <para>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
       D sources can be compiled file-by-file as C and C++ source are, and
-      D is integrated into the <filename>scons</filename> Object and Program builders for
+      D is integrated into the <filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename> Object and Program builders for
       this model of build. D codes can though do whole source
       meta-programming (some of the testing frameworks do this). For this
       it is imperative that all sources are compiled and linked in a single call of
       the D compiler. This builder serves that purpose.
     </para>
-    <example_commands>
+    <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
       env.ProgramAllAtOnce('executable', ['mod_a.d, mod_b.d', 'mod_c.d'])
     </example_commands>
-    <para>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
       This command will compile the modules mod_a, mod_b, and mod_c in a
       single compilation process without first creating object files for
       the modules. Some of the D compilers will create executable.o others
       will not.
     </para>
-  <para>
+  
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
       Builds an executable from D sources without first creating individual
       objects for each file.
     </para>
-    <para>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
       D sources can be compiled file-by-file as C and C++ source are, and
-      D is integrated into the <filename>scons</filename> Object and Program builders for
+      D is integrated into the <filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename> Object and Program builders for
       this model of build. D codes can though do whole source
       meta-programming (some of the testing frameworks do this). For this
       it is imperative that all sources are compiled and linked in a single call of
       the D compiler. This builder serves that purpose.
     </para>
-    <example_commands>
+    <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
       env.ProgramAllAtOnce('executable', ['mod_a.d, mod_b.d', 'mod_c.d'])
     </example_commands>
-    <para>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
       This command will compile the modules mod_a, mod_b, and mod_c in a
       single compilation process without first creating object files for
       the modules. Some of the D compilers will create executable.o others
       will not.
     </para>
-  <para>
+  
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
       Builds an executable from D sources without first creating individual
       objects for each file.
     </para>
-    <para>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
       D sources can be compiled file-by-file as C and C++ source are, and
-      D is integrated into the <filename>scons</filename> Object and Program builders for
+      D is integrated into the <filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename> Object and Program builders for
       this model of build. D codes can though do whole source
       meta-programming (some of the testing frameworks do this). For this
       it is imperative that all sources are compiled and linked in a single call of
       the D compiler. This builder serves that purpose.
     </para>
-    <example_commands>
+    <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
       env.ProgramAllAtOnce('executable', ['mod_a.d, mod_b.d', 'mod_c.d'])
     </example_commands>
-    <para>
+    <para xmlns="http://www.scons.org/dbxsd/v1.0">
       This command will compile the modules mod_a, mod_b, and mod_c in a
       single compilation process without first creating object files for
       the modules. Some of the D compilers will create executable.o others
@@ -1874,7 +1883,8 @@ env.Program(target = 'foo', source = ['foo.o', 'bar.c', 'baz.f'])
     <term>
       <function>env.RES()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds a Microsoft Visual C++ resource file.
 This builder method is only provided
 when Microsoft Visual C++ or MinGW is being used as the compiler. The
@@ -1887,7 +1897,7 @@ file is scanned for implicit dependencies as though it were a C file.
 Example:
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.RES('resource.rc')
 </example_commands>
 </listitem>
@@ -1899,7 +1909,8 @@ env.RES('resource.rc')
     <term>
       <function>env.RMIC()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds stub and skeleton class files
 for remote objects
 from Java <filename>.class</filename> files.
@@ -1908,16 +1919,16 @@ relative to which the stub
 and skeleton class files will be written.
 The source can be the names of <filename>.class</filename> files,
 or the objects return from the
-<function>Java</function>
+<function xmlns="http://www.scons.org/dbxsd/v1.0">Java</function>
 builder method.
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 If the construction variable
-<link linkend="cv-JAVACLASSDIR"><envar>$JAVACLASSDIR</envar></link>
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-JAVACLASSDIR"><envar>$JAVACLASSDIR</envar></link>
 is set, either in the environment
 or in the call to the
-<function>RMIC</function>
+<function xmlns="http://www.scons.org/dbxsd/v1.0">RMIC</function>
 builder method itself,
 then the value of the variable
 will be stripped from the
@@ -1925,7 +1936,7 @@ beginning of any <filename>.class </filename>
 file names.
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 classes = env.Java(target = 'classdir', source = 'src')
 env.RMIC(target = 'outdir1', source = classes)
 
@@ -1945,7 +1956,8 @@ env.RMIC(target = 'outdir3',
     <term>
       <function>env.RPCGenClient()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Generates an RPC client stub (<filename>_clnt.c</filename>) file
 from a specified RPC (<filename>.x</filename>) source file.
 Because rpcgen only builds output files
@@ -1954,7 +1966,7 @@ the command will be executed
 in the source file's directory by default.
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 # Builds src/rpcif_clnt.c
 env.RPCGenClient('src/rpcif.x')
 </example_commands>
@@ -1967,7 +1979,8 @@ env.RPCGenClient('src/rpcif.x')
     <term>
       <function>env.RPCGenHeader()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Generates an RPC header (<filename>.h</filename>) file
 from a specified RPC (<filename>.x</filename>) source file.
 Because rpcgen only builds output files
@@ -1976,7 +1989,7 @@ the command will be executed
 in the source file's directory by default.
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 # Builds src/rpcif.h
 env.RPCGenHeader('src/rpcif.x')
 </example_commands>
@@ -1989,7 +2002,8 @@ env.RPCGenHeader('src/rpcif.x')
     <term>
       <function>env.RPCGenService()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Generates an RPC server-skeleton (<filename>_svc.c</filename>) file
 from a specified RPC (<filename>.x</filename>) source file.
 Because rpcgen only builds output files
@@ -1998,7 +2012,7 @@ the command will be executed
 in the source file's directory by default.
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 # Builds src/rpcif_svc.c
 env.RPCGenClient('src/rpcif.x')
 </example_commands>
@@ -2011,7 +2025,8 @@ env.RPCGenClient('src/rpcif.x')
     <term>
       <function>env.RPCGenXDR()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Generates an RPC XDR routine (<filename>_xdr.c</filename>) file
 from a specified RPC (<filename>.x</filename>) source file.
 Because rpcgen only builds output files
@@ -2020,7 +2035,7 @@ the command will be executed
 in the source file's directory by default.
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 # Builds src/rpcif_xdr.c
 env.RPCGenClient('src/rpcif.x')
 </example_commands>
@@ -2033,7 +2048,8 @@ env.RPCGenClient('src/rpcif.x')
     <term>
       <function>env.SharedLibrary()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds a shared library
 (<filename>.so</filename> on a POSIX system,
 <filename>.dll</filename> on Windows)
@@ -2045,24 +2061,24 @@ compiled to object files.
 The static library prefix and suffix (if any)
 are automatically added to the target.
 The target library file prefix
-(specified by the <link linkend="cv-SHLIBPREFIX"><envar>$SHLIBPREFIX</envar></link> construction variable;
+(specified by the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBPREFIX"><envar>$SHLIBPREFIX</envar></link> construction variable;
 by default, <filename>lib</filename> on POSIX systems,
 nothing on Windows systems)
 and suffix
-(specified by the <link linkend="cv-SHLIBSUFFIX"><envar>$SHLIBSUFFIX</envar></link> construction variable;
+(specified by the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBSUFFIX"><envar>$SHLIBSUFFIX</envar></link> construction variable;
 by default, <filename>.dll</filename> on Windows systems,
 <filename>.so</filename> on POSIX systems)
 are automatically added to the target if not already present.
 Example:
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.SharedLibrary(target = 'bar', source = ['bar.c', 'foo.o'])
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 On Windows systems, the
-<function>SharedLibrary</function>
+<function xmlns="http://www.scons.org/dbxsd/v1.0">SharedLibrary</function>
 builder method will always build an import
 (<filename>.lib</filename>) library
 in addition to the shared (<filename>.dll</filename>) library,
@@ -2071,9 +2087,9 @@ if there is not already a <filename>.lib</filename> file explicitly
 listed in the targets.
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 On Cygwin systems, the
-<function>SharedLibrary</function>
+<function xmlns="http://www.scons.org/dbxsd/v1.0">SharedLibrary</function>
 builder method will always build an import
 (<filename>.dll.a</filename>) library
 in addition to the shared (<filename>.dll</filename>) library,
@@ -2082,36 +2098,36 @@ if there is not already a <filename>.dll.a</filename> file explicitly
 listed in the targets.
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Any object files listed in the
 <literal>source</literal>
 must have been built for a shared library
 (that is, using the
-<function>SharedObject</function>
+<function xmlns="http://www.scons.org/dbxsd/v1.0">SharedObject</function>
 builder method).
-<filename>scons</filename>
+<filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>
 will raise an error if there is any mismatch.
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 On some platforms, there is a distinction between a shared library
 (loaded automatically by the system to resolve external references)
 and a loadable module (explicitly loaded by user action).
-For maximum portability, use the <function>LoadableModule</function> builder for the latter.
+For maximum portability, use the <function xmlns="http://www.scons.org/dbxsd/v1.0">LoadableModule</function> builder for the latter.
 </para>
 
-<para>
-When the <link linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> construction variable is defined a versioned
-shared library is created. This modifies the <link linkend="cv-SHLINKFLAGS"><envar>$SHLINKFLAGS</envar></link> as required,
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+When the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> construction variable is defined a versioned
+shared library is created. This modifies the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLINKFLAGS"><envar>$SHLINKFLAGS</envar></link> as required,
 adds the version number to the library name, and creates the symlinks that
 are needed.
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.SharedLibrary(target = 'bar', source = ['bar.c', 'foo.o'], SHLIBVERSION='1.5.2')
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 On a POSIX system, versions with a single token create exactly one symlink:
 libbar.so.6 would have symlinks libbar.so only.
 On a POSIX system, versions with two or more
@@ -2120,28 +2136,28 @@ libbar.so and libbar.so.2; on a Darwin (OSX) system the library would be
 libbar.2.3.1.dylib and the link would be libbar.dylib.
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 On Windows systems, specifying
 <literal>register=1</literal>
 will cause the <filename>.dll</filename> to be
 registered after it is built using REGSVR32.
 The command that is run
-("regsvr32" by default) is determined by <link linkend="cv-REGSVR"><envar>$REGSVR</envar></link> construction
-variable, and the flags passed are determined by <link linkend="cv-REGSVRFLAGS"><envar>$REGSVRFLAGS</envar></link>.  By
-default, <link linkend="cv-REGSVRFLAGS"><envar>$REGSVRFLAGS</envar></link> includes the <option>/s</option> option,
+("regsvr32" by default) is determined by <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-REGSVR"><envar>$REGSVR</envar></link> construction
+variable, and the flags passed are determined by <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-REGSVRFLAGS"><envar>$REGSVRFLAGS</envar></link>.  By
+default, <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-REGSVRFLAGS"><envar>$REGSVRFLAGS</envar></link> includes the <option>/s</option> option,
 to prevent dialogs from popping
 up and requiring user attention when it is run.  If you change
-<link linkend="cv-REGSVRFLAGS"><envar>$REGSVRFLAGS</envar></link>, be sure to include the <option>/s</option> option.
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-REGSVRFLAGS"><envar>$REGSVRFLAGS</envar></link>, be sure to include the <option>/s</option> option.
 For example,
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.SharedLibrary(target = 'bar',
                   source = ['bar.cxx', 'foo.obj'],
                   register=1)
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 will register <filename>bar.dll</filename> as a COM object
 when it is done linking it.
 </para>
@@ -2154,12 +2170,13 @@ when it is done linking it.
     <term>
       <function>env.SharedObject()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds an object file for
 inclusion in a shared library.
 Source files must have one of the same set of extensions
 specified above for the
-<function>StaticObject</function>
+<function xmlns="http://www.scons.org/dbxsd/v1.0">StaticObject</function>
 builder method.
 On some platforms building a shared object requires additional
 compiler option
@@ -2174,21 +2191,21 @@ and shared objects to be linked into a
 shared library, and will use the same suffix for shared and normal
 (static) objects.
 The target object file prefix
-(specified by the <link linkend="cv-SHOBJPREFIX"><envar>$SHOBJPREFIX</envar></link> construction variable;
-by default, the same as <link linkend="cv-OBJPREFIX"><envar>$OBJPREFIX</envar></link>)
+(specified by the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHOBJPREFIX"><envar>$SHOBJPREFIX</envar></link> construction variable;
+by default, the same as <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-OBJPREFIX"><envar>$OBJPREFIX</envar></link>)
 and suffix
-(specified by the <link linkend="cv-SHOBJSUFFIX"><envar>$SHOBJSUFFIX</envar></link> construction variable)
+(specified by the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHOBJSUFFIX"><envar>$SHOBJSUFFIX</envar></link> construction variable)
 are automatically added to the target if not already present.
 Examples:
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.SharedObject(target = 'ddd', source = 'ddd.c')
 env.SharedObject(target = 'eee.o', source = 'eee.cpp')
 env.SharedObject(target = 'fff.obj', source = 'fff.for')
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Note that the source files will be scanned
 according to the suffix mappings in the
 <literal>SourceFileScanner</literal>
@@ -2205,7 +2222,8 @@ below, for more information.
     <term>
       <function>env.StaticLibrary()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds a static library given one or more object files
 or C, C++, D or Fortran source files.
 If any source files are given,
@@ -2214,29 +2232,29 @@ compiled to object files.
 The static library prefix and suffix (if any)
 are automatically added to the target.
 The target library file prefix
-(specified by the <link linkend="cv-LIBPREFIX"><envar>$LIBPREFIX</envar></link> construction variable;
+(specified by the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-LIBPREFIX"><envar>$LIBPREFIX</envar></link> construction variable;
 by default, <filename>lib</filename> on POSIX systems,
 nothing on Windows systems)
 and suffix
-(specified by the <link linkend="cv-LIBSUFFIX"><envar>$LIBSUFFIX</envar></link> construction variable;
+(specified by the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-LIBSUFFIX"><envar>$LIBSUFFIX</envar></link> construction variable;
 by default, <filename>.lib</filename> on Windows systems,
 <filename>.a</filename> on POSIX systems)
 are automatically added to the target if not already present.
 Example:
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.StaticLibrary(target = 'bar', source = ['bar.c', 'foo.o'])
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Any object files listed in the
 <literal>source</literal>
 must have been built for a static library
 (that is, using the
-<function>StaticObject</function>
+<function xmlns="http://www.scons.org/dbxsd/v1.0">StaticObject</function>
 builder method).
-<filename>scons</filename>
+<filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>
 will raise an error if there is any mismatch.
 </para>
 </listitem>
@@ -2248,13 +2266,14 @@ will raise an error if there is any mismatch.
     <term>
       <function>env.StaticObject()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds a static object file
 from one or more C, C++, D, or Fortran source files.
 Source files must have one of the following extensions:
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   .asm    assembly language file
   .ASM    assembly language file
   .c      C file
@@ -2285,24 +2304,24 @@ Source files must have one of the following extensions:
   .SPP    assembly language file + C pre-processor
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 The target object file prefix
-(specified by the <link linkend="cv-OBJPREFIX"><envar>$OBJPREFIX</envar></link> construction variable; nothing by default)
+(specified by the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-OBJPREFIX"><envar>$OBJPREFIX</envar></link> construction variable; nothing by default)
 and suffix
-(specified by the <link linkend="cv-OBJSUFFIX"><envar>$OBJSUFFIX</envar></link> construction variable;
+(specified by the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-OBJSUFFIX"><envar>$OBJSUFFIX</envar></link> construction variable;
 <filename>.obj</filename> on Windows systems,
 <filename>.o</filename> on POSIX systems)
 are automatically added to the target if not already present.
 Examples:
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.StaticObject(target = 'aaa', source = 'aaa.c')
 env.StaticObject(target = 'bbb.o', source = 'bbb.c++')
 env.StaticObject(target = 'ccc.obj', source = 'ccc.f')
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Note that the source files will be scanned
 according to the suffix mappings in
 <literal>SourceFileScanner</literal>
@@ -2319,27 +2338,28 @@ below, for more information.
     <term>
       <function>env.Substfile()</function>
     </term>
-    <listitem><para>
-The <function>Substfile</function> builder creates a single text file from another file or set of
-files by concatenating them with <envar>$LINESEPARATOR</envar> and replacing text
-using the <envar>$SUBST_DICT</envar> construction variable. Nested lists of source files
-are flattened. See also <function>Textfile</function>.
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The <function xmlns="http://www.scons.org/dbxsd/v1.0">Substfile</function> builder creates a single text file from another file or set of
+files by concatenating them with <envar xmlns="http://www.scons.org/dbxsd/v1.0">$LINESEPARATOR</envar> and replacing text
+using the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$SUBST_DICT</envar> construction variable. Nested lists of source files
+are flattened. See also <function xmlns="http://www.scons.org/dbxsd/v1.0">Textfile</function>.
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 If a single source file is present with an <filename>.in</filename> suffix,
 the suffix is stripped and the remainder is used as the default target name.
 </para>
 
-<para>
-The prefix and suffix specified by the <envar>$SUBSTFILEPREFIX</envar>
-and <envar>$SUBSTFILESUFFIX</envar> construction variables
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The prefix and suffix specified by the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$SUBSTFILEPREFIX</envar>
+and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$SUBSTFILESUFFIX</envar> construction variables
 (the null string by default in both cases)
 are automatically added to the target if they are not already present.
 </para>
 
-<para>
-If a construction variable named <envar>$SUBST_DICT</envar> is present,
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+If a construction variable named <envar xmlns="http://www.scons.org/dbxsd/v1.0">$SUBST_DICT</envar> is present,
 it may be either a Python dictionary or a sequence of (key,value) tuples.
 If it is a dictionary it is converted into a list of tuples in an arbitrary order,
 so if one key is a prefix of another key
@@ -2347,7 +2367,7 @@ or if one substitution could be further expanded by another subsitition,
 it is unpredictable whether the expansion will occur.
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Any occurrences of a key in the source
 are replaced by the corresponding value,
 which may be a Python callable function or a string.
@@ -2356,7 +2376,7 @@ Strings are <emphasis>subst</emphasis>-expanded
 and the result replaces the key.
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env = Environment(tools=['default'])
 
 env['prefix'] = '/usr/bin'
@@ -2408,12 +2428,13 @@ subst.Substfile('pgm2.c', [Value('#include "@foo@.h"'),
     <term>
       <function>env.Tar()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds a tar archive of the specified files
 and/or directories.
 Unlike most builder methods,
 the
-<function>Tar</function>
+<function xmlns="http://www.scons.org/dbxsd/v1.0">Tar</function>
 builder method may be called multiple times
 for a given target;
 each additional call
@@ -2423,11 +2444,11 @@ Any source directories will
 be scanned for changes to
 any on-disk files,
 regardless of whether or not
-<filename>scons</filename>
+<filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>
 knows about them from other Builder or function calls.
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.Tar('src.tar', 'src')
 
 # Create the stuff.tar file.
@@ -2453,28 +2474,29 @@ env.Tar('foo')
     <term>
       <function>env.Textfile()</function>
     </term>
-    <listitem><para>
-The <function>Textfile</function> builder generates a single text file.
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The <function xmlns="http://www.scons.org/dbxsd/v1.0">Textfile</function> builder generates a single text file.
 The source strings constitute the lines;
 nested lists of sources are flattened.
-<envar>$LINESEPARATOR</envar> is used to separate the strings.
+<envar xmlns="http://www.scons.org/dbxsd/v1.0">$LINESEPARATOR</envar> is used to separate the strings.
 </para>
 
-<para>
-If present, the <envar>$SUBST_DICT</envar> construction variable
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+If present, the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$SUBST_DICT</envar> construction variable
 is used to modify the strings before they are written;
-see the <function>Substfile</function> description for details.
+see the <function xmlns="http://www.scons.org/dbxsd/v1.0">Substfile</function> description for details.
 </para>
 
-<para>
-The prefix and suffix specified by the <envar>$TEXTFILEPREFIX</envar>
-and <envar>$TEXTFILESUFFIX</envar> construction variables
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The prefix and suffix specified by the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$TEXTFILEPREFIX</envar>
+and <envar xmlns="http://www.scons.org/dbxsd/v1.0">$TEXTFILESUFFIX</envar> construction variables
 (the null string and <filename>.txt</filename> by default, respectively)
 are automatically added to the target if they are not already present.
 Examples:
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 # builds/writes foo.txt
 env.Textfile(target = 'foo.txt', source = ['Goethe', 42, 'Schiller'])
 
@@ -2523,49 +2545,50 @@ blob.txt
     <term>
       <function>env.Translate()</function>
     </term>
-    <listitem><para>
-This pseudo-builder belongs to <link linkend="t-gettext"><literal>gettext</literal></link> toolset. The builder extracts
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+This pseudo-builder belongs to <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-gettext"><literal>gettext</literal></link> toolset. The builder extracts
 internationalized messages from source files, updates <literal>POT</literal>
 template (if necessary) and then updates <literal>PO</literal> translations (if
-necessary). If <link linkend="cv-POAUTOINIT"><envar>$POAUTOINIT</envar></link> is set, missing <literal>PO</literal> files
+necessary). If <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-POAUTOINIT"><envar>$POAUTOINIT</envar></link> is set, missing <literal>PO</literal> files
 will be automatically created (i.e. without translator person intervention).
-The variables <link linkend="cv-LINGUAS_FILE"><envar>$LINGUAS_FILE</envar></link> and <link linkend="cv-POTDOMAIN"><envar>$POTDOMAIN</envar></link> are taken into
-acount too. All other construction variables used by <link linkend="b-POTUpdate"><function>POTUpdate</function></link>, and
-<link linkend="b-POUpdate"><function>POUpdate</function></link> work here too.
+The variables <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-LINGUAS_FILE"><envar>$LINGUAS_FILE</envar></link> and <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-POTDOMAIN"><envar>$POTDOMAIN</envar></link> are taken into
+acount too. All other construction variables used by <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-POTUpdate"><function>POTUpdate</function></link>, and
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-POUpdate"><function>POUpdate</function></link> work here too.
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 1</emphasis>.
 The simplest way is to specify input files and output languages inline in
-a SCons script when invoking <function>Translate</function>
+a SCons script when invoking <function xmlns="http://www.scons.org/dbxsd/v1.0">Translate</function>
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 # SConscript in 'po/' directory
 env = Environment( tools = ["default", "gettext"] )
 env['POAUTOINIT'] = 1
 env.Translate(['en','pl'], ['../a.cpp','../b.cpp']) 
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 2</emphasis>.
 If you wish, you may also stick to conventional style known from
 <productname>autotools</productname>, i.e. using
 <filename>POTFILES.in</filename> and <filename>LINGUAS</filename> files
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 # LINGUAS
 en pl 
 #end
 </example_commands>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 # POTFILES.in
 a.cpp
 b.cpp
 # end
 </example_commands>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 # SConscript
 env = Environment( tools = ["default", "gettext"] )
 env['POAUTOINIT'] = 1
@@ -2573,7 +2596,7 @@ env['XGETTEXTPATH'] = ['../']
 env.Translate(LINGUAS_FILE = 1, XGETTEXTFROM = 'POTFILES.in') 
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 The last approach is perhaps the recommended one. It allows easily split
 internationalization/localization onto separate SCons scripts, where a script
 in source tree is responsible for translations (from sources to
@@ -2590,11 +2613,11 @@ so the source tree looks familiar to translators, and they may work with the
 project in their usual way.
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <emphasis>Example 3</emphasis>.
 Let's prepare a development tree as below
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
  project/
   + SConstruct
   + build/        
@@ -2605,11 +2628,11 @@ Let's prepare a development tree as below
           + POTFILES.in
           + LINGUAS
 </example_commands>
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 with <filename>build</filename> being variant directory. Write the top-level
 <filename>SConstruct</filename> script as follows
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # SConstruct
   env = Environment( tools = ["default", "gettext"] )
   VariantDir('build', 'src', duplicate = 0)
@@ -2617,23 +2640,23 @@ with <filename>build</filename> being variant directory. Write the top-level
   SConscript('src/po/SConscript.i18n', exports = 'env')
   SConscript('build/po/SConscript', exports = 'env')
 </example_commands>
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 the <filename>src/po/SConscript.i18n</filename> as
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # src/po/SConscript.i18n
   Import('env')
   env.Translate(LINGUAS_FILE=1, XGETTEXTFROM='POTFILES.in', XGETTEXTPATH=['../'])
 </example_commands>
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 and the <filename>src/po/SConscript</filename>
 </para>
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
   # src/po/SConscript
   Import('env')
   env.MOFiles(LINGUAS_FILE = 1)
 </example_commands>
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Such setup produces <literal>POT</literal> and <literal>PO</literal> files
 under source tree in <filename>src/po/</filename> and binary
 <literal>MO</literal> files under variant tree in
@@ -2643,7 +2666,7 @@ not be committed back to source repositories (e.g. <literal>MO</literal>
 files).
 </para>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 <note><para>In above example, the <literal>PO</literal> files are not updated,
 nor created automatically when you issue <command>scons '.'</command> command.
 The files must be updated (created) by hand via <command>scons
@@ -2660,7 +2683,8 @@ running <command>scons '.'</command>.</para></note>
     <term>
       <function>env.TypeLibrary()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds a Windows type library (<filename>.tlb</filename>)
 file from an input IDL file (<filename>.idl</filename>).
 In addition, it will build the associated interface stub and
@@ -2669,11 +2693,11 @@ naming them according to the base name of the <filename>.idl</filename> file.
 For example,
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.TypeLibrary(source="foo.idl")
 </example_commands>
 
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Will create <filename>foo.tlb</filename>,
 <filename>foo.h</filename>,
 <filename>foo_i.c</filename>,
@@ -2691,21 +2715,22 @@ files.
     <term>
       <function>env.Uic()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds a header file, an implementation file and a moc file from an ui file.
 and returns the corresponding nodes in the above order.
 This builder is only available after using the tool 'qt'. Note: you can
 specify <filename>.ui</filename> files directly as source
-files to the <function>Program</function>,
-<function>Library</function> and <function>SharedLibrary</function> builders
+files to the <function xmlns="http://www.scons.org/dbxsd/v1.0">Program</function>,
+<function xmlns="http://www.scons.org/dbxsd/v1.0">Library</function> and <function xmlns="http://www.scons.org/dbxsd/v1.0">SharedLibrary</function> builders
 without using this builder. Using this builder lets you override the standard
 naming conventions (be careful: prefixes are always prepended to names of
 built files; if you don't want prefixes, you may set them to ``).
-See the <link linkend="cv-QTDIR"><envar>$QTDIR</envar></link> variable for more information.
+See the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-QTDIR"><envar>$QTDIR</envar></link> variable for more information.
 Example:
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.Uic('foo.ui') # -&gt; ['foo.h', 'uic_foo.cc', 'moc_foo.cc']
 env.Uic(target = Split('include/foo.h gen/uicfoo.cc gen/mocfoo.cc'),
         source = 'foo.ui') # -&gt; ['include/foo.h', 'gen/uicfoo.cc', 'gen/mocfoo.cc']
@@ -2719,12 +2744,13 @@ env.Uic(target = Split('include/foo.h gen/uicfoo.cc gen/mocfoo.cc'),
     <term>
       <function>env.Zip()</function>
     </term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Builds a zip archive of the specified files
 and/or directories.
 Unlike most builder methods,
 the
-<function>Zip</function>
+<function xmlns="http://www.scons.org/dbxsd/v1.0">Zip</function>
 builder method may be called multiple times
 for a given target;
 each additional call
@@ -2734,11 +2760,11 @@ Any source directories will
 be scanned for changes to
 any on-disk files,
 regardless of whether or not
-<filename>scons</filename>
+<filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>
 knows about them from other Builder or function calls.
 </para>
 
-<example_commands>
+<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.Zip('src.zip', 'src')
 
 # Create the stuff.zip file.

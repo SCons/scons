@@ -1,30 +1,5 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.scons.org/dbxsd/v1.0" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q</userinput>
-KeyError: 'RANLIBCOM':
-  File "C:\dev\scons-fork\bootstrap\src\engine\SCons\Script\Main.py", line 1374:
-    _exec_main(parser, values)
-  File "C:\dev\scons-fork\bootstrap\src\engine\SCons\Script\Main.py", line 1337:
-    _main(parser)
-  File "C:\dev\scons-fork\bootstrap\src\engine\SCons\Script\Main.py", line 1015:
-    SCons.Script._SConscript._SConscript(fs, script)
-  File "C:\dev\scons-fork\bootstrap\src\engine\SCons\Script\SConscript.py", line 198:
-    exec(sys.stdin.read(), call_stack[-1].globals)
-  File "&lt;string&gt;", line 206:
-    None
-  File "C:\dev\scons-fork\bootstrap\src\engine\SCons\Script\SConscript.py", line 666:
-    env = self.factory()
-  File "C:\dev\scons-fork\bootstrap\src\engine\SCons\Script\SConscript.py", line 646:
-    default_env = SCons.Defaults.DefaultEnvironment()
-  File "C:\dev\scons-fork\bootstrap\src\engine\SCons\Defaults.py", line 88:
-    _default_env = SCons.Environment.Environment(*args, **kw)
-  File "C:\dev\scons-fork\bootstrap\src\engine\SCons\Environment.py", line 988:
-    apply_tools(self, tools, toolpath)
-  File "C:\dev\scons-fork\bootstrap\src\engine\SCons\Environment.py", line 107:
-    env.Tool(tool)
-  File "C:\dev\scons-fork\bootstrap\src\engine\SCons\Environment.py", line 1795:
-    tool(self)
-  File "&lt;string&gt;", line 67:
-    None
-  File "C:\dev\scons-fork\bootstrap\src\engine\SCons\Environment.py", line 410:
-    return self._dict[key]
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q</userinput>
+NEW_VARIABLE = xyzzy
+scons: `.' is up to date.
 </screen>
