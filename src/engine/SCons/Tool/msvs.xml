@@ -140,7 +140,7 @@ See its __doc__ string for a discussion of the format.
               only one, it will automatically be propagated to all
               variants. If you don't give this parameter, SCons
               will use the invoking environment's
-              <literator>CPPDEFINES</literator> entry for all variants.
+              <literal>CPPDEFINES</literal> entry for all variants.
             </para>
           </listitem>
         </varlistentry>
@@ -155,7 +155,7 @@ See its __doc__ string for a discussion of the format.
               only one, it will automatically be propagated to all
               variants. If you don't give this parameter, SCons
               will use the invoking environment's
-              <literator>CPPPATH</literator> entry for all variants.
+              <literal>CPPPATH</literal> entry for all variants.
             </para>
           </listitem>
         </varlistentry>
