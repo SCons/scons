@@ -70,10 +70,14 @@ def xmlify(s):
     s = s.replace('\n', '&#x0A;')
     return s
 
-# Process a CPPPATH list in includes, given the env, target and source.
-# Returns a tuple of nodes.
 def processIncludes(includes, env, target, source):
-    return SCons.PathList.PathList(includes).subst_path(env, target, source)
+    """
+    Process a CPPPATH list in includes, given the env, target and source.
+    Returns a list of directory paths. These paths are absolute so we avoid
+    putting pound-prefixed paths in a Visual Studio project file.
+    """
+    return [env.Dir(i).abspath for i in
+            SCons.PathList.PathList(includes).subst_path(env, target, source)]
 
 
 external_makefile_guid = '{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}'
@@ -348,10 +352,20 @@ V10DebugSettings = {
 }
 
 class _GenerateV10User(_UserGenerator):
-    """Generates a Project'user file for MSVS 2010"""
+    """Generates a Project'user file for MSVS 2010 or later"""
 
     def __init__(self, dspfile, source, env):
-        self.versionstr = '4.0'
+        version_num, suite = msvs_parse_version(env['MSVS_VERSION'])
+        if version_num >= 14.2:
+            # Visual Studio 2019 is considered to be version 16.
+            self.versionstr = '16.0'
+        elif version_num >= 14.1:
+            # Visual Studio 2017 is considered to be version 15.
+            self.versionstr = '15.0'
+        elif version_num == 14.0:
+            self.versionstr = '14.0'
+        else:
+            self.versionstr = '4.0'
         self.usrhead = V10UserHeader
         self.usrconf = V10UserConfiguration
         self.usrdebg = V10DebugSettings
@@ -462,15 +476,41 @@ class _DSPGenerator(object):
 
         self.sconscript = env['MSVSSCONSCRIPT']
 
-        if 'cmdargs' not in env or env['cmdargs'] is None:
-            cmdargs = [''] * len(variants)
-        elif SCons.Util.is_String(env['cmdargs']):
-            cmdargs = [env['cmdargs']] * len(variants)
-        elif SCons.Util.is_List(env['cmdargs']):
-            if len(env['cmdargs']) != len(variants):
-                raise SCons.Errors.InternalError("Sizes of 'cmdargs' and 'variant' lists must be the same.")
+        def GetKeyFromEnv(env, key, variants):
+            """
+            Retrieves a specific key from the environment. If the key is
+            present, it is expected to either be a string or a list with length
+            equal to the number of variants. The function returns a list of
+            the desired value (e.g. cpp include paths) guaranteed to be of
+            length equal to the length of the variants list.
+            """
+            if key not in env or env[key] is None:
+                return [''] * len(variants)
+            elif SCons.Util.is_String(env[key]):
+                return [env[key]] * len(variants)
+            elif SCons.Util.is_List(env[key]):
+                if len(env[key]) != len(variants):
+                    raise SCons.Errors.InternalError("Sizes of '%s' and 'variant' lists must be the same." % key)
+                else:
+                    return env[key]
             else:
-                cmdargs = env['cmdargs']
+                raise SCons.Errors.InternalError("Unsupported type for key '%s' in environment: %s" %
+                                                 (key, type(env[key])))
+
+        cmdargs = GetKeyFromEnv(env, 'cmdargs', variants)
+
+        # The caller is allowed to put 'cppdefines' and/or 'cpppaths' in the
+        # environment, which is useful if they want to provide per-variant
+        # values for these. Otherwise, we fall back to using the global
+        # 'CPPDEFINES' and 'CPPPATH' functions.
+        if 'cppdefines' in env:
+            cppdefines = GetKeyFromEnv(env, 'cppdefines', variants)
+        else:
+            cppdefines = [env.get('CPPDEFINES', [])] * len(variants)
+        if 'cpppaths' in env:
+            cpppaths = GetKeyFromEnv(env, 'cpppaths', variants)
+        else:
+            cpppaths = [env.get('CPPPATH', [])] * len(variants)
 
         self.env = env
 
@@ -513,12 +553,16 @@ class _DSPGenerator(object):
         for n in sourcenames:
             self.sources[n].sort(key=lambda a: a.lower())
 
-        def AddConfig(self, variant, buildtarget, outdir, runfile, cmdargs, dspfile=dspfile):
+        def AddConfig(self, variant, buildtarget, outdir, runfile, cmdargs, cppdefines, cpppaths, dspfile=dspfile, env=env):
             config = Config()
             config.buildtarget = buildtarget
             config.outdir = outdir
             config.cmdargs = cmdargs
+            config.cppdefines = cppdefines
             config.runfile = runfile
+
+            # Dir objects can't be pickled, so we need an absolute path here.
+            config.cpppaths = processIncludes(cpppaths, env, None, None)
 
             match = re.match(r'(.*)\|(.*)', variant)
             if match:
@@ -532,7 +576,7 @@ class _DSPGenerator(object):
             print("Adding '" + self.name + ' - ' + config.variant + '|' + config.platform + "' to '" + str(dspfile) + "'")
 
         for i in range(len(variants)):
-            AddConfig(self, variants[i], buildtarget[i], outdir[i], runfile[i], cmdargs[i])
+            AddConfig(self, variants[i], buildtarget[i], outdir[i], runfile[i], cmdargs[i], cppdefines[i], cpppaths[i])
 
         self.platforms = []
         for key in list(self.configs.keys()):
@@ -882,6 +926,8 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
             buildtarget = self.configs[kind].buildtarget
             runfile     = self.configs[kind].runfile
             cmdargs = self.configs[kind].cmdargs
+            cpppaths = self.configs[kind].cpppaths
+            cppdefines = self.configs[kind].cppdefines
 
             env_has_buildtarget = 'MSVSBUILDTARGET' in self.env
             if not env_has_buildtarget:
@@ -899,9 +945,8 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
             # This isn't perfect; CPPDEFINES and CPPPATH can contain $TARGET and $SOURCE,
             # so they could vary depending on the command being generated.  This code
             # assumes they don't.
-            preprocdefs = xmlify(';'.join(processDefines(self.env.get('CPPDEFINES', []))))
-            includepath_Dirs = processIncludes(self.env.get('CPPPATH', []), self.env, None, None)
-            includepath = xmlify(';'.join([str(x) for x in includepath_Dirs]))
+            preprocdefs = xmlify(';'.join(processDefines(cppdefines)))
+            includepath = xmlify(';'.join(processIncludes(cpppaths, self.env, None, None)))
 
             if not env_has_buildtarget:
                 del self.env['MSVSBUILDTARGET']
@@ -1060,7 +1105,7 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
 
 V10DSPHeader = """\
 <?xml version="1.0" encoding="%(encoding)s"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="%(versionstr)s" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 """
 
 V10DSPProjectConfiguration = """\
@@ -1075,6 +1120,7 @@ V10DSPGlobals = """\
 \t\t<ProjectGuid>%(project_guid)s</ProjectGuid>
 %(scc_attrs)s\t\t<RootNamespace>%(name)s</RootNamespace>
 \t\t<Keyword>MakeFileProj</Keyword>
+\t\t<VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
 \t</PropertyGroup>
 """
 
@@ -1112,9 +1158,9 @@ V15DSPHeader = """\
 class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
     """Generates a Project file for MSVS 2010"""
 
-    def __init__(self, dspfile, header, source, env):
+    def __init__(self, dspfile, source, env):
         _DSPGenerator.__init__(self, dspfile, source, env)
-        self.dspheader = header
+        self.dspheader = V10DSPHeader
         self.dspconfiguration = V10DSPProjectConfiguration
         self.dspglobals = V10DSPGlobals
 
@@ -1123,6 +1169,7 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
     def PrintHeader(self):
         env = self.env
         name = self.name
+        versionstr = self.versionstr
         encoding = env.subst('$MSVSENCODING')
         project_guid = env.get('MSVS_PROJECT_GUID', '')
         scc_provider = env.get('MSVS_SCC_PROVIDER', '')
@@ -1198,6 +1245,8 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
             buildtarget = self.configs[kind].buildtarget
             runfile     = self.configs[kind].runfile
             cmdargs = self.configs[kind].cmdargs
+            cpppaths = self.configs[kind].cpppaths
+            cppdefines = self.configs[kind].cppdefines
 
             env_has_buildtarget = 'MSVSBUILDTARGET' in self.env
             if not env_has_buildtarget:
@@ -1215,9 +1264,8 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
             # This isn't perfect; CPPDEFINES and CPPPATH can contain $TARGET and $SOURCE,
             # so they could vary depending on the command being generated.  This code
             # assumes they don't.
-            preprocdefs = xmlify(';'.join(processDefines(self.env.get('CPPDEFINES', []))))
-            includepath_Dirs = processIncludes(self.env.get('CPPPATH', []), self.env, None, None)
-            includepath = xmlify(';'.join([str(x) for x in includepath_Dirs]))
+            preprocdefs = xmlify(';'.join(processDefines(cppdefines)))
+            includepath = xmlify(';'.join(processIncludes(cpppaths, self.env, None, None)))
 
             if not env_has_buildtarget:
                 del self.env['MSVSBUILDTARGET']
@@ -1234,7 +1282,8 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
             raise SCons.Errors.InternalError('Unable to open "' + self.filtersabs + '" for writing:' + str(detail))
 
         self.filters_file.write('<?xml version="1.0" encoding="utf-8"?>\n'
-                                '<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">\n')
+                                '<Project ToolsVersion="%s" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">\n' %
+                                self.versionstr)
 
         self.PrintSourceFiles()
 
@@ -1466,6 +1515,9 @@ class _GenerateV7DSW(_DSWGenerator):
             for dspfile in self.dspfiles:
                 dsp_folder_path, name = os.path.split(dspfile)
                 dsp_folder_path = os.path.abspath(dsp_folder_path)
+                if SCons.Util.splitext(name)[1] == '.filters':
+                    # Ignore .filters project files
+                    continue
                 dsp_relative_folder_path = os.path.relpath(dsp_folder_path, self.dsw_folder_path)
                 if dsp_relative_folder_path == os.curdir:
                     dsp_relative_file_path = name
@@ -1515,7 +1567,11 @@ class _GenerateV7DSW(_DSWGenerator):
     def PrintSolution(self):
         """Writes a solution file"""
         self.file.write('Microsoft Visual Studio Solution File, Format Version %s\n' % self.versionstr)
-        if self.version_num > 14.0:
+        if self.version_num >= 14.2:
+            # Visual Studio 2019 is considered to be version 16.
+            self.file.write('# Visual Studio 16\n')
+        elif self.version_num > 14.0:
+            # Visual Studio 2015 and 2017 are both considered to be version 15.
             self.file.write('# Visual Studio 15\n')
         elif self.version_num >= 12.0:
             self.file.write('# Visual Studio 14\n')
@@ -1695,11 +1751,8 @@ def GenerateDSP(dspfile, source, env):
     version_num = 6.0
     if 'MSVS_VERSION' in env:
         version_num, suite = msvs_parse_version(env['MSVS_VERSION'])
-    if version_num > 14.0:
-        g = _GenerateV10DSP(dspfile, V15DSPHeader, source, env)
-        g.Build()
-    elif version_num >= 10.0:
-        g = _GenerateV10DSP(dspfile, V10DSPHeader, source, env)
+    if version_num >= 10.0:
+        g = _GenerateV10DSP(dspfile, source, env)
         g.Build()
     elif version_num >= 7.0:
         g = _GenerateV7DSP(dspfile, source, env)
@@ -1792,8 +1845,7 @@ def projectEmitter(target, source, env):
 
         # Project file depends on CPPDEFINES and CPPPATH
         preprocdefs = xmlify(';'.join(processDefines(env.get('CPPDEFINES', []))))
-        includepath_Dirs = processIncludes(env.get('CPPPATH', []), env, None, None)
-        includepath = xmlify(';'.join([str(x) for x in includepath_Dirs]))
+        includepath = xmlify(';'.join(processIncludes(env.get('CPPPATH', []), env, None, None)))
         source = source + "; ppdefs:%s incpath:%s"%(preprocdefs, includepath)
 
         if 'buildtarget' in env and env['buildtarget'] is not None:
@@ -1973,8 +2025,14 @@ def generate(env):
             default_MSVS_SConscript = env.File('SConstruct')
         env['MSVSSCONSCRIPT'] = default_MSVS_SConscript
 
-    env['MSVSSCONS'] = '"%s" -c "%s"' % (python_executable, getExecScriptMain(env))
-    env['MSVSSCONSFLAGS'] = '-C "${MSVSSCONSCRIPT.dir.get_abspath()}" -f ${MSVSSCONSCRIPT.name}'
+    # Allow consumers to provide their own versions of MSVSSCONS and
+    # MSVSSCONSFLAGS. This helps support consumers who use wrapper scripts to
+    # invoke scons.
+    if 'MSVSSCONS' not in env:
+        env['MSVSSCONS'] = '"%s" -c "%s"' % (python_executable, getExecScriptMain(env))
+    if 'MSVSSCONSFLAGS' not in env:
+        env['MSVSSCONSFLAGS'] = '-C "${MSVSSCONSCRIPT.dir.get_abspath()}" -f ${MSVSSCONSCRIPT.name}'
+
     env['MSVSSCONSCOM'] = '$MSVSSCONS $MSVSSCONSFLAGS'
     env['MSVSBUILDCOM'] = '$MSVSSCONSCOM "$MSVSBUILDTARGET"'
     env['MSVSREBUILDCOM'] = '$MSVSSCONSCOM "$MSVSBUILDTARGET"'

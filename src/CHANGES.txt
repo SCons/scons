@@ -52,6 +52,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
           def my_decider(dependency, target, prev_ni, repo_node):
       Where repo_node is the repository (or other) node to use to check if the node is out of date instead of dependency.
 
+  From Adam Gross:
+    - Upgraded and improved Visual Studio solution/project generation code using the MSVSProject builder.
+      - Added support for Visual Studio 2017 and 2019.
+      - Added support for the following per-variant parameters to the builder:
+        - cpppaths: Provides per-variant include paths.
+        - cppdefines: Provides per-variant preprocessor definitions.
+
   From Michael Hartmann:
     - Fix handling of Visual Studio Compilers to properly reject any unknown HOST_PLATFORM or TARGET_PLATFORM
 
