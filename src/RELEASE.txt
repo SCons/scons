@@ -41,6 +41,14 @@
 
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
+      - Fix performance degradation for MD5-timestamp decider.  NOTE: This changes the Decider() function arguments.
+      From:
+          def my_decider(dependency, target, prev_ni):
+      To:
+          def my_decider(dependency, target, prev_ni, repo_node):
+      Where repo_node is the repository (or other) node to use to check if the node is out of date instead of dependency.
+
+
     - Enhanced --debug=explain output. Now the separate components of the dependency list are split up
       as follows:
 
@@ -53,6 +61,14 @@
            ->Depends
            ->Implicit
            Old:/usr/bin/python	New:/usr/bin/python
+
+
+    - Changed: Pseudo-builders now inherit OverrideEnvironments. For
+      example when calling a pseudo-builder from another
+      pseudo-builder the override variables passed to the first
+      pseudo-builder call had to be explicitly passed on to the
+      internal pseudo-builder call. Now the second pseudo-builder call
+      will automatically inherit these override values.
 
   FIXES
 

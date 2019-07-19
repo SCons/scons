@@ -9,8 +9,9 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From Adam Gross:
-    - Upgrade and improve Visual Studio solution/project generation code
+  From Joseph Brill:
+    - Code to supply correct version-specifier argument to vswhere for
+      VS version selection.
 
   From Peter Diener:
     - Additional fix to issue #3135 - Also handle 'pure' and 'elemental' type bound procedures
@@ -44,13 +45,29 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix Issue #3350 - mslink failing when too many objects.  This is resolved by adding TEMPFILEARGJOIN variable
       which specifies what character to join all the argements output into the tempfile. The default remains a space
       when mslink, msvc, or mslib tools are loaded they change the TEMPFILEARGJOIN to be a line separator (\r\n on win32)
+    - Fix performance degradation for MD5-timestamp decider.  NOTE: This changes the Decider() function arguments.
+      From:
+          def my_decider(dependency, target, prev_ni):
+      To:
+          def my_decider(dependency, target, prev_ni, repo_node):
+      Where repo_node is the repository (or other) node to use to check if the node is out of date instead of dependency.
+
+  From Adam Gross:
+    - Upgrade and improve Visual Studio solution/project generation code
+
 
   From Michael Hartmann:
     - Fix handling of Visual Studio Compilers to properly reject any unknown HOST_PLATFORM or TARGET_PLATFORM
 
+  From Bert Huijben:
+    - Added support for Visual Studio 2019 toolset.
+
   From Mathew Robinson:
     - Update cache debug output to include cache hit rate.
     - No longer unintentionally hide exceptions in Action.py
+
+  From Leonard de Ruijter:
+    - Add logic to derive correct version argument to vswhere
 
   From Lukas Schrangl:
     - Enable LaTeX scanner to find more than one include per line
@@ -82,6 +99,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix more re patterns that contain \ but not specified as raw strings
       (affects scanners for D, LaTeX, swig)
 
+  From Mathew Robinson:
+    - Update cache debug output to include cache hit rate.
+    - No longer unintentionally hide exceptions in Action.py
+    - Allow builders and pseudo-builders to inherit from OverrideEnvironments
 
 RELEASE 3.0.5 - Mon, 26 Mar 2019 15:04:42 -0700
 
