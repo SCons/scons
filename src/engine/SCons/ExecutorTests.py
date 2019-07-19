@@ -503,7 +503,7 @@ class ExecutorTestCase(unittest.TestCase):
                 'UNCHANGED_TARGETS': [] if should_build else [t1],
             }
 
-            self.assertEqual(str(actual_lvars), str(expected_lvars))
+            self.assertEqual(actual_lvars, expected_lvars)
 
 
     def test_lvars_for_multiple_targets(self):
@@ -544,7 +544,7 @@ class ExecutorTestCase(unittest.TestCase):
                 'UNCHANGED_SOURCES': [] if should_build else [s1, s2],
                 'UNCHANGED_TARGETS': [] if should_build else [t1, t2],
             }
-            self.assertEqual(str(actual_lvars), str(expected_lvars))
+            self.assertEqual(actual_lvars, expected_lvars)
 
 
 if __name__ == "__main__":
