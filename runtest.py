@@ -31,8 +31,8 @@ Options:
   -n --no-exec             No execute, just print command lines.
      --nopipefiles         Do not use the "file pipe" workaround for Popen()
                            for starting tests. WARNING: use only when too much
-                           file traffic is giving you trouble AND you can be 
-                           sure that none of your tests create output >65K 
+                           file traffic is giving you trouble AND you can be
+                           sure that none of your tests create output >65K
                            chars! You might run into some deadlocks else.
   -o --output FILE         Save the output from a test run to the log file.
   -P PYTHON                Use the specified Python interpreter.
@@ -678,7 +678,7 @@ else:
     tests.extend(unittests)
     tests.extend(endtests)
     tests.sort()
-    
+
 if not tests:
     sys.stderr.write(usagestr + """
 runtest.py:  No tests were found.
@@ -737,7 +737,7 @@ def log_result(t, io_lock=None):
     """ log the result of a test.
 
     "log" in this case means writing to stdout. Since we might be
-    called from from any of several diffrent threads (multi-job run),
+    called from from any of several different threads (multi-job run),
     we need to lock access to the log to avoid interleaving. The same
     would apply if output was a file.
 
