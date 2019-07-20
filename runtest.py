@@ -71,7 +71,6 @@ Environment Variables:
 
 from __future__ import print_function
 
-
 import getopt
 import glob
 import os
@@ -367,7 +366,7 @@ else:
             return (spawned_stderr, spawned_stdout, p.wait())
 
 
-class Base(object):
+class RuntestBase(object):
     def __init__(self, path, num, spe=None):
         self.path = path
         self.num = num
@@ -381,7 +380,7 @@ class Base(object):
         self.status = None
 
 
-class SystemExecutor(Base):
+class SystemExecutor(RuntestBase):
     def execute(self):
         self.stderr, self.stdout, s = spawn_it(self.command_args)
         self.status = s
@@ -389,7 +388,7 @@ class SystemExecutor(Base):
             sys.stdout.write("Unexpected exit status %d\n" % s)
 
 
-class PopenExecutor(Base):
+class PopenExecutor(RuntestBase):
     # For an explanation of the following 'if ... else'
     # and the 'allow_pipe_files' option, please check out the
     # definition of spawn_it() above.
@@ -639,15 +638,14 @@ else:
 
     # Each test path specifies a test file, or a directory to search for
     # SCons tests. SCons code layout assumes that any file under the 'src'
-    # subdirectory that ends with 'Tests.py' is a unit test, and Python
+    # subdirectory that ends with 'Tests.py' is a unit test, and any Python
     # script (*.py) under the 'test' subdirectory an end-to-end test.
+    # We need to track these because they are invoked differently.
     #
     # Note that there are some tests under 'src' that *begin* with
     # 'test_', but they're packaging and installation tests, not
     # functional tests, so we don't execute them by default.  (They can
-    # still be executed by hand, though, and are routinely executed
-    # by the Aegis packaging build to make sure that we're building
-    # things correctly.)
+    # still be executed by hand, though).
 
     if options.all:
         testpaths = ['src', 'test']
@@ -733,37 +731,46 @@ else:
 
 total_start_time = time_func()
 total_num_tests = len(tests)
-tests_completed = 0
-tests_passing = 0
-tests_failing = 0
 
 
-def log_result(t, io_lock):
-    global tests_completed, tests_passing, tests_failing
-    tests_completed += 1
-    if t.status == 0:
-        tests_passing += 1
-    else:
-        tests_failing += 1
+def log_result(t, io_lock=None):
+    """ log the result of a test.
+
+    "log" in this case means writing to stdout. Since we might be
+    called from from any of several diffrent threads (multi-job run),
+    we need to lock access to the log to avoid interleaving. The same
+    would apply if output was a file.
+
+    :param t: a completed testcase
+    :type t: Test
+    :param io_lock:
+    :type io_lock: threading.Lock
+    """
+
+    # there is no lock in single-job run, which includes
+    # running test/runtest tests from multi-job run, so check.
     if io_lock:
         io_lock.acquire()
-    if suppress_output or catch_output:
-        sys.stdout.write(t.headline)
-    if not suppress_output:
-        if t.stdout:
-            print(t.stdout)
-        if t.stderr:
-            print(t.stderr)
-    print_time_func("Test execution time: %.1f seconds\n", t.test_time)
-    if io_lock:
-        io_lock.release()
+    try:
+        if suppress_output or catch_output:
+            sys.stdout.write(t.headline)
+        if not suppress_output:
+            if t.stdout:
+                print(t.stdout)
+            if t.stderr:
+                print(t.stderr)
+        print_time_func("Test execution time: %.1f seconds\n", t.test_time)
+    finally:
+        if io_lock:
+            io_lock.release()
+
     if quit_on_failure and t.status == 1:
         print("Exiting due to error")
         print(t.status)
         sys.exit(1)
 
 
-def run_test(t, io_lock, run_async=True):
+def run_test(t, io_lock=None, run_async=True):
     t.headline = ""
     command_args = []
     if sys.version_info[0] < 3:
@@ -797,39 +804,39 @@ def run_test(t, io_lock, run_async=True):
     test_start_time = time_func()
     if execute_tests:
         t.execute()
+
     t.test_time = time_func() - test_start_time
-    log_result(t, io_lock)
+    log_result(t, io_lock=io_lock)
 
 
 class RunTest(threading.Thread):
-    def __init__(self, queue, io_lock):
-        threading.Thread.__init__(self)
+    def __init__(self, queue=None, io_lock=None,
+                 group=None, target=None, name=None, args=(), kwargs=None):
+        super(RunTest, self).__init__(group=group, target=target, name=name)
         self.queue = queue
         self.io_lock = io_lock
 
     def run(self):
-        while True:
-            t = self.queue.get()
-            run_test(t, self.io_lock, True)
+        for t in iter(self.queue.get, None):
+            run_test(t, io_lock=self.io_lock, run_async=True)
             self.queue.task_done()
 
 if jobs > 1:
-    print("Running tests using %d jobs"%jobs)
-    # Start worker threads
+    print("Running tests using %d jobs" % jobs)
     queue = Queue()
-    io_lock = threading.Lock()
-    for _ in range(jobs):
-        t = RunTest(queue, io_lock)
-        t.daemon = True
-        t.start()
-    # Give tasks to workers
     for t in tests:
         queue.put(t)
-    # wait until all done
+    io_lock = threading.Lock()
+    # Start worker threads to consume the queue
+    threads = [RunTest(queue=queue, io_lock=io_lock) for _ in range(jobs)]
+    for t in threads:
+        t.daemon = True
+        t.start()
+    # wait on the queue rather than the individual threads
     queue.join()
 else:
     for t in tests:
-        run_test(t, None, False)
+        run_test(t, io_lock=None, run_async=False)
 
 # --- all tests are complete by the time we get here ---
 if len(tests) > 0:
