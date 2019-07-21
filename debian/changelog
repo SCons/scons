@@ -1,8 +1,8 @@
-scons (3.0.5) unstable; urgency=low
+scons (3.1.0) unstable; urgency=low
 
   * Maintenance Release
 
- -- William Deegan <bill@baddogconsulting.com>  Mon, 26 Mar 2019 15:04:42 -0700
+ -- William Deegan <bill@baddogconsulting.com>  Sat, 20 Jul 2019 15:04:42 -0700
 
 scons (3.0.4) unstable; urgency=low
 
