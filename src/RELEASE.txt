@@ -70,8 +70,12 @@
     
       under which they would be observed), or major code cleanups
 
-  Thanks to CURLY, LARRY, and MOE for their contributions to this release.
-  Contributors are listed alphabetically by their last name.
-
-__COPYRIGHT__
-__FILE__ __REVISION__ __DATE__ __DEVELOPER__
+git shortlog --no-merges -ns 3.0.5..HEAD
+    64  William Deegan
+    56  Mats Wichmann
+    10  Adam Gross
+     4  Mathew Robinson
+     4  Peter Diener
+     3  Lukas Schrangl
+     1  Daniel Holth
+     1  bdbaddog
