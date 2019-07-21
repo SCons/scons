@@ -1,10 +1,11 @@
 #version: '3.0.1.{build}'
 
 image:
-  # linux builds disabled for now 
+  # linux builds done in Travis CI for now
   # - Ubuntu
   - Visual Studio 2015
   - Visual Studio 2017
+  - Visual Studio 2019
 
 cache:
   - downloads -> appveyor.yml
@@ -36,58 +37,37 @@ install:
   - sh: which python$PYTHON
   - sh: python$PYTHON --version
   - sh: export PYSITEDIR=$(python$PYTHON -m site --user-site)
-  - sh: python$PYTHON -m pip install --user -U --progress-bar off pip setuptools wheel 
+  - sh: python$PYTHON -m pip install --user -U --progress-bar off pip setuptools wheel
   - sh: python$PYTHON -m pip install --user -U --progress-bar off coverage codecov
   - sh: STATIC_DEPS=true python$PYTHON -m pip install --user -U --progress-bar off lxml
   - sh: ./.travis/install.sh
   - sh: printenv
 
-# build matrix will be number of images multiplied 
-# by each '-' below, split jobs into groups of 4
-# to avoid timeing out
+# build matrix will be number of images multiplied by each '-' below,
+# less any exclusions.
+# split builds into sets of four jobs due to appveyor per-job time limit
 environment:
   matrix:
     - WINPYTHON: "Python27"
       PYTHON: "2.7"
       PYVER: 27
       BUILD_JOB_NUM: 1
-      COVERAGE: 1
+      COVERAGE: 0
     - WINPYTHON: "Python27"
       PYTHON: "2.7"
       PYVER: 27
       BUILD_JOB_NUM: 2
-      COVERAGE: 1
+      COVERAGE: 0
     - WINPYTHON: "Python27"
       PYTHON: "2.7"
       PYVER: 27
       BUILD_JOB_NUM: 3
-      COVERAGE: 1
+      COVERAGE: 0
     - WINPYTHON: "Python27"
       PYTHON: "2.7"
       PYVER: 27
       BUILD_JOB_NUM: 4
-      COVERAGE: 1
-
-    - WINPYTHON: "Python36"
-      PYTHON: "3.6"
-      PYVER: 36
-      BUILD_JOB_NUM: 1
-      COVERAGE: 1
-    - WINPYTHON: "Python36"
-      PYTHON: "3.6"
-      PYVER: 36
-      BUILD_JOB_NUM: 2
-      COVERAGE: 1
-    - WINPYTHON: "Python36"
-      PYTHON: "3.6"
-      PYVER: 36
-      BUILD_JOB_NUM: 3
-      COVERAGE: 1
-    - WINPYTHON: "Python36"
-      PYTHON: "3.6"
-      PYVER: 36
-      BUILD_JOB_NUM: 4
-      COVERAGE: 1
+      COVERAGE: 0
 
     - WINPYTHON: "Python35"
       PYTHON: "3.5"
@@ -109,6 +89,27 @@ environment:
       PYVER: 35
       BUILD_JOB_NUM: 4
       COVERAGE: 0
+
+    - WINPYTHON: "Python36"
+      PYTHON: "3.6"
+      PYVER: 36
+      BUILD_JOB_NUM: 1
+      COVERAGE: 1
+    - WINPYTHON: "Python36"
+      PYTHON: "3.6"
+      PYVER: 36
+      BUILD_JOB_NUM: 2
+      COVERAGE: 1
+    - WINPYTHON: "Python36"
+      PYTHON: "3.6"
+      PYVER: 36
+      BUILD_JOB_NUM: 3
+      COVERAGE: 1
+    - WINPYTHON: "Python36"
+      PYTHON: "3.6"
+      PYVER: 36
+      BUILD_JOB_NUM: 4
+      COVERAGE: 1
 
     - WINPYTHON: "Python37"
       PYTHON: "3.7"
@@ -133,40 +134,49 @@ environment:
 
 # remove sets of build jobs based on critia below
 # to fine tune the number and platforms tested
-matrix:	
-  exclude:	
-    # test python 3.5, 3.6 on Visual Studio 2015 image
-    - image: Visual Studio 2015	
-      WINPYTHON: "Python37"
-    - image: Visual Studio 2015	
+matrix:
+  exclude:
+    # test python 3.5 on Visual Studio 2015 image
+    - image: Visual Studio 2015
       WINPYTHON: "Python27"
+    - image: Visual Studio 2015
+      WINPYTHON: "Python36"
+    - image: Visual Studio 2015
+      WINPYTHON: "Python37"
 
-    # test python 2.7, 3.7 on Visual Studio 2015 image
+    # test python 2.7, 3.6 on Visual Studio 2017 image
     - image: Visual Studio 2017
       WINPYTHON: "Python35"
-    - image: Visual Studio 2017	
+    - image: Visual Studio 2017
+      WINPYTHON: "Python37"
+
+    # test python 3.7 on Visual Studio 2019 image
+    - image: Visual Studio 2019
+      WINPYTHON: "Python27"
+    - image: Visual Studio 2019
+      WINPYTHON: "Python35"
+    - image: Visual Studio 2019
       WINPYTHON: "Python36"
 
     # test python 3.7 on Ubuntu
-    - image: Ubuntu	
-      WINPYTHON: "Python27"	
-    - image: Ubuntu		
+    - image: Ubuntu
+      WINPYTHON: "Python27"
+    - image: Ubuntu
       WINPYTHON: "Python35"
-    - image: Ubuntu		
+    - image: Ubuntu
       WINPYTHON: "Python36"
 
 # remove some binaries we dont to be found
 before_build:
     - ps: |
-        if ($isWindows) 
-        {
+        if ($isWindows) {
           dir "C:\Program Files\Git\usr\bin\x*.exe"
           if (Test-Path "C:\Program Files\Git\usr\bin\xsltproc.EXE" ) {
             Remove-Item  "C:\Program Files\Git\usr\bin\xsltproc.EXE" -ErrorAction Ignore
           }
           dir "C:\Program Files\Git\usr\bin\x*.exe"
         }
-  
+
 build: off
 
 build_script:
@@ -174,18 +184,17 @@ build_script:
   - cmd: "C:\\%WINPYTHON%\\python.exe runtest.py -l -a > all_tests.txt"
   - sh: python$PYTHON runtest.py -l -a > all_tests.txt
 
-  # setup coverage by creating the coverage config file, and adding coverage 
+  # setup coverage by creating the coverage config file, and adding coverage
   # to the usercustomize so that all python processes start with coverage
   - ps: |
-      if ($env:COVERAGE -eq 1){ 
+      if ($env:COVERAGE -eq 1) {
         $env:COVERAGE_PROCESS_START = "$($env:APPVEYOR_BUILD_FOLDER)/.coveragerc";
         $env:PYTHONNOUSERSITE = "";
         New-Item -ItemType Directory -Force -Path "$($env:PYSITEDIR)";
         $env:COVERAGE_FILE = "$($env:APPVEYOR_BUILD_FOLDER)/.coverage";
         $usercustomizeText = "import os`r`nos.environ['COVERAGE_PROCESS_START'] = '$($env:COVERAGE_PROCESS_START)'`r`nimport coverage`r`ncoverage.process_startup()";
         $usercustomizeText|Set-Content "$($env:PYSITEDIR)/usercustomize.py";
-        if ($isWindows) 
-        {
+        if ($isWindows) {
           $coveragercFile = "[run]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)/src`r`nparallel = True`r`ndisable_warnings = trace-changed`r`nomit =`r`n`t*Tests.py`r`n`tsrc\test_*`r`n`tsrc\setup.py`r`n`r`n[path]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)`r`n[report]`r`nomit =`r`n`t*Tests.py`r`n`tsrc\test_*`r`n`tsrc\setup.py`r`n`r`n"
         }
         else
@@ -205,12 +214,12 @@ build_script:
       if ( $start -eq 0 ){ $start = 1 };
       get-content all_tests.txt | select -first ($end - $start) -skip ($start - 1) | Out-File -Encoding ASCII build_tests.txt;
 
-  # exclude VS 10.0 because it hangs the testing until this is resolved: 
+  # exclude VS 10.0 because it hangs the testing until this is resolved:
   # https://help.appveyor.com/discussions/problems/19283-visual-studio-2010-trial-license-has-expired
   - ps: |
       New-Item -Name exclude_list.txt -ItemType File
       $workaround_image = "Visual Studio 2015"
-      if ($env:APPVEYOR_BUILD_WORKER_IMAGE -eq $workaround_image){ 
+      if ($env:APPVEYOR_BUILD_WORKER_IMAGE -eq $workaround_image) {
         Add-Content -Path 'exclude_list.txt' -Value 'test\MSVS\vs-10.0-exec.py'
       }
 
@@ -223,17 +232,16 @@ build_script:
   # unset JAVA_TOOL_OPTIONS because newer java prints this to stderr
   - sh: |
       unset JAVA_TOOL_OPTIONS
-      if [ "$COVERAGE" -eq "1" ]; then 
-        coverage run -p --rcfile="$COVERAGE_PROCESS_START" runtest.py --exclude-list exclude_list.txt -f build_tests.txt || if [[ $? == 2 ]]; then true; else false; fi; 
+      if [ "$COVERAGE" -eq "1" ]; then
+        coverage run -p --rcfile="$COVERAGE_PROCESS_START" runtest.py --exclude-list exclude_list.txt -f build_tests.txt || if [[ $? == 2 ]]; then true; else false; fi;
       else
-        python$PYTHON runtest.py -j 2 --exclude-list exclude_list.txt -f build_tests.txt || if [[ $? == 2 ]]; then true; else false; fi; 
+        python$PYTHON runtest.py -j 2 --exclude-list exclude_list.txt -f build_tests.txt || if [[ $? == 2 ]]; then true; else false; fi;
       fi
 
 # run converage even if there was a test failure
 on_finish:
   - ps: |
-      if ($env:COVERAGE -eq 1)
-      { 
+      if ($env:COVERAGE -eq 1) {
         & coverage combine
         & coverage report
         & coverage xml -o coverage_xml.xml
@@ -244,5 +252,5 @@ on_finish:
   - sh: if [ $COVERAGE -eq 1 ]; then codecov -X gcov --file coverage_xml.xml; fi
     # not using coveralls, so leaving it commented out in case we switch back
     #- cmd: "C:\\%WINPYTHON%\\python.exe -m pip install --user -U coveralls"
-    #- sh: python$PYTHON -m pip install --user -U coveralls 
+    #- sh: python$PYTHON -m pip install --user -U coveralls
     #- ps: coveralls --rcfile="$($env:COVERAGE_PROCESS_START)"
