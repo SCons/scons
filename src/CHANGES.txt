@@ -9,6 +9,20 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From John Doe:
+
+    - Whatever John Doe did.
+
+
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From John Doe:
+
+    - Whatever John Doe did.
+
+
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
   From Joseph Brill:
     - Code to supply correct version-specifier argument to vswhere for
       VS version selection.

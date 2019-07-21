@@ -1,4 +1,4 @@
-  A new SCons checkpoint release, 3.0.6.alpha.yyyymmdd, is now available
+  A new SCons checkpoint release, 3.1.2.alpha.yyyymmdd, is now available
   on the SCons download page:
 
           https://scons.org/pages/download.html
@@ -31,9 +31,7 @@
 
   NEW FUNCTIONALITY
 
-    - Added variable TEMPFILEARGJOIN to specify how to join arguments written
-      to temp files used when command lines exceed MAXLINELENGTH when the
-      command uses $TEMPFILE{...}
+    - List new features (presumably why a checkpoint is being released)
 
   DEPRECATED FUNCTIONALITY
 
@@ -41,34 +39,8 @@
 
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
-      - Fix performance degradation for MD5-timestamp decider.  NOTE: This changes the Decider() function arguments.
-      From:
-          def my_decider(dependency, target, prev_ni):
-      To:
-          def my_decider(dependency, target, prev_ni, repo_node):
-      Where repo_node is the repository (or other) node to use to check if the node is out of date instead of dependency.
-
-
-    - Enhanced --debug=explain output. Now the separate components of the dependency list are split up
-      as follows:
-
-      scons: rebuilding `file3' because:
-           the dependency order changed:
-           ->Sources
-           Old:xxx	New:zzz
-           Old:yyy	New:yyy
-           Old:zzz	New:xxx
-           ->Depends
-           ->Implicit
-           Old:/usr/bin/python	New:/usr/bin/python
-
-
-    - Changed: Pseudo-builders now inherit OverrideEnvironments. For
-      example when calling a pseudo-builder from another
-      pseudo-builder the override variables passed to the first
-      pseudo-builder call had to be explicitly passed on to the
-      internal pseudo-builder call. Now the second pseudo-builder call
-      will automatically inherit these override values.
+    - List modifications to existing features, where the previous behavior
+      wouldn't actually be considered a bug
 
   FIXES
 
