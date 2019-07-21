@@ -27,10 +27,13 @@ import os.path
 import shutil
 import sys
 import unittest
+import tempfile
+import stat
 
 from TestCmd import TestCmd
 
 import SCons.CacheDir
+from SCons.Util import PY3
 
 built_it = None
 
@@ -111,6 +114,90 @@ class CacheDirTestCase(BaseTestCase):
             assert result == (dirname, filename), result
         finally:
             SCons.Util.MD5collect = save_collect
+
+class ExceptionTestCase(unittest.TestCase):
+    """Test that the correct exceptions are thrown by CacheDir."""
+
+    # Don't inherit from BaseTestCase, we're by definition trying to
+    # break things so we really want a clean slate for each test.
+    def setUp(self):
+        self.tmpdir = tempfile.mkdtemp()
+        self._CacheDir = SCons.CacheDir.CacheDir(self.tmpdir)
+
+    def tearDown(self):
+        shutil.rmtree(self.tmpdir)
+
+    @unittest.skipIf(sys.platform.startswith("win"), "This fixture will not trigger an OSError on Windows")
+    def test_throws_correct_on_OSError(self):
+        """Test that the correct error is thrown when cache directory cannot be created."""
+        privileged_dir = os.path.join(os.getcwd(), "privileged")
+        try:
+            os.mkdir(privileged_dir)
+            os.chmod(privileged_dir, stat.S_IREAD)
+            cd = SCons.CacheDir.CacheDir(os.path.join(privileged_dir, "cache"))
+            assert False, "Should have raised exception and did not"
+        except SCons.Errors.SConsEnvironmentError as e:
+            assert str(e) == "Failed to create cache directory {}".format(os.path.join(privileged_dir, "cache"))
+        except Exception as e:
+            assert False, "Got unexpected exception: {}".format(str(e))
+        finally:
+            os.chmod(privileged_dir, stat.S_IWRITE | stat.S_IEXEC | stat.S_IREAD)
+            shutil.rmtree(privileged_dir)
+
+
+    def test_throws_correct_when_failed_to_write_configfile(self):
+        class Unserializable:
+            """A class which the JSON should not be able to serialize"""
+
+            def __init__(self, oldconfig):
+                self.something = 1 # Make the object unserializable
+                # Pretend to be the old config just enough
+                self.__dict__["prefix_len"] = oldconfig["prefix_len"]
+
+            def __getitem__(self, name, default=None):
+                if name == "prefix_len":
+                    return self.__dict__["prefix_len"]
+                else:
+                    return None
+
+            def __setitem__(self, name, value):
+                self.__dict__[name] = value
+
+        oldconfig = self._CacheDir.config
+        self._CacheDir.config = Unserializable(oldconfig)
+        # Remove the config file that got created on object creation
+        # so that _readconfig* will try to rewrite it
+        old_config = os.path.join(self._CacheDir.path, "config")
+        os.remove(old_config)
+        
+        try:
+            if PY3:
+                self._CacheDir._readconfig3(self._CacheDir.path)
+            else:
+                self._CacheDir._readconfig2(self._CacheDir.path)
+            assert False, "Should have raised exception and did not"
+        except SCons.Errors.SConsEnvironmentError as e:
+            assert str(e) == "Failed to write cache configuration for {}".format(self._CacheDir.path)
+        except Exception as e:
+            assert False, "Got unexpected exception: {}".format(str(e))
+
+    def test_raise_environment_error_on_invalid_json(self):
+        config_file = os.path.join(self._CacheDir.path, "config")
+        with open(config_file, "r") as cfg:
+            content = cfg.read()
+        # This will make JSON load raise a ValueError
+        content += "{}"
+        with open(config_file, "w") as cfg:
+            cfg.write(content)
+
+        try:
+            # Construct a new cache dir that will try to read the invalid config
+            new_cache_dir = SCons.CacheDir.CacheDir(self._CacheDir.path)
+            assert False, "Should have raised exception and did not"
+        except SCons.Errors.SConsEnvironmentError as e:
+            assert str(e) == "Failed to read cache configuration for {}".format(self._CacheDir.path)
+        except Exception as e:
+            assert False, "Got unexpected exception: {}".format(str(e))
 
 class FileTestCase(BaseTestCase):
     """

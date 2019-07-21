@@ -33,6 +33,7 @@ import os
 import stat
 import sys
 
+import SCons
 import SCons.Action
 import SCons.Warnings
 from SCons.Util import PY3
@@ -185,7 +186,7 @@ class CacheDir(object):
             pass
         except OSError:
             msg = "Failed to create cache directory " + path
-            raise SCons.Errors.EnvironmentError(msg)
+            raise SCons.Errors.SConsEnvironmentError(msg)
 
         try:
             with open(config_file, 'x') as config:
@@ -194,14 +195,14 @@ class CacheDir(object):
                     json.dump(self.config, config)
                 except Exception:
                     msg = "Failed to write cache configuration for " + path
-                    raise SCons.Errors.EnvironmentError(msg)
+                    raise SCons.Errors.SConsEnvironmentError(msg)
         except FileExistsError:
             try:
                 with open(config_file) as config:
                     self.config = json.load(config)
             except ValueError:
                 msg = "Failed to read cache configuration for " + path
-                raise SCons.Errors.EnvironmentError(msg)
+                raise SCons.Errors.SConsEnvironmentError(msg)
 
 
     def _readconfig2(self, path):
