@@ -6,9 +6,9 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From John Doe:
+  From William Deegan:
 
-    - Whatever John Doe did.
+    - Remove obsoleted references to DeciderNeedsNode which could cause crash when using --debug=explain
 
 
 RELEASE 3.1.0 - Mon, 20 Jul 2019 16:59:23 -0700
