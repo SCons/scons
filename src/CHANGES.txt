@@ -4,21 +4,14 @@
 
                             Change Log
 
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From John Doe:
+
+    - Whatever John Doe did.
+
+
 RELEASE 3.1.0 - Mon, 20 Jul 2019 16:59:23 -0700
-
-  From John Doe:
-
-    - Whatever John Doe did.
-
-
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
-
-  From John Doe:
-
-    - Whatever John Doe did.
-
-
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Joseph Brill:
     - Code to supply correct version-specifier argument to vswhere for
