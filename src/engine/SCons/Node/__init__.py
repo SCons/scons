@@ -1661,10 +1661,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             if k not in old_bkids:
                 lines.append("`%s' is a new dependency\n" % stringify(k))
             else:
-                try:
-                    changed = _decider_map[k.changed_since_last_build](k, self, osig[k])
-                except DeciderNeedsNode as e:
-                    changed = e.decider(self, osig[k], node=self)
+                changed = _decider_map[k.changed_since_last_build](k, self, osig[k])
 
                 if changed:
                     lines.append("`%s' changed\n" % stringify(k))
