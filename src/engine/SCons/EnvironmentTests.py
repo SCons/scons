@@ -797,6 +797,7 @@ sys.exit(0)
             "-F fwd3 " + \
             "-dylib_file foo-dylib " + \
             "-pthread " + \
+            "-fmerge-all-constants " +\
             "-fopenmp " + \
             "-mno-cygwin -mwindows " + \
             "-arch i386 -isysroot /tmp " + \
@@ -811,7 +812,8 @@ sys.exit(0)
         assert d['ASFLAGS'] == ['-as'], d['ASFLAGS']
         assert d['CFLAGS']  == ['-std=c99']
         assert d['CCFLAGS'] == ['-X', '-Wa,-as',
-                                '-pthread', '-fopenmp', '-mno-cygwin',
+                                '-pthread', '-fmerge-all-constants',
+                                '-fopenmp', '-mno-cygwin',
                                 ('-arch', 'i386'), ('-isysroot', '/tmp'),
                                 ('-iquote', '/usr/include/foo1'),
                                 ('-isystem', '/usr/include/foo2'),
@@ -832,7 +834,7 @@ sys.exit(0)
         assert LIBS == ['xxx', 'yyy', 'ascend'], (d['LIBS'], LIBS)
         assert d['LINKFLAGS'] == ['-Wl,-link',
                                   '-dylib_file', 'foo-dylib',
-                                  '-pthread', '-fopenmp',
+                                  '-pthread', '-fmerge-all-constants', '-fopenmp',
                                   '-mno-cygwin', '-mwindows',
                                   ('-arch', 'i386'),
                                   ('-isysroot', '/tmp'),

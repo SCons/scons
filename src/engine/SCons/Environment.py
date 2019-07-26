@@ -783,6 +783,7 @@ class SubstitutionEnvironment(object):
                 elif arg in ['-mno-cygwin',
                              '-pthread',
                              '-openmp',
+                             '-fmerge-all-constants',
                              '-fopenmp']:
                     dict['CCFLAGS'].append(arg)
                     dict['LINKFLAGS'].append(arg)

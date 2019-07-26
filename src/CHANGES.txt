@@ -10,6 +10,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
     - Whatever John Doe did.
 
+  From Ben Reed:
+    - Added -fmerge-all-constants to flags that get included in both CCFLAGS and LINKFLAGS.
+
 
 RELEASE 3.1.0 - Mon, 20 Jul 2019 16:59:23 -0700
 
