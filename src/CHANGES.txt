@@ -10,6 +10,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
     - Whatever John Doe did.
 
+  From Mathew Robinson:
+
+    - Fix issue #3415 - Update remaining usages of EnvironmentError to SConsEnvironmentError
+      this patch fixes issues introduced in 3.1.0 where any of the
+      following would cause SCons to error and exit:
+        - CacheDir not write-able
+        - JSON encoding errors for CacheDir config
+        - JSON decoding errors for CacheDir config
 
 RELEASE 3.1.0 - Mon, 20 Jul 2019 16:59:23 -0700
 
