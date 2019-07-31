@@ -28,9 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify behavior of the MD5-timestamp Decider() setting.
 """
 
-import os
-import stat
-
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -45,10 +42,9 @@ with open("hello.h.in","w") as outfile:
 env.Command("hello.h","hello.h.in",[Copy("$TARGET","$SOURCE")])
 """)
 
-
-test.run(arguments = '. --debug=explain')
+test.run(arguments='--debug=explain .')
 # this should not be up-to-date and it should not crash
-test.not_up_to_date(arguments = '. --debug=explain')
+test.not_up_to_date(arguments='--debug=explain .')
 
 test.pass_test()
 
