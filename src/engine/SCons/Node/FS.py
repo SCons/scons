@@ -3436,6 +3436,8 @@ class File(Base):
             Boolean - Indicates if node(File) has changed.
         """
 
+        if node is None:
+            node = self
         # Now get sconsign name -> csig map and then get proper prev_ni if possible
         bi = node.get_stored_info().binfo
         rebuilt = False

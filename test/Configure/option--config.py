@@ -126,8 +126,6 @@ test.checkLogAndStdout(["Checking for C header file non_system_header0.h... ",
 test.file_fixture('test_main.c')
 
 # Check the combination of --config=force and Decider('MD5-timestamp')
-# On second run there was an issue where the decider would throw DeciderNeedsNode
-# exception which the configure code didn't handle.
 SConstruct_path = test.workpath('SConstruct')
 test.write(SConstruct_path, """
 env = Environment()
