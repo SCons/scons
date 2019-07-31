@@ -138,8 +138,6 @@ class ExceptionTestCase(unittest.TestCase):
             assert False, "Should have raised exception and did not"
         except SCons.Errors.SConsEnvironmentError as e:
             assert str(e) == "Failed to create cache directory {}".format(os.path.join(privileged_dir, "cache"))
-        except Exception as e:
-            assert False, "Got unexpected exception: {}".format(str(e))
         finally:
             os.chmod(privileged_dir, stat.S_IWRITE | stat.S_IEXEC | stat.S_IREAD)
             shutil.rmtree(privileged_dir)
@@ -178,8 +176,6 @@ class ExceptionTestCase(unittest.TestCase):
             assert False, "Should have raised exception and did not"
         except SCons.Errors.SConsEnvironmentError as e:
             assert str(e) == "Failed to write cache configuration for {}".format(self._CacheDir.path)
-        except Exception as e:
-            assert False, "Got unexpected exception: {}".format(str(e))
 
     def test_raise_environment_error_on_invalid_json(self):
         config_file = os.path.join(self._CacheDir.path, "config")
@@ -196,8 +192,6 @@ class ExceptionTestCase(unittest.TestCase):
             assert False, "Should have raised exception and did not"
         except SCons.Errors.SConsEnvironmentError as e:
             assert str(e) == "Failed to read cache configuration for {}".format(self._CacheDir.path)
-        except Exception as e:
-            assert False, "Got unexpected exception: {}".format(str(e))
 
 class FileTestCase(BaseTestCase):
     """
