@@ -20,7 +20,6 @@ AllowableExceptions = (KeyError,)
 # space characters in the string result from the scons_subst() function.
 space_sep = re.compile(r'[\t ]+(?![^{]*})')
 
-
 _debug = True
 if _debug:
     def debug(fmt, *args):
@@ -40,7 +39,7 @@ def remove_escaped_items_from_list(list):
     """
     result = []
     depth = 0
-    for l,t in list:
+    for l, t in list:
         if l == '$(':
             depth += 1
         elif l == '$)':
@@ -48,11 +47,10 @@ def remove_escaped_items_from_list(list):
             if depth < 0:
                 break
         elif depth == 0:
-            result.append((l,t))
+            result.append((l, t))
     if depth != 0:
         return None
     return result
-
 
 
 class EnvironmentValues(object):
@@ -188,13 +186,12 @@ class EnvironmentValues(object):
                     else:
                         nt = ValueTypes.PARSED
                 elif v in gvars:
-                    if callable(v):
+                    if callable(gvars[v]):
                         nt = ValueTypes.CALLABLE
                     else:
                         nt = ValueTypes.PARSED
                 else:
                     nt = ValueTypes.PARSED
-
 
             # We should be able to resolve now if it's a variable or a callable.
             if t == ValueTypes.EVALUABLE:
@@ -283,7 +280,7 @@ class EnvironmentValues(object):
 
                 # The variable resolved to a string . No need to process further.
                 debug("STR      Type:%s VAL:%s" % (t, v))
-                new_string_values.append((v,t))
+                new_string_values.append((v, t))
                 new_parsed_values.append(None)
                 debug("%s->%s" % (v, string_values[i]))
 
@@ -318,7 +315,8 @@ class EnvironmentValues(object):
                         new_string_values.append(('', ValueTypes.STRING))
                         new_parsed_values.append(None)
                     else:
-                        # TODO: Handle other recursive loops by empty stringing this value before recursing with copy of lvar?
+                        # TODO: Handle other recursive loops by empty stringing this value before recursing with
+                        #  copy of lvar?
                         print("Here")
                         new_parsed_values.extend(value.all_dependencies)
                         new_string_values.extend([None] * len(value.all_dependencies))
@@ -331,11 +329,18 @@ class EnvironmentValues(object):
 
             elif t == ValueTypes.CALLABLE:
                 # Can return multiple values
-                # TODO: should this be self.values[v].value ?
-                to_call = self.values[v].value
+                # TODO: What should V be. If it's a function it seems the name ends up in v, but if callable class
+                #    v ends up being an instance of the callable class.  Both of which can return another callable
+                #    or a string which requires further processing, or a plain string, or blank.
+                try:
+                    to_call = self.values[v].value
+                except KeyError as e:
+                    print("KeyError:%s" % e)
+                    to_call = v
 
                 call_value = self.eval_callable(to_call, parsed_values, string_values, target=target,
-                                                source=source, gvars=gvars, lvars=lvars, for_sig=for_signature)
+                                                source=source, gvars=gvars, lvars=lvars, mode=mode,
+                                                conv=conv)
 
                 new_values = []
                 if is_String(call_value):
@@ -345,6 +350,8 @@ class EnvironmentValues(object):
 
                         continue
                     else:
+                        # TODO: Is this the right thing to do when the value is someting like
+                        # ${CMDGEN('foo',0)}
                         value = EnvironmentValue.factory(call_value)
                         new_values.append(value)
                 elif is_Sequence(call_value):
@@ -415,7 +422,6 @@ class EnvironmentValues(object):
                 # try:
                 #     sval = sval.value
 
-
                 if is_String(sval):
                     new_string_values.append((sval, ValueTypes.NUMBER))
                     new_parsed_values.append(None)
@@ -445,7 +451,7 @@ class EnvironmentValues(object):
         return parsed_values, string_values
 
     def eval_callable(self, to_call, parsed_values, string_values,
-                      target=None, source=None, gvars={}, lvars={}, for_sig=False):
+                      target=None, source=None, gvars={}, lvars={}, mode=SubstModes.RAW, conv=None):
         """
         Evaluate a callable and return the generated string.
         (Note we'll need to handle recursive expansion)
@@ -465,11 +471,14 @@ class EnvironmentValues(object):
             s = to_call(target=lvars['TARGETS'],
                         source=lvars['SOURCES'],
                         env=self,
-                        for_signature=for_sig)
+                        for_signature= (mode == SubstModes.FOR_SIGNATURE))
         except TypeError as e:
             # TODO: Handle conv/convert parameters...
-            s = str(to_call)
-            raise Exception("Not handled eval_callable not normal params")
+            if mode != SubstModes.RAW:
+                s = conv(to_call)
+            else:
+                s = to_call
+            # raise Exception("Not handled eval_callable not normal params :%s"%s)
 
         # TODO: Now we should ensure the value from callable is then substituted as it can return $XYZ..
 
@@ -539,7 +548,6 @@ class EnvironmentValues(object):
         # If evaluation returns a list from a single element insert that new list at the point the element
         # being evaluated was previously at.
 
-
         try:
             # First retrieve the value by substString and the applicable overrides.
             # TODO: Transpose overrides set into something which is cacheable. String for now, but maybe tuple instead?
@@ -563,17 +571,17 @@ class EnvironmentValues(object):
 
             # Now evaluate the parsed values. Note that some of these may expand into
             # multiple values and require expansion of parsed_values and string_values array
-            (parsed_values, string_values) = env.evaluate_parsed_values(parsed_values, string_values, source, target, gvars, lvars, mode, conv)
-
+            (parsed_values, string_values) = env.evaluate_parsed_values(parsed_values, string_values, source, target,
+                                                                        gvars, lvars, mode, conv)
 
         # Now handle subst mode during string expansion.
         if for_signature:
             string_values = remove_escaped_items_from_list(string_values)
         elif mode == SubstModes.NORMAL:
-            string_values = [(s,t) for (s,t) in string_values if s not in ('$(','$)')]
+            string_values = [(s, t) for (s, t) in string_values if s not in ('$(', '$)')]
         # else Remaining mode is RAW where we don't strip anything.
 
-        retval = " ".join([s for s,t in string_values])
+        retval = " ".join([s for s, t in string_values])
 
         if mode in (SubstModes.FOR_SIGNATURE, SubstModes.NORMAL):
             retval = space_sep.sub(' ', retval).strip()
@@ -687,9 +695,9 @@ class EnvironmentValues(object):
                 retval.append([])
 
             e_value = EnvironmentValue(element)
-            this_value = EnvironmentValues.subst(env, mode=mode,
-                                       target=target, source=source,
-                                       gvars=gvars, lvars=lvars, conv=conv)
+            this_value = EnvironmentValues.subst(element, env, mode=mode,
+                                                 target=target, source=source,
+                                                 gvars=gvars, lvars=lvars, conv=conv)
 
             # Now we need to determine if we need to recurse/evaluate this_value
             if '$' not in this_value:
