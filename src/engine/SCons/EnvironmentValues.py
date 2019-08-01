@@ -332,14 +332,19 @@ class EnvironmentValues(object):
                 # TODO: What should V be. If it's a function it seems the name ends up in v, but if callable class
                 #    v ends up being an instance of the callable class.  Both of which can return another callable
                 #    or a string which requires further processing, or a plain string, or blank.
-                try:
-                    to_call = self.values[v].value
-                except KeyError as e:
-                    print("KeyError:%s" % e)
+                if v in self.values:
+                    to_call = self.values[v].v
+                elif v in lvars:
+                    to_call = lvars[v]
+                else:
+                    print("Couldn't find key :%s"%v)
                     to_call = v
 
-                call_value = self.eval_callable(to_call, parsed_values, string_values, target=target,
-                                                source=source, gvars=gvars, lvars=lvars, mode=mode,
+
+                call_value = self.eval_callable(to_call, parsed_values, string_values,
+                                                target=lvars['TARGETS'],
+                                                source=lvars['SOURCES'],
+                                                gvars=gvars, lvars=lvars, mode=mode,
                                                 conv=conv)
 
                 new_values = []
