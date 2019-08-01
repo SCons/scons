@@ -797,6 +797,7 @@ sys.exit(0)
             "-F fwd3 " + \
             "-dylib_file foo-dylib " + \
             "-pthread " + \
+            "-fmerge-all-constants " +\
             "-fopenmp " + \
             "-mno-cygwin -mwindows " + \
             "-arch i386 -isysroot /tmp " + \
@@ -811,7 +812,8 @@ sys.exit(0)
         assert d['ASFLAGS'] == ['-as'], d['ASFLAGS']
         assert d['CFLAGS']  == ['-std=c99']
         assert d['CCFLAGS'] == ['-X', '-Wa,-as',
-                                '-pthread', '-fopenmp', '-mno-cygwin',
+                                '-pthread', '-fmerge-all-constants',
+                                '-fopenmp', '-mno-cygwin',
                                 ('-arch', 'i386'), ('-isysroot', '/tmp'),
                                 ('-iquote', '/usr/include/foo1'),
                                 ('-isystem', '/usr/include/foo2'),
@@ -832,7 +834,7 @@ sys.exit(0)
         assert LIBS == ['xxx', 'yyy', 'ascend'], (d['LIBS'], LIBS)
         assert d['LINKFLAGS'] == ['-Wl,-link',
                                   '-dylib_file', 'foo-dylib',
-                                  '-pthread', '-fopenmp',
+                                  '-pthread', '-fmerge-all-constants', '-fopenmp',
                                   '-mno-cygwin', '-mwindows',
                                   ('-arch', 'i386'),
                                   ('-isysroot', '/tmp'),
@@ -2024,6 +2026,7 @@ def generate(env):
                                  "-Ffwd2 " + \
                                  "-F fwd3 " + \
                                  "-pthread " + \
+                                 "-fmerge-all-constants " + \
                                  "-mno-cygwin -mwindows " + \
                                  "-arch i386 -isysroot /tmp " + \
                                  "-iquote /usr/include/foo1 " + \
@@ -2035,7 +2038,7 @@ def generate(env):
             assert save_command == ['fake command'], save_command
             assert env['ASFLAGS'] == ['assembler', '-as'], env['ASFLAGS']
             assert env['CCFLAGS'] == ['', '-X', '-Wa,-as',
-                                      '-pthread', '-mno-cygwin',
+                                      '-pthread', '-fmerge-all-constants', '-mno-cygwin',
                                       ('-arch', 'i386'), ('-isysroot', '/tmp'),
                                       ('-iquote', '/usr/include/foo1'),
                                       ('-isystem', '/usr/include/foo2'),
@@ -2049,6 +2052,7 @@ def generate(env):
             assert env['LIBPATH'] == ['list', '/usr/fax', 'foo'], env['LIBPATH']
             assert env['LIBS'] == ['xxx', 'yyy', env.File('abc')], env['LIBS']
             assert env['LINKFLAGS'] == ['', '-Wl,-link', '-pthread',
+                                        '-fmerge-all-constants',
                                         '-mno-cygwin', '-mwindows',
                                         ('-arch', 'i386'),
                                         ('-isysroot', '/tmp'),
