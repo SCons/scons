@@ -2026,8 +2026,8 @@ def generate(env):
                                  "-Ffwd2 " + \
                                  "-F fwd3 " + \
                                  "-pthread " + \
-                                 "-mno-cygwin -mwindows " + \
                                  "-fmerge-all-constants " + \
+                                 "-mno-cygwin -mwindows " + \
                                  "-arch i386 -isysroot /tmp " + \
                                  "-iquote /usr/include/foo1 " + \
                                  "-isystem /usr/include/foo2 " + \
