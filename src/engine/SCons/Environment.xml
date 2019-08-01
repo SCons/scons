@@ -2306,6 +2306,7 @@ and added to the following construction variables:
 -framework              FRAMEWORKS
 -frameworkdir=          FRAMEWORKPATH
 -fmerge-all-constants   CCFLAGS, LINKFLAGS
+-fopenmp                CCFLAGS, LINKFLAGS
 -include                CCFLAGS
 -isysroot               CCFLAGS, LINKFLAGS
 -isystem                CCFLAGS
@@ -2316,6 +2317,7 @@ and added to the following construction variables:
 -L                      LIBPATH
 -mno-cygwin             CCFLAGS, LINKFLAGS
 -mwindows               LINKFLAGS
+-openmp                 CCFLAGS, LINKFLAGS
 -pthread                CCFLAGS, LINKFLAGS
 -std=                   CFLAGS
 -Wa,                    ASFLAGS, CCFLAGS
