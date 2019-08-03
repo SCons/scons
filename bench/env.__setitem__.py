@@ -289,7 +289,7 @@ else:
 # that the timer will use to get at these classes.
 
 class_names = []
-for n in locals().keys():
+for n in list(locals().keys()):
     #if n.startswith('env_'):
     if n[:4] == 'env_':
         class_names.append(n)

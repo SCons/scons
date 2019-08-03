@@ -91,7 +91,7 @@ hierarchy, you use a normal runtest.py invocation to run the timings
 configuration:
 
     $ python runtest.py timings/Configuration/TimeSCons-run.py
-                                 
+
 This runs the entire timing configuration, which actually runs SCons
 itself three times:
 
