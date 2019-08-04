@@ -21,16 +21,18 @@ def find_file(filename):
         if os.path.exists(os.path.join(p,filename)):
             print("Found %s in %s"%(filename, p))
 
-check_dir('c:\\')
-check_dir('C:/Program Files (x86)/')
-check_dir('C:/Program Files/')
-
-check_dir('C:/Program Files/LLVM/bin')
-
-check_dir('C:/msys64')
+# check_dir('c:\\')
+# check_dir('C:/Program Files (x86)/')
+# check_dir('C:/Program Files/')
+#
+# check_dir('C:/Program Files/LLVM/bin')
+#
+# check_dir('C:/msys64')
 
 check_dir('C:/ProgramData/chocolatey/bin')
+check_dir('C:/ProgramData/chocolatey/lib/swig/tools/install')
 
-check_dir('C:/Program Files/Git/usr/bin')
-find_file('xsltproc.exe')
-find_file('link.exe')
+
+# check_dir('C:/Program Files/Git/usr/bin')
+# find_file('xsltproc.exe')
+# find_file('link.exe')
