@@ -1333,11 +1333,11 @@ env.Depends(bar, installed_lib)
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 Returns a dictionary object
-containing copies of all of the
-construction variables in the environment.
-If there are any variable names specified,
-only the specified construction
-variables are returned in the dictionary.
+containing construction variables in the environment.
+If there are any arguments specified,
+only the values of the specified construction
+variables are returned as a string (if one
+argument) or as a list of strings.
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1345,8 +1345,8 @@ Example:
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
-dict = env.Dictionary()
-cc_dict = env.Dictionary('CC', 'CCFLAGS', 'CCCOM')
+cvars = env.Dictionary()
+cc_values = env.Dictionary('CC', 'CCFLAGS', 'CCCOM')
 </example_commands>
 </listitem>
   </varlistentry>

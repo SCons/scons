@@ -645,8 +645,9 @@ print("CC is: %s"%env['CC'])
 
       <para>
 
-      A construction environment, however,
-      is actually an object with associated methods, etc.
+      A construction environment
+      is actually an object with associated methods and
+      attributes.
       If you want to have direct access to only the
       dictionary of construction variables,
       you can fetch this using the &Dictionary; method:
@@ -656,9 +657,9 @@ print("CC is: %s"%env['CC'])
       <scons_example name="environments_ex6b">
          <file name="SConstruct" printme="1">
 env = Environment(FOO = 'foo', BAR = 'bar')
-dict = env.Dictionary()
+cvars = env.Dictionary()
 for key in ['OBJSUFFIX', 'LIBSUFFIX', 'PROGSUFFIX']:
-    print("key = %s, value = %s" % (key, dict[key]))
+    print("key = %s, value = %s" % (key, cvars[key]))
          </file>
       </scons_example>
 
@@ -696,6 +697,16 @@ for key in ['OBJSUFFIX', 'LIBSUFFIX', 'PROGSUFFIX']:
 env = Environment()
 for item in sorted(env.Dictionary().items()):
     print("construction variable = '%s', value = '%s'" % item)
+      </sconstruct>
+
+      <para>
+      It should be noted that for the previous example, there is actually
+      an environment method that does the same thing more simply,
+      and tries to format it nicely as well:
+      </para>
+      <sconstruct>
+env = Environment()
+print(env.Dump())
       </sconstruct>
 
     </section>
