@@ -170,6 +170,9 @@ before_build:
 build: off
 
 build_script:
+  # Enumerate the environment
+  - cmd: python enumerate_environment.py
+
   # get all tests into a list
   - cmd: "C:\\%WINPYTHON%\\python.exe runtest.py -l -a > all_tests.txt"
   - sh: python$PYTHON runtest.py -l -a > all_tests.txt
