@@ -36,11 +36,12 @@ test.subdir('subdir')
 
 test.write('build.py', r"""
 import sys
-contents = open(sys.argv[2], 'rb').read() + open(sys.argv[3], 'rb').read()
-file = open(sys.argv[1], 'wb')
-for arg in sys.argv[2:]:
-    file.write(open(arg, 'rb').read())
-file.close()
+with open(sys.argv[2], 'rb') as afp2, open(sys.argv[3], 'rb') as afp3:
+    contents = afp2.read() + afp3.read()
+with open(sys.argv[1], 'wb') as f:
+    for arg in sys.argv[2:]:
+        with open(arg, 'rb') as ifp:
+            f.write(ifp.read())
 """)
 
 SUBDIR_f3_out = os.path.join('$SUBDIR', 'f3.out')

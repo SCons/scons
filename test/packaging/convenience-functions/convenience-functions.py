@@ -33,7 +33,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.dir_fixture( "image" )
+test.dir_fixture("image")
 
 bin_f1 = os.path.join('bin', 'f1')
 bin_f2 = os.path.join('bin', 'f2')

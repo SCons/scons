@@ -117,7 +117,7 @@ else:
         # check `pwd`/lib/scons*.
         temp.append(os.getcwd())
     else:
-        if script_dir == '.' or script_dir == '':
+        if script_dir in ('.', ''):
             script_dir = os.getcwd()
         head, tail = os.path.split(script_dir)
         if tail == "bin":
@@ -261,7 +261,7 @@ def default_mapper(entry, name):
     """
     try:
         val = eval("entry." + name)
-    except:
+    except AttributeError:
         val = None
     if sys.version_info.major >= 3 and isinstance(val, bytes):
         # This is a dirty hack for py 2/3 compatibility. csig is a bytes object
@@ -596,7 +596,7 @@ for o, a in opts:
                     # this was handled by calling my_import('SCons.dblite')
                     # again in earlier versions...
                     SCons.dblite.ignore_corrupt_dbfiles = 0
-            except:
+            except ImportError:
                 sys.stderr.write("sconsign: illegal file format `%s'\n" % a)
                 print(helpstr)
                 sys.exit(2)

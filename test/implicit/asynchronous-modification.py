@@ -55,8 +55,10 @@ test.write(['hdr.h'], """\
 """)
 
 test.write(['mod.py'], """\
-open('mod', 'w').write(open('mod.py', 'r').read())
-open('hdr.h', 'w').write("/* modified */\\n")
+with open('mod', 'w') as f, open('mod.py', 'r') as ifp:
+    f.write(ifp.read())
+with open('hdr.h', 'w') as f:
+    f.write("/* modified */\\n")
 """)
 
 test.write(['one.c'], """\

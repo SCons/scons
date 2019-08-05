@@ -47,11 +47,11 @@ denv.Command('ddd.out', 'ddd.in',   Copy('$TARGET', '$SOURCE'))
 denv.Command('n2.out',  n2_in,      Copy('$TARGET', '$SOURCE'))
 env.Command( 'eee.out', 'eee.in',   Copy('$TARGET', '$SOURCE'))
 env.Command( 'n3.out',  n3_in,      Copy('$TARGET', '$SOURCE'))
-def default_decider(dependency, target, prev_ni):
+def default_decider(dependency, target, prev_ni, repo_node=None):
     return os.path.exists('default-has-changed')
-def env_decider(dependency, target, prev_ni):
+def env_decider(dependency, target, prev_ni, repo_node=None):
     return os.path.exists('env-has-changed')
-def node_decider(dependency, target, prev_ni):
+def node_decider(dependency, target, prev_ni, repo_node=None):
     return os.path.exists('node-has-changed')
 Decider(default_decider)
 env.Decider(env_decider)

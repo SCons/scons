@@ -52,9 +52,8 @@ test.subdir('build', 'src')
 
 test.write('build.py', r"""
 import sys
-file = open(sys.argv[1], 'w')
-file.write("build.py: %s\n" % sys.argv[1])
-file.close()
+with open(sys.argv[1], 'w') as ofp:
+    ofp.write("build.py: %s\n" % sys.argv[1])
 """)
 
 test.write('SConstruct', """

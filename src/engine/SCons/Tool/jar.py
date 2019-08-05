@@ -86,7 +86,7 @@ def jarFlags(target, source, env, for_signature):
     for src in source:
         contents = src.get_text_contents()
         if contents.startswith("Manifest-Version"):
-            if not 'm' in jarflags:
+            if 'm' not in jarflags:
                 return jarflags + 'm'
             break
     return jarflags
@@ -106,7 +106,7 @@ def Jar(env, target = None, source = [], *args, **kw):
         source = target
         target = None
 
-    # mutiple targets pass so build each target the same from the 
+    # mutiple targets pass so build each target the same from the
     # same source
     #TODO Maybe this should only be done once, and the result copied
     #     for each target since it should result in the same?
@@ -184,7 +184,7 @@ def Jar(env, target = None, source = [], *args, **kw):
                 continue
             except:
                 pass
-            
+
             try:
                 # source is string try to covnert it to dir
                 target_nodes.extend(dir_to_class(env.fs.Dir(s)))
@@ -193,7 +193,7 @@ def Jar(env, target = None, source = [], *args, **kw):
                 pass
 
             SCons.Warnings.Warning("File: " + str(s) + " could not be identified as File or Directory, skipping.")
-            
+
     # at this point all our sources have been converted to classes or directories of class
     # so pass it to the Jar builder
     return env.JarFile(target = target, source = target_nodes, *args, **kw)
@@ -209,9 +209,9 @@ def generate(env):
     env.AddMethod(Jar)
 
     if env['PLATFORM'] == 'win32':
-        # Ensure that we have a proper path for clang
-        jar = SCons.Tool.find_program_path(env, 'jar',
-                                             default_paths=get_java_install_dirs(env['PLATFORM']))
+        # Ensure that we have a proper path for jar
+        paths = get_java_install_dirs('win32')
+        jar = SCons.Tool.find_program_path(env, 'jar', default_paths=paths)
         if jar:
             jar_bin_dir = os.path.dirname(jar)
             env.AppendENVPath('PATH', jar_bin_dir)

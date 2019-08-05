@@ -42,16 +42,18 @@ import sys
 opts, args = getopt.getopt(sys.argv[1:], 'cf:')
 for opt, arg in opts:
     if opt == '-f': out = arg
+
 def process(outfile, name):
     if os.path.isdir(name):
         for entry in sorted(os.listdir(name)):
             process(outfile, os.path.join(name, entry))
     else:
-        outfile.write(open(name, 'r').read())
-outfile = open(out, 'w')
-for infile in args:
-    process(outfile, infile)
-outfile.close()
+        with open(name, 'r') as ifp:
+            outfile.write(ifp.read())
+
+with open(out, 'w') as ofp:
+    for infile in args:
+        process(ofp, infile)
 sys.exit(0)
 """)
 

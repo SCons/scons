@@ -38,11 +38,13 @@ import os.path
 import re
 import sys
 mod_regex = "(?im)^\\s*MODULE\\s+(?!PROCEDURE)(\\w+)"
-contents = open(sys.argv[1]).read()
+with open(sys.argv[1]) as f:
+    contents = f.read()
 modules = re.findall(mod_regex, contents)
 modules = [m.lower()+'.mod' for m in modules]
 for t in sys.argv[2:] + modules:
-    open(t, 'wb').write(('myfortran.py wrote %s\n' % os.path.split(t)[1]).encode())
+    with open(t, 'wb') as f:
+        f.write(('myfortran.py wrote %s\n' % os.path.split(t)[1]).encode())
 sys.exit(0)
 """)
 

@@ -68,6 +68,20 @@ import SCons.Warnings
 
 import SCons.Script.Interactive
 
+# Global variables
+first_command_start = None
+last_command_end = None
+print_objects = 0
+print_memoizer = 0
+print_stacktrace = 0
+print_time = 0
+sconscript_time = 0
+cumulative_command_time = 0
+exit_status = 0   # final exit status, assume success by default
+this_build_status = 0   # "exit status" of an individual build
+num_jobs = None
+delayed_warnings = []
+
 
 def fetch_win32_parallel_msg():
     # A subsidiary function that exists solely to isolate this import
@@ -87,14 +101,13 @@ def revert_io():
     sys.stderr = sys.__stderr__
     sys.stdout = sys.__stdout__
 
+
 class SConsPrintHelpException(Exception):
     pass
 
+
 display = SCons.Util.display
 progress_display = SCons.Util.DisplayEngine()
-
-first_command_start = None
-last_command_end = None
 
 
 class Progressor(object):
@@ -442,19 +455,6 @@ def python_version_unsupported(version=sys.version_info):
 def python_version_deprecated(version=sys.version_info):
     return version < deprecated_python_version
 
-
-# Global variables
-
-print_objects = 0
-print_memoizer = 0
-print_stacktrace = 0
-print_time = 0
-sconscript_time = 0
-cumulative_command_time = 0
-exit_status = 0 # final exit status, assume success by default
-this_build_status = 0 # "exit status" of an individual build
-num_jobs = None
-delayed_warnings = []
 
 class FakeOptionParser(object):
     """
@@ -1170,7 +1170,7 @@ def _build_targets(fs, options, targets, target_top):
                 # -U, local SConscript Default() targets
                 target_top = fs.Dir(target_top)
                 def check_dir(x, target_top=target_top):
-                    if hasattr(x, 'cwd') and not x.cwd is None:
+                    if hasattr(x, 'cwd') and x.cwd is not None:
                         cwd = x.cwd.srcnode()
                         return cwd == target_top
                     else:

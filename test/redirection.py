@@ -42,18 +42,19 @@ if sys.platform == "win32":
 
 
 try:
-    input = open(sys.argv[1], 'rb').read()
+    with open(sys.argv[1], 'rb') as f:
+        indata = f.read()
 except IndexError:
     if PY3K:
         source = sys.stdin.buffer
     else:
         source = sys.stdin
-    input = source.read()
+    indata = source.read()
     
 if PY3K:
-    sys.stdout.buffer.write(input)
+    sys.stdout.buffer.write(indata)
 else:
-    sys.stdout.write(input)
+    sys.stdout.write(indata)
 
 sys.exit(0)
 """)

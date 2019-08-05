@@ -170,7 +170,7 @@ env = conf.Finish()
 test.run()
 
 test.must_match('config.log',
-""".*
+r""".*
 .*
 scons: Configure: Display of list ...
 scons: Configure: \(cached\) yes

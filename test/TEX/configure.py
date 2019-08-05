@@ -24,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Verify execution of custom test case.
 The old code base would not be able to fail the test
 """

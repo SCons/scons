@@ -49,8 +49,10 @@ test.write('build.py',
 r"""\
 import os
 import sys
-contents = open(sys.argv[2], 'r').read()
-open(sys.argv[1], 'w').write("build.py %s\n%s" % (os.environ['X'], contents))
+with open(sys.argv[2], 'r') as f:
+    contents = f.read()
+with open(sys.argv[1], 'w') as f:
+    f.write("build.py %s\n%s" % (os.environ['X'], contents))
 """)
 
 test.write('input', "input file\n")

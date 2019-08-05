@@ -45,7 +45,8 @@ test.not_up_to_date(arguments = 'file.out')
 
 test.write('SConstruct', """\
 def my_copy(target, source, env):
-    open(str(target[0]), 'w').write(open(str(source[0]), 'r').read())
+    with open(str(target[0]), 'w') as f, open(str(source[0]), 'r') as infp:
+        f.write(infp.read())
 env = Environment()
 env.Decider('timestamp-match')
 env.Command('file.out', 'file.in', my_copy)

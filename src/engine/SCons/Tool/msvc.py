@@ -34,6 +34,7 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
+import os
 import re
 import sys
 
@@ -161,7 +162,7 @@ def msvc_batch_key(action, env, target, source):
     # Note we need to do the env.subst so $MSVC_BATCH can be a reference to
     # another construction variable, which is why we test for False and 0
     # as strings.
-    if not 'MSVC_BATCH' in env or env.subst('$MSVC_BATCH') in ('0', 'False', '', None):
+    if 'MSVC_BATCH' not in env or env.subst('$MSVC_BATCH') in ('0', 'False', '', None):
         # We're not using batching; return no key.
         return None
     t = target[0]
@@ -187,7 +188,7 @@ def msvc_output_flag(target, source, env, for_signature):
     # len(source)==1 as batch mode can compile only one file
     # (and it also fixed problem with compiling only one changed file
     # with batch mode enabled)
-    if not 'MSVC_BATCH' in env or env.subst('$MSVC_BATCH') in ('0', 'False', '', None):
+    if 'MSVC_BATCH' not in env or env.subst('$MSVC_BATCH') in ('0', 'False', '', None):
         return '/Fo$TARGET'
     else:
         # The Visual C/C++ compiler requires a \ at the end of the /Fo
@@ -282,6 +283,12 @@ def generate(env):
     env['CXXFILESUFFIX'] = '.cc'
 
     msvc_set_PCHPDBFLAGS(env)
+
+    # Issue #3350
+    # Change tempfile argument joining character from a space to a newline
+    # mslink will fail if any single line is too long, but is fine with many lines
+    # in a tempfile
+    env['TEMPFILEARGJOIN'] = os.linesep
 
 
     env['PCHCOM'] = '$CXX /Fo${TARGETS[1]} $CXXFLAGS $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Yc$PCHSTOP /Fp${TARGETS[0]} $CCPDBFLAGS $PCHPDBFLAGS'

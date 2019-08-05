@@ -45,7 +45,7 @@ __all__ = ['EnumVariable',]
 import SCons.Errors
 
 def _validator(key, val, env, vals):
-    if not val in vals:
+    if val not in vals:
         raise SCons.Errors.UserError(
             'Invalid value for option %s: %s.  Valid values are: %s' % (key, val, vals))
 

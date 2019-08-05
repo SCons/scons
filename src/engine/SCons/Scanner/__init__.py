@@ -207,7 +207,7 @@ class Base(object):
 
         self = self.select(node)
 
-        if not self.argument is _null:
+        if self.argument is not _null:
             node_list = self.function(node, env, path, self.argument)
         else:
             node_list = self.function(node, env, path)

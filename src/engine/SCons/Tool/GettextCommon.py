@@ -4,7 +4,7 @@ Used by several tools of `gettext` toolset.
 """
 
 # __COPYRIGHT__
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -12,10 +12,10 @@ Used by several tools of `gettext` toolset.
 # distribute, sublicense, and/or sell copies of the Software, and to
 # permit persons to whom the Software is furnished to do so, subject to
 # the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included
 # in all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
 # KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
 # WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -71,7 +71,7 @@ SCons.Warnings.enableWarningClass(MsgfmtNotFound)
 #############################################################################
 class _POTargetFactory(object):
     """ A factory of `PO` target files.
-    
+
     Factory defaults differ from these of `SCons.Node.FS.FS`.  We set `precious`
     (this is required by builders and actions gettext) and `noclean` flags by
     default for all produced nodes.
@@ -80,9 +80,9 @@ class _POTargetFactory(object):
     def __init__(self, env, nodefault=True, alias=None, precious=True
                  , noclean=True):
         """ Object constructor.
-    
+
         **Arguments**
-    
+
             - *env* (`SCons.Environment.Environment`)
             - *nodefault* (`boolean`) - if `True`, produced nodes will be ignored
               from default target `'.'`
@@ -160,13 +160,13 @@ from SCons.Builder import BuilderBase
 #############################################################################
 class _POFileBuilder(BuilderBase):
     """ `PO` file builder.
-  
+
     This is multi-target single-source builder. In typical situation the source
     is single `POT` file, e.g. `messages.pot`, and there are multiple `PO`
     targets to be updated from this `POT`. We must run
     `SCons.Builder.BuilderBase._execute()` separatelly for each target to track
     dependencies separatelly for each target file.
-    
+
     **NOTE**: if we call `SCons.Builder.BuilderBase._execute(.., target, ...)`
     with target being list of all targets, all targets would be rebuilt each time
     one of the targets from this list is missing. This would happen, for example,
@@ -198,29 +198,29 @@ class _POFileBuilder(BuilderBase):
     #  After that it calls emitter (which is quite too late). The emitter is
     #  also called in each iteration, what makes things yet worse.
     def __init__(self, env, **kw):
-        if not 'suffix' in kw:
+        if 'suffix' not in kw:
             kw['suffix'] = '$POSUFFIX'
-        if not 'src_suffix' in kw:
+        if 'src_suffix' not in kw:
             kw['src_suffix'] = '$POTSUFFIX'
-        if not 'src_builder' in kw:
+        if 'src_builder' not in kw:
             kw['src_builder'] = '_POTUpdateBuilder'
-        if not 'single_source' in kw:
+        if 'single_source' not in kw:
             kw['single_source'] = True
         alias = None
         if 'target_alias' in kw:
             alias = kw['target_alias']
             del kw['target_alias']
-        if not 'target_factory' in kw:
+        if 'target_factory' not in kw:
             kw['target_factory'] = _POTargetFactory(env, alias=alias).File
         BuilderBase.__init__(self, **kw)
 
     def _execute(self, env, target, source, *args, **kw):
         """ Execute builder's actions.
-        
-        Here we append to `target` the languages read from `$LINGUAS_FILE` and 
+
+        Here we append to `target` the languages read from `$LINGUAS_FILE` and
         apply `SCons.Builder.BuilderBase._execute()` separatelly to each target.
         The arguments and return value are same as for
-        `SCons.Builder.BuilderBase._execute()`. 
+        `SCons.Builder.BuilderBase._execute()`.
         """
         import SCons.Util
         import SCons.Node
@@ -272,7 +272,7 @@ def _translate(env, target=None, source=SCons.Environment._null, *args, **kw):
 class RPaths(object):
     """ Callable object, which returns pathnames relative to SCons current
     working directory.
-  
+
     It seems like `SCons.Node.FS.Base.get_path()` returns absolute paths
     for nodes that are outside of current working directory (`env.fs.getcwd()`).
     Here, we often have `SConscript`, `POT` and `PO` files within `po/`
@@ -285,17 +285,17 @@ class RPaths(object):
     the references would be correct only on the machine, where `POT` file was
     recently re-created. For such reason, we need a function, which always
     returns relative paths. This is the purpose of `RPaths` callable object.
-  
+
     The `__call__` method returns paths relative to current working directory, but
     we assume, that *xgettext(1)* is run from the directory, where target file is
     going to be created.
-  
+
     Note, that this may not work for files distributed over several hosts or
     across different drives on windows. We assume here, that single local
     filesystem holds both source files and target `POT` templates.
-  
+
     Intended use of `RPaths` - in `xgettext.py`::
-  
+
       def generate(env):
           from GettextCommon import RPaths
           ...
@@ -318,9 +318,9 @@ class RPaths(object):
 
     def __init__(self, env):
         """ Initialize `RPaths` callable object.
-    
+
           **Arguments**:
-    
+
             - *env* - a `SCons.Environment.Environment` object, defines *current
               working dir*.
         """
@@ -329,16 +329,16 @@ class RPaths(object):
     # FIXME: I'm not sure, how it should be implemented (what the *args are in
     # general, what is **kw).
     def __call__(self, nodes, *args, **kw):
-        """ Return nodes' paths (strings) relative to current working directory. 
-        
+        """ Return nodes' paths (strings) relative to current working directory.
+
           **Arguments**:
-    
+
             - *nodes* ([`SCons.Node.FS.Base`]) - list of nodes.
             - *args* -  currently unused.
             - *kw* - currently unused.
-    
+
           **Returns**:
-    
+
            - Tuple of strings, which represent paths relative to current working
              directory (for given environment).
         """

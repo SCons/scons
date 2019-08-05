@@ -42,14 +42,14 @@ test.write(build_py, """\
 #!%(_python_)s
 import sys
 if sys.argv[1][0] == '@':
-    args = open(sys.argv[1][1:], 'r').read()
-    args = args.split()
+    with open(sys.argv[1][1:], 'r') as f:
+        args = f.read().split()
 else:
     args = sys.argv[1:]
-fp = open(args[0], 'w')
-fp.write(open(args[1], 'r').read())
-fp.write('FILEFLAG=%%s\\n' %% args[2])
-fp.write('TIMESTAMP=%%s\\n' %% args[3])
+with open(args[0], 'w') as fp, open(args[1], 'r') as ifp:
+    fp.write(ifp.read())
+    fp.write('FILEFLAG=%%s\\n' %% args[2])
+    fp.write('TIMESTAMP=%%s\\n' %% args[3])
 """ % locals())
 
 os.chmod(build_py, 0o755)

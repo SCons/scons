@@ -61,6 +61,12 @@ test.write('test3.latex',r"""
 \includegraphics[width=60mm]{inc5.xyz}
 """)
 
+test.write('test4.latex',r"""
+\include{inc1}\include{inc2}
+\only<1>{\includegraphics{inc5.xyz}}%
+\only<2>{\includegraphics{inc7.png}}
+""")
+
 test.subdir('subdir')
 
 test.write('inc1.tex',"\n")
@@ -73,6 +79,7 @@ test.write(['subdir', 'inc3c.tex'], "\n")
 test.write(['subdir', 'inc4.eps'], "\n")
 test.write('inc5.xyz', "\n")
 test.write('inc6.tex', "\n")
+test.write('inc7.png', "\n")
 test.write('incNO.tex', "\n")
 
 # define some helpers:
@@ -154,6 +161,15 @@ class LaTeXScannerTestCase3(unittest.TestCase):
          path = s.path(env)
          deps = s(env.File('test3.latex'), env, path)
          files = ['inc5.xyz', 'subdir/inc4.eps']
+         deps_match(self, deps, files)
+
+class LaTeXScannerTestCase4(unittest.TestCase):
+     def runTest(self):
+         env = DummyEnvironment(TEXINPUTS=[test.workpath("subdir")],LATEXSUFFIXES = [".tex", ".ltx", ".latex"])
+         s = SCons.Scanner.LaTeX.LaTeXScanner()
+         path = s.path(env)
+         deps = s(env.File('test4.latex'), env, path)
+         files = ['inc1.tex', 'inc2.tex', 'inc5.xyz', 'inc7.png']
          deps_match(self, deps, files)
 
 if __name__ == "__main__":

@@ -26,13 +26,22 @@ import os
 import shutil
 import signal
 import stat
-from StringIO import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
+from contextlib import closing
 import sys
 import tempfile
 import time
 import types
 import unittest
-from UserList import UserList
+try:
+    from collections import UserList
+except ImportError:
+    from UserList import UserList
+
+from SCons.Util import to_bytes, to_str
 
 
 # Strip the current directory so we get the right TestCmd.py module.
@@ -55,7 +64,7 @@ def _is_executable(path):
 def _clear_dict(dict, *keys):
     for key in keys:
         try:
-            dict[key] = ''  # del dict[key]
+            del dict[key]
         except KeyError:
             pass
 
@@ -156,9 +165,9 @@ class TestCmdTestCase(unittest.TestCase):
                              stdin=subprocess.PIPE,
                              stderr=subprocess.PIPE,
                              stdout=subprocess.PIPE)
-        stdout, stderr = p.communicate(input)
-        stdout = self.translate_newlines(stdout)
-        stderr = self.translate_newlines(stderr)
+        stdout, stderr = p.communicate(to_bytes(input))
+        stdout = self.translate_newlines(to_str(stdout))
+        stderr = self.translate_newlines(to_str(stderr))
         return stdout, stderr, p.returncode
 
     def popen_python(self, input, status=0, stdout="", stderr="", python=None):
@@ -181,7 +190,7 @@ class TestCmdTestCase(unittest.TestCase):
 
     def run_match(self, content, *args):
         expect = "%s:  %s:  %s:  %s\n" % args
-        content = self.translate_newlines(content)
+        content = self.translate_newlines(to_str(content))
         assert content == expect, \
                 "Expected %s ==========\n" % args[1] + expect + \
                 "Actual %s ============\n" % args[1] + content
@@ -257,6 +266,7 @@ result = TestCmd.TestCmd(workdir = '')
 sys.exit(0)
 """ % self.orig_cwd, stdout='my_exitfunc()\n')
 
+    @unittest.skipIf(TestCmd.IS_PY3, "No sys.exitfunc in Python 3")
     def test_exitfunc(self):
         """Test cleanup() when sys.exitfunc is set"""
         self.popen_python("""from __future__ import print_function
@@ -269,7 +279,6 @@ import TestCmd
 result = TestCmd.TestCmd(workdir = '')
 sys.exit(0)
 """ % self.orig_cwd, stdout='my_exitfunc()\n')
-
 
 
 class chmod_TestCase(TestCmdTestCase):
@@ -351,11 +360,8 @@ sys.stderr.write("run2 STDERR third line\\n")
             test = TestCmd.TestCmd(interpreter = 'python',
                                    workdir = '',
                                    combine = 1)
-            try:
-                output = test.stdout()
-            except IndexError:
-                pass
-            else:
+            output = test.stdout()
+            if output is not None:
                 raise IndexError("got unexpected output:\n\t`%s'\n" % output)
 
             # The underlying system subprocess implementations can combine
@@ -424,10 +430,13 @@ class diff_TestCase(TestCmdTestCase):
     def test_diff_re(self):
         """Test diff_re()"""
         result = TestCmd.diff_re(["abcde"], ["abcde"])
+        result = list(result)
         assert result == [], result
         result = TestCmd.diff_re(["a.*e"], ["abcde"])
+        result = list(result)
         assert result == [], result
         result = TestCmd.diff_re(["a.*e"], ["xxx"])
+        result = list(result)
         assert result == ['1c1', "< 'a.*e'", '---', "> 'xxx'"], result
 
     def test_diff_custom_function(self):
@@ -477,13 +486,13 @@ STDOUT==========================================================================
         script_input = """import sys
 sys.path = ['%s'] + sys.path
 import TestCmd
-assert TestCmd.diff_re(["a.*(e"], ["abcde"])
+assert TestCmd.diff_re([r"a.*(e"], ["abcde"])
 sys.exit(0)
 """ % self.orig_cwd
         stdout, stderr, status = self.call_python(script_input)
         assert status == 1, status
-        expect1 = "Regular expression error in '^a.*(e$': missing )\n"
-        expect2 = "Regular expression error in '^a.*(e$': unbalanced parenthesis\n"
+        expect1 = "Regular expression error in '^a.*(e$': missing )"
+        expect2 = "Regular expression error in '^a.*(e$': unbalanced parenthesis"
         assert (stderr.find(expect1) != -1 or
                 stderr.find(expect2) != -1), repr(stderr)
 
@@ -494,6 +503,7 @@ sys.path = ['%s'] + sys.path
 import TestCmd
 result = TestCmd.TestCmd.simple_diff(['a', 'b', 'c', 'e', 'f1'],
                                      ['a', 'c', 'd', 'e', 'f2'])
+result = list(result)
 expect = ['2d1', '< b', '3a3', '> d', '5c5', '< f1', '---', '> f2']
 assert result == expect, result
 sys.exit(0)
@@ -559,6 +569,7 @@ sys.path = ['%s'] + sys.path
 import TestCmd
 result = TestCmd.TestCmd.diff_re(['a', 'b', 'c', '.', 'f1'],
                                  ['a', 'c', 'd', 'e', 'f2'])
+result = list(result)
 expect = [
     '2c2',
     "< 'b'",
@@ -846,22 +857,22 @@ test.%s()
             _test_it(cwd, 'dir04', 'pass_test', 1)
             _test_it(cwd, 'dir05', 'fail_test', 1)
             _test_it(cwd, 'dir06', 'no_result', 1)
-            os.environ['PRESERVE'] = ''  # del os.environ['PRESERVE']
+            del os.environ['PRESERVE']
             os.environ['PRESERVE_PASS'] = '1'
             _test_it(cwd, 'dir07', 'pass_test', 1)
             _test_it(cwd, 'dir08', 'fail_test', 0)
             _test_it(cwd, 'dir09', 'no_result', 0)
-            os.environ['PRESERVE_PASS'] = ''  # del os.environ['PRESERVE_PASS']
+            del os.environ['PRESERVE_PASS']
             os.environ['PRESERVE_FAIL'] = '1'
             _test_it(cwd, 'dir10', 'pass_test', 0)
             _test_it(cwd, 'dir11', 'fail_test', 1)
             _test_it(cwd, 'dir12', 'no_result', 0)
-            os.environ['PRESERVE_FAIL'] = ''  # del os.environ['PRESERVE_FAIL']
+            del os.environ['PRESERVE_FAIL']
             os.environ['PRESERVE_NO_RESULT'] = '1'
             _test_it(cwd, 'dir13', 'pass_test', 0)
             _test_it(cwd, 'dir14', 'fail_test', 0)
             _test_it(cwd, 'dir15', 'no_result', 1)
-            os.environ['PRESERVE_NO_RESULT'] = '' # del os.environ['PRESERVE_NO_RESULT']
+            del os.environ['PRESERVE_NO_RESULT']
         finally:
             _clear_dict(os.environ, 'PRESERVE', 'PRESERVE_PASS', 'PRESERVE_FAIL', 'PRESERVE_NO_RESULT')
 
@@ -982,10 +993,10 @@ class match_TestCase(TestCmdTestCase):
         test = TestCmd.TestCmd(match = TestCmd.match_exact)
         assert not test.match("abcde\n", "a.*e\n")
         assert test.match("abcde\n", "abcde\n")
-        assert not test.match("12345\nabcde\n", "1\d+5\na.*e\n")
+        assert not test.match("12345\nabcde\n", "1\\d+5\na.*e\n")
         assert test.match("12345\nabcde\n", "12345\nabcde\n")
         lines = ["vwxyz\n", "67890\n"]
-        regexes = ["v[^a-u]*z\n", "6[^ ]+0\n"]
+        regexes = [r"v[^a-u]*z\n", r"6[^ ]+0\n"]
         assert not test.match(lines, regexes)
         assert test.match(lines, lines)
 
@@ -994,10 +1005,10 @@ class match_TestCase(TestCmdTestCase):
         test = TestCmd.TestCmd(match=TestCmd.TestCmd.match_exact)
         assert not test.match("abcde\n", "a.*e\n")
         assert test.match("abcde\n", "abcde\n")
-        assert not test.match("12345\nabcde\n", "1\d+5\na.*e\n")
+        assert not test.match("12345\nabcde\n", "1\\d+5\na.*e\n")
         assert test.match("12345\nabcde\n", "12345\nabcde\n")
         lines = ["vwxyz\n", "67890\n"]
-        regexes = ["v[^a-u]*z\n", "6[^ ]+0\n"]
+        regexes = [r"v[^a-u]*z\n", r"6[^ ]+0\n"]
         assert not test.match(lines, regexes)
         assert test.match(lines, lines)
 
@@ -1006,10 +1017,10 @@ class match_TestCase(TestCmdTestCase):
         test = TestCmd.TestCmd(match='match_exact')
         assert not test.match("abcde\n", "a.*e\n")
         assert test.match("abcde\n", "abcde\n")
-        assert not test.match("12345\nabcde\n", "1\d+5\na.*e\n")
+        assert not test.match("12345\nabcde\n", "1\\d+5\na.*e\n")
         assert test.match("12345\nabcde\n", "12345\nabcde\n")
         lines = ["vwxyz\n", "67890\n"]
-        regexes = ["v[^a-u]*z\n", "6[^ ]+0\n"]
+        regexes = [r"v[^a-u]*z\n", r"6[^ ]+0\n"]
         assert not test.match(lines, regexes)
         assert test.match(lines, lines)
 
@@ -1059,16 +1070,16 @@ class match_exact_TestCase(TestCmdTestCase):
 class match_re_dotall_TestCase(TestCmdTestCase):
     def test_match_re_dotall_function(self):
         """Test calling the TestCmd.match_re_dotall() function"""
-        assert TestCmd.match_re_dotall("abcde\nfghij\n", "a.*j\n")
+        assert TestCmd.match_re_dotall("abcde\nfghij\n", r"a.*j\n")
 
     def test_match_re_dotall_instance_method(self):
         """Test calling the TestCmd.TestCmd().match_re_dotall() instance method"""
         test = TestCmd.TestCmd()
-        test.match_re_dotall("abcde\\nfghij\\n", "a.*j\\n")
+        test.match_re_dotall("abcde\\nfghij\\n", r"a.*j\\n")
 
     def test_match_re_dotall_static_method(self):
         """Test calling the TestCmd.TestCmd.match_re_dotall() static method"""
-        assert TestCmd.TestCmd.match_re_dotall("abcde\nfghij\n", "a.*j\n")
+        assert TestCmd.TestCmd.match_re_dotall("abcde\nfghij\n", r"a.*j\n")
 
     def test_error(self):
         """Test handling a compilation error in TestCmd.match_re_dotall()"""
@@ -1081,13 +1092,13 @@ class match_re_dotall_TestCase(TestCmdTestCase):
             script_input = """import sys
 sys.path = ['%s'] + sys.path
 import TestCmd
-assert TestCmd.match_re_dotall("abcde", "a.*(e")
+assert TestCmd.match_re_dotall("abcde", r"a.*(e")
 sys.exit(0)
 """ % cwd
             stdout, stderr, status = self.call_python(script_input)
             assert status == 1, status
-            expect1 = "Regular expression error in '^a.*(e$': missing )\n"
-            expect2 = "Regular expression error in '^a.*(e$': unbalanced parenthesis\n"
+            expect1 = "Regular expression error in '^a.*(e$': missing )"
+            expect2 = "Regular expression error in '^a.*(e$': unbalanced parenthesis"
             assert (stderr.find(expect1) != -1 or
                     stderr.find(expect2) != -1), repr(stderr)
         finally:
@@ -1096,44 +1107,34 @@ sys.exit(0)
     def test_evaluation(self):
         """Test match_re_dotall() evaluation"""
         test = TestCmd.TestCmd()
-        assert test.match_re_dotall("abcde\nfghij\n", "a.*e\nf.*j\n")
-        assert test.match_re_dotall("abcde\nfghij\n", "a[^j]*j\n")
-        assert test.match_re_dotall("abcde\nfghij\n", "abcde\nfghij\n")
+        assert test.match_re_dotall("abcde\nfghij\n", r"a.*e\nf.*j\n")
+        assert test.match_re_dotall("abcde\nfghij\n", r"a[^j]*j\n")
+        assert test.match_re_dotall("abcde\nfghij\n", r"abcde\nfghij\n")
         assert test.match_re_dotall(["12345\n", "abcde\n", "fghij\n"],
-                                    ["1[0-9]*5\n", "a.*e\n", "f.*j\n"])
+                                    [r"1[0-9]*5\n", r"a.*e\n", r"f.*j\n"])
         assert test.match_re_dotall(["12345\n", "abcde\n", "fghij\n"],
-                                    ["1.*j\n"])
+                                    [r"1.*j\n"])
         assert test.match_re_dotall(["12345\n", "abcde\n", "fghij\n"],
-                                    ["12345\n", "abcde\n", "fghij\n"])
-        assert test.match_re_dotall(UserList(["12345\n",
-                                              "abcde\n",
-                                              "fghij\n"]),
-                                    ["1[0-9]*5\n", "a.*e\n", "f.*j\n"])
-        assert test.match_re_dotall(UserList(["12345\n",
-                                              "abcde\n",
-                                              "fghij\n"]),
-                                    ["1.*j\n"])
-        assert test.match_re_dotall(UserList(["12345\n",
-                                              "abcde\n",
-                                              "fghij\n"]),
-                                    ["12345\n", "abcde\n", "fghij\n"])
+                                    [r"12345\n", r"abcde\n", r"fghij\n"])
+        assert test.match_re_dotall(UserList(["12345\n", "abcde\n", "fghij\n"]),
+                                    [r"1[0-9]*5\n", r"a.*e\n", r"f.*j\n"])
+        assert test.match_re_dotall(UserList(["12345\n", "abcde\n", "fghij\n"]),
+                                    [r"1.*j\n"])
+        assert test.match_re_dotall(UserList(["12345\n", "abcde\n", "fghij\n"]),
+                                    [r"12345\n", r"abcde\n", r"fghij\n"])
         assert test.match_re_dotall(["12345\n", "abcde\n", "fghij\n"],
-                                    UserList(["1[0-9]*5\n",
-                                              "a.*e\n",
-                                              "f.*j\n"]))
+                                    UserList([r"1[0-9]*5\n", r"a.*e\n", r"f.*j\n"]))
         assert test.match_re_dotall(["12345\n", "abcde\n", "fghij\n"],
-                                    UserList(["1.*j\n"]))
+                                    UserList([r"1.*j\n"]))
         assert test.match_re_dotall(["12345\n", "abcde\n", "fghij\n"],
-                                    UserList(["12345\n",
-                                              "abcde\n",
-                                              "fghij\n"]))
+                                    UserList([r"12345\n", r"abcde\n", r"fghij\n"]))
         assert test.match_re_dotall("12345\nabcde\nfghij\n",
-                                    "1[0-9]*5\na.*e\nf.*j\n")
-        assert test.match_re_dotall("12345\nabcde\nfghij\n", "1.*j\n")
+                                    r"1[0-9]*5\na.*e\nf.*j\n")
+        assert test.match_re_dotall("12345\nabcde\nfghij\n", r"1.*j\n")
         assert test.match_re_dotall("12345\nabcde\nfghij\n",
-                                    "12345\nabcde\nfghij\n")
+                                    r"12345\nabcde\nfghij\n")
         lines = ["vwxyz\n", "67890\n"]
-        regexes = ["v[^a-u]*z\n", "6[^ ]+0\n"]
+        regexes = [r"v[^a-u]*z\n", r"6[^ ]+0\n"]
         assert test.match_re_dotall(lines, regexes)
         assert test.match_re_dotall(lines, lines)
 
@@ -1169,8 +1170,8 @@ sys.exit(0)
 """ % cwd
             stdout, stderr, status = self.call_python(script_input)
             assert status == 1, status
-            expect1 = "Regular expression error in '^a.*(e$': missing )\n"
-            expect2 = "Regular expression error in '^a.*(e$': unbalanced parenthesis\n"
+            expect1 = "Regular expression error in '^a.*(e$': missing )"
+            expect2 = "Regular expression error in '^a.*(e$': unbalanced parenthesis"
             assert (stderr.find(expect1) != -1 or
                     stderr.find(expect2) != -1), repr(stderr)
         finally:
@@ -1194,7 +1195,7 @@ sys.exit(0)
         assert test.match_re("12345\nabcde\n", "1[0-9]*5\na.*e\n")
         assert test.match_re("12345\nabcde\n", "12345\nabcde\n")
         lines = ["vwxyz\n", "67890\n"]
-        regexes = ["v[^a-u]*z\n", "6[^ ]+0\n"]
+        regexes = [r"v[^a-u]*z\n", r"6[^ ]+0\n"]
         assert test.match_re(lines, regexes)
         assert test.match_re(lines, lines)
 
@@ -1207,7 +1208,7 @@ class match_stderr_TestCase(TestCmdTestCase):
         assert test.match_stderr("abcde\n", "a.*e\n")
         assert test.match_stderr("12345\nabcde\n", "1\\d+5\na.*e\n")
         lines = ["vwxyz\n", "67890\n"]
-        regexes = ["v[^a-u]*z\n", "6[^ ]+0\n"]
+        regexes = [r"v[^a-u]*z\n", r"6[^ ]+0\n"]
         assert test.match_stderr(lines, regexes)
 
     def test_match_stderr_not_affecting_match_stdout(self):
@@ -1219,14 +1220,14 @@ class match_stderr_TestCase(TestCmdTestCase):
         assert not test.match_stderr("12345\nabcde\n", "1\\d+5\na.*e\n")
         assert test.match_stderr("12345\nabcde\n", "12345\nabcde\n")
         lines = ["vwxyz\n", "67890\n"]
-        regexes = ["v[^a-u]*z\n", "6[^ ]+0\n"]
+        regexes = [r"v[^a-u]*z\n", r"6[^ ]+0\n"]
         assert not test.match_stderr(lines, regexes)
         assert test.match_stderr(lines, lines)
 
         assert test.match_stdout("abcde\n", "a.*e\n")
         assert test.match_stdout("12345\nabcde\n", "1\\d+5\na.*e\n")
         lines = ["vwxyz\n", "67890\n"]
-        regexes = ["v[^a-u]*z\n", "6[^ ]+0\n"]
+        regexes = [r"v[^a-u]*z\n", r"6[^ ]+0\n"]
         assert test.match_stdout(lines, regexes)
 
     def test_match_stderr_custom_function(self):
@@ -1239,7 +1240,7 @@ class match_stderr_TestCase(TestCmdTestCase):
         assert not test.match_stderr("123\n123\n", "1\n1\n")
         assert test.match_stderr("123\n123\n", "111\n111\n")
         lines = ["123\n", "123\n"]
-        regexes = ["1\n", "1\n"]
+        regexes = [r"1\n", r"1\n"]
         assert test.match_stderr(lines, regexes)    # equal numbers of lines
 
     def test_match_stderr_TestCmd_function(self):
@@ -1247,10 +1248,10 @@ class match_stderr_TestCase(TestCmdTestCase):
         test = TestCmd.TestCmd(match_stderr = TestCmd.match_exact)
         assert not test.match_stderr("abcde\n", "a.*e\n")
         assert test.match_stderr("abcde\n", "abcde\n")
-        assert not test.match_stderr("12345\nabcde\n", "1\d+5\na.*e\n")
+        assert not test.match_stderr("12345\nabcde\n", "1\\d+5\na.*e\n")
         assert test.match_stderr("12345\nabcde\n", "12345\nabcde\n")
         lines = ["vwxyz\n", "67890\n"]
-        regexes = ["v[^a-u]*z\n", "6[^ ]+0\n"]
+        regexes = [r"v[^a-u]*z\n", r"6[^ ]+0\n"]
         assert not test.match_stderr(lines, regexes)
         assert test.match_stderr(lines, lines)
 
@@ -1259,10 +1260,10 @@ class match_stderr_TestCase(TestCmdTestCase):
         test = TestCmd.TestCmd(match_stderr=TestCmd.TestCmd.match_exact)
         assert not test.match_stderr("abcde\n", "a.*e\n")
         assert test.match_stderr("abcde\n", "abcde\n")
-        assert not test.match_stderr("12345\nabcde\n", "1\d+5\na.*e\n")
+        assert not test.match_stderr("12345\nabcde\n", "1\\d+5\na.*e\n")
         assert test.match_stderr("12345\nabcde\n", "12345\nabcde\n")
         lines = ["vwxyz\n", "67890\n"]
-        regexes = ["v[^a-u]*z\n", "6[^ ]+0\n"]
+        regexes = [r"v[^a-u]*z\n", r"6[^ ]+0\n"]
         assert not test.match_stderr(lines, regexes)
         assert test.match_stderr(lines, lines)
 
@@ -1271,10 +1272,10 @@ class match_stderr_TestCase(TestCmdTestCase):
         test = TestCmd.TestCmd(match_stderr='match_exact')
         assert not test.match_stderr("abcde\n", "a.*e\n")
         assert test.match_stderr("abcde\n", "abcde\n")
-        assert not test.match_stderr("12345\nabcde\n", "1\d+5\na.*e\n")
+        assert not test.match_stderr("12345\nabcde\n", "1\\d+5\na.*e\n")
         assert test.match_stderr("12345\nabcde\n", "12345\nabcde\n")
         lines = ["vwxyz\n", "67890\n"]
-        regexes = ["v[^a-u]*z\n", "6[^ ]+0\n"]
+        regexes = [r"v[^a-u]*z\n", r"6[^ ]+0\n"]
         assert not test.match_stderr(lines, regexes)
         assert test.match_stderr(lines, lines)
 
@@ -1287,7 +1288,7 @@ class match_stdout_TestCase(TestCmdTestCase):
         assert test.match_stdout("abcde\n", "a.*e\n")
         assert test.match_stdout("12345\nabcde\n", "1\\d+5\na.*e\n")
         lines = ["vwxyz\n", "67890\n"]
-        regexes = ["v[^a-u]*z\n", "6[^ ]+0\n"]
+        regexes = [r"v[^a-u]*z\n", r"6[^ ]+0\n"]
         assert test.match_stdout(lines, regexes)
 
     def test_match_stdout_not_affecting_match_stderr(self):
@@ -1299,14 +1300,14 @@ class match_stdout_TestCase(TestCmdTestCase):
         assert not test.match_stdout("12345\nabcde\n", "1\\d+5\na.*e\n")
         assert test.match_stdout("12345\nabcde\n", "12345\nabcde\n")
         lines = ["vwxyz\n", "67890\n"]
-        regexes = ["v[^a-u]*z\n", "6[^ ]+0\n"]
+        regexes = [r"v[^a-u]*z\n", r"6[^ ]+0\n"]
         assert not test.match_stdout(lines, regexes)
         assert test.match_stdout(lines, lines)
 
         assert test.match_stderr("abcde\n", "a.*e\n")
         assert test.match_stderr("12345\nabcde\n", "1\\d+5\na.*e\n")
         lines = ["vwxyz\n", "67890\n"]
-        regexes = ["v[^a-u]*z\n", "6[^ ]+0\n"]
+        regexes = [r"v[^a-u]*z\n", r"6[^ ]+0\n"]
         assert test.match_stderr(lines, regexes)
 
     def test_match_stdout_custom_function(self):
@@ -1319,7 +1320,7 @@ class match_stdout_TestCase(TestCmdTestCase):
         assert not test.match_stdout("123\n123\n", "1\n1\n")
         assert test.match_stdout("123\n123\n", "111\n111\n")
         lines = ["123\n", "123\n"]
-        regexes = ["1\n", "1\n"]
+        regexes = [r"1\n", r"1\n"]
         assert test.match_stdout(lines, regexes)    # equal numbers of lines
 
     def test_match_stdout_TestCmd_function(self):
@@ -1327,10 +1328,10 @@ class match_stdout_TestCase(TestCmdTestCase):
         test = TestCmd.TestCmd(match_stdout = TestCmd.match_exact)
         assert not test.match_stdout("abcde\n", "a.*e\n")
         assert test.match_stdout("abcde\n", "abcde\n")
-        assert not test.match_stdout("12345\nabcde\n", "1\d+5\na.*e\n")
+        assert not test.match_stdout("12345\nabcde\n", "1\\d+5\na.*e\n")
         assert test.match_stdout("12345\nabcde\n", "12345\nabcde\n")
         lines = ["vwxyz\n", "67890\n"]
-        regexes = ["v[^a-u]*z\n", "6[^ ]+0\n"]
+        regexes = [r"v[^a-u]*z\n", r"6[^ ]+0\n"]
         assert not test.match_stdout(lines, regexes)
         assert test.match_stdout(lines, lines)
 
@@ -1339,10 +1340,10 @@ class match_stdout_TestCase(TestCmdTestCase):
         test = TestCmd.TestCmd(match_stdout=TestCmd.TestCmd.match_exact)
         assert not test.match_stdout("abcde\n", "a.*e\n")
         assert test.match_stdout("abcde\n", "abcde\n")
-        assert not test.match_stdout("12345\nabcde\n", "1\d+5\na.*e\n")
+        assert not test.match_stdout("12345\nabcde\n", "1\\d+5\na.*e\n")
         assert test.match_stdout("12345\nabcde\n", "12345\nabcde\n")
         lines = ["vwxyz\n", "67890\n"]
-        regexes = ["v[^a-u]*z\n", "6[^ ]+0\n"]
+        regexes = [r"v[^a-u]*z\n", r"6[^ ]+0\n"]
         assert not test.match_stdout(lines, regexes)
         assert test.match_stdout(lines, lines)
 
@@ -1351,10 +1352,10 @@ class match_stdout_TestCase(TestCmdTestCase):
         test = TestCmd.TestCmd(match_stdout='match_exact')
         assert not test.match_stdout("abcde\n", "a.*e\n")
         assert test.match_stdout("abcde\n", "abcde\n")
-        assert not test.match_stdout("12345\nabcde\n", "1\d+5\na.*e\n")
+        assert not test.match_stdout("12345\nabcde\n", "1\\d+5\na.*e\n")
         assert test.match_stdout("12345\nabcde\n", "12345\nabcde\n")
         lines = ["vwxyz\n", "67890\n"]
-        regexes = ["v[^a-u]*z\n", "6[^ ]+0\n"]
+        regexes = [r"v[^a-u]*z\n", r"6[^ ]+0\n"]
         assert not test.match_stdout(lines, regexes)
         assert test.match_stdout(lines, lines)
 
@@ -1470,20 +1471,20 @@ class preserve_TestCase(TestCmdTestCase):
     def test_preserve(self):
         """Test preserve()"""
         def cleanup_test(test, cond=None, stdout=""):
-            io = StringIO()
             save = sys.stdout
-            sys.stdout = io
-            try:
-                if cond:
-                    test.cleanup(cond)
-                else:
-                    test.cleanup()
-                o = io.getvalue()
-                assert o == stdout, "o = `%s', stdout = `%s'" % (o, stdout)
-            finally:
-                sys.stdout = save
+            with closing(StringIO()) as io:
+                sys.stdout = io
+                try:
+                    if cond:
+                        test.cleanup(cond)
+                    else:
+                        test.cleanup()
+                    o = io.getvalue()
+                    assert o == stdout, "o = `%s', stdout = `%s'" % (o, stdout)
+                finally:
+                    sys.stdout = save
 
-        test = TestCmd.TestCmd(workdir = '')
+        test = TestCmd.TestCmd(workdir='')
         wdir = test.workdir
         try:
             test.write('file1', "Test file #1\n")
@@ -1492,10 +1493,10 @@ class preserve_TestCase(TestCmdTestCase):
             assert not os.path.exists(wdir)
         finally:
             if os.path.exists(wdir):
-                shutil.rmtree(wdir, ignore_errors = 1)
+                shutil.rmtree(wdir, ignore_errors=1)
                 test._dirlist.remove(wdir)
 
-        test = TestCmd.TestCmd(workdir = '')
+        test = TestCmd.TestCmd(workdir='')
         wdir = test.workdir
         try:
             test.write('file2', "Test file #2\n")
@@ -1579,15 +1580,15 @@ class read_TestCase(TestCmdTestCase):
         wdir_file5 = os.path.join(test.workdir, 'file5')
 
         with open(wdir_file1, 'wb') as f:
-            f.write("")
+            f.write(to_bytes(""))
         with open(wdir_file2, 'wb') as f:
-            f.write("Test\nfile\n#2.\n")
+            f.write(to_bytes("Test\nfile\n#2.\n"))
         with open(wdir_foo_file3, 'wb') as f:
-            f.write("Test\nfile\n#3.\n")
+            f.write(to_bytes("Test\nfile\n#3.\n"))
         with open(wdir_file4, 'wb') as f:
-            f.write("Test\nfile\n#4.\n")
+            f.write(to_bytes("Test\nfile\n#4.\n"))
         with open(wdir_file5, 'wb') as f:
-            f.write("Test\r\nfile\r\n#5.\r\n")
+            f.write(to_bytes("Test\r\nfile\r\n#5.\r\n"))
 
         try:
             contents = test.read('no_file')
@@ -1604,6 +1605,7 @@ class read_TestCase(TestCmdTestCase):
             raise
 
         def _file_matches(file, contents, expected):
+            contents = to_str(contents)
             assert contents == expected, \
                 "Expected contents of " + str(file) + "==========\n" + \
                 expected + \
@@ -1634,7 +1636,7 @@ class rmdir_TestCase(TestCmdTestCase):
         except EnvironmentError:
             pass
         else:
-            raise Exception("did not catch expected EnvironmentError")
+            raise Exception("did not catch expected SConsEnvironmentError")
 
         test.subdir(['sub'],
                     ['sub', 'dir'],
@@ -1649,7 +1651,7 @@ class rmdir_TestCase(TestCmdTestCase):
         except EnvironmentError:
             pass
         else:
-            raise Exception("did not catch expected EnvironmentError")
+            raise Exception("did not catch expected SConsEnvironmentError")
 
         assert os.path.isdir(s_d_o), "%s is gone?" % s_d_o
 
@@ -1658,7 +1660,7 @@ class rmdir_TestCase(TestCmdTestCase):
         except EnvironmentError:
             pass
         else:
-            raise Exception("did not catch expected EnvironmentError")
+            raise Exception("did not catch expected SConsEnvironmentError")
 
         assert os.path.isdir(s_d_o), "%s is gone?" % s_d_o
 
@@ -1874,29 +1876,25 @@ class run_verbose_TestCase(TestCmdTestCase):
                                    workdir = '',
                                    verbose = 1)
 
-            sys.stdout = StringIO()
-            sys.stderr = StringIO()
-
-            test.run(arguments = ['arg1 arg2'])
-            o = sys.stdout.getvalue()
-            assert o == '', o
-            e = sys.stderr.getvalue()
-            expect = 'python "%s" "arg1 arg2"\n' % t.script_path
-            assert expect == e, (expect, e)
+            with closing(StringIO()) as sys.stdout, closing(StringIO()) as sys.stderr:
+                test.run(arguments = ['arg1 arg2'])
+                o = sys.stdout.getvalue()
+                assert o == '', o
+                e = sys.stderr.getvalue()
+                expect = 'python "%s" "arg1 arg2"\n' % t.script_path
+                assert expect == e, (expect, e)
 
             testx = TestCmd.TestCmd(program = t.scriptx,
                                     workdir = '',
                                     verbose = 1)
 
-            sys.stdout = StringIO()
-            sys.stderr = StringIO()
-
-            testx.run(arguments = ['arg1 arg2'])
-            expect = '"%s" "arg1 arg2"\n' % t.scriptx_path
-            o = sys.stdout.getvalue()
-            assert o == '', o
-            e = sys.stderr.getvalue()
-            assert expect == e, (expect, e)
+            with closing(StringIO()) as sys.stdout, closing(StringIO()) as sys.stderr:
+                testx.run(arguments = ['arg1 arg2'])
+                expect = '"%s" "arg1 arg2"\n' % t.scriptx_path
+                o = sys.stdout.getvalue()
+                assert o == '', o
+                e = sys.stderr.getvalue()
+                assert expect == e, (expect, e)
 
             # Test calling TestCmd() with an explicit verbose = 2.
 
@@ -1925,43 +1923,39 @@ class run_verbose_TestCase(TestCmdTestCase):
                                    workdir = '',
                                    verbose = 2)
 
-            sys.stdout = StringIO()
-            sys.stderr = StringIO()
+            with closing(StringIO()) as sys.stdout, closing(StringIO()) as sys.stderr:
+                test.run(arguments = ['arg1 arg2'])
 
-            test.run(arguments = ['arg1 arg2'])
+                line_fmt = "script:  %s:  %s:  ['arg1 arg2']\n"
+                stdout_line = line_fmt % ('STDOUT', t.sub_dir)
+                stderr_line = line_fmt % ('STDERR', t.sub_dir)
+                expect = outerr_fmt % (len(stdout_line), stdout_line,
+                                       len(stderr_line), stderr_line)
+                o = sys.stdout.getvalue()
+                assert expect == o, (expect, o)
 
-            line_fmt = "script:  %s:  %s:  ['arg1 arg2']\n"
-            stdout_line = line_fmt % ('STDOUT', t.sub_dir)
-            stderr_line = line_fmt % ('STDERR', t.sub_dir)
-            expect = outerr_fmt % (len(stdout_line), stdout_line,
-                                   len(stderr_line), stderr_line)
-            o = sys.stdout.getvalue()
-            assert expect == o, (expect, o)
-
-            expect = 'python "%s" "arg1 arg2"\n' % t.script_path
-            e = sys.stderr.getvalue()
-            assert e == expect, (e, expect)
+                expect = 'python "%s" "arg1 arg2"\n' % t.script_path
+                e = sys.stderr.getvalue()
+                assert e == expect, (e, expect)
 
             testx = TestCmd.TestCmd(program = t.scriptx,
                                     workdir = '',
                                     verbose = 2)
 
-            sys.stdout = StringIO()
-            sys.stderr = StringIO()
+            with closing(StringIO()) as sys.stdout, closing(StringIO()) as sys.stderr:
+                testx.run(arguments = ['arg1 arg2'])
 
-            testx.run(arguments = ['arg1 arg2'])
+                line_fmt = "scriptx.bat:  %s:  %s:  ['arg1 arg2']\n"
+                stdout_line = line_fmt % ('STDOUT', t.sub_dir)
+                stderr_line = line_fmt % ('STDERR', t.sub_dir)
+                expect = outerr_fmt % (len(stdout_line), stdout_line,
+                                       len(stderr_line), stderr_line)
+                o = sys.stdout.getvalue()
+                assert expect == o, (expect, o)
 
-            line_fmt = "scriptx.bat:  %s:  %s:  ['arg1 arg2']\n"
-            stdout_line = line_fmt % ('STDOUT', t.sub_dir)
-            stderr_line = line_fmt % ('STDERR', t.sub_dir)
-            expect = outerr_fmt % (len(stdout_line), stdout_line,
-                                   len(stderr_line), stderr_line)
-            o = sys.stdout.getvalue()
-            assert expect == o, (expect, o)
-
-            expect = '"%s" "arg1 arg2"\n' % t.scriptx_path
-            e = sys.stderr.getvalue()
-            assert e == expect, (e, expect)
+                expect = '"%s" "arg1 arg2"\n' % t.scriptx_path
+                e = sys.stderr.getvalue()
+                assert e == expect, (e, expect)
 
             # Test calling TestCmd() with an explicit verbose = 3.
 
@@ -1970,41 +1964,37 @@ class run_verbose_TestCase(TestCmdTestCase):
                                    workdir = '',
                                    verbose = 2)
 
-            sys.stdout = StringIO()
-            sys.stderr = StringIO()
+            with closing(StringIO()) as sys.stdout, closing(StringIO()) as sys.stderr:
+                test.run(arguments = ['arg1 arg2'])
 
-            test.run(arguments = ['arg1 arg2'])
+                line_fmt = "scriptout:  %s:  %s:  ['arg1 arg2']\n"
+                stdout_line = line_fmt % ('STDOUT', t.sub_dir)
+                expect = out_fmt % (len(stdout_line), stdout_line)
+                o = sys.stdout.getvalue()
+                assert expect == o, (expect, o)
 
-            line_fmt = "scriptout:  %s:  %s:  ['arg1 arg2']\n"
-            stdout_line = line_fmt % ('STDOUT', t.sub_dir)
-            expect = out_fmt % (len(stdout_line), stdout_line)
-            o = sys.stdout.getvalue()
-            assert expect == o, (expect, o)
-
-            e = sys.stderr.getvalue()
-            expect = 'python "%s" "arg1 arg2"\n' % (t.scriptout_path)
-            assert e == expect, (e, expect)
+                e = sys.stderr.getvalue()
+                expect = 'python "%s" "arg1 arg2"\n' % (t.scriptout_path)
+                assert e == expect, (e, expect)
 
             test = TestCmd.TestCmd(program = t.scriptout,
                                    interpreter = 'python',
                                    workdir = '',
                                    verbose = 3)
 
-            sys.stdout = StringIO()
-            sys.stderr = StringIO()
+            with closing(StringIO()) as sys.stdout, closing(StringIO()) as sys.stderr:
+                test.run(arguments = ['arg1 arg2'])
 
-            test.run(arguments = ['arg1 arg2'])
+                line_fmt = "scriptout:  %s:  %s:  ['arg1 arg2']\n"
+                stdout_line = line_fmt % ('STDOUT', t.sub_dir)
+                expect = outerr_fmt % (len(stdout_line), stdout_line,
+                                       '0', '')
+                o = sys.stdout.getvalue()
+                assert expect == o, (expect, o)
 
-            line_fmt = "scriptout:  %s:  %s:  ['arg1 arg2']\n"
-            stdout_line = line_fmt % ('STDOUT', t.sub_dir)
-            expect = outerr_fmt % (len(stdout_line), stdout_line,
-                                   '0', '')
-            o = sys.stdout.getvalue()
-            assert expect == o, (expect, o)
-
-            e = sys.stderr.getvalue()
-            expect = 'python "%s" "arg1 arg2"\n' % (t.scriptout_path)
-            assert e == expect, (e, expect)
+                e = sys.stderr.getvalue()
+                expect = 'python "%s" "arg1 arg2"\n' % (t.scriptout_path)
+                assert e == expect, (e, expect)
 
             # Test letting TestCmd() pick up verbose = 2 from the environment.
 
@@ -2014,42 +2004,38 @@ class run_verbose_TestCase(TestCmdTestCase):
                                    interpreter = 'python',
                                    workdir = '')
 
-            sys.stdout = StringIO()
-            sys.stderr = StringIO()
+            with closing(StringIO()) as sys.stdout, closing(StringIO()) as sys.stderr:
+                test.run(arguments = ['arg1 arg2'])
 
-            test.run(arguments = ['arg1 arg2'])
+                line_fmt = "script:  %s:  %s:  ['arg1 arg2']\n"
+                stdout_line = line_fmt % ('STDOUT', t.sub_dir)
+                stderr_line = line_fmt % ('STDERR', t.sub_dir)
+                expect = outerr_fmt % (len(stdout_line), stdout_line,
+                                       len(stderr_line), stderr_line)
+                o = sys.stdout.getvalue()
+                assert expect == o, (expect, o)
 
-            line_fmt = "script:  %s:  %s:  ['arg1 arg2']\n"
-            stdout_line = line_fmt % ('STDOUT', t.sub_dir)
-            stderr_line = line_fmt % ('STDERR', t.sub_dir)
-            expect = outerr_fmt % (len(stdout_line), stdout_line,
-                                   len(stderr_line), stderr_line)
-            o = sys.stdout.getvalue()
-            assert expect == o, (expect, o)
-
-            expect = 'python "%s" "arg1 arg2"\n' % t.script_path
-            e = sys.stderr.getvalue()
-            assert e == expect, (e, expect)
+                expect = 'python "%s" "arg1 arg2"\n' % t.script_path
+                e = sys.stderr.getvalue()
+                assert e == expect, (e, expect)
 
             testx = TestCmd.TestCmd(program = t.scriptx,
                                     workdir = '')
 
-            sys.stdout = StringIO()
-            sys.stderr = StringIO()
+            with closing(StringIO()) as sys.stdout, closing(StringIO()) as sys.stderr:
+                testx.run(arguments = ['arg1 arg2'])
 
-            testx.run(arguments = ['arg1 arg2'])
+                line_fmt = "scriptx.bat:  %s:  %s:  ['arg1 arg2']\n"
+                stdout_line = line_fmt % ('STDOUT', t.sub_dir)
+                stderr_line = line_fmt % ('STDERR', t.sub_dir)
+                expect = outerr_fmt % (len(stdout_line), stdout_line,
+                                       len(stderr_line), stderr_line)
+                o = sys.stdout.getvalue()
+                assert expect == o, (expect, o)
 
-            line_fmt = "scriptx.bat:  %s:  %s:  ['arg1 arg2']\n"
-            stdout_line = line_fmt % ('STDOUT', t.sub_dir)
-            stderr_line = line_fmt % ('STDERR', t.sub_dir)
-            expect = outerr_fmt % (len(stdout_line), stdout_line,
-                                   len(stderr_line), stderr_line)
-            o = sys.stdout.getvalue()
-            assert expect == o, (expect, o)
-
-            expect = '"%s" "arg1 arg2"\n' % t.scriptx_path
-            e = sys.stderr.getvalue()
-            assert e == expect, (e, expect)
+                expect = '"%s" "arg1 arg2"\n' % t.scriptx_path
+                e = sys.stderr.getvalue()
+                assert e == expect, (e, expect)
 
             # Test letting TestCmd() pick up verbose = 1 from the environment.
 
@@ -2060,29 +2046,25 @@ class run_verbose_TestCase(TestCmdTestCase):
                                    workdir = '',
                                    verbose = 1)
 
-            sys.stdout = StringIO()
-            sys.stderr = StringIO()
-
-            test.run(arguments = ['arg1 arg2'])
-            o = sys.stdout.getvalue()
-            assert o == '', o
-            e = sys.stderr.getvalue()
-            expect = 'python "%s" "arg1 arg2"\n' % t.script_path
-            assert expect == e, (expect, e)
+            with closing(StringIO()) as sys.stdout, closing(StringIO()) as sys.stderr:
+                test.run(arguments = ['arg1 arg2'])
+                o = sys.stdout.getvalue()
+                assert o == '', o
+                e = sys.stderr.getvalue()
+                expect = 'python "%s" "arg1 arg2"\n' % t.script_path
+                assert expect == e, (expect, e)
 
             testx = TestCmd.TestCmd(program = t.scriptx,
                                     workdir = '',
                                     verbose = 1)
 
-            sys.stdout = StringIO()
-            sys.stderr = StringIO()
-
-            testx.run(arguments = ['arg1 arg2'])
-            expect = '"%s" "arg1 arg2"\n' % t.scriptx_path
-            o = sys.stdout.getvalue()
-            assert o == '', o
-            e = sys.stderr.getvalue()
-            assert expect == e, (expect, e)
+            with closing(StringIO()) as sys.stdout, closing(StringIO()) as sys.stderr:
+                testx.run(arguments = ['arg1 arg2'])
+                expect = '"%s" "arg1 arg2"\n' % t.scriptx_path
+                o = sys.stdout.getvalue()
+                assert o == '', o
+                e = sys.stderr.getvalue()
+                assert expect == e, (expect, e)
 
         finally:
             sys.stdout = save_stdout
@@ -2624,11 +2606,11 @@ script_recv:  STDERR:  input
 
             p = test.start(stdin=1)
             input = 'stdin.write() input to the receive script\n'
-            p.stdin.write(input)
+            p.stdin.write(to_bytes(input))
             p.stdin.close()
             p.wait()
             with open(t.recv_out_path, 'rb') as f:
-                result = f.read()
+                result = to_str(f.read())
             expect = 'script_recv:  ' + input
             assert result == expect, repr(result)
 
@@ -2638,7 +2620,7 @@ script_recv:  STDERR:  input
             p.stdin.close()
             p.wait()
             with open(t.recv_out_path, 'rb') as f:
-                result = f.read()
+                result = to_str(f.read())
             expect = 'script_recv:  ' + input
             assert result == expect, repr(result)
 
@@ -2754,11 +2736,8 @@ sys.stderr.write("run2 STDERR second line\\n")
         # Everything before this prepared our "source directory."
         # Now do the real test.
         test = TestCmd.TestCmd(interpreter = 'python', workdir = '')
-        try:
-            output = test.stdout()
-        except IndexError:
-            pass
-        else:
+        output = test.stdout()
+        if output is not None:
             raise IndexError("got unexpected output:\n\t`%s'\n" % output)
         test.program_set('run1')
         test.run(arguments = 'foo bar')
@@ -3330,9 +3309,11 @@ class write_TestCase(TestCmdTestCase):
             assert not os.path.exists(test.workpath('file10'))
 
         with open(test.workpath('file8'), 'r') as f:
-            assert f.read() == "Test file #8.\n"
+            res = f.read()
+            assert res == "Test file #8.\n", res
         with open(test.workpath('file9'), 'rb') as f:
-            assert f.read() == "Test file #9.\r\n"
+            res = to_str(f.read())
+            assert res == "Test file #9.\r\n", res
 
 
 class variables_TestCase(TestCmdTestCase):

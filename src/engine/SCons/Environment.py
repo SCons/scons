@@ -608,7 +608,7 @@ class SubstitutionEnvironment(object):
         Removes the specified function's MethodWrapper from the
         added_methods list, so we don't re-bind it when making a clone.
         """
-        self.added_methods = [dm for dm in self.added_methods if not dm.method is function]
+        self.added_methods = [dm for dm in self.added_methods if dm.method is not function]
 
     def Override(self, overrides):
         """
@@ -719,6 +719,12 @@ class SubstitutionEnvironment(object):
                    elif append_next_arg_to == '-isystem':
                        t = ('-isystem', arg)
                        dict['CCFLAGS'].append(t)
+                   elif append_next_arg_to == '-iquote':
+                       t = ('-iquote', arg)
+                       dict['CCFLAGS'].append(t)
+                   elif append_next_arg_to == '-idirafter':
+                       t = ('-idirafter', arg)
+                       dict['CCFLAGS'].append(t)
                    elif append_next_arg_to == '-arch':
                        t = ('-arch', arg)
                        dict['CCFLAGS'].append(t)
@@ -777,6 +783,7 @@ class SubstitutionEnvironment(object):
                 elif arg in ['-mno-cygwin',
                              '-pthread',
                              '-openmp',
+                             '-fmerge-all-constants',
                              '-fopenmp']:
                     dict['CCFLAGS'].append(arg)
                     dict['LINKFLAGS'].append(arg)
@@ -791,7 +798,7 @@ class SubstitutionEnvironment(object):
                 elif arg[0] == '+':
                     dict['CCFLAGS'].append(arg)
                     dict['LINKFLAGS'].append(arg)
-                elif arg in ['-include', '-isysroot', '-isystem', '-arch']:
+                elif arg in ['-include', '-isysroot', '-isystem', '-iquote', '-idirafter', '-arch']:
                     append_next_arg_to = arg
                 else:
                     dict['CCFLAGS'].append(arg)
@@ -858,17 +865,20 @@ class SubstitutionEnvironment(object):
         return self
 
 
-def default_decide_source(dependency, target, prev_ni):
+def default_decide_source(dependency, target, prev_ni, repo_node=None):
     f = SCons.Defaults.DefaultEnvironment().decide_source
-    return f(dependency, target, prev_ni)
+    return f(dependency, target, prev_ni, repo_node)
 
-def default_decide_target(dependency, target, prev_ni):
+
+def default_decide_target(dependency, target, prev_ni, repo_node=None):
     f = SCons.Defaults.DefaultEnvironment().decide_target
-    return f(dependency, target, prev_ni)
+    return f(dependency, target, prev_ni, repo_node)
+
 
 def default_copy_from_cache(src, dst):
     f = SCons.Defaults.DefaultEnvironment().copy_from_cache
     return f(src, dst)
+
 
 class Base(SubstitutionEnvironment):
     """Base class for "real" construction Environments.  These are the
@@ -1342,7 +1352,7 @@ class Base(SubstitutionEnvironment):
                             dk = list(filter(lambda x, val=val: x not in val, dk))
                             self._dict[key] = dk + [val]
                         else:
-                            if not val in dk:
+                            if val not in dk:
                                 self._dict[key] = dk + [val]
                 else:
                     if key == 'CPPDEFINES':
@@ -1428,30 +1438,30 @@ class Base(SubstitutionEnvironment):
             _warn_copy_deprecated = False
         return self.Clone(*args, **kw)
 
-    def _changed_build(self, dependency, target, prev_ni):
-        if dependency.changed_state(target, prev_ni):
+    def _changed_build(self, dependency, target, prev_ni, repo_node=None):
+        if dependency.changed_state(target, prev_ni, repo_node):
             return 1
-        return self.decide_source(dependency, target, prev_ni)
+        return self.decide_source(dependency, target, prev_ni, repo_node)
 
-    def _changed_content(self, dependency, target, prev_ni):
-        return dependency.changed_content(target, prev_ni)
+    def _changed_content(self, dependency, target, prev_ni, repo_node=None):
+        return dependency.changed_content(target, prev_ni, repo_node)
 
-    def _changed_source(self, dependency, target, prev_ni):
+    def _changed_source(self, dependency, target, prev_ni, repo_node=None):
         target_env = dependency.get_build_env()
         type = target_env.get_tgt_sig_type()
         if type == 'source':
-            return target_env.decide_source(dependency, target, prev_ni)
+            return target_env.decide_source(dependency, target, prev_ni, repo_node)
         else:
-            return target_env.decide_target(dependency, target, prev_ni)
+            return target_env.decide_target(dependency, target, prev_ni, repo_node)
 
-    def _changed_timestamp_then_content(self, dependency, target, prev_ni):
-        return dependency.changed_timestamp_then_content(target, prev_ni)
+    def _changed_timestamp_then_content(self, dependency, target, prev_ni, repo_node=None):
+        return dependency.changed_timestamp_then_content(target, prev_ni, repo_node)
 
-    def _changed_timestamp_newer(self, dependency, target, prev_ni):
-        return dependency.changed_timestamp_newer(target, prev_ni)
+    def _changed_timestamp_newer(self, dependency, target, prev_ni, repo_node=None):
+        return dependency.changed_timestamp_newer(target, prev_ni, repo_node)
 
-    def _changed_timestamp_match(self, dependency, target, prev_ni):
-        return dependency.changed_timestamp_match(target, prev_ni)
+    def _changed_timestamp_match(self, dependency, target, prev_ni, repo_node=None):
+        return dependency.changed_timestamp_match(target, prev_ni, repo_node)
 
     def _copy_from_cache(self, src, dst):
         return self.fs.copy(src, dst)
@@ -1723,7 +1733,7 @@ class Base(SubstitutionEnvironment):
                         dk = [x for x in dk if x not in val]
                         self._dict[key] = [val] + dk
                     else:
-                        if not val in dk:
+                        if val not in dk:
                             self._dict[key] = [val] + dk
                 else:
                     if delete_existing:
@@ -2300,7 +2310,20 @@ class OverrideEnvironment(Base):
 
     # Methods that make this class act like a proxy.
     def __getattr__(self, name):
-        return getattr(self.__dict__['__subject'], name)
+        attr = getattr(self.__dict__['__subject'], name)
+        # Here we check if attr is one of the Wrapper classes. For
+        # example when a pseudo-builder is being called from an
+        # OverrideEnvironment.
+        #
+        # These wrappers when they're constructed capture the
+        # Environment they are being constructed with and so will not
+        # have access to overrided values. So we rebuild them with the
+        # OverrideEnvironment so they have access to overrided values.
+        if isinstance(attr, (MethodWrapper, BuilderWrapper)):
+            return attr.clone(self)
+        else:
+            return attr
+        
     def __setattr__(self, name, value):
         setattr(self.__dict__['__subject'], name, value)
 

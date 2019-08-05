@@ -24,11 +24,11 @@
 
 -->
 <xsl:stylesheet
-	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
-	xmlns:fo="http://www.w3.org/1999/XSL/Format" 
-	version="1.0"> 
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns:fo="http://www.w3.org/1999/XSL/Format"
+	version="1.0">
 
-	<xsl:import href="file:///usr/share/xml/docbook/stylesheet/docbook-xsl/html/chunkfast.xsl"/> 
+	<xsl:import href="file:///usr/share/xml/docbook/stylesheet/docbook-xsl/html/chunkfast.xsl"/>
 
 <xsl:param name="l10n.gentext.default.language" select="'en'"/>
 <xsl:param name="section.autolabel" select="1"/>
@@ -52,5 +52,4 @@ reference toc,title
 set       toc,title
 </xsl:param>
 
-</xsl:stylesheet> 
-
+</xsl:stylesheet>

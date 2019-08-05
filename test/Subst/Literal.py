@@ -33,14 +33,13 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
-env = Environment(PRE='pre=', MID=Literal('\$$ORIGIN'), SUF='')
+env = Environment(PRE='pre=', MID=Literal('\\\\$$ORIGIN'), SUF='')
 print(env.subst('${_concat(PRE, MID, SUF, __env__)}'))
 """)
 
 test.run()
 
-expect = """\
-pre=\$ORIGIN
+expect = r"""pre=\$ORIGIN
 """
 
 test.run(arguments='-Q -q', stdout=expect)

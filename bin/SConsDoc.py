@@ -155,8 +155,8 @@ if not has_etree:
                 except ImportError:
                     raise ImportError("Failed to import ElementTree from any known place")
 
-re_entity = re.compile("\&([^;]+);")
-re_entity_header = re.compile("<!DOCTYPE\s+sconsdoc\s+[^\]]+\]>")
+re_entity = re.compile(r"\&([^;]+);")
+re_entity_header = re.compile(r"<!DOCTYPE\s+sconsdoc\s+[^\]]+\]>")
 
 # Namespace for the SCons Docbook XSD
 dbxsd="http://www.scons.org/dbxsd/v1.0"
@@ -178,22 +178,21 @@ def isSConsXml(fpath):
         contains the default target namespace definition.
     """
     try:
-        f = open(fpath,'r')
-        content = f.read()
-        f.close()
+        with open(fpath,'r') as f:
+            content = f.read()
         if content.find('xmlns="%s"' % dbxsd) >= 0:
             return True
     except:
         pass
-    
-    return False 
+
+    return False
 
 def remove_entities(content):
     # Cut out entity inclusions
     content = re_entity_header.sub("", content, re.M)
     # Cut out entities themselves
     content = re_entity.sub(lambda match: match.group(1), content)
-    
+
     return content
 
 default_xsd = os.path.join('doc','xsd','scons.xsd')
@@ -201,11 +200,11 @@ default_xsd = os.path.join('doc','xsd','scons.xsd')
 ARG = "dbscons"
 
 class Libxml2ValidityHandler:
-    
+
     def __init__(self):
         self.errors = []
         self.warnings = []
-        
+
     def error(self, msg, data):
         if data != ARG:
             raise Exception("Error handler did not receive correct argument")
@@ -221,14 +220,14 @@ class DoctypeEntity:
     def __init__(self, name_, uri_):
         self.name = name_
         self.uri = uri_
-        
+
     def getEntityString(self):
         txt = """    <!ENTITY %(perc)s %(name)s SYSTEM "%(uri)s">
     %(perc)s%(name)s;
 """ % {'perc' : perc, 'name' : self.name, 'uri' : self.uri}
 
         return txt
-        
+
 class DoctypeDeclaration:
     def __init__(self, name_=None):
         self.name = name_
@@ -241,23 +240,23 @@ class DoctypeDeclaration:
             self.addEntity("functions-mod", "functions.mod")
             self.addEntity("tools-mod", "tools.mod")
             self.addEntity("variables-mod", "variables.mod")
-        
+
     def addEntity(self, name, uri):
         self.entries.append(DoctypeEntity(name, uri))
-        
+
     def createDoctype(self):
         content = '<!DOCTYPE %s [\n' % self.name
         for e in self.entries:
             content += e.getEntityString()
         content += ']>\n'
-        
+
         return content
 
 if not has_libxml2:
     class TreeFactory:
         def __init__(self):
             pass
-        
+
         def newNode(self, tag):
             return etree.Element(tag)
 
@@ -268,22 +267,22 @@ if not has_libxml2:
                 return etree.Element(tag, nsmap=NSMAP)
 
             return etree.Element(tag)
-        
+
         def copyNode(self, node):
             return copy.deepcopy(node)
-        
+
         def appendNode(self, parent, child):
             parent.append(child)
 
         def hasAttribute(self, node, att):
             return att in node.attrib
-        
+
         def getAttribute(self, node, att):
             return node.attrib[att]
-        
+
         def setAttribute(self, node, att, value):
             node.attrib[att] = value
-            
+
         def getText(self, root):
             return root.text
 
@@ -292,30 +291,27 @@ if not has_libxml2:
 
         def writeGenTree(self, root, fp):
             dt = DoctypeDeclaration()
-            fp.write(etree.tostring(root, xml_declaration=True, 
-                                    encoding="UTF-8", pretty_print=True, 
+            fp.write(etree.tostring(root, xml_declaration=True,
+                                    encoding="UTF-8", pretty_print=True,
                                     doctype=dt.createDoctype()))
 
         def writeTree(self, root, fpath):
-            fp = open(fpath, 'w')
-            fp.write(etree.tostring(root, xml_declaration=True, 
-                                    encoding="UTF-8", pretty_print=True))            
-            fp.close()
+            with open(fpath, 'w') as fp:
+                fp.write(etree.tostring(root, xml_declaration=True,
+                                        encoding="UTF-8", pretty_print=True))
 
         def prettyPrintFile(self, fpath):
-            fin = open(fpath,'r')
-            tree = etree.parse(fin)
-            pretty_content = etree.tostring(tree, pretty_print=True)
-            fin.close()
-    
-            fout = open(fpath,'w')
-            fout.write(pretty_content)
-            fout.close()
+            with open(fpath,'r') as fin:
+                tree = etree.parse(fin)
+                pretty_content = etree.tostring(tree, pretty_print=True)
+
+            with open(fpath,'w') as fout:
+                fout.write(pretty_content)
 
         def decorateWithHeader(self, root):
             root.attrib["{"+xsi+"}schemaLocation"] = "%s %s/scons.xsd" % (dbxsd, dbxsd)
             return root
-            
+
         def newXmlTree(self, root):
             """ Return a XML file tree with the correct namespaces set,
                 the element root as top entry and the given header comment.
@@ -324,7 +320,7 @@ if not has_libxml2:
                      'xsi' : xsi}
             t = etree.Element(root, nsmap=NSMAP)
             return self.decorateWithHeader(t)
-        
+
         def validateXml(self, fpath, xmlschema_context):
             # Use lxml
             xmlschema = etree.XMLSchema(xmlschema_context)
@@ -361,21 +357,21 @@ if not has_libxml2:
                 current XML toolkit.
             """
             return [root]
-        
-else:        
+
+else:
     class TreeFactory:
         def __init__(self):
             pass
-        
+
         def newNode(self, tag):
             return libxml2.newNode(tag)
 
         def newEtreeNode(self, tag, init_ns=False):
             return etree.Element(tag)
-        
+
         def copyNode(self, node):
             return node.copyNode(1)
-        
+
         def appendNode(self, parent, child):
             if hasattr(parent, 'addChild'):
                 parent.addChild(child)
@@ -386,7 +382,7 @@ else:
             if hasattr(node, 'hasProp'):
                 return node.hasProp(att)
             return att in node.attrib
-        
+
         def getAttribute(self, node, att):
             if hasattr(node, 'prop'):
                 return node.prop(att)
@@ -397,7 +393,7 @@ else:
                 node.setProp(att, value)
             else:
                 node.attrib[att] = value
-                
+
         def getText(self, root):
             if hasattr(root, 'getContent'):
                 return root.getContent()
@@ -425,20 +421,18 @@ else:
             doc.freeDoc()
 
         def writeTree(self, root, fpath):
-            fp = open(fpath, 'w')
-            doc = libxml2.newDoc('1.0')
-            doc.setRootElement(root)
-            fp.write(doc.serialize("UTF-8", 1))
-            doc.freeDoc()
-            fp.close()
+            with open(fpath, 'w') as fp:
+                doc = libxml2.newDoc('1.0')
+                doc.setRootElement(root)
+                fp.write(doc.serialize("UTF-8", 1))
+                doc.freeDoc()
 
         def prettyPrintFile(self, fpath):
             # Read file and resolve entities
             doc = libxml2.readFile(fpath, None, libxml2d.XML_PARSE_NOENT)
-            fp = open(fpath, 'w')
-            # Prettyprint
-            fp.write(doc.serialize("UTF-8", 1))
-            fp.close()
+            with open(fpath, 'w') as fp:
+                # Prettyprint
+                fp.write(doc.serialize("UTF-8", 1))
             # Cleanup
             doc.freeDoc()
 
@@ -447,9 +441,9 @@ else:
             ns = root.newNs(dbxsd, None)
             xi = root.newNs(xsi, 'xsi')
             root.setNs(ns)  #put this node in the target namespace
-    
+
             root.setNsProp(xi, 'schemaLocation', "%s %s/scons.xsd" % (dbxsd, dbxsd))
-        
+
             return root
 
         def newXmlTree(self, root):
@@ -461,7 +455,7 @@ else:
 
         def validateXml(self, fpath, xmlschema_context):
             retval = True
-        
+
             # Create validation context
             validation_context = xmlschema_context.schemaNewValidCtxt()
             # Set error/warning handlers
@@ -471,18 +465,18 @@ else:
             doc = libxml2.readFile(fpath, None, libxml2.XML_PARSE_NOENT)
             doc.xincludeProcessFlags(libxml2.XML_PARSE_NOENT)
             err = validation_context.schemaValidateDoc(doc)
-        
+
             if err or eh.errors:
                 for e in eh.errors:
                     print(e.rstrip("\n"))
                 # import pdb; pdb.set_trace()
                 print("%s fails to validate" % fpath)
                 retval = False
-                
+
             # Cleanup
             doc.freeDoc()
             del validation_context
-    
+
             return retval
 
         def findAll(self, root, tag, ns=None, xpath_context=None, nsmap=None):
@@ -506,7 +500,7 @@ else:
                 expression = "./%s/node()" % tag
                 if ns:
                     expression = "./%s:%s/node()" % (ns, tag)
-                
+
                 return xpath_context.xpathEval(expression)
             else:
                 expression = "./{%s}%s/node()" % (nsmap[ns], tag)
@@ -536,7 +530,7 @@ else:
             if child.tail:
                 tail = libxml2.newText(child.tail)
                 elements.append(tail)
-                
+
             return elements
 
         def convertElementTree(self, root):
@@ -562,7 +556,7 @@ else:
             if root.tail:
                 tail = libxml2.newText(root.tail)
                 elements.append(tail)
-                
+
             return elements
 
 tf = TreeFactory()
@@ -603,7 +597,7 @@ class SConsDocTree:
             # Register namespaces
             for key, val in self.nsmap.items():
                 self.xpath_context.xpathRegisterNs(key, val)
-            
+
     def __del__(self):
         if self.doc is not None:
             self.doc.freeDoc()
@@ -622,7 +616,7 @@ def validate_all_xml(dpaths, xsdfile=default_xsd):
         ctxt = libxml2.schemaNewParserCtxt(xsdfile)
         xmlschema_context = ctxt.schemaParse()
         del ctxt
-    
+
     fpaths = []
     for dp in dpaths:
         if dp.endswith('.xml') and isSConsXml(dp):
@@ -635,13 +629,13 @@ def validate_all_xml(dpaths, xsdfile=default_xsd):
                         fp = os.path.join(path, f)
                         if isSConsXml(fp):
                             fpaths.append(fp)
-                
+
     fails = []
     for idx, fp in enumerate(fpaths):
         fpath = os.path.join(path, fp)
         print("%.2f%s (%d/%d) %s" % (float(idx+1)*100.0/float(len(fpaths)),
                                      perc, idx+1, len(fpaths),fp))
-                                              
+
         if not tf.validateXml(fp, xmlschema_context):
             fails.append(fp)
             continue
@@ -652,7 +646,7 @@ def validate_all_xml(dpaths, xsdfile=default_xsd):
 
     if fails:
         return False
-    
+
     return True
 
 class Item(object):
@@ -733,10 +727,10 @@ class SConsDocHandler(object):
             uses.extend(self.parseItems(u, xpath_context, nsmap))
         for s in tf.findAll(domelem, "sets", dbxid, xpath_context, nsmap):
             sets.extend(self.parseItems(s, xpath_context, nsmap))
-        
+
         return sorted(uses), sorted(sets)
 
-    def parseInstance(self, domelem, map, Class, 
+    def parseInstance(self, domelem, map, Class,
                         xpath_context, nsmap, include_entities=True):
         name = 'unknown'
         if tf.hasAttribute(domelem, 'name'):
@@ -760,24 +754,24 @@ class SConsDocHandler(object):
                     instance.arguments = []
                 instance.arguments.append(tf.copyNode(a))
 
-    def parseDomtree(self, root, xpath_context=None, nsmap=None, include_entities=True):    
+    def parseDomtree(self, root, xpath_context=None, nsmap=None, include_entities=True):
         # Process Builders
         for b in tf.findAll(root, "builder", dbxid, xpath_context, nsmap):
-            self.parseInstance(b, self.builders, Builder, 
+            self.parseInstance(b, self.builders, Builder,
                                xpath_context, nsmap, include_entities)
         # Process Functions
         for f in tf.findAll(root, "scons_function", dbxid, xpath_context, nsmap):
-            self.parseInstance(f, self.functions, Function, 
+            self.parseInstance(f, self.functions, Function,
                                xpath_context, nsmap, include_entities)
         # Process Tools
         for t in tf.findAll(root, "tool", dbxid, xpath_context, nsmap):
-            self.parseInstance(t, self.tools, Tool, 
+            self.parseInstance(t, self.tools, Tool,
                                xpath_context, nsmap, include_entities)
         # Process CVars
         for c in tf.findAll(root, "cvar", dbxid, xpath_context, nsmap):
-            self.parseInstance(c, self.cvars, ConstructionVariable, 
+            self.parseInstance(c, self.cvars, ConstructionVariable,
                                xpath_context, nsmap, include_entities)
-        
+
     def parseContent(self, content, include_entities=True):
         """ Parses the given content as XML file. This method
             is used when we generate the basic lists of entities
@@ -798,28 +792,26 @@ class SConsDocHandler(object):
         t.parseXmlFile(fpath)
         # Parse it
         self.parseDomtree(t.root, t.xpath_context, t.nsmap)
-        
+
 # lifted from Ka-Ping Yee's way cool pydoc module.
 if sys.version_info[0] == 2:
     def importfile(path):
         """Import a Python source file or compiled file given its path."""
         import imp
         magic = imp.get_magic()
-        file = open(path, 'r')
-        if file.read(len(magic)) == magic:
-            kind = imp.PY_COMPILED
-        else:
-            kind = imp.PY_SOURCE
-        file.close()
+        with open(path, 'r') as ifp:
+            if ifp.read(len(magic)) == magic:
+                kind = imp.PY_COMPILED
+            else:
+                kind = imp.PY_SOURCE
         filename = os.path.basename(path)
         name, ext = os.path.splitext(filename)
-        file = open(path, 'r')
-        try:
-            module = imp.load_module(name, file, path, (ext, 'r', kind))
-        except ImportError as e:
-            sys.stderr.write("Could not import %s: %s\n" % (path, e))
-            return None
-        file.close()
+        with open(path, 'r') as ifp:
+            try:
+                module = imp.load_module(name, ifp, path, (ext, 'r', kind))
+            except ImportError as e:
+                sys.stderr.write("Could not import %s: %s\n" % (path, e))
+                return None
         return module
 
 else:  # PY3 version, from newer pydoc
@@ -828,8 +820,8 @@ else:  # PY3 version, from newer pydoc
         import importlib
         from pydoc import ErrorDuringImport
         magic = importlib.util.MAGIC_NUMBER
-        with open(path, 'rb') as file:
-            is_bytecode = magic == file.read(len(magic))
+        with open(path, 'rb') as ifp:
+            is_bytecode = magic == ifp.read(len(magic))
         filename = os.path.basename(path)
         name, ext = os.path.splitext(filename)
         if is_bytecode:

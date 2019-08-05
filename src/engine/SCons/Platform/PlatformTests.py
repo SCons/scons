@@ -27,11 +27,13 @@ import SCons.compat
 
 import collections
 import unittest
+import os
 
 import SCons.Errors
 import SCons.Platform
 import SCons.Environment
 import SCons.Action
+
 
 class Environment(collections.UserDict):
     def Detect(self, cmd):
@@ -39,6 +41,7 @@ class Environment(collections.UserDict):
 
     def AppendENVPath(self, key, value):
         pass
+
 
 class PlatformTestCase(unittest.TestCase):
     def test_Platform(self):
@@ -110,12 +113,13 @@ class PlatformTestCase(unittest.TestCase):
             p = SCons.Platform.Platform('_does_not_exist_')
         except SCons.Errors.UserError:
             pass
-        else:
+        else:   # TODO pylint E0704: bare raise not inside except
             raise
 
         env = Environment()
         SCons.Platform.Platform()(env)
         assert env != {}, env
+
 
 class TempFileMungeTestCase(unittest.TestCase):
     def test_MAXLINELENGTH(self):
@@ -138,21 +142,57 @@ class TempFileMungeTestCase(unittest.TestCase):
         env['OVERSIMPLIFIED'] = 'command'
         expanded_cmd = env.subst(defined_cmd)
         # Call the tempfile munger
-        cmd = t(None,None,env,0)
+        cmd = t(None, None, env, 0)
         assert cmd == defined_cmd, cmd
         # Let MAXLINELENGTH equal the string's length
         env['MAXLINELENGTH'] = len(expanded_cmd)
-        cmd = t(None,None,env,0)
+        cmd = t(None, None, env, 0)
         assert cmd == defined_cmd, cmd
         # Finally, let the actual tempfile mechanism kick in
         # Disable printing of actions...
         old_actions = SCons.Action.print_actions
         SCons.Action.print_actions = 0
         env['MAXLINELENGTH'] = len(expanded_cmd)-1
-        cmd = t(None,None,env,0)
+        cmd = t(None, None, env, 0)
         # ...and restoring its setting.
         SCons.Action.print_actions = old_actions
         assert cmd != defined_cmd, cmd
+
+    def test_TEMPFILEARGJOINBYTE(self):
+        """ 
+        Test argument join byte TEMPFILEARGJOINBYTE
+        """
+
+        # Init class with cmd, such that the fully expanded
+        # string reads "a test command line".
+        # Note, how we're using a command string here that is
+        # actually longer than the substituted one. This is to ensure
+        # that the TempFileMunge class internally really takes the
+        # length of the expanded string into account.
+        defined_cmd = "a $VERY $OVERSIMPLIFIED line"
+        t = SCons.Platform.TempFileMunge(defined_cmd)
+        env = SCons.Environment.SubstitutionEnvironment(tools=[])
+        # Setting the line length high enough...
+        env['MAXLINELENGTH'] = 1024
+        env['VERY'] = 'test'
+        env['OVERSIMPLIFIED'] = 'command'
+        env['TEMPFILEARGJOINBYTE'] = os.linesep
+        expanded_cmd = env.subst(defined_cmd)
+
+        # For tempfilemunge to operate.
+        old_actions = SCons.Action.print_actions
+        SCons.Action.print_actions = 0
+        env['MAXLINELENGTH'] = len(expanded_cmd)-1
+        cmd = t(None, None, env, 0)
+        # print("CMD is:%s"%cmd)
+
+        with open(cmd[-1],'rb') as f:
+            file_content = f.read()
+        # print("Content is:[%s]"%file_content)
+        # ...and restoring its setting.
+        SCons.Action.print_actions = old_actions
+        assert file_content != env['TEMPFILEARGJOINBYTE'].join(['test','command','line'])
+
 
     def test_tempfilecreation_once(self):
         # Init class with cmd, such that the fully expanded
@@ -173,9 +213,11 @@ class TempFileMungeTestCase(unittest.TestCase):
         old_actions = SCons.Action.print_actions
         SCons.Action.print_actions = 0
         # Create an instance of object derived class to allow setattrb
-        class Node(object) :
+
+        class Node(object):
             class Attrs(object):
                 pass
+
             def __init__(self):
                 self.attributes = self.Attrs()
         target = [Node()]
@@ -184,6 +226,7 @@ class TempFileMungeTestCase(unittest.TestCase):
         SCons.Action.print_actions = old_actions
         assert cmd != defined_cmd, cmd
         assert cmd == getattr(target[0].attributes, 'tempfile_cmdlist', None)
+
 
 class PlatformEscapeTestCase(unittest.TestCase):
     def test_posix_escape(self):

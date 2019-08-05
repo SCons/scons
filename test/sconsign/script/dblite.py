@@ -43,7 +43,7 @@ LINK = test.detect('LINK', norm=1)
 if LINK is None: LINK = CC
 
 def escape_drive_case(s):
-    """Turn c\: into [cC]\:"""
+    r"""Turn c\: into [cC]\:"""
     if re.match(r'^(.)[\\]?:', s):
         drive=s[0]
         return '['+drive.lower()+drive.upper()+']'+s[1:]
@@ -133,7 +133,7 @@ hello%(_obj)s: %(sig_re)s \d+ \d+
         %(sig_re)s \[.*\]
 """ % locals()
 
-expect_r = """=== sub1:
+expect_r = r"""=== sub1:
 hello%(_exe)s: %(sig_re)s '%(date_re)s' \d+
         %(sub1_hello_obj)s: %(sig_re)s '%(date_re)s' \d+
         %(LINK)s: None '%(date_re)s' \d+

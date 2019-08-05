@@ -48,3 +48,6 @@ htmlcov
 *.bak
 *~
 !/test/Decider/switch-rebuild.py
+
+# Mac junk
+**/.DS_Store

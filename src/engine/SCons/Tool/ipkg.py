@@ -55,8 +55,10 @@ def generate(env):
     env['IPKGCOM'] = '$IPKG $IPKGFLAGS ${SOURCE}'
 
     if env.WhereIs('id'):
-        env['IPKGUSER'] = os.popen('id -un').read().strip()
-        env['IPKGGROUP'] = os.popen('id -gn').read().strip()
+        with os.popen('id -un') as p:
+            env['IPKGUSER'] = p.read().strip()
+        with os.popen('id -gn') as p:
+            env['IPKGGROUP'] = p.read().strip()
     env['IPKGFLAGS'] = SCons.Util.CLVar('-o $IPKGUSER -g $IPKGGROUP')
     env['IPKGSUFFIX'] = '.ipk'
 

@@ -52,7 +52,8 @@ except OSError as e:
 
 src, target = sys.argv[1:]
 
-open(logfile, 'ab').write(('%s -> %s\\n' % (src, target)).encode())
+with open(logfile, 'ab') as f:
+    f.write(('%s -> %s\\n' % (src, target)).encode())
 
 # Give the other threads a chance to start.
 time.sleep(1)

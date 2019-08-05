@@ -517,7 +517,7 @@ cc -o hello hello.o
       <scons_example name="depends_function">
         <file name="SConstruct" printme="1">
 Program('hello.c')
-def decide_if_changed(dependency, target, prev_ni):
+def decide_if_changed(dependency, target, prev_ni, repo_node=None):
     if dependency.get_timestamp() != prev_ni.timestamp:
         dep = str(dependency)
         tgt = str(target)
@@ -560,6 +560,13 @@ int main() { printf("Hello, world!\n"); }
       has the following attributes:
 
       </para>
+
+        <para>
+            The fourth argument <varname>repo_node</varname>,
+            is the &Node; to use if it is not None when comparing &BuildInfo;.
+            This is typically only set when the target node only exists in a
+            &Repository;
+        </para>
 
       <variablelist>
 
@@ -637,7 +644,7 @@ int main() { printf("Hello, world!\n"); }
       <sconstruct>
 env = Environment()
 
-def config_file_decider(dependency, target, prev_ni):
+def config_file_decider(dependency, target, prev_ni, repo_node=None):
     import os.path
 
     # We always have to init the .csig value...

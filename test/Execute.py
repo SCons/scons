@@ -36,7 +36,8 @@ test = TestSCons.TestSCons()
 
 test.write('my_copy.py', """\
 import sys
-open(sys.argv[2], 'wb').write(open(sys.argv[1], 'rb').read())
+with open(sys.argv[2], 'wb') as ofp, open(sys.argv[1], 'rb') as ifp:
+    ofp.write(ifp.read())
 try:
     exitval = int(sys.argv[3])
 except IndexError:

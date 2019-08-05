@@ -184,9 +184,10 @@ def generate(env):
 
     from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
     from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
+    from SCons.Platform.win32 import CHOCO_DEFAULT_PATH
 
     if sys.platform == 'win32':
-        swig = SCons.Tool.find_program_path(env, 'swig', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS + [r'C:\ProgramData\chocolatey\bin'] )
+        swig = SCons.Tool.find_program_path(env, 'swig', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS + CHOCO_DEFAULT_PATH)
         if swig:
             swig_bin_dir = os.path.dirname(swig)
             env.AppendENVPath('PATH', swig_bin_dir)

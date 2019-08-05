@@ -51,7 +51,8 @@ for opt, arg in cmd_opts:
     if opt == '-I': i_arguments = i_arguments + ' ' + arg
     else: opt_string = opt_string + ' ' + opt
 for a in args:
-    contents = open(a, 'r').read()
+    with open(a, 'r') as f:
+        contents = f.read()
     contents = contents.replace('LEXFLAGS', opt_string)
     contents = contents.replace('I_ARGS', i_arguments)
     sys.stdout.write(contents)

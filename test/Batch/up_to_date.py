@@ -42,7 +42,8 @@ dir = sys.argv[1]
 for infile in sys.argv[2:]:
     inbase = os.path.splitext(os.path.split(infile)[1])[0]
     outfile = os.path.join(dir, inbase+'.out')
-    open(outfile, 'wb').write(open(infile, 'rb').read())
+    with open(outfile, 'wb') as f, open(infile, 'rb') as infp:
+        f.write(infp.read())
 sys.exit(0)
 """)
 

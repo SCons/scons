@@ -39,21 +39,21 @@ test = TestSCons.TestSCons()
 
 test.write('build.py', r"""
 import sys
-output = open(sys.argv[1], 'w')
-for infile in sys.argv[2:]:
-    input = open(infile, 'r')
+with open(sys.argv[1], 'w') as ofp:
+    for infile in sys.argv[2:]:
+        with open(infile, 'r') as ifp:
+            include_prefix = 'include%s ' % infile[-1]
 
-    include_prefix = 'include%s ' % infile[-1]
+            def process(infp, outfp, include_prefix=include_prefix):
+                for line in infp.readlines():
+                    if line[:len(include_prefix)] == include_prefix:
+                        file = line[len(include_prefix):-1]
+                        with open(file, 'r') as f:
+                            process(f, outfp)
+                    else:
+                        outfp.write(line)
 
-    def process(infp, outfp, include_prefix=include_prefix):
-        for line in infp.readlines():
-            if line[:len(include_prefix)] == include_prefix:
-                file = line[len(include_prefix):-1]
-                process(open(file, 'r'), outfp)
-            else:
-                outfp.write(line)
-
-    process(input, output)
+            process(ifp, ofp)
 
 sys.exit(0)
 """)

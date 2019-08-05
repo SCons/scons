@@ -42,7 +42,8 @@ SConscript('var2/SConscript')
 test.write('src/SConscript',"""
 def build(target, source, env):
     for t in target:
-        open(str(t), "wt").write(str(t))
+        with open(str(t), "wt") as f:
+            f.write(str(t))
 
 def emitter(target, source, env):
     target.append(str(target[0])+".foo")

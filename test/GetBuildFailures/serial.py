@@ -49,7 +49,8 @@ test = TestSCons.TestSCons()
 contents = r"""\
 import sys
 if sys.argv[0] == 'mypass.py':
-    open(sys.argv[3], 'wb').write(open(sys.argv[4], 'rb').read())
+    with open(sys.argv[3], 'wb') as ofp, open(sys.argv[4], 'rb') as ifp:
+        ofp.write(ifp.read())
     exit_value = 0
 elif sys.argv[0] == 'myfail.py':
     exit_value = 1
@@ -83,8 +84,8 @@ Command('f08', 'f08.in', raiseExcAction(SCons.Errors.UserError("My User Error"))
 Command('f09', 'f09.in', returnExcAction(SCons.Errors.UserError("My User Error")))
 Command('f10', 'f10.in', raiseExcAction(MyBuildError(errstr="My Build Error", status=7)))
 Command('f11', 'f11.in', returnExcAction(MyBuildError(errstr="My Build Error", status=7)))
-Command('f12', 'f12.in', raiseExcAction(OSError(123, "My EnvironmentError", "f12")))
-Command('f13', 'f13.in', returnExcAction(OSError(123, "My EnvironmentError", "f13")))
+Command('f12', 'f12.in', raiseExcAction(OSError(123, "My SConsEnvironmentError", "f12")))
+Command('f13', 'f13.in', returnExcAction(OSError(123, "My SConsEnvironmentError", "f13")))
 Command('f14', 'f14.in', raiseExcAction(SCons.Errors.InternalError("My InternalError")))
 Command('f15', 'f15.in', returnExcAction(SCons.Errors.InternalError("My InternalError")))
 
@@ -173,9 +174,9 @@ BF: f10 failed (7):  My Build Error
 BF:    action(["f10"], ["f10.in"])
 BF: f11 failed (7):  My Build Error
 BF:    action(["f11"], ["f11.in"])
-BF: f12 failed (123):  My EnvironmentError
+BF: f12 failed (123):  My SConsEnvironmentError
 BF:    action(["f12"], ["f12.in"])
-BF: f13 failed (123):  My EnvironmentError
+BF: f13 failed (123):  My SConsEnvironmentError
 BF:    action(["f13"], ["f13.in"])
 BF: f14 failed (2):  InternalError : My InternalError
 BF:    action(["f14"], ["f14.in"])
@@ -191,12 +192,11 @@ scons: *** [f08] My User Error
 scons: *** [f09] My User Error
 scons: *** [f10] My Build Error
 scons: *** [f11] My Build Error
-scons: *** [f12] f12: My EnvironmentError
-scons: *** [f13] f13: My EnvironmentError
+scons: *** [f12] f12: My SConsEnvironmentError
+scons: *** [f13] f13: My SConsEnvironmentError
 scons: *** [f14] InternalError : My InternalError
 """) + \
-"""\
-Traceback \((most recent call|innermost) last\):
+r"""Traceback \((most recent call|innermost) last\):
 (  File ".+", line \d+, in \S+
     [^\n]+
 )*(  File ".+", line \d+, in \S+

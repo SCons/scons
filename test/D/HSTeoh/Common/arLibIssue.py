@@ -46,7 +46,9 @@ def testForTool(tool):
         test.skip_test("Required executable for tool '{0}' not found, skipping test.\n".format(tool))
 
     test.dir_fixture('ArLibIssue')
-    test.write('SConstruct', open('SConstruct_template', 'r').read().format('tools=["{0}", "ar"]'.format(tool)))
+    with open('SConstruct_template', 'r') as f:
+        config = f.read().format('tools=["{0}", "ar"]'.format(tool))
+    test.write('SConstruct', config)
 
     test.run()
 

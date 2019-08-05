@@ -24,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 When an inclusion's optional argument (enclosed in square brackets:
 []) spans multiple lines (via comment wrapping), ensure that the LaTeX
 Scanner doesn't throw an IndexError.

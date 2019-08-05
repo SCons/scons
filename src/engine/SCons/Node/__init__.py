@@ -50,6 +50,11 @@ import collections
 import copy
 from itertools import chain
 
+try:
+    from itertools import zip_longest
+except ImportError:
+    from itertools import izip_longest as zip_longest
+
 import SCons.Debug
 from SCons.Debug import logInstanceCreation
 import SCons.Executor
@@ -103,9 +108,9 @@ implicit_deps_changed = 0
 
 # A variable that can be set to an interface-specific function be called
 # to annotate a Node with information about its creation.
-def do_nothing(node): pass
+def do_nothing_node(node): pass
 
-Annotate = do_nothing
+Annotate = do_nothing_node
 
 # Gets set to 'True' if we're running in interactive mode. Is
 # currently used to release parts of a target's info during
@@ -248,25 +253,10 @@ _target_from_source_map = {0 : target_from_source_none,
 # used by it.
 #
 
-
-class DeciderNeedsNode(Exception):
-    """
-    Indicate that the decider needs the node as well as the target and the dependency.
-    Normally the node and the target are the same, but in the case of repository
-    They may be different. Also the NodeInfo is retrieved from the node
-    """
-    def __init__(self, call_this_decider):
-        """
-        :param call_this_decider: to return the decider to call directly since deciders
-               are called through several levels of indirection
-        """
-        self.decider = call_this_decider
-
-
 #
 # First, the single decider functions
 #
-def changed_since_last_build_node(node, target, prev_ni):
+def changed_since_last_build_node(node, target, prev_ni, repo_node=None):
     """
 
     Must be overridden in a specific subclass to return True if this
@@ -287,7 +277,7 @@ def changed_since_last_build_node(node, target, prev_ni):
     raise NotImplementedError
 
 
-def changed_since_last_build_alias(node, target, prev_ni):
+def changed_since_last_build_alias(node, target, prev_ni, repo_node=None):
     cur_csig = node.get_csig()
     try:
         return cur_csig != prev_ni.csig
@@ -295,24 +285,24 @@ def changed_since_last_build_alias(node, target, prev_ni):
         return 1
 
 
-def changed_since_last_build_entry(node, target, prev_ni):
+def changed_since_last_build_entry(node, target, prev_ni, repo_node=None):
     node.disambiguate()
-    return _decider_map[node.changed_since_last_build](node, target, prev_ni)
+    return _decider_map[node.changed_since_last_build](node, target, prev_ni, repo_node)
 
 
-def changed_since_last_build_state_changed(node, target, prev_ni):
+def changed_since_last_build_state_changed(node, target, prev_ni, repo_node=None):
     return node.state != SCons.Node.up_to_date
 
 
-def decide_source(node, target, prev_ni):
-    return target.get_build_env().decide_source(node, target, prev_ni)
+def decide_source(node, target, prev_ni, repo_node=None):
+    return target.get_build_env().decide_source(node, target, prev_ni, repo_node)
 
 
-def decide_target(node, target, prev_ni):
-    return target.get_build_env().decide_target(node, target, prev_ni)
+def decide_target(node, target, prev_ni, repo_node=None):
+    return target.get_build_env().decide_target(node, target, prev_ni, repo_node)
 
 
-def changed_since_last_build_python(node, target, prev_ni):
+def changed_since_last_build_python(node, target, prev_ni, repo_node=None):
     cur_csig = node.get_csig()
     try:
         return cur_csig != prev_ni.csig
@@ -529,6 +519,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
 
     __slots__ = ['sources',
                  'sources_set',
+                 'target_peers',
                  '_specific_sources',
                  'depends',
                  'depends_set',
@@ -783,6 +774,25 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         # waiting for this Node to be built.
         for parent in self.waiting_parents:
             parent.implicit = None
+
+            # Handle issue where builder emits more than one target and
+            # the source file for the builder is generated.
+            # in that case only the first target was getting it's .implicit
+            # cleared when the source file is built (second scan). 
+            # leaving only partial implicits from scan before source file is generated
+            # typically the compiler only. Then scanned files are appended
+            # This is persisted to sconsign and rebuild causes false rebuilds
+            # because the ordering of the implicit list then changes to what it
+            # should have been.
+            # This is at least the following bugs
+            # https://github.com/SCons/scons/issues/2811
+            # https://jira.mongodb.org/browse/SERVER-33111
+            try:
+                for peer in parent.target_peers:
+                    peer.implicit = None
+            except AttributeError:
+                pass
+
 
         self.clear()
 
@@ -1160,7 +1170,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             binfo.bactsig = SCons.Util.MD5signature(executor.get_contents())
 
         if self._specific_sources:
-            sources = [s for s in self.sources if not s in ignore_set]
+            sources = [s for s in self.sources if s not in ignore_set]
 
         else:
             sources = executor.get_unignored_sources(self, self.ignore)
@@ -1480,17 +1490,11 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             result = True
 
         for child, prev_ni in zip(children, then):
-            try:
-                if _decider_map[child.changed_since_last_build](child, self, prev_ni):
-                    if t: Trace(': %s changed' % child)
-                    result = True
-            except DeciderNeedsNode as e:
-                if e.decider(self, prev_ni, node=node):
-                    if t: Trace(': %s changed' % child)
-                    result = True
+            if _decider_map[child.changed_since_last_build](child, self, prev_ni, node):
+                if t: Trace(': %s changed' % child)
+                result = True
 
         if self.has_builder():
-            import SCons.Util
             contents = self.get_executor().get_contents()
             newsig = SCons.Util.MD5signature(contents)
             if bi.bactsig != newsig:
@@ -1647,28 +1651,32 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
 
         lines = []
 
-        removed = [x for x in old_bkids if not x in new_bkids]
+        removed = [x for x in old_bkids if x not in new_bkids]
         if removed:
             removed = [stringify(r) for r in removed]
             fmt = "`%s' is no longer a dependency\n"
             lines.extend([fmt % s for s in removed])
 
         for k in new_bkids:
-            if not k in old_bkids:
+            if k not in old_bkids:
                 lines.append("`%s' is a new dependency\n" % stringify(k))
             else:
-                try:
-                    changed = _decider_map[k.changed_since_last_build](k, self, osig[k])
-                except DeciderNeedsNode as e:
-                    changed = e.decider(self, osig[k], node=self)
+                changed = _decider_map[k.changed_since_last_build](k, self, osig[k])
 
                 if changed:
                     lines.append("`%s' changed\n" % stringify(k))
 
         if len(lines) == 0 and old_bkids != new_bkids:
-            lines.append("the dependency order changed:\n" +
-                         "%sold: %s\n" % (' '*15, list(map(stringify, old_bkids))) +
-                         "%snew: %s\n" % (' '*15, list(map(stringify, new_bkids))))
+            lines.append("the dependency order changed:\n")
+            lines.append("->Sources\n")
+            for (o,n) in zip_longest(old.bsources, new.bsources, fillvalue=None):
+                lines.append("Old:%s\tNew:%s\n"%(o,n))
+            lines.append("->Depends\n")
+            for (o,n) in zip_longest(old.bdepends, new.bdepends, fillvalue=None):
+                lines.append("Old:%s\tNew:%s\n"%(o,n))
+            lines.append("->Implicit\n")
+            for (o,n) in zip_longest(old.bimplicit, new.bimplicit, fillvalue=None):
+                lines.append("Old:%s\tNew:%s\n"%(o,n))
 
         if len(lines) == 0:
             def fmt_with_title(title, strlines):
@@ -1711,7 +1719,6 @@ class Walker(object):
     This is depth-first, children are visited before the parent.
     The Walker object can be initialized with any node, and
     returns the next node on the descent with each get_next() call.
-    'kids_func' is an optional function that will be called to
     get the children of a node instead of calling 'children'.
     'cycle_func' is an optional function that will be called
     when a cycle is detected.

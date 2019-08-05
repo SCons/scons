@@ -63,8 +63,11 @@ os.environ['PYTHONPATH'] = test.workpath('.')
 
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
+
 def build(env, target, source):
-    open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
+    with open(str(target[0]), 'wt') as ofp, open(str(source[0]), 'rt') as ifp:
+        opf.write(ifp.read())
+
 B = Builder(action = build)
 env = Environment(tools = [], BUILDERS = { 'B' : B })
 env.B(target = 'f1.out', source = 'f1.in')
@@ -90,10 +93,10 @@ build(["f4.out"], ["f4.in"])
 """),
          stderr = None)
 
-os.utime(test.workpath('f1.in'), 
+os.utime(test.workpath('f1.in'),
          (os.path.getatime(test.workpath('f1.in')),
           os.path.getmtime(test.workpath('f1.in'))+10))
-os.utime(test.workpath('f3.in'), 
+os.utime(test.workpath('f3.in'),
          (os.path.getatime(test.workpath('f3.in')),
           os.path.getmtime(test.workpath('f3.in'))+10))
 

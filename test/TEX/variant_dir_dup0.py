@@ -24,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Test creation of a fully-featured TeX document (with bibliography
 and index) in a variant_dir.
 
@@ -129,7 +129,7 @@ $F2psBegin
  0.06299 0.06299 sc
 %
 % Fig objects follow
-% 
+%
 7.500 slw
 % Ellipse
 n 1170 945 766 766 0 360 DrawEllipse gs col0 s gr
@@ -162,7 +162,7 @@ test.write(['docs', 'test.bib'], """\
 %% This BibTeX bibliography file was created using BibDesk.
 %% http://bibdesk.sourceforge.net/
 
-%% Saved with string encoding Western (ASCII) 
+%% Saved with string encoding Western (ASCII)
 
 @techreport{AnAuthor:2006fk,
 	Author = {A. N. Author},
@@ -185,13 +185,13 @@ r"""\documentclass{report}
 \makeindex
 
 \begin{document}
- 
+
 \title{Report Title}
 
 \author{A. N. Author}
- 
-\maketitle 
- 
+
+\maketitle
+
 \begin{abstract}
 there is no abstract
 \end{abstract}
@@ -207,7 +207,7 @@ The introduction is short.
 
 \section{Acknowledgements}
 
-The Acknowledgements are show as well \cite{AnAuthor:2006fk}.  
+The Acknowledgements are show as well \cite{AnAuthor:2006fk}.
 
 \index{Getting the Report}
 
@@ -242,13 +242,13 @@ r"""\documentclass{report}
 \makeindex
 
 \begin{document}
- 
+
 \title{Report Title}
 
 \author{A. N. Author}
- 
-\maketitle 
- 
+
+\maketitle
+
 \begin{abstract}
 there is no abstract
 \end{abstract}
@@ -264,7 +264,7 @@ The introduction is short.
 
 \section{Acknowledgements}
 
-The Acknowledgements are show as well \cite{AnAuthor:2006fk}.  
+The Acknowledgements are show as well \cite{AnAuthor:2006fk}.
 
 \index{Getting the Report}
 

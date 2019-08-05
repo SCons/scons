@@ -54,7 +54,7 @@ env.Command('f0.out', 'f0.in', copy_action)
 try:
     from collections import UserString
 except ImportError:
-    exec('from UserString import UserString')
+    from UserString import UserString
 try:
     class mystr(str):
         pass

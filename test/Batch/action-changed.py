@@ -43,13 +43,10 @@ import sys
 sep = sys.argv.index('--')
 targets = sys.argv[1:sep]
 sources = sys.argv[sep+1:]
-for i in range(len(targets)):
-    t = targets[i]
-    s = sources[i]
-    fp = open(t, 'wb')
-    fp.write(bytearray('%s\\n','utf-8'))
-    fp.write(open(s, 'rb').read())
-    fp.close()
+for t, s in zip(targets, sources):
+    with open(t, 'wb') as ofp, open(s, 'rb') as ifp:
+        ofp.write(bytearray('%s\\n', 'utf-8'))
+        ofp.write(ifp.read())
 sys.exit(0)
 """
 
