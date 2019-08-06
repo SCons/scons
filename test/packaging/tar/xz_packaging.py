@@ -40,8 +40,11 @@ if not tar:
     test.skip_test('tar not found, skipping test\n')
 
 xz = test.where_is('xz')
-if not xz:
-    test.skip_test('tar found, but helper xz not found, skipping test\n')
+#if not xz:
+#    test.skip_test('tar found, but helper xz not found, skipping test\n')
+
+tar = test.where_is('tar')
+test.skip_test('DEBUG: found TAR at %s, XZ at %s\n' % (tar, xz))
 
 test.subdir('src')
 

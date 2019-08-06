@@ -33,6 +33,8 @@ Also overriding this default package name is tested
 Furthermore that targz is the default packager is tested.
 """
 
+import sys
+
 import TestSCons
 
 python = TestSCons.python
@@ -88,8 +90,13 @@ test.must_exist('src.tar.gz')
 #
 # TEST: default package name creation with overridden packager.
 #
+# Windows 10 since at least 1803 supplies bsdtar, so tool
+# detection will find it - but doesn't supply bzip2, so a
+# test using it will fail. Check for bzip2 first.
 
-test.write('SConstruct', """
+bz2 = test.where_is('bzip2')
+if bz2:
+    test.write('SConstruct', """
 env=Environment(tools=['default', 'packaging'])
 env.Program( 'src/main.c' )
 env.Package( NAME        = 'libfoo',
@@ -98,15 +105,19 @@ env.Package( NAME        = 'libfoo',
              source      = [ 'src/main.c', 'SConstruct' ] )
 """)
 
-test.run(stderr=None)
+    test.run(stderr=None)
 
-test.must_exist('libfoo-1.2.3.tar.bz2')
+    test.must_exist('libfoo-1.2.3.tar.bz2')
 
 #
 # TEST: default package name creation with another packager.
 #
+# Windows 10 since at least 1803 supplies bsdtar, so tool
+# detection will find it - but it doesn't support xz
+# compression so test using it will fail. As a hack, just skip.
 
-test.write('SConstruct', """
+if sys.platform != 'win32':
+    test.write('SConstruct', """
 env=Environment(tools=['default', 'packaging'])
 env.Program( 'src/main.c' )
 env.Package( NAME        = 'libfoo',
@@ -115,9 +126,9 @@ env.Package( NAME        = 'libfoo',
              source      = [ 'src/main.c', 'SConstruct' ] )
 """)
 
-test.run(stderr=None)
+    test.run(stderr=None)
 
-test.must_exist('libfoo-1.2.3.tar.xz')
+    test.must_exist('libfoo-1.2.3.tar.xz')
 
 test.pass_test()
 

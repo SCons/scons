@@ -143,12 +143,18 @@ matrix:
       WINPYTHON: "Python36"
     - image: Visual Studio 2015
       WINPYTHON: "Python37"
+    # quick test: skip all
+    - image: Visual Studio 2015
+      WINPYTHON: "Python35"
 
     # test python 2.7, 3.6 on Visual Studio 2017 image
     - image: Visual Studio 2017
       WINPYTHON: "Python35"
     - image: Visual Studio 2017
       WINPYTHON: "Python37"
+    # quick test: skip 2.7 as well
+    - image: Visual Studio 2017
+      WINPYTHON: "Python27"
 
     # test python 3.7 on Visual Studio 2019 image
     - image: Visual Studio 2019
