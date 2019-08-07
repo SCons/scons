@@ -39,12 +39,12 @@ tar = test.detect('TAR', 'tar')
 if not tar:
     test.skip_test('tar not found, skipping test\n')
 
+# Windows 10 now supplies tar, but doesn't support xz compression
+# assume it's just okay to check for an xz command, because don't
+# want to probe the command itself to see what it supports
 xz = test.where_is('xz')
-#if not xz:
-#    test.skip_test('tar found, but helper xz not found, skipping test\n')
-
-tar = test.where_is('tar')
-test.skip_test('DEBUG: found TAR at %s, XZ at %s\n' % (tar, xz))
+if not xz:
+    test.skip_test('tar found, but helper xz not found, skipping test\n')
 
 test.subdir('src')
 

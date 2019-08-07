@@ -92,10 +92,9 @@ test.must_exist('src.tar.gz')
 #
 # Windows 10 since at least 1803 supplies bsdtar, so tool
 # detection will find it - but doesn't supply bzip2, so a
-# test using it will fail. Check for bzip2 first.
+# test using it will fail. As a hack, just skip.
 
-bz2 = test.where_is('bzip2')
-if bz2:
+if sys.platform != 'win32':
     test.write('SConstruct', """
 env=Environment(tools=['default', 'packaging'])
 env.Program( 'src/main.c' )
