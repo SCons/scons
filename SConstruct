@@ -8,7 +8,7 @@ from __future__ import print_function
 copyright_years = '2001 - 2019'
 
 # This gets inserted into the man pages to reflect the month of release.
-month_year = 'July 2019'
+month_year = 'August 2019'
 
 #
 # __COPYRIGHT__
@@ -49,7 +49,7 @@ import textwrap
 import bootstrap
 
 project = 'scons'
-default_version = '3.1.0'
+default_version = '3.1.1'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 SConsignFile()
