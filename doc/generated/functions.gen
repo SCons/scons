@@ -2948,30 +2948,33 @@ and added to the following construction variables:
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
--arch               CCFLAGS, LINKFLAGS
--D                  CPPDEFINES
--framework          FRAMEWORKS
--frameworkdir=      FRAMEWORKPATH
--include            CCFLAGS
--isysroot           CCFLAGS, LINKFLAGS
--isystem            CCFLAGS
--iquote             CCFLAGS
--idirafter          CCFLAGS
--I                  CPPPATH
--l                  LIBS
--L                  LIBPATH
--mno-cygwin         CCFLAGS, LINKFLAGS
--mwindows           LINKFLAGS
--pthread            CCFLAGS, LINKFLAGS
--std=               CFLAGS
--Wa,                ASFLAGS, CCFLAGS
--Wl,-rpath=         RPATH
--Wl,-R,             RPATH
--Wl,-R              RPATH
--Wl,                LINKFLAGS
--Wp,                CPPFLAGS
--                   CCFLAGS
-+                   CCFLAGS, LINKFLAGS
+-arch                   CCFLAGS, LINKFLAGS
+-D                      CPPDEFINES
+-framework              FRAMEWORKS
+-frameworkdir=          FRAMEWORKPATH
+-fmerge-all-constants   CCFLAGS, LINKFLAGS
+-fopenmp                CCFLAGS, LINKFLAGS
+-include                CCFLAGS
+-isysroot               CCFLAGS, LINKFLAGS
+-isystem                CCFLAGS
+-iquote                 CCFLAGS
+-idirafter              CCFLAGS
+-I                      CPPPATH
+-l                      LIBS
+-L                      LIBPATH
+-mno-cygwin             CCFLAGS, LINKFLAGS
+-mwindows               LINKFLAGS
+-openmp                 CCFLAGS, LINKFLAGS
+-pthread                CCFLAGS, LINKFLAGS
+-std=                   CFLAGS
+-Wa,                    ASFLAGS, CCFLAGS
+-Wl,-rpath=             RPATH
+-Wl,-R,                 RPATH
+-Wl,-R                  RPATH
+-Wl,                    LINKFLAGS
+-Wp,                    CPPFLAGS
+-                       CCFLAGS
++                       CCFLAGS, LINKFLAGS
 </example_commands>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
