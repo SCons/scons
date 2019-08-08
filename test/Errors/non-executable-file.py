@@ -44,29 +44,29 @@ Bad command or file name
 unrecognized = """\
 '.+' is not recognized as an internal or external command,
 operable program or batch file.
-scons: \*\*\* \[%s\] Error 1
+scons: \\*\\*\\* \\[%s\\] Error 1
 """
 
 unspecified = """\
 The name specified is not recognized as an
 internal or external command, operable program or batch file.
-scons: \*\*\* \[%s\] Error 1
+scons: \\*\\*\\* \\[%s\\] Error 1
 """
 
 cannot_execute = """\
 (sh: )*.+: cannot execute
-scons: \*\*\* \[%s\] Error %s
+scons: \\*\\*\\* \\[%s\\] Error %s
 """
 
 permission_denied = """\
 .+: (p|P)ermission denied
-scons: \*\*\* \[%s\] Error %s
+scons: \\*\\*\\* \\[%s\\] Error %s
 """
 
 konnte_nicht_gefunden_werden = """\
 Der Befehl ".+" ist entweder falsch geschrieben oder
 konnte nicht gefunden werden.
-scons: \*\*\* \[%s\] Error %s
+scons: \\*\\*\\* \\[%s\\] Error %s
 """
 
 test.write('SConstruct', r"""

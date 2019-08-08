@@ -65,7 +65,7 @@ expect = """\
 </stdout>
       <stderr>FAILING TEST STDERR
 </stderr>
-      <time>\\d+\.\d</time>
+      <time>\\d+\\.\\d</time>
     </test>
     <test>
       <file_name>%(test_no_result_py)s</file_name>
@@ -75,7 +75,7 @@ expect = """\
 </stdout>
       <stderr>NO RESULT TEST STDERR
 </stderr>
-      <time>\\d+\.\d</time>
+      <time>\\d+\\.\\d</time>
     </test>
     <test>
       <file_name>%(test_pass_py)s</file_name>
@@ -85,9 +85,9 @@ expect = """\
 </stdout>
       <stderr>PASSING TEST STDERR
 </stderr>
-      <time>\\d+\.\d</time>
+      <time>\\d+\\.\\d</time>
     </test>
-  <time>\\d+\.\d</time>
+  <time>\\d+\\.\\d</time>
   </results>
 """ % locals()
 

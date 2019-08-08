@@ -71,7 +71,7 @@ test.write('SConstruct', """\
 SConscript('SConscript')
 """)
 
-test.write('SConscript', """\
+test.write('SConscript', r"""
 import os.path
 import re
 
@@ -86,7 +86,7 @@ def kfile_scan(node, env, path, arg):
     for inc in includes:
         for dir in path:
             file = str(dir) + os.sep + inc
-            if os.path.exists(file):  
+            if os.path.exists(file):
                 results.append(file)
                 break
     return results
@@ -109,7 +109,7 @@ env.Command('foo', 'foo.k', r'%(_python_)s build.py "$KPATH" $SOURCES $TARGET')
 
 
 
-test.write('foo.k', 
+test.write('foo.k',
 """foo.k 1 line 1
 include xxx
 include yyy

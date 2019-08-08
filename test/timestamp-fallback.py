@@ -25,11 +25,14 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify falling back to 'timestamp' behavior if there is no native
-hashlib and no underlying md5 module available.
+Verify falling back to 'timestamp' behavior if there is no md5
+module. Formerly checked for hashlib first, but that has been
+standard library since 2.5; test is kept in case one of those
+rare no-md5 Pythons comes into play (some entities ban the use
+of md5 as unsafe, although SCons does not use it in a security context.
 """
 
-import imp
+import sys
 import os
 
 import TestSCons
@@ -37,23 +40,13 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 try:
-    file, name, desc = imp.find_module('hashlib')
+    from hashlib import md5
 except ImportError:
     pass
 else:
-    msg = "This version of Python has a 'hashlib' module.\n" + \
-          "Skipping test of falling back to timestamps.\n"
+    msg = "The 'md5' algorithm is built in to hashlib in this version of Python.\n" + \
+          "Cannot test falling back to timestamps.\n"
     test.skip_test(msg)
-
-try:
-    file, name, desc = imp.find_module('md5')
-except ImportError:
-    pass
-else:
-    if desc[2] == imp.C_BUILTIN:
-        msg = "The 'md5' module is built in to this version of Python.\n" + \
-              "Cannot test falling back to timestamps.\n"
-        test.skip_test(msg)
 
 test.write('md5.py', r"""
 raise ImportError
@@ -66,7 +59,7 @@ DefaultEnvironment(tools=[])
 
 def build(env, target, source):
     with open(str(target[0]), 'wt') as ofp, open(str(source[0]), 'rt') as ifp:
-        opf.write(ifp.read())
+        ofp.write(ifp.read())
 
 B = Builder(action = build)
 env = Environment(tools = [], BUILDERS = { 'B' : B })

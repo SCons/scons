@@ -70,7 +70,7 @@ with open(sys.argv[1], 'w') as ofp:
 sys.exit(0)
 """)
 
-test.write(['src', 'SConstruct'], """\
+test.write(['src', 'SConstruct'], r"""
 DefaultEnvironment(tools=[])
 import re
 

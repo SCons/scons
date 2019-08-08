@@ -42,13 +42,13 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.write('getrevision', """
+test.write('getrevision', r"""
 from __future__ import print_function
-with open('revnum.in','r') as f:
+with open('revnum.in', 'r') as f:
     print(f.read().strip(), end='')
 """)
 
-test.write('SConstruct', """
+test.write('SConstruct', r"""
 import re
 
 def subrevision(target, source ,env):
@@ -63,7 +63,7 @@ SubRevision = Action(subrevision)
 
 env=Environment()
 content_env=env.Clone()
-content_env.Command('revision.in', [], r'%(_python_)s getrevision > $TARGET')
+content_env.Command('revision.in', [], '%(_python_)s getrevision > $TARGET')
 content_env.AlwaysBuild('revision.in')
 env.Precious('main.c')
 env.Command('main.c', 'revision.in', SubRevision)
