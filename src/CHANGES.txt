@@ -4,13 +4,13 @@
 
                             Change Log
 
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
+RELEASE 3.1.1 - Mon, 07 Aug 2019 20:09:12 -0500
 
   From William Deegan:
     - Remove obsoleted references to DeciderNeedsNode which could cause crash when using --debug=explain
 
   From Jason Kenny
-    - Add Fix and test for regression in 3.1.0 when using Decider('MD5-timestamp') and --debug=explain
+    - Add Fix and test for crash in 3.1.0 when using Decider('MD5-timestamp') and --debug=explain
 
   From Ben Reed:
     - Added -fmerge-all-constants to flags that get included in both CCFLAGS and LINKFLAGS.
