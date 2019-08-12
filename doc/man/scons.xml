@@ -209,12 +209,12 @@ that you want to use to build your target files
 are not in standard system locations,
 <command>scons</command>
 will not find them unless
-you explicitly set the PATH
+you explicitly set the <envar>PATH</envar>
 to include those locations.
 Whenever you create an
 <command>scons</command>
 construction environment,
-you can propagate the value of PATH
+you can propagate the value of <envar>PATH</envar>
 from your external environment as follows:</para>
 
 <literallayout class="monospaced">
@@ -223,13 +223,20 @@ env = Environment(ENV = {'PATH' : os.environ['PATH']})
 </literallayout>
 
 <para>Similarly, if the commands use external environment variables
-like $PATH, $HOME, $JAVA_HOME, $LANG, $SHELL, $TERM, etc.,
+like
+<envar>PATH</envar>,
+<envar>HOME</envar>,
+<envar>JAVA_HOME</envar>,
+<envar>LANG</envar>,
+<envar>SHELL</envar>,
+<envar>TERM</envar>,
+etc.,
 these variables can also be explicitly propagated:</para>
 
 <literallayout class="monospaced">
 import os
-env = Environment(ENV = {'PATH' : os.environ['PATH'],
-                         'HOME' : os.environ['HOME']})
+env = Environment(ENV = {'PATH': os.environ['PATH'],
+                         'HOME': os.environ['HOME']})
 </literallayout>
 
 <para>Or you may explicitly propagate the invoking user's
@@ -2112,36 +2119,59 @@ env = Environment(platform = my_platform)
 
 <para>Additionally, a specific set of tools
 with which to initialize the environment
-may be specified as an optional keyword argument:</para>
+may be specified using the optional keyword argument
+<parameter>tools</parameter>:</para>
 
 <literallayout class="monospaced">
-env = Environment(tools = ['msvc', 'lex'])
+env = Environment(tools=['msvc', 'lex'])
 </literallayout>
 
-<para>Non-built-in tools may be specified using the toolpath argument:</para>
+<para>
+The <parameter>tools</parameter> argument overrides
+the tool list, it does not add to it, so be
+sure to include all the tools you need.
+For example if you are  building a c/c++ program
+you must  add a tool for both compiler and linker,
+as in <literal>tools=['clang', 'link']</literal>.
+The tool name <literal>'default'</literal> can
+be used to retain the default list.
+</para>
+
+<para>Non-built-in tools may be specified using the
+optional <parameter>toolpath</parameter> keyword argument:</para>
 
 <literallayout class="monospaced">
-env = Environment(tools = ['default', 'foo'], toolpath = ['tools'])
+env = Environment(tools=['default', 'foo'], toolpath=['tools'])
 </literallayout>
 
-<para>This looks for a tool specification in tools/foo.py (as well as
-using the ordinary default tools for the platform).  foo.py should
-have two functions: generate(env, **kw) and exists(env).
+<para>
+This looks for a tool specification in <filename>tools/foo.py</filename>
+as well as using the ordinary default tools for the platform.
+</para>
+
+<para>
+A tool specification must include two functions:
+<function>generate(env, **kw)</function>
+and <function>exists(env)</function>.
 The
-<function>generate()</function>
+<function>generate</function>
 function
-modifies the passed-in environment
+modifies the environment referenced by <parameter>env</parameter>
 to set up variables so that the tool
 can be executed;
 it may use any keyword arguments
-that the user supplies (see below)
+that the user supplies in <parameter>kw</parameter> (see below)
 to vary its initialization.
 The
-<function>exists()</function>
+<function>exists</function>
 function should return a true
 value if the tool is available.
+</para>
+
+<para>
 Tools in the toolpath are used before
-any of the built-in ones.  For example, adding gcc.py to the toolpath
+any of the built-in ones.  For example, adding
+<filename>gcc.py</filename> to the toolpath
 would override the built-in gcc tool.
 Also note that the toolpath is
 stored in the environment for use
@@ -2149,7 +2179,8 @@ by later calls to
 <emphasis role="bold">Clone</emphasis>()
 and
 <emphasis role="bold">Tool</emphasis>()
-methods:</para>
+methods:
+</para>
 
 <literallayout class="monospaced">
 base = Environment(toolpath=['custom_path'])
@@ -2192,8 +2223,9 @@ or otherwise changing its initialization.</para>
 def generate(env, **kw):
   # Sets MY_TOOL to the value of keyword argument 'arg1' or 1.
   env['MY_TOOL'] = kw.get('arg1', '1')
+
 def exists(env):
-  return 1
+  return True
 
 # in SConstruct:
 env = Environment(tools = ['default', ('my_tool', {'arg1': 'abc'})],
@@ -2256,17 +2288,6 @@ env.SomeTool(targets, sources)
 
 <!-- '\" END GENERATED TOOL DESCRIPTIONS -->
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
-
-<para>Additionally, there is a "tool" named
-<emphasis role="bold">default</emphasis>
-which configures the
-environment with a default set of tools for the current platform.</para>
-
-<para>On posix and cygwin platforms
-the GNU tools (e.g. gcc) are preferred by SCons,
-on Windows the Microsoft tools (e.g. msvc)
-followed by MinGW are preferred by SCons,
-and in OS/2 the IBM tools (e.g. icc) are preferred by SCons.</para>
 
 </refsect2>
 

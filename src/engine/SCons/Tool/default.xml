@@ -26,10 +26,89 @@ See its __doc__ string for a discussion of the format.
 <tool name="default">
 <summary>
 <para>
-Sets variables by calling a default list of Tool modules
-for the platform on which SCons is running.
+Sets constuction variables for a default list of Tool modules.
+Include <emphasis role="bold">default</emphasis>
+in the tools list to retain
+the tools that would have been available if no
+<parameter>tools</parameter> parameter were supplied
+to an <emphasis role="bold">Environment</emphasis>
+or <emphasis role="bold">Clone</emphasis> call.
 </para>
+
+<para>
+The list of available tools from default is dependent both on
+the platform and what software is installed on the platform.
+Some tools will not initialize if an underlying command is
+not found, and some tools are selected from a list of choices
+on a first-found basis. The finished tool list can be
+examined by inspecting the <envar>TOOLS</envar> &consvar;
+variable in the &consenv;.
+</para>
+
+<para>
+On all platforms, all tools from the following list
+are selected whose respective conditions are met:
+filesystem, wix, lex, yacc, rpcgen, swig,
+jar, javac, javah, rmic, dvipdf, dvips, gs,
+tex, latex, pdflatex, pdftex, tar, zip, textfile.
+</para>
+
+<para>
+On Linux systems, the default tools list selects
+(first-found) a C compiler from
+gcc, intelc, icc, cc;
+a C++ compiler from
+g++, intelc, icc, cxx;
+an assembler from
+gas, nasm, masm;
+a linker from
+gnulink, ilink;
+a Fortran compiler from
+gfortran, g77, ifort, ifl, f95, f90, f77;
+and a static archiver 'ar'.
+It also selects all found from the list
+m4, rpm.
+</para>
+
+<para>
+On Windows systems, the default tools list selects
+(first-found) a C compiler from
+msvc, mingw, gcc, intelc, icl, icc, cc, bcc32;
+a C++ compiler from
+msvc, intelc, icc, g++, cxx, bcc32;
+an assembler from
+masm, nasm, gas, 386asm;
+a linker from
+mslink, gnulink, ilink, linkloc, ilink32;
+a Fortran compiler from
+gfortran, g77, ifl, cvf, f95, f90, fortran;
+and a static archiver from
+mslib, ar, tlib;
+It also selects all found from the list
+msvs, midl.
+</para>
+
+<para>
+On MacOS systems, the default tools list selects
+(first-found) a C compiler from
+gcc, cc;
+a C++ compiler from
+g++, cxx;
+an assembler 'as';
+a linker from
+applelink, gnulink;
+a Fortran compiler from
+gfortran, f95, f90, g77;
+and a static archiver 'ar'.
+It also selects all found from the list
+m4, rpm.
+</para>
+
+<para>
+Default lists for other platforms can be found by
+examining the source code for &scons;.
+</para>
+
 </summary>
 </tool>
-
 </sconsdoc>

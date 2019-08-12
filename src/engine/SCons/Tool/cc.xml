@@ -26,7 +26,7 @@ See its __doc__ string for a discussion of the format.
 <tool name="cc">
 <summary>
 <para>
-Sets construction variables for generic POSIX C copmilers.
+Sets construction variables for generic POSIX C compilers.
 </para>
 </summary>
 <sets>

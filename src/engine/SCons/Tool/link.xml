@@ -26,7 +26,9 @@ See its __doc__ string for a discussion of the format.
 <tool name="link">
 <summary>
 <para>
-Sets construction variables for generic POSIX linkers.
+Sets construction variables for generic POSIX linkers. This is
+a "smart" linker tool which selects a compiler to complete the linking
+based on the type of source file.
 </para>
 </summary>
 <sets>
