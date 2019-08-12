@@ -1854,7 +1854,7 @@ class Base(SubstitutionEnvironment):
         uniq = {}
         for executor in [n.get_executor() for n in nodes]:
             uniq[executor] = 1
-        for executor in list(uniq.keys()):
+        for executor in uniq.keys():
             executor.add_pre_action(action)
         return nodes
 
@@ -1864,7 +1864,7 @@ class Base(SubstitutionEnvironment):
         uniq = {}
         for executor in [n.get_executor() for n in nodes]:
             uniq[executor] = 1
-        for executor in list(uniq.keys()):
+        for executor in uniq.keys():
             executor.add_post_action(action)
         return nodes
 

@@ -771,8 +771,8 @@ class msvsTestCase(unittest.TestCase):
         
             # Check expected result
             self.assertListEqual(list(genDSP.configs.keys()), list(expected_configs.keys()))
-            for key in list(genDSP.configs.keys()):
-                self.assertDictEqual(genDSP.configs[key].__dict__, expected_configs[key])
+            for key, v in genDSP.configs.items():
+                self.assertDictEqual(v.__dict__, expected_configs[key])
 
             genDSP.Build()
 

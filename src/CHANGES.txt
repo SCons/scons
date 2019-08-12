@@ -35,6 +35,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - a bunch of linter/checker syntax fixups
     - Convert remaining uses of insecure/deprecated mktemp method.
     - Clean up some duplications in manpage.  Clarify portion of manpage on Dir and File nodes.
+    - Reduce needless list conversions.
 
   From Jeremy Elson:
     - Updated design doc to use the correct syntax for Depends()
