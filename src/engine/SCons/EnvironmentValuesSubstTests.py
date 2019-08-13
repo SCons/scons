@@ -72,7 +72,6 @@ class DummyEnv(object):
     def __init__(self, dict={}):
         self.envVal = EnvironmentValues(**dict)
 
-
     def Dictionary(self, key = None):
         if not key:
             return self.envVal.values
@@ -80,6 +79,9 @@ class DummyEnv(object):
 
     def __getitem__(self, key):
         return self.envVal.values[key]
+
+    def __getattr__(self, item):
+        return getattr(self.envVal, item)
 
     def get(self, key, default):
         return self.envVal.values.get(key, default)
@@ -708,7 +710,8 @@ class TestCLVar(unittest.TestCase):
         assert cmd_list[0][3] == "call", cmd_list[0][3]
         assert cmd_list[0][4] == "test", cmd_list[0][4]
 
-class EnvVarsSubtListTestCase(SubstTestCase):
+
+class EnvVarsSubstListTestCase(SubstTestCase):
 
     basic_cases = [
         "$TARGETS",
@@ -1010,15 +1013,21 @@ class EnvVarsSubtListTestCase(SubstTestCase):
     def test_subst_SUBST_modes(self):
         """Test EnvironmentValues.subst_list():  SUBST_* modes"""
         env = DummyEnv(self.loc)
+        # env = EnvironmentValues()
+
         subst_list_cases = self.subst_list_cases[:]
         gvars = env.Dictionary()
 
-        r = EnvironmentValues.subst_list("$TARGET $SOURCES", env, mode=SUBST_RAW, gvars=gvars)
-        assert r == [[]], r
+        r = EnvironmentValues.subst_list('$AAA ${AAA}A $BBBB $BBB', env, mode=SUBST_RAW, gvars=gvars)
+        assert r == [["a", "aA", "b"]], 'This should be  [["a", "aA", "b"]], :%s'%r
+
+        # r = EnvironmentValues.subst_list("$TARGET $SOURCES", env, mode=SUBST_RAW, gvars=gvars)
+        # assert r == [[]], "This should be empty list:%s"%r
 
         failed = 0
         while subst_list_cases:
             input, eraw, ecmd, esig = subst_list_cases[:4]
+            print("WORKING ON input:%s, eraw:%s, ecmd:%s, esig:%s"%(input, eraw, ecmd, esig))
             result = EnvironmentValues.subst_list(input, env, mode=SUBST_RAW, gvars=gvars)
             if result != eraw:
                 if failed == 0: print()
