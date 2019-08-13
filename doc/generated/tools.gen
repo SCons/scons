@@ -139,7 +139,7 @@ Set construction variables for cygwin linker/loader.
     <term>default</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets constuction variables for a default list of Tool modules.
+Sets <literal xmlns="http://www.scons.org/dbxsd/v1.0">construction variables</literal> for a default list of Tool modules.
 Include <emphasis role="bold">default</emphasis>
 in the tools list to retain
 the tools that would have been available if no

@@ -26,7 +26,7 @@ See its __doc__ string for a discussion of the format.
 <tool name="default">
 <summary>
 <para>
-Sets constuction variables for a default list of Tool modules.
+Sets &consvars; for a default list of Tool modules.
 Include <emphasis role="bold">default</emphasis>
 in the tools list to retain
 the tools that would have been available if no
