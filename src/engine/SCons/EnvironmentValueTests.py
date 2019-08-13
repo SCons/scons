@@ -119,7 +119,8 @@ class TestEnvironmentValue(unittest.TestCase):
         self.assertEqual(one.var_type, ValueTypes.CALLABLE)
 
         # Test that callable is retrievable and callable and value is proper.
-        self.assertEqual(one.value(None, None, None, None), "bar")
+        val = one.value(None, None, None, None)
+        self.assertEqual(val, "bar")
 
     def test_dict_value(self):
         one = EnvironmentValue({})
