@@ -115,6 +115,7 @@ class TestEnvironmentValues(unittest.TestCase):
         s1 = MyNode('s1')
         s2 = MyNode('s2')
 
+        # CmdGen1 (a normal function) returns a string to call CmdGen2. CmdGen2 is a callable class.
         env = EnvironmentValues(FOO=foo, BAR="$FOO baz", CMDGEN1=CmdGen1, CMDGEN2=CmdGen2)
 
         foo = env.subst('$FOO', env,
@@ -137,6 +138,30 @@ class TestEnvironmentValues(unittest.TestCase):
                         target=_t,
                         source=_s)
         self.assertEqual(xar, 'foo bar baz')
+
+    def test_callable_class(self):
+        """ Test subst()'ing a callable class"""
+
+        class CallableClass(object):
+            def __init__(self, mystr):
+                self.mystr = mystr
+
+            def __call__(self, target, source, env, for_signature):
+                assert str(target) == 't1', target
+                assert str(source) == 's1', source
+                return [self.mystr, '-Ran']
+
+        t1 = MyNode('t1')
+        s1 = MyNode('s1')
+
+        # CmdGen1 (a normal function) returns a string to call CmdGen2. CmdGen2 is a callable class.
+        env = EnvironmentValues(FOO="${CallMe(\'blah\')}", CallMe=CallableClass)
+
+        foo = env.subst('$FOO', env,
+                        target=t1,
+                        source=s1)
+
+        self.assertEqual(foo, 'blah -Ran')
 
     def test_setitem(self):
         env = EnvironmentValues(X='One', XX='Two', XXX='$X $($XX$)')
