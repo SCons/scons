@@ -5,6 +5,7 @@ from SCons.Util import is_String, is_Sequence, CLVar
 from SCons.Subst import CmdStringHolder, create_subst_target_source_dict, raise_exception
 from SCons.EnvironmentValue import EnvironmentValue, ValueTypes, separate_args, SubstModes
 import SCons.Environment
+# import pysnooper
 
 # AllowableExceptions = (IndexError, NameError)
 
@@ -223,6 +224,7 @@ class EnvironmentValues(object):
         debug("After resolving unknown types:")
         EnvironmentValue.debug_print_parsed_parts(parsed_values)
 
+    # @pysnooper.snoop()
     def evaluate_parsed_values(self, parsed_values, string_values, source, target, gvars, lvars, mode, conv=None):
         """
         Walk the list of parsed values and evaluate each in turn.  Possible return values for each are:
@@ -512,14 +514,15 @@ class EnvironmentValues(object):
         :param lvars: Specify local variables to evaluation the variable with. Usually this is provided by executor.
         :return: expanded string
         """
-
-        for_signature = mode == SubstModes.FOR_SIGNATURE
-
         # subst called with plain string, just return it.
         if '$' not in substString:
-            return substString
+            if mode != SubstModes.SUBST_LIST:
+                return substString
+            else:
+                return [(substString, ValueTypes.STRING)]
 
-        # TODO: Case to shortcut.  substString = "$VAR" and env['VAR'] = simple string. This happens enough to make it worth optimizing
+        # TODO: Case to shortcut.  substString = "$VAR" and env['VAR'] = simple string.
+        #  This happens enough to make it worth optimizing
         # if ' ' not in substString and substString[0]=='$' and
 
         # TODO:Figure out how to handle this properly.  May involve seeing if source & targets is specified. Or checking
@@ -529,7 +532,7 @@ class EnvironmentValues(object):
         ignore_undefined = False
 
         use_cache_item = 0
-        if for_signature:
+        if mode == SubstModes.FOR_SIGNATURE:
             use_cache_item = 1
 
         if not gvars:
@@ -580,7 +583,9 @@ class EnvironmentValues(object):
                                                                         gvars, lvars, mode, conv)
 
         # Now handle subst mode during string expansion.
-        if for_signature:
+        if mode == SubstModes.SUBST_LIST:
+            return string_values
+        elif mode == SubstModes.FOR_SIGNATURE:
             string_values = remove_escaped_items_from_list(string_values)
         elif mode == SubstModes.NORMAL:
             string_values = [(s, t) for (s, t) in string_values if s not in ('$(', '$)')]
@@ -653,8 +658,6 @@ class EnvironmentValues(object):
                   second dimension is "words" in the command line)
 
         """
-        for_signature = mode == SubstModes.FOR_SIGNATURE
-
         # TODO: Fill in gvars, lvars as env.Subst() does..
         if 'TARGET' not in lvars:
             d = create_subst_target_source_dict(target, source)
@@ -684,6 +687,8 @@ class EnvironmentValues(object):
 
         for element in listSubstVal:
             # TODO: Implement splitting into multiple commands if there's a NEWLINE in any element.
+            # TODO: Properly handle escaping $( $) which can cross recursive evaluation.
+            #  Currently causing infinite recursion
 
             # for a in args:
             #     if a[0] in ' \t\n\r\f\v':
@@ -700,24 +705,30 @@ class EnvironmentValues(object):
                 retval.append([])
 
             e_value = EnvironmentValue(element)
-            this_value = EnvironmentValues.subst(element, env, mode=mode,
+            this_value = EnvironmentValues.subst(element, env, mode=SubstModes.SUBST_LIST,
                                                  target=target, source=source,
                                                  gvars=gvars, lvars=lvars, conv=conv)
 
+
+            # TODO: Now we're getting back a list of string values, we need to re-build the string/lines and do the
+            #  right thing with string escaping
+
+            retval[retval_index].extend([s for (s, t) in this_value if s != ''])
             # Now we need to determine if we need to recurse/evaluate this_value
-            if '$' not in this_value:
-                # no more evaluation needed
-                args = [a for a in separate_args.findall(this_value) if not a.isspace()]
+            if False:
+                if '$' not in this_value:
+                    # no more evaluation needed
+                    args = [a for a in separate_args.findall(this_value) if not a.isspace()]
 
-                retval[retval_index].extend(args)
-            else:
-                # Need to handle multiple levels of recursion, also it's possible
-                # that escaping could span several levels of recursion so $( at top , and $)
-                # several levels lower. (This would be unwise.. do we need to enable this)
-                this_value_2 = EnvironmentValues.subst_list(this_value, env, mode, target, source, gvars, lvars, conv)
+                    retval[retval_index].extend(args)
+                else:
+                    # Need to handle multiple levels of recursion, also it's possible
+                    # that escaping could span several levels of recursion so $( at top , and $)
+                    # several levels lower. (This would be unwise.. do we need to enable this)
+                    this_value_2 = EnvironmentValues.subst_list(this_value, env, mode, target, source, gvars, lvars, conv)
 
-                debug("need to recurse")
-                raise Exception("need to recurse in subst_list: [%s]->{%s}" % (this_value, this_value_2))
+                    debug("need to recurse")
+                    raise Exception("need to recurse in subst_list: [%s]->{%s}" % (this_value, this_value_2))
 
         debug("subst_list:%s", retval[retval_index])
 

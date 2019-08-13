@@ -60,6 +60,7 @@ class SubstModes(object):
     NORMAL = 0
     RAW = 1
     FOR_SIGNATURE = 2
+    SUBST_LIST = 3
 
 
 class ValueTypes(object):
@@ -330,7 +331,8 @@ class EnvironmentValue(object):
                 elif '.' in value or '[' in value:
                     all_dependencies.append((ValueTypes.EVALUABLE, value, index))
                 else:
-                    all_dependencies.append((ValueTypes.CALLABLE,v[2:-1], index))
+                    # We will get here if we have ${AAA} and AAA equates to a non-callable (string)
+                    all_dependencies.append((ValueTypes.VARIABLE_OR_CALLABLE, v[2:-1], index))
             elif '.' in v:
                 all_dependencies.append((ValueTypes.EVALUABLE, v[1:], index))
             else:
