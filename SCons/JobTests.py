@@ -410,13 +410,13 @@ class DummyNodeInfo:
 
 class testnode (SCons.Node.Node):
     def __init__(self):
-        SCons.Node.Node.__init__(self)
+        super().__init__()
         self.expect_to_be = SCons.Node.executed
         self.ninfo = DummyNodeInfo()
 
 class goodnode (testnode):
     def __init__(self):
-        SCons.Node.Node.__init__(self)
+        super().__init__()
         self.expect_to_be = SCons.Node.up_to_date
         self.ninfo = DummyNodeInfo()
 
@@ -430,7 +430,7 @@ class slowgoodnode (goodnode):
 
 class badnode (goodnode):
     def __init__(self):
-        goodnode.__init__(self)
+        super().__init__()
         self.expect_to_be = SCons.Node.failed
     def build(self, **kw):
         raise Exception('badnode exception')

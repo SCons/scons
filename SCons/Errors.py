@@ -99,8 +99,8 @@ class BuildError(Exception):
         self.action = action
         self.command = command
 
-        Exception.__init__(self, node, errstr, status, exitstatus, filename,
-                           executor, action, command, exc_info)
+        super().__init__(node, errstr, status, exitstatus, filename,
+                         executor, action, command, exc_info)
 
     def __str__(self):
         if self.filename:
@@ -128,7 +128,7 @@ class ExplicitExit(Exception):
         self.node = node
         self.status = status
         self.exitstatus = status
-        Exception.__init__(self, *args)
+        super().__init__(*args)
 
 def convert_to_BuildError(status, exc_info=None):
     """Convert a return code to a BuildError Exception.

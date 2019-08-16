@@ -499,7 +499,7 @@ class Function(Item):
 
 class Tool(Item):
     def __init__(self, name):
-        Item.__init__(self, name)
+        super().__init__(name)
         self.entity = self.name.replace('+', 'X')
 
 

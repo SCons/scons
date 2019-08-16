@@ -142,7 +142,7 @@ SCons.Warnings.enableWarningClass(SConfWarning)
 # some error definitions
 class SConfError(SCons.Errors.UserError):
     def __init__(self,msg):
-        SCons.Errors.UserError.__init__(self,msg)
+        super().__init__(msg)
 
 class ConfigureDryRunError(SConfError):
     """Raised when a file or directory needs to be updated during a Configure
@@ -152,13 +152,13 @@ class ConfigureDryRunError(SConfError):
             msg = 'Cannot create configure directory "%s" within a dry-run.' % str(target)
         else:
             msg = 'Cannot update configure test "%s" within a dry-run.' % str(target)
-        SConfError.__init__(self,msg)
+        super().__init__(msg)
 
 class ConfigureCacheError(SConfError):
     """Raised when a use explicitely requested the cache feature, but the test
     is run the first time."""
     def __init__(self,target):
-        SConfError.__init__(self, '"%s" is not yet built and cache is forced.' % str(target))
+        super().__init__('"%s" is not yet built and cache is forced.' % str(target))
 
 
 # define actions for building text files

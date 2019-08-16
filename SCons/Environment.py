@@ -275,12 +275,12 @@ class BuilderDict(UserDict):
     the Builders.  We need to do this because every time someone changes
     the Builders in the Environment's BUILDERS dictionary, we must
     update the Environment's attributes."""
-    def __init__(self, dict, env):
+    def __init__(self, mapping, env):
         # Set self.env before calling the superclass initialization,
         # because it will end up calling our other methods, which will
         # need to point the values in this dictionary to self.env.
         self.env = env
-        UserDict.__init__(self, dict)
+        super().__init__(mapping)
 
     def __semi_deepcopy__(self):
         # These cannot be copied since they would both modify the same builder object, and indeed
@@ -294,15 +294,15 @@ class BuilderDict(UserDict):
             pass
         else:
             self.env.RemoveMethod(method)
-        UserDict.__setitem__(self, item, val)
+        super().__setitem__(item, val)
         BuilderWrapper(self.env, val, item)
 
     def __delitem__(self, item):
-        UserDict.__delitem__(self, item)
+        super().__delitem__(item)
         delattr(self.env, item)
 
-    def update(self, dict):
-        for i, v in dict.items():
+    def update(self, mapping):
+        for i, v in mapping.items():
             self.__setitem__(i, v)
 
 
@@ -637,7 +637,7 @@ class SubstitutionEnvironment:
         it is assumed to be a command and the rest of the string is executed;
         the result of that evaluation is then added to the dict.
         """
-        dict = {
+        mapping = {
             'ASFLAGS'       : CLVar(''),
             'CFLAGS'        : CLVar(''),
             'CCFLAGS'       : CLVar(''),
@@ -667,12 +667,12 @@ class SubstitutionEnvironment:
                 arg = self.backtick(arg[1:])
 
             # utility function to deal with -D option
-            def append_define(name, dict = dict):
+            def append_define(name, mapping=mapping):
                 t = name.split('=')
                 if len(t) == 1:
-                    dict['CPPDEFINES'].append(name)
+                    mapping['CPPDEFINES'].append(name)
                 else:
-                    dict['CPPDEFINES'].append([t[0], '='.join(t[1:])])
+                    mapping['CPPDEFINES'].append([t[0], '='.join(t[1:])])
 
             # Loop through the flags and add them to the appropriate option.
             # This tries to strike a balance between checking for all possible
@@ -702,67 +702,67 @@ class SubstitutionEnvironment:
                         append_define(arg)
                     elif append_next_arg_to == '-include':
                         t = ('-include', self.fs.File(arg))
-                        dict['CCFLAGS'].append(t)
+                        mapping['CCFLAGS'].append(t)
                     elif append_next_arg_to == '-imacros':
                         t = ('-imacros', self.fs.File(arg))
-                        dict['CCFLAGS'].append(t)
+                        mapping['CCFLAGS'].append(t)
                     elif append_next_arg_to == '-isysroot':
                         t = ('-isysroot', arg)
-                        dict['CCFLAGS'].append(t)
-                        dict['LINKFLAGS'].append(t)
+                        mapping['CCFLAGS'].append(t)
+                        mapping['LINKFLAGS'].append(t)
                     elif append_next_arg_to == '-isystem':
                         t = ('-isystem', arg)
-                        dict['CCFLAGS'].append(t)
+                        mapping['CCFLAGS'].append(t)
                     elif append_next_arg_to == '-iquote':
                         t = ('-iquote', arg)
-                        dict['CCFLAGS'].append(t)
+                        mapping['CCFLAGS'].append(t)
                     elif append_next_arg_to == '-idirafter':
                         t = ('-idirafter', arg)
-                        dict['CCFLAGS'].append(t)
+                        mapping['CCFLAGS'].append(t)
                     elif append_next_arg_to == '-arch':
                         t = ('-arch', arg)
-                        dict['CCFLAGS'].append(t)
-                        dict['LINKFLAGS'].append(t)
+                        mapping['CCFLAGS'].append(t)
+                        mapping['LINKFLAGS'].append(t)
                     elif append_next_arg_to == '--param':
                         t = ('--param', arg)
-                        dict['CCFLAGS'].append(t)
+                        mapping['CCFLAGS'].append(t)
                     else:
-                        dict[append_next_arg_to].append(arg)
+                        mapping[append_next_arg_to].append(arg)
                     append_next_arg_to = None
                 elif not arg[0] in ['-', '+']:
-                    dict['LIBS'].append(self.fs.File(arg))
+                    mapping['LIBS'].append(self.fs.File(arg))
                 elif arg == '-dylib_file':
-                    dict['LINKFLAGS'].append(arg)
+                    mapping['LINKFLAGS'].append(arg)
                     append_next_arg_to = 'LINKFLAGS'
                 elif arg[:2] == '-L':
                     if arg[2:]:
-                        dict['LIBPATH'].append(arg[2:])
+                        mapping['LIBPATH'].append(arg[2:])
                     else:
                         append_next_arg_to = 'LIBPATH'
                 elif arg[:2] == '-l':
                     if arg[2:]:
-                        dict['LIBS'].append(arg[2:])
+                        mapping['LIBS'].append(arg[2:])
                     else:
                         append_next_arg_to = 'LIBS'
                 elif arg[:2] == '-I':
                     if arg[2:]:
-                        dict['CPPPATH'].append(arg[2:])
+                        mapping['CPPPATH'].append(arg[2:])
                     else:
                         append_next_arg_to = 'CPPPATH'
                 elif arg[:4] == '-Wa,':
-                    dict['ASFLAGS'].append(arg[4:])
-                    dict['CCFLAGS'].append(arg)
+                    mapping['ASFLAGS'].append(arg[4:])
+                    mapping['CCFLAGS'].append(arg)
                 elif arg[:4] == '-Wl,':
                     if arg[:11] == '-Wl,-rpath=':
-                        dict['RPATH'].append(arg[11:])
+                        mapping['RPATH'].append(arg[11:])
                     elif arg[:7] == '-Wl,-R,':
-                        dict['RPATH'].append(arg[7:])
+                        mapping['RPATH'].append(arg[7:])
                     elif arg[:6] == '-Wl,-R':
-                        dict['RPATH'].append(arg[6:])
+                        mapping['RPATH'].append(arg[6:])
                     else:
-                        dict['LINKFLAGS'].append(arg)
+                        mapping['LINKFLAGS'].append(arg)
                 elif arg[:4] == '-Wp,':
-                    dict['CPPFLAGS'].append(arg)
+                    mapping['CPPFLAGS'].append(arg)
                 elif arg[:2] == '-D':
                     if arg[2:]:
                         append_define(arg[2:])
@@ -771,32 +771,32 @@ class SubstitutionEnvironment:
                 elif arg == '-framework':
                     append_next_arg_to = 'FRAMEWORKS'
                 elif arg[:14] == '-frameworkdir=':
-                    dict['FRAMEWORKPATH'].append(arg[14:])
+                    mapping['FRAMEWORKPATH'].append(arg[14:])
                 elif arg[:2] == '-F':
                     if arg[2:]:
-                        dict['FRAMEWORKPATH'].append(arg[2:])
+                        mapping['FRAMEWORKPATH'].append(arg[2:])
                     else:
                         append_next_arg_to = 'FRAMEWORKPATH'
-                elif arg in [
+                elif arg in (
                     '-mno-cygwin',
                     '-pthread',
                     '-openmp',
                     '-fmerge-all-constants',
                     '-fopenmp',
-                ]:
-                    dict['CCFLAGS'].append(arg)
-                    dict['LINKFLAGS'].append(arg)
+                ):
+                    mapping['CCFLAGS'].append(arg)
+                    mapping['LINKFLAGS'].append(arg)
                 elif arg == '-mwindows':
-                    dict['LINKFLAGS'].append(arg)
+                    mapping['LINKFLAGS'].append(arg)
                 elif arg[:5] == '-std=':
                     if '++' in arg[5:]:
-                        key='CXXFLAGS'
+                        key = 'CXXFLAGS'
                     else:
-                        key='CFLAGS'
-                    dict[key].append(arg)
+                        key = 'CFLAGS'
+                    mapping[key].append(arg)
                 elif arg[0] == '+':
-                    dict['CCFLAGS'].append(arg)
-                    dict['LINKFLAGS'].append(arg)
+                    mapping['CCFLAGS'].append(arg)
+                    mapping['LINKFLAGS'].append(arg)
                 elif arg in [
                     '-include',
                     '-imacros',
@@ -809,11 +809,11 @@ class SubstitutionEnvironment:
                 ]:
                     append_next_arg_to = arg
                 else:
-                    dict['CCFLAGS'].append(arg)
+                    mapping['CCFLAGS'].append(arg)
 
         for arg in flags:
             do_parse(arg)
-        return dict
+        return mapping
 
     def MergeFlags(self, args, unique=True):
         """Merge flags into construction variables.
@@ -2375,7 +2375,7 @@ class OverrideEnvironment(Base):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Environment.OverrideEnvironment')
         self.__dict__['__subject'] = subject
         if overrides is None:
-            self.__dict__['overrides'] = dict()
+            self.__dict__['overrides'] = {}
         else:
             self.__dict__['overrides'] = overrides
 
@@ -2472,6 +2472,11 @@ class OverrideEnvironment(Base):
         self.__dict__['overrides'].update(other)
 
     def _update_onlynew(self, other):
+        """Update a dict with new keys.
+
+        Unlike the .update method, if the key is already present,
+        it is not replaced.
+        """
         for k, v in other.items():
             if k not in self.__dict__['overrides']:
                 self.__dict__['overrides'][k] = v
@@ -2526,14 +2531,14 @@ def NoSubstitutionProxy(subject):
                 del kwdict['executor']
             else:
                 kwdict['lvars'] = {}
-        def raw_to_mode(self, dict):
+        def raw_to_mode(self, mapping):
             try:
-                raw = dict['raw']
+                raw = mapping['raw']
             except KeyError:
                 pass
             else:
-                del dict['raw']
-                dict['mode'] = raw
+                del mapping['raw']
+                mapping['mode'] = raw
         def subst(self, string, *args, **kwargs):
             return string
         def subst_kw(self, kw, *args, **kwargs):

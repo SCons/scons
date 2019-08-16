@@ -43,29 +43,29 @@ class TAPTestResult(TextTestResult):
         self.stream.flush()
 
     def addSuccess(self, test):
-        super(TextTestResult, self).addSuccess(test)
+        super().addSuccess(test)
         self._process(test, "ok")
 
     def addFailure(self, test, err):
-        super(TextTestResult, self).addFailure(test, err)
+        super().addFailure(test, err)
         self._process(test, "not ok", "FAIL")
         # [ ] add structured data about assertion
 
     def addError(self, test, err):
-        super(TextTestResult, self).addError(test, err)
+        super().addError(test, err)
         self._process(test, "not ok", "ERROR")
         # [ ] add structured data about exception
 
     def addSkip(self, test, reason):
-        super(TextTestResult, self).addSkip(test, reason)
+        super().addSkip(test, reason)
         self._process(test, "ok", directive=("  # SKIP  %s" % reason))
 
     def addExpectedFailure(self, test, err):
-        super(TextTestResult, self).addExpectedFailure(test, err)
+        super().addExpectedFailure(test, err)
         self._process(test, "not ok", directive="  # TODO")
 
     def addUnexpectedSuccess(self, test):
-        super(TextTestResult, self).addUnexpectedSuccess(test)
+        super().addUnexpectedSuccess(test)
         self._process(test, "not ok", "FAIL (unexpected success)")
 
     """
@@ -90,7 +90,7 @@ class TAPTestRunner(TextTestRunner):
         for case in test:
             case.suite = test
 
-        return super(TAPTestRunner, self).run(test)
+        return super().run(test)
 
 
 if __name__ == "__main__":
