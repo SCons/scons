@@ -698,29 +698,35 @@ def _create_path(plist):
     return path
 
 def _load_site_scons_dir(topdir, site_dir_name=None):
-    """Load the site_scons dir under topdir.
-    Prepends site_scons to sys.path, imports site_scons/site_init.py,
-    and prepends site_scons/site_tools to default toolpath."""
+    """Load the site directory under topdir.
+
+    If a site dir name is supplied use it, else use default "site_scons"
+    Prepend site dir to sys.path.
+    If a "site_tools" subdir exists, prepend to toolpath.
+    Import "site_init.py" from site dir if it exists.
+    """
     if site_dir_name:
         err_if_not_found = True       # user specified: err if missing
     else:
         site_dir_name = "site_scons"
-        err_if_not_found = False
-
+        err_if_not_found = False      # scons default: okay to be missing
     site_dir = os.path.join(topdir, site_dir_name)
+
     if not os.path.exists(site_dir):
         if err_if_not_found:
             raise SCons.Errors.UserError("site dir %s not found." % site_dir)
         return
+    sys.path.insert(0, os.path.abspath(site_dir))
 
     site_init_filename = "site_init.py"
     site_init_modname = "site_init"
     site_tools_dirname = "site_tools"
-    sys.path.insert(0, os.path.abspath(site_dir))
     site_init_file = os.path.join(site_dir, site_init_filename)
     site_tools_dir = os.path.join(site_dir, site_tools_dirname)
+
     if os.path.exists(site_tools_dir):
         SCons.Tool.DefaultToolpath.insert(0, os.path.abspath(site_tools_dir))
+
     if not os.path.exists(site_init_file):
         return
 
@@ -730,42 +736,41 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
         import imp
     import re
 
+    # "import" the site_init.py file into the SCons.Script namespace.
+    # This is a variant on the basic Python import flow in that the globals
+    # dict for the compile step is prepopulated from the SCons.Script
+    # module object; on success the SCons.Script globals are refilled
+    # from the site_init globals so it all appears in SCons.Script
+    # instead of as a separate module.
     try:
         try:
             m = sys.modules['SCons.Script']
-        except Exception as e:
-            fmt = 'cannot import site_init.py: missing SCons.Script module %s'
-            raise SCons.Errors.InternalError(fmt % repr(e))
+        except KeyError:
+            fmt = 'cannot import {}: missing SCons.Script module'
+            raise SCons.Errors.InternalError(fmt.format(site_init_file))
 
-        # Load the site_init file into the SCons.Script namespace.
-        # This is a variant on the basic Python import flow except
-        # the globals dict is prepopulated from the SCons.Script
-        # module object; on success Script's globals are refilled
-        # from the site_init globals so it all appears in SCons.Script.
         if PY3:
-            # find_spec cannot restrict search location, so do manually
-            # we don't want a "hit" from a mod elsewhere in sys.path
-            save_syspath = sys.path
-            sys.path = [sys.path[0]]
-            spec = importlib.util.find_spec(site_init_modname)
+            spec = importlib.util.spec_from_file_location(site_init_modname,
+                                                          site_init_file)
             fp = open(spec.origin, 'r')
-            sys.path = save_syspath
+            site_m = {"__file__": spec.origin,
+                      "__name__": spec.name,
+                      "__doc__": None}
         else:
-            fp, pathname, description = imp.find_module(site_init_modname, [site_dir])
+            fp, pathname, description = imp.find_module(site_init_modname,
+                                                        [site_dir])
+            sfx = description[0]
+            modname = os.path.basename(pathname)[:-len(sfx)]
+            site_m = {"__file__": pathname,
+                      "__name__": modname,
+                      "__doc__": None}
 
         re_dunder = re.compile(r"__[^_]+__")
-        try:
-            if PY3:
-                site_m = {"__file__": spec.origin, "__name__": spec.name, "__doc__": None}
-            else:
-                sfx = description[0]
-                modname = os.path.basename(pathname)[:-len(sfx)]
-                site_m = {"__file__": pathname, "__name__": modname, "__doc__": None}
-            for k, v in m.__dict__.items():
-                if not re_dunder.match(k):
-                    site_m[k] = v
+        for k, v in m.__dict__.items():
+            if not re_dunder.match(k):
+                site_m[k] = v
 
-            # This is the magic.
+        try:
             codeobj = compile(fp.read(), fp.name, 'exec')
             exec(codeobj, site_m)
         except KeyboardInterrupt:
@@ -775,19 +780,21 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
             sys.stderr.write(fmt % repr(site_init_file))
             raise
         else:
-            for k in site_m:
+            for k, v in site_m.items():
                 if not re_dunder.match(k):
-                    m.__dict__[k] = site_m[k]
+                    m.__dict__[k] = v
 
     except KeyboardInterrupt:
         raise
-    except ImportError as e:
+    except Exception as e:
         fmt = '*** cannot import site init file %s:\n'
         sys.stderr.write(fmt % repr(site_init_file))
         raise
     finally:
-        if fp:
+        try:
             fp.close()
+        except Exception:
+            pass
 
 def _load_all_site_scons_dirs(topdir, verbose=None):
     """Load all of the predefined site_scons dir.
