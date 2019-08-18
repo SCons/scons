@@ -106,7 +106,9 @@ m4, rpm.
 
 <para>
 Default lists for other platforms can be found by
-examining the source code for &scons;.
+examining the &scons;
+source code (see
+<filename>SCons/Tool/__init__.py</filename>).
 </para>
 
 </summary>

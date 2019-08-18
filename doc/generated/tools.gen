@@ -219,7 +219,9 @@ m4, rpm.
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 Default lists for other platforms can be found by
-examining the source code for <filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>.
+examining the <filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>
+source code (see
+<filename>SCons/Tool/__init__.py</filename>).
 </para>
 
 </listitem>
