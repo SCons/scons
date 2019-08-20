@@ -6,9 +6,11 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From John Doe:
+  From Mathew Robinson:
 
-    - Whatever John Doe did.
+    - Improved threading performance by ensuring NodeInfo is shared
+      across threads. Results in ~13% improvement for parallel builds
+      (-j# > 1) with many shared nodes.
 
 
 RELEASE 3.1.1 - Mon, 07 Aug 2019 20:09:12 -0500
