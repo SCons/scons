@@ -1018,8 +1018,9 @@ class EnvVarsSubstListTestCase(SubstTestCase):
         subst_list_cases = self.subst_list_cases[:]
         gvars = env.Dictionary()
 
-        r = EnvironmentValues.subst_list('$AAA ${AAA}A $BBBB $BBB', env, mode=SUBST_RAW, gvars=gvars)
-        assert r == [["a", "aA", "b"]], 'This should be  [["a", "aA", "b"]], :%s'%r
+        r = EnvironmentValues.subst_list('$RECURSE', env, mode=SUBST_RAW, gvars=gvars)
+        answer = [['foo', 'bar']]
+        assert r == answer, 'This should be  %s, :%s'%(answer,r)
 
         # r = EnvironmentValues.subst_list("$TARGET $SOURCES", env, mode=SUBST_RAW, gvars=gvars)
         # assert r == [[]], "This should be empty list:%s"%r
