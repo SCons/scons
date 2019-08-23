@@ -27,22 +27,22 @@ See its __doc__ string for a discussion of the format.
 <summary>
 <para>
 Sets &consvars; for a default list of Tool modules.
-Include <emphasis role="bold">default</emphasis>
-in the tools list to retain
-the tools that would have been available if no
-<parameter>tools</parameter> parameter were supplied
-to an <emphasis role="bold">Environment</emphasis>
-or <emphasis role="bold">Clone</emphasis> call.
+Use <emphasis role="bold">default</emphasis>
+in the tools list to retain the original defaults,
+since the <parameter>tools</parameter> parameter
+is treated as a literal statement of the tools
+to be made available in that &consenv;, not an addition.
 </para>
 
 <para>
-The list of available tools from default is dependent both on
-the platform and what software is installed on the platform.
+The list of tools selected by default is not static,
+but is dependent both on
+the platform and on the software installed on the platform.
 Some tools will not initialize if an underlying command is
 not found, and some tools are selected from a list of choices
 on a first-found basis. The finished tool list can be
 examined by inspecting the <envar>TOOLS</envar> &consvar;
-variable in the &consenv;.
+in the &consenv;.
 </para>
 
 <para>
@@ -55,7 +55,7 @@ tex, latex, pdflatex, pdftex, tar, zip, textfile.
 
 <para>
 On Linux systems, the default tools list selects
-(first-found) a C compiler from
+(first-found): a C compiler from
 gcc, intelc, icc, cc;
 a C++ compiler from
 g++, intelc, icc, cxx;
@@ -72,7 +72,7 @@ m4, rpm.
 
 <para>
 On Windows systems, the default tools list selects
-(first-found) a C compiler from
+(first-found): a C compiler from
 msvc, mingw, gcc, intelc, icl, icc, cc, bcc32;
 a C++ compiler from
 msvc, intelc, icc, g++, cxx, bcc32;
@@ -90,7 +90,7 @@ msvs, midl.
 
 <para>
 On MacOS systems, the default tools list selects
-(first-found) a C compiler from
+(first-found): a C compiler from
 gcc, cc;
 a C++ compiler from
 g++, cxx;
@@ -99,7 +99,7 @@ a linker from
 applelink, gnulink;
 a Fortran compiler from
 gfortran, f95, f90, g77;
-and a static archiver 'ar'.
+and a static archiver ar.
 It also selects all found from the list
 m4, rpm.
 </para>
