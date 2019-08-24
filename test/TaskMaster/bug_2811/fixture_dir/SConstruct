@@ -10,6 +10,7 @@ This issue requires the following.
    Nth target's implicit lists changing when compared to SConsign's which have been loaded.
 7. This forces rebuild of source file and this propagates to massive recompile
 """
+import sys
 import SCons.Tool
 
 
@@ -27,12 +28,15 @@ def _dwo_emitter(target, source, env):
     targets = target + new_targets
     return (targets, source)
 
+build_string = '$MYCOPY $SOURCE $TARGET'
 
-bld = Builder(action='cp $SOURCE $TARGET')
 
-env = Environment(BUILDERS={'Foo': bld})
+bld = Builder(action=build_string)
 
-env['SHCCCOM'] = 'cp $SOURCE $TARGET && cp $SOURCE ${TARGETS[1]}'
+env = Environment(BUILDERS={'Foo': bld}, MYCOPY="%s mycopy.py"%sys.executable)
+
+env['SHCCCOM'] = '$MYCOPY $SOURCE $TARGET && $MYCOPY $SOURCE ${TARGETS[1]}'
+
 env['SHCCCOMSTR'] = env['SHCCCOM']
 
 
