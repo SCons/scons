@@ -1325,10 +1325,10 @@ env.Depends(bar, installed_lib)
 <summary>
 <para>
 Returns a dictionary object
-containing construction variables in the environment.
+containing the &consvars; in the &consenv;.
 If there are any arguments specified,
-only the values of the specified construction
-variables are returned as a string (if one
+the values of the specified &consvars;
+are returned as a string (if one
 argument) or as a list of strings.
 </para>
 
