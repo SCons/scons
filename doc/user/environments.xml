@@ -618,7 +618,7 @@ int main() { }
 
       <para>
 
-      You can fetch individual construction variables
+      You can fetch individual &consvars;
       using the normal syntax
       for accessing individual named items in a Python dictionary:
 
@@ -645,20 +645,21 @@ print("CC is: %s"%env['CC'])
 
       <para>
 
-      A construction environment, however,
-      is actually an object with associated methods, etc.
+      A &consenv;
+      is actually an object with associated methods and
+      attributes.
       If you want to have direct access to only the
-      dictionary of construction variables,
+      dictionary of &consvars;
       you can fetch this using the &Dictionary; method:
 
       </para>
 
       <scons_example name="environments_ex6b">
          <file name="SConstruct" printme="1">
-env = Environment(FOO = 'foo', BAR = 'bar')
-dict = env.Dictionary()
+env = Environment(FOO='foo', BAR='bar')
+cvars = env.Dictionary()
 for key in ['OBJSUFFIX', 'LIBSUFFIX', 'PROGSUFFIX']:
-    print("key = %s, value = %s" % (key, dict[key]))
+    print("key = %s, value = %s" % (key, cvars[key]))
          </file>
       </scons_example>
 
@@ -687,7 +688,7 @@ for key in ['OBJSUFFIX', 'LIBSUFFIX', 'PROGSUFFIX']:
       <para>
 
       If you want to loop and print the values of
-      all of the construction variables in a construction environment,
+      all of the &consvars; in a &consenv;,
       the Python code to do that in sorted order might look something like:
 
       </para>
@@ -698,6 +699,16 @@ for item in sorted(env.Dictionary().items()):
     print("construction variable = '%s', value = '%s'" % item)
       </sconstruct>
 
+      <para>
+      It should be noted that for the previous example, there is actually
+      a &consenv; method that does the same thing more simply,
+      and tries to format the output nicely as well:
+      </para>
+      <sconstruct>
+env = Environment()
+print(env.Dump())
+      </sconstruct>
+
     </section>
 
     <section>
@@ -706,10 +717,10 @@ for item in sorted(env.Dictionary().items()):
       <para>
 
       Another way to get information from
-      a construction environment
+      a &consenv;
       is to use the &subst; method
       on a string containing <literal>$</literal> expansions
-      of construction variable names.
+      of &consvar; names.
       As a simple example,
       the example from the previous
       section that used
@@ -728,7 +739,7 @@ print("CC is: %s"%env.subst('$CC'))
 
       One advantage of using
       &subst; to expand strings is
-      that construction variables
+      that &consvars;
       in the result get re-expanded until
       there are no expansions left in the string.
       So a simple fetch of a value like

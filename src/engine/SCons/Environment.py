@@ -1493,8 +1493,14 @@ class Base(SubstitutionEnvironment):
 
         self.copy_from_cache = copy_function
 
+
     def Detect(self, progs):
         """Return the first available program in progs.
+
+        :param progs: one or more command names to check for
+        :type progs: str or list
+        :returns str: first name from progs that can be found.
+
         """
         if not SCons.Util.is_List(progs):
             progs = [ progs ]
@@ -1503,7 +1509,17 @@ class Base(SubstitutionEnvironment):
             if path: return prog
         return None
 
+
     def Dictionary(self, *args):
+        """Return construction variables from an environment.
+
+        :param *args: (optional) variable names to look up
+        :returns: if args omitted, the dictionary of all constr. vars.
+            If one arg, the corresponding value is returned.
+            If more than one arg, a list of values is returned.
+        :raises KeyError: if any of *args is not in the construction env.
+
+        """
         if not args:
             return self._dict
         dlist = [self._dict[x] for x in args]
@@ -1511,23 +1527,28 @@ class Base(SubstitutionEnvironment):
             dlist = dlist[0]
         return dlist
 
-    def Dump(self, key = None):
-        """
-        Using the standard Python pretty printer, return the contents of the
-        scons build environment as a string.
 
-        If the key passed in is anything other than None, then that will
-        be used as an index into the build environment dictionary and
-        whatever is found there will be fed into the pretty printer. Note
-        that this key is case sensitive.
+    def Dump(self, key=None):
+        """ Return pretty-printed string of construction variables.
+
+        :param key: if None, format the whole dict of variables.
+            Else look up and format just the value for key.
+
         """
         import pprint
         pp = pprint.PrettyPrinter(indent=2)
         if key:
-            dict = self.Dictionary(key)
+            cvars = self.Dictionary(key)
         else:
-            dict = self.Dictionary()
-        return pp.pformat(dict)
+            cvars = self.Dictionary()
+
+        # TODO: pprint doesn't do a nice job on path-style values
+        # if the paths contain spaces (i.e. Windows), because the
+        # algorithm tries to break lines on spaces, while breaking
+        # on the path-separator would be more "natural". Is there
+        # a better way to format those?
+        return pp.pformat(cvars)
+
 
     def FindIxes(self, paths, prefix, suffix):
         """

@@ -2577,8 +2577,8 @@ object_files.extend(Object('bar.c'))
 </literallayout>
 
 <para>The path name for a Node's file may be used
-by passing the Node to the Python-builtin
-<function>str()</function>
+by passing the Node to Python's builtin
+<function>str</function>
 function:</para>
 
 <literallayout class="monospaced">
@@ -3119,11 +3119,12 @@ defined construction variables:</para>
 method of the construction environment:</para>
 
 <literallayout class="monospaced">
-dict = env.Dictionary()
-dict["CC"] = "cc"
+cvars = env.Dictionary()
+cvars["CC"] = "cc"
 </literallayout>
 
-<para>or using the [] operator:</para>
+<para>or using the key lookup operator <literal>[]</literal>
+directly on the construction environment:</para>
 
 <literallayout class="monospaced">
 env["CC"] = "cc"
@@ -6315,7 +6316,8 @@ might not exist
 argument is the construction environment for the scan.
 Fetch values from it using the
 <emphasis role="bold">env.Dictionary()</emphasis>
-method.</para>
+method or using the key lookup operator
+directly on the construction environment.</para>
 
 <para>The
 <emphasis role="bold">path</emphasis>
@@ -6771,7 +6773,7 @@ env['BUILDERS]['PDFBuilder'] = bld
 
 <refsect2 id='defining_your_own_scanner_object'><title>Defining Your Own Scanner Object</title>
 
-<para>The following example shows an extremely simple scanner (the
+<para>The following example shows adding an extremely simple scanner (the
 <emphasis role="bold">kfile_scan</emphasis>()
 function)
 that doesn't use a search path at all
@@ -6796,8 +6798,10 @@ kscan = Scanner(name = 'kfile',
                 function = kfile_scan,
                 argument = None,
                 skeys = ['.k'])
-scanners = Environment().Dictionary('SCANNERS')
-env = Environment(SCANNERS = scanners + [kscan])
+
+scanners = DefaultEnvironment()['SCANNERS']
+scanners.append(kscan)
+env = Environment(SCANNERS=scanners)
 
 env.Command('foo', 'foo.k', 'kprocess &lt; $SOURCES &gt; $TARGET')
 
@@ -6814,7 +6818,8 @@ you can use the
 function of your current Environment in order to create nodes on the fly from
 a sequence of file names with relative paths.</para>
 
-<para>Here is a similar but more complete example that searches
+<para>Here is a similar but more complete example that adds
+a scanner which searches
 a path of directories
 (specified as the
 <emphasis role="bold">MYPATH</emphasis>
@@ -6840,15 +6845,16 @@ def my_scan(node, env, path, arg):
                 break
     return env.File(results)
 
-scanner = Scanner(name = 'myscanner',
-                 function = my_scan,
-                 argument = None,
-                 skeys = ['.x'],
-                 path_function = FindPathDirs('MYPATH')
+scanner = Scanner(name='myscanner',
+                  function=my_scan,
+                  argument=None,
+                  skeys=['.x'],
+                  path_function=FindPathDirs('MYPATH')
                  )
-scanners = Environment().Dictionary('SCANNERS')
-env = Environment(SCANNERS = scanners + [scanner],
-                  MYPATH = ['incs'])
+
+scanners = DefaultEnvironment()['SCANNERS']
+scanners.append(scanner)
+env = Environment(SCANNERS=scanners, MYPATH=['incs'])
 
 env.Command('foo', 'foo.x', 'xprocess &lt; $SOURCES &gt; $TARGET')
 </programlisting>
@@ -6861,8 +6867,8 @@ that will return a list of directories
 specified in the
 <emphasis role="bold">$MYPATH</emphasis>
 construction variable. It lets SCons detect the file
-<emphasis role="bold">incs/foo.inc</emphasis>
-, even if
+<emphasis role="bold">incs/foo.inc</emphasis>,
+even if
 <emphasis role="bold">foo.x</emphasis>
 contains the line
 <emphasis role="bold">include foo.inc</emphasis>
@@ -6883,17 +6889,18 @@ def pf(env, dir, target, source, arg):
             results.append(top_dir + os.sep + p)
     return results
 
-scanner = Scanner(name = 'myscanner',
-                 function = my_scan,
-                 argument = None,
-                 skeys = ['.x'],
-                 path_function = pf
+scanner = Scanner(name='myscanner',
+                  function=my_scan,
+                  argument=None,
+                  skeys=['.x'],
+                  path_function=pf
                  )
 </programlisting>
 
 </refsect2>
 
-<refsect2 id='creating_a_hierarchical_build'><title>Creating a Hierarchical Build</title>
+<refsect2 id='creating_a_hierarchical_build'>
+<title>Creating a Hierarchical Build</title>
 
 <para>Notice that the file names specified in a subdirectory's
 SConscript
