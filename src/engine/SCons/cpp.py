@@ -243,8 +243,6 @@ function_arg_separator = re.compile(r',\s*')
 
 class PreProcessor(object):
 
-    FILE_TUPLES_CACHE = None
-
     """
     The main workhorse class for handling C pre-processing.
     """
@@ -305,7 +303,7 @@ class PreProcessor(object):
 
         This is the main internal entry point.
         """
-        return self._process_tuples(self.tupleize_file(file), file)
+        return self._process_tuples(self.tupleize(self.read_file(file)), file)
 
     def process_contents(self, contents):
         """
@@ -329,15 +327,6 @@ class PreProcessor(object):
             # print(t)
             self.dispatch_table[t[0]](t)
         return self.finalize_result(file)
-
-    def tupleize_file(self, file):
-        if not PreProcessor.FILE_TUPLES_CACHE:
-            PreProcessor.FILE_TUPLES_CACHE = {}
-        file_tuples = PreProcessor.FILE_TUPLES_CACHE.get(file)
-        if not file_tuples:
-            file_tuples = self._parse_tuples(self.read_file(file))
-            PreProcessor.FILE_TUPLES_CACHE[file] = file_tuples
-        return self._match_tuples(file_tuples)
 
     def tupleize(self, contents):
         """
@@ -580,13 +569,13 @@ class PreProcessor(object):
         if self.depth != -1:
             current_depth = 0
             for t in self.tuples:
-                if t[0] != "scons_current_file":
+                if t[0] == "scons_current_file":
                     current_depth += 1
             if current_depth >= self.depth:
                 return
 
         new_tuples = [('scons_current_file', include_file)] + \
-                     self.tupleize(self.read_file(include_file)) + \
+                      self.tupleize(self.read_file(include_file)) + \
                      [('scons_current_file', self.current_file)]
         self.tuples[:] = new_tuples + self.tuples
 
