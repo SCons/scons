@@ -1,0 +1,8 @@
+#include "b"
+// #include "c"
+// #include "d"
+// #include "e"
+
+int dummy() {
+    return 1;
+}

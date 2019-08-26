@@ -187,7 +187,7 @@ def FortranScan(path_variable="FORTRANPATH"):
 #   (\w+)              : match the module name that is being USE'd
 #
 #
-    use_regex = "(?i)(?:^|;)\s*USE(?:\s+|(?:(?:\s*,\s*(?:NON_)?INTRINSIC)?\s*::))\s*(\w+)"
+    use_regex = r"(?i)(?:^|;)\s*USE(?:\s+|(?:(?:\s*,\s*(?:NON_)?INTRINSIC)?\s*::))\s*(\w+)"
 
 
 #   The INCLUDE statement regex matches the following:
@@ -275,7 +275,7 @@ def FortranScan(path_variable="FORTRANPATH"):
 #                        set of semicolon-separated INCLUDE statements
 #                        (as allowed by the F2003 standard)
 
-    include_regex = """(?i)(?:^|['">]\s*;)\s*INCLUDE\s+(?:\w+_)?[<"'](.+?)(?=["'>])"""
+    include_regex = r"""(?i)(?:^|['">]\s*;)\s*INCLUDE\s+(?:\w+_)?[<"'](.+?)(?=["'>])"""
 
 #   The MODULE statement regex finds module definitions by matching
 #   the following:
@@ -285,21 +285,29 @@ def FortranScan(path_variable="FORTRANPATH"):
 #   but *not* the following:
 #
 #   MODULE PROCEDURE procedure_name
+#   MODULE SUBROUTINE subroutine_name
+#   MODULE FUNCTION function_name
+#   MODULE PURE SUBROUTINE|FUNCTION subroutine_name|function_name
+#   MODULE ELEMENTAL SUBROUTINE|FUNCTION subroutine_name|function_name
 #
 #   Here is a breakdown of the regex:
 #
-#   (?i)               : regex is case insensitive
-#   ^\s*               : any amount of white space
-#   MODULE             : match the string MODULE, case insensitive
-#   \s+                : match one or more white space characters
-#   (?!PROCEDURE)      : but *don't* match if the next word matches
-#                        PROCEDURE (negative lookahead assertion),
-#                        case insensitive
-#   (\w+)              : match one or more alphanumeric characters
-#                        that make up the defined module name and
-#                        save it in a group
+#   (?i)                               : regex is case insensitive
+#   ^\s*                               : any amount of white space
+#   MODULE                             : match the string MODULE, case
+#                                        insensitive
+#   \s+                                : match one or more white space
+#                                        characters
+#   (?!PROCEDURE|SUBROUTINE|FUNCTION|PURE|ELEMENTAL)
+#                                      : but *don't* match if the next word
+#                                        matches PROCEDURE, SUBROUTINE,
+#                                        FUNCTION, PURE or ELEMENTAL (negative
+#                                        lookahead assertion), case insensitive
+#   (\w+)                              : match one or more alphanumeric
+#                                        characters that make up the defined
+#                                        module name and save it in a group
 
-    def_regex = """(?i)^\s*MODULE\s+(?!PROCEDURE)(\w+)"""
+    def_regex = r"""(?i)^\s*MODULE\s+(?!PROCEDURE|SUBROUTINE|FUNCTION|PURE|ELEMENTAL)(\w+)"""
 
     scanner = F90Scanner("FortranScan",
                          "$FORTRANSUFFIXES",

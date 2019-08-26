@@ -147,7 +147,7 @@ class SConsValues(optparse.Values):
         """
         Sets an option from an SConscript file.
         """
-        if not name in self.settable:
+        if name not in self.settable:
             raise SCons.Errors.UserError("This option is not settable from a SConscript file: %s"%name)
 
         if name == 'num_jobs':
@@ -167,7 +167,7 @@ class SConsValues(optparse.Values):
                 value = str(value)
             except ValueError:
                 raise SCons.Errors.UserError("A string is required: %s"%repr(value))
-            if not value in SCons.Node.FS.Valid_Duplicates:
+            if value not in SCons.Node.FS.Valid_Duplicates:
                 raise SCons.Errors.UserError("Not a valid duplication style: %s" % value)
             # Set the duplicate style right away so it can affect linking
             # of SConscript files.
@@ -659,7 +659,7 @@ def Parser(version):
                   metavar="TYPE")
 
     def opt_duplicate(option, opt, value, parser):
-        if not value in SCons.Node.FS.Valid_Duplicates:
+        if value not in SCons.Node.FS.Valid_Duplicates:
             raise OptionValueError(opt_invalid('duplication', value,
                                               SCons.Node.FS.Valid_Duplicates))
         setattr(parser.values, option.dest, value)

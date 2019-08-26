@@ -37,11 +37,12 @@ _python_ = TestSCons._python_
 test.write('build.py', r"""\
 import sys
 def build(num, target, source):
-    file = open(str(target), 'wb')
-    file.write(bytearray('%s\n'% num,'utf-8'))
-    for s in source:
-        file.write(open(str(s), 'rb').read())
-build(sys.argv[1],sys.argv[2],sys.argv[3:])
+    with open(str(target), 'wb') as f:
+        f.write(bytearray('%s\n'% num,'utf-8'))
+        for s in source:
+            with open(str(s), 'rb') as infp:
+                f.write(infp.read())
+build(sys.argv[1], sys.argv[2], sys.argv[3:])
 """)
 
 test.write('SConstruct', """\

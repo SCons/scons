@@ -68,10 +68,10 @@ class ToolSurrogate(object):
 
 def Cat(target, source, env):
     target = str(target[0])
-    f = open(target, "wb")
-    for src in map(str, source):
-        f.write(open(src, "rb").read())
-    f.close()
+    with open(target, "wb") as ofp:
+        for src in map(str, source):
+            with open(src, "rb") as ifp:
+                ofp.write(ifp.read())
 
 ToolList = {
     'posix' :   [('cc', 'CCCOM', Cat),

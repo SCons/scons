@@ -47,7 +47,9 @@ def testForTool(tool):
         test.skip_test("Required executable for tool '{0}' not found, skipping test.\n".format(tool))
 
     test.dir_fixture('Image')
-    test.write('SConstruct', open('SConstruct_template', 'r').read().format(tool))
+    with open('SConstruct_template', 'r') as f:
+        config = f.read().format(tool)
+    test.write('SConstruct', config)
 
     arguments = 'test1%(_obj)s test2%(_obj)s' % locals()
 

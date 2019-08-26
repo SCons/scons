@@ -49,7 +49,8 @@ import codecs
 import sys
 
 def process(outfp, infile):
-    contents = open(infile, 'rb').read()
+    with open(infile, 'rb') as f:
+        contents = f.read()
     if contents[:len(codecs.BOM_UTF8)] == codecs.BOM_UTF8:
         contents = contents[len(codecs.BOM_UTF8):].decode('utf-8')
     elif contents[:len(codecs.BOM_UTF16_LE)] == codecs.BOM_UTF16_LE:
@@ -70,8 +71,8 @@ def process(outfp, infile):
         else:
             outfp.write(line + '\n')
 
-output = open(sys.argv[2], 'w')
-process(output, sys.argv[1])
+with open(sys.argv[2], 'w') as ofp:
+    process(ofp, sys.argv[1])
 
 sys.exit(0)
 """)

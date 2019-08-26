@@ -45,26 +45,27 @@ test.write('SConstruct', """\
 env = Environment(LOGFILE='build/config.log')
 import os
 env.AppendENVPath('PATH', os.environ['PATH'])
-VariantDir( 'build', '.' )
+VariantDir('build', '.')
 conf = env.Configure(conf_dir='build/config.tests', log_file='$LOGFILE')
-r1 = conf.CheckCHeader( 'math.h' )
-r2 = conf.CheckCHeader( 'no_std_c_header.h' ) # leads to compile error
+r1 = conf.CheckCHeader('math.h')
+r2 = conf.CheckCHeader('no_std_c_header.h') # leads to compile error
 env = conf.Finish()
-Export( 'env' )
-# print open( 'build/config.log' ).readlines()
-SConscript( 'build/SConscript' )
+Export('env')
+# with open('build/config.log') as f:
+#     print f.readlines()
+SConscript('build/SConscript')
 """)
 
 test.write('SConscript', """\
-Import( 'env' )
-env.Program( 'TestProgram', 'TestProgram.c' )
+Import('env')
+env.Program('TestProgram', 'TestProgram.c')
 """)
 
 test.write('TestProgram.c', """\
 #include <stdio.h>
 
 int main(void) {
-  printf( "Hello\\n" );
+  printf("Hello\\n");
 }
 """)
 

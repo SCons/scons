@@ -67,6 +67,7 @@
 
 <!ENTITY Action "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Action</classname>">
 <!ENTITY ActionBase "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>ActionBase</classname>">
+<!ENTITY BuildInfo "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>BuildInfo</classname>">
 <!ENTITY CommandAction "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>CommandAction</classname>">
 <!ENTITY FunctionAction "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>FunctionAction</classname>">
 <!ENTITY ListAction "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>ListAction</classname>">

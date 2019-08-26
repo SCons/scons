@@ -1,4 +1,4 @@
-  A new SCons checkpoint release, 3.0.6.alpha.yyyymmdd, is now available
+  A new SCons checkpoint release, 3.1.1, is now available
   on the SCons download page:
 
           https://scons.org/pages/download.html
@@ -31,9 +31,7 @@
 
   NEW FUNCTIONALITY
 
-    - Added variable TEMPFILEARGJOIN to specify how to join arguments written
-      to temp files used when command lines exceed MAXLINELENGTH when the
-      command uses $TEMPFILE{...}
+    - List new features (presumably why a checkpoint is being released)
 
   DEPRECATED FUNCTIONALITY
 

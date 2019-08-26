@@ -37,14 +37,15 @@ test = TestSCons.TestSCons()
 test.write('mydc.py', r"""
 import sys
 def do_file(outf, inf):
-    for line in open(inf, 'rb').readlines():
-        if line[:7] == b'import ':
-            do_file(outf, line[7:-2] + b'.d')
-        else:
-            outf.write(line)
-outf = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    do_file(outf, f)
+    with open(inf, 'rb') as ifp:
+        for line in ifp.readlines():
+            if line[:7] == b'import ':
+                do_file(outf, line[7:-2] + b'.d')
+            else:
+                outf.write(line)
+with open(sys.argv[1], 'wb') as outf:
+    for f in sys.argv[2:]:
+        do_file(outf, f)
 sys.exit(0)
 """)
 

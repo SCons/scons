@@ -45,7 +45,8 @@ test = TestSCons.TestSCons()
 
 # We want to verify that -j 2 starts precisely two jobs, the first of
 # which fails and the second of which succeeds, and then stops processing
-# due to the first build failure.  To try to control the timing, the two
+# due to the first build failure - the second build job does not just
+# continue processing tasks.  To try to control the timing, the two
 # created build scripts use a pair of marker directories.
 #
 # The failure script waits until it sees the 'mycopy.started' directory
@@ -60,41 +61,51 @@ test = TestSCons.TestSCons()
 # could detect our successful exit first (typically if a high system
 # load happens to delay the failure script) and start another job before
 # it sees the failure from the first script.
+#
+# Both scripts are set to bail if they had to wait too long for what
+# they expected to see.
 
-test.write('myfail.py', r"""\
+test.write('myfail.py', """\
 import os
 import sys
 import time
-for i in [1, 2, 3, 4, 5]:
-    time.sleep(2)
-    if os.path.exists('mycopy.started'):
-        os.mkdir('myfail.exiting')
-        sys.exit(1)
-sys.exit(99)
+WAIT = 10
+count = 0
+while not os.path.exists('mycopy.started') and count < WAIT:
+    time.sleep(1)
+    count += 1
+if count >= WAIT:
+    sys.exit(99)
+os.mkdir('myfail.exiting')
+sys.exit(1)
 """)
 
-test.write('mycopy.py', r"""\
+test.write('mycopy.py', """\
 import os
 import sys
 import time
 os.mkdir('mycopy.started')
 with open(sys.argv[1], 'wb') as ofp, open(sys.argv[2], 'rb') as ifp:
     ofp.write(ifp.read())
-for i in [1, 2, 3, 4, 5]:
-    time.sleep(2)
-    if os.path.exists('myfail.exiting'):
-        sys.exit(0)
-sys.exit(99)
+WAIT = 10
+count = 0
+while not os.path.exists('myfail.exiting') and count < WAIT:
+    time.sleep(1)
+    count += 1
+if count >= WAIT:
+    sys.exit(99)
+os.rmdir('mycopy.started')
+sys.exit(0)
 """)
 
 test.write('SConstruct', """
-MyCopy = Builder(action = [[r'%(python)s', 'mycopy.py', '$TARGET', '$SOURCE']])
-Fail = Builder(action = [[r'%(python)s', 'myfail.py', '$TARGETS', '$SOURCE']])
-env = Environment(BUILDERS = { 'MyCopy' : MyCopy, 'Fail' : Fail })
-env.Fail(target = 'f3', source = 'f3.in')
-env.MyCopy(target = 'f4', source = 'f4.in')
-env.MyCopy(target = 'f5', source = 'f5.in')
-env.MyCopy(target = 'f6', source = 'f6.in')
+MyCopy = Builder(action=[[r'%(python)s', 'mycopy.py', '$TARGET', '$SOURCE']])
+Fail = Builder(action=[[r'%(python)s', 'myfail.py', '$TARGETS', '$SOURCE']])
+env = Environment(BUILDERS={'MyCopy' : MyCopy, 'Fail' : Fail})
+env.Fail(target='f3', source='f3.in')
+env.MyCopy(target='f4', source='f4.in')
+env.MyCopy(target='f5', source='f5.in')
+env.MyCopy(target='f6', source='f6.in')
 """ % locals())
 
 test.write('f3.in', "f3.in\n")
@@ -102,9 +113,9 @@ test.write('f4.in', "f4.in\n")
 test.write('f5.in', "f5.in\n")
 test.write('f6.in', "f6.in\n")
 
-test.run(arguments = '-j 2 .',
-         status = 2,
-         stderr = "scons: *** [f3] Error 1\n")
+test.run(arguments='-j 2 .',
+         status=2,
+         stderr="scons: *** [f3] Error 1\n")
 
 test.must_not_exist(test.workpath('f3'))
 test.must_match(test.workpath('f4'), 'f4.in\n')

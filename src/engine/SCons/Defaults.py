@@ -193,7 +193,7 @@ def chmod_func(dest, mode):
     SCons.Node.FS.invalidate_node_memos(dest)
     if not SCons.Util.is_List(dest):
         dest = [dest]
-    if SCons.Util.is_String(mode) and not 0 in [i in digits for i in mode]:
+    if SCons.Util.is_String(mode) and 0 not in [i in digits for i in mode]:
         mode = int(mode, 8)
     if not SCons.Util.is_String(mode):
         for element in dest:

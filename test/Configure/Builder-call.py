@@ -39,7 +39,8 @@ test.write('mycommand.py', r"""
 import sys
 sys.stderr.write( 'Hello World on stderr\n' )
 sys.stdout.write( 'Hello World on stdout\n' )
-open(sys.argv[1], 'w').write( 'Hello World\n' )
+with open(sys.argv[1], 'w') as f:
+    f.write( 'Hello World\n' )
 """)
 
 test.write('SConstruct', """\

@@ -68,10 +68,6 @@ import re
 import sys
 
 path = sys.argv[1].split()
-output = open(sys.argv[2], 'w')
-input = open(sys.argv[3], 'r')
-
-output.write('fake_cc.py:  %%s\n' %% sys.argv)
 
 def find_file(f):
     for dir in path:
@@ -85,11 +81,16 @@ def process(infp, outfp):
         m = re.match('#include <(.*)>', line)
         if m:
             file = m.group(1)
-            process(find_file(file), outfp)
+            found = find_file(file)
+            process(found, outfp)
+            if found:
+                found.close()
         else:
             outfp.write(line)
 
-process(input, output)
+with open(sys.argv[2], 'w') as outf, open(sys.argv[3], 'r') as ifp:
+    outf.write('fake_cc.py:  %%s\n' %% sys.argv)
+    process(ifp, outf)
 
 sys.exit(0)
 """ % locals())
@@ -97,12 +98,9 @@ sys.exit(0)
 test.write(fake_link_py, r"""#!%(_python_)s
 import sys
 
-output = open(sys.argv[1], 'w')
-input = open(sys.argv[2], 'r')
-
-output.write('fake_link.py:  %%s\n' %% sys.argv)
-
-output.write(input.read())
+with open(sys.argv[1], 'w') as outf, open(sys.argv[2], 'r') as ifp:
+    outf.write('fake_link.py:  %%s\n' %% sys.argv)
+    outf.write(ifp.read())
 
 sys.exit(0)
 """ % locals())

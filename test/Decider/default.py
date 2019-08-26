@@ -36,7 +36,7 @@ test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 import os.path
 Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))
-def my_decider(dependency, target, prev_ni):
+def my_decider(dependency, target, prev_ni, repo_node=None):
     return os.path.exists('has-changed')
 Decider(my_decider)
 """)

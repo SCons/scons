@@ -24,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Validate that we can set the PDFTEX string to our own utility, that
 the produced .dvi, .aux and .log files get removed by the -c option,
 and that we can use this to wrap calls to the real latex utility.
@@ -44,15 +44,16 @@ import os
 import getopt
 cmd_opts, arg = getopt.getopt(sys.argv[2:], 'i:r:', [])
 base_name = os.path.splitext(arg[0])[0]
-infile = open(arg[0], 'rb')
-pdf_file = open(base_name+'.pdf', 'wb')
-aux_file = open(base_name+'.aux', 'wb')
-log_file = open(base_name+'.log', 'wb')
-for l in infile.readlines():
-    if l[0] != '\\':
-        pdf_file.write(l)
-        aux_file.write(l)
-        log_file.write(l)
+with open(arg[0], 'r') as ifp:
+    with open(base_name+'.pdf', 'w') as pdf_file, \
+         open(base_name+'.aux', 'w') as aux_file, \
+         open(base_name+'.log', 'w') as log_file:
+
+        for l in ifp.readlines():
+            if l[0] != '\\':
+                pdf_file.write(l)
+                aux_file.write(l)
+                log_file.write(l)
 sys.exit(0)
 """)
 

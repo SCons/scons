@@ -43,9 +43,9 @@ if sys.platform != 'win32':
     msg = "Skipping drive-letter test on non-Windows platform '%s'\n" % sys.platform
     test.skip_test(msg)
 
+# start at the end looking for unused drive letter
 bad_drive = None
-for i in range(len(ascii_uppercase)-1, -1, -1):
-    d = ascii_uppercase[i]
+for d in reversed(ascii_uppercase):
     if not os.path.isdir(d + ':' + os.sep):
         bad_drive = d + ':'
         break
@@ -60,10 +60,10 @@ def cat(env, source, target):
     target = str(target[0])
     source = list(map(str, source))
     print('cat(%%s) > %%s' %% (source, target))
-    f = open(target, "wb")
-    for src in source:
-        f.write(open(src, "rb").read())
-    f.close()
+    with open(target, "wb") as ofp:
+        for src in source:
+            with open(src, "rb") as ifp:
+                ofp.write(ifp.read())
 
 bad_drive = '%s'
 env = Environment(BUILDERS={'Build':Builder(action=cat)})

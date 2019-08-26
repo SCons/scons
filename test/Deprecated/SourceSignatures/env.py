@@ -39,7 +39,8 @@ test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 base_sconstruct_contents = """\
 SetOption('warn', 'deprecated-source-signatures')
 def build(env, target, source):
-    open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
+    with open(str(target[0]), 'wt') as ofp, open(str(source[0]), 'rt') as ifp:
+        ofp.write(ifp.read())
 B = Builder(action = build)
 env = Environment(BUILDERS = { 'B' : B })
 env2 = env.Clone()

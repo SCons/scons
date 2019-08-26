@@ -24,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Validate that use of \bibliography in TeX source files causes SCons to
 be aware of the necessary created bibliography files.
 
@@ -48,7 +48,7 @@ have_latex = test.where_is('latex')
 if not have_latex:
     test.skip_test('Could not find latex; skipping test(s).\n')
 
-    
+
 test.write('SConstruct', """\
 import os
 env = Environment(tools = ['tex', 'latex', 'dvips'])

@@ -8,7 +8,7 @@ from __future__ import print_function
 copyright_years = '2001 - 2019'
 
 # This gets inserted into the man pages to reflect the month of release.
-month_year = 'March 2019'
+month_year = 'August 2019'
 
 #
 # __COPYRIGHT__
@@ -49,7 +49,7 @@ import textwrap
 import bootstrap
 
 project = 'scons'
-default_version = '3.0.5'
+default_version = '3.1.1'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 SConsignFile()
@@ -96,14 +96,16 @@ git_status_lines = []
 
 if git:
     cmd = "%s ls-files 2> /dev/null" % git
-    git_status_lines = os.popen(cmd, "r").readlines()
+    with os.popen(cmd, "r") as p:
+        git_status_lines = p.readlines()
 
 revision = ARGUMENTS.get('REVISION', '')
 def generate_build_id(revision):
     return revision
 
 if not revision and git:
-    git_hash = os.popen("%s rev-parse HEAD 2> /dev/null" % git, "r").read().strip()
+    with os.popen("%s rev-parse HEAD 2> /dev/null" % git, "r") as p:
+        git_hash = p.read().strip()
     def generate_build_id(revision):
         result = git_hash
         if [l for l in git_status_lines if 'modified' in l]:
@@ -202,6 +204,10 @@ packaging_flavors = [
     ('zip',             "The normal .zip file for end-user installation."),
     ('local-zip',       "A .zip file for dropping into other software " +
                         "for local use."),
+    ('src-tar-gz',      "A .tar.gz file containing all the source " +
+                        "(including tests and documentation)."),
+    ('src-zip',         "A .zip file containing all the source " +
+                        "(including tests and documentation)."),
 ]
 
 test_tar_gz_dir       = os.path.join(build_dir, "test-tar-gz")
@@ -570,10 +576,9 @@ for p in [ scons ]:
     def write_src_files(target, source, **kw):
         global src_files
         src_files.sort()
-        f = open(str(target[0]), 'w')
-        for file in src_files:
-            f.write(file + "\n")
-        f.close()
+        with open(str(target[0]), 'w') as f:
+            for file in src_files:
+                f.write(file + "\n")
         return 0
     env.Command(os.path.join(build, 'MANIFEST'),
                 MANIFEST_in_list,
@@ -662,14 +667,14 @@ for p in [ scons ]:
         def Digestify(target, source, env):
             import hashlib
             src = source[0].rfile()
-            contents = open(str(src),'rb').read()
+            with open(str(src),'rb') as f:
+                contents = f.read()
             m = hashlib.md5()
             m.update(contents)
             sig = m.hexdigest()
             bytes = os.stat(str(src))[6]
-            open(str(target[0]), 'w').write("MD5 %s %s %d\n" % (sig,
-                                                                src.name,
-                                                                bytes))
+            with open(str(target[0]), 'w') as f:
+                f.write("MD5 %s %s %d\n" % (sig, src.name, bytes))
         env.Command(digest, tar_gz, Digestify)
 
     if not zipit:
@@ -850,10 +855,11 @@ SConscript('doc/SConscript')
 #
 
 
-sfiles = None
+sfiles = [l.split()[-1] for l in git_status_lines]
 if git_status_lines:
-    slines = [l for l in git_status_lines if 'modified:' in l]
-    sfiles = [l.split()[-1] for l in slines]
+    # slines = [l for l in git_status_lines if 'modified:' in l]
+    # sfiles = [l.split()[-1] for l in slines]
+    pass
 else:
    print("Not building in a Git tree; skipping building src package.")
 

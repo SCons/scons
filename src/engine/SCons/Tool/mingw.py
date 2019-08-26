@@ -65,7 +65,7 @@ def shlib_generator(target, source, env, for_signature):
 
     def_target = env.FindIxes(target, 'WINDOWSDEFPREFIX', 'WINDOWSDEFSUFFIX')
     insert_def = env.subst("$WINDOWS_INSERT_DEF")
-    if not insert_def in ['', '0', 0] and def_target: \
+    if insert_def not in ['', '0', 0] and def_target: \
             cmd.append('-Wl,--output-def,' + def_target.get_string(for_signature))
 
     return [cmd]
@@ -123,7 +123,7 @@ key_program = 'mingw32-make'
 
 
 def find_version_specific_mingw_paths():
-    """
+    r"""
     One example of default mingw install paths is:
     C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev2\mingw64\bin
 

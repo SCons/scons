@@ -218,7 +218,7 @@ class FunctionEvaluator(object):
 
         parts = []
         for s in self.expansion:
-            if not s in self.args:
+            if s not in self.args:
                 s = repr(s)
             parts.append(s)
         statement = ' + '.join(parts)

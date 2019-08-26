@@ -36,6 +36,7 @@ import SCons.Debug
 from SCons.Debug import logInstanceCreation
 import SCons.Errors
 import SCons.Memoize
+import SCons.Util
 from SCons.compat import with_metaclass, NoSlotsPyPy
 
 class Batch(object):
@@ -71,7 +72,7 @@ class TSList(collections.UserList):
         return nl[i]
     def __getslice__(self, i, j):
         nl = self.func()
-        i = max(i, 0); j = max(j, 0)
+        i, j = max(i, 0), max(j, 0)
         return nl[i:j]
     def __str__(self):
         nl = self.func()
@@ -572,7 +573,6 @@ def AddBatchExecutor(key, executor):
 nullenv = None
 
 
-import SCons.Util
 class NullEnvironment(SCons.Util.Null):
     import SCons.CacheDir
     _CacheDir_path = None
@@ -615,7 +615,8 @@ class Null(object, with_metaclass(NoSlotsPyPy)):
                  '_execute_str')
 
     def __init__(self, *args, **kw):
-        if SCons.Debug.track_instances: logInstanceCreation(self, 'Executor.Null')
+        if SCons.Debug.track_instances:
+            logInstanceCreation(self, 'Executor.Null')
         self.batches = [Batch(kw['targets'][:], [])]
     def get_build_env(self):
         return get_NullEnvironment()

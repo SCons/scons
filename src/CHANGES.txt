@@ -4,15 +4,94 @@
 
                             Change Log
 
-
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
+RELEASE 3.1.1 - Mon, 07 Aug 2019 20:09:12 -0500
 
   From William Deegan:
+    - Remove obsoleted references to DeciderNeedsNode which could cause crash when using --debug=explain
+
+  From Jason Kenny
+    - Add Fix and test for crash in 3.1.0 when using Decider('MD5-timestamp') and --debug=explain
+
+  From Ben Reed:
+    - Added -fmerge-all-constants to flags that get included in both CCFLAGS and LINKFLAGS.
+
+  From Mathew Robinson:
+    - Fix issue #3415 - Update remaining usages of EnvironmentError to SConsEnvironmentError
+      this patch fixes issues introduced in 3.1.0 where any of the
+      following would cause SCons to error and exit:
+        - CacheDir not write-able
+        - JSON encoding errors for CacheDir config
+        - JSON decoding errors for CacheDir config
+
+
+RELEASE 3.1.0 - Mon, 20 Jul 2019 16:59:23 -0700
+
+  From Joseph Brill:
+    - Code to supply correct version-specifier argument to vswhere for
+      VS version selection.
+
+  From William Deegan:
+    - Enhanced --debug=explain output. Now the separate components of the dependency list are split up
+      as follows:
+
+      scons: rebuilding `file3' because:
+           the dependency order changed:
+           ->Sources
+           Old:xxx	New:zzz
+           Old:yyy	New:yyy
+           Old:zzz	New:xxx
+           ->Depends
+           ->Implicit
+           Old:/usr/bin/python	New:/usr/bin/python
     - Fix Issue #3350 - SCons Exception EnvironmentError is conflicting with Python's EnvironmentError.
+    - Fix spurious rebuilds on second build for cases where builder has > 1 target and the source file
+      is generated. This was causing the > 1th target to not have it's implicit list cleared when the source
+      file was actually built, leaving an implicit list similar to follows for 2nd and higher target
+              ['/usr/bin/python', 'xxx', 'yyy', 'zzz']
+      This was getting persisted to SConsign and on rebuild it would be corrected to be similar to this
+              ['zzz', 'yyy', 'xxx', '/usr/bin/python']
+      Which would trigger a rebuild because the order changed.
+      The fix involved added logic to mark all shared targets as peers and then ensure they're implicit
+      list is all cleared together.
+    - Fix Issue #3349 - SCons Exception EnvironmentError is conflicting with Python's EnvironmentError.
       Renamed to SConsEnvironmentError
     - Fix Issue #3350 - mslink failing when too many objects.  This is resolved by adding TEMPFILEARGJOIN variable
       which specifies what character to join all the argements output into the tempfile. The default remains a space
       when mslink, msvc, or mslib tools are loaded they change the TEMPFILEARGJOIN to be a line separator (\r\n on win32)
+    - Fix performance degradation for MD5-timestamp decider.  NOTE: This changes the Decider() function arguments.
+      From:
+          def my_decider(dependency, target, prev_ni):
+      To:
+          def my_decider(dependency, target, prev_ni, repo_node):
+      Where repo_node is the repository (or other) node to use to check if the node is out of date instead of dependency.
+
+  From Peter Diener:
+    - Additional fix to issue #3135 - Also handle 'pure' and 'elemental' type bound procedures
+    - Fix issue #3135 - Handle Fortran submodules and type bound procedures
+
+  From Adam Gross:
+    - Upgraded and improved Visual Studio solution/project generation code using the MSVSProject builder.
+      - Added support for Visual Studio 2017 and 2019.
+      - Added support for the following per-variant parameters to the builder:
+        - cpppaths: Provides per-variant include paths.
+        - cppdefines: Provides per-variant preprocessor definitions.
+
+  From Michael Hartmann:
+    - Fix handling of Visual Studio Compilers to properly reject any unknown HOST_PLATFORM or TARGET_PLATFORM
+
+  From Bert Huijben:
+    - Added support for Visual Studio 2019 toolset.
+
+  From Mathew Robinson:
+    - Update cache debug output to include cache hit rate.
+    - No longer unintentionally hide exceptions in Action.py
+    - Allow builders and pseudo-builders to inherit from OverrideEnvironments
+
+  From Leonard de Ruijter:
+    - Add logic to derive correct version argument to vswhere
+
+  From Lukas Schrangl:
+    - Enable LaTeX scanner to find more than one include per line
 
   From Mats Wichmann:
     - scons-time takes more care closing files and uses safer mkdtemp to avoid
@@ -20,16 +99,26 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Use importlib to dynamically load tool and platform modules instead of imp module
     - sconsign: default to .sconsign.dblite if no filename is specified.
       Be more informative in case of unsupported pickle protocol (py2 only).
+    - Fix issue #3336 - on Windows, paths were being added to PATH even if
+      tools were not found in those paths.
     - More fixes for newer Java versions (since 9): handle new jdk directory
       naming (jdk-X.Y instead of jdkX.Y) on Windows; handle two-digit major
       version. Docstrings improved.
-    - Fixups for pylint: exception types, redefined functions, 
+    - Fixups for pylint: exception types, redefined functions,
       globals, etc.  Some old code removed to resolve issues (hashlib is
       always present on modern Pythons; no longer need the code for
       2.5-and-earlier optparse). cmp is not a builtin function in Py3,
       drop one (unused) use; replace one.  Fix another instance of
-      renaming to SConsEnvironmentError.
-
+      renaming to SConsEnvironmentError. Trailing whitespace.
+      Consistently use not is/in (if not x is y -> if x is not y).
+    - Add a PY3-only function for setting up the cachedir that should be less
+      prone to races. Add a hack to the PY2 version (from Issue #3351) to
+      be less prone to a race in the check for old-style cache.
+    - Fix coding error in docbook tool only exercised when using python lxml
+    - Recognize two additional GNU compiler header directory options in
+      ParseFlags: -iquote and -idirafter.
+    - Fix more re patterns that contain \ but not specified as raw strings
+      (affects scanners for D, LaTeX, swig)
 
 
 RELEASE 3.0.5 - Mon, 26 Mar 2019 15:04:42 -0700
@@ -51,7 +140,7 @@ RELEASE 3.0.5 - Mon, 26 Mar 2019 15:04:42 -0700
   From Maciej Kumorek:
     - Update the MSVC tool to include the nologo flag by default in RCFLAGS
 
-  From Daniel Moody:
+From Daniel Moody:
     - Change the default for AppendENVPath to delete_existing=0, so path
       order will not be changed, unless explicitly set (Issue #3276)
     - Fixed bug which threw error when running SCons on windows system with no MSVC installed.
@@ -72,7 +161,7 @@ RELEASE 3.0.5 - Mon, 26 Mar 2019 15:04:42 -0700
 
   From Bernhard M. Wiedemann:
     - Do not store build host+user name if reproducible builds are wanted
-    
+
 
 RELEASE 3.0.4 - Mon, 20 Jan 2019 22:49:27 +0000
 
@@ -140,9 +229,9 @@ RELEASE 3.0.2 - Mon, 31 Dec 2018 16:00:12 -0700
     - Fix GH Issue #2580 - # in FRAMEWORKPATH doesn't get properly expanded. The # is left in the
       command line.
     - Fix issue #2980 with credit to Piotr Bartosik (and William Blevins).  This is an issue where using
-      TimeStamp-MD5 Decider and CacheDir can yield incorrect md5's being written into the .sconsign.  
-      The difference between Piotr Bartosik's patch and the current code is that the more complicated 
-      creation of file to csig map is only done when the count of children for the current node doesn't 
+      TimeStamp-MD5 Decider and CacheDir can yield incorrect md5's being written into the .sconsign.
+      The difference between Piotr Bartosik's patch and the current code is that the more complicated
+      creation of file to csig map is only done when the count of children for the current node doesn't
       match the previous count which is loaded from the sconsign.
     - Fix issue # 3106 MSVC if using MSVC_BATCH and target dir had a space would fail due to quirk in
       MSVC's handling of escaped targetdirs when batch compiling.
@@ -178,7 +267,7 @@ RELEASE 3.0.2 - Mon, 31 Dec 2018 16:00:12 -0700
     - Removed unused --warn options from the man page and source code.
 
   From Arda Fu
-    - Fix cpp scanner regex logic to treat ifndef for py3.5+. Previously it was 
+    - Fix cpp scanner regex logic to treat ifndef for py3.5+. Previously it was
       not properly differentiating between if, ifdef, and ifndef.
 
   From Philipp Maierhöfer
@@ -189,7 +278,7 @@ RELEASE 3.0.2 - Mon, 31 Dec 2018 16:00:12 -0700
   From Matthew Marinets:
     - Fixed an issue that caused the Java emitter to incorrectly parse arguments to constructors that
       implemented a class.
-      
+
   From Fredrik Medley:
     - Fix exception when printing of EnviromentError messages.
       Specifically, this fixes error reporting of the race condition when
@@ -310,7 +399,7 @@ RELEASE 3.0.2 - Mon, 31 Dec 2018 16:00:12 -0700
       filter type -> list in ipk
 
   From Bernhard M. Wiedemann:
-    - Update SCons' internal scons build logic to allow overriding build date 
+    - Update SCons' internal scons build logic to allow overriding build date
       with SOURCE_DATE_EPOCH for SCons itself.
     - Change the datestamps in SCons' docs and embedded in code use ISO 8601 format and UTC
 

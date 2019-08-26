@@ -3,7 +3,8 @@ def pre(target, source, env):
 def post(target, source, env):
     pass
 def build(target, source, env):
-    open(str(target[0]), 'wb').write(b'build()\n')
+    with open(str(target[0]), 'wb') as f:
+        f.write(b'build()\n')
 env = Environment()
 AddPreAction('dir', pre)
 AddPostAction('dir', post)

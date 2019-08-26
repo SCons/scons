@@ -781,7 +781,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
         # add side effects if feature is present.If file is to be generated,add all side effects
         if Verbose and theSearch:
             print("check side effects for ",suffix_list[-1])
-        if (theSearch != None) or (not source[0].exists() ):
+        if theSearch is not None or not source[0].exists():
             file_list = [targetbase,]
             # for bibunit we need a list of files
             if suffix_list[-1] == 'bibunit':

@@ -44,7 +44,8 @@ test = TestSCons.TestSCons()
 
 test.write('getrevision', """
 from __future__ import print_function
-print(open('revnum.in','r').read().strip(), end='')
+with open('revnum.in','r') as f:
+    print(f.read().strip(), end='')
 """)
 
 test.write('SConstruct', """
@@ -52,12 +53,11 @@ import re
 
 def subrevision(target, source ,env):
     orig = target[0].get_text_contents()
-    new = re.sub('\$REV.*?\$',
+    new = re.sub(r'\$REV.*?\$',
                  '$REV: %%s$'%%source[0].get_text_contents().strip(),
                  target[0].get_text_contents())
-    outf = open(str(target[0]),'w')
-    outf.write(new)
-    outf.close()
+    with open(str(target[0]),'w') as outf:
+        outf.write(new)
 
 SubRevision = Action(subrevision)
 

@@ -797,10 +797,13 @@ sys.exit(0)
             "-F fwd3 " + \
             "-dylib_file foo-dylib " + \
             "-pthread " + \
+            "-fmerge-all-constants " +\
             "-fopenmp " + \
             "-mno-cygwin -mwindows " + \
             "-arch i386 -isysroot /tmp " + \
-            "-isystem /usr/include/foo " + \
+            "-iquote /usr/include/foo1 " + \
+            "-isystem /usr/include/foo2 " + \
+            "-idirafter /usr/include/foo3 " + \
             "+DD64 " + \
             "-DFOO -DBAR=value -D BAZ "
 
@@ -809,10 +812,13 @@ sys.exit(0)
         assert d['ASFLAGS'] == ['-as'], d['ASFLAGS']
         assert d['CFLAGS']  == ['-std=c99']
         assert d['CCFLAGS'] == ['-X', '-Wa,-as',
-                                  '-pthread', '-fopenmp', '-mno-cygwin',
-                                  ('-arch', 'i386'), ('-isysroot', '/tmp'),
-                                  ('-isystem', '/usr/include/foo'),
-                                  '+DD64'], repr(d['CCFLAGS'])
+                                '-pthread', '-fmerge-all-constants',
+                                '-fopenmp', '-mno-cygwin',
+                                ('-arch', 'i386'), ('-isysroot', '/tmp'),
+                                ('-iquote', '/usr/include/foo1'),
+                                ('-isystem', '/usr/include/foo2'),
+                                ('-idirafter', '/usr/include/foo3'),
+                                '+DD64'], repr(d['CCFLAGS'])
         assert d['CXXFLAGS'] == ['-std=c++0x'], repr(d['CXXFLAGS'])
         assert d['CPPDEFINES'] == ['FOO', ['BAR', 'value'], 'BAZ'], d['CPPDEFINES']
         assert d['CPPFLAGS'] == ['-Wp,-cpp'], d['CPPFLAGS']
@@ -828,7 +834,7 @@ sys.exit(0)
         assert LIBS == ['xxx', 'yyy', 'ascend'], (d['LIBS'], LIBS)
         assert d['LINKFLAGS'] == ['-Wl,-link',
                                   '-dylib_file', 'foo-dylib',
-                                  '-pthread', '-fopenmp',
+                                  '-pthread', '-fmerge-all-constants', '-fopenmp',
                                   '-mno-cygwin', '-mwindows',
                                   ('-arch', 'i386'),
                                   ('-isysroot', '/tmp'),
@@ -2020,18 +2026,23 @@ def generate(env):
                                  "-Ffwd2 " + \
                                  "-F fwd3 " + \
                                  "-pthread " + \
+                                 "-fmerge-all-constants " + \
                                  "-mno-cygwin -mwindows " + \
                                  "-arch i386 -isysroot /tmp " + \
-                                 "-isystem /usr/include/foo " + \
+                                 "-iquote /usr/include/foo1 " + \
+                                 "-isystem /usr/include/foo2 " + \
+                                 "-idirafter /usr/include/foo3 " + \
                                  "+DD64 " + \
                                  "-DFOO -DBAR=value")
             env.ParseConfig("fake $COMMAND")
             assert save_command == ['fake command'], save_command
             assert env['ASFLAGS'] == ['assembler', '-as'], env['ASFLAGS']
             assert env['CCFLAGS'] == ['', '-X', '-Wa,-as',
-                                      '-pthread', '-mno-cygwin',
+                                      '-pthread', '-fmerge-all-constants', '-mno-cygwin',
                                       ('-arch', 'i386'), ('-isysroot', '/tmp'),
-                                      ('-isystem', '/usr/include/foo'),
+                                      ('-iquote', '/usr/include/foo1'),
+                                      ('-isystem', '/usr/include/foo2'),
+                                      ('-idirafter', '/usr/include/foo3'),
                                       '+DD64'], env['CCFLAGS']
             assert env['CPPDEFINES'] == ['FOO', ['BAR', 'value']], env['CPPDEFINES']
             assert env['CPPFLAGS'] == ['', '-Wp,-cpp'], env['CPPFLAGS']
@@ -2041,6 +2052,7 @@ def generate(env):
             assert env['LIBPATH'] == ['list', '/usr/fax', 'foo'], env['LIBPATH']
             assert env['LIBS'] == ['xxx', 'yyy', env.File('abc')], env['LIBS']
             assert env['LINKFLAGS'] == ['', '-Wl,-link', '-pthread',
+                                        '-fmerge-all-constants',
                                         '-mno-cygwin', '-mwindows',
                                         ('-arch', 'i386'),
                                         ('-isysroot', '/tmp'),
@@ -3579,6 +3591,10 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
     def setUp(self):
         env = Environment()
         env._dict = {'XXX' : 'x', 'YYY' : 'y'}
+        def verify_value(env, key, value, *args, **kwargs):
+            """Verifies that key is value on the env this is called with."""
+            assert env[key] == value
+        env.AddMethod(verify_value)
         env2 = OverrideEnvironment(env, {'XXX' : 'x2'})
         env3 = OverrideEnvironment(env2, {'XXX' : 'x3', 'YYY' : 'y3', 'ZZZ' : 'z3'})
         self.envs = [ env, env2, env3 ]
@@ -3768,6 +3784,13 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
     #def test_WhereIs(self):
     #    """Test the OverrideEnvironment WhereIs() method"""
     #    pass
+
+    def test_PseudoBuilderInherits(self):
+        """Test that pseudo-builders inherit the overrided values."""
+        env, env2, env3 = self.envs
+        env.verify_value('XXX', 'x')
+        env2.verify_value('XXX', 'x2')
+        env3.verify_value('XXX', 'x3')
 
     def test_Dir(self):
         """Test the OverrideEnvironment Dir() method"""

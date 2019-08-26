@@ -1,18 +1,23 @@
 dist: trusty
 language: python
 
+# Used: travis encrypt "chat.freenode.net#scons" --add notifications.irc
 notifications:
-  irc: "chat.freenode.net#scons"
+  irc:
+    secure: TTb+41Bj1qIUc6vj+kDqBME8H3lqXdAe1RWAjjz5hL7bzFah6qCBHNJn4DwzqYs6+Pwuwp+6wFy8hgmQttJnXve4h6GtjtvlWprDqxaC7RkFqMWFDBzDalgbB54Bi4+TTZmSJ1K/duI3LrDaN873nyn+2GBnj+3TiNtgURp1fsJMpPxXJzAsoC8UthEsbx0Zkoal/WF+IfsT2q1yQRmAwB9r/drbahx/FfL16r1QjDbI9y1fKvN5J3PirLUvxtHfuH1r8zq1vlLew2fvldgVRtFv7+Lsk2waG/eiRpMf94V5JWP1rNreV/i4AUbZaTLb3bkrhtvTjSKhvx69Ydm+ygXdRgWOD/KRgqpLNAfA+t/a2J1R++89svQI4dPBpQjlfua1elcDCFddeIslgnjDUPO23Y0o7tHAy8sWkwhTcZH1Wm42uJP6Z6tHTH6+dMLvvZpkq4RUKUcrXvoUvCsVlWMGjcsBX+AEQSFGDJnLtLehO9x0QbgVga/IRKjgpDWgQDZgro3AkGg/zzVj5uFRUoU+rbmEXq9feh5i3HfExAvA3UoEtnQ6uadDyWqtQcLRFmPSWDU82CO+sanGdFL0jBjigE8ubPObzxEAz3Fg1xk56OYBkAdEd+2KEzeO1nqJmrhsnc3c/3+b1cBvaL5ozW4XB4XcWsOi268SoiBrcBo=
 
 addons:
-    apt:
-      update: true
+  apt:
+    update: true
 
 os:
   - linux
 
 install:
-    - ./.travis/install.sh
+  # needed for Docbook tests, must be in virtualenv context
+  - pip install lxml==4.3.3
+  # do the rest of the image setup
+  - ./.travis/install.sh
 
 # pypy is not passing atm, but still report build success for now
 # allow coverage to fail, so we can still do testing for all platforms
@@ -46,46 +51,54 @@ jobs:
       before_script: skip
       after_success: skip
       python: pypy3
-      env: 
+      env:
         - PYVER=pypy3
         - PYTHON=pypy3
       sudo: required
 
     - <<: *test_job
       python: pypy
-      env: 
+      env:
         - PYVER=pypy
         - PYTHON=pypy
       sudo: required
 
     - <<: *test_job
       python: 2.7
-      env: 
+      env:
         - PYVER=27
         - PYTHON=2.7
       sudo: required
-      
+
     - <<: *test_job
       python: 3.5
-      env: 
+      env:
         - PYVER=35
         - PYTHON=3.5
       sudo: required
 
     - <<: *test_job
       python: 3.6
-      env: 
+      env:
         - PYVER=36
         - PYTHON=3.6
       sudo: required
 
     - <<: *test_job
       python: 3.7
-      env: 
+      env:
         - PYVER=37
         - PYTHON=3.7
       sudo: required
-      dist: xenial  # required for Python 3.7 (travis-ci/travis-ci#9069)
+      dist: xenial  # required for Python >= 3.7
+
+    - <<: *test_job
+      python: 3.8-dev
+      env:
+        - PYVER=38
+        - PYTHON=3.8
+      sudo: required
+      dist: xenial  # required for Python >= 3.7
 
 
     - &coverage_jobs
@@ -116,7 +129,7 @@ jobs:
         - echo "import coverage" | sudo tee --append ${PYSITEDIR}/usercustomize.py
         - echo "coverage.process_startup()" | sudo tee --append ${PYSITEDIR}/usercustomize.py
 
-      script: 
+      script:
         - export TOTAL_BUILD_JOBS=4
         # write the coverage config file
         - export COVERAGE_PROCESS_START=$PWD/.coveragerc
@@ -136,7 +149,7 @@ jobs:
         - if (( ${start} == 0 )); then start=1; fi
         - sed -n ${start},${end}p all_tests > build_tests
         - coverage run -p --rcfile=$PWD/.coveragerc runtest.py -f build_tests -j 2 || if [[ $? == 2 ]]; then true; else false; fi
-        
+
       after_script:
         - coverage combine
         - coverage report
@@ -147,48 +160,48 @@ jobs:
         #- python$PYTHON -m pip install --user -U coveralls
         #- coveralls --rcfile=$PWD/.coveragerc
 
-      env: 
+      env:
         - PYVER=27
         - PYTHON=2.7
         - BUILD_JOB_NUM=1
 
     - <<: *coverage_jobs
-      env: 
+      env:
         - PYVER=27
         - PYTHON=2.7
         - BUILD_JOB_NUM=2
     - <<: *coverage_jobs
-      env: 
+      env:
         - PYVER=27
         - PYTHON=2.7
         - BUILD_JOB_NUM=3
     - <<: *coverage_jobs
-      env: 
+      env:
         - PYVER=27
         - PYTHON=2.7
         - BUILD_JOB_NUM=4
 
     - <<: *coverage_jobs
       python: 3.6
-      env: 
+      env:
         - PYVER=36
         - PYTHON=3.6
         - BUILD_JOB_NUM=1
     - <<: *coverage_jobs
       python: 3.6
-      env: 
+      env:
         - PYVER=36
         - PYTHON=3.6
         - BUILD_JOB_NUM=2
     - <<: *coverage_jobs
       python: 3.6
-      env: 
+      env:
         - PYVER=36
         - PYTHON=3.6
         - BUILD_JOB_NUM=3
     - <<: *coverage_jobs
       python: 3.6
-      env: 
+      env:
         - PYVER=36
         - PYTHON=3.6
         - BUILD_JOB_NUM=4

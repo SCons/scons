@@ -24,8 +24,8 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
-Test creation of a Tex document with nested includes in a 
+r"""
+Test creation of a Tex document with nested includes in a
 subdir that needs to create a fig.pdf.
 Test creation with pdflatex
 
@@ -117,7 +117,7 @@ $F2psBegin
  0.06299 0.06299 sc
 %
 % Fig objects follow
-% 
+%
 7.500 slw
 % Ellipse
 n 1170 945 766 766 0 360 DrawEllipse gs col0 s gr
@@ -135,13 +135,13 @@ r"""\documentclass{report}
 \usepackage{epsfig,color} % for .tex version of figures if we go that way
 
 \begin{document}
- 
+
 \title{Report Title}
 
 \author{A. N. Author}
- 
-\maketitle 
- 
+
+\maketitle
+
 \begin{abstract}
 there is no abstract
 \end{abstract}
@@ -152,14 +152,14 @@ The introduction is short.
 
 \section{Acknowledgements}
 
-The Acknowledgements are shown as well.  
+The Acknowledgements are shown as well.
 
 To get a hard copy of this report call me.
 
 \begin{figure}[htbp]
 \begin{center}
-\includegraphics 
- [width=.5\textwidth] 
+\includegraphics
+ [width=.5\textwidth]
  {Fig1}
 \caption{Zone and Node indexing}
 \label{fig1}

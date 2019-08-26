@@ -102,8 +102,9 @@ env.Package( NAME        = 'libfoo',
 
 test.run(stderr = None)
 
-str = os.popen( 'tar -tzf %s'%test.workpath('libfoo-1.2.3.tar.gz') ).read()
-test.fail_test( str != "libfoo-1.2.3/src/main.c\nlibfoo-1.2.3/SConstruct\n" )
+with os.popen('tar -tzf %s'%test.workpath('libfoo-1.2.3.tar.gz')) as p:
+    str = p.read()
+test.fail_test(str != "libfoo-1.2.3/src/main.c\nlibfoo-1.2.3/SConstruct\n")
 
 test.pass_test()
 

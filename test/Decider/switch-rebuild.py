@@ -38,7 +38,8 @@ DefaultEnvironment(tools=[])
 Decider('%s')
 
 def build(env, target, source):
-    open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
+    with open(str(target[0]), 'wt') as f, open(str(source[0]), 'rt') as ifp:
+        f.write(ifp.read())
 B = Builder(action=build)
 env = Environment(tools=[], BUILDERS = { 'B' : B })
 env.B(target='switch.out', source='switch.in')

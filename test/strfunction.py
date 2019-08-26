@@ -36,7 +36,8 @@ test = TestSCons.TestSCons()
 
 test.write('cat.py', """\
 import sys
-open(sys.argv[2], "wb").write(open(sys.argv[1], "rb").read())
+with open(sys.argv[2], "wb") as f, open(sys.argv[1], "rb") as ifp:
+    f.write(ifp.read())
 sys.exit(0)
 """)
 
@@ -49,7 +50,8 @@ def strfunction(target, source, env):
 def func(target, source, env):
     t = str(target[0])
     s = str(source[0])
-    open(t, 'w').write(open(s, 'r').read())
+    with open(t, 'w') as f, open(s, 'r') as ifp:
+        f.write(ifp.read())
 func1action = Action(func, strfunction)
 func2action = Action(func, strfunction=strfunction)
 

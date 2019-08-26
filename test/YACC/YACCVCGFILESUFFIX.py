@@ -48,13 +48,14 @@ for o, a in opts:
     elif o == '-o':
         outfile = open(a, 'wb')
 for f in args:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != b'/*yacc*/\\n']:
-        outfile.write(l)
+    with open(f, 'rb') as infile:
+        for l in [l for l in infile.readlines() if l != b'/*yacc*/\\n']:
+            outfile.write(l)
 outfile.close()
 if vcg:
     base, ext = os.path.splitext(args[0])
-    open(base+'.vcgsuffix', 'wb').write((" ".join(sys.argv)+'\\n').encode())
+    with open(base+'.vcgsuffix', 'wb') as outfile:
+        outfile.write((" ".join(sys.argv)+'\\n').encode())
 sys.exit(0)
 """)
 

@@ -40,7 +40,8 @@ test.subdir('sub1', 'sub2')
 test.write('SConstruct', """
 def batch_build(target, source, env):
     for t, s in zip(target, source):
-        open(str(t), 'wb').write(open(str(s), 'rb').read())
+        with open(str(t), 'wb') as f, open(str(s), 'rb') as infp:
+            f.write(infp.read())
 if ARGUMENTS.get('BATCH_CALLABLE'):
     def batch_key(action, env, target, source):
         return (id(action), id(env), target[0].dir)

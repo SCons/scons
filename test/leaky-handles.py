@@ -41,11 +41,10 @@ if os.name != 'posix' or sys.platform == 'darwin':
 
 test.write('SConstruct', """
 
-#Leak a file handle
-open('/dev/null')
-
-#Check it gets closed
-test2 = Command('test2', [], '@ls /proc/$$$$/fd|wc -l')
+# Leave a file handle open when invoking a command
+with open('/dev/null'):
+    # Check it gets closed when an external command is forked off:
+    test2 = Command('test2', [], '@ls /proc/$$$$/fd|wc -l')
 """)
 
 # In theory that should have 3 lines (handles 0/1/2). This is v. unix specific

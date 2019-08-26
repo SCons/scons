@@ -76,7 +76,9 @@ def testForTool(tool):
         test.fail_test()
 
     test.dir_fixture('Image')
-    test.write('SConstruct', open('SConstruct_template', 'r').read().format(tool))
+    with open('SConstruct_template', 'r') as f:
+        config = f.read().format(tool)
+    test.write('SConstruct', config)
 
     if Base()['DC'] == 'gdmd':
         # The gdmd executable in Debian Unstable as at 2012-05-12, version 4.6.3 puts out messages on stderr

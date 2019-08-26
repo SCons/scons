@@ -36,10 +36,10 @@ test = TestSCons.TestSCons()
 
 test.write('cat.py', """\
 import sys
-ofp = open(sys.argv[1], 'wb')
-for s in sys.argv[2:]:
-    ofp.write(open(s, 'rb').read())
-ofp.close()
+with open(sys.argv[1], 'wb') as ofp:
+    for s in sys.argv[2:]:
+        with open(s, 'rb') as ifp:
+            ofp.write(ifp.read())
 """)
 
 test.write('SConstruct', """

@@ -468,6 +468,14 @@ def pass_test(self=None, condition=1, function=None):
 
 def match_exact(lines=None, matches=None, newline=os.sep):
     """
+    Match function using exact match.
+
+    :param lines: data lines
+    :type lines: str or list[str]
+    :param matches: expected lines to match
+    :type matches: str or list[str]
+    :param newline: line separator
+    :returns: an object (1) on match, else None, like re.match
     """
 
     if isinstance(lines, bytes) or bytes is str:
@@ -478,30 +486,51 @@ def match_exact(lines=None, matches=None, newline=os.sep):
     if not is_List(matches):
         matches = matches.split(newline)
     if len(lines) != len(matches):
-        return
-    for i in range(len(lines)):
-        if lines[i] != matches[i]:
-            return
+        return None
+    for line, match in zip(lines, matches):
+        if line != match:
+            return None
     return 1
 
 
 def match_caseinsensitive(lines=None, matches=None):
     """
+    Match function using case-insensitive matching.
+
+    Only a simplistic comparison is done, based on lowercasing the
+    strings. This has plenty of holes for unicode data using
+    non-English languages.
+
+    TODO: casefold() is better than lower() if we don't need Py2 support.
+
+    :param lines: data lines
+    :type lines: str or list[str]
+    :param matches: expected lines to match
+    :type matches: str or list[str]
+    :returns: True or False
+    :returns: an object (1) on match, else None, like re.match
     """
     if not is_List(lines):
         lines = lines.split("\n")
     if not is_List(matches):
         matches = matches.split("\n")
     if len(lines) != len(matches):
-        return
-    for i in range(len(lines)):
-        if lines[i].lower() != matches[i].lower():
-            return
+        return None
+    for line, match in zip(lines, matches):
+        if line.lower() != match.lower():
+            return None
     return 1
 
 
 def match_re(lines=None, res=None):
     """
+    Match function using line-by-line regular expression match.
+
+    :param lines: data lines
+    :type lines: str or list[str]
+    :param res: regular expression(s) for matching
+    :type res: str or list[str]
+    :returns: an object (1) on match, else None, like re.match
     """
     if not is_List(lines):
         # CRs mess up matching (Windows) so split carefully
@@ -510,29 +539,39 @@ def match_re(lines=None, res=None):
         res = res.split("\n")
     if len(lines) != len(res):
         print("match_re: expected %d lines, found %d" % (len(res), len(lines)))
-        return
-    for i in range(len(lines)):
-        s = "^" + res[i] + "$"
+        return None
+    for i, (line, regex) in enumerate(zip(lines, res)):
+        s = r"^{}$".format(regex)
         try:
             expr = re.compile(s)
         except re.error as e:
             msg = "Regular expression error in %s: %s"
             raise re.error(msg % (repr(s), e.args[0]))
-        if not expr.search(lines[i]):
-            print("match_re: mismatch at line %d:\n  search re='%s'\n  line='%s'" % (
-                i, s, lines[i]))
-            return
+        if not expr.search(line):
+            miss_tmpl = "match_re: mismatch at line {}:\n  search re='{}'\n  line='{}'"
+            print(miss_tmpl.format(i, s, line))
+            return None
     return 1
 
 
 def match_re_dotall(lines=None, res=None):
     """
+    Match function using regular expression match.
+
+    Unlike match_re, the arguments are converted to strings (if necessary)
+    and must match exactly.
+
+    :param lines: data lines
+    :type lines: str or list[str]
+    :param res: regular expression(s) for matching
+    :type res: str or list[str]
+    :returns: a match object, or None as for re.match
     """
     if not isinstance(lines, str):
         lines = "\n".join(lines)
     if not isinstance(res, str):
         res = "\n".join(res)
-    s = "^" + res + "$"
+    s = r"^{}$".format(res)
     try:
         expr = re.compile(s, re.DOTALL)
     except re.error as e:
@@ -542,11 +581,32 @@ def match_re_dotall(lines=None, res=None):
 
 
 def simple_diff(a, b, fromfile='', tofile='',
-                fromfiledate='', tofiledate='', n=3, lineterm='\n'):
-    """
-    A function with the same calling signature as difflib.context_diff
-    (diff -c) and difflib.unified_diff (diff -u) but which prints
-    output like the simple, unadorned 'diff" command.
+                fromfiledate='', tofiledate='', n=0, lineterm=''):
+    r"""
+    Compare two sequences of lines; generate the delta as a simple diff.
+
+    Similar to difflib.context_diff and difflib.unified_diff but
+    output is like from the 'diff" command without arguments. The function
+    keeps the same signature as the difflib ones so they will be
+    interchangeable,  but except for lineterm, the arguments beyond the
+    two sequences are ignored in this version. By default, the
+    diff is not created with trailing newlines, set the lineterm
+    argument to '\n' to do so.
+
+    :raises re.error: if a regex fails to compile
+
+    Example:
+
+    >>> print(''.join(simple_diff('one\ntwo\nthree\nfour\n'.splitlines(True),
+    ...       'zero\none\ntree\nfour\n'.splitlines(True), lineterm='\n')))
+    0a1
+    > zero
+    2,3c3
+    < two
+    < three
+    ---
+    > tree
+
     """
     a = [to_str(q) for q in a]
     b = [to_str(q) for q in b]
@@ -554,25 +614,30 @@ def simple_diff(a, b, fromfile='', tofile='',
 
     def comma(x1, x2):
         return x1 + 1 == x2 and str(x2) or '%s,%s' % (x1 + 1, x2)
-    result = []
+
     for op, a1, a2, b1, b2 in sm.get_opcodes():
         if op == 'delete':
-            result.append("%sd%d" % (comma(a1, a2), b1))
-            result.extend(['< ' + l for l in a[a1:a2]])
+            yield "{}d{}{}".format(comma(a1, a2), b1, lineterm)
+            for l in a[a1:a2]:
+                yield '< ' + l
         elif op == 'insert':
-            result.append("%da%s" % (a1, comma(b1, b2)))
-            result.extend(['> ' + l for l in b[b1:b2]])
+            yield "{}a{}{}".format(a1, comma(b1, b2), lineterm)
+            for l in b[b1:b2]:
+                yield '> ' + l
         elif op == 'replace':
-            result.append("%sc%s" % (comma(a1, a2), comma(b1, b2)))
-            result.extend(['< ' + l for l in a[a1:a2]])
-            result.append('---')
-            result.extend(['> ' + l for l in b[b1:b2]])
-    return result
+            yield "{}c{}{}".format(comma(a1, a2), comma(b1, b2), lineterm)
+            for l in a[a1:a2]:
+                yield '< ' + l
+            yield '---{}'.format(lineterm)
+            for l in b[b1:b2]:
+                yield '> ' + l
 
 
 def diff_re(a, b, fromfile='', tofile='',
             fromfiledate='', tofiledate='', n=3, lineterm='\n'):
     """
+    Compare a and b (lists of strings) where a are regexes.
+
     A simple "diff" of two sets of lines when the expected lines
     are regular expressions.  This is a really dumb thing that
     just compares each line in turn, so it doesn't look for
@@ -585,9 +650,8 @@ def diff_re(a, b, fromfile='', tofile='',
         a = a + [''] * (-diff)
     elif diff > 0:
         b = b + [''] * diff
-    i = 0
-    for aline, bline in zip(a, b):
-        s = "^" + aline + "$"
+    for i, (aline, bline) in enumerate(zip(a, b)):
+        s = r"^{}$".format(aline)
         try:
             expr = re.compile(s)
         except re.error as e:
@@ -598,7 +662,6 @@ def diff_re(a, b, fromfile='', tofile='',
             result.append('< ' + repr(a[i]))
             result.append('---')
             result.append('> ' + repr(b[i]))
-        i = i + 1
     return result
 
 
@@ -972,6 +1035,12 @@ class TestCmd(object):
         self.subdir(subdir)
         self.fixture_dirs = []
 
+        try:
+            self.fixture_dirs = (os.environ['FIXTURE_DIRS']).split(os.pathsep)
+        except KeyError:
+            pass
+
+
     def __del__(self):
         self.cleanup()
 
@@ -1024,7 +1093,7 @@ class TestCmd(object):
             condition = self.condition
         if self._preserve[condition]:
             for dir in self._dirlist:
-                print(u"Preserved directory " + dir + "\n")
+                print(u"Preserved directory " + dir)
         else:
             list = self._dirlist[:]
             list.reverse()
@@ -1240,6 +1309,7 @@ class TestCmd(object):
 
     def read(self, file, mode='rb', newline=None):
         """Reads and returns the contents of the specified file name.
+
         The file name may be a list, in which case the elements are
         concatenated with the os.path.join() method.  The file is
         assumed to be under the temporary working directory unless it
@@ -1259,6 +1329,7 @@ class TestCmd(object):
 
     def rmdir(self, dir):
         """Removes the specified dir name.
+
         The dir name may be a list, in which case the elements are
         concatenated with the os.path.join() method.  The dir is
         assumed to be under the temporary working directory unless it
@@ -1300,6 +1371,7 @@ class TestCmd(object):
         """Copies the contents of the specified folder srcdir from
         the directory of the called  script, to the current
         working directory.
+
         The srcdir name may be a list, in which case the elements are
         concatenated with the os.path.join() method.  The dstdir is
         assumed to be under the temporary working directory, it gets
@@ -1341,6 +1413,7 @@ class TestCmd(object):
     def file_fixture(self, srcfile, dstfile=None):
         """Copies the file srcfile from the directory of
         the called script, to the current working directory.
+
         The dstfile is assumed to be under the temporary working
         directory unless it is an absolute path name.
         If dstfile is specified its target directory gets created
@@ -1437,6 +1510,7 @@ class TestCmd(object):
     def fix_binary_stream(stream):
         """
         Handle stdout/stderr from popen when we specify universal_newlines = False.
+
         This will read from the pipes in binary mode, not decode the output,
         and not convert line endings to \n.
         We do this because in py3 (3.5) with universal_newlines=True, it will
@@ -1453,7 +1527,7 @@ class TestCmd(object):
             return stream
         # TODO: Run full tests on both platforms and see if this fixes failures
         # It seems that py3.6 still sets text mode if you set encoding.
-        elif sys.version_info[0] == 3:# TODO and sys.version_info[1] < 6:
+        elif sys.version_info[0] == 3:  # TODO and sys.version_info[1] < 6:
             stream = stream.decode('utf-8')
             stream = stream.replace('\r\n', '\n')
         elif sys.version_info[0] == 2:
@@ -1627,7 +1701,7 @@ class TestCmd(object):
             try:
                 os.mkdir(new)
             except OSError as e:
-                print("Got error :%s"%e)
+                print("Got error creating dir: %s :%s" % (sub, e))
                 pass
             else:
                 count = count + 1

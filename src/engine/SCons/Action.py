@@ -211,7 +211,7 @@ def _object_contents(obj):
 
 
 def _code_contents(code, docstring=None):
-    """Return the signature contents of a code object.
+    r"""Return the signature contents of a code object.
 
     By providing direct access to the code object of the
     function, Python makes this extremely easy.  Hooray!
@@ -534,7 +534,7 @@ class ActionBase(object):
         result = self.get_presig(target, source, env)
 
         if not isinstance(result,(bytes, bytearray)):
-            result = bytearray("",'utf-8').join([ SCons.Util.to_bytes(r) for r in result ])
+            result = bytearray(result, 'utf-8')
         else:
             # Make a copy and put in bytearray, without this the contents returned by get_presig
             # can be changed by the logic below, appending with each call and causing very
@@ -767,16 +767,22 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
     it'll have to be tweaked to get the full desired functionality.
     one special arg (so far?), 'error', to tell what to do with exceptions.
     """
-    # allow std{in,out,err} to be "'devnull'"
-    io = kw.get('stdin')
-    if is_String(io) and io == 'devnull':
-        kw['stdin'] = open(os.devnull)
-    io = kw.get('stdout')
-    if is_String(io) and io == 'devnull':
-        kw['stdout'] = open(os.devnull, 'w')
-    io = kw.get('stderr')
-    if is_String(io) and io == 'devnull':
-        kw['stderr'] = open(os.devnull, 'w')
+    # allow std{in,out,err} to be "'devnull'".  This is like
+    # subprocess.DEVNULL, which does not exist for Py2. Use the
+    # subprocess one if possible.
+    # Clean this up when Py2 support is dropped
+    try:
+        from subprocess import DEVNULL
+    except ImportError:
+        DEVNULL = None
+
+    for stream in 'stdin', 'stdout', 'stderr':
+        io = kw.get(stream)
+        if is_String(io) and io == 'devnull':
+            if DEVNULL:
+                kw[stream] = DEVNULL
+            else:
+                kw[stream] = open(os.devnull, "r+")
 
     # Figure out what shell environment to use
     ENV = kw.get('env', None)
@@ -802,7 +808,7 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
     kw['env'] = new_env
 
     try:
-        pobj =  subprocess.Popen(cmd, **kw)
+        pobj = subprocess.Popen(cmd, **kw)
     except EnvironmentError as e:
         if error == 'raise': raise
         # return a dummy Popen instance that only returns error
@@ -820,9 +826,10 @@ def _subproc(scons_env, cmd, error = 'ignore', **kw):
     finally:
         # clean up open file handles stored in parent's kw
         for k, v in kw.items():
-            if hasattr(v, 'close'):
+            if inspect.ismethod(getattr(v, 'close', None)):
                 v.close()
-        return pobj
+
+    return pobj
 
 
 class CommandAction(_ActionAction):
@@ -1091,7 +1098,7 @@ class LazyAction(CommandGeneratorAction, CommandAction):
 
     def get_parent_class(self, env):
         c = env.get(self.var)
-        if is_String(c) and not '\n' in c:
+        if is_String(c) and '\n' not in c:
             return CommandAction
         return CommandGeneratorAction
 

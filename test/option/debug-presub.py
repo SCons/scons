@@ -32,7 +32,8 @@ test = TestSCons.TestSCons()
 
 test.write('cat.py', """\
 import sys
-open(sys.argv[2], "wb").write(open(sys.argv[1], "rb").read())
+with open(sys.argv[2], "wb") as f, open(sys.argv[1], "rb") as infp:
+    f.write(infp.read())
 sys.exit(0)
 """)
 
@@ -40,10 +41,10 @@ test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
 def cat(env, source, target):
     target = str(target[0])
-    f = open(target, "wb")
-    for src in source:
-        f.write(open(str(src), "rb").read())
-    f.close()
+    with open(target, "wb") as f:
+        for src in source:
+            with open(str(src), "rb") as infp:
+                f.write(infp.read())
 FILE = Builder(action="$FILECOM")
 TEMP = Builder(action="$TEMPCOM")
 LIST = Builder(action="$LISTCOM")

@@ -59,10 +59,10 @@ var9 = Dir('../build/var9')
 
 def cat(env, source, target):
     target = str(target[0])
-    f = open(target, "wb")
-    for src in source:
-        f.write(open(str(src), "rb").read())
-    f.close()
+    with open(target, "wb") as ofp:
+        for src in source:
+            with open(str(src), "rb") as ifp:
+                ofp.write(ifp.read())
 
 env = Environment(BUILDERS={'Cat':Builder(action=cat)},
                   BUILD='build')
@@ -94,7 +94,7 @@ env.SConscript('src/SConscript', variant_dir='../$BUILD/var8', duplicate=0)
 # VariantDir('build/var9', '.')
 # SConscript('build/var9/src/SConscript')
 SConscript('src/SConscript', variant_dir='build/var9', src_dir='.')
-""") 
+""")
 
 test.subdir(['test', 'src'], ['test', 'alt'])
 
@@ -154,12 +154,12 @@ for file in ['aaa.in', 'bbb.in', 'ccc.in']:
     test.must_exist(test.workpath('test', 'build', 'var2', file))
     test.fail_test(not equal_stats(test.workpath('test', 'build', 'var2', file),
                                    test.workpath('test', 'src', file)))
- 
+
 # Make sure we didn't duplicate the source files in build/var3.
 test.must_not_exist(test.workpath('test', 'build', 'var3', 'aaa.in'))
 test.must_not_exist(test.workpath('test', 'build', 'var3', 'bbb.in'))
 test.must_not_exist(test.workpath('test', 'build', 'var3', 'ccc.in'))
- 
+
 #XXX We can't support var4 and var5 yet, because our VariantDir linkage
 #XXX is to an entire source directory.  We haven't yet generalized our
 #XXX infrastructure to be able to take the SConscript file from one source
@@ -186,12 +186,12 @@ for file in ['aaa.in', 'bbb.in', 'ccc.in']:
     test.must_exist(test.workpath('build', 'var6', file))
     test.fail_test(not equal_stats(test.workpath('build', 'var6', file),
                                    test.workpath('test', 'src', file)))
- 
+
 # Make sure we didn't duplicate the source files in build/var7.
 test.must_not_exist(test.workpath('build', 'var7', 'aaa.in'))
 test.must_not_exist(test.workpath('build', 'var7', 'bbb.in'))
 test.must_not_exist(test.workpath('build', 'var7', 'ccc.in'))
- 
+
 # Make sure we didn't duplicate the source files in build/var8.
 test.must_not_exist(test.workpath('build', 'var8', 'aaa.in'))
 test.must_not_exist(test.workpath('build', 'var8', 'bbb.in'))

@@ -37,7 +37,8 @@ test.subdir('sub1', 'sub2')
 
 test.write('build.py', r"""
 import sys
-open(sys.argv[1], 'wb').write(open(sys.argv[2], 'rb').read())
+with open(sys.argv[1], 'wb') as f, open(sys.argv[2], 'rb') as ifp:
+    f.write(ifp.read())
 sys.exit(0)
 """)
 

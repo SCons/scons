@@ -125,11 +125,11 @@ def build_specfile(target, source, env):
     """ Builds a RPM specfile from a dictionary with string metadata and
     by analyzing a tree of nodes.
     """
-    with open(target[0].get_abspath(), 'w') as file:
+    with open(target[0].get_abspath(), 'w') as ofp:
         try:
-            file.write(build_specfile_header(env))
-            file.write(build_specfile_sections(env))
-            file.write(build_specfile_filesection(env, source))
+            ofp.write(build_specfile_header(env))
+            ofp.write(build_specfile_sections(env))
+            ofp.write(build_specfile_filesection(env, source))
 
             # call a user specified function
             if 'CHANGE_SPECFILE' in env:

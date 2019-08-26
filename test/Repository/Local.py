@@ -49,8 +49,8 @@ def copy(env, source, target):
     source = str(source[0])
     target = str(target[0])
     print('copy() < %s > %s' % (source, target))
-    with open(target, 'w') as fo, open(source, 'r') as fi:
-        fo.write(fi.read())
+    with open(target, 'w') as ofp, open(source, 'r') as ifp:
+        ofp.write(ifp.read())
 
 Build = Builder(action=copy)
 env = Environment(BUILDERS={'Build':Build}, BBB='bbb')

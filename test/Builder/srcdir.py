@@ -41,10 +41,10 @@ file3 = test.workpath('file3')
 
 test.write(['src', 'cat.py'], """\
 import sys
-o = open(sys.argv[1], 'wb')
-for f in sys.argv[2:]:
-    o.write(open(f, 'rb').read())
-o.close()
+with open(sys.argv[1], 'wb') as o:
+    for f in sys.argv[2:]:
+        with open(f, 'rb') as i:
+            o.write(i.read())
 """)
 
 test.write(['src', 'SConstruct'], """\

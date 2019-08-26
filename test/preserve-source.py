@@ -36,10 +36,10 @@ def cat(env, source, target):
     target = str(target[0])
     source = list(map(str, source))
     print('cat(%s) > %s' % (source, target))
-    f = open(target, "wb")
-    for src in source:
-        f.write(open(src, "rb").read())
-    f.close()
+    with open(target, "wb") as f:
+        for src in source:
+            with open(src, "rb") as ifp:
+                f.write(ifp.read())
 
 env = Environment(BUILDERS={'Build':Builder(action=cat)})
 env.Build('aaa.out', 'aaa.in')

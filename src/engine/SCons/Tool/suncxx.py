@@ -52,7 +52,13 @@ def get_package_info(package_name, pkginfo, pkgchk):
         version = None
         pathname = None
         try:
-            sadm_contents = open('/var/sadm/install/contents', 'r').read()
+            from subprocess import DEVNULL # py3k
+        except ImportError:
+            DEVNULL = open(os.devnull, 'wb')
+
+        try:
+            with open('/var/sadm/install/contents', 'r') as f:
+                sadm_contents = f.read()
         except EnvironmentError:
             pass
         else:
@@ -64,7 +70,7 @@ def get_package_info(package_name, pkginfo, pkgchk):
         try:
             p = subprocess.Popen([pkginfo, '-l', package_name],
                                  stdout=subprocess.PIPE,
-                                 stderr=open('/dev/null', 'w'))
+                                 stderr=DEVNULL)
         except EnvironmentError:
             pass
         else:
@@ -78,7 +84,7 @@ def get_package_info(package_name, pkginfo, pkgchk):
             try:
                 p = subprocess.Popen([pkgchk, '-l', package_name],
                                      stdout=subprocess.PIPE,
-                                     stderr=open('/dev/null', 'w'))
+                                     stderr=DEVNULL)
             except EnvironmentError:
                 pass
             else:

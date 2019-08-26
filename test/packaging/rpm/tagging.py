@@ -85,11 +85,13 @@ src_rpm = 'foo-1.2.3-0.src.rpm'
 machine_rpm = 'foo-1.2.3-0.%s.rpm' % SCons.Tool.rpmutils.defaultMachine()
 
 test.must_exist( machine_rpm )
-out = os.popen('rpm -qpl %s' % machine_rpm).read()
+with os.popen('rpm -qpl %s' % machine_rpm) as p:
+    out = p.read()
 test.must_contain_all_lines( out, '/bin/main')
 
 test.must_exist( src_rpm )
-out = os.popen('rpm -qpl %s' % src_rpm).read()
+with os.popen('rpm -qpl %s' % src_rpm) as p:
+    out = p.read()
 test.fail_test( not out == 'foo-1.2.3.spec\nfoo-1.2.3.tar.gz\n')
 
 expect = '(0755, root, users) /bin/main'
