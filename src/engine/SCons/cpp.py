@@ -218,7 +218,7 @@ class FunctionEvaluator(object):
 
         parts = []
         for s in self.expansion:
-            if not s in self.args:
+            if s not in self.args:
                 s = repr(s)
             parts.append(s)
         statement = ' + '.join(parts)
@@ -580,13 +580,13 @@ class PreProcessor(object):
         if self.depth != -1:
             current_depth = 0
             for t in self.tuples:
-                if t[0] != "scons_current_file":
+                if t[0] == "scons_current_file":
                     current_depth += 1
             if current_depth >= self.depth:
                 return
 
         new_tuples = [('scons_current_file', include_file)] + \
-                     self.tupleize(self.read_file(include_file)) + \
+                      self.tupleize_file(include_file) + \
                      [('scons_current_file', self.current_file)]
         self.tuples[:] = new_tuples + self.tuples
 
