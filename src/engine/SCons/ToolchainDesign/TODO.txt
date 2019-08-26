@@ -11,13 +11,15 @@ Tools:
    E.g. env['CC'] = 'MissingCCTool' or even throw an exception
  * OR: should it simply create its Builder(s) to throw an exception?
    (This might be hard with how Program and Object etc. work now)
- * exists() must be True/False, not return a tuple
+ * DONE exists() must be True/False, not return a tuple
    (or return something testable as True/False)
- * XXX: if a Tool defines a single Builder, instances with different
-   args will redefine the same Builder rather than different Builders,
-   so the args don't really work.  Tools need to make different
-   Builders somehow.  Need to figure this out!
-
+   - see set_exists_error()/exists_error()
+ * standard tool args, e.g. finding in PATH vs. not?
+   - and what if a Tool wants to use construction vars from
+     an Environment to find its path?  Right now Tools are
+     constructed outside any env.  They'd have to do some lazy
+     init, but then can they know they exist vs. not?
+   - I think Tools have to be constructable outside any Env.
 
 Toolchain:
  * DONE simple chains
@@ -34,9 +36,20 @@ Questions:
    the actual ones, or can the returned Tool subclass just be used
    directly?  Another way to look at it: should Tool be a container
    for the real tool, or should the real tool be a subclass of Tool?
+   - exists() could be memoized
+   - generate() could call exists() if needed
+   - could do logging
+   - could handle some standard tool args
+ * related: should generate() always call exists()?
  * How can a user (SConstruct author or Tool author) modify existing
    toolchains to add their tool or add/subtract tools from default lists?
+   - maybe copy and replace?
  * Should there be some Tool-subsystem-global configuration?
    - OS, ARCH etc.?
    - (default) PATH to use to find executables?
    If so, where should it live?  Base Tool class?
+
+Notes:
+ * Note: a Tool defines a single Builder (normally), so instances with
+   different args will redefine the same Builder rather than different
+   Builders.  Changing this is outside the scope of this project.

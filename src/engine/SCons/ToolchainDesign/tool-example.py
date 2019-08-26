@@ -106,6 +106,7 @@ env=Environment()
 env2=Environment()
 
 copy_tool = Tool.Tool.lookup('cat-with-full-path') # creates MyCopy builder
+
 # XXX: have to call exists() before generate for this tool
 # (because it sets a needed member var)
 # should generate() always call exists() perhaps?
