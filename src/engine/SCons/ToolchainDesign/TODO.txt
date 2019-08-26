@@ -31,6 +31,31 @@ Toolchain:
  * Query if tool (a) has been registered and/or (b) exists (without registering it)
  * error handling
 
+Current work:
+
+My current task (Oct. 2015) is to design a good way for Tools to find
+their executables and configure themselves. The current ad-hoc method
+is not consistent and doesn't encourage reuse. Jason has some ideas in
+Parts (see its concept of Finders); I don't intend to reuse that
+directly but at least take some inspiration from it. My current design
+I'm working on is something like this: ... a good architecture might
+be to have a list of finders, to be tried in order; each one can be
+any type (env, reg, path, fixed path, function, whatever); build a
+list of all the results, and then have a finder-picker that picks the
+best from that list (the simplest finder-picker might be return
+paths[0]). But where that list comes from and how it's manipulated is
+still TBD.
+
+Additionally I'd like to see how far it makes sense to go in having
+standard args to configure Tools; one way is just to leave args up to
+each Tool (but maybe have the Finders have some high-level control);
+the other is to define many standard ones (like ARCH, search in PATH
+or some custom path, and so on) - the latter will make it easier
+someday to pass these all the way down from the cmd line. I want Tools
+(and their Toolchains) to stand alone easily, but also have some way
+to override their decisions at a high level (globally, from cmd line,
+etc.)
+
 Questions:
  * should exists and/or generate be methods on Tool that redirect to
    the actual ones, or can the returned Tool subclass just be used
