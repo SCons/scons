@@ -52,18 +52,18 @@ class ToolTests(unittest.TestCase):
   def test_lookup(self):
     t1 = Tool.Tool.register('t1', MockTool, ('arg1'), kwarg1='kwval1')
     assert t1 == Tool.Tool.lookup('t1')
-    assert None == Tool.Tool.lookup('xyz')
+    assert Tool.Tool.lookup('xyz') is None
 
   def test_no_name(self):
     with self.assertRaises(Tool.ToolError):
       t1 = Tool.Tool.register(None, MockTool)
     with self.assertRaises(Tool.ToolError):
-      t1 = Tool.Tool.register('', MockTool)
+      t1 = Tool.Tool.register('', MockTool) # noqa: F841
 
   def test_name_mismatch(self):
     with self.assertRaises(Tool.ToolError):
-      t1 = Tool.Tool.register('t1', MockTool)
-      t2 = Tool.Tool.register('t2', MockTool)
+      t1 = Tool.Tool.register('t1', MockTool) # noqa: F841
+      t2 = Tool.Tool.register('t2', MockTool) # noqa: F841
 
   def test_generate(self):
     t1 = Tool.Tool.register('t1', MockTool, ('arg1'), kwarg1='kwval1')
@@ -72,7 +72,7 @@ class ToolTests(unittest.TestCase):
     assert t1.generate_called == 1
     assert t1.exists_called == 1
 
-  def test_generate(self):
+  def test_generate2(self):
     t1 = Tool.Tool.register('t1', MockTool, ('arg1'), kwarg1='kwval1')
     assert t1.exists()
     t1.generate(None)

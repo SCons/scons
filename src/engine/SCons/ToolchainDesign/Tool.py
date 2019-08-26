@@ -32,12 +32,12 @@ class ToolRegistry(object):
     log("registering %s, class %s, args %s, %s"%(name, toolclass, args, kwargs))
 
     if not name:
-      raise ToolError, "Trying to register tool with no name: class %s"%repr(toolclass)
+      raise ToolError("Trying to register tool with no name: class %s"%repr(toolclass))
 
     key = (toolclass, args, hashabledict(kwargs))
     t = self.tools.get(key)
     if t and t.name != name:
-      raise ToolError, "Found matching tool %s, but doesn't match name %s"%(t.name, name)
+      raise ToolError("Found matching tool %s, but doesn't match name %s"%(t.name, name))
 
     if not t:
       # create tool
@@ -114,4 +114,4 @@ class Tool(object):
     """Set up the env to use the tool.
     Defines construction variables, sets paths, etc.
     No return value."""
-    raise ToolError, "Should never call base Tool.generate()"
+    raise ToolError("Should never call base Tool.generate()")
