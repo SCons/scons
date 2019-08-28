@@ -1,38 +1,13 @@
----
-name: Bug report
-about: Create a report to help us improve
-title: ''
-labels: ''
-assignees: ''
+## Please bring your issue to the SCons users mailing list before filing an issue here
+## See: https://scons.org/bugs.html
 
----
+## If the issue is confirmed to be a bug please include the following information
 
-**Describe the bug**
-A clear and concise description of what the bug is.
-
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
-
-**Expected behavior**
-A clear and concise description of what you expected to happen.
-
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
-
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
-
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
-
-**Additional context**
-Add any other context about the problem here.
+* Link to SCons Users thread discussing your issue.
+* Version of SCons
+* Version of Python
+* Which python distribution if applicable (python.org, cygwin, anaconda, macports, brew,etc)
+* How you installed SCons
+* What Platform are you on? (Linux/Windows and which version)
+* How to reproduce your issue?  Please include a small self contained reproducer. Likely a SConstruct should do for most issues.
+* How you invoke scons (The command line you're using "scons --flags some_arguments")
