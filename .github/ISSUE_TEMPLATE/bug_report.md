@@ -1,8 +1,20 @@
+---
+name: Bug report
+about: Create a report to help us improve
+title: ''
+labels: ''
+assignees: ''
+
+---
+
 ## Please bring your issue to the SCons users mailing list before filing an issue here
 ## See: https://scons.org/bugs.html
 
-## If the issue is confirmed to be a bug please include the following information
 
+**Describe the bug**
+A clear and concise description of what the bug is.
+
+**Required information**
 * Link to SCons Users thread discussing your issue.
 * Version of SCons
 * Version of Python
