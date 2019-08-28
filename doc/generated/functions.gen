@@ -1335,7 +1335,7 @@ env.Depends(bar, installed_lib)
 Returns a dictionary object
 containing the <literal xmlns="http://www.scons.org/dbxsd/v1.0">construction variables</literal> in the <literal xmlns="http://www.scons.org/dbxsd/v1.0">construction environment</literal>.
 If there are any arguments specified,
-only the values of the specified <literal xmlns="http://www.scons.org/dbxsd/v1.0">construction variables</literal>
+the values of the specified <literal xmlns="http://www.scons.org/dbxsd/v1.0">construction variables</literal>
 are returned as a string (if one
 argument) or as a list of strings.
 </para>
