@@ -12,6 +12,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       across threads. Results in ~13% improvement for parallel builds
       (-j# > 1) with many shared nodes.
 
+  From Mats Wichmann
+    - Replace instances of string find method with "in" checks where
+      the index from find() was not used.
+
 
 RELEASE 3.1.1 - Mon, 07 Aug 2019 20:09:12 -0500
 
