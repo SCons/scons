@@ -790,7 +790,7 @@ class SubstitutionEnvironment(object):
                 elif arg == '-mwindows':
                     dict['LINKFLAGS'].append(arg)
                 elif arg[:5] == '-std=':
-                    if arg[5:].find('++')!=-1:
+                    if '++' in arg[5:]:
                         key='CXXFLAGS'
                     else:
                         key='CFLAGS'
@@ -2343,7 +2343,7 @@ class OverrideEnvironment(Base):
             return attr.clone(self)
         else:
             return attr
-        
+
     def __setattr__(self, name, value):
         setattr(self.__dict__['__subject'], name, value)
 
