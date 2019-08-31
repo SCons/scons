@@ -56,12 +56,26 @@ Runs = 10
 
 FunctionPrefix = 'Func'
 
-# The function used to get the current time.  The default of time.time is
-# good on most UNIX systems, but time.clock (selectable via the --clock
-# option) is better on Windows and some other UNIX systems.
+# Comment from Python2 timeit module:
+# The difference in default timer function is because on Windows,
+# clock() has microsecond granularity but time()'s granularity is 1/60th
+# of a second; on Unix, clock() has 1/100th of a second granularity and
+# time() is much more precise.  On either platform, the default timer
+# functions measure wall clock time, not the CPU time.  This means that
+# other processes running on the same computer may interfere with the
+# timing.  The best thing to do when accurate timing is necessary is to
+# repeat the timing a few times and use the best time.  The -i option is
+# good for this.
+# On Python3, a new time.perf_counter function picks the best available
+# timer, so we use that if we can, else fall back as per above.
 
-Now = time.time
-
+try:
+    Now = time.perf_counter
+except AttributeError:
+    if sys.platform == 'win32':
+        Now = time.clock
+    else:
+        Now = time.time
 
 opts, args = getopt.getopt(sys.argv[1:], 'hi:r:',
                            ['clock', 'func=', 'help',
@@ -69,7 +83,11 @@ opts, args = getopt.getopt(sys.argv[1:], 'hi:r:',
 
 for o, a in opts:
     if o in ['--clock']:
-        Now = time.clock
+        try:
+            Now = time.clock
+        except AttributeError:
+            sys.stderr.write("time.clock unavailable on this Python\n")
+            sys.exit(1)
     elif o in ['--func']:
         FunctionPrefix = a
     elif o in ['-h', '--help']:
@@ -87,9 +105,8 @@ if len(args) != 1:
     sys.stderr.write(Usage)
     sys.exit(1)
 
-
-exec(open(args[0], 'r').read())
-
+with open(args[0], 'r') as f:
+    exec(f.read())
 
 try:
     FunctionList
