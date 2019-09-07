@@ -28,7 +28,7 @@ See its __doc__ string for a discussion of the format.
 <para>
 Sets construction variables for generic POSIX linkers. This is
 a "smart" linker tool which selects a compiler to complete the linking
-based on the type of source file.
+based on the types of source files.
 </para>
 </summary>
 <sets>

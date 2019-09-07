@@ -711,7 +711,7 @@ Sets construction variables for the <application xmlns="http://www.scons.org/dbx
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 Sets construction variables for generic POSIX linkers. This is
 a "smart" linker tool which selects a compiler to complete the linking
-based on the type of source file.
+based on the types of source files.
 </para>
 <para>Sets:  &cv-link-LDMODULE;, &cv-link-LDMODULECOM;, &cv-link-LDMODULEFLAGS;, &cv-link-LDMODULENOVERSIONSYMLINKS;, &cv-link-LDMODULEPREFIX;, &cv-link-LDMODULESUFFIX;, &cv-link-LDMODULEVERSION;, &cv-link-LDMODULEVERSIONFLAGS;, &cv-link-LIBDIRPREFIX;, &cv-link-LIBDIRSUFFIX;, &cv-link-LIBLINKPREFIX;, &cv-link-LIBLINKSUFFIX;, &cv-link-LINK;, &cv-link-LINKCOM;, &cv-link-LINKFLAGS;, &cv-link-SHLIBSUFFIX;, &cv-link-SHLINK;, &cv-link-SHLINKCOM;, &cv-link-SHLINKFLAGS;, &cv-link-__LDMODULEVERSIONFLAGS;, &cv-link-__SHLIBVERSIONFLAGS;.</para><para>Uses:  &cv-link-LDMODULECOMSTR;, &cv-link-LINKCOMSTR;, &cv-link-SHLINKCOMSTR;.</para></listitem>
   </varlistentry>
