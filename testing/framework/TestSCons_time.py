@@ -55,19 +55,6 @@ with open('SConstruct', 'r') as f:
 exec(script)
 """
 
-aegis_py = """\
-#!/usr/bin/env python
-import os
-import sys
-
-script_dir = 'src/script'
-if not os.path.exists(script_dir):
-    os.makedirs(script_dir)
-with open(script_dir + '/scons.py', 'w') as f:
-    f.write(r'''%s''')
-""" % scons_py
-
-
 svn_py = """\
 #!/usr/bin/env python
 import os
@@ -242,12 +229,6 @@ class TestSCons_time(TestCommon):
         x = re.escape(x)
         x = x.replace('time\\-', 'time\\-[^%s]*' % sep)
         return x
-
-    def write_fake_aegis_py(self, name):
-        name = self.workpath(name)
-        self.write(name, aegis_py)
-        os.chmod(name, 0o755)
-        return name
 
     def write_fake_scons_py(self):
         self.subdir('src', ['src', 'script'])

@@ -274,8 +274,6 @@ class SConsTimer(object):
         return kw
 
     default_settings = makedict(
-        aegis               = 'aegis',
-        aegis_project       = None,
         chdir               = None,
         config_file         = None,
         initial_commands    = [],
@@ -1113,7 +1111,6 @@ class SConsTimer(object):
         help = """\
         Usage: scons-time run [OPTIONS] [FILE ...]
 
-          --aegis=PROJECT               Use SCons from the Aegis PROJECT
           --chdir=DIR                   Name of unpacked directory for chdir
           -f FILE, --file=FILE          Read configuration from specified FILE
           -h, --help                    Print this help and exit
@@ -1138,7 +1135,6 @@ class SConsTimer(object):
         short_opts = '?f:hnp:qs:v'
 
         long_opts = [
-            'aegis=',
             'file=',
             'help',
             'no-exec',
@@ -1157,9 +1153,7 @@ class SConsTimer(object):
         opts, args = getopt.getopt(argv[1:], short_opts, long_opts)
 
         for o, a in opts:
-            if o in ('--aegis',):
-                self.aegis_project = a
-            elif o in ('-f', '--file'):
+            if o in ('-f', '--file'):
                 self.config_file = a
             elif o in ('-?', '-h', '--help'):
                 self.do_help(['help', 'run'])
@@ -1211,8 +1205,6 @@ class SConsTimer(object):
         prepare = None
         if self.subversion_url:
             prepare = self.prep_subversion_run
-        elif self.aegis_project:
-            prepare = self.prep_aegis_run
 
         for run_number in run_number_list:
             self.individual_run(run_number, self.archive_list, prepare)
@@ -1233,20 +1225,6 @@ class SConsTimer(object):
 
     def scons_lib_dir_path(self, dir):
         return os.path.join(dir, 'src', 'engine')
-
-    def prep_aegis_run(self, commands, removals):
-        self.aegis_tmpdir = tempfile.mkdtemp(prefix=self.name + '-aegis-')
-        removals.append((shutil.rmtree, 'rm -rf %%s', self.aegis_tmpdir))
-
-        self.aegis_parent_project = os.path.splitext(self.aegis_project)[0]
-        self.scons = self.scons_path(self.aegis_tmpdir)
-        self.scons_lib_dir = self.scons_lib_dir_path(self.aegis_tmpdir)
-
-        commands.extend([
-            (lambda: os.chdir(self.aegis_tmpdir), 'cd %(aegis_tmpdir)s'),
-            '%(aegis)s -cp -ind -p %(aegis_parent_project)s .',
-            '%(aegis)s -cp -ind -p %(aegis_project)s -delta %(run_number)s .',
-        ])
 
     def prep_subversion_run(self, commands, removals):
         self.svn_tmpdir = tempfile.mkdtemp(prefix=self.name + '-svn-')
