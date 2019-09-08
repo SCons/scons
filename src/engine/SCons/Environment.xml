@@ -3650,30 +3650,51 @@ SConscript(dirs='doc', variant_dir='build/doc', duplicate=0)
 Searches for the specified executable
 <varname>program</varname>,
 returning the full path name to the program
-if it is found,
-and returning None if not.
-Searches the specified
-<varname>path</varname>,
-the value of the calling environment's PATH
-(<literal>env['ENV']['PATH']</literal>),
-or the user's current external PATH
-(<literal>os.environ['PATH']</literal>)
-by default.
+if it is found, else <literal>None</literal>.
+Searches the value of the
+<varname>path</varname> keyword argument,
+or if <literal>None</literal> (the default)
+the value of the calling environment's <envar>PATH</envar>
+(<literal>env['ENV']['PATH']</literal>).
+If <varname>path</varname> is <literal>None</literal> and
+the <literal>env['ENV']['PATH']</literal> key does not exist,
+the user's current external <envar>PATH</envar>
+(<literal>os.environ['PATH']</literal>) is used as fallback.
+</para>
+<para>
 On Windows systems, searches for executable
-programs with any of the file extensions
-listed in the specified
-<varname>pathext</varname>,
-the calling environment's PATHEXT
-(<literal>env['ENV']['PATHEXT']</literal>)
-or the user's current PATHEXT
+programs with any of the file extensions listed in the
+<varname>pathext</varname> keyword argument,
+or if <literal>None</literal> (the default)
+the calling environment's <envar>PATHEXT</envar>
+(<literal>env['ENV']['PATHEXT']</literal>).
+The user's current external <envar>PATHEXT</envar>
 (<literal>os.environ['PATHEXT']</literal>)
-by default.
+is used as a fallback if <varname>pathext</varname> is
+<literal>None</literal>
+and the key <literal>env['ENV']['PATHEXT']</literal>
+does not exist.
+</para>
+<para>
 Will not select any
 path name or names
 in the specified
 <varname>reject</varname>
 list, if any.
 </para>
+<note>
+<para>
+If you would prefer to search
+the user's current external <envar>PATH</envar>
+(<literal>os.environ['PATH']</literal>)
+by default,
+consider using the function <literal>SCons.Util.WhereIs</literal> instead.
+Note that <literal>SCons.Util.WhereIs</literal>
+does not expand environment variables automatically
+(no implicit <literal>env.subst</literal> for its arguments).
+</para>
+</note>
+
 </summary>
 </scons_function>
 
