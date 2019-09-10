@@ -108,7 +108,10 @@ class ValueTypes(object):
 
     @staticmethod
     def enum_name(value):
-        return ValueTypes.strings[value]
+        try:
+            return ValueTypes.strings[value]
+        except TypeError:
+            pass
 
 
 class EnvironmentValueParseError(Exception):
@@ -175,6 +178,9 @@ class EnvironmentValue(object):
 
     def __setitem__(self, key, value):
         self.value[key] = value
+
+    def __contains__(self, item):
+        return item in self.value
 
     def parse_value(self):
         """
@@ -353,7 +359,13 @@ class EnvironmentValue(object):
     def debug_print_parsed_parts(all_dependencies):
         for (index, val) in enumerate(all_dependencies):
             if val:
-                (t, v, i) = val
+                try:
+                    (t, v, i) = val
+                except TypeError:
+                    t = val.type
+                    v = val.value
+                    i = val.position
+
                 debug("[%4d] %20s, %5s, %s",index, ValueTypes.enum_name(t), i, v)
             else:
                 debug("[%4d] %20s, %5s, %s",index,"None","None","None")

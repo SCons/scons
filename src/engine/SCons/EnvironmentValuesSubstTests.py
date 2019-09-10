@@ -49,6 +49,7 @@ from SCons.SubstTests import escape_list
 
 class DummyNode(object):
     """Simple node work-alike."""
+
     def __init__(self, name):
         self.name = os.path.normpath(name)
 
@@ -69,10 +70,11 @@ class DummyEnv(object):
     """
     Simple Environment() work-alike.
     """
+
     def __init__(self, dict={}):
         self.envVal = EnvironmentValues(**dict)
 
-    def Dictionary(self, key = None):
+    def Dictionary(self, key=None):
         if not key:
             return self.envVal.values
         return self.envVal.values[key]
@@ -129,17 +131,20 @@ else:
 class SubstTestCase(unittest.TestCase):
     class MyNode(DummyNode):
         """Simple node work-alike with some extra stuff for testing."""
+
         def __init__(self, name):
             DummyNode.__init__(self, name)
 
             class Attribute(object):
                 pass
+
             self.attribute = Attribute()
             self.attribute.attr1 = 'attr$1-' + os.path.basename(name)
             self.attribute.attr2 = 'attr$2-' + os.path.basename(name)
 
         def get_stuff(self, extra):
             return self.name + extra
+
         foo = 1
 
     class TestLiteral(object):
@@ -165,12 +170,12 @@ class SubstTestCase(unittest.TestCase):
     def function_foo(arg):
         pass
 
-    target = [ MyNode("./foo/bar.exe"),
-               MyNode("/bar/baz with spaces.obj"),
-               MyNode("../foo/baz.obj") ]
-    source = [ MyNode("./foo/blah with spaces.cpp"),
-               MyNode("/bar/ack.cpp"),
-               MyNode("../foo/ack.c") ]
+    target = [MyNode("./foo/bar.exe"),
+              MyNode("/bar/baz with spaces.obj"),
+              MyNode("../foo/baz.obj")]
+    source = [MyNode("./foo/blah with spaces.cpp"),
+              MyNode("/bar/ack.cpp"),
+              MyNode("../foo/ack.c")]
 
     callable_object_1 = TestCallable('callable-1')
     callable_object_2 = TestCallable('callable-2')
@@ -185,82 +190,82 @@ class SubstTestCase(unittest.TestCase):
         return l
 
     loc = {
-        'xxx'       : None,
-        'NEWLINE'   : 'before\nafter',
+        'xxx': None,
+        'NEWLINE': 'before\nafter',
 
-        'null'      : '',
-        'zero'      : 0,
-        'one'       : 1,
-        'BAZ'       : 'baz',
-        'ONE'       : '$TWO',
-        'TWO'       : '$THREE',
-        'THREE'     : 'four',
+        'null': '',
+        'zero': 0,
+        'one': 1,
+        'BAZ': 'baz',
+        'ONE': '$TWO',
+        'TWO': '$THREE',
+        'THREE': 'four',
 
-        'AAA'       : 'a',
-        'BBB'       : 'b',
-        'CCC'       : 'c',
+        'AAA': 'a',
+        'BBB': 'b',
+        'CCC': 'c',
 
-        'DO'        : DummyNode('do something'),
-        'FOO'       : DummyNode('foo.in'),
-        'BAR'       : DummyNode('bar with spaces.out'),
-        'CRAZY'     : DummyNode('crazy\nfile.in'),
+        'DO': DummyNode('do something'),
+        'FOO': DummyNode('foo.in'),
+        'BAR': DummyNode('bar with spaces.out'),
+        'CRAZY': DummyNode('crazy\nfile.in'),
 
         # $XXX$HHH should expand to GGGIII, not BADNEWS.
-        'XXX'       : '$FFF',
-        'FFF'       : 'GGG',
-        'HHH'       : 'III',
-        'FFFIII'    : 'BADNEWS',
+        'XXX': '$FFF',
+        'FFF': 'GGG',
+        'HHH': 'III',
+        'FFFIII': 'BADNEWS',
 
-        'THING1'    : "$(STUFF$)",
-        'THING2'    : "$THING1",
+        'THING1': "$(STUFF$)",
+        'THING2': "$THING1",
 
-        'LITERAL'   : TestLiteral("$XXX"),
+        'LITERAL': TestLiteral("$XXX"),
 
         # Test that we can expand to and return a function.
-        #'FUNCTION'  : function_foo,
+        # 'FUNCTION'  : function_foo,
 
-        'CMDGEN1'   : CmdGen1,
-        'CMDGEN2'   : CmdGen2,
+        'CMDGEN1': CmdGen1,
+        'CMDGEN2': CmdGen2,
 
-        'LITERALS'  : [ Literal('foo\nwith\nnewlines'),
-                        Literal('bar\nwith\nnewlines') ],
+        'LITERALS': [Literal('foo\nwith\nnewlines'),
+                     Literal('bar\nwith\nnewlines')],
 
-        'NOTHING'   : "",
-        'NONE'      : None,
+        'NOTHING': "",
+        'NONE': None,
 
         # Test various combinations of strings, lists and functions.
-        'N'         : None,
-        'X'         : 'x',
-        'Y'         : '$X',
-        'R'         : '$R',
-        'S'         : 'x y',
-        'LS'        : ['x y'],
-        'L'         : ['x', 'y'],
-        'TS'        : ('x y'),
-        'T'         : ('x', 'y'),
-        'CS'        : cs,
-        'CL'        : cl,
-        'US'        : collections.UserString('us'),
+        'N': None,
+        'X': 'x',
+        'Y': '$X',
+        'R': '$R',
+        'S': 'x y',
+        'LS': ['x y'],
+        'L': ['x', 'y'],
+        'TS': ('x y'),
+        'T': ('x', 'y'),
+        'CS': cs,
+        'CL': cl,
+        'US': collections.UserString('us'),
 
         # Test function calls within ${}.
-        'FUNCCALL'  : '${FUNC1("$AAA $FUNC2 $BBB")}',
-        'FUNC1'     : lambda x: x,
-        'FUNC2'     : lambda target, source, env, for_signature: ['x$CCC'],
+        'FUNCCALL': '${FUNC1("$AAA $FUNC2 $BBB")}',
+        'FUNC1': lambda x: x,
+        'FUNC2': lambda target, source, env, for_signature: ['x$CCC'],
 
         # Various tests refactored from ActionTests.py.
-        'LIST'      : [["This", "is", "$(", "$a", "$)", "test"]],
+        'LIST': [["This", "is", "$(", "$a", "$)", "test"]],
 
         # Test recursion.
-        'RECURSE'   : 'foo $RECURSE bar',
-        'RRR'       : 'foo $SSS bar',
-        'SSS'       : '$RRR',
+        'RECURSE': 'foo $RECURSE bar',
+        'RRR': 'foo $SSS bar',
+        'SSS': '$RRR',
 
         # Test callables that don't match the calling arguments.
-        'CALLABLE1' : callable_object_1,
-        'CALLABLE2' : callable_object_2,
+        'CALLABLE1': callable_object_1,
+        'CALLABLE2': callable_object_2,
 
-        '_defines'  : _defines,
-        'DEFS'      : [ ('Q1', '"q1"'), ('Q2', '"$AAA"') ],
+        '_defines': _defines,
+        'DEFS': [('Q1', '"q1"'), ('Q2', '"$AAA"')],
     }
 
     def basic_comparisons(self, function, convert):
@@ -268,7 +273,7 @@ class SubstTestCase(unittest.TestCase):
 
         env = EnvironmentValues(**self.loc)
         cases = self.basic_cases[:]
-        total_tests = len(cases)/2
+        total_tests = len(cases) / 2
 
         kwargs = {'target': self.target,
                   'source': self.source,
@@ -293,24 +298,23 @@ class SubstTestCase(unittest.TestCase):
                     failed = failed + 1
             del cases[:2]
         fmt = "%d of %d [%d %%] %s() cases failed"
-        assert failed == 0, fmt % (failed, total_tests, (failed/total_tests)*100, function.__name__)
+        assert failed == 0, fmt % (failed, total_tests, (failed / total_tests) * 100, function.__name__)
 
 
 class EnvVariablesSubstTestCase(SubstTestCase):
-
     # Basic tests of substitution functionality.
     basic_cases = [
         # Basics:  strings without expansions are left alone, and
         # the simplest possible expansion to a null-string value.
-        "test",                 "test",
-        "$null",                "",
+        "test", "test",
+        "$null", "",
 
         # Test expansion of integer values.
-        "test $zero",           "test 0",
-        "test $one",            "test 1",
+        "test $zero", "test 0",
+        "test $one", "test 1",
 
         # Test multiple re-expansion of values.
-        "test $ONE",            "test four",
+        "test $ONE", "test four",
 
         # Test a whole bunch of $TARGET[S] and $SOURCE[S] expansions.
         "test $TARGETS $SOURCES",
@@ -367,61 +371,61 @@ class EnvVariablesSubstTestCase(SubstTestCase):
         #   $XXX$HHH => ${FFF}III => GGGIII
         # not:
         #   $XXX$HHH => ${FFFIII} => BADNEWS
-        "$XXX$HHH",             "GGGIII",
+        "$XXX$HHH", "GGGIII",
 
         # Test double-dollar-sign behavior.
-        "$$FFF$HHH",            "$FFFIII",
+        "$$FFF$HHH", "$FFFIII",
 
         # Test that a Literal will stop dollar-sign substitution.
-        "$XXX $LITERAL $FFF",   "GGG $XXX GGG",
+        "$XXX $LITERAL $FFF", "GGG $XXX GGG",
 
         # Test that we don't blow up even if they subscript
         # something in ways they "can't."
-        "${FFF[0]}",            "G",
-        "${FFF[7]}",            "",
-        "${NOTHING[1]}",        "",
+        "${FFF[0]}", "G",
+        "${FFF[7]}", "",
+        "${NOTHING[1]}", "",
 
         # Test various combinations of strings and lists.
-        #None,                   '',
-        '',                     '',
-        'x',                    'x',
-        'x y',                  'x y',
-        '$N',                   '',
-        '$X',                   'x',
-        '$Y',                   'x',
-        '$R',                   '',
-        '$S',                   'x y',
-        '$LS',                  'x y',
-        '$L',                   'x y',
-        '$TS',                  'x y',
-        '$T',                   'x y',
-        '$S z',                 'x y z',
-        '$LS z',                'x y z',
-        '$L z',                 'x y z',
-        '$TS z',                'x y z',
-        '$T z',                 'x y z',
-        #cs,                     'cs',
-        #cl,                     'cl',
-        '$CS',                  'cs',
-        '$CL',                  'cl',
+        # None,                   '',
+        '', '',
+        'x', 'x',
+        'x y', 'x y',
+        '$N', '',
+        '$X', 'x',
+        '$Y', 'x',
+        '$R', '',
+        '$S', 'x y',
+        '$LS', 'x y',
+        '$L', 'x y',
+        '$TS', 'x y',
+        '$T', 'x y',
+        '$S z', 'x y z',
+        '$LS z', 'x y z',
+        '$L z', 'x y z',
+        '$TS z', 'x y z',
+        '$T z', 'x y z',
+        # cs,                     'cs',
+        # cl,                     'cl',
+        '$CS', 'cs',
+        '$CL', 'cl',
 
         # Various uses of UserString.
-        collections.UserString('x'),         'x',
-        collections.UserString('$X'),        'x',
-        collections.UserString('$US'),       'us',
-        '$US',                              'us',
+        collections.UserString('x'), 'x',
+        collections.UserString('$X'), 'x',
+        collections.UserString('$US'), 'us',
+        '$US', 'us',
 
         # Test function calls within ${}.
-        '$FUNCCALL',            'a xc b',
+        '$FUNCCALL', 'a xc b',
 
         # Bug reported by Christoph Wiedemann.
-        cvt('$xxx/bin'),        '/bin',
+        cvt('$xxx/bin'), '/bin',
 
         # Tests callables that don't match our calling arguments.
-        '$CALLABLE1',            'callable-1',
+        '$CALLABLE1', 'callable-1',
 
         # Test handling of quotes.
-        'aaa "bbb ccc" ddd',    'aaa "bbb ccc" ddd',
+        'aaa "bbb ccc" ddd', 'aaa "bbb ccc" ddd',
     ]
 
     def test_scons_subst(self):
@@ -430,68 +434,68 @@ class EnvVariablesSubstTestCase(SubstTestCase):
         self.basic_cases = [
             # Basics:  strings without expansions are left alone, and
             # the simplest possible expansion to a null-string value.
-            '$CALLABLE1',            'callable-1',
+            '$CALLABLE1', 'callable-1',
         ]
 
         return self.basic_comparisons(EnvironmentValues.subst, cvt)
 
     subst_cases = [
         "test $xxx",
-            "test ",
-            "test",
-            "test",
+        "test ",
+        "test",
+        "test",
 
         "test $($xxx$)",
-            "test $($)",
-            "test",
-            "test",
+        "test $($)",
+        "test",
+        "test",
 
         "test $( $xxx $)",
-            "test $(  $)",
-            "test",
-            "test",
+        "test $(  $)",
+        "test",
+        "test",
 
         "test $( $THING2 $)",
-            "test $( $(STUFF$) $)",
-            "test STUFF",
-            "test",
+        "test $( $(STUFF$) $)",
+        "test STUFF",
+        "test",
 
         "$AAA ${AAA}A $BBBB $BBB",
-            "a aA  b",
-            "a aA b",
-            "a aA b",
+        "a aA  b",
+        "a aA b",
+        "a aA b",
 
         "$RECURSE",
-           "foo  bar",
-           "foo bar",
-           "foo bar",
+        "foo  bar",
+        "foo bar",
+        "foo bar",
 
         "$RRR",
-           "foo  bar",
-           "foo bar",
-           "foo bar",
+        "foo  bar",
+        "foo bar",
+        "foo bar",
 
         # Verify what happens with no target or source nodes.
         "$TARGET $SOURCES",
-            " ",
-            "",
-            "",
+        " ",
+        "",
+        "",
 
         "$TARGETS $SOURCE",
-            " ",
-            "",
-            "",
+        " ",
+        "",
+        "",
 
         # Various tests refactored from ActionTests.py.
         "${LIST}",
-           "This is $(  $) test",
-           "This is test",
-           "This is test",
+        "This is $(  $) test",
+        "This is test",
+        "This is test",
 
         ["|", "$(", "$AAA", "|", "$BBB", "$)", "|", "$CCC", 1],
-            ["|", "$(", "a", "|", "b", "$)", "|", "c", "1"],
-            ["|", "a", "|", "b", "|", "c", "1"],
-            ["|", "|", "c", "1"],
+        ["|", "$(", "a", "|", "b", "$)", "|", "c", "1"],
+        ["|", "a", "|", "b", "|", "c", "1"],
+        ["|", "|", "c", "1"],
     ]
 
     def test_subst_env(self):
@@ -538,28 +542,28 @@ class EnvVariablesSubstTestCase(SubstTestCase):
         s1 = self.MyNode('s1')
         s2 = self.MyNode('s2')
         result = EnvironmentValues.subst("$TARGET $SOURCES", env,
-                                  target=[t1, t2],
-                                  source=[s1, s2])
-        self.assertEqual(result,"t1 s1 s2", result)
+                                         target=[t1, t2],
+                                         source=[s1, s2])
+        self.assertEqual(result, "t1 s1 s2", result)
 
         result = EnvironmentValues.subst("$TARGET $SOURCES", env,
-                                  target=[t1, t2],
-                                  source=[s1, s2],
-                                  gvars={})
-        self.assertEqual(result,"t1 s1 s2", result)
+                                         target=[t1, t2],
+                                         source=[s1, s2],
+                                         gvars={})
+        self.assertEqual(result, "t1 s1 s2", result)
 
         result = EnvironmentValues.subst("$TARGET $SOURCES", env, target=[], source=[])
-        self.assertEqual(result," ", result)
+        self.assertEqual(result, " ", result)
         result = EnvironmentValues.subst("$TARGETS $SOURCE", env, target=[], source=[])
-        self.assertEqual(result," ", result)
+        self.assertEqual(result, " ", result)
 
     def test_subst_callable_expansion(self):
         """Test EnvironmentValues.subst():  expanding a callable"""
         env = DummyEnv(self.loc)
         gvars = env.Dictionary()
         newcom = EnvironmentValues.subst("test $CMDGEN1 $SOURCES $TARGETS", env,
-                             target=self.MyNode('t'), source=self.MyNode('s'),
-                             gvars=gvars)
+                                         target=self.MyNode('t'), source=self.MyNode('s'),
+                                         gvars=gvars)
         assert newcom == "test foo bar with spaces.out s t", newcom
 
     def test_subst_attribute_errors(self):
@@ -568,7 +572,8 @@ class EnvVariablesSubstTestCase(SubstTestCase):
         try:
             class Foo(object):
                 pass
-            EnvironmentValues.subst('${foo.bar}', env, gvars={'foo':Foo()})
+
+            EnvironmentValues.subst('${foo.bar}', env, gvars={'foo': Foo()})
         except SCons.Errors.UserError as e:
             expect = [
                 "AttributeError `bar' trying to evaluate `${foo.bar}'",
@@ -617,7 +622,7 @@ class EnvVariablesSubstTestCase(SubstTestCase):
         """Test EnvironmentValues.subst():  handling type errors"""
         env = DummyEnv(self.loc)
         try:
-            EnvironmentValues.subst("${NONE[2]}", env, gvars={'NONE':None})
+            EnvironmentValues.subst("${NONE[2]}", env, gvars={'NONE': None})
         except SCons.Errors.UserError as e:
             expect = [
                 # Python 2.3, 2.4
@@ -636,7 +641,8 @@ class EnvVariablesSubstTestCase(SubstTestCase):
         try:
             def func(a, b, c):
                 pass
-            EnvironmentValues.subst("${func(1)}", env, gvars={'func':func})
+
+            EnvironmentValues.subst("${func(1)}", env, gvars={'func': func})
         except SCons.Errors.UserError as e:
             expect = [
                 # Python 2.3, 2.4, 2.5
@@ -668,7 +674,7 @@ class EnvVariablesSubstTestCase(SubstTestCase):
             return obj
 
         n1 = self.MyNode('n1')
-        env = DummyEnv({'NODE' : n1})
+        env = DummyEnv({'NODE': n1})
         gvars = env.Dictionary()
         node = EnvironmentValues.subst("$NODE", env, mode=SUBST_RAW, conv=s, gvars=gvars)
         assert node is n1, node
@@ -679,10 +685,10 @@ class EnvVariablesSubstTestCase(SubstTestCase):
 
     def test_subst_overriding_gvars(self):
         """Test EnvironmentValues.subst():  supplying an overriding gvars dictionary"""
-        env = DummyEnv({'XXX' : 'xxx'})
+        env = DummyEnv({'XXX': 'xxx'})
         result = EnvironmentValues.subst('$XXX', env, gvars=env.Dictionary())
         assert result == 'xxx', result
-        result = EnvironmentValues.subst('$XXX', env, gvars={'XXX' : 'yyy'})
+        result = EnvironmentValues.subst('$XXX', env, gvars={'XXX': 'yyy'})
         assert result == 'yyy', result
 
 
@@ -712,7 +718,6 @@ class TestCLVar(unittest.TestCase):
 
 
 class EnvVarsSubstListTestCase(SubstTestCase):
-
     basic_cases = [
         "$TARGETS",
         [
@@ -763,7 +768,7 @@ class EnvVarsSubstListTestCase(SubstTestCase):
         ],
 
         # Try passing a list to EnvironmentValues.subst_list().
-        [ "$SOURCES$NEWLINE", "$TARGETS", "This is a test"],
+        ["$SOURCES$NEWLINE", "$TARGETS", "This is a test"],
         [
             ["foo/blah with spaces.cpp", "/bar/ack.cpp", "../foo/ack.cbefore"],
             ["after", "foo/bar.exe", "/bar/baz with spaces.obj", "../foo/baz.obj", "This is a test"],
@@ -782,83 +787,83 @@ class EnvVarsSubstListTestCase(SubstTestCase):
         ],
 
         # Test various combinations of strings, lists and functions.
-        None,                   [[]],
-        [None],                 [[]],
-        '',                     [[]],
-        [''],                   [[]],
-        'x',                    [['x']],
-        ['x'],                  [['x']],
-        'x y',                  [['x', 'y']],
-        ['x y'],                [['x y']],
-        ['x', 'y'],             [['x', 'y']],
-        '$N',                   [[]],
-        ['$N'],                 [[]],
-        '$X',                   [['x']],
-        ['$X'],                 [['x']],
-        '$Y',                   [['x']],
-        ['$Y'],                 [['x']],
-        #'$R',                   [[]],
-        #['$R'],                 [[]],
-        '$S',                   [['x', 'y']],
-        '$S z',                 [['x', 'y', 'z']],
-        ['$S'],                 [['x', 'y']],
-        ['$S z'],               [['x', 'y z']],     # XXX - IS THIS BEST?
-        ['$S', 'z'],            [['x', 'y', 'z']],
-        '$LS',                  [['x y']],
-        '$LS z',                [['x y', 'z']],
-        ['$LS'],                [['x y']],
-        ['$LS z'],              [['x y z']],
-        ['$LS', 'z'],           [['x y', 'z']],
-        '$L',                   [['x', 'y']],
-        '$L z',                 [['x', 'y', 'z']],
-        ['$L'],                 [['x', 'y']],
-        ['$L z'],               [['x', 'y z']],     # XXX - IS THIS BEST?
-        ['$L', 'z'],            [['x', 'y', 'z']],
-        cs,                     [['cs']],
-        [cs],                   [['cs']],
-        cl,                     [['cl']],
-        [cl],                   [['cl']],
-        '$CS',                  [['cs']],
-        ['$CS'],                [['cs']],
-        '$CL',                  [['cl']],
-        ['$CL'],                [['cl']],
+        None, [[]],
+        [None], [[]],
+        '', [[]],
+        [''], [[]],
+        'x', [['x']],
+        ['x'], [['x']],
+        'x y', [['x', 'y']],
+        ['x y'], [['x y']],
+        ['x', 'y'], [['x', 'y']],
+        '$N', [[]],
+        ['$N'], [[]],
+        '$X', [['x']],
+        ['$X'], [['x']],
+        '$Y', [['x']],
+        ['$Y'], [['x']],
+        # '$R',                   [[]],
+        # ['$R'],                 [[]],
+        '$S', [['x', 'y']],
+        '$S z', [['x', 'y', 'z']],
+        ['$S'], [['x', 'y']],
+        ['$S z'], [['x', 'y z']],  # XXX - IS THIS BEST?
+        ['$S', 'z'], [['x', 'y', 'z']],
+        '$LS', [['x y']],
+        '$LS z', [['x y', 'z']],
+        ['$LS'], [['x y']],
+        ['$LS z'], [['x y z']],
+        ['$LS', 'z'], [['x y', 'z']],
+        '$L', [['x', 'y']],
+        '$L z', [['x', 'y', 'z']],
+        ['$L'], [['x', 'y']],
+        ['$L z'], [['x', 'y z']],  # XXX - IS THIS BEST?
+        ['$L', 'z'], [['x', 'y', 'z']],
+        cs, [['cs']],
+        [cs], [['cs']],
+        cl, [['cl']],
+        [cl], [['cl']],
+        '$CS', [['cs']],
+        ['$CS'], [['cs']],
+        '$CL', [['cl']],
+        ['$CL'], [['cl']],
 
         # Various uses of UserString.
-        collections.UserString('x'),         [['x']],
-        [collections.UserString('x')],       [['x']],
-        collections.UserString('$X'),        [['x']],
-        [collections.UserString('$X')],      [['x']],
-        collections.UserString('$US'),       [['us']],
-        [collections.UserString('$US')],     [['us']],
-        '$US',                              [['us']],
-        ['$US'],                            [['us']],
+        collections.UserString('x'), [['x']],
+        [collections.UserString('x')], [['x']],
+        collections.UserString('$X'), [['x']],
+        [collections.UserString('$X')], [['x']],
+        collections.UserString('$US'), [['us']],
+        [collections.UserString('$US')], [['us']],
+        '$US', [['us']],
+        ['$US'], [['us']],
 
         # Test function calls within ${}.
-        '$FUNCCALL',            [['a', 'xc', 'b']],
+        '$FUNCCALL', [['a', 'xc', 'b']],
 
         # Test handling of newlines in white space.
-        'foo\nbar',             [['foo'], ['bar']],
-        'foo\n\nbar',           [['foo'], ['bar']],
-        'foo \n \n bar',        [['foo'], ['bar']],
-        'foo \nmiddle\n bar',   [['foo'], ['middle'], ['bar']],
+        'foo\nbar', [['foo'], ['bar']],
+        'foo\n\nbar', [['foo'], ['bar']],
+        'foo \n \n bar', [['foo'], ['bar']],
+        'foo \nmiddle\n bar', [['foo'], ['middle'], ['bar']],
 
         # Bug reported by Christoph Wiedemann.
-        cvt('$xxx/bin'),        [['/bin']],
+        cvt('$xxx/bin'), [['/bin']],
 
         # Test variables smooshed together with different prefixes.
-        'foo$AAA',              [['fooa']],
-        '<$AAA',                [['<', 'a']],
-        '>$AAA',                [['>', 'a']],
-        '|$AAA',                [['|', 'a']],
+        'foo$AAA', [['fooa']],
+        '<$AAA', [['<', 'a']],
+        '>$AAA', [['>', 'a']],
+        '|$AAA', [['|', 'a']],
 
         # Test callables that don't match our calling arguments.
-        '$CALLABLE2',            [['callable-2']],
+        '$CALLABLE2', [['callable-2']],
 
         # Test handling of quotes.
         # XXX Find a way to handle this in the future.
-        #'aaa "bbb ccc" ddd',    [['aaa', 'bbb ccc', 'ddd']],
+        # 'aaa "bbb ccc" ddd',    [['aaa', 'bbb ccc', 'ddd']],
 
-        '${_defines(DEFS)}',     [['Q1="q1"', 'Q2="a"']],
+        '${_defines(DEFS)}', [['Q1="q1"', 'Q2="a"']],
     ]
 
     basic_cases = [
@@ -870,62 +875,64 @@ class EnvVarsSubstListTestCase(SubstTestCase):
 
     def test_subst_list(self):
         """Test EnvironmentValues.subst_list():  basic substitution"""
+
         def convert_lists(expect):
             return [list(map(cvt, l)) for l in expect]
+
         return self.basic_comparisons(EnvironmentValues.subst_list, convert_lists)
 
     subst_list_cases = [
         "test $xxx",
-            [["test"]],
-            [["test"]],
-            [["test"]],
+        [["test"]],
+        [["test"]],
+        [["test"]],
 
         "test $($xxx$)",
-            [["test", "$($)"]],
-            [["test"]],
-            [["test"]],
+        [["test", "$($)"]],
+        [["test"]],
+        [["test"]],
 
         "test $( $xxx $)",
-            [["test", "$(", "$)"]],
-            [["test"]],
-            [["test"]],
+        [["test", "$(", "$)"]],
+        [["test"]],
+        [["test"]],
 
         "$AAA ${AAA}A $BBBB $BBB",
-            [["a", "aA", "b"]],
-            [["a", "aA", "b"]],
-            [["a", "aA", "b"]],
+        [["a", "aA", "b"]],
+        [["a", "aA", "b"]],
+        [["a", "aA", "b"]],
 
         "$RECURSE",
-            [["foo", "bar"]],
-            [["foo", "bar"]],
-            [["foo", "bar"]],
+        [["foo", "bar"]],
+        [["foo", "bar"]],
+        [["foo", "bar"]],
 
         "$RRR",
-            [["foo", "bar"]],
-            [["foo", "bar"]],
-            [["foo", "bar"]],
+        [["foo", "bar"]],
+        [["foo", "bar"]],
+        [["foo", "bar"]],
 
         # Verify what happens with no target or source nodes.
         "$TARGET $SOURCES",
-            [[]],
-            [[]],
-            [[]],
+        [[]],
+        [[]],
+        [[]],
 
         "$TARGETS $SOURCE",
-            [[]],
-            [[]],
-            [[]],
+        [[]],
+        [[]],
+        [[]],
 
         # Various test refactored from ActionTests.py
         "${LIST}",
-            [['This', 'is', '$(', '$)', 'test']],
-            [['This', 'is', 'test']],
-            [['This', 'is', 'test']],
+        [['This', 'is', '$(', '$)', 'test']],
+        [['This', 'is', 'test']],
+        [['This', 'is', 'test']],
 
         ["|", "$(", "$AAA", "|", "$BBB", "$)", "|", "$CCC", 1],
-            [["|", "$(", "a", "|", "b", "$)", "|", "c", "1"]],
-            [["|", "a", "|", "b", "|", "c", "1"]],
-            [["|", "|", "c", "1"]],
+        [["|", "$(", "a", "|", "b", "$)", "|", "c", "1"]],
+        [["|", "a", "|", "b", "|", "c", "1"]],
+        [["|", "|", "c", "1"]],
     ]
 
     def test_subst_env(self):
@@ -973,6 +980,7 @@ class EnvVarsSubstListTestCase(SubstTestCase):
 
         def escape_func(foo):
             return '**' + foo + '**'
+
         cmd_list = EnvironmentValues.subst_list("abc $LITERALS xyz", env, gvars=gvars)
         assert cmd_list == [['abc',
                              'foo\nwith\nnewlines',
@@ -993,16 +1001,16 @@ class EnvVarsSubstListTestCase(SubstTestCase):
         # resurrect that functionality in some way.
         cmd_list = EnvironmentValues.subst_list("abc${LITERALS}xyz", env, gvars=gvars)
         c = cmd_list[0][0].escape(escape_func)
-        #assert c == '**abcfoo\nwith\nnewlines**', c
+        # assert c == '**abcfoo\nwith\nnewlines**', c
         assert c == 'abcfoo\nwith\nnewlines', c
         c = cmd_list[0][1].escape(escape_func)
-        #assert c == '**bar\nwith\nnewlinesxyz**', c
+        # assert c == '**bar\nwith\nnewlinesxyz**', c
         assert c == 'bar\nwith\nnewlinesxyz', c
 
         _t = DummyNode('t')
 
         cmd_list = EnvironmentValues.subst_list('echo "target: $TARGET"', env,
-                                    target=_t, gvars=gvars)
+                                                target=_t, gvars=gvars)
         c = cmd_list[0][0].escape(escape_func)
         assert c == 'echo', c
         c = cmd_list[0][1].escape(escape_func)
@@ -1018,34 +1026,40 @@ class EnvVarsSubstListTestCase(SubstTestCase):
         subst_list_cases = self.subst_list_cases[:]
         gvars = env.Dictionary()
 
-        r = EnvironmentValues.subst_list('$RECURSE', env, mode=SUBST_RAW, gvars=gvars)
-        answer = [['foo', 'bar']]
-        assert r == answer, 'This should be  %s, :%s'%(answer,r)
+        # ["|", "$(", "$AAA", "|", "$BBB", "$)", "|", "$CCC", 1],
+        # ["|", "$(", "a", "|", "b", "$)", "|", "c", "1"],
+        # ["|", "a", "|", "b", "|", "c", "1"],
+        # ["|", "|", "c", "1"],
 
-        # r = EnvironmentValues.subst_list("$TARGET $SOURCES", env, mode=SUBST_RAW, gvars=gvars)
-        # assert r == [[]], "This should be empty list:%s"%r
+        test = '$RECURSE'
+        r = EnvironmentValues.subst_list(test, env, mode=SUBST_RAW, gvars=gvars)
+        answer = [["foo", "bar"]]
+        assert r == answer, 'This should be  %s not :%s' % (answer, r)
 
         failed = 0
+        test_number = 0
         while subst_list_cases:
-            input, eraw, ecmd, esig = subst_list_cases[:4]
-            print("WORKING ON input:%s, eraw:%s, ecmd:%s, esig:%s"%(input, eraw, ecmd, esig))
-            result = EnvironmentValues.subst_list(input, env, mode=SUBST_RAW, gvars=gvars)
-            if result != eraw:
+            test_number += 1
+            test_input, expected_raw, expected_cmd, expected_sig = subst_list_cases[:4]
+            print("*"*80)
+            print("WORKING ON [%4d] input:%s, expected_raw:%s, expected_cmd:%s, expected_sig:%s" % (test_number, test_input, expected_raw, expected_cmd, expected_sig))
+            result = EnvironmentValues.subst_list(test_input, env, mode=SUBST_RAW, gvars=gvars)
+            if result != expected_raw:
                 if failed == 0: print()
-                print("    input %s => RAW %s did not match %s" % (repr(input), repr(result), repr(eraw)))
+                print("    input %s => RAW %s did not match %s" % (repr(test_input), repr(result), repr(expected_raw)))
                 failed = failed + 1
-            result = EnvironmentValues.subst_list(input, env, mode=SUBST_CMD, gvars=gvars)
-            if result != ecmd:
+            result = EnvironmentValues.subst_list(test_input, env, mode=SUBST_CMD, gvars=gvars)
+            if result != expected_cmd:
                 if failed == 0: print()
-                print("    input %s => CMD %s did not match %s" % (repr(input), repr(result), repr(ecmd)))
+                print("    input %s => CMD %s did not match %s" % (repr(test_input), repr(result), repr(expected_cmd)))
                 failed = failed + 1
-            result = EnvironmentValues.subst_list(input, env, mode=SUBST_SIG, gvars=gvars)
-            if result != esig:
+            result = EnvironmentValues.subst_list(test_input, env, mode=SUBST_SIG, gvars=gvars)
+            if result != expected_sig:
                 if failed == 0: print()
-                print("    input %s => SIG %s did not match %s" % (repr(input), repr(result), repr(esig)))
+                print("    input %s => SIG %s did not match %s" % (repr(test_input), repr(result), repr(expected_sig)))
                 failed = failed + 1
             del subst_list_cases[:4]
-        assert failed == 0, "%d subst() mode cases failed" % failed
+        assert failed == 0, "[%4d] %d subst() mode cases failed" % (test_number, failed)
 
     def test_subst_attribute_errors(self):
         """Test EnvironmentValues.subst_list():  handling attribute errors"""
@@ -1053,7 +1067,8 @@ class EnvVarsSubstListTestCase(SubstTestCase):
         try:
             class Foo(object):
                 pass
-            EnvironmentValues.subst_list('${foo.bar}', env, gvars={'foo':Foo()})
+
+            EnvironmentValues.subst_list('${foo.bar}', env, gvars={'foo': Foo()})
         except SCons.Errors.UserError as e:
             expect = [
                 "AttributeError `bar' trying to evaluate `${foo.bar}'",
@@ -1096,12 +1111,13 @@ class EnvVarsSubstListTestCase(SubstTestCase):
     def test_subst_list_overriding_gvars(self):
         """Test EnvironmentValues.subst_list():  overriding conv()"""
         env = DummyEnv()
+
         def s(obj):
             return obj
 
         n1 = self.MyNode('n1')
-        env = DummyEnv({'NODE' : n1})
-        gvars=env.Dictionary()
+        env = DummyEnv({'NODE': n1})
+        gvars = env.Dictionary()
         node = EnvironmentValues.subst_list("$NODE", env, mode=SUBST_RAW, conv=s, gvars=gvars)
         assert node == [[n1]], node
         node = EnvironmentValues.subst_list("$NODE", env, mode=SUBST_CMD, conv=s, gvars=gvars)
@@ -1111,21 +1127,20 @@ class EnvVarsSubstListTestCase(SubstTestCase):
 
     def test_subst_list_overriding_gvars(self):
         """Test EnvironmentValues.subst_list():  supplying an overriding gvars dictionary"""
-        env = DummyEnv({'XXX' : 'xxx'})
+        env = DummyEnv({'XXX': 'xxx'})
         result = EnvironmentValues.subst_list('$XXX', env, gvars=env.Dictionary())
         assert result == [['xxx']], result
-        result = EnvironmentValues.subst_list('$XXX', env, gvars={'XXX' : 'yyy'})
+        result = EnvironmentValues.subst_list('$XXX', env, gvars={'XXX': 'yyy'})
         assert result == [['yyy']], result
 
 
 @unittest.skip("subst_once not yet implemented")
 class subst_once_TestCase(unittest.TestCase):
-
     loc = {
-        'CCFLAGS'           : '-DFOO',
-        'ONE'               : 1,
-        'RECURSE'           : 'r $RECURSE r',
-        'LIST'              : ['a', 'b', 'c'],
+        'CCFLAGS': '-DFOO',
+        'ONE': 1,
+        'RECURSE': 'r $RECURSE r',
+        'LIST': ['a', 'b', 'c'],
     }
 
     basic_cases = [
@@ -1204,30 +1219,40 @@ class quote_spaces_TestCase(unittest.TestCase):
         def __init__(self, name, children=[]):
             self.children = children
             self.name = name
+
         def __str__(self):
             return self.name
+
         def exists(self):
             return 1
+
         def rexists(self):
             return 1
+
         def has_builder(self):
             return 1
+
         def has_explicit_builder(self):
             return 1
+
         def side_effect(self):
             return 1
+
         def precious(self):
             return 1
+
         def always_build(self):
             return 1
+
         def current(self):
             return 1
+
 
 class LiteralTestCase(unittest.TestCase):
     def test_Literal(self):
         """Test the Literal() function."""
-        input_list = [ '$FOO', Literal('$BAR') ]
-        gvars = { 'FOO' : 'BAZ', 'BAR' : 'BLAT' }
+        input_list = ['$FOO', Literal('$BAR')]
+        gvars = {'FOO': 'BAZ', 'BAR': 'BLAT'}
 
         def escape_func(cmd):
             return '**' + cmd + '**'
@@ -1241,11 +1266,12 @@ class LiteralTestCase(unittest.TestCase):
         assert Literal('a literal') == Literal('a literal')
         assert Literal('a literal') != Literal('b literal')
 
+
 class SpecialAttrWrapperTestCase(unittest.TestCase):
     def test_SpecialAttrWrapper(self):
         """Test the SpecialAttrWrapper() function."""
-        input_list = [ '$FOO', SpecialAttrWrapper('$BAR', 'BLEH') ]
-        gvars = { 'FOO' : 'BAZ', 'BAR' : 'BLAT' }
+        input_list = ['$FOO', SpecialAttrWrapper('$BAR', 'BLEH')]
+        gvars = {'FOO': 'BAZ', 'BAR': 'BLAT'}
 
         def escape_func(cmd):
             return '**' + cmd + '**'
@@ -1257,6 +1283,7 @@ class SpecialAttrWrapperTestCase(unittest.TestCase):
         cmd_list = EnvironmentValues.subst_list(input_list, None, mode=SUBST_SIG, gvars=gvars)
         cmd_list = escape_list(cmd_list[0], escape_func)
         assert cmd_list == ['BAZ', '**BLEH**'], cmd_list
+
 
 @unittest.skip("subst_dict still uses subst.py's implementation")
 class subst_dict_TestCase(unittest.TestCase):
@@ -1287,8 +1314,10 @@ class subst_dict_TestCase(unittest.TestCase):
             # Fake Value node with no rfile() method.
             def __init__(self, name):
                 self.name = name
+
             def __str__(self):
-                return 'v-'+self.name
+                return 'v-' + self.name
+
             def get_subst_proxy(self):
                 return self
 
