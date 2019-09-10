@@ -2308,7 +2308,7 @@ for debugging purposes:
 
 <literallayout class="monospaced">
 print("Builders:", list(env['BUILDERS']))
-</literalllayout>
+</literallayout>
 
 <para>
 Builder methods always take two arguments:
@@ -5971,7 +5971,8 @@ action='$CC -c -o $TARGET $SOURCES'
 cc -c -o foo foo.c bar.c
 </literallayout>
 
-<para>Variable names may be surrounded by curly braces ({})
+<para>Variable names may be surrounded by curly braces 
+<emphasis role="bold">{ }</emphasis>
 to separate the name from surrounding characters which
 are not part of the name.
 Within the curly braces, a variable name may have
@@ -6252,8 +6253,10 @@ echo Last build occurred  . &gt; $TARGET
 
 <refsect2 id='python_code_substitution'><title>Python Code Substitution</title>
 
-<para>Any Python code within
-curly braces (and introduced by the variable prefix <literal>$</literal>)
+<para>
+Any Python code within curly braces
+<emphasis role="bold">{ }</emphasis>
+and introduced by the variable prefix <emphasis role="bold">$</emphasis>
 gets evaluated by the Python <function>eval</function> statement,
 with the Python globals set to
 the current environment's set of construction variables.
