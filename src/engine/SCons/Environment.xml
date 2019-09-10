@@ -148,9 +148,9 @@ appending to this list,
 although the more flexible approach
 is to associate scanners
 with a specific Builder.
-See the sections "Builder Objects"
-and "Scanner Objects,"
-below, for more information.
+See the manpage sections "Builder Objects"
+and "Scanner Objects"
+for more information.
 </para>
 </summary>
 </cvar>
@@ -160,7 +160,8 @@ below, for more information.
 <para>
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </summary>
 </cvar>
@@ -170,7 +171,8 @@ that may not be set or used in a construction environment.
 <para>
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </summary>
 </cvar>
@@ -180,7 +182,8 @@ that may not be set or used in a construction environment.
 <para>
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </summary>
 </cvar>
@@ -190,7 +193,8 @@ that may not be set or used in a construction environment.
 <para>
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </summary>
 </cvar>
@@ -200,7 +204,8 @@ that may not be set or used in a construction environment.
 <para>
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </summary>
 </cvar>
@@ -210,7 +215,8 @@ that may not be set or used in a construction environment.
 <para>
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </summary>
 </cvar>
@@ -220,7 +226,8 @@ that may not be set or used in a construction environment.
 <para>
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </summary>
 </cvar>
@@ -230,7 +237,8 @@ that may not be set or used in a construction environment.
 <para>
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </summary>
 </cvar>
@@ -255,8 +263,8 @@ that are part of this construction environment.
 Creates an Action object for
 the specified
 <varname>action</varname>.
-See the section "Action Objects,"
-below, for a complete explanation of the arguments and behavior.
+See the manpage section "Action Objects"
+for a complete explanation of the arguments and behavior.
 </para>
 
 <para>
@@ -359,7 +367,8 @@ has been built.
 The specified action(s) may be
 an Action object, or anything that
 can be converted into an Action object
-(see below).
+See the manpage section "Action Objects"
+for a complete explanation.
 </para>
 
 <para>
@@ -386,7 +395,8 @@ is built.
 The specified action(s) may be
 an Action object, or anything that
 can be converted into an Action object
-(see below).
+See the manpage section "Action Objects"
+for a complete explanation.
 </para>
 
 <para>
@@ -512,7 +522,7 @@ Otherwise, the construction variable
 and the value of the keyword argument
 are both coerced to lists,
 and the lists are added together.
-(See also the Prepend method, below.)
+(See also the &Prepend; method).
 </para>
 
 <para>
@@ -634,8 +644,8 @@ or
 Creates a Builder object for
 the specified
 <varname>action</varname>.
-See the section "Builder Objects,"
-below, for a complete explanation of the arguments and behavior.
+See the manpage section "Builder Objects"
+for a complete explanation of the arguments and behavior.
 </para>
 
 <para>
@@ -898,11 +908,15 @@ wx_env = env.Clone(parse_flags='!wx-config --cflags --cxxflags')
 <builder name="Command">
 <summary>
 <para>
-The &b-Command; "Builder" is actually implemented
-as a function that looks like a Builder,
-but actually takes an additional argument of the action
-from which the Builder should be made.
-See the &f-link-Command; function description
+The &b-Command; "Builder" is actually
+a function that looks like a Builder,
+but takes a required third argument, which is the
+action to take to construct the target
+from the source, used for "one-off" builds
+where a full builder is not needed.
+Thus it does not follow the builder
+calling rules described at the start of this section.
+See instead the &f-link-Command; function description
 for the calling syntax and details.
 </para>
 </summary>
@@ -947,7 +961,7 @@ same-named existing construction variables.
 An action can be an external command,
 specified as a string,
 or a callable Python object;
-see "Action Objects," below,
+see the manpage section "Action Objects"
 for more complete information.
 Also note that a string specifying an external command
 may be preceded by an
@@ -971,7 +985,7 @@ env.Command('foo.out', 'foo.in',
 env.Command('bar.out', 'bar.in',
             ["rm -f $TARGET",
              "$BAR_BUILD &lt; $SOURCES &gt; $TARGET"],
-            ENV = {'PATH' : '/usr/local/bin/'})
+            ENV={'PATH': '/usr/local/bin/'})
 
 def rename(env, target, source):
     import os
@@ -979,7 +993,7 @@ def rename(env, target, source):
 
 env.Command('baz.out', 'baz.in',
             ["$BAZ_BUILD &lt; $SOURCES &gt; .tmp",
-	     rename ])
+	     rename])
 </example_commands>
 
 <para>
@@ -988,14 +1002,14 @@ Note that the
 function will usually assume, by default,
 that the specified targets and/or sources are Files,
 if no other part of the configuration
-identifies what type of entry it is.
+identifies what type of entries they are.
 If necessary, you can explicitly specify
 that targets or source nodes should
-be treated as directoriese
+be treated as directories
 by using the
 &f-link-Dir;
 or
-<function>env.Dir</function>()
+<function>env.Dir</function>
 functions.
 </para>
 
@@ -1011,9 +1025,9 @@ env.Command(env.Dir('$DISTDIR')), None, make_distdir)
 </example_commands>
 
 <para>
-(Also note that SCons will usually
+Also note that SCons will usually
 automatically create any directory necessary to hold a target file,
-so you normally don't need to create directories by hand.)
+so you normally don't need to create directories by hand.
 </para>
 </summary>
 </scons_function>
@@ -1029,8 +1043,8 @@ so you normally don't need to create directories by hand.)
 <para>
 Creates a Configure object for integrated
 functionality similar to GNU autoconf.
-See the section "Configure Contexts,"
-below, for a complete explanation of the arguments and behavior.
+See the manpage section "Configure Contexts"
+for a complete explanation of the arguments and behavior.
 </para>
 </summary>
 </scons_function>
@@ -1375,7 +1389,8 @@ would supply a string as a directory name
 to a Builder method or function.
 Directory Nodes have attributes and methods
 that are useful in many situations;
-see "File and Directory Nodes," below.
+see manpage section "File and Directory Nodes"
+for more information.
 </para>
 </summary>
 </scons_function>
@@ -1458,8 +1473,8 @@ Executes an Action object.
 The specified
 <varname>action</varname>
 may be an Action object
-(see the section "Action Objects,"
-below, for a complete explanation of the arguments and behavior),
+(see manpage section "Action Objects"
+for a complete explanation of the arguments and behavior),
 or it may be a command-line string,
 list of commands,
 or executable Python function,
@@ -1532,7 +1547,8 @@ would supply a string as a file name
 to a Builder method or function.
 File Nodes have attributes and methods
 that are useful in many situations;
-see "File and Directory Nodes," below.
+see manpage section "File and Directory Nodes"
+for more information.
 </para>
 </summary>
 </scons_function>
@@ -2190,7 +2206,7 @@ and the construction variables they affect
 are as specified for the
 &f-link-env-ParseFlags;
 method (which this method calls).
-See that method's description, below,
+See that method's description
 for a table of options and construction variables.
 </para>
 </summary>
@@ -2658,8 +2674,8 @@ env.Requires('foo', 'file-that-must-be-built-before-foo')
 Creates a Scanner object for
 the specified
 <varname>function</varname>.
-See the section "Scanner Objects,"
-below, for a complete explanation of the arguments and behavior.
+See manpage section "Scanner Objects"
+for a complete explanation of the arguments and behavior.
 </para>
 </summary>
 </scons_function>
