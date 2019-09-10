@@ -312,14 +312,20 @@ if not has_libxml2:
         @staticmethod
         def writeGenTree(root, fp):
             dt = DoctypeDeclaration()
-            encfun = unicode if PY2 else str
+            try:
+                encfun = unicode  # PY2
+            except NameError:
+                encfun = str
             fp.write(etree.tostring(root, encoding=encfun,
                                     pretty_print=True,
                                     doctype=dt.createDoctype()))
 
         @staticmethod
         def writeTree(root, fpath):
-            encfun = unicode if PY2 else None
+            try:
+                encfun = unicode  # PY2
+            except NameError:
+                encfun = "utf-8"
             with open(fpath, 'wb') as fp:
                 fp.write(etree.tostring(root, encoding=encfun,
                                         pretty_print=True))
@@ -865,8 +871,7 @@ if PY2:
 else:  # PY3 version, from newer pydoc
     def importfile(path):
         """Import a Python source file or compiled file given its path."""
-        from importlib import MAGIC_NUMBER
-        import pydoc
+        from importlib.util import MAGIC_NUMBER
         with open(path, 'rb') as ifp:
             is_bytecode = MAGIC_NUMBER == ifp.read(len(MAGIC_NUMBER))
         filename = os.path.basename(path)

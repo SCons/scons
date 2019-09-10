@@ -92,7 +92,6 @@ import os
 import re
 import sys
 import time
-import shutil
 
 import SConsDoc
 from SConsDoc import tf as stf

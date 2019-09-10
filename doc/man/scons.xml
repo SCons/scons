@@ -2278,10 +2278,10 @@ env.SomeTool(targets, sources)
 
 <refsect2 id='builder_methods'><title>Builder Methods</title>
 
-<para>You tell <program>scons</program> what to build
+<para>You tell <command>scons</command> what to build
 by calling Builders, functions which know to take a
 particular action when given files of a particular type
-to produce a particular result type. <program>scons</program>
+to produce a particular result type. <command>scons</command>
 defines a number of builders, and you can also write your own.
 Builders are attached to a &consenv; as methods,
 and the available builder methods are listed as

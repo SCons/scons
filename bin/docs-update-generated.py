@@ -45,7 +45,7 @@ def generate_all():
                 print("Couldn't create destination folder %s! Exiting..." % gen_folder)
                 return
         # Call scons-proc.py
-        rv = subprocess.call([sys.executable,
+        _ = subprocess.call([sys.executable,
                               os.path.join('bin','scons-proc.py'),
                               '-b', argpair('builders'),
                               '-f', argpair('functions'),
