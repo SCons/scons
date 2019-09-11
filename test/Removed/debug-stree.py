@@ -25,30 +25,28 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test calling the (deprecated) --debug=nomemoizer option.
+Test that the --debug=stree option fails with expected exception
 """
+
+import os
 
 import TestSCons
 
-test = TestSCons.TestSCons(match = TestSCons.match_re)
+test = TestSCons.TestSCons()
 
-test.write('SConstruct', """
-def cat(target, source, env):
-    with open(str(target[0]), 'wb') as ofp, open(str(source[0]), 'rb') as ifp:
-        ofp.write(ifp.read())
-env = Environment(BUILDERS={'Cat':Builder(action=Action(cat))})
-env.Cat('file.out', 'file.in')
-""")
 
-test.write('file.in', "file.in\n")
+test.write('SConstruct', "")
 
-expect = """
-scons: warning: The --debug=nomemoizer option is deprecated and has no effect.
-""" + TestSCons.file_expr
+expect = r"""usage: scons [OPTION] [TARGET] ...
 
-test.run(arguments = "--debug=nomemoizer", stderr = expect)
+SCons Error: `stree' is not a valid debug option type ; please use --tree=all,status instead
+"""
 
-test.must_match('file.out', "file.in\n")
+test.run(arguments='-Q --debug=stree', status=2, stderr=expect)
+
+os.environ['SCONSFLAGS'] = '--debug=stree'
+test.run(arguments="-H", status=2, stderr=expect)
+
 
 test.pass_test()
 

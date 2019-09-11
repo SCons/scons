@@ -15,6 +15,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Mats Wichmann
     - Replace instances of string find method with "in" checks where
       the index from find() was not used.
+    - Turn previously deprecated debug options into failures.
 
 
 RELEASE 3.1.1 - Mon, 07 Aug 2019 20:09:12 -0500
