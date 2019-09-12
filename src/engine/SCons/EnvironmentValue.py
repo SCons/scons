@@ -7,7 +7,7 @@ from SCons.Util import is_String, is_Sequence, CLVar
 from SCons.Subst import AllowableExceptions, raise_exception
 
 
-_debug = True
+_debug = False
 if _debug:
     def debug(fmt, *args):
         # format when needed

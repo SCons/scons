@@ -514,7 +514,10 @@ class EnvVariablesSubstTestCase(SubstTestCase):
         gvars = env.Dictionary()
 
         failed = 0
+        test_number = 0
+        total_tests = len(subst_cases)/4
         while subst_cases:
+            test_number += 1
             input, eraw, ecmd, esig = subst_cases[:4]
             result = EnvironmentValues.subst(input, env, mode=SUBST_RAW, gvars=gvars)
             if result != eraw:
@@ -532,7 +535,7 @@ class EnvVariablesSubstTestCase(SubstTestCase):
                 print("    input %s => SIG %s did not match %s" % (repr(input), repr(result), repr(esig)))
                 failed = failed + 1
             del subst_cases[:4]
-        assert failed == 0, "%d subst() mode cases failed" % failed
+        assert failed == 0, "%d of %d subst() mode cases failed" % (failed, total_tests*3)
 
     def test_subst_target_source(self):
         """Test EnvironmentValues.subst():  target= and source= arguments"""
@@ -1031,9 +1034,9 @@ class EnvVarsSubstListTestCase(SubstTestCase):
         # ["|", "a", "|", "b", "|", "c", "1"],
         # ["|", "|", "c", "1"],
 
-        test = '$RECURSE'
-        r = EnvironmentValues.subst_list(test, env, mode=SUBST_RAW, gvars=gvars)
-        answer = [["foo", "bar"]]
+        test = '${LIST}'
+        r = EnvironmentValues.subst_list(test, env, mode=SUBST_SIG, gvars=gvars)
+        answer = [['This', 'is', 'test']]
         assert r == answer, 'This should be  %s not :%s' % (answer, r)
 
         failed = 0
@@ -1059,7 +1062,7 @@ class EnvVarsSubstListTestCase(SubstTestCase):
                 print("    input %s => SIG %s did not match %s" % (repr(test_input), repr(result), repr(expected_sig)))
                 failed = failed + 1
             del subst_list_cases[:4]
-        assert failed == 0, "[%4d] %d subst() mode cases failed" % (test_number, failed)
+        assert failed == 0, "[%4d] %d subst() mode cases failed [%d passed]" % (test_number, failed, (test_number*3)-failed)
 
     def test_subst_attribute_errors(self):
         """Test EnvironmentValues.subst_list():  handling attribute errors"""

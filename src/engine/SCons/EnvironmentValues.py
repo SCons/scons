@@ -22,7 +22,7 @@ AllowableExceptions = (KeyError,)
 # space characters in the string result from the scons_subst() function.
 space_sep = re.compile(r'[\t ]+(?![^{]*})')
 
-_debug = True
+_debug = False
 if _debug:
     def debug(fmt, *args):
         # format when needed
@@ -398,7 +398,7 @@ class EnvironmentValues(object):
                 #    v ends up being an instance of the callable class.  Both of which can return another callable
                 #    or a string which requires further processing, or a plain string, or blank.
                 if pv.value in self.values:
-                    to_call = self.values[pv.value].v
+                    to_call = self.values[pv.value].value
                 elif pv.value in lvars:
                     to_call = pv.lvars[pv.value]
                 else:
