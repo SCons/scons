@@ -45,13 +45,6 @@ SCons Error: `foofoo' is not a valid --tree option type, try:
 """,
          status=2)
 
-test.run(arguments='--debug=tree',
-         stderr="""
-scons: warning: The --debug=tree option is deprecated; please use --tree=all instead.
-.*
-""",
-         status=0, match=TestSCons.match_re_dotall)
-
 
 # Test that unicode characters can be printed (escaped) with the --tree option
 test.write('SConstruct',

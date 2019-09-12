@@ -26,6 +26,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test that the --debug=tree option fails with expected exception
+Check command-line, SCONSFLAGS and interactive
 """
 
 import os
@@ -46,6 +47,12 @@ test.run(arguments='-Q --debug=tree', status=2, stderr=expect)
 
 os.environ['SCONSFLAGS'] = '--debug=tree'
 test.run(arguments="-H", status=2, stderr=expect)
+
+
+# moved test from test/Interactive/tree.py
+scons = test.start(arguments = '-Q --interactive')
+scons.send("build --debug=tree\n")
+test.finish(scons, status=2, stderr=expect)
 
 
 test.pass_test()

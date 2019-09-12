@@ -727,17 +727,6 @@ files, as well as unlinking old targets before building them.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>--debug=dtree</term>
-  <listitem>
-<para>A synonym for the newer
-<option>--tree=derived</option>
-option.
-This will be deprecated in some future release
-and ultimately removed.</para>
-
-  </listitem>
-  </varlistentry>
-  <varlistentry>
   <term>--debug=explain</term>
   <listitem>
 <para>Print an explanation of precisely why
@@ -789,13 +778,6 @@ instead of recomputing them each time they're needed.</para>
 <para>Prints how much memory SCons uses
 before and after reading the SConscript files
 and before and after building targets.</para>
-
-  </listitem>
-  </varlistentry>
-  <varlistentry>
-  <term>--debug=nomemoizer</term>
-  <listitem>
-<para>A deprecated option preserved for backwards compatibility.</para>
 
   </listitem>
   </varlistentry>
@@ -856,17 +838,6 @@ when encountering an otherwise unexplained error.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>--debug=stree</term>
-  <listitem>
-<para>A synonym for the newer
-<option>--tree=all,status</option>
-option.
-This will be deprecated in some future release
-and ultimately removed.</para>
-
-  </listitem>
-  </varlistentry>
-  <varlistentry>
   <term>--debug=time</term>
   <listitem>
 <para>Prints various time profiling information:</para>
@@ -919,17 +890,6 @@ since multiple build commands and
 intervening SCons processing
 should take place in parallel.)
 </para>
-
-  </listitem>
-  </varlistentry>
-  <varlistentry>
-  <term>--debug=tree</term>
-  <listitem>
-<para>A synonym for the newer
-<option>--tree=all</option>
-option.
-This will be deprecated in some future release
-and ultimately removed.</para>
 
   </listitem>
   </varlistentry>
