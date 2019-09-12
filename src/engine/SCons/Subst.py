@@ -193,10 +193,13 @@ class NLWrapper(object):
     In practice, this might be a wash performance-wise, but it's a little
     cleaner conceptually...
     """
+    count = 0
 
     def __init__(self, list, func):
         self.list = list
         self.func = func
+        NLWrapper.count +=1
+        self.serial_num = NLWrapper.count
 
     def _return_nodelist(self):
         return self.nodelist
@@ -252,6 +255,9 @@ class Targets_or_Sources(collections.UserList):
         nl = self.nl._create_nodelist()
         return repr(nl)
 
+    def __hash__(self):
+        return "NL_%10d"%self.nl.serial_num
+
 
 class Target_or_Source(object):
     """A class that implements $TARGET or $SOURCE expansions by in turn
@@ -284,6 +290,10 @@ class Target_or_Source(object):
         if nl:
             return repr(nl[0])
         return ''
+
+    def __hash__(self):
+        return "NL_%10d"%self.nl.serial_num
+
 
 
 class NullNodeList(SCons.Util.NullSeq):
