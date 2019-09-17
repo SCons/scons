@@ -24,58 +24,30 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import sys
+"""
+Test that the --debug=dtree option fails with expected exception
+"""
+
+import os
+
 import TestSCons
 
 test = TestSCons.TestSCons()
 
+
 test.write('SConstruct', "")
 
-test.run(arguments='-Q --tree=prune',
-         stdout="""scons: `.' is up to date.
-+-.
-  +-SConstruct
-""")
+expect = r"""usage: scons [OPTION] [TARGET] ...
 
-test.run(arguments='-Q --tree=foofoo',
-         stderr="""usage: scons [OPTION] [TARGET] ...
-
-SCons Error: `foofoo' is not a valid --tree option type, try:
-    all, derived, prune, status
-""",
-         status=2)
-
-
-# Test that unicode characters can be printed (escaped) with the --tree option
-test.write('SConstruct',
-           """
-env = Environment()
-env.Tool("textfile")
-try:
-    # Python 2
-    write = unichr(0xe7).encode('utf-8')
-except NameError:
-    # Python 3
-    # str is utf-8 by default
-    write = chr(0xe7)
-env.Textfile("Foo", write)
-""")
-
-if sys.version_info.major < 3:
-    py23_char = unichr(0xe7).encode('utf-8')
-else:
-    py23_char = chr(0xe7)
-
-expected = """Creating 'Foo.txt'
-+-.
-  +-Foo.txt
-  | +-""" + py23_char + """
-  +-SConstruct
+SCons Error: `dtree' is not a valid debug option type ; please use --tree=derived instead
 """
 
-test.run(arguments='-Q --tree=all',
-         stdout=expected,
-         status=0)
+test.run(arguments='-Q --debug=dtree', status=2, stderr=expect)
+
+os.environ['SCONSFLAGS'] = '--debug=dtree'
+test.run(arguments="-H", status=2, stderr=expect)
+
+
 test.pass_test()
 
 # Local Variables:
