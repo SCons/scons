@@ -46,12 +46,48 @@ which must be a directory.
 The names of the specified source files or directories
 remain the same within the destination directory. The
 sources may be given as a string or as a node returned by
-a builder.
+a builder. &Install; is accumulative, additional calls
+add additional files to the list to be copied to the target.
 </para>
 
 <example_commands>
-env.Install('/usr/local/bin', source = ['foo', 'bar'])
+env.Install(target='/usr/local/bin', source=['foo', 'bar'])
 </example_commands>
+
+<para>
+Note that because of the kinds of paths often chosen for the
+&Install; builder (and the related &InstallAs; and
+&InstallVersionedLib; builders), the results can be surprising.
+The above example will not, unless arrangements are made,
+actually copy anything.
+The target is "built" by copying the source files to it,
+but the default behavior of SCons is to select for building
+only those targets that are underneath the current directory.
+In the example, <filename>/usr/local/bin</filename>
+is not in that tree, so that target is not selected for building.
+You modifiy the default behavior either by specifying targets on
+the command line, or by calling the &Default; function to
+set up your own choice of defaults. Since SCons always
+respects the command line targets it is given, this is
+one way to get the install to happen:
+</para>
+<example_commands>
+scons /usr/local/bin
+</example_commands>
+
+<para>
+If the <option>--install-sandbox</option> command line
+option is given, the target directory will be prefixed
+by the directory path specified.
+This is useful to test installs without installing to
+a "live" location in the system.
+</para>
+
+<para>
+For more thoughts on installation, see the User Guide.
+See also &FindInstalledFiles;.
+</para>
+
 </summary>
 </builder>
 
@@ -70,11 +106,15 @@ arguments list different numbers of files or directories.
 </para>
 
 <example_commands>
-env.InstallAs(target = '/usr/local/bin/foo',
-              source = 'foo_debug')
-env.InstallAs(target = ['../lib/libfoo.a', '../lib/libbar.a'],
-              source = ['libFOO.a', 'libBAR.a'])
+env.InstallAs(target='/usr/local/bin/foo',
+              source='foo_debug')
+env.InstallAs(target=['../lib/libfoo.a', '../lib/libbar.a'],
+              source=['libFOO.a', 'libBAR.a'])
 </example_commands>
+
+<para>
+See the note under &Install;.
+</para>
 
 </summary>
 </builder>
@@ -87,9 +127,14 @@ architecture will be generated based on symlinks of the source library.
 </para>
 
 <example_commands>
-env.InstallVersionedLib(target = '/usr/local/bin/foo',
-              source = 'libxyz.1.5.2.so')
+env.InstallVersionedLib(target='/usr/local/bin/foo',
+                        source='libxyz.1.5.2.so')
 </example_commands>
+
+<para>
+See the note under &Install;.
+</para>
+
 </summary>
 </builder>
 
