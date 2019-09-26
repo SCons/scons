@@ -212,6 +212,7 @@
 <!ENTITY Import "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Import</function>">
 <!ENTITY Install "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Install</function>">
 <!ENTITY InstallAs "<function xmlns='http://www.scons.org/dbxsd/v1.0'>InstallAs</function>">
+<!ENTITY InstallVersionedLib "<function xmlns='http://www.scons.org/dbxsd/v1.0'>InstallVersionedLib</function>">
 <!ENTITY Link "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Link</function>">
 <!ENTITY ListOption "<function xmlns='http://www.scons.org/dbxsd/v1.0'>ListOption</function>">
 <!ENTITY ListVariable "<function xmlns='http://www.scons.org/dbxsd/v1.0'>ListVariable</function>">

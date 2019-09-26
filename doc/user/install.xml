@@ -2,7 +2,7 @@
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -11,7 +11,7 @@
     %tools-mod;
     <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
     %variables-mod;
-    
+
 ]>
 
 <chapter id="chap-install"
@@ -50,7 +50,7 @@
   Once a program is built,
   it is often appropriate to install it in another
   directory for public use.
-  You use the &Install; method 
+  You use the &Install; method
   to arrange for a program, or any other file,
   to be copied into a destination directory:
 
@@ -226,7 +226,7 @@ int main() { printf("Hello, world!\n"); }
 
     <para>
 
-    Lastly, if you have multiple files that all
+    If you have multiple files that all
     need to be installed with different file names,
     you can either call the &InstallAs; function
     multiple times, or as a shorthand,
@@ -265,6 +265,68 @@ int main() { printf("Goodbye, world!\n"); }
     <scons_output example="install_ex5" suffix="1">
        <scons_output_command>scons -Q install</scons_output_command>
     </scons_output>
+
+  </section>
+
+  <section>
+  <title>Installing a Shared Library</title>
+
+    <para>
+    If a shared library is created with the
+    &cv-link-SHLIBVERSION; variable set,
+    &scons; will create symbolic links as needed based on that
+    variable.  To properly install such a library including the
+    symbolic links, use the &InstallVersionedLib; function.
+    </para>
+
+    <para>
+    For example, on a Linux system, this instruction:
+    </para>
+
+    <sconstruct>
+foo =  env.SharedLibrary(target="foo", source="foo.c", SHLIBVERSION="1.2.3")
+    </sconstruct>
+
+    <para>
+    Will produce a shared library
+    <filename>libfoo.so.1.2.3</filename>
+    and symbolic links
+    <filename>libfoo.so</filename> and
+    <filename>libfoo.so.1</filename>
+    which point to
+    <filename>libfoo.so.1.2.3</filename>.
+    You can use the Node returned by the &SharedLibrary;
+    builder in order to install the library and its
+    symbolic links in one go without having to list
+    them individually:
+    </para>
+
+    <sconstruct>
+env.InstallVersionedLib(target="lib", source=foo)
+    </sconstruct>
+
+<!-- didn't get this to illustrate what I expected: example reports
+     installing lib without version, while manual effort has it:
+
+    <scons_example name="install_ex6">
+      <file name="SConstruct" printme="1">
+env = Environment()
+foo =  env.SharedLibrary(target="foo", source="foo.c", SHLIBVERSION="1.2.3")
+ins = env.InstallVersionedLib(target="lib", source=foo)
+env.Alias('install', ins)
+      </file>
+      <file name="foo.c">
+int call_foo() {
+    printf("Hello world");
+    return(0);
+}
+      </file>
+    </scons_example>
+
+    <scons_output example="install_ex6" suffix="1">
+       <scons_output_command>scons -Q install</scons_output_command>
+    </scons_output>
+-->
 
   </section>
 

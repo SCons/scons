@@ -1080,6 +1080,18 @@ This implies
 
   </listitem>
   </varlistentry>
+
+  <varlistentry>
+  <term>--install-sandbox=<replaceable>path</replaceable></term>
+  <listitem>
+<para>
+When using the &Install; functions, prepend <replaceable>path</replaceable>
+to the installation paths such that all installed files will be placed
+underneath <replaceable>path</replaceable>.
+</para>
+  </listitem>
+  </varlistentry>
+
   <varlistentry>
   <term>--interactive</term>
   <listitem>
