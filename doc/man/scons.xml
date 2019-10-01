@@ -890,9 +890,43 @@ since multiple build commands and
 intervening SCons processing
 should take place in parallel.)
 </para>
-
   </listitem>
   </varlistentry>
+
+<varlistentry>
+  <term>--debug=timestamp</term>
+  <listitem>
+    <para>Prints additional time profiling information:</para>
+    <itemizedlist>
+      <listitem>
+        <para>The time spent executing each individual build command</para>
+      </listitem>
+      <listitem>
+        <para>The total build time (time SCons ran from beginning to end)</para>
+      </listitem>
+      <listitem>
+        <para>The total time spent reading and executing SConscript files</para>
+      </listitem>
+      <listitem>
+        <para>The total time spent SCons itself spend running
+(that is, not counting reading and executing SConscript files)</para>
+      </listitem>
+      <listitem>
+        <para>The total time spent executing all build commands</para>
+      </listitem>
+      <listitem>
+        <para>The elapsed wall-clock time spent executing those build commands</para>
+      </listitem>
+      <listitem>
+        <para>The absolute start and end wall-clock time spent executing those build commands</para>
+      </listitem>
+      <listitem>
+        <para>The time spent processing each file passed to the <emphasis>SConscript()</emphasis> function</para>
+      </listitem>
+    </itemizedlist>
+  </listitem>
+</varlistentry>
+
   <varlistentry>
   <term>--diskcheck=<emphasis>types</emphasis></term>
   <listitem>
