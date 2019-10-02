@@ -309,7 +309,7 @@ Linking foo
     <scons_example name="output_COMSTR-VERBOSE">
        <file name="SConstruct" printme="1">
 env = Environment()
-if ARGUMENTS.get('VERBOSE') != "1':
+if ARGUMENTS.get('VERBOSE') != '1':
     env['CCCOMSTR'] = "Compiling $TARGET"
     env['LINKCOMSTR'] = "Linking $TARGET"
 env.Program('foo.c')
