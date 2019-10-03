@@ -6,6 +6,9 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Daniel Moody:
+    - Add no_progress option as a set-able option
+
   From Mathew Robinson:
 
     - Improved threading performance by ensuring NodeInfo is shared
