@@ -140,7 +140,8 @@ class SConsValues(optparse.Values):
         'random',
         'stack_size',
         'warn',
-        'silent'
+        'silent',
+        'no_progress'
     ]
 
     def set_option(self, name, value):
