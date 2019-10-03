@@ -792,7 +792,7 @@ which corresponds to --silent.
 <term><literal>no_progress</literal></term>
 <listitem>
 <para>
-which corresponds to -Q and --no_progress.
+which corresponds to -Q.
 </para>
 </listitem>
 </varlistentry>
