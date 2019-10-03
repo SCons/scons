@@ -789,6 +789,14 @@ which corresponds to --silent.
 </listitem>
 </varlistentry>
 <varlistentry>
+<term><literal>no_progress</literal></term>
+<listitem>
+<para>
+which corresponds to -Q and --no_progress.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
 <term><literal>stack_size</literal></term>
 <listitem>
 <para>
