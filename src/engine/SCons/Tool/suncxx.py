@@ -74,7 +74,7 @@ def get_package_info(package_name, pkginfo, pkgchk):
         except EnvironmentError:
             pass
         else:
-            pkginfo_contents = p.communicate()[0]
+            pkginfo_contents = p.communicate()[0].decode()
             version_re = re.compile(r'^ *VERSION:\s*(.*)$', re.M)
             version_match = version_re.search(pkginfo_contents)
             if version_match:
@@ -88,7 +88,7 @@ def get_package_info(package_name, pkginfo, pkgchk):
             except EnvironmentError:
                 pass
             else:
-                pkgchk_contents = p.communicate()[0]
+                pkgchk_contents = p.communicate()[0].decode()
                 pathname_re = re.compile(r'^Pathname:\s*(.*/bin/CC)$', re.M)
                 pathname_match = pathname_re.search(pkgchk_contents)
                 if pathname_match:
