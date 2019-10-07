@@ -359,43 +359,60 @@ class SConsOptionParser(optparse.OptionParser):
         This would lead to further confusion, because we might want
         to add another option "--myarg" later on (see issue #2929).
 
+        The implementation proved to be problematic in the case of
+        space-separation (--arg opt) style, where the arg gets
+        separated from the opt. So now we try to figure out if there
+        are nargs and pop them off largs.
         """
         rargs = []
-        largs_restore = []
+        largs = []
         # Loop over all remaining arguments
         skip = False
-        for l in self.largs:
+
+        for idx, larg in enumerate(self.largs):
             if skip:
                 # Accept all remaining arguments as they are
-                largs_restore.append(l)
+                largs.append(larg)
             else:
-                if len(l) > 2 and l[0:2] == "--":
+                if len(larg) > 2 and larg[0:2] == "--":
                     # Check long option
-                    lopt = (l,)
-                    if "=" in l:
+                    if "=" in larg:
                         # Split into option and value
-                        lopt = l.split("=", 1)
+                        lopt = larg.split("=", 1)
+                    else:
+                        lopt = [larg]
 
                     if lopt[0] in self._long_opt:
                         # Argument is already known
-                        rargs.append('='.join(lopt))
+                        if len(lopt) > 1:
+                            # "--opt=arg" style, join it back up
+                            rargs.append('='.join(lopt))
+                        else:
+                            rargs.append(larg)
+                            # maybe "--opt arg" style, pull matching args
+                            option = self._long_opt[larg]
+                            if option.takes_value():
+                                for _ in range(option.nargs):
+                                    try:
+                                        rargs.append(self.largs.pop(idx + 1))
+                                    except IndexError:
+                                        # missing args, will be handled later
+                                        pass
                     else:
                         # Not known yet, so reject for now
-                        largs_restore.append('='.join(lopt))
+                        largs.append('='.join(lopt))
                 else:
-                    if l == "--" or l == "-":
+                    if larg in ("--", "-"):
                         # Stop normal processing and don't
                         # process the rest of the command-line opts
-                        largs_restore.append(l)
                         skip = True
-                    else:
-                        rargs.append(l)
+                    largs.append(larg)
 
         # Parse the filtered list
         self.parse_args(rargs, self.values)
         # Restore the list of remaining arguments for the
         # next call of AddOption/add_local_option...
-        self.largs = self.largs + largs_restore
+        self.largs = largs
 
     def add_local_option(self, *args, **kw):
         """

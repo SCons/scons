@@ -83,11 +83,16 @@ print(str(GetOption('prefix')))
 print(str(GetOption('extras')))
 """)
 
+# no options
 test.run('-Q -q .', stdout="None\n()\n")
+# one single-arg option
 test.run('-Q -q . --prefix=/home/foo', stdout="/home/foo\n()\n")
+# one two-arg option
 test.run('-Q -q . --extras A B', status=1, stdout="None\n('A', 'B')\n")
-test.run('-Q -q . -- --prefix=/home/foo --extras A B',
-         status=1, stdout="None\n()\n")
+# single-arg option followed by two-arg option
+test.run('-Q -q . --prefix=/home/foo --extras A B', status=1, stdout="/home/foo\n('A', 'B')\n")
+# two-arg option followed by single-arg option
+test.run('-Q -q . --extras A B --prefix=/home/foo', status=1, stdout="/home/foo\n('A', 'B')\n")
 
 test.pass_test()
 
