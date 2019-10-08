@@ -15,6 +15,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Mats Wichmann
     - Replace instances of string find method with "in" checks where
       the index from find() was not used.
+    - CmdStringHolder fix from issue #3428
     - Turn previously deprecated debug options into failures:
       --debug=tree, --debug=dtree, --debug=stree, --debug=nomemoizer.
 
