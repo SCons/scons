@@ -16,7 +16,15 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Replace instances of string find method with "in" checks where
       the index from find() was not used.
     - CmdStringHolder fix from issue #3428
+    - Turn previously deprecated debug options into failures:
+      --debug=tree, --debug=dtree, --debug=stree, --debug=nomemoizer.
 
+  From Jacek Kuczera:
+    - Fix CheckFunc detection code for Visual 2019. Some functions
+      (e.g. memmove) were incorrectly recognized as not available.
+
+  From Jakub Kulik
+    - Fix subprocess result bytes not being decoded in SunOS/Solaris related tools.
 
 RELEASE 3.1.1 - Mon, 07 Aug 2019 20:09:12 -0500
 

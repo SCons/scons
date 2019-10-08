@@ -89,7 +89,7 @@ Command('list.out', 'subdir', foo, source_scanner = DirScanner)
 SConscript('subdir/SConscript')
 """)
 
-test.write(['subdir', 'SConscript'], """\
+test.write(['subdir', 'SConscript'], r"""
 import SCons.Scanner
 kscan = SCons.Scanner.Classic(name = 'kfile',
                               suffixes = ['.k'],

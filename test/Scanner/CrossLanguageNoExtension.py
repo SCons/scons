@@ -34,7 +34,7 @@ test = TestSCons.TestSCons()
 # for nodes that do not have mappings from their scanner_key
 # to a scanner instance
 
-test.write('SConstruct', """
+test.write('SConstruct', r"""
 import re
 
 include_re = re.compile(r'^include\s+(\S+)$', re.M)
@@ -77,7 +77,7 @@ env2.Append(SCANNERS = [ k2scan2 ] )
 env2.Command( 'k2', 'foo.k', Copy( '$TARGET', '$SOURCE' ) )
 """)
 
-test.write('foo.k', 
+test.write('foo.k',
 """foo.k 1 line 1
 include xxx.k
 include yyy

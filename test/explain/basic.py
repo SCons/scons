@@ -51,7 +51,7 @@ inc_bbb_k = test.workpath('inc', 'bbb.k')
 
 
 
-test.write(cat_py, r"""\
+test.write(cat_py, r"""
 from __future__ import print_function
 
 import sys
@@ -81,7 +81,7 @@ sys.exit(0)
 """)
 
 
-SConstruct_contents = """\
+SConstruct_contents = r"""
 DefaultEnvironment(tools=[])
 import re
 
@@ -130,7 +130,7 @@ AlwaysBuild(file6)
 env.Cat('subdir/file7', 'subdir/file7.in')
 env.OneCat('subdir/file8', ['subdir/file7.in', env.Value(%(test_value)s)] )
 env.OneCat('subdir/file9', ['subdir/file7.in', env.Value(7)] )
-""" % valueDict )
+""" % valueDict)
 
 test_value = '"first"'
 WriteInitialTest( locals() )
