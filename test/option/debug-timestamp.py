@@ -112,9 +112,9 @@ expected_total_time = complete_time - overhead
 def get_times_and_targets(pattern):
     targets = []
     times = []
-    for target,time in re.findall(pattern, test.stdout()):
+    for target, target_time in re.findall(pattern, test.stdout()):
         targets.append(target)
-        times.append(float(time))
+        times.append(float(target_time))
     return targets, times
 
 duration_targets, durations = get_times_and_targets(r'Command execution time: (.*): (\d+\.\d+) seconds')
