@@ -1034,9 +1034,16 @@ class EnvVarsSubstListTestCase(SubstTestCase):
         # ["|", "a", "|", "b", "|", "c", "1"],
         # ["|", "|", "c", "1"],
 
+        # "test $($xxx$)",
+        # "test $($)",
+
+
         test = '${LIST}'
-        r = EnvironmentValues.subst_list(test, env, mode=SUBST_SIG, gvars=gvars)
+        # test = "test $($xxx$)"
+        r = EnvironmentValues.subst_list(test, env, mode=SUBST_RAW, gvars=gvars)
         answer = [['This', 'is', 'test']]
+        # answer = [["test", "$($)"]]
+
         assert r == answer, 'This should be  %s not :%s' % (answer, r)
 
         failed = 0

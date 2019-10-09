@@ -98,6 +98,15 @@ class TestEnvironmentValue(unittest.TestCase):
         self.assertEqual(one.var_type, ValueTypes.COLLECTION)
         self.assertEqual(one.depends_on, set())
 
+    def test_list_in_list_value(self):
+        # TODO Make this work correctly.
+        value = [['gcc', 'g++', 'applelink', 'ar', 'libtool', 'as', 'xcode']]
+        one = EnvironmentValue(value)
+        self.assertEqual(one._parsed, [])
+        self.assertEqual(one.value, value)
+        self.assertEqual(one.var_type, ValueTypes.COLLECTION)
+        self.assertEqual(one.depends_on, set())
+
     def test_tuple_value(self):
         value = (('distmod', '$MONGO_DISTMOD', True, True), ('distarch', '$MONGO_DISTARCH', True, True),
                  ('cc', '$CC_VERSION', True, False), ('ccflags', '$CCFLAGS', True, False),

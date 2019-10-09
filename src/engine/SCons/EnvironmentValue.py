@@ -3,9 +3,11 @@ import re
 from collections import UserDict, UserList
 from numbers import Number
 
-from SCons.Util import is_String, is_Sequence, CLVar
+from SCons.Util import is_String, is_Sequence, CLVar, flatten
 from SCons.Subst import AllowableExceptions, raise_exception
 
+# remove for non py3
+from enum import Enum
 
 _debug = False
 if _debug:
@@ -63,7 +65,7 @@ class SubstModes(object):
     SUBST_LIST = 3
 
 
-class ValueTypes(object):
+class ValueTypes(Enum):
     """
     Enum to store what type of value the variable holds.
     """
@@ -127,6 +129,7 @@ class EnvironmentValue(object):
     We're going to keep track of variables which feed into this values evaluation
     """
 
+    __slots__ = ['_parsed', 'all_dependencies', 'value', 'var_type', 'depends_on', 'value', 'cached']
     all_values = {}
 
     @classmethod
@@ -145,7 +148,8 @@ class EnvironmentValue(object):
             return no
 
     def __init__(self, value):
-        # TODO: Should cache initialziation by keeping hash all previous values, since we don't evaluate in context in the Value itself.
+        # TODO: Should cache initialization by keeping hash all previous values, since we don't evaluate
+        #  in context in the Value itself.
 
         self.value = value
         self.var_type = ValueTypes.UNKNOWN
@@ -225,12 +229,14 @@ class EnvironmentValue(object):
                 # like dict, tuple, list
                 self.var_type = ValueTypes.COLLECTION
 
-                if len(self.value) == 1 and isinstance(self.value, (list, UserDict, tuple))\
-                        and '$' not in self.value[0]:
-                    # Short cut if we only have 1 value and it has no $'s
-                    self.cached = (str(self.value[0]), str(self.value[0]))
+                # This fails if value is list of list  [['a','b','c']]
+                # if len(self.value) == 1 and isinstance(self.value, (list, UserDict, tuple))\
+                #         and '$' not in self.value[0]:
+                #     # Short cut if we only have 1 value and it has no $'s
+                #     self.cached = (str(self.value[0]), str(self.value[0]))
 
-
+                self._parsed = flatten(self.value)
+                self.find_dependencies()
                 #TODO Handle lists
                 #TODO Handle Dicts
             elif isinstance(self.value, Number):
@@ -285,9 +291,9 @@ class EnvironmentValue(object):
             # TARGET[0] -> TARGET,  TARGET.abspath -> TARGET
 
             if '.' in p:
-                p = p.split('.',1)[0]
+                p = p.split('.', 1)[0]
             if '[' in p:
-                p = p.split('[',1)[0]
+                p = p.split('[', 1)[0]
 
             self.depends_on.add(p)
 
@@ -349,7 +355,7 @@ class EnvironmentValue(object):
 
         self.debug_print_parsed_parts(all_dependencies)
 
-        depend_list = [v for (t,v,i) in all_dependencies
+        depend_list = [v for (t, v, i) in all_dependencies
                        if t in (ValueTypes.VARIABLE_OR_CALLABLE, ValueTypes.VARIABLE, ValueTypes.CALLABLE)]
 
         self.depends_on = self.depends_on.union(set(depend_list))
