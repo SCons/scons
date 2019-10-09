@@ -4606,7 +4606,7 @@ incl = Dir('include')
 f = incl.File('header.h')
 
 # Get a Node for a subdirectory within a directory
-dist = Dir('project-3.2.1)
+dist = Dir('project-3.2.1')
 src = dist.Dir('src')
 
 # Get a Node for a file in the same directory
