@@ -894,7 +894,7 @@ should take place in parallel.)
   </varlistentry>
 
 <varlistentry>
-  <term>--debug=timestamp</term>
+  <term>--debug=action_timestamps</term>
   <listitem>
     <para>Prints additional time profiling information:</para>
     <itemizedlist>

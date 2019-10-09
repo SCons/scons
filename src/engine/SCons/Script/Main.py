@@ -75,7 +75,7 @@ print_objects = 0
 print_memoizer = 0
 print_stacktrace = 0
 print_time = 0
-print_timestamp = 0
+print_action_timestamps = 0
 sconscript_time = 0
 cumulative_command_time = 0
 exit_status = 0   # final exit status, assume success by default
@@ -210,10 +210,10 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
             finish_time = time.time()
             last_command_end = finish_time
             cumulative_command_time = cumulative_command_time+finish_time-start_time
-            if print_timestamp:
+            if print_action_timestamps:
                 sys.stdout.write("Command execution start time: %s: %f seconds\n"%(str(self.node), start_time))
             sys.stdout.write("Command execution time: %s: %f seconds\n"%(str(self.node), finish_time-start_time))
-            if print_timestamp:
+            if print_action_timestamps:
                 sys.stdout.write("Command execution stop time: %s: %f seconds\n"%(str(self.node), finish_time))
 
     def do_failed(self, status=2):
@@ -641,7 +641,7 @@ def _SConstruct_exists(dirname='', repositories=[], filelist=None):
     return None
 
 def _set_debug_values(options):
-    global print_memoizer, print_objects, print_stacktrace, print_time, print_timestamp
+    global print_memoizer, print_objects, print_stacktrace, print_time, print_action_timestamps
 
     debug_values = options.debug
 
@@ -679,9 +679,9 @@ def _set_debug_values(options):
         options.tree_printers.append(TreePrinter(status=True))
     if "time" in debug_values:
         print_time = 1
-    if "timestamp" in debug_values:
+    if "action_timestamps" in debug_values:
         print_time = 1
-        print_timestamp = 1
+        print_action_timestamps = 1
     if "tree" in debug_values:
         options.tree_printers.append(TreePrinter())
     if "prepare" in debug_values:

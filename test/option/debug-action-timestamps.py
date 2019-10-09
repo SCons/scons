@@ -64,9 +64,9 @@ test.write('f4.in', "f4.in\n")
 
 expected_targets = ['f1.out', 'f2.out', 'f3.out', 'f4.out', 'output', '.']
 
-# Before anything else, make sure we get valid --debug=timestamp results
+# Before anything else, make sure we get valid --debug=action_timestamps results
 # when just running the help option.
-test.run(arguments = "-h --debug=timestamp")
+test.run(arguments = "-h --debug=action_timestamps")
 
 
 
@@ -102,7 +102,7 @@ overhead = time.time() - start_time
 
 
 start_time = time.time()
-test.run(arguments = "-j1 --debug=timestamp . SLEEP=0")
+test.run(arguments = "-j1 --debug=action_timestamps . SLEEP=0")
 complete_time = time.time() - start_time
 
 
@@ -181,7 +181,7 @@ if failures or warnings:
 if failures:
     test.fail_test(1)
 
-test.run(arguments = "--debug=timestamp . SLEEP=0")
+test.run(arguments = "--debug=action_timestamps . SLEEP=0")
 
 command_time = get_command_time(test.stdout())
 if command_time != 0.0:
@@ -192,7 +192,7 @@ if command_time != 0.0:
 
 test.run(arguments = "-c")
 
-test.run(arguments = "-j4 --debug=timestamp . SLEEP=1")
+test.run(arguments = "-j4 --debug=action_timestamps . SLEEP=1")
 
 
 
@@ -217,7 +217,7 @@ if failures:
     print('\n'.join([test.stdout()] + failures))
     test.fail_test(1)
 
-test.run(arguments = "-j4 --debug=timestamp . SLEEP=1")
+test.run(arguments = "-j4 --debug=action_timestamps . SLEEP=1")
 
 command_time = get_command_time(test.stdout())
 if command_time != 0.0:
