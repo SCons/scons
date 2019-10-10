@@ -28,6 +28,7 @@ from __future__ import print_function
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import copy
+import json
 import os
 import subprocess
 import re
@@ -44,10 +45,37 @@ elif LOGFILE:
     except ImportError:
         debug = lambda message: open(LOGFILE, 'a').write(message + '\n')
     else:
-        logging.basicConfig(filename=LOGFILE, level=logging.DEBUG)
+        logging.basicConfig(
+            format='%(relativeCreated)05dms:pid%(process)05d:MSCommon/%(filename)s:%(message)s',
+            filename=LOGFILE,
+            level=logging.DEBUG)
         debug = logging.getLogger(name=__name__).debug
 else:
     debug = lambda x: None
+
+
+CONFIG_CACHE = os.environ.get('SCONS_CACHE_MSVC_CONFIG', None)
+CONFIG_FILE = os.path.join(os.path.expanduser('~'), '.scons_msvc_cache')
+
+
+def read_script_env_cache():
+    """ fetch cached env vars if requested, else return empty dict """
+    envcache = {}
+    if CONFIG_CACHE:
+        try:
+            with open(CONFIG_FILE, 'r') as f:
+                envcache = json.load(f)
+        except FileNotFoundError:
+            pass
+    return envcache
+
+
+def write_script_env_cache(cache):
+    """ write out cach of env vars if requested """
+    if CONFIG_CACHE:
+        with open(CONFIG_FILE, 'w') as f:
+            #TODO: clean up if it fails
+            json.dump(cache, f, indent=2)
 
 
 _is_win64 = None
@@ -207,14 +235,15 @@ def get_output(vcbat, args = None, env = None):
     output = stdout.decode("mbcs")
     return output
 
-def parse_output(output, keep=("INCLUDE", "LIB", "LIBPATH", "PATH", 'VSCMD_ARG_app_plat')):
+KEEPLIST = ("INCLUDE", "LIB", "LIBPATH", "PATH", 'VSCMD_ARG_app_plat')
+def parse_output(output, keep=KEEPLIST):
     """
     Parse output from running visual c++/studios vcvarsall.bat and running set
     To capture the values listed in keep
     """
 
     # dkeep is a dict associating key: path_list, where key is one item from
-    # keep, and pat_list the associated list of paths
+    # keep, and path_list the associated list of paths
     dkeep = dict([(i, []) for i in keep])
 
     # rdk will  keep the regex to match the .bat file output line starts

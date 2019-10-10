@@ -17,6 +17,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       the index from find() was not used.
     - Turn previously deprecated debug options into failures:
       --debug=tree, --debug=dtree, --debug=stree, --debug=nomemoizer.
+    - If SCONS_CACHE_MSVC_CONFIG env var is set, scons will cache the
+      results of past calls to vcvarsall.bat to a file; integrates with
+      existing memoizing of such vars. On vs2019 saves 5+ seconds per
+      scons invocation, which really helps test suite runs.
 
   From Jacek Kuczera:
     - Fix CheckFunc detection code for Visual 2019. Some functions
