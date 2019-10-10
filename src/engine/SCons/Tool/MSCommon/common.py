@@ -35,47 +35,52 @@ import re
 
 import SCons.Util
 
+# internal-use so undocumented:
+# set to '-' to print to console, else set to filename to log to
 LOGFILE = os.environ.get('SCONS_MSCOMMON_DEBUG')
 if LOGFILE == '-':
     def debug(message):
         print(message)
 elif LOGFILE:
-    try:
-        import logging
-    except ImportError:
-        debug = lambda message: open(LOGFILE, 'a').write(message + '\n')
-    else:
-        logging.basicConfig(
-            format='%(relativeCreated)05dms:pid%(process)05d:MSCommon/%(filename)s:%(message)s',
-            filename=LOGFILE,
-            level=logging.DEBUG)
-        debug = logging.getLogger(name=__name__).debug
+    import logging
+    logging.basicConfig(
+        format='%(relativeCreated)05dms:pid%(process)05d:MSCommon/%(filename)s:%(message)s',
+        filename=LOGFILE,
+        level=logging.DEBUG)
+    debug = logging.getLogger(name=__name__).debug
 else:
     debug = lambda x: None
 
 
-CONFIG_CACHE = os.environ.get('SCONS_CACHE_MSVC_CONFIG', None)
-CONFIG_FILE = os.path.join(os.path.expanduser('~'), '.scons_msvc_cache')
-
+CONFIG_CACHE = os.environ.get('SCONS_CACHE_MSVC_CONFIG')
+if CONFIG_CACHE in ('1', 'true', 'True'):
+    CONFIG_CACHE = os.path.join(os.path.expanduser('~'), '.scons_msvc_cache')
 
 def read_script_env_cache():
-    """ fetch cached env vars if requested, else return empty dict """
+    """ fetch cached msvc env vars if requested, else return empty dict """
     envcache = {}
     if CONFIG_CACHE:
         try:
-            with open(CONFIG_FILE, 'r') as f:
+            with open(CONFIG_CACHE, 'r') as f:
                 envcache = json.load(f)
-        except FileNotFoundError:
+        #TODO can use more specific FileNotFoundError when py2 dropped
+        except IOError:
             pass
     return envcache
 
 
 def write_script_env_cache(cache):
-    """ write out cach of env vars if requested """
+    """ write out cache of msvc env vars if requested """
     if CONFIG_CACHE:
-        with open(CONFIG_FILE, 'w') as f:
-            #TODO: clean up if it fails
-            json.dump(cache, f, indent=2)
+        try:
+            with open(CONFIG_CACHE, 'w') as f:
+                json.dump(cache, f, indent=2)
+        except TypeError:
+            # data can't serialize to json, don't leave partial file
+            os.remove(CONFIG_CACHE)
+        except IOError:
+            # can't write the file, just skip
+            pass
 
 
 _is_win64 = None
