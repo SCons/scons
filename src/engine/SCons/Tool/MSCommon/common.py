@@ -32,6 +32,8 @@ import json
 import os
 import subprocess
 import re
+import subprocess
+import sys
 
 import SCons.Util
 
@@ -56,13 +58,23 @@ CONFIG_CACHE = os.environ.get('SCONS_CACHE_MSVC_CONFIG')
 if CONFIG_CACHE in ('1', 'true', 'True'):
     CONFIG_CACHE = os.path.join(os.path.expanduser('~'), '.scons_msvc_cache')
 
+# !@$#@$? Python2
+if sys.version_info[0] == 2:
+    def str_hook(obj):
+        return {k.encode('utf-8') if isinstance(k, unicode) else k :
+                v.encode('utf-8') if isinstance(v, unicode) else v
+                for k,v in obj}
+
 def read_script_env_cache():
     """ fetch cached msvc env vars if requested, else return empty dict """
     envcache = {}
     if CONFIG_CACHE:
         try:
             with open(CONFIG_CACHE, 'r') as f:
-                envcache = json.load(f)
+                if sys.version_info[0] == 2:
+                    envcache = json.load(f, object_pairs_hook=str_hook)
+                else:
+                    envcache = json.load(f)
         #TODO can use more specific FileNotFoundError when py2 dropped
         except IOError:
             pass

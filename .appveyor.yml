@@ -25,7 +25,7 @@ install:
   - cmd: set STATIC_DEPS=true & C:\\%WINPYTHON%\\python.exe -m pip install -U --progress-bar off lxml
   # install 3rd party tools to test with
   - cmd: choco install --allow-empty-checksums dmd ldc swig vswhere xsltproc winflexbison
-  - cmd: set SCONS_CACHE_MSVC_CONFIG="true"
+  - cmd: set SCONS_CACHE_MSVC_CONFIG=true
   - cmd: set
 
   ### LINUX ###
