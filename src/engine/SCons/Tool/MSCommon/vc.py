@@ -40,7 +40,10 @@ import SCons.Util
 import subprocess
 import os
 import platform
+import sys
 from string import digits as string_digits
+if sys.version_info[0] == 2:
+    import collections
 
 import SCons.Warnings
 from SCons.Tool import find_program_path
@@ -157,11 +160,6 @@ def get_host_target(env):
     host_platform = env.get('HOST_ARCH')
     if not host_platform:
         host_platform = platform.machine()
-        # TODO(2.5):  the native Python platform.machine() function returns
-        # '' on all Python versions before 2.6, after which it also uses
-        # PROCESSOR_ARCHITECTURE.
-        if not host_platform:
-            host_platform = os.environ.get('PROCESSOR_ARCHITECTURE', '')
 
     # Retain user requested TARGET_ARCH
     req_target_platform = env.get('TARGET_ARCH')
@@ -622,6 +620,21 @@ def script_env(script, args=None):
         script_env_cache[cache_key] = cache_data
         # once we updated cache, give a chance to write out if user wanted
         common.write_script_env_cache(script_env_cache)
+    else:
+        # if we "hit" data from the json file, we have a Py2 problem:
+        # keys & values will be unicode. don't detect, just convert.
+        if sys.version_info[0] == 2:
+            def convert(data):
+                if isinstance(data, basestring):
+                    return str(data)
+                elif isinstance(data, collections.Mapping):
+                    return dict(map(convert, data.iteritems()))
+                elif isinstance(data, collections.Iterable):
+                    return type(data)(map(convert, data))
+                else:
+                    return data
+
+            cache_data = convert(cache_data)
     return cache_data
 
 def get_default_version(env):
