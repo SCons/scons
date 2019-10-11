@@ -26,209 +26,80 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 import re
-import time
 
 _python_ = TestSCons._python_
 
-test = TestSCons.TestSCons()
-
-test.write('sleep_cat.py', """\
-import sys
-import time
-time.sleep(int(sys.argv[1]))
-with open(sys.argv[2], 'wb') as fp:
-    for arg in sys.argv[3:]:
-        with open(arg, 'rb') as infp:
-            fp.write(infp.read())
-sys.exit(0)
+def setup_fixtures():
+    test.file_fixture('../fixture/test_main.c', 'main.c')
+    test.write('SConstruct', """
+DefaultEnvironment(tools=[])
+env = Environment()
+env.Program('main.exe', ['main.c'])
 """)
 
-test.write('SConstruct', """
-DefaultEnvironment(tools=[])
-env = Environment(tools=[],
-                  PYTHON = r'%(_python_)s',
-                  SLEEP_CAT = r'sleep_cat.py',
-                  CATCOM = '$PYTHON $SLEEP_CAT $SECONDS $TARGET $SOURCES',
-                  SECONDS = ARGUMENTS.get('SLEEP', '0'))
-f1 = env.Command('f1.out', 'f1.in', '$CATCOM')
-f2 = env.Command('f2.out', 'f2.in', '$CATCOM')
-f3 = env.Command('f3.out', 'f3.in', '$CATCOM')
-f4 = env.Command('f4.out', 'f4.in', '$CATCOM')
-env.Command('output', [f1, f2, f3, f4], '$CATCOM')
-""" % locals())
+def test_help_function():
+    # Before anything else, make sure we get valid --debug=action_timestamps results
+    # when just running the help option.
+    test.run(arguments = "-h --debug=action_timestamps")
+    
+def build():
+    # Execute build
+    test.run(arguments='--debug=action_timestamps')
+    build_output = test.stdout()
+    return build_output
 
-test.write('f1.in', "f1.in\n")
-test.write('f2.in', "f2.in\n")
-test.write('f3.in', "f3.in\n")
-test.write('f4.in', "f4.in\n")
+def get_matches_from_output(build_output):
+    return [re.findall(pattern, build_output) for pattern in debug_time_patterns]
 
-expected_targets = ['f1.out', 'f2.out', 'f3.out', 'f4.out', 'output', '.']
+def test_presence_of_debug_time_strings(build_output):
+    # Check presence of duration and timestamps
+    if None in get_matches_from_output(build_output):
+        print("One or more of the time debug strings were not found in the build output")
+        test.fail_test(1)
 
-# Before anything else, make sure we get valid --debug=action_timestamps results
-# when just running the help option.
-test.run(arguments = "-h --debug=action_timestamps")
+def test_equal_number_of_debug_time_strings(build_output):
+    matches = get_matches_from_output(build_output)
+    num_of_matches = [len(match) for match in matches]
 
+    # Check that the number of matches for each pattern is the same
+    if num_of_matches.count(num_of_matches[0]) != len(num_of_matches):
+        print("Debug time strings differs in quantity")
+        test.fail_test(2)
 
+def test_correctness_of_timestamps(build_output):
+    # Check if difference between timestamps is equal to duration
+    matches = get_matches_from_output(build_output)
 
-def num(s, match):
-    return float(re.search(match, s).group(1))
+    def match_to_float(m): 
+        return float(m[1][1])
 
-def within_tolerance(expected, actual, tolerance):
-    return abs((expected-actual)/actual) <= tolerance
+    execution_time = match_to_float(matches[0])
+    start_time = match_to_float(matches[1])
+    stop_time = match_to_float(matches[2])
+    delta_time = stop_time - start_time
 
-def get_total_time(stdout):
-    return num(stdout, r'Total build time: (\d+\.\d+) seconds')
+    def within_tolerance(expected, actual, tolerance):
+        return abs((expected-actual)/actual) <= tolerance
 
-def get_sconscript_time(stdout):
-    return num(stdout, r'Total SConscript file execution time: (\d+\.\d+) seconds')
+    if not within_tolerance(execution_time, delta_time, 0.001):
+        print("Difference of timestamps differ from action duration")
+        print("Execution time = {}. Start time = {}. Stop time = {}. Delta time = {}".format(execution_time, start_time, stop_time, delta_time))
+        test.fail_test(3)
 
-def get_scons_time(stdout):
-    return num(stdout, r'Total SCons execution time: (\d+\.\d+) seconds')
+debug_time_patterns = [
+    r'Command execution time: (.*): (\d+\.\d+) seconds',
+    r'Command execution start time: (.*): (\d+\.\d+) seconds',
+    r'Command execution stop time: (.*): (\d+\.\d+) seconds'
+]
 
-def get_command_time(stdout):
-    return num(stdout, r'Total command execution time: (\d+\.\d+) seconds')
+test = TestSCons.TestSCons()
+setup_fixtures()
 
+test_help_function()
 
-# Try to make our results a little more accurate and repeatable by
-# measuring Python overhead executing a minimal file, and reading the
-# scons.py script itself from disk so that it's already been cached.
-test.write('pass.py', "pass\n")
-test.read(test.program)
-
-start_time = time.time()
-test.run(program=TestSCons.python, arguments=test.workpath('pass.py'))
-overhead = time.time() - start_time 
-
-
-
-start_time = time.time()
-test.run(arguments = "-j1 --debug=action_timestamps . SLEEP=0")
-complete_time = time.time() - start_time
-
-
-
-expected_total_time = complete_time - overhead
-
-def get_times_and_targets(pattern):
-    targets = []
-    times = []
-    for target, target_time in re.findall(pattern, test.stdout()):
-        targets.append(target)
-        times.append(float(target_time))
-    return targets, times
-
-duration_targets, durations = get_times_and_targets(r'Command execution time: (.*): (\d+\.\d+) seconds')
-start_targets, start_times = get_times_and_targets(r'Command execution start time: (.*): (\d+\.\d+) seconds')
-stop_targets, stop_times = get_times_and_targets(r'Command execution stop time: (.*): (\d+\.\d+) seconds')
-
-expected_command_time = 0.0
-for t in durations:
-    expected_command_time += t
-
-
-stdout = test.stdout()
-
-total_time      = get_total_time(stdout)
-sconscript_time = get_sconscript_time(stdout)
-scons_time      = get_scons_time(stdout)
-command_time    = get_command_time(stdout)
-
-failures = []
-warnings = []
-
-
-def check_targets(targets):
-    if  targets != expected_targets:
-        failures.append("""\
-    Scons reported the targets of timing information as %(targets)s, 
-    but the actual targets should have been %(expected_targets)s.
-    """.format(targets=targets, expected_targets=expected_targets))
-
-check_targets(duration_targets)
-check_targets(start_targets)
-check_targets(stop_targets)
-
-if not within_tolerance(expected_command_time, command_time, 0.01):
-    failures.append("""\
-SCons -j1 reported a total command execution time of %(command_time)s,
-but command execution times really totalled %(expected_command_time)s,
-outside of the 1%% tolerance.
-""" % locals())
-
-added_times = sconscript_time+scons_time+command_time
-if not within_tolerance(total_time, added_times, 0.01):
-    failures.append("""\
-SCons -j1 reported a total build time of %(total_time)s,
-but the various execution times actually totalled %(added_times)s,
-outside of the 1%% tolerance.
-""" % locals())
-
-if not within_tolerance(total_time, expected_total_time, 0.20):
-    # This tolerance check seems empirically to work fine if there's
-    # a light load on the system, but on a heavily loaded system the
-    # timings get screwy and it can fail frequently.  Some obvious
-    # attempts to work around the problem didn't, so just treat it as
-    # a warning for now.
-    warnings.append("""\
-Warning:  SCons -j1 reported total build time of %(total_time)s,
-but the actual measured build time was %(expected_total_time)s
-(end-to-end time of %(complete_time)s less Python overhead of %(overhead)s),
-outside of the 15%% tolerance.
-""" % locals())
-
-if failures or warnings:
-    print('\n'.join([test.stdout()] + failures + warnings))
-if failures:
-    test.fail_test(1)
-
-test.run(arguments = "--debug=action_timestamps . SLEEP=0")
-
-command_time = get_command_time(test.stdout())
-if command_time != 0.0:
-    print("Up-to-date run received non-zero command time of %s" % command_time)
-    test.fail_test()
-
-
-
-test.run(arguments = "-c")
-
-test.run(arguments = "-j4 --debug=action_timestamps . SLEEP=1")
-
-
-
-stdout = test.stdout()
-
-total_time      = get_total_time(stdout)
-sconscript_time = get_sconscript_time(stdout)
-scons_time      = get_scons_time(stdout)
-command_time    = get_command_time(stdout)
-
-failures = []
-
-added_times = sconscript_time+scons_time+command_time
-if not within_tolerance(total_time, added_times, 0.01):
-    failures.append("""\
-SCons -j4 reported a total build time of %(total_time)s,
-but the various execution times actually totalled %(added_times)s,
-outside of the 1%% tolerance.
-""" % locals())
-
-if failures:
-    print('\n'.join([test.stdout()] + failures))
-    test.fail_test(1)
-
-test.run(arguments = "-j4 --debug=action_timestamps . SLEEP=1")
-
-command_time = get_command_time(test.stdout())
-if command_time != 0.0:
-    print("Up-to-date run received non-zero command time of %s" % command_time)
-    test.fail_test()
-
+build_output = build()
+test_presence_of_debug_time_strings(build_output)
+test_equal_number_of_debug_time_strings(build_output)
+test_correctness_of_timestamps(build_output)
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:
