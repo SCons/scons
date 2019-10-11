@@ -31,11 +31,7 @@ _python_ = TestSCons._python_
 
 def setup_fixtures():
     test.file_fixture('../fixture/test_main.c', 'main.c')
-    test.write('SConstruct', """
-DefaultEnvironment(tools=[])
-env = Environment()
-env.Program('main.exe', ['main.c'])
-""")
+    test.file_fixture('../fixture/SConstruct_test_main.py', 'SConstruct')
 
 def test_help_function():
     # Before anything else, make sure we get valid --debug=action_timestamps results
