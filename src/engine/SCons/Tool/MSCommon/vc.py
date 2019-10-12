@@ -591,12 +591,15 @@ def reset_installed_vcs():
 # we can greatly improve the speed of the second and subsequent Environment
 # (or Clone) calls by memoizing the environment variables set by vcvars*.bat.
 #
-# Updated: by 2018, vcvarsall.bat had gotten so expensive it was breaking
-# CI builds because the test suite starts scons so many times and the existing
-# memo logic only helped with repeated calls within the same scons run;
-# with VS2019 it got even slower and an optional cache file was introduced.
-# The cache now also stores only the parsed vars, not the entire output
-# of running the batch file - saves a bit of time not parsing every time.
+# Updated: by 2018, vcvarsall.bat had gotten so expensive (vs2017 era)
+# it was breaking CI builds because the test suite starts scons so many
+# times and the existing memo logic only helped with repeated calls
+# within the same scons run. Windows builds on the CI system were split
+# into chunks to get around single-build time limits.
+# With VS2019 it got even slower and an optional persistent cache file
+# was introduced. The cache now also stores only the parsed vars, 
+# not the entire output of running the batch file - saves a bit
+# of time not parsing every time.
 
 script_env_cache = None
 
@@ -621,7 +624,8 @@ def script_env(script, args=None):
         # once we updated cache, give a chance to write out if user wanted
         common.write_script_env_cache(script_env_cache)
     else:
-        # if we "hit" data from the json file, we have a Py2 problem:
+        #TODO: Python 2 cleanup
+        # If we "hit" data from the json file, we have a Py2 problem:
         # keys & values will be unicode. don't detect, just convert.
         if sys.version_info[0] == 2:
             def convert(data):
@@ -635,6 +639,7 @@ def script_env(script, args=None):
                     return data
 
             cache_data = convert(cache_data)
+ 
     return cache_data
 
 def get_default_version(env):

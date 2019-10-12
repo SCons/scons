@@ -36,7 +36,7 @@ import sys
 
 import SCons.Util
 
-# internal-use so undocumented:
+# SCONS_MSCOMMON_DEBUG is internal-use so undocumented:
 # set to '-' to print to console, else set to filename to log to
 LOGFILE = os.environ.get('SCONS_MSCOMMON_DEBUG')
 if LOGFILE == '-':
@@ -53,6 +53,7 @@ else:
     debug = lambda x: None
 
 
+# SCONS_CACHE_MSVC_CONFIG is public, and is documented.
 CONFIG_CACHE = os.environ.get('SCONS_CACHE_MSVC_CONFIG')
 if CONFIG_CACHE in ('1', 'true', 'True'):
     CONFIG_CACHE = os.path.join(os.path.expanduser('~'), '.scons_msvc_cache')
@@ -66,6 +67,7 @@ def read_script_env_cache():
                 envcache = json.load(f)
         #TODO can use more specific FileNotFoundError when py2 dropped
         except IOError:
+            # don't fail if no cache file, just proceed without it
             pass
     return envcache
 

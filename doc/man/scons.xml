@@ -7218,26 +7218,32 @@ in addition to those passed on the command line.</para>
   <varlistentry>
     <term>SCONS_CACHE_MSVC_CONFIG</term>
     <listitem>
-<para>If set, save the shell environment variables generated
-in setting up the Microsoft Visual C++ compiler (and/or Build Tools),
-to give these settings, which are expensive to generate, persistence
+<para>(Windows only). If set, save the shell environment variables
+generated when setting up the Microsoft Visual C++ compiler
+(and/or Build Tools) to a file to give these settings, 
+which are expensive to generate, persistence
 across &scons; invocations.
-If set to a True-like value (<literal>"1"</literal>,
+Use of this option is primarily intended to aid performance
+in tightly controlled Continuous Integration setups.</para>
+
+<para>If set to a True-like value (<literal>"1"</literal>,
 <literal>"true"</literal> or
 <literal>"True"</literal>) will cache to a file named
 <filename>.scons_msvc_cache</filename> in the user's home directory.
 If set to a pathname, will use that pathname for the cache.</para>
-<para>
-Note: this behavior is not enabled by default because it
-might be somewhat fragile: while each major tool version
-(e.g. Visual Studio 2018 vs 2019) will get separate
-entries, if toolset updates cause a change
+
+<para>Note: use this cache with caution as it
+might be somewhat fragile: while each major toolset version
+(e.g. Visual Studio 2017 vs 2019) and architecture pair will get separate
+cache entries, if toolset updates cause a change
 to settings within a given release series, &scons; will not
-detect this and will fetch old settings.
-In case of problems, just remove the cache file.
-Use of this option is primarily intended to aid performance
-for tightly controlled Continuous Integration setups.
-</para>
+detect the change and will reuse old settings.
+Remove the cache file in case of problems with this.
+&scons; will ignore failures reading or writing the file
+and will silently revert to non-cached behavior in such cases.</para>
+
+<para>Since &scons; 3.1.</para>
+
     </listitem>
   </varlistentry>
 </variablelist>
