@@ -18,10 +18,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - CmdStringHolder fix from issue #3428
     - Turn previously deprecated debug options into failures:
       --debug=tree, --debug=dtree, --debug=stree, --debug=nomemoizer.
-    - If SCONS_CACHE_MSVC_CONFIG shell environment variable is set,
-      scons will cache the results of past calls to vcvarsall.bat to
+    - Experimental New Feature: Enable caching MSVC configuration
+      If SCONS_CACHE_MSVC_CONFIG shell environment variable is set,
+      SCons will cache the results of past calls to vcvarsall.bat to
       a file; integrates with existing memoizing of such vars.
-      On vs2019 saves 5+ seconds per scons invocation, which really
+      On vs2019 saves 5+ seconds per SCons invocation, which really
       helps test suite runs.
 
   From Jacek Kuczera:
