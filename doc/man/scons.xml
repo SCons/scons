@@ -7223,22 +7223,62 @@ env.Program('MyApp', ['Foo.cpp', 'Bar.cpp'])
 </refsect1>
 
 <refsect1 id='environment'><title>ENVIRONMENT</title>
+
+<para>In general, &scons; is not controlled by environment
+variables set in the shell used to invoke it, leaving it
+up to the SConscript file author to import those if desired.
+However the following variables are imported by
+&scons; itself if set:
+</para>
+
 <variablelist>
   <varlistentry>
-  <term>SCONS_LIB_DIR</term>
-  <listitem>
-<para>Specifies the directory that contains the SCons Python module directory
-(e.g. /home/aroach/scons-src-0.01/src/engine).</para>
-
-  </listitem>
+    <term>SCONS_LIB_DIR</term>
+    <listitem>
+<para>Specifies the directory that contains the &scons;
+Python module directory (for example,
+<filename>/home/aroach/scons-src-0.01/src/engine</filename>).</para>
+    </listitem>
   </varlistentry>
-  <varlistentry>
-  <term>SCONSFLAGS</term>
-  <listitem>
-<para>A string of options that will be used by scons in addition to those passed
-on the command line.</para>
 
-  </listitem>
+  <varlistentry>
+    <term>SCONSFLAGS</term>
+    <listitem>
+<para>A string of options that will be used by &scons;
+in addition to those passed on the command line.</para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>SCONS_CACHE_MSVC_CONFIG</term>
+    <listitem>
+<para>(Windows only). If set, save the shell environment variables
+generated when setting up the Microsoft Visual C++ compiler
+(and/or Build Tools) to a file to give these settings, 
+which are expensive to generate, persistence
+across &scons; invocations.
+Use of this option is primarily intended to aid performance
+in tightly controlled Continuous Integration setups.</para>
+
+<para>If set to a True-like value (<literal>"1"</literal>,
+<literal>"true"</literal> or
+<literal>"True"</literal>) will cache to a file named
+<filename>.scons_msvc_cache</filename> in the user's home directory.
+If set to a pathname, will use that pathname for the cache.</para>
+
+<para>Note: use this cache with caution as it
+might be somewhat fragile: while each major toolset version
+(e.g. Visual Studio 2017 vs 2019) and architecture pair will get separate
+cache entries, if toolset updates cause a change
+to settings within a given release series, &scons; will not
+detect the change and will reuse old settings.
+Remove the cache file in case of problems with this.
+&scons; will ignore failures reading or writing the file
+and will silently revert to non-cached behavior in such cases.</para>
+
+<para>Since &scons; 3.1.</para>
+
+    </listitem>
   </varlistentry>
 </variablelist>
 </refsect1>
@@ -7254,8 +7294,9 @@ source code.</para>
 </refsect1>
 
 <refsect1 id='authors'><title>AUTHORS</title>
-<para>Originally: Steven Knight &lt;knight@baldmt.com&gt; and Anthony Roach &lt;aroach@electriceyeball.com&gt;
-Since 2010: The SCons Development Team &lt;scons-dev@scons.org&gt;
+<para>Originally: Steven Knight <email>knight@baldmt.com</email>
+and Anthony Roach <email>aroach@electriceyeball.com</email>.
+Since 2010: The SCons Development Team <email>scons-dev@scons.org</email>.
 </para>
 </refsect1>
 </refentry>

@@ -118,11 +118,11 @@ class SDKDefinition(object):
         if (host_arch != target_arch):
             arch_string='%s_%s'%(host_arch,target_arch)
 
-        debug("sdk.py: get_sdk_vc_script():arch_string:%s host_arch:%s target_arch:%s"%(arch_string,
+        debug("get_sdk_vc_script():arch_string:%s host_arch:%s target_arch:%s"%(arch_string,
                                                            host_arch,
                                                            target_arch))
         file=self.vc_setup_scripts.get(arch_string,None)
-        debug("sdk.py: get_sdk_vc_script():file:%s"%file)
+        debug("get_sdk_vc_script():file:%s"%file)
         return file
 
 class WindowsSDK(SDKDefinition):
@@ -286,14 +286,14 @@ InstalledSDKMap = None
 def get_installed_sdks():
     global InstalledSDKList
     global InstalledSDKMap
-    debug('sdk.py:get_installed_sdks()')
+    debug('get_installed_sdks()')
     if InstalledSDKList is None:
         InstalledSDKList = []
         InstalledSDKMap = {}
         for sdk in SupportedSDKList:
-            debug('MSCommon/sdk.py: trying to find SDK %s' % sdk.version)
+            debug('trying to find SDK %s' % sdk.version)
             if sdk.get_sdk_dir():
-                debug('MSCommon/sdk.py:found SDK %s' % sdk.version)
+                debug('found SDK %s' % sdk.version)
                 InstalledSDKList.append(sdk)
                 InstalledSDKMap[sdk.version] = sdk
     return InstalledSDKList
@@ -346,13 +346,13 @@ def get_default_sdk():
     return InstalledSDKList[0]
 
 def mssdk_setup_env(env):
-    debug('sdk.py:mssdk_setup_env()')
+    debug('mssdk_setup_env()')
     if 'MSSDK_DIR' in env:
         sdk_dir = env['MSSDK_DIR']
         if sdk_dir is None:
             return
         sdk_dir = env.subst(sdk_dir)
-        debug('sdk.py:mssdk_setup_env: Using MSSDK_DIR:{}'.format(sdk_dir))
+        debug('mssdk_setup_env: Using MSSDK_DIR:{}'.format(sdk_dir))
     elif 'MSSDK_VERSION' in env:
         sdk_version = env['MSSDK_VERSION']
         if sdk_version is None:
@@ -364,22 +364,22 @@ def mssdk_setup_env(env):
             msg = "SDK version %s is not installed" % sdk_version
             raise SCons.Errors.UserError(msg)
         sdk_dir = mssdk.get_sdk_dir()
-        debug('sdk.py:mssdk_setup_env: Using MSSDK_VERSION:%s'%sdk_dir)
+        debug('mssdk_setup_env: Using MSSDK_VERSION:%s'%sdk_dir)
     elif 'MSVS_VERSION' in env:
         msvs_version = env['MSVS_VERSION']
-        debug('sdk.py:mssdk_setup_env:Getting MSVS_VERSION from env:%s'%msvs_version)
+        debug('mssdk_setup_env:Getting MSVS_VERSION from env:%s'%msvs_version)
         if msvs_version is None:
-            debug('sdk.py:mssdk_setup_env thinks msvs_version is None')
+            debug('mssdk_setup_env thinks msvs_version is None')
             return
         msvs_version = env.subst(msvs_version)
         from . import vs
         msvs = vs.get_vs_by_version(msvs_version)
-        debug('sdk.py:mssdk_setup_env:msvs is :%s'%msvs)
+        debug('mssdk_setup_env:msvs is :%s'%msvs)
         if not msvs:
-            debug('sdk.py:mssdk_setup_env: no VS version detected, bailingout:%s'%msvs)
+            debug('mssdk_setup_env: no VS version detected, bailingout:%s'%msvs)
             return
         sdk_version = msvs.sdk_version
-        debug('sdk.py:msvs.sdk_version is %s'%sdk_version)
+        debug('msvs.sdk_version is %s'%sdk_version)
         if not sdk_version:
             return
         mssdk = get_sdk_by_version(sdk_version)
@@ -388,13 +388,13 @@ def mssdk_setup_env(env):
             if not mssdk:
                 return
         sdk_dir = mssdk.get_sdk_dir()
-        debug('sdk.py:mssdk_setup_env: Using MSVS_VERSION:%s'%sdk_dir)
+        debug('mssdk_setup_env: Using MSVS_VERSION:%s'%sdk_dir)
     else:
         mssdk = get_default_sdk()
         if not mssdk:
             return
         sdk_dir = mssdk.get_sdk_dir()
-        debug('sdk.py:mssdk_setup_env: not using any env values. sdk_dir:%s'%sdk_dir)
+        debug('mssdk_setup_env: not using any env values. sdk_dir:%s'%sdk_dir)
 
     set_sdk_by_directory(env, sdk_dir)
 
