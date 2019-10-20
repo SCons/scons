@@ -3284,44 +3284,6 @@ def generate(env):
         s = e.src_builder()
         assert s is None, s
 
-    def test_SourceSignatures(self):
-        """Test the SourceSignatures() method"""
-        import SCons.Errors
-
-        env = self.TestEnvironment(M = 'MD5', T = 'timestamp')
-
-        exc_caught = None
-        try:
-            env.SourceSignatures('invalid_type')
-        except SCons.Errors.UserError:
-            exc_caught = 1
-        assert exc_caught, "did not catch expected UserError"
-
-        env.SourceSignatures('MD5')
-        assert env.src_sig_type == 'MD5', env.src_sig_type
-
-        env.SourceSignatures('$M')
-        assert env.src_sig_type == 'MD5', env.src_sig_type
-
-        env.SourceSignatures('timestamp')
-        assert env.src_sig_type == 'timestamp', env.src_sig_type
-
-        env.SourceSignatures('$T')
-        assert env.src_sig_type == 'timestamp', env.src_sig_type
-
-        try:
-            import SCons.Util
-            save_md5 = SCons.Util.md5
-            SCons.Util.md5 = None
-            try:
-                env.SourceSignatures('MD5')
-            except SCons.Errors.UserError:
-                pass
-            else:
-                self.fail('Did not catch expected UserError')
-        finally:
-            SCons.Util.md5 = save_md5
-
     def test_Split(self):
         """Test the Split() method"""
         env = self.TestEnvironment(FOO = 'fff', BAR = 'bbb')
@@ -3338,56 +3300,6 @@ def generate(env):
         s = env.Split("$FOO$BAR")
         assert s == ["fffbbb"], s
 
-    def test_TargetSignatures(self):
-        """Test the TargetSignatures() method"""
-        import SCons.Errors
-
-        env = self.TestEnvironment(B='build', C='content')
-
-        exc_caught = None
-        try:
-            env.TargetSignatures('invalid_type')
-        except SCons.Errors.UserError:
-            exc_caught = 1
-        assert exc_caught, "did not catch expected UserError"
-        assert not hasattr(env, '_build_signature')
-
-        env.TargetSignatures('build')
-        assert env.tgt_sig_type == 'build', env.tgt_sig_type
-
-        env.TargetSignatures('$B')
-        assert env.tgt_sig_type == 'build', env.tgt_sig_type
-
-        env.TargetSignatures('content')
-        assert env.tgt_sig_type == 'content', env.tgt_sig_type
-
-        env.TargetSignatures('$C')
-        assert env.tgt_sig_type == 'content', env.tgt_sig_type
-
-        env.TargetSignatures('MD5')
-        assert env.tgt_sig_type == 'MD5', env.tgt_sig_type
-
-        env.TargetSignatures('timestamp')
-        assert env.tgt_sig_type == 'timestamp', env.tgt_sig_type
-
-        try:
-            import SCons.Util
-            save_md5 = SCons.Util.md5
-            SCons.Util.md5 = None
-            try:
-                env.TargetSignatures('MD5')
-            except SCons.Errors.UserError:
-                pass
-            else:
-                self.fail('Did not catch expected UserError')
-            try:
-                env.TargetSignatures('content')
-            except SCons.Errors.UserError:
-                pass
-            else:
-                self.fail('Did not catch expected UserError')
-        finally:
-            SCons.Util.md5 = save_md5
 
     def test_Value(self):
         """Test creating a Value() object
@@ -3406,7 +3318,6 @@ def generate(env):
 
         v3 = env.Value('c', 'build-c')
         assert v3.value == 'c', v3.value
-
 
 
     def test_Environment_global_variable(self):
@@ -3750,8 +3661,6 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
     # Environment()
     # FindFile()
     # Scanner()
-    # SourceSignatures()
-    # TargetSignatures()
 
     # It's unlikely Clone() will ever be called this way, so let the
     # other methods test that handling overridden values works.

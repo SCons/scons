@@ -346,10 +346,8 @@ GlobalDefaultEnvironmentFunctions = [
     'SConsignFile',
     'SideEffect',
     'SourceCode',
-    'SourceSignatures',
     'Split',
     'Tag',
-    'TargetSignatures',
     'Value',
     'VariantDir',
 ]

@@ -29,9 +29,8 @@ Test changing the C source files based on an always-executed revision
 extraction and substitution.
 
 This makes sure we evaluate the content of intermediate files as
-expected.  We used to configure this explicitly using
-TargetSignatures('content') but we now rely on the default behavior
-being the equivalent of Decider('content').
+expected.  This relies on the default behavior being the equivalent
+of Decider('content').
 """
 
 import os.path

@@ -24,6 +24,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       a file; integrates with existing memoizing of such vars.
       On vs2019 saves 5+ seconds per SCons invocation, which really
       helps test suite runs.
+    - Remove deprecated SourceSignatures, TargetSignatures
 
   From Jacek Kuczera:
     - Fix CheckFunc detection code for Visual 2019. Some functions

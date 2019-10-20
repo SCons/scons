@@ -1827,27 +1827,6 @@ method.</para>
 
       </listitem>
       </varlistentry>
-      <varlistentry>
-      <term>--warn=deprecated-source-signatures, --warn=no-deprecated-source-signatures</term>
-      <listitem>
-<para>Enables or disables warnings about use of the deprecated
-<emphasis role="bold">SourceSignatures()</emphasis>
-function or
-<emphasis role="bold">env.SourceSignatures()</emphasis>
-method.</para>
-
-      </listitem>
-      </varlistentry>
-      <varlistentry>
-      <term>--warn=deprecated-target-signatures, --warn=no-deprecated-target-signatures</term>
-      <listitem>
-<para>Enables or disables warnings about use of the deprecated
-<emphasis role="bold">TargetSignatures()</emphasis>
-function or
-<emphasis role="bold">env.TargetSignatures()</emphasis>
-method.</para>
-      </listitem>
-      </varlistentry>
     </variablelist>
     </blockquote>
 
