@@ -31,15 +31,15 @@ are definitely gone.
 
 import TestSCons
 
-test = TestSCons.TestSCons(match=TestSCons.match_re_dotall)
+test = TestSCons.TestSCons()
 
 test.file_fixture('SConstruct.method', 'SConstruct')
-test.run(arguments='-Q -s', status=2, stdout=None,
-         stderr="""\
+expect = """\
 NameError: name 'TargetSignatures' is not defined:
-  File ".+SConstruct", line 1:
+  File "{}", line 1:
     TargetSignatures('MD5')
-""")
+""".format(test.workpath('SConstruct'))
+test.run(arguments='-Q -s', status=2, stdout=None, stderr=expect)
 
 test.file_fixture('SConstruct.setopt', 'SConstruct')
 test.run(arguments="-Q -s", status=0, stdout=None,
@@ -50,3 +50,8 @@ No warning type: 'deprecated-target-signatures'
 
 test.pass_test()
 
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:
