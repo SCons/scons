@@ -29,7 +29,6 @@ Test that use of env.SourceSignatures() correctly overrides the
 default behavior.
 """
 
-import os
 import re
 
 import TestSCons
