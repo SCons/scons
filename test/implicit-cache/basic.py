@@ -27,11 +27,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 """
 Verify basic interactions of the --implicit-cache-* options.
 
-This test used to set TargetSignatures('build') because we were
-relying on the old behavior of non-essential changes in .h files
-propagate to cause a rebuilt executable.  We now just rely on
-the default Decider('content') behavior and only check for the
-rebuild of the object file itself when necessary.
+We rely on the default Decider('content') behavior and only
+check for the rebuild of the object file itself when necessary.
 """
 
 import os.path

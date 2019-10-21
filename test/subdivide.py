@@ -29,9 +29,8 @@ Verify that rebuilds do not occur when SConsignFile(None) is used to
 put a .sconsign file in each directory and we subdvide the dependency
 tree with subsidiary *SConstruct* files in various subdirectories.
 
-This depends on using content signatures for evaluation of intermediate
-Nodes.  We used to configure this explicitly using
-TargetSignatures('content'), but we now rely on the default behavior
+This depends on using content signatures for evaluation of
+intermediate Nodes. This relies on the default behavior
 being the equivalent of Decider('content').
 """
 

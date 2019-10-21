@@ -1,6 +1,5 @@
-
 #!/usr/bin/env python
-#
+# 
 # __COPYRIGHT__
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -25,52 +24,29 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
-
-import TestSCons
-import TestSConsign
-
-test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
-
-
-test.write('SConstruct', """\
-SetOption('warn', 'deprecated-source-signatures')
-def build(env, target, source):
-    with open(str(target[0]), 'wt') as ofp, open(str(source[0]), 'rt') as ifp:
-        ofp.write(ifp.read())
-B = Builder(action = build)
-env = Environment(BUILDERS = { 'B' : B })
-env.B(target = 'f1.out', source = 'f1.in')
-env.B(target = 'f2.out', source = 'f2.in')
-SourceSignatures('timestamp')
-""")
-
-test.write('f1.in', "f1.in\n")
-test.write('f2.in', "f2.in\n")
-
-expect = TestSCons.re_escape("""
-scons: warning: The env.SourceSignatures() method is deprecated;
-\tconvert your build to use the env.Decider() method instead.
-""") + TestSCons.file_expr
-
-test.run(arguments = '.', stderr = expect)
-
-
-expect = r"""=== .:
-SConstruct: None \d+ \d+
-f1.in: None \d+ \d+
-f1.out: \S+ \d+ \d+
-        f1.in: None \d+ \d+
-        \S+ \[build\(target, source, env\)\]
-f2.in: None \d+ \d+
-f2.out: \S+ \d+ \d+
-        f2.in: None \d+ \d+
-        \S+ \[build\(target, source, env\)\]
+"""
+Test that SourceSignatures and its associated warning flag
+are definitely gone.
 """
 
-test.run_sconsign(arguments = test.workpath('.sconsign'),
-                  stdout = expect)
+import TestSCons
 
+test = TestSCons.TestSCons()
+
+test.file_fixture('SConstruct.method', 'SConstruct')
+expect = """\
+NameError: name 'SourceSignatures' is not defined:
+  File "{}", line 1:
+    SourceSignatures('MD5')
+""".format(test.workpath('SConstruct'))
+test.run(arguments='-Q -s', status=2, stdout=None, stderr=expect)
+
+test.file_fixture('SConstruct.setopt', 'SConstruct')
+test.run(arguments='-Q -s', status=0, stdout=None,
+         stderr="""\
+No warning type: 'deprecated-source-signatures'
+No warning type: 'deprecated-source-signatures'
+""")
 
 test.pass_test()
 
