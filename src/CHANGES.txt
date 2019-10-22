@@ -8,7 +8,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Adam Gross:
 
-    - Added new module SCons.Scanner.PythonScanner to allow scanning .py files.
+    - Added new module SCons.Scanner.Python to allow scanning .py files.
 
   From Mathew Robinson:
 
