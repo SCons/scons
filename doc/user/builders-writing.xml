@@ -453,7 +453,7 @@ def build_function(target, source, env):
 
       A list of Node objects representing
       the target or targets to be
-      built by this builder function.
+      built by this function.
       The file names of these target(s)
       may be extracted using the Python &str; function.
 
@@ -469,7 +469,7 @@ def build_function(target, source, env):
 
       A list of Node objects representing
       the sources to be
-      used by this builder function to build the targets.
+      used by this function to build the targets.
       The file names of these source(s)
       may be extracted using the Python &str; function.
 
@@ -484,7 +484,7 @@ def build_function(target, source, env):
       <para>
 
       The &consenv; used for building the target(s).
-      The builder function may use any of the
+      The function may use any of the
       environment's construction variables
       in any way to affect how it builds the targets.
 
@@ -496,13 +496,14 @@ def build_function(target, source, env):
 
     <para>
 
-    The builder function must
-    return a <literal>0</literal> or <literal>None</literal> value
-    if the target(s) are built successfully.
-    The builder function
-    may raise an exception
-    or return any non-zero value
-    to indicate that the build is unsuccessful.
+    The function will be constructed as a SCons FunctionAction and
+    must return a <literal>0</literal> or <literal>None</literal>
+    value if the target(s) are built successfully.  The function may
+    raise an exception or return any non-zero value to indicate that
+    the build is unsuccessful.
+
+    For more information on Actions see the Action Objects section of
+    the man page.
 
     </para>
 

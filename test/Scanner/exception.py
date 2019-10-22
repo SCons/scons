@@ -37,7 +37,7 @@ test.write('SConstruct', """
 SConscript('SConscript')
 """)
 
-test.write('SConscript', """
+test.write('SConscript', r"""
 import re
 
 include_re = re.compile(r'^include\s+(\S+)$', re.M)
@@ -82,14 +82,14 @@ bar_in = File('bar.in')
 env.Cat('bar', bar_in)
 """)
 
-test.write('foo.k', 
+test.write('foo.k',
 """foo.k 1 line 1
 include xxx
 include yyy
 foo.k 1 line 4
 """)
 
-test.write('bar.in', 
+test.write('bar.in',
 """include yyy
 bar.in 1 line 2
 bar.in 1 line 3

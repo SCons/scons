@@ -28,9 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify that the sconsign script works when using a .sconsign file in
 each subdirectory (SConsignFile(None)) written with the non-default
 value of Decider('timestamp-newer').
-
-This used to test the non-default combination of
-SourceSignatures('timestamp') with TargetSignatures('content').
 """
 
 import TestSCons

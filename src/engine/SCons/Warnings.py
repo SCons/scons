@@ -132,12 +132,6 @@ class DeprecatedCopyWarning(MandatoryDeprecatedWarning):
 class DeprecatedOptionsWarning(MandatoryDeprecatedWarning):
     pass
 
-class DeprecatedSourceSignaturesWarning(MandatoryDeprecatedWarning):
-    pass
-
-class DeprecatedTargetSignaturesWarning(MandatoryDeprecatedWarning):
-    pass
-
 class DeprecatedDebugOptionsWarning(MandatoryDeprecatedWarning):
     pass
 

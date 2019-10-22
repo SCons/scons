@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python
 #
 # __COPYRIGHT__
@@ -24,80 +25,49 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
-Test that use of env.SourceSignatures() correctly overrides the
-default behavior.
-"""
-
-import os
-import re
-
 import TestSCons
+import TestSConsign
 
-test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
+test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
 
-base_sconstruct_contents = """\
+
+test.write('SConstruct', """\
 SetOption('warn', 'deprecated-source-signatures')
 def build(env, target, source):
     with open(str(target[0]), 'wt') as ofp, open(str(source[0]), 'rt') as ifp:
         ofp.write(ifp.read())
 B = Builder(action = build)
 env = Environment(BUILDERS = { 'B' : B })
-env2 = env.Clone()
-env2.SourceSignatures('%s')
 env.B(target = 'f1.out', source = 'f1.in')
 env.B(target = 'f2.out', source = 'f2.in')
-env2.B(target = 'f3.out', source = 'f3.in')
-env2.B(target = 'f4.out', source = 'f4.in')
+SourceSignatures('timestamp')
+""")
 
-SourceSignatures('%s')
-"""
-
-def write_SConstruct(test, env_sigtype, default_sigtype):
-    contents = base_sconstruct_contents % (env_sigtype, default_sigtype)
-    test.write('SConstruct', contents)
-
+test.write('f1.in', "f1.in\n")
+test.write('f2.in', "f2.in\n")
 
 expect = TestSCons.re_escape("""
 scons: warning: The env.SourceSignatures() method is deprecated;
 \tconvert your build to use the env.Decider() method instead.
 """) + TestSCons.file_expr
 
-
-write_SConstruct(test, 'MD5', 'timestamp')
-
-test.write('f1.in', "f1.in\n")
-test.write('f2.in', "f2.in\n")
-test.write('f3.in', "f3.in\n")
-test.write('f4.in', "f4.in\n")
-
-test.run(arguments = 'f1.out f3.out', stderr = expect)
-
-test.run(arguments = 'f1.out f2.out f3.out f4.out',
-         stdout = re.escape(test.wrap_stdout("""\
-scons: `f1.out' is up to date.
-build(["f2.out"], ["f2.in"])
-scons: `f3.out' is up to date.
-build(["f4.out"], ["f4.in"])
-""")),
-         stderr = expect)
+test.run(arguments = '.', stderr = expect)
 
 
-test.sleep()
+expect = r"""=== .:
+SConstruct: None \d+ \d+
+f1.in: None \d+ \d+
+f1.out: \S+ \d+ \d+
+        f1.in: None \d+ \d+
+        \S+ \[build\(target, source, env\)\]
+f2.in: None \d+ \d+
+f2.out: \S+ \d+ \d+
+        f2.in: None \d+ \d+
+        \S+ \[build\(target, source, env\)\]
+"""
 
-test.touch('f1.in')
-test.touch('f3.in')
-
-test.run(arguments = 'f1.out f2.out f3.out f4.out',
-         stdout = re.escape(test.wrap_stdout("""\
-build(["f1.out"], ["f1.in"])
-scons: `f2.out' is up to date.
-scons: `f3.out' is up to date.
-scons: `f4.out' is up to date.
-""")),
-         stderr = expect)
-
-test.up_to_date(arguments = 'f1.out f2.out f3.out f4.out', stderr = None)
+test.run_sconsign(arguments = test.workpath('.sconsign'),
+                  stdout = expect)
 
 
 test.pass_test()

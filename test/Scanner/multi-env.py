@@ -37,7 +37,7 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 
 
-test.write('SConstruct', """
+test.write('SConstruct', r"""
 import re
 
 include_re = re.compile(r'^include\s+(\S+)$', re.M)

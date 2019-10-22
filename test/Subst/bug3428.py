@@ -25,50 +25,26 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify the ability to "check out" an SCons delta from a fake
-Aegis utility.
+Verify that CmdStringHolder doesn't trip in Subst on doing
+a string-only operation that does not work on UserString class.
+Issue: https://github.com/SCons/scons/issues/3428
 """
 
-import re
+import TestSCons
 
-import TestSCons_time
+test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
-test = TestSCons_time.TestSCons_time()
 
-test.write_sample_project('foo.tar')
+test.write('SConstruct', """\
+env = Environment()
+env.Append(LIBPATH=["path1/sub1","path1/sub2"])
+lst = env.Flatten(env.subst_list("$LIBPATH"))
+for i in lst:
+    env.Dir(i)
+""")
 
-my_aegis_py = test.write_fake_aegis_py('my_aegis.py')
+test.run(status=0)
 
-test.write('config', """\
-aegis = r'%(my_aegis_py)s'
-""" % locals())
-
-test.run(arguments = 'run -f config --aegis xyzzy.0.1 --number 321,329 foo.tar')
-
-test.must_exist('foo-321-0.log',
-                'foo-321-0.prof',
-                'foo-321-1.log',
-                'foo-321-1.prof',
-                'foo-321-2.log',
-                'foo-321-2.prof')
-
-test.must_exist('foo-329-0.log',
-                'foo-329-0.prof',
-                'foo-329-1.log',
-                'foo-329-1.prof',
-                'foo-329-2.log',
-                'foo-329-2.prof')
-
-expect = [
-    test.tempdir_re('src', 'script', 'scons.py'),
-    'SCONS_LIB_DIR = %s' % test.tempdir_re('src', 'engine'),
-]
-
-content = test.read(test.workpath('foo-321-2.log'),mode='r')
-
-def re_find(content, line):
-    return re.search(line, content)
-test.must_contain_all_lines(content, expect, 'foo-617-2.log', re_find)
 
 test.pass_test()
 

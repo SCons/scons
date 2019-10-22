@@ -31,6 +31,9 @@ This tests the SRC bz2 packager, which does the following:
 
 import TestSCons
 
+import os
+import sys
+
 python = TestSCons.python
 
 test = TestSCons.TestSCons()
@@ -39,9 +42,16 @@ tar = test.detect('TAR', 'tar')
 if not tar:
     test.skip_test('tar not found, skipping test\n')
 
-bz2 = test.where_is('bzip2')
-if not bz2:
-    test.skip_test('tar found, but helper bzip2 not found, skipping test\n')
+if sys.platform == 'win32':
+    # windows 10 causes fresh problems by supplying a tar, not bzip2
+    # but if git is installed, there's a bzip2 there, but can't be used
+    bz2 = test.where_is('bzip2')
+    if not bz2:
+        test.skip_test('tar found, but helper bzip2 not found, skipping test\n')
+    bz2 = os.path.splitdrive(bz2)[1]
+    tar = os.path.splitdrive(test.where_is('tar'))[1]
+    if tar[:8] != bz2[:8]:   # catch one in \WINDOWS, one not
+        test.skip_test('tar found, but usable bzip2 not, skipping test\n')
 
 test.subdir('src')
 

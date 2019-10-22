@@ -1,8 +1,20 @@
-## Please bring your issue to the SCons users mailing list before filing an issue here
+---
+name: Feature request
+about: Suggest an idea for this project
+title: ''
+labels: ''
+assignees: ''
+
+---
+
+## Please bring your feature request to the SCons users mailing list before filing an issue here
 ## See: https://scons.org/bugs.html
 
-## If the issue is confirmed to be a bug please include the following information
 
+**Describe the Feature**
+A clear and concise description of what the feature request is.
+
+**Required information**
 * Link to SCons Users thread discussing your issue.
 * Version of SCons
 * Version of Python
@@ -11,3 +23,8 @@
 * What Platform are you on? (Linux/Windows and which version)
 * How to reproduce your issue?  Please include a small self contained reproducer. Likely a SConstruct should do for most issues.
 * How you invoke scons (The command line you're using "scons --flags some_arguments")
+
+
+
+**Additional context**
+Add any other context or screenshots about the feature request here.

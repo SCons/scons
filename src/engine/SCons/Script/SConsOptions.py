@@ -584,8 +584,14 @@ def Parser(version):
                   help="Print build actions for files from CacheDir.")
 
     def opt_invalid(group, value, options):
+        """report an invalid option from a group"""
         errmsg  = "`%s' is not a valid %s option type, try:\n" % (value, group)
         return errmsg + "    %s" % ", ".join(options)
+
+    def opt_invalid_rm(group, value, msg):
+        """report an invalid option from a group: recognized but removed"""
+        errmsg  = "`%s' is not a valid %s option type " % (value, group)
+        return errmsg + msg
 
     config_options = ["auto", "force" ,"cache"]
 
@@ -604,9 +610,11 @@ def Parser(version):
                   help="Search up directory tree for SConstruct,       "
                        "build all Default() targets.")
 
-    deprecated_debug_options = {
+    deprecated_debug_options = {}
+
+    removed_debug_options = {
         "dtree"         : '; please use --tree=derived instead',
-        "nomemoizer"    : ' and has no effect',
+        "nomemoizer"    : '; there is no replacement',
         "stree"         : '; please use --tree=all,status instead',
         "tree"          : '; please use --tree=all instead',
     }
@@ -614,15 +622,16 @@ def Parser(version):
     debug_options = ["count", "duplicate", "explain", "findlibs",
                      "includes", "memoizer", "memory", "objects",
                      "pdb", "prepare", "presub", "stacktrace",
-                     "time"]
+                     "time", "action_timestamps"]
 
     def opt_debug(option, opt, value__, parser,
                   debug_options=debug_options,
-                  deprecated_debug_options=deprecated_debug_options):
+                  deprecated_debug_options=deprecated_debug_options,
+                  removed_debug_options=removed_debug_options):
         for value in value__.split(','):
             if value in debug_options:
                 parser.values.debug.append(value)
-            elif value in list(deprecated_debug_options.keys()):
+            elif value in deprecated_debug_options:
                 parser.values.debug.append(value)
                 try:
                     parser.values.delayed_warnings
@@ -632,6 +641,9 @@ def Parser(version):
                 w = "The --debug=%s option is deprecated%s." % (value, msg)
                 t = (SCons.Warnings.DeprecatedDebugOptionsWarning, w)
                 parser.values.delayed_warnings.append(t)
+            elif value in removed_debug_options:
+                msg = removed_debug_options[value]
+                raise OptionValueError(opt_invalid_rm('debug', value, msg))
             else:
                 raise OptionValueError(opt_invalid('debug', value, debug_options))
 

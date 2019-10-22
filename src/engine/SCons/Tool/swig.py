@@ -80,7 +80,7 @@ def _find_modules(src):
 
     for m in matches:
         mnames.append(m[2])
-        directors = directors or m[0].find('directors') >= 0
+        directors = directors or 'directors' in m[0]
     return mnames, directors
 
 def _add_director_header_targets(target, env):

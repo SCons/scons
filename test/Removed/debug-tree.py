@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 #
 # __COPYRIGHT__
@@ -25,51 +24,35 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Test that the --debug=tree option fails with expected exception
+Check command-line, SCONSFLAGS and interactive
+"""
+
 import os
 
 import TestSCons
-import TestSConsign
 
-test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
-
-
-test.write('SConstruct', """\
-SetOption('warn', 'deprecated-source-signatures')
-def build(env, target, source):
-    with open(str(target[0]), 'wt') as ofp, open(str(source[0]), 'rt') as ifp:
-        ofp.write(ifp.read())
-B = Builder(action = build)
-env = Environment(BUILDERS = { 'B' : B })
-env.B(target = 'f1.out', source = 'f1.in')
-env.B(target = 'f2.out', source = 'f2.in')
-SourceSignatures('timestamp')
-""")
-
-test.write('f1.in', "f1.in\n")
-test.write('f2.in', "f2.in\n")
-
-expect = TestSCons.re_escape("""
-scons: warning: The env.SourceSignatures() method is deprecated;
-\tconvert your build to use the env.Decider() method instead.
-""") + TestSCons.file_expr
-
-test.run(arguments = '.', stderr = expect)
+test = TestSCons.TestSCons()
 
 
-expect = r"""=== .:
-SConstruct: None \d+ \d+
-f1.in: None \d+ \d+
-f1.out: \S+ \d+ \d+
-        f1.in: None \d+ \d+
-        \S+ \[build\(target, source, env\)\]
-f2.in: None \d+ \d+
-f2.out: \S+ \d+ \d+
-        f2.in: None \d+ \d+
-        \S+ \[build\(target, source, env\)\]
+test.write('SConstruct', "")
+
+expect = r"""usage: scons [OPTION] [TARGET] ...
+
+SCons Error: `tree' is not a valid debug option type ; please use --tree=all instead
 """
 
-test.run_sconsign(arguments = test.workpath('.sconsign'),
-                  stdout = expect)
+test.run(arguments='-Q --debug=tree', status=2, stderr=expect)
+
+os.environ['SCONSFLAGS'] = '--debug=tree'
+test.run(arguments="-H", status=2, stderr=expect)
+
+
+# moved test from test/Interactive/tree.py
+scons = test.start(arguments = '-Q --interactive')
+scons.send("build --debug=tree\n")
+test.finish(scons, status=2, stderr=expect)
 
 
 test.pass_test()

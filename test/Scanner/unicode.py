@@ -77,7 +77,7 @@ with open(sys.argv[2], 'w') as ofp:
 sys.exit(0)
 """)
 
-test.write('SConstruct', """
+test.write('SConstruct', r"""
 import re
 
 include_re = re.compile(r'^include\s+(\S+)$', re.M)

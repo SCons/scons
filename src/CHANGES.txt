@@ -4,6 +4,58 @@
 
                             Change Log
 
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From Mathew Robinson:
+
+    - Improved threading performance by ensuring NodeInfo is shared
+      across threads. Results in ~13% improvement for parallel builds
+      (-j# > 1) with many shared nodes.
+
+  From Mats Wichmann
+    - Replace instances of string find method with "in" checks where
+      the index from find() was not used.
+    - CmdStringHolder fix from issue #3428
+    - Turn previously deprecated debug options into failures:
+      --debug=tree, --debug=dtree, --debug=stree, --debug=nomemoizer.
+    - Experimental New Feature: Enable caching MSVC configuration
+      If SCONS_CACHE_MSVC_CONFIG shell environment variable is set,
+      SCons will cache the results of past calls to vcvarsall.bat to
+      a file; integrates with existing memoizing of such vars.
+      On vs2019 saves 5+ seconds per SCons invocation, which really
+      helps test suite runs.
+    - Remove deprecated SourceSignatures, TargetSignatures
+
+  From Jacek Kuczera:
+    - Fix CheckFunc detection code for Visual 2019. Some functions
+      (e.g. memmove) were incorrectly recognized as not available.
+
+  From Jakub Kulik
+    - Fix subprocess result bytes not being decoded in SunOS/Solaris related tools.
+    
+  From Edoardo Bezzeccheri
+    - Added debug option "action_timestamps" which outputs to stdout the absolute start and end time for each target.
+
+RELEASE 3.1.1 - Mon, 07 Aug 2019 20:09:12 -0500
+
+  From William Deegan:
+    - Remove obsoleted references to DeciderNeedsNode which could cause crash when using --debug=explain
+
+  From Jason Kenny
+    - Add Fix and test for crash in 3.1.0 when using Decider('MD5-timestamp') and --debug=explain
+
+  From Ben Reed:
+    - Added -fmerge-all-constants to flags that get included in both CCFLAGS and LINKFLAGS.
+
+  From Mathew Robinson:
+    - Fix issue #3415 - Update remaining usages of EnvironmentError to SConsEnvironmentError
+      this patch fixes issues introduced in 3.1.0 where any of the
+      following would cause SCons to error and exit:
+        - CacheDir not write-able
+        - JSON encoding errors for CacheDir config
+        - JSON decoding errors for CacheDir config
+
+
 RELEASE 3.1.0 - Mon, 20 Jul 2019 16:59:23 -0700
 
   From Joseph Brill:
@@ -13,7 +65,7 @@ RELEASE 3.1.0 - Mon, 20 Jul 2019 16:59:23 -0700
   From William Deegan:
     - Enhanced --debug=explain output. Now the separate components of the dependency list are split up
       as follows:
-      
+
       scons: rebuilding `file3' because:
            the dependency order changed:
            ->Sources
@@ -84,7 +136,7 @@ RELEASE 3.1.0 - Mon, 20 Jul 2019 16:59:23 -0700
     - More fixes for newer Java versions (since 9): handle new jdk directory
       naming (jdk-X.Y instead of jdkX.Y) on Windows; handle two-digit major
       version. Docstrings improved.
-    - Fixups for pylint: exception types, redefined functions, 
+    - Fixups for pylint: exception types, redefined functions,
       globals, etc.  Some old code removed to resolve issues (hashlib is
       always present on modern Pythons; no longer need the code for
       2.5-and-earlier optparse). cmp is not a builtin function in Py3,
@@ -94,7 +146,7 @@ RELEASE 3.1.0 - Mon, 20 Jul 2019 16:59:23 -0700
     - Add a PY3-only function for setting up the cachedir that should be less
       prone to races. Add a hack to the PY2 version (from Issue #3351) to
       be less prone to a race in the check for old-style cache.
-    - Fix coding error in docbook tool only exercised when using python lxml 
+    - Fix coding error in docbook tool only exercised when using python lxml
     - Recognize two additional GNU compiler header directory options in
       ParseFlags: -iquote and -idirafter.
     - Fix more re patterns that contain \ but not specified as raw strings
@@ -141,7 +193,7 @@ From Daniel Moody:
 
   From Bernhard M. Wiedemann:
     - Do not store build host+user name if reproducible builds are wanted
-    
+
 
 RELEASE 3.0.4 - Mon, 20 Jan 2019 22:49:27 +0000
 
@@ -209,9 +261,9 @@ RELEASE 3.0.2 - Mon, 31 Dec 2018 16:00:12 -0700
     - Fix GH Issue #2580 - # in FRAMEWORKPATH doesn't get properly expanded. The # is left in the
       command line.
     - Fix issue #2980 with credit to Piotr Bartosik (and William Blevins).  This is an issue where using
-      TimeStamp-MD5 Decider and CacheDir can yield incorrect md5's being written into the .sconsign.  
-      The difference between Piotr Bartosik's patch and the current code is that the more complicated 
-      creation of file to csig map is only done when the count of children for the current node doesn't 
+      TimeStamp-MD5 Decider and CacheDir can yield incorrect md5's being written into the .sconsign.
+      The difference between Piotr Bartosik's patch and the current code is that the more complicated
+      creation of file to csig map is only done when the count of children for the current node doesn't
       match the previous count which is loaded from the sconsign.
     - Fix issue # 3106 MSVC if using MSVC_BATCH and target dir had a space would fail due to quirk in
       MSVC's handling of escaped targetdirs when batch compiling.
@@ -247,7 +299,7 @@ RELEASE 3.0.2 - Mon, 31 Dec 2018 16:00:12 -0700
     - Removed unused --warn options from the man page and source code.
 
   From Arda Fu
-    - Fix cpp scanner regex logic to treat ifndef for py3.5+. Previously it was 
+    - Fix cpp scanner regex logic to treat ifndef for py3.5+. Previously it was
       not properly differentiating between if, ifdef, and ifndef.
 
   From Philipp Maierhöfer
@@ -258,7 +310,7 @@ RELEASE 3.0.2 - Mon, 31 Dec 2018 16:00:12 -0700
   From Matthew Marinets:
     - Fixed an issue that caused the Java emitter to incorrectly parse arguments to constructors that
       implemented a class.
-      
+
   From Fredrik Medley:
     - Fix exception when printing of EnviromentError messages.
       Specifically, this fixes error reporting of the race condition when
@@ -379,7 +431,7 @@ RELEASE 3.0.2 - Mon, 31 Dec 2018 16:00:12 -0700
       filter type -> list in ipk
 
   From Bernhard M. Wiedemann:
-    - Update SCons' internal scons build logic to allow overriding build date 
+    - Update SCons' internal scons build logic to allow overriding build date
       with SOURCE_DATE_EPOCH for SCons itself.
     - Change the datestamps in SCons' docs and embedded in code use ISO 8601 format and UTC
 

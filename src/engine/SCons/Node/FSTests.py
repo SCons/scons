@@ -2545,11 +2545,10 @@ class FileTestCase(_tempdirTestCase):
 
             def get_ninfo(self):
                 """ mocked to ensure csig will equal the filename"""
-                try:
+                if self.ninfo is not None:
                     return self.ninfo
-                except AttributeError:
-                    self.ninfo = FakeNodeInfo(self.name, self.timestamp)
-                    return self.ninfo
+                self.ninfo = FakeNodeInfo(self.name, self.timestamp)
+                return self.ninfo
 
             def get_csig(self):
                 ninfo = self.get_ninfo()

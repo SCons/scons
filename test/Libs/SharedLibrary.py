@@ -223,20 +223,17 @@ if sys.platform == 'cygwin':
 
 
 if sys.platform == 'win32' or sys.platform.find('irix') != -1:
-    test.run(arguments = '-f SConstructFoo')
+    test.run(arguments='-f SConstructFoo')
 else:
-    test.run(arguments = '-f SConstructFoo', status=2, stderr='''\
-scons: \*\*\* \[.*\] Source file: foo\..* is static and is not compatible with shared target: .*
-''',
-    match=TestSCons.match_re_dotall)
+    expect = r"scons: \*\*\* \[.*\] Source file: foo\..* is static and is not compatible with shared target: .*"
+    test.run(arguments='-f SConstructFoo', status=2, stderr=expect,
+             match=TestSCons.match_re_dotall)
     # Run it again to make sure that we still get the error
     # even though the static objects already exist.
-    test.run(arguments = '-f SConstructFoo', status=2, stderr='''\
-scons: \*\*\* \[.*\] Source file: foo\..* is static and is not compatible with shared target: .*
-''',
-    match=TestSCons.match_re_dotall)
+    test.run(arguments='-f SConstructFoo', status=2, stderr=expect,
+             match=TestSCons.match_re_dotall)
 
-test.run(arguments = '-f SConstructFoo2',
+test.run(arguments='-f SConstructFoo2',
          stderr=TestSCons.noisy_ar,
          match=TestSCons.match_re_dotall)
 

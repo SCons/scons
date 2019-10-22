@@ -468,7 +468,7 @@ as C++ files.
 Used to override &cv-link-SHLIBVERSION;/&cv-link-LDMODULEVERSION; when
 generating versioned import library for a shared library/loadable module. If
 undefined, the &cv-link-SHLIBVERSION;/&cv-link-LDMODULEVERSION; is used to
-determine the version of versioned import library. 
+determine the version of versioned import library.
 </para>
 </summary>
 </cvar>
@@ -476,7 +476,10 @@ determine the version of versioned import library.
 <cvar name="LIBEMITTER">
 <summary>
 <para>
-TODO
+Contains the emitter specification for the
+&b-link-StaticLibrary; builder.
+The manpage section "Builder Objects" contains
+general information on specifying emitters.
 </para>
 </summary>
 </cvar>
@@ -494,10 +497,24 @@ format as &cv-link-SHLIBVERSION;.
 </summary>
 </cvar>
 
+<cvar name="LDMODULEEMITTER">
+<summary>
+<para>
+Contains the emitter specification for the
+&b-link-LoadableModule; builder.
+The manpage section "Builder Objects" contains
+general information on specifying emitters.
+</para>
+</summary>
+</cvar>
+
 <cvar name="SHLIBEMITTER">
 <summary>
 <para>
-TODO
+Contains the emitter specification for the
+&b-link-SharedLibrary; builder.
+The manpage section "Builder Objects" contains
+general information on specifying emitters.
 </para>
 </summary>
 </cvar>
@@ -505,7 +522,10 @@ TODO
 <cvar name="PROGEMITTER">
 <summary>
 <para>
-TODO
+Contains the emitter specification for the
+&b-link-Program; builder.
+The manpage section "Builder Objects" contains
+general information on specifying emitters.
 </para>
 </summary>
 </cvar>
@@ -514,7 +534,7 @@ TODO
 <summary>
 <para>
 When this construction variable is defined, a versioned shared library
-is created by &b-link-SharedLibrary; builder. This activates the
+is created by the &b-link-SharedLibrary; builder. This activates the
 &cv-link-_SHLIBVERSIONFLAGS; and thus modifies the &cv-link-SHLINKCOM; as
 required, adds the version number to the library name, and creates the symlinks
 that are needed.  &cv-link-SHLIBVERSION; versions should exist as alpha-numeric,

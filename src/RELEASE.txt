@@ -1,81 +1,73 @@
-  A new SCons checkpoint release, 3.1.0, is now available
+  A new SCons checkpoint release, 3.1.2.alpha.yyyymmdd, is now available
   on the SCons download page:
 
           https://scons.org/pages/download.html
 
-  Here is a summary of the changes since 3.0.5:
+  XXX The primary purpose of this release ... XXX
+
+  A SCons "checkpoint release" is intended to provide early access to
+  new features so they can be tested in the field before being released
+  for adoption by other software distributions.
+
+  Note that a checkpoint release is developed using the same test-driven
+  development methodology as all SCons releases.  Existing SCons
+  functionality should all work as it does in previous releases (except
+  for any changes identified in the release notes) and early adopters
+  should be able to use a checkpoint release safely for production work
+  with existing SConscript files.  If not, it represents not only a bug
+  in SCons but also a hole in the regression test suite, and we want to
+  hear about it.
+
+  New features may be more lightly tested than in past releases,
+  especially as concerns their interaction with all of the other
+  functionality in SCons.  We are especially interested in hearing bug
+  reports about new functionality.
+
+  We do not recommend that downstream distributions (Debian, Fedora,
+  etc.) package a checkpoint release, mainly to avoid confusing the
+  "public" release numbering with the long checkpoint release names.
+
+  Here is a summary of the changes since 1.3.0:
 
   NEW FUNCTIONALITY
 
-    - Added variable TEMPFILEARGJOIN to specify how to join arguments written
-      to temp files used when command lines exceed MAXLINELENGTH when the
-      command uses $TEMPFILE{...}
-    - Support for MSVC 2019
-    - Upgraded and improved Visual Studio solution/project generation code using the MSVSProject builder.
-      - Added support for Visual Studio 2017 and 2019.
-      - Added support for the following per-variant parameters to the builder:
-        - cpppaths: Provides per-variant include paths.
-        - cppdefines: Provides per-variant preprocessor definitions.
+    - List new features (presumably why a checkpoint is being released)
 
+  DEPRECATED FUNCTIONALITY
+
+    - List anything that's been deprecated since the last release
 
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
-      - Fix performance degradation for MD5-timestamp decider.  NOTE: This changes the Decider() function arguments.
-      From:
-          def my_decider(dependency, target, prev_ni):
-      To:
-          def my_decider(dependency, target, prev_ni, repo_node):
-      Where repo_node is the repository (or other) node to use to check if the node is out of date instead of dependency.
-
-    - Enhanced --debug=explain output. Now the separate components of the dependency list are split up
-      as follows:
-
-      scons: rebuilding `file3' because:
-           the dependency order changed:
-           ->Sources
-           Old:xxx	New:zzz
-           Old:yyy	New:yyy
-           Old:zzz	New:xxx
-           ->Depends
-           ->Implicit
-           Old:/usr/bin/python	New:/usr/bin/python
-
-    - Changed: Pseudo-builders now inherit OverrideEnvironments. For
-      example when calling a pseudo-builder from another
-      pseudo-builder the override variables passed to the first
-      pseudo-builder call had to be explicitly passed on to the
-      internal pseudo-builder call. Now the second pseudo-builder call
-      will automatically inherit these override values.
+    - List modifications to existing features, where the previous behavior
+      wouldn't actually be considered a bug
 
   FIXES
-    - Fix Issue #3350 - SCons Exception EnvironmentError is conflicting with Python's EnvironmentError.
-    - Fix spurious rebuilds on second build for cases where builder has > 1 target and the source file
-      is generated. This was causing the > 1th target to not have it's implicit list cleared when the source
-      file was actually built, leaving an implicit list similar to follows for 2nd and higher target
-              ['/usr/bin/python', 'xxx', 'yyy', 'zzz']
-      This was getting persisted to SConsign and on rebuild it would be corrected to be similar to this
-              ['zzz', 'yyy', 'xxx', '/usr/bin/python']
-      Which would trigger a rebuild because the order changed.
-      The fix involved added logic to mark all shared targets as peers and then ensure they're implicit
-      list is all cleared together.
-    - Fix Issue #3349 - SCons Exception EnvironmentError is conflicting with Python's EnvironmentError.
-      Renamed to SConsEnvironmentError
-    - Fix Issue #3350 - mslink failing when too many objects.  This is resolved by adding TEMPFILEARGJOIN variable
-      which specifies what character to join all the argements output into the tempfile. The default remains a space
-      when mslink, msvc, or mslib tools are loaded they change the TEMPFILEARGJOIN to be a line separator (\r\n on win32)
-    - Additional fix to issue #3135 - Also handle 'pure' and 'elemental' type bound procedures
 
-    - Fix handling of Visual Studio Compilers to properly reject any unknown HOST_PLATFORM or TARGET_PLATFORM
-    - Enable LaTeX scanner to find more than one include per line
-    
+    - List fixes of outright bugs
+
+  IMPROVEMENTS
+
+    - List improvements that wouldn't be visible to the user in the
+      documentation:  performance improvements (describe the circumstances
       under which they would be observed), or major code cleanups
 
-git shortlog --no-merges -ns 3.0.5..HEAD
-    64  William Deegan
-    56  Mats Wichmann
-    10  Adam Gross
-     4  Mathew Robinson
-     4  Peter Diener
-     3  Lukas Schrangl
-     1  Daniel Holth
-     1  bdbaddog
+  PACKAGING
+
+    - List changes in the way SCons is packaged and/or released
+
+  DOCUMENTATION
+
+    - List any significant changes to the documentation (not individual
+      typo fixes, even if they're mentioned in src/CHANGES.txt to give
+      the contributor credit)
+
+  DEVELOPMENT
+
+    - List visible changes in the way SCons is developed
+
+  Thanks to CURLY, LARRY, and MOE for their contributions to this release.
+  Contributors are listed alphabetically by their last name.
+
+__COPYRIGHT__
+__FILE__ __REVISION__ __DATE__ __DEVELOPER__

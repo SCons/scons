@@ -59,10 +59,10 @@ public class Example1
 """)
 
 expect = test.wrap_stdout("""\
-javac -d classes -sourcepath src src.Example1\.java
-jar cvf test.jar -C classes src.Example1\.class
+javac -d classes -sourcepath src src.Example1\\.java
+jar cvf test.jar -C classes src.Example1\\.class
 .*
-adding: src.Example1\.class.*
+adding: src.Example1\\.class.*
 """ % locals())
 
 

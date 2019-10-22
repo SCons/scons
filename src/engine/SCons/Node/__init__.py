@@ -614,6 +614,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         self._func_rexists = 1
         self._func_get_contents = 0
         self._func_target_from_source = 0
+        self.ninfo = None
 
         self.clear_memoized_values()
 
@@ -1131,11 +1132,10 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         return ninfo
 
     def get_ninfo(self):
-        try:
+        if self.ninfo is not None:
             return self.ninfo
-        except AttributeError:
-            self.ninfo = self.new_ninfo()
-            return self.ninfo
+        self.ninfo = self.new_ninfo()
+        return self.ninfo
 
     def new_binfo(self):
         binfo = self.BuildInfo()
@@ -1661,10 +1661,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             if k not in old_bkids:
                 lines.append("`%s' is a new dependency\n" % stringify(k))
             else:
-                try:
-                    changed = _decider_map[k.changed_since_last_build](k, self, osig[k])
-                except DeciderNeedsNode as e:
-                    changed = e.decider(self, osig[k], node=self)
+                changed = _decider_map[k.changed_since_last_build](k, self, osig[k])
 
                 if changed:
                     lines.append("`%s' changed\n" % stringify(k))

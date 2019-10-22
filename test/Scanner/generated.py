@@ -188,7 +188,7 @@ env = env.Clone()    # Yes, clobber intentionally
 
 """)
 
-test.write(['src', 'lib_geng', 'SConscript'], """\
+test.write(['src', 'lib_geng', 'SConscript'], r"""
 # --- Begin SConscript boilerplate ---
 import sys
 import Mylib
@@ -280,7 +280,7 @@ env.Command(generated_hdrs.split(),
             cmd_generated)
 recurse_env.Command([lib_fullname] + lib_objs,
                     lib_srcs + (generated_hdrs + " " + static_hdrs).split(),
-                    cmd_justlib) 
+                    cmd_justlib)
 """)
 
 test.write(['src', 'lib_geng', 'MAKE-HEADER.py'], """\
@@ -395,7 +395,7 @@ int g_1()
 
 test.write(['src', 'lib_geng', 'libg_2.c'], """\
 #include <libg_w.h>
-#include <libg_gx.h> 
+#include <libg_gx.h>
 #include <libg_gy.h>
 #include <libg_gz.h>
 

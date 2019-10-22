@@ -126,8 +126,6 @@ test.checkLogAndStdout(["Checking for C header file non_system_header0.h... ",
 test.file_fixture('test_main.c')
 
 # Check the combination of --config=force and Decider('MD5-timestamp')
-# On second run there was an issue where the decider would throw DeciderNeedsNode
-# exception which the configure code didn't handle.
 SConstruct_path = test.workpath('SConstruct')
 test.write(SConstruct_path, """
 env = Environment()
@@ -146,7 +144,7 @@ test.must_not_contain(test.workpath('config.log'), "TypeError: 'NoneType' object
 # This fixes an issue where --config=force overwrites the Environments decider and is not reset when
 # the configure context is done.
 # https://github.com/SCons/scons/issues/3303
-test.fail_test(test.stdout().find('test_main.o') != -1)
+test.fail_test('test_main.o' in test.stdout())
 
 test.pass_test()
 

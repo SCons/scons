@@ -42,7 +42,7 @@ if not os.environ.get('QTDIR', None):
 test.Qt_dummy_installation()
 
 QTDIR=os.environ['QTDIR']
-    
+
 
 test.write('SConstruct', """\
 import os
@@ -109,17 +109,17 @@ class MyClass2 : public QObject {
 };
 void mocFromH();
 """)
-    
+
 test.write('mocFromH.cpp', """\
 #include "mocFromH.h"
-    
+
 MyClass2::MyClass2() : QObject() {}
 void MyClass2::myslot() {}
 void mocFromH() {
   MyClass2 myclass;
 }
 """)
-    
+
 test.write('anUiFile.ui', """\
 <!DOCTYPE UI><UI>
 <class>MyWidget</class>
@@ -158,7 +158,7 @@ test.write('main.cpp', r"""
 #include "mocFromH.h"
 #include "anUiFile.h"
 #include <stdio.h>
-    
+
 int main(int argc, char **argv) {
   QApplication app(argc, argv);
   mocFromCpp();
@@ -190,7 +190,7 @@ if test.stdout() != "Hello World\n" or test.stderr() != '' or test.status:
     # an indication that it built correctly) but don't fail the test.
     expect = 'cannot connect to X server'
     test.fail_test(test.stdout())
-    test.fail_test(test.stderr().find(expect) == -1)
+    test.fail_test(expect not in test.stderr())
     if test.status != 1 and (test.status>>8) != 1:
         sys.stdout.write('test_realqt returned status %s\n' % test.status)
         test.fail_test()
@@ -205,8 +205,8 @@ test.run(stderr=None, arguments="-c bld/test_realqt" + TestSCons._exe)
 expect1 = "scons: warning: Could not detect qt, using empty QTDIR"
 expect2 = "scons: warning: Could not detect qt, using moc executable as a hint"
 
-test.fail_test(test.stderr().find(expect1) == -1 and
-               test.stderr().find(expect2) == -1)
+test.fail_test(expect1 not in test.stderr() and
+               expect2 not in test.stderr())
 
 
 test.pass_test()

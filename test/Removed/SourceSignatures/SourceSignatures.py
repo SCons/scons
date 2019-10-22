@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#
+# 
 # __COPYRIGHT__
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -25,30 +25,28 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test calling the (deprecated) --debug=nomemoizer option.
+Test that SourceSignatures and its associated warning flag
+are definitely gone.
 """
 
 import TestSCons
 
-test = TestSCons.TestSCons(match = TestSCons.match_re)
+test = TestSCons.TestSCons()
 
-test.write('SConstruct', """
-def cat(target, source, env):
-    with open(str(target[0]), 'wb') as ofp, open(str(source[0]), 'rb') as ifp:
-        ofp.write(ifp.read())
-env = Environment(BUILDERS={'Cat':Builder(action=Action(cat))})
-env.Cat('file.out', 'file.in')
+test.file_fixture('SConstruct.method', 'SConstruct')
+expect = """\
+NameError: name 'SourceSignatures' is not defined:
+  File "{}", line 1:
+    SourceSignatures('MD5')
+""".format(test.workpath('SConstruct'))
+test.run(arguments='-Q -s', status=2, stdout=None, stderr=expect)
+
+test.file_fixture('SConstruct.setopt', 'SConstruct')
+test.run(arguments='-Q -s', status=0, stdout=None,
+         stderr="""\
+No warning type: 'deprecated-source-signatures'
+No warning type: 'deprecated-source-signatures'
 """)
-
-test.write('file.in', "file.in\n")
-
-expect = """
-scons: warning: The --debug=nomemoizer option is deprecated and has no effect.
-""" + TestSCons.file_expr
-
-test.run(arguments = "--debug=nomemoizer", stderr = expect)
-
-test.must_match('file.out', "file.in\n")
 
 test.pass_test()
 

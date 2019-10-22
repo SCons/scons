@@ -52,6 +52,22 @@ a builder.
 <example_commands>
 env.Install('/usr/local/bin', source = ['foo', 'bar'])
 </example_commands>
+
+<para>
+If the <option>--install-sandbox</option> command line
+option is given, the target directory will be prefixed
+by the directory path specified.
+This is useful to test installs without installing to
+a "live" location in the system.
+</para>
+
+<para>
+See also &FindInstalledFiles;.
+For more thoughts on installation, see the User Guide
+(particularly the section on Command-Line Targets
+and the chapters on Installing Files and on Alias Targets).
+</para>
+
 </summary>
 </builder>
 

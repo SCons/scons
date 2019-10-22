@@ -882,7 +882,7 @@ def create_scons_output(e):
             lines = ExecuteCommand(args, command, t, {'osname':o.os, 'tools':o.tools})
             if not command.output and lines:
                 ncontent = '\n'.join(lines)
-                ncontent = address_re.sub(r' at 0x700000&gt;', ncontent)
+                ncontent = address_re.sub(r' at 0x700000>', ncontent)
                 ncontent = engine_re.sub(r' File "bootstrap/src/engine/SCons/', ncontent)
                 ncontent = file_re.sub(r'\1 <module>', ncontent)
                 ncontent = nodelist_re.sub(r"\1 'NodeList' object \2", ncontent)

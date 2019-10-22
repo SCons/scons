@@ -35,7 +35,7 @@ test.write('SConstruct', "")
 # Standard copyright marker is mangled so it doesn't get replaced
 # by the packaging build.
 copyright_line = """\
-(_{2}COPYRIGHT__|Copyright \\(c\\) 2001[-\d, ]+ The SCons Foundation)
+(_{2}COPYRIGHT__|Copyright \\(c\\) 2001[-\\d, ]+ The SCons Foundation)
 """
 
 # Windows may or may not print a line for the script version
@@ -64,7 +64,7 @@ if not test.match_re(stdout, expect1) and not test.match_re(stdout, expect2):
     test.fail_test()
 
 test.pass_test()
- 
+
 
 # Local Variables:
 # tab-width:4
