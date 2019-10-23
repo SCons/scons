@@ -69,8 +69,15 @@ def find_include_names(node):
     matches = from_cre.findall(text)
     if matches:
         for match in matches:
-            imports = match[1].split(',')
-            all_matches.append((match[0], [i.strip() for i in imports]))
+            imports = [i.strip() for i in match[1].split(',')]
+
+            # Add some custom logic to strip out "as" because the regex
+            # includes it.
+            last_import_split = imports[-1].split()
+            if len(last_import_split) > 1:
+                imports[-1] = last_import_split[0]
+
+            all_matches.append((match[0], imports))
 
     matches = import_cre.findall(text)
     if matches:

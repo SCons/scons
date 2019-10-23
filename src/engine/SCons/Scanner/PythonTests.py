@@ -39,17 +39,30 @@ test = TestCmd.TestCmd(workdir='')
 # This directory is a simple empty package.
 test.subdir('simple_package')
 test.write(['simple_package', '__init__.py'], '')
-test.write(['simple_package', 'module.py'], '')
+test.write(['simple_package', 'module1.py'], '')
+test.write(['simple_package', 'module2.py'], '')
 
 # Two files that import from simple_package.
 test.write('imports_simple_package.py', r"""
 import simple_package
 """)
-test.write('import_simple_package_module.py', r"""
-import simple_package.module
+test.write('import_simple_package_module1.py', r"""
+import simple_package.module1
 """)
-test.write('from_import_simple_package_module.py', r"""
-from simple_package import module
+test.write('import_simple_package_module1_as.py', r"""
+import simple_package.module1 as m1
+""")
+test.write('from_import_simple_package_module1.py', r"""
+from simple_package import module1
+""")
+test.write('from_import_simple_package_module1_as.py', r"""
+from simple_package import module1 as m1
+""")
+test.write('from_import_simple_package_modules_no_space.py', r"""
+from simple_package import module1,module2
+""")
+test.write('from_import_simple_package_modules_with_space.py', r"""
+from simple_package import module1, module2
 """)
 
 # This directory holds a script that imports another from the current dir.
@@ -166,6 +179,17 @@ class PythonScannerTestPythonPath(unittest.TestCase):
         deps_match(self, deps, files)
 
 
+class PythonScannerTestPythonCallablePath(unittest.TestCase):
+    def runTest(self):
+        env = DummyEnvironment()
+        s = SCons.Scanner.Python.PythonScanner
+        env['ENV']['PYTHONPATH'] = test.workpath('')
+        path = lambda : s.path(env)
+        deps = s(env.File('imports_simple_package.py'), env, path)
+        files = ['simple_package/__init__.py']
+        deps_match(self, deps, files)
+
+
 class PythonScannerTestImportSimplePackage(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment()
@@ -176,26 +200,78 @@ class PythonScannerTestImportSimplePackage(unittest.TestCase):
         files = ['simple_package/__init__.py']
         deps_match(self, deps, files)
 
-
-class PythonScannerTestImportSimplePackageModule(unittest.TestCase):
-    def runTest(self):
-        env = DummyEnvironment()
-        s = SCons.Scanner.Python.PythonScanner
-        node = env.File('import_simple_package_module.py')
-        path = s.path(env, source=[node])
+        # Repeat the test in case there are any issues caching includes.
         deps = s(node, env, path)
-        files = ['simple_package/__init__.py', 'simple_package/module.py']
         deps_match(self, deps, files)
 
 
-class PythonScannerTestFromImportSimplePackageModule(unittest.TestCase):
+class PythonScannerTestImportSimplePackageModule1As(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment()
         s = SCons.Scanner.Python.PythonScanner
-        node = env.File('from_import_simple_package_module.py')
+        node = env.File('import_simple_package_module1_as.py')
         path = s.path(env, source=[node])
         deps = s(node, env, path)
-        files = ['simple_package/__init__.py', 'simple_package/module.py']
+        files = ['simple_package/__init__.py', 'simple_package/module1.py']
+        deps_match(self, deps, files)
+
+
+class PythonScannerTestImportSimplePackageModuleAs(unittest.TestCase):
+    def runTest(self):
+        env = DummyEnvironment()
+        s = SCons.Scanner.Python.PythonScanner
+        node = env.File('import_simple_package_module1.py')
+        path = s.path(env, source=[node])
+        deps = s(node, env, path)
+        files = ['simple_package/__init__.py', 'simple_package/module1.py']
+        deps_match(self, deps, files)
+
+
+class PythonScannerTestFromImportSimplePackageModule1(unittest.TestCase):
+    def runTest(self):
+        env = DummyEnvironment()
+        s = SCons.Scanner.Python.PythonScanner
+        node = env.File('from_import_simple_package_module1.py')
+        path = s.path(env, source=[node])
+        deps = s(node, env, path)
+        files = ['simple_package/__init__.py', 'simple_package/module1.py']
+        deps_match(self, deps, files)
+
+
+class PythonScannerTestFromImportSimplePackageModule1As(unittest.TestCase):
+    def runTest(self):
+        env = DummyEnvironment()
+        s = SCons.Scanner.Python.PythonScanner
+        node = env.File('from_import_simple_package_module1_as.py')
+        path = s.path(env, source=[node])
+        deps = s(node, env, path)
+        files = ['simple_package/__init__.py', 'simple_package/module1.py']
+        deps_match(self, deps, files)
+
+
+class PythonScannerTestFromImportSimplePackageModulesNoSpace(
+        unittest.TestCase):
+    def runTest(self):
+        env = DummyEnvironment()
+        s = SCons.Scanner.Python.PythonScanner
+        node = env.File('from_import_simple_package_modules_no_space.py')
+        path = s.path(env, source=[node])
+        deps = s(node, env, path)
+        files = ['simple_package/__init__.py', 'simple_package/module1.py',
+                 'simple_package/module2.py']
+        deps_match(self, deps, files)
+
+
+class PythonScannerTestFromImportSimplePackageModulesWithSpace(
+        unittest.TestCase):
+    def runTest(self):
+        env = DummyEnvironment()
+        s = SCons.Scanner.Python.PythonScanner
+        node = env.File('from_import_simple_package_modules_with_space.py')
+        path = s.path(env, source=[node])
+        deps = s(node, env, path)
+        files = ['simple_package/__init__.py', 'simple_package/module1.py',
+                 'simple_package/module2.py']
         deps_match(self, deps, files)
 
 
