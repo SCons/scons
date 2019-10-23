@@ -184,8 +184,8 @@ class PythonScannerTestPythonCallablePath(unittest.TestCase):
         env = DummyEnvironment()
         s = SCons.Scanner.Python.PythonScanner
         env['ENV']['PYTHONPATH'] = test.workpath('')
-        path = lambda : s.path(env)
-        deps = s(env.File('imports_simple_package.py'), env, path)
+        deps = s(env.File('imports_simple_package.py'), env,
+                 lambda : s.path(env))
         files = ['simple_package/__init__.py']
         deps_match(self, deps, files)
 
