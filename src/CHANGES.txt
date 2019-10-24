@@ -6,6 +6,11 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Adam Gross:
+
+    - Fixed duplicate "Preserved directory X" messages when running unit tests
+	  with PRESERVE=1 in the environment.
+
   From Mathew Robinson:
 
     - Improved threading performance by ensuring NodeInfo is shared

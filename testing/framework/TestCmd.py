@@ -1094,6 +1094,7 @@ class TestCmd(object):
         if self._preserve[condition]:
             for dir in self._dirlist:
                 print(u"Preserved directory " + dir)
+            self._dirlist = []
         else:
             list = self._dirlist[:]
             list.reverse()
