@@ -16,6 +16,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Tim Gates
     - Resolved a typo in engine.SCons.Tool
 
+  From Adam Gross:
+    - Added support for scanning multiple entries in an action string if
+      implicit command dependency scanning is enabled.
+
   From Ivan Kravets
     - Added support for "-imacros" to ParseFlags
 
