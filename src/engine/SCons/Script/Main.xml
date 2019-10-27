@@ -794,6 +794,10 @@ which corresponds to --silent.
 <para>
 which corresponds to -Q.
 </para>
+<para>
+    Note: The initial progress output will still be output as this is done before the SConstruct/SConscript which contains the SetOption is processed
+    <literal>scons: Reading SConscript files ...</literal>
+</para>
 </listitem>
 </varlistentry>
 <varlistentry>
