@@ -25,6 +25,8 @@ matrix:
   allow_failures:
     - python: pypy
     - python: pypy3
+    - python: nightly
+    - python: 3.9-dev
     - stage: Coverage
 
 # run coverage first as its still useful to collect
@@ -50,55 +52,71 @@ jobs:
       script: python runtest.py -a -t -j 2 || if [[ $? == 2 ]]; then true; else false; fi
       before_script: skip
       after_success: skip
-      python: pypy3
-      env:
-        - PYVER=pypy3
-        - PYTHON=pypy3
-      sudo: required
+    #  python: pypy3
+    #  env:
+    #    - PYVER=pypy3
+    #    - PYTHON=pypy3
+    #  sudo: required
 
-    - <<: *test_job
-      python: pypy
-      env:
-        - PYVER=pypy
-        - PYTHON=pypy
-      sudo: required
+    #- <<: *test_job
+    #  python: pypy
+    #  env:
+    #    - PYVER=pypy
+    #    - PYTHON=pypy
+    #  sudo: required
 
-    - <<: *test_job
-      python: 2.7
-      env:
-        - PYVER=27
-        - PYTHON=2.7
-      sudo: required
+    #- <<: *test_job
+    #  python: 2.7
+    #  env:
+    #    - PYVER=27
+    #    - PYTHON=2.7
+    #  sudo: required
 
-    - <<: *test_job
-      python: 3.5
-      env:
-        - PYVER=35
-        - PYTHON=3.5
-      sudo: required
+    #- <<: *test_job
+    #  python: 3.5
+    #  env:
+    #    - PYVER=35
+    #    - PYTHON=3.5
+    #  sudo: required
 
-    - <<: *test_job
-      python: 3.6
-      env:
-        - PYVER=36
-        - PYTHON=3.6
-      sudo: required
+    #- <<: *test_job
+    #  python: 3.6
+    #  env:
+    #    - PYVER=36
+    #    - PYTHON=3.6
+    #  sudo: required
 
-    - <<: *test_job
+    #- <<: *test_job
       python: 3.7
       env:
         - PYVER=37
         - PYTHON=3.7
       sudo: required
-      dist: xenial  # required for Python >= 3.7
+      dist: xenial  # >= xenial required for Python >= 3.7
 
     - <<: *test_job
-      python: 3.8-dev
+      python: 3.8
       env:
         - PYVER=38
         - PYTHON=3.8
       sudo: required
-      dist: xenial  # required for Python >= 3.7
+      dist: bionic  # >= xenial required for Python >= 3.7
+
+    - <<: *test_job
+      python: 3.9-dev
+      env:
+        - PYVER=30
+        - PYTHON=3.0
+      sudo: required
+      dist: bionic  # >= xenial required for Python >= 3.7
+
+    - <<: *test_job
+      python: nightly
+      env:
+        - PYVER=39
+        - PYTHON=3.9
+      sudo: required
+      dist: bionic  # >= xenial required for Python >= 3.7
 
 
     - &coverage_jobs
