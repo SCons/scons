@@ -56,6 +56,7 @@ import SCons.Warnings
 import SCons.Conftest
 
 from SCons.Debug import Trace
+from collections import defaultdict
 
 # Turn off the Conftest error logging
 SCons.Conftest.LogInputFiles = 0
@@ -98,7 +99,7 @@ def SetProgressDisplay(display):
 
 SConfFS = None
 
-_ac_build_counter = 0 # incremented, whenever TryBuild is called
+_ac_build_counter = defaultdict(int)
 _ac_config_logs = {}  # all config.log files created in this build
 _ac_config_hs   = {}  # all config.h files created in this build
 sconf_global = None   # current sconf object
@@ -592,8 +593,30 @@ class SConfBase(object):
             raise SCons.Errors.UserError('Missing SPAWN construction variable.')
 
         nodesToBeBuilt = []
+        sourcetext = self.env.Value(text)
+        f = "conftest"
 
-        f = "conftest_" + str(_ac_build_counter)
+        if text is not None:
+            textSig = SCons.Util.MD5signature(sourcetext)
+            textSigCounter = str(_ac_build_counter[textSig])
+            _ac_build_counter[textSig] += 1
+
+            f = "_".join([f, textSig, textSigCounter])
+            textFile = self.confdir.File(f + extension)
+            textFileNode = self.env.SConfSourceBuilder(target=textFile,
+                                                       source=sourcetext)
+            nodesToBeBuilt.extend(textFileNode)
+
+            source = textFile
+            target = textFile.File(f + "SConfActionsContentDummyTarget")
+        else:
+            source = None
+            target = None
+
+        action = builder.builder.action.get_contents(target=target, source=[source], env=self.env)
+        actionsig = str(SCons.Util.MD5signature(action))
+        f = "_".join([f, actionsig])
+
         pref = self.env.subst( builder.builder.prefix )
         suff = self.env.subst( builder.builder.suffix )
         target = self.confdir.File(pref + f + suff)
@@ -602,16 +625,6 @@ class SConfBase(object):
             # Slide our wrapper into the construction environment as
             # the SPAWN function.
             self.env['SPAWN'] = self.pspawn_wrapper
-            sourcetext = self.env.Value(text)
-
-            if text is not None:
-                textFile = self.confdir.File(f + extension)
-                textFileNode = self.env.SConfSourceBuilder(target=textFile,
-                                                           source=sourcetext)
-                nodesToBeBuilt.extend(textFileNode)
-                source = textFileNode
-            else:
-                source = None
 
             nodes = builder(target = target, source = source)
             if not SCons.Util.is_List(nodes):
@@ -622,7 +635,6 @@ class SConfBase(object):
         finally:
             self.env['SPAWN'] = save_spawn
 
-        _ac_build_counter = _ac_build_counter + 1
         if result:
             self.lastTarget = nodes[0]
         else:
