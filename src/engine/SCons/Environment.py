@@ -707,6 +707,9 @@ class SubstitutionEnvironment(object):
                    elif append_next_arg_to == '-include':
                        t = ('-include', self.fs.File(arg))
                        dict['CCFLAGS'].append(t)
+                   elif append_next_arg_to == '-imacros':
+                       t = ('-imacros', self.fs.File(arg))
+                       dict['CCFLAGS'].append(t)                    
                    elif append_next_arg_to == '-isysroot':
                        t = ('-isysroot', arg)
                        dict['CCFLAGS'].append(t)
@@ -793,7 +796,7 @@ class SubstitutionEnvironment(object):
                 elif arg[0] == '+':
                     dict['CCFLAGS'].append(arg)
                     dict['LINKFLAGS'].append(arg)
-                elif arg in ['-include', '-isysroot', '-isystem', '-iquote', '-idirafter', '-arch']:
+                elif arg in ['-include', '-imacros', '-isysroot', '-isystem', '-iquote', '-idirafter', '-arch']:
                     append_next_arg_to = arg
                 else:
                     dict['CCFLAGS'].append(arg)
