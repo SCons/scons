@@ -193,6 +193,22 @@ This is the include file. mod %s
     test.must_not_exist('latexi.ilg')
 
 
+    test.write('SConstruct', """
+env = Environment()
+env.PostScript('latin1log.tex')
+""")
+
+    test.write('latin1log.tex', r"""
+\documentclass[12pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\begin{document}
+\"oxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+\end{document}
+""")
+
+    test.run(arguments = 'latin1log.dvi', stderr = None)
+    test.must_exist('latin1log.dvi')
+
 test.pass_test()
 
 # Local Variables:
