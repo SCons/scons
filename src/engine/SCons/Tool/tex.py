@@ -297,8 +297,8 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
         logfilename = targetbase + '.log'
         logContent = ''
         if os.path.isfile(logfilename):
-            with open(logfilename, "r") as f:
-                logContent = f.read()
+            with open(logfilename, "rb") as f:
+                logContent = f.read().decode(errors='replace')
 
 
         # Read the fls file to find all .aux files
