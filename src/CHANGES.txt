@@ -32,12 +32,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Jakub Kulik
     - Fix subprocess result bytes not being decoded in SunOS/Solaris related tools.
-    
+
   From Edoardo Bezzeccheri
     - Added debug option "action_timestamps" which outputs to stdout the absolute start and end time for each target.
-    
+
   From Ivan Kravets
-    - Parse "-imacros" option in ParseFlags
+    - Added support for "-imacros" to ParseFlags
 
 RELEASE 3.1.1 - Mon, 07 Aug 2019 20:09:12 -0500
 
