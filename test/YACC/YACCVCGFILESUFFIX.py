@@ -78,7 +78,7 @@ test.must_not_exist('aaa.vcgsuffix')
 
 test.must_match('bbb.cc', "bbb.yy\n")
 test.must_not_exist('bbb.vcg')
-test.must_match('bbb.vcgsuffix', "myyacc.py -g -o bbb.cc bbb.yy\n")
+test.must_contain('bbb.vcgsuffix', "myyacc.py -g -o bbb.cc bbb.yy\n")
 
 test.up_to_date(arguments = '.')
 
