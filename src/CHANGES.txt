@@ -25,6 +25,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       On vs2019 saves 5+ seconds per SCons invocation, which really
       helps test suite runs.
     - Remove deprecated SourceSignatures, TargetSignatures
+    - Remove deprecated Builder keywords: overrides and scanner
 
   From Jacek Kuczera:
     - Fix CheckFunc detection code for Visual 2019. Some functions
@@ -35,6 +36,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     
   From Edoardo Bezzeccheri
     - Added debug option "action_timestamps" which outputs to stdout the absolute start and end time for each target.
+
 
 RELEASE 3.1.1 - Mon, 07 Aug 2019 20:09:12 -0500
 
