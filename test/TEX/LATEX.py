@@ -28,6 +28,8 @@ r"""
 Validate that we can set the LATEX string to our own utility, that
 the produced .dvi, .aux and .log files get removed by the -c option,
 and that we can use this to wrap calls to the real latex utility.
+Check that a log file with a warning encoded in non-UTF-8 (here: Latin-1)
+is read without throwing an error.
 """
 
 import TestSCons
@@ -195,9 +197,11 @@ This is the include file. mod %s
 
     test.write('SConstruct', """
 env = Environment()
-env.PostScript('latin1log.tex')
+env.DVI('latin1log.tex')
 """)
 
+    # This will trigger an overfull hbox warning in the log file,
+    # containing the umlaut "o in Latin-1 ("T1 fontenc") encoding.
     test.write('latin1log.tex', r"""
 \documentclass[12pt,a4paper]{article}
 \usepackage[T1]{fontenc}
