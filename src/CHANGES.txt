@@ -8,7 +8,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Philipp Maierhöfer:
     - Avoid crash with UnicodeDecodeError on Python 3 when a Latex log file in
-      non-UTF-8 encoding (e.g. containing umlauts in Latin-1 encoding) is read.
+      non-UTF-8 encoding (e.g. containing umlauts in Latin-1 encoding when
+      the fontenc package is included with \usepackage[T1]{fontenc}) is read.
 
   From Mathew Robinson:
 
