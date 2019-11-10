@@ -29,7 +29,7 @@ There are three types of SCons tests:
   ``src/engine/`` subdirectory and are the same base name as the module
   to be tests, with ``Tests`` appended before the ``.py``. For example,
   the unit tests for the ``Builder.py`` module are in the
- ``BuilderTests.py`` script.  Unit tests tend to be based on assertions.
+  ``BuilderTests.py`` script.  Unit tests tend to be based on assertions.
 
 *External Tests*
   For the support of external Tools (in the form of packages, preferably),
