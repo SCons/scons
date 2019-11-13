@@ -608,6 +608,7 @@ foo.in
       of the <classname>optparse.OptionParser</classname>.
       </para>
       </footnote>
+
       Once you have added a custom command-line option
       with the &AddOption; function,
       the value of the option (if any) is immediately available
@@ -677,6 +678,39 @@ foo.in
       <scons_output example="commandline_AddOption" suffix="2">
         <scons_output_command>scons -Q -n --prefix=/tmp/install</scons_output_command>
       </scons_output>
+
+      <note>
+      <para>
+      Long options and option-arguments separated by a space, rather than
+      by <literal>=</literal>, are ambiguous.
+      While <literal>--input=ARG</literal>
+      has a clear meaning, for <literal>--input ARG</literal> it is not
+      possible to tell without instructions whether
+      <parameter>ARG</parameter> is an argument belonging to the
+      <parameter>input</parameter> option or a positional argument
+      (that is, an argument that does not start with a single or double dash).
+      In <command>scons</command>, positional arguments are treated as either 
+      command-line build options or command-line targets
+      (see the immediately following sections for details),
+      which are made available for use in the &SConscript;.
+      This means they have to be collected before &SConscript; processing
+      takes place. Since &AddOption; calls, which provide
+      the necessary processing instructions, happen in the &SConscript;,
+      <command>scons</command> cannot resolve the ambiguity in time
+      for options added this way, and unexpected things will happen.
+      As a result, this usage style should be avoided when invoking
+      <command>scons</command>.  For single-argument
+      options, use the <literal>--input=ARG</literal> style on the
+      command line. For multiple-argument options 
+      (<parameter>nargs</parameter> greater than one),
+      set <parameter>nargs</parameter> to one in
+      &AddOption; and combine the option-arguments into one word
+      with a separator, and parse the result in your own code. 
+      See the built-in <parameter>--debug</parameter> option, which
+      allows specifying multiple arguments as a single comma-separated
+      word, for an example of such usage.
+      </para>
+      </footnote>
 
     </section>
 

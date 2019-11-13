@@ -133,6 +133,21 @@ AddOption('--prefix',
           help='installation prefix')
 env = Environment(PREFIX = GetOption('prefix'))
 </example_commands>
+
+<note>
+<para>
+While &AddOption; behaves like
+<function>optparse.add_option</function>,
+the behavior of options added by &AddOption; 
+which take arguments is underfined in
+<command>scons</command> if a space
+(rather than <literal>=</literal> sign) is used as
+the separator on the command line when
+the option is invoked.
+Such usage should be avoided.
+</para>
+</note>
+
 </summary>
 </scons_function>
 
