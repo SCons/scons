@@ -117,7 +117,9 @@
   * Convert referenced Special variables to EnvironmentValue objects when needed. (They will be generated via factory and cached)
   * Is it (probably) worth creating some shortcut logic where if the value we're trying to subst is only one token and that token is a plain string, we just return it. Though we may have to take into account that it's a simple string with multiple tokens "a simple string" rather than something like ".obj"
   * Create an EnvironmentValue from the string to be substituted.
-  * Walk each token and evaluate
+    * This breaks the string into tokens, and maintains escape characters and whitespace (A difference with previous implementation where whitespace was ALWAYS used to separate arguments)
+  * Create a list to hold N string and parsed values, with the goal of having Zero non-None values in the parsed list indicating that we've processed all parsed values into strings.
+  * Loop through evaluating all the parse_values until there are none left. Evaluating as follows.
     * Plain string. Do nothing
     * $VALUE - env.Subst
     * ${VALUE} - env.Subst
@@ -125,6 +127,24 @@
     * Whitespace?
     * Escape?
     * Check if the variable is one of the reserved construction variables. (We need to be sure we don't cache these)
+  * When we have Zero parsed values left
+    * Process escaping based on subst mode
+    * "".join(string_values) if we're not working for subst_list().
+    
+# Working data for subst()
+  * parsed_values
+  * string_values
+  * subst_mode
+  * lvars
+  * gvars
+  * **Note**: We need to maintain all tokens up until we process subst_mode/escapingd
+  
+# Working data for subst_list()
+  * line #
+  * arg #
+  * tokens which make up next arg
+  * NOTE: We need to retain tokens up until we process subst_mode/escaping
+  # The current implementation has an object ListSubber which alternately sets s
     
     
 #def scons_subst_once(strSubst, env, key):
@@ -138,3 +158,15 @@
 # TODO:
   * intern() strings we want to never be duplicated
   * use __missing__ method on dict'like objects to handle when key is not found.
+  
+# Thoughts
+  * Ideally at the end of subst we end up with
+    * 
+  * All subst logic ends up with either one or an array of
+    * arguments each of which is an array of tokens.
+  * Then subst() and subst_list() can process escaping (or not depending on mode) to construct final return value.
+    * Note that at this point the processing we should save the results of processing for all modes as most likely they'll all be used. (first for signature, then for running the process, then (possibly) for output).
+  * subst() can then "".join("".join(arg_tokens) for arg_tokens in args)
+  * subst_list() can then do equivalent to above but one for each command line.
+  
+    

@@ -46,7 +46,7 @@ import SCons.Debug
 from SCons.Debug import logInstanceCreation
 import SCons.Defaults
 
-import SCons.EnvironmentValues
+import SCons.Values.EnvironmentValues
 import SCons.Errors
 import SCons.Memoize
 import SCons.Node
@@ -396,7 +396,7 @@ class SubstitutionEnvironment(object):
         self.added_methods = []
 
         # Testing EnvironmentValues
-        self._env_values = SCons.EnvironmentValues(**kw)
+        self._env_values = SCons.Values.EnvironmentValues(**kw)
         # self._memo = {}
 
     def _init_special(self):
@@ -1982,7 +1982,6 @@ class Base(SubstitutionEnvironment):
         return SCons.Builder.Builder(**nkw)
 
     def CacheDir(self, path):
-        import SCons.CacheDir
         if path is not None:
             path = self.subst(path)
         self._CacheDir_path = path

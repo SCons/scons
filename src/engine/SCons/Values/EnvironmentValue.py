@@ -45,8 +45,7 @@ dollar_exps = re.compile(r'(%s)' % dollar_exps_str)
 separate_args = re.compile(r'(%s|\s+|[^\s\$]+|\$)' % dollar_exps_str)
 
 
-
-class SubstModes(object):
+class SubstModes(Enum):
     """
     Enum to store subst mode values.
     From Manpage:
@@ -125,7 +124,7 @@ class EnvironmentValueParseError(Exception):
 
 class EnvironmentValue(object):
     """
-    Hold a single value. We're going to cache parsed version of the file
+    Hold a single value. We're going to cache parsed version of the provided value
     We're going to keep track of variables which feed into this values evaluation
     """
 

@@ -1,8 +1,8 @@
 import unittest
 import os.path
 
-from SCons.EnvironmentValues import EnvironmentValues, SubstModes
-from SCons.EnvironmentValuesSubstTests import CmdGen1, CmdGen2
+from SCons.Values.EnvironmentValues import EnvironmentValues, SubstModes
+from SCons.Values.EnvironmentValuesSubstTests import CmdGen1, CmdGen2
 
 
 class DummyNode(object):

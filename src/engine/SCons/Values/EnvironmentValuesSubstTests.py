@@ -32,13 +32,11 @@ import sys
 import unittest
 import traceback
 
-import TestUnit
-
 import SCons.Errors
 
 # from SCons.Subst import *
 from SCons.Subst import Literal, SpecialAttrWrapper
-from SCons.EnvironmentValues import *
+from SCons.Values.EnvironmentValues import *
 
 SUBST_RAW = SubstModes.RAW
 SUBST_CMD = SubstModes.NORMAL

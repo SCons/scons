@@ -1,6 +1,6 @@
 import unittest
 
-from SCons.EnvironmentValue import EnvironmentValue, ValueTypes
+from SCons.Values.EnvironmentValue import EnvironmentValue, ValueTypes
 from TestLiteral import TestLiteral
 import SCons.Environment
 

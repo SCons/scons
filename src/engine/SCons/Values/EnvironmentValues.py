@@ -1,9 +1,10 @@
 import re
 from numbers import Number
 
-from SCons.Util import is_String, is_Sequence, CLVar, flatten
-from SCons.Subst import CmdStringHolder, create_subst_target_source_dict, raise_exception
-from SCons.EnvironmentValue import EnvironmentValue, ValueTypes, separate_args, SubstModes
+from SCons.Util import is_String, is_Sequence
+from SCons.Subst import create_subst_target_source_dict, raise_exception
+from SCons.Values.CmdStringHolder import CmdStringHolder
+from SCons.Values.EnvironmentValue import EnvironmentValue, ValueTypes, separate_args, SubstModes
 import SCons.Environment
 
 # import pysnooper
@@ -11,6 +12,8 @@ import SCons.Environment
 # AllowableExceptions = (IndexError, NameError)
 
 # TODO: allow updating similar to Subst.SetAllowableExceptions()
+from SCons.Values.ListSubstWorker import ListWorker
+
 AllowableExceptions = (KeyError,)
 
 # _is_valid_var = re.compile(r'[_a-zA-Z]\w*$')
@@ -61,7 +64,7 @@ class ParsedEnvironmentValue(object):
     """
     __slots__ = ['value', 'type', 'position', 'lvars']
 
-    def __init__(self, type, value, position, lvars=None):
+    def __init__(self, value_type, value, position, lvars=None):
         """
 
         :param value:
@@ -70,12 +73,12 @@ class ParsedEnvironmentValue(object):
         :param lvars:
         """
         self.value = value
-        self.type = type
+        self.type = value_type
         self.position = position
         self.lvars = lvars
 
     def __str__(self):
-        return "Type:%s VAL:%s"%(self.type, self.value)
+        return "Type:%s VAL:%s" % (self.type, self.value)
 
     def resolve_unassigned_types(self, env_vals, gvars):
         """
@@ -196,7 +199,8 @@ class EnvironmentValues(object):
         count = 0
         while to_update:
 
-            # Create a list of all values which need to be update by our current list
+            # Create a list of all values which ne
+            # ed to be update by our current list
             # of to_update variables. This should recursively give us a list of
             # all variables invalidated by the key being changed.
 
@@ -216,7 +220,7 @@ class EnvironmentValues(object):
             self.values[k].update(key, self.values)
 
     @staticmethod
-    def split_dependencies(value, string_values, parsed_values, lvars,  reserved_name_set):
+    def split_dependencies(value, string_values, parsed_values, lvars, reserved_name_set):
         """
         Split the dependencies for the value into strings and items which need further processing
         (parsed_values
@@ -294,28 +298,6 @@ class EnvironmentValues(object):
                 new_string_values.append(string_values[index])
                 continue
 
-            # (t, v, i) = pv
-
-            # TODO: # Below should only apply if it's a variable and it's not defined.
-            # # not for callables. callables can come from CALLABLE or VARIABLE_OR_CALLABLE
-            #
-            # if NameError not in AllowableExceptions:
-            #     raise_exception(NameError(v), lvars['TARGETS'], self.value)
-            # else:
-            #     # It's ok to have an undefined variable. Just replace with blank.
-            #     string_values[i] = ''
-            #     parsed_values[i] = None
-            #     continue
-
-            # At this point it's possible to determine if we guessed callable correctly
-            # or if it's actually evaluable
-            # if t == ValueTypes.CALLABLE:
-            #     if callable(v):
-            #         t = ValueTypes.CALLABLE
-            #     else:
-            #         debug("Swapped to EVALUABLE:%s" % v)
-            #         t = ValueTypes.EVALUABLE
-
             # Now handle all the various types which can be in the value.
             if pv.type == ValueTypes.STRING:
                 # should yield a single value
@@ -328,7 +310,7 @@ class EnvironmentValues(object):
 
             elif pv.type == ValueTypes.PARSED:
                 # Can be multiple values
-                debug("PARSED   %s"%pv)
+                debug("PARSED   %s" % pv)
 
                 try:
                     # Now get an EnvironmentValue object to continue processing.
@@ -344,7 +326,7 @@ class EnvironmentValues(object):
 
                     elif value.var_type == ValueTypes.STRING:
                         self_ref_location = value.value.find(pv.value)
-                        if self_ref_location != -1 and value.value[self_ref_location-1] == '$':
+                        if self_ref_location != -1 and value.value[self_ref_location - 1] == '$':
                             #
                             pass
 
@@ -472,17 +454,22 @@ class EnvironmentValues(object):
                 # yields single value
 
                 # The variable resolved to a number. No need to process further.
-                debug("Num      %s"%pv)
+                debug("Num      %s" % pv)
                 debug("%s->%s" % (pv.value, (str(env[pv.value].value), t)))
                 new_string_values.append(str(env[pv.value].value), t)
                 new_parsed_values.append(None)
 
             elif pv.type == ValueTypes.COLLECTION:
+                # Note: each item in the collection creates a new argument at the end of it
+                # so if the argument thus far is 'a', and the collection is ['B','C','D']
+                # We should end up with a string like this: 'aB C D'
+                # or if we're dealing with subst_list: 'aB','C','D' - we cannot do this by add ' ' as our arguments
+                # can have embedded whitespace now.
                 # TODO:  How many values?
 
                 # Handle list, tuple, or dictionary
                 # Basically iterate all items, evaluating each, and then join them together with a space
-                debug("COLLECTION  %s"%pv)
+                debug("COLLECTION  %s" % pv)
                 value = env[pv.value].value
 
                 # TODO: Finish implementation
@@ -650,9 +637,8 @@ class EnvironmentValues(object):
         env.split_dependencies(val, string_values, parsed_values, lvars,
                                SCons.Environment.reserved_construction_var_names_set)
 
-
         # Ensure we don't go into an infinite loop of subst evaluations.
-        iter_count=0
+        iter_count = 0
         while any(parsed_values):
             # Now we can use the context (env, gvars, lvars) to decide
             # any uncertain types in parsed_values
@@ -662,7 +648,7 @@ class EnvironmentValues(object):
             # multiple values and require expansion of parsed_values and string_values array
             (parsed_values, string_values) = env.evaluate_parsed_values(parsed_values, string_values, source, target,
                                                                         gvars, lvars, mode, conv)
-            iter_count +=1
+            iter_count += 1
             if iter_count > 12:
                 raise Exception("Too many iterations in subst() bailing out")
 
@@ -681,98 +667,6 @@ class EnvironmentValues(object):
             retval = space_sep.sub(' ', retval).strip()
 
         return retval
-        # try:
-        #     var_type = env.values[subst_string].var_type
-        #
-        #     if var_type == ValueTypes.STRING:
-        #         return env.values[subst_string].value
-        #     elif var_type == ValueTypes.PARSED:
-        #         return env.values[subst_string].subst(env, mode=mode, target=target, source=source, gvars=gvars,
-        #                                              lvars=lvars, conv=conv)
-        #     elif var_type == ValueTypes.CALLABLE:
-        #         # From Subst.py
-        #         # try:
-        #         #     s = s(target=lvars['TARGETS'],
-        #         #           source=lvars['SOURCES'],
-        #         #           env=self.env,
-        #         #           for_signature=(self.mode != SUBST_CMD))
-        #         # except TypeError:
-        #         #     # This probably indicates that it's a callable
-        #         #     # object that doesn't match our calling arguments
-        #         #     # (like an Action).
-        #         #     if self.mode == SUBST_RAW:
-        #         #         return s
-        #         #     s = self.conv(s)
-        #         # return self.substitute(s, lvars)
-        #         # TODO: This can return a non-plain-string result which needs to be further processed.
-        #         retval = env.values[subst_string].value(target, source, env, (mode == SubstModes.FOR_SIGNATURE))
-        #         return retval
-        # except KeyError as e:
-        #     if is_String(subst_string):
-        #         # The value requested to be substituted doesn't exist in the EnvironmentVariables.
-        #         # So, let's create a new value?
-        #         # Currently we're naming it the same as it's content.
-        #         # TODO: Should we keep these separate from the variables? We're caching both..
-        #         env.values[subst_string] = EnvironmentValue(subst_string)
-        #         return env.values[subst_string].subst(env, mode=mode, target=target, source=source, gvars=gvars,
-        #                                              lvars=lvars, conv=conv)
-        #     elif is_Sequence(subst_string):
-        #         return [EnvironmentValue(v).subst(env, mode=mode, target=target, source=source, gvars=gvars,
-        #                                           lvars=lvars, conv=conv) for v in subst_string]
-
-
-    @staticmethod
-    def process_subst_modes(list_subst_results, mode):
-        """
-        Return escaped array of string results
-        :param list_subst_results: post subst'd list of strings
-        :param mode - SubstValue type (indicating what we should do with signature escapes $( and $)
-        :return: escape processed array of strings
-        """
-
-        retval = []
-        escape_level = 0
-        for line_no, line in enumerate(list_subst_results):
-            retval.append([])
-            for item in line:
-                parts = []
-                for item_part, ip_type in item:
-                    if ip_type == ValueTypes.ESCAPE_START:
-                        escape_level += 1
-                        if mode != SubstModes.RAW:
-                            continue
-                    elif ip_type == ValueTypes.ESCAPE_END:
-                        escape_level -= 1
-                        if mode != SubstModes.RAW:
-                            continue
-
-                    if escape_level > 0 and mode == SubstModes.FOR_SIGNATURE:
-                        continue
-
-                    parts.append(item_part)
-
-                word = []
-                for p in parts:
-                    if p == '':
-                        continue
-                    elif p.isspace() and word:
-                        retval[line_no].append("".join(word))
-                        word = []
-                    elif not p.isspace():
-                        word.append(p)
-
-                if word:
-                    # retval[line_no].append("".join(word))
-                    retval[line_no].extend(word)
-
-
-                # if parts and len(parts) >= 1 and parts[0] != '':  # or mode == SubstModes.RAW:
-                #     retval[line_no].append("".join(parts))
-                # else:
-                #     pass
-        return retval
-
-
 
     @staticmethod
     def subst_list(listSubstVal, env, mode=SubstModes.RAW,
@@ -803,8 +697,7 @@ class EnvironmentValues(object):
                 lvars = lvars.copy()
                 lvars.update(d)
 
-        retval = [[]]
-        retval_index = 0
+        retval = ListWorker(listSubstVal)
 
         if is_String(listSubstVal) and not isinstance(listSubstVal, CmdStringHolder):
             parts = listSubstVal.split()
@@ -821,13 +714,12 @@ class EnvironmentValues(object):
             try:
                 debug("subst_list:IsString:%s [%s]", listSubstVal, list_subst_list)
             except TypeError as e:
-                debug("LKDJFKLSDJF")
+                debug("subst_list.. should never get here")
         else:
             debug("subst_list:NotString:%r", listSubstVal)
             # This will yield a list(of tokens/args) of lists (of parts of a token/args)
             # Also need to handle when the list contains numbers which can't be regex'd
             list_subst_list = [isinstance(p, Number) and [p] or separate_args.findall(p) for p in listSubstVal]
-
 
         # At this point we should have a list where each element is a string representing a single argument
         # Each element will be a list generated by separate_args.findall() above.
@@ -845,39 +737,36 @@ class EnvironmentValues(object):
             for e in element:
                 if isinstance(e, Number):
                     token_parts.append((str(e), ValueTypes.STRING))
-                    # retval[retval_index].append(str(e))
                     continue
 
                 if '\n' in e:
-                    # Detected new line, add new element to retval as empty list.
+                    # Detected new line, add new element to return_value as empty list.
                     retval_index += 1
                     retval.append([])
 
                 if e.isspace():
                     token_parts.append((e, ValueTypes.STRING))
-                    # retval[retval_index].append(e)
                     continue
 
                 if '$' not in e:
                     token_parts.append((e, ValueTypes.STRING))
-                    # retval[retval_index].append(e)
                     continue
 
-
-                # returning a list
+                # We assume returning a list which represents a single argument
+                # However, the issue with this, we assume we're processing a single argument, but when whatever
+                # this value is contains a list (which are each a separate argument), then we end up doing
+                # the wrong thing To fix this, I think we need to pass an object into this logic which
+                # knows how to add token parts and arguments properly..?
                 this_value = EnvironmentValues.subst(e, env, mode=SubstModes.SUBST_LIST,
                                                      target=target, source=source,
                                                      gvars=gvars, lvars=lvars, conv=conv)
-                print("Post_subst:%s"%this_value)
+                print("Post_subst:%s" % this_value)
                 # (List of (value,type) tuples)
                 token_parts.extend(this_value)
 
             # TODO: Now we're getting back a list of string values, we need to re-build the string/lines and do the
             #  right thing with string escaping
             print("SUBST_LIST_TUPLE:(%s) -> (%s)" % (element, token_parts))
-
-            # this_value = "".join([s for (s, t) in token_parts])
-            # this_value = [s for (s, t) in token_parts]
 
             # TODO: Current implementation drops white space. Change logic and tests to expect it to be sanely preserved
             # this_value = [s for s in this_value if s and not s.isspace()]
@@ -908,34 +797,13 @@ class EnvironmentValues(object):
 
             # add_value = "".join(this_value)
 
-            retval[retval_index].append(this_value)
-            # Now we need to determine if we need to recurse/evaluate this_value
-            if False:
-                if '$' not in this_value:
-                    # no more evaluation needed
-                    args = [a for a in separate_args.findall(this_value) if not a.isspace()]
+            # return_value[retval_index].append(this_value)
+            retval.current_value = this_value
+            retval.new_argument()
 
-                    retval[retval_index].extend(args)
-                else:
-                    # Need to handle multiple levels of recursion, also it's possible
-                    # that escaping could span several levels of recursion so $( at top , and $)
-                    # several levels lower. (This would be unwise.. do we need to enable this)
-                    this_value_2 = EnvironmentValues.subst_list(this_value, env, mode, target, source, gvars, lvars,
-                                                                conv)
-
-                    debug("need to recurse")
-                    raise Exception("need to recurse in subst_list: [%s]->{%s}" % (this_value, this_value_2))
-
-        # debug("subst_list:%s", retval)
+        # debug("subst_list:%s", return_value)
 
         # Now handle subst modes (includes escaping).
-        retval = EnvironmentValues.process_subst_modes(retval, mode)
+        retval.process_subst_modes(mode)
 
-        # At this point w
-        # new_retval = []
-        # for line_no, line in enumerate(retval):
-        #     new_retval.append([])
-        #     for item in line:
-        #         new_retval[line_no].append("".join(flatten([s for (s, t) in item])))
-
-        return retval
+        return retval.retval
