@@ -2,7 +2,7 @@
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -89,7 +89,7 @@
     all of the command-line variable settings,
     the ability to apply command-line variable settings
     to construction environments,
-    and functions for configuring 
+    and functions for configuring
     specific types of variables
     (Boolean values, path names, etc.)
     with automatic validation of the user's specified values.
@@ -681,36 +681,43 @@ foo.in
 
       <note>
       <para>
-      Long options and option-arguments separated by a space, rather than
+      Long options and option-arguments separated by space, rather than
       by <literal>=</literal>, are ambiguous.
       While <literal>--input=ARG</literal>
       has a clear meaning, for <literal>--input ARG</literal> it is not
       possible to tell without instructions whether
       <parameter>ARG</parameter> is an argument belonging to the
-      <parameter>input</parameter> option or a positional argument
-      (that is, an argument that does not start with a single or double dash).
-      In <command>scons</command>, positional arguments are treated as either 
+      <parameter>input</parameter> option or a positional argument.
+      <command>scons</command> treats positional arguments as either
       command-line build options or command-line targets
       (see the immediately following sections for details),
       which are made available for use in the &SConscript;.
-      This means they have to be collected before &SConscript; processing
+      Thus, they must be collected before &SConscript; processing
       takes place. Since &AddOption; calls, which provide
-      the necessary processing instructions, happen in the &SConscript;,
-      <command>scons</command> cannot resolve the ambiguity in time
-      for options added this way, and unexpected things will happen.
+      the processing instructions to resolve the ambiguity,
+      happen in the &SConscript;,
+      <command>scons</command> does not know in time
+      for options added this way, and unexpected things will happen,
+      such as option-arguments assigned as targets and/or exceptions
+      due to missing option-arguments.
+      </para>
+      <para>
       As a result, this usage style should be avoided when invoking
       <command>scons</command>.  For single-argument
-      options, use the <literal>--input=ARG</literal> style on the
-      command line. For multiple-argument options 
+      options, use the <literal>--input=ARG</literal> form on the
+      command line. For multiple-argument options
       (<parameter>nargs</parameter> greater than one),
       set <parameter>nargs</parameter> to one in
-      &AddOption; and combine the option-arguments into one word
-      with a separator, and parse the result in your own code. 
-      See the built-in <parameter>--debug</parameter> option, which
+      &AddOption; calls and either: combine the option-arguments into one word
+      with a separator, and parse the result in your own code
+      (see the built-in <parameter>--debug</parameter> option, which
       allows specifying multiple arguments as a single comma-separated
-      word, for an example of such usage.
+      word, for an example of such usage); or allow the option to
+      be specified multiple times by setting
+      <literal>action='append'</literal>. Both methods can be
+      supported at the same time.
       </para>
-      </footnote>
+      </note>
 
     </section>
 
@@ -1166,12 +1173,12 @@ vars = Variables('custom.py', ARGUMENTS)
       </screen>
 
       <para>
-      
+
       where values in the option file &custom_py; get overwritten
       by the ones specified on the command line.
 
       </para>
-      
+
     </section>
 
     <section>
