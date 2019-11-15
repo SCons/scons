@@ -681,8 +681,8 @@ foo.in
 
       <note>
       <para>
-      Long options and option-arguments separated by space, rather than
-      by <literal>=</literal>, are ambiguous.
+      Long options and option-arguments separated by whitespace,
+      rather than by <literal>=</literal>, are ambiguous.
       While <literal>--input=ARG</literal>
       has a clear meaning, for <literal>--input ARG</literal> it is not
       possible to tell without instructions whether
