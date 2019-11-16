@@ -251,6 +251,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-LDMODULE "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LDMODULE</envar>">
 <!ENTITY cv-LDMODULECOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LDMODULECOM</envar>">
 <!ENTITY cv-LDMODULECOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LDMODULECOMSTR</envar>">
+<!ENTITY cv-LDMODULEEMITTER "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LDMODULEEMITTER</envar>">
 <!ENTITY cv-LDMODULEFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LDMODULEFLAGS</envar>">
 <!ENTITY cv-LDMODULENOVERSIONSYMLINKS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LDMODULENOVERSIONSYMLINKS</envar>">
 <!ENTITY cv-LDMODULEPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LDMODULEPREFIX</envar>">
@@ -891,6 +892,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-LDMODULE "<link linkend='cv-LDMODULE' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LDMODULE</envar></link>">
 <!ENTITY cv-link-LDMODULECOM "<link linkend='cv-LDMODULECOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LDMODULECOM</envar></link>">
 <!ENTITY cv-link-LDMODULECOMSTR "<link linkend='cv-LDMODULECOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LDMODULECOMSTR</envar></link>">
+<!ENTITY cv-link-LDMODULEEMITTER "<link linkend='cv-LDMODULEEMITTER' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LDMODULEEMITTER</envar></link>">
 <!ENTITY cv-link-LDMODULEFLAGS "<link linkend='cv-LDMODULEFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LDMODULEFLAGS</envar></link>">
 <!ENTITY cv-link-LDMODULENOVERSIONSYMLINKS "<link linkend='cv-LDMODULENOVERSIONSYMLINKS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LDMODULENOVERSIONSYMLINKS</envar></link>">
 <!ENTITY cv-link-LDMODULEPREFIX "<link linkend='cv-LDMODULEPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LDMODULEPREFIX</envar></link>">

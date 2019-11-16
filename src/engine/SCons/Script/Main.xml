@@ -138,9 +138,9 @@ env = Environment(PREFIX = GetOption('prefix'))
 <para>
 While &AddOption; behaves like
 <function>optparse.add_option</function>,
-the behavior of options added by &AddOption; 
+the behavior of options added by &AddOption;
 which take arguments is underfined in
-<command>scons</command> if a space
+<command>scons</command> if whitespace
 (rather than <literal>=</literal> sign) is used as
 the separator on the command line when
 the option is invoked.

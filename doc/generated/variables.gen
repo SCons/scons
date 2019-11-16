@@ -488,7 +488,8 @@ after the SCons template for the file has been written.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </listitem>
   </varlistentry>
@@ -498,7 +499,8 @@ that may not be set or used in a construction environment.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </listitem>
   </varlistentry>
@@ -2804,15 +2806,6 @@ is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
     <term>HOST_ARCH</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-        The name of the host hardware architecture used to create the Environment.
-        If a platform is specified when creating the Environment, then
-        that Platform's logic will handle setting this value.
-        This value is immutable, and should not be changed by the user after
-        the Environment is initialized.
-        Currently only set for Win32.
-</para>
-    
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Sets the host architecture for Visual Studio compiler. If not set,
 default to the detected host architecture: note that this may depend
 on the python you are using.
@@ -2828,7 +2821,16 @@ Valid values are the same as for <envar xmlns="http://www.scons.org/dbxsd/v1.0">
 This is currently only used on Windows, but in the future it will be
 used on other OSes as well.
 </para>
-</listitem>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The name of the host hardware architecture used to create the Environment.
+        If a platform is specified when creating the Environment, then
+        that Platform's logic will handle setting this value.
+        This value is immutable, and should not be changed by the user after
+        the Environment is initialized.
+        Currently only set for Win32.
+</para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-HOST_OS">
     <term>HOST_OS</term>
@@ -2900,7 +2902,7 @@ to <literal>'.dll'</literal>.
 Used to override <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link>/<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-LDMODULEVERSION"><envar>$LDMODULEVERSION</envar></link> when
 generating versioned import library for a shared library/loadable module. If
 undefined, the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link>/<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-LDMODULEVERSION"><envar>$LDMODULEVERSION</envar></link> is used to
-determine the version of versioned import library. 
+determine the version of versioned import library.
 </para>
 </listitem>
   </varlistentry>
@@ -3070,7 +3072,7 @@ The command line used to call the Java archive tool.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The string displayed when the Java archive tool
 is called
-If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-JARCOM"><envar>$JARCOM</envar></link> (the command line) is displayed.
+If this is not set, then <envar xmlns="http://www.scons.org/dbxsd/v1.0">$JARCOM</envar> (the command line) is displayed.
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3080,7 +3082,7 @@ env = Environment(JARCOMSTR = "JARchiving $SOURCES into $TARGET")
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The string displayed when the Java archive tool
 is called
-If this is not set, then <envar xmlns="http://www.scons.org/dbxsd/v1.0">$JARCOM</envar> (the command line) is displayed.
+If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-JARCOM"><envar>$JARCOM</envar></link> (the command line) is displayed.
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3446,6 +3448,17 @@ If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-LDMODULEEMITTER">
+    <term>LDMODULEEMITTER</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Contains the emitter specification for the
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-LoadableModule"><function>LoadableModule</function></link> builder.
+The manpage section "Builder Objects" contains
+general information on specifying emitters.
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-LDMODULEFLAGS">
     <term>LDMODULEFLAGS</term>
     <listitem>
@@ -3618,7 +3631,10 @@ when the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$_LIBDIRFLAGS</envar> va
     <term>LIBEMITTER</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-TODO
+Contains the emitter specification for the
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-StaticLibrary"><function>StaticLibrary</function></link> builder.
+The manpage section "Builder Objects" contains
+general information on specifying emitters.
 </para>
 </listitem>
   </varlistentry>
@@ -5108,7 +5124,10 @@ for example.
     <term>PROGEMITTER</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-TODO
+Contains the emitter specification for the
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-Program"><function>Program</function></link> builder.
+The manpage section "Builder Objects" contains
+general information on specifying emitters.
 </para>
 </listitem>
   </varlistentry>
@@ -5803,9 +5822,9 @@ appending to this list,
 although the more flexible approach
 is to associate scanners
 with a specific Builder.
-See the sections "Builder Objects"
-and "Scanner Objects,"
-below, for more information.
+See the manpage sections "Builder Objects"
+and "Scanner Objects"
+for more information.
 </para>
 </listitem>
   </varlistentry>
@@ -6465,7 +6484,10 @@ If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="
     <term>SHLIBEMITTER</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-TODO
+Contains the emitter specification for the
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link> builder.
+The manpage section "Builder Objects" contains
+general information on specifying emitters.
 </para>
 </listitem>
   </varlistentry>
@@ -6509,12 +6531,22 @@ The suffix used for shared library file names.
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 When this construction variable is defined, a versioned shared library
-is created by <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link> builder. This activates the
+is created by the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link> builder. This activates the
 <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-_SHLIBVERSIONFLAGS"><envar>$_SHLIBVERSIONFLAGS</envar></link> and thus modifies the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLINKCOM"><envar>$SHLINKCOM</envar></link> as
 required, adds the version number to the library name, and creates the symlinks
 that are needed.  <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> versions should exist as alpha-numeric,
 decimal-delimited values as defined by the regular expression "\w+[\.\w+]*".
 Example <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> values include '1', '1.2.3', and '1.2.gitaa412c8b'.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-SHLIBVERSIONFLAGS">
+    <term>SHLIBVERSIONFLAGS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Extra flags added to <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLINKCOM"><envar>$SHLINKCOM</envar></link> when building versioned
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link>. These flags are only used when <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> is
+set.
 </para>
 </listitem>
   </varlistentry>
@@ -6528,16 +6560,6 @@ is set). <literal>_SHLIBVERSIONFLAGS</literal> usually adds <link xmlns="http://
 and some extra dynamically generated options (such as
 <literal>-Wl,-soname=$_SHLIBSONAME</literal>. It is unused by "plain"
 (unversioned) shared libraries.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-SHLIBVERSIONFLAGS">
-    <term>SHLIBVERSIONFLAGS</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Extra flags added to <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLINKCOM"><envar>$SHLINKCOM</envar></link> when building versioned
-<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link>. These flags are only used when <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> is
-set.
 </para>
 </listitem>
   </varlistentry>
@@ -6629,7 +6651,8 @@ The variable is used, for example, by <link xmlns="http://www.scons.org/dbxsd/v1
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </listitem>
   </varlistentry>
@@ -6652,7 +6675,8 @@ field in the controlling information for Ipkg and RPM packages.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </listitem>
   </varlistentry>
@@ -6996,20 +7020,14 @@ General options passed to the tar archiver.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-TARGET_ARCH">
     <term>TARGET_ARCH</term>
     <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-        The name of the target hardware architecture for the compiled objects
-        created by this Environment.
-        This defaults to the value of HOST_ARCH, and the user can override it.
-        Currently only set for Win32.
-</para>
-    
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 Sets the target architecture for Visual Studio compiler (i.e. the arch
 of the binaries generated by the compiler). If not set, default to
@@ -7041,7 +7059,14 @@ and <literal>ia64</literal> (Itanium).
 For example, if you want to compile 64-bit binaries, you would set
 <literal>TARGET_ARCH='x86_64'</literal> in your SCons environment.
 </para>
-</listitem>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+        The name of the target hardware architecture for the compiled objects
+        created by this Environment.
+        This defaults to the value of HOST_ARCH, and the user can override it.
+        Currently only set for Win32.
+</para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-TARGET_OS">
     <term>TARGET_OS</term>
@@ -7060,7 +7085,8 @@ For example, if you want to compile 64-bit binaries, you would set
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </listitem>
   </varlistentry>
@@ -7193,7 +7219,8 @@ that are part of this construction environment.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </listitem>
   </varlistentry>
@@ -7203,7 +7230,8 @@ that may not be set or used in a construction environment.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </listitem>
   </varlistentry>
