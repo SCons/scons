@@ -99,7 +99,7 @@ for suffix in LaTeXSuffixes:
     SourceFileScanner.add_scanner(suffix, LaTeXScanner)
     SourceFileScanner.add_scanner(suffix, PDFLaTeXScanner)
 
-# Tool aliases are needed for those tools whos module names also
+# Tool aliases are needed for those tools whose module names also
 # occur in the python standard library. This causes module shadowing and
 # can break using python library functions under python3
 TOOL_ALIASES = {
