@@ -38,9 +38,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Jakub Kulik
     - Fix subprocess result bytes not being decoded in SunOS/Solaris related tools.
-    
+
   From Edoardo Bezzeccheri
     - Added debug option "action_timestamps" which outputs to stdout the absolute start and end time for each target.
+
+  From Ivan Kravets
+    - Added support for "-imacros" to ParseFlags
 
   From Tim Gates
     - Resolved a typo in engine.SCons.Tool 

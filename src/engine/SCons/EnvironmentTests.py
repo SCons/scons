@@ -804,6 +804,7 @@ sys.exit(0)
             "-iquote /usr/include/foo1 " + \
             "-isystem /usr/include/foo2 " + \
             "-idirafter /usr/include/foo3 " + \
+            "-imacros /usr/include/foo4 " + \
             "+DD64 " + \
             "-DFOO -DBAR=value -D BAZ "
 
@@ -818,6 +819,7 @@ sys.exit(0)
                                 ('-iquote', '/usr/include/foo1'),
                                 ('-isystem', '/usr/include/foo2'),
                                 ('-idirafter', '/usr/include/foo3'),
+                                ('-imacros', env.fs.File('/usr/include/foo4')),
                                 '+DD64'], repr(d['CCFLAGS'])
         assert d['CXXFLAGS'] == ['-std=c++0x'], repr(d['CXXFLAGS'])
         assert d['CPPDEFINES'] == ['FOO', ['BAR', 'value'], 'BAZ'], d['CPPDEFINES']

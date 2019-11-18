@@ -702,31 +702,34 @@ class SubstitutionEnvironment(object):
             append_next_arg_to = None   # for multi-word args
             for arg in params:
                 if append_next_arg_to:
-                   if append_next_arg_to == 'CPPDEFINES':
-                       append_define(arg)
-                   elif append_next_arg_to == '-include':
-                       t = ('-include', self.fs.File(arg))
-                       dict['CCFLAGS'].append(t)
-                   elif append_next_arg_to == '-isysroot':
-                       t = ('-isysroot', arg)
-                       dict['CCFLAGS'].append(t)
-                       dict['LINKFLAGS'].append(t)
-                   elif append_next_arg_to == '-isystem':
-                       t = ('-isystem', arg)
-                       dict['CCFLAGS'].append(t)
-                   elif append_next_arg_to == '-iquote':
-                       t = ('-iquote', arg)
-                       dict['CCFLAGS'].append(t)
-                   elif append_next_arg_to == '-idirafter':
-                       t = ('-idirafter', arg)
-                       dict['CCFLAGS'].append(t)
-                   elif append_next_arg_to == '-arch':
-                       t = ('-arch', arg)
-                       dict['CCFLAGS'].append(t)
-                       dict['LINKFLAGS'].append(t)
-                   else:
-                       dict[append_next_arg_to].append(arg)
-                   append_next_arg_to = None
+                    if append_next_arg_to == 'CPPDEFINES':
+                        append_define(arg)
+                    elif append_next_arg_to == '-include':
+                        t = ('-include', self.fs.File(arg))
+                        dict['CCFLAGS'].append(t)
+                    elif append_next_arg_to == '-imacros':
+                        t = ('-imacros', self.fs.File(arg))
+                        dict['CCFLAGS'].append(t)
+                    elif append_next_arg_to == '-isysroot':
+                        t = ('-isysroot', arg)
+                        dict['CCFLAGS'].append(t)
+                        dict['LINKFLAGS'].append(t)
+                    elif append_next_arg_to == '-isystem':
+                        t = ('-isystem', arg)
+                        dict['CCFLAGS'].append(t)
+                    elif append_next_arg_to == '-iquote':
+                        t = ('-iquote', arg)
+                        dict['CCFLAGS'].append(t)
+                    elif append_next_arg_to == '-idirafter':
+                        t = ('-idirafter', arg)
+                        dict['CCFLAGS'].append(t)
+                    elif append_next_arg_to == '-arch':
+                        t = ('-arch', arg)
+                        dict['CCFLAGS'].append(t)
+                        dict['LINKFLAGS'].append(t)
+                    else:
+                        dict[append_next_arg_to].append(arg)
+                    append_next_arg_to = None
                 elif not arg[0] in ['-', '+']:
                     dict['LIBS'].append(self.fs.File(arg))
                 elif arg == '-dylib_file':
@@ -793,7 +796,7 @@ class SubstitutionEnvironment(object):
                 elif arg[0] == '+':
                     dict['CCFLAGS'].append(arg)
                     dict['LINKFLAGS'].append(arg)
-                elif arg in ['-include', '-isysroot', '-isystem', '-iquote', '-idirafter', '-arch']:
+                elif arg in ['-include', '-imacros', '-isysroot', '-isystem', '-iquote', '-idirafter', '-arch']:
                     append_next_arg_to = arg
                 else:
                     dict['CCFLAGS'].append(arg)
