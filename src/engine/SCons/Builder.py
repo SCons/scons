@@ -396,16 +396,13 @@ class BuilderBase(object):
         self.env = env
         self.single_source = single_source
         if 'overrides' in overrides:
-            SCons.Warnings.warn(SCons.Warnings.DeprecatedBuilderKeywordsWarning,
-                "The \"overrides\" keyword to Builder() creation has been deprecated;\n" +\
-                "\tspecify the items as keyword arguments to the Builder() call instead.")
-            overrides.update(overrides['overrides'])
-            del overrides['overrides']
+            msg =  "The \"overrides\" keyword to Builder() creation has been removed;\n" +\
+                "\tspecify the items as keyword arguments to the Builder() call instead."
+            raise TypeError(msg)
         if 'scanner' in overrides:
-            SCons.Warnings.warn(SCons.Warnings.DeprecatedBuilderKeywordsWarning,
-                                "The \"scanner\" keyword to Builder() creation has been deprecated;\n"
-                                "\tuse: source_scanner or target_scanner as appropriate.")
-            del overrides['scanner']
+            msg = "The \"scanner\" keyword to Builder() creation has been removed;\n" +\
+                "\tuse: source_scanner or target_scanner as appropriate."
+            raise TypeError(msg)
         self.overrides = overrides
 
         self.set_suffix(suffix)

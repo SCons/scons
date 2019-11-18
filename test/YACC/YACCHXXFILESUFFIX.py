@@ -69,7 +69,7 @@ test.write('aaa.yy', "aaa.yy\n/*yacc*/\n")
 test.run(arguments = '.')
 
 test.must_match('aaa.cc', "aaa.yy\n")
-test.must_match('aaa.hxxsuffix', "myyacc.py -d -o aaa.cc aaa.yy\n")
+test.must_contain('aaa.hxxsuffix', "myyacc.py -d -o aaa.cc aaa.yy\n")
 
 test.up_to_date(arguments = '.')
 
