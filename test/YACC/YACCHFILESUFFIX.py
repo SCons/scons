@@ -71,9 +71,9 @@ test.write('bbb.yacc', "bbb.yacc\n/*yacc*/\n")
 test.run(arguments = '.')
 
 test.must_match('aaa.c', "aaa.y\n")
-test.must_match('aaa.hsuffix', "myyacc.py -d -o aaa.c aaa.y\n")
+test.must_contain('aaa.hsuffix', "myyacc.py -d -o aaa.c aaa.y\n")
 test.must_match('bbb.c', "bbb.yacc\n")
-test.must_match('bbb.hsuffix', "myyacc.py -d -o bbb.c bbb.yacc\n")
+test.must_contain('bbb.hsuffix', "myyacc.py -d -o bbb.c bbb.yacc\n")
 
 test.up_to_date(arguments = '.')
 

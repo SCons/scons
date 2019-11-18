@@ -1529,7 +1529,7 @@ class TestCmd(object):
         # TODO: Run full tests on both platforms and see if this fixes failures
         # It seems that py3.6 still sets text mode if you set encoding.
         elif sys.version_info[0] == 3:  # TODO and sys.version_info[1] < 6:
-            stream = stream.decode('utf-8')
+            stream = stream.decode('utf-8', errors='replace')
             stream = stream.replace('\r\n', '\n')
         elif sys.version_info[0] == 2:
             stream = stream.replace('\r\n', '\n')
