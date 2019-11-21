@@ -33,11 +33,11 @@ See its __doc__ string for a discussion of the format.
 This function adds a new command-line option to be recognized.
 The specified
 <varname>arguments</varname>
-are the same as supported by the standard Python
-<function>optparse.add_option</function>()
-method (with a few additional capabilities noted below);
+are the same as supported by the <function>add_option</function>
+method in the standard Python library module <emphasis>optparse</emphasis>,
+with a few additional capabilities noted below;
 see the documentation for
-<literal>optparse</literal>
+<emphasis>optparse</emphasis>
 for a thorough discussion of its option-processing capabities.
 </para>
 
@@ -78,12 +78,22 @@ the option will have a default value of
 </para>
 
 <para>
+Unlike regular <emphasis>optparse</emphasis>, option names
+added via <function>AddOption</function> must be matched
+exactly, the automatic matching of abbreviations on the
+command line for long options is not supported.
+To allow specific abbreviations,
+include them in the &f-AddOption; call.
+</para>
+
+<para>
 Once a new command-line option has been added with
 &f-AddOption;,
 the option value may be accessed using
 &f-GetOption;
 or
 <function>env.GetOption</function>().
+<!--
 The value may also be set, using
 &f-SetOption;
 or
@@ -95,6 +105,9 @@ Note, however, that a
 value specified on the command line will
 <emphasis>always</emphasis>
 override a value set by any SConscript file.
+-->
+&f-SetOption; is not currently supported for
+options added with &f-AddOption;.
 </para>
 
 <para>
@@ -137,11 +150,12 @@ env = Environment(PREFIX = GetOption('prefix'))
 <note>
 <para>
 While &AddOption; behaves like
-<function>optparse.add_option</function>,
+<function>add_option</function>,
+from the <emphasis>optparse</emphasis> module,
 the behavior of options added by &AddOption;
 which take arguments is underfined in
 <command>scons</command> if whitespace
-(rather than <literal>=</literal> sign) is used as
+(rather than an <literal>=</literal> sign) is used as
 the separator on the command line when
 the option is invoked.
 Such usage should be avoided.

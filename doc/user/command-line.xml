@@ -599,25 +599,30 @@ foo.in
       &SCons; also allows you to define your own
       command-line options with the &AddOption; function.
       The &AddOption; function takes the same arguments
-      as the <function>optparse.add_option</function> function
-      from the standard Python library.
+      as the <function>add_option</function> method
+      from the standard Python library module <emphasis>optparse</emphasis>.
       <footnote>
       <para>
       The &AddOption; function is,
       in fact, implemented using a subclass
-      of the <classname>optparse.OptionParser</classname>.
+      of <classname>optparse.OptionParser</classname>.
       </para>
       </footnote>
+      </para>
 
+      <para>
       Once you have added a custom command-line option
       with the &AddOption; function,
       the value of the option (if any) is immediately available
       using the standard &GetOption; function.
+      <!--
       (The value can also be set using &SetOption;,
       although that's not very useful in practice
       because a default value can be specified in
       directly in the &AddOption; call.)
-
+      -->
+      &SetOption; is not currently supported for
+      options added with &AddOption;.
       </para>
 
       <para>
@@ -681,21 +686,22 @@ foo.in
 
       <note>
       <para>
-      Long options and option-arguments separated by whitespace,
-      rather than by <literal>=</literal>, are ambiguous.
+      Option-arguments separated from long options by whitespace,
+      rather than by an <literal>=</literal>, cannot be correctly
+      resolved by <command>scons</command>.
       While <literal>--input=ARG</literal>
-      has a clear meaning, for <literal>--input ARG</literal> it is not
-      possible to tell without instructions whether
+      is clearly opt followed by arg, for <literal>--input ARG</literal>
+      it is not possible to tell without instructions whether
       <parameter>ARG</parameter> is an argument belonging to the
       <parameter>input</parameter> option or a positional argument.
       <command>scons</command> treats positional arguments as either
       command-line build options or command-line targets
-      (see the immediately following sections for details),
-      which are made available for use in the &SConscript;.
+      which are made available for use in an &SConscript;
+      (see the immediately following sections for details).
       Thus, they must be collected before &SConscript; processing
       takes place. Since &AddOption; calls, which provide
-      the processing instructions to resolve the ambiguity,
-      happen in the &SConscript;,
+      the processing instructions to resolve any ambiguity,
+      happen in an &SConscript;,
       <command>scons</command> does not know in time
       for options added this way, and unexpected things will happen,
       such as option-arguments assigned as targets and/or exceptions
