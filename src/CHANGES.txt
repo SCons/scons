@@ -6,6 +6,11 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Adam Gross:
+
+    - Added memoization support for calls to Environment.Value() in order to
+	  improve performance of repeated calls.
+
   From Philipp Maierhöfer:
     - Avoid crash with UnicodeDecodeError on Python 3 when a Latex log file in
       non-UTF-8 encoding (e.g. containing umlauts in Latin-1 encoding when
