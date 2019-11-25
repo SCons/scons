@@ -178,6 +178,8 @@ class Value(SCons.Node.Node):
 
 
 def ValueWithMemo(value, built_value=None):
+    global _memoLookupMap
+
     # No current support for memoizing a value that needs to be built.
     if built_value:
         return Value(value, built_value)
