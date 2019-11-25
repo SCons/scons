@@ -23,14 +23,13 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import sys
 import unittest
 
 import SCons.Errors
 import SCons.Node.Python
 
-class ValueTestCase(unittest.TestCase):
 
+class ValueTestCase(unittest.TestCase):
     def test_Value(self):
         """Test creating a Value() object
         """
@@ -42,7 +41,7 @@ class ValueTestCase(unittest.TestCase):
         assert v2.value == value2, v2.value
         assert v2.value is value2, v2.value
 
-        assert not v1 is v2
+        assert v1 is not v2
         assert v1.value == v2.value
 
         v3 = SCons.Node.Python.Value('c', 'cb')
@@ -98,11 +97,13 @@ class ValueTestCase(unittest.TestCase):
         csig = v3.get_csig(None)
         assert csig == 'None', csig
 
+
 class ValueNodeInfoTestCase(unittest.TestCase):
     def test___init__(self):
         """Test ValueNodeInfo initialization"""
         vvv = SCons.Node.Python.Value('vvv')
         ni = SCons.Node.Python.ValueNodeInfo()
+
 
 class ValueBuildInfoTestCase(unittest.TestCase):
     def test___init__(self):
@@ -110,16 +111,17 @@ class ValueBuildInfoTestCase(unittest.TestCase):
         vvv = SCons.Node.Python.Value('vvv')
         bi = SCons.Node.Python.ValueBuildInfo()
 
+
 class ValueMemoTestCase(unittest.TestCase):
     def test___init__(self):
         """Test memoization"""
         value1 = SCons.Node.Python.ValueWithMemo('vvv')
         value2 = SCons.Node.Python.ValueWithMemo('vvv')
-        assert value1 == value2
+        assert value1 is value2
 
         ni = SCons.Node.Python.ValueNodeInfo()
         value3 = ni.str_to_node('vvv')
-        assert value1 == value3
+        assert value1 is value3
 
 if __name__ == "__main__":
     unittest.main()
