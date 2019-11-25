@@ -110,6 +110,16 @@ class ValueBuildInfoTestCase(unittest.TestCase):
         vvv = SCons.Node.Python.Value('vvv')
         bi = SCons.Node.Python.ValueBuildInfo()
 
+
+class ValueChildTestCase(unittest.TestCase):
+    def test___init__(self):
+        """Test support for a Value() being an implicit dependency of a Node"""
+        value = SCons.Node.Python.Value('v')
+        node = SCons.Node.Node()
+        node._func_get_contents = 2  # Pretend to be a Dir.
+        node.add_to_implicit([value])
+        contents = node.get_contents()
+
 if __name__ == "__main__":
     unittest.main()
 

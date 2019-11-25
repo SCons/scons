@@ -92,6 +92,10 @@ class Value(SCons.Node.Node):
         if built_value is not None:
             self.built_value = built_value
 
+        # Set a name so it can be a child of a node and not break
+        # its parent's implementation of Node.get_contents.
+        self.name = value
+
     def str_for_display(self):
         return repr(self.value)
 
