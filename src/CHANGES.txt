@@ -6,6 +6,11 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Philipp Maierhöfer:
+    - Avoid crash with UnicodeDecodeError on Python 3 when a Latex log file in
+      non-UTF-8 encoding (e.g. containing umlauts in Latin-1 encoding when
+      the fontenc package is included with \usepackage[T1]{fontenc}) is read.
+
   From Mathew Robinson:
 
     - Improved threading performance by ensuring NodeInfo is shared
@@ -25,6 +30,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       On vs2019 saves 5+ seconds per SCons invocation, which really
       helps test suite runs.
     - Remove deprecated SourceSignatures, TargetSignatures
+    - Remove deprecated Builder keywords: overrides and scanner
 
   From Jacek Kuczera:
     - Fix CheckFunc detection code for Visual 2019. Some functions
@@ -32,9 +38,15 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Jakub Kulik
     - Fix subprocess result bytes not being decoded in SunOS/Solaris related tools.
-    
+
   From Edoardo Bezzeccheri
     - Added debug option "action_timestamps" which outputs to stdout the absolute start and end time for each target.
+
+  From Ivan Kravets
+    - Added support for "-imacros" to ParseFlags
+
+  From Tim Gates
+    - Resolved a typo in engine.SCons.Tool 
 
 RELEASE 3.1.1 - Mon, 07 Aug 2019 20:09:12 -0500
 
