@@ -3315,8 +3315,7 @@ def generate(env):
         assert v2.value == value2, v2.value
         assert v2.value is value2, v2.value
 
-        assert not v1 is v2
-        assert v1.value == v2.value
+        assert v1 is v2
 
         v3 = env.Value('c', 'build-c')
         assert v3.value == 'c', v3.value
