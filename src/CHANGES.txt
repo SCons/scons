@@ -9,8 +9,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Adam Gross:
 
-    - Fixed duplicate "Preserved directory X" messages when running unit tests
-      with PRESERVE=1 in the environment.
+    - Fixed duplicate "Preserved directory X" messages when running SCons unit
+      tests with PRESERVE=1 in the environment.
 
   From Philipp Maierhöfer:
     - Avoid crash with UnicodeDecodeError on Python 3 when a Latex log file in

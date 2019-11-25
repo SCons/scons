@@ -1503,12 +1503,11 @@ class preserve_TestCase(TestCmdTestCase):
             test.preserve('pass_test')
             cleanup_test(test, 'pass_test', "Preserved directory %s\n" % wdir)
             assert os.path.isdir(wdir)
-            cleanup_test(test, 'fail_test')
+            shutil.rmtree(wdir, ignore_errors = 1)
             assert not os.path.exists(wdir)
         finally:
             if os.path.exists(wdir):
                 shutil.rmtree(wdir, ignore_errors = 1)
-                test._dirlist.remove(wdir)
 
         test = TestCmd.TestCmd(workdir = '')
         wdir = test.workdir
@@ -1517,12 +1516,11 @@ class preserve_TestCase(TestCmdTestCase):
             test.preserve('fail_test')
             cleanup_test(test, 'fail_test', "Preserved directory %s\n" % wdir)
             assert os.path.isdir(wdir)
-            cleanup_test(test, 'pass_test')
+            shutil.rmtree(wdir, ignore_errors = 1)
             assert not os.path.exists(wdir)
         finally:
             if os.path.exists(wdir):
                 shutil.rmtree(wdir, ignore_errors = 1)
-                test._dirlist.remove(wdir)
 
         test = TestCmd.TestCmd(workdir = '')
         wdir = test.workdir
@@ -1531,14 +1529,13 @@ class preserve_TestCase(TestCmdTestCase):
             test.preserve('fail_test', 'no_result')
             cleanup_test(test, 'fail_test', "Preserved directory %s\n" % wdir)
             assert os.path.isdir(wdir)
-            cleanup_test(test, 'no_result', "Preserved directory %s\n" % wdir)
+            cleanup_test(test, 'no_result', '')
             assert os.path.isdir(wdir)
-            cleanup_test(test, 'pass_test')
+            shutil.rmtree(wdir, ignore_errors = 1)
             assert not os.path.exists(wdir)
         finally:
             if os.path.exists(wdir):
                 shutil.rmtree(wdir, ignore_errors = 1)
-                test._dirlist.remove(wdir)
 
         test = TestCmd.TestCmd(workdir = '')
         wdir = test.workdir
@@ -1546,14 +1543,13 @@ class preserve_TestCase(TestCmdTestCase):
             test.preserve()
             cleanup_test(test, 'pass_test', "Preserved directory %s\n" % wdir)
             assert os.path.isdir(wdir)
-            cleanup_test(test, 'fail_test', "Preserved directory %s\n" % wdir)
+            cleanup_test(test, 'fail_test', '')
             assert os.path.isdir(wdir)
-            cleanup_test(test, 'no_result', "Preserved directory %s\n" % wdir)
+            cleanup_test(test, 'no_result', '')
             assert os.path.isdir(wdir)
         finally:
             if os.path.exists(wdir):
                 shutil.rmtree(wdir, ignore_errors = 1)
-                test._dirlist.remove(wdir)
 
 
 
