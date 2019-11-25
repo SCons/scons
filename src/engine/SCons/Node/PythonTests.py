@@ -119,6 +119,7 @@ class ValueChildTestCase(unittest.TestCase):
         node._func_get_contents = 2  # Pretend to be a Dir.
         node.add_to_implicit([value])
         contents = node.get_contents()
+        assert len(contents) > 0
 
 if __name__ == "__main__":
     unittest.main()
