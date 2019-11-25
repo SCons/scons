@@ -2220,7 +2220,7 @@ class Base(SubstitutionEnvironment):
     def Value(self, value, built_value=None):
         """
         """
-        return SCons.Node.Python.Value(value, built_value)
+        return SCons.Node.Python.ValueWithMemo(value, built_value)
 
     def VariantDir(self, variant_dir, src_dir, duplicate=1):
         variant_dir = self.arg2nodes(variant_dir, self.fs.Dir)[0]
