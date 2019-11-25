@@ -110,6 +110,17 @@ class ValueBuildInfoTestCase(unittest.TestCase):
         vvv = SCons.Node.Python.Value('vvv')
         bi = SCons.Node.Python.ValueBuildInfo()
 
+class ValueMemoTestCase(unittest.TestCase):
+    def test___init__(self):
+        """Test memoization"""
+        value1 = SCons.Node.Python.ValueWithMemo('vvv')
+        value2 = SCons.Node.Python.ValueWithMemo('vvv')
+        assert value1 == value2
+
+        ni = SCons.Node.Python.ValueNodeInfo()
+        value3 = ni.str_to_node('vvv')
+        assert value1 == value3
+
 if __name__ == "__main__":
     unittest.main()
 
