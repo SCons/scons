@@ -73,7 +73,7 @@ def get_package_info(package_name, pkginfo, pkgchk):
             popen_args = {'stdout': subprocess.PIPE,
                           'stderr': DEVNULL}
             if PY3:
-                popen_args['encoding'] = 'utf-8'
+                popen_args['universal_newlines'] = True
             p = subprocess.Popen([pkginfo, '-l', package_name],
                                  **popen_args)
         except EnvironmentError:
@@ -92,7 +92,7 @@ def get_package_info(package_name, pkginfo, pkgchk):
                 popen_args = {'stdout': subprocess.PIPE,
                               'stderr': DEVNULL}
                 if PY3:
-                    popen_args['encoding'] = 'utf-8'
+                    popen_args['universal_newlines'] = True
                 p = subprocess.Popen([pkgchk, '-l', package_name],
                                      **popen_args)
             except EnvironmentError:
