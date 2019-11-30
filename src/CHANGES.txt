@@ -6,20 +6,35 @@
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Rob Boehne
+    - Fix suncxx tool (Oracle Studio compiler) when using Python 3.  Previously would throw an exception.
+      Resolved by properly handling tool version string output as unicode.
+
+  From Tim Gates
+    - Resolved a typo in engine.SCons.Tool
 
   From Adam Gross:
-
     - Fixed duplicate "Preserved directory X" messages when running SCons unit
       tests with PRESERVE=1 in the environment.
+  From Edoardo Bezzeccheri
+    - Added debug option "action_timestamps" which outputs to stdout the absolute start and end time for each target.
+
+  From Ivan Kravets
+    - Added support for "-imacros" to ParseFlags
+
+  From Jacek Kuczera:
+    - Fix CheckFunc detection code for Visual 2019. Some functions
+      (e.g. memmove) were incorrectly recognized as not available.
+
+  From Jakub Kulik
+    - Fix subprocess result bytes not being decoded in SunOS/Solaris related tools.
 
   From Philipp Maierhöfer:
     - Avoid crash with UnicodeDecodeError on Python 3 when a Latex log file in
       non-UTF-8 encoding (e.g. containing umlauts in Latin-1 encoding when
       the fontenc package is included with \usepackage[T1]{fontenc}) is read.
 
-
   From Mathew Robinson:
-
     - Improved threading performance by ensuring NodeInfo is shared
       across threads. Results in ~13% improvement for parallel builds
       (-j# > 1) with many shared nodes.
@@ -39,21 +54,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Remove deprecated SourceSignatures, TargetSignatures
     - Remove deprecated Builder keywords: overrides and scanner
 
-  From Jacek Kuczera:
-    - Fix CheckFunc detection code for Visual 2019. Some functions
-      (e.g. memmove) were incorrectly recognized as not available.
-
-  From Jakub Kulik
-    - Fix subprocess result bytes not being decoded in SunOS/Solaris related tools.
-
-  From Edoardo Bezzeccheri
-    - Added debug option "action_timestamps" which outputs to stdout the absolute start and end time for each target.
-
-  From Ivan Kravets
-    - Added support for "-imacros" to ParseFlags
-
-  From Tim Gates
-    - Resolved a typo in engine.SCons.Tool 
 
 RELEASE 3.1.1 - Mon, 07 Aug 2019 20:09:12 -0500
 
