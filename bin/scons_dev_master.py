@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/python
 #
 
 # A script for turning a generic Ubuntu system into a master for

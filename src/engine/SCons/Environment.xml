@@ -2324,6 +2324,7 @@ and added to the following construction variables:
 -fmerge-all-constants   CCFLAGS, LINKFLAGS
 -fopenmp                CCFLAGS, LINKFLAGS
 -include                CCFLAGS
+-imacros                CCFLAGS
 -isysroot               CCFLAGS, LINKFLAGS
 -isystem                CCFLAGS
 -iquote                 CCFLAGS

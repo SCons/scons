@@ -4960,7 +4960,8 @@ the same target file(s). The default is 0, which means the builder
 can not be called multiple times for the same target file(s). Calling a
 builder multiple times for the same target simply adds additional source
 files to the target; it is not allowed to change the environment associated
-with the target, specify addition environment overrides, or associate a different
+with the target, specify additional environment overrides,
+or associate a different
 builder with the target.</para>
 
   </listitem>
