@@ -50,11 +50,15 @@ sys.exit(0)
 SUBDIR_foo_dep = os.path.join('$SUBDIR', 'foo.dep')
 SUBDIR_f3_out = os.path.join('$SUBDIR', 'f3.out')
 
+# Disable IMPLICIT_COMMAND_DEPENDENCIES because otherwise it renders them less
+# effective. They count on paths provided at the end of the command string only
+# being counted as dependencies if Depends() is used.
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 Foo = Builder(action = r'%(_python_)s build.py $TARGET $SOURCES subdir/foo.dep')
 Bar = Builder(action = r'%(_python_)s build.py $TARGET $SOURCES subdir/bar.dep')
-env = Environment(tools=[], BUILDERS = { 'Foo' : Foo, 'Bar' : Bar }, SUBDIR='subdir')
+env = Environment(tools=[], BUILDERS = { 'Foo' : Foo, 'Bar' : Bar }, SUBDIR='subdir',
+                  IMPLICIT_COMMAND_DEPENDENCIES=False)
 env.Depends(target = ['f1.out', 'f2.out'], dependency = r'%(SUBDIR_foo_dep)s')
 env.Depends(target = r'%(SUBDIR_f3_out)s', dependency = 'subdir/bar.dep')
 env.Foo(target = 'f1.out', source = 'f1.in')

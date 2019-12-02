@@ -335,6 +335,7 @@ scons: rebuilding `file3' because:
            ->Depends
            ->Implicit
            Old:%(_python_)s	New:%(_python_)s
+           Old:%(cat_py)s	New:%(cat_py)s
 %(_python_)s %(cat_py)s file3 zzz yyy xxx
 """ % locals())
 
@@ -354,12 +355,21 @@ env.AddPostAction(f3, r'%(_python_)s %(cat_py)s ${TARGET}.yyy $SOURCES yyy')
 env.AddPreAction(f3, r'%(_python_)s %(cat_py)s ${TARGET}.alt $SOURCES')
 """ % locals())
 
+# Because Action.get_implicit_deps() scans the entire action string, we do take
+# the additional "yyy" as a dependency. It already was a source, so it now is
+# considered to be a dependency ordering change.
 expect = test.wrap_stdout("""\
-scons: rebuilding `file3' because the build action changed:
-               old: %(python)s %(cat_py)s $TARGET $SOURCES
-               new: %(_python_)s %(cat_py)s ${TARGET}.alt $SOURCES
-                    %(python)s %(cat_py)s $TARGET $SOURCES
-                    %(_python_)s %(cat_py)s ${TARGET}.yyy $SOURCES yyy
+scons: rebuilding `file3' because:
+           the dependency order changed:
+           ->Sources
+           Old:zzz	New:zzz
+           Old:yyy	New:yyy
+           Old:xxx	New:xxx
+           ->Depends
+           ->Implicit
+           Old:%(_python_)s	New:%(_python_)s
+           Old:%(cat_py)s	New:%(cat_py)s
+           Old:None	New:yyy
 %(_python_)s %(cat_py)s file3.alt zzz yyy xxx
 %(_python_)s %(cat_py)s file3 zzz yyy xxx
 %(_python_)s %(cat_py)s file3.yyy zzz yyy xxx yyy
@@ -384,13 +394,17 @@ env.AddPreAction(f3, r'%(_python_)s %(cat_py)s ${TARGET}.alt $SOURCES')
 """ % locals())
 
 expect = test.wrap_stdout("""\
-scons: rebuilding `file3' because the build action changed:
-               old: %(_python_)s %(cat_py)s ${TARGET}.alt $SOURCES
-                    %(python)s %(cat_py)s $TARGET $SOURCES
-                    %(_python_)s %(cat_py)s ${TARGET}.yyy $SOURCES yyy
-               new: %(_python_)s %(cat_py)s ${TARGET}.alt $SOURCES
-                    %(python)s %(cat_py)s $TARGET $SOURCES
-                    %(_python_)s %(cat_py)s ${TARGET}.yyy $SOURCES xxx
+scons: rebuilding `file3' because:
+           the dependency order changed:
+           ->Sources
+           Old:zzz	New:zzz
+           Old:yyy	New:yyy
+           Old:xxx	New:xxx
+           ->Depends
+           ->Implicit
+           Old:%(_python_)s	New:%(_python_)s
+           Old:%(cat_py)s	New:%(cat_py)s
+           Old:yyy	New:xxx
 %(_python_)s %(cat_py)s file3.alt zzz yyy xxx
 %(_python_)s %(cat_py)s file3 zzz yyy xxx
 %(_python_)s %(cat_py)s file3.yyy zzz yyy xxx xxx

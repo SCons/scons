@@ -44,7 +44,13 @@ workpath_repository = test.workpath('repository')
 repository_foo = test.workpath('repository', 'foo' + _exe)
 work_foo = test.workpath('work', 'foo' + _exe)
 
+# Don't take implicit command dependencies because otherwise the program will
+# be unexpectedly recompiled the first time we use chdir="work". The reason is
+# that we take .obj files as implicit dependencies but when we move the current
+# directory, those .obj files are no longer around.
 #
+# TODO: Should this test pass as-is without disabling implicit command
+# dependencies?
 test.write(['repository', 'SConstruct'], """
 Repository(r'%s')
 env = Environment()

@@ -40,10 +40,13 @@ with open(sys.argv[1], 'wb') as f, open(sys.argv[2], 'rb') as afp2, open(sys.arg
     f.write(afp2.read() + afp3.read())
 """)
 
+# Pass IMPLICIT_COMMAND_DEPENDENCIES=False because the test depends on us not
+# taking a dependency on the last file in the action string.
 test.write('SConstruct', """
 Foo = Builder(action = r'%(_python_)s build.py $TARGET $SOURCES subdir/foo.dep')
 Bar = Builder(action = r'%(_python_)s build.py $TARGET $SOURCES subdir/bar.dep')
-env = Environment(BUILDERS = { 'Foo' : Foo, 'Bar' : Bar }, SUBDIR='subdir')
+env = Environment(BUILDERS = { 'Foo' : Foo, 'Bar' : Bar }, SUBDIR='subdir',
+                  IMPLICIT_COMMAND_DEPENDENCIES=False)
 env.ParseDepends('foo.d')
 env.ParseDepends('bar.d')
 env.Foo(target = 'f1.out', source = 'f1.in')
