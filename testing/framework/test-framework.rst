@@ -113,14 +113,14 @@ You may specifically list one or more tests to be run::
   $ python runtest.py src/engine/SCons/BuilderTests.py
   $ python runtest.py test/option-j.py test/Program.py
 
-Folder names are allowed arguments as well, so you can do::
+Folder names are allowed in the test list as well, so you can do::
 
   $ python runtest.py test/SWIG
 
 to run all SWIG tests only.
 
 You can also use the ``-f`` option to execute just the tests listed in
-a specified text file::
+a test list file::
 
   $ cat testlist.txt
   test/option-j.py
@@ -136,9 +136,11 @@ If more than one test is run, the ``runtest.py`` script prints a summary
 of how many tests passed, failed, or yielded no result, and lists any
 unsuccessful tests.
 
-The above invocations all test directly the files underneath the ``src/``
-subdirectory, and do not require that a packaging build be performed
-first.  The ``runtest.py`` script supports additional options to run
+The above invocations all test against the scons files underneath the ``src/``
+subdirectory, and do not require that a packaging build of SCons be performed
+first.  This is the most common mode: make some changes, and test in
+place the effects.
+The ``runtest.py`` script supports additional options to run
 tests against unpacked packages in the ``build/test-*/`` subdirectories.
 
 If you are testing a separate Tool outside of the SCons source tree, you
@@ -149,26 +151,33 @@ have to call the ``runtest.py`` script in *external* (stand-alone) mode::
 This ensures that the testing framework doesn't try to access SCons
 classes needed for some of the *internal* test cases.
 
-Note, that the actual tests are carried out in a temporary folder each,
-which gets deleted afterwards. This ensures that your source directories
-don't get clobbered with temporary files from the test runs. It also
-means that you can't simply change into a folder to "debug things" after
-a test has gone wrong. For a way around this, check out the ``PRESERVE``
-environment variable. It can be seen in action in
-`How to convert old tests`_ below.
+Note that as each test is run, it is executed in a temporary directory
+created just for that test, which is by default removed when the
+test is complete.  This ensures that your source directories
+don't get clobbered with temporary files and changes from the test runs.
+If the test itself needs to know the directory, it can be obtained
+as ``test.workdir``, or more commonly by calling ``test.workpath``,
+a function which takes a path-component argument and returns the path to
+that path-component in the testing directory.
+
+The use of an ephemeral test directory means that you can't simply change
+into a folder to "debug things" after a test has gone wrong.
+For a way around this, check out the ``PRESERVE`` environment variable.
+It can be seen in action in `How to Convert Old Tests to Use Fixures`_ below.
 
 Not Running Tests
 =================
 
 If you simply want to check which tests would get executed, you can call
-the ``runtest.py`` script with the ``-l`` option::
+the ``runtest.py`` script with the ``-l`` option combined with whichever
+test finding options (see below) you intend to use. Example:
 
-  $ python runtest.py -l
+  $ python runtest.py -l test/scons-time
 
-Then there is also the ``-n`` option, which prints the command line for
-each single test, but doesn't actually execute them::
+``runtest.py`` also has ``-n`` option, which prints the command line for
+each test which would have been run, but doesn't actually execute them::
 
-  $ python runtest.py -n
+  $ python runtest.py -n -a
 
 Finding Tests
 =============
@@ -182,7 +191,7 @@ directory.  It then dives into the ``src`` and ``test`` folders, where
 it tries to find filenames
 
 ``*Test.py``
-  for the ``src`` directory
+  for the ``src`` folder
 
 ``*.py``
   for the ``test`` folder
@@ -216,6 +225,8 @@ a simple "Hello, world!" example::
   """)
 
   test.write('hello.c', """\
+  #include <stdio.h>
+
   int
   main(int argc, char *argv[])
   {
@@ -259,7 +270,7 @@ a simple "Hello, world!" example::
 
 ``test.write('hello.c', ...)``
   This lines creates an ``hello.c`` file in the temporary directory.
-  Note that we have to escape the ``\\n`` in the
+  Note that we have to escape the newline in the
   ``"Hello, world!\\n"`` string so that it ends up as a single
   backslash in the ``hello.c`` file on disk.
 
@@ -282,7 +293,9 @@ a simple "Hello, world!" example::
   non-zero, or there is any error output.
 
 ``test.pass_test()``
-  This is always the last line in a test script.  It prints ``PASSED``
+  This is always the last line in a test script.  If we get to
+  this line, it means we haven't bailed out on a failure or skip,
+  so the result was good. It prints ``PASSED``
   on the screen and makes sure we exit with a ``0`` status to indicate
   the test passed.  As a side effect of destroying the ``test`` object,
   the created temporary directory will be removed.
@@ -295,14 +308,21 @@ on the fly by the test program. We give a filename to the ``TestSCons.write()``
 method, and a string holding its contents, and it gets written to the test
 folder right before starting..
 
-This technique can still be seen throughout most of the end-to-end tests,
-but there is a better way. To create a test, you need to create the
-files that will be used, then when they work reasonably, they need to
-be pasted into the script. The process repeats for maintenance. Once
-a test gets more complex and/or grows many steps, the test script gets
-harder to read. Why not keep the files as is?
+This simple technique can be seen throughout most of the end-to-end
+tests as it was the original technique provided to test developers,
+but it is definitely not the preferred way to write a new test.
+To develop this way, you first need to create the necessary files and
+get them to work, then convert them to an embedded string form, which may
+involve lots of extra escaping.  These embedded files are then tricky
+to maintain.  As a test grows multiple steps, it becomes less easy to
+read, since the embedded strings aren't quite the final files, and
+the volume of test code obscures the flow of the testing steps.
+Additionally, as SCons moves more to the use of code checkers and
+formatters to detect problems and keep a standard coding style for
+better readability, note that these techniques don't look inside
+strings, so they're either left out or lots of manual work has to be done.
 
-In testing parlance, a fixture is a repeatable test setup.  The scons
+In testing parlance, a fixture is a repeatable test setup.  The SCons
 test harness allows the use of saved files or directories to be used
 in that sense: "the fixture for this test is foo", instead of writing
 a whole bunch of strings to create files. Since these setups can be
@@ -314,13 +334,19 @@ them, see instructions in the above section named "Finding Tests".
 Directory Fixtures
 ##################
 
-The function ``dir_fixture(self, srcdir, dstdir=None)`` in the ``TestCmd``
-class copies the contents of the specified folder ``srcdir`` from
+The test harness method ``dir_fixture(srcdir, [dstdir])``
+copies the contents of the specified folder ``srcdir`` from
 the directory of the called test script to the current temporary test
 directory.  The ``srcdir`` name may be a list, in which case the elements
 are concatenated with the ``os.path.join()`` method.  The ``dstdir``
 is assumed to be under the temporary working directory, it gets created
 automatically, if it does not already exist.
+
+If ``srcdir`` represents an absolute path, it is used as-is. Otherwise,
+if the harness was invoked with the environment variable ``FIXTURE_DIRS``
+set, the test instance will present that list of directories to search
+as ``self.fixture_dirs``, each of these are additionally searched for
+a directory with the name of ``srcdir``.
 
 A short syntax example::
 
@@ -328,8 +354,8 @@ A short syntax example::
   test.dir_fixture('image')
   test.run()
 
-would copy all files and subfolders from the local ``image`` folder,
-to the temporary directory for the current test.
+would copy all files and subfolders from the local ``image`` folder
+to the temporary directory for the current test, then run it.
 
 To see a real example for this in action, refer to the test named
 ``test/packaging/convenience-functions/convenience-functions.py``.
@@ -337,12 +363,16 @@ To see a real example for this in action, refer to the test named
 File Fixtures
 #############
 
-Like for directory fixtures, ``file_fixture(self, srcfile, dstfile=None)``
+Similarly, the method ``file_fixture(srcfile, [dstfile])``
 copies the file ``srcfile`` from the directory of the called script,
 to the temporary test directory.  The ``dstfile`` is assumed to be
 under the temporary working directory, unless it is an absolute path
 name.  If ``dstfile`` is specified, its target directory gets created
 automatically if it doesn't already exist.
+
+If ``srcfile`` represents an absolute path, it is used as-is. Otherwise,
+any passed in fixture directories are used as additional places to
+search, as for the ``dir_fixture`` case.
 
 With the following code::
 
@@ -368,7 +398,7 @@ list of available Tools, though not all may have tests yet.
 How to Convert Old Tests to Use Fixures
 #######################################
 
-Tests using the inline ``TestSCons.write()`` method can easily be
+Tests using the inline ``TestSCons.write()`` method can fairly easily be
 converted to the fixture based approach. For this, we need to get at the
 files as they are written to each temporary test folder.
 
@@ -383,9 +413,9 @@ So, you should be able to give the commands::
 
 assuming Linux and a bash-like shell. For a Windows ``cmd`` shell, use
 ``set PRESERVE=1`` (that will leave it set for the duration of the
-``cmd`` session, unless manually deleted).
+``cmd`` session, unless manually cleared).
 
-The output should then look something like this::
+The output will then look something like this::
 
   1/1 (100.00%) /usr/bin/python -tt test/packaging/sandbox-test.py
   PASSED
@@ -398,6 +428,19 @@ tedious ``TestSCons.write()`` statements and replace them by a single
 
 Finally, don't forget to clean up and remove the temporary test
 directory. ``;)``
+
+For more complex testing scenarios you can use ``file_fixture`` with
+the option to rename (that is, supplying a second argument, which is
+the name to give the fixture file being copied).  For example some test
+files write multiple ``SConstruct`` files across the full run.
+These files can be given different names - perhaps using a sufffix -
+and then sucessively copied to the final name as needed::
+
+  test.file_fixture('fixture/SConstruct.part1', 'SConstruct')
+  # more setup, then run test
+  test.file_fixture('fixture/SConstruct.part2', 'SConstruct')
+  # etc.
+
 
 When Not to Use a Fixture
 #########################
@@ -413,30 +456,33 @@ kind of usage that does not lend itself to a fixture::
 
   test.write('SConstruct', """
   cc = Environment().Dictionary('CC')
-  env = Environment(LINK = r'%(_python_)s mylink.py',
-                    LINKFLAGS = [],
-                    CC = r'%(_python_)s mycc.py',
-                    CXX = cc,
-                    CXXFLAGS = [])
-  env.Program(target = 'test1', source = 'test1.c')
+  env = Environment(LINK=r'%(_python_)s mylink.py',
+                    LINKFLAGS=[],
+                    CC=r'%(_python_)s mycc.py',
+                    CXX=cc,
+                    CXXFLAGS=[])
+  env.Program(target='test1', source='test1.c')
   """ % locals())
 
 Here the value of ``_python_`` is picked out of the script's
-``locals`` dictionary and interpolated into the string that
-will be written to ``SConstruct``.
+``locals`` dictionary - which works because we've set it above -
+and interpolated using a mapping key into the string that will
+be written to ``SConstruct``. A fixture would be hard to use
+here because we don't know the value of `_python_` until runtime.
 
 The other files created in this test may still be candidates for
-use in a fixture, however.
+use as fixture files, however.
 
 Debugging End-to-End Tests
 ==========================
 
 Most of the end to end tests have expectations for standard output
-and error from the test runs. The expectation could be either
+and error embedded in the tests. The expectation could be either
 that there is nothing on that stream, or that it will contain
 very specific text which the test matches against. So adding
-``print()`` calls, or ``sys,stderr.write()`` or similar will
-emit data that the tests do not expect, and cause further failures.
+``print()`` calls, or ``sys.stderr.write()`` or similar will
+emit data that the tests do not expect, and thus cause further
+failures - possibly even obscuring the original error.
 Say you have three different tests in a script, and the third
 one is unexpectedly failing. You add some debug prints to the
 part of scons that is involved, and now the first test of the
@@ -445,7 +491,15 @@ to the third test you were trying to debug.
 
 Still, there are some techniques to help debugging.
 
-Probably the most effective technique is to use the internal
+The first step should be to run the tests so the harness
+emits more information, without forcing more information into
+the test stdout/stderr which will confuse result evaulation.
+``runtest.py`` has several verbose levels which can be used
+for this purpose:
+
+  python runtest.py --verbose=2 test/foo.py
+
+You can also use the internal
 ``SCons.Debug.Trace()`` function, which prints output to
 ``/dev/tty`` on Linux/UNIX systems and ``con`` on Windows systems,
 so you can see what's going on.
