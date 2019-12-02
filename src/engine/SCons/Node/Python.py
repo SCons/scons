@@ -152,7 +152,6 @@ class Value(SCons.Node.Node):
             # Already encoded as python2 str are bytes
             return text_contents
 
-
     def changed_since_last_build(self, target, prev_ni):
         cur_csig = self.get_csig()
         try:

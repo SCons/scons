@@ -741,12 +741,12 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         if self.depends is not None:
             for d in self.depends:
                 if d.missing():
-                    msg = "Explicit dependency `%s' not found, needed by target `%s'."
+                    msg = "Explicit dependency '%s' not found, needed by target '%s'."
                     raise SCons.Errors.StopError(msg % (d, self))
         if self.implicit is not None:
             for i in self.implicit:
                 if i.missing():
-                    msg = "Implicit dependency `%s' not found, needed by target `%s'."
+                    msg = "Implicit dependency '%s' not found, needed by target '%s'."
                     raise SCons.Errors.StopError(msg % (i, self))
         self.binfo = self.get_binfo()
 
