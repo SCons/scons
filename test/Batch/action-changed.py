@@ -59,8 +59,10 @@ os.chmod(test.workpath('build.py'), 0o755)
 
 build_py_workpath = test.workpath('build.py')
 
+# Provide IMPLICIT_COMMAND_DEPENDENCIES=2 so we take a dependency on build.py.
+# Without that, we only scan the first entry in the action string.
 test.write('SConstruct', """
-env = Environment()
+env = Environment(IMPLICIT_COMMAND_DEPENDENCIES=2)
 env.PrependENVPath('PATHEXT', '.PY')
 bb = Action(r'%(_python_)s "%(build_py_workpath)s" $CHANGED_TARGETS -- $CHANGED_SOURCES',
             batch_key=True,
