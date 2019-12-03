@@ -980,18 +980,36 @@ class CommandAction(_ActionAction):
         if is_String(icd) and icd[:1] == '$':
             icd = env.subst(icd)
 
-        # Several tests depend upon this function disambiguating the source and
-        # target lists.
-        # TODO: Is this a bad idea?
-        for s in source:
-            s.disambiguate()
-        for t in target:
-            t.disambiguate()
-
         if not icd or icd in ('0', 'None'):
             return []
 
-        # Avoid circular and duplicate dependencies by not provide source,
+        if icd in ['2', 2]:
+            return self._get_implicit_deps_heavyweight(target, source, env, executor)
+        else:
+            # Everything else (usually 1 or True) means that we want
+            # lightweight dependency scanning.
+            return self._get_implicit_deps_lightweight(target, source, env, executor)
+
+    def _get_implicit_deps_lightweight(self, target, source, env, executor):
+        from SCons.Subst import SUBST_SIG
+        if executor:
+            cmd_list = env.subst_list(self.cmd_list, SUBST_SIG, executor=executor)
+        else:
+            cmd_list = env.subst_list(self.cmd_list, SUBST_SIG, target, source)
+        res = []
+        for cmd_line in cmd_list:
+            if cmd_line:
+                d = str(cmd_line[0])
+                m = strip_quotes.match(d)
+                if m:
+                    d = m.group(1)
+                d = env.WhereIs(d)
+                if d:
+                    res.append(env.fs.File(d))
+        return res
+
+    def _get_implicit_deps_heavyweight(self, target, source, env, executor):
+        # Avoid circular and duplicate dependencies by not providing source,
         # target, or executor to subst_list. This causes references to
         # $SOURCES, $TARGETS, and all related variables to disappear.
         from SCons.Subst import SUBST_SIG

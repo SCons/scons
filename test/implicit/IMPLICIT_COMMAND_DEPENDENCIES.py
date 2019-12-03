@@ -82,6 +82,7 @@ env.PrependENVPath('PATH', '.')
 env.PrependENVPath('PATHEXT', '.PY')
 env0        = env.Clone(IMPLICIT_COMMAND_DEPENDENCIES = 0)
 env1        = env.Clone(IMPLICIT_COMMAND_DEPENDENCIES = 1)
+env2        = env.Clone(IMPLICIT_COMMAND_DEPENDENCIES = 2)
 envNone     = env.Clone(IMPLICIT_COMMAND_DEPENDENCIES = None)
 envFalse    = env.Clone(IMPLICIT_COMMAND_DEPENDENCIES = False)
 envTrue     = env.Clone(IMPLICIT_COMMAND_DEPENDENCIES = True)
@@ -92,12 +93,13 @@ AlwaysBuild(build_py)
 env.BuildFile('file.out',               'file.in')
 env0.BuildFile('file0.out',             'file.in')
 env1.BuildFile('file1.out',             'file.in')
+env2.BuildFile('file2.out',             'file.in')
 envNone.BuildFile('fileNone.out',       'file.in')
 envFalse.BuildFile('fileFalse.out',     'file.in')
 envTrue.BuildFile('fileTrue.out',       'file.in')
 envTrue.BuildFile('fileQuote.out',      'file.in', BUILD_PY='"build.py"')
 
-env.CdAndBuildFile('cd_file.out',       'file.in')
+env2.CdAndBuildFile('cd_file.out',       'file.in')
 """ % locals())
 
 
@@ -121,13 +123,14 @@ def run_test(extra, python, _python_):
         extra.replace('\\\\n', '\n'))
 
     # Verify that the output matches what is expected.
-    test.must_match('file.out',      expect_extra % 'file.out', mode='r')
+    test.must_match('file.out',      expect_none % 'file.out', mode='r')
     test.must_match('file0.out',     expect_none % 'file0.out', mode='r')
-    test.must_match('file1.out',     expect_extra % 'file1.out', mode='r')
+    test.must_match('file1.out',     expect_none % 'file1.out', mode='r')
+    test.must_match('file2.out',     expect_extra % 'file2.out', mode='r')
     test.must_match('fileNone.out',  expect_none % 'fileNone.out', mode='r')
     test.must_match('fileFalse.out', expect_none % 'fileFalse.out', mode='r')
-    test.must_match('fileTrue.out',  expect_extra % 'fileTrue.out', mode='r')
-    test.must_match('fileQuote.out', expect_extra % 'fileQuote.out', mode='r')
+    test.must_match('fileTrue.out',  expect_none % 'fileTrue.out', mode='r')
+    test.must_match('fileQuote.out', expect_none % 'fileQuote.out', mode='r')
     test.must_match('cd_file.out',   expect_extra % 'cd_file.out', mode='r')
 
 
