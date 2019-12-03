@@ -979,14 +979,23 @@ class CommandAction(_ActionAction):
         icd = env.get('IMPLICIT_COMMAND_DEPENDENCIES', True)
         if is_String(icd) and icd[:1] == '$':
             icd = env.subst(icd)
+
+        # Several tests depend upon this function disambiguating the source and
+        # target lists.
+        # TODO: Is this a bad idea?
+        for s in source:
+            s.disambiguate()
+        for t in target:
+            t.disambiguate()
+
         if not icd or icd in ('0', 'None'):
             return []
-        from SCons.Subst import SUBST_SIG
 
-        # Avoid circular and duplicate dependencies by not provide source and
-        # target to subst_list. This causes references to $SOURCES, $TARGETS,
-        # and all related variables to disappear.
-        cmd_list = env.subst_list(self.cmd_list, SUBST_SIG, [], [])
+        # Avoid circular and duplicate dependencies by not provide source,
+        # target, or executor to subst_list. This causes references to
+        # $SOURCES, $TARGETS, and all related variables to disappear.
+        from SCons.Subst import SUBST_SIG
+        cmd_list = env.subst_list(self.cmd_list, SUBST_SIG)
         res = []
 
         for cmd_line in cmd_list:
