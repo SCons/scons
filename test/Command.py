@@ -44,6 +44,7 @@ test.write(['expand_chdir_sub', 'subbuild.py'], build_py)
 
 test.write('SConstruct', """
 import os
+import sys
 
 def buildIt(env, target, source):
     with open(str(target[0]), 'w') as f, open(str(source[0]), 'r') as infp:
@@ -61,6 +62,19 @@ def sub(env, target, source):
             with open(os.path.join(source, f), 'r') as s:
                 t.write(s.read())
     return 0
+
+def source_scanner(node, env, path, builder):
+    print("Source scanner node=", node, "builder =", builder,file=sys.stderr)
+    return []
+
+
+def target_scanner(node, env, path, builder):
+    print("Target scanner node=", node, "builder =", builder,file=sys.stderr)
+    return []
+
+def factory(node,*lst,**kw):
+    print("factory called on:",node,file=sys.stderr)
+    return env.File(node)
 
 env = Environment(COPY_THROUGH_TEMP = r'%(_python_)s build.py .tmp $SOURCE' + '\\n' + r'%(_python_)s build.py $TARGET .tmp',
                   EXPAND = '$COPY_THROUGH_TEMP')
@@ -82,6 +96,19 @@ env.Command(target = 'f7.out', source = 'f7.in',
             action = r'%(_python_)s build.py $TARGET $SOURCE')
 Command(target = 'f8.out', source = 'f8.in',
         action = r'%(_python_)s build.py $TARGET $SOURCE')
+env.Command(target = 'f7s.out', source = 'f7.in',
+            action = r'%(_python_)s build.py $TARGET $SOURCE',
+            target_scanner=Scanner(lambda node, env, path: target_scanner(node, env, path, "w-env")),
+            source_scanner=Scanner(lambda node, env, path: source_scanner(node, env, path, "w-env")))
+Command(target = 'f8s.out', source = 'f8.in',
+        action = r'%(_python_)s build.py $TARGET $SOURCE',
+        target_scanner=Scanner(lambda node, env, path: target_scanner(node, env, path, "wo-env")),
+        source_scanner=Scanner(lambda node, env, path: source_scanner(node, env, path, "wo-env")))
+Command(target = 'f8f.out', source = 'f8.in',
+        action = r'%(_python_)s build.py $TARGET $SOURCE',
+        target_factory=factory,
+        source_factory=factory
+        )
 env.Command(target = 'f9.out', source = 'f9.in',
             action = r'$EXPAND')
 env.Command(target = '${F10}.out', source = '${F10}.in',
@@ -108,7 +135,18 @@ test.write('f9.in', "f9.in\n")
 test.write('f10.in', "f10.in\n")
 test.write(['expand_chdir_sub', 'f11.in'], "expand_chdir_sub/f11.in\n")
 
-test.run(arguments = '.')
+test_str = r'''factory called on: f8.in
+factory called on: f8f.out
+Source scanner node= f7.in builder = w-env
+Target scanner node= f7s.out builder = w-env
+Source scanner node= f8.in builder = wo-env
+Target scanner node= f8s.out builder = wo-env
+'''
+
+out = test.run(arguments = '.',
+        stderr = test_str,
+        match=TestSCons.match_re_dotall)
+
 
 test.must_match('f1.out', "f1.in\n", mode='r')
 test.must_match('f2.out', "f2.in\n", mode='r')
@@ -118,6 +156,8 @@ test.must_match('f5.out', "XYZZY is set\nf5.in\n", mode='r')
 test.must_match('f6.out', "f6.in\n", mode='r')
 test.must_match('f7.out', "f7.in\n", mode='r')
 test.must_match('f8.out', "f8.in\n", mode='r')
+test.must_match('f7s.out', "f7.in\n", mode='r')
+test.must_match('f8s.out', "f8.in\n", mode='r')
 test.must_match('f9.out', "f9.in\n", mode='r')
 test.must_match('f10.out', "f10.in\n", mode='r')
 test.must_match(['expand_chdir_sub', 'f11.out'], "expand_chdir_sub/f11.in\n", mode='r')

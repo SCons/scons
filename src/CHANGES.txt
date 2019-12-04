@@ -5,6 +5,9 @@
                             Change Log
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
+  From Jason Kenny
+    - Update Command() function to accept target_scanner, source_factory, and target_factory arguments.
+      This make Command act more like a one-off builder.
 
   From Philipp Maierhöfer:
     - Avoid crash with UnicodeDecodeError on Python 3 when a Latex log file in
