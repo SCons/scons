@@ -224,7 +224,7 @@ def build_wxsfile(target, source, env):
 # setup function
 #
 def create_default_directory_layout(root, NAME, VERSION, VENDOR, filename_set):
-    """ Create the wix default target directory layout and return the innermost
+    r""" Create the wix default target directory layout and return the innermost
     directory.
 
     We assume that the XML tree delivered in the root argument already contains
