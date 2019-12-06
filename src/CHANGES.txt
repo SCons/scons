@@ -16,6 +16,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Tim Gates
     - Resolved a typo in engine.SCons.Tool
 
+  From Adam Gross:
+    - Resolved a race condition in multithreaded Windows builds with Python 2
+      in the case where a child process is spawned while a Python action has a
+      file open.
+
   From Ivan Kravets
     - Added support for "-imacros" to ParseFlags
 
