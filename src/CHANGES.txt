@@ -5,6 +5,9 @@
                             Change Log
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
+  From Jason Kenny
+    - Update Command() function to accept target_scanner, source_factory, and target_factory arguments.
+      This make Command act more like a one-off builder.
 
   From Edoardo Bezzeccheri
     - Added debug option "action_timestamps" which outputs to stdout the absolute start and end time for each target.

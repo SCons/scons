@@ -1987,9 +1987,22 @@ class Base(SubstitutionEnvironment):
             'target_factory' : self.fs.Entry,
             'source_factory' : self.fs.Entry,
         }
+        # source scanner
         try: bkw['source_scanner'] = kw['source_scanner']
         except KeyError: pass
         else: del kw['source_scanner']
+        #target scanner
+        try: bkw['target_scanner'] = kw['target_scanner']
+        except KeyError: pass
+        else: del kw['target_scanner']
+        #source factory
+        try: bkw['source_factory'] = kw['source_factory']
+        except KeyError: pass
+        else: del kw['source_factory']
+        #target factory
+        try: bkw['target_factory'] = kw['target_factory']
+        except KeyError: pass
+        else: del kw['target_factory']
         bld = SCons.Builder.Builder(**bkw)
         return bld(self, target, source, **kw)
 
