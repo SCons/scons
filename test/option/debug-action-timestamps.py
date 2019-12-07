@@ -34,13 +34,13 @@ def setup_fixtures():
     test.file_fixture('../fixture/SConstruct_test_main.py', 'SConstruct')
 
 def test_help_function():
-    # Before anything else, make sure we get valid --debug=action_timestamps results
+    # Before anything else, make sure we get valid --debug=action-timestamps results
     # when just running the help option.
-    test.run(arguments = "-h --debug=action_timestamps")
+    test.run(arguments = "-h --debug=action-timestamps")
     
 def build():
     # Execute build
-    test.run(arguments='--debug=action_timestamps')
+    test.run(arguments='--debug=action-timestamps')
     build_output = test.stdout()
     return build_output
 
@@ -84,8 +84,8 @@ def test_correctness_of_timestamps(build_output):
 
 debug_time_patterns = [
     r'Command execution time: (.*): (\d+\.\d+) seconds',
-    r'Command execution start time: (.*): (\d+\.\d+) seconds',
-    r'Command execution stop time: (.*): (\d+\.\d+) seconds'
+    r'Command execution start timestamp: (.*): (\d+\.\d+)',
+    r'Command execution end timestamp: (.*): (\d+\.\d+)'
 ]
 
 test = TestSCons.TestSCons()
