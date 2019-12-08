@@ -67,7 +67,6 @@ def source_scanner(node, env, path, builder):
     print("Source scanner node=", node, "builder =", builder,file=sys.stderr)
     return []
 
-
 def target_scanner(node, env, path, builder):
     print("Target scanner node=", node, "builder =", builder,file=sys.stderr)
     return []
