@@ -142,9 +142,9 @@ Source scanner node= f8.in builder = wo-env
 Target scanner node= f8s.out builder = wo-env
 '''
 
-out = test.run(arguments = '.',
-        stderr = test_str,
-        match=TestSCons.match_re_dotall)
+out = test.run(arguments='.',
+               stderr=test_str,
+               match=TestSCons.match_re_dotall)
 
 
 test.must_match('f1.out', "f1.in\n", mode='r')
@@ -159,7 +159,8 @@ test.must_match('f7s.out', "f7.in\n", mode='r')
 test.must_match('f8s.out', "f8.in\n", mode='r')
 test.must_match('f9.out', "f9.in\n", mode='r')
 test.must_match('f10.out', "f10.in\n", mode='r')
-test.must_match(['expand_chdir_sub', 'f11.out'], "expand_chdir_sub/f11.in\n", mode='r')
+test.must_match(['expand_chdir_sub', 'f11.out'],
+                "expand_chdir_sub/f11.in\n", mode='r')
 
 test.pass_test()
 
