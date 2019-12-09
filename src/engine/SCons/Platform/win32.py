@@ -89,11 +89,14 @@ else:
                 mode += 'N'
             return mode
 
-        def _scons_file(name, mode=None, *args, **kwargs):
-            return _builtin_file(name, _scons_fixup_mode(mode), *args, **kwargs)
+        class _scons_file(_builtin_file):
+            def __init__(self, name, mode=None, *args, **kwargs):
+                _builtin_file.__init__(self, name, _scons_fixup_mode(mode),
+                                       *args, **kwargs)
 
         def _scons_open(name, mode=None, *args, **kwargs):
-            return _builtin_open(name, _scons_fixup_mode(mode), *args, **kwargs)
+            return _builtin_open(name, _scons_fixup_mode(mode),
+                                 *args, **kwargs)
 
         __builtin__.file = _scons_file
         __builtin__.open = _scons_open
