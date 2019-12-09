@@ -18,6 +18,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Tim Gates
     - Resolved a typo in engine.SCons.Tool
 
+  From Adam Gross:
+    - Resolved a race condition in multithreaded Windows builds with Python 2
+      in the case where a child process is spawned while a Python action has a
+      file open. Original author: Ryan Beasley.
+
   From Jason Kenny
     - Update Command() function to accept target_scanner, source_factory, and target_factory arguments.
       This makes Command act more like a one-off builder.
