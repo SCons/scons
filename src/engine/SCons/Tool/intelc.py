@@ -387,7 +387,7 @@ def get_intel_compiler_top(version, abi):
 
 
 def generate(env, version=None, abi=None, topdir=None, verbose=0):
-    """Add Builders and construction variables for Intel C/C++ compiler
+    r"""Add Builders and construction variables for Intel C/C++ compiler
     to an Environment.
     args:
       version: (string) compiler version to use, like "80"
@@ -551,7 +551,7 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
         # Look for license file dir
         # in system environment, registry, and default location.
         envlicdir = os.environ.get("INTEL_LICENSE_FILE", '')
-        K = ('SOFTWARE\Intel\Licenses')
+        K = r'SOFTWARE\Intel\Licenses'
         try:
             k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE, K)
             reglicdir = SCons.Util.RegQueryValueEx(k, "w_cpp")[0]

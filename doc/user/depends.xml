@@ -764,6 +764,7 @@ int main() { printf("Hello, world!\n"); }
     encounter them in older &SConscript; files.
 
     </para>
+  </section>
   
   <section>
   <title>Implicit Dependencies:  The &cv-CPPPATH; Construction Variable</title>

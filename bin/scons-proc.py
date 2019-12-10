@@ -32,8 +32,8 @@ Options:
   -t file(s)        dump tool information to the specified file(s)
   -v file(s)        dump variable information to the specified file(s)
   
-  Regard that each -[btv] argument is a pair of
-  comma-separated .gen,.mod file names.
+  The "files" argument following a -[bftv] argument is expected to
+  be a comma-separated pair of names like: foo.gen,foo.mod
   
 """
 
@@ -70,7 +70,9 @@ def parse_docs(args, include_entities=True):
                 sys.stderr.write("error in %s\n" % f)
                 raise
         else:
-            content = open(f).read()
+            # mode we read (text/bytes) has to match handling in SConsDoc
+            with open(f, 'r') as fp:
+                content = fp.read()
             if content:
                 try:
                     h.parseContent(content, include_entities)
@@ -166,6 +168,7 @@ class SCons_XML(object):
         # Write file        
         f = self.fopen(filename)
         stf.writeGenTree(root, f)
+        f.close()
             
     def write_mod(self, filename):
         try:
@@ -212,6 +215,7 @@ class SCons_XML(object):
                              v.tag, v.entityfunc(), v.tag))
         f.write('\n')
         f.write(Warning)
+        f.close()
 
 class Proxy(object):
     def __init__(self, subject):
@@ -348,7 +352,7 @@ processor_class = SCons_XML
 
 # Step 1: Creating entity files for builders, functions,...
 print("Generating entity files...")
-h = parse_docs(args, False)
+h = parse_docs(args, include_entities=False)
 write_output_files(h, buildersfiles, functionsfiles, toolsfiles,
                    variablesfiles, SCons_XML.write_mod)
 
@@ -362,7 +366,7 @@ else:
 # Step 3: Creating actual documentation snippets, using the
 #         fully resolved and updated entities from the *.mod files.
 print("Updating documentation for builders, tools and functions...")
-h = parse_docs(args, True)
+h = parse_docs(args, include_entities=True)
 write_output_files(h, buildersfiles, functionsfiles, toolsfiles,
                    variablesfiles, SCons_XML.write)
 print("Done")

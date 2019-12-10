@@ -622,7 +622,7 @@ def Parser(version):
     debug_options = ["count", "duplicate", "explain", "findlibs",
                      "includes", "memoizer", "memory", "objects",
                      "pdb", "prepare", "presub", "stacktrace",
-                     "time", "action_timestamps"]
+                     "time", "action-timestamps"]
 
     def opt_debug(option, opt, value__, parser,
                   debug_options=debug_options,

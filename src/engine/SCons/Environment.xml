@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
 __COPYRIGHT__
 
@@ -937,19 +937,29 @@ for a single special-case build.
 </para>
 
 <para>
-As a special case, the
-<varname>source_scanner</varname>
-keyword argument can
+&b-Command; builder accepts
+<varname>source_scanner</varname>,
+<varname>target_scanner</varname>,
+<varname>source_factory</varname>, and
+<varname>target_factory</varname>
+keyword arguments. The *_scanner args can
 be used to specify
 a Scanner object
-that will be used to scan the sources.
-(The global
+that will be used to apply a custom
+scanner for a source or target.
+For example, the global
 <literal>DirScanner</literal>
 object can be used
 if any of the sources will be directories
 that must be scanned on-disk for
 changes to files that aren't
-already specified in other Builder of function calls.)
+already specified in other Builder of function calls.
+The *_factory args take a factory function that the
+Command will use to turn any sources or targets
+specified as strings into SCons Nodes.
+See the sections "Builder Objects"
+below, for more information about how these
+args work in a Builder.
 </para>
 
 <para>
@@ -1414,7 +1424,7 @@ This SConstruct:
 
 <example_commands>
 env=Environment()
-print env.Dump('CCCOM')
+print(env.Dump('CCCOM'))
 </example_commands>
 
 <para>
@@ -1431,7 +1441,7 @@ While this SConstruct:
 
 <example_commands>
 env=Environment()
-print env.Dump()
+print(env.Dump())
 </example_commands>
 
 <para>
@@ -3118,7 +3128,7 @@ Example:
 </para>
 
 <example_commands>
-print env.subst("The C compiler is: $CC")
+print(env.subst("The C compiler is: $CC"))
 
 def compile(target, source, env):
     sourceDir = env.subst("${SOURCE.srcdir}",
