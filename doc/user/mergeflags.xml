@@ -77,7 +77,7 @@ env = Environment()
 env.Append(CCFLAGS = '-option -O3 -O1')
 flags = { 'CCFLAGS' : '-whatever -O3' }
 env.MergeFlags(flags)
-print env['CCFLAGS']
+print(env['CCFLAGS'])
    </file>
  </scons_example>
 
@@ -104,7 +104,7 @@ env = Environment()
 env.Append(CPPPATH = ['/include', '/usr/local/include', '/usr/include'])
 flags = { 'CPPPATH' : ['/usr/opt/include', '/usr/local/include'] }
 env.MergeFlags(flags)
-print env['CPPPATH']
+print(env['CPPPATH'])
    </file>
  </scons_example>
 
@@ -138,8 +138,8 @@ env = Environment()
 env.Append(CCFLAGS = '-option -O3 -O1')
 env.Append(CPPPATH = ['/include', '/usr/local/include', '/usr/include'])
 env.MergeFlags('-whatever -I/usr/opt/include -O3 -I/usr/local/include')
-print env['CCFLAGS']
-print env['CPPPATH']
+print(env['CCFLAGS'])
+print(env['CPPPATH'])
    </file>
  </scons_example>
 

@@ -5700,11 +5700,11 @@ which can be octal or string, similar to the bash command.
 Examples:</para>
 
 <literallayout class="monospaced">
-Execute(Chmod('file', 0755))
+Execute(Chmod('file', 0o755))
 
 env.Command('foo.out', 'foo.in',
             [Copy('$TARGET', '$SOURCE'),
-             Chmod('$TARGET', 0755)])
+             Chmod('$TARGET', 0o755)])
 
 Execute(Chmod('file', "ugo+w"))
 
