@@ -161,11 +161,18 @@ def get_host_target(env):
     if not host_platform:
         host_platform = platform.machine()
 
+    # Solaris returns i86pc for both 32 and 64 bit architectures
+    if host_platform == "i86pc":
+        if platform.architecture()[0] == "64bit":
+            host_platform = "amd64"
+        else:
+            host_platform = "x86"
+
     # Retain user requested TARGET_ARCH
     req_target_platform = env.get('TARGET_ARCH')
     debug('get_host_target() req_target_platform:%s'%req_target_platform)
 
-    if  req_target_platform:
+    if req_target_platform:
         # If user requested a specific platform then only try that one.
         target_platform = req_target_platform
     else:

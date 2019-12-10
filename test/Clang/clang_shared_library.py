@@ -35,7 +35,7 @@ if not test.where_is('clang'):
 
 base = Base()
 platform = base['PLATFORM']
-if platform == 'posix':
+if platform in ['posix', 'sunos']:
     filename_options = ['foo.os']
     libraryname = 'libfoo.so'
 elif platform == 'darwin':

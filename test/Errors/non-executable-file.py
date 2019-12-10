@@ -54,7 +54,7 @@ scons: \\*\\*\\* \\[%s\\] Error 1
 """
 
 cannot_execute = """\
-(sh: )*.+: cannot execute
+(sh: )*.+: cannot execute( \\[Permission denied\\])?
 scons: \\*\\*\\* \\[%s\\] Error %s
 """
 
@@ -87,10 +87,6 @@ if os.name == 'nt':
         unrecognized % 'f1',
         konnte_nicht_gefunden_werden % ('f1', 1),
         unspecified % 'f1'
-    ]
-elif sys.platform.find('sunos') != -1:
-    errs = [
-        cannot_execute % ('f1', 1),
     ]
 else:
     errs = [

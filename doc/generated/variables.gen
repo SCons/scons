@@ -2602,7 +2602,8 @@ is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
   </varlistentry>
   <varlistentry id="cv-HOST_ARCH">
     <term>HOST_ARCH</term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Sets the host architecture for Visual Studio compiler. If not set,
 default to the detected host architecture: note that this may depend
 on the python you are using.
@@ -2618,7 +2619,8 @@ Valid values are the same as for <envar>$TARGET_ARCH</envar>.
 This is currently only used on Windows, but in the future it will be
 used on other OSes as well.
 </para>
-<para>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
         The name of the host hardware architecture used to create the Environment.
         If a platform is specified when creating the Environment, then
         that Platform's logic will handle setting this value.
@@ -2691,7 +2693,7 @@ to <literal>'.dll'</literal>.
     <listitem><para>
 Used to override <link linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link>/<link linkend="cv-LDMODULEVERSION"><envar>$LDMODULEVERSION</envar></link> when
 generating versioned import library for a shared library/loadable module. If
-undefined, the <link linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link>/<link linkend="cv-LDMODULEVERSION"><envar>$LDMODULEVERSION</envar></link> is used to
+undefined, the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link>/<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-LDMODULEVERSION"><envar>$LDMODULEVERSION</envar></link> is used to
 determine the version of versioned import library.
 </para>
 </listitem>
@@ -2849,7 +2851,7 @@ The command line used to call the Java archive tool.
     <listitem><para>
 The string displayed when the Java archive tool
 is called
-If this is not set, then <envar>$JARCOM</envar> (the command line) is displayed.
+If this is not set, then <envar xmlns="http://www.scons.org/dbxsd/v1.0">$JARCOM</envar> (the command line) is displayed.
 </para>
 
 <example_commands>
@@ -2858,7 +2860,7 @@ env = Environment(JARCOMSTR = "JARchiving $SOURCES into $TARGET")
 <para>
 The string displayed when the Java archive tool
 is called
-If this is not set, then <link linkend="cv-JARCOM"><envar>$JARCOM</envar></link> (the command line) is displayed.
+If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-JARCOM"><envar>$JARCOM</envar></link> (the command line) is displayed.
 </para>
 
 <example_commands>
@@ -3205,6 +3207,17 @@ general information on specifying emitters.
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-LDMODULEEMITTER">
+    <term>LDMODULEEMITTER</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Contains the emitter specification for the
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-LoadableModule"><function>LoadableModule</function></link> builder.
+The manpage section "Builder Objects" contains
+general information on specifying emitters.
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-LDMODULEFLAGS">
     <term>LDMODULEFLAGS</term>
     <listitem><para>
@@ -3359,9 +3372,10 @@ when the <envar>$_LIBDIRFLAGS</envar> variable is automatically generated.
   </varlistentry>
   <varlistentry id="cv-LIBEMITTER">
     <term>LIBEMITTER</term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Contains the emitter specification for the
-<link linkend="b-StaticLibrary"><function>StaticLibrary</function></link> builder.
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-StaticLibrary"><function>StaticLibrary</function></link> builder.
 The manpage section "Builder Objects" contains
 general information on specifying emitters.
 </para>
@@ -4741,9 +4755,10 @@ for example.
   </varlistentry>
   <varlistentry id="cv-PROGEMITTER">
     <term>PROGEMITTER</term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Contains the emitter specification for the
-<link linkend="b-Program"><function>Program</function></link> builder.
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-Program"><function>Program</function></link> builder.
 The manpage section "Builder Objects" contains
 general information on specifying emitters.
 </para>
@@ -5981,9 +5996,10 @@ If this is not set, then <link linkend="cv-SHFORTRANPPCOM"><envar>$SHFORTRANPPCO
   </varlistentry>
   <varlistentry id="cv-SHLIBEMITTER">
     <term>SHLIBEMITTER</term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Contains the emitter specification for the
-<link linkend="b-SharedLibrary"><function>SharedLibrary</function></link> builder.
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link> builder.
 The manpage section "Builder Objects" contains
 general information on specifying emitters.
 </para>
@@ -6024,12 +6040,22 @@ The suffix used for shared library file names.
     <term>SHLIBVERSION</term>
     <listitem><para>
 When this construction variable is defined, a versioned shared library
-is created by the <link linkend="b-SharedLibrary"><function>SharedLibrary</function></link> builder. This activates the
-<link linkend="cv-_SHLIBVERSIONFLAGS"><envar>$_SHLIBVERSIONFLAGS</envar></link> and thus modifies the <link linkend="cv-SHLINKCOM"><envar>$SHLINKCOM</envar></link> as
+is created by the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link> builder. This activates the
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-_SHLIBVERSIONFLAGS"><envar>$_SHLIBVERSIONFLAGS</envar></link> and thus modifies the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLINKCOM"><envar>$SHLINKCOM</envar></link> as
 required, adds the version number to the library name, and creates the symlinks
 that are needed.  <link linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> versions should exist as alpha-numeric,
 decimal-delimited values as defined by the regular expression "\w+[\.\w+]*".
 Example <link linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> values include '1', '1.2.3', and '1.2.gitaa412c8b'.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-SHLIBVERSIONFLAGS">
+    <term>SHLIBVERSIONFLAGS</term>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Extra flags added to <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLINKCOM"><envar>$SHLINKCOM</envar></link> when building versioned
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link>. These flags are only used when <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> is
+set.
 </para>
 </listitem>
   </varlistentry>
@@ -6042,15 +6068,6 @@ is set). <literal>_SHLIBVERSIONFLAGS</literal> usually adds <link linkend="cv-SH
 and some extra dynamically generated options (such as
 <literal>-Wl,-soname=$_SHLIBSONAME</literal>. It is unused by "plain"
 (unversioned) shared libraries.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-SHLIBVERSIONFLAGS">
-    <term>SHLIBVERSIONFLAGS</term>
-    <listitem><para>
-Extra flags added to <link linkend="cv-SHLINKCOM"><envar>$SHLINKCOM</envar></link> when building versioned
-<link linkend="b-SharedLibrary"><function>SharedLibrary</function></link>. These flags are only used when <link linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> is
-set.
 </para>
 </listitem>
   </varlistentry>
@@ -6484,7 +6501,8 @@ for more information).
   </varlistentry>
   <varlistentry id="cv-TARGET_ARCH">
     <term>TARGET_ARCH</term>
-    <listitem><para>
+    <listitem>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Sets the target architecture for Visual Studio compiler (i.e. the arch
 of the binaries generated by the compiler). If not set, default to
 <envar>$HOST_ARCH</envar>, or, if that is unset, to the architecture of the
@@ -6515,7 +6533,8 @@ and <literal>ia64</literal> (Itanium).
 For example, if you want to compile 64-bit binaries, you would set
 <literal>TARGET_ARCH='x86_64'</literal> in your SCons environment.
 </para>
-<para>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
         The name of the target hardware architecture for the compiled objects
         created by this Environment.
         This defaults to the value of HOST_ARCH, and the user can override it.

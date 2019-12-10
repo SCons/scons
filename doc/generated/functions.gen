@@ -217,6 +217,21 @@ AddOption('--prefix',
           help='installation prefix')
 env = Environment(PREFIX = GetOption('prefix'))
 </example_commands>
+
+<note xmlns="http://www.scons.org/dbxsd/v1.0">
+<para>
+While <function xmlns="http://www.scons.org/dbxsd/v1.0">AddOption</function> behaves like
+<function>optparse.add_option</function>,
+the behavior of options added by <function xmlns="http://www.scons.org/dbxsd/v1.0">AddOption</function>
+which take arguments is underfined in
+<command>scons</command> if whitespace
+(rather than <literal>=</literal> sign) is used as
+the separator on the command line when
+the option is invoked.
+Such usage should be avoided.
+</para>
+</note>
+
 </listitem>
   </varlistentry>
   <varlistentry id="f-AddPostAction">
@@ -436,7 +451,7 @@ Otherwise, the construction variable
 and the value of the keyword argument
 are both coerced to lists,
 and the lists are added together.
-(See also the <function>Prepend</function> method).
+(See also the <function xmlns="http://www.scons.org/dbxsd/v1.0">Prepend</function> method).
 </para>
 
 <para>
@@ -920,7 +935,8 @@ env['DISTDIR'] = 'destination/directory'
 env.Command(env.Dir('$DISTDIR')), None, make_distdir)
 </example_commands>
 
-<para>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Also note that SCons will usually
 automatically create any directory necessary to hold a target file,
 so you normally don't need to create directories by hand.
@@ -4627,7 +4643,7 @@ the <literal>env['ENV']['PATH']</literal> key does not exist,
 the user's current external <envar>PATH</envar>
 (<literal>os.environ['PATH']</literal>) is used as fallback.
 </para>
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 On Windows systems, searches for executable
 programs with any of the file extensions listed in the
 <varname>pathext</varname> keyword argument,
@@ -4641,14 +4657,14 @@ is used as a fallback if <varname>pathext</varname> is
 and the key <literal>env['ENV']['PATHEXT']</literal>
 does not exist.
 </para>
-<para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Will not select any
 path name or names
 in the specified
 <varname>reject</varname>
 list, if any.
 </para>
-<note>
+<note xmlns="http://www.scons.org/dbxsd/v1.0">
 <para>
 If you would prefer to search
 the user's current external <envar>PATH</envar>
