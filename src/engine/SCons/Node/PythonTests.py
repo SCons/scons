@@ -113,7 +113,7 @@ class ValueBuildInfoTestCase(unittest.TestCase):
 
 
 class ValueMemoTestCase(unittest.TestCase):
-    def test___init__(self):
+    def test_memo(self):
         """Test memoization"""
         # First confirm that ValueWithMemo does memoization.
         value1 = SCons.Node.Python.ValueWithMemo('vvv')
@@ -126,9 +126,7 @@ class ValueMemoTestCase(unittest.TestCase):
         value3 = ni.str_to_node('vvv')
         assert value1 is value3
 
-
-class BuiltValueNoMemoTestCase(unittest.TestCase):
-    def test___init__(self):
+    def test_built_value(self):
         """Confirm that built values are not memoized."""
         v1 = SCons.Node.Python.Value('c', 'ca')
         v2 = SCons.Node.Python.Value('c', 'ca')
