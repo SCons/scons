@@ -1175,44 +1175,12 @@ def unique(s):
     return u
 
 
-
-# From Alex Martelli,
-# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52560
-# ASPN: Python Cookbook: Remove duplicates from a sequence
-# First comment, dated 2001/10/13.
-# (Also in the printed Python Cookbook.)
-# This not currently used, in favor of the next function...
-
-def uniquer(seq, idfun=None):
-    def default_idfun(x):
-        return x
-    if not idfun:
-        idfun = default_idfun
-    seen = {}
-    result = []
-    for item in seq:
-        marker = idfun(item)
-        # in old Python versions:
-        # if seen.has_key(marker)
-        # but in new ones:
-        if marker in seen: continue
-        seen[marker] = 1
-        result.append(item)
-    return result
-
 # A more efficient implementation of Alex's uniquer(), this avoids the
 # idfun() argument and function-call overhead by assuming that all
 # items in the sequence are hashable.
 
 def uniquer_hashables(seq):
-    seen = {}
-    result = []
-    for item in seq:
-        #if not item in seen:
-        if item not in seen:
-            seen[item] = 1
-            result.append(item)
-    return result
+    return list(set(seq))
 
 
 # Recipe 19.11 "Reading Lines with Continuation Characters",
@@ -1249,95 +1217,10 @@ class LogicalLines(object):
         return result
 
 
-class UniqueList(UserList):
-    def __init__(self, seq = []):
-        UserList.__init__(self, seq)
-        self.unique = True
-    def __make_unique(self):
-        if not self.unique:
-            self.data = uniquer_hashables(self.data)
-            self.unique = True
-    def __lt__(self, other):
-        self.__make_unique()
-        return UserList.__lt__(self, other)
-    def __le__(self, other):
-        self.__make_unique()
-        return UserList.__le__(self, other)
-    def __eq__(self, other):
-        self.__make_unique()
-        return UserList.__eq__(self, other)
-    def __ne__(self, other):
-        self.__make_unique()
-        return UserList.__ne__(self, other)
-    def __gt__(self, other):
-        self.__make_unique()
-        return UserList.__gt__(self, other)
-    def __ge__(self, other):
-        self.__make_unique()
-        return UserList.__ge__(self, other)
-    def __cmp__(self, other):
-        self.__make_unique()
-        return UserList.__cmp__(self, other)
-    def __len__(self):
-        self.__make_unique()
-        return UserList.__len__(self)
-    def __getitem__(self, i):
-        self.__make_unique()
-        return UserList.__getitem__(self, i)
-    def __setitem__(self, i, item):
-        UserList.__setitem__(self, i, item)
-        self.unique = False
-    def __getslice__(self, i, j):
-        self.__make_unique()
-        return UserList.__getslice__(self, i, j)
-    def __setslice__(self, i, j, other):
-        UserList.__setslice__(self, i, j, other)
-        self.unique = False
-    def __add__(self, other):
-        result = UserList.__add__(self, other)
-        result.unique = False
-        return result
-    def __radd__(self, other):
-        result = UserList.__radd__(self, other)
-        result.unique = False
-        return result
-    def __iadd__(self, other):
-        result = UserList.__iadd__(self, other)
-        result.unique = False
-        return result
-    def __mul__(self, other):
-        result = UserList.__mul__(self, other)
-        result.unique = False
-        return result
-    def __rmul__(self, other):
-        result = UserList.__rmul__(self, other)
-        result.unique = False
-        return result
-    def __imul__(self, other):
-        result = UserList.__imul__(self, other)
-        result.unique = False
-        return result
-    def append(self, item):
-        UserList.append(self, item)
-        self.unique = False
-    def insert(self, i):
-        UserList.insert(self, i)
-        self.unique = False
-    def count(self, item):
-        self.__make_unique()
-        return UserList.count(self, item)
-    def index(self, item):
-        self.__make_unique()
-        return UserList.index(self, item)
-    def reverse(self):
-        self.__make_unique()
-        UserList.reverse(self)
-    def sort(self, *args, **kwds):
-        self.__make_unique()
-        return UserList.sort(self, *args, **kwds)
+class UniqueList(set):
+
     def extend(self, other):
-        UserList.extend(self, other)
-        self.unique = False
+        self.update(set(other))
 
 
 class Unbuffered(object):

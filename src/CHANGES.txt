@@ -46,6 +46,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Improved threading performance by ensuring NodeInfo is shared
       across threads. Results in ~13% improvement for parallel builds
       (-j# > 1) with many shared nodes.
+    - Refactor UniqueList to remove unnecessary and inefficient Python
+      2.2 support code
 
   From Mats Wichmann
     - Replace instances of string find method with "in" checks where
