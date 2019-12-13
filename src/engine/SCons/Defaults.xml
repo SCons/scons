@@ -576,7 +576,7 @@ searching the repositories.
 </arguments>
 <summary>
 <para>
-Creates and returns a default &consenv; object.
+Creates and returns the default &consenv; object.
 The default &consenv; is used internally by SCons
 in order to execute many of the global functions in this list
 (i.e. those not called as methods of a specific
