@@ -572,15 +572,21 @@ searching the repositories.
 
 <scons_function name="DefaultEnvironment">
 <arguments signature="global">
-([args])
+([**kwargs])
 </arguments>
 <summary>
 <para>
-Creates and returns a default construction environment object.
-This construction environment is used internally by SCons
-in order to execute many of the global functions in this list,
-and to fetch source files transparently
+Creates and returns a default &consenv; object.
+The default &consenv; is used internally by SCons
+in order to execute many of the global functions in this list
+(i.e. those not called as methods of a specific
+&consenv;), and to fetch source files transparently
 from source code management systems.
+The default environment is a singleton, so the keyword
+arguments affect it only on the first call, on subsequent
+calls the already-constructed object is returned.
+The default environment can be modified in the same way
+as any &consenv;.
 </para>
 </summary>
 </scons_function>
