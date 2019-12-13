@@ -46,6 +46,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Improved threading performance by ensuring NodeInfo is shared
       across threads. Results in ~13% improvement for parallel builds
       (-j# > 1) with many shared nodes.
+    - Improve performance of Entry.disambiguate() by making check for
+      most common case first, preventing unnecessary IO.
     - Improved DAG walk performance by reducing unnecessary work when
       there are no un-visited children.
 
