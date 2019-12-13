@@ -48,6 +48,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       (-j# > 1) with many shared nodes.
     - Improve performance of Entry.disambiguate() by making check for
       most common case first, preventing unnecessary IO.
+    - Improved DAG walk performance by reducing unnecessary work when
+      there are no un-visited children.
 
   From Mats Wichmann
     - Replace instances of string find method with "in" checks where
