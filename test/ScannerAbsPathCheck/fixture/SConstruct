@@ -32,7 +32,7 @@ env = Environment(BUILDERS={'DummyPythonBuilder': b})
 # Now set some variables that are needed by the scanner and/or the SConscript.
 env.Replace(
     PYTHON=sys.executable,
-    PYPATH=['$SDKROOT', '$SDKROOT\\sdk_subdir'],
+    PYPATH=['$SDKROOT', '$SDKROOT/sdk_subdir'],
     SDKROOT=env.Dir('sdk'),
 )
 sdk_root = env['SDKROOT'].abspath
