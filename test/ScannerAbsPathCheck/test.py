@@ -30,8 +30,6 @@ path_function is set to SCons.Scanner.FindPathDirs(some_var) and env[some_var]
 contains paths relative to the SConstruct root.
 """
 
-import os
-
 import TestSCons
 
 test = TestSCons.TestSCons()

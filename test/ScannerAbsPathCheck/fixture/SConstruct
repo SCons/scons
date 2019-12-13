@@ -16,6 +16,7 @@ def verify_paths(node, env, scanpaths, arg):
     if scanpaths[1].abspath != sdk_root_subdir:
         raise Exception('Expected second scanpath=%s, got %s.' %
                         (sdk_root_subdir, scanpaths[1].abspath))
+    return []
 
 # Create a scanner that generates a path using the variables in env['PYPATH'].
 pyscan = Scanner(name='pythonfile',
