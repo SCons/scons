@@ -93,72 +93,67 @@
 </refsynopsisdiv>
 
 
-<refsect1 id='description'><title>DESCRIPTION</title>
-<para>The
+<refsect1 id='description'>
+<title>DESCRIPTION</title>
+<para>
 <command>scons</command>
-utility builds software (or other files) by determining which
-component pieces must be rebuilt and executing the necessary commands to
-rebuild them.</para>
+orchestrates the construction of software
+(and other tangible products such as documentation files)
+by determining which
+component pieces must be built or rebuilt and invoking the necessary
+commands to build them.</para>
 
-<para>By default,
-<command>scons</command>
+<para>You instruct
+<command>scons</command> by writing a configuration file
+which specifies the files to be built (<firstterm>targets</firstterm>),
+and, if necessary, the rules to build those files.  Premade
+rules exist for building many common software components
+(such as executable programs, object files, libraries),
+so that for most software projects,
+only the target and input files need be specified.</para>
+
+<para>
+When invoked, <command>scons</command>
 searches for a file named
-<emphasis>SConstruct</emphasis>,
-<emphasis>Sconstruct</emphasis>,
-<emphasis>sconstruct</emphasis>,
-<emphasis>SConstruct.py</emphasis>
-<emphasis>Sconstruct.py</emphasis>
-or
-<emphasis>sconstruct.py</emphasis>
-(in that order) in the current directory and reads its
-configuration from the first file found.
+&SConstruct;
+(going on to check alternative names
+&Sconstruct;, &sconstruct;, &SConstruct.py; &Sconstruct.py;
+and &sconstruct.py;
+in that order) in the current directory and reads its
+configuration from that file.
 An alternate file name may be
 specified via the
 <option>-f</option>
-option.</para>
-
-<para>The
-<emphasis>SConstruct</emphasis>
+option.
+The &SConstruct;
 file can specify subsidiary
 configuration files using the
-<emphasis role="bold">SConscript</emphasis>()
-function.
+&SConscriptFunc; function.
 By convention,
 these subsidiary files are named
-<emphasis>SConscript</emphasis>,
+&SConscript;,
 although any name may be used.
-(Because of this naming convention,
-the term "SConscript files"
-is sometimes used to refer
-generically to all
-<command>scons</command>
-configuration files,
-regardless of actual file name.)</para>
+As a result of this naming convention,
+the term <firstterm>SConscript files</firstterm>
+is often used to refer
+generically to the complete set of
+configuration files for a project,
+including the &SConstruct; file,
+regardless of the actual file names or number of files.</para>
 
-<para>The configuration files
-specify the target files to be built, and
-(optionally) the rules to build those targets.  Reasonable default
-rules exist for building common software components (executable
-programs, object files, libraries), so that for most software
-projects, only the target and input files need be specified.</para>
-
-<para>Before reading the
-<emphasis>SConstruct</emphasis>
-file,
+<para>Before reading the SConscript files,
 <command>scons</command>
 looks for a directory named
-<emphasis>site_scons</emphasis>
-in various system directories (see below) and the directory containing the
-<emphasis>SConstruct</emphasis>
-file; for each of those dirs which exists,
-<emphasis>site_scons</emphasis>
-is prepended to sys.path,
-the file
-<emphasis>site_scons/site_init.py</emphasis>,
-is evaluated if it exists,
+<filename>site_scons</filename>
+in various system directories and the directory containing the
+&SConstruct; file: each such directory which exists
+is prepended to <varname>sys.path</varname>;
+the file <filename>site_init.py</filename>
+is evaluated if it exists in that directory;
 and the directory
-<emphasis>site_scons/site_tools</emphasis>
-is prepended to the default toolpath if it exists.
+<filename>site_tools</filename>
+is prepended to the default toolpath
+if it exists in that directory.
 See the
 <option>--no-site-dir</option>
 and
@@ -169,12 +164,14 @@ options for more details.</para>
 reads and executes the SConscript files as Python scripts,
 so you may use normal Python scripting capabilities
 (such as flow control, data manipulation, and imported Python libraries)
-to handle complicated build situations.
-<command>scons</command>,
-however, reads and executes all of the SConscript files
+to handle complicated build situations.</para>
+
+<para>
+<command>scons</command>
+reads and executes all of the SConscript files
 <emphasis>before</emphasis>
 it begins building any targets.
-To make this obvious,
+To make this clear,
 <command>scons</command>
 prints the following messages about what it is doing:</para>
 
@@ -189,7 +186,7 @@ $
 </literallayout>
 
 <para>The status messages
-(everything except the line that reads "cp foo.in foo.out")
+(lines beginning with the <literal>scons:</literal> tag)
 may be suppressed using the
 <option>-Q</option>
 option.</para>
@@ -209,34 +206,28 @@ that you want to use to build your target files
 are not in standard system locations,
 <command>scons</command>
 will not find them unless
-you explicitly set the <envar>PATH</envar>
+you explicitly set the <command>scons</command>
+<envar>PATH</envar> in the internal environment
 to include those locations.
-Whenever you create an
-<command>scons</command>
-construction environment,
+Whenever you create a &consenv;,
 you can propagate the value of <envar>PATH</envar>
 from your external environment as follows:</para>
 
 <literallayout class="monospaced">
 import os
-env = Environment(ENV = {'PATH' : os.environ['PATH']})
+env = Environment(ENV={'PATH': os.environ['PATH']})
 </literallayout>
 
-<para>Similarly, if the commands use external environment variables
-like
-<envar>PATH</envar>,
-<envar>HOME</envar>,
-<envar>JAVA_HOME</envar>,
-<envar>LANG</envar>,
-<envar>SHELL</envar>,
-<envar>TERM</envar>,
-etc.,
-these variables can also be explicitly propagated:</para>
+<para>Similarly, if the commands use specific
+external environment variables that <command>scons</command>
+does not recognize, they can be propagated into
+the internal environment:</para>
 
 <literallayout class="monospaced">
 import os
-env = Environment(ENV = {'PATH': os.environ['PATH'],
-                         'HOME': os.environ['HOME']})
+env = Environment(ENV={'PATH': os.environ['PATH'],
+                       'ANDROID_HOME': os.environ['ANDROID_HOME'],
+                       'ANDROID_NDK_HOME': os.environ['ANDROID_NDK_HOME']})
 </literallayout>
 
 <para>Or you may explicitly propagate the invoking user's
@@ -244,17 +235,23 @@ complete external environment:</para>
 
 <literallayout class="monospaced">
 import os
-env = Environment(ENV = os.environ)
+env = Environment(ENV=os.environ)
 </literallayout>
 
 <para>This comes at the expense of making your build
 dependent on the user's environment being set correctly,
-but it may be more convenient for many configurations.</para>
+but it may be more convenient for many configurations.
+It should not cause problems if done in a build setup which tightly
+controls how the environment is set up before invoking
+<command>scons</command>, as in many continuous
+integration setups.
+</para>
 
 <para><command>scons</command>
 can scan known input files automatically for dependency
-information (for example, #include statements
-in C or C++ files) and will rebuild dependent files appropriately
+information (for example, <literal>#include</literal>
+preprocessor directives in C or C++ files)
+and will rebuild dependent files appropriately
 whenever any "included" input file changes.
 <command>scons</command>
 supports the
@@ -266,41 +263,46 @@ SCCS or RCS subdirectories
 using SCCS, RCS or BitKeeper.</para>
 
 <para><command>scons</command>
-is normally executed in a top-level directory containing a
-<emphasis>SConstruct</emphasis>
-file, optionally specifying
-as command-line arguments
-the target file or files to be built.</para>
+is normally executed in a top-level directory containing an
+&SConstruct; file.
+When <command>scons</command> is invoked,
+the command line (including the contents
+of the &SCONSFLAGS; environment variable,
+if set) is processed.
+The options are consumed (see <xref linkend="options"></xref>;
+and also note that SConscript files may define additional options
+for the project using the &AddOption; function).
+Any variable argument assignments (see below) are also consumed.
+Any remaining arguments are taken as the targets to build.
+Targets on the command line may be files, directories,
+or phony targets defined using the &Alias; function.
+The command line targets are available in the
+&COMMAND_LINE_TARGETS; list.
+</para>
 
-<para>By default, the command</para>
+<para>If no targets are specified on the command line,
+<command>scons</command>
+will build the default targets. The default targets
+are those specified in the SConscript files via calls
+to the &Default; function; if none, the default targets are
+those target files in or below the current directory.
+Targets specified via the &Default; function are available
+in the &DEFAULT_TARGETS; list.
+</para>
 
-<literallayout class="monospaced">
-scons
-</literallayout>
-
-<para>will build all target files in or below the current directory.
-Explicit default targets
-(to be built when no targets are specified on the command line)
-may be defined in the SConscript file(s)
-using the
-<emphasis role="bold">Default()</emphasis>
-function, described below.</para>
-
-<para>Even when
-<emphasis role="bold">Default()</emphasis>
-targets are specified in the SConscript file(s),
-all target files in or below the current directory
-may be built by explicitly specifying
-the current directory (.)
+<para>To ignore the default targets specified
+through calls to &Default; and instead build all
+target files in or below the current directory
+specify the current directory (<literal>.</literal>)
 as a command-line target:</para>
 
 <literallayout class="monospaced">
 scons .
 </literallayout>
 
-<para>Building all target files,
+<para>To build all target files,
 including any files outside of the current directory,
-may be specified by supplying a command-line target
+supply a command-line target
 of the root directory (on POSIX systems):</para>
 
 <literallayout class="monospaced">
@@ -314,15 +316,33 @@ should be built (on Windows systems):</para>
 scons C:\ D:\
 </literallayout>
 
-<para>To build only specific targets,
-supply them as command-line arguments:</para>
+<para>A subset of a hierarchical tree may be built by
+remaining at the top-level directory (where the
+&SConstruct;
+file lives) and specifying the subdirectory as the target to
+build:</para>
 
 <literallayout class="monospaced">
-scons foo bar
+scons src/subdir
 </literallayout>
 
-<para>in which case only the specified targets will be built
-(along with any derived files on which they depend).</para>
+<para>or by changing directory and invoking scons with the
+<option>-u</option>
+option, which traverses up the directory
+hierarchy until it finds the
+&SConstruct;
+file, and then builds
+targets relatively to the current subdirectory (see
+also the related <option>-D</option> and <option>-U</option> options):</para>
+
+<literallayout class="monospaced">
+cd src/subdir
+scons -u .
+</literallayout>
+
+<para>In all cases, more files may be built than are
+requested, as <command>scons</command> needs to make
+sure any dependent files are built.</para>
 
 <para>Specifying "cleanup" targets in SConscript files is not usually necessary.
 The
@@ -334,45 +354,22 @@ necessary to build the specified target:</para>
 scons -c .
 </literallayout>
 
-<para>to remove all target files, or:</para>
+<para>to remove all target files in or under the current directory, or:</para>
 
 <literallayout class="monospaced">
 scons -c build export
 </literallayout>
 
-<para>to remove target files under build and export.
+<para>to remove target files under <filename>build</filename>
+and <filename>export</filename>.</para>
+
+<para>
 Additional files or directories to remove can be specified using the
-<emphasis role="bold">Clean()</emphasis>
-function.
+&Clean; function in the SConscript files.
 Conversely, targets that would normally be removed by the
 <option>-c</option>
-invocation
-can be prevented from being removed by using the
-<emphasis role="bold">NoClean</emphasis>()
-function.</para>
-
-<para>A subset of a hierarchical tree may be built by
-remaining at the top-level directory (where the
-<emphasis>SConstruct</emphasis>
-file lives) and specifying the subdirectory as the target to be
-built:</para>
-
-<literallayout class="monospaced">
-scons src/subdir
-</literallayout>
-
-<para>or by changing directory and invoking scons with the
-<option>-u</option>
-option, which traverses up the directory
-hierarchy until it finds the
-<emphasis>SConstruct</emphasis>
-file, and then builds
-targets relatively to the current subdirectory:</para>
-
-<literallayout class="monospaced">
-cd src/subdir
-scons -u .
-</literallayout>
+invocation can be retained by calling the
+&NoClean; function with those targets.</para>
 
 <para><command>scons</command>
 supports building multiple targets in parallel via a
@@ -405,16 +402,16 @@ command-line options.  The
 option is useful to prevent multiple builds
 from trying to update the cache simultaneously.</para>
 
-<para>Values of variables to be passed to the SConscript file(s)
+<para>Values of variables to be passed to the SConscript files
 may be specified on the command line:</para>
 
 <literallayout class="monospaced">
 scons debug=1 .
 </literallayout>
 
-<para>These variables are available in SConscript files
-through the ARGUMENTS dictionary,
-and can be used in the SConscript file(s) to modify
+<para>These variables are available
+through the &ARGUMENTS; dictionary,
+and can be used in the SConscript files to modify
 the build in any way:</para>
 
 <literallayout class="monospaced">
@@ -425,13 +422,12 @@ else:
 </literallayout>
 
 <para>The command-line variable arguments are also available
-in the ARGLIST list,
+in the &ARGLIST; list,
 indexed by their order on the command line.
 This allows you to process them in order rather than by name,
-if necessary.
-ARGLIST[0] returns a tuple
-containing (argname, argvalue).
-A Python exception is thrown if you
+if necessary. Each &ARGLIST; entry is a tuple
+containing (<replaceable>argname</replaceable>, <replaceable>argvalue</replaceable>).
+A Python <literal>IndexError</literal> exception is raised if you
 try to access a list member that
 does not exist.</para>
 
@@ -443,24 +439,28 @@ There should be no other dependencies or requirements to run
 <!--  The following paragraph reflects the default tool search orders -->
 <!--  currently in SCons/Tool/__init__.py.  If any of those search orders -->
 <!--  change, this documentation should change, too. -->
+
 <para>By default,
 <command>scons</command>
-knows how to search for available programming tools
-on various systems.
-On Windows systems,
+searches for known programming tools
+on various systems and initializes itself based on what is found.
+On Windows systems which identify as <emphasis>win32</emphasis>,
 <command>scons</command>
 searches in order for the
 Microsoft Visual C++ tools,
 the MinGW tool chain,
 the Intel compiler tools,
 and the PharLap ETS compiler.
+On Windows system which identify as <emphasis>cygwin</emphasis>
+(that is, if <command>scons</command> is invoked from a cygwin shell),
+the order changes to prefer the GCC toolchain over the MSVC tools.
 On OS/2 systems,
 <command>scons</command>
 searches in order for the
 OS/2 compiler,
 the GCC tool chain,
 and the Microsoft Visual C++ tools,
-On SGI IRIX, IBM AIX, Hewlett Packard HP-UX, and Sun Solaris systems,
+On SGI IRIX, IBM AIX, Hewlett Packard HP-UX, and Oracle Solaris systems,
 <command>scons</command>
 searches for the native compiler tools
 (MIPSpro, Visual Age, aCC, and Forte tools respectively)
@@ -470,7 +470,6 @@ including POSIX (Linux and UNIX) platforms,
 <command>scons</command>
 searches in order
 for the GCC tool chain,
-the Microsoft Visual C++ tools,
 and the Intel compiler tools.
 You may, of course, override these default values
 by appropriate configuration of

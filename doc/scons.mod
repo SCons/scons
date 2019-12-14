@@ -225,6 +225,7 @@
 <!ENTITY NoCache "<function xmlns='http://www.scons.org/dbxsd/v1.0'>NoCache</function>">
 <!ENTITY Objects "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Objects</function>">
 <!ENTITY Options "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Options</function>">
+<!ENTITY SConscriptFunc "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SConscript</function>">
 <!ENTITY Variables "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Variables</function>">
 <!ENTITY PackageOption "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PackageOption</function>">
 <!ENTITY PackageVariable "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PackageVariable</function>">
@@ -418,27 +419,27 @@
 
 -->
 
-<!ENTITY buildfunc "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>builder function</literal>">
-<!ENTITY build_action "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>build action</literal>">
-<!ENTITY build_actions "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>build actions</literal>">
-<!ENTITY builder_method "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>builder method</literal>">
+<!ENTITY buildfunc "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>builder function</phrase>">
+<!ENTITY build_action "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>build action</phrase>">
+<!ENTITY build_actions "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>build actions</phrase>">
+<!ENTITY builder_method "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>builder method</phrase>">
 
-<!ENTITY Configure_Contexts "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Configure Contexts</literal>">
-<!ENTITY configure_context "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>configure context</literal>">
+<!ENTITY Configure_Contexts "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Configure Contexts</phrase>">
+<!ENTITY configure_context "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>configure context</phrase>">
 
-<!ENTITY ConsEnv "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Construction Environment</literal>">
-<!ENTITY ConsEnvs "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Construction Environments</literal>">
-<!ENTITY Consenv "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Construction environment</literal>">
-<!ENTITY Consenvs "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Construction environments</literal>">
-<!ENTITY consenv "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>construction environment</literal>">
-<!ENTITY consenvs "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>construction environments</literal>">
+<!ENTITY ConsEnv "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Construction Environment</phrase>">
+<!ENTITY ConsEnvs "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Construction Environments</phrase>">
+<!ENTITY Consenv "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Construction environment</phrase>">
+<!ENTITY Consenvs "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Construction environments</phrase>">
+<!ENTITY consenv "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>construction environment</phrase>">
+<!ENTITY consenvs "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>construction environments</phrase>">
 
-<!ENTITY ConsVar "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Construction Variable</literal>">
-<!ENTITY ConsVars "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Construction Variables</literal>">
-<!ENTITY Consvar "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Construction variable</literal>">
-<!ENTITY Consvars "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Construction variables</literal>">
-<!ENTITY consvar "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>construction variable</literal>">
-<!ENTITY consvars "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>construction variables</literal>">
+<!ENTITY ConsVar "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Construction Variable</phrase>">
+<!ENTITY ConsVars "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Construction Variables</phrase>">
+<!ENTITY Consvar "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Construction variable</phrase>">
+<!ENTITY Consvars "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Construction variables</phrase>">
+<!ENTITY consvar "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>construction variable</phrase>">
+<!ENTITY consvars "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>construction variables</phrase>">
 
 <!ENTITY CPPPATH "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>CPPPATH</literal>">
 
@@ -529,14 +530,14 @@
 
 -->
 
-<!ENTITY scons-announce "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>announce@scons.tigris.org</literal>">
-<!ENTITY scons-devel "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>scons-dev@scons.org</literal>">
-<!ENTITY scons-users "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>scons-users@scons.org</literal>">
+<!ENTITY scons-announce "<email xmlns='http://www.scons.org/dbxsd/v1.0'>announce@scons.tigris.org</email>">
+<!ENTITY scons-devel "<email xmlns='http://www.scons.org/dbxsd/v1.0'>scons-dev@scons.org</email>">
+<!ENTITY scons-users "<email xmlns='http://www.scons.org/dbxsd/v1.0'>scons-users@scons.org</email>">
 
 <!--
 
   Character entities
-  
+
 -->
 
 <!ENTITY lambda "&#923;">
