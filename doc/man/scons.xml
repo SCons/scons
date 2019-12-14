@@ -1795,20 +1795,6 @@ Warnings for some specific deprecated features
 may be enabled or disabled individually;
 see below.</para>
 
-  <blockquote>
-    <variablelist>
-      <varlistentry>
-      <term>--warn=deprecated-copy, --warn=no-deprecated-copy</term>
-      <listitem>
-<para>Enables or disables warnings about use of the deprecated
-<emphasis role="bold">env.Copy()</emphasis>
-method.</para>
-
-      </listitem>
-      </varlistentry>
-    </variablelist>
-    </blockquote>
-
   </listitem>
   </varlistentry>
   <varlistentry>
@@ -7038,7 +7024,7 @@ value each time we call the SConscript function.</para>
 <programlisting>
 SConstruct:
 
-    env = Environment(LIBPATH = ['#libA', '#libB'])
+    env = Environment(LIBPATH=['#libA', '#libB'])
     Export('env')
     SConscript('libA/SConscript')
     SConscript('libB/SConscript')
@@ -7057,7 +7043,7 @@ libB/SConscript:
 Main/SConscript:
 
     Import('env')
-    e = env.Copy(LIBS = ['a', 'b'])
+    e = env.Clone(LIBS=['a', 'b'])
     e.Program('foo', Split('m1.c m2.c m3.c'))
 </programlisting>
 

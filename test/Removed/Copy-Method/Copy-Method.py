@@ -25,36 +25,20 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify that a specific snippet of backwards-compatibility code works.
-
+Verify that env.Copy() fails as expected since its removal
 """
 
 import TestSCons
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
-test.write('SConstruct', """
-
-# When the 0.96.93 release introduced the env.Clone() we advertised this
-# code as the correct pattern for maintaining the backwards compatibility
-# of SConstruct files to earlier release of SCons.  Going forward, make
-# sure it still works (or at least doesn't blow up).
-# Copy was removed for 3.1.2 but Clone will certainly be there -
-# this test probably isn't needed any longer.
-import SCons.Environment
-try:
-    SCons.Environment.Environment.Clone
-except AttributeError:
-    SCons.Environment.Environment.Clone = SCons.Environment.Environment.Copy
-
-env1 = Environment(X = 1)
-env2 = env1.Clone(X = 2)
-
-print(env1['X'])
-print(env2['X'])
-""")
-
-test.run(arguments = '-q -Q', stdout = "1\n2\n")
+test.file_fixture('SConstruct.method', 'SConstruct')
+expect = """\
+AttributeError: 'SConsEnvironment' object has no attribute 'Copy':
+  File "{}", line 2:
+    env.Copy()
+""".format(test.workpath('SConstruct'))
+test.run(arguments='-Q -s', status=2, stdout=None, stderr=expect)
 
 test.pass_test()
 

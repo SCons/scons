@@ -126,9 +126,6 @@ class DeprecatedBuildDirWarning(DeprecatedWarning):
 class TaskmasterNeedsExecuteWarning(DeprecatedWarning):
     pass
 
-class DeprecatedCopyWarning(MandatoryDeprecatedWarning):
-    pass
-
 class DeprecatedOptionsWarning(MandatoryDeprecatedWarning):
     pass
 
