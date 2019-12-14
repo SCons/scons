@@ -38,7 +38,7 @@ AttributeError: 'SConsEnvironment' object has no attribute 'Copy':
   File "{}", line 2:
     env.Copy()
 """.format(test.workpath('SConstruct'))
-test.run(arguments='-Q -s', status=2, stdout=None, stderr=expect)
+test.run(arguments='-Q -s', status=2, stderr=expect, match=TestSCons.match_exact)
 
 test.pass_test()
 
