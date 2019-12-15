@@ -314,7 +314,6 @@ GlobalDefaultEnvironmentFunctions = [
     'AddPreAction',
     'Alias',
     'AlwaysBuild',
-    'BuildDir',
     'CacheDir',
     'Clean',
     #The Command() method is handled separately, below.

@@ -1929,14 +1929,6 @@ class Base(SubstitutionEnvironment):
             t.set_always_build()
         return tlist
 
-    def BuildDir(self, *args, **kw):
-        msg = """BuildDir() and the build_dir keyword have been deprecated;\n\tuse VariantDir() and the variant_dir keyword instead."""
-        SCons.Warnings.warn(SCons.Warnings.DeprecatedBuildDirWarning, msg)
-        if 'build_dir' in kw:
-            kw['variant_dir'] = kw['build_dir']
-            del kw['build_dir']
-        return self.VariantDir(*args, **kw)
-
     def Builder(self, **kw):
         nkw = self.subst_kw(kw)
         return SCons.Builder.Builder(**nkw)
