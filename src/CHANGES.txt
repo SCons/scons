@@ -65,6 +65,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       helps test suite runs.
     - Remove deprecated SourceSignatures, TargetSignatures
     - Remove deprecated Builder keywords: overrides and scanner
+    - Remove deprecated env.Copy
+    - A number of documentation improvements.
 
 
 RELEASE 3.1.1 - Mon, 07 Aug 2019 20:09:12 -0500

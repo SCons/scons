@@ -1876,18 +1876,6 @@ def generate(env):
         assert ('BUILDERS' in env) is False
         env2 = env.Clone()
 
-    def test_Copy(self):
-        """Test copying using the old env.Copy() method"""
-        env1 = self.TestEnvironment(XXX = 'x', YYY = 'y')
-        env2 = env1.Copy()
-        env1copy = env1.Copy()
-        assert env1copy == env1copy
-        assert env2 == env2
-        env2.Replace(YYY = 'yyy')
-        assert env2 == env2
-        assert env1 != env2
-        assert env1 == env1copy
-
     def test_Detect(self):
         """Test Detect()ing tools"""
         test = TestCmd.TestCmd(workdir = '')

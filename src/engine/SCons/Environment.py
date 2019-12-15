@@ -1428,14 +1428,6 @@ class Base(SubstitutionEnvironment):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Environment.EnvironmentClone')
         return clone
 
-    def Copy(self, *args, **kw):
-        global _warn_copy_deprecated
-        if _warn_copy_deprecated:
-            msg = "The env.Copy() method is deprecated; use the env.Clone() method instead."
-            SCons.Warnings.warn(SCons.Warnings.DeprecatedCopyWarning, msg)
-            _warn_copy_deprecated = False
-        return self.Clone(*args, **kw)
-
     def _changed_build(self, dependency, target, prev_ni, repo_node=None):
         if dependency.changed_state(target, prev_ni, repo_node):
             return 1
