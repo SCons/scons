@@ -66,6 +66,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Remove deprecated SourceSignatures, TargetSignatures
     - Remove deprecated Builder keywords: overrides and scanner
     - Remove deprecated env.Copy
+    - Remove deprecated BuildDir plus SConscript keyword build_dir
     - A number of documentation improvements.
 
 

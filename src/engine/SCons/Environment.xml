@@ -613,28 +613,6 @@ env.AppendUnique(CCFLAGS = '-g', FOO = ['foo.yyy'])
 </summary>
 </scons_function>
 
-<scons_function name="BuildDir">
-<arguments>
-(build_dir, src_dir, [duplicate])
-</arguments>
-<summary>
-<para>
-Deprecated synonyms for
-&f-VariantDir;
-and
-<function>env.VariantDir</function>().
-The
-<varname>build_dir</varname>
-argument becomes the
-<varname>variant_dir</varname>
-argument of
-&f-VariantDir;
-or
-<function>env.VariantDir</function>().
-</para>
-</summary>
-</scons_function>
-
 <scons_function name="Builder">
 <arguments>
 (action, [arguments])
