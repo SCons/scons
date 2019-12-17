@@ -517,17 +517,17 @@ class EnvVariablesSubstTestCase(SubstTestCase):
         while subst_cases:
             test_number += 1
             input, eraw, ecmd, esig = subst_cases[:4]
-            result = EnvironmentValues.subst(input, env, mode=SUBST_RAW, gvars=gvars)
+            result = EnvironmentValues.subst(input, env, mode=SUBST_RAW, global_vars=gvars)
             if result != eraw:
                 if failed == 0: print()
                 print("    input %s => RAW %s did not match %s" % (repr(input), repr(result), repr(eraw)))
                 failed = failed + 1
-            result = EnvironmentValues.subst(input, env, mode=SUBST_CMD, gvars=gvars)
+            result = EnvironmentValues.subst(input, env, mode=SUBST_CMD, global_vars=gvars)
             if result != ecmd:
                 if failed == 0: print()
                 print("    input %s => CMD %s did not match %s" % (repr(input), repr(result), repr(ecmd)))
                 failed = failed + 1
-            result = EnvironmentValues.subst(input, env, mode=SUBST_SIG, gvars=gvars)
+            result = EnvironmentValues.subst(input, env, mode=SUBST_SIG, global_vars=gvars)
             if result != esig:
                 if failed == 0: print()
                 print("    input %s => SIG %s did not match %s" % (repr(input), repr(result), repr(esig)))
@@ -550,7 +550,7 @@ class EnvVariablesSubstTestCase(SubstTestCase):
         result = EnvironmentValues.subst("$TARGET $SOURCES", env,
                                          target=[t1, t2],
                                          source=[s1, s2],
-                                         gvars={})
+                                         global_vars={})
         self.assertEqual(result, "t1 s1 s2", result)
 
         result = EnvironmentValues.subst("$TARGET $SOURCES", env, target=[], source=[])
@@ -564,7 +564,7 @@ class EnvVariablesSubstTestCase(SubstTestCase):
         gvars = env.Dictionary()
         newcom = EnvironmentValues.subst("test $CMDGEN1 $SOURCES $TARGETS", env,
                                          target=self.MyNode('t'), source=self.MyNode('s'),
-                                         gvars=gvars)
+                                         global_vars=gvars)
         assert newcom == "test foo bar with spaces.out s t", newcom
 
     def test_subst_attribute_errors(self):
@@ -574,7 +574,7 @@ class EnvVariablesSubstTestCase(SubstTestCase):
             class Foo(object):
                 pass
 
-            EnvironmentValues.subst('${foo.bar}', env, gvars={'foo': Foo()})
+            EnvironmentValues.subst('${foo.bar}', env, global_vars={'foo': Foo()})
         except SCons.Errors.UserError as e:
             expect = [
                 "AttributeError `bar' trying to evaluate `${foo.bar}'",
@@ -623,7 +623,7 @@ class EnvVariablesSubstTestCase(SubstTestCase):
         """Test EnvironmentValues.subst():  handling type errors"""
         env = DummyEnv(self.loc)
         try:
-            EnvironmentValues.subst("${NONE[2]}", env, gvars={'NONE': None})
+            EnvironmentValues.subst("${NONE[2]}", env, global_vars={'NONE': None})
         except SCons.Errors.UserError as e:
             expect = [
                 # Python 2.3, 2.4
@@ -643,7 +643,7 @@ class EnvVariablesSubstTestCase(SubstTestCase):
             def func(a, b, c):
                 pass
 
-            EnvironmentValues.subst("${func(1)}", env, gvars={'func': func})
+            EnvironmentValues.subst("${func(1)}", env, global_vars={'func': func})
         except SCons.Errors.UserError as e:
             expect = [
                 # Python 2.3, 2.4, 2.5
@@ -665,9 +665,9 @@ class EnvVariablesSubstTestCase(SubstTestCase):
         env = DummyEnv(self.loc)
         gvars = env.Dictionary()
         x = lambda x: x
-        r = EnvironmentValues.subst("$CALLABLE1", env, mode=SUBST_RAW, conv=x, gvars=gvars)
+        r = EnvironmentValues.subst("$CALLABLE1", env, mode=SUBST_RAW, conv=x, global_vars=gvars)
         assert r is self.callable_object_1, repr(r)
-        r = EnvironmentValues.subst("$CALLABLE1", env, mode=SUBST_RAW, gvars=gvars)
+        r = EnvironmentValues.subst("$CALLABLE1", env, mode=SUBST_RAW, global_vars=gvars)
         assert r == 'callable-1', repr(r)
 
         # Test how we handle overriding the internal conversion routines.
@@ -677,19 +677,19 @@ class EnvVariablesSubstTestCase(SubstTestCase):
         n1 = self.MyNode('n1')
         env = DummyEnv({'NODE': n1})
         gvars = env.Dictionary()
-        node = EnvironmentValues.subst("$NODE", env, mode=SUBST_RAW, conv=s, gvars=gvars)
+        node = EnvironmentValues.subst("$NODE", env, mode=SUBST_RAW, conv=s, global_vars=gvars)
         assert node is n1, node
-        node = EnvironmentValues.subst("$NODE", env, mode=SUBST_CMD, conv=s, gvars=gvars)
+        node = EnvironmentValues.subst("$NODE", env, mode=SUBST_CMD, conv=s, global_vars=gvars)
         assert node is n1, node
-        node = EnvironmentValues.subst("$NODE", env, mode=SUBST_SIG, conv=s, gvars=gvars)
+        node = EnvironmentValues.subst("$NODE", env, mode=SUBST_SIG, conv=s, global_vars=gvars)
         assert node is n1, node
 
     def test_subst_overriding_gvars(self):
         """Test EnvironmentValues.subst():  supplying an overriding gvars dictionary"""
         env = DummyEnv({'XXX': 'xxx'})
-        result = EnvironmentValues.subst('$XXX', env, gvars=env.Dictionary())
+        result = EnvironmentValues.subst('$XXX', env, global_vars=env.Dictionary())
         assert result == 'xxx', result
-        result = EnvironmentValues.subst('$XXX', env, gvars={'XXX': 'yyy'})
+        result = EnvironmentValues.subst('$XXX', env, global_vars={'XXX': 'yyy'})
         assert result == 'yyy', result
 
 
@@ -956,14 +956,14 @@ class EnvVarsSubstListTestCase(SubstTestCase):
         result = EnvironmentValues.subst_list("$TARGET $SOURCES", env.envVal,
                                               target=[t1, t2],
                                               source=[s1, s2],
-                                              gvars=gvars)
+                                              global_vars=gvars)
         self.assertEqual(result, [['t1', 's1', 's2']])
 
         # Blanked out gvars..
         result = EnvironmentValues.subst_list("$TARGET $SOURCES", env.envVal,
                                               target=[t1, t2],
                                               source=[s1, s2],
-                                              gvars={})
+                                              global_vars={})
         self.assertEqual(result, [['t1', 's1', 's2']], result)
 
         # Test interpolating a callable.
@@ -971,7 +971,7 @@ class EnvVarsSubstListTestCase(SubstTestCase):
         _s = DummyNode('s')
         cmd_list = EnvironmentValues.subst_list("testing $CMDGEN1 $TARGETS $SOURCES",
                                                 env.envVal, target=_t, source=_s,
-                                                gvars=gvars)
+                                                global_vars=gvars)
         assert cmd_list == [['testing', 'foo', 'bar with spaces.out', 't', 's']], cmd_list
 
     def test_subst_escape(self):
@@ -982,7 +982,7 @@ class EnvVarsSubstListTestCase(SubstTestCase):
         def escape_func(foo):
             return '**' + foo + '**'
 
-        cmd_list = EnvironmentValues.subst_list("abc $LITERALS xyz", env, gvars=gvars)
+        cmd_list = EnvironmentValues.subst_list("abc $LITERALS xyz", env, global_vars=gvars)
         assert cmd_list == [['abc',
                              'foo\nwith\nnewlines',
                              'bar\nwith\nnewlines',
@@ -1000,7 +1000,7 @@ class EnvVarsSubstListTestCase(SubstTestCase):
         # thing was literal and escape it as a unit.  The commented-out
         # asserts below are in case we ever have to find a way to
         # resurrect that functionality in some way.
-        cmd_list = EnvironmentValues.subst_list("abc${LITERALS}xyz", env, gvars=gvars)
+        cmd_list = EnvironmentValues.subst_list("abc${LITERALS}xyz", env, global_vars=gvars)
         c = cmd_list[0][0].escape(escape_func)
         # assert c == '**abcfoo\nwith\nnewlines**', c
         assert c == 'abcfoo\nwith\nnewlines', c
@@ -1011,7 +1011,7 @@ class EnvVarsSubstListTestCase(SubstTestCase):
         _t = DummyNode('t')
 
         cmd_list = EnvironmentValues.subst_list('echo "target: $TARGET"', env,
-                                                target=_t, gvars=gvars)
+                                                target=_t, global_vars=gvars)
         c = cmd_list[0][0].escape(escape_func)
         assert c == 'echo', c
         c = cmd_list[0][1].escape(escape_func)
@@ -1038,7 +1038,7 @@ class EnvVarsSubstListTestCase(SubstTestCase):
 
         test = '${LIST}'
         # test = "test $($xxx$)"
-        r = EnvironmentValues.subst_list(test, env, mode=SUBST_RAW, gvars=gvars)
+        r = EnvironmentValues.subst_list(test, env, mode=SUBST_RAW, global_vars=gvars)
         answer = [['This', 'is', 'test']]
         # answer = [["test", "$($)"]]
 
@@ -1051,17 +1051,17 @@ class EnvVarsSubstListTestCase(SubstTestCase):
             test_input, expected_raw, expected_cmd, expected_sig = subst_list_cases[:4]
             print("*"*80)
             print("WORKING ON [%4d] input:%s, expected_raw:%s, expected_cmd:%s, expected_sig:%s" % (test_number, test_input, expected_raw, expected_cmd, expected_sig))
-            result = EnvironmentValues.subst_list(test_input, env, mode=SUBST_RAW, gvars=gvars)
+            result = EnvironmentValues.subst_list(test_input, env, mode=SUBST_RAW, global_vars=gvars)
             if result != expected_raw:
                 if failed == 0: print()
                 print("    input %s => RAW %s did not match %s" % (repr(test_input), repr(result), repr(expected_raw)))
                 failed = failed + 1
-            result = EnvironmentValues.subst_list(test_input, env, mode=SUBST_CMD, gvars=gvars)
+            result = EnvironmentValues.subst_list(test_input, env, mode=SUBST_CMD, global_vars=gvars)
             if result != expected_cmd:
                 if failed == 0: print()
                 print("    input %s => CMD %s did not match %s" % (repr(test_input), repr(result), repr(expected_cmd)))
                 failed = failed + 1
-            result = EnvironmentValues.subst_list(test_input, env, mode=SUBST_SIG, gvars=gvars)
+            result = EnvironmentValues.subst_list(test_input, env, mode=SUBST_SIG, global_vars=gvars)
             if result != expected_sig:
                 if failed == 0: print()
                 print("    input %s => SIG %s did not match %s" % (repr(test_input), repr(result), repr(expected_sig)))
@@ -1076,7 +1076,7 @@ class EnvVarsSubstListTestCase(SubstTestCase):
             class Foo(object):
                 pass
 
-            EnvironmentValues.subst_list('${foo.bar}', env, gvars={'foo': Foo()})
+            EnvironmentValues.subst_list('${foo.bar}', env, global_vars={'foo': Foo()})
         except SCons.Errors.UserError as e:
             expect = [
                 "AttributeError `bar' trying to evaluate `${foo.bar}'",
@@ -1111,9 +1111,9 @@ class EnvVarsSubstListTestCase(SubstTestCase):
         env = DummyEnv(self.loc)
         gvars = env.Dictionary()
         x = lambda x: x
-        r = EnvironmentValues.subst_list("$CALLABLE2", env, mode=SUBST_RAW, conv=x, gvars=gvars)
+        r = EnvironmentValues.subst_list("$CALLABLE2", env, mode=SUBST_RAW, conv=x, global_vars=gvars)
         assert r == [[self.callable_object_2]], repr(r)
-        r = EnvironmentValues.subst_list("$CALLABLE2", env, mode=SUBST_RAW, gvars=gvars)
+        r = EnvironmentValues.subst_list("$CALLABLE2", env, mode=SUBST_RAW, global_vars=gvars)
         assert r == [['callable-2']], repr(r)
 
     def test_subst_list_overriding_gvars(self):
@@ -1126,19 +1126,19 @@ class EnvVarsSubstListTestCase(SubstTestCase):
         n1 = self.MyNode('n1')
         env = DummyEnv({'NODE': n1})
         gvars = env.Dictionary()
-        node = EnvironmentValues.subst_list("$NODE", env, mode=SUBST_RAW, conv=s, gvars=gvars)
+        node = EnvironmentValues.subst_list("$NODE", env, mode=SUBST_RAW, conv=s, global_vars=gvars)
         assert node == [[n1]], node
-        node = EnvironmentValues.subst_list("$NODE", env, mode=SUBST_CMD, conv=s, gvars=gvars)
+        node = EnvironmentValues.subst_list("$NODE", env, mode=SUBST_CMD, conv=s, global_vars=gvars)
         assert node == [[n1]], node
-        node = EnvironmentValues.subst_list("$NODE", env, mode=SUBST_SIG, conv=s, gvars=gvars)
+        node = EnvironmentValues.subst_list("$NODE", env, mode=SUBST_SIG, conv=s, global_vars=gvars)
         assert node == [[n1]], node
 
     def test_subst_list_overriding_gvars(self):
         """Test EnvironmentValues.subst_list():  supplying an overriding gvars dictionary"""
         env = DummyEnv({'XXX': 'xxx'})
-        result = EnvironmentValues.subst_list('$XXX', env, gvars=env.Dictionary())
+        result = EnvironmentValues.subst_list('$XXX', env, global_vars=env.Dictionary())
         assert result == [['xxx']], result
-        result = EnvironmentValues.subst_list('$XXX', env, gvars={'XXX': 'yyy'})
+        result = EnvironmentValues.subst_list('$XXX', env, global_vars={'XXX': 'yyy'})
         assert result == [['yyy']], result
 
 
@@ -1265,7 +1265,7 @@ class LiteralTestCase(unittest.TestCase):
         def escape_func(cmd):
             return '**' + cmd + '**'
 
-        cmd_list = EnvironmentValues.subst_list(input_list, None, gvars=gvars)
+        cmd_list = EnvironmentValues.subst_list(input_list, None, global_vars=gvars)
         cmd_list = escape_list(cmd_list[0], escape_func)
         assert cmd_list == ['BAZ', '**$BAR**'], cmd_list
 
@@ -1284,11 +1284,11 @@ class SpecialAttrWrapperTestCase(unittest.TestCase):
         def escape_func(cmd):
             return '**' + cmd + '**'
 
-        cmd_list = EnvironmentValues.subst_list(input_list, None, gvars=gvars)
+        cmd_list = EnvironmentValues.subst_list(input_list, None, global_vars=gvars)
         cmd_list = escape_list(cmd_list[0], escape_func)
         assert cmd_list == ['BAZ', '**$BAR**'], cmd_list
 
-        cmd_list = EnvironmentValues.subst_list(input_list, None, mode=SUBST_SIG, gvars=gvars)
+        cmd_list = EnvironmentValues.subst_list(input_list, None, mode=SUBST_SIG, global_vars=gvars)
         cmd_list = escape_list(cmd_list[0], escape_func)
         assert cmd_list == ['BAZ', '**BLEH**'], cmd_list
 

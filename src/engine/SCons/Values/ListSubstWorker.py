@@ -6,10 +6,10 @@ class ListWorker(object):
     This is used to hold the work in progress for subst_list
     """
 
-    def __init__(self, listSubstVal):
-        self.listSubstVal = listSubstVal
+    def __init__(self, list_subst_value):
+        self.listSubstVal = list_subst_value
 
-        # Arrary of lines made of an array of arguments
+        # Array of lines made of an array of arguments
         self.retval = [[]]
         self.retval_index = 0
         self.current_value = []
@@ -29,7 +29,6 @@ class ListWorker(object):
     def process_subst_modes(self, mode):
         """
         Return escaped array of string results
-        :param list_subst_results: post subst'd list of strings
         :param mode - SubstValue type (indicating what we should do with signature escapes $( and $)
         :return: escape processed array of strings
         """

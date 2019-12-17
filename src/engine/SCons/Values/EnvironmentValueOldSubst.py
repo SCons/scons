@@ -166,7 +166,7 @@ def subst(self, env, mode=0, target=None, source=None, gvars={}, lvars={}, conv=
                     to_call = v
 
                     call_value = self.eval_callable(to_call, parsed_values, string_values, target=target,
-                                                    source=source, gvars=env, lvars=lvars, for_sig=for_signature)
+                                                    source=source, global_vars=env, local_vars=lvars, for_sig=for_signature)
 
                     # TODO: Handle return value not being a string, (a collection for example)
 
