@@ -198,6 +198,17 @@ class VisualStudio(object):
 # Tool/MSCommon/vc.py, and the MSVC_VERSION documentation in Tool/msvc.xml.
 
 SupportedVSList = [
+    # Visual Studio 2019
+    VisualStudio('14.2',
+                 vc_version='14.2',
+                 sdk_version='10.0A',
+                 hkeys=[],
+                 common_tools_var='VS160COMNTOOLS',
+                 executable_path=r'Common7\IDE\devenv.com',
+                 batch_file_path=r'VC\Auxiliary\Build\vsvars32.bat',
+                 supported_arch=['x86', 'amd64', "arm"],
+                 ),
+
     # Visual Studio 2017
     VisualStudio('14.1',
                  vc_version='14.1',
@@ -454,14 +465,14 @@ def get_vs_by_version(msvs):
     global InstalledVSMap
     global SupportedVSMap
 
-    debug('vs.py:get_vs_by_version()')
+    debug('get_vs_by_version()')
     if msvs not in SupportedVSMap:
         msg = "Visual Studio version %s is not supported" % repr(msvs)
         raise SCons.Errors.UserError(msg)
     get_installed_visual_studios()
     vs = InstalledVSMap.get(msvs)
     debug('InstalledVSMap:%s'%InstalledVSMap)
-    debug('vs.py:get_vs_by_version: found vs:%s'%vs)
+    debug('get_vs_by_version: found vs:%s'%vs)
     # Some check like this would let us provide a useful error message
     # if they try to set a Visual Studio version that's not installed.
     # However, we also want to be able to run tests (like the unit
@@ -520,7 +531,7 @@ def get_default_arch(env):
 
     if not msvs:
         arch = 'x86'
-    elif not arch in msvs.get_supported_arch():
+    elif arch not in msvs.get_supported_arch():
         fmt = "Visual Studio version %s does not support architecture %s"
         raise SCons.Errors.UserError(fmt % (env['MSVS_VERSION'], arch))
 

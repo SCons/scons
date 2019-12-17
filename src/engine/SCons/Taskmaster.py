@@ -27,10 +27,10 @@ import sys
 __doc__ = """
     Generic Taskmaster module for the SCons build engine.
     =====================================================
-    
+
     This module contains the primary interface(s) between a wrapping user
     interface and the SCons build engine.  There are two key classes here:
-    
+
     Taskmaster
     ----------
         This is the main engine for walking the dependency graph and
@@ -477,7 +477,7 @@ class Task(object):
                 for s in t.side_effects:
                     if s.get_state() == NODE_EXECUTING:
                         s.set_state(NODE_NO_STATE)
-                        
+
                     # The side-effects may have been transferred to
                     # NODE_NO_STATE by executed_with{,out}_callbacks, but was
                     # not taken out of the waiting parents/pending children
@@ -551,7 +551,7 @@ class Task(object):
         try:
             exc_type, exc_value, exc_traceback = exc
         except ValueError:
-            exc_type, exc_value = exc
+            exc_type, exc_value = exc  # pylint: disable=unbalanced-tuple-unpacking
             exc_traceback = None
 
         # raise exc_type(exc_value).with_traceback(exc_traceback)
@@ -874,8 +874,10 @@ class Taskmaster(object):
             # These nodes have not even been visited yet.  Add
             # them to the list so that on some next pass we can
             # take a stab at evaluating them (or their children).
-            children_not_visited.reverse()
-            self.candidates.extend(self.order(children_not_visited))
+            if children_not_visited:
+                if len(children_not_visited) > 1:
+                    children_not_visited.reverse()
+                self.candidates.extend(self.order(children_not_visited))
 
             # if T and children_not_visited:
             #    T.write(self.trace_message('     adding to candidates: %s' % map(str, children_not_visited)))

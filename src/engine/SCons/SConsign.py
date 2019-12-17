@@ -76,7 +76,8 @@ def Get_DataBase(dir):
                 except KeyError:
                     path = d.entry_abspath(DB_Name)
                     try: db = DataBase[d] = DB_Module.open(path, mode)
-                    except (IOError, OSError): pass
+                    except (IOError, OSError):
+                        pass
                     else:
                         if mode != "r":
                             DB_sync_list.append(db)
@@ -334,9 +335,14 @@ class DirFile(Dir):
             Dir.__init__(self, fp, dir)
         except KeyboardInterrupt:
             raise
-        except:
+        except Exception:
             SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
                                 "Ignoring corrupt .sconsign file: %s"%self.sconsign)
+
+        try:
+            fp.close()
+        except AttributeError:
+            pass
 
         global sig_files
         sig_files.append(self)
@@ -394,7 +400,8 @@ class DirFile(Dir):
                 # here, or in any of the following calls, would get
                 # raised, indicating something like a potentially
                 # serious disk or network issue.
-                open(self.sconsign, 'wb').write(open(fname, 'rb').read())
+                with open(self.sconsign, 'wb') as f, open(fname, 'rb') as f2:
+                    f.write(f2.read())
                 os.chmod(self.sconsign, mode)
         try:
             os.unlink(temp)
@@ -416,7 +423,7 @@ def File(name, dbm_module=None):
     else:
         ForDirectory = DB
         DB_Name = name
-        if not dbm_module is None:
+        if dbm_module is not None:
             DB_Module = dbm_module
 
 # Local Variables:

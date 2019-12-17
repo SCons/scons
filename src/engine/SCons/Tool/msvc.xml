@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
 __COPYRIGHT__
 
@@ -353,6 +353,7 @@ constructor; setting it later has no effect.
 
 <para>
 Valid values for Windows are
+<literal>14.2</literal>,
 <literal>14.1</literal>,
 <literal>14.0</literal>,
 <literal>14.0Exp</literal>,

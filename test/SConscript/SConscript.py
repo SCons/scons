@@ -74,7 +74,7 @@ SConscript('SConscript5')
 try:
     from collections import UserList
 except ImportError:
-    exec('from UserList import UserList')
+    from UserList import UserList
 x7 = "SConstruct x7"
 x8 = "SConstruct x8"
 x9 = SConscript('SConscript6', UserList(["x7", "x8"]))

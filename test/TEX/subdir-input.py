@@ -24,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Verify that we execute TeX in a subdirectory (if that's where the document
 resides) by checking that all the auxiliary files get created there and
 not in the top-level directory.

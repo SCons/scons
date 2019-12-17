@@ -46,12 +46,13 @@ for o, a in opts:
     if o == '-o':
         outfile = open(a, 'wb')
 for f in args:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != b'/*yacc*/\\n']:
-        outfile.write(l)
+    with open(f, 'rb') as infile:
+        for l in [l for l in infile.readlines() if l != b'/*yacc*/\\n']:
+            outfile.write(l)
 outfile.close()
 base, ext = os.path.splitext(args[0])
-open(base+'.hxxsuffix', 'wb').write((" ".join(sys.argv)+'\\n').encode())
+with open(base+'.hxxsuffix', 'wb') as outfile:
+    outfile.write((" ".join(sys.argv)+'\\n').encode())
 sys.exit(0)
 """)
 
@@ -68,7 +69,7 @@ test.write('aaa.yy', "aaa.yy\n/*yacc*/\n")
 test.run(arguments = '.')
 
 test.must_match('aaa.cc', "aaa.yy\n")
-test.must_match('aaa.hxxsuffix', "myyacc.py -d -o aaa.cc aaa.yy\n")
+test.must_contain('aaa.hxxsuffix', "myyacc.py -d -o aaa.cc aaa.yy\n")
 
 test.up_to_date(arguments = '.')
 

@@ -44,19 +44,14 @@ test.write('SConstruct', """
 env=Environment()
 
 def before(env, target, source):
-    f=open(str(target[0]), "wb")
-    f.write(b"Foo\\n")
-    f.close()
-    f=open("before.txt", "wb")
-    f.write(b"Bar\\n")
-    f.close()
+    with open(str(target[0]), "wb") as f:
+        f.write(b"Foo\\n")
+    with open("before.txt", "wb") as f:
+        f.write(b"Bar\\n")
 
 def after(env, target, source):
-    fin = open(str(target[0]), "rb")
-    fout = open("after%s", "wb")
-    fout.write(fin.read())
-    fout.close()
-    fin.close()
+    with open(str(target[0]), "rb") as fin, open("after%s", "wb") as fout:
+        fout.write(fin.read())
 
 env.Prepend(LINKCOM=Action(before))
 env.Append(LINKCOM=Action(after))

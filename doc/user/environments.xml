@@ -618,7 +618,7 @@ int main() { }
 
       <para>
 
-      You can fetch individual construction variables
+      You can fetch individual &consvars;
       using the normal syntax
       for accessing individual named items in a Python dictionary:
 
@@ -645,20 +645,21 @@ print("CC is: %s"%env['CC'])
 
       <para>
 
-      A construction environment, however,
-      is actually an object with associated methods, etc.
+      A &consenv;
+      is actually an object with associated methods and
+      attributes.
       If you want to have direct access to only the
-      dictionary of construction variables,
+      dictionary of &consvars;
       you can fetch this using the &Dictionary; method:
 
       </para>
 
       <scons_example name="environments_ex6b">
          <file name="SConstruct" printme="1">
-env = Environment(FOO = 'foo', BAR = 'bar')
-dict = env.Dictionary()
+env = Environment(FOO='foo', BAR='bar')
+cvars = env.Dictionary()
 for key in ['OBJSUFFIX', 'LIBSUFFIX', 'PROGSUFFIX']:
-    print("key = %s, value = %s" % (key, dict[key]))
+    print("key = %s, value = %s" % (key, cvars[key]))
          </file>
       </scons_example>
 
@@ -687,7 +688,7 @@ for key in ['OBJSUFFIX', 'LIBSUFFIX', 'PROGSUFFIX']:
       <para>
 
       If you want to loop and print the values of
-      all of the construction variables in a construction environment,
+      all of the &consvars; in a &consenv;,
       the Python code to do that in sorted order might look something like:
 
       </para>
@@ -698,6 +699,16 @@ for item in sorted(env.Dictionary().items()):
     print("construction variable = '%s', value = '%s'" % item)
       </sconstruct>
 
+      <para>
+      It should be noted that for the previous example, there is actually
+      a &consenv; method that does the same thing more simply,
+      and tries to format the output nicely as well:
+      </para>
+      <sconstruct>
+env = Environment()
+print(env.Dump())
+      </sconstruct>
+
     </section>
 
     <section>
@@ -706,10 +717,10 @@ for item in sorted(env.Dictionary().items()):
       <para>
 
       Another way to get information from
-      a construction environment
+      a &consenv;
       is to use the &subst; method
       on a string containing <literal>$</literal> expansions
-      of construction variable names.
+      of &consvar; names.
       As a simple example,
       the example from the previous
       section that used
@@ -728,7 +739,7 @@ print("CC is: %s"%env.subst('$CC'))
 
       One advantage of using
       &subst; to expand strings is
-      that construction variables
+      that &consvars;
       in the result get re-expanded until
       there are no expansions left in the string.
       So a simple fetch of a value like
@@ -875,33 +886,30 @@ print("value is: %s"%env.subst( '->${1 / 0}&lt;-' ))
       <para>
 
       All of the &Builder; functions that we've introduced so far,
-      like &Program; and &Library;,
-      actually use a default &consenv;
-      that contains settings
-      for the various compilers
-      and other tools that
-      &SCons; configures by default,
-      or otherwise knows about
-      and has discovered on your system.
-      The goal of the default construction environment
-      is to make many configurations to "just work"
-      to build software using
-      readily available tools
+      like &Program; and &Library;, use a &consenv;
+      that contains settings for the various compilers
+      and other tools that &SCons; configures by default,
+      or otherwise knows about and has discovered on your system.
+      If not invoked as methods of a specific &consenv;,
+      they use the default &consenv;
+      The goal of the default &consenv;
+      is to make many configurations "just work"
+      to build software using readily available tools
       with a minimum of configuration changes.
 
       </para>
 
       <para>
 
-      You can, however, control the settings
-      in the default construction environment
+      If needed, you can control the default &consenv;
       by using the &DefaultEnvironment; function
-      to initialize various settings:
+      to initialize various settings by passing
+      them as keyword arguments:
 
       </para>
 
       <sconstruct>
-DefaultEnvironment(CC = '/usr/local/bin/gcc')
+DefaultEnvironment(CC='/usr/local/bin/gcc')
       </sconstruct>
 
       <para>
@@ -917,15 +925,15 @@ DefaultEnvironment(CC = '/usr/local/bin/gcc')
 
       <para>
 
-      Note that the &DefaultEnvironment; function
-      returns the initialized
-      default construction environment object,
-      which can then be manipulated like any
-      other construction environment.
-      So the following
-      would be equivalent to the
-      previous example,
-      setting the &cv-CC;
+      The &DefaultEnvironment; function
+      returns the initialized default &consenv; object,
+      which can then be manipulated like any other &consenv;
+      (note that the default environment works like a singleton -
+      it can have only one instance - so the keyword arguments
+      are processed only on the first call. On any subsequent
+      call the existing object is returned).
+      So the following would be equivalent to the
+      previous example, setting the &cv-CC;
       variable to <filename>/usr/local/bin/gcc</filename>
       but as a separate step after
       the default construction environment has been initialized:
@@ -960,8 +968,8 @@ env['CC'] = '/usr/local/bin/gcc'
       </para>
 
       <sconstruct>
-env = DefaultEnvironment(tools = ['gcc', 'gnulink'],
-                         CC = '/usr/local/bin/gcc')
+env = DefaultEnvironment(tools=['gcc', 'gnulink'],
+                         CC='/usr/local/bin/gcc')
       </sconstruct>
 
       <para>
@@ -983,9 +991,8 @@ env = DefaultEnvironment(tools = ['gcc', 'gnulink'],
 
       <para>
 
-      The real advantage of construction environments
-      is that you can create as many different construction
-      environments as you need,
+      The real advantage of &consenvs;
+      is that you can create as many different ones as you need,
       each tailored to a different way to build
       some piece of software or other file.
       If, for example, we need to build
@@ -1018,7 +1025,7 @@ int main() { }
 
       <para>
 
-      We can even use multiple construction environments to build
+      We can even use multiple &consenvs; to build
       multiple versions of a single program.
       If you do this by simply trying to use the
       &b-link-Program; builder with both environments, though,
@@ -1641,7 +1648,7 @@ env['ENV']['PATH'] = '/usr/local/bin:/bin:/usr/bin'
 env = Environment()
 env.Command('foo', [], '__ROOT__/usr/bin/printenv.py')
       </file>
-      <file name="__ROOT__/usr/bin/printenv.py" chmod="0755">
+      <file name="__ROOT__/usr/bin/printenv.py" chmod="0o755">
 #!/usr/bin/env python
 import os
 import sys

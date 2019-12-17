@@ -48,13 +48,14 @@ for o, a in opts:
     elif o == '-o':
         outfile = open(a, 'wb')
 for f in args:
-    infile = open(f, 'rb')
-    for l in [l for l in infile.readlines() if l != b'/*yacc*/\\n']:
-        outfile.write(l)
+    with open(f, 'rb') as infile:
+        for l in [l for l in infile.readlines() if l != b'/*yacc*/\\n']:
+            outfile.write(l)
 outfile.close()
 if vcg:
     base, ext = os.path.splitext(args[0])
-    open(base+'.vcgsuffix', 'wb').write((" ".join(sys.argv)+'\\n').encode())
+    with open(base+'.vcgsuffix', 'wb') as outfile:
+        outfile.write((" ".join(sys.argv)+'\\n').encode())
 sys.exit(0)
 """)
 
@@ -77,7 +78,7 @@ test.must_not_exist('aaa.vcgsuffix')
 
 test.must_match('bbb.cc', "bbb.yy\n")
 test.must_not_exist('bbb.vcg')
-test.must_match('bbb.vcgsuffix', "myyacc.py -g -o bbb.cc bbb.yy\n")
+test.must_contain('bbb.vcgsuffix', "myyacc.py -g -o bbb.cc bbb.yy\n")
 
 test.up_to_date(arguments = '.')
 

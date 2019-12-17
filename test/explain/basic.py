@@ -51,7 +51,7 @@ inc_bbb_k = test.workpath('inc', 'bbb.k')
 
 
 
-test.write(cat_py, r"""\
+test.write(cat_py, r"""
 from __future__ import print_function
 
 import sys
@@ -67,19 +67,21 @@ def process(outfp, infp):
                 print("os.getcwd() =", os.getcwd())
                 raise
             process(outfp, fp)
+            fp.close()
         else:
             outfp.write(line)
 
-outfp = open(sys.argv[1], 'w')
-for f in sys.argv[2:]:
-    if f != '-':
-        process(outfp, open(f, 'r'))
+with open(sys.argv[1], 'w') as ofp:
+    for f in sys.argv[2:]:
+        if f != '-':
+            with open(f, 'r') as ifp:
+                process(ofp, ifp)
 
 sys.exit(0)
 """)
 
 
-SConstruct_contents = """\
+SConstruct_contents = r"""
 DefaultEnvironment(tools=[])
 import re
 
@@ -128,7 +130,7 @@ AlwaysBuild(file6)
 env.Cat('subdir/file7', 'subdir/file7.in')
 env.OneCat('subdir/file8', ['subdir/file7.in', env.Value(%(test_value)s)] )
 env.OneCat('subdir/file9', ['subdir/file7.in', env.Value(7)] )
-""" % valueDict )
+""" % valueDict)
 
 test_value = '"first"'
 WriteInitialTest( locals() )
@@ -324,9 +326,15 @@ env.Cat('file3', ['zzz', 'yyy', 'xxx'])
 python_sep = python.replace('\\', '\\\\')
 
 expect = test.wrap_stdout("""\
-scons: rebuilding `file3' because the dependency order changed:
-               old: ['xxx', 'yyy', 'zzz', '%(python_sep)s']
-               new: ['zzz', 'yyy', 'xxx', '%(python_sep)s']
+scons: rebuilding `file3' because:
+           the dependency order changed:
+           ->Sources
+           Old:xxx	New:zzz
+           Old:yyy	New:yyy
+           Old:zzz	New:xxx
+           ->Depends
+           ->Implicit
+           Old:%(_python_)s	New:%(_python_)s
 %(_python_)s %(cat_py)s file3 zzz yyy xxx
 """ % locals())
 

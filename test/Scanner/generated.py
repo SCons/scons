@@ -188,7 +188,7 @@ env = env.Clone()    # Yes, clobber intentionally
 
 """)
 
-test.write(['src', 'lib_geng', 'SConscript'], """\
+test.write(['src', 'lib_geng', 'SConscript'], r"""
 # --- Begin SConscript boilerplate ---
 import sys
 import Mylib
@@ -245,7 +245,7 @@ lib_name = "g"
 lib_fullname = env.subst("${LIBPREFIX}g${LIBSUFFIX}")
 lib_srcs = "libg_1.c libg_2.c libg_3.c".split()
 import re
-lib_objs = [re.sub("\.c$", ".o", x) for x in lib_srcs]
+lib_objs = [re.sub(r"\.c$", ".o", x) for x in lib_srcs]
 
 Mylib.ExportHeader(env, exported_hdrs)
 Mylib.ExportLib(env, lib_fullname)
@@ -259,7 +259,7 @@ Mylib.ExportLib(env, lib_fullname)
 #cmd_generated = "cd %s ; sh MAKE-HEADER.sh" % Dir(".")
 #cmd_justlib = "cd %s ; make" % Dir(".")
 
-_ws = re.compile('\s')
+_ws = re.compile(r'\s')
 
 def escape(s):
     if _ws.search(s):
@@ -280,7 +280,7 @@ env.Command(generated_hdrs.split(),
             cmd_generated)
 recurse_env.Command([lib_fullname] + lib_objs,
                     lib_srcs + (generated_hdrs + " " + static_hdrs).split(),
-                    cmd_justlib) 
+                    cmd_justlib)
 """)
 
 test.write(['src', 'lib_geng', 'MAKE-HEADER.py'], """\
@@ -294,7 +294,8 @@ import sys
 os.chdir(os.path.split(sys.argv[0])[0])
 
 for h in ['libg_gx.h', 'libg_gy.h', 'libg_gz.h']:
-    open(h, 'w').write('')
+    with open(h, 'w') as f:
+        f.write('')
 """ % locals())
 
 test.write(['src', 'lib_geng', 'SConstruct'], """\
@@ -302,12 +303,11 @@ import os
 
 Scanned = {}
 
-def write_out(file, dict):
-    f = open(file, 'w')
-    for k in sorted(dict.keys()):
-        file = os.path.split(k)[1]
-        f.write(file + ": " + str(dict[k]) + "\\n")
-    f.close()
+def write_out(fname, dict):
+    with open(fname, 'w') as f:
+        for k in sorted(dict.keys()):
+            name = os.path.split(k)[1]
+            f.write(name + ": " + str(dict[k]) + "\\n")
 
 # A hand-coded new-style class proxy to wrap the underlying C Scanner
 # with a method that counts the calls.
@@ -395,7 +395,7 @@ int g_1()
 
 test.write(['src', 'lib_geng', 'libg_2.c'], """\
 #include <libg_w.h>
-#include <libg_gx.h> 
+#include <libg_gx.h>
 #include <libg_gy.h>
 #include <libg_gz.h>
 

@@ -24,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Test creation of a mulitple pdf's from a list of PostScript files.
 
 Test courtesy Rob Managan.
@@ -108,7 +108,7 @@ $F2psBegin
  0.06299 0.06299 sc
 %
 % Fig objects follow
-% 
+%
 7.500 slw
 % Ellipse
 n 1170 945 766 766 0 360 DrawEllipse gs col0 s gr

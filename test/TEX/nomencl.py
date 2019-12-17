@@ -24,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Validate that use of \nomencl in TeX source files causes SCons to
 be aware of the necessary created glossary files.
 
@@ -65,7 +65,7 @@ test.write('nomencl.tex', r"""
 
 \begin{document}
 
-A nomenclature entry \nomenclature{gnu}{an animal or software group} 
+A nomenclature entry \nomenclature{gnu}{an animal or software group}
 and another\nomenclature{nix}{not sure}.
 
 %handle old version of nomencl.sty

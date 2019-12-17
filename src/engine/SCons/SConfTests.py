@@ -56,6 +56,18 @@ class SConfTestCase(unittest.TestCase):
         os.chdir(self.save_cwd)
 
     def _resetSConfState(self):
+        if sys.platform in ['cygwin', 'win32'] and sys.version_info.major == 2:
+            # On Windows with Python2, SCons.Platform.win32 redefines the
+            # built-in file() and open() functions to disable handle
+            # inheritance. Because we are unloading all SCons modules other
+            # than SCons.Compat, SCons.Platform.win32 will lose the variables
+            # it needs. As a result, we should reset the file() and open()
+            # functions to their original built-in versions.
+            import __builtin__
+            import SCons.Platform.win32
+            __builtin__.file = SCons.Platform.win32._builtin_file
+            __builtin__.open = SCons.Platform.win32._builtin_open
+
         # Ok, this is tricky, and i do not know, if everything is sane.
         # We try to reset scons' state (including all global variables)
         import SCons.SConsign
@@ -89,22 +101,6 @@ class SConfTestCase(unittest.TestCase):
         if self.scons_env['CXX'] == 'g++':
             global existing_lib
             existing_lib = 'm'
-
-        if sys.platform in ['cygwin', 'win32']:
-             # On Windows, SCons.Platform.win32 redefines the builtin
-             # file() and open() functions to close the file handles.
-             # This interferes with the unittest.py infrastructure in
-             # some way.  Just sidestep the issue by restoring the
-             # original builtin functions whenever we have to reset
-             # all of our global state.
-
-             import SCons.Platform.win32
-
-             try:
-                file = SCons.Platform.win32._builtin_file
-                open = SCons.Platform.win32._builtin_open
-             except AttributeError:
-                 pass
 
     def _baseTryXXX(self, TryFunc):
         # TryCompile and TryLink are much the same, so we can test them
@@ -194,7 +190,7 @@ class SConfTestCase(unittest.TestCase):
                         pass
                     def add_post_action(self, *actions):
                         pass
-                    def children(self):
+                    def children(self, scan = 1):
                         return []
                     def get_state(self):
                         return self.state
@@ -298,12 +294,14 @@ int main(void) {
         """Test SConf.TryAction
         """
         def actionOK(target, source, env):
-            open(str(target[0]), "w").write("RUN OK\n")
+            with open(str(target[0]), "w") as f:
+                f.write("RUN OK\n")
             return None
         def actionFAIL(target, source, env):
             return 1
         def actionUnicode(target, source, env):
-            open(str(target[0]), "wb").write('2\302\242\n')
+            with open(str(target[0]), "wb") as f:
+                f.write('2\302\242\n')
             return None
 
 

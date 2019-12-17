@@ -33,14 +33,13 @@ test = TestSCons.TestSCons()
 
 test.write('build.py', r"""
 import sys
-input = open(sys.argv[1], 'r')
-output = open(sys.argv[2], 'w')
 
 def process(infp, outfp):
     for line in infp.readlines():
         if line[:8] == 'include ':
             file = line[8:-1]
-            process(open(file, 'r'), outfp)
+            with open(file, 'r') as f:
+                process(f, outfp)
         elif line[:8] == 'getfile ':
             outfp.write('include ')
             outfp.write(line[8:])
@@ -48,7 +47,8 @@ def process(infp, outfp):
         else:
             outfp.write(line)
 
-process(input, output)
+with open(sys.argv[1], 'r') as ifp, open(sys.argv[2], 'w') as ofp:
+    process(ifp, ofp)
 
 sys.exit(0)
 """, mode='w')
@@ -60,7 +60,7 @@ test.write('SConstruct', """
 SConscript('SConscript')
 """, mode='w')
 
-test.write('SConscript', """
+test.write('SConscript', r"""
 import re
 
 include_re = re.compile(r'^include\s+(\S+)\s*$', re.M)
@@ -118,7 +118,8 @@ def third(env, target, source):
     contents = source[0].get_contents()
     # print("TYPE:"+str(type(contents)))
     contents = contents.replace(b'getfile', b'MISSEDME')
-    open(str(target[0]), 'wb').write(contents)
+    with open(str(target[0]), 'wb') as f:
+        f.write(contents)
 
 kbld = Builder(action=r'%(_python_)s build.py $SOURCES $TARGET',
                src_suffix='.first',
@@ -136,7 +137,7 @@ Alias('make_ork', ork)
 
 """ % locals(),mode='w')
 
-test.write('foo.k', 
+test.write('foo.k',
 """foo.k 1 line 1
 include xxx
 include yyy
@@ -150,7 +151,7 @@ bar.in 1 line 3
 include zzz
 """, mode='w')
 
-test.write('junk.k2', 
+test.write('junk.k2',
 """include yyy
 junk.k2 1 line 2
 junk.k2 1 line 3

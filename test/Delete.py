@@ -44,10 +44,10 @@ Execute(Delete('symlinks/dirlink'))
 
 def cat(env, source, target):
     target = str(target[0])
-    f = open(target, "wb")
-    for src in source:
-        f.write(open(str(src), "rb").read())
-    f.close()
+    with open(target, "wb") as ofp:
+        for src in source:
+            with open(str(src), "rb") as ifp:
+                ofp.write(ifp.read())
 Cat = Action(cat)
 env = Environment()
 env.Command('f3.out', 'f3.in', [Cat, Delete("f4"), Delete("d5")])
@@ -194,10 +194,10 @@ if sys.platform != 'win32':
 test.write("SConstruct", """\
 def cat(env, source, target):
     target = str(target[0])
-    f = open(target, "wb")
-    for src in source:
-        f.write(open(str(src), "rb").read())
-    f.close()
+    with open(target, "wb") as ifp:
+        for src in source:
+            with open(str(src), "rb") as ofp:
+                ofp.write(ifp.read())
 Cat = Action(cat)
 env = Environment()
 env.Command('f14-nonexistent.out', 'f14.in', [Delete("$TARGET", must_exist=1),

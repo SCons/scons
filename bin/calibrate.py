@@ -28,8 +28,8 @@ import re
 import subprocess
 import sys
 
-variable_re = re.compile('^VARIABLE: (.*)$', re.M)
-elapsed_re = re.compile('^ELAPSED: (.*)$', re.M)
+variable_re = re.compile(r'^VARIABLE: (.*)$', re.M)
+elapsed_re = re.compile(r'^ELAPSED: (.*)$', re.M)
 
 def main(argv=None):
     if argv is None:
@@ -60,7 +60,8 @@ def main(argv=None):
         while good < 3:
             p = subprocess.Popen(command,
                                  stdout=subprocess.PIPE,
-                                 stderr=subprocess.STDOUT)
+                                 stderr=subprocess.STDOUT,
+                                 universal_newlines=True)
             output = p.communicate()[0]
             vm = variable_re.search(output)
             em = elapsed_re.search(output)
@@ -70,12 +71,13 @@ def main(argv=None):
                 print(output)
                 raise
             print("run %3d: %7.3f:  %s" % (run, elapsed, ' '.join(vm.groups())))
-            if opts.min < elapsed and elapsed < opts.max:
+            if opts.min < elapsed < opts.max:
                 good += 1
             else:
                 good = 0
                 for v in vm.groups():
                     var, value = v.split('=', 1)
+                    # TODO: this sometimes converges slowly, better algorithm?
                     value = int((int(value) * opts.max) // elapsed)
                     os.environ[var] = str(value)
             run += 1

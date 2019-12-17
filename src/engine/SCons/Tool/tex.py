@@ -74,15 +74,15 @@ openout_bcf_re = re.compile(r"OUTPUT *(.*\.bcf)")
 #printglossary_re = re.compile(r"^[^%]*\\printglossary", re.MULTILINE)
 
 # search to find rerun warnings
-warning_rerun_str = '(^LaTeX Warning:.*Rerun)|(^Package \w+ Warning:.*Rerun)'
+warning_rerun_str = r'(^LaTeX Warning:.*Rerun)|(^Package \w+ Warning:.*Rerun)'
 warning_rerun_re = re.compile(warning_rerun_str, re.MULTILINE)
 
 # search to find citation rerun warnings
-rerun_citations_str = "^LaTeX Warning:.*\n.*Rerun to get citations correct"
+rerun_citations_str = r"^LaTeX Warning:.*\n.*Rerun to get citations correct"
 rerun_citations_re = re.compile(rerun_citations_str, re.MULTILINE)
 
 # search to find undefined references or citations warnings
-undefined_references_str = '(^LaTeX Warning:.*undefined references)|(^Package \w+ Warning:.*undefined citations)'
+undefined_references_str = r'(^LaTeX Warning:.*undefined references)|(^Package \w+ Warning:.*undefined citations)'
 undefined_references_re = re.compile(undefined_references_str, re.MULTILINE)
 
 # used by the emitter
@@ -297,7 +297,8 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
         logfilename = targetbase + '.log'
         logContent = ''
         if os.path.isfile(logfilename):
-            logContent = open(logfilename, "r").read()
+            with open(logfilename, "rb") as f:
+                logContent = f.read().decode(errors='replace')
 
 
         # Read the fls file to find all .aux files
@@ -305,7 +306,8 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
         flsContent = ''
         auxfiles = []
         if os.path.isfile(flsfilename):
-            flsContent = open(flsfilename, "r").read()
+            with open(flsfilename, "r") as f:
+                flsContent = f.read()
             auxfiles = openout_aux_re.findall(flsContent)
             # remove duplicates
             dups = {}
@@ -315,7 +317,8 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
 
         bcffiles = []
         if os.path.isfile(flsfilename):
-            flsContent = open(flsfilename, "r").read()
+            with open(flsfilename, "r") as f:
+                flsContent = f.read()
             bcffiles = openout_bcf_re.findall(flsContent)
             # remove duplicates
             dups = {}
@@ -338,7 +341,8 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                 already_bibtexed.append(auxfilename)
                 target_aux = os.path.join(targetdir, auxfilename)
                 if os.path.isfile(target_aux):
-                    content = open(target_aux, "r").read()
+                    with open(target_aux, "r") as f:
+                        content = f.read()
                     if content.find("bibdata") != -1:
                         if Verbose:
                             print("Need to run bibtex on ",auxfilename)
@@ -361,7 +365,8 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                 already_bibtexed.append(bcffilename)
                 target_bcf = os.path.join(targetdir, bcffilename)
                 if os.path.isfile(target_bcf):
-                    content = open(target_bcf, "r").read()
+                    with open(target_bcf, "r") as f:
+                        content = f.read()
                     if content.find("bibdata") != -1:
                         if Verbose:
                             print("Need to run biber on ",bcffilename)
@@ -647,7 +652,7 @@ def ScanFiles(theFile, target, paths, file_tests, file_tests_search, env, graphi
     if incResult:
         aux_files.append(os.path.join(targetdir, incResult.group(1)))
     if Verbose:
-        print("\include file names : ", aux_files)
+        print(r"\include file names : ", aux_files)
     # recursively call this on each of the included files
     inc_files = [ ]
     inc_files.extend( include_re.findall(content) )
@@ -776,7 +781,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
         # add side effects if feature is present.If file is to be generated,add all side effects
         if Verbose and theSearch:
             print("check side effects for ",suffix_list[-1])
-        if (theSearch != None) or (not source[0].exists() ):
+        if theSearch is not None or not source[0].exists():
             file_list = [targetbase,]
             # for bibunit we need a list of files
             if suffix_list[-1] == 'bibunit':
@@ -813,7 +818,8 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     # read fls file to get all other files that latex creates and will read on the next pass
     # remove files from list that we explicitly dealt with above
     if os.path.isfile(flsfilename):
-        content = open(flsfilename, "r").read()
+        with open(flsfilename, "r") as f:
+            content = f.read()
         out_files = openout_re.findall(content)
         myfiles = [auxfilename, logfilename, flsfilename, targetbase+'.dvi',targetbase+'.pdf']
         for filename in out_files[:]:

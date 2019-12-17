@@ -138,37 +138,37 @@ elif 'sunlink' in tool_list:
     test_plan = [
       {
           'libversion' : '2',
-          'files'      : [ 'libtest.so', 'libtest.so.2', 'so_test.os' ],
+          'files'      : [ 'libtest.so', 'libtest.so.2', 'test.pic.o' ],
           'instfiles'  : [ 'libtest.so', 'libtest.so.2' ],
           'symlinks'   : [ ('libtest.so', 'libtest.so.2') ],
       },
       {
           'libversion' : '2.5',
-          'files'      : [ 'libtest.so', 'libtest.so.2', 'libtest.so.2.5', 'so_test.os' ],
+          'files'      : [ 'libtest.so', 'libtest.so.2', 'libtest.so.2.5', 'test.pic.o' ],
           'instfiles'  : [ 'libtest.so', 'libtest.so.2', 'libtest.so.2.5' ],
           'symlinks'   : [ ('libtest.so', 'libtest.so.2.5'), ('libtest.so.2', 'libtest.so.2.5') ],
       },
       {
           'libversion' : '2.5.4',
-          'files'      : [ 'libtest.so', 'libtest.so.2', 'libtest.so.2.5.4', 'so_test.os' ],
+          'files'      : [ 'libtest.so', 'libtest.so.2', 'libtest.so.2.5.4', 'test.pic.o' ],
           'instfiles'  : [ 'libtest.so', 'libtest.so.2', 'libtest.so.2.5.4' ],
           'symlinks'   : [ ('libtest.so', 'libtest.so.2.5.4'), ('libtest.so.2', 'libtest.so.2.5.4') ],
       },
       {
           'libversion' : '2.5.4.7.8',
-          'files'      : [ 'libtest.so', 'libtest.so.2', 'libtest.so.2.5.4.7.8', 'so_test.os' ],
+          'files'      : [ 'libtest.so', 'libtest.so.2', 'libtest.so.2.5.4.7.8', 'test.pic.o' ],
           'instfiles'  : [ 'libtest.so', 'libtest.so.2', 'libtest.so.2.5.4.7.8' ],
           'symlinks'   : [ ('libtest.so', 'libtest.so.2.5.4.7.8'), ('libtest.so.2', 'libtest.so.2.5.4.7.8') ],
       },
       {
           'libversion' : 'aabf114f',
-          'files'      : [ 'libtest.so', 'libtest.so.aabf114f', 'so_test.os' ],
+          'files'      : [ 'libtest.so', 'libtest.so.aabf114f', 'test.pic.o' ],
           'instfiles'  : [ 'libtest.so', 'libtest.so.aabf114f' ],
           'symlinks'   : [ ('libtest.so', 'libtest.so.aabf114f') ],
       },
       {
           'libversion' : '2.dfffa11',
-          'files'      : [ 'libtest.so', 'libtest.so.2', 'libtest.so.2.dfffa11', 'so_test.os' ],
+          'files'      : [ 'libtest.so', 'libtest.so.2', 'libtest.so.2.dfffa11', 'test.pic.o' ],
           'instfiles'  : [ 'libtest.so', 'libtest.so.2', 'libtest.so.2.dfffa11' ],
           'symlinks'   : [ ('libtest.so', 'libtest.so.2.dfffa11'), ('libtest.so.2', 'libtest.so.2.dfffa11') ],
       },

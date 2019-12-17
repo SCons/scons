@@ -37,10 +37,10 @@ test = TestSCons.TestSCons()
 
 test.write('cat.py', """\
 import sys
-fp = open(sys.argv[1], 'wb')
-for infile in sys.argv[2:]:
-  fp.write(open(infile, 'rb').read())
-fp.close()
+with open(sys.argv[1], 'wb') as ofp:
+    for infile in sys.argv[2:]:
+      with open(infile, 'rb') as ifp:
+          ofp.write(ifp.read())
 sys.exit(0)
 """)
 

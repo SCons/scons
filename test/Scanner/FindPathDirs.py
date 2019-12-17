@@ -41,8 +41,6 @@ test.write('build.py', r"""
 import os.path
 import sys
 path = sys.argv[1].split()
-input = open(sys.argv[2], 'r')
-output = open(sys.argv[3], 'w')
 
 def find_file(f):
     for dir in path:
@@ -55,11 +53,13 @@ def process(infp, outfp):
     for line in infp.readlines():
         if line[:8] == 'include ':
             file = line[8:-1]
-            process(find_file(file), outfp)
+            with find_file(file) as f:
+                process(f, outfp)
         else:
             outfp.write(line)
 
-process(input, output)
+with open(sys.argv[2], 'r') as ifp, open(sys.argv[3], 'w') as ofp:
+    process(ifp, ofp)
 
 sys.exit(0)
 """)
@@ -71,7 +71,7 @@ test.write('SConstruct', """\
 SConscript('SConscript')
 """)
 
-test.write('SConscript', """\
+test.write('SConscript', r"""
 import os.path
 import re
 
@@ -86,7 +86,7 @@ def kfile_scan(node, env, path, arg):
     for inc in includes:
         for dir in path:
             file = str(dir) + os.sep + inc
-            if os.path.exists(file):  
+            if os.path.exists(file):
                 results.append(file)
                 break
     return results
@@ -109,7 +109,7 @@ env.Command('foo', 'foo.k', r'%(_python_)s build.py "$KPATH" $SOURCES $TARGET')
 
 
 
-test.write('foo.k', 
+test.write('foo.k',
 """foo.k 1 line 1
 include xxx
 include yyy

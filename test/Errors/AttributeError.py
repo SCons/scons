@@ -39,9 +39,9 @@ a.append(2)
 """)
 
 test.run(status = 2, stderr = """\
-(AttributeError|<type 'exceptions\.AttributeError'>): 'int' object has no attribute 'append':
+(AttributeError|<type 'exceptions\\.AttributeError'>): 'int' object has no attribute 'append':
   File ".+SConstruct", line 2:
-    a.append\(2\)
+    a.append\\(2\\)
 """)
 
 test.pass_test()

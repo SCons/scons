@@ -1,5 +1,6 @@
 def b(target, source, env):
-    open(str(target[0]), 'wb').write((env['X'] + '\n').encode())
+    with open(str(target[0]), 'wb') as f:
+        f.write((env['X'] + '\n').encode())
 env1 = Environment(X='111')
 env2 = Environment(X='222')
 B = Builder(action = b, env = env1, multi=1)

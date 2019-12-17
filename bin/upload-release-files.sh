@@ -21,6 +21,12 @@ cp -f ../../src/CHANGES.txt ../../src/RELEASE.txt ../../src/Announce.txt ../../s
 
 set -x
 
+# upload README
+$RSYNC $RSYNCOPTS\
+       README-SF.rst bdbaddog@frs.sourceforge.net:/home/frs/project/scons/ \
+       $SF_USER@$SF_MACHINE:$SF_TOPDIR/scons/
+
+	
 # Upload main scons release files:
 $RSYNC $RSYNCOPTS \
   scons-$VERSION.tar.gz \
@@ -36,17 +42,16 @@ $RSYNC $RSYNCOPTS \
   $SF_USER@$SF_MACHINE:$SF_TOPDIR/scons-local/$VERSION/
 
 # Source packages:
-#$RSYNC $RSYNCOPTS \
-#  scons-src-$VERSION.tar.gz \
-#  scons-src-$VERSION.zip \
-#  Announce.txt CHANGES.txt RELEASE.txt \
-#  $SF_USER@$SF_MACHINE:$SF_TOPDIR/scons-src/$VERSION/
+$RSYNC $RSYNCOPTS \
+ scons-src-$VERSION.tar.gz \
+ scons-src-$VERSION.zip \
+ Announce.txt CHANGES.txt RELEASE.txt \
+ $SF_USER@$SF_MACHINE:$SF_TOPDIR/scons-src/$VERSION/
 
 # Readme
 $RSYNC $RSYNCOPTS \
   README.txt  \
   $SF_USER@$SF_MACHINE:$SF_TOPDIR/
-
 
 
 #

@@ -39,21 +39,21 @@ test = TestSCons.TestSCons()
 
 test.write('build.py', r"""
 import sys
-output = open(sys.argv[1], 'w')
-for infile in sys.argv[2:]:
-    input = open(infile, 'r')
+with open(sys.argv[1], 'w') as ofp:
+    for infile in sys.argv[2:]:
+        with open(infile, 'r') as ifp:
+            include_prefix = 'include%s ' % infile[-1]
 
-    include_prefix = 'include%s ' % infile[-1]
+            def process(infp, outfp, include_prefix=include_prefix):
+                for line in infp.readlines():
+                    if line[:len(include_prefix)] == include_prefix:
+                        file = line[len(include_prefix):-1]
+                        with open(file, 'r') as f:
+                            process(f, outfp)
+                    else:
+                        outfp.write(line)
 
-    def process(infp, outfp, include_prefix=include_prefix):
-        for line in infp.readlines():
-            if line[:len(include_prefix)] == include_prefix:
-                file = line[len(include_prefix):-1]
-                process(open(file, 'r'), outfp)
-            else:
-                outfp.write(line)
-
-    process(input, output)
+            process(ifp, ofp)
 
 sys.exit(0)
 """)
@@ -65,7 +65,7 @@ test.write('SConstruct', """
 SConscript('SConscript')
 """)
 
-test.write('SConscript', """
+test.write('SConscript', r"""
 import re
 
 include1_re = re.compile(r'^include1\s+(\S+)$', re.M)
@@ -101,7 +101,7 @@ env.Build('ccc', 'ccc.k3')
 env.Build('ddd', ['ddd.k4', 'aaa.k1', 'bbb.k2', 'ccc.k3'])
 """ % locals())
 
-test.write('aaa.k1', 
+test.write('aaa.k1',
 """aaa.k1 1
 line 2
 include1 xxx
@@ -110,7 +110,7 @@ include3 zzz
 line 6
 """)
 
-test.write('bbb.k2', 
+test.write('bbb.k2',
 """bbb.k2 1
 line 2
 include1 xxx
@@ -119,7 +119,7 @@ include3 zzz
 line 6
 """)
 
-test.write('ccc.k3', 
+test.write('ccc.k3',
 """ccc.k3 1
 line 2
 include1 xxx
@@ -128,7 +128,7 @@ include3 zzz
 line 6
 """)
 
-test.write('ddd.k4', 
+test.write('ddd.k4',
 """ddd.k4 1
 line 2
 line 3

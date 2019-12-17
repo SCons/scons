@@ -53,11 +53,12 @@ SConscript('SConscript')
 test.write(['src', 'SConscript'], """\
 def cat(env, source, target):
     target = str(target[0])
-    open('cat.out', 'a').write(target + "\\n")
-    f = open(target, "w")
-    for src in source:
-        f.write(open(str(src), "r").read())
-    f.close()
+    with open('cat.out', 'a') as f:
+        f.write(target + "\\n")
+    with open(target, "w") as f:
+        for src in source:
+            with open(str(src), "r") as f2:
+                f.write(f2.read())
 env = Environment(tools=[], BUILDERS={'Cat':Builder(action=cat)})
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')
@@ -87,9 +88,13 @@ test.run(chdir='src',
 
 expect = \
 r"""CacheRetrieve\(aaa.out\):  [0-9a-fA-F]+ not in cache
+requests: [0-9]+, hits: [0-9]+, misses: [0-9]+, hit rate: [0-9]+\.[0-9]{2,}%
 CacheRetrieve\(bbb.out\):  [0-9a-fA-F]+ not in cache
+requests: [0-9]+, hits: [0-9]+, misses: [0-9]+, hit rate: [0-9]+\.[0-9]{2,}%
 CacheRetrieve\(ccc.out\):  [0-9a-fA-F]+ not in cache
+requests: [0-9]+, hits: [0-9]+, misses: [0-9]+, hit rate: [0-9]+\.[0-9]{2,}%
 CacheRetrieve\(all\):  [0-9a-fA-F]+ not in cache
+requests: [0-9]+, hits: [0-9]+, misses: [0-9]+, hit rate: [0-9]+\.[0-9]{2,}%
 """
 
 test.must_match(debug_out, expect, mode='r')
@@ -101,17 +106,25 @@ test.must_match(debug_out, expect, mode='r')
 
 expect = \
 r"""CacheRetrieve\(aaa.out\):  [0-9a-fA-F]+ not in cache
+requests: [0-9]+, hits: [0-9]+, misses: [0-9]+, hit rate: [0-9]+\.[0-9]{2,}%
 cat\(\["aaa.out"\], \["aaa.in"\]\)
 CachePush\(aaa.out\):  pushing to [0-9a-fA-F]+
+requests: [0-9]+, hits: [0-9]+, misses: [0-9]+, hit rate: [0-9]+\.[0-9]{2,}%
 CacheRetrieve\(bbb.out\):  [0-9a-fA-F]+ not in cache
+requests: [0-9]+, hits: [0-9]+, misses: [0-9]+, hit rate: [0-9]+\.[0-9]{2,}%
 cat\(\["bbb.out"\], \["bbb.in"\]\)
 CachePush\(bbb.out\):  pushing to [0-9a-fA-F]+
+requests: [0-9]+, hits: [0-9]+, misses: [0-9]+, hit rate: [0-9]+\.[0-9]{2,}%
 CacheRetrieve\(ccc.out\):  [0-9a-fA-F]+ not in cache
+requests: [0-9]+, hits: [0-9]+, misses: [0-9]+, hit rate: [0-9]+\.[0-9]{2,}%
 cat\(\["ccc.out"\], \["ccc.in"\]\)
 CachePush\(ccc.out\):  pushing to [0-9a-fA-F]+
+requests: [0-9]+, hits: [0-9]+, misses: [0-9]+, hit rate: [0-9]+\.[0-9]{2,}%
 CacheRetrieve\(all\):  [0-9a-fA-F]+ not in cache
+requests: [0-9]+, hits: [0-9]+, misses: [0-9]+, hit rate: [0-9]+\.[0-9]{2,}%
 cat\(\["all"\], \["aaa.out", "bbb.out", "ccc.out"\]\)
 CachePush\(all\):  pushing to [0-9a-fA-F]+
+requests: [0-9]+, hits: [0-9]+, misses: [0-9]+, hit rate: [0-9]+\.[0-9]{2,}%
 """
 
 test.run(chdir='src',
@@ -133,12 +146,16 @@ test.unlink(['src', 'cat.out'])
 expect = \
 r"""Retrieved `aaa.out' from cache
 CacheRetrieve\(aaa.out\):  retrieving from [0-9a-fA-F]+
+requests: [0-9]+, hits: [0-9]+, misses: [0-9]+, hit rate: [0-9]+\.[0-9]{2,}%
 Retrieved `bbb.out' from cache
 CacheRetrieve\(bbb.out\):  retrieving from [0-9a-fA-F]+
+requests: [0-9]+, hits: [0-9]+, misses: [0-9]+, hit rate: [0-9]+\.[0-9]{2,}%
 Retrieved `ccc.out' from cache
 CacheRetrieve\(ccc.out\):  retrieving from [0-9a-fA-F]+
+requests: [0-9]+, hits: [0-9]+, misses: [0-9]+, hit rate: [0-9]+\.[0-9]{2,}%
 Retrieved `all' from cache
 CacheRetrieve\(all\):  retrieving from [0-9a-fA-F]+
+requests: [0-9]+, hits: [0-9]+, misses: [0-9]+, hit rate: [0-9]+\.[0-9]{2,}%
 """
 
 test.run(chdir='src',
@@ -163,9 +180,13 @@ test.run(chdir='src',
 
 expect = \
 r"""CacheRetrieve\(aaa.out\):  retrieving from [0-9a-fA-F]+
+requests: [0-9]+, hits: [0-9]+, misses: [0-9]+, hit rate: [0-9]+\.[0-9]{2,}%
 CacheRetrieve\(bbb.out\):  retrieving from [0-9a-fA-F]+
+requests: [0-9]+, hits: [0-9]+, misses: [0-9]+, hit rate: [0-9]+\.[0-9]{2,}%
 CacheRetrieve\(ccc.out\):  retrieving from [0-9a-fA-F]+
+requests: [0-9]+, hits: [0-9]+, misses: [0-9]+, hit rate: [0-9]+\.[0-9]{2,}%
 CacheRetrieve\(all\):  retrieving from [0-9a-fA-F]+
+requests: [0-9]+, hits: [0-9]+, misses: [0-9]+, hit rate: [0-9]+\.[0-9]{2,}%
 """
 
 test.must_match(debug_out, expect, mode='r')

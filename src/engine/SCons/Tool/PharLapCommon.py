@@ -79,7 +79,8 @@ def getPharLapVersion():
     include_path = os.path.join(getPharLapPath(), os.path.normpath("include/embkern.h"))
     if not os.path.exists(include_path):
         raise SCons.Errors.UserError("Cannot find embkern.h in ETS include directory.\nIs Phar Lap ETS installed properly?")
-    mo = REGEX_ETS_VER.search(open(include_path, 'r').read())
+    with open(include_path, 'r') as f:
+        mo = REGEX_ETS_VER.search(f.read())
     if mo:
         return int(mo.group(1))
     # Default return for Phar Lap 9.1

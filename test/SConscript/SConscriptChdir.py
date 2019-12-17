@@ -44,33 +44,43 @@ SConscript('dir5/SConscript')
 """)
 
 test.write(['dir1', 'SConscript'], """
-exec(open("create_test.py", 'r').read())
+with open("create_test.py", 'r') as f:
+    contents = f.read()
+exec(contents)
 """)
 
 test.write(['dir2', 'SConscript'], """
-exec(open("create_test.py", 'r').read())
+with open("create_test.py", 'r') as f:
+    contents = f.read()
+exec(contents)
 """)
 
 test.write(['dir3', 'SConscript'], """
 import os.path
 name = os.path.join('dir3', 'create_test.py')
-exec(open(name, 'r').read())
+with open(name, 'r') as f:
+    contents = f.read()
+exec(contents)
 """)
 
 test.write(['dir4', 'SConscript'], """
-exec(open("create_test.py", 'r').read())
+with open("create_test.py", 'r') as f:
+    contents = f.read()
+exec(contents)
 """)
 
 test.write(['dir5', 'SConscript'], """
 import os.path
 name = os.path.join('dir5', 'create_test.py')
-exec(open(name, 'r').read())
+with open(name, 'r') as f:
+    contents = f.read()
+exec(contents)
 """)
 
 for dir in ['dir1', 'dir2', 'dir3','dir4', 'dir5']:
     test.write([dir, 'create_test.py'], r"""
-f = open("test.txt", "a")
-f.write("This is the %s test.\n")
+with open("test.txt", "a") as f:
+    f.write("This is the %s test.\n")
 f.close()
 """ % dir)
 

@@ -28,27 +28,62 @@ from __future__ import print_function
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import copy
+import json
 import os
-import subprocess
 import re
+import subprocess
+import sys
 
 import SCons.Util
 
-
+# SCONS_MSCOMMON_DEBUG is internal-use so undocumented:
+# set to '-' to print to console, else set to filename to log to
 LOGFILE = os.environ.get('SCONS_MSCOMMON_DEBUG')
 if LOGFILE == '-':
     def debug(message):
         print(message)
 elif LOGFILE:
-    try:
-        import logging
-    except ImportError:
-        debug = lambda message: open(LOGFILE, 'a').write(message + '\n')
-    else:
-        logging.basicConfig(filename=LOGFILE, level=logging.DEBUG)
-        debug = logging.getLogger(name=__name__).debug
+    import logging
+    logging.basicConfig(
+        format='%(relativeCreated)05dms:pid%(process)05d:MSCommon/%(filename)s:%(message)s',
+        filename=LOGFILE,
+        level=logging.DEBUG)
+    debug = logging.getLogger(name=__name__).debug
 else:
     debug = lambda x: None
+
+
+# SCONS_CACHE_MSVC_CONFIG is public, and is documented.
+CONFIG_CACHE = os.environ.get('SCONS_CACHE_MSVC_CONFIG')
+if CONFIG_CACHE in ('1', 'true', 'True'):
+    CONFIG_CACHE = os.path.join(os.path.expanduser('~'), '.scons_msvc_cache')
+
+def read_script_env_cache():
+    """ fetch cached msvc env vars if requested, else return empty dict """
+    envcache = {}
+    if CONFIG_CACHE:
+        try:
+            with open(CONFIG_CACHE, 'r') as f:
+                envcache = json.load(f)
+        #TODO can use more specific FileNotFoundError when py2 dropped
+        except IOError:
+            # don't fail if no cache file, just proceed without it
+            pass
+    return envcache
+
+
+def write_script_env_cache(cache):
+    """ write out cache of msvc env vars if requested """
+    if CONFIG_CACHE:
+        try:
+            with open(CONFIG_CACHE, 'w') as f:
+                json.dump(cache, f, indent=2)
+        except TypeError:
+            # data can't serialize to json, don't leave partial file
+            os.remove(CONFIG_CACHE)
+        except IOError:
+            # can't write the file, just skip
+            pass
 
 
 _is_win64 = None
@@ -117,7 +152,7 @@ def normalize_env(env, keys, force=False):
             normenv[k] = copy.deepcopy(env[k])
 
         for k in keys:
-            if k in os.environ and (force or not k in normenv):
+            if k in os.environ and (force or k not in normenv):
                 normenv[k] = os.environ[k]
 
     # This shouldn't be necessary, since the default environment should include system32,
@@ -188,8 +223,10 @@ def get_output(vcbat, args = None, env = None):
     # Use the .stdout and .stderr attributes directly because the
     # .communicate() method uses the threading module on Windows
     # and won't work under Pythons not built with threading.
-    stdout = popen.stdout.read()
-    stderr = popen.stderr.read()
+    with popen.stdout:
+        stdout = popen.stdout.read()
+    with popen.stderr:
+        stderr = popen.stderr.read()
 
     # Extra debug logic, uncomment if necessary
 #     debug('get_output():stdout:%s'%stdout)
@@ -198,7 +235,6 @@ def get_output(vcbat, args = None, env = None):
     if stderr:
         # TODO: find something better to do with stderr;
         # this at least prevents errors from getting swallowed.
-        import sys
         sys.stderr.write(stderr)
     if popen.wait() != 0:
         raise IOError(stderr.decode("mbcs"))
@@ -206,14 +242,15 @@ def get_output(vcbat, args = None, env = None):
     output = stdout.decode("mbcs")
     return output
 
-def parse_output(output, keep=("INCLUDE", "LIB", "LIBPATH", "PATH", 'VSCMD_ARG_app_plat')):
+KEEPLIST = ("INCLUDE", "LIB", "LIBPATH", "PATH", 'VSCMD_ARG_app_plat')
+def parse_output(output, keep=KEEPLIST):
     """
     Parse output from running visual c++/studios vcvarsall.bat and running set
     To capture the values listed in keep
     """
 
     # dkeep is a dict associating key: path_list, where key is one item from
-    # keep, and pat_list the associated list of paths
+    # keep, and path_list the associated list of paths
     dkeep = dict([(i, []) for i in keep])
 
     # rdk will  keep the regex to match the .bat file output line starts

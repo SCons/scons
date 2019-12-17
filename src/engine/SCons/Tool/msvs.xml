@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
 __COPYRIGHT__
 
@@ -48,14 +48,16 @@ See its __doc__ string for a discussion of the format.
         latest installed version, or the version specified by
         &cv-link-MSVS_VERSION; in the Environment constructor). For
         Visual Studio 6, it will generate a <filename>.dsp</filename>
-        file. For Visual Studio 7 (.NET) and later versions, it will
-        generate a <filename>.vcproj</filename> file.
+        file. For Visual Studio 7, 8, and 9, it will
+        generate a <filename>.vcproj</filename> file.  For Visual
+        Studio 10 and later, it will generate a
+        <filename>.vcxproj</filename> file.
       </para>
       <para>
         By default, this also generates a solution file for the
         specified project, a <filename>.dsw</filename> file for
         Visual Studio 6 or a <filename>.sln</filename> file for
-        Visual Studio 7 (.NET). This behavior may be disabled by
+        Visual Studio 7 and later. This behavior may be disabled by
         specifying <literal>auto_build_solution=0</literal> when you
         call &b-MSVSProject;, in which case you presumably want to
         build the solution file(s) by calling the &b-MSVSSolution;
@@ -124,6 +126,36 @@ See its __doc__ string for a discussion of the format.
               of <literal>variant</literal> entries, or be empty (not
               specified). If you give only one, it will automatically
               be propagated to all variants.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>cppdefines</term>
+          <listitem>
+            <para>
+              Preprocessor definitions for the different variants.
+              The number of <literal>cppdefines</literal> entries
+              must match the number of <literal>variant</literal>
+              entries, or be empty (not specified). If you give
+              only one, it will automatically be propagated to all
+              variants. If you don't give this parameter, SCons
+              will use the invoking environment's
+              <literal>CPPDEFINES</literal> entry for all variants.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>cpppaths</term>
+          <listitem>
+            <para>
+              Compiler include paths for the different variants.
+              The number of <literal>cpppaths</literal> entries
+              must match the number of <literal>variant</literal>
+              entries, or be empty (not specified). If you give
+              only one, it will automatically be propagated to all
+              variants. If you don't give this parameter, SCons
+              will use the invoking environment's
+              <literal>CPPPATH</literal> entry for all variants.
             </para>
           </listitem>
         </varlistentry>

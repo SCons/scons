@@ -24,8 +24,7 @@ from TestCommon import __all__
 # some of the scons_time tests may need regex-based matching:
 from TestSCons import search_re, search_re_in_list
 
-__all__.extend([ 'TestSCons_time',
-               ])
+__all__.extend(['TestSCons_time',])
 
 SConstruct = """\
 from __future__ import print_function
@@ -37,42 +36,48 @@ scons_py = """\
 #!/usr/bin/env python
 import os
 import sys
+
 def write_args(fp, args):
     fp.write(args[0] + '\\n')
     for arg in args[1:]:
         fp.write('    ' + arg + '\\n')
+
 write_args(sys.stdout, sys.argv)
 for arg in sys.argv[1:]:
     if arg[:10] == '--profile=':
-        profile = open(arg[10:], 'w')
-        profile.write('--profile\\n')
-        write_args(profile, sys.argv)
+        with open(arg[10:], 'w') as profile:
+            profile.write('--profile\\n')
+            write_args(profile, sys.argv)
         break
 sys.stdout.write('SCONS_LIB_DIR = ' + os.environ['SCONS_LIB_DIR'] + '\\n')
-exec(open('SConstruct', 'r').read())
+with open('SConstruct', 'r') as f:
+    script = f.read()
+exec(script)
 """
-
-aegis_py = """\
-#!/usr/bin/env python
-import os
-import sys
-script_dir = 'src/script'
-if not os.path.exists(script_dir):
-    os.makedirs(script_dir)
-open(script_dir + '/scons.py', 'w').write(
-r'''%s''')
-""" % scons_py
-
 
 svn_py = """\
 #!/usr/bin/env python
 import os
 import sys
+
 dir = sys.argv[-1]
 script_dir = dir + '/src/script'
 os.makedirs(script_dir)
-open(script_dir + '/scons.py', 'w').write(
-r'''%s''')
+with open(script_dir + '/scons.py', 'w') as f:
+    f.write(r'''%s''')
+""" % scons_py
+
+
+git_py = """\
+#!/usr/bin/env python
+import os
+import sys
+
+dir = sys.argv[-1]
+script_dir = dir + '/src/script'
+os.makedirs(script_dir)
+with open(script_dir + '/scons.py', 'w') as f:
+    f.write(r'''%s''')
 """ % scons_py
 
 
@@ -168,7 +173,9 @@ class TestSCons_time(TestCommon):
             kw['program'] = p
 
         if 'interpreter' not in kw:
-            kw['interpreter'] = [python, '-tt']
+            kw['interpreter'] = [python,]
+            if sys.version_info[0] < 3:
+                kw['interpreter'].append('-tt')
 
         if 'match' not in kw:
             kw['match'] = match_exact
@@ -223,12 +230,6 @@ class TestSCons_time(TestCommon):
         x = x.replace('time\\-', 'time\\-[^%s]*' % sep)
         return x
 
-    def write_fake_aegis_py(self, name):
-        name = self.workpath(name)
-        self.write(name, aegis_py)
-        os.chmod(name, 0o755)
-        return name
-
     def write_fake_scons_py(self):
         self.subdir('src', ['src', 'script'])
         self.write('src/script/scons.py', scons_py)
@@ -239,6 +240,12 @@ class TestSCons_time(TestCommon):
         os.chmod(name, 0o755)
         return name
 
+    def write_fake_git_py(self, name):
+        name = self.workpath(name)
+        self.write(name, git_py)
+        os.chmod(name, 0o755)
+        return name
+
     def write_sample_directory(self, archive, dir, files):
         dir = self.workpath(dir)
         for name, content in files:
@@ -246,7 +253,8 @@ class TestSCons_time(TestCommon):
             d, f = os.path.split(path)
             if not os.path.isdir(d):
                 os.makedirs(d)
-            open(path, 'w').write(content)
+            with open(path, 'w') as f:
+                f.write(content)
         return dir
 
     def write_sample_tarfile(self, archive, dir, files):
@@ -271,13 +279,15 @@ class TestSCons_time(TestCommon):
             tar = tarfile.open(archive, mode[suffix])
             for name, content in files:
                 path = os.path.join(dir, name)
-                open(path, 'wb').write(bytearray(content,'utf-8'))
+                with open(path, 'wb') as f:
+                    f.write(bytearray(content,'utf-8'))
                 tarinfo = tar.gettarinfo(path, path)
                 tarinfo.uid = 111
                 tarinfo.gid = 111
                 tarinfo.uname = 'fake_user'
                 tarinfo.gname = 'fake_group'
-                tar.addfile(tarinfo, open(path, 'rb'))
+                with open(path, 'rb') as f:
+                    tar.addfile(tarinfo, f)
             tar.close()
             shutil.rmtree(dir)
             return self.workpath(archive)
@@ -296,7 +306,8 @@ class TestSCons_time(TestCommon):
             zip = zipfile.ZipFile(archive, 'w')
             for name, content in files:
                 path = os.path.join(dir, name)
-                open(path, 'w').write(content)
+                with open(path, 'w') as f:
+                    f.write(content)
                 zip.write(path)
             zip.close()
             shutil.rmtree(dir)

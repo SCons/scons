@@ -67,7 +67,7 @@ env.Package( NAME           = 'foo',
              LICENSE        = 'gpl',
              SUMMARY        = 'balalalalal',
              X_RPM_GROUP    = 'Application/fu',
-             X_RPM_INSTALL  = r'%(_python_)s %(scons)s --debug=tree --install-sandbox="$RPM_BUILD_ROOT" "$RPM_BUILD_ROOT"',
+             X_RPM_INSTALL  = r'%(_python_)s %(scons)s --tree=all --install-sandbox="$RPM_BUILD_ROOT" "$RPM_BUILD_ROOT"',
              DESCRIPTION    = 'this should be really really long',
              source         = [ prog ],
              SOURCE_URL     = 'http://foo.org/foo-1.2.3.tar.gz'
@@ -80,7 +80,7 @@ env.Package( NAME           = 'foo2',
              LICENSE        = 'gpl',
              SUMMARY        = 'balalalalal',
              X_RPM_GROUP    = 'Application/fu',
-             X_RPM_INSTALL  = r'%(_python_)s %(scons)s --debug=tree --install-sandbox="$RPM_BUILD_ROOT" "$RPM_BUILD_ROOT"',
+             X_RPM_INSTALL  = r'%(_python_)s %(scons)s --tree=all --install-sandbox="$RPM_BUILD_ROOT" "$RPM_BUILD_ROOT"',
              DESCRIPTION    = 'this should be really really long',
              source         = [ prog ],
         )
@@ -104,9 +104,11 @@ test.must_exist( machine_rpm2 )
 test.must_exist( src_rpm2 )
 
 test.must_not_exist( 'bin/main' )
-out = os.popen( 'rpm -qpl %s' % machine_rpm).read()
+with os.popen('rpm -qpl %s' % machine_rpm) as p:
+    out = p.read()
 test.must_contain_all_lines( out, '/bin/main')
-out = os.popen( 'rpm -qpl %s' % src_rpm).read()
+with os.popen('rpm -qpl %s' % src_rpm) as p:
+    out = p.read()
 test.fail_test( not out == 'foo-1.2.3.spec\nfoo-1.2.3.tar.gz\n')
 
 test.pass_test()

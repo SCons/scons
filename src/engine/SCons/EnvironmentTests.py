@@ -74,7 +74,7 @@ def diff_dict(d1, d2):
                    s2 = s2 + "    " + repr(k) + " : " + repr(d2[k]) + "\n"
            else:
                s1 = s1 + "    " + repr(k) + " : " + repr(d1[k]) + "\n"
-        elif k in env2:
+        elif k in d2:
            s2 = s2 + "    " + repr(k) + " : " + repr(d2[k]) + "\n"
     s1 = s1 + "}\n"
     s2 = s2 + "}\n"
@@ -264,39 +264,39 @@ class SubstitutionTestCase(unittest.TestCase):
         nodes = env.arg2nodes("Util.py UtilTests.py", Factory)
         assert len(nodes) == 1, nodes
         assert isinstance(nodes[0], X)
-        assert nodes[0].name == "Util.py UtilTests.py"
+        assert nodes[0].name == "Util.py UtilTests.py", nodes[0].name
 
         nodes = env.arg2nodes(u"Util.py UtilTests.py", Factory)
         assert len(nodes) == 1, nodes
         assert isinstance(nodes[0], X)
-        assert nodes[0].name == u"Util.py UtilTests.py"
+        assert nodes[0].name == u"Util.py UtilTests.py", nodes[0].name
 
         nodes = env.arg2nodes(["Util.py", "UtilTests.py"], Factory)
         assert len(nodes) == 2, nodes
         assert isinstance(nodes[0], X)
         assert isinstance(nodes[1], X)
-        assert nodes[0].name == "Util.py"
-        assert nodes[1].name == "UtilTests.py"
+        assert nodes[0].name == "Util.py", nodes[0].name
+        assert nodes[1].name == "UtilTests.py", nodes[1].name
 
         n1 = Factory("Util.py")
         nodes = env.arg2nodes([n1, "UtilTests.py"], Factory)
         assert len(nodes) == 2, nodes
         assert isinstance(nodes[0], X)
         assert isinstance(nodes[1], X)
-        assert nodes[0].name == "Util.py"
-        assert nodes[1].name == "UtilTests.py"
+        assert nodes[0].name == "Util.py", nodes[0].name
+        assert nodes[1].name == "UtilTests.py", nodes[1].name
 
         class SConsNode(SCons.Node.Node):
             pass
         nodes = env.arg2nodes(SConsNode())
         assert len(nodes) == 1, nodes
-        assert isinstance(nodes[0], SConsNode), node
+        assert isinstance(nodes[0], SConsNode), nodes[0]
 
         class OtherNode(object):
             pass
         nodes = env.arg2nodes(OtherNode())
         assert len(nodes) == 1, nodes
-        assert isinstance(nodes[0], OtherNode), node
+        assert isinstance(nodes[0], OtherNode), nodes[0]
 
         def lookup_a(str, F=Factory):
             if str[0] == 'a':
@@ -485,7 +485,7 @@ class SubstitutionTestCase(unittest.TestCase):
 
         env = SubstitutionEnvironment(AAA = '$BBB', BBB = '$CCC', CCC = 'c')
         l = env.subst_list("$AAA ${AAA}A ${AAA}B $BBB")
-        assert l == [["c", "cA", "cB", "c"]], mystr
+        assert l == [["c", "cA", "cB", "c"]], l
 
         env = SubstitutionEnvironment(AAA = '$BBB', BBB = '$CCC', CCC = [ 'a', 'b\nc' ])
         lst = env.subst_list([ "$AAA", "B $CCC" ])
@@ -798,10 +798,14 @@ sys.exit(0)
             "-F fwd3 " + \
             "-dylib_file foo-dylib " + \
             "-pthread " + \
+            "-fmerge-all-constants " +\
             "-fopenmp " + \
             "-mno-cygwin -mwindows " + \
             "-arch i386 -isysroot /tmp " + \
-            "-isystem /usr/include/foo " + \
+            "-iquote /usr/include/foo1 " + \
+            "-isystem /usr/include/foo2 " + \
+            "-idirafter /usr/include/foo3 " + \
+            "-imacros /usr/include/foo4 " + \
             "+DD64 " + \
             "-DFOO -DBAR=value -D BAZ "
 
@@ -810,10 +814,14 @@ sys.exit(0)
         assert d['ASFLAGS'] == ['-as'], d['ASFLAGS']
         assert d['CFLAGS']  == ['-std=c99']
         assert d['CCFLAGS'] == ['-X', '-Wa,-as',
-                                  '-pthread', '-fopenmp', '-mno-cygwin',
-                                  ('-arch', 'i386'), ('-isysroot', '/tmp'),
-                                  ('-isystem', '/usr/include/foo'),
-                                  '+DD64'], repr(d['CCFLAGS'])
+                                '-pthread', '-fmerge-all-constants',
+                                '-fopenmp', '-mno-cygwin',
+                                ('-arch', 'i386'), ('-isysroot', '/tmp'),
+                                ('-iquote', '/usr/include/foo1'),
+                                ('-isystem', '/usr/include/foo2'),
+                                ('-idirafter', '/usr/include/foo3'),
+                                ('-imacros', env.fs.File('/usr/include/foo4')),
+                                '+DD64'], repr(d['CCFLAGS'])
         assert d['CXXFLAGS'] == ['-std=c++0x'], repr(d['CXXFLAGS'])
         assert d['CPPDEFINES'] == ['FOO', ['BAR', 'value'], 'BAZ'], d['CPPDEFINES']
         assert d['CPPFLAGS'] == ['-Wp,-cpp'], d['CPPFLAGS']
@@ -829,7 +837,7 @@ sys.exit(0)
         assert LIBS == ['xxx', 'yyy', 'ascend'], (d['LIBS'], LIBS)
         assert d['LINKFLAGS'] == ['-Wl,-link',
                                   '-dylib_file', 'foo-dylib',
-                                  '-pthread', '-fopenmp',
+                                  '-pthread', '-fmerge-all-constants', '-fopenmp',
                                   '-mno-cygwin', '-mwindows',
                                   ('-arch', 'i386'),
                                   ('-isysroot', '/tmp'),
@@ -1196,7 +1204,7 @@ env4.builder1.env, env3)
         test_it('foo.bar')
         test_it('foo-bar')
 
-    def test_autogenerate(dict):
+    def test_autogenerate(self):
         """Test autogenerating variables in a dictionary."""
 
         drive, p = os.path.splitdrive(os.getcwd())
@@ -1207,9 +1215,9 @@ env4.builder1.env, env3)
             drive, path = os.path.splitdrive(path)
             return drive.lower() + path
 
-        env = dict.TestEnvironment(LIBS = [ 'foo', 'bar', 'baz' ],
-                          LIBLINKPREFIX = 'foo',
-                          LIBLINKSUFFIX = 'bar')
+        env = self.TestEnvironment(LIBS = [ 'foo', 'bar', 'baz' ],
+                                   LIBLINKPREFIX = 'foo',
+                                   LIBLINKSUFFIX = 'bar')
 
         def RDirs(pathlist, fs=env.fs):
             return fs.Dir('xx').Rfindalldirs(pathlist)
@@ -1869,18 +1877,6 @@ def generate(env):
         assert ('BUILDERS' in env) is False
         env2 = env.Clone()
 
-    def test_Copy(self):
-        """Test copying using the old env.Copy() method"""
-        env1 = self.TestEnvironment(XXX = 'x', YYY = 'y')
-        env2 = env1.Copy()
-        env1copy = env1.Copy()
-        assert env1copy == env1copy
-        assert env2 == env2
-        env2.Replace(YYY = 'yyy')
-        assert env2 == env2
-        assert env1 != env2
-        assert env1 == env1copy
-
     def test_Detect(self):
         """Test Detect()ing tools"""
         test = TestCmd.TestCmd(workdir = '')
@@ -2021,18 +2017,23 @@ def generate(env):
                                  "-Ffwd2 " + \
                                  "-F fwd3 " + \
                                  "-pthread " + \
+                                 "-fmerge-all-constants " + \
                                  "-mno-cygwin -mwindows " + \
                                  "-arch i386 -isysroot /tmp " + \
-                                 "-isystem /usr/include/foo " + \
+                                 "-iquote /usr/include/foo1 " + \
+                                 "-isystem /usr/include/foo2 " + \
+                                 "-idirafter /usr/include/foo3 " + \
                                  "+DD64 " + \
                                  "-DFOO -DBAR=value")
             env.ParseConfig("fake $COMMAND")
             assert save_command == ['fake command'], save_command
             assert env['ASFLAGS'] == ['assembler', '-as'], env['ASFLAGS']
             assert env['CCFLAGS'] == ['', '-X', '-Wa,-as',
-                                      '-pthread', '-mno-cygwin',
+                                      '-pthread', '-fmerge-all-constants', '-mno-cygwin',
                                       ('-arch', 'i386'), ('-isysroot', '/tmp'),
-                                      ('-isystem', '/usr/include/foo'),
+                                      ('-iquote', '/usr/include/foo1'),
+                                      ('-isystem', '/usr/include/foo2'),
+                                      ('-idirafter', '/usr/include/foo3'),
                                       '+DD64'], env['CCFLAGS']
             assert env['CPPDEFINES'] == ['FOO', ['BAR', 'value']], env['CPPDEFINES']
             assert env['CPPFLAGS'] == ['', '-Wp,-cpp'], env['CPPFLAGS']
@@ -2042,6 +2043,7 @@ def generate(env):
             assert env['LIBPATH'] == ['list', '/usr/fax', 'foo'], env['LIBPATH']
             assert env['LIBS'] == ['xxx', 'yyy', env.File('abc')], env['LIBS']
             assert env['LINKFLAGS'] == ['', '-Wl,-link', '-pthread',
+                                        '-fmerge-all-constants',
                                         '-mno-cygwin', '-mwindows',
                                         ('-arch', 'i386'),
                                         ('-isysroot', '/tmp'),
@@ -2434,16 +2436,16 @@ f5: \
         exc_caught = None
         try:
             env.Tool('does_not_exist')
-        except SCons.Errors.EnvironmentError:
+        except SCons.Errors.SConsEnvironmentError:
             exc_caught = 1
-        assert exc_caught, "did not catch expected EnvironmentError"
+        assert exc_caught, "did not catch expected SConsEnvironmentError"
 
         exc_caught = None
         try:
             env.Tool('$NONE')
-        except SCons.Errors.EnvironmentError:
+        except SCons.Errors.SConsEnvironmentError:
             exc_caught = 1
-        assert exc_caught, "did not catch expected EnvironmentError"
+        assert exc_caught, "did not catch expected SConsEnvironmentError"
 
         # Use a non-existent toolpath directory just to make sure we
         # can call Tool() with the keyword argument.
@@ -3273,47 +3275,9 @@ def generate(env):
         s = e.src_builder()
         assert s is None, s
 
-    def test_SourceSignatures(type):
-        """Test the SourceSignatures() method"""
-        import SCons.Errors
-
-        env = type.TestEnvironment(M = 'MD5', T = 'timestamp')
-
-        exc_caught = None
-        try:
-            env.SourceSignatures('invalid_type')
-        except SCons.Errors.UserError:
-            exc_caught = 1
-        assert exc_caught, "did not catch expected UserError"
-
-        env.SourceSignatures('MD5')
-        assert env.src_sig_type == 'MD5', env.src_sig_type
-
-        env.SourceSignatures('$M')
-        assert env.src_sig_type == 'MD5', env.src_sig_type
-
-        env.SourceSignatures('timestamp')
-        assert env.src_sig_type == 'timestamp', env.src_sig_type
-
-        env.SourceSignatures('$T')
-        assert env.src_sig_type == 'timestamp', env.src_sig_type
-
-        try:
-            import SCons.Util
-            save_md5 = SCons.Util.md5
-            SCons.Util.md5 = None
-            try:
-                env.SourceSignatures('MD5')
-            except SCons.Errors.UserError:
-                pass
-            else:
-                self.fail('Did not catch expected UserError')
-        finally:
-            SCons.Util.md5 = save_md5
-
     def test_Split(self):
         """Test the Split() method"""
-        env = self.TestEnvironment(FOO='fff', BAR='bbb')
+        env = self.TestEnvironment(FOO = 'fff', BAR = 'bbb')
         s = env.Split("foo bar")
         assert s == ["foo", "bar"], s
         s = env.Split("$FOO bar")
@@ -3327,56 +3291,6 @@ def generate(env):
         s = env.Split("$FOO$BAR")
         assert s == ["fffbbb"], s
 
-    def test_TargetSignatures(type):
-        """Test the TargetSignatures() method"""
-        import SCons.Errors
-
-        env = type.TestEnvironment(B = 'build', C = 'content')
-
-        exc_caught = None
-        try:
-            env.TargetSignatures('invalid_type')
-        except SCons.Errors.UserError:
-            exc_caught = 1
-        assert exc_caught, "did not catch expected UserError"
-        assert not hasattr(env, '_build_signature')
-
-        env.TargetSignatures('build')
-        assert env.tgt_sig_type == 'build', env.tgt_sig_type
-
-        env.TargetSignatures('$B')
-        assert env.tgt_sig_type == 'build', env.tgt_sig_type
-
-        env.TargetSignatures('content')
-        assert env.tgt_sig_type == 'content', env.tgt_sig_type
-
-        env.TargetSignatures('$C')
-        assert env.tgt_sig_type == 'content', env.tgt_sig_type
-
-        env.TargetSignatures('MD5')
-        assert env.tgt_sig_type == 'MD5', env.tgt_sig_type
-
-        env.TargetSignatures('timestamp')
-        assert env.tgt_sig_type == 'timestamp', env.tgt_sig_type
-
-        try:
-            import SCons.Util
-            save_md5 = SCons.Util.md5
-            SCons.Util.md5 = None
-            try:
-                env.TargetSignatures('MD5')
-            except SCons.Errors.UserError:
-                pass
-            else:
-                self.fail('Did not catch expected UserError')
-            try:
-                env.TargetSignatures('content')
-            except SCons.Errors.UserError:
-                pass
-            else:
-                self.fail('Did not catch expected UserError')
-        finally:
-            SCons.Util.md5 = save_md5
 
     def test_Value(self):
         """Test creating a Value() object
@@ -3397,8 +3311,7 @@ def generate(env):
         assert v3.value == 'c', v3.value
 
 
-
-    def test_Environment_global_variable(type):
+    def test_Environment_global_variable(self):
         """Test setting Environment variable to an Environment.Base subclass"""
         class MyEnv(SCons.Environment.Base):
             def xxx(self, string):
@@ -3584,6 +3497,10 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
         # Testing EnvironmentValues
         env._env_values = EnvironmentValues(**env._dict)
 
+        def verify_value(env, key, value, *args, **kwargs):
+            """Verifies that key is value on the env this is called with."""
+            assert env[key] == value
+        env.AddMethod(verify_value)
         env2 = OverrideEnvironment(env, {'XXX' : 'x2'})
         env3 = OverrideEnvironment(env2, {'XXX' : 'x3', 'YYY' : 'y3', 'ZZZ' : 'z3'})
         self.envs = [ env, env2, env3 ]
@@ -3739,8 +3656,6 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
     # Environment()
     # FindFile()
     # Scanner()
-    # SourceSignatures()
-    # TargetSignatures()
 
     # It's unlikely Clone() will ever be called this way, so let the
     # other methods test that handling overridden values works.
@@ -3773,6 +3688,13 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
     #def test_WhereIs(self):
     #    """Test the OverrideEnvironment WhereIs() method"""
     #    pass
+
+    def test_PseudoBuilderInherits(self):
+        """Test that pseudo-builders inherit the overrided values."""
+        env, env2, env3 = self.envs
+        env.verify_value('XXX', 'x')
+        env2.verify_value('XXX', 'x2')
+        env3.verify_value('XXX', 'x3')
 
     def test_Dir(self):
         """Test the OverrideEnvironment Dir() method"""

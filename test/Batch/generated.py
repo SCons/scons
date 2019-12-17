@@ -36,10 +36,12 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', """
 def batch_build(target, source, env):
     for t, s in zip(target, source):
-        fp = open(str(t), 'wb')
-        if str(t) == 'f3.out':
-            fp.write(open('f3.include', 'rb').read())
-        fp.write(open(str(s), 'rb').read())
+        with open(str(t), 'wb') as fp:
+            if str(t) == 'f3.out':
+                with open('f3.include', 'rb') as f:
+                    fp.write(f.read())
+            with open(str(s), 'rb') as f:
+                fp.write(f.read())
 env = Environment()
 bb = Action(batch_build, batch_key=True)
 env['BUILDERS']['Batch'] = Builder(action=bb)

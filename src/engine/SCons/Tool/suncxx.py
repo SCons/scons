@@ -39,11 +39,13 @@ import os
 import re
 import subprocess
 
+from SCons.Util import PY3
 import SCons.Tool.cxx
 cplusplus = SCons.Tool.cxx
-#cplusplus = __import__('c++', globals(), locals(), [])
+# cplusplus = __import__('c++', globals(), locals(), [])
 
 package_info = {}
+
 
 def get_package_info(package_name, pkginfo, pkgchk):
     try:
@@ -52,37 +54,53 @@ def get_package_info(package_name, pkginfo, pkgchk):
         version = None
         pathname = None
         try:
-            sadm_contents = open('/var/sadm/install/contents', 'r').read()
+            from subprocess import DEVNULL  # py3k
+        except ImportError:
+            DEVNULL = open(os.devnull, 'wb')
+
+        try:
+            with open('/var/sadm/install/contents', 'r') as f:
+                sadm_contents = f.read()
         except EnvironmentError:
             pass
         else:
-            sadm_re = re.compile('^(\S*/bin/CC)(=\S*)? %s$' % package_name, re.M)
+            sadm_re = re.compile(r'^(\S*/bin/CC)(=\S*)? %s$' % package_name, re.M)
             sadm_match = sadm_re.search(sadm_contents)
             if sadm_match:
                 pathname = os.path.dirname(sadm_match.group(1))
 
         try:
+            popen_args = {'stdout': subprocess.PIPE,
+                          'stderr': DEVNULL}
+            if PY3:
+                popen_args['universal_newlines'] = True
             p = subprocess.Popen([pkginfo, '-l', package_name],
-                                 stdout=subprocess.PIPE,
-                                 stderr=open('/dev/null', 'w'))
+                                 **popen_args)
         except EnvironmentError:
             pass
         else:
             pkginfo_contents = p.communicate()[0]
-            version_re = re.compile('^ *VERSION:\s*(.*)$', re.M)
+            if not PY3:
+                pkginfo_contents.decode()
+            version_re = re.compile(r'^ *VERSION:\s*(.*)$', re.M)
             version_match = version_re.search(pkginfo_contents)
             if version_match:
                 version = version_match.group(1)
 
         if pathname is None:
             try:
+                popen_args = {'stdout': subprocess.PIPE,
+                              'stderr': DEVNULL}
+                if PY3:
+                    popen_args['universal_newlines'] = True
                 p = subprocess.Popen([pkgchk, '-l', package_name],
-                                     stdout=subprocess.PIPE,
-                                     stderr=open('/dev/null', 'w'))
+                                     **popen_args)
             except EnvironmentError:
                 pass
             else:
                 pkgchk_contents = p.communicate()[0]
+                if not PY3:
+                    pkgchk_contents.decode()
                 pathname_re = re.compile(r'^Pathname:\s*(.*/bin/CC)$', re.M)
                 pathname_match = pathname_re.search(pkgchk_contents)
                 if pathname_match:
@@ -91,7 +109,8 @@ def get_package_info(package_name, pkginfo, pkgchk):
         package_info[package_name] = (pathname, version)
         return package_info[package_name]
 
-# use the package installer tool lslpp to figure out where cppc and what
+
+# use the package installer tool "pkg" to figure out where cppc and what
 # version of it is installed
 def get_cppc(env):
     cxx = env.subst('$CXX')
@@ -113,6 +132,7 @@ def get_cppc(env):
 
     return (cppcPath, 'CC', 'CC', cppcVersion)
 
+
 def generate(env):
     """Add Builders and construction variables for SunPRO C++."""
     path, cxx, shcxx, version = get_cppc(env)
@@ -125,10 +145,11 @@ def generate(env):
     env['CXX'] = cxx
     env['SHCXX'] = shcxx
     env['CXXVERSION'] = version
-    env['SHCXXFLAGS']   = SCons.Util.CLVar('$CXXFLAGS -KPIC')
-    env['SHOBJPREFIX']  = 'so_'
-    env['SHOBJSUFFIX']  = '.o'
-    
+    env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -KPIC')
+    env['SHOBJPREFIX'] = 'so_'
+    env['SHOBJSUFFIX'] = '.o'
+
+
 def exists(env):
     path, cxx, shcxx, version = get_cppc(env)
     if path and cxx:

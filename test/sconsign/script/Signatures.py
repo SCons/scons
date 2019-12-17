@@ -28,9 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify that the sconsign script works when using a .sconsign file in
 each subdirectory (SConsignFile(None)) written with the non-default
 value of Decider('timestamp-newer').
-
-This used to test the non-default combination of
-SourceSignatures('timestamp') with TargetSignatures('content').
 """
 
 import TestSCons
@@ -51,7 +48,7 @@ test.subdir('sub1', 'sub2')
 
 # Because this test sets SConsignFile(None), we execute our fake
 # scripts directly, not by feeding them to the Python executable.
-# That is, we chmod 0755 and us a "#!/usr/bin/env python" first
+# That is, we chmod 0o755 and use a "#!/usr/bin/env python" first
 # line for POSIX systems, and add .PY to the %PATHEXT% variable on
 # Windows.  If we didn't do this, then running this script with
 # suitable prileveges would create a .sconsign file in the directory
@@ -68,10 +65,6 @@ import re
 import sys
 
 path = sys.argv[1].split()
-output = open(sys.argv[2], 'w')
-input = open(sys.argv[3], 'r')
-
-output.write('fake_cc.py:  %%s\n' %% sys.argv)
 
 def find_file(f):
     for dir in path:
@@ -85,11 +78,16 @@ def process(infp, outfp):
         m = re.match('#include <(.*)>', line)
         if m:
             file = m.group(1)
-            process(find_file(file), outfp)
+            found = find_file(file)
+            process(found, outfp)
+            if found:
+                found.close()
         else:
             outfp.write(line)
 
-process(input, output)
+with open(sys.argv[2], 'w') as outf, open(sys.argv[3], 'r') as ifp:
+    outf.write('fake_cc.py:  %%s\n' %% sys.argv)
+    process(ifp, outf)
 
 sys.exit(0)
 """ % locals())
@@ -97,12 +95,9 @@ sys.exit(0)
 test.write(fake_link_py, r"""#!%(_python_)s
 import sys
 
-output = open(sys.argv[1], 'w')
-input = open(sys.argv[2], 'r')
-
-output.write('fake_link.py:  %%s\n' %% sys.argv)
-
-output.write(input.read())
+with open(sys.argv[1], 'w') as outf, open(sys.argv[2], 'r') as ifp:
+    outf.write('fake_link.py:  %%s\n' %% sys.argv)
+    outf.write(ifp.read())
 
 sys.exit(0)
 """ % locals())

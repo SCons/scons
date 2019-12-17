@@ -46,14 +46,13 @@ SetOption('max_drift', 1)
 
 def lister(target, source, env):
     import os
-    fp = open(str(target[0]), 'w')
-    s = str(source[0])
-    if os.path.isdir(s):
-        for l in os.listdir(str(source[0])):
-            fp.write(l + '\\n')
-    else:
-        fp.write(s + '\\n')
-    fp.close()
+    with open(str(target[0]), 'w') as ofp:
+        s = str(source[0])
+        if os.path.isdir(s):
+            for l in os.listdir(str(source[0])):
+                ofp.write(l + '\\n')
+        else:
+            ofp.write(s + '\\n')
 
 builder = Builder(action=lister,
                   source_factory=Dir,
@@ -83,14 +82,13 @@ SetOption('max_drift', 1)
 
 def lister(target, source, env):
     import os.path
-    fp = open(str(target[0]), 'w')
-    s = str(source[0])
-    if os.path.isdir(s):
-        for l in os.listdir(str(source[0])):
-            fp.write(l + '\\n')
-    else:
-        fp.write(s + '\\n')
-    fp.close()
+    with open(str(target[0]), 'w') as ofp:
+        s = str(source[0])
+        if os.path.isdir(s):
+            for l in os.listdir(str(source[0])):
+                ofp.write(l + '\\n')
+        else:
+            ofp.write(s + '\\n')
 
 builder = Builder(action=lister,
                   source_factory=File)
@@ -111,12 +109,12 @@ test.pass_test()
 #
 #
 #def setfile(f, content):
-#    f = open(f, 'w')
-#    try: f.write(content)
-#    finally: f.close()
+#    with open(f, 'w') as ofp:
+#        ofp.write(content)
 #
 #def checkfile(f, content):
-#    assert open(f).read().strip() == content
+#    with open(f) as fp:
+#        assert fp.read().strip() == content
 #
 #def rm(f):
 #    if exists(f):

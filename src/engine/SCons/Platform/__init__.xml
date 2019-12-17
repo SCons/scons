@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
 __COPYRIGHT__
 
@@ -256,5 +256,16 @@ The default is '.lnk'.
 </para>
 </summary>
 </cvar>
+
+<cvar name="TEMPFILEARGJOIN">
+<summary>
+<para>
+The string (or character) to be used to join the arguments passed to TEMPFILE when command line exceeds the limit set by &cv-MAXLINELENGTH;.
+The default value is a space. However for MSVC, MSLINK the default is a line seperator characters as defined by os.linesep.
+Note this value is used literally and not expanded by the subst logic.
+</para>
+</summary>
+</cvar>
+
 
 </sconsdoc>

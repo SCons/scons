@@ -29,9 +29,8 @@ Test changing the C source files based on an always-executed revision
 extraction and substitution.
 
 This makes sure we evaluate the content of intermediate files as
-expected.  We used to configure this explicitly using
-TargetSignatures('content') but we now rely on the default behavior
-being the equivalent of Decider('content').
+expected.  This relies on the default behavior being the equivalent
+of Decider('content').
 """
 
 import os.path
@@ -42,28 +41,28 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.write('getrevision', """
+test.write('getrevision', r"""
 from __future__ import print_function
-print(open('revnum.in','r').read().strip(), end='')
+with open('revnum.in', 'r') as f:
+    print(f.read().strip(), end='')
 """)
 
-test.write('SConstruct', """
+test.write('SConstruct', r"""
 import re
 
 def subrevision(target, source ,env):
     orig = target[0].get_text_contents()
-    new = re.sub('\$REV.*?\$',
+    new = re.sub(r'\$REV.*?\$',
                  '$REV: %%s$'%%source[0].get_text_contents().strip(),
                  target[0].get_text_contents())
-    outf = open(str(target[0]),'w')
-    outf.write(new)
-    outf.close()
+    with open(str(target[0]),'w') as outf:
+        outf.write(new)
 
 SubRevision = Action(subrevision)
 
 env=Environment()
 content_env=env.Clone()
-content_env.Command('revision.in', [], r'%(_python_)s getrevision > $TARGET')
+content_env.Command('revision.in', [], '%(_python_)s getrevision > $TARGET')
 content_env.AlwaysBuild('revision.in')
 env.Precious('main.c')
 env.Command('main.c', 'revision.in', SubRevision)

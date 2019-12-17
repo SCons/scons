@@ -43,14 +43,14 @@ from SCons.Platform.virtualenv import ImportVirtualenv
 from SCons.Platform.virtualenv import ignore_virtualenv, enable_virtualenv
 import SCons.Util
 
+CHOCO_DEFAULT_PATH = [
+    r'C:\ProgramData\chocolatey\bin'
+]
+
 try:
     import msvcrt
     import win32api
     import win32con
-
-    msvcrt.get_osfhandle
-    win32api.SetHandleInformation
-    win32con.HANDLE_FLAG_INHERIT
 except ImportError:
     parallel_msg = \
         "you do not seem to have the pywin32 extensions installed;\n" + \
@@ -62,28 +62,44 @@ except AttributeError:
 else:
     parallel_msg = None
 
-    _builtin_open = open
-
-    def _scons_open(*args, **kw):
-        fp = _builtin_open(*args, **kw)
-        win32api.SetHandleInformation(msvcrt.get_osfhandle(fp.fileno()),
-                                      win32con.HANDLE_FLAG_INHERIT,
-                                      0)
-        return fp
-
-    open = _scons_open
-
     if sys.version_info.major == 2:
-        _builtin_file = file
+        import __builtin__
+
+        _builtin_file = __builtin__.file
+        _builtin_open = __builtin__.open
+
+        def _scons_fixup_mode(mode):
+            """Adjust 'mode' to mark handle as non-inheritable.
+
+            SCons is multithreaded, so allowing handles to be inherited by
+            children opens us up to races, where (e.g.) processes spawned by
+            the Taskmaster may inherit and retain references to files opened
+            by other threads. This may lead to sharing violations and,
+            ultimately, build failures.
+
+            By including 'N' as part of fopen's 'mode' parameter, all file
+            handles returned from these functions are atomically marked as
+            non-inheritable.
+            """
+            if not mode:
+                # Python's default is 'r'.
+                # https://docs.python.org/2/library/functions.html#open
+                mode = 'rN'
+            elif 'N' not in mode:
+                mode += 'N'
+            return mode
+
         class _scons_file(_builtin_file):
-            def __init__(self, *args, **kw):
-                _builtin_file.__init__(self, *args, **kw)
-                win32api.SetHandleInformation(msvcrt.get_osfhandle(self.fileno()),
-                 win32con.HANDLE_FLAG_INHERIT, 0)
-        file = _scons_file
-    else:
-        # No longer needed for python 3.4 and above. Files are opened non sharable
-        pass
+            def __init__(self, name, mode=None, *args, **kwargs):
+                _builtin_file.__init__(self, name, _scons_fixup_mode(mode),
+                                       *args, **kwargs)
+
+        def _scons_open(name, mode=None, *args, **kwargs):
+            return _builtin_open(name, _scons_fixup_mode(mode),
+                                 *args, **kwargs)
+
+        __builtin__.file = _scons_file
+        __builtin__.open = _scons_open
 
 
 
@@ -189,7 +205,7 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
 
         # actually do the spawn
         try:
-            args = [sh, '/C', escape(' '.join(args)) ]
+            args = [sh, '/C', escape(' '.join(args))]
             ret = spawnve(os.P_WAIT, sh, args, env)
         except OSError as e:
             # catch any error
@@ -203,15 +219,17 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
         # and do clean up stuff
         if stdout is not None and stdoutRedirected == 0:
             try:
-                stdout.write(open( tmpFileStdout, "r" ).read())
-                os.remove( tmpFileStdout )
+                with open(tmpFileStdout, "r" ) as tmp:
+                    stdout.write(tmp.read())
+                os.remove(tmpFileStdout)
             except (IOError, OSError):
                 pass
 
         if stderr is not None and stderrRedirected == 0:
             try:
-                stderr.write(open( tmpFileStderr, "r" ).read())
-                os.remove( tmpFileStderr )
+                with open(tmpFileStderr, "r" ) as tmp:
+                    stderr.write(tmp.read())
+                os.remove(tmpFileStderr)
             except (IOError, OSError):
                 pass
         return ret

@@ -27,11 +27,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 """
 Verify basic interactions of the --implicit-cache-* options.
 
-This test used to set TargetSignatures('build') because we were
-relying on the old behavior of non-essential changes in .h files
-propagate to cause a rebuilt executable.  We now just rely on
-the default Decider('content') behavior and only check for the
-rebuild of the object file itself when necessary.
+We rely on the default Decider('content') behavior and only
+check for the rebuild of the object file itself when necessary.
 """
 
 import os.path
@@ -65,7 +62,8 @@ env = Environment(CPPPATH=['inc2', include])
 SConscript('variant/SConscript', "env")
 
 def copy(target, source, env):
-    open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
+    with open(str(target[0]), 'wt') as fo, open(str(source[0]), 'rt') as fi:
+        fo.write(fi.read())
 nodep = env.Command('nodeps.c', 'nodeps.in', action=copy)
 env.Program('nodeps', 'nodeps.c')
 

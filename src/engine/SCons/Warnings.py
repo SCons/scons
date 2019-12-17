@@ -120,31 +120,13 @@ class PythonVersionWarning(DeprecatedWarning):
 class DeprecatedSourceCodeWarning(FutureDeprecatedWarning):
     pass
 
-class DeprecatedBuildDirWarning(DeprecatedWarning):
-    pass
-
 class TaskmasterNeedsExecuteWarning(DeprecatedWarning):
-    pass
-
-class DeprecatedCopyWarning(MandatoryDeprecatedWarning):
     pass
 
 class DeprecatedOptionsWarning(MandatoryDeprecatedWarning):
     pass
 
-class DeprecatedSourceSignaturesWarning(MandatoryDeprecatedWarning):
-    pass
-
-class DeprecatedTargetSignaturesWarning(MandatoryDeprecatedWarning):
-    pass
-
 class DeprecatedDebugOptionsWarning(MandatoryDeprecatedWarning):
-    pass
-
-class DeprecatedSigModuleWarning(MandatoryDeprecatedWarning):
-    pass
-
-class DeprecatedBuilderKeywordsWarning(MandatoryDeprecatedWarning):
     pass
 
 class DeprecatedMissingSConscriptWarning(DeprecatedWarning):
@@ -193,9 +175,10 @@ def warn(clazz, *args):
             break
 
 def process_warn_strings(arguments):
-    """Process string specifications of enabling/disabling warnings,
-    as passed to the --warn option or the SetOption('warn') function.
-    
+    """Process requests to enable/disable warnings.
+
+    The requests are strings passed to the --warn option or the
+    SetOption('warn') function.
 
     An argument to this option should be of the form <warning-class>
     or no-<warning-class>.  The warning class is munged in order
@@ -210,7 +193,6 @@ def process_warn_strings(arguments):
 
     As a special case, --warn=all and --warn=no-all will enable or
     disable (respectively) the base Warning class of all warnings.
-
     """
 
     def _capitalize(s):

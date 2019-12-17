@@ -34,6 +34,7 @@ from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import os.path
 
 import SCons.Action
@@ -107,7 +108,7 @@ def _dllEmitter(target, source, env, paramtp):
         raise SCons.Errors.UserError('A shared library should have exactly one target with the suffix: %s' % env.subst('$%sSUFFIX' % paramtp))
 
     insert_def = env.subst("$WINDOWS_INSERT_DEF")
-    if not insert_def in ['', '0', 0] and \
+    if insert_def not in ['', '0', 0] and \
        not env.FindIxes(source, "WINDOWSDEFPREFIX", "WINDOWSDEFSUFFIX"):
 
         # append a def file to the list of sources
@@ -158,7 +159,7 @@ def windowsLibEmitter(target, source, env):
 
 def ldmodEmitter(target, source, env):
     """Emitter for loadable modules.
-    
+
     Loadable modules are identical to shared libraries on Windows, but building
     them is subject to different parameters (LDMODULE*).
     """
@@ -219,7 +220,7 @@ def embedManifestDllCheck(target, source, env):
     if env.get('WINDOWS_EMBED_MANIFEST', 0):
         manifestSrc = target[0].get_abspath() + '.manifest'
         if os.path.exists(manifestSrc):
-            ret = (embedManifestDllAction) ([target[0]],None,env)        
+            ret = (embedManifestDllAction) ([target[0]],None,env)
             if ret:
                 raise SCons.Errors.UserError("Unable to embed manifest into %s" % (target[0]))
             return ret
@@ -326,6 +327,12 @@ def generate(env):
     env['_LDMODULE_SOURCES'] = _windowsLdmodSources
     env['LDMODULEEMITTER'] = [ldmodEmitter]
     env['LDMODULECOM'] = compositeLdmodAction
+
+    # Issue #3350
+    # Change tempfile argument joining character from a space to a newline
+    # mslink will fail if any single line is too long, but is fine with many lines
+    # in a tempfile
+    env['TEMPFILEARGJOIN'] = os.linesep
 
 def exists(env):
     return msvc_exists(env)

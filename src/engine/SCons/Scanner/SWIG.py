@@ -34,7 +34,7 @@ import SCons.Scanner
 SWIGSuffixes = [ '.i' ]
 
 def SWIGScanner():
-    expr = '^[ \t]*%[ \t]*(?:include|import|extern)[ \t]*(<|"?)([^>\s"]+)(?:>|"?)'
+    expr = r'^[ \t]*%[ \t]*(?:include|import|extern)[ \t]*(<|"?)([^>\s"]+)(?:>|"?)'
     scanner = SCons.Scanner.ClassicCPP("SWIGScanner", ".i", "SWIGPATH", expr)
     return scanner
 

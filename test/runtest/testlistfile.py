@@ -34,6 +34,7 @@ import re
 import TestRuntest
 
 pythonstring = TestRuntest.pythonstring
+pythonflags = TestRuntest.pythonflags
 test_fail_py = os.path.join('test', 'fail.py')
 test_no_result_py = os.path.join('test', 'no_result.py')
 test_pass_py = os.path.join('test', 'pass.py')
@@ -54,7 +55,7 @@ test.write('t.txt', """\
 """ % locals())
 
 expect_stdout = """\
-%(pythonstring)s -tt %(test_pass_py)s
+%(pythonstring)s%(pythonflags)s %(test_pass_py)s
 PASSING TEST STDOUT
 """ % locals()
 

@@ -39,6 +39,8 @@ test.write('SConstruct', """
 # code as the correct pattern for maintaining the backwards compatibility
 # of SConstruct files to earlier release of SCons.  Going forward, make
 # sure it still works (or at least doesn't blow up).
+# Copy was removed for 3.1.2 but Clone will certainly be there -
+# this test probably isn't needed any longer.
 import SCons.Environment
 try:
     SCons.Environment.Environment.Clone

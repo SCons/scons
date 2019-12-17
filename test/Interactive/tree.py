@@ -69,23 +69,6 @@ test.must_match(test.workpath('foo.out'), "foo.in 2\n")
 
 
 
-scons.send("build --debug=tree foo.out\n")
-
-expect_stdout = """\
-scons>>> Copy("foo.out", "foo.in")
-scons>>> Touch("1")
-scons>>> Copy("foo.out", "foo.in")
-+-foo.out
-  +-foo.in
-scons>>> Touch("2")
-scons>>> scons: `foo.out' is up to date.
-scons>>> 
-"""
-
-test.finish(scons, stdout = expect_stdout)
-
-
-
 test.pass_test()
 
 # Local Variables:

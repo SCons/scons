@@ -51,11 +51,10 @@ while args:
         break
     args.pop(0)
     if a[:5] == '/OUT:': out = a[5:]
-infile = open(args[0], 'r')
-outfile = open(out, 'w')
-for l in infile.readlines():
-    if l[:5] != '#link':
-        outfile.write(l)
+with open(out, 'w') as ofp, open(args[0], 'r') as ifp:
+    for l in ifp.readlines():
+        if l[:5] != '#link':
+            ofp.write(l)
 sys.exit(0)
 """)
 
@@ -67,12 +66,12 @@ import sys
 opts, args = getopt.getopt(sys.argv[1:], 'o:s:')
 for opt, arg in opts:
     if opt == '-o': out = arg
-outfile = open(out, 'w')
-for f in args:
-    infile = open(f, 'r')
-    for l in infile.readlines():
-        if l[:5] != '#link':
-            outfile.write(l)
+with open(out, 'w') as ofp:
+    for f in args:
+        with open(f, 'r') as ifp:
+            for l in ifp.readlines():
+                if l[:5] != '#link':
+                    ofp.write(l)
 sys.exit(0)
 """)
 
@@ -85,12 +84,13 @@ clen = len(compiler) + 1
 opts, args = getopt.getopt(sys.argv[2:], 'co:xf:K:')
 for opt, arg in opts:
     if opt == '-o': out = arg
-    elif opt == '-x': open('mygcc.out', 'a').write(compiler + "\n")
-infile = open(args[0], 'r')
-outfile = open(out, 'w')
-for l in infile.readlines():
-    if l[:clen] != '#' + compiler:
-        outfile.write(l)
+    elif opt == '-x':
+        with open('mygcc.out', 'a') as f:
+            f.write(compiler + "\n")
+with open(out, 'w') as ofp, open(args[0], 'r') as ifp:
+    for l in ifp.readlines():
+        if l[:clen] != '#' + compiler:
+            ofp.write(l)
 sys.exit(0)
 """)
 

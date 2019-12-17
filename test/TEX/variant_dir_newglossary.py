@@ -24,9 +24,9 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Validate the use of \newglossary in TeX source files in conjunction
-with variant_dir. 
+with variant_dir.
 
 Test configuration contributed by Kendrick Boyd.
 """
@@ -104,6 +104,6 @@ files = [
 for f in files:
     test.must_exist(['build',f])
     test.must_not_exist(['src',f])
-    
+
 
 test.pass_test()

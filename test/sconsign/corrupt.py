@@ -41,7 +41,8 @@ work2_sub__sconsign = test.workpath('work2', 'sub', '.sconsign')
 
 SConstruct_contents = """\
 def build1(target, source, env):
-    open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
+    with open(str(target[0]), 'wb') as ofp, open(str(source[0]), 'rb') as ifp:
+        ofp.write(ifp.read())
     return None
 
 B1 = Builder(action = build1)
@@ -55,12 +56,12 @@ test.write(['work1', 'SConstruct'], SConstruct_contents)
 
 test.write(['work1', 'foo.in'], "work1/foo.in\n")
 
-stderr = '''
+stderr = r'''
 scons: warning: Ignoring corrupt .sconsign file: \.sconsign\.dblite
 .*
 '''
 
-stdout = test.wrap_stdout('build1\(\["sub.foo\.out"\], \["foo\.in"\]\)\n')
+stdout = test.wrap_stdout(r'build1\(\["sub.foo\.out"\], \["foo\.in"\]\)' + '\n')
 
 test.write(work1__sconsign_dblite, 'not:a:sconsign:file')
 test.run(chdir='work1', arguments='.', stderr=stderr, stdout=stdout)
@@ -80,12 +81,12 @@ test.write(['work2', 'SConstruct'], SConstruct_contents)
 
 test.write(['work2', 'foo.in'], "work2/foo.in\n")
 
-stderr = '''
+stderr = r'''
 scons: warning: Ignoring corrupt .sconsign file: sub.\.sconsign
 .*
 '''
 
-stdout = test.wrap_stdout('build1\(\["sub.foo\.out"\], \["foo\.in"\]\)\n')
+stdout = test.wrap_stdout(r'build1\(\["sub.foo\.out"\], \["foo\.in"\]\)' + '\n')
 
 test.write(work2_sub__sconsign, 'not:a:sconsign:file')
 test.run(chdir='work2', arguments='.', stderr=stderr, stdout=stdout)

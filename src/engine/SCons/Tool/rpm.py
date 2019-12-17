@@ -51,43 +51,44 @@ def get_cmd(source, env):
     if SCons.Util.is_List(source):
         tar_file_with_included_specfile = source[0]
     return "%s %s %s"%(env['RPM'], env['RPMFLAGS'],
-                       tar_file_with_included_specfile.get_abspath() )
+                       tar_file_with_included_specfile.get_abspath())
 
 def build_rpm(target, source, env):
     # create a temporary rpm build root.
-    tmpdir = os.path.join( os.path.dirname( target[0].get_abspath() ), 'rpmtemp' )
+    tmpdir = os.path.join(os.path.dirname(target[0].get_abspath()), 'rpmtemp')
     if os.path.exists(tmpdir):
         shutil.rmtree(tmpdir)
 
     # now create the mandatory rpm directory structure.
     for d in ['RPMS', 'SRPMS', 'SPECS', 'BUILD']:
-        os.makedirs( os.path.join( tmpdir, d ) )
+        os.makedirs(os.path.join(tmpdir, d))
 
     # set the topdir as an rpmflag.
-    env.Prepend( RPMFLAGS = '--define \'_topdir %s\'' % tmpdir )
+    env.Prepend(RPMFLAGS = '--define \'_topdir %s\'' % tmpdir)
 
     # now call rpmbuild to create the rpm package.
     handle  = subprocess.Popen(get_cmd(source, env),
                                stdout=subprocess.PIPE,
                                stderr=subprocess.STDOUT,
                                shell=True)
-    output = SCons.Util.to_str(handle.stdout.read())
+    with handle.stdout:
+        output = SCons.Util.to_str(handle.stdout.read())
     status = handle.wait()
 
     if status:
-        raise SCons.Errors.BuildError( node=target[0],
-                                       errstr=output,
-                                       filename=str(target[0]) )
+        raise SCons.Errors.BuildError(node=target[0],
+                                      errstr=output,
+                                      filename=str(target[0]))
     else:
         # XXX: assume that LC_ALL=C is set while running rpmbuild
-        output_files = re.compile( 'Wrote: (.*)' ).findall( output )
+        output_files = re.compile('Wrote: (.*)').findall(output)
 
-        for output, input in zip( output_files, target ):
+        for output, input in zip(output_files, target):
             rpm_output = os.path.basename(output)
             expected   = os.path.basename(input.get_path())
 
             assert expected == rpm_output, "got %s but expected %s" % (rpm_output, expected)
-            shutil.copy( output, input.get_abspath() )
+            shutil.copy(output, input.get_abspath())
 
 
     # cleanup before leaving.

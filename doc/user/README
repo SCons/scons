@@ -12,7 +12,7 @@ Writing examples: here's a simple template.
  <scons_example name="Foo">
    <file name="SConstruct">
     env = Environment()
-    print env.Dump("CC")
+    print(env.Dump("CC"))
    </file>
  </scons_example>
 

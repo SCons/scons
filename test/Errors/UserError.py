@@ -39,7 +39,7 @@ import SCons.Errors
 raise SCons.Errors.UserError('Depends() requires both sources and targets.')
 """)
 
-expect = """
+expect = r"""
 scons: \*\*\* Depends\(\) requires both sources and targets.
 """ + TestSCons.file_expr
 

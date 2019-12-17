@@ -114,8 +114,8 @@ scons: warning: Can't find Intel compiler top dir for version='None', abi='[^']*
 """ + TestSCons.file_expr
 
 # Intel no license directory warning
-intel_license_warning = re.escape("""
-scons: warning: Intel license dir was not found.  Tried using the INTEL_LICENSE_FILE environment variable (), the registry () and the default path (C:\Program Files\Common Files\Intel\Licenses).  Using the default path as a last resort.
+intel_license_warning = re.escape(
+r"""scons: warning: Intel license dir was not found.  Tried using the INTEL_LICENSE_FILE environment variable (), the registry () and the default path (C:\Program Files\Common Files\Intel\Licenses).  Using the default path as a last resort.
 """) + TestSCons.file_expr
 
 intel_warnings = [

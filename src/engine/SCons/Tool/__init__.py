@@ -37,8 +37,6 @@ tool definition.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import imp
-import importlib
 import sys
 import re
 import os
@@ -53,7 +51,12 @@ import SCons.Scanner.D
 import SCons.Scanner.LaTeX
 import SCons.Scanner.Prog
 import SCons.Scanner.SWIG
-import collections
+try:
+    # Python 3
+    from collections.abc import Callable
+except ImportError:
+    # Python 2.7
+    from collections import Callable
 
 DefaultToolpath = []
 
@@ -96,7 +99,7 @@ for suffix in LaTeXSuffixes:
     SourceFileScanner.add_scanner(suffix, LaTeXScanner)
     SourceFileScanner.add_scanner(suffix, PDFLaTeXScanner)
 
-# Tool aliases are needed for those tools whos module names also
+# Tool aliases are needed for those tools whose module names also
 # occur in the python standard library. This causes module shadowing and
 # can break using python library functions under python3
 TOOL_ALIASES = {
@@ -106,7 +109,9 @@ TOOL_ALIASES = {
 
 
 class Tool(object):
-    def __init__(self, name, toolpath=[], **kw):
+    def __init__(self, name, toolpath=None, **kw):
+        if toolpath is None:
+            toolpath = []
 
         # Rename if there's a TOOL_ALIAS for this tool
         self.name = TOOL_ALIASES.get(name, name)
@@ -121,6 +126,8 @@ class Tool(object):
             self.options = module.options
 
     def _load_dotted_module_py2(self, short_name, full_name, searchpaths=None):
+        import imp
+
         splitname = short_name.split('.')
         index = 0
         srchpths = searchpaths
@@ -149,7 +156,7 @@ class Tool(object):
                 except ImportError as e:
                     splitname = self.name.split('.')
                     if str(e) != "No module named %s" % splitname[0]:
-                        raise SCons.Errors.EnvironmentError(e)
+                        raise SCons.Errors.SConsEnvironmentError(e)
                     try:
                         import zipimport
                     except ImportError:
@@ -211,13 +218,13 @@ class Tool(object):
 
             if spec is None:
                 error_string = "No module named %s" % self.name
-                raise SCons.Errors.EnvironmentError(error_string)
+                raise SCons.Errors.SConsEnvironmentError(error_string)
 
             module = importlib.util.module_from_spec(spec)
             if module is None:
                 if debug: print("MODULE IS NONE:%s" % self.name)
                 error_string = "No module named %s" % self.name
-                raise SCons.Errors.EnvironmentError(error_string)
+                raise SCons.Errors.SConsEnvironmentError(error_string)
 
             # Don't reload a tool we already loaded.
             sys_modules_value = sys.modules.get(found_name, False)
@@ -258,7 +265,7 @@ class Tool(object):
                     return module
                 except ImportError as e:
                     if str(e) != "No module named %s" % self.name:
-                        raise SCons.Errors.EnvironmentError(e)
+                        raise SCons.Errors.SConsEnvironmentError(e)
                     try:
                         import zipimport
                         importer = zipimport.zipimporter(sys.modules['SCons.Tool'].__path__[0])
@@ -267,10 +274,10 @@ class Tool(object):
                         return module
                     except ImportError as e:
                         m = "No tool named '%s': %s" % (self.name, e)
-                        raise SCons.Errors.EnvironmentError(m)
+                        raise SCons.Errors.SConsEnvironmentError(m)
             except ImportError as e:
                 m = "No tool named '%s': %s" % (self.name, e)
-                raise SCons.Errors.EnvironmentError(m)
+                raise SCons.Errors.SConsEnvironmentError(m)
 
     def __call__(self, env, *args, **kw):
         if self.init_kw is not None:
@@ -376,7 +383,7 @@ def _call_linker_cb(env, callback, args, result=None):
         if Verbose:
             print('_call_linker_cb: env["LINKCALLBACKS"][%r] found' % callback)
             print('_call_linker_cb: env["LINKCALLBACKS"][%r]=%r' % (callback, cbfun))
-        if isinstance(cbfun, collections.Callable):
+        if isinstance(cbfun, Callable):
             if Verbose:
                 print('_call_linker_cb: env["LINKCALLBACKS"][%r] is callable' % callback)
             result = cbfun(env, *args)
@@ -394,7 +401,8 @@ def _call_env_subst(env, string, *args, **kw):
 
 
 class _ShLibInfoSupport(object):
-    def get_libtype(self):
+    @property
+    def libtype(self):
         return 'ShLib'
 
     def get_lib_prefix(self, env, *args, **kw):
@@ -411,7 +419,8 @@ class _ShLibInfoSupport(object):
 
 
 class _LdModInfoSupport(object):
-    def get_libtype(self):
+    @property
+    def libtype(self):
         return 'LdMod'
 
     def get_lib_prefix(self, env, *args, **kw):
@@ -428,7 +437,8 @@ class _LdModInfoSupport(object):
 
 
 class _ImpLibInfoSupport(object):
-    def get_libtype(self):
+    @property
+    def libtype(self):
         return 'ImpLib'
 
     def get_lib_prefix(self, env, *args, **kw):
@@ -480,24 +490,20 @@ class _LibInfoGeneratorBase(object):
                         'ImpLib': _ImpLibInfoSupport}
 
     def __init__(self, libtype, infoname):
-        self.set_libtype(libtype)
-        self.set_infoname(infoname)
+        self.libtype = libtype
+        self.infoname = infoname
 
-    def set_libtype(self, libtype):
+    @property
+    def libtype(self):
+        return self._support.libtype
+
+    @libtype.setter
+    def libtype(self, libtype):
         try:
             support_class = self._support_classes[libtype]
         except KeyError:
             raise ValueError('unsupported libtype %r' % libtype)
         self._support = support_class()
-
-    def get_libtype(self):
-        return self._support.get_libtype()
-
-    def set_infoname(self, infoname):
-        self.infoname = infoname
-
-    def get_infoname(self):
-        return self.infoname
 
     def get_lib_prefix(self, env, *args, **kw):
         return self._support.get_lib_prefix(env, *args, **kw)
@@ -518,9 +524,8 @@ class _LibInfoGeneratorBase(object):
         try:
             libtype = kw['generator_libtype']
         except KeyError:
-            libtype = self.get_libtype()
-        infoname = self.get_infoname()
-        return 'Versioned%s%s' % (libtype, infoname)
+            libtype = self.libtype
+        return 'Versioned%s%s' % (libtype, self.infoname)
 
     def generate_versioned_lib_info(self, env, args, result=None, **kw):
         callback = self.get_versioned_lib_info_generator(**kw)
@@ -730,7 +735,7 @@ class _LibSonameGenerator(_LibInfoGeneratorBase):
 
         if not soname:
             # fallback to library name (as returned by appropriate _LibNameGenerator)
-            soname = _LibNameGenerator(self.get_libtype())(env, libnode)
+            soname = _LibNameGenerator(self.libtype)(env, libnode)
             if Verbose:
                 print("_LibSonameGenerator: FALLBACK: soname=%r" % soname)
 
@@ -1316,30 +1321,35 @@ def tool_list(platform, env):
     return [x for x in tools if x]
 
 
-def find_program_path(env, key_program, default_paths=[]):
+def find_program_path(env, key_program, default_paths=None):
     """
-    Find the location of key_program and then return the path it was located at.
-    Checking the default install locations.
-    Mainly for windows where tools aren't all installed in /usr/bin,etc
-    :param env: Current Environment()
-    :param key_program: Program we're using to locate the directory to add to PATH.
+    Find the location of a tool using various means.
+
+    Mainly for windows where tools aren't all installed in /usr/bin, etc.
+
+    :param env: Current Construction Environment.
+    :param key_program: Tool to locate.
+    :param default_paths: List of additional paths this tool might be found in.
     """
     # First search in the SCons path
     path = env.WhereIs(key_program)
-    if (path):
-        return path
-    # then the OS path:
-    path = SCons.Util.WhereIs(key_program)
-    if (path):
+    if path:
         return path
 
-    # If that doesn't work try default location for mingw
+    # Then in the OS path
+    path = SCons.Util.WhereIs(key_program)
+    if path:
+        return path
+
+    # Finally, add the defaults and check again. Do not change
+    # ['ENV']['PATH'] permananetly, the caller can do that if needed.
+    if default_paths is None:
+        return path
     save_path = env['ENV']['PATH']
     for p in default_paths:
         env.AppendENVPath('PATH', p)
     path = env.WhereIs(key_program)
-    if not path:
-        env['ENV']['PATH'] = save_path
+    env['ENV']['PATH'] = save_path
     return path
 
 # Local Variables:

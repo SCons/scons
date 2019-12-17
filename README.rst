@@ -4,15 +4,15 @@ SCons - a software construction tool
 .. image:: https://img.shields.io/badge/IRC-scons-blue.svg
    :target: http://webchat.freenode.net/?channels=%23scons&uio=d4
    :alt: IRC
-   
+
 .. image:: https://img.shields.io/sourceforge/dm/scons.svg
    :target: https://sourceforge.net/projects/scons
    :alt: Sourceforge Monthly Downloads
-   
+
 .. image:: https://img.shields.io/sourceforge/dt/scons.svg
    :target: https://sourceforge.net/projects/scons
    :alt: Sourceforge Total Downloads
-   
+
 .. image:: https://travis-ci.org/SCons/scons.svg?branch=master
    :target: https://travis-ci.org/SCons/scons
    :alt: Travis CI build status
@@ -20,7 +20,7 @@ SCons - a software construction tool
 .. image:: https://ci.appveyor.com/api/projects/status/github/SCons/scons?svg=true&branch=master
    :target: https://ci.appveyor.com/project/SCons/scons
    :alt: AppVeyor CI build Status
-   
+
 .. image:: https://codecov.io/gh/SCons/scons/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/SCons/scons
    :alt: CodeCov Coverage Status
@@ -72,7 +72,7 @@ version at the SCons download page:
 Execution Requirements
 ======================
 
-Running SCons requires Python version 2.7.* and Python 3.5 or higher.  
+Running SCons requires either Python version 2.7.* or Python 3.5 or higher.
 There should be no other dependencies or requirements to run SCons.
 
 The default SCons configuration assumes use of the Microsoft Visual C++
@@ -178,7 +178,7 @@ Or on Windows::
 
 By default, the above commands will do the following:
 
-- Install the version-numbered "scons-3.1.0" and "sconsign-3.0.3" scripts in
+- Install the version-numbered "scons-3.1.2" and "sconsign-3.1.2" scripts in
   the default system script directory (/usr/bin or C:\\Python\*\\Scripts, for
   example).  This can be disabled by specifying the "--no-version-script"
   option on the command line.
@@ -190,23 +190,23 @@ By default, the above commands will do the following:
   before making it the default on your system.
 
   On UNIX or Linux systems, you can have the "scons" and "sconsign" scripts be
-  hard links or symbolic links to the "scons-3.0.3" and "sconsign-3.0.3"
+  hard links or symbolic links to the "scons-3.1.2" and "sconsign-3.1.2"
   scripts by specifying the "--hardlink-scons" or "--symlink-scons" options on
   the command line.
 
-- Install "scons-3.0.3.bat" and "scons.bat" wrapper scripts in the Python
+- Install "scons-3.1.2.bat" and "scons.bat" wrapper scripts in the Python
   prefix directory on Windows (C:\\Python\*, for example).  This can be disabled
   by specifying the "--no-install-bat" option on the command line.
 
   On UNIX or Linux systems, the "--install-bat" option may be specified to
-  have "scons-3.0.3.bat" and "scons.bat" files installed in the default system
+  have "scons-3.1.2.bat" and "scons.bat" files installed in the default system
   script directory, which is useful if you want to install SCons in a shared
   file system directory that can be used to execute SCons from both UNIX/Linux
   and Windows systems.
 
 - Install the SCons build engine (a Python module) in an appropriate
-  version-numbered SCons library directory (/usr/lib/scons-3.0.3 or
-  C:\\Python\*\\scons-3.0.3, for example).  See below for more options related to
+  version-numbered SCons library directory (/usr/lib/scons-3.1.2 or
+  C:\\Python\*\\scons-3.1.2, for example).  See below for more options related to
   installing the build engine library.
 
 - Install the troff-format man pages in an appropriate directory on UNIX or
@@ -484,7 +484,7 @@ running all of "runtest.py -a".
 Building Packages
 =================
 
-We use SCons (version 3.0.3 or later) to build its own packages.  If you
+We use SCons (version 3.1.2 or later) to build its own packages.  If you
 already have an appropriate version of SCons installed on your system, you can
 build everything by simply running it::
 
@@ -499,13 +499,13 @@ about `Executing SCons Without Installing`_)::
 Depending on the utilities installed on your system, any or all of the
 following packages will be built::
 
-        build/dist/scons-3.0.4.tar.gz
-        build/dist/scons-3.0.4.zip
-        build/dist/scons-doc-3.0.4.tar.gz
-        build/dist/scons-local-3.0.4.tar.gz
-        build/dist/scons-local-3.0.4.zip
-        build/dist/scons-src-3.0.4.tar.gz
-        build/dist/scons-src-3.0.4.zip
+        build/dist/scons-3.1.2.tar.gz
+        build/dist/scons-3.1.2.zip
+        build/dist/scons-doc-3.1.2.tar.gz
+        build/dist/scons-local-3.1.2.tar.gz
+        build/dist/scons-local-3.1.2.zip
+        build/dist/scons-src-3.1.2.tar.gz
+        build/dist/scons-src-3.1.2.zip
 
 The SConstruct file is supposed to be smart enough to avoid trying to build
 packages for which you don't have the proper utilities installed.  For
@@ -613,10 +613,6 @@ LICENSE-local
     LICENSE with a preamble that specifies the licensing terms are for SCons
     itself, not any other package that includes SCons.
 
-QMTest/
-    The Python modules we use for testing, some generic modules originating
-    elsewhere and some specific to SCons.
-
 README.rst
     What you're looking at right now.
 
@@ -624,9 +620,6 @@ README-local
     A README file for inclusion in the scons-local-{version} packages.
     Similar to this file, but stripped down and modified for people looking at
     including SCons in their shipped software.
-
-rpm/
-    The .spec file for building our RPM packages.
 
 runtest.py
     Script for running SCons tests.  By default, this will run a test against
@@ -652,6 +645,8 @@ test/
     individual module unit tests, which live side-by-side with the modules
     under src/.
 
+testing/
+    SCons testing framework.
 
 Documentation
 =============
@@ -680,20 +675,20 @@ Reporting Bugs
 
 The SCons project welcomes bug reports and feature requests.
 
-Please make sure you send email with the problem or feature request to the SCons user's mailing list, 
-which you can join via the link below:
+Please make sure you send email with the problem or feature request to
+the SCons users mailing list, which you can join via the link below:
 
         http://two.pairlist.net/mailman/listinfo/scons-users
 
-Once you have discussed your issue on the users mailing list and the community has confirmed that 
-it is either a new bug or a duplicate of an existing bug, then please follow the instructions the c
-ommunity provides to file a new bug or to add yourself to the CC list for an existing bug
+Once you have discussed your issue on the users mailing list and the
+community has confirmed that it is either a new bug or a duplicate of an
+existing bug, then please follow the instructions the community provides
+to file a new bug or to add yourself to the CC list for an existing bug
 
-You can explore the list of existing bugs, which may include workarounds for the problem you've 
-run into on GitHub Issues:
+You can explore the list of existing bugs, which may include workarounds
+for the problem you've run into on GitHub Issues:
 
         https://github.com/SCons/scons/issues
-
 
 
 Mailing Lists

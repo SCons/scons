@@ -38,10 +38,8 @@ test.write('build.py', r"""
 import sys
 exitval = int(sys.argv[1])
 if exitval == 0:
-    contents = open(sys.argv[3], 'r').read()
-    file = open(sys.argv[2], 'w')
-    file.write(contents)
-    file.close()
+    with open(sys.argv[2], 'w') as f, open(sys.argv[3], 'r') as infp:
+        f.write(infp.read())
 sys.exit(exitval)
 """)
 
@@ -198,8 +196,8 @@ env = Environment()
 env.Default("all")
 env.Alias("all", env.Install("dir", "file.txt"))
 """)
-test.run(status=2, match=TestSCons.match_re, stderr="""\
-scons: \*\*\* Do not know how to make File target `all' \(.*all\).  Stop.
+test.run(status=2, match=TestSCons.match_re, stderr=\
+r"""scons: \*\*\* Do not know how to make File target `all' \(.*all\).  Stop.
 """)
 
 # No tests failed; OK.

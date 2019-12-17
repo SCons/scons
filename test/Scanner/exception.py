@@ -37,7 +37,7 @@ test.write('SConstruct', """
 SConscript('SConscript')
 """)
 
-test.write('SConscript', """
+test.write('SConscript', r"""
 import re
 
 include_re = re.compile(r'^include\s+(\S+)$', re.M)
@@ -61,16 +61,17 @@ def process(outf, inf):
     for line in inf.readlines():
         if line[:8] == 'include ':
             file = line[8:-1]
-            process(outf, open(file, 'rb'))
+            with open(file, 'rb') as ifp:
+                process(outf, ifp)
         else:
             outf.write(line)
 
 def cat(env, source, target):
     target = str(target[0])
-    outf = open(target, 'wb')
-    for src in source:
-        process(outf, open(str(src), 'rb'))
-    outf.close()
+    with open(target, 'wb') as outf:
+        for src in source:
+            with open(str(src), 'rb') as inf:
+                process(outf, inf)
 
 env = Environment(BUILDERS={'Cat':Builder(action=cat)})
 env.Append(SCANNERS = [kscan])
@@ -81,14 +82,14 @@ bar_in = File('bar.in')
 env.Cat('bar', bar_in)
 """)
 
-test.write('foo.k', 
+test.write('foo.k',
 """foo.k 1 line 1
 include xxx
 include yyy
 foo.k 1 line 4
 """)
 
-test.write('bar.in', 
+test.write('bar.in',
 """include yyy
 bar.in 1 line 2
 bar.in 1 line 3

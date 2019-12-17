@@ -147,7 +147,7 @@ class SConsValues(optparse.Values):
         """
         Sets an option from an SConscript file.
         """
-        if not name in self.settable:
+        if name not in self.settable:
             raise SCons.Errors.UserError("This option is not settable from a SConscript file: %s"%name)
 
         if name == 'num_jobs':
@@ -167,7 +167,7 @@ class SConsValues(optparse.Values):
                 value = str(value)
             except ValueError:
                 raise SCons.Errors.UserError("A string is required: %s"%repr(value))
-            if not value in SCons.Node.FS.Valid_Duplicates:
+            if value not in SCons.Node.FS.Valid_Duplicates:
                 raise SCons.Errors.UserError("Not a valid duplication style: %s" % value)
             # Set the duplicate style right away so it can affect linking
             # of SConscript files.
@@ -226,39 +226,8 @@ class SConsOption(optparse.Option):
             fmt = "option %s: nargs='?' is incompatible with short options"
             raise SCons.Errors.UserError(fmt % self._short_opts[0])
 
-    try:
-        _orig_CONST_ACTIONS = optparse.Option.CONST_ACTIONS
-
-        _orig_CHECK_METHODS = optparse.Option.CHECK_METHODS
-
-    except AttributeError:
-        # optparse.Option had no CONST_ACTIONS before Python 2.5.
-
-        _orig_CONST_ACTIONS = ("store_const",)
-
-        def _check_const(self):
-            if self.action not in self.CONST_ACTIONS and self.const is not None:
-                raise OptionError(
-                    "'const' must not be supplied for action %r" % self.action,
-                    self)
-
-        # optparse.Option collects its list of unbound check functions
-        # up front.  This sucks because it means we can't just override
-        # the _check_const() function like a normal method, we have to
-        # actually replace it in the list.  This seems to be the most
-        # straightforward way to do that.
-
-        _orig_CHECK_METHODS = [optparse.Option._check_action,
-                     optparse.Option._check_type,
-                     optparse.Option._check_choice,
-                     optparse.Option._check_dest,
-                     _check_const,
-                     optparse.Option._check_nargs,
-                     optparse.Option._check_callback]
-
-    CHECK_METHODS = _orig_CHECK_METHODS + [_check_nargs_optional]
-
-    CONST_ACTIONS = _orig_CONST_ACTIONS + optparse.Option.TYPED_ACTIONS
+    CHECK_METHODS = optparse.Option.CHECK_METHODS + [_check_nargs_optional]
+    CONST_ACTIONS = optparse.Option.CONST_ACTIONS + optparse.Option.TYPED_ACTIONS
 
 class SConsOptionGroup(optparse.OptionGroup):
     """
@@ -364,7 +333,7 @@ class SConsOptionParser(optparse.OptionParser):
         in self.largs, so that any value overridden on the
         command line is immediately available if the user turns
         around and does a GetOption() right away.
-        
+
         We mimic the processing of the single args
         in the original OptionParser._process_args(), but here we
         allow exact matches for long-opts only (no partial
@@ -375,7 +344,7 @@ class SConsOptionParser(optparse.OptionParser):
         command-line arguments that
           1. haven't been processed so far (self.largs), but
           2. are possibly not added to the list of options yet.
-          
+
         So, when we only have a value for "--myargument" yet,
         a command-line argument of "--myarg=test" would set it.
         Responsible for this behaviour is the method
@@ -384,7 +353,7 @@ class SConsOptionParser(optparse.OptionParser):
         be unique.
         This would lead to further confusion, because we might want
         to add another option "--myarg" later on (see issue #2929).
-        
+
         """
         rargs = []
         largs_restore = []
@@ -401,7 +370,7 @@ class SConsOptionParser(optparse.OptionParser):
                     if "=" in l:
                         # Split into option and value
                         lopt = l.split("=", 1)
-                        
+
                     if lopt[0] in self._long_opt:
                         # Argument is already known
                         rargs.append('='.join(lopt))
@@ -416,7 +385,7 @@ class SConsOptionParser(optparse.OptionParser):
                         skip = True
                     else:
                         rargs.append(l)
-        
+
         # Parse the filtered list
         self.parse_args(rargs, self.values)
         # Restore the list of remaining arguments for the
@@ -615,8 +584,14 @@ def Parser(version):
                   help="Print build actions for files from CacheDir.")
 
     def opt_invalid(group, value, options):
+        """report an invalid option from a group"""
         errmsg  = "`%s' is not a valid %s option type, try:\n" % (value, group)
         return errmsg + "    %s" % ", ".join(options)
+
+    def opt_invalid_rm(group, value, msg):
+        """report an invalid option from a group: recognized but removed"""
+        errmsg  = "`%s' is not a valid %s option type " % (value, group)
+        return errmsg + msg
 
     config_options = ["auto", "force" ,"cache"]
 
@@ -635,9 +610,11 @@ def Parser(version):
                   help="Search up directory tree for SConstruct,       "
                        "build all Default() targets.")
 
-    deprecated_debug_options = {
+    deprecated_debug_options = {}
+
+    removed_debug_options = {
         "dtree"         : '; please use --tree=derived instead',
-        "nomemoizer"    : ' and has no effect',
+        "nomemoizer"    : '; there is no replacement',
         "stree"         : '; please use --tree=all,status instead',
         "tree"          : '; please use --tree=all instead',
     }
@@ -645,15 +622,16 @@ def Parser(version):
     debug_options = ["count", "duplicate", "explain", "findlibs",
                      "includes", "memoizer", "memory", "objects",
                      "pdb", "prepare", "presub", "stacktrace",
-                     "time"]
+                     "time", "action-timestamps"]
 
     def opt_debug(option, opt, value__, parser,
                   debug_options=debug_options,
-                  deprecated_debug_options=deprecated_debug_options):
+                  deprecated_debug_options=deprecated_debug_options,
+                  removed_debug_options=removed_debug_options):
         for value in value__.split(','):
             if value in debug_options:
                 parser.values.debug.append(value)
-            elif value in list(deprecated_debug_options.keys()):
+            elif value in deprecated_debug_options:
                 parser.values.debug.append(value)
                 try:
                     parser.values.delayed_warnings
@@ -663,6 +641,9 @@ def Parser(version):
                 w = "The --debug=%s option is deprecated%s." % (value, msg)
                 t = (SCons.Warnings.DeprecatedDebugOptionsWarning, w)
                 parser.values.delayed_warnings.append(t)
+            elif value in removed_debug_options:
+                msg = removed_debug_options[value]
+                raise OptionValueError(opt_invalid_rm('debug', value, msg))
             else:
                 raise OptionValueError(opt_invalid('debug', value, debug_options))
 
@@ -690,7 +671,7 @@ def Parser(version):
                   metavar="TYPE")
 
     def opt_duplicate(option, opt, value, parser):
-        if not value in SCons.Node.FS.Valid_Duplicates:
+        if value not in SCons.Node.FS.Valid_Duplicates:
             raise OptionValueError(opt_invalid('duplication', value,
                                               SCons.Node.FS.Valid_Duplicates))
         setattr(parser.values, option.dest, value)

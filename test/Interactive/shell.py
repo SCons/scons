@@ -89,8 +89,8 @@ if sys.platform == 'win32':
 else:
     no_such_error = 'scons: no_such_command: No such file or directory'
 
-expect_stdout = """\
-scons>>> Copy\("foo.out", "foo.in"\)
+expect_stdout = \
+r"""scons>>> Copy\("foo.out", "foo.in"\)
 Touch\("1"\)
 scons>>> hello from shell_command.py
 scons>>> ![^"]+ ".*"

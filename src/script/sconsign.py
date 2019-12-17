@@ -59,7 +59,7 @@ Python 2.7 or >= 3.5 is required.\n"
 # Strip the script directory from sys.path so on case-insensitive
 # (WIN32) systems Python doesn't think that the "scons" script is the
 # "SCons" package.
-script_dir = os.path.dirname(__file__)
+script_dir = os.path.dirname(os.path.realpath(__file__))
 script_path = os.path.realpath(os.path.dirname(__file__))
 if script_path in sys.path:
     sys.path.remove(script_path)
@@ -117,7 +117,7 @@ else:
         # check `pwd`/lib/scons*.
         temp.append(os.getcwd())
     else:
-        if script_dir == '.' or script_dir == '':
+        if script_dir in ('.', ''):
             script_dir = os.getcwd()
         head, tail = os.path.split(script_dir)
         if tail == "bin":
@@ -185,13 +185,13 @@ import SCons.compat
 
 try:
     import whichdb
+
     whichdb = whichdb.whichdb
 except ImportError as e:
     from dbm import whichdb
 
 import time
 import pickle
-import imp
 
 import SCons.SConsign
 
@@ -200,9 +200,8 @@ def my_whichdb(filename):
     if filename[-7:] == ".dblite":
         return "SCons.dblite"
     try:
-        f = open(filename + ".dblite", "rb")
-        f.close()
-        return "SCons.dblite"
+        with open(filename + ".dblite", "rb"):
+            return "SCons.dblite"
     except IOError:
         pass
     return _orig_whichdb(filename)
@@ -217,6 +216,8 @@ whichdb = my_whichdb
 #dbm.whichdb = my_whichdb
 
 def my_import(mname):
+    import imp
+
     if '.' in mname:
         i = mname.rfind('.')
         parent = my_import(mname[:i])
@@ -247,9 +248,8 @@ Readable = 0
 Warns = 0
 
 
-
 def default_mapper(entry, name):
-    '''
+    """
     Stringify an entry that doesn't have an explicit mapping.
 
     Args:
@@ -258,10 +258,10 @@ def default_mapper(entry, name):
 
     Returns: str
 
-    '''
+    """
     try:
         val = eval("entry." + name)
-    except:
+    except AttributeError:
         val = None
     if sys.version_info.major >= 3 and isinstance(val, bytes):
         # This is a dirty hack for py 2/3 compatibility. csig is a bytes object
@@ -272,7 +272,7 @@ def default_mapper(entry, name):
 
 
 def map_action(entry, _):
-    '''
+    """
     Stringify an action entry and signature.
 
     Args:
@@ -281,7 +281,7 @@ def map_action(entry, _):
 
     Returns: str
 
-    '''
+    """
     try:
         bact = entry.bact
         bactsig = entry.bactsig
@@ -289,8 +289,9 @@ def map_action(entry, _):
         return None
     return '%s [%s]' % (bactsig, bact)
 
+
 def map_timestamp(entry, _):
-    '''
+    """
     Stringify a timestamp entry.
 
     Args:
@@ -299,7 +300,7 @@ def map_timestamp(entry, _):
 
     Returns: str
 
-    '''
+    """
     try:
         timestamp = entry.timestamp
     except AttributeError:
@@ -309,8 +310,9 @@ def map_timestamp(entry, _):
     else:
         return str(timestamp)
 
+
 def map_bkids(entry, _):
-    '''
+    """
     Stringify an implicit entry.
 
     Args:
@@ -319,7 +321,7 @@ def map_bkids(entry, _):
 
     Returns: str
 
-    '''
+    """
     try:
         bkids = entry.bsources + entry.bdepends + entry.bimplicit
         bkidsigs = entry.bsourcesigs + entry.bdependsigs + entry.bimplicitsigs
@@ -448,8 +450,8 @@ class Do_SConsignDB(object):
 
     def __call__(self, fname):
         # The *dbm modules stick their own file suffixes on the names
-        # that are passed in.  This is causes us to jump through some
-        # hoops here to be able to allow the user
+        # that are passed in.  This causes us to jump through some
+        # hoops here.
         try:
             # Try opening the specified file name.  Example:
             #   SPECIFIED                  OPENED BY self.dbm.open()
@@ -461,16 +463,17 @@ class Do_SConsignDB(object):
             print_e = e
             try:
                 # That didn't work, so try opening the base name,
-                # so that if the actually passed in 'sconsign.dblite'
+                # so that if they actually passed in 'sconsign.dblite'
                 # (for example), the dbm module will put the suffix back
                 # on for us and open it anyway.
                 db = self.dbm.open(os.path.splitext(fname)[0], "r")
             except (IOError, OSError):
                 # That didn't work either.  See if the file name
-                # they specified just exists (independent of the dbm
+                # they specified even exists (independent of the dbm
                 # suffix-mangling).
                 try:
-                    open(fname, "r")
+                    with open(fname, "rb"):
+                        pass  # this is a touch only, we don't use it here.
                 except (IOError, OSError) as e:
                     # Nope, that file doesn't even exist, so report that
                     # fact back.
@@ -486,6 +489,9 @@ class Do_SConsignDB(object):
         except Exception as e:
             sys.stderr.write("sconsign: ignoring invalid `%s' file `%s': %s\n"
                              % (self.dbm_name, fname, e))
+            exc_type, _, _ = sys.exc_info()
+            if exc_type.__name__ == "ValueError" and sys.version_info < (3,0,0):
+                sys.stderr.write("Python 2 only supports pickle protocols 0-2.\n")
             return
 
         if Print_Directories:
@@ -512,23 +518,23 @@ class Do_SConsignDB(object):
 
 def Do_SConsignDir(name):
     try:
-        fp = open(name, 'rb')
+        with open(name, 'rb') as fp:
+            try:
+                sconsign = SCons.SConsign.Dir(fp)
+            except KeyboardInterrupt:
+                raise
+            except pickle.UnpicklingError:
+                err = "sconsign: ignoring invalid .sconsign file `%s'\n" % (name)
+                sys.stderr.write(err)
+                return
+            except Exception as e:
+                err = "sconsign: ignoring invalid .sconsign file `%s': %s\n" % (name, e)
+                sys.stderr.write(err)
+                return
+            printentries(sconsign.entries, args[0])
     except (IOError, OSError) as e:
         sys.stderr.write("sconsign: %s\n" % e)
         return
-    try:
-        sconsign = SCons.SConsign.Dir(fp)
-    except KeyboardInterrupt:
-        raise
-    except pickle.UnpicklingError:
-        err = "sconsign: ignoring invalid .sconsign file `%s'\n" % (name)
-        sys.stderr.write(err)
-        return
-    except Exception as e:
-        err = "sconsign: ignoring invalid .sconsign file `%s': %s\n" % (name, e)
-        sys.stderr.write(err)
-        return
-    printentries(sconsign.entries, args[0])
 
 
 ##############################################################################
@@ -536,7 +542,7 @@ def Do_SConsignDir(name):
 import getopt
 
 helpstr = """\
-Usage: sconsign [OPTIONS] FILE [...]
+Usage: sconsign [OPTIONS] [FILE ...]
 Options:
   -a, --act, --action         Print build action information.
   -c, --csig                  Print content signature information.
@@ -552,13 +558,17 @@ Options:
   -v, --verbose               Verbose, describe each field.
 """
 
-opts, args = getopt.getopt(sys.argv[1:], "acd:e:f:hirstv",
-                            ['act', 'action',
-                             'csig', 'dir=', 'entry=',
-                             'format=', 'help', 'implicit',
-                             'raw', 'readable',
-                             'size', 'timestamp', 'verbose'])
-
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "acd:e:f:hirstv",
+                               ['act', 'action',
+                                'csig', 'dir=', 'entry=',
+                                'format=', 'help', 'implicit',
+                                'raw', 'readable',
+                                'size', 'timestamp', 'verbose'])
+except getopt.GetoptError as err:
+    sys.stderr.write(str(err) + '\n')
+    print(helpstr)
+    sys.exit(2)
 
 for o, a in opts:
     if o in ('-a', '--act', '--action'):
@@ -586,7 +596,7 @@ for o, a in opts:
                     # this was handled by calling my_import('SCons.dblite')
                     # again in earlier versions...
                     SCons.dblite.ignore_corrupt_dbfiles = 0
-            except:
+            except ImportError:
                 sys.stderr.write("sconsign: illegal file format `%s'\n" % a)
                 print(helpstr)
                 sys.exit(2)
@@ -613,6 +623,8 @@ if Do_Call:
     for a in args:
         Do_Call(a)
 else:
+    if not args:
+        args = [".sconsign.dblite"]
     for a in args:
         dbm_name = whichdb(a)
         if dbm_name:

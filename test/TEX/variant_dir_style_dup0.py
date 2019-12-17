@@ -24,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Test creation of a fully-featured TeX document (with bibliography
 and index) in a variant_dir.
 
@@ -117,13 +117,13 @@ r"""
 \makeindex
 
 \begin{document}
- 
+
 \title{Report Title}
 
 \author{A. N. Author}
- 
-\maketitle 
- 
+
+\maketitle
+
 \begin{abstract}
 there is no abstract
 \end{abstract}
@@ -139,7 +139,7 @@ The introduction is short.
 
 \section{Acknowledgements}
 
-The Acknowledgements are show as well \cite{AnAuthor:2006fk}.  
+The Acknowledgements are show as well \cite{AnAuthor:2006fk}.
 
 \index{Getting the Report}
 

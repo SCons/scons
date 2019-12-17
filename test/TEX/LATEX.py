@@ -24,10 +24,12 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Validate that we can set the LATEX string to our own utility, that
 the produced .dvi, .aux and .log files get removed by the -c option,
 and that we can use this to wrap calls to the real latex utility.
+Check that a log file with a warning encoded in non-UTF-8 (here: Latin-1)
+is read without throwing an error.
 """
 
 import TestSCons
@@ -44,15 +46,16 @@ import os
 import getopt
 cmd_opts, arg = getopt.getopt(sys.argv[1:], 'i:r:', [])
 base_name = os.path.splitext(arg[0])[0]
-infile = open(arg[0], 'r')
-dvi_file = open(base_name+'.dvi', 'w')
-aux_file = open(base_name+'.aux', 'w')
-log_file = open(base_name+'.log', 'w')
-for l in infile.readlines():
-    if l[0] != '\\':
-        dvi_file.write(l)
-        aux_file.write(l)
-        log_file.write(l)
+with open(arg[0], 'r') as ifp:
+    with open(base_name+'.dvi', 'w') as dvi_file, \
+         open(base_name+'.aux', 'w') as aux_file, \
+         open(base_name+'.log', 'w') as log_file:
+
+        for l in ifp.readlines():
+            if l[0] != '\\':
+                dvi_file.write(l)
+                aux_file.write(l)
+                log_file.write(l)
 sys.exit(0)
 """)
 
@@ -191,6 +194,24 @@ This is the include file. mod %s
     test.must_not_exist('latexi.ind')
     test.must_not_exist('latexi.ilg')
 
+
+    test.write('SConstruct', """
+env = Environment()
+env.DVI('latin1log.tex')
+""")
+
+    # This will trigger an overfull hbox warning in the log file,
+    # containing the umlaut "o in Latin-1 ("T1 fontenc") encoding.
+    test.write('latin1log.tex', r"""
+\documentclass[12pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\begin{document}
+\"oxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+\end{document}
+""")
+
+    test.run(arguments = 'latin1log.dvi', stderr = None)
+    test.must_exist('latin1log.dvi')
 
 test.pass_test()
 

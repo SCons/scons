@@ -1,0 +1,66 @@
+"""
+This issue requires the following.
+1. Generated source file which outputs 2 (or more) files
+2. Action string gets scanned providing only compiler as part of implicit scan
+3. Generated file gets built. Without the bugfix only the first target's .implicit list is cleared.
+4. builder/executor/action gets tried again and implicits scanned. 2nd to Nth targets end up 
+   with the compiler at the beginning of the implicit list and the rest of the scanned files added to that list.
+5. That bimplicit gets saved into sconsign
+6. Second run loads sconsign, now with generated file present a regular implicit scan occurs. This yields 2nd through
+   Nth target's implicit lists changing when compared to SConsign's which have been loaded.
+7. This forces rebuild of source file and this propagates to massive recompile
+"""
+import sys
+import SCons.Tool
+
+
+def _dwo_emitter(target, source, env):
+    new_targets = []
+    for t in target:
+        base, ext = SCons.Util.splitext(str(t))
+        if not any(ext == env[osuffix] for osuffix in ['OBJSUFFIX', 'SHOBJSUFFIX']):
+            continue
+        # TODO: Move 'dwo' into DWOSUFFIX so it can be customized? For
+        # now, GCC doesn't let you control the output filename, so it
+        # doesn't matter.
+        dwotarget = (t.builder.target_factory or env.File)(base + ".dwo")
+        new_targets.append(dwotarget)
+    targets = target + new_targets
+    return (targets, source)
+
+build_string = '$MYCOPY $SOURCE $TARGET'
+
+
+bld = Builder(action=build_string)
+
+env = Environment(BUILDERS={'Foo': bld}, MYCOPY="%s mycopy.py"%sys.executable)
+
+env['SHCCCOM'] = '$MYCOPY $SOURCE $TARGET && $MYCOPY $SOURCE ${TARGETS[1]}'
+
+env['SHCCCOMSTR'] = env['SHCCCOM']
+
+
+suffixes = ['.c']
+
+for object_builder in SCons.Tool.createObjBuilders(env):
+    emitterdict = object_builder.builder.emitter
+    for suffix in emitterdict.keys():
+        if not suffix in suffixes:
+            continue
+        base = emitterdict[suffix]
+        emitterdict[suffix] = SCons.Builder.ListEmitter([
+            base,
+            _dwo_emitter,
+        ])
+
+vs = ['a']
+
+for v in vs:
+    env.Foo('%s.c' % v, v)
+    env.SharedObject('%s.c'%v)
+
+env.Foo('b','b.in')
+# seems like processing is always alphabetical..
+
+
+# code: language=python insertSpaces=4 tabSize=4

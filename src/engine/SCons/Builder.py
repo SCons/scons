@@ -278,7 +278,7 @@ def Builder(**kw):
 
     result = BuilderBase(**kw)
 
-    if not composite is None:
+    if composite is not None:
         result = CompositeBuilder(result, composite)
 
     return result
@@ -297,7 +297,7 @@ def _node_errors(builder, env, tlist, slist):
         if t.has_explicit_builder():
             # Check for errors when the environments are different
             # No error if environments are the same Environment instance
-            if (not t.env is None and not t.env is env and
+            if (t.env is not None and t.env is not env and
                     # Check OverrideEnvironment case - no error if wrapped Environments
                     # are the same instance, and overrides lists match
                     not (getattr(t.env, '__subject', 0) is getattr(env, '__subject', 1) and
@@ -313,7 +313,7 @@ def _node_errors(builder, env, tlist, slist):
                 else:
                     try:
                         msg = "Two environments with different actions were specified for the same target: %s\n(action 1: %s)\n(action 2: %s)" % (t,t_contents.decode('utf-8'),contents.decode('utf-8'))
-                    except UnicodeDecodeError as e:
+                    except UnicodeDecodeError:
                         msg = "Two environments with different actions were specified for the same target: %s"%t
                     raise UserError(msg)
             if builder.multi:
@@ -400,16 +400,13 @@ class BuilderBase(object):
         self.env = env
         self.single_source = single_source
         if 'overrides' in overrides:
-            SCons.Warnings.warn(SCons.Warnings.DeprecatedBuilderKeywordsWarning,
-                "The \"overrides\" keyword to Builder() creation has been deprecated;\n" +\
-                "\tspecify the items as keyword arguments to the Builder() call instead.")
-            overrides.update(overrides['overrides'])
-            del overrides['overrides']
+            msg =  "The \"overrides\" keyword to Builder() creation has been removed;\n" +\
+                "\tspecify the items as keyword arguments to the Builder() call instead."
+            raise TypeError(msg)
         if 'scanner' in overrides:
-            SCons.Warnings.warn(SCons.Warnings.DeprecatedBuilderKeywordsWarning,
-                                "The \"scanner\" keyword to Builder() creation has been deprecated;\n"
-                                "\tuse: source_scanner or target_scanner as appropriate.")
-            del overrides['scanner']
+            msg = "The \"scanner\" keyword to Builder() creation has been removed;\n" +\
+                "\tuse: source_scanner or target_scanner as appropriate."
+            raise TypeError(msg)
         self.overrides = overrides
 
         self.set_suffix(suffix)
@@ -428,7 +425,7 @@ class BuilderBase(object):
         if name:
             self.name = name
         self.executor_kw = {}
-        if not chdir is _null:
+        if chdir is not _null:
             self.executor_kw['chdir'] = chdir
         self.is_explicit = is_explicit
 
@@ -558,14 +555,23 @@ class BuilderBase(object):
             result = []
             if target is None: target = [None]*len(source)
             for tgt, src in zip(target, source):
-                if not tgt is None: tgt = [tgt]
-                if not src is None: src = [src]
+                if tgt is not None:
+                    tgt = [tgt]
+                if src is not None:
+                    src = [src]
                 result.extend(self._execute(env, tgt, src, overwarn))
             return SCons.Node.NodeList(result)
 
         overwarn.warn()
 
         tlist, slist = self._create_nodes(env, target, source)
+
+        # If there is more than one target ensure that if we need to reset
+        # the implicit list to new scan of dependency all targets implicit lists
+        # are cleared. (SCons GH Issue #2811 and MongoDB SERVER-33111)
+        if len(tlist) > 1:
+            for t in tlist:
+                t.target_peers = tlist
 
         # Check for errors with the specified target/source lists.
         _node_errors(self, env, tlist, slist)
@@ -748,7 +754,7 @@ class BuilderBase(object):
         for s in SCons.Util.flatten(source):
             if SCons.Util.is_String(s):
                 match_suffix = match_src_suffix(env.subst(s))
-                if not match_suffix and not '.' in s:
+                if not match_suffix and '.' not in s:
                     src_suf = self.get_src_suffix(env)
                     s = self._adjustixes(s, None, src_suf)[0]
             else:

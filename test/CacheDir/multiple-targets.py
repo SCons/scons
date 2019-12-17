@@ -40,8 +40,10 @@ test.subdir('cache')
 test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
 def touch(env, source, target):
-    open('foo', 'w').write("")
-    open('bar', 'w').write("")
+    with open('foo', 'w') as f:
+        f.write("")
+    with open('bar', 'w') as f:
+        f.write("")
 CacheDir(r'%s')
 env = Environment(tools=[], )
 env.Command(['foo', 'bar'], ['input'], touch)

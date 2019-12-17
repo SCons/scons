@@ -36,7 +36,8 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', """
 def batch_build(target, source, env):
     for t, s in zip(target, source):
-        open(str(t), 'wb').write(open(str(s), 'rb').read())
+        with open(str(t), 'wb') as f, open(str(s), 'rb') as infp:
+            f.write(infp.read())
 env = Environment()
 bb = Action(batch_build, batch_key=True)
 env['BUILDERS']['Batch'] = Builder(action=bb)

@@ -132,8 +132,8 @@ public:
 
     %pythoncode %{
     def __iter__(self):
-        for i in range(len(self)):
-            yield self[i]
+        for s in self:
+            yield s
     %}
   }
 };

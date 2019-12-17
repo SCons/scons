@@ -42,7 +42,7 @@ import SCons.Platform
 import SCons.SConf
 import SCons.Script.Main
 import SCons.Tool
-import SCons.Util
+from SCons.Util import is_List, is_String, is_Dict, flatten
 
 from . import Main
 
@@ -98,7 +98,7 @@ def compute_exports(exports):
     retval = {}
     try:
         for export in exports:
-            if SCons.Util.is_Dict(export):
+            if is_Dict(export):
                 retval.update(export)
             else:
                 try:
@@ -133,7 +133,7 @@ call_stack = []
 def Return(*vars, **kw):
     retval = []
     try:
-        fvars = SCons.Util.flatten(vars)
+        fvars = flatten(vars)
         for var in fvars:
             for v in var.split():
                 retval.append(call_stack[-1].globals[v])
@@ -278,11 +278,12 @@ def _SConscript(fs, *files, **kw):
                         pass
                     try:
                         try:
-#                            _file_ = SCons.Util.to_str(_file_)
                             if Main.print_time:
                                 time1 = time.time()
-                            exec(compile(_file_.read(), _file_.name, 'exec'),
-                                 call_stack[-1].globals)
+                            scriptdata = _file_.read()
+                            scriptname = _file_.name
+                            _file_.close()
+                            exec(compile(scriptdata, scriptname, 'exec'), call_stack[-1].globals)
                         except SConscriptReturn:
                             pass
                     finally:
@@ -397,9 +398,9 @@ class SConsEnvironment(SCons.Environment.Base):
         something like 3.2b1."""
         version = version_string.split(' ')[0].split('.')
         v_major = int(version[0])
-        v_minor = int(re.match('\d+', version[1]).group())
+        v_minor = int(re.match(r'\d+', version[1]).group())
         if len(version) >= 3:
-            v_revision = int(re.match('\d+', version[2]).group())
+            v_revision = int(re.match(r'\d+', version[2]).group())
         else:
             v_revision = 0
         return v_major, v_minor, v_revision
@@ -419,7 +420,7 @@ class SConsEnvironment(SCons.Environment.Base):
             except KeyError:
                 raise SCons.Errors.UserError("Invalid SConscript usage - no parameters")
 
-            if not SCons.Util.is_List(dirs):
+            if not is_List(dirs):
                 dirs = [ dirs ]
             dirs = list(map(str, dirs))
 
@@ -440,13 +441,13 @@ class SConsEnvironment(SCons.Environment.Base):
 
             raise SCons.Errors.UserError("Invalid SConscript() usage - too many arguments")
 
-        if not SCons.Util.is_List(files):
+        if not is_List(files):
             files = [ files ]
 
         if kw.get('exports'):
             exports.extend(self.Split(kw['exports']))
 
-        variant_dir = kw.get('variant_dir') or kw.get('build_dir')
+        variant_dir = kw.get('variant_dir')
         if variant_dir:
             if len(files) != 1:
                 raise SCons.Errors.UserError("Invalid SConscript() usage - can only specify one SConscript with a variant_dir")
@@ -576,9 +577,6 @@ class SConsEnvironment(SCons.Environment.Base):
             UserError: a script is not found and such exceptions are enabled.
         """
 
-        if 'build_dir' in kw:
-            msg = """The build_dir keyword has been deprecated; use the variant_dir keyword instead."""
-            SCons.Warnings.warn(SCons.Warnings.DeprecatedBuildDirWarning, msg)
         def subst_element(x, subst=self.subst):
             if SCons.Util.is_List(x):
                 x = list(map(subst, x))
@@ -588,15 +586,10 @@ class SConsEnvironment(SCons.Environment.Base):
         ls = list(map(subst_element, ls))
         subst_kw = {}
         for key, val in kw.items():
-            if SCons.Util.is_String(val):
+            if is_String(val):
                 val = self.subst(val)
             elif SCons.Util.is_List(val):
-                result = []
-                for v in val:
-                    if SCons.Util.is_String(v):
-                        v = self.subst(v)
-                    result.append(v)
-                val = result
+                val = [self.subst(v) if is_String(v) else v for v in val]
             subst_kw[key] = val
 
         files, exports = self._get_SConscript_filenames(ls, subst_kw)

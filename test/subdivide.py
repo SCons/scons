@@ -29,9 +29,8 @@ Verify that rebuilds do not occur when SConsignFile(None) is used to
 put a .sconsign file in each directory and we subdvide the dependency
 tree with subsidiary *SConstruct* files in various subdirectories.
 
-This depends on using content signatures for evaluation of intermediate
-Nodes.  We used to configure this explicitly using
-TargetSignatures('content'), but we now rely on the default behavior
+This depends on using content signatures for evaluation of
+intermediate Nodes. This relies on the default behavior
 being the equivalent of Decider('content').
 """
 
@@ -46,7 +45,7 @@ _python_ = TestSCons._python_
 
 # Because this test sets SConsignFile(None), we execute our fake
 # scripts directly, not by feeding them to the Python executable.
-# That is, we chmod 0755 and us a "#!/usr/bin/env python" first
+# That is, we chmod 0o755 and use a "#!/usr/bin/env python" first
 # line for POSIX systems, and add .PY to the %PATHEXT% variable on
 # Windows.  If we didn't do this, then running this script with
 # suitable prileveges would create a .sconsign file in the directory
@@ -59,18 +58,20 @@ fake_link_py = test.workpath('fake_link.py')
 
 test.write(fake_cc_py, """\
 import sys
-ofp = open(sys.argv[1], 'w')
-ofp.write('fake_cc.py:  %s\\n' % sys.argv)
-for s in sys.argv[2:]:
-    ofp.write(open(s, 'r').read())
+with open(sys.argv[1], 'w') as ofp:
+    ofp.write('fake_cc.py:  %s\\n' % sys.argv)
+    for s in sys.argv[2:]:
+        with open(s, 'r') as ifp:
+            ofp.write(ifp.read())
 """)
 
 test.write(fake_link_py, """\
 import sys
-ofp = open(sys.argv[1], 'w')
-ofp.write('fake_link.py:  %s\\n' % sys.argv)
-for s in sys.argv[2:]:
-    ofp.write(open(s, 'r').read())
+with open(sys.argv[1], 'w') as ofp:
+    ofp.write('fake_link.py:  %s\\n' % sys.argv)
+    for s in sys.argv[2:]:
+        with open(s, 'r') as ifp:
+            ofp.write(ifp.read())
 """)
 
 test.chmod(fake_cc_py, 0o755)

@@ -25,8 +25,8 @@
 Creates an Action object for
 the specified
 <varname>action</varname>.
-See the section "Action Objects,"
-below, for a complete explanation of the arguments and behavior.
+See the manpage section "Action Objects"
+for a complete explanation of the arguments and behavior.
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -121,11 +121,11 @@ env.other_method_name('another arg')
 This function adds a new command-line option to be recognized.
 The specified
 <varname>arguments</varname>
-are the same as supported by the standard Python
-<function>optparse.add_option</function>()
-method (with a few additional capabilities noted below);
+are the same as supported by the <function>add_option</function>
+method in the standard Python library module <emphasis>optparse</emphasis>,
+with a few additional capabilities noted below;
 see the documentation for
-<literal>optparse</literal>
+<emphasis>optparse</emphasis>
 for a thorough discussion of its option-processing capabities.
 </para>
 
@@ -166,23 +166,36 @@ the option will have a default value of
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
+Unlike regular <emphasis>optparse</emphasis>, option names
+added via <function>AddOption</function> must be matched
+exactly, the automatic matching of abbreviations on the
+command line for long options is not supported.
+To allow specific abbreviations,
+include them in the <function xmlns="http://www.scons.org/dbxsd/v1.0">AddOption</function> call.
+</para>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Once a new command-line option has been added with
 <function xmlns="http://www.scons.org/dbxsd/v1.0">AddOption</function>,
 the option value may be accessed using
 <function xmlns="http://www.scons.org/dbxsd/v1.0">GetOption</function>
 or
 <function>env.GetOption</function>().
+<!--
 The value may also be set, using
-<function xmlns="http://www.scons.org/dbxsd/v1.0">SetOption</function>
+&f-SetOption;
 or
 <function>env.SetOption</function>(),
 if conditions in a
-<filename xmlns="http://www.scons.org/dbxsd/v1.0">SConscript</filename>
+&SConscript;
 require overriding any default value.
 Note, however, that a
 value specified on the command line will
 <emphasis>always</emphasis>
 override a value set by any SConscript file.
+-->
+<function xmlns="http://www.scons.org/dbxsd/v1.0">SetOption</function> is not currently supported for
+options added with <function xmlns="http://www.scons.org/dbxsd/v1.0">AddOption</function>.
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -221,6 +234,22 @@ AddOption('--prefix',
           help='installation prefix')
 env = Environment(PREFIX = GetOption('prefix'))
 </example_commands>
+
+<note xmlns="http://www.scons.org/dbxsd/v1.0">
+<para>
+While <function xmlns="http://www.scons.org/dbxsd/v1.0">AddOption</function> behaves like
+<function>add_option</function>,
+from the <emphasis>optparse</emphasis> module,
+the behavior of options added by <function xmlns="http://www.scons.org/dbxsd/v1.0">AddOption</function>
+which take arguments is underfined in
+<command>scons</command> if whitespace
+(rather than an <literal>=</literal> sign) is used as
+the separator on the command line when
+the option is invoked.
+Such usage should be avoided.
+</para>
+</note>
+
 </listitem>
   </varlistentry>
   <varlistentry id="f-AddPostAction">
@@ -241,7 +270,8 @@ has been built.
 The specified action(s) may be
 an Action object, or anything that
 can be converted into an Action object
-(see below).
+See the manpage section "Action Objects"
+for a complete explanation.
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -270,7 +300,8 @@ is built.
 The specified action(s) may be
 an Action object, or anything that
 can be converted into an Action object
-(see below).
+See the manpage section "Action Objects"
+for a complete explanation.
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -444,7 +475,7 @@ Otherwise, the construction variable
 and the value of the keyword argument
 are both coerced to lists,
 and the lists are added together.
-(See also the Prepend method, below.)
+(See also the <function xmlns="http://www.scons.org/dbxsd/v1.0">Prepend</function> method).
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -480,7 +511,7 @@ string, in which case a list will be returned instead of a string.
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-If 
+If
 <varname>delete_existing</varname>
 is 0, then adding a path that already exists
 will not move it to the end; it will stay where it is in the list.
@@ -518,7 +549,7 @@ then any value(s) that already exist in the
 construction variable will
 <emphasis>not</emphasis>
 be added again to the list.
-However, if delete_existing is 1, 
+However, if delete_existing is 1,
 existing matching values are removed first, so
 existing values in the arg list move to the end of the list.
 </para>
@@ -530,30 +561,6 @@ Example:
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env.AppendUnique(CCFLAGS = '-g', FOO = ['foo.yyy'])
 </example_commands>
-</listitem>
-  </varlistentry>
-  <varlistentry id="f-BuildDir">
-    <term>
-      <literal>BuildDir(build_dir, src_dir, [duplicate])</literal>
-    </term>
-    <term>
-      <literal>env.BuildDir(build_dir, src_dir, [duplicate])</literal>
-    </term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Deprecated synonyms for
-<function xmlns="http://www.scons.org/dbxsd/v1.0">VariantDir</function>
-and
-<function>env.VariantDir</function>().
-The
-<varname>build_dir</varname>
-argument becomes the
-<varname>variant_dir</varname>
-argument of
-<function xmlns="http://www.scons.org/dbxsd/v1.0">VariantDir</function>
-or
-<function>env.VariantDir</function>().
-</para>
 </listitem>
   </varlistentry>
   <varlistentry id="f-Builder">
@@ -568,8 +575,8 @@ or
 Creates a Builder object for
 the specified
 <varname>action</varname>.
-See the section "Builder Objects,"
-below, for a complete explanation of the arguments and behavior.
+See the manpage section "Builder Objects"
+for a complete explanation of the arguments and behavior.
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -820,12 +827,14 @@ env4 = env.Clone(tools = ['msvc', MyTool])
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The
 <varname>parse_flags</varname>
-keyword argument is also recognized:
+keyword argument is also recognized to allow merging command-line
+style arguments into the appropriate construction
+variables (see <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="f-MergeFlags"><function>env.MergeFlags</function></link>).
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 # create an environment for compiling programs that use wxWidgets
-wx_env = env.Clone(parse_flags = '!wx-config --cflags --cxxflags')
+wx_env = env.Clone(parse_flags='!wx-config --cflags --cxxflags')
 </example_commands>
 </listitem>
   </varlistentry>
@@ -847,19 +856,29 @@ for a single special-case build.
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-As a special case, the
-<varname>source_scanner</varname>
-keyword argument can
+<function xmlns="http://www.scons.org/dbxsd/v1.0">Command</function> builder accepts
+<varname>source_scanner</varname>,
+<varname>target_scanner</varname>,
+<varname>source_factory</varname>, and
+<varname>target_factory</varname>
+keyword arguments. The *_scanner args can
 be used to specify
 a Scanner object
-that will be used to scan the sources.
-(The global
+that will be used to apply a custom
+scanner for a source or target.
+For example, the global
 <literal>DirScanner</literal>
 object can be used
 if any of the sources will be directories
 that must be scanned on-disk for
 changes to files that aren't
-already specified in other Builder of function calls.)
+already specified in other Builder of function calls.
+The *_factory args take a factory function that the
+Command will use to turn any sources or targets
+specified as strings into SCons Nodes.
+See the sections "Builder Objects"
+below, for more information about how these
+args work in a Builder.
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -871,7 +890,7 @@ same-named existing construction variables.
 An action can be an external command,
 specified as a string,
 or a callable Python object;
-see "Action Objects," below,
+see the manpage section "Action Objects"
 for more complete information.
 Also note that a string specifying an external command
 may be preceded by an
@@ -895,7 +914,7 @@ env.Command('foo.out', 'foo.in',
 env.Command('bar.out', 'bar.in',
             ["rm -f $TARGET",
              "$BAR_BUILD &lt; $SOURCES &gt; $TARGET"],
-            ENV = {'PATH' : '/usr/local/bin/'})
+            ENV={'PATH': '/usr/local/bin/'})
 
 def rename(env, target, source):
     import os
@@ -903,7 +922,7 @@ def rename(env, target, source):
 
 env.Command('baz.out', 'baz.in',
             ["$BAZ_BUILD &lt; $SOURCES &gt; .tmp",
-	     rename ])
+	     rename])
 </example_commands>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -912,14 +931,14 @@ Note that the
 function will usually assume, by default,
 that the specified targets and/or sources are Files,
 if no other part of the configuration
-identifies what type of entry it is.
+identifies what type of entries they are.
 If necessary, you can explicitly specify
 that targets or source nodes should
-be treated as directoriese
+be treated as directories
 by using the
 <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="f-Dir"><function>Dir</function></link>
 or
-<function>env.Dir</function>()
+<function>env.Dir</function>
 functions.
 </para>
 
@@ -935,9 +954,9 @@ env.Command(env.Dir('$DISTDIR')), None, make_distdir)
 </example_commands>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-(Also note that SCons will usually
+Also note that SCons will usually
 automatically create any directory necessary to hold a target file,
-so you normally don't need to create directories by hand.)
+so you normally don't need to create directories by hand.
 </para>
 </listitem>
   </varlistentry>
@@ -952,8 +971,8 @@ so you normally don't need to create directories by hand.)
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 Creates a Configure object for integrated
 functionality similar to GNU autoconf.
-See the section "Configure Contexts,"
-below, for a complete explanation of the arguments and behavior.
+See the manpage section "Configure Contexts"
+for a complete explanation of the arguments and behavior.
 </para>
 </listitem>
   </varlistentry>
@@ -1137,6 +1156,17 @@ size, or content signature.
 </para>
 </listitem>
 </varlistentry>
+    <varlistentry>
+<term><parameter>repo_node</parameter></term>
+<listitem>
+<para>
+Use this node instead of the one specified by
+<varname>dependency</varname>
+    to determine if the dependency has changed.
+</para>
+</listitem>
+</varlistentry>
+
 </variablelist>
 </para>
 
@@ -1173,7 +1203,7 @@ Example:
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
-def my_decider(dependency, target, prev_ni):
+def my_decider(dependency, target, prev_ni, repo_node=None):
     return not os.path.exists(str(target))
 
 env.Decider(my_decider)
@@ -1249,15 +1279,21 @@ see below.
   </varlistentry>
   <varlistentry id="f-DefaultEnvironment">
     <term>
-      <literal>DefaultEnvironment([args])</literal>
+      <literal>DefaultEnvironment([**kwargs])</literal>
     </term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-Creates and returns a default construction environment object.
-This construction environment is used internally by SCons
-in order to execute many of the global functions in this list,
-and to fetch source files transparently
+Creates and returns the default <literal xmlns="http://www.scons.org/dbxsd/v1.0">construction environment</literal> object.
+The default <literal xmlns="http://www.scons.org/dbxsd/v1.0">construction environment</literal> is used internally by SCons
+in order to execute many of the global functions in this list
+(i.e. those not called as methods of a specific
+<literal xmlns="http://www.scons.org/dbxsd/v1.0">construction environment</literal>), and to fetch source files transparently
 from source code management systems.
+The default environment is a singleton, so the keyword
+arguments affect it only on the first call, on subsequent
+calls the already-constructed object is returned.
+The default environment can be modified in the same way
+as any <literal xmlns="http://www.scons.org/dbxsd/v1.0">construction environment</literal>.
 </para>
 </listitem>
   </varlistentry>
@@ -1320,11 +1356,11 @@ env.Depends(bar, installed_lib)
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 Returns a dictionary object
-containing copies of all of the
-construction variables in the environment.
-If there are any variable names specified,
-only the specified construction
-variables are returned in the dictionary.
+containing the <literal xmlns="http://www.scons.org/dbxsd/v1.0">construction variables</literal> in the <literal xmlns="http://www.scons.org/dbxsd/v1.0">construction environment</literal>.
+If there are any arguments specified,
+the values of the specified <literal xmlns="http://www.scons.org/dbxsd/v1.0">construction variables</literal>
+are returned as a string (if one
+argument) or as a list of strings.
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1332,8 +1368,8 @@ Example:
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
-dict = env.Dictionary()
-cc_dict = env.Dictionary('CC', 'CCFLAGS', 'CCCOM')
+cvars = env.Dictionary()
+cc_values = env.Dictionary('CC', 'CCFLAGS', 'CCCOM')
 </example_commands>
 </listitem>
   </varlistentry>
@@ -1372,7 +1408,8 @@ would supply a string as a directory name
 to a Builder method or function.
 Directory Nodes have attributes and methods
 that are useful in many situations;
-see "File and Directory Nodes," below.
+see manpage section "File and Directory Nodes"
+for more information.
 </para>
 </listitem>
   </varlistentry>
@@ -1395,7 +1432,7 @@ This SConstruct:
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env=Environment()
-print env.Dump('CCCOM')
+print(env.Dump('CCCOM'))
 </example_commands>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1412,7 +1449,7 @@ While this SConstruct:
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
 env=Environment()
-print env.Dump()
+print(env.Dump())
 </example_commands>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -1515,8 +1552,8 @@ Executes an Action object.
 The specified
 <varname>action</varname>
 may be an Action object
-(see the section "Action Objects,"
-below, for a complete explanation of the arguments and behavior),
+(see manpage section "Action Objects"
+for a complete explanation of the arguments and behavior),
 or it may be a command-line string,
 list of commands,
 or executable Python function,
@@ -1673,7 +1710,8 @@ would supply a string as a file name
 to a Builder method or function.
 File Nodes have attributes and methods
 that are useful in many situations;
-see "File and Directory Nodes," below.
+see manpage section "File and Directory Nodes"
+for more information.
 </para>
 </listitem>
   </varlistentry>
@@ -2531,9 +2569,9 @@ as the dependency.
 </para>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-Note that this will only remove the dependencies listed from 
-the files built by default.  It will still be built if that 
-dependency is needed by another object being built. 
+Note that this will only remove the dependencies listed from
+the files built by default.  It will still be built if that
+dependency is needed by another object being built.
 See the third and forth examples below.
 </para>
 
@@ -2823,7 +2861,7 @@ and the construction variables they affect
 are as specified for the
 <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="f-ParseFlags"><function>env.ParseFlags</function></link>
 method (which this method calls).
-See that method's description, below,
+See that method's description
 for a table of options and construction variables.
 </para>
 </listitem>
@@ -2935,27 +2973,34 @@ and added to the following construction variables:
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
--arch               CCFLAGS, LINKFLAGS
--D                  CPPDEFINES
--framework          FRAMEWORKS
--frameworkdir=      FRAMEWORKPATH
--include            CCFLAGS
--isysroot           CCFLAGS, LINKFLAGS
--I                  CPPPATH
--l                  LIBS
--L                  LIBPATH
--mno-cygwin         CCFLAGS, LINKFLAGS
--mwindows           LINKFLAGS
--pthread            CCFLAGS, LINKFLAGS
--std=               CFLAGS
--Wa,                ASFLAGS, CCFLAGS
--Wl,-rpath=         RPATH
--Wl,-R,             RPATH
--Wl,-R              RPATH
--Wl,                LINKFLAGS
--Wp,                CPPFLAGS
--                   CCFLAGS
-+                   CCFLAGS, LINKFLAGS
+-arch                   CCFLAGS, LINKFLAGS
+-D                      CPPDEFINES
+-framework              FRAMEWORKS
+-frameworkdir=          FRAMEWORKPATH
+-fmerge-all-constants   CCFLAGS, LINKFLAGS
+-fopenmp                CCFLAGS, LINKFLAGS
+-include                CCFLAGS
+-imacros                CCFLAGS
+-isysroot               CCFLAGS, LINKFLAGS
+-isystem                CCFLAGS
+-iquote                 CCFLAGS
+-idirafter              CCFLAGS
+-I                      CPPPATH
+-l                      LIBS
+-L                      LIBPATH
+-mno-cygwin             CCFLAGS, LINKFLAGS
+-mwindows               LINKFLAGS
+-openmp                 CCFLAGS, LINKFLAGS
+-pthread                CCFLAGS, LINKFLAGS
+-std=                   CFLAGS
+-Wa,                    ASFLAGS, CCFLAGS
+-Wl,-rpath=             RPATH
+-Wl,-R,                 RPATH
+-Wl,-R                  RPATH
+-Wl,                    LINKFLAGS
+-Wp,                    CPPFLAGS
+-                       CCFLAGS
++                       CCFLAGS, LINKFLAGS
 </example_commands>
 
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3151,7 +3196,7 @@ then any value(s) that already exist in the
 construction variable will
 <emphasis>not</emphasis>
 be added again to the list.
-However, if delete_existing is 1, 
+However, if delete_existing is 1,
 existing matching values are removed first, so
 existing values in the arg list move to the front of the list.
 </para>
@@ -3520,8 +3565,8 @@ Return('val1 val2')
 Creates a Scanner object for
 the specified
 <varname>function</varname>.
-See the section "Scanner Objects,"
-below, for a complete explanation of the arguments and behavior.
+See manpage section "Scanner Objects"
+for a complete explanation of the arguments and behavior.
 </para>
 </listitem>
   </varlistentry>
@@ -4210,107 +4255,6 @@ env.SourceCode('no_source.c', None)
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="f-SourceSignatures">
-    <term>
-      <literal>SourceSignatures(type)</literal>
-    </term>
-    <term>
-      <literal>env.SourceSignatures(type)</literal>
-    </term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Note:  Although it is not yet officially deprecated,
-use of this function is discouraged.
-See the
-<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="f-Decider"><function>Decider</function></link>
-function for a more flexible and straightforward way
-to configure SCons' decision-making.
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The
-<function xmlns="http://www.scons.org/dbxsd/v1.0">SourceSignatures</function>
-function tells
-<filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>
-how to decide if a source file
-(a file that is not built from any other files)
-has changed since the last time it
-was used to build a particular target file.
-Legal values are
-<literal>MD5</literal>
-or
-<literal>timestamp</literal>.
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-If the environment method is used,
-the specified type of source signature
-is only used when deciding whether targets
-built with that environment are up-to-date or must be rebuilt.
-If the global function is used,
-the specified type of source signature becomes the default
-used for all decisions
-about whether targets are up-to-date.
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-<literal>MD5</literal>
-means
-<filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>
-decides that a source file has changed
-if the MD5 checksum of its contents has changed since
-the last time it was used to rebuild a particular target file.
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-<literal>timestamp</literal>
-means
-<filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>
-decides that a source file has changed
-if its timestamp (modification time) has changed since
-the last time it was used to rebuild a particular target file.
-(Note that although this is similar to the behavior of Make,
-by default it will also rebuild if the dependency is
-<emphasis>older</emphasis>
-than the last time it was used to rebuild the target file.)
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-There is no different between the two behaviors
-for Python
-<function xmlns="http://www.scons.org/dbxsd/v1.0">Value</function>
-node objects.
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-<literal>MD5</literal>
-signatures take longer to compute,
-but are more accurate than
-<literal>timestamp</literal>
-signatures.
-The default value is
-<literal>MD5</literal>.
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Note that the default
-<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="f-TargetSignatures"><function>TargetSignatures</function></link>
-setting (see below)
-is to use this
-<function xmlns="http://www.scons.org/dbxsd/v1.0">SourceSignatures</function>
-setting for any target files that are used
-to build other target files.
-Consequently, changing the value of
-<function xmlns="http://www.scons.org/dbxsd/v1.0">SourceSignatures</function>
-will, by default,
-affect the up-to-date decision for all files in the build
-(or all files built with a specific construction environment
-when
-<function xmlns="http://www.scons.org/dbxsd/v1.0">env.SourceSignatures</function>
-is used).
-</para>
-</listitem>
-  </varlistentry>
   <varlistentry id="f-Split">
     <term>
       <literal>Split(arg)</literal>
@@ -4443,7 +4387,7 @@ Example:
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
-print env.subst("The C compiler is: $CC")
+print(env.subst("The C compiler is: $CC"))
 
 def compile(target, source, env):
     sourceDir = env.subst("${SOURCE.srcdir}",
@@ -4473,168 +4417,13 @@ Examples:
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
-# makes sure the built library will be installed with 0644 file
+# makes sure the built library will be installed with 0o644 file
 # access mode
-Tag( Library( 'lib.c' ), UNIX_ATTR="0644" )
+Tag( Library( 'lib.c' ), UNIX_ATTR="0o644" )
 
 # marks file2.txt to be a documentation file
 Tag( 'file2.txt', DOC )
 </example_commands>
-</listitem>
-  </varlistentry>
-  <varlistentry id="f-TargetSignatures">
-    <term>
-      <literal>TargetSignatures(type)</literal>
-    </term>
-    <term>
-      <literal>env.TargetSignatures(type)</literal>
-    </term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Note:  Although it is not yet officially deprecated,
-use of this function is discouraged.
-See the
-<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="f-Decider"><function>Decider</function></link>
-function for a more flexible and straightforward way
-to configure SCons' decision-making.
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-The
-<function xmlns="http://www.scons.org/dbxsd/v1.0">TargetSignatures</function>
-function tells
-<filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>
-how to decide if a target file
-(a file that
-<emphasis>is</emphasis>
-built from any other files)
-has changed since the last time it
-was used to build some other target file.
-Legal values are
-<literal>"build"</literal>;
-<literal>"content"</literal>
-(or its synonym
-<literal>"MD5"</literal>);
-<literal>"timestamp"</literal>;
-or
-<literal>"source"</literal>.
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-If the environment method is used,
-the specified type of target signature is only used
-for targets built with that environment.
-If the global function is used,
-the specified type of signature becomes the default
-used for all target files that
-don't have an explicit target signature type
-specified for their environments.
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-<literal>"content"</literal>
-(or its synonym
-<literal>"MD5"</literal>)
-means
-<filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>
-decides that a target file has changed
-if the MD5 checksum of its contents has changed since
-the last time it was used to rebuild some other target file.
-This means
-<filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>
-will open up
-MD5 sum the contents
-of target files after they're built,
-and may decide that it does not need to rebuild
-"downstream" target files if a file was
-rebuilt with exactly the same contents as the last time.
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-<literal>"timestamp"</literal>
-means
-<filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>
-decides that a target file has changed
-if its timestamp (modification time) has changed since
-the last time it was used to rebuild some other target file.
-(Note that although this is similar to the behavior of Make,
-by default it will also rebuild if the dependency is
-<emphasis>older</emphasis>
-than the last time it was used to rebuild the target file.)
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-<literal>"source"</literal>
-means
-<filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>
-decides that a target file has changed
-as specified by the corresponding
-<function xmlns="http://www.scons.org/dbxsd/v1.0">SourceSignatures</function>
-setting
-(<literal>"MD5"</literal>
-or
-<literal>"timestamp"</literal>).
-This means that
-<filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>
-will treat all input files to a target the same way,
-regardless of whether they are source files
-or have been built from other files.
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-<literal>"build"</literal>
-means
-<filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>
-decides that a target file has changed
-if it has been rebuilt in this invocation
-or if its content or timestamp have changed
-as specified by the corresponding
-<function xmlns="http://www.scons.org/dbxsd/v1.0">SourceSignatures</function>
-setting.
-This "propagates" the status of a rebuilt file
-so that other "downstream" target files
-will always be rebuilt,
-even if the contents or the timestamp
-have not changed.
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-<literal>"build"</literal>
-signatures are fastest because
-<literal>"content"</literal>
-(or
-<literal>"MD5"</literal>)
-signatures take longer to compute,
-but are more accurate than
-<literal>"timestamp"</literal>
-signatures,
-and can prevent unnecessary "downstream" rebuilds
-when a target file is rebuilt to the exact same contents
-as the previous build.
-The
-<literal>"source"</literal>
-setting provides the most consistent behavior
-when other target files may be rebuilt from
-both source and target input files.
-The default value is
-<literal>"source"</literal>.
-</para>
-
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Because the default setting is
-<literal>"source"</literal>,
-using
-<function xmlns="http://www.scons.org/dbxsd/v1.0">SourceSignatures</function>
-is generally preferable to
-<function xmlns="http://www.scons.org/dbxsd/v1.0">TargetSignatures</function>,
-so that the up-to-date decision
-will be consistent for all files
-(or all files built with a specific construction environment).
-Use of
-<function xmlns="http://www.scons.org/dbxsd/v1.0">TargetSignatures</function>
-provides specific control for how built target files
-affect their "downstream" dependencies.
-</para>
 </listitem>
   </varlistentry>
   <varlistentry id="f-Tool">
@@ -4930,30 +4719,51 @@ SConscript(dirs='doc', variant_dir='build/doc', duplicate=0)
 Searches for the specified executable
 <varname>program</varname>,
 returning the full path name to the program
-if it is found,
-and returning None if not.
-Searches the specified
-<varname>path</varname>,
-the value of the calling environment's PATH
-(<literal>env['ENV']['PATH']</literal>),
-or the user's current external PATH
-(<literal>os.environ['PATH']</literal>)
-by default.
+if it is found, else <literal>None</literal>.
+Searches the value of the
+<varname>path</varname> keyword argument,
+or if <literal>None</literal> (the default)
+the value of the calling environment's <envar>PATH</envar>
+(<literal>env['ENV']['PATH']</literal>).
+If <varname>path</varname> is <literal>None</literal> and
+the <literal>env['ENV']['PATH']</literal> key does not exist,
+the user's current external <envar>PATH</envar>
+(<literal>os.environ['PATH']</literal>) is used as fallback.
+</para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 On Windows systems, searches for executable
-programs with any of the file extensions
-listed in the specified
-<varname>pathext</varname>,
-the calling environment's PATHEXT
-(<literal>env['ENV']['PATHEXT']</literal>)
-or the user's current PATHEXT
+programs with any of the file extensions listed in the
+<varname>pathext</varname> keyword argument,
+or if <literal>None</literal> (the default)
+the calling environment's <envar>PATHEXT</envar>
+(<literal>env['ENV']['PATHEXT']</literal>).
+The user's current external <envar>PATHEXT</envar>
 (<literal>os.environ['PATHEXT']</literal>)
-by default.
+is used as a fallback if <varname>pathext</varname> is
+<literal>None</literal>
+and the key <literal>env['ENV']['PATHEXT']</literal>
+does not exist.
+</para>
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
 Will not select any
 path name or names
 in the specified
 <varname>reject</varname>
 list, if any.
 </para>
+<note xmlns="http://www.scons.org/dbxsd/v1.0">
+<para>
+If you would prefer to search
+the user's current external <envar>PATH</envar>
+(<literal>os.environ['PATH']</literal>)
+by default,
+consider using the function <literal>SCons.Util.WhereIs</literal> instead.
+Note that <literal>SCons.Util.WhereIs</literal>
+does not expand environment variables automatically
+(no implicit <literal>env.subst</literal> for its arguments).
+</para>
+</note>
+
 </listitem>
   </varlistentry>
 </variablelist>

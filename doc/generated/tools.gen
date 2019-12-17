@@ -91,7 +91,7 @@ Sets construction variables for the bcc32 compiler.
     <term>cc</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for generic POSIX C copmilers.
+Sets construction variables for generic POSIX C compilers.
 </para>
 <para>Sets:  &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CCFLAGS;, &cv-link-CFILESUFFIX;, &cv-link-CFLAGS;, &cv-link-CPPDEFPREFIX;, &cv-link-CPPDEFSUFFIX;, &cv-link-FRAMEWORKPATH;, &cv-link-FRAMEWORKS;, &cv-link-INCPREFIX;, &cv-link-INCSUFFIX;, &cv-link-SHCC;, &cv-link-SHCCCOM;, &cv-link-SHCCFLAGS;, &cv-link-SHCFLAGS;, &cv-link-SHOBJSUFFIX;.</para><para>Uses:  &cv-link-PLATFORM;.</para></listitem>
   </varlistentry>
@@ -139,9 +139,91 @@ Set construction variables for cygwin linker/loader.
     <term>default</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets variables by calling a default list of Tool modules
-for the platform on which SCons is running.
+Sets <literal xmlns="http://www.scons.org/dbxsd/v1.0">construction variables</literal> for a default list of Tool modules.
+Use <emphasis role="bold">default</emphasis>
+in the tools list to retain the original defaults,
+since the <parameter>tools</parameter> parameter
+is treated as a literal statement of the tools
+to be made available in that <literal xmlns="http://www.scons.org/dbxsd/v1.0">construction environment</literal>, not an addition.
 </para>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+The list of tools selected by default is not static,
+but is dependent both on
+the platform and on the software installed on the platform.
+Some tools will not initialize if an underlying command is
+not found, and some tools are selected from a list of choices
+on a first-found basis. The finished tool list can be
+examined by inspecting the <envar>TOOLS</envar> <literal xmlns="http://www.scons.org/dbxsd/v1.0">construction variable</literal>
+in the <literal xmlns="http://www.scons.org/dbxsd/v1.0">construction environment</literal>.
+</para>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+On all platforms, all tools from the following list
+are selected whose respective conditions are met:
+filesystem, wix, lex, yacc, rpcgen, swig,
+jar, javac, javah, rmic, dvipdf, dvips, gs,
+tex, latex, pdflatex, pdftex, tar, zip, textfile.
+</para>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+On Linux systems, the default tools list selects
+(first-found): a C compiler from
+gcc, intelc, icc, cc;
+a C++ compiler from
+g++, intelc, icc, cxx;
+an assembler from
+gas, nasm, masm;
+a linker from
+gnulink, ilink;
+a Fortran compiler from
+gfortran, g77, ifort, ifl, f95, f90, f77;
+and a static archiver 'ar'.
+It also selects all found from the list
+m4, rpm.
+</para>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+On Windows systems, the default tools list selects
+(first-found): a C compiler from
+msvc, mingw, gcc, intelc, icl, icc, cc, bcc32;
+a C++ compiler from
+msvc, intelc, icc, g++, cxx, bcc32;
+an assembler from
+masm, nasm, gas, 386asm;
+a linker from
+mslink, gnulink, ilink, linkloc, ilink32;
+a Fortran compiler from
+gfortran, g77, ifl, cvf, f95, f90, fortran;
+and a static archiver from
+mslib, ar, tlib;
+It also selects all found from the list
+msvs, midl.
+</para>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+On MacOS systems, the default tools list selects
+(first-found): a C compiler from
+gcc, cc;
+a C++ compiler from
+g++, cxx;
+an assembler 'as';
+a linker from
+applelink, gnulink;
+a Fortran compiler from
+gfortran, f95, f90, g77;
+and a static archiver ar.
+It also selects all found from the list
+m4, rpm.
+</para>
+
+<para xmlns="http://www.scons.org/dbxsd/v1.0">
+Default lists for other platforms can be found by
+examining the <filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>
+source code (see
+<filename>SCons/Tool/__init__.py</filename>).
+</para>
+
 </listitem>
   </varlistentry>
   <varlistentry id="t-dmd">
@@ -621,13 +703,15 @@ Sets construction variables for the D language compiler LDC2.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 Sets construction variables for the <application xmlns="http://www.scons.org/dbxsd/v1.0">lex</application> lexical analyser.
 </para>
-<para>Sets:  &cv-link-LEX;, &cv-link-LEXCOM;, &cv-link-LEXFLAGS;.</para><para>Uses:  &cv-link-LEXCOMSTR;.</para></listitem>
+<para>Sets:  &cv-link-LEX;, &cv-link-LEXCOM;, &cv-link-LEXFLAGS;, &cv-link-LEXUNISTD;.</para><para>Uses:  &cv-link-LEXCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-link">
     <term>link</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for generic POSIX linkers.
+Sets construction variables for generic POSIX linkers. This is
+a "smart" linker tool which selects a compiler to complete the linking
+based on the types of source files.
 </para>
 <para>Sets:  &cv-link-LDMODULE;, &cv-link-LDMODULECOM;, &cv-link-LDMODULEFLAGS;, &cv-link-LDMODULENOVERSIONSYMLINKS;, &cv-link-LDMODULEPREFIX;, &cv-link-LDMODULESUFFIX;, &cv-link-LDMODULEVERSION;, &cv-link-LDMODULEVERSIONFLAGS;, &cv-link-LIBDIRPREFIX;, &cv-link-LIBDIRSUFFIX;, &cv-link-LIBLINKPREFIX;, &cv-link-LIBLINKSUFFIX;, &cv-link-LINK;, &cv-link-LINKCOM;, &cv-link-LINKFLAGS;, &cv-link-SHLIBSUFFIX;, &cv-link-SHLINK;, &cv-link-SHLINKCOM;, &cv-link-SHLINKFLAGS;, &cv-link-__LDMODULEVERSIONFLAGS;, &cv-link-__SHLIBVERSIONFLAGS;.</para><para>Uses:  &cv-link-LDMODULECOMSTR;, &cv-link-LINKCOMSTR;, &cv-link-SHLINKCOMSTR;.</para></listitem>
   </varlistentry>

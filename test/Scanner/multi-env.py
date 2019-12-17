@@ -37,7 +37,7 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 
 
-test.write('SConstruct', """
+test.write('SConstruct', r"""
 import re
 
 include_re = re.compile(r'^include\s+(\S+)$', re.M)
@@ -72,12 +72,13 @@ def process(infp, outfp):
     l = len(prefix)
     for line in infp.readlines():
         if line[:l] == prefix:
-            process(open(line[l:-1], 'r'), outfp)
+            with open(line[l:-1], 'r') as f:
+                process(f, outfp)
         else:
             outfp.write(line)
 
-process(open(sys.argv[2], 'r'),
-        open(sys.argv[1], 'w'))
+with open(sys.argv[2], 'r') as ifp, open(sys.argv[1], 'w') as ofp:
+    process(ifp, ofp)
 sys.exit(0)
 """
 

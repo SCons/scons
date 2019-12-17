@@ -54,8 +54,6 @@ test.write('build.py', r"""
 import os.path
 import sys
 path = sys.argv[1].split()
-input = open(sys.argv[2], 'r')
-output = open(sys.argv[3], 'w')
 
 def find_file(f):
     if os.path.isabs(f):
@@ -69,12 +67,14 @@ def find_file(f):
 def process(infp, outfp):
     for line in infp.readlines():
         if line[:8] == 'include ':
-            file = line[8:-1]
-            process(find_file(file), outfp)
+            fname = line[8:-1]
+            with find_file(fname) as f:
+                process(f, outfp)
         else:
             outfp.write(line)
 
-process(input, output)
+with open(sys.argv[2], 'r') as ifp, open(sys.argv[3], 'w') as ofp:
+    process(ifp, ofp)
 
 sys.exit(0)
 """)
@@ -89,7 +89,7 @@ Command('list.out', 'subdir', foo, source_scanner = DirScanner)
 SConscript('subdir/SConscript')
 """)
 
-test.write(['subdir', 'SConscript'], """\
+test.write(['subdir', 'SConscript'], r"""
 import SCons.Scanner
 kscan = SCons.Scanner.Classic(name = 'kfile',
                               suffixes = ['.k'],

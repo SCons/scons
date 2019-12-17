@@ -37,10 +37,10 @@ test = TestSCons.TestSCons()
 
 test.write('cat.py', """\
 import sys
-fp = open(sys.argv[1], 'wb')
-for fname in sys.argv[2:]:
-    fp.write(open(fname, 'rb').read())
-fp.close()
+with open(sys.argv[1], 'wb') as ofp:
+    for fname in sys.argv[2:]:
+        with open(fname, 'rb') as ifp:
+            ofp.write(ifp.read())
 """)
 
 test.write('sleep.py', """\

@@ -179,15 +179,7 @@ class LaTeX(SCons.Scanner.Base):
                         'inputfrom', 'subinputfrom']
 
     def __init__(self, name, suffixes, graphics_extensions, *args, **kw):
-
-        # We have to include \n with the % we exclude from the first part
-        # part of the regex because the expression is compiled with re.M.
-        # Without the \n,  the ^ could match the beginning of a *previous*
-        # line followed by one or more newline characters (i.e. blank
-        # lines), interfering with a match on the next line.
-        # add option for whitespace before the '[options]' or the '{filename}'
         regex = r'''
-            ^[^%\n]*
             \\(
                 include
               | includegraphics(?:\s*\[[^\]]+\])?
@@ -348,7 +340,7 @@ class LaTeX(SCons.Scanner.Base):
         # Cache the includes list in node so we only scan it once:
         # path_dict = dict(list(path))
         # add option for whitespace (\s) before the '['
-        noopt_cre = re.compile('\s*\[.*$')
+        noopt_cre = re.compile(r'\s*\[.*$')
         if node.includes is not None:
             includes = node.includes
         else:
@@ -372,9 +364,9 @@ class LaTeX(SCons.Scanner.Base):
                     inc_list = include[2].split(',')
                 else:
                     inc_list = include[1].split(',')
-                for j in range(len(inc_list)):
-                    split_includes.append( (inc_type, inc_subdir, inc_list[j]) )
-            #
+                for inc in inc_list:
+                    split_includes.append((inc_type, inc_subdir, inc))
+
             includes = split_includes
             node.includes = includes
 
