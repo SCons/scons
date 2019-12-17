@@ -214,7 +214,7 @@ foo.in
       <file name="foo.log">
 foo.log
       </file>
-      <file name="build" chmod="0755">
+      <file name="build" chmod="0o755">
 cat $3 > $2
       </file>
     </scons_example>

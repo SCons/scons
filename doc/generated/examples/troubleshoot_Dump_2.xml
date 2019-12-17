@@ -80,7 +80,7 @@ scons: Reading SConscript files ...
   'SHCXX': '$CXX',
   'SHCXXCOM': '${TEMPFILE("$SHCXX $_MSVC_OUTPUT_FLAG /c $CHANGED_SOURCES $SHCXXFLAGS $SHCCFLAGS $_CCCOMCOM","$SHCXXCOMSTR")}',
   'SHCXXFLAGS': ['$CXXFLAGS'],
-  'SHELL': 'command',
+  'SHELL': None,
   'SHLIBPREFIX': '',
   'SHLIBSUFFIX': '.dll',
   'SHOBJPREFIX': '$OBJPREFIX',

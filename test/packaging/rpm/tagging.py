@@ -62,7 +62,7 @@ env.Append(RPMFLAGS = r' --buildroot %(rpm_build_root)s')
 
 install_dir= os.path.join( ARGUMENTS.get('prefix', '/'), 'bin/' )
 prog_install = env.Install( install_dir , Program( 'src/main.c' ) )
-env.Tag( prog_install, UNIX_ATTR = '(0755, root, users)' )
+env.Tag( prog_install, UNIX_ATTR = '(0o755, root, users)' )
 env.Alias( 'install', prog_install )
 
 env.Package( NAME           = 'foo',
@@ -94,7 +94,7 @@ with os.popen('rpm -qpl %s' % src_rpm) as p:
     out = p.read()
 test.fail_test( not out == 'foo-1.2.3.spec\nfoo-1.2.3.tar.gz\n')
 
-expect = '(0755, root, users) /bin/main'
+expect = '(0o755, root, users) /bin/main'
 test.must_contain_all_lines(test.read('foo-1.2.3.spec',mode='r'), [expect])
 
 test.pass_test()

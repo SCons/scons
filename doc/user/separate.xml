@@ -149,10 +149,8 @@ program using the F<build/foo.c> path name.
   <para>
 
   One historical note:  the &VariantDir; function
-  used to be called &BuildDir;.
-  That name is still supported
-  but has been deprecated
-  because the &SCons; functionality
+  used to be called &BuildDir;, a name which was
+  removed because the &SCons; functionality
   differs from the model of a "build directory"
   implemented by other build systems like the GNU Autotools.
 

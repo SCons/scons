@@ -963,14 +963,14 @@ class Entry(Base):
 
     def disambiguate(self, must_exist=None):
         """
-        """
-        if self.isdir():
-            self.__class__ = Dir
-            self._morph()
-        elif self.isfile():
+        """ 
+        if self.isfile():
             self.__class__ = File
             self._morph()
             self.clear()
+        elif self.isdir():
+            self.__class__ = Dir
+            self._morph()
         else:
             # There was nothing on-disk at this location, so look in
             # the src directory.
