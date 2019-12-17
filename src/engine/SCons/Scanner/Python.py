@@ -159,5 +159,6 @@ def scan(node, env, path=()):
     return sorted(nodes)
 
 
-PythonScanner = SCons.Scanner.Base(scan, name='PythonScanner', skeys=['.py'],
+PythonSuffixes = ['.py']
+PythonScanner = SCons.Scanner.Base(scan, name='PythonScanner', skeys=PythonSuffixes,
                                    path_function=path_function, recursive=1)
