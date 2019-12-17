@@ -4,7 +4,7 @@
 
                             Change Log
 
-NOTE: Please add your name below (and your changes) alphabetically by last name.
+NOTE: The 4.0.0 Release of SCons will drop Python 2.7 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
@@ -35,7 +35,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       (e.g. memmove) were incorrectly recognized as not available.
 
   From Jakub Kulik
-    - Fix subprocess result bytes not being decoded in SunOS/Solaris related tools.
+    - Fix stacktrace when using SCons with Python 3.5+ and SunOS/Solaris related tools.	
 
   From Philipp Maierhöfer:
     - Avoid crash with UnicodeDecodeError on Python 3 when a Latex log file in

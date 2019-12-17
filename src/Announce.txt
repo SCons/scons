@@ -24,7 +24,10 @@ RELEASE VERSION/DATE TO BE FILLED IN LATER
   release and consult the CHANGES.txt file for complete a list of changes
   since last release.  This announcement highlights only the important
   changes.
-    Please note the following important changes since release 3.1.1:
+
+  NOTE: The 4.0.0 Release of SCons will drop Python 2.7 Support
+
+  Please note the following important changes since release 3.1.1:
       - Added debug option "action_timestamps" which outputs to stdout the absolute start and end time for each target.
       - Update Command() function to accept target_scanner, source_factory, and target_factory arguments.
         This makes Command act more like a one-off builder.
