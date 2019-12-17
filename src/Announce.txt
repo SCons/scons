@@ -18,12 +18,43 @@ So that everyone using SCons can help each other learn how to use it more
 effectively, please go to http://scons.org/lists.html#users to sign up for
 the scons-users mailing list.
 
-RELEASE VERSION/DATE TO BE FILLED IN LATER
+RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
 
   Please consult the RELEASE.txt file for a summary of changes since the last
   release and consult the CHANGES.txt file for complete a list of changes
   since last release.  This announcement highlights only the important
   changes.
+
+  NOTE: The 4.0.0 Release of SCons will drop Python 2.7 Support
+
+  Please note the following important changes since release 3.1.1:
+      - Added debug option "action_timestamps" which outputs to stdout the absolute start and end time for each target.
+      - Update Command() function to accept target_scanner, source_factory, and target_factory arguments.
+        This makes Command act more like a one-off builder.
+      - Added support for "-imacros" to ParseFlags	
+      - Avoid crash with UnicodeDecodeError on Python 3 when a Latex log file in
+        non-UTF-8 encoding (e.g. containing umlauts in Latin-1 encoding when
+        the fontenc package is included with \usepackage[T1]{fontenc}) is read.
+      - Improved threading performance by ensuring NodeInfo is shared
+        across threads. Results in ~13% improvement for parallel builds
+        (-j# > 1) with many shared nodes.
+      - Improve performance of Entry.disambiguate() by making check for
+        most common case first, preventing unnecessary IO.
+      - Improved DAG walk performance by reducing unnecessary work when
+        there are no un-visited children.
+      - Turn previously deprecated debug options into failures:
+        --debug=tree, --debug=dtree, --debug=stree, --debug=nomemoizer.
+      - Experimental New Feature: Enable caching MSVC configuration
+        If SCONS_CACHE_MSVC_CONFIG shell environment variable is set,
+        SCons will cache the results of past calls to vcvarsall.bat to
+        a file; integrates with existing memoizing of such vars.
+        On vs2019 saves 5+ seconds per SCons invocation, which really
+        helps test suite runs.
+      - Remove deprecated SourceSignatures, TargetSignatures
+      - Remove deprecated Builder keywords: overrides and scanner
+      - Remove deprecated env.Copy
+      - Remove deprecated BuildDir plus SConscript keyword build_dir
+
     Please note the following important changes since release 3.0.4:
       - Change the default for AppendENVPath to delete_existing=0, so path
         order will not be changed, unless explicitly set (Issue #3276)
