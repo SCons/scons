@@ -160,5 +160,12 @@ def scan(node, env, path=()):
 
 
 PythonSuffixes = ['.py']
-PythonScanner = SCons.Scanner.Base(scan, name='PythonScanner', skeys=PythonSuffixes,
+PythonScanner = SCons.Scanner.Base(scan, name='PythonScanner',
+                                   skeys=PythonSuffixes,
                                    path_function=path_function, recursive=1)
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:
