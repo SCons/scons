@@ -6,6 +6,13 @@
 
 NOTE: The 4.0.0 Release of SCons will drop Python 2.7 Support
 
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From John Doe:
+
+    - Whatever John Doe did.
+
+
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
 
   From Edoardo Bezzeccheri
