@@ -46,9 +46,9 @@ import SCons.Util
 mingw_paths = [
     r'c:\MinGW\bin',
     r'C:\cygwin64\bin',
-    r'C:\msys64',
+    r'C:\msys64\bin',
     r'C:\cygwin\bin',
-    r'C:\msys',
+    r'C:\msys\bin',
 ]
 
 
