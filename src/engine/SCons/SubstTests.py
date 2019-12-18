@@ -27,14 +27,12 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.compat
 
 import os
-import sys
 import unittest
-
-from collections import UserDict
 
 import SCons.Errors
 
 from SCons.Subst import *
+from SCons.Values.CmdStringHolder import quote_spaces
 
 
 class DummyNode(object):

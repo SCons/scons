@@ -126,15 +126,6 @@ class SpecialAttrWrapper(object):
         return 1
 
 
-def quote_spaces(arg):
-    """Generic function for putting double quotes around any string that
-    has white space in it."""
-    if ' ' in arg or '\t' in arg:
-        return '"%s"' % arg
-    else:
-        return str(arg)
-
-
 def escape_list(mylist, escape_func):
     """Escape a list of arguments by running the specified escape_func
     on every object in the list that has an escape() method."""

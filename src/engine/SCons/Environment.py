@@ -46,7 +46,7 @@ import SCons.Debug
 from SCons.Debug import logInstanceCreation
 import SCons.Defaults
 
-import SCons.Values.EnvironmentValues
+from  SCons.Values.EnvironmentValues import EnvironmentValues
 import SCons.Errors
 import SCons.Memoize
 import SCons.Node

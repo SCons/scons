@@ -4,6 +4,7 @@ from numbers import Number
 import SCons.Environment
 from SCons.Subst import create_subst_target_source_dict
 from SCons.Util import is_String, is_Sequence
+from SCons.Values import AllowableExceptions
 from SCons.Values.CmdStringHolder import CmdStringHolder
 from SCons.Values.EnvironmentValue import EnvironmentValue, ValueTypes, separate_args, SubstModes
 # TODO: allow updating similar to Subst.SetAllowableExceptions()
@@ -13,8 +14,6 @@ from SCons.Values.StringSubstWorker import StringSubstWorker
 
 # import pysnooper
 # AllowableExceptions = (IndexError, NameError)
-
-AllowableExceptions = (KeyError,)
 
 # _is_valid_var = re.compile(r'[_a-zA-Z]\w*$')
 #

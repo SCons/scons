@@ -45,6 +45,7 @@ from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.Values.CmdStringHolder
 import SCons.compat
 
 import importlib
@@ -225,7 +226,7 @@ class TempFileMunge(object):
         if not prefix:
             prefix = '@'
 
-        args = list(map(SCons.Subst.quote_spaces, cmd[1:]))
+        args = list(map(SCons.Values.CmdStringHolder.quote_spaces, cmd[1:]))
         join_char = env.get('TEMPFILEARGJOIN',' ')
         os.write(fd, bytearray(join_char.join(args) + "\n",'utf-8'))
         os.close(fd)

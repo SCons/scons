@@ -1,6 +1,6 @@
 from SCons.Subst import raise_exception
 from SCons.Values.EnvironmentValue import ValueTypes
-from SCons.Values.EnvironmentValues import AllowableExceptions
+from SCons.Values import AllowableExceptions
 
 
 class ParsedEnvironmentValue(object):
