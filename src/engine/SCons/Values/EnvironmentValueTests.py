@@ -1,5 +1,6 @@
 import unittest
 
+import SCons.Values
 from SCons.Values.EnvironmentValue import EnvironmentValue, ValueTypes
 from TestLiteral import TestLiteral
 import SCons.Environment
@@ -17,7 +18,7 @@ class TestEnvironmentValue(unittest.TestCase):
         """
 
         all_vars = []
-        for v in SCons.Environment.reserved_construction_var_names_set:
+        for v in SCons.Values.reserved_construction_var_names_set:
             all_vars.append('$%s'%v)
             all_vars.append('${%s}'%v)
             all_vars.append('${%s.abspath}'%v)
@@ -26,7 +27,7 @@ class TestEnvironmentValue(unittest.TestCase):
 
         avenv = EnvironmentValue(var_string)
 
-        self.assertEqual(avenv.depends_on.difference(SCons.Environment.reserved_construction_var_names_set),
+        self.assertEqual(avenv.depends_on.difference(SCons.Values.reserved_construction_var_names_set),
                          set(['__mycall']),"Check that all reserved contruction var names are in depends list")
 
 

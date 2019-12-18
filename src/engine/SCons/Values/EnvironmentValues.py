@@ -1,7 +1,7 @@
 import re
 from numbers import Number
 
-import SCons.Environment
+import SCons.Values
 from SCons.Subst import create_subst_target_source_dict
 from SCons.Util import is_String, is_Sequence
 from SCons.Values import AllowableExceptions
@@ -508,7 +508,7 @@ class EnvironmentValues(object):
             overrides = overrides.union(local_vars.keys())
 
             # remove reserved vars from the list
-            overrides -= SCons.Environment.reserved_construction_var_names_set
+            overrides -= SCons.Values.reserved_construction_var_names_set
 
         if 'TARGET' not in local_vars:
             d = create_subst_target_source_dict(target, source)
@@ -532,7 +532,7 @@ class EnvironmentValues(object):
 
         working_object = StringSubstWorker(val, mode, local_vars, global_vars, conv)
 
-        working_object.split_dependencies(SCons.Environment.reserved_construction_var_names_set)
+        working_object.split_dependencies(SCons.Values.reserved_construction_var_names_set)
 
         working_object.resolve_parsed_values(env)
 
