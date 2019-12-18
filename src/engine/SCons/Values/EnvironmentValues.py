@@ -121,8 +121,7 @@ class EnvironmentValues(object):
         count = 0
         while to_update:
 
-            # Create a list of all values which ne
-            # ed to be update by our current list
+            # Create a list of all values which need to be updated by our current list
             # of to_update variables. This should recursively give us a list of
             # all variables invalidated by the key being changed.
 
@@ -137,6 +136,9 @@ class EnvironmentValues(object):
 
             debug("Pass [%6d]", count)
             count += 1
+            if count > 1000:
+                # TODO Why?
+                raise Exception("in update_cached_values key:%s count>1000 [%d]"%(key,count))
 
         for k in to_update:
             self.values[k].update(key, self.values)
