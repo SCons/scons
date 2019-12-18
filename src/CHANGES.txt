@@ -8,9 +8,10 @@ NOTE: The 4.0.0 Release of SCons will drop Python 2.7 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From John Doe:
-
-    - Whatever John Doe did.
+  From Mathew Robinson:
+    - Improve performance of Subst by preventing unnecessary frame
+      allocations by no longer defining the *Subber classes inside of their
+      respective function calls.
 
 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
