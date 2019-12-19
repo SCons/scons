@@ -11,6 +11,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Adam Gross:
     - Added new module SCons.Scanner.Python to allow scanning .py files.
 
+  From Mathew Robinson:
+    - Improve performance of Subst by preventing unnecessary frame
+      allocations by no longer defining the *Subber classes inside of their
+      respective function calls.
+
 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
 
