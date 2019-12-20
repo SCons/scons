@@ -36,7 +36,7 @@ test = TestSCons.TestSCons()
 test.file_fixture('SConstruct.method', 'SConstruct')
 expect = """\
 NameError: name 'SourceSignatures' is not defined:
-  File "{}", line 1:
+  File "{}", line 2:
     SourceSignatures('MD5')
 """.format(test.workpath('SConstruct'))
 test.run(arguments='-Q -s', status=2, stdout=None, stderr=expect)

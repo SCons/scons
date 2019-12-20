@@ -1,16 +1,3 @@
-"""
-NameError: name 'SourceCode' is not defined:
-  File "/tmp/testcmd.193317.nqan7rtg/SConstruct", line 4:
-    SConscript('SConscript')
-  File "/home/mats/github/scons/src/engine/SCons/Script/SConscript.py", line 660:
-    return method(*args, **kw)
-  File "/home/mats/github/scons/src/engine/SCons/Script/SConscript.py", line 597:
-    return _SConscript(self.fs, *files, **subst_kw)
-  File "/home/mats/github/scons/src/engine/SCons/Script/SConscript.py", line 286:
-    exec(compile(scriptdata, scriptname, 'exec'), call_stack[-1].globals)
-  File "/tmp/testcmd.193317.nqan7rtg/SConscript", line 2:
-    SourceCode('.', None)
-"""
 #!/usr/bin/env python
 #
 # __COPYRIGHT__

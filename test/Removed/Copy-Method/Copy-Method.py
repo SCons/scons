@@ -35,7 +35,7 @@ test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 test.file_fixture('SConstruct.method', 'SConstruct')
 expect = """\
 AttributeError: 'SConsEnvironment' object has no attribute 'Copy':
-  File "{}", line 2:
+  File "{}", line 3:
     env.Copy()
 """.format(test.workpath('SConstruct'))
 test.run(arguments='-Q -s', status=2, stderr=expect, match=TestSCons.match_exact)
