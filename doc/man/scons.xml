@@ -145,20 +145,23 @@ regardless of the actual file names or number of files.</para>
 <command>scons</command>
 looks for a directory named
 <filename>site_scons</filename>
-in various system directories and the directory containing the
-&SConstruct; file: each such directory which exists
-is prepended to <varname>sys.path</varname>;
-the file <filename>site_init.py</filename>
-is evaluated if it exists in that directory;
-and the directory
-<filename>site_tools</filename>
-is prepended to the default toolpath
-if it exists in that directory.
+in various system directories and in the directory containing the
+&SConstruct; file and prepends the ones it
+finds to the Python module search path (<varname>sys.path</varname>),
+thus allowing modules in such directories to be imported in
+the normal Python way in SConscript files.
+For each found site directory, 
+if it contains a file <filename>site_init.py</filename>
+it is evaluated, and if it contains a directory
+<filename>site_tools</filename> the path to it
+is prepended to the default toolpath.
 See the
-<option>--no-site-dir</option>
-and
 <option>--site-dir</option>
-options for more details.</para>
+and
+<option>--no-site-dir</option>
+options for details on default paths and
+controlling the site directories.
+</para>
 
 <para><command>scons</command>
 reads and executes the SConscript files as Python scripts,
