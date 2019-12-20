@@ -40,8 +40,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test the removed SourceCode() method errors out if used.
 """
 
-import os
-
 import TestSCons
 
 test = TestSCons.TestSCons(match=TestSCons.match_exact)
