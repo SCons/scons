@@ -344,7 +344,6 @@ GlobalDefaultEnvironmentFunctions = [
     'Requires',
     'SConsignFile',
     'SideEffect',
-    'SourceCode',
     'Split',
     'Tag',
     'Value',

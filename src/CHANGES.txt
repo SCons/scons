@@ -13,6 +13,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       allocations by no longer defining the *Subber classes inside of their
       respective function calls.
 
+  From Mats Wichmann:
+    - Remove deprecated SourceCode
+
 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
 
