@@ -2199,16 +2199,6 @@ class Base(SubstitutionEnvironment):
                 target.side_effects.append(side_effect)
         return side_effects
 
-    def SourceCode(self, entry, builder):
-        """Arrange for a source code builder for (part of) a tree."""
-        msg = """SourceCode() has been deprecated and there is no replacement.
-\tIf you need this function, please contact scons-dev@scons.org"""
-        SCons.Warnings.warn(SCons.Warnings.DeprecatedSourceCodeWarning, msg)
-        entries = self.arg2nodes(entry, self.fs.Entry)
-        for entry in entries:
-            entry.set_src_builder(builder)
-        return entries
-
     def Split(self, arg):
         """This function converts a string or list into a list of strings
         or Nodes.  This makes things easier for users by allowing files to

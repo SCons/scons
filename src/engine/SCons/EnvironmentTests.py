@@ -3255,25 +3255,6 @@ def generate(env):
         assert ggg.side_effects == [s], ggg.side_effects
         assert ccc.side_effects == [s], ccc.side_effects
 
-    def test_SourceCode(self):
-        """Test the SourceCode() method."""
-        env = self.TestEnvironment(FOO='mmm', BAR='nnn')
-        e = env.SourceCode('foo', None)[0]
-        assert e.get_internal_path() == 'foo'
-        s = e.src_builder()
-        assert s is None, s
-
-        b = Builder()
-        e = env.SourceCode(e, b)[0]
-        assert e.get_internal_path() == 'foo'
-        s = e.src_builder()
-        assert s is b, s
-
-        e = env.SourceCode('$BAR$FOO', None)[0]
-        assert e.get_internal_path() == 'nnnmmm'
-        s = e.src_builder()
-        assert s is None, s
-
     def test_Split(self):
         """Test the Split() method"""
         env = self.TestEnvironment(FOO = 'fff', BAR = 'bbb')

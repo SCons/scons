@@ -43,7 +43,7 @@ test.write(['src', 'SConscript'], """
 # this doesn't work yet
 expect = """\
 TypeError: SConscript() got an unexpected keyword argument 'build_dir':
-  File "{}", line 1:
+  File "{}", line 2:
     SConscript('src/SConscript', build_dir='build')
 """.format(test.workpath('SConstruct'))
 test.run(arguments='-Q -s', status=2, stderr=expect)

@@ -1,0 +1,2 @@
+DefaultEnvironment(tools=[])
+SourceCode('no_source.c', None)
