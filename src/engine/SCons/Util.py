@@ -312,18 +312,21 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
                       '\n')
             sys.stdout.write(legend)
 
-        tags = ['[']
-        tags.append(' E'[IDX(root.exists())])
-        tags.append(' R'[IDX(root.rexists() and not root.exists())])
-        tags.append(' BbB'[[0,1][IDX(root.has_explicit_builder())] +
-                           [0,2][IDX(root.has_builder())]])
-        tags.append(' S'[IDX(root.side_effect)])
-        tags.append(' P'[IDX(root.precious)])
-        tags.append(' A'[IDX(root.always_build)])
-        tags.append(' C'[IDX(root.is_up_to_date())])
-        tags.append(' N'[IDX(root.noclean)])
-        tags.append(' H'[IDX(root.nocache)])
-        tags.append(']')
+        tags = [
+            '[',
+            ' E'[IDX(root.exists())],
+            ' R'[IDX(root.rexists() and not root.exists())],
+            ' BbB'[
+                [0, 1][IDX(root.has_explicit_builder())] +
+                [0, 2][IDX(root.has_builder())]
+            ],
+            ' S'[IDX(root.side_effect)], ' P'[IDX(root.precious)],
+            ' A'[IDX(root.always_build)],
+            ' C'[IDX(root.is_up_to_date())],
+            ' N'[IDX(root.noclean)],
+            ' H'[IDX(root.nocache)],
+            ']'
+        ]
 
     else:
         tags = []
@@ -350,7 +353,6 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
         margin[-1] = 0
         print_tree(children[-1], child_func, prune, idx, margin, visited)
         margin.pop()
-
 
 
 # Functions for deciding if things are like various types, mainly to

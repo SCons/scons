@@ -1067,7 +1067,7 @@ def CheckLibWithHeader(context, libs, header, language,
     """
     prog_prefix, dummy = \
                  createIncludesFromHeaders(header, 0)
-    if libs == []:
+    if not libs:
         libs = [None]
 
     if not SCons.Util.is_List(libs):
