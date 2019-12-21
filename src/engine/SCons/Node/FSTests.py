@@ -2508,8 +2508,8 @@ class FileTestCase(_tempdirTestCase):
         build_f1, src_f1)
 
     def test_changed(self):
-        """ 
-        Verify that changes between BuildInfo's list of souces, depends, and implicit 
+        """
+        Verify that changes between BuildInfo's list of souces, depends, and implicit
         dependencies do not corrupt content signature values written to .SConsign
         when using CacheDir and Timestamp-MD5 decider.
         This is for issue #2980
@@ -3374,10 +3374,11 @@ class find_fileTestCase(unittest.TestCase):
         node_pseudo.set_src_builder(1)  # Any non-zero value.
 
         paths = tuple(map(fs.Dir, ['.', 'same', './bar']))
-        nodes = [SCons.Node.FS.find_file('foo', paths)]
-        nodes.append(SCons.Node.FS.find_file('baz', paths))
-        nodes.append(SCons.Node.FS.find_file('pseudo', paths))
-        nodes.append(SCons.Node.FS.find_file('same', paths))
+        nodes = [SCons.Node.FS.find_file('foo', paths),
+                 SCons.Node.FS.find_file('baz', paths),
+                 SCons.Node.FS.find_file('pseudo', paths),
+                 SCons.Node.FS.find_file('same', paths)
+        ]
 
         file_names = list(map(str, nodes))
         file_names = list(map(os.path.normpath, file_names))

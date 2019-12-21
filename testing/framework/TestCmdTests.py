@@ -1737,7 +1737,7 @@ class run_TestCase(TestCmdTestCase):
                 pass
 
             test.run(program = 'no_script', interpreter = 'python')
-            assert test.status != None, test.status
+            assert test.status is not None, test.status
 
             try:
                 test.run(program = 'no_script', interpreter = 'no_interpreter')
@@ -1750,7 +1750,7 @@ class run_TestCase(TestCmdTestCase):
                 # Python versions that use os.popen3() or the Popen3
                 # class run things through the shell, which just returns
                 # a non-zero exit status.
-                assert test.status != None, test.status
+                assert test.status is not None, test.status
 
             testx = TestCmd.TestCmd(program = t.scriptx,
                                     workdir = '',
@@ -1816,7 +1816,7 @@ class run_TestCase(TestCmdTestCase):
                 # Python versions that use os.popen3() or the Popen3
                 # class run things through the shell, which just returns
                 # a non-zero exit status.
-                assert test.status != None
+                assert test.status is not None
 
             test1 = TestCmd.TestCmd(program = t.script1,
                                     interpreter = ['python', '-x'],
@@ -2388,7 +2388,7 @@ with open(r'%s', 'wb') as logfp:
 
             p = test.start(program='no_script', interpreter='python')
             status = p.wait()
-            assert status != None, status
+            assert status is not None, status
 
             try:
                 p = test.start(program='no_script', interpreter='no_interpreter')
@@ -2402,7 +2402,7 @@ with open(r'%s', 'wb') as logfp:
                 # Python versions that use os.popen3() or the Popen3
                 # class run things through the shell, which just returns
                 # a non-zero exit status.
-                assert status != None, status
+                assert status is not None, status
 
             testx = TestCmd.TestCmd(program = t.scriptx,
                                     workdir = '',
@@ -3054,11 +3054,11 @@ class workdir_TestCase(TestCmdTestCase):
         assert test.workdir is None
 
         test = TestCmd.TestCmd(workdir = '')
-        assert test.workdir != None
+        assert test.workdir is not None
         assert os.path.isdir(test.workdir)
 
         test = TestCmd.TestCmd(workdir = 'dir')
-        assert test.workdir != None
+        assert test.workdir is not None
         assert os.path.isdir(test.workdir)
 
         no_such_subdir = os.path.join('no', 'such', 'subdir')
@@ -3071,11 +3071,11 @@ class workdir_TestCase(TestCmdTestCase):
 
         test = TestCmd.TestCmd(workdir = 'foo')
         workdir_foo = test.workdir
-        assert workdir_foo != None
+        assert workdir_foo is not None
 
         test.workdir_set('bar')
         workdir_bar = test.workdir
-        assert workdir_bar != None
+        assert workdir_bar is not None
 
         try:
             test.workdir_set(no_such_subdir)

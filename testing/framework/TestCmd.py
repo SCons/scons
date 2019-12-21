@@ -1805,7 +1805,7 @@ class TestCmd(object):
         path name.  If the path is a null string (''), a unique
         directory name is created.
         """
-        if (path != None):
+        if path is not None:
             if path == '':
                 path = None
             path = self.tempdir(path)
