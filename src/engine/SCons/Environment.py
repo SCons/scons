@@ -46,7 +46,7 @@ import SCons.Builder
 import SCons.Debug
 from SCons.Debug import logInstanceCreation
 import SCons.Defaults
-import SCons.Errors
+from SCons.Errors import UserError, BuildError
 import SCons.Memoize
 import SCons.Node
 import SCons.Node.Alias
@@ -74,11 +74,6 @@ CalculatorArgs = {}
 
 semi_deepcopy = SCons.Util.semi_deepcopy
 semi_deepcopy_dict = SCons.Util.semi_deepcopy_dict
-
-# Pull UserError into the global name space for the benefit of
-# Environment().SourceSignatures(), which has some import statements
-# which seem to mess up its ability to reference SCons directly.
-UserError = SCons.Errors.UserError
 
 def alias_builder(env, target, source):
     pass
@@ -154,7 +149,7 @@ def _set_BUILDERS(env, key, value):
         env._dict[key] = bd
     for k, v in value.items():
         if not SCons.Builder.is_a_Builder(v):
-            raise SCons.Errors.UserError('%s is not a Builder.' % repr(v))
+            raise UserError('%s is not a Builder.' % repr(v))
     bd.update(value)
 
 def _del_SCANNERS(env, key):
@@ -431,7 +426,7 @@ class SubstitutionEnvironment(object):
             # efficient than calling another function or a method.
             if key not in self._dict \
                and not _is_valid_var.match(key):
-                    raise SCons.Errors.UserError("Illegal construction variable `%s'" % key)
+                    raise UserError("Illegal construction variable `%s'" % key)
             self._dict[key] = value
 
     def get(self, key, default=None):
@@ -707,31 +702,34 @@ class SubstitutionEnvironment(object):
             append_next_arg_to = None   # for multi-word args
             for arg in params:
                 if append_next_arg_to:
-                   if append_next_arg_to == 'CPPDEFINES':
-                       append_define(arg)
-                   elif append_next_arg_to == '-include':
-                       t = ('-include', self.fs.File(arg))
-                       dict['CCFLAGS'].append(t)
-                   elif append_next_arg_to == '-isysroot':
-                       t = ('-isysroot', arg)
-                       dict['CCFLAGS'].append(t)
-                       dict['LINKFLAGS'].append(t)
-                   elif append_next_arg_to == '-isystem':
-                       t = ('-isystem', arg)
-                       dict['CCFLAGS'].append(t)
-                   elif append_next_arg_to == '-iquote':
-                       t = ('-iquote', arg)
-                       dict['CCFLAGS'].append(t)
-                   elif append_next_arg_to == '-idirafter':
-                       t = ('-idirafter', arg)
-                       dict['CCFLAGS'].append(t)
-                   elif append_next_arg_to == '-arch':
-                       t = ('-arch', arg)
-                       dict['CCFLAGS'].append(t)
-                       dict['LINKFLAGS'].append(t)
-                   else:
-                       dict[append_next_arg_to].append(arg)
-                   append_next_arg_to = None
+                    if append_next_arg_to == 'CPPDEFINES':
+                        append_define(arg)
+                    elif append_next_arg_to == '-include':
+                        t = ('-include', self.fs.File(arg))
+                        dict['CCFLAGS'].append(t)
+                    elif append_next_arg_to == '-imacros':
+                        t = ('-imacros', self.fs.File(arg))
+                        dict['CCFLAGS'].append(t)
+                    elif append_next_arg_to == '-isysroot':
+                        t = ('-isysroot', arg)
+                        dict['CCFLAGS'].append(t)
+                        dict['LINKFLAGS'].append(t)
+                    elif append_next_arg_to == '-isystem':
+                        t = ('-isystem', arg)
+                        dict['CCFLAGS'].append(t)
+                    elif append_next_arg_to == '-iquote':
+                        t = ('-iquote', arg)
+                        dict['CCFLAGS'].append(t)
+                    elif append_next_arg_to == '-idirafter':
+                        t = ('-idirafter', arg)
+                        dict['CCFLAGS'].append(t)
+                    elif append_next_arg_to == '-arch':
+                        t = ('-arch', arg)
+                        dict['CCFLAGS'].append(t)
+                        dict['LINKFLAGS'].append(t)
+                    else:
+                        dict[append_next_arg_to].append(arg)
+                    append_next_arg_to = None
                 elif not arg[0] in ['-', '+']:
                     dict['LIBS'].append(self.fs.File(arg))
                 elif arg == '-dylib_file':
@@ -790,7 +788,7 @@ class SubstitutionEnvironment(object):
                 elif arg == '-mwindows':
                     dict['LINKFLAGS'].append(arg)
                 elif arg[:5] == '-std=':
-                    if arg[5:].find('++')!=-1:
+                    if '++' in arg[5:]:
                         key='CXXFLAGS'
                     else:
                         key='CFLAGS'
@@ -798,7 +796,7 @@ class SubstitutionEnvironment(object):
                 elif arg[0] == '+':
                     dict['CCFLAGS'].append(arg)
                     dict['LINKFLAGS'].append(arg)
-                elif arg in ['-include', '-isysroot', '-isystem', '-iquote', '-idirafter', '-arch']:
+                elif arg in ['-include', '-imacros', '-isysroot', '-isystem', '-iquote', '-idirafter', '-arch']:
                     append_next_arg_to = arg
                 else:
                     dict['CCFLAGS'].append(arg)
@@ -1430,14 +1428,6 @@ class Base(SubstitutionEnvironment):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Environment.EnvironmentClone')
         return clone
 
-    def Copy(self, *args, **kw):
-        global _warn_copy_deprecated
-        if _warn_copy_deprecated:
-            msg = "The env.Copy() method is deprecated; use the env.Clone() method instead."
-            SCons.Warnings.warn(SCons.Warnings.DeprecatedCopyWarning, msg)
-            _warn_copy_deprecated = False
-        return self.Clone(*args, **kw)
-
     def _changed_build(self, dependency, target, prev_ni, repo_node=None):
         if dependency.changed_state(target, prev_ni, repo_node):
             return 1
@@ -1493,8 +1483,14 @@ class Base(SubstitutionEnvironment):
 
         self.copy_from_cache = copy_function
 
+
     def Detect(self, progs):
         """Return the first available program in progs.
+
+        :param progs: one or more command names to check for
+        :type progs: str or list
+        :returns str: first name from progs that can be found.
+
         """
         if not SCons.Util.is_List(progs):
             progs = [ progs ]
@@ -1503,7 +1499,17 @@ class Base(SubstitutionEnvironment):
             if path: return prog
         return None
 
+
     def Dictionary(self, *args):
+        """Return construction variables from an environment.
+
+        :param *args: (optional) variable names to look up
+        :returns: if args omitted, the dictionary of all constr. vars.
+            If one arg, the corresponding value is returned.
+            If more than one arg, a list of values is returned.
+        :raises KeyError: if any of *args is not in the construction env.
+
+        """
         if not args:
             return self._dict
         dlist = [self._dict[x] for x in args]
@@ -1511,23 +1517,28 @@ class Base(SubstitutionEnvironment):
             dlist = dlist[0]
         return dlist
 
-    def Dump(self, key = None):
-        """
-        Using the standard Python pretty printer, return the contents of the
-        scons build environment as a string.
 
-        If the key passed in is anything other than None, then that will
-        be used as an index into the build environment dictionary and
-        whatever is found there will be fed into the pretty printer. Note
-        that this key is case sensitive.
+    def Dump(self, key=None):
+        """ Return pretty-printed string of construction variables.
+
+        :param key: if None, format the whole dict of variables.
+            Else look up and format just the value for key.
+
         """
         import pprint
         pp = pprint.PrettyPrinter(indent=2)
         if key:
-            dict = self.Dictionary(key)
+            cvars = self.Dictionary(key)
         else:
-            dict = self.Dictionary()
-        return pp.pformat(dict)
+            cvars = self.Dictionary()
+
+        # TODO: pprint doesn't do a nice job on path-style values
+        # if the paths contain spaces (i.e. Windows), because the
+        # algorithm tries to break lines on spaces, while breaking
+        # on the path-separator would be more "natural". Is there
+        # a better way to format those?
+        return pp.pformat(cvars)
+
 
     def FindIxes(self, paths, prefix, suffix):
         """
@@ -1600,7 +1611,7 @@ class Base(SubstitutionEnvironment):
             for td in tdlist:
                 targets.extend(td[0])
             if len(targets) > 1:
-                raise SCons.Errors.UserError(
+                raise UserError(
                             "More than one dependency target found in `%s':  %s"
                                             % (filename, targets))
         for target, depends in tdlist:
@@ -1918,14 +1929,6 @@ class Base(SubstitutionEnvironment):
             t.set_always_build()
         return tlist
 
-    def BuildDir(self, *args, **kw):
-        msg = """BuildDir() and the build_dir keyword have been deprecated;\n\tuse VariantDir() and the variant_dir keyword instead."""
-        SCons.Warnings.warn(SCons.Warnings.DeprecatedBuildDirWarning, msg)
-        if 'build_dir' in kw:
-            kw['variant_dir'] = kw['build_dir']
-            del kw['build_dir']
-        return self.VariantDir(*args, **kw)
-
     def Builder(self, **kw):
         nkw = self.subst_kw(kw)
         return SCons.Builder.Builder(**nkw)
@@ -1964,13 +1967,42 @@ class Base(SubstitutionEnvironment):
         be any type that the Builder constructor will accept
         for an action."""
         bkw = {
-            'action' : action,
-            'target_factory' : self.fs.Entry,
-            'source_factory' : self.fs.Entry,
+            'action': action,
+            'target_factory': self.fs.Entry,
+            'source_factory': self.fs.Entry,
         }
-        try: bkw['source_scanner'] = kw['source_scanner']
-        except KeyError: pass
-        else: del kw['source_scanner']
+        # source scanner
+        try:
+            bkw['source_scanner'] = kw['source_scanner']
+        except KeyError:
+            pass
+        else:
+            del kw['source_scanner']
+
+        # target scanner
+        try:
+            bkw['target_scanner'] = kw['target_scanner']
+        except KeyError:
+            pass
+        else:
+            del kw['target_scanner']
+
+        # source factory
+        try:
+            bkw['source_factory'] = kw['source_factory']
+        except KeyError:
+            pass
+        else:
+            del kw['source_factory']
+
+        # target factory
+        try:
+            bkw['target_factory'] = kw['target_factory']
+        except KeyError:
+            pass
+        else:
+            del kw['target_factory']
+            
         bld = SCons.Builder.Builder(**bkw)
         return bld(self, target, source, **kw)
 
@@ -2039,7 +2071,7 @@ class Base(SubstitutionEnvironment):
         """
         action = self.Action(action, *args, **kw)
         result = action([], [], self)
-        if isinstance(result, SCons.Errors.BuildError):
+        if isinstance(result, BuildError):
             errstr = result.errstr
             if result.filename:
                 errstr = result.filename + ': ' + errstr
@@ -2159,41 +2191,13 @@ class Base(SubstitutionEnvironment):
 
         for side_effect in side_effects:
             if side_effect.multiple_side_effect_has_builder():
-                raise SCons.Errors.UserError("Multiple ways to build the same target were specified for: %s" % str(side_effect))
+                raise UserError("Multiple ways to build the same target were specified for: %s" % str(side_effect))
             side_effect.add_source(targets)
             side_effect.side_effect = 1
             self.Precious(side_effect)
             for target in targets:
                 target.side_effects.append(side_effect)
         return side_effects
-
-    def SourceCode(self, entry, builder):
-        """Arrange for a source code builder for (part of) a tree."""
-        msg = """SourceCode() has been deprecated and there is no replacement.
-\tIf you need this function, please contact scons-dev@scons.org"""
-        SCons.Warnings.warn(SCons.Warnings.DeprecatedSourceCodeWarning, msg)
-        entries = self.arg2nodes(entry, self.fs.Entry)
-        for entry in entries:
-            entry.set_src_builder(builder)
-        return entries
-
-    def SourceSignatures(self, type):
-        global _warn_source_signatures_deprecated
-        if _warn_source_signatures_deprecated:
-            msg = "The env.SourceSignatures() method is deprecated;\n" + \
-                  "\tconvert your build to use the env.Decider() method instead."
-            SCons.Warnings.warn(SCons.Warnings.DeprecatedSourceSignaturesWarning, msg)
-            _warn_source_signatures_deprecated = False
-        type = self.subst(type)
-        self.src_sig_type = type
-        if type == 'MD5':
-            if not SCons.Util.md5:
-                raise UserError("MD5 signatures are not available in this version of Python.")
-            self.decide_source = self._changed_content
-        elif type == 'timestamp':
-            self.decide_source = self._changed_timestamp_match
-        else:
-            raise UserError("Unknown source signature type '%s'" % type)
 
     def Split(self, arg):
         """This function converts a string or list into a list of strings
@@ -2215,28 +2219,6 @@ class Base(SubstitutionEnvironment):
             return self.subst(arg).split()
         else:
             return [self.subst(arg)]
-
-    def TargetSignatures(self, type):
-        global _warn_target_signatures_deprecated
-        if _warn_target_signatures_deprecated:
-            msg = "The env.TargetSignatures() method is deprecated;\n" + \
-                  "\tconvert your build to use the env.Decider() method instead."
-            SCons.Warnings.warn(SCons.Warnings.DeprecatedTargetSignaturesWarning, msg)
-            _warn_target_signatures_deprecated = False
-        type = self.subst(type)
-        self.tgt_sig_type = type
-        if type in ('MD5', 'content'):
-            if not SCons.Util.md5:
-                raise UserError("MD5 signatures are not available in this version of Python.")
-            self.decide_target = self._changed_content
-        elif type == 'timestamp':
-            self.decide_target = self._changed_timestamp_match
-        elif type == 'build':
-            self.decide_target = self._changed_build
-        elif type == 'source':
-            self.decide_target = self._changed_source
-        else:
-            raise UserError("Unknown target signature type '%s'"%type)
 
     def Value(self, value, built_value=None):
         """
@@ -2322,7 +2304,7 @@ class OverrideEnvironment(Base):
             return attr.clone(self)
         else:
             return attr
-        
+
     def __setattr__(self, name, value):
         setattr(self.__dict__['__subject'], name, value)
 
@@ -2334,7 +2316,7 @@ class OverrideEnvironment(Base):
             return self.__dict__['__subject'].__getitem__(key)
     def __setitem__(self, key, value):
         if not is_valid_construction_var(key):
-            raise SCons.Errors.UserError("Illegal construction variable `%s'" % key)
+            raise UserError("Illegal construction variable `%s'" % key)
         self.__dict__['overrides'][key] = value
     def __delitem__(self, key):
         try:

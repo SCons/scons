@@ -61,7 +61,7 @@ test.write('SConstruct', """
 SConscript('SConscript')
 """)
 
-test.write('SConscript', """
+test.write('SConscript', r"""
 import re
 
 include1_re = re.compile(r'^include1\s+(\S+)$', re.M)
@@ -100,7 +100,7 @@ env.Command('bbb', 'bbb.k2', r'%(_python_)s build.py $SOURCES $TARGET')
 env.Command('ccc', 'ccc.k3', r'%(_python_)s build.py $SOURCES $TARGET')
 """ % locals())
 
-test.write('aaa.k1', 
+test.write('aaa.k1',
 """aaa.k1 1
 line 2
 include1 xxx
@@ -109,7 +109,7 @@ include3 zzz
 line 6
 """)
 
-test.write('bbb.k2', 
+test.write('bbb.k2',
 """bbb.k2 1
 line 2
 include1 xxx
@@ -118,7 +118,7 @@ include3 zzz
 line 6
 """)
 
-test.write('ccc.k3', 
+test.write('ccc.k3',
 """ccc.k3 1
 line 2
 include1 xxx

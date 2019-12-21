@@ -40,7 +40,7 @@ test.write('SConstruct', "")
 # Standard copyright marker is mangled so it doesn't get replaced
 # by the packaging build.
 copyright_line = """\
-(_{2}COPYRIGHT__|Copyright \\(c\\) 2001[-\d, ]+ The SCons Foundation)
+(_{2}COPYRIGHT__|Copyright \\(c\\) 2001[-\\d, ]+ The SCons Foundation)
 """
 
 expect1 = """\
@@ -53,8 +53,8 @@ scons>>>
 scons>>> 
 """
 
-test.run(arguments = '-Q --interactive',
-         stdin = "version\nexit\n")
+test.run(arguments='-Q --interactive',
+         stdin="version\nexit\n")
 
 # Windows may or may not print a line for the script version
 # depending on whether it's invoked through scons.py or scons.bat.

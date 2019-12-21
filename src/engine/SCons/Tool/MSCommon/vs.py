@@ -465,14 +465,14 @@ def get_vs_by_version(msvs):
     global InstalledVSMap
     global SupportedVSMap
 
-    debug('vs.py:get_vs_by_version()')
+    debug('get_vs_by_version()')
     if msvs not in SupportedVSMap:
         msg = "Visual Studio version %s is not supported" % repr(msvs)
         raise SCons.Errors.UserError(msg)
     get_installed_visual_studios()
     vs = InstalledVSMap.get(msvs)
     debug('InstalledVSMap:%s'%InstalledVSMap)
-    debug('vs.py:get_vs_by_version: found vs:%s'%vs)
+    debug('get_vs_by_version: found vs:%s'%vs)
     # Some check like this would let us provide a useful error message
     # if they try to set a Visual Studio version that's not installed.
     # However, we also want to be able to run tests (like the unit

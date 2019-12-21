@@ -4,6 +4,84 @@
 
                             Change Log
 
+NOTE: The 4.0.0 Release of SCons will drop Python 2.7 Support
+
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From Mathew Robinson:
+    - Improve performance of Subst by preventing unnecessary frame
+      allocations by no longer defining the *Subber classes inside of their
+      respective function calls.
+
+  From Mats Wichmann:
+    - Remove deprecated SourceCode
+    - str.format syntax errors fixed
+
+
+RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
+
+  From Edoardo Bezzeccheri
+    - Added debug option "action_timestamps" which outputs to stdout the absolute start and end time for each target.
+
+  From Rob Boehne
+    - Fix suncxx tool (Oracle Studio compiler) when using Python 3.  Previously would throw an exception.
+      Resolved by properly handling tool version string output as unicode.
+
+  From Tim Gates
+    - Resolved a typo in engine.SCons.Tool
+
+  From Adam Gross:
+    - Resolved a race condition in multithreaded Windows builds with Python 2
+      in the case where a child process is spawned while a Python action has a
+      file open. Original author: Ryan Beasley.
+
+  From Jason Kenny
+    - Update Command() function to accept target_scanner, source_factory, and target_factory arguments.
+      This makes Command act more like a one-off builder.
+
+  From Ivan Kravets
+    - Added support for "-imacros" to ParseFlags
+
+  From Jacek Kuczera:
+    - Fix CheckFunc detection code for Visual 2019. Some functions
+      (e.g. memmove) were incorrectly recognized as not available.
+
+  From Jakub Kulik
+    - Fix stacktrace when using SCons with Python 3.5+ and SunOS/Solaris related tools.	
+
+  From Philipp Maierhöfer:
+    - Avoid crash with UnicodeDecodeError on Python 3 when a Latex log file in
+      non-UTF-8 encoding (e.g. containing umlauts in Latin-1 encoding when
+      the fontenc package is included with \usepackage[T1]{fontenc}) is read.
+
+  From Mathew Robinson:
+    - Improved threading performance by ensuring NodeInfo is shared
+      across threads. Results in ~13% improvement for parallel builds
+      (-j# > 1) with many shared nodes.
+    - Improve performance of Entry.disambiguate() by making check for
+      most common case first, preventing unnecessary IO.
+    - Improved DAG walk performance by reducing unnecessary work when
+      there are no un-visited children.
+
+  From Mats Wichmann
+    - Replace instances of string find method with "in" checks where
+      the index from find() was not used.
+    - CmdStringHolder fix from issue #3428
+    - Turn previously deprecated debug options into failures:
+      --debug=tree, --debug=dtree, --debug=stree, --debug=nomemoizer.
+    - Experimental New Feature: Enable caching MSVC configuration
+      If SCONS_CACHE_MSVC_CONFIG shell environment variable is set,
+      SCons will cache the results of past calls to vcvarsall.bat to
+      a file; integrates with existing memoizing of such vars.
+      On vs2019 saves 5+ seconds per SCons invocation, which really
+      helps test suite runs.
+    - Remove deprecated SourceSignatures, TargetSignatures
+    - Remove deprecated Builder keywords: overrides and scanner
+    - Remove deprecated env.Copy
+    - Remove deprecated BuildDir plus SConscript keyword build_dir
+    - A number of documentation improvements.
+
+
 RELEASE 3.1.1 - Mon, 07 Aug 2019 20:09:12 -0500
 
   From William Deegan:

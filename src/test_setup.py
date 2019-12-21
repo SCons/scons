@@ -176,7 +176,7 @@ tar_gz = os.path.join(cwd, 'build', 'dist', '%s.tar.gz' % scons_version)
 zip = os.path.join(cwd, 'build', 'dist', '%s.zip' % scons_version)
 
 if os.path.isfile(zip):
-    try: 
+    try:
         import zipfile
     except ImportError:
         pass
@@ -185,9 +185,9 @@ if os.path.isfile(zip):
 
             for name in zf.namelist():
                 dname = os.path.dirname(name)
-                try: 
+                try:
                     os.makedirs(dname)
-                except FileExistsError: 
+                except FileExistsError:
                     pass
                 # if the file exists, then delete it before writing
                 # to it so that we don't end up trying to write to a symlink:
@@ -325,8 +325,7 @@ test.must_have_installed(test.man_page_paths())
 other_prefix = test.workpath('other-prefix')
 test.subdir(other_prefix)
 test.run(arguments = 'setup.py install --prefix=%s' % other_prefix)
-test.fail_test(test.stderr().find("you'll have to change the search path yourself")
-               != -1)
+test.fail_test("you'll have to change the search path yourself" in test.stderr())
 
 # All done.
 test.pass_test()

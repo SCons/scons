@@ -37,7 +37,7 @@ test = TestSCons.TestSCons()
 
 where_javac, java_version = test.java_where_javac()
 
-# Try to get the major/minor Java version 
+# Try to get the major/minor Java version
 curver = (1, 0)
 if java_version.count('.') == 1:
     # Check Java version
@@ -97,7 +97,7 @@ env = Environment(tools = ['javac', 'rmic'],
                   RMIC = r'"%s"')
 classes = env.Java(target = 'classes', source = 'src')
 # Brute-force removal of the "Hello" class.
-classes = [c for c in classes if str(c).find('Hello') == -1]
+classes = [c for c in classes if 'Hello' not in str(c)]
 env.RMIC(target = 'outdir', source = classes)
 """ % (javac, rmic))
 
@@ -365,7 +365,7 @@ env = Environment(tools = ['javac', 'rmic'],
                   RMIC = r'"%s"')
 classes = env.Java(target = 'classes', source = 'src')
 # Brute-force removal of the "Hello" class.
-classes = [c for c in classes if str(c).find('Hello') == -1]
+classes = [c for c in classes if 'Hello' not in str(c)]
 rmi_classes = env.RMIC(target = 'outdir', source = classes)
 Local(rmi_classes)
 """ % (javac, rmic))

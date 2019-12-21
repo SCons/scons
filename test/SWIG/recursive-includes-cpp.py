@@ -115,6 +115,8 @@ env.SharedLibrary(
 
 if sys.platform == 'win32':
     object_suffix = ".obj"
+elif sys.platform == 'sunos5':
+    object_suffix = ".pic.o"
 else:
     object_suffix = ".os"
 

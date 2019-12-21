@@ -209,12 +209,12 @@ that you want to use to build your target files
 are not in standard system locations,
 <command>scons</command>
 will not find them unless
-you explicitly set the PATH
+you explicitly set the <envar>PATH</envar>
 to include those locations.
 Whenever you create an
 <command>scons</command>
 construction environment,
-you can propagate the value of PATH
+you can propagate the value of <envar>PATH</envar>
 from your external environment as follows:</para>
 
 <literallayout class="monospaced">
@@ -223,13 +223,20 @@ env = Environment(ENV = {'PATH' : os.environ['PATH']})
 </literallayout>
 
 <para>Similarly, if the commands use external environment variables
-like $PATH, $HOME, $JAVA_HOME, $LANG, $SHELL, $TERM, etc.,
+like
+<envar>PATH</envar>,
+<envar>HOME</envar>,
+<envar>JAVA_HOME</envar>,
+<envar>LANG</envar>,
+<envar>SHELL</envar>,
+<envar>TERM</envar>,
+etc.,
 these variables can also be explicitly propagated:</para>
 
 <literallayout class="monospaced">
 import os
-env = Environment(ENV = {'PATH' : os.environ['PATH'],
-                         'HOME' : os.environ['HOME']})
+env = Environment(ENV = {'PATH': os.environ['PATH'],
+                         'HOME': os.environ['HOME']})
 </literallayout>
 
 <para>Or you may explicitly propagate the invoking user's
@@ -679,19 +686,32 @@ option except for the way default targets are handled.
 When this option is used and no targets are specified on the command line,
 all default targets are built, whether or not they are below the current
 directory.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
-  <term>--debug=<emphasis>type</emphasis></term>
+  <term>--debug=<replaceable>type</replaceable>[<replaceable>,type</replaceable>...]</term>
   <listitem>
 <para>Debug the build process.
-<emphasis>type[,type...]</emphasis>
-specifies what type of debugging. Multiple types may be specified,
-separated by commas. The following types are valid:</para>
-
+<emphasis>type</emphasis>
+specifies the kind of debugging info to emit.
+Multiple types may be specified, separated by commas.
+The following entries show the recognized types:</para>
   </listitem>
   </varlistentry>
+
+  <varlistentry>
+  <term>--debug=action-timestamps</term>
+  <listitem>
+<para>Prints additional time profiling information. For
+each command, shows the absolute start and end times.
+This may be useful in debugging parallel builds.
+Implies the <option>--debug=time</option> option.
+</para>
+<para>Since &scons; 3.1.</para>
+  </listitem>
+  </varlistentry>
+
   <varlistentry>
   <term>--debug=count</term>
   <listitem>
@@ -716,17 +736,6 @@ files).</para>
 <para>Print a line for each unlink/relink (or copy) of a variant file from
 its source file.  Includes debugging info for unlinking stale variant
 files, as well as unlinking old targets before building them.</para>
-
-  </listitem>
-  </varlistentry>
-  <varlistentry>
-  <term>--debug=dtree</term>
-  <listitem>
-<para>A synonym for the newer
-<option>--tree=derived</option>
-option.
-This will be deprecated in some future release
-and ultimately removed.</para>
 
   </listitem>
   </varlistentry>
@@ -782,13 +791,6 @@ instead of recomputing them each time they're needed.</para>
 <para>Prints how much memory SCons uses
 before and after reading the SConscript files
 and before and after building targets.</para>
-
-  </listitem>
-  </varlistentry>
-  <varlistentry>
-  <term>--debug=nomemoizer</term>
-  <listitem>
-<para>A deprecated option preserved for backwards compatibility.</para>
 
   </listitem>
   </varlistentry>
@@ -849,17 +851,6 @@ when encountering an otherwise unexplained error.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>--debug=stree</term>
-  <listitem>
-<para>A synonym for the newer
-<option>--tree=all,status</option>
-option.
-This will be deprecated in some future release
-and ultimately removed.</para>
-
-  </listitem>
-  </varlistentry>
-  <varlistentry>
   <term>--debug=time</term>
   <listitem>
 <para>Prints various time profiling information:</para>
@@ -912,20 +903,9 @@ since multiple build commands and
 intervening SCons processing
 should take place in parallel.)
 </para>
-
   </listitem>
   </varlistentry>
-  <varlistentry>
-  <term>--debug=tree</term>
-  <listitem>
-<para>A synonym for the newer
-<option>--tree=all</option>
-option.
-This will be deprecated in some future release
-and ultimately removed.</para>
 
-  </listitem>
-  </varlistentry>
   <varlistentry>
   <term>--diskcheck=<emphasis>types</emphasis></term>
   <listitem>
@@ -1113,6 +1093,18 @@ This implies
 
   </listitem>
   </varlistentry>
+
+  <varlistentry>
+  <term>--install-sandbox=<replaceable>path</replaceable></term>
+  <listitem>
+<para>
+When using the &Install; functions, prepend <replaceable>path</replaceable>
+to the installation paths such that all installed files will be placed
+underneath <replaceable>path</replaceable>.
+</para>
+  </listitem>
+  </varlistentry>
+
   <varlistentry>
   <term>--interactive</term>
   <listitem>
@@ -1803,41 +1795,6 @@ Warnings for some specific deprecated features
 may be enabled or disabled individually;
 see below.</para>
 
-  <blockquote>
-    <variablelist>
-      <varlistentry>
-      <term>--warn=deprecated-copy, --warn=no-deprecated-copy</term>
-      <listitem>
-<para>Enables or disables warnings about use of the deprecated
-<emphasis role="bold">env.Copy()</emphasis>
-method.</para>
-
-      </listitem>
-      </varlistentry>
-      <varlistentry>
-      <term>--warn=deprecated-source-signatures, --warn=no-deprecated-source-signatures</term>
-      <listitem>
-<para>Enables or disables warnings about use of the deprecated
-<emphasis role="bold">SourceSignatures()</emphasis>
-function or
-<emphasis role="bold">env.SourceSignatures()</emphasis>
-method.</para>
-
-      </listitem>
-      </varlistentry>
-      <varlistentry>
-      <term>--warn=deprecated-target-signatures, --warn=no-deprecated-target-signatures</term>
-      <listitem>
-<para>Enables or disables warnings about use of the deprecated
-<emphasis role="bold">TargetSignatures()</emphasis>
-function or
-<emphasis role="bold">env.TargetSignatures()</emphasis>
-method.</para>
-      </listitem>
-      </varlistentry>
-    </variablelist>
-    </blockquote>
-
   </listitem>
   </varlistentry>
   <varlistentry>
@@ -1914,7 +1871,7 @@ These warnings are enabled by default.</para>
 <option>--debug=object</option>
 feature not working when
 <command>scons</command>
-is run with the python
+is run with the Python
 <option>-O</option>
 option or from optimized Python (.pyo) modules.</para>
 
@@ -2041,7 +1998,7 @@ env['BAR'] = 'bar'
 
 <para>As a convenience,
 construction variables may also be set or modified by the
-<emphasis>parse_flags</emphasis>
+<emphasis role="bold">parse_flags</emphasis>
 keyword argument, which applies the
 &f-link-env-MergeFlags;
 method (described below) to the argument value
@@ -2112,36 +2069,59 @@ env = Environment(platform = my_platform)
 
 <para>Additionally, a specific set of tools
 with which to initialize the environment
-may be specified as an optional keyword argument:</para>
+may be specified using the optional keyword argument
+<parameter>tools</parameter>:</para>
 
 <literallayout class="monospaced">
-env = Environment(tools = ['msvc', 'lex'])
+env = Environment(tools=['msvc', 'lex'])
 </literallayout>
 
-<para>Non-built-in tools may be specified using the toolpath argument:</para>
+<para>
+The <parameter>tools</parameter> argument overrides
+the tool list, it does not add to it, so be
+sure to include all the tools you need.
+For example if you are  building a c/c++ program
+you must  add a tool for both compiler and linker,
+as in <literal>tools=['clang', 'link']</literal>.
+The tool name <literal>'default'</literal> can
+be used to retain the default list.
+</para>
+
+<para>Non-built-in tools may be specified using the
+optional <parameter>toolpath</parameter> keyword argument:</para>
 
 <literallayout class="monospaced">
-env = Environment(tools = ['default', 'foo'], toolpath = ['tools'])
+env = Environment(tools=['default', 'foo'], toolpath=['tools'])
 </literallayout>
 
-<para>This looks for a tool specification in tools/foo.py (as well as
-using the ordinary default tools for the platform).  foo.py should
-have two functions: generate(env, **kw) and exists(env).
+<para>
+This looks for a tool specification in <filename>tools/foo.py</filename>
+as well as using the ordinary default tools for the platform.
+</para>
+
+<para>
+A tool specification must include two functions:
+<function>generate(env, **kw)</function>
+and <function>exists(env)</function>.
 The
-<function>generate()</function>
+<function>generate</function>
 function
-modifies the passed-in environment
+modifies the environment referenced by <parameter>env</parameter>
 to set up variables so that the tool
 can be executed;
 it may use any keyword arguments
-that the user supplies (see below)
+that the user supplies in <parameter>kw</parameter> (see below)
 to vary its initialization.
 The
-<function>exists()</function>
+<function>exists</function>
 function should return a true
 value if the tool is available.
+</para>
+
+<para>
 Tools in the toolpath are used before
-any of the built-in ones.  For example, adding gcc.py to the toolpath
+any of the built-in ones.  For example, adding
+<filename>gcc.py</filename> to the toolpath
 would override the built-in gcc tool.
 Also note that the toolpath is
 stored in the environment for use
@@ -2149,7 +2129,8 @@ by later calls to
 <emphasis role="bold">Clone</emphasis>()
 and
 <emphasis role="bold">Tool</emphasis>()
-methods:</para>
+methods:
+</para>
 
 <literallayout class="monospaced">
 base = Environment(toolpath=['custom_path'])
@@ -2192,11 +2173,12 @@ or otherwise changing its initialization.</para>
 def generate(env, **kw):
   # Sets MY_TOOL to the value of keyword argument 'arg1' or 1.
   env['MY_TOOL'] = kw.get('arg1', '1')
+
 def exists(env):
-  return 1
+  return True
 
 # in SConstruct:
-env = Environment(tools = ['default', ('my_tool', {'arg1': 'abc'})],
+env = Environment(tools=['default', ('my_tool', {'arg1': 'abc'})],
                   toolpath=['tools'])
 </programlisting>
 
@@ -2215,7 +2197,7 @@ With a nested tool name the dot represents a directory seperator</para>
 
 <programlisting>
 # namespaced builder
-env = Environment(ENV = os.environ, tools = ['SubDir1.SubDir2.SomeTool'])
+env = Environment(ENV=os.environ, tools=['SubDir1.SubDir2.SomeTool'])
 env.SomeTool(targets, sources)
 
 # Search Paths
@@ -2257,90 +2239,108 @@ env.SomeTool(targets, sources)
 <!-- '\" END GENERATED TOOL DESCRIPTIONS -->
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
 
-<para>Additionally, there is a "tool" named
-<emphasis role="bold">default</emphasis>
-which configures the
-environment with a default set of tools for the current platform.</para>
-
-<para>On posix and cygwin platforms
-the GNU tools (e.g. gcc) are preferred by SCons,
-on Windows the Microsoft tools (e.g. msvc)
-followed by MinGW are preferred by SCons,
-and in OS/2 the IBM tools (e.g. icc) are preferred by SCons.</para>
-
 </refsect2>
 
 <refsect2 id='builder_methods'><title>Builder Methods</title>
 
-<para>Build rules are specified by calling a construction
-environment's builder methods.
-The arguments to the builder methods are
-<emphasis role="bold">target</emphasis>
-(a list of targets to be built,
-usually file names)
+<para>You tell <command>scons</command> what to build
+by calling Builders, functions which know to take a
+particular action when given files of a particular type
+to produce a particular result type. <command>scons</command>
+defines a number of builders, and you can also write your own.
+Builders are attached to a &consenv; as methods,
+and the available builder methods are listed as
+key-value pairs in the
+<envar>BUILDERS</envar> attribute of the &consenv;.
+The available builders can be displayed like this
+for debugging purposes:
+</para>
+
+<literallayout class="monospaced">
+print("Builders:", list(env['BUILDERS']))
+</literallayout>
+
+<para>
+Builder methods always take two arguments:
+<replaceable>target</replaceable>
+(a target or a list of targets to be built)
 and
-<emphasis role="bold">source</emphasis>
-(a list of sources to be built,
-usually file names).</para>
+<replaceable>source</replaceable>
+(a source or list of sources to be used as input
+when building),
+although in some circumstances,
+the target argument can actually be omitted (see below).
+Builder methods also take a variety of
+keyword arguments, described below.
+</para>
 
 <para>Because long lists of file names
 can lead to a lot of quoting,
 <command>scons</command>
-supplies a
-<emphasis role="bold">Split()</emphasis>
+supplies a &Split;
 global function
 and a same-named environment method
 that split a single string
 into a list, separated on
 strings of white-space characters.
-(These are similar to the split() member function of Python strings
-but work even if the input isn't a string.)</para>
+(These are similar to the Python string <function>split</function>
+method, but work even if the input isn't a string.)</para>
 
-<para>Like all Python arguments,
-the target and source arguments to a builder method
-can be specified either with or without
-the "target" and "source" keywords.
-When the keywords are omitted,
-the target is first,
-followed by the source.
-The following are equivalent examples of calling the Program builder method:</para>
+<para>
+The target and source arguments to a builder method
+can be specified either as positional arguments,
+in which case the target comes first, or as
+keyword arguments, using <parameter>target=</parameter>
+and <parameter>source=</parameter>.
+The following are equivalent examples of calling the
+&Program; builder method:
+</para>
 
 <literallayout class="monospaced">
 env.Program('bar', ['bar.c', 'foo.c'])
 env.Program('bar', Split('bar.c foo.c'))
 env.Program('bar', env.Split('bar.c foo.c'))
-env.Program(source =  ['bar.c', 'foo.c'], target = 'bar')
-env.Program(target = 'bar', Split('bar.c foo.c'))
-env.Program(target = 'bar', env.Split('bar.c foo.c'))
-env.Program('bar', source = 'bar.c foo.c'.split())
+env.Program(source=['bar.c', 'foo.c'], target='bar')
+env.Program(target='bar', source=Split('bar.c foo.c'))
+env.Program(target='bar', source=env.Split('bar.c foo.c'))
+env.Program('bar', source='bar.c foo.c'.split())
 </literallayout>
 
-<para>Target and source file names
-that are not absolute path names
-(that is, do not begin with
-<emphasis role="bold">/</emphasis>
-on POSIX systems
-or
-<emphasis role="bold">\</emphasis>
-on Windows systems,
-with or without
-an optional drive letter)
-are interpreted relative to the directory containing the
-<emphasis role="bold">SConscript</emphasis>
-file being read.
-An initial
-<emphasis role="bold">#</emphasis>
-(hash mark)
-on a path name means that the rest of the file name
-is interpreted relative to
-the directory containing
-the top-level
-<emphasis role="bold">SConstruct</emphasis>
-file,
-even if the
-<emphasis role="bold">#</emphasis>
-is followed by a directory separator character
-(slash or backslash).</para>
+<para>
+Python follows the POSIX pathname convention for path
+strings: if a string begins with the operating system pathname separator
+(on Windows both the slash and backslash separator work,
+and any leading drive specifier is ignored for
+the determination) it is considered an absolute path,
+otherwise it is a relative path.
+If the path string contains no separator characters,
+it is searched for as a file in the current directory. If it
+contains separator characters, the search follows down
+from the starting point, which is the top of the directory tree for
+an absolute path and the current directory for a relative path.
+</para>
+<para>
+<command>scons</command> recognizes a third way to specify
+path strings: if the string begins with
+the <emphasis role="bold">#</emphasis> character it is
+top-relative - it works like a relative path but the
+search follows down from the directory containing the top-level
+<emphasis role="bold">SConstruct</emphasis> rather than
+from the current directory (the # is allowed
+to be followed by a pathname separator, which is ignored if
+found in that position).
+Top-relative paths only work in places where &scons; will
+interpret the path (see some examples below).  To be
+used in other contexts the string will need to be converted
+to a relative or absolute path first.
+</para>
+
+<para>
+Target and source pathnames can be absolute, relative, or
+top-relative. Relative pathnames are searched considering the
+directory of the <emphasis role="bold">SConscript</emphasis>
+file currently being processed as the "current directory".
+</para>
 
 <para>Examples:</para>
 
@@ -2382,12 +2382,12 @@ executable program
 or
 <emphasis role="bold">bar.exe</emphasis>
 (on Windows systems)
-from the bar.c source file:</para>
+from the <filename>bar.c</filename> source file:</para>
 
 <literallayout class="monospaced">
-env.Program(target = 'bar', source = 'bar.c')
-env.Program('bar', source = 'bar.c')
-env.Program(source = 'bar.c')
+env.Program(target='bar', source='bar.c')
+env.Program('bar', source='bar.c')
+env.Program(source='bar.c')
 env.Program('bar.c')
 </literallayout>
 
@@ -2397,28 +2397,31 @@ keyword argument may be specified
 when calling a Builder.
 When specified,
 all source file strings that are not absolute paths
+or top-relative paths
 will be interpreted relative to the specified
 <emphasis role="bold">srcdir</emphasis>.
 The following example will build the
-<emphasis role="bold">build/prog</emphasis>
+<filename>build/prog</filename>
 (or
-<emphasis role="bold">build/prog.exe</emphasis>
+<filename>build/prog.exe</filename>
 on Windows)
 program from the files
-<emphasis role="bold">src/f1.c</emphasis>
+<filename>src/f1.c</filename>
 and
-<emphasis role="bold">src/f2.c</emphasis>:</para>
+<filename>src/f2.c</filename>:
+</para>
 
 <literallayout class="monospaced">
 env.Program('build/prog', ['f1.c', 'f2.c'], srcdir='src')
 </literallayout>
 
-<para>It is possible to override or add construction variables when calling a
-builder method by passing additional keyword arguments.
-These overridden or added
-variables will only be in effect when building the target, so they will not
-affect other parts of the build. For example, if you want to add additional
-libraries for just one program:</para>
+<para>It is possible to <emphasis>override</emphasis> (replace or add)
+construction variables when calling a
+builder method by passing them as keyword arguments.
+These overrides
+will only be in effect when building that target, and will not
+affect other parts of the build. For example, if you want to specify
+some libraries needed by just one program:</para>
 
 <literallayout class="monospaced">
 env.Program('hello', 'hello.c', LIBS=['gl', 'glut'])
@@ -2438,7 +2441,7 @@ for dependencies on the non-standard library names;
 see the descriptions of these variables, below, for more information.)</para>
 
 <para>It is also possible to use the
-<emphasis>parse_flags</emphasis>
+<emphasis role="bold">parse_flags</emphasis>
 keyword argument in an override,
 to merge command-line style arguments
 into the appropriate construction variables
@@ -2483,8 +2486,7 @@ from SCons.Script import *
 </literallayout>
 
 <para>All builder methods return a list-like object
-containing Nodes that
-represent the target or targets that will be built.
+containing Nodes that will be built.
 A
 <emphasis>Node</emphasis>
 is an internal SCons object
@@ -2496,9 +2498,8 @@ can be passed to other builder methods as source(s)
 or passed to any SCons function or method
 where a filename would normally be accepted.
 For example, if it were necessary
-to add a specific
-<option>-D</option>
-flag when compiling one specific object file:</para>
+to add a specific preprocessor define
+when compiling one specific object file:</para>
 
 <literallayout class="monospaced">
 bar_obj_list = env.StaticObject('bar.c', CPPDEFINES='-DBAR')
@@ -2509,14 +2510,14 @@ env.Program(source = ['foo.c', bar_obj_list, 'main.c'])
 makes for a more portable build
 by avoiding having to specify
 a platform-specific object suffix
-when calling the Program() builder method.</para>
+when calling the &Program; builder method.</para>
 
-<para>Note that Builder calls will automatically "flatten"
+<para>Note that builder calls will automatically "flatten"
 the source and target file lists,
-so it's all right to have the bar_obj list
-return by the StaticObject() call
+so it's all right to have the <literal>bar_obj_list</literal>
+returned by the &StaticObject; call
 in the middle of the source file list.
-If you need to manipulate a list of lists returned by Builders
+If you need to manipulate a list of lists returned by builders
 directly using Python,
 you can either build the list by hand:</para>
 
@@ -2528,8 +2529,7 @@ for object in objects:
     print(str(object))
 </literallayout>
 
-<para>Or you can use the
-<emphasis role="bold">Flatten</emphasis>()
+<para>Or you can use the &Flatten;
 function supplied by scons
 to create a list containing just the Nodes,
 which may be more convenient:</para>
@@ -2542,23 +2542,23 @@ for object in objects:
     print(str(object))
 </literallayout>
 
-<para>Note also that because Builder calls return
+<para>Note also that because builder calls return
 a list-like object, not an actual Python list,
 you should
 <emphasis>not</emphasis>
-use the Python
-<emphasis role="bold">+=</emphasis>
-operator to append Builder results to a Python list.
+use the Python add
+operator (<literal>+</literal> or <literal>+=</literal>)
+to append builder results to a Python list.
 Because the list and the object are different types,
 Python will not update the original list in place,
 but will instead create a new Node-list object
 containing the concatenation of the list
-elements and the Builder results.
+elements and the builder results.
 This will cause problems for any other Python variables
 in your SCons configuration
 that still hold on to a reference to the original list.
-Instead, use the Python
-<markup>.extend()</markup>
+Instead, use the Python list
+<function>extend</function>
 method to make sure the list is updated in-place.
 Example:</para>
 
@@ -2571,14 +2571,14 @@ object_files = []
 #
 # It will not update the object_files list in place.
 #
-# Instead, use the .extend() method:
+# Instead, use the list extend method:
 object_files.extend(Object('bar.c'))
 
 </literallayout>
 
 <para>The path name for a Node's file may be used
-by passing the Node to the Python-builtin
-<function>str()</function>
+by passing the Node to Python's builtin
+<function>str</function>
 function:</para>
 
 <literallayout class="monospaced">
@@ -2588,7 +2588,7 @@ print("The path to bar_obj is:", str(bar_obj_list[0]))
 
 <para>Note again that because the Builder call returns a list,
 we have to access the first element in the list
-<emphasis role="bold">(bar_obj_list[0])</emphasis>
+(<literal>(bar_obj_list[0])</literal>)
 to get at the Node that actually represents
 the object file.</para>
 
@@ -2651,7 +2651,12 @@ to use just the filename portion of the
 targets and source.</para>
 
 <para><command>scons</command>
-provides the following builder methods:</para>
+predefined the following builder methods.
+Depending on the setup of a particular
+&consenv; and on the type and software
+installation status of the underlying system,
+not all builders may be available to that
+&consenv;.</para>
 
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
 <!-- '\" BEGIN GENERATED BUILDER DESCRIPTIONS -->
@@ -3119,11 +3124,12 @@ defined construction variables:</para>
 method of the construction environment:</para>
 
 <literallayout class="monospaced">
-dict = env.Dictionary()
-dict["CC"] = "cc"
+cvars = env.Dictionary()
+cvars["CC"] = "cc"
 </literallayout>
 
-<para>or using the [] operator:</para>
+<para>or using the key lookup operator <literal>[]</literal>
+directly on the construction environment:</para>
 
 <literallayout class="monospaced">
 env["CC"] = "cc"
@@ -4387,7 +4393,7 @@ functions return
 and
 <emphasis>Dir</emphasis>
 Nodes, respectively.
-python objects, respectively.
+Python objects, respectively.
 Those objects have several user-visible attributes
 and methods that are often useful:</para>
 
@@ -4544,7 +4550,7 @@ incl = Dir('include')
 f = incl.File('header.h')
 
 # Get a Node for a subdirectory within a directory
-dist = Dir('project-3.2.1)
+dist = Dir('project-3.2.1')
 src = dist.Dir('src')
 
 # Get a Node for a file in the same directory
@@ -4919,7 +4925,8 @@ the same target file(s). The default is 0, which means the builder
 can not be called multiple times for the same target file(s). Calling a
 builder multiple times for the same target simply adds additional source
 files to the target; it is not allowed to change the environment associated
-with the target, specify addition environment overrides, or associate a different
+with the target, specify additional environment overrides,
+or associate a different
 builder with the target.</para>
 
   </listitem>
@@ -5404,17 +5411,15 @@ a = Action(build_it, varlist=['XXX'])
 </programlisting>
 
 <para>The
-<emphasis role="bold">Action</emphasis>()
+&Action;
 global function
 can be passed the following
 optional keyword arguments
 to modify the Action object's behavior:</para>
 
-
-<para><emphasis role="bold">chdir</emphasis>
-The
-<emphasis role="bold">chdir</emphasis>
-keyword argument specifies that
+<para>
+<replaceable>chdir</replaceable>
+specifies that
 scons will execute the action
 after changing to the specified directory.
 If the
@@ -5459,15 +5464,9 @@ a = Action("build &lt; ${SOURCE.file} &gt; ${TARGET.file}",
            chdir=1)
 </literallayout>
 
-
-<para><emphasis role="bold">exitstatfunc</emphasis>
-The
-<emphasis role="bold">Action</emphasis>()
-global function
-also takes an
-<emphasis role="bold">exitstatfunc</emphasis>
-keyword argument
-which specifies a function
+<para>
+<replaceable>exitstatfunc</replaceable>
+specifies a function
 that is passed the exit status
 (or return value)
 from the specified action
@@ -5489,11 +5488,9 @@ a = Action("build &lt; ${SOURCE.file} &gt; ${TARGET.file}",
 </programlisting>
 
 
-<para><emphasis role="bold">batch_key</emphasis>
-The
-<emphasis role="bold">batch_key</emphasis>
-keyword argument can be used
-to specify that the Action can create multiple target files
+<para>
+<replaceable>batch_key</replaceable>
+specifies that the Action can create multiple target files
 by processing multiple independent source files simultaneously.
 (The canonical example is "batch compilation"
 of multiple object files
@@ -5502,7 +5499,7 @@ to a single invocation of a compiler
 such as Microsoft's Visual C / C++ compiler.)
 If the
 <emphasis role="bold">batch_key</emphasis>
-argument is any non-False, non-callable Python value,
+argument evaluates True and is not a callable object,
 the configured Action object will cause
 <command>scons</command>
 to collect all targets built with the Action object
@@ -5534,7 +5531,7 @@ will be used to identify different
 for batch building.
 A
 <emphasis role="bold">batch_key</emphasis>
-function must take the following arguments:</para>
+function must accept the following arguments:</para>
 
 <variablelist>
   <varlistentry>
@@ -5666,7 +5663,7 @@ sequences of file manipulation
 without relying
 on platform-specific
 external commands:
-that</para>
+</para>
 <literallayout class="monospaced">
 env = Environment(TMPBUILD = '/tmp/builddir')
 env.Command('foo.out', 'foo.in',
@@ -5689,11 +5686,11 @@ which can be octal or string, similar to the bash command.
 Examples:</para>
 
 <literallayout class="monospaced">
-Execute(Chmod('file', 0755))
+Execute(Chmod('file', 0o755))
 
 env.Command('foo.out', 'foo.in',
             [Copy('$TARGET', '$SOURCE'),
-             Chmod('$TARGET', 0755)])
+             Chmod('$TARGET', 0o755)])
 
 Execute(Chmod('file', "ugo+w"))
 
@@ -5826,13 +5823,13 @@ env.Command('marker', 'input_file',
 
 <para>Before executing a command,
 <command>scons</command>
-performs construction variable interpolation on the strings that make up
-the command line of builders.
-Variables are introduced by a
-<emphasis role="bold">$</emphasis>
+performs construction variable interpolation on the string that makes up
+the command line of the builder.
+Variables are introduced in such strings by a
+<literal>$</literal>
 prefix.
-Besides construction variables, scons provides the following
-variables for each command execution:</para>
+Besides regular construction variables, scons provides the following
+special variables for each command execution:</para>
 
 <variablelist>
   <varlistentry>
@@ -5901,15 +5898,19 @@ from sources that have
 <emphasis>not</emphasis>
 changed since the target was last built.</para>
 
-<para>(Note that the above variables are reserved
-and may not be set in a construction environment.)</para>
-
   </listitem>
   </varlistentry>
 </variablelist>
 
-<para>For example, given the construction variable CC='cc', targets=['foo'], and
-sources=['foo.c', 'bar.c']:</para>
+<para>Note that the above variables are reserved
+and may not be set in a construction environment.</para>
+
+<para>For example, given the construction variables
+<literal>CC='cc'</literal>,
+<literal>targets=['foo']</literal>
+and
+<literal>sources=['foo.c', 'bar.c']</literal>:
+</para>
 
 <literallayout class="monospaced">
 action='$CC -c -o $TARGET $SOURCES'
@@ -5921,8 +5922,10 @@ action='$CC -c -o $TARGET $SOURCES'
 cc -c -o foo foo.c bar.c
 </literallayout>
 
-<para>Variable names may be surrounded by curly braces ({})
-to separate the name from the trailing characters.
+<para>Variable names may be surrounded by curly braces 
+<emphasis role="bold">{ }</emphasis>
+to separate the name from surrounding characters which
+are not part of the name.
 Within the curly braces, a variable name may have
 a Python slice subscript appended to select one
 or more items from a list.
@@ -6085,20 +6088,42 @@ may be a callable Python function
 associated with a
 construction variable in the environment.
 The function should
-take four arguments:
-<emphasis>target</emphasis>
-- a list of target nodes,
-<emphasis>source</emphasis>
-- a list of source nodes,
-<emphasis>env</emphasis>
-- the construction environment,
-<emphasis>for_signature</emphasis>
-- a Boolean value that specifies
+accept four arguments:
+</para>
+<variablelist>
+  <varlistentry>
+  <term><replaceable>target</replaceable></term>
+  <listitem>
+<para>a list of target nodes</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><replaceable>source</replaceable></term>
+  <listitem>
+<para>a list of source nodes</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><replaceable>env</replaceable></term>
+  <listitem>
+<para>the construction environment</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><replaceable>for_signature</replaceable></term>
+  <listitem>
+<para>a Boolean value that specifies
 whether the function is being called
-for generating a build signature.
+for generating a build signature. </para>
+  </listitem>
+  </varlistentry>
+</variablelist>
+
+<para>
 SCons will insert whatever
 the called function returns
-into the expanded string:</para>
+into the expanded string:
+</para>
 
 <programlisting>
 def foo(target, source, env, for_signature):
@@ -6179,9 +6204,12 @@ echo Last build occurred  . &gt; $TARGET
 
 <refsect2 id='python_code_substitution'><title>Python Code Substitution</title>
 
-<para>Any python code within
-<emphasis role="bold">${</emphasis>-<emphasis role="bold">}</emphasis>
-pairs gets evaluated by python 'eval', with the python globals set to
+<para>
+Any Python code within curly braces
+<emphasis role="bold">{ }</emphasis>
+and introduced by the variable prefix <emphasis role="bold">$</emphasis>
+gets evaluated by the Python <function>eval</function> statement,
+with the Python globals set to
 the current environment's set of construction variables.
 So in the following case:</para>
 <literallayout class="monospaced">
@@ -6197,14 +6225,20 @@ echo FOO &gt; foo.out
 <literallayout class="monospaced">
 echo BAR &gt; foo.out
 </literallayout>
-<para>according to the current value of env['COND'] when the command is
-executed.  The evaluation occurs when the target is being
-built, not when the SConscript is being read.  So if env['COND'] is changed
+<para>according to the current value of <literal>env['COND']</literal>
+when the command is executed.
+The evaluation takes place when the target is being
+built, not when the SConscript is being read.  So if
+<literal>env['COND']</literal> is changed
 later in the SConscript, the final value will be used.</para>
 
-<para>Here's a more interesting example.  Note that all of COND, FOO, and
-BAR are environment variables, and their values are substituted into
-the final command.  FOO is a list, so its elements are interpolated
+<para>Here's a more interesting example.  Note that all of
+<envar>COND</envar>,
+<envar>FOO</envar>,
+and
+<envar>BAR</envar> are construction variables,
+and their values are substituted into the final command.
+<envar>FOO</envar> is a list, so its elements are interpolated
 separated by spaces.</para>
 
 <literallayout class="monospaced">
@@ -6315,7 +6349,8 @@ might not exist
 argument is the construction environment for the scan.
 Fetch values from it using the
 <emphasis role="bold">env.Dictionary()</emphasis>
-method.</para>
+method or using the key lookup operator
+directly on the construction environment.</para>
 
 <para>The
 <emphasis role="bold">path</emphasis>
@@ -6551,9 +6586,10 @@ do this, in part,
 by sharing an ability to interpret UNIX-like path names.
 For example, the Cygwin tools
 will internally translate a Cygwin path name
-like /cygdrive/c/mydir
+like <filename>/cygdrive/c/mydir</filename>
 to an equivalent Windows pathname
-of C:/mydir (equivalent to C:\mydir).</para>
+of <filename>C:/mydir</filename> (equivalent to <filename>C:\mydir</filename>).
+</para>
 
 <para>Versions of Python
 that are built for native Windows execution,
@@ -6561,7 +6597,8 @@ such as the python.org and ActiveState versions,
 do not have the Cygwin path name semantics.
 This means that using a native Windows version of Python
 to build compiled programs using Cygwin tools
-(such as gcc, bison, and flex)
+(such as <command>gcc</command>, <command>bison</command>,
+and <command>flex</command>)
 may yield unpredictable results.
 "Mixing and matching" in this way
 can be made to work,
@@ -6771,7 +6808,7 @@ env['BUILDERS]['PDFBuilder'] = bld
 
 <refsect2 id='defining_your_own_scanner_object'><title>Defining Your Own Scanner Object</title>
 
-<para>The following example shows an extremely simple scanner (the
+<para>The following example shows adding an extremely simple scanner (the
 <emphasis role="bold">kfile_scan</emphasis>()
 function)
 that doesn't use a search path at all
@@ -6796,8 +6833,10 @@ kscan = Scanner(name = 'kfile',
                 function = kfile_scan,
                 argument = None,
                 skeys = ['.k'])
-scanners = Environment().Dictionary('SCANNERS')
-env = Environment(SCANNERS = scanners + [kscan])
+
+scanners = DefaultEnvironment()['SCANNERS']
+scanners.append(kscan)
+env = Environment(SCANNERS=scanners)
 
 env.Command('foo', 'foo.k', 'kprocess &lt; $SOURCES &gt; $TARGET')
 
@@ -6814,7 +6853,8 @@ you can use the
 function of your current Environment in order to create nodes on the fly from
 a sequence of file names with relative paths.</para>
 
-<para>Here is a similar but more complete example that searches
+<para>Here is a similar but more complete example that adds
+a scanner which searches
 a path of directories
 (specified as the
 <emphasis role="bold">MYPATH</emphasis>
@@ -6840,15 +6880,16 @@ def my_scan(node, env, path, arg):
                 break
     return env.File(results)
 
-scanner = Scanner(name = 'myscanner',
-                 function = my_scan,
-                 argument = None,
-                 skeys = ['.x'],
-                 path_function = FindPathDirs('MYPATH')
+scanner = Scanner(name='myscanner',
+                  function=my_scan,
+                  argument=None,
+                  skeys=['.x'],
+                  path_function=FindPathDirs('MYPATH')
                  )
-scanners = Environment().Dictionary('SCANNERS')
-env = Environment(SCANNERS = scanners + [scanner],
-                  MYPATH = ['incs'])
+
+scanners = DefaultEnvironment()['SCANNERS']
+scanners.append(scanner)
+env = Environment(SCANNERS=scanners, MYPATH=['incs'])
 
 env.Command('foo', 'foo.x', 'xprocess &lt; $SOURCES &gt; $TARGET')
 </programlisting>
@@ -6861,8 +6902,8 @@ that will return a list of directories
 specified in the
 <emphasis role="bold">$MYPATH</emphasis>
 construction variable. It lets SCons detect the file
-<emphasis role="bold">incs/foo.inc</emphasis>
-, even if
+<emphasis role="bold">incs/foo.inc</emphasis>,
+even if
 <emphasis role="bold">foo.x</emphasis>
 contains the line
 <emphasis role="bold">include foo.inc</emphasis>
@@ -6883,17 +6924,18 @@ def pf(env, dir, target, source, arg):
             results.append(top_dir + os.sep + p)
     return results
 
-scanner = Scanner(name = 'myscanner',
-                 function = my_scan,
-                 argument = None,
-                 skeys = ['.x'],
-                 path_function = pf
+scanner = Scanner(name='myscanner',
+                  function=my_scan,
+                  argument=None,
+                  skeys=['.x'],
+                  path_function=pf
                  )
 </programlisting>
 
 </refsect2>
 
-<refsect2 id='creating_a_hierarchical_build'><title>Creating a Hierarchical Build</title>
+<refsect2 id='creating_a_hierarchical_build'>
+<title>Creating a Hierarchical Build</title>
 
 <para>Notice that the file names specified in a subdirectory's
 SConscript
@@ -6982,7 +7024,7 @@ value each time we call the SConscript function.</para>
 <programlisting>
 SConstruct:
 
-    env = Environment(LIBPATH = ['#libA', '#libB'])
+    env = Environment(LIBPATH=['#libA', '#libB'])
     Export('env')
     SConscript('libA/SConscript')
     SConscript('libB/SConscript')
@@ -7001,7 +7043,7 @@ libB/SConscript:
 Main/SConscript:
 
     Import('env')
-    e = env.Copy(LIBS = ['a', 'b'])
+    e = env.Clone(LIBS=['a', 'b'])
     e.Program('foo', Split('m1.c m2.c m3.c'))
 </programlisting>
 
@@ -7126,22 +7168,62 @@ env.Program('MyApp', ['Foo.cpp', 'Bar.cpp'])
 </refsect1>
 
 <refsect1 id='environment'><title>ENVIRONMENT</title>
+
+<para>In general, &scons; is not controlled by environment
+variables set in the shell used to invoke it, leaving it
+up to the SConscript file author to import those if desired.
+However the following variables are imported by
+&scons; itself if set:
+</para>
+
 <variablelist>
   <varlistentry>
-  <term>SCONS_LIB_DIR</term>
-  <listitem>
-<para>Specifies the directory that contains the SCons Python module directory
-(e.g. /home/aroach/scons-src-0.01/src/engine).</para>
-
-  </listitem>
+    <term>SCONS_LIB_DIR</term>
+    <listitem>
+<para>Specifies the directory that contains the &scons;
+Python module directory (for example,
+<filename>/home/aroach/scons-src-0.01/src/engine</filename>).</para>
+    </listitem>
   </varlistentry>
-  <varlistentry>
-  <term>SCONSFLAGS</term>
-  <listitem>
-<para>A string of options that will be used by scons in addition to those passed
-on the command line.</para>
 
-  </listitem>
+  <varlistentry>
+    <term>SCONSFLAGS</term>
+    <listitem>
+<para>A string of options that will be used by &scons;
+in addition to those passed on the command line.</para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>SCONS_CACHE_MSVC_CONFIG</term>
+    <listitem>
+<para>(Windows only). If set, save the shell environment variables
+generated when setting up the Microsoft Visual C++ compiler
+(and/or Build Tools) to a file to give these settings, 
+which are expensive to generate, persistence
+across &scons; invocations.
+Use of this option is primarily intended to aid performance
+in tightly controlled Continuous Integration setups.</para>
+
+<para>If set to a True-like value (<literal>"1"</literal>,
+<literal>"true"</literal> or
+<literal>"True"</literal>) will cache to a file named
+<filename>.scons_msvc_cache</filename> in the user's home directory.
+If set to a pathname, will use that pathname for the cache.</para>
+
+<para>Note: use this cache with caution as it
+might be somewhat fragile: while each major toolset version
+(e.g. Visual Studio 2017 vs 2019) and architecture pair will get separate
+cache entries, if toolset updates cause a change
+to settings within a given release series, &scons; will not
+detect the change and will reuse old settings.
+Remove the cache file in case of problems with this.
+&scons; will ignore failures reading or writing the file
+and will silently revert to non-cached behavior in such cases.</para>
+
+<para>Since &scons; 3.1.</para>
+
+    </listitem>
   </varlistentry>
 </variablelist>
 </refsect1>
@@ -7157,8 +7239,9 @@ source code.</para>
 </refsect1>
 
 <refsect1 id='authors'><title>AUTHORS</title>
-<para>Originally: Steven Knight &lt;knight@baldmt.com&gt; and Anthony Roach &lt;aroach@electriceyeball.com&gt;
-Since 2010: The SCons Development Team &lt;scons-dev@scons.org&gt;
+<para>Originally: Steven Knight <email>knight@baldmt.com</email>
+and Anthony Roach <email>aroach@electriceyeball.com</email>.
+Since 2010: The SCons Development Team <email>scons-dev@scons.org</email>.
 </para>
 </refsect1>
 </refentry>

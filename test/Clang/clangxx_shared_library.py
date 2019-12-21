@@ -44,6 +44,9 @@ elif platform == 'darwin':
 elif platform == 'win32':
     filename_options = ['foo.obj','foo.os']
     libraryname = 'foo.dll'
+elif platform == 'sunos':
+    filename_options = ['foo.pic.o']
+    libraryname = 'libfoo.so'
 else:
     test.fail_test()
 

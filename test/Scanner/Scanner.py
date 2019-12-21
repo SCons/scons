@@ -60,7 +60,7 @@ test.write('SConstruct', """
 SConscript('SConscript')
 """, mode='w')
 
-test.write('SConscript', """
+test.write('SConscript', r"""
 import re
 
 include_re = re.compile(r'^include\s+(\S+)\s*$', re.M)
@@ -137,7 +137,7 @@ Alias('make_ork', ork)
 
 """ % locals(),mode='w')
 
-test.write('foo.k', 
+test.write('foo.k',
 """foo.k 1 line 1
 include xxx
 include yyy
@@ -151,7 +151,7 @@ bar.in 1 line 3
 include zzz
 """, mode='w')
 
-test.write('junk.k2', 
+test.write('junk.k2',
 """include yyy
 junk.k2 1 line 2
 junk.k2 1 line 3

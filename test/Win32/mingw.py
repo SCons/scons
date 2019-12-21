@@ -52,7 +52,7 @@ sys.exit(0)
 """)
 
 test.run()
-if test.stdout().find('mingw exists') == -1:
+if 'mingw exists' not in test.stdout():
     test.skip_test("No MinGW on this system, skipping test.\n")
 
 test.subdir('header')
@@ -76,8 +76,8 @@ void shared_func(void);
 void static_func(void);
 extern "C" void cshared_func(void);
 
-int main(void) 
-{ 
+int main(void)
+{
     printf("%s\\n", "test.cpp");
     shared_func();
     static_func();
@@ -95,7 +95,7 @@ test.write('resource.rc', '''
 #include "resource.h"
 #include <resource2.h>
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     IDS_TEST RESOURCE_RC
 END
@@ -148,8 +148,8 @@ test.write('header/resource2.h', '''
 # that comes out of stderr:
 test.run(arguments='test.exe', stderr='.*')
 # ensure the source def for cshared.def got used, and there wasn't a target def for chshared.dll:
-test.fail_test(test.stdout().find('cshared.def') == -1)
-test.fail_test(test.stdout().find('-Wl,--output-def,cshared.def') != -1)
+test.fail_test('cshared.def' not in test.stdout())
+test.fail_test('-Wl,--output-def,cshared.def' in test.stdout())
 # ensure the target def got generated for the shared.dll:
 test.fail_test(not os.path.exists(test.workpath('cshared.def')))
 test.fail_test(os.path.exists(test.workpath('shared.def')))
@@ -176,8 +176,8 @@ test.write('test.cpp', '''
 
 void shared_func(void);
 
-int main(void) 
-{ 
+int main(void)
+{
     printf("%s\\n", "test.cpp2");
     shared_func();
     return 0;

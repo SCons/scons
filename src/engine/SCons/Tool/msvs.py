@@ -652,7 +652,7 @@ class _GenerateV6DSP(_DSPGenerator):
             for base in ("BASE ",""):
                 self.file.write('# PROP %sUse_MFC 0\n'
                                 '# PROP %sUse_Debug_Libraries ' % (base, base))
-                if kind.lower().find('debug') < 0:
+                if 'debug' not in kind.lower():
                     self.file.write('0\n')
                 else:
                     self.file.write('1\n')
@@ -731,7 +731,7 @@ class _GenerateV6DSP(_DSPGenerator):
         line = dspfile.readline()
         # skip until marker
         while line:
-            if line.find("# End Project") > -1:
+            if "# End Project" in line:
                 break
             line = dspfile.readline()
 
@@ -1049,7 +1049,7 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
         line = dspfile.readline()
         # skip until marker
         while line:
-            if line.find('<!-- SCons Data:') > -1:
+            if '<!-- SCons Data:' in line:
                 break
             line = dspfile.readline()
 

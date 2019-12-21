@@ -144,7 +144,7 @@ test.must_not_contain(test.workpath('config.log'), "TypeError: 'NoneType' object
 # This fixes an issue where --config=force overwrites the Environments decider and is not reset when
 # the configure context is done.
 # https://github.com/SCons/scons/issues/3303
-test.fail_test(test.stdout().find('test_main.o') != -1)
+test.fail_test('test_main.o' in test.stdout())
 
 test.pass_test()
 

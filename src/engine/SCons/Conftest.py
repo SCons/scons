@@ -290,6 +290,10 @@ char %s();""" % function_name
 #include <assert.h>
 %(hdr)s
 
+#if _MSC_VER && !__INTEL_COMPILER
+    #pragma function(%(name)s)
+#endif
+
 int main(void) {
 #if defined (__stub_%(name)s) || defined (__stub___%(name)s)
   fail fail fail
