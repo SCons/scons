@@ -15,6 +15,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Mats Wichmann:
     - Remove deprecated SourceCode
+    - str.format syntax errors fixed
 
 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
