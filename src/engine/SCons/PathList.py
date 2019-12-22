@@ -128,8 +128,13 @@ class _PathList(object):
         result = []
         for type, value in self.pathlist:
             if type == TYPE_STRING_SUBST:
-                value = env.subst(value, target=target, source=source,
-                                  conv=node_conv)
+                # We override conv below to use absolute paths when possible.
+                # This avoids problems with relative paths when the target's
+                # working directory is different than the FS object's working
+                # directory.
+                value = env.subst(
+                    value, target=target, source=source,
+                    conv=lambda x: x.abspath if hasattr(x, 'abspath') else x)
                 if SCons.Util.is_Sequence(value):
                     result.extend(SCons.Util.flatten(value))
                 elif value:
