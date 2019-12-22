@@ -61,7 +61,7 @@ def _is_path_in(path, base):
     if not path or not base: # empty path may happen, base too
         return False
     rp = os.path.relpath(path, base)
-    return ((not rp.startswith(os.path.pardir)) and (not rp == os.path.curdir))
+    return (not rp.startswith(os.path.pardir)) and (not rp == os.path.curdir)
 
 
 def _inject_venv_variables(env):

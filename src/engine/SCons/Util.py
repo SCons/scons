@@ -392,7 +392,7 @@ except NameError:
 try:
     BaseStringTypes = (str, unicode)
 except NameError:
-    BaseStringTypes = (str)
+    BaseStringTypes = str
 
 def is_Dict(obj, isinstance=isinstance, DictTypes=DictTypes):
     return isinstance(obj, DictTypes)

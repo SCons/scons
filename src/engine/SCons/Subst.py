@@ -754,7 +754,7 @@ _list_remove = [ _rm_list, None, _remove_list ]
 #
 _dollar_exps_str = r'\$[\$\(\)]|\$[_a-zA-Z][\.\w]*|\${[^}]*}'
 _dollar_exps = re.compile(r'(%s)' % _dollar_exps_str)
-_separate_args = re.compile(r'(%s|\s+|[^\s\$]+|\$)' % _dollar_exps_str)
+_separate_args = re.compile(r'(%s|\s+|[^\s$]+|\$)' % _dollar_exps_str)
 
 # This regular expression is used to replace strings of multiple white
 # space characters in the string result from the scons_subst() function.

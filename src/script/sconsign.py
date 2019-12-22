@@ -524,7 +524,7 @@ def Do_SConsignDir(name):
             except KeyboardInterrupt:
                 raise
             except pickle.UnpicklingError:
-                err = "sconsign: ignoring invalid .sconsign file `%s'\n" % (name)
+                err = "sconsign: ignoring invalid .sconsign file `%s'\n" % name
                 sys.stderr.write(err)
                 return
             except Exception as e:
