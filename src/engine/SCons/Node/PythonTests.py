@@ -132,6 +132,18 @@ class ValueMemoTestCase(unittest.TestCase):
         v2 = SCons.Node.Python.Value('c', 'ca')
         assert v1 is not v2
 
+    def test_non_primitive_values(self):
+        """Confirm that non-primitive values are not memoized."""
+        d = {'a': 1}
+        v1 = SCons.Node.Python.Value(d)
+        v2 = SCons.Node.Python.Value(d)
+        assert v1 is not v2
+
+        l = [1]
+        v3 = SCons.Node.Python.Value(l)
+        v4 = SCons.Node.Python.Value(l)
+        assert v3 is not v4
+
 if __name__ == "__main__":
     unittest.main()
 

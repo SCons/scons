@@ -184,6 +184,11 @@ def ValueWithMemo(value, built_value=None):
     if built_value:
         return Value(value, built_value)
 
+    # No current support for memoizing non-primitive types in case they change
+    # after this call.
+    if not isinstance(value, (int, str, float, bool)):
+        return Value(value, built_value)
+
     value_str = str(value)
     if value_str in _memoLookupMap:
         return _memoLookupMap[value_str]
