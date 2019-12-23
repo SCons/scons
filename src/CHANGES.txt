@@ -12,6 +12,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Improve performance of Subst by preventing unnecessary frame
       allocations by no longer defining the *Subber classes inside of their
       respective function calls.
+    - Improve performance of Subst in some cases by preventing
+      unnecessary calls to eval when a token is surrounded in braces
+      but is not a function call.
 
   From Mats Wichmann:
     - Remove deprecated SourceCode
