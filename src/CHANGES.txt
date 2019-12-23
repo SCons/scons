@@ -24,6 +24,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Improve performance of Subst in some cases by preventing
       unnecessary calls to eval when a token is surrounded in braces
       but is not a function call.
+    - Improve performance of subst by removing unnecessary recursion.
 
   From Mats Wichmann:
     - Remove deprecated SourceCode
