@@ -63,7 +63,7 @@ for o, a in opts:
     elif o in ('-r', '--recursive'):
         recursive = True
         diff_options.append(o)
-    elif o '-s':
+    elif o == '-s':
         report_same = True
 
 try:
