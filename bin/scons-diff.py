@@ -54,16 +54,16 @@ for o, a in opts:
     elif o in ('-h', '--help'):
         print(Usage)
         sys.exit(0)
-    elif o in ('-n',):
+    elif o == '-n':
         diff_options.append(o)
         edit_type = o
-    elif o in ('-q',):
+    elif o == '-q':
         diff_type = o
         diff_line = lambda l, r: None
     elif o in ('-r', '--recursive'):
         recursive = True
         diff_options.append(o)
-    elif o in ('-s',):
+    elif o '-s':
         report_same = True
 
 try:
