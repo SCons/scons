@@ -766,12 +766,12 @@ def msvc_find_valid_batch_script(env, version):
                 vc_script=None
                 continue
         if not vc_script and sdk_script:
-            debug('msvc_find_valid_batch_script() use_script 4: trying sdk script: %s'%(sdk_script))
+            debug('msvc_find_valid_batch_script() use_script 4: trying sdk script: %s' % sdk_script)
             try:
                 d = script_env(sdk_script)
                 found = sdk_script
             except BatchFileExecutionError as e:
-                debug('msvc_find_valid_batch_script() use_script 5: failed running SDK script %s: Error:%s'%(repr(sdk_script),e))
+                debug('msvc_find_valid_batch_script() use_script 5: failed running SDK script %s: Error:%s'%(repr(sdk_script), e))
                 continue
         elif not vc_script and not sdk_script:
             debug('msvc_find_valid_batch_script() use_script 6: Neither VC script nor SDK script found')

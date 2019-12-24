@@ -2247,7 +2247,7 @@ class Base(SubstitutionEnvironment):
         build_source(node.all_children())
 
         def final_source(node):
-            while (node != node.srcnode()):
+            while node != node.srcnode():
               node = node.srcnode()
             return node
         sources = list(map(final_source, sources))

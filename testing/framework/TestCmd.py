@@ -667,7 +667,7 @@ def diff_re(a, b, fromfile='', tofile='',
 
 if os.name == 'posix':
     def escape(arg):
-        "escape shell special characters"
+        """escape shell special characters"""
         slash = '\\'
         special = '"$'
         arg = arg.replace(slash, slash + slash)

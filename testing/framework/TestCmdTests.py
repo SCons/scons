@@ -121,8 +121,8 @@ class TestCmdTestCase(unittest.TestCase):
         else:
             textx = '#! /usr/bin/env python\n' + textx + '\n'
         text1 = 'A first line to be ignored!\n' + fmt % (t.script1, t.script1)
-        textout = fmtout % (t.scriptout)
-        texterr = fmterr % (t.scripterr)
+        textout = fmtout % t.scriptout
+        texterr = fmterr % t.scripterr
 
         run_env = TestCmd.TestCmd(workdir = '')
         run_env.subdir('sub dir')
@@ -1974,7 +1974,7 @@ class run_verbose_TestCase(TestCmdTestCase):
                 assert expect == o, (expect, o)
 
                 e = sys.stderr.getvalue()
-                expect = 'python "%s" "arg1 arg2"\n' % (t.scriptout_path)
+                expect = 'python "%s" "arg1 arg2"\n' % t.scriptout_path
                 assert e == expect, (e, expect)
 
             test = TestCmd.TestCmd(program = t.scriptout,
@@ -1993,7 +1993,7 @@ class run_verbose_TestCase(TestCmdTestCase):
                 assert expect == o, (expect, o)
 
                 e = sys.stderr.getvalue()
-                expect = 'python "%s" "arg1 arg2"\n' % (t.scriptout_path)
+                expect = 'python "%s" "arg1 arg2"\n' % t.scriptout_path
                 assert e == expect, (e, expect)
 
             # Test letting TestCmd() pick up verbose = 2 from the environment.

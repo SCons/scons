@@ -34,9 +34,9 @@ def adjustColumnWidths(ctx, nodeset):
     # Get the nominal table width
     varString = lookupVariable(tctxt, "nominal.table.width", None)
     if varString is None:
-        nominalWidth = 6 * pixelsPerInch;
+        nominalWidth = 6 * pixelsPerInch
     else:
-        nominalWidth = convertLength(varString);
+        nominalWidth = convertLength(varString)
 
     # Get the requested table width
     tableWidth = lookupVariable(tctxt, "table.width", "100%")
@@ -161,7 +161,7 @@ def convertLength(length):
     global pixelsPerInch
     global unitHash
 
-    m = re.search('([+-]?[\d\.]+)(\S+)', length)
+    m = re.search('([+-]?[\d.]+)(\S+)', length)
     if m is not None and m.lastindex > 1:
         unit = pixelsPerInch
         if m.group(2) in unitHash:

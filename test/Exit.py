@@ -121,7 +121,7 @@ exit_builder(["%s"], ["%s"])
 """ % (subdir_foo_out, subdir_foo_in), error=1),
          stderr = """\
 scons: *** [%s] Explicit exit, status 27
-""" % (subdir_foo_out))
+""" % subdir_foo_out)
 
 test.must_match(['subdir', 'foo.out'], "subdir/foo.in\n")
 

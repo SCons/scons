@@ -134,7 +134,7 @@ test.run(arguments = my_obj, stderr=None)
 
 expect = my_obj.replace( '/', os.sep )
 test.up_to_date(options = '--debug=explain',
-                arguments = (expect),
+                arguments =expect,
                 stderr=None)
 
 test.pass_test()

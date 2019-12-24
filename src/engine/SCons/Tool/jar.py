@@ -158,7 +158,7 @@ def Jar(env, target = None, source = [], *args, **kw):
     #       files.
     def dir_to_class(s):
         dir_targets = env.JavaClassDir(source = s, *args, **kw)
-        if(dir_targets == []):
+        if dir_targets == []:
             # no classes files could be built from the source dir
             # so pass the dir as is.
             return [env.fs.Dir(s)]
