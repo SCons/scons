@@ -581,7 +581,7 @@ class BuilderTestCase(unittest.TestCase):
         assert b5.src_suffixes(env) == ['.y'], b5.src_suffixes(env)
 
     def test_srcsuffix_nonext(self):
-        "Test target generation from non-extension source suffixes"
+        """Test target generation from non-extension source suffixes"""
         env = Environment()
         b6 = SCons.Builder.Builder(action = '',
                                    src_suffix='_src.a',
@@ -679,7 +679,7 @@ class BuilderTestCase(unittest.TestCase):
             """create the file"""
             with open(str(target[0]), "w"):
                 pass
-            if (len(source) == 1 and len(target) == 1):
+            if len(source) == 1 and len(target) == 1:
                 env['CNT'][0] = env['CNT'][0] + 1
 
         env = Environment()

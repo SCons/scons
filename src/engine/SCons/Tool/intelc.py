@@ -318,7 +318,7 @@ def get_intel_compiler_top(version, abi):
         if not os.path.exists(os.path.join(top, "Bin", "icl.exe")) \
               and not os.path.exists(os.path.join(top, "Bin", abi, "icl.exe")) \
               and not os.path.exists(os.path.join(top, "Bin", archdir, "icl.exe")):
-            raise MissingDirError("Can't find Intel compiler in %s"%(top))
+            raise MissingDirError("Can't find Intel compiler in %s" % top)
     elif is_mac or is_linux:
         def find_in_2008style_dir(version):
             # first dir is new (>=9.0) style, second is old (8.0) style.

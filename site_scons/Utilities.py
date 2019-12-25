@@ -7,7 +7,7 @@ import distutils.util
 platform = distutils.util.get_platform()
 
 def is_windows():
-    " Check if we're on a Windows platform"
+    """ Check if we're on a Windows platform"""
     if platform.startswith('win'):
         return True
     else:

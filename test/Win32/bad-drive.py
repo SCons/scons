@@ -53,7 +53,7 @@ for d in reversed(ascii_uppercase):
 if bad_drive is None:
     print("All drive letters appear to be in use.")
     print("Cannot test SCons handling of invalid Windows drive letters.")
-    test.no_result(1);
+    test.no_result(1)
 
 test.write('SConstruct', """
 def cat(env, source, target):

@@ -133,8 +133,8 @@ class SubstTestCase(unittest.TestCase):
             return self.value
 
     # only use of this is currently commented out below
-    def function_foo(arg):
-        pass
+    #def function_foo(arg):
+    #    pass
 
     target = [ MyNode("./foo/bar.exe"),
                MyNode("/bar/baz with spaces.obj"),
@@ -207,7 +207,7 @@ class SubstTestCase(unittest.TestCase):
         'S'         : 'x y',
         'LS'        : ['x y'],
         'L'         : ['x', 'y'],
-        'TS'        : ('x y'),
+        'TS'        : ('x y',),
         'T'         : ('x', 'y'),
         'CS'        : cs,
         'CL'        : cl,

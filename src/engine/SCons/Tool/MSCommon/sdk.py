@@ -110,12 +110,12 @@ class SDKDefinition(object):
         """ Return the script to initialize the VC compiler installed by SDK
         """
 
-        if (host_arch == 'amd64' and target_arch == 'x86'):
+        if host_arch == 'amd64' and target_arch == 'x86':
             # No cross tools needed compiling 32 bits on 64 bit machine
             host_arch=target_arch
 
         arch_string=target_arch
-        if (host_arch != target_arch):
+        if host_arch != target_arch:
             arch_string='%s_%s'%(host_arch,target_arch)
 
         debug("get_sdk_vc_script():arch_string:%s host_arch:%s target_arch:%s"%(arch_string,

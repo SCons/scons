@@ -817,7 +817,7 @@ class TestSCons(TestCommon):
         sp = subprocess.Popen([where_java_bin, "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = sp.communicate()
         sp.wait()
-        if("No Java runtime" in str(stderr)):
+        if "No Java runtime" in str(stderr):
             self.skip_test("Could not find Java " + java_bin_name + ", skipping test(s).\n")
 
     def java_where_jar(self, version=None):
