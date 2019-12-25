@@ -830,7 +830,7 @@ def create_scons_output(e):
         # regardless of reported addresses or Python version.
 
         # Massage addresses in object repr strings to a constant.
-        address_re = re.compile(r' at 0x[0-9a-fA-F]*\>')
+        address_re = re.compile(r' at 0x[0-9a-fA-F]*>')
 
         # Massage file names in stack traces (sometimes reported as absolute
         # paths) to a consistent relative path.

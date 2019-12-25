@@ -146,13 +146,9 @@ except KeyError:
 if DEBUG: print('copyright years', copyright_years)
 
 class UpdateFile(object):
-    """
-    XXX
-    """
+    """ XXX """
 
     def __init__(self, file, orig = None):
-        '''
-        '''
         if orig is None: orig = file
         try:
             with open(orig, 'r') as f:
@@ -171,15 +167,11 @@ class UpdateFile(object):
                 self.orig = ''
 
     def sub(self, pattern, replacement, count = 1):
-        '''
-        XXX
-        '''
+        """ XXX """
         self.content = re.sub(pattern, replacement, self.content, count)
 
     def replace_assign(self, name, replacement, count = 1):
-        '''
-        XXX
-        '''
+        """ XXX """
         self.sub('\n' + name + ' = .*', '\n' + name + ' = ' + replacement)
 
     # Determine the pattern to match a version
@@ -189,9 +181,7 @@ class UpdateFile(object):
     match_rel = re.compile(match_pat)
 
     def replace_version(self, replacement = version_string, count = 1):
-        '''
-        XXX
-        '''
+        """ XXX """
         self.content = self.match_rel.sub(replacement, self.content, count)
 
     # Determine the release date and the pattern to match a date
@@ -213,15 +203,11 @@ class UpdateFile(object):
     match_date = re.compile(match_date)
 
     def replace_date(self, replacement = new_date, count = 1):
-        '''
-        XXX
-        '''
+        """ XXX """
         self.content = self.match_date.sub(replacement, self.content, count)
 
     def __del__(self):
-        '''
-        XXX
-        '''
+        """ XXX """
         if self.file is not None and self.content != self.orig:
             print('Updating ' + self.file + '...')
             with open(self.file, 'w') as f:

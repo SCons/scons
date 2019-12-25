@@ -172,9 +172,9 @@ def makeHierarchy(sources):
     return hierarchy
 
 class _UserGenerator(object):
-    '''
+    """
     Base class for .dsp.user file generator
-    '''
+    """
     # Default instance values.
     # Ok ... a bit defensive, but it does not seem reasonable to crash the
     # build for a workspace user file. :-)
@@ -980,7 +980,7 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
             if SCons.Util.is_Dict(value):
                 self.file.write('\t\t\t<Filter\n'
                                 '\t\t\t\tName="%s"\n'
-                                '\t\t\t\tFilter="">\n' % (key))
+                                '\t\t\t\tFilter="">\n' % key)
                 self.printSources(value, commonprefix)
                 self.file.write('\t\t\t</Filter>\n')
 
@@ -992,7 +992,7 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
                 file = os.path.normpath(file)
                 self.file.write('\t\t\t<File\n'
                                 '\t\t\t\tRelativePath="%s">\n'
-                                '\t\t\t</File>\n' % (file))
+                                '\t\t\t</File>\n' % file)
 
     def PrintSourceFiles(self):
         categories = {'Source Files': 'cpp;c;cxx;l;y;def;odl;idl;hpj;bat',
@@ -2047,17 +2047,17 @@ def generate(env):
         (version_num, suite) = (7.0, None) # guess at a default
     if 'MSVS' not in env:
         env['MSVS'] = {}
-    if (version_num < 7.0):
+    if version_num < 7.0:
         env['MSVS']['PROJECTSUFFIX']  = '.dsp'
         env['MSVS']['SOLUTIONSUFFIX'] = '.dsw'
-    elif (version_num < 10.0):
+    elif version_num < 10.0:
         env['MSVS']['PROJECTSUFFIX']  = '.vcproj'
         env['MSVS']['SOLUTIONSUFFIX'] = '.sln'
     else:
         env['MSVS']['PROJECTSUFFIX']  = '.vcxproj'
         env['MSVS']['SOLUTIONSUFFIX'] = '.sln'
 
-    if (version_num >= 10.0):
+    if version_num >= 10.0:
         env['MSVSENCODING'] = 'utf-8'
     else:
         env['MSVSENCODING'] = 'Windows-1252'

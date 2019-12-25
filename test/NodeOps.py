@@ -213,7 +213,7 @@ build_nodes = ['fooprog' + _exe,
                ] + builddir_srcnodes + sub_build_nodes
 
 def cleanup_test():
-    "cleanup after running a test"
+    """cleanup after running a test"""
     for F in builddir_srcnodes:
         test.unlink(F)  # will be repopulated during clean operation
     test.run(arguments = '-c')

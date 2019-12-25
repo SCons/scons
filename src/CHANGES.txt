@@ -15,6 +15,16 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added C:\msys64\mingw64\bin to default mingw and clang windows PATH's.  This 
       is a reasonable default and also aligns with changes in Appveyor's VS2019 image.
 
+  From Mathew Robinson:
+    - Improve performance of Subst by preventing unnecessary frame
+      allocations by no longer defining the *Subber classes inside of their
+      respective function calls.
+
+  From Mats Wichmann:
+    - Remove deprecated SourceCode
+    - str.format syntax errors fixed
+    - a bunch of linter/checker syntax fixups
+
 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
 

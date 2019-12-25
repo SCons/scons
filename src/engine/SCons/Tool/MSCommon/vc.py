@@ -509,7 +509,7 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
             debug('_check_cl_exists_in_vc_dir(): found ' + _CL_EXE_NAME + '!')
             return True
 
-    elif ver_num <= 14 and ver_num >= 8:
+    elif 14 >= ver_num >= 8:
 
         # Set default value to be -1 as "" which is the value for x86/x86 yields true when tested
         # if not host_trgt_dir
@@ -541,7 +541,7 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
             debug('_check_cl_exists_in_vc_dir(): found ' + _CL_EXE_NAME + '!')
             return True
 
-    elif ver_num < 8 and ver_num >= 6:
+    elif 8 > ver_num >= 6:
         # not sure about these versions so if a walk the VC dir (could be slow)
         for root, _, files in os.walk(vc_dir):
             if _CL_EXE_NAME in files:
@@ -766,12 +766,12 @@ def msvc_find_valid_batch_script(env, version):
                 vc_script=None
                 continue
         if not vc_script and sdk_script:
-            debug('msvc_find_valid_batch_script() use_script 4: trying sdk script: %s'%(sdk_script))
+            debug('msvc_find_valid_batch_script() use_script 4: trying sdk script: %s' % sdk_script)
             try:
                 d = script_env(sdk_script)
                 found = sdk_script
             except BatchFileExecutionError as e:
-                debug('msvc_find_valid_batch_script() use_script 5: failed running SDK script %s: Error:%s'%(repr(sdk_script),e))
+                debug('msvc_find_valid_batch_script() use_script 5: failed running SDK script %s: Error:%s'%(repr(sdk_script), e))
                 continue
         elif not vc_script and not sdk_script:
             debug('msvc_find_valid_batch_script() use_script 6: Neither VC script nor SDK script found')

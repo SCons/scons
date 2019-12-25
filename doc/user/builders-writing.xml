@@ -1079,35 +1079,4 @@ from SCons.Script import *
 
   </section>
 
-
-  <!--
-
-  <section>
-  <title>Builders That Use Other Builders</title>
-
-    <para>
-
-    XXX para
-
-    </para>
-
-    <scons_example name="builderswriting_ex8">
-       <file name="SConstruct" printme="1">
-env = Environment()
-#env.SourceCode('.', env.BitKeeper('my_command'))
-env.Program('hello.c')
-       </file>
-       <file name="hello.c">
-hello.c
-       </file>
-    </scons_example>
-
-    <scons_output example="builderswriting_ex8" suffix="1">
-      <scons_output_command>scons -Q</scons_output_command>
-    </scons_output>
-
-  </section>
-
-  -->
-
 </chapter>

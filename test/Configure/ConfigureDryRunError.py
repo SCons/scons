@@ -56,7 +56,7 @@ r2 = conf.CheckLib('hopefullynolib') # will fail
 env = conf.Finish()
 if not (r1 and not r2):
  Exit(1)
-""" % (lib))
+""" % lib)
 
 expect = """
 scons: *** Cannot create configure directory ".sconf_temp" within a dry-run.
