@@ -355,7 +355,7 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
                     display("Removed directory " + pathstr)
                 else:
                     errstr = "Path '%s' exists but isn't a file or directory."
-                    raise SCons.Errors.UserError(errstr % (pathstr))
+                    raise SCons.Errors.UserError(errstr % pathstr)
         except SCons.Errors.UserError as e:
             print(e)
         except (IOError, OSError) as e:

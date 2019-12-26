@@ -56,7 +56,7 @@ if ARGUMENTS.get('PROGRAM'):
 """)
 
 for fx in ['1', '2', '3']:
-    test.write(['repository', 'f%s.c' % (fx)], r"""
+    test.write(['repository', 'f%s.c' % fx], r"""
 #include <stdio.h>
 
 void

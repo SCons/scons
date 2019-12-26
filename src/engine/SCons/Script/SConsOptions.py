@@ -28,7 +28,7 @@ import re
 import sys
 import textwrap
 
-no_hyphen_re = re.compile(r'(\s+|(?<=[\w\!\"\'\&\.\,\?])-{2,}(?=\w))')
+no_hyphen_re = re.compile(r'(\s+|(?<=[\w!\"\'&.,?])-{2,}(?=\w))')
 
 try:
     from gettext import gettext

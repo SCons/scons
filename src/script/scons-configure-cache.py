@@ -23,13 +23,13 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'''Show or convert the configuration of an SCons cache directory.
+"""Show or convert the configuration of an SCons cache directory.
 
 A cache of derived files is stored by file signature.
 The files are split into directories named by the first few
 digits of the signature. The prefix length used for directory
 names can be changed by this script.
-'''
+"""
 
 from __future__ import print_function
 import argparse
@@ -51,11 +51,11 @@ __developer__ = "__DEVELOPER__"
 
 
 def rearrange_cache_entries(current_prefix_len, new_prefix_len):
-    '''Move cache files if prefix length changed.
+    """Move cache files if prefix length changed.
 
     Move the existing cache files to new directories of the
     appropriate name length and clean up the old directories.
-    '''
+    """
     print('Changing prefix length from', current_prefix_len,
           'to', new_prefix_len)
     dirs = set()

@@ -56,11 +56,11 @@ if __name__ == '__main__':
     import TestSCons
 
     class VariousTests(unittest.TestCase):
-        '''
+        """
         These tests are somewhat self referential in that
         isExecutableOfToolAvailable uses where_is to do most of it's
         work and we use the same function in the tests.
-        '''
+        """
         def setUp(self):
             self.test = TestSCons.TestSCons()
 

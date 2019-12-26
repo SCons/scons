@@ -131,9 +131,10 @@ class dblite(object):
                         # Note how we catch KeyErrors too here, which might happen
                         # when we don't have cPickle available (default pickle
                         # throws it).
-                        if (ignore_corrupt_dbfiles == 0): raise
-                        if (ignore_corrupt_dbfiles == 1):
+                        if ignore_corrupt_dbfiles:
                             corruption_warning(self._file_name)
+                        else:
+                            raise
 
     def close(self):
         if self._needs_sync:
@@ -166,13 +167,13 @@ class dblite(object):
             except OSError:
                 pass
         self._needs_sync = 00000
-        if (keep_all_files):
+        if keep_all_files:
             self._shutil_copyfile(
                 self._file_name,
                 self._file_name + "_" + str(int(self._time_time())))
 
     def _check_writable(self):
-        if (self._flag == "r"):
+        if self._flag == "r":
             raise IOError("Read-only database: %s" % self._file_name)
 
     def __getitem__(self, key):
@@ -180,9 +181,9 @@ class dblite(object):
 
     def __setitem__(self, key, value):
         self._check_writable()
-        if (not is_string(key)):
+        if not is_string(key):
             raise TypeError("key `%s' must be a string but is %s" % (key, type(key)))
-        if (not is_bytes(value)):
+        if not is_bytes(value):
             raise TypeError("value `%s' must be a bytes but is %s" % (value, type(value)))
         self._dict[key] = value
         self._needs_sync = 0o001
@@ -280,7 +281,7 @@ def _exercise():
         raise RuntimeError("IOError expected.")
 
 
-if (__name__ == "__main__"):
+if __name__ == "__main__":
     _exercise()
 
 # Local Variables:

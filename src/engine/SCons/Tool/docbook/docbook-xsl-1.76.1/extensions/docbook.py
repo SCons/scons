@@ -33,10 +33,10 @@ def adjustColumnWidths(ctx, nodeset):
 
     # Get the nominal table width
     varString = lookupVariable(tctxt, "nominal.table.width", None)
-    if varString == None:
-        nominalWidth = 6 * pixelsPerInch;
+    if varString is None:
+        nominalWidth = 6 * pixelsPerInch
     else:
-        nominalWidth = convertLength(varString);
+        nominalWidth = convertLength(varString)
 
     # Get the requested table width
     tableWidth = lookupVariable(tctxt, "table.width", "100%")
@@ -58,13 +58,13 @@ def adjustColumnWidths(ctx, nodeset):
         colChildren = colgroup.children
 
     col = colChildren
-    while col != None:
+    while col is not None:
         if foStylesheet:
             width = col.prop("column-width")
         else:
             width = col.prop("width")
 
-        if width == None:
+        if width is None:
             width = "1*"
 
         relPart = 0.0
@@ -145,7 +145,7 @@ def adjustColumnWidths(ctx, nodeset):
     # Side-effect free? We don' need no steenkin' side-effect free!
     count = 0
     col = colChildren
-    while col != None:
+    while col is not None:
         if foStylesheet:
             col.setProp("column-width", widths[count])
         else:
@@ -161,8 +161,8 @@ def convertLength(length):
     global pixelsPerInch
     global unitHash
 
-    m = re.search('([+-]?[\d\.]+)(\S+)', length)
-    if m != None and m.lastindex > 1:
+    m = re.search('([+-]?[\d.]+)(\S+)', length)
+    if m is not None and m.lastindex > 1:
         unit = pixelsPerInch
         if m.group(2) in unitHash:
             unit = unitHash[m.group(2)]
@@ -204,7 +204,7 @@ def correctRoundingError(floatWidths):
 
 def lookupVariable(tctxt, varName, default):
     varString = tctxt.variableLookup(varName, None)
-    if varString == None:
+    if varString is None:
         return default
 
     # If it's a list, get the first element
