@@ -47,6 +47,7 @@ import SCons.Tool
 import SCons.Util
 import SCons.Tool.cxx
 from SCons.Tool.clangCommon import get_clang_install_dirs
+from SCons.Tool.MSCommon import msvc_setup_env_once
 
 
 compilers = ['clang++']
@@ -74,6 +75,10 @@ def generate(env):
         if clangxx:
             clangxx_bin_dir = os.path.dirname(clangxx)
             env.AppendENVPath('PATH', clangxx_bin_dir)
+
+            # Set-up ms tools paths
+            msvc_setup_env_once(env)
+
 
     # determine compiler version
     if env['CXX']:
