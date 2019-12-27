@@ -145,21 +145,30 @@ matrix:
     - image: Visual Studio 2015
       WINPYTHON: "Python37"
 
-    # test python 3.5, 3.6 on Visual Studio 2017 image
+    - image: Visual Studio 2015
+      WINPYTHON: "Python35"
+
+    # test python 2.7, 3.8 on Visual Studio 2017 image
     - image: Visual Studio 2017
       WINPYTHON: "Python35"
     - image: Visual Studio 2017
       WINPYTHON: "Python37"
 
-    # test python 2.7, 3.5, 3.6 on Visual Studio 2019 image
+    - image: Visual Studio 2017
+      WINPYTHON: "Python36"
+
+    # test python 3.7 on Visual Studio 2019 image
     - image: Visual Studio 2019
       WINPYTHON: "Python27"
     - image: Visual Studio 2019
       WINPYTHON: "Python35"
     - image: Visual Studio 2019
       WINPYTHON: "Python36"
+      
+    - image: Visual Studio 2019
+      WINPYTHON: "Python37"
 
-    # test python 2.7, 3.5, 3.6 on Ubuntu
+    # skip on Ubuntu
     - image: Ubuntu
       WINPYTHON: "Python27"
     - image: Ubuntu
