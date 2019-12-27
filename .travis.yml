@@ -164,22 +164,22 @@ jobs:
         - PYVER=27
         - PYTHON=2.7
         - BUILD_JOB_NUM=1
-
-    - <<: *coverage_jobs
-      env:
-        - PYVER=27
-        - PYTHON=2.7
-        - BUILD_JOB_NUM=2
-    - <<: *coverage_jobs
-      env:
-        - PYVER=27
-        - PYTHON=2.7
-        - BUILD_JOB_NUM=3
-    - <<: *coverage_jobs
-      env:
-        - PYVER=27
-        - PYTHON=2.7
-        - BUILD_JOB_NUM=4
+#
+#    - <<: *coverage_jobs
+#      env:
+#        - PYVER=27
+#        - PYTHON=2.7
+#        - BUILD_JOB_NUM=2
+#    - <<: *coverage_jobs
+#      env:
+#        - PYVER=27
+#        - PYTHON=2.7
+#        - BUILD_JOB_NUM=3
+#    - <<: *coverage_jobs
+#      env:
+#        - PYVER=27
+#        - PYTHON=2.7
+#        - BUILD_JOB_NUM=4
 
     - <<: *coverage_jobs
       python: 3.6
@@ -187,22 +187,22 @@ jobs:
         - PYVER=36
         - PYTHON=3.6
         - BUILD_JOB_NUM=1
-    - <<: *coverage_jobs
-      python: 3.6
-      env:
-        - PYVER=36
-        - PYTHON=3.6
-        - BUILD_JOB_NUM=2
-    - <<: *coverage_jobs
-      python: 3.6
-      env:
-        - PYVER=36
-        - PYTHON=3.6
-        - BUILD_JOB_NUM=3
-    - <<: *coverage_jobs
-      python: 3.6
-      env:
-        - PYVER=36
-        - PYTHON=3.6
-        - BUILD_JOB_NUM=4
+#    - <<: *coverage_jobs
+#      python: 3.6
+#      env:
+#        - PYVER=36
+#        - PYTHON=3.6
+#        - BUILD_JOB_NUM=2
+#    - <<: *coverage_jobs
+#      python: 3.6
+#      env:
+#        - PYVER=36
+#        - PYTHON=3.6
+#        - BUILD_JOB_NUM=3
+#    - <<: *coverage_jobs
+#      python: 3.6
+#      env:
+#        - PYVER=36
+#        - PYTHON=3.6
+#        - BUILD_JOB_NUM=4
 
