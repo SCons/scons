@@ -93,12 +93,12 @@ jobs:
       dist: xenial  # required for Python >= 3.7
 
     - <<: *test_job
-      python: 3.8-dev
+      python: 3.8
       env:
         - PYVER=38
         - PYTHON=3.8
       sudo: required
-      dist: xenial  # required for Python >= 3.7
+      dist: bionic  # required for Python >= 3.8
 
 
     - &coverage_jobs
