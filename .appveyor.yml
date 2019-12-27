@@ -54,84 +54,31 @@ environment:
       PYVER: 27
       BUILD_JOB_NUM: 1
       COVERAGE: 0
-    # - WINPYTHON: "Python27"
-    #   PYTHON: "2.7"
-    #   PYVER: 27
-    #   BUILD_JOB_NUM: 2
-    #   COVERAGE: 0
-    # - WINPYTHON: "Python27"
-    #   PYTHON: "2.7"
-    #   PYVER: 27
-    #   BUILD_JOB_NUM: 3
-    #   COVERAGE: 0
-    # - WINPYTHON: "Python27"
-    #   PYTHON: "2.7"
-    #   PYVER: 27
-    #   BUILD_JOB_NUM: 4
-    #   COVERAGE: 0
 
     - WINPYTHON: "Python35"
       PYTHON: "3.5"
       PYVER: 35
       BUILD_JOB_NUM: 1
       COVERAGE: 0
-    # - WINPYTHON: "Python35"
-    #   PYTHON: "3.5"
-    #   PYVER: 35
-    #   BUILD_JOB_NUM: 2
-    #   COVERAGE: 0
-    # - WINPYTHON: "Python35"
-    #   PYTHON: "3.5"
-    #   PYVER: 35
-    #   BUILD_JOB_NUM: 3
-    #   COVERAGE: 0
-    # - WINPYTHON: "Python35"
-    #   PYTHON: "3.5"
-    #   PYVER: 35
-    #   BUILD_JOB_NUM: 4
-    #   COVERAGE: 0
 
     - WINPYTHON: "Python36"
       PYTHON: "3.6"
       PYVER: 36
       BUILD_JOB_NUM: 1
       COVERAGE: 1
-    # - WINPYTHON: "Python36"
-    #   PYTHON: "3.6"
-    #   PYVER: 36
-    #   BUILD_JOB_NUM: 2
-    #   COVERAGE: 1
-    # - WINPYTHON: "Python36"
-    #   PYTHON: "3.6"
-    #   PYVER: 36
-    #   BUILD_JOB_NUM: 3
-    #   COVERAGE: 1
-    # - WINPYTHON: "Python36"
-    #   PYTHON: "3.6"
-    #   PYVER: 36
-    #   BUILD_JOB_NUM: 4
-    #   COVERAGE: 1
 
     - WINPYTHON: "Python37"
       PYTHON: "3.7"
       PYVER: 37
       BUILD_JOB_NUM: 1
       COVERAGE: 0
-    # - WINPYTHON: "Python37"
-    #   PYTHON: "3.7"
-    #   PYVER: 37
-    #   BUILD_JOB_NUM: 2
-    #   COVERAGE: 0
-    # - WINPYTHON: "Python37"
-    #   PYTHON: "3.7"
-    #   PYVER: 37
-    #   BUILD_JOB_NUM: 3
-    #   COVERAGE: 0
-    # - WINPYTHON: "Python37"
-    #   PYTHON: "3.7"
-    #   PYVER: 37
-    #   BUILD_JOB_NUM: 4
-    #   COVERAGE: 0
+
+    - WINPYTHON: "Python38"
+      PYTHON: "3.8"
+      PYVER: 38
+      BUILD_JOB_NUM: 1
+      COVERAGE: 0
+
 
 # remove sets of build jobs based on critia below
 # to fine tune the number and platforms tested
@@ -144,13 +91,16 @@ matrix:
       WINPYTHON: "Python36"
     - image: Visual Studio 2015
       WINPYTHON: "Python37"
-
+    - image: Visual Studio 2015
+      WINPYTHON: "Python38"
 
     # test python 2.7, 3.8 on Visual Studio 2017 image
     - image: Visual Studio 2017
       WINPYTHON: "Python35"
     - image: Visual Studio 2017
       WINPYTHON: "Python37"
+    - image: Visual Studio 2017
+      WINPYTHON: "Python38"
 
     # test python 3.7 on Visual Studio 2019 image
     - image: Visual Studio 2019
