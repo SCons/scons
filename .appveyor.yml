@@ -214,6 +214,13 @@ build_script:
         $coveragercFile|Set-Content "$($env:COVERAGE_PROCESS_START)";
       }
 
+  # Only run one test for now.
+  - ps: |
+      New-Item -Name exclude_list.txt -ItemType File
+      Remove-Item -Path 'all_tests.txt'
+      New-Item -Name all_tests.txt -ItemType File
+      Add-Content -Path 'all_tests.txt' -Value 'test\option\taskmastertrace.py'
+
   # setup portion of tests for this build job (1-4)
   - ps: |
       $TOTAL_BUILD_JOBS = 1;
@@ -223,14 +230,6 @@ build_script:
       if ( $Env:BUILD_JOB_NUM -eq $TOTAL_BUILD_JOBS){ $end = $Lines };
       if ( $start -eq 0 ){ $start = 1 };
       get-content all_tests.txt | select -first ($end - $start) -skip ($start - 1) | Out-File -Encoding ASCII build_tests.txt;
-
-  # exclude VS 10.0 because it hangs the testing until this is resolved:
-  # https://help.appveyor.com/discussions/problems/19283-visual-studio-2010-trial-license-has-expired
-  - ps: |
-      New-Item -Name exclude_list.txt -ItemType File
-      Remove-Item -Path 'all_tests.txt'
-      New-Item -Name all_tests.txt -ItemType File
-      Add-Content -Path 'all_tests.txt' -Value 'test\option\taskmastertrace.py'
 
   # Windows run the tests
   # NOTE: running powershell from cmd on purpose because it formats the output
