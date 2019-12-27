@@ -7,9 +7,6 @@ image:
   - Visual Studio 2017
   - Visual Studio 2019
 
-on_finish:
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
-
 cache:
   - downloads -> appveyor.yml
   - '%LOCALAPPDATA%\pip\Cache'
@@ -258,3 +255,5 @@ on_finish:
     #- cmd: "C:\\%WINPYTHON%\\python.exe -m pip install --user -U coveralls"
     #- sh: python$PYTHON -m pip install --user -U coveralls
     #- ps: coveralls --rcfile="$($env:COVERAGE_PROCESS_START)"
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
