@@ -5,7 +5,7 @@ def post(target, source, env):
 def build(target, source, env):
     with open(str(target[0]), 'wb') as f:
         f.write(b'build()\n')
-env = Environment()
+env = Environment(tools=[])
 AddPreAction('dir', pre)
 AddPostAction('dir', post)
 env.Command('dir/file', [], build)
