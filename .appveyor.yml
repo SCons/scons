@@ -164,7 +164,7 @@ matrix:
       WINPYTHON: "Python35"
     - image: Visual Studio 2019
       WINPYTHON: "Python36"
-      
+
     - image: Visual Studio 2019
       WINPYTHON: "Python37"
 
@@ -232,6 +232,8 @@ build_script:
       if ($env:APPVEYOR_BUILD_WORKER_IMAGE -eq $workaround_image) {
         Add-Content -Path 'exclude_list.txt' -Value 'test\MSVS\vs-10.0-exec.py'
       }
+      Remove-Item -Path 'all_tests.txt'
+      Add-Content -Path 'all_tests.txt' -Value 'test\options\taskmastertrace.py'
 
   # Windows run the tests
   # NOTE: running powershell from cmd on purpose because it formats the output
