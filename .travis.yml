@@ -130,7 +130,7 @@ jobs:
         - echo "coverage.process_startup()" | sudo tee --append ${PYSITEDIR}/usercustomize.py
 
       script:
-        - export TOTAL_BUILD_JOBS=4
+        - export TOTAL_BUILD_JOBS=1
         # write the coverage config file
         - export COVERAGE_PROCESS_START=$PWD/.coveragerc
         - echo "[run]" >> .coveragerc
