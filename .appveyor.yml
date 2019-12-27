@@ -7,6 +7,9 @@ image:
   - Visual Studio 2017
   - Visual Studio 2019
 
+on_finish:
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
 cache:
   - downloads -> appveyor.yml
   - '%LOCALAPPDATA%\pip\Cache'
@@ -145,13 +148,13 @@ matrix:
     - image: Visual Studio 2015
       WINPYTHON: "Python37"
 
-    # test python 2.7, 3.6 on Visual Studio 2017 image
+    # test python 3.5, 3.6 on Visual Studio 2017 image
     - image: Visual Studio 2017
       WINPYTHON: "Python35"
     - image: Visual Studio 2017
       WINPYTHON: "Python37"
 
-    # test python 3.7 on Visual Studio 2019 image
+    # test python 2.7, 3.5, 3.6 on Visual Studio 2019 image
     - image: Visual Studio 2019
       WINPYTHON: "Python27"
     - image: Visual Studio 2019
@@ -159,7 +162,7 @@ matrix:
     - image: Visual Studio 2019
       WINPYTHON: "Python36"
 
-    # test python 3.7 on Ubuntu
+    # test python 2.7, 3.5, 3.6 on Ubuntu
     - image: Ubuntu
       WINPYTHON: "Python27"
     - image: Ubuntu
