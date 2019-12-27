@@ -57,7 +57,6 @@ int main( int argc, char* argv[] )
 """)
 
 test.write('SConstruct', """
-DefaultEnvironment(tools=[])
 Program( 'src/main.c' )
 env=Environment(tools=['packaging', 'filesystem', 'tar'])
 
