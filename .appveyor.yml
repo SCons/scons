@@ -228,17 +228,14 @@ build_script:
   # https://help.appveyor.com/discussions/problems/19283-visual-studio-2010-trial-license-has-expired
   - ps: |
       New-Item -Name exclude_list.txt -ItemType File
-      $workaround_image = "Visual Studio 2015"
-      if ($env:APPVEYOR_BUILD_WORKER_IMAGE -eq $workaround_image) {
-        Add-Content -Path 'exclude_list.txt' -Value 'test\MSVS\vs-10.0-exec.py'
-      }
       Remove-Item -Path 'all_tests.txt'
-      Add-Content -Path 'all_tests.txt' -Value 'test\options\taskmastertrace.py'
+      New-Item -Name all_tests.txt -ItemType File
+      Add-Content -Path 'all_tests.txt' -Value 'test\option\taskmastertrace.py'
 
   # Windows run the tests
   # NOTE: running powershell from cmd on purpose because it formats the output
   # correctly
-  - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py -j 2 -t --exclude-list exclude_list.txt -f build_tests.txt } else { C:\\%WINPYTHON%\\python.exe runtest.py -j 2 -t --exclude-list exclude_list.txt -f build_tests.txt }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
+  - cmd: powershell -Command "& { if($env:COVERAGE -eq 99) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py -j 2 -t --exclude-list exclude_list.txt -f build_tests.txt } else { C:\\%WINPYTHON%\\python.exe runtest.py -j 2 -t --exclude-list exclude_list.txt -f build_tests.txt }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
 
   # linux run the tests
   # unset JAVA_TOOL_OPTIONS because newer java prints this to stderr
