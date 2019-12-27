@@ -31,6 +31,7 @@ Simple tests of the --taskmastertrace= option.
 import TestSCons
 
 test = TestSCons.TestSCons()
+test.verbose_set(3)
 
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
