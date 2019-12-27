@@ -32,6 +32,7 @@ This tests the SRC bz2 packager, which does the following:
 import TestSCons
 
 import os
+import os.path
 import sys
 
 python = TestSCons.python
@@ -42,10 +43,12 @@ tar = test.detect('TAR', 'tar')
 if not tar:
     test.skip_test('tar not found, skipping test\n')
 
+bz2 = test.where_is('bzip2')
+bz2_path = os.path.dirname(bz2)
+
 if sys.platform == 'win32':
     # windows 10 causes fresh problems by supplying a tar, not bzip2
     # but if git is installed, there's a bzip2 there, but can't be used
-    bz2 = test.where_is('bzip2')
     if not bz2:
         test.skip_test('tar found, but helper bzip2 not found, skipping test\n')
     bz2 = os.path.splitdrive(bz2)[1]
@@ -65,11 +68,15 @@ int main( int argc, char* argv[] )
 test.write('SConstruct', """
 Program( 'src/main.c' )
 env=Environment(tools=['packaging', 'filesystem', 'tar'])
+
+# needed for windows to prevent picking up windows tar and thinking non-windows bzip2 would work.
+env.PrependENVPath('PATH', r'%s')
+
 env.Package( PACKAGETYPE  = 'src_tarbz2',
              target       = 'src.tar.bz2',
              PACKAGEROOT  = 'test',
              source       = [ 'src/main.c', 'SConstruct' ] )
-""")
+"""%bz2_path)
 
 test.run(arguments='', stderr=None)
 
