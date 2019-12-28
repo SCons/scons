@@ -60,7 +60,8 @@ import sys
 import %(use_db)s
 SConsignFile('.sconsign', %(use_db)s)
 B = Builder(action = r'%(_python_)s build.py $TARGETS $SOURCES')
-env = Environment(BUILDERS = { 'B' : B })
+DefaultEnvironment(tools=[])
+env = Environment(BUILDERS = { 'B' : B }, tools=[])
 env.B(target = 'f1.out', source = 'f1.in')
 env.B(target = 'f2.out', source = 'f2.in')
 env.B(target = 'subdir/f3.out', source = 'subdir/f3.in')
@@ -88,6 +89,7 @@ test.must_match(['subdir', 'f3.out'], "subdir/f3.in\n")
 test.must_match(['subdir', 'f4.out'], "subdir/f4.in\n")
 
 test.up_to_date(arguments = '.')
+
 
 test.must_not_exist(test.workpath('.sconsign'))
 test.must_not_exist(test.workpath('.sconsign.dblite'))
