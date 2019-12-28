@@ -103,7 +103,7 @@ jobs:
 
     - &coverage_jobs
       stage: Coverage
-      python: 2.7
+      python: 3.7
       before_script:
         # install our own python so we can modify usercustomize.py
         - deactivate
@@ -161,8 +161,8 @@ jobs:
         #- coveralls --rcfile=$PWD/.coveragerc
 
       env:
-        - PYVER=27
-        - PYTHON=2.7
+        - PYVER=37
+        - PYTHON=3.7
         - BUILD_JOB_NUM=1
 #
 #    - <<: *coverage_jobs
@@ -181,12 +181,12 @@ jobs:
 #        - PYTHON=2.7
 #        - BUILD_JOB_NUM=4
 
-    - <<: *coverage_jobs
-      python: 3.6
-      env:
-        - PYVER=36
-        - PYTHON=3.6
-        - BUILD_JOB_NUM=1
+#    - <<: *coverage_jobs
+#      python: 3.6
+#      env:
+#        - PYVER=36
+#        - PYTHON=3.6
+#        - BUILD_JOB_NUM=1
 #    - <<: *coverage_jobs
 #      python: 3.6
 #      env:
