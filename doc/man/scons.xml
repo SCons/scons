@@ -638,11 +638,12 @@ yet have any results in the cache.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>-C<emphasis> directory</emphasis>, --directory=<emphasis>directory</emphasis></term>
+  <term>-C <replaceable>directory</replaceable>, --directory=<replaceable>directory</replaceable></term>
   <listitem>
-<para>Change to the specified
-<emphasis>directory</emphasis>
-before searching for the
+<para>Run as if &scons; was started in
+<replaceable>directory</replaceable>
+instead of the current working directory.
+That is, change directory before searching for the
 <emphasis>SConstruct</emphasis>,
 <emphasis>Sconstruct</emphasis>,
 <emphasis>sconstruct</emphasis>,
@@ -651,23 +652,18 @@ before searching for the
 or
 <emphasis>sconstruct.py</emphasis>
 file, or doing anything
-else.  Multiple
+else.  When multiple
 <option>-C</option>
-options are interpreted
-relative to the previous one, and the right-most
-<option>-C</option>
-option wins. (This option is nearly
-equivalent to
-<option>-f directory/SConstruct</option>,
-except that it will search for
-<emphasis>SConstruct</emphasis>,
-<emphasis>Sconstruct</emphasis>,
-<emphasis>sconstruct</emphasis>,
-<emphasis>SConstruct.py</emphasis>
-<emphasis>Sconstruct.py</emphasis>
-or
-<emphasis>sconstruct.py</emphasis>
-in the specified directory.)</para>
+options are given, each subsequent non-absolute
+<option>-C</option> <replaceable>directory</replaceable>
+is interpreted relative to the preceding one.
+This option is similar to
+<option>-f <replaceable>directory</replaceable>/SConstruct</option>,
+but <option>-f</option> does not search for any of the
+predefined <emphasis>SConstruct</emphasis> names
+in the specified directory.</para>
+  </listitem>
+  </varlistentry>
 
 <!--  .TP -->
 <!--  \-d -->
@@ -675,8 +671,6 @@ in the specified directory.)</para>
 <!--  figuring out why a specific file is being rebuilt, as well as -->
 <!--  general debugging of the build process. -->
 
-  </listitem>
-  </varlistentry>
   <varlistentry>
   <term>-D</term>
   <listitem>
