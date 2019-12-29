@@ -31,7 +31,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Node
 
-_memoLookupMap = {}
+_memo_lookup_map = {}
 
 
 class ValueNodeInfo(SCons.Node.NodeInfoBase):
@@ -178,24 +178,24 @@ class Value(SCons.Node.Node):
 
 
 def ValueWithMemo(value, built_value=None):
-    global _memoLookupMap
+    global _memo_lookup_map
 
     # No current support for memoizing a value that needs to be built.
     if built_value:
         return Value(value, built_value)
 
-    # No current support for memoizing non-primitive types in case they change
-    # after this call.
-    if not isinstance(value, (int, str, float, bool)):
-        return Value(value, built_value)
+    try:
+        memo_lookup_key = hash(value)
+    except TypeError:
+        # Non-primitive types will hit this codepath.
+        return Value(value)
 
-    value_str = str(value)
-    if value_str in _memoLookupMap:
-        return _memoLookupMap[value_str]
-
-    v = Value(value)
-    _memoLookupMap[value_str] = v
-    return v
+    try:
+        return _memo_lookup_map[memo_lookup_key]
+    except KeyError:
+        v = Value(value)
+        _memo_lookup_map[memo_lookup_key] = v
+        return v
 
 
 # Local Variables:

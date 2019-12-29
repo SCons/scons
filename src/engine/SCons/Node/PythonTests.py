@@ -128,20 +128,20 @@ class ValueMemoTestCase(unittest.TestCase):
 
     def test_built_value(self):
         """Confirm that built values are not memoized."""
-        v1 = SCons.Node.Python.Value('c', 'ca')
-        v2 = SCons.Node.Python.Value('c', 'ca')
+        v1 = SCons.Node.Python.ValueWithMemo('c', 'ca')
+        v2 = SCons.Node.Python.ValueWithMemo('c', 'ca')
         assert v1 is not v2
 
     def test_non_primitive_values(self):
         """Confirm that non-primitive values are not memoized."""
         d = {'a': 1}
-        v1 = SCons.Node.Python.Value(d)
-        v2 = SCons.Node.Python.Value(d)
+        v1 = SCons.Node.Python.ValueWithMemo(d)
+        v2 = SCons.Node.Python.ValueWithMemo(d)
         assert v1 is not v2
 
         l = [1]
-        v3 = SCons.Node.Python.Value(l)
-        v4 = SCons.Node.Python.Value(l)
+        v3 = SCons.Node.Python.ValueWithMemo(l)
+        v4 = SCons.Node.Python.ValueWithMemo(l)
         assert v3 is not v4
 
 if __name__ == "__main__":
