@@ -50,13 +50,14 @@ elif LOGFILE:
         level=logging.DEBUG)
     debug = logging.getLogger(name=__name__).debug
 else:
-    debug = lambda x: None
+    def debug(x): return None
 
 
 # SCONS_CACHE_MSVC_CONFIG is public, and is documented.
 CONFIG_CACHE = os.environ.get('SCONS_CACHE_MSVC_CONFIG')
 if CONFIG_CACHE in ('1', 'true', 'True'):
     CONFIG_CACHE = os.path.join(os.path.expanduser('~'), '.scons_msvc_cache')
+
 
 def read_script_env_cache():
     """ fetch cached msvc env vars if requested, else return empty dict """
@@ -65,7 +66,7 @@ def read_script_env_cache():
         try:
             with open(CONFIG_CACHE, 'r') as f:
                 envcache = json.load(f)
-        #TODO can use more specific FileNotFoundError when py2 dropped
+        # TODO can use more specific FileNotFoundError when py2 dropped
         except IOError:
             # don't fail if no cache file, just proceed without it
             pass
@@ -87,6 +88,7 @@ def write_script_env_cache(cache):
 
 
 _is_win64 = None
+
 
 def is_win64():
     """Return true if running on windows 64 bits.
@@ -122,6 +124,7 @@ def is_win64():
 def read_reg(value, hkroot=SCons.Util.HKEY_LOCAL_MACHINE):
     return SCons.Util.RegGetValue(hkroot, value)[0]
 
+
 def has_reg(value):
     """Return True if the given key exists in HKEY_LOCAL_MACHINE, False
     otherwise."""
@@ -133,6 +136,7 @@ def has_reg(value):
     return ret
 
 # Functions for fetching environment variable settings from batch files.
+
 
 def normalize_env(env, keys, force=False):
     """Given a dictionary representing a shell environment, add the variables
@@ -172,11 +176,12 @@ def normalize_env(env, keys, force=False):
     if sys32_wbem_dir not in normenv['PATH']:
         normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_wbem_dir
 
-    debug("PATH: %s"%normenv['PATH'])
+    debug("PATH: %s" % normenv['PATH'])
 
     return normenv
 
-def get_output(vcbat, args = None, env = None):
+
+def get_output(vcbat, args=None, env=None):
     """Parse the output of given bat file, with given args."""
 
     if env is None:
@@ -242,7 +247,13 @@ def get_output(vcbat, args = None, env = None):
     output = stdout.decode("mbcs")
     return output
 
-KEEPLIST = ("INCLUDE", "LIB", "LIBPATH", "PATH", 'VSCMD_ARG_app_plat')
+
+KEEPLIST = ("INCLUDE", "LIB", "LIBPATH", "PATH", 'VSCMD_ARG_app_plat',
+            'VCINSTALLDIR',  # needed by clang -VS 2017 and newer
+            'VCToolsInstallDir', # needed by clang - VS 2015 and older
+            )
+
+
 def parse_output(output, keep=KEEPLIST):
     """
     Parse output from running visual c++/studios vcvarsall.bat and running set

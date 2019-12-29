@@ -525,7 +525,7 @@ if not epydoc_cli:
             # first arg is a list where can be names of python package dirs,
             # python files, object names or objects itself
             docindex = build_doc_index([str(src) for src in source])
-            if docindex == None:
+            if docindex is None:
                 return -1
 
             if env['EPYDOCFLAGS'] == '--html':

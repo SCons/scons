@@ -28,13 +28,12 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 This tests the SRC xz packager, which does the following:
  - create a tar package from the specified files
 """
-
+import os.path
 import TestSCons
 
 python = TestSCons.python
 
 test = TestSCons.TestSCons()
-
 tar = test.detect('TAR', 'tar')
 if not tar:
     test.skip_test('tar not found, skipping test\n')
@@ -45,6 +44,8 @@ if not tar:
 xz = test.where_is('xz')
 if not xz:
     test.skip_test('tar found, but helper xz not found, skipping test\n')
+
+xz_path = os.path.dirname(xz)
 
 test.subdir('src')
 
@@ -58,11 +59,15 @@ int main( int argc, char* argv[] )
 test.write('SConstruct', """
 Program( 'src/main.c' )
 env=Environment(tools=['packaging', 'filesystem', 'tar'])
+
+# needed for windows to prevent picking up windows tar and thinking non-windows bzip2 would work.
+env.PrependENVPath('PATH', r'%s')
+
 env.Package( PACKAGETYPE  = 'src_tarxz',
              target       = 'src.tar.xz',
              PACKAGEROOT  = 'test',
              source       = [ 'src/main.c', 'SConstruct' ] )
-""")
+"""%xz_path)
 
 test.run(arguments='', stderr=None)
 

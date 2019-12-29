@@ -108,7 +108,7 @@ class subst_pathTestCase(unittest.TestCase):
 
         self.env.subst = lambda s, target, source, conv: 'NOT THIS STRING'
 
-        pl = SCons.PathList.PathList(('x'))
+        pl = SCons.PathList.PathList(('x',))
 
         result = pl.subst_path(self.env, 'y', 'z')
 

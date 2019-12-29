@@ -38,7 +38,7 @@ test.subdir('src')
 test.file_fixture('SConstruct.global', 'SConstruct')
 expect = """\
 NameError: name 'BuildDir' is not defined:
-  File "{}", line 1:
+  File "{}", line 2:
     BuildDir('build', 'src')
 """.format(test.workpath('SConstruct'))
 test.run(arguments='-Q -s', status=2, stderr=expect)

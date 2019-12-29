@@ -135,7 +135,7 @@ def __get_xml_text(root):
     """ Return the text for the given root node (xml.dom.minidom). """
     txt = ""
     for e in root.childNodes:
-        if (e.nodeType == e.TEXT_NODE):
+        if e.nodeType == e.TEXT_NODE:
             txt += e.data
     return txt
 
@@ -207,7 +207,7 @@ def _detect(env):
     if env.get('DOCBOOK_PREFER_XSLTPROC',''):
         prefer_xsltproc = True
 
-    if ((not has_libxml2 and not has_lxml) or (prefer_xsltproc)):
+    if (not has_libxml2 and not has_lxml) or prefer_xsltproc:
         # Try to find the XSLT processors
         __detect_cl_tool(env, 'DOCBOOK_XSLTPROC', xsltproc_com, xsltproc_com_priority)
         __detect_cl_tool(env, 'DOCBOOK_XMLLINT', xmllint_com)

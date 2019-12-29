@@ -270,7 +270,7 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
         cached_error = False
         cachable = True
         for t in self.targets:
-            if T: Trace('%s' % (t))
+            if T: Trace('%s' % t)
             bi = t.get_stored_info().binfo
             if isinstance(bi, SConfBuildInfo):
                 if T: Trace(': SConfBuildInfo')
@@ -280,7 +280,7 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
                 else:
                     if T: Trace(': get_state() %s' % t.get_state())
                     if T: Trace(': changed() %s' % t.changed())
-                    if (t.get_state() != SCons.Node.up_to_date and t.changed()):
+                    if t.get_state() != SCons.Node.up_to_date and t.changed():
                         changed = True
                     if T: Trace(': changed %s' % changed)
                 cached_error = cached_error or bi.result
@@ -668,7 +668,7 @@ class SConfBase(object):
         is saved in self.lastTarget (for further processing).
         """
         ok = self.TryLink(text, extension)
-        if( ok ):
+        if ok:
             prog = self.lastTarget
             pname = prog.get_internal_path()
             output = self.confdir.File(os.path.basename(pname)+'.out')
@@ -866,9 +866,9 @@ class CheckContext(object):
         return self.sconf.TryRun(*args, **kw)
 
     def __getattr__( self, attr ):
-        if( attr == 'env' ):
+        if attr == 'env':
             return self.sconf.env
-        elif( attr == 'lastTarget' ):
+        elif attr == 'lastTarget':
             return self.sconf.lastTarget
         else:
             raise AttributeError("CheckContext instance has no attribute '%s'" % attr)
@@ -1067,7 +1067,7 @@ def CheckLibWithHeader(context, libs, header, language,
     """
     prog_prefix, dummy = \
                  createIncludesFromHeaders(header, 0)
-    if libs == []:
+    if not libs:
         libs = [None]
 
     if not SCons.Util.is_List(libs):

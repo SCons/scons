@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# 
+#
 # __COPYRIGHT__
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -20,33 +20,34 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test that SourceSignatures and its associated warning flag
-are definitely gone.
+Test the removed SourceCode() method errors out if used.
 """
 
 import TestSCons
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match=TestSCons.match_exact)
+
+test.subdir('src')
+
+test.file_fixture('SConstruct.global', 'SConstruct')
+expect = """\
+NameError: name 'SourceCode' is not defined:
+  File "{}", line 2:
+    SourceCode('no_source.c', None)
+""".format(test.workpath('SConstruct'))
+test.run(arguments='-Q -s', status=2, stderr=expect)
 
 test.file_fixture('SConstruct.method', 'SConstruct')
 expect = """\
-NameError: name 'SourceSignatures' is not defined:
-  File "{}", line 2:
-    SourceSignatures('MD5')
+AttributeError: 'SConsEnvironment' object has no attribute 'SourceCode':
+  File "{}", line 3:
+    env.SourceCode('no_source.c', None)
 """.format(test.workpath('SConstruct'))
-test.run(arguments='-Q -s', status=2, stdout=None, stderr=expect)
-
-test.file_fixture('SConstruct.setopt', 'SConstruct')
-test.run(arguments='-Q -s', status=0, stdout=None,
-         stderr="""\
-No warning type: 'deprecated-source-signatures'
-No warning type: 'deprecated-source-signatures'
-""")
+test.run(arguments='-Q -s', status=2, stderr=expect)
 
 test.pass_test()
 

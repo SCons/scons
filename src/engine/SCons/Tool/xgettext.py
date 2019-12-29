@@ -133,7 +133,7 @@ def _update_pot_file(target, source, env):
             re_cdate = re.compile(r'^"POT-Creation-Date: .*"$[\r\n]?', re.M)
             old_content_nocdate = re.sub(re_cdate, "", old_content)
             new_content_nocdate = re.sub(re_cdate, "", new_content)
-            if (old_content_nocdate == new_content_nocdate):
+            if old_content_nocdate == new_content_nocdate:
                 # Messages are up-to-date
                 needs_update = False
                 explain = "messages in file found to be up-to-date"

@@ -451,11 +451,11 @@ class UtilTestCase(unittest.TestCase):
         assert get_environment_var("${BAR}") == "BAR", get_environment_var("${BAR}")
         assert get_environment_var("$FOO_BAR1234") == "FOO_BAR1234", get_environment_var("$FOO_BAR1234")
         assert get_environment_var("${BAR_FOO1234}") == "BAR_FOO1234", get_environment_var("${BAR_FOO1234}")
-        assert get_environment_var("${BAR}FOO") == None, get_environment_var("${BAR}FOO")
-        assert get_environment_var("$BAR ") == None, get_environment_var("$BAR ")
-        assert get_environment_var("FOO$BAR") == None, get_environment_var("FOO$BAR")
-        assert get_environment_var("$FOO[0]") == None, get_environment_var("$FOO[0]")
-        assert get_environment_var("${some('complex expression')}") == None, get_environment_var(
+        assert get_environment_var("${BAR}FOO") is None, get_environment_var("${BAR}FOO")
+        assert get_environment_var("$BAR ") is None, get_environment_var("$BAR ")
+        assert get_environment_var("FOO$BAR") is None, get_environment_var("FOO$BAR")
+        assert get_environment_var("$FOO[0]") is None, get_environment_var("$FOO[0]")
+        assert get_environment_var("${some('complex expression')}") is None, get_environment_var(
             "${some('complex expression')}")
 
     def test_Proxy(self):

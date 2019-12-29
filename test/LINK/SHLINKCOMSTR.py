@@ -87,7 +87,7 @@ int i;
 """)
 
         test.run()
-        if ("Shared-Linking" not in test.stdout()):
+        if "Shared-Linking" not in test.stdout():
             test.fail_test()
 
 test.pass_test()
