@@ -103,6 +103,7 @@ jobs:
 
     - &coverage_jobs
       stage: Coverage
+      dist: bionic
       python: 3.7
       before_script:
         # install our own python so we can modify usercustomize.py
