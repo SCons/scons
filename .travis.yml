@@ -108,11 +108,11 @@ jobs:
       before_script:
         # install our own python so we can modify usercustomize.py
         - deactivate
-        - sudo add-apt-repository -y ppa:deadsnakes/ppa
-        - sudo apt-get update || true
-        - sudo apt-get -y install python$PYTHON
-        - wget https://bootstrap.pypa.io/get-pip.py
-        - sudo -H python$PYTHON get-pip.py
+#        - sudo add-apt-repository -y ppa:deadsnakes/ppa
+#        - sudo apt-get update || true
+#        - sudo apt-get -y install python$PYTHON
+#        - wget https://bootstrap.pypa.io/get-pip.py
+#        - sudo -H python$PYTHON get-pip.py
         - which python$PYTHON
         - python$PYTHON --version
         - python$PYTHON -m pip install --user -U coverage codecov
