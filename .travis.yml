@@ -64,13 +64,6 @@ jobs:
       sudo: required
 
     - <<: *test_job
-      python: 2.7
-      env:
-        - PYVER=27
-        - PYTHON=2.7
-      sudo: required
-
-    - <<: *test_job
       python: 3.5
       env:
         - PYVER=35
@@ -165,45 +158,3 @@ jobs:
         - PYVER=37
         - PYTHON=3.7
         - BUILD_JOB_NUM=1
-#
-#    - <<: *coverage_jobs
-#      env:
-#        - PYVER=27
-#        - PYTHON=2.7
-#        - BUILD_JOB_NUM=2
-#    - <<: *coverage_jobs
-#      env:
-#        - PYVER=27
-#        - PYTHON=2.7
-#        - BUILD_JOB_NUM=3
-#    - <<: *coverage_jobs
-#      env:
-#        - PYVER=27
-#        - PYTHON=2.7
-#        - BUILD_JOB_NUM=4
-
-#    - <<: *coverage_jobs
-#      python: 3.6
-#      env:
-#        - PYVER=36
-#        - PYTHON=3.6
-#        - BUILD_JOB_NUM=1
-#    - <<: *coverage_jobs
-#      python: 3.6
-#      env:
-#        - PYVER=36
-#        - PYTHON=3.6
-#        - BUILD_JOB_NUM=2
-#    - <<: *coverage_jobs
-#      python: 3.6
-#      env:
-#        - PYVER=36
-#        - PYTHON=3.6
-#        - BUILD_JOB_NUM=3
-#    - <<: *coverage_jobs
-#      python: 3.6
-#      env:
-#        - PYVER=36
-#        - PYTHON=3.6
-#        - BUILD_JOB_NUM=4
-
