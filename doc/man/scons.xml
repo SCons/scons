@@ -644,24 +644,31 @@ yet have any results in the cache.</para>
 <replaceable>directory</replaceable>
 instead of the current working directory.
 That is, change directory before searching for the
-<emphasis>SConstruct</emphasis>,
-<emphasis>Sconstruct</emphasis>,
-<emphasis>sconstruct</emphasis>,
-<emphasis>SConstruct.py</emphasis>
-<emphasis>Sconstruct.py</emphasis>
+&SConstruct;,
+&Sconstruct;,
+&sconstruct;,
+&SConstruct.py;,
+&Sconstruct.py;
 or
-<emphasis>sconstruct.py</emphasis>
-file, or doing anything
-else.  When multiple
+&sconstruct.py;
+file, or doing anything else.
+When multiple
 <option>-C</option>
 options are given, each subsequent non-absolute
 <option>-C</option> <replaceable>directory</replaceable>
 is interpreted relative to the preceding one.
-This option is similar to
+This option is similar to using
 <option>-f <replaceable>directory</replaceable>/SConstruct</option>,
 but <option>-f</option> does not search for any of the
-predefined <emphasis>SConstruct</emphasis> names
-in the specified directory.</para>
+predefined &SConstruct; names
+in the specified directory.
+See also options
+<option>-u</option>,
+<option>-U</option>
+and
+<option>-D</option>
+to change the &SConstruct; search behavior when this option is used.
+</para>
   </listitem>
   </varlistentry>
 

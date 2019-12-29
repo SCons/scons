@@ -23,8 +23,8 @@
 #
 
 """
-Test that the -C option changes directory as expected - additively,
-except if a full path is given
+Test that the -C option changes directory as expected and that
+multiple -C options are additive, except if a full path is given
 """
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
@@ -57,7 +57,7 @@ test.subdir('sub', ['sub', 'dir'])
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 import os
-print("SConstruct "+os.getcwd())
+print("SConstruct " + os.getcwd())
 """)
 
 test.write(['sub', 'SConstruct'], """
@@ -73,11 +73,13 @@ env = Environment(FOO='foo', BAR='bar', tools=[])
 print(env.GetBuildPath('../$FOO/$BAR'))
 """)
 
+# single -C
 test.run(arguments='-C sub .',
          stdout="scons: Entering directory `%s'\n" % wpath_sub \
              + test.wrap_stdout(read_str='%s\n' % wpath,
                                 build_str="scons: `.' is up to date.\n"))
 
+# multiple -C
 test.run(arguments='-C sub -C dir .',
          stdout="scons: Entering directory `%s'\n" % wpath_sub_dir \
              + test.wrap_stdout(read_str='%s\n' % wpath_sub_foo_bar,
@@ -85,29 +87,20 @@ test.run(arguments='-C sub -C dir .',
 
 test.run(arguments=".",
          stdout=test.wrap_stdout(read_str='SConstruct %s\n' % wpath,
-                                   build_str="scons: `.' is up to date.\n"))
+                                 build_str="scons: `.' is up to date.\n"))
 
+# alternate form
 test.run(arguments='--directory=sub/dir .',
          stdout="scons: Entering directory `%s'\n" % wpath_sub_dir \
              + test.wrap_stdout(read_str='%s\n' % wpath_sub_foo_bar,
                                 build_str="scons: `.' is up to date.\n"))
 
+# checks that using full paths is not additive
 test.run(arguments='-C %s -C %s .' % (wpath_sub_dir, wpath_sub),
          stdout="scons: Entering directory `%s'\n" % wpath_sub \
              + test.wrap_stdout(read_str='%s\n' % wpath,
                                 build_str="scons: `.' is up to date.\n"))
 
-import tempfile
-with tempfile.TemporaryDirectory() as full:
-    test.write([full, 'SConstruct'], """
-DefaultEnvironment(tools=[])
-import os
-print("SConstruct " + os.getcwd())
-""")
-    test.run(arguments='-C sub -C {} .'.format(full),
-             stdout="scons: Entering directory `{}'\n".format(full) \
-             + test.wrap_stdout(read_str='SConstruct {}\n'.format(full),
-                                build_str="scons: `.' is up to date.\n"))
 
 test.pass_test()
 
