@@ -506,13 +506,14 @@ class UtilTestCase(unittest.TestCase):
     def test_get_native_path(self):
         """Test the get_native_path() function."""
         import tempfile
-        filename = tempfile.mktemp()
-        str = '1234567890 ' + filename
+        f, filename = tempfile.mkstemp(text=True)
+        os.close(f)
+        data = '1234567890 ' + filename
         try:
             with open(filename, 'w') as f:
-                f.write(str)
-            with open(get_native_path(filename)) as f:
-                assert f.read() == str
+                f.write(data)
+            with open(get_native_path(filename), 'r') as f:
+                assert f.read() == data
         finally:
             try:
                 os.unlink(filename)
