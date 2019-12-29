@@ -93,17 +93,17 @@ jobs:
       dist: xenial  # required for Python >= 3.7
 
     - <<: *test_job
-      python: 3.8-dev
+      python: 3.8
       env:
         - PYVER=38
         - PYTHON=3.8
       sudo: required
-      dist: xenial  # required for Python >= 3.7
+      dist: bionic  # required for Python >= 3.8
 
 
     - &coverage_jobs
       stage: Coverage
-      python: 2.7
+      python: 3.7
       before_script:
         # install our own python so we can modify usercustomize.py
         - deactivate
@@ -130,7 +130,7 @@ jobs:
         - echo "coverage.process_startup()" | sudo tee --append ${PYSITEDIR}/usercustomize.py
 
       script:
-        - export TOTAL_BUILD_JOBS=4
+        - export TOTAL_BUILD_JOBS=1
         # write the coverage config file
         - export COVERAGE_PROCESS_START=$PWD/.coveragerc
         - echo "[run]" >> .coveragerc
@@ -161,48 +161,48 @@ jobs:
         #- coveralls --rcfile=$PWD/.coveragerc
 
       env:
-        - PYVER=27
-        - PYTHON=2.7
+        - PYVER=37
+        - PYTHON=3.7
         - BUILD_JOB_NUM=1
+#
+#    - <<: *coverage_jobs
+#      env:
+#        - PYVER=27
+#        - PYTHON=2.7
+#        - BUILD_JOB_NUM=2
+#    - <<: *coverage_jobs
+#      env:
+#        - PYVER=27
+#        - PYTHON=2.7
+#        - BUILD_JOB_NUM=3
+#    - <<: *coverage_jobs
+#      env:
+#        - PYVER=27
+#        - PYTHON=2.7
+#        - BUILD_JOB_NUM=4
 
-    - <<: *coverage_jobs
-      env:
-        - PYVER=27
-        - PYTHON=2.7
-        - BUILD_JOB_NUM=2
-    - <<: *coverage_jobs
-      env:
-        - PYVER=27
-        - PYTHON=2.7
-        - BUILD_JOB_NUM=3
-    - <<: *coverage_jobs
-      env:
-        - PYVER=27
-        - PYTHON=2.7
-        - BUILD_JOB_NUM=4
-
-    - <<: *coverage_jobs
-      python: 3.6
-      env:
-        - PYVER=36
-        - PYTHON=3.6
-        - BUILD_JOB_NUM=1
-    - <<: *coverage_jobs
-      python: 3.6
-      env:
-        - PYVER=36
-        - PYTHON=3.6
-        - BUILD_JOB_NUM=2
-    - <<: *coverage_jobs
-      python: 3.6
-      env:
-        - PYVER=36
-        - PYTHON=3.6
-        - BUILD_JOB_NUM=3
-    - <<: *coverage_jobs
-      python: 3.6
-      env:
-        - PYVER=36
-        - PYTHON=3.6
-        - BUILD_JOB_NUM=4
+#    - <<: *coverage_jobs
+#      python: 3.6
+#      env:
+#        - PYVER=36
+#        - PYTHON=3.6
+#        - BUILD_JOB_NUM=1
+#    - <<: *coverage_jobs
+#      python: 3.6
+#      env:
+#        - PYVER=36
+#        - PYTHON=3.6
+#        - BUILD_JOB_NUM=2
+#    - <<: *coverage_jobs
+#      python: 3.6
+#      env:
+#        - PYVER=36
+#        - PYTHON=3.6
+#        - BUILD_JOB_NUM=3
+#    - <<: *coverage_jobs
+#      python: 3.6
+#      env:
+#        - PYVER=36
+#        - PYTHON=3.6
+#        - BUILD_JOB_NUM=4
 
