@@ -8,6 +8,13 @@ NOTE: The 4.0.0 Release of SCons will drop Python 2.7 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From William Deegan:
+    - Fix broken clang + MSVC 2019 combination by using MSVC configuration logic to 
+      propagate'VCINSTALLDIR' and 'VCToolsInstallDir' which clang tools use to locate
+      header files and libraries from MSVC install. (Fixes GH Issue #3480)
+    - Added C:\msys64\mingw64\bin to default mingw and clang windows PATH's.  This 
+      is a reasonable default and also aligns with changes in Appveyor's VS2019 image.
+
   From Mathew Robinson:
     - Improve performance of Subst by preventing unnecessary frame
       allocations by no longer defining the *Subber classes inside of their

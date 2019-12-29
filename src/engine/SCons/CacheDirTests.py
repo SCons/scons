@@ -130,7 +130,7 @@ class ExceptionTestCase(unittest.TestCase):
     @unittest.skipIf(sys.platform.startswith("win"), "This fixture will not trigger an OSError on Windows")
     def test_throws_correct_on_OSError(self):
         """Test that the correct error is thrown when cache directory cannot be created."""
-        privileged_dir = os.path.join(os.getcwd(), "privileged")
+        privileged_dir = os.path.join(self.tmpdir, "privileged")
         try:
             os.mkdir(privileged_dir)
             os.chmod(privileged_dir, stat.S_IREAD)
