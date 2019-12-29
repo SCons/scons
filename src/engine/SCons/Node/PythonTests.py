@@ -139,9 +139,9 @@ class ValueMemoTestCase(unittest.TestCase):
         v2 = SCons.Node.Python.ValueWithMemo(d)
         assert v1 is not v2
 
-        l = [1]
-        v3 = SCons.Node.Python.ValueWithMemo(l)
-        v4 = SCons.Node.Python.ValueWithMemo(l)
+        a = [1]
+        v3 = SCons.Node.Python.ValueWithMemo(a)
+        v4 = SCons.Node.Python.ValueWithMemo(a)
         assert v3 is not v4
 
 if __name__ == "__main__":
