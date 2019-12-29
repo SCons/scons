@@ -119,8 +119,8 @@ jobs:
         # set this ensure user sites are available
         - export PYTHONNOUSERSITE=
         # attempt to get a location where we can store the usercustomize.py file
-        - python$PYTHON -m site
-        - export PYSITEDIR=$(python$PYTHON -m site --user-site)
+        - python -m site
+        - export PYSITEDIR=$(python -m site --user-site)
         - sudo mkdir -p $PYSITEDIR
         - sudo touch ${PYSITEDIR}/usercustomize.py
         - export COVERAGE_FILE=$PWD/.coverage
@@ -143,7 +143,7 @@ jobs:
         - echo "[report]" >> .coveragerc
         - printf "omit =\n\t*Tests.py\n\tsrc/test_*\n\tsrc/setup.py\n\n" >> .coveragerc
         # get a list of all the tests to split them up
-        - python$PYTHON runtest.py -l -a > all_tests
+        - python runtest.py -l -a > all_tests
         - let "start = ($(wc -l < all_tests) / ${TOTAL_BUILD_JOBS}) * (${BUILD_JOB_NUM} - 1)"; true;
         - let "end = ($(wc -l < all_tests) / ${TOTAL_BUILD_JOBS}) * ${BUILD_JOB_NUM}"
         - if (( ${BUILD_JOB_NUM} == ${TOTAL_BUILD_JOBS} )); then end=$(wc -l < all_tests); fi
