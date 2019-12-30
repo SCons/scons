@@ -42,6 +42,9 @@ RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
     - Resolved a race condition in multithreaded Windows builds with Python 2
       in the case where a child process is spawned while a Python action has a
       file open. Original author: Ryan Beasley.
+    - Added memoization support for calls to Environment.Value() in order to
+	  improve performance of repeated calls.
+
 
   From Jason Kenny
     - Update Command() function to accept target_scanner, source_factory, and target_factory arguments.
