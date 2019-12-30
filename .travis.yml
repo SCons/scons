@@ -23,7 +23,6 @@ install:
 # allow coverage to fail, so we can still do testing for all platforms
 matrix:
   allow_failures:
-    - python: pypy
     - python: pypy3
     - stage: Coverage
 
@@ -56,12 +55,6 @@ jobs:
         - PYTHON=pypy3
       sudo: required
 
-    - <<: *test_job
-      python: pypy
-      env:
-        - PYVER=pypy
-        - PYTHON=pypy
-      sudo: required
 
     - <<: *test_job
       python: 3.5
@@ -100,7 +93,7 @@ jobs:
       python: 3.7
       before_script:
         # install our own python so we can modify usercustomize.py
-        - deactivate
+#        - deactivate
 #        - sudo add-apt-repository -y ppa:deadsnakes/ppa
 #        - sudo apt-get update || true
 #        - sudo apt-get -y install python$PYTHON
