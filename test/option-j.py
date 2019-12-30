@@ -51,11 +51,10 @@ test = TestSCons.TestSCons()
 test.write('build.py', r"""
 import time
 import sys
-file = open(sys.argv[1], 'w')
-file.write(str(time.time()) + '\n')
-time.sleep(1)
-file.write(str(time.time()))
-file.close()
+with open(sys.argv[1], 'w') as f:
+    f.write(str(time.time()) + '\n')
+    time.sleep(1)
+    f.write(str(time.time()))
 """)
 
 test.subdir('foo')
@@ -65,11 +64,12 @@ foo you
 """)
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 MyBuild = Builder(action = r'%(_python_)s build.py $TARGETS')
-env = Environment(BUILDERS = { 'MyBuild' : MyBuild })
+env = Environment(BUILDERS={'MyBuild': MyBuild}, tools=[])
 env.Tool('install')
-env.MyBuild(target = 'f1', source = 'f1.in')
-env.MyBuild(target = 'f2', source = 'f2.in')
+env.MyBuild(target='f1', source='f1.in')
+env.MyBuild(target='f2', source='f2.in')
 
 def copyn(env, target, source):
     import shutil
@@ -161,8 +161,9 @@ if sys.platform != 'win32' and sys.version_info[0] == 2:
 
 # Test SetJobs() with no -j:
 test.write('SConstruct', """
-MyBuild = Builder(action = r'%(_python_)s build.py $TARGETS')
-env = Environment(BUILDERS = { 'MyBuild' : MyBuild })
+DefaultEnvironment(tools=[])
+MyBuild = Builder(action=r'%(_python_)s build.py $TARGETS')
+env = Environment(BUILDERS={'MyBuild': MyBuild}, tools=[])
 env.Tool('install')
 env.MyBuild(target = 'f1', source = 'f1.in')
 env.MyBuild(target = 'f2', source = 'f2.in')
@@ -190,11 +191,12 @@ test.fail_test(not (start2 < finish1))
 
 # Test SetJobs() with -j:
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 MyBuild = Builder(action = r'%(_python_)s build.py $TARGETS')
-env = Environment(BUILDERS = { 'MyBuild' : MyBuild })
+env = Environment(BUILDERS = {'MyBuild': MyBuild}, tools=[])
 env.Tool('install')
-env.MyBuild(target = 'f1', source = 'f1.in')
-env.MyBuild(target = 'f2', source = 'f2.in')
+env.MyBuild(target='f1', source='f1.in')
+env.MyBuild(target='f2', source='f2.in')
 
 def copyn(env, target, source):
     import shutil
