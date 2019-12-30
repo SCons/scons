@@ -24,6 +24,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Remove deprecated SourceCode
     - str.format syntax errors fixed
     - a bunch of linter/checker syntax fixups
+    - Convert remaining uses of insecure/deprecated mktemp method.
 
 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
