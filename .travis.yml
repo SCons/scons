@@ -101,7 +101,7 @@ jobs:
 #        - sudo -H python$PYTHON get-pip.py
         - which python
         - python --version
-        - python -m pip install --user -U coverage codecov
+        - python -m pip install -U coverage codecov
         # set this ensure user sites are available
         - export PYTHONNOUSERSITE=
         # attempt to get a location where we can store the usercustomize.py file
