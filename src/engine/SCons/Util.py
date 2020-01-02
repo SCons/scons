@@ -626,7 +626,6 @@ class Delegate(object):
         self.attribute = attribute
 
     def __get__(self, obj, cls):
-        print("IN GET")
         if isinstance(obj, cls):
             return getattr(obj._subject, self.attribute)
         else:
