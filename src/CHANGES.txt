@@ -14,6 +14,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       header files and libraries from MSVC install. (Fixes GH Issue #3480)
     - Added C:\msys64\mingw64\bin to default mingw and clang windows PATH's.  This 
       is a reasonable default and also aligns with changes in Appveyor's VS2019 image.
+    - Drop support for Python 2.7. SCons will be Python 3.5+ going forward.
+
 
   From Mathew Robinson:
     - Improve performance of Subst by preventing unnecessary frame
