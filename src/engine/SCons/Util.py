@@ -36,6 +36,8 @@ import pprint
 import hashlib
 
 PY3 = sys.version_info[0] == 3
+PYPY = hasattr(sys, 'pypy_translation_info')
+
 
 try:
     from collections import UserDict, UserList, UserString
@@ -612,6 +614,7 @@ class Proxy(object):
             return self._subject == other
         return self.__dict__ == other.__dict__
 
+
 class Delegate(object):
     """A Python Descriptor class that delegates attribute fetches
     to an underlying wrapped subject of a Proxy.  Typical use:
@@ -621,7 +624,9 @@ class Delegate(object):
     """
     def __init__(self, attribute):
         self.attribute = attribute
+
     def __get__(self, obj, cls):
+        print("IN GET")
         if isinstance(obj, cls):
             return getattr(obj._subject, self.attribute)
         else:
