@@ -81,7 +81,7 @@ test.run()
 # can use different file extensions on different implementations.
 
 test.fail_test(os.path.exists('.sconsign') and 'dbm' not in dbm.whichdb('.sconsign'),
-               message=".sconsign existed an wasn't any type of dbm file")
+               message=".sconsign existed and wasn't any type of dbm file")
 test.must_not_exist(test.workpath('.sconsign.dblite'))
 test.must_not_exist(test.workpath('subdir', '.sconsign'))
 test.must_not_exist(test.workpath('subdir', '.sconsign.dblite'))
@@ -94,7 +94,7 @@ test.must_match(['subdir', 'f4.out'], "subdir/f4.in\n")
 test.up_to_date(arguments='.')
 
 test.fail_test(os.path.exists('.sconsign') and 'dbm' not in dbm.whichdb('.sconsign'),
-               message=".sconsign existed an wasn't any type of dbm file")
+               message=".sconsign existed and wasn't any type of dbm file")
 test.must_not_exist(test.workpath('.sconsign.dblite'))
 test.must_not_exist(test.workpath('subdir', '.sconsign'))
 test.must_not_exist(test.workpath('subdir', '.sconsign.dblite'))
