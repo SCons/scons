@@ -31,7 +31,7 @@ import SCons.Defaults
 import SCons.Environment
 from SCons.Variables import *
 from SCons.Errors import *
-from SCons.Util import is_List, is_String, make_path_relative, PY2, PY34
+from SCons.Util import is_List, is_String, make_path_relative
 from SCons.Warnings import warn, Warning
 
 import os
