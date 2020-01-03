@@ -775,7 +775,7 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
             exec(codeobj, site_m)
         except KeyboardInterrupt:
             raise
-        except Exception as e:
+        except Exception:
             fmt = '*** Error loading site_init file %s:\n'
             sys.stderr.write(fmt % repr(site_init_file))
             raise
@@ -786,7 +786,7 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
 
     except KeyboardInterrupt:
         raise
-    except Exception as e:
+    except Exception:
         fmt = '*** cannot import site init file %s:\n'
         sys.stderr.write(fmt % repr(site_init_file))
         raise
