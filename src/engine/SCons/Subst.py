@@ -375,23 +375,29 @@ class StringSubber(object):
                 if key[0] == '{' or '.' in key:
                     if key[0] == '{':
                         key = key[1:-1]
-                    try:
-                        s = eval(key, self.gvars, lvars)
-                    except KeyboardInterrupt:
-                        raise
-                    except Exception as e:
-                        if e.__class__ in AllowableExceptions:
-                            return ''
-                        raise_exception(e, lvars['TARGETS'], s)
+
+                # Store for error messages if we fail to expand the
+                # value
+                old_s = s
+                s = None
+                if key in lvars:
+                     s = lvars[key]
+                elif key in self.gvars:
+                     s = self.gvars[key]
                 else:
-                    if key in lvars:
-                        s = lvars[key]
-                    elif key in self.gvars:
-                        s = self.gvars[key]
-                    elif NameError not in AllowableExceptions:
-                        raise_exception(NameError(key), lvars['TARGETS'], s)
-                    else:
-                        return ''
+                     try:
+                          s = eval(key, self.gvars, lvars)
+                     except KeyboardInterrupt:
+                          raise
+                     except Exception as e:
+                          if e.__class__ in AllowableExceptions:
+                               return ''
+                          raise_exception(e, lvars['TARGETS'], old_s)
+
+                if s is None and NameError not in AllowableExceptions:
+                     raise_exception(NameError(key), lvars['TARGETS'], old_s)
+                elif s is None:
+                     return ''
 
                 # Before re-expanding the result, handle
                 # recursive expansion by copying the local
@@ -524,23 +530,29 @@ class ListSubber(collections.UserList):
                 if key[0] == '{' or key.find('.') >= 0:
                     if key[0] == '{':
                         key = key[1:-1]
-                    try:
-                        s = eval(key, self.gvars, lvars)
-                    except KeyboardInterrupt:
-                        raise
-                    except Exception as e:
-                        if e.__class__ in AllowableExceptions:
-                            return
-                        raise_exception(e, lvars['TARGETS'], s)
+
+                # Store for error messages if we fail to expand the
+                # value
+                old_s = s
+                s = None
+                if key in lvars:
+                     s = lvars[key]
+                elif key in self.gvars:
+                     s = self.gvars[key]
                 else:
-                    if key in lvars:
-                        s = lvars[key]
-                    elif key in self.gvars:
-                        s = self.gvars[key]
-                    elif NameError not in AllowableExceptions:
-                        raise_exception(NameError(), lvars['TARGETS'], s)
-                    else:
-                        return
+                     try:
+                         s = eval(key, self.gvars, lvars)
+                     except KeyboardInterrupt:
+                         raise
+                     except Exception as e:
+                         if e.__class__ in AllowableExceptions:
+                             return
+                         raise_exception(e, lvars['TARGETS'], old_s)
+
+                if s is None and NameError not in AllowableExceptions:
+                     raise_exception(NameError(), lvars['TARGETS'], old_s)
+                elif s is None:
+                     return
 
                 # Before re-expanding the result, handle
                 # recursive expansion by copying the local
