@@ -500,6 +500,14 @@ class ListSubber(collections.UserList):
         self.next_line()
 
     def expanded(self, s):
+        """Determines if the string s requires further expansion.
+
+        Due to the implementation of ListSubber expand will call
+        itself 2 additional times for an already expanded string. This
+        method is used to determine if a string is already fully
+        expanded and if so exit the loop early to prevent these
+        recursive calls.
+        """
         if not is_String(s) or isinstance(s, CmdStringHolder):
             return False
 
@@ -561,6 +569,8 @@ class ListSubber(collections.UserList):
                 elif s is None:
                      return
 
+                # If the string is already full expanded there's no
+                # need to continue recursion.
                 if self.expanded(s):
                     self.append(s)
                     return
