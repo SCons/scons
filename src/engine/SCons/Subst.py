@@ -500,7 +500,11 @@ class ListSubber(collections.UserList):
         self.next_line()
 
     def expanded(self, s):
-        return is_String(s) and _separate_args.findall(s) is None
+        if not is_String(s) or isinstance(s, CmdStringHolder):
+            return False
+
+        s = str(s)  # in case it's a UserString
+        return _separate_args.findall(s) is None
 
     def expand(self, s, lvars, within_list):
         """Expand a single "token" as necessary, appending the
