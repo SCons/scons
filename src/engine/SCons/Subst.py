@@ -376,6 +376,9 @@ class StringSubber(object):
                     if key[0] == '{':
                         key = key[1:-1]
 
+                # Store for error messages if we fail to expand the
+                # value
+                old_s = s
                 s = None
                 if key in lvars:
                      s = lvars[key]
@@ -389,10 +392,10 @@ class StringSubber(object):
                      except Exception as e:
                           if e.__class__ in AllowableExceptions:
                                return ''
-                          raise_exception(e, lvars['TARGETS'], s)
+                          raise_exception(e, lvars['TARGETS'], old_s)
 
                 if s is None and NameError not in AllowableExceptions:
-                     raise_exception(NameError(key), lvars['TARGETS'], s)
+                     raise_exception(NameError(key), lvars['TARGETS'], old_s)
                 elif s is None:
                      return ''
 
@@ -528,6 +531,9 @@ class ListSubber(collections.UserList):
                     if key[0] == '{':
                         key = key[1:-1]
 
+                # Store for error messages if we fail to expand the
+                # value
+                old_s = s
                 s = None
                 if key in lvars:
                      s = lvars[key]
@@ -541,10 +547,10 @@ class ListSubber(collections.UserList):
                      except Exception as e:
                          if e.__class__ in AllowableExceptions:
                              return
-                         raise_exception(e, lvars['TARGETS'], s)
+                         raise_exception(e, lvars['TARGETS'], old_s)
 
                 if s is None and NameError not in AllowableExceptions:
-                     raise_exception(NameError(), lvars['TARGETS'], s)
+                     raise_exception(NameError(), lvars['TARGETS'], old_s)
                 elif s is None:
                      return
 
