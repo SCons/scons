@@ -2879,6 +2879,38 @@ function.
 </summary>
 </scons_function>
 
+<scons_function name="Split">
+<arguments>(arg)</arguments>
+<summary>
+<para>
+Returns a list of file names or other objects.
+If <varname>arg</varname> is a string,
+it will be split on strings of white-space characters
+within the string,
+making it easier to write long lists of file names.
+If <varname>arg</varname> is already a list,
+the list will be returned untouched.
+If <varname>arg</varname> is any other type of object,
+it will be returned as a list
+containing just the object.
+</para>
+
+<para>
+Example:
+</para>
+
+<example_commands>
+files = Split("f1.c f2.c f3.c")
+files = env.Split("f4.c f5.c f6.c")
+files = Split("""
+       f7.c
+       f8.c
+       f9.c
+""")
+</example_commands>
+</summary>
+</scons_function>
+
 <scons_function name="subst">
 <arguments signature="env">
 (input, [raw, target, source, conv])
