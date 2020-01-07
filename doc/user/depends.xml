@@ -747,25 +747,6 @@ int main() { printf("Hello, world!\n"); }
   </section>
 
   <section>
-  <title>Obsolete Functions for Deciding When an Input File Has Changed</title>
-
-    <para>
-
-    In the past, &SCons; supported two functions
-    (<function>SourceSignatures</function> and
-    <function>TargetSignatures</function>)
-    that once were the primary methods for configuring the
-    decision about whether or not an input file had changed.
-    These functions were deprecated since &SCons; version 2.0,
-    and removed in &SCons; version 3.1 and
-    are mentioned here solely for identification purposes,
-    as there are a number of very old examples that may turn up
-    in web searches and in the SCons Wiki that may reference them.
-
-    </para>
-  </section>
-
-  <section>
   <title>Implicit Dependencies:  The &cv-CPPPATH; Construction Variable</title>
 
     <para>
