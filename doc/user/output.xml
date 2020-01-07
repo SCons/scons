@@ -47,7 +47,7 @@
   <para>
 
   A key aspect of creating a usable build configuration
-  is providing good output from the build
+  is providing useful output from the build
   so its users can readily understand
   what the build is doing
   and get information about how to control the build.
@@ -354,6 +354,17 @@ Removed foo
 cc -o foo.o -c foo.c
 cc -o foo foo.o
     </screen>
+
+    <para>
+
+    A gentle reminder here: many of the commands for building come in
+    pairs, depending on whether the intent is to build an object for
+    use in a shared library or not.  The command strings mirror this,
+    so it may be necessary to set, for example, both
+    <envar>CCCOMSTR</envar> and <envar>SHCCCOMSTR</envar>
+    to get the desired results.
+
+    </para>
 
   </section>
 

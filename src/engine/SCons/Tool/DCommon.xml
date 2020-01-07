@@ -27,6 +27,7 @@ See its __doc__ string for a discussion of the format.
 <summary>
 <para>
 The D compiler to use.
+See also &cv-link-SHDC;.
 </para>
 </summary>
 </cvar>
@@ -37,6 +38,18 @@ The D compiler to use.
 The command line used to compile a D file to an object file.
 Any options specified in the &cv-link-DFLAGS; construction variable
 is included on this command line.
+See also &cv-link-SHDCOM;.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DCOMSTR">
+<summary>
+<para>
+If set, the string displayed when a D source file
+is compiled to a (static) object file.
+If not set, then &cv-link-DCOM; (the command line) is displayed.
+See also &cv-link-SHDCOMSTR;.
 </para>
 </summary>
 </cvar>
@@ -286,6 +299,17 @@ destined to be in a shared objects.
 <summary>
 <para>
 The command line to use when compiling code to be part of shared objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHDCOMSTR">
+<summary>
+<para>
+If set, the string displayed when a D source file
+is compiled to a (shared) object file.
+If not set, then &cv-link-SHDCOM; (the command line) is displayed.
+See also &cv-link-DCOMSTR;.
 </para>
 </summary>
 </cvar>

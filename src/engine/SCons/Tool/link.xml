@@ -55,8 +55,8 @@ based on the types of source files.
 <item>__LDMODULEVERSIONFLAGS</item>
 </sets>
 <uses>
-<item>SHLINKCOMSTR</item>
 <item>LINKCOMSTR</item>
+<item>SHLINKCOMSTR</item>
 <item>LDMODULECOMSTR</item>
 </uses>
 </tool>
@@ -184,8 +184,8 @@ On other systems, this is the same as &cv-link-SHLINK;.
 <cvar name="LDMODULECOMSTR">
 <summary>
 <para>
-The string displayed when building loadable modules.
-If this is not set, then &cv-link-LDMODULECOM; (the command line) is displayed.
+If set, the string displayed when building loadable modules.
+If not set, then &cv-link-LDMODULECOM; (the command line) is displayed.
 </para>
 </summary>
 </cvar>
@@ -258,9 +258,10 @@ The command line used to link object files into an executable.
 <cvar name="LINKCOMSTR">
 <summary>
 <para>
-The string displayed when object files
+If set, the string displayed when object files
 are linked into an executable.
-If this is not set, then &cv-link-LINKCOM; (the command line) is displayed.
+If not set, then &cv-link-LINKCOM; (the command line) is displayed.
+See also &cv-link-SHLINKCOMSTR;.
 </para>
 
 <example_commands>
@@ -334,6 +335,7 @@ The command line used to link programs using shared libraries.
 <para>
 The string displayed when programs using shared libraries are linked.
 If this is not set, then &cv-link-SHLINKCOM; (the command line) is displayed.
+See also &cv-link-LINKCOMSTR;.
 </para>
 
 <example_commands>
