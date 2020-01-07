@@ -2,7 +2,7 @@
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -372,7 +372,7 @@ int main() { printf("Hello, world!\n"); }
       instead of
       <literal>timestamp-match</literal>,
       would be if you have some specific reason
-      to require this &Make;-like behavior of 
+      to require this &Make;-like behavior of
       not rebuilding a target when an otherwise-modified
       source file is older.
 
@@ -747,25 +747,24 @@ int main() { printf("Hello, world!\n"); }
   </section>
 
   <section>
-  <title>Older Functions for Deciding When an Input File Has Changed</title>
+  <title>Obsolete Functions for Deciding When an Input File Has Changed</title>
 
     <para>
 
-    &SCons; still supports two functions that used to be the
-    primary methods for configuring the
-    decision about whether or not an input file has changed.
-    These functions have been officially deprecated
-    as &SCons; version 2.0,
-    and their use is discouraged,
-    mainly because they rely on a somewhat
-    confusing distinction between how
-    source files and target files are handled.
-    These functions are documented here mainly in case you
-    encounter them in older &SConscript; files.
+    In the past, &SCons; supported two functions
+    (<function>SourceSignatures</function> and
+    <function>TargetSignatures</function>)
+    that once were the primary methods for configuring the
+    decision about whether or not an input file had changed.
+    These functions were deprecated since &SCons; version 2.0,
+    and removed in &SCons; version 3.1 and
+    are mentioned here solely for identification purposes,
+    as there are a number of very old examples that may turn up
+    in web searches and in the SCons Wiki that may reference them.
 
     </para>
   </section>
-  
+
   <section>
   <title>Implicit Dependencies:  The &cv-CPPPATH; Construction Variable</title>
 
@@ -1426,11 +1425,11 @@ Ignore(hello, '/usr/include/stdio.h')
     </programlisting>
 
     <para>
-    &Ignore; can also be used to prevent a generated file from being built 
-    by default. This is due to the fact that directories depend on 
-    their contents.  So to ignore a generated file from the default build, 
+    &Ignore; can also be used to prevent a generated file from being built
+    by default. This is due to the fact that directories depend on
+    their contents.  So to ignore a generated file from the default build,
     you specify that the directory should ignore the generated file.
-    Note that the file will still be built if the user specifically 
+    Note that the file will still be built if the user specifically
     requests the target on scons command line, or if the file is
     a dependency of another file which is requested and/or is built
     by default.
