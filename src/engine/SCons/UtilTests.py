@@ -311,8 +311,8 @@ class UtilTestCase(unittest.TestCase):
 
     def test_to_Bytes(self):
         """ Test the to_Bytes method"""
-        self.assertEqual(to_bytes(str('Hello')),
-                         bytearray(u'Hello', 'utf-8'),
+        self.assertEqual(to_bytes('Hello'),
+                         bytearray('Hello', 'utf-8'),
                          "Check that to_bytes creates byte array when presented with unicode string.")
 
     def test_to_String(self):
