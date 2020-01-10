@@ -339,14 +339,6 @@ class ActionTestCase(unittest.TestCase):
         # a singleton list returns the contained action
         test_positional_args(cmd_action, ["string"])
 
-        try:
-            unicode
-        except NameError:
-            pass
-        else:
-            a2 = eval("SCons.Action.Action(u'string')")
-            assert isinstance(a2, SCons.Action.CommandAction), a2
-
         def line_action(a):
             assert isinstance(a, SCons.Action.CommandAction), a
             assert a.cmd_list == ["explicit", "command", "line"], a.cmd_list

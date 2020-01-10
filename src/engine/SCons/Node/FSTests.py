@@ -1347,10 +1347,10 @@ class FSTestCase(_tempdirTestCase):
         assert f1.get_contents() == bytearray("Foo\x1aBar", 'utf-8'), f1.get_contents()
 
         # This tests to make sure we can decode UTF-8 text files.
-        test_string = u"Foo\x1aBar"
+        test_string = "Foo\x1aBar"
         test.write("utf8_file", test_string.encode('utf-8'))
         f1 = fs.File(test.workpath("utf8_file"))
-        assert eval('f1.get_text_contents() == u"Foo\x1aBar"'), \
+        assert eval('f1.get_text_contents() == "Foo\x1aBar"'), \
             f1.get_text_contents()
 
         # Check for string which doesn't have BOM and isn't valid
@@ -1449,7 +1449,7 @@ class FSTestCase(_tempdirTestCase):
 
         c = e.get_text_contents()
         try:
-            eval('assert c == u"", c')
+            eval('assert c == "", c')
         except SyntaxError:
             assert c == ""
 
@@ -1461,7 +1461,7 @@ class FSTestCase(_tempdirTestCase):
             assert c == "", c
             c = e.get_text_contents()
             try:
-                eval('assert c == u"", c')
+                eval('assert c == "", c')
             except SyntaxError:
                 assert c == "", c
 
@@ -3317,7 +3317,7 @@ class RepositoryTestCase(_tempdirTestCase):
         # Use a test string that has a file terminator in it to make
         # sure we read the entire file, regardless of its contents.
         try:
-            eval('test_string = u"Con\x1aTents\n"')
+            eval('test_string = "Con\x1aTents\n"')
         except SyntaxError:
             import collections
             class FakeUnicodeString(collections.UserString):

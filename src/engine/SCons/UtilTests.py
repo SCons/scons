@@ -740,7 +740,7 @@ class UtilTestCase(unittest.TestCase):
 
     def test_LogicalLines(self):
         """Test the LogicalLines class"""
-        content = u"""
+        content = """
 foo \\
 bar \\
 baz
@@ -761,9 +761,6 @@ bling
 
     def test_intern(self):
         s1 = silent_intern("spam")
-        # TODO: Python 3.x does not have a unicode() global function
-        if sys.version[0] == '2':
-            s2 = silent_intern(unicode("unicode spam"))
         s3 = silent_intern(42)
         s4 = silent_intern("spam")
         assert id(s1) == id(s4)
