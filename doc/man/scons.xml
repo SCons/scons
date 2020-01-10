@@ -4383,20 +4383,17 @@ vars.AddVariables(
 
 </refsect2>
 
-<refsect2 id='file_and_directory_nodes'><title>File and Directory Nodes</title>
+<refsect2 id='file_and_directory_nodes'>
+<title>File and Directory Nodes</title>
 
-<para>The
-<emphasis>File</emphasis>()
-and
-<emphasis>Dir</emphasis>()
-functions return
-<emphasis>File</emphasis>
-and
-<emphasis>Dir</emphasis>
-Nodes, respectively.
-Python objects, respectively.
-Those objects have several user-visible attributes
-and methods that are often useful:</para>
+<para>
+The &f-link-File; and &f-link-Dir;
+functions/methods return
+File and Directory Nodes, respectively.
+Such nodes are Python objects with
+several user-visible attributes
+and methods that are often useful to access
+in SConscript files:</para>
 
 <variablelist>
   <varlistentry>
@@ -4412,33 +4409,31 @@ file is found).
 The build path is the same as the source path if
 <emphasis>variant_dir</emphasis>
 is not being used.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>abspath</term>
   <listitem>
 <para>The absolute build path of the given file or directory.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>srcnode()</term>
   <listitem>
 <para>The
 <emphasis>srcnode</emphasis>()
 method
-returns another
-<emphasis>File</emphasis>
-or
-<emphasis>Dir</emphasis>
-object representing the
-<emphasis>source</emphasis>
-path of the given
-<emphasis>File</emphasis>
-or
-<emphasis>Dir</emphasis>.
-The</para>
+returns another File or Directory Node
+representing the source path of the given
+File or Directory Node.
+</para>
+  </listitem>
+  </varlistentry>
+</variablelist>
+
+<para>For example:</para>
 
 <literallayout class="monospaced">
 # Get the current build dir's path, relative to top.
@@ -4451,98 +4446,90 @@ File('foo.c').srcnode().path   # source path of the given source file.
 
 # Builders also return File objects:
 foo = env.Program('foo.c')
-print("foo will be built in %s"%foo.path)
+print("foo will be built in", foo.path)
 </literallayout>
 
-<para>A
-<emphasis>Dir</emphasis>
-Node or
-<emphasis>File</emphasis>
-Node can also be used to create
-file and subdirectory Nodes relative to the generating Node.
-A
-<emphasis>Dir</emphasis>
-Node will place the new Nodes within the directory it represents.
-A
-<emphasis>File</emphasis>
-node will place the new Nodes within its parent directory
-(that is, "beside" the file in question).
-If
-<emphasis>d</emphasis>
-is a
-<emphasis>Dir</emphasis>
-(directory) Node and
-<emphasis>f</emphasis>
-is a
-<emphasis>File</emphasis>
-(file) Node,
-then these methods are available:</para>
+<para>
+Node objects have methods to create
+File and Directory Nodes relative to the orignal Node.
+</para>
 
-  </listitem>
-  </varlistentry>
-</variablelist>
+<para>
+If the object is a Directory Node,
+these methods will place the the new Node within the directory
+the Node represents:
+</para>
+
 <variablelist>
   <varlistentry>
-  <term><emphasis>d</emphasis>.Dir(<emphasis>name</emphasis>)</term>
+  <term><replaceable>d</replaceable>.Dir(<replaceable>name</replaceable>)</term>
   <listitem>
 <para>Returns a directory Node for a subdirectory of
-<emphasis>d</emphasis>
+<replaceable>d</replaceable>
 named
-<emphasis>name</emphasis>.</para>
-
+<replaceable>name</replaceable>.</para>
   </listitem>
   </varlistentry>
+
   <varlistentry>
-  <term><emphasis>d</emphasis>.File(<emphasis>name</emphasis>)</term>
+  <term><replaceable>d</replaceable>.File(<replaceable>name</replaceable>)</term>
   <listitem>
 <para>Returns a file Node for a file within
-<emphasis>d</emphasis>
+<replaceable>d</replaceable>
 named
-<emphasis>name</emphasis>.</para>
-
+<replaceable>name</replaceable>.</para>
   </listitem>
   </varlistentry>
+
   <varlistentry>
-  <term><emphasis>d</emphasis>.Entry(<emphasis>name</emphasis>)</term>
+  <term><replaceable>d</replaceable>.Entry(<replaceable>name</replaceable>)</term>
   <listitem>
 <para>Returns an unresolved Node within
-<emphasis>d</emphasis>
+<replaceable>d</replaceable>
 named
-<emphasis>name</emphasis>.</para>
-
-  </listitem>
-  </varlistentry>
-  <varlistentry>
-  <term><emphasis>f</emphasis>.Dir(<emphasis>name</emphasis>)</term>
-  <listitem>
-<para>Returns a directory named
-<emphasis>name</emphasis>
-within the parent directory of
-<emphasis>f</emphasis>.</para>
-
-  </listitem>
-  </varlistentry>
-  <varlistentry>
-  <term><emphasis>f</emphasis>.File(<emphasis>name</emphasis>)</term>
-  <listitem>
-<para>Returns a file named
-<emphasis>name</emphasis>
-within the parent directory of
-<emphasis>f</emphasis>.</para>
-
-  </listitem>
-  </varlistentry>
-  <varlistentry>
-  <term><emphasis>f</emphasis>.Entry(<emphasis>name</emphasis>)</term>
-  <listitem>
-<para>Returns an unresolved Node named
-<emphasis>name</emphasis>
-within the parent directory of
-<emphasis>f</emphasis>.</para>
-
+<replaceable>name</replaceable>.</para>
   </listitem>
   </varlistentry>
 </variablelist>
+
+<para>
+If the object is a File Node,
+these methods will place the the new Node in the same
+directory as the one the Node represents:
+</para>
+
+<variablelist>
+  <varlistentry>
+  <term><replaceable>d</replaceable>.Dir(<replaceable>name</replaceable>)</term>
+  <listitem>
+<para>Returns a directory named
+<replaceable>name</replaceable>
+within the parent directory of
+<replaceable>f</replaceable>.</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
+  <term><replaceable>d</replaceable>.File(<replaceable>name</replaceable>)</term>
+  <listitem>
+<para>Returns a file named
+<replaceable>name</replaceable>
+within the parent directory of
+<replaceable>f</replaceable>.</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
+  <term><replaceable>d</replaceable>.Entry(<replaceable>name</replaceable>)</term>
+  <listitem>
+<para>Returns an unresolved Node named
+<replaceable>name</replaceable>
+within the parent directory of
+<replaceable>f</replaceable>.</para>
+  </listitem>
+  </varlistentry>
+</variablelist>
+
 <para>For example:</para>
 
 <literallayout class="monospaced">
@@ -5923,7 +5910,7 @@ action='$CC -c -o $TARGET $SOURCES'
 cc -c -o foo foo.c bar.c
 </literallayout>
 
-<para>Variable names may be surrounded by curly braces 
+<para>Variable names may be surrounded by curly braces
 <emphasis role="bold">{ }</emphasis>
 to separate the name from surrounding characters which
 are not part of the name.
@@ -7200,7 +7187,7 @@ in addition to those passed on the command line.</para>
     <listitem>
 <para>(Windows only). If set, save the shell environment variables
 generated when setting up the Microsoft Visual C++ compiler
-(and/or Build Tools) to a file to give these settings, 
+(and/or Build Tools) to a file to give these settings,
 which are expensive to generate, persistence
 across &scons; invocations.
 Use of this option is primarily intended to aid performance
