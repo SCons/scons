@@ -40,7 +40,7 @@ test.subdir('sub1', 'sub2')
 
 # Because this test sets SConsignFile(None), we execute our fake
 # scripts directly, not by feeding them to the Python executable.
-# That is, we chmod 0755 and us a "#!/usr/bin/env python" first
+# That is, we chmod 0o755 and use a "#!/usr/bin/env python" first
 # line for POSIX systems, and add .PY to the %PATHEXT% variable on
 # Windows.  If we didn't do this, then running this script with
 # suitable prileveges would create a .sconsign file in the directory

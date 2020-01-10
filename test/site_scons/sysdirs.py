@@ -50,7 +50,7 @@ import SCons.Platform
 platform = SCons.Platform.platform_default()
 if platform in ('win32', 'cygwin'):
     dir_to_check_for='Application Data'
-elif platform in ('darwin'):
+elif platform in 'darwin':
     dir_to_check_for='Library'
 else:
     dir_to_check_for='.scons'

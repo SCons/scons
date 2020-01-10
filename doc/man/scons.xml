@@ -638,36 +638,39 @@ yet have any results in the cache.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>-C<emphasis> directory</emphasis>, --directory=<emphasis>directory</emphasis></term>
+  <term>-C <replaceable>directory</replaceable>, --directory=<replaceable>directory</replaceable></term>
   <listitem>
-<para>Change to the specified
-<emphasis>directory</emphasis>
-before searching for the
-<emphasis>SConstruct</emphasis>,
-<emphasis>Sconstruct</emphasis>,
-<emphasis>sconstruct</emphasis>,
-<emphasis>SConstruct.py</emphasis>
-<emphasis>Sconstruct.py</emphasis>
+<para>Run as if &scons; was started in
+<replaceable>directory</replaceable>
+instead of the current working directory.
+That is, change directory before searching for the
+&SConstruct;,
+&Sconstruct;,
+&sconstruct;,
+&SConstruct.py;,
+&Sconstruct.py;
 or
-<emphasis>sconstruct.py</emphasis>
-file, or doing anything
-else.  Multiple
+&sconstruct.py;
+file, or doing anything else.
+When multiple
 <option>-C</option>
-options are interpreted
-relative to the previous one, and the right-most
-<option>-C</option>
-option wins. (This option is nearly
-equivalent to
-<option>-f directory/SConstruct</option>,
-except that it will search for
-<emphasis>SConstruct</emphasis>,
-<emphasis>Sconstruct</emphasis>,
-<emphasis>sconstruct</emphasis>,
-<emphasis>SConstruct.py</emphasis>
-<emphasis>Sconstruct.py</emphasis>
-or
-<emphasis>sconstruct.py</emphasis>
-in the specified directory.)</para>
+options are given, each subsequent non-absolute
+<option>-C</option> <replaceable>directory</replaceable>
+is interpreted relative to the preceding one.
+This option is similar to using
+<option>-f <replaceable>directory</replaceable>/SConstruct</option>,
+but <option>-f</option> does not search for any of the
+predefined &SConstruct; names
+in the specified directory.
+See also options
+<option>-u</option>,
+<option>-U</option>
+and
+<option>-D</option>
+to change the &SConstruct; search behavior when this option is used.
+</para>
+  </listitem>
+  </varlistentry>
 
 <!--  .TP -->
 <!--  \-d -->
@@ -675,8 +678,6 @@ in the specified directory.)</para>
 <!--  figuring out why a specific file is being rebuilt, as well as -->
 <!--  general debugging of the build process. -->
 
-  </listitem>
-  </varlistentry>
   <varlistentry>
   <term>-D</term>
   <listitem>
@@ -686,19 +687,32 @@ option except for the way default targets are handled.
 When this option is used and no targets are specified on the command line,
 all default targets are built, whether or not they are below the current
 directory.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
-  <term>--debug=<emphasis>type</emphasis></term>
+  <term>--debug=<replaceable>type</replaceable>[<replaceable>,type</replaceable>...]</term>
   <listitem>
 <para>Debug the build process.
-<emphasis>type[,type...]</emphasis>
-specifies what type of debugging. Multiple types may be specified,
-separated by commas. The following types are valid:</para>
-
+<emphasis>type</emphasis>
+specifies the kind of debugging info to emit.
+Multiple types may be specified, separated by commas.
+The following entries show the recognized types:</para>
   </listitem>
   </varlistentry>
+
+  <varlistentry>
+  <term>--debug=action-timestamps</term>
+  <listitem>
+<para>Prints additional time profiling information. For
+each command, shows the absolute start and end times.
+This may be useful in debugging parallel builds.
+Implies the <option>--debug=time</option> option.
+</para>
+<para>Since &scons; 3.1.</para>
+  </listitem>
+  </varlistentry>
+
   <varlistentry>
   <term>--debug=count</term>
   <listitem>
@@ -892,40 +906,6 @@ should take place in parallel.)
 </para>
   </listitem>
   </varlistentry>
-
-<varlistentry>
-  <term>--debug=action_timestamps</term>
-  <listitem>
-    <para>Prints additional time profiling information:</para>
-    <itemizedlist>
-      <listitem>
-        <para>The time spent executing each individual build command</para>
-      </listitem>
-      <listitem>
-        <para>The total build time (time SCons ran from beginning to end)</para>
-      </listitem>
-      <listitem>
-        <para>The total time spent reading and executing SConscript files</para>
-      </listitem>
-      <listitem>
-        <para>The total time spent SCons itself spend running
-(that is, not counting reading and executing SConscript files)</para>
-      </listitem>
-      <listitem>
-        <para>The total time spent executing all build commands</para>
-      </listitem>
-      <listitem>
-        <para>The elapsed wall-clock time spent executing those build commands</para>
-      </listitem>
-      <listitem>
-        <para>The absolute start and end wall-clock time spent executing those build commands</para>
-      </listitem>
-      <listitem>
-        <para>The time spent processing each file passed to the <emphasis>SConscript()</emphasis> function</para>
-      </listitem>
-    </itemizedlist>
-  </listitem>
-</varlistentry>
 
   <varlistentry>
   <term>--diskcheck=<emphasis>types</emphasis></term>
@@ -1816,20 +1796,6 @@ Warnings for some specific deprecated features
 may be enabled or disabled individually;
 see below.</para>
 
-  <blockquote>
-    <variablelist>
-      <varlistentry>
-      <term>--warn=deprecated-copy, --warn=no-deprecated-copy</term>
-      <listitem>
-<para>Enables or disables warnings about use of the deprecated
-<emphasis role="bold">env.Copy()</emphasis>
-method.</para>
-
-      </listitem>
-      </varlistentry>
-    </variablelist>
-    </blockquote>
-
   </listitem>
   </varlistentry>
   <varlistentry>
@@ -2278,10 +2244,10 @@ env.SomeTool(targets, sources)
 
 <refsect2 id='builder_methods'><title>Builder Methods</title>
 
-<para>You tell <program>scons</program> what to build
+<para>You tell <command>scons</command> what to build
 by calling Builders, functions which know to take a
 particular action when given files of a particular type
-to produce a particular result type. <program>scons</program>
+to produce a particular result type. <command>scons</command>
 defines a number of builders, and you can also write your own.
 Builders are attached to a &consenv; as methods,
 and the available builder methods are listed as
@@ -5721,11 +5687,11 @@ which can be octal or string, similar to the bash command.
 Examples:</para>
 
 <literallayout class="monospaced">
-Execute(Chmod('file', 0755))
+Execute(Chmod('file', 0o755))
 
 env.Command('foo.out', 'foo.in',
             [Copy('$TARGET', '$SOURCE'),
-             Chmod('$TARGET', 0755)])
+             Chmod('$TARGET', 0o755)])
 
 Execute(Chmod('file', "ugo+w"))
 
@@ -7059,7 +7025,7 @@ value each time we call the SConscript function.</para>
 <programlisting>
 SConstruct:
 
-    env = Environment(LIBPATH = ['#libA', '#libB'])
+    env = Environment(LIBPATH=['#libA', '#libB'])
     Export('env')
     SConscript('libA/SConscript')
     SConscript('libB/SConscript')
@@ -7078,7 +7044,7 @@ libB/SConscript:
 Main/SConscript:
 
     Import('env')
-    e = env.Copy(LIBS = ['a', 'b'])
+    e = env.Clone(LIBS=['a', 'b'])
     e.Program('foo', Split('m1.c m2.c m3.c'))
 </programlisting>
 

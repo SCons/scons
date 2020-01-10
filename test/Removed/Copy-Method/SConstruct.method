@@ -1,0 +1,3 @@
+DefaultEnvironment(tools=[])
+env = Environment(tools=["textfile"])
+env.Copy()

@@ -164,7 +164,7 @@ env.SideEffect('logfile.txt', f1 + f2)
    </file>
    <file name="file1.in">file1.in</file>
    <file name="file2.in">file2.in</file>
-   <file name="build" chmod="0755">
+   <file name="build" chmod="0o755">
 cat
    </file>
  </scons_example>

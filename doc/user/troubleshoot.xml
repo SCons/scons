@@ -289,7 +289,7 @@ file3.c
     <scons_example name="troubleshoot_Dump">
       <file name="SConstruct" printme="1">
 env = Environment()
-print env.Dump()
+print(env.Dump())
       </file>
     </scons_example>
 
@@ -349,7 +349,7 @@ print env.Dump()
     <scons_example name="troubleshoot_Dump_ENV">
       <file name="SConstruct" printme="1">
 env = Environment()
-print env.Dump('ENV')
+print(env.Dump('ENV'))
       </file>
     </scons_example>
 

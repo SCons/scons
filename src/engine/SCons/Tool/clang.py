@@ -46,6 +46,7 @@ import sys
 import SCons.Util
 import SCons.Tool.cc
 from SCons.Tool.clangCommon import get_clang_install_dirs
+from SCons.Tool.MSCommon import msvc_setup_env_once
 
 
 compilers = ['clang']
@@ -61,6 +62,10 @@ def generate(env):
         if clang:
             clang_bin_dir = os.path.dirname(clang)
             env.AppendENVPath('PATH', clang_bin_dir)
+
+            # Set-up ms tools paths
+            msvc_setup_env_once(env)
+
 
     env['CC'] = env.Detect(compilers) or 'clang'
     if env['PLATFORM'] in ['cygwin', 'win32']:

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
 __COPYRIGHT__
 
@@ -850,9 +850,9 @@ Examples:
 </para>
 
 <example_commands>
-# makes sure the built library will be installed with 0644 file
+# makes sure the built library will be installed with 0o644 file
 # access mode
-Tag( Library( 'lib.c' ), UNIX_ATTR="0644" )
+Tag( Library( 'lib.c' ), UNIX_ATTR="0o644" )
 
 # marks file2.txt to be a documentation file
 Tag( 'file2.txt', DOC )

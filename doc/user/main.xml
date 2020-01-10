@@ -147,13 +147,6 @@
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="scanners.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="repositories.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="sconf.xml"/>
-
-  <!--
-
-  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="sourcecode.xml"/>
-
-  -->
-
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="caching.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="alias.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="java.xml"/>

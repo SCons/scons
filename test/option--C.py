@@ -22,6 +22,11 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+"""
+Test that the -C option changes directory as expected and that
+multiple -C options are additive, except if a full path is given
+"""
+
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
@@ -50,44 +55,52 @@ wpath_sub_foo_bar = test.workpath('sub', 'foo', 'bar')
 test.subdir('sub', ['sub', 'dir'])
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 import os
-print("SConstruct "+os.getcwd())
+print("SConstruct " + os.getcwd())
 """)
 
 test.write(['sub', 'SConstruct'], """
+DefaultEnvironment(tools=[])
 import os
 print(GetBuildPath('..'))
 """)
 
 test.write(['sub', 'dir', 'SConstruct'], """
+DefaultEnvironment(tools=[])
 import os
-env = Environment(FOO='foo', BAR='bar')
+env = Environment(FOO='foo', BAR='bar', tools=[])
 print(env.GetBuildPath('../$FOO/$BAR'))
 """)
 
-test.run(arguments = '-C sub .',
-         stdout = "scons: Entering directory `%s'\n" % wpath_sub \
-             + test.wrap_stdout(read_str = '%s\n' % wpath,
-                                build_str = "scons: `.' is up to date.\n"))
+# single -C
+test.run(arguments='-C sub .',
+         stdout="scons: Entering directory `%s'\n" % wpath_sub \
+             + test.wrap_stdout(read_str='%s\n' % wpath,
+                                build_str="scons: `.' is up to date.\n"))
 
-test.run(arguments = '-C sub -C dir .',
-         stdout = "scons: Entering directory `%s'\n" % wpath_sub_dir \
-             + test.wrap_stdout(read_str = '%s\n' % wpath_sub_foo_bar,
-                                build_str = "scons: `.' is up to date.\n"))
+# multiple -C
+test.run(arguments='-C sub -C dir .',
+         stdout="scons: Entering directory `%s'\n" % wpath_sub_dir \
+             + test.wrap_stdout(read_str='%s\n' % wpath_sub_foo_bar,
+                                build_str="scons: `.' is up to date.\n"))
 
-test.run(arguments = ".",
-         stdout = test.wrap_stdout(read_str = 'SConstruct %s\n' % wpath,
-                                   build_str = "scons: `.' is up to date.\n"))
+test.run(arguments=".",
+         stdout=test.wrap_stdout(read_str='SConstruct %s\n' % wpath,
+                                 build_str="scons: `.' is up to date.\n"))
 
-test.run(arguments = '--directory=sub/dir .',
-         stdout = "scons: Entering directory `%s'\n" % wpath_sub_dir \
-             + test.wrap_stdout(read_str = '%s\n' % wpath_sub_foo_bar,
-                                build_str = "scons: `.' is up to date.\n"))
+# alternate form
+test.run(arguments='--directory=sub/dir .',
+         stdout="scons: Entering directory `%s'\n" % wpath_sub_dir \
+             + test.wrap_stdout(read_str='%s\n' % wpath_sub_foo_bar,
+                                build_str="scons: `.' is up to date.\n"))
 
-test.run(arguments = '-C %s -C %s .' % (wpath_sub_dir, wpath_sub),
-         stdout = "scons: Entering directory `%s'\n" % wpath_sub \
-             + test.wrap_stdout(read_str = '%s\n' % wpath,
-                                build_str = "scons: `.' is up to date.\n"))
+# checks that using full paths is not additive
+test.run(arguments='-C %s -C %s .' % (wpath_sub_dir, wpath_sub),
+         stdout="scons: Entering directory `%s'\n" % wpath_sub \
+             + test.wrap_stdout(read_str='%s\n' % wpath,
+                                build_str="scons: `.' is up to date.\n"))
+
 
 test.pass_test()
 

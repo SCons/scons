@@ -36,19 +36,11 @@ import pprint
 import hashlib
 
 PY3 = sys.version_info[0] == 3
+PYPY = hasattr(sys, 'pypy_translation_info')
 
-try:
-    from collections import UserDict, UserList, UserString
-except ImportError:
-    from UserDict import UserDict
-    from UserList import UserList
-    from UserString import UserString
 
-try:
-    from collections.abc import Iterable, MappingView
-except ImportError:
-    from collections import Iterable
-
+from collections import UserDict, UserList, UserString
+from collections.abc import Iterable, MappingView
 from collections import OrderedDict
 
 # Don't "from types import ..." these because we need to get at the
@@ -59,13 +51,6 @@ from collections import OrderedDict
 
 MethodType      = types.MethodType
 FunctionType    = types.FunctionType
-
-try:
-    _ = type(unicode)
-except NameError:
-    UnicodeType = str
-else:
-    UnicodeType = unicode
 
 def dictify(keys, values, result={}):
     for k, v in zip(keys, values):
@@ -208,14 +193,16 @@ def get_environment_var(varstr):
     else:
         return None
 
+
 class DisplayEngine(object):
     print_it = True
+
     def __call__(self, text, append_newline=1):
         if not self.print_it:
             return
         if append_newline: text = text + '\n'
         try:
-            sys.stdout.write(UnicodeType(text))
+            sys.stdout.write(str(text))
         except IOError:
             # Stdout might be connected to a pipe that has been closed
             # by now. The most likely reason for the pipe being closed
@@ -312,18 +299,21 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
                       '\n')
             sys.stdout.write(legend)
 
-        tags = ['[']
-        tags.append(' E'[IDX(root.exists())])
-        tags.append(' R'[IDX(root.rexists() and not root.exists())])
-        tags.append(' BbB'[[0,1][IDX(root.has_explicit_builder())] +
-                           [0,2][IDX(root.has_builder())]])
-        tags.append(' S'[IDX(root.side_effect)])
-        tags.append(' P'[IDX(root.precious)])
-        tags.append(' A'[IDX(root.always_build)])
-        tags.append(' C'[IDX(root.is_up_to_date())])
-        tags.append(' N'[IDX(root.noclean)])
-        tags.append(' H'[IDX(root.nocache)])
-        tags.append(']')
+        tags = [
+            '[',
+            ' E'[IDX(root.exists())],
+            ' R'[IDX(root.rexists() and not root.exists())],
+            ' BbB'[
+                [0, 1][IDX(root.has_explicit_builder())] +
+                [0, 2][IDX(root.has_builder())]
+            ],
+            ' S'[IDX(root.side_effect)], ' P'[IDX(root.precious)],
+            ' A'[IDX(root.always_build)],
+            ' C'[IDX(root.is_up_to_date())],
+            ' N'[IDX(root.noclean)],
+            ' H'[IDX(root.nocache)],
+            ']'
+        ]
 
     else:
         tags = []
@@ -350,7 +340,6 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
         margin[-1] = 0
         print_tree(children[-1], child_func, prune, idx, margin, visited)
         margin.pop()
-
 
 
 # Functions for deciding if things are like various types, mainly to
@@ -390,7 +379,7 @@ except NameError:
 try:
     BaseStringTypes = (str, unicode)
 except NameError:
-    BaseStringTypes = (str)
+    BaseStringTypes = str
 
 def is_Dict(obj, isinstance=isinstance, DictTypes=DictTypes):
     return isinstance(obj, DictTypes)
@@ -610,6 +599,7 @@ class Proxy(object):
             return self._subject == other
         return self.__dict__ == other.__dict__
 
+
 class Delegate(object):
     """A Python Descriptor class that delegates attribute fetches
     to an underlying wrapped subject of a Proxy.  Typical use:
@@ -619,6 +609,7 @@ class Delegate(object):
     """
     def __init__(self, attribute):
         self.attribute = attribute
+
     def __get__(self, obj, cls):
         if isinstance(obj, cls):
             return getattr(obj._subject, self.attribute)
@@ -1576,11 +1567,8 @@ del __revision__
 def to_bytes(s):
     if s is None:
         return b'None'
-    if not PY3 and isinstance(s, UnicodeType):
-        # PY2, must encode unicode
-        return bytearray(s, 'utf-8')
-    if isinstance (s, (bytes, bytearray)) or bytes is str:
-        # Above case not covered here as py2 bytes and strings are the same
+    if isinstance(s, (bytes, bytearray)):
+        # if already bytes return.
         return s
     return bytes(s, 'utf-8')
 
@@ -1588,9 +1576,9 @@ def to_bytes(s):
 def to_str(s):
     if s is None:
         return 'None'
-    if bytes is str or is_String(s):
+    if is_String(s):
         return s
-    return str (s, 'utf-8')
+    return str(s, 'utf-8')
 
 
 def cmp(a, b):

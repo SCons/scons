@@ -161,7 +161,7 @@ env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
 SConscript('S')
       </file>
       <file name="file.in">file.in</file>
-      <file name="modify" chmod="0755">
+      <file name="modify" chmod="0o755">
 touch $*
       </file>
     </scons_example>
@@ -231,7 +231,7 @@ env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
 SConscript('S')
       </file>
       <file name="file.in">file.in</file>
-      <file name="modify" chmod="0755">
+      <file name="modify" chmod="0o755">
 touch $*
       </file>
     </scons_example>
@@ -325,7 +325,7 @@ env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
 SConscript('S')
       </file>
       <file name="file.in">file.in</file>
-      <file name="modify" chmod="0755">
+      <file name="modify" chmod="0o755">
 touch $*
       </file>
     </scons_example>
@@ -416,7 +416,7 @@ env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
 SConscript('S')
       </file>
       <file name="file.in">file.in</file>
-      <file name="process" chmod="0755">
+      <file name="process" chmod="0o755">
 touch $*
       </file>
     </scons_example>
@@ -452,7 +452,7 @@ touch $*
 Command("file.out", "file.in",
         [
           Copy("$TARGET", "$SOURCE"),
-          Chmod("$TARGET", 0755),
+          Chmod("$TARGET", 0o755),
         ])
       </file>
       <file name="file.in">file.in</file>

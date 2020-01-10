@@ -2,7 +2,7 @@
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -89,7 +89,7 @@
     all of the command-line variable settings,
     the ability to apply command-line variable settings
     to construction environments,
-    and functions for configuring 
+    and functions for configuring
     specific types of variables
     (Boolean values, path names, etc.)
     with automatic validation of the user's specified values.
@@ -599,24 +599,30 @@ foo.in
       &SCons; also allows you to define your own
       command-line options with the &AddOption; function.
       The &AddOption; function takes the same arguments
-      as the <function>optparse.add_option</function> function
-      from the standard Python library.
+      as the <function>add_option</function> method
+      from the standard Python library module <emphasis>optparse</emphasis>.
       <footnote>
       <para>
       The &AddOption; function is,
       in fact, implemented using a subclass
-      of the <classname>optparse.OptionParser</classname>.
+      of <classname>optparse.OptionParser</classname>.
       </para>
       </footnote>
+      </para>
+
+      <para>
       Once you have added a custom command-line option
       with the &AddOption; function,
       the value of the option (if any) is immediately available
       using the standard &GetOption; function.
+      <!--
       (The value can also be set using &SetOption;,
       although that's not very useful in practice
       because a default value can be specified in
       directly in the &AddOption; call.)
-
+      -->
+      &SetOption; is not currently supported for
+      options added with &AddOption;.
       </para>
 
       <para>
@@ -677,6 +683,47 @@ foo.in
       <scons_output example="commandline_AddOption" suffix="2">
         <scons_output_command>scons -Q -n --prefix=/tmp/install</scons_output_command>
       </scons_output>
+
+      <note>
+      <para>
+      Option-arguments separated from long options by whitespace,
+      rather than by an <literal>=</literal>, cannot be correctly
+      resolved by <command>scons</command>.
+      While <literal>--input=ARG</literal>
+      is clearly opt followed by arg, for <literal>--input ARG</literal>
+      it is not possible to tell without instructions whether
+      <parameter>ARG</parameter> is an argument belonging to the
+      <parameter>input</parameter> option or a positional argument.
+      <command>scons</command> treats positional arguments as either
+      command-line build options or command-line targets
+      which are made available for use in an &SConscript;
+      (see the immediately following sections for details).
+      Thus, they must be collected before &SConscript; processing
+      takes place. Since &AddOption; calls, which provide
+      the processing instructions to resolve any ambiguity,
+      happen in an &SConscript;,
+      <command>scons</command> does not know in time
+      for options added this way, and unexpected things will happen,
+      such as option-arguments assigned as targets and/or exceptions
+      due to missing option-arguments.
+      </para>
+      <para>
+      As a result, this usage style should be avoided when invoking
+      <command>scons</command>.  For single-argument
+      options, use the <literal>--input=ARG</literal> form on the
+      command line. For multiple-argument options
+      (<parameter>nargs</parameter> greater than one),
+      set <parameter>nargs</parameter> to one in
+      &AddOption; calls and either: combine the option-arguments into one word
+      with a separator, and parse the result in your own code
+      (see the built-in <parameter>--debug</parameter> option, which
+      allows specifying multiple arguments as a single comma-separated
+      word, for an example of such usage); or allow the option to
+      be specified multiple times by setting
+      <literal>action='append'</literal>. Both methods can be
+      supported at the same time.
+      </para>
+      </note>
 
     </section>
 
@@ -1132,12 +1179,12 @@ vars = Variables('custom.py', ARGUMENTS)
       </screen>
 
       <para>
-      
+
       where values in the option file &custom_py; get overwritten
       by the ones specified on the command line.
 
       </para>
-      
+
     </section>
 
     <section>

@@ -31,6 +31,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Node
 
+_memo_lookup_map = {}
+
+
 class ValueNodeInfo(SCons.Node.NodeInfoBase):
     __slots__ = ('csig',)
     current_version_id = 2
@@ -38,18 +41,18 @@ class ValueNodeInfo(SCons.Node.NodeInfoBase):
     field_list = ['csig']
 
     def str_to_node(self, s):
-        return Value(s)
+        return ValueWithMemo(s)
 
     def __getstate__(self):
         """
         Return all fields that shall be pickled. Walk the slots in the class
-        hierarchy and add those to the state dictionary. If a '__dict__' slot is
-        available, copy all entries to the dictionary. Also include the version
-        id, which is fixed for all instances of a class.
+        hierarchy and add those to the state dictionary. If a '__dict__' slot
+        is available, copy all entries to the dictionary. Also include the
+        version id, which is fixed for all instances of a class.
         """
         state = getattr(self, '__dict__', {}).copy()
         for obj in type(self).mro():
-            for name in getattr(obj,'__slots__',()):
+            for name in getattr(obj, '__slots__', ()):
                 if hasattr(self, name):
                     state[name] = getattr(self, name)
 
@@ -75,6 +78,7 @@ class ValueNodeInfo(SCons.Node.NodeInfoBase):
 class ValueBuildInfo(SCons.Node.BuildInfoBase):
     __slots__ = ()
     current_version_id = 2
+
 
 class Value(SCons.Node.Node):
     """A class for Python variables, typically passed on the command line
@@ -175,6 +179,28 @@ class Value(SCons.Node.Node):
 
         self.get_ninfo().csig = contents
         return contents
+
+
+def ValueWithMemo(value, built_value=None):
+    global _memo_lookup_map
+
+    # No current support for memoizing a value that needs to be built.
+    if built_value:
+        return Value(value, built_value)
+
+    try:
+        memo_lookup_key = hash(value)
+    except TypeError:
+        # Non-primitive types will hit this codepath.
+        return Value(value)
+
+    try:
+        return _memo_lookup_map[memo_lookup_key]
+    except KeyError:
+        v = Value(value)
+        _memo_lookup_map[memo_lookup_key] = v
+        return v
+
 
 # Local Variables:
 # tab-width:4

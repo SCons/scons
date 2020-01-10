@@ -211,10 +211,9 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
             last_command_end = finish_time
             cumulative_command_time = cumulative_command_time+finish_time-start_time
             if print_action_timestamps:
-                sys.stdout.write("Command execution start time: %s: %f seconds\n"%(str(self.node), start_time))
+                sys.stdout.write("Command execution start timestamp: %s: %f\n"%(str(self.node), start_time))
+                sys.stdout.write("Command execution end timestamp: %s: %f\n"%(str(self.node), finish_time))
             sys.stdout.write("Command execution time: %s: %f seconds\n"%(str(self.node), finish_time-start_time))
-            if print_action_timestamps:
-                sys.stdout.write("Command execution stop time: %s: %f seconds\n"%(str(self.node), finish_time))
 
     def do_failed(self, status=2):
         _BuildFailures.append(self.exception[1])
@@ -356,7 +355,7 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
                     display("Removed directory " + pathstr)
                 else:
                     errstr = "Path '%s' exists but isn't a file or directory."
-                    raise SCons.Errors.UserError(errstr % (pathstr))
+                    raise SCons.Errors.UserError(errstr % pathstr)
         except SCons.Errors.UserError as e:
             print(e)
         except (IOError, OSError) as e:
@@ -679,7 +678,7 @@ def _set_debug_values(options):
         options.tree_printers.append(TreePrinter(status=True))
     if "time" in debug_values:
         print_time = 1
-    if "action_timestamps" in debug_values:
+    if "action-timestamps" in debug_values:
         print_time = 1
         print_action_timestamps = 1
     if "tree" in debug_values:

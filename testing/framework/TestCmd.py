@@ -310,6 +310,7 @@ import types
 IS_PY3 = sys.version_info[0] == 3
 IS_WINDOWS = sys.platform == 'win32'
 IS_64_BIT = sys.maxsize > 2**32
+IS_PYPY = hasattr(sys, 'pypy_translation_info')
 
 class null(object):
     pass
@@ -667,7 +668,7 @@ def diff_re(a, b, fromfile='', tofile='',
 
 if os.name == 'posix':
     def escape(arg):
-        "escape shell special characters"
+        """escape shell special characters"""
         slash = '\\'
         special = '"$'
         arg = arg.replace(slash, slash + slash)
@@ -1805,7 +1806,7 @@ class TestCmd(object):
         path name.  If the path is a null string (''), a unique
         directory name is created.
         """
-        if (path != None):
+        if path is not None:
             if path == '':
                 path = None
             path = self.tempdir(path)

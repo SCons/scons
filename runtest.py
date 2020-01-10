@@ -556,7 +556,6 @@ if external:
 os.environ['SCONS_RUNTEST_DIR'] = scons_runtest_dir
 os.environ['SCONS_SCRIPT_DIR'] = scons_script_dir
 os.environ['SCONS_CWD'] = cwd
-
 os.environ['SCONS_VERSION'] = version
 
 old_pythonpath = os.environ.get('PYTHONPATH')
