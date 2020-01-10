@@ -35,16 +35,19 @@ test.subdir('subdir')
 subdir_BuildThis = os.path.join('subdir', 'Buildthis')
 
 test.write('SConscript', """
+DefaultEnvironment(tools=[])
 import os
 print("SConscript " + os.getcwd())
 """)
 
 test.write(subdir_BuildThis, """
+DefaultEnvironment(tools=[])
 import os
 print("subdir/BuildThis "+ os.getcwd())
 """)
 
 test.write('Build2', """
+DefaultEnvironment(tools=[])
 import os
 print("Build2 "+ os.getcwd())
 """)
@@ -84,6 +87,7 @@ test.run(arguments = '--sconstruct=%s .' % subdir_BuildThis,
                                    build_str = "scons: `.' is up to date.\n"))
 
 test.run(arguments = '-f - .', stdin = """
+DefaultEnvironment(tools=[])
 import os
 print("STDIN " + os.getcwd())
 """,

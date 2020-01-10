@@ -15,6 +15,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       header files and libraries from MSVC install. (Fixes GH Issue #3480)
     - Added C:\msys64\mingw64\bin to default mingw and clang windows PATH's.  This 
       is a reasonable default and also aligns with changes in Appveyor's VS2019 image.
+    - Drop support for Python 2.7. SCons will be Python 3.5+ going forward.
+
 
   From Adam Gross:
     - Added new module SCons.Scanner.Python to allow scanning .py files.
@@ -23,11 +25,16 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Improve performance of Subst by preventing unnecessary frame
       allocations by no longer defining the *Subber classes inside of their
       respective function calls.
+    - Improve performance of Subst in some cases by preventing
+      unnecessary calls to eval when a token is surrounded in braces
+      but is not a function call.
+    - Improve performance of subst by removing unnecessary recursion.
 
   From Mats Wichmann:
     - Remove deprecated SourceCode
     - str.format syntax errors fixed
     - a bunch of linter/checker syntax fixups
+    - Convert remaining uses of insecure/deprecated mktemp method.
 
 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
@@ -46,6 +53,9 @@ RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
     - Resolved a race condition in multithreaded Windows builds with Python 2
       in the case where a child process is spawned while a Python action has a
       file open. Original author: Ryan Beasley.
+    - Added memoization support for calls to Environment.Value() in order to
+	  improve performance of repeated calls.
+
 
   From Jason Kenny
     - Update Command() function to accept target_scanner, source_factory, and target_factory arguments.

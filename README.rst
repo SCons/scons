@@ -72,7 +72,7 @@ version at the SCons download page:
 Execution Requirements
 ======================
 
-Running SCons requires either Python version 2.7.* or Python 3.5 or higher.
+Running SCons requires Python 3.5 or higher.
 There should be no other dependencies or requirements to run SCons.
 
 The default SCons configuration assumes use of the Microsoft Visual C++

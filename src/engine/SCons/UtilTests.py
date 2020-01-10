@@ -37,14 +37,6 @@ import SCons.Errors
 
 from SCons.Util import *
 
-try:
-    eval('unicode')
-except NameError:
-    HasUnicode = False
-else:
-    HasUnicode = True
-
-
 class OutBuffer(object):
     def __init__(self):
         self.buffer = ""
@@ -274,8 +266,7 @@ class UtilTestCase(unittest.TestCase):
         assert not is_Dict([])
         assert not is_Dict(())
         assert not is_Dict("")
-        if HasUnicode:
-            exec ("assert not is_Dict(u'')")
+
 
     def test_is_List(self):
         assert is_List([])
@@ -290,13 +281,9 @@ class UtilTestCase(unittest.TestCase):
         assert not is_List(())
         assert not is_List({})
         assert not is_List("")
-        if HasUnicode:
-            exec ("assert not is_List(u'')")
 
     def test_is_String(self):
         assert is_String("")
-        if HasUnicode:
-            exec ("assert is_String(u'')")
         assert is_String(UserString(''))
         try:
             class mystr(str):
@@ -321,15 +308,12 @@ class UtilTestCase(unittest.TestCase):
         assert not is_Tuple([])
         assert not is_Tuple({})
         assert not is_Tuple("")
-        if HasUnicode:
-            exec ("assert not is_Tuple(u'')")
 
     def test_to_Bytes(self):
         """ Test the to_Bytes method"""
-        if not PY3:
-            self.assertEqual(to_bytes(UnicodeType('Hello')),
-                             bytearray(u'Hello', 'utf-8'),
-                             "Check that to_bytes creates byte array when presented with unicode string. PY2 only")
+        self.assertEqual(to_bytes('Hello'),
+                         bytearray('Hello', 'utf-8'),
+                         "Check that to_bytes creates byte array when presented with unicode string.")
 
     def test_to_String(self):
         """Test the to_String() method."""
@@ -352,18 +336,6 @@ class UtilTestCase(unittest.TestCase):
         assert to_String(s2) == s2, s2
         assert to_String(s2) == 'foo', s2
 
-        if HasUnicode:
-            s3 = UserString(unicode('bar'))
-            assert to_String(s3) == s3, s3
-            assert to_String(s3) == unicode('bar'), s3
-            assert isinstance(to_String(s3), unicode), \
-                type(to_String(s3))
-
-        if HasUnicode:
-            s4 = unicode('baz')
-            assert to_String(s4) == unicode('baz'), to_String(s4)
-            assert isinstance(to_String(s4), unicode), \
-                type(to_String(s4))
 
     def test_WhereIs(self):
         test = TestCmd.TestCmd(workdir='')
@@ -506,13 +478,14 @@ class UtilTestCase(unittest.TestCase):
     def test_get_native_path(self):
         """Test the get_native_path() function."""
         import tempfile
-        filename = tempfile.mktemp()
-        str = '1234567890 ' + filename
+        f, filename = tempfile.mkstemp(text=True)
+        os.close(f)
+        data = '1234567890 ' + filename
         try:
             with open(filename, 'w') as f:
-                f.write(str)
-            with open(get_native_path(filename)) as f:
-                assert f.read() == str
+                f.write(data)
+            with open(get_native_path(filename), 'r') as f:
+                assert f.read() == data
         finally:
             try:
                 os.unlink(filename)

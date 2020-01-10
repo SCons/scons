@@ -2814,8 +2814,7 @@ class symlink_TestCase(TestCmdTestCase):
 class tempdir_TestCase(TestCmdTestCase):
     def setUp(self):
         TestCmdTestCase.setUp(self)
-        self._tempdir = tempfile.mktemp()
-        os.mkdir(self._tempdir)
+        self._tempdir = tempfile.mkdtemp()
         os.chdir(self._tempdir)
 
     def tearDown(self):

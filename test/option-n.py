@@ -57,11 +57,12 @@ with open(sys.argv[1], 'w') as ofp:
 """)
 
 test.write('SConstruct', """
-MyBuild = Builder(action = r'%(_python_)s build.py $TARGETS')
-env = Environment(BUILDERS = { 'MyBuild' : MyBuild })
+DefaultEnvironment(tools=[])
+MyBuild = Builder(action=r'%(_python_)s build.py $TARGETS')
+env = Environment(BUILDERS={'MyBuild': MyBuild}, tools=[])
 env.Tool('install')
-env.MyBuild(target = 'f1.out', source = 'f1.in')
-env.MyBuild(target = 'f2.out', source = 'f2.in')
+env.MyBuild(target='f1.out', source='f1.in')
+env.MyBuild(target='f2.out', source='f2.in')
 env.Install('install', 'f3.in')
 VariantDir('build', 'src', duplicate=1)
 SConscript('build/SConscript', "env")
@@ -69,7 +70,7 @@ SConscript('build/SConscript', "env")
 
 test.write(['src', 'SConscript'], """
 Import("env")
-env.MyBuild(target = 'f4.out', source = 'f4.in')
+env.MyBuild(target='f4.out', source='f4.in')
 """)
 
 test.write('f1.in', "f1.in\n")
@@ -83,7 +84,7 @@ expect = test.wrap_stdout("""\
 %(_python_)s build.py f2.out
 """ % locals())
 
-test.run(arguments = args, stdout = expect)
+test.run(arguments=args, stdout=expect)
 test.fail_test(not os.path.exists(test.workpath('f1.out')))
 test.fail_test(not os.path.exists(test.workpath('f2.out')))
 
@@ -169,8 +170,9 @@ test.fail_test(os.path.exists(test.workpath('build', 'f4.in')))
 test.subdir('configure')
 test.set_match_function(TestSCons.match_re_dotall)
 test.set_diff_function(TestSCons.diff_re)
-test.write('configure/SConstruct',
-"""def CustomTest(context):
+test.write('configure/SConstruct', """\
+DefaultEnvironment(tools=[])
+def CustomTest(context):
     def userAction(target,source,env):
         import shutil
         shutil.copyfile( str(source[0]), str(target[0]))
@@ -182,11 +184,11 @@ test.write('configure/SConstruct',
     context.Result(ok)
     return ok
 
-env = Environment()
-conf = Configure( env,
-                  custom_tests={'CustomTest':CustomTest},
-                  conf_dir="config.test",
-                  log_file="config.log" )
+env = Environment(tools=[])
+conf = Configure(env,
+                 custom_tests={'CustomTest':CustomTest},
+                 conf_dir="config.test",
+                 log_file="config.log")
 if not conf.CustomTest():
     Exit(1)
 else:
