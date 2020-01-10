@@ -1013,11 +1013,12 @@ class CommandAction(_ActionAction):
         # target, or executor to subst_list. This causes references to
         # $SOURCES, $TARGETS, and all related variables to disappear.
         from SCons.Subst import SUBST_SIG
-        cmd_list = env.subst_list(self.cmd_list, SUBST_SIG)
+        cmd_list = env.subst_list(self.cmd_list, SUBST_SIG, conv=lambda x: x)
         res = []
 
         for cmd_line in cmd_list:
             if cmd_line:
+                is_first_entry = True
                 for entry in cmd_line:
                     d = str(entry)
                     if not d.startswith(('&', '-', '/') if os.name == 'nt'
@@ -1026,25 +1027,27 @@ class CommandAction(_ActionAction):
                         if m:
                             d = m.group(1)
 
-                        # For now, only match files, not directories.
-                        p = os.path.abspath(d) if os.path.isfile(d) else \
-                            env.WhereIs(d)
-                        if p:
-                            res.append(env.fs.File(p))
-                        else:
-                            # Try to find the dependency in any source
-                            # repositories.
-                            #
-                            # TODO: I want to enumerate get_all_rdirs() and am
-                            # not sure whether I want to enumerate
-                            # srcdir_list(). srcdir_find_file() does both. Is
-                            # that bad? Should we instead change env.WhereIs()
-                            # to search in repositories too?
-                            n, _ = env.fs.Top.srcdir_find_file(d)
-                            if n and n not in target and n not in source:
-                                res.append(n)
+                        if d:
+                            # Resolve the first entry in the command string using
+                            # PATH, which env.WhereIs() looks in.
+                            # For now, only match files, not directories.
+                            p = os.path.abspath(d) if os.path.isfile(d) else None
+                            if not p and is_first_entry:
+                                p = env.WhereIs(d)
 
-        return res
+                            if p:
+                                res.append(env.fs.File(p))
+
+                        is_first_entry = False
+                    else:
+                        is_first_entry = d == '&&'
+
+        # Despite not providing source and target to env.subst() above, we
+        # can still end up with sources in this list. For example, files in
+        # LIBS will still resolve in env.subst(). This won't result in
+        # circular dependencies, but it causes problems with cache signatures
+        # changing between full and incremental builds.
+        return [r for r in res if r not in target and r not in source]
 
 
 class CommandGeneratorAction(ActionBase):
