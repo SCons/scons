@@ -63,7 +63,7 @@ test.run(arguments = '.')
 
 test.write('i1/foo.h', """
 this line will cause a syntax error if it's included by a rebuild
-""");
+""")
 
 test.up_to_date(arguments = '.')
 

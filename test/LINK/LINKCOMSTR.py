@@ -75,7 +75,7 @@ int main(int argc, char **argv) {}
 """)
 
 test.run()
-if ("Linking" not in test.stdout()):
+if "Linking" not in test.stdout():
     test.fail_test()
 
 test.pass_test()

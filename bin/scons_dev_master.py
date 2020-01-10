@@ -152,11 +152,11 @@ Usage:  scons_dev_master.py [-hnqy] [--password PASSWORD] [--username USER]
                 sys.exit(0)
             elif o in ('-n', '--no-exec'):
                 CommandRunner.execute = CommandRunner.do_not_execute
-            elif o in ('--password'):
+            elif o == '--password':
                 password = a
             elif o in ('-q', '--quiet'):
                 CommandRunner.display = CommandRunner.do_not_display
-            elif o in ('--username'):
+            elif o == '--username':
                 username = a
             elif o in ('-y', '--yes', '--assume-yes'):
                 yesflag = o

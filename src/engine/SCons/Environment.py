@@ -1428,14 +1428,6 @@ class Base(SubstitutionEnvironment):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Environment.EnvironmentClone')
         return clone
 
-    def Copy(self, *args, **kw):
-        global _warn_copy_deprecated
-        if _warn_copy_deprecated:
-            msg = "The env.Copy() method is deprecated; use the env.Clone() method instead."
-            SCons.Warnings.warn(SCons.Warnings.DeprecatedCopyWarning, msg)
-            _warn_copy_deprecated = False
-        return self.Clone(*args, **kw)
-
     def _changed_build(self, dependency, target, prev_ni, repo_node=None):
         if dependency.changed_state(target, prev_ni, repo_node):
             return 1
@@ -1937,14 +1929,6 @@ class Base(SubstitutionEnvironment):
             t.set_always_build()
         return tlist
 
-    def BuildDir(self, *args, **kw):
-        msg = """BuildDir() and the build_dir keyword have been deprecated;\n\tuse VariantDir() and the variant_dir keyword instead."""
-        SCons.Warnings.warn(SCons.Warnings.DeprecatedBuildDirWarning, msg)
-        if 'build_dir' in kw:
-            kw['variant_dir'] = kw['build_dir']
-            del kw['build_dir']
-        return self.VariantDir(*args, **kw)
-
     def Builder(self, **kw):
         nkw = self.subst_kw(kw)
         return SCons.Builder.Builder(**nkw)
@@ -1983,13 +1967,42 @@ class Base(SubstitutionEnvironment):
         be any type that the Builder constructor will accept
         for an action."""
         bkw = {
-            'action' : action,
-            'target_factory' : self.fs.Entry,
-            'source_factory' : self.fs.Entry,
+            'action': action,
+            'target_factory': self.fs.Entry,
+            'source_factory': self.fs.Entry,
         }
-        try: bkw['source_scanner'] = kw['source_scanner']
-        except KeyError: pass
-        else: del kw['source_scanner']
+        # source scanner
+        try:
+            bkw['source_scanner'] = kw['source_scanner']
+        except KeyError:
+            pass
+        else:
+            del kw['source_scanner']
+
+        # target scanner
+        try:
+            bkw['target_scanner'] = kw['target_scanner']
+        except KeyError:
+            pass
+        else:
+            del kw['target_scanner']
+
+        # source factory
+        try:
+            bkw['source_factory'] = kw['source_factory']
+        except KeyError:
+            pass
+        else:
+            del kw['source_factory']
+
+        # target factory
+        try:
+            bkw['target_factory'] = kw['target_factory']
+        except KeyError:
+            pass
+        else:
+            del kw['target_factory']
+            
         bld = SCons.Builder.Builder(**bkw)
         return bld(self, target, source, **kw)
 
@@ -2186,16 +2199,6 @@ class Base(SubstitutionEnvironment):
                 target.side_effects.append(side_effect)
         return side_effects
 
-    def SourceCode(self, entry, builder):
-        """Arrange for a source code builder for (part of) a tree."""
-        msg = """SourceCode() has been deprecated and there is no replacement.
-\tIf you need this function, please contact scons-dev@scons.org"""
-        SCons.Warnings.warn(SCons.Warnings.DeprecatedSourceCodeWarning, msg)
-        entries = self.arg2nodes(entry, self.fs.Entry)
-        for entry in entries:
-            entry.set_src_builder(builder)
-        return entries
-
     def Split(self, arg):
         """This function converts a string or list into a list of strings
         or Nodes.  This makes things easier for users by allowing files to
@@ -2220,7 +2223,7 @@ class Base(SubstitutionEnvironment):
     def Value(self, value, built_value=None):
         """
         """
-        return SCons.Node.Python.Value(value, built_value)
+        return SCons.Node.Python.ValueWithMemo(value, built_value)
 
     def VariantDir(self, variant_dir, src_dir, duplicate=1):
         variant_dir = self.arg2nodes(variant_dir, self.fs.Dir)[0]
@@ -2244,7 +2247,7 @@ class Base(SubstitutionEnvironment):
         build_source(node.all_children())
 
         def final_source(node):
-            while (node != node.srcnode()):
+            while node != node.srcnode():
               node = node.srcnode()
             return node
         sources = list(map(final_source, sources))

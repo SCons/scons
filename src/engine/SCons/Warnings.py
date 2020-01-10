@@ -120,25 +120,13 @@ class PythonVersionWarning(DeprecatedWarning):
 class DeprecatedSourceCodeWarning(FutureDeprecatedWarning):
     pass
 
-class DeprecatedBuildDirWarning(DeprecatedWarning):
-    pass
-
 class TaskmasterNeedsExecuteWarning(DeprecatedWarning):
-    pass
-
-class DeprecatedCopyWarning(MandatoryDeprecatedWarning):
     pass
 
 class DeprecatedOptionsWarning(MandatoryDeprecatedWarning):
     pass
 
 class DeprecatedDebugOptionsWarning(MandatoryDeprecatedWarning):
-    pass
-
-class DeprecatedSigModuleWarning(MandatoryDeprecatedWarning):
-    pass
-
-class DeprecatedBuilderKeywordsWarning(MandatoryDeprecatedWarning):
     pass
 
 class DeprecatedMissingSConscriptWarning(DeprecatedWarning):

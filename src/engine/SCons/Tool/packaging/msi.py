@@ -182,7 +182,7 @@ def generate_guids(root):
 
 
 def string_wxsfile(target, source, env):
-    return "building WiX file %s"%( target[0].path )
+    return "building WiX file %s" % target[0].path
 
 def build_wxsfile(target, source, env):
     """ Compiles a .wxs file from the keywords given in env['msi_spec'] and
@@ -224,7 +224,7 @@ def build_wxsfile(target, source, env):
 # setup function
 #
 def create_default_directory_layout(root, NAME, VERSION, VENDOR, filename_set):
-    """ Create the wix default target directory layout and return the innermost
+    r""" Create the wix default target directory layout and return the innermost
     directory.
 
     We assume that the XML tree delivered in the root argument already contains

@@ -792,7 +792,7 @@ class Taskmaster(object):
         self.ready_exc = None
 
         T = self.trace
-        if T: T.write(SCons.Util.UnicodeType('\n') + self.trace_message('Looking for a node to evaluate'))
+        if T: T.write('\n' + self.trace_message('Looking for a node to evaluate'))
 
         while True:
             node = self.next_candidate()
@@ -874,8 +874,10 @@ class Taskmaster(object):
             # These nodes have not even been visited yet.  Add
             # them to the list so that on some next pass we can
             # take a stab at evaluating them (or their children).
-            children_not_visited.reverse()
-            self.candidates.extend(self.order(children_not_visited))
+            if children_not_visited:
+                if len(children_not_visited) > 1:
+                    children_not_visited.reverse()
+                self.candidates.extend(self.order(children_not_visited))
 
             # if T and children_not_visited:
             #    T.write(self.trace_message('     adding to candidates: %s' % map(str, children_not_visited)))

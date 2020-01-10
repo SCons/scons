@@ -726,7 +726,7 @@ sys.exit(0)
         assert r == 'replace_func2', r
 
     def test_Override(self):
-        "Test overriding construction variables"
+        """Test overriding construction variables"""
         env = SubstitutionEnvironment(ONE=1, TWO=2, THREE=3, FOUR=4)
         assert env['ONE'] == 1, env['ONE']
         assert env['TWO'] == 2, env['TWO']
@@ -1408,7 +1408,7 @@ def exists(env):
         assert env['XYZ'] == 'ddd', env
 
     def test_concat(self):
-        "Test _concat()"
+        """Test _concat()"""
         e1 = self.TestEnvironment(PRE='pre', SUF='suf', STR='a b', LIST=['a', 'b'])
         s = e1.subst
         x = s("${_concat('', '', '', __env__)}")
@@ -1423,7 +1423,7 @@ def exists(env):
         assert x == 'preasuf prebsuf', x
 
     def test_concat_nested(self):
-        "Test _concat() on a nested substitution strings."
+        """Test _concat() on a nested substitution strings."""
         e = self.TestEnvironment(PRE='pre', SUF='suf',
                                  L1=['a', 'b'],
                                  L2=['c', 'd'],
@@ -1876,18 +1876,6 @@ def generate(env):
         assert ('BUILDERS' in env) is False
         env2 = env.Clone()
 
-    def test_Copy(self):
-        """Test copying using the old env.Copy() method"""
-        env1 = self.TestEnvironment(XXX = 'x', YYY = 'y')
-        env2 = env1.Copy()
-        env1copy = env1.Copy()
-        assert env1copy == env1copy
-        assert env2 == env2
-        env2.Replace(YYY = 'yyy')
-        assert env2 == env2
-        assert env1 != env2
-        assert env1 == env1copy
-
     def test_Detect(self):
         """Test Detect()ing tools"""
         test = TestCmd.TestCmd(workdir = '')
@@ -1968,7 +1956,7 @@ def generate(env):
         assert 'XXX' not in env.Dictionary()
 
     def test_FindIxes(self):
-        "Test FindIxes()"
+        """Test FindIxes()"""
         env = self.TestEnvironment(LIBPREFIX='lib',
                           LIBSUFFIX='.a',
                           SHLIBPREFIX='lib',
@@ -2410,7 +2398,7 @@ f5: \
         assert hasattr(env3, 'b2'), "b2 was not set"
 
     def test_ReplaceIxes(self):
-        "Test ReplaceIxes()"
+        """Test ReplaceIxes()"""
         env = self.TestEnvironment(LIBPREFIX='lib',
                           LIBSUFFIX='.a',
                           SHLIBPREFIX='lib',
@@ -3267,25 +3255,6 @@ def generate(env):
         assert ggg.side_effects == [s], ggg.side_effects
         assert ccc.side_effects == [s], ccc.side_effects
 
-    def test_SourceCode(self):
-        """Test the SourceCode() method."""
-        env = self.TestEnvironment(FOO='mmm', BAR='nnn')
-        e = env.SourceCode('foo', None)[0]
-        assert e.get_internal_path() == 'foo'
-        s = e.src_builder()
-        assert s is None, s
-
-        b = Builder()
-        e = env.SourceCode(e, b)[0]
-        assert e.get_internal_path() == 'foo'
-        s = e.src_builder()
-        assert s is b, s
-
-        e = env.SourceCode('$BAR$FOO', None)[0]
-        assert e.get_internal_path() == 'nnnmmm'
-        s = e.src_builder()
-        assert s is None, s
-
     def test_Split(self):
         """Test the Split() method"""
         env = self.TestEnvironment(FOO = 'fff', BAR = 'bbb')
@@ -3315,8 +3284,7 @@ def generate(env):
         assert v2.value == value2, v2.value
         assert v2.value is value2, v2.value
 
-        assert not v1 is v2
-        assert v1.value == v2.value
+        assert v1 is v2
 
         v3 = env.Value('c', 'build-c')
         assert v3.value == 'c', v3.value
@@ -3462,7 +3430,7 @@ def generate(env):
             assert x in over, bad_msg % x
 
     def test_parse_flags(self):
-        '''Test the Base class parse_flags argument'''
+        """Test the Base class parse_flags argument"""
         # all we have to show is that it gets to MergeFlags internally
         env = Environment(tools=[], parse_flags = '-X')
         assert env['CCFLAGS'] == ['-X'], env['CCFLAGS']
@@ -3476,7 +3444,7 @@ def generate(env):
         assert env['CPPDEFINES'] == ['FOO', 'BAR'], env['CPPDEFINES']
 
     def test_clone_parse_flags(self):
-        '''Test the env.Clone() parse_flags argument'''
+        """Test the env.Clone() parse_flags argument"""
         # all we have to show is that it gets to MergeFlags internally
         env = Environment(tools = [])
         env2 = env.Clone(parse_flags = '-X')
@@ -3745,7 +3713,7 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
         assert x == ['x3', 'y3', 'z3'], x
 
     def test_parse_flags(self):
-        '''Test the OverrideEnvironment parse_flags argument'''
+        """Test the OverrideEnvironment parse_flags argument"""
         # all we have to show is that it gets to MergeFlags internally
         env = SubstitutionEnvironment()
         env2 = env.Override({'parse_flags' : '-X'})

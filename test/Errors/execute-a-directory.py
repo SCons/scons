@@ -65,7 +65,7 @@ scons: \\*\\*\\* \\[%s\\] Error 1
 """
 
 cannot_execute = """\
-(sh: )*.+: cannot execute
+(sh: )*.+: cannot execute( \\[Is a directory\\])?
 scons: \\*\\*\\* \\[%s\\] Error %s
 """
 
@@ -92,10 +92,6 @@ if os.name == 'nt':
         unrecognized % 'f3',
         konnte_nicht_gefunden_werden % ('f3', 1),
         unspecified % 'f3'
-    ]
-elif sys.platform.find('sunos') != -1:
-    errs = [
-        cannot_execute % ('f3', 1),
     ]
 else:
     errs = [

@@ -625,7 +625,7 @@ class SConsTimer(object):
         if not contents:
             sys.stderr.write('file %s has no contents!\n' % repr(file))
             return None
-        result = re.findall(r'%s: ([\d\.]*)' % search_string, contents)[-4:]
+        result = re.findall(r'%s: ([\d.]*)' % search_string, contents)[-4:]
         result = [ float(r) for r in result ]
         if time_string is not None:
             try:

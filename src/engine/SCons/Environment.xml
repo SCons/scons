@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
 __COPYRIGHT__
 
@@ -613,28 +613,6 @@ env.AppendUnique(CCFLAGS = '-g', FOO = ['foo.yyy'])
 </summary>
 </scons_function>
 
-<scons_function name="BuildDir">
-<arguments>
-(build_dir, src_dir, [duplicate])
-</arguments>
-<summary>
-<para>
-Deprecated synonyms for
-&f-VariantDir;
-and
-<function>env.VariantDir</function>().
-The
-<varname>build_dir</varname>
-argument becomes the
-<varname>variant_dir</varname>
-argument of
-&f-VariantDir;
-or
-<function>env.VariantDir</function>().
-</para>
-</summary>
-</scons_function>
-
 <scons_function name="Builder">
 <arguments>
 (action, [arguments])
@@ -937,19 +915,29 @@ for a single special-case build.
 </para>
 
 <para>
-As a special case, the
-<varname>source_scanner</varname>
-keyword argument can
+&b-Command; builder accepts
+<varname>source_scanner</varname>,
+<varname>target_scanner</varname>,
+<varname>source_factory</varname>, and
+<varname>target_factory</varname>
+keyword arguments. The *_scanner args can
 be used to specify
 a Scanner object
-that will be used to scan the sources.
-(The global
+that will be used to apply a custom
+scanner for a source or target.
+For example, the global
 <literal>DirScanner</literal>
 object can be used
 if any of the sources will be directories
 that must be scanned on-disk for
 changes to files that aren't
-already specified in other Builder of function calls.)
+already specified in other Builder of function calls.
+The *_factory args take a factory function that the
+Command will use to turn any sources or targets
+specified as strings into SCons Nodes.
+See the sections "Builder Objects"
+below, for more information about how these
+args work in a Builder.
 </para>
 
 <para>
@@ -1414,7 +1402,7 @@ This SConstruct:
 
 <example_commands>
 env=Environment()
-print env.Dump('CCCOM')
+print(env.Dump('CCCOM'))
 </example_commands>
 
 <para>
@@ -1431,7 +1419,7 @@ While this SConstruct:
 
 <example_commands>
 env=Environment()
-print env.Dump()
+print(env.Dump())
 </example_commands>
 
 <para>
@@ -2891,117 +2879,18 @@ function.
 </summary>
 </scons_function>
 
-<scons_function name="SourceCode">
-<arguments>
-(entries, builder)
-</arguments>
-<summary>
-<para>
-This function and its associate factory functions are deprecated.
-There is no replacement.
-The intended use was to keep a local tree in sync with an archive,
-but in actuality the function only causes the archive
-to be fetched on the first run.
-Synchronizing with the archive is best done external to &SCons;.
-</para>
-
-<para>
-Arrange for non-existent source files to
-be fetched from a source code management system
-using the specified
-<varname>builder</varname>.
-The specified
-<varname>entries</varname>
-may be a Node, string or list of both,
-and may represent either individual
-source files or directories in which
-source files can be found.
-</para>
-
-<para>
-For any non-existent source files,
-&scons;
-will search up the directory tree
-and use the first
-&f-SourceCode;
-builder it finds.
-The specified
-<varname>builder</varname>
-may be
-<literal>None</literal>,
-in which case
-&scons;
-will not use a builder to fetch
-source files for the specified
-<varname>entries</varname>,
-even if a
-&f-SourceCode;
-builder has been specified
-for a directory higher up the tree.
-</para>
-
-<para>
-&scons;
-will, by default,
-fetch files from SCCS or RCS subdirectories
-without explicit configuration.
-This takes some extra processing time
-to search for the necessary
-source code management files on disk.
-You can avoid these extra searches
-and speed up your build a little
-by disabling these searches as follows:
-</para>
-
-<example_commands>
-env.SourceCode('.', None)
-</example_commands>
-
-<para>
-Note that if the specified
-<varname>builder</varname>
-is one you create by hand,
-it must have an associated
-construction environment to use
-when fetching a source file.
-</para>
-
-<para>
-&scons;
-provides a set of canned factory
-functions that return appropriate
-Builders for various popular
-source code management systems.
-Canonical examples of invocation include:
-</para>
-
-<example_commands>
-env.SourceCode('.', env.BitKeeper('/usr/local/BKsources'))
-env.SourceCode('src', env.CVS('/usr/local/CVSROOT'))
-env.SourceCode('/', env.RCS())
-env.SourceCode(['f1.c', 'f2.c'], env.SCCS())
-env.SourceCode('no_source.c', None)
-</example_commands>
-<para>
-<!-- env.SourceCode('.', env.Subversion('file:///usr/local/Subversion')) -->
-</para>
-</summary>
-</scons_function>
-
 <scons_function name="Split">
-<arguments>
-(arg)
-</arguments>
+<arguments>(arg)</arguments>
 <summary>
 <para>
 Returns a list of file names or other objects.
-If arg is a string,
+If <varname>arg</varname> is a string,
 it will be split on strings of white-space characters
 within the string,
 making it easier to write long lists of file names.
-If arg is already a list,
+If <varname>arg</varname> is already a list,
 the list will be returned untouched.
-If arg is any other type of object,
+If <varname>arg</varname> is any other type of object,
 it will be returned as a list
 containing just the object.
 </para>
@@ -3014,9 +2903,9 @@ Example:
 files = Split("f1.c f2.c f3.c")
 files = env.Split("f4.c f5.c f6.c")
 files = Split("""
-	f7.c
-	f8.c
-	f9.c
+       f7.c
+       f8.c
+       f9.c
 """)
 </example_commands>
 </summary>
@@ -3118,7 +3007,7 @@ Example:
 </para>
 
 <example_commands>
-print env.subst("The C compiler is: $CC")
+print(env.subst("The C compiler is: $CC"))
 
 def compile(target, source, env):
     sourceDir = env.subst("${SOURCE.srcdir}",

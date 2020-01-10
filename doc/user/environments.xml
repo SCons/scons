@@ -886,33 +886,30 @@ print("value is: %s"%env.subst( '->${1 / 0}&lt;-' ))
       <para>
 
       All of the &Builder; functions that we've introduced so far,
-      like &Program; and &Library;,
-      actually use a default &consenv;
-      that contains settings
-      for the various compilers
-      and other tools that
-      &SCons; configures by default,
-      or otherwise knows about
-      and has discovered on your system.
-      The goal of the default construction environment
-      is to make many configurations to "just work"
-      to build software using
-      readily available tools
+      like &Program; and &Library;, use a &consenv;
+      that contains settings for the various compilers
+      and other tools that &SCons; configures by default,
+      or otherwise knows about and has discovered on your system.
+      If not invoked as methods of a specific &consenv;,
+      they use the default &consenv;
+      The goal of the default &consenv;
+      is to make many configurations "just work"
+      to build software using readily available tools
       with a minimum of configuration changes.
 
       </para>
 
       <para>
 
-      You can, however, control the settings
-      in the default construction environment
+      If needed, you can control the default &consenv;
       by using the &DefaultEnvironment; function
-      to initialize various settings:
+      to initialize various settings by passing
+      them as keyword arguments:
 
       </para>
 
       <sconstruct>
-DefaultEnvironment(CC = '/usr/local/bin/gcc')
+DefaultEnvironment(CC='/usr/local/bin/gcc')
       </sconstruct>
 
       <para>
@@ -928,15 +925,15 @@ DefaultEnvironment(CC = '/usr/local/bin/gcc')
 
       <para>
 
-      Note that the &DefaultEnvironment; function
-      returns the initialized
-      default construction environment object,
-      which can then be manipulated like any
-      other construction environment.
-      So the following
-      would be equivalent to the
-      previous example,
-      setting the &cv-CC;
+      The &DefaultEnvironment; function
+      returns the initialized default &consenv; object,
+      which can then be manipulated like any other &consenv;
+      (note that the default environment works like a singleton -
+      it can have only one instance - so the keyword arguments
+      are processed only on the first call. On any subsequent
+      call the existing object is returned).
+      So the following would be equivalent to the
+      previous example, setting the &cv-CC;
       variable to <filename>/usr/local/bin/gcc</filename>
       but as a separate step after
       the default construction environment has been initialized:
@@ -971,8 +968,8 @@ env['CC'] = '/usr/local/bin/gcc'
       </para>
 
       <sconstruct>
-env = DefaultEnvironment(tools = ['gcc', 'gnulink'],
-                         CC = '/usr/local/bin/gcc')
+env = DefaultEnvironment(tools=['gcc', 'gnulink'],
+                         CC='/usr/local/bin/gcc')
       </sconstruct>
 
       <para>
@@ -994,9 +991,8 @@ env = DefaultEnvironment(tools = ['gcc', 'gnulink'],
 
       <para>
 
-      The real advantage of construction environments
-      is that you can create as many different construction
-      environments as you need,
+      The real advantage of &consenvs;
+      is that you can create as many different ones as you need,
       each tailored to a different way to build
       some piece of software or other file.
       If, for example, we need to build
@@ -1029,7 +1025,7 @@ int main() { }
 
       <para>
 
-      We can even use multiple construction environments to build
+      We can even use multiple &consenvs; to build
       multiple versions of a single program.
       If you do this by simply trying to use the
       &b-link-Program; builder with both environments, though,
@@ -1652,7 +1648,7 @@ env['ENV']['PATH'] = '/usr/local/bin:/bin:/usr/bin'
 env = Environment()
 env.Command('foo', [], '__ROOT__/usr/bin/printenv.py')
       </file>
-      <file name="__ROOT__/usr/bin/printenv.py" chmod="0755">
+      <file name="__ROOT__/usr/bin/printenv.py" chmod="0o755">
 #!/usr/bin/env python
 import os
 import sys

@@ -168,7 +168,7 @@ This is the include file. mod %s
     test.write('makeindex.idx',  '')
 
     test.subdir('subdir')
-    test.write('latexi.tex',  latex1 % 'latexi.tex');
+    test.write('latexi.tex',  latex1 % 'latexi.tex')
     test.write([ 'subdir', 'latexinputfile'], latex2)
     test.write([ 'subdir', 'latexincludefile.tex'], latex3 % '1')
 
