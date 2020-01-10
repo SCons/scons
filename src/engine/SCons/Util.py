@@ -1567,11 +1567,8 @@ del __revision__
 def to_bytes(s):
     if s is None:
         return b'None'
-    if not PY3 and isinstance(s, str):
-        # PY2, must encode unicode
-        return bytearray(s, 'utf-8')
-    if isinstance (s, (bytes, bytearray)) or bytes is str:
-        # Above case not covered here as py2 bytes and strings are the same
+    if isinstance(s, (bytes, bytearray)):
+        # if already bytes return.
         return s
     return bytes(s, 'utf-8')
 
@@ -1579,9 +1576,9 @@ def to_bytes(s):
 def to_str(s):
     if s is None:
         return 'None'
-    if bytes is str or is_String(s):
+    if is_String(s):
         return s
-    return str (s, 'utf-8')
+    return str(s, 'utf-8')
 
 
 def cmp(a, b):

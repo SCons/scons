@@ -311,10 +311,9 @@ class UtilTestCase(unittest.TestCase):
 
     def test_to_Bytes(self):
         """ Test the to_Bytes method"""
-        if not PY3:
-            self.assertEqual(to_bytes(str('Hello')),
-                             bytearray(u'Hello', 'utf-8'),
-                             "Check that to_bytes creates byte array when presented with unicode string. PY2 only")
+        self.assertEqual(to_bytes(str('Hello')),
+                         bytearray(u'Hello', 'utf-8'),
+                         "Check that to_bytes creates byte array when presented with unicode string.")
 
     def test_to_String(self):
         """Test the to_String() method."""
