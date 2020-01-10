@@ -1312,6 +1312,8 @@ def tool_list(platform, env):
         'tar', 'zip',
         # File builders (text)
         'textfile',
+        # Python scanner tool
+        'python',
     ], env)
 
     tools = ([linker, c_compiler, cxx_compiler,
