@@ -1444,7 +1444,7 @@ def RenameFunction(function, name):
 
 
 if hasattr(hashlib, 'md5'):
-    md5 = True
+    md5 = 'md5'
     hashfunc = hashlib.md5
 elif hasattr(hashlib, 'sha1'):
     # failover to sha1 if md5 is missing
@@ -1479,7 +1479,7 @@ def MD5signature(s):
 
     try:
         m.update(to_bytes(s))
-    except TypeError as e:
+    except TypeError:
         m.update(to_bytes(str(s)))
 
     return m.hexdigest()
