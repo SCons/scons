@@ -39,7 +39,6 @@ import os
 import re
 import subprocess
 
-from SCons.Util import PY3
 import SCons.Tool.cxx
 cplusplus = SCons.Tool.cxx
 # cplusplus = __import__('c++', globals(), locals(), [])
@@ -53,10 +52,7 @@ def get_package_info(package_name, pkginfo, pkgchk):
     except KeyError:
         version = None
         pathname = None
-        try:
-            from subprocess import DEVNULL  # py3k
-        except ImportError:
-            DEVNULL = open(os.devnull, 'wb')
+        from subprocess import DEVNULL 
 
         try:
             with open('/var/sadm/install/contents', 'r') as f:
@@ -72,16 +68,14 @@ def get_package_info(package_name, pkginfo, pkgchk):
         try:
             popen_args = {'stdout': subprocess.PIPE,
                           'stderr': DEVNULL}
-            if PY3:
-                popen_args['universal_newlines'] = True
+            popen_args['universal_newlines'] = True
             p = subprocess.Popen([pkginfo, '-l', package_name],
                                  **popen_args)
         except EnvironmentError:
             pass
         else:
             pkginfo_contents = p.communicate()[0]
-            if not PY3:
-                pkginfo_contents.decode()
+            pkginfo_contents.decode()
             version_re = re.compile(r'^ *VERSION:\s*(.*)$', re.M)
             version_match = version_re.search(pkginfo_contents)
             if version_match:
@@ -91,16 +85,14 @@ def get_package_info(package_name, pkginfo, pkgchk):
             try:
                 popen_args = {'stdout': subprocess.PIPE,
                               'stderr': DEVNULL}
-                if PY3:
-                    popen_args['universal_newlines'] = True
+                popen_args['universal_newlines'] = True
                 p = subprocess.Popen([pkgchk, '-l', package_name],
                                      **popen_args)
             except EnvironmentError:
                 pass
             else:
                 pkgchk_contents = p.communicate()[0]
-                if not PY3:
-                    pkgchk_contents.decode()
+                pkgchk_contents.decode()
                 pathname_re = re.compile(r'^Pathname:\s*(.*/bin/CC)$', re.M)
                 pathname_match = pathname_re.search(pkgchk_contents)
                 if pathname_match:

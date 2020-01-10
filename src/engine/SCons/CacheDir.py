@@ -36,7 +36,6 @@ import sys
 import SCons
 import SCons.Action
 import SCons.Warnings
-from SCons.Util import PY3
 
 cache_enabled = True
 cache_debug = False
@@ -160,10 +159,7 @@ class CacheDir(object):
         if path is None:
             return
 
-        if PY3:
-            self._readconfig3(path)
-        else:
-            self._readconfig2(path)
+        self._readconfig3(path)
 
 
     def _readconfig3(self, path):
