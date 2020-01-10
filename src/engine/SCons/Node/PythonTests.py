@@ -120,7 +120,8 @@ class ValueChildTestCase(unittest.TestCase):
         node._func_get_contents = 2  # Pretend to be a Dir.
         node.add_to_implicit([value])
         contents = node.get_contents()
-        assert len(contents) > 0
+        expected_contents = '%s %s\n' % (value.get_csig(), value.name)
+        assert contents == expected_contents
 
 
 class ValueMemoTestCase(unittest.TestCase):

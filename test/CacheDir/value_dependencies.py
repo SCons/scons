@@ -25,14 +25,19 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify that bwuilds with caching work for an action with a Value as a child.
+Verify that bwuilds with caching work for an action with a Value as a child
+in a variety of cases. Specifically:
+
+1. A source file that depends on a Value.
+2. A source directory that depends on a Value.
+3. A scanner that returns a Value and a directory that depends on a Value.
 """
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.dir_fixture('cachedir_foo_value')
+test.dir_fixture('value_dependencies')
 test.subdir('cache')
 
 # First build, populates the cache
