@@ -1,0 +1,2 @@
+DefaultEnvironment(tools=[])
+SConscript('src/SConscript', build_dir='build')

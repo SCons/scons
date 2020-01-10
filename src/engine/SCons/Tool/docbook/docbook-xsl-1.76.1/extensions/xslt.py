@@ -36,7 +36,7 @@ try:
         outfile = None
 
     count = 4
-    while (sys.argv[count]):
+    while sys.argv[count]:
         try:
             name, value = sys.argv[count].split("=", 2)
             if name in params:

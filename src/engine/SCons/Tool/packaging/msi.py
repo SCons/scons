@@ -182,7 +182,7 @@ def generate_guids(root):
 
 
 def string_wxsfile(target, source, env):
-    return "building WiX file %s"%( target[0].path )
+    return "building WiX file %s" % target[0].path
 
 def build_wxsfile(target, source, env):
     """ Compiles a .wxs file from the keywords given in env['msi_spec'] and

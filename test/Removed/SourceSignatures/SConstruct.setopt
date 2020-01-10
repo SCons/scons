@@ -1,1 +1,2 @@
+DefaultEnvironment(tools=[])
 SetOption('warn', 'deprecated-source-signatures')

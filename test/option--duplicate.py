@@ -39,6 +39,7 @@ python = TestSCons.python
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 try:
     duplicate = ARGUMENTS['duplicate']
     SetOption('duplicate', duplicate)

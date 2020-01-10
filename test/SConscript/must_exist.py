@@ -42,6 +42,7 @@ import SCons
 from SCons.Warnings import _warningOut
 import sys
 
+DefaultEnvironment(tools=[])
 # 1. call should succeed with deprecation warning
 try:
     SConscript('missing/SConscript')
@@ -89,27 +90,27 @@ warn1 = """
 scons: warning: Calling missing SConscript without error is deprecated.
 Transition by adding must_exist=0 to SConscript calls.
 Missing SConscript '{}'
-""".format(missing) + test.python_file_line(SConstruct_path, 7)
+""".format(missing) + test.python_file_line(SConstruct_path, 8)
 
 warn2 = """
 scons: warning: Ignoring missing SConscript '{}'
-""".format(missing) + test.python_file_line(SConstruct_path, 13)
+""".format(missing) + test.python_file_line(SConstruct_path, 14)
 
 err1 = """
 scons: warning: Fatal: missing SConscript '{}'
-""".format(missing) + test.python_file_line(SConstruct_path, 22)
+""".format(missing) + test.python_file_line(SConstruct_path, 23)
 
 warn3 = """
 scons: warning: Ignoring missing SConscript '{}'
-""".format(missing) + test.python_file_line(SConstruct_path, 25)
+""".format(missing) + test.python_file_line(SConstruct_path, 26)
 
 err2 = """
 scons: warning: Fatal: missing SConscript '{}'
-""".format(missing) + test.python_file_line(SConstruct_path, 35)
+""".format(missing) + test.python_file_line(SConstruct_path, 36)
 
 warn4 = """
 scons: warning: Ignoring missing SConscript '{}'
-""".format(missing) + test.python_file_line(SConstruct_path, 38)
+""".format(missing) + test.python_file_line(SConstruct_path, 39)
 
 expect_stderr = warn1 + warn2 + err1 + warn3 + err2 + warn4
 test.run(arguments = ".", stderr = expect_stderr)

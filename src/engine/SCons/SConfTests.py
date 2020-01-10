@@ -151,7 +151,7 @@ class SConfTestCase(unittest.TestCase):
                                  log_file=self.test.workpath('config.log'))
         no_std_header_h = self.test.workpath('config.tests', 'no_std_header.h')
         test_h = self.test.write( no_std_header_h,
-                                  "/* we are changing a dependency now */\n" );
+                                  "/* we are changing a dependency now */\n" )
         try:
             res = checks( self, sconf, TryFunc )
             log = self.test.read( self.test.workpath('config.log') )

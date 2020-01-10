@@ -135,7 +135,7 @@ for SHLIBVERSION, \
         test.must_contain_all_lines(test.stdout(),
                                     ['-Wl,-compatibility_version,{APPLELINK_COMPATIBILITY_VERSION}'.format(**locals())])
 
-    if not (extra_flags):
+    if not extra_flags:
         # Now run otool -L to get the compat and current version info and verify it's correct in the library.
         # We expect output such as this
         # libfoo.1.2.3.dylib:

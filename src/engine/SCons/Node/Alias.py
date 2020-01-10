@@ -37,6 +37,7 @@ import collections
 import SCons.Errors
 import SCons.Node
 import SCons.Util
+from SCons.Util import MD5signature
 
 class AliasNameSpace(collections.UserDict):
     def Alias(self, name, **kw):
@@ -166,7 +167,7 @@ class Alias(SCons.Node.Node):
             pass
 
         contents = self.get_contents()
-        csig = SCons.Util.MD5signature(contents)
+        csig = MD5signature(contents)
         self.get_ninfo().csig = csig
         return csig
 

@@ -62,7 +62,7 @@ class TAPTestResult(TextTestResult):
 
     def addExpectedFailure(self, test, err):
         super(TextTestResult, self).addExpectedFailure(test, err)
-        self._process(test, "not ok", directive=("  # TODO"))
+        self._process(test, "not ok", directive="  # TODO")
 
     def addUnexpectedSuccess(self, test):
         super(TextTestResult, self).addUnexpectedSuccess(test)

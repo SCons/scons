@@ -31,6 +31,7 @@ Simple tests of the --taskmastertrace= option.
 import TestSCons
 
 test = TestSCons.TestSCons()
+# test.verbose_set(3)
 
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
@@ -128,11 +129,7 @@ Taskmaster: No candidate anymore.
 
 test.run(arguments='--taskmastertrace=- .', stdout=expect_stdout)
 
-
-
 test.run(arguments='-c .')
-
-
 
 expect_stdout = test.wrap_stdout("""\
 Copy("Tfile.mid", "Tfile.in")

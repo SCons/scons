@@ -314,7 +314,6 @@ GlobalDefaultEnvironmentFunctions = [
     'AddPreAction',
     'Alias',
     'AlwaysBuild',
-    'BuildDir',
     'CacheDir',
     'Clean',
     #The Command() method is handled separately, below.
@@ -345,7 +344,6 @@ GlobalDefaultEnvironmentFunctions = [
     'Requires',
     'SConsignFile',
     'SideEffect',
-    'SourceCode',
     'Split',
     'Tag',
     'Value',

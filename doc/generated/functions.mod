@@ -19,7 +19,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-Append "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Append</function>">
 <!ENTITY f-AppendENVPath "<function xmlns='http://www.scons.org/dbxsd/v1.0'>AppendENVPath</function>">
 <!ENTITY f-AppendUnique "<function xmlns='http://www.scons.org/dbxsd/v1.0'>AppendUnique</function>">
-<!ENTITY f-BuildDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>BuildDir</function>">
 <!ENTITY f-Builder "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Builder</function>">
 <!ENTITY f-CacheDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CacheDir</function>">
 <!ENTITY f-Clean "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Clean</function>">
@@ -101,7 +100,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-env-Append "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Append</function>">
 <!ENTITY f-env-AppendENVPath "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.AppendENVPath</function>">
 <!ENTITY f-env-AppendUnique "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.AppendUnique</function>">
-<!ENTITY f-env-BuildDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.BuildDir</function>">
 <!ENTITY f-env-Builder "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Builder</function>">
 <!ENTITY f-env-CacheDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.CacheDir</function>">
 <!ENTITY f-env-Clean "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Clean</function>">
@@ -193,7 +191,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-Append "<link linkend='f-Append' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Append</function></link>">
 <!ENTITY f-link-AppendENVPath "<link linkend='f-AppendENVPath' xmlns='http://www.scons.org/dbxsd/v1.0'><function>AppendENVPath</function></link>">
 <!ENTITY f-link-AppendUnique "<link linkend='f-AppendUnique' xmlns='http://www.scons.org/dbxsd/v1.0'><function>AppendUnique</function></link>">
-<!ENTITY f-link-BuildDir "<link linkend='f-BuildDir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>BuildDir</function></link>">
 <!ENTITY f-link-Builder "<link linkend='f-Builder' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Builder</function></link>">
 <!ENTITY f-link-CacheDir "<link linkend='f-CacheDir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>CacheDir</function></link>">
 <!ENTITY f-link-Clean "<link linkend='f-Clean' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Clean</function></link>">
@@ -275,7 +272,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-env-Append "<link linkend='f-Append' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Append</function></link>">
 <!ENTITY f-link-env-AppendENVPath "<link linkend='f-AppendENVPath' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.AppendENVPath</function></link>">
 <!ENTITY f-link-env-AppendUnique "<link linkend='f-AppendUnique' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.AppendUnique</function></link>">
-<!ENTITY f-link-env-BuildDir "<link linkend='f-BuildDir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.BuildDir</function></link>">
 <!ENTITY f-link-env-Builder "<link linkend='f-Builder' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Builder</function></link>">
 <!ENTITY f-link-env-CacheDir "<link linkend='f-CacheDir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.CacheDir</function></link>">
 <!ENTITY f-link-env-Clean "<link linkend='f-Clean' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Clean</function></link>">

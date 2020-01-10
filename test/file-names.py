@@ -98,7 +98,7 @@ def create_command(a, b, c):
     b = ('', 'out')[b]
     return 'env.Command("' + a + get_filename('',c) + b + '", "'+get_filename("in",c)+ '","' + commandString + '")'
 
-sconstruct = [ 'import sys', 'env = Environment()' ]
+sconstruct = [ 'import sys', 'env = Environment(tools=[])' ]
 for c in goodChars:
     if c == '$':
         c = '$$'

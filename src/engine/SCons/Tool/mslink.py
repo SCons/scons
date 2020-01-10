@@ -220,7 +220,7 @@ def embedManifestDllCheck(target, source, env):
     if env.get('WINDOWS_EMBED_MANIFEST', 0):
         manifestSrc = target[0].get_abspath() + '.manifest'
         if os.path.exists(manifestSrc):
-            ret = (embedManifestDllAction) ([target[0]],None,env)
+            ret = embedManifestDllAction([target[0]], None, env)
             if ret:
                 raise SCons.Errors.UserError("Unable to embed manifest into %s" % (target[0]))
             return ret
@@ -234,7 +234,7 @@ def embedManifestExeCheck(target, source, env):
     if env.get('WINDOWS_EMBED_MANIFEST', 0):
         manifestSrc = target[0].get_abspath() + '.manifest'
         if os.path.exists(manifestSrc):
-            ret = (embedManifestExeAction) ([target[0]],None,env)
+            ret = embedManifestExeAction([target[0]], None, env)
             if ret:
                 raise SCons.Errors.UserError("Unable to embed manifest into %s" % (target[0]))
             return ret

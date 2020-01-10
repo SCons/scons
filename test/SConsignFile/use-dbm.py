@@ -27,20 +27,22 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 """
 Verify SConsignFile() when used with dbm.
 """
-
+import os.path
+import dbm
 import TestSCons
 
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
 try:
     import dbm.ndbm
+
     use_db = 'dbm.ndbm'
 except ImportError:
     try:
         import dbm
+
         use_db = 'dbm'
     except ImportError:
         test.skip_test('No dbm.ndbm in this version of Python; skipping test.\n')
@@ -60,7 +62,8 @@ import sys
 import %(use_db)s
 SConsignFile('.sconsign', %(use_db)s)
 B = Builder(action = r'%(_python_)s build.py $TARGETS $SOURCES')
-env = Environment(BUILDERS = { 'B' : B })
+DefaultEnvironment(tools=[])
+env = Environment(BUILDERS = { 'B' : B }, tools=[])
 env.B(target = 'f1.out', source = 'f1.in')
 env.B(target = 'f2.out', source = 'f2.in')
 env.B(target = 'subdir/f3.out', source = 'subdir/f3.in')
@@ -77,19 +80,21 @@ test.run()
 # We don't check for explicit .db or other file, because base "dbm"
 # can use different file extensions on different implementations.
 
-test.must_not_exist(test.workpath('.sconsign'))
+test.fail_test(os.path.exists('.sconsign') and 'dbm' not in dbm.whichdb('.sconsign'),
+               message=".sconsign existed and wasn't any type of dbm file")
 test.must_not_exist(test.workpath('.sconsign.dblite'))
 test.must_not_exist(test.workpath('subdir', '.sconsign'))
 test.must_not_exist(test.workpath('subdir', '.sconsign.dblite'))
-  
+
 test.must_match('f1.out', "f1.in\n")
 test.must_match('f2.out', "f2.in\n")
 test.must_match(['subdir', 'f3.out'], "subdir/f3.in\n")
 test.must_match(['subdir', 'f4.out'], "subdir/f4.in\n")
 
-test.up_to_date(arguments = '.')
+test.up_to_date(arguments='.')
 
-test.must_not_exist(test.workpath('.sconsign'))
+test.fail_test(os.path.exists('.sconsign') and 'dbm' not in dbm.whichdb('.sconsign'),
+               message=".sconsign existed and wasn't any type of dbm file")
 test.must_not_exist(test.workpath('.sconsign.dblite'))
 test.must_not_exist(test.workpath('subdir', '.sconsign'))
 test.must_not_exist(test.workpath('subdir', '.sconsign.dblite'))
