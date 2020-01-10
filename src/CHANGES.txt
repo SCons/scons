@@ -16,6 +16,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       is a reasonable default and also aligns with changes in Appveyor's VS2019 image.
     - Drop support for Python 2.7. SCons will be Python 3.5+ going forward.
 
+  From Adam Gross:
+    - Fix an issue causing scanners to receive incorrect paths when the
+      environment contains a Directory node that is a subdirectory of the
+      source root directory, the environment variable used by the scanner
+      (e.g. env['LIBPATH']) references a subdirectory of that directory node,
+      and a SConscript file is being run that is not in the source root
+      directory.
 
   From Mathew Robinson:
     - Improve performance of Subst by preventing unnecessary frame
