@@ -4450,8 +4450,8 @@ print("foo will be built in", foo.path)
 </literallayout>
 
 <para>
-Node objects have methods to create
-File and Directory Nodes relative to the orignal Node.
+File and Directory Node objects have methods to create
+File and Directory Nodes relative to the original Node.
 </para>
 
 <para>
