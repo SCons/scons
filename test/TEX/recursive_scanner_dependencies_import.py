@@ -42,7 +42,7 @@ test = TestSCons.TestSCons()
 pdflatex = test.where_is('pdflatex')
 
 if not pdflatex:
-    test.skip_test("Could not find pdflatex; skipping test(s).\n")
+    test.skip_test("Could not find 'pdflatex'; skipping test(s).\n")
 
 latex_import = os.system('kpsewhich import.sty')
 if latex_import != 0:

@@ -41,8 +41,8 @@ test = TestSCons.TestSCons()
 
 latex = test.where_is('pdflatex')
 bibtex = test.where_is('bibtex')
-if not latex or not bibtex:
-    test.skip_test("Could not find 'latex' or 'bibtex'; skipping test.\n")
+if not all((latex, bibtex)):
+    test.skip_test("Could not find 'latex' and/or 'bibtex'; skipping test.\n")
 
 bibunits = os.system('kpsewhich bibunits.sty')
 if not bibunits==0:
