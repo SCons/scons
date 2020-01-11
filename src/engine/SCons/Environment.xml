@@ -65,15 +65,6 @@ env['BUILDERS']['NewBuilder'] = foo
 </summary>
 </cvar>
 
-<cvar name="Dir">
-<summary>
-<para>
-A function that converts a string
-into a Dir instance relative to the target being built.
-</para>
-</summary>
-</cvar>
-
 <cvar name="ENV">
 <summary>
 <para>
@@ -127,15 +118,6 @@ as the invoking shell (or other process):
 import os
 env = Environment(ENV = {'PATH' : os.environ['PATH']})
 </example_commands>
-</summary>
-</cvar>
-
-<cvar name="File">
-<summary>
-<para>
-A function that converts a string into a File instance relative to the
-target being built.
-</para>
 </summary>
 </cvar>
 
@@ -1351,11 +1333,10 @@ cc_values = env.Dictionary('CC', 'CCFLAGS', 'CCCOM')
 </arguments>
 <summary>
 <para>
-This returns a Directory Node,
-an object that represents the specified directory
-<varname>name</varname>.
+Returns Directory Node(s).
+A Directory Node is an object that represents a directory.
 <varname>name</varname>
-can be a relative or absolute path.
+can be a relative or absolute path or a list of such paths.
 <varname>directory</varname>
 is an optional directory that will be used as the parent directory.
 If no
@@ -1366,7 +1347,10 @@ is specified, the current script's directory is used as the parent.
 <para>
 If
 <varname>name</varname>
-is a list, SCons returns a list of Dir nodes.
+is a single pathname, the corresponding node is returned.
+If
+<varname>name</varname>
+is a list, SCons returns a list of nodes.
 Construction variables are expanded in
 <varname>name</varname>.
 </para>
@@ -1511,20 +1495,24 @@ if Execute("mkdir sub/dir/ectory"):
 </arguments>
 <summary>
 <para>
-This returns a
-File Node,
-an object that represents the specified file
-<varname>name</varname>.
+Returns File Node(s).
+A File Node is an object that represents a file.
 <varname>name</varname>
-can be a relative or absolute path.
+can be a relative or absolute path or a list of such paths.
 <varname>directory</varname>
 is an optional directory that will be used as the parent directory.
+If no
+<varname>directory</varname>
+is specified, the current script's directory is used as the parent.
 </para>
 
 <para>
 If
 <varname>name</varname>
-is a list, SCons returns a list of File nodes.
+is a single pathname, the corresponding node is returned.
+If
+<varname>name</varname>
+is a list, SCons returns a list of nodes.
 Construction variables are expanded in
 <varname>name</varname>.
 </para>

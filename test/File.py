@@ -37,13 +37,19 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
-env = Environment(FOO = 'fff', BAR = 'bbb')
+env = Environment(FOO='fff', BAR='bbb')
 print(File('ddd'))
 print(File('$FOO'))
 print(File('${BAR}_$BAR'))
+rv = File(['mmm', 'nnn'])
+rv_msg = [node.path for node in rv]
+print(rv_msg)
 print(env.File('eee'))
 print(env.File('$FOO'))
 print(env.File('${BAR}_$BAR'))
+rv = env.File(['ooo', 'ppp'])
+rv_msg = [node.path for node in rv]
+print(rv_msg)
 f1 = env.File('f1')
 print(f1)
 f2 = f1.File('f2')
@@ -54,16 +60,18 @@ expect = test.wrap_stdout(read_str = """\
 ddd
 $FOO
 ${BAR}_$BAR
+['mmm', 'nnn']
 eee
 fff
 bbb_bbb
+['ooo', 'ppp']
 f1
 f2
-""", build_str = """\
+""", build_str="""\
 scons: `.' is up to date.
 """)
 
-test.run(stdout = expect)
+test.run(stdout=expect)
 
 test.pass_test()
 
