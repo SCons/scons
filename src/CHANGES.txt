@@ -18,7 +18,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Adam Gross:
     - Added support for scanning multiple entries in an action string if
-      implicit command dependency scanning is enabled.
+      IMPLICIT_COMMAND_DEPENDENCIES is set to 2. This opts into more thorough
+      action scanning where every string in the command is scanned to determine
+      if it is a non-source and non-target path.
 
   From Mathew Robinson:
     - Improve performance of Subst by preventing unnecessary frame

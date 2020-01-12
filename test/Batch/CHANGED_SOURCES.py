@@ -48,11 +48,8 @@ for infile in sys.argv[2:]:
 sys.exit(0)
 """)
 
-# Disable IMPLICIT_COMMAND_DEPENDENCIES because otherwise it renders them less
-# effective. They count on paths provided at the end of the command string only
-# being counted as dependencies if Depends() is used.
 test.write('SConstruct', """
-env = Environment(IMPLICIT_COMMAND_DEPENDENCIES=False)
+env = Environment()
 env['BATCH_BUILD'] = 'batch_build.py'
 env['BATCHCOM'] = r'%(_python_)s $BATCH_BUILD ${TARGET.dir} $CHANGED_SOURCES'
 bb = Action('$BATCHCOM', batch_key=True, targets='CHANGED_TARGETS')
