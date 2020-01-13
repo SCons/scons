@@ -976,6 +976,7 @@ class CommandAction(_ActionAction):
             return env.subst_target_source(cmd, SUBST_SIG, target, source)
 
     def get_implicit_deps(self, target, source, env, executor=None):
+        """Return the implicit dependencies of this action's command line."""
         icd = env.get('IMPLICIT_COMMAND_DEPENDENCIES', True)
         if is_String(icd) and icd[:1] == '$':
             icd = env.subst(icd)
@@ -983,14 +984,25 @@ class CommandAction(_ActionAction):
         if not icd or icd in ('0', 'None'):
             return []
 
-        if icd in ['2', 2]:
-            return self._get_implicit_deps_heavyweight(target, source, env, executor)
+        try:
+            icd_int = int(icd)
+        except ValueError:
+            icd_int = None
+
+        if (icd_int and icd_int > 1) or icd == 'all':
+            # An integer value greater than 1 specifies the number of entries
+            # to scan. "all" means to scan all.
+            return self._get_implicit_deps_heavyweight(target, source, env, executor, icd_int)
         else:
             # Everything else (usually 1 or True) means that we want
             # lightweight dependency scanning.
             return self._get_implicit_deps_lightweight(target, source, env, executor)
 
     def _get_implicit_deps_lightweight(self, target, source, env, executor):
+        """
+        Lightweight dependency scanning involves only scanning the first entry
+        in an action string, even if it contains &&.
+        """
         from SCons.Subst import SUBST_SIG
         if executor:
             cmd_list = env.subst_list(self.cmd_list, SUBST_SIG, executor=executor)
@@ -1008,7 +1020,24 @@ class CommandAction(_ActionAction):
                     res.append(env.fs.File(d))
         return res
 
-    def _get_implicit_deps_heavyweight(self, target, source, env, executor):
+    def _get_implicit_deps_heavyweight(self, target, source, env, executor,
+                                       icd_int):
+        """
+        Heavyweight dependency scanning involves scanning more than just the
+        first entry in an action string. The exact behavior depends on the
+        value of icd_int. Only files are taken as implicit dependencies;
+        directories are ignored.
+
+        If icd_int is an integer value, it specifies the number of entries to
+        scan for implicit dependencies. Action strings are also scanned after
+        a &&. So for example, if icd_int=2 and the action string is
+        "cd <some_dir> && $PYTHON $SCRIPT_PATH <another_path>", the implicit
+        dependencies would be the path to the python binary and the path to the
+        script.
+
+        If icd_int is None, all entries are scanned for implicit dependencies.
+        """
+
         # Avoid circular and duplicate dependencies by not providing source,
         # target, or executor to subst_list. This causes references to
         # $SOURCES, $TARGETS, and all related variables to disappear.
@@ -1018,11 +1047,12 @@ class CommandAction(_ActionAction):
 
         for cmd_line in cmd_list:
             if cmd_line:
-                is_first_entry = True
+                entry_count = 0
                 for entry in cmd_line:
                     d = str(entry)
-                    if not d.startswith(('&', '-', '/') if os.name == 'nt'
-                                        else ('&', '-')):
+                    if ((icd_int is None or entry_count < icd_int) and
+                            not d.startswith(('&', '-', '/') if os.name == 'nt'
+                                             else ('&', '-'))):
                         m = strip_quotes.match(d)
                         if m:
                             d = m.group(1)
@@ -1032,15 +1062,15 @@ class CommandAction(_ActionAction):
                             # PATH, which env.WhereIs() looks in.
                             # For now, only match files, not directories.
                             p = os.path.abspath(d) if os.path.isfile(d) else None
-                            if not p and is_first_entry:
+                            if not p and entry_count == 0:
                                 p = env.WhereIs(d)
 
                             if p:
                                 res.append(env.fs.File(p))
 
-                        is_first_entry = False
+                        entry_count = entry_count + 1
                     else:
-                        is_first_entry = d == '&&'
+                        entry_count = 0 if d == '&&' else entry_count + 1
 
         # Despite not providing source and target to env.subst() above, we
         # can still end up with sources in this list. For example, files in
