@@ -40,6 +40,7 @@ SCons/Scanner/Fortran.py
 SCons/Scanner/IDL.py
 SCons/Scanner/LaTeX.py
 SCons/Scanner/Prog.py
+SCons/Scanner/Python.py
 SCons/Scanner/RC.py
 SCons/Scanner/SWIG.py
 SCons/SConf.py
