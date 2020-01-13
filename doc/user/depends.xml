@@ -561,13 +561,6 @@ int main() { printf("Hello, world!\n"); }
 
       </para>
 
-        <para>
-            The fourth argument <varname>repo_node</varname>,
-            is the &Node; to use if it is not None when comparing &BuildInfo;.
-            This is typically only set when the target node only exists in a
-            &Repository;
-        </para>
-
       <variablelist>
 
         <varlistentry>
@@ -612,22 +605,33 @@ int main() { printf("Hello, world!\n"); }
 
       <para>
 
-      Note that ignoring some of the arguments
-      in your custom &Decider; function
-      is a perfectly normal thing to do,
-      if they don't impact the way you want to
-      decide if the dependency file has changed.
+      These attributes may not be present at the time of the
+      first run.  Without any prior build, no targets have been
+      created and no <filename>.sconsign</filename> DB file exists yet.
+      So you should always check whether the
+      <varname>prev_ni</varname> attribute in question is available
+      (use the Python <function>hasattr</function> method or a
+      <literal>try</literal>-<literal>except</literal> block).
+
+      </para>
+
+
+      <para>
+
+      The fourth argument <varname>repo_node</varname>
+      is the &Node; to use if it is not None when comparing &BuildInfo;.
+      This is typically only set when the target node only exists in a
+      &Repository;
 
       </para>
 
       <para>
 
-      Another thing to look out for is the fact that the three
-      attributes above may not be present at the time of the first run.
-      Without any prior build, no targets have been created and no
-      <filename>.sconsign</filename> DB file exists yet.
-      So, you should always check whether the
-      <varname>prev_ni</varname> attribute in question is available.
+      Note that ignoring some of the arguments
+      in your custom &Decider; function
+      is a perfectly normal thing to do,
+      if they don't impact the way you want to
+      decide if the dependency file has changed.
 
       </para>
 
@@ -644,13 +648,14 @@ int main() { printf("Hello, world!\n"); }
       <sconstruct>
 env = Environment()
 
+
 def config_file_decider(dependency, target, prev_ni, repo_node=None):
     import os.path
 
     # We always have to init the .csig value...
     dep_csig = dependency.get_csig()
     # .csig may not exist, because no target was built yet...
-    if 'csig' not in dir(prev_ni):
+    if not prev_ni.hasattr("csig"):
         return True
     # Target file may not exist yet
     if not os.path.exists(str(target.abspath)):
@@ -660,17 +665,18 @@ def config_file_decider(dependency, target, prev_ni, repo_node=None):
         return True
     return False
 
+
 def update_file():
-    f = open("test.txt","a")
-    f.write("some line\n")
-    f.close()
+    with open("test.txt", "a") as f:
+        f.write("some line\n")
+
 
 update_file()
 
 # Activate our own decider function
 env.Decider(config_file_decider)
 
-env.Install("install","test.txt")
+env.Install("install", "test.txt")
       </sconstruct>
 
     </section>

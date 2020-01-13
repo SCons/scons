@@ -442,6 +442,8 @@ including another alias.
 can be called multiple times for the same
 alias to add additional targets to the alias,
 or additional actions to the list for this alias.
+Aliases are global even if set through
+the construction environment method.
 </para>
 
 <para>
@@ -1145,17 +1147,16 @@ env.Decider('content')
 </example_commands>
 
 <para>
-In addition to the above already-available functions,
-the
+In addition to the above already-available functions, the
 <varname>function</varname>
-argument may be an actual Python function
-that takes the following three arguments:
+argument may be a Python function you supply.
+Such a function must accept the following four arguments:
 </para>
 
 <para>
 <variablelist>
 <varlistentry>
-<term><parameter>dependency</parameter></term>
+<term><parameter class="function">dependency</parameter></term>
 <listitem>
 <para>
 The Node (file) which
@@ -1169,7 +1170,7 @@ was built.
 </listitem>
 </varlistentry>
 <varlistentry>
-<term><parameter>target</parameter></term>
+<term><parameter class="function">target</parameter></term>
 <listitem>
 <para>
 The Node (file) being built.
@@ -1182,7 +1183,7 @@ has "changed."
 </listitem>
 </varlistentry>
 <varlistentry>
-<term><parameter>prev_ni</parameter></term>
+<term><parameter class="function">prev_ni</parameter></term>
 <listitem>
 <para>
 Stored information about the state of the
@@ -1198,12 +1199,17 @@ size, or content signature.
 </listitem>
 </varlistentry>
     <varlistentry>
-<term><parameter>repo_node</parameter></term>
+<term><parameter class="function">repo_node</parameter></term>
 <listitem>
 <para>
-Use this node instead of the one specified by
+If set, use this Node instead of the one specified by
 <varname>dependency</varname>
-    to determine if the dependency has changed.
+to determine if the dependency has changed.
+This argument is optional so should be written
+as a default argument (typically it would be
+written as <literal>repo_node=None</literal>).
+A caller will normally only set this if the
+target only exists in a Repository.
 </para>
 </listitem>
 </varlistentry>

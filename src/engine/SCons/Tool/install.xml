@@ -50,8 +50,22 @@ a builder.
 </para>
 
 <example_commands>
-env.Install('/usr/local/bin', source = ['foo', 'bar'])
+env.Install(target='/usr/local/bin', source=['foo', 'bar'])
 </example_commands>
+
+<para>
+Note that if target paths chosen for the
+&Install; builder (and the related &InstallAs; and
+&InstallVersionedLib; builders) are outside the
+project tree, such as in the example above,
+they may not be selected for "building" by default,
+since in the absence of other instructions
+&scons; builds targets that are underneath the top directory
+(the directory that contains the &SConstruct; file,
+usually the current directory).
+Use command line targets or the &Default; function
+in this case.
+</para>
 
 <para>
 If the <option>--install-sandbox</option> command line
@@ -86,11 +100,15 @@ arguments list different numbers of files or directories.
 </para>
 
 <example_commands>
-env.InstallAs(target = '/usr/local/bin/foo',
-              source = 'foo_debug')
-env.InstallAs(target = ['../lib/libfoo.a', '../lib/libbar.a'],
-              source = ['libFOO.a', 'libBAR.a'])
+env.InstallAs(target='/usr/local/bin/foo',
+              source='foo_debug')
+env.InstallAs(target=['../lib/libfoo.a', '../lib/libbar.a'],
+              source=['libFOO.a', 'libBAR.a'])
 </example_commands>
+
+<para>
+See the note under &Install;.
+</para>
 
 </summary>
 </builder>
@@ -103,9 +121,14 @@ architecture will be generated based on symlinks of the source library.
 </para>
 
 <example_commands>
-env.InstallVersionedLib(target = '/usr/local/bin/foo',
-              source = 'libxyz.1.5.2.so')
+env.InstallVersionedLib(target='/usr/local/bin/foo',
+                        source='libxyz.1.5.2.so')
 </example_commands>
+
+<para>
+See the note under &Install;.
+</para>
+
 </summary>
 </builder>
 
