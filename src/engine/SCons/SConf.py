@@ -574,8 +574,7 @@ class SConfBase(object):
         """
         return self.pspawn(sh, escape, cmd, args, env, self.logstream, self.logstream)
 
-
-    def TryBuild(self, builder, text = None, extension = ""):
+    def TryBuild(self, builder, text=None, extension=""):
         """Low level TryBuild implementation. Normally you don't need to
         call that - you can use TryCompile / TryLink / TryRun instead
         """
