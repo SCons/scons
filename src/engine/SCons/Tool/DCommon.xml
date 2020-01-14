@@ -291,6 +291,7 @@ DVERSUFFIX.
 <para>
 The name of the compiler to use when compiling D source
 destined to be in a shared objects.
+See also &cv-link-DC;.
 </para>
 </summary>
 </cvar>
@@ -299,6 +300,7 @@ destined to be in a shared objects.
 <summary>
 <para>
 The command line to use when compiling code to be part of shared objects.
+See also &cv-link-DCOM;.
 </para>
 </summary>
 </cvar>
