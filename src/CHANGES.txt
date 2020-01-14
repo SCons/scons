@@ -8,7 +8,6 @@ NOTE: The 4.0.0 Release of SCons will drop Python 2.7 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-
   From William Deegan:
     - Fix broken clang + MSVC 2019 combination by using MSVC configuration logic to 
       propagate'VCINSTALLDIR' and 'VCToolsInstallDir' which clang tools use to locate
@@ -37,6 +36,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Convert remaining uses of insecure/deprecated mktemp method.
     - Clean up some duplications in manpage.  Clarify portion of manpage on Dir and File nodes.
 
+  From Jeremy Elson:
+    - Updated design doc to use the correct syntax for Depends()
 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
 
