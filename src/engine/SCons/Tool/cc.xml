@@ -70,7 +70,7 @@ The C compiler.
 The command line used to compile a C source file to a (static) object
 file.  Any options specified in the &cv-link-CFLAGS;, &cv-link-CCFLAGS; and
 &cv-link-CPPFLAGS; construction variables are included on this command line.
-See also &cv-link-SHCCCOM;.
+See also &cv-link-SHCCCOM; for compiling to shared objects.
 </para>
 </summary>
 </cvar>
@@ -81,7 +81,7 @@ See also &cv-link-SHCCCOM;.
 If set, the string displayed when a C source file
 is compiled to a (static) object file.
 If not set, then &cv-link-CCCOM; (the command line) is displayed.
-See also &cv-link-SHCCCOMSTR;.
+See also &cv-link-SHCCCOMSTR; for compiling to shared objects.
 </para>
 
 <example_commands>
@@ -94,7 +94,7 @@ env = Environment(CCCOMSTR = "Compiling static object $TARGET")
 <summary>
 <para>
 General options that are passed to the C and C++ compilers.
-See also &cv-link-SHCCFLAGS;.
+See also &cv-link-SHCCFLAGS; for compiling to shared objects.
 </para>
 </summary>
 </cvar>
@@ -103,7 +103,7 @@ See also &cv-link-SHCCFLAGS;.
 <summary>
 <para>
 General options that are passed to the C compiler (C only; not C++).
-See also &cv-link-SHCFLAGS;.
+See also &cv-link-SHCFLAGS; for compiling to shared objects.
 </para>
 </summary>
 </cvar>
@@ -161,7 +161,7 @@ The default list is:
 <summary>
 <para>
 The C compiler used for generating shared-library objects.
-See also &cv-link-CC;.
+See also &cv-link-CC; for compiling to static objects.
 </para>
 </summary>
 </cvar>
@@ -175,7 +175,7 @@ Any options specified in the &cv-link-SHCFLAGS;,
 &cv-link-SHCCFLAGS; and
 &cv-link-CPPFLAGS; construction variables
 are included on this command line.
-See also &cv-link-CCCOM;.
+See also &cv-link-CCCOM; for compiling to static objects.
 </para>
 </summary>
 </cvar>
@@ -186,7 +186,7 @@ See also &cv-link-CCCOM;.
 If set, the string displayed when a C source file
 is compiled to a shared object file.
 If not set, then &cv-link-SHCCCOM; (the command line) is displayed.
-See also &cv-link-CCCOMSTR;.
+See also &cv-link-CCCOMSTR; for compiling to static objects.
 </para>
 
 <example_commands>
@@ -200,7 +200,7 @@ env = Environment(SHCCCOMSTR = "Compiling shared object $TARGET")
 <para>
 Options that are passed to the C and C++ compilers
 to generate shared-library objects.
-See also &cv-link-CCFLAGS;.
+See also &cv-link-CCFLAGS; for compiling to static objects.
 </para>
 </summary>
 </cvar>
@@ -210,7 +210,7 @@ See also &cv-link-CCFLAGS;.
 <para>
 Options that are passed to the C compiler (only; not C++)
 to generate shared-library objects.
-See also &cv-link-CFLAGS;.
+See also &cv-link-CFLAGS; for compiling to static objects.
 </para>
 </summary>
 </cvar>

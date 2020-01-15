@@ -27,7 +27,7 @@ See its __doc__ string for a discussion of the format.
 <summary>
 <para>
 The D compiler to use.
-See also &cv-link-SHDC;.
+See also &cv-link-SHDC; for compiling to shared objects.
 </para>
 </summary>
 </cvar>
@@ -38,7 +38,7 @@ See also &cv-link-SHDC;.
 The command line used to compile a D file to an object file.
 Any options specified in the &cv-link-DFLAGS; construction variable
 is included on this command line.
-See also &cv-link-SHDCOM;.
+See also &cv-link-SHDCOM; for compiling to shared objects.
 </para>
 </summary>
 </cvar>
@@ -49,7 +49,7 @@ See also &cv-link-SHDCOM;.
 If set, the string displayed when a D source file
 is compiled to a (static) object file.
 If not set, then &cv-link-DCOM; (the command line) is displayed.
-See also &cv-link-SHDCOMSTR;.
+See also &cv-link-SHDCOMSTR; for compiling to shared objects.
 </para>
 </summary>
 </cvar>
@@ -194,6 +194,7 @@ DLIBLINKSUFFIX.
 <summary>
 <para>
 Name of the linker to use for linking systems including D sources.
+See also &cv-link-SHDLINK; for linking shared objects.
 </para>
 </summary>
 </cvar>
@@ -202,6 +203,7 @@ Name of the linker to use for linking systems including D sources.
 <summary>
 <para>
 The command line to use when linking systems including D sources.
+See also &cv-link-SHDLINKCOM; for linking shared objects.
 </para>
 </summary>
 </cvar>
@@ -210,6 +212,7 @@ The command line to use when linking systems including D sources.
 <summary>
 <para>
 List of linker flags.
+See also &cv-link-SHDLINKFLAGS; for linking shared objects.
 </para>
 </summary>
 </cvar>
@@ -291,7 +294,7 @@ DVERSUFFIX.
 <para>
 The name of the compiler to use when compiling D source
 destined to be in a shared objects.
-See also &cv-link-DC;.
+See also &cv-link-DC; for compiling to static objects.
 </para>
 </summary>
 </cvar>
@@ -300,7 +303,7 @@ See also &cv-link-DC;.
 <summary>
 <para>
 The command line to use when compiling code to be part of shared objects.
-See also &cv-link-DCOM;.
+See also &cv-link-DCOM; for compiling to static objects.
 </para>
 </summary>
 </cvar>
@@ -311,7 +314,7 @@ See also &cv-link-DCOM;.
 If set, the string displayed when a D source file
 is compiled to a (shared) object file.
 If not set, then &cv-link-SHDCOM; (the command line) is displayed.
-See also &cv-link-DCOMSTR;.
+See also &cv-link-DCOMSTR; for compiling to static objects.
 </para>
 </summary>
 </cvar>
@@ -337,6 +340,7 @@ SHDLIBVERSIONFLAGS.
 <para>
 The linker to use when creating shared objects for code bases
 include D sources.
+See also &cv-link-DLINK; for linking static objects.
 </para>
 </summary>
 </cvar>
@@ -345,6 +349,7 @@ include D sources.
 <summary>
 <para>
 The command line to use when generating shared objects.
+See also &cv-link-DLINKCOM; for linking static objects.
 </para>
 </summary>
 </cvar>
@@ -353,6 +358,7 @@ The command line to use when generating shared objects.
 <summary>
 <para>
 The list of flags to use when generating a shared object.
+See also &cv-link-DLINKFLAGS; for linking static objects.
 </para>
 </summary>
 </cvar>
