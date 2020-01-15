@@ -64,6 +64,11 @@ class ValueTestCase(unittest.TestCase):
         v2.build()
         assert v2.built_value == 'faked', v2.built_value
 
+        v3 = SCons.Node.Python.Value(b'\x00\x0F', name='name')
+        v3.executor = fake_executor()
+        v3.build()
+        assert v3.built_value == 'faked', v3.built_value
+
     def test_read(self):
         """Test the Value.read() method
         """
