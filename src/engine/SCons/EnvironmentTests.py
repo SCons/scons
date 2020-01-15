@@ -3289,6 +3289,10 @@ def generate(env):
         v3 = env.Value('c', 'build-c')
         assert v3.value == 'c', v3.value
 
+        v4 = env.Value(b'\x00\x0F', name='name')
+        assert v4.value == b'\x00\x0F', v4.value
+        assert v4.name == 'name', v4.name
+
 
     def test_Environment_global_variable(self):
         """Test setting Environment variable to an Environment.Base subclass"""

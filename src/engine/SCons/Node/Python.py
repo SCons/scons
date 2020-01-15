@@ -200,7 +200,7 @@ def ValueWithMemo(value, built_value=None, name=None):
     try:
         return _memo_lookup_map[memo_lookup_key]
     except KeyError:
-        v = Value(value)
+        v = Value(value, built_value, name)
         _memo_lookup_map[memo_lookup_key] = v
         return v
 
