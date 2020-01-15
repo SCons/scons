@@ -3087,7 +3087,7 @@ env.Tool('opengl', toolpath = ['build/tools'])
 
 <scons_function name="Value">
 <arguments>
-(value, [built_value])
+(value, [built_value], [name])
 </arguments>
 <summary>
 <para>
@@ -3102,6 +3102,10 @@ will be rebuilt.
 files are up-to-date.)
 When using timestamp source signatures, Value Nodes'
 timestamps are equal to the system time when the Node is created.
+<varname>name</varname> can be provided as an alternative name
+for the resulting <literal>Value</literal> node; this is advised
+if the <varname>value</varname> parameter can't be converted to
+a string.
 </para>
 
 <para>
