@@ -1,0 +1,32 @@
+import SCons.Node
+
+CacheDir('cache')
+
+def b(target, source, env):
+	with open(target[0].abspath, 'w') as f:
+		pass
+
+def scan(node, env, path):
+    # Have the node depend on a directory, which depends on an instance of
+    # SCons.Node.Python.Value.
+    sample_dir = env.fs.Dir('dir2')
+    env.Depends(sample_dir, env.Value('c'))
+    return [sample_dir, env.Value('d'), env.Value(b'\x03\x0F', name='name3')]
+
+scanner = Scanner(function=scan, node_class=SCons.Node.Node)
+builder = Builder(action=b, source_scanner=scanner)
+
+env = Environment()
+env.Append(BUILDERS={'B': builder})
+
+# Create a node and a directory that each depend on an instance of
+# SCons.Node.Python.Value.
+sample_dir = env.fs.Dir('dir1')
+env.Depends(sample_dir,
+            [env.Value('a'), env.Value(b'\x01\x0F', name='name1')])
+
+sample_file = env.fs.File('testfile')
+env.Depends(sample_file,
+            [env.Value('b'), env.Value(b'\x02\x0F', name='name2')])
+
+env.B(target='File1.out', source=[sample_dir, sample_file])

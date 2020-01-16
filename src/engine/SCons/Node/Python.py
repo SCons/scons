@@ -88,13 +88,20 @@ class Value(SCons.Node.Node):
     NodeInfo = ValueNodeInfo
     BuildInfo = ValueBuildInfo
 
-    def __init__(self, value, built_value=None):
+    def __init__(self, value, built_value=None, name=None):
         SCons.Node.Node.__init__(self)
         self.value = value
         self.changed_since_last_build = 6
         self.store_info = 0
         if built_value is not None:
             self.built_value = built_value
+
+        # Set a name so it can be a child of a node and not break
+        # its parent's implementation of Node.get_contents.
+        if name:
+            self.name = name
+        else:
+            self.name = str(value)
 
     def str_for_display(self):
         return repr(self.value)
@@ -177,7 +184,7 @@ class Value(SCons.Node.Node):
         return contents
 
 
-def ValueWithMemo(value, built_value=None):
+def ValueWithMemo(value, built_value=None, name=None):
     global _memo_lookup_map
 
     # No current support for memoizing a value that needs to be built.
@@ -193,7 +200,7 @@ def ValueWithMemo(value, built_value=None):
     try:
         return _memo_lookup_map[memo_lookup_key]
     except KeyError:
-        v = Value(value)
+        v = Value(value, built_value, name)
         _memo_lookup_map[memo_lookup_key] = v
         return v
 

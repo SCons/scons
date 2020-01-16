@@ -16,6 +16,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       is a reasonable default and also aligns with changes in Appveyor's VS2019 image.
     - Drop support for Python 2.7. SCons will be Python 3.5+ going forward.
 
+  From Adam Gross:
+    - Added support for taking instances of the Value class as implicit
+      dependencies.
 
   From Adam Gross:
     - Added new module SCons.Scanner.Python to allow scanning .py files.

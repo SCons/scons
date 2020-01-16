@@ -64,6 +64,12 @@ class ValueTestCase(unittest.TestCase):
         v2.build()
         assert v2.built_value == 'faked', v2.built_value
 
+        v3 = SCons.Node.Python.Value(b'\x00\x0F', name='name')
+        v3.executor = fake_executor()
+        v3.build()
+        assert v3.name == 'name', v3.name
+        assert v3.built_value == 'faked', v3.built_value
+
     def test_read(self):
         """Test the Value.read() method
         """
@@ -110,6 +116,18 @@ class ValueBuildInfoTestCase(unittest.TestCase):
         """Test ValueBuildInfo initialization"""
         vvv = SCons.Node.Python.Value('vvv')
         bi = SCons.Node.Python.ValueBuildInfo()
+
+
+class ValueChildTestCase(unittest.TestCase):
+    def test___init__(self):
+        """Test support for a Value() being an implicit dependency of a Node"""
+        value = SCons.Node.Python.Value('v')
+        node = SCons.Node.Node()
+        node._func_get_contents = 2  # Pretend to be a Dir.
+        node.add_to_implicit([value])
+        contents = node.get_contents()
+        expected_contents = '%s %s\n' % (value.get_csig(), value.name)
+        assert contents == expected_contents
 
 
 class ValueMemoTestCase(unittest.TestCase):
