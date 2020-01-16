@@ -578,7 +578,9 @@ class _DSPGenerator(object):
         for i in range(len(variants)):
             AddConfig(self, variants[i], buildtarget[i], outdir[i], runfile[i], cmdargs[i], cppdefines[i], cpppaths[i])
 
-        self.platforms = {p.platform for p in self.configs.values()}
+        seen = set()
+        self.platforms = [p.platform for p in self.configs.values()
+                          if not (p.platform in seen or seen.add(p.platform))]
 
 
     def Build(self):
@@ -1502,7 +1504,9 @@ class _GenerateV7DSW(_DSWGenerator):
             for variant in env['variant']:
                 AddConfig(self, variant)
 
-        self.platforms = {p.platform for p in self.configs.values()}
+        seen = set()
+        self.platforms = [p.platform for p in self.configs.values()
+                          if not (p.platform in seen or seen.add(p.platform))]
 
         def GenerateProjectFilesInfo(self):
             for dspfile in self.dspfiles:
