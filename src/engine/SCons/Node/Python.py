@@ -185,17 +185,20 @@ class Value(SCons.Node.Node):
 
 
 def ValueWithMemo(value, built_value=None, name=None):
+    """
+    Memoized Value() node factory.
+    """
     global _memo_lookup_map
 
     # No current support for memoizing a value that needs to be built.
     if built_value:
-        return Value(value, built_value)
+        return Value(value, built_value, name=name)
 
     try:
-        memo_lookup_key = hash(value)
+        memo_lookup_key = hash((value, name))
     except TypeError:
         # Non-primitive types will hit this codepath.
-        return Value(value)
+        return Value(value, name=name)
 
     try:
         return _memo_lookup_map[memo_lookup_key]
