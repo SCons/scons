@@ -104,6 +104,9 @@ class ValueTestCase(unittest.TestCase):
         assert csig == 'None', csig
 
 
+
+
+
 class ValueNodeInfoTestCase(unittest.TestCase):
     def test___init__(self):
         """Test ValueNodeInfo initialization"""
@@ -161,6 +164,19 @@ class ValueMemoTestCase(unittest.TestCase):
         v3 = SCons.Node.Python.ValueWithMemo(a)
         v4 = SCons.Node.Python.ValueWithMemo(a)
         assert v3 is not v4
+
+    def test_value_set_name(self):
+        """ Confirm setting name and caching takes the name into account """
+
+        v1 = SCons.Node.Python.ValueWithMemo(b'\x00\x0F', name='name')
+        v2 = SCons.Node.Python.ValueWithMemo(b'\x00\x0F', name='name2')
+        v3 = SCons.Node.Python.ValueWithMemo('Jibberish')
+
+        self.assertEqual(v1.name,'name', msg=v1.name)
+        self.assertEqual(v2.name,'name2', msg=v2.name)
+        self.assertEqual(v3.name,'Jibberish', msg=v3.name)
+        self.assertTrue(v1 is not v2, msg="v1 and v2 should be different as they have different names but same values")
+
 
 if __name__ == "__main__":
     unittest.main()

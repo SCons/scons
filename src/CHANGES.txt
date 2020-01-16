@@ -19,9 +19,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Adam Gross:
     - Added support for taking instances of the Value class as implicit
       dependencies.
-
-  From Adam Gross:
     - Added new module SCons.Scanner.Python to allow scanning .py files.
+
 
   From Mathew Robinson:
     - Improve performance of Subst by preventing unnecessary frame
