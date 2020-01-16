@@ -152,8 +152,8 @@ def normalize_env(env, keys, force=False):
     Note: the environment is copied."""
     normenv = {}
     if env:
-        for k in list(env.keys()):
-            normenv[k] = copy.deepcopy(env[k])
+        for k, v in env.items():
+            normenv[k] = copy.deepcopy(v)
 
         for k in keys:
             if k in os.environ and (force or k not in normenv):

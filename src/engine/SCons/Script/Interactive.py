@@ -247,7 +247,7 @@ version                 Prints SCons version information.
             while n:
                 n = walker.get_next()
 
-        for node in list(seen_nodes.keys()):
+        for node in seen_nodes.keys():
             # Call node.clear() to clear most of the state
             node.clear()
             # node.clear() doesn't reset node.state, so call

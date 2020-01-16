@@ -1130,7 +1130,7 @@ class ToolInitializer(object):
         so we no longer copy and re-bind them when the construction
         environment gets cloned.
         """
-        for method in list(self.methods.values()):
+        for method in self.methods.values():
             env.RemoveMethod(method)
 
     def apply_tools(self, env):
