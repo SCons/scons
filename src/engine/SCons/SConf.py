@@ -162,11 +162,14 @@ class ConfigureCacheError(SConfError):
     def __init__(self,target):
         SConfError.__init__(self, '"%s" is not yet built and cache is forced.' % str(target))
 
+
 # define actions for building text files
-def _createSource( target, source, env ):
+def _createSource(target, source, env):
     fd = open(str(target[0]), "w")
     fd.write(source[0].get_contents().decode())
     fd.close()
+
+
 def _stringSource( target, source, env ):
     return (str(target[0]) + ' <-\n  |' +
             source[0].get_contents().decode().replace( '\n', "\n  |" ) )
