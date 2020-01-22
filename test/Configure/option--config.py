@@ -31,6 +31,7 @@ Verify use of the --config=<auto|force|cache> option.
 import os.path
 
 from TestSCons import TestSCons, ConfigCheckInfo, _obj
+from TestCmd import IS_WINDOWS
 
 test = TestSCons()
 # test.verbose_set(1)
@@ -58,8 +59,20 @@ test.write(['include', 'non_system_header0.h'], """
 /* A header */
 """)
 
-file_hash = 'cda36b76729ffb03bf36a48d13b2d98d'
-conftest_0_c = os.path.join(".sconf_temp", "conftest_%s_0.c"%file_hash)
+conftest_0_c_hash = 'cda36b76729ffb03bf36a48d13b2d98d'
+conftest_1_c_hash = 'acc476a565a3f6d5d67ddc21f187d062'
+
+if IS_WINDOWS:
+  conftest_0_obj_suffix = '_213c72f9eb682c6f27f2eb78ed8bd57a'+_obj
+  conftest_1_obj_suffix = '_7c505229a64dccfea6e7cfdffe76bd2a'+_obj
+else:
+  conftest_0_obj_suffix = '_9b191e4c46e9d6ba17c8cd4d730900cf'+_obj
+  conftest_1_obj_suffix = '_b9da1a844a8707269188b28a62c0d83e'+_obj
+
+conftest_0_base = os.path.join(".sconf_temp", "conftest_%s_0%%s"%conftest_0_c_hash)
+conftest_0_c = conftest_0_base%'.c'
+conftest_1_base = os.path.join(".sconf_temp", "conftest_%s_0%%s"%conftest_1_c_hash)
+
 SConstruct_file_line = test.python_file_line(SConstruct_path, 6)[:-1]
 
 expect = """
@@ -72,12 +85,16 @@ test.run(arguments='--config=cache', status=2, stderr=expect)
 test.run(arguments='--config=auto')
 test.checkConfigureLogAndStdout(checks=[
     ConfigCheckInfo("Checking for C header file non_system_header0.h... ",
-                    'yes', [((".c", NCR), (_obj, NCR))],
-                    'conftest_cda36b76729ffb03bf36a48d13b2d98d_0%s'
+                    'yes', 
+                    [((".c", NCR), 
+                    (_obj, NCR))],
+                    conftest_0_base
                     ),
     ConfigCheckInfo("Checking for C header file non_system_header1.h... ",
-                    'no', [((".c", NCR), (_obj, NCF))],
-                    'conftest_acc476a565a3f6d5d67ddc21f187d062_0%s')]
+                    'no', 
+                    [((".c", NCR), 
+                    (_obj, NCF))],
+                    conftest_1_base)]
 )
 
 test.run(arguments='--config=auto')
@@ -85,14 +102,14 @@ test.checkConfigureLogAndStdout(checks=[
     ConfigCheckInfo("Checking for C header file non_system_header0.h... ",
                     'yes',
                     [((".c", CR),
-                      ('_9b191e4c46e9d6ba17c8cd4d730900cf'+_obj, CR))],
-                    'conftest_cda36b76729ffb03bf36a48d13b2d98d_0%s'
+                      (conftest_0_obj_suffix, CR))],
+                    conftest_0_base,
                     ),
     ConfigCheckInfo("Checking for C header file non_system_header1.h... ",
                     'no',
                     [((".c", CR),
-                      ('_b9da1a844a8707269188b28a62c0d83e'+_obj, CF))],
-                    'conftest_acc476a565a3f6d5d67ddc21f187d062_0%s')]
+                      (conftest_1_obj_suffix, CF))],
+                    conftest_1_base)]
 )
 
 
@@ -101,14 +118,14 @@ test.checkConfigureLogAndStdout(checks=[
     ConfigCheckInfo("Checking for C header file non_system_header0.h... ",
                     'yes',
                     [((".c", NCR),
-                      ('_9b191e4c46e9d6ba17c8cd4d730900cf'+_obj, NCR))],
-                    'conftest_cda36b76729ffb03bf36a48d13b2d98d_0%s'
+                      (conftest_0_obj_suffix, NCR))],
+                    conftest_0_base,
                     ),
     ConfigCheckInfo("Checking for C header file non_system_header1.h... ",
                     'no',
                     [((".c", NCR),
-                      ('_b9da1a844a8707269188b28a62c0d83e'+_obj, NCF))],
-                    'conftest_acc476a565a3f6d5d67ddc21f187d062_0%s')]
+                      (conftest_1_obj_suffix, NCF))],
+                    conftest_1_base)]
 )
 
 
@@ -117,14 +134,14 @@ test.checkConfigureLogAndStdout(checks=[
     ConfigCheckInfo("Checking for C header file non_system_header0.h... ",
                     'yes',
                     [((".c", CR),
-                      ('_9b191e4c46e9d6ba17c8cd4d730900cf'+_obj, CR))],
-                    'conftest_cda36b76729ffb03bf36a48d13b2d98d_0%s'
+                      (conftest_0_obj_suffix, CR))],
+                    conftest_0_base,
                     ),
     ConfigCheckInfo("Checking for C header file non_system_header1.h... ",
                     'no',
                     [((".c", CR),
-                      ('_b9da1a844a8707269188b28a62c0d83e'+_obj, CF))],
-                    'conftest_acc476a565a3f6d5d67ddc21f187d062_0%s')]
+                      (conftest_1_obj_suffix, CF))],
+                    conftest_1_base)]
 )
 
 
@@ -139,14 +156,14 @@ test.checkConfigureLogAndStdout(checks=[
     ConfigCheckInfo("Checking for C header file non_system_header0.h... ",
                     'yes',
                     [((".c", CR),
-                      ('_9b191e4c46e9d6ba17c8cd4d730900cf'+_obj, CR))],
-                    'conftest_cda36b76729ffb03bf36a48d13b2d98d_0%s'
+                      (conftest_0_obj_suffix, CR))],
+                    conftest_0_base,
                     ),
     ConfigCheckInfo("Checking for C header file non_system_header1.h... ",
                     'no',
                     [((".c", CR),
-                      ('_b9da1a844a8707269188b28a62c0d83e'+_obj, CF))],
-                    'conftest_acc476a565a3f6d5d67ddc21f187d062_0%s')]
+                      (conftest_1_obj_suffix, CF))],
+                    conftest_1_base)]
 )
 
 test.run(arguments='--config=auto')
@@ -154,14 +171,14 @@ test.checkConfigureLogAndStdout(checks=[
     ConfigCheckInfo("Checking for C header file non_system_header0.h... ",
                     'no',
                     [((".c", CR),
-                      ('_9b191e4c46e9d6ba17c8cd4d730900cf'+_obj, NCF))],
-                    'conftest_cda36b76729ffb03bf36a48d13b2d98d_0%s'
+                      (conftest_0_obj_suffix, NCF))],
+                    conftest_0_base,
                     ),
     ConfigCheckInfo("Checking for C header file non_system_header1.h... ",
                     'yes',
                     [((".c", CR),
-                      ('_b9da1a844a8707269188b28a62c0d83e'+_obj, NCR))],
-                    'conftest_acc476a565a3f6d5d67ddc21f187d062_0%s')]
+                      (conftest_1_obj_suffix, NCR))],
+                    conftest_1_base)]
 )
 
 test.file_fixture('test_main.c')

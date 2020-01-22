@@ -1221,7 +1221,7 @@ SConscript(sconscript)
                 result_cached = 1
                 for bld_desc in check_info.cached:  # each TryXXX
                     for ext, flag in bld_desc:  # each file in TryBuild
-                        conf_filename = re.escape(os.path.join(sconf_dir, check_info.temp_filename%ext))
+                        conf_filename = re.escape(check_info.temp_filename%ext)
 
                         if flag == self.NCR:
                             # NCR = Non Cached Rebuild
