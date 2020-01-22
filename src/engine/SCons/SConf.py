@@ -616,7 +616,7 @@ class SConfBase(object):
             target = None
 
         action = builder.builder.action.get_contents(target=target, source=[source], env=self.env)
-        actionsig = str(SCons.Util.MD5signature(action))
+        actionsig = SCons.Util.MD5signature(action)
         f = "_".join([f, actionsig])
 
         pref = self.env.subst( builder.builder.prefix )

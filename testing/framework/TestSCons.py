@@ -23,6 +23,7 @@ import shutil
 import sys
 import time
 import subprocess
+from collections import namedtuple
 
 from TestCommon import *
 from TestCommon import __all__
@@ -199,6 +200,34 @@ def restore_sconsflags(sconsflags):
         del os.environ['SCONSFLAGS']
     else:
         os.environ['SCONSFLAGS'] = sconsflags
+
+
+# Helpers for Configure()'s config.log processing
+ConfigCheckInfo = namedtuple('ConfigCheckInfo',
+                             ['check_string', 'result', 'cached', 'temp_filename'])
+#         check_string: the string output to for this checker
+#         results : The expected results for each check
+#         cached  : If the corresponding check is expected to be cached
+#         temp_filename : The name of the generated tempfile for this check
+
+
+class NoMatch(Exception):
+    """
+    Exception for matchPart to indicate there was no match found in the passed logfile
+    """
+    def __init__(self, p):
+        self.pos = p
+
+
+def match_part_of_configlog(log, logfile, lastEnd, NoMatch=NoMatch):
+    """
+    Match part of the logfile
+    """
+    print("Match:\n%s\n==============\n%s" % (log , logfile[lastEnd:]))
+    m = re.match(log, logfile[lastEnd:])
+    if not m:
+        raise NoMatch(lastEnd)
+    return m.end() + lastEnd
 
 
 class TestSCons(TestCommon):
@@ -1129,6 +1158,145 @@ SConscript(sconscript)
         except:
             pass
 
+    def checkConfigureLogAndStdout(self, checks,
+                                   logfile='config.log',
+                                   sconf_dir='.sconf_temp',
+                                   sconstruct="SConstruct",
+                                   doCheckLog=True, doCheckStdout=True):
+        """
+        Used to verify the expected output from using Configure()
+        via the contents of one or both of stdout or config.log file.
+        The checks, results, cached parameters all are zipped together
+        for use in comparing results.
+
+        TODO: Perhaps a better API makes sense?
+
+        Parameters
+        ----------
+        checks : list of ConfigCheckInfo tuples which specify
+        logfile : Name of the config log
+        sconf_dir : Name of the sconf dir
+        sconstruct : SConstruct file name
+        doCheckLog : check specified log file, defaults to true
+        doCheckStdout : Check stdout, defaults to true
+
+        Returns
+        -------
+
+        """
+
+
+        try:
+            ls = '\n'
+            nols = '([^\n])'
+            lastEnd = 0
+
+            # Read the whole logfile
+            logfile = self.read(self.workpath(logfile), mode='r')
+
+            # Some debug code to keep around..
+            # sys.stderr.write("LOGFILE[%s]:%s"%(type(logfile),logfile))
+
+            if (doCheckLog and
+                    logfile.find("scons: warning: The stored build information has an unexpected class.") >= 0):
+                self.fail_test()
+
+            log = r'file\ \S*%s\,line \d+:' % re.escape(sconstruct) + ls
+            if doCheckLog:
+                lastEnd = match_part_of_configlog(log, logfile, lastEnd)
+
+            log = "\t" + re.escape("Configure(confdir = %s)" % sconf_dir) + ls
+            if doCheckLog:
+                lastEnd = match_part_of_configlog(log, logfile, lastEnd)
+
+            rdstr = ""
+
+            for check_info in checks:
+                log = re.escape("scons: Configure: " + check_info.check_string) + ls
+
+                if doCheckLog:
+                    lastEnd = match_part_of_configlog(log, logfile, lastEnd)
+
+                log = ""
+                result_cached = 1
+                for bld_desc in check_info.cached:  # each TryXXX
+                    for ext, flag in bld_desc:  # each file in TryBuild
+                        conf_filename = re.escape(os.path.join(sconf_dir, check_info.temp_filename%ext))
+
+                        if flag == self.NCR:
+                            # NCR = Non Cached Rebuild
+                            # rebuild will pass
+                            if ext in ['.c', '.cpp']:
+                                log = log + conf_filename + re.escape(" <-") + ls
+                                log = log + r"(  \|" + nols + "*" + ls + ")+?"
+                            else:
+                                log = log + "(" + nols + "*" + ls + ")*?"
+                            result_cached = 0
+                        if flag == self.CR:
+                            # CR = cached rebuild (up to date)s
+                            # up to date
+                            log = log + \
+                                  re.escape("scons: Configure: \"") + \
+                                  conf_filename + \
+                                  re.escape("\" is up to date.") + ls
+                            log = log + re.escape("scons: Configure: The original builder "
+                                                  "output was:") + ls
+                            log = log + r"(  \|.*" + ls + ")+"
+                        if flag == self.NCF:
+                            # non-cached rebuild failure
+                            log = log + "(" + nols + "*" + ls + ")*?"
+                            result_cached = 0
+                        if flag == self.CF:
+                            # cached rebuild failure
+                            log = log + \
+                                  re.escape("scons: Configure: Building \"") + \
+                                  conf_filename + \
+                                  re.escape("\" failed in a previous run and all its sources are up to date.") + ls
+                            log = log + re.escape("scons: Configure: The original builder output was:") + ls
+                            log = log + r"(  \|.*" + ls + ")+"
+                if result_cached:
+                    result = "(cached) " + check_info.result
+                else:
+                    result = check_info.result
+                rdstr = rdstr + re.escape(check_info.check_string) + re.escape(result) + "\n"
+
+                log = log + re.escape("scons: Configure: " + result) + ls + ls
+
+                if doCheckLog:
+                    lastEnd = match_part_of_configlog(log, logfile, lastEnd)
+
+                log = ""
+            if doCheckLog:
+                lastEnd = match_part_of_configlog(ls, logfile, lastEnd)
+
+            if doCheckLog and lastEnd != len(logfile):
+                raise NoMatch(lastEnd)
+
+        except NoMatch as m:
+            print("Cannot match log file against log regexp.")
+            print("log file: ")
+            print("------------------------------------------------------")
+            print(logfile[m.pos:])
+            print("------------------------------------------------------")
+            print("log regexp: ")
+            print("------------------------------------------------------")
+            print(log)
+            print("------------------------------------------------------")
+            self.fail_test()
+
+        if doCheckStdout:
+            exp_stdout = self.wrap_stdout(".*", rdstr)
+            if not self.match_re_dotall(self.stdout(), exp_stdout):
+                print("Unexpected stdout: ")
+                print("-----------------------------------------------------")
+                print(repr(self.stdout()))
+                print("-----------------------------------------------------")
+                print(repr(exp_stdout))
+                print("-----------------------------------------------------")
+                self.fail_test()
+
+
+
     def checkLogAndStdout(self, checks, results, cached,
                           logfile, sconf_dir, sconstruct,
                           doCheckLog=True, doCheckStdout=True):
@@ -1163,18 +1331,6 @@ SConscript(sconscript)
 
         """
 
-        class NoMatch(Exception):
-            def __init__(self, p):
-                self.pos = p
-
-        def matchPart(log, logfile, lastEnd, NoMatch=NoMatch):
-            """
-            Match part of the logfile
-            """
-            m = re.match(log, logfile[lastEnd:])
-            if not m:
-                raise NoMatch(lastEnd)
-            return m.end() + lastEnd
 
         try:
 
@@ -1217,30 +1373,33 @@ SConscript(sconscript)
 
             log = r'file\ \S*%s\,line \d+:' % re.escape(sconstruct) + ls
             if doCheckLog:
-                lastEnd = matchPart(log, logfile, lastEnd)
+                lastEnd = match_part_of_configlog(log, logfile, lastEnd)
 
             log = "\t" + re.escape("Configure(confdir = %s)" % sconf_dir) + ls
             if doCheckLog:
-                lastEnd = matchPart(log, logfile, lastEnd)
+                lastEnd = match_part_of_configlog(log, logfile, lastEnd)
 
             rdstr = ""
+
             cnt = 0
             for check, result, cache_desc in zip(checks, results, cached):
                 log = re.escape("scons: Configure: " + check) + ls
 
                 if doCheckLog:
-                    lastEnd = matchPart(log, logfile, lastEnd)
+                    lastEnd = match_part_of_configlog(log, logfile, lastEnd)
 
                 log = ""
                 result_cached = 1
                 for bld_desc in cache_desc:  # each TryXXX
                     for ext, flag in bld_desc:  # each file in TryBuild
-                        conf_filename = os.path.join(sconf_dir, "conftest_%d%s" % (cnt, ext))
+                        conf_filename = re.escape(os.path.join(sconf_dir, "conftest")) +\
+                                        r'_[a-z0-9]{32}_%d' % cnt + re.escape(ext)
+
                         if flag == self.NCR:
                             # NCR = Non Cached Rebuild
                             # rebuild will pass
                             if ext in ['.c', '.cpp']:
-                                log = log + re.escape(conf_filename + " <-") + ls
+                                log = log + conf_filename + re.escape(" <-") + ls
                                 log = log + r"(  \|" + nols + "*" + ls + ")+?"
                             else:
                                 log = log + "(" + nols + "*" + ls + ")*?"
@@ -1249,8 +1408,9 @@ SConscript(sconscript)
                             # CR = cached rebuild (up to date)s
                             # up to date
                             log = log + \
-                                  re.escape("scons: Configure: \"%s\" is up to date."
-                                            % conf_filename) + ls
+                                  re.escape("scons: Configure: \"") + \
+                                  conf_filename + \
+                                  re.escape("\" is up to date.") + ls
                             log = log + re.escape("scons: Configure: The original builder "
                                                   "output was:") + ls
                             log = log + r"(  \|.*" + ls + ")+"
@@ -1261,23 +1421,25 @@ SConscript(sconscript)
                         if flag == self.CF:
                             # cached rebuild failure
                             log = log + \
-                                  re.escape("scons: Configure: Building \"%s\" failed "
-                                            "in a previous run and all its sources are"
-                                            " up to date." % conf_filename) + ls
-                            log = log + re.escape("scons: Configure: The original builder "
-                                                  "output was:") + ls
+                                  re.escape("scons: Configure: Building \"") + \
+                                  conf_filename + \
+                                  re.escape("\" failed in a previous run and all its sources are up to date.") + ls
+                            log = log + re.escape("scons: Configure: The original builder output was:") + ls
                             log = log + r"(  \|.*" + ls + ")+"
                     cnt = cnt + 1
                 if result_cached:
                     result = "(cached) " + result
                 rdstr = rdstr + re.escape(check) + re.escape(result) + "\n"
+
                 log = log + re.escape("scons: Configure: " + result) + ls + ls
 
                 if doCheckLog:
-                    lastEnd = matchPart(log, logfile, lastEnd)
+                    lastEnd = match_part_of_configlog(log, logfile, lastEnd)
 
                 log = ""
-            if doCheckLog: lastEnd = matchPart(ls, logfile, lastEnd)
+            if doCheckLog:
+                lastEnd = match_part_of_configlog(ls, logfile, lastEnd)
+
             if doCheckLog and lastEnd != len(logfile):
                 raise NoMatch(lastEnd)
 
