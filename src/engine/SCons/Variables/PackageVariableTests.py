@@ -80,10 +80,10 @@ class PackageVariableTestCase(unittest.TestCase):
         # False when we give it str(False).  This assures consistent operation
         # through a cycle of Variables.Save(<file>) -> Variables(<file>).
         x = o.converter(str(True))
-        assert x == True, "converter returned a string when given str(True)"
+        assert x, "converter returned a string when given str(True)"
 
         x = o.converter(str(False))
-        assert x == False, "converter returned a string when given str(False)"
+        assert not x, "converter returned a string when given str(False)"
 
     def test_validator(self):
         """Test the PackageVariable validator"""

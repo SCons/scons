@@ -173,7 +173,7 @@ class MyNode_without_target_from_source(object):
     def builder_set(self, builder):
         self.builder = builder
     def has_builder(self):
-        return not self.builder is None
+        return self.builder is not None
     def set_explicit(self, is_explicit):
         self.is_explicit = is_explicit
     def has_explicit_builder(self):
@@ -205,7 +205,7 @@ class BuilderTestCase(unittest.TestCase):
         """Test simple Builder creation
         """
         builder = SCons.Builder.Builder(action="foo")
-        assert not builder is None, builder
+        assert builder is not None, builder
         builder = SCons.Builder.Builder(action="foo", OVERRIDE='x')
         x = builder.overrides['OVERRIDE']
         assert x == 'x', x
@@ -429,7 +429,7 @@ class BuilderTestCase(unittest.TestCase):
             return Foo(target)
         builder = SCons.Builder.Builder(target_factory = FooFactory)
         assert builder.target_factory is FooFactory
-        assert not builder.source_factory is FooFactory
+        assert builder.source_factory is not FooFactory
 
     def test_source_factory(self):
         """Test a Builder that creates source nodes of a specified class
@@ -440,7 +440,7 @@ class BuilderTestCase(unittest.TestCase):
             global Foo
             return Foo(source)
         builder = SCons.Builder.Builder(source_factory = FooFactory)
-        assert not builder.target_factory is FooFactory
+        assert builder.target_factory is not FooFactory
         assert builder.source_factory is FooFactory
 
     def test_splitext(self):
@@ -737,7 +737,7 @@ class BuilderTestCase(unittest.TestCase):
                 with open(str(t), 'w') as f:
                     f.write("function2\n")
             for t in tlist:
-                if not t in list(map(str, target)):
+                if t not in list(map(str, target)):
                     with open(t, 'w') as f:
                         f.write("function2\n")
             return 1
@@ -768,7 +768,7 @@ class BuilderTestCase(unittest.TestCase):
                 with open(str(t), 'w') as f:
                     f.write("function3\n")
             for t in tlist:
-                if not t in list(map(str, target)):
+                if t not in list(map(str, target)):
                     with open(t, 'w') as f:
                         f.write("function3\n")
             return 1
@@ -821,7 +821,7 @@ class BuilderTestCase(unittest.TestCase):
         assert s == ['aaa.bar'], s
 
         builder3 = SCons.Builder.Builder(action='bld3')
-        assert not builder3.src_builder is builder1.src_builder
+        assert builder3.src_builder is not builder1.src_builder
 
         builder4 = SCons.Builder.Builder(action='bld4',
                                          src_suffix='.i',

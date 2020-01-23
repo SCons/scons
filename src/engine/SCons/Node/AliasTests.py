@@ -93,7 +93,7 @@ class AliasTestCase(unittest.TestCase):
         a2 = SCons.Node.Alias.Alias('a')
         assert a2.name == 'a', a2.name
 
-        assert not a1 is a2
+        assert a1 is not a2
         assert a1.name == a2.name
 
 class AliasNodeInfoTestCase(unittest.TestCase):

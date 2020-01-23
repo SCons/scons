@@ -544,7 +544,7 @@ class _DSPGenerator(object):
             if t[1] in self.env:
                 if SCons.Util.is_List(self.env[t[1]]):
                     for i in self.env[t[1]]:
-                        if not i in self.sources[t[0]]:
+                        if i not in self.sources[t[0]]:
                             self.sources[t[0]].append(i)
                 else:
                     if not self.env[t[1]] in self.sources[t[0]]:

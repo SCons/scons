@@ -42,7 +42,7 @@ class ListVariableTestCase(unittest.TestCase):
         assert o.help == 'test option help\n    (all|none|comma-separated list of names)\n    allowed names: one two three', repr(o.help)
         assert o.default == 'all', o.default
         assert o.validator is None, o.validator
-        assert not o.converter is None, o.converter
+        assert o.converter is not None, o.converter
 
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.ListVariable('test2', 'test2 help',
