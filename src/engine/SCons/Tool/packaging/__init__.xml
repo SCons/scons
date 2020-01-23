@@ -62,24 +62,25 @@ option or with the &cv-PACKAGETYPE; construction variable. Currently
 the following packagers available:
 </para>
 
-<para>
- * msi - Microsoft Installer
- * rpm - RPM Package Manger
- * ipkg - Itsy Package Management System
- * tarbz2 - bzip2 compressed tar
- * targz - gzip compressed tar
- * tarxz - xz compressed tar
- * zip - zip file
- * src_tarbz2 - bzip2 compressed tar source
- * src_targz - gzip compressed tar source
- * src_tarxz - xz compressed tar source
- * src_zip - zip file source
-</para>
+<para><literal>msi</literal> - Microsoft Installer</para>
+<para><literal>rpm</literal> - RPM Package Manger</para>
+<para><literal>ipkg</literal> - Itsy Package Management System</para>
+<para><literal>tarbz2</literal> - bzip2 compressed tar</para>
+<para><literal>targz</literal> - gzip compressed tar</para>
+<para><literal>tarxz</literal> - xz compressed tar</para>
+<para><literal>zip</literal> - zip file</para>
+<para><literal>src_tarbz2</literal> - bzip2 compressed tar source</para>
+<para><literal>src_targz</literal> - gzip compressed tar source</para>
+<para><literal>src_tarxz</literal> - xz compressed tar source</para>
+<para><literal>src_zip</literal> - zip file source</para>
 
 <para>
-An updated list is always available under the "package_type" option when
-running "scons --help" on a project that has packaging activated.
+An updated list is always available under the
+<replaceable>package_type</replaceable> option when
+running <command>scons --help</command>
+on a project that has packaging activated.
 </para>
+
 <example_commands>
 env = Environment(tools=['default', 'packaging'])
 env.Install('/bin/', 'my_program')
@@ -198,20 +199,21 @@ placed if applicable.  The default value is "$NAME-$VERSION".
 Selects the package type to build.  Currently these are available:
 </para>
 
-<para>
- * msi - Microsoft Installer
- * rpm - Redhat Package Manger
- * ipkg - Itsy Package Management System
- * tarbz2 - compressed tar
- * targz - compressed tar
- * zip - zip file
- * src_tarbz2 - compressed tar source
- * src_targz - compressed tar source
- * src_zip - zip file source
-</para>
+<para><literal>msi</literal> - Microsoft Installer</para>
+<para><literal>rpm</literal> - RPM Package Manger</para>
+<para><literal>ipkg</literal> - Itsy Package Management System</para>
+<para><literal>tarbz2</literal> - bzip2 compressed tar</para>
+<para><literal>targz</literal> - gzip compressed tar</para>
+<para><literal>tarxz</literal> - xz compressed tar</para>
+<para><literal>zip</literal> - zip file</para>
+<para><literal>src_tarbz2</literal> - bzip2 compressed tar source</para>
+<para><literal>src_targz</literal> - gzip compressed tar source</para>
+<para><literal>src_tarxz</literal> - xz compressed tar source</para>
+<para><literal>src_zip</literal> - zip file source</para>
 
 <para>
-This may be overridden with the "package_type" command line option.
+This may be overridden with the <option>package_type</option>
+command line option.
 </para>
 </summary>
 </cvar>
