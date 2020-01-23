@@ -935,7 +935,7 @@ class TaskmasterTestCase(unittest.TestCase):
         except SCons.Errors.UserError:
             pass
         else:
-            raise AssertionError("did not catch expected UserError")
+            self.fail("did not catch expected UserError")
 
         def raise_BuildError():
             raise SCons.Errors.BuildError
@@ -948,7 +948,7 @@ class TaskmasterTestCase(unittest.TestCase):
         except SCons.Errors.BuildError:
             pass
         else:
-            raise AssertionError("did not catch expected BuildError")
+            self.fail("did not catch expected BuildError")
 
         # On a generic (non-BuildError) exception from a Builder,
         # the target should throw a BuildError exception with the
@@ -968,7 +968,7 @@ class TaskmasterTestCase(unittest.TestCase):
             exc_traceback = sys.exc_info()[2]
             assert isinstance(e.exc_info[2], type(exc_traceback)), e.exc_info[2]
         else:
-            raise AssertionError("did not catch expected BuildError")
+            self.fail("did not catch expected BuildError")
 
         built_text = None
         cache_text = []
