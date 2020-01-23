@@ -77,9 +77,9 @@ for all Fortran versions.
 <cvar name="F03COMSTR">
 <summary>
 <para>
-The string displayed when a Fortran 03 source file
+If set, the string displayed when a Fortran 03 source file
 is compiled to an object file.
-If this is not set, then &cv-link-F03COM; or &cv-link-FORTRANCOM;
+If not set, then &cv-link-F03COM; or &cv-link-FORTRANCOM;
 (the command line) is displayed.
 </para>
 </summary>
@@ -217,10 +217,10 @@ for all Fortran versions.
 <cvar name="F03PPCOMSTR">
 <summary>
 <para>
-The string displayed when a Fortran 03 source file
+If set, the string displayed when a Fortran 03 source file
 is compiled to an object file
 after first running the file through the C preprocessor.
-If this is not set, then &cv-link-F03PPCOM; or &cv-link-FORTRANPPCOM;
+If not set, then &cv-link-F03PPCOM; or &cv-link-FORTRANPPCOM;
 (the command line) is displayed.
 </para>
 </summary>
@@ -256,9 +256,9 @@ for all Fortran versions.
 <cvar name="SHF03COMSTR">
 <summary>
 <para>
-The string displayed when a Fortran 03 source file
+If set, the string displayed when a Fortran 03 source file
 is compiled to a shared-library object file.
-If this is not set, then &cv-link-SHF03COM; or &cv-link-SHFORTRANCOM;
+If not set, then &cv-link-SHF03COM; or &cv-link-SHFORTRANCOM;
 (the command line) is displayed.
 </para>
 </summary>
@@ -299,10 +299,10 @@ for all Fortran versions.
 <cvar name="SHF03PPCOMSTR">
 <summary>
 <para>
-The string displayed when a Fortran 03 source file
+If set, the string displayed when a Fortran 03 source file
 is compiled to a shared-library object file
 after first running the file through the C preprocessor.
-If this is not set, then &cv-link-SHF03PPCOM; or &cv-link-SHFORTRANPPCOM;
+If not set, then &cv-link-SHF03PPCOM; or &cv-link-SHFORTRANPPCOM;
 (the command line) is displayed.
 </para>
 </summary>
