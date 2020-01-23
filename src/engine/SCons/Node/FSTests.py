@@ -3066,12 +3066,12 @@ class RepositoryTestCase(_tempdirTestCase):
         assert r is d1, r
 
         r = d2.rentry()
-        assert not r is d2, r
+        assert r is not d2, r
         r = str(r)
         assert r == os.path.join(self.rep1, 'd2'), r
 
         r = d3.rentry()
-        assert not r is d3, r
+        assert r is not d3, r
         r = str(r)
         assert r == os.path.join(self.rep2, 'd3'), r
 
@@ -3079,12 +3079,12 @@ class RepositoryTestCase(_tempdirTestCase):
         assert r is e1, r
 
         r = e2.rentry()
-        assert not r is e2, r
+        assert r is not e2, r
         r = str(r)
         assert r == os.path.join(self.rep1, 'e2'), r
 
         r = e3.rentry()
-        assert not r is e3, r
+        assert r is not e3, r
         r = str(r)
         assert r == os.path.join(self.rep2, 'e3'), r
 
@@ -3092,12 +3092,12 @@ class RepositoryTestCase(_tempdirTestCase):
         assert r is f1, r
 
         r = f2.rentry()
-        assert not r is f2, r
+        assert r is not f2, r
         r = str(r)
         assert r == os.path.join(self.rep1, 'f2'), r
 
         r = f3.rentry()
-        assert not r is f3, r
+        assert r is not f3, r
         r = str(r)
         assert r == os.path.join(self.rep2, 'f3'), r
 
@@ -3127,12 +3127,12 @@ class RepositoryTestCase(_tempdirTestCase):
         assert r is d1, r
 
         r = d2.rdir()
-        assert not r is d2, r
+        assert r is not d2, r
         r = str(r)
         assert r == os.path.join(self.rep1, 'd2'), r
 
         r = d3.rdir()
-        assert not r is d3, r
+        assert r is not d3, r
         r = str(r)
         assert r == os.path.join(self.rep3, 'd3'), r
 
@@ -3183,12 +3183,12 @@ class RepositoryTestCase(_tempdirTestCase):
         assert r is f1, r
 
         r = f2.rfile()
-        assert not r is f2, r
+        assert r is not f2, r
         r = str(r)
         assert r == os.path.join(self.rep1, 'f2'), r
 
         r = f3.rfile()
-        assert not r is f3, r
+        assert r is not f3, r
         r = f3.rstr()
         assert r == os.path.join(self.rep3, 'f3'), r
 

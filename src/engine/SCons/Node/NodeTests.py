@@ -1104,7 +1104,7 @@ class NodeTestCase(unittest.TestCase):
         for kid in [n1, n3, n4, n6, n7, n9, n10, n12]:
             assert kid in kids, kid
         for kid in [n2, n5, n8, n11]:
-            assert not kid in kids, kid
+            assert kid not in kids, kid
 
     def test_all_children(self):
         """Test fetching all the "children" of a Node.
