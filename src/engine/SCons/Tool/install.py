@@ -177,9 +177,9 @@ def installFunc(target, source, env):
     """Install a source file into a target using the function specified
     as the INSTALL construction variable."""
     try:
-        install = env['INSTALL']
+        install = env['COPYFUNC']
     except KeyError:
-        raise SCons.Errors.UserError('Missing INSTALL construction variable.')
+        raise SCons.Errors.UserError('Missing COPYFUNC construction variable.')
 
     assert len(target)==len(source), \
            "Installing source %s into target %s: target and source lists must have same length."%(list(map(str, source)), list(map(str, target)))
@@ -267,11 +267,34 @@ class DESTDIR_factory(object):
         name = SCons.Util.make_path_relative(name)
         return self.dir.Dir(name)
 
+
+def install_command_generator(env, target, source, for_signature=False):
+    if not SCons.Util.is_List(target):
+        target = [target]
+
+    if not SCons.Util.is_List(source):
+        source = [source]
+
+    if not for_signature:
+        for t in target:
+            if t.isfile():
+                t.remove()
+
+    if len(target) == 1:
+        copyingdirs = [s for s in source if s.isdir()]
+        if copyingdirs:
+            return '$DIRCOPY $DIRCOPYFLAGS $SOURCES.abspath $TARGET'
+        else:
+            return '$COPY $COPYFLAGS $SOURCES.abspath $TARGET'
+    else:
+        return '$INSTALLFUNC'
+        
+
 #
 # The Builder Definition
 #
-install_action       = SCons.Action.Action(installFunc, stringFunc)
-installas_action     = SCons.Action.Action(installFunc, stringFunc)
+install_action       = SCons.Action.Action(install_command_generator, stringFunc, generator=True)
+installas_action     = SCons.Action.Action(install_command_generator, stringFunc, generator=True)
 installVerLib_action = SCons.Action.Action(installFuncVersionedLib, stringFunc)
 
 BaseInstallBuilder               = None
@@ -408,10 +431,35 @@ def generate(env):
     #except KeyError:
     #    env['INSTALLSTR'] = 'Install ${SOURCE.type}: "$SOURCES" as "$TARGETS"'
 
-    try:
-        env['INSTALL']
-    except KeyError:
-        env['INSTALL']    = copyFunc
+    if 'COPYFUNC' not in env:
+        env['COPYFUNC'] = copyFunc
+
+    if 'COPY' not in env:
+        if env['PLATFORM'] == 'win32':
+            # Xcopy is a builtin windows tool that has more power than
+            # the regular copy command such as supporting directories.
+            env['COPY'] = 'Xcopy'
+            env['COPYFLAGS'] = [
+                '/o', # Copies file ownership and discretionary access control list information.
+                '/x', # Copies file audit settings and system access control list information.
+            ]
+        else:
+            env['COPY'] = 'cp'
+            env['COPYFLAGS'] = [
+                '--preserve=all',
+            ]
+
+    if 'DIRCOPY' not in env:
+        env['DIRCOPYFLAGS'] = env['COPYFLAGS'][:]
+        if env['PLATFORM'] == 'win32':
+            env['DIRCOPY'] = 'Xcopy'
+            env['DIRCOPYFLAGS'].extend([
+                '/s',
+                '/e',
+            ])
+        else:
+            env['DIRCOPY'] = 'cp'
+            env['DIRCOPYFLAGS'].append('--recursive')
 
     try:
         env['INSTALLVERSIONEDLIB']
