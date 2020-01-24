@@ -100,7 +100,9 @@ int main() { printf("Hello, world!\n"); }
     so that the order mimics that of an
     assignment statement in most programming languages,
     including Python:
-    <literal>"program = source files"</literal>.)
+    <literal>"target = source files"</literal>. For an
+    alternative way to supply this information, see
+    <xref linkend="keyword-args"></xref>).
 
     </para>
 
@@ -453,7 +455,7 @@ Program('program', src_files)
 
   </section>
 
-  <section>
+  <section id="keyword-args">
   <title>Keyword Arguments</title>
 
     <para>
