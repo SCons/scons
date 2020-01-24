@@ -187,6 +187,7 @@ ARGLIST                 = []
 BUILD_TARGETS           = TargetList()
 COMMAND_LINE_TARGETS    = []
 DEFAULT_TARGETS         = []
+LOADED_SCONSCRIPTS      = []
 
 # BUILD_TARGETS can be modified in the SConscript files.  If so, we
 # want to treat the modified BUILD_TARGETS list as if they specified
