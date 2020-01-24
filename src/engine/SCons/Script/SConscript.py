@@ -210,9 +210,11 @@ def _SConscript(fs, *files, **kw):
                 if f.rexists():
                     actual = f.rfile()
                     _file_ = open(actual.get_abspath(), "rb")
+                    SCons.Script.LOADED_SCONSCRIPTS.append(actual.get_abspath())
                 elif f.srcnode().rexists():
                     actual = f.srcnode().rfile()
                     _file_ = open(actual.get_abspath(), "rb")
+                    SCons.Script.LOADED_SCONSCRIPTS.append(actual.get_abspath())
                 elif f.has_src_builder():
                     # The SConscript file apparently exists in a source
                     # code management system.  Build it, but then clear
@@ -221,6 +223,7 @@ def _SConscript(fs, *files, **kw):
                     f.build()
                     f.built()
                     f.builder_set(None)
+                    SCons.Script.LOADED_SCONSCRIPTS.append(f.get_abspath())
                     if f.exists():
                         _file_ = open(f.get_abspath(), "rb")
                 if _file_:
@@ -293,6 +296,7 @@ def _SConscript(fs, *files, **kw):
 
                         if old_file is not None:
                             call_stack[-1].globals.update({__file__:old_file})
+                            
                 else:
                     handle_missing_SConscript(f, kw.get('must_exist', None))
 
