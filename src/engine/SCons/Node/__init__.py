@@ -137,6 +137,8 @@ def exists_always(node):
     return 1
 
 def exists_base(node):
+    if node.islink():
+        return node.lstat() is not None
     return node.stat() is not None
 
 def exists_entry(node):
