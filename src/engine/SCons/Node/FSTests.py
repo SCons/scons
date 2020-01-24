@@ -3559,6 +3559,56 @@ class prepareTestCase(unittest.TestCase):
         dir.prepare()
 
 
+if sys.platform != 'win32' and hasattr(os, 'symlink'):
+    class CleanSymlinksTestCase(_tempdirTestCase):
+
+        def test_cleans_symlinks(self):
+            """Test the prepare() method will cleanup symlinks."""
+            with open("foo", "w") as foo:
+                foo.write("baz")
+
+            symlink = os.symlink("foo", "bar")
+            bar = self.fs.File("bar")
+            bar.side_effect = True
+            bar.set_state(0)
+            assert bar.exists()
+
+            bar.prepare()
+            try:
+                os.lstat("bar")
+                assert False, "bar should not exist"
+            except FileNotFoundError:
+                pass
+
+            os.stat("foo")
+
+
+        def test_cleans_dangling_symlinks(self):
+            """Test the prepare() method will cleanup dangling symlinks."""
+            with open("foo", "w") as foo:
+                foo.write("baz")
+
+            symlink = os.symlink("foo", "bar")
+            os.remove("foo")
+            try:
+                os.stat("foo")
+                assert False, "foo should not exist"
+            except FileNotFoundError:
+                pass
+
+            bar = self.fs.File("bar")
+            bar.side_effect = True
+            bar.set_state(0)
+            assert bar.exists()
+
+            bar.prepare()
+            try:
+                os.lstat("bar")
+                assert False, "bar should not exist"
+            except FileNotFoundError:
+                pass
+
+
 class SConstruct_dirTestCase(unittest.TestCase):
     def runTest(self):
         """Test setting the SConstruct directory"""
