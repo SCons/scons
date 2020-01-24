@@ -2,7 +2,7 @@
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -90,8 +90,8 @@ no further substitutions can be made:
      The string:  "The string says:  %STRING"
      expands to:  "The string says:  The result is:  final value"
 
-If a construction variable is not defined in an environment, then the
-null string is substituted:
+If a construction variable is not defined in an environment, then an
+empty string is substituted:
 
      Construction variables:
 	FOO => 'value1',
@@ -348,7 +348,7 @@ environment, of directory names, suffixes, etc.
 
   <para>
 
-  An <literal>environment</literal>
+  An <firstterm>environment</firstterm>
   is a collection of values that
   can affect how a program executes.
   &SCons; distinguishes between three
@@ -367,7 +367,7 @@ environment, of directory names, suffixes, etc.
     <listitem>
     <para>
 
-    The <literal>external environment</literal>
+    The <firstterm>external environment</firstterm>
     is the set of variables in the user's environment
     at the time the user runs &SCons;.
     These variables are available within the &SConscript; files
@@ -384,7 +384,7 @@ environment, of directory names, suffixes, etc.
     <listitem>
     <para>
 
-    A &consenv;
+    A <firstterm>&consenv;</firstterm>
     is a distinct object created within
     a &SConscript; file and
     which contains values that
@@ -408,13 +408,13 @@ environment, of directory names, suffixes, etc.
     <listitem>
     <para>
 
-    An <literal>execution environment</literal>
+    An <firstterm>execution environment</firstterm>
     is the values that &SCons; sets
     when executing an external
     command (such as a compiler or linker)
     to build one or more targets.
     Note that this is not the same as
-    the <literal>external environment</literal>
+    the external environment
     (see above).
     See <xref linkend="sect-execution-environments"></xref>, below.
 
@@ -473,7 +473,7 @@ environment, of directory names, suffixes, etc.
 
   <para>
 
-  The <literal>external environment</literal>
+  The external environment
   variable settings that
   the user has in force
   when executing &SCons;
@@ -596,7 +596,7 @@ int main() { }
         construction variable values,
         except that the user has explicitly specified use of the
         GNU C compiler &gcc;,
-        and further specifies that the <literal>-O2</literal>
+        and further specifies that the <option>-O2</option>
         (optimization level two)
         flag should be used when compiling the object file.
         In other words, the explicit initializations of
@@ -627,7 +627,7 @@ int main() { }
       <scons_example name="environments_ex6">
         <file name="SConstruct" printme="1">
 env = Environment()
-print("CC is: %s"%env['CC'])
+print("CC is: %s" % env['CC'])
         </file>
       </scons_example>
 
@@ -811,7 +811,7 @@ scons: `.' is up to date.
 
       If a problem occurs when expanding a construction variable,
       by default it is expanded to <literal>''</literal>
-      (a null string), and will not cause scons to fail. 
+      (an empty string), and will not cause scons to fail.
       </para>
 
        <scons_example name="environments_missing1">
@@ -996,8 +996,8 @@ env = DefaultEnvironment(tools=['gcc', 'gnulink'],
       each tailored to a different way to build
       some piece of software or other file.
       If, for example, we need to build
-      one program with the <literal>-O2</literal> flag
-      and another with the <literal>-g</literal> (debug) flag,
+      one program with the <option>-O2</option> flag
+      and another with the <option>-g</option> (debug) flag,
       we would do this like so:
 
       </para>
@@ -1063,9 +1063,9 @@ int main() { }
       each implicitly told &SCons; to generate an object file named
       <filename>foo.o</filename>,
       one with a &cv-link-CCFLAGS; value of
-      <literal>-O2</literal>
+      <option>-O2</option>
       and one with a &cv-link-CCFLAGS; value of
-      <literal>-g</literal>.
+      <option>-g</option>.
       &SCons; can't just decide that one of them
       should take precedence over the other,
       so it generates the error.
@@ -1279,7 +1279,7 @@ int main() { }
       actually occurs relative
       to when the targets get built
       becomes apparent
-      if we run &scons; without the <literal>-Q</literal>
+      if we run &scons; without the <option>-Q</option>
       option:
 
       </para>
@@ -1625,7 +1625,9 @@ env['ENV']['PATH'] = ['/usr/local/bin', '/bin', '/usr/bin']
     Note that &SCons; does allow you to define
     the directories in the &PATH; in a string,
     separated by the pathname-separator character
-    for your system (':' on POSIX systems, ';' on Windows):
+    for your system (':' on POSIX systems, ';' on Windows
+    or use <literal>os.pathsep</literal> for portability).
+
 
     </para>
 
@@ -1761,10 +1763,11 @@ env.AppendENVPath('LIB', '/usr/local/lib')
       Note that the added values are strings,
       and if you want to add multiple directories to
       a variable like <envar>$PATH</envar>,
-      you must include the path separate character
+      you must include the path separator character
+      in the string
       (<literal>:</literal> on Linux or POSIX,
-      <literal>;</literal> on Windows)
-      in the string.
+      <literal>;</literal> on Windows, or use
+      <literal>os.pathsep</literal> for portability).
 
       </para>
 
@@ -1782,8 +1785,8 @@ env.AppendENVPath('LIB', '/usr/local/lib')
       <para>
       Normally when using a tool from the construction environment,
       several different search locations are checked by default.
-      This includes the <literal>Scons/Tools/</literal> directory
-      inbuilt to scons and the directory <literal>site_scons/site_tools</literal>
+      This includes the <filename>Scons/Tools/</filename> directory
+      inbuilt to scons and the directory <filename>site_scons/site_tools</filename>
       relative to the root SConstruct file.
       </para>
 
