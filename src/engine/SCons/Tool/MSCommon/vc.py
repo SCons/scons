@@ -95,6 +95,9 @@ _ARCH_TO_CANONICAL = {
     "aarch64"   : "arm64",
 }
 
+# Starting with 14.1 (aka VS2017), the tools are organized by host directory.
+# with a target subdir. They are now in .../VC/Auxuiliary/Build.
+# Special case: 2017 Express uses Hostx86 even if it's on 64-bit Windows.
 _HOST_TARGET_TO_CL_DIR_GREATER_THAN_14 = {
     ("amd64","amd64")  : ("Hostx64","x64"),
     ("amd64","x86")    : ("Hostx64","x86"),
@@ -106,8 +109,9 @@ _HOST_TARGET_TO_CL_DIR_GREATER_THAN_14 = {
     ("x86","arm64")    : ("Hostx86","arm64"),
 }
 
-# get path to the cl.exe dir for older VS versions
-# based off a tuple of (host, target) platforms
+# For older compilers, the original x86 tools are in the tools dir,
+# any others are in a subdir named by the host/target pair,
+# or just a single word if host==target
 _HOST_TARGET_TO_CL_DIR = {
     ("amd64","amd64")  : "amd64",
     ("amd64","x86")    : "amd64_x86",
@@ -117,23 +121,31 @@ _HOST_TARGET_TO_CL_DIR = {
     ("x86","x86")      : "",
     ("x86","arm")      : "x86_arm",
     ("x86","arm64")    : "x86_arm64",
+    ("arm","arm")      : "arm",
 }
 
-# Given a (host, target) tuple, return the argument for the bat file.
-# Both host and targets should be canonalized.
+# Given a (host, target) tuple, return the argument for the bat file;
+# For 14.1+ compilers we use this to compose the name of the bat file instead.
+# Both host and targets should be canoncalized.
+# If the target already looks like a pair, return it - these are
+# pseudo targets (mainly used by Express versions)
 _HOST_TARGET_ARCH_TO_BAT_ARCH = {
     ("x86", "x86"): "x86",
     ("x86", "amd64"): "x86_amd64",
     ("x86", "x86_amd64"): "x86_amd64",
-    ("amd64", "x86_amd64"): "x86_amd64", # This is present in (at least) VS2012 express
+    ("amd64", "x86_amd64"): "x86_amd64",
     ("amd64", "amd64"): "amd64",
     ("amd64", "x86"): "x86",
-    ("x86", "ia64"): "x86_ia64",         # gone since 14.0
-    ("arm", "arm"): "arm",              # since 14.0, maybe gone 14.1?
-    ("x86", "arm"): "x86_arm",          # since 14.0
-    ("x86", "arm64"): "x86_arm64",      # since 14.1
-    ("amd64", "arm"): "amd64_arm",      # since 14.0
-    ("amd64", "arm64"): "amd64_arm64",  # since 14.1
+    ("x86", "ia64"): "x86_ia64",          # gone since 14.0
+    ("arm", "arm"): "arm",                # since 14.0, maybe gone 14.1?
+    ("x86", "arm"): "x86_arm",            # since 14.0
+    ("x86", "arm64"): "x86_arm64",        # since 14.1
+    ("x86", "x86_arm"): "x86_arm",        # since 14.0
+    ("x86", "x86_arm64"): "x86_arm64",    # since 14.1
+    ("amd64", "arm"): "amd64_arm",        # since 14.0
+    ("amd64", "arm64"): "amd64_arm64",    # since 14.1
+    ("amd64", "x86_arm"): "x86_arm",      # since 14.0
+    ("amd64", "x86_arm64"): "x86_arm64",  # since 14.1
 }
 
 _CL_EXE_NAME = 'cl.exe'
@@ -403,6 +415,11 @@ def find_batch_file(env,msvc_version,host_arch,target_arch):
     """
     Find the location of the batch script which should set up the compiler
     for any TARGET_ARCH whose compilers were installed by Visual Studio/VCExpress
+
+    In newer (2017+) compilers, make use of the fact there are vcvars
+    scripts named with a host_target pair that calls vcvarsall.bat properly,
+    so use that and return an indication we don't need the argument
+    we would have computed to run the batch file.
     """
     pdir = find_vc_pdir(msvc_version)
     if pdir is None:
@@ -412,6 +429,7 @@ def find_batch_file(env,msvc_version,host_arch,target_arch):
 
     # filter out e.g. "Exp" from the version name
     msvc_ver_numeric = get_msvc_version_numeric(msvc_version)
+    use_arg = True
     vernum = float(msvc_ver_numeric)
     if 7 <= vernum < 8:
         pdir = os.path.join(pdir, os.pardir, "Common7", "Tools")
@@ -422,7 +440,10 @@ def find_batch_file(env,msvc_version,host_arch,target_arch):
     elif 8 <= vernum <= 14:
         batfilename = os.path.join(pdir, "vcvarsall.bat")
     else:  # vernum >= 14.1  VS2017 and above
-        batfilename = os.path.join(pdir, "Auxiliary", "Build", "vcvarsall.bat")
+        batfiledir = os.path.join(pdir, "Auxiliary", "Build")
+        targ  = _HOST_TARGET_ARCH_TO_BAT_ARCH[(host_arch, target_arch)]
+        batfilename = os.path.join(batfiledir, "vcvars%s.bat" % targ)
+        use_arg = False
 
     if not os.path.exists(batfilename):
         debug("Not found: %s" % batfilename)
@@ -437,8 +458,8 @@ def find_batch_file(env,msvc_version,host_arch,target_arch):
             sdk_bat_file_path = os.path.join(pdir,sdk_bat_file)
             if os.path.exists(sdk_bat_file_path):
                 debug('find_batch_file() sdk_bat_file_path:%s'%sdk_bat_file_path)
-                return (batfilename, sdk_bat_file_path)
-    return (batfilename, None)
+                return (batfilename, use_arg, sdk_bat_file_path)
+    return (batfilename, use_arg, None)
 
 
 __INSTALLED_VCS_RUN = None
@@ -484,7 +505,8 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
 
     # make sure the cl.exe exists meaning the tool is installed
     if ver_num > 14:
-        # 2017 and newer allowed multiple versions of the VC toolset to be installed at the same time.
+        # 2017 and newer allowed multiple versions of the VC toolset to be
+        # installed at the same time. This changes the layout.
         # Just get the default tool version for now
         #TODO: support setting a specific minor VC version
         default_toolset_file = os.path.join(vc_dir, _VC_TOOLS_VERSION_FILE)
@@ -508,6 +530,20 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
         if os.path.exists(cl_path):
             debug('_check_cl_exists_in_vc_dir(): found ' + _CL_EXE_NAME + '!')
             return True
+
+        elif host_platform == "amd64" and host_trgt_dir[0] == "Hostx64":
+            # Special case: fallback to Hostx86 if Hostx64 was tried
+            # and failed.  We should key this off the "x86_amd64" and
+            # related pseudo targets, but we don't see them in this function.
+            # This is because VS 2017 Express running on amd64 will look
+            # to our probe like the host dir should be Hostx64, but it uses
+            # Hostx86 anyway.
+            host_trgt_dir = ("Hostx86", host_trgt_dir[1])
+            cl_path = os.path.join(vc_dir, 'Tools','MSVC', vc_specific_version, 'bin',  host_trgt_dir[0], host_trgt_dir[1], _CL_EXE_NAME)
+            debug('_check_cl_exists_in_vc_dir(): checking for ' + _CL_EXE_NAME + ' at ' + cl_path)
+            if os.path.exists(cl_path):
+                debug('_check_cl_exists_in_vc_dir(): found ' + _CL_EXE_NAME + '!')
+                return True
 
     elif 14 >= ver_num >= 8:
 
@@ -705,17 +741,27 @@ def msvc_find_valid_batch_script(env, version):
     host_platform, target_platform, req_target_platform = platforms
     try_target_archs = [target_platform]
 
-    # VS2012 has a "cross compile" environment to build 64 bit
+    # Express versions have a "cross compile" environment to build 64 bit
     # with x86_amd64 as the argument to the batch setup script
+    # For 2015/2017 Express, this could extend to arm and arm64 targets.
     if req_target_platform in ('amd64', 'x86_64'):
         try_target_archs.append('x86_amd64')
-    elif not req_target_platform and target_platform in ['amd64', 'x86_64']:
-        # There may not be "native" amd64, but maybe "cross" x86_amd64 tools
-        try_target_archs.append('x86_amd64')
-        # If the user hasn't specifically requested a TARGET_ARCH, and
-        # The TARGET_ARCH is amd64 then also try 32 bits if there are no viable
-        # 64 bit tools installed
-        try_target_archs.append('x86')
+    elif req_target_platform in ('arm',):
+        try_target_archs.append('x86_arm')
+    elif req_target_platform in ('arm64',):
+        try_target_archs.append('x86_arm64')
+    elif not req_target_platform:
+        if target_platform in ('amd64', 'x86_64'):
+            # There may not be "native" amd64, but maybe cross x86_amd64 tools
+            try_target_archs.append('x86_amd64')
+            # If the user hasn't specifically requested a TARGET_ARCH,
+            # and the TARGET_ARCH is amd64 then also try 32 bits
+            # if there are no viable 64 bit tools installed
+            try_target_archs.append('x86')
+        elif target_platform in ('arm',):
+            try_target_archs.append('x86_arm')
+        elif target_platform in ('arm64',):
+            try_target_archs.append('x86_arm64')
 
     debug("msvs_find_valid_batch_script(): host_platform: %s try_target_archs:%s"%(host_platform, try_target_archs))
 
@@ -742,7 +788,7 @@ def msvc_find_valid_batch_script(env, version):
 
         # Try to locate a batch file for this host/target platform combo
         try:
-            (vc_script, sdk_script) = find_batch_file(env, version, host_platform, tp)
+            (vc_script, use_arg, sdk_script) = find_batch_file(env, version, host_platform, tp)
             debug('msvc_find_valid_batch_script() vc_script:%s sdk_script:%s'%(vc_script,sdk_script))
         except VisualCException as e:
             msg = str(e)
@@ -758,6 +804,8 @@ def msvc_find_valid_batch_script(env, version):
         debug('msvc_find_valid_batch_script() use_script 2 %s, args:%s' % (repr(vc_script), arg))
         found = None
         if vc_script:
+            if not use_arg:
+                arg = None
             try:
                 d = script_env(vc_script, args=arg)
                 found = vc_script
@@ -823,12 +871,13 @@ def msvc_setup_env(env):
         return None
 
     for k, v in d.items():
-        debug('msvc_setup_env() env:%s -> %s'%(k,v))
         env.PrependENVPath(k, v, delete_existing=True)
+        debug("msvc_setup_env() env['ENV']['%s'] = %s" % (k, env['ENV'][k]))
 
     # final check to issue a warning if the compiler is not present
     msvc_cl = find_program_path(env, 'cl')
     if not msvc_cl:
+        debug("msvc_setup_env() did not find 'cl'")
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning,
             "Could not find MSVC compiler 'cl', it may need to be installed separately with Visual Studio")
 
