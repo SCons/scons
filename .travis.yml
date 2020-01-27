@@ -19,13 +19,6 @@ install:
   # do the rest of the image setup
   - ./.travis/install.sh
 
-# pypy is not passing atm, but still report build success for now
-# allow coverage to fail, so we can still do testing for all platforms
-matrix:
-  allow_failures:
-    - python: pypy3
-    - stage: Coverage
-
 # run coverage first as its still useful to collect
 stages:
   - Coverage
@@ -43,6 +36,12 @@ stages:
 # apparently not guaranteed.
 
 jobs:
+
+  # pypy is not passing atm, but still report build success for now
+  # allow coverage to fail, so we can still do testing for all platforms
+  allow_failures:
+    - python: pypy3
+    - stage: Coverage
   include:
     - &test_job
       stage: Test
