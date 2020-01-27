@@ -109,7 +109,7 @@ _HOST_TARGET_TO_CL_DIR_GREATER_THAN_14 = {
     ("x86","arm64")    : ("Hostx86","arm64"),
 }
 
-# For older compilers, the original x86 tools are in the tools dir,
+# before 14.1 (VS2017): the original x86 tools are in the tools dir,
 # any others are in a subdir named by the host/target pair,
 # or just a single word if host==target
 _HOST_TARGET_TO_CL_DIR = {
@@ -124,8 +124,30 @@ _HOST_TARGET_TO_CL_DIR = {
     ("arm","arm")      : "arm",
 }
 
+# 14.1 (VS2017) and later:
+# Given a (host, target) tuple, return the batch file to look for.
+# We can't return an arg for vcvarsall.bat, because that script
+# runs anyway, even if given a host/targ pair that isn't installed.
+# Targets that already looks like a pair are pseudo targets.
+_HOST_TARGET_TO_BAT_ARCH_GT14 = {
+    ("amd64", "amd64"): "vcvars64.bat",
+    ("amd64", "x86"): "vcvarsamd64_x86.bat",
+    ("amd64", "x86_amd64"): "vcvarsx86_amd64.bat",
+    ("amd64", "arm"): "vcvarsamd64_arm.bat",
+    ("amd64", "x86_arm"): "vcvarsx86_arm.bat",
+    ("amd64", "arm64"): "vcvarsamd64_arm64.bat",
+    ("amd64", "x86_arm64"): "vcvarsx86_arm64.bat",
+    ("x86", "x86"): "vcvars32.bat",
+    ("x86", "amd64"): "vcvarsx86_amd64.bat",
+    ("x86", "x86_amd64"): "vcvarsx86_amd64.bat",
+    ("x86", "arm"): "vcvarsx86_arm.bat",
+    ("x86", "x86_arm"): "vcvarsx86_arm.bat",
+    ("x86", "arm64"): "vcvarsx86_arm64.bat",
+    ("x86", "x86_arm64"): "vcvarsx86_arm64.bat",
+}
+
+# before 14.1 (VS2017):
 # Given a (host, target) tuple, return the argument for the bat file;
-# For 14.1+ compilers we use this to compose the name of the bat file instead.
 # Both host and targets should be canoncalized.
 # If the target already looks like a pair, return it - these are
 # pseudo targets (mainly used by Express versions)
@@ -133,17 +155,16 @@ _HOST_TARGET_ARCH_TO_BAT_ARCH = {
     ("x86", "x86"): "x86",
     ("x86", "amd64"): "x86_amd64",
     ("x86", "x86_amd64"): "x86_amd64",
-    ("amd64", "x86_amd64"): "x86_amd64",
+    ("amd64", "x86_amd64"): "x86_amd64", # This is present in (at least) VS2012 express
     ("amd64", "amd64"): "amd64",
     ("amd64", "x86"): "x86",
-    ("x86", "ia64"): "x86_ia64",          # gone since 14.0
-    ("arm", "arm"): "arm",                # since 14.0, maybe gone 14.1?
-    ("x86", "arm"): "x86_arm",            # since 14.0
-    ("x86", "arm64"): "x86_arm64",        # since 14.1
-    ("x86", "x86_arm"): "x86_arm",        # since 14.0
-    ("x86", "x86_arm64"): "x86_arm64",    # since 14.1
-    ("amd64", "arm"): "amd64_arm",        # since 14.0
-    ("amd64", "arm64"): "amd64_arm64",    # since 14.1
+    ("x86", "ia64"): "x86_ia64",         # gone since 14.0
+    ("x86", "arm"): "x86_arm",          # since 14.0
+    ("x86", "arm64"): "x86_arm64",      # since 14.1
+    ("amd64", "arm"): "amd64_arm",      # since 14.0
+    ("amd64", "arm64"): "amd64_arm64",  # since 14.1
+    ("x86", "x86_arm"): "x86_arm",      # since 14.0
+    ("x86", "x86_arm64"): "x86_arm64",  # since 14.1
     ("amd64", "x86_arm"): "x86_arm",      # since 14.0
     ("amd64", "x86_arm64"): "x86_arm64",  # since 14.1
 }
@@ -441,8 +462,8 @@ def find_batch_file(env,msvc_version,host_arch,target_arch):
         batfilename = os.path.join(pdir, "vcvarsall.bat")
     else:  # vernum >= 14.1  VS2017 and above
         batfiledir = os.path.join(pdir, "Auxiliary", "Build")
-        targ  = _HOST_TARGET_ARCH_TO_BAT_ARCH[(host_arch, target_arch)]
-        batfilename = os.path.join(batfiledir, "vcvars%s.bat" % targ)
+        targ  = _HOST_TARGET_TO_BAT_ARCH_GT14[(host_arch, target_arch)]
+        batfilename = os.path.join(batfiledir, targ)
         use_arg = False
 
     if not os.path.exists(batfilename):
@@ -778,14 +799,6 @@ def msvc_find_valid_batch_script(env, version):
             SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
         arg = _HOST_TARGET_ARCH_TO_BAT_ARCH[host_target]
 
-        # Get just version numbers
-        maj, min = msvc_version_to_maj_min(version)
-        # VS2015+
-        if maj >= 14:
-            if env.get('MSVC_UWP_APP') == '1':
-                # Initialize environment variables with store/universal paths
-                arg += ' store'
-
         # Try to locate a batch file for this host/target platform combo
         try:
             (vc_script, use_arg, sdk_script) = find_batch_file(env, version, host_platform, tp)
@@ -805,7 +818,15 @@ def msvc_find_valid_batch_script(env, version):
         found = None
         if vc_script:
             if not use_arg:
-                arg = None
+                arg = ''  # bat file will supply platform type
+            # Get just version numbers
+            maj, min = msvc_version_to_maj_min(version)
+            # VS2015+
+            if maj >= 14:
+                if env.get('MSVC_UWP_APP') == '1':
+                    # Initialize environment variables with store/UWP paths
+                    arg = (arg + ' store').lstrip()
+
             try:
                 d = script_env(vc_script, args=arg)
                 found = vc_script
