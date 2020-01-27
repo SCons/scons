@@ -3599,7 +3599,9 @@ if sys.platform != 'win32' and hasattr(os, 'symlink'):
             bar = self.fs.File("bar")
             bar.side_effect = True
             bar.set_state(0)
-            assert bar.exists()
+
+            # Dangling links should report not exists
+            assert not bar.exists()
 
             bar.prepare()
             try:

@@ -3138,7 +3138,10 @@ class File(Base):
         SCons.Node.Node.prepare(self)
 
         if self.get_state() != SCons.Node.up_to_date:
-            if self.exists():
+            # Exists will report False for dangling symlinks so if it
+            # exists or is a link (which would mean it's a dangling
+            # link) then we should remove it as appropriate.
+            if self.exists() or self.islink():
                 if self.is_derived() and not self.precious:
                     self._rmv_existing()
             else:
