@@ -43,7 +43,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Convert remaining uses of insecure/deprecated mktemp method.
     - Clean up some duplications in manpage.  Clarify portion of manpage on Dir and File nodes.
     - Reduce needless list conversions.
-    - Another Python regex syntax fix.
+    - Fixed regex in Python scanner.
 
 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
