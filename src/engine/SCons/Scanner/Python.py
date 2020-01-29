@@ -42,8 +42,8 @@ import re
 import SCons.Scanner
 
 # Capture python "from a import b" and "import a" statements.
-from_cre = re.compile('^\s*from\s+([^\s]+)\s+import\s+(.*)', re.M)
-import_cre = re.compile('^\s*import\s+([^\s]+)', re.M)
+from_cre = re.compile(r'^\s*from\s+([^\s]+)\s+import\s+(.*)', re.M)
+import_cre = re.compile(r'^\s*import\s+([^\s]+)', re.M)
 
 
 def path_function(env, dir=None, target=None, source=None, argument=None):
