@@ -35,19 +35,19 @@ _obj = TestSCons._obj
 
 test = TestSCons.TestSCons()
 
-python = test.where_is('python')
-if not python:
-    test.skip_test('Can not find installed "python", skipping test.\n')
+_python_ = TestSCons._python_
 
-
-test.write('myswig.py', r"""
+test.write('myswig.py', """\
 import getopt
 import sys
-opts, args = getopt.getopt(sys.argv[1:], 'c:o:v:')
+
+opts, args = getopt.getopt(sys.argv[1:], "c:o:v:")
 for opt, arg in opts:
-    if opt == '-c': pass
-    elif opt == '-o': out = arg
-    elif opt == '-v' and arg == 'ersion':
+    if opt == "-c":
+        pass
+    elif opt == "-o":
+        out = arg
+    elif opt == "-v" and arg == "ersion":
         print("")
         print("SWIG Version 0.1.2")
         print("")
@@ -55,23 +55,23 @@ for opt, arg in opts:
         print("")
         print("Configured options: +pcre")
         print("")
-        print("Please see http://www.swig.org for reporting bugs and further information")
+        print("Please see http://www.swig.org for reporting bugs "
+              "and further information")
         sys.exit(0)
-infile = open(args[0], 'r')
-outfile = open(out, 'w')
-for l in infile.readlines():
-    if l[:4] != 'swig':
-        outfile.write(l)
+
+with open(args[0], "r") as ifp, open(out, "w") as ofp:
+    for line in ifp:
+        if not line.startswith("swig"):
+            ofp.write(line)
 sys.exit(0)
 """)
 
-test.write('SConstruct', """
-env = Environment(tools=['default', 'swig'],
-                  SWIG = [r'%(python)s', 'myswig.py'])
+test.write('SConstruct', """\
+env = Environment(tools=["default", "swig"], SWIG=[r"%(_python_)s", "myswig.py"])
 print(env.subst("Using SWIG $SWIGVERSION"))
-env.Program(target = 'test1', source = 'test1.i')
-env.CFile(target = 'test2', source = 'test2.i')
-env.Clone(SWIGFLAGS = '-c++').Program(target = 'test3', source = 'test3.i')
+env.Program(target="test1", source="test1.i")
+env.CFile(target="test2", source="test2.i")
+env.Clone(SWIGFLAGS="-c++").Program(target="test3", source="test3.i")
 """ % locals())
 
 test.write('test1.i', r"""

@@ -52,6 +52,8 @@ python, python_include, python_libpath, python_lib = \
 # handle testing on other platforms:
 ldmodule_prefix = '_'
 
+test.file_fixture('wrapper.py')
+
 test.write("dependency.i", """\
 %module dependency
 """)
