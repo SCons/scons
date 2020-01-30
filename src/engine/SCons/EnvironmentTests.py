@@ -236,7 +236,7 @@ class SubstitutionTestCase(unittest.TestCase):
         """
         env = SubstitutionEnvironment(XXX = 'x')
         assert 'XXX' in env
-        assert not 'YYY' in env
+        assert 'YYY' not in env
 
     def test_items(self):
         """Test the SubstitutionEnvironment items() method
@@ -1759,7 +1759,7 @@ def exists(env):
         env2.Dictionary('ZZZ')[5] = 6
         assert env1.Dictionary('XXX') is env2.Dictionary('XXX')
         assert 4 in env2.Dictionary('YYY')
-        assert not 4 in env1.Dictionary('YYY')
+        assert 4 not in env1.Dictionary('YYY')
         assert 5 in env2.Dictionary('ZZZ')
         assert 5 not in env1.Dictionary('ZZZ')
 
@@ -3289,6 +3289,10 @@ def generate(env):
         v3 = env.Value('c', 'build-c')
         assert v3.value == 'c', v3.value
 
+        v4 = env.Value(b'\x00\x0F', name='name')
+        assert v4.value == b'\x00\x0F', v4.value
+        assert v4.name == 'name', v4.name
+
 
     def test_Environment_global_variable(self):
         """Test setting Environment variable to an Environment.Base subclass"""
@@ -3547,8 +3551,8 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
         assert 'YYY' in env
         assert 'YYY' in env2
         assert 'YYY' in env3
-        assert not 'ZZZ' in env
-        assert not 'ZZZ' in env2
+        assert 'ZZZ' not in env
+        assert 'ZZZ' not in env2
         assert 'ZZZ' in env3
 
     def test_items(self):

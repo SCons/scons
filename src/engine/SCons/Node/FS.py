@@ -1612,7 +1612,7 @@ class Dir(Base):
         This clears any cached information that is invalidated by changing
         the repository."""
 
-        for node in list(self.entries.values()):
+        for node in self.entries.values():
             if node != self.dir:
                 if node != self and isinstance(node, Dir):
                     node.__clearRepositoryCache(duplicate)
@@ -1623,7 +1623,7 @@ class Dir(Base):
                     except AttributeError:
                         pass
                     if duplicate is not None:
-                        node.duplicate=duplicate
+                        node.duplicate = duplicate
 
     def __resetDuplicate(self, node):
         if node != self:

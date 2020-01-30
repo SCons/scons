@@ -33,7 +33,6 @@ import stat
 from TestCmd import TestCmd
 
 import SCons.CacheDir
-from SCons.Util import PY3
 
 built_it = None
 
@@ -169,10 +168,7 @@ class ExceptionTestCase(unittest.TestCase):
         os.remove(old_config)
         
         try:
-            if PY3:
-                self._CacheDir._readconfig3(self._CacheDir.path)
-            else:
-                self._CacheDir._readconfig2(self._CacheDir.path)
+            self._CacheDir._readconfig3(self._CacheDir.path)
             assert False, "Should have raised exception and did not"
         except SCons.Errors.SConsEnvironmentError as e:
             assert str(e) == "Failed to write cache configuration for {}".format(self._CacheDir.path)

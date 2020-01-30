@@ -70,7 +70,7 @@ class _CmdRunner(object):
         self.out, self.err = proc.communicate()
         self.status = proc.wait()
         if self.err:
-            sys.stderr.write(SCons.Util.UnicodeType(self.err))
+            sys.stderr.write(str(self.err))
         return self.status
 
     def strfunction(self, target, source, env):

@@ -220,7 +220,7 @@ class _UserGenerator(object):
             for var, src in dbg_settings.items():
                 # Update only expected keys
                 trg = {}
-                for key in [k for k in list(self.usrdebg.keys()) if k in src]:
+                for key in [k for k in self.usrdebg.keys() if k in src]:
                     trg[key] = str(src[key])
                 self.configs[var].debug = trg
 
@@ -544,7 +544,7 @@ class _DSPGenerator(object):
             if t[1] in self.env:
                 if SCons.Util.is_List(self.env[t[1]]):
                     for i in self.env[t[1]]:
-                        if not i in self.sources[t[0]]:
+                        if i not in self.sources[t[0]]:
                             self.sources[t[0]].append(i)
                 else:
                     if not self.env[t[1]] in self.sources[t[0]]:
@@ -578,11 +578,10 @@ class _DSPGenerator(object):
         for i in range(len(variants)):
             AddConfig(self, variants[i], buildtarget[i], outdir[i], runfile[i], cmdargs[i], cppdefines[i], cpppaths[i])
 
-        self.platforms = []
-        for key in list(self.configs.keys()):
-            platform = self.configs[key].platform
-            if platform not in self.platforms:
-                self.platforms.append(platform)
+        seen = set()
+        self.platforms = [p.platform for p in self.configs.values()
+                          if not (p.platform in seen or seen.add(p.platform))]
+
 
     def Build(self):
         pass
@@ -702,7 +701,7 @@ class _GenerateV6DSP(_DSPGenerator):
                       'Resource Files': 'r|rc|ico|cur|bmp|dlg|rc2|rct|bin|cnt|rtf|gif|jpg|jpeg|jpe',
                       'Other Files': ''}
 
-        for kind in sorted(list(categories.keys()), key=lambda a: a.lower()):
+        for kind in sorted(categories.keys(), key=lambda a: a.lower()):
             if not self.sources[kind]:
                 continue # skip empty groups
 
@@ -1003,7 +1002,7 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
 
         self.file.write('\t<Files>\n')
 
-        cats = sorted([k for k in list(categories.keys()) if self.sources[k]],
+        cats = sorted([k for k in categories.keys() if self.sources[k]],
                       key=lambda a: a.lower())
         for kind in cats:
             if len(cats) > 1:
@@ -1348,7 +1347,7 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
                       'Resource Files': 'r;rc;ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe',
                       'Other Files': ''}
 
-        cats = sorted([k for k in list(categories.keys()) if self.sources[k]],
+        cats = sorted([k for k in categories.keys() if self.sources[k]],
                       key = lambda a: a.lower())
 
         # print vcxproj.filters file first
@@ -1505,11 +1504,9 @@ class _GenerateV7DSW(_DSWGenerator):
             for variant in env['variant']:
                 AddConfig(self, variant)
 
-        self.platforms = []
-        for key in list(self.configs.keys()):
-            platform = self.configs[key].platform
-            if platform not in self.platforms:
-                self.platforms.append(platform)
+        seen = set()
+        self.platforms = [p.platform for p in self.configs.values()
+                          if not (p.platform in seen or seen.add(p.platform))]
 
         def GenerateProjectFilesInfo(self):
             for dspfile in self.dspfiles:
