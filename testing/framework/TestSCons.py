@@ -1334,26 +1334,6 @@ SConscript(sconscript)
 
         try:
 
-            # Build regexp for a character which is not
-            # a linesep, and in the case of CR/LF
-            # build it with both CR and CR/LF
-            # TODO: Not sure why this is a good idea. A static string
-            #       could do the same since we only have two variations
-            #       to do with?
-            # ls = os.linesep
-            # nols = "("
-            # for i in range(len(ls)):
-            #     nols = nols + "("
-            #     for j in range(i):
-            #         nols = nols + ls[j]
-            #     nols = nols + "[^" + ls[i] + "])"
-            #     if i < len(ls)-1:
-            #         nols = nols + "|"
-            # nols = nols + ")"
-            #
-            # Replaced above logic with \n as we're reading the file
-            # using non-binary read. Python will translate \r\n -> \n
-            # For us.
             ls = '\n'
             nols = '([^\n])'
             lastEnd = 0
@@ -1392,8 +1372,25 @@ SConscript(sconscript)
                 result_cached = 1
                 for bld_desc in cache_desc:  # each TryXXX
                     for ext, flag in bld_desc:  # each file in TryBuild
-                        conf_filename = re.escape(os.path.join(sconf_dir, "conftest")) +\
-                                        r'_[a-z0-9]{32}_%d' % cnt + re.escape(ext)
+                        if ext in ['.c','.cpp']:
+                            conf_filename = re.escape(os.path.join(sconf_dir, "conftest")) +\
+                                            r'_[a-z0-9]{32}_\d+%s' % re.escape(ext)
+                        elif ext == '':
+                            conf_filename = re.escape(os.path.join(sconf_dir, "conftest")) +\
+                                            r'_[a-z0-9]{32}(_\d+_[a-z0-9]{32})?'
+
+                        else:
+                            # We allow the second hash group to be optional because
+                            # TryLink() will create a c file, then compile to obj, then link that
+                            # The intermediate object file will not get the action hash
+                            # But TryCompile()'s where the product is the .o will get the
+                            # action hash. Rather than add a ton of complications to this logic
+                            # this shortcut should be sufficient.
+                            # TODO: perhaps revisit and/or fix file naming for intermediate files in
+                            #  Configure context logic
+                            conf_filename = re.escape(os.path.join(sconf_dir, "conftest")) +\
+                                            r'_[a-z0-9]{32}_\d+(_[a-z0-9]{32})?%s' % re.escape(ext)
+
 
                         if flag == self.NCR:
                             # NCR = Non Cached Rebuild
@@ -1426,7 +1423,7 @@ SConscript(sconscript)
                                   re.escape("\" failed in a previous run and all its sources are up to date.") + ls
                             log = log + re.escape("scons: Configure: The original builder output was:") + ls
                             log = log + r"(  \|.*" + ls + ")+"
-                    cnt = cnt + 1
+                    # cnt = cnt + 1
                 if result_cached:
                     result = "(cached) " + result
                 rdstr = rdstr + re.escape(check) + re.escape(result) + "\n"

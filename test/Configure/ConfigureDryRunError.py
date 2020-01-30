@@ -67,7 +67,7 @@ test.run(arguments='-n', status=2, stderr=expect)
 test.must_not_exist('config.log')
 test.subdir('.sconf_temp')
 
-conftest_0_c = os.path.join(".sconf_temp", "conftest_0.c")
+conftest_0_c = os.path.join(".sconf_temp", "conftest_df286a1d2f67e69d030b4eff75ca7e12_0.c")
 SConstruct_file_line = test.python_file_line(SConstruct_path, 6)[:-1]
 
 expect = """
