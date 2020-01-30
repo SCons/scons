@@ -337,7 +337,7 @@ class SConsignFileTestCase(SConsignTestCase):
 
         SCons.SConsign.ForDirectory(DummyNode(test.workpath('dir')))
 
-        assert not SCons.SConsign.DataBase is None, SCons.SConsign.DataBase
+        assert SCons.SConsign.DataBase is not None, SCons.SConsign.DataBase
         assert fake_dbm.name == file, fake_dbm.name
         assert fake_dbm.mode == "c", fake_dbm.mode
 

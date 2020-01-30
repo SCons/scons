@@ -36,7 +36,7 @@ test = TestSCons.TestSCons()
 latex = test.where_is('latex')
 
 if not latex:
-    test.skip_test("Could not find tex or latex; skipping test(s).\n")
+    test.skip_test("Could not find 'latex'; skipping test(s).\n")
 
 comment = os.system('kpsewhich comment.sty')
 if not comment==0:

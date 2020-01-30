@@ -89,7 +89,7 @@ del op_list
 override = {
     'if'                        : 'if(?!n?def)',
 }
-l = [override.get(x, x) for x in list(Table.keys())]
+l = [override.get(x, x) for x in Table.keys()]
 
 
 # Turn the list of expressions into one big honkin' regular expression
@@ -268,7 +268,7 @@ class PreProcessor(object):
         d = {
             'scons_current_file'    : self.scons_current_file
         }
-        for op in list(Table.keys()):
+        for op in Table.keys():
             d[op] = getattr(self, 'do_' + op)
         self.default_table = d
 

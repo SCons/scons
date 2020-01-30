@@ -195,7 +195,7 @@ class TempFileMunge(object):
         # Default to the .lnk suffix for the benefit of the Phar Lap
         # linkloc linker, which likes to append an .lnk suffix if
         # none is given.
-        if env.has_key('TEMPFILESUFFIX'):
+        if 'TEMPFILESUFFIX' in env:
             suffix = env.subst('$TEMPFILESUFFIX')
         else:
             suffix = '.lnk'

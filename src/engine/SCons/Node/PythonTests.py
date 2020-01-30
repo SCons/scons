@@ -64,6 +64,12 @@ class ValueTestCase(unittest.TestCase):
         v2.build()
         assert v2.built_value == 'faked', v2.built_value
 
+        v3 = SCons.Node.Python.Value(b'\x00\x0F', name='name')
+        v3.executor = fake_executor()
+        v3.build()
+        assert v3.name == 'name', v3.name
+        assert v3.built_value == 'faked', v3.built_value
+
     def test_read(self):
         """Test the Value.read() method
         """
@@ -98,6 +104,9 @@ class ValueTestCase(unittest.TestCase):
         assert csig == 'None', csig
 
 
+
+
+
 class ValueNodeInfoTestCase(unittest.TestCase):
     def test___init__(self):
         """Test ValueNodeInfo initialization"""
@@ -110,6 +119,18 @@ class ValueBuildInfoTestCase(unittest.TestCase):
         """Test ValueBuildInfo initialization"""
         vvv = SCons.Node.Python.Value('vvv')
         bi = SCons.Node.Python.ValueBuildInfo()
+
+
+class ValueChildTestCase(unittest.TestCase):
+    def test___init__(self):
+        """Test support for a Value() being an implicit dependency of a Node"""
+        value = SCons.Node.Python.Value('v')
+        node = SCons.Node.Node()
+        node._func_get_contents = 2  # Pretend to be a Dir.
+        node.add_to_implicit([value])
+        contents = node.get_contents()
+        expected_contents = '%s %s\n' % (value.get_csig(), value.name)
+        assert contents == expected_contents
 
 
 class ValueMemoTestCase(unittest.TestCase):
@@ -143,6 +164,19 @@ class ValueMemoTestCase(unittest.TestCase):
         v3 = SCons.Node.Python.ValueWithMemo(a)
         v4 = SCons.Node.Python.ValueWithMemo(a)
         assert v3 is not v4
+
+    def test_value_set_name(self):
+        """ Confirm setting name and caching takes the name into account """
+
+        v1 = SCons.Node.Python.ValueWithMemo(b'\x00\x0F', name='name')
+        v2 = SCons.Node.Python.ValueWithMemo(b'\x00\x0F', name='name2')
+        v3 = SCons.Node.Python.ValueWithMemo('Jibberish')
+
+        self.assertEqual(v1.name,'name', msg=v1.name)
+        self.assertEqual(v2.name,'name2', msg=v2.name)
+        self.assertEqual(v3.name,'Jibberish', msg=v3.name)
+        self.assertTrue(v1 is not v2, msg="v1 and v2 should be different as they have different names but same values")
+
 
 if __name__ == "__main__":
     unittest.main()

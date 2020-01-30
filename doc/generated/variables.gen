@@ -3448,17 +3448,6 @@ If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-LDMODULEEMITTER">
-    <term>LDMODULEEMITTER</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Contains the emitter specification for the
-<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-LoadableModule"><function>LoadableModule</function></link> builder.
-The manpage section "Builder Objects" contains
-general information on specifying emitters.
-</para>
-</listitem>
-  </varlistentry>
   <varlistentry id="cv-LDMODULEFLAGS">
     <term>LDMODULEFLAGS</term>
     <listitem>

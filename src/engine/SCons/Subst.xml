@@ -39,7 +39,7 @@ or
 <literal>IndexError</literal>
 exception will expand to a
 <literal>''</literal>
-(a null string) and not cause scons to fail.
+(an empty string) and not cause scons to fail.
 All exceptions not in the specified list
 will generate an error message
 and terminate processing.

@@ -15,6 +15,17 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added C:\msys64\mingw64\bin to default mingw and clang windows PATH's.  This 
       is a reasonable default and also aligns with changes in Appveyor's VS2019 image.
     - Drop support for Python 2.7. SCons will be Python 3.5+ going forward.
+    - Change SCons.Node.ValueWithMemo to consider any name passed when memoizing Value() nodes
+    
+  From Jeremy Elson:
+    - Updated design doc to use the correct syntax for Depends()
+
+  From Adam Gross:
+    - Added support for taking instances of the Value class as implicit
+      dependencies.
+    - Added new module SCons.Scanner.Python to allow scanning .py files.
+    - Added support for explicitly passing a name when creating Value() nodes. This may be useful
+      when the value can't be converted to a string or if having a name is otherwise desirable.
 
   From Andrew Morrow:
     - Fix Issue #3469 - Fixed improper reuse of temporary and compiled files by Configure when changing
@@ -33,12 +44,19 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Improve performance of Subst by preventing unnecessary frame
       allocations by no longer defining the *Subber classes inside of their
       respective function calls.
+    - Improve performance of Subst in some cases by preventing
+      unnecessary calls to eval when a token is surrounded in braces
+      but is not a function call.
+    - Improve performance of subst by removing unnecessary recursion.
 
   From Mats Wichmann:
     - Remove deprecated SourceCode
     - str.format syntax errors fixed
     - a bunch of linter/checker syntax fixups
     - Convert remaining uses of insecure/deprecated mktemp method.
+    - Clean up some duplications in manpage.  Clarify portion of manpage on Dir and File nodes.
+    - Reduce needless list conversions.
+    - Fixed regex in Python scanner.
 
 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
