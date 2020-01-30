@@ -16,6 +16,18 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       is a reasonable default and also aligns with changes in Appveyor's VS2019 image.
     - Drop support for Python 2.7. SCons will be Python 3.5+ going forward.
 
+  From Andrew Morrow:
+    - Fix Issue #3469 - Fixed improper reuse of temporary and compiled files by Configure when changing
+      the order and/or number of tests.  This is done by using the hash of the generated temporary files
+      content and (For the target files) the hash of the action.
+      So where previously files would be named:
+      - config_1.c, config_1.o, config_1
+      The will now be named (For example)
+      - conftest_68b375d16e812c43e6d72d6e93401e7c_0.c,
+        conftest_68b375d16e812c43e6d72d6e93401e7c_0_5713f09fc605f46b2ab2f7950455f187.o
+        or
+        conftest_68b375d16e812c43e6d72d6e93401e7c_0.o
+        conftest_68b375d16e812c43e6d72d6e93401e7c_0_5713f09fc605f46b2ab2f7950455f187 (for executable)
 
   From Mathew Robinson:
     - Improve performance of Subst by preventing unnecessary frame
