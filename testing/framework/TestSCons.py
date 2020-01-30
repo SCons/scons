@@ -223,7 +223,7 @@ def match_part_of_configlog(log, logfile, lastEnd, NoMatch=NoMatch):
     """
     Match part of the logfile
     """
-    print("Match:\n%s\n==============\n%s" % (log , logfile[lastEnd:]))
+    # print("Match:\n%s\n==============\n%s" % (log , logfile[lastEnd:]))
     m = re.match(log, logfile[lastEnd:])
     if not m:
         raise NoMatch(lastEnd)
@@ -1330,8 +1330,6 @@ SConscript(sconscript)
         -------
 
         """
-
-
         try:
 
             ls = '\n'
@@ -1372,7 +1370,7 @@ SConscript(sconscript)
                 result_cached = 1
                 for bld_desc in cache_desc:  # each TryXXX
                     for ext, flag in bld_desc:  # each file in TryBuild
-                        if ext in ['.c','.cpp']:
+                        if ext in ['.c', '.cpp']:
                             conf_filename = re.escape(os.path.join(sconf_dir, "conftest")) +\
                                             r'_[a-z0-9]{32}_\d+%s' % re.escape(ext)
                         elif ext == '':
@@ -1390,7 +1388,6 @@ SConscript(sconscript)
                             #  Configure context logic
                             conf_filename = re.escape(os.path.join(sconf_dir, "conftest")) +\
                                             r'_[a-z0-9]{32}_\d+(_[a-z0-9]{32})?%s' % re.escape(ext)
-
 
                         if flag == self.NCR:
                             # NCR = Non Cached Rebuild
@@ -1426,6 +1423,7 @@ SConscript(sconscript)
                     # cnt = cnt + 1
                 if result_cached:
                     result = "(cached) " + result
+
                 rdstr = rdstr + re.escape(check) + re.escape(result) + "\n"
 
                 log = log + re.escape("scons: Configure: " + result) + ls + ls
@@ -1456,9 +1454,9 @@ SConscript(sconscript)
             exp_stdout = self.wrap_stdout(".*", rdstr)
             if not self.match_re_dotall(self.stdout(), exp_stdout):
                 print("Unexpected stdout: ")
-                print("-----------------------------------------------------")
+                print("----Actual-------------------------------------------")
                 print(repr(self.stdout()))
-                print("-----------------------------------------------------")
+                print("----Expected-----------------------------------------")
                 print(repr(exp_stdout))
                 print("-----------------------------------------------------")
                 self.fail_test()
