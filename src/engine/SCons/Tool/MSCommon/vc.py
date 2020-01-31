@@ -41,7 +41,9 @@ import subprocess
 import os
 import platform
 import sys
+from contextlib import suppress
 from string import digits as string_digits
+#TODO: Python 2 cleanup
 if sys.version_info[0] == 2:
     import collections
 
@@ -332,21 +334,24 @@ def find_vc_pdir_vswhere(msvc_version):
         debug("Unknown version of MSVC: %s" % msvc_version)
         raise UnsupportedVersion("Unknown version %s" % msvc_version)
 
-    # For bug 3333 - support default location of vswhere for both 64 and 32 bit windows
-    # installs.
-    for pf in ['Program Files (x86)', 'Program Files']:
+    # For bug 3333: support default location of vswhere for both
+    # 64 and 32 bit windows installs.
+    # For bug 3542: also accommodate not being on C: drive.
+    pfpaths = [os.environ["ProgramFiles"]]
+    with suppress(KeyError):
+        # 64-bit Windows only, try it first
+        pfpaths.insert(0, os.environ["ProgramFiles(x86)"])
+    for pf in pfpaths:
         vswhere_path = os.path.join(
-            'C:\\',
             pf,
             'Microsoft Visual Studio',
             'Installer',
             'vswhere.exe'
         )
         if os.path.exists(vswhere_path):
-            # If we found vswhere, then use it.
             break
     else:
-        # No vswhere on system, no install info available
+        # No vswhere on system, no install info available this way
         return None
 
     vswhere_cmd = [vswhere_path,
@@ -354,22 +359,19 @@ def find_vc_pdir_vswhere(msvc_version):
                    '-version', vswhere_version,
                    '-property', 'installationPath']
 
-    #TODO PY27 cannot use Popen as context manager
-    # try putting it back to the old way for now
-    sp = subprocess.Popen(vswhere_cmd,
-                          stdout=subprocess.PIPE,
-                          stderr=subprocess.PIPE)
-    vsdir, err = sp.communicate()
-    if vsdir:
-        vsdir = vsdir.decode("mbcs").splitlines()
+    cp = subprocess.run(vswhere_cmd,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE)
+    if cp.stdout:
+        lines = cp.stdout.decode("mbcs").splitlines()
         # vswhere could easily return multiple lines
         # we could define a way to pick the one we prefer, but since
         # this data is currently only used to make a check for existence,
         # returning the first hit should be good enough for now.
-        vc_pdir = os.path.join(vsdir[0], 'VC')
+        vc_pdir = os.path.join(lines[0], 'VC')
         return vc_pdir
     else:
-        # No vswhere on system, no install info available
+        # We found vswhere, but no install info available for this version
         return None
 
 
@@ -661,7 +663,7 @@ def reset_installed_vcs():
 # within the same scons run. Windows builds on the CI system were split
 # into chunks to get around single-build time limits.
 # With VS2019 it got even slower and an optional persistent cache file
-# was introduced. The cache now also stores only the parsed vars, 
+# was introduced. The cache now also stores only the parsed vars,
 # not the entire output of running the batch file - saves a bit
 # of time not parsing every time.
 
@@ -703,7 +705,7 @@ def script_env(script, args=None):
                     return data
 
             cache_data = convert(cache_data)
- 
+
     return cache_data
 
 def get_default_version(env):
