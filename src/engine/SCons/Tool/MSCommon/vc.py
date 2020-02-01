@@ -43,6 +43,7 @@ import platform
 import sys
 from contextlib import suppress
 from string import digits as string_digits
+from subprocess import PIPE
 #TODO: Python 2 cleanup
 if sys.version_info[0] == 2:
     import collections
@@ -368,7 +369,9 @@ def find_vc_pdir_vswhere(msvc_version):
         "-property", "installationPath",
     ]
 
-    cp = subprocess.run(vswhere_cmd, capture_output=True)
+    #cp = subprocess.run(vswhere_cmd, capture_output=True)  # 3.7+ only
+    cp = subprocess.run(vswhere_cmd, stdout=PIPE, stderr=PIPE)
+
     if cp.stdout:
         # vswhere could return multiple lines, e.g. if Build Tools
         # and {Community,Professional,Enterprise} are both installed.
