@@ -135,6 +135,7 @@ _HOST_TARGET_TO_BAT_ARCH_GT14 = {
     ("amd64", "amd64"): "vcvars64.bat",
     ("amd64", "x86"): "vcvarsamd64_x86.bat",
     ("amd64", "x86_amd64"): "vcvarsx86_amd64.bat",
+    ("amd64", "x86_x86"): "vcvars32.bat",
     ("amd64", "arm"): "vcvarsamd64_arm.bat",
     ("amd64", "x86_arm"): "vcvarsx86_arm.bat",
     ("amd64", "arm64"): "vcvarsamd64_arm64.bat",
@@ -160,6 +161,7 @@ _HOST_TARGET_ARCH_TO_BAT_ARCH = {
     ("amd64", "x86_amd64"): "x86_amd64", # This is present in (at least) VS2012 express
     ("amd64", "amd64"): "amd64",
     ("amd64", "x86"): "x86",
+    ("amd64", "x86_x86"): "x86",
     ("x86", "ia64"): "x86_ia64",         # gone since 14.0
     ("x86", "arm"): "x86_arm",          # since 14.0
     ("x86", "arm64"): "x86_arm64",      # since 14.1
@@ -755,43 +757,56 @@ def msvc_setup_env_once(env):
         env["MSVC_SETUP_RUN"] = True
 
 def msvc_find_valid_batch_script(env, version):
-    debug('msvc_find_valid_batch_script()')
-    # Find the host platform, target platform, and if present the requested
-    # target platform
+    """Find and execute appropriate batch script to set up build env.
+
+    The MSVC build environment depends heavily on having the shell
+    environment set.  SCons does not inherit that, and does not count
+    on that being set up correctly anyway, so it tries to find the right
+    MSVC batch script, or the right arguments to the generic batch script
+    vcvarsall.bat, and run that, so we have a valid environment to build in.
+    There are dragons here: the batch scripts don't fail (see comments
+    elsewhere), they just leave you with a bad setup, so try hard to
+    get it right.
+    """
+
+    # Find the host, target, and if present the requested target:
     platforms = get_host_target(env)
     debug(" msvs_find_valid_batch_script(): host_platform %s, target_platform %s req_target_platform:%s" % platforms)
-
     host_platform, target_platform, req_target_platform = platforms
-    try_target_archs = [target_platform]
 
-    # Express versions have a "cross compile" environment to build 64 bit
-    # with x86_amd64 as the argument to the batch setup script
-    # For 2015/2017 Express, this could extend to arm and arm64 targets.
+    # Most combinations of host + target are straightforward.
+    # While all MSVC / Visual Studio tools are pysically 32-bit, they
+    # make it look like there are 64-bit tools if the host is 64-bit,
+    # so you can invoke the environment batch script to set up to build,
+    # say, amd64 host -> x86 target. Express versions are an exception:
+    # they always look 32-bit, so the batch scripts with 64-bit
+    # host parts are absent. We try to fix that up in a couple of ways.
+    # One is here: we make a table of "targets" to try, with the extra
+    # targets being tags that tell us to try a different "host" instead
+    # of the deduced host.
+    try_target_archs = [target_platform]
     if req_target_platform in ('amd64', 'x86_64'):
         try_target_archs.append('x86_amd64')
+    elif req_target_platform in ('x86',):
+        try_target_archs.append('x86_x86')
     elif req_target_platform in ('arm',):
         try_target_archs.append('x86_arm')
     elif req_target_platform in ('arm64',):
         try_target_archs.append('x86_arm64')
     elif not req_target_platform:
         if target_platform in ('amd64', 'x86_64'):
-            # There may not be "native" amd64, but maybe cross x86_amd64 tools
             try_target_archs.append('x86_amd64')
             # If the user hasn't specifically requested a TARGET_ARCH,
             # and the TARGET_ARCH is amd64 then also try 32 bits
             # if there are no viable 64 bit tools installed
             try_target_archs.append('x86')
-        elif target_platform in ('arm',):
-            try_target_archs.append('x86_arm')
-        elif target_platform in ('arm64',):
-            try_target_archs.append('x86_arm64')
 
     debug("msvs_find_valid_batch_script(): host_platform: %s try_target_archs:%s"%(host_platform, try_target_archs))
 
     d = None
     for tp in try_target_archs:
         # Set to current arch.
-        env['TARGET_ARCH']=tp
+        env['TARGET_ARCH'] = tp
 
         debug("msvc_find_valid_batch_script() trying target_platform:%s"%tp)
         host_target = (host_platform, tp)
