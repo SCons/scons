@@ -83,23 +83,23 @@ test = TestSCons.TestSCons()
 test.skip_if_not_msvc()
 
 installed_msvc_versions = msvc.cached_get_installed_vcs()
-# MSVC guaranteed to be at least one version on the system or else skip_if_not_msvc() function
-# would have skipped the test
+# MSVC guaranteed to be at least one version on the system or else
+# skip_if_not_msvc() function would have skipped the test
 
 msvc_140 = '14.0' in installed_msvc_versions
 msvc_141 = '14.1' in installed_msvc_versions
+msvc_142 = '14.2' in installed_msvc_versions
 
-if not (msvc_140 or msvc_141):
-    test.skip_test("Available MSVC doesn't support App store")
+if not any((msvc_140, msvc_141, msvc_142)):
+    test.skip_test("Available MSVC doesn't support App store\n")
 
 if msvc_140:
-
-    test.write('SConstruct', """
+    test.write('SConstruct', """\
 if ARGUMENTS.get('MSVC_UWP_APP'):
     help_vars = Variables()
     help_vars.Add(EnumVariable(
                 'MSVC_UWP_APP',
-                'Build for a Universal Windows Platform (UWP) Application',
+                'Build a Universal Windows Platform (UWP) Application',
                 '0',
                 allowed_values=('0', '1')))
 else:
@@ -128,14 +128,31 @@ print('env[MSVC_VERSION]=%s' % env.get('MSVC_VERSION'))
     test.fail_test((vclibstore_path_present is True) or (vclibstorerefs_path_present is True),
                 message='VC Store LIBPATHs present when MSVC_UWP_APP not set (msvc_version=%s)' % msvc_version)
 
-if msvc_141:
-
-    test.write('SConstruct', """
+if msvc_141 or msvc_142:
+    if msvc_142:
+        test.write('SConstruct', """\
 if ARGUMENTS.get('MSVC_UWP_APP'):
     help_vars = Variables()
     help_vars.Add(EnumVariable(
                 'MSVC_UWP_APP',
-                'Build for a Universal Windows Platform (UWP) Application',
+                'Build a Universal Windows Platform (UWP) Application',
+                '0',
+                allowed_values=('0', '1')))
+else:
+    help_vars = None
+env = Environment(tools=['default', 'msvc'], variables=help_vars, MSVC_VERSION='14.2')
+# Print the ENV LIBPATH to stdout
+print('env[ENV][LIBPATH]=%s' % env.get('ENV').get('LIBPATH'))
+print('env[MSVC_VERSION]=%s' % env.get('MSVC_VERSION'))
+print('env[ENV][VSCMD_ARG_app_plat]=%s' % env.get('ENV').get('VSCMD_ARG_app_plat'))
+""")
+    elif msvc_141:
+        test.write('SConstruct', """\
+if ARGUMENTS.get('MSVC_UWP_APP'):
+    help_vars = Variables()
+    help_vars.Add(EnumVariable(
+                'MSVC_UWP_APP',
+                'Build a Universal Windows Platform (UWP) Application',
                 '0',
                 allowed_values=('0', '1')))
 else:
