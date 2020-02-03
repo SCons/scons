@@ -211,7 +211,7 @@ Python 3.7.1
     <filename>scons-&buildversion;.tar.gz</filename>
     or <filename>scons-&buildversion;.zip</filename>,
     which are available from the SCons download page at
-    <ulink url="http://www.scons.org/download.html">http://www.scons.org/download.html</ulink>.
+    <ulink url="https://scons.org/pages/download.html">https://scons.org/pages/download.html</ulink>.
     </para>
 
     <para>

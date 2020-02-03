@@ -22,7 +22,7 @@ LATEST VERSION
 Before going further, you can check that this package you have is
 the latest version by checking the SCons download page at:
 
-        http://www.scons.org/download.html
+        https://scons.org/pages/download.html
 
 
 EXECUTION REQUIREMENTS
