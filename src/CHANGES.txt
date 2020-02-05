@@ -5,6 +5,8 @@
                             Change Log
 
 NOTE: The 4.0.0 Release of SCons will drop Python 2.7 Support
+NOTE: Please add your name below in alphabetical order by last name.
+NOTE: Please include a reference to any Issues resolved by your changes in the bullet(s) you add
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
