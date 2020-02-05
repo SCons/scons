@@ -91,27 +91,27 @@ test.fail_test(not os.path.exists(test.workpath('f2.out')))
 test.unlink('f1.out')
 test.unlink('f2.out')
 
-test.run(arguments = '-n ' + args, stdout = expect)
+test.run(arguments='-n ' + args, stdout=expect)
 test.fail_test(os.path.exists(test.workpath('f1.out')))
 test.fail_test(os.path.exists(test.workpath('f2.out')))
 
-test.run(arguments = '--no-exec ' + args, stdout = expect)
+test.run(arguments='--no-exec ' + args, stdout=expect)
 test.fail_test(os.path.exists(test.workpath('f1.out')))
 test.fail_test(os.path.exists(test.workpath('f2.out')))
 
-test.run(arguments = '--just-print ' + args, stdout = expect)
+test.run(arguments='--just-print ' + args, stdout=expect)
 test.fail_test(os.path.exists(test.workpath('f1.out')))
 test.fail_test(os.path.exists(test.workpath('f2.out')))
 
-test.run(arguments = '--dry-run ' + args, stdout = expect)
+test.run(arguments='--dry-run ' + args, stdout=expect)
 test.fail_test(os.path.exists(test.workpath('f1.out')))
 test.fail_test(os.path.exists(test.workpath('f2.out')))
 
-test.run(arguments = '--recon ' + args, stdout = expect)
+test.run(arguments='--recon ' + args, stdout=expect)
 test.fail_test(os.path.exists(test.workpath('f1.out')))
 test.fail_test(os.path.exists(test.workpath('f2.out')))
 
-test.run(arguments = args)
+test.run(arguments=args)
 test.fail_test(not os.path.exists(test.workpath('f1.out')))
 
 # Test that SCons does not write a modified .sconsign when -n is used.
@@ -120,14 +120,14 @@ expect = test.wrap_stdout("""\
 """ % locals())
 test.unlink('.sconsign.dblite')
 test.write('f1.out', "X1.out\n")
-test.run(arguments = '-n f1.out', stdout = expect)
-test.run(arguments = '-n f1.out', stdout = expect)
+test.run(arguments='-n f1.out', stdout=expect)
+test.run(arguments='-n f1.out', stdout=expect)
 
 expect = test.wrap_stdout("Removed f1.out\nRemoved f2.out\n", cleaning=1)
 
-test.run(arguments = '-n -c ' + args, stdout = expect)
+test.run(arguments='-n -c ' + args, stdout=expect)
 
-test.run(arguments = '-c -n ' + args, stdout = expect)
+test.run(arguments='-c -n ' + args, stdout=expect)
 
 test.fail_test(not os.path.exists(test.workpath('f1.out')))
 test.fail_test(not os.path.exists(test.workpath('f2.out')))
@@ -136,15 +136,15 @@ test.fail_test(not os.path.exists(test.workpath('f2.out')))
 install_f3_in = os.path.join('install', 'f3.in')
 expect = test.wrap_stdout('Install file: "f3.in" as "%s"\n' % install_f3_in)
 
-test.run(arguments = '-n install', stdout = expect)
+test.run(arguments='-n install', stdout=expect)
 test.fail_test(os.path.exists(test.workpath('install', 'f3.in')))
 
-test.run(arguments = 'install', stdout = expect)
+test.run(arguments='install', stdout=expect)
 test.fail_test(not os.path.exists(test.workpath('install', 'f3.in')))
 
 test.write('f3.in', "f3.in again\n")
 
-test.run(arguments = '-n install', stdout = expect)
+test.run(arguments='-n install', stdout=expect)
 test.fail_test(not os.path.exists(test.workpath('install', 'f3.in')))
 
 # Make sure duplicate source files in a VariantDir aren't created
@@ -159,11 +159,11 @@ test.fail_test(not os.path.exists(test.workpath('install', 'f3.in')))
 # method on that node, which may happen via other processing.
 # Therefore add this conditional removal to ensure  a clean setting
 # before running this test.
-    
+
 if os.path.exists(test.workpath('build', 'f4.in')):
     test.unlink(test.workpath('build', 'f4.in'))
 
-test.run(arguments = '-n build')
+test.run(arguments='-n build')
 test.fail_test(os.path.exists(test.workpath('build', 'f4.in')))
 
 # test Configure-calls in conjunction with -n
@@ -195,11 +195,11 @@ else:
     env = conf.Finish()
 """)
 # test that conf_dir isn't created and an error is raised
-stderr=r"""
+stderr = r"""
 scons: \*\*\* Cannot create configure directory "config\.test" within a dry-run\.
 File \S+, line \S+, in \S+
 """
-test.run(arguments="-n",stderr=stderr,status=2,
+test.run(arguments="-n", stderr=stderr, status=2,
          chdir=test.workpath("configure"))
 test.fail_test(os.path.exists(test.workpath("configure", "config.test")))
 test.fail_test(os.path.exists(test.workpath("configure", "config.log")))
@@ -207,12 +207,12 @@ test.fail_test(os.path.exists(test.workpath("configure", "config.log")))
 # test that targets are not built, if conf_dir exists.
 # verify that .cache and config.log are not created.
 # an error should be raised
-stderr=r"""
+stderr = r"""
 scons: \*\*\* Cannot update configure test "%s" within a dry-run\.
 File \S+, line \S+, in \S+
-""" % re.escape(os.path.join("config.test", "conftest_0.in"))
-test.subdir(['configure','config.test'])
-test.run(arguments="-n",stderr=stderr,status=2,
+""" % re.escape(os.path.join("config.test", "conftest_b10a8db164e0754105b7a99be72e3fe5_0.in"))
+test.subdir(['configure', 'config.test'])
+test.run(arguments="-n", stderr=stderr, status=2,
          chdir=test.workpath("configure"))
 test.fail_test(os.path.exists(test.workpath("configure", "config.test",
                                             ".cache")))
@@ -224,15 +224,15 @@ test.fail_test(os.path.exists(test.workpath("configure", "config.log")))
 
 # test that no error is raised, if all targets are up-to-date. In this
 # case .cache and config.log shouldn't be created
-stdout=test.wrap_stdout(build_str="scons: `.' is up to date.\n",
-                        read_str=r"""Executing Custom Test ... \(cached\) yes
+stdout = test.wrap_stdout(build_str="scons: `.' is up to date.\n",
+                          read_str=r"""Executing Custom Test ... \(cached\) yes
 """)
-test.run(status=0,chdir=test.workpath("configure"))
-log1_mtime = os.path.getmtime(test.workpath("configure","config.log"))
-test.run(stdout=stdout,arguments="-n",status=0,
+test.run(status=0, chdir=test.workpath("configure"))
+log1_mtime = os.path.getmtime(test.workpath("configure", "config.log"))
+test.run(stdout=stdout, arguments="-n", status=0,
          chdir=test.workpath("configure"))
-log2_mtime = os.path.getmtime(test.workpath("configure","config.log"))
-test.fail_test( log1_mtime != log2_mtime )
+log2_mtime = os.path.getmtime(test.workpath("configure", "config.log"))
+test.fail_test(log1_mtime != log2_mtime)
 
 test.pass_test()
 

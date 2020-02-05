@@ -28,11 +28,11 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify that basic builds work with Configure contexts.
 """
 
-import TestSCons
+from TestSCons import TestSCons, ConfigCheckInfo, _obj
+from TestCmd import IS_WINDOWS
 
-_obj = TestSCons._obj
 
-test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
+test = TestSCons(match = TestSCons.match_re_dotall)
 
 NCR = test.NCR  # non-cached rebuild
 CR  = test.CR   # cached rebuild (up to date)

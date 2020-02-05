@@ -169,10 +169,18 @@ class SConfTestCase(unittest.TestCase):
                                  log_file=self.test.workpath('config.log'))
         import SCons.Builder
         import SCons.Node
+
+        class MyAction(object):
+            def get_contents(self, target, source, env):
+                return 'MyBuilder-MyAction $SOURCE $TARGET'
+
         class MyBuilder(SCons.Builder.BuilderBase):
             def __init__(self):
                 self.prefix = ''
                 self.suffix = ''
+                # need action because temporary file name uses hash of actions get_contents()
+                self.action = MyAction()
+
             def __call__(self, env, target, source):
                 class MyNode(object):
                     def __init__(self, name):
