@@ -178,7 +178,7 @@ class SConfTestCase(unittest.TestCase):
             def __init__(self):
                 self.prefix = ''
                 self.suffix = ''
-                # need action because temporary file name uses has of actions get_contents()
+                # need action because temporary file name uses hash of actions get_contents()
                 self.action = MyAction()
 
             def __call__(self, env, target, source):
