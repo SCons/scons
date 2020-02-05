@@ -2,7 +2,7 @@
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -76,7 +76,8 @@ main()
    <para>
 
    And here's how to build it using &SCons;.
-   Enter the following into a file named &SConstruct;:
+   Save the code above into <filename>hello.c</filename>,
+   and enter the following into a file named &SConstruct;:
 
    </para>
 
@@ -98,7 +99,7 @@ int main() { printf("Hello, world!\n"); }
    and the input file from
    which you want it built
    (the <filename>hello.c</filename> file).
-   &b-link-Program; is a <firstterm>builder_method</firstterm>,
+   &b-link-Program; is a <firstterm>&builder_method;</firstterm>,
    a Python call that tells &SCons; that you want to build an
    executable program.
 
@@ -142,10 +143,8 @@ int main() { printf("Hello, world!\n"); }
    Second, notice that the same input &SConstruct; file,
    without any changes,
    generates the correct output file names on both systems:
-   <filename>hello.o</filename> and <filename>hello</filename>
-   on POSIX systems,
-   <filename>hello.obj</filename> and <filename>hello.exe</filename>
-   on Windows systems.
+   &hello_o; and &hello; on POSIX systems,
+   &hello_obj; and &hello_exe; on Windows systems.
    This is a simple example of how &SCons;
    makes it extremely easy to
    write portable software builds.
@@ -274,7 +273,7 @@ public class Example1
    When using &SCons;, it is unnecessary to add special
    commands or target names to clean up after a build.
    Instead, you simply use the
-   <literal>-c</literal> or <literal>--clean</literal>
+   <option>-c</option> or <option>--clean</option>
    option when you invoke &SCons;,
    and &SCons; removes the appropriate built files.
    So if we build our example above
@@ -388,8 +387,8 @@ Program('hello.c')    # "hello.c" is the source file.
      does <emphasis>not</emphasis>
      affect the order in which &SCons;
      actually builds the programs and object files
-     you want it to build.<footnote>
-     <para>In programming parlance,
+     you want it to build
+     <footnote><para>In programming parlance,
      the &SConstruct; file is
      <emphasis>declarative</emphasis>,
      meaning you tell &SCons; what you want done
@@ -398,22 +397,20 @@ Program('hello.c')    # "hello.c" is the source file.
      where you specify explicitly the order in
      which to do things.
      </para>
-     </footnote>
+     </footnote>.
      In other words, when you call the &b-link-Program; builder
      (or any other builder method),
      you're not telling &SCons; to build
-     the program at the instant the builder method is called.
-     Instead, you're telling &SCons; to build the program
-     that you want, for example,
-     a program built from a file named &hello_c;,
-     and it's up to &SCons; to build that program
-     (and any other files) whenever it's necessary.
-     (We'll learn more about how
-     &SCons; decides when building or rebuilding a file
-     is necessary in <xref linkend="chap-depends"></xref>, below.)
- 
+     the program at that moment.
+     Instead, you're telling &SCons; what you want accomplished,
+     and it's up to &SCons; to figure out how to do that, and to
+     take those steps if/when it's necessary.
+     We'll learn more about how
+     &SCons; decides when building or rebuilding a target
+     is necessary in <xref linkend="chap-depends"></xref>, below.
+
      </para>
- 
+
      <para>
 
      &SCons; reflects this distinction between
@@ -433,9 +430,9 @@ Program('hello.c')    # "hello.c" is the source file.
      <para>
 
      Let's clarify this with an example.
-     Python has a <literal>print</literal> statement that
+     Python has a <function>print</function> function that
      prints a string of characters to the screen.
-     If we put <literal>print</literal> statements around
+     If we put <function>print</function> calls around
      our calls to the &b-Program; builder method:
 
      </para>
@@ -459,8 +456,8 @@ int main() { printf("Goodbye, world!\n"); }
      <para>
 
      Then when we execute &SCons;,
-     we see the output from the <literal>print</literal>
-     statements in between the messages about
+     we see the output from calling the <function>print</function>
+     function in between the messages about
      reading the &SConscript; files,
      indicating that that is when the
      Python statements are being executed:
@@ -473,10 +470,22 @@ int main() { printf("Goodbye, world!\n"); }
 
      <para>
 
-     Notice also that &SCons; built the &goodbye; program first,
+     Notice that &SCons; built the &goodbye; program first,
      even though the "reading &SConscript;" output
-     shows that we called <literal>Program('hello.c')</literal>
+     shows that we called <function>Program('hello.c')</function>
      first in the &SConstruct; file.
+
+     </para>
+
+     <para>
+
+     Notice also that &SCons; was able to infer a lot of information
+     from the two &Program; calls.  Because
+     &hello_c; and <filename>goodbye.c</filename>
+     were recognized as C-language source files, it knew to build
+     the intermediate target files &hello_o; and &goodbye_o;
+     and the final files &hello; and &goodbye;
+     It was not necessary to program &scons; beyond just calling &Program;.
 
      </para>
 

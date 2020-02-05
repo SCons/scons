@@ -2,7 +2,7 @@
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -109,7 +109,7 @@ Type: 'scons program' to build the production program,
     When the &SConstruct; or &SConscript; files
     contain such a call to the &Help; function,
     the specified help text will be displayed in response to
-    the &SCons; <literal>-h</literal> option:
+    the &SCons; <option>-h</option> option:
 
     </para>
 
@@ -191,7 +191,7 @@ if env['PLATFORM'] == 'win32':
     standard list that describes the &SCons; command-line
     options.
     This list is also always displayed whenever
-    the <literal>-H</literal> option is used.
+    the <option>-H</option> option is used.
 
     </para>
 
@@ -325,7 +325,7 @@ foo.c
     By only setting the appropriate
     <envar>$*COMSTR</envar> variables
     if the user specifies
-    <literal>VERBOSE=1</literal>
+    <parameter class="option">VERBOSE=1</parameter>
     on the command line,
     the user has control
     over how &SCons;
@@ -422,7 +422,7 @@ f2.c
     Note that the &Progress; function does not
     arrange for a newline to be printed automatically
     at the end of the string (as does the Python
-    <literal>print</literal> statement),
+    <function>print</function> function),
     and we must specify the
     <literal>\n</literal>
     that we want printed at the end of the configured string.
@@ -468,15 +468,15 @@ Program('f2.c')
     <para>
 
     Note that we also specified the
-    <literal>overwrite=True</literal> argument
+    <parameter>overwrite=True</parameter> argument
     to the &Progress; function,
     which causes &SCons; to
     "wipe out" the previous string with space characters
     before printing the next &Progress; string.
     Without the
-    <literal>overwrite=True</literal> argument,
+    <parameter>overwrite=True</parameter> argument,
     a shorter file name would not overwrite
-    all of the charactes in a longer file name that 
+    all of the charactes in a longer file name that
     precedes it,
     making it difficult to tell what the
     actual file name is on the output.
@@ -523,11 +523,11 @@ Program('f2.c')
     <para>
 
     Note that here we have also used the
-    <literal>interval=</literal>
+    <parameter>interval=</parameter>
     keyword argument to have &SCons;
     only print a new "spinner" string
     once every five evaluated nodes.
-    Using an <literal>interval=</literal> count,
+    Using an <parameter>interval=</parameter> count,
     even with strings that use <literal>$TARGET</literal> like
     our examples above,
     can be a good way to lessen the
@@ -621,7 +621,7 @@ Progress(progress_function)
     you can use in a python <function>atexit</function> function
     to get a list of objects describing the actions that failed
     while attempting to build targets.  There can be more
-    than one if you're using <literal>-j</literal>.  Here's a 
+    than one if you're using <option>-j</option>.  Here's a
     simple example:
 
     </para>
@@ -647,7 +647,7 @@ atexit.register(print_build_failures)
     it calls &GetBuildFailures; to fetch the list of failed objects.
     See the man page
     for the detailed contents of the returned objects;
-    some of the more useful attributes are 
+    some of the more useful attributes are
     <literal>.node</literal>,
     <literal>.errstr</literal>,
     <literal>.filename</literal>, and
@@ -655,7 +655,7 @@ atexit.register(print_build_failures)
     The <literal>filename</literal> is not necessarily
     the same file as the <literal>node</literal>; the
     <literal>node</literal> is the target that was
-    being built when the error occurred, while the 
+    being built when the error occurred, while the
     <literal>filename</literal>is the file or dir that
     actually caused the error.
     Note:  only call &GetBuildFailures; at the end of the
@@ -663,7 +663,7 @@ atexit.register(print_build_failures)
 
     </para>
 
-    <para>   
+    <para>
 
     Here is a more complete example showing how to
     turn each element of &GetBuildFailures; into a string:
@@ -722,7 +722,7 @@ atexit.register(display_build_status)
     </scons_example>
 
     <para>
-    
+
     When this runs, you'll see the appropriate output:
 
     </para>

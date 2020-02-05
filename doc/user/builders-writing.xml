@@ -558,6 +558,8 @@ file.input
 
     &SCons; Builder objects can create an action "on the fly"
     by using a function called a &generator;.
+    (Note: this is not the same thing as a Python generator function
+    described in <ulink url="https://www.python.org/dev/peps/pep-0255/">PEP 255</ulink>)
     This provides a great deal of flexibility to
     construct just the right list of commands
     to build your target.
