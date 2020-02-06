@@ -9,7 +9,7 @@ It takes one parameter that says what the mode of update should be, which
 may be one of 'develop', 'release', or 'post'.
 
 In 'develop' mode, which is what someone would use as part of their own
-development practices, the release type is forced to be 'alpha' and the
+development practices, the release type is forced to be 'dev' and the
 patch level is the string 'yyyymmdd'.  Otherwise, it's the same as the
 'release' mode.
 
@@ -30,7 +30,7 @@ in various files:
 In 'post' mode, files are prepared for the next release cycle:
   - In ReleaseConfig, the version tuple is updated for the next release
     by incrementing the release number (either minor or micro, depending
-    on the branch) and resetting release type to 'alpha'.
+    on the branch) and resetting release type to 'dev'.
   - A blank template replaces src/RELEASE.txt.
   - A new section to accumulate changes is added to src/CHANGES.txt and
     src/Announce.txt.
@@ -110,30 +110,33 @@ else:
         sys.exit(1)
 if DEBUG: print('release date', release_date)
 
-if mode == 'develop' and version_tuple[3] != 'alpha':
-    version_tuple ==  version_tuple[:3] + ('alpha', 0)
+
+yyyy,mm,dd,h,m,s = release_date
+date_string = "".join(["%.2d"%d for d in time.localtime()[:6]])
+
+
+if mode == 'develop' and version_tuple[3] != 'dev':
+    version_tuple ==  version_tuple[:3] + ('dev', 0)
 if len(version_tuple) > 3 and version_tuple[3] != 'final':
-    if mode == 'develop':
-        version_tuple = version_tuple[:4] + ('yyyymmdd',)
-    else:
-        yyyy,mm,dd,_,_,_ = release_date
-        version_tuple = version_tuple[:4] + ((yyyy*100 + mm)*100 + dd,)
-version_string = '.'.join(map(str, version_tuple))
+    version_tuple = version_tuple[:4] + ((yyyy*100 + mm)*100 + dd,)
+
+version_string = '.'.join(map(str, version_tuple[:4])) + date_string
+
 if len(version_tuple) > 3:
     version_type = version_tuple[3]
 else:
     version_type = 'final'
 if DEBUG: print('version string', version_string)
 
-if version_type not in ['alpha', 'beta', 'candidate', 'final']:
+if version_type not in ['dev', 'beta', 'candidate', 'final']:
     print(("""ERROR: `%s' is not a valid release type in version tuple;
-\tit must be one of alpha, beta, candidate, or final""" % version_type))
+\tit must be one of dev, beta, candidate, or final""" % version_type))
     sys.exit(1)
 
 try:
     month_year = config['month_year']
 except KeyError:
-    if version_type == 'alpha':
+    if version_type == 'dev':
         month_year = 'MONTH YEAR'
     else:
         month_year =  time.strftime('%B %Y', release_date + (0,0,0))
@@ -176,7 +179,7 @@ class UpdateFile(object):
 
     # Determine the pattern to match a version
 
-    _rel_types = r'(alpha|beta|candidate|final)'
+    _rel_types = r'(dev|beta|candidate|final)'
     match_pat = r'\d+\.\d+\.\d+\.' + _rel_types + r'\.(\d+|yyyymmdd)'
     match_rel = re.compile(match_pat)
 
@@ -224,7 +227,7 @@ if mode == 'post':
         # minor release, increment minor value
         minor = version_tuple[1] + 1
         micro = 0
-    new_tuple = (version_tuple[0], minor, micro, 'alpha', 0)
+    new_tuple = (version_tuple[0], minor, micro, 'dev', 0)
     new_version = '.'.join(map(str, new_tuple[:4])) + '.yyyymmdd'
 
     # Update ReleaseConfig
