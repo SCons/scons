@@ -22,6 +22,9 @@
 #
 
 # TODO:
+#   * gather all the information from a single vswhere call instead
+#     of calling repeatedly (use json format?)
+#   * support passing/setting location for vswhere in env.
 #   * supported arch for versions: for old versions of batch file without
 #     argument, giving bogus argument cannot be detected, so we have to hardcode
 #     this here
@@ -41,7 +44,6 @@ import subprocess
 import os
 import platform
 import sys
-from contextlib import suppress
 from string import digits as string_digits
 from subprocess import PIPE
 #TODO: Python 2 cleanup
@@ -52,12 +54,8 @@ import SCons.Warnings
 from SCons.Tool import find_program_path
 
 from . import common
-
-debug = common.debug
-
-from . import sdk
-
-get_installed_sdks = sdk.get_installed_sdks
+from .common import CONFIG_CACHE, debug
+from .sdk import get_installed_sdks
 
 
 class VisualCException(Exception):
@@ -921,11 +919,14 @@ def msvc_setup_env(env):
         debug("msvc_setup_env() env['ENV']['%s'] = %s" % (k, env['ENV'][k]))
 
     # final check to issue a warning if the compiler is not present
-    msvc_cl = find_program_path(env, 'cl')
-    if not msvc_cl:
+    if not find_program_path(env, 'cl'):
         debug("msvc_setup_env() did not find 'cl'")
-        SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning,
-            "Could not find MSVC compiler 'cl', it may need to be installed separately with Visual Studio")
+        if CONFIG_CACHE:
+            propose = "SCONS_CACHE_MSVC_CONFIG caching enabled, remove cache file {} if out of date.".format(CONFIG_CACHE)
+        else:
+            propose = "It may need to be installed separately with Visual Studio."
+        warn_msg = "Could not find MSVC compiler 'cl'. {}".format(propose)
+        SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
 
 def msvc_exists(env=None, version=None):
     vcs = cached_get_installed_vcs(env)
