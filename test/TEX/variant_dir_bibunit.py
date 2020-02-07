@@ -34,8 +34,9 @@ Latex produces by default.
 Test courtesy Rob Managan.
 """
 
+import subprocess
+
 import TestSCons
-import os
 
 test = TestSCons.TestSCons()
 
@@ -44,8 +45,8 @@ bibtex = test.where_is('bibtex')
 if not all((latex, bibtex)):
     test.skip_test("Could not find 'latex' and/or 'bibtex'; skipping test.\n")
 
-bibunits = os.system('kpsewhich bibunits.sty')
-if not bibunits==0:
+cp = subprocess.run('kpsewhich bibunits.sty', shell=True)
+if cp.returncode:
     test.skip_test("bibunits.sty not installed; skipping test(s).\n")
 
 test.subdir(['src'])
