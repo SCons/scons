@@ -110,7 +110,7 @@ combo_fail(0, 2)
 combo_fail(1, 2)
 combo_fail(0, 1, 2, stdout =
 """ERROR: `bad' is not a valid release type in version tuple;
-\tit must be one of alpha, beta, candidate, or final
+\tit must be one of dev, beta, candidate, or final
 """)
 
 # We won't need this entry again, so put in a default
