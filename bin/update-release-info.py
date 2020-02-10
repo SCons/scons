@@ -72,6 +72,7 @@ class ReleaseInfo(object):
         self.config = {}
         self.args = args
         self.release_date = time.localtime()[:6]
+
         self.unsupported_version = None
         self.deprecated_version = None
 
@@ -86,7 +87,8 @@ class ReleaseInfo(object):
 
         self.read_config()
         self.process_config()
-        self.set_new_date()
+        if not self.args.timestamp:
+            self.set_new_date()
 
     def read_config(self):
         # Get configuration information
@@ -109,7 +111,7 @@ class ReleaseInfo(object):
             self.deprecated_version = self.config['deprecated_python_version']
         except KeyError:
             print('''ERROR: Config file must contain at least version_tuple,
-        \tunsupported_python_version, and deprecated_python_version.''')
+\tunsupported_python_version, and deprecated_python_version.''')
             sys.exit(1)
 
         if 'release_date' in self.config:
@@ -123,10 +125,14 @@ class ReleaseInfo(object):
         yyyy, mm, dd, h, m, s = self.release_date
         date_string = "".join(["%.2d" % d for d in self.release_date])
 
+        if self.args.timestamp:
+            date_string = self.args.timestamp
+
         if self.args.mode == 'develop' and self.version_tuple[3] != 'dev':
             self.version_tuple == self.version_tuple[:3] + ('dev', 0)
+
         if len(self.version_tuple) > 3 and self.version_tuple[3] != 'final':
-            self.version_tuple = self.version_tuple[:4] + ((yyyy * 100 + mm) * 100 + dd,)
+            self.version_tuple = self.version_tuple[:4] + (date_string,)
 
         self.version_string = '.'.join(map(str, self.version_tuple[:4])) + date_string
 
@@ -137,13 +143,16 @@ class ReleaseInfo(object):
 
         if self.version_type not in ['dev', 'beta', 'candidate', 'final']:
             print(("""ERROR: `%s' is not a valid release type in version tuple;
-        \tit must be one of dev, beta, candidate, or final""" % self.version_type))
+\tit must be one of dev, beta, candidate, or final""" % self.version_type))
             sys.exit(1)
 
         try:
             self.month_year = self.config['month_year']
         except KeyError:
-            self.month_year = time.strftime('%B %Y', self.release_date + (0, 0, 0))
+            if self.args.timestamp:
+                self.month_year = "MONTH YEAR"
+            else:
+                self.month_year = time.strftime('%B %Y', self.release_date + (0, 0, 0))
 
         try:
             self.copyright_years = self.config['copyright_years']
@@ -369,10 +378,10 @@ def parse_arguments():
     """
 
     parser = argparse.ArgumentParser(prog='update-release-info.py')
-    parser.add_argument('mode', choices=['develop', 'release', 'post'], default='develop')
+    parser.add_argument('mode', nargs='?', choices=['develop', 'release', 'post'], default='develop')
     parser.add_argument('--verbose', dest='verbose', action='store_true', help='Enable verbose logging')
-    parser.add_argument('--timestamp', dest='timestamp', help='Override the default current timestamp',
-                        default=time.localtime()[:6])
+
+    parser.add_argument('--timestamp', dest='timestamp', help='Override the default current timestamp')
 
     args = parser.parse_args()
     return args
