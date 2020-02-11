@@ -71,6 +71,7 @@ def _do_subst(node, subs):
     contents = node.get_text_contents()
     if subs:
         for (k, val) in subs:
+            # contents = contents.replace(k, val)
             contents = re.sub(k, val, contents)
 
     if 'b' in TEXTFILE_FILE_WRITE_MODE:
