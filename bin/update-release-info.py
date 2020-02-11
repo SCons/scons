@@ -194,7 +194,7 @@ class UpdateFile(object):
     # Determine the pattern to match a version
 
     _rel_types = r'(dev|beta|candidate|final)'
-    match_pat = r'\d+\.\d+\.\d+\.' + _rel_types + r'\.(\d+|yyyymmdd)'
+    match_pat = r'\d+\.\d+\.\d+\.' + _rel_types + r'\.?(\d+|yyyymmdd)'
     match_rel = re.compile(match_pat)
 
     def __init__(self, file, orig=None):
@@ -254,7 +254,9 @@ def main(args, rel_info):
             minor = rel_info.version_tuple[1] + 1
             micro = 0
         new_tuple = (rel_info.version_tuple[0], minor, micro, 'dev', 0)
-        new_version = '.'.join(map(str, new_tuple[:4])) + '.yyyymmdd'
+        new_version = '.'.join(map(str, new_tuple[:4])) + 'yyyymmdd'
+
+        rel_info.version_string = new_version
 
         # Update ReleaseConfig
 
@@ -276,7 +278,7 @@ def main(args, rel_info):
         t = UpdateFile(os.path.join('src', 'RELEASE.txt'),
                        os.path.join('template', 'RELEASE.txt'))
         if DEBUG: t.file = '/tmp/RELEASE.txt'
-        t.replace_version(new_version)
+        t.replace_version()
 
         # Update src/Announce.txt
 
