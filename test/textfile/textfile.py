@@ -30,16 +30,14 @@ import os
 
 test = TestSCons.TestSCons()
 
-test.verbose_set(1)
-
 foo1 = test.workpath('foo1.txt')
-#foo2  = test.workpath('foo2.txt')
-#foo1a = test.workpath('foo1a.txt')
-#foo2a = test.workpath('foo2a.txt')
+# foo2  = test.workpath('foo2.txt')
+# foo1a = test.workpath('foo1a.txt')
+# foo2a = test.workpath('foo2a.txt')
 
 match_mode = 'r'
 
-test.file_fixture('fixture/SConstruct','SConstruct')
+test.file_fixture('fixture/SConstruct', 'SConstruct')
 
 test.run(arguments='.')
 
@@ -57,7 +55,7 @@ test.up_to_date(arguments='.')
 
 files = list(map(test.workpath, (
     'foo1.txt', 'foo2.txt', 'foo1a.txt', 'foo2a.txt',
-    'bar1',     'bar2',     'bar1a.txt', 'bar2a.txt',
+    'bar1', 'bar2', 'bar1a.txt', 'bar2a.txt',
 )))
 
 
@@ -75,10 +73,10 @@ def check_times():
 
 
 # make sure that the file content is as expected
-test.must_match('foo1.txt',  foo1Text, mode=match_mode)
-test.must_match('bar1',      foo1Text, mode=match_mode)
-test.must_match('foo2.txt',  foo2Text, mode=match_mode)
-test.must_match('bar2',      foo2Text, mode=match_mode)
+test.must_match('foo1.txt', foo1Text, mode=match_mode)
+test.must_match('bar1', foo1Text, mode=match_mode)
+test.must_match('foo2.txt', foo2Text, mode=match_mode)
+test.must_match('bar2', foo2Text, mode=match_mode)
 test.must_match('foo1a.txt', foo1aText, mode=match_mode)
 test.must_match('bar1a.txt', foo1aText, mode=match_mode)
 test.must_match('foo2a.txt', foo2aText, mode=match_mode)
@@ -87,10 +85,10 @@ check_times()
 
 # write the contents and make sure the files
 # didn't get rewritten, because nothing changed:
-test.write('foo1.txt',  foo1Text)
-test.write('bar1',      foo1Text)
-test.write('foo2.txt',  foo2Text)
-test.write('bar2',      foo2Text)
+test.write('foo1.txt', foo1Text)
+test.write('bar1', foo1Text)
+test.write('foo2.txt', foo2Text)
+test.write('bar2', foo2Text)
 test.write('foo1a.txt', foo1aText)
 test.write('bar1a.txt', foo1aText)
 test.write('foo2a.txt', foo2aText)
@@ -99,8 +97,7 @@ check_times()
 
 # now that textfile is part of default tool list, run one testcase
 # without adding it explicitly as a tool to make sure.
-test.file_fixture('fixture/SConstruct.2','SConstruct.2')
-
+test.file_fixture('fixture/SConstruct.2', 'SConstruct.2')
 
 test.run(options='-f SConstruct.2', arguments='.')
 
@@ -117,7 +114,7 @@ def matchem(match_file, lines):
     then compare
     """
     lines = linesep.join(lines)
-    test.must_match(match_file, lines, mode=match_mode, message="Expected:\n%s\n"%lines)
+    test.must_match(match_file, lines, mode=match_mode, message="Expected:\n%s\n" % lines)
 
 
 matchem('text.txt', [line1, line2a, line3a])

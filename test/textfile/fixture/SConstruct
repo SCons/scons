@@ -1,7 +1,9 @@
+DefaultEnvironment(tools=[])
+
 
 env = Environment(tools=['textfile'])
 data0 = ['Goethe', 'Schiller']
-data  = ['lalala', 42, data0, 'tanteratei']
+data = ['lalala', 42, data0, 'tanteratei']
 
 env.Textfile('foo1', data)
 env.Textfile('foo2', data, LINESEPARATOR='|*')
