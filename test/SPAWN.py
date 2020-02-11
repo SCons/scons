@@ -43,18 +43,19 @@ with open(sys.argv[1], 'wb') as ofp:
 """)
 
 test.write('SConstruct', """
-import os
+import subprocess
 import sys
+
 def my_spawn1(sh, escape, cmd, args, env):
     s = " ".join(args + ['extra1.txt'])
-    if sys.platform in ['win32']:
-        s = '"' + s + '"'
-    os.system(s)
+    cp = subprocess.run(s, shell=True)
+    return cp.returncode
+
 def my_spawn2(sh, escape, cmd, args, env):
     s = " ".join(args + ['extra2.txt'])
-    if sys.platform in ['win32']:
-        s = '"' + s + '"'
-    os.system(s)
+    cp = subprocess.run(s, shell=True)
+    return cp.returncode
+
 env = Environment(MY_SPAWN1 = my_spawn1,
                   MY_SPAWN2 = my_spawn2,
                   COMMAND = r'%(_python_)s cat.py $TARGET $SOURCES')

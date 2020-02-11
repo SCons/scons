@@ -28,13 +28,13 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test the ability to use the archiver in combination with builddir.
 """
 
-import os
+import subprocess
+
 import TestSCons
 
 python = TestSCons.python
 
 test = TestSCons.TestSCons()
-test.verbose_set(3)
 tar = test.detect("TAR", "tar")
 
 if not tar:
@@ -48,9 +48,7 @@ test.subdir("build")
 
 test.write("src/main.c", "")
 
-test.write(
-    "SConstruct",
-    """
+test.write("SConstruct", """\
 VariantDir('build', 'src')
 DefaultEnvironment(tools=[])
 env=Environment(tools=['packaging', 'filesystem', 'zip'])
@@ -76,9 +74,7 @@ test.subdir("temp")
 
 test.write("src/main.c", "")
 
-test.write(
-    "SConstruct",
-    """
+test.write("SConstruct", """\
 DefaultEnvironment(tools=[])
 VariantDir('build', 'src')
 env=Environment(tools=['packaging', 'filesystem', 'tar'])
@@ -93,7 +89,8 @@ test.run(stderr=None)
 
 test.must_exist("libfoo-1.2.3.tar.gz")
 
-os.system('%s -C temp -xzf %s'%(tar, test.workpath('libfoo-1.2.3.tar.gz') ))
+testdir = test.workpath('libfoo-1.2.3.tar.gz')
+subprocess.run('%s -C temp -xzf %s' % (tar, testdir), shell=True)
 
 test.must_exist("temp/libfoo-1.2.3/src/main.c")
 test.must_exist("temp/libfoo-1.2.3/SConstruct")

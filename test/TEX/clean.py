@@ -28,7 +28,8 @@ r"""
 Check that all auxilary files created by LaTeX are properly cleaned by scons -c.
 """
 
-import os
+import subprocess
+
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -38,8 +39,8 @@ latex = test.where_is('latex')
 if not latex:
     test.skip_test("Could not find 'latex'; skipping test(s).\n")
 
-comment = os.system('kpsewhich comment.sty')
-if not comment==0:
+cp = subprocess.run('kpsewhich comment.sty', shell=True)
+if cp.returncode:
     test.skip_test("comment.sty not installed; skipping test(s).\n")
 
 # package hyperref generates foo.out

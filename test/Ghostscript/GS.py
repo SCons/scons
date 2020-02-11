@@ -74,13 +74,12 @@ else:
 gs = test.where_is(gs_executable)
 
 if gs:
-
     test.write("wrapper.py", """\
-import os
+import subprocess
 import sys
 cmd = " ".join(sys.argv[1:])
 open('%s', 'a').write("%%s\\n" %% cmd)
-os.system(cmd)
+subprocess.run(cmd, shell=True)
 """ % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
     test.write('SConstruct', """\
