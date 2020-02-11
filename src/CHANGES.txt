@@ -62,6 +62,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Accommodate VS 2017 Express - it's got a more liberal license then VS
       Community, so some people prefer it (from 2019, no more Express)
     - vswhere call should also now work even if programs aren't on the C: drive.
+    - Script/Main.py now uses importlib instead of imp module.
 
 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
@@ -149,9 +150,6 @@ RELEASE 3.1.1 - Mon, 07 Aug 2019 20:09:12 -0500
         - CacheDir not write-able
         - JSON encoding errors for CacheDir config
         - JSON decoding errors for CacheDir config
-
-  From Mats Wichmann:
-    - Script/Main.py now uses importlib in the PY3 case.
 
 
 RELEASE 3.1.0 - Mon, 20 Jul 2019 16:59:23 -0700

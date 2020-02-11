@@ -43,7 +43,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
 
+import importlib.util
 import os
+import re
 import sys
 import time
 import traceback
@@ -64,7 +66,6 @@ import SCons.SConf
 import SCons.Script
 import SCons.Taskmaster
 import SCons.Util
-from SCons.Util import PY3
 import SCons.Warnings
 import SCons.Script.Interactive
 
@@ -730,12 +731,6 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
     if not os.path.exists(site_init_file):
         return
 
-    if PY3:
-        import importlib.util
-    else:
-        import imp
-    import re
-
     # "import" the site_init.py file into the SCons.Script namespace.
     # This is a variant on the basic Python import flow in that the globals
     # dict for the compile step is prepopulated from the SCons.Script
@@ -749,52 +744,41 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
             fmt = 'cannot import {}: missing SCons.Script module'
             raise SCons.Errors.InternalError(fmt.format(site_init_file))
 
-        if PY3:
-            spec = importlib.util.spec_from_file_location(site_init_modname,
-                                                          site_init_file)
-            fp = open(spec.origin, 'r')
-            site_m = {"__file__": spec.origin,
-                      "__name__": spec.name,
-                      "__doc__": None}
-        else:
-            fp, pathname, description = imp.find_module(site_init_modname,
-                                                        [site_dir])
-            sfx = description[0]
-            modname = os.path.basename(pathname)[:-len(sfx)]
-            site_m = {"__file__": pathname,
-                      "__name__": modname,
-                      "__doc__": None}
-
+        spec = importlib.util.spec_from_file_location(site_init_modname, site_init_file)
+        site_m = {
+            "__file__": spec.origin,
+            "__name__": spec.name,
+            "__doc__": None,
+        }
         re_dunder = re.compile(r"__[^_]+__")
+        # update site dict with all but magic (dunder) methods
         for k, v in m.__dict__.items():
             if not re_dunder.match(k):
                 site_m[k] = v
 
+        with open(spec.origin, 'r') as f:
+            code = f.read()
         try:
-            codeobj = compile(fp.read(), fp.name, 'exec')
+            codeobj = compile(code, spec.name, "exec")
             exec(codeobj, site_m)
         except KeyboardInterrupt:
             raise
         except Exception:
-            fmt = '*** Error loading site_init file %s:\n'
-            sys.stderr.write(fmt % repr(site_init_file))
+            fmt = "*** Error loading site_init file {}:\n"
+            sys.stderr.write(fmt.format(site_init_file))
             raise
         else:
+            # now refill globals with site_init's symbols
             for k, v in site_m.items():
                 if not re_dunder.match(k):
                     m.__dict__[k] = v
-
     except KeyboardInterrupt:
         raise
     except Exception:
-        fmt = '*** cannot import site init file %s:\n'
-        sys.stderr.write(fmt % repr(site_init_file))
+        fmt = "*** cannot import site init file {}:\n"
+        sys.stderr.write(fmt.format(site_init_file))
         raise
-    finally:
-        try:
-            fp.close()
-        except Exception:
-            pass
+
 
 def _load_all_site_scons_dirs(topdir, verbose=None):
     """Load all of the predefined site_scons dir.
