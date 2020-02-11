@@ -1,0 +1,25 @@
+DefaultEnvironment(tools=[])
+
+textlist = ['This line has no substitutions',
+            'This line has @subst@ substitutions',
+            'This line has %subst% substitutions',
+            ]
+
+sub1 = {'@subst@': 'most'}
+sub2 = {'%subst%': 'many'}
+sub3 = {'@subst@': 'most', '%subst%': 'many'}
+
+env = Environment(tools=['textfile'])
+
+t = env.Textfile('text', textlist)
+# no substitutions
+s = env.Substfile('sub1', t)
+# one substitution
+s = env.Substfile('sub2', s, SUBST_DICT=sub1)
+# the other substution
+s = env.Substfile('sub3', s, SUBST_DICT=sub2)
+# the reverse direction
+s = env.Substfile('sub4', t, SUBST_DICT=sub2)
+s = env.Substfile('sub5', s, SUBST_DICT=sub1)
+# both
+s = env.Substfile('sub6', t, SUBST_DICT=sub3)
