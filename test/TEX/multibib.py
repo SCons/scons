@@ -30,8 +30,9 @@ Test creation of a Tex document that uses the multibib oackage
 Test courtesy Rob Managan.
 """
 
+import subprocess
+
 import TestSCons
-import os
 
 test = TestSCons.TestSCons()
 
@@ -39,8 +40,8 @@ latex = test.where_is('latex')
 if not latex:
     test.skip_test("Could not find 'latex'; skipping test.\n")
 
-multibib = os.system('kpsewhich multibib.sty')
-if not multibib==0:
+cp = subprocess.run('kpsewhich multibib.sty', shell=True)
+if cp.returncode:
     test.skip_test("multibib.sty not installed; skipping test(s).\n")
 
 test.subdir(['src'])

@@ -1,4 +1,4 @@
-import os
+import subprocess
 import sys
 if '-dumpversion' in sys.argv:
     print('3.9.9')
@@ -9,4 +9,4 @@ if '--version' in sys.argv:
 if sys.argv[1] not in [ '2.9.9', '3.9.9' ]:
     print('wrong version', sys.argv[1], 'when wrapping', sys.argv[2])
     sys.exit(1)
-os.system(" ".join(sys.argv[2:]))
+subprocess.run(" ".join(sys.argv[2:]), shell=True)

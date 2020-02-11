@@ -33,13 +33,13 @@ _exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-test.write("wrapper.py",
-"""import os
+test.write("wrapper.py", """\
+import subprocess
 import sys
 with open('%s', 'wb') as f:
     f.write(("wrapper.py\\n").encode())
 args = [s for s in sys.argv[1:] if s != 'fake_link_flag']
-os.system(" ".join(args))
+subprocess.run(" ".join(args), shell=True)
 """ % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
 test.write('SConstruct', """
