@@ -376,7 +376,7 @@ def main(args, rel_info):
 
 def parse_arguments():
     """
-    Create ArgumentParser object and processs arguments
+    Create ArgumentParser object and process arguments
     """
 
     parser = argparse.ArgumentParser(prog='update-release-info.py')
