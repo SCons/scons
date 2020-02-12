@@ -65,6 +65,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Accommodate VS 2017 Express - it's got a more liberal license then VS
       Community, so some people prefer it (from 2019, no more Express)
     - vswhere call should also now work even if programs aren't on the C: drive.
+    - Add an alternate warning message cl.exe is not found and msvc config
+      cache is in use (SCONS_CACHE_MSVC_CONFIG was given) - config cache
+      may be out of date.
 
 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
