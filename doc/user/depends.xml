@@ -2,7 +2,7 @@
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -372,7 +372,7 @@ int main() { printf("Hello, world!\n"); }
       instead of
       <literal>timestamp-match</literal>,
       would be if you have some specific reason
-      to require this &Make;-like behavior of 
+      to require this &Make;-like behavior of
       not rebuilding a target when an otherwise-modified
       source file is older.
 
@@ -561,13 +561,6 @@ int main() { printf("Hello, world!\n"); }
 
       </para>
 
-        <para>
-            The fourth argument <varname>repo_node</varname>,
-            is the &Node; to use if it is not None when comparing &BuildInfo;.
-            This is typically only set when the target node only exists in a
-            &Repository;
-        </para>
-
       <variablelist>
 
         <varlistentry>
@@ -612,22 +605,33 @@ int main() { printf("Hello, world!\n"); }
 
       <para>
 
-      Note that ignoring some of the arguments
-      in your custom &Decider; function
-      is a perfectly normal thing to do,
-      if they don't impact the way you want to
-      decide if the dependency file has changed.
+      These attributes may not be present at the time of the
+      first run.  Without any prior build, no targets have been
+      created and no <filename>.sconsign</filename> DB file exists yet.
+      So you should always check whether the
+      <varname>prev_ni</varname> attribute in question is available
+      (use the Python <function>hasattr</function> method or a
+      <literal>try</literal>-<literal>except</literal> block).
+
+      </para>
+
+
+      <para>
+
+      The fourth argument <varname>repo_node</varname>
+      is the &Node; to use if it is not None when comparing &BuildInfo;.
+      This is typically only set when the target node only exists in a
+      &Repository;
 
       </para>
 
       <para>
 
-      Another thing to look out for is the fact that the three
-      attributes above may not be present at the time of the first run.
-      Without any prior build, no targets have been created and no
-      <filename>.sconsign</filename> DB file exists yet.
-      So, you should always check whether the
-      <varname>prev_ni</varname> attribute in question is available.
+      Note that ignoring some of the arguments
+      in your custom &Decider; function
+      is a perfectly normal thing to do,
+      if they don't impact the way you want to
+      decide if the dependency file has changed.
 
       </para>
 
@@ -644,13 +648,14 @@ int main() { printf("Hello, world!\n"); }
       <sconstruct>
 env = Environment()
 
+
 def config_file_decider(dependency, target, prev_ni, repo_node=None):
     import os.path
 
     # We always have to init the .csig value...
     dep_csig = dependency.get_csig()
     # .csig may not exist, because no target was built yet...
-    if 'csig' not in dir(prev_ni):
+    if not prev_ni.hasattr("csig"):
         return True
     # Target file may not exist yet
     if not os.path.exists(str(target.abspath)):
@@ -660,17 +665,18 @@ def config_file_decider(dependency, target, prev_ni, repo_node=None):
         return True
     return False
 
+
 def update_file():
-    f = open("test.txt","a")
-    f.write("some line\n")
-    f.close()
+    with open("test.txt", "a") as f:
+        f.write("some line\n")
+
 
 update_file()
 
 # Activate our own decider function
 env.Decider(config_file_decider)
 
-env.Install("install","test.txt")
+env.Install("install", "test.txt")
       </sconstruct>
 
     </section>
@@ -746,26 +752,6 @@ int main() { printf("Hello, world!\n"); }
 
   </section>
 
-  <section>
-  <title>Older Functions for Deciding When an Input File Has Changed</title>
-
-    <para>
-
-    &SCons; still supports two functions that used to be the
-    primary methods for configuring the
-    decision about whether or not an input file has changed.
-    These functions have been officially deprecated
-    as &SCons; version 2.0,
-    and their use is discouraged,
-    mainly because they rely on a somewhat
-    confusing distinction between how
-    source files and target files are handled.
-    These functions are documented here mainly in case you
-    encounter them in older &SConscript; files.
-
-    </para>
-  </section>
-  
   <section>
   <title>Implicit Dependencies:  The &cv-CPPPATH; Construction Variable</title>
 
@@ -1426,11 +1412,11 @@ Ignore(hello, '/usr/include/stdio.h')
     </programlisting>
 
     <para>
-    &Ignore; can also be used to prevent a generated file from being built 
-    by default. This is due to the fact that directories depend on 
-    their contents.  So to ignore a generated file from the default build, 
+    &Ignore; can also be used to prevent a generated file from being built
+    by default. This is due to the fact that directories depend on
+    their contents.  So to ignore a generated file from the default build,
     you specify that the directory should ignore the generated file.
-    Note that the file will still be built if the user specifically 
+    Note that the file will still be built if the user specifically
     requests the target on scons command line, or if the file is
     a dependency of another file which is requested and/or is built
     by default.

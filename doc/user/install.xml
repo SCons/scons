@@ -92,8 +92,11 @@ int main() { printf("Hello, world!\n"); }
 
   It can, however, be cumbersome to remember
   (and type) the specific destination directory
-  in which the program (or any other file)
-  should be installed.
+  in which the program (or other file)
+  should be installed.  A call to &Default; can be used to
+  add the directory to the list of default targets,
+  removing the need to type it,
+  but sometimes you don't want to install on every build.
   This is an area where the &Alias;
   function comes in handy,
   allowing you, for example,
@@ -118,7 +121,8 @@ int main() { printf("Hello, world!\n"); }
 
   This then yields the more natural
   ability to install the program
-  in its destination as follows:
+  in its destination as a separate
+  invocation, as follows:
 
   </para>
 
@@ -328,6 +332,14 @@ int call_foo() {
     </scons_output>
 -->
 
+  <para>
+  On systems which expect a shared library to be installed both with
+  a name that indicates the version, for run-time resolution,
+  and as a plain name, for link-time resolution, the
+  &InstallVersionedLib; function can be used.  Symbolic links
+  appropriate to the type of system will be generated based on
+  symlinks of the source library.
+  </para>
   </section>
 
 </chapter>

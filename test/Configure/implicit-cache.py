@@ -77,7 +77,7 @@ test.write('foo.h', "#define FOO 1\n")
 
 test.run(arguments = '.')
 
-test.run_sconsign('-d .sconf_temp -e conftest_0.c --raw .sconsign.dblite')
+test.run_sconsign('-d .sconf_temp -e conftest_5a3fa36d51dd2a28d521d6cc0e2e1d04_0.c --raw .sconsign.dblite')
 old_sconsign_dblite = test.stdout()
 
 # Second run:  Have the configure subsystem also look for foo.h, so
@@ -90,7 +90,7 @@ old_sconsign_dblite = test.stdout()
 
 test.run(arguments = '--implicit-cache USE_FOO=1 .')
 
-test.run_sconsign('-d .sconf_temp -e conftest_0.c --raw .sconsign.dblite')
+test.run_sconsign('-d .sconf_temp -e conftest_5a3fa36d51dd2a28d521d6cc0e2e1d04_0.c --raw .sconsign.dblite')
 new_sconsign_dblite = test.stdout()
 
 if old_sconsign_dblite != new_sconsign_dblite:

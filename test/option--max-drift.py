@@ -39,8 +39,9 @@ with open(sys.argv[1], 'wb') as f, open(sys.argv[2], 'rb') as ifp:
 """)
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 B = Builder(action = r'%(_python_)s build.py $TARGETS $SOURCES')
-env = Environment(BUILDERS = { 'B' : B })
+env = Environment(BUILDERS = { 'B' : B }, tools=[])
 env.B(target = 'f1.out', source = 'f1.in')
 env.B(target = 'f2.out', source = 'f2.in')
 """ % locals())
@@ -77,6 +78,7 @@ test.run(arguments = '--max-drift=-1 f1.out f2.out', stdout = expect)
 
 # Test that Set/GetOption('max_drift') works:
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 assert GetOption('max_drift') == 2*24*60*60
 SetOption('max_drift', 1)
 assert GetOption('max_drift') == 1
@@ -85,6 +87,7 @@ assert GetOption('max_drift') == 1
 test.run()
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 assert GetOption('max_drift') == 1
 SetOption('max_drift', 10)
 assert GetOption('max_drift') == 1
@@ -95,9 +98,10 @@ test.run(arguments='--max-drift=1')
 # Test that SetOption('max_drift') actually sets max_drift
 # by mucking with the file timestamps to make SCons not realize the source has changed
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 SetOption('max_drift', 0)
 B = Builder(action = r'%(_python_)s build.py $TARGETS $SOURCES')
-env = Environment(BUILDERS = { 'B' : B })
+env = Environment(BUILDERS = { 'B' : B }, tools=[])
 env.B(target = 'foo.out', source = 'foo.in')
 """ % locals())
 

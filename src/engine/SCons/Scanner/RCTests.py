@@ -82,7 +82,7 @@ class DummyEnvironment(collections.UserDict):
     def Dictionary(self, *args):
         return self.data
 
-    def subst(self, arg, target=None, source=None, conv=None):
+    def subst(self, strSubst, target=None, source=None, conv=None):
         if strSubst[0] == '$':
             return self.data[strSubst[1:]]
         return strSubst

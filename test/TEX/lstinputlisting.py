@@ -31,18 +31,19 @@ changes.
 Thanks to Stefan Hepp for the patch that fixed this.
 """
 
+import subprocess
+
 import TestSCons
-import os
 
 test = TestSCons.TestSCons()
 
 pdflatex = test.where_is('pdflatex')
 
 if not pdflatex:
-    test.skip_test("Could not find pdflatex; skipping test(s).\n")
+    test.skip_test("Could not find 'pdflatex'; skipping test(s).\n")
 
-listings = os.system('kpsewhich listings.sty')
-if not listings==0:
+cp = subprocess.run('kpsewhich listings.sty', shell=True)
+if cp.returncode:
     test.skip_test("listings.sty not installed; skipping test(s).\n")
 
 test.write(['SConstruct'], """\

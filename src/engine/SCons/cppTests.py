@@ -789,12 +789,6 @@ import re
 import shutil
 import tempfile
 
-tempfile.template = 'cppTests.'
-if os.name in ('posix', 'nt'):
-    tempfile.template = 'cppTests.' + str(os.getpid()) + '.'
-else:
-    tempfile.template = 'cppTests.'
-
 _Cleanup = []
 
 def _clean():
@@ -804,19 +798,17 @@ def _clean():
 
 atexit.register(_clean)
 
+if os.name in ('posix', 'nt'):
+    tmpprefix = 'cppTests.' + str(os.getpid()) + '.'
+else:
+    tmpprefix = 'cppTests.'
+
 class fileTestCase(unittest.TestCase):
     cpp_class = cpp.DumbPreProcessor
 
     def setUp(self):
-        try:
-            path = tempfile.mktemp(prefix=tempfile.template)
-        except TypeError:
-            # The tempfile.mktemp() function in earlier versions of Python
-            # has no prefix argument, but uses the tempfile.template
-            # value that we set above.
-            path = tempfile.mktemp()
+        path = tempfile.mkdtemp(prefix=tmpprefix)
         _Cleanup.append(path)
-        os.mkdir(path)
         self.tempdir = path
         self.orig_cwd = os.getcwd()
         os.chdir(path)

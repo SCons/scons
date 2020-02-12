@@ -43,6 +43,7 @@ test.write(['work1', 'SConstruct'], """
 import os.path
 import stat
 
+# DefaultEnvironment(tools=[])
 env = Environment(XXX='bar%(_exe)s')
 
 def before(env, target, source):
@@ -103,13 +104,16 @@ test.must_match(['work3', 'dir', 'file'], "build()\n")
 
 # work4 start
 test.write(['work4', 'SConstruct'], """\
+
+DefaultEnvironment(tools=[])
+
 def pre_action(target, source, env):
     with open(str(target[0]), 'ab') as f:
         f.write(('pre %%s\\n' %% source[0]).encode())
 def post_action(target, source, env):
     with open(str(target[0]), 'ab') as f:
         f.write(('post %%s\\n' %% source[0]).encode())
-env = Environment()
+env = Environment(tools=[])
 o = env.Command(['pre-post', 'file.out'],
                 'file.in',
                 r'%(_python_)s build.py ${TARGETS[1]} $SOURCE')

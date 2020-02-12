@@ -49,7 +49,7 @@ python, python_include, python_libpath, python_lib = \
 
 if sys.platform == 'win32':
     python_lib = os.path.dirname(sys.executable) + "/libs/" + ('python%d%d'%(sys.version_info[0],sys.version_info[1])) + '.lib'
-    if( not os.path.isfile(python_lib)):
+    if not os.path.isfile(python_lib):
         test.skip_test('Can not find python lib at "' + python_lib + '", skipping test.%s' % os.linesep)
 
 test.write("recursive.h", """\

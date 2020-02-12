@@ -64,11 +64,11 @@ if time1 <= time0:
 
 test.unlink('file.out')
 
-for root, dirs, files in os.walk("cache",topdown=False):
-	for file in files:
-		os.chmod(os.path.join(root,file),0o444)
-	for dir in dirs:
-		os.chmod(os.path.join(root,dir),0o555)
+for root, dirs, files in os.walk("cache", topdown=False):
+    for file in files:
+        os.chmod(os.path.join(root,file), 0o444)
+    for dir in dirs:
+        os.chmod(os.path.join(root,dir), 0o555)
 
 test.run(arguments = '--debug=explain --cache-debug=- .')
 

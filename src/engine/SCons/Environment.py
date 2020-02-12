@@ -1854,7 +1854,7 @@ class Base(SubstitutionEnvironment):
         uniq = {}
         for executor in [n.get_executor() for n in nodes]:
             uniq[executor] = 1
-        for executor in list(uniq.keys()):
+        for executor in uniq.keys():
             executor.add_pre_action(action)
         return nodes
 
@@ -1864,7 +1864,7 @@ class Base(SubstitutionEnvironment):
         uniq = {}
         for executor in [n.get_executor() for n in nodes]:
             uniq[executor] = 1
-        for executor in list(uniq.keys()):
+        for executor in uniq.keys():
             executor.add_post_action(action)
         return nodes
 
@@ -2220,10 +2220,10 @@ class Base(SubstitutionEnvironment):
         else:
             return [self.subst(arg)]
 
-    def Value(self, value, built_value=None):
+    def Value(self, value, built_value=None, name=None):
         """
         """
-        return SCons.Node.Python.Value(value, built_value)
+        return SCons.Node.Python.ValueWithMemo(value, built_value, name)
 
     def VariantDir(self, variant_dir, src_dir, duplicate=1):
         variant_dir = self.arg2nodes(variant_dir, self.fs.Dir)[0]
@@ -2247,7 +2247,7 @@ class Base(SubstitutionEnvironment):
         build_source(node.all_children())
 
         def final_source(node):
-            while (node != node.srcnode()):
+            while node != node.srcnode():
               node = node.srcnode()
             return node
         sources = list(map(final_source, sources))

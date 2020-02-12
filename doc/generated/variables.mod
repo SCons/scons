@@ -65,6 +65,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-CXXVERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$CXXVERSION</envar>">
 <!ENTITY cv-DC "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DC</envar>">
 <!ENTITY cv-DCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DCOM</envar>">
+<!ENTITY cv-DCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DCOMSTR</envar>">
 <!ENTITY cv-DDEBUG "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DDEBUG</envar>">
 <!ENTITY cv-DDEBUGPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DDEBUGPREFIX</envar>">
 <!ENTITY cv-DDEBUGSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DDEBUGSUFFIX</envar>">
@@ -457,6 +458,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-SHCXXFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHCXXFLAGS</envar>">
 <!ENTITY cv-SHDC "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHDC</envar>">
 <!ENTITY cv-SHDCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHDCOM</envar>">
+<!ENTITY cv-SHDCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHDCOMSTR</envar>">
 <!ENTITY cv-SHDLIBVERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHDLIBVERSION</envar>">
 <!ENTITY cv-SHDLIBVERSIONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHDLIBVERSIONFLAGS</envar>">
 <!ENTITY cv-SHDLINK "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$SHDLINK</envar>">
@@ -706,6 +708,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-CXXVERSION "<link linkend='cv-CXXVERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$CXXVERSION</envar></link>">
 <!ENTITY cv-link-DC "<link linkend='cv-DC' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DC</envar></link>">
 <!ENTITY cv-link-DCOM "<link linkend='cv-DCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DCOM</envar></link>">
+<!ENTITY cv-link-DCOMSTR "<link linkend='cv-DCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DCOMSTR</envar></link>">
 <!ENTITY cv-link-DDEBUG "<link linkend='cv-DDEBUG' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DDEBUG</envar></link>">
 <!ENTITY cv-link-DDEBUGPREFIX "<link linkend='cv-DDEBUGPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DDEBUGPREFIX</envar></link>">
 <!ENTITY cv-link-DDEBUGSUFFIX "<link linkend='cv-DDEBUGSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DDEBUGSUFFIX</envar></link>">
@@ -1098,6 +1101,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-SHCXXFLAGS "<link linkend='cv-SHCXXFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHCXXFLAGS</envar></link>">
 <!ENTITY cv-link-SHDC "<link linkend='cv-SHDC' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHDC</envar></link>">
 <!ENTITY cv-link-SHDCOM "<link linkend='cv-SHDCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHDCOM</envar></link>">
+<!ENTITY cv-link-SHDCOMSTR "<link linkend='cv-SHDCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHDCOMSTR</envar></link>">
 <!ENTITY cv-link-SHDLIBVERSION "<link linkend='cv-SHDLIBVERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHDLIBVERSION</envar></link>">
 <!ENTITY cv-link-SHDLIBVERSIONFLAGS "<link linkend='cv-SHDLIBVERSIONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHDLIBVERSIONFLAGS</envar></link>">
 <!ENTITY cv-link-SHDLINK "<link linkend='cv-SHDLINK' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$SHDLINK</envar></link>">

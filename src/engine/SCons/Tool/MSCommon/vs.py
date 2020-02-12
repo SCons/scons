@@ -205,7 +205,8 @@ SupportedVSList = [
                  hkeys=[],
                  common_tools_var='VS160COMNTOOLS',
                  executable_path=r'Common7\IDE\devenv.com',
-                 batch_file_path=r'VC\Auxiliary\Build\vsvars32.bat',
+                 # should be a fallback, prefer use vswhere installationPath
+                 batch_file_path=r'Common7\Tools\VsDevCmd.bat',
                  supported_arch=['x86', 'amd64', "arm"],
                  ),
 
@@ -216,9 +217,22 @@ SupportedVSList = [
                  hkeys=[],
                  common_tools_var='VS150COMNTOOLS',
                  executable_path=r'Common7\IDE\devenv.com',
-                 batch_file_path=r'VC\Auxiliary\Build\vsvars32.bat',
+                 # should be a fallback, prefer use vswhere installationPath
+                 batch_file_path=r'Common7\Tools\VsDevCmd.bat',
                  supported_arch=['x86', 'amd64', "arm"],
                  ),
+
+    # Visual C++ 2017 Express Edition (for Desktop)
+    VisualStudio('14.1Exp',
+                 vc_version='14.1',
+                 sdk_version='10.0A',
+                 hkeys=[],
+                 common_tools_var='VS150COMNTOOLS',
+                 executable_path=r'Common7\IDE\WDExpress.exe',
+                 # should be a fallback, prefer use vswhere installationPath
+                 batch_file_path=r'Common7\Tools\VsDevCmd.bat',
+                 supported_arch=['x86', 'amd64', "arm"],
+    ),
 
     # Visual Studio 2015
     VisualStudio('14.0',

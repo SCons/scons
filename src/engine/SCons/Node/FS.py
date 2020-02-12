@@ -54,6 +54,7 @@ import SCons.Node
 import SCons.Node.Alias
 import SCons.Subst
 import SCons.Util
+from SCons.Util import MD5signature, MD5filesignature, MD5collect
 import SCons.Warnings
 
 from SCons.Debug import Trace
@@ -1611,7 +1612,7 @@ class Dir(Base):
         This clears any cached information that is invalidated by changing
         the repository."""
 
-        for node in list(self.entries.values()):
+        for node in self.entries.values():
             if node != self.dir:
                 if node != self and isinstance(node, Dir):
                     node.__clearRepositoryCache(duplicate)
@@ -1622,7 +1623,7 @@ class Dir(Base):
                     except AttributeError:
                         pass
                     if duplicate is not None:
-                        node.duplicate=duplicate
+                        node.duplicate = duplicate
 
     def __resetDuplicate(self, node):
         if node != self:
@@ -1862,7 +1863,7 @@ class Dir(Base):
         node is called which has a child directory, the child
         directory should return the hash of its contents."""
         contents = self.get_contents()
-        return SCons.Util.MD5signature(contents)
+        return MD5signature(contents)
 
     def do_duplicate(self, src):
         pass
@@ -2501,14 +2502,14 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
 
     Attributes unique to FileBuildInfo:
         dependency_map : Caches file->csig mapping
-                    for all dependencies.  Currently this is only used when using
-                    MD5-timestamp decider.
-                    It's used to ensure that we copy the correct
-                    csig from previous build to be written to .sconsign when current build
-                    is done. Previously the matching of csig to file was strictly by order
-                    they appeared in bdepends, bsources, or bimplicit, and so a change in order
-                    or count of any of these could yield writing wrong csig, and then false positive
-                    rebuilds
+            for all dependencies.  Currently this is only used when using
+            MD5-timestamp decider.
+            It's used to ensure that we copy the correct csig from the
+            previous build to be written to .sconsign when current build
+            is done. Previously the matching of csig to file was strictly
+            by order they appeared in bdepends, bsources, or bimplicit,
+            and so a change in order or count of any of these could
+            yield writing wrong csig, and then false positive rebuilds
     """
     __slots__ = ['dependency_map', ]
     current_version_id = 2
@@ -2723,11 +2724,10 @@ class File(Base):
         Compute and return the MD5 hash for this file.
         """
         if not self.rexists():
-            return SCons.Util.MD5signature('')
+            return MD5signature('')
         fname = self.rfile().get_abspath()
         try:
-            cs = SCons.Util.MD5filesignature(fname,
-                chunksize=SCons.Node.FS.File.md5_chunksize*1024)
+            cs = MD5filesignature(fname, chunksize=File.md5_chunksize * 1024)
         except EnvironmentError as e:
             if not e.filename:
                 e.filename = fname
@@ -3028,7 +3028,7 @@ class File(Base):
 
          @see: built() and Node.release_target_info()
          """
-        if (self.released_target_info or SCons.Node.interactive):
+        if self.released_target_info or SCons.Node.interactive:
             return
 
         if not hasattr(self.attributes, 'keep_targetinfo'):
@@ -3210,7 +3210,7 @@ class File(Base):
         if csig is None:
 
             try:
-                if self.get_size() < SCons.Node.FS.File.md5_chunksize:
+                if self.get_size() < File.md5_chunksize:
                     contents = self.get_contents()
                 else:
                     csig = self.get_content_hash()
@@ -3312,7 +3312,7 @@ class File(Base):
 
         # For an "empty" binfo properties like bsources
         # do not exist: check this to avoid exception.
-        if (len(binfo.bsourcesigs) + len(binfo.bdependsigs) + \
+        if (len(binfo.bsourcesigs) + len(binfo.bdependsigs) +
             len(binfo.bimplicitsigs)) == 0:
             return {}
 
@@ -3580,7 +3580,7 @@ class File(Base):
                 node = repo_dir.file_on_disk(self.name)
 
             if node and node.exists() and \
-                    (isinstance(node, File) or isinstance(node, Entry) \
+                    (isinstance(node, File) or isinstance(node, Entry)
                      or not node.is_derived()):
                 retvals.append(node)
 
@@ -3611,8 +3611,7 @@ class File(Base):
 
         cachedir, cachefile = self.get_build_env().get_CacheDir().cachepath(self)
         if not self.exists() and cachefile and os.path.exists(cachefile):
-            self.cachedir_csig = SCons.Util.MD5filesignature(cachefile, \
-                SCons.Node.FS.File.md5_chunksize * 1024)
+            self.cachedir_csig = MD5filesignature(cachefile, File.md5_chunksize * 1024)
         else:
             self.cachedir_csig = self.get_csig()
         return self.cachedir_csig
@@ -3632,7 +3631,7 @@ class File(Base):
 
         executor = self.get_executor()
 
-        result = self.contentsig = SCons.Util.MD5signature(executor.get_contents())
+        result = self.contentsig = MD5signature(executor.get_contents())
         return result
 
     def get_cachedir_bsig(self):
@@ -3663,7 +3662,7 @@ class File(Base):
         sigs.append(self.get_internal_path())
 
         # Merge this all into a single signature
-        result = self.cachesig = SCons.Util.MD5collect(sigs)
+        result = self.cachesig = MD5collect(sigs)
         return result
 
 default_fs = None

@@ -204,7 +204,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
     # with LaTeXAction and from the pdflatex.py with PDFLaTeXAction
     # set this up now for the case where the user requests a different extension
     # for the target filename
-    if (XXXLaTeXAction == LaTeXAction):
+    if XXXLaTeXAction == LaTeXAction:
        callerSuffix = ".dvi"
     else:
        callerSuffix = env['PDFSUFFIX']
@@ -283,7 +283,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
 
     count = 0
 
-    while (must_rerun_latex and count < int(env.subst('$LATEXRETRIES'))) :
+    while must_rerun_latex and count < int(env.subst('$LATEXRETRIES')):
         result = XXXLaTeXAction(target, source, env)
         if result != 0:
             return result
@@ -461,7 +461,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
             if Verbose:
                 print("rerun Latex due to undefined references or citations")
 
-        if (count >= int(env.subst('$LATEXRETRIES')) and must_rerun_latex):
+        if count >= int(env.subst('$LATEXRETRIES')) and must_rerun_latex:
             print("reached max number of retries on Latex ,",int(env.subst('$LATEXRETRIES')))
 # end of while loop
 
@@ -861,7 +861,7 @@ def generate_darwin(env):
         environ = {}
         env['ENV'] = environ
 
-    if (platform.system() == 'Darwin'):
+    if platform.system() == 'Darwin':
         try:
             ospath = env['ENV']['PATHOSX']
         except:

@@ -28,28 +28,29 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test the ability to use the archiver in combination with builddir.
 """
 
-import os
+import subprocess
+
 import TestSCons
 
 python = TestSCons.python
 
 test = TestSCons.TestSCons()
-
-tar = test.detect('TAR', 'tar')
+tar = test.detect("TAR", "tar")
 
 if not tar:
-    test.skip_test('tar not found, skipping test\n')
+    test.skip_test("tar not found, skipping test\n")
 
 #
 # TEST: builddir usage.
 #
-test.subdir('src')
-test.subdir('build')
+test.subdir("src")
+test.subdir("build")
 
-test.write('src/main.c', '')
+test.write("src/main.c", "")
 
-test.write('SConstruct', """
+test.write("SConstruct", """\
 VariantDir('build', 'src')
+DefaultEnvironment(tools=[])
 env=Environment(tools=['packaging', 'filesystem', 'zip'])
 env.Package( NAME        = 'libfoo',
              PACKAGEROOT = 'build/libfoo',
@@ -57,38 +58,42 @@ env.Package( NAME        = 'libfoo',
              PACKAGETYPE = 'src_zip',
              target      = 'build/libfoo-1.2.3.zip',
              source      = [ 'src/main.c', 'SConstruct' ] )
-""")
+""",
+)
 
-test.run(stderr = None)
+test.run(stderr=None)
 
-test.must_exist( 'build/libfoo-1.2.3.zip' )
+test.must_exist("build/libfoo-1.2.3.zip")
 
 # TEST: builddir not placed in archive
 # XXX: VariantDir should be stripped.
 #
-test.subdir('src')
-test.subdir('build')
-test.subdir('temp')
+test.subdir("src")
+test.subdir("build")
+test.subdir("temp")
 
-test.write('src/main.c', '')
+test.write("src/main.c", "")
 
-test.write('SConstruct', """
+test.write("SConstruct", """\
+DefaultEnvironment(tools=[])
 VariantDir('build', 'src')
 env=Environment(tools=['packaging', 'filesystem', 'tar'])
 env.Package( NAME        = 'libfoo',
              VERSION     = '1.2.3',
              PAKCAGETYPE = 'src_targz',
              source      = [ 'src/main.c', 'SConstruct' ] )
-""")
+""",
+)
 
-test.run(stderr = None)
+test.run(stderr=None)
 
-test.must_exist( 'libfoo-1.2.3.tar.gz' )
+test.must_exist("libfoo-1.2.3.tar.gz")
 
-os.system('tar -C temp -xzf %s'%test.workpath('libfoo-1.2.3.tar.gz') )
+testdir = test.workpath('libfoo-1.2.3.tar.gz')
+subprocess.run('%s -C temp -xzf %s' % (tar, testdir), shell=True)
 
-test.must_exist( 'temp/libfoo-1.2.3/src/main.c' )
-test.must_exist( 'temp/libfoo-1.2.3/SConstruct' )
+test.must_exist("temp/libfoo-1.2.3/src/main.c")
+test.must_exist("temp/libfoo-1.2.3/SConstruct")
 
 test.pass_test()
 

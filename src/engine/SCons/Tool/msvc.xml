@@ -355,6 +355,7 @@ constructor; setting it later has no effect.
 Valid values for Windows are
 <literal>14.2</literal>,
 <literal>14.1</literal>,
+<literal>14.1Exp</literal>,
 <literal>14.0</literal>,
 <literal>14.0Exp</literal>,
 <literal>12.0</literal>,

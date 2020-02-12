@@ -318,7 +318,7 @@ def get_intel_compiler_top(version, abi):
         if not os.path.exists(os.path.join(top, "Bin", "icl.exe")) \
               and not os.path.exists(os.path.join(top, "Bin", abi, "icl.exe")) \
               and not os.path.exists(os.path.join(top, "Bin", archdir, "icl.exe")):
-            raise MissingDirError("Can't find Intel compiler in %s"%(top))
+            raise MissingDirError("Can't find Intel compiler in %s" % top)
     elif is_mac or is_linux:
         def find_in_2008style_dir(version):
             # first dir is new (>=9.0) style, second is old (8.0) style.
@@ -495,15 +495,15 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
                    'LIB'             : libdir,
                    'PATH'            : bindir,
                    'LD_LIBRARY_PATH' : libdir}
-            for p in list(paths.keys()):
-                env.PrependENVPath(p, os.path.join(topdir, paths[p]))
+            for p, v in paths.items():
+                env.PrependENVPath(p, os.path.join(topdir, v))
         if is_mac:
             paths={'INCLUDE'         : 'include',
                    'LIB'             : libdir,
                    'PATH'            : bindir,
                    'LD_LIBRARY_PATH' : libdir}
-            for p in list(paths.keys()):
-                env.PrependENVPath(p, os.path.join(topdir, paths[p]))
+            for p, v in paths.items():
+                env.PrependENVPath(p, os.path.join(topdir, v))
         if is_windows:
             #       env key    reg valname   default subdir of top
             paths=(('INCLUDE', 'IncludeDir', 'Include'),

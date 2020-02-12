@@ -3,7 +3,7 @@ import re
 _is_valid_var = re.compile(r'[_a-zA-Z]\w*$')
 
 _rm = re.compile(r'\$[()]')
-_remove = re.compile(r'\$\([^\$]*(\$[^\)][^\$]*)*\$\)')
+_remove = re.compile(r'\$\([^$]*(\$[^)][^$]*)*\$\)')
 
 # Regular expressions for splitting strings and handling substitutions,
 # for use by the scons_subst() and scons_subst_list() functions:
@@ -28,7 +28,7 @@ _remove = re.compile(r'\$\([^\$]*(\$[^\)][^\$]*)*\$\)')
 #
 _dollar_exps_str = r'\$[\$\(\)]|\$[_a-zA-Z][\.\w]*|\${[^}]*}'
 _dollar_exps = re.compile(r'(%s)' % _dollar_exps_str)
-_separate_args = re.compile(r'(%s|\s+|[^\s\$]+|\$)' % _dollar_exps_str)
+_separate_args = re.compile(r'(%s|\s+|[^\s$]+|\$)' % _dollar_exps_str)
 
 # This regular expression is used to replace strings of multiple white
 # space characters in the string result from the scons_subst() function.

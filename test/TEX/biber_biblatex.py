@@ -30,8 +30,9 @@ Test creation of a Tex document that uses the multibib oackage
 Test courtesy Rob Managan.
 """
 
+import subprocess
+
 import TestSCons
-import os
 
 test = TestSCons.TestSCons()
 
@@ -43,8 +44,8 @@ biber = test.where_is('biber')
 if not biber:
     test.skip_test("Could not find 'biber'; skipping test.\n")
 
-gloss = os.system('kpsewhich biblatex.sty')
-if not gloss==0:
+cp = subprocess.run('kpsewhich biblatex.sty', shell=True)
+if cp.returncode:
     test.skip_test("biblatex.sty not installed; skipping test(s).\n")
 
 

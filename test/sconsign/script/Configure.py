@@ -55,7 +55,6 @@ CC_file = re.escape(CC_file)
 # in the expected output because paths in the .sconsign files are
 # canonicalized to use / as the separator.
 
-_sconf_temp_conftest_0_c = '.sconf_temp/conftest_0.c'
 
 test.write('SConstruct', """
 import os
@@ -69,6 +68,7 @@ test.run(arguments = '.')
 
 sig_re = r'[0-9a-fA-F]{32}'
 date_re = r'\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d'
+_sconf_temp_conftest_0_c = '.sconf_temp/conftest_%(sig_re)s_0.c'%locals()
 
 # Note:  There's a space at the end of the '.*': line, because the
 # Value node being printed actually begins with a newline.  It would
@@ -76,13 +76,13 @@ date_re = r'\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d'
 expect = r"""=== .:
 SConstruct: None \d+ \d+
 === .sconf_temp:
-conftest_0.c:
+conftest_%(sig_re)s_0.c:
         '.*': 
 #include "math.h"
 
 
         %(sig_re)s \[.*\]
-conftest_0%(_obj)s:
+conftest_%(sig_re)s_0_%(sig_re)s%(_obj)s:
         %(_sconf_temp_conftest_0_c)s: %(sig_re)s \d+ \d+
         %(CC)s: %(sig_re)s \d+ \d+
         %(sig_re)s \[.*\]

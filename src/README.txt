@@ -22,13 +22,13 @@ LATEST VERSION
 Before going further, you can check that this package you have is
 the latest version by checking the SCons download page at:
 
-        http://www.scons.org/download.html
+        https://scons.org/pages/download.html
 
 
 EXECUTION REQUIREMENTS
 ======================
 
-Running SCons requires Python version 2.7.* or 3.5.* and above.  There should be
+Running SCons requires Python 3.5.* and above.  There should be
 no other dependencies or requirements to run SCons.  (There is, however,
 an additional requirement to *install* SCons from this particular
 package; see the next section.)
@@ -193,10 +193,6 @@ You may subscribe to the mailing list by sending email to:
 
         scons-users-join@scons.org
 
-There is also a low-volume mailing list available for announcements
-about SCons.  Subscribe by sending email to:
-
-        announce-subscribe@scons.tigris.org
 
 There are other mailing lists available for SCons developers, for
 notification of SCons code changes, and for notification of updated
@@ -243,7 +239,8 @@ many contributors, including but not at all limited to:
 - Anatoly Techtonik
 - Christoph Wiedemann
 - Russel Winder
+- Mats Wichmann
 
 \... and many others.
 
-Copyright (c) 2001 - 2019 The SCons Foundation
+Copyright (c) 2001 - 2020 The SCons Foundation

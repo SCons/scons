@@ -32,15 +32,15 @@ test = TestSCons.TestSCons()
 
 dvipdf = test.where_is('dvipdf')
 if not dvipdf:
-    test.skip_test('Could not find dvipdf; skipping test(s).\n')
+    test.skip_test("Could not find 'dvipdf'; skipping test(s).\n")
 
 tex = test.where_is('tex')
 if not tex:
-    test.skip_test('Could not find tex; skipping test(s).\n')
+    test.skip_test("Could not find 'tex'; skipping test(s).\n")
  
 latex = test.where_is('latex')
 if not latex:
-    test.skip_test('Could not find latex; skipping test(s).\n')
+    test.skip_test("Could not find 'latex'; skipping test(s).\n")
 
 
 

@@ -120,7 +120,7 @@ foomain_obj = barMain.Object(target='foomain', source='main.c')
 barmain_obj = barMain.Object(target='barmain', source='main.c')
 barMain.Program(target='barprog', source=foomain_obj)
 barMain.Program(target='fooprog', source=barmain_obj)
-""" % (barflags))
+""" % barflags)
 
 test.run(arguments = '.')
 

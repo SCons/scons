@@ -116,21 +116,21 @@ test.must_match('test4.ps', "This is a .latex test.\n", mode='r')
 
 have_latex = test.where_is('latex')
 if not have_latex:
-    test.skip_test('Could not find latex; skipping test(s).\n')
+    test.skip_test("Could not find 'latex'; skipping test(s).\n")
 
 dvips = test.where_is('dvips')
+if not dvips:
+    test.skip_test("Could not find 'dvips'; skipping test(s).\n")
 
-if dvips:
-
-    test.write("wrapper.py", """
-import os
+test.write("wrapper.py", """
+import subprocess
 import sys
 cmd = " ".join(sys.argv[1:])
 open('%s', 'a').write("%%s\\n" %% cmd)
-os.system(cmd)
+subprocess.run(cmd, shell=True)
 """ % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
-    test.write('SConstruct', """
+test.write('SConstruct', """
 import os
 ENV = { 'PATH' : os.environ['PATH'] }
 foo = Environment(ENV = ENV)
@@ -142,41 +142,41 @@ bar.PostScript(target = 'bar2', source = 'bar2.ltx')
 bar.PostScript(target = 'bar3', source = 'bar3.latex')
 """ % locals())
 
-    tex = r"""
+tex = r"""
 This is the %s TeX file.
 \end
 """
 
-    latex = r"""
+latex = r"""
 \documentclass{letter}
 \begin{document}
 This is the %s LaTeX file.
 \end{document}
 """
 
-    test.write('foo.tex', tex % 'foo.tex')
-    test.write('bar1.tex', tex % 'bar1.tex')
-    test.write('bar2.ltx', latex % 'bar2.ltx')
-    test.write('bar3.latex', latex % 'bar3.latex')
+test.write('foo.tex', tex % 'foo.tex')
+test.write('bar1.tex', tex % 'bar1.tex')
+test.write('bar2.ltx', latex % 'bar2.ltx')
+test.write('bar3.latex', latex % 'bar3.latex')
 
-    test.run(arguments = 'foo.dvi', stderr = None)
+test.run(arguments = 'foo.dvi', stderr = None)
 
-    test.must_not_exist(test.workpath('wrapper.out'))
+test.must_not_exist(test.workpath('wrapper.out'))
 
-    test.must_exist(test.workpath('foo.dvi'))
+test.must_exist(test.workpath('foo.dvi'))
 
-    test.run(arguments = 'bar1.ps bar2.ps bar3.ps', stderr = None)
+test.run(arguments = 'bar1.ps bar2.ps bar3.ps', stderr = None)
 
-    expect = """dvips -o bar1.ps bar1.dvi
+expect = """dvips -o bar1.ps bar1.dvi
 dvips -o bar2.ps bar2.dvi
 dvips -o bar3.ps bar3.dvi
 """
 
-    test.must_match('wrapper.out', expect, mode='r')
+test.must_match('wrapper.out', expect, mode='r')
 
-    test.must_exist(test.workpath('bar1.ps'))
-    test.must_exist(test.workpath('bar2.ps'))
-    test.must_exist(test.workpath('bar3.ps'))
+test.must_exist(test.workpath('bar1.ps'))
+test.must_exist(test.workpath('bar2.ps'))
+test.must_exist(test.workpath('bar3.ps'))
 
 test.pass_test()
 

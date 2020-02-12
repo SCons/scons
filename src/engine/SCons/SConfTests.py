@@ -151,7 +151,7 @@ class SConfTestCase(unittest.TestCase):
                                  log_file=self.test.workpath('config.log'))
         no_std_header_h = self.test.workpath('config.tests', 'no_std_header.h')
         test_h = self.test.write( no_std_header_h,
-                                  "/* we are changing a dependency now */\n" );
+                                  "/* we are changing a dependency now */\n" )
         try:
             res = checks( self, sconf, TryFunc )
             log = self.test.read( self.test.workpath('config.log') )
@@ -169,10 +169,18 @@ class SConfTestCase(unittest.TestCase):
                                  log_file=self.test.workpath('config.log'))
         import SCons.Builder
         import SCons.Node
+
+        class MyAction(object):
+            def get_contents(self, target, source, env):
+                return 'MyBuilder-MyAction $SOURCE $TARGET'
+
         class MyBuilder(SCons.Builder.BuilderBase):
             def __init__(self):
                 self.prefix = ''
                 self.suffix = ''
+                # need action because temporary file name uses hash of actions get_contents()
+                self.action = MyAction()
+
             def __call__(self, env, target, source):
                 class MyNode(object):
                     def __init__(self, name):

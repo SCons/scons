@@ -126,11 +126,12 @@ dvips = test.where_is('dvips')
 if dvips:
 
     test.write("wrapper.py", """
-import os
+import subprocess
 import sys
 cmd = " ".join(sys.argv[1:])
-open('%s', 'a').write("%%s\\n" %% cmd)
-os.system(cmd)
+with open('%s', 'a') as f:
+    f.write("%%s\\n" %% cmd)
+subprocess.run(cmd, shell=True)
 """ % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
     test.write('SConstruct', """

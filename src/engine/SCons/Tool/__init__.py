@@ -774,11 +774,11 @@ def EmitLibSymlinks(env, symlinks, libnode, **kw):
 
     for link, linktgt in symlinks:
         env.SideEffect(link, linktgt)
-        if (Verbose):
+        if Verbose:
             print("EmitLibSymlinks: SideEffect(%r,%r)" % (link.get_path(), linktgt.get_path()))
         clean_list = [x for x in nodes if x != linktgt]
         env.Clean(list(set([linktgt] + clean_targets)), clean_list)
-        if (Verbose):
+        if Verbose:
             print("EmitLibSymlinks: Clean(%r,%r)" % (linktgt.get_path(), [x.get_path() for x in clean_list]))
 
 
@@ -792,18 +792,18 @@ def CreateLibSymlinks(env, symlinks):
     for link, linktgt in symlinks:
         linktgt = link.get_dir().rel_path(linktgt)
         link = link.get_path()
-        if (Verbose):
+        if Verbose:
             print("CreateLibSymlinks: preparing to add symlink %r -> %r" % (link, linktgt))
         # Delete the (previously created) symlink if exists. Let only symlinks
         # to be deleted to prevent accidental deletion of source files...
         if env.fs.islink(link):
             env.fs.unlink(link)
-            if (Verbose):
+            if Verbose:
                 print("CreateLibSymlinks: removed old symlink %r" % link)
         # If a file or directory exists with the same name as link, an OSError
         # will be thrown, which should be enough, I think.
         env.fs.symlink(linktgt, link)
-        if (Verbose):
+        if Verbose:
             print("CreateLibSymlinks: add symlink %r -> %r" % (link, linktgt))
     return 0
 
@@ -1130,7 +1130,7 @@ class ToolInitializer(object):
         so we no longer copy and re-bind them when the construction
         environment gets cloned.
         """
-        for method in list(self.methods.values()):
+        for method in self.methods.values():
             env.RemoveMethod(method)
 
     def apply_tools(self, env):
@@ -1312,6 +1312,8 @@ def tool_list(platform, env):
         'tar', 'zip',
         # File builders (text)
         'textfile',
+        # Python scanner tool
+        'python',
     ], env)
 
     tools = ([linker, c_compiler, cxx_compiler,

@@ -40,6 +40,7 @@ SCons/Scanner/Fortran.py
 SCons/Scanner/IDL.py
 SCons/Scanner/LaTeX.py
 SCons/Scanner/Prog.py
+SCons/Scanner/Python.py
 SCons/Scanner/RC.py
 SCons/Scanner/SWIG.py
 SCons/SConf.py
@@ -140,6 +141,7 @@ SCons/Tool/pdf.py
 SCons/Tool/pdflatex.py
 SCons/Tool/pdftex.py
 SCons/Tool/PharLapCommon.py
+SCons/Tool/python.py
 SCons/Tool/qt.py
 SCons/Tool/rmic.py
 SCons/Tool/rpcgen.py

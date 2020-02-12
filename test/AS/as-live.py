@@ -56,12 +56,12 @@ if sys.platform == "win32":
     testccc = ""
     
 test.write("wrapper.py", """\
-import os
+import subprocess
 import sys
 with open('%s', 'wb') as f:
     f.write(("wrapper.py: %%s\\n" %% sys.argv[-1]).encode())
 cmd = " ".join(sys.argv[1:])
-os.system(cmd)
+subprocess.run(cmd, shell=True)
 """ % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
 test.write('SConstruct', """\

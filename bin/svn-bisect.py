@@ -33,7 +33,7 @@ def error(s):
 
 # update to the specified version and run test
 def testfail(revision):
-    "Return true if test fails"
+    """Return true if test fails"""
     print("Updating to revision", revision)
     if subprocess.call(["svn","up","-qr",str(revision)]) != 0:
         m = "SVN did not update properly to revision %d"

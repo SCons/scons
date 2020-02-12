@@ -54,10 +54,10 @@
 
     <corpauthor>Steven Knight and the SCons Development Team</corpauthor>
 
-    <pubdate>2004 - 2019</pubdate>
+    <pubdate>2004 - 2020</pubdate>
 
     <copyright>
-      <year>2004 - 2019</year>
+      <year>2004 - 2020</year>
       <holder>The SCons Foundation</holder>
     </copyright>
 
@@ -93,88 +93,88 @@
 </refsynopsisdiv>
 
 
-<refsect1 id='description'><title>DESCRIPTION</title>
-<para>The
+<refsect1 id='description'>
+<title>DESCRIPTION</title>
+<para>
 <command>scons</command>
-utility builds software (or other files) by determining which
-component pieces must be rebuilt and executing the necessary commands to
-rebuild them.</para>
+orchestrates the construction of software
+(and other tangible products such as documentation files)
+by determining which
+component pieces must be built or rebuilt and invoking the necessary
+commands to build them.</para>
 
-<para>By default,
-<command>scons</command>
+<para>You instruct
+<command>scons</command> by writing a configuration file
+which specifies the files to be built (<firstterm>targets</firstterm>),
+and, if necessary, the rules to build those files.  Premade
+rules exist for building many common software components
+(such as executable programs, object files, libraries),
+so that for most software projects,
+only the target and input files need be specified.</para>
+
+<para>
+When invoked, <command>scons</command>
 searches for a file named
-<emphasis>SConstruct</emphasis>,
-<emphasis>Sconstruct</emphasis>,
-<emphasis>sconstruct</emphasis>,
-<emphasis>SConstruct.py</emphasis>
-<emphasis>Sconstruct.py</emphasis>
-or
-<emphasis>sconstruct.py</emphasis>
-(in that order) in the current directory and reads its
-configuration from the first file found.
+&SConstruct;
+(going on to check alternative names
+&Sconstruct;, &sconstruct;, &SConstruct.py; &Sconstruct.py;
+and &sconstruct.py;
+in that order) in the current directory and reads its
+configuration from that file.
 An alternate file name may be
 specified via the
 <option>-f</option>
-option.</para>
-
-<para>The
-<emphasis>SConstruct</emphasis>
+option.
+The &SConstruct;
 file can specify subsidiary
 configuration files using the
-<emphasis role="bold">SConscript</emphasis>()
-function.
+&SConscriptFunc; function.
 By convention,
 these subsidiary files are named
-<emphasis>SConscript</emphasis>,
+&SConscript;,
 although any name may be used.
-(Because of this naming convention,
-the term "SConscript files"
-is sometimes used to refer
-generically to all
-<command>scons</command>
-configuration files,
-regardless of actual file name.)</para>
+As a result of this naming convention,
+the term <firstterm>SConscript files</firstterm>
+is often used to refer
+generically to the complete set of
+configuration files for a project,
+including the &SConstruct; file,
+regardless of the actual file names or number of files.</para>
 
-<para>The configuration files
-specify the target files to be built, and
-(optionally) the rules to build those targets.  Reasonable default
-rules exist for building common software components (executable
-programs, object files, libraries), so that for most software
-projects, only the target and input files need be specified.</para>
-
-<para>Before reading the
-<emphasis>SConstruct</emphasis>
-file,
+<para>Before reading the SConscript files,
 <command>scons</command>
 looks for a directory named
-<emphasis>site_scons</emphasis>
-in various system directories (see below) and the directory containing the
-<emphasis>SConstruct</emphasis>
-file; for each of those dirs which exists,
-<emphasis>site_scons</emphasis>
-is prepended to sys.path,
-the file
-<emphasis>site_scons/site_init.py</emphasis>,
-is evaluated if it exists,
-and the directory
-<emphasis>site_scons/site_tools</emphasis>
-is prepended to the default toolpath if it exists.
+<filename>site_scons</filename>
+in various system directories and in the directory containing the
+&SConstruct; file and prepends the ones it
+finds to the Python module search path (<varname>sys.path</varname>),
+thus allowing modules in such directories to be imported in
+the normal Python way in SConscript files.
+For each found site directory, 
+if it contains a file <filename>site_init.py</filename>
+it is evaluated, and if it contains a directory
+<filename>site_tools</filename> the path to it
+is prepended to the default toolpath.
 See the
-<option>--no-site-dir</option>
-and
 <option>--site-dir</option>
-options for more details.</para>
+and
+<option>--no-site-dir</option>
+options for details on default paths and
+controlling the site directories.
+</para>
 
 <para><command>scons</command>
 reads and executes the SConscript files as Python scripts,
 so you may use normal Python scripting capabilities
 (such as flow control, data manipulation, and imported Python libraries)
-to handle complicated build situations.
-<command>scons</command>,
-however, reads and executes all of the SConscript files
+to handle complicated build situations.</para>
+
+<para>
+<command>scons</command>
+reads and executes all of the SConscript files
 <emphasis>before</emphasis>
 it begins building any targets.
-To make this obvious,
+To make this clear,
 <command>scons</command>
 prints the following messages about what it is doing:</para>
 
@@ -189,7 +189,7 @@ $
 </literallayout>
 
 <para>The status messages
-(everything except the line that reads "cp foo.in foo.out")
+(lines beginning with the <literal>scons:</literal> tag)
 may be suppressed using the
 <option>-Q</option>
 option.</para>
@@ -209,34 +209,28 @@ that you want to use to build your target files
 are not in standard system locations,
 <command>scons</command>
 will not find them unless
-you explicitly set the <envar>PATH</envar>
+you explicitly set the <command>scons</command>
+<envar>PATH</envar> in the internal environment
 to include those locations.
-Whenever you create an
-<command>scons</command>
-construction environment,
+Whenever you create a &consenv;,
 you can propagate the value of <envar>PATH</envar>
 from your external environment as follows:</para>
 
 <literallayout class="monospaced">
 import os
-env = Environment(ENV = {'PATH' : os.environ['PATH']})
+env = Environment(ENV={'PATH': os.environ['PATH']})
 </literallayout>
 
-<para>Similarly, if the commands use external environment variables
-like
-<envar>PATH</envar>,
-<envar>HOME</envar>,
-<envar>JAVA_HOME</envar>,
-<envar>LANG</envar>,
-<envar>SHELL</envar>,
-<envar>TERM</envar>,
-etc.,
-these variables can also be explicitly propagated:</para>
+<para>Similarly, if the commands use specific
+external environment variables that <command>scons</command>
+does not recognize, they can be propagated into
+the internal environment:</para>
 
 <literallayout class="monospaced">
 import os
-env = Environment(ENV = {'PATH': os.environ['PATH'],
-                         'HOME': os.environ['HOME']})
+env = Environment(ENV={'PATH': os.environ['PATH'],
+                       'ANDROID_HOME': os.environ['ANDROID_HOME'],
+                       'ANDROID_NDK_HOME': os.environ['ANDROID_NDK_HOME']})
 </literallayout>
 
 <para>Or you may explicitly propagate the invoking user's
@@ -244,17 +238,23 @@ complete external environment:</para>
 
 <literallayout class="monospaced">
 import os
-env = Environment(ENV = os.environ)
+env = Environment(ENV=os.environ)
 </literallayout>
 
 <para>This comes at the expense of making your build
 dependent on the user's environment being set correctly,
-but it may be more convenient for many configurations.</para>
+but it may be more convenient for many configurations.
+It should not cause problems if done in a build setup which tightly
+controls how the environment is set up before invoking
+<command>scons</command>, as in many continuous
+integration setups.
+</para>
 
 <para><command>scons</command>
 can scan known input files automatically for dependency
-information (for example, #include statements
-in C or C++ files) and will rebuild dependent files appropriately
+information (for example, <literal>#include</literal>
+preprocessor directives in C or C++ files)
+and will rebuild dependent files appropriately
 whenever any "included" input file changes.
 <command>scons</command>
 supports the
@@ -266,41 +266,46 @@ SCCS or RCS subdirectories
 using SCCS, RCS or BitKeeper.</para>
 
 <para><command>scons</command>
-is normally executed in a top-level directory containing a
-<emphasis>SConstruct</emphasis>
-file, optionally specifying
-as command-line arguments
-the target file or files to be built.</para>
+is normally executed in a top-level directory containing an
+&SConstruct; file.
+When <command>scons</command> is invoked,
+the command line (including the contents
+of the &SCONSFLAGS; environment variable,
+if set) is processed.
+The options are consumed (see <xref linkend="options"></xref>;
+and also note that SConscript files may define additional options
+for the project using the &AddOption; function).
+Any variable argument assignments (see below) are also consumed.
+Any remaining arguments are taken as the targets to build.
+Targets on the command line may be files, directories,
+or phony targets defined using the &Alias; function.
+The command line targets are available in the
+&COMMAND_LINE_TARGETS; list.
+</para>
 
-<para>By default, the command</para>
+<para>If no targets are specified on the command line,
+<command>scons</command>
+will build the default targets. The default targets
+are those specified in the SConscript files via calls
+to the &Default; function; if none, the default targets are
+those target files in or below the current directory.
+Targets specified via the &Default; function are available
+in the &DEFAULT_TARGETS; list.
+</para>
 
-<literallayout class="monospaced">
-scons
-</literallayout>
-
-<para>will build all target files in or below the current directory.
-Explicit default targets
-(to be built when no targets are specified on the command line)
-may be defined in the SConscript file(s)
-using the
-<emphasis role="bold">Default()</emphasis>
-function, described below.</para>
-
-<para>Even when
-<emphasis role="bold">Default()</emphasis>
-targets are specified in the SConscript file(s),
-all target files in or below the current directory
-may be built by explicitly specifying
-the current directory (.)
+<para>To ignore the default targets specified
+through calls to &Default; and instead build all
+target files in or below the current directory
+specify the current directory (<literal>.</literal>)
 as a command-line target:</para>
 
 <literallayout class="monospaced">
 scons .
 </literallayout>
 
-<para>Building all target files,
+<para>To build all target files,
 including any files outside of the current directory,
-may be specified by supplying a command-line target
+supply a command-line target
 of the root directory (on POSIX systems):</para>
 
 <literallayout class="monospaced">
@@ -314,15 +319,33 @@ should be built (on Windows systems):</para>
 scons C:\ D:\
 </literallayout>
 
-<para>To build only specific targets,
-supply them as command-line arguments:</para>
+<para>A subset of a hierarchical tree may be built by
+remaining at the top-level directory (where the
+&SConstruct;
+file lives) and specifying the subdirectory as the target to
+build:</para>
 
 <literallayout class="monospaced">
-scons foo bar
+scons src/subdir
 </literallayout>
 
-<para>in which case only the specified targets will be built
-(along with any derived files on which they depend).</para>
+<para>or by changing directory and invoking scons with the
+<option>-u</option>
+option, which traverses up the directory
+hierarchy until it finds the
+&SConstruct;
+file, and then builds
+targets relatively to the current subdirectory (see
+also the related <option>-D</option> and <option>-U</option> options):</para>
+
+<literallayout class="monospaced">
+cd src/subdir
+scons -u .
+</literallayout>
+
+<para>In all cases, more files may be built than are
+requested, as <command>scons</command> needs to make
+sure any dependent files are built.</para>
 
 <para>Specifying "cleanup" targets in SConscript files is not usually necessary.
 The
@@ -334,45 +357,22 @@ necessary to build the specified target:</para>
 scons -c .
 </literallayout>
 
-<para>to remove all target files, or:</para>
+<para>to remove all target files in or under the current directory, or:</para>
 
 <literallayout class="monospaced">
 scons -c build export
 </literallayout>
 
-<para>to remove target files under build and export.
+<para>to remove target files under <filename>build</filename>
+and <filename>export</filename>.</para>
+
+<para>
 Additional files or directories to remove can be specified using the
-<emphasis role="bold">Clean()</emphasis>
-function.
+&Clean; function in the SConscript files.
 Conversely, targets that would normally be removed by the
 <option>-c</option>
-invocation
-can be prevented from being removed by using the
-<emphasis role="bold">NoClean</emphasis>()
-function.</para>
-
-<para>A subset of a hierarchical tree may be built by
-remaining at the top-level directory (where the
-<emphasis>SConstruct</emphasis>
-file lives) and specifying the subdirectory as the target to be
-built:</para>
-
-<literallayout class="monospaced">
-scons src/subdir
-</literallayout>
-
-<para>or by changing directory and invoking scons with the
-<option>-u</option>
-option, which traverses up the directory
-hierarchy until it finds the
-<emphasis>SConstruct</emphasis>
-file, and then builds
-targets relatively to the current subdirectory:</para>
-
-<literallayout class="monospaced">
-cd src/subdir
-scons -u .
-</literallayout>
+invocation can be retained by calling the
+&NoClean; function with those targets.</para>
 
 <para><command>scons</command>
 supports building multiple targets in parallel via a
@@ -405,16 +405,16 @@ command-line options.  The
 option is useful to prevent multiple builds
 from trying to update the cache simultaneously.</para>
 
-<para>Values of variables to be passed to the SConscript file(s)
+<para>Values of variables to be passed to the SConscript files
 may be specified on the command line:</para>
 
 <literallayout class="monospaced">
 scons debug=1 .
 </literallayout>
 
-<para>These variables are available in SConscript files
-through the ARGUMENTS dictionary,
-and can be used in the SConscript file(s) to modify
+<para>These variables are available
+through the &ARGUMENTS; dictionary,
+and can be used in the SConscript files to modify
 the build in any way:</para>
 
 <literallayout class="monospaced">
@@ -425,13 +425,12 @@ else:
 </literallayout>
 
 <para>The command-line variable arguments are also available
-in the ARGLIST list,
+in the &ARGLIST; list,
 indexed by their order on the command line.
 This allows you to process them in order rather than by name,
-if necessary.
-ARGLIST[0] returns a tuple
-containing (argname, argvalue).
-A Python exception is thrown if you
+if necessary. Each &ARGLIST; entry is a tuple
+containing (<replaceable>argname</replaceable>, <replaceable>argvalue</replaceable>).
+A Python <literal>IndexError</literal> exception is raised if you
 try to access a list member that
 does not exist.</para>
 
@@ -443,24 +442,28 @@ There should be no other dependencies or requirements to run
 <!--  The following paragraph reflects the default tool search orders -->
 <!--  currently in SCons/Tool/__init__.py.  If any of those search orders -->
 <!--  change, this documentation should change, too. -->
+
 <para>By default,
 <command>scons</command>
-knows how to search for available programming tools
-on various systems.
-On Windows systems,
+searches for known programming tools
+on various systems and initializes itself based on what is found.
+On Windows systems which identify as <emphasis>win32</emphasis>,
 <command>scons</command>
 searches in order for the
 Microsoft Visual C++ tools,
 the MinGW tool chain,
 the Intel compiler tools,
 and the PharLap ETS compiler.
+On Windows system which identify as <emphasis>cygwin</emphasis>
+(that is, if <command>scons</command> is invoked from a cygwin shell),
+the order changes to prefer the GCC toolchain over the MSVC tools.
 On OS/2 systems,
 <command>scons</command>
 searches in order for the
 OS/2 compiler,
 the GCC tool chain,
 and the Microsoft Visual C++ tools,
-On SGI IRIX, IBM AIX, Hewlett Packard HP-UX, and Sun Solaris systems,
+On SGI IRIX, IBM AIX, Hewlett Packard HP-UX, and Oracle Solaris systems,
 <command>scons</command>
 searches for the native compiler tools
 (MIPSpro, Visual Age, aCC, and Forte tools respectively)
@@ -470,7 +473,6 @@ including POSIX (Linux and UNIX) platforms,
 <command>scons</command>
 searches in order
 for the GCC tool chain,
-the Microsoft Visual C++ tools,
 and the Intel compiler tools.
 You may, of course, override these default values
 by appropriate configuration of
@@ -486,67 +488,61 @@ supports the same command-line options as GNU
 and many of those supported by
 <emphasis role="bold">cons</emphasis>.</para>
 
+<!-- Note: commented-out options are retained as they may be a model -->
+<!-- for future development directions. Do not remove. -->
+
 <variablelist>
   <varlistentry>
   <term>-b</term>
   <listitem>
-<para>Ignored for compatibility with non-GNU versions of
-<emphasis role="bold">make.</emphasis></para>
-
+<para>Ignored for compatibility with non-GNU versions of &Make;</para>
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>-c, --clean, --remove</term>
   <listitem>
 <para>Clean up by removing all target files for which a construction
 command is specified.
 Also remove any files or directories associated to the construction command
-using the
-<emphasis role="bold">Clean</emphasis>()
-function.
-Will not remove any targets specified by the
-<emphasis role="bold">NoClean</emphasis>()
-function.</para>
-
+using the &Clean; function.
+Will not remove any targets specified by the &NoClean; function.</para>
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--cache-debug=<emphasis>file</emphasis></term>
   <listitem>
-<para>Print debug information about the
-<emphasis role="bold">CacheDir</emphasis>()
-derived-file caching
-to the specified
+<para>Print debug information about the &CacheDir;
+derived-file caching to the specified
 <emphasis>file</emphasis>.
 If
 <emphasis>file</emphasis>
 is
 <emphasis role="bold">-</emphasis>
 (a hyphen),
-the debug information are printed to the standard output.
-The printed messages describe what signature file names are
-being looked for in, retrieved from, or written to the
-<emphasis role="bold">CacheDir</emphasis>()
-directory tree.</para>
-
+the debug information is printed to the standard output.
+The printed messages describe what signature-file names
+are being looked for in, retrieved from, or written to the
+&CacheDir; directory tree.</para>
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--cache-disable, --no-cache</term>
   <listitem>
 <para>Disable the derived-file caching specified by
-<emphasis role="bold">CacheDir</emphasis>().
+&CacheDir;.
 <command>scons</command>
 will neither retrieve files from the cache
 nor copy files to the cache.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--cache-force, --cache-populate</term>
   <listitem>
-<para>When using
-<emphasis role="bold">CacheDir</emphasis>(),
+<para>When using &CacheDir;,
 populate a cache by copying any already-existing, up-to-date
 derived files to the cache,
 in addition to files built by this invocation.
@@ -556,23 +552,22 @@ or to add to the cache any derived files
 recently built with caching disabled via the
 <option>--cache-disable</option>
 option.</para>
-
   </listitem>
   </varlistentry>
-<varlistentry>
+
+  <varlistentry>
   <term>--cache-readonly</term>
   <listitem>
 <para>Use the cache (if enabled) for reading, but do not not update the
 cache with changed files.
 </para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--cache-show</term>
   <listitem>
-<para>When using
-<emphasis role="bold">CacheDir</emphasis>()
+<para>When using &CacheDir;
 and retrieving a derived file from the cache,
 show the command
 that would have been executed to build the file,
@@ -581,21 +576,20 @@ instead of the usual report,
 This will produce consistent output for build logs,
 regardless of whether a target
 file was rebuilt or retrieved from the cache.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--config=<emphasis>mode</emphasis></term>
   <listitem>
-<para>This specifies how the
-<emphasis role="bold">Configure</emphasis>
+<para>This specifies how the &Configure;
 call should use or generate the
 results of configuration tests.
 The option should be specified from
-among the following choices:</para>
-
+among the following choices.</para>
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--config=auto</term>
   <listitem>
@@ -607,9 +601,9 @@ but will overlook changes in system header files
 or external commands (such as compilers)
 if you don't specify those dependecies explicitly.
 This is the default behavior.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--config=force</term>
   <listitem>
@@ -621,9 +615,9 @@ This can be used to explicitly
 force the configuration tests to be updated
 in response to an otherwise unconfigured change
 in a system header file or compiler.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--config=cache</term>
   <listitem>
@@ -634,40 +628,43 @@ Note that scons will still consider it an error
 if --config=cache is specified
 and a necessary test does not
 yet have any results in the cache.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
-  <term>-C<emphasis> directory</emphasis>, --directory=<emphasis>directory</emphasis></term>
+  <term>-C <replaceable>directory</replaceable>, --directory=<replaceable>directory</replaceable></term>
   <listitem>
-<para>Change to the specified
-<emphasis>directory</emphasis>
-before searching for the
-<emphasis>SConstruct</emphasis>,
-<emphasis>Sconstruct</emphasis>,
-<emphasis>sconstruct</emphasis>,
-<emphasis>SConstruct.py</emphasis>
-<emphasis>Sconstruct.py</emphasis>
+<para>Run as if &scons; was started in
+<replaceable>directory</replaceable>
+instead of the current working directory.
+That is, change directory before searching for the
+&SConstruct;,
+&Sconstruct;,
+&sconstruct;,
+&SConstruct.py;,
+&Sconstruct.py;
 or
-<emphasis>sconstruct.py</emphasis>
-file, or doing anything
-else.  Multiple
+&sconstruct.py;
+file or doing anything else.
+When multiple
 <option>-C</option>
-options are interpreted
-relative to the previous one, and the right-most
-<option>-C</option>
-option wins. (This option is nearly
-equivalent to
-<option>-f directory/SConstruct</option>,
-except that it will search for
-<emphasis>SConstruct</emphasis>,
-<emphasis>Sconstruct</emphasis>,
-<emphasis>sconstruct</emphasis>,
-<emphasis>SConstruct.py</emphasis>
-<emphasis>Sconstruct.py</emphasis>
-or
-<emphasis>sconstruct.py</emphasis>
-in the specified directory.)</para>
+options are given, each subsequent non-absolute
+<option>-C</option> <replaceable>directory</replaceable>
+is interpreted relative to the preceding one.
+This option is similar to using
+<option>-f <replaceable>directory</replaceable>/SConstruct</option>,
+but <option>-f</option> does not search for any of the
+predefined &SConstruct; names
+in the specified directory.
+See also options
+<option>-u</option>,
+<option>-U</option>
+and
+<option>-D</option>
+to change the &SConstruct; search behavior when this option is used.
+</para>
+  </listitem>
+  </varlistentry>
 
 <!--  .TP -->
 <!--  \-d -->
@@ -675,8 +672,6 @@ in the specified directory.)</para>
 <!--  figuring out why a specific file is being rebuilt, as well as -->
 <!--  general debugging of the build process. -->
 
-  </listitem>
-  </varlistentry>
   <varlistentry>
   <term>-D</term>
   <listitem>
@@ -727,18 +722,18 @@ have been compiled with optimization
 (that is, when executing from
 <emphasis role="bold">*.pyo</emphasis>
 files).</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--debug=duplicate</term>
   <listitem>
 <para>Print a line for each unlink/relink (or copy) of a variant file from
 its source file.  Includes debugging info for unlinking stale variant
 files, as well as unlinking old targets before building them.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--debug=explain</term>
   <listitem>
@@ -749,9 +744,9 @@ is deciding to (re-)build any targets.
 for targets that are
 <emphasis>not</emphasis>
 rebuilt.)</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--debug=findlibs</term>
   <listitem>
@@ -759,9 +754,9 @@ rebuilt.)</para>
 to print a message about each potential library
 name it is searching for,
 and about the actual libraries it finds.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--debug=includes</term>
   <listitem>
@@ -775,6 +770,7 @@ $ scons --debug=includes foo.o
 
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--debug=memoizer</term>
   <listitem>
@@ -782,35 +778,35 @@ $ scons --debug=includes foo.o
 an internal subsystem that counts
 how often SCons uses cached values in memory
 instead of recomputing them each time they're needed.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--debug=memory</term>
   <listitem>
 <para>Prints how much memory SCons uses
 before and after reading the SConscript files
 and before and after building targets.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--debug=objects</term>
   <listitem>
 <para>Prints a list of the various objects
 of the various classes used internally by SCons.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--debug=pdb</term>
   <listitem>
 <para>Re-run SCons under the control of the
-pdb
+<command>pdb</command>
 Python debugger.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--debug=prepare</term>
   <listitem>
@@ -823,9 +819,9 @@ This can help debug problems with targets that aren't being
 built; it shows whether
 <command>scons</command>
 is at least considering them or not.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--debug=presub</term>
   <listitem>
@@ -833,50 +829,51 @@ is at least considering them or not.</para>
 before the construction environment variables are substituted.
 Also shows which targets are being built by this command.
 Output looks something like this:</para>
+
 <literallayout class="monospaced">
 $ scons --debug=presub
 Building myprog.o with action(s):
   $SHCC $SHCFLAGS $SHCCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES
 ...
 </literallayout>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--debug=stacktrace</term>
   <listitem>
 <para>Prints an internal Python stack trace
 when encountering an otherwise unexplained error.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--debug=time</term>
   <listitem>
 <para>Prints various time profiling information:</para>
-  <itemizedlist>
-    <listitem>
+    <itemizedlist>
+      <listitem>
 <para>The time spent executing each individual build command</para>
-    </listitem>
-    <listitem>
+      </listitem>
+      <listitem>
 <para>The total build time (time SCons ran from beginning to end)</para>
-    </listitem>
-    <listitem>
+      </listitem>
+      <listitem>
 <para>The total time spent reading and executing SConscript files</para>
-    </listitem>
-    <listitem>
-<para>The total time spent SCons itself spend running
+      </listitem>
+      <listitem>
+<para>The total time SCons itself spent running
 (that is, not counting reading and executing SConscript files)</para>
-    </listitem>
-    <listitem>
+      </listitem>
+      <listitem>
 <para>The total time spent executing all build commands</para></listitem>
-<listitem>
+      <listitem>
 <para>The elapsed wall-clock time spent executing those build commands</para>
-    </listitem>
-    <listitem>
+      </listitem>
+      <listitem>
 <para>The time spent processing each file passed to the <emphasis>SConscript()</emphasis> function</para>
-    </listitem>
-  </itemizedlist>
+      </listitem>
+    </itemizedlist>
 <para>
 (When
 <command>scons</command>
@@ -947,9 +944,9 @@ or of not handling errors gracefully
 found in SCCS or RCS, for example,
 or if a file really does exist
 where the SCons configuration expects a directory).</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--duplicate=<emphasis>ORDER</emphasis></term>
   <listitem>
@@ -968,22 +965,23 @@ or
 <emphasis>copy</emphasis>.
 SCons will attempt to duplicate files using
 the mechanisms in the specified order.</para>
+  </listitem>
+  </varlistentry>
 
 <!--  .TP -->
 <!--  \-e, \-\-environment\-overrides -->
 <!--  Variables from the execution environment override construction -->
 <!--  variables from the SConscript files. -->
 
-  </listitem>
-  </varlistentry>
   <varlistentry>
   <term>--enable-virtualenv</term>
   <listitem>
 <para>Import virtualenv-related variables to SCons.</para>
   </listitem>
   </varlistentry>
+
   <varlistentry>
-  <term>-f<emphasis> file</emphasis>, --file=<emphasis>file</emphasis>, --makefile=<emphasis>file</emphasis>, --sconstruct=<emphasis>file</emphasis></term>
+  <term>-f <emphasis>file</emphasis>, --file=<emphasis>file</emphasis>, --makefile=<emphasis>file</emphasis>, --sconstruct=<emphasis>file</emphasis></term>
   <listitem>
 <para>Use
 <emphasis>file</emphasis>
@@ -994,29 +992,29 @@ options may be specified,
 in which case
 <command>scons</command>
 will read all of the specified files.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>-h, --help</term>
   <listitem>
 <para>Print a local help message for this build, if one is defined in
-the SConscript file(s), plus a line that describes the
+the SConscript files, plus a line that describes the
 <option>-H</option>
 option for command-line option help.  If no local help message
 is defined, prints the standard help message about command-line
 options.  Exits after displaying the appropriate message.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>-H, --help-options</term>
   <listitem>
 <para>Print the standard help message about command-line options and
 exit.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>-i, --ignore-errors</term>
   <listitem>
@@ -1024,6 +1022,7 @@ exit.</para>
 
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>-I<emphasis> directory</emphasis>, --include-dir=<emphasis>directory</emphasis></term>
   <listitem>
@@ -1034,15 +1033,16 @@ imported Python modules.  If several
 <option>-I</option>
 options
 are used, the directories are searched in the order specified.</para>
-
   </listitem>
   </varlistentry>
-   <varlistentry>
-   <term>--ignore-virtualenv</term>
-   <listitem>
+
+  <varlistentry>
+  <term>--ignore-virtualenv</term>
+  <listitem>
 <para>Suppress importing virtualenv-related variables to SCons.</para>
-   </listitem>
-   </varlistentry>
+  </listitem>
+  </varlistentry>
+
   <varlistentry>
   <term>--implicit-cache</term>
   <listitem>
@@ -1054,9 +1054,6 @@ from the last time it was run
 instead of scanning the files for implicit dependencies.
 This can significantly speed up SCons,
 but with the following limitations:</para>
-  </listitem>
-  </varlistentry>
-</variablelist>
 
 <para><command>scons</command>
 will not detect changes to implicit dependency search paths
@@ -1072,17 +1069,18 @@ dependency is added earlier in the implicit dependency search path
 (e.g.
 <emphasis role="bold">CPPPATH</emphasis>, <emphasis role="bold">LIBPATH</emphasis>)
 than a current implicit dependency with the same name.</para>
+  </listitem>
+  </varlistentry>
 
-<variablelist>
   <varlistentry>
   <term>--implicit-deps-changed</term>
   <listitem>
 <para>Forces SCons to ignore the cached implicit dependencies. This causes the
 implicit dependencies to be rescanned and recached. This implies
 <option>--implicit-cache</option>.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--implicit-deps-unchanged</term>
   <listitem>
@@ -1090,7 +1088,6 @@ implicit dependencies to be rescanned and recached. This implies
 This causes cached implicit dependencies to always be used.
 This implies
 <option>--implicit-cache</option>.</para>
-
   </listitem>
   </varlistentry>
 
@@ -1154,7 +1151,6 @@ command:</para>
 --taskmastertrace=FILE
 --tree=OPTIONS
 </literallayout>
-
       </listitem>
       </varlistentry>
     </variablelist>
@@ -1179,9 +1175,9 @@ with the specified options.
 is a synonym.
 This command is itself a synonym for
 <userinput>build --clean</userinput></para>
-
       </listitem>
       </varlistentry>
+
       <varlistentry>
       <term><emphasis role="bold">exit</emphasis></term>
       <listitem>
@@ -1189,9 +1185,9 @@ This command is itself a synonym for
 You can also exit by terminating input
 (CTRL+D on UNIX or Linux systems,
 CTRL+Z on Windows systems).</para>
-
       </listitem>
       </varlistentry>
+
       <varlistentry>
       <term><emphasis role="bold">help</emphasis><emphasis>[COMMAND]</emphasis></term>
       <listitem>
@@ -1204,9 +1200,9 @@ is specified,
 and
 <emphasis role="bold">?</emphasis>
 are synonyms.</para>
-
       </listitem>
       </varlistentry>
+
       <varlistentry>
       <term><emphasis role="bold">shell</emphasis><emphasis>[COMMANDLINE]</emphasis></term>
       <listitem>
@@ -1229,9 +1225,9 @@ environment variable
 and
 <emphasis role="bold">!</emphasis>
 are synonyms.</para>
-
       </listitem>
       </varlistentry>
+
       <varlistentry>
       <term><emphasis role="bold">version</emphasis></term>
       <listitem>
@@ -1273,15 +1269,17 @@ option, the last one is effective.</para>
 <!--  .B scons -->
 <!--  will not limit the number of -->
 <!--  simultaneous jobs. -->
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>-k, --keep-going</term>
   <listitem>
 <para>Continue as much as possible after an error.  The target that
 failed and those that depend on it will not be remade, but other
 targets specified on the command line will still be processed.</para>
+  </listitem>
+  </varlistentry>
 
 <!--  .TP -->
 <!--  .RI  \-l " N" ", \-\-load\-average=" N ", \-\-max\-load=" N -->
@@ -1290,7 +1288,6 @@ targets specified on the command line will still be processed.</para>
 <!--  average is at least -->
 <!--  .I N -->
 <!--  (a floating\-point number). -->
-
 
 <!--  .TP -->
 <!--  \-\-list\-derived -->
@@ -1313,16 +1310,13 @@ targets specified on the command line will still be processed.</para>
 <!--  [XXX This can probably go away with the right -->
 <!--  combination of other options.  Revisit this issue.] -->
 
-  </listitem>
-  </varlistentry>
   <varlistentry>
   <term>-m</term>
   <listitem>
-<para>Ignored for compatibility with non-GNU versions of
-<emphasis role="bold">make</emphasis>.</para>
-
+<para>Ignored for compatibility with non-GNU versions of &Make;.</para>
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--max-drift=<emphasis>SECONDS</emphasis></term>
   <listitem>
@@ -1340,9 +1334,9 @@ A negative value means to never cache the content
 signature and to ignore the cached value if there already is one. A value
 of 0 means to always use the cached signature,
 no matter how old the file is.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--md5-chunksize=<emphasis>KILOBYTES</emphasis></term>
   <listitem>
@@ -1356,29 +1350,31 @@ small block-size slows down the build considerably.</para>
 
 <para>The default value is to use a chunk size of 64 kilobytes, which should
 be appropriate for most uses.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>-n, --just-print, --dry-run, --recon</term>
   <listitem>
 <para>No execute.  Print the commands that would be executed to build
 any out-of-date target files, but do not execute the commands.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--no-site-dir</term>
   <listitem>
 <para>Prevents the automatic addition of the standard
 <emphasis>site_scons</emphasis>
 dirs to
-<emphasis>sys.path</emphasis>.
+<varname>sys.path</varname>.
 Also prevents loading the
-<emphasis>site_scons/site_init.py</emphasis>
+<filename>site_scons/site_init.py</filename>
 modules if they exist, and prevents adding their
-<emphasis>site_scons/site_tools</emphasis>
+<filename>site_scons/site_tools</filename>
 dirs to the toolpath.</para>
+  </listitem>
+  </varlistentry>
 
 <!--  .TP -->
 <!--  .RI \-o " file" ", \-\-old\-file=" file ", \-\-assume\-old=" file -->
@@ -1392,6 +1388,7 @@ dirs to the toolpath.</para>
 <!--  Read values to override specific build environment variables -->
 <!--  from the specified -->
 <!--  .IR file . -->
+
 <!--  .TP -->
 <!--  \-p -->
 <!--  Print the data base (construction environments, -->
@@ -1410,8 +1407,6 @@ dirs to the toolpath.</para>
 <!--  scons \-p \-q -->
 <!--  .EE -->
 
-  </listitem>
-  </varlistentry>
   <varlistentry>
   <term>--profile=<emphasis>file</emphasis></term>
   <listitem>
@@ -1420,9 +1415,9 @@ and save the results in the specified
 <emphasis>file</emphasis>.
 The results may be analyzed using the Python
 pstats module.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>-q, --question</term>
   <listitem>
@@ -1431,6 +1426,7 @@ status that is zero if the specified targets are already up to
 date, non-zero otherwise.</para>
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>-Q</term>
   <listitem>
@@ -1440,14 +1436,14 @@ building targets
 and entering directories.
 Commands that are executed
 to rebuild target files are still printed.</para>
+  </listitem>
+  </varlistentry>
 
 <!--  .TP -->
 <!--  \-r, \-R, \-\-no\-builtin\-rules, \-\-no\-builtin\-variables -->
 <!--  Clear the default construction variables.  Construction -->
 <!--  environments that are created will be completely empty. -->
 
-  </listitem>
-  </varlistentry>
   <varlistentry>
   <term>--random</term>
   <listitem>
@@ -1455,37 +1451,37 @@ to rebuild target files are still printed.</para>
 building multiple trees simultaneously with caching enabled,
 to prevent multiple builds from simultaneously trying to build
 or retrieve the same target files.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>-s, --silent, --quiet</term>
   <listitem>
 <para>Silent.  Do not print commands that are executed to rebuild
 target files.
 Also suppresses SCons status messages.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>-S, --no-keep-going, --stop</term>
   <listitem>
 <para>Ignored for compatibility with GNU
 <emphasis role="bold">make</emphasis>.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
-  <term>--site-dir=<emphasis>dir</emphasis></term>
+  <term>--site-dir=<replaceable>dir</replaceable></term>
   <listitem>
-<para>Uses the named dir as the site dir rather than the default
+<para>Uses the named <replaceable>dir</replaceable> as the site dir rather than the default
 <emphasis>site_scons</emphasis>
 dirs.  This dir will get prepended to
-<emphasis>sys.path</emphasis>,
+<varname>sys.path</varname>,
 the module
-<emphasis>dir</emphasis>/site_init.py
+<filename><replaceable>dir</replaceable>/site_init.py</filename>
 will get loaded if it exists, and
-<emphasis>dir</emphasis>/site_tools
+<filename><replaceable>dir</replaceable>/site_tools</filename>
 will get added to the default toolpath.</para>
 
 <para>The default set of
@@ -1494,18 +1490,15 @@ dirs used when
 <option>--site-dir</option>
 is not specified depends on the system platform, as follows.  Note
 that the directories are examined in the order given, from most
-generic to most specific, so the last-executed site_init.py file is
+generic to most specific, so the last-executed <filename>site_init.py</filename> file is
 the most specific one (which gives it the chance to override
 everything else), and the dirs are prepended to the paths, again so
 the last dir examined comes first in the resulting path.</para>
 
-  </listitem>
-  </varlistentry>
-</variablelist>
-<variablelist>
-  <varlistentry>
-  <term>Windows:</term>
-  <listitem>
+    <variablelist>
+      <varlistentry>
+      <term>Windows:</term>
+      <listitem>
 <literallayout class="monospaced">
 %ALLUSERSPROFILE/Application Data/scons/site_scons
 %USERPROFILE%/Local Settings/Application Data/scons/site_scons
@@ -1513,11 +1506,12 @@ the last dir examined comes first in the resulting path.</para>
 %HOME%/.scons/site_scons
 ./site_scons
 </literallayout>
-  </listitem>
-  </varlistentry>
-  <varlistentry>
-  <term>Mac OS X:</term>
-  <listitem>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry>
+      <term>Mac OS X:</term>
+      <listitem>
 <literallayout class="monospaced">
 /Library/Application Support/SCons/site_scons
 /opt/local/share/scons/site_scons (for MacPorts)
@@ -1526,32 +1520,36 @@ $HOME/Library/Application Support/SCons/site_scons
 $HOME/.scons/site_scons
 ./site_scons
 </literallayout>
-  </listitem>
-  </varlistentry>
-  <varlistentry>
-  <term>Solaris:</term>
-  <listitem>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry>
+      <term>Solaris:</term>
+      <listitem>
 <literallayout class="monospaced">
 /opt/sfw/scons/site_scons
 /usr/share/scons/site_scons
 $HOME/.scons/site_scons
 ./site_scons
 </literallayout>
-  </listitem>
-  </varlistentry>
-  <varlistentry>
-  <term>Linux, HPUX, and other Posix-like systems:</term>
-  <listitem>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry>
+      <term>Linux, HPUX, and other Posix-like systems:</term>
+      <listitem>
 <literallayout class="monospaced">
 /usr/share/scons/site_scons
 $HOME/.scons/site_scons
 ./site_scons
 </literallayout>
+      </listitem>
+      </varlistentry>
+    </variablelist>
 
   </listitem>
   </varlistentry>
-</variablelist>
-<variablelist>
+
   <varlistentry>
   <term>--stack-size=<emphasis>KILOBYTES</emphasis></term>
   <listitem>
@@ -1572,9 +1570,9 @@ build process.</para>
 <para>The default value is to use a stack size of 256 kilobytes, which should
 be appropriate for most uses.  You should not need to increase this value
 unless you encounter stack overflow errors.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>-t, --touch</term>
   <listitem>
@@ -1583,9 +1581,9 @@ unless you encounter stack overflow errors.</para>
 (Touching a file to make it
 appear up-to-date is unnecessary when using
 <command>scons</command>.)</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--taskmastertrace=<emphasis>file</emphasis></term>
   <listitem>
@@ -1596,9 +1594,9 @@ evaluates and controls the order in which Nodes are built.
 A file name of
 <emphasis role="bold">-</emphasis>
 may be used to specify the standard output.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>-tree=<emphasis>options</emphasis></term>
   <listitem>
@@ -1609,9 +1607,9 @@ in various formats,
 depending on the
 <emphasis>options</emphasis>
 specified:</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--tree=all</term>
   <listitem>
@@ -1619,24 +1617,24 @@ specified:</para>
 after each top-level target is built.
 This prints out the complete dependency tree,
 including implicit dependencies and ignored dependencies.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--tree=derived</term>
   <listitem>
 <para>Restricts the tree output to only derived (target) files,
 not source files.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--tree=status</term>
   <listitem>
 <para>Prints status information for each displayed node.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--tree=prune</term>
   <listitem>
@@ -1648,7 +1646,6 @@ will have its name printed in
 as an indication that the dependencies
 for that node can be found by searching
 for the relevant output higher up in the tree.</para>
-
   </listitem>
   </varlistentry>
 </variablelist>
@@ -1670,21 +1667,16 @@ scons --tree=all,prune,status target
   <term>-u, --up, --search-up</term>
   <listitem>
 <para>Walks up the directory structure until an
-<emphasis>SConstruct ,</emphasis>
-<emphasis>Sconstruct ,</emphasis>
-<emphasis>sconstruct ,</emphasis>
-<emphasis>SConstruct.py</emphasis>
-<emphasis>Sconstruct.py</emphasis>
-or
-<emphasis>sconstruct.py</emphasis>
+&SConstruct;, &Sconstruct;, &sconstruct;, &SConstruct.py;,
+&Sconstruct.py; or &sconstruct.py;
 file is found, and uses that
 as the top of the directory tree.
 If no targets are specified on the command line,
 only targets at or below the
 current directory will be built.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>-U</term>
   <listitem>
@@ -1695,9 +1687,9 @@ When this option is used and no targets are specified on the command line,
 all default targets that are defined in the SConscript(s) in the current
 directory are built, regardless of what directory the resultant targets end
 up in.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>-v, --version</term>
   <listitem>
@@ -1706,40 +1698,40 @@ up in.</para>
 version, copyright information,
 list of authors, and any other relevant information.
 Then exit.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>-w, --print-directory</term>
   <listitem>
 <para>Print a message containing the working directory before and
 after other processing.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--no-print-directory</term>
   <listitem>
 <para>Turn off -w, even if it was turned on implicitly.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--warn=<emphasis>type</emphasis>, --warn=no-<emphasis>type</emphasis></term>
   <listitem>
 <para>Enable or disable warnings.
 <emphasis>type</emphasis>
 specifies the type of warnings to be enabled or disabled:</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--warn=all, --warn=no-all</term>
   <listitem>
 <para>Enables or disables all warnings.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--warn=cache-version, --warn=no-cache-version</term>
   <listitem>
@@ -1747,9 +1739,9 @@ specifies the type of warnings to be enabled or disabled:</para>
 the latest configuration information
 <emphasis role="bold">CacheDir</emphasis>().
 These warnings are enabled by default.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--warn=cache-write-error, --warn=no-cache-write-error</term>
   <listitem>
@@ -1757,9 +1749,9 @@ These warnings are enabled by default.</para>
 write a copy of a built file to a specified
 <emphasis role="bold">CacheDir</emphasis>().
 These warnings are disabled by default.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--warn=corrupt-sconsign, --warn=no-corrupt-sconsign</term>
   <listitem>
@@ -1767,17 +1759,17 @@ These warnings are disabled by default.</para>
 <markup>.sconsign</markup>
 files.
 These warnings are enabled by default.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--warn=dependency, --warn=no-dependency</term>
   <listitem>
 <para>Enables or disables warnings about dependencies.
 These warnings are disabled by default.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--warn=deprecated, --warn=no-deprecated</term>
   <listitem>
@@ -1794,9 +1786,9 @@ before they are officially no longer supported by SCons.
 Warnings for some specific deprecated features
 may be enabled or disabled individually;
 see below.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--warn=duplicate-environment, --warn=no-duplicate-environment</term>
   <listitem>
@@ -1804,18 +1796,18 @@ see below.</para>
 of a target with two different construction environments
 that use the same action.
 These warnings are enabled by default.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--warn=fortran-cxx-mix, --warn=no-fortran-cxx-mix</term>
   <listitem>
 <para>Enables or disables the specific warning about linking
 Fortran and C++ object files in a single executable,
 which can yield unpredictable behavior with some compilers.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--warn=future-deprecated, --warn=no-future-deprecated</term>
   <listitem>
@@ -1828,16 +1820,16 @@ SCons configurations for other users to build,
 so that the project can be warned as soon as possible
 about to-be-deprecated features
 that may require changes to the configuration.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--warn=link, --warn=no-link</term>
   <listitem>
 <para>Enables or disables warnings about link steps.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--warn=misleading-keywords, --warn=no-misleading-keywords</term>
   <listitem>
@@ -1853,17 +1845,17 @@ characters, the correct spellings are
 and
 <emphasis role="bold">source.)</emphasis>
 These warnings are enabled by default.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--warn=missing-sconscript, --warn=no-missing-sconscript</term>
   <listitem>
 <para>Enables or disables warnings about missing SConscript files.
 These warnings are enabled by default.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--warn=no-object-count, --warn=no-no-object-count</term>
   <listitem>
@@ -1874,9 +1866,9 @@ feature not working when
 is run with the Python
 <option>-O</option>
 option or from optimized Python (.pyo) modules.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--warn=no-parallel-support, --warn=no-no-parallel-support</term>
   <listitem>
@@ -1885,18 +1877,18 @@ not being able to support parallel builds when the
 <option>-j</option>
 option is used.
 These warnings are enabled by default.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--warn=python-version, --warn=no-python-version</term>
   <listitem>
 <para>Enables or disables the warning about running
 SCons with a deprecated version of Python.
 These warnings are enabled by default.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--warn=reserved-variable, --warn=no-reserved-variable</term>
   <listitem>
@@ -1912,15 +1904,29 @@ reserved construction variable names
 or
 <emphasis role="bold">UNCHANGED_TARGETS</emphasis>.
 These warnings are disabled by default.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>--warn=stack-size, --warn=no-stack-size</term>
   <listitem>
 <para>Enables or disables warnings about requests to set the stack size
 that could not be honored.
 These warnings are enabled by default.</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
+  <term>--warn=target_not_build, --warn=no-target_not_built</term>
+  <listitem>
+<para>Enables or disables warnings about a build rule not building the
+ expected targets. These warnings are not currently enabled by default.</para>
+  </listitem>
+  </varlistentry>
+
+<!--  .TP -->
+<!--  \-\-warn\-undefined\-variables -->
+<!--  Warn when an undefined variable is referenced. -->
 
 <!--  .TP -->
 <!--  .RI \-\-write\-filenames= file -->
@@ -1940,20 +1946,6 @@ These warnings are enabled by default.</para>
 <!--  .B \-n -->
 <!--  ... what? XXX -->
 
-<!--  .TP -->
-<!--  \-\-warn\-undefined\-variables -->
-<!--  Warn when an undefined variable is referenced. -->
-
-  </listitem>
-  </varlistentry>
-  <varlistentry>
-  <term>--warn=target_not_build, --warn=no-target_not_built</term>
-  <listitem>
-<para>Enables or disables warnings about a build rule not building the
- expected targets. These warnings are not currently enabled by default.</para>
-
-  </listitem>
-  </varlistentry>
   <varlistentry>
   <term>-Y<emphasis> repository</emphasis>, --repository=<emphasis>repository</emphasis>, --srcdir=<emphasis>repository</emphasis></term>
   <listitem>
@@ -1962,9 +1954,9 @@ files not found in the local directory hierarchy.  Multiple
 <option>-Y</option>
 options may be specified, in which case the
 repositories are searched in the order specified.</para>
-
   </listitem>
   </varlistentry>
+
 </variablelist>
 </refsect1>
 
@@ -1973,10 +1965,10 @@ repositories are searched in the order specified.</para>
 <!--  XXX Adding this in the future would be a help. -->
 
 <refsect2 id='construction_environments'><title>Construction Environments</title>
-<para>A construction environment is the basic means by which the SConscript
+<para>A <firstterm>&ConsEnv;</firstterm> is the basic means by which the SConscript
 files communicate build information to
 <command>scons</command>.
-A new construction environment is created using the
+A new &consenv; is created using the
 <emphasis role="bold">Environment</emphasis>
 function:</para>
 
@@ -1985,27 +1977,26 @@ env = Environment()
 </literallayout>
 
 <para>Variables, called
-<emphasis>construction</emphasis>
-<emphasis>variables</emphasis>,
-may be set in a construction environment
+<firstterm>&ConsVars;</firstterm>
+may be set in a &consenv;
 either by specifying them as keywords when the object is created
 or by assigning them a value after the object is created:</para>
 
 <literallayout class="monospaced">
-env = Environment(FOO = 'foo')
+env = Environment(FOO='foo')
 env['BAR'] = 'bar'
 </literallayout>
 
 <para>As a convenience,
-construction variables may also be set or modified by the
-<emphasis role="bold">parse_flags</emphasis>
+&consvars; may also be set or modified by the
+<parameter class="function">parse_flags</parameter>
 keyword argument, which applies the
 &f-link-env-MergeFlags;
 method (described below) to the argument value
 after all other processing is completed.
 This is useful either if the exact content of the flags is unknown
 (for example, read from a control file)
-or if the flags are distributed to a number of construction variables.</para>
+or if the flags are distributed to a number of &consvars;.</para>
 
 <literallayout class="monospaced">
 env = Environment(parse_flags='-Iinclude -DEBUG -lm')
@@ -2018,9 +2009,9 @@ env = Environment(parse_flags='-Iinclude -DEBUG -lm')
 and 'm' to
 <emphasis role="bold">LIBS</emphasis>.</para>
 
-<para>By default, a new construction environment is
+<para>By default, a new &consenv; is
 initialized with a set of builder methods
-and construction variables that are appropriate
+and &consvars; that are appropriate
 for the current platform.
 An optional platform keyword argument may be
 used to specify that an environment should
@@ -2034,7 +2025,7 @@ env = Environment(platform = 'win32')
 </literallayout>
 
 <para>Specifying a platform initializes the appropriate
-construction variables in the environment
+&consvars; in the environment
 to use and generate file names with prefixes
 and suffixes appropriate for the platform.</para>
 
@@ -2325,8 +2316,8 @@ path strings: if the string begins with
 the <emphasis role="bold">#</emphasis> character it is
 top-relative - it works like a relative path but the
 search follows down from the directory containing the top-level
-<emphasis role="bold">SConstruct</emphasis> rather than
-from the current directory (the # is allowed
+&SConstruct; rather than
+from the current directory (the <emphasis role="bold">#</emphasis> is allowed
 to be followed by a pathname separator, which is ignored if
 found in that position).
 Top-relative paths only work in places where &scons; will
@@ -2633,14 +2624,14 @@ construction variables like
 <emphasis role="bold">$TARGET</emphasis>
 and
 <emphasis role="bold">$SOURCE</emphasis>
-when using the chdir
+when using the <parameter>chdir</parameter>
 keyword argument--that is,
 the expanded file names
 will still be relative to
-the top-level SConstruct directory,
+the top-level directory where &SConstruct; was found,
 and consequently incorrect
 relative to the chdir directory.
-If you use the chdir keyword argument,
+If you use the <parameter>chdir</parameter> keyword argument,
 you will typically need to supply a different
 command line using
 expansions like
@@ -2651,7 +2642,7 @@ to use just the filename portion of the
 targets and source.</para>
 
 <para><command>scons</command>
-predefined the following builder methods.
+predefines the following builder methods.
 Depending on the setup of a particular
 &consenv; and on the type and software
 installation status of the underlying system,
@@ -2742,7 +2733,8 @@ object.</para>
 
 </refsect2>
 
-<refsect2 id='methods_and_functions_to_do_things'><title>Methods and Functions to Do Things</title>
+<refsect2 id='methods_and_functions_to_do_things'>
+<title>Methods and Functions To Do Things</title>
 <para>In addition to Builder methods,
 <command>scons</command>
 provides a number of other construction environment methods
@@ -2751,41 +2743,30 @@ manipulate the build configuration.</para>
 
 <para>Usually, a construction environment method
 and global function with the same name both exist
-so that you don't have to remember whether
-to a specific bit of functionality
-must be called with or without a construction environment.
-In the following list,
-if you call something as a global function
-it looks like:</para>
+for convenience.
+In the following list, the global function
+is documented like:</para>
 <literallayout class="monospaced">
 Function(<emphasis>arguments</emphasis>)
 </literallayout>
-<para>and if you call something through a construction
-environment it looks like:</para>
+<para>and the construction environment method looks like:</para>
 <literallayout class="monospaced">
 env.Function(<emphasis>arguments</emphasis>)
 </literallayout>
-<para>If you can call the functionality in both ways,
+<para>If you can call the function in both ways,
 then both forms are listed.</para>
 
-<para>Global functions may be called from custom Python modules that you
-import into an SConscript file by adding the following
-to the Python module:</para>
-
-<literallayout class="monospaced">
-from SCons.Script import *
-</literallayout>
-
-<para>Except where otherwise noted,
-the same-named
+<para>The global function and same-named
 construction environment method
-and global function
-provide the exact same functionality.
-The only difference is that,
-where appropriate,
+provide almost identical functionality, with a couple of exceptions.
+First, many of the construction environment methods affect only that
+construction environment, while the global function has a
+global effect. Second, where appropriate,
 calling the functionality through a construction environment will
 substitute construction variables into
-any supplied strings.
+any supplied strings, while the global function doesn't have the
+context of a construction environment to pick variables from,
+so it cannot perform the substitution.
 For example:</para>
 
 <literallayout class="monospaced">
@@ -2810,6 +2791,14 @@ to the list of default targets.
 For more on construction variable expansion,
 see the next section on
 construction variables.</para>
+
+<para>Global functions may be called from custom Python modules that you
+import into an SConscript file by adding the following import
+to the Python module:</para>
+
+<literallayout class="monospaced">
+from SCons.Script import *
+</literallayout>
 
 <para>Construction environment methods
 and global functions supported by
@@ -2934,9 +2923,10 @@ else:
 <command>scons</command>
 will actually try to build,
 regardless of whether they were specified on
-the command line or via the
-<emphasis role="bold">Default</emphasis>()
-function or method.
+the command line or via the &Default;
+function or method
+(but empty if neither
+command line targets or &Default; calls are present).
 The elements of this list may be strings
 <emphasis>or</emphasis>
 nodes, so you should run the list through the Python
@@ -2946,8 +2936,7 @@ are converted to strings.</para>
 
 <para>Because this list may be taken from the
 list of targets specified using the
-<emphasis role="bold">Default</emphasis>()
-function or method,
+&Default; function or method,
 the contents of the list may change
 on each successive call to
 <emphasis role="bold">Default</emphasis>().
@@ -2970,7 +2959,7 @@ if 'special/program' in BUILD_TARGETS:
 
 <para>Note that the
 <emphasis role="bold">BUILD_TARGETS</emphasis>
-list only contains targets expected listed
+list only contains targets listed
 on the command line or via calls to the
 <emphasis role="bold">Default</emphasis>()
 function or method.
@@ -3988,9 +3977,9 @@ opt.AddVariables(
         'notset', validator, None),
     )
 </literallayout>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>Update(<emphasis>env</emphasis>, [<emphasis>args</emphasis>])</term>
   <listitem>
@@ -4012,13 +4001,12 @@ the Environment() function:</para>
 <literallayout class="monospaced">
 env = Environment(variables=vars)
 </literallayout>
-
   </listitem>
   </varlistentry>
 </variablelist>
 
 <para>The text file(s) that were specified
-when the Variables object was created
+when the &Variables; object was created
 are executed as Python scripts,
 and the values of (global) Python variables set in the file
 are added to the construction environment.</para>
@@ -4382,20 +4370,17 @@ vars.AddVariables(
 
 </refsect2>
 
-<refsect2 id='file_and_directory_nodes'><title>File and Directory Nodes</title>
+<refsect2 id='file_and_directory_nodes'>
+<title>File and Directory Nodes</title>
 
-<para>The
-<emphasis>File</emphasis>()
-and
-<emphasis>Dir</emphasis>()
-functions return
-<emphasis>File</emphasis>
-and
-<emphasis>Dir</emphasis>
-Nodes, respectively.
-Python objects, respectively.
-Those objects have several user-visible attributes
-and methods that are often useful:</para>
+<para>
+The &f-link-File; and &f-link-Dir;
+functions/methods return
+File and Directory Nodes, respectively.
+Such nodes are Python objects with
+several user-visible attributes
+and methods that are often useful to access
+in SConscript files:</para>
 
 <variablelist>
   <varlistentry>
@@ -4405,39 +4390,35 @@ and methods that are often useful:</para>
 of the given
 file or directory.
 This path is relative to the top-level directory
-(where the
-<emphasis role="bold">SConstruct</emphasis>
-file is found).
+(where the &SConstruct; file is found).
 The build path is the same as the source path if
 <emphasis>variant_dir</emphasis>
 is not being used.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>abspath</term>
   <listitem>
 <para>The absolute build path of the given file or directory.</para>
-
   </listitem>
   </varlistentry>
+
   <varlistentry>
   <term>srcnode()</term>
   <listitem>
 <para>The
 <emphasis>srcnode</emphasis>()
 method
-returns another
-<emphasis>File</emphasis>
-or
-<emphasis>Dir</emphasis>
-object representing the
-<emphasis>source</emphasis>
-path of the given
-<emphasis>File</emphasis>
-or
-<emphasis>Dir</emphasis>.
-The</para>
+returns another File or Directory Node
+representing the source path of the given
+File or Directory Node.
+</para>
+  </listitem>
+  </varlistentry>
+</variablelist>
+
+<para>For example:</para>
 
 <literallayout class="monospaced">
 # Get the current build dir's path, relative to top.
@@ -4450,98 +4431,90 @@ File('foo.c').srcnode().path   # source path of the given source file.
 
 # Builders also return File objects:
 foo = env.Program('foo.c')
-print("foo will be built in %s"%foo.path)
+print("foo will be built in", foo.path)
 </literallayout>
 
-<para>A
-<emphasis>Dir</emphasis>
-Node or
-<emphasis>File</emphasis>
-Node can also be used to create
-file and subdirectory Nodes relative to the generating Node.
-A
-<emphasis>Dir</emphasis>
-Node will place the new Nodes within the directory it represents.
-A
-<emphasis>File</emphasis>
-node will place the new Nodes within its parent directory
-(that is, "beside" the file in question).
-If
-<emphasis>d</emphasis>
-is a
-<emphasis>Dir</emphasis>
-(directory) Node and
-<emphasis>f</emphasis>
-is a
-<emphasis>File</emphasis>
-(file) Node,
-then these methods are available:</para>
+<para>
+File and Directory Node objects have methods to create
+File and Directory Nodes relative to the original Node.
+</para>
 
-  </listitem>
-  </varlistentry>
-</variablelist>
+<para>
+If the object is a Directory Node,
+these methods will place the the new Node within the directory
+the Node represents:
+</para>
+
 <variablelist>
   <varlistentry>
-  <term><emphasis>d</emphasis>.Dir(<emphasis>name</emphasis>)</term>
+  <term><replaceable>d</replaceable>.Dir(<replaceable>name</replaceable>)</term>
   <listitem>
 <para>Returns a directory Node for a subdirectory of
-<emphasis>d</emphasis>
+<replaceable>d</replaceable>
 named
-<emphasis>name</emphasis>.</para>
-
+<replaceable>name</replaceable>.</para>
   </listitem>
   </varlistentry>
+
   <varlistentry>
-  <term><emphasis>d</emphasis>.File(<emphasis>name</emphasis>)</term>
+  <term><replaceable>d</replaceable>.File(<replaceable>name</replaceable>)</term>
   <listitem>
 <para>Returns a file Node for a file within
-<emphasis>d</emphasis>
+<replaceable>d</replaceable>
 named
-<emphasis>name</emphasis>.</para>
-
+<replaceable>name</replaceable>.</para>
   </listitem>
   </varlistentry>
+
   <varlistentry>
-  <term><emphasis>d</emphasis>.Entry(<emphasis>name</emphasis>)</term>
+  <term><replaceable>d</replaceable>.Entry(<replaceable>name</replaceable>)</term>
   <listitem>
 <para>Returns an unresolved Node within
-<emphasis>d</emphasis>
+<replaceable>d</replaceable>
 named
-<emphasis>name</emphasis>.</para>
-
-  </listitem>
-  </varlistentry>
-  <varlistentry>
-  <term><emphasis>f</emphasis>.Dir(<emphasis>name</emphasis>)</term>
-  <listitem>
-<para>Returns a directory named
-<emphasis>name</emphasis>
-within the parent directory of
-<emphasis>f</emphasis>.</para>
-
-  </listitem>
-  </varlistentry>
-  <varlistentry>
-  <term><emphasis>f</emphasis>.File(<emphasis>name</emphasis>)</term>
-  <listitem>
-<para>Returns a file named
-<emphasis>name</emphasis>
-within the parent directory of
-<emphasis>f</emphasis>.</para>
-
-  </listitem>
-  </varlistentry>
-  <varlistentry>
-  <term><emphasis>f</emphasis>.Entry(<emphasis>name</emphasis>)</term>
-  <listitem>
-<para>Returns an unresolved Node named
-<emphasis>name</emphasis>
-within the parent directory of
-<emphasis>f</emphasis>.</para>
-
+<replaceable>name</replaceable>.</para>
   </listitem>
   </varlistentry>
 </variablelist>
+
+<para>
+If the object is a File Node,
+these methods will place the the new Node in the same
+directory as the one the Node represents:
+</para>
+
+<variablelist>
+  <varlistentry>
+  <term><replaceable>d</replaceable>.Dir(<replaceable>name</replaceable>)</term>
+  <listitem>
+<para>Returns a directory named
+<replaceable>name</replaceable>
+within the parent directory of
+<replaceable>f</replaceable>.</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
+  <term><replaceable>d</replaceable>.File(<replaceable>name</replaceable>)</term>
+  <listitem>
+<para>Returns a file named
+<replaceable>name</replaceable>
+within the parent directory of
+<replaceable>f</replaceable>.</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
+  <term><replaceable>d</replaceable>.Entry(<replaceable>name</replaceable>)</term>
+  <listitem>
+<para>Returns an unresolved Node named
+<replaceable>name</replaceable>
+within the parent directory of
+<replaceable>f</replaceable>.</para>
+  </listitem>
+  </varlistentry>
+</variablelist>
+
 <para>For example:</para>
 
 <literallayout class="monospaced">
@@ -5105,14 +5078,14 @@ construction variables like
 <emphasis role="bold">$TARGET</emphasis>
 and
 <emphasis role="bold">$SOURCE</emphasis>
-when using the chdir
+when using the <parameter>chdir</parameter>
 keyword argument--that is,
 the expanded file names
 will still be relative to
-the top-level SConstruct directory,
+the top-level directory containing the &SConstruct; file,
 and consequently incorrect
 relative to the chdir directory.
-Builders created using chdir keyword argument,
+Builders created using <parameter>chdir</parameter> keyword argument,
 will need to use construction variable
 expansions like
 <emphasis role="bold">${TARGET.file}</emphasis>
@@ -5443,14 +5416,14 @@ construction variables like
 <emphasis role="bold">$TARGET</emphasis>
 and
 <emphasis role="bold">$SOURCE</emphasis>
-when using the chdir
+when using the <parameter>chdir</parameter>
 keyword argument--that is,
 the expanded file names
 will still be relative to
-the top-level SConstruct directory,
+the top-level directory containing the &SConstruct; file,
 and consequently incorrect
 relative to the chdir directory.
-Builders created using chdir keyword argument,
+Builders created using <parameter>chdir</parameter> keyword argument,
 will need to use construction variable
 expansions like
 <emphasis role="bold">${TARGET.file}</emphasis>
@@ -5922,7 +5895,7 @@ action='$CC -c -o $TARGET $SOURCES'
 cc -c -o foo foo.c bar.c
 </literallayout>
 
-<para>Variable names may be surrounded by curly braces 
+<para>Variable names may be surrounded by curly braces
 <emphasis role="bold">{ }</emphasis>
 to separate the name from surrounding characters which
 are not part of the name.
@@ -7062,7 +7035,7 @@ prefix and suffix for the current platform
 <refsect2 id='customizing_construction_variables_from_'><title>Customizing construction variables from the command line.</title>
 
 <para>The following would allow the C compiler to be specified on the command
-line or in the file custom.py.</para>
+line or in the file <filename>custom.py</filename>.</para>
 
 <literallayout class="monospaced">
 vars = Variables('custom.py')
@@ -7077,7 +7050,7 @@ Help(vars.GenerateHelpText(env))
 scons "CC=my_cc"
 </literallayout>
 
-<para>or in the custom.py file:</para>
+<para>or in the <filename>custom.py</filename> file:</para>
 
 <literallayout class="monospaced">
 CC = 'my_cc'
@@ -7181,7 +7154,10 @@ However the following variables are imported by
     <term>SCONS_LIB_DIR</term>
     <listitem>
 <para>Specifies the directory that contains the &scons;
-Python module directory (for example,
+Python module directory. Normally &scons; can deduce this,
+but in some circumstances, such as working with a source
+release, it may be necessary to specify
+(for example,
 <filename>/home/aroach/scons-src-0.01/src/engine</filename>).</para>
     </listitem>
   </varlistentry>
@@ -7199,7 +7175,7 @@ in addition to those passed on the command line.</para>
     <listitem>
 <para>(Windows only). If set, save the shell environment variables
 generated when setting up the Microsoft Visual C++ compiler
-(and/or Build Tools) to a file to give these settings, 
+(and/or Build Tools) to a file to give these settings,
 which are expensive to generate, persistence
 across &scons; invocations.
 Use of this option is primarily intended to aid performance
@@ -7221,7 +7197,7 @@ Remove the cache file in case of problems with this.
 &scons; will ignore failures reading or writing the file
 and will silently revert to non-cached behavior in such cases.</para>
 
-<para>Since &scons; 3.1.</para>
+<para>Since &scons; 3.1 (experimental).</para>
 
     </listitem>
   </varlistentry>

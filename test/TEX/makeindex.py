@@ -38,8 +38,8 @@ test = TestSCons.TestSCons()
 pdflatex = test.where_is('pdflatex')
 makeindex = test.where_is('makeindex')
 
-if not pdflatex or not makeindex:
-    test.skip_test("Could not find pdflatex or makeindex; skipping test(s).\n")
+if not all((pdflatex, makeindex)):
+    test.skip_test("Could not find 'pdflatex' and/or 'makeindex'; skipping test(s).\n")
 
 test.write('SConstruct', """\
 import os

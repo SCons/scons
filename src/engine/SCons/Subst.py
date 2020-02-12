@@ -375,23 +375,29 @@ class StringSubber(object):
                 if key[0] == '{' or '.' in key:
                     if key[0] == '{':
                         key = key[1:-1]
-                    try:
-                        s = eval(key, self.gvars, lvars)
-                    except KeyboardInterrupt:
-                        raise
-                    except Exception as e:
-                        if e.__class__ in AllowableExceptions:
-                            return ''
-                        raise_exception(e, lvars['TARGETS'], s)
+
+                # Store for error messages if we fail to expand the
+                # value
+                old_s = s
+                s = None
+                if key in lvars:
+                     s = lvars[key]
+                elif key in self.gvars:
+                     s = self.gvars[key]
                 else:
-                    if key in lvars:
-                        s = lvars[key]
-                    elif key in self.gvars:
-                        s = self.gvars[key]
-                    elif NameError not in AllowableExceptions:
-                        raise_exception(NameError(key), lvars['TARGETS'], s)
-                    else:
-                        return ''
+                     try:
+                          s = eval(key, self.gvars, lvars)
+                     except KeyboardInterrupt:
+                          raise
+                     except Exception as e:
+                          if e.__class__ in AllowableExceptions:
+                               return ''
+                          raise_exception(e, lvars['TARGETS'], old_s)
+
+                if s is None and NameError not in AllowableExceptions:
+                     raise_exception(NameError(key), lvars['TARGETS'], old_s)
+                elif s is None:
+                     return ''
 
                 # Before re-expanding the result, handle
                 # recursive expansion by copying the local
@@ -493,6 +499,21 @@ class ListSubber(collections.UserList):
         self.in_strip = None
         self.next_line()
 
+    def expanded(self, s):
+        """Determines if the string s requires further expansion.
+
+        Due to the implementation of ListSubber expand will call
+        itself 2 additional times for an already expanded string. This
+        method is used to determine if a string is already fully
+        expanded and if so exit the loop early to prevent these
+        recursive calls.
+        """
+        if not is_String(s) or isinstance(s, CmdStringHolder):
+            return False
+
+        s = str(s)  # in case it's a UserString
+        return _separate_args.findall(s) is None
+
     def expand(self, s, lvars, within_list):
         """Expand a single "token" as necessary, appending the
         expansion to the current result.
@@ -524,23 +545,35 @@ class ListSubber(collections.UserList):
                 if key[0] == '{' or key.find('.') >= 0:
                     if key[0] == '{':
                         key = key[1:-1]
-                    try:
-                        s = eval(key, self.gvars, lvars)
-                    except KeyboardInterrupt:
-                        raise
-                    except Exception as e:
-                        if e.__class__ in AllowableExceptions:
-                            return
-                        raise_exception(e, lvars['TARGETS'], s)
+
+                # Store for error messages if we fail to expand the
+                # value
+                old_s = s
+                s = None
+                if key in lvars:
+                     s = lvars[key]
+                elif key in self.gvars:
+                     s = self.gvars[key]
                 else:
-                    if key in lvars:
-                        s = lvars[key]
-                    elif key in self.gvars:
-                        s = self.gvars[key]
-                    elif NameError not in AllowableExceptions:
-                        raise_exception(NameError(), lvars['TARGETS'], s)
-                    else:
-                        return
+                     try:
+                         s = eval(key, self.gvars, lvars)
+                     except KeyboardInterrupt:
+                         raise
+                     except Exception as e:
+                         if e.__class__ in AllowableExceptions:
+                             return
+                         raise_exception(e, lvars['TARGETS'], old_s)
+
+                if s is None and NameError not in AllowableExceptions:
+                     raise_exception(NameError(), lvars['TARGETS'], old_s)
+                elif s is None:
+                     return
+
+                # If the string is already full expanded there's no
+                # need to continue recursion.
+                if self.expanded(s):
+                    self.append(s)
+                    return
 
                 # Before re-expanding the result, handle
                 # recursive expansion by copying the local
@@ -754,7 +787,7 @@ _list_remove = [ _rm_list, None, _remove_list ]
 #
 _dollar_exps_str = r'\$[\$\(\)]|\$[_a-zA-Z][\.\w]*|\${[^}]*}'
 _dollar_exps = re.compile(r'(%s)' % _dollar_exps_str)
-_separate_args = re.compile(r'(%s|\s+|[^\s\$]+|\$)' % _dollar_exps_str)
+_separate_args = re.compile(r'(%s|\s+|[^\s$]+|\$)' % _dollar_exps_str)
 
 # This regular expression is used to replace strings of multiple white
 # space characters in the string result from the scons_subst() function.

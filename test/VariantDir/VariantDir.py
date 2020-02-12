@@ -56,6 +56,7 @@ bar52 = test.workpath('build', 'var5', 'bar2' + _exe)
 test.subdir('work1', 'work2', 'work3')
 
 test.write(['work1', 'SConstruct'], """
+DefaultEnvironment(tools=[])
 src = Dir('src')
 var2 = Dir('build/var2')
 var3 = Dir('build/var3')
@@ -88,6 +89,7 @@ SConscript('../build/var6/SConscript', "env")
 test.subdir(['work1', 'src'])
 test.write(['work1', 'src', 'SConscript'], """
 import os.path
+import sys
 
 def buildIt(target, source, env):
     if not os.path.exists('build'):
@@ -116,9 +118,16 @@ except:
     fortran = None
 
 if fortran and env.Detect(fortran):
+    if sys.platform =='win32':
+        env_prog=Environment(tools=['mingw'], 
+        # BUILD = env['BUILD'], SRC = ENV['src'],
+        CPPPATH=env['CPPPATH'], FORTRANPATH=env['FORTRANPATH'] )
+    else:
+        env_prog=env.Clone()
+
     env.Command(target='b2.f', source='b2.in', action=buildIt)
-    env.Clone().Program(target='bar2', source='b2.f')
-    env.Clone().Program(target='bar1', source='b1.f')
+    env_prog.Program(target='bar2', source='b2.f')
+    env_prog.Program(target='bar1', source='b1.f')
 """)
 
 test.write(['work1', 'src', 'f1.c'], r"""
