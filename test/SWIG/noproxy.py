@@ -52,8 +52,6 @@ python, python_include, python_libpath, python_lib = \
 # handle testing on other platforms:
 ldmodule_prefix = '_'
 
-test.file_fixture('wrapper.py')
-
 test.write("dependency.i", """\
 %module dependency
 """)
@@ -75,7 +73,6 @@ foo = Environment(SWIGFLAGS=['-python', '-noproxy'],
                   )
 
 swig = foo.Dictionary('SWIG')
-bar = foo.Clone(SWIG = [r'%(python)s', 'wrapper.py', swig])
 foo.CFile(target = 'dependent', source = ['dependent.i'])
 """ % locals())
 

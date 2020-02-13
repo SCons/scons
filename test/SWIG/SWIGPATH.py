@@ -37,10 +37,6 @@ if not swig:
     test.skip_test('Can not find installed "swig", skipping test.\n')
 swig = swig.replace('\\','/')
 
-_python_ = TestSCons._python_
-
-test.file_fixture('wrapper.py')
-
 test.subdir('inc1', 'inc2')
 
 test.write(['inc2', 'dependency.i'], """\
@@ -58,7 +54,6 @@ foo = Environment(SWIGFLAGS='-python',
                   SWIG='%(swig)s',
                   SWIGPATH=['inc1', 'inc2'])
 swig = foo.Dictionary('SWIG')
-bar = foo.Clone(SWIG = [r'%(_python_)s', 'wrapper.py', swig])
 foo.CFile(target = 'dependent', source = ['dependent.i'])
 """ % locals())
 
