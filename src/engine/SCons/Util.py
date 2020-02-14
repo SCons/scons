@@ -325,7 +325,7 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None, 
     children = child_func(root)
     
     if child < lenChildren:
-        if chield<2:
+        if child<2:
             cross = "└┬"
         else:
             cross = " ├─"
