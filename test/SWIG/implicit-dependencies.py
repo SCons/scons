@@ -1,4 +1,4 @@
-#!/asr/bin/env python
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
