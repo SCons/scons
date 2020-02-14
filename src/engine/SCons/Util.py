@@ -261,7 +261,7 @@ def render_tree(root, child_func, prune=0, margin=[0], visited=None):
 IDX = lambda N: N and 1 or 0
 
 
-def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
+def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None, child=0, lenChildren=0):
     """
     Print a tree of nodes.  This is like render_tree, except it prints
     lines directly instead of creating a string representation in memory,
@@ -319,24 +319,34 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
         tags = []
 
     def MMM(m):
-        return ["  ","| "][m]
+        return ["  "," │ "][m]
     margins = list(map(MMM, margin[:-1]))
 
     children = child_func(root)
-
+    
+    if child < lenChildren:
+        if chield<2:
+            cross = "└┬"
+        else:
+            cross = " ├─"
+    else:
+        cross = " └─"
+        
     if prune and rname in visited and children:
-        sys.stdout.write(''.join(tags + margins + ['+-[', rname, ']']) + '\n')
+        sys.stdout.write(''.join(tags + margins + [cross,'[', rname, ']']) + '\n')
         return
 
-    sys.stdout.write(''.join(tags + margins + ['+-', rname]) + '\n')
+    sys.stdout.write(''.join(tags + margins + [cross, rname]) + '\n')
 
     visited[rname] = 1
 
     if children:
         margin.append(1)
         idx = IDX(showtags)
+        _child = 0
         for C in children[:-1]:
-            print_tree(C, child_func, prune, idx, margin, visited)
+            _child = _child + 1
+            print_tree(C, child_func, prune, idx, margin, visited, _child, len(children))
         margin[-1] = 0
         print_tree(children[-1], child_func, prune, idx, margin, visited)
         margin.pop()
