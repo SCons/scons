@@ -68,6 +68,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Add an alternate warning message cl.exe is not found and msvc config
       cache is in use (SCONS_CACHE_MSVC_CONFIG was given) - config cache
       may be out of date.
+    - Fix typo TEXTFILESUFFIX -> SUBSTFILESUFFIX (bug #3540)
 
 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
