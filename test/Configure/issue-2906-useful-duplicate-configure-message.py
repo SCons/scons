@@ -43,7 +43,7 @@ test_SConstruct_path = test.workpath('SConstruct')
 expected_stdout = "scons: Reading SConscript files ...\n"
 
 expected_stderr = """
-scons: *** User Called Configure() when another Configure() exists.
+scons: *** Configure() called while another Configure() exists.
             Please call .Finish() before creating and second Configure() context
 File "%s", line 5, in <module>\n"""%test_SConstruct_path
 test.run(stderr=expected_stderr, stdout=expected_stdout, status=2)
