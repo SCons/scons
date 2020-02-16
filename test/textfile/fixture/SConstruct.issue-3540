@@ -1,0 +1,23 @@
+"""
+Test for GH Issue 3540
+
+textfile()'s action is not sensitive to changes in TEXTFILESUFFIX (rather was sensitive to SUBSTFILESUFFIX)
+
+"""
+
+DefaultEnvironment(tools=[])
+
+text_file_suffix = ARGUMENTS.get('text_file_suffix', 'DEFAULTSUFFIX')
+
+env = Environment(tools=['textfile'],
+                  TEXTFILESUFFIX=text_file_suffix)
+
+env['FOO_PATH'] = "test-value-1"
+
+foo = env.Substfile(
+    target="substfile",
+    source="substfile.in",
+    SUBST_DICT={
+        "@foo_path@": "$FOO_PATH",
+    }
+)
