@@ -430,7 +430,8 @@ class SConfBase(object):
             SConfFS = SCons.Node.FS.default_fs or \
                       SCons.Node.FS.FS(env.fs.pathTop)
         if sconf_global is not None:
-            raise SCons.Errors.UserError
+            raise SCons.Errors.UserError("""User Called Configure() when another Configure() exists.
+            Please call .Finish() before creating and second Configure() context""")
 
         if log_file is not None:
             log_file = SConfFS.File(env.subst(log_file))
