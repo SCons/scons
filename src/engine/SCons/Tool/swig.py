@@ -7,8 +7,6 @@ It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
 
 """
-from __future__ import print_function
-
 #
 # __COPYRIGHT__
 #

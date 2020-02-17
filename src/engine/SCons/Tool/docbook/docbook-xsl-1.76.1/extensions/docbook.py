@@ -1,7 +1,5 @@
 # docbook.py: extension module
 # $Id: docbook.py 8353 2009-03-17 16:57:50Z mzjn $
-from __future__ import print_function
-
 import sys
 import string
 import libxml2
