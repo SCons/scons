@@ -35,7 +35,7 @@ import codecs
 import pprint
 import hashlib
 from collections import UserDict, UserList, UserString, OrderedDict
-from collections.abc import Iterable, MappingView
+from collections.abc import MappingView
 
 PY3 = sys.version_info[0] == 3
 PYPY = hasattr(sys, 'pypy_translation_info')
@@ -356,27 +356,18 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
 DictTypes = (dict, UserDict)
 ListTypes = (list, UserList)
 
-try:
-    # Handle getting dictionary views.
-    SequenceTypes = (list, tuple, UserList, MappingView)
-except NameError:
-    SequenceTypes = (list, tuple, UserList)
+# Handle getting dictionary views.
+SequenceTypes = (list, tuple, UserList, MappingView)
 
 
 # Note that profiling data shows a speed-up when comparing
 # explicitly with str and unicode instead of simply comparing
 # with basestring. (at least on Python 2.5.1)
-try:
-    StringTypes = (str, unicode, UserString)
-except NameError:
-    StringTypes = (str, UserString)
+StringTypes = (str, UserString)
 
 # Empirically, it is faster to check explicitly for str and
 # unicode than for basestring.
-try:
-    BaseStringTypes = (str, unicode)
-except NameError:
-    BaseStringTypes = str
+BaseStringTypes = str
 
 def is_Dict(obj, isinstance=isinstance, DictTypes=DictTypes):
     return isinstance(obj, DictTypes)
