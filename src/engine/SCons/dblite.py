@@ -1,6 +1,7 @@
-# dblite.py module contributed by Ralf W. Grosse-Kunstleve.
-# Extended for Unicode by Steven Knight.
-from __future__ import print_function
+"""
+dblite.py module contributed by Ralf W. Grosse-Kunstleve.
+Extended for Unicode by Steven Knight.
+"""
 
 import os
 import pickle
