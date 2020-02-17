@@ -37,7 +37,6 @@ import hashlib
 from collections import UserDict, UserList, UserString, OrderedDict
 from collections.abc import MappingView
 
-PY3 = sys.version_info[0] == 3
 PYPY = hasattr(sys, 'pypy_translation_info')
 
 # Don't "from types import ..." these because we need to get at the
