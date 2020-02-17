@@ -324,13 +324,20 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None, 
 
     children = child_func(root)
     
-    if child < lenChildren:
-        if child<2:
-            cross = "└┬"
+    cross = "├─"  # sign used to point to the leaf.
+    
+    # check if this is the last leaf of the branch
+    if child == lenChildren:
+        #if this if the last leaf, then terminate:
+        cross = "└─" # sign for the last leaf
+
+    # if this is not a leaf after all, split it
+    if len(children)>0:
+        # If it is actually a reference to another branch:
+        if prune and rname in visited and children:
+            cross += "─"
         else:
-            cross = " ├─"
-    else:
-        cross = " └─"
+            cross += "┬"
         
     if prune and rname in visited and children:
         sys.stdout.write(''.join(tags + margins + [cross,'[', rname, ']']) + '\n')
@@ -345,10 +352,14 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None, 
         idx = IDX(showtags)
         _child = 0
         for C in children[:-1]:
-            _child = _child + 1
+            # additional parameters:
+            #  - the nr of children of the current item
+            #  - the current child from the available            
             print_tree(C, child_func, prune, idx, margin, visited, _child, len(children))
+            _child = _child + 1
         margin[-1] = 0
-        print_tree(children[-1], child_func, prune, idx, margin, visited)
+        # for this call child and nr of children needs to be set to 0
+        print_tree(children[-1], child_func, prune, idx, margin, visited,0,0) 
         margin.pop()
 
 
