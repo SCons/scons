@@ -31,7 +31,7 @@ import SCons.compat
 def Func():
     pass
 
-import collections
+from collections import UserList
 import io
 import os.path
 import re
@@ -254,7 +254,7 @@ class BuilderTestCase(unittest.TestCase):
         assert not hasattr(n2, 'env')
 
         l = [1]
-        ul = collections.UserList([2])
+        ul = UserList([2])
         try:
             l.extend(ul)
         except TypeError:

@@ -37,10 +37,8 @@ class GlobalActFunc(object):
         pass
 
 
-import collections
 import io
 import os
-import re
 import sys
 import types
 import unittest

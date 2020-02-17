@@ -34,14 +34,11 @@ import types
 import codecs
 import pprint
 import hashlib
+from collections import UserDict, UserList, UserString, OrderedDict
+from collections.abc import Iterable, MappingView
 
 PY3 = sys.version_info[0] == 3
 PYPY = hasattr(sys, 'pypy_translation_info')
-
-
-from collections import UserDict, UserList, UserString
-from collections.abc import Iterable, MappingView
-from collections import OrderedDict
 
 # Don't "from types import ..." these because we need to get at the
 # types module later to look for UnicodeType.
