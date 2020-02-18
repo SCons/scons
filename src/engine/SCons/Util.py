@@ -261,7 +261,7 @@ def render_tree(root, child_func, prune=0, margin=[0], visited=None):
 IDX = lambda N: N and 1 or 0
 
 
-def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
+def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None, lastChild=False, singleLineDraw=False):
     """
     Print a tree of nodes.  This is like render_tree, except it prints
     lines directly instead of creating a string representation in memory,
@@ -307,7 +307,8 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
                 [0, 1][IDX(root.has_explicit_builder())] +
                 [0, 2][IDX(root.has_builder())]
             ],
-            ' S'[IDX(root.side_effect)], ' P'[IDX(root.precious)],
+            ' S'[IDX(root.side_effect)],
+			' P'[IDX(root.precious)],
             ' A'[IDX(root.always_build)],
             ' C'[IDX(root.is_up_to_date())],
             ' N'[IDX(root.noclean)],
@@ -319,27 +320,50 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
         tags = []
 
     def MMM(m):
-        return ["  ","| "][m]
+        if singleLineDraw:
+            return ["  ","│ "][m]
+        else:
+            return ["  ","| "][m]
+
     margins = list(map(MMM, margin[:-1]))
 
     children = child_func(root)
 
+    cross = "+-"
+    if singleLineDraw:
+        cross = "├─"  # sign used to point to the leaf.
+        # check if this is the last leaf of the branch
+        if lastChild:
+            #if this if the last leaf, then terminate:
+            cross = "└─" # sign for the last leaf
+
+        # if this branch has children then split it
+        if len(children)>0:
+            # if it's a leaf:
+            if prune and rname in visited and children:
+                cross += "─"
+            else:
+                cross += "┬"
+
     if prune and rname in visited and children:
-        sys.stdout.write(''.join(tags + margins + ['+-[', rname, ']']) + '\n')
+        sys.stdout.write(''.join(tags + margins + [cross,'[', rname, ']']) + '\n')
         return
 
-    sys.stdout.write(''.join(tags + margins + ['+-', rname]) + '\n')
+    sys.stdout.write(''.join(tags + margins + [cross, rname]) + '\n')
 
     visited[rname] = 1
 
+    # if this item has children:
     if children:
-        margin.append(1)
+        margin.append(1) # Initialize margin with 1 for vertical bar.
         idx = IDX(showtags)
+        _child = 0 # Initialize this for the first child.
         for C in children[:-1]:
-            print_tree(C, child_func, prune, idx, margin, visited)
-        margin[-1] = 0
-        print_tree(children[-1], child_func, prune, idx, margin, visited)
-        margin.pop()
+            _child = _child + 1 # number the children
+            print_tree(C, child_func, prune, idx, margin, visited, (len(children) - _child) <= 0 ,singleLineDraw)
+        margin[-1] = 0  # margins are with space (index 0) because we arrived to the last child.
+        print_tree(children[-1], child_func, prune, idx, margin, visited, True ,singleLineDraw) # for this call child and nr of children needs to be set 0, to signal the second phase.
+        margin.pop() # destroy the last margin added
 
 
 # Functions for deciding if things are like various types, mainly to
