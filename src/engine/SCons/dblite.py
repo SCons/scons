@@ -18,25 +18,13 @@ def corruption_warning(filename):
     print("Warning: Discarding corrupt database:", filename)
 
 
-try:
-    unicode
-except NameError:
-    def is_string(s):
-        return isinstance(s, str)
-else:
-    def is_string(s):
-        return type(s) in (str, unicode)
+def is_string(s):
+    return isinstance(s, str)
 
 
 def is_bytes(s):
     return isinstance(s, bytes)
 
-
-try:
-    unicode('a')
-except NameError:
-    def unicode(s):
-        return s
 
 dblite_suffix = '.dblite'
 
@@ -217,23 +205,17 @@ def _exercise():
     assert len(db) == 0
     db["foo"] = "bar"
     assert db["foo"] == "bar"
-    db[unicode("ufoo")] = unicode("ubar")
-    assert db[unicode("ufoo")] == unicode("ubar")
     db.sync()
     db = open("tmp", "c")
     assert len(db) == 2, len(db)
     assert db["foo"] == "bar"
     db["bar"] = "foo"
     assert db["bar"] == "foo"
-    db[unicode("ubar")] = unicode("ufoo")
-    assert db[unicode("ubar")] == unicode("ufoo")
     db.sync()
     db = open("tmp", "r")
     assert len(db) == 4, len(db)
     assert db["foo"] == "bar"
     assert db["bar"] == "foo"
-    assert db[unicode("ufoo")] == unicode("ubar")
-    assert db[unicode("ubar")] == unicode("ufoo")
     try:
         db.sync()
     except IOError as e:
