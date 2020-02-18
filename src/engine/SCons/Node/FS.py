@@ -1547,9 +1547,7 @@ class Dir(Base):
         self.repositories = []
         self.srcdir = None
 
-        self.entries = {}
-        self.entries['.'] = self
-        self.entries['..'] = self.dir
+        self.entries = {'.': self, '..': self.dir}
         self.cwd = self
         self.searched = 0
         self._sconsign = None
@@ -2304,10 +2302,8 @@ class RootDir(Dir):
         self._morph()
 
         self.duplicate = 0
-        self._lookupDict = {}
+        self._lookupDict = {'': self, '/': self}
 
-        self._lookupDict[''] = self
-        self._lookupDict['/'] = self
         self.root = self
         # The // entry is necessary because os.path.normpath()
         # preserves double slashes at the beginning of a path on Posix
@@ -2327,9 +2323,7 @@ class RootDir(Dir):
         self.repositories = []
         self.srcdir = None
 
-        self.entries = {}
-        self.entries['.'] = self
-        self.entries['..'] = self.dir
+        self.entries = {'.': self, '..': self.dir}
         self.cwd = self
         self.searched = 0
         self._sconsign = None
