@@ -8,8 +8,6 @@ selection method.
 
 """
 
-from __future__ import absolute_import
-
 #
 # __COPYRIGHT__
 #

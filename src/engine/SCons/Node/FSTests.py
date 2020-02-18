@@ -463,10 +463,7 @@ class VariantDirTestCase(unittest.TestCase):
 
             def __init__(self, duplicate, link, symlink, copy):
                 self.duplicate = duplicate
-                self.have = {}
-                self.have['hard'] = link
-                self.have['soft'] = symlink
-                self.have['copy'] = copy
+                self.have = {'hard': link, 'soft': symlink, 'copy': copy}
 
                 self.links_to_be_called = []
                 for link in self.duplicate.split('-'):
