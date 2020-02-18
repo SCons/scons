@@ -42,6 +42,7 @@ import sys
 import time
 import codecs
 from itertools import chain
+import importlib.util
 
 import SCons.Action
 import SCons.Debug
@@ -1425,22 +1426,10 @@ class FS(LocalFS):
         This can be useful when we want to determine a toolpath based on a python module name"""
 
         dirpath = ''
-        if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] in (0,1,2,3,4)):
-            # Python2 Code
-            import imp
-            splitname = modulename.split('.')
-            srchpths = sys.path
-            for item in splitname:
-                file, path, desc = imp.find_module(item, srchpths)
-                if file is not None:
-                    path = os.path.dirname(path)
-                srchpths = [path]
-            dirpath = path
-        else:
-            # Python3 Code
-            import importlib.util
-            modspec = importlib.util.find_spec(modulename)
-            dirpath = os.path.dirname(modspec.origin)
+
+        # Python3 Code
+        modspec = importlib.util.find_spec(modulename)
+        dirpath = os.path.dirname(modspec.origin)
         return self._lookup(dirpath, None, Dir, True)
 
 

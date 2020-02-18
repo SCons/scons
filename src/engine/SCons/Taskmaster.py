@@ -553,15 +553,12 @@ class Task(object):
             exc_traceback = None
 
         # raise exc_type(exc_value).with_traceback(exc_traceback)
-        if sys.version_info[0] == 2:
-            exec("raise exc_type, exc_value, exc_traceback")
-        else: #  sys.version_info[0] == 3:
-            if isinstance(exc_value, Exception): #hasattr(exc_value, 'with_traceback'):
-                # If exc_value is an exception, then just reraise
-                exec("raise exc_value.with_traceback(exc_traceback)")
-            else:
-                # else we'll create an exception using the value and raise that
-                exec("raise exc_type(exc_value).with_traceback(exc_traceback)")
+        if isinstance(exc_value, Exception): #hasattr(exc_value, 'with_traceback'):
+            # If exc_value is an exception, then just reraise
+            raise exc_value.with_traceback(exc_traceback)
+        else:
+            # else we'll create an exception using the value and raise that
+            raise exc_type(exc_value).with_traceback(exc_traceback)
 
 
         # raise e.__class__, e.__class__(e), sys.exc_info()[2]
