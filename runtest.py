@@ -662,7 +662,7 @@ else:
         # sys.stderr.write("to:%s\n"%tp)
         for path in glob.glob(tp):
             if os.path.isdir(path):
-                if path.startswith('src'):
+                if path.startswith('src') or path.startswith('testing'):
                     for p in find_Tests_py(path):
                         unittests.append(p)
                 elif path.startswith('test'):
