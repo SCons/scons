@@ -358,14 +358,8 @@ def to_str(s):
     return str(s, 'utf-8')
 
 
-try:
-    eval('unicode')
-except NameError:
-    def is_String(e):
-        return isinstance(e, (str, UserString))
-else:
-    def is_String(e):
-        return isinstance(e, (str, unicode, UserString))
+def is_String(e):
+    return isinstance(e, (str, UserString))
 
 testprefix = 'testcmd.'
 if os.name in ('posix', 'nt'):
@@ -1094,7 +1088,7 @@ class TestCmd(object):
             condition = self.condition
         if self._preserve[condition]:
             for dir in self._dirlist:
-                print(u"Preserved directory " + dir)
+                print("Preserved directory " + dir)
         else:
             list = self._dirlist[:]
             list.reverse()
@@ -1535,7 +1529,6 @@ class TestCmd(object):
             stream = stream.replace('\r\n', '\n')
 
         return stream
-
 
     def finish(self, popen=None, **kw):
         """
