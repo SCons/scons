@@ -3727,7 +3727,7 @@ class FileFinder(object):
         if verbose and not callable(verbose):
             if not SCons.Util.is_String(verbose):
                 verbose = "find_file"
-            _verbose = u'  %s: ' % verbose
+            _verbose = '  %s: ' % verbose
             verbose = lambda s: sys.stdout.write(_verbose + s)
 
         filedir, filename = os.path.split(filename)
