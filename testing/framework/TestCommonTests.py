@@ -167,7 +167,6 @@ class __init__TestCase(TestCommonTestCase):
 
         os.chdir(run_env.workdir)
         script = lstrip("""\
-        from __future__ import print_function
         from TestCommon import TestCommon
         tc = TestCommon(workdir='')
         import os
@@ -2340,15 +2339,13 @@ class variables_TestCase(TestCommonTestCase):
             'dll_suffix',
         ]
 
-        script = "from __future__ import print_function\n" + \
-                 "import TestCommon\n" + \
+        script = "import TestCommon\n" + \
                  '\n'.join([ "print(TestCommon.%s)\n" % v for v in variables ])
         run_env.run(program=sys.executable, stdin=script)
         stderr = run_env.stderr()
         assert stderr == "", stderr
 
-        script = "from __future__ import print_function\n" + \
-                 "from TestCommon import *\n" + \
+        script = "from TestCommon import *\n" + \
                  '\n'.join([ "print(%s)" % v for v in variables ])
         run_env.run(program=sys.executable, stdin=script)
         stderr = run_env.stderr()

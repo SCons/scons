@@ -20,13 +20,12 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify specifying an alternate Python executable in a config file.
 """
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 
@@ -46,7 +45,6 @@ python = r'%(my_python_py)s'
 
 test.write(my_python_py, """\
 #!%(_python_)s
-from __future__ import print_function
 import sys
 profile = ''
 for arg in sys.argv[1:]:

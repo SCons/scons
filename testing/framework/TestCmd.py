@@ -285,7 +285,6 @@ version.
 # PARTICULAR PURPOSE.  THE CODE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS,
 # AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
-from __future__ import division, print_function
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
 __revision__ = "TestCmd.py 1.3.D001 2010/06/03 12:58:27 knight"
@@ -492,11 +491,9 @@ def match_caseinsensitive(lines=None, matches=None):
     """
     Match function using case-insensitive matching.
 
-    Only a simplistic comparison is done, based on lowercasing the
-    strings. This has plenty of holes for unicode data using
-    non-English languages.
-
-    TODO: casefold() is better than lower() if we don't need Py2 support.
+    Only a simplistic comparison is done, based on casefolding
+    the strings. This may still fail but is the suggestion of
+    the Unicode Standard.
 
     :param lines: data lines
     :type lines: str or list[str]
@@ -512,7 +509,7 @@ def match_caseinsensitive(lines=None, matches=None):
     if len(lines) != len(matches):
         return None
     for line, match in zip(lines, matches):
-        if line.lower() != match.lower():
+        if line.casefold() != match.casefold():
             return None
     return 1
 
@@ -700,7 +697,7 @@ if sys.platform == 'win32':
         if is_String(pathext):
             pathext = pathext.split(os.pathsep)
         for ext in pathext:
-            if ext.lower() == file[-len(ext):].lower():
+            if ext.casefold() == file[-len(ext):].casefold():
                 pathext = ['']
                 break
         for dir in path:
@@ -1504,13 +1501,13 @@ class TestCmd(object):
     @staticmethod
     def fix_binary_stream(stream):
         """
-        Handle stdout/stderr from popen when we specify universal_newlines = False.
+        Handle stdout/stderr from popen when we specify not universal_newlines
 
-        This will read from the pipes in binary mode, not decode the output,
-        and not convert line endings to \n.
+        This will read from the pipes in binary mode, will not decode the
+        output, and will not convert line endings to \n.
         We do this because in py3 (3.5) with universal_newlines=True, it will
         choose the default system locale to decode the output, and this breaks unicode
-        output. Specifically breaking test/option--tree.py which outputs a unicode char.
+        output. Specifically test/option--tree.py which outputs a unicode char.
 
         py 3.6 allows us to pass an encoding param to popen thus not requiring the decode
         nor end of line handling, because we propagate universal_newlines as specified.
@@ -1968,13 +1965,20 @@ class TestCmd(object):
             do_chmod(top)
 
     def write(self, file, content, mode='wb'):
-        """Writes the specified content text (second argument) to the
-        specified file name (first argument).  The file name may be
-        a list, in which case the elements are concatenated with the
-        os.path.join() method.  The file is created under the temporary
-        working directory.  Any subdirectories in the path must already
-        exist.  The I/O mode for the file may be specified; it must
-        begin with a 'w'.  The default is 'wb' (binary write).
+        """Write data to file
+
+        The file is created under the temporary working directory.
+        Any subdirectories in the path must already exist. The
+        write is converted to the required type rather than failing
+        if there is a str/bytes mistmatch.
+
+        :param file: name of file to write to. If a list, treated
+            as components of a path and concatenated into a path.
+        :type file: str or list(str)
+        :param content: data to write.
+        :type  content: str or bytes
+        :param mode: file mode, default is binary.
+        :type mode: str
         """
         file = self.canonicalize(file)
         if mode[0] != 'w':
@@ -1983,7 +1987,6 @@ class TestCmd(object):
             try:
                 f.write(content)
             except TypeError as e:
-                # python 3 default strings are not bytes, but unicode
                 f.write(bytes(content, 'utf-8'))
 
 # Local Variables:

@@ -69,8 +69,6 @@ Environment Variables:
   TESTCMD_VERBOSE: turn on verbosity in TestCommand\
 """
 
-from __future__ import print_function
-
 import getopt
 import glob
 import os
