@@ -306,22 +306,6 @@ class BuilderTestCase(unittest.TestCase):
         #be = target.get_build_env()
         #assert be['VAR'] == 'foo', be['VAR']
 
-        try: unicode
-        except NameError:
-            uni = str
-        else:
-            uni = unicode
-
-        target = builder(env, target = uni('n12 n13'),
-                          source = [uni('n14 n15')])[0]
-        assert target.name == uni('n12 n13')
-        assert target.sources[0].name == uni('n14 n15')
-
-        target = builder(env, target = [uni('n16 n17')],
-                         source = uni('n18 n19'))[0]
-        assert target.name == uni('n16 n17')
-        assert target.sources[0].name == uni('n18 n19')
-
         n20 = MyNode_without_target_from_source('n20')
         flag = 0
         try:
