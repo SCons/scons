@@ -740,7 +740,7 @@ class UtilTestCase(unittest.TestCase):
 
     def test_LogicalLines(self):
         """Test the LogicalLines class"""
-        content = u"""
+        content = """
 foo \\
 bar \\
 baz
