@@ -41,6 +41,7 @@ import sys
 import re
 import os
 import shutil
+from collections.abc import Callable
 
 import SCons.Builder
 import SCons.Errors
@@ -51,12 +52,6 @@ import SCons.Scanner.D
 import SCons.Scanner.LaTeX
 import SCons.Scanner.Prog
 import SCons.Scanner.SWIG
-try:
-    # Python 3
-    from collections.abc import Callable
-except ImportError:
-    # Python 2.7
-    from collections import Callable
 
 DefaultToolpath = []
 

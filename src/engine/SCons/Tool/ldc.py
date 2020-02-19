@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 """SCons.Tool.ldc
 
 Tool-specific initialization for the LDC compiler.

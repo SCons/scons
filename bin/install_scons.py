@@ -25,7 +25,7 @@ import os
 import shutil
 import sys
 import tarfile
-from urllib import urlretrieve
+from urllib.request import urlretrieve
 
 from Command import CommandRunner, Usage
 

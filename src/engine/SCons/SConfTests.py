@@ -307,10 +307,6 @@ int main(void) {
             return None
         def actionFAIL(target, source, env):
             return 1
-        def actionUnicode(target, source, env):
-            with open(str(target[0]), "wb") as f:
-                f.write('2\302\242\n')
-            return None
 
 
         self._resetSConfState()
@@ -319,14 +315,10 @@ int main(void) {
                                   log_file=self.test.workpath('config.log'))
         try:
             (ret, output) = sconf.TryAction(action=actionOK)
-            assert ret and output.encode('utf-8') == bytearray("RUN OK"+os.linesep,'utf-8'), (ret, output)
+            assert ret and output.encode('utf-8') == bytearray("RUN OK"+os.linesep, 'utf-8'), (ret, output)
             (ret, output) = sconf.TryAction(action=actionFAIL)
             assert not ret and output == "", (ret, output)
 
-            if not TestCmd.IS_PY3:
-                # GH Issue #3141 - unicode text and py2.7 crashes.
-                (ret, output) = sconf.TryAction(action=actionUnicode)
-                assert ret and output == u'2\xa2\n', (ret, output)
 
         finally:
             sconf.Finish()

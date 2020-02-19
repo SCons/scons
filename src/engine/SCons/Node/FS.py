@@ -31,8 +31,6 @@ that can be used by scripts or modules looking for the canonical default.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-from __future__ import print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import fnmatch
@@ -1549,9 +1547,7 @@ class Dir(Base):
         self.repositories = []
         self.srcdir = None
 
-        self.entries = {}
-        self.entries['.'] = self
-        self.entries['..'] = self.dir
+        self.entries = {'.': self, '..': self.dir}
         self.cwd = self
         self.searched = 0
         self._sconsign = None
@@ -2306,10 +2302,8 @@ class RootDir(Dir):
         self._morph()
 
         self.duplicate = 0
-        self._lookupDict = {}
+        self._lookupDict = {'': self, '/': self}
 
-        self._lookupDict[''] = self
-        self._lookupDict['/'] = self
         self.root = self
         # The // entry is necessary because os.path.normpath()
         # preserves double slashes at the beginning of a path on Posix
@@ -2329,9 +2323,7 @@ class RootDir(Dir):
         self.repositories = []
         self.srcdir = None
 
-        self.entries = {}
-        self.entries['.'] = self
-        self.entries['..'] = self.dir
+        self.entries = {'.': self, '..': self.dir}
         self.cwd = self
         self.searched = 0
         self._sconsign = None
