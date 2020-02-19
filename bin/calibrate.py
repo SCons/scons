@@ -20,8 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-from __future__ import division, print_function
-
 import optparse
 import os
 import re
@@ -30,6 +28,7 @@ import sys
 
 variable_re = re.compile(r'^VARIABLE: (.*)$', re.M)
 elapsed_re = re.compile(r'^ELAPSED: (.*)$', re.M)
+
 
 def main(argv=None):
     if argv is None:
@@ -83,6 +82,7 @@ def main(argv=None):
             run += 1
 
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

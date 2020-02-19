@@ -20,8 +20,6 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-from __future__ import division, print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
@@ -465,10 +463,7 @@ class VariantDirTestCase(unittest.TestCase):
 
             def __init__(self, duplicate, link, symlink, copy):
                 self.duplicate = duplicate
-                self.have = {}
-                self.have['hard'] = link
-                self.have['soft'] = symlink
-                self.have['copy'] = copy
+                self.have = {'hard': link, 'soft': symlink, 'copy': copy}
 
                 self.links_to_be_called = []
                 for link in self.duplicate.split('-'):
@@ -1347,11 +1342,10 @@ class FSTestCase(_tempdirTestCase):
         assert f1.get_contents() == bytearray("Foo\x1aBar", 'utf-8'), f1.get_contents()
 
         # This tests to make sure we can decode UTF-8 text files.
-        test_string = u"Foo\x1aBar"
+        test_string = "Foo\x1aBar"
         test.write("utf8_file", test_string.encode('utf-8'))
         f1 = fs.File(test.workpath("utf8_file"))
-        assert eval('f1.get_text_contents() == u"Foo\x1aBar"'), \
-            f1.get_text_contents()
+        f1.get_text_contents() == "Foo\x1aBar", f1.get_text_contents()
 
         # Check for string which doesn't have BOM and isn't valid
         # ASCII
@@ -1449,7 +1443,7 @@ class FSTestCase(_tempdirTestCase):
 
         c = e.get_text_contents()
         try:
-            eval('assert c == u"", c')
+            eval('assert c == "", c')
         except SyntaxError:
             assert c == ""
 
@@ -1460,10 +1454,7 @@ class FSTestCase(_tempdirTestCase):
             assert e.__class__ == SCons.Node.FS.Entry, e.__class__
             assert c == "", c
             c = e.get_text_contents()
-            try:
-                eval('assert c == u"", c')
-            except SyntaxError:
-                assert c == "", c
+            assert c == "", c
 
         test.write("tstamp", "tstamp\n")
         try:
@@ -3316,15 +3307,7 @@ class RepositoryTestCase(_tempdirTestCase):
 
         # Use a test string that has a file terminator in it to make
         # sure we read the entire file, regardless of its contents.
-        try:
-            eval('test_string = u"Con\x1aTents\n"')
-        except SyntaxError:
-            import collections
-            class FakeUnicodeString(collections.UserString):
-                def encode(self, encoding):
-                    return str(self)
-
-            test_string = FakeUnicodeString("Con\x1aTents\n")
+        test_string = "Con\x1aTents\n"
 
         # Test with ASCII.
         test.write(["rep3", "contents"], test_string.encode('ascii'))

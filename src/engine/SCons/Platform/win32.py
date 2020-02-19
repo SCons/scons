@@ -62,46 +62,6 @@ except AttributeError:
 else:
     parallel_msg = None
 
-    if sys.version_info.major == 2:
-        import __builtin__
-
-        _builtin_file = __builtin__.file
-        _builtin_open = __builtin__.open
-
-        def _scons_fixup_mode(mode):
-            """Adjust 'mode' to mark handle as non-inheritable.
-
-            SCons is multithreaded, so allowing handles to be inherited by
-            children opens us up to races, where (e.g.) processes spawned by
-            the Taskmaster may inherit and retain references to files opened
-            by other threads. This may lead to sharing violations and,
-            ultimately, build failures.
-
-            By including 'N' as part of fopen's 'mode' parameter, all file
-            handles returned from these functions are atomically marked as
-            non-inheritable.
-            """
-            if not mode:
-                # Python's default is 'r'.
-                # https://docs.python.org/2/library/functions.html#open
-                mode = 'rN'
-            elif 'N' not in mode:
-                mode += 'N'
-            return mode
-
-        class _scons_file(_builtin_file):
-            def __init__(self, name, mode=None, *args, **kwargs):
-                _builtin_file.__init__(self, name, _scons_fixup_mode(mode),
-                                       *args, **kwargs)
-
-        def _scons_open(name, mode=None, *args, **kwargs):
-            return _builtin_open(name, _scons_fixup_mode(mode),
-                                 *args, **kwargs)
-
-        __builtin__.file = _scons_file
-        __builtin__.open = _scons_open
-
-
 
 if False:
     # Now swap out shutil.filecopy and filecopy2 for win32 api native CopyFile
@@ -307,9 +267,6 @@ def get_system_root():
             except:
                 pass
 
-    # Ensure system root is a string and not unicode 
-    # (This only matters for py27 were unicode in env passed to POpen fails)
-    val = str(val)
     _system_root = val
     return val
 

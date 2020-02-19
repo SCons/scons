@@ -38,9 +38,9 @@ tool definition.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
-import re
 import os
-import shutil
+from collections.abc import Callable
+import importlib.util
 
 import SCons.Builder
 import SCons.Errors
@@ -51,12 +51,6 @@ import SCons.Scanner.D
 import SCons.Scanner.LaTeX
 import SCons.Scanner.Prog
 import SCons.Scanner.SWIG
-try:
-    # Python 3
-    from collections.abc import Callable
-except ImportError:
-    # Python 2.7
-    from collections import Callable
 
 DefaultToolpath = []
 
@@ -142,112 +136,81 @@ class Tool(object):
         sys.path = self.toolpath + sys.path
         # sys.stderr.write("Tool:%s\nPATH:%s\n"%(self.name,sys.path))
 
-        if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] in (0, 1, 2, 3, 4)):
-            # Py 2 code
-            try:
-                try:
-                    file = None
-                    try:
-                        mod, file = self._load_dotted_module_py2(self.name, self.name, self.toolpath)
-                        return mod
-                    finally:
-                        if file:
-                            file.close()
-                except ImportError as e:
-                    splitname = self.name.split('.')
-                    if str(e) != "No module named %s" % splitname[0]:
-                        raise SCons.Errors.SConsEnvironmentError(e)
-                    try:
-                        import zipimport
-                    except ImportError:
-                        pass
-                    else:
-                        for aPath in self.toolpath:
-                            try:
-                                importer = zipimport.zipimporter(aPath)
-                                return importer.load_module(self.name)
-                            except ImportError as e:
-                                pass
-            finally:
-                sys.path = oldpythonpath
-        elif sys.version_info[1] > 4:
-            # From: http://stackoverflow.com/questions/67631/how-to-import-a-module-given-the-full-path/67692#67692
-            # import importlib.util
-            # spec = importlib.util.spec_from_file_location("module.name", "/path/to/file.py")
-            # foo = importlib.util.module_from_spec(spec)
-            # spec.loader.exec_module(foo)
-            # foo.MyClass()
-            # Py 3 code
+        # From: http://stackoverflow.com/questions/67631/how-to-import-a-module-given-the-full-path/67692#67692
+        # import importlib.util
+        # spec = importlib.util.spec_from_file_location("module.name", "/path/to/file.py")
+        # foo = importlib.util.module_from_spec(spec)
+        # spec.loader.exec_module(foo)
+        # foo.MyClass()
+        # Py 3 code
 
-            # import pdb; pdb.set_trace()
-            import importlib.util
 
-            # sys.stderr.write("toolpath:%s\n" % self.toolpath)
-            # sys.stderr.write("SCONS.TOOL path:%s\n" % sys.modules['SCons.Tool'].__path__)
-            debug = False
-            spec = None
-            found_name = self.name
-            add_to_scons_tools_namespace = False
-            for path in self.toolpath:
-                sepname = self.name.replace('.', os.path.sep)
-                file_path = os.path.join(path, "%s.py" % sepname)
-                file_package = os.path.join(path, sepname)
+        # sys.stderr.write("toolpath:%s\n" % self.toolpath)
+        # sys.stderr.write("SCONS.TOOL path:%s\n" % sys.modules['SCons.Tool'].__path__)
+        debug = False
+        spec = None
+        found_name = self.name
+        add_to_scons_tools_namespace = False
+        for path in self.toolpath:
+            sepname = self.name.replace('.', os.path.sep)
+            file_path = os.path.join(path, "%s.py" % sepname)
+            file_package = os.path.join(path, sepname)
 
-                if debug: sys.stderr.write("Trying:%s %s\n" % (file_path, file_package))
+            if debug: sys.stderr.write("Trying:%s %s\n" % (file_path, file_package))
 
-                if os.path.isfile(file_path):
-                    spec = importlib.util.spec_from_file_location(self.name, file_path)
-                    if debug: print("file_Path:%s FOUND" % file_path)
-                    break
-                elif os.path.isdir(file_package):
-                    file_package = os.path.join(file_package, '__init__.py')
-                    spec = importlib.util.spec_from_file_location(self.name, file_package)
-                    if debug: print("PACKAGE:%s Found" % file_package)
-                    break
+            if os.path.isfile(file_path):
+                spec = importlib.util.spec_from_file_location(self.name, file_path)
+                if debug: print("file_Path:%s FOUND" % file_path)
+                break
+            elif os.path.isdir(file_package):
+                file_package = os.path.join(file_package, '__init__.py')
+                spec = importlib.util.spec_from_file_location(self.name, file_package)
+                if debug: print("PACKAGE:%s Found" % file_package)
+                break
 
-                else:
-                    continue
-
-            if spec is None:
-                if debug: sys.stderr.write("NO SPEC :%s\n" % self.name)
-                spec = importlib.util.find_spec("." + self.name, package='SCons.Tool')
-                if spec:
-                    found_name = 'SCons.Tool.' + self.name
-                    add_to_scons_tools_namespace = True
-                if debug: sys.stderr.write("Spec Found? .%s :%s\n" % (self.name, spec))
-
-            if spec is None:
-                error_string = "No module named %s" % self.name
-                raise SCons.Errors.SConsEnvironmentError(error_string)
-
-            module = importlib.util.module_from_spec(spec)
-            if module is None:
-                if debug: print("MODULE IS NONE:%s" % self.name)
-                error_string = "No module named %s" % self.name
-                raise SCons.Errors.SConsEnvironmentError(error_string)
-
-            # Don't reload a tool we already loaded.
-            sys_modules_value = sys.modules.get(found_name, False)
-
-            found_module = None
-            if sys_modules_value and sys_modules_value.__file__ == spec.origin:
-                found_module = sys.modules[found_name]
             else:
-                # Not sure what to do in the case that there already
-                # exists sys.modules[self.name] but the source file is
-                # different.. ?
-                module = spec.loader.load_module(spec.name)
+                continue
 
-                sys.modules[found_name] = module
-                if add_to_scons_tools_namespace:
-                    # If we found it in SCons.Tool, then add it to the module
-                    setattr(SCons.Tool, self.name, module)
+        if spec is None:
+            if debug: sys.stderr.write("NO SPEC :%s\n" % self.name)
+            spec = importlib.util.find_spec("." + self.name, package='SCons.Tool')
+            if spec:
+                found_name = 'SCons.Tool.' + self.name
+                add_to_scons_tools_namespace = True
+            if debug: sys.stderr.write("Spec Found? .%s :%s\n" % (self.name, spec))
 
-                found_module = module
+        if spec is None:
+            error_string = "No module named %s" % self.name
+            raise SCons.Errors.SConsEnvironmentError(error_string)
 
-            if found_module is not None:
-                sys.path = oldpythonpath
-                return found_module
+        module = importlib.util.module_from_spec(spec)
+        if module is None:
+            if debug: print("MODULE IS NONE:%s" % self.name)
+            error_string = "No module named %s" % self.name
+            raise SCons.Errors.SConsEnvironmentError(error_string)
+
+        # Don't reload a tool we already loaded.
+        sys_modules_value = sys.modules.get(found_name, False)
+
+        found_module = None
+        if sys_modules_value and sys_modules_value.__file__ == spec.origin:
+            found_module = sys.modules[found_name]
+        else:
+            # Not sure what to do in the case that there already
+            # exists sys.modules[self.name] but the source file is
+            # different.. ?
+            module = spec.loader.load_module(spec.name)
+
+            sys.modules[found_name] = module
+            if add_to_scons_tools_namespace:
+                # If we found it in SCons.Tool, then add it to the module
+                setattr(SCons.Tool, self.name, module)
+
+            found_module = module
+
+        if found_module is not None:
+            sys.path = oldpythonpath
+            return found_module
 
         sys.path = oldpythonpath
 
