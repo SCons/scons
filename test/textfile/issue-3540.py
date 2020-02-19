@@ -24,10 +24,10 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 """
-Test for GH Issue 3550
+Test for GH Issue 3540
 
- You can't pass a Windows path in a value to be interpolated, 
- because SCons will try to pass it through re.sub which rejects certain character sequences.
+textfile()'s action is not sensitive to changes in TEXTFILEPREFIX (rather was sensitive to SUBSTFILEPREFIX)
+
 """
 
 import TestSCons
@@ -36,15 +36,13 @@ test = TestSCons.TestSCons()
 
 # test.verbose_set(1)
 
-match_mode = 'r'
-
-test.file_fixture('fixture/SConstruct.issue-3550', 'SConstruct')
 test.file_fixture('fixture/substfile.in', 'substfile.in')
+test.file_fixture('fixture/SConstruct.issue-3540', 'SConstruct')
 
-test.run(arguments='.')
+test.run()
+test.must_exist('substfile')
 
-test.must_match('substfile',
-                r'''foo_path: Z:\mongo\build\install\bin
-''', mode=match_mode)
+test.up_to_date(options='text_file_suffix=BLAH')
+
 
 test.pass_test()
