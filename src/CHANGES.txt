@@ -10,10 +10,6 @@ NOTE: Please include a reference to any Issues resolved by your changes in the b
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From Iosif Kurazs:
-    - Added a new flag called "linedraw" for the command line argument  "--tree"
-    that instructs scons to use single line drawing characters to draw the dependency tree.
-
   From William Deegan:
     - Fix broken clang + MSVC 2019 combination by using MSVC configuration logic to
       propagate'VCINSTALLDIR' and 'VCToolsInstallDir' which clang tools use to locate
@@ -35,6 +31,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added new module SCons.Scanner.Python to allow scanning .py files.
     - Added support for explicitly passing a name when creating Value() nodes. This may be useful
       when the value can't be converted to a string or if having a name is otherwise desirable.
+
+  From Iosif Kurazs:
+    - Added a new flag called "linedraw" for the command line argument  "--tree"
+      that instructs scons to use single line drawing characters to draw the dependency tree.
 
   From Andrew Morrow:
     - Fix Issue #3469 - Fixed improper reuse of temporary and compiled files by Configure when changing
