@@ -41,7 +41,7 @@ test.run(arguments='-Q --tree=foofoo',
          stderr="""usage: scons [OPTION] [TARGET] ...
 
 SCons Error: `foofoo' is not a valid --tree option type, try:
-    all, derived, prune, status
+    all, derived, prune, status, linedraw
 """,
          status=2)
 
@@ -76,6 +76,39 @@ expected = """Creating 'Foo.txt'
 test.run(arguments='-Q --tree=all',
          stdout=expected,
          status=0)
+
+#Tests the new command line option "linedraw"
+test.write('SConstruct',
+           """
+env = Environment()
+env.Tool("textfile")
+try:
+    # Python 2
+    write = unichr(0xe7).encode('utf-8')
+except NameError:
+    # Python 3
+    # str is utf-8 by default
+    write = chr(0xe7)
+env.Textfile("LineDraw", write)
+""")
+
+if sys.version_info.major < 3:
+    py23_char = unichr(0xe7).encode('utf-8')
+else:
+    py23_char = chr(0xe7)
+
+expected = """Creating 'LineDraw.txt'
+└─┬.
+  ├─┬LineDraw.txt
+  │ └─""" + py23_char + """
+  └─SConstruct
+"""
+
+
+test.run(arguments='-Q --tree=linedraw',
+        stdout=expected,
+        status=0)
+
 test.pass_test()
 
 # Local Variables:
