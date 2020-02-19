@@ -31,7 +31,6 @@ digits of the signature. The prefix length used for directory
 names can be changed by this script.
 """
 
-from __future__ import print_function
 import argparse
 import glob
 import json

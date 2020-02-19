@@ -1,0 +1,5 @@
+env = Environment()
+conf1 = Configure(env)
+env2 = Environment()
+# Error right here. You can't have two configure contexts in flight at the same time.
+conf2 = Configure(env2)

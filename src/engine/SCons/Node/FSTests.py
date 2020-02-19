@@ -20,8 +20,6 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-from __future__ import division, print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
@@ -465,10 +463,7 @@ class VariantDirTestCase(unittest.TestCase):
 
             def __init__(self, duplicate, link, symlink, copy):
                 self.duplicate = duplicate
-                self.have = {}
-                self.have['hard'] = link
-                self.have['soft'] = symlink
-                self.have['copy'] = copy
+                self.have = {'hard': link, 'soft': symlink, 'copy': copy}
 
                 self.links_to_be_called = []
                 for link in self.duplicate.split('-'):

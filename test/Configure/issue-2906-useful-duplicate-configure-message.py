@@ -1,13 +1,4 @@
-"""engine.SCons.Tool.f08
-
-Tool-specific initialization for the generic Posix f08 Fortran compiler.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -33,28 +24,31 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Defaults
-import SCons.Tool
-import SCons.Util
-from . import fortran
-from SCons.Tool.FortranCommon import add_all_to_env, add_f08_to_env
+"""
+Verify useful error message when you create a second Configure context without
+finalizing the previous one via conf.Finish()
+This addresses Issue 2906: 
+https://github.com/SCons/scons/issues/2906
+"""
 
-compilers = ['f08']
+import TestSCons
 
-def generate(env):
-    add_all_to_env(env)
-    add_f08_to_env(env)
+test = TestSCons.TestSCons()
+test.verbose_set(1)
 
-    fcomp = env.Detect(compilers) or 'f08'
-    env['F08']  = fcomp
-    env['SHF08']  = fcomp
+test.file_fixture('./fixture/SConstruct.issue-2906', 'SConstruct')
 
-    env['FORTRAN']  = fcomp
-    env['SHFORTRAN']  = fcomp
+test_SConstruct_path = test.workpath('SConstruct')
 
+expected_stdout = "scons: Reading SConscript files ...\n"
 
-def exists(env):
-    return env.Detect(compilers)
+expected_stderr = """
+scons: *** Configure() called while another Configure() exists.
+            Please call .Finish() before creating and second Configure() context
+File "%s", line 5, in <module>\n"""%test_SConstruct_path
+test.run(stderr=expected_stderr, stdout=expected_stdout, status=2)
+
+test.pass_test()
 
 # Local Variables:
 # tab-width:4

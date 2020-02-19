@@ -90,7 +90,8 @@ def writeVersionXml(verfile, date, ver, rev):
         os.makedirs(dir)
     except OSError:
         pass    # okay if the directory already exists
-    open(verfile, "w").write("""<!--
+    with open(verfile, "w") as vf:
+        vf.write("""<!--
 THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 -->
 <!ENTITY builddate "%s">
@@ -105,7 +106,7 @@ man_page_list = ['scons.1','scons-time.1','sconsign.1']
 # Template for the MAN page texts when we can't properly
 # create them because the skip_doc flag is set (required
 # modules/tools aren't installed in the current system)
-man_replace_tpl = """.TH "%(uctitle)s" "1" "%(today)s" "SCons %(version)s" "SCons %(version)s"
+man_replace_tpl = r""".TH "%(uctitle)s" "1" "%(today)s" "SCons %(version)s" "SCons %(version)s"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .nh

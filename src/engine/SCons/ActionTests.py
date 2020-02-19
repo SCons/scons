@@ -37,10 +37,8 @@ class GlobalActFunc(object):
         pass
 
 
-import collections
 import io
 import os
-import re
 import sys
 import types
 import unittest
@@ -338,14 +336,6 @@ class ActionTestCase(unittest.TestCase):
         test_positional_args(cmd_action, "string")
         # a singleton list returns the contained action
         test_positional_args(cmd_action, ["string"])
-
-        try:
-            unicode
-        except NameError:
-            pass
-        else:
-            a2 = eval("SCons.Action.Action(u'string')")
-            assert isinstance(a2, SCons.Action.CommandAction), a2
 
         def line_action(a):
             assert isinstance(a, SCons.Action.CommandAction), a
