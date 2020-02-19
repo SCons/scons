@@ -61,10 +61,7 @@ except NameError:
 env.Textfile("Foo", write)
 """)
 
-if sys.version_info.major < 3:
-    py23_char = unichr(0xe7).encode('utf-8')
-else:
-    py23_char = chr(0xe7)
+py23_char = chr(0xe7)
 
 expected = """Creating 'Foo.txt'
 +-.
