@@ -29,8 +29,6 @@ import os
 import sys
 import unittest
 
-from collections import UserDict
-
 import TestCmd
 
 import SCons.Errors

@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 """SCons.Tool.dmd
 
 Tool-specific initialization for the Digital Mars D compiler.

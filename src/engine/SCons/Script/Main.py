@@ -10,9 +10,6 @@ some other module.  If it's specific to the "scons" script invocation,
 it goes here.
 """
 
-from __future__ import print_function
-
-
 unsupported_python_version = (2, 6, 0)
 deprecated_python_version = (2, 7, 0)
 

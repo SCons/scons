@@ -33,8 +33,6 @@ libraries are installed, if some command line options are supported etc.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-from __future__ import print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
@@ -430,7 +428,8 @@ class SConfBase(object):
             SConfFS = SCons.Node.FS.default_fs or \
                       SCons.Node.FS.FS(env.fs.pathTop)
         if sconf_global is not None:
-            raise SCons.Errors.UserError
+            raise SCons.Errors.UserError("""Configure() called while another Configure() exists.
+            Please call .Finish() before creating and second Configure() context""")
 
         if log_file is not None:
             log_file = SConfFS.File(env.subst(log_file))
