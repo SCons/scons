@@ -180,7 +180,7 @@ for o, a in opts:
                 debug = pdb
                 break
     elif o in ['-D', '--devmode']:
-        devmode = 1
+        devmode = True
     elif o in ['-e', '--external']:
         external = 1
     elif o in ['-f', '--file']:
@@ -777,7 +777,7 @@ def run_test(t, io_lock=None, run_async=True):
     command_args = []
     if debug:
         command_args.append(debug)
-    if devmode and sys.version_info > (3, 7, 0):
+    if devmode and sys.version_info >= (3, 7, 0):
             command_args.append('-X dev')
     command_args.append(t.path)
     if options.runner and t.path in unittests:
