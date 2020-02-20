@@ -23,6 +23,7 @@ Options:
   -b --baseline BASE       Run test scripts against baseline BASE.
      --builddir DIR        Directory in which packages were built.
   -d --debug               Run test scripts under the Python debugger.
+  -D --devmode             Run tests in Python's development mode (3.7+ only)
   -e --external            Run the script in external mode (for external Tools)
   -f --file FILE           Only run tests listed in FILE.
   -j --jobs JOBS           Run tests in JOBS parallel jobs.
@@ -89,6 +90,7 @@ cwd = os.getcwd()
 baseline = 0
 builddir = os.path.join(cwd, 'build')
 external = 0
+devmode = False
 debug = ''
 execute_tests = 1
 jobs = 1
@@ -151,9 +153,10 @@ parser.add_option('--xml',
 #print("args:", args)
 
 
-opts, args = getopt.getopt(args, "b:def:hj:klnP:p:qsv:Xx:t",
+opts, args = getopt.getopt(args, "b:dDef:hj:klnP:p:qsv:Xx:t",
                             ['baseline=', 'builddir=',
-                             'debug', 'external', 'file=', 'help', 'no-progress',
+                             'debug', 'devmode', 'external',
+                             'file=', 'help', 'no-progress',
                              'jobs=',
                              'list', 'no-exec', 'nopipefiles',
                              'package=', 'passed', 'python=',
@@ -176,6 +179,8 @@ for o, a in opts:
             if os.path.exists(pdb):
                 debug = pdb
                 break
+    elif o in ['-D', '--devmode']:
+        devmode = 1
     elif o in ['-e', '--external']:
         external = 1
     elif o in ['-f', '--file']:
@@ -770,10 +775,10 @@ def log_result(t, io_lock=None):
 def run_test(t, io_lock=None, run_async=True):
     t.headline = ""
     command_args = []
-    if sys.version_info[0] < 3:
-        command_args.append('-tt')
     if debug:
         command_args.append(debug)
+    if devmode and sys.version_info > (3, 7, 0):
+            command_args.append('-X dev')
     command_args.append(t.path)
     if options.runner and t.path in unittests:
         # For example --runner TestUnit.TAPTestRunner
