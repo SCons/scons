@@ -28,6 +28,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Updated design doc to use the correct syntax for Depends()
 
   From Adam Gross:
+    - Added support for scanning multiple entries in an action string if
+      IMPLICIT_COMMAND_DEPENDENCIES is set to 2. This opts into more thorough
+      action scanning where every string in the command is scanned to determine
+      if it is a non-source and non-target path.
     - Added support for taking instances of the Value class as implicit
       dependencies.
     - Added new module SCons.Scanner.Python to allow scanning .py files.

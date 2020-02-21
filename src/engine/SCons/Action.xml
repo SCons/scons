@@ -58,6 +58,45 @@ not be added to the targets
 built with that construction environment.
 </para>
 
+<para>
+If the construction variable
+&cv-IMPLICIT_COMMAND_DEPENDENCIES;
+is set to <literal>2</literal> or higher,
+then that number of entries in the command
+string will be scanned for relative or absolute
+paths. The count will reset after any
+<literal>&&</literal> entries are found.
+The first command in the action string and
+the first after any <literal>&&</literal>
+entries will be found by searching the
+<varname>PATH</varname> variable in the
+<varname>ENV</varname> environment used to
+execute the command. All other commands will
+only be found if they are absolute paths or
+valid paths relative to the working directory.
+</para>
+
+<para>
+If the construction variable
+&cv-IMPLICIT_COMMAND_DEPENDENCIES;
+is set to <literal>all</literal>, then
+all entries in all command strings will be
+scanned for relative or absolute paths. If
+any are present, they will be added as
+implicit dependencies to the targets built
+with that construction environment.
+not be added to the targets built with that
+construction environment. The first command
+in the action string and the first after any
+<literal>&&</literal> entries will be found
+by searching the <varname>PATH</varname>
+variable in the <varname>ENV</varname>
+environment used to execute the command.
+All other commands will only be found if they
+are absolute paths or valid paths relative
+to the working directory.
+</para>
+
 <example_commands>
 env = Environment(IMPLICIT_COMMAND_DEPENDENCIES = 0)
 </example_commands>
