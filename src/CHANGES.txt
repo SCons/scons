@@ -74,6 +74,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Add an alternate warning message cl.exe is not found and msvc config
       cache is in use (SCONS_CACHE_MSVC_CONFIG was given) - config cache
       may be out of date.
+    - Fixed bug where changing TEXTFILESUFFIX would cause Substfile() to rebuild. (Github Issue #3540)
     - Script/Main.py now uses importlib instead of imp module.
 
 
