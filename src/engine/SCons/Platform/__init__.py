@@ -41,8 +41,6 @@ their own platform definition.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-from __future__ import print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
@@ -195,7 +193,7 @@ class TempFileMunge(object):
         # Default to the .lnk suffix for the benefit of the Phar Lap
         # linkloc linker, which likes to append an .lnk suffix if
         # none is given.
-        if env.has_key('TEMPFILESUFFIX'):
+        if 'TEMPFILESUFFIX' in env:
             suffix = env.subst('$TEMPFILESUFFIX')
         else:
             suffix = '.lnk'

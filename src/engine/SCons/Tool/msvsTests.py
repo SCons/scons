@@ -20,8 +20,6 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-from __future__ import print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
@@ -405,20 +403,20 @@ class DummyEnv(object):
             return self.dict
         return self.dict[key]
 
-    def __setitem__(self,key,value):
+    def __setitem__(self, key, value):
         self.dict[key] = value
 
-    def __getitem__(self,key):
+    def __getitem__(self, key):
         return self.dict[key]
 
-    def __contains__(self,key):
+    def __contains__(self, key):
         return key in self.dict
 
-    def has_key(self,name):
+    def has_key(self, name):
         return name in self.dict
 
     def get(self, name, value=None):
-        if self.has_key(name):
+        if name in self.dict:
             return self.dict[name]
         else:
             return value
@@ -771,8 +769,8 @@ class msvsTestCase(unittest.TestCase):
         
             # Check expected result
             self.assertListEqual(list(genDSP.configs.keys()), list(expected_configs.keys()))
-            for key in list(genDSP.configs.keys()):
-                self.assertDictEqual(genDSP.configs[key].__dict__, expected_configs[key])
+            for key, v in genDSP.configs.items():
+                self.assertDictEqual(v.__dict__, expected_configs[key])
 
             genDSP.Build()
 

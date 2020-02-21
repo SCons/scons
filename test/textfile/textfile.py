@@ -31,33 +31,13 @@ import os
 test = TestSCons.TestSCons()
 
 foo1 = test.workpath('foo1.txt')
-#foo2  = test.workpath('foo2.txt')
-#foo1a = test.workpath('foo1a.txt')
-#foo2a = test.workpath('foo2a.txt')
+# foo2  = test.workpath('foo2.txt')
+# foo1a = test.workpath('foo1a.txt')
+# foo2a = test.workpath('foo2a.txt')
 
 match_mode = 'r'
 
-test.write('SConstruct', """
-env = Environment(tools=['textfile'])
-data0 = ['Goethe', 'Schiller']
-data  = ['lalala', 42, data0, 'tanteratei']
-
-env.Textfile('foo1', data)
-env.Textfile('foo2', data, LINESEPARATOR='|*')
-env.Textfile('foo1a.txt', data + [''])
-env.Textfile('foo2a.txt', data + [''], LINESEPARATOR='|*')
-
-# recreate the list with the data wrapped in Value()
-data0 = list(map(Value, data0))
-data = list(map(Value, data))
-data[2] = data0
-
-env.Substfile('bar1', data)
-env.Substfile('bar2', data, LINESEPARATOR='|*')
-data.append(Value(''))
-env.Substfile('bar1a.txt', data)
-env.Substfile('bar2a.txt', data, LINESEPARATOR='|*')
-""", mode='w')
+test.file_fixture('fixture/SConstruct', 'SConstruct')
 
 test.run(arguments='.')
 
@@ -75,7 +55,7 @@ test.up_to_date(arguments='.')
 
 files = list(map(test.workpath, (
     'foo1.txt', 'foo2.txt', 'foo1a.txt', 'foo2a.txt',
-    'bar1',     'bar2',     'bar1a.txt', 'bar2a.txt',
+    'bar1', 'bar2', 'bar1a.txt', 'bar2a.txt',
 )))
 
 
@@ -93,10 +73,10 @@ def check_times():
 
 
 # make sure that the file content is as expected
-test.must_match('foo1.txt',  foo1Text, mode=match_mode)
-test.must_match('bar1',      foo1Text, mode=match_mode)
-test.must_match('foo2.txt',  foo2Text, mode=match_mode)
-test.must_match('bar2',      foo2Text, mode=match_mode)
+test.must_match('foo1.txt', foo1Text, mode=match_mode)
+test.must_match('bar1', foo1Text, mode=match_mode)
+test.must_match('foo2.txt', foo2Text, mode=match_mode)
+test.must_match('bar2', foo2Text, mode=match_mode)
 test.must_match('foo1a.txt', foo1aText, mode=match_mode)
 test.must_match('bar1a.txt', foo1aText, mode=match_mode)
 test.must_match('foo2a.txt', foo2aText, mode=match_mode)
@@ -105,10 +85,10 @@ check_times()
 
 # write the contents and make sure the files
 # didn't get rewritten, because nothing changed:
-test.write('foo1.txt',  foo1Text)
-test.write('bar1',      foo1Text)
-test.write('foo2.txt',  foo2Text)
-test.write('bar2',      foo2Text)
+test.write('foo1.txt', foo1Text)
+test.write('bar1', foo1Text)
+test.write('foo2.txt', foo2Text)
+test.write('bar2', foo2Text)
 test.write('foo1a.txt', foo1aText)
 test.write('bar1a.txt', foo1aText)
 test.write('foo2a.txt', foo2aText)
@@ -117,33 +97,9 @@ check_times()
 
 # now that textfile is part of default tool list, run one testcase
 # without adding it explicitly as a tool to make sure.
-test.write('SConstruct', """
-textlist = ['This line has no substitutions',
-            'This line has @subst@ substitutions',
-            'This line has %subst% substitutions',
-           ]
+test.file_fixture('fixture/SConstruct.2', 'SConstruct.2')
 
-sub1 = { '@subst@' : 'most' }
-sub2 = { '%subst%' : 'many' }
-sub3 = { '@subst@' : 'most' , '%subst%' : 'many' }
-
-env = Environment()
-
-t = env.Textfile('text', textlist)
-# no substitutions
-s = env.Substfile('sub1', t)
-# one substitution
-s = env.Substfile('sub2', s, SUBST_DICT = sub1)
-# the other substution
-s = env.Substfile('sub3', s, SUBST_DICT = sub2)
-# the reverse direction
-s = env.Substfile('sub4', t, SUBST_DICT = sub2)
-s = env.Substfile('sub5', s, SUBST_DICT = sub1)
-# both
-s = env.Substfile('sub6', t, SUBST_DICT = sub3)
-""", mode='w')
-
-test.run(arguments='.')
+test.run(options='-f SConstruct.2', arguments='.')
 
 line1 = 'This line has no substitutions'
 line2a = 'This line has @subst@ substitutions'
@@ -158,7 +114,7 @@ def matchem(match_file, lines):
     then compare
     """
     lines = linesep.join(lines)
-    test.must_match(match_file, lines, mode=match_mode, message="Expected:\n%s\n"%lines)
+    test.must_match(match_file, lines, mode=match_mode, message="Expected:\n%s\n" % lines)
 
 
 matchem('text.txt', [line1, line2a, line3a])
@@ -169,6 +125,6 @@ matchem('sub4', [line1, line2a, line3b])
 matchem('sub5', [line1, line2b, line3b])
 matchem('sub6', [line1, line2b, line3b])
 
-test.up_to_date(arguments='.')
+test.up_to_date(options='-f SConstruct.2', arguments='.')
 
 test.pass_test()

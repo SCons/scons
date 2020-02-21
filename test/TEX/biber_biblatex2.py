@@ -32,8 +32,9 @@ Require both be installed
 Test courtesy Rob Managan.
 """
 
+import subprocess
+
 import TestSCons
-import os
 
 test = TestSCons.TestSCons()
 
@@ -49,8 +50,8 @@ bibtex = test.where_is('bibtex')
 if not bibtex:
     test.skip_test("Could not find 'bibtex'; skipping test.\n")
 
-biblatex = os.system('kpsewhich biblatex.sty')
-if not biblatex==0:
+cp = subprocess.run('kpsewhich biblatex.sty', shell=True)
+if cp.returncode:
     test.skip_test("biblatex.sty not installed; skipping test(s).\n")
 
 

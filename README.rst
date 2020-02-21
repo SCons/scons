@@ -707,11 +707,6 @@ Subscription to the developer's mailing list is by approval.  In practice, no
 one is refused list membership, but we reserve the right to limit membership
 in the future and/or weed out lurkers.
 
-There is also a low-volume mailing list available for announcements about
-SCons.  Subscribe by sending email to:
-
-        announce-subscribe@scons.tigris.org
-
 There are other mailing lists available for SCons users, for notification of
 SCons code changes, and for notification of updated bug reports and project
 documents.  Please see our mailing lists page for details.
@@ -757,8 +752,9 @@ many contributors, including but not at all limited to:
 - Anatoly Techtonik
 - Christoph Wiedemann
 - Russel Winder
+- Mats Wichmann
 
 \... and many others.
 
-Copyright (c) 2001 - 2019 The SCons Foundation
+Copyright (c) 2001 - 2020 The SCons Foundation
 

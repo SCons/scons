@@ -1,0 +1,25 @@
+"""
+This tests if we add/remove a test in between other tests if a rerun will properly cache the results.
+Github issue #3469
+"""
+
+DefaultEnvironment(tools=[])
+
+vars = Variables()
+vars.Add(BoolVariable('SKIP', 'Skip Middle Conf test', 0))
+env = Environment(variables=vars)
+
+conf = Configure(env)
+if not conf.CheckCHeader('math.h'):
+    print('Math.h must be installed!')
+    Exit(1)
+
+if not env['SKIP'] and not conf.CheckCHeader('stdlib.h'):
+    print('stdlib.h must be installed!')
+    Exit(1)
+
+if not conf.CheckCHeader('stdio.h'):
+    print('stdio.h must be installed!')
+    Exit(1)
+
+env = conf.Finish()

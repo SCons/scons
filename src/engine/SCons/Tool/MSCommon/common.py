@@ -23,8 +23,6 @@ Common helper functions for working with the Microsoft tool chain.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-from __future__ import print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import copy
@@ -152,8 +150,8 @@ def normalize_env(env, keys, force=False):
     Note: the environment is copied."""
     normenv = {}
     if env:
-        for k in list(env.keys()):
-            normenv[k] = copy.deepcopy(env[k])
+        for k, v in env.items():
+            normenv[k] = copy.deepcopy(v)
 
         for k in keys:
             if k in os.environ and (force or k not in normenv):

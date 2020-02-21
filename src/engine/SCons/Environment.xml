@@ -65,15 +65,6 @@ env['BUILDERS']['NewBuilder'] = foo
 </summary>
 </cvar>
 
-<cvar name="Dir">
-<summary>
-<para>
-A function that converts a string
-into a Dir instance relative to the target being built.
-</para>
-</summary>
-</cvar>
-
 <cvar name="ENV">
 <summary>
 <para>
@@ -127,15 +118,6 @@ as the invoking shell (or other process):
 import os
 env = Environment(ENV = {'PATH' : os.environ['PATH']})
 </example_commands>
-</summary>
-</cvar>
-
-<cvar name="File">
-<summary>
-<para>
-A function that converts a string into a File instance relative to the
-target being built.
-</para>
 </summary>
 </cvar>
 
@@ -460,6 +442,8 @@ including another alias.
 can be called multiple times for the same
 alias to add additional targets to the alias,
 or additional actions to the list for this alias.
+Aliases are global even if set through
+the construction environment method.
 </para>
 
 <para>
@@ -1163,17 +1147,16 @@ env.Decider('content')
 </example_commands>
 
 <para>
-In addition to the above already-available functions,
-the
+In addition to the above already-available functions, the
 <varname>function</varname>
-argument may be an actual Python function
-that takes the following three arguments:
+argument may be a Python function you supply.
+Such a function must accept the following four arguments:
 </para>
 
 <para>
 <variablelist>
 <varlistentry>
-<term><parameter>dependency</parameter></term>
+<term><parameter class="function">dependency</parameter></term>
 <listitem>
 <para>
 The Node (file) which
@@ -1187,7 +1170,7 @@ was built.
 </listitem>
 </varlistentry>
 <varlistentry>
-<term><parameter>target</parameter></term>
+<term><parameter class="function">target</parameter></term>
 <listitem>
 <para>
 The Node (file) being built.
@@ -1200,7 +1183,7 @@ has "changed."
 </listitem>
 </varlistentry>
 <varlistentry>
-<term><parameter>prev_ni</parameter></term>
+<term><parameter class="function">prev_ni</parameter></term>
 <listitem>
 <para>
 Stored information about the state of the
@@ -1216,12 +1199,17 @@ size, or content signature.
 </listitem>
 </varlistentry>
     <varlistentry>
-<term><parameter>repo_node</parameter></term>
+<term><parameter class="function">repo_node</parameter></term>
 <listitem>
 <para>
-Use this node instead of the one specified by
+If set, use this Node instead of the one specified by
 <varname>dependency</varname>
-    to determine if the dependency has changed.
+to determine if the dependency has changed.
+This argument is optional so should be written
+as a default argument (typically it would be
+written as <literal>repo_node=None</literal>).
+A caller will normally only set this if the
+target only exists in a Repository.
 </para>
 </listitem>
 </varlistentry>
@@ -1351,11 +1339,10 @@ cc_values = env.Dictionary('CC', 'CCFLAGS', 'CCCOM')
 </arguments>
 <summary>
 <para>
-This returns a Directory Node,
-an object that represents the specified directory
-<varname>name</varname>.
+Returns Directory Node(s).
+A Directory Node is an object that represents a directory.
 <varname>name</varname>
-can be a relative or absolute path.
+can be a relative or absolute path or a list of such paths.
 <varname>directory</varname>
 is an optional directory that will be used as the parent directory.
 If no
@@ -1366,7 +1353,10 @@ is specified, the current script's directory is used as the parent.
 <para>
 If
 <varname>name</varname>
-is a list, SCons returns a list of Dir nodes.
+is a single pathname, the corresponding node is returned.
+If
+<varname>name</varname>
+is a list, SCons returns a list of nodes.
 Construction variables are expanded in
 <varname>name</varname>.
 </para>
@@ -1511,20 +1501,24 @@ if Execute("mkdir sub/dir/ectory"):
 </arguments>
 <summary>
 <para>
-This returns a
-File Node,
-an object that represents the specified file
-<varname>name</varname>.
+Returns File Node(s).
+A File Node is an object that represents a file.
 <varname>name</varname>
-can be a relative or absolute path.
+can be a relative or absolute path or a list of such paths.
 <varname>directory</varname>
 is an optional directory that will be used as the parent directory.
+If no
+<varname>directory</varname>
+is specified, the current script's directory is used as the parent.
 </para>
 
 <para>
 If
 <varname>name</varname>
-is a list, SCons returns a list of File nodes.
+is a single pathname, the corresponding node is returned.
+If
+<varname>name</varname>
+is a list, SCons returns a list of nodes.
 Construction variables are expanded in
 <varname>name</varname>.
 </para>
@@ -3087,7 +3081,7 @@ env.Tool('opengl', toolpath = ['build/tools'])
 
 <scons_function name="Value">
 <arguments>
-(value, [built_value])
+(value, [built_value], [name])
 </arguments>
 <summary>
 <para>
@@ -3102,6 +3096,10 @@ will be rebuilt.
 files are up-to-date.)
 When using timestamp source signatures, Value Nodes'
 timestamps are equal to the system time when the Node is created.
+<varname>name</varname> can be provided as an alternative name
+for the resulting <literal>Value</literal> node; this is advised
+if the <varname>value</varname> parameter can't be converted to
+a string.
 </para>
 
 <para>

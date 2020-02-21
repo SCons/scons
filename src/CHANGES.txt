@@ -5,6 +5,8 @@
                             Change Log
 
 NOTE: The 4.0.0 Release of SCons will drop Python 2.7 Support
+NOTE: Please add your name below in alphabetical order by last name.
+NOTE: Please include a reference to any Issues resolved by your changes in the bullet(s) you add
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
@@ -15,12 +17,39 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added C:\msys64\mingw64\bin to default mingw and clang windows PATH's.  This 
       is a reasonable default and also aligns with changes in Appveyor's VS2019 image.
     - Drop support for Python 2.7. SCons will be Python 3.5+ going forward.
+    - Change SCons.Node.ValueWithMemo to consider any name passed when memoizing Value() nodes
+    - Fix Github Issue #3550 - When using Substfile() with a value like Z:\mongo\build\install\bin
+      the implementation using re.sub() would end up interpreting the string and finding regex escape
+      characters where it should have been simply replacing existing text. Switched to use string.replace().
+    - Fix Github Issue #2904 - Provide useful error message when more than one Configure Contexts are opened.
+      Only one open is allowed. You must call conf.Finish() to complete the currently open one before creating another
+    
+  From Jeremy Elson:
+    - Updated design doc to use the correct syntax for Depends()
 
   From Adam Gross:
     - Added support for scanning multiple entries in an action string if
       IMPLICIT_COMMAND_DEPENDENCIES is set to 2. This opts into more thorough
       action scanning where every string in the command is scanned to determine
       if it is a non-source and non-target path.
+    - Added support for taking instances of the Value class as implicit
+      dependencies.
+    - Added new module SCons.Scanner.Python to allow scanning .py files.
+    - Added support for explicitly passing a name when creating Value() nodes. This may be useful
+      when the value can't be converted to a string or if having a name is otherwise desirable.
+
+  From Andrew Morrow:
+    - Fix Issue #3469 - Fixed improper reuse of temporary and compiled files by Configure when changing
+      the order and/or number of tests.  This is done by using the hash of the generated temporary files
+      content and (For the target files) the hash of the action.
+      So where previously files would be named:
+      - config_1.c, config_1.o, config_1
+      The will now be named (For example)
+      - conftest_68b375d16e812c43e6d72d6e93401e7c_0.c,
+        conftest_68b375d16e812c43e6d72d6e93401e7c_0_5713f09fc605f46b2ab2f7950455f187.o
+        or
+        conftest_68b375d16e812c43e6d72d6e93401e7c_0.o
+        conftest_68b375d16e812c43e6d72d6e93401e7c_0_5713f09fc605f46b2ab2f7950455f187 (for executable)
 
   From Mathew Robinson:
     - Improve performance of Subst by preventing unnecessary frame
@@ -36,6 +65,16 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - str.format syntax errors fixed
     - a bunch of linter/checker syntax fixups
     - Convert remaining uses of insecure/deprecated mktemp method.
+    - Clean up some duplications in manpage.  Clarify portion of manpage on Dir and File nodes.
+    - Reduce needless list conversions.
+    - Fixed regex in Python scanner.
+    - Accommodate VS 2017 Express - it's got a more liberal license then VS
+      Community, so some people prefer it (from 2019, no more Express)
+    - vswhere call should also now work even if programs aren't on the C: drive.
+    - Add an alternate warning message cl.exe is not found and msvc config
+      cache is in use (SCONS_CACHE_MSVC_CONFIG was given) - config cache
+      may be out of date.
+    - Script/Main.py now uses importlib instead of imp module.
 
 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000

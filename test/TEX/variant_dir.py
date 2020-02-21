@@ -36,8 +36,9 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 latex = test.where_is('latex')
-if not latex:
-    test.skip_test("Could not find 'latex'; skipping test.\n")
+dvipdf = test.where_is('dvipdf')
+if not all((latex, dvipdf)):
+    test.skip_test("Could not find 'latex' and/or 'dvipdf'; skipping test(s).\n")
 
 test.subdir(['docs'])
 

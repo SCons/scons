@@ -284,7 +284,7 @@ def build_specfile_filesection(spec, files):
     for file in files:
         # build the tagset
         tags = {}
-        for k in list(supported_tags.keys()):
+        for k in supported_tags.keys():
             try:
                 v = file.GetTag(k)
                 if v:

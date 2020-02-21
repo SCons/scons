@@ -308,6 +308,9 @@ in that sense: "the fixture for this test is foo", instead of writing
 a whole bunch of strings to create files. Since these setups can be
 reusable across multiple tests, the *fixture* terminology applies well.
 
+Note: fixtures must not be treated by SCons as runnable tests. To exclude
+them, see instructions in the above section named "Finding Tests".
+
 Directory Fixtures
 ##################
 

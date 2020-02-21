@@ -21,13 +21,13 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
 """
 Make sure SWIG works when a VariantDir (or variant_dir) is used.
 
 Test case courtesy Joe Maruszewski.
 """
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
 
@@ -143,8 +143,6 @@ public:
 ## XXX: @ptomulik: looks like it was unused?
 ## test.write(['source', 'test.py'], """\
 ## #!%(_python_)s
-## from __future__ import print_function
-##
 ## import linalg
 ##
 ##

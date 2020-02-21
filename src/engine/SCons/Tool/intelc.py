@@ -30,8 +30,6 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-from __future__ import division, print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import math, sys, os.path, glob, string, re
@@ -495,15 +493,15 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
                    'LIB'             : libdir,
                    'PATH'            : bindir,
                    'LD_LIBRARY_PATH' : libdir}
-            for p in list(paths.keys()):
-                env.PrependENVPath(p, os.path.join(topdir, paths[p]))
+            for p, v in paths.items():
+                env.PrependENVPath(p, os.path.join(topdir, v))
         if is_mac:
             paths={'INCLUDE'         : 'include',
                    'LIB'             : libdir,
                    'PATH'            : bindir,
                    'LD_LIBRARY_PATH' : libdir}
-            for p in list(paths.keys()):
-                env.PrependENVPath(p, os.path.join(topdir, paths[p]))
+            for p, v in paths.items():
+                env.PrependENVPath(p, os.path.join(topdir, v))
         if is_windows:
             #       env key    reg valname   default subdir of top
             paths=(('INCLUDE', 'IncludeDir', 'Include'),

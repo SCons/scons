@@ -654,21 +654,22 @@ env.Command('directory_build_info',
     </para>
 
     <para>
-      This issue may be overcome by using <literal>--enable-virtualenv</literal>
+      This issue may be overcome by using the
+      <option>--enable-virtualenv</option>
       option. The option automatically imports virtualenv-related environment
       variables to all created construction environment <literal>env['ENV']</literal>,
       and modifies SCons PATH appropriately to prefer virtualenv's executables.
-      Setting environment variable <literal>SCONS_ENABLE_VIRTUALENV=1</literal>
+      Setting environment variable <envar>SCONS_ENABLE_VIRTUALENV=1</envar>
       will have same effect. If virtualenv support is enabled system-vide
-      by the environment variable, it may be suppressed with
-      <literal>--ignore-virtualenv</literal> option.
+      by the environment variable, it may be suppressed with the
+      <option>--ignore-virtualenv</option> option.
     </para>
 
     <para>
-      Inside of SConscript, a global function <literal>Virtualenv</literal> is
+      Inside of &SConscript;, a global function <literal>Virtualenv</literal> is
       available. It returns a path to virtualenv's home directory, or
-      <literal>None</literal> if SCons is not running from virtualenv. Note,
-      that this function returns a path even if SCons is run from an
+      <literal>None</literal> if &scons; is not running from virtualenv. Note
+      that this function returns a path even if &scons; is run from an
       unactivated virtualenv.
     </para>
 
