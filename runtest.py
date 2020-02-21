@@ -69,8 +69,6 @@ Environment Variables:
   TESTCMD_VERBOSE: turn on verbosity in TestCommand\
 """
 
-from __future__ import print_function
-
 import getopt
 import glob
 import os
@@ -662,7 +660,7 @@ else:
         # sys.stderr.write("to:%s\n"%tp)
         for path in glob.glob(tp):
             if os.path.isdir(path):
-                if path.startswith('src'):
+                if path.startswith('src') or path.startswith('testing'):
                     for p in find_Tests_py(path):
                         unittests.append(p)
                 elif path.startswith('test'):

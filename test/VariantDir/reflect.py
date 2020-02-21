@@ -20,9 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 This test validates the correct operation of a VariantDir specification
@@ -32,6 +29,8 @@ in the variant_dir as sources for that same build dir.
 
 Test based on bug #1055521 filed by Gary Oberbrunner.
 """
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 import re
@@ -44,14 +43,11 @@ _python_ = TestSCons._python_
 re_python = re.escape(TestSCons._python_)
 
 test.write("mycc.py", """
-from __future__ import print_function
 
 print('Compile')
 """)
 
 test.write("mylink.py", """
-from __future__ import print_function
-
 print('Link')
 """)
 

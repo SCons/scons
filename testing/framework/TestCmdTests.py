@@ -254,7 +254,7 @@ class cleanup_TestCase(TestCmdTestCase):
 
     def test_atexit(self):
         """Test cleanup() when atexit is used"""
-        self.popen_python("""from __future__ import print_function
+        self.popen_python("""\
 import sys
 sys.path = ['%s'] + sys.path
 import atexit
@@ -269,7 +269,7 @@ sys.exit(0)
     @unittest.skipIf(TestCmd.IS_PY3, "No sys.exitfunc in Python 3")
     def test_exitfunc(self):
         """Test cleanup() when sys.exitfunc is set"""
-        self.popen_python("""from __future__ import print_function
+        self.popen_python("""\
 import sys
 sys.path = ['%s'] + sys.path
 def my_exitfunc():
@@ -609,7 +609,7 @@ sys.exit(0)
 
     def test_diff_stderr_not_affecting_diff_stdout(self):
         """Test diff_stderr() not affecting diff_stdout() behavior"""
-        self.popen_python(r"""from __future__ import print_function
+        self.popen_python(r"""
 import sys
 sys.path = ['%s'] + sys.path
 import TestCmd
@@ -716,7 +716,7 @@ sys.exit(0)
 
     def test_diff_stdout_not_affecting_diff_stderr(self):
         """Test diff_stdout() not affecting diff_stderr() behavior"""
-        self.popen_python(r"""from __future__ import print_function
+        self.popen_python(r"""
 import sys
 sys.path = ['%s'] + sys.path
 import TestCmd
@@ -2089,7 +2089,7 @@ sys.exit(0)
 
     def test_set_diff_function_stdout(self):
         """Test set_diff_function():  stdout"""
-        self.popen_python("""from __future__ import print_function
+        self.popen_python("""\
 import sys
 sys.path = ['%s'] + sys.path
 import TestCmd
@@ -2118,7 +2118,7 @@ diff_stdout:
 
     def test_set_diff_function_stderr(self):
         """Test set_diff_function():  stderr """
-        self.popen_python("""from __future__ import print_function
+        self.popen_python("""\
 import sys
 sys.path = ['%s'] + sys.path
 import TestCmd
@@ -2693,7 +2693,7 @@ class stdin_TestCase(TestCmdTestCase):
     def test_stdin(self):
         """Test stdin()"""
         run_env = TestCmd.TestCmd(workdir = '')
-        run_env.write('run', """from __future__ import print_function
+        run_env.write('run', """\
 import fileinput
 for line in fileinput.input():
     print('Y'.join(line[:-1].split('X')))
@@ -3332,15 +3332,13 @@ class variables_TestCase(TestCmdTestCase):
             'TestCmd',
         ]
 
-        script = "from __future__ import print_function\n" + \
-                 "import TestCmd\n" + \
+        script = "import TestCmd\n" + \
                  '\n'.join([ "print(TestCmd.%s\n)" % v for v in variables ])
         run_env.run(program=sys.executable, stdin=script)
         stderr = run_env.stderr()
         assert stderr == "", stderr
 
-        script = "from __future__ import print_function\n" + \
-                 "from TestCmd import *\n" + \
+        script = "from TestCmd import *\n" + \
                  '\n'.join([ "print(%s)" % v for v in variables ])
         run_env.run(program=sys.executable, stdin=script)
         stderr = run_env.stderr()

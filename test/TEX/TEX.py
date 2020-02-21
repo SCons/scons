@@ -20,15 +20,14 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-from __future__ import print_function
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 r"""
 Validate that we can set the TEX string to our own utility, that
 the produced .dvi, .aux and .log files get removed by the -c option,
 and that we can use this to wrap calls to the real latex utility.
 """
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 

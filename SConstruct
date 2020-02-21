@@ -3,8 +3,6 @@
 #
 # See the README.rst file for an overview of how SCons is built and tested.
 
-from __future__ import print_function
-
 copyright_years = '2001 - 2019'
 
 # This gets inserted into the man pages to reflect the month of release.

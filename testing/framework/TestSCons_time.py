@@ -27,7 +27,6 @@ from TestSCons import search_re, search_re_in_list
 __all__.extend(['TestSCons_time',])
 
 SConstruct = """\
-from __future__ import print_function
 import os
 print("SConstruct file directory:", os.getcwd())
 """

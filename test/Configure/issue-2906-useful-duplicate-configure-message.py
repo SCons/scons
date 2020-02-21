@@ -20,44 +20,33 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-"""
-Verify specifying an alternate SCons through a config file.
-"""
+#
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons_time
+"""
+Verify useful error message when you create a second Configure context without
+finalizing the previous one via conf.Finish()
+This addresses Issue 2906: 
+https://github.com/SCons/scons/issues/2906
+"""
 
-test = TestSCons_time.TestSCons_time()
+import TestSCons
 
-test.write_sample_project('foo.tar.gz')
+test = TestSCons.TestSCons()
+test.verbose_set(1)
 
-my_scons_py = test.workpath('my_scons.py')
+test.file_fixture('./fixture/SConstruct.issue-2906', 'SConstruct')
 
-test.write('config', """\
-scons = r'%(my_scons_py)s'
-""" % locals())
+test_SConstruct_path = test.workpath('SConstruct')
 
-test.write(my_scons_py, """\
-import sys
-profile = ''
-for arg in sys.argv[1:]:
-    if arg.startswith('--profile='):
-        profile = arg[10:]
-        break
-print('my_scons.py: %s' % profile)
-""")
+expected_stdout = "scons: Reading SConscript files ...\n"
 
-test.run(arguments = 'run -f config foo.tar.gz')
-
-prof0 = test.workpath('foo-000-0.prof')
-prof1 = test.workpath('foo-000-1.prof')
-prof2 = test.workpath('foo-000-2.prof')
-
-test.must_match('foo-000-0.log', "my_scons.py: %s\n" % prof0, mode='r')
-test.must_match('foo-000-1.log', "my_scons.py: %s\n" % prof1, mode='r')
-test.must_match('foo-000-2.log', "my_scons.py: %s\n" % prof2, mode='r')
+expected_stderr = """
+scons: *** Configure() called while another Configure() exists.
+            Please call .Finish() before creating and second Configure() context
+File "%s", line 5, in <module>\n"""%test_SConstruct_path
+test.run(stderr=expected_stderr, stdout=expected_stdout, status=2)
 
 test.pass_test()
 

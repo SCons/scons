@@ -20,15 +20,14 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that setting the $TEMPFILESUFFIX variable will cause
 it to appear at the end of name of the generated tempfile
 used for long command lines.
 """
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import stat
@@ -38,7 +37,6 @@ import TestSCons
 test = TestSCons.TestSCons(match=TestSCons.match_re)
 
 test.write('echo.py', """\
-from __future__ import print_function
 import sys
 print(sys.argv)
 """)

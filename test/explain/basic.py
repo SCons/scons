@@ -20,13 +20,12 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify a lot of the basic operation of the --debug=explain option.
 """
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import TestSCons
@@ -52,7 +51,6 @@ inc_bbb_k = test.workpath('inc', 'bbb.k')
 
 
 test.write(cat_py, r"""
-from __future__ import print_function
 
 import sys
 

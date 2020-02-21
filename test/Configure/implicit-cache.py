@@ -20,10 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-from __future__ import print_function
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that use of --implicit-cache with the Python Value Nodes
@@ -55,6 +51,8 @@ Every time that we would read this value and store it again (because
 something else changed in the .sconf_temp directory), the string would
 get longer and longer until it blew out the users's memory.
 """
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSConsign
 
