@@ -29,9 +29,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Adam Gross:
     - Added support for scanning multiple entries in an action string if
-      IMPLICIT_COMMAND_DEPENDENCIES is set to 2. This opts into more thorough
-      action scanning where every string in the command is scanned to determine
-      if it is a non-source and non-target path.
+      IMPLICIT_COMMAND_DEPENDENCIES is set to 2 or 'all'. This enables more thorough
+      action scanning where every item in each command line is scanned to determine
+      if it is a non-source and non-target path and added to the list of implicit dependencies
+      for the target.
     - Added support for taking instances of the Value class as implicit
       dependencies.
     - Added new module SCons.Scanner.Python to allow scanning .py files.
