@@ -32,9 +32,10 @@ if sys.platform == 'win32':
 else:
     _exe = ''
 
-for implicit_deps in ['0', '1', '2', 'all']:
+for implicit_deps in ['0', '1', '"all"']:
     # First, test a single repository.
     test = TestSCons.TestSCons()
+    test.verbose_set(1)
     test.subdir('repository', 'work1')
     repository = test.workpath('repository')
     repository_foo_c = test.workpath('repository', 'foo.c')
@@ -42,6 +43,7 @@ for implicit_deps in ['0', '1', '2', 'all']:
     work1_foo_c = test.workpath('work1', 'foo.c')
 
     test.write(['work1', 'SConstruct'], r"""
+DefaultEnvironment(tools=[])
 Repository(r'%s')
 env = Environment(IMPLICIT_COMMAND_DEPENDENCIES=%s)
 env.Program(target= 'foo', source = Split('aaa.c bbb.c foo.c'))
@@ -184,6 +186,7 @@ repository/foo.c
     work2_foo = test.workpath('work2', 'foo' + _exe)
 
     test.write(['work2', 'SConstruct'], r"""
+DefaultEnvironment(tools=[])
 Repository(r'%s')
 Repository(r'%s')
 env = Environment()
