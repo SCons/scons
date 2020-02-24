@@ -368,14 +368,17 @@ class RuntestBase(object):
     def __init__(self, path, num, spe=None):
         self.path = path
         self.num = num
+        self.stdout = self.stderr = self.status = None
         self.abspath = os.path.abspath(path)
+        self.command_args = []
+        self.command_str = ""
+        self.test_time = self.total_time = 0
         if spe:
             for dir in spe:
                 f = os.path.join(dir, path)
                 if os.path.isfile(f):
                     self.abspath = f
                     break
-        self.status = None
 
 
 class SystemExecutor(RuntestBase):
