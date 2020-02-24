@@ -283,9 +283,9 @@ def install_command_generator(env, target, source, for_signature=False):
     if len(target) == 1:
         copyingdirs = [s for s in source if s.isdir()]
         if copyingdirs:
-            return '$DIRCOPY $DIRCOPYFLAGS $SOURCES.abspath $TARGET'
+            return '$INSTALLDIRCOPY $INSTALLDIRCOPYFLAGS $SOURCES.abspath $TARGET'
         else:
-            return '$COPY $COPYFLAGS $SOURCES.abspath $TARGET'
+            return '$INSTALLFILECOPY $INSTALLFILECOPYFLAGS $SOURCES.abspath $TARGET'
     else:
         return '$INSTALLFUNC'
         
@@ -293,7 +293,7 @@ def install_command_generator(env, target, source, for_signature=False):
 #
 # The Builder Definition
 #
-install_action       = SCons.Action.Action(install_command_generator, stringFunc, generator=True)
+install_action       = SCons.Action.Action(install_command_generator, generator=True)
 installas_action     = SCons.Action.Action(install_command_generator, stringFunc, generator=True)
 installVerLib_action = SCons.Action.Action(installFuncVersionedLib, stringFunc)
 
@@ -433,33 +433,6 @@ def generate(env):
 
     if 'COPYFUNC' not in env:
         env['COPYFUNC'] = copyFunc
-
-    if 'COPY' not in env:
-        if env['PLATFORM'] == 'win32':
-            # Xcopy is a builtin windows tool that has more power than
-            # the regular copy command such as supporting directories.
-            env['COPY'] = 'Xcopy'
-            env['COPYFLAGS'] = [
-                '/o', # Copies file ownership and discretionary access control list information.
-                '/x', # Copies file audit settings and system access control list information.
-            ]
-        else:
-            env['COPY'] = 'cp'
-            env['COPYFLAGS'] = [
-                '--preserve=all',
-            ]
-
-    if 'DIRCOPY' not in env:
-        env['DIRCOPYFLAGS'] = env['COPYFLAGS'][:]
-        if env['PLATFORM'] == 'win32':
-            env['DIRCOPY'] = 'Xcopy'
-            env['DIRCOPYFLAGS'].extend([
-                '/s',
-                '/e',
-            ])
-        else:
-            env['DIRCOPY'] = 'cp'
-            env['DIRCOPYFLAGS'].append('--recursive')
 
     try:
         env['INSTALLVERSIONEDLIB']
