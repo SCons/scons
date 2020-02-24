@@ -68,7 +68,9 @@ def platform_default():
     if osname == 'java':
         osname = os._osType
     if osname == 'posix':
-        if sys.platform == 'cygwin':
+        if sys.platform == 'linux':
+            return 'linux'
+        elif sys.platform == 'cygwin':
             return 'cygwin'
         elif sys.platform.find('irix') != -1:
             return 'irix'

@@ -484,6 +484,20 @@ def generate(env):
     if enable_virtualenv and not ignore_virtualenv:
         ImportVirtualenv(env)
 
+    # Flags for INSTALL
+    env['INSTALLFILECOPY'] = 'Xcopy'
+    env['INSTALLFILECOPYFLAGS'] =[
+                '/o',  # Copies file ownership and discretionary access control list information.
+                '/x',  # Copies file audit settings and system access control list information.
+            ]
+    env['INSTALLDIRCOPYFLAGS'] = env['INSTALLFILECOPY'][:]
+    env['INSTALLDIRCOPYFLAGS'].extend([
+                '/s',
+                '/e',
+            ])
+    env['INSTALLDIRCOPY'] = 'Xcopy'
+
+
 
 # Local Variables:
 # tab-width:4

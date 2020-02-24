@@ -110,8 +110,9 @@ def generate(env):
     env['ESCAPE']         = escape
     env['TEMPFILE']       = TempFileMunge
     env['TEMPFILEPREFIX'] = '@'
-    #Based on LINUX: ARG_MAX=ARG_MAX=131072 - 3000 for environment expansion
-    #Note: specific platforms might rise or lower this value
+
+    # Based on LINUX: ARG_MAX=ARG_MAX=131072 - 3000 for environment expansion
+    # Note: specific platforms might increase or decrease this value
     env['MAXLINELENGTH']  = 128072
 
     # This platform supports RPATH specifications.
@@ -120,6 +121,15 @@ def generate(env):
     # GDC is GCC family, but DMD and LDC have different options.
     # Must be able to have GCC and DMD work in the same build, so:
     env['__DRPATH'] = '$_DRPATH'
+
+    # Flags for INSTALL
+    env['INSTALLFILECOPY'] = 'cp'
+    env['INSTALLFILECOPYFLAGS'] = ['-p']
+
+    env['INSTALLDIRCOPY'] = 'cp'
+    env['INSTALLDIRCOPYFLAGS'] = env['INSTALLFILECOPYFLAGS'][:]
+    env['INSTALLDIRCOPYFLAGS'].append('-r')
+
 
     if enable_virtualenv and not ignore_virtualenv:
         ImportVirtualenv(env)
