@@ -10,6 +10,10 @@ NOTE: Please include a reference to any Issues resolved by your changes in the b
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+From Rob Boehne
+    - Specify UTF-8 encoding when opening Java source file as text.  By default, encoding is the output
+    of locale.getpreferredencoding(False), and varies by platform.
+
   From William Deegan:
     - Fix broken clang + MSVC 2019 combination by using MSVC configuration logic to 
       propagate'VCINSTALLDIR' and 'VCToolsInstallDir' which clang tools use to locate
@@ -28,6 +32,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Updated design doc to use the correct syntax for Depends()
 
   From Adam Gross:
+    - Added support for scanning multiple entries in an action string if
+      IMPLICIT_COMMAND_DEPENDENCIES is set to 2 or 'all'. This enables more thorough
+      action scanning where every item in each command line is scanned to determine
+      if it is a non-source and non-target path and added to the list of implicit dependencies
+      for the target.
     - Added support for taking instances of the Value class as implicit
       dependencies.
     - Added new module SCons.Scanner.Python to allow scanning .py files.
@@ -70,6 +79,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Add an alternate warning message cl.exe is not found and msvc config
       cache is in use (SCONS_CACHE_MSVC_CONFIG was given) - config cache
       may be out of date.
+    - Fixed bug where changing TEXTFILESUFFIX would cause Substfile() to rebuild. (Github Issue #3540)
     - Script/Main.py now uses importlib instead of imp module.
 
 

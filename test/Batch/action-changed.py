@@ -33,7 +33,11 @@ import os
 
 import TestSCons
 
-python = TestSCons.python
+# swap slashes because on py3 on win32 inside the generated build.py
+# the backslashes are getting interpretted as unicode which is
+# invalid.
+python = TestSCons.python.replace('\\','//')
+_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
@@ -53,17 +57,21 @@ sys.exit(0)
 test.write('build.py', build_py_contents % (python, 'one'))
 os.chmod(test.workpath('build.py'), 0o755)
 
+build_py_workpath = test.workpath('build.py')
+
+# Provide IMPLICIT_COMMAND_DEPENDENCIES=2 so we take a dependency on build.py.
+# Without that, we only scan the first entry in the action string.
 test.write('SConstruct', """
-env = Environment()
+env = Environment(IMPLICIT_COMMAND_DEPENDENCIES=2)
 env.PrependENVPath('PATHEXT', '.PY')
-bb = Action(r'"%s" $CHANGED_TARGETS -- $CHANGED_SOURCES',
+bb = Action(r'%(_python_)s "%(build_py_workpath)s" $CHANGED_TARGETS -- $CHANGED_SOURCES',
             batch_key=True,
             targets='CHANGED_TARGETS')
 env['BUILDERS']['Batch'] = Builder(action=bb)
 env.Batch('f1.out', 'f1.in')
 env.Batch('f2.out', 'f2.in')
 env.Batch('f3.out', 'f3.in')
-""" % test.workpath('build.py'))
+""" % locals())
 
 test.write('f1.in', "f1.in\n")
 test.write('f2.in', "f2.in\n")
