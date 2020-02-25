@@ -23,6 +23,7 @@ Options:
   -b --baseline BASE       Run test scripts against baseline BASE.
      --builddir DIR        Directory in which packages were built.
   -d --debug               Run test scripts under the Python debugger.
+  -D --devmode             Run tests in Python's development mode (3.7+ only)
   -e --external            Run the script in external mode (for external Tools)
   -f --file FILE           Only run tests listed in FILE.
   -j --jobs JOBS           Run tests in JOBS parallel jobs.
@@ -87,7 +88,8 @@ cwd = os.getcwd()
 
 baseline = None
 builddir = os.path.join(cwd, 'build')
-external = False
+external = 0
+devmode = False
 debug = ''
 execute_tests = True
 jobs = 1
@@ -148,11 +150,12 @@ parser.add_option('--xml', help="Save results to file in SCons XML format.")
 
 opts, args = getopt.getopt(
     args,
-    "b:def:hj:klnP:p:qsv:Xx:t",
+    "b:dDef:hj:klnP:p:qsv:Xx:t",
     [
         "baseline=",
         "builddir=",
         "debug",
+        "devmode", 
         "external",
         "file=",
         "help",
@@ -188,6 +191,8 @@ for o, a in opts:
             if os.path.exists(pdb):
                 debug = pdb
                 break
+    elif o in ['-D', '--devmode']:
+        devmode = True
     elif o in ['-e', '--external']:
         external = True
     elif o in ['-f', '--file']:
@@ -784,6 +789,8 @@ def run_test(t, io_lock=None, run_async=True):
     command_args = []
     if debug:
         command_args.append(debug)
+    if devmode and sys.version_info >= (3, 7, 0):
+            command_args.append('-X dev')
     command_args.append(t.path)
     if options.runner and t.path in unittests:
         # For example --runner TestUnit.TAPTestRunner
