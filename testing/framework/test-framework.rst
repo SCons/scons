@@ -9,7 +9,7 @@ any surprise changes in behavior.
 In general, no change goes into SCons unless it has one or more new
 or modified tests that demonstrably exercise the bug being fixed or
 the feature being added.  There are exceptions to this guideline, but
-they should be just that, ''exceptions''.  When in doubt, make sure
+they should be just that, *exceptions*.  When in doubt, make sure
 it's tested.
 
 Test Organization
@@ -500,7 +500,7 @@ the test stdout/stderr which will confuse result evaluation.
 ``runtest.py`` has several verbose levels which can be used
 for this purpose:
 
-  python runtest.py --verbose=2 test/foo.py
+  $ python runtest.py --verbose=2 test/foo.py
 
 You can also use the internal
 ``SCons.Debug.Trace()`` function, which prints output to
@@ -529,7 +529,7 @@ Test Infrastructure
 
 The main test API in the ``TestSCons.py`` class.  ``TestSCons``
 is a subclass of ``TestCommon``, which is a subclass of ``TestCmd``.
-All those classes are defined in python files of the same name
+All those classes are defined in Python files of the same name
 in ``testing/framework``. Start in
 ``testing/framework/TestCmd.py`` for the base API definitions, like how
 to create files (``test.write()``) and run commands (``test.run()``).
@@ -553,7 +553,7 @@ The match functions work like this:
   * Joins the lines with newline (unless already a string)
   * joins the REs with newline (unless it's a string) and puts ``^..$``
     around the whole  thing
-  * then whole thing must match with python re.DOTALL.
+  * then whole thing must match with Python re.DOTALL.
 
 Use them in a test like this::
 
@@ -565,6 +565,12 @@ or::
 
 Avoiding Tests Based on Tool Existence
 ======================================
+
+For many tests, if the tool being tested is backed by an external program
+which is not installed on the machine under test, it may not be worth
+proceeding with the test. For example, it's hard to test complilng code with
+a C compiler if no C compiler exists. In this case, the test should be
+skipped.
 
 Here's a simple example::
 
@@ -581,3 +587,20 @@ The ``where_is`` method can be used to look for programs that
 are do not have tool specifications. The existing test code
 will have many samples of using either or both of these to detect
 if it is worth even proceeding with a test.
+
+Note that it is usually possible to test at least part of the operation of
+a tool without the underlying program.  Tools are responsible for setting up
+construction variables and having the right builders, scanners and emitters
+plumbed into the environment.  These things can be tested by mocking the
+behavior of the executable.  Many examples of this can be found in the
+``test`` directory. *TODO: point to one example*.
+
+This leads to a suggestion for test organization: keep tool tests which
+don't need the underlying program in separate files from ones which do -
+it is clearer what is going on if we can see in the test results that the
+plumbing tests worked but the ones using the underlying program were skipped
+rather than seeing all the tests for a tool passing or being skipped.
+The framework doesn't have a way to indicate a partial skip - if you executed
+200 lines of test, then found a condition which caused you to skip the
+last 20 lines, the whole test is marked as a skip;
+it also doesn't have a way to indicate a partial pass.
