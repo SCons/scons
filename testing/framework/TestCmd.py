@@ -1409,7 +1409,7 @@ class TestCmd(object):
         of dstfile are created automatically if needed.
         """
         if is_List(srcfile):
-            srcdir = os.path.join(*srcfile)
+            srcfile = os.path.join(*srcfile)
 
         srcpath, srctail = os.path.split(srcfile)
         spath = srcfile
