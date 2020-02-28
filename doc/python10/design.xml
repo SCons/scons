@@ -320,7 +320,7 @@
       (or other object). The signature of a <emphasis>derived</emphasis>
       file consists of the aggregate of the signatures of all the source
       files <emphasis>plus</emphasis> the command-line string used to
-      build the file. These signatures are stored in a &sconsign; file
+      build the file. These signatures are stored in a &sconsigndb; file
       in each directory.
 
     </para>
