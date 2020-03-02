@@ -122,15 +122,6 @@ def generate(env):
     # Must be able to have GCC and DMD work in the same build, so:
     env['__DRPATH'] = '$_DRPATH'
 
-    # Flags for INSTALL
-    env['INSTALLFILECOPY'] = 'cp'
-    env['INSTALLFILECOPYFLAGS'] = ['-p']
-
-    env['INSTALLDIRCOPY'] = 'cp'
-    env['INSTALLDIRCOPYFLAGS'] = env['INSTALLFILECOPYFLAGS'][:]
-    env['INSTALLDIRCOPYFLAGS'].append('-r')
-
-
     if enable_virtualenv and not ignore_virtualenv:
         ImportVirtualenv(env)
 
