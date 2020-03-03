@@ -756,7 +756,7 @@ def _subproc(scons_env, cmd, error='ignore', **kw):
     """Wrapper for subprocess which pulls from construction env.
 
     Use for calls to subprocess which need to interpolate values from
-    an SCons construction enviroment into the environment passed to
+    an SCons construction environment into the environment passed to
     subprocess.  Adds an an error-handling argument.  Adds ability
     to specify std{in,out,err} with "'devnull'" tag.
     """
