@@ -105,6 +105,7 @@ import pickle
 import re
 import sys
 import subprocess
+from subprocess import DEVNULL
 import itertools
 import inspect
 from collections import OrderedDict
@@ -751,30 +752,20 @@ def get_default_ENV(env):
         return default_ENV
 
 
-def _subproc(scons_env, cmd, error = 'ignore', **kw):
-    """Do common setup for a subprocess.Popen() call
+def _subproc(scons_env, cmd, error='ignore', **kw):
+    """Wrapper for subprocess which pulls from construction env.
 
-    This function is still in draft mode.  We're going to need something like
-    it in the long run as more and more places use subprocess, but I'm sure
-    it'll have to be tweaked to get the full desired functionality.
-    one special arg (so far?), 'error', to tell what to do with exceptions.
+    Use for calls to subprocess which need to interpolate values from
+    an SCons construction enviroment into the environment passed to
+    subprocess.  Adds an an error-handling argument.  Adds ability
+    to specify std{in,out,err} with "'devnull'" tag.
     """
-    # allow std{in,out,err} to be "'devnull'".  This is like
-    # subprocess.DEVNULL, which does not exist for Py2. Use the
-    # subprocess one if possible.
-    # Clean this up when Py2 support is dropped
-    try:
-        from subprocess import DEVNULL
-    except ImportError:
-        DEVNULL = None
-
+    # TODO: just uses subprocess.DEVNULL now, we can drop the "devnull"
+    # string now - it is a holdover from Py2, which didn't have DEVNULL.
     for stream in 'stdin', 'stdout', 'stderr':
         io = kw.get(stream)
         if is_String(io) and io == 'devnull':
-            if DEVNULL:
-                kw[stream] = DEVNULL
-            else:
-                kw[stream] = open(os.devnull, "r+")
+            kw[stream] = DEVNULL
 
     # Figure out what shell environment to use
     ENV = kw.get('env', None)
