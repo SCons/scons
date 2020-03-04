@@ -185,16 +185,21 @@ def get_output(vcbat, args=None, env=None):
         # Create a blank environment, for use in launching the tools
         env = SCons.Environment.Environment(tools=[])
 
-    # TODO:  This is a hard-coded list of the variables that (may) need
-    # to be imported from os.environ[] for v[sc]*vars*.bat file
-    # execution to work.  This list should really be either directly
-    # controlled by vc.py, or else derived from the common_tools_var
-    # settings in vs.py.
+    # TODO:  Hard-coded list of the variables that (may) need to be
+    # imported from os.environ[] for the chain of development batch
+    # files to execute correctly. One call to vcvars*.bat may
+    # end up running a dozen or more scripts, changes not only with
+    # each release but with what is installed at the time. We think
+    # in modern installations most are set along the way and don't
+    # need to be picked from the env, but include these for safety's sake.
+    # Any VSCMD variables definitely are picked from the env and
+    # control execution in interesting ways.
+    # Note these really should be unified - either controlled by vs.py,
+    # or synced with the the common_tools_var # settings in vs.py.
     vs_vc_vars = [
-        'COMSPEC',
-        # VS100 and VS110: Still set, but modern MSVC setup scripts will
-        # discard these if registry has values.  However Intel compiler setup
-        # script still requires these as of 2013/2014.
+        'COMSPEC',  # path to "shell"
+        'VS160COMNTOOLS',  # path to common tools for given version
+        'VS150COMNTOOLS',
         'VS140COMNTOOLS',
         'VS120COMNTOOLS',
         'VS110COMNTOOLS',
@@ -204,6 +209,8 @@ def get_output(vcbat, args=None, env=None):
         'VS71COMNTOOLS',
         'VS70COMNTOOLS',
         'VS60COMNTOOLS',
+        'VSCMD_DEBUG',   # enable logging and other debug aids
+        'VSCMD_SKIP_SENDTELEMETRY',
     ]
     env['ENV'] = normalize_env(env['ENV'], vs_vc_vars, force=False)
 
@@ -237,7 +244,7 @@ def get_output(vcbat, args=None, env=None):
     if stderr:
         # TODO: find something better to do with stderr;
         # this at least prevents errors from getting swallowed.
-        sys.stderr.write(stderr)
+        sys.stderr.write(stderr.decode("mbcs"))
     if popen.wait() != 0:
         raise IOError(stderr.decode("mbcs"))
 
