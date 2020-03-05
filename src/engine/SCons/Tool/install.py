@@ -452,7 +452,7 @@ def set_win32_env_vars(env):
             ])
 
     if not env.get('INSTALLDIRCOPYFLAGS', False):
-        env['INSTALLDIRCOPYFLAGS'] = env['INSTALLFILECOPY'][:]
+        env['INSTALLDIRCOPYFLAGS'] = env['INSTALLFILECOPYFLAGS'][:]
         env['INSTALLDIRCOPYFLAGS'].extend([
                     '/s',  # Copies directories and subdirectories, unless they are empty.
                            #   If you omit /s, xcopy works within a single directory.
