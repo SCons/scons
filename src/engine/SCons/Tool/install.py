@@ -293,10 +293,11 @@ def install_command_generator(env, target, source, for_signature=False):
     if not SCons.Util.is_List(source):
         source = [source]
 
-    if not for_signature:
-        for t in target:
-            if t.isfile():
-                t.remove()
+    # This get's run even when scons -n is run.. and deletes targets when it shouldn't..
+    # if not for_signature:
+    #     for t in target:
+    #         if t.isfile():
+    #             t.remove()
 
     if len(target) == 1:
         copyingdirs = [s for s in source if s.isdir()]
@@ -304,6 +305,8 @@ def install_command_generator(env, target, source, for_signature=False):
             return '$INSTALLDIRCOPY $INSTALLDIRCOPYFLAGS $SOURCES/. $TARGET'
         else:
             return '$INSTALLFILECOPY $INSTALLFILECOPYFLAGS $SOURCES $TARGET'
+            # return 'rm -f $TARGET; $INSTALLFILECOPY $INSTALLFILECOPYFLAGS $SOURCES $TARGET'
+
     else:
         return '$INSTALLFUNC'
 
