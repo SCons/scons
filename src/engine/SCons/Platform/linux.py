@@ -38,11 +38,6 @@ from . import posix
 def generate(env):
     posix.generate(env)
 
-    # Flags for INSTALL
-    env['INSTALLFILECOPYFLAGS'] = ['--preserve=all']
-    env['INSTALLDIRCOPYFLAGS'] = env['INSTALLFILECOPYFLAGS'][:]
-    env['INSTALLDIRCOPYFLAGS'].append('--recursive')
-
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil

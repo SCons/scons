@@ -301,7 +301,7 @@ def install_command_generator(env, target, source, for_signature=False):
     if len(target) == 1:
         copyingdirs = [s for s in source if s.isdir()]
         if copyingdirs:
-            return '$INSTALLDIRCOPY $INSTALLDIRCOPYFLAGS $SOURCES/ $TARGET'
+            return '$INSTALLDIRCOPY $INSTALLDIRCOPYFLAGS $SOURCES/. $TARGET'
         else:
             return '$INSTALLFILECOPY $INSTALLFILECOPYFLAGS $SOURCES $TARGET'
     else:
@@ -405,12 +405,33 @@ def set_posix_env_vars(env):
     """
     env['INSTALLFILECOPY'] = env.get('INSTALLFILECOPY', 'cp')
     env['INSTALLFILECOPYFLAGS'] = env.get('INSTALLFILECOPYFLAGS',
-                                          ['-p']) # for verbose debugging , '-v']
+                                          ['-p',
+                                        #   '-v', # for verbose debugging
+                                          ])
     env['INSTALLDIRCOPY'] = env.get('INSTALLDIRCOPY', 'cp')
 
     if not env.get('INSTALLDIRCOPYFLAGS', False):
         env['INSTALLDIRCOPYFLAGS'] = env['INSTALLFILECOPYFLAGS'][:]
         env['INSTALLDIRCOPYFLAGS'].append('-r')
+
+
+def set_linux_env_vars(env):
+    """
+    Linux version
+    Setup env variables needed for file and dir copying used by Install and InstallAs
+    :param env:
+    :return:
+    """
+    env['INSTALLFILECOPY'] = env.get('INSTALLFILECOPY', 'cp')
+    env['INSTALLFILECOPYFLAGS'] = env.get('INSTALLFILECOPYFLAGS',
+                                          ['--preserve=all',
+                                        #   '--verbose', # for verbose debugging
+                                          ])
+    env['INSTALLDIRCOPY'] = env.get('INSTALLDIRCOPY', 'cp')
+
+    if not env.get('INSTALLDIRCOPYFLAGS', False):
+        env['INSTALLDIRCOPYFLAGS'] = env['INSTALLFILECOPYFLAGS'][:]
+        env['INSTALLDIRCOPYFLAGS'].append('--recursive')
 
 
 def set_win32_env_vars(env):
@@ -505,6 +526,8 @@ def generate(env):
 
     if env['PLATFORM'] == 'win32':
         set_win32_env_vars(env)
+    if env['PLATFORM'] == 'linux':
+        set_linux_env_vars(env)
     else:
         set_posix_env_vars(env)
 
