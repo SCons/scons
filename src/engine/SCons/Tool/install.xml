@@ -61,6 +61,7 @@ See its __doc__ string for a discussion of the format.
         <summary>
             <para>
                 Flags to add to the command line for copying a file as part of the Install() and InstallAs() builders.
+                The defaults below preserve ownership and file permissions.
             </para>
             <para>
                 For Posix systems defaults to
@@ -89,11 +90,12 @@ See its __doc__ string for a discussion of the format.
         </summary>
     </cvar>
 
-    <cvar name="INSTALLFILECOPYFLAGS">
+    <cvar name="INSTALLDIRCOPYFLAGS">
         <summary>
             <para>
                 Flags to add to the command line for copying a directory tree as part of the Install() and InstallAs()
-                builders.
+                builders.                 
+                The defaults below preserve ownership and file permissions.
             </para>
             <para>
                 For Posix systems defaults to
