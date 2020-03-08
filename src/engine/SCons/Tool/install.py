@@ -114,7 +114,9 @@ def copyFunc(dest, source, env):
         if os.path.exists(dest):
             if not os.path.isdir(dest):
                 raise SCons.Errors.UserError(
-                    "cannot overwrite non-directory `%s' with a directory `%s'" % (str(dest), str(source)))
+                    "cannot overwrite non-directory `%s' with a directory `%s'"
+                    % (str(dest), str(source))
+                )
         else:
             parent = os.path.split(dest)[0]
             if not os.path.exists(parent):
@@ -137,7 +139,9 @@ def copyFuncVersionedLib(dest, source, env):
     required symlinks."""
 
     if os.path.isdir(source):
-        raise SCons.Errors.UserError("cannot install directory `%s' as a version library" % str(source))
+        raise SCons.Errors.UserError(
+            "cannot install directory `%s' as a version library" % str(source)
+        )
     else:
         # remove the link if it is already there
         try:
@@ -158,7 +162,7 @@ def listShlibLinksToInstall(dest, source, env):
     dest = env.fs.File(dest)
     install_dir = dest.get_dir()
     for src in source:
-        symlinks = getattr(getattr(src, 'attributes', None), 'shliblinks', None)
+        symlinks = getattr(getattr(src, "attributes", None), "shliblinks", None)
         if symlinks:
             for link, linktgt in symlinks:
                 link_base = os.path.basename(link.get_path())
@@ -174,7 +178,11 @@ def installShlibLinks(dest, source, env):
     Verbose = False
     symlinks = listShlibLinksToInstall(dest, source, env)
     if Verbose:
-        print('installShlibLinks: symlinks={!r}'.format(SCons.Tool.StringizeLibSymlinks(symlinks)))
+        print(
+            "installShlibLinks: symlinks={!r}".format(
+                SCons.Tool.StringizeLibSymlinks(symlinks)
+            )
+        )
     if symlinks:
         SCons.Tool.CreateLibSymlinks(env, symlinks)
     return
@@ -184,13 +192,14 @@ def legacy_install_function(target, source, env):
     """Install a source file into a target using the function specified
     as the INSTALL construction variable."""
     try:
-        install = env['INSTALL']
+        install = env["INSTALL"]
     except KeyError:
-        raise SCons.Errors.UserError('Missing COPYFUNC construction variable.')
+        raise SCons.Errors.UserError("Missing COPYFUNC construction variable.")
 
-    assert len(target) == len(source), \
-        "Installing source %s into target %s: target and source lists must have same length." % (
-            list(map(str, source)), list(map(str, target)))
+    assert len(target) == len(source), (
+        "Installing source %s into target %s: target and source lists must have same length."
+        % (list(map(str, source)), list(map(str, target)))
+    )
     for t, s in zip(target, source):
         if install(t.get_path(), s.get_path(), env):
             return 1
@@ -202,15 +211,18 @@ def installFuncVersionedLib(target, source, env):
     """Install a versioned library into a target using the function specified
     as the INSTALLVERSIONEDLIB construction variable."""
     try:
-        install = env['INSTALLVERSIONEDLIB']
+        install = env["INSTALLVERSIONEDLIB"]
     except KeyError:
-        raise SCons.Errors.UserError('Missing INSTALLVERSIONEDLIB construction variable.')
+        raise SCons.Errors.UserError(
+            "Missing INSTALLVERSIONEDLIB construction variable."
+        )
 
-    assert len(target) == len(source), \
-        "Installing source %s into target %s: target and source lists must have same length." % (
-        list(map(str, source)), list(map(str, target)))
+    assert len(target) == len(source), (
+        "Installing source %s into target %s: target and source lists must have same length."
+        % (list(map(str, source)), list(map(str, target)))
+    )
     for t, s in zip(target, source):
-        if hasattr(t.attributes, 'shlibname'):
+        if hasattr(t.attributes, "shlibname"):
             tpath = os.path.join(t.get_dir(), t.attributes.shlibname)
         else:
             tpath = t.get_path()
@@ -257,7 +269,11 @@ def add_versioned_targets_to_INSTALLED_FILES(target, source, env):
     Verbose = False
     _INSTALLED_FILES.extend(target)
     if Verbose:
-        print("add_versioned_targets_to_INSTALLED_FILES: target={!r}".format(list(map(str, target))))
+        print(
+            "add_versioned_targets_to_INSTALLED_FILES: target={!r}".format(
+                list(map(str, target))
+            )
+        )
     symlinks = listShlibLinksToInstall(target[0], source, env)
     if symlinks:
         SCons.Tool.EmitLibSymlinks(env, symlinks, target[0])
@@ -284,7 +300,7 @@ class DESTDIR_factory(object):
 
 
 def install_command_generator(env, target, source, for_signature=False):
-    if env.get('INSTALL', False):
+    if env.get("INSTALL", False):
         return "$INSTALLFUNC"
 
     if not SCons.Util.is_List(target):
@@ -302,21 +318,25 @@ def install_command_generator(env, target, source, for_signature=False):
     if len(target) == 1:
         copyingdirs = [s for s in source if s.isdir()]
         if copyingdirs:
-            return '$INSTALLDIRCOPY $INSTALLDIRCOPYFLAGS $SOURCES/. $TARGET'
+            return "$INSTALLDIRCOPY $INSTALLDIRCOPYFLAGS $SOURCES/. $TARGET"
         else:
-            return '$INSTALLFILECOPY $INSTALLFILECOPYFLAGS $SOURCES $TARGET'
+            return "$INSTALLFILECOPY $INSTALLFILECOPYFLAGS $SOURCES $TARGET"
             # return 'rm -f $TARGET; $INSTALLFILECOPY $INSTALLFILECOPYFLAGS $SOURCES $TARGET'
 
     else:
-        return '$INSTALLFUNC'
+        return "$INSTALLFUNC"
 
 
 #
 # The Builder Definition
 #
 # stringFunc
-install_action = SCons.Action.Action(install_command_generator, "$INSTALLSTR", generator=True)
-installas_action = SCons.Action.Action(install_command_generator, "$INSTALLSTR", generator=True)
+install_action = SCons.Action.Action(
+    install_command_generator, "$INSTALLSTR", generator=True
+)
+installas_action = SCons.Action.Action(
+    install_command_generator, "$INSTALLSTR", generator=True
+)
 installVerLib_action = SCons.Action.Action(installFuncVersionedLib, "$INSTALLSTR")
 
 BaseInstallBuilder = None
@@ -325,12 +345,16 @@ BaseInstallBuilder = None
 def InstallBuilderWrapper(env, target=None, source=None, dir=None, **kw):
     if target and dir:
         import SCons.Errors
-        raise SCons.Errors.UserError("Both target and dir defined for Install(), only one may be defined.")
+
+        raise SCons.Errors.UserError(
+            "Both target and dir defined for Install(), only one may be defined."
+        )
     if not dir:
         dir = target
 
     import SCons.Script
-    install_sandbox = SCons.Script.GetOption('install_sandbox')
+
+    install_sandbox = SCons.Script.GetOption("install_sandbox")
     if install_sandbox:
         target_factory = DESTDIR_factory(env, install_sandbox)
     else:
@@ -340,8 +364,9 @@ def InstallBuilderWrapper(env, target=None, source=None, dir=None, **kw):
         dnodes = env.arg2nodes(dir, target_factory.Dir)
     except TypeError:
         raise SCons.Errors.UserError(
-            "Target `%s' of Install() is a file, but should be a directory.  Perhaps you have the Install() arguments backwards?" % str(
-                dir))
+            "Target `%s' of Install() is a file, but should be a directory.  Perhaps you have the Install() arguments backwards?"
+            % str(dir)
+        )
     sources = env.arg2nodes(source, env.fs.Entry)
     tgt = []
     for dnode in dnodes:
@@ -349,7 +374,7 @@ def InstallBuilderWrapper(env, target=None, source=None, dir=None, **kw):
             # Prepend './' so the lookup doesn't interpret an initial
             # '#' on the file name portion as meaning the Node should
             # be relative to the top-level SConstruct directory.
-            target = env.fs.Entry('.' + os.sep + src.name, dnode)
+            target = env.fs.Entry("." + os.sep + src.name, dnode)
             tgt.extend(BaseInstallBuilder(env, target, src, **kw))
     return tgt
 
@@ -367,12 +392,16 @@ BaseVersionedInstallBuilder = None
 def InstallVersionedBuilderWrapper(env, target=None, source=None, dir=None, **kw):
     if target and dir:
         import SCons.Errors
-        raise SCons.Errors.UserError("Both target and dir defined for Install(), only one may be defined.")
+
+        raise SCons.Errors.UserError(
+            "Both target and dir defined for Install(), only one may be defined."
+        )
     if not dir:
         dir = target
 
     import SCons.Script
-    install_sandbox = SCons.Script.GetOption('install_sandbox')
+
+    install_sandbox = SCons.Script.GetOption("install_sandbox")
     if install_sandbox:
         target_factory = DESTDIR_factory(env, install_sandbox)
     else:
@@ -382,8 +411,9 @@ def InstallVersionedBuilderWrapper(env, target=None, source=None, dir=None, **kw
         dnodes = env.arg2nodes(dir, target_factory.Dir)
     except TypeError:
         raise SCons.Errors.UserError(
-            "Target `%s' of Install() is a file, but should be a directory.  Perhaps you have the Install() arguments backwards?" % str(
-                dir))
+            "Target `%s' of Install() is a file, but should be a directory.  Perhaps you have the Install() arguments backwards?"
+            % str(dir)
+        )
     sources = env.arg2nodes(source, env.fs.Entry)
     tgt = []
     for dnode in dnodes:
@@ -391,7 +421,7 @@ def InstallVersionedBuilderWrapper(env, target=None, source=None, dir=None, **kw
             # Prepend './' so the lookup doesn't interpret an initial
             # '#' on the file name portion as meaning the Node should
             # be relative to the top-level SConstruct directory.
-            target = env.fs.Entry('.' + os.sep + src.name, dnode)
+            target = env.fs.Entry("." + os.sep + src.name, dnode)
             tgt.extend(BaseVersionedInstallBuilder(env, target, src, **kw))
     return tgt
 
@@ -406,16 +436,19 @@ def set_posix_env_vars(env):
     :param env:
     :return:
     """
-    env['INSTALLFILECOPY'] = env.get('INSTALLFILECOPY', 'cp')
-    env['INSTALLFILECOPYFLAGS'] = env.get('INSTALLFILECOPYFLAGS',
-                                          ['-p',
-                                        #   '-v', # for verbose debugging
-                                          ])
-    env['INSTALLDIRCOPY'] = env.get('INSTALLDIRCOPY', 'cp')
+    env["INSTALLFILECOPY"] = env.get("INSTALLFILECOPY", "cp")
+    env["INSTALLFILECOPYFLAGS"] = env.get(
+        "INSTALLFILECOPYFLAGS",
+        [
+            "-p",
+            #   '-v', # for verbose debugging
+        ],
+    )
+    env["INSTALLDIRCOPY"] = env.get("INSTALLDIRCOPY", "cp")
 
-    if not env.get('INSTALLDIRCOPYFLAGS', False):
-        env['INSTALLDIRCOPYFLAGS'] = env['INSTALLFILECOPYFLAGS'][:]
-        env['INSTALLDIRCOPYFLAGS'].append('-r')
+    if not env.get("INSTALLDIRCOPYFLAGS", False):
+        env["INSTALLDIRCOPYFLAGS"] = env["INSTALLFILECOPYFLAGS"][:]
+        env["INSTALLDIRCOPYFLAGS"].append("-r")
 
 
 def set_linux_env_vars(env):
@@ -425,16 +458,19 @@ def set_linux_env_vars(env):
     :param env:
     :return:
     """
-    env['INSTALLFILECOPY'] = env.get('INSTALLFILECOPY', 'cp')
-    env['INSTALLFILECOPYFLAGS'] = env.get('INSTALLFILECOPYFLAGS',
-                                          ['--preserve=all',
-                                        #   '--verbose', # for verbose debugging
-                                          ])
-    env['INSTALLDIRCOPY'] = env.get('INSTALLDIRCOPY', 'cp')
+    env["INSTALLFILECOPY"] = env.get("INSTALLFILECOPY", "cp")
+    env["INSTALLFILECOPYFLAGS"] = env.get(
+        "INSTALLFILECOPYFLAGS",
+        [
+            "--preserve=all",
+            #   '--verbose', # for verbose debugging
+        ],
+    )
+    env["INSTALLDIRCOPY"] = env.get("INSTALLDIRCOPY", "cp")
 
-    if not env.get('INSTALLDIRCOPYFLAGS', False):
-        env['INSTALLDIRCOPYFLAGS'] = env['INSTALLFILECOPYFLAGS'][:]
-        env['INSTALLDIRCOPYFLAGS'].append('--recursive')
+    if not env.get("INSTALLDIRCOPYFLAGS", False):
+        env["INSTALLDIRCOPYFLAGS"] = env["INSTALLFILECOPYFLAGS"][:]
+        env["INSTALLDIRCOPYFLAGS"].append("--recursive")
 
 
 def set_win32_env_vars(env):
@@ -445,38 +481,48 @@ def set_win32_env_vars(env):
     :return:
     """
     # Flags for INSTALL
-    env['INSTALLFILECOPY'] = env.get('INSTALLFILECOPY', 'Xcopy')
-    env['INSTALLFILECOPYFLAGS'] = env.get('INSTALLFILECOPYFLAGS', [
-                '/o',  # Copies file ownership and discretionary access control list information.
-                '/x',  # Copies file audit settings and system access control list information.
-            ])
+    env["INSTALLFILECOPY"] = env.get("INSTALLFILECOPY", "copy")
+    env["INSTALLFILECOPYFLAGS"] = env.get(
+        "INSTALLFILECOPYFLAGS",
+        [
+            "/Y",  #  Suppresses prompting to confirm you want to overwrite an existing destination file.
+        ],
+    )
 
-    if not env.get('INSTALLDIRCOPYFLAGS', False):
-        env['INSTALLDIRCOPYFLAGS'] = env['INSTALLFILECOPYFLAGS'][:]
-        env['INSTALLDIRCOPYFLAGS'].extend([
-                    '/s',  # Copies directories and subdirectories, unless they are empty.
-                           #   If you omit /s, xcopy works within a single directory.
-                    '/e',  # Copies all subdirectories, even if they are empty.
-                           #   Use /e with the /s and /t command-line options.
-                ])
+    if not env.get("INSTALLDIRCOPYFLAGS", False):
+        env["INSTALLDIRCOPYFLAGS"] = env["INSTALLFILECOPYFLAGS"][:]
 
-    env['INSTALLDIRCOPY'] = env.get('INSTALLDIRCOPY', 'Xcopy')
+        env["INSTALLDIRCOPYFLAGS"] = [
+            "/o",  # Copies file ownership and discretionary access control list information.
+            "/x",  # Copies file audit settings and system access control list information.
+            "/i",  # If destination does not exist and copying more than one file,
+                   # assumes that destination must be a directory.
+            "/s",  # Copies directories and subdirectories, unless they are empty.
+                   #   If you omit /s, xcopy works within a single directory.
+            "/e",  # Copies all subdirectories, even if they are empty.
+                   #   Use /e with the /s and /t command-line options.
+        ]
+
+    env["INSTALLDIRCOPY"] = env.get("INSTALLDIRCOPY", "Xcopy")
 
 
 def generate(env):
     from SCons.Script import AddOption, GetOption
+
     global added
     if not added:
         added = 1
-        AddOption('--install-sandbox',
-                  dest='install_sandbox',
-                  type="string",
-                  action="store",
-                  help='A directory under which all installed files will be placed.')
+        AddOption(
+            "--install-sandbox",
+            dest="install_sandbox",
+            type="string",
+            action="store",
+            help="A directory under which all installed files will be placed.",
+        )
 
     global BaseInstallBuilder
     if BaseInstallBuilder is None:
-        install_sandbox = GetOption('install_sandbox')
+        install_sandbox = GetOption("install_sandbox")
         if install_sandbox:
             target_factory = DESTDIR_factory(env, install_sandbox)
         else:
@@ -487,13 +533,14 @@ def generate(env):
             target_factory=target_factory.Entry,
             source_factory=env.fs.Entry,
             multi=1,
-            emitter=[add_targets_to_INSTALLED_FILES, ],
-            source_scanner=SCons.Scanner.Base({}, name='Install', recursive=False),
-            name='InstallBuilder')
+            emitter=[add_targets_to_INSTALLED_FILES,],
+            source_scanner=SCons.Scanner.Base({}, name="Install", recursive=False),
+            name="InstallBuilder",
+        )
 
     global BaseVersionedInstallBuilder
     if BaseVersionedInstallBuilder is None:
-        install_sandbox = GetOption('install_sandbox')
+        install_sandbox = GetOption("install_sandbox")
         if install_sandbox:
             target_factory = DESTDIR_factory(env, install_sandbox)
         else:
@@ -504,12 +551,13 @@ def generate(env):
             target_factory=target_factory.Entry,
             source_factory=env.fs.Entry,
             multi=1,
-            emitter=[add_versioned_targets_to_INSTALLED_FILES, ],
-            name='InstallVersionedBuilder')
+            emitter=[add_versioned_targets_to_INSTALLED_FILES,],
+            name="InstallVersionedBuilder",
+        )
 
-    env['BUILDERS']['_InternalInstall'] = InstallBuilderWrapper
-    env['BUILDERS']['_InternalInstallAs'] = InstallAsBuilderWrapper
-    env['BUILDERS']['_InternalInstallVersionedLib'] = InstallVersionedBuilderWrapper
+    env["BUILDERS"]["_InternalInstall"] = InstallBuilderWrapper
+    env["BUILDERS"]["_InternalInstallAs"] = InstallAsBuilderWrapper
+    env["BUILDERS"]["_InternalInstallVersionedLib"] = InstallVersionedBuilderWrapper
 
     # We'd like to initialize this doing something like the following,
     # but there isn't yet support for a ${SOURCE.type} expansion that
@@ -519,29 +567,30 @@ def generate(env):
     # hand-crafted default string if it's not set.
     #
     try:
-       env['INSTALLSTR']
+        env["INSTALLSTR"]
     except KeyError:
-       env['INSTALLSTR'] = 'Install ${SOURCE.type}: "$SOURCES" as "$TARGETS"'
+        env["INSTALLSTR"] = 'Install ${SOURCE.type}: "$SOURCES" as "$TARGETS"'
 
-    env['INSTALLFUNC'] = legacy_install_function
+    env["INSTALLFUNC"] = legacy_install_function
 
-    env['INSTALL'] = env.get('INSTALL', None)
+    env["INSTALL"] = env.get("INSTALL", None)
 
-    if env['PLATFORM'] == 'win32':
+    if env["PLATFORM"] == "win32":
         set_win32_env_vars(env)
-    if env['PLATFORM'] == 'linux':
+    if env["PLATFORM"] == "linux":
         set_linux_env_vars(env)
     else:
         set_posix_env_vars(env)
 
     try:
-        env['INSTALLVERSIONEDLIB']
+        env["INSTALLVERSIONEDLIB"]
     except KeyError:
-        env['INSTALLVERSIONEDLIB'] = copyFuncVersionedLib
+        env["INSTALLVERSIONEDLIB"] = copyFuncVersionedLib
 
 
 def exists(env):
     return 1
+
 
 # Local Variables:
 # tab-width:4
