@@ -27,6 +27,7 @@ From Rob Boehne
       characters where it should have been simply replacing existing text. Switched to use string.replace().
     - Fix Github Issue #2904 - Provide useful error message when more than one Configure Contexts are opened.
       Only one open is allowed. You must call conf.Finish() to complete the currently open one before creating another
+    - Add msys2 installed mingw to PATH for mingw tool.
     
   From Jeremy Elson:
     - Updated design doc to use the correct syntax for Depends()
