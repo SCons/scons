@@ -31,15 +31,10 @@ month_year = 'December 2019'
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-import distutils.util
-import distutils.command
 import fnmatch
 import os
 import os.path
-import re
-import stat
 import sys
-import tempfile
 import time
 import socket
 import textwrap
@@ -98,17 +93,24 @@ if git:
         git_status_lines = p.readlines()
 
 revision = ARGUMENTS.get('REVISION', '')
+
+
 def generate_build_id(revision):
     return revision
+
 
 if not revision and git:
     with os.popen("%s rev-parse HEAD 2> /dev/null" % git, "r") as p:
         git_hash = p.read().strip()
+
+
     def generate_build_id(revision):
         result = git_hash
         if [l for l in git_status_lines if 'modified' in l]:
             result = result + '[MODIFIED]'
         return result
+
+
     revision = git_hash
 
 checkpoint = ARGUMENTS.get('CHECKPOINT', '')
@@ -136,11 +138,10 @@ for a in addpaths:
     if a not in sys.path:
         sys.path.append(a)
 
-
 # Re-exporting LD_LIBRARY_PATH is necessary if the Python version was
 # built with the --enable-shared option.
 
-ENV = { 'PATH' : os.environ['PATH'] }
+ENV = {'PATH': os.environ['PATH']}
 for key in ['LOGNAME', 'PYTHONPATH', 'LD_LIBRARY_PATH']:
     if key in os.environ:
         ENV[key] = os.environ[key]
@@ -150,73 +151,74 @@ if not os.path.isabs(build_dir):
     build_dir = os.path.normpath(os.path.join(os.getcwd(), build_dir))
 
 command_line_variables = [
-    ("BUILDDIR=",       "The directory in which to build the packages.  " +
-                        "The default is the './build' subdirectory."),
+    ("BUILDDIR=", "The directory in which to build the packages.  " +
+     "The default is the './build' subdirectory."),
 
-    ("BUILD_ID=",       "An identifier for the specific build." +
-                        "The default is the Subversion revision number."),
+    ("BUILD_ID=", "An identifier for the specific build." +
+     "The default is the Subversion revision number."),
 
-    ("BUILD_SYSTEM=",   "The system on which the packages were built.  " +
-                        "The default is whatever hostname is returned " +
-                        "by socket.gethostname(). If SOURCE_DATE_EPOCH " +
-                        "env var is set, '_reproducible' is the default."),
+    ("BUILD_SYSTEM=", "The system on which the packages were built.  " +
+     "The default is whatever hostname is returned " +
+     "by socket.gethostname(). If SOURCE_DATE_EPOCH " +
+     "env var is set, '_reproducible' is the default."),
 
-    ("CHECKPOINT=",     "The specific checkpoint release being packaged, " +
-                        "which will be appended to the VERSION string.  " +
-                        "A value of CHECKPOINT=d will generate a string " +
-                        "of 'd' plus today's date in the format YYYMMDD.  " +
-                        "A value of CHECKPOINT=r will generate a " +
-                        "string of 'r' plus the Subversion revision " +
-                        "number.  Any other CHECKPOINT= string will be " +
-                        "used as is.  There is no default value."),
+    ("CHECKPOINT=", "The specific checkpoint release being packaged, " +
+     "which will be appended to the VERSION string.  " +
+     "A value of CHECKPOINT=d will generate a string " +
+     "of 'd' plus today's date in the format YYYMMDD.  " +
+     "A value of CHECKPOINT=r will generate a " +
+     "string of 'r' plus the Subversion revision " +
+     "number.  Any other CHECKPOINT= string will be " +
+     "used as is.  There is no default value."),
 
-    ("DATE=",           "The date string representing when the packaging " +
-                        "build occurred.  The default is the day and time " +
-                        "the SConstruct file was invoked, in the format " +
-                        "YYYY/MM/DD HH:MM:SS."),
+    ("DATE=", "The date string representing when the packaging " +
+     "build occurred.  The default is the day and time " +
+     "the SConstruct file was invoked, in the format " +
+     "YYYY/MM/DD HH:MM:SS."),
 
-    ("DEVELOPER=",      "The developer who created the packages.  " +
-                        "The default is the first set environment " +
-                        "variable from the list $USERNAME, $LOGNAME, $USER." +
-                        "If the SOURCE_DATE_EPOCH env var is set, " +
-                        "'_reproducible' is the default."),
+    ("DEVELOPER=", "The developer who created the packages.  " +
+     "The default is the first set environment " +
+     "variable from the list $USERNAME, $LOGNAME, $USER." +
+     "If the SOURCE_DATE_EPOCH env var is set, " +
+     "'_reproducible' is the default."),
 
-    ("REVISION=",       "The revision number of the source being built.  " +
-                        "The default is the git hash returned " +
-                        "'git rev-parse HEAD', with an appended string of " +
-                        "'[MODIFIED]' if there are any changes in the " +
-                        "working copy."),
+    ("REVISION=", "The revision number of the source being built.  " +
+     "The default is the git hash returned " +
+     "'git rev-parse HEAD', with an appended string of " +
+     "'[MODIFIED]' if there are any changes in the " +
+     "working copy."),
 
-    ("VERSION=",        "The SCons version being packaged.  The default " +
-                        "is the hard-coded value '%s' " % default_version +
-                        "from this SConstruct file."),
+    ("VERSION=", "The SCons version being packaged.  The default " +
+     "is the hard-coded value '%s' " % default_version +
+     "from this SConstruct file."),
 
+    ("SKIP_DOC=","Skip building all documents. The default is False (build docs)"),
 ]
 
 Default('.', build_dir)
 
 packaging_flavors = [
-    ('tar-gz',          "The normal .tar.gz file for end-user installation."),
-    ('local-tar-gz',    "A .tar.gz file for dropping into other software " +
-                        "for local use."),
-    ('zip',             "The normal .zip file for end-user installation."),
-    ('local-zip',       "A .zip file for dropping into other software " +
-                        "for local use."),
-    ('src-tar-gz',      "A .tar.gz file containing all the source " +
-                        "(including tests and documentation)."),
-    ('src-zip',         "A .zip file containing all the source " +
-                        "(including tests and documentation)."),
+    ('tar-gz', "The normal .tar.gz file for end-user installation."),
+    ('local-tar-gz', "A .tar.gz file for dropping into other software " +
+     "for local use."),
+    ('zip', "The normal .zip file for end-user installation."),
+    ('local-zip', "A .zip file for dropping into other software " +
+     "for local use."),
+    ('src-tar-gz', "A .tar.gz file containing all the source " +
+     "(including tests and documentation)."),
+    ('src-zip', "A .zip file containing all the source " +
+     "(including tests and documentation)."),
 ]
 
-test_tar_gz_dir       = os.path.join(build_dir, "test-tar-gz")
-test_src_tar_gz_dir   = os.path.join(build_dir, "test-src-tar-gz")
+test_tar_gz_dir = os.path.join(build_dir, "test-tar-gz")
+test_src_tar_gz_dir = os.path.join(build_dir, "test-src-tar-gz")
 test_local_tar_gz_dir = os.path.join(build_dir, "test-local-tar-gz")
-test_zip_dir          = os.path.join(build_dir, "test-zip")
-test_src_zip_dir      = os.path.join(build_dir, "test-src-zip")
-test_local_zip_dir    = os.path.join(build_dir, "test-local-zip")
+test_zip_dir = os.path.join(build_dir, "test-zip")
+test_src_zip_dir = os.path.join(build_dir, "test-src-zip")
+test_local_zip_dir = os.path.join(build_dir, "test-local-zip")
 
-unpack_tar_gz_dir     = os.path.join(build_dir, "unpack-tar-gz")
-unpack_zip_dir        = os.path.join(build_dir, "unpack-zip")
+unpack_tar_gz_dir = os.path.join(build_dir, "unpack-tar-gz")
+unpack_zip_dir = os.path.join(build_dir, "unpack-zip")
 
 if is_windows():
     tar_hflag = ''
@@ -226,9 +228,6 @@ else:
     tar_hflag = 'h'
     python_project_subinst_dir = os.path.join("lib", project)
     project_script_subinst_dir = 'bin'
-
-
-
 
 indent_fmt = '  %-26s  '
 
@@ -243,9 +242,9 @@ aliases = sorted(packaging_flavors + [('doc', 'The SCons documentation.')])
 
 for alias, help_text in aliases:
     tw = textwrap.TextWrapper(
-        width = 78,
-        initial_indent = indent_fmt % alias,
-        subsequent_indent = indent_fmt % '' + '  ',
+        width=78,
+        initial_indent=indent_fmt % alias,
+        subsequent_indent=indent_fmt % '' + '  ',
     )
     Help(tw.fill(help_text) + '\n')
 
@@ -256,61 +255,57 @@ The following command-line variables can be set:
 
 for variable, help_text in command_line_variables:
     tw = textwrap.TextWrapper(
-        width = 78,
-        initial_indent = indent_fmt % variable,
-        subsequent_indent = indent_fmt % '' + '  ',
+        width=78,
+        initial_indent=indent_fmt % variable,
+        subsequent_indent=indent_fmt % '' + '  ',
     )
     Help(tw.fill(help_text) + '\n')
 
-
-
-
 revaction = SCons_revision
-revbuilder = Builder(action = Action(SCons_revision,
-                                     varlist=['COPYRIGHT', 'VERSION']))
-
+revbuilder = Builder(action=Action(SCons_revision,
+                                   varlist=['COPYRIGHT', 'VERSION']))
 
 # Just make copies, don't symlink them.
 SetOption('duplicate', 'copy')
 
 env = Environment(
-                   ENV                 = ENV,
+    ENV=ENV,
 
-                   BUILD               = build_id,
-                   BUILDDIR            = build_dir,
-                   BUILDSYS            = build_system,
-                   COPYRIGHT           = copyright,
-                   DATE                = date,
-                   DEB_DATE            = deb_date,
-                   DEVELOPER           = developer,
-                   DISTDIR             = os.path.join(build_dir, 'dist'),
-                   MONTH_YEAR          = month_year,
-                   REVISION            = revision,
-                   VERSION             = version,
+    BUILD=build_id,
+    BUILDDIR=build_dir,
+    BUILDSYS=build_system,
+    COPYRIGHT=copyright,
+    DATE=date,
+    DEB_DATE=deb_date,
+    DEVELOPER=developer,
+    DISTDIR=os.path.join(build_dir, 'dist'),
+    MONTH_YEAR=month_year,
+    REVISION=revision,
+    VERSION=version,
 
-                   TAR_HFLAG           = tar_hflag,
+    TAR_HFLAG=tar_hflag,
 
-                   ZIP                 = zip,
-                   ZIPFLAGS            = '-r',
-                   UNZIP               = unzip,
-                   UNZIPFLAGS          = '-o -d $UNPACK_ZIP_DIR',
+    ZIP=zip,
+    ZIPFLAGS='-r',
+    UNZIP=unzip,
+    UNZIPFLAGS='-o -d $UNPACK_ZIP_DIR',
 
-                   ZCAT                = zcat,
+    ZCAT=zcat,
 
-                   TEST_SRC_TAR_GZ_DIR = test_src_tar_gz_dir,
-                   TEST_SRC_ZIP_DIR    = test_src_zip_dir,
-                   TEST_TAR_GZ_DIR     = test_tar_gz_dir,
-                   TEST_ZIP_DIR        = test_zip_dir,
+    TEST_SRC_TAR_GZ_DIR=test_src_tar_gz_dir,
+    TEST_SRC_ZIP_DIR=test_src_zip_dir,
+    TEST_TAR_GZ_DIR=test_tar_gz_dir,
+    TEST_ZIP_DIR=test_zip_dir,
 
-                   UNPACK_TAR_GZ_DIR   = unpack_tar_gz_dir,
-                   UNPACK_ZIP_DIR      = unpack_zip_dir,
+    UNPACK_TAR_GZ_DIR=unpack_tar_gz_dir,
+    UNPACK_ZIP_DIR=unpack_zip_dir,
 
-                   BUILDERS            = { 'SCons_revision' : revbuilder,
-                                           'SOElim' : soelimbuilder },
+    BUILDERS={'SCons_revision': revbuilder,
+              'SOElim': soelimbuilder},
 
-                   PYTHON              = '"%s"' % sys.executable,
-                   PYTHONFLAGS         = '-tt',
-                 )
+    PYTHON='"%s"' % sys.executable,
+    PYTHONFLAGS='-tt',
+)
 
 Version_values = [Value(version), Value(build_id)]
 
@@ -332,128 +327,90 @@ Version_values = [Value(version), Value(build_id)]
 
 from distutils.sysconfig import get_python_lib
 
-
 python_scons = {
-        'pkg'           : 'python-' + project,
-        'src_subdir'    : 'engine',
-        'inst_subdir'   : get_python_lib(),
+    'pkg': 'python-' + project,
+    'src_subdir': 'engine',
+    'inst_subdir': get_python_lib(),
 
-        'debian_deps'   : [
-                            'debian/changelog',
-                            'debian/compat',
-                            'debian/control',
-                            'debian/copyright',
-                            'debian/dirs',
-                            'debian/docs',
-                            'debian/postinst',
-                            'debian/prerm',
-                            'debian/rules',
-                          ],
+    'files': ['LICENSE.txt',
+              'README.txt',
+              'setup.cfg',
+              'setup.py',
+              ],
 
-        'files'         : [ 'LICENSE.txt',
-                            'README.txt',
-                            'setup.cfg',
-                            'setup.py',
-                          ],
+    'filemap': {
+        'LICENSE.txt': '../LICENSE.txt'
+    },
 
-        'filemap'       : {
-                            'LICENSE.txt' : '../LICENSE.txt'
-                          },
+    'buildermap': {},
 
-        'buildermap'    : {},
-
-        'explicit_deps' : {
-                            'SCons/__init__.py' : Version_values,
-                          },
+    'explicit_deps': {
+        'SCons/__init__.py': Version_values,
+    },
 }
 
-
 scons_script = {
-        'pkg'           : project + '-script',
-        'src_subdir'    : 'script',
-        'inst_subdir'   : 'bin',
+    'pkg': project + '-script',
+    'src_subdir': 'script',
+    'inst_subdir': 'bin',
 
-        'debian_deps'   : [
-                            'debian/changelog',
-                            'debian/compat',
-                            'debian/control',
-                            'debian/copyright',
-                            'debian/dirs',
-                            'debian/docs',
-                            'debian/postinst',
-                            'debian/prerm',
-                            'debian/rules',
-                          ],
+    'files': [
+        'LICENSE.txt',
+        'README.txt',
+        'setup.cfg',
+        'setup.py',
+    ],
 
-        'files'         : [
-                            'LICENSE.txt',
-                            'README.txt',
-                            'setup.cfg',
-                            'setup.py',
-                          ],
+    'filemap': {
+        'LICENSE.txt': '../LICENSE.txt',
+        'scons': 'scons.py',
+        'sconsign': 'sconsign.py',
+        'scons-time': 'scons-time.py',
+        'scons-configure-cache': 'scons-configure-cache.py',
+    },
 
-        'filemap'       : {
-                            'LICENSE.txt'       : '../LICENSE.txt',
-                            'scons'             : 'scons.py',
-                            'sconsign'          : 'sconsign.py',
-                            'scons-time'        : 'scons-time.py',
-                            'scons-configure-cache'        : 'scons-configure-cache.py',
-                           },
+    'buildermap': {},
 
-        'buildermap'    : {},
-
-        'explicit_deps' : {
-                            'scons'       : Version_values,
-                            'sconsign'    : Version_values,
-                          },
+    'explicit_deps': {
+        'scons': Version_values,
+        'sconsign': Version_values,
+    },
 }
 
 scons = {
-        'pkg'           : project,
+    'pkg': project,
 
-        'debian_deps'   : [
-                            'debian/changelog',
-                            'debian/compat',
-                            'debian/control',
-                            'debian/copyright',
-                            'debian/dirs',
-                            'debian/docs',
-                            'debian/postinst',
-                            'debian/prerm',
-                            'debian/rules',
-                          ],
+    'files': [
+        'CHANGES.txt',
+        'LICENSE.txt',
+        'README.txt',
+        'RELEASE.txt',
+        'scons.1',
+        'sconsign.1',
+        'scons-time.1',
+        'script/scons.bat',
+        'setup.cfg',
+        'setup.py',
+    ],
 
-        'files'         : [
-                            'CHANGES.txt',
-                            'LICENSE.txt',
-                            'README.txt',
-                            'RELEASE.txt',
-                            'scons.1',
-                            'sconsign.1',
-                            'scons-time.1',
-                            'script/scons.bat',
-                            'setup.cfg',
-                            'setup.py',
-                          ],
+    'filemap': {
+        'scons.1': '$BUILDDIR/doc/man/scons.1',
+        'sconsign.1': '$BUILDDIR/doc/man/sconsign.1',
+        'scons-time.1': '$BUILDDIR/doc/man/scons-time.1',
+    },
 
-        'filemap'       : {
-                            'scons.1' : '$BUILDDIR/doc/man/scons.1',
-                            'sconsign.1' : '$BUILDDIR/doc/man/sconsign.1',
-                            'scons-time.1' : '$BUILDDIR/doc/man/scons-time.1',
-                          },
+    'buildermap': {
+        'scons.1': env.SOElim,
+        'sconsign.1': env.SOElim,
+        'scons-time.1': env.SOElim,
+    },
 
-        'buildermap'    : {
-                            'scons.1' : env.SOElim,
-                            'sconsign.1' : env.SOElim,
-                            'scons-time.1' : env.SOElim,
-                          },
+    'subpkgs': [python_scons, scons_script],
 
-        'subpkgs'       : [ python_scons, scons_script ],
-
-        'subinst_dirs'  : {
-                             'python-' + project : python_project_subinst_dir,
-                             project + '-script' : project_script_subinst_dir,
-                           },
+    'subinst_dirs': {
+        'python-' + project: python_project_subinst_dir,
+        project + '-script': project_script_subinst_dir,
+    },
 }
 
 scripts = ['scons', 'sconsign', 'scons-time', 'scons-configure-cache']
@@ -461,7 +418,7 @@ scripts = ['scons', 'sconsign', 'scons-time', 'scons-configure-cache']
 src_deps = []
 src_files = []
 
-for p in [ scons ]:
+for p in [scons]:
     #
     # Initialize variables with the right directories for this package.
     #
@@ -483,7 +440,6 @@ for p in [ scons ]:
                                 'dist',
                                 "%s.%s.zip" % (pkg_version, platform))
 
-
     #
     # Update the environment with the relevant information
     # for this package.
@@ -493,9 +449,9 @@ for p in [ scons ]:
     # to the directory in which setup.py exists.
     #
     setup_py = os.path.join(build, 'setup.py')
-    env.Replace(PKG = pkg,
-                PKG_VERSION = pkg_version,
-                SETUP_PY = '"%s"' % setup_py)
+    env.Replace(PKG=pkg,
+                PKG_VERSION=pkg_version,
+                SETUP_PY='"%s"' % setup_py)
     Local(setup_py)
 
     #
@@ -510,7 +466,6 @@ for p in [ scons ]:
     dst_files = src_files[:]
 
     MANIFEST_in_list = []
-
 
     if 'subpkgs' in p:
         #
@@ -571,6 +526,7 @@ for p in [ scons ]:
     src_files.append("MANIFEST")
     MANIFEST_in_list.append(os.path.join(src, 'MANIFEST.in'))
 
+
     def write_src_files(target, source, **kw):
         global src_files
         src_files.sort()
@@ -578,6 +534,8 @@ for p in [ scons ]:
             for file in src_files:
                 f.write(file + "\n")
         return 0
+
+
     env.Command(os.path.join(build, 'MANIFEST'),
                 MANIFEST_in_list,
                 write_src_files)
@@ -605,10 +563,10 @@ for p in [ scons ]:
 
         src_deps.append(tar_gz)
 
-        distutils_targets.extend([ tar_gz, platform_tar_gz ])
+        distutils_targets.extend([tar_gz, platform_tar_gz])
 
-        dist_tar_gz             = env.Install('$DISTDIR', tar_gz)
-        dist_platform_tar_gz    = env.Install('$DISTDIR', platform_tar_gz)
+        dist_tar_gz = env.Install('$DISTDIR', tar_gz)
+        dist_platform_tar_gz = env.Install('$DISTDIR', platform_tar_gz)
         Local(dist_tar_gz, dist_platform_tar_gz)
         AddPostAction(dist_tar_gz, Chmod(dist_tar_gz, 0o644))
         AddPostAction(dist_platform_tar_gz, Chmod(dist_platform_tar_gz, 0o644))
@@ -627,10 +585,10 @@ for p in [ scons ]:
         unpack_tar_gz_files = [os.path.join(unpack_tar_gz_dir, pkg_version, x)
                                for x in src_files]
         env.Command(unpack_tar_gz_files, dist_tar_gz, [
-                    Delete(os.path.join(unpack_tar_gz_dir, pkg_version)),
-                    "$ZCAT $SOURCES > .temp",
-                    "tar xf .temp -C $UNPACK_TAR_GZ_DIR",
-                    Delete(".temp"),
+            Delete(os.path.join(unpack_tar_gz_dir, pkg_version)),
+            "$ZCAT $SOURCES > .temp",
+            "tar xf .temp -C $UNPACK_TAR_GZ_DIR",
+            Delete(".temp"),
         ])
 
         #
@@ -651,7 +609,7 @@ for p in [ scons ]:
             Delete(os.path.join(unpack_tar_gz_dir, pkg_version, 'build')),
             Delete("$TEST_TAR_GZ_DIR"),
             '$PYTHON $PYTHONFLAGS "%s" install "--prefix=$TEST_TAR_GZ_DIR" --standalone-lib' % \
-                os.path.join(unpack_tar_gz_dir, pkg_version, 'setup.py'),
+            os.path.join(unpack_tar_gz_dir, pkg_version, 'setup.py'),
         ])
 
         #
@@ -662,10 +620,11 @@ for p in [ scons ]:
         digest = os.path.join(gentoo, 'files', 'digest-scons-%s' % version)
         env.Command(ebuild, os.path.join('gentoo', 'scons.ebuild.in'), SCons_revision)
 
+
         def Digestify(target, source, env):
             import hashlib
             src = source[0].rfile()
-            with open(str(src),'rb') as f:
+            with open(str(src), 'rb') as f:
                 contents = f.read()
             m = hashlib.md5()
             m.update(contents)
@@ -673,6 +632,8 @@ for p in [ scons ]:
             bytes = os.stat(str(src))[6]
             with open(str(target[0]), 'w') as f:
                 f.write("MD5 %s %s %d\n" % (sig, src.name, bytes))
+
+
         env.Command(digest, tar_gz, Digestify)
 
     if not zipit:
@@ -683,10 +644,10 @@ for p in [ scons ]:
 
         src_deps.append(zip)
 
-        distutils_targets.extend([ zip, platform_zip ])
+        distutils_targets.extend([zip, platform_zip])
 
-        dist_zip            = env.Install('$DISTDIR', zip)
-        dist_platform_zip   = env.Install('$DISTDIR', platform_zip)
+        dist_zip = env.Install('$DISTDIR', zip)
+        dist_platform_zip = env.Install('$DISTDIR', platform_zip)
         Local(dist_zip, dist_platform_zip)
         AddPostAction(dist_zip, Chmod(dist_zip, 0o644))
         AddPostAction(dist_platform_zip, Chmod(dist_platform_zip, 0o644))
@@ -696,7 +657,7 @@ for p in [ scons ]:
         # build/unpack-zip/scons-{version}.
         #
         unpack_zip_files = [os.path.join(unpack_zip_dir, pkg_version, x)
-                                         for x in src_files]
+                            for x in src_files]
 
         env.Command(unpack_zip_files, dist_zip, [
             Delete(os.path.join(unpack_zip_dir, pkg_version)),
@@ -721,10 +682,8 @@ for p in [ scons ]:
             Delete(os.path.join(unpack_zip_dir, pkg_version, 'build')),
             Delete("$TEST_ZIP_DIR"),
             '$PYTHON $PYTHONFLAGS "%s" install "--prefix=$TEST_ZIP_DIR" --standalone-lib' % \
-                os.path.join(unpack_zip_dir, pkg_version, 'setup.py'),
+            os.path.join(unpack_zip_dir, pkg_version, 'setup.py'),
         ])
-
-
 
     #
     # Use the Python distutils to generate the appropriate packages.
@@ -742,8 +701,8 @@ for p in [ scons ]:
         for format in distutils_formats:
             commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY bdist_dumb -f %s" % format)
 
-        commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY sdist --formats=%s" %  \
-                            ','.join(distutils_formats))
+        commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY sdist --formats=%s" % \
+                        ','.join(distutils_formats))
 
     env.Command(distutils_targets, build_src_files, commands)
 
@@ -766,7 +725,7 @@ for p in [ scons ]:
     commands = [
         Delete(build_dir_local),
         '$PYTHON $PYTHONFLAGS $SETUP_PY install "--install-script=%s" "--install-lib=%s" --no-install-man --no-compile --standalone-lib --no-version-script' % \
-                                                (build_dir_local, build_dir_local_slv),
+        (build_dir_local, build_dir_local_slv),
     ]
 
     for script in scripts:
@@ -813,7 +772,7 @@ for p in [ scons ]:
 
     if zipit:
         env.Command(dist_local_zip, local_targets, zipit,
-                    CD = build_dir_local, PSV = '.')
+                    CD=build_dir_local, PSV='.')
 
         unpack_targets = [os.path.join(test_local_zip_dir, x) for x in rf]
         commands = [Delete(test_local_zip_dir),
@@ -821,7 +780,7 @@ for p in [ scons ]:
                     unzipit]
 
         env.Command(unpack_targets, dist_local_zip, unzipit,
-                    UNPACK_ZIP_DIR = test_local_zip_dir)
+                    UNPACK_ZIP_DIR=test_local_zip_dir)
 
 #
 #
@@ -838,7 +797,6 @@ Local(sp)
 files = [
     'runtest.py',
 ]
-
 
 #
 # Documentation.
@@ -859,7 +817,7 @@ if git_status_lines:
     # sfiles = [l.split()[-1] for l in slines]
     pass
 else:
-   print("Not building in a Git tree; skipping building src package.")
+    print("Not building in a Git tree; skipping building src package.")
 
 if sfiles:
     remove_patterns = [
@@ -886,7 +844,7 @@ if sfiles:
         for file in sfiles:
             if file.endswith('jpg') or file.endswith('png'):
                 # don't revision binary files.
-                env.Install(os.path.dirname(os.path.join(b_ps,file)), file)
+                env.Install(os.path.dirname(os.path.join(b_ps, file)), file)
             else:
                 env.SCons_revision(os.path.join(b_ps, file), file)
 
@@ -902,7 +860,6 @@ if sfiles:
         Local(*b_ps_files)
 
         if gzip:
-
             env.Command(src_tar_gz, b_psv_stamp,
                         "tar cz${TAR_HFLAG} -f $TARGET -C build %s" % psv)
 
@@ -945,29 +902,28 @@ if sfiles:
             ENV['SCONS_LIB_DIR'] = scons_lib_dir
             ENV['USERNAME'] = developer
             env.Command(dfiles, unpack_tar_gz_files,
-                [
-                Delete(os.path.join(unpack_tar_gz_dir,
-                                    psv,
-                                    'build',
-                                    'scons',
-                                    'build')),
-                Delete("$TEST_SRC_TAR_GZ_DIR"),
-                'cd "%s" && $PYTHON $PYTHONFLAGS "%s" "%s" VERSION="$VERSION"' % \
-                    (os.path.join(unpack_tar_gz_dir, psv),
-                     os.path.join('src', 'script', 'scons.py'),
-                     os.path.join('build', 'scons')),
-                '$PYTHON $PYTHONFLAGS "%s" install "--prefix=$TEST_SRC_TAR_GZ_DIR" --standalone-lib' % \
-                    os.path.join(unpack_tar_gz_dir,
-                                 psv,
-                                 'build',
-                                 'scons',
-                                 'setup.py'),
-                ],
-                ENV = ENV)
+                        [
+                            Delete(os.path.join(unpack_tar_gz_dir,
+                                                psv,
+                                                'build',
+                                                'scons',
+                                                'build')),
+                            Delete("$TEST_SRC_TAR_GZ_DIR"),
+                            'cd "%s" && $PYTHON $PYTHONFLAGS "%s" "%s" VERSION="$VERSION"' % \
+                            (os.path.join(unpack_tar_gz_dir, psv),
+                             os.path.join('src', 'script', 'scons.py'),
+                             os.path.join('build', 'scons')),
+                            '$PYTHON $PYTHONFLAGS "%s" install "--prefix=$TEST_SRC_TAR_GZ_DIR" --standalone-lib' % \
+                            os.path.join(unpack_tar_gz_dir,
+                                         psv,
+                                         'build',
+                                         'scons',
+                                         'setup.py'),
+                        ],
+                        ENV=ENV)
 
         if zipit:
-
-            env.Command(src_zip, b_psv_stamp, zipit, CD = 'build', PSV = psv)
+            env.Command(src_zip, b_psv_stamp, zipit, CD='build', PSV=psv)
 
             #
             # Unpack the archive into build/unpack/scons-{version}.
@@ -999,31 +955,29 @@ if sfiles:
             ENV['SCONS_LIB_DIR'] = scons_lib_dir
             ENV['USERNAME'] = developer
             env.Command(dfiles, unpack_zip_files,
-                [
-                Delete(os.path.join(unpack_zip_dir,
-                                    psv,
-                                    'build',
-                                    'scons',
-                                    'build')),
-                Delete("$TEST_SRC_ZIP_DIR"),
-                'cd "%s" && $PYTHON $PYTHONFLAGS "%s" "%s" VERSION="$VERSION"' % \
-                    (os.path.join(unpack_zip_dir, psv),
-                     os.path.join('src', 'script', 'scons.py'),
-                     os.path.join('build', 'scons')),
-                '$PYTHON $PYTHONFLAGS "%s" install "--prefix=$TEST_SRC_ZIP_DIR" --standalone-lib' % \
-                    os.path.join(unpack_zip_dir,
-                                 psv,
-                                 'build',
-                                 'scons',
-                                 'setup.py'),
-                ],
-                ENV = ENV)
+                        [
+                            Delete(os.path.join(unpack_zip_dir,
+                                                psv,
+                                                'build',
+                                                'scons',
+                                                'build')),
+                            Delete("$TEST_SRC_ZIP_DIR"),
+                            'cd "%s" && $PYTHON $PYTHONFLAGS "%s" "%s" VERSION="$VERSION"' % \
+                            (os.path.join(unpack_zip_dir, psv),
+                             os.path.join('src', 'script', 'scons.py'),
+                             os.path.join('build', 'scons')),
+                            '$PYTHON $PYTHONFLAGS "%s" install "--prefix=$TEST_SRC_ZIP_DIR" --standalone-lib' % \
+                            os.path.join(unpack_zip_dir,
+                                         psv,
+                                         'build',
+                                         'scons',
+                                         'setup.py'),
+                        ],
+                        ENV=ENV)
 
 for pf, help_text in packaging_flavors:
     Alias(pf, [
-        os.path.join(build_dir, 'test-'+pf),
+        os.path.join(build_dir, 'test-' + pf),
         os.path.join(build_dir, 'testing/framework'),
         os.path.join(build_dir, 'runtest.py'),
     ])
-
-
