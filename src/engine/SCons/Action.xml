@@ -65,9 +65,9 @@ is set to <literal>2</literal> or higher,
 then that number of entries in the command
 string will be scanned for relative or absolute
 paths. The count will reset after any
-<literal>&&</literal> entries are found.
+<literal>&amp;&amp;</literal> entries are found.
 The first command in the action string and
-the first after any <literal>&&</literal>
+the first after any <literal>&amp;&amp;</literal>
 entries will be found by searching the
 <varname>PATH</varname> variable in the
 <varname>ENV</varname> environment used to
@@ -88,7 +88,7 @@ with that construction environment.
 not be added to the targets built with that
 construction environment. The first command
 in the action string and the first after any
-<literal>&&</literal> entries will be found
+<literal>&amp;&amp;</literal> entries will be found
 by searching the <varname>PATH</varname>
 variable in the <varname>ENV</varname>
 environment used to execute the command.
