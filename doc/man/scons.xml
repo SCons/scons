@@ -4304,7 +4304,7 @@ method:</para>
 
 <programlisting language="python">
 vars.AddVariables(
-    BoolVariable("warnings", "compilation with -Wall and similiar", 1),
+    BoolVariable("warnings", "compilation with -Wall and similar", 1),
     EnumVariable(
         "debug",
         "debug output and symbols",
