@@ -844,7 +844,7 @@ env3 = env.Clone(CCFLAGS = '-g')
 
 <para>
 Additionally, a list of tools and a toolpath may be specified, as in
-the Environment constructor:
+the &f-link-Environment; constructor:
 </para>
 
 <example_commands>
