@@ -287,7 +287,7 @@ may be specified on the command line:</para>
 <userinput>scons debug=1</userinput>
 </screen>
 
-<para>These variables are made available
+<para>These variables are available
 through the &ARGUMENTS; dictionary,
 and can be used in the SConscript files to modify
 the build in any way:</para>
@@ -5826,8 +5826,8 @@ changed since the target was last built.</para>
   </varlistentry>
 </variablelist>
 
-<para>The above variables are reserved
-and may not be set in a &consenv;.</para>
+<para>Note that the above variables are reserved
+and may not be assigned to in the &consenv;.</para>
 
 <para>For example, given the &consvars;
 <literal>CC='cc'</literal>,
