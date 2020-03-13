@@ -141,22 +141,12 @@ if not has_libxml2:
         pass
 if not has_etree:
     try:
-        # Python 2.5
         import xml.etree.cElementTree as etree
     except ImportError:
         try:
-            # Python 2.5
             import xml.etree.ElementTree as etree
         except ImportError:
-            try:
-                # normal cElementTree install
-                import cElementTree as etree
-            except ImportError:
-                try:
-                    # normal ElementTree install
-                    import elementtree.ElementTree as etree
-                except ImportError:
-                    raise ImportError("Failed to import ElementTree from any known place")
+            raise ImportError("Failed to import ElementTree from any known place")
 
 # patterns to help trim XML passed in as strings
 re_entity = re.compile(r"&([^;]+);")
