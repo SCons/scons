@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  build:
+    image: scons-test-ubuntu19.10:latest
+    restart: always
+    environment:
+      - DISPLAY
+      - HOME
+    volumes:
+      - /home:/home
+      - /tmp:/tmp
+      - /etc/sudoers:/etc/sudoers:ro
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/shadow:/etc/shadow:ro
+      - /etc/group:/etc/group:ro
+      - ./startup:/startup
+    container_name: SCons_Test_Ubuntu19.10
+    entrypoint: /startup/setup_container.sh
+    user: $DOCKERUID:$DOCKERGID
+    working_dir: $HOME
+
