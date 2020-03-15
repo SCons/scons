@@ -298,6 +298,7 @@ import re
 import shutil
 import signal
 import stat
+import subprocess
 import sys
 import tempfile
 import threading
@@ -306,7 +307,6 @@ import traceback
 import types
 
 
-IS_PY3 = sys.version_info[0] == 3
 IS_WINDOWS = sys.platform == 'win32'
 IS_64_BIT = sys.maxsize > 2**32
 IS_PYPY = hasattr(sys, 'pypy_translation_info')
@@ -729,23 +729,6 @@ else:
     default_sleep_seconds = 1
 
 
-import subprocess
-
-try:
-    subprocess.Popen.terminate
-except AttributeError:
-    if sys.platform == 'win32':
-        import win32process
-
-        def terminate(self):
-            win32process.TerminateProcess(self._handle, 1)
-    else:
-        def terminate(self):
-            os.kill(self.pid, signal.SIGTERM)
-    method = types.MethodType(terminate, None, subprocess.Popen)
-    setattr(subprocess.Popen, 'terminate', method)
-
-
 # From Josiah Carlson,
 # ASPN : Python Cookbook : Module to allow Asynchronous subprocess use on Windows and Posix platforms
 # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/440554
@@ -1025,12 +1008,11 @@ class TestCmd(object):
         self.condition = 'no_result'
         self.workdir_set(workdir)
         self.subdir(subdir)
-        self.fixture_dirs = []
 
         try:
             self.fixture_dirs = (os.environ['FIXTURE_DIRS']).split(os.pathsep)
         except KeyError:
-            pass
+            self.fixture_dirs = []
 
 
     def __del__(self):
@@ -1051,7 +1033,7 @@ class TestCmd(object):
 
     def canonicalize(self, path):
         if is_List(path):
-            path = os.path.join(*tuple(path))
+            path = os.path.join(*path)
         if not os.path.isabs(path):
             path = os.path.join(self.workdir, path)
         return path
@@ -1312,7 +1294,7 @@ class TestCmd(object):
         file = self.canonicalize(file)
         if mode[0] != 'r':
             raise ValueError("mode must begin with 'r'")
-        if IS_PY3 and 'b' not in mode:
+        if 'b' not in mode:
             with open(file, mode, newline=newline) as f:
                 return f.read()
         else:
@@ -1360,23 +1342,31 @@ class TestCmd(object):
         return result
 
     def dir_fixture(self, srcdir, dstdir=None):
-        """Copies the contents of the specified folder srcdir from
-        the directory of the called  script, to the current
-        working directory.
+        """ Copies the contents of the fixture dir to the test dir.
 
-        The srcdir name may be a list, in which case the elements are
-        concatenated with the os.path.join() method.  The dstdir is
-        assumed to be under the temporary working directory, it gets
-        created automatically, if it does not already exist.
+        If srcdir is an absolute path, it is tried directly, else
+        the fixture_dirs are prepended to it and tried in succession.
+        To tightly control the search order, the harness can be called
+        with FIXTURE_DIRS also including the test source directory
+        in the desired place, it will otherwise be tried last.
+
+        srcdir may be a list, in which case the elements are first
+        joined into a pathname.
+
+        If a dstdir is supplied, it is taken to be under the temporary
+        working dir.  dstdir is created automatically if needed.
         """
+        if is_List(srcdir):
+            srcdir = os.path.join(*srcdir)
 
+        spath = srcdir
         if srcdir and self.fixture_dirs and not os.path.isabs(srcdir):
             for dir in self.fixture_dirs:
                 spath = os.path.join(dir, srcdir)
                 if os.path.isdir(spath):
                     break
-        else:
-            spath = srcdir
+            else:
+                spath = srcdir
 
         if dstdir:
             dstdir = self.canonicalize(dstdir)
@@ -1403,23 +1393,33 @@ class TestCmd(object):
                 shutil.copy(epath, dpath)
 
     def file_fixture(self, srcfile, dstfile=None):
-        """Copies the file srcfile from the directory of
-        the called script, to the current working directory.
+        """ Copies a fixture file to the test dir, optionally renaming.
 
-        The dstfile is assumed to be under the temporary working
-        directory unless it is an absolute path name.
-        If dstfile is specified its target directory gets created
-        automatically, if it does not already exist.
+        If srcfile is an absolute path, it is tried directly, else
+        the fixture_dirs are prepended to it and tried in succession.
+        To tightly control the search order, the harness can be called
+        with FIXTURE_DIRS also including the test source directory
+        in the desired place, it will otherwise be tried last.
+
+        srcfile may be a list, in which case the elements are first
+        joined into a pathname.
+
+        dstfile is assumed to be under the temporary working directory
+        unless it is an absolute path name.  Any directory components
+        of dstfile are created automatically if needed.
         """
-        srcpath, srctail = os.path.split(srcfile)
+        if is_List(srcfile):
+            srcfile = os.path.join(*srcfile)
 
-        if srcpath and (not self.fixture_dirs or os.path.isabs(srcpath)):
-            spath = srcfile
-        else:
+        srcpath, srctail = os.path.split(srcfile)
+        spath = srcfile
+        if srcfile and self.fixture_dirs and not os.path.isabs(srcfile):
             for dir in self.fixture_dirs:
                 spath = os.path.join(dir, srcfile)
                 if os.path.isfile(spath):
                     break
+            else:
+                spath = srcfile
 
         if not dstfile:
             if srctail:
@@ -1435,8 +1435,8 @@ class TestCmd(object):
                         dstlist = dstlist[1:]
                     for idx in range(len(dstlist)):
                         self.subdir(dstlist[:idx + 1])
-
             dpath = os.path.join(self.workdir, dstfile)
+
         shutil.copy(spath, dpath)
 
     def start(self, program=None,
@@ -1445,8 +1445,7 @@ class TestCmd(object):
               universal_newlines=None,
               timeout=_Null,
               **kw):
-        """
-        Starts a program or script for the test environment.
+        """ Starts a program or script for the test environment.
 
         The specified program will have the original directory
         prepended unless it is enclosed in a [list].
@@ -1478,7 +1477,7 @@ class TestCmd(object):
             self.timer = threading.Timer(float(timeout), self._timeout)
             self.timer.start()
 
-        if IS_PY3 and sys.platform == 'win32':
+        if sys.platform == 'win32':
             # Set this otherwist stdout/stderr pipes default to
             # windows default locale cp1252 which will throw exception
             # if using non-ascii characters.
@@ -1517,15 +1516,10 @@ class TestCmd(object):
 
         if not stream:
             return stream
-        # TODO: Run full tests on both platforms and see if this fixes failures
         # It seems that py3.6 still sets text mode if you set encoding.
-        elif sys.version_info[0] == 3:  # TODO and sys.version_info[1] < 6:
-            stream = stream.decode('utf-8', errors='replace')
-            stream = stream.replace('\r\n', '\n')
-        elif sys.version_info[0] == 2:
-            stream = stream.replace('\r\n', '\n')
-
-        return stream
+        # was: if IS_PY3:  # TODO and sys.version_info[1] < 6:
+        stream = stream.decode('utf-8', errors='replace')
+        return stream.replace('\r\n', '\n')
 
     def finish(self, popen=None, **kw):
         """
@@ -1587,7 +1581,8 @@ class TestCmd(object):
         if is_List(stdin):
             stdin = ''.join(stdin)
 
-        if stdin and IS_PY3:#  and sys.version_info[1] < 6:
+        # TODO: was: if stdin and IS_PY3:#  and sys.version_info[1] < 6:
+        if stdin:
             stdin = to_bytes(stdin)
 
         # TODO(sgk):  figure out how to re-use the logic in the .finish()
@@ -1687,7 +1682,7 @@ class TestCmd(object):
             if sub is None:
                 continue
             if is_List(sub):
-                sub = os.path.join(*tuple(sub))
+                sub = os.path.join(*sub)
             new = os.path.join(self.workdir, sub)
             try:
                 os.mkdir(new)
@@ -1786,7 +1781,7 @@ class TestCmd(object):
         """Find an executable file.
         """
         if is_List(file):
-            file = os.path.join(*tuple(file))
+            file = os.path.join(*file)
         if not os.path.isabs(file):
             file = where_is(file, path, pathext)
         return file
@@ -1808,7 +1803,7 @@ class TestCmd(object):
         the temporary working directory name with the specified
         arguments using the os.path.join() method.
         """
-        return os.path.join(self.workdir, *tuple(args))
+        return os.path.join(self.workdir, *args)
 
     def readable(self, top, read=1):
         """Make the specified directory tree readable (read == 1)
