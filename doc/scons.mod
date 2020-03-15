@@ -97,20 +97,21 @@
 
 -->
 
-<!ENTITY config "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--config</literal>">
-<!ENTITY debug-explain "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=explain</literal>">
-<!ENTITY debug-findlibs "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=findlibs</literal>">
-<!ENTITY debug-includes "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=includes</literal>">
-<!ENTITY debug-prepare "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=prepare</literal>">
-<!ENTITY debug-presub "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=presub</literal>">
-<!ENTITY debug-stacktrace "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=stacktrace</literal>">
-<!ENTITY implicit-cache "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--implicit-cache</literal>">
-<!ENTITY implicit-deps-changed "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--implicit-deps-changed</literal>">
-<!ENTITY implicit-deps-unchanged "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--implicit-deps-unchanged</literal>">
-<!ENTITY profile "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--profile</literal>">
-<!ENTITY taskmastertrace "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--taskmastertrace</literal>">
-<!ENTITY tree "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--tree</literal>">
-<!ENTITY Q "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>-Q</literal>">
+<!ENTITY config "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--config</option>">
+<!ENTITY debug-duplicate "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=duplicate</option>">
+<!ENTITY debug-explain "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=explain</option>">
+<!ENTITY debug-findlibs "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=findlibs</option>">
+<!ENTITY debug-includes "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=includes</option>">
+<!ENTITY debug-prepare "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=prepare</option>">
+<!ENTITY debug-presub "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=presub</option>">
+<!ENTITY debug-stacktrace "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=stacktrace</option>">
+<!ENTITY implicit-cache "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--implicit-cache</option>">
+<!ENTITY implicit-deps-changed "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--implicit-deps-changed</option>">
+<!ENTITY implicit-deps-unchanged "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--implicit-deps-unchanged</option>">
+<!ENTITY profile "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--profile</option>">
+<!ENTITY taskmastertrace "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--taskmastertrace</option>">
+<!ENTITY tree "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--tree</option>">
+<!ENTITY Q "<option xmlns='http://www.scons.org/dbxsd/v1.0'>-Q</option>">
 
 <!--
 
