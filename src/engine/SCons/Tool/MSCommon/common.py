@@ -64,8 +64,7 @@ def read_script_env_cache():
         try:
             with open(CONFIG_CACHE, 'r') as f:
                 envcache = json.load(f)
-        # TODO can use more specific FileNotFoundError when py2 dropped
-        except IOError:
+        except FileNotFoundError:
             # don't fail if no cache file, just proceed without it
             pass
     return envcache
