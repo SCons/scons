@@ -141,6 +141,7 @@ if not has_libxml2:
         pass
 if not has_etree:
     try:
+        # TODO: this is for Python 2.7, cElementTee is deprecated since Py3.3
         import xml.etree.cElementTree as etree
     except ImportError:
         try:
