@@ -8,6 +8,20 @@
 
 -->
 
+<!--
+
+  Us, and our command names
+
+  Convention: use &SCons; to refer to the project as a concept,
+  use &scons; to refer to a command as you would invoke it.
+
+-->
+
+<!ENTITY SCons          "<application xmlns='http://www.scons.org/dbxsd/v1.0'>SCons</application>">
+<!ENTITY scons          "<command xmlns='http://www.scons.org/dbxsd/v1.0'>scons</command>">
+<!ENTITY scons-time     "<command xmlns='http://www.scons.org/dbxsd/v1.0'>scons-file</command>">
+<!ENTITY sconsign       "<command xmlns='http://www.scons.org/dbxsd/v1.0'>sconsign</command>">
+
 
 
 <!--
@@ -48,7 +62,6 @@
 <!ENTITY Python         "<application xmlns='http://www.scons.org/dbxsd/v1.0'>Python</application>">
 <!ENTITY ranlib         "<application xmlns='http://www.scons.org/dbxsd/v1.0'>ranlib</application>">
 <!ENTITY rmic           "<application xmlns='http://www.scons.org/dbxsd/v1.0'>rmic</application>">
-<!ENTITY SCons          "<application xmlns='http://www.scons.org/dbxsd/v1.0'>SCons</application>">
 <!ENTITY ScCons         "<application xmlns='http://www.scons.org/dbxsd/v1.0'>ScCons</application>">
 <!ENTITY sleep          "<application xmlns='http://www.scons.org/dbxsd/v1.0'>sleep</application>">
 <!ENTITY swig           "<application xmlns='http://www.scons.org/dbxsd/v1.0'>swig</application>">
@@ -134,7 +147,6 @@
 <!ENTITY build "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>build</filename>">
 <!ENTITY Makefile "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>Makefile</filename>">
 <!ENTITY Makefiles "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>Makefiles</filename>">
-<!ENTITY scons "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>scons</filename>">
 <!ENTITY SConscript "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>SConscript</filename>">
 <!ENTITY SConstruct "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>SConstruct</filename>">
 <!ENTITY Sconstruct "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>Sconstruct</filename>">
@@ -142,7 +154,7 @@
 <!ENTITY SConstruct.py "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>SConstruct.py</filename>">
 <!ENTITY Sconstruct.py "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>Sconstruct.py</filename>">
 <!ENTITY sconstruct.py "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>sconstruct.py</filename>">
-<!ENTITY sconsign "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>.sconsign</filename>">
+<!ENTITY sconsigndb "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>.sconsign</filename>">
 <!ENTITY src "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>src</filename>">
 
 
@@ -265,6 +277,7 @@
 <!ENTITY Split "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Split</function>">
 <!ENTITY Tag "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Tag</function>">
 <!ENTITY Task "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Task</function>">
+<!ENTITY Tool "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Tool</function>">
 <!ENTITY Touch "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Touch</function>">
 <!ENTITY UnknownOptions "<function xmlns='http://www.scons.org/dbxsd/v1.0'>UnknownOptions</function>">
 <!ENTITY UnknownVariables "<function xmlns='http://www.scons.org/dbxsd/v1.0'>UnknownVariables</function>">

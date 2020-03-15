@@ -143,13 +143,13 @@ class SCons_XML(object):
                     added = True
                     stf.appendNode(vl, stf.copyNode(s))
             
-            if len(v.sets):
+            if v.sets:
                 added = True
                 vp = stf.newNode("para")
                 s = ['&cv-link-%s;' % x for x in v.sets]
                 stf.setText(vp, 'Sets:  ' + ', '.join(s) + '.')
                 stf.appendNode(vl, vp)
-            if len(v.uses):
+            if v.uses:
                 added = True
                 vp = stf.newNode("para")
                 u = ['&cv-link-%s;' % x for x in v.uses]
