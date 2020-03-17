@@ -175,7 +175,7 @@ def normalize_env(env, keys, force=False):
     # Without Powershell in PATH, an internal call to a telemetry
     # function (starting with a VS2019 update) can fail
     # Note can also set VSCMD_SKIP_SENDTELEMETRY to avoid this.
-    sys32_ps_dir = os.path.join(sys32_dir, r'WindowsPowerShell\1.0')
+    sys32_ps_dir = os.path.join(sys32_dir, r'WindowsPowerShell\v1.0')
     if sys32_ps_dir not in normenv['PATH']:
         normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_ps_dir
 
