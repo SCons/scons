@@ -156,15 +156,14 @@ def normalize_env(env, keys, force=False):
             if k in os.environ and (force or k not in normenv):
                 normenv[k] = os.environ[k]
 
-    # This shouldn't be necessary, since the default environment should include system32,
-    # but keep this here to be safe, since it's needed to find reg.exe which the MSVC
-    # bat scripts use.
-    sys32_dir = os.path.join(os.environ.get("SystemRoot",
-                                            os.environ.get("windir", r"C:\Windows\system32")),
-                             "System32")
-
-    if sys32_dir not in normenv['PATH']:
-        normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_dir
+    # add some things to PATH to prevent problems:
+    # Shouldn't be necessary to add system32, since the default environment
+    # should include it, but keep this here to be safe (needed for reg.exe)
+    sys32_dir = os.path.join(
+        os.environ.get("SystemRoot", os.environ.get("windir", r"C:\Windows")), "System32"
+)
+    if sys32_dir not in normenv["PATH"]:
+        normenv["PATH"] = normenv["PATH"] + os.pathsep + sys32_dir
 
     # Without Wbem in PATH, vcvarsall.bat has a "'wmic' is not recognized"
     # error starting with Visual Studio 2017, although the script still
@@ -173,8 +172,14 @@ def normalize_env(env, keys, force=False):
     if sys32_wbem_dir not in normenv['PATH']:
         normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_wbem_dir
 
-    debug("PATH: %s" % normenv['PATH'])
+    # Without Powershell in PATH, an internal call to a telemetry
+    # function (starting with a VS2019 update) can fail
+    # Note can also set VSCMD_SKIP_SENDTELEMETRY to avoid this.
+    sys32_ps_dir = os.path.join(sys32_dir, r'WindowsPowerShell\1.0')
+    if sys32_ps_dir not in normenv['PATH']:
+        normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_ps_dir
 
+    debug("PATH: %s" % normenv['PATH'])
     return normenv
 
 
