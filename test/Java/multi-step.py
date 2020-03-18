@@ -33,7 +33,6 @@ import os
 import TestSCons
 
 test = TestSCons.TestSCons()
-# test.verbose_set(1)
 
 where_javac, java_version = test.java_where_javac()
 where_javah = test.java_where_javah()
