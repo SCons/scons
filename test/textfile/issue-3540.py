@@ -34,8 +34,6 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-# test.verbose_set(1)
-
 test.file_fixture('fixture/substfile.in', 'substfile.in')
 test.file_fixture('fixture/SConstruct.issue-3540', 'SConstruct')
 

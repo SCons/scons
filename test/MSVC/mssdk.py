@@ -32,7 +32,6 @@ import time
 import TestSCons
 
 test = TestSCons.TestSCons()
-test.verbose_set(1)
 
 test.skip_if_not_msvc()
 

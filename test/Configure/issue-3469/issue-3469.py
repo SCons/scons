@@ -38,7 +38,6 @@ _obj = TestSCons._obj
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
-test.verbose_set(1)
 
 NCR = test.NCR  # non-cached rebuild
 CR  = test.CR   # cached rebuild (up to date)

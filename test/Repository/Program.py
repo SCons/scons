@@ -35,7 +35,6 @@ else:
 for implicit_deps in ['0', '1', '"all"']:
     # First, test a single repository.
     test = TestSCons.TestSCons()
-    test.verbose_set(1)
     test.subdir('repository', 'work1')
     repository = test.workpath('repository')
     repository_foo_c = test.workpath('repository', 'foo.c')
