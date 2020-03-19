@@ -246,21 +246,28 @@ def get_output(vcbat, args=None, env=None):
 #     debug('get_output():stdout:%s'%stdout)
 #     debug('get_output():stderr:%s'%stderr)
 
+    # Ongoing problems getting non-corrupted text led to this
+    # changing to "oem" from "mbcs" - the scripts run presumably
+    # attached to a console, so some particular rules apply.
     if stderr:
         # TODO: find something better to do with stderr;
         # this at least prevents errors from getting swallowed.
-        sys.stderr.write(stderr.decode("mbcs"))
+        sys.stderr.write(stderr.decode("oem"))
     if popen.wait() != 0:
-        raise IOError(stderr.decode("mbcs"))
+        raise IOError(stderr.decode("oem"))
 
-    output = stdout.decode("mbcs")
-    return output
+    return stdout.decode("oem")
 
 
-KEEPLIST = ("INCLUDE", "LIB", "LIBPATH", "PATH", 'VSCMD_ARG_app_plat',
-            'VCINSTALLDIR',  # needed by clang -VS 2017 and newer
-            'VCToolsInstallDir', # needed by clang - VS 2015 and older
-            )
+KEEPLIST = (
+    "INCLUDE",
+    "LIB",
+    "LIBPATH",
+    "PATH",
+    "VSCMD_ARG_app_plat",
+    "VCINSTALLDIR",  # needed by clang -VS 2017 and newer
+    "VCToolsInstallDir",  # needed by clang - VS 2015 and older
+)
 
 
 def parse_output(output, keep=KEEPLIST):
