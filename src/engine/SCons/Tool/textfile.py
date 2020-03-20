@@ -171,7 +171,7 @@ _text_builder = SCons.Builder.Builder(
     suffix='$TEXTFILESUFFIX',
 )
 
-_subst_varlist = _common_varlist + ['SUBSTFILEPREFIX', 'TEXTFILESUFFIX']
+_subst_varlist = _common_varlist + ['SUBSTFILEPREFIX', 'SUBSTFILESUFFIX']
 _subst_builder = SCons.Builder.Builder(
     action=SCons.Action.Action(_action, _strfunc, varlist=_subst_varlist),
     source_factory=SCons.Node.FS.File,

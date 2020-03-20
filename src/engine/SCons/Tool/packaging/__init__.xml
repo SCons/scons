@@ -62,17 +62,21 @@ option or with the &cv-PACKAGETYPE; construction variable. Currently
 the following packagers available:
 </para>
 
-<para><literal>msi</literal> - Microsoft Installer</para>
-<para><literal>rpm</literal> - RPM Package Manger</para>
-<para><literal>ipkg</literal> - Itsy Package Management System</para>
-<para><literal>tarbz2</literal> - bzip2 compressed tar</para>
-<para><literal>targz</literal> - gzip compressed tar</para>
-<para><literal>tarxz</literal> - xz compressed tar</para>
-<para><literal>zip</literal> - zip file</para>
-<para><literal>src_tarbz2</literal> - bzip2 compressed tar source</para>
-<para><literal>src_targz</literal> - gzip compressed tar source</para>
-<para><literal>src_tarxz</literal> - xz compressed tar source</para>
-<para><literal>src_zip</literal> - zip file source</para>
+<blockquote>
+<simplelist type='vert' columns='1'>
+<member><literal>msi</literal> - Microsoft Installer</member>
+<member><literal>rpm</literal> - RPM Package Manger</member>
+<member><literal>ipkg</literal> - Itsy Package Management System</member>
+<member><literal>tarbz2</literal> - bzip2 compressed tar</member>
+<member><literal>targz</literal> - gzip compressed tar</member>
+<member><literal>tarxz</literal> - xz compressed tar</member>
+<member><literal>zip</literal> - zip file</member>
+<member><literal>src_tarbz2</literal> - bzip2 compressed tar source</member>
+<member><literal>src_targz</literal> - gzip compressed tar source</member>
+<member><literal>src_tarxz</literal> - xz compressed tar source</member>
+<member><literal>src_zip</literal> - zip file source</member>
+</simplelist>
+</blockquote>
 
 <para>
 An updated list is always available under the
@@ -199,17 +203,21 @@ placed if applicable.  The default value is "$NAME-$VERSION".
 Selects the package type to build.  Currently these are available:
 </para>
 
-<para><literal>msi</literal> - Microsoft Installer</para>
-<para><literal>rpm</literal> - RPM Package Manger</para>
-<para><literal>ipkg</literal> - Itsy Package Management System</para>
-<para><literal>tarbz2</literal> - bzip2 compressed tar</para>
-<para><literal>targz</literal> - gzip compressed tar</para>
-<para><literal>tarxz</literal> - xz compressed tar</para>
-<para><literal>zip</literal> - zip file</para>
-<para><literal>src_tarbz2</literal> - bzip2 compressed tar source</para>
-<para><literal>src_targz</literal> - gzip compressed tar source</para>
-<para><literal>src_tarxz</literal> - xz compressed tar source</para>
-<para><literal>src_zip</literal> - zip file source</para>
+<blockquote>
+<simplelist type='vert' columns='1'>
+<member><literal>msi</literal> - Microsoft Installer</member>
+<member><literal>rpm</literal> - RPM Package Manger</member>
+<member><literal>ipkg</literal> - Itsy Package Management System</member>
+<member><literal>tarbz2</literal> - bzip2 compressed tar</member>
+<member><literal>targz</literal> - gzip compressed tar</member>
+<member><literal>tarxz</literal> - xz compressed tar</member>
+<member><literal>zip</literal> - zip file</member>
+<member><literal>src_tarbz2</literal> - bzip2 compressed tar source</member>
+<member><literal>src_targz</literal> - gzip compressed tar source</member>
+<member><literal>src_tarxz</literal> - xz compressed tar source</member>
+<member><literal>src_zip</literal> - zip file source</member>
+</simplelist>
+</blockquote>
 
 <para>
 This may be overridden with the <option>package_type</option>

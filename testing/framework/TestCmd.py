@@ -285,7 +285,6 @@ version.
 # PARTICULAR PURPOSE.  THE CODE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS,
 # AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
-from __future__ import division, print_function
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
 __revision__ = "TestCmd.py 1.3.D001 2010/06/03 12:58:27 knight"
@@ -299,6 +298,7 @@ import re
 import shutil
 import signal
 import stat
+import subprocess
 import sys
 import tempfile
 import threading
@@ -307,7 +307,6 @@ import traceback
 import types
 
 
-IS_PY3 = sys.version_info[0] == 3
 IS_WINDOWS = sys.platform == 'win32'
 IS_64_BIT = sys.maxsize > 2**32
 IS_PYPY = hasattr(sys, 'pypy_translation_info')
@@ -358,14 +357,8 @@ def to_str(s):
     return str(s, 'utf-8')
 
 
-try:
-    eval('unicode')
-except NameError:
-    def is_String(e):
-        return isinstance(e, (str, UserString))
-else:
-    def is_String(e):
-        return isinstance(e, (str, unicode, UserString))
+def is_String(e):
+    return isinstance(e, (str, UserString))
 
 testprefix = 'testcmd.'
 if os.name in ('posix', 'nt'):
@@ -498,11 +491,9 @@ def match_caseinsensitive(lines=None, matches=None):
     """
     Match function using case-insensitive matching.
 
-    Only a simplistic comparison is done, based on lowercasing the
-    strings. This has plenty of holes for unicode data using
-    non-English languages.
-
-    TODO: casefold() is better than lower() if we don't need Py2 support.
+    Only a simplistic comparison is done, based on casefolding
+    the strings. This may still fail but is the suggestion of
+    the Unicode Standard.
 
     :param lines: data lines
     :type lines: str or list[str]
@@ -518,7 +509,7 @@ def match_caseinsensitive(lines=None, matches=None):
     if len(lines) != len(matches):
         return None
     for line, match in zip(lines, matches):
-        if line.lower() != match.lower():
+        if line.casefold() != match.casefold():
             return None
     return 1
 
@@ -706,7 +697,7 @@ if sys.platform == 'win32':
         if is_String(pathext):
             pathext = pathext.split(os.pathsep)
         for ext in pathext:
-            if ext.lower() == file[-len(ext):].lower():
+            if ext.casefold() == file[-len(ext):].casefold():
                 pathext = ['']
                 break
         for dir in path:
@@ -736,23 +727,6 @@ else:
         return None
 
     default_sleep_seconds = 1
-
-
-import subprocess
-
-try:
-    subprocess.Popen.terminate
-except AttributeError:
-    if sys.platform == 'win32':
-        import win32process
-
-        def terminate(self):
-            win32process.TerminateProcess(self._handle, 1)
-    else:
-        def terminate(self):
-            os.kill(self.pid, signal.SIGTERM)
-    method = types.MethodType(terminate, None, subprocess.Popen)
-    setattr(subprocess.Popen, 'terminate', method)
 
 
 # From Josiah Carlson,
@@ -1034,12 +1008,11 @@ class TestCmd(object):
         self.condition = 'no_result'
         self.workdir_set(workdir)
         self.subdir(subdir)
-        self.fixture_dirs = []
 
         try:
             self.fixture_dirs = (os.environ['FIXTURE_DIRS']).split(os.pathsep)
         except KeyError:
-            pass
+            self.fixture_dirs = []
 
 
     def __del__(self):
@@ -1060,7 +1033,7 @@ class TestCmd(object):
 
     def canonicalize(self, path):
         if is_List(path):
-            path = os.path.join(*tuple(path))
+            path = os.path.join(*path)
         if not os.path.isabs(path):
             path = os.path.join(self.workdir, path)
         return path
@@ -1094,7 +1067,7 @@ class TestCmd(object):
             condition = self.condition
         if self._preserve[condition]:
             for dir in self._dirlist:
-                print(u"Preserved directory " + dir)
+                print("Preserved directory " + dir)
         else:
             list = self._dirlist[:]
             list.reverse()
@@ -1321,7 +1294,7 @@ class TestCmd(object):
         file = self.canonicalize(file)
         if mode[0] != 'r':
             raise ValueError("mode must begin with 'r'")
-        if IS_PY3 and 'b' not in mode:
+        if 'b' not in mode:
             with open(file, mode, newline=newline) as f:
                 return f.read()
         else:
@@ -1369,23 +1342,31 @@ class TestCmd(object):
         return result
 
     def dir_fixture(self, srcdir, dstdir=None):
-        """Copies the contents of the specified folder srcdir from
-        the directory of the called  script, to the current
-        working directory.
+        """ Copies the contents of the fixture dir to the test dir.
 
-        The srcdir name may be a list, in which case the elements are
-        concatenated with the os.path.join() method.  The dstdir is
-        assumed to be under the temporary working directory, it gets
-        created automatically, if it does not already exist.
+        If srcdir is an absolute path, it is tried directly, else
+        the fixture_dirs are prepended to it and tried in succession.
+        To tightly control the search order, the harness can be called
+        with FIXTURE_DIRS also including the test source directory
+        in the desired place, it will otherwise be tried last.
+
+        srcdir may be a list, in which case the elements are first
+        joined into a pathname.
+
+        If a dstdir is supplied, it is taken to be under the temporary
+        working dir.  dstdir is created automatically if needed.
         """
+        if is_List(srcdir):
+            srcdir = os.path.join(*srcdir)
 
+        spath = srcdir
         if srcdir and self.fixture_dirs and not os.path.isabs(srcdir):
             for dir in self.fixture_dirs:
                 spath = os.path.join(dir, srcdir)
                 if os.path.isdir(spath):
                     break
-        else:
-            spath = srcdir
+            else:
+                spath = srcdir
 
         if dstdir:
             dstdir = self.canonicalize(dstdir)
@@ -1412,23 +1393,33 @@ class TestCmd(object):
                 shutil.copy(epath, dpath)
 
     def file_fixture(self, srcfile, dstfile=None):
-        """Copies the file srcfile from the directory of
-        the called script, to the current working directory.
+        """ Copies a fixture file to the test dir, optionally renaming.
 
-        The dstfile is assumed to be under the temporary working
-        directory unless it is an absolute path name.
-        If dstfile is specified its target directory gets created
-        automatically, if it does not already exist.
+        If srcfile is an absolute path, it is tried directly, else
+        the fixture_dirs are prepended to it and tried in succession.
+        To tightly control the search order, the harness can be called
+        with FIXTURE_DIRS also including the test source directory
+        in the desired place, it will otherwise be tried last.
+
+        srcfile may be a list, in which case the elements are first
+        joined into a pathname.
+
+        dstfile is assumed to be under the temporary working directory
+        unless it is an absolute path name.  Any directory components
+        of dstfile are created automatically if needed.
         """
-        srcpath, srctail = os.path.split(srcfile)
+        if is_List(srcfile):
+            srcfile = os.path.join(*srcfile)
 
-        if srcpath and (not self.fixture_dirs or os.path.isabs(srcpath)):
-            spath = srcfile
-        else:
+        srcpath, srctail = os.path.split(srcfile)
+        spath = srcfile
+        if srcfile and self.fixture_dirs and not os.path.isabs(srcfile):
             for dir in self.fixture_dirs:
                 spath = os.path.join(dir, srcfile)
                 if os.path.isfile(spath):
                     break
+            else:
+                spath = srcfile
 
         if not dstfile:
             if srctail:
@@ -1444,8 +1435,8 @@ class TestCmd(object):
                         dstlist = dstlist[1:]
                     for idx in range(len(dstlist)):
                         self.subdir(dstlist[:idx + 1])
-
             dpath = os.path.join(self.workdir, dstfile)
+
         shutil.copy(spath, dpath)
 
     def start(self, program=None,
@@ -1454,8 +1445,7 @@ class TestCmd(object):
               universal_newlines=None,
               timeout=_Null,
               **kw):
-        """
-        Starts a program or script for the test environment.
+        """ Starts a program or script for the test environment.
 
         The specified program will have the original directory
         prepended unless it is enclosed in a [list].
@@ -1487,7 +1477,7 @@ class TestCmd(object):
             self.timer = threading.Timer(float(timeout), self._timeout)
             self.timer.start()
 
-        if IS_PY3 and sys.platform == 'win32':
+        if sys.platform == 'win32':
             # Set this otherwist stdout/stderr pipes default to
             # windows default locale cp1252 which will throw exception
             # if using non-ascii characters.
@@ -1510,13 +1500,13 @@ class TestCmd(object):
     @staticmethod
     def fix_binary_stream(stream):
         """
-        Handle stdout/stderr from popen when we specify universal_newlines = False.
+        Handle stdout/stderr from popen when we specify not universal_newlines
 
-        This will read from the pipes in binary mode, not decode the output,
-        and not convert line endings to \n.
+        This will read from the pipes in binary mode, will not decode the
+        output, and will not convert line endings to \n.
         We do this because in py3 (3.5) with universal_newlines=True, it will
         choose the default system locale to decode the output, and this breaks unicode
-        output. Specifically breaking test/option--tree.py which outputs a unicode char.
+        output. Specifically test/option--tree.py which outputs a unicode char.
 
         py 3.6 allows us to pass an encoding param to popen thus not requiring the decode
         nor end of line handling, because we propagate universal_newlines as specified.
@@ -1526,16 +1516,10 @@ class TestCmd(object):
 
         if not stream:
             return stream
-        # TODO: Run full tests on both platforms and see if this fixes failures
         # It seems that py3.6 still sets text mode if you set encoding.
-        elif sys.version_info[0] == 3:  # TODO and sys.version_info[1] < 6:
-            stream = stream.decode('utf-8', errors='replace')
-            stream = stream.replace('\r\n', '\n')
-        elif sys.version_info[0] == 2:
-            stream = stream.replace('\r\n', '\n')
-
-        return stream
-
+        # was: if IS_PY3:  # TODO and sys.version_info[1] < 6:
+        stream = stream.decode('utf-8', errors='replace')
+        return stream.replace('\r\n', '\n')
 
     def finish(self, popen=None, **kw):
         """
@@ -1597,7 +1581,8 @@ class TestCmd(object):
         if is_List(stdin):
             stdin = ''.join(stdin)
 
-        if stdin and IS_PY3:#  and sys.version_info[1] < 6:
+        # TODO: was: if stdin and IS_PY3:#  and sys.version_info[1] < 6:
+        if stdin:
             stdin = to_bytes(stdin)
 
         # TODO(sgk):  figure out how to re-use the logic in the .finish()
@@ -1697,7 +1682,7 @@ class TestCmd(object):
             if sub is None:
                 continue
             if is_List(sub):
-                sub = os.path.join(*tuple(sub))
+                sub = os.path.join(*sub)
             new = os.path.join(self.workdir, sub)
             try:
                 os.mkdir(new)
@@ -1796,7 +1781,7 @@ class TestCmd(object):
         """Find an executable file.
         """
         if is_List(file):
-            file = os.path.join(*tuple(file))
+            file = os.path.join(*file)
         if not os.path.isabs(file):
             file = where_is(file, path, pathext)
         return file
@@ -1818,7 +1803,7 @@ class TestCmd(object):
         the temporary working directory name with the specified
         arguments using the os.path.join() method.
         """
-        return os.path.join(self.workdir, *tuple(args))
+        return os.path.join(self.workdir, *args)
 
     def readable(self, top, read=1):
         """Make the specified directory tree readable (read == 1)
@@ -1975,13 +1960,20 @@ class TestCmd(object):
             do_chmod(top)
 
     def write(self, file, content, mode='wb'):
-        """Writes the specified content text (second argument) to the
-        specified file name (first argument).  The file name may be
-        a list, in which case the elements are concatenated with the
-        os.path.join() method.  The file is created under the temporary
-        working directory.  Any subdirectories in the path must already
-        exist.  The I/O mode for the file may be specified; it must
-        begin with a 'w'.  The default is 'wb' (binary write).
+        """Write data to file
+
+        The file is created under the temporary working directory.
+        Any subdirectories in the path must already exist. The
+        write is converted to the required type rather than failing
+        if there is a str/bytes mistmatch.
+
+        :param file: name of file to write to. If a list, treated
+            as components of a path and concatenated into a path.
+        :type file: str or list(str)
+        :param content: data to write.
+        :type  content: str or bytes
+        :param mode: file mode, default is binary.
+        :type mode: str
         """
         file = self.canonicalize(file)
         if mode[0] != 'w':
@@ -1990,7 +1982,6 @@ class TestCmd(object):
             try:
                 f.write(content)
             except TypeError as e:
-                # python 3 default strings are not bytes, but unicode
                 f.write(bytes(content, 'utf-8'))
 
 # Local Variables:

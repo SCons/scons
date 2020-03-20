@@ -20,49 +20,27 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-"""
-Verify specifying an alternate SCons through a config file.
-"""
+#
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""
+Test for GH Issue 3540
 
-import TestSCons_time
+textfile()'s action is not sensitive to changes in TEXTFILEPREFIX (rather was sensitive to SUBSTFILEPREFIX)
 
-test = TestSCons_time.TestSCons_time()
+"""
 
-test.write_sample_project('foo.tar.gz')
+import TestSCons
 
-my_scons_py = test.workpath('my_scons.py')
+test = TestSCons.TestSCons()
 
-test.write('config', """\
-scons = r'%(my_scons_py)s'
-""" % locals())
+test.file_fixture('fixture/substfile.in', 'substfile.in')
+test.file_fixture('fixture/SConstruct.issue-3540', 'SConstruct')
 
-test.write(my_scons_py, """\
-import sys
-profile = ''
-for arg in sys.argv[1:]:
-    if arg.startswith('--profile='):
-        profile = arg[10:]
-        break
-print('my_scons.py: %s' % profile)
-""")
+test.run()
+test.must_exist('substfile')
 
-test.run(arguments = 'run -f config foo.tar.gz')
+test.up_to_date(options='text_file_suffix=BLAH')
 
-prof0 = test.workpath('foo-000-0.prof')
-prof1 = test.workpath('foo-000-1.prof')
-prof2 = test.workpath('foo-000-2.prof')
-
-test.must_match('foo-000-0.log', "my_scons.py: %s\n" % prof0, mode='r')
-test.must_match('foo-000-1.log', "my_scons.py: %s\n" % prof1, mode='r')
-test.must_match('foo-000-2.log', "my_scons.py: %s\n" % prof2, mode='r')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -20,13 +20,12 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that the --debug=explain information gets saved by default.
 """
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
@@ -42,8 +41,6 @@ inc_ddd = test.workpath('inc', 'ddd')
 inc_eee = test.workpath('inc', 'eee')
 
 test.write(cat_py, r"""
-from __future__ import print_function
-
 import sys
 
 def process(outfp, infp):

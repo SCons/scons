@@ -262,11 +262,6 @@ class SubstitutionTestCase(unittest.TestCase):
         assert isinstance(nodes[0], X)
         assert nodes[0].name == "Util.py UtilTests.py", nodes[0].name
 
-        nodes = env.arg2nodes(u"Util.py UtilTests.py", Factory)
-        assert len(nodes) == 1, nodes
-        assert isinstance(nodes[0], X)
-        assert nodes[0].name == u"Util.py UtilTests.py", nodes[0].name
-
         nodes = env.arg2nodes(["Util.py", "UtilTests.py"], Factory)
         assert len(nodes) == 2, nodes
         assert isinstance(nodes[0], X)

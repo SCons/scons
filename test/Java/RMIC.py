@@ -32,8 +32,6 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-# test.verbose_set(1)
-
 test.write('myrmic.py', r"""
 import os
 import sys

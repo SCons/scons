@@ -34,7 +34,6 @@ from TestSCons import TestSCons, ConfigCheckInfo, _obj
 from TestCmd import IS_WINDOWS
 
 test = TestSCons()
-# test.verbose_set(1)
 
 test.subdir('include')
 

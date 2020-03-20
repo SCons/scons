@@ -68,6 +68,30 @@ public class Foo
         assert classes == ['Foo'], classes
 
 
+    def test_file_parser(self):
+        """Test the file parser"""
+        input = """\
+package com.sub.bar;
+
+public class Foo
+{
+     public static void main(String[] args)
+     {
+        /* This tests that unicde is handled . */
+        String hello1 = new String("ఎత్తువెడల్పు");
+     }
+}
+"""
+        file_name = 'test_file_parser.java'
+        with open(file_name, 'w', encoding='UTF-8') as jf:
+            print(input, file=jf)
+
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java_file(file_name)
+        if os.path.exists(file_name):
+            os.remove(file_name)
+        assert pkg_dir == os.path.join('com', 'sub', 'bar'), pkg_dir
+        assert classes == ['Foo'], classes
+
 
     def test_dollar_sign(self):
         """Test class names with $ in them"""
