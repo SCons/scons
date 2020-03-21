@@ -28,7 +28,6 @@ from SCons.Script import Delete, Touch, WhereIs
 
 epydoc_cli = WhereIs('epydoc')
 
-
 if not epydoc_cli:
     try:
         import epydoc
@@ -92,7 +91,8 @@ if not epydoc_cli:
             Touch('$TARGET'),
         ]
 
-else: # epydoc_cli is found
+else:
+    # epydoc_cli is found
     epydoc_commands = [
         Delete('$OUTDIR'),
         '$EPYDOC $EPYDOCFLAGS --debug --output $OUTDIR --docformat=restructuredText --name SCons --url http://www.scons.org/ $SOURCES',

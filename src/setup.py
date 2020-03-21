@@ -27,7 +27,7 @@ import distutils.command.install_data
 import distutils.command.install
 import distutils.core
 import distutils
-# import setuptools
+import setuptools
 """
 NOTE: Installed SCons is not importable like usual Python packages. It is
       executed explicitly with command line scripts. This allows multiple
@@ -165,7 +165,6 @@ class install(_install):
         self.install_bat = 0
         self.no_install_bat = False  # not is_win32
         self.install_man = 0
-        self.no_install_man = is_win32
         self.standard_lib = 0
         self.standalone_lib = 0
         self.version_lib = 0
@@ -505,6 +504,9 @@ arguments = {
                  'install_data': install_data,
                  'install_scripts': install_scripts,
                  'build_scripts': build_scripts},
+    'install_requires' : {
+        "pywin32;platform_system=='Windows'"
+    }
 }
 
 distutils.core.setup(**arguments)

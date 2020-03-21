@@ -31,7 +31,7 @@ import glob
 
 import bootstrap
 
-Import('build_dir', 'env', 'whereis', 'revaction')
+Import('command_line', 'env', 'whereis', 'revaction')
 
 #
 # -- Check prerequisites for building the documentation ---
@@ -64,7 +64,7 @@ if skip_doc_arg is not None:
 #
 env = env.Clone()
 
-build = os.path.join(build_dir, 'doc')
+build = os.path.join(command_line.build_dir, 'doc')
 
 
 gs = whereis('gs')
@@ -252,7 +252,7 @@ else:
             fpattern = [fpattern]
 
         if use_builddir:
-            target_dir = env.Dir(os.path.join(build_dir, *(toolpath+paths)))
+            target_dir = env.Dir(os.path.join(command_line.build_dir, *(toolpath+paths)))
             buildsuite.extend(env.GlobInstall(target_dir,
                                               os.path.join('..', *(toolpath+paths+fpattern))))
         else:

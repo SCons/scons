@@ -35,8 +35,6 @@ import fnmatch
 import os
 import os.path
 import sys
-import time
-import socket
 import textwrap
 
 import bootstrap
@@ -45,88 +43,16 @@ project = 'scons'
 default_version = '3.1.2'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
-SConsignFile()
-
 #
 # We let the presence or absence of various utilities determine whether
 # or not we bother to build certain pieces of things.  This should allow
 # people to still do SCons packaging work even if they don't have all
 # of the utilities installed
 #
-gzip = whereis('gzip')
-git = os.path.exists('.git') and whereis('git')
-unzip = whereis('unzip')
-zip = whereis('zip')
-
-#
-# Now grab the information that we "build" into the files.
-#
-date = ARGUMENTS.get('DATE')
-if not date:
-    date = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(int(os.environ.get('SOURCE_DATE_EPOCH', time.time()))))
-
-developer = ARGUMENTS.get('DEVELOPER')
-if not developer:
-    for variable in ['USERNAME', 'LOGNAME', 'USER']:
-        developer = os.environ.get(variable)
-        if developer:
-            break
-    if os.environ.get('SOURCE_DATE_EPOCH'):
-        developer = '_reproducible'
-
-build_system = ARGUMENTS.get('BUILD_SYSTEM')
-if not build_system:
-    if os.environ.get('SOURCE_DATE_EPOCH'):
-        build_system = '_reproducible'
-    else:
-        build_system = socket.gethostname().split('.')[0]
-
-version = ARGUMENTS.get('VERSION', '')
-if not version:
-    version = default_version
-
-git_status_lines = []
-
-if git:
-    cmd = "%s ls-files 2> /dev/null" % git
-    with os.popen(cmd, "r") as p:
-        git_status_lines = p.readlines()
-
-revision = ARGUMENTS.get('REVISION', '')
-
-
-def generate_build_id(revision):
-    return revision
-
-
-if not revision and git:
-    with os.popen("%s rev-parse HEAD 2> /dev/null" % git, "r") as p:
-        git_hash = p.read().strip()
-
-
-    def generate_build_id(revision):
-        result = git_hash
-        if [l for l in git_status_lines if 'modified' in l]:
-            result = result + '[MODIFIED]'
-        return result
-
-
-    revision = git_hash
-
-checkpoint = ARGUMENTS.get('CHECKPOINT', '')
-if checkpoint:
-    if checkpoint == 'd':
-        checkpoint = time.strftime('%Y%m%d', time.localtime(time.time()))
-    elif checkpoint == 'r':
-        checkpoint = 'r' + revision
-    version = version + '.beta.' + checkpoint
-
-build_id = ARGUMENTS.get('BUILD_ID')
-if build_id is None:
-    if revision:
-        build_id = generate_build_id(revision)
-    else:
-        build_id = ''
+print("git    :%s"%git)
+print("gzip   :%s"%gzip)
+print("unzip  :%s"%unzip)
+print("zip    :%s"%zip_path)
 
 #
 # Adding some paths to sys.path, this is mainly needed
@@ -138,64 +64,14 @@ for a in addpaths:
     if a not in sys.path:
         sys.path.append(a)
 
-# Re-exporting LD_LIBRARY_PATH is necessary if the Python version was
-# built with the --enable-shared option.
+command_line = BuildCommandLine(default_version)
+command_line.process_command_line_vars()
 
-ENV = {'PATH': os.environ['PATH']}
-for key in ['LOGNAME', 'PYTHONPATH', 'LD_LIBRARY_PATH']:
-    if key in os.environ:
-        ENV[key] = os.environ[key]
 
-build_dir = ARGUMENTS.get('BUILDDIR', 'build')
-if not os.path.isabs(build_dir):
-    build_dir = os.path.normpath(os.path.join(os.getcwd(), build_dir))
+Default('.', command_line.build_dir)
+# Just make copies, don't symlink them.
+SetOption('duplicate', 'copy')
 
-command_line_variables = [
-    ("BUILDDIR=", "The directory in which to build the packages.  " +
-     "The default is the './build' subdirectory."),
-
-    ("BUILD_ID=", "An identifier for the specific build." +
-     "The default is the Subversion revision number."),
-
-    ("BUILD_SYSTEM=", "The system on which the packages were built.  " +
-     "The default is whatever hostname is returned " +
-     "by socket.gethostname(). If SOURCE_DATE_EPOCH " +
-     "env var is set, '_reproducible' is the default."),
-
-    ("CHECKPOINT=", "The specific checkpoint release being packaged, " +
-     "which will be appended to the VERSION string.  " +
-     "A value of CHECKPOINT=d will generate a string " +
-     "of 'd' plus today's date in the format YYYMMDD.  " +
-     "A value of CHECKPOINT=r will generate a " +
-     "string of 'r' plus the Subversion revision " +
-     "number.  Any other CHECKPOINT= string will be " +
-     "used as is.  There is no default value."),
-
-    ("DATE=", "The date string representing when the packaging " +
-     "build occurred.  The default is the day and time " +
-     "the SConstruct file was invoked, in the format " +
-     "YYYY/MM/DD HH:MM:SS."),
-
-    ("DEVELOPER=", "The developer who created the packages.  " +
-     "The default is the first set environment " +
-     "variable from the list $USERNAME, $LOGNAME, $USER." +
-     "If the SOURCE_DATE_EPOCH env var is set, " +
-     "'_reproducible' is the default."),
-
-    ("REVISION=", "The revision number of the source being built.  " +
-     "The default is the git hash returned " +
-     "'git rev-parse HEAD', with an appended string of " +
-     "'[MODIFIED]' if there are any changes in the " +
-     "working copy."),
-
-    ("VERSION=", "The SCons version being packaged.  The default " +
-     "is the hard-coded value '%s' " % default_version +
-     "from this SConstruct file."),
-
-    ("SKIP_DOC=","Skip building all documents. The default is False (build docs)"),
-]
-
-Default('.', build_dir)
 
 packaging_flavors = [
     ('tar-gz', "The normal .tar.gz file for end-user installation."),
@@ -210,15 +86,15 @@ packaging_flavors = [
      "(including tests and documentation)."),
 ]
 
-test_tar_gz_dir = os.path.join(build_dir, "test-tar-gz")
-test_src_tar_gz_dir = os.path.join(build_dir, "test-src-tar-gz")
-test_local_tar_gz_dir = os.path.join(build_dir, "test-local-tar-gz")
-test_zip_dir = os.path.join(build_dir, "test-zip")
-test_src_zip_dir = os.path.join(build_dir, "test-src-zip")
-test_local_zip_dir = os.path.join(build_dir, "test-local-zip")
+test_tar_gz_dir = os.path.join(command_line.build_dir, "test-tar-gz")
+test_src_tar_gz_dir = os.path.join(command_line.build_dir, "test-src-tar-gz")
+test_local_tar_gz_dir = os.path.join(command_line.build_dir, "test-local-tar-gz")
+test_zip_dir = os.path.join(command_line.build_dir, "test-zip")
+test_src_zip_dir = os.path.join(command_line.build_dir, "test-src-zip")
+test_local_zip_dir = os.path.join(command_line.build_dir, "test-local-zip")
 
-unpack_tar_gz_dir = os.path.join(build_dir, "unpack-tar-gz")
-unpack_zip_dir = os.path.join(build_dir, "unpack-zip")
+unpack_tar_gz_dir = os.path.join(command_line.build_dir, "unpack-tar-gz")
+unpack_zip_dir = os.path.join(command_line.build_dir, "unpack-zip")
 
 if is_windows():
     tar_hflag = ''
@@ -253,7 +129,7 @@ The following command-line variables can be set:
 
 """)
 
-for variable, help_text in command_line_variables:
+for variable, help_text in command_line.command_line_variables:
     tw = textwrap.TextWrapper(
         width=78,
         initial_indent=indent_fmt % variable,
@@ -265,27 +141,26 @@ revaction = SCons_revision
 revbuilder = Builder(action=Action(SCons_revision,
                                    varlist=['COPYRIGHT', 'VERSION']))
 
-# Just make copies, don't symlink them.
-SetOption('duplicate', 'copy')
 
 env = Environment(
-    ENV=ENV,
+    ENV=command_line.ENV,
 
-    BUILD=build_id,
-    BUILDDIR=build_dir,
-    BUILDSYS=build_system,
+    BUILD=command_line.build_id,
+    BUILDDIR=command_line.build_dir,
+    BUILDSYS=command_line.build_system,
     COPYRIGHT=copyright,
-    DATE=date,
+    DATE=command_line.date,
     DEB_DATE=deb_date,
-    DEVELOPER=developer,
-    DISTDIR=os.path.join(build_dir, 'dist'),
+
+    DEVELOPER=command_line.developer,
+    DISTDIR=os.path.join(command_line.build_dir, 'dist'),
     MONTH_YEAR=month_year,
-    REVISION=revision,
-    VERSION=version,
+    REVISION=command_line.revision,
+    VERSION=command_line.version,
 
     TAR_HFLAG=tar_hflag,
 
-    ZIP=zip,
+    ZIP=zip_path,
     ZIPFLAGS='-r',
     UNZIP=unzip,
     UNZIPFLAGS='-o -d $UNPACK_ZIP_DIR',
@@ -307,7 +182,7 @@ env = Environment(
     PYTHONFLAGS='-tt',
 )
 
-Version_values = [Value(version), Value(build_id)]
+Version_values = [Value(command_line.version), Value(command_line.build_id)]
 
 #
 # Define SCons packages.
@@ -423,13 +298,13 @@ for p in [scons]:
     # Initialize variables with the right directories for this package.
     #
     pkg = p['pkg']
-    pkg_version = "%s-%s" % (pkg, version)
+    pkg_version = "%s-%s" % (pkg, command_line.version)
 
     src = 'src'
     if 'src_subdir' in p:
         src = os.path.join(src, p['src_subdir'])
 
-    build = os.path.join(build_dir, pkg)
+    build = os.path.join(command_line.build_dir, pkg)
 
     tar_gz = os.path.join(build, 'dist', "%s.tar.gz" % pkg_version)
     platform_tar_gz = os.path.join(build,
@@ -616,8 +491,8 @@ for p in [scons]:
         # Generate portage files for submission to Gentoo Linux.
         #
         gentoo = os.path.join(build, 'gentoo')
-        ebuild = os.path.join(gentoo, 'scons-%s.ebuild' % version)
-        digest = os.path.join(gentoo, 'files', 'digest-scons-%s' % version)
+        ebuild = os.path.join(gentoo, 'scons-%s.ebuild' % command_line.version)
+        digest = os.path.join(gentoo, 'files', 'digest-scons-%s' % command_line.version)
         env.Command(ebuild, os.path.join('gentoo', 'scons.ebuild.in'), SCons_revision)
 
 
@@ -711,11 +586,11 @@ for p in [scons]:
     # build their SCons-buildable packages without having to
     # install SCons.
     #
-    s_l_v = '%s-local-%s' % (pkg, version)
+    s_l_v = '%s-local-%s' % (pkg, command_line.version)
 
     local = pkg + '-local'
-    build_dir_local = os.path.join(build_dir, local)
-    build_dir_local_slv = os.path.join(build_dir, local, s_l_v)
+    build_dir_local = os.path.join(command_line.build_dir, local)
+    build_dir_local_slv = os.path.join(command_line.build_dir, local, s_l_v)
 
     dist_local_tar_gz = os.path.join("$DISTDIR/%s.tar.gz" % s_l_v)
     dist_local_zip = os.path.join("$DISTDIR/%s.zip" % s_l_v)
@@ -785,23 +660,10 @@ for p in [scons]:
 #
 #
 #
-Export('build_dir', 'env')
-
-SConscript('testing/framework/SConscript')
-
-#
-#
-#
-sp = env.Install(build_dir, 'runtest.py')
-Local(sp)
-files = [
-    'runtest.py',
-]
-
 #
 # Documentation.
 #
-Export('build_dir', 'env', 'whereis', 'revaction')
+Export('command_line', 'env', 'whereis', 'revaction')
 
 SConscript('doc/SConscript')
 
@@ -811,8 +673,8 @@ SConscript('doc/SConscript')
 #
 
 
-sfiles = [l.split()[-1] for l in git_status_lines]
-if git_status_lines:
+sfiles = [l.split()[-1] for l in command_line.git_status_lines]
+if command_line.git_status_lines:
     # slines = [l for l in git_status_lines if 'modified:' in l]
     # sfiles = [l.split()[-1] for l in slines]
     pass
@@ -831,13 +693,13 @@ if sfiles:
 
     if sfiles:
         ps = "%s-src" % project
-        psv = "%s-%s" % (ps, version)
-        b_ps = os.path.join(build_dir, ps)
-        b_psv = os.path.join(build_dir, psv)
+        psv = "%s-%s" % (ps, command_line.version)
+        b_ps = os.path.join(command_line.build_dir, ps)
+        b_psv = os.path.join(command_line.build_dir, psv)
         b_psv_stamp = b_psv + '-stamp'
 
-        src_tar_gz = os.path.join(build_dir, 'dist', '%s.tar.gz' % psv)
-        src_zip = os.path.join(build_dir, 'dist', '%s.zip' % psv)
+        src_tar_gz = os.path.join(command_line.build_dir, 'dist', '%s.tar.gz' % psv)
+        src_zip = os.path.join(command_line.build_dir, 'dist', '%s.zip' % psv)
 
         Local(src_tar_gz, src_zip)
 
@@ -900,7 +762,7 @@ if sfiles:
             scons_lib_dir = os.path.join(unpack_tar_gz_dir, psv, 'src', 'engine')
             ENV = env.Dictionary('ENV').copy()
             ENV['SCONS_LIB_DIR'] = scons_lib_dir
-            ENV['USERNAME'] = developer
+            ENV['USERNAME'] = command_line.developer
             env.Command(dfiles, unpack_tar_gz_files,
                         [
                             Delete(os.path.join(unpack_tar_gz_dir,
@@ -953,7 +815,7 @@ if sfiles:
             scons_lib_dir = os.path.join(unpack_zip_dir, psv, 'src', 'engine')
             ENV = env.Dictionary('ENV').copy()
             ENV['SCONS_LIB_DIR'] = scons_lib_dir
-            ENV['USERNAME'] = developer
+            ENV['USERNAME'] = command_line.developer
             env.Command(dfiles, unpack_zip_files,
                         [
                             Delete(os.path.join(unpack_zip_dir,
@@ -977,7 +839,7 @@ if sfiles:
 
 for pf, help_text in packaging_flavors:
     Alias(pf, [
-        os.path.join(build_dir, 'test-' + pf),
-        os.path.join(build_dir, 'testing/framework'),
-        os.path.join(build_dir, 'runtest.py'),
+        os.path.join(command_line.build_dir, 'test-' + pf),
+        os.path.join(command_line.build_dir, 'testing/framework'),
+        os.path.join(command_line.build_dir, 'runtest.py'),
     ])
