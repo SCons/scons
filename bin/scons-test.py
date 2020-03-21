@@ -14,8 +14,6 @@
 # relevant information about the system, the Python version, etc.,
 # so that problems on different platforms can be identified sooner.
 #
-from __future__ import print_function
-
 import atexit
 import getopt
 import os

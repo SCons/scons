@@ -6,8 +6,6 @@
 # as well as the entity declarations for them.
 # Uses scons-proc.py under the hood...
 #
-from __future__ import print_function
-
 import os
 import sys
 import subprocess
