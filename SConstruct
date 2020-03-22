@@ -486,15 +486,7 @@ Version_values = [Value(command_line.version), Value(command_line.build_id)]
 #             '$PYTHON $PYTHONFLAGS "%s" install "--prefix=$TEST_TAR_GZ_DIR" --standalone-lib' % \
 #             os.path.join(unpack_tar_gz_dir, pkg_version, 'setup.py'),
 #         ])
-#
-#         #
-#         # Generate portage files for submission to Gentoo Linux.
-#         #
-#         gentoo = os.path.join(build, 'gentoo')
-#         ebuild = os.path.join(gentoo, 'scons-%s.ebuild' % command_line.version)
-#         digest = os.path.join(gentoo, 'files', 'digest-scons-%s' % command_line.version)
-#         env.Command(ebuild, os.path.join('gentoo', 'scons.ebuild.in'), SCons_revision)
-#
+##
 #
 #         def Digestify(target, source, env):
 #             import hashlib
