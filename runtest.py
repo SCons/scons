@@ -555,7 +555,7 @@ else:
     scons_runtest_dir = base
 
     if not external:
-        scons_script_dir = sd or os.path.join(base, 'script')
+        scons_script_dir = sd or os.path.join(base, 'scripts')
         scons_lib_dir = ld or os.path.join(base, 'src', 'engine')
     else:
         scons_script_dir = sd or ''
