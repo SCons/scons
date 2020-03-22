@@ -43,50 +43,6 @@ from dbm import whichdb
 import time
 import pickle
 
-# python compatibility check
-if sys.version_info < (3, 5, 0):
-    msg = "scons: *** SCons version %s does not run under Python version %s.\n\
-Python >= 3.5 is required.\n"
-    sys.stderr.write(msg % (__version__, sys.version.split()[0]))
-    sys.exit(1)
-
-# Strip the script directory from sys.path so on case-insensitive
-# (WIN32) systems Python doesn't think that the "scons" script is the
-# "SCons" package.
-script_dir = os.path.dirname(os.path.realpath(__file__))
-script_path = os.path.realpath(os.path.dirname(__file__))
-if script_path in sys.path:
-    sys.path.remove(script_path)
-
-libs = []
-
-if "SCONS_LIB_DIR" in os.environ:
-    libs.append(os.environ["SCONS_LIB_DIR"])
-
-# running from source takes 2nd priority (since 2.3.2), following SCONS_LIB_DIR
-source_path = os.path.join(script_path, os.pardir, 'src', 'engine')
-if os.path.isdir(source_path):
-    libs.append(source_path)
-
-# add local-install locations
-local_version = 'scons-local-' + __version__
-local = 'scons-local'
-if script_dir:
-    local_version = os.path.join(script_dir, local_version)
-    local = os.path.join(script_dir, local)
-if os.path.isdir(local_version):
-    libs.append(os.path.abspath(local_version))
-if os.path.isdir(local):
-    libs.append(os.path.abspath(local))
-
-scons_version = 'scons-%s' % __version__
-
-sys.path = libs + sys.path
-
-##############################################################################
-# END STANDARD SCons SCRIPT HEADER
-##############################################################################
-
 import SCons.compat
 import SCons.SConsign
 
@@ -429,6 +385,10 @@ def Do_SConsignDir(name):
 ##############################################################################
 def main():
     global  Do_Call
+    global nodeinfo_string
+    global args
+    global Verbose
+    global Readable
 
     helpstr = """\
     Usage: sconsign [OPTIONS] [FILE ...]
@@ -534,7 +494,6 @@ def main():
 
         if Warns:
             print("NOTE: there were %d warnings, please check output" % Warns)
-
 
 
 if __name__ == "__main__":
