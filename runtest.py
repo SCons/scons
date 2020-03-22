@@ -478,90 +478,49 @@ else:
     Test = SystemExecutor
 
 # --- start processing ---
-if package:
 
-    dirs = {
-        'deb'          : 'usr',
-        'local-tar-gz' : None,
-        'local-zip'    : None,
-        'rpm'          : 'usr',
-        'src-tar-gz'   : '',
-        'src-zip'      : '',
-        'tar-gz'       : '',
-        'zip'          : '',
-    }
+sd = None
+tools_dir = None
+ld = None
 
-    # The hard-coded "python2.1" here is the library directory
-    # name on Debian systems, not an executable, so it's all right.
-    lib = {
-        'deb'        : os.path.join('python2.1', 'site-packages')
-    }
+if not baseline or baseline == '.':
+    base = cwd
+elif baseline == '-':
+    url = None
+    with os.popen("svn info 2>&1", "r") as p:
+        svn_info =  p.read()
+    match = re.search(r'URL: (.*)', svn_info)
+    if match:
+        url = match.group(1)
+    if not url:
+        sys.stderr.write('runtest.py: could not find a URL:\n')
+        sys.stderr.write(svn_info)
+        sys.exit(1)
+    import tempfile
+    base = tempfile.mkdtemp(prefix='runtest-tmp-')
 
-    if package not in dirs:
-        sys.stderr.write("Unknown package '%s'\n" % package)
-        sys.exit(2)
+    command = 'cd %s && svn co -q %s' % (base, url)
 
-    test_dir = os.path.join(builddir, 'test-%s' % package)
-
-    if dirs[package] is None:
-        scons_script_dir = test_dir
-        globs = glob.glob(os.path.join(test_dir, 'scons-local-*'))
-        if not globs:
-            sys.stderr.write("No `scons-local-*' dir in `%s'\n" % test_dir)
-            sys.exit(2)
-        scons_lib_dir = None
-        pythonpath_dir = globs[len(globs)-1]
-    elif sys.platform == 'win32':
-        scons_script_dir = os.path.join(test_dir, dirs[package], 'Scripts')
-        scons_lib_dir = os.path.join(test_dir, dirs[package])
-        pythonpath_dir = scons_lib_dir
-    else:
-        scons_script_dir = os.path.join(test_dir, dirs[package], 'bin')
-        sconslib = lib.get(package, 'scons')
-        scons_lib_dir = os.path.join(test_dir, dirs[package], 'lib', sconslib)
-        pythonpath_dir = scons_lib_dir
-
-    scons_runtest_dir = builddir
-
+    base = os.path.join(base, os.path.split(url)[1])
+    if printcommand:
+        print(command)
+    if execute_tests:
+        os.system(command)
 else:
-    sd = None
-    ld = None
+    base = baseline
 
-    if not baseline or baseline == '.':
-        base = cwd
-    elif baseline == '-':
-        url = None
-        with os.popen("svn info 2>&1", "r") as p:
-            svn_info = p.read()
-        match = re.search(r'URL: (.*)', svn_info)
-        if match:
-            url = match.group(1)
-        if not url:
-            sys.stderr.write('runtest.py: could not find a URL:\n')
-            sys.stderr.write(svn_info)
-            sys.exit(1)
-        base = tempfile.mkdtemp(prefix='runtest-tmp-')
+scons_runtest_dir = base
 
-        command = 'cd %s && svn co -q %s' % (base, url)
+if not external:
+    scons_script_dir = sd or os.path.join(base, 'scripts')
+    scons_tools_dir = tools_dir or os.path.join(base, 'bin')
+    scons_lib_dir = ld or os.path.join(base, 'src', 'engine')
+else:
+    scons_script_dir = sd or ''
+    scons_tools_dir = tools_dir or ''
+    scons_lib_dir = ld or ''
 
-        base = os.path.join(base, os.path.split(url)[1])
-        if printcommand:
-            print(command)
-        if execute_tests:
-            os.system(command)
-    else:
-        base = baseline
-
-    scons_runtest_dir = base
-
-    if not external:
-        scons_script_dir = sd or os.path.join(base, 'scripts')
-        scons_lib_dir = ld or os.path.join(base, 'src', 'engine')
-    else:
-        scons_script_dir = sd or ''
-        scons_lib_dir = ld or ''
-
-    pythonpath_dir = scons_lib_dir
+pythonpath_dir = scons_lib_dir
 
 if scons:
     # Let the version of SCons that the -x option pointed to find
@@ -581,6 +540,7 @@ if external:
 
 os.environ['SCONS_RUNTEST_DIR'] = scons_runtest_dir
 os.environ['SCONS_SCRIPT_DIR'] = scons_script_dir
+os.environ['SCONS_TOOLS_DIR'] = scons_tools_dir
 os.environ['SCONS_CWD'] = cwd
 os.environ['SCONS_VERSION'] = version
 

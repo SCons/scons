@@ -158,7 +158,7 @@ class TestSCons_time(TestCommon):
 
         self.orig_cwd = os.getcwd()
         try:
-            script_dir = os.environ['SCONS_SCRIPT_DIR']
+            script_dir = os.environ['SCONS_TOOLS_DIR']
         except KeyError:
             pass
         else:
@@ -173,8 +173,6 @@ class TestSCons_time(TestCommon):
 
         if 'interpreter' not in kw:
             kw['interpreter'] = [python,]
-            if sys.version_info[0] < 3:
-                kw['interpreter'].append('-tt')
 
         if 'match' not in kw:
             kw['match'] = match_exact
