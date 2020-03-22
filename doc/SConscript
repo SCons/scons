@@ -76,7 +76,7 @@ tar_deps = []
 tar_list = []
 
 orig_env = env
-env = orig_env.Clone(SCONS_PY = File('#src/script/scons.py').rfile())
+env = orig_env.Clone(SCONS_PY = File('#/scripts/scons.py').rfile())
 
 #
 # --- Helpers ---

@@ -200,462 +200,462 @@ Version_values = [Value(command_line.version), Value(command_line.build_id)]
 # separate packages.
 #
 
-from distutils.sysconfig import get_python_lib
-
-python_scons = {
-    'pkg': 'python-' + project,
-    'src_subdir': 'engine',
-    'inst_subdir': get_python_lib(),
-
-    'files': ['LICENSE.txt',
-              'README.txt',
-              'setup.cfg',
-              'setup.py',
-              ],
-
-    'filemap': {
-        'LICENSE.txt': '../LICENSE.txt'
-    },
-
-    'buildermap': {},
-
-    'explicit_deps': {
-        'SCons/__init__.py': Version_values,
-    },
-}
-
-scons_script = {
-    'pkg': project + '-script',
-    'src_subdir': 'script',
-    'inst_subdir': 'bin',
-
-    'files': [
-        'LICENSE.txt',
-        'README.txt',
-        'setup.cfg',
-        'setup.py',
-    ],
-
-    'filemap': {
-        'LICENSE.txt': '../LICENSE.txt',
-        'scons': 'scons.py',
-        'sconsign': 'sconsign.py',
-        'scons-time': 'scons-time.py',
-        'scons-configure-cache': 'scons-configure-cache.py',
-    },
-
-    'buildermap': {},
-
-    'explicit_deps': {
-        'scons': Version_values,
-        'sconsign': Version_values,
-    },
-}
-
-scons = {
-    'pkg': project,
-
-    'files': [
-        'CHANGES.txt',
-        'LICENSE.txt',
-        'README.txt',
-        'RELEASE.txt',
-        'scons.1',
-        'sconsign.1',
-        'scons-time.1',
-        'script/scons.bat',
-        'setup.cfg',
-        'setup.py',
-    ],
-
-    'filemap': {
-        'scons.1': '$BUILDDIR/doc/man/scons.1',
-        'sconsign.1': '$BUILDDIR/doc/man/sconsign.1',
-        'scons-time.1': '$BUILDDIR/doc/man/scons-time.1',
-    },
-
-    'buildermap': {
-        'scons.1': env.SOElim,
-        'sconsign.1': env.SOElim,
-        'scons-time.1': env.SOElim,
-    },
-
-    'subpkgs': [python_scons, scons_script],
-
-    'subinst_dirs': {
-        'python-' + project: python_project_subinst_dir,
-        project + '-script': project_script_subinst_dir,
-    },
-}
-
-scripts = ['scons', 'sconsign', 'scons-time', 'scons-configure-cache']
-
-src_deps = []
-src_files = []
-
-for p in [scons]:
-    #
-    # Initialize variables with the right directories for this package.
-    #
-    pkg = p['pkg']
-    pkg_version = "%s-%s" % (pkg, command_line.version)
-
-    src = 'src'
-    if 'src_subdir' in p:
-        src = os.path.join(src, p['src_subdir'])
-
-    build = os.path.join(command_line.build_dir, pkg)
-
-    tar_gz = os.path.join(build, 'dist', "%s.tar.gz" % pkg_version)
-    platform_tar_gz = os.path.join(build,
-                                   'dist',
-                                   "%s.%s.tar.gz" % (pkg_version, platform))
-    zip = os.path.join(build, 'dist', "%s.zip" % pkg_version)
-    platform_zip = os.path.join(build,
-                                'dist',
-                                "%s.%s.zip" % (pkg_version, platform))
-
-    #
-    # Update the environment with the relevant information
-    # for this package.
-    #
-    # We can get away with calling setup.py using a directory path
-    # like this because we put a preamble in it that will chdir()
-    # to the directory in which setup.py exists.
-    #
-    setup_py = os.path.join(build, 'setup.py')
-    env.Replace(PKG=pkg,
-                PKG_VERSION=pkg_version,
-                SETUP_PY='"%s"' % setup_py)
-    Local(setup_py)
-
-    #
-    # Read up the list of source files from our MANIFEST.in.
-    # This list should *not* include LICENSE.txt, MANIFEST,
-    # README.txt, or setup.py.  Make a copy of the list for the
-    # destination files.
-    #
-    manifest_in = File(os.path.join(src, 'MANIFEST.in')).rstr()
-    src_files = bootstrap.parseManifestLines(src, manifest_in)
-    raw_files = src_files[:]
-    dst_files = src_files[:]
-
-    MANIFEST_in_list = []
-
-    if 'subpkgs' in p:
-        #
-        # This package includes some sub-packages.  Read up their
-        # MANIFEST.in files, and add them to our source and destination
-        # file lists, modifying them as appropriate to add the
-        # specified subdirs.
-        #
-        for sp in p['subpkgs']:
-            ssubdir = sp['src_subdir']
-            isubdir = p['subinst_dirs'][sp['pkg']]
-
-            MANIFEST_in = File(os.path.join(src, ssubdir, 'MANIFEST.in')).rstr()
-            MANIFEST_in_list.append(MANIFEST_in)
-            files = bootstrap.parseManifestLines(os.path.join(src, ssubdir), MANIFEST_in)
-
-            raw_files.extend(files)
-            src_files.extend([os.path.join(ssubdir, x) for x in files])
-
-            files = [os.path.join(isubdir, x) for x in files]
-            dst_files.extend(files)
-            for k, f in sp['filemap'].items():
-                if f:
-                    k = os.path.join(ssubdir, k)
-                    p['filemap'][k] = os.path.join(ssubdir, f)
-            for f, deps in sp['explicit_deps'].items():
-                f = os.path.join(build, ssubdir, f)
-                env.Depends(f, deps)
-
-    #
-    # Now that we have the "normal" source files, add those files
-    # that are standard for each distribution.  Note that we don't
-    # add these to dst_files, because they don't get installed.
-    # And we still have the MANIFEST to add.
-    #
-    src_files.extend(p['files'])
-
-    #
-    # Now run everything in src_file through the sed command we
-    # concocted to expand __FILE__, __VERSION__, etc.
-    #
-    for b in src_files:
-        s = p['filemap'].get(b, b)
-        if not s[0] == '$' and not os.path.isabs(s):
-            s = os.path.join(src, s)
-
-        builder = p['buildermap'].get(b, env.SCons_revision)
-        x = builder(os.path.join(build, b), s)
-
-        Local(x)
-
-    #
-    # NOW, finally, we can create the MANIFEST, which we do
-    # by having Python spit out the contents of the src_files
-    # array we've carefully created.  After we've added
-    # MANIFEST itself to the array, of course.
-    #
-    src_files.append("MANIFEST")
-    MANIFEST_in_list.append(os.path.join(src, 'MANIFEST.in'))
-
-
-    def write_src_files(target, source, **kw):
-        global src_files
-        src_files.sort()
-        with open(str(target[0]), 'w') as f:
-            for file in src_files:
-                f.write(file + "\n")
-        return 0
-
-
-    env.Command(os.path.join(build, 'MANIFEST'),
-                MANIFEST_in_list,
-                write_src_files)
-
-    #
-    # Now go through and arrange to create whatever packages we can.
-    #
-    build_src_files = [os.path.join(build, x) for x in src_files]
-    Local(*build_src_files)
-
-    distutils_formats = []
-    distutils_targets = []
-    dist_distutils_targets = []
-
-    for target in distutils_targets:
-        dist_target = env.Install('$DISTDIR', target)
-        AddPostAction(dist_target, Chmod(dist_target, 0o644))
-        dist_distutils_targets += dist_target
-
-    if not gzip:
-        print("gzip not found in %s; skipping .tar.gz package for %s." % (os.environ['PATH'], pkg))
-    else:
-
-        distutils_formats.append('gztar')
-
-        src_deps.append(tar_gz)
-
-        distutils_targets.extend([tar_gz, platform_tar_gz])
-
-        dist_tar_gz = env.Install('$DISTDIR', tar_gz)
-        dist_platform_tar_gz = env.Install('$DISTDIR', platform_tar_gz)
-        Local(dist_tar_gz, dist_platform_tar_gz)
-        AddPostAction(dist_tar_gz, Chmod(dist_tar_gz, 0o644))
-        AddPostAction(dist_platform_tar_gz, Chmod(dist_platform_tar_gz, 0o644))
-
-        #
-        # Unpack the tar.gz archive created by the distutils into
-        # build/unpack-tar-gz/scons-{version}.
-        #
-        # We'd like to replace the last three lines with the following:
-        #
-        #       tar zxf $SOURCES -C $UNPACK_TAR_GZ_DIR
-        #
-        # but that gives heartburn to Cygwin's tar, so work around it
-        # with separate zcat-tar-rm commands.
-        #
-        unpack_tar_gz_files = [os.path.join(unpack_tar_gz_dir, pkg_version, x)
-                               for x in src_files]
-        env.Command(unpack_tar_gz_files, dist_tar_gz, [
-            Delete(os.path.join(unpack_tar_gz_dir, pkg_version)),
-            "$ZCAT $SOURCES > .temp",
-            "tar xf .temp -C $UNPACK_TAR_GZ_DIR",
-            Delete(".temp"),
-        ])
-
-        #
-        # Run setup.py in the unpacked subdirectory to "install" everything
-        # into our build/test subdirectory.  The runtest.py script will set
-        # PYTHONPATH so that the tests only look under build/test-{package},
-        # and under testing/framework (for the testing modules TestCmd.py, TestSCons.py,
-        # etc.).  This makes sure that our tests pass with what
-        # we really packaged, not because of something hanging around in
-        # the development directory.
-        #
-        # We can get away with calling setup.py using a directory path
-        # like this because we put a preamble in it that will chdir()
-        # to the directory in which setup.py exists.
-        #
-        dfiles = [os.path.join(test_tar_gz_dir, x) for x in dst_files]
-        env.Command(dfiles, unpack_tar_gz_files, [
-            Delete(os.path.join(unpack_tar_gz_dir, pkg_version, 'build')),
-            Delete("$TEST_TAR_GZ_DIR"),
-            '$PYTHON $PYTHONFLAGS "%s" install "--prefix=$TEST_TAR_GZ_DIR" --standalone-lib' % \
-            os.path.join(unpack_tar_gz_dir, pkg_version, 'setup.py'),
-        ])
-
-        #
-        # Generate portage files for submission to Gentoo Linux.
-        #
-        gentoo = os.path.join(build, 'gentoo')
-        ebuild = os.path.join(gentoo, 'scons-%s.ebuild' % command_line.version)
-        digest = os.path.join(gentoo, 'files', 'digest-scons-%s' % command_line.version)
-        env.Command(ebuild, os.path.join('gentoo', 'scons.ebuild.in'), SCons_revision)
-
-
-        def Digestify(target, source, env):
-            import hashlib
-            src = source[0].rfile()
-            with open(str(src), 'rb') as f:
-                contents = f.read()
-            m = hashlib.md5()
-            m.update(contents)
-            sig = m.hexdigest()
-            bytes = os.stat(str(src))[6]
-            with open(str(target[0]), 'w') as f:
-                f.write("MD5 %s %s %d\n" % (sig, src.name, bytes))
-
-
-        env.Command(digest, tar_gz, Digestify)
-
-    if not zipit:
-        print("zip not found; skipping .zip package for %s." % pkg)
-    else:
-
-        distutils_formats.append('zip')
-
-        src_deps.append(zip)
-
-        distutils_targets.extend([zip, platform_zip])
-
-        dist_zip = env.Install('$DISTDIR', zip)
-        dist_platform_zip = env.Install('$DISTDIR', platform_zip)
-        Local(dist_zip, dist_platform_zip)
-        AddPostAction(dist_zip, Chmod(dist_zip, 0o644))
-        AddPostAction(dist_platform_zip, Chmod(dist_platform_zip, 0o644))
-
-        #
-        # Unpack the zip archive created by the distutils into
-        # build/unpack-zip/scons-{version}.
-        #
-        unpack_zip_files = [os.path.join(unpack_zip_dir, pkg_version, x)
-                            for x in src_files]
-
-        env.Command(unpack_zip_files, dist_zip, [
-            Delete(os.path.join(unpack_zip_dir, pkg_version)),
-            unzipit,
-        ])
-
-        #
-        # Run setup.py in the unpacked subdirectory to "install" everything
-        # into our build/test subdirectory.  The runtest.py script will set
-        # PYTHONPATH so that the tests only look under build/test-{package},
-        # and under testing/framework (for the testing modules TestCmd.py, TestSCons.py,
-        # etc.).  This makes sure that our tests pass with what
-        # we really packaged, not because of something hanging around in
-        # the development directory.
-        #
-        # We can get away with calling setup.py using a directory path
-        # like this because we put a preamble in it that will chdir()
-        # to the directory in which setup.py exists.
-        #
-        dfiles = [os.path.join(test_zip_dir, x) for x in dst_files]
-        env.Command(dfiles, unpack_zip_files, [
-            Delete(os.path.join(unpack_zip_dir, pkg_version, 'build')),
-            Delete("$TEST_ZIP_DIR"),
-            '$PYTHON $PYTHONFLAGS "%s" install "--prefix=$TEST_ZIP_DIR" --standalone-lib' % \
-            os.path.join(unpack_zip_dir, pkg_version, 'setup.py'),
-        ])
-
-    #
-    # Use the Python distutils to generate the appropriate packages.
-    #
-    commands = [
-        Delete(os.path.join(build, 'build', 'lib')),
-        Delete(os.path.join(build, 'build', 'scripts')),
-    ]
-
-    if distutils_formats:
-        commands.append(Delete(os.path.join(build,
-                                            'build',
-                                            'bdist.' + platform,
-                                            'dumb')))
-        for format in distutils_formats:
-            commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY bdist_dumb -f %s" % format)
-
-        commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY sdist --formats=%s" % \
-                        ','.join(distutils_formats))
-
-    env.Command(distutils_targets, build_src_files, commands)
-
-    #
-    # Now create local packages for people who want to let people
-    # build their SCons-buildable packages without having to
-    # install SCons.
-    #
-    s_l_v = '%s-local-%s' % (pkg, command_line.version)
-
-    local = pkg + '-local'
-    build_dir_local = os.path.join(command_line.build_dir, local)
-    build_dir_local_slv = os.path.join(command_line.build_dir, local, s_l_v)
-
-    dist_local_tar_gz = os.path.join("$DISTDIR/%s.tar.gz" % s_l_v)
-    dist_local_zip = os.path.join("$DISTDIR/%s.zip" % s_l_v)
-    AddPostAction(dist_local_tar_gz, Chmod(dist_local_tar_gz, 0o644))
-    AddPostAction(dist_local_zip, Chmod(dist_local_zip, 0o644))
-
-    commands = [
-        Delete(build_dir_local),
-        '$PYTHON $PYTHONFLAGS $SETUP_PY install "--install-script=%s" "--install-lib=%s" --no-install-man --no-compile --standalone-lib --no-version-script' % \
-        (build_dir_local, build_dir_local_slv),
-    ]
-
-    for script in scripts:
-        # add .py extension for scons-local scripts on non-windows platforms
-        if is_windows():
-            break
-        local_script = os.path.join(build_dir_local, script)
-        commands.append(Move(local_script + '.py', local_script))
-
-    rf = [x for x in raw_files if not x in scripts]
-    rf = [os.path.join(s_l_v, x) for x in rf]
-    for script in scripts:
-        rf.append("%s.py" % script)
-    local_targets = [os.path.join(build_dir_local, x) for x in rf]
-
-    env.Command(local_targets, build_src_files, commands)
-
-    scons_LICENSE = os.path.join(build_dir_local, 'scons-LICENSE')
-    l = env.SCons_revision(scons_LICENSE, 'LICENSE-local')
-    local_targets.append(l)
-    Local(l)
-
-    scons_README = os.path.join(build_dir_local, 'scons-README')
-    l = env.SCons_revision(scons_README, 'README-local')
-    local_targets.append(l)
-    Local(l)
-
-    if gzip:
-        if is_windows():
-            # avoid problem with tar interpreting c:/ as a remote machine
-            tar_cargs = '-cz --force-local -f'
-        else:
-            tar_cargs = '-czf'
-        env.Command(dist_local_tar_gz,
-                    local_targets,
-                    "cd %s && tar %s $( ${TARGET.abspath} $) *" % (build_dir_local, tar_cargs))
-
-        unpack_targets = [os.path.join(test_local_tar_gz_dir, x) for x in rf]
-        commands = [Delete(test_local_tar_gz_dir),
-                    Mkdir(test_local_tar_gz_dir),
-                    "cd %s && tar xzf $( ${SOURCE.abspath} $)" % test_local_tar_gz_dir]
-
-        env.Command(unpack_targets, dist_local_tar_gz, commands)
-
-    if zipit:
-        env.Command(dist_local_zip, local_targets, zipit,
-                    CD=build_dir_local, PSV='.')
-
-        unpack_targets = [os.path.join(test_local_zip_dir, x) for x in rf]
-        commands = [Delete(test_local_zip_dir),
-                    Mkdir(test_local_zip_dir),
-                    unzipit]
-
-        env.Command(unpack_targets, dist_local_zip, unzipit,
-                    UNPACK_ZIP_DIR=test_local_zip_dir)
+# from distutils.sysconfig import get_python_lib
+#
+# python_scons = {
+#     'pkg': 'python-' + project,
+#     'src_subdir': 'engine',
+#     'inst_subdir': get_python_lib(),
+#
+#     'files': ['LICENSE.txt',
+#               'README.txt',
+#               'setup.cfg',
+#               'setup.py',
+#               ],
+#
+#     'filemap': {
+#         'LICENSE.txt': '../LICENSE.txt'
+#     },
+#
+#     'buildermap': {},
+#
+#     'explicit_deps': {
+#         'SCons/__init__.py': Version_values,
+#     },
+# }
+
+# scons_script = {
+#     'pkg': project + '-script',
+#     'src_subdir': 'script',
+#     'inst_subdir': 'bin',
+#
+#     'files': [
+#         'LICENSE.txt',
+#         'README.txt',
+#         'setup.cfg',
+#         'setup.py',
+#     ],
+#
+#     'filemap': {
+#         'LICENSE.txt': '../LICENSE.txt',
+#         'scons': 'scons.py',
+#         'sconsign': 'sconsign.py',
+#         'scons-time': 'scons-time.py',
+#         'scons-configure-cache': 'scons-configure-cache.py',
+#     },
+#
+#     'buildermap': {},
+#
+#     'explicit_deps': {
+#         'scons': Version_values,
+#         'sconsign': Version_values,
+#     },
+# }
+
+# scons = {
+#     'pkg': project,
+#
+#     'files': [
+#         'CHANGES.txt',
+#         'LICENSE.txt',
+#         'README.txt',
+#         'RELEASE.txt',
+#         'scons.1',
+#         'sconsign.1',
+#         'scons-time.1',
+#         # 'script/scons.bat',
+#         'setup.cfg',
+#         'setup.py',
+#     ],
+#
+#     'filemap': {
+#         'scons.1': '$BUILDDIR/doc/man/scons.1',
+#         'sconsign.1': '$BUILDDIR/doc/man/sconsign.1',
+#         'scons-time.1': '$BUILDDIR/doc/man/scons-time.1',
+#     },
+#
+#     'buildermap': {
+#         'scons.1': env.SOElim,
+#         'sconsign.1': env.SOElim,
+#         'scons-time.1': env.SOElim,
+#     },
+#
+#     'subpkgs': [python_scons],
+#
+#     'subinst_dirs': {
+#         'python-' + project: python_project_subinst_dir,
+#         project + '-script': project_script_subinst_dir,
+#     },
+# }
+#
+# scripts = ['scons', 'sconsign', 'scons-time', 'scons-configure-cache']
+#
+# src_deps = []
+# src_files = []
+#
+# for p in [scons]:
+#     #
+#     # Initialize variables with the right directories for this package.
+#     #
+#     pkg = p['pkg']
+#     pkg_version = "%s-%s" % (pkg, command_line.version)
+#
+#     src = 'src'
+#     if 'src_subdir' in p:
+#         src = os.path.join(src, p['src_subdir'])
+#
+#     build = os.path.join(command_line.build_dir, pkg)
+#
+#     tar_gz = os.path.join(build, 'dist', "%s.tar.gz" % pkg_version)
+#     platform_tar_gz = os.path.join(build,
+#                                    'dist',
+#                                    "%s.%s.tar.gz" % (pkg_version, platform))
+#     zip = os.path.join(build, 'dist', "%s.zip" % pkg_version)
+#     platform_zip = os.path.join(build,
+#                                 'dist',
+#                                 "%s.%s.zip" % (pkg_version, platform))
+#
+#     #
+#     # Update the environment with the relevant information
+#     # for this package.
+#     #
+#     # We can get away with calling setup.py using a directory path
+#     # like this because we put a preamble in it that will chdir()
+#     # to the directory in which setup.py exists.
+#     #
+#     setup_py = os.path.join(build, 'setup.py')
+#     env.Replace(PKG=pkg,
+#                 PKG_VERSION=pkg_version,
+#                 SETUP_PY='"%s"' % setup_py)
+#     Local(setup_py)
+#
+#     #
+#     # Read up the list of source files from our MANIFEST.in.
+#     # This list should *not* include LICENSE.txt, MANIFEST,
+#     # README.txt, or setup.py.  Make a copy of the list for the
+#     # destination files.
+#     #
+#     manifest_in = File(os.path.join(src, 'MANIFEST.in')).rstr()
+#     src_files = bootstrap.parseManifestLines(src, manifest_in)
+#     raw_files = src_files[:]
+#     dst_files = src_files[:]
+#
+#     MANIFEST_in_list = []
+#
+#     if 'subpkgs' in p:
+#         #
+#         # This package includes some sub-packages.  Read up their
+#         # MANIFEST.in files, and add them to our source and destination
+#         # file lists, modifying them as appropriate to add the
+#         # specified subdirs.
+#         #
+#         for sp in p['subpkgs']:
+#             ssubdir = sp['src_subdir']
+#             isubdir = p['subinst_dirs'][sp['pkg']]
+#
+#             MANIFEST_in = File(os.path.join(src, ssubdir, 'MANIFEST.in')).rstr()
+#             MANIFEST_in_list.append(MANIFEST_in)
+#             files = bootstrap.parseManifestLines(os.path.join(src, ssubdir), MANIFEST_in)
+#
+#             raw_files.extend(files)
+#             src_files.extend([os.path.join(ssubdir, x) for x in files])
+#
+#             files = [os.path.join(isubdir, x) for x in files]
+#             dst_files.extend(files)
+#             for k, f in sp['filemap'].items():
+#                 if f:
+#                     k = os.path.join(ssubdir, k)
+#                     p['filemap'][k] = os.path.join(ssubdir, f)
+#             for f, deps in sp['explicit_deps'].items():
+#                 f = os.path.join(build, ssubdir, f)
+#                 env.Depends(f, deps)
+#
+#     #
+#     # Now that we have the "normal" source files, add those files
+#     # that are standard for each distribution.  Note that we don't
+#     # add these to dst_files, because they don't get installed.
+#     # And we still have the MANIFEST to add.
+#     #
+#     src_files.extend(p['files'])
+#
+#     #
+#     # Now run everything in src_file through the sed command we
+#     # concocted to expand __FILE__, __VERSION__, etc.
+#     #
+#     for b in src_files:
+#         s = p['filemap'].get(b, b)
+#         if not s[0] == '$' and not os.path.isabs(s):
+#             s = os.path.join(src, s)
+#
+#         builder = p['buildermap'].get(b, env.SCons_revision)
+#         x = builder(os.path.join(build, b), s)
+#
+#         Local(x)
+#
+#     #
+#     # NOW, finally, we can create the MANIFEST, which we do
+#     # by having Python spit out the contents of the src_files
+#     # array we've carefully created.  After we've added
+#     # MANIFEST itself to the array, of course.
+#     #
+#     src_files.append("MANIFEST")
+#     MANIFEST_in_list.append(os.path.join(src, 'MANIFEST.in'))
+#
+#
+#     def write_src_files(target, source, **kw):
+#         global src_files
+#         src_files.sort()
+#         with open(str(target[0]), 'w') as f:
+#             for file in src_files:
+#                 f.write(file + "\n")
+#         return 0
+#
+#
+#     env.Command(os.path.join(build, 'MANIFEST'),
+#                 MANIFEST_in_list,
+#                 write_src_files)
+#
+#     #
+#     # Now go through and arrange to create whatever packages we can.
+#     #
+#     build_src_files = [os.path.join(build, x) for x in src_files]
+#     Local(*build_src_files)
+#
+#     distutils_formats = []
+#     distutils_targets = []
+#     dist_distutils_targets = []
+#
+#     for target in distutils_targets:
+#         dist_target = env.Install('$DISTDIR', target)
+#         AddPostAction(dist_target, Chmod(dist_target, 0o644))
+#         dist_distutils_targets += dist_target
+#
+#     if not gzip:
+#         print("gzip not found in %s; skipping .tar.gz package for %s." % (os.environ['PATH'], pkg))
+#     else:
+#
+#         distutils_formats.append('gztar')
+#
+#         src_deps.append(tar_gz)
+#
+#         distutils_targets.extend([tar_gz, platform_tar_gz])
+#
+#         dist_tar_gz = env.Install('$DISTDIR', tar_gz)
+#         dist_platform_tar_gz = env.Install('$DISTDIR', platform_tar_gz)
+#         Local(dist_tar_gz, dist_platform_tar_gz)
+#         AddPostAction(dist_tar_gz, Chmod(dist_tar_gz, 0o644))
+#         AddPostAction(dist_platform_tar_gz, Chmod(dist_platform_tar_gz, 0o644))
+#
+#         #
+#         # Unpack the tar.gz archive created by the distutils into
+#         # build/unpack-tar-gz/scons-{version}.
+#         #
+#         # We'd like to replace the last three lines with the following:
+#         #
+#         #       tar zxf $SOURCES -C $UNPACK_TAR_GZ_DIR
+#         #
+#         # but that gives heartburn to Cygwin's tar, so work around it
+#         # with separate zcat-tar-rm commands.
+#         #
+#         unpack_tar_gz_files = [os.path.join(unpack_tar_gz_dir, pkg_version, x)
+#                                for x in src_files]
+#         env.Command(unpack_tar_gz_files, dist_tar_gz, [
+#             Delete(os.path.join(unpack_tar_gz_dir, pkg_version)),
+#             "$ZCAT $SOURCES > .temp",
+#             "tar xf .temp -C $UNPACK_TAR_GZ_DIR",
+#             Delete(".temp"),
+#         ])
+#
+#         #
+#         # Run setup.py in the unpacked subdirectory to "install" everything
+#         # into our build/test subdirectory.  The runtest.py script will set
+#         # PYTHONPATH so that the tests only look under build/test-{package},
+#         # and under testing/framework (for the testing modules TestCmd.py, TestSCons.py,
+#         # etc.).  This makes sure that our tests pass with what
+#         # we really packaged, not because of something hanging around in
+#         # the development directory.
+#         #
+#         # We can get away with calling setup.py using a directory path
+#         # like this because we put a preamble in it that will chdir()
+#         # to the directory in which setup.py exists.
+#         #
+#         dfiles = [os.path.join(test_tar_gz_dir, x) for x in dst_files]
+#         env.Command(dfiles, unpack_tar_gz_files, [
+#             Delete(os.path.join(unpack_tar_gz_dir, pkg_version, 'build')),
+#             Delete("$TEST_TAR_GZ_DIR"),
+#             '$PYTHON $PYTHONFLAGS "%s" install "--prefix=$TEST_TAR_GZ_DIR" --standalone-lib' % \
+#             os.path.join(unpack_tar_gz_dir, pkg_version, 'setup.py'),
+#         ])
+#
+#         #
+#         # Generate portage files for submission to Gentoo Linux.
+#         #
+#         gentoo = os.path.join(build, 'gentoo')
+#         ebuild = os.path.join(gentoo, 'scons-%s.ebuild' % command_line.version)
+#         digest = os.path.join(gentoo, 'files', 'digest-scons-%s' % command_line.version)
+#         env.Command(ebuild, os.path.join('gentoo', 'scons.ebuild.in'), SCons_revision)
+#
+#
+#         def Digestify(target, source, env):
+#             import hashlib
+#             src = source[0].rfile()
+#             with open(str(src), 'rb') as f:
+#                 contents = f.read()
+#             m = hashlib.md5()
+#             m.update(contents)
+#             sig = m.hexdigest()
+#             bytes = os.stat(str(src))[6]
+#             with open(str(target[0]), 'w') as f:
+#                 f.write("MD5 %s %s %d\n" % (sig, src.name, bytes))
+#
+#
+#         env.Command(digest, tar_gz, Digestify)
+#
+#     if not zipit:
+#         print("zip not found; skipping .zip package for %s." % pkg)
+#     else:
+#
+#         distutils_formats.append('zip')
+#
+#         src_deps.append(zip)
+#
+#         distutils_targets.extend([zip, platform_zip])
+#
+#         dist_zip = env.Install('$DISTDIR', zip)
+#         dist_platform_zip = env.Install('$DISTDIR', platform_zip)
+#         Local(dist_zip, dist_platform_zip)
+#         AddPostAction(dist_zip, Chmod(dist_zip, 0o644))
+#         AddPostAction(dist_platform_zip, Chmod(dist_platform_zip, 0o644))
+#
+#         #
+#         # Unpack the zip archive created by the distutils into
+#         # build/unpack-zip/scons-{version}.
+#         #
+#         unpack_zip_files = [os.path.join(unpack_zip_dir, pkg_version, x)
+#                             for x in src_files]
+#
+#         env.Command(unpack_zip_files, dist_zip, [
+#             Delete(os.path.join(unpack_zip_dir, pkg_version)),
+#             unzipit,
+#         ])
+#
+#         #
+#         # Run setup.py in the unpacked subdirectory to "install" everything
+#         # into our build/test subdirectory.  The runtest.py script will set
+#         # PYTHONPATH so that the tests only look under build/test-{package},
+#         # and under testing/framework (for the testing modules TestCmd.py, TestSCons.py,
+#         # etc.).  This makes sure that our tests pass with what
+#         # we really packaged, not because of something hanging around in
+#         # the development directory.
+#         #
+#         # We can get away with calling setup.py using a directory path
+#         # like this because we put a preamble in it that will chdir()
+#         # to the directory in which setup.py exists.
+#         #
+#         dfiles = [os.path.join(test_zip_dir, x) for x in dst_files]
+#         env.Command(dfiles, unpack_zip_files, [
+#             Delete(os.path.join(unpack_zip_dir, pkg_version, 'build')),
+#             Delete("$TEST_ZIP_DIR"),
+#             '$PYTHON $PYTHONFLAGS "%s" install "--prefix=$TEST_ZIP_DIR" --standalone-lib' % \
+#             os.path.join(unpack_zip_dir, pkg_version, 'setup.py'),
+#         ])
+#
+#     #
+#     # Use the Python distutils to generate the appropriate packages.
+#     #
+#     commands = [
+#         Delete(os.path.join(build, 'build', 'lib')),
+#         Delete(os.path.join(build, 'build', 'scripts')),
+#     ]
+#
+#     if distutils_formats:
+#         commands.append(Delete(os.path.join(build,
+#                                             'build',
+#                                             'bdist.' + platform,
+#                                             'dumb')))
+#         for format in distutils_formats:
+#             commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY bdist_dumb -f %s" % format)
+#
+#         commands.append("$PYTHON $PYTHONFLAGS $SETUP_PY sdist --formats=%s" % \
+#                         ','.join(distutils_formats))
+#
+#     env.Command(distutils_targets, build_src_files, commands)
+#
+#     #
+#     # Now create local packages for people who want to let people
+#     # build their SCons-buildable packages without having to
+#     # install SCons.
+#     #
+#     s_l_v = '%s-local-%s' % (pkg, command_line.version)
+#
+#     local = pkg + '-local'
+#     build_dir_local = os.path.join(command_line.build_dir, local)
+#     build_dir_local_slv = os.path.join(command_line.build_dir, local, s_l_v)
+#
+#     dist_local_tar_gz = os.path.join("$DISTDIR/%s.tar.gz" % s_l_v)
+#     dist_local_zip = os.path.join("$DISTDIR/%s.zip" % s_l_v)
+#     AddPostAction(dist_local_tar_gz, Chmod(dist_local_tar_gz, 0o644))
+#     AddPostAction(dist_local_zip, Chmod(dist_local_zip, 0o644))
+#
+#     commands = [
+#         Delete(build_dir_local),
+#         '$PYTHON $PYTHONFLAGS $SETUP_PY install "--install-script=%s" "--install-lib=%s" --no-install-man --no-compile --standalone-lib --no-version-script' % \
+#         (build_dir_local, build_dir_local_slv),
+#     ]
+#
+#     for script in scripts:
+#         # add .py extension for scons-local scripts on non-windows platforms
+#         if is_windows():
+#             break
+#         local_script = os.path.join(build_dir_local, script)
+#         commands.append(Move(local_script + '.py', local_script))
+#
+#     rf = [x for x in raw_files if not x in scripts]
+#     rf = [os.path.join(s_l_v, x) for x in rf]
+#     for script in scripts:
+#         rf.append("%s.py" % script)
+#     local_targets = [os.path.join(build_dir_local, x) for x in rf]
+#
+#     env.Command(local_targets, build_src_files, commands)
+#
+#     scons_LICENSE = os.path.join(build_dir_local, 'scons-LICENSE')
+#     l = env.SCons_revision(scons_LICENSE, 'LICENSE-local')
+#     local_targets.append(l)
+#     Local(l)
+#
+#     scons_README = os.path.join(build_dir_local, 'scons-README')
+#     l = env.SCons_revision(scons_README, 'README-local')
+#     local_targets.append(l)
+#     Local(l)
+#
+#     if gzip:
+#         if is_windows():
+#             # avoid problem with tar interpreting c:/ as a remote machine
+#             tar_cargs = '-cz --force-local -f'
+#         else:
+#             tar_cargs = '-czf'
+#         env.Command(dist_local_tar_gz,
+#                     local_targets,
+#                     "cd %s && tar %s $( ${TARGET.abspath} $) *" % (build_dir_local, tar_cargs))
+#
+#         unpack_targets = [os.path.join(test_local_tar_gz_dir, x) for x in rf]
+#         commands = [Delete(test_local_tar_gz_dir),
+#                     Mkdir(test_local_tar_gz_dir),
+#                     "cd %s && tar xzf $( ${SOURCE.abspath} $)" % test_local_tar_gz_dir]
+#
+#         env.Command(unpack_targets, dist_local_tar_gz, commands)
+#
+#     if zipit:
+#         env.Command(dist_local_zip, local_targets, zipit,
+#                     CD=build_dir_local, PSV='.')
+#
+#         unpack_targets = [os.path.join(test_local_zip_dir, x) for x in rf]
+#         commands = [Delete(test_local_zip_dir),
+#                     Mkdir(test_local_zip_dir),
+#                     unzipit]
+#
+#         env.Command(unpack_targets, dist_local_zip, unzipit,
+#                     UNPACK_ZIP_DIR=test_local_zip_dir)
 
 #
 #
@@ -667,179 +667,179 @@ Export('command_line', 'env', 'whereis', 'revaction')
 
 SConscript('doc/SConscript')
 
+# #
+# # If we're running in a Git working directory, pack up a complete
+# # source archive from the project files and files in the change.
+# #
 #
-# If we're running in a Git working directory, pack up a complete
-# source archive from the project files and files in the change.
 #
-
-
-sfiles = [l.split()[-1] for l in command_line.git_status_lines]
-if command_line.git_status_lines:
-    # slines = [l for l in git_status_lines if 'modified:' in l]
-    # sfiles = [l.split()[-1] for l in slines]
-    pass
-else:
-    print("Not building in a Git tree; skipping building src package.")
-
-if sfiles:
-    remove_patterns = [
-        '*.gitignore',
-        '*.hgignore',
-        'www/*',
-    ]
-
-    for p in remove_patterns:
-        sfiles = [s for s in sfiles if not fnmatch.fnmatch(s, p)]
-
-    if sfiles:
-        ps = "%s-src" % project
-        psv = "%s-%s" % (ps, command_line.version)
-        b_ps = os.path.join(command_line.build_dir, ps)
-        b_psv = os.path.join(command_line.build_dir, psv)
-        b_psv_stamp = b_psv + '-stamp'
-
-        src_tar_gz = os.path.join(command_line.build_dir, 'dist', '%s.tar.gz' % psv)
-        src_zip = os.path.join(command_line.build_dir, 'dist', '%s.zip' % psv)
-
-        Local(src_tar_gz, src_zip)
-
-        for file in sfiles:
-            if file.endswith('jpg') or file.endswith('png'):
-                # don't revision binary files.
-                env.Install(os.path.dirname(os.path.join(b_ps, file)), file)
-            else:
-                env.SCons_revision(os.path.join(b_ps, file), file)
-
-        b_ps_files = [os.path.join(b_ps, x) for x in sfiles]
-        cmds = [
-            Delete(b_psv),
-            Copy(b_psv, b_ps),
-            Touch("$TARGET"),
-        ]
-
-        env.Command(b_psv_stamp, src_deps + b_ps_files, cmds)
-
-        Local(*b_ps_files)
-
-        if gzip:
-            env.Command(src_tar_gz, b_psv_stamp,
-                        "tar cz${TAR_HFLAG} -f $TARGET -C build %s" % psv)
-
-            #
-            # Unpack the archive into build/unpack/scons-{version}.
-            #
-            unpack_tar_gz_files = [os.path.join(unpack_tar_gz_dir, psv, x)
-                                   for x in sfiles]
-
-            #
-            # We'd like to replace the last three lines with the following:
-            #
-            #   tar zxf $SOURCES -C $UNPACK_TAR_GZ_DIR
-            #
-            # but that gives heartburn to Cygwin's tar, so work around it
-            # with separate zcat-tar-rm commands.
-            env.Command(unpack_tar_gz_files, src_tar_gz, [
-                Delete(os.path.join(unpack_tar_gz_dir, psv)),
-                "$ZCAT $SOURCES > .temp",
-                "tar xf .temp -C $UNPACK_TAR_GZ_DIR",
-                Delete(".temp"),
-            ])
-
-            #
-            # Run setup.py in the unpacked subdirectory to "install" everything
-            # into our build/test subdirectory.  The runtest.py script will set
-            # PYTHONPATH so that the tests only look under build/test-{package},
-            # and under testing/framework (for the testing modules TestCmd.py,
-            # TestSCons.py, etc.).  This makes sure that our tests pass with
-            # what we really packaged, not because of something hanging around
-            # in the development directory.
-            #
-            # We can get away with calling setup.py using a directory path
-            # like this because we put a preamble in it that will chdir()
-            # to the directory in which setup.py exists.
-            #
-            dfiles = [os.path.join(test_src_tar_gz_dir, x) for x in dst_files]
-            scons_lib_dir = os.path.join(unpack_tar_gz_dir, psv, 'src', 'engine')
-            ENV = env.Dictionary('ENV').copy()
-            ENV['SCONS_LIB_DIR'] = scons_lib_dir
-            ENV['USERNAME'] = command_line.developer
-            env.Command(dfiles, unpack_tar_gz_files,
-                        [
-                            Delete(os.path.join(unpack_tar_gz_dir,
-                                                psv,
-                                                'build',
-                                                'scons',
-                                                'build')),
-                            Delete("$TEST_SRC_TAR_GZ_DIR"),
-                            'cd "%s" && $PYTHON $PYTHONFLAGS "%s" "%s" VERSION="$VERSION"' % \
-                            (os.path.join(unpack_tar_gz_dir, psv),
-                             os.path.join('src', 'script', 'scons.py'),
-                             os.path.join('build', 'scons')),
-                            '$PYTHON $PYTHONFLAGS "%s" install "--prefix=$TEST_SRC_TAR_GZ_DIR" --standalone-lib' % \
-                            os.path.join(unpack_tar_gz_dir,
-                                         psv,
-                                         'build',
-                                         'scons',
-                                         'setup.py'),
-                        ],
-                        ENV=ENV)
-
-        if zipit:
-            env.Command(src_zip, b_psv_stamp, zipit, CD='build', PSV=psv)
-
-            #
-            # Unpack the archive into build/unpack/scons-{version}.
-            #
-            unpack_zip_files = [os.path.join(unpack_zip_dir, psv, x)
-                                for x in sfiles]
-
-            env.Command(unpack_zip_files, src_zip, [
-                Delete(os.path.join(unpack_zip_dir, psv)),
-                unzipit
-            ])
-
-            #
-            # Run setup.py in the unpacked subdirectory to "install" everything
-            # into our build/test subdirectory.  The runtest.py script will set
-            # PYTHONPATH so that the tests only look under build/test-{package},
-            # and under testing/framework (for the testing modules TestCmd.py,
-            # TestSCons.py, etc.).  This makes sure that our tests pass with
-            # what we really packaged, not because of something hanging
-            # around in the development directory.
-            #
-            # We can get away with calling setup.py using a directory path
-            # like this because we put a preamble in it that will chdir()
-            # to the directory in which setup.py exists.
-            #
-            dfiles = [os.path.join(test_src_zip_dir, x) for x in dst_files]
-            scons_lib_dir = os.path.join(unpack_zip_dir, psv, 'src', 'engine')
-            ENV = env.Dictionary('ENV').copy()
-            ENV['SCONS_LIB_DIR'] = scons_lib_dir
-            ENV['USERNAME'] = command_line.developer
-            env.Command(dfiles, unpack_zip_files,
-                        [
-                            Delete(os.path.join(unpack_zip_dir,
-                                                psv,
-                                                'build',
-                                                'scons',
-                                                'build')),
-                            Delete("$TEST_SRC_ZIP_DIR"),
-                            'cd "%s" && $PYTHON $PYTHONFLAGS "%s" "%s" VERSION="$VERSION"' % \
-                            (os.path.join(unpack_zip_dir, psv),
-                             os.path.join('src', 'script', 'scons.py'),
-                             os.path.join('build', 'scons')),
-                            '$PYTHON $PYTHONFLAGS "%s" install "--prefix=$TEST_SRC_ZIP_DIR" --standalone-lib' % \
-                            os.path.join(unpack_zip_dir,
-                                         psv,
-                                         'build',
-                                         'scons',
-                                         'setup.py'),
-                        ],
-                        ENV=ENV)
-
-for pf, help_text in packaging_flavors:
-    Alias(pf, [
-        os.path.join(command_line.build_dir, 'test-' + pf),
-        os.path.join(command_line.build_dir, 'testing/framework'),
-        os.path.join(command_line.build_dir, 'runtest.py'),
-    ])
+# sfiles = [l.split()[-1] for l in command_line.git_status_lines]
+# if command_line.git_status_lines:
+#     # slines = [l for l in git_status_lines if 'modified:' in l]
+#     # sfiles = [l.split()[-1] for l in slines]
+#     pass
+# else:
+#     print("Not building in a Git tree; skipping building src package.")
+#
+# if sfiles:
+#     remove_patterns = [
+#         '*.gitignore',
+#         '*.hgignore',
+#         'www/*',
+#     ]
+#
+#     for p in remove_patterns:
+#         sfiles = [s for s in sfiles if not fnmatch.fnmatch(s, p)]
+#
+#     if sfiles:
+#         ps = "%s-src" % project
+#         psv = "%s-%s" % (ps, command_line.version)
+#         b_ps = os.path.join(command_line.build_dir, ps)
+#         b_psv = os.path.join(command_line.build_dir, psv)
+#         b_psv_stamp = b_psv + '-stamp'
+#
+#         src_tar_gz = os.path.join(command_line.build_dir, 'dist', '%s.tar.gz' % psv)
+#         src_zip = os.path.join(command_line.build_dir, 'dist', '%s.zip' % psv)
+#
+#         Local(src_tar_gz, src_zip)
+#
+#         for file in sfiles:
+#             if file.endswith('jpg') or file.endswith('png'):
+#                 # don't revision binary files.
+#                 env.Install(os.path.dirname(os.path.join(b_ps, file)), file)
+#             else:
+#                 env.SCons_revision(os.path.join(b_ps, file), file)
+#
+#         b_ps_files = [os.path.join(b_ps, x) for x in sfiles]
+#         cmds = [
+#             Delete(b_psv),
+#             Copy(b_psv, b_ps),
+#             Touch("$TARGET"),
+#         ]
+#
+#         env.Command(b_psv_stamp, src_deps + b_ps_files, cmds)
+#
+#         Local(*b_ps_files)
+#
+#         if gzip:
+#             env.Command(src_tar_gz, b_psv_stamp,
+#                         "tar cz${TAR_HFLAG} -f $TARGET -C build %s" % psv)
+#
+#             #
+#             # Unpack the archive into build/unpack/scons-{version}.
+#             #
+#             unpack_tar_gz_files = [os.path.join(unpack_tar_gz_dir, psv, x)
+#                                    for x in sfiles]
+#
+#             #
+#             # We'd like to replace the last three lines with the following:
+#             #
+#             #   tar zxf $SOURCES -C $UNPACK_TAR_GZ_DIR
+#             #
+#             # but that gives heartburn to Cygwin's tar, so work around it
+#             # with separate zcat-tar-rm commands.
+#             env.Command(unpack_tar_gz_files, src_tar_gz, [
+#                 Delete(os.path.join(unpack_tar_gz_dir, psv)),
+#                 "$ZCAT $SOURCES > .temp",
+#                 "tar xf .temp -C $UNPACK_TAR_GZ_DIR",
+#                 Delete(".temp"),
+#             ])
+#
+#             #
+#             # Run setup.py in the unpacked subdirectory to "install" everything
+#             # into our build/test subdirectory.  The runtest.py script will set
+#             # PYTHONPATH so that the tests only look under build/test-{package},
+#             # and under testing/framework (for the testing modules TestCmd.py,
+#             # TestSCons.py, etc.).  This makes sure that our tests pass with
+#             # what we really packaged, not because of something hanging around
+#             # in the development directory.
+#             #
+#             # We can get away with calling setup.py using a directory path
+#             # like this because we put a preamble in it that will chdir()
+#             # to the directory in which setup.py exists.
+#             #
+#             dfiles = [os.path.join(test_src_tar_gz_dir, x) for x in dst_files]
+#             scons_lib_dir = os.path.join(unpack_tar_gz_dir, psv, 'src', 'engine')
+#             ENV = env.Dictionary('ENV').copy()
+#             ENV['SCONS_LIB_DIR'] = scons_lib_dir
+#             ENV['USERNAME'] = command_line.developer
+#             env.Command(dfiles, unpack_tar_gz_files,
+#                         [
+#                             Delete(os.path.join(unpack_tar_gz_dir,
+#                                                 psv,
+#                                                 'build',
+#                                                 'scons',
+#                                                 'build')),
+#                             Delete("$TEST_SRC_TAR_GZ_DIR"),
+#                             'cd "%s" && $PYTHON $PYTHONFLAGS "%s" "%s" VERSION="$VERSION"' % \
+#                             (os.path.join(unpack_tar_gz_dir, psv),
+#                              os.path.join('src', 'script', 'scons.py'),
+#                              os.path.join('build', 'scons')),
+#                             '$PYTHON $PYTHONFLAGS "%s" install "--prefix=$TEST_SRC_TAR_GZ_DIR" --standalone-lib' % \
+#                             os.path.join(unpack_tar_gz_dir,
+#                                          psv,
+#                                          'build',
+#                                          'scons',
+#                                          'setup.py'),
+#                         ],
+#                         ENV=ENV)
+#
+#         if zipit:
+#             env.Command(src_zip, b_psv_stamp, zipit, CD='build', PSV=psv)
+#
+#             #
+#             # Unpack the archive into build/unpack/scons-{version}.
+#             #
+#             unpack_zip_files = [os.path.join(unpack_zip_dir, psv, x)
+#                                 for x in sfiles]
+#
+#             env.Command(unpack_zip_files, src_zip, [
+#                 Delete(os.path.join(unpack_zip_dir, psv)),
+#                 unzipit
+#             ])
+#
+#             #
+#             # Run setup.py in the unpacked subdirectory to "install" everything
+#             # into our build/test subdirectory.  The runtest.py script will set
+#             # PYTHONPATH so that the tests only look under build/test-{package},
+#             # and under testing/framework (for the testing modules TestCmd.py,
+#             # TestSCons.py, etc.).  This makes sure that our tests pass with
+#             # what we really packaged, not because of something hanging
+#             # around in the development directory.
+#             #
+#             # We can get away with calling setup.py using a directory path
+#             # like this because we put a preamble in it that will chdir()
+#             # to the directory in which setup.py exists.
+#             #
+#             dfiles = [os.path.join(test_src_zip_dir, x) for x in dst_files]
+#             scons_lib_dir = os.path.join(unpack_zip_dir, psv, 'src', 'engine')
+#             ENV = env.Dictionary('ENV').copy()
+#             ENV['SCONS_LIB_DIR'] = scons_lib_dir
+#             ENV['USERNAME'] = command_line.developer
+#             env.Command(dfiles, unpack_zip_files,
+#                         [
+#                             Delete(os.path.join(unpack_zip_dir,
+#                                                 psv,
+#                                                 'build',
+#                                                 'scons',
+#                                                 'build')),
+#                             Delete("$TEST_SRC_ZIP_DIR"),
+#                             'cd "%s" && $PYTHON $PYTHONFLAGS "%s" "%s" VERSION="$VERSION"' % \
+#                             (os.path.join(unpack_zip_dir, psv),
+#                              os.path.join('src', 'script', 'scons.py'),
+#                              os.path.join('build', 'scons')),
+#                             '$PYTHON $PYTHONFLAGS "%s" install "--prefix=$TEST_SRC_ZIP_DIR" --standalone-lib' % \
+#                             os.path.join(unpack_zip_dir,
+#                                          psv,
+#                                          'build',
+#                                          'scons',
+#                                          'setup.py'),
+#                         ],
+#                         ENV=ENV)
+#
+# for pf, help_text in packaging_flavors:
+#     Alias(pf, [
+#         os.path.join(command_line.build_dir, 'test-' + pf),
+#         os.path.join(command_line.build_dir, 'testing/framework'),
+#         os.path.join(command_line.build_dir, 'runtest.py'),
+#     ])
