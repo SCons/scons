@@ -562,4 +562,4 @@ if tar_deps:
     Local(t)
     Alias('doc', t)
 else:
-    Alias('doc', os.path.join(build_dir, 'doc'))
+    Alias('doc', os.path.join(command_line.build_dir, 'doc'))
