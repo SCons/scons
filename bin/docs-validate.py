@@ -3,8 +3,6 @@
 # Searches through the whole source tree and validates all
 # documentation files against our own XSD in docs/xsd.
 #
-from __future__ import print_function
-
 import sys,os
 import SConsDoc
 

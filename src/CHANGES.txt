@@ -10,7 +10,7 @@ NOTE: Please include a reference to any Issues resolved by your changes in the b
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-From Rob Boehne
+  From Rob Boehne
     - Specify UTF-8 encoding when opening Java source file as text.  By default, encoding is the output
     of locale.getpreferredencoding(False), and varies by platform.
 
@@ -29,6 +29,7 @@ From Rob Boehne
       Only one open is allowed. You must call conf.Finish() to complete the currently open one before creating another
     - Add msys2 installed mingw default path to PATH for mingw tool.
       - C:\msys64\mingw64\bin
+    - Purge obsolete internal build and tooling scripts
     
   From Jeremy Elson:
     - Updated design doc to use the correct syntax for Depends()

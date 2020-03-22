@@ -24,9 +24,6 @@
 #
 # Module for handling SCons documentation processing.
 #
-from __future__ import print_function
-
-
 __doc__ = r"""
 This module parses home-brew XML files that document various things
 in SCons.  Right now, it handles Builders, functions, construction

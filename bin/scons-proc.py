@@ -9,8 +9,6 @@
 # DocBook-formatted generated XML files containing the summary text
 # and/or .mod files containing the ENTITY definitions for each item.
 #
-from __future__ import print_function
-
 import getopt
 import os
 import re
