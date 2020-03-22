@@ -30,12 +30,6 @@ The files are split into directories named by the first few
 digits of the signature. The prefix length used for directory
 names can be changed by this script.
 """
-
-import argparse
-import glob
-import json
-import os
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 __version__ = "__VERSION__"
@@ -49,134 +43,53 @@ __date__ = "__DATE__"
 __developer__ = "__DEVELOPER__"
 
 
-def rearrange_cache_entries(current_prefix_len, new_prefix_len):
-    """Move cache files if prefix length changed.
+import os
+import sys
 
-    Move the existing cache files to new directories of the
-    appropriate name length and clean up the old directories.
-    """
-    print('Changing prefix length from', current_prefix_len,
-          'to', new_prefix_len)
-    dirs = set()
-    old_dirs = set()
-    for file in glob.iglob(os.path.join('*', '*')):
-        name = os.path.basename(file)
-        dname = name[:current_prefix_len].upper()
-        if dname not in old_dirs:
-            print('Migrating', dname)
-            old_dirs.add(dname)
-        dname = name[:new_prefix_len].upper()
-        if dname not in dirs:
-            os.mkdir(dname)
-            dirs.add(dname)
-        os.rename(file, os.path.join(dname, name))
+# python compatibility check
+if sys.version_info < (3, 5, 0):
+    msg = "scons: *** SCons version %s does not run under Python version %s.\n\
+Python >= 3.5 is required.\n"
+    sys.stderr.write(msg % (__version__, sys.version.split()[0]))
+    sys.exit(1)
 
-    # Now delete the original directories
-    for dname in old_dirs:
-        os.rmdir(dname)
+# Strip the script directory from sys.path so on case-insensitive
+# (WIN32) systems Python doesn't think that the "scons" script is the
+# "SCons" package.
+script_dir = os.path.dirname(os.path.realpath(__file__))
+script_path = os.path.realpath(os.path.dirname(__file__))
+if script_path in sys.path:
+    sys.path.remove(script_path)
 
+libs = []
 
-# The configuration dictionary should have one entry per entry in the
-# cache config. The value of each entry should include the following:
-#   implicit - (optional) This is to allow adding a new config entry and also
-#              changing the behaviour of the system at the same time. This
-#              indicates the value the config entry would have had if it had
-#              been specified.
-#   default - The value the config entry should have if it wasn't previously
-#             specified
-#   command-line - parameters to pass to ArgumentParser.add_argument
-#   converter - (optional) Function to call if conversion is required
-#               if this configuration entry changes
-config_entries = {
-    'prefix_len': {
-        'implicit': 1,
-        'default': 2,
-        'command-line': {
-            'help': 'Length of cache file name used as subdirectory prefix',
-            'metavar': '<number>',
-            'type': int
-        },
-        'converter': rearrange_cache_entries
-    }
-}
+if "SCONS_LIB_DIR" in os.environ:
+    libs.append(os.environ["SCONS_LIB_DIR"])
 
+# running from source takes 2nd priority (since 2.3.2), following SCONS_LIB_DIR
+source_path = os.path.join(script_path, os.pardir, 'src', 'engine')
+if os.path.isdir(source_path):
+    libs.append(source_path)
 
-def main():
-    parser = argparse.ArgumentParser(
-        description='Modify the configuration of an scons cache directory',
-        epilog='''
-               Unspecified options will not be changed unless they are not
-               set at all, in which case they are set to an appropriate default.
-               ''')
+# add local-install locations
+local_version = 'scons-local-' + __version__
+local = 'scons-local'
+if script_dir:
+    local_version = os.path.join(script_dir, local_version)
+    local = os.path.join(script_dir, local)
+if os.path.isdir(local_version):
+    libs.append(os.path.abspath(local_version))
+if os.path.isdir(local):
+    libs.append(os.path.abspath(local))
 
-    parser.add_argument('cache-dir', help='Path to scons cache directory')
-    for param in config_entries:
-        parser.add_argument('--' + param.replace('_', '-'),
-                            **config_entries[param]['command-line'])
-    parser.add_argument('--version',
-                        action='version',
-                        version='%(prog)s 1.0')
-    parser.add_argument('--show',
-                        action="store_true",
-                        help="show current configuration")
+scons_version = 'scons-%s' % __version__
 
-    # Get the command line as a dict without any of the unspecified entries.
-    args = dict([x for x in vars(parser.parse_args()).items() if x[1]])
+sys.path = libs + sys.path
 
-    # It seems somewhat strange to me, but positional arguments don't get the -
-    # in the name changed to _, whereas optional arguments do...
-    cache = args['cache-dir']
-    if not os.path.isdir(cache):
-        raise RuntimeError("There is no cache directory named %s" % cache)
-    os.chdir(cache)
-    del args['cache-dir']
-
-    if not os.path.exists('config'):
-        # old config dirs did not have a 'config' file. Try to update.
-        # Validate the only files in the directory are directories 0-9, a-f
-        expected = ['{:X}'.format(x) for x in range(0, 16)]
-        if not set(os.listdir('.')).issubset(expected):
-            raise RuntimeError(
-                "%s does not look like a valid version 1 cache directory" % cache)
-        config = dict()
-    else:
-        with open('config') as conf:
-            config = json.load(conf)
-
-    if args.get('show', None):
-        print("Current configuration in '%s':" % cache)
-        print(json.dumps(config, sort_keys=True,
-                         indent=4, separators=(',', ': ')))
-        # in case of the show argument, emit some stats as well
-        file_count = 0
-        for _, _, files in os.walk('.'):
-            file_count += len(files)
-        if file_count:  # skip config file if it exists
-            file_count -= 1
-        print("Cache contains %s files" % file_count)
-        del args['show']
-
-    # Find any keys that are not currently set but should be
-    for key in config_entries:
-        if key not in config:
-            if 'implicit' in config_entries[key]:
-                config[key] = config_entries[key]['implicit']
-            else:
-                config[key] = config_entries[key]['default']
-            if key not in args:
-                args[key] = config_entries[key]['default']
-
-    # Now go through each entry in args to see if it changes an existing config
-    # setting.
-    for key in args:
-        if args[key] != config[key]:
-            if 'converter' in config_entries[key]:
-                config_entries[key]['converter'](config[key], args[key])
-            config[key] = args[key]
-
-    # and write the updated config file
-    with open('config', 'w') as conf:
-        json.dump(config, conf)
+##############################################################################
+# END STANDARD SCons SCRIPT HEADER
+##############################################################################
+from SCons.Utilities.ConfigureCache import main
 
 if __name__ == "__main__":
     main()
