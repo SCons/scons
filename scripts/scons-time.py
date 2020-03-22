@@ -1220,7 +1220,7 @@ class SConsTimer(object):
         return result
 
     def scons_path(self, dir):
-        return os.path.join(dir, 'src', 'script', 'scons.py')
+        return os.path.join(dir,'scripts', 'scons.py')
 
     def scons_lib_dir_path(self, dir):
         return os.path.join(dir, 'src', 'engine')

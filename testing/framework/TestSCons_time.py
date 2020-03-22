@@ -60,7 +60,7 @@ import os
 import sys
 
 dir = sys.argv[-1]
-script_dir = dir + '/src/script'
+script_dir = dir + '/scripts'
 os.makedirs(script_dir)
 with open(script_dir + '/scons.py', 'w') as f:
     f.write(r'''%s''')
@@ -73,7 +73,7 @@ import os
 import sys
 
 dir = sys.argv[-1]
-script_dir = dir + '/src/script'
+script_dir = dir + '/scripts'
 os.makedirs(script_dir)
 with open(script_dir + '/scons.py', 'w') as f:
     f.write(r'''%s''')
@@ -230,8 +230,8 @@ class TestSCons_time(TestCommon):
         return x
 
     def write_fake_scons_py(self):
-        self.subdir('src', ['src', 'script'])
-        self.write('src/script/scons.py', scons_py)
+        self.subdir('scripts')
+        self.write('scripts/scons.py', scons_py)
 
     def write_fake_svn_py(self, name):
         name = self.workpath(name)
