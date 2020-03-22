@@ -54,8 +54,9 @@
 
     <corpauthor>Steven Knight and the SCons Development Team</corpauthor>
 
+    <!-- adding pubdate seems superfluous when copyright year is the same
+         and html rendering puts both of them at the top of the page -->
     <pubdate>2004 - 2020</pubdate>
-
     <copyright>
       <year>2004 - 2020</year>
       <holder>The SCons Foundation</holder>
@@ -87,7 +88,7 @@
 <cmdsynopsis>
   <command>scons</command>
   <arg choice='opt' rep='repeat'><replaceable>options</replaceable></arg>
-  <arg choice='opt' rep='repeat'><replaceable>name=val</replaceable></arg>
+  <arg choice='opt' rep='repeat'><replaceable>name</replaceable>=<replaceable>val</replaceable></arg>
   <arg choice='opt' rep='repeat'><replaceable>targets</replaceable></arg>
 </cmdsynopsis>
 </refsynopsisdiv>
@@ -480,7 +481,9 @@ by appropriate setting of &consvars;.</para>
 
 </refsect1>
 
-<refsect1 id='options'><title>OPTIONS</title>
+<refsect1 id='options'>
+<title>OPTIONS</title>
+
 <para>In general,
 &scons;
 supports the same command-line options as GNU &Make;
@@ -492,14 +495,18 @@ and many of those supported by <application>cons</application>.
 
 <variablelist>
   <varlistentry>
-  <term>-b</term>
+  <term><option>-b</option></term>
   <listitem>
 <para>Ignored for compatibility with non-GNU versions of &Make;</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>-c, --clean, --remove</term>
+  <term>
+    <option>-c</option>,
+    <option>--clean</option>,
+    <option>--remove</option>
+  </term>
   <listitem>
 <para>Clean up by removing all target files for which a construction
 command is specified.
@@ -510,7 +517,7 @@ Will not remove any targets specified by the &NoClean; function.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--cache-debug=<replaceable>file</replaceable></term>
+  <term>-<option>-cache-debug=<replaceable>file</replaceable></option></term>
   <listitem>
 <para>Print debug information about the &CacheDir;
 derived-file caching to the specified
@@ -528,7 +535,10 @@ are being looked for in, retrieved from, or written to the
   </varlistentry>
 
   <varlistentry>
-  <term>--cache-disable, --no-cache</term>
+  <term>
+    <option>--cache-disable</option>,
+    <option>--no-cache</option>
+  </term>
   <listitem>
 <para>Disable the derived-file caching specified by
 &CacheDir;.
@@ -539,7 +549,10 @@ nor copy files to the cache.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--cache-force, --cache-populate</term>
+  <term>
+    <option>--cache-force</option>,
+    <option>--cache-populate</option>
+  </term>
   <listitem>
 <para>When using &CacheDir;,
 populate a cache by copying any already-existing, up-to-date
@@ -555,7 +568,7 @@ option.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--cache-readonly</term>
+  <term><option>--cache-readonly</option></term>
   <listitem>
 <para>Use the cache (if enabled) for reading, but do not not update the
 cache with changed files.
@@ -564,7 +577,7 @@ cache with changed files.
   </varlistentry>
 
   <varlistentry>
-  <term>--cache-show</term>
+  <term><option>--cache-show</option></term>
   <listitem>
 <para>When using &CacheDir;
 and retrieving a derived file from the cache,
@@ -579,7 +592,7 @@ file was rebuilt or retrieved from the cache.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--config=<replaceable>mode</replaceable></term>
+  <term><option>--config=<replaceable>mode</replaceable></option></term>
   <listitem>
 <para>This specifies how the &Configure;
 call should use or generate the
@@ -590,7 +603,7 @@ among the following choices.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--config=auto</term>
+  <term><option>--config=auto</option></term>
   <listitem>
 <para>scons will use its normal dependency mechanisms
 to decide if a test must be rebuilt or not.
@@ -604,7 +617,7 @@ This is the default behavior.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--config=force</term>
+  <term><option>--config=force</option></term>
   <listitem>
 <para>If this option is specified,
 all configuration tests will be re-run
@@ -618,7 +631,7 @@ in a system header file or compiler.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--config=cache</term>
+  <term><option>--config=cache</option></term>
   <listitem>
 <para>If this option is specified,
 no configuration tests will be rerun
@@ -631,7 +644,10 @@ have any results in the cache.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>-C <replaceable>directory</replaceable>, --directory=<replaceable>directory</replaceable></term>
+  <term>
+    <option>-C <replaceable>directory</replaceable></option>,
+    <option>--directory=<replaceable>directory</replaceable></option>
+  </term>
   <listitem>
 <para>Run as if &scons; was started in
 <replaceable>directory</replaceable>
@@ -672,7 +688,7 @@ to change the &SConstruct; search behavior when this option is used.
 <!--  general debugging of the build process. -->
 
   <varlistentry>
-  <term>-D</term>
+  <term><option>-D</option></term>
   <listitem>
 <para>Works exactly the same way as the
 <option>-u</option>
@@ -684,7 +700,7 @@ directory.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--debug=<replaceable>type</replaceable>[<replaceable>,type</replaceable>...]</term>
+  <term><option>--debug=<replaceable>type</replaceable>[<replaceable>,type</replaceable>...]</option></term>
   <listitem>
 <para>Debug the build process.
 <replaceable>type</replaceable>
@@ -695,7 +711,7 @@ The following entries show the recognized types:</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--debug=action-timestamps</term>
+  <term><option>--debug=action-timestamps</option></term>
   <listitem>
 <para>Prints additional time profiling information. For
 each command, shows the absolute start and end times.
@@ -707,7 +723,7 @@ Implies the <option>--debug=time</option> option.
   </varlistentry>
 
   <varlistentry>
-  <term>--debug=count</term>
+  <term><option>--debug=count</option></term>
   <listitem>
 <para>Print how many objects are created
 of the various classes used internally by SCons
@@ -725,7 +741,7 @@ files).</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--debug=duplicate</term>
+  <term><option>--debug=duplicate</option></term>
   <listitem>
 <para>Print a line for each unlink/relink (or copy) of a variant file from
 its source file.  Includes debugging info for unlinking stale variant
@@ -734,7 +750,7 @@ files, as well as unlinking old targets before building them.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--debug=explain</term>
+  <term><option>--debug=explain</option></term>
   <listitem>
 <para>Print an explanation of why &scons;
 is deciding to (re-)build the targets
@@ -744,7 +760,7 @@ it selects for building.
   </varlistentry>
 
   <varlistentry>
-  <term>--debug=findlibs</term>
+  <term><option>--debug=findlibs</option></term>
   <listitem>
 <para>Instruct the scanner that searches for libraries
 to print a message about each potential library
@@ -754,7 +770,7 @@ and about the actual libraries it finds.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--debug=includes</term>
+  <term><option>--debug=includes</option></term>
   <listitem>
 <para>Print the include tree after each top-level target is built.
 This is generally used to find out what files are included by the sources
@@ -768,7 +784,7 @@ $ <userinput>scons --debug=includes foo.o</userinput>
   </varlistentry>
 
   <varlistentry>
-  <term>--debug=memoizer</term>
+  <term><option>--debug=memoizer</option></term>
   <listitem>
 <para>Prints a summary of hits and misses using the Memoizer,
 an internal subsystem that counts
@@ -778,7 +794,7 @@ instead of recomputing them each time they're needed.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--debug=memory</term>
+  <term><option>--debug=memory</option></term>
   <listitem>
 <para>Prints how much memory SCons uses
 before and after reading the SConscript files
@@ -787,7 +803,7 @@ and before and after building targets.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--debug=objects</term>
+  <term><option>--debug=objects</option></term>
   <listitem>
 <para>Prints a list of the various objects
 of the various classes used internally by SCons.</para>
@@ -795,7 +811,7 @@ of the various classes used internally by SCons.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--debug=pdb</term>
+  <term><option>--debug=pdb</option></term>
   <listitem>
 <para>Re-run &scons; under the control of the
 <command>pdb</command>
@@ -804,7 +820,7 @@ Python debugger.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--debug=prepare</term>
+  <term><option>--debug=prepare</option></term>
   <listitem>
 <para>Print a line each time any target (internal or external)
 is prepared for building.
@@ -819,7 +835,7 @@ is at least considering them or not.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--debug=presub</term>
+  <term><option>--debug=presub</option></term>
   <listitem>
 <para>Print the raw command line used to build each target
 before the &consenv; variables are substituted.
@@ -836,7 +852,7 @@ Building myprog.o with action(s):
   </varlistentry>
 
   <varlistentry>
-  <term>--debug=stacktrace</term>
+  <term><option>--debug=stacktrace</option></term>
   <listitem>
 <para>Prints an internal Python stack trace
 when encountering an otherwise unexplained error.</para>
@@ -844,7 +860,7 @@ when encountering an otherwise unexplained error.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--debug=time</term>
+  <term><option>--debug=time</option></term>
   <listitem>
 <para>Prints various time profiling information:</para>
     <itemizedlist>
@@ -900,7 +916,7 @@ should take place in parallel.)
   </varlistentry>
 
   <varlistentry>
-  <term>--diskcheck=<replaceable>types</replaceable></term>
+  <term><option>--diskcheck=<replaceable>type</replaceable>[<replaceable>,type</replaceable>...]</option></term>
   <listitem>
 <para>Enable specific checks for
 whether or not there is a file on disk
@@ -909,7 +925,7 @@ where the SCons configuration expects a directory
 and whether or not RCS or SCCS sources exist
 when searching for source and include files.
 The
-<replaceable>types</replaceable>
+<replaceable>type</replaceable>
 argument can be set to:
 <emphasis role="bold">all</emphasis>,
 to enable all checks explicitly
@@ -944,7 +960,7 @@ where the SCons configuration expects a directory).</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--duplicate=<replaceable>ORDER</replaceable></term>
+  <term><option>--duplicate=<replaceable>ORDER</replaceable></option></term>
   <listitem>
 <para>There are three ways to duplicate files in a build tree: hard links,
 soft (symbolic) links and copies. The default behaviour of SCons is to
@@ -970,14 +986,19 @@ the mechanisms in the specified order.</para>
 <!--  variables from the SConscript files. -->
 
   <varlistentry>
-  <term>--enable-virtualenv</term>
+  <term><option>--enable-virtualenv</option></term>
   <listitem>
 <para>Import virtualenv-related variables to SCons.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>-f <replaceable>file</replaceable>, --file=<replaceable>file</replaceable>, --makefile=<replaceable>file</replaceable>, --sconstruct=<replaceable>file</replaceable></term>
+  <term>
+    <option>-f <replaceable>file</replaceable></option>,
+    <option>--file=<replaceable>file</replaceable></option>,
+    <option>--makefile=<replaceable>file</replaceable></option>,
+    <option>--sconstruct=<replaceable>file</replaceable></option>
+  </term>
   <listitem>
 <para>Use
 <replaceable>file</replaceable>
@@ -992,7 +1013,10 @@ will read all of the specified files.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>-h, --help</term>
+  <term>
+    <option>-h</option>,
+    <option>--help</option>
+  </term>
   <listitem>
 <para>Print a local help message for this build, if one is defined in
 the SConscript files, plus a line that describes the
@@ -1004,7 +1028,10 @@ options.  Exits after displaying the appropriate message.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>-H, --help-options</term>
+  <term>
+    <option>-H</option>,
+    <option>--help-options</option>
+  </term>
   <listitem>
 <para>Print the standard help message about command-line options and
 exit.</para>
@@ -1012,7 +1039,10 @@ exit.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>-i, --ignore-errors</term>
+  <term>
+    <option>-i</option>,
+    <option>--ignore-errors</option>
+  </term>
   <listitem>
 <para>Ignore all errors from commands executed to rebuild files.</para>
 
@@ -1020,7 +1050,10 @@ exit.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>-I <replaceable>directory</replaceable>, --include-dir=<replaceable>directory</replaceable></term>
+  <term>
+    <option>-I <replaceable>directory</replaceable></option>,
+    <option>--include-dir=<replaceable>directory</replaceable></option>
+  </term>
   <listitem>
 <para>Specifies a
 <replaceable>directory</replaceable>
@@ -1033,14 +1066,14 @@ are used, the directories are searched in the order specified.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--ignore-virtualenv</term>
+  <term><option>--ignore-virtualenv</option></term>
   <listitem>
 <para>Suppress importing virtualenv-related variables to SCons.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>--implicit-cache</term>
+  <term><option>--implicit-cache</option></term>
   <listitem>
 <para>Cache implicit dependencies.
 This causes
@@ -1069,7 +1102,7 @@ than a current implicit dependency with the same name.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--implicit-deps-changed</term>
+  <term><option>--implicit-deps-changed</option></term>
   <listitem>
 <para>Forces SCons to ignore the cached implicit dependencies. This causes the
 implicit dependencies to be rescanned and recached. This implies
@@ -1078,7 +1111,7 @@ implicit dependencies to be rescanned and recached. This implies
   </varlistentry>
 
   <varlistentry>
-  <term>--implicit-deps-unchanged</term>
+  <term><option>--implicit-deps-unchanged</option></term>
   <listitem>
 <para>Force SCons to ignore changes in the implicit dependencies.
 This causes cached implicit dependencies to always be used.
@@ -1088,7 +1121,7 @@ This implies
   </varlistentry>
 
   <varlistentry>
-  <term>--install-sandbox=<replaceable>path</replaceable></term>
+  <term><option>--install-sandbox=<replaceable>path</replaceable></option></term>
   <listitem>
 <para>
 When using the &Install; functions, prepend <replaceable>path</replaceable>
@@ -1099,7 +1132,7 @@ underneath <replaceable>path</replaceable>.
   </varlistentry>
 
   <varlistentry>
-  <term>--interactive</term>
+  <term><option>--interactive</option></term>
   <listitem>
 <para>Starts SCons in interactive mode.
 The SConscript files are read once and a
@@ -1252,7 +1285,10 @@ scons&gt;&gt;&gt; exit
   </varlistentry>
 
   <varlistentry>
-  <term>-j<emphasis> N</emphasis>, --jobs=<emphasis>N</emphasis></term>
+  <term>
+    <option>-j <replaceable>N</replaceable></option>,
+    <option>--jobs=<replaceable>N</replaceable></option>
+  </term>
   <listitem>
 <para>Specifies the maximum number of comcurrent jobs (commands) to run.
 If there is more than one
@@ -1269,7 +1305,10 @@ option, the last one is effective.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>-k, --keep-going</term>
+  <term>
+    <option>-k</option>,
+    <option>--keep-going</option>
+  </term>
   <listitem>
 <para>Continue as much as possible after an error.  The target that
 failed and those that depend on it will not be remade, but other
@@ -1307,14 +1346,14 @@ targets specified on the command line will still be processed.</para>
 <!--  combination of other options.  Revisit this issue.] -->
 
   <varlistentry>
-  <term>-m</term>
+  <term><option>-m</option></term>
   <listitem>
 <para>Ignored for compatibility with non-GNU versions of &Make;.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>--max-drift=<replaceable>SECONDS</replaceable></term>
+  <term><option>--max-drift=<replaceable>SECONDS</replaceable></option></term>
   <listitem>
 <para>Set the maximum expected drift in the modification time of files to
 <replaceable>SECONDS</replaceable>.
@@ -1334,7 +1373,7 @@ no matter how old the file is.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--md5-chunksize=<replaceable>KILOBYTES</replaceable></term>
+  <term><option>--md5-chunksize=<replaceable>KILOBYTES</replaceable></option></term>
   <listitem>
 <para>Set the block size used to compute MD5 signatures to
 <replaceable>KILOBYTES</replaceable>.
@@ -1350,7 +1389,12 @@ be appropriate for most uses.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>-n, --just-print, --dry-run, --recon</term>
+  <term>
+    <option>-n</option>,
+    <option>--just-print</option>,
+    <option>--dry-run</option>,
+    <option>--recon</option>
+  </term>
   <listitem>
 <para>No execute.  Print the commands that would be executed to build
 any out-of-date target files, but do not execute the commands.</para>
@@ -1358,7 +1402,7 @@ any out-of-date target files, but do not execute the commands.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--no-site-dir</term>
+  <term><option>--no-site-dir</option></term>
   <listitem>
 <para>Prevents the automatic addition of the standard
 <emphasis>site_scons</emphasis>
@@ -1404,7 +1448,7 @@ dirs to the toolpath.</para>
 <!--  .EE -->
 
   <varlistentry>
-  <term>--profile=<replaceable>file</replaceable></term>
+  <term><option>--profile=<replaceable>file</replaceable></option></term>
   <listitem>
 <para>Run SCons under the Python profiler
 and save the results in the specified
@@ -1415,7 +1459,9 @@ pstats module.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>-q, --question</term>
+  <term>
+    <option>-q</option>,
+    <option>--question</option></term>
   <listitem>
 <para>Do not run any commands, or print anything.  Just return an exit
 status that is zero if the specified targets are already up to
@@ -1424,7 +1470,7 @@ date, non-zero otherwise.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>-Q</term>
+  <term><option>-Q</option></term>
   <listitem>
 <para>Quiets SCons status messages about
 reading SConscript files,
@@ -1441,7 +1487,7 @@ to rebuild target files are still printed.</para>
 <!--  environments that are created will be completely empty. -->
 
   <varlistentry>
-  <term>--random</term>
+  <term><option>--random</option></term>
   <listitem>
 <para>Build dependencies in a random order.  This is useful when
 building multiple trees simultaneously with caching enabled,
@@ -1451,7 +1497,11 @@ or retrieve the same target files.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>-s, --silent, --quiet</term>
+  <term>
+    <option>-s</option>,
+    <option>--silent</option>,
+    <option>--quiet</option>
+  </term>
   <listitem>
 <para>Silent.  Do not print commands that are executed to rebuild
 target files.
@@ -1460,14 +1510,18 @@ Also suppresses SCons status messages.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>-S, --no-keep-going, --stop</term>
+  <term>
+    <option>-S</option>,
+    <option>--no-keep-going</option>,
+    <option>--stop</option>
+  </term>
   <listitem>
 <para>Ignored for compatibility with GNU &Make;</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>--site-dir=<replaceable>dir</replaceable></term>
+  <term><option>--site-dir=<replaceable>dir</replaceable></option></term>
   <listitem>
 <para>Uses the named <replaceable>dir</replaceable> as the site directory
 rather than the default
@@ -1547,7 +1601,7 @@ $HOME/.scons/site_scons
   </varlistentry>
 
   <varlistentry>
-  <term>--stack-size=<replaceable>KILOBYTES</replaceable></term>
+  <term><option>--stack-size=<replaceable>KILOBYTES</replaceable></option></term>
   <listitem>
 <para>Set the size stack used to run threads to
 <replaceable>KILOBYTES</replaceable>.
@@ -1571,7 +1625,10 @@ unless you encounter stack overflow errors.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>-t, --touch</term>
+  <term>
+    <option>-t</option>,
+    <option>--touch</option>
+  </term>
   <listitem>
 <para>Ignored for compatibility with GNU &Make;.
 (Touching a file to make it
@@ -1580,7 +1637,7 @@ appear up-to-date is unnecessary when using &scons;.)</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--taskmastertrace=<replaceable>file</replaceable></term>
+  <term><option>--taskmastertrace=<replaceable>file</replaceable></option></term>
   <listitem>
 <para>Prints trace information to the specified
 <replaceable>file</replaceable>
@@ -1593,14 +1650,14 @@ may be used to specify the standard output.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--tree=<replaceable>options</replaceable></term>
+  <term><option>--tree=<replaceable>type</replaceable>[<replaceable>,type</replaceable>...]</option></term>
   <listitem>
 <para>Prints a tree of the dependencies
 after each top-level target is built.
 This prints out some or all of the tree,
 in various formats,
 depending on the
-<replaceable>options</replaceable>
+<replaceable>type</replaceable>
 specified:</para>
 
   <!-- nested -->
@@ -1645,8 +1702,8 @@ for the relevant output higher up in the tree.</para>
   </varlistentry>
   </variablelist>
 
-<para>Multiple <option>--tree</option> options may be specified,
-separated by commas:</para>
+<para>Multiple <replaceable>type</replaceable>
+choices may be specified, separated by commas:</para>
 
 <screen>
 # Prints only derived files, with status information:
@@ -1660,7 +1717,11 @@ separated by commas:</para>
   </varlistentry>
 
   <varlistentry>
-  <term>-u, --up, --search-up</term>
+  <term>
+    <option>-u</option>,
+    <option>--up</option>,
+    <option>--search-up</option>
+  </term>
   <listitem>
 <para>Walks up the directory structure until an
 &SConstruct;, &Sconstruct;, &sconstruct;, &SConstruct.py;,
@@ -1674,7 +1735,7 @@ current directory will be built.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>-U</term>
+  <term><option>-U</option></term>
   <listitem>
 <para>Works exactly the same way as the
 <option>-u</option>
@@ -1687,7 +1748,10 @@ up in.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>-v, --version</term>
+  <term>
+    <option>-v</option>,
+    <option>--version</option>
+  </term>
   <listitem>
 <para>Print the
 &scons;
@@ -1698,7 +1762,10 @@ Then exit.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>-w, --print-directory</term>
+  <term>
+    <option>-w</option>,
+    <option>--print-directory</option>
+  </term>
   <listitem>
 <para>Print a message containing the working directory before and
 after other processing.</para>
@@ -1706,14 +1773,17 @@ after other processing.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--no-print-directory</term>
+  <term><option>--no-print-directory</option></term>
   <listitem>
 <para>Turn off -w, even if it was turned on implicitly.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>--warn=<replaceable>type</replaceable>, --warn=no-<replaceable>type</replaceable></term>
+  <term>
+    <option>--warn=<replaceable>type</replaceable></option>,
+    <option>--warn=no-<replaceable>type</replaceable></option>
+  </term>
   <listitem>
 <para>Enable or disable warnings.
 <replaceable>type</replaceable>
@@ -1722,14 +1792,20 @@ specifies the type of warnings to be enabled or disabled:</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--warn=all, --warn=no-all</term>
+  <term>
+    <option>--warn=all</option>,
+    <option>--warn=no-all</option>
+  </term>
   <listitem>
 <para>Enables or disables all warnings.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>--warn=cache-version, --warn=no-cache-version</term>
+  <term>
+    <option>--warn=cache-version</option>,
+    <option>--warn=no-cache-version</option>
+  </term>
   <listitem>
 <para>Enables or disables warnings about the cache directory not using
 the latest configuration information
@@ -1739,7 +1815,10 @@ These warnings are enabled by default.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--warn=cache-write-error, --warn=no-cache-write-error</term>
+  <term>
+    <option>--warn=cache-write-error</option>,
+    <option>--warn=no-cache-write-error</option>
+  </term>
   <listitem>
 <para>Enables or disables warnings about errors trying to
 write a copy of a built file to a specified
@@ -1749,7 +1828,10 @@ These warnings are disabled by default.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--warn=corrupt-sconsign, --warn=no-corrupt-sconsign</term>
+  <term>
+    <option>--warn=corrupt-sconsign</option>,
+    <option>--warn=no-corrupt-sconsign</option>
+  </term>
   <listitem>
 <para>Enables or disables warnings about unfamiliar signature data in
 <markup>.sconsign</markup>
@@ -1759,7 +1841,10 @@ These warnings are enabled by default.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--warn=dependency, --warn=no-dependency</term>
+  <term>
+    <option>--warn=dependency</option>,
+    <option>--warn=no-dependency</option>
+  </term>
   <listitem>
 <para>Enables or disables warnings about dependencies.
 These warnings are disabled by default.</para>
@@ -1767,7 +1852,10 @@ These warnings are disabled by default.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--warn=deprecated, --warn=no-deprecated</term>
+  <term>
+    <option>--warn=deprecated</option>,
+    <option>--warn=no-deprecated</option>
+  </term>
   <listitem>
 <para>Enables or disables warnings about use of
 currently deprecated features.
@@ -1784,7 +1872,10 @@ see below.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--warn=duplicate-environment, --warn=no-duplicate-environment</term>
+  <term>
+    <option>--warn=duplicate-environment</option>,
+    <option>--warn=no-duplicate-environment</option>
+  </term>
   <listitem>
 <para>Enables or disables warnings about attempts to specify a build
 of a target with two different &consenvs;
@@ -1794,7 +1885,10 @@ These warnings are enabled by default.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--warn=fortran-cxx-mix, --warn=no-fortran-cxx-mix</term>
+  <term>
+    <option>--warn=fortran-cxx-mix</option>,
+    <option>--warn=no-fortran-cxx-mix</option>
+  </term>
   <listitem>
 <para>Enables or disables the specific warning about linking
 Fortran and C++ object files in a single executable,
@@ -1803,7 +1897,10 @@ which can yield unpredictable behavior with some compilers.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--warn=future-deprecated, --warn=no-future-deprecated</term>
+  <term>
+    <option>--warn=future-deprecated</option>,
+    <option>--warn=no-future-deprecated</option>
+  </term>
   <listitem>
 <para>Enables or disables warnings about features
 that will be deprecated in the future.
@@ -1818,14 +1915,20 @@ that may require changes to the configuration.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--warn=link, --warn=no-link</term>
+  <term>
+    <option>--warn=link</option>,
+    <option>--warn=no-link</option>
+  </term>
   <listitem>
 <para>Enables or disables warnings about link steps.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>--warn=misleading-keywords, --warn=no-misleading-keywords</term>
+  <term>
+    <option>--warn=misleading-keywords</option>,
+    <option>--warn=no-misleading-keywords</option>
+  </term>
   <listitem>
 <para>Enables or disables warnings about the use of two commonly
 misspelled keywords
@@ -1842,7 +1945,10 @@ can themselves refer to lists of names or nodes.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--warn=missing-sconscript, --warn=no-missing-sconscript</term>
+  <term>
+    <option>--warn=missing-sconscript</option>,
+    <option>--warn=no-missing-sconscript</option>
+  </term>
   <listitem>
 <para>Enables or disables warnings about missing SConscript files.
 These warnings are enabled by default.</para>
@@ -1850,7 +1956,10 @@ These warnings are enabled by default.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--warn=no-object-count, --warn=no-no-object-count</term>
+  <term>
+    <option>--warn=no-object-count</option>,
+    <option>--warn=no-no-object-count</option>
+  </term>
   <listitem>
 <para>Enables or disables warnings about the
 <option>--debug=object</option>
@@ -1863,7 +1972,10 @@ option or from optimized Python (.pyo) modules.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--warn=no-parallel-support, --warn=no-no-parallel-support</term>
+  <term>
+    <option>--warn=no-parallel-support</option>,
+    <option>--warn=no-no-parallel-support</option>
+  </term>
   <listitem>
 <para>Enables or disables warnings about the version of Python
 not being able to support parallel builds when the
@@ -1874,7 +1986,10 @@ These warnings are enabled by default.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--warn=python-version, --warn=no-python-version</term>
+  <term>
+    <option>--warn=python-version</option>,
+    <option>--warn=no-python-version</option>
+  </term>
   <listitem>
 <para>Enables or disables the warning about running
 SCons with a deprecated version of Python.
@@ -1883,7 +1998,10 @@ These warnings are enabled by default.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--warn=reserved-variable, --warn=no-reserved-variable</term>
+  <term>
+    <option>--warn=reserved-variable</option>,
+    <option>--warn=no-reserved-variable</option>
+  </term>
   <listitem>
 <para>Enables or disables warnings about attempts to set the
 reserved &consvar; names
@@ -1901,7 +2019,10 @@ These warnings are disabled by default.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--warn=stack-size, --warn=no-stack-size</term>
+  <term>
+    <option>--warn=stack-size</option>,
+    <option>--warn=no-stack-size</option>
+  </term>
   <listitem>
 <para>Enables or disables warnings about requests to set the stack size
 that could not be honored.
@@ -1910,7 +2031,10 @@ These warnings are enabled by default.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--warn=target_not_build, --warn=no-target_not_built</term>
+  <term>
+    <option>--warn=target_not_build</option>,
+    <option>--warn=no-target_not_built</option>
+  </term>
   <listitem>
 <para>Enables or disables warnings about a build rule not building the
  expected targets. These warnings are disabled by default.</para>
@@ -1940,7 +2064,11 @@ These warnings are enabled by default.</para>
 <!--  ... what? XXX -->
 
   <varlistentry>
-  <term>-Y <replaceable>repository</replaceable>, --repository=<replaceable>repository</replaceable>, --srcdir=<replaceable>repository</replaceable></term>
+  <term>
+    <option>-Y <replaceable>repository</replaceable></option>,
+    <option>--repository=<replaceable>repository</replaceable></option>,
+    <option>--srcdir=<replaceable>repository</replaceable></option>
+  </term>
   <listitem>
 <para>Search the specified <replaceable>repository</replaceable>
 for any input and target
@@ -1950,15 +2078,17 @@ options may be specified, in which case the
 repositories are searched in the order specified.</para>
   </listitem>
   </varlistentry>
-
 </variablelist>
 </refsect1>
 
-<refsect1 id='configuration_file_reference'><title>CONFIGURATION FILE REFERENCE</title>
+<refsect1 id='configuration_file_reference'>
+<title>CONFIGURATION FILE REFERENCE</title>
 <!--  .SS Python Basics -->
 <!--  XXX Adding this in the future would be a help. -->
 
-<refsect2 id='construction_environments'><title>Construction Environments</title>
+<refsect2 id='construction_environments'>
+<title>Construction Environments</title>
+
 <para>A <firstterm>&ConsEnv;</firstterm> is the basic means by which the SConscript
 files communicate build information to
 &scons;.
@@ -2213,7 +2343,8 @@ env.SomeTool(targets, sources)
 
 </refsect2>
 
-<refsect2 id='builder_methods'><title>Builder Methods</title>
+<refsect2 id='builder_methods'>
+<title>Builder Methods</title>
 
 <para>You tell &scons; what to build
 by calling Builders, functions which know to take a
@@ -2707,6 +2838,7 @@ object.</para>
 
 <refsect2 id='methods_and_functions_to_do_things'>
 <title>Methods and Functions To Do Things</title>
+
 <para>In addition to Builder methods,
 &scons;
 provides a number of other &consenv; methods
@@ -2803,7 +2935,9 @@ include:</para>
 
 </refsect2>
 
-<refsect2 id='sconscript_variables'><title>SConscript Variables</title>
+<refsect2 id='sconscript_variables'>
+<title>SConscript Variables</title>
+
 <para>In addition to the global functions and methods,
 &scons;
 supports a number of Python variables
@@ -3004,7 +3138,8 @@ default target before it's actually been added to the list.</para>
 
 </refsect2>
 
-<refsect2 id='construction_variables'><title>Construction Variables</title>
+<refsect2 id='construction_variables'>
+<title>Construction Variables</title>
 <!--  XXX From Gary Ruben, 23 April 2002: -->
 <!--  I think it would be good to have an example with each construction -->
 <!--  variable description in the documentation. -->
@@ -3021,6 +3156,7 @@ default target before it's actually been added to the list.</para>
 <!--         env["CCCOM"] = "$CC $CFLAGS \-o $TARGET $SOURCES -->
 <!--     Default: -->
 <!--         (I dunno what this is ;\-) -->
+
 <para>A &consenv; has an associated dictionary of
 <firstterm>&consvars;</firstterm>
 that are used by built-in or user-supplied build rules.
@@ -3088,7 +3224,8 @@ env2 = env.Clone(CC="cl.exe")
 
 </refsect2>
 
-<refsect2 id='configure_contexts'><title>Configure Contexts</title>
+<refsect2 id='configure_contexts'>
+<title>Configure Contexts</title>
 
 <para>&scons;
 supports
@@ -3807,7 +3944,8 @@ env = conf.Finish()
 
 </refsect2>
 
-<refsect2 id='commandline_construction_variables'><title>Command-Line Construction Variables</title>
+<refsect2 id='commandline_construction_variables'>
+<title>Command-Line Construction Variables</title>
 
 <para>Often when building software,
 some variables must be specified at build time.
@@ -4496,9 +4634,12 @@ css = index.File('app.css')
 </refsect2>
 </refsect1>
 
-<refsect1 id='extending_scons'><title>EXTENDING SCONS</title>
+<refsect1 id='extending_scons'>
+<title>EXTENDING SCONS</title>
 
-<refsect2 id='builder_objects'><title>Builder Objects</title>
+<refsect2 id='builder_objects'>
+<title>Builder Objects</title>
+
 <para>&scons;
 can be extended to build different types of targets
 by adding new Builder objects
@@ -5090,7 +5231,8 @@ and emitter functions.</para>
 
 </refsect2>
 
-<refsect2 id='action_objects'><title>Action Objects</title>
+<refsect2 id='action_objects'>
+<title>Action Objects</title>
 
 <para>The
 <emphasis role="bold">Builder</emphasis>()
@@ -5528,7 +5670,8 @@ a = Action('build $CHANGED_SOURCES', batch_key=batch_key)
 </variablelist>
 </refsect2>
 
-<refsect2 id='miscellaneous_action_functions'><title>Miscellaneous Action Functions</title>
+<refsect2 id='miscellaneous_action_functions'>
+<title>Miscellaneous Action Functions</title>
 
 <para>&scons;
 supplies a number of functions
@@ -5744,7 +5887,8 @@ env.Command('marker', 'input_file',
 </variablelist>
 </refsect2>
 
-<refsect2 id='variable_substitution'><title>Variable Substitution</title>
+<refsect2 id='variable_substitution'>
+<title>Variable Substitution</title>
 
 <para>Before executing a command,
 &scons;
@@ -6122,7 +6266,8 @@ echo Last build occurred  . &gt; $TARGET
 
 </refsect2>
 
-<refsect2 id='python_code_substitution'><title>Python Code Substitution</title>
+<refsect2 id='python_code_substitution'>
+<title>Python Code Substitution</title>
 
 <para>
 Any Python code within curly braces
@@ -6220,7 +6365,8 @@ a future version of SCons.</para>
 </variablelist>
 </refsect2>
 
-<refsect2 id='scanner_objects'><title>Scanner Objects</title>
+<refsect2 id='scanner_objects'>
+<title>Scanner Objects</title>
 
 <para>You can use the
 <emphasis role="bold">Scanner</emphasis>
@@ -6458,13 +6604,17 @@ env.Program('my_prog', ['file1.c', 'file2.f', 'file3.xyz'])
 </refsect2>
 </refsect1>
 
-<refsect1 id='systemspecific_behavior'><title>SYSTEM-SPECIFIC BEHAVIOR</title>
+<refsect1 id='systemspecific_behavior'>
+<title>SYSTEM-SPECIFIC BEHAVIOR</title>
+
 <para>&scons; and its configuration files are very portable,
 due largely to its implementation in Python.
 There are, however, a few portability
 issues waiting to trap the unwary.</para>
 
-<refsect2 id='c_file_suffix'><title>.C file suffix</title>
+<refsect2 id='c_file_suffix'>
+<title>.C file suffix</title>
+
 <para>&scons; handles the upper-case
 <markup>.C</markup>
 file suffix differently,
@@ -6482,7 +6632,9 @@ such as Windows,
 suffix as a C source file.</para>
 </refsect2>
 
-<refsect2 id='f_file_suffix'><title>.F file suffix</title>
+<refsect2 id='f_file_suffix'>
+<title>.F file suffix</title>
+
 <para>&scons; handles the upper-case
 <markup>.F</markup>
 file suffix differently,
@@ -6504,7 +6656,9 @@ suffix as a Fortran source file that should
 be run through the C preprocessor.</para>
 </refsect2>
 
-<refsect2 id='windows_cygwin_tools_and_cygwin_python_v'><title>Windows: Cygwin Tools and Cygwin Python vs. Windows Pythons</title>
+<refsect2 id='windows_cygwin_tools_and_cygwin_python_v'>
+<title>Windows: Cygwin Tools and Cygwin Python vs. Windows Pythons</title>
+
 <para>Cygwin supplies a set of tools and utilities
 that let users work on a
 Windows system using a more POSIX-like environment.
@@ -6542,7 +6696,9 @@ use the python.org or Microsoft Store or ActiveState version of Python
 to run &scons;.</para>
 </refsect2>
 
-<refsect2 id='windows_sconsbat_file'><title>Windows: scons.bat file</title>
+<refsect2 id='windows_sconsbat_file'>
+<title>Windows: scons.bat file</title>
+
 <para>On Windows systems,
 &scons; is executed via a wrapper
 <emphasis role="bold">scons.bat</emphasis>
@@ -6573,7 +6729,8 @@ script named
 
 </refsect2>
 
-<refsect2 id='mingw'><title>MinGW</title>
+<refsect2 id='mingw'>
+<title>MinGW</title>
 
 <para>The MinGW bin directory must be in your PATH environment variable or the
 PATH variable under the ENV &consvar; for &scons;
@@ -6590,12 +6747,15 @@ over the MinGW tools.</para>
 </refsect2>
 </refsect1>
 
-<refsect1 id='examples'><title>EXAMPLES</title>
+<refsect1 id='examples'>
+<title>EXAMPLES</title>
+
 <para>To help you get started using &scons;,
 this section contains a brief overview of some common tasks.</para>
 
 
-<refsect2 id='basic_compilation_from_a_single_source_f'><title>Basic Compilation From a Single Source File</title>
+<refsect2 id='basic_compilation_from_a_single_source_f'>
+<title>Basic Compilation From a Single Source File</title>
 
 <programlisting language="python">
 env = Environment()
@@ -6609,7 +6769,8 @@ or by specifying a dot ("scons .").</para>
 
 </refsect2>
 
-<refsect2 id='basic_compilation_from_multiple_source_f'><title>Basic Compilation From Multiple Source Files</title>
+<refsect2 id='basic_compilation_from_multiple_source_f'>
+<title>Basic Compilation From Multiple Source Files</title>
 
 <programlisting language="python">
 env = Environment()
@@ -6618,7 +6779,8 @@ env.Program(target = 'foo', source = Split('f1.c f2.c f3.c'))
 
 </refsect2>
 
-<refsect2 id='setting_a_compilation_flag'><title>Setting a Compilation Flag</title>
+<refsect2 id='setting_a_compilation_flag'>
+<title>Setting a Compilation Flag</title>
 
 <programlisting language="python">
 env = Environment(CCFLAGS = '-g')
@@ -6627,7 +6789,8 @@ env.Program(target = 'foo', source = 'foo.c')
 
 </refsect2>
 
-<refsect2 id='search_the_local_directory_for_h_files'><title>Search The Local Directory For .h Files</title>
+<refsect2 id='search_the_local_directory_for_h_files'>
+<title>Search The Local Directory For .h Files</title>
 
 <para>Note:  You do
 <emphasis>not</emphasis>
@@ -6641,7 +6804,8 @@ env.Program(target = 'foo', source = 'foo.c')
 
 </refsect2>
 
-<refsect2 id='search_multiple_directories_for_h_files'><title>Search Multiple Directories For .h Files</title>
+<refsect2 id='search_multiple_directories_for_h_files'>
+<title>Search Multiple Directories For .h Files</title>
 
 <programlisting language="python">
 env = Environment(CPPPATH = ['include1', 'include2'])
@@ -6650,7 +6814,8 @@ env.Program(target = 'foo', source = 'foo.c')
 
 </refsect2>
 
-<refsect2 id='building_a_static_library'><title>Building a Static Library</title>
+<refsect2 id='building_a_static_library'>
+<title>Building a Static Library</title>
 
 <programlisting language="python">
 env = Environment()
@@ -6660,7 +6825,8 @@ env.StaticLibrary(target = 'bar', source = ['l3.c', 'l4.c'])
 
 </refsect2>
 
-<refsect2 id='building_a_shared_library'><title>Building a Shared Library</title>
+<refsect2 id='building_a_shared_library'>
+<title>Building a Shared Library</title>
 
 <programlisting language="python">
 env = Environment()
@@ -6670,7 +6836,8 @@ env.SharedLibrary(target = 'bar', source = Split('l7.c l8.c'))
 
 </refsect2>
 
-<refsect2 id='linking_a_local_library_into_a_program'><title>Linking a Local Library Into a Program</title>
+<refsect2 id='linking_a_local_library_into_a_program'>
+<title>Linking a Local Library Into a Program</title>
 
 <programlisting language="python">
 env = Environment(LIBS = 'mylib', LIBPATH = ['.'])
@@ -6680,7 +6847,8 @@ env.Program(target = 'prog', source = ['p1.c', 'p2.c'])
 
 </refsect2>
 
-<refsect2 id='defining_your_own_builder_object'><title>Defining Your Own Builder Object</title>
+<refsect2 id='defining_your_own_builder_object'>
+<title>Defining Your Own Builder Object</title>
 
 <para>Notice that when you invoke the Builder,
 you can leave off the target file suffix,
@@ -6707,7 +6875,8 @@ can not be used call Builders like
 
 </refsect2>
 
-<refsect2 id='adding_your_own_builder_object_to_an_env'><title>Adding Your Own Builder Object to an Environment</title>
+<refsect2 id='adding_your_own_builder_object_to_an_env'>
+<title>Adding Your Own Builder Object to an Environment</title>
 
 <programlisting language="python">
 bld = Builder(action = 'pdftex &lt; $SOURCES &gt; $TARGET'
@@ -6729,7 +6898,8 @@ env['BUILDERS]['PDFBuilder'] = bld
 
 </refsect2>
 
-<refsect2 id='defining_your_own_scanner_object'><title>Defining Your Own Scanner Object</title>
+<refsect2 id='defining_your_own_scanner_object'>
+<title>Defining Your Own Scanner Object</title>
 
 <para>The following example shows adding an extremely simple scanner (the
 <emphasis role="bold">kfile_scan</emphasis>()
@@ -6893,7 +7063,8 @@ env.Program(target = 'foo', source = 'foo.c')
 
 </refsect2>
 
-<refsect2 id='sharing_variables_between_sconscript_fil'><title>Sharing Variables Between SConscript Files</title>
+<refsect2 id='sharing_variables_between_sconscript_fil'>
+<title>Sharing Variables Between SConscript Files</title>
 
 <para>You must explicitly call &Export; and &Import; for variables that
 you want to share between SConscript files.</para>
@@ -6917,7 +7088,8 @@ env.Program(target = 'foo', source = 'foo.c')
 
 </refsect2>
 
-<refsect2 id='building_multiple_variants_from_the_same'><title>Building Multiple Variants From the Same Source</title>
+<refsect2 id='building_multiple_variants_from_the_same'>
+<title>Building Multiple Variants From the Same Source</title>
 
 <para>Use the variant_dir keyword argument to
 the &SConscriptFunc; function to establish
@@ -6950,7 +7122,8 @@ value each time we call the &SConscriptFunc; function.</para>
 
 </refsect2>
 
-<refsect2 id='hierarchical_build_of_two_libraries_link'><title>Hierarchical Build of Two Libraries Linked With a Program</title>
+<refsect2 id='hierarchical_build_of_two_libraries_link'>
+<title>Hierarchical Build of Two Libraries Linked With a Program</title>
 
 <para><filename>SConstruct</filename>:</para>
 
@@ -6998,7 +7171,8 @@ prefix and suffix for the current platform
 
 </refsect2>
 
-<refsect2 id='customizing_construction_variables_from_'><title>Customizing &consvars; from the command line.</title>
+<refsect2 id='customizing_construction_variables_from_'>
+<title>Customizing &consvars; from the command line.</title>
 
 <para>The following would allow the C compiler to be specified on the command
 line or in the file <filename>custom.py</filename>.</para>
@@ -7034,7 +7208,8 @@ CC: The C compiler.
 
 </refsect2>
 
-<refsect2 id='using_microsoft_visual_c_precompiled_hea'><title>Using Microsoft Visual C++ precompiled headers</title>
+<refsect2 id='using_microsoft_visual_c_precompiled_hea'>
+<title>Using Microsoft Visual C++ precompiled headers</title>
 
 <para>Since windows.h includes everything and the kitchen sink, it can take quite
 some time to compile it over and over again for a bunch of object files, so
@@ -7090,7 +7265,8 @@ headers consult the MSDN documentation for /Yc, /Yu, and /Yp.</para>
 
 </refsect2>
 
-<refsect2 id='using_microsoft_visual_c_external_debugg'><title>Using Microsoft Visual C++ external debugging information</title>
+<refsect2 id='using_microsoft_visual_c_external_debugg'>
+<title>Using Microsoft Visual C++ external debugging information</title>
 
 <para>Since including debugging information in programs and shared libraries can
 cause their size to increase significantly, Microsoft provides a mechanism
@@ -7111,7 +7287,8 @@ env.Program('MyApp', ['Foo.cpp', 'Bar.cpp'])
 </refsect2>
 </refsect1>
 
-<refsect1 id='environment'><title>ENVIRONMENT</title>
+<refsect1 id='environment'>
+<title>ENVIRONMENT</title>
 
 <para>In general, &scons; is not controlled by environment
 variables set in the shell used to invoke it, leaving it
@@ -7174,14 +7351,18 @@ and will silently revert to non-cached behavior in such cases.</para>
 </variablelist>
 </refsect1>
 
-<refsect1 id='see_also'><title>SEE ALSO</title>
+<refsect1 id='see_also'>
+<title>SEE ALSO</title>
+
 <para>&SCons; User Manual,
 &SCons; Design Document,
 &SCons; source code.</para>
 
 </refsect1>
 
-<refsect1 id='authors'><title>AUTHORS</title>
+<refsect1 id='authors'>
+<title>AUTHORS</title>
+
 <para>Originally: Steven Knight <email>knight@baldmt.com</email>
 and Anthony Roach <email>aroach@electriceyeball.com</email>.
 Since 2010: The SCons Development Team <email>scons-dev@scons.org</email>.
