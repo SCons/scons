@@ -183,7 +183,7 @@ def main():
         else:
             pass_through_args.append(arg)
 
-    scons_py = os.path.join('src', 'script', 'scons.py')
+    scons_py = os.path.join('scripts', 'scons.py')
     src_engine = os.path.join('src', 'engine')
     MANIFEST_in = find(os.path.join(src_engine, 'MANIFEST.in'))
     manifest_files = [os.path.join(src_engine, x)
