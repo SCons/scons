@@ -499,7 +499,7 @@ else:
         Local(css_file)
 
 if not skip_doc:
-    if not epydoc_cli and not epydoc:
+    if True: #not epydoc_cli and not epydoc:
         print("doc: epydoc not found, skipping building API documentation.")
     else:
         # XXX Should be in common with reading the same thing in
