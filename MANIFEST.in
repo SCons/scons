@@ -1,3 +1,5 @@
-recursive-exclude src/engine *Tests.py
-global-exclude *Tests.py
+global-exclude **Tests.py
+
 recursive-include src/engine/SCons/Tool/docbook *
+
+
