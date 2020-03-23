@@ -277,7 +277,7 @@ When &scons; is invoked,
 the command line (including the contents
 of the &SCONSFLAGS; environment variable,
 if set) is processed.
-Command-line options (see <xref linkend="options"></xref>;) are consumed.
+Command-line options (see <xref linkend="options"></xref>) are consumed.
 Any variable argument assignments are collected, and
 remaining arguments are taken as the targets to build.</para>
 
@@ -594,16 +594,15 @@ file was rebuilt or retrieved from the cache.</para>
   <varlistentry>
   <term><option>--config=<replaceable>mode</replaceable></option></term>
   <listitem>
-<para>This specifies how the &Configure;
+<para>Control how the &Configure;
 call should use or generate the
 results of configuration tests.
-The option should be specified from
-among the following choices.</para>
-  </listitem>
-  </varlistentry>
+<replaceable>mode</replaceable>should be specified from
+among the following choices:</para>
 
+  <variablelist> <!-- nested list -->
   <varlistentry>
-  <term><option>--config=auto</option></term>
+  <term><emphasis role="bold">auto</emphasis></term>
   <listitem>
 <para>scons will use its normal dependency mechanisms
 to decide if a test must be rebuilt or not.
@@ -617,7 +616,7 @@ This is the default behavior.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><option>--config=force</option></term>
+  <term><emphasis role="bold">force</emphasis></term>
   <listitem>
 <para>If this option is specified,
 all configuration tests will be re-run
@@ -631,7 +630,7 @@ in a system header file or compiler.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><option>--config=cache</option></term>
+  <term><emphasis role="bold">cache</emphasis></term>
   <listitem>
 <para>If this option is specified,
 no configuration tests will be rerun
@@ -640,6 +639,10 @@ and all results will be taken from cache.
 if <option>--config=cache</option> is specified
 and a necessary test does not
 have any results in the cache.</para>
+  </listitem>
+  </varlistentry>
+  </variablelist> <!-- end nested list -->
+
   </listitem>
   </varlistentry>
 
@@ -707,11 +710,10 @@ directory.</para>
 specifies the kind of debugging info to emit.
 Multiple types may be specified, separated by commas.
 The following entries show the recognized types:</para>
-  </listitem>
-  </varlistentry>
 
+  <variablelist> <!-- nested list -->
   <varlistentry>
-  <term><option>--debug=action-timestamps</option></term>
+  <term><emphasis role="bold">action-timestamps</emphasis></term>
   <listitem>
 <para>Prints additional time profiling information. For
 each command, shows the absolute start and end times.
@@ -723,7 +725,7 @@ Implies the <option>--debug=time</option> option.
   </varlistentry>
 
   <varlistentry>
-  <term><option>--debug=count</option></term>
+  <term><emphasis role="bold">count</emphasis></term>
   <listitem>
 <para>Print how many objects are created
 of the various classes used internally by SCons
@@ -741,7 +743,7 @@ files).</para>
   </varlistentry>
 
   <varlistentry>
-  <term><option>--debug=duplicate</option></term>
+  <term><emphasis role="bold">duplicate</emphasis></term>
   <listitem>
 <para>Print a line for each unlink/relink (or copy) of a variant file from
 its source file.  Includes debugging info for unlinking stale variant
@@ -750,7 +752,7 @@ files, as well as unlinking old targets before building them.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><option>--debug=explain</option></term>
+  <term><emphasis role="bold">explain</emphasis></term>
   <listitem>
 <para>Print an explanation of why &scons;
 is deciding to (re-)build the targets
@@ -760,7 +762,7 @@ it selects for building.
   </varlistentry>
 
   <varlistentry>
-  <term><option>--debug=findlibs</option></term>
+  <term><emphasis role="bold">findlibs</emphasis></term>
   <listitem>
 <para>Instruct the scanner that searches for libraries
 to print a message about each potential library
@@ -770,7 +772,7 @@ and about the actual libraries it finds.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><option>--debug=includes</option></term>
+  <term><emphasis role="bold">includes</emphasis></term>
   <listitem>
 <para>Print the include tree after each top-level target is built.
 This is generally used to find out what files are included by the sources
@@ -784,7 +786,7 @@ $ <userinput>scons --debug=includes foo.o</userinput>
   </varlistentry>
 
   <varlistentry>
-  <term><option>--debug=memoizer</option></term>
+  <term><emphasis role="bold">memoizer</emphasis></term>
   <listitem>
 <para>Prints a summary of hits and misses using the Memoizer,
 an internal subsystem that counts
@@ -794,7 +796,7 @@ instead of recomputing them each time they're needed.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><option>--debug=memory</option></term>
+  <term><emphasis role="bold">memory</emphasis></term>
   <listitem>
 <para>Prints how much memory SCons uses
 before and after reading the SConscript files
@@ -803,7 +805,7 @@ and before and after building targets.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><option>--debug=objects</option></term>
+  <term><emphasis role="bold">objects</emphasis></term>
   <listitem>
 <para>Prints a list of the various objects
 of the various classes used internally by SCons.</para>
@@ -811,7 +813,7 @@ of the various classes used internally by SCons.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><option>--debug=pdb</option></term>
+  <term><emphasis role="bold">pdb</emphasis></term>
   <listitem>
 <para>Re-run &scons; under the control of the
 <command>pdb</command>
@@ -820,13 +822,13 @@ Python debugger.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><option>--debug=prepare</option></term>
+  <term><emphasis role="bold">prepare</emphasis></term>
   <listitem>
 <para>Print a line each time any target (internal or external)
 is prepared for building.
 &scons;
 prints this for each target it considers, even if that
-target is up to date (see also --debug=explain).
+target is up to date (see also <option>--debug=explain</option>).
 This can help debug problems with targets that aren't being
 built; it shows whether
 &scons;
@@ -835,7 +837,7 @@ is at least considering them or not.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><option>--debug=presub</option></term>
+  <term><emphasis role="bold">presub</emphasis></term>
   <listitem>
 <para>Print the raw command line used to build each target
 before the &consenv; variables are substituted.
@@ -852,7 +854,7 @@ Building myprog.o with action(s):
   </varlistentry>
 
   <varlistentry>
-  <term><option>--debug=stacktrace</option></term>
+  <term><emphasis role="bold">stacktrace</emphasis></term>
   <listitem>
 <para>Prints an internal Python stack trace
 when encountering an otherwise unexplained error.</para>
@@ -860,7 +862,7 @@ when encountering an otherwise unexplained error.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><option>--debug=time</option></term>
+  <term><emphasis role="bold">time</emphasis></term>
   <listitem>
 <para>Prints various time profiling information:</para>
     <itemizedlist>
@@ -914,6 +916,9 @@ should take place in parallel.)
 </para>
   </listitem>
   </varlistentry>
+  </variablelist> <!-- end nested list -->
+  </listitem>
+  </varlistentry>
 
   <varlistentry>
   <term><option>--diskcheck=<replaceable>type</replaceable>[<replaceable>,type</replaceable>...]</option></term>
@@ -927,21 +932,50 @@ when searching for source and include files.
 The
 <replaceable>type</replaceable>
 argument can be set to:
-<emphasis role="bold">all</emphasis>,
-to enable all checks explicitly
-(the default behavior);
-<emphasis role="bold">none</emphasis>,
-to disable all such checks;
-<emphasis role="bold">match</emphasis>,
-to check that files and directories on disk
-match SCons' expected configuration;
-<emphasis role="bold">rcs</emphasis>,
-to check for the existence of an RCS source
-for any missing source or include files;
-<emphasis role="bold">sccs</emphasis>,
-to check for the existence of an SCCS source
-for any missing source or include files.
-Multiple checks can be specified separated by commas;
+</para>
+
+  <variablelist> <!-- nested list -->
+  <varlistentry>
+  <term><emphasis role="bold">all</emphasis></term>
+  <listitem>
+<para>Enable all checks explicitly (the default behavior).</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
+  <term><emphasis role="bold">none</emphasis></term>
+  <listitem>
+<para>Disable all such checks.</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
+  <term><emphasis role="bold">match</emphasis></term>
+  <listitem>
+<para>to check that files and directories on disk
+match SCons' expected configuration.</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
+  <term><emphasis role="bold">rcs</emphasis></term>
+  <listitem>
+<para>Check for the existence of an RCS source
+for any missing source or include files.</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
+  <term><emphasis role="bold">sccs</emphasis></term>
+  <listitem>
+<para>Check for the existence of an SCCS source
+for any missing source or include files.</para>
+  </listitem>
+  </varlistentry>
+  </variablelist> <!-- end nested list -->
+
+<para>
+Multiple checks can be specified separated by commas.
 for example,
 <option>--diskcheck=sccs,rcs</option>
 would still check for SCCS and RCS sources,
@@ -1144,7 +1178,6 @@ and re-initialize the dependency graph from scratch.</para>
 
 <para>SCons interactive mode supports the following commands:</para>
 
-  <blockquote>
     <variablelist>
       <varlistentry>
       <term><emphasis role="bold">build</emphasis><emphasis>[OPTIONS] [TARGETS] ...</emphasis></term>
@@ -1182,9 +1215,6 @@ command:</para>
 --taskmastertrace=FILE
 --tree=OPTIONS
 </literallayout>
-      </listitem>
-      </varlistentry>
-    </variablelist>
 
 <para>Any other SCons command-line options that are specified
 do not cause errors
@@ -1193,8 +1223,9 @@ but have no effect on the
 command
 (mainly because they affect how the SConscript files are read,
 which only happens once at the beginning of interactive mode).</para>
+      </listitem>
+      </varlistentry>
 
-    <variablelist>
       <varlistentry>
       <term><emphasis role="bold">clean</emphasis><emphasis>[OPTIONS] [TARGETS] ...</emphasis></term>
       <listitem>
@@ -1266,8 +1297,6 @@ are synonyms.</para>
       </listitem>
       </varlistentry>
     </variablelist>
-  </blockquote>
-
 
 <para>An empty line repeats the last typed command.
 Command-line editing can be used if the
@@ -1660,10 +1689,9 @@ depending on the
 <replaceable>type</replaceable>
 specified:</para>
 
-  <!-- nested -->
-  <variablelist>
+  <variablelist> <!-- nested list -->
   <varlistentry>
-  <term>--tree=all</term>
+  <term><emphasis role="bold">all</emphasis></term>
   <listitem>
 <para>Print the entire dependency tree
 after each top-level target is built.
@@ -1673,7 +1701,7 @@ including implicit dependencies and ignored dependencies.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--tree=derived</term>
+  <term><emphasis role="bold">derived</emphasis></term>
   <listitem>
 <para>Restricts the tree output to only derived (target) files,
 not source files.</para>
@@ -1681,14 +1709,14 @@ not source files.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>--tree=status</term>
+  <term><emphasis role="bold">status</emphasis></term>
   <listitem>
 <para>Prints status information for each displayed node.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>--tree=prune</term>
+  <term><emphasis role="bold">prune</emphasis></term>
   <listitem>
 <para>Prunes the tree to avoid repeating dependency information
 for nodes that have already been displayed.
@@ -1700,7 +1728,7 @@ for that node can be found by searching
 for the relevant output higher up in the tree.</para>
   </listitem>
   </varlistentry>
-  </variablelist>
+  </variablelist> <!-- end nested list -->
 
 <para>Multiple <replaceable>type</replaceable>
 choices may be specified, separated by commas:</para>
@@ -1785,29 +1813,22 @@ after other processing.</para>
     <option>--warn=no-<replaceable>type</replaceable></option>
   </term>
   <listitem>
-<para>Enable or disable warnings.
+<para>Enable or disable (with the no- prefix) warnings.
 <replaceable>type</replaceable>
 specifies the type of warnings to be enabled or disabled:</para>
+
+  <variablelist> <!-- nested list -->
+  <varlistentry>
+  <term><emphasis role="bold">all</emphasis></term>
+  <listitem>
+<para>All warnings.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>
-    <option>--warn=all</option>,
-    <option>--warn=no-all</option>
-  </term>
+  <term><emphasis role="bold">cache-version</emphasis></term>
   <listitem>
-<para>Enables or disables all warnings.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term>
-    <option>--warn=cache-version</option>,
-    <option>--warn=no-cache-version</option>
-  </term>
-  <listitem>
-<para>Enables or disables warnings about the cache directory not using
+<para>Warnings about the cache directory not using
 the latest configuration information
 <emphasis role="bold">CacheDir</emphasis>().
 These warnings are enabled by default.</para>
@@ -1815,12 +1836,9 @@ These warnings are enabled by default.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>
-    <option>--warn=cache-write-error</option>,
-    <option>--warn=no-cache-write-error</option>
-  </term>
+  <term><emphasis role="bold">cache-write-error</emphasis></term>
   <listitem>
-<para>Enables or disables warnings about errors trying to
+<para>Warnings about errors trying to
 write a copy of a built file to a specified
 <emphasis role="bold">CacheDir</emphasis>().
 These warnings are disabled by default.</para>
@@ -1828,12 +1846,9 @@ These warnings are disabled by default.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>
-    <option>--warn=corrupt-sconsign</option>,
-    <option>--warn=no-corrupt-sconsign</option>
-  </term>
+  <term><emphasis role="bold">corrupt-sconsign</emphasis></term>
   <listitem>
-<para>Enables or disables warnings about unfamiliar signature data in
+<para>Warnings about unfamiliar signature data in
 <markup>.sconsign</markup>
 files.
 These warnings are enabled by default.</para>
@@ -1841,23 +1856,17 @@ These warnings are enabled by default.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>
-    <option>--warn=dependency</option>,
-    <option>--warn=no-dependency</option>
-  </term>
+  <term><emphasis role="bold">dependency</emphasis></term>
   <listitem>
-<para>Enables or disables warnings about dependencies.
+<para>Warnings about dependencies.
 These warnings are disabled by default.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>
-    <option>--warn=deprecated</option>,
-    <option>--warn=no-deprecated</option>
-  </term>
+  <term><emphasis role="bold">deprecated</emphasis></term>
   <listitem>
-<para>Enables or disables warnings about use of
+<para>Warnings about use of
 currently deprecated features.
 These warnings are enabled by default.
 Not all deprecation warnings can be disabled with the
@@ -1872,12 +1881,9 @@ see below.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>
-    <option>--warn=duplicate-environment</option>,
-    <option>--warn=no-duplicate-environment</option>
-  </term>
+  <term><emphasis role="bold">duplicate-environment</emphasis></term>
   <listitem>
-<para>Enables or disables warnings about attempts to specify a build
+<para>Warnings about attempts to specify a build
 of a target with two different &consenvs;
 that use the same action.
 These warnings are enabled by default.</para>
@@ -1885,24 +1891,18 @@ These warnings are enabled by default.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>
-    <option>--warn=fortran-cxx-mix</option>,
-    <option>--warn=no-fortran-cxx-mix</option>
-  </term>
+  <term><emphasis role="bold">fortran-cxx-mix</emphasis></term>
   <listitem>
-<para>Enables or disables the specific warning about linking
+<para>Warnings about linking
 Fortran and C++ object files in a single executable,
 which can yield unpredictable behavior with some compilers.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>
-    <option>--warn=future-deprecated</option>,
-    <option>--warn=no-future-deprecated</option>
-  </term>
+  <term><emphasis role="bold">future-deprecated</emphasis></term>
   <listitem>
-<para>Enables or disables warnings about features
+<para>Warnings about features
 that will be deprecated in the future.
 Such warnings are disabled by default.
 Enabling future deprecation warnings is
@@ -1915,22 +1915,16 @@ that may require changes to the configuration.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>
-    <option>--warn=link</option>,
-    <option>--warn=no-link</option>
-  </term>
+  <term><emphasis role="bold">link</emphasis></term>
   <listitem>
-<para>Enables or disables warnings about link steps.</para>
+<para>Warnings about link steps.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>
-    <option>--warn=misleading-keywords</option>,
-    <option>--warn=no-misleading-keywords</option>
-  </term>
+  <term><emphasis role="bold">misleading-keywords</emphasis></term>
   <listitem>
-<para>Enables or disables warnings about the use of two commonly
+<para>Warnings about the use of two commonly
 misspelled keywords
 <emphasis role="bold">targets</emphasis>
 and
@@ -1945,23 +1939,17 @@ can themselves refer to lists of names or nodes.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>
-    <option>--warn=missing-sconscript</option>,
-    <option>--warn=no-missing-sconscript</option>
-  </term>
+  <term><emphasis role="bold">missing-sconscript</emphasis></term>
   <listitem>
-<para>Enables or disables warnings about missing SConscript files.
+<para>Warnings about missing SConscript files.
 These warnings are enabled by default.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>
-    <option>--warn=no-object-count</option>,
-    <option>--warn=no-no-object-count</option>
-  </term>
+  <term><emphasis role="bold">no-object-count</emphasis></term>
   <listitem>
-<para>Enables or disables warnings about the
+<para>Warnings about the
 <option>--debug=object</option>
 feature not working when
 &scons;
@@ -1972,12 +1960,9 @@ option or from optimized Python (.pyo) modules.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>
-    <option>--warn=no-parallel-support</option>,
-    <option>--warn=no-no-parallel-support</option>
-  </term>
+  <term><emphasis role="bold">no-parallel-support</emphasis></term>
   <listitem>
-<para>Enables or disables warnings about the version of Python
+<para>Warnings about the version of Python
 not being able to support parallel builds when the
 <option>-j</option>
 option is used.
@@ -1986,24 +1971,18 @@ These warnings are enabled by default.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>
-    <option>--warn=python-version</option>,
-    <option>--warn=no-python-version</option>
-  </term>
+  <term><emphasis role="bold">python-version</emphasis></term>
   <listitem>
-<para>Enables or disables the warning about running
+<para>Warnings about running
 SCons with a deprecated version of Python.
 These warnings are enabled by default.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>
-    <option>--warn=reserved-variable</option>,
-    <option>--warn=no-reserved-variable</option>
-  </term>
+  <term><emphasis role="bold">reserved-variable</emphasis></term>
   <listitem>
-<para>Enables or disables warnings about attempts to set the
+<para>Warnings about attempts to set the
 reserved &consvar; names
 <envar>CHANGED_SOURCES</envar>,
 <envar>CHANGED_TARGETS</envar>,
@@ -2019,25 +1998,22 @@ These warnings are disabled by default.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>
-    <option>--warn=stack-size</option>,
-    <option>--warn=no-stack-size</option>
-  </term>
+  <term><emphasis role="bold">stack-size</emphasis></term>
   <listitem>
-<para>Enables or disables warnings about requests to set the stack size
+<para>Warnings about requests to set the stack size
 that could not be honored.
 These warnings are enabled by default.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>
-    <option>--warn=target_not_build</option>,
-    <option>--warn=no-target_not_built</option>
-  </term>
+  <term><emphasis role="bold">target_not_build</emphasis></term>
   <listitem>
-<para>Enables or disables warnings about a build rule not building the
+<para>Warnings about a build rule not building the
  expected targets. These warnings are disabled by default.</para>
+  </listitem>
+  </varlistentry>
+  </variablelist> <!-- end nested list -->
   </listitem>
   </varlistentry>
 
