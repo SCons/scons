@@ -442,6 +442,19 @@ inc.h
 
     <para>
 
+    By default &SCons; uses "ASCII art" to draw the tree. It is
+    possible to use line-drawing characters (Unicode calls these
+    Box Drawing) to make a nicer display. To do this, add the
+    <option>linedraw</option> qualifier:
+
+    </para>
+
+    <scons_output example="troubleshoot_tree1" suffix="2">
+      <scons_output_command>scons -Q --tree=all,linedraw</scons_output_command>
+    </scons_output>
+
+    <para>
+
     The <option>--tree</option> option only prints
     the dependency graph for the specified targets
     (or the default target(s) if none are specified on the command line).
@@ -452,7 +465,7 @@ inc.h
 
     </para>
 
-    <scons_output example="troubleshoot_tree1" suffix="2">
+    <scons_output example="troubleshoot_tree1" suffix="3">
       <scons_output_command>scons -Q --tree=all f2.o</scons_output_command>
     </scons_output>
 
@@ -468,7 +481,7 @@ inc.h
 
     </para>
 
-    <scons_output example="troubleshoot_tree1" suffix="3">
+    <scons_output example="troubleshoot_tree1" suffix="4">
       <scons_output_command>scons -Q --tree=all f1.o f3.o</scons_output_command>
     </scons_output>
 
@@ -480,7 +493,7 @@ inc.h
 
     </para>
 
-    <scons_output example="troubleshoot_tree1" suffix="4">
+    <scons_output example="troubleshoot_tree1" suffix="5">
       <scons_output_command>scons -Q --tree=status</scons_output_command>
     </scons_output>
 
@@ -498,7 +511,7 @@ inc.h
 
     </para>
 
-    <scons_output example="troubleshoot_tree1" suffix="5">
+    <scons_output example="troubleshoot_tree1" suffix="6">
       <scons_output_command>scons -Q --tree=derived</scons_output_command>
     </scons_output>
 
@@ -509,7 +522,7 @@ inc.h
 
     </para>
 
-    <scons_output example="troubleshoot_tree1" suffix="6">
+    <scons_output example="troubleshoot_tree1" suffix="7">
       <scons_output_command>scons -Q --tree=derived,status</scons_output_command>
     </scons_output>
 

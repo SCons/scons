@@ -1709,6 +1709,19 @@ not source files.</para>
   </varlistentry>
 
   <varlistentry>
+  <term><emphasis role="bold">linedraw</emphasis></term>
+  <listitem>
+<para>Draw the tree output using Unicode line-drawing characters
+instead of plain ASCII text. This option acts as a modifier
+to the selected <replaceable>type</replaceable>(s). If
+specified alone, without any <replaceable>type</replaceable>,
+it behaves as if <emphasis role="bold">all</emphasis>
+had been specified.
+</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
   <term><emphasis role="bold">status</emphasis></term>
   <listitem>
 <para>Prints status information for each displayed node.</para>
@@ -6844,7 +6857,7 @@ env.PDFBuilder(target = 'bar', source = 'bar')
 <para>Note also that the above initialization
 overwrites the default Builder objects,
 so the Environment created above
-can not be used call Builders like 
+can not be used call Builders like
 <methodname>env.Program</methodname>,
 <methodname>env.Object</methodname>,
 <methodname>env.StaticLibrary</methodname> etc.</para>

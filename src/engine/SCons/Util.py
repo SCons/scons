@@ -267,6 +267,7 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None, 
         - `showtags`   - print status information to the left of each node line
         - `margin`     - the format of the left margin to use for children of root. 1 results in a pipe, and 0 results in no pipe.
         - `visited`    - a dictionary of visited nodes in the current branch if not prune, or in the whole tree if prune.
+        - `singleLineDraw` - use line-drawing characters rather than ASCII.
     """
 
     rname = str(root)
@@ -301,7 +302,7 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None, 
                 [0, 2][IDX(root.has_builder())]
             ],
             ' S'[IDX(root.side_effect)],
-			' P'[IDX(root.precious)],
+            ' P'[IDX(root.precious)],
             ' A'[IDX(root.always_build)],
             ' C'[IDX(root.is_up_to_date())],
             ' N'[IDX(root.noclean)],
@@ -322,21 +323,32 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None, 
 
     children = child_func(root)
 
+
     cross = "+-"
     if singleLineDraw:
-        cross = "├─"  # sign used to point to the leaf.
+        # unicode line drawing chars:
+        box_horiz = chr(0x2500) # '─'
+        box_vert = chr(0x2510) # '│'
+        box_up_right = chr(0x2514) # '└'
+        box_down_right = chr(0x250c) # '┌'
+        box_down_left = chr(0x2510)  # '┐'
+        box_up_left = chr(0x2518) # '┘'
+        box_vert_right = chr(0x251c) # '├'
+        box_horiz_down = chr(0x252c) # '┬'
+
+        cross = box_vert_right + box_horiz   # sign used to point to the leaf.
         # check if this is the last leaf of the branch
         if lastChild:
             #if this if the last leaf, then terminate:
-            cross = "└─" # sign for the last leaf
+            cross = box_up_right + box_horiz  # sign for the last leaf
 
         # if this branch has children then split it
-        if len(children)>0:
+        if children:
             # if it's a leaf:
             if prune and rname in visited and children:
-                cross += "─"
+                cross += box_horiz
             else:
-                cross += "┬"
+                cross += box_horiz_down
 
     if prune and rname in visited and children:
         sys.stdout.write(''.join(tags + margins + [cross,'[', rname, ']']) + '\n')
