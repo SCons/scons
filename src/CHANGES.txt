@@ -14,10 +14,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Specify UTF-8 encoding when opening Java source file as text.  By default, encoding is the output
     of locale.getpreferredencoding(False), and varies by platform.
 
-  From Iosif Kurazs:
-    - Added a new flag called "linedraw" for the command line argument  "--tree"
-    that instructs scons to use single line drawing characters to draw the dependency tree.
-
   From William Deegan:
     - Fix broken clang + MSVC 2019 combination by using MSVC configuration logic to
       propagate'VCINSTALLDIR' and 'VCToolsInstallDir' which clang tools use to locate
