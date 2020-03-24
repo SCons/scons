@@ -253,6 +253,16 @@ def render_tree(root, child_func, prune=0, margin=[0], visited=None):
 
 IDX = lambda N: N and 1 or 0
 
+# unicode line drawing chars:
+BOX_HORIZ = chr(0x2500)  # '─'
+BOX_VERT = chr(0x2502)  # '│'
+BOX_UP_RIGHT = chr(0x2514)  # '└'
+BOX_DOWN_RIGHT = chr(0x250c)  # '┌'
+BOX_DOWN_LEFT = chr(0x2510)   # '┐'
+BOX_UP_LEFT = chr(0x2518)  # '┘'
+BOX_VERT_RIGHT = chr(0x251c)  # '├'
+BOX_HORIZ_DOWN = chr(0x252c)  # '┬'
+
 
 def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None, lastChild=False, singleLineDraw=False):
     """
@@ -315,9 +325,9 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None, 
 
     def MMM(m):
         if singleLineDraw:
-            return ["  ","│ "][m]
+            return ["  ", BOX_VERT + " "][m]
         else:
-            return ["  ","| "][m]
+            return ["  ", "| "][m]
 
     margins = list(map(MMM, margin[:-1]))
 
@@ -326,29 +336,19 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None, 
 
     cross = "+-"
     if singleLineDraw:
-        # unicode line drawing chars:
-        box_horiz = chr(0x2500) # '─'
-        box_vert = chr(0x2510) # '│'
-        box_up_right = chr(0x2514) # '└'
-        box_down_right = chr(0x250c) # '┌'
-        box_down_left = chr(0x2510)  # '┐'
-        box_up_left = chr(0x2518) # '┘'
-        box_vert_right = chr(0x251c) # '├'
-        box_horiz_down = chr(0x252c) # '┬'
-
-        cross = box_vert_right + box_horiz   # sign used to point to the leaf.
+        cross = BOX_VERT_RIGHT + BOX_HORIZ   # sign used to point to the leaf.
         # check if this is the last leaf of the branch
         if lastChild:
             #if this if the last leaf, then terminate:
-            cross = box_up_right + box_horiz  # sign for the last leaf
+            cross = BOX_UP_RIGHT + BOX_HORIZ  # sign for the last leaf
 
         # if this branch has children then split it
         if children:
             # if it's a leaf:
             if prune and rname in visited and children:
-                cross += box_horiz
+                cross += BOX_HORIZ
             else:
-                cross += box_horiz_down
+                cross += BOX_HORIZ_DOWN
 
     if prune and rname in visited and children:
         sys.stdout.write(''.join(tags + margins + [cross,'[', rname, ']']) + '\n')
