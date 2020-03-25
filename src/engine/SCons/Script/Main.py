@@ -430,10 +430,11 @@ class QuestionTask(SCons.Taskmaster.AlwaysTask):
 
 
 class TreePrinter(object):
-    def __init__(self, derived=False, prune=False, status=False):
+    def __init__(self, derived=False, prune=False, status=False, sLineDraw=False):
         self.derived = derived
         self.prune = prune
         self.status = status
+        self.sLineDraw = sLineDraw
     def get_all_children(self, node):
         return node.all_children()
     def get_derived_children(self, node):
@@ -445,7 +446,7 @@ class TreePrinter(object):
         else:
             func = self.get_all_children
         s = self.status and 2 or 0
-        SCons.Util.print_tree(t, func, prune=self.prune, showtags=s)
+        SCons.Util.print_tree(t, func, prune=self.prune, showtags=s, lastChild=True, singleLineDraw=self.sLineDraw)
 
 
 def python_version_string():

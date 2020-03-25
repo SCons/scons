@@ -15,10 +15,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     of locale.getpreferredencoding(False), and varies by platform.
 
   From William Deegan:
-    - Fix broken clang + MSVC 2019 combination by using MSVC configuration logic to 
+    - Fix broken clang + MSVC 2019 combination by using MSVC configuration logic to
       propagate'VCINSTALLDIR' and 'VCToolsInstallDir' which clang tools use to locate
       header files and libraries from MSVC install. (Fixes GH Issue #3480)
-    - Added C:\msys64\mingw64\bin to default mingw and clang windows PATH's.  This 
+    - Added C:\msys64\mingw64\bin to default mingw and clang windows PATH's.  This
       is a reasonable default and also aligns with changes in Appveyor's VS2019 image.
     - Drop support for Python 2.7. SCons will be Python 3.5+ going forward.
     - Change SCons.Node.ValueWithMemo to consider any name passed when memoizing Value() nodes
@@ -45,6 +45,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added new module SCons.Scanner.Python to allow scanning .py files.
     - Added support for explicitly passing a name when creating Value() nodes. This may be useful
       when the value can't be converted to a string or if having a name is otherwise desirable.
+
+  From Iosif Kurazs:
+    - Added a new flag called "linedraw" for the command line argument  "--tree"
+      that instructs scons to use single line drawing characters to draw the dependency tree.
 
   From Andrew Morrow:
     - Fix Issue #3469 - Fixed improper reuse of temporary and compiled files by Configure when changing
@@ -119,7 +123,7 @@ RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
       (e.g. memmove) were incorrectly recognized as not available.
 
   From Jakub Kulik
-    - Fix stacktrace when using SCons with Python 3.5+ and SunOS/Solaris related tools.	
+    - Fix stacktrace when using SCons with Python 3.5+ and SunOS/Solaris related tools.
 
   From Philipp Maierhöfer:
     - Avoid crash with UnicodeDecodeError on Python 3 when a Latex log file in
