@@ -2930,28 +2930,19 @@ include:</para>
 
 <para>In addition to the global functions and methods,
 &scons;
-supports a number of Python variables
+supports a number of variables
 that can be used in SConscript files
-to affect how you want the build to be performed.
-These variables may be accessed from custom Python modules that you
-import into an SConscript file by adding the following
-to the Python module:</para>
-
-<programlisting language="python">
-from SCons.Script import *
-</programlisting>
+to affect how you want the build to be performed.</para>
 
 <variablelist>
   <varlistentry>
   <term>ARGLIST</term>
   <listitem>
-<para>A list
+<para>A list of the
 <emphasis>keyword</emphasis>=<emphasis>value</emphasis>
 arguments specified on the command line.
 Each element in the list is a tuple
-containing the
-(<emphasis>keyword</emphasis>,<emphasis>value</emphasis>)
-of the argument.
+containing the argument.
 The separate
 <emphasis>keyword</emphasis>
 and
@@ -3048,9 +3039,7 @@ if 'special/program' in BUILD_TARGETS:
 </programlisting>
   </listitem>
   </varlistentry>
-</variablelist>
 
-<variablelist>
   <varlistentry>
   <term>COMMAND_LINE_TARGETS</term>
   <listitem>
@@ -3058,10 +3047,10 @@ if 'special/program' in BUILD_TARGETS:
 the command line. If there are command line targets,
 this list will have the same contents as &BUILD_TARGETS;.
 If there are no targets specified on the command line,
-the list is empty. The elemnts of this list are strings.
+the list is empty. The elements of this list are strings.
 This can be used, for example,
 to take specific actions only
-when certain targets is explicitly being built.</para>
+when certain targets are explicitly being built.</para>
 
 <para>Example:</para>
 
@@ -3084,10 +3073,10 @@ that have been specified using the
 function or method. If there are no command line
 targets, this list will have the same contents as
 &BUILD_TARGETS;.
-The elements of the list are nodes,
-so you need to run them through the Python
+Since the elements of the list are nodes,
+you need to call the Python
 <emphasis role="bold">str</emphasis>
-function to get at the path name for each Node.</para>
+function on them to get the path name for each Node.</para>
 
 <para>Example:</para>
 
@@ -3125,6 +3114,15 @@ default target before it's actually been added to the list.</para>
   </listitem>
   </varlistentry>
 </variablelist>
+
+<para>
+These variables may be accessed from custom Python modules that you
+import into an SConscript file by adding the following
+to the Python module:</para>
+
+<programlisting language="python">
+from SCons.Script import *
+</programlisting>
 
 </refsect2>
 
@@ -3221,10 +3219,10 @@ env2 = env.Clone(CC="cl.exe")
 supports
 <emphasis>configure contexts,</emphasis>
 an integrated mechanism similar to the
-various AC_CHECK macros in GNU autoconf
+various <constant>AC_CHECK</constant> macros in GNU &Autoconf;
 for testing for the existence of C header
 files, libraries, etc.
-In contrast to autoconf,
+In contrast to &Autoconf;,
 &scons;
 does not maintain an explicit cache of the tested values,
 but uses its normal dependency tracking to keep the checked values
@@ -3252,37 +3250,38 @@ specifies a directory where the test cases are built.
 Note that this directory is not used for building
 normal targets.
 The default value is the directory
-#/.sconf_temp.
+<filename>#/.sconf_temp.</filename>
 <emphasis>log_file</emphasis>
 specifies a file which collects the output from commands
 that are executed to check for the existence of header files, libraries, etc.
-The default is the file #/config.log.
+The default is the file <filename>#/config.log</filename>.
 If you are using the
-<emphasis role="bold">VariantDir</emphasis>()
-method,
+&VariantDir; function,
 you may want to specify a subdirectory under your variant directory.
 <emphasis>config_h</emphasis>
 specifies a C header file where the results of tests
-will be written, e.g. #define HAVE_STDIO_H, #define HAVE_LIBM, etc.
+will be written, e.g.
+<literal>#define HAVE_STDIO_H</literal>,
+<literal>#define HAVE_LIBM</literal>, etc.
 The default is to not write a
-<emphasis role="bold">config.h</emphasis>
+<filename>config.h</filename>
 file.
 You can specify the same
-<emphasis role="bold">config.h</emphasis>
-file in multiple calls to Configure,
+<filename>config.h</filename>
+file in multiple calls to &Configure;,
 in which case &SCons;
 will concatenate all results in the specified file.
 Note that &SCons;
 uses its normal dependency checking
 to decide if it's necessary to rebuild
 the specified
-<emphasis>config_h</emphasis>
+<filename>config_h</filename>
 file.
 This means that the file is not necessarily re-built each
 time scons is run,
 but is only rebuilt if its contents will have changed
 and some target that depends on the
-<emphasis>config_h</emphasis>
+<filename>config_h</filename>
 file is being built.</para>
 
 <para>The optional
@@ -3291,9 +3290,9 @@ and
 <emphasis role="bold">help</emphasis>
 arguments can be used to suppress execution of the configuration
 tests when the
-<option>-c/--clean</option>
+<option>-c</option>/<option>--clean</option>
 or
-<option>-H/-h/--help</option>
+<option>-H</option>/<option>-h</option>/<option>--help</option>
 options are used, respectively.
 The default behavior is always to execute
 configure context tests,
@@ -3329,7 +3328,7 @@ with this configuration context.
 However, you can create a new
 Configure
 context to perform additional checks.
-Only one context should be active at a time.</para>
+Only one context may be active at a time.</para>
 
 <para>The following Checks are predefined.
 (This list will likely grow larger as time
@@ -3943,8 +3942,7 @@ For example, libraries needed for the build may be in non-standard
 locations, or site-specific compiler options may need to be passed to the
 compiler.
 &scons;
-provides a
-<emphasis role="bold">Variables</emphasis>
+provides a <firstterm>&Variables;</firstterm>
 object to support overriding &consvars;
 on the command line:</para>
 
@@ -3952,23 +3950,31 @@ on the command line:</para>
 <userinput>scons VARIABLE=foo</userinput>
 </screen>
 
-<para>The variable values can also be specified in a text-based SConscript file.
-To create a Variables object, call the Variables() function:</para>
+<para>The variable values can also be specified in an SConscript file.
+To obtain the object for manipulating values,
+call the &Variables; function:</para>
 
 <variablelist>
   <varlistentry>
-  <term>Variables([<emphasis>files</emphasis>], [<emphasis>args</emphasis>])</term>
+  <term>Variables([<emphasis>files</emphasis>[, <emphasis>args</emphasis>]])</term>
   <listitem>
-<para>This creates a Variables object that will read &consvars; from
-the file or list of filenames specified in
-<emphasis>files</emphasis>.
+<para>If <emphasis>files</emphasis> is a file or
+list of files, those are executed as Python scripts,
+and the values of (global) Python variables set in
+those files are added as &consvars; in the
+default &consenv;.
 If no files are specified,
 or the
 <emphasis>files</emphasis>
 argument is
 <emphasis role="bold">None</emphasis>,
-then no files will be read.
-The optional argument
+then no files will be read. Example file content:</para>
+
+<programlisting language="python">
+CC = 'my_cc'
+</programlisting>
+
+<para>The optional argument
 <emphasis>args</emphasis>
 is a dictionary of
 values that will override anything read from the specified files;
@@ -3984,10 +3990,13 @@ vars = Variables('overrides.py', ARGUMENTS)
 vars = Variables(None, {FOO:'expansion', BAR:7})
 </programlisting>
 
-<para>Variables objects have the following methods:</para>
-
   </listitem>
   </varlistentry>
+  </variablelist>
+
+<para>Variables objects have the following methods:</para>
+
+  <variablelist>
   <varlistentry>
   <term>Add(<emphasis>key</emphasis>, [<emphasis>help</emphasis>, <emphasis>default</emphasis>, <emphasis>validator</emphasis>, <emphasis>converter</emphasis>])</term>
   <listitem>
@@ -4024,7 +4033,7 @@ and then added to the environment.</para>
 <para>Examples:</para>
 
 <programlisting language="python">
-vars.Add('CC', 'The C compiler')
+vars.Add('CC', help='The C compiler')
 
 def validate_color(key, val, env):
     if not val in ['red', 'blue', 'yellow']:
@@ -4035,7 +4044,7 @@ vars.Add('COLOR', validator=valid_color)
   </varlistentry>
 
   <varlistentry>
-  <term>AddVariables(<emphasis>list</emphasis>)</term>
+  <term>vars.AddVariables(<emphasis>list</emphasis>)</term>
   <listitem>
 <para>A wrapper script that adds
 multiple customizable &consvars;
@@ -4060,7 +4069,7 @@ opt.AddVariables(
   </varlistentry>
 
   <varlistentry>
-  <term>Update(<emphasis>env</emphasis>, [<emphasis>args</emphasis>])</term>
+  <term>vars.Update(<emphasis>env</emphasis>, [<emphasis>args</emphasis>])</term>
   <listitem>
 <para>This updates a &consenv;
 <emphasis>env</emphasis>
@@ -4083,23 +4092,9 @@ env = Environment(variables=vars)
 
   </listitem>
   </varlistentry>
-</variablelist>
 
-<para>The text file(s) that were specified
-when the &Variables; object was created
-are executed as Python scripts,
-and the values of (global) Python variables set in the file
-are added to the &consenv;.</para>
-
-<para>Example:</para>
-
-<programlisting language="python">
-CC = 'my_cc'
-</programlisting>
-
-<variablelist>
   <varlistentry>
-  <term>UnknownVariables(<emphasis>)</emphasis></term>
+  <term>vars.UnknownVariables(<emphasis>)</emphasis></term>
   <listitem>
 <para>Returns a dictionary containing any
 variables that were specified
@@ -4118,7 +4113,7 @@ for key, value in vars.UnknownVariables():
   </varlistentry>
 
   <varlistentry>
-  <term>Save(<emphasis>filename</emphasis>, <emphasis>env</emphasis>)</term>
+  <term>vars.Save(<emphasis>filename</emphasis>, <emphasis>env</emphasis>)</term>
   <listitem>
 <para>This saves the currently set variables into a script file named
 <emphasis>filename</emphasis>
@@ -4138,7 +4133,7 @@ vars.Save('variables.cache', env)
   </varlistentry>
 
   <varlistentry>
-  <term>GenerateHelpText(<emphasis>env</emphasis>, [<emphasis>sort</emphasis>])</term>
+  <term>vars.GenerateHelpText(<emphasis>env</emphasis>, [<emphasis>sort</emphasis>])</term>
   <listitem>
 <para>This generates help text documenting the customizable construction
 variables suitable to passing in to the Help() function.
@@ -4196,15 +4191,18 @@ def my_format(env, opt, help, default, actual):
     return fmt % (opt, default. actual, help)
 vars.FormatVariableHelpText = my_format
 </programlisting>
+  </listitem>
+  </varlistentry>
+  </variablelist>
+
 
 <para>To make it more convenient to work with customizable Variables,
 &scons;
 provides a number of functions
 that make it easy to set up
 various types of Variables:</para>
-  </listitem>
-  </varlistentry>
 
+  <variablelist>
   <varlistentry>
   <term>BoolVariable(<emphasis>key</emphasis>, <emphasis>help</emphasis>, <emphasis>default</emphasis>)</term>
   <listitem>
@@ -4390,27 +4388,54 @@ that will be called to
 verify that the specified path
 is acceptable.
 SCons supplies the
-following ready-made validators:
-<emphasis role="bold">PathVariable.PathExists</emphasis>
-(the default),
-which verifies that the specified path exists;
-<emphasis role="bold">PathVariable.PathIsFile</emphasis>,
-which verifies that the specified path is an existing file;
-<emphasis role="bold">PathVariable.PathIsDir</emphasis>,
-which verifies that the specified path is an existing directory;
-<emphasis role="bold">PathVariable.PathIsDirCreate</emphasis>,
-which verifies that the specified path is a directory
-and will create the specified directory if the path does not exist;
-and
-<emphasis role="bold">PathVariable.PathAccept</emphasis>,
-which simply accepts the specific path name argument without validation,
-and which is suitable if you want your users
+following ready-made validators:</para>
+
+  <variablelist>  <!-- nested list -->
+  <varlistentry>
+    <term>PathVariable.PathExists</term>
+    <listitem>
+<para>Verify that the specified path exists (the default).</para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>PathVariable.PathIsFile</term>
+    <listitem>
+<para>Verify that the specified path is an existing file.</para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>PathVariable.PathIsDir</term>
+    <listitem>
+<para>Verify that the specified path is an existing directory.</para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>PathVariable.PathIsDirCreate</term>
+    <listitem>
+<para>Verify that the specified path is a directory
+and will create the specified directory if the path does not exist.</para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>PathVariable.PathAccept</term>
+    <listitem>
+<para>Simply accept the specific path name argument without validation,
+suitable for when you want your users
 to be able to specify a directory path that will be
-created as part of the build process, for example.
+created as part of the build process, for example.</para>
+    </listitem>
+  </varlistentry>
+  </variablelist>  <!-- end nested list -->
+
+<para>
 You may supply your own
 <emphasis>validator</emphasis>
 function,
-which must take three arguments
+which must accept three arguments
 (<emphasis>key</emphasis>,
 the name of the variable to be set;
 <emphasis>val</emphasis>,
@@ -4426,28 +4451,44 @@ if the specified value is not acceptable.</para>
 <para>These functions make it
 convenient to create a number
 of variables with consistent behavior
-in a single call to the
-<emphasis role="bold">AddVariables</emphasis>
+in a single call to the &AddVariables;
 method:</para>
 
 <programlisting language="python">
 vars.AddVariables(
-    BoolVariable("warnings", "compilation with -Wall and similar", 1),
+    BoolVariable(
+        "warnings",
+        help="compilation with -Wall and similar",
+        default=1,
+    ),
     EnumVariable(
         "debug",
-        "debug output and symbols",
-        "no",
+        help="debug output and symbols",
+        default="no",
         allowed_values=("yes", "no", "full"),
         map={},
         ignorecase=0,  # case sensitive
     ),
     ListVariable(
-        "shared", "libraries to build as shared libraries", "all", names=list_of_libs
+        "shared",
+        help="libraries to build as shared libraries",
+        default="all",
+        names=list_of_libs,
     ),
-    PackageVariable("x11", "use X11 installed here (yes = search some places)", "yes"),
-    PathVariable("qtdir", "where the root of Qt is installed", qtdir),
+    PackageVariable(
+        "x11",
+        help="use X11 installed here (yes = search some places)",
+        default="yes",
+    ),
     PathVariable(
-        "foopath", "where the foo library is installed", foopath, PathVariable.PathIsDir
+        "qtdir",
+        help="where the root of Qt is installed",
+        default=qtdir),
+    PathVariable(
+        "foopath",
+        help="where the foo library is installed",
+        default=foopath,
+        validator=PathVariable.PathIsDir,
     ),
 )
 </programlisting>
@@ -4569,7 +4610,7 @@ directory as the one the Node represents:
 
 <variablelist>
   <varlistentry>
-  <term><replaceable>d</replaceable>.Dir(<replaceable>name</replaceable>)</term>
+  <term><replaceable>f</replaceable>.Dir(<replaceable>name</replaceable>)</term>
   <listitem>
 <para>Returns a directory named
 <replaceable>name</replaceable>
@@ -4579,7 +4620,7 @@ within the parent directory of
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>d</replaceable>.File(<replaceable>name</replaceable>)</term>
+  <term><replaceable>f</replaceable>.File(<replaceable>name</replaceable>)</term>
   <listitem>
 <para>Returns a file named
 <replaceable>name</replaceable>
@@ -4589,7 +4630,7 @@ within the parent directory of
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>d</replaceable>.Entry(<replaceable>name</replaceable>)</term>
+  <term><replaceable>f</replaceable>.Entry(<replaceable>name</replaceable>)</term>
   <listitem>
 <para>Returns an unresolved Node named
 <replaceable>name</replaceable>
@@ -5324,7 +5365,7 @@ Action([['cc', '-c', '-DWHITE SPACE', '-o', '$TARGET', '$SOURCES']])
   <listitem>
 <para>If the first argument is a Python function,
 a function Action is returned.
-The Python function must take three keyword arguments,
+The Python function must accept three keyword arguments,
 <emphasis role="bold">target</emphasis>
 (a Node object representing the target file),
 <emphasis role="bold">source</emphasis>
@@ -5387,7 +5428,7 @@ The function may also be specified by the
 <emphasis>strfunction</emphasis>=
 keyword argument.
 Like a function to build a file,
-this function must take three keyword arguments:
+this function must accept three keyword arguments:
 <emphasis role="bold">target</emphasis>
 (a Node object representing the target file),
 <emphasis role="bold">source</emphasis>
