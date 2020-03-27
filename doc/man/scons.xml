@@ -3216,8 +3216,8 @@ env2 = env.Clone(CC="cl.exe")
 <title>Configure Contexts</title>
 
 <para>&scons;
-supports
-<emphasis>configure contexts,</emphasis>
+supports a
+<firstterm>configure context</firstterm>,
 an integrated mechanism similar to the
 various <constant>AC_CHECK</constant> macros in GNU &Autoconf;
 for testing for the existence of C header
@@ -3230,27 +3230,35 @@ up to date. However, users may override this behaviour with the
 <option>--config</option>
 command line option.</para>
 
-<para>The following methods can be used to perform checks:</para>
+<para>To create a configure context:</para>
 
 <variablelist>
   <varlistentry>
   <term>Configure(<emphasis>env</emphasis>, [<emphasis>custom_tests</emphasis>, <emphasis>conf_dir</emphasis>, <emphasis>log_file</emphasis>, <emphasis>config_h</emphasis>, <emphasis>clean</emphasis>, <emphasis>help])</emphasis></term>
-  <term>env.Configure([<emphasis>custom_tests</emphasis>, <emphasis>conf_dir</emphasis>, <emphasis>log_file</emphasis>, <emphasis>config_h</emphasis>, <emphasis>clean</emphasis>, <emphasis>help])</emphasis></term>
+  <term><replaceable>env</replaceable>.Configure([<emphasis>custom_tests</emphasis>, <emphasis>conf_dir</emphasis>, <emphasis>log_file</emphasis>, <emphasis>config_h</emphasis>, <emphasis>clean</emphasis>, <emphasis>help])</emphasis></term>
   <listitem>
-<para>This creates a configure context, which can be used to perform checks.
-<emphasis>env</emphasis>
+<para>Create a configure context, which tracks information
+discovered while running tests. The context includes a
+&consenv;, which is used when running the tests and
+which is updated with the check results.
+When the context is complete, the (possibly modified)
+environment is returned). Only one context may be active
+at a time (since 4.0, &scons; will raise an exception
+if this rule is not followed), but a new context can be created
+after the active one is completed.</para>
+<para>
+The required <emphasis>env</emphasis> argument
 specifies the environment for building the tests.
-This environment may be modified when performing checks.
 <emphasis>custom_tests</emphasis>
-is a dictionary containing custom tests.
-See also the section about custom tests below.
+is a dictionary containing custom tests
+(see the section on custom tests below).
 By default, no custom tests are added to the configure context.
 <emphasis>conf_dir</emphasis>
 specifies a directory where the test cases are built.
 Note that this directory is not used for building
 normal targets.
 The default value is the directory
-<filename>#/.sconf_temp.</filename>
+<filename>#/.sconf_temp</filename>.
 <emphasis>log_file</emphasis>
 specifies a file which collects the output from commands
 that are executed to check for the existence of header files, libraries, etc.
@@ -3309,36 +3317,48 @@ arguments
 to avoid unnecessary test execution.</para>
   </listitem>
   </varlistentry>
-</variablelist>
 
-<para>A created
-<emphasis role="bold">Configure</emphasis>
-instance has the following associated methods:</para>
-
-<variablelist>
   <varlistentry>
   <term>SConf.Finish(<emphasis>context</emphasis>)</term>
-  <term><emphasis>sconf</emphasis>.Finish()</term>
+  <term><replaceable>context</replaceable>.Finish()</term>
   <listitem>
-<para>This method should be called after configuration is done.
-It returns the environment as modified
-by the configuration checks performed.
+<para>This method must be called after configuration is done.
+Though required, this is not enforced except
+if &Configure; is called when there still an active context,
+in which case an exception is raised.
+&Finish; returns the environment as modified
+during the course of running the configuration checks.
 After this method is called, no further checks can be performed
 with this configuration context.
 However, you can create a new
-Configure
-context to perform additional checks.
-Only one context may be active at a time.</para>
-
-<para>The following Checks are predefined.
-(This list will likely grow larger as time
-goes by and developers contribute new useful tests.)</para>
+configure context to perform additional checks.
+</para>
   </listitem>
   </varlistentry>
+</variablelist>
 
+<para>Example of a typical Configure usage:</para>
+
+<programlisting language="python">
+env = Environment()
+conf = Configure(env)
+if not conf.CheckCHeader("math.h"):
+    print("We really need math.h!")
+    Exit(1)
+if conf.CheckLibWithHeader("qt", "qapp.h", "c++", "QApplication qapp(0,0);"):
+    # do stuff for qt - usage, e.g.
+    conf.env.Append(CPPFLAGS="-DWITH_QT")
+env = conf.Finish()
+</programlisting>
+
+<para>A configure context
+has the following predefined methods which
+can be used to perform checks:</para>
+
+<variablelist>
   <varlistentry>
   <term>SConf.CheckHeader(<emphasis>context</emphasis>, <emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>, <emphasis>language</emphasis>])</term>
-  <term><emphasis>sconf</emphasis>.CheckHeader(<emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>, <emphasis>language</emphasis>])</term>
+  <term><replaceable>context</replaceable>.CheckHeader(<emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>, <emphasis>language</emphasis>])</term>
   <listitem>
 <para>Checks if
 <emphasis>header</emphasis>
@@ -3349,7 +3369,7 @@ in which case the last item in the list
 is the header file to be checked,
 and the previous list items are
 header files whose
-<emphasis role="bold">#include</emphasis>
+<literal>#include</literal>
 lines should precede the
 header line being checked for.
 The optional argument
@@ -3371,10 +3391,10 @@ Returns 1 on success and 0 on failure.</para>
 
   <varlistentry>
   <term>SConf.CheckCHeader(<emphasis>context</emphasis>, <emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>])</term>
-  <term><emphasis>sconf</emphasis>.CheckCHeader(<emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>])</term>
+  <term><replaceable>context</replaceable>.CheckCHeader(<emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>])</term>
   <listitem>
 <para>This is a wrapper around
-<emphasis role="bold">SConf.CheckHeader</emphasis>
+<methodname>SConf.CheckHeader</methodname>
 which checks if
 <emphasis>header</emphasis>
 is usable in the C language.
@@ -3384,7 +3404,7 @@ in which case the last item in the list
 is the header file to be checked,
 and the previous list items are
 header files whose
-<emphasis role="bold">#include</emphasis>
+<literal>#include</literal>
 lines should precede the
 header line being checked for.
 The optional argument
@@ -3399,10 +3419,10 @@ Returns 1 on success and 0 on failure.</para>
 
   <varlistentry>
   <term>SConf.CheckCXXHeader(<emphasis>context</emphasis>, <emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>])</term>
-  <term><emphasis>sconf</emphasis>.CheckCXXHeader(<emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>])</term>
+  <term><replaceable>context</replaceable>.CheckCXXHeader(<emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>])</term>
   <listitem>
 <para>This is a wrapper around
-<emphasis role="bold">SConf.CheckHeader</emphasis>
+<methodname>SConf.CheckHeader</methodname>
 which checks if
 <emphasis>header</emphasis>
 is usable in the C++ language.
@@ -3412,7 +3432,7 @@ in which case the last item in the list
 is the header file to be checked,
 and the previous list items are
 header files whose
-<emphasis role="bold">#include</emphasis>
+<literal>#include</literal>
 lines should precede the
 header line being checked for.
 The optional argument
@@ -3427,7 +3447,7 @@ Returns 1 on success and 0 on failure.</para>
 
   <varlistentry>
   <term>SConf.CheckFunc(<emphasis>context,</emphasis>, <emphasis>function_name</emphasis>, [<emphasis>header</emphasis>, <emphasis>language</emphasis>])</term>
-  <term><emphasis>sconf</emphasis>.CheckFunc(<emphasis>function_name</emphasis>, [<emphasis>header</emphasis>, <emphasis>language</emphasis>])</term>
+  <term><replaceable>context</replaceable>.CheckFunc(<emphasis>function_name</emphasis>, [<emphasis>header</emphasis>, <emphasis>language</emphasis>])</term>
   <listitem>
 <para>Checks if the specified
 C or C++ function is available.
@@ -3463,7 +3483,7 @@ the default is "C".</para>
 
   <varlistentry>
   <term>SConf.CheckLib(<emphasis>context</emphasis>, [<emphasis>library</emphasis>, <emphasis>symbol</emphasis>, <emphasis>header</emphasis>, <emphasis>language</emphasis>, <emphasis>autoadd=1</emphasis>])</term>
-  <term><emphasis>sconf</emphasis>.CheckLib([<emphasis>library</emphasis>, <emphasis>symbol</emphasis>, <emphasis>header</emphasis>, <emphasis>language</emphasis>, <emphasis>autoadd=1</emphasis>])</term>
+  <term><replaceable>context</replaceable>.CheckLib([<emphasis>library</emphasis>, <emphasis>symbol</emphasis>, <emphasis>header</emphasis>, <emphasis>language</emphasis>, <emphasis>autoadd=1</emphasis>])</term>
   <listitem>
 <para>Checks if
 <emphasis>library</emphasis>
@@ -3488,7 +3508,7 @@ If
 is not set or is
 <emphasis role="bold">None</emphasis>,
 then
-<emphasis role="bold">SConf.CheckLib</emphasis>()
+<methodname>SConf.CheckLib</methodname>()
 just checks if
 you can link against the specified
 <emphasis>library</emphasis>.
@@ -3509,11 +3529,11 @@ This method returns 1 on success and 0 on error.</para>
 
   <varlistentry>
   <term>SConf.CheckLibWithHeader(<emphasis>context</emphasis>, <emphasis>library</emphasis>, <emphasis>header</emphasis>, <emphasis>language</emphasis>, [<emphasis>call</emphasis>, <emphasis>autoadd</emphasis>])</term>
-  <term><emphasis>sconf</emphasis>.CheckLibWithHeader(<emphasis>library</emphasis>, <emphasis>header</emphasis>, <emphasis>language</emphasis>, [<emphasis>call</emphasis>, <emphasis>autoadd</emphasis>])</term>
+  <term><replaceable>context</replaceable>.CheckLibWithHeader(<emphasis>library</emphasis>, <emphasis>header</emphasis>, <emphasis>language</emphasis>, [<emphasis>call</emphasis>, <emphasis>autoadd</emphasis>])</term>
   <listitem>
 
 <para>In contrast to the
-SConf.CheckLib
+<methodname>SConf.CheckLib</methodname>
 call, this call provides a more sophisticated way to check against libraries.
 Again,
 <emphasis>library</emphasis>
@@ -3526,7 +3546,7 @@ in which case the last item in the list
 is the header file to be checked,
 and the previous list items are
 header files whose
-<emphasis role="bold">#include</emphasis>
+<literal>#include</literal>
 lines should precede the
 header line being checked for.
 <emphasis>language</emphasis>
@@ -3547,7 +3567,7 @@ succeeds). This method returns 1 on success and 0 on error.</para>
 
   <varlistentry>
   <term>SConf.CheckType(<emphasis>context</emphasis>, <emphasis>type_name</emphasis>, [<emphasis>includes</emphasis>, <emphasis>language</emphasis>])</term>
-  <term><emphasis>sconf</emphasis>.CheckType(<emphasis>type_name</emphasis>, [<emphasis>includes</emphasis>, <emphasis>language</emphasis>])</term>
+  <term><replaceable>context</replaceable>.CheckType(<emphasis>type_name</emphasis>, [<emphasis>includes</emphasis>, <emphasis>language</emphasis>])</term>
   <listitem>
 <para>Checks for the existence of a type defined by
 <emphasis role="bold">typedef</emphasis>.
@@ -3555,7 +3575,7 @@ succeeds). This method returns 1 on success and 0 on error.</para>
 specifies the typedef name to check for.
 <emphasis>includes</emphasis>
 is a string containing one or more
-<emphasis role="bold">#include</emphasis>
+<literal>#include</literal>
 lines that will be inserted into the program
 that will be run to test for the existence of the type.
 The optional
@@ -3576,7 +3596,8 @@ sconf.CheckType('foo_type', '#include "my_types.h"', 'C++')
   </varlistentry>
 
   <varlistentry>
-  <term>Configure.CheckCC(<emphasis>self</emphasis>)</term>
+  <term>SConf.CheckCC(<emphasis>self</emphasis>)</term>
+  <term><replaceable>context</replaceable>.CheckCC(<emphasis>self</emphasis>)</term>
   <listitem>
 <para>Checks whether the C compiler (as defined by the CC &consvar;) works
 by trying to compile a small source file.</para>
@@ -3591,7 +3612,8 @@ not.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>Configure.CheckCXX(<emphasis>self</emphasis>)</term>
+  <term>SConf.CheckCXX(<emphasis>self</emphasis>)</term>
+  <term><replaceable>context</replaceable>.CheckCXX(<emphasis>self</emphasis>)</term>
   <listitem>
 <para>Checks whether the C++ compiler (as defined by the CXX &consvar;)
 works by trying to compile a small source file. By default, SCons only detects
@@ -3604,7 +3626,8 @@ works or not.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>Configure.CheckSHCC(<emphasis>self</emphasis>)</term>
+  <term>SConf.CheckSHCC(<emphasis>self</emphasis>)</term>
+  <term><replaceable>context</replaceable>.CheckSHCC(<emphasis>self</emphasis>)</term>
   <listitem>
 <para>Checks whether the C compiler (as defined by the SHCC &consvar;) works
 by trying to compile a small source file. By default, SCons only detects if
@@ -3618,7 +3641,8 @@ library, only that the compilation (not link) succeeds.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>Configure.CheckSHCXX(<emphasis>self</emphasis>)</term>
+  <term>SConf.CheckSHCXX(<emphasis>self</emphasis>)</term>
+  <term><replaceable>context</replaceable>.CheckSHCXX(<emphasis>self</emphasis>)</term>
   <listitem>
 <para>Checks whether the C++ compiler (as defined by the SHCXX &consvar;)
 works by trying to compile a small source file. By default, SCons only detects
@@ -3630,26 +3654,10 @@ works or not. This does not check whether the object code can be used to build
 a shared library, only that the compilation (not link) succeeds.</para>
   </listitem>
   </varlistentry>
-</variablelist>
-<para>Example of a typical Configure usage:</para>
 
-<programlisting language="python">
-env = Environment()
-conf = Configure( env )
-if not conf.CheckCHeader( 'math.h' ):
-    print('We really need math.h!')
-    Exit(1)
-if conf.CheckLibWithHeader( 'qt', 'qapp.h', 'c++',
-        'QApplication qapp(0,0);' ):
-    # do stuff for qt - usage, e.g.
-    conf.env.Append( CPPFLAGS = '-DWITH_QT' )
-env = conf.Finish()
-</programlisting>
-
-<variablelist>
   <varlistentry>
   <term>SConf.CheckTypeSize(<emphasis>context</emphasis>, <emphasis>type_name</emphasis>, [<emphasis>header</emphasis>, <emphasis>language</emphasis>, <emphasis>expect</emphasis>])</term>
-  <term><emphasis>sconf</emphasis>.CheckTypeSize(<emphasis>type_name</emphasis>, [<emphasis>header</emphasis>, <emphasis>language</emphasis>, <emphasis>expect</emphasis>])</term>
+  <term><replaceable>context</replaceable>.CheckTypeSize(<emphasis>type_name</emphasis>, [<emphasis>header</emphasis>, <emphasis>language</emphasis>, <emphasis>expect</emphasis>])</term>
   <listitem>
 <para>Checks for the size of a type defined by
 <emphasis role="bold">typedef</emphasis>.
@@ -3681,7 +3689,7 @@ given in type_name has the expected size (in bytes).
 For example,</para>
 
 <programlisting language="python">
-CheckTypeSize('short', expect = 2)
+CheckTypeSize('short', expect=2)
 </programlisting>
 
 <para>will return success only if short is two bytes.</para>
@@ -3690,7 +3698,7 @@ CheckTypeSize('short', expect = 2)
 
   <varlistentry>
   <term>SConf.CheckDeclaration(<emphasis>context</emphasis>, <emphasis>symbol</emphasis>, [<emphasis>includes</emphasis>, <emphasis>language</emphasis>])</term>
-  <term><emphasis>sconf</emphasis>.CheckDeclaration(<emphasis>symbol</emphasis>, [<emphasis>includes</emphasis>, <emphasis>language</emphasis>])</term>
+  <term><replaceable>context</replaceable>.CheckDeclaration(<emphasis>symbol</emphasis>, [<emphasis>includes</emphasis>, <emphasis>language</emphasis>])</term>
   <listitem>
 <para>Checks if the specified
 <emphasis>symbol</emphasis>
@@ -3713,7 +3721,7 @@ the default is "C".</para>
 
   <varlistentry>
   <term>SConf.Define(<emphasis>context</emphasis>, <emphasis>symbol</emphasis>, [<emphasis>value</emphasis>, <emphasis>comment</emphasis>])</term>
-  <term><emphasis>sconf</emphasis>.Define(<emphasis>symbol</emphasis>, [<emphasis>value</emphasis>, <emphasis>comment</emphasis>])</term>
+  <term><replaceable>context</replaceable>.Define(<emphasis>symbol</emphasis>, [<emphasis>value</emphasis>, <emphasis>comment</emphasis>])</term>
   <listitem>
 <para>This function does not check for anything, but defines a
 preprocessor symbol that will be added to the configuration header file.
@@ -3724,23 +3732,20 @@ with the optional
 <emphasis role="bold">value</emphasis>
 and the optional comment
 <emphasis role="bold">comment</emphasis>.</para>
-  </listitem>
-  </varlistentry>
-</variablelist>
 
-<para>Examples:</para>
+<para>Define Examples:</para>
 
 <programlisting language="python">
 env = Environment()
-conf = Configure( env )
+conf = Configure(env)
 
 # Puts the following line in the config header file:
 #    #define A_SYMBOL
-conf.Define('A_SYMBOL')
+conf.Define("A_SYMBOL")
 
 # Puts the following line in the config header file:
 #    #define A_SYMBOL 1
-conf.Define('A_SYMBOL', 1)
+conf.Define("A_SYMBOL", 1)
 </programlisting>
 
 
@@ -3748,15 +3753,15 @@ conf.Define('A_SYMBOL', 1)
 
 <programlisting language="python">
 env = Environment()
-conf = Configure( env )
+conf = Configure(env)
 
 # Puts the following line in the config header file:
 #    #define A_SYMBOL YA
-conf.Define('A_SYMBOL', "YA")
+conf.Define("A_SYMBOL", "YA")
 
 # Puts the following line in the config header file:
 #    #define A_SYMBOL "YA"
-conf.Define('A_SYMBOL', '"YA"')
+conf.Define("A_SYMBOL", '"YA"')
 </programlisting>
 
 
@@ -3764,13 +3769,17 @@ conf.Define('A_SYMBOL', '"YA"')
 
 <programlisting language="python">
 env = Environment()
-conf = Configure( env )
+conf = Configure(env)
 
 # Puts the following lines in the config header file:
 #    /* Set to 1 if you have a symbol */
 #    #define A_SYMBOL 1
-conf.Define('A_SYMBOL', 1, 'Set to 1 if you have a symbol')
+conf.Define("A_SYMBOL", 1, "Set to 1 if you have a symbol")
 </programlisting>
+
+  </listitem>
+  </varlistentry>
+</variablelist>
 
 <para>You can define your own custom checks.
 in addition to the predefined checks.
@@ -3798,7 +3807,7 @@ will be displayed to the user, e.g. 'Checking for library X...'</para>
   </varlistentry>
 
   <varlistentry>
-  <term>CheckContext.Result(<emphasis>self,</emphasis>, <emphasis>res</emphasis>)</term>
+  <term>CheckContext.Result(<emphasis>self</emphasis>, <emphasis>res</emphasis>)</term>
   <listitem>
 
 <para>Usually called after the check is done.
