@@ -86,18 +86,19 @@ on a project that has packaging activated.
 </para>
 
 <example_commands>
-env = Environment(tools=['default', 'packaging'])
-env.Install('/bin/', 'my_program')
-env.Package( NAME           = 'foo',
-             VERSION        = '1.2.3',
-             PACKAGEVERSION = 0,
-             PACKAGETYPE    = 'rpm',
-             LICENSE        = 'gpl',
-             SUMMARY        = 'balalalalal',
-             DESCRIPTION    = 'this should be really really long',
-             X_RPM_GROUP    = 'Application/fu',
-             SOURCE_URL     = 'http://foo.org/foo-1.2.3.tar.gz'
-        )
+env = Environment(tools=["default", "packaging"])
+env.Install("/bin/", "my_program")
+env.Package(
+    NAME="foo",
+    VERSION="1.2.3",
+    PACKAGEVERSION=0,
+    PACKAGETYPE="rpm",
+    LICENSE="gpl",
+    SUMMARY="balalalalal",
+    DESCRIPTION="this should be really really long",
+    X_RPM_GROUP="Application/fu",
+    SOURCE_URL="http://foo.org/foo-1.2.3.tar.gz",
+)
 </example_commands>
 </summary>
 </builder>
@@ -503,13 +504,14 @@ Added in version 3.1.
 
 <example_commands>
 env.Package(
-    NAME             = 'foo',
-...
-    X_RPM_EXTRADEFS = [
-        '%define _unpackaged_files_terminate_build 0'
-        '%define _missing_doc_files_terminate_build 0'
+    NAME="foo",
+    ...
+    X_RPM_EXTRADEFS=[
+        "%define _unpackaged_files_terminate_build 0"
+        "%define _missing_doc_files_terminate_build 0"
     ],
-... )
+    ...
+)
 </example_commands>
 
 </summary>
@@ -862,10 +864,10 @@ Examples:
 <example_commands>
 # makes sure the built library will be installed with 0o644 file
 # access mode
-Tag( Library( 'lib.c' ), UNIX_ATTR="0o644" )
+Tag(Library("lib.c"), UNIX_ATTR="0o644")
 
 # marks file2.txt to be a documentation file
-Tag( 'file2.txt', DOC )
+Tag("file2.txt", DOC)
 </example_commands>
 </summary>
 </scons_function>
