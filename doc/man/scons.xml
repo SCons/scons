@@ -2930,28 +2930,19 @@ include:</para>
 
 <para>In addition to the global functions and methods,
 &scons;
-supports a number of Python variables
+supports a number of variables
 that can be used in SConscript files
-to affect how you want the build to be performed.
-These variables may be accessed from custom Python modules that you
-import into an SConscript file by adding the following
-to the Python module:</para>
-
-<programlisting language="python">
-from SCons.Script import *
-</programlisting>
+to affect how you want the build to be performed.</para>
 
 <variablelist>
   <varlistentry>
   <term>ARGLIST</term>
   <listitem>
-<para>A list
+<para>A list of the
 <emphasis>keyword</emphasis>=<emphasis>value</emphasis>
 arguments specified on the command line.
 Each element in the list is a tuple
-containing the
-(<emphasis>keyword</emphasis>,<emphasis>value</emphasis>)
-of the argument.
+containing the argument.
 The separate
 <emphasis>keyword</emphasis>
 and
@@ -3048,9 +3039,7 @@ if 'special/program' in BUILD_TARGETS:
 </programlisting>
   </listitem>
   </varlistentry>
-</variablelist>
 
-<variablelist>
   <varlistentry>
   <term>COMMAND_LINE_TARGETS</term>
   <listitem>
@@ -3058,10 +3047,10 @@ if 'special/program' in BUILD_TARGETS:
 the command line. If there are command line targets,
 this list will have the same contents as &BUILD_TARGETS;.
 If there are no targets specified on the command line,
-the list is empty. The elemnts of this list are strings.
+the list is empty. The elements of this list are strings.
 This can be used, for example,
 to take specific actions only
-when certain targets is explicitly being built.</para>
+when certain targets are explicitly being built.</para>
 
 <para>Example:</para>
 
@@ -3084,10 +3073,10 @@ that have been specified using the
 function or method. If there are no command line
 targets, this list will have the same contents as
 &BUILD_TARGETS;.
-The elements of the list are nodes,
-so you need to run them through the Python
+Since the elements of the list are nodes,
+you need to call the Python
 <emphasis role="bold">str</emphasis>
-function to get at the path name for each Node.</para>
+function on them to get the path name for each Node.</para>
 
 <para>Example:</para>
 
@@ -3125,6 +3114,15 @@ default target before it's actually been added to the list.</para>
   </listitem>
   </varlistentry>
 </variablelist>
+
+<para>
+These variables may be accessed from custom Python modules that you
+import into an SConscript file by adding the following
+to the Python module:</para>
+
+<programlisting language="python">
+from SCons.Script import *
+</programlisting>
 
 </refsect2>
 
@@ -3218,13 +3216,13 @@ env2 = env.Clone(CC="cl.exe")
 <title>Configure Contexts</title>
 
 <para>&scons;
-supports
-<emphasis>configure contexts,</emphasis>
+supports a
+<firstterm>configure context</firstterm>,
 an integrated mechanism similar to the
-various AC_CHECK macros in GNU autoconf
+various <constant>AC_CHECK</constant> macros in GNU &Autoconf;
 for testing for the existence of C header
 files, libraries, etc.
-In contrast to autoconf,
+In contrast to &Autoconf;,
 &scons;
 does not maintain an explicit cache of the tested values,
 but uses its normal dependency tracking to keep the checked values
@@ -3232,57 +3230,66 @@ up to date. However, users may override this behaviour with the
 <option>--config</option>
 command line option.</para>
 
-<para>The following methods can be used to perform checks:</para>
+<para>To create a configure context:</para>
 
 <variablelist>
   <varlistentry>
   <term>Configure(<emphasis>env</emphasis>, [<emphasis>custom_tests</emphasis>, <emphasis>conf_dir</emphasis>, <emphasis>log_file</emphasis>, <emphasis>config_h</emphasis>, <emphasis>clean</emphasis>, <emphasis>help])</emphasis></term>
-  <term>env.Configure([<emphasis>custom_tests</emphasis>, <emphasis>conf_dir</emphasis>, <emphasis>log_file</emphasis>, <emphasis>config_h</emphasis>, <emphasis>clean</emphasis>, <emphasis>help])</emphasis></term>
+  <term><replaceable>env</replaceable>.Configure([<emphasis>custom_tests</emphasis>, <emphasis>conf_dir</emphasis>, <emphasis>log_file</emphasis>, <emphasis>config_h</emphasis>, <emphasis>clean</emphasis>, <emphasis>help])</emphasis></term>
   <listitem>
-<para>This creates a configure context, which can be used to perform checks.
-<emphasis>env</emphasis>
+<para>Create a configure context, which tracks information
+discovered while running tests. The context includes a
+&consenv;, which is used when running the tests and
+which is updated with the check results.
+When the context is complete, the (possibly modified)
+environment is returned). Only one context may be active
+at a time (since 4.0, &scons; will raise an exception
+if this rule is not followed), but a new context can be created
+after the active one is completed.</para>
+<para>
+The required <emphasis>env</emphasis> argument
 specifies the environment for building the tests.
-This environment may be modified when performing checks.
 <emphasis>custom_tests</emphasis>
-is a dictionary containing custom tests.
-See also the section about custom tests below.
+is a dictionary containing custom tests
+(see the section on custom tests below).
 By default, no custom tests are added to the configure context.
 <emphasis>conf_dir</emphasis>
 specifies a directory where the test cases are built.
 Note that this directory is not used for building
 normal targets.
 The default value is the directory
-#/.sconf_temp.
+<filename>#/.sconf_temp</filename>.
 <emphasis>log_file</emphasis>
 specifies a file which collects the output from commands
 that are executed to check for the existence of header files, libraries, etc.
-The default is the file #/config.log.
+The default is the file <filename>#/config.log</filename>.
 If you are using the
-<emphasis role="bold">VariantDir</emphasis>()
-method,
+&VariantDir; function,
 you may want to specify a subdirectory under your variant directory.
 <emphasis>config_h</emphasis>
 specifies a C header file where the results of tests
-will be written, e.g. #define HAVE_STDIO_H, #define HAVE_LIBM, etc.
+will be written, e.g.
+<literal>#define HAVE_STDIO_H</literal>,
+<literal>#define HAVE_LIBM</literal>, etc.
 The default is to not write a
-<emphasis role="bold">config.h</emphasis>
+<filename>config.h</filename>
 file.
 You can specify the same
-<emphasis role="bold">config.h</emphasis>
-file in multiple calls to Configure,
+<filename>config.h</filename>
+file in multiple calls to &Configure;,
 in which case &SCons;
 will concatenate all results in the specified file.
 Note that &SCons;
 uses its normal dependency checking
 to decide if it's necessary to rebuild
 the specified
-<emphasis>config_h</emphasis>
+<filename>config_h</filename>
 file.
 This means that the file is not necessarily re-built each
 time scons is run,
 but is only rebuilt if its contents will have changed
 and some target that depends on the
-<emphasis>config_h</emphasis>
+<filename>config_h</filename>
 file is being built.</para>
 
 <para>The optional
@@ -3291,9 +3298,9 @@ and
 <emphasis role="bold">help</emphasis>
 arguments can be used to suppress execution of the configuration
 tests when the
-<option>-c/--clean</option>
+<option>-c</option>/<option>--clean</option>
 or
-<option>-H/-h/--help</option>
+<option>-H</option>/<option>-h</option>/<option>--help</option>
 options are used, respectively.
 The default behavior is always to execute
 configure context tests,
@@ -3310,36 +3317,48 @@ arguments
 to avoid unnecessary test execution.</para>
   </listitem>
   </varlistentry>
-</variablelist>
 
-<para>A created
-<emphasis role="bold">Configure</emphasis>
-instance has the following associated methods:</para>
-
-<variablelist>
   <varlistentry>
   <term>SConf.Finish(<emphasis>context</emphasis>)</term>
-  <term><emphasis>sconf</emphasis>.Finish()</term>
+  <term><replaceable>context</replaceable>.Finish()</term>
   <listitem>
-<para>This method should be called after configuration is done.
-It returns the environment as modified
-by the configuration checks performed.
+<para>This method must be called after configuration is done.
+Though required, this is not enforced except
+if &Configure; is called when there still an active context,
+in which case an exception is raised.
+&Finish; returns the environment as modified
+during the course of running the configuration checks.
 After this method is called, no further checks can be performed
 with this configuration context.
 However, you can create a new
-Configure
-context to perform additional checks.
-Only one context should be active at a time.</para>
-
-<para>The following Checks are predefined.
-(This list will likely grow larger as time
-goes by and developers contribute new useful tests.)</para>
+configure context to perform additional checks.
+</para>
   </listitem>
   </varlistentry>
+</variablelist>
 
+<para>Example of a typical Configure usage:</para>
+
+<programlisting language="python">
+env = Environment()
+conf = Configure(env)
+if not conf.CheckCHeader("math.h"):
+    print("We really need math.h!")
+    Exit(1)
+if conf.CheckLibWithHeader("qt", "qapp.h", "c++", "QApplication qapp(0,0);"):
+    # do stuff for qt - usage, e.g.
+    conf.env.Append(CPPFLAGS="-DWITH_QT")
+env = conf.Finish()
+</programlisting>
+
+<para>A configure context
+has the following predefined methods which
+can be used to perform checks:</para>
+
+<variablelist>
   <varlistentry>
   <term>SConf.CheckHeader(<emphasis>context</emphasis>, <emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>, <emphasis>language</emphasis>])</term>
-  <term><emphasis>sconf</emphasis>.CheckHeader(<emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>, <emphasis>language</emphasis>])</term>
+  <term><replaceable>context</replaceable>.CheckHeader(<emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>, <emphasis>language</emphasis>])</term>
   <listitem>
 <para>Checks if
 <emphasis>header</emphasis>
@@ -3350,7 +3369,7 @@ in which case the last item in the list
 is the header file to be checked,
 and the previous list items are
 header files whose
-<emphasis role="bold">#include</emphasis>
+<literal>#include</literal>
 lines should precede the
 header line being checked for.
 The optional argument
@@ -3372,10 +3391,10 @@ Returns 1 on success and 0 on failure.</para>
 
   <varlistentry>
   <term>SConf.CheckCHeader(<emphasis>context</emphasis>, <emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>])</term>
-  <term><emphasis>sconf</emphasis>.CheckCHeader(<emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>])</term>
+  <term><replaceable>context</replaceable>.CheckCHeader(<emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>])</term>
   <listitem>
 <para>This is a wrapper around
-<emphasis role="bold">SConf.CheckHeader</emphasis>
+<methodname>SConf.CheckHeader</methodname>
 which checks if
 <emphasis>header</emphasis>
 is usable in the C language.
@@ -3385,7 +3404,7 @@ in which case the last item in the list
 is the header file to be checked,
 and the previous list items are
 header files whose
-<emphasis role="bold">#include</emphasis>
+<literal>#include</literal>
 lines should precede the
 header line being checked for.
 The optional argument
@@ -3400,10 +3419,10 @@ Returns 1 on success and 0 on failure.</para>
 
   <varlistentry>
   <term>SConf.CheckCXXHeader(<emphasis>context</emphasis>, <emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>])</term>
-  <term><emphasis>sconf</emphasis>.CheckCXXHeader(<emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>])</term>
+  <term><replaceable>context</replaceable>.CheckCXXHeader(<emphasis>header</emphasis>, [<emphasis>include_quotes</emphasis>])</term>
   <listitem>
 <para>This is a wrapper around
-<emphasis role="bold">SConf.CheckHeader</emphasis>
+<methodname>SConf.CheckHeader</methodname>
 which checks if
 <emphasis>header</emphasis>
 is usable in the C++ language.
@@ -3413,7 +3432,7 @@ in which case the last item in the list
 is the header file to be checked,
 and the previous list items are
 header files whose
-<emphasis role="bold">#include</emphasis>
+<literal>#include</literal>
 lines should precede the
 header line being checked for.
 The optional argument
@@ -3428,7 +3447,7 @@ Returns 1 on success and 0 on failure.</para>
 
   <varlistentry>
   <term>SConf.CheckFunc(<emphasis>context,</emphasis>, <emphasis>function_name</emphasis>, [<emphasis>header</emphasis>, <emphasis>language</emphasis>])</term>
-  <term><emphasis>sconf</emphasis>.CheckFunc(<emphasis>function_name</emphasis>, [<emphasis>header</emphasis>, <emphasis>language</emphasis>])</term>
+  <term><replaceable>context</replaceable>.CheckFunc(<emphasis>function_name</emphasis>, [<emphasis>header</emphasis>, <emphasis>language</emphasis>])</term>
   <listitem>
 <para>Checks if the specified
 C or C++ function is available.
@@ -3464,7 +3483,7 @@ the default is "C".</para>
 
   <varlistentry>
   <term>SConf.CheckLib(<emphasis>context</emphasis>, [<emphasis>library</emphasis>, <emphasis>symbol</emphasis>, <emphasis>header</emphasis>, <emphasis>language</emphasis>, <emphasis>autoadd=1</emphasis>])</term>
-  <term><emphasis>sconf</emphasis>.CheckLib([<emphasis>library</emphasis>, <emphasis>symbol</emphasis>, <emphasis>header</emphasis>, <emphasis>language</emphasis>, <emphasis>autoadd=1</emphasis>])</term>
+  <term><replaceable>context</replaceable>.CheckLib([<emphasis>library</emphasis>, <emphasis>symbol</emphasis>, <emphasis>header</emphasis>, <emphasis>language</emphasis>, <emphasis>autoadd=1</emphasis>])</term>
   <listitem>
 <para>Checks if
 <emphasis>library</emphasis>
@@ -3489,7 +3508,7 @@ If
 is not set or is
 <emphasis role="bold">None</emphasis>,
 then
-<emphasis role="bold">SConf.CheckLib</emphasis>()
+<methodname>SConf.CheckLib</methodname>()
 just checks if
 you can link against the specified
 <emphasis>library</emphasis>.
@@ -3510,11 +3529,11 @@ This method returns 1 on success and 0 on error.</para>
 
   <varlistentry>
   <term>SConf.CheckLibWithHeader(<emphasis>context</emphasis>, <emphasis>library</emphasis>, <emphasis>header</emphasis>, <emphasis>language</emphasis>, [<emphasis>call</emphasis>, <emphasis>autoadd</emphasis>])</term>
-  <term><emphasis>sconf</emphasis>.CheckLibWithHeader(<emphasis>library</emphasis>, <emphasis>header</emphasis>, <emphasis>language</emphasis>, [<emphasis>call</emphasis>, <emphasis>autoadd</emphasis>])</term>
+  <term><replaceable>context</replaceable>.CheckLibWithHeader(<emphasis>library</emphasis>, <emphasis>header</emphasis>, <emphasis>language</emphasis>, [<emphasis>call</emphasis>, <emphasis>autoadd</emphasis>])</term>
   <listitem>
 
 <para>In contrast to the
-SConf.CheckLib
+<methodname>SConf.CheckLib</methodname>
 call, this call provides a more sophisticated way to check against libraries.
 Again,
 <emphasis>library</emphasis>
@@ -3527,7 +3546,7 @@ in which case the last item in the list
 is the header file to be checked,
 and the previous list items are
 header files whose
-<emphasis role="bold">#include</emphasis>
+<literal>#include</literal>
 lines should precede the
 header line being checked for.
 <emphasis>language</emphasis>
@@ -3548,7 +3567,7 @@ succeeds). This method returns 1 on success and 0 on error.</para>
 
   <varlistentry>
   <term>SConf.CheckType(<emphasis>context</emphasis>, <emphasis>type_name</emphasis>, [<emphasis>includes</emphasis>, <emphasis>language</emphasis>])</term>
-  <term><emphasis>sconf</emphasis>.CheckType(<emphasis>type_name</emphasis>, [<emphasis>includes</emphasis>, <emphasis>language</emphasis>])</term>
+  <term><replaceable>context</replaceable>.CheckType(<emphasis>type_name</emphasis>, [<emphasis>includes</emphasis>, <emphasis>language</emphasis>])</term>
   <listitem>
 <para>Checks for the existence of a type defined by
 <emphasis role="bold">typedef</emphasis>.
@@ -3556,7 +3575,7 @@ succeeds). This method returns 1 on success and 0 on error.</para>
 specifies the typedef name to check for.
 <emphasis>includes</emphasis>
 is a string containing one or more
-<emphasis role="bold">#include</emphasis>
+<literal>#include</literal>
 lines that will be inserted into the program
 that will be run to test for the existence of the type.
 The optional
@@ -3577,7 +3596,8 @@ sconf.CheckType('foo_type', '#include "my_types.h"', 'C++')
   </varlistentry>
 
   <varlistentry>
-  <term>Configure.CheckCC(<emphasis>self</emphasis>)</term>
+  <term>SConf.CheckCC(<emphasis>self</emphasis>)</term>
+  <term><replaceable>context</replaceable>.CheckCC(<emphasis>self</emphasis>)</term>
   <listitem>
 <para>Checks whether the C compiler (as defined by the CC &consvar;) works
 by trying to compile a small source file.</para>
@@ -3592,7 +3612,8 @@ not.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>Configure.CheckCXX(<emphasis>self</emphasis>)</term>
+  <term>SConf.CheckCXX(<emphasis>self</emphasis>)</term>
+  <term><replaceable>context</replaceable>.CheckCXX(<emphasis>self</emphasis>)</term>
   <listitem>
 <para>Checks whether the C++ compiler (as defined by the CXX &consvar;)
 works by trying to compile a small source file. By default, SCons only detects
@@ -3605,7 +3626,8 @@ works or not.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>Configure.CheckSHCC(<emphasis>self</emphasis>)</term>
+  <term>SConf.CheckSHCC(<emphasis>self</emphasis>)</term>
+  <term><replaceable>context</replaceable>.CheckSHCC(<emphasis>self</emphasis>)</term>
   <listitem>
 <para>Checks whether the C compiler (as defined by the SHCC &consvar;) works
 by trying to compile a small source file. By default, SCons only detects if
@@ -3619,7 +3641,8 @@ library, only that the compilation (not link) succeeds.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>Configure.CheckSHCXX(<emphasis>self</emphasis>)</term>
+  <term>SConf.CheckSHCXX(<emphasis>self</emphasis>)</term>
+  <term><replaceable>context</replaceable>.CheckSHCXX(<emphasis>self</emphasis>)</term>
   <listitem>
 <para>Checks whether the C++ compiler (as defined by the SHCXX &consvar;)
 works by trying to compile a small source file. By default, SCons only detects
@@ -3631,26 +3654,10 @@ works or not. This does not check whether the object code can be used to build
 a shared library, only that the compilation (not link) succeeds.</para>
   </listitem>
   </varlistentry>
-</variablelist>
-<para>Example of a typical Configure usage:</para>
 
-<programlisting language="python">
-env = Environment()
-conf = Configure( env )
-if not conf.CheckCHeader( 'math.h' ):
-    print('We really need math.h!')
-    Exit(1)
-if conf.CheckLibWithHeader( 'qt', 'qapp.h', 'c++',
-        'QApplication qapp(0,0);' ):
-    # do stuff for qt - usage, e.g.
-    conf.env.Append( CPPFLAGS = '-DWITH_QT' )
-env = conf.Finish()
-</programlisting>
-
-<variablelist>
   <varlistentry>
   <term>SConf.CheckTypeSize(<emphasis>context</emphasis>, <emphasis>type_name</emphasis>, [<emphasis>header</emphasis>, <emphasis>language</emphasis>, <emphasis>expect</emphasis>])</term>
-  <term><emphasis>sconf</emphasis>.CheckTypeSize(<emphasis>type_name</emphasis>, [<emphasis>header</emphasis>, <emphasis>language</emphasis>, <emphasis>expect</emphasis>])</term>
+  <term><replaceable>context</replaceable>.CheckTypeSize(<emphasis>type_name</emphasis>, [<emphasis>header</emphasis>, <emphasis>language</emphasis>, <emphasis>expect</emphasis>])</term>
   <listitem>
 <para>Checks for the size of a type defined by
 <emphasis role="bold">typedef</emphasis>.
@@ -3682,7 +3689,7 @@ given in type_name has the expected size (in bytes).
 For example,</para>
 
 <programlisting language="python">
-CheckTypeSize('short', expect = 2)
+CheckTypeSize('short', expect=2)
 </programlisting>
 
 <para>will return success only if short is two bytes.</para>
@@ -3691,7 +3698,7 @@ CheckTypeSize('short', expect = 2)
 
   <varlistentry>
   <term>SConf.CheckDeclaration(<emphasis>context</emphasis>, <emphasis>symbol</emphasis>, [<emphasis>includes</emphasis>, <emphasis>language</emphasis>])</term>
-  <term><emphasis>sconf</emphasis>.CheckDeclaration(<emphasis>symbol</emphasis>, [<emphasis>includes</emphasis>, <emphasis>language</emphasis>])</term>
+  <term><replaceable>context</replaceable>.CheckDeclaration(<emphasis>symbol</emphasis>, [<emphasis>includes</emphasis>, <emphasis>language</emphasis>])</term>
   <listitem>
 <para>Checks if the specified
 <emphasis>symbol</emphasis>
@@ -3714,7 +3721,7 @@ the default is "C".</para>
 
   <varlistentry>
   <term>SConf.Define(<emphasis>context</emphasis>, <emphasis>symbol</emphasis>, [<emphasis>value</emphasis>, <emphasis>comment</emphasis>])</term>
-  <term><emphasis>sconf</emphasis>.Define(<emphasis>symbol</emphasis>, [<emphasis>value</emphasis>, <emphasis>comment</emphasis>])</term>
+  <term><replaceable>context</replaceable>.Define(<emphasis>symbol</emphasis>, [<emphasis>value</emphasis>, <emphasis>comment</emphasis>])</term>
   <listitem>
 <para>This function does not check for anything, but defines a
 preprocessor symbol that will be added to the configuration header file.
@@ -3725,23 +3732,20 @@ with the optional
 <emphasis role="bold">value</emphasis>
 and the optional comment
 <emphasis role="bold">comment</emphasis>.</para>
-  </listitem>
-  </varlistentry>
-</variablelist>
 
-<para>Examples:</para>
+<para>Define Examples:</para>
 
 <programlisting language="python">
 env = Environment()
-conf = Configure( env )
+conf = Configure(env)
 
 # Puts the following line in the config header file:
 #    #define A_SYMBOL
-conf.Define('A_SYMBOL')
+conf.Define("A_SYMBOL")
 
 # Puts the following line in the config header file:
 #    #define A_SYMBOL 1
-conf.Define('A_SYMBOL', 1)
+conf.Define("A_SYMBOL", 1)
 </programlisting>
 
 
@@ -3749,15 +3753,15 @@ conf.Define('A_SYMBOL', 1)
 
 <programlisting language="python">
 env = Environment()
-conf = Configure( env )
+conf = Configure(env)
 
 # Puts the following line in the config header file:
 #    #define A_SYMBOL YA
-conf.Define('A_SYMBOL', "YA")
+conf.Define("A_SYMBOL", "YA")
 
 # Puts the following line in the config header file:
 #    #define A_SYMBOL "YA"
-conf.Define('A_SYMBOL', '"YA"')
+conf.Define("A_SYMBOL", '"YA"')
 </programlisting>
 
 
@@ -3765,13 +3769,17 @@ conf.Define('A_SYMBOL', '"YA"')
 
 <programlisting language="python">
 env = Environment()
-conf = Configure( env )
+conf = Configure(env)
 
 # Puts the following lines in the config header file:
 #    /* Set to 1 if you have a symbol */
 #    #define A_SYMBOL 1
-conf.Define('A_SYMBOL', 1, 'Set to 1 if you have a symbol')
+conf.Define("A_SYMBOL", 1, "Set to 1 if you have a symbol")
 </programlisting>
+
+  </listitem>
+  </varlistentry>
+</variablelist>
 
 <para>You can define your own custom checks.
 in addition to the predefined checks.
@@ -3799,7 +3807,7 @@ will be displayed to the user, e.g. 'Checking for library X...'</para>
   </varlistentry>
 
   <varlistentry>
-  <term>CheckContext.Result(<emphasis>self,</emphasis>, <emphasis>res</emphasis>)</term>
+  <term>CheckContext.Result(<emphasis>self</emphasis>, <emphasis>res</emphasis>)</term>
   <listitem>
 
 <para>Usually called after the check is done.
@@ -3943,8 +3951,7 @@ For example, libraries needed for the build may be in non-standard
 locations, or site-specific compiler options may need to be passed to the
 compiler.
 &scons;
-provides a
-<emphasis role="bold">Variables</emphasis>
+provides a <firstterm>&Variables;</firstterm>
 object to support overriding &consvars;
 on the command line:</para>
 
@@ -3952,23 +3959,31 @@ on the command line:</para>
 <userinput>scons VARIABLE=foo</userinput>
 </screen>
 
-<para>The variable values can also be specified in a text-based SConscript file.
-To create a Variables object, call the Variables() function:</para>
+<para>The variable values can also be specified in an SConscript file.
+To obtain the object for manipulating values,
+call the &Variables; function:</para>
 
 <variablelist>
   <varlistentry>
-  <term>Variables([<emphasis>files</emphasis>], [<emphasis>args</emphasis>])</term>
+  <term>Variables([<emphasis>files</emphasis>[, <emphasis>args</emphasis>]])</term>
   <listitem>
-<para>This creates a Variables object that will read &consvars; from
-the file or list of filenames specified in
-<emphasis>files</emphasis>.
+<para>If <emphasis>files</emphasis> is a file or
+list of files, those are executed as Python scripts,
+and the values of (global) Python variables set in
+those files are added as &consvars; in the
+default &consenv;.
 If no files are specified,
 or the
 <emphasis>files</emphasis>
 argument is
 <emphasis role="bold">None</emphasis>,
-then no files will be read.
-The optional argument
+then no files will be read. Example file content:</para>
+
+<programlisting language="python">
+CC = 'my_cc'
+</programlisting>
+
+<para>The optional argument
 <emphasis>args</emphasis>
 is a dictionary of
 values that will override anything read from the specified files;
@@ -3984,10 +3999,13 @@ vars = Variables('overrides.py', ARGUMENTS)
 vars = Variables(None, {FOO:'expansion', BAR:7})
 </programlisting>
 
-<para>Variables objects have the following methods:</para>
-
   </listitem>
   </varlistentry>
+  </variablelist>
+
+<para>Variables objects have the following methods:</para>
+
+  <variablelist>
   <varlistentry>
   <term>Add(<emphasis>key</emphasis>, [<emphasis>help</emphasis>, <emphasis>default</emphasis>, <emphasis>validator</emphasis>, <emphasis>converter</emphasis>])</term>
   <listitem>
@@ -4024,7 +4042,7 @@ and then added to the environment.</para>
 <para>Examples:</para>
 
 <programlisting language="python">
-vars.Add('CC', 'The C compiler')
+vars.Add('CC', help='The C compiler')
 
 def validate_color(key, val, env):
     if not val in ['red', 'blue', 'yellow']:
@@ -4035,7 +4053,7 @@ vars.Add('COLOR', validator=valid_color)
   </varlistentry>
 
   <varlistentry>
-  <term>AddVariables(<emphasis>list</emphasis>)</term>
+  <term>vars.AddVariables(<emphasis>list</emphasis>)</term>
   <listitem>
 <para>A wrapper script that adds
 multiple customizable &consvars;
@@ -4060,7 +4078,7 @@ opt.AddVariables(
   </varlistentry>
 
   <varlistentry>
-  <term>Update(<emphasis>env</emphasis>, [<emphasis>args</emphasis>])</term>
+  <term>vars.Update(<emphasis>env</emphasis>, [<emphasis>args</emphasis>])</term>
   <listitem>
 <para>This updates a &consenv;
 <emphasis>env</emphasis>
@@ -4083,23 +4101,9 @@ env = Environment(variables=vars)
 
   </listitem>
   </varlistentry>
-</variablelist>
 
-<para>The text file(s) that were specified
-when the &Variables; object was created
-are executed as Python scripts,
-and the values of (global) Python variables set in the file
-are added to the &consenv;.</para>
-
-<para>Example:</para>
-
-<programlisting language="python">
-CC = 'my_cc'
-</programlisting>
-
-<variablelist>
   <varlistentry>
-  <term>UnknownVariables(<emphasis>)</emphasis></term>
+  <term>vars.UnknownVariables(<emphasis>)</emphasis></term>
   <listitem>
 <para>Returns a dictionary containing any
 variables that were specified
@@ -4118,7 +4122,7 @@ for key, value in vars.UnknownVariables():
   </varlistentry>
 
   <varlistentry>
-  <term>Save(<emphasis>filename</emphasis>, <emphasis>env</emphasis>)</term>
+  <term>vars.Save(<emphasis>filename</emphasis>, <emphasis>env</emphasis>)</term>
   <listitem>
 <para>This saves the currently set variables into a script file named
 <emphasis>filename</emphasis>
@@ -4138,7 +4142,7 @@ vars.Save('variables.cache', env)
   </varlistentry>
 
   <varlistentry>
-  <term>GenerateHelpText(<emphasis>env</emphasis>, [<emphasis>sort</emphasis>])</term>
+  <term>vars.GenerateHelpText(<emphasis>env</emphasis>, [<emphasis>sort</emphasis>])</term>
   <listitem>
 <para>This generates help text documenting the customizable construction
 variables suitable to passing in to the Help() function.
@@ -4196,15 +4200,18 @@ def my_format(env, opt, help, default, actual):
     return fmt % (opt, default. actual, help)
 vars.FormatVariableHelpText = my_format
 </programlisting>
+  </listitem>
+  </varlistentry>
+  </variablelist>
+
 
 <para>To make it more convenient to work with customizable Variables,
 &scons;
 provides a number of functions
 that make it easy to set up
 various types of Variables:</para>
-  </listitem>
-  </varlistentry>
 
+  <variablelist>
   <varlistentry>
   <term>BoolVariable(<emphasis>key</emphasis>, <emphasis>help</emphasis>, <emphasis>default</emphasis>)</term>
   <listitem>
@@ -4390,27 +4397,54 @@ that will be called to
 verify that the specified path
 is acceptable.
 SCons supplies the
-following ready-made validators:
-<emphasis role="bold">PathVariable.PathExists</emphasis>
-(the default),
-which verifies that the specified path exists;
-<emphasis role="bold">PathVariable.PathIsFile</emphasis>,
-which verifies that the specified path is an existing file;
-<emphasis role="bold">PathVariable.PathIsDir</emphasis>,
-which verifies that the specified path is an existing directory;
-<emphasis role="bold">PathVariable.PathIsDirCreate</emphasis>,
-which verifies that the specified path is a directory
-and will create the specified directory if the path does not exist;
-and
-<emphasis role="bold">PathVariable.PathAccept</emphasis>,
-which simply accepts the specific path name argument without validation,
-and which is suitable if you want your users
+following ready-made validators:</para>
+
+  <variablelist>  <!-- nested list -->
+  <varlistentry>
+    <term>PathVariable.PathExists</term>
+    <listitem>
+<para>Verify that the specified path exists (the default).</para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>PathVariable.PathIsFile</term>
+    <listitem>
+<para>Verify that the specified path is an existing file.</para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>PathVariable.PathIsDir</term>
+    <listitem>
+<para>Verify that the specified path is an existing directory.</para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>PathVariable.PathIsDirCreate</term>
+    <listitem>
+<para>Verify that the specified path is a directory
+and will create the specified directory if the path does not exist.</para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>PathVariable.PathAccept</term>
+    <listitem>
+<para>Simply accept the specific path name argument without validation,
+suitable for when you want your users
 to be able to specify a directory path that will be
-created as part of the build process, for example.
+created as part of the build process, for example.</para>
+    </listitem>
+  </varlistentry>
+  </variablelist>  <!-- end nested list -->
+
+<para>
 You may supply your own
 <emphasis>validator</emphasis>
 function,
-which must take three arguments
+which must accept three arguments
 (<emphasis>key</emphasis>,
 the name of the variable to be set;
 <emphasis>val</emphasis>,
@@ -4426,28 +4460,44 @@ if the specified value is not acceptable.</para>
 <para>These functions make it
 convenient to create a number
 of variables with consistent behavior
-in a single call to the
-<emphasis role="bold">AddVariables</emphasis>
+in a single call to the &AddVariables;
 method:</para>
 
 <programlisting language="python">
 vars.AddVariables(
-    BoolVariable("warnings", "compilation with -Wall and similar", 1),
+    BoolVariable(
+        "warnings",
+        help="compilation with -Wall and similar",
+        default=1,
+    ),
     EnumVariable(
         "debug",
-        "debug output and symbols",
-        "no",
+        help="debug output and symbols",
+        default="no",
         allowed_values=("yes", "no", "full"),
         map={},
         ignorecase=0,  # case sensitive
     ),
     ListVariable(
-        "shared", "libraries to build as shared libraries", "all", names=list_of_libs
+        "shared",
+        help="libraries to build as shared libraries",
+        default="all",
+        names=list_of_libs,
     ),
-    PackageVariable("x11", "use X11 installed here (yes = search some places)", "yes"),
-    PathVariable("qtdir", "where the root of Qt is installed", qtdir),
+    PackageVariable(
+        "x11",
+        help="use X11 installed here (yes = search some places)",
+        default="yes",
+    ),
     PathVariable(
-        "foopath", "where the foo library is installed", foopath, PathVariable.PathIsDir
+        "qtdir",
+        help="where the root of Qt is installed",
+        default=qtdir),
+    PathVariable(
+        "foopath",
+        help="where the foo library is installed",
+        default=foopath,
+        validator=PathVariable.PathIsDir,
     ),
 )
 </programlisting>
@@ -4569,7 +4619,7 @@ directory as the one the Node represents:
 
 <variablelist>
   <varlistentry>
-  <term><replaceable>d</replaceable>.Dir(<replaceable>name</replaceable>)</term>
+  <term><replaceable>f</replaceable>.Dir(<replaceable>name</replaceable>)</term>
   <listitem>
 <para>Returns a directory named
 <replaceable>name</replaceable>
@@ -4579,7 +4629,7 @@ within the parent directory of
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>d</replaceable>.File(<replaceable>name</replaceable>)</term>
+  <term><replaceable>f</replaceable>.File(<replaceable>name</replaceable>)</term>
   <listitem>
 <para>Returns a file named
 <replaceable>name</replaceable>
@@ -4589,7 +4639,7 @@ within the parent directory of
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>d</replaceable>.Entry(<replaceable>name</replaceable>)</term>
+  <term><replaceable>f</replaceable>.Entry(<replaceable>name</replaceable>)</term>
   <listitem>
 <para>Returns an unresolved Node named
 <replaceable>name</replaceable>
@@ -5324,7 +5374,7 @@ Action([['cc', '-c', '-DWHITE SPACE', '-o', '$TARGET', '$SOURCES']])
   <listitem>
 <para>If the first argument is a Python function,
 a function Action is returned.
-The Python function must take three keyword arguments,
+The Python function must accept three keyword arguments,
 <emphasis role="bold">target</emphasis>
 (a Node object representing the target file),
 <emphasis role="bold">source</emphasis>
@@ -5387,7 +5437,7 @@ The function may also be specified by the
 <emphasis>strfunction</emphasis>=
 keyword argument.
 Like a function to build a file,
-this function must take three keyword arguments:
+this function must accept three keyword arguments:
 <emphasis role="bold">target</emphasis>
 (a Node object representing the target file),
 <emphasis role="bold">source</emphasis>
