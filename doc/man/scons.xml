@@ -214,9 +214,9 @@ that you want to use to build your target files
 are not in standard system locations,
 &scons;
 will not find them unless
-you explicitly set the &scons;
-<envar>PATH</envar> in the internal environment
-to include those locations.
+you explicitly include the locations into the value of
+<varname>PATH</varname> in the <varname>ENV</varname>
+variable in the internal &consenv;.
 Whenever you create a &consenv;,
 you can propagate the value of <envar>PATH</envar>
 from your external environment as follows:</para>
@@ -436,11 +436,6 @@ command-line options.  The
 option is useful to prevent multiple builds
 from trying to update the cache simultaneously.</para>
 
-<para>&scons;
-requires Python 3.5 or higher.
-There should be no other dependencies or requirements to run &scons;.
-</para>
-
 <!--  The following paragraph reflects the default tool search orders -->
 <!--  currently in SCons/Tool/__init__.py.  If any of those search orders -->
 <!--  change, this documentation should change, too. -->
@@ -478,6 +473,13 @@ for the GCC tool chain,
 and the Intel compiler tools.
 These default values may be overridden
 by appropriate setting of &consvars;.</para>
+
+<para>&scons;
+requires Python 3.5 or higher.
+There should be no other dependencies or requirements to run &scons;,
+although the <package>pywin32</package> Python package is
+strongly recommended if running on Windows systems.
+</para>
 
 </refsect1>
 
