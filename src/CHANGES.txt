@@ -89,6 +89,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fixed bug where changing TEXTFILESUFFIX would cause Substfile() to rebuild. (Github Issue #3540)
     - Script/Main.py now uses importlib instead of imp module.
     - Drop some Python 2-isms.
+    - Docbook builder provides a fallback if lxml fails to generate
+      a document with tostring().
 
 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
