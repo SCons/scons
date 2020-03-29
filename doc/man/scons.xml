@@ -277,7 +277,7 @@ When &scons; is invoked,
 the command line (including the contents
 of the &SCONSFLAGS; environment variable,
 if set) is processed.
-Command-line options (see <xref linkend="options"></xref>) are consumed.
+Command-line options (see <xref linkend="options"/>) are consumed.
 Any variable argument assignments are collected, and
 remaining arguments are taken as the targets to build.</para>
 
@@ -2819,8 +2819,8 @@ Builders by adding them
 to the
 <emphasis role="bold">SourceFileScanner</emphasis>
 object.
-See the section "Scanner Objects"
-below, for more information about
+See <xref linkend="scanner_objects"/>
+for more information about
 defining your own Scanner objects
 and using the
 <emphasis role="bold">SourceFileScanner</emphasis>
@@ -4863,8 +4863,8 @@ based only on the target file
 and the &consenv;,
 <emphasis>not</emphasis>
 for implicit dependencies based on source files.
-(See the section "Scanner Objects" below,
-for information about creating Scanner objects.)</para>
+See <xref linkend="scanner_objects"/>
+for information about creating Scanner objects.</para>
   </listitem>
   </varlistentry>
 
@@ -4890,8 +4890,8 @@ for on-disk changes to files
 that
 &scons;
 does not know about from other Builder or function calls.
-(See the section "Scanner Objects" below,
-for information about creating your own Scanner objects.)</para>
+See <xref linkend="scanner_objects"/>
+for information about creating your own Scanner objects.</para>
   </listitem>
   </varlistentry>
 
@@ -6411,17 +6411,16 @@ a future version of SCons.</para>
 <title>Scanner Objects</title>
 
 <para>You can use the
-<emphasis role="bold">Scanner</emphasis>
+&f-link-Scanner;
 function to define
 objects to scan
 new file types for implicit dependencies.
-The
-<emphasis role="bold">Scanner</emphasis>
+The &f-Scanner;
 function accepts the following arguments:</para>
 
 <variablelist>
   <varlistentry>
-  <term>function</term>
+  <term><parameter>function</parameter></term>
   <listitem>
 <para>This can be either:</para>
 <orderedlist>
@@ -6440,21 +6439,20 @@ to other Scanners that should be called.
 </para></listitem>
 </orderedlist>
 
-<para>If the argument is actually a Python function,
-the function must take three or four arguments:</para>
-
-<para>    def scanner_function(node, env, path):</para>
-
-<para>    def scanner_function(node, env, path, arg=None):</para>
+<para>If the argument is a Python function,
+the function must accept three required arguments
+and an optional fourth:
+<literal>def scanner_function(<parameter>node</parameter>, <parameter>env</parameter>, <parameter>path</parameter>, <parameter>arg=None</parameter>):</literal>
+</para>
 
 <para>The
-<emphasis role="bold">node</emphasis>
+<parameter>node</parameter>
 argument is the internal
 &SCons; node representing the file.
 Use
-<emphasis role="bold">str(node)</emphasis>
+<literal>str(<replaceable>node</replaceable>)</literal>
 to fetch the name of the file, and
-<emphasis role="bold">node.get_contents()</emphasis>
+<literal><replaceable>node</replaceable>.get_contents()</literal>
 to fetch contents of the file.
 Note that the file is
 <emphasis>not</emphasis>
@@ -6465,31 +6463,31 @@ might not exist
 (for example, if it's built from other files).</para>
 
 <para>The
-<emphasis role="bold">env</emphasis>
+<parameter>env</parameter>
 argument is the &consenv; for the scan.
 Fetch values from it using the
-<emphasis role="bold">env.Dictionary()</emphasis>
-method or using the key lookup operator
+&f-env-Dictionary;
+method or using dictionary key lookup
 directly on the &consenv;.</para>
 
 <para>The
-<emphasis role="bold">path</emphasis>
+<parameter>path</parameter>
 argument is a tuple (or list)
 of directories that can be searched
 for files.
 This will usually be the tuple returned by the
-<emphasis role="bold">path_function</emphasis>
+<parameter>path_function</parameter>
 argument (see below).</para>
 
 <para>The
-<emphasis role="bold">arg</emphasis>
+<parameter>arg</parameter>
 argument is the argument supplied
 when the scanner was created, if any.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>name</term>
+  <term><parameter>name</parameter></term>
   <listitem>
 <para>The name of the Scanner.
 This is mainly used
@@ -6498,7 +6496,7 @@ to identify the Scanner internally.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>argument</term>
+  <term><parameter>argument</parameter></term>
   <listitem>
 <para>An optional argument that, if specified,
 will be passed to the scanner function
@@ -6509,7 +6507,7 @@ and the path function
   </varlistentry>
 
   <varlistentry>
-  <term>skeys</term>
+  <term><parameter>skeys</parameter></term>
   <listitem>
 <para>An optional list that can be used to
 determine which scanner should be used for
@@ -6525,7 +6523,7 @@ into a list by the current environment.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>path_function</term>
+  <term><parameter>path_function</parameter></term>
   <listitem>
 <para>A Python function that takes four or five arguments:
 a &consenv;,
@@ -6537,35 +6535,35 @@ a list of source nodes,
 and an optional argument supplied
 when the scanner was created.
 The
-<emphasis role="bold">path_function</emphasis>
+<parameter>path_function</parameter>
 returns a tuple of directories
 that can be searched for files to be returned
 by this Scanner object.
 (Note that the
-<emphasis role="bold">FindPathDirs</emphasis>()
+&f-link-FindPathDirs;
 function can be used to return a ready-made
-<emphasis role="bold">path_function</emphasis>
+<parameter>path_function</parameter>
 for a given &consvar; name,
 instead of having to write your own function from scratch.)</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>node_class</term>
+  <term><parameter>node_class</parameter></term>
   <listitem>
 <para>The class of Node that should be returned
 by this Scanner object.
 Any strings or other objects returned
 by the scanner function
 that are not of this class
-will be run through the
-<emphasis role="bold">node_factory</emphasis>
-function.</para>
+will be run through the function
+supplied by the
+<parameter>node_factory</parameter> argument.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>node_factory</term>
+  <term><parameter>node_factory</parameter></term>
   <listitem>
 <para>A Python function that will take a string
 or other object
@@ -6575,7 +6573,7 @@ to be returned by this Scanner object.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>scan_check</term>
+  <term><parameter>scan_check</parameter></term>
   <listitem>
 <para>An optional Python function that takes two arguments,
 a Node (file) and a &consenv;,
@@ -6590,7 +6588,7 @@ represented by a Node does not yet exist.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>recursive</term>
+  <term><parameter>recursive</parameter></term>
   <listitem>
 <para>An optional flag that
 specifies whether this scanner should be re-invoked
@@ -6599,7 +6597,7 @@ When this flag is not set,
 the Node subsystem will
 only invoke the scanner on the file being scanned,
 and not (for example) also on the files
-specified by the #include lines
+specified by the <literal>#include</literal> lines
 in the file being scanned.
 <emphasis>recursive</emphasis>
 may be a callable function,
@@ -6615,14 +6613,14 @@ Nodes for additional scanning.</para>
 <para>Note that
 &scons;
 has a global
-<emphasis role="bold">SourceFileScanner</emphasis>
+<classname>SourceFileScanner</classname>
 object that is used by
-the &Object;, &SharedObject; and &StaticObject;
+the &b-link-Object;, &b-link-SharedObject; and &b-link-StaticObject;
 builders to decide
 which scanner should be used
 for different file extensions.
 You can use the
-<emphasis role="bold">SourceFileScanner.add_scanner</emphasis>()
+<methodname>SourceFileScanner.add_scanner()</methodname>
 method to add your own Scanner object
 to the
 &SCons;
