@@ -31,13 +31,10 @@ month_year = 'December 2019'
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-import fnmatch
-import os
 import os.path
 import sys
 import textwrap
 
-import bootstrap
 
 project = 'scons'
 default_version = '3.1.2'
@@ -64,6 +61,7 @@ for a in addpaths:
     if a not in sys.path:
         sys.path.append(a)
 
+# Use site_scons logic to process command line arguments
 command_line = BuildCommandLine(default_version)
 command_line.process_command_line_vars()
 
