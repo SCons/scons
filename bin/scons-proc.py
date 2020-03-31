@@ -144,12 +144,18 @@ class SCons_XML(object):
             if v.sets:
                 added = True
                 vp = stf.newNode("para")
+                # if using lxml, the &entity; entries will be encoded,
+                # effectively breaking them.  should fix,
+                # for now handled post-process in calling script.
                 s = ['&cv-link-%s;' % x for x in v.sets]
                 stf.setText(vp, 'Sets:  ' + ', '.join(s) + '.')
                 stf.appendNode(vl, vp)
             if v.uses:
                 added = True
                 vp = stf.newNode("para")
+                # if using lxml, the &entity; entries will be encoded,
+                # effectively breaking them.  should fix,
+                # for now handled post-process in calling script.
                 u = ['&cv-link-%s;' % x for x in v.uses]
                 stf.setText(vp, 'Uses:  ' + ', '.join(u) + '.')
                 stf.appendNode(vl, vp)
