@@ -28,15 +28,12 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test to confirm that Dir(drive_path).abspath works on Windows.
 """
 
-import os
-import stat
-
 import TestSCons
 from TestCmd import IS_WINDOWS
 
+test = TestSCons.TestSCons()
 
 if IS_WINDOWS:
-    test = TestSCons.TestSCons()
     test.dir_fixture('DriveAbsPath')
     test.run()
 
