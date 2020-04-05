@@ -49,7 +49,6 @@ test = TestRuntest.TestRuntest(
     program=os.path.join('bin', 'update-release-info.py'),
     things_to_copy=['bin']
 )
-# test.verbose_set(1)
 if not os.path.exists(test.program):
     test.skip_test("update-release-info.py is not distributed in this package\n")
 

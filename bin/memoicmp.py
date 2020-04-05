@@ -3,8 +3,6 @@
 # A script to compare the --debug=memoizer output found in
 # two different files.
 
-from __future__ import print_function
-
 import sys
 
 def memoize_output(fname):

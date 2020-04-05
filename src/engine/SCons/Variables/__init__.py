@@ -45,21 +45,20 @@ from .PathVariable import PathVariable # okay
 
 
 class Variables(object):
-    instance=None
-
     """
     Holds all the options, updates the environment with the variables,
     and renders the help text.
     """
+    instance=None
+
     def __init__(self, files=None, args=None, is_global=1):
         """
         files - [optional] List of option configuration files to load
             (backward compatibility) If a single string is passed it is
-                                     automatically placed in a file list
+            automatically placed in a file list
+        args - dictionary to override values set from files.
         """
-        # initialize arguments
-        if files is None:
-            files = []
+
         if args is None:
             args = {}
         self.options = []
@@ -74,7 +73,7 @@ class Variables(object):
 
         # create the singleton instance
         if is_global:
-            self=Variables.instance
+            self = Variables.instance
 
             if not Variables.instance:
                 Variables.instance=self

@@ -18,8 +18,6 @@
 # be reasonably generic to any POSIX-style system with a /usr/local
 # hierarchy.
 
-from __future__ import print_function
-
 import getopt
 import os
 import shutil

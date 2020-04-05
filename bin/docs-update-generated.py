@@ -6,8 +6,6 @@
 # as well as the entity declarations for them.
 # Uses scons-proc.py under the hood...
 #
-from __future__ import print_function
-
 import os
 import sys
 import subprocess
@@ -45,13 +43,21 @@ def generate_all():
                 print("Couldn't create destination folder %s! Exiting..." % gen_folder)
                 return
         # Call scons-proc.py
-        _ = subprocess.call([sys.executable,
-                              os.path.join('bin','scons-proc.py'),
-                              '-b', argpair('builders'),
-                              '-f', argpair('functions'),
-                              '-t', argpair('tools'),
-                              '-v', argpair('variables')] + flist,
-                             shell=False)
+        cp = subprocess.run([sys.executable,
+                             os.path.join('bin','scons-proc.py'),
+                             '-b', argpair('builders'),
+                             '-f', argpair('functions'),
+                             '-t', argpair('tools'),
+                             '-v', argpair('variables')] + flist,
+                            shell=False)
+
+        cp.check_returncode()  # bail if it failed
+        # lxml: fixup possibly broken tools.gen:
+        with open(os.path.join(gen_folder, 'tools.gen'), 'r') as f :
+            filedata = f.read()
+        filedata = filedata.replace(r'&amp;cv-link', r'&cv-link')
+        with open(os.path.join(gen_folder, 'tools.gen'), 'w') as f :
+            f.write(filedata)
     
     
 if __name__ == "__main__":

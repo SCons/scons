@@ -25,19 +25,20 @@
 -->
 
 <xsl:stylesheet
-	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
-	xmlns:fo="http://www.w3.org/1999/XSL/Format" 
-	version="1.0"> 
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns:fo="http://www.w3.org/1999/XSL/Format"
+	version="1.0">
 
-	<xsl:import href="../../src/engine/SCons/Tool/docbook/docbook-xsl-1.76.1/fo/docbook.xsl"/> 
-	<xsl:include href="scons_title.xsl"/> 
+	<xsl:import href="../../src/engine/SCons/Tool/docbook/docbook-xsl-1.76.1/fo/docbook.xsl"/>
+	<xsl:include href="scons_title.xsl"/>
 <xsl:param name="l10n.gentext.default.language" select="'en'"/>
-<xsl:param name="section.autolabel" select="1"></xsl:param>
+<xsl:param name="section.autolabel" select="1"/>
 <xsl:param name="section.label.includes.component.label" select="1"/>
-<xsl:param name="paper.type" select="'letter'"></xsl:param>
+<xsl:param name="paper.type" select="'letter'"/>
 <xsl:param name="body.start.indent">0pt</xsl:param>
-<xsl:param name="shade.verbatim" select="1"></xsl:param>
-<xsl:param name="variablelist.term.break.after" select="1"></xsl:param>
+<xsl:param name="shade.verbatim" select="1"/>
+<xsl:param name="variablelist.term.break.after" select="1"/>
+<xsl:param name="variablelist.term.separator"/>
 
 <xsl:param name="generate.toc">
 /appendix toc,title
@@ -72,5 +73,5 @@ set       toc,title
 <xsl:template match="mediaobject[@role = 'cover']">
 </xsl:template>
 
-</xsl:stylesheet> 
+</xsl:stylesheet>
 

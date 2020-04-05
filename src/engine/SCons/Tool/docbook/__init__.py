@@ -351,11 +351,16 @@ def __build_lxml(target, source, env):
     else:
         result = transform(doc)
 
+    # we'd like the resulting output to be readably formatted,
+    # so try pretty-print. Sometimes (esp. if the output is
+    # not an xml file) we end up with a None type somewhere in
+    # the transformed tree and tostring throws TypeError,
+    # so provide a fallback.
     try:
         with open(str(target[0]), "wb") as of:
             of.write(etree.tostring(result, pretty_print=True))
-    except:
-        pass
+    except TypeError:
+        result.write_output(str(target[0]))
 
     return None
 
