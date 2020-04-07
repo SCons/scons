@@ -6,7 +6,7 @@ drive = os.path.splitdrive(os.getcwd())[0]
 drive_dir = env.fs.Dir(drive)
 
 if not isinstance(drive_dir, SCons.Node.FS.RootDir):
-	raise Exception('env.fs.Dir("%s") returned a %s instance of a RootDir' %
+	raise Exception('env.fs.Dir("%s") returned a %s instead of a RootDir' %
 					(drive, type(drive_dir)))
 
 drive_abspath1 = drive_dir._abspath

@@ -25,7 +25,11 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test to confirm that Dir(drive_path).abspath works on Windows.
+Test to confirm that Dir(drive_path).abspath works on Windows. This verifies
+that SCons no longer has an issue with Dir('T:').abspath returning 'T:\T:'.
+Instead, it verifies that Dir('T:') correctly returns an instance of the
+RootDir class and that class has abspath and path accessors that work
+correctly.
 """
 
 import TestSCons
@@ -36,8 +40,9 @@ test = TestSCons.TestSCons()
 if IS_WINDOWS:
     test.dir_fixture('DriveAbsPath')
     test.run()
-
-test.pass_test()
+    test.pass_test()
+else:
+    test.skip_test('Skipping Windows-only test.')
 
 # Local Variables:
 # tab-width:4
