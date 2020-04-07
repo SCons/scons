@@ -2246,7 +2246,7 @@ class RootDir(Dir):
     this directory.
     """
 
-    __slots__ = ('_lookupDict', )
+    __slots__ = ('_lookupDict', 'abspath', 'path')
 
     def __init__(self, drive, fs):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS.RootDir')
@@ -2287,6 +2287,12 @@ class RootDir(Dir):
         self._path = dirname
         self._tpath = dirname
         self.dirname = dirname
+
+        # EntryProxy interferes with this class and turns drive paths on
+        # Windows such as "C:" into "C:\C:". Avoid this problem by setting
+        # commonly-accessed attributes directly.
+        self.abspath = self._abspath
+        self.path = self._path
 
         self._morph()
 
