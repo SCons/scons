@@ -249,14 +249,21 @@ def get_output(vcbat, args=None, env=None):
     # Ongoing problems getting non-corrupted text led to this
     # changing to "oem" from "mbcs" - the scripts run presumably
     # attached to a console, so some particular rules apply.
+    # Unfortunately, "oem" not defined in Python 3.5, so get another way
+    if sys.version_info.major == 3 and sys.version_info.minor < 6:
+        from ctypes import windll
+
+        OEM = "cp{}".format(windll.kernel32.GetConsoleOutputCP())
+    else:
+        OEM = "oem"
     if stderr:
         # TODO: find something better to do with stderr;
         # this at least prevents errors from getting swallowed.
-        sys.stderr.write(stderr.decode("oem"))
+        sys.stderr.write(stderr.decode(OEM))
     if popen.wait() != 0:
-        raise IOError(stderr.decode("oem"))
+        raise IOError(stderr.decode(OEM))
 
-    return stdout.decode("oem")
+    return stdout.decode(OEM)
 
 
 KEEPLIST = (
