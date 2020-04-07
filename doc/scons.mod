@@ -447,6 +447,8 @@
 <!ENTITY Consenvs "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Construction environments</phrase>">
 <!ENTITY consenv "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>construction environment</phrase>">
 <!ENTITY consenvs "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>construction environments</phrase>">
+<!ENTITY DefEnv "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Default Environment</phrase>">
+<!ENTITY defenv "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>default environment</phrase>">
 
 <!ENTITY ConsVar "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Construction Variable</phrase>">
 <!ENTITY ConsVars "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Construction Variables</phrase>">

@@ -1836,9 +1836,10 @@ Examples:
 </para>
 
 <example_commands>
-Program('foo', Glob('*.c'))
-Zip('/tmp/everything', Glob('.??*') + Glob('*'))
-sources = Glob('*.cpp', exclude=['os_*_specific_*.cpp']) + Glob('os_%s_specific_*.cpp'%currentOS)
+Program("foo", Glob("*.c"))
+Zip("/tmp/everything", Glob(".??*") + Glob("*"))
+sources = Glob("*.cpp", exclude=["os_*_specific_*.cpp"]) + \
+          Glob( "os_%s_specific_*.cpp" % currentOS)
 </example_commands>
 </summary>
 </scons_function>

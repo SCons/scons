@@ -268,12 +268,8 @@ into a list of Dir instances relative to the target being built.
 <para>
 The list of suffixes of files that will be scanned
 for imported D package files.
-The default list is:
+The default list is <literal>['.d']</literal>.
 </para>
-
-<example_commands>
-['.d']
-</example_commands>
 </summary>
 </cvar>
 
@@ -584,9 +580,12 @@ in order to execute many of the global functions in this list
 from source code management systems.
 The default environment is a singleton, so the keyword
 arguments affect it only on the first call, on subsequent
-calls the already-constructed object is returned.
+calls the already-constructed object is returned and
+any arguments are ignored.
 The default environment can be modified in the same way
 as any &consenv;.
+Modifying the &defenv; has no effect on the environment
+constructed by a subsequent &f-Environment; call.
 </para>
 </summary>
 </scons_function>
