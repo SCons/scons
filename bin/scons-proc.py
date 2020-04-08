@@ -260,15 +260,26 @@ class Builder(SConsThing):
     tag = 'function'
     
     def xml_terms(self):
-        ta = stf.newNode("term")
-        b = stf.newNode(self.tag)
-        stf.setText(b, self.name+'()')
-        stf.appendNode(ta, b)
-        tb = stf.newNode("term")
-        b = stf.newNode(self.tag)
-        stf.setText(b, 'env.'+self.name+'()')
-        stf.appendNode(tb, b)
-        return [ta, tb]
+        """emit xml for an scons builder
+
+        builders don't show a full signature, just func()
+        """
+        gterm = stf.newNode("term")
+        sig = stf.newSubNode(gterm, "literal")
+        func = stf.newSubNode(sig, "emphasis", role="bold")
+        stf.setText(func, self.name)
+        stf.setTail(func, '()')
+
+        mterm = stf.newNode("term")
+        sig = stf.newSubNode(mterm, "literal")
+        inst = stf.newSubNode(sig, "replaceable")
+        stf.setText(inst, "env")
+        stf.setTail(inst, ".")
+        func = stf.newSubNode(sig, "emphasis", role="bold")
+        stf.setText(func, self.name)
+        stf.setTail(func, '()')
+
+        return [gterm, mterm]
             
     def entityfunc(self):
         return self.name
@@ -279,6 +290,11 @@ class Function(SConsThing):
     tag = 'function'
     
     def xml_terms(self):
+        """emit xml for an scons function
+
+        The signature attribute controls whether to emit the
+        global function, the enviroment method, or both.
+        """
         if self.arguments is None:
             a = stf.newNode("arguments")
             stf.setText(a, '()')
@@ -292,17 +308,22 @@ class Function(SConsThing):
                 signature = stf.getAttribute(arg, 'signature')
             s = stf.getText(arg).strip()
             if signature in ('both', 'global'):
-                t = stf.newNode("term")
-                syn = stf.newNode("literal")
-                stf.setText(syn, '%s%s' % (self.name, s))
-                stf.appendNode(t, syn)
-                tlist.append(t)
+                gterm = stf.newNode("term")
+                sig = stf.newSubNode(gterm, "literal")
+                func = stf.newSubNode(sig, "emphasis", role="bold")
+                stf.setText(func, self.name)
+                stf.setTail(func, s)
+                tlist.append(gterm)
             if signature in ('both', 'env'):
-                t = stf.newNode("term")
-                syn = stf.newNode("literal")
-                stf.setText(syn, 'env.%s%s' % (self.name, s))
-                stf.appendNode(t, syn)
-                tlist.append(t)
+                mterm = stf.newNode("term")
+                sig = stf.newSubNode(mterm, "literal")
+                inst = stf.newSubNode(sig, "replaceable")
+                stf.setText(inst, "env")
+                stf.setTail(inst, ".")
+                func = stf.newSubNode(sig, "emphasis", role="bold")
+                stf.setText(func, self.name)
+                stf.setTail(func, s)
+                tlist.append(mterm)
 
         if not tlist:
             tlist.append(stf.newNode("term"))
@@ -331,24 +352,24 @@ class Variable(SConsThing):
         return '$' + self.name
 
 def write_output_files(h, buildersfiles, functionsfiles,
-                         toolsfiles, variablesfiles, write_func):
+                       toolsfiles, variablesfiles, write_func):
     if buildersfiles:
-        g = processor_class([ Builder(b) for b in sorted(h.builders.values()) ],
+        g = processor_class([Builder(b) for b in sorted(h.builders.values())],
                             env_signatures=True)
         write_func(g, buildersfiles)
     
     if functionsfiles:
-        g = processor_class([ Function(b) for b in sorted(h.functions.values()) ],
+        g = processor_class([Function(b) for b in sorted(h.functions.values())],
                             env_signatures=True)
         write_func(g, functionsfiles)
     
     if toolsfiles:
-        g = processor_class([ Tool(t) for t in sorted(h.tools.values()) ],
+        g = processor_class([Tool(t) for t in sorted(h.tools.values())],
                             env_signatures=False)
         write_func(g, toolsfiles)
     
     if variablesfiles:
-        g = processor_class([ Variable(v) for v in sorted(h.cvars.values()) ],
+        g = processor_class([Variable(v) for v in sorted(h.cvars.values())],
                             env_signatures=False)
         write_func(g, variablesfiles)
 

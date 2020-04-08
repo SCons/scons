@@ -257,17 +257,21 @@ if not has_libxml2:
             pass
 
         @staticmethod
-        def newNode(tag):
-            return etree.Element(tag)
+        def newNode(tag, **kwargs):
+            return etree.Element(tag, **kwargs)
 
         @staticmethod
-        def newEtreeNode(tag, init_ns=False):
+        def newSubNode(parent, tag, **kwargs):
+            return etree.SubElement(parent, tag, **kwargs)
+
+        @staticmethod
+        def newEtreeNode(tag, init_ns=False, **kwargs):
             if init_ns:
                 NSMAP = {None: dbxsd,
                          'xsi' : xsi}
-                return etree.Element(tag, nsmap=NSMAP)
+                return etree.Element(tag, nsmap=NSMAP, **kwargs)
 
-            return etree.Element(tag)
+            return etree.Element(tag, **kwargs)
 
         @staticmethod
         def copyNode(node):
@@ -296,6 +300,14 @@ if not has_libxml2:
         @staticmethod
         def setText(root, txt):
             root.text = txt
+
+        @staticmethod
+        def getTail(root):
+            return root.tail
+
+        @staticmethod
+        def setTail(root, txt):
+            root.tail = txt
 
         @staticmethod
         def writeGenTree(root, fp):
@@ -387,12 +399,16 @@ else:
             pass
 
         @staticmethod
-        def newNode(tag):
-            return libxml2.newNode(tag)
+        def newNode(tag, **kwargs):
+            return etree.Element(tag, **kwargs)
 
         @staticmethod
-        def newEtreeNode(tag, init_ns=False):
-            return etree.Element(tag)
+        def newSubNode(parent, tag, **kwargs):
+            return etree.SubElement(parent, tag, **kwargs)
+
+        @staticmethod
+        def newEtreeNode(tag, init_ns=False, **kwargs):
+            return etree.Element(tag, **kwargs)
 
         @staticmethod
         def copyNode(node):
@@ -436,6 +452,14 @@ else:
                 root.setContent(txt)
             else:
                 root.text = txt
+
+        @staticmethod
+        def getTail(root):
+            return root.tail
+
+        @staticmethod
+        def setTail(root, txt):
+            root.tail = txt
 
         @staticmethod
         def writeGenTree(root, fp):
