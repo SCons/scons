@@ -293,7 +293,7 @@ class Function(SConsThing):
         """emit xml for an scons function
 
         The signature attribute controls whether to emit the
-        global function, the enviroment method, or both.
+        global function, the environment method, or both.
         """
         if self.arguments is None:
             a = stf.newNode("arguments")
