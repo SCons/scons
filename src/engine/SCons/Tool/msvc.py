@@ -214,6 +214,7 @@ ShCXXAction = SCons.Action.Action("$SHCXXCOM", "$SHCXXCOMSTR",
                                   batch_key=msvc_batch_key,
                                   targets='$CHANGED_TARGETS')
 
+
 def generate(env):
     """Add Builders and construction variables for MSVC++ to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)

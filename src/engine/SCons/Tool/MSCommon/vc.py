@@ -233,16 +233,16 @@ _VCVER = ["14.2", "14.1", "14.1Exp", "14.0", "14.0Exp", "12.0", "12.0Exp", "11.0
 
 # if using vswhere, a further mapping is needed
 _VCVER_TO_VSWHERE_VER = {
-    '14.2' : '[16.0, 17.0)',
-    '14.1' : '[15.0, 16.0)',
+    '14.2': '[16.0, 17.0)',
+    '14.1': '[15.0, 16.0)',
 }
 
 _VCVER_TO_PRODUCT_DIR = {
-    '14.2' : [
+    '14.2': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'')], # not set by this version
-    '14.1' : [
+    '14.1': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'')], # not set by this version
-    '14.1Exp' : [
+    '14.1Exp': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'')], # not set by this version
     '14.0' : [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\14.0\Setup\VC\ProductDir')],
@@ -290,6 +290,7 @@ _VCVER_TO_PRODUCT_DIR = {
         ]
 }
 
+
 def msvc_version_to_maj_min(msvc_version):
     msvc_version_numeric = get_msvc_version_numeric(msvc_version)
 
@@ -302,6 +303,7 @@ def msvc_version_to_maj_min(msvc_version):
         return maj, min
     except ValueError as e:
         raise ValueError("Unrecognized version %s (%s)" % (msvc_version,msvc_version_numeric))
+
 
 def is_host_target_supported(host_target, msvc_version):
     """Check if (host, target) pair is supported for a VC version.
