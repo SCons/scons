@@ -1,11 +1,11 @@
 @REM __COPYRIGHT__
 @REM __FILE__ __REVISION__ __DATE__ __DEVELOPER__
-@echo off
+@REM echo off
 set SCONS_ERRORLEVEL=
 if "%OS%" == "Windows_NT" goto WinNT
 
 @REM for 9x/Me you better not have more than 9 args
-python -c "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-__VERSION__'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons-__VERSION__'), join(sys.prefix, 'scons')] + sys.path; import SCons.Script; SCons.Script.main()" %1 %2 %3 %4 %5 %6 %7 %8 %9
+py -c "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-__VERSION__'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons-__VERSION__'), join(sys.prefix, 'scons')] + sys.path; import SCons.Script; SCons.Script.main()" %1 %2 %3 %4 %5 %6 %7 %8 %9
 @REM no way to set exit status of this script for 9x/Me
 goto endscons
 
@@ -24,7 +24,7 @@ set scriptname=%~dp0%~n0.py
 if not exist "%scriptname%" set scriptname=%~dp0Scripts\%~n0.py
 @REM Handle when running from wheel where the script has no .py extension
 if not exist "%scriptname%" set scriptname=%~dp0%~n0
-python "%scriptname%" %*
+py "%scriptname%" %*
 endlocal & set SCONS_ERRORLEVEL=%ERRORLEVEL%
 
 if NOT "%COMSPEC%" == "%SystemRoot%\system32\cmd.exe" goto returncode

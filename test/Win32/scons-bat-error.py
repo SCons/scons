@@ -39,7 +39,7 @@ if sys.platform != 'win32':
     msg = "Skipping scons.bat test on non-Windows platform '%s'\n" % sys.platform
     test.skip_test(msg)
 
-python = test.where_is('python')
+python = sys.executable #test.where_is('python')
 
 if not python:
     msg = "Skipping scons.bat test; python is not on %PATH%.\n"

@@ -30,6 +30,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Add msys2 installed mingw default path to PATH for mingw tool.
       - C:\msys64\mingw64\bin
     - Purge obsolete internal build and tooling scripts
+    - Allow user specified location for vswhere.exe specified by VSWHERE. 
+      NOTE: This must be set at the time the 'msvc' tool is initialized to have any effect.
     
   From Jeremy Elson:
     - Updated design doc to use the correct syntax for Depends()

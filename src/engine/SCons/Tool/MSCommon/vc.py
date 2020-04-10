@@ -323,7 +323,32 @@ def is_host_target_supported(host_target, msvc_version):
     return True
 
 
-def find_vc_pdir_vswhere(msvc_version):
+VSWHERE_PATHS = [os.path.join(p,'vswhere.exe') for p in  [
+    os.path.expandvars(r"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer"),
+    os.path.expandvars(r"%ProgramFiles%\Microsoft Visual Studio\Installer"),
+    os.path.expandvars(r"%ChocolateyInstall%\bin"),
+]]
+
+def msvc_find_vswhere():
+    """
+    Find the location of vswhere
+    """
+    # For bug 3333: support default location of vswhere for both
+    # 64 and 32 bit windows installs.
+    # For bug 3542: also accommodate not being on C: drive.
+    # NB: this gets called from testsuite on non-Windows platforms.
+    # Whether that makes sense or not, don't break it for those.
+    # TODO: requested to add a user-specified path to vswhere
+    #       and have this routine set the same var if it finds it.
+    vswhere_path = None
+    for pf in VSWHERE_PATHS:
+        if os.path.exists(pf):
+            vswhere_path = pf
+            break
+
+    return vswhere_path
+
+def find_vc_pdir_vswhere(msvc_version, env=None):
     """
     Find the MSVC product directory using the vswhere program.
 
@@ -338,26 +363,12 @@ def find_vc_pdir_vswhere(msvc_version):
         debug("Unknown version of MSVC: %s" % msvc_version)
         raise UnsupportedVersion("Unknown version %s" % msvc_version)
 
-    # For bug 3333: support default location of vswhere for both
-    # 64 and 32 bit windows installs.
-    # For bug 3542: also accommodate not being on C: drive.
-    # NB: this gets called from testsuite on non-Windows platforms.
-    # Whether that makes sense or not, don't break it for those.
-    # TODO: requested to add a user-specified path to vswhere
-    #       and have this routine set the same var if it finds it.
-    pfpaths = [
-        os.path.expandvars(r"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer"),
-        os.path.expandvars(r"%ProgramFiles%\Microsoft Visual Studio\Installer"),
-        os.path.expandvars(r"%ChocolateyInstall%\bin"),
-    ]
-    for pf in pfpaths:
-        vswhere_path = os.path.join(pf, "vswhere.exe")
-        if os.path.exists(vswhere_path):
-            break
+    if env is None or not env.get('VSWHERE'):
+        vswhere_path = msvc_find_vswhere()
     else:
-        # No vswhere on system, no install info available this way
-        return None
+        vswhere_path = env.subst('$VSWHERE')
 
+    debug('find_vc_pdir_vswhere(): VSWHERE = %s'%vswhere_path)
     vswhere_cmd = [
         vswhere_path,
         "-products", "*",
@@ -381,7 +392,7 @@ def find_vc_pdir_vswhere(msvc_version):
         return None
 
 
-def find_vc_pdir(msvc_version):
+def find_vc_pdir(env, msvc_version):
     """Find the MSVC product directory for the given version.
 
     Tries to look up the path using a registry key from the table
@@ -412,7 +423,7 @@ def find_vc_pdir(msvc_version):
         try:
             comps = None
             if not key:
-                comps = find_vc_pdir_vswhere(msvc_version)
+                comps = find_vc_pdir_vswhere(msvc_version, env)
                 if not comps:
                     debug('find_vc_pdir_vswhere(): no VC found for version {}'.format(repr(msvc_version)))
                     raise SCons.Util.WinError
@@ -450,7 +461,7 @@ def find_batch_file(env,msvc_version,host_arch,target_arch):
     so use that and return an indication we don't need the argument
     we would have computed to run vcvarsall.bat.
     """
-    pdir = find_vc_pdir(msvc_version)
+    pdir = find_vc_pdir(env, msvc_version)
     if pdir is None:
         raise NoVersionFound("No version of Visual Studio found")
     debug('find_batch_file() in {}'.format(pdir))
@@ -635,7 +646,7 @@ def get_installed_vcs(env=None):
     for ver in _VCVER:
         debug('trying to find VC %s' % ver)
         try:
-            VC_DIR = find_vc_pdir(ver)
+            VC_DIR = find_vc_pdir(env, ver)
             if VC_DIR:
                 debug('found VC %s' % ver)
                 if _check_cl_exists_in_vc_dir(env, VC_DIR, ver):
