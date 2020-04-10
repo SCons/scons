@@ -51,13 +51,9 @@ def generate_all():
                              '-v', argpair('variables')] + flist,
                             shell=False)
 
-        cp.check_returncode()  # bail if it failed
-        # lxml: fixup possibly broken tools.gen:
-        with open(os.path.join(gen_folder, 'tools.gen'), 'r') as f :
-            filedata = f.read()
-        filedata = filedata.replace(r'&amp;cv-link', r'&cv-link')
-        with open(os.path.join(gen_folder, 'tools.gen'), 'w') as f :
-            f.write(filedata)
+        # No-op: scons-proc doesn't actually set an exit code at the moment.
+        if cp.returncode:
+            print("Generation failed", file=sys.stderr)
     
     
 if __name__ == "__main__":
