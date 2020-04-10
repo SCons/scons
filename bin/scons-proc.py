@@ -141,23 +141,31 @@ class SCons_XML(object):
                     added = True
                     stf.appendNode(vl, stf.copyNode(s))
             
+            # Generate the text for sets/uses lists of construction vars.
+            # This used to include an entity reference which would be replaced
+            # by the link to the cvar, but with lxml, dumping out the tree
+            # with tostring() will encode the & introducing the entity,
+            # breaking it. Instead generate the actual link. (issue #3580)
             if v.sets:
                 added = True
                 vp = stf.newNode("para")
-                # if using lxml, the &entity; entries will be encoded,
-                # effectively breaking them.  should fix,
-                # for now handled post-process in calling script.
-                s = ['&cv-link-%s;' % x for x in v.sets]
-                stf.setText(vp, 'Sets:  ' + ', '.join(s) + '.')
+                stf.setText(vp, "Sets: ")
+                for setv in v.sets:
+                    link = stf.newSubNode(vp, "link", linkend="cv-%s" % setv)
+                    linktgt = stf.newSubNode(link, "varname")
+                    stf.setText(linktgt, "$" + setv)
+                    stf.setTail(link, " ")
                 stf.appendNode(vl, vp)
+
             if v.uses:
                 added = True
                 vp = stf.newNode("para")
-                # if using lxml, the &entity; entries will be encoded,
-                # effectively breaking them.  should fix,
-                # for now handled post-process in calling script.
-                u = ['&cv-link-%s;' % x for x in v.uses]
-                stf.setText(vp, 'Uses:  ' + ', '.join(u) + '.')
+                stf.setText(vp, "Uses: ")
+                for use in v.uses:
+                    link = stf.newSubNode(vp, "link", linkend="cv-%s" % use)
+                    linktgt = stf.newSubNode(link, "varname")
+                    stf.setText(linktgt, "$" + use)
+                    stf.setTail(link, " ")
                 stf.appendNode(vl, vp)
                 
             # Still nothing added to this list item?
