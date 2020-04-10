@@ -422,7 +422,11 @@ env.MSVSProject(target='Bar' + env['MSVSPROJECTSUFFIX'],
       </variablelist>
       <para>Example Usage:</para>
       <example_commands>
-env.MSVSSolution(target='Bar' + env['MSVSSOLUTIONSUFFIX'], projects=['bar' + env['MSVSPROJECTSUFFIX']], variant='Release')
+env.MSVSSolution(
+    target="Bar" + env["MSVSSOLUTIONSUFFIX"],
+    projects=["bar" + env["MSVSPROJECTSUFFIX"]],
+    variant="Release",
+)
       </example_commands>
     </summary>
   </builder> <cvar name="MSVS">

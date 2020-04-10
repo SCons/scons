@@ -120,7 +120,7 @@ If this is not set, then &cv-link-JARCOM; (the command line) is displayed.
 </para>
 
 <example_commands>
-env = Environment(JARCOMSTR = "JARchiving $SOURCES into $TARGET")
+env = Environment(JARCOMSTR="JARchiving $SOURCES into $TARGET")
 </example_commands>
 </summary>
 </cvar>

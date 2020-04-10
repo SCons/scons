@@ -171,7 +171,7 @@ See its __doc__ string for a discussion of the format.
             </para>
 
             <example_commands>
-                env.AppendUnique(FRAMEWORKS=Split('System Cocoa SystemConfiguration'))
+env.AppendUnique(FRAMEWORKS=Split('System Cocoa SystemConfiguration'))
             </example_commands>
 
         </summary>
@@ -213,7 +213,7 @@ See its __doc__ string for a discussion of the format.
             </para>
 
             <example_commands>
-                env.AppendUnique(FRAMEWORKPATH='#myframeworkdir')
+env.AppendUnique(FRAMEWORKPATH='#myframeworkdir')
             </example_commands>
 
             <para>
@@ -221,7 +221,7 @@ See its __doc__ string for a discussion of the format.
             </para>
 
             <example_commands>
-                ... -Fmyframeworkdir
+... -Fmyframeworkdir
             </example_commands>
 
             <para>
