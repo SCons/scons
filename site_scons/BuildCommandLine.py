@@ -102,25 +102,28 @@ class BuildCommandLine(object):
 
         self.revision = ARGUMENTS.get('REVISION', '')
 
-        def generate_build_id(revision):
+        def _generate_build_id(revision):
             return revision
+
+        generate_build_id=_generate_build_id
 
         if not self.revision and BuildCommandLine.git:
             with os.popen("%s rev-parse HEAD 2> /dev/null" % BuildCommandLine.git, "r") as p:
                 self.git_hash = p.read().strip()
 
-            def generate_build_id(revision):
+            def _generate_build_id_git(revision):
                 result = self.git_hash
                 if [l for l in self.git_status_lines if 'modified' in l]:
                     result = result + '[MODIFIED]'
                 return result
 
+            generate_build_id = _generate_build_id_git
             self.revision = self.git_hash
 
         self.checkpoint = ARGUMENTS.get('CHECKPOINT', '')
         if self.checkpoint:
             if self.checkpoint == 'd':
-                cself.heckpoint = time.strftime('%Y%m%d', time.localtime(time.time()))
+                self.checkpoint = time.strftime('%Y%m%d', time.localtime(time.time()))
             elif self.checkpoint == 'r':
                 self.checkpoint = 'r' + self.revision
             self.version = self.version + '.beta.' + self.checkpoint

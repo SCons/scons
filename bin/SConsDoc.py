@@ -114,6 +114,7 @@ import os.path
 import re
 import sys
 import copy
+import importlib
 
 # Do we have libxml2/libxslt/lxml?
 has_libxml2 = True
@@ -867,7 +868,7 @@ def importfile(path):
     try:
         return importlib._bootstrap._load(spec)
     except ImportError:
-        raise ErrorDuringImport(path, sys.exc_info())
+        raise Exception(path, sys.exc_info())
 
 # Local Variables:
 # tab-width:4

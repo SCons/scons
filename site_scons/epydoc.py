@@ -53,7 +53,7 @@ if not epydoc_cli:
 
             from epydoc.docbuilder import build_doc_index
             from epydoc.docwriter.html import HTMLWriter
-            from epydoc.docwriter.latex import LatexWriter
+            # from epydoc.docwriter.latex import LatexWriter
 
             # first arg is a list where can be names of python package dirs,
             # python files, object names or objects itself

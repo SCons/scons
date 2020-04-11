@@ -32,7 +32,6 @@ directory tree.
 import TestSCons_time
 
 test = TestSCons_time.TestSCons_time()
-test.verbose_set(1)
 
 test.write_fake_scons_py()
 

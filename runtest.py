@@ -486,26 +486,8 @@ ld = None
 if not baseline or baseline == '.':
     base = cwd
 elif baseline == '-':
-    url = None
-    with os.popen("svn info 2>&1", "r") as p:
-        svn_info =  p.read()
-    match = re.search(r'URL: (.*)', svn_info)
-    if match:
-        url = match.group(1)
-    if not url:
-        sys.stderr.write('runtest.py: could not find a URL:\n')
-        sys.stderr.write(svn_info)
-        sys.exit(1)
-    import tempfile
-    base = tempfile.mkdtemp(prefix='runtest-tmp-')
-
-    command = 'cd %s && svn co -q %s' % (base, url)
-
-    base = os.path.join(base, os.path.split(url)[1])
-    if printcommand:
-        print(command)
-    if execute_tests:
-        os.system(command)
+    print("This logic used to checkout from svn. It's been removed. If you used this, please let us know on devel mailing list, IRC, or discord server")
+    sys.exit(-1)
 else:
     base = baseline
 

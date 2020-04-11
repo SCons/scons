@@ -1,5 +1,5 @@
 import fnmatch
-from setuptools import find_packages, setup
+from setuptools import setup
 from setuptools.command.build_py import build_py as build_py_orig
 
 

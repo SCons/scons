@@ -218,12 +218,12 @@ def nodeinfo_raw(name, ninfo, prefix=""):
         keys = ninfo.field_list + ['_version_id']
     except AttributeError:
         keys = sorted(d.keys())
-    l = []
-    for k in keys:
-        l.append('%s: %s' % (repr(k), repr(d.get(k))))
+    values = []
+    for key in keys:
+        values.append('%s: %s' % (repr(key), repr(d.get(key))))
     if '\n' in name:
         name = repr(name)
-    return name + ': {' + ', '.join(l) + '}'
+    return name + ': {' + ', '.join(values) + '}'
 
 
 def nodeinfo_cooked(name, ninfo, prefix=""):
@@ -280,7 +280,7 @@ def printentries(entries, location):
         for name in sorted(entries.keys()):
             entry = entries[name]
             try:
-                ninfo = entry.ninfo
+                entry.ninfo
             except AttributeError:
                 print(name + ":")
             else:
