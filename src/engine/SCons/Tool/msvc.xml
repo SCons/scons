@@ -482,14 +482,23 @@ Specify the location of vswhere.exe.
 </para>
 
 <para>
-<literal>vswhere.exe</literal> is used to locate MSVC/MSVS installations.
-It was initially distributed with MSVS 2017. But can detect MSVC 2010 and newer with <literal>-legacy</literal> argument. 
+Propose: The <command>vswhere</command> command is distributed with Microsoft Visual Studio and Build
+    Tools since the 2017 edition, but is also available standalone. It fully detects 2017 and later editions,
+    but with the <option>-legacy</option> argument, can detect installations of the 2010 through 2015
+    editions with limited data returned.
 If &cv-VSWHERE; is set, SCons will use that location.
 </para>
 <para>
-Otherwise SCons will look in the following locations and set VSWHERE to the first directory <literal>vswhere.exe</literal>
-is found.
+    Otherwise SCons will look in the following locations and set &cv-VSWHERE; to the path of the first <command>vswhere.exe</command>
+located.
 </para>
+
+<itemizedlist>
+<listitem><literal>%ProgramFiles(x86)%\Microsoft Visual Studio\Installer</literal></listitem>
+<listitem><literal>"%ProgramFiles%\Microsoft Visual Studio\Installer</literal></listitem>
+<listitem><literal>%ChocolateyInstall%\bin</literal></listitem>
+</itemizedlist>
+
 <para>
 Note that &cv-VSWHERE; must be set at the same time or prior to the msvc tool being initialized. So either set it as follows
 <literal>Environment(VSWHERE='c:/my/path/to/vswhere')</literal> or 
@@ -499,11 +508,7 @@ if your Environment() is created specifying no tools <literal>tools=[]</literal>
 
 
 
-<itemizedlist>
-<listitem><literal>%ProgramFiles(x86)%\Microsoft Visual Studio\Installer</literal></listitem>
-<listitem><literal>"%ProgramFiles%\Microsoft Visual Studio\Installer</literal></listitem>
-<listitem><literal>%ChocolateyInstall%\bin</literal></listitem>
-</itemizedlist>
+
 
 </summary>
 </cvar>
