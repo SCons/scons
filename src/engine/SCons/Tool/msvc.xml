@@ -487,14 +487,14 @@ It was initially distributed with MSVS 2017. But can detect MSVC 2010 and newer 
 If &cv-VSWHERE; is set, SCons will use that location.
 </para>
 <para>
-Otherwise SCons will look in the following locations and set VSWHERE to the PATH <literal>vswhere.exe</literal>
-is located.
+Otherwise SCons will look in the following locations and set VSWHERE to the first directory <literal>vswhere.exe</literal>
+is found.
 </para>
 <para>
-Note that &cv-VSWHERE; must be set in when tool msvc is initialized. This is either in the call to 
+Note that &cv-VSWHERE; must be set at the same time or prior to the msvc tool being initialized. So either set it as follows
 <literal>Environment(VSWHERE='c:/my/path/to/vswhere')</literal> or 
-if Environment created specifying not to automatically initialize any tools or tools which doesn't include msvc or MSVS
-such as <literal>Environment(Tools=[])</literal>
+if your Environment() is created specifying no tools <literal>tools=[]</literal> or with a list of tools not including msvs or msvc or mslink
+    such as <literal>Environment(Tools=[])</literal>
 </para>
 
 

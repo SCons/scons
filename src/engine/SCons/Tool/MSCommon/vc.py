@@ -338,8 +338,6 @@ def msvc_find_vswhere():
     # For bug 3542: also accommodate not being on C: drive.
     # NB: this gets called from testsuite on non-Windows platforms.
     # Whether that makes sense or not, don't break it for those.
-    # TODO: requested to add a user-specified path to vswhere
-    #       and have this routine set the same var if it finds it.
     vswhere_path = None
     for pf in VSWHERE_PATHS:
         if os.path.exists(pf):
