@@ -894,7 +894,11 @@ class SConsTimer(object):
     def do_mem(self, argv):
 
         format = 'ascii'
-        logfile_path = lambda x: x
+        def _logfile_path(x):
+            return x
+
+        logfile_path = _logfile_path
+
         stage = self.default_stage
         tail = None
 
@@ -943,10 +947,12 @@ class SConsTimer(object):
 
         if self.chdir:
             os.chdir(self.chdir)
-            logfile_path = lambda x: os.path.join(self.chdir, x)
+            def _logfile_path_join(x):
+                return os.path.join(self.chdir, x)
+
+            logfile_path = _logfile_path_join
 
         if not args:
-
             pattern = '%s*.log' % self.prefix
             args = self.args_to_files([pattern], tail)
 
@@ -1008,7 +1014,12 @@ class SConsTimer(object):
     def do_obj(self, argv):
 
         format = 'ascii'
-        logfile_path = lambda x: x
+
+        def _logfile_path(x):
+            return x
+
+        logfile_path = _logfile_path
+
         stage = self.default_stage
         tail = None
 
@@ -1065,10 +1076,13 @@ class SConsTimer(object):
 
         if self.chdir:
             os.chdir(self.chdir)
-            logfile_path = lambda x: os.path.join(self.chdir, x)
+
+            def _logfile_path_join(x):
+                return os.path.join(self.chdir, x)
+
+            logfile_path = _logfile_path_join
 
         if not args:
-
             pattern = '%s*.log' % self.prefix
             args = self.args_to_files([pattern], tail)
 
@@ -1372,7 +1386,12 @@ class SConsTimer(object):
     def do_time(self, argv):
 
         format = 'ascii'
-        logfile_path = lambda x: x
+
+        def _logfile_path(x):
+            return x
+
+        logfile_path = _logfile_path
+
         tail = None
         which = 'total'
 
@@ -1422,10 +1441,13 @@ class SConsTimer(object):
 
         if self.chdir:
             os.chdir(self.chdir)
-            logfile_path = lambda x: os.path.join(self.chdir, x)
+
+            def _logfile_path_join(x):
+                return os.path.join(self.chdir, x)
+
+            logfile_path = _logfile_path_join
 
         if not args:
-
             pattern = '%s*.log' % self.prefix
             args = self.args_to_files([pattern], tail)
 
