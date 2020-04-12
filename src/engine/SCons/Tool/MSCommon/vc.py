@@ -366,6 +366,9 @@ def find_vc_pdir_vswhere(msvc_version, env=None):
     else:
         vswhere_path = env.subst('$VSWHERE')
 
+    if vswhere_path is None:
+        return None
+
     debug('find_vc_pdir_vswhere(): VSWHERE = %s'%vswhere_path)
     vswhere_cmd = [
         vswhere_path,
@@ -373,6 +376,8 @@ def find_vc_pdir_vswhere(msvc_version, env=None):
         "-version", vswhere_version,
         "-property", "installationPath",
     ]
+
+    debug("find_vc_pdir_vswhere(): running: %s" % vswhere_cmd)
 
     #cp = subprocess.run(vswhere_cmd, capture_output=True)  # 3.7+ only
     cp = subprocess.run(vswhere_cmd, stdout=PIPE, stderr=PIPE)
