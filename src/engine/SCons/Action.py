@@ -964,7 +964,7 @@ class CommandAction(_ActionAction):
         if is_String(icd) and icd[:1] == '$':
             icd = env.subst(icd)
 
-        if not icd or icd in ('0', 'None'):
+        if not icd or str(icd).lower in ('0', 'none', 'false', 'no', 'off'):
             return []
 
         try:

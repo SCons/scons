@@ -50,8 +50,10 @@ in the &consenv; used to execute the command.
 The default is the same as
 setting the &consvar;
 &cv-IMPLICIT_COMMAND_DEPENDENCIES;
-to a true value (<literal>True</literal>,
-any non-zero number, etc.).
+to a True-like value (<quote>true</quote>,
+<quote>yes</quote>,
+or <quote>1</quote> - but not a number
+greater than one, as that has a different meaning).
 </para>
 
 <para>
@@ -68,10 +70,11 @@ is applied to each segment.
 
 <para>
 If &cv-IMPLICIT_COMMAND_DEPENDENCIES;
-is set to a false value
-(<literal>None</literal>,
-<literal>False</literal>,
-<literal>0</literal>,
+is set to a False-like value
+(<quote>none</quote>,
+<quote>false</quote>,
+<quote>no</quote>,
+<quote>0</quote>,
 etc.),
 then the implicit dependency will
 not be added to the targets
@@ -80,7 +83,7 @@ built with that &consenv;.
 
 <para>
 If &cv-IMPLICIT_COMMAND_DEPENDENCIES;
-is set to integer <literal>2</literal> or higher,
+is set to <quote>2</quote> or higher,
 then that number of arguments in the command line
 will be scanned for relative or absolute paths.
 If any are present, they will be added as
@@ -97,7 +100,7 @@ to the working directory.
 
 <para>
 If &cv-IMPLICIT_COMMAND_DEPENDENCIES;
-is set to <literal>all</literal>,
+is set to <quote>all</quote>,
 then all arguments in the command line will be
 scanned for relative or absolute paths.
 If any are present, they will be added as
