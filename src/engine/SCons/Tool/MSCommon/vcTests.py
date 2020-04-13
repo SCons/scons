@@ -48,7 +48,8 @@ MS_TOOLS_VERSION='1.1.1'
 class VswhereTestCase(unittest.TestCase):
     @staticmethod
     def _createVSWhere(path):
-        os.makedirs(os.path.dirname(path))
+        if not os.path.isdir(os.path.dirname(path)):
+            os.makedirs(os.path.dirname(path))
         with open(path, 'w') as f:
             f.write("Created:%s"%f)
 
