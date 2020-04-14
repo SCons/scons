@@ -220,6 +220,10 @@ def main():
 
 
 if __name__ == "__main__":
+    print("Please use")
+    print("python scripts/scons.py")
+    print("Instead of python bootstrap.py. Bootstrap.py is obsolete")
+    sys.exit(-1)
     main()
 
 # Local Variables:
