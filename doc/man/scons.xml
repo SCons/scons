@@ -2001,15 +2001,15 @@ These warnings are enabled by default.</para>
   <listitem>
 <para>Warnings about attempts to set the
 reserved &consvar; names
-<varname>CHANGED_SOURCES</varname>,
-<varname>CHANGED_TARGETS</varname>,
-<varname>TARGET</varname>,
-<varname>TARGETS</varname>,
-<varname>SOURCE</varname>,
-<varname>SOURCES</varname>,
-<varname>UNCHANGED_SOURCES</varname>
+&cv-CHANGED_SOURCES;,
+&cv-CHANGED_TARGETS;,
+&cv-TARGET;,
+&cv-TARGETS;,
+&cv-SOURCE;,
+&cv-SOURCES;,
+&cv-UNCHANGED_SOURCES;
 or
-<varname>UNCHANGED_TARGETS</varname>.
+&cv-UNCHANGED_TARGETS;.
 These warnings are disabled by default.</para>
   </listitem>
   </varlistentry>
@@ -2120,11 +2120,11 @@ env = Environment(parse_flags='-Iinclude -DEBUG -lm')
 </programlisting>
 
 <para>This example adds 'include' to
-the <varname>CPPPATH</varname> &consvar;
+the <envar>CPPPATH</envar> &consvar;
 'EBUG' to
-<varname>CPPDEFINES</varname>,
+<envar>CPPDEFINES</envar>,
 and 'm' to
-<varname>LIBS</varname>.
+<envar>LIBS</envar>.
 &f-link-env-ParseFlags; describes how these arguments
 are distributed to &consvars;.
 </para>
@@ -2153,12 +2153,12 @@ and suffixes appropriate for that platform.</para>
 <para>Note that the
 <emphasis role="bold">win32</emphasis>
 platform adds the
-<varname>SystemDrive</varname>
+<envar>SystemDrive</envar>
 and
-<varname>SystemRoot</varname>
+<envar>SystemRoot</envar>
 variables from the user's external environment
 to the &consenv;'s
-<varname>ENV</varname>
+<envar>ENV</envar>
 dictionary.
 This is so that any executed commands
 that use sockets to connect with other systems
@@ -2540,7 +2540,7 @@ env.SharedLibrary('word', 'word.cpp',
                   LIBSUFFIXES=['.ocx'])
 </programlisting>
 
-<para>Note that both the <varname>$SHLIBSUFFIX</varname> and <varname>$LIBSUFFIXES</varname>
+<para>Note that both the <envar>$SHLIBSUFFIX</envar> and <envar>$LIBSUFFIXES</envar>
 variables must be set if you want SCons to search automatically
 for dependencies on the non-standard library names;
 see the descriptions of these variables, below, for more information.</para>
@@ -2558,11 +2558,11 @@ env = Program('hello', 'hello.c', parse_flags='-Iinclude -DEBUG -lm')
 </programlisting>
 
 <para>This example adds 'include' to
-<varname>CPPPATH</varname>,
+<envar>CPPPATH</envar>,
 'EBUG' to
-<varname>CPPDEFINES</varname>,
+<envar>CPPDEFINES</envar>,
 and 'm' to
-<varname>LIBS</varname>.</para>
+<envar>LIBS</envar>.</para>
 
 <para>Although the builder methods defined by
 &scons;
@@ -5614,11 +5614,8 @@ and configured with the same &consenv;
 into single invocations of the Action object's
 command line or function.
 Command lines will typically want to use the
-<varname>cHANGED_SOURCES</varname>
-&consvar;
-(and possibly
-<varname>CHANGED_TARGETS</varname>
-as well)
+&cv-CHANGED_SOURCES; &consvar;
+(and possibly &cv-CHANGED_TARGETS; as well)
 to only pass to the command line those sources that
 have actually changed since their targets were built.</para>
 
@@ -5948,7 +5945,7 @@ special variables for each command execution:</para>
 
 <variablelist>
   <varlistentry>
-  <term><varname>CHANGED_SOURCES</varname></term>
+  <term>&cv-CHANGED_SOURCES;</term>
   <listitem>
 <para>The file names of all sources of the build command
 that have changed since the target was last built.</para>
@@ -5956,7 +5953,7 @@ that have changed since the target was last built.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><varname>CHANGED_TARGETS</varname></term>
+  <term>&cv-CHANGED_TARGETS;</term>
   <listitem>
 <para>The file names of all targets that would be built
 from sources that have changed since the target was last built.</para>
@@ -5964,7 +5961,7 @@ from sources that have changed since the target was last built.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><varname>SOURCE</varname></term>
+  <term>&cv-SOURCE;</term>
   <listitem>
 <para>The file name of the source of the build command,
 or the file name of the first source
@@ -5973,14 +5970,14 @@ if multiple sources are being built.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><varname>SOURCES</varname></term>
+  <term>&cv-SOURCES;</term>
   <listitem>
 <para>The file names of the sources of the build command.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><varname>TARGET</varname></term>
+  <term>&cv-TARGET;</term>
   <listitem>
 <para>The file name of the target being built,
 or the file name of the first target
@@ -5989,14 +5986,14 @@ if multiple targets are being built.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><varname>TARGETS</varname></term>
+  <term>&cv-TARGETS;</term>
   <listitem>
 <para>The file names of all targets being built.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><varname>UNCHANGED_SOURCES</varname></term>
+  <term>&cv-UNCHANGED_SOURCES;</term>
   <listitem>
 <para>The file names of all sources of the build command
 that have
@@ -6006,7 +6003,7 @@ changed since the target was last built.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>UNCHANGED_TARGETS</term>
+  <term>&cv-UNCHANGED_TARGETS;</term>
   <listitem>
 <para>The file names of all targets that would be built
 from sources that have
@@ -6187,7 +6184,7 @@ ${SOURCE.rsrcdir}    =&gt; /usr/repository/src
 to enclose arbitrary Python code to be evaluated.
 (In fact, this is how the above modifiers are substituted,
 they are simply attributes of the Python objects
-that represent TARGET, SOURCES, etc.)
+that represent &cv-TARGET;, &cv-SOURCES;, etc.)
 See the section "Python Code Substitution" below,
 for more thorough examples of
 how this can be used.</para>
@@ -6351,12 +6348,12 @@ built, not when the SConscript is being read.  So if
 later in the SConscript, the final value will be used.</para>
 
 <para>Here's a more interesting example.  Note that all of
-<varname>COND</varname>,
-<varname>FOO</varname>,
+<envar>COND</envar>,
+<envar>FOO</envar>,
 and
-<varname>BAR</varname> are &consvars;,
+<envar>BAR</envar> are &consvars;,
 and their values are substituted into the final command.
-<varname>FOO</varname> is a list, so its elements are interpolated
+<envar>FOO</envar> is a list, so its elements are interpolated
 separated by spaces.</para>
 
 <programlisting language="python">
@@ -6933,7 +6930,7 @@ env.Program(target = 'bar', source = 'bar.c')
 </programlisting>
 
 <para>You also can use other Pythonic techniques to add
-to the <varname>BUILDERS</varname> &consvar;, such as:</para>
+to the <envar>BUILDERS</envar> &consvar;, such as:</para>
 
 <programlisting language="python">
 env = Environment()
