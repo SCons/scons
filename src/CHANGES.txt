@@ -93,6 +93,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fixed bug where changing TEXTFILESUFFIX would cause Substfile() to rebuild. (Github Issue #3540)
     - Script/Main.py now uses importlib instead of imp module.
     - Drop some Python 2-isms.
+    - MSVC updates: pass on VSCMD_DEBUG and VSCMD_SKIP_SENDTELEMETRY to msvc
+      tool setup if set in environment. Add powershell to default env
+      (used to call telemetry script).
     - Docbook builder provides a fallback if lxml fails to generate
       a document with tostring().
 
