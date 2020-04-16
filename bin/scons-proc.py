@@ -251,6 +251,7 @@ class Proxy(object):
     ##     return self.__dict__ < other.__dict__
 
 class SConsThing(Proxy):
+    """Base class for the SConsDoc special elements"""
     def idfunc(self):
         return self.name
     
@@ -260,6 +261,7 @@ class SConsThing(Proxy):
         return [e]
 
 class Builder(SConsThing):
+    """Generate the descriptions and entities for <builder> elements"""
     description = 'builder'
     prefix = 'b-'
     tag = 'function'
@@ -269,20 +271,20 @@ class Builder(SConsThing):
 
         builders don't show a full signature, just func()
         """
+        # build term for global function
         gterm = stf.newNode("term")
-        sig = stf.newSubNode(gterm, "literal")
-        func = stf.newSubNode(sig, "emphasis", role="bold")
+        func = stf.newSubNode(gterm, "function")
         stf.setText(func, self.name)
         stf.setTail(func, '()')
 
+        # build term for env. method
         mterm = stf.newNode("term")
-        sig = stf.newSubNode(mterm, "literal")
-        inst = stf.newSubNode(sig, "replaceable")
+        inst = stf.newSubNode(mterm, "parameter")
         stf.setText(inst, "env")
         stf.setTail(inst, ".")
-        func = stf.newSubNode(sig, "emphasis", role="bold")
-        stf.setText(func, self.name)
-        stf.setTail(func, '()')
+        meth = stf.newSubNode(mterm, "methodname")
+        stf.setText(meth, self.name)
+        stf.setTail(meth, '()')
 
         return [gterm, mterm]
             
@@ -290,6 +292,7 @@ class Builder(SConsThing):
         return self.name
 
 class Function(SConsThing):
+    """Generate the descriptions and entities for <scons_function> elements"""
     description = 'function'
     prefix = 'f-'
     tag = 'function'
@@ -311,23 +314,37 @@ class Function(SConsThing):
             signature = 'both'
             if stf.hasAttribute(arg, 'signature'):
                 signature = stf.getAttribute(arg, 'signature')
-            s = stf.getText(arg).strip()
+            sig = stf.getText(arg).strip()[1:-1]  # strip (), temporarily
             if signature in ('both', 'global'):
+                # build term for global function
                 gterm = stf.newNode("term")
-                sig = stf.newSubNode(gterm, "literal")
-                func = stf.newSubNode(sig, "emphasis", role="bold")
+                func = stf.newSubNode(gterm, "function")
                 stf.setText(func, self.name)
-                stf.setTail(func, s)
+                if sig:
+                    # if there are parameters, use that entity
+                    stf.setTail(func, "(")
+                    s = stf.newSubNode(gterm, "parameter")
+                    stf.setText(s, sig)
+                    stf.setTail(s, ")")
+                else:
+                    stf.setTail(func, "()")
                 tlist.append(gterm)
             if signature in ('both', 'env'):
+                # build term for env. method
                 mterm = stf.newNode("term")
-                sig = stf.newSubNode(mterm, "literal")
-                inst = stf.newSubNode(sig, "replaceable")
+                inst = stf.newSubNode(mterm, "replaceable")
                 stf.setText(inst, "env")
                 stf.setTail(inst, ".")
-                func = stf.newSubNode(sig, "emphasis", role="bold")
-                stf.setText(func, self.name)
-                stf.setTail(func, s)
+                meth = stf.newSubNode(mterm, "methodname")
+                stf.setText(meth, self.name)
+                if sig:
+                    # if there are parameters, use that entity
+                    stf.setTail(meth, "(")
+                    s = stf.newSubNode(mterm, "parameter")
+                    stf.setText(s, sig)
+                    stf.setTail(s, ")")
+                else:
+                    stf.setTail(meth, "()")
                 tlist.append(mterm)
 
         if not tlist:
@@ -338,6 +355,7 @@ class Function(SConsThing):
         return self.name
 
 class Tool(SConsThing):
+    """Generate the descriptions and entities for <tool> elements"""
     description = 'tool'
     prefix = 't-'
     tag = 'literal'
@@ -349,6 +367,7 @@ class Tool(SConsThing):
         return self.name
 
 class Variable(SConsThing):
+    """Generate the descriptions and entities for <cvar> elements"""
     description = 'construction variable'
     prefix = 'cv-'
     tag = 'envar'
