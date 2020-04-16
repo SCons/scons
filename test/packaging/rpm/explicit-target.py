@@ -77,7 +77,7 @@ env.Package( NAME           = 'foo',
 
 expect = """
 scons: *** Setting target is not supported for rpm.
-""" + test.python_file_line(test.workpath('SConstruct'), 23)
+""" + test.python_file_line(test.workpath('SConstruct'), 12)
 
 test.run(arguments='', status=2, stderr=expect)
 

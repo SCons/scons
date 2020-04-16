@@ -11,10 +11,7 @@
 #
 import getopt
 import os
-import re
-import string
 import sys
-from io import StringIO     # usable as of 2.6; takes unicode only
 
 import SConsDoc
 from SConsDoc import tf as stf
@@ -107,10 +104,10 @@ class SCons_XML(object):
         for k, v in kw.items():
             setattr(self, k, v)
             
-    def fopen(self, name):
+    def fopen(self, name, mode='w'):
         if name == '-':
             return sys.stdout
-        return open(name, 'w')
+        return open(name, mode)
     
     def write(self, files):
         gen, mod = files.split(',')
