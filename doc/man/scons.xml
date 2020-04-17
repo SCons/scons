@@ -1185,11 +1185,11 @@ and re-initialize the dependency graph from scratch.</para>
       <term><emphasis role="bold">build</emphasis><emphasis>[OPTIONS] [TARGETS] ...</emphasis></term>
       <listitem>
 <para>Builds the specified
-<emphasis>TARGETS</emphasis>
+<parameter>TARGETS</parameter>
 (and their dependencies)
 with the specified
 SCons command-line
-<emphasis>OPTIONS</emphasis>.
+<parameter>OPTIONS</parameter>.
 <emphasis role="bold">b</emphasis>
 and
 <emphasis role="bold">scons</emphasis>
@@ -1232,9 +1232,10 @@ which only happens once at the beginning of interactive mode).</para>
       <term><emphasis role="bold">clean</emphasis><emphasis>[OPTIONS] [TARGETS] ...</emphasis></term>
       <listitem>
 <para>Cleans the specified
-<emphasis>TARGETS</emphasis>
+<parameter>TARGETS</parameter>
 (and their dependencies)
-with the specified options.
+with the specified
+<parameter>OPTIONS</parameter>.
 <emphasis role="bold">c</emphasis>
 is a synonym.
 This command is itself a synonym for
@@ -2000,15 +2001,15 @@ These warnings are enabled by default.</para>
   <listitem>
 <para>Warnings about attempts to set the
 reserved &consvar; names
-<envar>CHANGED_SOURCES</envar>,
-<envar>CHANGED_TARGETS</envar>,
-<envar>TARGET</envar>,
-<envar>TARGETS</envar>,
-<envar>SOURCE</envar>,
-<envar>SOURCES</envar>,
-<envar>UNCHANGED_SOURCES</envar>
+&cv-CHANGED_SOURCES;,
+&cv-CHANGED_TARGETS;,
+&cv-TARGET;,
+&cv-TARGETS;,
+&cv-SOURCE;,
+&cv-SOURCES;,
+&cv-UNCHANGED_SOURCES;
 or
-<envar>UNCHANGED_TARGETS</envar>.
+&cv-UNCHANGED_TARGETS;.
 These warnings are disabled by default.</para>
   </listitem>
   </varlistentry>
@@ -2105,7 +2106,7 @@ env['BAR'] = 'bar'
 
 <para>As a convenience,
 &consvars; may also be set or modified by the
-<parameter class="function">parse_flags</parameter>
+<parameter>parse_flags</parameter>
 keyword argument, which applies the
 &f-link-env-MergeFlags;
 method (described below) to the argument value
@@ -2119,11 +2120,15 @@ env = Environment(parse_flags='-Iinclude -DEBUG -lm')
 </programlisting>
 
 <para>This example adds 'include' to
-<envar>CPPPATH</envar>,
+the <envar>CPPPATH</envar> &consvar;
 'EBUG' to
 <envar>CPPDEFINES</envar>,
 and 'm' to
-<envar>LIBS</envar>.</para>
+<envar>LIBS</envar>.
+&f-link-env-ParseFlags; describes how these arguments
+are distributed to &consvars;.
+</para>
+
 
 <para>By default, a new &consenv; is
 initialized with a set of builder methods
@@ -2148,21 +2153,21 @@ and suffixes appropriate for that platform.</para>
 <para>Note that the
 <emphasis role="bold">win32</emphasis>
 platform adds the
-<emphasis role="bold">SystemDrive</emphasis>
+<envar>SystemDrive</envar>
 and
-<emphasis role="bold">SystemRoot</emphasis>
+<envar>SystemRoot</envar>
 variables from the user's external environment
 to the &consenv;'s
-<emphasis role="bold">ENV</emphasis>
+<envar>ENV</envar>
 dictionary.
 This is so that any executed commands
 that use sockets to connect with other systems
 (such as fetching source files from
 external CVS repository specifications like
-<emphasis role="bold">:pserver:anonymous@cvs.sourceforge.net:/cvsroot/scons</emphasis>)
+<literal>:pserver:anonymous@cvs.sourceforge.net:/cvsroot/scons</literal>)
 will work on Windows systems.</para>
 
-<para>The platform argument may be a function or callable object.
+<para>The <parameter>platform</parameter> argument may be a function or callable object,
 in which case the &Environment; method
 will call it to update
 the new &consenv;:</para>
@@ -2259,15 +2264,15 @@ env = Environment(tools=[my_tool])
 may also themselves be two-element lists of the form
 (<emphasis>toolname</emphasis>, <emphasis>kw_dict</emphasis>).
 SCons searches for the
-<emphasis>toolname</emphasis>
+<parameter>toolname</parameter>
 specification file as described above, and
 passes
-<emphasis>kw_dict</emphasis>,
+<parameter>kw_dict</parameter>,
 which must be a dictionary, as keyword arguments to the tool's
-<emphasis role="bold">generate</emphasis>
+<function>generate</function>
 function.
 The
-<emphasis role="bold">generate</emphasis>
+<function>generate</function>
 function can use the arguments to modify the tool's behavior
 by setting up the environment in different ways
 or otherwise changing its initialization.</para>
@@ -2553,11 +2558,11 @@ env = Program('hello', 'hello.c', parse_flags='-Iinclude -DEBUG -lm')
 </programlisting>
 
 <para>This example adds 'include' to
-<emphasis role="bold">CPPPATH</emphasis>,
+<envar>CPPPATH</envar>,
 'EBUG' to
-<emphasis role="bold">CPPDEFINES</emphasis>,
+<envar>CPPDEFINES</envar>,
 and 'm' to
-<emphasis role="bold">LIBS</emphasis>.</para>
+<envar>LIBS</envar>.</para>
 
 <para>Although the builder methods defined by
 &scons;
@@ -2938,7 +2943,7 @@ to affect how you want the build to be performed.</para>
 
 <variablelist>
   <varlistentry>
-  <term>ARGLIST</term>
+  <term>&ARGLIST;</term>
   <listitem>
 <para>A list of the
 <emphasis>keyword</emphasis>=<emphasis>value</emphasis>
@@ -2971,7 +2976,7 @@ for key, value in ARGLIST:
   </varlistentry>
 
   <varlistentry>
-  <term>ARGUMENTS</term>
+  <term>&ARGUMENTS;</term>
   <listitem>
 <para>A dictionary of all the
 <emphasis>keyword</emphasis>=<emphasis>value</emphasis>
@@ -2981,8 +2986,7 @@ and if a given keyword has
 more than one value assigned to it
 on the command line,
 the last (right-most) value is
-the one in the
-<emphasis role="bold">ARGUMENTS</emphasis>
+the one in the &ARGUMENTS;
 dictionary.</para>
 
 <para>Example:</para>
@@ -2997,7 +3001,7 @@ else:
   </varlistentry>
 
   <varlistentry>
-  <term>BUILD_TARGETS</term>
+  <term>&BUILD_TARGETS;</term>
   <listitem>
 <para>A list of the targets which
 &scons;
@@ -3043,7 +3047,7 @@ if 'special/program' in BUILD_TARGETS:
   </varlistentry>
 
   <varlistentry>
-  <term>COMMAND_LINE_TARGETS</term>
+  <term>&COMMAND_LINE_TARGETS;</term>
   <listitem>
 <para>A list of the targets explicitly specified on
 the command line. If there are command line targets,
@@ -3066,7 +3070,7 @@ if 'special/program' in COMMAND_LINE_TARGETS:
   </varlistentry>
 
   <varlistentry>
-  <term>DEFAULT_TARGETS</term>
+  <term>&DEFAULT_TARGETS;</term>
   <listitem>
 <para>A list of the target
 <emphasis>nodes</emphasis>
@@ -5610,11 +5614,8 @@ and configured with the same &consenv;
 into single invocations of the Action object's
 command line or function.
 Command lines will typically want to use the
-<emphasis role="bold">CHANGED_SOURCES</emphasis>
-&consvar;
-(and possibly
-<emphasis role="bold">CHANGED_TARGETS</emphasis>
-as well)
+&cv-CHANGED_SOURCES; &consvar;
+(and possibly &cv-CHANGED_TARGETS; as well)
 to only pass to the command line those sources that
 have actually changed since their targets were built.</para>
 
@@ -5944,7 +5945,7 @@ special variables for each command execution:</para>
 
 <variablelist>
   <varlistentry>
-  <term>CHANGED_SOURCES</term>
+  <term>&cv-CHANGED_SOURCES;</term>
   <listitem>
 <para>The file names of all sources of the build command
 that have changed since the target was last built.</para>
@@ -5952,7 +5953,7 @@ that have changed since the target was last built.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>CHANGED_TARGETS</term>
+  <term>&cv-CHANGED_TARGETS;</term>
   <listitem>
 <para>The file names of all targets that would be built
 from sources that have changed since the target was last built.</para>
@@ -5960,7 +5961,7 @@ from sources that have changed since the target was last built.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>SOURCE</term>
+  <term>&cv-SOURCE;</term>
   <listitem>
 <para>The file name of the source of the build command,
 or the file name of the first source
@@ -5969,14 +5970,14 @@ if multiple sources are being built.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>SOURCES</term>
+  <term>&cv-SOURCES;</term>
   <listitem>
 <para>The file names of the sources of the build command.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>TARGET</term>
+  <term>&cv-TARGET;</term>
   <listitem>
 <para>The file name of the target being built,
 or the file name of the first target
@@ -5985,14 +5986,14 @@ if multiple targets are being built.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>TARGETS</term>
+  <term>&cv-TARGETS;</term>
   <listitem>
 <para>The file names of all targets being built.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>UNCHANGED_SOURCES</term>
+  <term>&cv-UNCHANGED_SOURCES;</term>
   <listitem>
 <para>The file names of all sources of the build command
 that have
@@ -6002,7 +6003,7 @@ changed since the target was last built.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>UNCHANGED_TARGETS</term>
+  <term>&cv-UNCHANGED_TARGETS;</term>
   <listitem>
 <para>The file names of all targets that would be built
 from sources that have
@@ -6183,7 +6184,7 @@ ${SOURCE.rsrcdir}    =&gt; /usr/repository/src
 to enclose arbitrary Python code to be evaluated.
 (In fact, this is how the above modifiers are substituted,
 they are simply attributes of the Python objects
-that represent TARGET, SOURCES, etc.)
+that represent &cv-TARGET;, &cv-SOURCES;, etc.)
 See the section "Python Code Substitution" below,
 for more thorough examples of
 how this can be used.</para>
@@ -6245,7 +6246,7 @@ env=Environment(FOO=foo, BAR="$FOO baz")
 Python function by creating a callable class
 that stores one or more arguments in an object,
 and then uses them when the
-<function>__call__()</function>
+<methodname>__call__()</methodname>
 method is called.
 Note that in this case,
 the entire variable expansion must

@@ -273,7 +273,7 @@ class Builder(SConsThing):
         """
         # build term for global function
         gterm = stf.newNode("term")
-        func = stf.newSubNode(gterm, "function")
+        func = stf.newSubNode(gterm, Builder.tag)
         stf.setText(func, self.name)
         stf.setTail(func, '()')
 
@@ -282,6 +282,7 @@ class Builder(SConsThing):
         inst = stf.newSubNode(mterm, "parameter")
         stf.setText(inst, "env")
         stf.setTail(inst, ".")
+        # we could use <function> here, but it's a "method"
         meth = stf.newSubNode(mterm, "methodname")
         stf.setText(meth, self.name)
         stf.setTail(meth, '()')
@@ -318,7 +319,7 @@ class Function(SConsThing):
             if signature in ('both', 'global'):
                 # build term for global function
                 gterm = stf.newNode("term")
-                func = stf.newSubNode(gterm, "function")
+                func = stf.newSubNode(gterm, Function.tag)
                 stf.setText(func, self.name)
                 if sig:
                     # if there are parameters, use that entity
@@ -335,6 +336,7 @@ class Function(SConsThing):
                 inst = stf.newSubNode(mterm, "replaceable")
                 stf.setText(inst, "env")
                 stf.setTail(inst, ".")
+                # we could use <function> here, but it's a "method"
                 meth = stf.newSubNode(mterm, "methodname")
                 stf.setText(meth, self.name)
                 if sig:
@@ -371,6 +373,12 @@ class Variable(SConsThing):
     description = 'construction variable'
     prefix = 'cv-'
     tag = 'envar'
+
+    def xml_terms(self):
+        term = stf.newNode("term")
+        var = stf.newSubNode(term, Variable.tag)
+        stf.setText(var, self.name)
+        return [term]
     
     def entityfunc(self):
         return '$' + self.name
