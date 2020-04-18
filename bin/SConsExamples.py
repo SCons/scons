@@ -415,9 +415,9 @@ def exampleNamesAreUnique(dpath):
 sys.path.append(os.path.join(os.getcwd(), 'testing/framework'))
 sys.path.append(os.path.join(os.getcwd(), 'build', 'testing/framework'))
 
-scons_py = os.path.join('bootstrap', 'src', 'script', 'scons.py')
+scons_py = os.path.join('bootstrap', 'scripts', 'scons.py')
 if not os.path.exists(scons_py):
-    scons_py = os.path.join('src', 'script', 'scons.py')
+    scons_py = os.path.join('scripts', 'scons.py')
 
 scons_py = os.path.join(os.getcwd(), scons_py)
 
@@ -748,8 +748,7 @@ def command_ls(args, c, test, values):
         for a in args:
             l.extend(ls(test.workpath('WORK', a)))
         return l
-    else:
-        return ls(test.workpath('WORK'))
+    return ls(test.workpath('WORK'))
 
 def command_sleep(args, c, test, values):
     time.sleep(int(args[0]))
