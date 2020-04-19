@@ -46,23 +46,17 @@
 
   <para>
 
-  &SCons; has integrated support for multi-platform build configuration
-  similar to that offered by GNU &Autoconf;,
-  such as
-  figuring out what libraries or header files
-  are available on the local system.
+  &SCons; has integrated support for build configuration
+  similar in style to GNU &Autoconf;, but designed to be
+  transparently multi-platform. The configuration system
+  can help figure out if external build requirements such
+  as system libraries or header files
+  are available on the build system.
   This section describes how to use
   this &SCons; feature.
+  (See also the &SCons; man page for additional information).
 
   </para>
-
-  <note>
-  <para>
-  This chapter is still under development,
-  so not everything is explained as well as it should be.
-  See the &SCons; man page for additional information.
-  </para>
-  </note>
 
   <section>
   <title>&Configure_Contexts;</title>
@@ -70,11 +64,11 @@
     <para>
 
     The basic framework for multi-platform build configuration
-    in &SCons; is to attach a &configure_context; to a
-    construction environment by calling the &Configure; function,
-    perform a number of checks for
+    in &SCons; is to create a &configure_context; inside a
+    &consenv; by calling the &Configure; function,
+    perform the desired checks for
     libraries, functions, header files, etc.,
-    and to then call the configure context's &Finish; method
+    and then call the configure context's &Finish; method
     to finish off the configuration:
 
     </para>
@@ -88,7 +82,15 @@ env = conf.Finish()
 
     <para>
 
-    &SCons; provides a number of basic checks,
+    The &Finish; call is required; if a new context is
+    created while a context is active, even in a different
+    &consenv;, &scons; will complain and exit.
+
+    </para>
+
+    <para>
+
+    &SCons; provides a number of pre-defined basic checks,
     as well as a mechanism for adding your own custom checks.
 
     </para>
@@ -125,8 +127,11 @@ env = conf.Finish()
 
     Testing the existence of a header file
     requires knowing what language the header file is.
-    A configure context has a &CheckCHeader; method
-    that checks for the existence of a C header file:
+    This information is supplied in the <varname>language</varname>
+    keyword parameter to the &CheckHeader; method.
+    Since &scons; grew up in a world of C/C++ code,
+    a &configure_context; also has a &CheckCHeader; method
+    that specifically checks for the existence of a C header file:
 
     </para>
 
@@ -134,7 +139,7 @@ env = conf.Finish()
 env = Environment()
 conf = Configure(env)
 if not conf.CheckCHeader('math.h'):
-    print 'Math.h must be installed!'
+    print('Math.h must be installed!')
     Exit(1)
 if conf.CheckCHeader('foo.h'):
     conf.env.Append('-DHAS_FOO_H')
@@ -143,10 +148,18 @@ env = conf.Finish()
 
     <para>
 
-    Note that you can choose to terminate
+    As shown in the example, depending on the circumstances
+    you can choose to terminate
     the build if a given header file doesn't exist,
     or you can modify the construction environment
-    based on the existence of a header file.
+    based on the presence or absence of a header file
+    (the same applies to any other check).  If there are a
+    many elements to check for, it may be friendlier for
+    the user if you do not terminate on the first failure,
+    but track the problems found until the end and report on
+    all of them, that way the user does not have to iterate
+    multiple times, each time finding one new dependency that
+    needs to be installed.
 
     </para>
 
@@ -162,7 +175,7 @@ env = conf.Finish()
 env = Environment()
 conf = Configure(env)
 if not conf.CheckCXXHeader('vector.h'):
-    print 'vector.h must be installed!'
+    print('vector.h must be installed!')
     Exit(1)
 env = conf.Finish()
     </sconstruct>
@@ -183,8 +196,8 @@ env = conf.Finish()
 env = Environment()
 conf = Configure(env)
 if not conf.CheckFunc('strcpy'):
-    print 'Did not find strcpy(), using local version'
-    conf.env.Append(CPPDEFINES = '-Dstrcpy=my_local_strcpy')
+    print('Did not find strcpy(), using local version')
+    conf.env.Append(CPPDEFINES='-Dstrcpy=my_local_strcpy')
 env = conf.Finish()
     </sconstruct>
 
@@ -197,7 +210,7 @@ env = conf.Finish()
 
     Check for the availability of a library
     using the &CheckLib; method.
-    You only specify the basename of the library,
+    You only specify the base part of the library name,
     you don't need to add a <literal>lib</literal>
     prefix or a <literal>.a</literal> or <literal>.lib</literal> suffix:
 
@@ -207,7 +220,7 @@ env = conf.Finish()
 env = Environment()
 conf = Configure(env)
 if not conf.CheckLib('m'):
-    print 'Did not find libm.a or m.lib, exiting!'
+    print('Did not find libm.a or m.lib, exiting!')
     Exit(1)
 env = conf.Finish()
     </sconstruct>
@@ -227,8 +240,8 @@ env = conf.Finish()
     <sconstruct>
 env = Environment()
 conf = Configure(env)
-if not conf.CheckLibWithHeader('m', 'math.h', 'c'):
-    print 'Did not find libm.a or m.lib, exiting!'
+if not conf.CheckLibWithHeader('m', 'math.h', language='c'):
+    print('Did not find libm.a or m.lib, exiting!')
     Exit(1)
 env = conf.Finish()
     </sconstruct>
@@ -257,8 +270,8 @@ env = conf.Finish()
 env = Environment()
 conf = Configure(env)
 if not conf.CheckType('off_t'):
-    print 'Did not find off_t typedef, assuming int'
-    conf.env.Append(CCFLAGS = '-Doff_t=int')
+    print('Did not find off_t typedef, assuming int')
+    conf.env.Append(CCFLAGS='-Doff_t=int')
 env = conf.Finish()
     </sconstruct>
 
@@ -276,8 +289,8 @@ env = conf.Finish()
 env = Environment()
 conf = Configure(env)
 if not conf.CheckType('off_t', '#include &lt;sys/types.h&gt;\n'):
-    print 'Did not find off_t typedef, assuming int'
-    conf.env.Append(CCFLAGS = '-Doff_t=int')
+    print('Did not find off_t typedef, assuming int')
+    conf.env.Append(CCFLAGS='-Doff_t=int')
 env = conf.Finish()
     </sconstruct>
 
@@ -292,7 +305,7 @@ env = conf.Finish()
 env = Environment()
 conf = Configure(env)
 int_size = conf.CheckTypeSize('unsigned int')
-print 'sizeof unsigned int is', int_size
+print('sizeof unsigned int is', int_size)
 env = conf.Finish()
     </sconstruct>
 
@@ -317,7 +330,7 @@ scons: `.' is up to date.
 env = Environment()
 conf = Configure(env)
 if not conf.CheckProg('foobar'):
-  print 'Unable to find the program foobar on the system'
+  print('Unable to find the program foobar on the system')
   Exit(1)
 env = conf.Finish()
     </sconstruct>
@@ -399,7 +412,7 @@ def CheckMyLibrary(context):
 
     <sconstruct>
 env = Environment()
-conf = Configure(env, custom_tests = {'CheckMyLibrary' : CheckMyLibrary})
+conf = Configure(env, custom_tests={'CheckMyLibrary': CheckMyLibrary})
     </sconstruct>
 
     <para>
@@ -436,9 +449,9 @@ def CheckMyLibrary(context):
     return result
 
 env = Environment()
-conf = Configure(env, custom_tests = {'CheckMyLibrary' : CheckMyLibrary})
+conf = Configure(env, custom_tests={'CheckMyLibrary': CheckMyLibrary})
 if not conf.CheckMyLibrary():
-    print 'MyLibrary is not installed!'
+    print('MyLibrary is not installed!')
     Exit(1)
 env = conf.Finish()
 
@@ -516,9 +529,9 @@ Removed foo
     <sconstruct>
 env = Environment()
 if not env.GetOption('clean'):
-    conf = Configure(env, custom_tests = {'CheckMyLibrary' : CheckMyLibrary})
+    conf = Configure(env, custom_tests={'CheckMyLibrary': CheckMyLibrary})
     if not conf.CheckMyLibrary():
-        print 'MyLibrary is not installed!'
+        print('MyLibrary is not installed!')
         Exit(1)
     env = conf.Finish()
     </sconstruct>
