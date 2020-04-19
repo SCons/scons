@@ -30,7 +30,7 @@ import TestSCons
 _obj = TestSCons._obj
 _exe = TestSCons._exe
 
-for implicit_deps in ['1', '2']:
+for implicit_deps in ['0', '1', '2', '\"all\"']:
     test = TestSCons.TestSCons()
 
     #

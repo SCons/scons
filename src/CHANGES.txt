@@ -31,7 +31,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       - C:\msys64\mingw64\bin
     - Purge obsolete internal build and tooling scripts
     - Allow user specified location for vswhere.exe specified by VSWHERE. 
-      NOTE: This must be set at the time the 'msvc' tool is initialized to have any effect.
+      NOTE: This must be set at the time the 'msvc' 'msvs' and/or 'mslink' tool(s) are initialized to have any effect.
+    - Resolve Issue #3451 and Issue #3450 - Rewrite SCons setup.py and packaging. Move script logic to entry points so 
+      package can create scripts which use the correct version of Python.
     
   From Jeremy Elson:
     - Updated design doc to use the correct syntax for Depends()
@@ -93,6 +95,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fixed bug where changing TEXTFILESUFFIX would cause Substfile() to rebuild. (Github Issue #3540)
     - Script/Main.py now uses importlib instead of imp module.
     - Drop some Python 2-isms.
+    - MSVC updates: pass on VSCMD_DEBUG and VSCMD_SKIP_SENDTELEMETRY to msvc
+      tool setup if set in environment. Add powershell to default env
+      (used to call telemetry script).
     - Docbook builder provides a fallback if lxml fails to generate
       a document with tostring().
 

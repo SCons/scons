@@ -32,7 +32,7 @@ if sys.platform == 'win32':
 else:
     _exe = ''
 
-for implicit_deps in ['0', '1', '"all"']:
+for implicit_deps in ['0', '1', '2', '\"all\"']:
     # First, test a single repository.
     test = TestSCons.TestSCons()
     test.subdir('repository', 'work1')

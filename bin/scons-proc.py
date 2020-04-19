@@ -11,10 +11,7 @@
 #
 import getopt
 import os
-import re
-import string
 import sys
-from io import StringIO     # usable as of 2.6; takes unicode only
 
 import SConsDoc
 from SConsDoc import tf as stf
@@ -107,10 +104,10 @@ class SCons_XML(object):
         for k, v in kw.items():
             setattr(self, k, v)
             
-    def fopen(self, name):
+    def fopen(self, name, mode='w'):
         if name == '-':
             return sys.stdout
-        return open(name, 'w')
+        return open(name, mode)
     
     def write(self, files):
         gen, mod = files.split(',')
@@ -141,23 +138,31 @@ class SCons_XML(object):
                     added = True
                     stf.appendNode(vl, stf.copyNode(s))
             
+            # Generate the text for sets/uses lists of construction vars.
+            # This used to include an entity reference which would be replaced
+            # by the link to the cvar, but with lxml, dumping out the tree
+            # with tostring() will encode the & introducing the entity,
+            # breaking it. Instead generate the actual link. (issue #3580)
             if v.sets:
                 added = True
                 vp = stf.newNode("para")
-                # if using lxml, the &entity; entries will be encoded,
-                # effectively breaking them.  should fix,
-                # for now handled post-process in calling script.
-                s = ['&cv-link-%s;' % x for x in v.sets]
-                stf.setText(vp, 'Sets:  ' + ', '.join(s) + '.')
+                stf.setText(vp, "Sets: ")
+                for setv in v.sets:
+                    link = stf.newSubNode(vp, "link", linkend="cv-%s" % setv)
+                    linktgt = stf.newSubNode(link, "varname")
+                    stf.setText(linktgt, "$" + setv)
+                    stf.setTail(link, " ")
                 stf.appendNode(vl, vp)
+
             if v.uses:
                 added = True
                 vp = stf.newNode("para")
-                # if using lxml, the &entity; entries will be encoded,
-                # effectively breaking them.  should fix,
-                # for now handled post-process in calling script.
-                u = ['&cv-link-%s;' % x for x in v.uses]
-                stf.setText(vp, 'Uses:  ' + ', '.join(u) + '.')
+                stf.setText(vp, "Uses: ")
+                for use in v.uses:
+                    link = stf.newSubNode(vp, "link", linkend="cv-%s" % use)
+                    linktgt = stf.newSubNode(link, "varname")
+                    stf.setText(linktgt, "$" + use)
+                    stf.setTail(link, " ")
                 stf.appendNode(vl, vp)
                 
             # Still nothing added to this list item?
@@ -246,6 +251,7 @@ class Proxy(object):
     ##     return self.__dict__ < other.__dict__
 
 class SConsThing(Proxy):
+    """Base class for the SConsDoc special elements"""
     def idfunc(self):
         return self.name
     
@@ -255,6 +261,7 @@ class SConsThing(Proxy):
         return [e]
 
 class Builder(SConsThing):
+    """Generate the descriptions and entities for <builder> elements"""
     description = 'builder'
     prefix = 'b-'
     tag = 'function'
@@ -264,20 +271,21 @@ class Builder(SConsThing):
 
         builders don't show a full signature, just func()
         """
+        # build term for global function
         gterm = stf.newNode("term")
-        sig = stf.newSubNode(gterm, "literal")
-        func = stf.newSubNode(sig, "emphasis", role="bold")
+        func = stf.newSubNode(gterm, Builder.tag)
         stf.setText(func, self.name)
         stf.setTail(func, '()')
 
+        # build term for env. method
         mterm = stf.newNode("term")
-        sig = stf.newSubNode(mterm, "literal")
-        inst = stf.newSubNode(sig, "replaceable")
+        inst = stf.newSubNode(mterm, "parameter")
         stf.setText(inst, "env")
         stf.setTail(inst, ".")
-        func = stf.newSubNode(sig, "emphasis", role="bold")
-        stf.setText(func, self.name)
-        stf.setTail(func, '()')
+        # we could use <function> here, but it's a "method"
+        meth = stf.newSubNode(mterm, "methodname")
+        stf.setText(meth, self.name)
+        stf.setTail(meth, '()')
 
         return [gterm, mterm]
             
@@ -285,6 +293,7 @@ class Builder(SConsThing):
         return self.name
 
 class Function(SConsThing):
+    """Generate the descriptions and entities for <scons_function> elements"""
     description = 'function'
     prefix = 'f-'
     tag = 'function'
@@ -306,23 +315,38 @@ class Function(SConsThing):
             signature = 'both'
             if stf.hasAttribute(arg, 'signature'):
                 signature = stf.getAttribute(arg, 'signature')
-            s = stf.getText(arg).strip()
+            sig = stf.getText(arg).strip()[1:-1]  # strip (), temporarily
             if signature in ('both', 'global'):
+                # build term for global function
                 gterm = stf.newNode("term")
-                sig = stf.newSubNode(gterm, "literal")
-                func = stf.newSubNode(sig, "emphasis", role="bold")
+                func = stf.newSubNode(gterm, Function.tag)
                 stf.setText(func, self.name)
-                stf.setTail(func, s)
+                if sig:
+                    # if there are parameters, use that entity
+                    stf.setTail(func, "(")
+                    s = stf.newSubNode(gterm, "parameter")
+                    stf.setText(s, sig)
+                    stf.setTail(s, ")")
+                else:
+                    stf.setTail(func, "()")
                 tlist.append(gterm)
             if signature in ('both', 'env'):
+                # build term for env. method
                 mterm = stf.newNode("term")
-                sig = stf.newSubNode(mterm, "literal")
-                inst = stf.newSubNode(sig, "replaceable")
+                inst = stf.newSubNode(mterm, "replaceable")
                 stf.setText(inst, "env")
                 stf.setTail(inst, ".")
-                func = stf.newSubNode(sig, "emphasis", role="bold")
-                stf.setText(func, self.name)
-                stf.setTail(func, s)
+                # we could use <function> here, but it's a "method"
+                meth = stf.newSubNode(mterm, "methodname")
+                stf.setText(meth, self.name)
+                if sig:
+                    # if there are parameters, use that entity
+                    stf.setTail(meth, "(")
+                    s = stf.newSubNode(mterm, "parameter")
+                    stf.setText(s, sig)
+                    stf.setTail(s, ")")
+                else:
+                    stf.setTail(meth, "()")
                 tlist.append(mterm)
 
         if not tlist:
@@ -333,6 +357,7 @@ class Function(SConsThing):
         return self.name
 
 class Tool(SConsThing):
+    """Generate the descriptions and entities for <tool> elements"""
     description = 'tool'
     prefix = 't-'
     tag = 'literal'
@@ -344,9 +369,16 @@ class Tool(SConsThing):
         return self.name
 
 class Variable(SConsThing):
+    """Generate the descriptions and entities for <cvar> elements"""
     description = 'construction variable'
     prefix = 'cv-'
     tag = 'envar'
+
+    def xml_terms(self):
+        term = stf.newNode("term")
+        var = stf.newSubNode(term, Variable.tag)
+        stf.setText(var, self.name)
+        return [term]
     
     def entityfunc(self):
         return '$' + self.name

@@ -77,17 +77,18 @@ Examples:
 
 <example_commands>
 # builds java_native.h
-classes = env.Java(target = 'classdir', source = 'src')
-env.JavaH(target = 'java_native.h', source = classes)
+classes = env.Java(target="classdir", source="src")
+env.JavaH(target="java_native.h", source=classes)
 
 # builds include/package_foo.h and include/package_bar.h
-env.JavaH(target = 'include',
-          source = ['package/foo.class', 'package/bar.class'])
+env.JavaH(target="include", source=["package/foo.class", "package/bar.class"])
 
 # builds export/foo.h and export/bar.h
-env.JavaH(target = 'export',
-          source = ['classes/foo.class', 'classes/bar.class'],
-          JAVACLASSDIR = 'classes')
+env.JavaH(
+    target="export",
+    source=["classes/foo.class", "classes/bar.class"],
+    JAVACLASSDIR="classes",
+)
 </example_commands>
 </summary>
 </builder>
@@ -120,7 +121,7 @@ If this is not set, then &cv-link-JAVAHCOM; (the command line) is displayed.
 </para>
 
 <example_commands>
-env = Environment(JAVAHCOMSTR = "Generating header/stub file(s) $TARGETS from $SOURCES")
+env = Environment(JAVAHCOMSTR="Generating header/stub file(s) $TARGETS from $SOURCES")
 </example_commands>
 </summary>
 </cvar>
