@@ -998,7 +998,7 @@ bar.c
 
       <para>
 
-      Historical note:  In old &SCons; (prior to 1.0),
+      Historical note:  In old &SCons; (prior to 0.98.1),
       these build variables were known as "command-line build options."
       The class was named the &Options; class,
       and the predefined functions to construct options were named

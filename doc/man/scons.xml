@@ -3957,7 +3957,7 @@ For example, libraries needed for the build may be in non-standard
 locations, or site-specific compiler options may need to be passed to the
 compiler.
 &SCons;
-provides a <firstterm>Variables</firstterm>
+provides a <firstterm>&Variables;</firstterm>
 object to support overriding &consvars;
 on the command line:</para>
 
@@ -4116,7 +4116,7 @@ env = Environment(variables=vars)
   <varlistentry>
   <term><replaceable>vars</replaceable>.<function>UnknownVariables</function>()</term>
   <listitem>
-<para>Return a dictionary containing any
+<para>Returns a dictionary containing any
 variables that were specified
 either in the files or the dictionary
 with which the Variables object was initialized,
@@ -4187,7 +4187,7 @@ Help(vars.GenerateHelpText(env, sort=cmp))
   <varlistentry>
   <term><replaceable>vars</replaceable>.<function>FormatVariableHelpText</function>(<parameter>env, opt, help, default, actual</parameter>)</term>
   <listitem>
-<para>Return a formatted string
+<para>Returns a formatted string
 containing the printable help text
 for one option.
 It is normally not called directly,
@@ -4225,7 +4225,7 @@ the &Add; or &AddVariables; method:</para>
   <varlistentry>
   <term><function>BoolVariable</function>(<parameter>key, help, default</parameter>)</term>
   <listitem>
-<para>Return a tuple of arguments
+<para>Returns a tuple of arguments
 to set up a Boolean option.
 The option will use
 the specified name
@@ -4260,7 +4260,7 @@ as false.</para>
   <varlistentry>
   <term><function>EnumVariable</function>(<parameter>key, help, default, allowed_values, [map, ignorecase]</parameter>)</term>
   <listitem>
-<para>Return a tuple of arguments
+<para>Returns a tuple of arguments
 to set up an option
 whose value may be one
 of a specified list of legal enumerated values.
@@ -4309,7 +4309,7 @@ converted to lower case.</para>
   <varlistentry>
   <term><function>ListVariable</function>(<parameter>key, help, default, names, [map]</parameter>)</term>
   <listitem>
-<para>Return a tuple of arguments
+<para>Returns a tuple of arguments
 to set up an option
 whose value may be one or more
 of a specified list of legal enumerated values.
@@ -4348,7 +4348,7 @@ reflected in the generated help message).  </para>
   <varlistentry>
   <term><function>PackageVariable</function>(<parameter>key, help, default</parameter>)</term>
   <listitem>
-<para>Return a tuple of arguments
+<para>Returns a tuple of arguments
 to set up an option
 whose value is a path name
 of a package that may be
@@ -4388,7 +4388,7 @@ to disable use of the specified option.</para>
   <varlistentry>
   <term><function>PathVariable</function>(<parameter>key, help, default, [validator]</parameter>)</term>
   <listitem>
-<para>Return a tuple of arguments
+<para>Returns a tuple of arguments
 to set up an option
 whose value is expected to be a path name.
 The option will use
