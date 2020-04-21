@@ -32,6 +32,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Purge obsolete internal build and tooling scripts
     - Resolve Issue #3451 and Issue #3450 - Rewrite SCons setup.py and packaging. Move script logic to entry points so 
       package can create scripts which use the correct version of Python.
+    - Resolve Issue #3248 - Removing '-Wl,-Bsymbolic' from SHLIBVERSIONFLAGS
+      NOTE: If your build depends on the above you must now add to your SHLIBVERSIONFLAGS
+
     
   From Jeremy Elson:
     - Updated design doc to use the correct syntax for Depends()
