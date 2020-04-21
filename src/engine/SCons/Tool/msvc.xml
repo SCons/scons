@@ -478,47 +478,47 @@ Valid values are '1' or '0'
 <cvar name="VSWHERE">
 <summary>
 <para>
-Specify the location of vswhere.exe. 
+Specify the location of <filename>vswhere.exe</filename>. 
 </para>
 
 <para>
-    The <command>vswhere</command> command is distributed with Microsoft Visual Studio and Build
-    Tools since the 2017 edition, but is also available standalone. It fully detects 2017 and later editions,
-    but with the <option>-legacy</option> argument, can detect installations of the 2010 through 2015
+    The <filename>vswhere.exe</filename> executable is distributed with Microsoft Visual Studio and Build
+    Tools since the 2017 edition, but is also available standalone.
+    It provides full information about installations of 2017 and later editions.
+    With the <option>-legacy</option> argument, <filename>vswhere.exe</filename> can detect installations of the 2010 through 2015
     editions with limited data returned.
-If &cv-VSWHERE; is set, SCons will use that location.
+If <envar>VSWHERE</envar> is set, SCons will use that location.
 </para>
 <para>
-    Otherwise SCons will look in the following locations and set &cv-VSWHERE; to the path of the first <command>vswhere.exe</command>
+    Otherwise SCons will look in the following locations and set <envar>VSWHERE</envar> to the path of the first <filename>vswhere.exe</filename>
 located.
 </para>
 
 <itemizedlist>
-<listitem><literal>%ProgramFiles(x86)%\Microsoft Visual Studio\Installer</literal></listitem>
-<listitem><literal>"%ProgramFiles%\Microsoft Visual Studio\Installer</literal></listitem>
-<listitem><literal>%ChocolateyInstall%\bin</literal></listitem>
+<listitem><para><literal>%ProgramFiles(x86)%\Microsoft Visual Studio\Installer</literal></para></listitem>
+<listitem><para><literal>%ProgramFiles%\Microsoft Visual Studio\Installer</literal></para></listitem>
+<listitem><para><literal>%ChocolateyInstall%\bin</literal></para></listitem>
 </itemizedlist>
 
 <para>
-Note that &cv-VSWHERE; must be set at the same time or prior to the msvc tool being initialized. So either set it as follows
+  Note that <envar>VSWHERE</envar> must be set at the same time or prior to any of &t-link-msvc;, &t-link-msvs; , and/or &t-link-mslink; &f-link-Tool; being initialized.
 
+  Either set it as follows
 <programlisting>
 env = Environment(VSWHERE='c:/my/path/to/vswhere')
 </programlisting>
 
-or  if your Environment() is created specifying no tools 
+or if your &f-link-Environment; is created specifying no tools 
 <literal>tools=[]</literal>
-or with a list of tools not including msvs or msvc or mslink such as 
+or with an empty list of tools or with a list of tools which doesn't include &t-link-default;, &t-link-msvs;, &t-link-msvc; or &t-link-mslink;.
     <programlisting>
-    env = Environment(Tools=[])
+    env = Environment(tools=[])
     env['VSWHERE'] = r'c:/my/vswhere/install/location/vswhere.exe'
-    env.Tool()
+    env.Tool('msvc')
+    env.Tool('mslink')
+    env.Tool('msvs')
     </programlisting>
 </para>
-
-
-
-
 
 </summary>
 </cvar>
