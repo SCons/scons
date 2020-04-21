@@ -35,9 +35,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Util
 import SCons.Tool
-import os
 import sys
-import re
 
 from . import link
 
@@ -57,21 +55,22 @@ def generate(env):
 
     # OpenBSD doesn't usually use SONAME for libraries
     use_soname = not sys.platform.startswith('openbsd')
-    link._setup_versioned_lib_variables(env, tool = 'gnulink', use_soname = use_soname)
+    link._setup_versioned_lib_variables(env, tool='gnulink', use_soname=use_soname)
     env['LINKCALLBACKS'] = link._versioned_lib_callbacks()
 
-    # For backward-compatibility with older SCons versions
-    env['SHLIBVERSIONFLAGS'] = SCons.Util.CLVar('-Wl,-Bsymbolic')
-    
+    # # For backward-compatibility with older SCons versions
+    # env['SHLIBVERSIONFLAGS'] = SCons.Util.CLVar('')
+
+
 def exists(env):
     # TODO: sync with link.smart_link() to choose a linker
-    linkers = { 'CXX': ['g++'], 'CC': ['gcc'] }
+    linkers = {'CXX': ['g++'], 'CC': ['gcc']}
     alltools = []
     for langvar, linktools in linkers.items():
-        if langvar in env: # use CC over CXX when user specified CC but not CXX
+        if langvar in env:  # use CC over CXX when user specified CC but not CXX
             return SCons.Tool.FindTool(linktools, env)
         alltools.extend(linktools)
-    return SCons.Tool.FindTool(alltools, env) # find CXX or CC
+    return SCons.Tool.FindTool(alltools, env)  # find CXX or CC
 
 # Local Variables:
 # tab-width:4
