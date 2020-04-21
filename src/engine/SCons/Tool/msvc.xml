@@ -482,7 +482,7 @@ Specify the location of vswhere.exe.
 </para>
 
 <para>
-Propose: The <command>vswhere</command> command is distributed with Microsoft Visual Studio and Build
+    The <command>vswhere</command> command is distributed with Microsoft Visual Studio and Build
     Tools since the 2017 edition, but is also available standalone. It fully detects 2017 and later editions,
     but with the <option>-legacy</option> argument, can detect installations of the 2010 through 2015
     editions with limited data returned.
@@ -501,9 +501,19 @@ located.
 
 <para>
 Note that &cv-VSWHERE; must be set at the same time or prior to the msvc tool being initialized. So either set it as follows
-<literal>Environment(VSWHERE='c:/my/path/to/vswhere')</literal> or 
-if your Environment() is created specifying no tools <literal>tools=[]</literal> or with a list of tools not including msvs or msvc or mslink
-    such as <literal>Environment(Tools=[])</literal>
+
+<programlisting>
+env = Environment(VSWHERE='c:/my/path/to/vswhere')
+</programlisting>
+
+or  if your Environment() is created specifying no tools 
+<literal>tools=[]</literal>
+or with a list of tools not including msvs or msvc or mslink such as 
+    <programlisting>
+    env = Environment(Tools=[])
+    env['VSWHERE'] = r'c:/my/vswhere/install/location/vswhere.exe'
+    env.Tool()
+    </programlisting>
 </para>
 
 
