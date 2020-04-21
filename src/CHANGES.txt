@@ -50,6 +50,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fixed usage of abspath and path for RootDir objects on Windows. Previously
       env.fs.Dir("T:").abspath would return "T:\T:" and now it correctly returns "T:".
 
+    From Ivan Kravets, PlatformIO
+    - Improvements for virtual C Pre-Processor:
+      * Handle UNSIGNED LONG and LONG numeric constants in DEC (keep support for HEX)
+      * Skip unrecognized directives, such as `#if( defined ...)`
+      * Ignore `#include DYNAMIC_INCLUDE` directive that depends on a dynamic
+        macro which is not located in a state TABLE.
+      * Cleanup CPP expressions before evaluating (strip comments, carriage returns)
+
   From Iosif Kurazs:
     - Added a new flag called "linedraw" for the command line argument  "--tree"
       that instructs scons to use single line drawing characters to draw the dependency tree.
