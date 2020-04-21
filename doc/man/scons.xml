@@ -3965,11 +3965,11 @@ env = conf.Finish()
 <title>Command-Line Construction Variables</title>
 
 <para>Often when building software,
-some variables must be specified at build time.
+some variables need to be specified at build time.
 For example, libraries needed for the build may be in non-standard
 locations, or site-specific compiler options may need to be passed to the
 compiler.
-&scons;
+&SCons;
 provides a <firstterm>&Variables;</firstterm>
 object to support overriding &consvars;
 on the command line:</para>
@@ -3978,37 +3978,38 @@ on the command line:</para>
 <userinput>scons VARIABLE=foo</userinput>
 </screen>
 
-<para>The variable values can also be specified in an SConscript file.
-To obtain the object for manipulating values,
+<para>The variable values can also be specified in an SConscript file.</para>
+
+<para>To obtain the object for manipulating values,
 call the &Variables; function:</para>
 
 <variablelist>
   <varlistentry>
-  <term>Variables([<emphasis>files</emphasis>[, <emphasis>args</emphasis>]])</term>
+  <term><function>Variables</function>([<parameter>files, [args]]</parameter>)</term>
   <listitem>
-<para>If <emphasis>files</emphasis> is a file or
+<para>If <parameter>files</parameter> is a file or
 list of files, those are executed as Python scripts,
 and the values of (global) Python variables set in
-those files are added as &consvars; in the
-default &consenv;.
+those files are added as &consvars; in the &DefEnv;.
 If no files are specified,
 or the
-<emphasis>files</emphasis>
+<parameter>files</parameter>
 argument is
-<emphasis role="bold">None</emphasis>,
-then no files will be read. Example file content:</para>
+<constant>None</constant>,
+then no files will be read. The following example file
+contents could be used to set an alternative C compiler:</para>
 
 <programlisting language="python">
 CC = 'my_cc'
 </programlisting>
 
-<para>The optional argument
-<emphasis>args</emphasis>
-is a dictionary of
-values that will override anything read from the specified files;
+<para>If
+<parameter>args</parameter>
+is specified, it is a dictionary of
+values that will override anything read from
+<parameter>files</parameter>.
 it is primarily intended to be passed the
-<emphasis role="bold">ARGUMENTS</emphasis>
-dictionary that holds variables
+&ARGUMENTS; dictionary that holds variables
 specified on the command line.
 Example:</para>
 
@@ -4026,93 +4027,97 @@ vars = Variables(None, {FOO:'expansion', BAR:7})
 
   <variablelist>
   <varlistentry>
-  <term>Add(<emphasis>key</emphasis>, [<emphasis>help</emphasis>, <emphasis>default</emphasis>, <emphasis>validator</emphasis>, <emphasis>converter</emphasis>])</term>
+  <term><replaceable>vars</replaceable>.<function>Add</function>(<parameter>key, [help, default, validator, converter]</parameter>)</term>
   <listitem>
-<para>This adds a customizable &consvar; to the Variables object.
-<emphasis>key</emphasis>
+<para>Add a customizable &consvar; to the Variables object.
+<parameter>key</parameter>
 is the name of the variable.
-<emphasis>help</emphasis>
+<parameter>help</parameter>
 is the help text for the variable.
-<emphasis>default</emphasis>
+<parameter>default</parameter>
 is the default value of the variable;
 if the default value is
-<emphasis role="bold">None</emphasis>
+<constant>None</constant>
 and there is no explicit value specified,
-the &consvar; will
-<emphasis>not</emphasis>
+the &consvar; will not
 be added to the &consenv;.
-<emphasis>validator</emphasis>
-is called to validate the value of the variable, and should take three
-arguments: key, value, and environment.
+If set, <parameter>validator</parameter>
+is called to validate the value of the variable.
+A function supplied as a validator shall accept
+arguments: <parameter>key</parameter>,
+<parameter>value</parameter>, and <parameter>env</parameter>.
 The recommended way to handle an invalid value is
 to raise an exception (see example below).
-<emphasis>converter</emphasis>
+If set, <parameter>converter</parameter>
 is called to convert the value before putting it in the environment, and
 should take either a value, or the value and environment, as parameters.
-The
-<emphasis>converter</emphasis>
-must return a value,
+The converter function must return a value,
 which will be converted into a string
 before being validated by the
-<emphasis>validator</emphasis>
+<parameter>validator</parameter>
 (if any)
-and then added to the environment.</para>
+and then added to the &consenv;.</para>
 
 <para>Examples:</para>
 
 <programlisting language="python">
 vars.Add('CC', help='The C compiler')
 
-def validate_color(key, val, env):
+def valid_color(key, val, env):
     if not val in ['red', 'blue', 'yellow']:
         raise Exception("Invalid color value '%s'" % val)
+
 vars.Add('COLOR', validator=valid_color)
 </programlisting>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>vars.AddVariables(<emphasis>list</emphasis>)</term>
+  <term><replaceable>vars</replaceable>.<function>AddVariables</function>(<parameter>args</parameter>)</term>
   <listitem>
-<para>A wrapper script that adds
+<para>A convenience method that adds
 multiple customizable &consvars;
-to a Variables object.
-<emphasis>list</emphasis>
-is a list of tuple or list objects
+to a Variables object in one call;
+equivalent to calling &Add; multiple times.
+The <parameter>args</parameter>
+are tuples (or lists)
 that contain the arguments
-for an individual call to the
-<emphasis role="bold">Add</emphasis>
-method.</para>
+for an individual call to the &Add; method.
+Since tuples are not Python mappings,
+the arguments cannot use the keyword form,
+but rather are positional arguments as documented
+for &Add;: a required name, the rest optional
+but must be in the specified in order if used.
+
+</para>
 
 <programlisting language="python">
 opt.AddVariables(
-       ('debug', '', 0),
-       ('CC', 'The C compiler'),
-       ('VALIDATE', 'An option for testing validation',
-        'notset', validator, None),
-    )
+    ("debug", "", 0),
+    ("CC", "The C compiler"),
+    ("VALIDATE", "An option for testing validation", "notset", validator, None),
+)
 </programlisting>
 
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>vars.Update(<emphasis>env</emphasis>, [<emphasis>args</emphasis>])</term>
+  <term><replaceable>vars</replaceable>.<function>Update</function>(<parameter>env, [args]</parameter>)</term>
   <listitem>
-<para>This updates a &consenv;
-<emphasis>env</emphasis>
-with the customized &consvars;.
-Any specified variables that are
-<emphasis>not</emphasis>
+<para>Update a &consenv;
+<parameter>env</parameter>
+with the customized &consvars; .
+Any specified variables that are not
 configured for the Variables object
 will be saved and may be
-retrieved with the
-<emphasis role="bold">UnknownVariables</emphasis>()
+retrieved using the
+&UnknownVariables;
 method, below.</para>
 
 <para>Normally this method is not called directly,
-but is called indirectly by passing the Variables object to
-the Environment() function:</para>
+but rather invoked indirectly by passing the Variables object to
+the &f-link-Environment; function:</para>
 
 <programlisting language="python">
 env = Environment(variables=vars)
@@ -4122,7 +4127,7 @@ env = Environment(variables=vars)
   </varlistentry>
 
   <varlistentry>
-  <term>vars.UnknownVariables(<emphasis>)</emphasis></term>
+  <term><replaceable>vars</replaceable>.<function>UnknownVariables</function>()</term>
   <listitem>
 <para>Returns a dictionary containing any
 variables that were specified
@@ -4141,10 +4146,10 @@ for key, value in vars.UnknownVariables():
   </varlistentry>
 
   <varlistentry>
-  <term>vars.Save(<emphasis>filename</emphasis>, <emphasis>env</emphasis>)</term>
+  <term><replaceable>vars</replaceable>.<function>Save</function>(<parameter>filename, env</parameter>)</term>
   <listitem>
-<para>This saves the currently set variables into a script file named
-<emphasis>filename</emphasis>
+<para>Save the currently set variables into a script file named
+by <parameter>filename</parameter>
 that can be used on the next invocation to automatically load the current
 settings.  This method combined with the Variables method can be used to
 support caching of variables between runs.</para>
@@ -4161,32 +4166,31 @@ vars.Save('variables.cache', env)
   </varlistentry>
 
   <varlistentry>
-  <term>vars.GenerateHelpText(<emphasis>env</emphasis>, [<emphasis>sort</emphasis>])</term>
+  <term><replaceable>vars</replaceable>.<function>GenerateHelpText</function>(<parameter>env, [sort]</parameter>)</term>
   <listitem>
-<para>This generates help text documenting the customizable construction
-variables suitable to passing in to the Help() function.
-<emphasis>env</emphasis>
+<para>Generate help text documenting the customizable construction
+variables, suitable for passing in to the &f-link-Help; function.
+<parameter>env</parameter>
 is the &consenv; that will be used to get the actual values
-of customizable variables. Calling with
-an optional
-<emphasis>sort</emphasis>
-function
-will cause the output to be sorted
-by the specified argument.
-The specific
-<emphasis>sort</emphasis>
-function
-should take two arguments
-and return
--1, 0 or 1
-(like the standard Python
-<emphasis>cmp</emphasis>
-function).
+of the customizable variables. If the (optional)
+value of <parameter>sort</parameter>
+is callable, it is used as a comparison function to
+determine how to sort the added variables.
+This function must accept two arguments, compare them,
+and return a negative integer if the first is
+less-than the second, zero for equality, or a positive integer
+for greater-than.
 
-Optionally a Boolean value of True for <emphasis>sort</emphasis> will cause a standard alphabetical sort to be performed</para>
+Optionally a Boolean value of <constant>True</constant>
+for <parameter>sort</parameter> will cause a standard
+alphabetical sort to be performed.</para>
 
 <programlisting language="python">
 Help(vars.GenerateHelpText(env))
+
+def cmp(a, b):
+    return (a &gt; b) - (a &lt; b)
+
 Help(vars.GenerateHelpText(env, sort=cmp))
 </programlisting>
 
@@ -4194,20 +4198,18 @@ Help(vars.GenerateHelpText(env, sort=cmp))
   </varlistentry>
 
   <varlistentry>
-  <term>FormatVariableHelpText(<emphasis>env</emphasis>, <emphasis>opt</emphasis>, <emphasis>help</emphasis>, <emphasis>default</emphasis>, <emphasis>actual</emphasis>)</term>
+  <term><replaceable>vars</replaceable>.<function>FormatVariableHelpText</function>(<parameter>env, opt, help, default, actual</parameter>)</term>
   <listitem>
-<para>This method returns a formatted string
+<para>Returns a formatted string
 containing the printable help text
 for one option.
 It is normally not called directly,
-but is called by the
-<emphasis>GenerateHelpText</emphasis>()
+but is called by the &GenerateHelpText;
 method to create the returned help text.
 It may be overridden with your own
 function that takes the arguments specified above
 and returns a string of help text formatted to your liking.
-Note that
-<emphasis>GenerateHelpText</emphasis>()
+Note that &GenerateHelpText;
 will not put any blank lines or extra
 characters in between the entries,
 so you must add those characters to the returned
@@ -4216,7 +4218,7 @@ string if you want the entries separated.</para>
 <programlisting language="python">
 def my_format(env, opt, help, default, actual):
     fmt = "\n%s: default=%s actual=%s (%s)\n"
-    return fmt % (opt, default. actual, help)
+    return fmt % (opt, default, actual, help)
 vars.FormatVariableHelpText = my_format
 </programlisting>
   </listitem>
@@ -4228,136 +4230,138 @@ vars.FormatVariableHelpText = my_format
 &scons;
 provides a number of functions
 that make it easy to set up
-various types of Variables:</para>
+various types of Variables.
+Each of these return a tuple ready to be passed to
+the &Add; or &AddVariables; method:</para>
 
   <variablelist>
   <varlistentry>
-  <term>BoolVariable(<emphasis>key</emphasis>, <emphasis>help</emphasis>, <emphasis>default</emphasis>)</term>
+  <term><function>BoolVariable</function>(<parameter>key, help, default</parameter>)</term>
   <listitem>
-<para>Return a tuple of arguments
+<para>Returns a tuple of arguments
 to set up a Boolean option.
 The option will use
 the specified name
-<emphasis>key</emphasis>,
+<parameter>key</parameter>,
 have a default value of
-<emphasis>default</emphasis>,
-and display the specified
-<emphasis>help</emphasis>
-text.
+<parameter>default</parameter>,
+and <parameter>help</parameter>
+will form the descriptive part of the help text.
 The option will interpret the values
-<emphasis role="bold">y</emphasis>,
-<emphasis role="bold">yes</emphasis>,
-<emphasis role="bold">t</emphasis>,
-<emphasis role="bold">true</emphasis>,
-<literal>1</literal>,
-<emphasis role="bold">on</emphasis>
+<userinput>y</userinput>,
+<userinput>yes</userinput>,
+<userinput>t</userinput>,
+<userinput>true</userinput>,
+<userinput>1</userinput>,
+<userinput>on</userinput>
 and
-<emphasis role="bold">all</emphasis>
+<userinput>all</userinput>
 as true,
 and the values
-<emphasis role="bold">n</emphasis>,
-<emphasis role="bold">no</emphasis>,
-<emphasis role="bold">f</emphasis>,
-<emphasis role="bold">false</emphasis>,
-<literal>0</literal>,
-<emphasis role="bold">off</emphasis>
+<userinput>n</userinput>,
+<userinput>no</userinput>,
+<userinput>f</userinput>,
+<userinput>false</userinput>,
+<userinput>0</userinput>,
+<userinput>off</userinput>
 and
-<emphasis role="bold">none</emphasis>
+<userinput>none</userinput>
 as false.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>EnumVariable(<emphasis>key</emphasis>, <emphasis>help</emphasis>, <emphasis>default</emphasis>, <emphasis>allowed_values</emphasis>, [<emphasis>map</emphasis>, <emphasis>ignorecase</emphasis>])</term>
+  <term><function>EnumVariable</function>(<parameter>key, help, default, allowed_values, [map, ignorecase]</parameter>)</term>
   <listitem>
-<para>Return a tuple of arguments
+<para>Returns a tuple of arguments
 to set up an option
 whose value may be one
 of a specified list of legal enumerated values.
 The option will use
 the specified name
-<emphasis>key</emphasis>,
+<parameter>key</parameter>,
 have a default value of
-<emphasis>default</emphasis>,
-and display the specified
-<emphasis>help</emphasis>
-text.
+<parameter>default</parameter>,
+and <parameter>help</parameter>
+will form the descriptive part of the help text.
 The option will only support those
 values in the
-<emphasis>allowed_values</emphasis>
+<parameter>allowed_values</parameter>
 list.
 The optional
-<emphasis>map</emphasis>
+<parameter>map</parameter>
 argument is a dictionary
 that can be used to convert
 input values into specific legal values
 in the
-<emphasis>allowed_values</emphasis>
+<parameter>allowed_values</parameter>
 list.
 If the value of
-<emphasis>ignore_case</emphasis>
+<parameter>ignore_case</parameter>
 is
 <literal>0</literal>
 (the default),
 then the values are case-sensitive.
 If the value of
-<emphasis>ignore_case</emphasis>
+<parameter>ignore_case</parameter>
 is
 <literal>1</literal>,
 then values will be matched
-case-insensitive.
+case-insensitively.
 If the value of
-<emphasis>ignore_case</emphasis>
+<parameter>ignore_case</parameter>
 is
 <literal>2</literal>,
 then values will be matched
-case-insensitive,
+case-insensitively,
 and all input values will be
 converted to lower case.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>ListVariable(<emphasis>key</emphasis>, <emphasis>help</emphasis>, <emphasis>default</emphasis>, <emphasis>names</emphasis>, [<emphasis>,</emphasis>map<emphasis>])</emphasis></term>
+  <term><function>ListVariable</function>(<parameter>key, help, default, names, [map]</parameter>)</term>
   <listitem>
-<para>Return a tuple of arguments
+<para>Returns a tuple of arguments
 to set up an option
 whose value may be one or more
 of a specified list of legal enumerated values.
 The option will use
 the specified name
-<emphasis>key</emphasis>,
+<parameter>key</parameter>,
 have a default value of
-<emphasis>default</emphasis>,
-and display the specified
-<emphasis>help</emphasis>
-text.
-The option will only support the values
-<emphasis role="bold">all</emphasis>,
-<emphasis role="bold">none</emphasis>,
+<parameter>default</parameter>,
+and <parameter>help</parameter>
+will form the descriptive part of the help text.
+The option will only accept the values
+<quote>all</quote>,
+<quote>none</quote>,
 or the values in the
-<emphasis>names</emphasis>
+<parameter>names</parameter>
 list.
 More than one value may be specified,
-with all values separated by commas.
+separated by commas.
 The default may be a string of
 comma-separated default values,
 or a list of the default values.
 The optional
-<emphasis>map</emphasis>
+<parameter>map</parameter>
 argument is a dictionary
 that can be used to convert
 input values into specific legal values
 in the
-<emphasis>names</emphasis>
-list.</para>
+<parameter>names</parameter>
+list.
+(Note that the additional values accepted through
+the use of a <parameter>map</parameter> are not
+reflected in the generated help message).  </para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>PackageVariable(<emphasis>key</emphasis>, <emphasis>help</emphasis>, <emphasis>default</emphasis>)</term>
+  <term><function>PackageVariable</function>(<parameter>key, help, default</parameter>)</term>
   <listitem>
-<para>Return a tuple of arguments
+<para>Returns a tuple of arguments
 to set up an option
 whose value is a path name
 of a package that may be
@@ -4365,52 +4369,50 @@ enabled, disabled or
 given an explicit path name.
 The option will use
 the specified name
-<emphasis>key</emphasis>,
+<parameter>key</parameter>,
 have a default value of
-<emphasis>default</emphasis>,
-and display the specified
-<emphasis>help</emphasis>
-text.
+<parameter>default</parameter>,
+and <parameter>help</parameter>
+will form the descriptive part of the help text.
 The option will support the values
-<emphasis role="bold">yes</emphasis>,
-<emphasis role="bold">true</emphasis>,
-<emphasis role="bold">on</emphasis>,
-<emphasis role="bold">enable</emphasis>
+<userinput>yes</userinput>,
+<userinput>true</userinput>,
+<userinput>on</userinput>,
+<userinput>enable</userinput>
 or
-<emphasis role="bold">search</emphasis>,
+<userinput>search</userinput>,
 in which case the specified
-<emphasis>default</emphasis>
+<parameter>default</parameter>
 will be used,
 or the option may be set to an
 arbitrary string
 (typically the path name to a package
 that is being enabled).
 The option will also support the values
-<emphasis role="bold">no</emphasis>,
-<emphasis role="bold">false</emphasis>,
-<emphasis role="bold">off</emphasis>
+<userinput>no</userinput>,
+<userinput>false</userinput>,
+<userinput>off</userinput>
 or
-<emphasis role="bold">disable</emphasis>
+<userinput>disable</userinput>
 to disable use of the specified option.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>PathVariable(<emphasis>key</emphasis>, <emphasis>help</emphasis>, <emphasis>default</emphasis>, [<emphasis>validator</emphasis>])</term>
+  <term><function>PathVariable</function>(<parameter>key, help, default, [validator]</parameter>)</term>
   <listitem>
-<para>Return a tuple of arguments
+<para>Returns a tuple of arguments
 to set up an option
 whose value is expected to be a path name.
 The option will use
 the specified name
-<emphasis>key</emphasis>,
+<parameter>key</parameter>,
 have a default value of
-<emphasis>default</emphasis>,
-and display the specified
-<emphasis>help</emphasis>
-text.
+<parameter>default</parameter>,
+and <parameter>help</parameter>
+will form the descriptive part of the help text.
 An additional
-<emphasis>validator</emphasis>
+<parameter>validator</parameter>
 may be specified
 that will be called to
 verify that the specified path
@@ -4420,38 +4422,40 @@ following ready-made validators:</para>
 
   <variablelist>  <!-- nested list -->
   <varlistentry>
-    <term>PathVariable.PathExists</term>
+    <term><literal>PathVariable</literal>.<function>PathExists</function></term>
     <listitem>
-<para>Verify that the specified path exists (the default).</para>
+<para>Verify that the specified path exists
+(this the default behavior if no
+<parameter>validator</parameter> is supplied).</para>
     </listitem>
   </varlistentry>
 
   <varlistentry>
-    <term>PathVariable.PathIsFile</term>
+    <term><literal>PathVariable</literal>.<function>PathIsFile</function></term>
     <listitem>
-<para>Verify that the specified path is an existing file.</para>
+<para>Verify that the specified path exists and is a regular file.</para>
     </listitem>
   </varlistentry>
 
   <varlistentry>
-    <term>PathVariable.PathIsDir</term>
+    <term><literal>PathVariable</literal>.<function>PathIsDir</function></term>
     <listitem>
-<para>Verify that the specified path is an existing directory.</para>
+<para>Verify that the specified path exists and is a directory.</para>
     </listitem>
   </varlistentry>
 
   <varlistentry>
-    <term>PathVariable.PathIsDirCreate</term>
+    <term><literal>PathVariable</literal>.<function>PathIsDirCreate</function></term>
     <listitem>
-<para>Verify that the specified path is a directory
-and will create the specified directory if the path does not exist.</para>
+<para>Verify that the specified path exists and is a directory;
+if it does not exist, create the directory.</para>
     </listitem>
   </varlistentry>
 
   <varlistentry>
-    <term>PathVariable.PathAccept</term>
+    <term><literal>PathVariable</literal>.<function>PathAccept</function></term>
     <listitem>
-<para>Simply accept the specific path name argument without validation,
+<para>Accept the specific path name argument without validation,
 suitable for when you want your users
 to be able to specify a directory path that will be
 created as part of the build process, for example.</para>
@@ -4464,12 +4468,12 @@ You may supply your own
 <emphasis>validator</emphasis>
 function,
 which must accept three arguments
-(<emphasis>key</emphasis>,
+(<parameter>key</parameter>,
 the name of the variable to be set;
-<emphasis>val</emphasis>,
+<parameter>val</parameter>,
 the specified value being checked;
 and
-<emphasis>env</emphasis>,
+<parameter>env</parameter>,
 the &consenv;)
 and should raise an exception
 if the specified value is not acceptable.</para>
@@ -7233,7 +7237,7 @@ line or in the file <filename>custom.py</filename>.</para>
 
 <programlisting language="python">
 vars = Variables('custom.py')
-vars.Add('CC', 'The C compiler.')
+vars.Add('CC', help='The C compiler.')
 env = Environment(variables=vars)
 Help(vars.GenerateHelpText(env))
 </programlisting>
