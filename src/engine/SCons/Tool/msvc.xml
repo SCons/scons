@@ -508,10 +508,11 @@ located.
 env = Environment(VSWHERE='c:/my/path/to/vswhere')
 </programlisting>
 
-or if your &f-link-Environment; is created specifying no tools 
-<literal>tools=[]</literal>
-or with an empty list of tools or with a list of tools which doesn't include &t-link-default;, &t-link-msvs;, &t-link-msvc; or &t-link-mslink;.
-    <programlisting>
+or if your &consenv; is created specifying an empty tools list
+(or a list of tools which omits all of default, msvs, msvc, and mslink),
+and also before &f-link-env-Tool; is called to ininitialize any of those tools:
+
+<programlisting>
     env = Environment(tools=[])
     env['VSWHERE'] = r'c:/my/vswhere/install/location/vswhere.exe'
     env.Tool('msvc')
