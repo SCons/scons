@@ -345,10 +345,14 @@ if not has_libxml2:
             t = etree.Element(root, nsmap=NSMAP)
             return self.decorateWithHeader(t)
 
+        # singleton to cache parsed xmlschema..
+        xmlschema = None
+
         @staticmethod
         def validateXml(fpath, xmlschema_context):
-            # Use lxml
-            xmlschema = etree.XMLSchema(xmlschema_context)
+
+            if TreeFactory.xmlschema is None:
+                TreeFactory.xmlschema = etree.XMLSchema(xmlschema_context)
             try:
                 doc = etree.parse(fpath)
             except Exception as e:
@@ -357,7 +361,7 @@ if not has_libxml2:
                 return False
             doc.xinclude()
             try:
-                xmlschema.assertValid(doc)
+                TreeFactory.xmlschema.assertValid(doc)
             except Exception as e:
                 print("ERROR: %s fails to validate:" % fpath)
                 print(e)
