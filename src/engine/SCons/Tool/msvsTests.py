@@ -580,7 +580,7 @@ def DummyQueryValue(key, value):
 def DummyExists(path):
     return 1
 
-def DummyVsWhere(msvc_version):
+def DummyVsWhere(msvc_version, env):
     # not testing versions with vswhere, so return none
     return None
 

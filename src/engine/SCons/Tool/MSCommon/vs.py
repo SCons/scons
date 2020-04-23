@@ -64,22 +64,22 @@ class VisualStudio(object):
             return None
         return batch_file
 
-    def find_vs_dir_by_vc(self):
-        SCons.Tool.MSCommon.vc.get_installed_vcs()
-        dir = SCons.Tool.MSCommon.vc.find_vc_pdir(self.vc_version)
+    def find_vs_dir_by_vc(self, env):
+        SCons.Tool.MSCommon.vc.get_installed_vcs(env)
+        dir = SCons.Tool.MSCommon.vc.find_vc_pdir(env, self.vc_version)
         if not dir:
             debug('find_vs_dir_by_vc():  no installed VC %s' % self.vc_version)
             return None
         return os.path.abspath(os.path.join(dir, os.pardir))
 
-    def find_vs_dir_by_reg(self):
+    def find_vs_dir_by_reg(self, env):
         root = 'Software\\'
 
         if is_win64():
             root = root + 'Wow6432Node\\'
         for key in self.hkeys:
             if key=='use_dir':
-                return self.find_vs_dir_by_vc()
+                return self.find_vs_dir_by_vc(env)
             key = root + key
             try:
                 comps = read_reg(key)
@@ -90,19 +90,19 @@ class VisualStudio(object):
                 return comps
         return None
 
-    def find_vs_dir(self):
+    def find_vs_dir(self, env):
         """ Can use registry or location of VC to find vs dir
         First try to find by registry, and if that fails find via VC dir
         """
 
-        vs_dir=self.find_vs_dir_by_reg()
+        vs_dir=self.find_vs_dir_by_reg(env)
         if not vs_dir:
-            vs_dir = self.find_vs_dir_by_vc()
+            vs_dir = self.find_vs_dir_by_vc(env)
         debug('find_vs_dir(): found VS in ' + str(vs_dir ))
         return vs_dir
 
-    def find_executable(self):
-        vs_dir = self.get_vs_dir()
+    def find_executable(self, env):
+        vs_dir = self.get_vs_dir(env)
         if not vs_dir:
             debug('find_executable():  no vs_dir ({})'.format(vs_dir))
             return None
@@ -121,21 +121,21 @@ class VisualStudio(object):
             self._cache['batch_file'] = batch_file
             return batch_file
 
-    def get_executable(self):
+    def get_executable(self, env=None):
         try:
             debug('get_executable using cache:%s'%self._cache['executable'])
             return self._cache['executable']
         except KeyError:
-            executable = self.find_executable()
+            executable = self.find_executable(env)
             self._cache['executable'] = executable
             debug('get_executable not in cache:%s'%executable)
             return executable
 
-    def get_vs_dir(self):
+    def get_vs_dir(self, env):
         try:
             return self._cache['vs_dir']
         except KeyError:
-            vs_dir = self.find_vs_dir()
+            vs_dir = self.find_vs_dir(env)
             self._cache['vs_dir'] = vs_dir
             return vs_dir
 
@@ -413,7 +413,7 @@ for vs in SupportedVSList:
 InstalledVSList = None
 InstalledVSMap  = None
 
-def get_installed_visual_studios():
+def get_installed_visual_studios(env=None):
     global InstalledVSList
     global InstalledVSMap
     if InstalledVSList is None:
@@ -421,7 +421,7 @@ def get_installed_visual_studios():
         InstalledVSMap = {}
         for vs in SupportedVSList:
             debug('trying to find VS %s' % vs.version)
-            if vs.get_executable():
+            if vs.get_executable(env):
                 debug('found VS %s' % vs.version)
                 InstalledVSList.append(vs)
                 InstalledVSMap[vs.version] = vs
@@ -472,8 +472,8 @@ def reset_installed_visual_studios():
 #    for variable, directory in env_tuple_list:
 #        env.PrependENVPath(variable, directory)
 
-def msvs_exists():
-    return (len(get_installed_visual_studios()) > 0)
+def msvs_exists(env=None):
+    return (len(get_installed_visual_studios(env)) > 0)
 
 def get_vs_by_version(msvs):
     global InstalledVSMap

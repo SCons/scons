@@ -4,3 +4,4 @@ src/engine/SCons/Tool/docbook/docbook-xsl-1.76.1 linguist-vendored
 *.xsl linguist-documentation
 *.gen linguist-documentation
 
+*.in eol=lf

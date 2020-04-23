@@ -44,7 +44,6 @@ if not tar:
     test.skip_test('tar not found, skipping test\n')
 
 bz2 = test.where_is('bzip2')
-bz2_path = os.path.dirname(bz2)
 
 if sys.platform == 'win32':
     # windows 10 causes fresh problems by supplying a tar, not bzip2
@@ -55,6 +54,9 @@ if sys.platform == 'win32':
     tar = os.path.splitdrive(test.where_is('tar'))[1]
     if tar[:8] != bz2[:8]:   # catch one in \WINDOWS, one not
         test.skip_test('tar found, but usable bzip2 not, skipping test\n')
+
+bz2_path = os.path.dirname(bz2)
+
 
 test.subdir('src')
 

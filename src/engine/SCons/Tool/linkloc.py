@@ -101,7 +101,7 @@ def generate(env):
     addPharLapPaths(env)
 
 def exists(env):
-    if msvs_exists():
+    if msvs_exists(env):
         return env.Detect('linkloc')
     else:
         return 0
