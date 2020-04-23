@@ -2179,28 +2179,75 @@ def my_platform(env):
 env = Environment(platform=my_platform)
 </programlisting>
 
-<para>Additionally, a specific set of tools
-with which to initialize the environment
+</refsect2>
+
+<refsect2 id='tools'>
+<title>Tools</title>
+
+<para>
+&SCons; has a large number of predefined tools which
+are used to help initialize the &consenv;,
+and additional tools can be added.
+An &scons; <firstterm>tool specification</firstterm>
+is only responsible for setup.
+For example, if the SConscript file declares
+the need to construct an object file from
+a C-language source file by calling the
+&b-link-Object; builder, then a tool representing
+an available C compiler needs to have run first,
+to set up the builder and all the &consvars;
+it needs, in that &consenv;. Normally this
+happens invisibly: &scons; has per-platform
+lists of default tools, and it runs through those tools,
+calling the ones which are actually applicable
+(skipping those where necessary programs are not
+installed on the build system, etc.).
+</para>
+
+<para>
+A specific set of tools
+with which to initialize the environment when
+creating it
 may be specified using the optional keyword argument
-<parameter>tools</parameter>:</para>
+<parameter>tools</parameter>.
+This is useful to override the defaults,
+to specify non-default built-in tools, and
+to supply added tools:</para>
 
 <programlisting language="python">
 env = Environment(tools=['msvc', 'lex'])
 </programlisting>
 
 <para>
+Tools can also be called by using the &f-link-Tool;
+method (see below).
+</para>
+
+<para>
 The <parameter>tools</parameter> argument overrides
-the tool list, it does not add to it, so be
+the default tool list, it does not add to it, so be
 sure to include all the tools you need.
 For example if you are  building a c/c++ program
-you must  add a tool for both compiler and linker,
+you must specify a tool for at least a compiler and a linker,
 as in <literal>tools=['clang', 'link']</literal>.
 The tool name <literal>'default'</literal> can
 be used to retain the default list.
 </para>
 
-<para>Non-built-in tools may be specified using the
-optional <parameter>toolpath</parameter> keyword argument:</para>
+<para>If no <parameter>tools</parameter> list is specified,
+or the list includes <literal>'default'</literal>,
+then &scons; will detect usable tools,
+using the value of <varname>PATH</varname>
+in the <varname>ENV</varname> &consvar; (<emphasis>not</emphasis>
+the external <envar>PATH</envar> from <varname>os.environ</varname>)
+for looking up any backing programs, and the platform name in effect
+to determine the default tools for that platform.
+Changing the <varname>PATH</varname>
+variable after the &consenv; is constructed will not cause the tools to
+be redetected.</para>
+
+<para>To help locate added tools, specify the
+<parameter>toolpath</parameter> keyword argument:</para>
 
 <programlisting language="python">
 env = Environment(tools=['default', 'foo'], toolpath=['tools'])
@@ -2212,33 +2259,14 @@ as well as using the ordinary default tools for the platform.
 </para>
 
 <para>
-A tool specification must include two functions:
-<function>generate(env, **kw)</function>
-and <function>exists(env)</function>.
-The
-<function>generate</function>
-function
-modifies the environment referenced by <parameter>env</parameter>
-to set up variables so that the tool
-can be executed;
-it may use any keyword arguments
-that the user supplies in <parameter>kw</parameter> (see below)
-to vary its initialization.
-The
-<function>exists</function>
-function should return a true
-value if the tool is available.
-</para>
-
-<para>
-Tools in the toolpath are used before
+Tools in the toolpath are used in preference to
 any of the built-in ones.  For example, adding
-<filename>gcc.py</filename> to the toolpath
-would override the built-in gcc tool.
+a tool <filename>gcc.py</filename> to the toolpath
+directory would override the built-in gcc tool.
 The toolpath is
 stored in the environment and will be
 picked up by subsequent calls to the
-&Clone; and &Tool; methods:
+&f-Clone; and &f-Tool; methods:
 </para>
 
 <programlisting language="python">
@@ -2247,11 +2275,40 @@ derived = base.Clone(tools=['custom_tool'])
 derived.CustomBuilder()
 </programlisting>
 
-<para>The elements of the tools list may also
+<para>
+A tool specification must include two functions:
+</para>
+
+<variablelist>
+  <varlistentry>
+    <term><function>generate</function>(<parameter>env, **kwargs</parameter>)</term>
+    <listitem>
+<para>Modifies the environment referenced by <parameter>env</parameter>
+to set up variables so that the facilities represented by
+the tool can be executed.
+It may use any keyword arguments
+that the user supplies in <parameter>kwargs</parameter>
+to vary its initialization.</para>
+    </listitem>
+  </varlistentry>
+  <varlistentry>
+    <term><function>exists</function>(<parameter>env</parameter>)</term>
+    <listitem>
+<para>Return <constant>True</constant> if the tool can
+be called. Usually this means looking up one or more
+known programs using the <envar>PATH</envar> from the
+supplied <parameter>env</parameter>, but the tool can
+make the "exists" decision in any way it chooses.
+</para>
+    </listitem>
+  </varlistentry>
+</variablelist>
+
+<para>The elements of the <parameter>tools</parameter> list may also
 be functions or callable objects,
-in which case the Environment() method
-will call the specified elements
-to update the new &consenv;:</para>
+in which case the &Environment; method
+will call those objects
+to update the new &consenv; (see &f-link-Tool; for more details):</para>
 
 <programlisting language="python">
 def my_tool(env):
@@ -2260,9 +2317,9 @@ def my_tool(env):
 env = Environment(tools=[my_tool])
 </programlisting>
 
-<para>The individual elements of the tools list
-may also themselves be two-element lists of the form
-(<emphasis>toolname</emphasis>, <emphasis>kw_dict</emphasis>).
+<para>The individual elements of the <parameter>tools</parameter> list
+may also themselves be lists or tuples of the form
+(<varname>toolname</varname>, <varname>kw_dict</varname>).
 SCons searches for the
 <parameter>toolname</parameter>
 specification file as described above, and
@@ -2279,9 +2336,9 @@ or otherwise changing its initialization.</para>
 
 <programlisting language="python">
 # in tools/my_tool.py:
-def generate(env, **kw):
-  # Sets MY_TOOL to the value of keyword argument 'arg1' or 1.
-  env['MY_TOOL'] = kw.get('arg1', '1')
+def generate(env, **kwargs):
+  # Sets MY_TOOL to the value of keyword 'arg1' '1' if not supplied
+  env['MY_TOOL'] = kwargs.get('arg1', '1')
 
 def exists(env):
   return True
@@ -2291,18 +2348,14 @@ env = Environment(tools=['default', ('my_tool', {'arg1': 'abc'})],
                   toolpath=['tools'])
 </programlisting>
 
-<para>The tool definition (i.e. my_tool()) can use the PLATFORM variable from
-the environment it receives to customize the tool for different platforms.</para>
+<para>The tool definition (<function>my_tool</function> in the example)
+can use the
+<envar>PLATFORM</envar> variable from
+the &consenv; it is passed to customize the tool for different platforms.</para>
 
-<para>If no tool list is specified, then SCons will auto-detect the installed
-tools using the PATH variable in the ENV &consvar; and the
-platform name when the Environment is constructed. Changing the PATH
-variable after the Environment is constructed will not cause the tools to
-be redetected.</para>
-
-<para> One feature now present within Scons is the ability to have nested tools.
-Tools which can be located within a subdirectory in the toolpath.
-With a nested tool name the dot represents a directory seperator</para>
+<para>Tools can be "nested" - that is, they
+can be located within a subdirectory in the toolpath.
+A nested tool name uses a dot to represent a directory seperator</para>
 
 <programlisting language="python">
 # namespaced builder
