@@ -2355,7 +2355,7 @@ the &consenv; it is passed to customize the tool for different platforms.</para>
 
 <para>Tools can be "nested" - that is, they
 can be located within a subdirectory in the toolpath.
-A nested tool name uses a dot to represent a directory seperator</para>
+A nested tool name uses a dot to represent a directory separator</para>
 
 <programlisting language="python">
 # namespaced builder
