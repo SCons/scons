@@ -189,6 +189,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       repository / website (scons-cookbook.readthedocs.io).
     - Clean up test harness and tests' use of subdir, file_fixture and
       dir_fixture.
+    - SubstitutionEnvironment and OverrideEnvironment now have keys()
+      and values() methods to better emulate a dict (already had items()).
 
   From Joseph Brill:
     - MSVC updates: When there are multiple product installations (e.g, Community and
