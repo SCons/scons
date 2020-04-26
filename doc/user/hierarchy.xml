@@ -563,7 +563,7 @@ Export('env', 'debug')
 
       <para>
 
-      Beacuse a Python identifier cannot contain spaces,
+      Because a Python identifier cannot contain spaces,
       &Export; assumes a string containing spaces is multiple
       variable names to export and splits it for you:
 
@@ -721,7 +721,7 @@ env.Program('prog', ['prog.c'])
 
       <para>
 
-      &Import; prefers a local defintion to a global one,
+      &Import; prefers a local definition to a global one,
       so that if there is a global export of <varname>foo</varname>,
       <emphasis>and</emphasis> the calling SConscript has
       exported <varname>foo</varname> to this SConscript,
