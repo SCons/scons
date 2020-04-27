@@ -1,6 +1,6 @@
 """SCons.Scanner.C
 
-This module implements the dependency scanner for C/C++ code. 
+This module implements the dependency scanner for C/C++ code.
 
 """
 
@@ -123,6 +123,100 @@ def CScanner():
                                   "CPPPATH",
                                   '^[ \t]*#[ \t]*(?:include|import)[ \t]*(<|")([^>"]+)(>|")')
     return cs
+
+
+#
+# ConditionalScanner
+#
+
+
+class SConsCPPConditionalScanner(SCons.cpp.PreProcessor):
+    """
+    SCons-specific subclass of the cpp.py module's processing.
+
+    We subclass this so that: 1) we can deal with files represented
+    by Nodes, not strings; 2) we can keep track of the files that are
+    missing.
+    """
+
+    def __init__(self, *args, **kw):
+        SCons.cpp.PreProcessor.__init__(self, *args, **kw)
+        self.missing = []
+        self._known_paths = []
+
+    def initialize_result(self, fname):
+        self.result = SCons.Util.UniqueList([fname])
+
+    def find_include_file(self, t):
+        keyword, quote, fname = t
+        paths = tuple(self._known_paths) + self.searchpath[quote]
+        if quote == '"':
+            paths = (self.current_file.dir,) + paths
+        result = SCons.Node.FS.find_file(fname, paths)
+        if result:
+            result_path = result.get_abspath()
+            for p in self.searchpath[quote]:
+                if result_path.startswith(p.get_abspath()):
+                    self._known_paths.append(p)
+                    break
+        else:
+            self.missing.append((fname, self.current_file))
+        return result
+
+    def read_file(self, file):
+        try:
+            with open(str(file.rfile())) as fp:
+                return fp.read()
+        except EnvironmentError:
+            self.missing.append((file, self.current_file))
+            return ""
+
+
+class SConsCPPConditionalScannerWrapper(object):
+    """
+    The SCons wrapper around a cpp.py scanner.
+
+    This is the actual glue between the calling conventions of generic
+    SCons scanners, and the (subclass of) cpp.py class that knows how
+    to look for #include lines with reasonably real C-preprocessor-like
+    evaluation of #if/#ifdef/#else/#elif lines.
+    """
+
+    def __init__(self, name, variable):
+        self.name = name
+        self.path = SCons.Scanner.FindPathDirs(variable)
+
+    def __call__(self, node, env, path=(), depth=-1):
+        cpp = SConsCPPConditionalScanner(
+            current=node.get_dir(),
+            cpppath=path,
+            dict=dictify_CPPDEFINES(env),
+            depth=depth,
+        )
+        result = cpp(node)
+        for included, includer in cpp.missing:
+            fmt = "No dependency generated for file: %s (included from: %s) -- file not found"
+            SCons.Warnings.warn(
+                SCons.Warnings.DependencyWarning, fmt % (included, includer)
+            )
+        return result
+
+    def recurse_nodes(self, nodes):
+        return nodes
+
+    def select(self, node):
+        return self
+
+
+def CConditionalScanner():
+    """
+    Return an advanced conditional Scanner instance for scanning source files
+
+    Interprets C/C++ Preprocessor conditional syntax
+    (#ifdef, #if, defined, #else, #elif, etc.).
+    """
+    return SConsCPPConditionalScannerWrapper("CConditionalScanner", "CPPPATH")
+
 
 # Local Variables:
 # tab-width:4

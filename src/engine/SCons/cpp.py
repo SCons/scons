@@ -102,8 +102,19 @@ e = r'^\s*#\s*(' + '|'.join(l) + ')(.*)$'
 # And last but not least, compile the expression.
 CPP_Expression = re.compile(e, re.M)
 
+# A list with RE to cleanup CPP Expressions (tuples)
+# We should remove all comments and carriage returns (\r) before evaluating
+CPP_Expression_Cleaner_List = [
+    "/\*.*\*/",
+    "/\*.*",
+    "//.*",
+    "\r"
+]
+CPP_Expression_Cleaner_RE = re.compile(
+    r"\s*(" + "|".join(CPP_Expression_Cleaner_List) + ")")
 
-
+def Cleanup_CPP_Expressions(ts):
+    return [(t[0], CPP_Expression_Cleaner_RE.sub("", t[1])) for t in ts]
 
 #
 # Second "subsystem" of regular expressions that we set up:
@@ -121,7 +132,6 @@ CPP_to_Python_Ops_Dict = {
     '||'        : ' or ',
     '?'         : ' and ',
     ':'         : ' or ',
-    '\r'        : '',
 }
 
 CPP_to_Python_Ops_Sub = lambda m: CPP_to_Python_Ops_Dict[m.group(0)]
@@ -144,12 +154,10 @@ CPP_to_Python_Ops_Expression = re.compile(expr)
 # A separate list of expressions to be evaluated and substituted
 # sequentially, not all at once.
 CPP_to_Python_Eval_List = [
-    [r'defined\s+(\w+)',         '"\\1" in __dict__'],
-    [r'defined\s*\((\w+)\)',     '"\\1" in __dict__'],
-    [r'/\*.*\*/',                ''],
-    [r'/\*.*',                   ''],
-    [r'//.*',                    ''],
-    [r'(0x[0-9A-Fa-f]*)[UL]+',   '\\1'],
+    [r'defined\s+(\w+)',                 '"\\1" in __dict__'],
+    [r'defined\s*\((\w+)\)',             '"\\1" in __dict__'],
+    [r'(0x[0-9A-Fa-f]+)(?:L|UL)?',  '\\1'],
+    [r'(\d+)(?:L|UL)?',  '\\1'],
 ]
 
 # Replace the string representations of the regular expressions in the
@@ -234,10 +242,11 @@ function_arg_separator = re.compile(r',\s*')
 
 
 class PreProcessor(object):
+
     """
     The main workhorse class for handling C pre-processing.
     """
-    def __init__(self, current=os.curdir, cpppath=(), dict={}, all=0):
+    def __init__(self, current=os.curdir, cpppath=(), dict={}, all=0, depth=-1):
         global Table
 
         cpppath = tuple(cpppath)
@@ -255,8 +264,15 @@ class PreProcessor(object):
         self.cpp_namespace = dict.copy()
         self.cpp_namespace['__dict__'] = self.cpp_namespace
 
+        # Return all includes without resolving
         if all:
            self.do_include = self.all_include
+
+        # Max depth of nested includes:
+        # -1 = unlimited
+        # 0 - disabled nesting
+        # >0 - number of allowed nested includes
+        self.depth = depth
 
         # For efficiency, a dispatch table maps each C preprocessor
         # directive (#if, #define, etc.) to the method that should be
@@ -272,7 +288,45 @@ class PreProcessor(object):
             d[op] = getattr(self, 'do_' + op)
         self.default_table = d
 
-    # Controlling methods.
+    def __call__(self, file):
+        """
+        Pre-processes a file.
+
+        This is the main public entry point.
+        """
+        self.current_file = file
+        return self.process_file(file)
+
+    def process_file(self, file):
+        """
+        Pre-processes a file.
+
+        This is the main internal entry point.
+        """
+        return self._process_tuples(self.tupleize(self.read_file(file)), file)
+
+    def process_contents(self, contents):
+        """
+        Pre-processes a file contents.
+
+        Is used by tests
+        """
+        return self._process_tuples(self.tupleize(contents))
+
+    def _process_tuples(self, tuples, file=None):
+        self.stack = []
+        self.dispatch_table = self.default_table.copy()
+        self.current_file = file
+        self.tuples = tuples
+
+        self.initialize_result(file)
+        while self.tuples:
+            t = self.tuples.pop(0)
+            # Uncomment to see the list of tuples being processed (e.g.,
+            # to validate the CPP lines are being translated correctly).
+            # print(t)
+            self.dispatch_table[t[0]](t)
+        return self.finalize_result(file)
 
     def tupleize(self, contents):
         """
@@ -284,39 +338,22 @@ class PreProcessor(object):
         The remaining elements are specific to the type of directive, as
         pulled apart by the regular expression.
         """
-        global CPP_Expression, Table
+        return self._match_tuples(self._parse_tuples(contents))
+
+    def _parse_tuples(self, contents):
+        global CPP_Expression
         contents = line_continuations.sub('', contents)
-        cpp_tuples = CPP_Expression.findall(contents)
-        return  [(m[0],) + Table[m[0]].match(m[1]).groups() for m in cpp_tuples]
+        tuples = CPP_Expression.findall(contents)
+        return Cleanup_CPP_Expressions(tuples)
 
-    def __call__(self, file):
-        """
-        Pre-processes a file.
-
-        This is the main public entry point.
-        """
-        self.current_file = file
-        return self.process_contents(self.read_file(file), file)
-
-    def process_contents(self, contents, fname=None):
-        """
-        Pre-processes a file contents.
-
-        This is the main internal entry point.
-        """
-        self.stack = []
-        self.dispatch_table = self.default_table.copy()
-        self.current_file = fname
-        self.tuples = self.tupleize(contents)
-
-        self.initialize_result(fname)
-        while self.tuples:
-            t = self.tuples.pop(0)
-            # Uncomment to see the list of tuples being processed (e.g.,
-            # to validate the CPP lines are being translated correctly).
-            #print(t)
-            self.dispatch_table[t[0]](t)
-        return self.finalize_result(fname)
+    def _match_tuples(self, tuples):
+        global Table
+        result = []
+        for t in tuples:
+            m = Table[t[0]].match(t[1])
+            if m:
+                result.append((t[0],) + m.groups())
+        return result
 
     # Dispatch table stack manipulation methods.
 
@@ -357,8 +394,10 @@ class PreProcessor(object):
         track #define values.
         """
         t = CPP_to_Python(' '.join(t[1:]))
-        try: return eval(t, self.cpp_namespace)
-        except (NameError, TypeError): return 0
+        try:
+            return eval(t, self.cpp_namespace)
+        except (NameError, TypeError, SyntaxError):
+            return 0
 
     def initialize_result(self, fname):
         self.result = [fname]
@@ -400,7 +439,7 @@ class PreProcessor(object):
         d = self.dispatch_table
         p = self.stack[-1] if self.stack else self.default_table
 
-        for k in ('import', 'include', 'include_next'):
+        for k in ('import', 'include', 'include_next', 'define', 'undef'):
             d[k] = p[k]
 
     def stop_handling_includes(self, t=None):
@@ -416,6 +455,8 @@ class PreProcessor(object):
         d['import'] = self.do_nothing
         d['include'] =  self.do_nothing
         d['include_next'] =  self.do_nothing
+        d['define'] =  self.do_nothing
+        d['undef'] =  self.do_nothing
 
     # Default methods for handling all of the preprocessor directives.
     # (Note that what actually gets called for a given directive at any
@@ -485,7 +526,11 @@ class PreProcessor(object):
         try:
             expansion = int(expansion)
         except (TypeError, ValueError):
-            pass
+            # handle "defined" chain "! (defined (A) || defined (B)" ...
+            if "defined " in expansion:
+                self.cpp_namespace[name] = self.eval_expression(t[2:])
+                return
+
         if args:
             evaluator = FunctionEvaluator(name, args[1:-1], expansion)
             self.cpp_namespace[name] = evaluator
@@ -511,15 +556,28 @@ class PreProcessor(object):
         Default handling of a #include line.
         """
         t = self.resolve_include(t)
+        if not t:
+            return
         include_file = self.find_include_file(t)
-        if include_file:
-            #print("include_file =", include_file)
-            self.result.append(include_file)
-            contents = self.read_file(include_file)
-            new_tuples = [('scons_current_file', include_file)] + \
-                         self.tupleize(contents) + \
-                         [('scons_current_file', self.current_file)]
-            self.tuples[:] = new_tuples + self.tuples
+        # avoid infinite recursion
+        if not include_file or include_file in self.result:
+            return
+        self.result.append(include_file)
+        # print include_file, len(self.tuples)
+
+        # Handle maximum depth of nested includes
+        if self.depth != -1:
+            current_depth = 0
+            for t in self.tuples:
+                if t[0] == "scons_current_file":
+                    current_depth += 1
+            if current_depth >= self.depth:
+                return
+
+        new_tuples = [('scons_current_file', include_file)] + \
+                      self.tupleize(self.read_file(include_file)) + \
+                     [('scons_current_file', self.current_file)]
+        self.tuples[:] = new_tuples + self.tuples
 
     # Date: Tue, 22 Nov 2005 20:26:09 -0500
     # From: Stefan Seefeld <seefeld@sympatico.ca>
@@ -545,18 +603,25 @@ class PreProcessor(object):
 
         This handles recursive expansion of values without "" or <>
         surrounding the name until an initial " or < is found, to handle
-
                 #include FILE
-
-        where FILE is a #define somewhere else."""
-
-        s = t[1]
+        where FILE is a #define somewhere else.
+        """
+        s = t[1].strip()
         while not s[0] in '<"':
-            #print("s =", s)
             try:
                 s = self.cpp_namespace[s]
             except KeyError:
                 m = function_name.search(s)
+
+                # Date: Mon, 28 Nov 2016 17:47:13 UTC
+                # From: Ivan Kravets <ikravets@platformio.org>
+                #
+                # Ignore `#include` directive that depends on dynamic macro
+                # which is not located in state TABLE
+                # For example, `#include MYCONFIG_FILE`
+                if not m:
+                    return None
+
                 s = self.cpp_namespace[m.group(1)]
                 if callable(s):
                     args = function_arg_separator.split(m.group(2))
@@ -569,6 +634,7 @@ class PreProcessor(object):
         """
         """
         self.result.append(self.resolve_include(t))
+
 
 class DumbPreProcessor(PreProcessor):
     """A preprocessor that ignores all #if/#elif/#else/#endif directives
