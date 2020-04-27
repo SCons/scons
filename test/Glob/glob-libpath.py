@@ -20,16 +20,14 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-from __future__ import print_function
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that Glob() in a subdir doesn't corrupt LIBPATH.
 See bug #2184, "Glob pollutes LIBPATH" from Ian P. Cardenas.
 Test output should not contain -Lsrc/util.
 """
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 

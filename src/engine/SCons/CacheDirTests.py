@@ -168,7 +168,7 @@ class ExceptionTestCase(unittest.TestCase):
         os.remove(old_config)
         
         try:
-            self._CacheDir._readconfig3(self._CacheDir.path)
+            self._CacheDir._readconfig(self._CacheDir.path)
             assert False, "Should have raised exception and did not"
         except SCons.Errors.SConsEnvironmentError as e:
             assert str(e) == "Failed to write cache configuration for {}".format(self._CacheDir.path)

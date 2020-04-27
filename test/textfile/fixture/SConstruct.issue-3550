@@ -4,8 +4,8 @@ env = Environment(tools=['textfile'])
 env['FOO_PATH'] = r'Z:\mongo\build\install\bin'
 
 foo = env.Substfile(
-    target="foo",
-    source="foo-3550.in",
+    target="substfile",
+    source="substfile.in",
     SUBST_DICT={
         "@foo_path@": "$FOO_PATH",
     }

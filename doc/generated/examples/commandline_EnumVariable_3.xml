@@ -1,14 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q COLOR=Red foo.o</userinput>
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.scons.org/dbxsd/v1.0" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q -h</userinput>
 
-scons: *** Invalid value for option COLOR: Red.  Valid values are: ('red', 'green', 'blue')
-File "/home/my/project/SConstruct", line 5, in &lt;module&gt;
-% <userinput>scons -Q COLOR=BLUE foo.o</userinput>
+COLOR: Set background color (red|green|blue)
+    default: red
+    actual: red
 
-scons: *** Invalid value for option COLOR: BLUE.  Valid values are: ('red', 'green', 'blue')
-File "/home/my/project/SConstruct", line 5, in &lt;module&gt;
-% <userinput>scons -Q COLOR=nAvY foo.o</userinput>
-
-scons: *** Invalid value for option COLOR: nAvY.  Valid values are: ('red', 'green', 'blue')
-File "/home/my/project/SConstruct", line 5, in &lt;module&gt;
+Use scons -H for help about command-line options.
 </screen>

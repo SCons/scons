@@ -844,7 +844,7 @@ env3 = env.Clone(CCFLAGS = '-g')
 
 <para>
 Additionally, a list of tools and a toolpath may be specified, as in
-the Environment constructor:
+the &f-link-Environment; constructor:
 </para>
 
 <example_commands>
@@ -1836,9 +1836,10 @@ Examples:
 </para>
 
 <example_commands>
-Program('foo', Glob('*.c'))
-Zip('/tmp/everything', Glob('.??*') + Glob('*'))
-sources = Glob('*.cpp', exclude=['os_*_specific_*.cpp']) + Glob('os_%s_specific_*.cpp'%currentOS)
+Program("foo", Glob("*.c"))
+Zip("/tmp/everything", Glob(".??*") + Glob("*"))
+sources = Glob("*.cpp", exclude=["os_*_specific_*.cpp"]) + \
+          Glob( "os_%s_specific_*.cpp" % currentOS)
 </example_commands>
 </summary>
 </scons_function>
@@ -3016,31 +3017,29 @@ source_nodes = env.subst('$EXPAND_TO_NODELIST',
 
 <scons_function name="Tool">
 <arguments>
-(string, [toolpath, **kw])
+(name, [toolpath, **kwargs])
 </arguments>
 <summary>
+
 <para>
-The
-&f-Tool;
-form of the function
-returns a callable object
-that can be used to initialize
-a construction environment using the
-tools keyword of the Environment() method.
-The object may be called with a construction
-environment as an argument,
-in which case the object will
-add the necessary variables
-to the construction environment
-and the name of the tool will be added to the
-&cv-link-TOOLS;
-construction variable.
+Runs the tool identified by
+<parameter>name</parameter>, which is
+searched for in standard locations and any
+paths specified by the optional
+<parameter>toolpath</parameter>,
+to update a &consenv; with &consvars;
+needed to use the mechanisms that tool describes.
+Any additional keyword arguments
+<parameter>kwargs</parameter> are passed
+on to the tool module's <function>generate</function> function.
 </para>
 
 <para>
-Additional keyword arguments are passed to the tool's
-<function>generate</function>()
-method.
+When called as a &consenv; method,
+the tool module is called to update the
+&consenv; and the name of the tool is
+appended to the &cv-link-TOOLS;
+&consvar; in that environment.
 </para>
 
 <para>
@@ -3048,33 +3047,36 @@ Examples:
 </para>
 
 <example_commands>
-env = Environment(tools = [ Tool('msvc') ])
+env.Tool('gcc')
+env.Tool('opengl', toolpath=['build/tools'])
+</example_commands>
+
+<para>
+When called as a global function,
+returns a callable tool object;
+the tool is not called at this time,
+as it lacks the context of an environment to update.
+This tool object can be passed to an
+&f-link-Environment; or &f-link-Clone; call
+as part of the <parameter>tools</parameter> keyword argument,
+or it can be called directly,
+passing a &consenv; to update as the argument.
+Either approach will also update the
+<varname>TOOLS</varname> &consvar;.
+</para>
+
+<para>
+Examples:
+</para>
+
+<example_commands>
+env = Environment(tools=[Tool('msvc')])
 
 env = Environment()
 t = Tool('msvc')
 t(env)  # adds 'msvc' to the TOOLS variable
 u = Tool('opengl', toolpath = ['tools'])
 u(env)  # adds 'opengl' to the TOOLS variable
-</example_commands>
-
-<para>
-The
-&f-env-Tool;
-form of the function
-applies the callable object for the specified tool
-<varname>string</varname>
-to the environment through which the method was called.
-</para>
-
-<para>
-Additional keyword arguments are passed to the tool's
-<function>generate</function>()
-method.
-</para>
-
-<example_commands>
-env.Tool('gcc')
-env.Tool('opengl', toolpath = ['build/tools'])
 </example_commands>
 </summary>
 </scons_function>

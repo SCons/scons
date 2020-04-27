@@ -20,13 +20,13 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify the ability of the "shell" command (and its "sh" and "!" aliases)
 to shell out of interactive mode.
 """
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
 
@@ -40,8 +40,6 @@ shell_command_py    = test.workpath('shell_command.py')
 _shell_command_py_  = '"%s"' % shell_command_py.replace('\\', '\\\\')
 
 test.write(shell_command_py, """\
-from __future__ import print_function
-
 print('hello from shell_command.py')
 """)
 

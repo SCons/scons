@@ -45,7 +45,7 @@ targets = 'target1 target2'
 
 test.run(arguments = 'run -f config foo.tar.gz')
 
-scons_py    = re.escape(test.workpath('src', 'script', 'scons.py'))
+scons_py = re.escape(test.workpath('scripts', 'scons.py'))
 src_engine  = re.escape(test.workpath('src', 'engine'))
 
 prof1       = re.escape(test.workpath('foo-000-1.prof'))

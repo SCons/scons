@@ -8,6 +8,20 @@
 
 -->
 
+<!--
+
+  Us, and our command names
+
+  Convention: use &SCons; to refer to the project as a concept,
+  use &scons; to refer to a command as you would invoke it.
+
+-->
+
+<!ENTITY SCons          "<application xmlns='http://www.scons.org/dbxsd/v1.0'>SCons</application>">
+<!ENTITY scons          "<command xmlns='http://www.scons.org/dbxsd/v1.0'>scons</command>">
+<!ENTITY scons-time     "<command xmlns='http://www.scons.org/dbxsd/v1.0'>scons-file</command>">
+<!ENTITY sconsign       "<command xmlns='http://www.scons.org/dbxsd/v1.0'>sconsign</command>">
+
 
 
 <!--
@@ -48,7 +62,6 @@
 <!ENTITY Python         "<application xmlns='http://www.scons.org/dbxsd/v1.0'>Python</application>">
 <!ENTITY ranlib         "<application xmlns='http://www.scons.org/dbxsd/v1.0'>ranlib</application>">
 <!ENTITY rmic           "<application xmlns='http://www.scons.org/dbxsd/v1.0'>rmic</application>">
-<!ENTITY SCons          "<application xmlns='http://www.scons.org/dbxsd/v1.0'>SCons</application>">
 <!ENTITY ScCons         "<application xmlns='http://www.scons.org/dbxsd/v1.0'>ScCons</application>">
 <!ENTITY sleep          "<application xmlns='http://www.scons.org/dbxsd/v1.0'>sleep</application>">
 <!ENTITY swig           "<application xmlns='http://www.scons.org/dbxsd/v1.0'>swig</application>">
@@ -97,20 +110,21 @@
 
 -->
 
-<!ENTITY config "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--config</literal>">
-<!ENTITY debug-explain "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=explain</literal>">
-<!ENTITY debug-findlibs "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=findlibs</literal>">
-<!ENTITY debug-includes "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=includes</literal>">
-<!ENTITY debug-prepare "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=prepare</literal>">
-<!ENTITY debug-presub "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=presub</literal>">
-<!ENTITY debug-stacktrace "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=stacktrace</literal>">
-<!ENTITY implicit-cache "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--implicit-cache</literal>">
-<!ENTITY implicit-deps-changed "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--implicit-deps-changed</literal>">
-<!ENTITY implicit-deps-unchanged "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--implicit-deps-unchanged</literal>">
-<!ENTITY profile "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--profile</literal>">
-<!ENTITY taskmastertrace "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--taskmastertrace</literal>">
-<!ENTITY tree "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>--tree</literal>">
-<!ENTITY Q "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>-Q</literal>">
+<!ENTITY config "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--config</option>">
+<!ENTITY debug-duplicate "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=duplicate</option>">
+<!ENTITY debug-explain "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=explain</option>">
+<!ENTITY debug-findlibs "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=findlibs</option>">
+<!ENTITY debug-includes "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=includes</option>">
+<!ENTITY debug-prepare "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=prepare</option>">
+<!ENTITY debug-presub "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=presub</option>">
+<!ENTITY debug-stacktrace "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=stacktrace</option>">
+<!ENTITY implicit-cache "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--implicit-cache</option>">
+<!ENTITY implicit-deps-changed "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--implicit-deps-changed</option>">
+<!ENTITY implicit-deps-unchanged "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--implicit-deps-unchanged</option>">
+<!ENTITY profile "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--profile</option>">
+<!ENTITY taskmastertrace "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--taskmastertrace</option>">
+<!ENTITY tree "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--tree</option>">
+<!ENTITY Q "<option xmlns='http://www.scons.org/dbxsd/v1.0'>-Q</option>">
 
 <!--
 
@@ -133,7 +147,6 @@
 <!ENTITY build "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>build</filename>">
 <!ENTITY Makefile "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>Makefile</filename>">
 <!ENTITY Makefiles "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>Makefiles</filename>">
-<!ENTITY scons "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>scons</filename>">
 <!ENTITY SConscript "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>SConscript</filename>">
 <!ENTITY SConstruct "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>SConstruct</filename>">
 <!ENTITY Sconstruct "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>Sconstruct</filename>">
@@ -141,7 +154,7 @@
 <!ENTITY SConstruct.py "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>SConstruct.py</filename>">
 <!ENTITY Sconstruct.py "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>Sconstruct.py</filename>">
 <!ENTITY sconstruct.py "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>sconstruct.py</filename>">
-<!ENTITY sconsign "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>.sconsign</filename>">
+<!ENTITY sconsigndb "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>.sconsign</filename>">
 <!ENTITY src "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>src</filename>">
 
 
@@ -264,6 +277,7 @@
 <!ENTITY Split "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Split</function>">
 <!ENTITY Tag "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Tag</function>">
 <!ENTITY Task "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Task</function>">
+<!ENTITY Tool "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Tool</function>">
 <!ENTITY Touch "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Touch</function>">
 <!ENTITY UnknownOptions "<function xmlns='http://www.scons.org/dbxsd/v1.0'>UnknownOptions</function>">
 <!ENTITY UnknownVariables "<function xmlns='http://www.scons.org/dbxsd/v1.0'>UnknownVariables</function>">
@@ -433,6 +447,8 @@
 <!ENTITY Consenvs "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Construction environments</phrase>">
 <!ENTITY consenv "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>construction environment</phrase>">
 <!ENTITY consenvs "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>construction environments</phrase>">
+<!ENTITY DefEnv "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Default Environment</phrase>">
+<!ENTITY defenv "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>default environment</phrase>">
 
 <!ENTITY ConsVar "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Construction Variable</phrase>">
 <!ENTITY ConsVars "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Construction Variables</phrase>">

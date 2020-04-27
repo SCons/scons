@@ -45,12 +45,42 @@ MSVCUnsupportedTargetArch = SCons.Tool.MSCommon.vc.MSVCUnsupportedTargetArch
 
 MS_TOOLS_VERSION='1.1.1'
 
+class VswhereTestCase(unittest.TestCase):
+    @staticmethod
+    def _createVSWhere(path):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, 'w') as f:
+            f.write("Created:%s"%f)
+
+    def testDefaults(self):
+        """
+        Verify that msvc_find_vswhere() find's files in the specified paths
+        """
+        # import pdb; pdb.set_trace()
+        vswhere_dirs = [os.path.splitdrive(p)[1] for p in SCons.Tool.MSCommon.vc.VSWHERE_PATHS]
+        base_dir = test.workpath('fake_vswhere')
+        test_vswhere_dirs = [os.path.join(base_dir,d[1:]) for d in  vswhere_dirs]
+
+        SCons.Tool.MSCommon.vc.VSWHERE_PATHS = test_vswhere_dirs
+        for vsw in test_vswhere_dirs:
+            VswhereTestCase._createVSWhere(vsw)
+            find_path = SCons.Tool.MSCommon.vc.msvc_find_vswhere()
+            self.assertTrue(vsw == find_path, "Didn't find vswhere in %s found in %s"%(vsw, find_path))
+            os.remove(vsw)
+
+    # def specifiedVswherePathTest(self):
+    #     "Verify that msvc.generate() respects VSWHERE Specified"
+
+
+    
+
+
 class MSVcTestCase(unittest.TestCase):
 
     @staticmethod
     def _createDummyCl(path, add_bin=True):
         """
-        Creates a dummy cl.ex in the correct directory. 
+        Creates a dummy cl.exe in the correct directory. 
         It will create all missing parent directories as well
 
         Args:
@@ -74,8 +104,6 @@ class MSVcTestCase(unittest.TestCase):
             ct.write('created')
 
         
-
-
     def runTest(self):
         """
         Check that all proper HOST_PLATFORM and TARGET_PLATFORM are handled.

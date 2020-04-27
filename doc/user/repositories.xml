@@ -498,7 +498,7 @@ int main() { printf("Hello, world!\n"); }
     decide if a derived file in a repository is up-to-date,
     or the derived file must be rebuilt in the local build directory.
     For the &SCons; signature calculation to work correctly,
-    a repository tree must contain the &sconsign; files
+    a repository tree must contain the &sconsigndb; files
     that &SCons; uses to keep track of signature information.
 
     </para>
@@ -507,7 +507,7 @@ int main() { printf("Hello, world!\n"); }
 
     Usually, this would be done by a build integrator
     who would run &SCons; in the repository
-    to create all of its derived files and &sconsign; files,
+    to create all of its derived files and &sconsigndb; files,
     or who would run &SCons; in a separate build directory
     and copy the resulting tree to the desired repository:
 

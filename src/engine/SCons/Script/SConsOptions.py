@@ -834,7 +834,7 @@ def Parser(version):
                   help="Trace Node evaluation to FILE.",
                   metavar="FILE")
 
-    tree_options = ["all", "derived", "prune", "status"]
+    tree_options = ["all", "derived", "prune", "status", "linedraw"]
 
     def opt_tree(option, opt, value, parser, tree_options=tree_options):
         from . import Main
@@ -848,6 +848,8 @@ def Parser(version):
                 tp.prune = True
             elif o == 'status':
                 tp.status = True
+            elif o == 'linedraw':
+                tp.sLineDraw = True
             else:
                 raise OptionValueError(opt_invalid('--tree', o, tree_options))
         parser.values.tree_printers.append(tp)

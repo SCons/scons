@@ -80,7 +80,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-SetDefault "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SetDefault</function>">
 <!ENTITY f-SetOption "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SetOption</function>">
 <!ENTITY f-SideEffect "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SideEffect</function>">
-<!ENTITY f-SourceCode "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SourceCode</function>">
 <!ENTITY f-Split "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Split</function>">
 <!ENTITY f-subst "<function xmlns='http://www.scons.org/dbxsd/v1.0'>subst</function>">
 <!ENTITY f-Tag "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Tag</function>">
@@ -161,7 +160,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-env-SetDefault "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.SetDefault</function>">
 <!ENTITY f-env-SetOption "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.SetOption</function>">
 <!ENTITY f-env-SideEffect "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.SideEffect</function>">
-<!ENTITY f-env-SourceCode "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.SourceCode</function>">
 <!ENTITY f-env-Split "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Split</function>">
 <!ENTITY f-env-subst "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.subst</function>">
 <!ENTITY f-env-Tag "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Tag</function>">
@@ -252,7 +250,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-SetDefault "<link linkend='f-SetDefault' xmlns='http://www.scons.org/dbxsd/v1.0'><function>SetDefault</function></link>">
 <!ENTITY f-link-SetOption "<link linkend='f-SetOption' xmlns='http://www.scons.org/dbxsd/v1.0'><function>SetOption</function></link>">
 <!ENTITY f-link-SideEffect "<link linkend='f-SideEffect' xmlns='http://www.scons.org/dbxsd/v1.0'><function>SideEffect</function></link>">
-<!ENTITY f-link-SourceCode "<link linkend='f-SourceCode' xmlns='http://www.scons.org/dbxsd/v1.0'><function>SourceCode</function></link>">
 <!ENTITY f-link-Split "<link linkend='f-Split' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Split</function></link>">
 <!ENTITY f-link-subst "<link linkend='f-subst' xmlns='http://www.scons.org/dbxsd/v1.0'><function>subst</function></link>">
 <!ENTITY f-link-Tag "<link linkend='f-Tag' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Tag</function></link>">
@@ -333,7 +330,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-env-SetDefault "<link linkend='f-SetDefault' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.SetDefault</function></link>">
 <!ENTITY f-link-env-SetOption "<link linkend='f-SetOption' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.SetOption</function></link>">
 <!ENTITY f-link-env-SideEffect "<link linkend='f-SideEffect' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.SideEffect</function></link>">
-<!ENTITY f-link-env-SourceCode "<link linkend='f-SourceCode' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.SourceCode</function></link>">
 <!ENTITY f-link-env-Split "<link linkend='f-Split' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Split</function></link>">
 <!ENTITY f-link-env-subst "<link linkend='f-subst' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.subst</function></link>">
 <!ENTITY f-link-env-Tag "<link linkend='f-Tag' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Tag</function></link>">

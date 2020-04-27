@@ -34,7 +34,6 @@ https://github.com/SCons/scons/issues/2906
 import TestSCons
 
 test = TestSCons.TestSCons()
-test.verbose_set(1)
 
 test.file_fixture('./fixture/SConstruct.issue-2906', 'SConstruct')
 

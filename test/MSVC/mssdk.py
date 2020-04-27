@@ -20,21 +20,18 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-from __future__ import print_function
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Simple test to make sure mssdk works.
 """
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import time
 
 import TestSCons
 
 test = TestSCons.TestSCons()
-test.verbose_set(1)
 
 test.skip_if_not_msvc()
 

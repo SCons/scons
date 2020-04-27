@@ -160,7 +160,8 @@ file.in
     </para>
 
     <para>
-    Note that you can also use --warn=target-not-built which checks
+    Note that you can also use
+    <option>--warn=target-not-built</option> which checks
     whether or not expected targets exist after a build rule is
     executed.
     </para>
@@ -385,7 +386,7 @@ print(env.Dump('ENV'))
     &SCons; is doing is simply to take a look at the
     dependency graph that it constructs
     based on your &SConscript; files.
-    The <literal>--tree</literal> option
+    The <option>--tree</option> option
     will display all or part of the
     &SCons; dependency graph in an
     "ASCII art" graphical format
@@ -420,7 +421,7 @@ inc.h
 
     <para>
 
-    Running &SCons; with the <literal>--tree=all</literal>
+    Running &SCons; with the <option>--tree=all</option>
     option yields:
 
     </para>
@@ -432,7 +433,7 @@ inc.h
     <para>
 
     The tree will also be printed when the
-    <literal>-n</literal> (no execute) option is used,
+    <option>-n</option> (no execute) option is used,
     which allows you to examine the dependency graph
     for a configuration without actually
     rebuilding anything in the tree.
@@ -441,17 +442,30 @@ inc.h
 
     <para>
 
-    The <literal>--tree</literal> option only prints
-    the dependency graph for the specified targets
-    (or the default target(s) if none are specified on the command line).
-    So if you specify a target like <filename>f2.o</filename>
-    on the command line,
-    the <literal>--tree</literal> option will only
-    print the dependency graph for that file:
+    By default &SCons; uses "ASCII art" to draw the tree. It is
+    possible to use line-drawing characters (Unicode calls these
+    Box Drawing) to make a nicer display. To do this, add the
+    <option>linedraw</option> qualifier:
 
     </para>
 
     <scons_output example="troubleshoot_tree1" suffix="2">
+      <scons_output_command>scons -Q --tree=all,linedraw</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    The <option>--tree</option> option only prints
+    the dependency graph for the specified targets
+    (or the default target(s) if none are specified on the command line).
+    So if you specify a target like <filename>f2.o</filename>
+    on the command line,
+    the <option>--tree</option> option will only
+    print the dependency graph for that file:
+
+    </para>
+
+    <scons_output example="troubleshoot_tree1" suffix="3">
       <scons_output_command>scons -Q --tree=all f2.o</scons_output_command>
     </scons_output>
 
@@ -467,29 +481,29 @@ inc.h
 
     </para>
 
-    <scons_output example="troubleshoot_tree1" suffix="3">
+    <scons_output example="troubleshoot_tree1" suffix="4">
       <scons_output_command>scons -Q --tree=all f1.o f3.o</scons_output_command>
     </scons_output>
 
     <para>
 
-    The <literal>status</literal> argument may be used
+    The <parameter class="option">status</parameter> argument may be used
     to tell &SCons; to print status information about
     each file in the dependency graph:
 
     </para>
 
-    <scons_output example="troubleshoot_tree1" suffix="4">
+    <scons_output example="troubleshoot_tree1" suffix="5">
       <scons_output_command>scons -Q --tree=status</scons_output_command>
     </scons_output>
 
     <para>
 
-    Note that <literal>--tree=all,status</literal> is equivalent;
-    the <literal>all</literal>
-    is assumed if only <literal>status</literal> is present.
-    As an alternative to <literal>all</literal>,
-    you can specify <literal>--tree=derived</literal>
+    Note that <option>--tree=all,status</option> is equivalent;
+    the <parameter class="option">all</parameter>
+    is assumed if only <parameter class="option">status</parameter> is present.
+    As an alternative to <parameter class="option">all</parameter>,
+    you can specify <option>--tree=derived</option>
     to have &SCons; only print derived targets
     in the tree output,
     skipping source files
@@ -497,33 +511,33 @@ inc.h
 
     </para>
 
-    <scons_output example="troubleshoot_tree1" suffix="5">
+    <scons_output example="troubleshoot_tree1" suffix="6">
       <scons_output_command>scons -Q --tree=derived</scons_output_command>
     </scons_output>
 
     <para>
 
-    You can use the <literal>status</literal>
-    modifier with <literal>derived</literal> as well:
+    You can use the <parameter class="option">status</parameter>
+    modifier with <parameter class="option">derived</parameter> as well:
 
     </para>
 
-    <scons_output example="troubleshoot_tree1" suffix="6">
+    <scons_output example="troubleshoot_tree1" suffix="7">
       <scons_output_command>scons -Q --tree=derived,status</scons_output_command>
     </scons_output>
 
     <para>
 
-    Note that the order of the <literal>--tree=</literal>
+    Note that the order of the <option>--tree=</option>
     arguments doesn't matter;
-    <literal>--tree=status,derived</literal> is
+    <option>--tree=status,derived</option> is
     completely equivalent.
 
     </para>
 
     <para>
 
-    The default behavior of the <literal>--tree</literal> option
+    The default behavior of the <option>--tree</option> option
     is to repeat all of the dependencies each time the library dependency
     (or any other dependency file) is encountered in the tree.
     If certain target files share other target files,
@@ -563,7 +577,7 @@ inc.h
     <para>
 
     Then there can be a <emphasis>lot</emphasis> of repetition in the
-    <literal>--tree=</literal> output:
+    <option>--tree=</option> output:
 
     </para>
 
@@ -577,12 +591,12 @@ inc.h
     and include files,
     this can very quickly lead to huge output trees.
     To help make this more manageable,
-    a <literal>prune</literal> modifier may
+    a <parameter class="option">prune</parameter> modifier may
     be added to the option list,
     in which case &SCons;
     will print the name of a target that has
     already been visited during the tree-printing
-    in <literal>[square brackets]</literal>
+    in square brackets (<literal>[]</literal>)
     as an indication that the dependencies
     of the target file may be found
     by looking farther up the tree:
@@ -595,9 +609,9 @@ inc.h
 
     <para>
 
-    Like the <literal>status</literal> keyword,
-    the <literal>prune</literal> argument by itself
-    is equivalent to <literal>--tree=all,prune</literal>.
+    Like the <parameter class="option">status</parameter> keyword,
+    the <parameter class="option">prune</parameter> argument by itself
+    is equivalent to <option>--tree=all,prune</option>.
 
     </para>
 
@@ -609,10 +623,10 @@ inc.h
 
     <para>
 
-    Sometimes it's useful to look at the
-    pre-substitution string
-    that &SCons; uses to generate
-    the command lines it executes.
+    Sometimes the command lines that &SCons; executes don't
+    come out looking as you expect. In this case it may be
+    useful to look at the strings before &SCons; performs
+    substitution on them.
     This can be done with the &debug-presub; option:
 
     </para>
@@ -660,7 +674,7 @@ cc -o prog prog.o
     To get some insight into what library names
     &SCons; is searching for,
     and in which directories it is searching,
-    Use the <literal>--debug=findlibs</literal> option.
+    Use the &debug-findlibs; option.
     Given the following input &SConstruct; file:
 
     </para>
@@ -687,7 +701,7 @@ libs2/libbar.a
     and <filename>libbar.a</filename>
     in <filename>libs1</filename> and <filename>libs2</filename>,
     respectively,
-    use of the <literal>--debug=findlibs</literal> option yields:
+    use of the &debug-findlibs; option yields:
 
     </para>
 
@@ -816,8 +830,8 @@ Program('prog.c')
     The internal &SCons; subsystem that handles walking
     the dependency graph
     and controls the decision-making about what to rebuild
-    is the <literal>Taskmaster</literal>.
-    &SCons; supports a <literal>--taskmastertrace</literal>
+    is the <firstterm>Taskmaster</firstterm>.
+    &SCons; supports a &taskmastertrace;
     option that tells the Taskmaster to print
     information about the children (dependencies)
     of the various Nodes on its walk down the graph,
@@ -828,7 +842,7 @@ Program('prog.c')
 
     <para>
 
-    The <literal>--taskmastertrace</literal> option
+    The &taskmastertrace; option
     takes as an argument the name of a file in
     which to put the trace output,
     with <filename>-</filename> (a single hyphen)
@@ -857,7 +871,7 @@ prog.c
 
     <para>
 
-    The <literal>--taskmastertrace</literal> option
+    The &taskmastertrace; option
     doesn't provide information about the actual
     calculations involved in deciding if a file is up-to-date,
     but it does show all of the dependencies
@@ -881,8 +895,8 @@ prog.c
 
     Sometimes SCons doesn't build the target you want
     and it's difficult to figure out why.  You can use
-    the <literal>--debug=prepare</literal> option
-    to see all the targets &SCons; is considering, whether
+    the &debug-prepare; option
+    to see all the targets &SCons; is considering, and whether
     they are already up-to-date or not. The message is
     printed before &SCons; decides whether to build the target.
     </para>
@@ -891,16 +905,16 @@ prog.c
 
   <section>
 
-  <title>Why is a file disappearing?  the --debug=duplicate Option</title>
+  <title>Why is a file disappearing?  the &debug-duplicate; Option</title>
 
     <para>
 
     When using the &Duplicate; option to create variant dirs,
-    sometimes you may find files not getting copied to where you
-    expect (or not at all), or files mysteriously disappearing.  These
-    are usually because of a misconfiguration of some kind in the
-    SConstruct/SConscript, but they can be tricky to debug.  The
-    --debug=duplicate option shows each time a variant file is
+    sometimes you may find files not getting linked or copied to where you
+    expect (or not at all), or files mysteriously disappearing.
+    These are usually because of a misconfiguration of some kind in the
+    SConscript files, but they can be tricky to debug.  The
+    &debug-duplicate; option shows each time a variant file is
     unlinked and relinked from its source (or copied, depending on
     settings), and also shows a message for removing "stale"
     variant-dir files that no longer have a corresponding source file.
@@ -908,6 +922,36 @@ prog.c
     building, since that can also be mistaken for the same thing.
 
     </para>
+
+  </section>
+
+  <section>
+
+  <title>Keep it simple</title>
+
+  <para>
+  Over the years, many developers have chosen to dive in and make vastly
+  complicated build systems out of &SCons;, which sometimes don't work
+  quite as expected.  As a general rule, make sure you
+  <emphasis>need</emphasis> to reach for a complex solution before you do so.
+  &SCons; is mature software and has evolved over time to meet a lot
+  of feature requests, so there is often an easier way to do something
+  if you can just find it.  The &SCons; community can be helpful here -
+  the discussion lists and chat channels can be a way to find out if
+  something can be done an easier way before embarking on an implementation.
+  </para>
+
+  <para>
+  When something does misbehave, trying to isolate the problem to
+  a simple test case can really help.  The work to create a reproducer
+  often helps you spot the issue yourself, and a simple example is much
+  easier for others to look over and possibly spot logical flaws,
+  misuse of the API, or other ways something could have been done.
+  In addition, if it turns out there's actually a real &SCons; bug
+  (we believe it's a high quality piece of software, but all software
+  has some bugs), it's very likely the bug filing will result in a
+  request for a simple reproducer anyway.
+  </para>
 
   </section>
 

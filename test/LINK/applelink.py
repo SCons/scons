@@ -34,8 +34,6 @@ _exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-# test.verbose_set(1)
-
 #  Test issue # 2580
 test.dir_fixture('applelink_image')
 test.run(arguments='-f SConstruct_gh2580 -Q -n', stdout='gcc -o foo.o -c -Fframeworks foo.c\n')

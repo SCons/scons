@@ -20,11 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-from __future__ import print_function
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that applying env.Tool('qt') after running Configure checks
@@ -35,6 +30,8 @@ real-world configuration for lprof (lprof.sourceforge.net).  It's probably
 not completely minimal, but we're leaving it as-is since it represents a
 good real-world sanity check on the interaction of some key subsystems.
 """
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 

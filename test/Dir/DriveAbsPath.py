@@ -25,54 +25,24 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify ability to "check out" an SCons revision from a fake
-Subversion utility.
+Test to confirm that Dir(drive_path).abspath works on Windows. This verifies
+that SCons no longer has an issue with Dir('T:').abspath returning 'T:\T:'.
+Instead, it verifies that Dir('T:') correctly returns an instance of the
+RootDir class and that class has abspath and path accessors that work
+correctly.
 """
 
-import re
-import tempfile
+import TestSCons
+from TestCmd import IS_WINDOWS
 
-import TestSCons_time
+test = TestSCons.TestSCons()
 
-test = TestSCons_time.TestSCons_time()
-
-test.write_sample_project('foo.tar')
-
-_python_ = TestSCons_time._python_
-my_svn_py = test.write_fake_svn_py('my_svn.py')
-
-test.write('config', """\
-svn = r'%(_python_)s %(my_svn_py)s'
-""" % locals())
-
-test.run(arguments = 'run -f config --svn http://xyzzy --number 617,716 foo.tar')
-
-test.must_exist('foo-617-0.log',
-                'foo-617-0.prof',
-                'foo-617-1.log',
-                'foo-617-1.prof',
-                'foo-617-2.log',
-                'foo-617-2.prof')
-
-test.must_exist('foo-716-0.log',
-                'foo-716-0.prof',
-                'foo-716-1.log',
-                'foo-716-1.prof',
-                'foo-716-2.log',
-                'foo-716-2.prof')
-
-expect = [
-    test.tempdir_re('src', 'script', 'scons.py'),
-    'SCONS_LIB_DIR = %s' % test.tempdir_re('src', 'engine'),
-]
-
-content = test.read(test.workpath('foo-617-2.log'), mode='r')
-
-def re_find(content, line):
-    return re.search(line, content)
-test.must_contain_all_lines(content, expect, 'foo-617-2.log', re_find)
-
-test.pass_test()
+if IS_WINDOWS:
+    test.dir_fixture('DriveAbsPath')
+    test.run()
+    test.pass_test()
+else:
+    test.skip_test('Skipping Windows-only test.')
 
 # Local Variables:
 # tab-width:4

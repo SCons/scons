@@ -62,17 +62,21 @@ option or with the &cv-PACKAGETYPE; construction variable. Currently
 the following packagers available:
 </para>
 
-<para><literal>msi</literal> - Microsoft Installer</para>
-<para><literal>rpm</literal> - RPM Package Manger</para>
-<para><literal>ipkg</literal> - Itsy Package Management System</para>
-<para><literal>tarbz2</literal> - bzip2 compressed tar</para>
-<para><literal>targz</literal> - gzip compressed tar</para>
-<para><literal>tarxz</literal> - xz compressed tar</para>
-<para><literal>zip</literal> - zip file</para>
-<para><literal>src_tarbz2</literal> - bzip2 compressed tar source</para>
-<para><literal>src_targz</literal> - gzip compressed tar source</para>
-<para><literal>src_tarxz</literal> - xz compressed tar source</para>
-<para><literal>src_zip</literal> - zip file source</para>
+<blockquote>
+<simplelist type='vert' columns='1'>
+<member><literal>msi</literal> - Microsoft Installer</member>
+<member><literal>rpm</literal> - RPM Package Manger</member>
+<member><literal>ipkg</literal> - Itsy Package Management System</member>
+<member><literal>tarbz2</literal> - bzip2 compressed tar</member>
+<member><literal>targz</literal> - gzip compressed tar</member>
+<member><literal>tarxz</literal> - xz compressed tar</member>
+<member><literal>zip</literal> - zip file</member>
+<member><literal>src_tarbz2</literal> - bzip2 compressed tar source</member>
+<member><literal>src_targz</literal> - gzip compressed tar source</member>
+<member><literal>src_tarxz</literal> - xz compressed tar source</member>
+<member><literal>src_zip</literal> - zip file source</member>
+</simplelist>
+</blockquote>
 
 <para>
 An updated list is always available under the
@@ -82,18 +86,19 @@ on a project that has packaging activated.
 </para>
 
 <example_commands>
-env = Environment(tools=['default', 'packaging'])
-env.Install('/bin/', 'my_program')
-env.Package( NAME           = 'foo',
-             VERSION        = '1.2.3',
-             PACKAGEVERSION = 0,
-             PACKAGETYPE    = 'rpm',
-             LICENSE        = 'gpl',
-             SUMMARY        = 'balalalalal',
-             DESCRIPTION    = 'this should be really really long',
-             X_RPM_GROUP    = 'Application/fu',
-             SOURCE_URL     = 'http://foo.org/foo-1.2.3.tar.gz'
-        )
+env = Environment(tools=["default", "packaging"])
+env.Install("/bin/", "my_program")
+env.Package(
+    NAME="foo",
+    VERSION="1.2.3",
+    PACKAGEVERSION=0,
+    PACKAGETYPE="rpm",
+    LICENSE="gpl",
+    SUMMARY="balalalalal",
+    DESCRIPTION="this should be really really long",
+    X_RPM_GROUP="Application/fu",
+    SOURCE_URL="http://foo.org/foo-1.2.3.tar.gz",
+)
 </example_commands>
 </summary>
 </builder>
@@ -199,17 +204,21 @@ placed if applicable.  The default value is "$NAME-$VERSION".
 Selects the package type to build.  Currently these are available:
 </para>
 
-<para><literal>msi</literal> - Microsoft Installer</para>
-<para><literal>rpm</literal> - RPM Package Manger</para>
-<para><literal>ipkg</literal> - Itsy Package Management System</para>
-<para><literal>tarbz2</literal> - bzip2 compressed tar</para>
-<para><literal>targz</literal> - gzip compressed tar</para>
-<para><literal>tarxz</literal> - xz compressed tar</para>
-<para><literal>zip</literal> - zip file</para>
-<para><literal>src_tarbz2</literal> - bzip2 compressed tar source</para>
-<para><literal>src_targz</literal> - gzip compressed tar source</para>
-<para><literal>src_tarxz</literal> - xz compressed tar source</para>
-<para><literal>src_zip</literal> - zip file source</para>
+<blockquote>
+<simplelist type='vert' columns='1'>
+<member><literal>msi</literal> - Microsoft Installer</member>
+<member><literal>rpm</literal> - RPM Package Manger</member>
+<member><literal>ipkg</literal> - Itsy Package Management System</member>
+<member><literal>tarbz2</literal> - bzip2 compressed tar</member>
+<member><literal>targz</literal> - gzip compressed tar</member>
+<member><literal>tarxz</literal> - xz compressed tar</member>
+<member><literal>zip</literal> - zip file</member>
+<member><literal>src_tarbz2</literal> - bzip2 compressed tar source</member>
+<member><literal>src_targz</literal> - gzip compressed tar source</member>
+<member><literal>src_tarxz</literal> - xz compressed tar source</member>
+<member><literal>src_zip</literal> - zip file source</member>
+</simplelist>
+</blockquote>
 
 <para>
 This may be overridden with the <option>package_type</option>
@@ -495,13 +504,14 @@ Added in version 3.1.
 
 <example_commands>
 env.Package(
-    NAME             = 'foo',
-...
-    X_RPM_EXTRADEFS = [
-        '%define _unpackaged_files_terminate_build 0'
-        '%define _missing_doc_files_terminate_build 0'
+    NAME="foo",
+    ...
+    X_RPM_EXTRADEFS=[
+        "%define _unpackaged_files_terminate_build 0"
+        "%define _missing_doc_files_terminate_build 0"
     ],
-... )
+    ...
+)
 </example_commands>
 
 </summary>

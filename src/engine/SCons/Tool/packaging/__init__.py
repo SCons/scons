@@ -27,6 +27,9 @@ SCons Packaging Tool.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import importlib
+from inspect import getfullargspec
+
 import SCons.Defaults
 import SCons.Environment
 from SCons.Variables import *
@@ -34,8 +37,6 @@ from SCons.Errors import *
 from SCons.Util import is_List, make_path_relative
 from SCons.Warnings import warn, Warning
 
-import os
-import importlib
 
 __all__ = [
     'src_targz', 'src_tarbz2', 'src_tarxz', 'src_zip',
@@ -168,13 +169,7 @@ def Package(env, target=None, source=None, **kw):
         # this exception means that a needed argument for the packager is
         # missing. As our packagers get their "tags" as named function
         # arguments we need to find out which one is missing.
-        #TODO: getargspec deprecated in Py3. cleanup when Py2.7 dropped.
-        try:
-            from inspect import getfullargspec
-            argspec = getfullargspec(packager.package)
-        except ImportError:
-            from inspect import getargspec
-            argspec = getargspec(packager.package)
+        argspec = getfullargspec(packager.package)
         args = argspec.args
         if argspec.defaults:
             # throw away arguments with default values

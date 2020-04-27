@@ -174,7 +174,7 @@ env['ENV']['LANG'] = 'en_GB.UTF-8'
             </para>
 
             <example_commands>
-env = Environment(JAVACCOMSTR = "Compiling class files $TARGETS from $SOURCES")
+env = Environment(JAVACCOMSTR="Compiling class files $TARGETS from $SOURCES")
             </example_commands>
         </summary>
     </cvar>
