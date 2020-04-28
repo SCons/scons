@@ -621,7 +621,7 @@ Export(MODE="DEBUG", TARGET="arm")
       Calls to &Export; are cumulative. When you call &Export;
       you are actually updating a Python dictionary, so it
       is fine to export a variable you have already exported,
-      but when doing so, the previoue value is lost.
+      but when doing so, the previous value is lost.
 
       </para>
 

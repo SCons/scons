@@ -182,7 +182,7 @@ Keyword arguments can be used to provide names and their values.
 
 <para>
 &f-Export; calls are cumulative. Specifying a previously
-exported variable will overwirte the earlier value.
+exported variable will overwrite the earlier value.
 Both local variables and global variables can be exported.
 </para>
 
@@ -276,7 +276,7 @@ message.
 <para>
 Imports variables into the current SConscript file.
 <parameter>vars</parameter>
-must be strings representating names of variables
+must be strings representing names of variables
 which have been previously exported either by the
 &f-link-Export; function or by the
 &exports; argument to
