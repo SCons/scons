@@ -67,6 +67,7 @@ def xmlify(s):
     s = s.replace('\n', '&#x0A;')
     return s
 
+
 def processIncludes(includes, env, target, source):
     """
     Process a CPPPATH list in includes, given the env, target and source.
@@ -76,15 +77,20 @@ def processIncludes(includes, env, target, source):
     return [env.Dir(i).abspath for i in
             SCons.PathList.PathList(includes).subst_path(env, target, source)]
 
+
 def processFlags(flags, env):
-    # If /std:c++XX is in flags then we need to ensure /Zc:__cplusplus is in
-    # flags to tell intellisense to respect our specified standard
+    """
+    If /std:c++XX is in flags then we need to ensure /Zc:__cplusplus is in
+    flags to tell intellisense to respect our specified standard
+    """
     if any(f.startswith('/std:c++') for f in flags) and \
        not any(f == '/Zc:__cplusplus' for f in flags):
         flags.append('/Zc:__cplusplus')
     return [env.subst(f) for f in flags]
 
+
 external_makefile_guid = '{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}'
+
 
 def _generateGUID(slnfile, name):
     """This generates a dummy GUID for the sln file to use.  It is
@@ -101,7 +107,9 @@ def _generateGUID(slnfile, name):
     solution = "{" + solution[:8] + "-" + solution[8:12] + "-" + solution[12:16] + "-" + solution[16:20] + "-" + solution[20:32] + "}"
     return solution
 
+
 version_re = re.compile(r'(\d+\.\d+)(.*)')
+
 
 def msvs_parse_version(s):
     """
