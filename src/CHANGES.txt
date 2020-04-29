@@ -10,6 +10,14 @@ NOTE: Please include a reference to any Issues resolved by your changes in the b
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From James Benton:
+    - Improve Visual Studio solution/project generation code to add support
+      for a per-variant cppflags. Intellisense can be affected by cppflags,
+      this is especially important when it comes to /std:c++* which specifies
+      what C++ standard version to target. SCons will append /Zc:__cplusplus
+      to the project's cppflags when a /std:c++* flag is found as this is
+      required for intellisense to use the C++ standard version from cppflags.
+
   From Rob Boehne
     - Specify UTF-8 encoding when opening Java source file as text.  By default, encoding is the output
     of locale.getpreferredencoding(False), and varies by platform.
@@ -115,13 +123,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Docbook builder provides a fallback if lxml fails to generate
       a document with tostring().
 
-  From James Benton:
-    - Improve Visual Studio solution/project generation code to add support
-      for a per-variant cppflags. Intellisense can be affected by cppflags,
-      this is especially important when it comes to /std:c++* which specifies
-      what C++ standard version to target. SCons will append /Zc:__cplusplus
-      to the project's cppflags when a /std:c++* flag is found as this is
-      required for intellisense to use the C++ standard version from cppflags.
+
 
 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
