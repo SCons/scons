@@ -1156,7 +1156,7 @@ Such a function must accept the following four arguments:
 <para>
 <variablelist>
 <varlistentry>
-<term><parameter class="function">dependency</parameter></term>
+<term><parameter>dependency</parameter></term>
 <listitem>
 <para>
 The Node (file) which
@@ -1170,7 +1170,7 @@ was built.
 </listitem>
 </varlistentry>
 <varlistentry>
-<term><parameter class="function">target</parameter></term>
+<term><parameter>target</parameter></term>
 <listitem>
 <para>
 The Node (file) being built.
@@ -1183,7 +1183,7 @@ has "changed."
 </listitem>
 </varlistentry>
 <varlistentry>
-<term><parameter class="function">prev_ni</parameter></term>
+<term><parameter>prev_ni</parameter></term>
 <listitem>
 <para>
 Stored information about the state of the
@@ -1199,7 +1199,7 @@ size, or content signature.
 </listitem>
 </varlistentry>
     <varlistentry>
-<term><parameter class="function">repo_node</parameter></term>
+<term><parameter>repo_node</parameter></term>
 <listitem>
 <para>
 If set, use this Node instead of the one specified by
@@ -1220,10 +1220,9 @@ target only exists in a Repository.
 <para>
 The
 <varname>function</varname>
-should return a
-<literal>True</literal>
-(non-zero)
-value if the
+should return a value which evaluates
+<constant>True</constant>
+if the
 <varname>dependency</varname>
 has "changed" since the last time
 the
@@ -1232,9 +1231,8 @@ was built
 (indicating that the target
 <emphasis>should</emphasis>
 be rebuilt),
-and
-<literal>False</literal>
-(zero)
+and a value which evaluates
+<constant>False</constant>
 otherwise
 (indicating that the target should
 <emphasis>not</emphasis>
@@ -1307,6 +1305,28 @@ env.Depends(bar, installed_lib)
 </example_commands>
 </summary>
 </scons_function>
+
+<scons_function name="Detect">
+<arguments signature="env">
+(progs)
+</arguments>
+<summary>
+<para>
+Returns the first value from <parameter>progs</parameter>
+(which may be a string or a list of strings)
+which is found by looking in the paths specified
+by <envar>PATH</envar> in the <envar>ENV</envar>
+attribute of <varname>env</varname>, or <constant>None</constant>.
+The method is designed to look for executable programs,
+so it applies the filename suffixes found in
+<envar>PATHEXT</envar> in the <envar>ENV</envar>
+attribute of <varname>env</varname> in attempting
+matches but returns only the bare name from
+<parameter>progs</parameter>.
+</para>
+</summary>
+</scons_function>
+
 
 <scons_function name="Dictionary">
 <arguments signature="env">
@@ -1769,9 +1789,8 @@ repository or source directory.
 <para>
 The
 <varname>ondisk</varname>
-argument may be set to
-<literal>False</literal>
-(or any other non-true value)
+argument may be set to a value which evaluates
+<constant>False</constant>
 to disable the search for matches on disk,
 thereby only returning matches among
 already-configured File or Dir Nodes.
@@ -1783,9 +1802,8 @@ for any on-disk matches found.
 <para>
 The
 <varname>source</varname>
-argument may be set to
-<literal>True</literal>
-(or any equivalent value)
+argument may be set to a value which evaluates
+<constant>True</constant>
 to specify that,
 when the local directory is a
 &f-VariantDir;,
@@ -1797,9 +1815,8 @@ not the local directory.
 <para>
 The
 <varname>strings</varname>
-argument may be set to
-<literal>True</literal>
-(or any equivalent value)
+argument may be set to a value which evaluates
+<constant>True</constant>
 to have the
 &f-Glob;
 function return strings, not Nodes,
