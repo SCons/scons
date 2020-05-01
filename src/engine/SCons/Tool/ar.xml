@@ -62,8 +62,8 @@ The command line used to generate a static library from object files.
 <cvar name="ARCOMSTR">
 <summary>
 <para>
-The string displayed when an object file
-is generated from an assembly-language source file.
+The string displayed when a static library is
+generated from object files.
 If this is not set, then &cv-link-ARCOM; (the command line) is displayed.
 </para>
 
