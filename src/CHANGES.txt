@@ -122,7 +122,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       (used to call telemetry script).
     - Docbook builder provides a fallback if lxml fails to generate
       a document with tostring().
-
+    - Fix description of ARCOMSTR constr. var. (issue 3636)
 
 
 
