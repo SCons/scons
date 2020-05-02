@@ -3550,7 +3550,7 @@ if sys.platform != 'win32' and hasattr(os, 'symlink'):
             with open("foo", "w") as foo:
                 foo.write("baz")
 
-            symlink = os.symlink("foo", "bar")
+            os.symlink("foo", "bar")
             bar = self.fs.File("bar")
             bar.side_effect = True
             bar.set_state(0)
@@ -3571,7 +3571,7 @@ if sys.platform != 'win32' and hasattr(os, 'symlink'):
             with open("foo", "w") as foo:
                 foo.write("baz")
 
-            symlink = os.symlink("foo", "bar")
+            os.symlink("foo", "bar")
             os.remove("foo")
             try:
                 os.stat("foo")
