@@ -21,8 +21,6 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from __future__ import print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
@@ -105,7 +103,7 @@ for f in files:
         indent_list.append( (line_num, match.group('try_or_except') ) )
         try_except_lines[match.group('indent')] = indent_list
     uncaught_this_file = []
-    for indent in list(try_except_lines.keys()):
+    for indent in try_except_lines.keys():
         exc_keyboardint_seen = 0
         exc_all_seen = 0
         for (l,statement) in try_except_lines[indent] + [(-1,indent + 'try')]:

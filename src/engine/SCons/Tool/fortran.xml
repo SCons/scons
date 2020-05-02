@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
 __COPYRIGHT__
 
@@ -73,9 +73,9 @@ are included on this command line.
 <cvar name="FORTRANCOMSTR">
 <summary>
 <para>
-The string displayed when a Fortran source file
+If set, the string displayed when a Fortran source file
 is compiled to an object file.
-If this is not set, then &cv-link-FORTRANCOM;
+If not set, then &cv-link-FORTRANCOM;
 (the command line) is displayed.
 </para>
 </summary>
@@ -285,10 +285,10 @@ construction variables are included on this command line.
 <cvar name="FORTRANPPCOMSTR">
 <summary>
 <para>
-The string displayed when a Fortran source file
+If set, the string displayed when a Fortran source file
 is compiled to an object file
 after first running the file through the C preprocessor.
-If this is not set, then &cv-link-FORTRANPPCOM;
+If not set, then &cv-link-FORTRANPPCOM;
 (the command line) is displayed.
 </para>
 </summary>
@@ -330,9 +330,9 @@ to a shared-library object file.
 <cvar name="SHFORTRANCOMSTR">
 <summary>
 <para>
-The string displayed when a Fortran source file
+If set, the string displayed when a Fortran source file
 is compiled to a shared-library object file.
-If this is not set, then &cv-link-SHFORTRANCOM;
+If not set, then &cv-link-SHFORTRANCOM;
 (the command line) is displayed.
 </para>
 </summary>
@@ -364,10 +364,10 @@ are included on this command line.
 <cvar name="SHFORTRANPPCOMSTR">
 <summary>
 <para>
-The string displayed when a Fortran source file
+If set, the string displayed when a Fortran source file
 is compiled to a shared-library object file
 after first running the file through the C preprocessor.
-If this is not set, then &cv-link-SHFORTRANPPCOM;
+If not set, then &cv-link-SHFORTRANPPCOM;
 (the command line) is displayed.
 </para>
 </summary>

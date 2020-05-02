@@ -29,8 +29,6 @@ selection method.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-from __future__ import print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
@@ -168,7 +166,7 @@ def installShlibLinks(dest, source, env):
     Verbose = False
     symlinks = listShlibLinksToInstall(dest, source, env)
     if Verbose:
-        print('installShlibLinks: symlinks={:r}'.format(SCons.Tool.StringizeLibSymlinks(symlinks)))
+        print('installShlibLinks: symlinks={!r}'.format(SCons.Tool.StringizeLibSymlinks(symlinks)))
     if symlinks:
         SCons.Tool.CreateLibSymlinks(env, symlinks)
     return
@@ -244,7 +242,7 @@ def add_versioned_targets_to_INSTALLED_FILES(target, source, env):
     Verbose = False
     _INSTALLED_FILES.extend(target)
     if Verbose:
-        print("add_versioned_targets_to_INSTALLED_FILES: target={:r}".format(list(map(str, target))))
+        print("add_versioned_targets_to_INSTALLED_FILES: target={!r}".format(list(map(str, target))))
     symlinks = listShlibLinksToInstall(target[0], source, env)
     if symlinks:
         SCons.Tool.EmitLibSymlinks(env, symlinks, target[0])

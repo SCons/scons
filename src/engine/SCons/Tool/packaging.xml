@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
 __COPYRIGHT__
 
@@ -34,7 +34,7 @@ A framework for building binary and source packages.
 <builder name="Package">
 <summary>
 <para>
-Builds a Binary Package of the given source files. 
+Builds a Binary Package of the given source files.
 </para>
 
 <example_commands>
@@ -42,69 +42,5 @@ env.Package(source = FindInstalledFiles())
 </example_commands>
 </summary>
 </builder>
-
-<cvar name="JAR">
-<summary>
-<para>
-The Java archive tool.
-</para>
-</summary>
-</cvar>
-
-<cvar name="JARCHDIR">
-<summary>
-<para>
-The directory to which the Java archive tool should change
-(using the
-<option>-C</option>
-option).
-</para>
-</summary>
-</cvar>
-
-<cvar name="JARCOM">
-<summary>
-<para>
-The command line used to call the Java archive tool.
-</para>
-</summary>
-</cvar>
-
-<cvar name="JARCOMSTR">
-<summary>
-<para>
-The string displayed when the Java archive tool
-is called
-If this is not set, then &cv-JARCOM; (the command line) is displayed.
-</para>
-
-<example_commands>
-env = Environment(JARCOMSTR = "JARchiving $SOURCES into $TARGET")
-</example_commands>
-</summary>
-</cvar>
-
-<cvar name="JARFLAGS">
-<summary>
-<para>
-General options passed to the Java archive tool.
-By default this is set to
-<option>cf</option>
-to create the necessary
-<command>jar</command>
-file.
-</para>
-</summary>
-</cvar>
-
-<cvar name="JARSUFFIX">
-<summary>
-<para>
-The suffix for Java archives:
-<filename>.jar</filename>
-by default.
-</para>
-</summary>
-</cvar>
 
 </sconsdoc>

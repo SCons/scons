@@ -290,6 +290,10 @@ char %s();""" % function_name
 #include <assert.h>
 %(hdr)s
 
+#if _MSC_VER && !__INTEL_COMPILER
+    #pragma function(%(name)s)
+#endif
+
 int main(void) {
 #if defined (__stub_%(name)s) || defined (__stub___%(name)s)
   fail fail fail
@@ -311,8 +315,8 @@ int main(void) {
     return ret
 
 
-def CheckHeader(context, header_name, header = None, language = None,
-                                                        include_quotes = None):
+def CheckHeader(context, header_name, header=None, language=None,
+                include_quotes=None):
     """
     Configure check for a C or C++ header file "header_name".
     Optional "header" can be defined to do something before including the

@@ -23,34 +23,69 @@ Common helper functions for working with the Microsoft tool chain.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-from __future__ import print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import copy
+import json
 import os
-import subprocess
 import re
+import subprocess
+import sys
 
 import SCons.Util
 
+# SCONS_MSCOMMON_DEBUG is internal-use so undocumented:
+# set to '-' to print to console, else set to filename to log to
 LOGFILE = os.environ.get('SCONS_MSCOMMON_DEBUG')
 if LOGFILE == '-':
     def debug(message):
         print(message)
 elif LOGFILE:
-    try:
-        import logging
-    except ImportError:
-        debug = lambda message: open(LOGFILE, 'a').write(message + '\n')
-    else:
-        logging.basicConfig(filename=LOGFILE, level=logging.DEBUG)
-        debug = logging.getLogger(name=__name__).debug
+    import logging
+    logging.basicConfig(
+        format='%(relativeCreated)05dms:pid%(process)05d:MSCommon/%(filename)s:%(message)s',
+        filename=LOGFILE,
+        level=logging.DEBUG)
+    debug = logging.getLogger(name=__name__).debug
 else:
-    debug = lambda x: None
+    def debug(x): return None
+
+
+# SCONS_CACHE_MSVC_CONFIG is public, and is documented.
+CONFIG_CACHE = os.environ.get('SCONS_CACHE_MSVC_CONFIG')
+if CONFIG_CACHE in ('1', 'true', 'True'):
+    CONFIG_CACHE = os.path.join(os.path.expanduser('~'), '.scons_msvc_cache')
+
+
+def read_script_env_cache():
+    """ fetch cached msvc env vars if requested, else return empty dict """
+    envcache = {}
+    if CONFIG_CACHE:
+        try:
+            with open(CONFIG_CACHE, 'r') as f:
+                envcache = json.load(f)
+        except FileNotFoundError:
+            # don't fail if no cache file, just proceed without it
+            pass
+    return envcache
+
+
+def write_script_env_cache(cache):
+    """ write out cache of msvc env vars if requested """
+    if CONFIG_CACHE:
+        try:
+            with open(CONFIG_CACHE, 'w') as f:
+                json.dump(cache, f, indent=2)
+        except TypeError:
+            # data can't serialize to json, don't leave partial file
+            os.remove(CONFIG_CACHE)
+        except IOError:
+            # can't write the file, just skip
+            pass
 
 
 _is_win64 = None
+
 
 def is_win64():
     """Return true if running on windows 64 bits.
@@ -86,6 +121,7 @@ def is_win64():
 def read_reg(value, hkroot=SCons.Util.HKEY_LOCAL_MACHINE):
     return SCons.Util.RegGetValue(hkroot, value)[0]
 
+
 def has_reg(value):
     """Return True if the given key exists in HKEY_LOCAL_MACHINE, False
     otherwise."""
@@ -97,6 +133,7 @@ def has_reg(value):
     return ret
 
 # Functions for fetching environment variable settings from batch files.
+
 
 def normalize_env(env, keys, force=False):
     """Given a dictionary representing a shell environment, add the variables
@@ -112,22 +149,21 @@ def normalize_env(env, keys, force=False):
     Note: the environment is copied."""
     normenv = {}
     if env:
-        for k in list(env.keys()):
-            normenv[k] = copy.deepcopy(env[k])
+        for k, v in env.items():
+            normenv[k] = copy.deepcopy(v)
 
         for k in keys:
             if k in os.environ and (force or k not in normenv):
                 normenv[k] = os.environ[k]
 
-    # This shouldn't be necessary, since the default environment should include system32,
-    # but keep this here to be safe, since it's needed to find reg.exe which the MSVC
-    # bat scripts use.
-    sys32_dir = os.path.join(os.environ.get("SystemRoot",
-                                            os.environ.get("windir", r"C:\Windows\system32")),
-                             "System32")
-
-    if sys32_dir not in normenv['PATH']:
-        normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_dir
+    # add some things to PATH to prevent problems:
+    # Shouldn't be necessary to add system32, since the default environment
+    # should include it, but keep this here to be safe (needed for reg.exe)
+    sys32_dir = os.path.join(
+        os.environ.get("SystemRoot", os.environ.get("windir", r"C:\Windows")), "System32"
+)
+    if sys32_dir not in normenv["PATH"]:
+        normenv["PATH"] = normenv["PATH"] + os.pathsep + sys32_dir
 
     # Without Wbem in PATH, vcvarsall.bat has a "'wmic' is not recognized"
     # error starting with Visual Studio 2017, although the script still
@@ -136,27 +172,39 @@ def normalize_env(env, keys, force=False):
     if sys32_wbem_dir not in normenv['PATH']:
         normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_wbem_dir
 
-    debug("PATH: %s"%normenv['PATH'])
+    # Without Powershell in PATH, an internal call to a telemetry
+    # function (starting with a VS2019 update) can fail
+    # Note can also set VSCMD_SKIP_SENDTELEMETRY to avoid this.
+    sys32_ps_dir = os.path.join(sys32_dir, r'WindowsPowerShell\v1.0')
+    if sys32_ps_dir not in normenv['PATH']:
+        normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_ps_dir
 
+    debug("PATH: %s" % normenv['PATH'])
     return normenv
 
-def get_output(vcbat, args = None, env = None):
+
+def get_output(vcbat, args=None, env=None):
     """Parse the output of given bat file, with given args."""
 
     if env is None:
         # Create a blank environment, for use in launching the tools
         env = SCons.Environment.Environment(tools=[])
 
-    # TODO:  This is a hard-coded list of the variables that (may) need
-    # to be imported from os.environ[] for v[sc]*vars*.bat file
-    # execution to work.  This list should really be either directly
-    # controlled by vc.py, or else derived from the common_tools_var
-    # settings in vs.py.
+    # TODO:  Hard-coded list of the variables that (may) need to be
+    # imported from os.environ[] for the chain of development batch
+    # files to execute correctly. One call to vcvars*.bat may
+    # end up running a dozen or more scripts, changes not only with
+    # each release but with what is installed at the time. We think
+    # in modern installations most are set along the way and don't
+    # need to be picked from the env, but include these for safety's sake.
+    # Any VSCMD variables definitely are picked from the env and
+    # control execution in interesting ways.
+    # Note these really should be unified - either controlled by vs.py,
+    # or synced with the the common_tools_var # settings in vs.py.
     vs_vc_vars = [
-        'COMSPEC',
-        # VS100 and VS110: Still set, but modern MSVC setup scripts will
-        # discard these if registry has values.  However Intel compiler setup
-        # script still requires these as of 2013/2014.
+        'COMSPEC',  # path to "shell"
+        'VS160COMNTOOLS',  # path to common tools for given version
+        'VS150COMNTOOLS',
         'VS140COMNTOOLS',
         'VS120COMNTOOLS',
         'VS110COMNTOOLS',
@@ -166,6 +214,8 @@ def get_output(vcbat, args = None, env = None):
         'VS71COMNTOOLS',
         'VS70COMNTOOLS',
         'VS60COMNTOOLS',
+        'VSCMD_DEBUG',   # enable logging and other debug aids
+        'VSCMD_SKIP_SENDTELEMETRY',
     ]
     env['ENV'] = normalize_env(env['ENV'], vs_vc_vars, force=False)
 
@@ -196,25 +246,45 @@ def get_output(vcbat, args = None, env = None):
 #     debug('get_output():stdout:%s'%stdout)
 #     debug('get_output():stderr:%s'%stderr)
 
+    # Ongoing problems getting non-corrupted text led to this
+    # changing to "oem" from "mbcs" - the scripts run presumably
+    # attached to a console, so some particular rules apply.
+    # Unfortunately, "oem" not defined in Python 3.5, so get another way
+    if sys.version_info.major == 3 and sys.version_info.minor < 6:
+        from ctypes import windll
+
+        OEM = "cp{}".format(windll.kernel32.GetConsoleOutputCP())
+    else:
+        OEM = "oem"
     if stderr:
         # TODO: find something better to do with stderr;
         # this at least prevents errors from getting swallowed.
-        import sys
-        sys.stderr.write(stderr)
+        sys.stderr.write(stderr.decode(OEM))
     if popen.wait() != 0:
-        raise IOError(stderr.decode("mbcs"))
+        raise IOError(stderr.decode(OEM))
 
-    output = stdout.decode("mbcs")
-    return output
+    return stdout.decode(OEM)
 
-def parse_output(output, keep=("INCLUDE", "LIB", "LIBPATH", "PATH", 'VSCMD_ARG_app_plat')):
+
+KEEPLIST = (
+    "INCLUDE",
+    "LIB",
+    "LIBPATH",
+    "PATH",
+    "VSCMD_ARG_app_plat",
+    "VCINSTALLDIR",  # needed by clang -VS 2017 and newer
+    "VCToolsInstallDir",  # needed by clang - VS 2015 and older
+)
+
+
+def parse_output(output, keep=KEEPLIST):
     """
     Parse output from running visual c++/studios vcvarsall.bat and running set
     To capture the values listed in keep
     """
 
     # dkeep is a dict associating key: path_list, where key is one item from
-    # keep, and pat_list the associated list of paths
+    # keep, and path_list the associated list of paths
     dkeep = dict([(i, []) for i in keep])
 
     # rdk will  keep the regex to match the .bat file output line starts

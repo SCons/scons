@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 """SCons.Tool.DCommon
 
 Common code for the various D tools.

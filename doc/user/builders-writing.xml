@@ -196,7 +196,7 @@ env.Foo('file.foo', 'file.input')
        <file name="file.input">
 file.input
        </file>
-       <file name="foobuild" chmod="0755">
+       <file name="foobuild" chmod="0o755">
 cat
        </file>
     </scons_example>
@@ -309,7 +309,7 @@ file.input
        <file name="hello.c">
 hello.c
        </file>
-       <file name="foobuild" chmod="0755">
+       <file name="foobuild" chmod="0o755">
 cat
        </file>
     </scons_example>
@@ -389,7 +389,7 @@ file1.input
        <file name="file2.input">
 file2.input
        </file>
-       <file name="foobuild" chmod="0755">
+       <file name="foobuild" chmod="0o755">
 cat
        </file>
     </scons_example>
@@ -558,6 +558,8 @@ file.input
 
     &SCons; Builder objects can create an action "on the fly"
     by using a function called a &generator;.
+    (Note: this is not the same thing as a Python generator function
+    described in <ulink url="https://www.python.org/dev/peps/pep-0255/">PEP 255</ulink>)
     This provides a great deal of flexibility to
     construct just the right list of commands
     to build your target.
@@ -682,7 +684,7 @@ env.Foo('file')
        <file name="file.input">
 file.input
        </file>
-       <file name="foobuild" chmod="0755">
+       <file name="foobuild" chmod="0o755">
 cat
        </file>
     </scons_example>
@@ -766,7 +768,7 @@ file.input
        <file name="new_source">
 new_source
        </file>
-       <file name="foobuild" chmod="0755">
+       <file name="foobuild" chmod="0o755">
 cat
        </file>
     </scons_example>
@@ -840,7 +842,7 @@ modify1.input
         <file name="modify2.in">
 modify2.input
         </file>
-        <file name="my_command" chmod="0755">
+        <file name="my_command" chmod="0o755">
 cat
         </file>
 
@@ -1078,36 +1080,5 @@ from SCons.Script import *
     </para>
 
   </section>
-
-
-  <!--
-
-  <section>
-  <title>Builders That Use Other Builders</title>
-
-    <para>
-
-    XXX para
-
-    </para>
-
-    <scons_example name="builderswriting_ex8">
-       <file name="SConstruct" printme="1">
-env = Environment()
-#env.SourceCode('.', env.BitKeeper('my_command'))
-env.Program('hello.c')
-       </file>
-       <file name="hello.c">
-hello.c
-       </file>
-    </scons_example>
-
-    <scons_output example="builderswriting_ex8" suffix="1">
-      <scons_output_command>scons -Q</scons_output_command>
-    </scons_output>
-
-  </section>
-
-  -->
 
 </chapter>

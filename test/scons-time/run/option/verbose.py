@@ -39,7 +39,7 @@ _python_ = re.escape('"' + sys.executable + '"')
 test = TestSCons_time.TestSCons_time(match = TestSCons_time.match_re,
                                      diff = TestSCons_time.diff_re)
 
-scons_py = re.escape(test.workpath('src', 'script', 'scons.py'))
+scons_py = re.escape(test.workpath('scripts', 'scons.py'))
 src_engine = re.escape(test.workpath('src', 'engine'))
 
 tmp_scons_time = test.tempdir_re()

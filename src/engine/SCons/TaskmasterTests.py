@@ -20,8 +20,6 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-from __future__ import division
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
@@ -146,7 +144,7 @@ class Node(object):
         pass
 
     def has_builder(self):
-        return not self.builder is None
+        return self.builder is not None
 
     def is_derived(self):
         return self.has_builder or self.side_effect
@@ -935,7 +933,7 @@ class TaskmasterTestCase(unittest.TestCase):
         except SCons.Errors.UserError:
             pass
         else:
-            raise TestFailed("did not catch expected UserError")
+            self.fail("did not catch expected UserError")
 
         def raise_BuildError():
             raise SCons.Errors.BuildError
@@ -948,7 +946,7 @@ class TaskmasterTestCase(unittest.TestCase):
         except SCons.Errors.BuildError:
             pass
         else:
-            raise TestFailed("did not catch expected BuildError")
+            self.fail("did not catch expected BuildError")
 
         # On a generic (non-BuildError) exception from a Builder,
         # the target should throw a BuildError exception with the
@@ -968,7 +966,7 @@ class TaskmasterTestCase(unittest.TestCase):
             exc_traceback = sys.exc_info()[2]
             assert isinstance(e.exc_info[2], type(exc_traceback)), e.exc_info[2]
         else:
-            raise TestFailed("did not catch expected BuildError")
+            self.fail("did not catch expected BuildError")
 
         built_text = None
         cache_text = []
@@ -1049,7 +1047,7 @@ class TaskmasterTestCase(unittest.TestCase):
         assert cache_text == ["n1 retrieved"], cache_text
         # If no binfo exists anymore, something has gone wrong...
         has_binfo = hasattr(n1, 'binfo')
-        assert has_binfo == True, has_binfo
+        assert has_binfo, has_binfo
 
     def test_exception(self):
         """Test generic Taskmaster exception handling

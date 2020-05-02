@@ -135,7 +135,7 @@ def __get_xml_text(root):
     """ Return the text for the given root node (xml.dom.minidom). """
     txt = ""
     for e in root.childNodes:
-        if (e.nodeType == e.TEXT_NODE):
+        if e.nodeType == e.TEXT_NODE:
             txt += e.data
     return txt
 
@@ -207,7 +207,7 @@ def _detect(env):
     if env.get('DOCBOOK_PREFER_XSLTPROC',''):
         prefer_xsltproc = True
 
-    if ((not has_libxml2 and not has_lxml) or (prefer_xsltproc)):
+    if (not has_libxml2 and not has_lxml) or prefer_xsltproc:
         # Try to find the XSLT processors
         __detect_cl_tool(env, 'DOCBOOK_XSLTPROC', xsltproc_com, xsltproc_com_priority)
         __detect_cl_tool(env, 'DOCBOOK_XMLLINT', xmllint_com)
@@ -351,11 +351,16 @@ def __build_lxml(target, source, env):
     else:
         result = transform(doc)
 
+    # we'd like the resulting output to be readably formatted,
+    # so try pretty-print. Sometimes (esp. if the output is
+    # not an xml file) we end up with a None type somewhere in
+    # the transformed tree and tostring throws TypeError,
+    # so provide a fallback.
     try:
         with open(str(target[0]), "wb") as of:
             of.write(etree.tostring(result, pretty_print=True))
-    except:
-        pass
+    except TypeError:
+        result.write_output(str(target[0]))
 
     return None
 

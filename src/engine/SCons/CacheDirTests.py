@@ -33,7 +33,6 @@ import stat
 from TestCmd import TestCmd
 
 import SCons.CacheDir
-from SCons.Util import PY3
 
 built_it = None
 
@@ -130,7 +129,7 @@ class ExceptionTestCase(unittest.TestCase):
     @unittest.skipIf(sys.platform.startswith("win"), "This fixture will not trigger an OSError on Windows")
     def test_throws_correct_on_OSError(self):
         """Test that the correct error is thrown when cache directory cannot be created."""
-        privileged_dir = os.path.join(os.getcwd(), "privileged")
+        privileged_dir = os.path.join(self.tmpdir, "privileged")
         try:
             os.mkdir(privileged_dir)
             os.chmod(privileged_dir, stat.S_IREAD)
@@ -169,10 +168,7 @@ class ExceptionTestCase(unittest.TestCase):
         os.remove(old_config)
         
         try:
-            if PY3:
-                self._CacheDir._readconfig3(self._CacheDir.path)
-            else:
-                self._CacheDir._readconfig2(self._CacheDir.path)
+            self._CacheDir._readconfig(self._CacheDir.path)
             assert False, "Should have raised exception and did not"
         except SCons.Errors.SConsEnvironmentError as e:
             assert str(e) == "Failed to write cache configuration for {}".format(self._CacheDir.path)

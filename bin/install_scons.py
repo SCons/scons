@@ -18,14 +18,12 @@
 # be reasonably generic to any POSIX-style system with a /usr/local
 # hierarchy.
 
-from __future__ import print_function
-
 import getopt
 import os
 import shutil
 import sys
 import tarfile
-from urllib import urlretrieve
+from urllib.request import urlretrieve
 
 from Command import CommandRunner, Usage
 

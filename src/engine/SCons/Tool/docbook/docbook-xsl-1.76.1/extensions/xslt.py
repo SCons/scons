@@ -1,7 +1,5 @@
 #!/usr/bin/python -u
 # $Id: xslt.py 8353 2009-03-17 16:57:50Z mzjn $
-from __future__ import print_function
-
 import sys
 import libxml2
 import libxslt
@@ -36,7 +34,7 @@ try:
         outfile = None
 
     count = 4
-    while (sys.argv[count]):
+    while sys.argv[count]:
         try:
             name, value = sys.argv[count].split("=", 2)
             if name in params:

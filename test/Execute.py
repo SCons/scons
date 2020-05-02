@@ -83,13 +83,7 @@ test.write('k.in', "k.in\n")
 test.write('l.in', "l.in\n")
 test.write('m.in', "m.in\n")
 
-if sys.platform == 'win32' and sys.version_info[0] == 2:
-    # note that nonexistent.in will have a \ on windows with python < 2.7.15
-    # and a / on >= 2.7.15 (The third line below)
-    expect = r"""scons: \*\*\* Error 1
-scons: \*\*\* Error 2
-scons: \*\*\* nonexistent.in(/|\\)\*\.\*: (The system cannot find the path specified|Das System kann den angegebenen Pfad nicht finden)"""
-elif sys.platform == 'win32' and sys.version_info[0] == 3:
+if sys.platform == 'win32' and sys.version_info[0] == 3:
     expect = r"""scons: \*\*\* Error 1
 scons: \*\*\* Error 2
 scons: \*\*\* nonexistent.in: (The system cannot find the path specified|Das System kann den angegebenen Pfad nicht finden)"""

@@ -19,7 +19,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-Append "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Append</function>">
 <!ENTITY f-AppendENVPath "<function xmlns='http://www.scons.org/dbxsd/v1.0'>AppendENVPath</function>">
 <!ENTITY f-AppendUnique "<function xmlns='http://www.scons.org/dbxsd/v1.0'>AppendUnique</function>">
-<!ENTITY f-BuildDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>BuildDir</function>">
 <!ENTITY f-Builder "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Builder</function>">
 <!ENTITY f-CacheDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CacheDir</function>">
 <!ENTITY f-Clean "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Clean</function>">
@@ -81,12 +80,9 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-SetDefault "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SetDefault</function>">
 <!ENTITY f-SetOption "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SetOption</function>">
 <!ENTITY f-SideEffect "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SideEffect</function>">
-<!ENTITY f-SourceCode "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SourceCode</function>">
-<!ENTITY f-SourceSignatures "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SourceSignatures</function>">
 <!ENTITY f-Split "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Split</function>">
 <!ENTITY f-subst "<function xmlns='http://www.scons.org/dbxsd/v1.0'>subst</function>">
 <!ENTITY f-Tag "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Tag</function>">
-<!ENTITY f-TargetSignatures "<function xmlns='http://www.scons.org/dbxsd/v1.0'>TargetSignatures</function>">
 <!ENTITY f-Tool "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Tool</function>">
 <!ENTITY f-Value "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Value</function>">
 <!ENTITY f-VariantDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>VariantDir</function>">
@@ -103,7 +99,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-env-Append "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Append</function>">
 <!ENTITY f-env-AppendENVPath "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.AppendENVPath</function>">
 <!ENTITY f-env-AppendUnique "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.AppendUnique</function>">
-<!ENTITY f-env-BuildDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.BuildDir</function>">
 <!ENTITY f-env-Builder "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Builder</function>">
 <!ENTITY f-env-CacheDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.CacheDir</function>">
 <!ENTITY f-env-Clean "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Clean</function>">
@@ -165,12 +160,9 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-env-SetDefault "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.SetDefault</function>">
 <!ENTITY f-env-SetOption "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.SetOption</function>">
 <!ENTITY f-env-SideEffect "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.SideEffect</function>">
-<!ENTITY f-env-SourceCode "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.SourceCode</function>">
-<!ENTITY f-env-SourceSignatures "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.SourceSignatures</function>">
 <!ENTITY f-env-Split "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Split</function>">
 <!ENTITY f-env-subst "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.subst</function>">
 <!ENTITY f-env-Tag "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Tag</function>">
-<!ENTITY f-env-TargetSignatures "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.TargetSignatures</function>">
 <!ENTITY f-env-Tool "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Tool</function>">
 <!ENTITY f-env-Value "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Value</function>">
 <!ENTITY f-env-VariantDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.VariantDir</function>">
@@ -197,7 +189,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-Append "<link linkend='f-Append' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Append</function></link>">
 <!ENTITY f-link-AppendENVPath "<link linkend='f-AppendENVPath' xmlns='http://www.scons.org/dbxsd/v1.0'><function>AppendENVPath</function></link>">
 <!ENTITY f-link-AppendUnique "<link linkend='f-AppendUnique' xmlns='http://www.scons.org/dbxsd/v1.0'><function>AppendUnique</function></link>">
-<!ENTITY f-link-BuildDir "<link linkend='f-BuildDir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>BuildDir</function></link>">
 <!ENTITY f-link-Builder "<link linkend='f-Builder' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Builder</function></link>">
 <!ENTITY f-link-CacheDir "<link linkend='f-CacheDir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>CacheDir</function></link>">
 <!ENTITY f-link-Clean "<link linkend='f-Clean' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Clean</function></link>">
@@ -259,12 +250,9 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-SetDefault "<link linkend='f-SetDefault' xmlns='http://www.scons.org/dbxsd/v1.0'><function>SetDefault</function></link>">
 <!ENTITY f-link-SetOption "<link linkend='f-SetOption' xmlns='http://www.scons.org/dbxsd/v1.0'><function>SetOption</function></link>">
 <!ENTITY f-link-SideEffect "<link linkend='f-SideEffect' xmlns='http://www.scons.org/dbxsd/v1.0'><function>SideEffect</function></link>">
-<!ENTITY f-link-SourceCode "<link linkend='f-SourceCode' xmlns='http://www.scons.org/dbxsd/v1.0'><function>SourceCode</function></link>">
-<!ENTITY f-link-SourceSignatures "<link linkend='f-SourceSignatures' xmlns='http://www.scons.org/dbxsd/v1.0'><function>SourceSignatures</function></link>">
 <!ENTITY f-link-Split "<link linkend='f-Split' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Split</function></link>">
 <!ENTITY f-link-subst "<link linkend='f-subst' xmlns='http://www.scons.org/dbxsd/v1.0'><function>subst</function></link>">
 <!ENTITY f-link-Tag "<link linkend='f-Tag' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Tag</function></link>">
-<!ENTITY f-link-TargetSignatures "<link linkend='f-TargetSignatures' xmlns='http://www.scons.org/dbxsd/v1.0'><function>TargetSignatures</function></link>">
 <!ENTITY f-link-Tool "<link linkend='f-Tool' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Tool</function></link>">
 <!ENTITY f-link-Value "<link linkend='f-Value' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Value</function></link>">
 <!ENTITY f-link-VariantDir "<link linkend='f-VariantDir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>VariantDir</function></link>">
@@ -281,7 +269,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-env-Append "<link linkend='f-Append' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Append</function></link>">
 <!ENTITY f-link-env-AppendENVPath "<link linkend='f-AppendENVPath' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.AppendENVPath</function></link>">
 <!ENTITY f-link-env-AppendUnique "<link linkend='f-AppendUnique' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.AppendUnique</function></link>">
-<!ENTITY f-link-env-BuildDir "<link linkend='f-BuildDir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.BuildDir</function></link>">
 <!ENTITY f-link-env-Builder "<link linkend='f-Builder' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Builder</function></link>">
 <!ENTITY f-link-env-CacheDir "<link linkend='f-CacheDir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.CacheDir</function></link>">
 <!ENTITY f-link-env-Clean "<link linkend='f-Clean' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Clean</function></link>">
@@ -343,12 +330,9 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-env-SetDefault "<link linkend='f-SetDefault' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.SetDefault</function></link>">
 <!ENTITY f-link-env-SetOption "<link linkend='f-SetOption' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.SetOption</function></link>">
 <!ENTITY f-link-env-SideEffect "<link linkend='f-SideEffect' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.SideEffect</function></link>">
-<!ENTITY f-link-env-SourceCode "<link linkend='f-SourceCode' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.SourceCode</function></link>">
-<!ENTITY f-link-env-SourceSignatures "<link linkend='f-SourceSignatures' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.SourceSignatures</function></link>">
 <!ENTITY f-link-env-Split "<link linkend='f-Split' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Split</function></link>">
 <!ENTITY f-link-env-subst "<link linkend='f-subst' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.subst</function></link>">
 <!ENTITY f-link-env-Tag "<link linkend='f-Tag' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Tag</function></link>">
-<!ENTITY f-link-env-TargetSignatures "<link linkend='f-TargetSignatures' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.TargetSignatures</function></link>">
 <!ENTITY f-link-env-Tool "<link linkend='f-Tool' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Tool</function></link>">
 <!ENTITY f-link-env-Value "<link linkend='f-Value' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Value</function></link>">
 <!ENTITY f-link-env-VariantDir "<link linkend='f-VariantDir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.VariantDir</function></link>">

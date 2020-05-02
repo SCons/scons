@@ -20,8 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-from __future__ import print_function
 
 """
 This test verifies (on Windows systems) that we fail gracefully and
@@ -53,7 +51,7 @@ for d in reversed(ascii_uppercase):
 if bad_drive is None:
     print("All drive letters appear to be in use.")
     print("Cannot test SCons handling of invalid Windows drive letters.")
-    test.no_result(1);
+    test.no_result(1)
 
 test.write('SConstruct', """
 def cat(env, source, target):

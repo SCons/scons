@@ -56,30 +56,30 @@ sys.exit(1)
 
 test.write(['work1', 'SConstruct'], """\
 DefaultEnvironment(tools=[])
-Succeed = Builder(action = r'%(_python_)s ../succeed.py $TARGETS')
-Fail = Builder(action = r'%(_python_)s ../fail.py $TARGETS')
-env = Environment(BUILDERS = { 'Succeed' : Succeed, 'Fail' : Fail })
-env.Fail(target = 'aaa.1', source = 'aaa.in')
-env.Succeed(target = 'aaa.out', source = 'aaa.1')
-env.Succeed(target = 'bbb.out', source = 'bbb.in')
+Succeed = Builder(action=r'%(_python_)s ../succeed.py $TARGETS')
+Fail = Builder(action=r'%(_python_)s ../fail.py $TARGETS')
+env = Environment(BUILDERS={'Succeed': Succeed, 'Fail': Fail}, tools=[])
+env.Fail(target='aaa.1', source='aaa.in')
+env.Succeed(target='aaa.out', source='aaa.1')
+env.Succeed(target='bbb.out', source='bbb.in')
 """ % locals())
 
 test.write(['work1', 'aaa.in'], "aaa.in\n")
 test.write(['work1', 'bbb.in'], "bbb.in\n")
 
-test.run(chdir = 'work1',
-         arguments = 'aaa.out bbb.out',
-         stderr = 'scons: *** [aaa.1] Error 1\n',
-         status = 2)
+test.run(chdir='work1',
+         arguments='aaa.out bbb.out',
+         stderr='scons: *** [aaa.1] Error 1\n',
+         status=2)
 
 test.must_not_exist(test.workpath('work1', 'aaa.1'))
 test.must_not_exist(test.workpath('work1', 'aaa.out'))
 test.must_not_exist(test.workpath('work1', 'bbb.out'))
 
-test.run(chdir = 'work1',
-         arguments = '-k aaa.out bbb.out',
-         stderr = 'scons: *** [aaa.1] Error 1\n',
-         status = 2)
+test.run(chdir='work1',
+         arguments='-k aaa.out bbb.out',
+         stderr='scons: *** [aaa.1] Error 1\n',
+         status=2)
 
 test.must_not_exist(test.workpath('work1', 'aaa.1'))
 test.must_not_exist(test.workpath('work1', 'aaa.out'))
@@ -88,9 +88,9 @@ test.must_match(['work1', 'bbb.out'], "succeed.py: bbb.out\n", mode='r')
 test.unlink(['work1', 'bbb.out'])
 
 test.run(chdir = 'work1',
-         arguments = '--keep-going aaa.out bbb.out',
-         stderr = 'scons: *** [aaa.1] Error 1\n',
-         status = 2)
+         arguments='--keep-going aaa.out bbb.out',
+         stderr='scons: *** [aaa.1] Error 1\n',
+         status=2)
 
 test.must_not_exist(test.workpath('work1', 'aaa.1'))
 test.must_not_exist(test.workpath('work1', 'aaa.out'))
@@ -104,9 +104,9 @@ Removed bbb.out
 scons: done cleaning targets.
 """
 
-test.run(chdir = 'work1',
-         arguments = '--clean --keep-going aaa.out bbb.out',
-         stdout = expect)
+test.run(chdir='work1',
+         arguments='--clean --keep-going aaa.out bbb.out',
+         stdout=expect)
 
 test.must_not_exist(test.workpath('work1', 'aaa.1'))
 test.must_not_exist(test.workpath('work1', 'aaa.out'))
@@ -120,9 +120,9 @@ test.must_not_exist(test.workpath('work1', 'bbb.out'))
 
 test.write(['work2', 'SConstruct'], """\
 DefaultEnvironment(tools=[])
-Succeed = Builder(action = r'%(_python_)s ../succeed.py $TARGETS')
-Fail = Builder(action = r'%(_python_)s ../fail.py $TARGETS')
-env = Environment(BUILDERS = { 'Succeed' : Succeed, 'Fail' : Fail })
+Succeed = Builder(action=r'%(_python_)s ../succeed.py $TARGETS')
+Fail = Builder(action=r'%(_python_)s ../fail.py $TARGETS')
+env = Environment(BUILDERS={'Succeed': Succeed, 'Fail': Fail}, tools=[])
 env.Fail('aaa.out', 'aaa.in')
 env.Succeed('bbb.out', 'aaa.out')
 env.Succeed('ccc.out', 'ccc.in')
@@ -132,11 +132,11 @@ env.Succeed('ddd.out', 'ccc.in')
 test.write(['work2', 'aaa.in'], "aaa.in\n")
 test.write(['work2', 'ccc.in'], "ccc.in\n")
 
-test.run(chdir = 'work2',
-         arguments = '-k .',
-         status = 2,
-         stderr = None,
-         stdout = """\
+test.run(chdir='work2',
+         arguments='-k .',
+         status=2,
+         stderr=None,
+         stdout="""\
 scons: Reading SConscript files ...
 scons: done reading SConscript files.
 scons: Building targets ...
@@ -178,7 +178,7 @@ test.write(['work3', 'SConstruct'], """\
 DefaultEnvironment(tools=[])
 Succeed = Builder(action = r'%(_python_)s ../succeed.py $TARGETS')
 Fail = Builder(action = r'%(_python_)s ../fail.py $TARGETS')
-env = Environment(BUILDERS = { 'Succeed' : Succeed, 'Fail' : Fail })
+env = Environment(BUILDERS = {'Succeed': Succeed, 'Fail': Fail}, tools=[])
 a = env.Fail('aaa.out', 'aaa.in')
 b = env.Succeed('bbb.out', 'bbb.in')
 c = env.Succeed('ccc.out', 'ccc.in')

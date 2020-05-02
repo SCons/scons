@@ -128,11 +128,7 @@ Taskmaster: No candidate anymore.
 
 test.run(arguments='--taskmastertrace=- .', stdout=expect_stdout)
 
-
-
 test.run(arguments='-c .')
-
-
 
 expect_stdout = test.wrap_stdout("""\
 Copy("Tfile.mid", "Tfile.in")

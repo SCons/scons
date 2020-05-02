@@ -90,22 +90,6 @@ class SConfTestCase(unittest.TestCase):
             global existing_lib
             existing_lib = 'm'
 
-        if sys.platform in ['cygwin', 'win32']:
-             # On Windows, SCons.Platform.win32 redefines the builtin
-             # file() and open() functions to close the file handles.
-             # This interferes with the unittest.py infrastructure in
-             # some way.  Just sidestep the issue by restoring the
-             # original builtin functions whenever we have to reset
-             # all of our global state.
-
-             import SCons.Platform.win32
-
-             try:
-                file = SCons.Platform.win32._builtin_file
-                open = SCons.Platform.win32._builtin_open
-             except AttributeError:
-                 pass
-
     def _baseTryXXX(self, TryFunc):
         # TryCompile and TryLink are much the same, so we can test them
         # in one method, we pass the function as a string ('TryCompile',
@@ -155,7 +139,7 @@ class SConfTestCase(unittest.TestCase):
                                  log_file=self.test.workpath('config.log'))
         no_std_header_h = self.test.workpath('config.tests', 'no_std_header.h')
         test_h = self.test.write( no_std_header_h,
-                                  "/* we are changing a dependency now */\n" );
+                                  "/* we are changing a dependency now */\n" )
         try:
             res = checks( self, sconf, TryFunc )
             log = self.test.read( self.test.workpath('config.log') )
@@ -173,10 +157,18 @@ class SConfTestCase(unittest.TestCase):
                                  log_file=self.test.workpath('config.log'))
         import SCons.Builder
         import SCons.Node
+
+        class MyAction(object):
+            def get_contents(self, target, source, env):
+                return 'MyBuilder-MyAction $SOURCE $TARGET'
+
         class MyBuilder(SCons.Builder.BuilderBase):
             def __init__(self):
                 self.prefix = ''
                 self.suffix = ''
+                # need action because temporary file name uses hash of actions get_contents()
+                self.action = MyAction()
+
             def __call__(self, env, target, source):
                 class MyNode(object):
                     def __init__(self, name):
@@ -303,10 +295,6 @@ int main(void) {
             return None
         def actionFAIL(target, source, env):
             return 1
-        def actionUnicode(target, source, env):
-            with open(str(target[0]), "wb") as f:
-                f.write('2\302\242\n')
-            return None
 
 
         self._resetSConfState()
@@ -315,14 +303,10 @@ int main(void) {
                                   log_file=self.test.workpath('config.log'))
         try:
             (ret, output) = sconf.TryAction(action=actionOK)
-            assert ret and output.encode('utf-8') == bytearray("RUN OK"+os.linesep,'utf-8'), (ret, output)
+            assert ret and output.encode('utf-8') == bytearray("RUN OK"+os.linesep, 'utf-8'), (ret, output)
             (ret, output) = sconf.TryAction(action=actionFAIL)
             assert not ret and output == "", (ret, output)
 
-            if not TestCmd.IS_PY3:
-                # GH Issue #3141 - unicode text and py2.7 crashes.
-                (ret, output) = sconf.TryAction(action=actionUnicode)
-                assert ret and output == u'2\xa2\n', (ret, output)
 
         finally:
             sconf.Finish()

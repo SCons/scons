@@ -40,7 +40,7 @@ default_java_version = '1.4'
 
 # a switch for which jdk versions to use the Scope state for smarter
 # anonymous inner class parsing.
-scopeStateVersions = ('1.8')
+scopeStateVersions = ('1.8',)
 
 # Glob patterns for use in finding where the JDK is.
 # These are pairs, *dir_glob used in the general case,
@@ -87,8 +87,8 @@ if java_parsing:
     #     any alphanumeric token surrounded by angle brackets (generics);
     #     the multi-line comment begin and end tokens /* and */;
     #     array declarations "[]".
-    _reToken = re.compile(r'(\n|\\\\|//|\\[\'"]|[\'"\{\}\;\.\(\)]|' +
-                          r'\d*\.\d*|[A-Za-z_][\w\$\.]*|<[A-Za-z_]\w+>|' +
+    _reToken = re.compile(r'(\n|\\\\|//|\\[\'"]|[\'"{\};.()]|' +
+                          r'\d*\.\d*|[A-Za-z_][\w$.]*|<[A-Za-z_]\w+>|' +
                           r'/\*|\*/|\[\])')
 
 
@@ -404,7 +404,7 @@ if java_parsing:
 
 
     def parse_java_file(fn, version=default_java_version):
-        with open(fn, 'r') as f:
+        with open(fn, 'r', encoding='utf-8') as f:
             data = f.read()
         return parse_java(data, version)
 

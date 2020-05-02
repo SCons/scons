@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
 __COPYRIGHT__
 
@@ -108,9 +108,9 @@ F77 dialect will be used. By default, this is empty
 <cvar name="F77COMSTR">
 <summary>
 <para>
-The string displayed when a Fortran 77 source file
+If set, the string displayed when a Fortran 77 source file
 is compiled to an object file.
-If this is not set, then &cv-link-F77COM; or &cv-link-FORTRANCOM;
+If not set, then &cv-link-F77COM; or &cv-link-FORTRANCOM;
 (the command line) is displayed.
 </para>
 </summary>
@@ -230,10 +230,10 @@ for all Fortran versions.
 <cvar name="F77PPCOMSTR">
 <summary>
 <para>
-The string displayed when a Fortran 77 source file
+If set, the string displayed when a Fortran 77 source file
 is compiled to an object file
 after first running the file through the C preprocessor.
-If this is not set, then &cv-link-F77PPCOM; or &cv-link-FORTRANPPCOM;
+If not set, then &cv-link-F77PPCOM; or &cv-link-FORTRANPPCOM;
 (the command line) is displayed.
 </para>
 </summary>
@@ -269,9 +269,9 @@ for all Fortran versions.
 <cvar name="SHF77COMSTR">
 <summary>
 <para>
-The string displayed when a Fortran 77 source file
+If set, the string displayed when a Fortran 77 source file
 is compiled to a shared-library object file.
-If this is not set, then &cv-link-SHF77COM; or &cv-link-SHFORTRANCOM;
+If not set, then &cv-link-SHF77COM; or &cv-link-SHFORTRANCOM;
 (the command line) is displayed.
 </para>
 </summary>
@@ -312,10 +312,10 @@ for all Fortran versions.
 <cvar name="SHF77PPCOMSTR">
 <summary>
 <para>
-The string displayed when a Fortran 77 source file
+If set, the string displayed when a Fortran 77 source file
 is compiled to a shared-library object file
 after first running the file through the C preprocessor.
-If this is not set, then &cv-link-SHF77PPCOM; or &cv-link-SHFORTRANPPCOM;
+If not set, then &cv-link-SHF77PPCOM; or &cv-link-SHFORTRANPPCOM;
 (the command line) is displayed.
 </para>
 </summary>

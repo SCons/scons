@@ -1104,7 +1104,7 @@ class NodeTestCase(unittest.TestCase):
         for kid in [n1, n3, n4, n6, n7, n9, n10, n12]:
             assert kid in kids, kid
         for kid in [n2, n5, n8, n11]:
-            assert not kid in kids, kid
+            assert kid not in kids, kid
 
     def test_all_children(self):
         """Test fetching all the "children" of a Node.
@@ -1304,7 +1304,7 @@ class NodeTestCase(unittest.TestCase):
     def test_postprocess(self):
         """Test calling the base Node postprocess() method"""
         n = SCons.Node.Node()
-        n.waiting_parents = set( ['foo','bar'] )
+        n.waiting_parents = {'foo', 'bar'}
 
         n.postprocess()
         assert n.waiting_parents == set(), n.waiting_parents
@@ -1316,7 +1316,7 @@ class NodeTestCase(unittest.TestCase):
         assert n1.waiting_parents == set(), n1.waiting_parents
         r = n1.add_to_waiting_parents(n2)
         assert r == 1, r
-        assert n1.waiting_parents == set((n2,)), n1.waiting_parents
+        assert n1.waiting_parents == {n2}, n1.waiting_parents
         r = n1.add_to_waiting_parents(n2)
         assert r == 0, r
 

@@ -25,6 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
+import re
 
 import TestSCons
 
@@ -32,8 +33,6 @@ _python_ = TestSCons._python_
 _exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
-
-# test.verbose_set(1)
 
 #  Test issue # 2580
 test.dir_fixture('applelink_image')
@@ -83,10 +82,14 @@ for SHLIBVERSION, APPLELINK_CURRENT_VERSION, APPLELINK_COMPATIBILITY_VERSION, sh
         # libfoo.1.2.3.dylib:
         # > 	libfoo.1.2.3.dylib (compatibility version 1.1.99, current version 9.9.9)
         # > 	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1252.50.4)
-        otool_output = "libfoo.{SHLIBVERSION}.dylib:\n\tlibfoo.{SHLIBVERSION}.dylib (compatibility version {APPLELINK_COMPATIBILITY_VERSION}, current version {APPLELINK_CURRENT_VERSION})\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1252.50.4)\n".format(
-            **locals())
+        # otool_output = "libfoo.{SHLIBVERSION}.dylib:\n\tlibfoo.{SHLIBVERSION}.dylib (compatibility version {APPLELINK_COMPATIBILITY_VERSION}, current version {APPLELINK_CURRENT_VERSION})\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1252.50.4)\n".format(
+        #     **locals())
+        otool_output = "libfoo.{SHLIBVERSION}.dylib:\n\tlibfoo.{SHLIBVERSION}.dylib (compatibility version {APPLELINK_COMPATIBILITY_VERSION}, current version {APPLELINK_CURRENT_VERSION})\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version REPLACEME)\n".format(**locals())
+        otool_output = re.escape(otool_output)
+        otool_output = otool_output.replace('REPLACEME','\d+\.\d+\.\d+')
 
-        test.run(program='/usr/bin/otool', arguments='-L libfoo.%s.dylib' % SHLIBVERSION, stdout=otool_output)
+
+        test.run(program='/usr/bin/otool', arguments='-L libfoo.%s.dylib' % SHLIBVERSION, stdout=otool_output, match=TestSCons.match_re_dotall)
 
 # Now test that None in APPLELINK_CURRENT_VERSION or APPLELINK_COMPATIBILITY_VERSION will skip
 # generating their relevant linker command line flag.
@@ -130,20 +133,21 @@ for SHLIBVERSION, \
         test.must_contain_all_lines(test.stdout(),
                                     ['-Wl,-compatibility_version,{APPLELINK_COMPATIBILITY_VERSION}'.format(**locals())])
 
-    if not (extra_flags):
+    if not extra_flags:
         # Now run otool -L to get the compat and current version info and verify it's correct in the library.
         # We expect output such as this
         # libfoo.1.2.3.dylib:
         # > 	libfoo.1.2.3.dylib (compatibility version 1.1.99, current version 9.9.9)
-        # > 	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1252.50.4)
+        # > 	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version #.#.#)
         if APPLELINK_NO_CURRENT_VERSION:
             APPLELINK_CURRENT_VERSION = '0.0.0'
         if APPLELINK_NO_COMPATIBILITY_VERSION:
             APPLELINK_COMPATIBILITY_VERSION = '0.0.0'
-        otool_output = "libfoo.{SHLIBVERSION}.dylib:\n\tlibfoo.{SHLIBVERSION}.dylib (compatibility version {APPLELINK_COMPATIBILITY_VERSION}, current version {APPLELINK_CURRENT_VERSION})\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1252.50.4)\n".format(
+        otool_output = "libfoo.{SHLIBVERSION}.dylib:\n\tlibfoo.{SHLIBVERSION}.dylib (compatibility version {APPLELINK_COMPATIBILITY_VERSION}, current version {APPLELINK_CURRENT_VERSION})\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version REPLACEME)\n".format(
             **locals())
+        otool_output = re.escape(otool_output).replace('REPLACEME','\d+\.\d+\.\d+')
 
-        test.run(program='/usr/bin/otool', arguments='-L libfoo.%s.dylib' % SHLIBVERSION, stdout=otool_output)
+        test.run(program='/usr/bin/otool', arguments='-L libfoo.%s.dylib' % SHLIBVERSION, stdout=otool_output, match=TestSCons.match_re_dotall)
 
 test.pass_test()
 

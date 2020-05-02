@@ -31,8 +31,6 @@ that can be used by scripts or modules looking for the canonical default.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-from __future__ import print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import fnmatch
@@ -44,6 +42,7 @@ import sys
 import time
 import codecs
 from itertools import chain
+import importlib.util
 
 import SCons.Action
 import SCons.Debug
@@ -54,6 +53,7 @@ import SCons.Node
 import SCons.Node.Alias
 import SCons.Subst
 import SCons.Util
+from SCons.Util import MD5signature, MD5filesignature, MD5collect
 import SCons.Warnings
 
 from SCons.Debug import Trace
@@ -963,14 +963,14 @@ class Entry(Base):
 
     def disambiguate(self, must_exist=None):
         """
-        """
-        if self.isdir():
-            self.__class__ = Dir
-            self._morph()
-        elif self.isfile():
+        """ 
+        if self.isfile():
             self.__class__ = File
             self._morph()
             self.clear()
+        elif self.isdir():
+            self.__class__ = Dir
+            self._morph()
         else:
             # There was nothing on-disk at this location, so look in
             # the src directory.
@@ -1426,22 +1426,10 @@ class FS(LocalFS):
         This can be useful when we want to determine a toolpath based on a python module name"""
 
         dirpath = ''
-        if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] in (0,1,2,3,4)):
-            # Python2 Code
-            import imp
-            splitname = modulename.split('.')
-            srchpths = sys.path
-            for item in splitname:
-                file, path, desc = imp.find_module(item, srchpths)
-                if file is not None:
-                    path = os.path.dirname(path)
-                srchpths = [path]
-            dirpath = path
-        else:
-            # Python3 Code
-            import importlib.util
-            modspec = importlib.util.find_spec(modulename)
-            dirpath = os.path.dirname(modspec.origin)
+
+        # Python3 Code
+        modspec = importlib.util.find_spec(modulename)
+        dirpath = os.path.dirname(modspec.origin)
         return self._lookup(dirpath, None, Dir, True)
 
 
@@ -1548,9 +1536,7 @@ class Dir(Base):
         self.repositories = []
         self.srcdir = None
 
-        self.entries = {}
-        self.entries['.'] = self
-        self.entries['..'] = self.dir
+        self.entries = {'.': self, '..': self.dir}
         self.cwd = self
         self.searched = 0
         self._sconsign = None
@@ -1611,7 +1597,7 @@ class Dir(Base):
         This clears any cached information that is invalidated by changing
         the repository."""
 
-        for node in list(self.entries.values()):
+        for node in self.entries.values():
             if node != self.dir:
                 if node != self and isinstance(node, Dir):
                     node.__clearRepositoryCache(duplicate)
@@ -1622,7 +1608,7 @@ class Dir(Base):
                     except AttributeError:
                         pass
                     if duplicate is not None:
-                        node.duplicate=duplicate
+                        node.duplicate = duplicate
 
     def __resetDuplicate(self, node):
         if node != self:
@@ -1862,7 +1848,7 @@ class Dir(Base):
         node is called which has a child directory, the child
         directory should return the hash of its contents."""
         contents = self.get_contents()
-        return SCons.Util.MD5signature(contents)
+        return MD5signature(contents)
 
     def do_duplicate(self, src):
         pass
@@ -2260,7 +2246,7 @@ class RootDir(Dir):
     this directory.
     """
 
-    __slots__ = ('_lookupDict', )
+    __slots__ = ('_lookupDict', 'abspath', 'path')
 
     def __init__(self, drive, fs):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS.RootDir')
@@ -2302,13 +2288,17 @@ class RootDir(Dir):
         self._tpath = dirname
         self.dirname = dirname
 
+        # EntryProxy interferes with this class and turns drive paths on
+        # Windows such as "C:" into "C:\C:". Avoid this problem by setting
+        # commonly-accessed attributes directly.
+        self.abspath = self._abspath
+        self.path = self._path
+
         self._morph()
 
         self.duplicate = 0
-        self._lookupDict = {}
+        self._lookupDict = {'': self, '/': self}
 
-        self._lookupDict[''] = self
-        self._lookupDict['/'] = self
         self.root = self
         # The // entry is necessary because os.path.normpath()
         # preserves double slashes at the beginning of a path on Posix
@@ -2328,9 +2318,7 @@ class RootDir(Dir):
         self.repositories = []
         self.srcdir = None
 
-        self.entries = {}
-        self.entries['.'] = self
-        self.entries['..'] = self.dir
+        self.entries = {'.': self, '..': self.dir}
         self.cwd = self
         self.searched = 0
         self._sconsign = None
@@ -2501,14 +2489,14 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
 
     Attributes unique to FileBuildInfo:
         dependency_map : Caches file->csig mapping
-                    for all dependencies.  Currently this is only used when using
-                    MD5-timestamp decider.
-                    It's used to ensure that we copy the correct
-                    csig from previous build to be written to .sconsign when current build
-                    is done. Previously the matching of csig to file was strictly by order
-                    they appeared in bdepends, bsources, or bimplicit, and so a change in order
-                    or count of any of these could yield writing wrong csig, and then false positive
-                    rebuilds
+            for all dependencies.  Currently this is only used when using
+            MD5-timestamp decider.
+            It's used to ensure that we copy the correct csig from the
+            previous build to be written to .sconsign when current build
+            is done. Previously the matching of csig to file was strictly
+            by order they appeared in bdepends, bsources, or bimplicit,
+            and so a change in order or count of any of these could
+            yield writing wrong csig, and then false positive rebuilds
     """
     __slots__ = ['dependency_map', ]
     current_version_id = 2
@@ -2723,11 +2711,10 @@ class File(Base):
         Compute and return the MD5 hash for this file.
         """
         if not self.rexists():
-            return SCons.Util.MD5signature('')
+            return MD5signature('')
         fname = self.rfile().get_abspath()
         try:
-            cs = SCons.Util.MD5filesignature(fname,
-                chunksize=SCons.Node.FS.File.md5_chunksize*1024)
+            cs = MD5filesignature(fname, chunksize=File.md5_chunksize * 1024)
         except EnvironmentError as e:
             if not e.filename:
                 e.filename = fname
@@ -3028,7 +3015,7 @@ class File(Base):
 
          @see: built() and Node.release_target_info()
          """
-        if (self.released_target_info or SCons.Node.interactive):
+        if self.released_target_info or SCons.Node.interactive:
             return
 
         if not hasattr(self.attributes, 'keep_targetinfo'):
@@ -3210,7 +3197,7 @@ class File(Base):
         if csig is None:
 
             try:
-                if self.get_size() < SCons.Node.FS.File.md5_chunksize:
+                if self.get_size() < File.md5_chunksize:
                     contents = self.get_contents()
                 else:
                     csig = self.get_content_hash()
@@ -3312,7 +3299,7 @@ class File(Base):
 
         # For an "empty" binfo properties like bsources
         # do not exist: check this to avoid exception.
-        if (len(binfo.bsourcesigs) + len(binfo.bdependsigs) + \
+        if (len(binfo.bsourcesigs) + len(binfo.bdependsigs) +
             len(binfo.bimplicitsigs)) == 0:
             return {}
 
@@ -3580,7 +3567,7 @@ class File(Base):
                 node = repo_dir.file_on_disk(self.name)
 
             if node and node.exists() and \
-                    (isinstance(node, File) or isinstance(node, Entry) \
+                    (isinstance(node, File) or isinstance(node, Entry)
                      or not node.is_derived()):
                 retvals.append(node)
 
@@ -3611,8 +3598,7 @@ class File(Base):
 
         cachedir, cachefile = self.get_build_env().get_CacheDir().cachepath(self)
         if not self.exists() and cachefile and os.path.exists(cachefile):
-            self.cachedir_csig = SCons.Util.MD5filesignature(cachefile, \
-                SCons.Node.FS.File.md5_chunksize * 1024)
+            self.cachedir_csig = MD5filesignature(cachefile, File.md5_chunksize * 1024)
         else:
             self.cachedir_csig = self.get_csig()
         return self.cachedir_csig
@@ -3632,7 +3618,7 @@ class File(Base):
 
         executor = self.get_executor()
 
-        result = self.contentsig = SCons.Util.MD5signature(executor.get_contents())
+        result = self.contentsig = MD5signature(executor.get_contents())
         return result
 
     def get_cachedir_bsig(self):
@@ -3663,7 +3649,7 @@ class File(Base):
         sigs.append(self.get_internal_path())
 
         # Merge this all into a single signature
-        result = self.cachesig = SCons.Util.MD5collect(sigs)
+        result = self.cachesig = MD5collect(sigs)
         return result
 
 default_fs = None
@@ -3747,7 +3733,7 @@ class FileFinder(object):
         if verbose and not callable(verbose):
             if not SCons.Util.is_String(verbose):
                 verbose = "find_file"
-            _verbose = u'  %s: ' % verbose
+            _verbose = '  %s: ' % verbose
             verbose = lambda s: sys.stdout.write(_verbose + s)
 
         filedir, filename = os.path.split(filename)

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
 __COPYRIGHT__
 
@@ -77,9 +77,9 @@ for all Fortran versions.
 <cvar name="F90COMSTR">
 <summary>
 <para>
-The string displayed when a Fortran 90 source file
+If set, the string displayed when a Fortran 90 source file
 is compiled to an object file.
-If this is not set, then &cv-link-F90COM; or &cv-link-FORTRANCOM;
+If not set, then &cv-link-F90COM; or &cv-link-FORTRANCOM;
 (the command line) is displayed.
 </para>
 </summary>
@@ -217,9 +217,9 @@ for all Fortran versions.
 <cvar name="F90PPCOMSTR">
 <summary>
 <para>
-The string displayed when a Fortran 90 source file
+If set, the string displayed when a Fortran 90 source file
 is compiled after first running the file through the C preprocessor.
-If this is not set, then &cv-link-F90PPCOM; or &cv-link-FORTRANPPCOM;
+If not set, then &cv-link-F90PPCOM; or &cv-link-FORTRANPPCOM;
 (the command line) is displayed.
 </para>
 </summary>
@@ -255,9 +255,9 @@ for all Fortran versions.
 <cvar name="SHF90COMSTR">
 <summary>
 <para>
-The string displayed when a Fortran 90 source file
+If set, the string displayed when a Fortran 90 source file
 is compiled to a shared-library object file.
-If this is not set, then &cv-link-SHF90COM; or &cv-link-SHFORTRANCOM;
+If not set, then &cv-link-SHF90COM; or &cv-link-SHFORTRANCOM;
 (the command line) is displayed.
 </para>
 </summary>
@@ -298,10 +298,10 @@ for all Fortran versions.
 <cvar name="SHF90PPCOMSTR">
 <summary>
 <para>
-The string displayed when a Fortran 90 source file
+If set, the string displayed when a Fortran 90 source file
 is compiled to a shared-library object file
 after first running the file through the C preprocessor.
-If this is not set, then &cv-link-SHF90PPCOM; or &cv-link-SHFORTRANPPCOM;
+If not set, then &cv-link-SHF90PPCOM; or &cv-link-SHFORTRANPPCOM;
 (the command line) is displayed.
 </para>
 </summary>

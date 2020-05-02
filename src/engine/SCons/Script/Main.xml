@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
 __COPYRIGHT__
 
@@ -33,11 +33,11 @@ See its __doc__ string for a discussion of the format.
 This function adds a new command-line option to be recognized.
 The specified
 <varname>arguments</varname>
-are the same as supported by the standard Python
-<function>optparse.add_option</function>()
-method (with a few additional capabilities noted below);
+are the same as supported by the <function>add_option</function>
+method in the standard Python library module <emphasis>optparse</emphasis>,
+with a few additional capabilities noted below;
 see the documentation for
-<literal>optparse</literal>
+<emphasis>optparse</emphasis>
 for a thorough discussion of its option-processing capabities.
 </para>
 
@@ -78,12 +78,22 @@ the option will have a default value of
 </para>
 
 <para>
+Unlike regular <emphasis>optparse</emphasis>, option names
+added via <function>AddOption</function> must be matched
+exactly, the automatic matching of abbreviations on the
+command line for long options is not supported.
+To allow specific abbreviations,
+include them in the &f-AddOption; call.
+</para>
+
+<para>
 Once a new command-line option has been added with
 &f-AddOption;,
 the option value may be accessed using
 &f-GetOption;
 or
 <function>env.GetOption</function>().
+<!--
 The value may also be set, using
 &f-SetOption;
 or
@@ -95,6 +105,9 @@ Note, however, that a
 value specified on the command line will
 <emphasis>always</emphasis>
 override a value set by any SConscript file.
+-->
+&f-SetOption; is not currently supported for
+options added with &f-AddOption;.
 </para>
 
 <para>
@@ -133,6 +146,22 @@ AddOption('--prefix',
           help='installation prefix')
 env = Environment(PREFIX = GetOption('prefix'))
 </example_commands>
+
+<note>
+<para>
+While &AddOption; behaves like
+<function>add_option</function>,
+from the <emphasis>optparse</emphasis> module,
+the behavior of options added by &AddOption;
+which take arguments is underfined in
+<command>scons</command> if whitespace
+(rather than an <literal>=</literal> sign) is used as
+the separator on the command line when
+the option is invoked.
+Such usage should be avoided.
+</para>
+</note>
+
 </summary>
 </scons_function>
 
@@ -283,7 +312,7 @@ The options supported are:
 <term><literal>cache_debug</literal></term>
 <listitem>
 <para>
-which corresponds to --cache-debug;
+which corresponds to <option>--cache-debug</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -291,7 +320,7 @@ which corresponds to --cache-debug;
 <term><literal>cache_disable</literal></term>
 <listitem>
 <para>
-which corresponds to --cache-disable;
+which corresponds to <option>--cache-disable</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -299,7 +328,7 @@ which corresponds to --cache-disable;
 <term><literal>cache_force</literal></term>
 <listitem>
 <para>
-which corresponds to --cache-force;
+which corresponds to <option>--cache-force</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -307,7 +336,7 @@ which corresponds to --cache-force;
 <term><literal>cache_show</literal></term>
 <listitem>
 <para>
-which corresponds to --cache-show;
+which corresponds to <option>--cache-show</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -315,7 +344,8 @@ which corresponds to --cache-show;
 <term><literal>clean</literal></term>
 <listitem>
 <para>
-which corresponds to -c, --clean and --remove;
+which corresponds to <option>-c</option>, <option>--clean</option>
+and <option>--remove</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -323,7 +353,7 @@ which corresponds to -c, --clean and --remove;
 <term><literal>config</literal></term>
 <listitem>
 <para>
-which corresponds to --config;
+which corresponds to <option>--config</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -331,7 +361,7 @@ which corresponds to --config;
 <term><literal>directory</literal></term>
 <listitem>
 <para>
-which corresponds to -C and --directory;
+which corresponds to <option>-C</option> and <option>--directory</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -339,7 +369,7 @@ which corresponds to -C and --directory;
 <term><literal>diskcheck</literal></term>
 <listitem>
 <para>
-which corresponds to --diskcheck
+which corresponds to <option>--diskcheck</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -347,7 +377,7 @@ which corresponds to --diskcheck
 <term><literal>duplicate</literal></term>
 <listitem>
 <para>
-which corresponds to --duplicate;
+which corresponds to <option>--duplicate</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -355,7 +385,7 @@ which corresponds to --duplicate;
 <term><literal>file</literal></term>
 <listitem>
 <para>
-which corresponds to -f, --file, --makefile and --sconstruct;
+which corresponds to <option>-f</option>, <option>--file</option>, <option>--makefile</option> and <option>--sconstruct</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -363,7 +393,7 @@ which corresponds to -f, --file, --makefile and --sconstruct;
 <term><literal>help</literal></term>
 <listitem>
 <para>
-which corresponds to -h and --help;
+which corresponds to <option>-h</option> and <option>--help</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -371,7 +401,7 @@ which corresponds to -h and --help;
 <term><literal>ignore_errors</literal></term>
 <listitem>
 <para>
-which corresponds to --ignore-errors;
+which corresponds to <option>--ignore-errors</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -379,7 +409,7 @@ which corresponds to --ignore-errors;
 <term><literal>implicit_cache</literal></term>
 <listitem>
 <para>
-which corresponds to --implicit-cache;
+which corresponds to <option>--implicit-cache</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -387,7 +417,7 @@ which corresponds to --implicit-cache;
 <term><literal>implicit_deps_changed</literal></term>
 <listitem>
 <para>
-which corresponds to --implicit-deps-changed;
+which corresponds to <option>--implicit-deps-changed</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -395,7 +425,7 @@ which corresponds to --implicit-deps-changed;
 <term><literal>implicit_deps_unchanged</literal></term>
 <listitem>
 <para>
-which corresponds to --implicit-deps-unchanged;
+which corresponds to <option>--implicit-deps-unchanged</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -403,7 +433,7 @@ which corresponds to --implicit-deps-unchanged;
 <term><literal>interactive</literal></term>
 <listitem>
 <para>
-which corresponds to --interact and --interactive;
+which corresponds to <option>--interact</option> and <option>--interactive</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -411,7 +441,7 @@ which corresponds to --interact and --interactive;
 <term><literal>keep_going</literal></term>
 <listitem>
 <para>
-which corresponds to -k and --keep-going;
+which corresponds to <option>-k</option> and <option>--keep-going</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -419,7 +449,7 @@ which corresponds to -k and --keep-going;
 <term><literal>max_drift</literal></term>
 <listitem>
 <para>
-which corresponds to --max-drift;
+which corresponds to <option>--max-drift</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -427,7 +457,9 @@ which corresponds to --max-drift;
 <term><literal>no_exec</literal></term>
 <listitem>
 <para>
-which corresponds to -n, --no-exec, --just-print, --dry-run and --recon;
+which corresponds to <option>-n</option>,
+<option>--no-exec</option>, <option>--just-print</option>,
+<option>--dry-run</option> and <option>--recon</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -435,7 +467,7 @@ which corresponds to -n, --no-exec, --just-print, --dry-run and --recon;
 <term><literal>no_site_dir</literal></term>
 <listitem>
 <para>
-which corresponds to --no-site-dir;
+which corresponds to <option>--no-site-dir</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -443,7 +475,7 @@ which corresponds to --no-site-dir;
 <term><literal>num_jobs</literal></term>
 <listitem>
 <para>
-which corresponds to -j and --jobs;
+which corresponds to <option>-j</option> and <option>--jobs</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -451,7 +483,7 @@ which corresponds to -j and --jobs;
 <term><literal>profile_file</literal></term>
 <listitem>
 <para>
-which corresponds to --profile;
+which corresponds to <option>--profile</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -459,7 +491,7 @@ which corresponds to --profile;
 <term><literal>question</literal></term>
 <listitem>
 <para>
-which corresponds to -q and --question;
+which corresponds to <option>-q</option> and <option>--question</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -467,7 +499,7 @@ which corresponds to -q and --question;
 <term><literal>random</literal></term>
 <listitem>
 <para>
-which corresponds to --random;
+which corresponds to <option>--random</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -475,7 +507,7 @@ which corresponds to --random;
 <term><literal>repository</literal></term>
 <listitem>
 <para>
-which corresponds to -Y, --repository and --srcdir;
+which corresponds to <option>-Y</option>, <option>--repository</option> and <option>--srcdir</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -483,7 +515,7 @@ which corresponds to -Y, --repository and --srcdir;
 <term><literal>silent</literal></term>
 <listitem>
 <para>
-which corresponds to -s, --silent and --quiet;
+which corresponds to <option>-s</option>, <option>--silent</option> and <option>--quiet</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -491,7 +523,7 @@ which corresponds to -s, --silent and --quiet;
 <term><literal>site_dir</literal></term>
 <listitem>
 <para>
-which corresponds to --site-dir;
+which corresponds to <option>--site-dir</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -499,7 +531,7 @@ which corresponds to --site-dir;
 <term><literal>stack_size</literal></term>
 <listitem>
 <para>
-which corresponds to --stack-size;
+which corresponds to <option>--stack-size</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -507,7 +539,7 @@ which corresponds to --stack-size;
 <term><literal>taskmastertrace_file</literal></term>
 <listitem>
 <para>
-which corresponds to --taskmastertrace; and
+which corresponds to <option>--taskmastertrace</option>; and
 </para>
 </listitem>
 </varlistentry>
@@ -515,7 +547,7 @@ which corresponds to --taskmastertrace; and
 <term><literal>warn</literal></term>
 <listitem>
 <para>
-which corresponds to --warn and --warning.
+which corresponds to <option>--warn</option> and <option>--warning</option>.
 </para>
 </listitem>
 </varlistentry>
@@ -524,7 +556,7 @@ which corresponds to --warn and --warning.
 
 <para>
 See the documentation for the
-corresponding command line object for information about each specific
+corresponding command line option for information about each specific
 option.
 </para>
 </summary>
@@ -720,7 +752,8 @@ line options from a SConscript file. The options supported are:
 <term><literal>clean</literal></term>
 <listitem>
 <para>
-which corresponds to -c, --clean and --remove;
+which corresponds to <option>-c</option>, <option>--clean</option>
+and <option>--remove</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -728,7 +761,7 @@ which corresponds to -c, --clean and --remove;
 <term><literal>duplicate</literal></term>
 <listitem>
 <para>
-which corresponds to --duplicate;
+which corresponds to <option>--duplicate</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -736,7 +769,7 @@ which corresponds to --duplicate;
 <term><literal>help</literal></term>
 <listitem>
 <para>
-which corresponds to -h and --help;
+which corresponds to <option>-h</option> and <option>--help</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -744,7 +777,7 @@ which corresponds to -h and --help;
 <term><literal>implicit_cache</literal></term>
 <listitem>
 <para>
-which corresponds to --implicit-cache;
+which corresponds to <option>--implicit-cache</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -752,7 +785,7 @@ which corresponds to --implicit-cache;
 <term><literal>max_drift</literal></term>
 <listitem>
 <para>
-which corresponds to --max-drift;
+which corresponds to <option>--max-drift</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -760,7 +793,9 @@ which corresponds to --max-drift;
 <term><literal>no_exec</literal></term>
 <listitem>
 <para>
-which corresponds to -n, --no-exec, --just-print, --dry-run and --recon;
+which corresponds to <option>-n</option>, <option>--no-exec</option>,
+<option>--just-print</option>, <option>--dry-run</option>
+and <option>--recon</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -768,7 +803,7 @@ which corresponds to -n, --no-exec, --just-print, --dry-run and --recon;
 <term><literal>num_jobs</literal></term>
 <listitem>
 <para>
-which corresponds to -j and --jobs;
+which corresponds to <option>-j</option> and <option>--jobs</option>;
 </para>
 </listitem>
 </varlistentry>
@@ -776,7 +811,7 @@ which corresponds to -j and --jobs;
 <term><literal>random</literal></term>
 <listitem>
 <para>
-which corresponds to --random; and
+which corresponds to <option>--random</option>; and
 </para>
 </listitem>
 </varlistentry>
@@ -784,7 +819,7 @@ which corresponds to --random; and
 <term><literal>silent</literal></term>
 <listitem>
 <para>
-which corresponds to --silent.
+which corresponds to <option>--silent</option>.
 </para>
 </listitem>
 </varlistentry>
@@ -813,7 +848,7 @@ which corresponds to --stack-size.
 
 <para>
 See the documentation for the
-corresponding command line object for information about each specific
+corresponding command line option for information about each specific
 option.
 </para>
 

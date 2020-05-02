@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
 __COPYRIGHT__
 
@@ -32,9 +32,6 @@ based on the types of source files.
 </para>
 </summary>
 <sets>
-<item>SHLINK</item>
-<item>SHLINKFLAGS</item>
-<item>SHLINKCOM</item>
 <item>LINK</item>
 <item>LINKFLAGS</item>
 <item>LINKCOM</item>
@@ -42,6 +39,9 @@ based on the types of source files.
 <item>LIBDIRSUFFIX</item>
 <item>LIBLINKPREFIX</item>
 <item>LIBLINKSUFFIX</item>
+<item>SHLINK</item>
+<item>SHLINKFLAGS</item>
+<item>SHLINKCOM</item>
 <item>SHLIBSUFFIX</item>
 <item>__SHLIBVERSIONFLAGS</item>
 <item>LDMODULE</item>
@@ -55,8 +55,8 @@ based on the types of source files.
 <item>__LDMODULEVERSIONFLAGS</item>
 </sets>
 <uses>
-<item>SHLINKCOMSTR</item>
 <item>LINKCOMSTR</item>
+<item>SHLINKCOMSTR</item>
 <item>LDMODULECOMSTR</item>
 </uses>
 </tool>
@@ -184,8 +184,8 @@ On other systems, this is the same as &cv-link-SHLINK;.
 <cvar name="LDMODULECOMSTR">
 <summary>
 <para>
-The string displayed when building loadable modules.
-If this is not set, then &cv-link-LDMODULECOM; (the command line) is displayed.
+If set, the string displayed when building loadable modules.
+If not set, then &cv-link-LDMODULECOM; (the command line) is displayed.
 </para>
 </summary>
 </cvar>
@@ -243,6 +243,7 @@ set.
 <summary>
 <para>
 The linker.
+See also &cv-link-SHLINK; for linking shared objects.
 </para>
 </summary>
 </cvar>
@@ -251,6 +252,7 @@ The linker.
 <summary>
 <para>
 The command line used to link object files into an executable.
+See also &cv-link-SHLINKCOM; for linking shared objects.
 </para>
 </summary>
 </cvar>
@@ -258,9 +260,10 @@ The command line used to link object files into an executable.
 <cvar name="LINKCOMSTR">
 <summary>
 <para>
-The string displayed when object files
+If set, the string displayed when object files
 are linked into an executable.
-If this is not set, then &cv-link-LINKCOM; (the command line) is displayed.
+If not set, then &cv-link-LINKCOM; (the command line) is displayed.
+See also &cv-link-SHLINKCOMSTR;.  for linking shared objects.
 </para>
 
 <example_commands>
@@ -290,6 +293,7 @@ and
 &cv-link-_LIBDIRFLAGS;
 above,
 for the variable that expands to library search path options.
+See also &cv-link-SHLINKFLAGS;.  for linking shared objects.
 </para>
 </summary>
 </cvar>
@@ -317,6 +321,7 @@ set.
 <summary>
 <para>
 The linker for programs that use shared libraries.
+See also &cv-link-LINK; for linking static objects.
 </para>
 </summary>
 </cvar>
@@ -325,6 +330,7 @@ The linker for programs that use shared libraries.
 <summary>
 <para>
 The command line used to link programs using shared libraries.
+See also &cv-link-LINKCOM; for linking static objects.
 </para>
 </summary>
 </cvar>
@@ -334,6 +340,7 @@ The command line used to link programs using shared libraries.
 <para>
 The string displayed when programs using shared libraries are linked.
 If this is not set, then &cv-link-SHLINKCOM; (the command line) is displayed.
+See also &cv-link-LINKCOMSTR;  for linking static objects.
 </para>
 
 <example_commands>
@@ -363,6 +370,7 @@ and
 &cv-link-_LIBDIRFLAGS;
 above,
 for the variable that expands to library search path options.
+See also &cv-link-LINKFLAGS;  for linking static objects.
 </para>
 </summary>
 </cvar>

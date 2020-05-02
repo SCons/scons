@@ -51,10 +51,6 @@ try:
     import msvcrt
     import win32api
     import win32con
-
-    msvcrt.get_osfhandle
-    win32api.SetHandleInformation
-    win32con.HANDLE_FLAG_INHERIT
 except ImportError:
     parallel_msg = \
         "you do not seem to have the pywin32 extensions installed;\n" + \
@@ -65,30 +61,6 @@ except AttributeError:
         "\tparallel (-j) builds may not work reliably with open Python files."
 else:
     parallel_msg = None
-
-    _builtin_open = open
-
-    def _scons_open(*args, **kw):
-        fp = _builtin_open(*args, **kw)
-        win32api.SetHandleInformation(msvcrt.get_osfhandle(fp.fileno()),
-                                      win32con.HANDLE_FLAG_INHERIT,
-                                      0)
-        return fp
-
-    open = _scons_open
-
-    if sys.version_info.major == 2:
-        _builtin_file = file
-        class _scons_file(_builtin_file):
-            def __init__(self, *args, **kw):
-                _builtin_file.__init__(self, *args, **kw)
-                win32api.SetHandleInformation(msvcrt.get_osfhandle(self.fileno()),
-                 win32con.HANDLE_FLAG_INHERIT, 0)
-        file = _scons_file
-    else:
-        # No longer needed for python 3.4 and above. Files are opened non sharable
-        pass
-
 
 
 if False:
@@ -166,61 +138,68 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
     #   we redirect it into a temporary file tmpFileStdout
     #   (tmpFileStderr) and copy the contents of this file
     #   to stdout (stderr) given in the argument
+    # Note that because this will paste shell redirection syntax
+    # into the cmdline, we have to call a shell to run the command,
+    # even though that's a bit of a performance hit.
     if not sh:
         sys.stderr.write("scons: Could not find command interpreter, is it in your PATH?\n")
         return 127
-    else:
-        # one temporary file for stdout and stderr
-        tmpFileStdout = os.path.normpath(tempfile.mktemp())
-        tmpFileStderr = os.path.normpath(tempfile.mktemp())
 
-        # check if output is redirected
-        stdoutRedirected = 0
-        stderrRedirected = 0
-        for arg in args:
-            # are there more possibilities to redirect stdout ?
-            if arg.find( ">", 0, 1 ) != -1 or arg.find( "1>", 0, 2 ) != -1:
-                stdoutRedirected = 1
-            # are there more possibilities to redirect stderr ?
-            if arg.find( "2>", 0, 2 ) != -1:
-                stderrRedirected = 1
+    # one temporary file for stdout and stderr
+    tmpFileStdout, tmpFileStdoutName = tempfile.mkstemp(text=True)
+    os.close(tmpFileStdout)  # don't need open until the subproc is done
+    tmpFileStderr, tmpFileStderrName = tempfile.mkstemp(text=True)
+    os.close(tmpFileStderr)
 
-        # redirect output of non-redirected streams to our tempfiles
-        if stdoutRedirected == 0:
-            args.append(">" + str(tmpFileStdout))
-        if stderrRedirected == 0:
-            args.append("2>" + str(tmpFileStderr))
+    # check if output is redirected
+    stdoutRedirected = False
+    stderrRedirected = False
+    for arg in args:
+        # are there more possibilities to redirect stdout ?
+        if arg.find(">", 0, 1) != -1 or arg.find("1>", 0, 2) != -1:
+            stdoutRedirected = True
+        # are there more possibilities to redirect stderr ?
+        if arg.find("2>", 0, 2) != -1:
+            stderrRedirected = True
 
-        # actually do the spawn
+    # redirect output of non-redirected streams to our tempfiles
+    if not stdoutRedirected:
+        args.append(">" + tmpFileStdoutName)
+    if not stderrRedirected:
+        args.append("2>" + tmpFileStderrName)
+
+    # actually do the spawn
+    try:
+        args = [sh, '/C', escape(' '.join(args))]
+        ret = spawnve(os.P_WAIT, sh, args, env)
+    except OSError as e:
+        # catch any error
         try:
-            args = [sh, '/C', escape(' '.join(args))]
-            ret = spawnve(os.P_WAIT, sh, args, env)
-        except OSError as e:
-            # catch any error
-            try:
-                ret = exitvalmap[e.errno]
-            except KeyError:
-                sys.stderr.write("scons: unknown OSError exception code %d - %s: %s\n" % (e.errno, cmd, e.strerror))
-            if stderr is not None:
-                stderr.write("scons: %s: %s\n" % (cmd, e.strerror))
-        # copy child output from tempfiles to our streams
-        # and do clean up stuff
-        if stdout is not None and stdoutRedirected == 0:
-            try:
-                with open(tmpFileStdout, "r" ) as tmp:
-                    stdout.write(tmp.read())
-                os.remove(tmpFileStdout)
-            except (IOError, OSError):
-                pass
+            ret = exitvalmap[e.errno]
+        except KeyError:
+            sys.stderr.write("scons: unknown OSError exception code %d - %s: %s\n" % (e.errno, cmd, e.strerror))
+        if stderr is not None:
+            stderr.write("scons: %s: %s\n" % (cmd, e.strerror))
 
-        if stderr is not None and stderrRedirected == 0:
-            try:
-                with open(tmpFileStderr, "r" ) as tmp:
-                    stderr.write(tmp.read())
-                os.remove(tmpFileStderr)
-            except (IOError, OSError):
-                pass
-        return ret
+    # copy child output from tempfiles to our streams
+    # and do clean up stuff
+    if stdout is not None and not stdoutRedirected:
+        try:
+            with open(tmpFileStdoutName, "r") as tmpFileStdout:
+                stdout.write(tmpFileStdout.read())
+            os.remove(tmpFileStdoutName)
+        except (IOError, OSError):
+            pass
+
+    if stderr is not None and not stderrRedirected:
+        try:
+            with open(tmpFileStderrName, "r") as tmpFileStderr:
+                stderr.write(tmpFileStderr.read())
+            os.remove(tmpFileStderrName)
+        except (IOError, OSError):
+            pass
+
+    return ret
 
 
 def exec_spawn(l, env):
@@ -288,9 +267,6 @@ def get_system_root():
             except:
                 pass
 
-    # Ensure system root is a string and not unicode 
-    # (This only matters for py27 were unicode in env passed to POpen fails)
-    val = str(val)
     _system_root = val
     return val
 

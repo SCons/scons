@@ -32,64 +32,61 @@ import os, sys, time
 import TestRuntest
 
 # Needed to ensure we're using the correct year
-this_year=time.localtime()[0]
+this_year = time.localtime()[0]
 
-TestSCons      = 'testing/framework/TestSCons.py'             .split('/')
-README         = 'README.rst'                      .split('/')
-ReleaseConfig  = 'ReleaseConfig'                   .split('/')
-SConstruct     = 'SConstruct'                      .split('/')
-Announce       = 'src/Announce.txt'                .split('/')
-CHANGES        = 'src/CHANGES.txt'                 .split('/')
-RELEASE        = 'src/RELEASE.txt'                 .split('/')
-Main           = 'src/engine/SCons/Script/Main.py' .split('/')
-main_in        = 'doc/user/main.in'                .split('/')
-main_xml       = 'doc/user/main.xml'               .split('/')
+TestSCons = 'testing/framework/TestSCons.py'.split('/')
+README = 'README.rst'.split('/')
+ReleaseConfig = 'ReleaseConfig'.split('/')
+SConstruct = 'SConstruct'.split('/')
+Announce = 'src/Announce.txt'.split('/')
+CHANGES = 'src/CHANGES.txt'.split('/')
+RELEASE = 'src/RELEASE.txt'.split('/')
+Main = 'src/engine/SCons/Script/Main.py'.split('/')
+main_in = 'doc/user/main.in'.split('/')
+main_xml = 'doc/user/main.xml'.split('/')
 
 test = TestRuntest.TestRuntest(
-                    program = os.path.join('bin', 'update-release-info.py'),
-                    things_to_copy = ['bin']
-                    )
+    program=os.path.join('bin', 'update-release-info.py'),
+    things_to_copy=['bin']
+)
 if not os.path.exists(test.program):
     test.skip_test("update-release-info.py is not distributed in this package\n")
 
-test.run(arguments = 'bad', status = 1)
+expected_stderr = """usage: update-release-info.py [-h] [--verbose] [--timestamp TIMESTAMP]
+                              [{develop,release,post}]
+update-release-info.py: error: argument mode: invalid choice: 'bad' (choose from 'develop', 'release', 'post')
+"""
+test.run(arguments='bad', stderr=expected_stderr, status=2)
 
 # Strings to go in ReleaseConfig
 combo_strings = [
-# Index 0: version tuple with bad release level
-"""version_tuple = (2, 0, 0, 'bad', 0)
-""",
-# Index 1: Python version tuple
-"""unsupported_python_version = (2, 6)
-""",
-# Index 2: Python version tuple
-"""deprecated_python_version  = (2, 7)
-""",
-# Index 3: alpha version tuple
-"""version_tuple = (2, 0, 0, 'alpha', 0)
-""",
-# Index 4: final version tuple
-"""version_tuple = (2, 0, 0, 'final', 0)
-""",
-# Index 5: bad release date
-"""release_date = (%d, 12)
-"""%this_year,
-# Index 6: release date (hhhh, mm, dd)
-"""release_date = (%d, 12, 21)
-"""%this_year,
-# Index 7: release date (hhhh, mm, dd, hh, mm, ss)
-"""release_date = (%d, 12, 21, 12, 21, 12)
-"""%this_year,
+    # Index 0: version tuple with bad release level
+    """version_tuple = (2, 0, 0, 'bad', 0)\n""",
+    # Index 1: Python version tuple
+    """unsupported_python_version = (2, 6)\n""",
+    # Index 2: Python version tuple
+    """deprecated_python_version  = (2, 7)\n""",
+    # Index 3: alpha version tuple
+    """version_tuple = (2, 0, 0, 'dev', 0)\n""",
+    # Index 4: final version tuple
+    """version_tuple = (2, 0, 0, 'final', 0)\n""",
+    # Index 5: bad release date
+    """release_date = (%d, 12)\n""" % this_year,
+    # Index 6: release date (hhhh, mm, dd)
+    """release_date = (%d, 12, 21)\n""" % this_year,
+    # Index 7: release date (hhhh, mm, dd, hh, mm, ss)
+    """release_date = (%d, 12, 21, 12, 21, 12)\n""" % this_year,
 ]
 
 combo_error = \
-"""ERROR: Config file must contain at least version_tuple,
-\tunsupported_python_version, and deprecated_python_version.
-"""
+    """ERROR: Config file must contain at least version_tuple,
+\tunsupported_python_version, and deprecated_python_version.\n"""
+
 
 def combo_fail(*args, **kw):
     kw.setdefault('status', 1)
     combo_run(*args, **kw)
+
 
 def combo_run(*args, **kw):
     t = '\n'
@@ -101,6 +98,7 @@ def combo_run(*args, **kw):
     kw.setdefault('stdout', combo_error)
     test.run(**kw)
 
+
 combo_fail()
 combo_fail(0)
 combo_fail(1)
@@ -108,17 +106,17 @@ combo_fail(2)
 combo_fail(0, 1)
 combo_fail(0, 2)
 combo_fail(1, 2)
-combo_fail(0, 1, 2, stdout =
+combo_fail(0, 1, 2, stdout=
 """ERROR: `bad' is not a valid release type in version tuple;
-\tit must be one of alpha, beta, candidate, or final
-""")
+\tit must be one of dev, beta, candidate, or final\n""")
 
 # We won't need this entry again, so put in a default
 combo_strings[0] = combo_strings[1] + combo_strings[2] + combo_strings[3]
 
-combo_fail(0, 5, stdout =
+combo_fail(0, 5, stdout=
 """ERROR: Invalid release date (%d, 12)
-"""%this_year )
+""" % this_year)
+
 
 def pave(path):
     path = path[:-1]
@@ -127,9 +125,11 @@ def pave(path):
     pave(path)
     test.subdir(path)
 
+
 def pave_write(file, contents):
     pave(file)
     test.write(file, contents)
+
 
 pave_write(CHANGES, """
 RELEASE  It doesn't matter what goes here...
@@ -180,80 +180,81 @@ pave_write(main_xml, """
 TODO
 """)
 
+
 def updating_run(*args):
     stdout = ''
     for file in args:
         stdout += 'Updating %s...\n' % os.path.join(*file)
-    combo_run(0, 7, stdout = stdout)
+    combo_run(0, 7, stdout=stdout, arguments=['--timestamp=yyyymmdd'])
+
 
 updating_run(CHANGES, RELEASE, Announce, SConstruct, README, TestSCons, Main)
 
 test.must_match(CHANGES, """
-RELEASE 2.0.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
-""", mode = 'r')
+RELEASE 2.0.0.devyyyymmdd - NEW DATE WILL BE INSERTED HERE
+""", mode='r')
 
 test.must_match(RELEASE, """
-This file has a 2.0.0.alpha.yyyymmdd version string in it
-""", mode = 'r')
+This file has a 2.0.0.devyyyymmdd version string in it
+""", mode='r')
 
 test.must_match(Announce, """
-RELEASE 2.0.0.alpha.yyyymmdd - NEW DATE WILL BE INSERTED HERE
-""", mode = 'r')
+RELEASE 2.0.0.devyyyymmdd - NEW DATE WILL BE INSERTED HERE
+""", mode='r')
 
-
-years = '2001 - %d'%(this_year + 1)
+years = '2001 - %d' % (this_year + 1)
 test.must_match(SConstruct, """
 month_year = 'MONTH YEAR'
 copyright_years = %s
-default_version = '2.0.0.alpha.yyyymmdd'
-""" % repr(years), mode = 'r')
+default_version = '2.0.0.devyyyymmdd'
+""" % repr(years), mode='r')
 
 test.must_match(README, """
 These files are a part of 33.22.11:
-        scons-2.0.0.alpha.yyyymmdd.tar.gz
-        scons-2.0.0.alpha.yyyymmdd.win32.exe
-        scons-2.0.0.alpha.yyyymmdd.zip
-        scons-2.0.0.alpha.yyyymmdd.rpm
-        scons-2.0.0.alpha.yyyymmdd.deb
+        scons-2.0.0.devyyyymmdd.tar.gz
+        scons-2.0.0.devyyyymmdd.win32.exe
+        scons-2.0.0.devyyyymmdd.zip
+        scons-2.0.0.devyyyymmdd.rpm
+        scons-2.0.0.devyyyymmdd.deb
 
-        scons-2.0.0.alpha.yyyymmdd.suffix
-""", mode = 'r')
+        scons-2.0.0.devyyyymmdd.suffix
+""", mode='r')
 
 # should get Python floors from TestSCons module.
 test.must_match(TestSCons, """
 copyright_years = '%s'
-default_version = '2.0.0.alpha.yyyymmdd'
+default_version = '2.0.0.devyyyymmdd'
 python_version_unsupported = (2, 6)
 python_version_deprecated = (2, 7)
-"""%years, mode = 'r')
+""" % years, mode='r')
 
 # should get Python floors from TestSCons module.
 test.must_match(Main, """
 unsupported_python_version = (2, 6)
 deprecated_python_version = (2, 7)
-""", mode = 'r')
+""", mode='r')
 
-#TODO: Release option
-#TODO: ==============
-#TODO: 
-#TODO: Dates in beta/candidate flow
-#TODO: 
-#TODO: Dates in final flow
-#TODO: 
-#TODO: Post option
-#TODO: ===========
-#TODO: 
-#TODO: Dates in post flow
-#TODO: 
-#TODO: Update minor or micro version
-#TODO: 
-#TODO: ReleaseConfig - new version tuple
-#TODO: 
-#TODO: CHANGES - new section
-#TODO: 
-#TODO: RELEASE - new template
-#TODO: 
-#TODO: Announce - new section
+# TODO: Release option
+# TODO: ==============
+# TODO:
+# TODO: Dates in beta/candidate flow
+# TODO:
+# TODO: Dates in final flow
+# TODO:
+# TODO: Post option
+# TODO: ===========
+# TODO:
+# TODO: Dates in post flow
+# TODO:
+# TODO: Update minor or micro version
+# TODO:
+# TODO: ReleaseConfig - new version tuple
+# TODO:
+# TODO: CHANGES - new section
+# TODO:
+# TODO: RELEASE - new template
+# TODO:
+# TODO: Announce - new section
 
 test.pass_test()
 

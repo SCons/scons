@@ -105,6 +105,7 @@ import pickle
 import re
 import sys
 import subprocess
+from subprocess import DEVNULL
 import itertools
 import inspect
 from collections import OrderedDict
@@ -628,17 +629,9 @@ class _ActionAction(ActionBase):
         """
         In python 3, and in some of our tests, sys.stdout is
         a String io object, and it takes unicode strings only
-        In other cases it's a regular Python 2.x file object
-        which takes strings (bytes), and if you pass those a
-        unicode object they try to decode with 'ascii' codec
-        which fails if the cmd line has any hi-bit-set chars.
-        This code assumes s is a regular string, but should
-        work if it's unicode too.
+        This code assumes s is a regular string.
         """
-        try:
-            sys.stdout.write(s + u"\n")
-        except UnicodeDecodeError:
-            sys.stdout.write(s + "\n")
+        sys.stdout.write(s + "\n")
 
     def __call__(self, target, source, env,
                                exitstatfunc=_null,
@@ -677,7 +670,7 @@ class _ActionAction(ActionBase):
                 source = executor.get_all_sources()
             t = ' and '.join(map(str, target))
             l = '\n  '.join(self.presub_lines(env))
-            out = u"Building %s with action:\n  %s\n" % (t, l)
+            out = "Building %s with action:\n  %s\n" % (t, l)
             sys.stdout.write(out)
         cmd = None
         if show and self.strfunction:
@@ -759,30 +752,20 @@ def get_default_ENV(env):
         return default_ENV
 
 
-def _subproc(scons_env, cmd, error = 'ignore', **kw):
-    """Do common setup for a subprocess.Popen() call
+def _subproc(scons_env, cmd, error='ignore', **kw):
+    """Wrapper for subprocess which pulls from construction env.
 
-    This function is still in draft mode.  We're going to need something like
-    it in the long run as more and more places use subprocess, but I'm sure
-    it'll have to be tweaked to get the full desired functionality.
-    one special arg (so far?), 'error', to tell what to do with exceptions.
+    Use for calls to subprocess which need to interpolate values from
+    an SCons construction environment into the environment passed to
+    subprocess.  Adds an an error-handling argument.  Adds ability
+    to specify std{in,out,err} with "'devnull'" tag.
     """
-    # allow std{in,out,err} to be "'devnull'".  This is like
-    # subprocess.DEVNULL, which does not exist for Py2. Use the
-    # subprocess one if possible.
-    # Clean this up when Py2 support is dropped
-    try:
-        from subprocess import DEVNULL
-    except ImportError:
-        DEVNULL = None
-
+    # TODO: just uses subprocess.DEVNULL now, we can drop the "devnull"
+    # string now - it is a holdover from Py2, which didn't have DEVNULL.
     for stream in 'stdin', 'stdout', 'stderr':
         io = kw.get(stream)
         if is_String(io) and io == 'devnull':
-            if DEVNULL:
-                kw[stream] = DEVNULL
-            else:
-                kw[stream] = open(os.devnull, "r+")
+            kw[stream] = DEVNULL
 
     # Figure out what shell environment to use
     ENV = kw.get('env', None)
@@ -976,11 +959,33 @@ class CommandAction(_ActionAction):
             return env.subst_target_source(cmd, SUBST_SIG, target, source)
 
     def get_implicit_deps(self, target, source, env, executor=None):
+        """Return the implicit dependencies of this action's command line."""
         icd = env.get('IMPLICIT_COMMAND_DEPENDENCIES', True)
         if is_String(icd) and icd[:1] == '$':
             icd = env.subst(icd)
-        if not icd or icd in ('0', 'None'):
+
+        if not icd or str(icd).lower in ('0', 'none', 'false', 'no', 'off'):
             return []
+
+        try:
+            icd_int = int(icd)
+        except ValueError:
+            icd_int = None
+
+        if (icd_int and icd_int > 1) or icd == 'all':
+            # An integer value greater than 1 specifies the number of entries
+            # to scan. "all" means to scan all.
+            return self._get_implicit_deps_heavyweight(target, source, env, executor, icd_int)
+        else:
+            # Everything else (usually 1 or True) means that we want
+            # lightweight dependency scanning.
+            return self._get_implicit_deps_lightweight(target, source, env, executor)
+
+    def _get_implicit_deps_lightweight(self, target, source, env, executor):
+        """
+        Lightweight dependency scanning involves only scanning the first entry
+        in an action string, even if it contains &&.
+        """
         from SCons.Subst import SUBST_SIG
         if executor:
             cmd_list = env.subst_list(self.cmd_list, SUBST_SIG, executor=executor)
@@ -997,6 +1002,65 @@ class CommandAction(_ActionAction):
                 if d:
                     res.append(env.fs.File(d))
         return res
+
+    def _get_implicit_deps_heavyweight(self, target, source, env, executor,
+                                       icd_int):
+        """
+        Heavyweight dependency scanning involves scanning more than just the
+        first entry in an action string. The exact behavior depends on the
+        value of icd_int. Only files are taken as implicit dependencies;
+        directories are ignored.
+
+        If icd_int is an integer value, it specifies the number of entries to
+        scan for implicit dependencies. Action strings are also scanned after
+        a &&. So for example, if icd_int=2 and the action string is
+        "cd <some_dir> && $PYTHON $SCRIPT_PATH <another_path>", the implicit
+        dependencies would be the path to the python binary and the path to the
+        script.
+
+        If icd_int is None, all entries are scanned for implicit dependencies.
+        """
+
+        # Avoid circular and duplicate dependencies by not providing source,
+        # target, or executor to subst_list. This causes references to
+        # $SOURCES, $TARGETS, and all related variables to disappear.
+        from SCons.Subst import SUBST_SIG
+        cmd_list = env.subst_list(self.cmd_list, SUBST_SIG, conv=lambda x: x)
+        res = []
+
+        for cmd_line in cmd_list:
+            if cmd_line:
+                entry_count = 0
+                for entry in cmd_line:
+                    d = str(entry)
+                    if ((icd_int is None or entry_count < icd_int) and
+                            not d.startswith(('&', '-', '/') if os.name == 'nt'
+                                             else ('&', '-'))):
+                        m = strip_quotes.match(d)
+                        if m:
+                            d = m.group(1)
+
+                        if d:
+                            # Resolve the first entry in the command string using
+                            # PATH, which env.WhereIs() looks in.
+                            # For now, only match files, not directories.
+                            p = os.path.abspath(d) if os.path.isfile(d) else None
+                            if not p and entry_count == 0:
+                                p = env.WhereIs(d)
+
+                            if p:
+                                res.append(env.fs.File(p))
+
+                        entry_count = entry_count + 1
+                    else:
+                        entry_count = 0 if d == '&&' else entry_count + 1
+
+        # Despite not providing source and target to env.subst() above, we
+        # can still end up with sources in this list. For example, files in
+        # LIBS will still resolve in env.subst(). This won't result in
+        # circular dependencies, but it causes problems with cache signatures
+        # changing between full and incremental builds.
+        return [r for r in res if r not in target and r not in source]
 
 
 class CommandGeneratorAction(ActionBase):

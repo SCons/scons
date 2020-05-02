@@ -29,9 +29,6 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-from __future__ import print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
@@ -70,6 +67,7 @@ def xmlify(s):
     s = s.replace('\n', '&#x0A;')
     return s
 
+
 def processIncludes(includes, env, target, source):
     """
     Process a CPPPATH list in includes, given the env, target and source.
@@ -80,7 +78,19 @@ def processIncludes(includes, env, target, source):
             SCons.PathList.PathList(includes).subst_path(env, target, source)]
 
 
+def processFlags(flags, env):
+    """
+    If /std:c++XX is in flags then we need to ensure /Zc:__cplusplus is in
+    flags to tell intellisense to respect our specified standard
+    """
+    if any(f.startswith('/std:c++') for f in flags) and \
+       not any(f == '/Zc:__cplusplus' for f in flags):
+        flags.append('/Zc:__cplusplus')
+    return [env.subst(f) for f in flags]
+
+
 external_makefile_guid = '{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}'
+
 
 def _generateGUID(slnfile, name):
     """This generates a dummy GUID for the sln file to use.  It is
@@ -97,7 +107,9 @@ def _generateGUID(slnfile, name):
     solution = "{" + solution[:8] + "-" + solution[8:12] + "-" + solution[12:16] + "-" + solution[16:20] + "-" + solution[20:32] + "}"
     return solution
 
+
 version_re = re.compile(r'(\d+\.\d+)(.*)')
+
 
 def msvs_parse_version(s):
     """
@@ -172,9 +184,9 @@ def makeHierarchy(sources):
     return hierarchy
 
 class _UserGenerator(object):
-    '''
+    """
     Base class for .dsp.user file generator
-    '''
+    """
     # Default instance values.
     # Ok ... a bit defensive, but it does not seem reasonable to crash the
     # build for a workspace user file. :-)
@@ -220,7 +232,7 @@ class _UserGenerator(object):
             for var, src in dbg_settings.items():
                 # Update only expected keys
                 trg = {}
-                for key in [k for k in list(self.usrdebg.keys()) if k in src]:
+                for key in [k for k in self.usrdebg.keys() if k in src]:
                     trg[key] = str(src[key])
                 self.configs[var].debug = trg
 
@@ -511,6 +523,10 @@ class _DSPGenerator(object):
             cpppaths = GetKeyFromEnv(env, 'cpppaths', variants)
         else:
             cpppaths = [env.get('CPPPATH', [])] * len(variants)
+        if 'cppflags' in env:
+            cppflags = GetKeyFromEnv(env, 'cppflags', variants)
+        else:
+            cppflags = [env.get('CCFLAGS', []) + env.get('CXXFLAGS', []) + env.get('CPPFLAGS', [])] * len(variants)
 
         self.env = env
 
@@ -544,7 +560,7 @@ class _DSPGenerator(object):
             if t[1] in self.env:
                 if SCons.Util.is_List(self.env[t[1]]):
                     for i in self.env[t[1]]:
-                        if not i in self.sources[t[0]]:
+                        if i not in self.sources[t[0]]:
                             self.sources[t[0]].append(i)
                 else:
                     if not self.env[t[1]] in self.sources[t[0]]:
@@ -553,12 +569,13 @@ class _DSPGenerator(object):
         for n in sourcenames:
             self.sources[n].sort(key=lambda a: a.lower())
 
-        def AddConfig(self, variant, buildtarget, outdir, runfile, cmdargs, cppdefines, cpppaths, dspfile=dspfile, env=env):
+        def AddConfig(self, variant, buildtarget, outdir, runfile, cmdargs, cppdefines, cpppaths, cppflags, dspfile=dspfile, env=env):
             config = Config()
             config.buildtarget = buildtarget
             config.outdir = outdir
             config.cmdargs = cmdargs
             config.cppdefines = cppdefines
+            config.cppflags = cppflags
             config.runfile = runfile
 
             # Dir objects can't be pickled, so we need an absolute path here.
@@ -576,13 +593,12 @@ class _DSPGenerator(object):
             print("Adding '" + self.name + ' - ' + config.variant + '|' + config.platform + "' to '" + str(dspfile) + "'")
 
         for i in range(len(variants)):
-            AddConfig(self, variants[i], buildtarget[i], outdir[i], runfile[i], cmdargs[i], cppdefines[i], cpppaths[i])
+            AddConfig(self, variants[i], buildtarget[i], outdir[i], runfile[i], cmdargs[i], cppdefines[i], cpppaths[i], cppflags[i])
 
-        self.platforms = []
-        for key in list(self.configs.keys()):
-            platform = self.configs[key].platform
-            if platform not in self.platforms:
-                self.platforms.append(platform)
+        seen = set()
+        self.platforms = [p.platform for p in self.configs.values()
+                          if not (p.platform in seen or seen.add(p.platform))]
+
 
     def Build(self):
         pass
@@ -702,7 +718,7 @@ class _GenerateV6DSP(_DSPGenerator):
                       'Resource Files': 'r|rc|ico|cur|bmp|dlg|rc2|rct|bin|cnt|rtf|gif|jpg|jpeg|jpe',
                       'Other Files': ''}
 
-        for kind in sorted(list(categories.keys()), key=lambda a: a.lower()):
+        for kind in sorted(categories.keys(), key=lambda a: a.lower()):
             if not self.sources[kind]:
                 continue # skip empty groups
 
@@ -980,7 +996,7 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
             if SCons.Util.is_Dict(value):
                 self.file.write('\t\t\t<Filter\n'
                                 '\t\t\t\tName="%s"\n'
-                                '\t\t\t\tFilter="">\n' % (key))
+                                '\t\t\t\tFilter="">\n' % key)
                 self.printSources(value, commonprefix)
                 self.file.write('\t\t\t</Filter>\n')
 
@@ -992,7 +1008,7 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
                 file = os.path.normpath(file)
                 self.file.write('\t\t\t<File\n'
                                 '\t\t\t\tRelativePath="%s">\n'
-                                '\t\t\t</File>\n' % (file))
+                                '\t\t\t</File>\n' % file)
 
     def PrintSourceFiles(self):
         categories = {'Source Files': 'cpp;c;cxx;l;y;def;odl;idl;hpj;bat',
@@ -1003,7 +1019,7 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
 
         self.file.write('\t<Files>\n')
 
-        cats = sorted([k for k in list(categories.keys()) if self.sources[k]],
+        cats = sorted([k for k in categories.keys() if self.sources[k]],
                       key=lambda a: a.lower())
         for kind in cats:
             if len(cats) > 1:
@@ -1148,6 +1164,7 @@ V10DSPCommandLine = """\
 \t\t<NMakeForcedIncludes Condition="'$(Configuration)|$(Platform)'=='%(variant)s|%(platform)s'">$(NMakeForcedIncludes)</NMakeForcedIncludes>
 \t\t<NMakeAssemblySearchPath Condition="'$(Configuration)|$(Platform)'=='%(variant)s|%(platform)s'">$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>
 \t\t<NMakeForcedUsingAssemblies Condition="'$(Configuration)|$(Platform)'=='%(variant)s|%(platform)s'">$(NMakeForcedUsingAssemblies)</NMakeForcedUsingAssemblies>
+\t\t<AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='%(variant)s|%(platform)s'">%(additionaloptions)s</AdditionalOptions>
 """
 
 V15DSPHeader = """\
@@ -1247,6 +1264,7 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
             cmdargs = self.configs[kind].cmdargs
             cpppaths = self.configs[kind].cpppaths
             cppdefines = self.configs[kind].cppdefines
+            cppflags = self.configs[kind].cppflags
 
             env_has_buildtarget = 'MSVSBUILDTARGET' in self.env
             if not env_has_buildtarget:
@@ -1266,6 +1284,7 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
             # assumes they don't.
             preprocdefs = xmlify(';'.join(processDefines(cppdefines)))
             includepath = xmlify(';'.join(processIncludes(cpppaths, self.env, None, None)))
+            additionaloptions = xmlify(' '.join(processFlags(cppflags, self.env)))
 
             if not env_has_buildtarget:
                 del self.env['MSVSBUILDTARGET']
@@ -1348,7 +1367,7 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
                       'Resource Files': 'r;rc;ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe',
                       'Other Files': ''}
 
-        cats = sorted([k for k in list(categories.keys()) if self.sources[k]],
+        cats = sorted([k for k in categories.keys() if self.sources[k]],
                       key = lambda a: a.lower())
 
         # print vcxproj.filters file first
@@ -1505,11 +1524,9 @@ class _GenerateV7DSW(_DSWGenerator):
             for variant in env['variant']:
                 AddConfig(self, variant)
 
-        self.platforms = []
-        for key in list(self.configs.keys()):
-            platform = self.configs[key].platform
-            if platform not in self.platforms:
-                self.platforms.append(platform)
+        seen = set()
+        self.platforms = [p.platform for p in self.configs.values()
+                          if not (p.platform in seen or seen.add(p.platform))]
 
         def GenerateProjectFilesInfo(self):
             for dspfile in self.dspfiles:
@@ -2047,17 +2064,17 @@ def generate(env):
         (version_num, suite) = (7.0, None) # guess at a default
     if 'MSVS' not in env:
         env['MSVS'] = {}
-    if (version_num < 7.0):
+    if version_num < 7.0:
         env['MSVS']['PROJECTSUFFIX']  = '.dsp'
         env['MSVS']['SOLUTIONSUFFIX'] = '.dsw'
-    elif (version_num < 10.0):
+    elif version_num < 10.0:
         env['MSVS']['PROJECTSUFFIX']  = '.vcproj'
         env['MSVS']['SOLUTIONSUFFIX'] = '.sln'
     else:
         env['MSVS']['PROJECTSUFFIX']  = '.vcxproj'
         env['MSVS']['SOLUTIONSUFFIX'] = '.sln'
 
-    if (version_num >= 10.0):
+    if version_num >= 10.0:
         env['MSVSENCODING'] = 'utf-8'
     else:
         env['MSVSENCODING'] = 'Windows-1252'

@@ -65,12 +65,13 @@ test.must_match('foo.out', '2\nfoo.in\n')
 test.up_to_date(arguments = '.')
 
 test.write('SConstruct', """
-import os
+import subprocess
 def func(env, target, source):
     cmd = r'%(_python_)s build.py %%s 3 %%s' %% (' '.join(map(str, target)),
                                        ' '.join(map(str, source)))
     print(cmd)
-    return os.system(cmd)
+    cp = subprocess.run(cmd, shell=True)
+    return cp.returncode
 B = Builder(action = func)
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
@@ -83,7 +84,7 @@ test.must_match('foo.out', '3\nfoo.in\n')
 test.up_to_date(arguments = '.')
 
 test.write('SConstruct', """
-import os
+import subprocess
 assert 'string' not in globals()
 class bld(object):
     def __init__(self):
@@ -91,7 +92,8 @@ class bld(object):
     def __call__(self, env, target, source):
         cmd = self.get_contents(env, target, source)
         print(cmd)
-        return os.system(cmd)
+        cp = subprocess.run(cmd, shell=True)
+        return cp.returncode
     def get_contents(self, env, target, source):
         return self.cmd %% (' '.join(map(str, target)),
                             ' '.join(map(str, source)))

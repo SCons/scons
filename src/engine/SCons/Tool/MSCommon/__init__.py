@@ -42,7 +42,8 @@ from SCons.Tool.MSCommon.sdk import mssdk_exists, \
 from SCons.Tool.MSCommon.vc import msvc_exists, \
                                    msvc_setup_env, \
                                    msvc_setup_env_once, \
-                                   msvc_version_to_maj_min
+                                   msvc_version_to_maj_min, \
+                                   msvc_find_vswhere
 
 from SCons.Tool.MSCommon.vs import get_default_version, \
                                    get_vs_by_version, \

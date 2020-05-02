@@ -288,8 +288,8 @@ def set_missing_sconscript_error(flag=1):
     _no_missing_sconscript = flag
     return old
 
-#
-def Variables(files=[], args=ARGUMENTS):
+
+def Variables(files=None, args=ARGUMENTS):
     return SCons.Variables.Variables(files, args)
 
 
@@ -314,7 +314,6 @@ GlobalDefaultEnvironmentFunctions = [
     'AddPreAction',
     'Alias',
     'AlwaysBuild',
-    'BuildDir',
     'CacheDir',
     'Clean',
     #The Command() method is handled separately, below.
@@ -345,11 +344,8 @@ GlobalDefaultEnvironmentFunctions = [
     'Requires',
     'SConsignFile',
     'SideEffect',
-    'SourceCode',
-    'SourceSignatures',
     'Split',
     'Tag',
-    'TargetSignatures',
     'Value',
     'VariantDir',
 ]

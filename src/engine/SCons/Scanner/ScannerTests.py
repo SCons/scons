@@ -236,7 +236,7 @@ class BaseTestCase(unittest.TestCase):
     def test___cmp__(self):
         """Test the Scanner.Base class __cmp__() method"""
         s = SCons.Scanner.Base(self.func, "Cmp")
-        assert s != None
+        assert s is not None
 
     def test_hash(self):
         """Test the Scanner.Base class __hash__() method"""
@@ -578,8 +578,6 @@ class ClassicTestCase(unittest.TestCase):
                         "recursive = 1 didn't return all nodes: %s" % n)
 
 
-        
-
 class ClassicCPPTestCase(unittest.TestCase):
     def test_find_include(self):
         """Test the Scanner.ClassicCPP find_include() method"""
@@ -601,7 +599,7 @@ class ClassicCPPTestCase(unittest.TestCase):
             assert n == 'path/bbb', n
             assert i == 'bbb', i
 
-            n, i = s.find_include(('<', u'ccc'), 'foo', ('path',))
+            n, i = s.find_include(('<', 'ccc'), 'foo', ('path',))
             assert n == 'path/ccc', n
             assert i == 'ccc', i
 

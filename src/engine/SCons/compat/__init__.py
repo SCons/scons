@@ -78,66 +78,14 @@ def rename_module(new, old):
         return False
 
 
-# TODO: FIXME
-# In 3.x, 'pickle' automatically loads the fast version if available.
-rename_module('pickle', 'cPickle')
-
-# Default pickle protocol. Higher protocols are more efficient/featureful
-# but incompatible with older Python versions. On Python 2.7 this is 2.
+# Default pickle protocol. Higher protocols are more efficient/featured
+# but incompatible with older Python versions.
 # Negative numbers choose the highest available protocol.
 import pickle
 
 # Was pickle.HIGHEST_PROTOCOL
 # Changed to 2 so py3.5+'s pickle will be compatible with py2.7.
 PICKLE_PROTOCOL = pickle.HIGHEST_PROTOCOL
-
-# TODO: FIXME
-# In 3.x, 'profile' automatically loads the fast version if available.
-rename_module('profile', 'cProfile')
-
-# TODO: FIXME
-# Before Python 3.0, the 'queue' module was named 'Queue'.
-rename_module('queue', 'Queue')
-
-# TODO: FIXME
-# Before Python 3.0, the 'winreg' module was named '_winreg'
-rename_module('winreg', '_winreg')
-
-# Python 3 moved builtin intern() to sys package
-# To make porting easier, make intern always live
-# in sys package (for python 2.7.x)
-try:
-    sys.intern
-except AttributeError:
-    # We must be using python 2.7.x so monkey patch
-    # intern into the sys package
-    sys.intern = intern
-
-# UserDict, UserList, UserString are in # collections for 3.x,
-# but standalone in 2.7.x. Monkey-patch into collections for 2.7.
-import collections
-
-try:
-    collections.UserDict
-except AttributeError:
-    from UserDict import UserDict as _UserDict
-    collections.UserDict = _UserDict
-    del _UserDict
-
-try:
-    collections.UserList
-except AttributeError:
-    from UserList import UserList as _UserList
-    collections.UserList = _UserList
-    del _UserList
-
-try:
-    collections.UserString
-except AttributeError:
-    from UserString import UserString as _UserString
-    collections.UserString = _UserString
-    del _UserString
-
 
 import shutil
 try:

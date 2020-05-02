@@ -160,7 +160,7 @@ CacheDir('/usr/local/build_cache')
 
     <para>
 
-    If, however, you use the <literal>--cache-show</literal> option,
+    If, however, you use the <option>--cache-show</option> option,
     &SCons; will print the command line that it
     <emphasis>would</emphasis> have executed
     to build the file,
@@ -277,7 +277,7 @@ Retrieved `hello' from cache
     <para>
 
     In these cases, you can specify
-    the <literal>--cache-disable</literal>
+    the <option>--cache-disable</option>
     command-line option to tell &SCons;
     to not retrieve already-built files from the
     shared cache directory:
@@ -318,7 +318,7 @@ Retrieved `hello' from cache
     <para>
 
     In this case, you can use the
-    the <literal>--cache-force</literal> option
+    the <option>--cache-force</option> option
     to tell &SCons; to put all derived files in the cache,
     even if the files already exist in your local tree
     from having been built by a previous invocation:
@@ -336,12 +336,12 @@ Retrieved `hello' from cache
     <para>
 
     Notice how the above sample run
-    demonstrates that the <literal>--cache-disable</literal>
+    demonstrates that the <option>--cache-disable</option>
     option avoids putting the built
     <filename>hello.o</filename>
     and
     <filename>hello</filename> files in the cache,
-    but after using the <literal>--cache-force</literal> option,
+    but after using the <option>--cache-force</option> option,
     the files have been put in the cache
     for the next invocation to retrieve.
 
@@ -350,7 +350,7 @@ Retrieved `hello' from cache
   </section>
 
   <section>
-  <title>Minimizing Cache Contention:  the <literal>--random</literal> Option</title>
+  <title>Minimizing Cache Contention:  the <option>--random</option> Option</title>
 
     <para>
 
@@ -410,7 +410,7 @@ Program('prog',
     <para>
 
     To alleviate such contention for the cache,
-    you can use the <literal>--random</literal> command-line option
+    you can use the <option>--random</option> command-line option
     to tell &SCons; to build dependencies
     in a random order:
 
@@ -442,7 +442,7 @@ to return things in the original sorted order.
 
     <para>
 
-    Multiple builds using the <literal>--random</literal> option
+    Multiple builds using the <option>--random</option> option
     will usually build their dependencies in different,
     random orders,
     which minimizes the chances for a lot of
@@ -458,7 +458,7 @@ to return things in the original sorted order.
     <para>
 
     Note, of course,
-    the <literal>--random</literal> option
+    the <option>--random</option> option
     will cause the output that &SCons; prints
     to be inconsistent from invocation to invocation,
     which may be an issue when
@@ -470,7 +470,7 @@ to return things in the original sorted order.
 
     If you want to make sure dependencies will be built
     in a random order without having to specify
-    the <literal>--random</literal> on very command line,
+    the <option>--random</option> on very command line,
     you can use the &SetOption; function to
     set the <literal>random</literal> option
     within any &SConscript; file:

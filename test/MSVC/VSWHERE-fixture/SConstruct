@@ -1,0 +1,22 @@
+import os
+import os.path
+
+from SCons.Tool.MSCommon.vc import VSWHERE_PATHS
+
+# Dump out expected paths
+for vw_path in VSWHERE_PATHS:
+    print("VSWHERE_PATH=%s"%vw_path)
+
+
+# Allow normal detection logic to find vswhere.exe
+env1=Environment()
+print("VSWHERE-detect=%s" % env1['VSWHERE'])
+
+# Copy found vswhere.exe to current dir
+v_local = os.path.join(os.getcwd(), 'vswhere.exe')
+Execute(Copy(os.path.join(os.getcwd(), 'vswhere.exe'), env1['VSWHERE']))
+
+# With VSWHERE set to copied vswhere.exe (see above), find vswhere.exe
+env=Environment(VSWHERE=v_local)
+print("VSWHERE-env=%s" % env['VSWHERE'])
+

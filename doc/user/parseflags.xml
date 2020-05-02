@@ -82,11 +82,11 @@
    <file name="SConstruct" printme="1">
 env = Environment()
 d = env.ParseFlags("-I/opt/include -L/opt/lib -lfoo")
-for k,v in sorted(d.items()):
+for k, v in sorted(d.items()):
     if v:
-        print k, v
+        print(k, v)
 env.MergeFlags(d)
-env.Program('f1.c')
+env.Program("f1.c")
    </file>
    <file name="f1.c">
 int main() { return 0; }
@@ -121,11 +121,11 @@ int main() { return 0; }
    <file name="SConstruct" printme="1">
 env = Environment()
 d = env.ParseFlags("-whatever")
-for k,v in sorted(d.items()):
+for k, v in sorted(d.items()):
     if v:
-        print k, v
+        print(k, v)
 env.MergeFlags(d)
-env.Program('f1.c')
+env.Program("f1.c")
    </file>
    <file name="f1.c">
  int main() { return 0; }
@@ -147,11 +147,11 @@ env.Program('f1.c')
    <file name="SConstruct" printme="1">
 env = Environment()
 d = env.ParseFlags(["-I/opt/include", ["-L/opt/lib", "-lfoo"]])
-for k,v in sorted(d.items()):
+for k, v in sorted(d.items()):
     if v:
-        print k, v
+        print(k, v)
 env.MergeFlags(d)
-env.Program('f1.c')
+env.Program("f1.c")
    </file>
    <file name="f1.c">
 int main() { return 0; }
@@ -174,11 +174,11 @@ int main() { return 0; }
    <file name="SConstruct" printme="1">
 env = Environment()
 d = env.ParseFlags(["!echo -I/opt/include", "!echo -L/opt/lib", "-lfoo"])
-for k,v in sorted(d.items()):
+for k, v in sorted(d.items()):
     if v:
-        print k, v
+        print(k, v)
 env.MergeFlags(d)
-env.Program('f1.c')
+env.Program("f1.c")
    </file>
    <file name="f1.c">
 int main() { return 0; }

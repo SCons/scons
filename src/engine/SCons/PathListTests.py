@@ -108,7 +108,7 @@ class subst_pathTestCase(unittest.TestCase):
 
         self.env.subst = lambda s, target, source, conv: 'NOT THIS STRING'
 
-        pl = SCons.PathList.PathList(('x'))
+        pl = SCons.PathList.PathList(('x',))
 
         result = pl.subst_path(self.env, 'y', 'z')
 
@@ -185,7 +185,7 @@ class PathListTestCase(unittest.TestCase):
 
         x3 = SCons.PathList.PathList('x')
 
-        assert not x1 is x3, (x1, x3)
+        assert x1 is not x3, (x1, x3)
 
 
 if __name__ == "__main__":

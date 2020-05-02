@@ -488,7 +488,8 @@ after the SCons template for the file has been written.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </listitem>
   </varlistentry>
@@ -498,7 +499,8 @@ that may not be set or used in a construction environment.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </listitem>
   </varlistentry>
@@ -2900,7 +2902,7 @@ to <literal>'.dll'</literal>.
 Used to override <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link>/<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-LDMODULEVERSION"><envar>$LDMODULEVERSION</envar></link> when
 generating versioned import library for a shared library/loadable module. If
 undefined, the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link>/<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-LDMODULEVERSION"><envar>$LDMODULEVERSION</envar></link> is used to
-determine the version of versioned import library. 
+determine the version of versioned import library.
 </para>
 </listitem>
   </varlistentry>
@@ -3070,7 +3072,7 @@ The command line used to call the Java archive tool.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The string displayed when the Java archive tool
 is called
-If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-JARCOM"><envar>$JARCOM</envar></link> (the command line) is displayed.
+If this is not set, then <envar xmlns="http://www.scons.org/dbxsd/v1.0">$JARCOM</envar> (the command line) is displayed.
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3080,7 +3082,7 @@ env = Environment(JARCOMSTR = "JARchiving $SOURCES into $TARGET")
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 The string displayed when the Java archive tool
 is called
-If this is not set, then <envar xmlns="http://www.scons.org/dbxsd/v1.0">$JARCOM</envar> (the command line) is displayed.
+If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-JARCOM"><envar>$JARCOM</envar></link> (the command line) is displayed.
 </para>
 
 <example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
@@ -3618,7 +3620,10 @@ when the <envar xmlns="http://www.scons.org/dbxsd/v1.0">$_LIBDIRFLAGS</envar> va
     <term>LIBEMITTER</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-TODO
+Contains the emitter specification for the
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-StaticLibrary"><function>StaticLibrary</function></link> builder.
+The manpage section "Builder Objects" contains
+general information on specifying emitters.
 </para>
 </listitem>
   </varlistentry>
@@ -5108,7 +5113,10 @@ for example.
     <term>PROGEMITTER</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-TODO
+Contains the emitter specification for the
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-Program"><function>Program</function></link> builder.
+The manpage section "Builder Objects" contains
+general information on specifying emitters.
 </para>
 </listitem>
   </varlistentry>
@@ -5803,9 +5811,9 @@ appending to this list,
 although the more flexible approach
 is to associate scanners
 with a specific Builder.
-See the sections "Builder Objects"
-and "Scanner Objects,"
-below, for more information.
+See the manpage sections "Builder Objects"
+and "Scanner Objects"
+for more information.
 </para>
 </listitem>
   </varlistentry>
@@ -6465,7 +6473,10 @@ If this is not set, then <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="
     <term>SHLIBEMITTER</term>
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
-TODO
+Contains the emitter specification for the
+<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link> builder.
+The manpage section "Builder Objects" contains
+general information on specifying emitters.
 </para>
 </listitem>
   </varlistentry>
@@ -6509,7 +6520,7 @@ The suffix used for shared library file names.
     <listitem>
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 When this construction variable is defined, a versioned shared library
-is created by <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link> builder. This activates the
+is created by the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-SharedLibrary"><function>SharedLibrary</function></link> builder. This activates the
 <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-_SHLIBVERSIONFLAGS"><envar>$_SHLIBVERSIONFLAGS</envar></link> and thus modifies the <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLINKCOM"><envar>$SHLINKCOM</envar></link> as
 required, adds the version number to the library name, and creates the symlinks
 that are needed.  <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="cv-SHLIBVERSION"><envar>$SHLIBVERSION</envar></link> versions should exist as alpha-numeric,
@@ -6629,7 +6640,8 @@ The variable is used, for example, by <link xmlns="http://www.scons.org/dbxsd/v1
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </listitem>
   </varlistentry>
@@ -6652,7 +6664,8 @@ field in the controlling information for Ipkg and RPM packages.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </listitem>
   </varlistentry>
@@ -6996,7 +7009,8 @@ General options passed to the tar archiver.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </listitem>
   </varlistentry>
@@ -7060,7 +7074,8 @@ For example, if you want to compile 64-bit binaries, you would set
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </listitem>
   </varlistentry>
@@ -7193,7 +7208,8 @@ that are part of this construction environment.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </listitem>
   </varlistentry>
@@ -7203,7 +7219,8 @@ that may not be set or used in a construction environment.
 <para xmlns="http://www.scons.org/dbxsd/v1.0">
 A reserved variable name
 that may not be set or used in a construction environment.
-(See "Variable Substitution," below.)
+(See the manpage section "Variable Substitution"
+for more information).
 </para>
 </listitem>
   </varlistentry>

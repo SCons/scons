@@ -30,8 +30,6 @@ selection method.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-from __future__ import print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
@@ -220,7 +218,7 @@ def embedManifestDllCheck(target, source, env):
     if env.get('WINDOWS_EMBED_MANIFEST', 0):
         manifestSrc = target[0].get_abspath() + '.manifest'
         if os.path.exists(manifestSrc):
-            ret = (embedManifestDllAction) ([target[0]],None,env)
+            ret = embedManifestDllAction([target[0]], None, env)
             if ret:
                 raise SCons.Errors.UserError("Unable to embed manifest into %s" % (target[0]))
             return ret
@@ -234,7 +232,7 @@ def embedManifestExeCheck(target, source, env):
     if env.get('WINDOWS_EMBED_MANIFEST', 0):
         manifestSrc = target[0].get_abspath() + '.manifest'
         if os.path.exists(manifestSrc):
-            ret = (embedManifestExeAction) ([target[0]],None,env)
+            ret = embedManifestExeAction([target[0]], None, env)
             if ret:
                 raise SCons.Errors.UserError("Unable to embed manifest into %s" % (target[0]))
             return ret

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
 __COPYRIGHT__
 
@@ -95,9 +95,9 @@ See its __doc__ string for a discussion of the format.
             </para>
 
             <example_commands>
-                env.Java(target = 'classes', source = 'src')
-                env.Java(target = 'classes', source = ['src1', 'src2'])
-                env.Java(target = 'classes', source = ['File1.java', 'File2.java'])
+env.Java(target = 'classes', source = 'src')
+env.Java(target = 'classes', source = ['src1', 'src2'])
+env.Java(target = 'classes', source = ['File1.java', 'File2.java'])
             </example_commands>
 
             <para>
@@ -114,8 +114,8 @@ See its __doc__ string for a discussion of the format.
             </para>
 
             <example_commands>
-                env = Environment()
-                env['ENV']['LANG'] = 'en_GB.UTF-8'
+env = Environment()
+env['ENV']['LANG'] = 'en_GB.UTF-8'
             </example_commands>
         </summary>
     </builder>
@@ -174,7 +174,7 @@ See its __doc__ string for a discussion of the format.
             </para>
 
             <example_commands>
-                env = Environment(JAVACCOMSTR = "Compiling class files $TARGETS from $SOURCES")
+env = Environment(JAVACCOMSTR="Compiling class files $TARGETS from $SOURCES")
             </example_commands>
         </summary>
     </cvar>

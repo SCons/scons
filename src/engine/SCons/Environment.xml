@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
 __COPYRIGHT__
 
@@ -65,15 +65,6 @@ env['BUILDERS']['NewBuilder'] = foo
 </summary>
 </cvar>
 
-<cvar name="Dir">
-<summary>
-<para>
-A function that converts a string
-into a Dir instance relative to the target being built.
-</para>
-</summary>
-</cvar>
-
 <cvar name="ENV">
 <summary>
 <para>
@@ -127,15 +118,6 @@ as the invoking shell (or other process):
 import os
 env = Environment(ENV = {'PATH' : os.environ['PATH']})
 </example_commands>
-</summary>
-</cvar>
-
-<cvar name="File">
-<summary>
-<para>
-A function that converts a string into a File instance relative to the
-target being built.
-</para>
 </summary>
 </cvar>
 
@@ -460,6 +442,8 @@ including another alias.
 can be called multiple times for the same
 alias to add additional targets to the alias,
 or additional actions to the list for this alias.
+Aliases are global even if set through
+the construction environment method.
 </para>
 
 <para>
@@ -610,28 +594,6 @@ Example:
 <example_commands>
 env.AppendUnique(CCFLAGS = '-g', FOO = ['foo.yyy'])
 </example_commands>
-</summary>
-</scons_function>
-
-<scons_function name="BuildDir">
-<arguments>
-(build_dir, src_dir, [duplicate])
-</arguments>
-<summary>
-<para>
-Deprecated synonyms for
-&f-VariantDir;
-and
-<function>env.VariantDir</function>().
-The
-<varname>build_dir</varname>
-argument becomes the
-<varname>variant_dir</varname>
-argument of
-&f-VariantDir;
-or
-<function>env.VariantDir</function>().
-</para>
 </summary>
 </scons_function>
 
@@ -882,7 +844,7 @@ env3 = env.Clone(CCFLAGS = '-g')
 
 <para>
 Additionally, a list of tools and a toolpath may be specified, as in
-the Environment constructor:
+the &f-link-Environment; constructor:
 </para>
 
 <example_commands>
@@ -937,19 +899,29 @@ for a single special-case build.
 </para>
 
 <para>
-As a special case, the
-<varname>source_scanner</varname>
-keyword argument can
+&b-Command; builder accepts
+<varname>source_scanner</varname>,
+<varname>target_scanner</varname>,
+<varname>source_factory</varname>, and
+<varname>target_factory</varname>
+keyword arguments. The *_scanner args can
 be used to specify
 a Scanner object
-that will be used to scan the sources.
-(The global
+that will be used to apply a custom
+scanner for a source or target.
+For example, the global
 <literal>DirScanner</literal>
 object can be used
 if any of the sources will be directories
 that must be scanned on-disk for
 changes to files that aren't
-already specified in other Builder of function calls.)
+already specified in other Builder of function calls.
+The *_factory args take a factory function that the
+Command will use to turn any sources or targets
+specified as strings into SCons Nodes.
+See the sections "Builder Objects"
+below, for more information about how these
+args work in a Builder.
 </para>
 
 <para>
@@ -1175,17 +1147,16 @@ env.Decider('content')
 </example_commands>
 
 <para>
-In addition to the above already-available functions,
-the
+In addition to the above already-available functions, the
 <varname>function</varname>
-argument may be an actual Python function
-that takes the following three arguments:
+argument may be a Python function you supply.
+Such a function must accept the following four arguments:
 </para>
 
 <para>
 <variablelist>
 <varlistentry>
-<term><parameter>dependency</parameter></term>
+<term><parameter class="function">dependency</parameter></term>
 <listitem>
 <para>
 The Node (file) which
@@ -1199,7 +1170,7 @@ was built.
 </listitem>
 </varlistentry>
 <varlistentry>
-<term><parameter>target</parameter></term>
+<term><parameter class="function">target</parameter></term>
 <listitem>
 <para>
 The Node (file) being built.
@@ -1212,7 +1183,7 @@ has "changed."
 </listitem>
 </varlistentry>
 <varlistentry>
-<term><parameter>prev_ni</parameter></term>
+<term><parameter class="function">prev_ni</parameter></term>
 <listitem>
 <para>
 Stored information about the state of the
@@ -1228,12 +1199,17 @@ size, or content signature.
 </listitem>
 </varlistentry>
     <varlistentry>
-<term><parameter>repo_node</parameter></term>
+<term><parameter class="function">repo_node</parameter></term>
 <listitem>
 <para>
-Use this node instead of the one specified by
+If set, use this Node instead of the one specified by
 <varname>dependency</varname>
-    to determine if the dependency has changed.
+to determine if the dependency has changed.
+This argument is optional so should be written
+as a default argument (typically it would be
+written as <literal>repo_node=None</literal>).
+A caller will normally only set this if the
+target only exists in a Repository.
 </para>
 </listitem>
 </varlistentry>
@@ -1363,11 +1339,10 @@ cc_values = env.Dictionary('CC', 'CCFLAGS', 'CCCOM')
 </arguments>
 <summary>
 <para>
-This returns a Directory Node,
-an object that represents the specified directory
-<varname>name</varname>.
+Returns Directory Node(s).
+A Directory Node is an object that represents a directory.
 <varname>name</varname>
-can be a relative or absolute path.
+can be a relative or absolute path or a list of such paths.
 <varname>directory</varname>
 is an optional directory that will be used as the parent directory.
 If no
@@ -1378,7 +1353,10 @@ is specified, the current script's directory is used as the parent.
 <para>
 If
 <varname>name</varname>
-is a list, SCons returns a list of Dir nodes.
+is a single pathname, the corresponding node is returned.
+If
+<varname>name</varname>
+is a list, SCons returns a list of nodes.
 Construction variables are expanded in
 <varname>name</varname>.
 </para>
@@ -1414,7 +1392,7 @@ This SConstruct:
 
 <example_commands>
 env=Environment()
-print env.Dump('CCCOM')
+print(env.Dump('CCCOM'))
 </example_commands>
 
 <para>
@@ -1431,7 +1409,7 @@ While this SConstruct:
 
 <example_commands>
 env=Environment()
-print env.Dump()
+print(env.Dump())
 </example_commands>
 
 <para>
@@ -1523,20 +1501,24 @@ if Execute("mkdir sub/dir/ectory"):
 </arguments>
 <summary>
 <para>
-This returns a
-File Node,
-an object that represents the specified file
-<varname>name</varname>.
+Returns File Node(s).
+A File Node is an object that represents a file.
 <varname>name</varname>
-can be a relative or absolute path.
+can be a relative or absolute path or a list of such paths.
 <varname>directory</varname>
 is an optional directory that will be used as the parent directory.
+If no
+<varname>directory</varname>
+is specified, the current script's directory is used as the parent.
 </para>
 
 <para>
 If
 <varname>name</varname>
-is a list, SCons returns a list of File nodes.
+is a single pathname, the corresponding node is returned.
+If
+<varname>name</varname>
+is a list, SCons returns a list of nodes.
 Construction variables are expanded in
 <varname>name</varname>.
 </para>
@@ -1854,9 +1836,10 @@ Examples:
 </para>
 
 <example_commands>
-Program('foo', Glob('*.c'))
-Zip('/tmp/everything', Glob('.??*') + Glob('*'))
-sources = Glob('*.cpp', exclude=['os_*_specific_*.cpp']) + Glob('os_%s_specific_*.cpp'%currentOS)
+Program("foo", Glob("*.c"))
+Zip("/tmp/everything", Glob(".??*") + Glob("*"))
+sources = Glob("*.cpp", exclude=["os_*_specific_*.cpp"]) + \
+          Glob( "os_%s_specific_*.cpp" % currentOS)
 </example_commands>
 </summary>
 </scons_function>
@@ -2324,6 +2307,7 @@ and added to the following construction variables:
 -fmerge-all-constants   CCFLAGS, LINKFLAGS
 -fopenmp                CCFLAGS, LINKFLAGS
 -include                CCFLAGS
+-imacros                CCFLAGS
 -isysroot               CCFLAGS, LINKFLAGS
 -isystem                CCFLAGS
 -iquote                 CCFLAGS
@@ -2890,216 +2874,18 @@ function.
 </summary>
 </scons_function>
 
-<scons_function name="SourceCode">
-<arguments>
-(entries, builder)
-</arguments>
-<summary>
-<para>
-This function and its associate factory functions are deprecated.
-There is no replacement.
-The intended use was to keep a local tree in sync with an archive,
-but in actuality the function only causes the archive
-to be fetched on the first run.
-Synchronizing with the archive is best done external to &SCons;.
-</para>
-
-<para>
-Arrange for non-existent source files to
-be fetched from a source code management system
-using the specified
-<varname>builder</varname>.
-The specified
-<varname>entries</varname>
-may be a Node, string or list of both,
-and may represent either individual
-source files or directories in which
-source files can be found.
-</para>
-
-<para>
-For any non-existent source files,
-&scons;
-will search up the directory tree
-and use the first
-&f-SourceCode;
-builder it finds.
-The specified
-<varname>builder</varname>
-may be
-<literal>None</literal>,
-in which case
-&scons;
-will not use a builder to fetch
-source files for the specified
-<varname>entries</varname>,
-even if a
-&f-SourceCode;
-builder has been specified
-for a directory higher up the tree.
-</para>
-
-<para>
-&scons;
-will, by default,
-fetch files from SCCS or RCS subdirectories
-without explicit configuration.
-This takes some extra processing time
-to search for the necessary
-source code management files on disk.
-You can avoid these extra searches
-and speed up your build a little
-by disabling these searches as follows:
-</para>
-
-<example_commands>
-env.SourceCode('.', None)
-</example_commands>
-
-<para>
-Note that if the specified
-<varname>builder</varname>
-is one you create by hand,
-it must have an associated
-construction environment to use
-when fetching a source file.
-</para>
-
-<para>
-&scons;
-provides a set of canned factory
-functions that return appropriate
-Builders for various popular
-source code management systems.
-Canonical examples of invocation include:
-</para>
-
-<example_commands>
-env.SourceCode('.', env.BitKeeper('/usr/local/BKsources'))
-env.SourceCode('src', env.CVS('/usr/local/CVSROOT'))
-env.SourceCode('/', env.RCS())
-env.SourceCode(['f1.c', 'f2.c'], env.SCCS())
-env.SourceCode('no_source.c', None)
-</example_commands>
-<para>
-<!-- env.SourceCode('.', env.Subversion('file:///usr/local/Subversion')) -->
-</para>
-</summary>
-</scons_function>
-
-<scons_function name="SourceSignatures">
-<arguments>
-(type)
-</arguments>
-<summary>
-<para>
-Note:  Although it is not yet officially deprecated,
-use of this function is discouraged.
-See the
-&f-link-Decider;
-function for a more flexible and straightforward way
-to configure SCons' decision-making.
-</para>
-
-<para>
-The
-&f-SourceSignatures;
-function tells
-&scons;
-how to decide if a source file
-(a file that is not built from any other files)
-has changed since the last time it
-was used to build a particular target file.
-Legal values are
-<literal>MD5</literal>
-or
-<literal>timestamp</literal>.
-</para>
-
-<para>
-If the environment method is used,
-the specified type of source signature
-is only used when deciding whether targets
-built with that environment are up-to-date or must be rebuilt.
-If the global function is used,
-the specified type of source signature becomes the default
-used for all decisions
-about whether targets are up-to-date.
-</para>
-
-<para>
-<literal>MD5</literal>
-means
-&scons;
-decides that a source file has changed
-if the MD5 checksum of its contents has changed since
-the last time it was used to rebuild a particular target file.
-</para>
-
-<para>
-<literal>timestamp</literal>
-means
-&scons;
-decides that a source file has changed
-if its timestamp (modification time) has changed since
-the last time it was used to rebuild a particular target file.
-(Note that although this is similar to the behavior of Make,
-by default it will also rebuild if the dependency is
-<emphasis>older</emphasis>
-than the last time it was used to rebuild the target file.)
-</para>
-
-<para>
-There is no different between the two behaviors
-for Python
-&f-Value;
-node objects.
-</para>
-
-<para>
-<literal>MD5</literal>
-signatures take longer to compute,
-but are more accurate than
-<literal>timestamp</literal>
-signatures.
-The default value is
-<literal>MD5</literal>.
-</para>
-
-<para>
-Note that the default
-&f-link-TargetSignatures;
-setting (see below)
-is to use this
-&f-SourceSignatures;
-setting for any target files that are used
-to build other target files.
-Consequently, changing the value of
-&f-SourceSignatures;
-will, by default,
-affect the up-to-date decision for all files in the build
-(or all files built with a specific construction environment
-when
-&f-env-SourceSignatures;
-is used).
-</para>
-</summary>
-</scons_function>
-
 <scons_function name="Split">
-<arguments>
-(arg)
-</arguments>
+<arguments>(arg)</arguments>
 <summary>
 <para>
 Returns a list of file names or other objects.
-If arg is a string,
+If <varname>arg</varname> is a string,
 it will be split on strings of white-space characters
 within the string,
 making it easier to write long lists of file names.
-If arg is already a list,
+If <varname>arg</varname> is already a list,
 the list will be returned untouched.
-If arg is any other type of object,
+If <varname>arg</varname> is any other type of object,
 it will be returned as a list
 containing just the object.
 </para>
@@ -3112,9 +2898,9 @@ Example:
 files = Split("f1.c f2.c f3.c")
 files = env.Split("f4.c f5.c f6.c")
 files = Split("""
-	f7.c
-	f8.c
-	f9.c
+       f7.c
+       f8.c
+       f9.c
 """)
 </example_commands>
 </summary>
@@ -3216,7 +3002,7 @@ Example:
 </para>
 
 <example_commands>
-print env.subst("The C compiler is: $CC")
+print(env.subst("The C compiler is: $CC"))
 
 def compile(target, source, env):
     sourceDir = env.subst("${SOURCE.srcdir}",
@@ -3229,186 +3015,31 @@ source_nodes = env.subst('$EXPAND_TO_NODELIST',
 </summary>
 </scons_function>
 
-<scons_function name="TargetSignatures">
-<arguments>
-(type)
-</arguments>
-<summary>
-<para>
-Note:  Although it is not yet officially deprecated,
-use of this function is discouraged.
-See the
-&f-link-Decider;
-function for a more flexible and straightforward way
-to configure SCons' decision-making.
-</para>
-
-<para>
-The
-&f-TargetSignatures;
-function tells
-&scons;
-how to decide if a target file
-(a file that
-<emphasis>is</emphasis>
-built from any other files)
-has changed since the last time it
-was used to build some other target file.
-Legal values are
-<literal>"build"</literal>;
-<literal>"content"</literal>
-(or its synonym
-<literal>"MD5"</literal>);
-<literal>"timestamp"</literal>;
-or
-<literal>"source"</literal>.
-</para>
-
-<para>
-If the environment method is used,
-the specified type of target signature is only used
-for targets built with that environment.
-If the global function is used,
-the specified type of signature becomes the default
-used for all target files that
-don't have an explicit target signature type
-specified for their environments.
-</para>
-
-<para>
-<literal>"content"</literal>
-(or its synonym
-<literal>"MD5"</literal>)
-means
-&scons;
-decides that a target file has changed
-if the MD5 checksum of its contents has changed since
-the last time it was used to rebuild some other target file.
-This means
-&scons;
-will open up
-MD5 sum the contents
-of target files after they're built,
-and may decide that it does not need to rebuild
-"downstream" target files if a file was
-rebuilt with exactly the same contents as the last time.
-</para>
-
-<para>
-<literal>"timestamp"</literal>
-means
-&scons;
-decides that a target file has changed
-if its timestamp (modification time) has changed since
-the last time it was used to rebuild some other target file.
-(Note that although this is similar to the behavior of Make,
-by default it will also rebuild if the dependency is
-<emphasis>older</emphasis>
-than the last time it was used to rebuild the target file.)
-</para>
-
-<para>
-<literal>"source"</literal>
-means
-&scons;
-decides that a target file has changed
-as specified by the corresponding
-&f-SourceSignatures;
-setting
-(<literal>"MD5"</literal>
-or
-<literal>"timestamp"</literal>).
-This means that
-&scons;
-will treat all input files to a target the same way,
-regardless of whether they are source files
-or have been built from other files.
-</para>
-
-<para>
-<literal>"build"</literal>
-means
-&scons;
-decides that a target file has changed
-if it has been rebuilt in this invocation
-or if its content or timestamp have changed
-as specified by the corresponding
-&f-SourceSignatures;
-setting.
-This "propagates" the status of a rebuilt file
-so that other "downstream" target files
-will always be rebuilt,
-even if the contents or the timestamp
-have not changed.
-</para>
-
-<para>
-<literal>"build"</literal>
-signatures are fastest because
-<literal>"content"</literal>
-(or
-<literal>"MD5"</literal>)
-signatures take longer to compute,
-but are more accurate than
-<literal>"timestamp"</literal>
-signatures,
-and can prevent unnecessary "downstream" rebuilds
-when a target file is rebuilt to the exact same contents
-as the previous build.
-The
-<literal>"source"</literal>
-setting provides the most consistent behavior
-when other target files may be rebuilt from
-both source and target input files.
-The default value is
-<literal>"source"</literal>.
-</para>
-
-<para>
-Because the default setting is
-<literal>"source"</literal>,
-using
-&f-SourceSignatures;
-is generally preferable to
-&f-TargetSignatures;,
-so that the up-to-date decision
-will be consistent for all files
-(or all files built with a specific construction environment).
-Use of
-&f-TargetSignatures;
-provides specific control for how built target files
-affect their "downstream" dependencies.
-</para>
-</summary>
-</scons_function>
-
 <scons_function name="Tool">
 <arguments>
-(string, [toolpath, **kw])
+(name, [toolpath, **kwargs])
 </arguments>
 <summary>
+
 <para>
-The
-&f-Tool;
-form of the function
-returns a callable object
-that can be used to initialize
-a construction environment using the
-tools keyword of the Environment() method.
-The object may be called with a construction
-environment as an argument,
-in which case the object will
-add the necessary variables
-to the construction environment
-and the name of the tool will be added to the
-&cv-link-TOOLS;
-construction variable.
+Runs the tool identified by
+<parameter>name</parameter>, which is
+searched for in standard locations and any
+paths specified by the optional
+<parameter>toolpath</parameter>,
+to update a &consenv; with &consvars;
+needed to use the mechanisms that tool describes.
+Any additional keyword arguments
+<parameter>kwargs</parameter> are passed
+on to the tool module's <function>generate</function> function.
 </para>
 
 <para>
-Additional keyword arguments are passed to the tool's
-<function>generate</function>()
-method.
+When called as a &consenv; method,
+the tool module is called to update the
+&consenv; and the name of the tool is
+appended to the &cv-link-TOOLS;
+&consvar; in that environment.
 </para>
 
 <para>
@@ -3416,7 +3047,30 @@ Examples:
 </para>
 
 <example_commands>
-env = Environment(tools = [ Tool('msvc') ])
+env.Tool('gcc')
+env.Tool('opengl', toolpath=['build/tools'])
+</example_commands>
+
+<para>
+When called as a global function,
+returns a callable tool object;
+the tool is not called at this time,
+as it lacks the context of an environment to update.
+This tool object can be passed to an
+&f-link-Environment; or &f-link-Clone; call
+as part of the <parameter>tools</parameter> keyword argument,
+or it can be called directly,
+passing a &consenv; to update as the argument.
+Either approach will also update the
+<varname>TOOLS</varname> &consvar;.
+</para>
+
+<para>
+Examples:
+</para>
+
+<example_commands>
+env = Environment(tools=[Tool('msvc')])
 
 env = Environment()
 t = Tool('msvc')
@@ -3424,32 +3078,12 @@ t(env)  # adds 'msvc' to the TOOLS variable
 u = Tool('opengl', toolpath = ['tools'])
 u(env)  # adds 'opengl' to the TOOLS variable
 </example_commands>
-
-<para>
-The
-&f-env-Tool;
-form of the function
-applies the callable object for the specified tool
-<varname>string</varname>
-to the environment through which the method was called.
-</para>
-
-<para>
-Additional keyword arguments are passed to the tool's
-<function>generate</function>()
-method.
-</para>
-
-<example_commands>
-env.Tool('gcc')
-env.Tool('opengl', toolpath = ['build/tools'])
-</example_commands>
 </summary>
 </scons_function>
 
 <scons_function name="Value">
 <arguments>
-(value, [built_value])
+(value, [built_value], [name])
 </arguments>
 <summary>
 <para>
@@ -3464,6 +3098,10 @@ will be rebuilt.
 files are up-to-date.)
 When using timestamp source signatures, Value Nodes'
 timestamps are equal to the system time when the Node is created.
+<varname>name</varname> can be provided as an alternative name
+for the resulting <literal>Value</literal> node; this is advised
+if the <varname>value</varname> parameter can't be converted to
+a string.
 </para>
 
 <para>

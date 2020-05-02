@@ -24,15 +24,17 @@
 
 -->
 <xsl:stylesheet
-	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
-	xmlns:fo="http://www.w3.org/1999/XSL/Format" 
-	version="1.0"> 
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns:fo="http://www.w3.org/1999/XSL/Format"
+	version="1.0">
 
-	<xsl:import href="../../src/engine/SCons/Tool/docbook/docbook-xsl-1.76.1/html/docbook.xsl"/> 
+<xsl:import href="../../src/engine/SCons/Tool/docbook/docbook-xsl-1.76.1/html/docbook.xsl"/>
 
 <xsl:param name="l10n.gentext.default.language" select="'en'"/>
 <xsl:param name="section.autolabel" select="1"/>
 <xsl:param name="section.label.includes.component.label" select="1"/>
+<xsl:param name="variablelist.term.break.after" select="1"/>
+<xsl:param name="variablelist.term.separator"/>
 <xsl:param name="html.stylesheet" select="'scons.css'"/>
 <xsl:param name="generate.toc">
 /appendix toc,title
@@ -52,9 +54,14 @@ reference toc,title
 set       toc,title
 </xsl:param>
 
+<xsl:template match="function">
+  <xsl:call-template name="inline.boldmonoseq"/>
+</xsl:template>
+<xsl:template match="methodname">
+  <xsl:call-template name="inline.boldmonoseq"/>
+</xsl:template>
 <!-- Prevent our EPUB cover image from getting included -->
 <xsl:template match="mediaobject[@role = 'cover']">
 </xsl:template>
 
-</xsl:stylesheet> 
-
+</xsl:stylesheet>

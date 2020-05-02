@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
 __COPYRIGHT__
 
@@ -47,6 +47,7 @@ Sets construction variables for generic POSIX C++ compilers.
 </sets>
 <uses>
 <item>CXXCOMSTR</item>
+<item>SHCXXCOMSTR</item>
 </uses>
 </tool>
 
@@ -54,6 +55,7 @@ Sets construction variables for generic POSIX C++ compilers.
 <summary>
 <para>
 The C++ compiler.
+See also &cv-link-SHCXX; for compiling to shared objects..
 </para>
 </summary>
 </cvar>
@@ -65,6 +67,7 @@ The command line used to compile a C++ source file to an object file.
 Any options specified in the &cv-link-CXXFLAGS; and
 &cv-link-CPPFLAGS; construction variables
 are included on this command line.
+See also &cv-link-SHCXXCOM; for compiling to shared objects..
 </para>
 </summary>
 </cvar>
@@ -72,9 +75,10 @@ are included on this command line.
 <cvar name="CXXCOMSTR">
 <summary>
 <para>
-The string displayed when a C++ source file
+If set, the string displayed when a C++ source file
 is compiled to a (static) object file.
-If this is not set, then &cv-link-CXXCOM; (the command line) is displayed.
+If not set, then &cv-link-CXXCOM; (the command line) is displayed.
+See also &cv-link-SHCXXCOMSTR; for compiling to shared objects..
 </para>
 
 <example_commands>
@@ -91,6 +95,7 @@ By default, this includes the value of &cv-link-CCFLAGS;,
 so that setting &cv-CCFLAGS; affects both C and C++ compilation.
 If you want to add C++-specific flags,
 you must set or override the value of &cv-link-CXXFLAGS;.
+See also &cv-link-SHCXXFLAGS; for compiling to shared objects..
 </para>
 </summary>
 </cvar>
@@ -99,6 +104,7 @@ you must set or override the value of &cv-link-CXXFLAGS;.
 <summary>
 <para>
 The C++ compiler used for generating shared-library objects.
+See also &cv-link-CXX; for compiling to static objects.
 </para>
 </summary>
 </cvar>
@@ -111,6 +117,7 @@ to a shared-library object file.
 Any options specified in the &cv-link-SHCXXFLAGS; and
 &cv-link-CPPFLAGS; construction variables
 are included on this command line.
+See also &cv-link-CXXCOM; for compiling to static objects.
 </para>
 </summary>
 </cvar>
@@ -118,9 +125,10 @@ are included on this command line.
 <cvar name="SHCXXCOMSTR">
 <summary>
 <para>
-The string displayed when a C++ source file
+If set, the string displayed when a C++ source file
 is compiled to a shared object file.
-If this is not set, then &cv-link-SHCXXCOM; (the command line) is displayed.
+If not set, then &cv-link-SHCXXCOM; (the command line) is displayed.
+See also &cv-link-CXXCOMSTR; for compiling to static objects.
 </para>
 
 <example_commands>
@@ -134,6 +142,7 @@ env = Environment(SHCXXCOMSTR = "Compiling shared object $TARGET")
 <para>
 Options that are passed to the C++ compiler
 to generate shared-library objects.
+See also &cv-link-CXXFLAGS; for compiling to static objects.
 </para>
 </summary>
 </cvar>

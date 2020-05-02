@@ -100,7 +100,7 @@ There are the following methods for internal use within this module:
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import collections
+from collections import UserDict, UserList
 
 import SCons.Action
 import SCons.Debug
@@ -197,7 +197,7 @@ class DictEmitter(SCons.Util.Selector):
             target, source = emitter(target, source, env)
         return (target, source)
 
-class ListEmitter(collections.UserList):
+class ListEmitter(UserList):
     """A callable list of emitters that calls each in sequence,
     returning the result.
     """
@@ -215,7 +215,7 @@ misleading_keywords = {
     'sources'   : 'source',
 }
 
-class OverrideWarner(collections.UserDict):
+class OverrideWarner(UserDict):
     """A class for warning about keyword arguments that we use as
     overrides in a Builder call.
 
@@ -224,13 +224,13 @@ class OverrideWarner(collections.UserDict):
     warnings once, no matter how many Builders are invoked.
     """
     def __init__(self, dict):
-        collections.UserDict.__init__(self, dict)
+        UserDict.__init__(self, dict)
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Builder.OverrideWarner')
         self.already_warned = None
     def warn(self):
         if self.already_warned:
             return
-        for k in list(self.keys()):
+        for k in self.keys():
             if k in misleading_keywords:
                 alt = misleading_keywords[k]
                 msg = "Did you mean to use `%s' instead of `%s'?" % (alt, k)
@@ -396,16 +396,13 @@ class BuilderBase(object):
         self.env = env
         self.single_source = single_source
         if 'overrides' in overrides:
-            SCons.Warnings.warn(SCons.Warnings.DeprecatedBuilderKeywordsWarning,
-                "The \"overrides\" keyword to Builder() creation has been deprecated;\n" +\
-                "\tspecify the items as keyword arguments to the Builder() call instead.")
-            overrides.update(overrides['overrides'])
-            del overrides['overrides']
+            msg =  "The \"overrides\" keyword to Builder() creation has been removed;\n" +\
+                "\tspecify the items as keyword arguments to the Builder() call instead."
+            raise TypeError(msg)
         if 'scanner' in overrides:
-            SCons.Warnings.warn(SCons.Warnings.DeprecatedBuilderKeywordsWarning,
-                                "The \"scanner\" keyword to Builder() creation has been deprecated;\n"
-                                "\tuse: source_scanner or target_scanner as appropriate.")
-            del overrides['scanner']
+            msg = "The \"scanner\" keyword to Builder() creation has been removed;\n" +\
+                "\tuse: source_scanner or target_scanner as appropriate."
+            raise TypeError(msg)
         self.overrides = overrides
 
         self.set_suffix(suffix)
@@ -650,6 +647,8 @@ class BuilderBase(object):
                 env_kw = kw
         else:
             env_kw = self.overrides
+
+        # TODO if env_kw: then the following line. there's no purpose in calling if no overrides.
         env = env.Override(env_kw)
         return self._execute(env, target, source, OverrideWarner(kw), ekw)
 

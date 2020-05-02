@@ -42,11 +42,11 @@ def get_cpu_nums():
             ncpus = os.sysconf( "SC_NPROCESSORS_ONLN" )
         if isinstance(ncpus, int) and ncpus > 0:
             return ncpus
-        else: # OSX:
-            return int( os.popen2( "sysctl -n hw.ncpu")[1].read() )
+        else:  # OSX:
+            return int(os.popen2("sysctl -n hw.ncpu")[1].read() )
     # Windows:
     if "NUMBER_OF_PROCESSORS" in os.environ:
-        ncpus = int( os.environ[ "NUMBER_OF_PROCESSORS" ] );
+        ncpus = int(os.environ["NUMBER_OF_PROCESSORS"])
     if ncpus > 0:
         return ncpus
     return 1 # Default
@@ -59,14 +59,14 @@ num_jobs = get_cpu_nums()*2
 
 # in case we werent able to detect num cpus for this test
 # just make a hardcoded suffcient large number, though not future proof
-if(num_jobs == 2):
+if num_jobs == 2:
     num_jobs = 33
 
 # how many tasks to perform for the test
 num_tasks = num_jobs*5
 
 class DummyLock(object):
-    "fake lock class to use if threads are not supported"
+    """fake lock class to use if threads are not supported"""
     def acquire(self):
         pass
 
@@ -74,7 +74,7 @@ class DummyLock(object):
         pass
 
 class NoThreadsException(Exception):
-    "raised by the ParallelTestCase if threads are not supported"
+    """raised by the ParallelTestCase if threads are not supported"""
 
     def __str__(self):
         return "the interpreter doesn't support threads"
@@ -113,7 +113,7 @@ class Task(object):
 
         # check if task was executing while another was also executing
         for j in range(1, self.taskmaster.num_tasks):
-            if(self.taskmaster.parallel_list[j+1] == 1):
+            if self.taskmaster.parallel_list[j + 1] == 1:
                 self.taskmaster.found_parallel = True
                 break
 
@@ -237,7 +237,7 @@ class Taskmaster(object):
         return self.num_postprocessed == self.num_tasks
 
     def tasks_were_serial(self):
-        "analyze the task order to see if they were serial"
+        """analyze the task order to see if they were serial"""
         return not self.found_parallel
 
     def exception_set(self):
@@ -251,7 +251,7 @@ ThreadPoolCallList = []
 
 class ParallelTestCase(unittest.TestCase):
     def runTest(self):
-        "test parallel jobs"
+        """test parallel jobs"""
 
         try:
             import threading
@@ -319,7 +319,7 @@ class ParallelTestCase(unittest.TestCase):
 
 class SerialTestCase(unittest.TestCase):
     def runTest(self):
-        "test a serial job"
+        """test a serial job"""
 
         taskmaster = Taskmaster(num_tasks, self, RandomTask)
         jobs = SCons.Job.Jobs(1, taskmaster)
@@ -338,7 +338,7 @@ class SerialTestCase(unittest.TestCase):
 
 class NoParallelTestCase(unittest.TestCase):
     def runTest(self):
-        "test handling lack of parallel support"
+        """test handling lack of parallel support"""
         def NoParallel(tm, num, stack_size):
             raise NameError
         save_Parallel = SCons.Job.Parallel
@@ -365,7 +365,7 @@ class NoParallelTestCase(unittest.TestCase):
 
 class SerialExceptionTestCase(unittest.TestCase):
     def runTest(self):
-        "test a serial job with tasks that raise exceptions"
+        """test a serial job with tasks that raise exceptions"""
 
         taskmaster = Taskmaster(num_tasks, self, ExceptionTask)
         jobs = SCons.Job.Jobs(1, taskmaster)
@@ -382,7 +382,7 @@ class SerialExceptionTestCase(unittest.TestCase):
 
 class ParallelExceptionTestCase(unittest.TestCase):
     def runTest(self):
-        "test parallel jobs with tasks that raise exceptions"
+        """test parallel jobs with tasks that raise exceptions"""
 
         taskmaster = Taskmaster(num_tasks, self, ExceptionTask)
         jobs = SCons.Job.Jobs(num_jobs, taskmaster)
@@ -534,13 +534,13 @@ class _SConsTaskTest(unittest.TestCase):
 
 class SerialTaskTest(_SConsTaskTest):
     def runTest(self):
-        "test serial jobs with actual Taskmaster and Task"
+        """test serial jobs with actual Taskmaster and Task"""
         self._test_seq(1)
 
 
 class ParallelTaskTest(_SConsTaskTest):
     def runTest(self):
-        "test parallel jobs with actual Taskmaster and Task"
+        """test parallel jobs with actual Taskmaster and Task"""
         self._test_seq(num_jobs)
 
 

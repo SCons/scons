@@ -36,7 +36,6 @@ import TestSConsign
 _python_ = TestSCons._python_
 
 test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
-
 test.subdir('sub1', 'sub2')
 
 fake_cc_py = test.workpath('fake_cc.py')

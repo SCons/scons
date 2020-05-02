@@ -20,8 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-from __future__ import print_function
 
 """
 Verify that a failed build action with -j works as expected.
@@ -59,11 +57,11 @@ write_marker = sys.argv[2] + '.marker'
 if wait_marker != '-.marker':
     while not os.path.exists(wait_marker):
         time.sleep(1)
-if sys.argv[0] == 'mypass.py':
+if 'mypass.py' in sys.argv[0]:
     with open(sys.argv[3], 'wb') as ofp, open(sys.argv[4], 'rb') as ifp:
         ofp.write(ifp.read())
     exit_value = 0
-elif sys.argv[0] == 'myfail.py':
+elif 'myfail.py' in sys.argv[0]:
     exit_value = 1
 if write_marker != '-.marker':
     os.mkdir(write_marker)

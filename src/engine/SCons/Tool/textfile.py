@@ -53,13 +53,10 @@ import re
 
 from SCons.Node import Node
 from SCons.Node.Python import Value
-from SCons.Util import is_String, is_Sequence, is_Dict, to_bytes, PY3
+from SCons.Util import is_String, is_Sequence, is_Dict, to_bytes
 
 
-if PY3:
-    TEXTFILE_FILE_WRITE_MODE = 'w'
-else:
-    TEXTFILE_FILE_WRITE_MODE = 'wb'
+TEXTFILE_FILE_WRITE_MODE = 'w'
 
 LINESEP = '\n'
 
@@ -74,7 +71,7 @@ def _do_subst(node, subs):
     contents = node.get_text_contents()
     if subs:
         for (k, val) in subs:
-            contents = re.sub(k, val, contents)
+            contents = contents.replace(k, val)
 
     if 'b' in TEXTFILE_FILE_WRITE_MODE:
         try:
@@ -126,10 +123,7 @@ def _action(target, source, env):
 
     # write the file
     try:
-        if SCons.Util.PY3:
-            target_file = open(target[0].get_path(), TEXTFILE_FILE_WRITE_MODE, newline='')
-        else:
-            target_file = open(target[0].get_path(), TEXTFILE_FILE_WRITE_MODE)
+        target_file = open(target[0].get_path(), TEXTFILE_FILE_WRITE_MODE, newline='')
     except (OSError, IOError):
         raise SCons.Errors.UserError("Can't write target file %s" % target[0])
 
@@ -177,7 +171,7 @@ _text_builder = SCons.Builder.Builder(
     suffix='$TEXTFILESUFFIX',
 )
 
-_subst_varlist = _common_varlist + ['SUBSTFILEPREFIX', 'TEXTFILESUFFIX']
+_subst_varlist = _common_varlist + ['SUBSTFILEPREFIX', 'SUBSTFILESUFFIX']
 _subst_builder = SCons.Builder.Builder(
     action=SCons.Action.Action(_action, _strfunc, varlist=_subst_varlist),
     source_factory=SCons.Node.FS.File,

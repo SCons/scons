@@ -40,7 +40,7 @@ tool_list = SCons.Platform.DefaultToolList(platform, env)
 
 test = TestSCons.TestSCons()
 if 'gnulink' in tool_list:
-    versionflags = r".+ -Wl,-Bsymbolic -Wl,-soname=libfoo.so.1( .+)+"
+    versionflags = r".+ -Wl,-soname=libfoo.so.1( .+)+"
 elif 'sunlink' in tool_list:
     versionflags = r".+ -h libfoo.so.1( .+)+"
 else:

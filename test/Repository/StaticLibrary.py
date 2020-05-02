@@ -30,35 +30,37 @@ import TestSCons
 _obj = TestSCons._obj
 _exe = TestSCons._exe
 
-test = TestSCons.TestSCons()
+for implicit_deps in ['0', '1', '2', '\"all\"']:
+    test = TestSCons.TestSCons()
 
-#
-test.subdir('repository', 'work1', 'work2', 'work3')
+    #
+    test.subdir('repository', 'work1', 'work2', 'work3')
 
-#
-workpath_repository = test.workpath('repository')
-repository_aaa_obj = test.workpath('repository', 'aaa' + _obj)
-repository_bbb_obj = test.workpath('repository', 'bbb' + _obj)
-repository_foo_obj = test.workpath('repository', 'foo' + _obj)
-repository_foo = test.workpath('repository', 'foo' + _exe)
-work1_foo = test.workpath('work1', 'foo' + _exe)
-work2_aaa_obj = test.workpath('work2', 'aaa' + _obj)
-work2_foo_obj = test.workpath('work2', 'foo' + _obj)
-work2_foo = test.workpath('work2', 'foo' + _exe)
-work3_aaa_obj = test.workpath('work3', 'aaa' + _obj)
-work3_bbb_obj = test.workpath('work3', 'bbb' + _obj)
-work3_foo = test.workpath('work3', 'foo' + _exe)
+    #
+    workpath_repository = test.workpath('repository')
+    repository_aaa_obj = test.workpath('repository', 'aaa' + _obj)
+    repository_bbb_obj = test.workpath('repository', 'bbb' + _obj)
+    repository_foo_obj = test.workpath('repository', 'foo' + _obj)
+    repository_foo = test.workpath('repository', 'foo' + _exe)
+    work1_foo = test.workpath('work1', 'foo' + _exe)
+    work2_aaa_obj = test.workpath('work2', 'aaa' + _obj)
+    work2_foo_obj = test.workpath('work2', 'foo' + _obj)
+    work2_foo = test.workpath('work2', 'foo' + _exe)
+    work3_aaa_obj = test.workpath('work3', 'aaa' + _obj)
+    work3_bbb_obj = test.workpath('work3', 'bbb' + _obj)
+    work3_foo = test.workpath('work3', 'foo' + _exe)
 
-opts = '-Y ' + workpath_repository
+    opts = '-Y ' + workpath_repository
 
-#
-test.write(['repository', 'SConstruct'], """
-env = Environment(LIBS = ['xxx'], LIBPATH = '.')
+    #
+    test.write(['repository', 'SConstruct'], """
+env = Environment(LIBS = ['xxx'], LIBPATH = '.',
+                  IMPLICIT_COMMAND_DEPENDENCIES=%s)
 env.Library(target = 'xxx', source = ['aaa.c', 'bbb.c'])
 env.Program(target = 'foo', source = 'foo.c')
-""")
+""" % implicit_deps)
 
-test.write(['repository', 'aaa.c'], r"""
+    test.write(['repository', 'aaa.c'], r"""
 #include <stdio.h>
 #include <stdlib.h>
 void
@@ -68,7 +70,7 @@ aaa(void)
 }
 """)
 
-test.write(['repository', 'bbb.c'], r"""
+    test.write(['repository', 'bbb.c'], r"""
 #include <stdio.h>
 #include <stdlib.h>
 void
@@ -78,7 +80,7 @@ bbb(void)
 }
 """)
 
-test.write(['repository', 'foo.c'], r"""
+    test.write(['repository', 'foo.c'], r"""
 #include <stdio.h>
 #include <stdlib.h>
 extern void aaa(void);
@@ -94,29 +96,29 @@ main(int argc, char *argv[])
 }
 """)
 
-# Make the repository non-writable,
-# so we'll detect if we try to write into it accidentally.
-test.writable('repository', 0)
+    # Make the repository non-writable,
+    # so we'll detect if we try to write into it accidentally.
+    test.writable('repository', 0)
 
-#
-test.run(chdir = 'work1', options = opts, arguments = ".",
-         stderr=TestSCons.noisy_ar,
-         match=TestSCons.match_re_dotall)
+    #
+    test.run(chdir = 'work1', options = opts, arguments = ".",
+             stderr=TestSCons.noisy_ar,
+             match=TestSCons.match_re_dotall)
 
-test.run(program = work1_foo, stdout =
+    test.run(program = work1_foo, stdout =
 """repository/aaa.c
 repository/bbb.c
 repository/foo.c
 """)
 
-test.fail_test(os.path.exists(repository_aaa_obj))
-test.fail_test(os.path.exists(repository_bbb_obj))
-test.fail_test(os.path.exists(repository_foo_obj))
-test.fail_test(os.path.exists(repository_foo))
+    test.fail_test(os.path.exists(repository_aaa_obj))
+    test.fail_test(os.path.exists(repository_bbb_obj))
+    test.fail_test(os.path.exists(repository_foo_obj))
+    test.fail_test(os.path.exists(repository_foo))
 
-test.up_to_date(chdir = 'work1', options = opts, arguments = ".")
+    test.up_to_date(chdir = 'work1', options = opts, arguments = ".")
 
-test.write(['work1', 'bbb.c'], r"""
+    test.write(['work1', 'bbb.c'], r"""
 #include <stdio.h>
 #include <stdlib.h>
 void
@@ -126,49 +128,49 @@ bbb(void)
 }
 """)
 
-test.run(chdir = 'work1', options = opts, arguments = ".",
-         stderr=TestSCons.noisy_ar,
-         match=TestSCons.match_re_dotall)
+    test.run(chdir = 'work1', options = opts, arguments = ".",
+             stderr=TestSCons.noisy_ar,
+             match=TestSCons.match_re_dotall)
 
-test.run(program = work1_foo, stdout =
+    test.run(program = work1_foo, stdout =
 """repository/aaa.c
 work1/bbb.c
 repository/foo.c
 """)
 
-test.fail_test(os.path.exists(repository_aaa_obj))
-test.fail_test(os.path.exists(repository_bbb_obj))
-test.fail_test(os.path.exists(repository_foo_obj))
-test.fail_test(os.path.exists(repository_foo))
+    test.fail_test(os.path.exists(repository_aaa_obj))
+    test.fail_test(os.path.exists(repository_bbb_obj))
+    test.fail_test(os.path.exists(repository_foo_obj))
+    test.fail_test(os.path.exists(repository_foo))
 
-test.up_to_date(chdir = 'work1', options = opts, arguments = ".")
+    test.up_to_date(chdir = 'work1', options = opts, arguments = ".")
 
-#
-test.writable('repository', 1)
+    #
+    test.writable('repository', 1)
 
-test.run(chdir = 'repository', options = opts, arguments = ".",
-         stderr=TestSCons.noisy_ar,
-         match=TestSCons.match_re_dotall)
+    test.run(chdir = 'repository', options = opts, arguments = ".",
+             stderr=TestSCons.noisy_ar,
+             match=TestSCons.match_re_dotall)
 
-test.run(program = repository_foo, stdout =
+    test.run(program = repository_foo, stdout =
 """repository/aaa.c
 repository/bbb.c
 repository/foo.c
 """)
 
-test.fail_test(not os.path.exists(repository_aaa_obj))
-test.fail_test(not os.path.exists(repository_bbb_obj))
-test.fail_test(not os.path.exists(repository_foo_obj))
+    test.fail_test(not os.path.exists(repository_aaa_obj))
+    test.fail_test(not os.path.exists(repository_bbb_obj))
+    test.fail_test(not os.path.exists(repository_foo_obj))
 
-test.up_to_date(chdir = 'repository', options = opts, arguments = ".")
+    test.up_to_date(chdir = 'repository', options = opts, arguments = ".")
 
-#
-test.writable('repository', 0)
+    #
+    test.writable('repository', 0)
 
-#
-test.up_to_date(chdir = 'work2', options = opts, arguments = ".")
+    #
+    test.up_to_date(chdir = 'work2', options = opts, arguments = ".")
 
-test.write(['work2', 'bbb.c'], r"""
+    test.write(['work2', 'bbb.c'], r"""
 #include <stdio.h>
 #include <stdlib.h>
 void
@@ -178,25 +180,25 @@ bbb(void)
 }
 """)
 
-test.run(chdir = 'work2', options = opts, arguments = ".",
-         stderr=TestSCons.noisy_ar,
-         match=TestSCons.match_re_dotall)
+    test.run(chdir = 'work2', options = opts, arguments = ".",
+             stderr=TestSCons.noisy_ar,
+             match=TestSCons.match_re_dotall)
 
-test.run(program = work2_foo, stdout =
+    test.run(program = work2_foo, stdout =
 """repository/aaa.c
 work2/bbb.c
 repository/foo.c
 """)
 
-test.fail_test(os.path.exists(work2_aaa_obj))
-test.fail_test(os.path.exists(work2_foo_obj))
+    test.fail_test(os.path.exists(work2_aaa_obj))
+    test.fail_test(os.path.exists(work2_foo_obj))
 
-test.up_to_date(chdir = 'work2', options = opts, arguments = ".")
+    test.up_to_date(chdir = 'work2', options = opts, arguments = ".")
 
-#
-test.up_to_date(chdir = 'work3', options = opts, arguments = ".")
+    #
+    test.up_to_date(chdir = 'work3', options = opts, arguments = ".")
 
-test.write(['work3', 'foo.c'], r"""
+    test.write(['work3', 'foo.c'], r"""
 #include <stdio.h>
 #include <stdlib.h>
 extern void aaa(void);
@@ -212,18 +214,19 @@ main(int argc, char *argv[])
 }
 """)
 
-test.run(chdir = 'work3', options = opts, arguments = ".")
+    test.run(chdir = 'work3', options = opts, arguments = ".")
 
-test.run(program = work3_foo, stdout =
+    test.run(program = work3_foo, stdout =
 """repository/aaa.c
 repository/bbb.c
 work3/foo.c
 """)
 
-test.fail_test(os.path.exists(work3_aaa_obj))
-test.fail_test(os.path.exists(work3_bbb_obj))
+    test.fail_test(os.path.exists(work3_aaa_obj))
+    test.fail_test(os.path.exists(work3_bbb_obj))
 
-test.up_to_date(chdir = 'work3', options = opts, arguments = ".")
+    test.up_to_date(chdir = 'work3', options = opts, arguments = ".")
+
 
 #
 test.pass_test()

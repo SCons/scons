@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
 __COPYRIGHT__
 
@@ -268,12 +268,8 @@ into a list of Dir instances relative to the target being built.
 <para>
 The list of suffixes of files that will be scanned
 for imported D package files.
-The default list is:
+The default list is <literal>['.d']</literal>.
 </para>
-
-<example_commands>
-['.d']
-</example_commands>
 </summary>
 </cvar>
 
@@ -572,15 +568,24 @@ searching the repositories.
 
 <scons_function name="DefaultEnvironment">
 <arguments signature="global">
-([args])
+([**kwargs])
 </arguments>
 <summary>
 <para>
-Creates and returns a default construction environment object.
-This construction environment is used internally by SCons
-in order to execute many of the global functions in this list,
-and to fetch source files transparently
+Creates and returns the default &consenv; object.
+The default &consenv; is used internally by SCons
+in order to execute many of the global functions in this list
+(i.e. those not called as methods of a specific
+&consenv;), and to fetch source files transparently
 from source code management systems.
+The default environment is a singleton, so the keyword
+arguments affect it only on the first call, on subsequent
+calls the already-constructed object is returned and
+any arguments are ignored.
+The default environment can be modified in the same way
+as any &consenv;.
+Modifying the &defenv; has no effect on the environment
+constructed by a subsequent &f-Environment; call.
 </para>
 </summary>
 </scons_function>

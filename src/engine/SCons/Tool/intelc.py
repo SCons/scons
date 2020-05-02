@@ -30,8 +30,6 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-from __future__ import division, print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import math, sys, os.path, glob, string, re
@@ -318,7 +316,7 @@ def get_intel_compiler_top(version, abi):
         if not os.path.exists(os.path.join(top, "Bin", "icl.exe")) \
               and not os.path.exists(os.path.join(top, "Bin", abi, "icl.exe")) \
               and not os.path.exists(os.path.join(top, "Bin", archdir, "icl.exe")):
-            raise MissingDirError("Can't find Intel compiler in %s"%(top))
+            raise MissingDirError("Can't find Intel compiler in %s" % top)
     elif is_mac or is_linux:
         def find_in_2008style_dir(version):
             # first dir is new (>=9.0) style, second is old (8.0) style.
@@ -387,7 +385,7 @@ def get_intel_compiler_top(version, abi):
 
 
 def generate(env, version=None, abi=None, topdir=None, verbose=0):
-    """Add Builders and construction variables for Intel C/C++ compiler
+    r"""Add Builders and construction variables for Intel C/C++ compiler
     to an Environment.
     args:
       version: (string) compiler version to use, like "80"
@@ -495,15 +493,15 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
                    'LIB'             : libdir,
                    'PATH'            : bindir,
                    'LD_LIBRARY_PATH' : libdir}
-            for p in list(paths.keys()):
-                env.PrependENVPath(p, os.path.join(topdir, paths[p]))
+            for p, v in paths.items():
+                env.PrependENVPath(p, os.path.join(topdir, v))
         if is_mac:
             paths={'INCLUDE'         : 'include',
                    'LIB'             : libdir,
                    'PATH'            : bindir,
                    'LD_LIBRARY_PATH' : libdir}
-            for p in list(paths.keys()):
-                env.PrependENVPath(p, os.path.join(topdir, paths[p]))
+            for p, v in paths.items():
+                env.PrependENVPath(p, os.path.join(topdir, v))
         if is_windows:
             #       env key    reg valname   default subdir of top
             paths=(('INCLUDE', 'IncludeDir', 'Include'),
@@ -551,7 +549,7 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
         # Look for license file dir
         # in system environment, registry, and default location.
         envlicdir = os.environ.get("INTEL_LICENSE_FILE", '')
-        K = ('SOFTWARE\Intel\Licenses')
+        K = r'SOFTWARE\Intel\Licenses'
         try:
             k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE, K)
             reglicdir = SCons.Util.RegQueryValueEx(k, "w_cpp")[0]

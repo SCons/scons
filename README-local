@@ -38,13 +38,13 @@ LATEST VERSION
 Before going further, you can check for the latest version of the
 scons-local package, or any SCons package, at the SCons download page:
 
-        http://www.scons.org/download.html
+        https://scons.org/pages/download.html
 
 
 EXECUTION REQUIREMENTS
 ======================
 
-Running SCons requires either Python version 2.7.* or Python 3.5 or higher.
+Running SCons requires Python 3.5 or higher.
 There should be no other dependencies or requirements to run SCons.
 
 The default SCons configuration assumes use of the Microsoft Visual C++
@@ -202,11 +202,6 @@ Subscription to the developer's mailing list is by approval.  In practice, no
 one is refused list membership, but we reserve the right to limit membership
 in the future and/or weed out lurkers.
 
-There is also a low-volume mailing list available for announcements about
-SCons.  Subscribe by sending email to:
-
-        announce-subscribe@scons.tigris.org
-
 There are other mailing lists available for SCons users, for notification of
 SCons code changes, and for notification of updated bug reports and project
 documents.  Please see our mailing lists page for details.
@@ -221,18 +216,29 @@ Check the SCons web site at:
         http://www.scons.org/
 
 
-AUTHOR INFO
+Author Info
 ===========
 
-Steven Knight
-knight at baldmt dot com
-http://www.baldmt.com/~knight/
+SCons was originally written by Steven Knight, knight at baldmt dot com.
+Since around 2010 it has been maintained by the SCons
+development team, co-managed by Bill Deegan and Gary Oberbrunner, with
+many contributors, including but not at all limited to:
 
-With plenty of help from the SCons Development team:
-        Chad Austin
-        Charles Crain
-        Steve Leblanc
-        Anthony Roach
-        Terrel Shumway
+- Chad Austin
+- Dirk Baechle
+- Charles Crain
+- William Deegan
+- Steve Leblanc
+- Rob Managan
+- Greg Noel
+- Gary Oberbrunner
+- Anthony Roach
+- Greg Spencer
+- Tom Tanner
+- Anatoly Techtonik
+- Christoph Wiedemann
+- Mats Wichmann
+- Russel Winder
+- Mats Wichmann
 
-
+\... and many others.

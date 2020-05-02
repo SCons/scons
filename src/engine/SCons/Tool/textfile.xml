@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
 __COPYRIGHT__
 
@@ -59,7 +59,7 @@ see the &b-Substfile; description for details.
 <para>
 The prefix and suffix specified by the &cv-TEXTFILEPREFIX;
 and &cv-TEXTFILESUFFIX; construction variables
-(the null string and <filename>.txt</filename> by default, respectively)
+(an empty string and <filename>.txt</filename> by default, respectively)
 are automatically added to the target if they are not already present.
 Examples:
 </para>
@@ -124,7 +124,7 @@ the suffix is stripped and the remainder is used as the default target name.
 <para>
 The prefix and suffix specified by the &cv-SUBSTFILEPREFIX;
 and &cv-SUBSTFILESUFFIX; construction variables
-(the null string by default in both cases)
+(an empty string by default in both cases)
 are automatically added to the target if they are not already present.
 </para>
 
@@ -218,7 +218,7 @@ lists of tuples are also acceptable.
 <summary>
 <para>
 The prefix used for &b-Substfile; file names,
-the null string by default.
+an empty string by default.
 </para>
 </summary>
 </cvar>
@@ -227,7 +227,7 @@ the null string by default.
 <summary>
 <para>
 The suffix used for &b-Substfile; file names,
-the null string by default.
+an empty string by default.
 </para>
 </summary>
 </cvar>
@@ -236,7 +236,7 @@ the null string by default.
 <summary>
 <para>
 The prefix used for &b-Textfile; file names,
-the null string by default.
+an empty string by default.
 </para>
 </summary>
 </cvar>

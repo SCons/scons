@@ -20,8 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -102,7 +100,7 @@ for source_signature in ['MD5', 'timestamp-newer']:
 
     test.must_contain_all_lines(test.stdout(), [out1, out2, out7, out8])
     #print test.stdout()
-    test.fail_test(re.search(out3, test.stdout()) == None)
+    test.fail_test(re.search(out3, test.stdout()) is None)
 
     test.must_match('f1.out', "/usr/local")
     test.must_match('f2.out', "10")
@@ -118,7 +116,7 @@ for source_signature in ['MD5', 'timestamp-newer']:
     out6 = """create\\(\\["f3.out"\\], \\[<.*.Custom (instance|object) at """
     #" <- unconfuses emacs syntax highlighting
     test.must_contain_all_lines(test.stdout(), [out4, out5])
-    test.fail_test(re.search(out6, test.stdout()) == None)
+    test.fail_test(re.search(out6, test.stdout()) is None)
 
     test.must_match('f1.out', "/usr")
     test.must_match('f2.out', "4")
@@ -134,7 +132,7 @@ for source_signature in ['MD5', 'timestamp-newer']:
 
     test.must_contain_all_lines(test.stdout(), [out4, out7, out8])
     test.must_not_contain_any_line(test.stdout(), [out5])
-    test.fail_test(re.search(out6, test.stdout()) == None)
+    test.fail_test(re.search(out6, test.stdout()) is None)
 
     test.up_to_date(options='prefix=/var', arguments='.')
 

@@ -20,14 +20,12 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-from __future__ import print_function
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify creation of a config.h file from a Configure context.
 """
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import re
@@ -46,25 +44,27 @@ env.AppendENVPath('PATH', os.environ['PATH'])
 conf = Configure(env, config_h = 'config.h')
 r1 = conf.CheckFunc('printf')
 r2 = conf.CheckFunc('noFunctionCall')
-r3 = conf.CheckType('int')
-r4 = conf.CheckType('noType')
-r5 = conf.CheckCHeader('stdio.h', '<>')
-r6 = conf.CheckCHeader('hopefullynoc-header.h')
-r7 = conf.CheckCXXHeader('vector', '<>')
-r8 = conf.CheckCXXHeader('hopefullynocxx-header.h')
+r3 = conf.CheckFunc('memmove')
+r4 = conf.CheckType('int')
+r5 = conf.CheckType('noType')
+r6 = conf.CheckCHeader('stdio.h', '<>')
+r7 = conf.CheckCHeader('hopefullynoc-header.h')
+r8 = conf.CheckCXXHeader('vector', '<>')
+r9 = conf.CheckCXXHeader('hopefullynocxx-header.h')
 env = conf.Finish()
 conf = Configure(env, config_h = 'config.h')
-r9 = conf.CheckLib('%(lib)s', 'sin')
-r10 = conf.CheckLib('hopefullynolib', 'sin')
-r11 = conf.CheckLibWithHeader('%(lib)s', 'math.h', 'c')
-r12 = conf.CheckLibWithHeader('%(lib)s', 'hopefullynoheader2.h', 'c')
-r13 = conf.CheckLibWithHeader('hopefullynolib2', 'math.h', 'c')
+r10 = conf.CheckLib('%(lib)s', 'sin')
+r11 = conf.CheckLib('hopefullynolib', 'sin')
+r12 = conf.CheckLibWithHeader('%(lib)s', 'math.h', 'c')
+r13 = conf.CheckLibWithHeader('%(lib)s', 'hopefullynoheader2.h', 'c')
+r14 = conf.CheckLibWithHeader('hopefullynolib2', 'math.h', 'c')
 env = conf.Finish()
 """ % locals())
 
 expected_read_str = """\
 Checking for C function printf()... yes
 Checking for C function noFunctionCall()... no
+Checking for C function memmove()... yes
 Checking for C type int... yes
 Checking for C type noType... no
 Checking for C header file stdio.h... yes
@@ -95,6 +95,9 @@ expected_config_h = ("""\
 
 /* Define to 1 if the system has the function `noFunctionCall'. */
 /* #undef HAVE_NOFUNCTIONCALL */
+
+/* Define to 1 if the system has the function `memmove'. */
+#define HAVE_MEMMOVE 1
 
 /* Define to 1 if the system has the type `int'. */
 #define HAVE_INT 1

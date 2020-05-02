@@ -37,10 +37,8 @@ class GlobalActFunc(object):
         pass
 
 
-import collections
 import io
 import os
-import re
 import sys
 import types
 import unittest
@@ -338,14 +336,6 @@ class ActionTestCase(unittest.TestCase):
         test_positional_args(cmd_action, "string")
         # a singleton list returns the contained action
         test_positional_args(cmd_action, ["string"])
-
-        try:
-            unicode
-        except NameError:
-            pass
-        else:
-            a2 = eval("SCons.Action.Action(u'string')")
-            assert isinstance(a2, SCons.Action.CommandAction), a2
 
         def line_action(a):
             assert isinstance(a, SCons.Action.CommandAction), a
@@ -1208,10 +1198,6 @@ class CommandActionTestCase(unittest.TestCase):
             # Newer cygwin seems to return 126 for following
             expect_nonexecutable_file = 126
             expect_nonexecutable_dir = 127
-        elif sys.platform.find('sunos') != -1:
-            expect_nonexistent = 1
-            expect_nonexecutable_file = 1
-            expect_nonexecutable_dir = 1
         else:
             expect_nonexistent = 127
             expect_nonexecutable_file = 126

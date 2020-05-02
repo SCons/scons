@@ -20,18 +20,8 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-from __future__ import print_function
 
-import os
-import os.path
-import sys
-import glob
-import subprocess
-import filecmp
-import shutil
-
-__doc__ = """bootstrap.py
+"""bootstrap.py
 
 Execute SCons from this source tree. It copies Python scripts and modules
 from src/ subdirectory into a subdirectory named "bootstrap/" (by default),
@@ -74,6 +64,14 @@ the following SCons options:
         the SCons script itself doesn't need to, so this option gets
         "eaten" by the bootstrap.py script.
 """
+
+import os
+import os.path
+import sys
+import glob
+import subprocess
+import filecmp
+import shutil
 
 def parseManifestLines(basedir, manifest):
     """
@@ -185,7 +183,7 @@ def main():
         else:
             pass_through_args.append(arg)
 
-    scons_py = os.path.join('src', 'script', 'scons.py')
+    scons_py = os.path.join('scripts', 'scons.py')
     src_engine = os.path.join('src', 'engine')
     MANIFEST_in = find(os.path.join(src_engine, 'MANIFEST.in'))
     manifest_files = [os.path.join(src_engine, x)
@@ -222,6 +220,10 @@ def main():
 
 
 if __name__ == "__main__":
+    print("Please use")
+    print("python scripts/scons.py")
+    print("Instead of python bootstrap.py. Bootstrap.py is obsolete")
+    sys.exit(-1)
     main()
 
 # Local Variables:

@@ -39,7 +39,7 @@ test = TestSCons.TestSCons()
 latex = test.where_is('latex')
 
 if not latex:
-    test.skip_test('could not find latex; skipping test\n')
+    test.skip_test("could not find 'latex'; skipping test\n")
 
 test.write('SConstruct', """
 import os

@@ -1,7 +1,5 @@
 # docbook.py: extension module
 # $Id: docbook.py 8353 2009-03-17 16:57:50Z mzjn $
-from __future__ import print_function
-
 import sys
 import string
 import libxml2
@@ -33,10 +31,10 @@ def adjustColumnWidths(ctx, nodeset):
 
     # Get the nominal table width
     varString = lookupVariable(tctxt, "nominal.table.width", None)
-    if varString == None:
-        nominalWidth = 6 * pixelsPerInch;
+    if varString is None:
+        nominalWidth = 6 * pixelsPerInch
     else:
-        nominalWidth = convertLength(varString);
+        nominalWidth = convertLength(varString)
 
     # Get the requested table width
     tableWidth = lookupVariable(tctxt, "table.width", "100%")
@@ -58,20 +56,20 @@ def adjustColumnWidths(ctx, nodeset):
         colChildren = colgroup.children
 
     col = colChildren
-    while col != None:
+    while col is not None:
         if foStylesheet:
             width = col.prop("column-width")
         else:
             width = col.prop("width")
 
-        if width == None:
+        if width is None:
             width = "1*"
 
         relPart = 0.0
         absPart = 0.0
-        starPos = string.find(width, "*")
+        starPos = width.find("*")
         if starPos >= 0:
-            relPart, absPart = string.split(width, "*", 2)
+            relPart, absPart = width.split("*", 2)
             relPart = float(relPart)
             relTotal = relTotal + float(relPart)
         else:
@@ -113,7 +111,7 @@ def adjustColumnWidths(ctx, nodeset):
         widths = correctRoundingError(widths)
     else:
         pixelWidth = nominalWidth
-        if string.find(tableWidth, "%") < 0:
+        if '%' not in tableWidth:
             pixelWidth = convertLength(tableWidth)
 
         if pixelWidth <= absTotal:
@@ -127,7 +125,7 @@ def adjustColumnWidths(ctx, nodeset):
             relParts[count] = rel + absParts[count]
             absTotal = absTotal + rel + absParts[count]
 
-        if string.find(tableWidth, "%") < 0:
+        if '%' not in tableWidth:
             for count in range(len(relParts)):
                 if foStylesheet:
                     pixels = relParts[count]
@@ -145,7 +143,7 @@ def adjustColumnWidths(ctx, nodeset):
     # Side-effect free? We don' need no steenkin' side-effect free!
     count = 0
     col = colChildren
-    while col != None:
+    while col is not None:
         if foStylesheet:
             col.setProp("column-width", widths[count])
         else:
@@ -161,8 +159,8 @@ def convertLength(length):
     global pixelsPerInch
     global unitHash
 
-    m = re.search('([+-]?[\d\.]+)(\S+)', length)
-    if m != None and m.lastindex > 1:
+    m = re.search('([+-]?[\d.]+)(\S+)', length)
+    if m is not None and m.lastindex > 1:
         unit = pixelsPerInch
         if m.group(2) in unitHash:
             unit = unitHash[m.group(2)]
@@ -204,7 +202,7 @@ def correctRoundingError(floatWidths):
 
 def lookupVariable(tctxt, varName, default):
     varString = tctxt.variableLookup(varName, None)
-    if varString == None:
+    if varString is None:
         return default
 
     # If it's a list, get the first element
