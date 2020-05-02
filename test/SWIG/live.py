@@ -20,13 +20,12 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test SWIG behavior with a live, installed SWIG.
 """
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import sys
@@ -134,7 +133,6 @@ test.run(arguments = ldmodule_prefix+'foo' + _dll)
 test.must_not_exist(test.workpath('wrapper.out'))
 
 test.run(program = python, stdin = """\
-from __future__ import print_function
 import foo
 print(foo.foo_string())
 """, stdout="""\
@@ -148,7 +146,6 @@ test.run(arguments = ldmodule_prefix+'bar' + _dll)
 test.must_match('wrapper.out', "wrapper.py\n")
 
 test.run(program = python, stdin = """\
-from __future__ import print_function
 import foo
 import bar
 print(foo.foo_string())

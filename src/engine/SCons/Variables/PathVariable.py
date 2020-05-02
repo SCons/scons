@@ -78,11 +78,13 @@ import SCons.Errors
 
 class _PathVariableClass(object):
 
-    def PathAccept(self, key, val, env):
+    @staticmethod
+    def PathAccept(key, val, env):
         """Accepts any path, no checking done."""
         pass
     
-    def PathIsDir(self, key, val, env):
+    @staticmethod
+    def PathIsDir(key, val, env):
         """Validator to check if Path is a directory."""
         if not os.path.isdir(val):
             if os.path.isfile(val):
@@ -91,7 +93,8 @@ class _PathVariableClass(object):
                 m = 'Directory path for option %s does not exist: %s'
             raise SCons.Errors.UserError(m % (key, val))
 
-    def PathIsDirCreate(self, key, val, env):
+    @staticmethod
+    def PathIsDirCreate(key, val, env):
         """Validator to check if Path is a directory,
            creating it if it does not exist."""
         if os.path.isfile(val):
@@ -100,7 +103,8 @@ class _PathVariableClass(object):
         if not os.path.isdir(val):
             os.makedirs(val)
 
-    def PathIsFile(self, key, val, env):
+    @staticmethod
+    def PathIsFile(key, val, env):
         """Validator to check if Path is a file"""
         if not os.path.isfile(val):
             if os.path.isdir(val):
@@ -109,7 +113,8 @@ class _PathVariableClass(object):
                 m = 'File path for option %s does not exist: %s'
             raise SCons.Errors.UserError(m % (key, val))
 
-    def PathExists(self, key, val, env):
+    @staticmethod
+    def PathExists(key, val, env):
         """Validator to check if Path exists"""
         if not os.path.exists(val):
             m = 'Path for option %s does not exist: %s'

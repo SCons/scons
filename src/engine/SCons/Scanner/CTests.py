@@ -27,7 +27,6 @@ import SCons.compat
 
 import collections
 import os
-import sys
 import unittest
 
 import TestCmd
@@ -45,8 +44,11 @@ os.chdir(test.workpath(''))
 # create some source files and headers:
 
 test.write('f1.cpp',"""
-#include \"f1.h\"
+#ifdef INCLUDE_F2 /* multi-line comment */
 #include <f2.h>
+#else
+#include \"f1.h\"
+#endif
 
 int main(void)
 {
@@ -56,8 +58,15 @@ int main(void)
 
 test.write('f2.cpp',"""
 #include \"d1/f1.h\"
-#include <d2/f1.h>
+
+#if 5UL < 10 && !defined(DUMMY_MACRO) // some comment
+    #if NESTED_CONDITION
+        #include <d2/f1.h>
+    #endif
+#else
 #include \"f1.h\"
+#endif
+
 #import <f4.h>
 
 int main(void)
@@ -261,7 +270,7 @@ class CScannerTestCase4(unittest.TestCase):
         deps = s(env.File('f2.cpp'), env, path)
         headers =  ['d1/f1.h', 'f1.h', 'd1/d2/f1.h', 'd1/d2/f4.h']
         deps_match(self, deps, headers)
-        
+
 class CScannerTestCase5(unittest.TestCase):
     def runTest(self):
         """Make sure files in repositories will get scanned"""
@@ -282,7 +291,7 @@ class CScannerTestCase5(unittest.TestCase):
         # Make sure rexists() got called on the file node being
         # scanned, essential for cooperation with VariantDir functionality.
         assert n.GetTag('rexists_called')
-        
+
         headers =  ['f1.h', 'f2.h', 'f3-test.h',
                     'd1/f1.h', 'd1/f2.h', 'd1/f3-test.h']
         deps_match(self, deps, headers)
@@ -340,7 +349,7 @@ class CScannerTestCase9(unittest.TestCase):
 
         # Did we catch the warning associated with not finding fb.h?
         assert to.out
-        
+
         deps_match(self, deps, [ 'fa.h' ])
         test.unlink('fa.h')
 
@@ -440,6 +449,50 @@ class CScannerTestCase15(unittest.TestCase):
             assert suffix in s.get_skeys(env), "%s not in skeys" % suffix
 
 
+class CConditionalScannerTestCase1(unittest.TestCase):
+    def runTest(self):
+        """Find local files with no CPPPATH"""
+        env = DummyEnvironment(CPPPATH=[])
+        s = SCons.Scanner.C.CConditionalScanner()
+        path = s.path(env)
+        deps = s(env.File('f1.cpp'), env, path)
+        headers = ['f1.h']
+        deps_match(self, deps, headers)
+
+
+class CConditionalScannerTestCase2(unittest.TestCase):
+    def runTest(self):
+        """Find local files with no CPPPATH based on #ifdef"""
+        env = DummyEnvironment(CPPPATH=[], CPPDEFINES=["INCLUDE_F2"])
+        s = SCons.Scanner.C.CConditionalScanner()
+        path = s.path(env)
+        deps = s(env.File('f1.cpp'), env, path)
+        headers = ['f2.h', 'fi.h']
+        deps_match(self, deps, headers)
+
+
+class CConditionalScannerTestCase3(unittest.TestCase):
+    def runTest(self):
+        """Find files in explicit subdirectories, ignore missing file"""
+        env = DummyEnvironment(
+            CPPPATH=[test.workpath("d1")],
+            CPPDEFINES=[("NESTED_CONDITION", 1)]
+        )
+        s = SCons.Scanner.C.CConditionalScanner()
+        deps = s(env.File('f2.cpp'), env, s.path(env))
+        headers = ['d1/f1.h', 'd1/d2/f1.h']
+        deps_match(self, deps, headers)
+
+        # disable nested conditions
+        env = DummyEnvironment(
+            CPPPATH=[test.workpath("d1")],
+            CPPDEFINES=[("NESTED_CONDITION", 0)]
+        )
+        s = SCons.Scanner.C.CConditionalScanner()
+        deps = s(env.File('f2.cpp'), env, s.path(env))
+        headers = ['d1/f1.h']
+        deps_match(self, deps, headers)
+
 
 def suite():
     suite = unittest.TestSuite()
@@ -457,6 +510,9 @@ def suite():
     suite.addTest(CScannerTestCase13())
     suite.addTest(CScannerTestCase14())
     suite.addTest(CScannerTestCase15())
+    suite.addTest(CConditionalScannerTestCase1())
+    suite.addTest(CConditionalScannerTestCase2())
+    suite.addTest(CConditionalScannerTestCase3())
     return suite
 
 if __name__ == "__main__":

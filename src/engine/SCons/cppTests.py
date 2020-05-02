@@ -20,13 +20,9 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-
-from __future__ import absolute_import
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import atexit
-import sys
 import unittest
 
 import TestUnit
@@ -67,7 +63,7 @@ substitution_input = """
 ifdef_input = """
 #define DEFINED 0
 
-#ifdef	DEFINED
+#ifdef	DEFINED /* multi-line comment */
 #include "file7-yes"
 #else
 #include "file7-no"
@@ -82,7 +78,7 @@ ifdef_input = """
 
 
 if_boolean_input = """
-#define ZERO	0
+#define ZERO	0  // single-line comment
 #define ONE	1
 
 #if ZERO
@@ -132,27 +128,35 @@ if_boolean_input = """
 
 
 if_defined_input = """
-#define DEFINED 0
+#define DEFINED_A 0
+#define DEFINED_B 0
 
-#if	defined(DEFINED)
+#if	defined(DEFINED_A)
 #include "file15-yes"
 #endif
 
-#if	! defined(DEFINED)
+#if	! defined(DEFINED_A)
 #include <file16-no>
 #else
 #include <file16-yes>
 #endif
 
-#if	defined DEFINED
+#if	defined DEFINED_A
 #include "file17-yes"
 #endif
 
-#if	! defined DEFINED
+#if	! defined DEFINED_A
 #include <file18-no>
 #else
 #include <file18-yes>
 #endif
+
+#if ! (defined (DEFINED_A) || defined (DEFINED_B)
+#include <file19-no>
+#else
+#include <file19-yes>
+#endif
+
 """
 
 
@@ -226,10 +230,16 @@ expression_input = """
 #include "file29-yes"
 #endif
 
-#if	! (ONE != ONE)
+#if ! (ONE != ONE)
 #include <file30-yes>
 #else
 #include <file30-no>
+#endif
+
+#if	123456789UL || 0x13L
+#include <file301-yes>
+#else
+#include <file301-no>
 #endif
 """
 
@@ -559,6 +569,7 @@ class PreProcessorTestCase(cppAllTestCase):
         ('include', '<', 'file16-yes'),
         ('include', '"', 'file17-yes'),
         ('include', '<', 'file18-yes'),
+        ('include', '<', 'file19-yes'),
     ]
 
     expression_expect = [
@@ -574,6 +585,7 @@ class PreProcessorTestCase(cppAllTestCase):
         ('include', '<', 'file28-yes'),
         ('include', '"', 'file29-yes'),
         ('include', '<', 'file30-yes'),
+        ('include', '<', 'file301-yes'),
     ]
 
     undef_expect = [
@@ -672,6 +684,8 @@ class DumbPreProcessorTestCase(cppAllTestCase):
         ('include', '"', 'file17-yes'),
         ('include', '<', 'file18-no'),
         ('include', '<', 'file18-yes'),
+        ('include', '<', 'file19-no'),
+        ('include', '<', 'file19-yes'),
     ]
 
     expression_expect = [
@@ -699,6 +713,8 @@ class DumbPreProcessorTestCase(cppAllTestCase):
         ('include', '"', 'file29-yes'),
         ('include', '<', 'file30-yes'),
         ('include', '<', 'file30-no'),
+        ('include', '<', 'file301-yes'),
+        ('include', '<', 'file301-no'),
     ]
 
     undef_expect = [

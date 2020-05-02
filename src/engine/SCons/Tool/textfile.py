@@ -71,7 +71,7 @@ def _do_subst(node, subs):
     contents = node.get_text_contents()
     if subs:
         for (k, val) in subs:
-            contents = re.sub(k, val, contents)
+            contents = contents.replace(k, val)
 
     if 'b' in TEXTFILE_FILE_WRITE_MODE:
         try:
@@ -171,7 +171,7 @@ _text_builder = SCons.Builder.Builder(
     suffix='$TEXTFILESUFFIX',
 )
 
-_subst_varlist = _common_varlist + ['SUBSTFILEPREFIX', 'TEXTFILESUFFIX']
+_subst_varlist = _common_varlist + ['SUBSTFILEPREFIX', 'SUBSTFILESUFFIX']
 _subst_builder = SCons.Builder.Builder(
     action=SCons.Action.Action(_action, _strfunc, varlist=_subst_varlist),
     source_factory=SCons.Node.FS.File,

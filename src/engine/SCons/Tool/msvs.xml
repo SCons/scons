@@ -145,6 +145,25 @@ See its __doc__ string for a discussion of the format.
           </listitem>
         </varlistentry>
         <varlistentry>
+          <term>cppflags</term>
+          <listitem>
+            <para>
+              Compiler flags for the different variants.
+              If a /std:c++ flag is found then /Zc:__cplusplus is
+              appended to the flags if not already found, this
+              ensures that intellisense uses the /std:c++ switch.
+              The number of <literal>cppflags</literal> entries
+              must match the number of <literal>variant</literal>
+              entries, or be empty (not specified). If you give
+              only one, it will automatically be propagated to all
+              variants. If you don't give this parameter, SCons
+              will combine the invoking environment's
+              <literal>CCFLAGS</literal>, <literal>CXXFLAGS</literal>,
+              <literal>CPPFLAGS</literal> entries for all variants.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
           <term>cpppaths</term>
           <listitem>
             <para>
@@ -422,7 +441,11 @@ env.MSVSProject(target='Bar' + env['MSVSPROJECTSUFFIX'],
       </variablelist>
       <para>Example Usage:</para>
       <example_commands>
-env.MSVSSolution(target='Bar' + env['MSVSSOLUTIONSUFFIX'], projects=['bar' + env['MSVSPROJECTSUFFIX']], variant='Release')
+env.MSVSSolution(
+    target="Bar" + env["MSVSSOLUTIONSUFFIX"],
+    projects=["bar" + env["MSVSPROJECTSUFFIX"]],
+    variant="Release",
+)
       </example_commands>
     </summary>
   </builder> <cvar name="MSVS">

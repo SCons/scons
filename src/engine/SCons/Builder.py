@@ -100,7 +100,7 @@ There are the following methods for internal use within this module:
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import collections
+from collections import UserDict, UserList
 
 import SCons.Action
 import SCons.Debug
@@ -197,7 +197,7 @@ class DictEmitter(SCons.Util.Selector):
             target, source = emitter(target, source, env)
         return (target, source)
 
-class ListEmitter(collections.UserList):
+class ListEmitter(UserList):
     """A callable list of emitters that calls each in sequence,
     returning the result.
     """
@@ -215,7 +215,7 @@ misleading_keywords = {
     'sources'   : 'source',
 }
 
-class OverrideWarner(collections.UserDict):
+class OverrideWarner(UserDict):
     """A class for warning about keyword arguments that we use as
     overrides in a Builder call.
 
@@ -224,7 +224,7 @@ class OverrideWarner(collections.UserDict):
     warnings once, no matter how many Builders are invoked.
     """
     def __init__(self, dict):
-        collections.UserDict.__init__(self, dict)
+        UserDict.__init__(self, dict)
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Builder.OverrideWarner')
         self.already_warned = None
     def warn(self):
@@ -647,6 +647,8 @@ class BuilderBase(object):
                 env_kw = kw
         else:
             env_kw = self.overrides
+
+        # TODO if env_kw: then the following line. there's no purpose in calling if no overrides.
         env = env.Override(env_kw)
         return self._execute(env, target, source, OverrideWarner(kw), ekw)
 

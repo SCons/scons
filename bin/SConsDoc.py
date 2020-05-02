@@ -24,9 +24,6 @@
 #
 # Module for handling SCons documentation processing.
 #
-from __future__ import print_function
-
-
 __doc__ = r"""
 This module parses home-brew XML files that document various things
 in SCons.  Right now, it handles Builders, functions, construction
@@ -117,8 +114,7 @@ import os.path
 import re
 import sys
 import copy
-
-PY2 = sys.version_info[0] == 2
+import importlib
 
 # Do we have libxml2/libxslt/lxml?
 has_libxml2 = True
@@ -141,22 +137,13 @@ if not has_libxml2:
         pass
 if not has_etree:
     try:
-        # Python 2.5
+        # TODO: this is for Python 2.7, cElementTee is deprecated since Py3.3
         import xml.etree.cElementTree as etree
     except ImportError:
         try:
-            # Python 2.5
             import xml.etree.ElementTree as etree
         except ImportError:
-            try:
-                # normal cElementTree install
-                import cElementTree as etree
-            except ImportError:
-                try:
-                    # normal ElementTree install
-                    import elementtree.ElementTree as etree
-                except ImportError:
-                    raise ImportError("Failed to import ElementTree from any known place")
+            raise ImportError("Failed to import ElementTree from any known place")
 
 # patterns to help trim XML passed in as strings
 re_entity = re.compile(r"&([^;]+);")
@@ -269,17 +256,21 @@ if not has_libxml2:
             pass
 
         @staticmethod
-        def newNode(tag):
-            return etree.Element(tag)
+        def newNode(tag, **kwargs):
+            return etree.Element(tag, **kwargs)
 
         @staticmethod
-        def newEtreeNode(tag, init_ns=False):
+        def newSubNode(parent, tag, **kwargs):
+            return etree.SubElement(parent, tag, **kwargs)
+
+        @staticmethod
+        def newEtreeNode(tag, init_ns=False, **kwargs):
             if init_ns:
                 NSMAP = {None: dbxsd,
                          'xsi' : xsi}
-                return etree.Element(tag, nsmap=NSMAP)
+                return etree.Element(tag, nsmap=NSMAP, **kwargs)
 
-            return etree.Element(tag)
+            return etree.Element(tag, **kwargs)
 
         @staticmethod
         def copyNode(node):
@@ -310,22 +301,24 @@ if not has_libxml2:
             root.text = txt
 
         @staticmethod
+        def getTail(root):
+            return root.tail
+
+        @staticmethod
+        def setTail(root, txt):
+            root.tail = txt
+
+        @staticmethod
         def writeGenTree(root, fp):
             dt = DoctypeDeclaration()
-            try:
-                encfun = unicode  # PY2
-            except NameError:
-                encfun = str
+            encfun = str
             fp.write(etree.tostring(root, encoding=encfun,
                                     pretty_print=True,
                                     doctype=dt.createDoctype()))
 
         @staticmethod
         def writeTree(root, fpath):
-            try:
-                encfun = unicode  # PY2
-            except NameError:
-                encfun = "utf-8"
+            encfun = "utf-8"
             with open(fpath, 'wb') as fp:
                 fp.write(etree.tostring(root, encoding=encfun,
                                         pretty_print=True))
@@ -352,10 +345,14 @@ if not has_libxml2:
             t = etree.Element(root, nsmap=NSMAP)
             return self.decorateWithHeader(t)
 
+        # singleton to cache parsed xmlschema..
+        xmlschema = None
+
         @staticmethod
         def validateXml(fpath, xmlschema_context):
-            # Use lxml
-            xmlschema = etree.XMLSchema(xmlschema_context)
+
+            if TreeFactory.xmlschema is None:
+                TreeFactory.xmlschema = etree.XMLSchema(xmlschema_context)
             try:
                 doc = etree.parse(fpath)
             except Exception as e:
@@ -364,7 +361,7 @@ if not has_libxml2:
                 return False
             doc.xinclude()
             try:
-                xmlschema.assertValid(doc)
+                TreeFactory.xmlschema.assertValid(doc)
             except Exception as e:
                 print("ERROR: %s fails to validate:" % fpath)
                 print(e)
@@ -399,12 +396,16 @@ else:
             pass
 
         @staticmethod
-        def newNode(tag):
-            return libxml2.newNode(tag)
+        def newNode(tag, **kwargs):
+            return etree.Element(tag, **kwargs)
 
         @staticmethod
-        def newEtreeNode(tag, init_ns=False):
-            return etree.Element(tag)
+        def newSubNode(parent, tag, **kwargs):
+            return etree.SubElement(parent, tag, **kwargs)
+
+        @staticmethod
+        def newEtreeNode(tag, init_ns=False, **kwargs):
+            return etree.Element(tag, **kwargs)
 
         @staticmethod
         def copyNode(node):
@@ -448,6 +449,14 @@ else:
                 root.setContent(txt)
             else:
                 root.text = txt
+
+        @staticmethod
+        def getTail(root):
+            return root.tail
+
+        @staticmethod
+        def setTail(root, txt):
+            root.tail = txt
 
         @staticmethod
         def writeGenTree(root, fp):
@@ -847,45 +856,23 @@ class SConsDocHandler(object):
         # Parse it
         self.parseDomtree(t.root, t.xpath_context, t.nsmap)
 
-# lifted from Ka-Ping Yee's way cool pydoc module.
-if PY2:
-    def importfile(path):
-        """Import a Python source file or compiled file given its path."""
-        import imp
-        magic = imp.get_magic()
-        with open(path, 'r') as ifp:
-            if ifp.read(len(magic)) == magic:
-                kind = imp.PY_COMPILED
-            else:
-                kind = imp.PY_SOURCE
-        filename = os.path.basename(path)
-        name, ext = os.path.splitext(filename)
-        with open(path, 'r') as ifp:
-            try:
-                module = imp.load_module(name, ifp, path, (ext, 'r', kind))
-            except ImportError as e:
-                sys.stderr.write("Could not import %s: %s\n" % (path, e))
-                return None
-        return module
-
-else:  # PY3 version, from newer pydoc
-    def importfile(path):
-        """Import a Python source file or compiled file given its path."""
-        from importlib.util import MAGIC_NUMBER
-        with open(path, 'rb') as ifp:
-            is_bytecode = MAGIC_NUMBER == ifp.read(len(MAGIC_NUMBER))
-        filename = os.path.basename(path)
-        name, ext = os.path.splitext(filename)
-        if is_bytecode:
-            loader = importlib._bootstrap_external.SourcelessFileLoader(name, path)
-        else:
-            loader = importlib._bootstrap_external.SourceFileLoader(name, path)
-        # XXX We probably don't need to pass in the loader here.
-        spec = importlib.util.spec_from_file_location(name, path, loader=loader)
-        try:
-            return importlib._bootstrap._load(spec)
-        except ImportError:
-            raise ErrorDuringImport(path, sys.exc_info())
+def importfile(path):
+    """Import a Python source file or compiled file given its path."""
+    from importlib.util import MAGIC_NUMBER
+    with open(path, 'rb') as ifp:
+        is_bytecode = MAGIC_NUMBER == ifp.read(len(MAGIC_NUMBER))
+    filename = os.path.basename(path)
+    name, ext = os.path.splitext(filename)
+    if is_bytecode:
+        loader = importlib._bootstrap_external.SourcelessFileLoader(name, path)
+    else:
+        loader = importlib._bootstrap_external.SourceFileLoader(name, path)
+    # XXX We probably don't need to pass in the loader here.
+    spec = importlib.util.spec_from_file_location(name, path, loader=loader)
+    try:
+        return importlib._bootstrap._load(spec)
+    except ImportError:
+        raise Exception(path, sys.exc_info())
 
 # Local Variables:
 # tab-width:4

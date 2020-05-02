@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 """SCons.Tool.gdc
 
 Tool-specific initialization for the GDC compiler.

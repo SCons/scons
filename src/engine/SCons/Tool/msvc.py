@@ -48,7 +48,7 @@ import SCons.Util
 import SCons.Warnings
 import SCons.Scanner.RC
 
-from .MSCommon import msvc_exists, msvc_setup_env_once, msvc_version_to_maj_min
+from .MSCommon import msvc_exists, msvc_setup_env_once, msvc_version_to_maj_min, msvc_find_vswhere
 
 CSuffixes = ['.c', '.C']
 CXXSuffixes = ['.cc', '.cpp', '.cxx', '.c++', '.C++']
@@ -214,6 +214,7 @@ ShCXXAction = SCons.Action.Action("$SHCXXCOM", "$SHCXXCOMSTR",
                                   batch_key=msvc_batch_key,
                                   targets='$CHANGED_TARGETS')
 
+
 def generate(env):
     """Add Builders and construction variables for MSVC++ to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
@@ -275,6 +276,9 @@ def generate(env):
     # MSVC probably wont support unistd.h so default
     # without it for lex generation
     env["LEXUNISTD"] = SCons.Util.CLVar("--nounistd")
+
+    # Get user specified vswhere location or locate.
+    env['VSWHERE'] = env.get('VSWHERE', msvc_find_vswhere()) 
 
     # Set-up ms tools paths
     msvc_setup_env_once(env)

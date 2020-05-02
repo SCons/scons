@@ -20,7 +20,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
+
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
@@ -42,7 +42,6 @@ test.write('build.py', build_py)
 test.write(['expand_chdir_sub', 'subbuild.py'], build_py)
 
 test.write('SConstruct', """
-from __future__ import print_function
 import os
 import sys
 

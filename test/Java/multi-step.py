@@ -20,22 +20,19 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-from __future__ import print_function
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Real-world test (courtesy Leanid Nazdrynau) of the multi-step
 capabilities of the various Java Builders.
 """
 
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+
 import os
 
 import TestSCons
 
 test = TestSCons.TestSCons()
-# test.verbose_set(1)
 
 where_javac, java_version = test.java_where_javac()
 where_javah = test.java_where_javah()

@@ -56,18 +56,6 @@ class SConfTestCase(unittest.TestCase):
         os.chdir(self.save_cwd)
 
     def _resetSConfState(self):
-        if sys.platform in ['cygwin', 'win32'] and sys.version_info.major == 2:
-            # On Windows with Python2, SCons.Platform.win32 redefines the
-            # built-in file() and open() functions to disable handle
-            # inheritance. Because we are unloading all SCons modules other
-            # than SCons.Compat, SCons.Platform.win32 will lose the variables
-            # it needs. As a result, we should reset the file() and open()
-            # functions to their original built-in versions.
-            import __builtin__
-            import SCons.Platform.win32
-            __builtin__.file = SCons.Platform.win32._builtin_file
-            __builtin__.open = SCons.Platform.win32._builtin_open
-
         # Ok, this is tricky, and i do not know, if everything is sane.
         # We try to reset scons' state (including all global variables)
         import SCons.SConsign
@@ -169,10 +157,18 @@ class SConfTestCase(unittest.TestCase):
                                  log_file=self.test.workpath('config.log'))
         import SCons.Builder
         import SCons.Node
+
+        class MyAction(object):
+            def get_contents(self, target, source, env):
+                return 'MyBuilder-MyAction $SOURCE $TARGET'
+
         class MyBuilder(SCons.Builder.BuilderBase):
             def __init__(self):
                 self.prefix = ''
                 self.suffix = ''
+                # need action because temporary file name uses hash of actions get_contents()
+                self.action = MyAction()
+
             def __call__(self, env, target, source):
                 class MyNode(object):
                     def __init__(self, name):
@@ -299,10 +295,6 @@ int main(void) {
             return None
         def actionFAIL(target, source, env):
             return 1
-        def actionUnicode(target, source, env):
-            with open(str(target[0]), "wb") as f:
-                f.write('2\302\242\n')
-            return None
 
 
         self._resetSConfState()
@@ -311,14 +303,10 @@ int main(void) {
                                   log_file=self.test.workpath('config.log'))
         try:
             (ret, output) = sconf.TryAction(action=actionOK)
-            assert ret and output.encode('utf-8') == bytearray("RUN OK"+os.linesep,'utf-8'), (ret, output)
+            assert ret and output.encode('utf-8') == bytearray("RUN OK"+os.linesep, 'utf-8'), (ret, output)
             (ret, output) = sconf.TryAction(action=actionFAIL)
             assert not ret and output == "", (ret, output)
 
-            if not TestCmd.IS_PY3:
-                # GH Issue #3141 - unicode text and py2.7 crashes.
-                (ret, output) = sconf.TryAction(action=actionUnicode)
-                assert ret and output == u'2\xa2\n', (ret, output)
 
         finally:
             sconf.Finish()

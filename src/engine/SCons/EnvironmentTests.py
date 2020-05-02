@@ -20,9 +20,6 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-
-from __future__ import print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
@@ -264,11 +261,6 @@ class SubstitutionTestCase(unittest.TestCase):
         assert len(nodes) == 1, nodes
         assert isinstance(nodes[0], X)
         assert nodes[0].name == "Util.py UtilTests.py", nodes[0].name
-
-        nodes = env.arg2nodes(u"Util.py UtilTests.py", Factory)
-        assert len(nodes) == 1, nodes
-        assert isinstance(nodes[0], X)
-        assert nodes[0].name == u"Util.py UtilTests.py", nodes[0].name
 
         nodes = env.arg2nodes(["Util.py", "UtilTests.py"], Factory)
         assert len(nodes) == 2, nodes

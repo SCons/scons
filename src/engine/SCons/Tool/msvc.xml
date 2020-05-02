@@ -355,6 +355,7 @@ constructor; setting it later has no effect.
 Valid values for Windows are
 <literal>14.2</literal>,
 <literal>14.1</literal>,
+<literal>14.1Exp</literal>,
 <literal>14.0</literal>,
 <literal>14.0Exp</literal>,
 <literal>12.0</literal>,
@@ -473,5 +474,55 @@ Valid values are '1' or '0'
 
 </summary>
 </cvar>
+
+<cvar name="VSWHERE">
+<summary>
+<para>
+Specify the location of <filename>vswhere.exe</filename>. 
+</para>
+
+<para>
+    The <filename>vswhere.exe</filename> executable is distributed with Microsoft Visual Studio and Build
+    Tools since the 2017 edition, but is also available standalone.
+    It provides full information about installations of 2017 and later editions.
+    With the <option>-legacy</option> argument, <filename>vswhere.exe</filename> can detect installations of the 2010 through 2015
+    editions with limited data returned.
+If <envar>VSWHERE</envar> is set, SCons will use that location.
+</para>
+<para>
+    Otherwise SCons will look in the following locations and set <envar>VSWHERE</envar> to the path of the first <filename>vswhere.exe</filename>
+located.
+</para>
+
+<itemizedlist>
+<listitem><para><literal>%ProgramFiles(x86)%\Microsoft Visual Studio\Installer</literal></para></listitem>
+<listitem><para><literal>%ProgramFiles%\Microsoft Visual Studio\Installer</literal></para></listitem>
+<listitem><para><literal>%ChocolateyInstall%\bin</literal></para></listitem>
+</itemizedlist>
+
+<para>
+  Note that <envar>VSWHERE</envar> must be set at the same time or prior to any of &t-link-msvc;, &t-link-msvs; , and/or &t-link-mslink; &f-link-Tool; being initialized.
+
+  Either set it as follows
+<programlisting>
+env = Environment(VSWHERE='c:/my/path/to/vswhere')
+</programlisting>
+
+or if your &consenv; is created specifying an empty tools list
+(or a list of tools which omits all of default, msvs, msvc, and mslink),
+and also before &f-link-env-Tool; is called to ininitialize any of those tools:
+
+<programlisting>
+    env = Environment(tools=[])
+    env['VSWHERE'] = r'c:/my/vswhere/install/location/vswhere.exe'
+    env.Tool('msvc')
+    env.Tool('mslink')
+    env.Tool('msvs')
+    </programlisting>
+</para>
+
+</summary>
+</cvar>
+
 
 </sconsdoc>

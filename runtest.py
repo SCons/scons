@@ -23,6 +23,7 @@ Options:
   -b --baseline BASE       Run test scripts against baseline BASE.
      --builddir DIR        Directory in which packages were built.
   -d --debug               Run test scripts under the Python debugger.
+  -D --devmode             Run tests in Python's development mode (3.7+ only)
   -e --external            Run the script in external mode (for external Tools)
   -f --file FILE           Only run tests listed in FILE.
   -j --jobs JOBS           Run tests in JOBS parallel jobs.
@@ -66,46 +67,44 @@ Options:
 
 Environment Variables:
   PRESERVE, PRESERVE_{PASS,FAIL,NO_RESULT}: preserve test subdirs
-  TESTCMD_VERBOSE: turn on verbosity in TestCommand\
+  TESTCMD_VERBOSE: turn on verbosity in TestCommand
 """
-
-from __future__ import print_function
 
 import getopt
 import glob
 import os
 import re
 import stat
-import sys
-import time
-
-import threading
-try:                        # python3
-    from queue import Queue
-except ImportError as e:    # python2
-    from Queue import Queue
 import subprocess
+import sys
+import tempfile
+import threading
+import time
+from abc import ABC, abstractmethod
+from optparse import OptionParser, BadOptionError
+from queue import Queue
 
 cwd = os.getcwd()
 
-baseline = 0
+baseline = None
 builddir = os.path.join(cwd, 'build')
 external = 0
+devmode = False
 debug = ''
-execute_tests = 1
+execute_tests = True
 jobs = 1
-list_only = None
-printcommand = 1
+list_only = False
+printcommand = True
 package = None
-print_passed_summary = None
+print_passed_summary = False
 scons = None
-scons_exec = None
+scons_exec = False
 testlistfile = None
 version = ''
-print_times = None
+print_times = False
 python = None
 sp = []
-print_progress = 1
+print_progress = True
 catch_output = False
 suppress_output = False
 allow_pipe_files = True
@@ -124,8 +123,6 @@ helpstr = usagestr + __doc__
 # unknown options and lets them pile up in the leftover argument
 # list.  Useful to gradually port getopt to optparse.
 
-from optparse import OptionParser, BadOptionError
-
 class PassThroughOptionParser(OptionParser):
     def _process_long_opt(self, rargs, values):
         try:
@@ -139,31 +136,47 @@ class PassThroughOptionParser(OptionParser):
             self.largs.append(err.opt_str)
 
 parser = PassThroughOptionParser(add_help_option=False)
-parser.add_option('-a', '--all', action='store_true',
-                      help="Run all tests.")
+parser.add_option('-a', '--all', action='store_true', help="Run all tests.")
 parser.add_option('-o', '--output',
-                      help="Save the output from a test run to the log file.")
+                  help="Save the output from a test run to the log file.")
 parser.add_option('--runner', metavar='class',
-                      help="Test runner class for unit tests.")
-parser.add_option('--xml',
-                      help="Save results to file in SCons XML format.")
+                  help="Test runner class for unit tests.")
+parser.add_option('--xml', help="Save results to file in SCons XML format.")
 (options, args) = parser.parse_args()
 
-#print("options:", options)
-#print("args:", args)
+# print("options:", options)
+# print("args:", args)
 
 
-opts, args = getopt.getopt(args, "b:def:hj:klnP:p:qsv:Xx:t",
-                            ['baseline=', 'builddir=',
-                             'debug', 'external', 'file=', 'help', 'no-progress',
-                             'jobs=',
-                             'list', 'no-exec', 'nopipefiles',
-                             'package=', 'passed', 'python=',
-                             'quiet',
-                             'quit-on-failure',
-                             'short-progress', 'time',
-                             'version=', 'exec=',
-                             'verbose=', 'exclude-list='])
+opts, args = getopt.getopt(
+    args,
+    "b:dDef:hj:klnP:p:qsv:Xx:t",
+    [
+        "baseline=",
+        "builddir=",
+        "debug",
+        "devmode", 
+        "external",
+        "file=",
+        "help",
+        "no-progress",
+        "jobs=",
+        "list",
+        "no-exec",
+        "nopipefiles",
+        "package=",
+        "passed",
+        "python=",
+        "quiet",
+        "quit-on-failure",
+        "short-progress",
+        "time",
+        "version=",
+        "exec=",
+        "verbose=",
+        "exclude-list=",
+    ],
+)
 
 for o, a in opts:
     if o in ['-b', '--baseline']:
@@ -173,13 +186,15 @@ for o, a in opts:
         if not os.path.isabs(builddir):
             builddir = os.path.normpath(os.path.join(cwd, builddir))
     elif o in ['-d', '--debug']:
-        for dir in sys.path:
-            pdb = os.path.join(dir, 'pdb.py')
+        for d in sys.path:
+            pdb = os.path.join(d, 'pdb.py')
             if os.path.exists(pdb):
                 debug = pdb
                 break
+    elif o in ['-D', '--devmode']:
+        devmode = True
     elif o in ['-e', '--external']:
-        external = 1
+        external = True
     elif o in ['-f', '--file']:
         if not os.path.isabs(a):
             a = os.path.join(cwd, a)
@@ -193,46 +208,45 @@ for o, a in opts:
         # or outputs will interleave and be hard to read
         catch_output = True
     elif o in ['-k', '--no-progress']:
-        print_progress = 0
+        print_progress = False
     elif o in ['-l', '--list']:
-        list_only = 1
+        list_only = True
     elif o in ['-n', '--no-exec']:
-        execute_tests = None
+        execute_tests = False
     elif o in ['--nopipefiles']:
         allow_pipe_files = False
     elif o in ['-p', '--package']:
         package = a
     elif o in ['--passed']:
-        print_passed_summary = 1
+        print_passed_summary = True
     elif o in ['-P', '--python']:
         python = a
     elif o in ['-q', '--quiet']:
-        printcommand = 0
+        printcommand = False
         suppress_output = catch_output = True
     elif o in ['--quit-on-failure']:
         quit_on_failure = True
     elif o in ['-s', '--short-progress']:
-        print_progress = 1
+        print_progress = True
         suppress_output = catch_output = True
     elif o in ['-t', '--time']:
-        print_times = 1
+        print_times = True
     elif o in ['--verbose']:
         os.environ['TESTCMD_VERBOSE'] = a
     elif o in ['-v', '--version']:
         version = a
     elif o in ['-X']:
-        scons_exec = 1
+        scons_exec = True
     elif o in ['-x', '--exec']:
         scons = a
     elif o in ['--exclude-list']:
         excludelistfile = a
 
 
-# --- setup stdout/stderr ---
-class Unbuffered(object):
+class Unbuffered():
+    """ class to arrange for stdout/stderr to be unbuffered """
     def __init__(self, file):
         self.file = file
-        self.softspace = 0  ## backward compatibility; not supported in Py3k
     def write(self, arg):
         self.file.write(arg)
         self.file.flush()
@@ -242,9 +256,12 @@ class Unbuffered(object):
 sys.stdout = Unbuffered(sys.stdout)
 sys.stderr = Unbuffered(sys.stderr)
 
+# possible alternative: switch to using print, and:
+# print = functools.partial(print, flush)
+
 if options.output:
     logfile = open(options.output, 'w')
-    class Tee(object):
+    class Tee():
         def __init__(self, openfile, stream):
             self.file = openfile
             self.stream = stream
@@ -256,11 +273,10 @@ if options.output:
 
 # --- define helpers ----
 if sys.platform in ('win32', 'cygwin'):
-
     def whereis(file):
         pathext = [''] + os.environ['PATHEXT'].split(os.pathsep)
-        for dir in os.environ['PATH'].split(os.pathsep):
-            f = os.path.join(dir, file)
+        for d in os.environ['PATH'].split(os.pathsep):
+            f = os.path.join(d, file)
             for ext in pathext:
                 fext = f + ext
                 if os.path.isfile(fext):
@@ -268,10 +284,9 @@ if sys.platform in ('win32', 'cygwin'):
         return None
 
 else:
-
     def whereis(file):
-        for dir in os.environ['PATH'].split(os.pathsep):
-            f = os.path.join(dir, file)
+        for d in os.environ['PATH'].split(os.pathsep):
+            f = os.path.join(d, file)
             if os.path.isfile(f):
                 try:
                     st = os.stat(f)
@@ -299,8 +314,8 @@ if not catch_output:
     # Without any output suppressed, we let the subprocess
     # write its stuff freely to stdout/stderr.
     def spawn_it(command_args):
-        p = subprocess.Popen(command_args, shell=False)
-        return (None, None, p.wait())
+        cp = subprocess.run(command_args, shell=False)
+        return cp.stdout, cp.stderr, cp.returncode
 else:
     # Else, we catch the output of both pipes...
     if allow_pipe_files:
@@ -317,16 +332,13 @@ else:
         # subprocess.PIPE.
         def spawn_it(command_args):
             # Create temporary files
-            import tempfile
             tmp_stdout = tempfile.TemporaryFile(mode='w+t')
             tmp_stderr = tempfile.TemporaryFile(mode='w+t')
             # Start subprocess...
-            p = subprocess.Popen(command_args,
-                                 stdout=tmp_stdout,
-                                 stderr=tmp_stderr,
-                                 shell=False)
-            # ... and wait for it to finish.
-            ret = p.wait()
+            cp = subprocess.run(command_args,
+                                stdout=tmp_stdout,
+                                stderr=tmp_stderr,
+                                shell=False)
 
             try:
                 # Rewind to start of files
@@ -341,7 +353,7 @@ else:
                 tmp_stderr.close()
 
             # Return values
-            return (spawned_stderr, spawned_stdout, ret)
+            return spawned_stderr, spawned_stdout, cp.returncode
 
     else:
         # We get here only if the user gave the '--nopipefiles'
@@ -357,30 +369,37 @@ else:
         #   Hence a deadlock.
         # Be dragons here! Better don't use this!
         def spawn_it(command_args):
-            p = subprocess.Popen(command_args,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE,
-                                 shell=False)
-            spawned_stdout = p.stdout.read()
-            spawned_stderr = p.stderr.read()
-            return (spawned_stderr, spawned_stdout, p.wait())
+            cp = subprocess.run(command_args,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                shell=False)
+            return cp.stdout, cp.stderr, cp.returncode
 
 
-class RuntestBase(object):
+class RuntestBase(ABC):
+    """ Base class for tests """
     def __init__(self, path, num, spe=None):
         self.path = path
         self.num = num
+        self.stdout = self.stderr = self.status = None
         self.abspath = os.path.abspath(path)
+        self.command_args = []
+        self.command_str = ""
+        self.test_time = self.total_time = 0
         if spe:
-            for dir in spe:
-                f = os.path.join(dir, path)
+            for d in spe:
+                f = os.path.join(d, path)
                 if os.path.isfile(f):
                     self.abspath = f
                     break
-        self.status = None
+
+    @abstractmethod
+    def execute(self):
+        pass
 
 
 class SystemExecutor(RuntestBase):
+    """ Test class for tests executed with spawn_it() """
     def execute(self):
         self.stderr, self.stdout, s = spawn_it(self.command_args)
         self.status = s
@@ -389,22 +408,28 @@ class SystemExecutor(RuntestBase):
 
 
 class PopenExecutor(RuntestBase):
+    """ Test class for tests executed with Popen
+
+    A bit of a misnomer as the Popen call is now wrapped
+    by calling subprocess.run (behind the covers uses Popen.
+    Very similar to SystemExecutor, but uses command_str
+    instead of command_args, and doesn't allow for not catching
+    the output.
+    """
     # For an explanation of the following 'if ... else'
     # and the 'allow_pipe_files' option, please check out the
     # definition of spawn_it() above.
     if allow_pipe_files:
         def execute(self):
             # Create temporary files
-            import tempfile
             tmp_stdout = tempfile.TemporaryFile(mode='w+t')
             tmp_stderr = tempfile.TemporaryFile(mode='w+t')
             # Start subprocess...
-            p = subprocess.Popen(self.command_str.split(),
-                                 stdout=tmp_stdout,
-                                 stderr=tmp_stderr,
-                                 shell=False)
-            # ... and wait for it to finish.
-            self.status = p.wait()
+            cp = subprocess.run(self.command_str.split(),
+                                stdout=tmp_stdout,
+                                stderr=tmp_stderr,
+                                shell=False)
+            self.status = cp.returncode
 
             try:
                 # Rewind to start of files
@@ -419,19 +444,20 @@ class PopenExecutor(RuntestBase):
                 tmp_stderr.close()
     else:
         def execute(self):
-            p = subprocess.Popen(self.command_str.split(),
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE,
-                                 shell=False)
-            self.status = p.wait()
-            with p.stdout:
-                self.stdout = p.stdout.read()
-            with p.stderr:
-                self.stderr = p.stderr.read()
+            cp = subprocess.run(self.command_str.split(),
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                shell=False)
+            self.status = cp.returncode
+            self.stdout = cp.stdout
+            self.stderr = cp.stderr
 
 class XML(PopenExecutor):
-    def header(self, f):
+    """ Test class for tests that will output in scons xml """
+    @staticmethod
+    def header(f):
         f.write('  <results>\n')
+
     def write(self, f):
         f.write('    <test>\n')
         f.write('      <file_name>%s</file_name>\n' % self.path)
@@ -441,6 +467,7 @@ class XML(PopenExecutor):
         f.write('      <stderr>%s</stderr>\n' % self.stderr)
         f.write('      <time>%.1f</time>\n' % self.test_time)
         f.write('    </test>\n')
+
     def footer(self, f):
         f.write('  <time>%.1f</time>\n' % self.total_time)
         f.write('  </results>\n')
@@ -451,91 +478,31 @@ else:
     Test = SystemExecutor
 
 # --- start processing ---
-if package:
 
-    dir = {
-        'deb'          : 'usr',
-        'local-tar-gz' : None,
-        'local-zip'    : None,
-        'rpm'          : 'usr',
-        'src-tar-gz'   : '',
-        'src-zip'      : '',
-        'tar-gz'       : '',
-        'zip'          : '',
-    }
+sd = None
+tools_dir = None
+ld = None
 
-    # The hard-coded "python2.1" here is the library directory
-    # name on Debian systems, not an executable, so it's all right.
-    lib = {
-        'deb'        : os.path.join('python2.1', 'site-packages')
-    }
-
-    if package not in dir:
-        sys.stderr.write("Unknown package '%s'\n" % package)
-        sys.exit(2)
-
-    test_dir = os.path.join(builddir, 'test-%s' % package)
-
-    if dir[package] is None:
-        scons_script_dir = test_dir
-        globs = glob.glob(os.path.join(test_dir, 'scons-local-*'))
-        if not globs:
-            sys.stderr.write("No `scons-local-*' dir in `%s'\n" % test_dir)
-            sys.exit(2)
-        scons_lib_dir = None
-        pythonpath_dir = globs[len(globs)-1]
-    elif sys.platform == 'win32':
-        scons_script_dir = os.path.join(test_dir, dir[package], 'Scripts')
-        scons_lib_dir = os.path.join(test_dir, dir[package])
-        pythonpath_dir = scons_lib_dir
-    else:
-        scons_script_dir = os.path.join(test_dir, dir[package], 'bin')
-        l = lib.get(package, 'scons')
-        scons_lib_dir = os.path.join(test_dir, dir[package], 'lib', l)
-        pythonpath_dir = scons_lib_dir
-
-    scons_runtest_dir = builddir
-
+if not baseline or baseline == '.':
+    base = cwd
+elif baseline == '-':
+    print("This logic used to checkout from svn. It's been removed. If you used this, please let us know on devel mailing list, IRC, or discord server")
+    sys.exit(-1)
 else:
-    sd = None
-    ld = None
+    base = baseline
 
-    if not baseline or baseline == '.':
-        base = cwd
-    elif baseline == '-':
-        url = None
-        with os.popen("svn info 2>&1", "r") as p:
-            svn_info =  p.read()
-        match = re.search(r'URL: (.*)', svn_info)
-        if match:
-            url = match.group(1)
-        if not url:
-            sys.stderr.write('runtest.py: could not find a URL:\n')
-            sys.stderr.write(svn_info)
-            sys.exit(1)
-        import tempfile
-        base = tempfile.mkdtemp(prefix='runtest-tmp-')
+scons_runtest_dir = base
 
-        command = 'cd %s && svn co -q %s' % (base, url)
+if not external:
+    scons_script_dir = sd or os.path.join(base, 'scripts')
+    scons_tools_dir = tools_dir or os.path.join(base, 'bin')
+    scons_lib_dir = ld or os.path.join(base, 'src', 'engine')
+else:
+    scons_script_dir = sd or ''
+    scons_tools_dir = tools_dir or ''
+    scons_lib_dir = ld or ''
 
-        base = os.path.join(base, os.path.split(url)[1])
-        if printcommand:
-            print(command)
-        if execute_tests:
-            os.system(command)
-    else:
-        base = baseline
-
-    scons_runtest_dir = base
-
-    if not external:
-        scons_script_dir = sd or os.path.join(base, 'src', 'script')
-        scons_lib_dir = ld or os.path.join(base, 'src', 'engine')
-    else:
-        scons_script_dir = sd or ''
-        scons_lib_dir = ld or ''
-
-    pythonpath_dir = scons_lib_dir
+pythonpath_dir = scons_lib_dir
 
 if scons:
     # Let the version of SCons that the -x option pointed to find
@@ -555,6 +522,7 @@ if external:
 
 os.environ['SCONS_RUNTEST_DIR'] = scons_runtest_dir
 os.environ['SCONS_SCRIPT_DIR'] = scons_script_dir
+os.environ['SCONS_TOOLS_DIR'] = scons_tools_dir
 os.environ['SCONS_CWD'] = cwd
 os.environ['SCONS_VERSION'] = version
 
@@ -568,7 +536,7 @@ if '_JAVA_OPTIONS' in os.environ:
 #        harness from $srcdir/etc. Those modules should be transfered
 #        to testing/, in which case this manipulation of PYTHONPATH
 #        should be able to go away.
-pythonpaths = [ pythonpath_dir ]
+pythonpaths = [pythonpath_dir]
 
 scriptpath = os.path.dirname(os.path.realpath(__file__))
 
@@ -592,7 +560,7 @@ unittests = []
 endtests = []
 
 
-def find_Tests_py(directory):
+def find_unit_tests(directory):
     """ Look for unit tests """
     result = []
     for dirpath, dirnames, filenames in os.walk(directory):
@@ -605,7 +573,7 @@ def find_Tests_py(directory):
     return sorted(result)
 
 
-def find_py(directory):
+def find_e2e_tests(directory):
     """ Look for end-to-end tests """
     result = []
 
@@ -630,8 +598,7 @@ if testlistfile:
     tests = [x for x in tests if x[0] != '#']
     tests = [x[:-1] for x in tests]
     tests = [x.strip() for x in tests]
-    tests = [x for x in tests if len(x) > 0]
-
+    tests = [x for x in tests if x]
 else:
     testpaths = []
 
@@ -662,11 +629,11 @@ else:
         # sys.stderr.write("to:%s\n"%tp)
         for path in glob.glob(tp):
             if os.path.isdir(path):
-                if path.startswith('src'):
-                    for p in find_Tests_py(path):
+                if path.startswith('src') or path.startswith('testing'):
+                    for p in find_unit_tests(path):
                         unittests.append(p)
                 elif path.startswith('test'):
-                    for p in find_py(path):
+                    for p in find_e2e_tests(path):
                         endtests.append(p)
             else:
                 if path.endswith("Tests.py"):
@@ -692,11 +659,11 @@ if excludelistfile:
     excludetests = [x for x in excludetests if x[0] != '#']
     excludetests = [x[:-1] for x in excludetests]
     excludetests = [x.strip() for x in excludetests]
-    excludetests = [x for x in excludetests if len(x) > 0]
+    excludetests = [x for x in excludetests if x]
 
 # ---[ test processing ]-----------------------------------
 tests = [t for t in tests if t not in excludetests]
-tests = [Test(t, n+1) for n, t in enumerate(tests)]
+tests = [Test(t, n + 1) for n, t in enumerate(tests)]
 
 if list_only:
     for t in tests:
@@ -710,24 +677,14 @@ if not python:
         python = sys.executable
 os.environ["python_executable"] = python
 
-# time.clock() is the suggested interface for doing benchmarking timings,
-# but time.time() does a better job on Linux systems, so let that be
-# the non-Windows default.
-
-#TODO: clean up when py2 support is dropped
-try:
-    time_func = time.perf_counter
-except AttributeError:
-    if sys.platform == 'win32':
-        time_func = time.clock
-    else:
-        time_func = time.time
-
 if print_times:
-    print_time_func = lambda fmt, time: sys.stdout.write(fmt % time)
+    def print_time(fmt, tm):
+        sys.stdout.write(fmt % tm)
 else:
-    print_time_func = lambda fmt, time: None
+    def print_time(fmt, tm):
+        pass
 
+time_func = time.perf_counter
 total_start_time = time_func()
 total_num_tests = len(tests)
 
@@ -758,7 +715,7 @@ def log_result(t, io_lock=None):
                 print(t.stdout)
             if t.stderr:
                 print(t.stderr)
-        print_time_func("Test execution time: %.1f seconds\n", t.test_time)
+        print_time("Test execution time: %.1f seconds\n", t.test_time)
     finally:
         if io_lock:
             io_lock.release()
@@ -772,10 +729,10 @@ def log_result(t, io_lock=None):
 def run_test(t, io_lock=None, run_async=True):
     t.headline = ""
     command_args = []
-    if sys.version_info[0] < 3:
-        command_args.append('-tt')
     if debug:
         command_args.append(debug)
+    if devmode and sys.version_info >= (3, 7, 0):
+            command_args.append('-X dev')
     command_args.append(t.path)
     if options.runner and t.path in unittests:
         # For example --runner TestUnit.TAPTestRunner
@@ -784,10 +741,13 @@ def run_test(t, io_lock=None, run_async=True):
     t.command_str = " ".join([escape(python)] + command_args)
     if printcommand:
         if print_progress:
-            t.headline += ("%d/%d (%.2f%s) %s\n" % (t.num, total_num_tests,
-                                                float(t.num)*100.0/float(total_num_tests),
-                                                '%',
-                                                t.command_str))
+            t.headline += "%d/%d (%.2f%s) %s\n" % (
+                t.num,
+                total_num_tests,
+                float(t.num) * 100.0 / float(total_num_tests),
+                "%",
+                t.command_str,
+            )
         else:
             t.headline += t.command_str + "\n"
     if not suppress_output and not catch_output:
@@ -809,6 +769,10 @@ def run_test(t, io_lock=None, run_async=True):
 
 
 class RunTest(threading.Thread):
+    """ Test Runner class
+
+    One instance will be created for each job thread in multi-job mode
+    """
     def __init__(self, queue=None, io_lock=None,
                  group=None, target=None, name=None, args=(), kwargs=None):
         super(RunTest, self).__init__(group=group, target=target, name=name)
@@ -822,25 +786,25 @@ class RunTest(threading.Thread):
 
 if jobs > 1:
     print("Running tests using %d jobs" % jobs)
-    queue = Queue()
+    testq = Queue()
     for t in tests:
-        queue.put(t)
-    io_lock = threading.Lock()
+        testq.put(t)
+    testlock = threading.Lock()
     # Start worker threads to consume the queue
-    threads = [RunTest(queue=queue, io_lock=io_lock) for _ in range(jobs)]
+    threads = [RunTest(queue=testq, io_lock=testlock) for _ in range(jobs)]
     for t in threads:
         t.daemon = True
         t.start()
     # wait on the queue rather than the individual threads
-    queue.join()
+    testq.join()
 else:
     for t in tests:
         run_test(t, io_lock=None, run_async=False)
 
 # --- all tests are complete by the time we get here ---
-if len(tests) > 0:
+if tests:
     tests[0].total_time = time_func() - total_start_time
-    print_time_func("Total execution time for all tests: %.1f seconds\n", tests[0].total_time)
+    print_time("Total execution time for all tests: %.1f seconds\n", tests[0].total_time)
 
 passed = [t for t in tests if t.status == 0]
 fail = [t for t in tests if t.status == 1]
@@ -889,9 +853,9 @@ if options.output:
     if isinstance(sys.stderr, Tee):
         sys.stderr.file.close()
 
-if len(fail):
+if fail:
     sys.exit(1)
-elif len(no_result):
+elif no_result:
     sys.exit(2)
 else:
     sys.exit(0)

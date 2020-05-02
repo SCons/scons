@@ -20,8 +20,6 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-from __future__ import print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
@@ -579,10 +577,6 @@ class scons_subst_TestCase(SubstTestCase):
             scons_subst("${NONE[2]}", env, gvars={'NONE':None})
         except SCons.Errors.UserError as e:
             expect = [
-                # Python 2.3, 2.4
-                "TypeError `unsubscriptable object' trying to evaluate `${NONE[2]}'",
-                # Python 2.5, 2.6
-                "TypeError `'NoneType' object is unsubscriptable' trying to evaluate `${NONE[2]}'",
                 # Python 2.7 and later
                 "TypeError `'NoneType' object is not subscriptable' trying to evaluate `${NONE[2]}'",
                 # Python 2.7 and later under Fedora
@@ -598,9 +592,6 @@ class scons_subst_TestCase(SubstTestCase):
             scons_subst("${func(1)}", env, gvars={'func':func})
         except SCons.Errors.UserError as e:
             expect = [
-                # Python 2.3, 2.4, 2.5
-                "TypeError `func() takes exactly 3 arguments (1 given)' trying to evaluate `${func(1)}'",
-
                 # Python 3.5 (and 3.x?)
                 "TypeError `func() missing 2 required positional arguments: 'b' and 'c'' trying to evaluate `${func(1)}'"
             ]

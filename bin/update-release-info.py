@@ -9,7 +9,7 @@ It takes one parameter that says what the mode of update should be, which
 may be one of 'develop', 'release', or 'post'.
 
 In 'develop' mode, which is what someone would use as part of their own
-development practices, the release type is forced to be 'alpha' and the
+development practices, the release type is forced to be 'dev' and the
 patch level is the string 'yyyymmdd'.  Otherwise, it's the same as the
 'release' mode.
 
@@ -30,7 +30,7 @@ in various files:
 In 'post' mode, files are prepared for the next release cycle:
   - In ReleaseConfig, the version tuple is updated for the next release
     by incrementing the release number (either minor or micro, depending
-    on the branch) and resetting release type to 'alpha'.
+    on the branch) and resetting release type to 'dev'.
   - A blank template replaces src/RELEASE.txt.
   - A new section to accumulate changes is added to src/CHANGES.txt and
     src/Announce.txt.
@@ -56,100 +56,151 @@ In 'post' mode, files are prepared for the next release cycle:
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-from __future__ import print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import sys
 import time
 import re
+import argparse
 
 DEBUG = os.environ.get('DEBUG', 0)
 
-# Evaluate parameter
 
-if len(sys.argv) < 2:
-    mode = 'develop'
-else:
-    mode = sys.argv[1]
-    if mode not in ['develop', 'release', 'post']:
-        print(("""ERROR: `%s' as a parameter is invalid; it must be one of
-\tdevelop, release, or post.  The default is develop.""" % mode))
-        sys.exit(1)
+class ReleaseInfo(object):
+    def __init__(self, args):
+        self.config = {}
+        self.args = args
+        self.release_date = time.localtime()[:6]
 
-# Get configuration information
+        self.unsupported_version = None
+        self.deprecated_version = None
 
-config = dict()
-with open('ReleaseConfig') as f:
-    releaseconfig = f.read()
-exec(releaseconfig, globals(), config)
+        # version_tuple = (3, 1, 3, 'alpha', 0)
+        self.version_tuple = (-1, -1, -1, 'not_set', -1)
 
+        self.version_string = "UNSET"
+        self.version_type = 'UNSET'
+        self.month_year = 'UNSET'
+        self.copyright_years = 'UNSET'
+        self.new_date = 'NEW DATE WILL BE INSERTED HERE'
 
-try:
-    version_tuple = config['version_tuple']
-    unsupported_version = config['unsupported_python_version']
-    deprecated_version = config['deprecated_python_version']
-except KeyError:
-    print('''ERROR: Config file must contain at least version_tuple,
+        self.read_config()
+        self.process_config()
+        if not self.args.timestamp:
+            self.set_new_date()
+
+    def read_config(self):
+        # Get configuration information
+
+        config = dict()
+        with open('ReleaseConfig') as f:
+            release_config = f.read()
+        exec(release_config, globals(), config)
+
+        self.config = config
+
+    def process_config(self):
+        """
+        Process and validate the config info loaded from ReleaseConfig file
+        """
+
+        try:
+            self.version_tuple = self.config['version_tuple']
+            self.unsupported_version = self.config['unsupported_python_version']
+            self.deprecated_version = self.config['deprecated_python_version']
+        except KeyError:
+            print('''ERROR: Config file must contain at least version_tuple,
 \tunsupported_python_version, and deprecated_python_version.''')
-    sys.exit(1)
-if DEBUG: print('version tuple', version_tuple)
-if DEBUG: print('unsupported Python version', unsupported_version)
-if DEBUG: print('deprecated Python version', deprecated_version)
+            sys.exit(1)
 
-try:
-    release_date = config['release_date']
-except KeyError:
-    release_date = time.localtime()[:6]
-else:
-    if len(release_date) == 3:
-        release_date = release_date + time.localtime()[3:6]
-    if len(release_date) != 6:
-        print('''ERROR: Invalid release date''', release_date)
-        sys.exit(1)
-if DEBUG: print('release date', release_date)
+        if 'release_date' in self.config:
+            self.release_date = self.config['release_date']
+            if len(self.release_date) == 3:
+                self.release_date = self.release_date + time.localtime()[3:6]
+            if len(self.release_date) != 6:
+                print('''ERROR: Invalid release date''', self.release_date)
+                sys.exit(1)
 
-if mode == 'develop' and version_tuple[3] != 'alpha':
-    version_tuple ==  version_tuple[:3] + ('alpha', 0)
-if len(version_tuple) > 3 and version_tuple[3] != 'final':
-    if mode == 'develop':
-        version_tuple = version_tuple[:4] + ('yyyymmdd',)
-    else:
-        yyyy,mm,dd,_,_,_ = release_date
-        version_tuple = version_tuple[:4] + ((yyyy*100 + mm)*100 + dd,)
-version_string = '.'.join(map(str, version_tuple))
-if len(version_tuple) > 3:
-    version_type = version_tuple[3]
-else:
-    version_type = 'final'
-if DEBUG: print('version string', version_string)
+        yyyy, mm, dd, h, m, s = self.release_date
+        date_string = "".join(["%.2d" % d for d in self.release_date])
 
-if version_type not in ['alpha', 'beta', 'candidate', 'final']:
-    print(("""ERROR: `%s' is not a valid release type in version tuple;
-\tit must be one of alpha, beta, candidate, or final""" % version_type))
-    sys.exit(1)
+        if self.args.timestamp:
+            date_string = self.args.timestamp
 
-try:
-    month_year = config['month_year']
-except KeyError:
-    if version_type == 'alpha':
-        month_year = 'MONTH YEAR'
-    else:
-        month_year =  time.strftime('%B %Y', release_date + (0,0,0))
-if DEBUG: print('month year', month_year)
+        if self.args.mode == 'develop' and self.version_tuple[3] != 'dev':
+            self.version_tuple == self.version_tuple[:3] + ('dev', 0)
 
-try:
-    copyright_years = config['copyright_years']
-except KeyError:
-    copyright_years = '2001 - %d'%(release_date[0] + 1)
-if DEBUG: print('copyright years', copyright_years)
+        if len(self.version_tuple) > 3 and self.version_tuple[3] != 'final':
+            self.version_tuple = self.version_tuple[:4] + (date_string,)
+
+        self.version_string = '.'.join(map(str, self.version_tuple[:4])) + date_string
+
+        if len(self.version_tuple) > 3:
+            self.version_type = self.version_tuple[3]
+        else:
+            self.version_type = 'final'
+
+        if self.version_type not in ['dev', 'beta', 'candidate', 'final']:
+            print(("""ERROR: `%s' is not a valid release type in version tuple;
+\tit must be one of dev, beta, candidate, or final""" % self.version_type))
+            sys.exit(1)
+
+        try:
+            self.month_year = self.config['month_year']
+        except KeyError:
+            if self.args.timestamp:
+                self.month_year = "MONTH YEAR"
+            else:
+                self.month_year = time.strftime('%B %Y', self.release_date + (0, 0, 0))
+
+        try:
+            self.copyright_years = self.config['copyright_years']
+        except KeyError:
+            self.copyright_years = '2001 - %d' % (self.release_date[0] + 1)
+
+        if DEBUG:
+            print('version tuple', self.version_tuple)
+            print('unsupported Python version', self.unsupported_version)
+            print('deprecated Python version', self.deprecated_version)
+            print('release date', self.release_date)
+            print('version string', self.version_string)
+            print('month year', self.month_year)
+            print('copyright years', self.copyright_years)
+
+    def set_new_date(self):
+        """
+        Determine the release date and the pattern to match a date
+        Mon, 05 Jun 2010 21:17:15 -0700
+        NEW DATE WILL BE INSERTED HERE
+        """
+        min = (time.daylight and time.altzone or time.timezone) // 60
+        hr = min // 60
+        min = -(min % 60 + hr * 100)
+        self.new_date = (time.strftime('%a, %d %b %Y %X', self.release_date + (0, 0, 0))
+                         + ' %+.4d' % min)
+
 
 class UpdateFile(object):
     """ XXX """
 
-    def __init__(self, file, orig = None):
-        if orig is None: orig = file
+    rel_info = None
+    mode = 'develop'
+    _days = r'(Sun|Mon|Tue|Wed|Thu|Fri|Sat)'
+    _months = r'(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oce|Nov|Dec)'
+    match_date = r''.join([_days, r', \d\d ', _months, r' \d\d\d\d \d\d:\d\d:\d\d [+-]\d\d\d\d'])
+    match_date = re.compile(match_date)
+
+    # Determine the pattern to match a version
+
+    _rel_types = r'(dev|beta|candidate|final)'
+    match_pat = r'\d+\.\d+\.\d+\.' + _rel_types + r'\.?(\d+|yyyymmdd)'
+    match_rel = re.compile(match_pat)
+
+    def __init__(self, file, orig=None):
+        if orig is None:
+            orig = file
+
         try:
             with open(orig, 'r') as f:
                 self.content = f.read()
@@ -166,45 +217,21 @@ class UpdateFile(object):
                 # pretend file changed
                 self.orig = ''
 
-    def sub(self, pattern, replacement, count = 1):
+    def sub(self, pattern, replacement, count=1):
         """ XXX """
         self.content = re.sub(pattern, replacement, self.content, count)
 
-    def replace_assign(self, name, replacement, count = 1):
+    def replace_assign(self, name, replacement, count=1):
         """ XXX """
         self.sub('\n' + name + ' = .*', '\n' + name + ' = ' + replacement)
 
-    # Determine the pattern to match a version
-
-    _rel_types = r'(alpha|beta|candidate|final)'
-    match_pat = r'\d+\.\d+\.\d+\.' + _rel_types + r'\.(\d+|yyyymmdd)'
-    match_rel = re.compile(match_pat)
-
-    def replace_version(self, replacement = version_string, count = 1):
+    def replace_version(self, count=1):
         """ XXX """
-        self.content = self.match_rel.sub(replacement, self.content, count)
+        self.content = self.match_rel.sub(rel_info.version_string, self.content, count)
 
-    # Determine the release date and the pattern to match a date
-    # Mon, 05 Jun 2010 21:17:15 -0700
-    # NEW DATE WILL BE INSERTED HERE
-
-    if mode == 'develop':
-        new_date = 'NEW DATE WILL BE INSERTED HERE'
-    else:
-        min = (time.daylight and time.altzone or time.timezone)//60
-        hr = min // 60
-        min = -(min % 60 + hr * 100)
-        new_date =  (time.strftime('%a, %d %b %Y %X', release_date + (0,0,0))
-                         + ' %+.4d' % min)
-
-    _days = r'(Sun|Mon|Tue|Wed|Thu|Fri|Sat)'
-    _months = r'(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oce|Nov|Dec)'
-    match_date = r''.join([_days, r', \d\d ', _months, r' \d\d\d\d \d\d:\d\d:\d\d [+-]\d\d\d\d'])
-    match_date = re.compile(match_date)
-
-    def replace_date(self, replacement = new_date, count = 1):
+    def replace_date(self, count=1):
         """ XXX """
-        self.content = self.match_date.sub(replacement, self.content, count)
+        self.content = self.match_date.sub(rel_info.new_date, self.content, count)
 
     def __del__(self):
         """ XXX """
@@ -213,135 +240,160 @@ class UpdateFile(object):
             with open(self.file, 'w') as f:
                 f.write(self.content)
 
-if mode == 'post':
-    # Set up for the next release series.
 
-    if version_tuple[2]:
-        # micro release, increment micro value
-        minor = version_tuple[1]
-        micro = version_tuple[2] + 1
-    else:
-        # minor release, increment minor value
-        minor = version_tuple[1] + 1
-        micro = 0
-    new_tuple = (version_tuple[0], minor, micro, 'alpha', 0)
-    new_version = '.'.join(map(str, new_tuple[:4])) + '.yyyymmdd'
+def main(args, rel_info):
+    if args.mode == 'post':
+        # Set up for the next release series.
 
-    # Update ReleaseConfig
+        if rel_info.version_tuple[2]:
+            # micro release, increment micro value
+            minor = rel_info.version_tuple[1]
+            micro = rel_info.version_tuple[2] + 1
+        else:
+            # minor release, increment minor value
+            minor = rel_info.version_tuple[1] + 1
+            micro = 0
+        new_tuple = (rel_info.version_tuple[0], minor, micro, 'dev', 0)
+        new_version = '.'.join(map(str, new_tuple[:4])) + 'yyyymmdd'
 
-    t = UpdateFile('ReleaseConfig')
-    if DEBUG: t.file = '/tmp/ReleaseConfig'
-    t.replace_assign('version_tuple', str(new_tuple))
+        rel_info.version_string = new_version
+
+        # Update ReleaseConfig
+
+        t = UpdateFile('ReleaseConfig')
+        if DEBUG: t.file = '/tmp/ReleaseConfig'
+        t.replace_assign('version_tuple', str(new_tuple))
+
+        # Update src/CHANGES.txt
+
+        t = UpdateFile(os.path.join('src', 'CHANGES.txt'))
+        if DEBUG: t.file = '/tmp/CHANGES.txt'
+        t.sub('(\nRELEASE .*)', r"""\nRELEASE  VERSION/DATE TO BE FILLED IN LATER\n
+      From John Doe:\n
+        - Whatever John Doe did.\n
+    \1""")
+
+        # Update src/RELEASE.txt
+
+        t = UpdateFile(os.path.join('src', 'RELEASE.txt'),
+                       os.path.join('template', 'RELEASE.txt'))
+        if DEBUG: t.file = '/tmp/RELEASE.txt'
+        t.replace_version()
+
+        # Update src/Announce.txt
+
+        t = UpdateFile(os.path.join('src', 'Announce.txt'))
+        if DEBUG: t.file = '/tmp/Announce.txt'
+        t.sub('\nRELEASE .*', '\nRELEASE VERSION/DATE TO BE FILLED IN LATER')
+        announce_pattern = """(
+      Please note the following important changes scheduled for the next
+      release:
+    )"""
+        announce_replace = (r"""\1
+        --  FEATURE THAT WILL CHANGE\n
+      Please note the following important changes since release """
+                            + '.'.join(map(str, rel_info.version_tuple[:3])) + ':\n')
+        t.sub(announce_pattern, announce_replace)
+
+        # Write out the last update and exit
+
+        t = None
+        sys.exit()
 
     # Update src/CHANGES.txt
 
     t = UpdateFile(os.path.join('src', 'CHANGES.txt'))
     if DEBUG: t.file = '/tmp/CHANGES.txt'
-    t.sub('(\nRELEASE .*)', r"""\nRELEASE  VERSION/DATE TO BE FILLED IN LATER\n
-  From John Doe:\n
-    - Whatever John Doe did.\n
-\1""")
+    t.sub('\nRELEASE .*', '\nRELEASE ' + rel_info.version_string + ' - ' + rel_info.new_date)
 
     # Update src/RELEASE.txt
 
-    t = UpdateFile(os.path.join('src', 'RELEASE.txt'),
-                   os.path.join('template', 'RELEASE.txt'))
+    t = UpdateFile(os.path.join('src', 'RELEASE.txt'))
     if DEBUG: t.file = '/tmp/RELEASE.txt'
-    t.replace_version(new_version)
+    t.replace_version()
 
     # Update src/Announce.txt
 
     t = UpdateFile(os.path.join('src', 'Announce.txt'))
     if DEBUG: t.file = '/tmp/Announce.txt'
-    t.sub('\nRELEASE .*', '\nRELEASE VERSION/DATE TO BE FILLED IN LATER')
-    announce_pattern = """(
-  Please note the following important changes scheduled for the next
-  release:
-)"""
-    announce_replace = (r"""\1
-    --  FEATURE THAT WILL CHANGE\n
-  Please note the following important changes since release """
-            + '.'.join(map(str, version_tuple[:3])) + ':\n')
-    t.sub(announce_pattern, announce_replace)
+    t.sub('\nRELEASE .*', '\nRELEASE ' + rel_info.version_string + ' - ' + rel_info.new_date)
 
-    # Write out the last update and exit
+    # Update SConstruct
+
+    t = UpdateFile('SConstruct')
+    if DEBUG: t.file = '/tmp/SConstruct'
+    t.replace_assign('month_year', repr(rel_info.month_year))
+    t.replace_assign('copyright_years', repr(rel_info.copyright_years))
+    t.replace_assign('default_version', repr(rel_info.version_string))
+
+    # Update README
+
+    t = UpdateFile('README.rst')
+    if DEBUG: t.file = '/tmp/README.rst'
+    t.sub('-' + t.match_pat + r'\.', '-' + rel_info.version_string + '.', count=0)
+    for suf in ['tar', 'win32', 'zip', 'rpm', 'exe', 'deb']:
+        t.sub(r'-(\d+\.\d+\.\d+)\.%s' % suf,
+              '-%s.%s' % (rel_info.version_string, suf),
+              count=0)
+
+    # Update testing/framework/TestSCons.py
+
+    t = UpdateFile(os.path.join('testing', 'framework', 'TestSCons.py'))
+    if DEBUG: t.file = '/tmp/TestSCons.py'
+    t.replace_assign('copyright_years', repr(rel_info.copyright_years))
+    t.replace_assign('default_version', repr(rel_info.version_string))
+    # ??? t.replace_assign('SConsVersion', repr(version_string))
+    t.replace_assign('python_version_unsupported', str(rel_info.unsupported_version))
+    t.replace_assign('python_version_deprecated', str(rel_info.deprecated_version))
+
+    # Update Script/Main.py
+
+    t = UpdateFile(os.path.join('src', 'engine', 'SCons', 'Script', 'Main.py'))
+    if DEBUG: t.file = '/tmp/Main.py'
+    t.replace_assign('unsupported_python_version', str(rel_info.unsupported_version))
+    t.replace_assign('deprecated_python_version', str(rel_info.deprecated_version))
+
+    # Update doc/user/main.{in,xml}
+
+    docyears = '2004 - %d' % rel_info.release_date[0]
+    if os.path.exists(os.path.join('doc', 'user', 'main.in')):
+        # this is no longer used as of Dec 2013
+        t = UpdateFile(os.path.join('doc', 'user', 'main.in'))
+        if DEBUG: t.file = '/tmp/main.in'
+        ## TODO debug these
+        # t.sub('<pubdate>[^<]*</pubdate>', '<pubdate>' + docyears + '</pubdate>')
+        # t.sub('<year>[^<]*</year>', '<year>' + docyears + '</year>')
+
+    t = UpdateFile(os.path.join('doc', 'user', 'main.xml'))
+    if DEBUG: t.file = '/tmp/main.xml'
+    t.sub('<pubdate>[^<]*</pubdate>', '<pubdate>' + docyears + '</pubdate>')
+    t.sub('<year>[^<]*</year>', '<year>' + docyears + '</year>')
+
+    # Write out the last update
 
     t = None
-    sys.exit()
-
-# Update src/CHANGES.txt
-
-t = UpdateFile(os.path.join('src', 'CHANGES.txt'))
-if DEBUG: t.file = '/tmp/CHANGES.txt'
-t.sub('\nRELEASE .*', '\nRELEASE ' + version_string + ' - ' + t.new_date)
-
-# Update src/RELEASE.txt
-
-t = UpdateFile(os.path.join('src', 'RELEASE.txt'))
-if DEBUG: t.file = '/tmp/RELEASE.txt'
-t.replace_version()
-
-# Update src/Announce.txt
-
-t = UpdateFile(os.path.join('src', 'Announce.txt'))
-if DEBUG: t.file = '/tmp/Announce.txt'
-t.sub('\nRELEASE .*', '\nRELEASE ' + version_string + ' - ' + t.new_date)
 
 
-# Update SConstruct
+def parse_arguments():
+    """
+    Create ArgumentParser object and process arguments
+    """
 
-t = UpdateFile('SConstruct')
-if DEBUG: t.file = '/tmp/SConstruct'
-t.replace_assign('month_year', repr(month_year))
-t.replace_assign('copyright_years', repr(copyright_years))
-t.replace_assign('default_version', repr(version_string))
+    parser = argparse.ArgumentParser(prog='update-release-info.py')
+    parser.add_argument('mode', nargs='?', choices=['develop', 'release', 'post'], default='develop')
+    parser.add_argument('--verbose', dest='verbose', action='store_true', help='Enable verbose logging')
 
-# Update README
+    parser.add_argument('--timestamp', dest='timestamp', help='Override the default current timestamp')
 
-t = UpdateFile('README.rst')
-if DEBUG: t.file = '/tmp/README.rst'
-t.sub('-' + t.match_pat + r'\.', '-' + version_string + '.', count = 0)
-for suf in ['tar', 'win32', 'zip', 'rpm', 'exe', 'deb']:
-    t.sub(r'-(\d+\.\d+\.\d+)\.%s' % suf,
-          '-%s.%s' % (version_string, suf),
-          count = 0)
+    args = parser.parse_args()
+    return args
 
-# Update testing/framework/TestSCons.py
 
-t = UpdateFile(os.path.join('testing','framework', 'TestSCons.py'))
-if DEBUG: t.file = '/tmp/TestSCons.py'
-t.replace_assign('copyright_years', repr(copyright_years))
-t.replace_assign('default_version', repr(version_string))
-#??? t.replace_assign('SConsVersion', repr(version_string))
-t.replace_assign('python_version_unsupported', str(unsupported_version))
-t.replace_assign('python_version_deprecated', str(deprecated_version))
-
-# Update Script/Main.py
-
-t = UpdateFile(os.path.join('src', 'engine', 'SCons', 'Script', 'Main.py'))
-if DEBUG: t.file = '/tmp/Main.py'
-t.replace_assign('unsupported_python_version', str(unsupported_version))
-t.replace_assign('deprecated_python_version', str(deprecated_version))
-
-# Update doc/user/main.{in,xml}
-
-docyears = '2004 - %d' % release_date[0]
-if os.path.exists(os.path.join('doc', 'user', 'main.in')):
-    # this is no longer used as of Dec 2013
-    t = UpdateFile(os.path.join('doc', 'user', 'main.in'))
-    if DEBUG: t.file = '/tmp/main.in'
-    ## TODO debug these
-    #t.sub('<pubdate>[^<]*</pubdate>', '<pubdate>' + docyears + '</pubdate>')
-    #t.sub('<year>[^<]*</year>', '<year>' + docyears + '</year>')
-
-t = UpdateFile(os.path.join('doc', 'user', 'main.xml'))
-if DEBUG: t.file = '/tmp/main.xml'
-t.sub('<pubdate>[^<]*</pubdate>', '<pubdate>' + docyears + '</pubdate>')
-t.sub('<year>[^<]*</year>', '<year>' + docyears + '</year>')
-
-# Write out the last update
-
-t = None
+if __name__ == "__main__":
+    options = parse_arguments()
+    rel_info = ReleaseInfo(options)
+    UpdateFile.rel_info = rel_info
+    main(options, rel_info)
 
 # Local Variables:
 # tab-width:4

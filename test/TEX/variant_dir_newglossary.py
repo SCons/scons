@@ -31,7 +31,8 @@ with variant_dir.
 Test configuration contributed by Kendrick Boyd.
 """
 
-import os
+import subprocess
+
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -41,8 +42,8 @@ latex = test.where_is('latex')
 if not latex:
     test.skip_test("Could not find 'latex'; skipping test(s).\n")
 
-gloss = os.system('kpsewhich glossaries.sty')
-if gloss!=0:
+cp = subprocess.run('kpsewhich glossaries.sty', shell=True)
+if cp.returncode:
     test.skip_test("glossaries.sty not installed; skipping test(s).\n")
 
 

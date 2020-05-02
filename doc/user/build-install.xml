@@ -110,29 +110,37 @@ Python 3.7.1
     </screen>
 
     <para>
-    In a cmd shell or PowerShell on a Windows system
-    (note PoweShell needs it spelled "python.exe" rather than "python"):
+    Note to Windows users: there are many different ways Python
+    can get installed or invoked on Windows, it is beyond the scope
+    of this guide to unravel all of them.  Try using the
+    <firstterm>Python launcher</firstterm> (see
+    <ulink url="https://www.python.org/dev/peps/pep-0397/">PEP 397</ulink>)
+    by using the name <command>py</command> instead of
+    <command>python</command>, if that is not available drop
+    back to trying <command>python</command>.
     </para>
 
     <screen>
-C:\><userinput>python -V</userinput>
+C:\><userinput>py -V</userinput>
 Python 3.7.1
     </screen>
 
     <para>
     If Python is not installed on your system,
+    or is not findable in the current search path,
     you will see an error message
     stating something like "command not found"
     (on UNIX or Linux)
     or "'python' is not recognized
     as an internal or external command, operable progam or batch file"
-    (on Windows).
+    (on Windows <command>cmd</command>).
     In that case, you need to install Python
+    (or fix the search path)
     before you can install &SCons;.
     </para>
 
     <para>
-    The standard location for information
+    The canonical location for information
     about downloading and installing Python is
     <ulink url="http://www.python.org/download/">http://www.python.org/download/</ulink>.
     See that page and associated links to get started.
@@ -141,16 +149,18 @@ Python 3.7.1
     <para>
     For Linux systems, Python is
     almost certainly available as a supported package, possibly
-    installed by default; this is often preferred to installing
+    installed by default; this is often preferred over installing
     by other means, and is easier than installing from source code.
     Many such systems have separate packages for
-    Python 2 and Python 3. Building from source may still be a
+    Python 2 and Python 3 - make sure the Python 3 package is
+    installed, as &SCons; requires it.
+    Building from source may still be a
     useful option if you need a version that is not offered by
     the distribution you are using.
     </para>
 
     <para>
-    &SCons; will work with Python 2.7.x or with Python 3.5 or later.
+    &SCons; will work with Python 3.5 or later.
     If you need to install Python and have a choice,
     we recommend using the most recent Python version available.
     Newer Pythons have significant improvements
@@ -182,13 +192,31 @@ Python 3.7.1
     </screen>
 
     <para>
-    &SCons; comes pre-packaged for installation on many Linux systems
+    For those users using Anaconda or Miniconda, use the
+    <command>conda</command> installer instead, so the &scons;
+    install location will match the version of Python that
+    system will be using:
+    </para>
+
+    <screen>
+% <userinput>conda install -c conda-forge scons</userinput>
+    </screen>
+
+    <para>
+    &SCons; comes pre-packaged for installation on many Linux systems.
     Check your package installation system
     to see if there is an &SCons; package available.
     Many people prefer to install distribution-native packages if available,
     as they provide a central point for management and updating.
-    Some distributions have two &SCons; packages available, one which
-    uses Python 2 and one which uses Python 3. If you need a specific
+    During the still-ongoing Python 2 to 3 transition,
+    some distributions may still have two &SCons; packages available,
+    one which uses Python 2 and one which uses Python 3.  Since
+    latest &scons; only runs on Python 3, to get the current version
+    you should choose the Python 3 package.
+    </para>
+
+    <para>
+    If you need a specific
     version of &SCons; that is different from the package available,
     <filename>pip</filename> has a version option or you can follow
     the instructions in the next section.
@@ -211,7 +239,7 @@ Python 3.7.1
     <filename>scons-&buildversion;.tar.gz</filename>
     or <filename>scons-&buildversion;.zip</filename>,
     which are available from the SCons download page at
-    <ulink url="http://www.scons.org/download.html">http://www.scons.org/download.html</ulink>.
+    <ulink url="https://scons.org/pages/download.html">https://scons.org/pages/download.html</ulink>.
     </para>
 
     <para>

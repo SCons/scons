@@ -86,7 +86,7 @@ test.must_not_exist(test.workpath("config.log"))
 stderr=r"""
 scons: \*\*\* Cannot update configure test "%s" within a dry-run\.
 File \S+, line \S+, in \S+
-""" % re.escape(os.path.join("config.test", "conftest_0.in"))
+""" % re.escape(os.path.join("config.test", "conftest_b10a8db164e0754105b7a99be72e3fe5_0.in"))
 
 test.subdir('config.test')
 
@@ -94,7 +94,7 @@ test.run(arguments="-q aaa.out",stderr=stderr,status=2)
 
 test.must_not_exist(test.workpath("config.test", ".cache"))
 test.must_not_exist(test.workpath("config.test", "conftest_0"))
-test.must_not_exist(test.workpath("config.test", "conftest_0.in"))
+test.must_not_exist(test.workpath("config.test", "conftest_b10a8db164e0754105b7a99be72e3fe5_0.in"))
 test.must_not_exist(test.workpath("config.log"))
 
 # test that no error is raised, if all targets are up-to-date. In this

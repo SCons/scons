@@ -1,0 +1,32 @@
+import os
+import SCons
+
+env = Environment()
+drive = os.path.splitdrive(os.getcwd())[0]
+drive_dir = env.fs.Dir(drive)
+
+if not isinstance(drive_dir, SCons.Node.FS.RootDir):
+	raise Exception('env.fs.Dir("%s") returned a %s instead of a RootDir' %
+					(drive, type(drive_dir)))
+
+drive_abspath1 = drive_dir._abspath
+drive_abspath2 = drive_dir.abspath
+if drive_abspath1 != drive_abspath2:
+	raise Exception('Calculated _abspath %s is not the same as abspath %s' %
+					(drive_abspath1, drive_abspath2))
+elif not os.path.exists(drive_abspath1):
+	raise Exception('Calculated abspath %s does not exist' % drive_abspath1)
+elif drive.rstrip(os.path.sep) != drive_abspath1.rstrip(os.path.sep):
+	raise Exception('Real drive %s and calculated abspath %s are not the '
+					'same' % (drive, drive_abspath1))
+
+drive_path1 = drive_dir._path
+drive_path2 = drive_dir.path
+if drive_path1 != drive_path2:
+	raise Exception('Calculated _path %s is not the same as path %s' %
+					(drive_path1, drive_path2))
+elif not os.path.exists(drive_path1):
+	raise Exception('Calculated path %s does not exist' % drive_path1)
+elif drive.rstrip(os.path.sep) != drive_path1.rstrip(os.path.sep):
+	raise Exception('Real drive %s and calculated abspath %s are not the '
+					'same' % (drive, drive_abs))

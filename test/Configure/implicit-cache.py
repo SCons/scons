@@ -20,10 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-from __future__ import print_function
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that use of --implicit-cache with the Python Value Nodes
@@ -56,6 +52,8 @@ something else changed in the .sconf_temp directory), the string would
 get longer and longer until it blew out the users's memory.
 """
 
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+
 import TestSConsign
 
 test = TestSConsign.TestSConsign()
@@ -77,7 +75,7 @@ test.write('foo.h', "#define FOO 1\n")
 
 test.run(arguments = '.')
 
-test.run_sconsign('-d .sconf_temp -e conftest_0.c --raw .sconsign.dblite')
+test.run_sconsign('-d .sconf_temp -e conftest_5a3fa36d51dd2a28d521d6cc0e2e1d04_0.c --raw .sconsign.dblite')
 old_sconsign_dblite = test.stdout()
 
 # Second run:  Have the configure subsystem also look for foo.h, so
@@ -90,7 +88,7 @@ old_sconsign_dblite = test.stdout()
 
 test.run(arguments = '--implicit-cache USE_FOO=1 .')
 
-test.run_sconsign('-d .sconf_temp -e conftest_0.c --raw .sconsign.dblite')
+test.run_sconsign('-d .sconf_temp -e conftest_5a3fa36d51dd2a28d521d6cc0e2e1d04_0.c --raw .sconsign.dblite')
 new_sconsign_dblite = test.stdout()
 
 if old_sconsign_dblite != new_sconsign_dblite:

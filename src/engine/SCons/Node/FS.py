@@ -31,8 +31,6 @@ that can be used by scripts or modules looking for the canonical default.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-from __future__ import print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import fnmatch
@@ -44,6 +42,7 @@ import sys
 import time
 import codecs
 from itertools import chain
+import importlib.util
 
 import SCons.Action
 import SCons.Debug
@@ -1449,22 +1448,10 @@ class FS(LocalFS):
         This can be useful when we want to determine a toolpath based on a python module name"""
 
         dirpath = ''
-        if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] in (0,1,2,3,4)):
-            # Python2 Code
-            import imp
-            splitname = modulename.split('.')
-            srchpths = sys.path
-            for item in splitname:
-                file, path, desc = imp.find_module(item, srchpths)
-                if file is not None:
-                    path = os.path.dirname(path)
-                srchpths = [path]
-            dirpath = path
-        else:
-            # Python3 Code
-            import importlib.util
-            modspec = importlib.util.find_spec(modulename)
-            dirpath = os.path.dirname(modspec.origin)
+
+        # Python3 Code
+        modspec = importlib.util.find_spec(modulename)
+        dirpath = os.path.dirname(modspec.origin)
         return self._lookup(dirpath, None, Dir, True)
 
 
@@ -1571,9 +1558,7 @@ class Dir(Base):
         self.repositories = []
         self.srcdir = None
 
-        self.entries = {}
-        self.entries['.'] = self
-        self.entries['..'] = self.dir
+        self.entries = {'.': self, '..': self.dir}
         self.cwd = self
         self.searched = 0
         self._sconsign = None
@@ -2283,7 +2268,7 @@ class RootDir(Dir):
     this directory.
     """
 
-    __slots__ = ('_lookupDict', )
+    __slots__ = ('_lookupDict', 'abspath', 'path')
 
     def __init__(self, drive, fs):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS.RootDir')
@@ -2325,13 +2310,17 @@ class RootDir(Dir):
         self._tpath = dirname
         self.dirname = dirname
 
+        # EntryProxy interferes with this class and turns drive paths on
+        # Windows such as "C:" into "C:\C:". Avoid this problem by setting
+        # commonly-accessed attributes directly.
+        self.abspath = self._abspath
+        self.path = self._path
+
         self._morph()
 
         self.duplicate = 0
-        self._lookupDict = {}
+        self._lookupDict = {'': self, '/': self}
 
-        self._lookupDict[''] = self
-        self._lookupDict['/'] = self
         self.root = self
         # The // entry is necessary because os.path.normpath()
         # preserves double slashes at the beginning of a path on Posix
@@ -2351,9 +2340,7 @@ class RootDir(Dir):
         self.repositories = []
         self.srcdir = None
 
-        self.entries = {}
-        self.entries['.'] = self
-        self.entries['..'] = self.dir
+        self.entries = {'.': self, '..': self.dir}
         self.cwd = self
         self.searched = 0
         self._sconsign = None
@@ -3771,7 +3758,7 @@ class FileFinder(object):
         if verbose and not callable(verbose):
             if not SCons.Util.is_String(verbose):
                 verbose = "find_file"
-            _verbose = u'  %s: ' % verbose
+            _verbose = '  %s: ' % verbose
             verbose = lambda s: sys.stdout.write(_verbose + s)
 
         filedir, filename = os.path.split(filename)

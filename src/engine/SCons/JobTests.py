@@ -42,8 +42,8 @@ def get_cpu_nums():
             ncpus = os.sysconf( "SC_NPROCESSORS_ONLN" )
         if isinstance(ncpus, int) and ncpus > 0:
             return ncpus
-        else: # OSX:
-            return int( os.popen2( "sysctl -n hw.ncpu")[1].read() )
+        else:  # OSX:
+            return int(os.popen2("sysctl -n hw.ncpu")[1].read() )
     # Windows:
     if "NUMBER_OF_PROCESSORS" in os.environ:
         ncpus = int(os.environ["NUMBER_OF_PROCESSORS"])

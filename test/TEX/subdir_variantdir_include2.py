@@ -39,8 +39,6 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-#test.verbose_set(2)
-
 latex = test.where_is('latex')
 if not latex:
     test.skip_test("Could not find 'latex'; skipping test.\n")

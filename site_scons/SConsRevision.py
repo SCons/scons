@@ -29,12 +29,14 @@ def SCons_revision(target, source, env):
         contents = contents.replace('__REVISION'  + '__', env['REVISION'])
         contents = contents.replace('__VERSION'   + '__', env['VERSION'])
         contents = contents.replace('__NULL'      + '__', '')
-        open(t, 'w').write(contents)
+        
+        with open(t,'w') as of:
+            of.write(contents)
     except UnicodeDecodeError as e:
         print("Error decoding file:%s just copying no revision edit")
-        with open(s, 'rb') as fp:
+        with open(s, 'rb') as fp, open(t, 'wb') as of:
             contents = fp.read()
-            open(t, 'wb').write(contents)
+            of.write(contents)
 
 
     os.chmod(t, os.stat(s)[0])

@@ -20,8 +20,6 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-from __future__ import print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
@@ -582,7 +580,7 @@ def DummyQueryValue(key, value):
 def DummyExists(path):
     return 1
 
-def DummyVsWhere(msvc_version):
+def DummyVsWhere(msvc_version, env):
     # not testing versions with vswhere, so return none
     return None
 
@@ -679,6 +677,9 @@ class msvsTestCase(unittest.TestCase):
         list_cppdefines = [['_A', '_B', 'C'], ['_B', '_C_'], ['D'], []]
         list_cpppaths = [[r'C:\test1'], [r'C:\test1;C:\test2'],
                          [self.fs.Dir('subdir')], []]
+        list_cppflags = [['/std:c++17', '/Zc:__cplusplus'],
+                         ['/std:c++14', '/Zc:__cplusplus'],
+                         ['/std:c++11', '/Zc:__cplusplus'], []]
 
         def TestParamsFromList(test_variant, test_list):
             """
@@ -718,36 +719,39 @@ class msvsTestCase(unittest.TestCase):
         tests_cmdargs = TestParamsFromList(list_variant, list_cmdargs)
         tests_cppdefines = TestParamsFromList(list_variant, list_cppdefines)
         tests_cpppaths = TestParamsFromList(list_variant, list_cpppaths)
+        tests_cppflags = TestParamsFromList(list_variant, list_cppflags)
 
         # Run the test for each test case
         for param_cmdargs, expected_cmdargs in tests_cmdargs:
             for param_cppdefines, expected_cppdefines in tests_cppdefines:
                 for param_cpppaths, expected_cpppaths in tests_cpppaths:
-                    debug('Testing %s. with :\n  variant = %s \n  cmdargs = "%s" \n  cppdefines = "%s" \n  cpppaths = "%s"' % \
-                          (str_function_test, list_variant, param_cmdargs, param_cppdefines, param_cpppaths))
-                    param_configs = []
-                    expected_configs = {}
-                    for platform in ['Win32', 'x64']:
-                        for variant in ['Debug', 'Release']:
-                            variant_platform = '%s|%s' % (variant, platform)
-                            runfile = '%s\\%s\\test.exe' % (platform, variant)
-                            buildtarget = '%s\\%s\\test.exe' % (platform, variant)
-                            outdir = '%s\\%s' % (platform, variant)
-            
-                            # Create parameter list for this variant_platform
-                            param_configs.append([variant_platform, runfile, buildtarget, outdir])
-            
-                            # Create expected dictionary result for this variant_platform
-                            expected_configs[variant_platform] = {
-                                'variant': variant,
-                                'platform': platform, 
-                                'runfile': runfile,
-                                'buildtarget': buildtarget, 
-                                'outdir': outdir,
-                                'cmdargs': expected_cmdargs[variant_platform],
-                                'cppdefines': expected_cppdefines[variant_platform],
-                                'cpppaths': expected_cpppaths[variant_platform],
-                            }
+                    for param_cppflags, expected_cppflags in tests_cppflags:
+                        print('Testing %s. with :\n  variant = %s \n  cmdargs = "%s" \n  cppdefines = "%s" \n  cpppaths = "%s" \n  cppflags = "%s"' % \
+                              (str_function_test, list_variant, param_cmdargs, param_cppdefines, param_cpppaths, param_cppflags))
+                        param_configs = []
+                        expected_configs = {}
+                        for platform in ['Win32', 'x64']:
+                            for variant in ['Debug', 'Release']:
+                                variant_platform = '%s|%s' % (variant, platform)
+                                runfile = '%s\\%s\\test.exe' % (platform, variant)
+                                buildtarget = '%s\\%s\\test.exe' % (platform, variant)
+                                outdir = '%s\\%s' % (platform, variant)
+
+                                # Create parameter list for this variant_platform
+                                param_configs.append([variant_platform, runfile, buildtarget, outdir])
+
+                                # Create expected dictionary result for this variant_platform
+                                expected_configs[variant_platform] = {
+                                    'variant': variant,
+                                    'platform': platform,
+                                    'runfile': runfile,
+                                    'buildtarget': buildtarget,
+                                    'outdir': outdir,
+                                    'cmdargs': expected_cmdargs[variant_platform],
+                                    'cppdefines': expected_cppdefines[variant_platform],
+                                    'cpppaths': expected_cpppaths[variant_platform],
+                                    'cppflags': expected_cppflags[variant_platform],
+                                }
 
             # Create parameter environment with final parameter dictionary
             param_dict = dict(list(zip(('variant', 'runfile', 'buildtarget', 'outdir'),
@@ -755,6 +759,7 @@ class msvsTestCase(unittest.TestCase):
             param_dict['cmdargs'] = param_cmdargs
             param_dict['cppdefines'] = param_cppdefines
             param_dict['cpppaths'] = param_cpppaths
+            param_dict['cppflags'] = param_cppflags
 
             # Hack to be able to run the test with a 'DummyEnv'
             class _DummyEnv(DummyEnv):

@@ -43,6 +43,7 @@ libs = [ 'l1.lib', 'd1/l2.lib', 'd1/d2/l3.lib',
 for h in libs:
     test.write(h, "\n")
 
+
 # define some helpers:
 
 class DummyEnvironment(object):
@@ -254,22 +255,6 @@ def suite():
     suite.addTest(ProgramScannerTestCase8())
     suite.addTest(ProgramScannerTestCase9())
     suite.addTest(ProgramScannerTestCase10())
-    try: unicode
-    except NameError: pass
-    else:
-        code = """if 1:
-            class ProgramScannerTestCase4(unittest.TestCase):
-                def runTest(self):
-                    env = DummyEnvironment(LIBPATH=[test.workpath("d1/d2"),
-                                                    test.workpath("d1")],
-                                           LIBS=u'l2 l3'.split())
-                    s = SCons.Scanner.Prog.ProgramScanner()
-                    path = s.path(env)
-                    deps = s(DummyNode('dummy'), env, path)
-                    assert deps_match(deps, ['d1/l2.lib', 'd1/d2/l3.lib']), map(str, deps)
-            suite.addTest(ProgramScannerTestCase4())
-            \n"""
-        exec(code)
     return suite
 
 if __name__ == "__main__":

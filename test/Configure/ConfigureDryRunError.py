@@ -20,14 +20,12 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-from __future__ import print_function
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify the ConfigureDryRunError.
 """
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 
@@ -67,7 +65,7 @@ test.run(arguments='-n', status=2, stderr=expect)
 test.must_not_exist('config.log')
 test.subdir('.sconf_temp')
 
-conftest_0_c = os.path.join(".sconf_temp", "conftest_0.c")
+conftest_0_c = os.path.join(".sconf_temp", "conftest_df286a1d2f67e69d030b4eff75ca7e12_0.c")
 SConstruct_file_line = test.python_file_line(SConstruct_path, 6)[:-1]
 
 expect = """

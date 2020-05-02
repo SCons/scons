@@ -6,8 +6,6 @@
 # as well as the entity declarations for them.
 # Uses scons-proc.py under the hood...
 #
-from __future__ import print_function
-
 import os
 import sys
 import subprocess
@@ -45,13 +43,17 @@ def generate_all():
                 print("Couldn't create destination folder %s! Exiting..." % gen_folder)
                 return
         # Call scons-proc.py
-        _ = subprocess.call([sys.executable,
-                              os.path.join('bin','scons-proc.py'),
-                              '-b', argpair('builders'),
-                              '-f', argpair('functions'),
-                              '-t', argpair('tools'),
-                              '-v', argpair('variables')] + flist,
-                             shell=False)
+        cp = subprocess.run([sys.executable,
+                             os.path.join('bin','scons-proc.py'),
+                             '-b', argpair('builders'),
+                             '-f', argpair('functions'),
+                             '-t', argpair('tools'),
+                             '-v', argpair('variables')] + flist,
+                            shell=False)
+
+        # No-op: scons-proc doesn't actually set an exit code at the moment.
+        if cp.returncode:
+            print("Generation failed", file=sys.stderr)
     
     
 if __name__ == "__main__":

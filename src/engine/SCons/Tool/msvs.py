@@ -29,9 +29,6 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-from __future__ import print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
@@ -70,6 +67,7 @@ def xmlify(s):
     s = s.replace('\n', '&#x0A;')
     return s
 
+
 def processIncludes(includes, env, target, source):
     """
     Process a CPPPATH list in includes, given the env, target and source.
@@ -80,7 +78,19 @@ def processIncludes(includes, env, target, source):
             SCons.PathList.PathList(includes).subst_path(env, target, source)]
 
 
+def processFlags(flags, env):
+    """
+    If /std:c++XX is in flags then we need to ensure /Zc:__cplusplus is in
+    flags to tell intellisense to respect our specified standard
+    """
+    if any(f.startswith('/std:c++') for f in flags) and \
+       not any(f == '/Zc:__cplusplus' for f in flags):
+        flags.append('/Zc:__cplusplus')
+    return [env.subst(f) for f in flags]
+
+
 external_makefile_guid = '{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}'
+
 
 def _generateGUID(slnfile, name):
     """This generates a dummy GUID for the sln file to use.  It is
@@ -97,7 +107,9 @@ def _generateGUID(slnfile, name):
     solution = "{" + solution[:8] + "-" + solution[8:12] + "-" + solution[12:16] + "-" + solution[16:20] + "-" + solution[20:32] + "}"
     return solution
 
+
 version_re = re.compile(r'(\d+\.\d+)(.*)')
+
 
 def msvs_parse_version(s):
     """
@@ -511,6 +523,10 @@ class _DSPGenerator(object):
             cpppaths = GetKeyFromEnv(env, 'cpppaths', variants)
         else:
             cpppaths = [env.get('CPPPATH', [])] * len(variants)
+        if 'cppflags' in env:
+            cppflags = GetKeyFromEnv(env, 'cppflags', variants)
+        else:
+            cppflags = [env.get('CCFLAGS', []) + env.get('CXXFLAGS', []) + env.get('CPPFLAGS', [])] * len(variants)
 
         self.env = env
 
@@ -553,12 +569,13 @@ class _DSPGenerator(object):
         for n in sourcenames:
             self.sources[n].sort(key=lambda a: a.lower())
 
-        def AddConfig(self, variant, buildtarget, outdir, runfile, cmdargs, cppdefines, cpppaths, dspfile=dspfile, env=env):
+        def AddConfig(self, variant, buildtarget, outdir, runfile, cmdargs, cppdefines, cpppaths, cppflags, dspfile=dspfile, env=env):
             config = Config()
             config.buildtarget = buildtarget
             config.outdir = outdir
             config.cmdargs = cmdargs
             config.cppdefines = cppdefines
+            config.cppflags = cppflags
             config.runfile = runfile
 
             # Dir objects can't be pickled, so we need an absolute path here.
@@ -576,7 +593,7 @@ class _DSPGenerator(object):
             print("Adding '" + self.name + ' - ' + config.variant + '|' + config.platform + "' to '" + str(dspfile) + "'")
 
         for i in range(len(variants)):
-            AddConfig(self, variants[i], buildtarget[i], outdir[i], runfile[i], cmdargs[i], cppdefines[i], cpppaths[i])
+            AddConfig(self, variants[i], buildtarget[i], outdir[i], runfile[i], cmdargs[i], cppdefines[i], cpppaths[i], cppflags[i])
 
         seen = set()
         self.platforms = [p.platform for p in self.configs.values()
@@ -1147,6 +1164,7 @@ V10DSPCommandLine = """\
 \t\t<NMakeForcedIncludes Condition="'$(Configuration)|$(Platform)'=='%(variant)s|%(platform)s'">$(NMakeForcedIncludes)</NMakeForcedIncludes>
 \t\t<NMakeAssemblySearchPath Condition="'$(Configuration)|$(Platform)'=='%(variant)s|%(platform)s'">$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>
 \t\t<NMakeForcedUsingAssemblies Condition="'$(Configuration)|$(Platform)'=='%(variant)s|%(platform)s'">$(NMakeForcedUsingAssemblies)</NMakeForcedUsingAssemblies>
+\t\t<AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='%(variant)s|%(platform)s'">%(additionaloptions)s</AdditionalOptions>
 """
 
 V15DSPHeader = """\
@@ -1246,6 +1264,7 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
             cmdargs = self.configs[kind].cmdargs
             cpppaths = self.configs[kind].cpppaths
             cppdefines = self.configs[kind].cppdefines
+            cppflags = self.configs[kind].cppflags
 
             env_has_buildtarget = 'MSVSBUILDTARGET' in self.env
             if not env_has_buildtarget:
@@ -1265,6 +1284,7 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
             # assumes they don't.
             preprocdefs = xmlify(';'.join(processDefines(cppdefines)))
             includepath = xmlify(';'.join(processIncludes(cpppaths, self.env, None, None)))
+            additionaloptions = xmlify(' '.join(processFlags(cppflags, self.env)))
 
             if not env_has_buildtarget:
                 del self.env['MSVSBUILDTARGET']

@@ -20,8 +20,6 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-from __future__ import division, print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
@@ -465,10 +463,7 @@ class VariantDirTestCase(unittest.TestCase):
 
             def __init__(self, duplicate, link, symlink, copy):
                 self.duplicate = duplicate
-                self.have = {}
-                self.have['hard'] = link
-                self.have['soft'] = symlink
-                self.have['copy'] = copy
+                self.have = {'hard': link, 'soft': symlink, 'copy': copy}
 
                 self.links_to_be_called = []
                 for link in self.duplicate.split('-'):
@@ -712,26 +707,27 @@ class BaseTestCase(_tempdirTestCase):
         nonexistent = fs.Entry('nonexistent')
         assert not nonexistent.isfile()
 
-    if sys.platform != 'win32' and hasattr(os, 'symlink'):
-        def test_islink(self):
-            """Test the Base.islink() method"""
-            test = self.test
-            test.subdir('dir')
-            test.write("file", "file\n")
-            test.symlink("symlink", "symlink")
-            fs = SCons.Node.FS.FS()
+    @unittest.skipUnless(sys.platform != 'win32' and hasattr(os, 'symlink'),
+                         "symlink is not used on Windows")
+    def test_islink(self):
+        """Test the Base.islink() method"""
+        test = self.test
+        test.subdir('dir')
+        test.write("file", "file\n")
+        test.symlink("symlink", "symlink")
+        fs = SCons.Node.FS.FS()
 
-            dir = fs.Entry('dir')
-            assert not dir.islink()
+        dir = fs.Entry('dir')
+        assert not dir.islink()
 
-            file = fs.Entry('file')
-            assert not file.islink()
+        file = fs.Entry('file')
+        assert not file.islink()
 
-            symlink = fs.Entry('symlink')
-            assert symlink.islink()
+        symlink = fs.Entry('symlink')
+        assert symlink.islink()
 
-            nonexistent = fs.Entry('nonexistent')
-            assert not nonexistent.islink()
+        nonexistent = fs.Entry('nonexistent')
+        assert not nonexistent.islink()
 
 
 class DirNodeInfoTestCase(_tempdirTestCase):
@@ -1344,13 +1340,14 @@ class FSTestCase(_tempdirTestCase):
         # get_contents() returns the binary contents.
         test.write("binary_file", "Foo\x1aBar")
         f1 = fs.File(test.workpath("binary_file"))
-        assert f1.get_contents() == bytearray("Foo\x1aBar", 'utf-8'), f1.get_contents()
+        assert f1.get_contents() == bytearray("Foo\x1aBar", 'utf-8'), \
+            f1.get_contents()
 
         # This tests to make sure we can decode UTF-8 text files.
-        test_string = u"Foo\x1aBar"
+        test_string = "Foo\x1aBar"
         test.write("utf8_file", test_string.encode('utf-8'))
         f1 = fs.File(test.workpath("utf8_file"))
-        assert eval('f1.get_text_contents() == u"Foo\x1aBar"'), \
+        assert f1.get_text_contents() == "Foo\x1aBar", \
             f1.get_text_contents()
 
         # Check for string which doesn't have BOM and isn't valid
@@ -1449,7 +1446,7 @@ class FSTestCase(_tempdirTestCase):
 
         c = e.get_text_contents()
         try:
-            eval('assert c == u"", c')
+            eval('assert c == "", c')
         except SyntaxError:
             assert c == ""
 
@@ -1460,10 +1457,7 @@ class FSTestCase(_tempdirTestCase):
             assert e.__class__ == SCons.Node.FS.Entry, e.__class__
             assert c == "", c
             c = e.get_text_contents()
-            try:
-                eval('assert c == u"", c')
-            except SyntaxError:
-                assert c == "", c
+            assert c == "", c
 
         test.write("tstamp", "tstamp\n")
         try:
@@ -1855,10 +1849,9 @@ class FSTestCase(_tempdirTestCase):
         d = root._lookup_abs('/tmp/foo-nonexistent/nonexistent-dir', SCons.Node.FS.Dir)
         assert d.__class__ == SCons.Node.FS.Dir, str(d.__class__)
 
+    @unittest.skipUnless(sys.platform == "win32", "requires Windows")
     def test_lookup_uncpath(self):
         """Testing looking up a UNC path on Windows"""
-        if sys.platform not in ('win32',):
-            return
         test = self.test
         fs = self.fs
         path = '//servername/C$/foo'
@@ -1868,19 +1861,17 @@ class FSTestCase(_tempdirTestCase):
         assert str(f) == r'\\servername\C$\foo', \
             'UNC path %s got looked up as %s' % (path, f)
 
+    @unittest.skipUnless(sys.platform.startswith == "win32", "requires Windows")
     def test_unc_drive_letter(self):
         """Test drive-letter lookup for windows UNC-style directories"""
-        if sys.platform not in ('win32',):
-            return
         share = self.fs.Dir(r'\\SERVER\SHARE\Directory')
         assert str(share) == r'\\SERVER\SHARE\Directory', str(share)
 
+    @unittest.skipUnless(sys.platform == "win32", "requires Windows")
     def test_UNC_dirs_2689(self):
         """Test some UNC dirs that printed incorrectly and/or caused
         infinite recursion errors prior to r5180 (SCons 2.1)."""
         fs = self.fs
-        if sys.platform not in ('win32',):
-            return
         p = fs.Dir(r"\\computername\sharename").get_abspath()
         assert p == r"\\computername\sharename", p
         p = fs.Dir(r"\\\computername\sharename").get_abspath()
@@ -3316,15 +3307,7 @@ class RepositoryTestCase(_tempdirTestCase):
 
         # Use a test string that has a file terminator in it to make
         # sure we read the entire file, regardless of its contents.
-        try:
-            eval('test_string = u"Con\x1aTents\n"')
-        except SyntaxError:
-            import collections
-            class FakeUnicodeString(collections.UserString):
-                def encode(self, encoding):
-                    return str(self)
-
-            test_string = FakeUnicodeString("Con\x1aTents\n")
+        test_string = "Con\x1aTents\n"
 
         # Test with ASCII.
         test.write(["rep3", "contents"], test_string.encode('ascii'))

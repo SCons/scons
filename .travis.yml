@@ -52,29 +52,24 @@ jobs:
       env:
         - PYVER=pypy3
         - PYTHON=pypy3
-      sudo: required
-
 
     - <<: *test_job
       python: 3.5
       env:
         - PYVER=35
         - PYTHON=3.5
-      sudo: required
 
     - <<: *test_job
       python: 3.6
       env:
         - PYVER=36
         - PYTHON=3.6
-      sudo: required
 
     - <<: *test_job
       python: 3.7
       env:
         - PYVER=37
         - PYTHON=3.7
-      sudo: required
       dist: xenial  # required for Python >= 3.7
 
     - <<: *test_job
@@ -82,7 +77,6 @@ jobs:
       env:
         - PYVER=38
         - PYTHON=3.8
-      sudo: required
       dist: bionic  # required for Python >= 3.8
 
 

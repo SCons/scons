@@ -34,17 +34,10 @@ import types
 import codecs
 import pprint
 import hashlib
+from collections import UserDict, UserList, UserString, OrderedDict
+from collections.abc import MappingView
 
-PY3 = sys.version_info[0] == 3
 PYPY = hasattr(sys, 'pypy_translation_info')
-
-
-from collections import UserDict, UserList, UserString
-from collections.abc import Iterable, MappingView
-from collections import OrderedDict
-
-# Don't "from types import ..." these because we need to get at the
-# types module later to look for UnicodeType.
 
 # Below not used?
 # InstanceType    = types.InstanceType
@@ -260,8 +253,18 @@ def render_tree(root, child_func, prune=0, margin=[0], visited=None):
 
 IDX = lambda N: N and 1 or 0
 
+# unicode line drawing chars:
+BOX_HORIZ = chr(0x2500)  # '─'
+BOX_VERT = chr(0x2502)  # '│'
+BOX_UP_RIGHT = chr(0x2514)  # '└'
+BOX_DOWN_RIGHT = chr(0x250c)  # '┌'
+BOX_DOWN_LEFT = chr(0x2510)   # '┐'
+BOX_UP_LEFT = chr(0x2518)  # '┘'
+BOX_VERT_RIGHT = chr(0x251c)  # '├'
+BOX_HORIZ_DOWN = chr(0x252c)  # '┬'
 
-def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
+
+def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None, lastChild=False, singleLineDraw=False):
     """
     Print a tree of nodes.  This is like render_tree, except it prints
     lines directly instead of creating a string representation in memory,
@@ -274,6 +277,7 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
         - `showtags`   - print status information to the left of each node line
         - `margin`     - the format of the left margin to use for children of root. 1 results in a pipe, and 0 results in no pipe.
         - `visited`    - a dictionary of visited nodes in the current branch if not prune, or in the whole tree if prune.
+        - `singleLineDraw` - use line-drawing characters rather than ASCII.
     """
 
     rname = str(root)
@@ -307,7 +311,8 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
                 [0, 1][IDX(root.has_explicit_builder())] +
                 [0, 2][IDX(root.has_builder())]
             ],
-            ' S'[IDX(root.side_effect)], ' P'[IDX(root.precious)],
+            ' S'[IDX(root.side_effect)],
+            ' P'[IDX(root.precious)],
             ' A'[IDX(root.always_build)],
             ' C'[IDX(root.is_up_to_date())],
             ' N'[IDX(root.noclean)],
@@ -319,27 +324,51 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
         tags = []
 
     def MMM(m):
-        return ["  ","| "][m]
+        if singleLineDraw:
+            return ["  ", BOX_VERT + " "][m]
+        else:
+            return ["  ", "| "][m]
+
     margins = list(map(MMM, margin[:-1]))
 
     children = child_func(root)
 
+
+    cross = "+-"
+    if singleLineDraw:
+        cross = BOX_VERT_RIGHT + BOX_HORIZ   # sign used to point to the leaf.
+        # check if this is the last leaf of the branch
+        if lastChild:
+            #if this if the last leaf, then terminate:
+            cross = BOX_UP_RIGHT + BOX_HORIZ  # sign for the last leaf
+
+        # if this branch has children then split it
+        if children:
+            # if it's a leaf:
+            if prune and rname in visited and children:
+                cross += BOX_HORIZ
+            else:
+                cross += BOX_HORIZ_DOWN
+
     if prune and rname in visited and children:
-        sys.stdout.write(''.join(tags + margins + ['+-[', rname, ']']) + '\n')
+        sys.stdout.write(''.join(tags + margins + [cross,'[', rname, ']']) + '\n')
         return
 
-    sys.stdout.write(''.join(tags + margins + ['+-', rname]) + '\n')
+    sys.stdout.write(''.join(tags + margins + [cross, rname]) + '\n')
 
     visited[rname] = 1
 
+    # if this item has children:
     if children:
-        margin.append(1)
+        margin.append(1) # Initialize margin with 1 for vertical bar.
         idx = IDX(showtags)
+        _child = 0 # Initialize this for the first child.
         for C in children[:-1]:
-            print_tree(C, child_func, prune, idx, margin, visited)
-        margin[-1] = 0
-        print_tree(children[-1], child_func, prune, idx, margin, visited)
-        margin.pop()
+            _child = _child + 1 # number the children
+            print_tree(C, child_func, prune, idx, margin, visited, (len(children) - _child) <= 0 ,singleLineDraw)
+        margin[-1] = 0  # margins are with space (index 0) because we arrived to the last child.
+        print_tree(children[-1], child_func, prune, idx, margin, visited, True ,singleLineDraw) # for this call child and nr of children needs to be set 0, to signal the second phase.
+        margin.pop() # destroy the last margin added
 
 
 # Functions for deciding if things are like various types, mainly to
@@ -359,27 +388,17 @@ def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited=None):
 DictTypes = (dict, UserDict)
 ListTypes = (list, UserList)
 
-try:
-    # Handle getting dictionary views.
-    SequenceTypes = (list, tuple, UserList, MappingView)
-except NameError:
-    SequenceTypes = (list, tuple, UserList)
+# Handle getting dictionary views.
+SequenceTypes = (list, tuple, UserList, MappingView)
 
-
+# TODO: PY3 check this benchmarking is still correct.
 # Note that profiling data shows a speed-up when comparing
-# explicitly with str and unicode instead of simply comparing
+# explicitly with str instead of simply comparing
 # with basestring. (at least on Python 2.5.1)
-try:
-    StringTypes = (str, unicode, UserString)
-except NameError:
-    StringTypes = (str, UserString)
+StringTypes = (str, UserString)
 
-# Empirically, it is faster to check explicitly for str and
-# unicode than for basestring.
-try:
-    BaseStringTypes = (str, unicode)
-except NameError:
-    BaseStringTypes = str
+# Empirically, it is faster to check explicitly for str than for basestring.
+BaseStringTypes = str
 
 def is_Dict(obj, isinstance=isinstance, DictTypes=DictTypes):
     return isinstance(obj, DictTypes)
@@ -447,23 +466,24 @@ def flatten_sequence(sequence, isinstance=isinstance, StringTypes=StringTypes,
             do_flatten(item, result)
     return result
 
-# Generic convert-to-string functions that abstract away whether or
-# not the Python we're executing has Unicode support.  The wrapper
+# Generic convert-to-string functions.  The wrapper
 # to_String_for_signature() will use a for_signature() method if the
 # specified object has one.
 #
+
+
 def to_String(s,
               isinstance=isinstance, str=str,
               UserString=UserString, BaseStringTypes=BaseStringTypes):
-    if isinstance(s,BaseStringTypes):
+    if isinstance(s, BaseStringTypes):
         # Early out when already a string!
         return s
     elif isinstance(s, UserString):
-        # s.data can only be either a unicode or a regular
-        # string. Please see the UserString initializer.
+        # s.data can only be a regular string. Please see the UserString initializer.
         return s.data
     else:
         return str(s)
+
 
 def to_String_for_subst(s,
                         isinstance=isinstance, str=str, to_String=to_String,
@@ -476,11 +496,11 @@ def to_String_for_subst(s,
     elif isinstance(s, SequenceTypes):
         return ' '.join([to_String_for_subst(e) for e in s])
     elif isinstance(s, UserString):
-        # s.data can only be either a unicode or a regular
-        # string. Please see the UserString initializer.
+        # s.data can only a regular string. Please see the UserString initializer.
         return s.data
     else:
         return str(s)
+
 
 def to_String_for_signature(obj, to_String_for_subst=to_String_for_subst,
                             AttributeError=AttributeError):
@@ -491,6 +511,7 @@ def to_String_for_signature(obj, to_String_for_subst=to_String_for_subst,
             # pprint will output dictionary in key sorted order
             # with py3.5 the order was randomized. In general depending on dictionary order
             # which was undefined until py3.6 (where it's by insertion order) was not wise.
+            # TODO: Change code when floor is raised to PY36
             return pprint.pformat(obj, width=1000000)
         else:
             return to_String_for_subst(obj)
@@ -1508,7 +1529,7 @@ def MD5collect(signatures):
 def silent_intern(x):
     """
     Perform sys.intern() on the passed argument and return the result.
-    If the input is ineligible (e.g. a unicode string) the original argument is
+    If the input is ineligible the original argument is
     returned and no exception is thrown.
     """
     try:

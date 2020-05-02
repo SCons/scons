@@ -35,31 +35,88 @@ executed to build targets.
 By default, SCons will add
 to each target
 an implicit dependency on the command
-represented by the first argument on any
-command line it executes.
+represented by the first argument of any
+command line it executes (which is typically
+the command itself). By setting such
+a dependency, &SCons; can determine that
+a target should be rebuilt if the command changes,
+such as when a compiler is upgraded to a new version.
 The specific file for the dependency is
 found by searching the
 <varname>PATH</varname>
 variable in the
-<varname>ENV</varname>
-environment used to execute the command.
+<varname>ENV</varname> dictionary
+in the &consenv; used to execute the command.
+The default is the same as
+setting the &consvar;
+&cv-IMPLICIT_COMMAND_DEPENDENCIES;
+to a True-like value (<quote>true</quote>,
+<quote>yes</quote>,
+or <quote>1</quote> - but not a number
+greater than one, as that has a different meaning).
 </para>
 
 <para>
-If the construction variable
-&cv-IMPLICIT_COMMAND_DEPENDENCIES;
-is set to a false value
-(<literal>None</literal>,
-<literal>False</literal>,
-<literal>0</literal>,
+Action strings can be segmented by the
+use of an AND operator, <literal>&amp;&amp;</literal>.
+In a segemented string, each segment is a separate
+<quote>command line</quote>, these are run
+sequentially until one fails or the entire
+sequence has been executed. If an
+action string is segmented, then the selected
+behavior of &cv-IMPLICIT_COMMAND_DEPENDENCIES;
+is applied to each segment.
+</para>
+
+<para>
+If &cv-IMPLICIT_COMMAND_DEPENDENCIES;
+is set to a False-like value
+(<quote>none</quote>,
+<quote>false</quote>,
+<quote>no</quote>,
+<quote>0</quote>,
 etc.),
 then the implicit dependency will
 not be added to the targets
-built with that construction environment.
+built with that &consenv;.
+</para>
+
+<para>
+If &cv-IMPLICIT_COMMAND_DEPENDENCIES;
+is set to <quote>2</quote> or higher,
+then that number of arguments in the command line
+will be scanned for relative or absolute paths.
+If any are present, they will be added as
+implicit dependencies to the targets built
+with that &consenv;.
+The first argument in the command line will be
+searched for using the <varname>PATH</varname>
+variable in the <varname>ENV</varname> dictionary
+in the &consenv; used to execute the command.
+The other arguments will only be found if they
+are absolute paths or valid paths relative
+to the working directory.
+</para>
+
+<para>
+If &cv-IMPLICIT_COMMAND_DEPENDENCIES;
+is set to <quote>all</quote>,
+then all arguments in the command line will be
+scanned for relative or absolute paths.
+If any are present, they will be added as
+implicit dependencies to the targets built
+with that &consenv;.
+The first argument in the command line will be
+searched for using the <varname>PATH</varname>
+variable in the <varname>ENV</varname> dictionary
+in the &consenv; used to execute the command.
+The other arguments will only be found if they
+are absolute paths or valid paths relative
+to the working directory.
 </para>
 
 <example_commands>
-env = Environment(IMPLICIT_COMMAND_DEPENDENCIES = 0)
+env = Environment(IMPLICIT_COMMAND_DEPENDENCIES=False)
 </example_commands>
 </summary>
 </cvar>

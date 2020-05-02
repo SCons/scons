@@ -31,7 +31,6 @@ digits of the signature. The prefix length used for directory
 names can be changed by this script.
 """
 
-from __future__ import print_function
 import argparse
 import glob
 import json
@@ -101,78 +100,83 @@ config_entries = {
     }
 }
 
-parser = argparse.ArgumentParser(
-    description='Modify the configuration of an scons cache directory',
-    epilog='''
-           Unspecified options will not be changed unless they are not
-           set at all, in which case they are set to an appropriate default.
-           ''')
 
-parser.add_argument('cache-dir', help='Path to scons cache directory')
-for param in config_entries:
-    parser.add_argument('--' + param.replace('_', '-'),
-                        **config_entries[param]['command-line'])
-parser.add_argument('--version',
-                    action='version',
-                    version='%(prog)s 1.0')
-parser.add_argument('--show',
-                    action="store_true",
-                    help="show current configuration")
+def main():
+    parser = argparse.ArgumentParser(
+        description='Modify the configuration of an scons cache directory',
+        epilog='''
+               Unspecified options will not be changed unless they are not
+               set at all, in which case they are set to an appropriate default.
+               ''')
 
-# Get the command line as a dict without any of the unspecified entries.
-args = dict([x for x in vars(parser.parse_args()).items() if x[1]])
+    parser.add_argument('cache-dir', help='Path to scons cache directory')
+    for param in config_entries:
+        parser.add_argument('--' + param.replace('_', '-'),
+                            **config_entries[param]['command-line'])
+    parser.add_argument('--version',
+                        action='version',
+                        version='%(prog)s 1.0')
+    parser.add_argument('--show',
+                        action="store_true",
+                        help="show current configuration")
 
-# It seems somewhat strange to me, but positional arguments don't get the -
-# in the name changed to _, whereas optional arguments do...
-cache = args['cache-dir']
-if not os.path.isdir(cache):
-    raise RuntimeError("There is no cache directory named %s" % cache)
-os.chdir(cache)
-del args['cache-dir']
+    # Get the command line as a dict without any of the unspecified entries.
+    args = dict([x for x in vars(parser.parse_args()).items() if x[1]])
 
-if not os.path.exists('config'):
-    # old config dirs did not have a 'config' file. Try to update.
-    # Validate the only files in the directory are directories 0-9, a-f
-    expected = ['{:X}'.format(x) for x in range(0, 16)]
-    if not set(os.listdir('.')).issubset(expected):
-        raise RuntimeError(
-            "%s does not look like a valid version 1 cache directory" % cache)
-    config = dict()
-else:
-    with open('config') as conf:
-        config = json.load(conf)
+    # It seems somewhat strange to me, but positional arguments don't get the -
+    # in the name changed to _, whereas optional arguments do...
+    cache = args['cache-dir']
+    if not os.path.isdir(cache):
+        raise RuntimeError("There is no cache directory named %s" % cache)
+    os.chdir(cache)
+    del args['cache-dir']
 
-if args.get('show', None):
-    print("Current configuration in '%s':" % cache)
-    print(json.dumps(config, sort_keys=True,
-                     indent=4, separators=(',', ': ')))
-    # in case of the show argument, emit some stats as well
-    file_count = 0
-    for _, _, files in os.walk('.'):
-        file_count += len(files)
-    if file_count:  # skip config file if it exists
-        file_count -= 1
-    print("Cache contains %s files" % file_count)
-    del args['show']
+    if not os.path.exists('config'):
+        # old config dirs did not have a 'config' file. Try to update.
+        # Validate the only files in the directory are directories 0-9, a-f
+        expected = ['{:X}'.format(x) for x in range(0, 16)]
+        if not set(os.listdir('.')).issubset(expected):
+            raise RuntimeError(
+                "%s does not look like a valid version 1 cache directory" % cache)
+        config = dict()
+    else:
+        with open('config') as conf:
+            config = json.load(conf)
 
-# Find any keys that are not currently set but should be
-for key in config_entries:
-    if key not in config:
-        if 'implicit' in config_entries[key]:
-            config[key] = config_entries[key]['implicit']
-        else:
-            config[key] = config_entries[key]['default']
-        if key not in args:
-            args[key] = config_entries[key]['default']
+    if args.get('show', None):
+        print("Current configuration in '%s':" % cache)
+        print(json.dumps(config, sort_keys=True,
+                         indent=4, separators=(',', ': ')))
+        # in case of the show argument, emit some stats as well
+        file_count = 0
+        for _, _, files in os.walk('.'):
+            file_count += len(files)
+        if file_count:  # skip config file if it exists
+            file_count -= 1
+        print("Cache contains %s files" % file_count)
+        del args['show']
 
-# Now go through each entry in args to see if it changes an existing config
-# setting.
-for key in args:
-    if args[key] != config[key]:
-        if 'converter' in config_entries[key]:
-            config_entries[key]['converter'](config[key], args[key])
-        config[key] = args[key]
+    # Find any keys that are not currently set but should be
+    for key in config_entries:
+        if key not in config:
+            if 'implicit' in config_entries[key]:
+                config[key] = config_entries[key]['implicit']
+            else:
+                config[key] = config_entries[key]['default']
+            if key not in args:
+                args[key] = config_entries[key]['default']
 
-# and write the updated config file
-with open('config', 'w') as conf:
-    json.dump(config, conf)
+    # Now go through each entry in args to see if it changes an existing config
+    # setting.
+    for key in args:
+        if args[key] != config[key]:
+            if 'converter' in config_entries[key]:
+                config_entries[key]['converter'](config[key], args[key])
+            config[key] = args[key]
+
+    # and write the updated config file
+    with open('config', 'w') as conf:
+        json.dump(config, conf)
+
+if __name__ == "__main__":
+    main()

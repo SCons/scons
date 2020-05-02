@@ -26,7 +26,7 @@ See its __doc__ string for a discussion of the format.
 
 <scons_function name="Default">
 <arguments>
-(targets)
+(targets...)
 </arguments>
 <summary>
 <para>
@@ -163,23 +163,26 @@ is used if no value is specified.
 
 <scons_function name="Export">
 <arguments>
-(vars)
+([vars...], [key=value...])
 </arguments>
 <summary>
 <para>
-This tells
-&scons;
-to export a list of variables from the current
-SConscript file to all other SConscript files.
-The exported variables are kept in a global collection,
-so subsequent calls to
-&f-Export;
-will over-write previous exports that have the same name.
-Multiple variable names can be passed to
-&f-Export;
-as separate arguments or as a list.
+Exports variables from the current
+SConscript file to a global collection where they can be
+imported by other SConscript files.
+<parameter>vars</parameter> may be one or more
+strings representing variable names to be exported.
+If a string contains whitespace, it is split into
+separate strings, as if multiple string arguments
+had been given.  A <parameter>vars</parameter> argument
+may also be a dictionary, which can be used to map variables
+to different names when exported.
 Keyword arguments can be used to provide names and their values.
-A dictionary can be used to map variables to a different name when exported.
+</para>
+
+<para>
+&f-Export; calls are cumulative. Specifying a previously
+exported variable will overwrite the earlier value.
 Both local variables and global variables can be exported.
 </para>
 
@@ -200,22 +203,19 @@ Export("env", "package")
 Export(["env", "package"])
 
 # Make env available using the name debug:
-Export(debug = env)
+Export(debug=env)
 
 # Make env available using the name debug:
-Export({"debug":env})
+Export({"debug": env})
 </example_commands>
 
 <para>
 Note that the
-&f-SConscript;
-function supports an
-<varname>exports</varname>
-argument that makes it easier to to export a variable or
-set of variables to a single SConscript file.
-See the description of the
-&f-SConscript;
-function, below.
+&f-link-SConscript;
+function supports an &exports;
+argument that allows exporting a variable or
+set of variables to a specific SConscript file or files.
+See the description below.
 </para>
 </summary>
 </scons_function>
@@ -270,26 +270,25 @@ message.
 
 <scons_function name="Import">
 <arguments>
-(vars)
+(vars...)
 </arguments>
 <summary>
 <para>
-This tells
-&scons;
-to import a list of variables into the current SConscript file. This
-will import variables that were exported with
-&f-Export;
-or in the
-<varname>exports</varname>
-argument to
+Imports variables into the current SConscript file.
+<parameter>vars</parameter>
+must be strings representing names of variables
+which have been previously exported either by the
+&f-link-Export; function or by the
+&exports; argument to
 &f-link-SConscript;.
 Variables exported by
 &f-SConscript;
-have precedence.
+take precedence.
 Multiple variable names can be passed to
 &f-Import;
-as separate arguments or as a list. The variable "*" can be used
-to import all variables.
+as separate arguments or as words in a space-separated string.
+The wildcard <literal>"*"</literal> can be used to import all
+available variables.
 </para>
 
 <para>
@@ -307,36 +306,39 @@ Import("*")
 
 <scons_function name="Return">
 <arguments signature="global">
-([vars..., stop=])
+([vars..., stop=True])
 </arguments>
 <summary>
 <para>
-By default,
-this stops processing the current SConscript
-file and returns to the calling SConscript file
-the values of the variables named in the
-<varname>vars</varname>
-string arguments.
+Return to the calling SConscript, optionally
+returning the values of variables named in
+<varname>vars</varname>.
 Multiple strings contaning variable names may be passed to
-&f-Return;.
-Any strings that contain white space
+&f-Return;. A string containing white space
+is split into individual variable names.
+Returns the value if one variable is specified,
+else returns a tuple of values.
+Returns an empty tuple if <parameter>vars</parameter>
+is omitted.
 </para>
 
 <para>
+By default &Return; stops processing the current SConscript
+and returns immediately.
 The optional
-<literal>stop=</literal>
-keyword argument may be set to a false value
+<literal>stop</literal>
+keyword argument
+may be set to a false value
 to continue processing the rest of the SConscript
 file after the
 &f-Return;
-call.
-This was the default behavior prior to SCons 0.98.
+call (this was the default behavior prior to SCons 0.98.)
 However, the values returned
 are still the values of the variables in the named
 <varname>vars</varname>
 at the point
 &f-Return;
-is called.
+was called.
 </para>
 
 <para>
@@ -344,7 +346,7 @@ Examples:
 </para>
 
 <example_commands>
-# Returns without returning a value.
+# Returns no values (evaluates False)
 Return()
 
 # Returns the value of the 'foo' Python variable.
@@ -370,22 +372,13 @@ Return('val1 val2')
 </arguments>
 <summary>
 <para>
-This tells
-&scons;
-to execute
-one or more subsidiary SConscript (configuration) files.
-Any variables returned by a called script using
-&f-link-Return;
-will be returned by the call to
-&f-SConscript;.
+Execute one or more subsidiary SConscript (configuration) files.
 There are two ways to call the
-&f-SConscript;
-function.
+&f-SConscript; function.
 </para>
 
 <para>
-The first way you can call
-&f-SConscript;
+The first calling style
 is to explicitly specify one or more
 <varname>scripts</varname>
 as the first argument.
@@ -404,22 +397,22 @@ config = SConscript('MyConfig.py')
 </example_commands>
 
 <para>
-The second way you can call
+The second way to call
 &f-SConscript;
 is to specify a list of (sub)directory names
 as a
-<literal>dirs=</literal><varname>subdirs</varname>
+<varname>dirs</varname>=<replaceable>subdirs</replaceable>
 keyword argument.
 In this case,
 &scons;
-will, by default,
+will
 execute a subsidiary configuration file named
 &SConscript;
 in each of the specified directories.
 You may specify a name other than
 &SConscript;
 by supplying an optional
-<literal>name=</literal><varname>script</varname>
+<varname>name</varname>=<replaceable>script</replaceable>
 keyword argument.
 The first three examples below have the same effect
 as the first three examples above:
@@ -434,17 +427,15 @@ SConscript(dirs=['sub1', 'sub2'], name='MySConscript')
 <para>
 The optional
 <varname>exports</varname>
-argument provides a list of variable names or a dictionary of
-named values to export to the
-<varname>script(s)</varname>.
-These variables are locally exported only to the specified
-<varname>script(s)</varname>,
-and do not affect the global pool of variables used by the
-&f-Export;
+argument provides a string or list of strings representing
+variable names, or a dictionary of named values, to export.
+These variables are locally exported only to the called
+SConscript file(s)
+and do not affect the global pool of variables managed by the
+&f-link-Export;
 function.
 <!-- If multiple dirs are provided, each script gets a fresh export. -->
-The subsidiary
-<varname>script(s)</varname>
+The subsidiary SConscript files
 must use the
 &f-link-Import;
 function to import the variables.
@@ -461,49 +452,34 @@ SConscript(dirs=['one', 'two', 'three'], exports='shared_info')
 If the optional
 <varname>variant_dir</varname>
 argument is present, it causes an effect equivalent to the
-&f-link-VariantDir;
-method described below.
-(If
-<varname>variant_dir</varname>
-is not present, the
-<!-- <varname>src_dir</varname> and -->
-<varname>duplicate</varname>
-<!-- arguments are ignored.) -->
-argument is ignored.)
-The
-<varname>variant_dir</varname>
-<!--
-and
-<varname>src_dir</varname>
-arguments are interpreted relative to the directory of the calling
--->
+&f-link-VariantDir; function.
+The <varname>variant_dir</varname>
 argument is interpreted relative to the directory of the calling
-&SConscript;
-file.
-See the description of the
-&f-VariantDir;
-function below for additional details and restrictions.
+SConscript file.
+The optional
+<varname>duplicate</varname> argument is
+interpreted as for &f-link-VariantDir;.
+If <varname>variant_dir</varname>
+is omitted, the <varname>duplicate</varname> argument is ignored.
+See the description of
+&f-link-VariantDir;
+below for additional details and restrictions.
 </para>
 
 <para>
 If
 <varname>variant_dir</varname>
 is present,
-<!--
-but
-<varname>src_dir</varname>
-is not,
--->
 the source directory is the directory in which the
-&SConscript;
+SConscript
 file resides and the
-&SConscript;
+SConscript
 file is evaluated as if it were in the
 <varname>variant_dir</varname>
 directory:
 </para>
 <example_commands>
-SConscript('src/SConscript', variant_dir = 'build')
+SConscript('src/SConscript', variant_dir='build')
 </example_commands>
 
 <para>
@@ -522,7 +498,7 @@ in the same directory as the
 </para>
 
 <example_commands>
-SConscript('SConscript', variant_dir = 'build')
+SConscript('SConscript', variant_dir='build')
 </example_commands>
 
 <para>
@@ -568,14 +544,17 @@ TODO??? SConscript('build/SConscript', src_dir='src')
 </para>
 
 <para>
-The optional
+If the optional
 <varname>must_exist</varname>
-argument, if true, causes an exception to be raised if a requested
-&SConscript; file is not found. The current default is false,
-causing only a warning to be omitted, but this behavior is deprecated.
+is <constant>True</constant>,
+causes an exception to be raised if a requested
+SConscript file is not found. The current default is
+<constant>False</constant>,
+causing only a warning to be emitted, but this default is deprecated
+(<emphasis>since 3.1</emphasis>).
 For scripts which truly intend to be optional, transition to
-explicty supplying
-<literal>must_exist=False</literal> to the call.
+explicitly supplying
+<literal>must_exist=False</literal> to the &f-SConscript; call.
 </para>
 
 <para>
@@ -611,6 +590,18 @@ SConscript('doc/SConscript', variant_dir='build/doc', duplicate=0)
 SConscript('src/SConscript', variant_dir='build/x86', duplicate=0)
 SConscript('src/SConscript', variant_dir='build/ppc', duplicate=0)
 </example_commands>
+
+<para>
+&f-SConscript; returns the values of any variables
+named by the executed SConscript(s) in arguments
+to the &f-link-Return; function (see above for details).
+If a single &f-SConscript; call causes multiple scripts to
+be executed, the return value is a tuple containing
+the returns of all of the scripts. If an executed
+script does not explicitly call &Return;, it returns
+<constant>None</constant>.
+</para>
+
 </summary>
 </scons_function>
 

@@ -23,9 +23,9 @@ if __name__ == '__main__':
             args = args[1:]
             if a[:5].lower() == '/out:': out = a[5:]
         with open(args[0], 'rb') as ifp, open(out, 'wb') as ofp:
-            for l in ifp.readlines():
-                if not l.startswith(b'#link'):
-                    ofp.write(l)
+            for line in ifp:
+                if not line.startswith(b'#link'):
+                    ofp.write(line)
         sys.exit(0)
     else:
         import getopt
@@ -33,7 +33,7 @@ if __name__ == '__main__':
         for opt, arg in opts:
             if opt == '-o': out = arg
         with open(args[0], 'rb') as ifp, open(out, 'wb') as ofp:
-            for l in ifp.readlines():
-                if not l.startswith(b'#link'):
-                    ofp.write(l)
+            for line in ifp:
+                if not line.startswith(b'#link'):
+                    ofp.write(line)
         sys.exit(0)

@@ -873,7 +873,7 @@ cppdefines = []
 for key, value in ARGLIST:
     if key == 'define':
         cppdefines.append(value)
-env = Environment(CPPDEFINES = cppdefines)
+env = Environment(CPPDEFINES=cppdefines)
 env.Object('prog.c')
        </file>
        <file name="prog.c">
@@ -943,8 +943,7 @@ prog.c
       a program for release,
       and that the value of this variable
       should be added to the command line
-      with the appropriate <literal>-D</literal> option
-      (or other command line option)
+      with the appropriate define
       to pass the value to the C compiler.
       Here's how you might do that by setting
       the appropriate value in a dictionary for the
@@ -955,9 +954,8 @@ prog.c
       <scons_example name="commandline_Variables1">
         <file name="SConstruct" printme="1">
 vars = Variables(None, ARGUMENTS)
-vars.Add('RELEASE', 'Set to 1 to build for release', 0)
-env = Environment(variables = vars,
-                  CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
+vars.Add('RELEASE', default=0)
+env = Environment(variables=vars, CPPDEFINES={'RELEASE_BUILD': '${RELEASE}'})
 env.Program(['foo.c', 'bar.c'])
         </file>
         <file name="foo.c">
@@ -975,11 +973,8 @@ bar.c
       (the <literal>vars = Variables(None, ARGUMENTS)</literal> call).
       It then uses the object's &Add;
       method to indicate that the &RELEASE;
-      variable can be set on the command line,
-      and that its default value will be <literal>0</literal>
-      (the third argument to the &Add; method).
-      The second argument is a line of help text;
-      we'll learn how to use it in the next section.
+      variable can be set on the command line, and that
+      if not set the default value will be <literal>0</literal>.
 
       </para>
 
@@ -1003,18 +998,19 @@ bar.c
 
       <para>
 
-      NOTE:  Before &SCons; release 0.98.1, these build variables
-      were known as "command-line build options."
-      The class was actually named the &Options; class,
-      and in the sections below,
-      the various functions were named
+      Historical note:  In old &SCons; (prior to 0.98.1),
+      these build variables were known as "command-line build options."
+      The class was named the &Options; class,
+      and the predefined functions to construct options were named
       &BoolOption;, &EnumOption;, &ListOption;,
-      &PathOption;, &PackageOption; and &AddOptions;.
-      These older names still work,
-      and you may encounter them in older
-      &SConscript; files,
-      but they have been officially deprecated
-      as of &SCons; version 2.0.
+      &PathOption;, &PackageOption; and &AddOptions; (contrast
+      with the current names in "Pre-Defined Build Variable Functions"
+      below.  You may encounter these names in older
+      &SConscript; files, wiki pages, blog entries, StackExchange
+      articles, etc.
+      These old names no longer work, but a mental substitution
+      of <quote>Variable</quote>" for <quote>Option</quote>
+      will let the concepts transfer to current usage models.
 
       </para>
 
@@ -1032,12 +1028,17 @@ bar.c
       when the user runs <literal>scons -h</literal>.
       You could write this text by hand,
       but &SCons; provides an easier way.
-      &Variables; objects support a
+      Variables objects support a
       &GenerateHelpText; method
       that will, as its name suggests,
       generate text that describes
       the various variables that
-      have been added to it.
+      have been added to it. The default text includes
+      the help string itself plus other information
+      such as allowed values.
+      (The generated text can also be customized by
+      replacing the <methodname>FormatVariableHelpText</methodname>
+      method).
       You then pass the output from this method to
       the &Help; function:
 
@@ -1046,8 +1047,8 @@ bar.c
       <scons_example name="commandline_Variables_Help">
         <file name="SConstruct" printme="1">
 vars = Variables(None, ARGUMENTS)
-vars.Add('RELEASE', 'Set to 1 to build for release', 0)
-env = Environment(variables = vars)
+vars.Add('RELEASE', help='Set to 1 to build for release', default=0)
+env = Environment(variables=vars)
 Help(vars.GenerateHelpText(env))
         </file>
       </scons_example>
@@ -1093,9 +1094,8 @@ Help(vars.GenerateHelpText(env))
       <scons_example name="commandline_Variables_custom_py_1">
         <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
-vars.Add('RELEASE', 'Set to 1 to build for release', 0)
-env = Environment(variables = vars,
-                  CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
+vars.Add('RELEASE', help='Set to 1 to build for release', default=0)
+env = Environment(variables=vars, CPPDEFINES={'RELEASE_BUILD': '${RELEASE}'})
 env.Program(['foo.c', 'bar.c'])
 Help(vars.GenerateHelpText(env))
         </file>
@@ -1139,12 +1139,11 @@ RELEASE = 1
 
       <scons_example name="commandline_Variables_custom_py_2">
         <file name="SConstruct">
-   vars = Variables('custom.py')
-   vars.Add('RELEASE', 'Set to 1 to build for release', 0)
-   env = Environment(variables = vars,
-                     CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
-   env.Program(['foo.c', 'bar.c'])
-   Help(vars.GenerateHelpText(env))
+vars = Variables('custom.py')
+vars.Add('RELEASE', help='Set to 1 to build for release', default=0)
+env = Environment(variables=vars, CPPDEFINES={'RELEASE_BUILD': '${RELEASE}'})
+env.Program(['foo.c', 'bar.c'])
+Help(vars.GenerateHelpText(env))
         </file>
         <file name="foo.c">
 foo.c
@@ -1195,6 +1194,8 @@ vars = Variables('custom.py', ARGUMENTS)
       &SCons; provides a number of functions
       that provide ready-made behaviors
       for various types of command-line build variables.
+      These functions all return a tuple which is ready
+      to be passed to an &Add; call.
 
       </para>
 
@@ -1230,9 +1231,10 @@ vars = Variables('custom.py', ARGUMENTS)
         <scons_example name="commandline_BoolVariable">
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
-vars.Add(BoolVariable('RELEASE', 'Set to build for release', 0))
-env = Environment(variables = vars,
-                  CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
+vars.Add(BoolVariable('RELEASE',
+                      help='Set to build for release',
+                      default=0))
+env = Environment(variables=vars, CPPDEFINES={'RELEASE_BUILD': '${RELEASE}'})
 env.Program('foo.c')
           </file>
           <file name="foo.c">
@@ -1334,11 +1336,13 @@ foo.c
         <scons_example name="commandline_EnumVariable">
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
-vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
-                    allowed_values=('red', 'green', 'blue')))
-env = Environment(variables = vars,
-                  CPPDEFINES={'COLOR' : '"${COLOR}"'})
+vars.Add(EnumVariable('COLOR',
+                      help='Set background color',
+                      default='red',
+                      allowed_values=('red', 'green', 'blue')))
+env = Environment(variables=vars, CPPDEFINES={'COLOR': '"${COLOR}"'})
 env.Program('foo.c')
+Help(vars.GenerateHelpText(env))
           </file>
           <file name="foo.c">
 foo.c
@@ -1373,6 +1377,20 @@ foo.c
 
         <para>
 
+        This example can also serve to further illustrate help
+        generation: the help message here picks up not only the
+        <parameter>help</parameter> text, but augments it with
+        information gathered from <parameter>allowed_values</parameter>
+        and <parameter>default</parameter>:
+
+        </para>
+
+        <scons_output example="commandline_EnumVariable" suffix="3">
+          <scons_output_command>scons -Q -h</scons_output_command>
+        </scons_output>
+
+        <para>
+
         The &EnumVariable; function also supports a way
         to map alternate names to allowed values.
         Suppose, for example,
@@ -1388,11 +1406,12 @@ foo.c
         <scons_example name="EnumVariable_map">
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
-vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
-                    allowed_values=('red', 'green', 'blue'),
-                    map={'navy':'blue'}))
-env = Environment(variables = vars,
-                  CPPDEFINES={'COLOR' : '"${COLOR}"'})
+vars.Add(EnumVariable('COLOR',
+                      help='Set background color',
+                      default='red',
+                      allowed_values=('red', 'green', 'blue'),
+                      map={'navy':'blue'}))
+env = Environment(variables=vars, CPPDEFINES={'COLOR': '"${COLOR}"'})
 env.Program('foo.c')
           </file>
           <file name="foo.c">
@@ -1424,7 +1443,7 @@ foo.c
 
         </para>
 
-        <scons_output example="commandline_EnumVariable" suffix="3">
+        <scons_output example="commandline_EnumVariable" suffix="4">
           <scons_output_command>scons -Q COLOR=Red foo.o</scons_output_command>
           <scons_output_command>scons -Q COLOR=BLUE foo.o</scons_output_command>
           <scons_output_command>scons -Q COLOR=nAvY foo.o</scons_output_command>
@@ -1443,12 +1462,13 @@ foo.c
         <scons_example name="commandline_EnumVariable_ic1">
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
-vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
-                    allowed_values=('red', 'green', 'blue'),
-                    map={'navy':'blue'},
-                    ignorecase=1))
-env = Environment(variables = vars,
-                  CPPDEFINES={'COLOR' : '"${COLOR}"'})
+vars.Add(EnumVariable('COLOR',
+                      help='Set background color',
+                      default='red',
+                      allowed_values=('red', 'green', 'blue'),
+                      map={'navy':'blue'},
+                      ignorecase=1))
+env = Environment(variables=vars, CPPDEFINES={'COLOR':'"${COLOR}"'})
 env.Program('foo.c')
           </file>
           <file name="foo.c">
@@ -1483,12 +1503,13 @@ foo.c
         <scons_example name="commandline_EnumVariable_ic2">
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
-vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
-                    allowed_values=('red', 'green', 'blue'),
-                    map={'navy':'blue'},
-                    ignorecase=2))
-env = Environment(variables = vars,
-                  CPPDEFINES={'COLOR' : '"${COLOR}"'})
+vars.Add(EnumVariable('COLOR',
+                      help='Set background color',
+                      default='red',
+                      allowed_values=('red', 'green', 'blue'),
+                      map={'navy':'blue'},
+                      ignorecase=2))
+env = Environment(variables=vars, CPPDEFINES={'COLOR': '"${COLOR}"'})
 env.Program('foo.c')
           </file>
           <file name="foo.c">
@@ -1532,10 +1553,11 @@ foo.c
         <scons_example name="commandline_ListVariable">
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
-vars.Add(ListVariable('COLORS', 'List of colors', 0,
-                    ['red', 'green', 'blue']))
-env = Environment(variables = vars,
-                  CPPDEFINES={'COLORS' : '"${COLORS}"'})
+vars.Add(ListVariable('COLORS',
+                      help='List of colors',
+                      default=0,
+                      names=['red', 'green', 'blue']))
+env = Environment(variables=vars, CPPDEFINES={'COLORS': '"${COLORS}"'})
 env.Program('foo.c')
           </file>
           <file name="foo.c">
@@ -1604,10 +1626,9 @@ foo.c
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
 vars.Add(PathVariable('CONFIG',
-                    'Path to configuration file',
-                    '__ROOT__/etc/my_config'))
-env = Environment(variables = vars,
-                  CPPDEFINES={'CONFIG_FILE' : '"$CONFIG"'})
+                      help='Path to configuration file',
+                      default='__ROOT__/etc/my_config'))
+env = Environment(variables=vars, CPPDEFINES={'CONFIG_FILE': '"$CONFIG"'})
 env.Program('foo.c')
           </file>
           <file name="foo.c">
@@ -1652,7 +1673,7 @@ foo.c
         that you can use to change this behavior.
         If you want to ensure that any specified paths are,
         in fact, files and not directories,
-        use the &PathVariable_PathIsFile; method:
+        use the &PathVariable_PathIsFile; method as the validation function:
 
         </para>
 
@@ -1660,11 +1681,10 @@ foo.c
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
 vars.Add(PathVariable('CONFIG',
-                    'Path to configuration file',
-                    '__ROOT__/etc/my_config',
-                    PathVariable.PathIsFile))
-env = Environment(variables = vars,
-                  CPPDEFINES={'CONFIG_FILE' : '"$CONFIG"'})
+                      help='Path to configuration file',
+                      default='__ROOT__/etc/my_config',
+                      validator=PathVariable.PathIsFile))
+env = Environment(variables=vars, CPPDEFINES={'CONFIG_FILE': '"$CONFIG"'})
 env.Program('foo.c')
           </file>
           <file name="foo.c">
@@ -1679,7 +1699,7 @@ foo.c
 
         Conversely, to ensure that any specified paths are
         directories and not files,
-        use the &PathVariable_PathIsDir; method:
+        use the &PathVariable_PathIsDir; method as the validation function:
 
         </para>
 
@@ -1687,11 +1707,10 @@ foo.c
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
 vars.Add(PathVariable('DBDIR',
-                    'Path to database directory',
-                    '__ROOT__/var/my_dbdir',
-                    PathVariable.PathIsDir))
-env = Environment(variables = vars,
-                  CPPDEFINES={'DBDIR' : '"$DBDIR"'})
+                      help='Path to database directory',
+                      default='__ROOT__/var/my_dbdir',
+                      validator=PathVariable.PathIsDir))
+env = Environment(variables=vars, CPPDEFINES={'DBDIR': '"$DBDIR"'})
 env.Program('foo.c')
           </file>
           <file name="foo.c">
@@ -1708,7 +1727,7 @@ foo.c
         are directories,
         and you would like the directory created
         if it doesn't already exist,
-        use the &PathVariable_PathIsDirCreate; method:
+        use the &PathVariable_PathIsDirCreate; method as the validation function:
 
         </para>
 
@@ -1716,11 +1735,10 @@ foo.c
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
 vars.Add(PathVariable('DBDIR',
-                    'Path to database directory',
-                    '__ROOT__/var/my_dbdir',
-                    PathVariable.PathIsDirCreate))
-env = Environment(variables = vars,
-                  CPPDEFINES={'DBDIR' : '"$DBDIR"'})
+                      help='Path to database directory',
+                      default='__ROOT__/var/my_dbdir',
+                      validator=PathVariable.PathIsDirCreate))
+env = Environment(variables=vars, CPPDEFINES={'DBDIR': '"$DBDIR"'})
 env.Program('foo.c')
           </file>
           <file name="foo.c">
@@ -1744,11 +1762,10 @@ foo.c
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
 vars.Add(PathVariable('OUTPUT',
-                    'Path to output file or directory',
-                    None,
-                    PathVariable.PathAccept))
-env = Environment(variables = vars,
-                  CPPDEFINES={'OUTPUT' : '"$OUTPUT"'})
+                      help='Path to output file or directory',
+                      default=None,
+                      validator=PathVariable.PathAccept))
+env = Environment(variables=vars, CPPDEFINES={'OUTPUT': '"$OUTPUT"'})
 env.Program('foo.c')
           </file>
           <file name="foo.c">
@@ -1777,13 +1794,12 @@ foo.c
 
         <scons_example name="commandline_PackageVariable">
           <file name="SConstruct" printme="1">
-vars = Variables('custom.py')
-vars.Add(PackageVariable('PACKAGE',
-                       'Location package',
-                       '__ROOT__/opt/location'))
-env = Environment(variables = vars,
-                  CPPDEFINES={'PACKAGE' : '"$PACKAGE"'})
-env.Program('foo.c')
+vars = Variables("custom.py")
+vars.Add(PackageVariable("PACKAGE",
+                         help="Location package",
+                         default="__ROOT__/opt/location"))
+env = Environment(variables=vars, CPPDEFINES={"PACKAGE": '"$PACKAGE"'})
+env.Program("foo.c")
           </file>
           <file name="foo.c">
 foo.c
@@ -1798,8 +1814,8 @@ foo.c
 
         <para>
 
-        When the &SConscript; file uses the &PackageVariable; funciton,
-        user can now still use the default
+        When the &SConscript; file uses the &PackageVariable; function,
+        the user can still use the default
         or supply an overriding path name,
         but can now explicitly set the
         specified variable to a value
@@ -1828,16 +1844,17 @@ foo.c
       Lastly, &SCons; provides a way to add
       multiple build variables to a &Variables; object at once.
       Instead of having to call the &Add; method
-      multiple times,
-      you can call the &AddVariables;
-      method with a list of build variables
-      to be added to the object.
+      multiple times, you can call the &AddVariables;
+      method with the build variables to be added to the object.
       Each build variable is specified
       as either a tuple of arguments,
-      just like you'd pass to the &Add; method itself,
       or as a call to one of the pre-defined
-      functions for pre-packaged command-line build variables.
-      in any order:
+      functions for pre-packaged command-line build variables,
+      which returns such a tuple. Note that an individual tuple
+      cannot take keyword arguments in the way that a call to
+      &Add; or one of the build variable functions can.
+      The order of variables given to &AddVariables; does not
+      matter.
 
       </para>
 
@@ -1847,18 +1864,25 @@ vars = Variables()
 vars.AddVariables(
     ('RELEASE', 'Set to 1 to build for release', 0),
     ('CONFIG', 'Configuration file', '/etc/my_config'),
-    BoolVariable('warnings', 'compilation with -Wall and similiar', 1),
-    EnumVariable('debug', 'debug output and symbols', 'no',
-               allowed_values=('yes', 'no', 'full'),
-               map={}, ignorecase=0),  # case sensitive
+    BoolVariable('warnings',
+                 help='compilation with -Wall and similiar',
+                 default=1),
+    EnumVariable('debug',
+                 help='debug output and symbols',
+                 default='no',
+                 allowed_values=('yes', 'no', 'full'),
+                 map={},
+                 ignorecase=0),
     ListVariable('shared',
-               'libraries to build as shared libraries',
-               'all',
-               names = list_of_libs),
+                 help='libraries to build as shared libraries',
+                 default='all',
+                 names = list_of_libs),
     PackageVariable('x11',
-                  'use X11 installed here (yes = search some places)',
-                  'yes'),
-    PathVariable('qtdir', 'where the root of Qt is installed', qtdir),
+                    help='use X11 installed here (yes = search some places)',
+                    default='yes'),
+    PathVariable('qtdir',
+                 help='where the root of Qt is installed',
+                 default=qtdir),
 )
         </file>
       </scons_example>
@@ -1905,9 +1929,8 @@ vars.AddVariables(
       <scons_example name="commandline_UnknownVariables">
         <file name="SConstruct" printme="1">
 vars = Variables(None)
-vars.Add('RELEASE', 'Set to 1 to build for release', 0)
-env = Environment(variables = vars,
-                  CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
+vars.Add('RELEASE', help='Set to 1 to build for release', default=0)
+env = Environment(variables=vars, CPPDEFINES={'RELEASE_BUILD': '${RELEASE}'})
 unknown = vars.UnknownVariables()
 if unknown:
     print("Unknown variables: %s"%unknown.keys())

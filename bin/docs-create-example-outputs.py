@@ -3,8 +3,6 @@
 # Searches through the whole doc/user tree and creates
 # all output files for the single examples.
 #
-from __future__ import print_function
-
 import os
 import sys
 import SConsExamples

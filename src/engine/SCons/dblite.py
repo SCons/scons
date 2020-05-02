@@ -1,6 +1,7 @@
-# dblite.py module contributed by Ralf W. Grosse-Kunstleve.
-# Extended for Unicode by Steven Knight.
-from __future__ import print_function
+"""
+dblite.py module contributed by Ralf W. Grosse-Kunstleve.
+Extended for Unicode by Steven Knight.
+"""
 
 import os
 import pickle
@@ -16,26 +17,6 @@ ignore_corrupt_dbfiles = 0
 def corruption_warning(filename):
     print("Warning: Discarding corrupt database:", filename)
 
-
-try:
-    unicode
-except NameError:
-    def is_string(s):
-        return isinstance(s, str)
-else:
-    def is_string(s):
-        return type(s) in (str, unicode)
-
-
-def is_bytes(s):
-    return isinstance(s, bytes)
-
-
-try:
-    unicode('a')
-except NameError:
-    def unicode(s):
-        return s
 
 dblite_suffix = '.dblite'
 
@@ -181,10 +162,13 @@ class dblite(object):
 
     def __setitem__(self, key, value):
         self._check_writable()
-        if not is_string(key):
+
+        if not isinstance(key, str):
             raise TypeError("key `%s' must be a string but is %s" % (key, type(key)))
-        if not is_bytes(value):
+
+        if not isinstance(value, bytes):
             raise TypeError("value `%s' must be a bytes but is %s" % (value, type(value)))
+
         self._dict[key] = value
         self._needs_sync = 0o001
 
@@ -214,25 +198,21 @@ def open(file, flag=None, mode=0o666):
 def _exercise():
     db = open("tmp", "n")
     assert len(db) == 0
-    db["foo"] = "bar"
-    assert db["foo"] == "bar"
-    db[unicode("ufoo")] = unicode("ubar")
-    assert db[unicode("ufoo")] == unicode("ubar")
+    db["foo"] = b"bar"
+    assert db["foo"] == b"bar"
     db.sync()
+
     db = open("tmp", "c")
-    assert len(db) == 2, len(db)
-    assert db["foo"] == "bar"
-    db["bar"] = "foo"
-    assert db["bar"] == "foo"
-    db[unicode("ubar")] = unicode("ufoo")
-    assert db[unicode("ubar")] == unicode("ufoo")
+    assert len(db) == 1, len(db)
+    assert db["foo"] == b"bar"
+    db["bar"] = b"foo"
+    assert db["bar"] == b"foo"
     db.sync()
+
     db = open("tmp", "r")
-    assert len(db) == 4, len(db)
-    assert db["foo"] == "bar"
-    assert db["bar"] == "foo"
-    assert db[unicode("ufoo")] == unicode("ubar")
-    assert db[unicode("ubar")] == unicode("ufoo")
+    assert len(db) == 2, len(db)
+    assert db["foo"] == b"bar"
+    assert db["bar"] == b"foo"
     try:
         db.sync()
     except IOError as e:
@@ -240,26 +220,31 @@ def _exercise():
     else:
         raise RuntimeError("IOError expected.")
     db = open("tmp", "w")
-    assert len(db) == 4
-    db["ping"] = "pong"
+    assert len(db) == 2, len(db)
+    db["ping"] = b"pong"
     db.sync()
+
     try:
         db[(1, 2)] = "tuple"
     except TypeError as e:
-        assert str(e) == "key `(1, 2)' must be a string but is <type 'tuple'>", str(e)
+        assert str(e) == "key `(1, 2)' must be a string but is <class 'tuple'>", str(e)
     else:
         raise RuntimeError("TypeError exception expected")
+
     try:
         db["list"] = [1, 2]
     except TypeError as e:
-        assert str(e) == "value `[1, 2]' must be a string but is <type 'list'>", str(e)
+        assert str(e) == "value `[1, 2]' must be a bytes but is <class 'list'>", str(e)
     else:
         raise RuntimeError("TypeError exception expected")
+
     db = open("tmp", "r")
-    assert len(db) == 5
+    assert len(db) == 3, len(db)
+
     db = open("tmp", "n")
-    assert len(db) == 0
+    assert len(db) == 0, len(db)
     dblite._open("tmp.dblite", "w")
+
     db = open("tmp", "r")
     dblite._open("tmp.dblite", "w").write("x")
     try:
@@ -268,10 +253,11 @@ def _exercise():
         pass
     else:
         raise RuntimeError("pickle exception expected.")
+
     global ignore_corrupt_dbfiles
     ignore_corrupt_dbfiles = 2
     db = open("tmp", "r")
-    assert len(db) == 0
+    assert len(db) == 0, len(db)
     os.unlink("tmp.dblite")
     try:
         db = open("tmp", "w")
@@ -279,6 +265,8 @@ def _exercise():
         assert str(e) == "[Errno 2] No such file or directory: 'tmp.dblite'", str(e)
     else:
         raise RuntimeError("IOError expected.")
+
+    print("Completed _exercise()")
 
 
 if __name__ == "__main__":
