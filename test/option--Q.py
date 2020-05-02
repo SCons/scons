@@ -48,8 +48,7 @@ AddOption('--use_SetOption', action='store_true', dest='setoption', default=Fals
 use_setoption=GetOption('setoption')
 
 if use_setoption:
-    # SetOption('no_progress', False)
-    pass
+    SetOption('no_progress', True)
     
 MyBuild = Builder(action = r'%(_python_)s build.py $TARGET')
 env = Environment(BUILDERS = { 'MyBuild' : MyBuild })
