@@ -460,7 +460,7 @@ RELEASE 3.0.2 - Mon, 31 Dec 2018 16:00:12 -0700
       not properly differentiating between if, ifdef, and ifndef.
 
   From Philipp Maierhöfer
-    - Added a __hash__ method to the class Scons.Subst.Literal. Required when substituting Literal
+    - Added a __hash__ method to the class SCons.Subst.Literal. Required when substituting Literal
       objects when SCons runs with Python 3.
     - Added missing FORTRANMODDIRPREFIX to the gfortran tool.
 
@@ -479,16 +479,16 @@ RELEASE 3.0.2 - Mon, 31 Dec 2018 16:00:12 -0700
     - Removed some magic numbers from jar.py on behalf of Mats Wichmann (mats@linux.com)
     - Set the pickling protocal back to highest which was causing issues
       with variant dir tests. This will cause issues if reading sconsigns
-      pickled with the previous lower protocal.
+      pickled with the previous lower protocol.
     - Updated swig to setup default paths for windows
     - Updated gettext tools to setup default paths for windows with Cygwin/MinGW setups
     - Add common location for default paths for cygwin and mingw in Platform modules
     - Updated YACC tool to work on windows with Cygwin/MinGW setups
     - Set the pickling protocal back to highest which was causing issues
       with variant dir tests. This will cause issues if reading sconsigns
-      pickled with the previous lower protocal.
+      pickled with the previous lower protocol.
     - Updated FS.py to handle removal of splitunc function from python 3.7
-    - Updated the vc.py to ignore MSVS versions where not compiler could be found
+    - Updated the vc.py to ignore MSVS versions where no compiler could be found
 
   From Gary Oberbrunner:
     - Fix bug when Installing multiple subdirs outside the source tree
@@ -1502,7 +1502,7 @@ RELEASE 2.0.0.final.0 - Mon, 14 Jun 2010 22:01:37 -0700
     - Fix propagation from environment of VS*COMNTOOLS to resolve issues
       initializing MSVC/MSVS/SDK issues.
 
-    - Handle detecting Visual C++ on Python verions with upper-case
+    - Handle detecting Visual C++ on Python versions with upper-case
       platform architectures like 'AMD64'.
 
   From W. Trevor King:
@@ -1615,7 +1615,7 @@ RELEASE 1.2.0.d20100117 - Sun, 17 Jan 2010 14:26:59 -0800
     - Do not add -fPIC for ifort tool on non-posix platforms (darwin and
       windows).
     - Fix bug 2294 (spurious CheckCC failures).
-    - Fix scons bootstrap process on windows 64 (wrong wininst name)
+    - Fix SCons bootstrap process on windows 64 (wrong wininst name)
 
   From William Deegan:
     - Final merge from vs_revamp branch to main
