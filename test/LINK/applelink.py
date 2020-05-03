@@ -122,7 +122,7 @@ for SHLIBVERSION, \
     else:
         # Should contain -Wl,-current_version,{APPLELINK_CURRENT_VERSION}
         test.must_contain_all_lines(test.stdout(),
-                                    ['-Wl,-current_version,{APPLELINK_CURRENT_VERSION}'.format(**locals())])
+                                    ['-Wl,-current_version,{APPLELINK_CURRENT_VERSION}'.format(**locals()), 'libfoo.4.dynlib'])
 
     if APPLELINK_NO_COMPATIBILITY_VERSION:
         # Should not contain -Wl,-compatibility_version
@@ -131,7 +131,7 @@ for SHLIBVERSION, \
     else:
         # Should contain -Wl,-compatibility_version,{APPLELINK_COMPATIBILITY_VERSION}
         test.must_contain_all_lines(test.stdout(),
-                                    ['-Wl,-compatibility_version,{APPLELINK_COMPATIBILITY_VERSION}'.format(**locals())])
+                                    ['-Wl,-compatibility_version,{APPLELINK_COMPATIBILITY_VERSION}'.format(**locals()), 'libfoo.4.dynlib'])
 
     if not extra_flags:
         # Now run otool -L to get the compat and current version info and verify it's correct in the library.

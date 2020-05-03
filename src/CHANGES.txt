@@ -10,6 +10,9 @@ NOTE: Please include a reference to any Issues resolved by your changes in the b
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Daniel Moody:
+    - Added check for SONAME in environment to setup symlinks correctly (Github Issue #3246)
+
   From James Benton:
     - Improve Visual Studio solution/project generation code to add support
       for a per-variant cppflags. Intellisense can be affected by cppflags,
