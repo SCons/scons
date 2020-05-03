@@ -6168,6 +6168,18 @@ when a path references a file on other (POSIX) systems.</para>
   </varlistentry>
 
   <varlistentry>
+  <term><parameter>windows</parameter></term>
+  <listitem>
+<para>The path with directories separated by backslashes.
+(<emphasis role="bold"><literal>\\</literal></emphasis>).
+Sometimes necessary on POSIX-style systems
+when a path references a file on other (Windows) systems.
+<parameter>win32</parameter> is a (deprecated) synonym for
+<parameter>windows</parameter>.</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
   <term><parameter>srcpath</parameter></term>
   <listitem>
 <para>The directory and file name to the source file linked to this file through
@@ -6232,6 +6244,13 @@ $SOURCE              =&gt; sub/dir/file.x
 ${SOURCE.rsrcpath}   =&gt; /usr/repository/src/file.x
 ${SOURCE.rsrcdir}    =&gt; /usr/repository/src
 </literallayout>
+
+<para>
+Modifiers can be combined, like
+<literal>${TARGET.base.windows}</literal>,
+<literal>${TARGET.srcpath.base)</literal>,
+<literal>${TARGET.file.suffix}</literal>, etc.
+</para>
 
 <para>Note that curly braces braces may also be used
 to enclose arbitrary Python code to be evaluated.
@@ -6483,7 +6502,9 @@ and an optional fourth:
     Use <function>str</function>(<parameter>node</parameter>)
     to fetch the name of the file, and
     <replaceable>node</replaceable>.<function>get_contents</function>()
-    to fetch the contents of the file.
+    to fetch the contents of the file as bytes or
+    <replaceable>node</replaceable>.<function>get_text_contents</function>()
+    to fetch the contents as text.
     Note that the file is
     <emphasis>not</emphasis>
     guaranteed to exist before the scanner is called,
