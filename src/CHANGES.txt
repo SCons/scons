@@ -123,6 +123,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - MSVC updates: pass on VSCMD_DEBUG and VSCMD_SKIP_SENDTELEMETRY to msvc
       tool setup if set in environment. Add powershell to default env
       (used to call telemetry script).
+    - MSVS - use the uuid module to generate GUIDs rather than hand rolled
+      method using md5 directly.
     - Docbook builder provides a fallback if lxml fails to generate
       a document with tostring().
     - Fix description of ARCOMSTR constr. var. (issue 3636)
