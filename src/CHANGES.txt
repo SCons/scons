@@ -121,13 +121,19 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Script/Main.py now uses importlib instead of imp module.
     - Drop some Python 2-isms.
     - MSVC updates: pass on VSCMD_DEBUG and VSCMD_SKIP_SENDTELEMETRY to msvc
-      tool setup if set in environment. Add powershell to default env
+      tool setup if set in environment. Add Powershell to default env
       (used to call telemetry script).
-    - MSVS - use the uuid module to generate GUIDs rather than hand rolled
+    - Microsoft Visual Studio - switch to using uuid module to generate GUIDs rather than hand rolled
       method using md5 directly.
+      NOTE: This change affects the following builders' output. If your build depends on the output of these builders
+      you will likely see a rebuild.
+      * Package() (with PACKAGETYPE='msi')
+      * MSVSSolution()
+      * MSVSProject()
     - Docbook builder provides a fallback if lxml fails to generate
       a document with tostring().
-    - Fix description of ARCOMSTR constr. var. (issue 3636)
+    - Fix description of ARCOMSTR constr. var. (issue 3636). Previously the text was a copy of ASCOMSTR which
+      has different function.
 
 
 
