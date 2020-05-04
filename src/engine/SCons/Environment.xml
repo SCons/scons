@@ -1312,21 +1312,19 @@ env.Depends(bar, installed_lib)
 </arguments>
 <summary>
 <para>
+Find an executable from one or more choices:
+<parameter>progs</parameter> may be a string or a list of strings.
 Returns the first value from <parameter>progs</parameter>
-(which may be a string or a list of strings)
-which is found by looking in the paths specified
-by <envar>PATH</envar> in the <envar>ENV</envar>
-attribute of <varname>env</varname>, or <constant>None</constant>.
-The method is designed to look for executable programs,
-so it applies the filename suffixes found in
-<envar>PATHEXT</envar> in the <envar>ENV</envar>
-attribute of <varname>env</varname> in attempting
-matches but returns only the bare name from
-<parameter>progs</parameter>.
+that was found, or <constant>None</constant>.
+Executable is searched by checking the paths specified
+by <replaceable>env</replaceable><literal>['ENV']['PATH']</literal>.
+On Windows systems, additionally applies the filename suffixes found in
+<replaceable>env</replaceable><literal>['ENV']['PATHEXT']</literal>
+but will not include any such extension in the return value.
+&f-env-Detect; is a wrapper around &f-link-env-WhereIs;.
 </para>
 </summary>
 </scons_function>
-
 
 <scons_function name="Dictionary">
 <arguments signature="env">
@@ -3320,51 +3318,53 @@ SConscript(dirs='doc', variant_dir='build/doc', duplicate=0)
 <para>
 Searches for the specified executable
 <varname>program</varname>,
-returning the full path name to the program
-if it is found, else <literal>None</literal>.
-Searches the value of the
+returning the full path to the program
+or <constant>None</constant>.
+</para>
+<para>
+When called as a &consenv; method,
+searches the paths in the
 <varname>path</varname> keyword argument,
-or if <literal>None</literal> (the default)
-the value of the calling environment's <envar>PATH</envar>
-(<literal>env['ENV']['PATH']</literal>).
-If <varname>path</varname> is <literal>None</literal> and
-the <literal>env['ENV']['PATH']</literal> key does not exist,
-the user's current external <envar>PATH</envar>
-(<literal>os.environ['PATH']</literal>) is used as fallback.
+or if <constant>None</constant> (the default)
+the paths listed in the &consenv;
+(<replaceable>env</replaceable><literal>['ENV']['PATH']</literal>).
+The external environment's path list
+(<literal>os.environ['PATH']</literal>)
+is used as a fallback if the key
+<replaceable>env</replaceable><literal>['ENV']['PATH']</literal>
+does not exist.
 </para>
 <para>
 On Windows systems, searches for executable
 programs with any of the file extensions listed in the
 <varname>pathext</varname> keyword argument,
 or if <literal>None</literal> (the default)
-the calling environment's <envar>PATHEXT</envar>
-(<literal>env['ENV']['PATHEXT']</literal>).
-The user's current external <envar>PATHEXT</envar>
+the pathname extensions listed in the &consenv;
+(<replaceable>env</replaceable><literal>['ENV']['PATHEXT']</literal>).
+The external environment's pathname extensions list
 (<literal>os.environ['PATHEXT']</literal>)
-is used as a fallback if <varname>pathext</varname> is
-<literal>None</literal>
-and the key <literal>env['ENV']['PATHEXT']</literal>
+is used as a fallback if the key
+<replaceable>env</replaceable><literal>['ENV']['PATHEXT']</literal>
 does not exist.
+</para>
+<para>
+When called as a global function, uses the external
+environment's path 
+<literal>os.environ['PATH']</literal>
+and path extensions
+<literal>os.environ['PATHEXT']</literal>,
+respectively, if
+<varname>path</varname> and
+<varname>pathext</varname> are
+<constant>None</constant>.
 </para>
 <para>
 Will not select any
 path name or names
-in the specified
+in the optional
 <varname>reject</varname>
-list, if any.
+list.
 </para>
-<note>
-<para>
-If you would prefer to search
-the user's current external <envar>PATH</envar>
-(<literal>os.environ['PATH']</literal>)
-by default,
-consider using the function <literal>SCons.Util.WhereIs</literal> instead.
-Note that <literal>SCons.Util.WhereIs</literal>
-does not expand environment variables automatically
-(no implicit <literal>env.subst</literal> for its arguments).
-</para>
-</note>
 
 </summary>
 </scons_function>
