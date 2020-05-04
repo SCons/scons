@@ -1156,7 +1156,7 @@ Such a function must accept the following four arguments:
 <para>
 <variablelist>
 <varlistentry>
-<term><parameter class="function">dependency</parameter></term>
+<term><parameter>dependency</parameter></term>
 <listitem>
 <para>
 The Node (file) which
@@ -1170,7 +1170,7 @@ was built.
 </listitem>
 </varlistentry>
 <varlistentry>
-<term><parameter class="function">target</parameter></term>
+<term><parameter>target</parameter></term>
 <listitem>
 <para>
 The Node (file) being built.
@@ -1183,7 +1183,7 @@ has "changed."
 </listitem>
 </varlistentry>
 <varlistentry>
-<term><parameter class="function">prev_ni</parameter></term>
+<term><parameter>prev_ni</parameter></term>
 <listitem>
 <para>
 Stored information about the state of the
@@ -1199,7 +1199,7 @@ size, or content signature.
 </listitem>
 </varlistentry>
     <varlistentry>
-<term><parameter class="function">repo_node</parameter></term>
+<term><parameter>repo_node</parameter></term>
 <listitem>
 <para>
 If set, use this Node instead of the one specified by
@@ -1220,10 +1220,9 @@ target only exists in a Repository.
 <para>
 The
 <varname>function</varname>
-should return a
-<literal>True</literal>
-(non-zero)
-value if the
+should return a value which evaluates
+<constant>True</constant>
+if the
 <varname>dependency</varname>
 has "changed" since the last time
 the
@@ -1232,9 +1231,8 @@ was built
 (indicating that the target
 <emphasis>should</emphasis>
 be rebuilt),
-and
-<literal>False</literal>
-(zero)
+and a value which evaluates
+<constant>False</constant>
 otherwise
 (indicating that the target should
 <emphasis>not</emphasis>
@@ -1305,6 +1303,26 @@ bar = env.Program('bar.c')
 
 env.Depends(bar, installed_lib)
 </example_commands>
+</summary>
+</scons_function>
+
+<scons_function name="Detect">
+<arguments signature="env">
+(progs)
+</arguments>
+<summary>
+<para>
+Find an executable from one or more choices:
+<parameter>progs</parameter> may be a string or a list of strings.
+Returns the first value from <parameter>progs</parameter>
+that was found, or <constant>None</constant>.
+Executable is searched by checking the paths specified
+by <replaceable>env</replaceable><literal>['ENV']['PATH']</literal>.
+On Windows systems, additionally applies the filename suffixes found in
+<replaceable>env</replaceable><literal>['ENV']['PATHEXT']</literal>
+but will not include any such extension in the return value.
+&f-env-Detect; is a wrapper around &f-link-env-WhereIs;.
+</para>
 </summary>
 </scons_function>
 
@@ -1769,9 +1787,8 @@ repository or source directory.
 <para>
 The
 <varname>ondisk</varname>
-argument may be set to
-<literal>False</literal>
-(or any other non-true value)
+argument may be set to a value which evaluates
+<constant>False</constant>
 to disable the search for matches on disk,
 thereby only returning matches among
 already-configured File or Dir Nodes.
@@ -1783,9 +1800,8 @@ for any on-disk matches found.
 <para>
 The
 <varname>source</varname>
-argument may be set to
-<literal>True</literal>
-(or any equivalent value)
+argument may be set to a value which evaluates
+<constant>True</constant>
 to specify that,
 when the local directory is a
 &f-VariantDir;,
@@ -1797,9 +1813,8 @@ not the local directory.
 <para>
 The
 <varname>strings</varname>
-argument may be set to
-<literal>True</literal>
-(or any equivalent value)
+argument may be set to a value which evaluates
+<constant>True</constant>
 to have the
 &f-Glob;
 function return strings, not Nodes,
@@ -3303,51 +3318,53 @@ SConscript(dirs='doc', variant_dir='build/doc', duplicate=0)
 <para>
 Searches for the specified executable
 <varname>program</varname>,
-returning the full path name to the program
-if it is found, else <literal>None</literal>.
-Searches the value of the
+returning the full path to the program
+or <constant>None</constant>.
+</para>
+<para>
+When called as a &consenv; method,
+searches the paths in the
 <varname>path</varname> keyword argument,
-or if <literal>None</literal> (the default)
-the value of the calling environment's <envar>PATH</envar>
-(<literal>env['ENV']['PATH']</literal>).
-If <varname>path</varname> is <literal>None</literal> and
-the <literal>env['ENV']['PATH']</literal> key does not exist,
-the user's current external <envar>PATH</envar>
-(<literal>os.environ['PATH']</literal>) is used as fallback.
+or if <constant>None</constant> (the default)
+the paths listed in the &consenv;
+(<replaceable>env</replaceable><literal>['ENV']['PATH']</literal>).
+The external environment's path list
+(<literal>os.environ['PATH']</literal>)
+is used as a fallback if the key
+<replaceable>env</replaceable><literal>['ENV']['PATH']</literal>
+does not exist.
 </para>
 <para>
 On Windows systems, searches for executable
 programs with any of the file extensions listed in the
 <varname>pathext</varname> keyword argument,
 or if <literal>None</literal> (the default)
-the calling environment's <envar>PATHEXT</envar>
-(<literal>env['ENV']['PATHEXT']</literal>).
-The user's current external <envar>PATHEXT</envar>
+the pathname extensions listed in the &consenv;
+(<replaceable>env</replaceable><literal>['ENV']['PATHEXT']</literal>).
+The external environment's pathname extensions list
 (<literal>os.environ['PATHEXT']</literal>)
-is used as a fallback if <varname>pathext</varname> is
-<literal>None</literal>
-and the key <literal>env['ENV']['PATHEXT']</literal>
+is used as a fallback if the key
+<replaceable>env</replaceable><literal>['ENV']['PATHEXT']</literal>
 does not exist.
+</para>
+<para>
+When called as a global function, uses the external
+environment's path 
+<literal>os.environ['PATH']</literal>
+and path extensions
+<literal>os.environ['PATHEXT']</literal>,
+respectively, if
+<varname>path</varname> and
+<varname>pathext</varname> are
+<constant>None</constant>.
 </para>
 <para>
 Will not select any
 path name or names
-in the specified
+in the optional
 <varname>reject</varname>
-list, if any.
+list.
 </para>
-<note>
-<para>
-If you would prefer to search
-the user's current external <envar>PATH</envar>
-(<literal>os.environ['PATH']</literal>)
-by default,
-consider using the function <literal>SCons.Util.WhereIs</literal> instead.
-Note that <literal>SCons.Util.WhereIs</literal>
-does not expand environment variables automatically
-(no implicit <literal>env.subst</literal> for its arguments).
-</para>
-</note>
 
 </summary>
 </scons_function>
