@@ -25,61 +25,54 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import sys
 import TestSCons
-from TestCmd import IS_WINDOWS
-
-test = TestSCons.TestSCons()
-
-try:
-    import ninja
-except ImportError:
-    test.skip_test("Could not find module in python")
 
 _python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
-ninja_bin = os.path.abspath(os.path.join(
-    ninja.__file__,
-    os.pardir,
-    'data',
-    'bin',
-    'ninja' + _exe))
+test = TestSCons.TestSCons()
 
 test.dir_fixture('ninja-fixture')
 
-shell = '' if IS_WINDOWS else './'
+ninja = test.where_is('ninja', os.environ['PATH'])
+
+if not ninja:
+    test.skip_test("Could not find ninja in environment")
 
 test.write('SConstruct', """
 env = Environment()
 env.Tool('ninja')
-prog = env.Program(target = 'foo', source = 'foo.c')
-env.Command('foo.out', prog, '%(shell)sfoo%(_exe)s > foo.out')
-""" % locals())
+env.Program(target = 'foo', source = 'foo.c')
+env.Command('foo.out', ['foo'], './foo > foo.out')
+""")
 
 # generate simple build
 test.run(stdout=None)
-test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
-test.must_contain_all(test.stdout(), 'Executing:')
-test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' %locals())
-test.must_match('foo.out', 'foo.c')
+test.must_contain_all_lines(test.stdout(),
+    ['Generating: build.ninja', 'Executing: build.ninja'])
+test.must_match('foo.out', 'foo.c' + os.linesep)
 
 # clean build and ninja files
 test.run(arguments='-c', stdout=None)
 test.must_contain_all_lines(test.stdout(), [
     'Removed foo.o',
-    'Removed foo%(_exe)s' % locals(),
+    'Removed foo',
     'Removed foo.out',
     'Removed build.ninja'])
 
 # only generate the ninja file
-test.run(arguments='--disable-execute-ninja', stdout=None)
-test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
-test.must_not_exist(test.workpath('foo.out'))
+test.run(arguments='--disable-auto-ninja', stdout=None)
+test.must_contain_all_lines(test.stdout(),
+    ['Generating: build.ninja'])
+test.must_not_contain_any_line(test.stdout(),
+    ['Executing: build.ninja'])
 
 # run ninja independently
-program = test.workpath('run_ninja_env.bat') if IS_WINDOWS else ninja_bin
-test.run(program = program, stdout=None)
-test.must_match('foo.out', 'foo.c')
+test.run(program = ninja, stdout=None)
+test.must_match('foo.out', 'foo.c' + os.linesep)
+
+
 
 test.pass_test()
 
