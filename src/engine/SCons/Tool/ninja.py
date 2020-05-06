@@ -692,7 +692,7 @@ class NinjaState:
 
             if "inputs" in build:
                 build["inputs"].sort()
-
+            
             ninja.build(**build)
 
         template_builds = dict()
@@ -990,7 +990,7 @@ def get_command(env, node, action):  # pylint: disable=too-many-branches
     comstr = get_comstr(sub_env, action, tlist, slist)
     if not comstr:
         return None
-
+    
     provider = __NINJA_RULE_MAPPING.get(comstr, get_shell_command)
     rule, variables = provider(sub_env, node, action, tlist, slist, executor=executor)
 
@@ -1477,6 +1477,17 @@ def generate(env):
         # just ignore it.
         except AttributeError:
             pass
+
+    # We will subvert the normal Command to make sure all targets generated
+    # from commands will be linked to the ninja file
+    SconsCommand = SCons.Environment.Environment.Command
+
+    def NinjaCommand(self, target, source, action, **kw):
+        targets = SconsCommand(env, target, source, action, **kw)
+        env.Depends(ninja_file, targets)
+        return targets
+    
+    SCons.Environment.Environment.Command = NinjaCommand
 
     # Here we monkey patch the Task.execute method to not do a bunch of
     # unnecessary work. If a build is a regular builder (i.e not a conftest and

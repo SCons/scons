@@ -35,27 +35,42 @@ test = TestSCons.TestSCons()
 
 test.dir_fixture('ninja-fixture')
 
+ninja = test.where_is('ninja', os.environ['PATH'])
+
+if not ninja:
+    test.skip_test("Could not find ninja in environment")
+
 test.write('SConstruct', """
 env = Environment()
 env.Tool('ninja')
-env.Program(target = 'foo', source = 'foo.c')
-""" % locals())
+env.Command('foo2.c', ['foo.c'], Copy('$TARGET','$SOURCE'))
+env.Program(target = 'foo', source = 'foo2.c')
+""")
 
+# generate simple build
 test.run(stdout=None)
 test.must_contain_all_lines(test.stdout(),
     ['Generating: build.ninja', 'Executing: build.ninja'])
 test.run(program = test.workpath('foo'), stdout="foo.c" + os.linesep)
 
+# clean build and ninja files
 test.run(arguments='-c', stdout=None)
 test.must_contain_all_lines(test.stdout(), [
-    'Removed foo.o',
+    'Removed foo2.o',
+    'Removed foo2.c',
     'Removed foo',
     'Removed build.ninja'])
+
+# only generate the ninja file
 test.run(arguments='--disable-auto-ninja', stdout=None)
 test.must_contain_all_lines(test.stdout(),
     ['Generating: build.ninja'])
 test.must_not_contain_any_line(test.stdout(),
     ['Executing: build.ninja'])
+
+# run ninja independently
+test.run(program = ninja, stdout=None)
+test.run(program = test.workpath('foo'), stdout="foo.c" + os.linesep)
 
 test.pass_test()
 
