@@ -345,7 +345,8 @@ class SConsOptionParser(optparse.OptionParser):
 
         Else, this would lead to problems in add_local_option()
         below. When called from there, we try to reparse the
-        command-line arguments that
+        command-line arguments that:
+
           1. haven't been processed so far (self.largs), but
           2. are possibly not added to the list of options yet.
 
@@ -355,6 +356,7 @@ class SConsOptionParser(optparse.OptionParser):
         _match_long_opt(), which allows for partial matches of
         the option name, as long as the common prefix appears to
         be unique.
+
         This would lead to further confusion, because we might want
         to add another option "--myarg" later on (see issue #2929).
 

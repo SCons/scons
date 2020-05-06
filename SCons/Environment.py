@@ -1502,11 +1502,11 @@ class Base(SubstitutionEnvironment):
     def Dictionary(self, *args):
         """Return construction variables from an environment.
 
-        :param *args: (optional) variable names to look up
+        :param args: (optional) variable names to look up
         :returns: if args omitted, the dictionary of all constr. vars.
             If one arg, the corresponding value is returned.
             If more than one arg, a list of values is returned.
-        :raises KeyError: if any of *args is not in the construction env.
+        :raises KeyError: if any of args is not in the construction env.
 
         """
         if not args:
@@ -2017,7 +2017,7 @@ class Base(SubstitutionEnvironment):
             pass
         else:
             del kw['target_factory']
-            
+
         bld = SCons.Builder.Builder(**bkw)
         return bld(self, target, source, **kw)
 

@@ -58,8 +58,8 @@ import SCons.Tool
 def platform_default():
     """Return the platform string for our execution environment.
 
-    The returned value should map to one of the SCons/Platform/*.py
-    files.  Since we're architecture independent, though, we don't
+    The returned value should map to one of the SCons/Platform/\*.py
+    files.  Since scons is architecture independent, though, we don't
     care about the machine architecture.
     """
     osname = os.name
@@ -136,20 +136,23 @@ class TempFileMunge:
     file substitution on it.  This is used to circumvent the long command
     line limitation.
 
-    Example usage:
+    Example:
+
         env["TEMPFILE"] = TempFileMunge
         env["LINKCOM"] = "${TEMPFILE('$LINK $TARGET $SOURCES','$LINKCOMSTR')}"
 
     By default, the name of the temporary file used begins with a
     prefix of '@'.  This may be configured for other tool chains by
-    setting '$TEMPFILEPREFIX':
+    setting '$TEMPFILEPREFIX'. Example:
+
         env["TEMPFILEPREFIX"] = '-@'        # diab compiler
         env["TEMPFILEPREFIX"] = '-via'      # arm tool chain
         env["TEMPFILEPREFIX"] = ''          # (the empty string) PC Lint
 
     You can configure the extension of the temporary file through the
     TEMPFILESUFFIX variable, which defaults to '.lnk' (see comments
-    in the code below):
+    in the code below). Example:
+
         env["TEMPFILESUFFIX"] = '.lnt'   # PC Lint
     """
     def __init__(self, cmd, cmdstr = None):

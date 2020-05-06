@@ -20,7 +20,7 @@ SCons Project API Documentation
    SCons.Tool.clangCommon
    SCons.Tool.docbook
    SCons.Tool.MSCommon
-   SCons.Tool.packaging.
+   SCons.Tool.packaging
    SCons.Variables
 
 
