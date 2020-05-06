@@ -4594,7 +4594,7 @@ in SConscript files:</para>
 
 <variablelist>
   <varlistentry>
-  <term>path</term>
+  <term><replaceable>n</replaceable>.<varname>path</varname></term>
   <listitem>
 <para>The build path
 of the given
@@ -4608,17 +4608,17 @@ is not being used.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>abspath</term>
+  <term><replaceable>n</replaceable>.<varname>abspath</varname></term>
   <listitem>
 <para>The absolute build path of the given file or directory.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>srcnode()</term>
+  <term><replaceable>n</replaceable>.<function>srcnode</function>()</term>
   <listitem>
 <para>The
-<emphasis>srcnode</emphasis>()
+<function>srcnode</function>
 method
 returns another File or Directory Node
 representing the source path of the given
@@ -4657,32 +4657,32 @@ the Node represents:
 
 <variablelist>
   <varlistentry>
-  <term><replaceable>d</replaceable>.Dir(<replaceable>name</replaceable>)</term>
+  <term><replaceable>d</replaceable>.<function>Dir</function>(<parameter>name</parameter>)</term>
   <listitem>
 <para>Returns a directory Node for a subdirectory of
 <replaceable>d</replaceable>
 named
-<replaceable>name</replaceable>.</para>
+<parameter>name</parameter>.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>d</replaceable>.File(<replaceable>name</replaceable>)</term>
+  <term><replaceable>d</replaceable>.<function>File</function>(<parameter>name</parameter>)</term>
   <listitem>
 <para>Returns a file Node for a file within
 <replaceable>d</replaceable>
 named
-<replaceable>name</replaceable>.</para>
+<parameter>name</parameter>.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>d</replaceable>.Entry(<replaceable>name</replaceable>)</term>
+  <term><replaceable>d</replaceable>.<function>Entry</function>(<parameter>name</parameter>)</term>
   <listitem>
 <para>Returns an unresolved Node within
 <replaceable>d</replaceable>
 named
-<replaceable>name</replaceable>.</para>
+<parameter>name</parameter>.</para>
   </listitem>
   </varlistentry>
 </variablelist>
@@ -4695,30 +4695,30 @@ directory as the one the Node represents:
 
 <variablelist>
   <varlistentry>
-  <term><replaceable>f</replaceable>.Dir(<replaceable>name</replaceable>)</term>
+  <term><replaceable>f</replaceable>.<function>Dir</function>(<parameter>name</parameter>)</term>
   <listitem>
 <para>Returns a directory named
-<replaceable>name</replaceable>
+<parameter>name</parameter>
 within the parent directory of
 <replaceable>f</replaceable>.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>f</replaceable>.File(<replaceable>name</replaceable>)</term>
+  <term><replaceable>f</replaceable>.<function>File</function>(<parameter>name</parameter>)</term>
   <listitem>
 <para>Returns a file named
-<replaceable>name</replaceable>
+<parameter>name</parameter>
 within the parent directory of
 <replaceable>f</replaceable>.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>f</replaceable>.Entry(<replaceable>name</replaceable>)</term>
+  <term><replaceable>f</replaceable>.<function>Entry</function>(<parameter>name</parameter>)</term>
   <listitem>
 <para>Returns an unresolved Node named
-<replaceable>name</replaceable>
+<parameter>name</parameter>
 within the parent directory of
 <replaceable>f</replaceable>.</para>
   </listitem>
