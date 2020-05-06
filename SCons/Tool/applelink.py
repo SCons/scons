@@ -39,6 +39,7 @@ import SCons.Util
 # the -rpath option, so we use the "link" tool instead of "gnulink".
 from . import link
 
+from SCons.Tool import ShLibSonameGenerator
 
 class AppleLinkInvalidCurrentVersionException(Exception):
     pass
@@ -70,7 +71,12 @@ def _applelib_versioned_lib_soname(env, libnode, version, prefix, suffix, name_f
         print("_applelib_versioned_lib_soname: name={!r}".format(name))
     major = version.split('.')[0]
     (libname,_suffix) = name.split('.')
-    soname = '.'.join([libname, major, _suffix])
+    # if a desired SONAME was supplied, use that, otherwise create 
+    # a default from the major version
+    if env.get('SONAME'):
+        soname = ShLibSonameGenerator(env, libnode)
+    else:
+        soname = '.'.join([libname, major, _suffix])
     if Verbose:
         print("_applelib_versioned_lib_soname: soname={!r}".format(soname))
     return soname

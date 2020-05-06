@@ -1,0 +1,93 @@
+  A new SCons release, 4.0.0, is now available
+  on the SCons download page:
+
+          https://scons.org/pages/download.html
+
+  Here is a summary of the changes since 3.1.2:
+
+  NEW FUNCTIONALITY
+
+    - Added support for scanning multiple entries in an action string if
+      IMPLICIT_COMMAND_DEPENDENCIES is set to 2 or 'all'. This enables more thorough
+      action scanning where every item in each command line is scanned to determine
+      if it is a non-source and non-target path and added to the list of implicit dependencies
+      for the target.
+    - Added new module SCons.Scanner.Python to allow scanning .py files.
+    - Added support for explicitly passing a name when creating Value() nodes. This may be useful
+      when the value can't be converted to a string or if having a name is otherwise desirable.
+    - Added a new flag called "linedraw" for the command line argument  "--tree"
+      that instructs scons to use single line drawing characters to draw the dependency tree.
+
+  DEPRECATED FUNCTIONALITY
+
+    - Drop support for Python 2.7. SCons will be Python 3.5+ going forward.
+    - Remove deprecated SourceCode()
+
+  CHANGED/ENHANCED EXISTING FUNCTIONALITY
+
+    - Added check for SONAME in environment to setup symlinks correctly (Github Issue #3246)
+    - Resolve Issue #3248 - Removing '-Wl,-Bsymbolic' from SHLIBVERSIONFLAGS
+      NOTE: If your build depends on the above you must now add to your SHLIBVERSIONFLAGS
+    - Microsoft Visual Studio - switch to using uuid module to generate GUIDs rather than hand rolled
+      method using md5 directly.
+      NOTE: This change affects the following builders' output. If your build depends on the output of these builders
+      you will likely see a rebuild.
+      * Package() (with PACKAGETYPE='msi')
+      * MSVSSolution()
+      * MSVSProject()
+    - Improve Visual Studio solution/project generation code to add support
+      for a per-variant cppflags. Intellisense can be affected by cppflags,
+      this is especially important when it comes to /std:c++* which specifies
+      what C++ standard version to target. SCons will append /Zc:__cplusplus
+      to the project's cppflags when a /std:c++* flag is found as this is
+      required for intellisense to use the C++ standard version from cppflags.
+    - Allow user specified location for vswhere.exe specified by VSWHERE.
+      NOTE: This must be set at the time the 'msvc' 'msvs' and/or 'mslink' tool(s) are initialized to have any effect.
+
+
+  FIXES
+
+    - Fixed usage of abspath and path for RootDir objects on Windows. Previously
+      env.fs.Dir("T:").abspath would return "T:\T:" and now it correctly returns "T:".
+    - Fix Issue #3469 - Fixed improper reuse of temporary and compiled files by Configure when changing
+      the order and/or number of tests.  This is done by using the hash of the generated temporary files
+      content and (For the target files) the hash of the action.
+      So where previously files would be named:
+      - config_1.c, config_1.o, config_1
+      The will now be named (For example)
+      - conftest_68b375d16e812c43e6d72d6e93401e7c_0.c,
+        conftest_68b375d16e812c43e6d72d6e93401e7c_0_5713f09fc605f46b2ab2f7950455f187.o
+        or
+        conftest_68b375d16e812c43e6d72d6e93401e7c_0.o
+        conftest_68b375d16e812c43e6d72d6e93401e7c_0_5713f09fc605f46b2ab2f7950455f187 (for executable)
+
+  IMPROVEMENTS
+
+    - Improve performance of Subst by preventing unnecessary frame
+      allocations by no longer defining the *Subber classes inside of their
+      respective function calls.
+    - Improve performance of Subst in some cases by preventing
+      unnecessary calls to eval when a token is surrounded in braces
+      but is not a function call.
+    - Improve performance of subst by removing unnecessary recursion.
+
+  PACKAGING
+
+    - Resolve Issue #3451 and Issue #3450 - Rewrite SCons setup.py and packaging. Move script logic to entry points so
+      package can create scripts which use the correct version of Python.
+
+  DOCUMENTATION
+
+    - List any significant changes to the documentation (not individual
+      typo fixes, even if they're mentioned in src/CHANGES.txt to give
+      the contributor credit)
+
+  DEVELOPMENT
+
+    - List visible changes in the way SCons is developed
+
+  Thanks to CURLY, LARRY, and MOE for their contributions to this release.
+  Contributors are listed alphabetically by their last name.
+
+__COPYRIGHT__
+__FILE__ __REVISION__ __DATE__ __DEVELOPER__
