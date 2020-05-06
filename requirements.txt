@@ -9,3 +9,4 @@ sphinx<3.5.0
 sphinx_rtd_theme
 lxml==4.6.3
 rst2pdf
+ninja
