@@ -103,7 +103,7 @@ subdirectory, and then executing the local src/script/scons.py script to
 populate the build/scons/ subdirectory.  You would do this as follows on a
 Linux or UNIX system (using sh or a derivative like bash or ksh)::
 
-        $ setenv MYSCONS=`pwd`/src
+        $ setenv MYSCONS=`pwd`
         $ python $MYSCONS/script/scons.py [arguments]
 
 Or on Windows::
@@ -113,16 +113,13 @@ Or on Windows::
 
 An alternative approach is to skip the above and use::
 
-        $ python bootstrap.py [arguments]
+        $ python script/scons.py [arguments]
 
-bootstrap.py keeps the src/ subdirectory free of compiled Python (\*.pyc or
-\*.pyo) files by copying the necessary SCons files to a local bootstrap/
-subdirectory and executing it from there.
 
 You can use the -C option to have SCons change directory to another location
 where you already have a build configuration set up::
 
-    $ python bootstrap.py -C /some/other/location [arguments]
+    $ python script/scons.py -C /some/other/location [arguments]
 
 For simplicity in the following examples, we will only show the bootstrap.py
 approach.
@@ -134,9 +131,7 @@ Installation
     Note: You don't need to build SCons packages or install SCons if you just
     want to work on developing a patch.  See the sections about `Making
     Changes`_ and `Testing`_ below if you just want to submit a bug fix or
-    some new functionality.  See the sections below about `Building Packages`_
-    and `Testing Packages`_ if your enhancement involves changing the way in
-    which SCons is packaged and/or installed on an end-user system.
+    some new functionality.
 
 Assuming your system satisfies the installation requirements in the previous
 section, install SCons from this package by first populating the build/scons/
@@ -144,22 +139,6 @@ subdirectory.  (For an easier way to install SCons, without having to populate
 this directory, use the scons-{version}.tar.gz or scons-{version}.zip
 package.)
 
-Populate build/scons/ using a pre-installed SCons
--------------------------------------------------
-
-If you already have an appropriate version of SCons installed on your system,
-populate the build/scons/ directory by running::
-
-        $ scons build/scons
-
-Populate build/scons/ using the SCons source
---------------------------------------------
-
-You can also use this version of SCons to populate its own build directory
-by using a supplied bootstrap.py script (see the section above about
-`Executing SCons Without Installing`_)::
-
-        $ python bootstrap.py build/scons
 
 Install the built SCons files
 -----------------------------
@@ -168,84 +147,22 @@ Any of the above commands will populate the build/scons/ directory with the
 necessary files and directory structure to use the Python-standard setup
 script as follows on Linux or UNIX::
 
-        # cd build/scons
         # python setup.py install
 
 Or on Windows::
 
-        C:\scons\>cd build\scons
-        C:\scons\build\scons>python setup.py install
+        C:\scons>python setup.py install
 
 By default, the above commands will do the following:
 
-- Install the version-numbered "scons-3.1.2" and "sconsign-3.1.2" scripts in
-  the default system script directory (/usr/bin or C:\\Python\*\\Scripts, for
-  example).  This can be disabled by specifying the "--no-version-script"
-  option on the command line.
-
 - Install scripts named "scons" and "sconsign" scripts in the default system
-  script directory (/usr/bin or C:\\Python\*\\Scripts, for example).  This can be
-  disabled by specifying the "--no-scons-script" option on the command line,
-  which is useful if you want to install and experiment with a new version
-  before making it the default on your system.
+  script directory (/usr/bin or C:\\Python\*\\Scripts, for example).
 
-  On UNIX or Linux systems, you can have the "scons" and "sconsign" scripts be
-  hard links or symbolic links to the "scons-3.1.2" and "sconsign-3.1.2"
-  scripts by specifying the "--hardlink-scons" or "--symlink-scons" options on
-  the command line.
+- Install "scons-3.1.2.exe" and "scons.exe" executables in the Python
+  prefix directory on Windows (C:\\Python\*, for example).
 
-- Install "scons-3.1.2.bat" and "scons.bat" wrapper scripts in the Python
-  prefix directory on Windows (C:\\Python\*, for example).  This can be disabled
-  by specifying the "--no-install-bat" option on the command line.
-
-  On UNIX or Linux systems, the "--install-bat" option may be specified to
-  have "scons-3.1.2.bat" and "scons.bat" files installed in the default system
-  script directory, which is useful if you want to install SCons in a shared
-  file system directory that can be used to execute SCons from both UNIX/Linux
-  and Windows systems.
-
-- Install the SCons build engine (a Python module) in an appropriate
-  version-numbered SCons library directory (/usr/lib/scons-3.1.2 or
-  C:\\Python\*\\scons-3.1.2, for example).  See below for more options related to
-  installing the build engine library.
-
-- Install the troff-format man pages in an appropriate directory on UNIX or
-  Linux systems (/usr/share/man/man1 or /usr/man/man1, for example).  This can
-  be disabled by specifying the "--no-install-man" option on the command line.
-  The man pages can be installed on Windows systems by specifying the
-  "--install-man" option on the command line.
-
-Note that, by default, SCons does not install its build engine library in the
-standard Python library directories.  If you want to be able to use the SCons
-library modules (the build engine) in other Python scripts, specify the
-"--standard-lib" option on the command line, as follows::
-
-        # python setup.py install --standard-lib
-
-This will install the build engine in the standard Python library directory
-(/usr/lib/python\*/site-packages or C:\\Python*\\Lib\\site-packages).
-
-Alternatively, you can have SCons install its build engine library in a
-hard-coded standalone library directory, instead of the default
-version-numbered directory, by specifying the "--standalone-lib" option on the
-command line, as follows::
-
-        # python setup.py install --standalone-lib
-
-This is usually not recommended, however.
-
-Note that, to install SCons in any of the above system directories, you should
-have system installation privileges (that is, "root" or "Administrator") when
-running the setup.py script.  If you don't have system installation
-privileges, you can use the --prefix option to specify an alternate
-installation location, such as your home directory::
-
-        $ python setup.py install --prefix=$HOME
-
-This will install SCons in the appropriate locations relative to $HOME--that
-is, the scons script itself $HOME/bin and the associated library in
-$HOME/lib/scons, for example.
-
+- Install the SCons build engine (a Python module) in the standard Python library directory
+  (/usr/lib/python\*/site-packages or C:\\Python*\\Lib\\site-packages).
 
 Making Changes
 ==============
@@ -255,7 +172,7 @@ it in order to make changes and test them.
 
 Virtually all of the SCons functionality exists in the "build engine," the
 src/engine/SCons subdirectory hierarchy that contains all of the modules that
-make up SCons.  The src/script/scons.py wrapper script exists mainly to find
+make up SCons.  The script/scons.py wrapper script exists mainly to find
 the appropriate build engine library and then execute it.
 
 In order to make your own changes locally and test them by hand, simply edit
@@ -263,14 +180,14 @@ modules in the local src/engine/SCons subdirectory tree and use the local
 bootstrap.py script (see the section above about `Executing SCons Without
 Installing`_)::
 
-    $ python bootstrap.py [arguments]
+    $ python script/scons.py [arguments]
 
 If you want to be able to just execute your modified version of SCons from the
 command line, you can make it executable and add its directory to your $PATH
 like so::
 
-    $ chmod 755 src/script/scons.py
-    $ export PATH=$PATH:`pwd`/src/script
+    $ chmod 755 script/scons.py
+    $ export PATH=$PATH:`pwd`/script
 
 You should then be able to run this version of SCons by just typing "scons.py"
 at your UNIX or Linux command line.
@@ -384,12 +301,8 @@ If more than one test is run, the runtest.py script prints a summary of how
 many tests passed, failed, or yielded no result, and lists any unsuccessful
 tests.
 
-The above invocations all test directly the files underneath the src/
-subdirectory, and do not require that a build be performed first.  The
-runtest.py script supports additional options to run tests against unpacked
-packages in the build/test-\*/ subdirectories.  See the `Testing Packages`_
-section below.
-
+The above invocations all test directly the files underneath the SCons/
+subdirectory, and do not require that a build be performed first. 
 
 Development Workflow
 ====================
@@ -417,14 +330,14 @@ platform, Windows users can translate as appropriate)):
 - Confirm that the bug still exists in this version of SCons by using the -C
    option to run the broken build::
 
-      $ python bootstrap.py -C /home/me/broken_project .
+      $ python script/scons.py -C /home/me/broken_project .
 
 - Fix the bug in SCons by editing appropriate module files underneath
-  src/engine/SCons.
+  SCons.
 
 - Confirm that you've fixed the bug affecting your project::
 
-      $ python bootstrap.py -C /home/me/broken_project .
+      $ python script/scons.py -C /home/me/broken_project .
 
 - Test to see if your fix had any unintended side effects that break existing
   functionality::
@@ -468,7 +381,7 @@ platform, Windows users can translate as appropriate)):
   the tests to pass didn't break the fix you originally put in, and didn't
   introduce any *additional* unintended side effects that broke other tests::
 
-      $ python bootstrap.py -C /home/me/broken_project .
+      $ python script/scons.py -C /home/me/broken_project .
       $ python runtest.py -a -o test.log
 
   If you find any newly-broken tests, add them to your "failed.txt" file and
@@ -494,7 +407,7 @@ If you don't have SCons already installed on your
 system, you can use the supplied bootstrap.py script (see the section above
 about `Executing SCons Without Installing`_)::
 
-        $ python bootstrap.py build/scons
+        $ python script/scons.py build/scons
 
 Depending on the utilities installed on your system, any or all of the
 following packages will be built::
@@ -517,32 +430,6 @@ and open a bug report on the SCons bug tracker.
 
 Note that in addition to creating the above packages, the default build will
 also unpack one or more of the packages for testing.
-
-
-Testing Packages
-================
-
-A full build will unpack and/or install any .deb, .rpm., .local.tar.gz,
-.local.zip, .src.tar.gz, .src.zip, .tar.gz, and .zip packages into separate
-build/test-\*/ subdirectories.  (Of course, if a package was not built on your
-system, it should not try to install it.)  The runtest.py script supports a -p
-option that will run the specified tests (individually or collectively via
-the -a option) against the unpacked build/test-/\* subdirectory::
-
-        $ python runtest.py -p local-tar-gz
-
-        $ python runtest.py -p local-zip
-
-        $ python runtest.py -p src-tar-gz
-
-        $ python runtest.py -p src-zip
-
-        $ python runtest.py -p tar-gz
-
-        $ python runtest.py -p zip
-
-(The canonical invocation is to also use the runtest.py -a option so that all
-tests are run against the specified package.)
 
 
 Contents of this Package
@@ -576,14 +463,8 @@ bin/
 
 
 bootstrap.py
-    Build script for running SCons from the current source code checkout. This
-    copies SCons files to bootstrap/ subdirectory, and then executes SCons
-    with the supplied command-line arguments.
+    Obsolete packaging logic.
 
-build/
-    This doesn't exist yet if you're looking at a vanilla source tree.  This
-    is generated as part of our build process, and it's where, believe it or
-    not, we *build* everything.
 
 debian/
     Files needed to construct a Debian package. The contents of this directory
@@ -595,13 +476,6 @@ debian/
 doc/
     SCons documentation.  A variety of things here, in various stages of
     (in)completeness.
-
-gentoo/
-    Stuff to generate files for Gentoo Linux.
-
-HOWTO/
-    Documentation of SCons administrative procedures (making a change,
-    releasing a new version).  Maybe other administrative stuff in the future.
 
 LICENSE
     A copy of the copyright and terms under which SCons is distributed (the
@@ -623,7 +497,7 @@ README-local
 
 runtest.py
     Script for running SCons tests.  By default, this will run a test against
-    the code in the local src/ tree, so you don't have to do a build before
+    the code in the local SCons tree, so you don't have to do a build before
     testing your changes.
 
 SConstruct
@@ -637,13 +511,13 @@ SConstruct
     this file for an example of how easy it is to use SCons to build "normal"
     software.)
 
-src/
+SCons/
     Where the actual source code is kept, of course.
 
 test/
     End-to-end tests of the SCons utility itself.  These are separate from the
     individual module unit tests, which live side-by-side with the modules
-    under src/.
+    under SCons.
 
 testing/
     SCons testing framework.
@@ -720,6 +594,10 @@ software, or hardware) to support continued work on the project.  Information
 is available at:
 
         http://www.scons.org/donate.html
+
+or
+
+GitHub Sponsors button on https://github.com/scons/scons
 
 
 For More Information

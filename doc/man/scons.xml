@@ -4594,7 +4594,7 @@ in SConscript files:</para>
 
 <variablelist>
   <varlistentry>
-  <term>path</term>
+  <term><replaceable>n</replaceable>.<varname>path</varname></term>
   <listitem>
 <para>The build path
 of the given
@@ -4608,17 +4608,17 @@ is not being used.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>abspath</term>
+  <term><replaceable>n</replaceable>.<varname>abspath</varname></term>
   <listitem>
 <para>The absolute build path of the given file or directory.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>srcnode()</term>
+  <term><replaceable>n</replaceable>.<function>srcnode</function>()</term>
   <listitem>
 <para>The
-<emphasis>srcnode</emphasis>()
+<function>srcnode</function>
 method
 returns another File or Directory Node
 representing the source path of the given
@@ -4657,32 +4657,32 @@ the Node represents:
 
 <variablelist>
   <varlistentry>
-  <term><replaceable>d</replaceable>.Dir(<replaceable>name</replaceable>)</term>
+  <term><replaceable>d</replaceable>.<function>Dir</function>(<parameter>name</parameter>)</term>
   <listitem>
 <para>Returns a directory Node for a subdirectory of
 <replaceable>d</replaceable>
 named
-<replaceable>name</replaceable>.</para>
+<parameter>name</parameter>.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>d</replaceable>.File(<replaceable>name</replaceable>)</term>
+  <term><replaceable>d</replaceable>.<function>File</function>(<parameter>name</parameter>)</term>
   <listitem>
 <para>Returns a file Node for a file within
 <replaceable>d</replaceable>
 named
-<replaceable>name</replaceable>.</para>
+<parameter>name</parameter>.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>d</replaceable>.Entry(<replaceable>name</replaceable>)</term>
+  <term><replaceable>d</replaceable>.<function>Entry</function>(<parameter>name</parameter>)</term>
   <listitem>
 <para>Returns an unresolved Node within
 <replaceable>d</replaceable>
 named
-<replaceable>name</replaceable>.</para>
+<parameter>name</parameter>.</para>
   </listitem>
   </varlistentry>
 </variablelist>
@@ -4695,30 +4695,30 @@ directory as the one the Node represents:
 
 <variablelist>
   <varlistentry>
-  <term><replaceable>f</replaceable>.Dir(<replaceable>name</replaceable>)</term>
+  <term><replaceable>f</replaceable>.<function>Dir</function>(<parameter>name</parameter>)</term>
   <listitem>
 <para>Returns a directory named
-<replaceable>name</replaceable>
+<parameter>name</parameter>
 within the parent directory of
 <replaceable>f</replaceable>.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>f</replaceable>.File(<replaceable>name</replaceable>)</term>
+  <term><replaceable>f</replaceable>.<function>File</function>(<parameter>name</parameter>)</term>
   <listitem>
 <para>Returns a file named
-<replaceable>name</replaceable>
+<parameter>name</parameter>
 within the parent directory of
 <replaceable>f</replaceable>.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>f</replaceable>.Entry(<replaceable>name</replaceable>)</term>
+  <term><replaceable>f</replaceable>.<function>Entry</function>(<parameter>name</parameter>)</term>
   <listitem>
 <para>Returns an unresolved Node named
-<replaceable>name</replaceable>
+<parameter>name</parameter>
 within the parent directory of
 <replaceable>f</replaceable>.</para>
   </listitem>
@@ -4764,7 +4764,7 @@ to a &consenv;.
 you should only need to add a new Builder object
 when you want to build a new type of file or other external target.
 If you just want to invoke a different compiler or other tool
-to build a Program, Object, Library, or any other
+to build &Program;, &Object;, &Library;, or any other
 type of output file for which
 &scons;
 already has an existing Builder,
@@ -4772,22 +4772,22 @@ it is generally much easier to
 use those existing Builders
 in a &consenv;
 that sets the appropriate &consvars;
-(CC, LINK, etc.).</para>
+(<envar>CC</envar>, <envar>LINK</envar>, etc.).</para>
 
 <para>Builder objects are created
 using the
-<emphasis role="bold">Builder</emphasis>
-function.
+&f-link-Builder;
+factory function.
 The
-<emphasis role="bold">Builder</emphasis>
+&f-Builder;
 function accepts the following keyword arguments:</para>
 
 <variablelist>
   <varlistentry>
-  <term>action</term>
+  <term><parameter>action</parameter></term>
   <listitem>
 <para>The command line string used to build the target from the source.
-<emphasis role="bold">action</emphasis>
+<parameter>action</parameter>
 can also be:
 a list of strings representing the command
 to be executed and its arguments
@@ -4801,42 +4801,41 @@ an Action object
 (see the next section);
 or a list of any of the above.</para>
 
-<para>An action function
-takes three arguments:
-<emphasis>source</emphasis>
-- a list of source nodes,
-<emphasis>target</emphasis>
-- a list of target nodes,
-<emphasis>env</emphasis>
-- the &consenv;.</para>
+<para>An action function takes three arguments:</para>
+
+  <simplelist type="vert">
+  <member><parameter>source</parameter> - a list of source nodes;.</member>
+  <member><parameter>target</parameter> - a list of target nodes;.</member>
+  <member><parameter>env</parameter> - the &consenv;.</member>
+  </simplelist>
 
 <para>The
-<emphasis>action</emphasis>
+<parameter>action</parameter>
 and
-<emphasis>generator</emphasis>
+<parameter>generator</parameter>
 arguments must not both be used for the same Builder.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>prefix</term>
+  <term><parameter>prefix</parameter></term>
   <listitem>
 <para>The prefix that will be prepended to the target file name.
-This may be specified as:</para>
+<parameter>prefix</parameter> may be:</para>
 
   <itemizedlist>
-  <listitem><para>a <emphasis>string</emphasis></para></listitem>
-  <listitem><para>a <emphasis>callable object</emphasis> -
+  <listitem><para>a string</para></listitem>
+  <listitem><para>a callable object -
 a function or other callable that takes
 two arguments (a &consenv; and a list of sources)
 and returns a prefix</para></listitem>
-  <listitem><para>a <emphasis>dictionary</emphasis> -
+  <listitem><para>a dictionary -
 specifies a mapping from a specific source suffix (of the first
 source specified) to a corresponding target prefix.  Both the source
 suffix and target prefix specifications may use environment variable
 substitution, and the target prefix (the 'value' entries in the
 dictionary) may also be a callable object.  The default target prefix
-may be indicated by a dictionary entry with a key value of None.</para>
+may be indicated by a dictionary entry with a key value of <constant>None</constant>.</para>
   </listitem>
   </itemizedlist>
 
@@ -4857,7 +4856,7 @@ b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
   </varlistentry>
 
   <varlistentry>
-  <term>suffix</term>
+  <term><parameter>suffix</parameter></term>
   <listitem>
 <para>The suffix that will be appended to the target file name.
 This may be specified in the same manner as the prefix above.
@@ -4885,12 +4884,12 @@ b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
   </varlistentry>
 
   <varlistentry>
-  <term>ensure_suffix</term>
+  <term><parameter>ensure_suffix</parameter></term>
   <listitem>
 <para>When set to any true value, causes
 &scons;
 to add the target suffix specified by the
-<emphasis>suffix</emphasis>
+<parameter>suffix</parameter>
 keyword to any target strings
 that have a different suffix.
 (The default behavior is to leave untouched
@@ -4917,7 +4916,7 @@ env.B2('bar.txt', 'bar.in')
   </varlistentry>
 
   <varlistentry>
-  <term>src_suffix</term>
+  <term><parameter>src_suffix</parameter></term>
   <listitem>
 <para>The expected source file name suffix.  This may be a string or a list
 of strings.</para>
@@ -4925,7 +4924,7 @@ of strings.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>target_scanner</term>
+  <term><parameter>target_scanner</parameter></term>
   <listitem>
 <para>A Scanner object that
 will be invoked to find
@@ -4943,7 +4942,7 @@ for information about creating Scanner objects.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>source_scanner</term>
+  <term><parameter>source_scanner</parameter></term>
   <listitem>
 <para>A Scanner object that
 will be invoked to
@@ -4953,10 +4952,10 @@ used to build this target file.
 This is where you would
 specify a scanner to
 find things like
-<emphasis role="bold">#include</emphasis>
+<literal>#include</literal>
 lines in source files.
 The pre-built
-<emphasis role="bold">DirScanner</emphasis>
+<classname>DirScanner</classname>
 Scanner object may be used to
 indicate that this Builder
 should scan directory trees
@@ -4970,7 +4969,7 @@ for information about creating your own Scanner objects.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>target_factory</term>
+  <term><parameter>target_factory</parameter></term>
   <listitem>
 <para>A factory function that the Builder will use
 to turn any targets specified as strings into SCons Nodes.
@@ -4994,7 +4993,7 @@ env.Append(BUILDERS = {'MakeDirectory':MakeDirectoryBuilder})
 env.MakeDirectory('new_directory', [])
 </programlisting>
 
-<para>Note that the call to the MakeDirectory Builder
+<para>Note that the call to this <function>MakeDirectory</function> Builder
 needs to specify an empty source list
 to make the string represent the builder's target;
 without that, it would assume the argument is the source,
@@ -5006,7 +5005,7 @@ and a circular dependency.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>source_factory</term>
+  <term><parameter>source_factory</parameter></term>
   <listitem>
 <para>A factory function that the Builder will use
 to turn any sources specified as strings into SCons Nodes.
@@ -5033,12 +5032,12 @@ env.Collect('archive', ['directory_name', 'file_name'])
   </varlistentry>
 
   <varlistentry>
-  <term>emitter</term>
+  <term><parameter>emitter</parameter></term>
   <listitem>
 <para>A function or list of functions to manipulate the target and source
 lists before dependencies are established
 and the target(s) are actually built.
-<emphasis role="bold">emitter</emphasis>
+<parameter>emitter</parameter>
 can also be a string containing a &consvar; to expand
 to an emitter function or list of functions,
 or a dictionary mapping source file suffixes
@@ -5047,15 +5046,15 @@ to emitter functions.
 is used to select the actual emitter function
 from an emitter dictionary.)</para>
 
-<para>An emitter function
-takes three arguments:
-<emphasis>source</emphasis>
-- a list of source nodes,
-<emphasis>target</emphasis>
-- a list of target nodes,
-<emphasis>env</emphasis>
-- the &consenv;.
-An emitter must return a tuple containing two lists,
+<para>An emitter function takes three arguments:</para>
+
+  <simplelist type="vert">
+  <member><parameter>source</parameter> - a list of source nodes.</member>
+  <member><parameter>target</parameter> - a list of target nodes.</member>
+  <member><parameter>env</parameter> - the &consenv;.</member>
+  </simplelist>
+
+<para>An emitter must return a tuple containing two lists,
 the list of targets to be built by this builder,
 and the list of sources for this builder.</para>
 
@@ -5100,10 +5099,11 @@ b = Builder("my_build &lt; $TARGET &gt; $SOURCE",
   </varlistentry>
 
   <varlistentry>
-  <term>multi</term>
+  <term><parameter>multi</parameter></term>
   <listitem>
 <para>Specifies whether this builder is allowed to be called multiple times for
-the same target file(s). The default is 0, which means the builder
+the same target file(s). The default is <constant>0</constant>,
+which means the builder
 can not be called multiple times for the same target file(s). Calling a
 builder multiple times for the same target simply adds additional source
 files to the target; it is not allowed to change the environment associated
@@ -5114,7 +5114,7 @@ builder with the target.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>env</term>
+  <term><parameter>env</parameter></term>
   <listitem>
 <para>A &consenv; that can be used
 to fetch source code using this Builder.
@@ -5127,7 +5127,7 @@ used to call the Builder for the target file.)</para>
   </varlistentry>
 
   <varlistentry>
-  <term>generator</term>
+  <term><parameter>generator</parameter></term>
   <listitem>
 <para>A function that returns a list of actions that will be executed to build
 the target(s) from the source(s).
@@ -5136,20 +5136,20 @@ an Action object, or anything that
 can be converted into an Action object
 (see the next section).</para>
 
-<para>The generator function
-takes four arguments:
-<emphasis>source</emphasis>
-- a list of source nodes,
-<emphasis>target</emphasis>
-- a list of target nodes,
-<emphasis>env</emphasis>
-- the &consenv;,
-<emphasis>for_signature</emphasis>
-- a Boolean value that specifies
-whether the generator is being called
-for generating a build signature
-(as opposed to actually executing the command).
-Example:</para>
+<para>The generator function takes four arguments:</para>
+
+  <simplelist type="vert">
+  <member><parameter>source</parameter> - A list of source nodes;.</member>
+  <member><parameter>target</parameter> - A list of target nodes;.</member>
+  <member><parameter>env</parameter> - the &consenv;.</member>
+  <member><parameter>for_signature</parameter> -
+    A Boolean value that specifies
+    whether the generator is being called
+    for generating a build signature
+    (as opposed to actually executing the command).</member>
+  </simplelist>
+
+<para>Example:</para>
 
 <programlisting language="python">
 def g(source, target, env, for_signature):
@@ -5168,7 +5168,7 @@ arguments must not both be used for the same Builder.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>src_builder</term>
+  <term><parameter>src_builder</parameter></term>
   <listitem>
 <para>Specifies a builder to use when a source file name suffix does not match
 any of the suffixes of the builder. Using this argument produces a
@@ -5177,20 +5177,21 @@ multi-stage builder.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>single_source</term>
+  <term><parameter>single_source</parameter></term>
   <listitem>
 <para>Specifies that this builder expects exactly one source file per call. Giving
 more than one source file without target files results in implicitly calling
 the builder multiple times (once for each source given). Giving multiple
-source files together with target files results in a UserError exception.</para>
+source files together with target files results in a
+<exceptionname>UserError</exceptionname> exception.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>source_ext_match</term>
+  <term><parameter>source_ext_match</parameter></term>
   <listitem>
 <para>When the specified
-<emphasis>action</emphasis>
+<parameter>action</parameter>
 argument is a dictionary,
 the default behavior when a builder is passed
 multiple source files is to make sure that the
@@ -5198,29 +5199,29 @@ extensions of all the source files match.
 If it is legal for this builder to be
 called with a list of source files with different extensions,
 this check can be suppressed by setting
-<emphasis role="bold">source_ext_match</emphasis>
+<parameter>source_ext_match</parameter>
 to
-<emphasis role="bold">None</emphasis>
+<parameter>None</parameter>
 or some other non-true value.
 When
-<emphasis role="bold">source_ext_match</emphasis>
+<parameter>source_ext_match</parameter>
 is disable,
 &scons;
 will use the suffix of the first specified
 source file to select the appropriate action from the
-<emphasis>action</emphasis>
+<parameter>action</parameter>
 dictionary.</para>
 
 <para>In the following example,
 the setting of
-<emphasis role="bold">source_ext_match</emphasis>
+<parameter>source_ext_match</parameter>
 prevents
 &scons;
 from exiting with an error
 due to the mismatched suffixes of
-<emphasis role="bold">foo.in</emphasis>
+<filename>foo.in</filename>
 and
-<emphasis role="bold">foo.extra</emphasis>.</para>
+<filename>foo.extra</filename>.</para>
 
 <programlisting language="python">
 b = Builder(action={'.in' : 'build $SOURCES &gt; $TARGET'},
@@ -5234,7 +5235,7 @@ env.MyBuild('foo.out', ['foo.in', 'foo.extra'])
   </varlistentry>
 
   <varlistentry>
-  <term>env</term>
+  <term><parameter>env</parameter></term>
   <listitem>
 <para>A &consenv; that can be used
 to fetch source code using this Builder.
@@ -5254,19 +5255,19 @@ env.MyBuild('foo.out', 'foo.in', my_arg = 'xyzzy')
   </varlistentry>
 
   <varlistentry>
-  <term>chdir</term>
+  <term><parameter>chdir</parameter></term>
   <listitem>
 <para>A directory from which scons
 will execute the
 action(s) specified
 for this Builder.
 If the
-<emphasis role="bold">chdir</emphasis>
+<parameter>chdir</parameter>
 argument is
 a string or a directory Node,
 scons will change to the specified directory.
 If the
-<emphasis role="bold">chdir</emphasis>
+<parameter>chdir</parameter>
 is not a string or Node
 and is non-zero,
 then scons will change to the
@@ -5277,9 +5278,9 @@ target file's directory.</para>
 automatically modify
 its expansion of
 &consvars; like
-<emphasis role="bold">$TARGET</emphasis>
+<envar>$TARGET</envar>
 and
-<emphasis role="bold">$SOURCE</emphasis>
+<envar>$SOURCE</envar>
 when using the <parameter>chdir</parameter>
 keyword argument--that is,
 the expanded file names
@@ -5290,9 +5291,9 @@ relative to the chdir directory.
 Builders created using <parameter>chdir</parameter> keyword argument,
 will need to use &consvar;
 expansions like
-<emphasis role="bold">${TARGET.file}</emphasis>
+<literal>${TARGET.file}</literal>
 and
-<emphasis role="bold">${SOURCE.file}</emphasis>
+<literal>${SOURCE.file}</literal>
 to use just the filename portion of the
 targets and source.</para>
 
@@ -5307,7 +5308,7 @@ env.MyBuild('sub/dir/foo.out', 'sub/dir/foo.in')
 Python only keeps one current directory
 location for all of the threads.
 This means that use of the
-<emphasis role="bold">chdir</emphasis>
+<parameter>chdir</parameter>
 argument
 will
 <emphasis>not</emphasis>
@@ -5323,7 +5324,7 @@ when they start changing directory.</para>
 
 <para>Any additional keyword arguments supplied
 when a Builder object is created
-(that is, when the Builder() function is called)
+(that is, when the &f-link-Builder; function is called)
 will be set in the executing construction
 environment when the Builder object is called.
 The canonical example here would be
@@ -5331,11 +5332,9 @@ to set a &consvar; to
 the repository of a source code system.</para>
 
 <para>Any additional keyword arguments supplied
-when a Builder
-<emphasis>object</emphasis>
-is called
+when a Builder object is called
 will only be associated with the target
-created by that particular Builder call
+created by that particular &f-Builder; call
 (and any other files built as a
 result of the call).</para>
 
@@ -5351,18 +5350,15 @@ and emitter functions.</para>
 <title>Action Objects</title>
 
 <para>The
-<emphasis role="bold">Builder</emphasis>()
+&f-link-Builder;
 function will turn its
-<emphasis role="bold">action</emphasis>
+<parameter>action</parameter>
 keyword argument into an appropriate
 internal Action object.
 You can also explicitly create Action objects
-using the
-<emphasis role="bold">Action</emphasis>()
-global function,
+using the &f-link-Action; global function,
 which can then be passed to the
-<emphasis role="bold">Builder</emphasis>()
-function.
+&f-Builder; function.
 This can be used to configure
 an Action object more flexibly,
 or it may simply be more efficient
@@ -5372,14 +5368,14 @@ when multiple
 Builder objects need to do the same thing.</para>
 
 <para>The
-<emphasis role="bold">Action</emphasis>()
+&f-link-Action;
 global function
 returns an appropriate object for the action
 represented by the type of the first argument:</para>
 
 <variablelist>
   <varlistentry>
-  <term>Action</term>
+  <term>action</term>
   <listitem>
 <para>If the first argument is already an Action object,
 the object is simply returned.</para>
@@ -5387,7 +5383,7 @@ the object is simply returned.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>String</term>
+  <term>string</term>
   <listitem>
 <para>If the first argument is a string,
 a command-line Action is returned.
@@ -5422,7 +5418,7 @@ Action('-build $TARGET $SOURCES')
   </varlistentry>
 
   <varlistentry>
-  <term>List</term>
+  <term>list</term>
   <listitem>
 <para>If the first argument is a list,
 then a list of Action objects is returned.
@@ -5446,23 +5442,26 @@ Action([['cc', '-c', '-DWHITE SPACE', '-o', '$TARGET', '$SOURCES']])
   </varlistentry>
 
   <varlistentry>
-  <term>Function</term>
+  <term>function</term>
   <listitem>
 <para>If the first argument is a Python function,
 a function Action is returned.
-The Python function must accept three keyword arguments,
-<emphasis role="bold">target</emphasis>
-(a Node object representing the target file),
-<emphasis role="bold">source</emphasis>
-(a Node object representing the source file)
-and
-<emphasis role="bold">env</emphasis>
-(the &consenv;
-used for building the target file).
+The Python function must accept three keyword arguments:</para>
+
+  <simplelist type="vert">
+  <member><parameter>target</parameter> -
+    a Node object representing the target file.</member>
+  <member><parameter>source</parameter> -
+    a Node object representing the source file.</member>
+  <member><parameter>env</parameter> -
+    the &consenv; used for building the target file.</member>
+  </simplelist>
+
+<para>
 The
-<emphasis role="bold">target</emphasis>
+<parameter>target</parameter>
 and
-<emphasis role="bold">source</emphasis>
+<parameter>source</parameter>
 arguments may be lists of Node objects if there is
 more than one target file or source file.
 The actual target and source file name(s) may
@@ -5477,7 +5476,7 @@ source_file_names = [str(x) for x in source]
 <para>The function should return
 <literal>0</literal>
 or
-<emphasis role="bold">None</emphasis>
+<constant>None</constant>
 to indicate a successful build of the target file(s).
 The function may raise an exception
 or return a non-zero exit status
@@ -5492,13 +5491,14 @@ a = Action(build_it)
 </programlisting>
 
 <para>If the action argument is not one of the above,
-None is returned.</para>
+<constant>None</constant> is returned.</para>
   </listitem>
   </varlistentry>
 </variablelist>
 
 
-<para>The second argument is optional and is used to define the output
+<para>The second argument to &f-Action;
+is optional and is used to define the output
 which is printed when the Action is actually performed.
 In the absence of this parameter,
 or if it's an empty string,
@@ -5510,30 +5510,33 @@ The argument must be either a Python function or a string.</para>
 it's a function that returns a string to be printed
 to describe the action being executed.
 The function may also be specified by the
-<emphasis>strfunction</emphasis>=
+<parameter>strfunction</parameter>=
 keyword argument.
 Like a function to build a file,
-this function must accept three keyword arguments:
-<emphasis role="bold">target</emphasis>
-(a Node object representing the target file),
-<emphasis role="bold">source</emphasis>
-(a Node object representing the source file)
+this function must accept three keyword arguments:</para>
+
+  <simplelist type="vert">
+  <member><parameter>source</parameter> - 
+    a Node object representing the source file.</member>
+  <member><parameter>target</parameter> -
+    a Node object representing the target file.</member>
+  <member><parameter>env</parameter> - the &consenv;.</member>
+  </simplelist>
+
+<para>The
+<parameter>target</parameter>
 and
-<emphasis role="bold">env</emphasis>
-(a &consenv;).
-The
-<emphasis role="bold">target</emphasis>
-and
-<emphasis role="bold">source</emphasis>
+<parameter>source</parameter>
 arguments may be lists of Node objects if there is
 more than one target file or source file.</para>
 
 <para>In the second case, you provide the string itself.
 The string may also be specified by the
-<emphasis>cmdstr</emphasis>=
+<parameter>cmdstr</parameter>=
 keyword argument.
 The string typically contains variables, notably
-$TARGET(S) and $SOURCE(S), or consists of just a single
+<literal>$TARGET(S)</literal> and <literal>$SOURCE(S)</literal>,
+or consists of just a single
 variable, which is optionally defined somewhere else.
 SCons itself heavily uses the latter variant.</para>
 
@@ -5564,7 +5567,7 @@ may either be a &consvar; or a list of &consvars;
 whose values will be included in the signature of the Action
 when deciding whether a target should be rebuilt because the action changed.
 The variables may also be specified by a
-<emphasis>varlist</emphasis>=
+<parameter>varlist</parameter>=
 keyword parameter;
 if both are present, they are combined.
 This is necessary whenever you want a target to be rebuilt
@@ -5594,18 +5597,21 @@ can be passed the following
 optional keyword arguments
 to modify the Action object's behavior:</para>
 
+<variablelist>
+  <varlistentry>
+  <term><parameter>chdir</parameter></term>
+  <listitem>
 <para>
-<replaceable>chdir</replaceable>
-specifies that
+Specifies that
 scons will execute the action
 after changing to the specified directory.
 If the
-<emphasis role="bold">chdir</emphasis>
+<parameter>chdir</parameter>
 argument is
 a string or a directory Node,
 scons will change to the specified directory.
 If the
-<emphasis role="bold">chdir</emphasis>
+<parameter>chdir</parameter>
 argument
 is not a string or Node
 and is non-zero,
@@ -5617,9 +5623,7 @@ target file's directory.</para>
 automatically modify
 its expansion of
 &consvars; like
-<emphasis role="bold">$TARGET</emphasis>
-and
-<emphasis role="bold">$SOURCE</emphasis>
+&cv-TARGET; and &cv-SOURCE;
 when using the <parameter>chdir</parameter>
 keyword argument--that is,
 the expanded file names
@@ -5630,9 +5634,9 @@ relative to the chdir directory.
 Builders created using <parameter>chdir</parameter> keyword argument,
 will need to use &consvar;
 expansions like
-<emphasis role="bold">${TARGET.file}</emphasis>
+<literal>${TARGET.file}</literal>
 and
-<emphasis role="bold">${SOURCE.file}</emphasis>
+<literal>${SOURCE.file}</literal>
 to use just the filename portion of the
 targets and source.</para>
 
@@ -5640,10 +5644,13 @@ targets and source.</para>
 a = Action("build &lt; ${SOURCE.file} &gt; ${TARGET.file}",
            chdir=1)
 </programlisting>
-
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><parameter>exitstatfunc</parameter></term>
+  <listitem>
 <para>
-<replaceable>exitstatfunc</replaceable>
-specifies a function
+A function
 that is passed the exit status
 (or return value)
 from the specified action
@@ -5663,11 +5670,13 @@ def always_succeed(s):
 a = Action("build &lt; ${SOURCE.file} &gt; ${TARGET.file}",
            exitstatfunc=always_succeed)
 </programlisting>
-
-
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><parameter>batch_key</parameter></term>
+  <listitem>
 <para>
-<replaceable>batch_key</replaceable>
-specifies that the Action can create multiple target files
+Specifies that the Action can create multiple target files
 by processing multiple independent source files simultaneously.
 (The canonical example is "batch compilation"
 of multiple object files
@@ -5675,7 +5684,7 @@ by passing multiple source files
 to a single invocation of a compiler
 such as Microsoft's Visual C / C++ compiler.)
 If the
-<emphasis role="bold">batch_key</emphasis>
+<parameter>batch_key</parameter>
 argument evaluates True and is not a callable object,
 the configured Action object will cause
 &scons;
@@ -5696,7 +5705,7 @@ a = Action('build $CHANGED_SOURCES', batch_key=True)
 </programlisting>
 
 <para>The
-<emphasis role="bold">batch_key</emphasis>
+<parameter>batch_key</parameter>
 argument may also be
 a callable function
 that returns a key that
@@ -5704,61 +5713,43 @@ will be used to identify different
 "batches" of target files to be collected
 for batch building.
 A
-<emphasis role="bold">batch_key</emphasis>
+<parameter>batch_key</parameter>
 function must accept the following arguments:</para>
 
-<variablelist>
-  <varlistentry>
-  <term>action</term>
-  <listitem>
-<para>The action object.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term>env</term>
-  <listitem>
-<para>The &consenv;
-configured for the target.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term>target</term>
-  <listitem>
-<para>The list of targets for a particular configured action.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term>source</term>
-  <listitem>
-<para>The list of source for a particular configured action.</para>
+  <simplelist>
+  <member><parameter>action</parameter> - The action object.</member>
+  <member><parameter>env</parameter> -
+    The &consenv; configured for the target.</member>
+  <member><parameter>target</parameter> -
+    The list of targets for a particular configured action.</member>
+  <member><parameter>source</parameter> -
+    The list of source for a particular configured action.</member>
+  </simplelist>
 
 <para>The returned key should typically
 be a tuple of values derived from the arguments,
 using any appropriate logic to decide
 how multiple invocations should be batched.
 For example, a
-<emphasis role="bold">batch_key</emphasis>
+<function>batch_key</function>
 function may decide to return
 the value of a specific construction
 variable from the
-<emphasis role="bold">env</emphasis>
+<parameter>env</parameter>
 argument
 which will cause
 &scons;
 to batch-build targets
 with matching values of that variable,
 or perhaps return the
-<emphasis role="bold">id</emphasis>()
+Python <function>id</function>()
 of the entire &consenv;,
 in which case
 &scons;
 will batch-build
 all targets configured with the same &consenv;.
 Returning
-<emphasis role="bold">None</emphasis>
+<constant>None</constant>
 indicates that
 the particular target should
 <emphasis>not</emphasis>
@@ -5803,8 +5794,7 @@ appropriate time.
 (In Object-Oriented terminology,
 these are actually
 Action
-<emphasis>Factory</emphasis>
-functions
+<firstterm>Factory functions</firstterm>
 that return Action objects.)</para>
 
 <para>In practice,
@@ -5819,7 +5809,7 @@ to perform the action
 at the time the SConscript
 file is being read,
 you can use the
-<emphasis role="bold">Execute</emphasis>
+&f-link-Execute;
 global function to do so:</para>
 
 <programlisting language="python">
@@ -5829,9 +5819,7 @@ Execute(Touch('file'))
 <para>Second,
 you can use these functions
 to supply Actions in a list
-for use by the
-<emphasis role="bold">Command</emphasis>
-method.
+for use by the &f-link-env-Command; method.
 This can allow you to
 perform more complicated
 sequences of file manipulation
@@ -5851,13 +5839,13 @@ env.Command('foo.out', 'foo.in',
 
 <variablelist>
   <varlistentry>
-  <term>Chmod(<emphasis>dest</emphasis>, <emphasis>mode</emphasis>)</term>
+  <term><function>Chmod</function>(<parameter>dest, mode</parameter>)</term>
   <listitem>
 <para>Returns an Action object that
 changes the permissions on the specified
-<emphasis>dest</emphasis>
+<parameter>dest</parameter>
 file or directory to the specified
-<emphasis>mode</emphasis>
+<parameter>mode</parameter>
 which can be octal or string, similar to the bash command.
 Examples:</para>
 
@@ -5879,13 +5867,13 @@ env.Command('foo.out', 'foo.in',
   </varlistentry>
 
   <varlistentry>
-  <term>Copy(<emphasis>dest</emphasis>, <emphasis>src</emphasis>)</term>
+  <term><function>Copy</function>(<parameter>dest, src</parameter>)</term>
   <listitem>
 <para>Returns an Action object
 that will copy the
-<emphasis>src</emphasis>
+<parameter>src</parameter>
 source file or directory to the
-<emphasis>dest</emphasis>
+<parameter>dest</parameter>
 destination file or directory.
 Examples:</para>
 
@@ -5900,22 +5888,21 @@ env.Command('bar.out', 'bar.in',
   </varlistentry>
 
   <varlistentry>
-  <term>Delete(<emphasis>entry</emphasis>, [<emphasis>must_exist</emphasis>])</term>
+  <term><function>Delete</function>(<parameter>entry, [must_exist]</parameter>)</term>
   <listitem>
 <para>Returns an Action that
 deletes the specified
-<emphasis>entry</emphasis>,
+<parameter>entry</parameter>,
 which may be a file or a directory tree.
 If a directory is specified,
 the entire directory tree
 will be removed.
 If the
-<emphasis>must_exist</emphasis>
-flag is set,
+<parameter>must_exist</parameter>
+flag is set to a True value,
 then a Python error will be thrown
 if the specified entry does not exist;
-the default is
-<emphasis role="bold">must_exist=0</emphasis>,
+the default is False,
 that is, the Action will silently do nothing
 if the entry does not exist.
 Examples:</para>
@@ -5934,12 +5921,12 @@ Execute(Delete('file_that_must_exist', must_exist=1))
   </varlistentry>
 
   <varlistentry>
-  <term>Mkdir(<emphasis>dir</emphasis>)</term>
+  <term><function>Mkdir</function>(<parameter>dir</parameter>)</term>
   <listitem>
 <para>Returns an Action
 that creates the specified
 directory
-<emphasis>dir .</emphasis>
+<parameter>dir</parameter>.
 Examples:</para>
 
 <programlisting language="python">
@@ -5956,14 +5943,14 @@ env.Command('foo.out', 'foo.in',
   </varlistentry>
 
   <varlistentry>
-  <term>Move(<emphasis>dest</emphasis>, <emphasis>src</emphasis>)</term>
+  <term><function>Move</function>(<parameter>dest, src</parameter>)</term>
   <listitem>
 <para>Returns an Action
 that moves the specified
-<emphasis>src</emphasis>
+<parameter>src</parameter>
 file or directory to
 the specified
-<emphasis>dest</emphasis>
+<parameter>dest</parameter>
 file or directory.
 Examples:</para>
 
@@ -5979,20 +5966,19 @@ env.Command('output_file', 'input_file',
   </varlistentry>
 
   <varlistentry>
-  <term>Touch(<emphasis>file</emphasis>)</term>
+  <term><function>Touch</function>(<parameter>file</parameter>)</term>
   <listitem>
 <para>Returns an Action
 that updates the modification time
 on the specified
-<emphasis>file</emphasis>.
+<parameter>file</parameter>.
 Examples:</para>
 
 <programlisting language="python">
 Execute(Touch('file_to_be_touched'))
 
-env.Command('marker', 'input_file',
-            [MyBuildAction,
-             Touch('$TARGET')])
+env.Command('marker', 'input_file', 
+            action=[MyBuildAction, Touch('$TARGET')])
 </programlisting>
 
   </listitem>
@@ -6005,11 +5991,12 @@ env.Command('marker', 'input_file',
 
 <para>Before executing a command,
 &scons;
-performs &consvar; interpolation on the string that makes up
+performs &consvar; substitution on the string that makes up
 the command line of the builder.
-Variables are introduced in such strings by a
-<literal>$</literal>
-prefix.
+&Consvars; to be interpolated are indicated in the
+string with a leading 
+<literal>$</literal>, to distinguish them from plain text
+which is not to be substituted.
 Besides regular &consvars;, scons provides the following
 special variables for each command execution:</para>
 
@@ -6104,11 +6091,11 @@ cc -c -o foo foo.c bar.c
 </screen>
 
 <para>Variable names may be surrounded by curly braces
-<emphasis role="bold">{ }</emphasis>
+(<emphasis role="bold">{}</emphasis>)
 to separate the name from surrounding characters which
 are not part of the name.
-Within the curly braces, a variable name may have
-a Python slice subscript appended to select one
+Within the curly braces, a variable name may use
+Python list subscripting/slicing notation to select one
 or more items from a list.
 In the previous example, the string:
 <code>${SOURCES[1]}</code>
@@ -6119,13 +6106,13 @@ bar.c
 </screen>
 
 <para>Additionally, a variable name may
-have the following special
+have the following
 modifiers appended within the enclosing curly braces
-to modify the interpolated string:</para>
+to access properties of the interpolated string:</para>
 
 <variablelist>
   <varlistentry>
-  <term>base</term>
+  <term><parameter>base</parameter></term>
   <listitem>
 <para>The base path of the file name,
 including the directory path
@@ -6134,14 +6121,14 @@ but excluding any suffix.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>dir</term>
+  <term><parameter>dir</parameter></term>
   <listitem>
 <para>The name of the directory in which the file exists.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>file</term>
+  <term><parameter>file</parameter></term>
   <listitem>
 <para>The file name,
 minus any directory portion.</para>
@@ -6149,43 +6136,51 @@ minus any directory portion.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>filebase</term>
+  <term><parameter>filebase</parameter></term>
   <listitem>
-<para>Just the basename of the file,
-minus any suffix
-and minus the directory.</para>
+<para>Like <parameter>file</parameter>
+but minus its suffix..</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>suffix</term>
+  <term><parameter>suffix</parameter></term>
   <listitem>
 <para>Just the file suffix.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>abspath</term>
+  <term><parameter>abspath</parameter></term>
   <listitem>
 <para>The absolute path name of the file.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>posix</term>
+  <term><parameter>posix</parameter></term>
   <listitem>
-<para>The POSIX form of the path,
-with directories separated by
-<emphasis role="bold">/</emphasis>
-(forward slashes)
-not backslashes.
-This is sometimes necessary on Windows systems
+<para>The path with directories separated by forward slashes
+(<emphasis role="bold">/</emphasis>).
+Sometimes necessary on Windows systems
 when a path references a file on other (POSIX) systems.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term>srcpath</term>
+  <term><parameter>windows</parameter></term>
+  <listitem>
+<para>The path with directories separated by backslashes.
+(<emphasis role="bold"><literal>\\</literal></emphasis>).
+Sometimes necessary on POSIX-style systems
+when a path references a file on other (Windows) systems.
+<parameter>win32</parameter> is a (deprecated) synonym for
+<parameter>windows</parameter>.</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
+  <term><parameter>srcpath</parameter></term>
   <listitem>
 <para>The directory and file name to the source file linked to this file through
 <emphasis role="bold">VariantDir</emphasis>().
@@ -6195,7 +6190,7 @@ it just returns the directory and filename unchanged.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>srcdir</term>
+  <term><parameter>srcdir</parameter></term>
   <listitem>
 <para>The directory containing the source file linked to this file through
 <emphasis role="bold">VariantDir</emphasis>().
@@ -6205,7 +6200,7 @@ it just returns the directory part of the filename.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>rsrcpath</term>
+  <term><parameter>rsrcpath</parameter></term>
   <listitem>
 <para>The directory and file name to the source file linked to this file through
 <emphasis role="bold">VariantDir</emphasis>().
@@ -6217,7 +6212,7 @@ directory and filename unchanged.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>rsrcdir</term>
+  <term><parameter>rsrcdir</parameter></term>
   <listitem>
 <para>The Repository directory containing the source file linked to this file through
 <emphasis role="bold">VariantDir</emphasis>().
@@ -6250,12 +6245,19 @@ ${SOURCE.rsrcpath}   =&gt; /usr/repository/src/file.x
 ${SOURCE.rsrcdir}    =&gt; /usr/repository/src
 </literallayout>
 
+<para>
+Modifiers can be combined, like
+<literal>${TARGET.base.windows}</literal>,
+<literal>${TARGET.srcpath.base)</literal>,
+<literal>${TARGET.file.suffix}</literal>, etc.
+</para>
+
 <para>Note that curly braces braces may also be used
 to enclose arbitrary Python code to be evaluated.
 (In fact, this is how the above modifiers are substituted,
 they are simply attributes of the Python objects
 that represent &cv-TARGET;, &cv-SOURCES;, etc.)
-See the section "Python Code Substitution" below,
+See <xref linkend='python_code_substitution'/> below
 for more thorough examples of
 how this can be used.</para>
 
@@ -6266,37 +6268,16 @@ associated with a
 The function should
 accept four arguments:
 </para>
-<variablelist>
-  <varlistentry>
-  <term><replaceable>target</replaceable></term>
-  <listitem>
-<para>a list of target nodes</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><replaceable>source</replaceable></term>
-  <listitem>
-<para>a list of source nodes</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><replaceable>env</replaceable></term>
-  <listitem>
-<para>the &consenv;</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><replaceable>for_signature</replaceable></term>
-  <listitem>
-<para>a Boolean value that specifies
-whether the function is being called
-for generating a build signature. </para>
-  </listitem>
-  </varlistentry>
-</variablelist>
+<simplelist>
+  <member><parameter>target</parameter> - a list of target nodes</member>
+  <member><parameter>source</parameter> - a list of source nodes</member>
+  <member><parameter>env</parameter> - the &consenv;</member>
+  <member><parameter>for_signature</parameter> -
+    a Boolean value that specifies
+    whether the function is being called
+    for generating a build signature.
+  </member>
+</simplelist>
 
 <para>
 SCons will insert whatever
@@ -6384,7 +6365,7 @@ echo Last build occurred  . &gt; $TARGET
 
 <para>
 Any Python code within curly braces
-<literal>{}</literal>
+(<emphasis role="bold">{}</emphasis>)
 and introduced by the variable prefix <literal>$</literal>
 will be evaluated using the Python <function>eval</function> statement,
 with the Python globals set to
@@ -6443,7 +6424,7 @@ command lines:</para>
 
 <variablelist>
   <varlistentry>
-  <term>String</term>
+  <term>string</term>
   <listitem>
 <para>When the value is a string it is interpreted as a space delimited list of
 command line arguments.</para>
@@ -6451,7 +6432,7 @@ command line arguments.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>List</term>
+  <term>list</term>
   <listitem>
 <para>When the value is a list it is interpreted as a list of command line
 arguments. Each element of the list is converted to a string.</para>
@@ -6459,7 +6440,7 @@ arguments. Each element of the list is converted to a string.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>Other</term>
+  <term>other</term>
   <listitem>
 <para>Anything that is not a list or string is converted to a string and
 interpreted as a single command line argument.</para>
@@ -6467,12 +6448,12 @@ interpreted as a single command line argument.</para>
   </varlistentry>
 
   <varlistentry>
-  <term>Newline</term>
+  <term>newline</term>
   <listitem>
-<para>Newline characters (\n) delimit lines. The newline parsing is done after
+<para>Newline characters (<literal>\n</literal>) delimit lines.
+The newline parsing is done after
 all other parsing, so it is not possible for arguments (e.g. file names) to
-contain embedded newline characters. This limitation will likely go away in
-a future version of SCons.</para>
+contain embedded newline characters.</para>
   </listitem>
   </varlistentry>
 </variablelist>
@@ -6494,7 +6475,7 @@ function accepts the following arguments:</para>
   <term><parameter>function</parameter></term>
   <listitem>
 <para>This can be either:</para>
-<orderedlist>
+<itemizedlist>
 <listitem><para>
 a Python function that will process
 the Node (file)
@@ -6508,52 +6489,45 @@ a dictionary that maps keys
 (typically the file suffix, but see below for more discussion)
 to other Scanners that should be called.
 </para></listitem>
-</orderedlist>
+</itemizedlist>
 
 <para>If the argument is a Python function,
 the function must accept three required arguments
 and an optional fourth:
-<literal>def scanner_function(<parameter>node</parameter>, <parameter>env</parameter>, <parameter>path</parameter>, <parameter>arg=None</parameter>):</literal>
 </para>
 
-<para>The
-<parameter>node</parameter>
-argument is the internal
-&SCons; node representing the file.
-Use
-<literal>str(<replaceable>node</replaceable>)</literal>
-to fetch the name of the file, and
-<literal><replaceable>node</replaceable>.get_contents()</literal>
-to fetch contents of the file.
-Note that the file is
-<emphasis>not</emphasis>
-guaranteed to exist before the scanner is called,
-so the scanner function should check that
-if there's any chance that the scanned file
-might not exist
-(for example, if it's built from other files).</para>
+  <simplelist type="vert">
+  <member><parameter>node</parameter> -
+    The internal &SCons; node representing the file.
+    Use <function>str</function>(<parameter>node</parameter>)
+    to fetch the name of the file, and
+    <replaceable>node</replaceable>.<function>get_contents</function>()
+    to fetch the contents of the file as bytes or
+    <replaceable>node</replaceable>.<function>get_text_contents</function>()
+    to fetch the contents as text.
+    Note that the file is
+    <emphasis>not</emphasis>
+    guaranteed to exist before the scanner is called,
+    so the scanner function should check that
+    if there's any chance that the scanned file
+    might not exist
+    (for example, if it's built from other files).
+  </member>
+  <member><parameter>env</parameter> - The &consenv; for the scan.</member>
+  <member><parameter>path</parameter> -
+    A tuple (or list)
+    of directories that can be searched
+    for files.
+    This will usually be the tuple returned by the
+   <parameter>path_function</parameter>
+   argument (see below).
+  </member>
+  <member><parameter>arg</parameter> -
+    The argument supplied when the scanner was created, if any
+    (default <constant>None</constant>.
+  </member>
+  </simplelist>
 
-<para>The
-<parameter>env</parameter>
-argument is the &consenv; for the scan.
-Fetch values from it using the
-&f-env-Dictionary;
-method or using dictionary key lookup
-directly on the &consenv;.</para>
-
-<para>The
-<parameter>path</parameter>
-argument is a tuple (or list)
-of directories that can be searched
-for files.
-This will usually be the tuple returned by the
-<parameter>path_function</parameter>
-argument (see below).</para>
-
-<para>The
-<parameter>arg</parameter>
-argument is the argument supplied
-when the scanner was created, if any.</para>
   </listitem>
   </varlistentry>
 

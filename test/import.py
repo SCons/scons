@@ -34,7 +34,7 @@ import re
 import sys
 
 # must do this here, since TestSCons will chdir
-tooldir = os.path.join(os.getcwd(), 'src', 'engine', 'SCons', 'Tool')
+tooldir = os.path.join(os.getcwd(), 'SCons', 'Tool')
 
 import TestSCons
 test = TestSCons.TestSCons()

@@ -40,10 +40,17 @@ tool_list = SCons.Platform.DefaultToolList(platform, env)
 test = TestSCons.TestSCons()
 if 'gnulink' in tool_list:
     versionflags = r".+ -Wl,-soname=libfoo.so.1( .+)+"
+    soname='libfoo.so.4'
+    sonameVersionFlags=r".+ -Wl,-soname=%s( .+)+" % soname
+
 elif 'sunlink' in tool_list:
     versionflags = r".+ -h libfoo.so.1( .+)+"
+    soname='libfoo.so.4'
+    sonameVersionFlags=r".+ -h %s( .+)+" % soname
 elif 'applelink' in tool_list:
-    versionflags = r".+ -dynamiclib -Wl,-current_version,1.2.3 -Wl,-compatibility_version,1.2.0( .+)+"
+    versionflags = r".+ 'libfoo.1.dylib'->'libfoo.1.2.3.dylib'(.+)+"
+    soname='libfoo.4.dylib'
+    sonameVersionFlags=r".+ '%s'->'libfoo.1.2.3.dylib'(.+)+" % soname
 else:
     test.skip_test('No testable linkers found, skipping the test\n')
 
@@ -60,6 +67,15 @@ test = TestSCons.TestSCons()
 test.write('foo.c', foo_c_src)
 test.write('SConstruct', "SharedLibrary('foo','foo.c',SHLIBVERSION='1.2.3')\n")
 test.run(stdout = versionflags, match = TestSCons.match_re_dotall)
+test.run(arguments = ['-c'])
+
+# stdout must contain SHLIBVERSIONFLAGS if there is SHLIBVERSION provided
+test = TestSCons.TestSCons()
+test.write('foo.c', foo_c_src)
+test.write('SConstruct', """
+SharedLibrary('foo','foo.c',SHLIBVERSION='1.2.3',SONAME='%s')
+""" % soname)
+test.run(stdout = sonameVersionFlags, match = TestSCons.match_re_dotall)
 test.run(arguments = ['-c'])
 
 test.pass_test()

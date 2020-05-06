@@ -34,7 +34,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.compat
 
 import base64
-import hashlib
+import uuid
 import ntpath
 import os
 import pickle
@@ -77,6 +77,21 @@ def processIncludes(includes, env, target, source):
     return [env.Dir(i).abspath for i in
             SCons.PathList.PathList(includes).subst_path(env, target, source)]
 
+# Work-in-progress
+# individual elements each get a globally unique identifier.
+# however, there also are some "well known" guids that either
+# represent something, or are used as a namespace to base
+# generating guids that should be "in" the namespace
+#NAMESPACE_PROJECT   = uuid.UUID("{D9BD5916-F055-4D77-8C69-9448E02BF433}")
+#NAMESPACE_SLN_GROUP = uuid.UUID("{2D0C29E0-512F-47BE-9AC4-F4CAE74AE16E}")
+#NAMESPACE_INTERNAL  = uuid.UUID("{BAA4019E-6D67-4EF1-B3CB-AE6CD82E4060}")
+
+# Kinds of projects, as used in solution files
+#PROJECT_KIND_C      = "{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}"
+#PROJECT_KIND_PCL    = "{786C830F-07A1-408B-BD7F-6EE04809D6DB}"
+#NAMESPACE_PRJ_FOLDER = "{66A26720-8FB5-11D2-AA7E-00C04F688DDE}"
+#NAMESPACE_SLN_FOLDER = "{2150E333-8FDC-42A3-9474-1A3956D46DE8}"
+#NAMESPACE_TEST       = "{3AC096D0-A1C2-E12C-1390-A8335801FDAB}"
 
 def processFlags(flags, env):
     """
@@ -91,21 +106,23 @@ def processFlags(flags, env):
 
 external_makefile_guid = '{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}'
 
+def _generateGUID(slnfile, name, namespace=external_makefile_guid):
+    """Generates a GUID for the sln file to use.
 
-def _generateGUID(slnfile, name):
-    """This generates a dummy GUID for the sln file to use.  It is
-    based on the MD5 signatures of the sln filename plus the name of
-    the project.  It basically just needs to be unique, and not
-    change with each invocation."""
-    m = hashlib.md5()
+    The uuid5 function is used to combine an existing namespace uuid -
+    the one VS uses for C projects (external_makedile_guid) -
+    and a combination of the solution file name (slnfile) and the
+    project name (name).  We just need uniqueness/repeatability.
+
+    Returns (str) "displayable" GUID, already wrapped in braces
+    """
+
     # Normalize the slnfile path to a Windows path (\ separators) so
     # the generated file has a consistent GUID even if we generate
     # it on a non-Windows platform.
-    m.update(bytearray(ntpath.normpath(str(slnfile)) + str(name),'utf-8'))
-    solution = m.hexdigest().upper()
-    # convert most of the signature to GUID form (discard the rest)
-    solution = "{" + solution[:8] + "-" + solution[8:12] + "-" + solution[12:16] + "-" + solution[16:20] + "-" + solution[20:32] + "}"
-    return solution
+    slnfile = ntpath.normpath(str(slnfile))
+    solution = uuid.uuid5(uuid.UUID(namespace), "%s-%s" %(slnfile, name))
+    return '{' + str(solution).upper() + '}'
 
 
 version_re = re.compile(r'(\d+\.\d+)(.*)')

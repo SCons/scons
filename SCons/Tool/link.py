@@ -46,6 +46,8 @@ from SCons.Tool.DCommon import isD
 
 from SCons.Tool.cxx import iscplusplus
 
+from SCons.Tool import ShLibSonameGenerator
+
 issued_mixed_link_warning = False
 
 
@@ -173,7 +175,13 @@ def _versioned_lib_soname(env, libnode, version, prefix, suffix, name_func):
     if Verbose:
         print("_versioned_lib_soname: name={!r}".format(name))
     major = version.split('.')[0]
-    soname = name + '.' + major
+
+    # if a desired SONAME was supplied, use that, otherwise create 
+    # a default from the major version
+    if env.get('SONAME'):
+        soname = ShLibSonameGenerator(env, libnode)
+    else:
+        soname = name + '.' + major
     if Verbose:
         print("_versioned_lib_soname: soname={!r}".format(soname))
     return soname

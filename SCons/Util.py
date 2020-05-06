@@ -1538,7 +1538,6 @@ def silent_intern(x):
         return x
 
 
-
 # From Dinu C. Gherman,
 # Python Cookbook, second edition, recipe 6.17, p. 277.
 # Also:
@@ -1568,6 +1567,7 @@ class Null(object):
         return self
     def __delattr__(self, name):
         return self
+
 
 class NullSeq(Null):
     def __len__(self):

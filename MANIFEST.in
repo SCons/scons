@@ -1,6 +1,6 @@
 global-exclude **Tests.py
 
-recursive-include src/engine/SCons/Tool/docbook *
+recursive-include SCons/Tool/docbook *
 
 # For license file
 include LICENSE

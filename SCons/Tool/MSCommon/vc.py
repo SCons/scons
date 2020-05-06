@@ -435,7 +435,7 @@ def find_vc_pdir(env, msvc_version):
             else:
                 if common.is_win64():
                     try:
-                        # ordinally at win64, try Wow6432Node first.
+                        # ordinarily at win64, try Wow6432Node first.
                         comps = common.read_reg(root + 'Wow6432Node\\' + key, hkroot)
                     except SCons.Util.WinError as e:
                         # at Microsoft Visual Studio for Python 2.7, value is not in Wow6432Node
