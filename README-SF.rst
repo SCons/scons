@@ -106,9 +106,7 @@ Installation
     Note: You don't need to build SCons packages or install SCons if you just
     want to work on developing a patch.  See the sections about `Making
     Changes`_ and `Testing`_ below if you just want to submit a bug fix or
-    some new functionality.  See the sections below about `Building Packages`_
-    and `Testing Packages`_ if your enhancement involves changing the way in
-    which SCons is packaged and/or installed on an end-user system.
+    some new functionality.
 
 Assuming your system satisfies the installation requirements in the previous
 section, install SCons from this package by first populating the build/scons/
@@ -139,7 +137,7 @@ By default, the above commands will do the following:
   prefix directory on Windows (C:\\Python\*, for example).
 
 - Install the SCons build engine (a Python module) in the standard Python library directory
-(/usr/lib/python\*/site-packages or C:\\Python*\\Lib\\site-packages).
+  (/usr/lib/python\*/site-packages or C:\\Python*\\Lib\\site-packages).
 
 Making Changes
 ==============
@@ -279,10 +277,7 @@ many tests passed, failed, or yielded no result, and lists any unsuccessful
 tests.
 
 The above invocations all test directly the files underneath the src/
-subdirectory, and do not require that a build be performed first.  The
-runtest.py script supports additional options to run tests against unpacked
-packages in the build/test-\*/ subdirectories.  See the `Testing Packages`_
-section below.
+subdirectory, and do not require that a build be performed first.
 
 
 Development Workflow

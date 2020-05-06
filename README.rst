@@ -131,9 +131,7 @@ Installation
     Note: You don't need to build SCons packages or install SCons if you just
     want to work on developing a patch.  See the sections about `Making
     Changes`_ and `Testing`_ below if you just want to submit a bug fix or
-    some new functionality.  See the sections below about `Building Packages`_
-    and `Testing Packages`_ if your enhancement involves changing the way in
-    which SCons is packaged and/or installed on an end-user system.
+    some new functionality.
 
 Assuming your system satisfies the installation requirements in the previous
 section, install SCons from this package by first populating the build/scons/
@@ -164,7 +162,7 @@ By default, the above commands will do the following:
   prefix directory on Windows (C:\\Python\*, for example).
 
 - Install the SCons build engine (a Python module) in the standard Python library directory
-(/usr/lib/python\*/site-packages or C:\\Python*\\Lib\\site-packages).
+  (/usr/lib/python\*/site-packages or C:\\Python*\\Lib\\site-packages).
 
 Making Changes
 ==============
@@ -303,12 +301,8 @@ If more than one test is run, the runtest.py script prints a summary of how
 many tests passed, failed, or yielded no result, and lists any unsuccessful
 tests.
 
-The above invocations all test directly the files underneath the src/
-subdirectory, and do not require that a build be performed first.  The
-runtest.py script supports additional options to run tests against unpacked
-packages in the build/test-\*/ subdirectories.  See the `Testing Packages`_
-section below.
-
+The above invocations all test directly the files underneath the SCons/
+subdirectory, and do not require that a build be performed first. 
 
 Development Workflow
 ====================
@@ -339,7 +333,7 @@ platform, Windows users can translate as appropriate)):
       $ python script/scons.py -C /home/me/broken_project .
 
 - Fix the bug in SCons by editing appropriate module files underneath
-  src/engine/SCons.
+  SCons.
 
 - Confirm that you've fixed the bug affecting your project::
 
@@ -503,7 +497,7 @@ README-local
 
 runtest.py
     Script for running SCons tests.  By default, this will run a test against
-    the code in the local src/ tree, so you don't have to do a build before
+    the code in the local SCons tree, so you don't have to do a build before
     testing your changes.
 
 SConstruct
@@ -517,13 +511,13 @@ SConstruct
     this file for an example of how easy it is to use SCons to build "normal"
     software.)
 
-src/
+SCons/
     Where the actual source code is kept, of course.
 
 test/
     End-to-end tests of the SCons utility itself.  These are separate from the
     individual module unit tests, which live side-by-side with the modules
-    under src/.
+    under SCons.
 
 testing/
     SCons testing framework.

@@ -496,7 +496,7 @@ scons_runtest_dir = base
 if not external:
     scons_script_dir = sd or os.path.join(base, 'scripts')
     scons_tools_dir = tools_dir or os.path.join(base, 'bin')
-    scons_lib_dir = ld or os.path.join(base, 'src', 'engine')
+    scons_lib_dir = ld or base
 else:
     scons_script_dir = sd or ''
     scons_tools_dir = tools_dir or ''
