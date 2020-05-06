@@ -274,6 +274,9 @@ class SConsToNinjaTranslator:
                 "outputs": get_outputs(node),
                 "implicit": get_dependencies(node, skip_sources=True),
             }
+        if name == 'ninja_builder':
+            return None
+
         handler = self.func_handlers.get(name, None)
         if handler is not None:
             return handler(node.env if node.env else self.env, node)
@@ -377,8 +380,9 @@ class SConsToNinjaTranslator:
 class NinjaState:
     """Maintains state of Ninja build system as it's translated from SCons."""
 
-    def __init__(self, env, writer_class):
+    def __init__(self, env, ninja_file, writer_class):
         self.env = env
+        self.ninja_file = ninja_file
         self.writer_class = writer_class
         self.__generated = False
         self.translator = SConsToNinjaTranslator(env)
@@ -573,7 +577,7 @@ class NinjaState:
         return False
 
     # pylint: disable=too-many-branches,too-many-locals
-    def generate(self, ninja_file):
+    def generate(self):
         """
         Generate the build.ninja.
 
@@ -730,7 +734,7 @@ class NinjaState:
         # jstests/SConscript and being specific to the MongoDB
         # repository layout.
         ninja.build(
-            self.env.File(ninja_file).path,
+            self.ninja_file.path,
             rule="REGENERATE",
             implicit=[
                 self.env.File("#SConstruct").path,
@@ -746,10 +750,10 @@ class NinjaState:
             "compile_commands.json",
             rule="CMD",
             pool="console",
-            implicit=[ninja_file],
+            implicit=[str(self.ninja_file)],
             variables={
                 "cmd": "ninja -f {} -t compdb CC CXX > compile_commands.json".format(
-                    ninja_file
+                    str(self.ninja_file)
                 )
             },
         )
@@ -772,7 +776,7 @@ class NinjaState:
         if scons_default_targets:
             ninja.default(" ".join(scons_default_targets))
 
-        with open(ninja_file, "w") as build_ninja:
+        with open(str(self.ninja_file), "w") as build_ninja:
             build_ninja.write(content.getvalue())
 
         self.__generated = True
@@ -1039,7 +1043,7 @@ def ninja_builder(env, target, source):
     print("Generating:", str(target[0]))
 
     generated_build_ninja = target[0].get_abspath()
-    NINJA_STATE.generate(generated_build_ninja)
+    NINJA_STATE.generate()
     if env.get("DISABLE_AUTO_NINJA") != True:
         print("Executing:", str(target[0]))
 
@@ -1240,6 +1244,7 @@ def generate(env):
                   help='Disable ninja automatically building after scons')
     env["DISABLE_AUTO_NINJA"] = GetOption('disable_auto_ninja')
 
+    global NINJA_STATE
     env[NINJA_SYNTAX] = env.get(NINJA_SYNTAX, "ninja_syntax.py")
 
     # Add the Ninja builder.
@@ -1252,10 +1257,18 @@ def generate(env):
     env["NINJA_ALIAS_NAME"] = env.get("NINJA_ALIAS_NAME", "generate-ninja")
 
     ninja_file_name = env.subst("${NINJA_PREFIX}.${NINJA_SUFFIX}")
-    ninja_file = env.Ninja(target=ninja_file_name, source=[])
-    env.AlwaysBuild(ninja_file)
-    env.Alias("$NINJA_ALIAS_NAME", ninja_file)
-
+    # here we allow multiple environments to construct rules and builds
+    # into the same ninja file
+    if NINJA_STATE is None:
+        ninja_file = env.Ninja(target=ninja_file_name, source=[])
+        env.AlwaysBuild(ninja_file)
+        env.Alias("$NINJA_ALIAS_NAME", ninja_file)
+    else:
+        if str(NINJA_STATE.ninja_file) != ninja_file_name:
+            raise Exception("Generating multiple ninja files not supported.")
+        else:
+            ninja_file = [NINJA_STATE.ninja_file]
+    
     # This adds the required flags such that the generated compile
     # commands will create depfiles as appropriate in the Ninja file.
     if env["PLATFORM"] == "win32":
@@ -1317,7 +1330,7 @@ def generate(env):
     def robust_rule_mapping(var, rule, tool):
         provider = gen_get_response_file_command(env, rule, tool)
         env.NinjaRuleMapping("${" + var + "}", provider)
-        env.NinjaRuleMapping(env[var], provider)
+        env.NinjaRuleMapping(env.get(var, None), provider)
 
     robust_rule_mapping("CCCOM", "CC", "$CC")
     robust_rule_mapping("SHCCCOM", "CC", "$CC")
@@ -1447,8 +1460,8 @@ def generate(env):
     else:
         ninja_syntax = importlib.import_module(".ninja_syntax", package='ninja')
     
-    global NINJA_STATE
-    NINJA_STATE = NinjaState(env, ninja_syntax.Writer)
+    if NINJA_STATE is None:
+        NINJA_STATE = NinjaState(env, ninja_file[0], ninja_syntax.Writer)
 
     # Here we will force every builder to use an emitter which makes the ninja
     # file depend on it's target. This forces the ninja file to the bottom of
