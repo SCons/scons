@@ -25,29 +25,22 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import sys
 import time
 import random
 import TestSCons
-from TestCmd import IS_WINDOWS
-
-test = TestSCons.TestSCons()
-
-try:
-    import ninja
-except ImportError:
-    test.skip_test("Could not find module in python")
 
 _python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
-ninja_bin = os.path.abspath(os.path.join(
-    ninja.__file__,
-    os.pardir,
-    'data',
-    'bin',
-    'ninja' + _exe))
+test = TestSCons.TestSCons()
 
 test.dir_fixture('ninja-fixture')
+
+ninja = test.where_is('ninja', os.environ['PATH'])
+
+if not ninja:
+    test.skip_test("Could not find ninja in environment")
 
 test.write('source_0.c', """
 #include <stdio.h>
@@ -57,8 +50,7 @@ test.write('source_0.c', """
 int
 print_function0()
 {
-    printf("main print");
-    return 0;
+    printf("main print\\n");
 }
 """)
 
@@ -101,7 +93,7 @@ def generate_source(parent_source, current_source):
         int
         print_function%(current_source)s()
         {
-            return print_function%(parent_source)s();
+            print_function%(parent_source)s();
         }
         """ % locals())
 
@@ -141,7 +133,7 @@ def mod_source_orig(test_num):
         int
         print_function%(test_num)s()
         {   
-            return print_function%(parent_source)s();
+            print_function%(parent_source)s();
         }
         """ % locals())
 
@@ -157,7 +149,6 @@ int
 main()
 {
     print_function%(num_source)s();
-    exit(0);
 }
 """ % locals())
 
@@ -181,19 +172,17 @@ for _ in range(10):
     tests_mods += [random.randrange(1, num_source, 1)]
 jobs = '-j' + str(get_num_cpus())
 
-ninja_program = [test.workpath('run_ninja_env.bat'), jobs] if IS_WINDOWS else [ninja_bin, jobs]
-
 start = time.perf_counter()
-test.run(arguments='--disable-execute-ninja', stdout=None)
-test.run(program = ninja_program, stdout=None)
+test.run(arguments='--disable-auto-ninja', stdout=None)
+test.run(program = ninja, arguments=[jobs], stdout=None)
 stop = time.perf_counter()
 ninja_times += [stop - start]
-test.run(program = test.workpath('print_bin'), stdout="main print")
+test.run(program = test.workpath('print_bin'), stdout="main print" + os.linesep)
 
 for test_mod in tests_mods:
     mod_source_return(test_mod)
     start = time.perf_counter()
-    test.run(program = ninja_program, stdout=None)
+    test.run(program = ninja, arguments=[jobs], stdout=None)
     stop = time.perf_counter()
     ninja_times += [stop - start]
 
@@ -209,7 +198,7 @@ start = time.perf_counter()
 test.run(arguments = ["-f", "SConstruct_no_ninja", jobs], stdout=None)
 stop = time.perf_counter()
 scons_times += [stop - start]
-test.run(program = test.workpath('print_bin'), stdout="main print")
+test.run(program = test.workpath('print_bin'), stdout="main print" + os.linesep)
 
 for test_mod in tests_mods:
     mod_source_return(test_mod)
@@ -219,14 +208,14 @@ for test_mod in tests_mods:
     scons_times += [stop - start]
 
 full_build_print = True
-for ninja_time, scons_time in zip(ninja_times, scons_times):
-    if ninja_time > scons_time:
+for ninja, scons in zip(ninja_times, scons_times):
+    if ninja > scons:
         test.fail_test()
     if full_build_print:
         full_build_print = False
-        print("Clean build {} files - SCons: {:.3f}s Ninja: {:.3f}s".format(num_source, scons_time, ninja_time))
+        print("Clean build {} files - SCons: {:.3f}s Ninja: {:.3f}s".format(num_source, scons, ninja))
     else:
-        print("Single File Rebuild   - SCons: {:.3f}s Ninja: {:.3f}s".format(scons_time, ninja_time))
+        print("Single File Rebuild  - SCons: {:.3f}s Ninja: {:.3f}s".format(scons, ninja))
 
 test.pass_test()
 
