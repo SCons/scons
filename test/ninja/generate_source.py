@@ -25,37 +25,28 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import sys
 import TestSCons
-from TestCmd import IS_WINDOWS
-
-test = TestSCons.TestSCons()
-
-try:
-    import ninja
-except ImportError:
-    test.skip_test("Could not find module in python")
 
 _python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
-ninja_bin = os.path.abspath(os.path.join(
-    ninja.__file__,
-    os.pardir,
-    'data',
-    'bin',
-    'ninja' + _exe))
+test = TestSCons.TestSCons()
 
 test.dir_fixture('ninja-fixture')
 
-shell = '' if IS_WINDOWS else './'
+ninja = test.where_is('ninja', os.environ['PATH'])
+
+if not ninja:
+    test.skip_test("Could not find ninja in environment")
 
 test.write('SConstruct', """
 env = Environment()
 env.Tool('ninja')
-prog = env.Program(target = 'generate_source', source = 'generate_source.c')
-env.Command('generated_source.c', prog, '%(shell)sgenerate_source%(_exe)s')
+env.Program(target = 'generate_source', source = 'generate_source.c')
+env.Command('generated_source.c', ['generate_source'], './generate_source')
 env.Program(target = 'generated_source', source = 'generated_source.c')
-""" % locals())
+""")
 
 test.write('generate_source.c', """
 #include <stdio.h>
@@ -70,7 +61,7 @@ int main(int argc, char *argv[]) {
     fprintf(fp, "int\\n");
     fprintf(fp, "main(int argc, char *argv[])\\n");
     fprintf(fp, "{\\n");
-    fprintf(fp, "        printf(\\"generated_source.c\\");\\n");
+    fprintf(fp, "        printf(\\"generated_source.c\\\\n\\");\\n");
     fprintf(fp, "        exit (0);\\n");
     fprintf(fp, "}\\n");
     fclose(fp);
@@ -79,30 +70,28 @@ int main(int argc, char *argv[]) {
 
 # generate simple build
 test.run(stdout=None)
-test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
-test.must_contain_all(test.stdout(), 'Executing:')
-test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' %locals())
-test.run(program = test.workpath('generated_source' + _exe), stdout="generated_source.c")
+test.run(program = test.workpath('generated_source'), stdout="generated_source.c" + os.linesep)
 
 # clean build and ninja files
 test.run(arguments='-c', stdout=None)
 test.must_contain_all_lines(test.stdout(), [
     'Removed generate_source.o',
-    'Removed generate_source' + _exe,
+    'Removed generate_source',
     'Removed generated_source.c',
     'Removed generated_source.o',
-    'Removed generated_source' + _exe,
+    'Removed generated_source',
     'Removed build.ninja'])
 
 # only generate the ninja file
-test.run(arguments='--disable-execute-ninja', stdout=None)
-test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
-test.must_not_exist(test.workpath('generated_source' + _exe))
+test.run(arguments='--disable-auto-ninja', stdout=None)
+test.must_contain_all_lines(test.stdout(),
+    ['Generating: build.ninja'])
+test.must_not_contain_any_line(test.stdout(),
+    ['Executing: build.ninja'])
 
 # run ninja independently
-program = test.workpath('run_ninja_env.bat') if IS_WINDOWS else ninja_bin
-test.run(program = program, stdout=None)
-test.run(program = test.workpath('generated_source' + _exe), stdout="generated_source.c")
+test.run(program = ninja, stdout=None)
+test.run(program = test.workpath('generated_source'), stdout="generated_source.c" + os.linesep)
 
 test.pass_test()
 

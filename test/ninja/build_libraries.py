@@ -25,74 +25,63 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import sys
 import TestSCons
-from TestCmd import IS_WINDOWS
-
-test = TestSCons.TestSCons()
-
-try:
-    import ninja
-except ImportError:
-    test.skip_test("Could not find module in python")
 
 _python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
-ninja_bin = os.path.abspath(os.path.join(
-    ninja.__file__,
-    os.pardir,
-    'data',
-    'bin',
-    'ninja' + _exe))
+test = TestSCons.TestSCons()
 
 test.dir_fixture('ninja-fixture')
 
-lib_suffix = '.lib' if IS_WINDOWS else '.so'
-staticlib_suffix = '.lib' if IS_WINDOWS else '.a'
-lib_prefix = '' if IS_WINDOWS else 'lib'
+ninja = test.where_is('ninja', os.environ['PATH'])
 
-win32 = ", 'WIN32'" if IS_WINDOWS else ''
+if not ninja:
+    test.skip_test("Could not find ninja in environment")
 
 test.write('SConstruct', """
 env = Environment()
 env.Tool('ninja')
 
-shared_lib = env.SharedLibrary(target = 'test_impl', source = 'test_impl.c', CPPDEFINES=['LIBRARY_BUILD'%(win32)s])
-env.Program(target = 'test', source = 'test1.c', LIBS=['test_impl'], LIBPATH=['.'], RPATH='.')
+shared_lib = env.SharedLibrary(target = 'test_impl', source = 'test_impl.c')
+env.Program(target = 'test', source = 'test1.c', LIBS=[shared_lib], LIBPATH=['.'], RPATH='.')
 
-static_obj = env.Object(target = 'test_impl_static', source = 'test_impl.c')
-static_lib = env.StaticLibrary(target = 'test_impl_static', source = static_obj)
-static_obj = env.Object(target = 'test_static', source = 'test1.c')
+static_lib = env.StaticLibrary(target = 'test_impl_static', source = 'test_impl.c')
+static_obj = env.Object(target = 'test_static.o', source = 'test1.c')
 env.Program(target = 'test_static', source = static_obj, LIBS=[static_lib], LIBPATH=['.'])
-""" % locals())
+""")
 # generate simple build
 test.run(stdout=None)
-test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
-test.must_contain_all(test.stdout(), 'Executing:')
-test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' %locals())
-test.run(program = test.workpath('test'), stdout="library_function")
-test.run(program = test.workpath('test_static'), stdout="library_function")
+test.must_contain_all_lines(test.stdout(),
+    ['Generating: build.ninja', 'Executing: build.ninja'])
+test.run(program = test.workpath('test'), stdout="library_function" + os.linesep)
+test.run(program = test.workpath('test_static'), stdout="library_function" + os.linesep)
 
 # clean build and ninja files
 test.run(arguments='-c', stdout=None)
 test.must_contain_all_lines(test.stdout(), [
-    ('Removed %stest_impl' % lib_prefix) + lib_suffix,
-    'Removed test' + _exe,
-    ('Removed %stest_impl_static' % lib_prefix) + staticlib_suffix,
-    'Removed test_static' + _exe,
+    'Removed test_impl.os',
+    'Removed libtest_impl.so',
+    'Removed test1.o',
+    'Removed test',
+    'Removed test_impl.o',
+    'Removed libtest_impl_static.a',
+    'Removed test_static.o',
+    'Removed test_static',
     'Removed build.ninja'])
 
 # only generate the ninja file
-test.run(arguments='--disable-execute-ninja', stdout=None)
-test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
-test.must_not_exist(test.workpath('test'))
-test.must_not_exist(test.workpath('test_static'))
+test.run(arguments='--disable-auto-ninja', stdout=None)
+test.must_contain_all_lines(test.stdout(),
+    ['Generating: build.ninja'])
+test.must_not_contain_any_line(test.stdout(),
+    ['Executing: build.ninja'])
 
 # run ninja independently
-program = test.workpath('run_ninja_env.bat') if IS_WINDOWS else ninja_bin
-test.run(program = program, stdout=None)
-test.run(program = test.workpath('test'), stdout="library_function")
-test.run(program = test.workpath('test_static'), stdout="library_function")
+test.run(program = ninja, stdout=None)
+test.run(program = test.workpath('test'), stdout="library_function" + os.linesep)
+test.run(program = test.workpath('test_static'), stdout="library_function" + os.linesep)
 
 test.pass_test()
 
