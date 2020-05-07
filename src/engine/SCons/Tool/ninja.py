@@ -665,7 +665,7 @@ class NinjaState:
             # files. Here we make sure that Ninja only ever sees one
             # target when using a depfile. It will still have a command
             # that will create all of the outputs but most targets don't
-            # depend direclty on DWO files and so this assumption is safe
+            # depend directly on DWO files and so this assumption is safe
             # to make.
             rule = self.rules.get(build["rule"])
 
@@ -1044,7 +1044,7 @@ def ninja_builder(env, target, source):
 
     generated_build_ninja = target[0].get_abspath()
     NINJA_STATE.generate()
-    if env.get("DISABLE_AUTO_NINJA") != True:
+    if not env.get("DISABLE_AUTO_NINJA"):
         print("Executing:", str(target[0]))
 
         def execute_ninja():
