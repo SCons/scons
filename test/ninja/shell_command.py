@@ -26,6 +26,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import TestSCons
+from TestCmd import IS_WINDOWS
 
 _python_ = TestSCons._python_
 _exe   = TestSCons._exe
@@ -39,24 +40,26 @@ ninja = test.where_is('ninja', os.environ['PATH'])
 if not ninja:
     test.skip_test("Could not find ninja in environment")
 
+shell = '' if IS_WINDOWS else './'
+
 test.write('SConstruct', """
 env = Environment()
 env.Tool('ninja')
-env.Program(target = 'foo', source = 'foo.c')
-env.Command('foo.out', ['foo'], './foo > foo.out')
-""")
+prog = env.Program(target = 'foo', source = 'foo.c')
+env.Command('foo.out', prog, '%(shell)sfoo%(_exe)s > foo.out')
+""" % locals())
 
 # generate simple build
 test.run(stdout=None)
 test.must_contain_all_lines(test.stdout(),
     ['Generating: build.ninja', 'Executing: build.ninja'])
-test.must_match('foo.out', 'foo.c' + os.linesep)
+test.must_match('foo.out', 'foo.c')
 
 # clean build and ninja files
 test.run(arguments='-c', stdout=None)
 test.must_contain_all_lines(test.stdout(), [
     'Removed foo.o',
-    'Removed foo',
+    'Removed foo%(_exe)s' % locals(),
     'Removed foo.out',
     'Removed build.ninja'])
 
@@ -68,10 +71,9 @@ test.must_not_contain_any_line(test.stdout(),
     ['Executing: build.ninja'])
 
 # run ninja independently
-test.run(program = ninja, stdout=None)
-test.must_match('foo.out', 'foo.c' + os.linesep)
-
-
+program = ['ninja_env.bat', '&', ninja] if IS_WINDOWS else ninja
+test.run(program = program, stdout=None)
+test.must_match('foo.out', 'foo.c')
 
 test.pass_test()
 
