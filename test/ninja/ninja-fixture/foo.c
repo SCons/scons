@@ -5,6 +5,6 @@ int
 main(int argc, char *argv[])
 {
         argv[argc++] = "--";
-        printf("foo.c\n");
+        printf("foo.c");
         exit (0);
 }

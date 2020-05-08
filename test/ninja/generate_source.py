@@ -26,6 +26,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import TestSCons
+from TestCmd import IS_WINDOWS
 
 _python_ = TestSCons._python_
 _exe   = TestSCons._exe
@@ -39,13 +40,15 @@ ninja = test.where_is('ninja', os.environ['PATH'])
 if not ninja:
     test.skip_test("Could not find ninja in environment")
 
+shell = '' if IS_WINDOWS else './'
+
 test.write('SConstruct', """
 env = Environment()
 env.Tool('ninja')
-env.Program(target = 'generate_source', source = 'generate_source.c')
-env.Command('generated_source.c', ['generate_source'], './generate_source')
+prog = env.Program(target = 'generate_source', source = 'generate_source.c')
+env.Command('generated_source.c', prog, '%(shell)sgenerate_source%(_exe)s')
 env.Program(target = 'generated_source', source = 'generated_source.c')
-""")
+""" % locals())
 
 test.write('generate_source.c', """
 #include <stdio.h>
@@ -60,7 +63,7 @@ int main(int argc, char *argv[]) {
     fprintf(fp, "int\\n");
     fprintf(fp, "main(int argc, char *argv[])\\n");
     fprintf(fp, "{\\n");
-    fprintf(fp, "        printf(\\"generated_source.c\\\\n\\");\\n");
+    fprintf(fp, "        printf(\\"generated_source.c\\");\\n");
     fprintf(fp, "        exit (0);\\n");
     fprintf(fp, "}\\n");
     fclose(fp);
@@ -69,16 +72,16 @@ int main(int argc, char *argv[]) {
 
 # generate simple build
 test.run(stdout=None)
-test.run(program = test.workpath('generated_source'), stdout="generated_source.c" + os.linesep)
+test.run(program = test.workpath('generated_source' + _exe), stdout="generated_source.c")
 
 # clean build and ninja files
 test.run(arguments='-c', stdout=None)
 test.must_contain_all_lines(test.stdout(), [
     'Removed generate_source.o',
-    'Removed generate_source',
+    'Removed generate_source' + _exe,
     'Removed generated_source.c',
     'Removed generated_source.o',
-    'Removed generated_source',
+    'Removed generated_source' + _exe,
     'Removed build.ninja'])
 
 # only generate the ninja file
@@ -89,8 +92,9 @@ test.must_not_contain_any_line(test.stdout(),
     ['Executing: build.ninja'])
 
 # run ninja independently
-test.run(program = ninja, stdout=None)
-test.run(program = test.workpath('generated_source'), stdout="generated_source.c" + os.linesep)
+program = ['ninja_env.bat', '&', ninja] if IS_WINDOWS else ninja
+test.run(program = program, stdout=None)
+test.run(program = test.workpath('generated_source' + _exe), stdout="generated_source.c")
 
 test.pass_test()
 
