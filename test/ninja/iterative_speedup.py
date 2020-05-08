@@ -28,6 +28,7 @@ import os
 import time
 import random
 import TestSCons
+from TestCmd import IS_WINDOWS
 
 _python_ = TestSCons._python_
 _exe   = TestSCons._exe
@@ -49,7 +50,8 @@ test.write('source_0.c', """
 int
 print_function0()
 {
-    printf("main print\\n");
+    printf("main print");
+    return 0;
 }
 """)
 
@@ -92,7 +94,7 @@ def generate_source(parent_source, current_source):
         int
         print_function%(current_source)s()
         {
-            print_function%(parent_source)s();
+            return print_function%(parent_source)s();
         }
         """ % locals())
 
@@ -132,7 +134,7 @@ def mod_source_orig(test_num):
         int
         print_function%(test_num)s()
         {   
-            print_function%(parent_source)s();
+            return print_function%(parent_source)s();
         }
         """ % locals())
 
@@ -148,6 +150,7 @@ int
 main()
 {
     print_function%(num_source)s();
+    exit(0);
 }
 """ % locals())
 
@@ -171,17 +174,19 @@ for _ in range(10):
     tests_mods += [random.randrange(1, num_source, 1)]
 jobs = '-j' + str(get_num_cpus())
 
+ninja_program = [test.workpath('ninja_env.bat'), '&', ninja, jobs] if IS_WINDOWS else [ninja, jobs]
+
 start = time.perf_counter()
 test.run(arguments='--disable-auto-ninja', stdout=None)
-test.run(program = ninja, arguments=[jobs], stdout=None)
+test.run(program = ninja_program, stdout=None)
 stop = time.perf_counter()
 ninja_times += [stop - start]
-test.run(program = test.workpath('print_bin'), stdout="main print" + os.linesep)
+test.run(program = test.workpath('print_bin'), stdout="main print")
 
 for test_mod in tests_mods:
     mod_source_return(test_mod)
     start = time.perf_counter()
-    test.run(program = ninja, arguments=[jobs], stdout=None)
+    test.run(program = ninja_program, stdout=None)
     stop = time.perf_counter()
     ninja_times += [stop - start]
 
@@ -197,7 +202,7 @@ start = time.perf_counter()
 test.run(arguments = ["-f", "SConstruct_no_ninja", jobs], stdout=None)
 stop = time.perf_counter()
 scons_times += [stop - start]
-test.run(program = test.workpath('print_bin'), stdout="main print" + os.linesep)
+test.run(program = test.workpath('print_bin'), stdout="main print")
 
 for test_mod in tests_mods:
     mod_source_return(test_mod)

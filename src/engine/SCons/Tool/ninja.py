@@ -77,8 +77,8 @@ def _mkdir_action_function(env, node):
         # to an invalid ninja file.
         "variables": {
             # On Windows mkdir "-p" is always on
-            "cmd": "{mkdir} $out".format(
-                mkdir="mkdir" if env["PLATFORM"] == "win32" else "mkdir -p",
+            "cmd": "{mkdir}".format(
+                mkdir="mkdir $out & exit 0" if env["PLATFORM"] == "win32" else "mkdir -p $out",
             ),
         },
     }
@@ -383,6 +383,7 @@ class NinjaState:
     def __init__(self, env, ninja_file, writer_class):
         self.env = env
         self.ninja_file = ninja_file
+        self.ninja_bin_path = ''
         self.writer_class = writer_class
         self.__generated = False
         self.translator = SConsToNinjaTranslator(env)
@@ -752,7 +753,7 @@ class NinjaState:
             pool="console",
             implicit=[str(self.ninja_file)],
             variables={
-                "cmd": "ninja -f {} -t compdb CC CXX > compile_commands.json".format(
+                "cmd": "{}/ninja -f {} -t compdb CC CXX > compile_commands.json".format(self.ninja_bin_path,
                     str(self.ninja_file)
                 )
             },
@@ -1044,15 +1045,32 @@ def ninja_builder(env, target, source):
 
     generated_build_ninja = target[0].get_abspath()
     NINJA_STATE.generate()
+
+    if env["PLATFORM"] == "win32":
+        # this is not great, it executes everytime
+        # and its doesn't consider specific node environments
+        # also a bit quirky to use, but usually MSVC is not
+        # setup system wide for command line use so this is needed
+        # on the standard MSVC setup, this is only needed if 
+        # running ninja directly from a command line that hasn't
+        # had the environment setup (vcvarsall.bat)
+        # todo: hook this into a command so that it only regnerates
+        #       the .bat if the env['ENV'] changes
+        with open('ninja_env.bat', 'w') as f:
+            for key in env['ENV']:
+                f.write('set {}={}\n'.format(key, env['ENV'][key]))
+                
     if not env.get("DISABLE_AUTO_NINJA"):
         print("Executing:", str(target[0]))
 
         def execute_ninja():
 
-            proc = subprocess.Popen( ['ninja', '-f', generated_build_ninja],
-                stderr=subprocess.STDOUT,
+            env.AppendENVPath('PATH', NINJA_STATE.ninja_bin_path)
+            proc = subprocess.Popen(['ninja', '-f', generated_build_ninja],
+                stderr=sys.stderr,
                 stdout=subprocess.PIPE,
-                universal_newlines=True
+                universal_newlines=True,
+                env=env['ENV']
             )
             for stdout_line in iter(proc.stdout.readline, ""):
                 yield stdout_line
@@ -1060,12 +1078,17 @@ def ninja_builder(env, target, source):
             return_code = proc.wait()
             if return_code:
                 raise subprocess.CalledProcessError(return_code, 'ninja')
-
+        erase_previous = False
         for output in execute_ninja():
             output = output.strip()
-            sys.stdout.write('\x1b[2K') # erase previous line
-            sys.stdout.write(output + "\r")
+            if erase_previous:
+                sys.stdout.write('\x1b[2K') # erase previous line
+                sys.stdout.write("\r")
+            else:
+                sys.stdout.write(os.linesep)
+            sys.stdout.write(output)
             sys.stdout.flush()
+            erase_previous = output.startswith('[')
 
 # pylint: disable=too-few-public-methods
 class AlwaysExecAction(SCons.Action.FunctionAction):
@@ -1311,7 +1334,7 @@ def generate(env):
     if env["PLATFORM"] == "win32":
         from SCons.Tool.mslink import compositeLinkAction
 
-        if env["LINKCOM"] == compositeLinkAction:
+        if env.get("LINKCOM", None) == compositeLinkAction:
             env[
                 "LINKCOM"
             ] = '${TEMPFILE("$LINK $LINKFLAGS /OUT:$TARGET.windows $_LIBDIRFLAGS $_LIBFLAGS $_PDB $SOURCES.windows", "$LINKCOMSTR")}'
@@ -1459,10 +1482,10 @@ def generate(env):
         ninja_syntax = importlib.import_module(ninja_syntax_mod_name)
     else:
         ninja_syntax = importlib.import_module(".ninja_syntax", package='ninja')
-    
+        
     if NINJA_STATE is None:
         NINJA_STATE = NinjaState(env, ninja_file[0], ninja_syntax.Writer)
-
+        NINJA_STATE.ninja_bin_path = os.path.abspath(os.path.join(ninja_syntax.__file__, os.pardir, 'data', 'bin'))
     # Here we will force every builder to use an emitter which makes the ninja
     # file depend on it's target. This forces the ninja file to the bottom of
     # the DAG which is required so that we walk every target, and therefore add
