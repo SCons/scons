@@ -30,6 +30,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-Default "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Default</function>">
 <!ENTITY f-DefaultEnvironment "<function xmlns='http://www.scons.org/dbxsd/v1.0'>DefaultEnvironment</function>">
 <!ENTITY f-Depends "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Depends</function>">
+<!ENTITY f-Detect "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Detect</function>">
 <!ENTITY f-Dictionary "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Dictionary</function>">
 <!ENTITY f-Dir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Dir</function>">
 <!ENTITY f-Dump "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Dump</function>">
@@ -110,6 +111,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-env-Default "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Default</function>">
 <!ENTITY f-env-DefaultEnvironment "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.DefaultEnvironment</function>">
 <!ENTITY f-env-Depends "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Depends</function>">
+<!ENTITY f-env-Detect "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Detect</function>">
 <!ENTITY f-env-Dictionary "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Dictionary</function>">
 <!ENTITY f-env-Dir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Dir</function>">
 <!ENTITY f-env-Dump "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Dump</function>">
@@ -200,6 +202,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-Default "<link linkend='f-Default' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Default</function></link>">
 <!ENTITY f-link-DefaultEnvironment "<link linkend='f-DefaultEnvironment' xmlns='http://www.scons.org/dbxsd/v1.0'><function>DefaultEnvironment</function></link>">
 <!ENTITY f-link-Depends "<link linkend='f-Depends' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Depends</function></link>">
+<!ENTITY f-link-Detect "<link linkend='f-Detect' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Detect</function></link>">
 <!ENTITY f-link-Dictionary "<link linkend='f-Dictionary' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Dictionary</function></link>">
 <!ENTITY f-link-Dir "<link linkend='f-Dir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Dir</function></link>">
 <!ENTITY f-link-Dump "<link linkend='f-Dump' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Dump</function></link>">
@@ -280,6 +283,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-env-Default "<link linkend='f-Default' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Default</function></link>">
 <!ENTITY f-link-env-DefaultEnvironment "<link linkend='f-DefaultEnvironment' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.DefaultEnvironment</function></link>">
 <!ENTITY f-link-env-Depends "<link linkend='f-Depends' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Depends</function></link>">
+<!ENTITY f-link-env-Detect "<link linkend='f-Detect' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Detect</function></link>">
 <!ENTITY f-link-env-Dictionary "<link linkend='f-Dictionary' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Dictionary</function></link>">
 <!ENTITY f-link-env-Dir "<link linkend='f-Dir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Dir</function></link>">
 <!ENTITY f-link-env-Dump "<link linkend='f-Dump' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Dump</function></link>">

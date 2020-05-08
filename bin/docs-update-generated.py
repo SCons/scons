@@ -27,7 +27,7 @@ def generate_all():
         to generate the *.gen/*.mod files from it.
     """
     flist = []
-    for path, dirs, files in os.walk('src'):
+    for path, dirs, files in os.walk('SCons'):
         for f in files:
             if f.endswith('.xml'):
                 fpath = os.path.join(path, f)

@@ -28,7 +28,7 @@ import os
 
 env = Environment(ENV={'PATH' : os.environ['PATH']},
                   tools=['docbook'], 
-                  toolpath=['../../src/engine/SCons/Tool'])
+                  toolpath=['../../SCons/Tool'])
 
 has_pdf = False
 if (env.WhereIs('fop') or 
