@@ -105,10 +105,10 @@ CPP_Expression = re.compile(e, re.M)
 # A list with RE to cleanup CPP Expressions (tuples)
 # We should remove all comments and carriage returns (\r) before evaluating
 CPP_Expression_Cleaner_List = [
-    "/\*.*\*/",
-    "/\*.*",
-    "//.*",
-    "\r"
+    r"/\*.*\*/",
+    r"/\*.*",
+    r"//.*",
+    r"\r"
 ]
 CPP_Expression_Cleaner_RE = re.compile(
     r"\s*(" + "|".join(CPP_Expression_Cleaner_List) + ")")

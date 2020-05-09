@@ -142,6 +142,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       has different function.
     - Update xml files in SCons to reflect changed relative paths after
       code restructuring (src/engine/SCons -> SCons)
+    - Preliminary Python 3.9 support - elimination of some warnings.
 
 
 

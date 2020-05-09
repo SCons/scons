@@ -24,7 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""
+r"""
 Test to confirm that Dir(drive_path).abspath works on Windows. This verifies
 that SCons no longer has an issue with Dir('T:').abspath returning 'T:\T:'.
 Instead, it verifies that Dir('T:') correctly returns an instance of the
