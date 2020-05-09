@@ -31,6 +31,7 @@ When loaded, the scanner will attempt to find implicit
 dependencies for any Python source files in the list of sources
 provided to an Action that uses this environment.
 </para>
+<para><emphasis>Available since &scons; 4.0.</emphasis>.</para>
 </summary>
 </tool>
 
