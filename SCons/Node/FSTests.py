@@ -32,7 +32,7 @@ import unittest
 import shutil
 import stat
 
-from TestCmd import TestCmd
+from TestCmd import TestCmd, IS_WINDOWS
 import TestUnit
 
 import SCons.Errors
@@ -3541,57 +3541,64 @@ class prepareTestCase(unittest.TestCase):
         dir = fs.Dir("dir")
         dir.prepare()
 
+# @unittest.skipIf(IS_WINDOWS, "No symlinks on windows")
+# @unittest.skipUnless(hasattr(os, 'symlink'), "Platform doesn't support symlink")
+class CleanSymlinksTestCase(_tempdirTestCase):
 
-if sys.platform != 'win32' and hasattr(os, 'symlink'):
-    class CleanSymlinksTestCase(_tempdirTestCase):
+    def test_cleans_symlinks(self):
+        """Test the prepare() method will cleanup symlinks."""
 
-        def test_cleans_symlinks(self):
-            """Test the prepare() method will cleanup symlinks."""
-            with open("foo", "w") as foo:
-                foo.write("baz")
+        test = self.test
 
-            os.symlink("foo", "bar")
-            bar = self.fs.File("bar")
-            bar.side_effect = True
-            bar.set_state(0)
-            assert bar.exists()
+        with open(test.workpath("foo"), "w") as foo:
+            foo.write("baz")
 
-            bar.prepare()
-            try:
-                os.lstat("bar")
-                assert False, "bar should not exist"
-            except FileNotFoundError:
-                pass
+        os.symlink(test.workpath("foo"), test.workpath("bar"))
+        bar = self.fs.File(test.workpath("bar"))
+        bar.side_effect = True
+        bar.set_state(0)
+        assert bar.exists(), "Symlink %s should not exist after prepare"%str(bar)
 
-            os.stat("foo")
+        bar.prepare()
+        try:
+            os.lstat(test.workpath("bar"))
+            assert False, "bar should not exist"
+        except FileNotFoundError:
+            pass
 
+        try:
+            os.stat(test.workpath("foo"))
+        except FileNotFoundError:
+            test.fail('Real file %s should not be removed'%test.workpath('foo'))
 
-        def test_cleans_dangling_symlinks(self):
-            """Test the prepare() method will cleanup dangling symlinks."""
-            with open("foo", "w") as foo:
-                foo.write("baz")
+    def test_cleans_dangling_symlinks(self):
+        """Test the prepare() method will cleanup dangling symlinks."""
+        test = self.test
 
-            os.symlink("foo", "bar")
-            os.remove("foo")
-            try:
-                os.stat("foo")
-                assert False, "foo should not exist"
-            except FileNotFoundError:
-                pass
+        with open(test.workpath("foo"), "w") as foo:
+            foo.write("baz")
 
-            bar = self.fs.File("bar")
-            bar.side_effect = True
-            bar.set_state(0)
+        os.symlink(test.workpath("foo"), test.workpath("bar"))
+        os.remove(test.workpath("foo"))
+        try:
+            os.stat(test.workpath("foo"))
+            assert False, "foo should not exist"
+        except FileNotFoundError:
+            pass
 
-            # Dangling links should report not exists
-            assert not bar.exists()
+        bar = self.fs.File(test.workpath("bar"))
+        bar.side_effect = True
+        bar.set_state(0)
 
-            bar.prepare()
-            try:
-                os.lstat("bar")
-                assert False, "bar should not exist"
-            except FileNotFoundError:
-                pass
+        # Dangling links should report not exists
+        assert not bar.exists()
+
+        bar.prepare()
+        try:
+            os.lstat(test.workpath("bar"))
+            assert False, "bar [%s] should not exist"%test.workpath("bar")
+        except FileNotFoundError:
+            pass
 
 
 class SConstruct_dirTestCase(unittest.TestCase):

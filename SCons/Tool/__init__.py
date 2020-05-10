@@ -1275,13 +1275,17 @@ def tool_list(platform, env):
         'tar', 'zip',
         # File builders (text)
         'textfile',
-        # Python scanner tool
-        'python',
     ], env)
 
-    tools = ([linker, c_compiler, cxx_compiler,
-              fortran_compiler, assembler, ar, d_compiler]
-             + other_tools)
+    tools = [
+        linker,
+        c_compiler,
+        cxx_compiler,
+        fortran_compiler,
+        assembler,
+        ar,
+        d_compiler,
+    ] + other_tools
 
     return [x for x in tools if x]
 
