@@ -10,7 +10,7 @@
 #  - end-to-end tests  - these are *.py files in test/ directory that
 #                        require custom SCons framework from testing/
 #
-# This script adds src/ and testing/ directories to PYTHONPATH,
+# This script adds SCons/ and testing/ directories to PYTHONPATH,
 # performs test discovery and processes them according to options.
 #
 # With -p (--package) option, script tests specified package from
@@ -603,18 +603,18 @@ else:
     testpaths = []
 
     # Each test path specifies a test file, or a directory to search for
-    # SCons tests. SCons code layout assumes that any file under the 'src'
+    # SCons tests. SCons code layout assumes that any file under the 'SCons'
     # subdirectory that ends with 'Tests.py' is a unit test, and any Python
     # script (*.py) under the 'test' subdirectory an end-to-end test.
     # We need to track these because they are invoked differently.
     #
-    # Note that there are some tests under 'src' that *begin* with
+    # Note that there are some tests under 'SCons' that *begin* with
     # 'test_', but they're packaging and installation tests, not
     # functional tests, so we don't execute them by default.  (They can
     # still be executed by hand, though).
 
     if options.all:
-        testpaths = ['src', 'test']
+        testpaths = ['SCons', 'test']
     elif args:
         testpaths = args
 
@@ -629,7 +629,7 @@ else:
         # sys.stderr.write("to:%s\n"%tp)
         for path in glob.glob(tp):
             if os.path.isdir(path):
-                if path.startswith('src') or path.startswith('testing'):
+                if path.startswith('SCons') or path.startswith('testing'):
                     for p in find_unit_tests(path):
                         unittests.append(p)
                 elif path.startswith('test'):
