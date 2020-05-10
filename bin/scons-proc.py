@@ -115,8 +115,6 @@ class SCons_XML(object):
         self.write_mod(mod)
         
     def write_gen(self, filename):
-        print(f"DEBUG: write_gen({filename})")
-        print(f"values={self.values}")
         if not filename:
             return
         # Try to split off .gen filename

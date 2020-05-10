@@ -830,10 +830,12 @@ Sets construction variables for the <application>pdftex</application> utility.
   <varlistentry id="t-python">
     <term>python</term>
     <listitem><para>
-Loads the Python scanner scanner into the invoking environment. When loaded, the scanner will
-attempt to find implicit dependencies for any Python source files in the list of sources
-provided to an actual that uses this environment.
+Loads the Python source scanner into the invoking environment.
+When loaded, the scanner will attempt to find implicit
+dependencies for any Python source files in the list of sources
+provided to an Action that uses this environment.
 </para>
+<para><emphasis>Available since <command>scons</command> 4.0.</emphasis>.</para>
 </listitem>
   </varlistentry>
   <varlistentry id="t-qt">
