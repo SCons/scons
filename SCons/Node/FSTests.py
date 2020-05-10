@@ -3541,8 +3541,8 @@ class prepareTestCase(unittest.TestCase):
         dir = fs.Dir("dir")
         dir.prepare()
 
-# @unittest.skipIf(IS_WINDOWS, "No symlinks on windows")
-# @unittest.skipUnless(hasattr(os, 'symlink'), "Platform doesn't support symlink")
+@unittest.skipIf(IS_WINDOWS, "No symlinks on windows")
+@unittest.skipUnless(hasattr(os, 'symlink'), "Platform doesn't support symlink")
 class CleanSymlinksTestCase(_tempdirTestCase):
 
     def test_cleans_symlinks(self):
