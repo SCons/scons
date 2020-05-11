@@ -833,6 +833,7 @@ which corresponds to -Q.
     Note: The initial progress output will still be output as this is done before the SConstruct/SConscript which contains the SetOption is processed
     <literal>scons: Reading SConscript files ...</literal>
 </para>
+<para><emphasis>Available since &scons; 4.0.</emphasis></para>
 </listitem>
 </varlistentry>
 <varlistentry>
