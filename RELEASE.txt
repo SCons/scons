@@ -47,6 +47,7 @@
 
   FIXES
 
+    - Cleanup dangling symlinks before running builders (Issue #3516)
     - Fixed usage of abspath and path for RootDir objects on Windows. Previously
       env.fs.Dir("T:").abspath would return "T:\T:" and now it correctly returns "T:".
     - Fix Issue #3469 - Fixed improper reuse of temporary and compiled files by Configure when changing
