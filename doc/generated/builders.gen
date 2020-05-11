@@ -14,7 +14,7 @@
 <variablelist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.scons.org/dbxsd/v1.0" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
   <varlistentry id="b-CFile">
     <term><function>CFile</function>()</term>
-    <term><parameter>env</parameter>.<methodname>CFile</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>CFile</methodname>()</term>
     <listitem><para>
 Builds a C source file given a lex (<filename>.l</filename>)
 or yacc (<filename>.y</filename>) input file.
@@ -35,7 +35,7 @@ env.CFile(target = 'bar', source = 'bar.y')
   </varlistentry>
   <varlistentry id="b-Command">
     <term><function>Command</function>()</term>
-    <term><parameter>env</parameter>.<methodname>Command</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>Command</methodname>()</term>
     <listitem><para>
 The <function>Command</function> "Builder" is actually
 a function that looks like a Builder,
@@ -52,7 +52,7 @@ for the calling syntax and details.
   </varlistentry>
   <varlistentry id="b-CXXFile">
     <term><function>CXXFile</function>()</term>
-    <term><parameter>env</parameter>.<methodname>CXXFile</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>CXXFile</methodname>()</term>
     <listitem><para>
 Builds a C++ source file given a lex (<filename>.ll</filename>)
 or yacc (<filename>.yy</filename>)
@@ -74,7 +74,7 @@ env.CXXFile(target = 'bar', source = 'bar.yy')
   </varlistentry>
   <varlistentry id="b-DocbookEpub">
     <term><function>DocbookEpub</function>()</term>
-    <term><parameter>env</parameter>.<methodname>DocbookEpub</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>DocbookEpub</methodname>()</term>
     <listitem><para>
 A pseudo-Builder, providing a Docbook toolchain for EPUB output.
 </para>
@@ -95,7 +95,7 @@ env.DocbookEpub('manual')
   </varlistentry>
   <varlistentry id="b-DocbookHtml">
     <term><function>DocbookHtml</function>()</term>
-    <term><parameter>env</parameter>.<methodname>DocbookHtml</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>DocbookHtml</methodname>()</term>
     <listitem><para>
 A pseudo-Builder, providing a Docbook toolchain for HTML output.
 </para>
@@ -112,7 +112,7 @@ env.DocbookHtml('manual')
   </varlistentry>
   <varlistentry id="b-DocbookHtmlChunked">
     <term><function>DocbookHtmlChunked</function>()</term>
-    <term><parameter>env</parameter>.<methodname>DocbookHtmlChunked</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>DocbookHtmlChunked</methodname>()</term>
     <listitem><para>
 A pseudo-Builder, providing a Docbook toolchain for chunked HTML output.
 It supports the <literal>base.dir</literal> parameter. The 
@@ -147,7 +147,7 @@ your files get renamed only!
   </varlistentry>
   <varlistentry id="b-DocbookHtmlhelp">
     <term><function>DocbookHtmlhelp</function>()</term>
-    <term><parameter>env</parameter>.<methodname>DocbookHtmlhelp</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>DocbookHtmlhelp</methodname>()</term>
     <listitem><para>
 A pseudo-Builder, providing a Docbook toolchain for HTMLHELP output.
 Its basic syntax is:
@@ -183,7 +183,7 @@ your files get renamed only!
   </varlistentry>
   <varlistentry id="b-DocbookMan">
     <term><function>DocbookMan</function>()</term>
-    <term><parameter>env</parameter>.<methodname>DocbookMan</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>DocbookMan</methodname>()</term>
     <listitem><para>
 A pseudo-Builder, providing a Docbook toolchain for Man page output.
 Its basic syntax is:
@@ -201,7 +201,7 @@ set from the <literal>refname</literal> entries in your XML source.
   </varlistentry>
   <varlistentry id="b-DocbookPdf">
     <term><function>DocbookPdf</function>()</term>
-    <term><parameter>env</parameter>.<methodname>DocbookPdf</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>DocbookPdf</methodname>()</term>
     <listitem><para>
 A pseudo-Builder, providing a Docbook toolchain for PDF output.
 </para>
@@ -222,7 +222,7 @@ env.DocbookPdf('manual')
   </varlistentry>
   <varlistentry id="b-DocbookSlidesHtml">
     <term><function>DocbookSlidesHtml</function>()</term>
-    <term><parameter>env</parameter>.<methodname>DocbookSlidesHtml</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>DocbookSlidesHtml</methodname>()</term>
     <listitem><para>
 A pseudo-Builder, providing a Docbook toolchain for HTML slides output.
 </para>
@@ -256,7 +256,7 @@ your files get renamed only!
   </varlistentry>
   <varlistentry id="b-DocbookSlidesPdf">
     <term><function>DocbookSlidesPdf</function>()</term>
-    <term><parameter>env</parameter>.<methodname>DocbookSlidesPdf</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>DocbookSlidesPdf</methodname>()</term>
     <listitem><para>
 A pseudo-Builder, providing a Docbook toolchain for PDF slides output.
 </para>
@@ -276,7 +276,7 @@ env.DocbookSlidesPdf('manual')
   </varlistentry>
   <varlistentry id="b-DocbookXInclude">
     <term><function>DocbookXInclude</function>()</term>
-    <term><parameter>env</parameter>.<methodname>DocbookXInclude</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>DocbookXInclude</methodname>()</term>
     <listitem><para>
 A pseudo-Builder, for resolving XIncludes in a separate processing step.
 </para>
@@ -288,7 +288,7 @@ env.DocbookXInclude('manual_xincluded.xml', 'manual.xml')
   </varlistentry>
   <varlistentry id="b-DocbookXslt">
     <term><function>DocbookXslt</function>()</term>
-    <term><parameter>env</parameter>.<methodname>DocbookXslt</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>DocbookXslt</methodname>()</term>
     <listitem><para>
 A pseudo-Builder, applying a given XSL transformation to the input file.
 </para>
@@ -304,7 +304,7 @@ to be set.
   </varlistentry>
   <varlistentry id="b-DVI">
     <term><function>DVI</function>()</term>
-    <term><parameter>env</parameter>.<methodname>DVI</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>DVI</methodname>()</term>
     <listitem><para>
 Builds a <filename>.dvi</filename> file
 from a <filename>.tex</filename>,
@@ -358,7 +358,7 @@ env.DVI(target = 'ccc.dvi', source = 'ccc.latex')
   </varlistentry>
   <varlistentry id="b-Gs">
     <term><function>Gs</function>()</term>
-    <term><parameter>env</parameter>.<methodname>Gs</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>Gs</methodname>()</term>
     <listitem><para>
 A Builder for explicitly calling the <literal>gs</literal> executable.
 Depending on the underlying OS, the different names <literal>gs</literal>,
@@ -374,7 +374,7 @@ env.Gs('cover.jpg','scons-scons.pdf',
   </varlistentry>
   <varlistentry id="b-Install">
     <term><function>Install</function>()</term>
-    <term><parameter>env</parameter>.<methodname>Install</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>Install</methodname>()</term>
     <listitem><para>
 Installs one or more source files or directories
 in the specified target,
@@ -422,7 +422,7 @@ and the chapters on Installing Files and on Alias Targets).
   </varlistentry>
   <varlistentry id="b-InstallAs">
     <term><function>InstallAs</function>()</term>
-    <term><parameter>env</parameter>.<methodname>InstallAs</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>InstallAs</methodname>()</term>
     <listitem><para>
 Installs one or more source files or directories
 to specific names,
@@ -450,7 +450,7 @@ See the note under <function>Install</function>.
   </varlistentry>
   <varlistentry id="b-InstallVersionedLib">
     <term><function>InstallVersionedLib</function>()</term>
-    <term><parameter>env</parameter>.<methodname>InstallVersionedLib</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>InstallVersionedLib</methodname>()</term>
     <listitem><para>
 Installs a versioned shared library. The symlinks appropriate to the
 architecture will be generated based on symlinks of the source library.
@@ -469,7 +469,7 @@ See the note under <function>Install</function>.
   </varlistentry>
   <varlistentry id="b-Jar">
     <term><function>Jar</function>()</term>
-    <term><parameter>env</parameter>.<methodname>Jar</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>Jar</methodname>()</term>
     <listitem><para>
 Builds a Java archive (<filename>.jar</filename>) file
 from the specified list of sources.
@@ -513,7 +513,7 @@ env.Jar(target = 'bar.jar',
   </varlistentry>
   <varlistentry id="b-Java">
     <term><function>Java</function>()</term>
-    <term><parameter>env</parameter>.<methodname>Java</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>Java</methodname>()</term>
     <listitem><para>
                 Builds one or more Java class files.
                 The sources may be any combination of explicit
@@ -588,7 +588,7 @@ env['ENV']['LANG'] = 'en_GB.UTF-8'
   </varlistentry>
   <varlistentry id="b-JavaH">
     <term><function>JavaH</function>()</term>
-    <term><parameter>env</parameter>.<methodname>JavaH</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>JavaH</methodname>()</term>
     <listitem><para>
 Builds C header and source files for
 implementing Java native methods.
@@ -640,7 +640,7 @@ env.JavaH(
   </varlistentry>
   <varlistentry id="b-Library">
     <term><function>Library</function>()</term>
-    <term><parameter>env</parameter>.<methodname>Library</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>Library</methodname>()</term>
     <listitem><para>
 A synonym for the
 <function>StaticLibrary</function>
@@ -650,7 +650,7 @@ builder method.
   </varlistentry>
   <varlistentry id="b-LoadableModule">
     <term><function>LoadableModule</function>()</term>
-    <term><parameter>env</parameter>.<methodname>LoadableModule</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>LoadableModule</methodname>()</term>
     <listitem><para>
 On most systems,
 this is the same as
@@ -662,7 +662,7 @@ this creates a loadable module bundle.
   </varlistentry>
   <varlistentry id="b-M4">
     <term><function>M4</function>()</term>
-    <term><parameter>env</parameter>.<methodname>M4</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>M4</methodname>()</term>
     <listitem><para>
 Builds an output file from an M4 input file.
 This uses a default <link linkend="cv-M4FLAGS"><envar>$M4FLAGS</envar></link> value of
@@ -680,7 +680,7 @@ env.M4(target = 'foo.c', source = 'foo.c.m4')
   </varlistentry>
   <varlistentry id="b-Moc">
     <term><function>Moc</function>()</term>
-    <term><parameter>env</parameter>.<methodname>Moc</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>Moc</methodname>()</term>
     <listitem><para>
 Builds an output file from a moc input file. Moc input files are either
 header files or cxx files. This builder is only available after using the
@@ -696,7 +696,7 @@ env.Moc('foo.cpp') # generates foo.moc
   </varlistentry>
   <varlistentry id="b-MOFiles">
     <term><function>MOFiles</function>()</term>
-    <term><parameter>env</parameter>.<methodname>MOFiles</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>MOFiles</methodname>()</term>
     <listitem><para>
 This builder belongs to <link linkend="t-msgfmt"><literal>msgfmt</literal></link> tool. The builder compiles
 <literal>PO</literal> files to <literal>MO</literal> files.
@@ -746,7 +746,7 @@ Compile files for languages defined in <filename>LINGUAS</filename> file
   </varlistentry>
   <varlistentry id="b-MSVSProject">
     <term><function>MSVSProject</function>()</term>
-    <term><parameter>env</parameter>.<methodname>MSVSProject</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>MSVSProject</methodname>()</term>
     <listitem><para>
         Builds a Microsoft Visual Studio project file, and by default
         builds a solution file as well.
@@ -1100,7 +1100,7 @@ env.MSVSProject(target='Bar' + env['MSVSPROJECTSUFFIX'],
   </varlistentry>
   <varlistentry id="b-MSVSSolution">
     <term><function>MSVSSolution</function>()</term>
-    <term><parameter>env</parameter>.<methodname>MSVSSolution</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>MSVSSolution</methodname>()</term>
     <listitem><para>Builds a Microsoft Visual Studio solution file.</para>
       <para>
         This builds a Visual Studio solution file, based on the
@@ -1161,7 +1161,7 @@ env.MSVSSolution(
   </varlistentry>
   <varlistentry id="b-Object">
     <term><function>Object</function>()</term>
-    <term><parameter>env</parameter>.<methodname>Object</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>Object</methodname>()</term>
     <listitem><para>
 A synonym for the
 <function>StaticObject</function>
@@ -1171,7 +1171,7 @@ builder method.
   </varlistentry>
   <varlistentry id="b-Package">
     <term><function>Package</function>()</term>
-    <term><parameter>env</parameter>.<methodname>Package</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>Package</methodname>()</term>
     <listitem><para>
 Builds a Binary Package of the given source files.
 </para>
@@ -1246,7 +1246,7 @@ env.Package(
   </varlistentry>
   <varlistentry id="b-PCH">
     <term><function>PCH</function>()</term>
-    <term><parameter>env</parameter>.<methodname>PCH</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>PCH</methodname>()</term>
     <listitem><para>
 Builds a Microsoft Visual C++ precompiled header.
 Calling this builder method
@@ -1266,7 +1266,7 @@ env['PCH'] = env.PCH('StdAfx.cpp')[0]
   </varlistentry>
   <varlistentry id="b-PDF">
     <term><function>PDF</function>()</term>
-    <term><parameter>env</parameter>.<methodname>PDF</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>PDF</methodname>()</term>
     <listitem><para>
 Builds a <filename>.pdf</filename> file
 from a <filename>.dvi</filename> input file
@@ -1290,7 +1290,7 @@ env.PDF(target = 'bbb', source = 'bbb.dvi')
   </varlistentry>
   <varlistentry id="b-POInit">
     <term><function>POInit</function>()</term>
-    <term><parameter>env</parameter>.<methodname>POInit</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>POInit</methodname>()</term>
     <listitem><para>
 This builder belongs to <link linkend="t-msginit"><literal>msginit</literal></link> tool. The builder initializes missing
 <literal>PO</literal> file(s) if <link linkend="cv-POAUTOINIT"><envar>$POAUTOINIT</envar></link> is set.  If
@@ -1391,7 +1391,7 @@ which has same efect as:
   </varlistentry>
   <varlistentry id="b-PostScript">
     <term><function>PostScript</function>()</term>
-    <term><parameter>env</parameter>.<methodname>PostScript</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>PostScript</methodname>()</term>
     <listitem><para>
 Builds a <filename>.ps</filename> file
 from a <filename>.dvi</filename> input file
@@ -1415,7 +1415,7 @@ env.PostScript(target = 'bbb', source = 'bbb.dvi')
   </varlistentry>
   <varlistentry id="b-POTUpdate">
     <term><function>POTUpdate</function>()</term>
-    <term><parameter>env</parameter>.<methodname>POTUpdate</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>POTUpdate</methodname>()</term>
     <listitem><para>
 The builder belongs to <link linkend="t-xgettext"><literal>xgettext</literal></link> tool. The builder updates target
 <literal>POT</literal> file if exists or creates one if it doesn't. The node is
@@ -1580,7 +1580,7 @@ then the <filename>messages.pot</filename> will contain
   </varlistentry>
   <varlistentry id="b-POUpdate">
     <term><function>POUpdate</function>()</term>
-    <term><parameter>env</parameter>.<methodname>POUpdate</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>POUpdate</methodname>()</term>
     <listitem><para>
 The builder belongs to <link linkend="t-msgmerge"><literal>msgmerge</literal></link> tool. The builder updates
 <literal>PO</literal> files with <command>msgmerge(1)</command>, or initializes
@@ -1692,7 +1692,7 @@ pre-configured via environment.
   </varlistentry>
   <varlistentry id="b-Program">
     <term><function>Program</function>()</term>
-    <term><parameter>env</parameter>.<methodname>Program</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>Program</methodname>()</term>
     <listitem><para>
 Builds an executable given one or more object files
 or C, C++, D, or Fortran source files.
@@ -1721,7 +1721,7 @@ env.Program(target = 'foo', source = ['foo.o', 'bar.c', 'baz.f'])
   </varlistentry>
   <varlistentry id="b-ProgramAllAtOnce">
     <term><function>ProgramAllAtOnce</function>()</term>
-    <term><parameter>env</parameter>.<methodname>ProgramAllAtOnce</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>ProgramAllAtOnce</methodname>()</term>
     <listitem><para>
     Builds an executable from D sources without first creating individual
     objects for each file.
@@ -1747,7 +1747,7 @@ env.Program(target = 'foo', source = ['foo.o', 'bar.c', 'baz.f'])
   </varlistentry>
   <varlistentry id="b-RES">
     <term><function>RES</function>()</term>
-    <term><parameter>env</parameter>.<methodname>RES</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>RES</methodname>()</term>
     <listitem><para>
 Builds a Microsoft Visual C++ resource file.
 This builder method is only provided
@@ -1768,7 +1768,7 @@ env.RES('resource.rc')
   </varlistentry>
   <varlistentry id="b-RMIC">
     <term><function>RMIC</function>()</term>
-    <term><parameter>env</parameter>.<methodname>RMIC</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>RMIC</methodname>()</term>
     <listitem><para>
 Builds stub and skeleton class files
 for remote objects
@@ -1810,7 +1810,7 @@ env.RMIC(target = 'outdir3',
   </varlistentry>
   <varlistentry id="b-RPCGenClient">
     <term><function>RPCGenClient</function>()</term>
-    <term><parameter>env</parameter>.<methodname>RPCGenClient</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>RPCGenClient</methodname>()</term>
     <listitem><para>
 Generates an RPC client stub (<filename>_clnt.c</filename>) file
 from a specified RPC (<filename>.x</filename>) source file.
@@ -1828,7 +1828,7 @@ env.RPCGenClient('src/rpcif.x')
   </varlistentry>
   <varlistentry id="b-RPCGenHeader">
     <term><function>RPCGenHeader</function>()</term>
-    <term><parameter>env</parameter>.<methodname>RPCGenHeader</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>RPCGenHeader</methodname>()</term>
     <listitem><para>
 Generates an RPC header (<filename>.h</filename>) file
 from a specified RPC (<filename>.x</filename>) source file.
@@ -1846,7 +1846,7 @@ env.RPCGenHeader('src/rpcif.x')
   </varlistentry>
   <varlistentry id="b-RPCGenService">
     <term><function>RPCGenService</function>()</term>
-    <term><parameter>env</parameter>.<methodname>RPCGenService</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>RPCGenService</methodname>()</term>
     <listitem><para>
 Generates an RPC server-skeleton (<filename>_svc.c</filename>) file
 from a specified RPC (<filename>.x</filename>) source file.
@@ -1864,7 +1864,7 @@ env.RPCGenClient('src/rpcif.x')
   </varlistentry>
   <varlistentry id="b-RPCGenXDR">
     <term><function>RPCGenXDR</function>()</term>
-    <term><parameter>env</parameter>.<methodname>RPCGenXDR</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>RPCGenXDR</methodname>()</term>
     <listitem><para>
 Generates an RPC XDR routine (<filename>_xdr.c</filename>) file
 from a specified RPC (<filename>.x</filename>) source file.
@@ -1882,7 +1882,7 @@ env.RPCGenClient('src/rpcif.x')
   </varlistentry>
   <varlistentry id="b-SharedLibrary">
     <term><function>SharedLibrary</function>()</term>
-    <term><parameter>env</parameter>.<methodname>SharedLibrary</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>SharedLibrary</methodname>()</term>
     <listitem><para>
 Builds a shared library
 (<filename>.so</filename> on a POSIX system,
@@ -1999,7 +1999,7 @@ when it is done linking it.
   </varlistentry>
   <varlistentry id="b-SharedObject">
     <term><function>SharedObject</function>()</term>
-    <term><parameter>env</parameter>.<methodname>SharedObject</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>SharedObject</methodname>()</term>
     <listitem><para>
 Builds an object file for
 inclusion in a shared library.
@@ -2046,7 +2046,7 @@ below, for more information.
   </varlistentry>
   <varlistentry id="b-StaticLibrary">
     <term><function>StaticLibrary</function>()</term>
-    <term><parameter>env</parameter>.<methodname>StaticLibrary</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>StaticLibrary</methodname>()</term>
     <listitem><para>
 Builds a static library given one or more object files
 or C, C++, D or Fortran source files.
@@ -2085,7 +2085,7 @@ will raise an error if there is any mismatch.
   </varlistentry>
   <varlistentry id="b-StaticObject">
     <term><function>StaticObject</function>()</term>
-    <term><parameter>env</parameter>.<methodname>StaticObject</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>StaticObject</methodname>()</term>
     <listitem><para>
 Builds a static object file
 from one or more C, C++, D, or Fortran source files.
@@ -2152,7 +2152,7 @@ below, for more information.
   </varlistentry>
   <varlistentry id="b-Substfile">
     <term><function>Substfile</function>()</term>
-    <term><parameter>env</parameter>.<methodname>Substfile</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>Substfile</methodname>()</term>
     <listitem><para>
 The <function>Substfile</function> builder creates a single text file from another file or set of
 files by concatenating them with <envar>$LINESEPARATOR</envar> and replacing text
@@ -2237,7 +2237,7 @@ subst.Substfile('pgm2.c', [Value('#include "@foo@.h"'),
   </varlistentry>
   <varlistentry id="b-Tar">
     <term><function>Tar</function>()</term>
-    <term><parameter>env</parameter>.<methodname>Tar</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>Tar</methodname>()</term>
     <listitem><para>
 Builds a tar archive of the specified files
 and/or directories.
@@ -2278,7 +2278,7 @@ env.Tar('foo')
   </varlistentry>
   <varlistentry id="b-Textfile">
     <term><function>Textfile</function>()</term>
-    <term><parameter>env</parameter>.<methodname>Textfile</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>Textfile</methodname>()</term>
     <listitem><para>
 The <function>Textfile</function> builder generates a single text file.
 The source strings constitute the lines;
@@ -2344,7 +2344,7 @@ blob.txt
   </varlistentry>
   <varlistentry id="b-Translate">
     <term><function>Translate</function>()</term>
-    <term><parameter>env</parameter>.<methodname>Translate</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>Translate</methodname>()</term>
     <listitem><para>
 This pseudo-builder belongs to <link linkend="t-gettext"><literal>gettext</literal></link> toolset. The builder extracts
 internationalized messages from source files, updates <literal>POT</literal>
@@ -2477,7 +2477,7 @@ running <command>scons '.'</command>.</para></note>
   </varlistentry>
   <varlistentry id="b-TypeLibrary">
     <term><function>TypeLibrary</function>()</term>
-    <term><parameter>env</parameter>.<methodname>TypeLibrary</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>TypeLibrary</methodname>()</term>
     <listitem><para>
 Builds a Windows type library (<filename>.tlb</filename>)
 file from an input IDL file (<filename>.idl</filename>).
@@ -2504,7 +2504,7 @@ files.
   </varlistentry>
   <varlistentry id="b-Uic">
     <term><function>Uic</function>()</term>
-    <term><parameter>env</parameter>.<methodname>Uic</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>Uic</methodname>()</term>
     <listitem><para>
 Builds a header file, an implementation file and a moc file from an ui file.
 and returns the corresponding nodes in the above order.
@@ -2528,7 +2528,7 @@ env.Uic(target = Split('include/foo.h gen/uicfoo.cc gen/mocfoo.cc'),
   </varlistentry>
   <varlistentry id="b-Zip">
     <term><function>Zip</function>()</term>
-    <term><parameter>env</parameter>.<methodname>Zip</methodname>()</term>
+    <term><replaceable>env</replaceable>.<methodname>Zip</methodname>()</term>
     <listitem><para>
 Builds a zip archive of the specified files
 and/or directories.

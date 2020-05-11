@@ -121,12 +121,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY b-env-Zip "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Zip</function>">
 
 <!--
-THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
--->
 
-<!--
-
-  Entities that are links to the builder entries in the appendix.
+  Entities that are links to the builder entries
 
 -->
 
@@ -241,7 +237,3 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY b-link-env-TypeLibrary "<link linkend='b-TypeLibrary' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.TypeLibrary</function></link>">
 <!ENTITY b-link-env-Uic "<link linkend='b-Uic' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Uic</function></link>">
 <!ENTITY b-link-env-Zip "<link linkend='b-Zip' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Zip</function></link>">
-
-<!--
-THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
--->

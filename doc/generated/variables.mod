@@ -643,12 +643,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-ZIPSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$ZIPSUFFIX</envar>">
 
 <!--
-THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
--->
 
-<!--
-
-  Entities that are links to the construction variable entries in the appendix.
+  Entities that are links to the construction variable entries
 
 -->
 
@@ -1285,7 +1281,3 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-ZIPFLAGS "<link linkend='cv-ZIPFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$ZIPFLAGS</envar></link>">
 <!ENTITY cv-link-ZIPROOT "<link linkend='cv-ZIPROOT' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$ZIPROOT</envar></link>">
 <!ENTITY cv-link-ZIPSUFFIX "<link linkend='cv-ZIPSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$ZIPSUFFIX</envar></link>">
-
-<!--
-THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
--->

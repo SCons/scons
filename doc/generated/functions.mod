@@ -171,12 +171,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-env-WhereIs "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.WhereIs</function>">
 
 <!--
-THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
--->
 
-<!--
-
-  Entities that are links to the function entries in the appendix.
+  Entities that are links to the function entries
 
 -->
 
@@ -341,7 +337,3 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-env-Value "<link linkend='f-Value' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Value</function></link>">
 <!ENTITY f-link-env-VariantDir "<link linkend='f-VariantDir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.VariantDir</function></link>">
 <!ENTITY f-link-env-WhereIs "<link linkend='f-WhereIs' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.WhereIs</function></link>">
-
-<!--
-THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
--->
