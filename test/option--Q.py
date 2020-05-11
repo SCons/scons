@@ -31,7 +31,6 @@ import TestSCons
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
-test.verbose_set(1)
 
 
 test.write('build.py', r"""

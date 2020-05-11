@@ -11,7 +11,9 @@ NOTE: Please include a reference to any Issues resolved by your changes in the b
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Daniel Moody:
-    - Add no_progress (-Q) option as a set-able option
+    - Add no_progress (-Q) option as a set-able option. However, setting it in the 
+      SConstruct/SConscript will still cause "scons: Reading SConscript files ..." to be
+      printed, since the option is not set when the build scripts first get read.
     - Added check for SONAME in environment to setup symlinks correctly (Github Issue #3246)
 
   From James Benton:
