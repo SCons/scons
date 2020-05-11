@@ -223,7 +223,7 @@ else:
         # that all example names and example output suffixes are unique
         #
         print("Validating files against SCons XSD...")
-        if SConsDoc.validate_all_xml(['src'], xsdfile='xsd/scons.xsd'):
+        if SConsDoc.validate_all_xml(['SCons'], xsdfile='xsd/scons.xsd'):
             print("OK")
         else:
             print("Validation failed! Please correct the errors above and try again.")
@@ -275,7 +275,7 @@ else:
     #
     # Copy DocBook stylesheets and Tool to the build folder
     #
-    dbtoolpath = ['src', 'engine', 'SCons', 'Tool', 'docbook']
+    dbtoolpath = ['SCons', 'Tool', 'docbook']
     copy_dbfiles(env, dbtoolpath, [], '__init__.py')
     copy_dbfiles(env, dbtoolpath, 'utils', 'xmldepend.xsl')
     dbpath = dbtoolpath + ['docbook-xsl-1.76.1']
@@ -291,7 +291,7 @@ else:
     #
     # Copy additional Tools (gs, zip)
     #
-    toolpath = ['src', 'engine', 'SCons', 'Tool']
+    toolpath = ['SCons', 'Tool']
     copy_dbfiles(env, toolpath, [], 'gs.py')
     copy_dbfiles(env, toolpath, [], 'zip.py')
 
@@ -505,7 +505,7 @@ if not skip_doc:
         # XXX Should be in common with reading the same thing in
         # the SConstruct file.
         # bootstrap.py runs outside of SCons, so need to process the path
-        e = Dir(os.path.join('#src', 'engine')).rstr()
+        e = Dir('#').rstr()
         sources = bootstrap.parseManifestLines(e, os.path.join(e, 'MANIFEST.in'))
 
         # Omit some files:

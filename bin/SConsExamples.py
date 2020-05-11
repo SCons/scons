@@ -417,7 +417,7 @@ sys.path.append(os.path.join(os.getcwd(), 'build', 'testing/framework'))
 
 scons_py = os.path.join('scripts', 'scons.py')
 scons_py = os.path.join(os.getcwd(), scons_py)
-scons_lib_dir = os.path.join(os.getcwd(), 'src', 'engine')
+scons_lib_dir = os.path.join(os.getcwd(), 'SCons')
 
 os.environ['SCONS_LIB_DIR'] = scons_lib_dir
 
@@ -825,7 +825,7 @@ def create_scons_output(e):
 
         # Massage file names in stack traces (sometimes reported as absolute
         # paths) to a consistent relative path.
-        engine_re = re.compile(r' File ".*/src/engine/SCons/')
+        engine_re = re.compile(r' File ".*/SCons/')
 
         # Python 2.5 changed the stack trace when the module is read
         # from standard input from read "... line 7, in ?" to
@@ -873,7 +873,7 @@ def create_scons_output(e):
             if not command.output and lines:
                 ncontent = '\n'.join(lines)
                 ncontent = address_re.sub(r' at 0x700000>', ncontent)
-                ncontent = engine_re.sub(r' File "src/engine/SCons/', ncontent)
+                ncontent = engine_re.sub(r' File "SCons/', ncontent)
                 ncontent = file_re.sub(r'\1 <module>', ncontent)
                 ncontent = nodelist_re.sub(r"\1 'NodeList' object \2", ncontent)
                 ncontent = ncontent.replace('__ROOT__', '')

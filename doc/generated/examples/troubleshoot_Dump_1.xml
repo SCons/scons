@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons</userinput>
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.scons.org/dbxsd/v1.0" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons</userinput>
 scons: Reading SConscript files ...
-{ 'BUILDERS': {'_InternalInstall': &lt;function InstallBuilderWrapper at 0x700000&gt;, '_InternalInstallVersionedLib': &lt;function InstallVersionedBuilderWrapper at 0x700000&gt;, '_InternalInstallAs': &lt;function InstallAsBuilderWrapper at 0x700000&gt;},
+{ 'BUILDERS': { '_InternalInstall': &lt;function InstallBuilderWrapper at 0x700000&gt;,
+                '_InternalInstallAs': &lt;function InstallAsBuilderWrapper at 0x700000&gt;,
+                '_InternalInstallVersionedLib': &lt;function InstallVersionedBuilderWrapper at 0x700000&gt;},
   'CONFIGUREDIR': '#/.sconf_temp',
   'CONFIGURELOG': '#/config.log',
   'CPPSUFFIXES': [ '.c',
@@ -27,7 +28,7 @@ scons: Reading SConscript files ...
   'DSUFFIXES': ['.d'],
   'Dir': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
   'Dirs': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
-  'ENV': { 'PATH': '/usr/local/bin:/opt/bin:/bin:/usr/bin'},
+  'ENV': {'PATH': '/usr/local/bin:/opt/bin:/bin:/usr/bin'},
   'ESCAPE': &lt;function escape at 0x700000&gt;,
   'File': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
   'HOST_ARCH': None,
@@ -60,9 +61,12 @@ scons: Reading SConscript files ...
   'TEMPFILEARGJOIN': ' ',
   'TEMPFILEPREFIX': '@',
   'TOOLS': ['install', 'install'],
-  '_CPPDEFFLAGS': '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
-  '_CPPINCFLAGS': '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
-  '_LIBDIRFLAGS': '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
+  '_CPPDEFFLAGS': '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, '
+                  '__env__)}',
+  '_CPPINCFLAGS': '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, '
+                  'TARGET, SOURCE)} $)',
+  '_LIBDIRFLAGS': '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, '
+                  'RDirs, TARGET, SOURCE)} $)',
   '_LIBFLAGS': '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
   '__DRPATH': '$_DRPATH',
   '__DSHLIBVERSIONFLAGS': '${__libversionflags(__env__,"DSHLIBVERSION","_DSHLIBVERSIONFLAGS")}',

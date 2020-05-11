@@ -137,6 +137,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       a document with tostring().
     - Fix description of ARCOMSTR constr. var. (issue 3636). Previously the text was a copy of ASCOMSTR which
       has different function.
+    - Update xml files in SCons to reflect changed relative paths after
+      code restructuring (src/engine/SCons -> SCons)
 
 
 

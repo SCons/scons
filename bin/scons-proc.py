@@ -93,12 +93,12 @@ Regular_Entities_Header = """\
 Link_Entities_Header = """\
 <!--
 
-  Entities that are links to the %s entries in the appendix.
+  Entities that are links to the %s entries
 
 -->
 """
 
-class SCons_XML(object):
+class SCons_XML:
     def __init__(self, entries, **kw):
         self.values = entries
         for k, v in kw.items():
@@ -206,8 +206,6 @@ class SCons_XML(object):
                             (v.prefix, v.idfunc(),
                              v.tag, SConsDoc.dbxsd, v.entityfunc(), v.tag))
         f.write('\n')
-        f.write(Warning)
-        f.write('\n')
         f.write(Link_Entities_Header % description)
         f.write('\n')
         for v in self.values:
@@ -222,8 +220,6 @@ class SCons_XML(object):
                             (v.prefix, v.idfunc(),
                              v.prefix, v.idfunc(), SConsDoc.dbxsd,
                              v.tag, v.entityfunc(), v.tag))
-        f.write('\n')
-        f.write(Warning)
         f.close()
 
 class Proxy(object):
@@ -232,8 +228,10 @@ class Proxy(object):
         self.__subject = subject
 
     def __getattr__(self, name):
-        """Retrieve an attribute from the wrapped object.  If the named
-           attribute doesn't exist, AttributeError is raised"""
+        """Retrieve an attribute from the wrapped object.
+
+        If the named attribute doesn't exist, AttributeError is raised
+        """
         return getattr(self.__subject, name)
 
     def get(self):
@@ -279,7 +277,7 @@ class Builder(SConsThing):
 
         # build term for env. method
         mterm = stf.newNode("term")
-        inst = stf.newSubNode(mterm, "parameter")
+        inst = stf.newSubNode(mterm, "replaceable")
         stf.setText(inst, "env")
         stf.setTail(inst, ".")
         # we could use <function> here, but it's a "method"
@@ -415,7 +413,7 @@ write_output_files(h, buildersfiles, functionsfiles, toolsfiles,
 
 # Step 2: Validating all input files
 print("Validating files against SCons XSD...")
-if SConsDoc.validate_all_xml(['src']):
+if SConsDoc.validate_all_xml(['SCons']):
     print("OK")
 else:
     print("Validation failed! Please correct the errors above and try again.")
