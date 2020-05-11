@@ -107,6 +107,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       unnecessary calls to eval when a token is surrounded in braces
       but is not a function call.
     - Improve performance of subst by removing unnecessary recursion.
+    - Cleanup dangling symlinks before running builders (Issue #3516)
 
   From Mats Wichmann:
     - Remove deprecated SourceCode

@@ -25,7 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify that we find tests under the src/ tree only if they end
+Verify that we find tests under the SCons/ tree only if they end
 with *Tests.py.
 """
 
@@ -35,21 +35,21 @@ import TestRuntest
 
 test = TestRuntest.TestRuntest()
 
-test.subdir(['src'],
-            ['src', 'suite'])
+test.subdir(['SCons'],
+            ['SCons', 'suite'])
 
 pythonstring = TestRuntest.pythonstring
 pythonflags = TestRuntest.pythonflags
-src_passTests_py = os.path.join('src', 'passTests.py')
-src_suite_passTests_py = os.path.join('src', 'suite', 'passTests.py')
+src_passTests_py = os.path.join('SCons', 'passTests.py')
+src_suite_passTests_py = os.path.join('SCons', 'suite', 'passTests.py')
 
-test.write_passing_test(['src', 'pass.py'])
+test.write_passing_test(['SCons', 'pass.py'])
 
-test.write_passing_test(['src', 'passTests.py'])
+test.write_passing_test(['SCons', 'passTests.py'])
 
-test.write_passing_test(['src', 'suite', 'pass.py'])
+test.write_passing_test(['SCons', 'suite', 'pass.py'])
 
-test.write_passing_test(['src', 'suite', 'passTests.py'])
+test.write_passing_test(['SCons', 'suite', 'passTests.py'])
 
 expect_stdout = """\
 %(pythonstring)s%(pythonflags)s %(src_passTests_py)s
@@ -63,7 +63,7 @@ PASSING TEST STDERR
 PASSING TEST STDERR
 """ % locals()
 
-test.run(arguments='-k src', stdout=expect_stdout, stderr=expect_stderr)
+test.run(arguments='-k SCons', stdout=expect_stdout, stderr=expect_stderr)
 
 test.pass_test()
 

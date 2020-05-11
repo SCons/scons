@@ -710,6 +710,20 @@ class Base(SCons.Node.Node):
         self._memo['stat'] = result
         return result
 
+    @SCons.Memoize.CountMethodCall
+    def lstat(self):
+        try:
+            return self._memo['lstat']
+        except KeyError:
+            pass
+        try:
+            result = self.fs.lstat(self.get_abspath())
+        except os.error:
+            result = None
+
+        self._memo['lstat'] = result
+        return result
+
     def exists(self):
         return SCons.Node._exists_map[self._func_exists](self)
 
@@ -717,14 +731,22 @@ class Base(SCons.Node.Node):
         return SCons.Node._rexists_map[self._func_rexists](self)
 
     def getmtime(self):
-        st = self.stat()
+        if self.islink():
+            st = self.lstat()
+        else:
+            st = self.stat()
+
         if st:
             return st[stat.ST_MTIME]
         else:
             return None
 
     def getsize(self):
-        st = self.stat()
+        if self.islink():
+            st = self.lstat()
+        else:
+            st = self.stat()
+
         if st:
             return st[stat.ST_SIZE]
         else:
@@ -3103,7 +3125,10 @@ class File(Base):
         SCons.Node.Node.prepare(self)
 
         if self.get_state() != SCons.Node.up_to_date:
-            if self.exists():
+            # Exists will report False for dangling symlinks so if it
+            # exists or is a link (which would mean it's a dangling
+            # link) then we should remove it as appropriate.
+            if self.exists() or self.islink():
                 if self.is_derived() and not self.precious:
                     self._rmv_existing()
             else:

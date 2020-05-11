@@ -67,7 +67,7 @@ if "SCONS_LIB_DIR" in os.environ:
     libs.append(os.environ["SCONS_LIB_DIR"])
 
 # running from source takes 2nd priority (since 2.3.2), following SCONS_LIB_DIR
-source_path = os.path.join(script_path, os.pardir, 'src', 'engine')
+source_path = os.path.join(script_path, os.pardir)
 if os.path.isdir(source_path):
     libs.append(source_path)
 
