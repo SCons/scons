@@ -140,7 +140,8 @@ class SConsValues(optparse.Values):
         'random',
         'stack_size',
         'warn',
-        'silent'
+        'silent',
+        'no_progress'
     ]
 
     def set_option(self, name, value):
@@ -197,6 +198,9 @@ class SConsValues(optparse.Values):
                 value = [value]
             value = self.__SConscript_settings__.get(name, []) + value
             SCons.Warnings.process_warn_strings(value)
+        elif name == 'no_progress':
+            SCons.Script.Main.progress_display.set_mode(False)
+
 
         self.__SConscript_settings__[name] = value
 
