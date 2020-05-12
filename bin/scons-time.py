@@ -1246,7 +1246,11 @@ class SConsTimer(object):
         return os.path.join(dir, 'scripts', 'scons.py')
 
     def scons_lib_dir_path(self, dir):
-        return os.path.join(dir, 'src', 'engine')
+        """build the path to the engine.
+
+        this used to join src/engine, but no longer.
+        """
+        return dir
 
     def prep_subversion_run(self, commands, removals):
         self.svn_tmpdir = tempfile.mkdtemp(prefix=self.name + '-svn-')

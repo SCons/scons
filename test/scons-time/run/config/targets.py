@@ -22,18 +22,18 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
 """
 Verify specifying a list of targets through a config file.
 """
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import re
 
 import TestSCons_time
 
-test = TestSCons_time.TestSCons_time(match = TestSCons_time.match_re)
+test = TestSCons_time.TestSCons_time(match=TestSCons_time.match_re)
 
 test.write_fake_scons_py()
 
@@ -46,12 +46,12 @@ targets = 'target1 target2'
 test.run(arguments = 'run -f config foo.tar.gz')
 
 scons_py = re.escape(test.workpath('scripts', 'scons.py'))
-src_engine  = re.escape(test.workpath('src', 'engine'))
+src_engine = re.escape(test.workpath())
 
-prof1       = re.escape(test.workpath('foo-000-1.prof'))
-prof2       = re.escape(test.workpath('foo-000-2.prof'))
+prof1 = re.escape(test.workpath('foo-000-1.prof'))
+prof2 = re.escape(test.workpath('foo-000-2.prof'))
 
-sep         = re.escape(os.sep)
+sep = re.escape(os.sep)
 
 expect = """\
 %(scons_py)s

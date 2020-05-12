@@ -21,7 +21,6 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify basic operation of the --interactive command line option to build
@@ -29,6 +28,8 @@ a target, while using a Configure context within the environment.
 
 Also tests that "b" can be used as a synonym for "build".
 """
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
@@ -118,15 +119,15 @@ test.finish(scons, stdout = expect_stdout, match=TestSCons.match_re)
 
 test.pass_test()
 
+
+# not used: just record here to help debugging the expect_stdout pattern
 actual_output_to_be_handled="""
-Actual output
-python3.6 ~/devel/scons/hg/scons/src/script/scons.py -Q --interactive
 scons>>> build foo.obj
-/opt/local/bin/python3.6 mycc.py foo.obj foo.cpp
+/usr/bin/python3 mycc.py foo.obj foo.cpp
 scons>>> build foo.obj
 scons: `foo.obj' is up to date.
 scons>>> b foo.obj
-/opt/local/bin/python3.6 mycc.py foo.obj foo.cpp
+/usr/bin/python3 mycc.py foo.obj foo.cpp
 scons>>> build foo.obj
 scons: `foo.obj' is up to date.
 scons>>>
