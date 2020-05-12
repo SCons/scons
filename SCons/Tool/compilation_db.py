@@ -23,6 +23,8 @@
 import json
 import SCons
 import itertools
+from cxx import CXXSuffixes
+from cc import CSuffixes
 
 # Implements the ability for SCons to emit a compilation database for the MongoDB project. See
 # http://clang.llvm.org/docs/JSONCompilationDatabase.html for details on what a compilation
@@ -38,16 +40,6 @@ import itertools
 # communicate more gracefully?
 __COMPILATION_DB_ENTRIES = []
 
-# Cribbed from Tool/cc.py and Tool/c++.py. It would be better if
-# we could obtain this from SCons.
-_CSuffixes = [".c"]
-if not SCons.Util.case_sensitive_suffixes(".c", ".C"):
-    _CSuffixes.append(".C")
-
-_CXXSuffixes = [".cpp", ".cc", ".cxx", ".c++", ".C++"]
-if SCons.Util.case_sensitive_suffixes(".c", ".C"):
-    _CXXSuffixes.append(".C")
-
 
 # We make no effort to avoid rebuilding the entries. Someday, perhaps we could and even
 # integrate with the cache, but there doesn't seem to be much call for it.
@@ -62,7 +54,7 @@ def changed_since_last_build_node(child, target, prev_ni, node):
     return True
 
 
-def makeEmitCompilationDbEntry(comstr):
+def make_emit_compilation_DB_entry(comstr):
     """
     Effectively this creates a lambda function to capture:
     * command line
@@ -73,7 +65,7 @@ def makeEmitCompilationDbEntry(comstr):
     """
     user_action = SCons.Action.Action(comstr)
 
-    def EmitCompilationDbEntry(target, source, env):
+    def emit_compilation_db_entry(target, source, env):
         """
         This emitter will be added to each c/c++ object build to capture the info needed
         for clang tools
@@ -104,10 +96,10 @@ def makeEmitCompilationDbEntry(comstr):
 
         return target, source
 
-    return EmitCompilationDbEntry
+    return emit_compilation_db_entry
 
 
-def CompilationDbEntryAction(target, source, env, **kw):
+def compilation_db_entry_action(target, source, env, **kw):
     """
     Create a dictionary with evaluated command line, target, source
     and store that info as an attribute on the target
@@ -134,7 +126,7 @@ def CompilationDbEntryAction(target, source, env, **kw):
     target[0].write(entry)
 
 
-def WriteCompilationDb(target, source, env):
+def write_compilation_db(target, source, env):
     entries = []
 
     for s in __COMPILATION_DB_ENTRIES:
@@ -146,7 +138,7 @@ def WriteCompilationDb(target, source, env):
         )
 
 
-def ScanCompilationDb(node, env, path):
+def scan_compilation_db(node, env, path):
     return __COMPILATION_DB_ENTRIES
 
 
@@ -160,14 +152,14 @@ def generate(env, **kwargs):
 
     components_by_suffix = itertools.chain(
         itertools.product(
-            _CSuffixes,
+            CSuffixes,
             [
                 (static_obj, SCons.Defaults.StaticObjectEmitter, "$CCCOM"),
                 (shared_obj, SCons.Defaults.SharedObjectEmitter, "$SHCCCOM"),
             ],
         ),
         itertools.product(
-            _CXXSuffixes,
+            CXXSuffixes,
             [
                 (static_obj, SCons.Defaults.StaticObjectEmitter, "$CXXCOM"),
                 (shared_obj, SCons.Defaults.SharedObjectEmitter, "$SHCXXCOM"),
@@ -182,17 +174,17 @@ def generate(env, **kwargs):
         # Assumes a dictionary emitter
         emitter = builder.emitter[suffix]
         builder.emitter[suffix] = SCons.Builder.ListEmitter(
-            [emitter, makeEmitCompilationDbEntry(command),]
+            [emitter, make_emit_compilation_DB_entry(command), ]
         )
 
     env["BUILDERS"]["__COMPILATIONDB_Entry"] = SCons.Builder.Builder(
-        action=SCons.Action.Action(CompilationDbEntryAction, None),
+        action=SCons.Action.Action(compilation_db_entry_action, None),
     )
 
     env["BUILDERS"]["__COMPILATIONDB_Database"] = SCons.Builder.Builder(
-        action=SCons.Action.Action(WriteCompilationDb, "$COMPILATIONDB_COMSTR"),
+        action=SCons.Action.Action(write_compilation_db, "$COMPILATIONDB_COMSTR"),
         target_scanner=SCons.Scanner.Scanner(
-            function=ScanCompilationDb, node_class=None
+            function=scan_compilation_db, node_class=None
         ),
     )
 
