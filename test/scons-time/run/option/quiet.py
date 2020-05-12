@@ -64,6 +64,15 @@ test.must_exist('foo-000-0.log',
                 'foo-000-2.log',
                 'foo-000-2.prof')
 
+test.run(arguments='run -q foo.tar.gz', stdout=expect)
+
+test.must_exist('foo-001-0.log',
+                'foo-001-0.prof',
+                'foo-001-1.log',
+                'foo-001-1.prof',
+                'foo-001-2.log',
+                'foo-001-2.prof')
+
 test.run(arguments='run --quiet foo.tar.gz', stdout=expect)
 
 test.pass_test()
