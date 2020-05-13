@@ -121,12 +121,12 @@ def Package(env, target=None, source=None, **kw):
         PACKAGETYPE=PACKAGETYPE.split(',')
 
     # load the needed packagers.
-    def load_packager(type):
+    def load_packager(pkgtype):
         try:
             # the specific packager is a relative import
-            return importlib.import_module("." + type, __name__)
+            return importlib.import_module("." + pkgtype, __name__)
         except ImportError as e:
-            raise SConsEnvironmentError("packager %s not available: %s" % (type, str(e)))
+            raise SConsEnvironmentError("packager %s not available: %s" % (pkgtype, str(e)))
 
     packagers = list(map(load_packager, PACKAGETYPE))
 
