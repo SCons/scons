@@ -27,9 +27,10 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import time
 import random
-import importlib
 import TestSCons
 from TestCmd import IS_WINDOWS
+
+test = TestSCons.TestSCons()
 
 try:
     import ninja
@@ -40,13 +41,11 @@ _python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 ninja_bin = os.path.abspath(os.path.join(
-    importlib.import_module(".ninja_syntax", package='ninja').__file__,
+    ninja.__file__,
     os.pardir,
     'data',
     'bin',
     'ninja' + _exe))
-
-test = TestSCons.TestSCons()
 
 test.dir_fixture('ninja-fixture')
 
@@ -220,14 +219,14 @@ for test_mod in tests_mods:
     scons_times += [stop - start]
 
 full_build_print = True
-for ninja, scons in zip(ninja_times, scons_times):
-    if ninja > scons:
+for ninja_time, scons_time in zip(ninja_times, scons_times):
+    if ninja_time > scons_time:
         test.fail_test()
     if full_build_print:
         full_build_print = False
-        print("Clean build {} files - SCons: {:.3f}s Ninja: {:.3f}s".format(num_source, scons, ninja))
+        print("Clean build {} files - SCons: {:.3f}s Ninja: {:.3f}s".format(num_source, scons_time, ninja_time))
     else:
-        print("Single File Rebuild  - SCons: {:.3f}s Ninja: {:.3f}s".format(scons, ninja))
+        print("Single File Rebuild   - SCons: {:.3f}s Ninja: {:.3f}s".format(scons_time, ninja_time))
 
 test.pass_test()
 
