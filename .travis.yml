@@ -61,6 +61,7 @@ jobs:
     - &coverage_jobs
       dist: bionic
       python: 3.7
+      name: coverage
       before_script:
         - python -m pip install -U coverage codecov
         - python -m site
