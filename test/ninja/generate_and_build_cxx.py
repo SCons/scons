@@ -51,8 +51,7 @@ test.dir_fixture('ninja-fixture')
 test.write('SConstruct', """
 env = Environment()
 env.Tool('ninja')
-env.Command('foo2.c', ['foo.c'], Copy('$TARGET','$SOURCE'))
-env.Program(target = 'foo', source = 'foo2.c')
+env.Program(target = 'test2', source = 'test2.cpp')
 """)
 
 # generate simple build
@@ -60,25 +59,43 @@ test.run(stdout=None)
 test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
 test.must_contain_all(test.stdout(), 'Executing:')
 test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' %locals())
-test.run(program = test.workpath('foo'), stdout="foo.c")
+test.run(program = test.workpath('test2' + _exe), stdout="print_function")
 
 # clean build and ninja files
 test.run(arguments='-c', stdout=None)
 test.must_contain_all_lines(test.stdout(), [
-    'Removed foo2.o',
-    'Removed foo2.c',
-    'Removed foo' + _exe,
+    'Removed test2.o',
+    'Removed test2',
     'Removed build.ninja'])
 
 # only generate the ninja file
 test.run(arguments='--disable-execute-ninja', stdout=None)
 test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
-test.must_not_exist(test.workpath('foo'))
+test.must_not_exist(test.workpath('test2' + _exe))
 
 # run ninja independently
 program = test.workpath('run_ninja_env.bat') if IS_WINDOWS else ninja_bin
 test.run(program = program, stdout=None)
-test.run(program = test.workpath('foo'), stdout="foo.c")
+test.run(program = test.workpath('test2' + _exe), stdout="print_function")
+
+test.write('test2.hpp', """
+#include <string>
+#include <iostream>
+
+class Foo
+{
+public:
+    int print_function();
+    int print_function2(){
+        std::cout << "2";
+        return 0;
+    };
+};
+""")
+
+# generate simple build
+test.run(program = program, stdout=None)
+test.run(program = test.workpath('test2' + _exe), stdout="print_function2")
 
 test.pass_test()
 
