@@ -23,11 +23,11 @@ def argpair(key):
     return arg
 
 def generate_all():
-    """ Scan for XML files in the src directory and call scons-proc.py
+    """ Scan for XML files in the SCons directory and call scons-proc.py
         to generate the *.gen/*.mod files from it.
     """
     flist = []
-    for path, dirs, files in os.walk('src'):
+    for path, dirs, files in os.walk('SCons'):
         for f in files:
             if f.endswith('.xml'):
                 fpath = os.path.join(path, f)
@@ -43,13 +43,17 @@ def generate_all():
                 print("Couldn't create destination folder %s! Exiting..." % gen_folder)
                 return
         # Call scons-proc.py
-        cp = subprocess.run([sys.executable,
-                             os.path.join('bin','scons-proc.py'),
-                             '-b', argpair('builders'),
-                             '-f', argpair('functions'),
-                             '-t', argpair('tools'),
-                             '-v', argpair('variables')] + flist,
-                            shell=False)
+        cp = subprocess.run(
+            [
+                sys.executable,
+                os.path.join('bin', 'scons-proc.py'),
+                '-b', argpair('builders'),
+                '-f', argpair('functions'),
+                '-t', argpair('tools'),
+                '-v', argpair('variables'),
+            ] + flist,
+            shell=False,
+        )
 
         # No-op: scons-proc doesn't actually set an exit code at the moment.
         if cp.returncode:

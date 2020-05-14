@@ -1,0 +1,304 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+        <!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+        %scons;
+        <!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+        %builders-mod;
+        <!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+        %functions-mod;
+        <!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+        %tools-mod;
+        <!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+        %variables-mod;
+        ]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+    <tool name="javac">
+        <summary>
+            <para>
+                Sets construction variables for the &javac; compiler.
+            </para>
+        </summary>
+        <sets>
+            <item>JAVAC</item>
+            <item>JAVACFLAGS</item>
+            <item>JAVACCOM</item>
+            <item>JAVACLASSSUFFIX</item>
+            <item>JAVAINCLUDES</item>
+            <item>JAVASUFFIX</item>
+            <item>JAVABOOTCLASSPATH</item>
+            <item>JAVACLASSPATH</item>
+            <item>JAVASOURCEPATH</item>
+        </sets>
+        <uses>
+            <item>JAVACCOMSTR</item>
+        </uses>
+    </tool>
+
+    <builder name="Java">
+        <summary>
+            <para>
+                Builds one or more Java class files.
+                The sources may be any combination of explicit
+                <filename>.java</filename>
+                files,
+                or directory trees which will be scanned
+                for <filename>.java</filename> files.
+            </para>
+
+            <para>
+                SCons will parse each source <filename>.java</filename> file
+                to find the classes
+                (including inner classes)
+                defined within that file,
+                and from that figure out the
+                target <filename>.class</filename> files that will be created.
+                The class files will be placed underneath
+                the specified target directory.
+            </para>
+
+            <para>
+                SCons will also search each Java file
+                for the Java package name,
+                which it assumes can be found on a line
+                beginning with the string
+                <literal>package</literal>
+                in the first column;
+                the resulting <filename>.class</filename> files
+                will be placed in a directory reflecting
+                the specified package name.
+                For example,
+                the file
+                <filename>Foo.java</filename>
+                defining a single public
+                <classname>Foo</classname>
+                class and
+                containing a package name of
+                <classname>sub.dir</classname>
+                will generate a corresponding
+                <filename>sub/dir/Foo.class</filename>
+                class file.
+            </para>
+
+            <para>
+                Examples:
+            </para>
+
+            <example_commands>
+env.Java(target = 'classes', source = 'src')
+env.Java(target = 'classes', source = ['src1', 'src2'])
+env.Java(target = 'classes', source = ['File1.java', 'File2.java'])
+            </example_commands>
+
+            <para>
+                Java source files can use the native encoding for the underlying OS.
+                Since SCons compiles in simple ASCII mode by default,
+                the compiler will generate warnings about unmappable characters,
+                which may lead to errors as the file is processed further.
+                In this case, the user must specify the
+                <literal>LANG</literal>
+                environment variable to tell the compiler what encoding is used.
+                For portibility, it's best if the encoding is hard-coded
+                so that the compile will work if it is done on a system
+                with a different encoding.
+            </para>
+
+            <example_commands>
+env = Environment()
+env['ENV']['LANG'] = 'en_GB.UTF-8'
+            </example_commands>
+        </summary>
+    </builder>
+
+    <cvar name="JAVABOOTCLASSPATH">
+        <summary>
+            <para>
+                Specifies the list of directories that
+                will be added to the
+                &javac; command line
+                via the <option>-bootclasspath</option> option.
+                The individual directory names will be
+                separated by the operating system's path separate character
+                (<filename>:</filename> on UNIX/Linux/POSIX,
+                <filename>;</filename>
+                on Windows).
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="JAVAINCLUDES">
+        <summary>
+            <para>
+                Include path for Java header files (such as jni.h)
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="JAVAC">
+        <summary>
+            <para>
+                The Java compiler.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="JAVACCOM">
+        <summary>
+            <para>
+                The command line used to compile a directory tree containing
+                Java source files to
+                corresponding Java class files.
+                Any options specified in the &cv-link-JAVACFLAGS; construction variable
+                are included on this command line.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="JAVACCOMSTR">
+        <summary>
+            <para>
+                The string displayed when compiling
+                a directory tree of Java source files to
+                corresponding Java class files.
+                If this is not set, then &cv-link-JAVACCOM; (the command line) is displayed.
+            </para>
+
+            <example_commands>
+env = Environment(JAVACCOMSTR="Compiling class files $TARGETS from $SOURCES")
+            </example_commands>
+        </summary>
+    </cvar>
+
+    <cvar name="JAVACFLAGS">
+        <summary>
+            <para>
+                General options that are passed to the Java compiler.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="JAVACLASSDIR">
+        <summary>
+            <para>
+                The directory in which Java class files may be found.
+                This is stripped from the beginning of any Java .class
+                file names supplied to the
+                <literal>JavaH</literal>
+                builder.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="JAVACLASSPATH">
+        <summary>
+            <para>
+                Specifies the list of directories that
+                will be searched for Java
+                <filename>.class</filename>
+                file.
+                The directories in this list will be added to the
+                &javac; and &javah; command lines
+                via the <option>-classpath</option> option.
+                The individual directory names will be
+                separated by the operating system's path separate character
+                (<filename>:</filename> on UNIX/Linux/POSIX,
+                <filename>;</filename>
+                on Windows).
+            </para>
+
+            <para>
+                Note that this currently just adds the specified
+                directory via the <option>-classpath</option> option.
+                &SCons; does not currently search the
+                &cv-JAVACLASSPATH; directories for dependency
+                <filename>.class</filename>
+                files.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="JAVACLASSSUFFIX">
+        <summary>
+            <para>
+                The suffix for Java class files;
+                <filename>.class</filename>
+                by default.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="JAVASOURCEPATH">
+        <summary>
+            <para>
+                Specifies the list of directories that
+                will be searched for input
+                <filename>.java</filename>
+                file.
+                The directories in this list will be added to the
+                &javac; command line
+                via the <option>-sourcepath</option> option.
+                The individual directory names will be
+                separated by the operating system's path separate character
+                (<filename>:</filename> on UNIX/Linux/POSIX,
+                <filename>;</filename>
+                on Windows).
+            </para>
+
+            <para>
+                Note that this currently just adds the specified
+                directory via the <option>-sourcepath</option> option.
+                &SCons; does not currently search the
+                &cv-JAVASOURCEPATH; directories for dependency
+                <filename>.java</filename>
+                files.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="JAVASUFFIX">
+        <summary>
+            <para>
+                The suffix for Java files;
+                <filename>.java</filename>
+                by default.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="JAVAVERSION">
+        <summary>
+            <para>
+                Specifies the Java version being used by the &b-Java; builder.
+                This is <emphasis>not</emphasis> currently used to select one
+                version of the Java compiler vs. another.
+                Instead, you should set this to specify the version of Java
+                supported by your &javac; compiler.
+                The default is <literal>1.4</literal>.
+            </para>
+
+            <para>
+                This is sometimes necessary because
+                Java 1.5 changed the file names that are created
+                for nested anonymous inner classes,
+                which can cause a mismatch with the files
+                that &SCons; expects will be generated by the &javac; compiler.
+                Setting &cv-JAVAVERSION; to
+                <literal>1.5</literal>
+                (or <literal>1.6</literal>, as appropriate)
+                can make &SCons; realize that a Java 1.5 or 1.6
+                build is actually up to date.
+            </para>
+        </summary>
+    </cvar>
+
+</sconsdoc>

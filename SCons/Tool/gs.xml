@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="gs">
+<summary>
+<para>
+This Tool sets the required construction variables for working with
+the Ghostscript command. It also registers an appropriate Action
+with the PDF Builder (&b-link-PDF;), such that the conversion from
+PS/EPS to PDF happens automatically for the TeX/LaTeX toolchain.
+Finally, it adds an explicit Ghostscript Builder (&b-link-Gs;) to the
+environment.
+</para>
+</summary>
+<sets>
+<item>GS</item>
+<item>GSFLAGS</item>
+<item>GSCOM</item>
+</sets>
+<uses>
+<item>GSCOMSTR</item>
+</uses>
+</tool>
+
+<cvar name="GS">
+<summary>
+<para>
+The Ghostscript program used, e.g. to convert PostScript to PDF files.
+</para>
+</summary>
+</cvar>
+
+<cvar name="GSCOM">
+<summary>
+<para>
+The full Ghostscript command line used for the conversion process. Its default
+value is <quote><literal>$GS $GSFLAGS -sOutputFile=$TARGET $SOURCES</literal></quote>.
+</para>
+</summary>
+</cvar>
+
+<cvar name="GSCOMSTR">
+<summary>
+<para>
+The string displayed when
+Ghostscript is called for the conversion process.
+If this is not set (the default), then &cv-link-GSCOM; (the command line) is displayed.
+</para>
+</summary>
+</cvar>
+
+<cvar name="GSFLAGS">
+<summary>
+<para>
+General options passed to the Ghostscript program,
+when converting PostScript to PDF files for example. Its default value
+is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
+</para>
+</summary>
+</cvar>
+
+<builder name="Gs">
+<summary>
+<para>
+A Builder for explicitly calling the <literal>gs</literal> executable.
+Depending on the underlying OS, the different names <literal>gs</literal>,
+<literal>gsos2</literal> and <literal>gswin32c</literal>
+are tried.
+</para>
+<example_commands>env = Environment(tools=['gs'])
+env.Gs('cover.jpg','scons-scons.pdf',
+       GSFLAGS='-dNOPAUSE -dBATCH -sDEVICE=jpeg -dFirstPage=1 -dLastPage=1 -q') 
+       )
+</example_commands>
+</summary>
+</builder>
+
+</sconsdoc>

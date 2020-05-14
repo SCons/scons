@@ -1,0 +1,167 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="zip">
+<summary>
+<para>
+Sets construction variables for the &zip; archiver.
+</para>
+</summary>
+<sets>
+<item>ZIP</item>
+<item>ZIPFLAGS</item>
+<item>ZIPCOM</item>
+<item>ZIPCOMPRESSION</item>
+<item>ZIPSUFFIX</item>
+</sets>
+<uses>
+<item>ZIPCOMSTR</item>
+</uses>
+</tool>
+
+<builder name="Zip">
+<summary>
+<para>
+Builds a zip archive of the specified files
+and/or directories.
+Unlike most builder methods,
+the
+&b-Zip;
+builder method may be called multiple times
+for a given target;
+each additional call
+adds to the list of entries
+that will be built into the archive.
+Any source directories will
+be scanned for changes to
+any on-disk files,
+regardless of whether or not
+&scons;
+knows about them from other Builder or function calls.
+</para>
+
+<example_commands>
+env.Zip('src.zip', 'src')
+
+# Create the stuff.zip file.
+env.Zip('stuff', ['subdir1', 'subdir2'])
+# Also add "another" to the stuff.tar file.
+env.Zip('stuff', 'another')
+</example_commands>
+</summary>
+</builder>
+
+<cvar name="ZIP">
+<summary>
+<para>
+The zip compression and file packaging utility.
+</para>
+</summary>
+</cvar>
+
+<cvar name="ZIPCOM">
+<summary>
+<para>
+The command line used to call the zip utility,
+or the internal Python function used to create a
+zip archive.
+</para>
+</summary>
+</cvar>
+
+<cvar name="ZIPCOMSTR">
+<summary>
+<para>
+The string displayed when archiving files
+using the zip utility.
+If this is not set, then &cv-link-ZIPCOM;
+(the command line or internal Python function) is displayed.
+</para>
+
+<example_commands>
+env = Environment(ZIPCOMSTR = "Zipping $TARGET")
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="ZIPCOMPRESSION">
+<summary>
+<para>
+The
+<varname>compression</varname>
+flag
+from the Python
+<filename>zipfile</filename>
+module used by the internal Python function
+to control whether the zip archive
+is compressed or not.
+The default value is
+<literal>zipfile.ZIP_DEFLATED</literal>,
+which creates a compressed zip archive.
+This value has no effect if the
+<literal>zipfile</literal>
+module is unavailable.
+</para>
+</summary>
+</cvar>
+
+<cvar name="ZIPFLAGS">
+<summary>
+<para>
+General options passed to the zip utility.
+</para>
+</summary>
+</cvar>
+
+<cvar name="ZIPSUFFIX">
+<summary>
+<para>
+The suffix used for zip file names.
+</para>
+</summary>
+</cvar>
+
+<cvar name="ZIPROOT">
+<summary>
+<para>
+An optional zip root directory (default empty).  The filenames stored
+in the zip file will be relative to this directory, if given.
+Otherwise the filenames are relative to the current directory of the
+command.
+For instance:
+</para>
+<example_commands>
+env = Environment()
+env.Zip('foo.zip', 'subdir1/subdir2/file1', ZIPROOT='subdir1')
+</example_commands>
+<para>
+will produce a zip file <literal>foo.zip</literal>
+containing a file with the name
+<literal>subdir2/file1</literal> rather than
+<literal>subdir1/subdir2/file1</literal>.
+</para>
+</summary>
+</cvar>
+</sconsdoc>

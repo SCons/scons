@@ -32,6 +32,7 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
+
 test.write('build.py', r"""
 import sys
 file = open(sys.argv[1], 'w')
@@ -40,6 +41,14 @@ file.close()
 """)
 
 test.write('SConstruct', """
+
+AddOption('--use_SetOption', action='store_true', dest='setoption', default=False)
+
+use_setoption=GetOption('setoption')
+
+if use_setoption:
+    SetOption('no_progress', True)
+    
 MyBuild = Builder(action = r'%(_python_)s build.py $TARGET')
 env = Environment(BUILDERS = { 'MyBuild' : MyBuild })
 env.MyBuild(target = 'f1.out', source = 'f1.in')
@@ -63,6 +72,19 @@ Removed f2.out
 """)
 test.fail_test(os.path.exists(test.workpath('f1.out')))
 test.fail_test(os.path.exists(test.workpath('f2.out')))
+
+
+# When set via a SetOption, it will happen after the initial output of
+# scons: Reading SConscript files ...
+# but remaining status/progress output will not be output
+test.run(arguments = '--use_SetOption f1.out f2.out', stdout = """\
+scons: Reading SConscript files ...
+%(_python_)s build.py f1.out
+%(_python_)s build.py f2.out
+""" % locals())
+test.fail_test(not os.path.exists(test.workpath('f1.out')))
+test.fail_test(not os.path.exists(test.workpath('f2.out')))
+
 
 test.pass_test()
 

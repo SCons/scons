@@ -23,8 +23,8 @@ print("APPLELINK_NO_CURRENT_VERSION      =[%s]"%env.get('APPLELINK_NO_CURRENT_VE
 print("APPLELINK_NO_COMPATIBILITY_VERSION=[%s]"%env.get('APPLELINK_NO_COMPATIBILITY_VERSION', False))
 
 obj = env.SharedObject('foo.c')
-
 sl = env.SharedLibrary('foo', obj)
+sl2 = env.SharedLibrary('foo2', obj, SONAME='libfoo.4.dynlib')
 lm = env.LoadableModule('fool', obj)
 
 env.InstallVersionedLib(target='#/install',

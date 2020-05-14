@@ -28,7 +28,7 @@
 	xmlns:fo="http://www.w3.org/1999/XSL/Format"
 	version="1.0">
 
-	<xsl:import href="../../src/engine/SCons/Tool/docbook/docbook-xsl-1.76.1/html/chunk.xsl"/>
+<xsl:import href="../../SCons/Tool/docbook/docbook-xsl-1.76.1/html/chunk.xsl"/>
 
 <xsl:param name="base.dir" select="'scons-user/'"/>
 <xsl:param name="l10n.gentext.default.language" select="'en'"/>

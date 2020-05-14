@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="tar">
+<summary>
+<para>
+Sets construction variables for the &tar; archiver.
+</para>
+</summary>
+<sets>
+<item>TAR</item>
+<item>TARFLAGS</item>
+<item>TARCOM</item>
+<item>TARSUFFIX</item>
+</sets>
+<uses>
+<item>TARCOMSTR</item>
+</uses>
+</tool>
+
+<builder name="Tar">
+<summary>
+<para>
+Builds a tar archive of the specified files
+and/or directories.
+Unlike most builder methods,
+the
+&b-Tar;
+builder method may be called multiple times
+for a given target;
+each additional call
+adds to the list of entries
+that will be built into the archive.
+Any source directories will
+be scanned for changes to
+any on-disk files,
+regardless of whether or not
+&scons;
+knows about them from other Builder or function calls.
+</para>
+
+<example_commands>
+env.Tar('src.tar', 'src')
+
+# Create the stuff.tar file.
+env.Tar('stuff', ['subdir1', 'subdir2'])
+# Also add "another" to the stuff.tar file.
+env.Tar('stuff', 'another')
+
+# Set TARFLAGS to create a gzip-filtered archive.
+env = Environment(TARFLAGS = '-c -z')
+env.Tar('foo.tar.gz', 'foo')
+
+# Also set the suffix to .tgz.
+env = Environment(TARFLAGS = '-c -z',
+                  TARSUFFIX = '.tgz')
+env.Tar('foo')
+</example_commands>
+</summary>
+</builder>
+
+<cvar name="TAR">
+<summary>
+<para>
+The tar archiver.
+</para>
+</summary>
+</cvar>
+
+<cvar name="TARCOM">
+<summary>
+<para>
+The command line used to call the tar archiver.
+</para>
+</summary>
+</cvar>
+
+<cvar name="TARCOMSTR">
+<summary>
+<para>
+The string displayed when archiving files
+using the tar archiver.
+If this is not set, then &cv-link-TARCOM; (the command line) is displayed.
+</para>
+
+<example_commands>
+env = Environment(TARCOMSTR = "Archiving $TARGET")
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="TARFLAGS">
+<summary>
+<para>
+General options passed to the tar archiver.
+</para>
+</summary>
+</cvar>
+
+<cvar name="TARSUFFIX">
+<summary>
+<para>
+The suffix used for tar file names.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

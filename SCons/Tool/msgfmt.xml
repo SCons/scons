@@ -1,0 +1,145 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="msgfmt">
+<summary>
+<para>
+This scons tool is a part of scons &t-link-gettext; toolset. It provides scons
+interface to <command>msgfmt(1)</command> command, which generates binary
+message catalog (<literal>MO</literal>) from a textual translation description
+(<literal>PO</literal>).
+</para>
+</summary>
+<sets>
+<item>MOSUFFIX</item>
+<item>MSGFMT</item>
+<item>MSGFMTCOM</item>
+<item>MSGFMTCOMSTR</item>
+<item>MSGFMTFLAGS</item>
+<item>POSUFFIX</item>
+</sets>
+<uses>
+<item>LINGUAS_FILE</item>
+</uses>
+</tool>
+
+<builder name="MOFiles">
+<summary>
+<para>
+This builder belongs to &t-link-msgfmt; tool. The builder compiles
+<literal>PO</literal> files to <literal>MO</literal> files.
+</para>
+
+<para>
+<emphasis>Example 1</emphasis>.
+Create <filename>pl.mo</filename> and <filename>en.mo</filename> by compiling
+<filename>pl.po</filename> and <filename>en.po</filename>:
+</para>
+<example_commands>
+  # ...
+  env.MOFiles(['pl', 'en'])
+</example_commands>
+
+<para>
+<emphasis>Example 2</emphasis>.
+Compile files for languages defined in <filename>LINGUAS</filename> file:
+</para>
+<example_commands>
+  # ...
+  env.MOFiles(LINGUAS_FILE = 1)
+</example_commands>
+
+<para>
+<emphasis>Example 3</emphasis>.
+Create <filename>pl.mo</filename> and <filename>en.mo</filename> by compiling
+<filename>pl.po</filename> and <filename>en.po</filename> plus files for
+languages defined in <filename>LINGUAS</filename> file:
+</para>
+<example_commands>
+  # ...
+  env.MOFiles(['pl', 'en'], LINGUAS_FILE = 1)
+</example_commands>
+
+<para>
+<emphasis>Example 4</emphasis>.
+Compile files for languages defined in <filename>LINGUAS</filename> file 
+(another version):
+</para>
+<example_commands>
+  # ...
+  env['LINGUAS_FILE'] = 1
+  env.MOFiles()
+</example_commands>
+</summary>
+</builder>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="MOSUFFIX">
+<summary>
+<para>
+Suffix used for <literal>MO</literal> files (default: <literal>'.mo'</literal>).
+See &t-link-msgfmt; tool and &b-link-MOFiles; builder.
+</para>
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="MSGFMT">
+<summary>
+<para>
+Absolute path to <command>msgfmt(1)</command> binary, found by
+<function>Detect()</function>.
+See &t-link-msgfmt; tool and &b-link-MOFiles; builder.
+</para>
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="MSGFMTCOM">
+<summary>
+<para>
+Complete command line to run <command>msgfmt(1)</command> program.
+See &t-link-msgfmt; tool and &b-link-MOFiles; builder.
+</para>
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="MSGFMTCOMSTR">
+<summary>
+<para>
+String to display when <command>msgfmt(1)</command> is invoked 
+(default: <literal>''</literal>, which means ``print &cv-link-MSGFMTCOM;'').
+See &t-link-msgfmt; tool and &b-link-MOFiles; builder.
+</para>
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="MSGFMTFLAGS">
+<summary>
+<para>
+Additional flags to <command>msgfmt(1)</command>.
+See &t-link-msgfmt; tool and &b-link-MOFiles; builder.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

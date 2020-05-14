@@ -1,0 +1,324 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="f77">
+<summary>
+<para>
+Set construction variables for generic POSIX Fortran 77 compilers.
+</para>
+</summary>
+<sets>
+<item>F77</item>
+<item>F77FLAGS</item>
+<item>F77COM</item>
+<item>F77PPCOM</item>
+<item>F77FILESUFFIXES</item>
+<item>F77PPFILESUFFIXES</item>
+<item>FORTRAN</item>
+<item>FORTRANFLAGS</item>
+<item>FORTRANCOM</item>
+<item>SHF77</item>
+<item>SHF77FLAGS</item>
+<item>SHF77COM</item>
+<item>SHF77PPCOM</item>
+<item>SHFORTRAN</item>
+<item>SHFORTRANFLAGS</item>
+<item>SHFORTRANCOM</item>
+<item>SHFORTRANPPCOM</item>
+<item>_F77INCFLAGS</item>
+</sets>
+<uses>
+<item>F77COMSTR</item>
+<item>F77PPCOMSTR</item>
+<item>FORTRANCOMSTR</item>
+<item>FORTRANPPCOMSTR</item>
+<item>SHF77COMSTR</item>
+<item>SHF77PPCOMSTR</item>
+<item>SHFORTRANCOMSTR</item>
+<item>SHFORTRANPPCOMSTR</item>
+</uses>
+</tool>
+
+<cvar name="F77">
+<summary>
+<para>
+The Fortran 77 compiler.
+You should normally set the &cv-link-FORTRAN; variable,
+which specifies the default Fortran compiler
+for all Fortran versions.
+You only need to set &cv-link-F77; if you need to use a specific compiler
+or compiler version for Fortran 77 files.
+</para>
+</summary>
+</cvar>
+
+<cvar name="F77COM">
+<summary>
+<para>
+The command line used to compile a Fortran 77 source file to an object file.
+You only need to set &cv-link-F77COM; if you need to use a specific
+command line for Fortran 77 files.
+You should normally set the &cv-link-FORTRANCOM; variable,
+which specifies the default command line
+for all Fortran versions.
+</para>
+</summary>
+</cvar>
+
+<cvar name="F77FILESUFFIXES">
+<summary>
+<para>
+The list of file extensions for which the F77 dialect will be used. By
+default, this is ['.f77']
+</para>
+</summary>
+</cvar>
+
+<cvar name="F77PPFILESUFFIXES">
+<summary>
+<para>
+The list of file extensions for which the compilation + preprocessor pass for
+F77 dialect will be used. By default, this is empty
+</para>
+</summary>
+</cvar>
+
+<cvar name="F77COMSTR">
+<summary>
+<para>
+If set, the string displayed when a Fortran 77 source file
+is compiled to an object file.
+If not set, then &cv-link-F77COM; or &cv-link-FORTRANCOM;
+(the command line) is displayed.
+</para>
+</summary>
+</cvar>
+
+<cvar name="F77FLAGS">
+<summary>
+<para>
+General user-specified options that are passed to the Fortran 77 compiler.
+Note that this variable does
+<emphasis>not</emphasis>
+contain
+<option>-I</option>
+(or similar) include search path options
+that scons generates automatically from &cv-link-F77PATH;.
+See
+&cv-link-_F77INCFLAGS;
+below,
+for the variable that expands to those options.
+You only need to set &cv-link-F77FLAGS; if you need to define specific
+user options for Fortran 77 files.
+You should normally set the &cv-link-FORTRANFLAGS; variable,
+which specifies the user-specified options
+passed to the default Fortran compiler
+for all Fortran versions.
+</para>
+</summary>
+</cvar>
+
+<cvar name="_F77INCFLAGS">
+<summary>
+<para>
+An automatically-generated construction variable
+containing the Fortran 77 compiler command-line options
+for specifying directories to be searched for include files.
+The value of &cv-link-_F77INCFLAGS; is created
+by appending &cv-link-INCPREFIX; and &cv-link-INCSUFFIX;
+to the beginning and end
+of each directory in &cv-link-F77PATH;.
+</para>
+</summary>
+</cvar>
+
+<cvar name="F77PATH">
+<summary>
+<para>
+The list of directories that the Fortran 77 compiler will search for include
+directories. The implicit dependency scanner will search these
+directories for include files. Don't explicitly put include directory
+arguments in &cv-link-F77FLAGS; because the result will be non-portable
+and the directories will not be searched by the dependency scanner. Note:
+directory names in &cv-link-F77PATH; will be looked-up relative to the SConscript
+directory when they are used in a command. To force
+&scons;
+to look-up a directory relative to the root of the source tree use #:
+You only need to set &cv-link-F77PATH; if you need to define a specific
+include path for Fortran 77 files.
+You should normally set the &cv-link-FORTRANPATH; variable,
+which specifies the include path
+for the default Fortran compiler
+for all Fortran versions.
+</para>
+
+<example_commands>
+env = Environment(F77PATH='#/include')
+</example_commands>
+
+<para>
+The directory look-up can also be forced using the
+&Dir;()
+function:
+</para>
+
+<example_commands>
+include = Dir('include')
+env = Environment(F77PATH=include)
+</example_commands>
+
+<para>
+The directory list will be added to command lines
+through the automatically-generated
+&cv-link-_F77INCFLAGS;
+construction variable,
+which is constructed by
+appending the values of the
+&cv-link-INCPREFIX; and &cv-link-INCSUFFIX;
+construction variables
+to the beginning and end
+of each directory in &cv-link-F77PATH;.
+Any command lines you define that need
+the F77PATH directory list should
+include &cv-link-_F77INCFLAGS;:
+</para>
+
+<example_commands>
+env = Environment(F77COM="my_compiler $_F77INCFLAGS -c -o $TARGET $SOURCE")
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="F77PPCOM">
+<summary>
+<para>
+The command line used to compile a Fortran 77 source file to an object file
+after first running the file through the C preprocessor.
+Any options specified in the &cv-link-F77FLAGS; and &cv-link-CPPFLAGS; construction variables
+are included on this command line.
+You only need to set &cv-link-F77PPCOM; if you need to use a specific
+C-preprocessor command line for Fortran 77 files.
+You should normally set the &cv-link-FORTRANPPCOM; variable,
+which specifies the default C-preprocessor command line
+for all Fortran versions.
+</para>
+</summary>
+</cvar>
+
+<cvar name="F77PPCOMSTR">
+<summary>
+<para>
+If set, the string displayed when a Fortran 77 source file
+is compiled to an object file
+after first running the file through the C preprocessor.
+If not set, then &cv-link-F77PPCOM; or &cv-link-FORTRANPPCOM;
+(the command line) is displayed.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHF77">
+<summary>
+<para>
+The Fortran 77 compiler used for generating shared-library objects.
+You should normally set the &cv-link-SHFORTRAN; variable,
+which specifies the default Fortran compiler
+for all Fortran versions.
+You only need to set &cv-link-SHF77; if you need to use a specific compiler
+or compiler version for Fortran 77 files.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHF77COM">
+<summary>
+<para>
+The command line used to compile a Fortran 77 source file
+to a shared-library object file.
+You only need to set &cv-link-SHF77COM; if you need to use a specific
+command line for Fortran 77 files.
+You should normally set the &cv-link-SHFORTRANCOM; variable,
+which specifies the default command line
+for all Fortran versions.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHF77COMSTR">
+<summary>
+<para>
+If set, the string displayed when a Fortran 77 source file
+is compiled to a shared-library object file.
+If not set, then &cv-link-SHF77COM; or &cv-link-SHFORTRANCOM;
+(the command line) is displayed.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHF77FLAGS">
+<summary>
+<para>
+Options that are passed to the Fortran 77 compiler
+to generated shared-library objects.
+You only need to set &cv-link-SHF77FLAGS; if you need to define specific
+user options for Fortran 77 files.
+You should normally set the &cv-link-SHFORTRANFLAGS; variable,
+which specifies the user-specified options
+passed to the default Fortran compiler
+for all Fortran versions.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHF77PPCOM">
+<summary>
+<para>
+The command line used to compile a Fortran 77 source file to a
+shared-library object file
+after first running the file through the C preprocessor.
+Any options specified in the &cv-link-SHF77FLAGS; and &cv-link-CPPFLAGS; construction variables
+are included on this command line.
+You only need to set &cv-link-SHF77PPCOM; if you need to use a specific
+C-preprocessor command line for Fortran 77 files.
+You should normally set the &cv-link-SHFORTRANPPCOM; variable,
+which specifies the default C-preprocessor command line
+for all Fortran versions.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHF77PPCOMSTR">
+<summary>
+<para>
+If set, the string displayed when a Fortran 77 source file
+is compiled to a shared-library object file
+after first running the file through the C preprocessor.
+If not set, then &cv-link-SHF77PPCOM; or &cv-link-SHFORTRANPPCOM;
+(the command line) is displayed.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="lex">
+<summary>
+<para>
+Sets construction variables for the &lex; lexical analyser.
+</para>
+</summary>
+<sets>
+<item>LEX</item>
+<item>LEXFLAGS</item>
+<item>LEXCOM</item>
+<item>LEXUNISTD</item>
+</sets>
+<uses>
+<item>LEXCOMSTR</item>
+</uses>
+</tool>
+
+<cvar name="LEX">
+<summary>
+<para>
+The lexical analyzer generator.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LEXCOM">
+<summary>
+<para>
+The command line used to call the lexical analyzer generator
+to generate a source file.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LEXCOMSTR">
+<summary>
+<para>
+The string displayed when generating a source file
+using the lexical analyzer generator.
+If this is not set, then &cv-link-LEXCOM; (the command line) is displayed.
+</para>
+
+<example_commands>
+env = Environment(LEXCOMSTR = "Lex'ing $TARGET from $SOURCES")
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="LEXFLAGS">
+<summary>
+<para>
+General options passed to the lexical analyzer generator.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LEXUNISTD">
+<summary>
+<para>
+Used only on windows environments to set a lex flag to prevent 'unistd.h' from being included. The default value is '--nounistd'.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

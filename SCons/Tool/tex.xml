@@ -1,0 +1,173 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="tex">
+<summary>
+<para>
+Sets construction variables for the TeX formatter and typesetter.
+</para>
+</summary>
+<sets>
+<item>TEX</item>
+<item>TEXFLAGS</item>
+<item>TEXCOM</item>
+<item>LATEX</item>
+<item>LATEXFLAGS</item>
+<item>LATEXCOM</item>
+<item>BIBTEX</item>
+<item>BIBTEXFLAGS</item>
+<item>BIBTEXCOM</item>
+<item>MAKEINDEX</item>
+<item>MAKEINDEXFLAGS</item>
+<item>MAKEINDEXCOM</item>
+</sets>
+<uses>
+<item>TEXCOMSTR</item>
+<item>LATEXCOMSTR</item>
+<item>BIBTEXCOMSTR</item>
+<item>MAKEINDEXCOMSTR</item>
+</uses>
+</tool>
+
+<cvar name="BIBTEX">
+<summary>
+<para>
+The bibliography generator for the TeX formatter and typesetter and the
+LaTeX structured formatter and typesetter.
+</para>
+</summary>
+</cvar>
+
+<cvar name="BIBTEXCOM">
+<summary>
+<para>
+The command line used to call the bibliography generator for the
+TeX formatter and typesetter and the LaTeX structured formatter and
+typesetter.
+</para>
+</summary>
+</cvar>
+
+<cvar name="BIBTEXCOMSTR">
+<summary>
+<para>
+The string displayed when generating a bibliography
+for TeX or LaTeX.
+If this is not set, then &cv-link-BIBTEXCOM; (the command line) is displayed.
+</para>
+
+<example_commands>
+env = Environment(BIBTEXCOMSTR = "Generating bibliography $TARGET")
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="BIBTEXFLAGS">
+<summary>
+<para>
+General options passed to the bibliography generator for the TeX formatter
+and typesetter and the LaTeX structured formatter and typesetter.
+</para>
+</summary>
+</cvar>
+
+<cvar name="MAKEINDEX">
+<summary>
+<para>
+The makeindex generator for the TeX formatter and typesetter and the
+LaTeX structured formatter and typesetter.
+</para>
+</summary>
+</cvar>
+
+<cvar name="MAKEINDEXCOM">
+<summary>
+<para>
+The command line used to call the makeindex generator for the
+TeX formatter and typesetter and the LaTeX structured formatter and
+typesetter.
+</para>
+</summary>
+</cvar>
+
+<cvar name="MAKEINDEXCOMSTR">
+<summary>
+<para>
+The string displayed when calling the makeindex generator for the
+TeX formatter and typesetter
+and the LaTeX structured formatter and typesetter.
+If this is not set, then &cv-link-MAKEINDEXCOM; (the command line) is displayed.
+</para>
+</summary>
+</cvar>
+
+<cvar name="MAKEINDEXFLAGS">
+<summary>
+<para>
+General options passed to the makeindex generator for the TeX formatter
+and typesetter and the LaTeX structured formatter and typesetter.
+</para>
+</summary>
+</cvar>
+
+<cvar name="TEX">
+<summary>
+<para>
+The TeX formatter and typesetter.
+</para>
+</summary>
+</cvar>
+
+<cvar name="TEXCOM">
+<summary>
+<para>
+The command line used to call the TeX formatter and typesetter.
+</para>
+</summary>
+</cvar>
+
+<cvar name="TEXCOMSTR">
+<summary>
+<para>
+The string displayed when calling
+the TeX formatter and typesetter.
+If this is not set, then &cv-link-TEXCOM; (the command line) is displayed.
+</para>
+
+<example_commands>
+env = Environment(TEXCOMSTR = "Building $TARGET from TeX input $SOURCES")
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="TEXFLAGS">
+<summary>
+<para>
+General options passed to the TeX formatter and typesetter.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

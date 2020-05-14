@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="m4">
+<summary>
+<para>
+Sets construction variables for the &m4; macro processor.
+</para>
+</summary>
+<sets>
+<item>M4</item>
+<item>M4FLAGS</item>
+<item>M4COM</item>
+</sets>
+<uses>
+<item>M4COMSTR</item>
+</uses>
+</tool>
+
+<builder name="M4">
+<summary>
+<para>
+Builds an output file from an M4 input file.
+This uses a default &cv-link-M4FLAGS; value of
+<option>-E</option>,
+which considers all warnings to be fatal
+and stops on the first warning
+when using the GNU version of m4.
+Example:
+</para>
+
+<example_commands>
+env.M4(target = 'foo.c', source = 'foo.c.m4')
+</example_commands>
+</summary>
+</builder>
+
+<cvar name="M4">
+<summary>
+<para>
+The M4 macro preprocessor.
+</para>
+</summary>
+</cvar>
+
+<cvar name="M4COM">
+<summary>
+<para>
+The command line used to pass files through the M4 macro preprocessor.
+</para>
+</summary>
+</cvar>
+
+<cvar name="M4COMSTR">
+<summary>
+<para>
+The string displayed when
+a file is passed through the M4 macro preprocessor.
+If this is not set, then &cv-link-M4COM; (the command line) is displayed.
+</para>
+</summary>
+</cvar>
+
+<cvar name="M4FLAGS">
+<summary>
+<para>
+General options passed to the M4 macro preprocessor.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

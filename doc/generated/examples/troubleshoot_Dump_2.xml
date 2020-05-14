@@ -1,11 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">C:\&gt;<userinput>scons</userinput>
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.scons.org/dbxsd/v1.0" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">C:\&gt;<userinput>scons</userinput>
 scons: Reading SConscript files ...
-{ 'BUILDERS': {'_InternalInstallVersionedLib': &lt;function InstallVersionedBuilderWrapper at 0x700000&gt;, '_InternalInstall': &lt;function InstallBuilderWrapper at 0x700000&gt;, 'Object': &lt;SCons.Builder.CompositeBuilder object at 0x700000&gt;, 'PCH': &lt;SCons.Builder.BuilderBase object at 0x700000&gt;, 'RES': &lt;SCons.Builder.BuilderBase object at 0x700000&gt;, 'SharedObject': &lt;SCons.Builder.CompositeBuilder object at 0x700000&gt;, 'StaticObject': &lt;SCons.Builder.CompositeBuilder object at 0x700000&gt;, '_InternalInstallAs': &lt;function InstallAsBuilderWrapper at 0x700000&gt;},
+{ 'BUILDERS': { 'Object': &lt;SCons.Builder.CompositeBuilder object at 0x700000&gt;,
+                'PCH': &lt;SCons.Builder.BuilderBase object at 0x700000&gt;,
+                'RES': &lt;SCons.Builder.BuilderBase object at 0x700000&gt;,
+                'SharedObject': &lt;SCons.Builder.CompositeBuilder object at 0x700000&gt;,
+                'StaticObject': &lt;SCons.Builder.CompositeBuilder object at 0x700000&gt;,
+                '_InternalInstall': &lt;function InstallBuilderWrapper at 0x700000&gt;,
+                '_InternalInstallAs': &lt;function InstallAsBuilderWrapper at 0x700000&gt;,
+                '_InternalInstallVersionedLib': &lt;function InstallVersionedBuilderWrapper at 0x700000&gt;},
   'CC': 'cl',
   'CCCOM': &lt;SCons.Action.FunctionAction object at 0x700000&gt;,
   'CCFLAGS': ['/nologo'],
-  'CCPCHFLAGS': ['${(PCH and "/Yu%s \\"/Fp%s\\""%(PCHSTOP or "",File(PCH))) or ""}'],
+  'CCPCHFLAGS': [ '${(PCH and "/Yu%s \\"/Fp%s\\""%(PCHSTOP or "",File(PCH))) '
+                  'or ""}'],
   'CCPDBFLAGS': ['${(PDB and "/Z7") or ""}'],
   'CFILESUFFIX': '.c',
   'CFLAGS': [],
@@ -34,7 +41,8 @@ scons: Reading SConscript files ...
                    '.SPP',
                    '.sx'],
   'CXX': '$CC',
-  'CXXCOM': '${TEMPFILE("$CXX $_MSVC_OUTPUT_FLAG /c $CHANGED_SOURCES $CXXFLAGS $CCFLAGS $_CCCOMCOM","$CXXCOMSTR")}',
+  'CXXCOM': '${TEMPFILE("$CXX $_MSVC_OUTPUT_FLAG /c $CHANGED_SOURCES $CXXFLAGS '
+            '$CCFLAGS $_CCCOMCOM","$CXXCOMSTR")}',
   'CXXFILESUFFIX': '.cc',
   'CXXFLAGS': ['$(', '/TP', '$)'],
   'DSUFFIXES': ['.d'],
@@ -61,7 +69,9 @@ scons: Reading SConscript files ...
   'MSVC_SETUP_RUN': True,
   'OBJPREFIX': '',
   'OBJSUFFIX': '.obj',
-  'PCHCOM': '$CXX /Fo${TARGETS[1]} $CXXFLAGS $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Yc$PCHSTOP /Fp${TARGETS[0]} $CCPDBFLAGS $PCHPDBFLAGS',
+  'PCHCOM': '$CXX /Fo${TARGETS[1]} $CXXFLAGS $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS '
+            '$_CPPINCFLAGS /c $SOURCES /Yc$PCHSTOP /Fp${TARGETS[0]} '
+            '$CCPDBFLAGS $PCHPDBFLAGS',
   'PCHPDBFLAGS': ['${(PDB and "/Yd") or ""}'],
   'PLATFORM': 'win32',
   'PROGPREFIX': '',
@@ -78,9 +88,10 @@ scons: Reading SConscript files ...
   'SHCCFLAGS': ['$CCFLAGS'],
   'SHCFLAGS': ['$CFLAGS'],
   'SHCXX': '$CXX',
-  'SHCXXCOM': '${TEMPFILE("$SHCXX $_MSVC_OUTPUT_FLAG /c $CHANGED_SOURCES $SHCXXFLAGS $SHCCFLAGS $_CCCOMCOM","$SHCXXCOMSTR")}',
+  'SHCXXCOM': '${TEMPFILE("$SHCXX $_MSVC_OUTPUT_FLAG /c $CHANGED_SOURCES '
+              '$SHCXXFLAGS $SHCCFLAGS $_CCCOMCOM","$SHCXXCOMSTR")}',
   'SHCXXFLAGS': ['$CXXFLAGS'],
-  'SHELL': None,
+  'SHELL': 'command',
   'SHLIBPREFIX': '',
   'SHLIBSUFFIX': '.dll',
   'SHOBJPREFIX': '$OBJPREFIX',
@@ -93,10 +104,14 @@ scons: Reading SConscript files ...
   'TEMPFILEARGJOIN': '\n',
   'TEMPFILEPREFIX': '@',
   'TOOLS': ['msvc', 'install', 'install'],
+  'VSWHERE': None,
   '_CCCOMCOM': '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS $CCPCHFLAGS $CCPDBFLAGS',
-  '_CPPDEFFLAGS': '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
-  '_CPPINCFLAGS': '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
-  '_LIBDIRFLAGS': '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
+  '_CPPDEFFLAGS': '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, '
+                  '__env__)}',
+  '_CPPINCFLAGS': '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, '
+                  'TARGET, SOURCE)} $)',
+  '_LIBDIRFLAGS': '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, '
+                  'RDirs, TARGET, SOURCE)} $)',
   '_LIBFLAGS': '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
   '_MSVC_OUTPUT_FLAG': &lt;function msvc_output_flag at 0x700000&gt;,
   '__DSHLIBVERSIONFLAGS': '${__libversionflags(__env__,"DSHLIBVERSION","_DSHLIBVERSIONFLAGS")}',

@@ -31,8 +31,8 @@ There are three types of SCons tests:
 
 *Unit Tests*
    Unit tests for individual SCons modules live underneath the
-   ``src/engine/`` subdirectory and are the same base name as the module
-   to be tests, with ``Tests`` appended before the ``.py``. For example,
+   ``SCons/`` subdirectory and are the same base name as the module
+   to be tested, with ``Tests`` appended  to the basename. For example,
    the unit tests for the ``Builder.py`` module are in the
    ``BuilderTests.py`` script.  Unit tests tend to be based on assertions.
 
@@ -110,7 +110,7 @@ to be more silent, have a look at the ``-q``, ``-s`` and ``-k`` options.
 
 You may specifically list one or more tests to be run::
 
-   $ python runtest.py src/engine/SCons/BuilderTests.py
+   $ python runtest.py SCons/BuilderTests.py
    $ python runtest.py test/option-j.py test/Program.py
 
 Folder names are allowed in the test list as well, so you can do::

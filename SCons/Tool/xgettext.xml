@@ -1,0 +1,373 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="xgettext">
+<summary>
+<para>
+This scons tool is a part of scons &t-link-gettext; toolset. It provides
+scons interface to <command>xgettext(1)</command>
+program, which extracts internationalized messages from source code. The tool
+provides &b-POTUpdate; builder to make  <literal>PO</literal>
+<emphasis>Template</emphasis> files. 
+</para>
+</summary>
+<sets>
+<item>POTSUFFIX</item>
+<item>POTUPDATE_ALIAS</item>
+<item>XGETTEXTCOM</item>
+<item>XGETTEXTCOMSTR</item>
+<item>XGETTEXTFLAGS</item>
+<item>XGETTEXTFROM</item>
+<item>XGETTEXTFROMPREFIX</item>
+<item>XGETTEXTFROMSUFFIX</item>
+<item>XGETTEXTPATH</item>
+<item>XGETTEXTPATHPREFIX</item>
+<item>XGETTEXTPATHSUFFIX</item>
+<item>_XGETTEXTDOMAIN</item>
+<item>_XGETTEXTFROMFLAGS</item>
+<item>_XGETTEXTPATHFLAGS</item>
+</sets>
+<uses>
+<item>POTDOMAIN</item>
+</uses>
+</tool>
+
+<builder name="POTUpdate">
+<summary>
+<para>
+The builder belongs to &t-link-xgettext; tool. The builder updates target
+<literal>POT</literal> file if exists or creates one if it doesn't. The node is
+not built by default (i.e. it is <literal>Ignore</literal>d from
+<literal>'.'</literal>), but only on demand (i.e.  when given
+<literal>POT</literal> file is required or when special alias is invoked). This
+builder adds its targe node (<filename>messages.pot</filename>, say) to a
+special alias (<literal>pot-update</literal> by default, see
+&cv-link-POTUPDATE_ALIAS;) so you can update/create them easily with
+<command>scons pot-update</command>. The file is not written until there is no
+real change in internationalized messages (or in comments that enter
+<literal>POT</literal> file). 
+</para>
+
+<para>
+<note> <para>You may see <command>xgettext(1)</command> being invoked by the
+&t-link-xgettext; tool even if there is no real change in internationalized
+messages (so the <literal>POT</literal> file is not being updated).  This
+happens every time  a source file has changed. In such case we invoke
+<command>xgettext(1)</command> and compare its output with the content of
+<literal>POT</literal> file to decide whether the file should be updated or
+not.</para></note>
+</para>
+
+<para>
+<emphasis>Example 1.</emphasis>
+Let's create <filename>po/</filename> directory and place following
+<filename>SConstruct</filename> script there:
+</para>
+<example_commands>
+  # SConstruct in 'po/' subdir
+  env = Environment( tools = ['default', 'xgettext'] )
+  env.POTUpdate(['foo'], ['../a.cpp', '../b.cpp'])
+  env.POTUpdate(['bar'], ['../c.cpp', '../d.cpp'])
+</example_commands>      
+<para>
+Then invoke scons few times:
+</para>
+<example_commands>
+  user@host:$ scons             # Does not create foo.pot nor bar.pot
+  user@host:$ scons foo.pot     # Updates or creates foo.pot
+  user@host:$ scons pot-update  # Updates or creates foo.pot and bar.pot
+  user@host:$ scons -c          # Does not clean foo.pot nor bar.pot.
+</example_commands>
+<para>
+the results shall be as the comments above say.
+</para>
+
+<para>
+<emphasis>Example 2.</emphasis>
+The &b-POTUpdate; builder may be used with no target specified, in which
+case default target <filename>messages.pot</filename> will be used. The
+default target may also be overridden by setting &cv-link-POTDOMAIN; construction
+variable or providing it as an override to &b-POTUpdate; builder:
+</para>
+<example_commands>    
+  # SConstruct script
+  env = Environment( tools = ['default', 'xgettext'] )
+  env['POTDOMAIN'] = "foo"
+  env.POTUpdate(source = ["a.cpp", "b.cpp"]) # Creates foo.pot ...
+  env.POTUpdate(POTDOMAIN = "bar", source = ["c.cpp", "d.cpp"]) # and bar.pot
+</example_commands>
+
+<para>
+<emphasis>Example 3.</emphasis>
+The sources may be specified within separate file, for example
+<filename>POTFILES.in</filename>:
+</para>
+<example_commands>      
+  # POTFILES.in in 'po/' subdirectory
+  ../a.cpp
+  ../b.cpp
+  # end of file
+</example_commands>    
+<para>
+The name of the file (<filename>POTFILES.in</filename>) containing the list of
+sources is provided via &cv-link-XGETTEXTFROM;:
+</para>
+<example_commands>      
+  # SConstruct file in 'po/' subdirectory
+  env = Environment( tools = ['default', 'xgettext'] )
+  env.POTUpdate(XGETTEXTFROM = 'POTFILES.in')
+</example_commands>    
+
+<para>
+<emphasis>Example 4.</emphasis>
+You may use &cv-link-XGETTEXTPATH; to define source search path. Assume, for
+example, that you have files <filename>a.cpp</filename>,
+<filename>b.cpp</filename>, <filename>po/SConstruct</filename>,
+<filename>po/POTFILES.in</filename>. Then your <literal>POT</literal>-related
+files could look as below:
+</para>
+<example_commands>
+  # POTFILES.in in 'po/' subdirectory
+  a.cpp
+  b.cpp
+  # end of file
+</example_commands>
+
+<example_commands>
+  # SConstruct file in 'po/' subdirectory
+  env = Environment( tools = ['default', 'xgettext'] )
+  env.POTUpdate(XGETTEXTFROM = 'POTFILES.in', XGETTEXTPATH='../')
+</example_commands>
+
+<para>
+<emphasis>Example 5.</emphasis>
+Multiple search directories may be defined within a list, i.e.
+<literal>XGETTEXTPATH = ['dir1', 'dir2', ...]</literal>. The order in the list
+determines the search order of source files. The path to the first file found
+is used.
+</para>
+
+<para>
+Let's create <filename>0/1/po/SConstruct</filename> script:
+</para>
+<example_commands>
+  # SConstruct file in '0/1/po/' subdirectory
+  env = Environment( tools = ['default', 'xgettext'] )
+  env.POTUpdate(XGETTEXTFROM = 'POTFILES.in', XGETTEXTPATH=['../', '../../'])
+</example_commands>
+<para>
+and <filename>0/1/po/POTFILES.in</filename>:
+</para>
+<example_commands>
+  # POTFILES.in in '0/1/po/' subdirectory
+  a.cpp
+  # end of file
+</example_commands>
+<para>
+Write two <filename>*.cpp</filename> files, the first one is
+<filename>0/a.cpp</filename>:
+</para>
+<example_commands>
+  /* 0/a.cpp */
+  gettext("Hello from ../../a.cpp")
+</example_commands>
+<para>
+and the second is <filename>0/1/a.cpp</filename>:
+</para>
+<example_commands>
+  /* 0/1/a.cpp */
+  gettext("Hello from ../a.cpp")
+</example_commands>
+<para>
+then run scons. You'll obtain <literal>0/1/po/messages.pot</literal> with the
+message <literal>"Hello from ../a.cpp"</literal>. When you reverse order in
+<varname>$XGETTEXTFOM</varname>, i.e. when you write SConscript as
+</para>
+<example_commands>
+  # SConstruct file in '0/1/po/' subdirectory
+  env = Environment( tools = ['default', 'xgettext'] )
+  env.POTUpdate(XGETTEXTFROM = 'POTFILES.in', XGETTEXTPATH=['../../', '../'])
+</example_commands> 
+<para>
+then the <filename>messages.pot</filename> will contain
+<literal>msgid "Hello from ../../a.cpp"</literal> line and not 
+<literal>msgid "Hello from ../a.cpp"</literal>.
+</para>
+
+</summary>
+</builder>
+
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="POTSUFFIX">
+<summary>
+<para>
+Suffix used for PO Template files (default: <literal>'.pot'</literal>).
+See &t-link-xgettext; tool and &b-link-POTUpdate; builder.
+</para>
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="POTUPDATE_ALIAS">
+<summary>
+<para>
+Name of the common phony target for all PO Templates created with
+&b-link-POUpdate; (default: <literal>'pot-update'</literal>).
+See &t-link-xgettext; tool and &b-link-POTUpdate; builder.
+</para>
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="XGETTEXT">
+<summary>
+<para>
+Path to <command>xgettext(1)</command> program (found via
+<function>Detect()</function>).
+See &t-link-xgettext; tool and &b-link-POTUpdate; builder.
+</para>
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="XGETTEXTCOM">
+<summary>
+<para>
+Complete xgettext command line.
+See &t-link-xgettext; tool and &b-link-POTUpdate; builder.
+</para>
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="XGETTEXTCOMSTR">
+<summary>
+<para>
+A string that is shown when <command>xgettext(1)</command> command is invoked
+(default: <literal>''</literal>, which means "print &cv-link-XGETTEXTCOM;").
+See &t-link-xgettext; tool and &b-link-POTUpdate; builder.
+</para>
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="XGETTEXTFLAGS">
+<summary>
+<para>
+Additional flags to <command>xgettext(1)</command>.
+See &t-link-xgettext; tool and &b-link-POTUpdate; builder.
+</para>
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="XGETTEXTFROM">
+<summary>
+<para>
+Name of file containing list of <command>xgettext(1)</command>'s source
+files. Autotools' users know this as <filename>POTFILES.in</filename> so they
+will in most cases set <literal>XGETTEXTFROM="POTFILES.in"</literal> here.
+The &cv-XGETTEXTFROM; files have same syntax and semantics as the well known
+GNU <filename>POTFILES.in</filename>.
+See &t-link-xgettext; tool and &b-link-POTUpdate; builder.
+</para>
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="XGETTEXTPATH">
+<summary>
+<para>
+List of directories, there <command>xgettext(1)</command> will look for
+source files (default: <literal>[]</literal>).
+<note><para>
+This variable works only together with &cv-link-XGETTEXTFROM;
+</para></note>
+See also &t-link-xgettext; tool and &b-link-POTUpdate; builder.
+</para>
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="XGETTEXTPATHPREFIX">
+<summary>
+<para>
+This flag is used to add single search path to
+<command>xgettext(1)</command>'s commandline (default:
+<literal>'-D'</literal>).
+</para>
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="XGETTEXTPATHSUFFIX">
+<summary>
+<para>
+(default: <literal>''</literal>)
+</para>
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="XGETTEXTFROMPREFIX">
+<summary>
+<para>
+This flag is used to add single &cv-link-XGETTEXTFROM; file to
+<command>xgettext(1)</command>'s commandline (default:
+<literal>'-f'</literal>).
+</para>
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="XGETTEXTFROMSUFFIX">
+<summary>
+<para>
+(default: <literal>''</literal>)
+</para>
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="_XGETTEXTDOMAIN">
+<summary>
+<para>
+Internal "macro". Generates <command>xgettext</command> domain name
+form source and target (default: <literal>'${TARGET.filebase}'</literal>).
+</para>
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="_XGETTEXTFROMFLAGS">
+<summary>
+<para>
+Internal "macro". Genrates list of <literal>-D&lt;dir&gt;</literal> flags
+from the &cv-link-XGETTEXTPATH; list.
+</para>
+</summary>
+</cvar>
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+<cvar name="_XGETTEXTPATHFLAGS">
+<summary>
+<para>
+Internal "macro". Generates list of <literal>-f&lt;file&gt;</literal> flags
+from &cv-link-XGETTEXTFROM;.
+</para>
+</summary>
+</cvar>
+
+<!--
+
+-->
+
+</sconsdoc>

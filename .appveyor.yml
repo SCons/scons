@@ -159,11 +159,11 @@ build_script:
         $usercustomizeText = "import os`r`nos.environ['COVERAGE_PROCESS_START'] = '$($env:COVERAGE_PROCESS_START)'`r`nimport coverage`r`ncoverage.process_startup()";
         $usercustomizeText|Set-Content "$($env:PYSITEDIR)/usercustomize.py";
         if ($isWindows) {
-          $coveragercFile = "[run]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)/src`r`nparallel = True`r`ndisable_warnings = trace-changed`r`nomit =`r`n`t*Tests.py`r`n`tsrc\test_*`r`n`tsrc\setup.py`r`n`r`n[path]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)`r`n[report]`r`nomit =`r`n`t*Tests.py`r`n`tsrc\test_*`r`n`tsrc\setup.py`r`n`r`n"
+          $coveragercFile = "[run]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)/SCons`r`nparallel = True`r`ndisable_warnings = trace-changed`r`nomit =`r`n`t*Tests.py`r`n`tsrc\test_*`r`n`tsrc\setup.py`r`n`r`n[path]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)`r`n[report]`r`nomit =`r`n`t*Tests.py`r`n`tsrc\test_*`r`n`tsrc\setup.py`r`n`r`n"
         }
         else
         {
-          $coveragercFile = "[run]`nsource = $($env:APPVEYOR_BUILD_FOLDER)/src`nparallel = True`ndisable_warnings = trace-changed`nomit =`n`t*Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`n[path]`nsource = $($env:APPVEYOR_BUILD_FOLDER)`n[report]`nomit =`n`t*Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`n"
+          $coveragercFile = "[run]`nsource = $($env:APPVEYOR_BUILD_FOLDER)/SCons`nparallel = True`ndisable_warnings = trace-changed`nomit =`n`t*Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`n[path]`nsource = $($env:APPVEYOR_BUILD_FOLDER)`n[report]`nomit =`n`t*Tests.py`n`tsrc/test_*`n`tsrc/setup.py`n`n"
         }
         $coveragercFile|Set-Content "$($env:COVERAGE_PROCESS_START)";
       }

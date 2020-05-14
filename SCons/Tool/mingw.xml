@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="mingw">
+<summary>
+<para>
+Sets construction variables for MinGW (Minimal Gnu on Windows).
+</para>
+</summary>
+<sets>
+<item>CC</item>
+<item>SHCCFLAGS</item>
+<item>CXX</item>
+<item>SHCXXFLAGS</item>
+<item>SHLINKFLAGS</item>
+<item>SHLINKCOM</item>
+<item>LDMODULECOM</item>
+<item>AS</item>
+<item>WINDOWSDEFPREFIX</item>
+<item>WINDOWSDEFSUFFIX</item>
+<item>SHOBJSUFFIX</item>
+<item><!--STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME--></item>
+<item>RC</item>
+<item>RCFLAGS</item>
+<item>RCINCFLAGS</item>
+<item>RCINCPREFIX</item>
+<item>RCINCSUFFIX</item>
+<item>RCCOM</item>
+<item>OBJSUFFIX</item>
+<item>LIBPREFIX</item>
+<item>LIBSUFFIX</item>
+</sets>
+<uses>
+<item>SHLINKCOMSTR</item>
+<item>RCCOMSTR</item>
+</uses>
+</tool>
+
+</sconsdoc>

@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<cvar name="RPATH">
+<summary>
+<para>
+A list of paths to search for shared libraries when running programs.
+Currently only used in the GNU (gnulink),
+IRIX (sgilink) and Sun (sunlink) linkers.
+Ignored on platforms and toolchains that don't support it.
+Note that the paths added to RPATH
+are not transformed by
+&scons;
+in any way:  if you want an absolute
+path, you must make it absolute yourself.
+</para>
+</summary>
+</cvar>
+
+<cvar name="_RPATH">
+<summary>
+<para>
+An automatically-generated construction variable
+containing the rpath flags to be used when linking
+a program with shared libraries.
+The value of &cv-_RPATH; is created
+by respectively prepending &cv-RPATHPREFIX; and appending &cv-RPATHSUFFIX;
+to the beginning and end
+of each directory in &cv-RPATH;.
+</para>
+</summary>
+</cvar>
+
+<cvar name="RPATHPREFIX">
+<summary>
+<para>
+The prefix used to specify a directory to be searched for
+shared libraries when running programs.
+This will be prepended to the beginning of each directory
+in the &cv-RPATH; construction variable
+when the &cv-_RPATH; variable is automatically generated.
+</para>
+</summary>
+</cvar>
+
+<cvar name="RPATHSUFFIX">
+<summary>
+<para>
+The suffix used to specify a directory to be searched for
+shared libraries when running programs.
+This will be appended to the end of each directory
+in the &cv-RPATH; construction variable
+when the &cv-_RPATH; variable is automatically generated.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

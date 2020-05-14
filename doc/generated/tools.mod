@@ -108,12 +108,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-zip "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>zip</literal>">
 
 <!--
-THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
--->
 
-<!--
-
-  Entities that are links to the tool entries in the appendix.
+  Entities that are links to the tool entries
 
 -->
 
@@ -215,7 +211,3 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-link-xgettext "<link linkend='t-xgettext' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>xgettext</literal></link>">
 <!ENTITY t-link-yacc "<link linkend='t-yacc' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>yacc</literal></link>">
 <!ENTITY t-link-zip "<link linkend='t-zip' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>zip</literal></link>">
-
-<!--
-THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
--->

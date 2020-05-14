@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
@@ -12,153 +11,137 @@
     %variables-mod;
 ]>
 
-<variablelist xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<variablelist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.scons.org/dbxsd/v1.0" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
   <varlistentry id="t-386asm">
     <term>386asm</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the 386ASM assembler
 for the Phar Lap ETS embedded operating system.
 </para>
-<para>Sets:  &cv-link-AS;, &cv-link-ASCOM;, &cv-link-ASFLAGS;, &cv-link-ASPPCOM;, &cv-link-ASPPFLAGS;.</para><para>Uses:  &cv-link-CC;, &cv-link-CPPFLAGS;, &cv-link-_CPPDEFFLAGS;, &cv-link-_CPPINCFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-AS"><varname>$AS</varname></link> <link linkend="cv-ASCOM"><varname>$ASCOM</varname></link> <link linkend="cv-ASFLAGS"><varname>$ASFLAGS</varname></link> <link linkend="cv-ASPPCOM"><varname>$ASPPCOM</varname></link> <link linkend="cv-ASPPFLAGS"><varname>$ASPPFLAGS</varname></link> </para><para>Uses: <link linkend="cv-CC"><varname>$CC</varname></link> <link linkend="cv-CPPFLAGS"><varname>$CPPFLAGS</varname></link> <link linkend="cv-_CPPDEFFLAGS"><varname>$_CPPDEFFLAGS</varname></link> <link linkend="cv-_CPPINCFLAGS"><varname>$_CPPINCFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-aixcXX">
     <term>aixc++</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the IMB xlc / Visual Age C++ compiler.
 </para>
-<para>Sets:  &cv-link-CXX;, &cv-link-CXXVERSION;, &cv-link-SHCXX;, &cv-link-SHOBJSUFFIX;.</para></listitem>
+<para>Sets: <link linkend="cv-CXX"><varname>$CXX</varname></link> <link linkend="cv-CXXVERSION"><varname>$CXXVERSION</varname></link> <link linkend="cv-SHCXX"><varname>$SHCXX</varname></link> <link linkend="cv-SHOBJSUFFIX"><varname>$SHOBJSUFFIX</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-aixcc">
     <term>aixcc</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the IBM xlc / Visual Age C compiler.
 </para>
-<para>Sets:  &cv-link-CC;, &cv-link-CCVERSION;, &cv-link-SHCC;.</para></listitem>
+<para>Sets: <link linkend="cv-CC"><varname>$CC</varname></link> <link linkend="cv-CCVERSION"><varname>$CCVERSION</varname></link> <link linkend="cv-SHCC"><varname>$SHCC</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-aixf77">
     <term>aixf77</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the IBM Visual Age f77 Fortran compiler.
 </para>
-<para>Sets:  &cv-link-F77;, &cv-link-SHF77;.</para></listitem>
+<para>Sets: <link linkend="cv-F77"><varname>$F77</varname></link> <link linkend="cv-SHF77"><varname>$SHF77</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-aixlink">
     <term>aixlink</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the IBM Visual Age linker.
 </para>
-<para>Sets:  &cv-link-LINKFLAGS;, &cv-link-SHLIBSUFFIX;, &cv-link-SHLINKFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-LINKFLAGS"><varname>$LINKFLAGS</varname></link> <link linkend="cv-SHLIBSUFFIX"><varname>$SHLIBSUFFIX</varname></link> <link linkend="cv-SHLINKFLAGS"><varname>$SHLINKFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-applelink">
     <term>applelink</term>
-    <listitem>
-            <para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
                 Sets construction variables for the Apple linker
                 (similar to the GNU linker).
             </para>
-        <para>Sets:  &cv-link-APPLELINK_COMPATIBILITY_VERSION;, &cv-link-APPLELINK_CURRENT_VERSION;, &cv-link-APPLELINK_NO_COMPATIBILITY_VERSION;, &cv-link-APPLELINK_NO_CURRENT_VERSION;, &cv-link-FRAMEWORKPATHPREFIX;, &cv-link-LDMODULECOM;, &cv-link-LDMODULEFLAGS;, &cv-link-LDMODULEPREFIX;, &cv-link-LDMODULESUFFIX;, &cv-link-LINKCOM;, &cv-link-SHLINKCOM;, &cv-link-SHLINKFLAGS;, &cv-link-_APPLELINK_COMPATIBILITY_VERSION;, &cv-link-_APPLELINK_CURRENT_VERSION;, &cv-link-_FRAMEWORKPATH;, &cv-link-_FRAMEWORKS;.</para><para>Uses:  &cv-link-FRAMEWORKSFLAGS;.</para></listitem>
+        <para>Sets: <link linkend="cv-APPLELINK_COMPATIBILITY_VERSION"><varname>$APPLELINK_COMPATIBILITY_VERSION</varname></link> <link linkend="cv-APPLELINK_CURRENT_VERSION"><varname>$APPLELINK_CURRENT_VERSION</varname></link> <link linkend="cv-APPLELINK_NO_COMPATIBILITY_VERSION"><varname>$APPLELINK_NO_COMPATIBILITY_VERSION</varname></link> <link linkend="cv-APPLELINK_NO_CURRENT_VERSION"><varname>$APPLELINK_NO_CURRENT_VERSION</varname></link> <link linkend="cv-FRAMEWORKPATHPREFIX"><varname>$FRAMEWORKPATHPREFIX</varname></link> <link linkend="cv-LDMODULECOM"><varname>$LDMODULECOM</varname></link> <link linkend="cv-LDMODULEFLAGS"><varname>$LDMODULEFLAGS</varname></link> <link linkend="cv-LDMODULEPREFIX"><varname>$LDMODULEPREFIX</varname></link> <link linkend="cv-LDMODULESUFFIX"><varname>$LDMODULESUFFIX</varname></link> <link linkend="cv-LINKCOM"><varname>$LINKCOM</varname></link> <link linkend="cv-SHLINKCOM"><varname>$SHLINKCOM</varname></link> <link linkend="cv-SHLINKFLAGS"><varname>$SHLINKFLAGS</varname></link> <link linkend="cv-_APPLELINK_COMPATIBILITY_VERSION"><varname>$_APPLELINK_COMPATIBILITY_VERSION</varname></link> <link linkend="cv-_APPLELINK_CURRENT_VERSION"><varname>$_APPLELINK_CURRENT_VERSION</varname></link> <link linkend="cv-_FRAMEWORKPATH"><varname>$_FRAMEWORKPATH</varname></link> <link linkend="cv-_FRAMEWORKS"><varname>$_FRAMEWORKS</varname></link> </para><para>Uses: <link linkend="cv-FRAMEWORKSFLAGS"><varname>$FRAMEWORKSFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-ar">
     <term>ar</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the <application xmlns="http://www.scons.org/dbxsd/v1.0">ar</application> library archiver.
+    <listitem><para>
+Sets construction variables for the <application>ar</application> library archiver.
 </para>
-<para>Sets:  &cv-link-AR;, &cv-link-ARCOM;, &cv-link-ARFLAGS;, &cv-link-LIBPREFIX;, &cv-link-LIBSUFFIX;, &cv-link-RANLIB;, &cv-link-RANLIBCOM;, &cv-link-RANLIBFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-AR"><varname>$AR</varname></link> <link linkend="cv-ARCOM"><varname>$ARCOM</varname></link> <link linkend="cv-ARFLAGS"><varname>$ARFLAGS</varname></link> <link linkend="cv-LIBPREFIX"><varname>$LIBPREFIX</varname></link> <link linkend="cv-LIBSUFFIX"><varname>$LIBSUFFIX</varname></link> <link linkend="cv-RANLIB"><varname>$RANLIB</varname></link> <link linkend="cv-RANLIBCOM"><varname>$RANLIBCOM</varname></link> <link linkend="cv-RANLIBFLAGS"><varname>$RANLIBFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-as">
     <term>as</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the <application xmlns="http://www.scons.org/dbxsd/v1.0">as</application> assembler.
+    <listitem><para>
+Sets construction variables for the <application>as</application> assembler.
 </para>
-<para>Sets:  &cv-link-AS;, &cv-link-ASCOM;, &cv-link-ASFLAGS;, &cv-link-ASPPCOM;, &cv-link-ASPPFLAGS;.</para><para>Uses:  &cv-link-CC;, &cv-link-CPPFLAGS;, &cv-link-_CPPDEFFLAGS;, &cv-link-_CPPINCFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-AS"><varname>$AS</varname></link> <link linkend="cv-ASCOM"><varname>$ASCOM</varname></link> <link linkend="cv-ASFLAGS"><varname>$ASFLAGS</varname></link> <link linkend="cv-ASPPCOM"><varname>$ASPPCOM</varname></link> <link linkend="cv-ASPPFLAGS"><varname>$ASPPFLAGS</varname></link> </para><para>Uses: <link linkend="cv-CC"><varname>$CC</varname></link> <link linkend="cv-CPPFLAGS"><varname>$CPPFLAGS</varname></link> <link linkend="cv-_CPPDEFFLAGS"><varname>$_CPPDEFFLAGS</varname></link> <link linkend="cv-_CPPINCFLAGS"><varname>$_CPPINCFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-bcc32">
     <term>bcc32</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the bcc32 compiler.
 </para>
-<para>Sets:  &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CCFLAGS;, &cv-link-CFILESUFFIX;, &cv-link-CFLAGS;, &cv-link-CPPDEFPREFIX;, &cv-link-CPPDEFSUFFIX;, &cv-link-INCPREFIX;, &cv-link-INCSUFFIX;, &cv-link-SHCC;, &cv-link-SHCCCOM;, &cv-link-SHCCFLAGS;, &cv-link-SHCFLAGS;, &cv-link-SHOBJSUFFIX;.</para><para>Uses:  &cv-link-_CPPDEFFLAGS;, &cv-link-_CPPINCFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-CC"><varname>$CC</varname></link> <link linkend="cv-CCCOM"><varname>$CCCOM</varname></link> <link linkend="cv-CCFLAGS"><varname>$CCFLAGS</varname></link> <link linkend="cv-CFILESUFFIX"><varname>$CFILESUFFIX</varname></link> <link linkend="cv-CFLAGS"><varname>$CFLAGS</varname></link> <link linkend="cv-CPPDEFPREFIX"><varname>$CPPDEFPREFIX</varname></link> <link linkend="cv-CPPDEFSUFFIX"><varname>$CPPDEFSUFFIX</varname></link> <link linkend="cv-INCPREFIX"><varname>$INCPREFIX</varname></link> <link linkend="cv-INCSUFFIX"><varname>$INCSUFFIX</varname></link> <link linkend="cv-SHCC"><varname>$SHCC</varname></link> <link linkend="cv-SHCCCOM"><varname>$SHCCCOM</varname></link> <link linkend="cv-SHCCFLAGS"><varname>$SHCCFLAGS</varname></link> <link linkend="cv-SHCFLAGS"><varname>$SHCFLAGS</varname></link> <link linkend="cv-SHOBJSUFFIX"><varname>$SHOBJSUFFIX</varname></link> </para><para>Uses: <link linkend="cv-_CPPDEFFLAGS"><varname>$_CPPDEFFLAGS</varname></link> <link linkend="cv-_CPPINCFLAGS"><varname>$_CPPINCFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-cc">
     <term>cc</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for generic POSIX C compilers.
 </para>
-<para>Sets:  &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CCFLAGS;, &cv-link-CFILESUFFIX;, &cv-link-CFLAGS;, &cv-link-CPPDEFPREFIX;, &cv-link-CPPDEFSUFFIX;, &cv-link-FRAMEWORKPATH;, &cv-link-FRAMEWORKS;, &cv-link-INCPREFIX;, &cv-link-INCSUFFIX;, &cv-link-SHCC;, &cv-link-SHCCCOM;, &cv-link-SHCCFLAGS;, &cv-link-SHCFLAGS;, &cv-link-SHOBJSUFFIX;.</para><para>Uses:  &cv-link-PLATFORM;.</para></listitem>
+<para>Sets: <link linkend="cv-CC"><varname>$CC</varname></link> <link linkend="cv-CCCOM"><varname>$CCCOM</varname></link> <link linkend="cv-CCFLAGS"><varname>$CCFLAGS</varname></link> <link linkend="cv-CFILESUFFIX"><varname>$CFILESUFFIX</varname></link> <link linkend="cv-CFLAGS"><varname>$CFLAGS</varname></link> <link linkend="cv-CPPDEFPREFIX"><varname>$CPPDEFPREFIX</varname></link> <link linkend="cv-CPPDEFSUFFIX"><varname>$CPPDEFSUFFIX</varname></link> <link linkend="cv-FRAMEWORKPATH"><varname>$FRAMEWORKPATH</varname></link> <link linkend="cv-FRAMEWORKS"><varname>$FRAMEWORKS</varname></link> <link linkend="cv-INCPREFIX"><varname>$INCPREFIX</varname></link> <link linkend="cv-INCSUFFIX"><varname>$INCSUFFIX</varname></link> <link linkend="cv-SHCC"><varname>$SHCC</varname></link> <link linkend="cv-SHCCCOM"><varname>$SHCCCOM</varname></link> <link linkend="cv-SHCCFLAGS"><varname>$SHCCFLAGS</varname></link> <link linkend="cv-SHCFLAGS"><varname>$SHCFLAGS</varname></link> <link linkend="cv-SHOBJSUFFIX"><varname>$SHOBJSUFFIX</varname></link> </para><para>Uses: <link linkend="cv-CCCOMSTR"><varname>$CCCOMSTR</varname></link> <link linkend="cv-PLATFORM"><varname>$PLATFORM</varname></link> <link linkend="cv-SHCCCOMSTR"><varname>$SHCCCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-clang">
     <term>clang</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Set construction variables for the Clang C compiler.
 </para>
-<para>Sets:  &cv-link-CC;, &cv-link-CCVERSION;, &cv-link-SHCCFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-CC"><varname>$CC</varname></link> <link linkend="cv-CCVERSION"><varname>$CCVERSION</varname></link> <link linkend="cv-SHCCFLAGS"><varname>$SHCCFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-clangxx">
     <term>clangxx</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Set construction variables for the Clang C++ compiler.
 </para>
-<para>Sets:  &cv-link-CXX;, &cv-link-CXXVERSION;, &cv-link-SHCXXFLAGS;, &cv-link-SHOBJSUFFIX;, &cv-link-STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME;.</para></listitem>
+<para>Sets: <link linkend="cv-CXX"><varname>$CXX</varname></link> <link linkend="cv-CXXVERSION"><varname>$CXXVERSION</varname></link> <link linkend="cv-SHCXXFLAGS"><varname>$SHCXXFLAGS</varname></link> <link linkend="cv-SHOBJSUFFIX"><varname>$SHOBJSUFFIX</varname></link> <link linkend="cv-STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME"><varname>$STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-cvf">
     <term>cvf</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the Compaq Visual Fortran compiler.
 </para>
-<para>Sets:  &cv-link-FORTRAN;, &cv-link-FORTRANCOM;, &cv-link-FORTRANMODDIR;, &cv-link-FORTRANMODDIRPREFIX;, &cv-link-FORTRANMODDIRSUFFIX;, &cv-link-FORTRANPPCOM;, &cv-link-OBJSUFFIX;, &cv-link-SHFORTRANCOM;, &cv-link-SHFORTRANPPCOM;.</para><para>Uses:  &cv-link-CPPFLAGS;, &cv-link-FORTRANFLAGS;, &cv-link-SHFORTRANFLAGS;, &cv-link-_CPPDEFFLAGS;, &cv-link-_FORTRANINCFLAGS;, &cv-link-_FORTRANMODFLAG;.</para></listitem>
+<para>Sets: <link linkend="cv-FORTRAN"><varname>$FORTRAN</varname></link> <link linkend="cv-FORTRANCOM"><varname>$FORTRANCOM</varname></link> <link linkend="cv-FORTRANMODDIR"><varname>$FORTRANMODDIR</varname></link> <link linkend="cv-FORTRANMODDIRPREFIX"><varname>$FORTRANMODDIRPREFIX</varname></link> <link linkend="cv-FORTRANMODDIRSUFFIX"><varname>$FORTRANMODDIRSUFFIX</varname></link> <link linkend="cv-FORTRANPPCOM"><varname>$FORTRANPPCOM</varname></link> <link linkend="cv-OBJSUFFIX"><varname>$OBJSUFFIX</varname></link> <link linkend="cv-SHFORTRANCOM"><varname>$SHFORTRANCOM</varname></link> <link linkend="cv-SHFORTRANPPCOM"><varname>$SHFORTRANPPCOM</varname></link> </para><para>Uses: <link linkend="cv-CPPFLAGS"><varname>$CPPFLAGS</varname></link> <link linkend="cv-FORTRANFLAGS"><varname>$FORTRANFLAGS</varname></link> <link linkend="cv-SHFORTRANFLAGS"><varname>$SHFORTRANFLAGS</varname></link> <link linkend="cv-_CPPDEFFLAGS"><varname>$_CPPDEFFLAGS</varname></link> <link linkend="cv-_FORTRANINCFLAGS"><varname>$_FORTRANINCFLAGS</varname></link> <link linkend="cv-_FORTRANMODFLAG"><varname>$_FORTRANMODFLAG</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-cXX">
     <term>cXX</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for generic POSIX C++ compilers.
 </para>
-<para>Sets:  &cv-link-CPPDEFPREFIX;, &cv-link-CPPDEFSUFFIX;, &cv-link-CXX;, &cv-link-CXXCOM;, &cv-link-CXXFILESUFFIX;, &cv-link-CXXFLAGS;, &cv-link-INCPREFIX;, &cv-link-INCSUFFIX;, &cv-link-OBJSUFFIX;, &cv-link-SHCXX;, &cv-link-SHCXXCOM;, &cv-link-SHCXXFLAGS;, &cv-link-SHOBJSUFFIX;.</para><para>Uses:  &cv-link-CXXCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-CPPDEFPREFIX"><varname>$CPPDEFPREFIX</varname></link> <link linkend="cv-CPPDEFSUFFIX"><varname>$CPPDEFSUFFIX</varname></link> <link linkend="cv-CXX"><varname>$CXX</varname></link> <link linkend="cv-CXXCOM"><varname>$CXXCOM</varname></link> <link linkend="cv-CXXFILESUFFIX"><varname>$CXXFILESUFFIX</varname></link> <link linkend="cv-CXXFLAGS"><varname>$CXXFLAGS</varname></link> <link linkend="cv-INCPREFIX"><varname>$INCPREFIX</varname></link> <link linkend="cv-INCSUFFIX"><varname>$INCSUFFIX</varname></link> <link linkend="cv-OBJSUFFIX"><varname>$OBJSUFFIX</varname></link> <link linkend="cv-SHCXX"><varname>$SHCXX</varname></link> <link linkend="cv-SHCXXCOM"><varname>$SHCXXCOM</varname></link> <link linkend="cv-SHCXXFLAGS"><varname>$SHCXXFLAGS</varname></link> <link linkend="cv-SHOBJSUFFIX"><varname>$SHOBJSUFFIX</varname></link> </para><para>Uses: <link linkend="cv-CXXCOMSTR"><varname>$CXXCOMSTR</varname></link> <link linkend="cv-SHCXXCOMSTR"><varname>$SHCXXCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-cyglink">
     <term>cyglink</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Set construction variables for cygwin linker/loader.
 </para>
-<para>Sets:  &cv-link-IMPLIBPREFIX;, &cv-link-IMPLIBSUFFIX;, &cv-link-LDMODULEVERSIONFLAGS;, &cv-link-LINKFLAGS;, &cv-link-RPATHPREFIX;, &cv-link-RPATHSUFFIX;, &cv-link-SHLIBPREFIX;, &cv-link-SHLIBSUFFIX;, &cv-link-SHLIBVERSIONFLAGS;, &cv-link-SHLINKCOM;, &cv-link-SHLINKFLAGS;, &cv-link-_LDMODULEVERSIONFLAGS;, &cv-link-_SHLIBVERSIONFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-IMPLIBPREFIX"><varname>$IMPLIBPREFIX</varname></link> <link linkend="cv-IMPLIBSUFFIX"><varname>$IMPLIBSUFFIX</varname></link> <link linkend="cv-LDMODULEVERSIONFLAGS"><varname>$LDMODULEVERSIONFLAGS</varname></link> <link linkend="cv-LINKFLAGS"><varname>$LINKFLAGS</varname></link> <link linkend="cv-RPATHPREFIX"><varname>$RPATHPREFIX</varname></link> <link linkend="cv-RPATHSUFFIX"><varname>$RPATHSUFFIX</varname></link> <link linkend="cv-SHLIBPREFIX"><varname>$SHLIBPREFIX</varname></link> <link linkend="cv-SHLIBSUFFIX"><varname>$SHLIBSUFFIX</varname></link> <link linkend="cv-SHLIBVERSIONFLAGS"><varname>$SHLIBVERSIONFLAGS</varname></link> <link linkend="cv-SHLINKCOM"><varname>$SHLINKCOM</varname></link> <link linkend="cv-SHLINKFLAGS"><varname>$SHLINKFLAGS</varname></link> <link linkend="cv-_LDMODULEVERSIONFLAGS"><varname>$_LDMODULEVERSIONFLAGS</varname></link> <link linkend="cv-_SHLIBVERSIONFLAGS"><varname>$_SHLIBVERSIONFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-default">
     <term>default</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets <literal xmlns="http://www.scons.org/dbxsd/v1.0">construction variables</literal> for a default list of Tool modules.
+    <listitem><para>
+Sets <phrase>construction variables</phrase> for a default list of Tool modules.
 Use <emphasis role="bold">default</emphasis>
 in the tools list to retain the original defaults,
 since the <parameter>tools</parameter> parameter
 is treated as a literal statement of the tools
-to be made available in that <literal xmlns="http://www.scons.org/dbxsd/v1.0">construction environment</literal>, not an addition.
+to be made available in that <phrase>construction environment</phrase>, not an addition.
 </para>
 
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+<para>
 The list of tools selected by default is not static,
 but is dependent both on
 the platform and on the software installed on the platform.
 Some tools will not initialize if an underlying command is
 not found, and some tools are selected from a list of choices
 on a first-found basis. The finished tool list can be
-examined by inspecting the <envar>TOOLS</envar> <literal xmlns="http://www.scons.org/dbxsd/v1.0">construction variable</literal>
-in the <literal xmlns="http://www.scons.org/dbxsd/v1.0">construction environment</literal>.
+examined by inspecting the <envar>TOOLS</envar> <phrase>construction variable</phrase>
+in the <phrase>construction environment</phrase>.
 </para>
 
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+<para>
 On all platforms, all tools from the following list
 are selected whose respective conditions are met:
 filesystem, wix, lex, yacc, rpcgen, swig,
@@ -166,7 +149,7 @@ jar, javac, javah, rmic, dvipdf, dvips, gs,
 tex, latex, pdflatex, pdftex, tar, zip, textfile.
 </para>
 
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+<para>
 On Linux systems, the default tools list selects
 (first-found): a C compiler from
 gcc, intelc, icc, cc;
@@ -183,7 +166,7 @@ It also selects all found from the list
 m4, rpm.
 </para>
 
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+<para>
 On Windows systems, the default tools list selects
 (first-found): a C compiler from
 msvc, mingw, gcc, intelc, icl, icc, cc, bcc32;
@@ -201,7 +184,7 @@ It also selects all found from the list
 msvs, midl.
 </para>
 
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+<para>
 On MacOS systems, the default tools list selects
 (first-found): a C compiler from
 gcc, cc;
@@ -217,9 +200,9 @@ It also selects all found from the list
 m4, rpm.
 </para>
 
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+<para>
 Default lists for other platforms can be found by
-examining the <filename xmlns="http://www.scons.org/dbxsd/v1.0">scons</filename>
+examining the <command>scons</command>
 source code (see
 <filename>SCons/Tool/__init__.py</filename>).
 </para>
@@ -228,16 +211,14 @@ source code (see
   </varlistentry>
   <varlistentry id="t-dmd">
     <term>dmd</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for D language compiler DMD.
 </para>
-<para>Sets:  &cv-link-DC;, &cv-link-DCOM;, &cv-link-DDEBUG;, &cv-link-DDEBUGPREFIX;, &cv-link-DDEBUGSUFFIX;, &cv-link-DFILESUFFIX;, &cv-link-DFLAGPREFIX;, &cv-link-DFLAGS;, &cv-link-DFLAGSUFFIX;, &cv-link-DINCPREFIX;, &cv-link-DINCSUFFIX;, &cv-link-DLIB;, &cv-link-DLIBCOM;, &cv-link-DLIBDIRPREFIX;, &cv-link-DLIBDIRSUFFIX;, &cv-link-DLIBFLAGPREFIX;, &cv-link-DLIBFLAGSUFFIX;, &cv-link-DLIBLINKPREFIX;, &cv-link-DLIBLINKSUFFIX;, &cv-link-DLINK;, &cv-link-DLINKCOM;, &cv-link-DLINKFLAGPREFIX;, &cv-link-DLINKFLAGS;, &cv-link-DLINKFLAGSUFFIX;, &cv-link-DPATH;, &cv-link-DRPATHPREFIX;, &cv-link-DRPATHSUFFIX;, &cv-link-DShLibSonameGenerator;, &cv-link-DVERPREFIX;, &cv-link-DVERSIONS;, &cv-link-DVERSUFFIX;, &cv-link-SHDC;, &cv-link-SHDCOM;, &cv-link-SHDLIBVERSION;, &cv-link-SHDLIBVERSIONFLAGS;, &cv-link-SHDLINK;, &cv-link-SHDLINKCOM;, &cv-link-SHDLINKFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-DC"><varname>$DC</varname></link> <link linkend="cv-DCOM"><varname>$DCOM</varname></link> <link linkend="cv-DDEBUG"><varname>$DDEBUG</varname></link> <link linkend="cv-DDEBUGPREFIX"><varname>$DDEBUGPREFIX</varname></link> <link linkend="cv-DDEBUGSUFFIX"><varname>$DDEBUGSUFFIX</varname></link> <link linkend="cv-DFILESUFFIX"><varname>$DFILESUFFIX</varname></link> <link linkend="cv-DFLAGPREFIX"><varname>$DFLAGPREFIX</varname></link> <link linkend="cv-DFLAGS"><varname>$DFLAGS</varname></link> <link linkend="cv-DFLAGSUFFIX"><varname>$DFLAGSUFFIX</varname></link> <link linkend="cv-DINCPREFIX"><varname>$DINCPREFIX</varname></link> <link linkend="cv-DINCSUFFIX"><varname>$DINCSUFFIX</varname></link> <link linkend="cv-DLIB"><varname>$DLIB</varname></link> <link linkend="cv-DLIBCOM"><varname>$DLIBCOM</varname></link> <link linkend="cv-DLIBDIRPREFIX"><varname>$DLIBDIRPREFIX</varname></link> <link linkend="cv-DLIBDIRSUFFIX"><varname>$DLIBDIRSUFFIX</varname></link> <link linkend="cv-DLIBFLAGPREFIX"><varname>$DLIBFLAGPREFIX</varname></link> <link linkend="cv-DLIBFLAGSUFFIX"><varname>$DLIBFLAGSUFFIX</varname></link> <link linkend="cv-DLIBLINKPREFIX"><varname>$DLIBLINKPREFIX</varname></link> <link linkend="cv-DLIBLINKSUFFIX"><varname>$DLIBLINKSUFFIX</varname></link> <link linkend="cv-DLINK"><varname>$DLINK</varname></link> <link linkend="cv-DLINKCOM"><varname>$DLINKCOM</varname></link> <link linkend="cv-DLINKFLAGPREFIX"><varname>$DLINKFLAGPREFIX</varname></link> <link linkend="cv-DLINKFLAGS"><varname>$DLINKFLAGS</varname></link> <link linkend="cv-DLINKFLAGSUFFIX"><varname>$DLINKFLAGSUFFIX</varname></link> <link linkend="cv-DPATH"><varname>$DPATH</varname></link> <link linkend="cv-DRPATHPREFIX"><varname>$DRPATHPREFIX</varname></link> <link linkend="cv-DRPATHSUFFIX"><varname>$DRPATHSUFFIX</varname></link> <link linkend="cv-DShLibSonameGenerator"><varname>$DShLibSonameGenerator</varname></link> <link linkend="cv-DVERPREFIX"><varname>$DVERPREFIX</varname></link> <link linkend="cv-DVERSIONS"><varname>$DVERSIONS</varname></link> <link linkend="cv-DVERSUFFIX"><varname>$DVERSUFFIX</varname></link> <link linkend="cv-SHDC"><varname>$SHDC</varname></link> <link linkend="cv-SHDCOM"><varname>$SHDCOM</varname></link> <link linkend="cv-SHDLIBVERSION"><varname>$SHDLIBVERSION</varname></link> <link linkend="cv-SHDLIBVERSIONFLAGS"><varname>$SHDLIBVERSIONFLAGS</varname></link> <link linkend="cv-SHDLINK"><varname>$SHDLINK</varname></link> <link linkend="cv-SHDLINKCOM"><varname>$SHDLINKCOM</varname></link> <link linkend="cv-SHDLINKFLAGS"><varname>$SHDLINKFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-docbook">
     <term>docbook</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">This tool tries to make working with Docbook in SCons a little easier.
+    <listitem><para>This tool tries to make working with Docbook in SCons a little easier.
 It provides several toolchains for creating different output formats,
 like HTML or PDF. Contained in the package is
 a distribution of the Docbook XSL stylesheets as of version 1.76.1.
@@ -245,27 +226,27 @@ As long as you don't specify your own stylesheets for customization,
 these official versions are picked as default...which should reduce
 the inevitable setup hassles for you.
 </para>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">Implicit dependencies to images and XIncludes are detected automatically
+<para>Implicit dependencies to images and XIncludes are detected automatically
 if you meet the HTML requirements. The additional
 stylesheet <filename>utils/xmldepend.xsl</filename> by Paul DuBois is used for this purpose.
 </para>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">Note, that there is no support for XML catalog resolving offered! This tool calls
+<para>Note, that there is no support for XML catalog resolving offered! This tool calls
 the XSLT processors and PDF renderers with the stylesheets you specified, that's it.
 The rest lies in your hands and you still have to know what you're doing when
 resolving names via a catalog. 
 </para>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">For activating the tool "docbook", you have to add its name to the Environment constructor,
+<para>For activating the tool "docbook", you have to add its name to the Environment constructor,
 like this
 </para>
-<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+<screen>env = Environment(tools=['docbook'])
 </screen>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">On its startup, the Docbook tool tries to find a required <literal>xsltproc</literal> processor, and
+<para>On its startup, the Docbook tool tries to find a required <literal>xsltproc</literal> processor, and
 a PDF renderer, e.g. <literal>fop</literal>. So make sure that these are added to your system's environment
 <literal>PATH</literal> and can be called directly, without specifying their full path.
 </para>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">For the most basic processing of Docbook to HTML, you need to have installed
+<para>For the most basic processing of Docbook to HTML, you need to have installed
 </para>
-<itemizedlist xmlns="http://www.scons.org/dbxsd/v1.0"><listitem><para>the Python <literal>lxml</literal> binding to <literal>libxml2</literal>, or
+<itemizedlist><listitem><para>the Python <literal>lxml</literal> binding to <literal>libxml2</literal>, or
 </para>
 </listitem>
 <listitem><para>the direct Python bindings for <literal>libxml2/libxslt</literal>, or
@@ -276,49 +257,49 @@ and <literal>xalan</literal>.
 </para>
 </listitem>
 </itemizedlist>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">Rendering to PDF requires you to have one of the applications
+<para>Rendering to PDF requires you to have one of the applications
 <literal>fop</literal> or <literal>xep</literal> installed.
 </para>
 
-<para xmlns="http://www.scons.org/dbxsd/v1.0">Creating a HTML or PDF document is very simple and straightforward. Say
+<para>Creating a HTML or PDF document is very simple and straightforward. Say
 </para>
-<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+<screen>env = Environment(tools=['docbook'])
 env.DocbookHtml('manual.html', 'manual.xml')
 env.DocbookPdf('manual.pdf', 'manual.xml')
 </screen>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">to get both outputs from your XML source <filename>manual.xml</filename>. As a shortcut, you can
+<para>to get both outputs from your XML source <filename>manual.xml</filename>. As a shortcut, you can
 give the stem of the filenames alone, like this:
 </para>
-<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+<screen>env = Environment(tools=['docbook'])
 env.DocbookHtml('manual')
 env.DocbookPdf('manual')
 </screen>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">and get the same result. Target and source lists are also supported:
+<para>and get the same result. Target and source lists are also supported:
 </para>
-<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+<screen>env = Environment(tools=['docbook'])
 env.DocbookHtml(['manual.html','reference.html'], ['manual.xml','reference.xml'])
 </screen>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">or even
+<para>or even
 </para>
-<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+<screen>env = Environment(tools=['docbook'])
 env.DocbookHtml(['manual','reference'])
 </screen>
-<important xmlns="http://www.scons.org/dbxsd/v1.0"><para>Whenever you leave out the list of sources, you may not specify a file extension! The
+<important><para>Whenever you leave out the list of sources, you may not specify a file extension! The
 Tool uses the given names as file stems, and adds the suffixes for target and source files
 accordingly.
 </para>
 </important>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">The rules given above are valid for the Builders <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookHtml"><function>DocbookHtml</function></link>, 
-<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookPdf"><function>DocbookPdf</function></link>, <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookEpub"><function>DocbookEpub</function></link>, <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookSlidesPdf"><function>DocbookSlidesPdf</function></link> and <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookXInclude"><function>DocbookXInclude</function></link>. For the 
-<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookMan"><function>DocbookMan</function></link> transformation you
+<para>The rules given above are valid for the Builders <link linkend="b-DocbookHtml"><function>DocbookHtml</function></link>, 
+<link linkend="b-DocbookPdf"><function>DocbookPdf</function></link>, <link linkend="b-DocbookEpub"><function>DocbookEpub</function></link>, <link linkend="b-DocbookSlidesPdf"><function>DocbookSlidesPdf</function></link> and <link linkend="b-DocbookXInclude"><function>DocbookXInclude</function></link>. For the 
+<link linkend="b-DocbookMan"><function>DocbookMan</function></link> transformation you
 can specify a target name, but the actual output names are automatically
 set from the <literal>refname</literal> entries in your XML source.
 </para>
 
-<para xmlns="http://www.scons.org/dbxsd/v1.0">The Builders <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookHtmlChunked"><function>DocbookHtmlChunked</function></link>, <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookHtmlhelp"><function>DocbookHtmlhelp</function></link> and 
-<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-DocbookSlidesHtml"><function>DocbookSlidesHtml</function></link> are special, in that:
+<para>The Builders <link linkend="b-DocbookHtmlChunked"><function>DocbookHtmlChunked</function></link>, <link linkend="b-DocbookHtmlhelp"><function>DocbookHtmlhelp</function></link> and 
+<link linkend="b-DocbookSlidesHtml"><function>DocbookSlidesHtml</function></link> are special, in that:
 </para>
-<orderedlist xmlns="http://www.scons.org/dbxsd/v1.0"><listitem><para>they create a large set of files, where the exact names and their number depend
+<orderedlist><listitem><para>they create a large set of files, where the exact names and their number depend
 on the content of the source file, and
 </para>
 </listitem>
@@ -327,24 +308,24 @@ XSL transformation is not picked up by the stylesheets.
 </para>
 </listitem>
 </orderedlist>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">As a result, there is simply no use in specifying a target HTML name. 
+<para>As a result, there is simply no use in specifying a target HTML name. 
 So the basic syntax for these builders is always:
 </para>
-<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'])
+<screen>env = Environment(tools=['docbook'])
 env.DocbookHtmlhelp('manual')
 </screen>
 
-<para xmlns="http://www.scons.org/dbxsd/v1.0">If you want to use a specific XSL file, you can set the
+<para>If you want to use a specific XSL file, you can set the
 additional <literal>xsl</literal> parameter to your
 Builder call as follows:
 </para>
-<screen xmlns="http://www.scons.org/dbxsd/v1.0">env.DocbookHtml('other.html', 'manual.xml', xsl='html.xsl')
+<screen>env.DocbookHtml('other.html', 'manual.xml', xsl='html.xsl')
 </screen>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">Since this may get tedious if you always use the same local naming for your customized XSL files,
+<para>Since this may get tedious if you always use the same local naming for your customized XSL files,
 e.g. <filename>html.xsl</filename> for HTML and <filename>pdf.xsl</filename> for PDF output, a set of
 variables for setting the default XSL name is provided. These are:
 </para>
-<screen xmlns="http://www.scons.org/dbxsd/v1.0">DOCBOOK_DEFAULT_XSL_HTML        
+<screen>DOCBOOK_DEFAULT_XSL_HTML        
 DOCBOOK_DEFAULT_XSL_HTMLCHUNKED        
 DOCBOOK_DEFAULT_XSL_HTMLHELP        
 DOCBOOK_DEFAULT_XSL_PDF        
@@ -353,735 +334,667 @@ DOCBOOK_DEFAULT_XSL_MAN
 DOCBOOK_DEFAULT_XSL_SLIDESPDF        
 DOCBOOK_DEFAULT_XSL_SLIDESHTML        
 </screen>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">and you can set them when constructing your environment:
+<para>and you can set them when constructing your environment:
 </para>
-<screen xmlns="http://www.scons.org/dbxsd/v1.0">env = Environment(tools=['docbook'],
+<screen>env = Environment(tools=['docbook'],
                   DOCBOOK_DEFAULT_XSL_HTML='html.xsl',
                   DOCBOOK_DEFAULT_XSL_PDF='pdf.xsl')
 env.DocbookHtml('manual') # now uses html.xsl
 </screen>
-<para>Sets:  &cv-link-DOCBOOK_DEFAULT_XSL_EPUB;, &cv-link-DOCBOOK_DEFAULT_XSL_HTML;, &cv-link-DOCBOOK_DEFAULT_XSL_HTMLCHUNKED;, &cv-link-DOCBOOK_DEFAULT_XSL_HTMLHELP;, &cv-link-DOCBOOK_DEFAULT_XSL_MAN;, &cv-link-DOCBOOK_DEFAULT_XSL_PDF;, &cv-link-DOCBOOK_DEFAULT_XSL_SLIDESHTML;, &cv-link-DOCBOOK_DEFAULT_XSL_SLIDESPDF;, &cv-link-DOCBOOK_FOP;, &cv-link-DOCBOOK_FOPCOM;, &cv-link-DOCBOOK_FOPFLAGS;, &cv-link-DOCBOOK_XMLLINT;, &cv-link-DOCBOOK_XMLLINTCOM;, &cv-link-DOCBOOK_XMLLINTFLAGS;, &cv-link-DOCBOOK_XSLTPROC;, &cv-link-DOCBOOK_XSLTPROCCOM;, &cv-link-DOCBOOK_XSLTPROCFLAGS;, &cv-link-DOCBOOK_XSLTPROCPARAMS;.</para><para>Uses:  &cv-link-DOCBOOK_FOPCOMSTR;, &cv-link-DOCBOOK_XMLLINTCOMSTR;, &cv-link-DOCBOOK_XSLTPROCCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-DOCBOOK_DEFAULT_XSL_EPUB"><varname>$DOCBOOK_DEFAULT_XSL_EPUB</varname></link> <link linkend="cv-DOCBOOK_DEFAULT_XSL_HTML"><varname>$DOCBOOK_DEFAULT_XSL_HTML</varname></link> <link linkend="cv-DOCBOOK_DEFAULT_XSL_HTMLCHUNKED"><varname>$DOCBOOK_DEFAULT_XSL_HTMLCHUNKED</varname></link> <link linkend="cv-DOCBOOK_DEFAULT_XSL_HTMLHELP"><varname>$DOCBOOK_DEFAULT_XSL_HTMLHELP</varname></link> <link linkend="cv-DOCBOOK_DEFAULT_XSL_MAN"><varname>$DOCBOOK_DEFAULT_XSL_MAN</varname></link> <link linkend="cv-DOCBOOK_DEFAULT_XSL_PDF"><varname>$DOCBOOK_DEFAULT_XSL_PDF</varname></link> <link linkend="cv-DOCBOOK_DEFAULT_XSL_SLIDESHTML"><varname>$DOCBOOK_DEFAULT_XSL_SLIDESHTML</varname></link> <link linkend="cv-DOCBOOK_DEFAULT_XSL_SLIDESPDF"><varname>$DOCBOOK_DEFAULT_XSL_SLIDESPDF</varname></link> <link linkend="cv-DOCBOOK_FOP"><varname>$DOCBOOK_FOP</varname></link> <link linkend="cv-DOCBOOK_FOPCOM"><varname>$DOCBOOK_FOPCOM</varname></link> <link linkend="cv-DOCBOOK_FOPFLAGS"><varname>$DOCBOOK_FOPFLAGS</varname></link> <link linkend="cv-DOCBOOK_XMLLINT"><varname>$DOCBOOK_XMLLINT</varname></link> <link linkend="cv-DOCBOOK_XMLLINTCOM"><varname>$DOCBOOK_XMLLINTCOM</varname></link> <link linkend="cv-DOCBOOK_XMLLINTFLAGS"><varname>$DOCBOOK_XMLLINTFLAGS</varname></link> <link linkend="cv-DOCBOOK_XSLTPROC"><varname>$DOCBOOK_XSLTPROC</varname></link> <link linkend="cv-DOCBOOK_XSLTPROCCOM"><varname>$DOCBOOK_XSLTPROCCOM</varname></link> <link linkend="cv-DOCBOOK_XSLTPROCFLAGS"><varname>$DOCBOOK_XSLTPROCFLAGS</varname></link> <link linkend="cv-DOCBOOK_XSLTPROCPARAMS"><varname>$DOCBOOK_XSLTPROCPARAMS</varname></link> </para><para>Uses: <link linkend="cv-DOCBOOK_FOPCOMSTR"><varname>$DOCBOOK_FOPCOMSTR</varname></link> <link linkend="cv-DOCBOOK_XMLLINTCOMSTR"><varname>$DOCBOOK_XMLLINTCOMSTR</varname></link> <link linkend="cv-DOCBOOK_XSLTPROCCOMSTR"><varname>$DOCBOOK_XSLTPROCCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-dvi">
     <term>dvi</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Attaches the <function xmlns="http://www.scons.org/dbxsd/v1.0">DVI</function> builder to the
+    <listitem><para>
+Attaches the <function>DVI</function> builder to the
 construction environment.
 </para>
 </listitem>
   </varlistentry>
   <varlistentry id="t-dvipdf">
     <term>dvipdf</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the dvipdf utility.
 </para>
-<para>Sets:  &cv-link-DVIPDF;, &cv-link-DVIPDFCOM;, &cv-link-DVIPDFFLAGS;.</para><para>Uses:  &cv-link-DVIPDFCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-DVIPDF"><varname>$DVIPDF</varname></link> <link linkend="cv-DVIPDFCOM"><varname>$DVIPDFCOM</varname></link> <link linkend="cv-DVIPDFFLAGS"><varname>$DVIPDFFLAGS</varname></link> </para><para>Uses: <link linkend="cv-DVIPDFCOMSTR"><varname>$DVIPDFCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-dvips">
     <term>dvips</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the dvips utility.
 </para>
-<para>Sets:  &cv-link-DVIPS;, &cv-link-DVIPSFLAGS;, &cv-link-PSCOM;, &cv-link-PSPREFIX;, &cv-link-PSSUFFIX;.</para><para>Uses:  &cv-link-PSCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-DVIPS"><varname>$DVIPS</varname></link> <link linkend="cv-DVIPSFLAGS"><varname>$DVIPSFLAGS</varname></link> <link linkend="cv-PSCOM"><varname>$PSCOM</varname></link> <link linkend="cv-PSPREFIX"><varname>$PSPREFIX</varname></link> <link linkend="cv-PSSUFFIX"><varname>$PSSUFFIX</varname></link> </para><para>Uses: <link linkend="cv-PSCOMSTR"><varname>$PSCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-f03">
     <term>f03</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Set construction variables for generic POSIX Fortran 03 compilers.
 </para>
-<para>Sets:  &cv-link-F03;, &cv-link-F03COM;, &cv-link-F03FLAGS;, &cv-link-F03PPCOM;, &cv-link-SHF03;, &cv-link-SHF03COM;, &cv-link-SHF03FLAGS;, &cv-link-SHF03PPCOM;, &cv-link-_F03INCFLAGS;.</para><para>Uses:  &cv-link-F03COMSTR;, &cv-link-F03PPCOMSTR;, &cv-link-SHF03COMSTR;, &cv-link-SHF03PPCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-F03"><varname>$F03</varname></link> <link linkend="cv-F03COM"><varname>$F03COM</varname></link> <link linkend="cv-F03FLAGS"><varname>$F03FLAGS</varname></link> <link linkend="cv-F03PPCOM"><varname>$F03PPCOM</varname></link> <link linkend="cv-SHF03"><varname>$SHF03</varname></link> <link linkend="cv-SHF03COM"><varname>$SHF03COM</varname></link> <link linkend="cv-SHF03FLAGS"><varname>$SHF03FLAGS</varname></link> <link linkend="cv-SHF03PPCOM"><varname>$SHF03PPCOM</varname></link> <link linkend="cv-_F03INCFLAGS"><varname>$_F03INCFLAGS</varname></link> </para><para>Uses: <link linkend="cv-F03COMSTR"><varname>$F03COMSTR</varname></link> <link linkend="cv-F03PPCOMSTR"><varname>$F03PPCOMSTR</varname></link> <link linkend="cv-SHF03COMSTR"><varname>$SHF03COMSTR</varname></link> <link linkend="cv-SHF03PPCOMSTR"><varname>$SHF03PPCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-f08">
     <term>f08</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Set construction variables for generic POSIX Fortran 08 compilers.
 </para>
-<para>Sets:  &cv-link-F08;, &cv-link-F08COM;, &cv-link-F08FLAGS;, &cv-link-F08PPCOM;, &cv-link-SHF08;, &cv-link-SHF08COM;, &cv-link-SHF08FLAGS;, &cv-link-SHF08PPCOM;, &cv-link-_F08INCFLAGS;.</para><para>Uses:  &cv-link-F08COMSTR;, &cv-link-F08PPCOMSTR;, &cv-link-SHF08COMSTR;, &cv-link-SHF08PPCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-F08"><varname>$F08</varname></link> <link linkend="cv-F08COM"><varname>$F08COM</varname></link> <link linkend="cv-F08FLAGS"><varname>$F08FLAGS</varname></link> <link linkend="cv-F08PPCOM"><varname>$F08PPCOM</varname></link> <link linkend="cv-SHF08"><varname>$SHF08</varname></link> <link linkend="cv-SHF08COM"><varname>$SHF08COM</varname></link> <link linkend="cv-SHF08FLAGS"><varname>$SHF08FLAGS</varname></link> <link linkend="cv-SHF08PPCOM"><varname>$SHF08PPCOM</varname></link> <link linkend="cv-_F08INCFLAGS"><varname>$_F08INCFLAGS</varname></link> </para><para>Uses: <link linkend="cv-F08COMSTR"><varname>$F08COMSTR</varname></link> <link linkend="cv-F08PPCOMSTR"><varname>$F08PPCOMSTR</varname></link> <link linkend="cv-SHF08COMSTR"><varname>$SHF08COMSTR</varname></link> <link linkend="cv-SHF08PPCOMSTR"><varname>$SHF08PPCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-f77">
     <term>f77</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Set construction variables for generic POSIX Fortran 77 compilers.
 </para>
-<para>Sets:  &cv-link-F77;, &cv-link-F77COM;, &cv-link-F77FILESUFFIXES;, &cv-link-F77FLAGS;, &cv-link-F77PPCOM;, &cv-link-F77PPFILESUFFIXES;, &cv-link-FORTRAN;, &cv-link-FORTRANCOM;, &cv-link-FORTRANFLAGS;, &cv-link-SHF77;, &cv-link-SHF77COM;, &cv-link-SHF77FLAGS;, &cv-link-SHF77PPCOM;, &cv-link-SHFORTRAN;, &cv-link-SHFORTRANCOM;, &cv-link-SHFORTRANFLAGS;, &cv-link-SHFORTRANPPCOM;, &cv-link-_F77INCFLAGS;.</para><para>Uses:  &cv-link-F77COMSTR;, &cv-link-F77PPCOMSTR;, &cv-link-FORTRANCOMSTR;, &cv-link-FORTRANPPCOMSTR;, &cv-link-SHF77COMSTR;, &cv-link-SHF77PPCOMSTR;, &cv-link-SHFORTRANCOMSTR;, &cv-link-SHFORTRANPPCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-F77"><varname>$F77</varname></link> <link linkend="cv-F77COM"><varname>$F77COM</varname></link> <link linkend="cv-F77FILESUFFIXES"><varname>$F77FILESUFFIXES</varname></link> <link linkend="cv-F77FLAGS"><varname>$F77FLAGS</varname></link> <link linkend="cv-F77PPCOM"><varname>$F77PPCOM</varname></link> <link linkend="cv-F77PPFILESUFFIXES"><varname>$F77PPFILESUFFIXES</varname></link> <link linkend="cv-FORTRAN"><varname>$FORTRAN</varname></link> <link linkend="cv-FORTRANCOM"><varname>$FORTRANCOM</varname></link> <link linkend="cv-FORTRANFLAGS"><varname>$FORTRANFLAGS</varname></link> <link linkend="cv-SHF77"><varname>$SHF77</varname></link> <link linkend="cv-SHF77COM"><varname>$SHF77COM</varname></link> <link linkend="cv-SHF77FLAGS"><varname>$SHF77FLAGS</varname></link> <link linkend="cv-SHF77PPCOM"><varname>$SHF77PPCOM</varname></link> <link linkend="cv-SHFORTRAN"><varname>$SHFORTRAN</varname></link> <link linkend="cv-SHFORTRANCOM"><varname>$SHFORTRANCOM</varname></link> <link linkend="cv-SHFORTRANFLAGS"><varname>$SHFORTRANFLAGS</varname></link> <link linkend="cv-SHFORTRANPPCOM"><varname>$SHFORTRANPPCOM</varname></link> <link linkend="cv-_F77INCFLAGS"><varname>$_F77INCFLAGS</varname></link> </para><para>Uses: <link linkend="cv-F77COMSTR"><varname>$F77COMSTR</varname></link> <link linkend="cv-F77PPCOMSTR"><varname>$F77PPCOMSTR</varname></link> <link linkend="cv-FORTRANCOMSTR"><varname>$FORTRANCOMSTR</varname></link> <link linkend="cv-FORTRANPPCOMSTR"><varname>$FORTRANPPCOMSTR</varname></link> <link linkend="cv-SHF77COMSTR"><varname>$SHF77COMSTR</varname></link> <link linkend="cv-SHF77PPCOMSTR"><varname>$SHF77PPCOMSTR</varname></link> <link linkend="cv-SHFORTRANCOMSTR"><varname>$SHFORTRANCOMSTR</varname></link> <link linkend="cv-SHFORTRANPPCOMSTR"><varname>$SHFORTRANPPCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-f90">
     <term>f90</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Set construction variables for generic POSIX Fortran 90 compilers.
 </para>
-<para>Sets:  &cv-link-F90;, &cv-link-F90COM;, &cv-link-F90FLAGS;, &cv-link-F90PPCOM;, &cv-link-SHF90;, &cv-link-SHF90COM;, &cv-link-SHF90FLAGS;, &cv-link-SHF90PPCOM;, &cv-link-_F90INCFLAGS;.</para><para>Uses:  &cv-link-F90COMSTR;, &cv-link-F90PPCOMSTR;, &cv-link-SHF90COMSTR;, &cv-link-SHF90PPCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-F90"><varname>$F90</varname></link> <link linkend="cv-F90COM"><varname>$F90COM</varname></link> <link linkend="cv-F90FLAGS"><varname>$F90FLAGS</varname></link> <link linkend="cv-F90PPCOM"><varname>$F90PPCOM</varname></link> <link linkend="cv-SHF90"><varname>$SHF90</varname></link> <link linkend="cv-SHF90COM"><varname>$SHF90COM</varname></link> <link linkend="cv-SHF90FLAGS"><varname>$SHF90FLAGS</varname></link> <link linkend="cv-SHF90PPCOM"><varname>$SHF90PPCOM</varname></link> <link linkend="cv-_F90INCFLAGS"><varname>$_F90INCFLAGS</varname></link> </para><para>Uses: <link linkend="cv-F90COMSTR"><varname>$F90COMSTR</varname></link> <link linkend="cv-F90PPCOMSTR"><varname>$F90PPCOMSTR</varname></link> <link linkend="cv-SHF90COMSTR"><varname>$SHF90COMSTR</varname></link> <link linkend="cv-SHF90PPCOMSTR"><varname>$SHF90PPCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-f95">
     <term>f95</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Set construction variables for generic POSIX Fortran 95 compilers.
 </para>
-<para>Sets:  &cv-link-F95;, &cv-link-F95COM;, &cv-link-F95FLAGS;, &cv-link-F95PPCOM;, &cv-link-SHF95;, &cv-link-SHF95COM;, &cv-link-SHF95FLAGS;, &cv-link-SHF95PPCOM;, &cv-link-_F95INCFLAGS;.</para><para>Uses:  &cv-link-F95COMSTR;, &cv-link-F95PPCOMSTR;, &cv-link-SHF95COMSTR;, &cv-link-SHF95PPCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-F95"><varname>$F95</varname></link> <link linkend="cv-F95COM"><varname>$F95COM</varname></link> <link linkend="cv-F95FLAGS"><varname>$F95FLAGS</varname></link> <link linkend="cv-F95PPCOM"><varname>$F95PPCOM</varname></link> <link linkend="cv-SHF95"><varname>$SHF95</varname></link> <link linkend="cv-SHF95COM"><varname>$SHF95COM</varname></link> <link linkend="cv-SHF95FLAGS"><varname>$SHF95FLAGS</varname></link> <link linkend="cv-SHF95PPCOM"><varname>$SHF95PPCOM</varname></link> <link linkend="cv-_F95INCFLAGS"><varname>$_F95INCFLAGS</varname></link> </para><para>Uses: <link linkend="cv-F95COMSTR"><varname>$F95COMSTR</varname></link> <link linkend="cv-F95PPCOMSTR"><varname>$F95PPCOMSTR</varname></link> <link linkend="cv-SHF95COMSTR"><varname>$SHF95COMSTR</varname></link> <link linkend="cv-SHF95PPCOMSTR"><varname>$SHF95PPCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-fortran">
     <term>fortran</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Set construction variables for generic POSIX Fortran compilers.
 </para>
-<para>Sets:  &cv-link-FORTRAN;, &cv-link-FORTRANCOM;, &cv-link-FORTRANFLAGS;, &cv-link-SHFORTRAN;, &cv-link-SHFORTRANCOM;, &cv-link-SHFORTRANFLAGS;, &cv-link-SHFORTRANPPCOM;.</para><para>Uses:  &cv-link-FORTRANCOMSTR;, &cv-link-FORTRANPPCOMSTR;, &cv-link-SHFORTRANCOMSTR;, &cv-link-SHFORTRANPPCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-FORTRAN"><varname>$FORTRAN</varname></link> <link linkend="cv-FORTRANCOM"><varname>$FORTRANCOM</varname></link> <link linkend="cv-FORTRANFLAGS"><varname>$FORTRANFLAGS</varname></link> <link linkend="cv-SHFORTRAN"><varname>$SHFORTRAN</varname></link> <link linkend="cv-SHFORTRANCOM"><varname>$SHFORTRANCOM</varname></link> <link linkend="cv-SHFORTRANFLAGS"><varname>$SHFORTRANFLAGS</varname></link> <link linkend="cv-SHFORTRANPPCOM"><varname>$SHFORTRANPPCOM</varname></link> </para><para>Uses: <link linkend="cv-FORTRANCOMSTR"><varname>$FORTRANCOMSTR</varname></link> <link linkend="cv-FORTRANPPCOMSTR"><varname>$FORTRANPPCOMSTR</varname></link> <link linkend="cv-SHFORTRANCOMSTR"><varname>$SHFORTRANCOMSTR</varname></link> <link linkend="cv-SHFORTRANPPCOMSTR"><varname>$SHFORTRANPPCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-gXX">
     <term>g++</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Set construction variables for the <application xmlns="http://www.scons.org/dbxsd/v1.0">gXX</application> C++ compiler.
+    <listitem><para>
+Set construction variables for the <application>gXX</application> C++ compiler.
 </para>
-<para>Sets:  &cv-link-CXX;, &cv-link-CXXVERSION;, &cv-link-SHCXXFLAGS;, &cv-link-SHOBJSUFFIX;.</para></listitem>
+<para>Sets: <link linkend="cv-CXX"><varname>$CXX</varname></link> <link linkend="cv-CXXVERSION"><varname>$CXXVERSION</varname></link> <link linkend="cv-SHCXXFLAGS"><varname>$SHCXXFLAGS</varname></link> <link linkend="cv-SHOBJSUFFIX"><varname>$SHOBJSUFFIX</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-g77">
     <term>g77</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Set construction variables for the <application xmlns="http://www.scons.org/dbxsd/v1.0">g77</application> Fortran compiler.
-Calls the <literal xmlns="http://www.scons.org/dbxsd/v1.0">f77</literal> Tool module
+    <listitem><para>
+Set construction variables for the <application>g77</application> Fortran compiler.
+Calls the <literal>f77</literal> Tool module
 to set variables.
 </para>
 </listitem>
   </varlistentry>
   <varlistentry id="t-gas">
     <term>gas</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the <application xmlns="http://www.scons.org/dbxsd/v1.0">gas</application> assembler.
-Calls the <literal xmlns="http://www.scons.org/dbxsd/v1.0">as</literal> module.
+    <listitem><para>
+Sets construction variables for the <application>gas</application> assembler.
+Calls the <literal>as</literal> module.
 </para>
-<para>Sets:  &cv-link-AS;.</para></listitem>
+<para>Sets: <link linkend="cv-AS"><varname>$AS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-gcc">
     <term>gcc</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Set construction variables for the <application xmlns="http://www.scons.org/dbxsd/v1.0">gcc</application> C compiler.
+    <listitem><para>
+Set construction variables for the <application>gcc</application> C compiler.
 </para>
-<para>Sets:  &cv-link-CC;, &cv-link-CCVERSION;, &cv-link-SHCCFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-CC"><varname>$CC</varname></link> <link linkend="cv-CCVERSION"><varname>$CCVERSION</varname></link> <link linkend="cv-SHCCFLAGS"><varname>$SHCCFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-gdc">
     <term>gdc</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the D language compiler GDC.
 </para>
-<para>Sets:  &cv-link-DC;, &cv-link-DCOM;, &cv-link-DDEBUG;, &cv-link-DDEBUGPREFIX;, &cv-link-DDEBUGSUFFIX;, &cv-link-DFILESUFFIX;, &cv-link-DFLAGPREFIX;, &cv-link-DFLAGS;, &cv-link-DFLAGSUFFIX;, &cv-link-DINCPREFIX;, &cv-link-DINCSUFFIX;, &cv-link-DLIB;, &cv-link-DLIBCOM;, &cv-link-DLIBDIRPREFIX;, &cv-link-DLIBDIRSUFFIX;, &cv-link-DLIBFLAGPREFIX;, &cv-link-DLIBFLAGSUFFIX;, &cv-link-DLIBLINKPREFIX;, &cv-link-DLIBLINKSUFFIX;, &cv-link-DLINK;, &cv-link-DLINKCOM;, &cv-link-DLINKFLAGPREFIX;, &cv-link-DLINKFLAGS;, &cv-link-DLINKFLAGSUFFIX;, &cv-link-DPATH;, &cv-link-DRPATHPREFIX;, &cv-link-DRPATHSUFFIX;, &cv-link-DShLibSonameGenerator;, &cv-link-DVERPREFIX;, &cv-link-DVERSIONS;, &cv-link-DVERSUFFIX;, &cv-link-SHDC;, &cv-link-SHDCOM;, &cv-link-SHDLIBVERSION;, &cv-link-SHDLIBVERSIONFLAGS;, &cv-link-SHDLINK;, &cv-link-SHDLINKCOM;, &cv-link-SHDLINKFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-DC"><varname>$DC</varname></link> <link linkend="cv-DCOM"><varname>$DCOM</varname></link> <link linkend="cv-DDEBUG"><varname>$DDEBUG</varname></link> <link linkend="cv-DDEBUGPREFIX"><varname>$DDEBUGPREFIX</varname></link> <link linkend="cv-DDEBUGSUFFIX"><varname>$DDEBUGSUFFIX</varname></link> <link linkend="cv-DFILESUFFIX"><varname>$DFILESUFFIX</varname></link> <link linkend="cv-DFLAGPREFIX"><varname>$DFLAGPREFIX</varname></link> <link linkend="cv-DFLAGS"><varname>$DFLAGS</varname></link> <link linkend="cv-DFLAGSUFFIX"><varname>$DFLAGSUFFIX</varname></link> <link linkend="cv-DINCPREFIX"><varname>$DINCPREFIX</varname></link> <link linkend="cv-DINCSUFFIX"><varname>$DINCSUFFIX</varname></link> <link linkend="cv-DLIB"><varname>$DLIB</varname></link> <link linkend="cv-DLIBCOM"><varname>$DLIBCOM</varname></link> <link linkend="cv-DLIBDIRPREFIX"><varname>$DLIBDIRPREFIX</varname></link> <link linkend="cv-DLIBDIRSUFFIX"><varname>$DLIBDIRSUFFIX</varname></link> <link linkend="cv-DLIBFLAGPREFIX"><varname>$DLIBFLAGPREFIX</varname></link> <link linkend="cv-DLIBFLAGSUFFIX"><varname>$DLIBFLAGSUFFIX</varname></link> <link linkend="cv-DLIBLINKPREFIX"><varname>$DLIBLINKPREFIX</varname></link> <link linkend="cv-DLIBLINKSUFFIX"><varname>$DLIBLINKSUFFIX</varname></link> <link linkend="cv-DLINK"><varname>$DLINK</varname></link> <link linkend="cv-DLINKCOM"><varname>$DLINKCOM</varname></link> <link linkend="cv-DLINKFLAGPREFIX"><varname>$DLINKFLAGPREFIX</varname></link> <link linkend="cv-DLINKFLAGS"><varname>$DLINKFLAGS</varname></link> <link linkend="cv-DLINKFLAGSUFFIX"><varname>$DLINKFLAGSUFFIX</varname></link> <link linkend="cv-DPATH"><varname>$DPATH</varname></link> <link linkend="cv-DRPATHPREFIX"><varname>$DRPATHPREFIX</varname></link> <link linkend="cv-DRPATHSUFFIX"><varname>$DRPATHSUFFIX</varname></link> <link linkend="cv-DShLibSonameGenerator"><varname>$DShLibSonameGenerator</varname></link> <link linkend="cv-DVERPREFIX"><varname>$DVERPREFIX</varname></link> <link linkend="cv-DVERSIONS"><varname>$DVERSIONS</varname></link> <link linkend="cv-DVERSUFFIX"><varname>$DVERSUFFIX</varname></link> <link linkend="cv-SHDC"><varname>$SHDC</varname></link> <link linkend="cv-SHDCOM"><varname>$SHDCOM</varname></link> <link linkend="cv-SHDLIBVERSION"><varname>$SHDLIBVERSION</varname></link> <link linkend="cv-SHDLIBVERSIONFLAGS"><varname>$SHDLIBVERSIONFLAGS</varname></link> <link linkend="cv-SHDLINK"><varname>$SHDLINK</varname></link> <link linkend="cv-SHDLINKCOM"><varname>$SHDLINKCOM</varname></link> <link linkend="cv-SHDLINKFLAGS"><varname>$SHDLINKFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-gettext">
     <term>gettext</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 This is actually a toolset, which supports internationalization and
 localization of software being constructed with SCons. The toolset loads
 following tools:
 </para>
 
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+<para>
 <itemizedlist mark="opencircle">
   <listitem><para>
-    <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-xgettext"><literal>xgettext</literal></link> - to extract internationalized messages from source code to 
+    <link linkend="t-xgettext"><literal>xgettext</literal></link> - to extract internationalized messages from source code to 
     <literal>POT</literal> file(s),
   </para></listitem>
   <listitem><para>
-    <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-msginit"><literal>msginit</literal></link> - may be optionally used to initialize <literal>PO</literal>
+    <link linkend="t-msginit"><literal>msginit</literal></link> - may be optionally used to initialize <literal>PO</literal>
     files,
   </para></listitem>
   <listitem><para>
-    <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-msgmerge"><literal>msgmerge</literal></link> - to update <literal>PO</literal> files, that already contain
+    <link linkend="t-msgmerge"><literal>msgmerge</literal></link> - to update <literal>PO</literal> files, that already contain
     translated messages,</para></listitem>
   <listitem><para>
-    <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-msgfmt"><literal>msgfmt</literal></link> - to compile textual <literal>PO</literal> file to binary
+    <link linkend="t-msgfmt"><literal>msgfmt</literal></link> - to compile textual <literal>PO</literal> file to binary
     installable <literal>MO</literal> file.
   </para></listitem>
 </itemizedlist>
 </para>
 
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-When you enable <literal xmlns="http://www.scons.org/dbxsd/v1.0">gettext</literal>, it internally loads all abovementioned tools,
+<para>
+When you enable <literal>gettext</literal>, it internally loads all abovementioned tools,
 so you're encouraged to see their individual documentation.
 </para>
 
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+<para>
 Each of the above tools provides its own builder(s) which may be used to
 perform particular activities related to software internationalization. You
 may be however interested in <emphasis>top-level</emphasis> builder
-<function xmlns="http://www.scons.org/dbxsd/v1.0">Translate</function> described few paragraphs later.
+<function>Translate</function> described few paragraphs later.
 </para>
 
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-To use <literal xmlns="http://www.scons.org/dbxsd/v1.0">gettext</literal> tools add <literal>'gettext'</literal> tool to your
+<para>
+To use <literal>gettext</literal> tools add <literal>'gettext'</literal> tool to your
 environment:
 </para>
-<example_commands xmlns="http://www.scons.org/dbxsd/v1.0">
+<example_commands>
   env = Environment( tools = ['default', 'gettext'] )
 </example_commands>
 </listitem>
   </varlistentry>
   <varlistentry id="t-gfortran">
     <term>gfortran</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the GNU F95/F2003 GNU compiler.
 </para>
-<para>Sets:  &cv-link-F77;, &cv-link-F90;, &cv-link-F95;, &cv-link-FORTRAN;, &cv-link-SHF77;, &cv-link-SHF77FLAGS;, &cv-link-SHF90;, &cv-link-SHF90FLAGS;, &cv-link-SHF95;, &cv-link-SHF95FLAGS;, &cv-link-SHFORTRAN;, &cv-link-SHFORTRANFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-F77"><varname>$F77</varname></link> <link linkend="cv-F90"><varname>$F90</varname></link> <link linkend="cv-F95"><varname>$F95</varname></link> <link linkend="cv-FORTRAN"><varname>$FORTRAN</varname></link> <link linkend="cv-SHF77"><varname>$SHF77</varname></link> <link linkend="cv-SHF77FLAGS"><varname>$SHF77FLAGS</varname></link> <link linkend="cv-SHF90"><varname>$SHF90</varname></link> <link linkend="cv-SHF90FLAGS"><varname>$SHF90FLAGS</varname></link> <link linkend="cv-SHF95"><varname>$SHF95</varname></link> <link linkend="cv-SHF95FLAGS"><varname>$SHF95FLAGS</varname></link> <link linkend="cv-SHFORTRAN"><varname>$SHFORTRAN</varname></link> <link linkend="cv-SHFORTRANFLAGS"><varname>$SHFORTRANFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-gnulink">
     <term>gnulink</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Set construction variables for GNU linker/loader.
 </para>
-<para>Sets:  &cv-link-LDMODULEVERSIONFLAGS;, &cv-link-RPATHPREFIX;, &cv-link-RPATHSUFFIX;, &cv-link-SHLIBVERSIONFLAGS;, &cv-link-SHLINKFLAGS;, &cv-link-_LDMODULESONAME;, &cv-link-_SHLIBSONAME;.</para></listitem>
+<para>Sets: <link linkend="cv-LDMODULEVERSIONFLAGS"><varname>$LDMODULEVERSIONFLAGS</varname></link> <link linkend="cv-RPATHPREFIX"><varname>$RPATHPREFIX</varname></link> <link linkend="cv-RPATHSUFFIX"><varname>$RPATHSUFFIX</varname></link> <link linkend="cv-SHLIBVERSIONFLAGS"><varname>$SHLIBVERSIONFLAGS</varname></link> <link linkend="cv-SHLINKFLAGS"><varname>$SHLINKFLAGS</varname></link> <link linkend="cv-_LDMODULESONAME"><varname>$_LDMODULESONAME</varname></link> <link linkend="cv-_SHLIBSONAME"><varname>$_SHLIBSONAME</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-gs">
     <term>gs</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 This Tool sets the required construction variables for working with
 the Ghostscript command. It also registers an appropriate Action
-with the PDF Builder (<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-PDF"><function>PDF</function></link>), such that the conversion from
+with the PDF Builder (<link linkend="b-PDF"><function>PDF</function></link>), such that the conversion from
 PS/EPS to PDF happens automatically for the TeX/LaTeX toolchain.
-Finally, it adds an explicit Ghostscript Builder (<link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="b-Gs"><function>Gs</function></link>) to the
+Finally, it adds an explicit Ghostscript Builder (<link linkend="b-Gs"><function>Gs</function></link>) to the
 environment.
 </para>
-<para>Sets:  &cv-link-GS;, &cv-link-GSCOM;, &cv-link-GSFLAGS;.</para><para>Uses:  &cv-link-GSCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-GS"><varname>$GS</varname></link> <link linkend="cv-GSCOM"><varname>$GSCOM</varname></link> <link linkend="cv-GSFLAGS"><varname>$GSFLAGS</varname></link> </para><para>Uses: <link linkend="cv-GSCOMSTR"><varname>$GSCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-hpcXX">
     <term>hpc++</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Set construction variables for the compilers aCC on HP/UX systems.
 </para>
 </listitem>
   </varlistentry>
   <varlistentry id="t-hpcc">
     <term>hpcc</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Set construction variables for the
 <application>aCC</application> on HP/UX systems.
-Calls the <literal xmlns="http://www.scons.org/dbxsd/v1.0">cXX</literal> tool for additional variables.
+Calls the <literal>cXX</literal> tool for additional variables.
 </para>
-<para>Sets:  &cv-link-CXX;, &cv-link-CXXVERSION;, &cv-link-SHCXXFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-CXX"><varname>$CXX</varname></link> <link linkend="cv-CXXVERSION"><varname>$CXXVERSION</varname></link> <link linkend="cv-SHCXXFLAGS"><varname>$SHCXXFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-hplink">
     <term>hplink</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the linker on HP/UX systems.
 </para>
-<para>Sets:  &cv-link-LINKFLAGS;, &cv-link-SHLIBSUFFIX;, &cv-link-SHLINKFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-LINKFLAGS"><varname>$LINKFLAGS</varname></link> <link linkend="cv-SHLIBSUFFIX"><varname>$SHLIBSUFFIX</varname></link> <link linkend="cv-SHLINKFLAGS"><varname>$SHLINKFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-icc">
     <term>icc</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the
 <application>icc</application> compiler on OS/2 systems.
 </para>
-<para>Sets:  &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CFILESUFFIX;, &cv-link-CPPDEFPREFIX;, &cv-link-CPPDEFSUFFIX;, &cv-link-CXXCOM;, &cv-link-CXXFILESUFFIX;, &cv-link-INCPREFIX;, &cv-link-INCSUFFIX;.</para><para>Uses:  &cv-link-CCFLAGS;, &cv-link-CFLAGS;, &cv-link-CPPFLAGS;, &cv-link-_CPPDEFFLAGS;, &cv-link-_CPPINCFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-CC"><varname>$CC</varname></link> <link linkend="cv-CCCOM"><varname>$CCCOM</varname></link> <link linkend="cv-CFILESUFFIX"><varname>$CFILESUFFIX</varname></link> <link linkend="cv-CPPDEFPREFIX"><varname>$CPPDEFPREFIX</varname></link> <link linkend="cv-CPPDEFSUFFIX"><varname>$CPPDEFSUFFIX</varname></link> <link linkend="cv-CXXCOM"><varname>$CXXCOM</varname></link> <link linkend="cv-CXXFILESUFFIX"><varname>$CXXFILESUFFIX</varname></link> <link linkend="cv-INCPREFIX"><varname>$INCPREFIX</varname></link> <link linkend="cv-INCSUFFIX"><varname>$INCSUFFIX</varname></link> </para><para>Uses: <link linkend="cv-CCFLAGS"><varname>$CCFLAGS</varname></link> <link linkend="cv-CFLAGS"><varname>$CFLAGS</varname></link> <link linkend="cv-CPPFLAGS"><varname>$CPPFLAGS</varname></link> <link linkend="cv-_CPPDEFFLAGS"><varname>$_CPPDEFFLAGS</varname></link> <link linkend="cv-_CPPINCFLAGS"><varname>$_CPPINCFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-icl">
     <term>icl</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the Intel C/C++ compiler.
-Calls the <literal xmlns="http://www.scons.org/dbxsd/v1.0">intelc</literal> Tool module to set its variables.
+Calls the <literal>intelc</literal> Tool module to set its variables.
 </para>
 </listitem>
   </varlistentry>
   <varlistentry id="t-ifl">
     <term>ifl</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the Intel Fortran compiler.
 </para>
-<para>Sets:  &cv-link-FORTRAN;, &cv-link-FORTRANCOM;, &cv-link-FORTRANPPCOM;, &cv-link-SHFORTRANCOM;, &cv-link-SHFORTRANPPCOM;.</para><para>Uses:  &cv-link-CPPFLAGS;, &cv-link-FORTRANFLAGS;, &cv-link-_CPPDEFFLAGS;, &cv-link-_FORTRANINCFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-FORTRAN"><varname>$FORTRAN</varname></link> <link linkend="cv-FORTRANCOM"><varname>$FORTRANCOM</varname></link> <link linkend="cv-FORTRANPPCOM"><varname>$FORTRANPPCOM</varname></link> <link linkend="cv-SHFORTRANCOM"><varname>$SHFORTRANCOM</varname></link> <link linkend="cv-SHFORTRANPPCOM"><varname>$SHFORTRANPPCOM</varname></link> </para><para>Uses: <link linkend="cv-CPPFLAGS"><varname>$CPPFLAGS</varname></link> <link linkend="cv-FORTRANFLAGS"><varname>$FORTRANFLAGS</varname></link> <link linkend="cv-_CPPDEFFLAGS"><varname>$_CPPDEFFLAGS</varname></link> <link linkend="cv-_FORTRANINCFLAGS"><varname>$_FORTRANINCFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-ifort">
     <term>ifort</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for newer versions
 of the Intel Fortran compiler for Linux.
 </para>
-<para>Sets:  &cv-link-F77;, &cv-link-F90;, &cv-link-F95;, &cv-link-FORTRAN;, &cv-link-SHF77;, &cv-link-SHF77FLAGS;, &cv-link-SHF90;, &cv-link-SHF90FLAGS;, &cv-link-SHF95;, &cv-link-SHF95FLAGS;, &cv-link-SHFORTRAN;, &cv-link-SHFORTRANFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-F77"><varname>$F77</varname></link> <link linkend="cv-F90"><varname>$F90</varname></link> <link linkend="cv-F95"><varname>$F95</varname></link> <link linkend="cv-FORTRAN"><varname>$FORTRAN</varname></link> <link linkend="cv-SHF77"><varname>$SHF77</varname></link> <link linkend="cv-SHF77FLAGS"><varname>$SHF77FLAGS</varname></link> <link linkend="cv-SHF90"><varname>$SHF90</varname></link> <link linkend="cv-SHF90FLAGS"><varname>$SHF90FLAGS</varname></link> <link linkend="cv-SHF95"><varname>$SHF95</varname></link> <link linkend="cv-SHF95FLAGS"><varname>$SHF95FLAGS</varname></link> <link linkend="cv-SHFORTRAN"><varname>$SHFORTRAN</varname></link> <link linkend="cv-SHFORTRANFLAGS"><varname>$SHFORTRANFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-ilink">
     <term>ilink</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the
 <application>ilink</application> linker on OS/2 systems.
 </para>
-<para>Sets:  &cv-link-LIBDIRPREFIX;, &cv-link-LIBDIRSUFFIX;, &cv-link-LIBLINKPREFIX;, &cv-link-LIBLINKSUFFIX;, &cv-link-LINK;, &cv-link-LINKCOM;, &cv-link-LINKFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-LIBDIRPREFIX"><varname>$LIBDIRPREFIX</varname></link> <link linkend="cv-LIBDIRSUFFIX"><varname>$LIBDIRSUFFIX</varname></link> <link linkend="cv-LIBLINKPREFIX"><varname>$LIBLINKPREFIX</varname></link> <link linkend="cv-LIBLINKSUFFIX"><varname>$LIBLINKSUFFIX</varname></link> <link linkend="cv-LINK"><varname>$LINK</varname></link> <link linkend="cv-LINKCOM"><varname>$LINKCOM</varname></link> <link linkend="cv-LINKFLAGS"><varname>$LINKFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-ilink32">
     <term>ilink32</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the Borland
 <application>ilink32</application> linker.
 </para>
-<para>Sets:  &cv-link-LIBDIRPREFIX;, &cv-link-LIBDIRSUFFIX;, &cv-link-LIBLINKPREFIX;, &cv-link-LIBLINKSUFFIX;, &cv-link-LINK;, &cv-link-LINKCOM;, &cv-link-LINKFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-LIBDIRPREFIX"><varname>$LIBDIRPREFIX</varname></link> <link linkend="cv-LIBDIRSUFFIX"><varname>$LIBDIRSUFFIX</varname></link> <link linkend="cv-LIBLINKPREFIX"><varname>$LIBLINKPREFIX</varname></link> <link linkend="cv-LIBLINKSUFFIX"><varname>$LIBLINKSUFFIX</varname></link> <link linkend="cv-LINK"><varname>$LINK</varname></link> <link linkend="cv-LINKCOM"><varname>$LINKCOM</varname></link> <link linkend="cv-LINKFLAGS"><varname>$LINKFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-install">
     <term>install</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for file
 and directory installation.
 </para>
-<para>Sets:  &cv-link-INSTALL;, &cv-link-INSTALLSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-INSTALL"><varname>$INSTALL</varname></link> <link linkend="cv-INSTALLSTR"><varname>$INSTALLSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-intelc">
     <term>intelc</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the Intel C/C++ compiler
 (Linux and Windows, version 7 and later).
-Calls the <literal xmlns="http://www.scons.org/dbxsd/v1.0">gcc</literal> or <literal xmlns="http://www.scons.org/dbxsd/v1.0">msvc</literal>
+Calls the <literal>gcc</literal> or <literal>msvc</literal>
 (on Linux and Windows, respectively)
 to set underlying variables.
 </para>
-<para>Sets:  &cv-link-AR;, &cv-link-CC;, &cv-link-CXX;, &cv-link-INTEL_C_COMPILER_VERSION;, &cv-link-LINK;.</para></listitem>
+<para>Sets: <link linkend="cv-AR"><varname>$AR</varname></link> <link linkend="cv-CC"><varname>$CC</varname></link> <link linkend="cv-CXX"><varname>$CXX</varname></link> <link linkend="cv-INTEL_C_COMPILER_VERSION"><varname>$INTEL_C_COMPILER_VERSION</varname></link> <link linkend="cv-LINK"><varname>$LINK</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-jar">
     <term>jar</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the <application xmlns="http://www.scons.org/dbxsd/v1.0">jar</application> utility.
+    <listitem><para>
+Sets construction variables for the <application>jar</application> utility.
 </para>
-<para>Sets:  &cv-link-JAR;, &cv-link-JARCOM;, &cv-link-JARFLAGS;, &cv-link-JARSUFFIX;.</para><para>Uses:  &cv-link-JARCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-JAR"><varname>$JAR</varname></link> <link linkend="cv-JARCOM"><varname>$JARCOM</varname></link> <link linkend="cv-JARFLAGS"><varname>$JARFLAGS</varname></link> <link linkend="cv-JARSUFFIX"><varname>$JARSUFFIX</varname></link> </para><para>Uses: <link linkend="cv-JARCOMSTR"><varname>$JARCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-javac">
     <term>javac</term>
-    <listitem>
-            <para xmlns="http://www.scons.org/dbxsd/v1.0">
-                Sets construction variables for the <application xmlns="http://www.scons.org/dbxsd/v1.0">javac</application> compiler.
+    <listitem><para>
+                Sets construction variables for the <application>javac</application> compiler.
             </para>
-        <para>Sets:  &cv-link-JAVABOOTCLASSPATH;, &cv-link-JAVAC;, &cv-link-JAVACCOM;, &cv-link-JAVACFLAGS;, &cv-link-JAVACLASSPATH;, &cv-link-JAVACLASSSUFFIX;, &cv-link-JAVAINCLUDES;, &cv-link-JAVASOURCEPATH;, &cv-link-JAVASUFFIX;.</para><para>Uses:  &cv-link-JAVACCOMSTR;.</para></listitem>
+        <para>Sets: <link linkend="cv-JAVABOOTCLASSPATH"><varname>$JAVABOOTCLASSPATH</varname></link> <link linkend="cv-JAVAC"><varname>$JAVAC</varname></link> <link linkend="cv-JAVACCOM"><varname>$JAVACCOM</varname></link> <link linkend="cv-JAVACFLAGS"><varname>$JAVACFLAGS</varname></link> <link linkend="cv-JAVACLASSPATH"><varname>$JAVACLASSPATH</varname></link> <link linkend="cv-JAVACLASSSUFFIX"><varname>$JAVACLASSSUFFIX</varname></link> <link linkend="cv-JAVAINCLUDES"><varname>$JAVAINCLUDES</varname></link> <link linkend="cv-JAVASOURCEPATH"><varname>$JAVASOURCEPATH</varname></link> <link linkend="cv-JAVASUFFIX"><varname>$JAVASUFFIX</varname></link> </para><para>Uses: <link linkend="cv-JAVACCOMSTR"><varname>$JAVACCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-javah">
     <term>javah</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the <application xmlns="http://www.scons.org/dbxsd/v1.0">javah</application> tool.
+    <listitem><para>
+Sets construction variables for the <application>javah</application> tool.
 </para>
-<para>Sets:  &cv-link-JAVACLASSSUFFIX;, &cv-link-JAVAH;, &cv-link-JAVAHCOM;, &cv-link-JAVAHFLAGS;.</para><para>Uses:  &cv-link-JAVACLASSPATH;, &cv-link-JAVAHCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-JAVACLASSSUFFIX"><varname>$JAVACLASSSUFFIX</varname></link> <link linkend="cv-JAVAH"><varname>$JAVAH</varname></link> <link linkend="cv-JAVAHCOM"><varname>$JAVAHCOM</varname></link> <link linkend="cv-JAVAHFLAGS"><varname>$JAVAHFLAGS</varname></link> </para><para>Uses: <link linkend="cv-JAVACLASSPATH"><varname>$JAVACLASSPATH</varname></link> <link linkend="cv-JAVAHCOMSTR"><varname>$JAVAHCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-latex">
     <term>latex</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the <application xmlns="http://www.scons.org/dbxsd/v1.0">latex</application> utility.
+    <listitem><para>
+Sets construction variables for the <application>latex</application> utility.
 </para>
-<para>Sets:  &cv-link-LATEX;, &cv-link-LATEXCOM;, &cv-link-LATEXFLAGS;.</para><para>Uses:  &cv-link-LATEXCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-LATEX"><varname>$LATEX</varname></link> <link linkend="cv-LATEXCOM"><varname>$LATEXCOM</varname></link> <link linkend="cv-LATEXFLAGS"><varname>$LATEXFLAGS</varname></link> </para><para>Uses: <link linkend="cv-LATEXCOMSTR"><varname>$LATEXCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-ldc">
     <term>ldc</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the D language compiler LDC2.
 </para>
-<para>Sets:  &cv-link-DC;, &cv-link-DCOM;, &cv-link-DDEBUG;, &cv-link-DDEBUGPREFIX;, &cv-link-DDEBUGSUFFIX;, &cv-link-DFILESUFFIX;, &cv-link-DFLAGPREFIX;, &cv-link-DFLAGS;, &cv-link-DFLAGSUFFIX;, &cv-link-DINCPREFIX;, &cv-link-DINCSUFFIX;, &cv-link-DLIB;, &cv-link-DLIBCOM;, &cv-link-DLIBDIRPREFIX;, &cv-link-DLIBDIRSUFFIX;, &cv-link-DLIBFLAGPREFIX;, &cv-link-DLIBFLAGSUFFIX;, &cv-link-DLIBLINKPREFIX;, &cv-link-DLIBLINKSUFFIX;, &cv-link-DLINK;, &cv-link-DLINKCOM;, &cv-link-DLINKFLAGPREFIX;, &cv-link-DLINKFLAGS;, &cv-link-DLINKFLAGSUFFIX;, &cv-link-DPATH;, &cv-link-DRPATHPREFIX;, &cv-link-DRPATHSUFFIX;, &cv-link-DShLibSonameGenerator;, &cv-link-DVERPREFIX;, &cv-link-DVERSIONS;, &cv-link-DVERSUFFIX;, &cv-link-SHDC;, &cv-link-SHDCOM;, &cv-link-SHDLIBVERSION;, &cv-link-SHDLIBVERSIONFLAGS;, &cv-link-SHDLINK;, &cv-link-SHDLINKCOM;, &cv-link-SHDLINKFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-DC"><varname>$DC</varname></link> <link linkend="cv-DCOM"><varname>$DCOM</varname></link> <link linkend="cv-DDEBUG"><varname>$DDEBUG</varname></link> <link linkend="cv-DDEBUGPREFIX"><varname>$DDEBUGPREFIX</varname></link> <link linkend="cv-DDEBUGSUFFIX"><varname>$DDEBUGSUFFIX</varname></link> <link linkend="cv-DFILESUFFIX"><varname>$DFILESUFFIX</varname></link> <link linkend="cv-DFLAGPREFIX"><varname>$DFLAGPREFIX</varname></link> <link linkend="cv-DFLAGS"><varname>$DFLAGS</varname></link> <link linkend="cv-DFLAGSUFFIX"><varname>$DFLAGSUFFIX</varname></link> <link linkend="cv-DINCPREFIX"><varname>$DINCPREFIX</varname></link> <link linkend="cv-DINCSUFFIX"><varname>$DINCSUFFIX</varname></link> <link linkend="cv-DLIB"><varname>$DLIB</varname></link> <link linkend="cv-DLIBCOM"><varname>$DLIBCOM</varname></link> <link linkend="cv-DLIBDIRPREFIX"><varname>$DLIBDIRPREFIX</varname></link> <link linkend="cv-DLIBDIRSUFFIX"><varname>$DLIBDIRSUFFIX</varname></link> <link linkend="cv-DLIBFLAGPREFIX"><varname>$DLIBFLAGPREFIX</varname></link> <link linkend="cv-DLIBFLAGSUFFIX"><varname>$DLIBFLAGSUFFIX</varname></link> <link linkend="cv-DLIBLINKPREFIX"><varname>$DLIBLINKPREFIX</varname></link> <link linkend="cv-DLIBLINKSUFFIX"><varname>$DLIBLINKSUFFIX</varname></link> <link linkend="cv-DLINK"><varname>$DLINK</varname></link> <link linkend="cv-DLINKCOM"><varname>$DLINKCOM</varname></link> <link linkend="cv-DLINKFLAGPREFIX"><varname>$DLINKFLAGPREFIX</varname></link> <link linkend="cv-DLINKFLAGS"><varname>$DLINKFLAGS</varname></link> <link linkend="cv-DLINKFLAGSUFFIX"><varname>$DLINKFLAGSUFFIX</varname></link> <link linkend="cv-DPATH"><varname>$DPATH</varname></link> <link linkend="cv-DRPATHPREFIX"><varname>$DRPATHPREFIX</varname></link> <link linkend="cv-DRPATHSUFFIX"><varname>$DRPATHSUFFIX</varname></link> <link linkend="cv-DShLibSonameGenerator"><varname>$DShLibSonameGenerator</varname></link> <link linkend="cv-DVERPREFIX"><varname>$DVERPREFIX</varname></link> <link linkend="cv-DVERSIONS"><varname>$DVERSIONS</varname></link> <link linkend="cv-DVERSUFFIX"><varname>$DVERSUFFIX</varname></link> <link linkend="cv-SHDC"><varname>$SHDC</varname></link> <link linkend="cv-SHDCOM"><varname>$SHDCOM</varname></link> <link linkend="cv-SHDLIBVERSION"><varname>$SHDLIBVERSION</varname></link> <link linkend="cv-SHDLIBVERSIONFLAGS"><varname>$SHDLIBVERSIONFLAGS</varname></link> <link linkend="cv-SHDLINK"><varname>$SHDLINK</varname></link> <link linkend="cv-SHDLINKCOM"><varname>$SHDLINKCOM</varname></link> <link linkend="cv-SHDLINKFLAGS"><varname>$SHDLINKFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-lex">
     <term>lex</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the <application xmlns="http://www.scons.org/dbxsd/v1.0">lex</application> lexical analyser.
+    <listitem><para>
+Sets construction variables for the <application>lex</application> lexical analyser.
 </para>
-<para>Sets:  &cv-link-LEX;, &cv-link-LEXCOM;, &cv-link-LEXFLAGS;, &cv-link-LEXUNISTD;.</para><para>Uses:  &cv-link-LEXCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-LEX"><varname>$LEX</varname></link> <link linkend="cv-LEXCOM"><varname>$LEXCOM</varname></link> <link linkend="cv-LEXFLAGS"><varname>$LEXFLAGS</varname></link> <link linkend="cv-LEXUNISTD"><varname>$LEXUNISTD</varname></link> </para><para>Uses: <link linkend="cv-LEXCOMSTR"><varname>$LEXCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-link">
     <term>link</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for generic POSIX linkers. This is
 a "smart" linker tool which selects a compiler to complete the linking
 based on the types of source files.
 </para>
-<para>Sets:  &cv-link-LDMODULE;, &cv-link-LDMODULECOM;, &cv-link-LDMODULEFLAGS;, &cv-link-LDMODULENOVERSIONSYMLINKS;, &cv-link-LDMODULEPREFIX;, &cv-link-LDMODULESUFFIX;, &cv-link-LDMODULEVERSION;, &cv-link-LDMODULEVERSIONFLAGS;, &cv-link-LIBDIRPREFIX;, &cv-link-LIBDIRSUFFIX;, &cv-link-LIBLINKPREFIX;, &cv-link-LIBLINKSUFFIX;, &cv-link-LINK;, &cv-link-LINKCOM;, &cv-link-LINKFLAGS;, &cv-link-SHLIBSUFFIX;, &cv-link-SHLINK;, &cv-link-SHLINKCOM;, &cv-link-SHLINKFLAGS;, &cv-link-__LDMODULEVERSIONFLAGS;, &cv-link-__SHLIBVERSIONFLAGS;.</para><para>Uses:  &cv-link-LDMODULECOMSTR;, &cv-link-LINKCOMSTR;, &cv-link-SHLINKCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-LDMODULE"><varname>$LDMODULE</varname></link> <link linkend="cv-LDMODULECOM"><varname>$LDMODULECOM</varname></link> <link linkend="cv-LDMODULEFLAGS"><varname>$LDMODULEFLAGS</varname></link> <link linkend="cv-LDMODULENOVERSIONSYMLINKS"><varname>$LDMODULENOVERSIONSYMLINKS</varname></link> <link linkend="cv-LDMODULEPREFIX"><varname>$LDMODULEPREFIX</varname></link> <link linkend="cv-LDMODULESUFFIX"><varname>$LDMODULESUFFIX</varname></link> <link linkend="cv-LDMODULEVERSION"><varname>$LDMODULEVERSION</varname></link> <link linkend="cv-LDMODULEVERSIONFLAGS"><varname>$LDMODULEVERSIONFLAGS</varname></link> <link linkend="cv-LIBDIRPREFIX"><varname>$LIBDIRPREFIX</varname></link> <link linkend="cv-LIBDIRSUFFIX"><varname>$LIBDIRSUFFIX</varname></link> <link linkend="cv-LIBLINKPREFIX"><varname>$LIBLINKPREFIX</varname></link> <link linkend="cv-LIBLINKSUFFIX"><varname>$LIBLINKSUFFIX</varname></link> <link linkend="cv-LINK"><varname>$LINK</varname></link> <link linkend="cv-LINKCOM"><varname>$LINKCOM</varname></link> <link linkend="cv-LINKFLAGS"><varname>$LINKFLAGS</varname></link> <link linkend="cv-SHLIBSUFFIX"><varname>$SHLIBSUFFIX</varname></link> <link linkend="cv-SHLINK"><varname>$SHLINK</varname></link> <link linkend="cv-SHLINKCOM"><varname>$SHLINKCOM</varname></link> <link linkend="cv-SHLINKFLAGS"><varname>$SHLINKFLAGS</varname></link> <link linkend="cv-__LDMODULEVERSIONFLAGS"><varname>$__LDMODULEVERSIONFLAGS</varname></link> <link linkend="cv-__SHLIBVERSIONFLAGS"><varname>$__SHLIBVERSIONFLAGS</varname></link> </para><para>Uses: <link linkend="cv-LDMODULECOMSTR"><varname>$LDMODULECOMSTR</varname></link> <link linkend="cv-LINKCOMSTR"><varname>$LINKCOMSTR</varname></link> <link linkend="cv-SHLINKCOMSTR"><varname>$SHLINKCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-linkloc">
     <term>linkloc</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the
 <application>LinkLoc</application>
 linker for the Phar Lap ETS embedded operating system.
 </para>
-<para>Sets:  &cv-link-LIBDIRPREFIX;, &cv-link-LIBDIRSUFFIX;, &cv-link-LIBLINKPREFIX;, &cv-link-LIBLINKSUFFIX;, &cv-link-LINK;, &cv-link-LINKCOM;, &cv-link-LINKFLAGS;, &cv-link-SHLINK;, &cv-link-SHLINKCOM;, &cv-link-SHLINKFLAGS;.</para><para>Uses:  &cv-link-LINKCOMSTR;, &cv-link-SHLINKCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-LIBDIRPREFIX"><varname>$LIBDIRPREFIX</varname></link> <link linkend="cv-LIBDIRSUFFIX"><varname>$LIBDIRSUFFIX</varname></link> <link linkend="cv-LIBLINKPREFIX"><varname>$LIBLINKPREFIX</varname></link> <link linkend="cv-LIBLINKSUFFIX"><varname>$LIBLINKSUFFIX</varname></link> <link linkend="cv-LINK"><varname>$LINK</varname></link> <link linkend="cv-LINKCOM"><varname>$LINKCOM</varname></link> <link linkend="cv-LINKFLAGS"><varname>$LINKFLAGS</varname></link> <link linkend="cv-SHLINK"><varname>$SHLINK</varname></link> <link linkend="cv-SHLINKCOM"><varname>$SHLINKCOM</varname></link> <link linkend="cv-SHLINKFLAGS"><varname>$SHLINKFLAGS</varname></link> </para><para>Uses: <link linkend="cv-LINKCOMSTR"><varname>$LINKCOMSTR</varname></link> <link linkend="cv-SHLINKCOMSTR"><varname>$SHLINKCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-m4">
     <term>m4</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the <application xmlns="http://www.scons.org/dbxsd/v1.0">m4</application> macro processor.
+    <listitem><para>
+Sets construction variables for the <application>m4</application> macro processor.
 </para>
-<para>Sets:  &cv-link-M4;, &cv-link-M4COM;, &cv-link-M4FLAGS;.</para><para>Uses:  &cv-link-M4COMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-M4"><varname>$M4</varname></link> <link linkend="cv-M4COM"><varname>$M4COM</varname></link> <link linkend="cv-M4FLAGS"><varname>$M4FLAGS</varname></link> </para><para>Uses: <link linkend="cv-M4COMSTR"><varname>$M4COMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-masm">
     <term>masm</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the Microsoft assembler.
 </para>
-<para>Sets:  &cv-link-AS;, &cv-link-ASCOM;, &cv-link-ASFLAGS;, &cv-link-ASPPCOM;, &cv-link-ASPPFLAGS;.</para><para>Uses:  &cv-link-ASCOMSTR;, &cv-link-ASPPCOMSTR;, &cv-link-CPPFLAGS;, &cv-link-_CPPDEFFLAGS;, &cv-link-_CPPINCFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-AS"><varname>$AS</varname></link> <link linkend="cv-ASCOM"><varname>$ASCOM</varname></link> <link linkend="cv-ASFLAGS"><varname>$ASFLAGS</varname></link> <link linkend="cv-ASPPCOM"><varname>$ASPPCOM</varname></link> <link linkend="cv-ASPPFLAGS"><varname>$ASPPFLAGS</varname></link> </para><para>Uses: <link linkend="cv-ASCOMSTR"><varname>$ASCOMSTR</varname></link> <link linkend="cv-ASPPCOMSTR"><varname>$ASPPCOMSTR</varname></link> <link linkend="cv-CPPFLAGS"><varname>$CPPFLAGS</varname></link> <link linkend="cv-_CPPDEFFLAGS"><varname>$_CPPDEFFLAGS</varname></link> <link linkend="cv-_CPPINCFLAGS"><varname>$_CPPINCFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-midl">
     <term>midl</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the Microsoft IDL compiler.
 </para>
-<para>Sets:  &cv-link-MIDL;, &cv-link-MIDLCOM;, &cv-link-MIDLFLAGS;.</para><para>Uses:  &cv-link-MIDLCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-MIDL"><varname>$MIDL</varname></link> <link linkend="cv-MIDLCOM"><varname>$MIDLCOM</varname></link> <link linkend="cv-MIDLFLAGS"><varname>$MIDLFLAGS</varname></link> </para><para>Uses: <link linkend="cv-MIDLCOMSTR"><varname>$MIDLCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-mingw">
     <term>mingw</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for MinGW (Minimal Gnu on Windows).
 </para>
-<para>Sets:  &cv-link-AS;, &cv-link-CC;, &cv-link-CXX;, &cv-link-LDMODULECOM;, &cv-link-LIBPREFIX;, &cv-link-LIBSUFFIX;, &cv-link-OBJSUFFIX;, &cv-link-RC;, &cv-link-RCCOM;, &cv-link-RCFLAGS;, &cv-link-RCINCFLAGS;, &cv-link-RCINCPREFIX;, &cv-link-RCINCSUFFIX;, &cv-link-SHCCFLAGS;, &cv-link-SHCXXFLAGS;, &cv-link-SHLINKCOM;, &cv-link-SHLINKFLAGS;, &cv-link-SHOBJSUFFIX;, &cv-link-WINDOWSDEFPREFIX;, &cv-link-WINDOWSDEFSUFFIX;.</para><para>Uses:  &cv-link-RCCOMSTR;, &cv-link-SHLINKCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-AS"><varname>$AS</varname></link> <link linkend="cv-CC"><varname>$CC</varname></link> <link linkend="cv-CXX"><varname>$CXX</varname></link> <link linkend="cv-LDMODULECOM"><varname>$LDMODULECOM</varname></link> <link linkend="cv-LIBPREFIX"><varname>$LIBPREFIX</varname></link> <link linkend="cv-LIBSUFFIX"><varname>$LIBSUFFIX</varname></link> <link linkend="cv-OBJSUFFIX"><varname>$OBJSUFFIX</varname></link> <link linkend="cv-RC"><varname>$RC</varname></link> <link linkend="cv-RCCOM"><varname>$RCCOM</varname></link> <link linkend="cv-RCFLAGS"><varname>$RCFLAGS</varname></link> <link linkend="cv-RCINCFLAGS"><varname>$RCINCFLAGS</varname></link> <link linkend="cv-RCINCPREFIX"><varname>$RCINCPREFIX</varname></link> <link linkend="cv-RCINCSUFFIX"><varname>$RCINCSUFFIX</varname></link> <link linkend="cv-SHCCFLAGS"><varname>$SHCCFLAGS</varname></link> <link linkend="cv-SHCXXFLAGS"><varname>$SHCXXFLAGS</varname></link> <link linkend="cv-SHLINKCOM"><varname>$SHLINKCOM</varname></link> <link linkend="cv-SHLINKFLAGS"><varname>$SHLINKFLAGS</varname></link> <link linkend="cv-SHOBJSUFFIX"><varname>$SHOBJSUFFIX</varname></link> <link linkend="cv-WINDOWSDEFPREFIX"><varname>$WINDOWSDEFPREFIX</varname></link> <link linkend="cv-WINDOWSDEFSUFFIX"><varname>$WINDOWSDEFSUFFIX</varname></link> </para><para>Uses: <link linkend="cv-RCCOMSTR"><varname>$RCCOMSTR</varname></link> <link linkend="cv-SHLINKCOMSTR"><varname>$SHLINKCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-msgfmt">
     <term>msgfmt</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-This scons tool is a part of scons <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-gettext"><literal>gettext</literal></link> toolset. It provides scons
+    <listitem><para>
+This scons tool is a part of scons <link linkend="t-gettext"><literal>gettext</literal></link> toolset. It provides scons
 interface to <command>msgfmt(1)</command> command, which generates binary
 message catalog (<literal>MO</literal>) from a textual translation description
 (<literal>PO</literal>).
 </para>
-<para>Sets:  &cv-link-MOSUFFIX;, &cv-link-MSGFMT;, &cv-link-MSGFMTCOM;, &cv-link-MSGFMTCOMSTR;, &cv-link-MSGFMTFLAGS;, &cv-link-POSUFFIX;.</para><para>Uses:  &cv-link-LINGUAS_FILE;.</para></listitem>
+<para>Sets: <link linkend="cv-MOSUFFIX"><varname>$MOSUFFIX</varname></link> <link linkend="cv-MSGFMT"><varname>$MSGFMT</varname></link> <link linkend="cv-MSGFMTCOM"><varname>$MSGFMTCOM</varname></link> <link linkend="cv-MSGFMTCOMSTR"><varname>$MSGFMTCOMSTR</varname></link> <link linkend="cv-MSGFMTFLAGS"><varname>$MSGFMTFLAGS</varname></link> <link linkend="cv-POSUFFIX"><varname>$POSUFFIX</varname></link> </para><para>Uses: <link linkend="cv-LINGUAS_FILE"><varname>$LINGUAS_FILE</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-msginit">
     <term>msginit</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-This scons tool is a part of scons <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-gettext"><literal>gettext</literal></link> toolset. It provides
+    <listitem><para>
+This scons tool is a part of scons <link linkend="t-gettext"><literal>gettext</literal></link> toolset. It provides
 scons interface to <command>msginit(1)</command> program, which creates new
 <literal>PO</literal> file, initializing the meta information with values from
 user's environment (or options).
 </para>
-<para>Sets:  &cv-link-MSGINIT;, &cv-link-MSGINITCOM;, &cv-link-MSGINITCOMSTR;, &cv-link-MSGINITFLAGS;, &cv-link-POAUTOINIT;, &cv-link-POCREATE_ALIAS;, &cv-link-POSUFFIX;, &cv-link-POTSUFFIX;, &cv-link-_MSGINITLOCALE;.</para><para>Uses:  &cv-link-LINGUAS_FILE;, &cv-link-POAUTOINIT;, &cv-link-POTDOMAIN;.</para></listitem>
+<para>Sets: <link linkend="cv-MSGINIT"><varname>$MSGINIT</varname></link> <link linkend="cv-MSGINITCOM"><varname>$MSGINITCOM</varname></link> <link linkend="cv-MSGINITCOMSTR"><varname>$MSGINITCOMSTR</varname></link> <link linkend="cv-MSGINITFLAGS"><varname>$MSGINITFLAGS</varname></link> <link linkend="cv-POAUTOINIT"><varname>$POAUTOINIT</varname></link> <link linkend="cv-POCREATE_ALIAS"><varname>$POCREATE_ALIAS</varname></link> <link linkend="cv-POSUFFIX"><varname>$POSUFFIX</varname></link> <link linkend="cv-POTSUFFIX"><varname>$POTSUFFIX</varname></link> <link linkend="cv-_MSGINITLOCALE"><varname>$_MSGINITLOCALE</varname></link> </para><para>Uses: <link linkend="cv-LINGUAS_FILE"><varname>$LINGUAS_FILE</varname></link> <link linkend="cv-POAUTOINIT"><varname>$POAUTOINIT</varname></link> <link linkend="cv-POTDOMAIN"><varname>$POTDOMAIN</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-msgmerge">
     <term>msgmerge</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-This scons tool is a part of scons <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-gettext"><literal>gettext</literal></link> toolset. It provides
+    <listitem><para>
+This scons tool is a part of scons <link linkend="t-gettext"><literal>gettext</literal></link> toolset. It provides
 scons interface to <command>msgmerge(1)</command> command, which merges two
 Uniform style <filename>.po</filename> files together. 
 </para>
-<para>Sets:  &cv-link-MSGMERGE;, &cv-link-MSGMERGECOM;, &cv-link-MSGMERGECOMSTR;, &cv-link-MSGMERGEFLAGS;, &cv-link-POSUFFIX;, &cv-link-POTSUFFIX;, &cv-link-POUPDATE_ALIAS;.</para><para>Uses:  &cv-link-LINGUAS_FILE;, &cv-link-POAUTOINIT;, &cv-link-POTDOMAIN;.</para></listitem>
+<para>Sets: <link linkend="cv-MSGMERGE"><varname>$MSGMERGE</varname></link> <link linkend="cv-MSGMERGECOM"><varname>$MSGMERGECOM</varname></link> <link linkend="cv-MSGMERGECOMSTR"><varname>$MSGMERGECOMSTR</varname></link> <link linkend="cv-MSGMERGEFLAGS"><varname>$MSGMERGEFLAGS</varname></link> <link linkend="cv-POSUFFIX"><varname>$POSUFFIX</varname></link> <link linkend="cv-POTSUFFIX"><varname>$POTSUFFIX</varname></link> <link linkend="cv-POUPDATE_ALIAS"><varname>$POUPDATE_ALIAS</varname></link> </para><para>Uses: <link linkend="cv-LINGUAS_FILE"><varname>$LINGUAS_FILE</varname></link> <link linkend="cv-POAUTOINIT"><varname>$POAUTOINIT</varname></link> <link linkend="cv-POTDOMAIN"><varname>$POTDOMAIN</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-mslib">
     <term>mslib</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the Microsoft
 <application>mslib</application>
 library archiver.
 </para>
-<para>Sets:  &cv-link-AR;, &cv-link-ARCOM;, &cv-link-ARFLAGS;, &cv-link-LIBPREFIX;, &cv-link-LIBSUFFIX;.</para><para>Uses:  &cv-link-ARCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-AR"><varname>$AR</varname></link> <link linkend="cv-ARCOM"><varname>$ARCOM</varname></link> <link linkend="cv-ARFLAGS"><varname>$ARFLAGS</varname></link> <link linkend="cv-LIBPREFIX"><varname>$LIBPREFIX</varname></link> <link linkend="cv-LIBSUFFIX"><varname>$LIBSUFFIX</varname></link> </para><para>Uses: <link linkend="cv-ARCOMSTR"><varname>$ARCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-mslink">
     <term>mslink</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the Microsoft linker.
 </para>
-<para>Sets:  &cv-link-LDMODULE;, &cv-link-LDMODULECOM;, &cv-link-LDMODULEFLAGS;, &cv-link-LDMODULEPREFIX;, &cv-link-LDMODULESUFFIX;, &cv-link-LIBDIRPREFIX;, &cv-link-LIBDIRSUFFIX;, &cv-link-LIBLINKPREFIX;, &cv-link-LIBLINKSUFFIX;, &cv-link-LINK;, &cv-link-LINKCOM;, &cv-link-LINKFLAGS;, &cv-link-REGSVR;, &cv-link-REGSVRCOM;, &cv-link-REGSVRFLAGS;, &cv-link-SHLINK;, &cv-link-SHLINKCOM;, &cv-link-SHLINKFLAGS;, &cv-link-WIN32DEFPREFIX;, &cv-link-WIN32DEFSUFFIX;, &cv-link-WIN32EXPPREFIX;, &cv-link-WIN32EXPSUFFIX;, &cv-link-WINDOWSDEFPREFIX;, &cv-link-WINDOWSDEFSUFFIX;, &cv-link-WINDOWSEXPPREFIX;, &cv-link-WINDOWSEXPSUFFIX;, &cv-link-WINDOWSPROGMANIFESTPREFIX;, &cv-link-WINDOWSPROGMANIFESTSUFFIX;, &cv-link-WINDOWSSHLIBMANIFESTPREFIX;, &cv-link-WINDOWSSHLIBMANIFESTSUFFIX;, &cv-link-WINDOWS_INSERT_DEF;.</para><para>Uses:  &cv-link-LDMODULECOMSTR;, &cv-link-LINKCOMSTR;, &cv-link-REGSVRCOMSTR;, &cv-link-SHLINKCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-LDMODULE"><varname>$LDMODULE</varname></link> <link linkend="cv-LDMODULECOM"><varname>$LDMODULECOM</varname></link> <link linkend="cv-LDMODULEFLAGS"><varname>$LDMODULEFLAGS</varname></link> <link linkend="cv-LDMODULEPREFIX"><varname>$LDMODULEPREFIX</varname></link> <link linkend="cv-LDMODULESUFFIX"><varname>$LDMODULESUFFIX</varname></link> <link linkend="cv-LIBDIRPREFIX"><varname>$LIBDIRPREFIX</varname></link> <link linkend="cv-LIBDIRSUFFIX"><varname>$LIBDIRSUFFIX</varname></link> <link linkend="cv-LIBLINKPREFIX"><varname>$LIBLINKPREFIX</varname></link> <link linkend="cv-LIBLINKSUFFIX"><varname>$LIBLINKSUFFIX</varname></link> <link linkend="cv-LINK"><varname>$LINK</varname></link> <link linkend="cv-LINKCOM"><varname>$LINKCOM</varname></link> <link linkend="cv-LINKFLAGS"><varname>$LINKFLAGS</varname></link> <link linkend="cv-REGSVR"><varname>$REGSVR</varname></link> <link linkend="cv-REGSVRCOM"><varname>$REGSVRCOM</varname></link> <link linkend="cv-REGSVRFLAGS"><varname>$REGSVRFLAGS</varname></link> <link linkend="cv-SHLINK"><varname>$SHLINK</varname></link> <link linkend="cv-SHLINKCOM"><varname>$SHLINKCOM</varname></link> <link linkend="cv-SHLINKFLAGS"><varname>$SHLINKFLAGS</varname></link> <link linkend="cv-WIN32DEFPREFIX"><varname>$WIN32DEFPREFIX</varname></link> <link linkend="cv-WIN32DEFSUFFIX"><varname>$WIN32DEFSUFFIX</varname></link> <link linkend="cv-WIN32EXPPREFIX"><varname>$WIN32EXPPREFIX</varname></link> <link linkend="cv-WIN32EXPSUFFIX"><varname>$WIN32EXPSUFFIX</varname></link> <link linkend="cv-WINDOWSDEFPREFIX"><varname>$WINDOWSDEFPREFIX</varname></link> <link linkend="cv-WINDOWSDEFSUFFIX"><varname>$WINDOWSDEFSUFFIX</varname></link> <link linkend="cv-WINDOWSEXPPREFIX"><varname>$WINDOWSEXPPREFIX</varname></link> <link linkend="cv-WINDOWSEXPSUFFIX"><varname>$WINDOWSEXPSUFFIX</varname></link> <link linkend="cv-WINDOWSPROGMANIFESTPREFIX"><varname>$WINDOWSPROGMANIFESTPREFIX</varname></link> <link linkend="cv-WINDOWSPROGMANIFESTSUFFIX"><varname>$WINDOWSPROGMANIFESTSUFFIX</varname></link> <link linkend="cv-WINDOWSSHLIBMANIFESTPREFIX"><varname>$WINDOWSSHLIBMANIFESTPREFIX</varname></link> <link linkend="cv-WINDOWSSHLIBMANIFESTSUFFIX"><varname>$WINDOWSSHLIBMANIFESTSUFFIX</varname></link> <link linkend="cv-WINDOWS_INSERT_DEF"><varname>$WINDOWS_INSERT_DEF</varname></link> </para><para>Uses: <link linkend="cv-LDMODULECOMSTR"><varname>$LDMODULECOMSTR</varname></link> <link linkend="cv-LINKCOMSTR"><varname>$LINKCOMSTR</varname></link> <link linkend="cv-REGSVRCOMSTR"><varname>$REGSVRCOMSTR</varname></link> <link linkend="cv-SHLINKCOMSTR"><varname>$SHLINKCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-mssdk">
     <term>mssdk</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets variables for Microsoft Platform SDK and/or Windows SDK.
 Note that unlike most other Tool modules,
 mssdk does not set construction variables,
 but sets the <emphasis>environment variables</emphasis>
-in the environment <application xmlns="http://www.scons.org/dbxsd/v1.0">SCons</application> uses to execute
+in the environment <application>SCons</application> uses to execute
 the Microsoft toolchain:
 <literal>%INCLUDE%</literal>,
 <literal>%LIB%</literal>,
 <literal>%LIBPATH%</literal> and
 <literal>%PATH%</literal>.
 </para>
-<para>Uses:  &cv-link-MSSDK_DIR;, &cv-link-MSSDK_VERSION;, &cv-link-MSVS_VERSION;.</para></listitem>
+<para>Uses: <link linkend="cv-MSSDK_DIR"><varname>$MSSDK_DIR</varname></link> <link linkend="cv-MSSDK_VERSION"><varname>$MSSDK_VERSION</varname></link> <link linkend="cv-MSVS_VERSION"><varname>$MSVS_VERSION</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-msvc">
     <term>msvc</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the Microsoft Visual C/C++ compiler.
 </para>
-<para>Sets:  &cv-link-BUILDERS;, &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CCFLAGS;, &cv-link-CCPCHFLAGS;, &cv-link-CCPDBFLAGS;, &cv-link-CFILESUFFIX;, &cv-link-CFLAGS;, &cv-link-CPPDEFPREFIX;, &cv-link-CPPDEFSUFFIX;, &cv-link-CXX;, &cv-link-CXXCOM;, &cv-link-CXXFILESUFFIX;, &cv-link-CXXFLAGS;, &cv-link-INCPREFIX;, &cv-link-INCSUFFIX;, &cv-link-OBJPREFIX;, &cv-link-OBJSUFFIX;, &cv-link-PCHCOM;, &cv-link-PCHPDBFLAGS;, &cv-link-RC;, &cv-link-RCCOM;, &cv-link-RCFLAGS;, &cv-link-SHCC;, &cv-link-SHCCCOM;, &cv-link-SHCCFLAGS;, &cv-link-SHCFLAGS;, &cv-link-SHCXX;, &cv-link-SHCXXCOM;, &cv-link-SHCXXFLAGS;, &cv-link-SHOBJPREFIX;, &cv-link-SHOBJSUFFIX;.</para><para>Uses:  &cv-link-CCCOMSTR;, &cv-link-CXXCOMSTR;, &cv-link-PCH;, &cv-link-PCHSTOP;, &cv-link-PDB;, &cv-link-SHCCCOMSTR;, &cv-link-SHCXXCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-BUILDERS"><varname>$BUILDERS</varname></link> <link linkend="cv-CC"><varname>$CC</varname></link> <link linkend="cv-CCCOM"><varname>$CCCOM</varname></link> <link linkend="cv-CCFLAGS"><varname>$CCFLAGS</varname></link> <link linkend="cv-CCPCHFLAGS"><varname>$CCPCHFLAGS</varname></link> <link linkend="cv-CCPDBFLAGS"><varname>$CCPDBFLAGS</varname></link> <link linkend="cv-CFILESUFFIX"><varname>$CFILESUFFIX</varname></link> <link linkend="cv-CFLAGS"><varname>$CFLAGS</varname></link> <link linkend="cv-CPPDEFPREFIX"><varname>$CPPDEFPREFIX</varname></link> <link linkend="cv-CPPDEFSUFFIX"><varname>$CPPDEFSUFFIX</varname></link> <link linkend="cv-CXX"><varname>$CXX</varname></link> <link linkend="cv-CXXCOM"><varname>$CXXCOM</varname></link> <link linkend="cv-CXXFILESUFFIX"><varname>$CXXFILESUFFIX</varname></link> <link linkend="cv-CXXFLAGS"><varname>$CXXFLAGS</varname></link> <link linkend="cv-INCPREFIX"><varname>$INCPREFIX</varname></link> <link linkend="cv-INCSUFFIX"><varname>$INCSUFFIX</varname></link> <link linkend="cv-OBJPREFIX"><varname>$OBJPREFIX</varname></link> <link linkend="cv-OBJSUFFIX"><varname>$OBJSUFFIX</varname></link> <link linkend="cv-PCHCOM"><varname>$PCHCOM</varname></link> <link linkend="cv-PCHPDBFLAGS"><varname>$PCHPDBFLAGS</varname></link> <link linkend="cv-RC"><varname>$RC</varname></link> <link linkend="cv-RCCOM"><varname>$RCCOM</varname></link> <link linkend="cv-RCFLAGS"><varname>$RCFLAGS</varname></link> <link linkend="cv-SHCC"><varname>$SHCC</varname></link> <link linkend="cv-SHCCCOM"><varname>$SHCCCOM</varname></link> <link linkend="cv-SHCCFLAGS"><varname>$SHCCFLAGS</varname></link> <link linkend="cv-SHCFLAGS"><varname>$SHCFLAGS</varname></link> <link linkend="cv-SHCXX"><varname>$SHCXX</varname></link> <link linkend="cv-SHCXXCOM"><varname>$SHCXXCOM</varname></link> <link linkend="cv-SHCXXFLAGS"><varname>$SHCXXFLAGS</varname></link> <link linkend="cv-SHOBJPREFIX"><varname>$SHOBJPREFIX</varname></link> <link linkend="cv-SHOBJSUFFIX"><varname>$SHOBJSUFFIX</varname></link> </para><para>Uses: <link linkend="cv-CCCOMSTR"><varname>$CCCOMSTR</varname></link> <link linkend="cv-CXXCOMSTR"><varname>$CXXCOMSTR</varname></link> <link linkend="cv-PCH"><varname>$PCH</varname></link> <link linkend="cv-PCHSTOP"><varname>$PCHSTOP</varname></link> <link linkend="cv-PDB"><varname>$PDB</varname></link> <link linkend="cv-SHCCCOMSTR"><varname>$SHCCCOMSTR</varname></link> <link linkend="cv-SHCXXCOMSTR"><varname>$SHCXXCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-msvs">
     <term>msvs</term>
-    <listitem>
-      <para xmlns="http://www.scons.org/dbxsd/v1.0">Sets construction variables for Microsoft Visual Studio.</para>
-    <para>Sets:  &cv-link-MSVSBUILDCOM;, &cv-link-MSVSCLEANCOM;, &cv-link-MSVSENCODING;, &cv-link-MSVSPROJECTCOM;, &cv-link-MSVSREBUILDCOM;, &cv-link-MSVSSCONS;, &cv-link-MSVSSCONSCOM;, &cv-link-MSVSSCONSCRIPT;, &cv-link-MSVSSCONSFLAGS;, &cv-link-MSVSSOLUTIONCOM;.</para></listitem>
+    <listitem><para>Sets construction variables for Microsoft Visual Studio.</para>
+    <para>Sets: <link linkend="cv-MSVSBUILDCOM"><varname>$MSVSBUILDCOM</varname></link> <link linkend="cv-MSVSCLEANCOM"><varname>$MSVSCLEANCOM</varname></link> <link linkend="cv-MSVSENCODING"><varname>$MSVSENCODING</varname></link> <link linkend="cv-MSVSPROJECTCOM"><varname>$MSVSPROJECTCOM</varname></link> <link linkend="cv-MSVSREBUILDCOM"><varname>$MSVSREBUILDCOM</varname></link> <link linkend="cv-MSVSSCONS"><varname>$MSVSSCONS</varname></link> <link linkend="cv-MSVSSCONSCOM"><varname>$MSVSSCONSCOM</varname></link> <link linkend="cv-MSVSSCONSCRIPT"><varname>$MSVSSCONSCRIPT</varname></link> <link linkend="cv-MSVSSCONSFLAGS"><varname>$MSVSSCONSFLAGS</varname></link> <link linkend="cv-MSVSSOLUTIONCOM"><varname>$MSVSSOLUTIONCOM</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-mwcc">
     <term>mwcc</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the Metrowerks CodeWarrior compiler.
 </para>
-<para>Sets:  &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CFILESUFFIX;, &cv-link-CPPDEFPREFIX;, &cv-link-CPPDEFSUFFIX;, &cv-link-CXX;, &cv-link-CXXCOM;, &cv-link-CXXFILESUFFIX;, &cv-link-INCPREFIX;, &cv-link-INCSUFFIX;, &cv-link-MWCW_VERSION;, &cv-link-MWCW_VERSIONS;, &cv-link-SHCC;, &cv-link-SHCCCOM;, &cv-link-SHCCFLAGS;, &cv-link-SHCFLAGS;, &cv-link-SHCXX;, &cv-link-SHCXXCOM;, &cv-link-SHCXXFLAGS;.</para><para>Uses:  &cv-link-CCCOMSTR;, &cv-link-CXXCOMSTR;, &cv-link-SHCCCOMSTR;, &cv-link-SHCXXCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-CC"><varname>$CC</varname></link> <link linkend="cv-CCCOM"><varname>$CCCOM</varname></link> <link linkend="cv-CFILESUFFIX"><varname>$CFILESUFFIX</varname></link> <link linkend="cv-CPPDEFPREFIX"><varname>$CPPDEFPREFIX</varname></link> <link linkend="cv-CPPDEFSUFFIX"><varname>$CPPDEFSUFFIX</varname></link> <link linkend="cv-CXX"><varname>$CXX</varname></link> <link linkend="cv-CXXCOM"><varname>$CXXCOM</varname></link> <link linkend="cv-CXXFILESUFFIX"><varname>$CXXFILESUFFIX</varname></link> <link linkend="cv-INCPREFIX"><varname>$INCPREFIX</varname></link> <link linkend="cv-INCSUFFIX"><varname>$INCSUFFIX</varname></link> <link linkend="cv-MWCW_VERSION"><varname>$MWCW_VERSION</varname></link> <link linkend="cv-MWCW_VERSIONS"><varname>$MWCW_VERSIONS</varname></link> <link linkend="cv-SHCC"><varname>$SHCC</varname></link> <link linkend="cv-SHCCCOM"><varname>$SHCCCOM</varname></link> <link linkend="cv-SHCCFLAGS"><varname>$SHCCFLAGS</varname></link> <link linkend="cv-SHCFLAGS"><varname>$SHCFLAGS</varname></link> <link linkend="cv-SHCXX"><varname>$SHCXX</varname></link> <link linkend="cv-SHCXXCOM"><varname>$SHCXXCOM</varname></link> <link linkend="cv-SHCXXFLAGS"><varname>$SHCXXFLAGS</varname></link> </para><para>Uses: <link linkend="cv-CCCOMSTR"><varname>$CCCOMSTR</varname></link> <link linkend="cv-CXXCOMSTR"><varname>$CXXCOMSTR</varname></link> <link linkend="cv-SHCCCOMSTR"><varname>$SHCCCOMSTR</varname></link> <link linkend="cv-SHCXXCOMSTR"><varname>$SHCXXCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-mwld">
     <term>mwld</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the Metrowerks CodeWarrior linker.
 </para>
-<para>Sets:  &cv-link-AR;, &cv-link-ARCOM;, &cv-link-LIBDIRPREFIX;, &cv-link-LIBDIRSUFFIX;, &cv-link-LIBLINKPREFIX;, &cv-link-LIBLINKSUFFIX;, &cv-link-LINK;, &cv-link-LINKCOM;, &cv-link-SHLINK;, &cv-link-SHLINKCOM;, &cv-link-SHLINKFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-AR"><varname>$AR</varname></link> <link linkend="cv-ARCOM"><varname>$ARCOM</varname></link> <link linkend="cv-LIBDIRPREFIX"><varname>$LIBDIRPREFIX</varname></link> <link linkend="cv-LIBDIRSUFFIX"><varname>$LIBDIRSUFFIX</varname></link> <link linkend="cv-LIBLINKPREFIX"><varname>$LIBLINKPREFIX</varname></link> <link linkend="cv-LIBLINKSUFFIX"><varname>$LIBLINKSUFFIX</varname></link> <link linkend="cv-LINK"><varname>$LINK</varname></link> <link linkend="cv-LINKCOM"><varname>$LINKCOM</varname></link> <link linkend="cv-SHLINK"><varname>$SHLINK</varname></link> <link linkend="cv-SHLINKCOM"><varname>$SHLINKCOM</varname></link> <link linkend="cv-SHLINKFLAGS"><varname>$SHLINKFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-nasm">
     <term>nasm</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the
 <application>nasm</application> Netwide Assembler.
 </para>
-<para>Sets:  &cv-link-AS;, &cv-link-ASCOM;, &cv-link-ASFLAGS;, &cv-link-ASPPCOM;, &cv-link-ASPPFLAGS;.</para><para>Uses:  &cv-link-ASCOMSTR;, &cv-link-ASPPCOMSTR;.</para></listitem>
-  </varlistentry>
-  <varlistentry id="t-Packaging">
-    <term>Packaging</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the <function xmlns="http://www.scons.org/dbxsd/v1.0">Package</function> Builder.
-</para>
-</listitem>
+<para>Sets: <link linkend="cv-AS"><varname>$AS</varname></link> <link linkend="cv-ASCOM"><varname>$ASCOM</varname></link> <link linkend="cv-ASFLAGS"><varname>$ASFLAGS</varname></link> <link linkend="cv-ASPPCOM"><varname>$ASPPCOM</varname></link> <link linkend="cv-ASPPFLAGS"><varname>$ASPPFLAGS</varname></link> </para><para>Uses: <link linkend="cv-ASCOMSTR"><varname>$ASCOMSTR</varname></link> <link linkend="cv-ASPPCOMSTR"><varname>$ASPPCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-packaging">
     <term>packaging</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 A framework for building binary and source packages.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="t-Packaging">
+    <term>Packaging</term>
+    <listitem><para>
+Sets construction variables for the <function>Package</function> Builder.
 </para>
 </listitem>
   </varlistentry>
   <varlistentry id="t-pdf">
     <term>pdf</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the Portable Document Format builder.
 </para>
-<para>Sets:  &cv-link-PDFPREFIX;, &cv-link-PDFSUFFIX;.</para></listitem>
+<para>Sets: <link linkend="cv-PDFPREFIX"><varname>$PDFPREFIX</varname></link> <link linkend="cv-PDFSUFFIX"><varname>$PDFSUFFIX</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-pdflatex">
     <term>pdflatex</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the <application xmlns="http://www.scons.org/dbxsd/v1.0">pdflatex</application> utility.
+    <listitem><para>
+Sets construction variables for the <application>pdflatex</application> utility.
 </para>
-<para>Sets:  &cv-link-LATEXRETRIES;, &cv-link-PDFLATEX;, &cv-link-PDFLATEXCOM;, &cv-link-PDFLATEXFLAGS;.</para><para>Uses:  &cv-link-PDFLATEXCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-LATEXRETRIES"><varname>$LATEXRETRIES</varname></link> <link linkend="cv-PDFLATEX"><varname>$PDFLATEX</varname></link> <link linkend="cv-PDFLATEXCOM"><varname>$PDFLATEXCOM</varname></link> <link linkend="cv-PDFLATEXFLAGS"><varname>$PDFLATEXFLAGS</varname></link> </para><para>Uses: <link linkend="cv-PDFLATEXCOMSTR"><varname>$PDFLATEXCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-pdftex">
     <term>pdftex</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the <application xmlns="http://www.scons.org/dbxsd/v1.0">pdftex</application> utility.
+    <listitem><para>
+Sets construction variables for the <application>pdftex</application> utility.
 </para>
-<para>Sets:  &cv-link-LATEXRETRIES;, &cv-link-PDFLATEX;, &cv-link-PDFLATEXCOM;, &cv-link-PDFLATEXFLAGS;, &cv-link-PDFTEX;, &cv-link-PDFTEXCOM;, &cv-link-PDFTEXFLAGS;.</para><para>Uses:  &cv-link-PDFLATEXCOMSTR;, &cv-link-PDFTEXCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-LATEXRETRIES"><varname>$LATEXRETRIES</varname></link> <link linkend="cv-PDFLATEX"><varname>$PDFLATEX</varname></link> <link linkend="cv-PDFLATEXCOM"><varname>$PDFLATEXCOM</varname></link> <link linkend="cv-PDFLATEXFLAGS"><varname>$PDFLATEXFLAGS</varname></link> <link linkend="cv-PDFTEX"><varname>$PDFTEX</varname></link> <link linkend="cv-PDFTEXCOM"><varname>$PDFTEXCOM</varname></link> <link linkend="cv-PDFTEXFLAGS"><varname>$PDFTEXFLAGS</varname></link> </para><para>Uses: <link linkend="cv-PDFLATEXCOMSTR"><varname>$PDFLATEXCOMSTR</varname></link> <link linkend="cv-PDFTEXCOMSTR"><varname>$PDFTEXCOMSTR</varname></link> </para></listitem>
+  </varlistentry>
+  <varlistentry id="t-python">
+    <term>python</term>
+    <listitem><para>
+Loads the Python source scanner into the invoking environment.
+When loaded, the scanner will attempt to find implicit
+dependencies for any Python source files in the list of sources
+provided to an Action that uses this environment.
+</para>
+<para><emphasis>Available since <command>scons</command> 4.0.</emphasis>.</para>
+</listitem>
   </varlistentry>
   <varlistentry id="t-qt">
     <term>qt</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for building Qt applications.
 </para>
-<para>Sets:  &cv-link-QTDIR;, &cv-link-QT_AUTOSCAN;, &cv-link-QT_BINPATH;, &cv-link-QT_CPPPATH;, &cv-link-QT_LIB;, &cv-link-QT_LIBPATH;, &cv-link-QT_MOC;, &cv-link-QT_MOCCXXPREFIX;, &cv-link-QT_MOCCXXSUFFIX;, &cv-link-QT_MOCFROMCXXCOM;, &cv-link-QT_MOCFROMCXXFLAGS;, &cv-link-QT_MOCFROMHCOM;, &cv-link-QT_MOCFROMHFLAGS;, &cv-link-QT_MOCHPREFIX;, &cv-link-QT_MOCHSUFFIX;, &cv-link-QT_UIC;, &cv-link-QT_UICCOM;, &cv-link-QT_UICDECLFLAGS;, &cv-link-QT_UICDECLPREFIX;, &cv-link-QT_UICDECLSUFFIX;, &cv-link-QT_UICIMPLFLAGS;, &cv-link-QT_UICIMPLPREFIX;, &cv-link-QT_UICIMPLSUFFIX;, &cv-link-QT_UISUFFIX;.</para></listitem>
+<para>Sets: <link linkend="cv-QTDIR"><varname>$QTDIR</varname></link> <link linkend="cv-QT_AUTOSCAN"><varname>$QT_AUTOSCAN</varname></link> <link linkend="cv-QT_BINPATH"><varname>$QT_BINPATH</varname></link> <link linkend="cv-QT_CPPPATH"><varname>$QT_CPPPATH</varname></link> <link linkend="cv-QT_LIB"><varname>$QT_LIB</varname></link> <link linkend="cv-QT_LIBPATH"><varname>$QT_LIBPATH</varname></link> <link linkend="cv-QT_MOC"><varname>$QT_MOC</varname></link> <link linkend="cv-QT_MOCCXXPREFIX"><varname>$QT_MOCCXXPREFIX</varname></link> <link linkend="cv-QT_MOCCXXSUFFIX"><varname>$QT_MOCCXXSUFFIX</varname></link> <link linkend="cv-QT_MOCFROMCXXCOM"><varname>$QT_MOCFROMCXXCOM</varname></link> <link linkend="cv-QT_MOCFROMCXXFLAGS"><varname>$QT_MOCFROMCXXFLAGS</varname></link> <link linkend="cv-QT_MOCFROMHCOM"><varname>$QT_MOCFROMHCOM</varname></link> <link linkend="cv-QT_MOCFROMHFLAGS"><varname>$QT_MOCFROMHFLAGS</varname></link> <link linkend="cv-QT_MOCHPREFIX"><varname>$QT_MOCHPREFIX</varname></link> <link linkend="cv-QT_MOCHSUFFIX"><varname>$QT_MOCHSUFFIX</varname></link> <link linkend="cv-QT_UIC"><varname>$QT_UIC</varname></link> <link linkend="cv-QT_UICCOM"><varname>$QT_UICCOM</varname></link> <link linkend="cv-QT_UICDECLFLAGS"><varname>$QT_UICDECLFLAGS</varname></link> <link linkend="cv-QT_UICDECLPREFIX"><varname>$QT_UICDECLPREFIX</varname></link> <link linkend="cv-QT_UICDECLSUFFIX"><varname>$QT_UICDECLSUFFIX</varname></link> <link linkend="cv-QT_UICIMPLFLAGS"><varname>$QT_UICIMPLFLAGS</varname></link> <link linkend="cv-QT_UICIMPLPREFIX"><varname>$QT_UICIMPLPREFIX</varname></link> <link linkend="cv-QT_UICIMPLSUFFIX"><varname>$QT_UICIMPLSUFFIX</varname></link> <link linkend="cv-QT_UISUFFIX"><varname>$QT_UISUFFIX</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-rmic">
     <term>rmic</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the <application xmlns="http://www.scons.org/dbxsd/v1.0">rmic</application> utility.
+    <listitem><para>
+Sets construction variables for the <application>rmic</application> utility.
 </para>
-<para>Sets:  &cv-link-JAVACLASSSUFFIX;, &cv-link-RMIC;, &cv-link-RMICCOM;, &cv-link-RMICFLAGS;.</para><para>Uses:  &cv-link-RMICCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-JAVACLASSSUFFIX"><varname>$JAVACLASSSUFFIX</varname></link> <link linkend="cv-RMIC"><varname>$RMIC</varname></link> <link linkend="cv-RMICCOM"><varname>$RMICCOM</varname></link> <link linkend="cv-RMICFLAGS"><varname>$RMICFLAGS</varname></link> </para><para>Uses: <link linkend="cv-RMICCOMSTR"><varname>$RMICCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-rpcgen">
     <term>rpcgen</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for building with RPCGEN.
 </para>
-<para>Sets:  &cv-link-RPCGEN;, &cv-link-RPCGENCLIENTFLAGS;, &cv-link-RPCGENFLAGS;, &cv-link-RPCGENHEADERFLAGS;, &cv-link-RPCGENSERVICEFLAGS;, &cv-link-RPCGENXDRFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-RPCGEN"><varname>$RPCGEN</varname></link> <link linkend="cv-RPCGENCLIENTFLAGS"><varname>$RPCGENCLIENTFLAGS</varname></link> <link linkend="cv-RPCGENFLAGS"><varname>$RPCGENFLAGS</varname></link> <link linkend="cv-RPCGENHEADERFLAGS"><varname>$RPCGENHEADERFLAGS</varname></link> <link linkend="cv-RPCGENSERVICEFLAGS"><varname>$RPCGENSERVICEFLAGS</varname></link> <link linkend="cv-RPCGENXDRFLAGS"><varname>$RPCGENXDRFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-sgiar">
     <term>sgiar</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the SGI library archiver.
 </para>
-<para>Sets:  &cv-link-AR;, &cv-link-ARCOMSTR;, &cv-link-ARFLAGS;, &cv-link-LIBPREFIX;, &cv-link-LIBSUFFIX;, &cv-link-SHLINK;, &cv-link-SHLINKFLAGS;.</para><para>Uses:  &cv-link-ARCOMSTR;, &cv-link-SHLINKCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-AR"><varname>$AR</varname></link> <link linkend="cv-ARCOMSTR"><varname>$ARCOMSTR</varname></link> <link linkend="cv-ARFLAGS"><varname>$ARFLAGS</varname></link> <link linkend="cv-LIBPREFIX"><varname>$LIBPREFIX</varname></link> <link linkend="cv-LIBSUFFIX"><varname>$LIBSUFFIX</varname></link> <link linkend="cv-SHLINK"><varname>$SHLINK</varname></link> <link linkend="cv-SHLINKFLAGS"><varname>$SHLINKFLAGS</varname></link> </para><para>Uses: <link linkend="cv-ARCOMSTR"><varname>$ARCOMSTR</varname></link> <link linkend="cv-SHLINKCOMSTR"><varname>$SHLINKCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-sgicXX">
     <term>sgic++</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the SGI C++ compiler.
 </para>
-<para>Sets:  &cv-link-CXX;, &cv-link-CXXFLAGS;, &cv-link-SHCXX;, &cv-link-SHOBJSUFFIX;.</para></listitem>
+<para>Sets: <link linkend="cv-CXX"><varname>$CXX</varname></link> <link linkend="cv-CXXFLAGS"><varname>$CXXFLAGS</varname></link> <link linkend="cv-SHCXX"><varname>$SHCXX</varname></link> <link linkend="cv-SHOBJSUFFIX"><varname>$SHOBJSUFFIX</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-sgicc">
     <term>sgicc</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the SGI C compiler.
 </para>
-<para>Sets:  &cv-link-CXX;, &cv-link-SHOBJSUFFIX;.</para></listitem>
+<para>Sets: <link linkend="cv-CXX"><varname>$CXX</varname></link> <link linkend="cv-SHOBJSUFFIX"><varname>$SHOBJSUFFIX</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-sgilink">
     <term>sgilink</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the SGI linker.
 </para>
-<para>Sets:  &cv-link-LINK;, &cv-link-RPATHPREFIX;, &cv-link-RPATHSUFFIX;, &cv-link-SHLINKFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-LINK"><varname>$LINK</varname></link> <link linkend="cv-RPATHPREFIX"><varname>$RPATHPREFIX</varname></link> <link linkend="cv-RPATHSUFFIX"><varname>$RPATHSUFFIX</varname></link> <link linkend="cv-SHLINKFLAGS"><varname>$SHLINKFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-sunar">
     <term>sunar</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the Sun library archiver.
 </para>
-<para>Sets:  &cv-link-AR;, &cv-link-ARCOM;, &cv-link-ARFLAGS;, &cv-link-LIBPREFIX;, &cv-link-LIBSUFFIX;.</para><para>Uses:  &cv-link-ARCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-AR"><varname>$AR</varname></link> <link linkend="cv-ARCOM"><varname>$ARCOM</varname></link> <link linkend="cv-ARFLAGS"><varname>$ARFLAGS</varname></link> <link linkend="cv-LIBPREFIX"><varname>$LIBPREFIX</varname></link> <link linkend="cv-LIBSUFFIX"><varname>$LIBSUFFIX</varname></link> </para><para>Uses: <link linkend="cv-ARCOMSTR"><varname>$ARCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-suncXX">
     <term>sunc++</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the Sun C++ compiler.
 </para>
-<para>Sets:  &cv-link-CXX;, &cv-link-CXXVERSION;, &cv-link-SHCXX;, &cv-link-SHCXXFLAGS;, &cv-link-SHOBJPREFIX;, &cv-link-SHOBJSUFFIX;.</para></listitem>
+<para>Sets: <link linkend="cv-CXX"><varname>$CXX</varname></link> <link linkend="cv-CXXVERSION"><varname>$CXXVERSION</varname></link> <link linkend="cv-SHCXX"><varname>$SHCXX</varname></link> <link linkend="cv-SHCXXFLAGS"><varname>$SHCXXFLAGS</varname></link> <link linkend="cv-SHOBJPREFIX"><varname>$SHOBJPREFIX</varname></link> <link linkend="cv-SHOBJSUFFIX"><varname>$SHOBJSUFFIX</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-suncc">
     <term>suncc</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the Sun C compiler.
 </para>
-<para>Sets:  &cv-link-CXX;, &cv-link-SHCCFLAGS;, &cv-link-SHOBJPREFIX;, &cv-link-SHOBJSUFFIX;.</para></listitem>
+<para>Sets: <link linkend="cv-CXX"><varname>$CXX</varname></link> <link linkend="cv-SHCCFLAGS"><varname>$SHCCFLAGS</varname></link> <link linkend="cv-SHOBJPREFIX"><varname>$SHOBJPREFIX</varname></link> <link linkend="cv-SHOBJSUFFIX"><varname>$SHOBJSUFFIX</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-sunf77">
     <term>sunf77</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Set construction variables for the Sun <application xmlns="http://www.scons.org/dbxsd/v1.0">f77</application> Fortran compiler.
+    <listitem><para>
+Set construction variables for the Sun <application>f77</application> Fortran compiler.
 </para>
-<para>Sets:  &cv-link-F77;, &cv-link-FORTRAN;, &cv-link-SHF77;, &cv-link-SHF77FLAGS;, &cv-link-SHFORTRAN;, &cv-link-SHFORTRANFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-F77"><varname>$F77</varname></link> <link linkend="cv-FORTRAN"><varname>$FORTRAN</varname></link> <link linkend="cv-SHF77"><varname>$SHF77</varname></link> <link linkend="cv-SHF77FLAGS"><varname>$SHF77FLAGS</varname></link> <link linkend="cv-SHFORTRAN"><varname>$SHFORTRAN</varname></link> <link linkend="cv-SHFORTRANFLAGS"><varname>$SHFORTRANFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-sunf90">
     <term>sunf90</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Set construction variables for the Sun <application xmlns="http://www.scons.org/dbxsd/v1.0">f90</application> Fortran compiler.
+    <listitem><para>
+Set construction variables for the Sun <application>f90</application> Fortran compiler.
 </para>
-<para>Sets:  &cv-link-F90;, &cv-link-FORTRAN;, &cv-link-SHF90;, &cv-link-SHF90FLAGS;, &cv-link-SHFORTRAN;, &cv-link-SHFORTRANFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-F90"><varname>$F90</varname></link> <link linkend="cv-FORTRAN"><varname>$FORTRAN</varname></link> <link linkend="cv-SHF90"><varname>$SHF90</varname></link> <link linkend="cv-SHF90FLAGS"><varname>$SHF90FLAGS</varname></link> <link linkend="cv-SHFORTRAN"><varname>$SHFORTRAN</varname></link> <link linkend="cv-SHFORTRANFLAGS"><varname>$SHFORTRANFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-sunf95">
     <term>sunf95</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Set construction variables for the Sun <application xmlns="http://www.scons.org/dbxsd/v1.0">f95</application> Fortran compiler.
+    <listitem><para>
+Set construction variables for the Sun <application>f95</application> Fortran compiler.
 </para>
-<para>Sets:  &cv-link-F95;, &cv-link-FORTRAN;, &cv-link-SHF95;, &cv-link-SHF95FLAGS;, &cv-link-SHFORTRAN;, &cv-link-SHFORTRANFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-F95"><varname>$F95</varname></link> <link linkend="cv-FORTRAN"><varname>$FORTRAN</varname></link> <link linkend="cv-SHF95"><varname>$SHF95</varname></link> <link linkend="cv-SHF95FLAGS"><varname>$SHF95FLAGS</varname></link> <link linkend="cv-SHFORTRAN"><varname>$SHFORTRAN</varname></link> <link linkend="cv-SHFORTRANFLAGS"><varname>$SHFORTRANFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-sunlink">
     <term>sunlink</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the Sun linker.
 </para>
-<para>Sets:  &cv-link-RPATHPREFIX;, &cv-link-RPATHSUFFIX;, &cv-link-SHLINKFLAGS;.</para></listitem>
+<para>Sets: <link linkend="cv-RPATHPREFIX"><varname>$RPATHPREFIX</varname></link> <link linkend="cv-RPATHSUFFIX"><varname>$RPATHSUFFIX</varname></link> <link linkend="cv-SHLINKFLAGS"><varname>$SHLINKFLAGS</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-swig">
     <term>swig</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the SWIG interface generator.
 </para>
-<para>Sets:  &cv-link-SWIG;, &cv-link-SWIGCFILESUFFIX;, &cv-link-SWIGCOM;, &cv-link-SWIGCXXFILESUFFIX;, &cv-link-SWIGDIRECTORSUFFIX;, &cv-link-SWIGFLAGS;, &cv-link-SWIGINCPREFIX;, &cv-link-SWIGINCSUFFIX;, &cv-link-SWIGPATH;, &cv-link-SWIGVERSION;, &cv-link-_SWIGINCFLAGS;.</para><para>Uses:  &cv-link-SWIGCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-SWIG"><varname>$SWIG</varname></link> <link linkend="cv-SWIGCFILESUFFIX"><varname>$SWIGCFILESUFFIX</varname></link> <link linkend="cv-SWIGCOM"><varname>$SWIGCOM</varname></link> <link linkend="cv-SWIGCXXFILESUFFIX"><varname>$SWIGCXXFILESUFFIX</varname></link> <link linkend="cv-SWIGDIRECTORSUFFIX"><varname>$SWIGDIRECTORSUFFIX</varname></link> <link linkend="cv-SWIGFLAGS"><varname>$SWIGFLAGS</varname></link> <link linkend="cv-SWIGINCPREFIX"><varname>$SWIGINCPREFIX</varname></link> <link linkend="cv-SWIGINCSUFFIX"><varname>$SWIGINCSUFFIX</varname></link> <link linkend="cv-SWIGPATH"><varname>$SWIGPATH</varname></link> <link linkend="cv-SWIGVERSION"><varname>$SWIGVERSION</varname></link> <link linkend="cv-_SWIGINCFLAGS"><varname>$_SWIGINCFLAGS</varname></link> </para><para>Uses: <link linkend="cv-SWIGCOMSTR"><varname>$SWIGCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-tar">
     <term>tar</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the <application xmlns="http://www.scons.org/dbxsd/v1.0">tar</application> archiver.
+    <listitem><para>
+Sets construction variables for the <application>tar</application> archiver.
 </para>
-<para>Sets:  &cv-link-TAR;, &cv-link-TARCOM;, &cv-link-TARFLAGS;, &cv-link-TARSUFFIX;.</para><para>Uses:  &cv-link-TARCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-TAR"><varname>$TAR</varname></link> <link linkend="cv-TARCOM"><varname>$TARCOM</varname></link> <link linkend="cv-TARFLAGS"><varname>$TARFLAGS</varname></link> <link linkend="cv-TARSUFFIX"><varname>$TARSUFFIX</varname></link> </para><para>Uses: <link linkend="cv-TARCOMSTR"><varname>$TARCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-tex">
     <term>tex</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the TeX formatter and typesetter.
 </para>
-<para>Sets:  &cv-link-BIBTEX;, &cv-link-BIBTEXCOM;, &cv-link-BIBTEXFLAGS;, &cv-link-LATEX;, &cv-link-LATEXCOM;, &cv-link-LATEXFLAGS;, &cv-link-MAKEINDEX;, &cv-link-MAKEINDEXCOM;, &cv-link-MAKEINDEXFLAGS;, &cv-link-TEX;, &cv-link-TEXCOM;, &cv-link-TEXFLAGS;.</para><para>Uses:  &cv-link-BIBTEXCOMSTR;, &cv-link-LATEXCOMSTR;, &cv-link-MAKEINDEXCOMSTR;, &cv-link-TEXCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-BIBTEX"><varname>$BIBTEX</varname></link> <link linkend="cv-BIBTEXCOM"><varname>$BIBTEXCOM</varname></link> <link linkend="cv-BIBTEXFLAGS"><varname>$BIBTEXFLAGS</varname></link> <link linkend="cv-LATEX"><varname>$LATEX</varname></link> <link linkend="cv-LATEXCOM"><varname>$LATEXCOM</varname></link> <link linkend="cv-LATEXFLAGS"><varname>$LATEXFLAGS</varname></link> <link linkend="cv-MAKEINDEX"><varname>$MAKEINDEX</varname></link> <link linkend="cv-MAKEINDEXCOM"><varname>$MAKEINDEXCOM</varname></link> <link linkend="cv-MAKEINDEXFLAGS"><varname>$MAKEINDEXFLAGS</varname></link> <link linkend="cv-TEX"><varname>$TEX</varname></link> <link linkend="cv-TEXCOM"><varname>$TEXCOM</varname></link> <link linkend="cv-TEXFLAGS"><varname>$TEXFLAGS</varname></link> </para><para>Uses: <link linkend="cv-BIBTEXCOMSTR"><varname>$BIBTEXCOMSTR</varname></link> <link linkend="cv-LATEXCOMSTR"><varname>$LATEXCOMSTR</varname></link> <link linkend="cv-MAKEINDEXCOMSTR"><varname>$MAKEINDEXCOMSTR</varname></link> <link linkend="cv-TEXCOMSTR"><varname>$TEXCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-textfile">
     <term>textfile</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Set construction variables for the <function xmlns="http://www.scons.org/dbxsd/v1.0">Textfile</function> and <function xmlns="http://www.scons.org/dbxsd/v1.0">Substfile</function> builders.
+    <listitem><para>
+Set construction variables for the <function>Textfile</function> and <function>Substfile</function> builders.
 </para>
-<para>Sets:  &cv-link-LINESEPARATOR;, &cv-link-SUBSTFILEPREFIX;, &cv-link-SUBSTFILESUFFIX;, &cv-link-TEXTFILEPREFIX;, &cv-link-TEXTFILESUFFIX;.</para><para>Uses:  &cv-link-SUBST_DICT;.</para></listitem>
+<para>Sets: <link linkend="cv-LINESEPARATOR"><varname>$LINESEPARATOR</varname></link> <link linkend="cv-SUBSTFILEPREFIX"><varname>$SUBSTFILEPREFIX</varname></link> <link linkend="cv-SUBSTFILESUFFIX"><varname>$SUBSTFILESUFFIX</varname></link> <link linkend="cv-TEXTFILEPREFIX"><varname>$TEXTFILEPREFIX</varname></link> <link linkend="cv-TEXTFILESUFFIX"><varname>$TEXTFILESUFFIX</varname></link> </para><para>Uses: <link linkend="cv-SUBST_DICT"><varname>$SUBST_DICT</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-tlib">
     <term>tlib</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
+    <listitem><para>
 Sets construction variables for the Borlan
 <application>tib</application> library archiver.
 </para>
-<para>Sets:  &cv-link-AR;, &cv-link-ARCOM;, &cv-link-ARFLAGS;, &cv-link-LIBPREFIX;, &cv-link-LIBSUFFIX;.</para><para>Uses:  &cv-link-ARCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-AR"><varname>$AR</varname></link> <link linkend="cv-ARCOM"><varname>$ARCOM</varname></link> <link linkend="cv-ARFLAGS"><varname>$ARFLAGS</varname></link> <link linkend="cv-LIBPREFIX"><varname>$LIBPREFIX</varname></link> <link linkend="cv-LIBSUFFIX"><varname>$LIBSUFFIX</varname></link> </para><para>Uses: <link linkend="cv-ARCOMSTR"><varname>$ARCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-xgettext">
     <term>xgettext</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-This scons tool is a part of scons <link xmlns="http://www.scons.org/dbxsd/v1.0" linkend="t-gettext"><literal>gettext</literal></link> toolset. It provides
+    <listitem><para>
+This scons tool is a part of scons <link linkend="t-gettext"><literal>gettext</literal></link> toolset. It provides
 scons interface to <command>xgettext(1)</command>
 program, which extracts internationalized messages from source code. The tool
-provides <function xmlns="http://www.scons.org/dbxsd/v1.0">POTUpdate</function> builder to make  <literal>PO</literal>
+provides <function>POTUpdate</function> builder to make  <literal>PO</literal>
 <emphasis>Template</emphasis> files. 
 </para>
-<para>Sets:  &cv-link-POTSUFFIX;, &cv-link-POTUPDATE_ALIAS;, &cv-link-XGETTEXTCOM;, &cv-link-XGETTEXTCOMSTR;, &cv-link-XGETTEXTFLAGS;, &cv-link-XGETTEXTFROM;, &cv-link-XGETTEXTFROMPREFIX;, &cv-link-XGETTEXTFROMSUFFIX;, &cv-link-XGETTEXTPATH;, &cv-link-XGETTEXTPATHPREFIX;, &cv-link-XGETTEXTPATHSUFFIX;, &cv-link-_XGETTEXTDOMAIN;, &cv-link-_XGETTEXTFROMFLAGS;, &cv-link-_XGETTEXTPATHFLAGS;.</para><para>Uses:  &cv-link-POTDOMAIN;.</para></listitem>
+<para>Sets: <link linkend="cv-POTSUFFIX"><varname>$POTSUFFIX</varname></link> <link linkend="cv-POTUPDATE_ALIAS"><varname>$POTUPDATE_ALIAS</varname></link> <link linkend="cv-XGETTEXTCOM"><varname>$XGETTEXTCOM</varname></link> <link linkend="cv-XGETTEXTCOMSTR"><varname>$XGETTEXTCOMSTR</varname></link> <link linkend="cv-XGETTEXTFLAGS"><varname>$XGETTEXTFLAGS</varname></link> <link linkend="cv-XGETTEXTFROM"><varname>$XGETTEXTFROM</varname></link> <link linkend="cv-XGETTEXTFROMPREFIX"><varname>$XGETTEXTFROMPREFIX</varname></link> <link linkend="cv-XGETTEXTFROMSUFFIX"><varname>$XGETTEXTFROMSUFFIX</varname></link> <link linkend="cv-XGETTEXTPATH"><varname>$XGETTEXTPATH</varname></link> <link linkend="cv-XGETTEXTPATHPREFIX"><varname>$XGETTEXTPATHPREFIX</varname></link> <link linkend="cv-XGETTEXTPATHSUFFIX"><varname>$XGETTEXTPATHSUFFIX</varname></link> <link linkend="cv-_XGETTEXTDOMAIN"><varname>$_XGETTEXTDOMAIN</varname></link> <link linkend="cv-_XGETTEXTFROMFLAGS"><varname>$_XGETTEXTFROMFLAGS</varname></link> <link linkend="cv-_XGETTEXTPATHFLAGS"><varname>$_XGETTEXTPATHFLAGS</varname></link> </para><para>Uses: <link linkend="cv-POTDOMAIN"><varname>$POTDOMAIN</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-yacc">
     <term>yacc</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the <application xmlns="http://www.scons.org/dbxsd/v1.0">yacc</application> parse generator.
+    <listitem><para>
+Sets construction variables for the <application>yacc</application> parse generator.
 </para>
-<para>Sets:  &cv-link-YACC;, &cv-link-YACCCOM;, &cv-link-YACCFLAGS;, &cv-link-YACCHFILESUFFIX;, &cv-link-YACCHXXFILESUFFIX;, &cv-link-YACCVCGFILESUFFIX;.</para><para>Uses:  &cv-link-YACCCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-YACC"><varname>$YACC</varname></link> <link linkend="cv-YACCCOM"><varname>$YACCCOM</varname></link> <link linkend="cv-YACCFLAGS"><varname>$YACCFLAGS</varname></link> <link linkend="cv-YACCHFILESUFFIX"><varname>$YACCHFILESUFFIX</varname></link> <link linkend="cv-YACCHXXFILESUFFIX"><varname>$YACCHXXFILESUFFIX</varname></link> <link linkend="cv-YACCVCGFILESUFFIX"><varname>$YACCVCGFILESUFFIX</varname></link> </para><para>Uses: <link linkend="cv-YACCCOMSTR"><varname>$YACCCOMSTR</varname></link> </para></listitem>
   </varlistentry>
   <varlistentry id="t-zip">
     <term>zip</term>
-    <listitem>
-<para xmlns="http://www.scons.org/dbxsd/v1.0">
-Sets construction variables for the <application xmlns="http://www.scons.org/dbxsd/v1.0">zip</application> archiver.
+    <listitem><para>
+Sets construction variables for the <application>zip</application> archiver.
 </para>
-<para>Sets:  &cv-link-ZIP;, &cv-link-ZIPCOM;, &cv-link-ZIPCOMPRESSION;, &cv-link-ZIPFLAGS;, &cv-link-ZIPSUFFIX;.</para><para>Uses:  &cv-link-ZIPCOMSTR;.</para></listitem>
+<para>Sets: <link linkend="cv-ZIP"><varname>$ZIP</varname></link> <link linkend="cv-ZIPCOM"><varname>$ZIPCOM</varname></link> <link linkend="cv-ZIPCOMPRESSION"><varname>$ZIPCOMPRESSION</varname></link> <link linkend="cv-ZIPFLAGS"><varname>$ZIPFLAGS</varname></link> <link linkend="cv-ZIPSUFFIX"><varname>$ZIPSUFFIX</varname></link> </para><para>Uses: <link linkend="cv-ZIPCOMSTR"><varname>$ZIPCOMSTR</varname></link> </para></listitem>
   </varlistentry>
 </variablelist>

@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+
+<scons_function name="FindPathDirs">
+<arguments signature="global">
+(variable)
+</arguments>
+<summary>
+<para>
+Returns a function
+(actually a callable Python object)
+intended to be used as the
+<varname>path_function</varname>
+of a Scanner object.
+The returned object will look up the specified
+<varname>variable</varname>
+in a construction environment
+and treat the construction variable's value as a list of
+directory paths that should be searched
+(like
+&cv-link-CPPPATH;,
+&cv-link-LIBPATH;,
+etc.).
+</para>
+
+<para>
+Note that use of
+&f-FindPathDirs;
+is generally preferable to
+writing your own
+<varname>path_function</varname>
+for the following reasons:
+1) The returned list will contain all appropriate directories
+found in source trees
+(when
+&f-link-VariantDir;
+is used)
+or in code repositories
+(when
+&f-Repository;
+or the
+<option>-Y</option>
+option are used).
+2) scons will identify expansions of
+<varname>variable</varname>
+that evaluate to the same list of directories as,
+in fact, the same list,
+and avoid re-scanning the directories for files,
+when possible.
+</para>
+
+<para>
+Example:
+</para>
+
+<example_commands>
+def my_scan(node, env, path, arg):
+    # Code to scan file contents goes here...
+    return include_files
+
+scanner = Scanner(name = 'myscanner',
+                  function = my_scan,
+                  path_function = FindPathDirs('MYPATH'))
+</example_commands>
+</summary>
+</scons_function>
+
+</sconsdoc>

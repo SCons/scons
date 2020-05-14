@@ -1,0 +1,393 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+        <!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+        %scons;
+        <!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+        %builders-mod;
+        <!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+        %functions-mod;
+        <!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+        %tools-mod;
+        <!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+        %variables-mod;
+        ]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<cvar name="DC">
+<summary>
+<para>
+The D compiler to use.
+See also &cv-link-SHDC; for compiling to shared objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DCOM">
+<summary>
+<para>
+The command line used to compile a D file to an object file.
+Any options specified in the &cv-link-DFLAGS; construction variable
+is included on this command line.
+See also &cv-link-SHDCOM; for compiling to shared objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DCOMSTR">
+<summary>
+<para>
+If set, the string displayed when a D source file
+is compiled to a (static) object file.
+If not set, then &cv-link-DCOM; (the command line) is displayed.
+See also &cv-link-SHDCOMSTR; for compiling to shared objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DDEBUG">
+<summary>
+<para>
+List of debug tags to enable when compiling.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DDEBUGPREFIX">
+<summary>
+<para>
+DDEBUGPREFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DDEBUGSUFFIX">
+<summary>
+<para>
+DDEBUGSUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DFILESUFFIX">
+<summary>
+<para>
+DFILESUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DFLAGPREFIX">
+<summary>
+<para>
+DFLAGPREFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DFLAGS">
+<summary>
+<para>
+General options that are passed to the D compiler.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DFLAGSUFFIX">
+<summary>
+<para>
+DFLAGSUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DINCSUFFIX">
+<summary>
+<para>
+DLIBFLAGSUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DINCPREFIX">
+<summary>
+<para>
+DINCPREFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLIB">
+<summary>
+<para>
+Name of the lib tool to use for D codes.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLIBCOM">
+<summary>
+<para>
+The command line to use when creating libraries.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLIBDIRPREFIX">
+<summary>
+<para>
+DLIBLINKPREFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLIBDIRSUFFIX">
+<summary>
+<para>
+DLIBLINKSUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLIBFLAGSUFFIX">
+<summary>
+<para>
+DLIBFLAGSUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLIBFLAGPREFIX">
+<summary>
+<para>
+DLIBFLAGPREFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLIBLINKPREFIX">
+<summary>
+<para>
+DLIBLINKPREFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLIBLINKSUFFIX">
+<summary>
+<para>
+DLIBLINKSUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLINK">
+<summary>
+<para>
+Name of the linker to use for linking systems including D sources.
+See also &cv-link-SHDLINK; for linking shared objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLINKCOM">
+<summary>
+<para>
+The command line to use when linking systems including D sources.
+See also &cv-link-SHDLINKCOM; for linking shared objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLINKFLAGS">
+<summary>
+<para>
+List of linker flags.
+See also &cv-link-SHDLINKFLAGS; for linking shared objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLINKFLAGSUFFIX">
+<summary>
+<para>
+DLINKFLAGSUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DLINKFLAGPREFIX">
+<summary>
+<para>
+DLINKFLAGPREFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DPATH">
+<summary>
+<para>
+  List of paths to search for import modules.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DRPATHPREFIX">
+<summary>
+<para>
+DRPATHPREFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DRPATHSUFFIX">
+<summary>
+<para>
+DRPATHSUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DShLibSonameGenerator">
+<summary>
+<para>
+DShLibSonameGenerator.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DVERPREFIX">
+<summary>
+<para>
+DVERPREFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DVERSIONS">
+<summary>
+<para>
+List of version tags to enable when compiling.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DVERSUFFIX">
+<summary>
+<para>
+DVERSUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHDC">
+<summary>
+<para>
+The name of the compiler to use when compiling D source
+destined to be in a shared objects.
+See also &cv-link-DC; for compiling to static objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHDCOM">
+<summary>
+<para>
+The command line to use when compiling code to be part of shared objects.
+See also &cv-link-DCOM; for compiling to static objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHDCOMSTR">
+<summary>
+<para>
+If set, the string displayed when a D source file
+is compiled to a (shared) object file.
+If not set, then &cv-link-SHDCOM; (the command line) is displayed.
+See also &cv-link-DCOMSTR; for compiling to static objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHDLIBVERSION">
+<summary>
+<para>
+SHDLIBVERSION.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHDLIBVERSIONFLAGS">
+<summary>
+<para>
+SHDLIBVERSIONFLAGS.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHDLINK">
+<summary>
+<para>
+The linker to use when creating shared objects for code bases
+include D sources.
+See also &cv-link-DLINK; for linking static objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHDLINKCOM">
+<summary>
+<para>
+The command line to use when generating shared objects.
+See also &cv-link-DLINKCOM; for linking static objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHDLINKFLAGS">
+<summary>
+<para>
+The list of flags to use when generating a shared object.
+See also &cv-link-DLINKFLAGS; for linking static objects.
+</para>
+</summary>
+</cvar>
+
+
+<builder name="ProgramAllAtOnce">
+<summary>
+  <para>
+    Builds an executable from D sources without first creating individual
+    objects for each file.
+  </para>
+  <para>
+    D sources can be compiled file-by-file as C and C++ source are, and
+    D is integrated into the &scons; Object and Program builders for
+    this model of build. D codes can though do whole source
+    meta-programming (some of the testing frameworks do this). For this
+    it is imperative that all sources are compiled and linked in a single
+    call to the D compiler. This builder serves that purpose.
+  </para>
+  <example_commands>
+    env.ProgramAllAtOnce('executable', ['mod_a.d, mod_b.d', 'mod_c.d'])
+  </example_commands>
+  <para>
+    This command will compile the modules mod_a, mod_b, and mod_c in a
+    single compilation process without first creating object files for
+    the modules. Some of the D compilers will create executable.o others
+    will not.
+  </para>
+</summary>
+</builder>
+
+</sconsdoc>

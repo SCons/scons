@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="dvi">
+<summary>
+<para>
+Attaches the &b-DVI; builder to the
+construction environment.
+</para>
+</summary>
+<sets>
+</sets>
+<uses>
+</uses>
+</tool>
+
+<builder name="DVI">
+<summary>
+<para>
+Builds a <filename>.dvi</filename> file
+from a <filename>.tex</filename>,
+<filename>.ltx</filename> or <filename>.latex</filename> input file.
+If the source file suffix is <filename>.tex</filename>,
+&scons;
+will examine the contents of the file;
+if the string
+<literal>\documentclass</literal>
+or
+<literal>\documentstyle</literal>
+is found, the file is assumed to be a LaTeX file and
+the target is built by invoking the &cv-link-LATEXCOM; command line;
+otherwise, the &cv-link-TEXCOM; command line is used.
+If the file is a LaTeX file,
+the
+&b-DVI;
+builder method will also examine the contents
+of the
+<filename>.aux</filename>
+file and invoke the &cv-link-BIBTEX; command line
+if the string
+<literal>bibdata</literal>
+is found,
+start &cv-link-MAKEINDEX; to generate an index if a
+<filename>.ind</filename>
+file is found
+and will examine the contents
+<filename>.log</filename>
+file and re-run the &cv-link-LATEXCOM; command
+if the log file says it is necessary.
+</para>
+
+<para>
+The suffix <filename>.dvi</filename>
+(hard-coded within TeX itself)
+is automatically added to the target
+if it is not already present.
+Examples:
+</para>
+
+<example_commands>
+# builds from aaa.tex
+env.DVI(target = 'aaa.dvi', source = 'aaa.tex')
+# builds bbb.dvi
+env.DVI(target = 'bbb', source = 'bbb.ltx')
+# builds from ccc.latex
+env.DVI(target = 'ccc.dvi', source = 'ccc.latex')
+</example_commands>
+</summary>
+</builder>
+
+
+</sconsdoc>
