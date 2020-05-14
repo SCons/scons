@@ -27,20 +27,28 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import time
 import random
+import importlib
 import TestSCons
 from TestCmd import IS_WINDOWS
+
+try:
+    import ninja
+except ImportError:
+    test.skip_test("Could not find module in python")
 
 _python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
+ninja_bin = os.path.abspath(os.path.join(
+    importlib.import_module(".ninja_syntax", package='ninja').__file__,
+    os.pardir,
+    'data',
+    'bin',
+    'ninja' + _exe))
+
 test = TestSCons.TestSCons()
 
 test.dir_fixture('ninja-fixture')
-
-ninja = test.where_is('ninja', os.environ['PATH'])
-
-if not ninja:
-    test.skip_test("Could not find ninja in environment")
 
 test.write('source_0.c', """
 #include <stdio.h>
@@ -174,10 +182,10 @@ for _ in range(10):
     tests_mods += [random.randrange(1, num_source, 1)]
 jobs = '-j' + str(get_num_cpus())
 
-ninja_program = [test.workpath('ninja_env.bat'), '&', ninja, jobs] if IS_WINDOWS else [ninja, jobs]
+ninja_program = [test.workpath('run_ninja_env.bat'), jobs] if IS_WINDOWS else [ninja_bin, jobs]
 
 start = time.perf_counter()
-test.run(arguments='--disable-auto-ninja', stdout=None)
+test.run(arguments='--disable-execute-ninja', stdout=None)
 test.run(program = ninja_program, stdout=None)
 stop = time.perf_counter()
 ninja_times += [stop - start]
