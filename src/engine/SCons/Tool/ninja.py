@@ -233,9 +233,10 @@ class SConsToNinjaTranslator:
         # Ninja builders out of being sources of ninja builders but I
         # can't fix every DAG problem so we just skip ninja_builders
         # if we find one
-        if node.builder == self.env["BUILDERS"]["Ninja"]:
+        global NINJA_STATE
+        if NINJA_STATE.ninja_file == str(node):
             build = None
-        elif isinstance(action, SCons.Action.FunctionAction):
+        if isinstance(action, SCons.Action.FunctionAction):
             build = self.handle_func_action(node, action)
         elif isinstance(action, SCons.Action.LazyAction):
             # pylint: disable=protected-access
@@ -1043,7 +1044,7 @@ def ninja_builder(env, target, source):
     if env["PLATFORM"] == "win32":
         # this is not great, its doesn't consider specific 
         # node environments, which means on linux the build could
-        # behave differently, becuase on linux you can set the environment
+        # behave differently, because on linux you can set the environment
         # per command in the ninja file. This is only needed if 
         # running ninja directly from a command line that hasn't
         # had the environment setup (vcvarsall.bat)
@@ -1492,7 +1493,7 @@ def generate(env):
             # default to using ninja installed with python module
             ninja_bin = 'ninja.exe' if env["PLATFORM"] == "win32" else 'ninja'
             NINJA_STATE.ninja_bin_path = os.path.abspath(os.path.join(
-                ninja_syntax.__file__, 
+                ninja.__file__, 
                 os.pardir, 
                 'data', 
                 'bin', 
