@@ -80,11 +80,11 @@ jobs:
         - echo "[run]" >> "$PWD/.coveragerc"
         - echo "source = $PWD/SCons" >> "$PWD/.coveragerc"
         - echo "parallel = True" >> "$PWD/.coveragerc"
-        - printf "omit =\n\t*Tests.py\n\tsrc/test_*\n\tsrc/setup.py\n\n" >> "$PWD/.coveragerc"
+        - echo "omit = *Tests.py" >> "$PWD/.coveragerc"
         - echo "[path]" >> "$PWD/.coveragerc"
         - echo "source = $PWD" >> "$PWD/.coveragerc"
         - echo "[report]" >> "$PWD/.coveragerc"
-        - printf "omit =\n\t*Tests.py\n\tsrc/test_*\n\tsrc/setup.py\n\n" >> "$PWD/.coveragerc"
+        - echo "omit = *Tests.py" >> "$PWD/.coveragerc"
         - cat "$PWD/.coveragerc"
 
       script:
