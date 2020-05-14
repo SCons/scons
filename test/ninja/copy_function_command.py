@@ -25,9 +25,10 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import importlib
 import TestSCons
 from TestCmd import IS_WINDOWS
+
+test = TestSCons.TestSCons()
 
 try:
     import ninja
@@ -38,13 +39,11 @@ _python_ = TestSCons._python_
 _exe   = TestSCons._exe
 
 ninja_bin = os.path.abspath(os.path.join(
-    importlib.import_module(".ninja_syntax", package='ninja').__file__,
+    ninja.__file__,
     os.pardir,
     'data',
     'bin',
     'ninja' + _exe))
-
-test = TestSCons.TestSCons()
 
 test.dir_fixture('ninja-fixture')
 
