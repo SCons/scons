@@ -88,13 +88,7 @@ def _copy_action_function(env, node):
         "outputs": get_outputs(node),
         "inputs": [get_path(src_file(s)) for s in node.sources],
         "rule": "CMD",
-        # implicit explicitly omitted, we translate these so they can be
-        # used by anything that depends on these but commonly this is
-        # hit with a node that will depend on all of the fake
-        # srcnode's that SCons will never give us a rule for leading
-        # to an invalid ninja file.
         "variables": {
-            # On Windows mkdir "-p" is always on
             "cmd": "$COPY $in $out",
         },
     }
@@ -753,7 +747,7 @@ class NinjaState:
             pool="console",
             implicit=[str(self.ninja_file)],
             variables={
-                "cmd": "{}/ninja -f {} -t compdb CC CXX > compile_commands.json".format(self.ninja_bin_path,
+                "cmd": "{} -f {} -t compdb CC CXX > compile_commands.json".format(self.ninja_bin_path,
                     str(self.ninja_file)
                 )
             },
@@ -1047,30 +1041,30 @@ def ninja_builder(env, target, source):
     NINJA_STATE.generate()
 
     if env["PLATFORM"] == "win32":
-        # this is not great, it executes everytime
-        # and its doesn't consider specific node environments
-        # also a bit quirky to use, but usually MSVC is not
-        # setup system wide for command line use so this is needed
-        # on the standard MSVC setup, this is only needed if 
+        # this is not great, its doesn't consider specific 
+        # node environments, which means on linux the build could
+        # behave differently, becuase on linux you can set the environment
+        # per command in the ninja file. This is only needed if 
         # running ninja directly from a command line that hasn't
         # had the environment setup (vcvarsall.bat)
-        # todo: hook this into a command so that it only regnerates
-        #       the .bat if the env['ENV'] changes
-        with open('ninja_env.bat', 'w') as f:
+        with open('run_ninja_env.bat', 'w') as f:
             for key in env['ENV']:
                 f.write('set {}={}\n'.format(key, env['ENV'][key]))
+            f.write('{} -f {} %*\n'.format(NINJA_STATE.ninja_bin_path, generated_build_ninja))  
                 
     if not env.get("DISABLE_AUTO_NINJA"):
-        print("Executing:", str(target[0]))
+        cmd = [NINJA_STATE.ninja_bin_path, '-f', generated_build_ninja]
+        print("Executing:", str(' '.join(cmd)))
 
+        # execute the ninja build at the end of SCons, trying to
+        # reproduce the output like a ninja build would
         def execute_ninja():
 
-            env.AppendENVPath('PATH', NINJA_STATE.ninja_bin_path)
-            proc = subprocess.Popen(['ninja', '-f', generated_build_ninja],
+            proc = subprocess.Popen(cmd,
                 stderr=sys.stderr,
                 stdout=subprocess.PIPE,
                 universal_newlines=True,
-                env=env['ENV']
+                env=env['ENV'] # ninja build items won't consider node env on win32
             )
             for stdout_line in iter(proc.stdout.readline, ""):
                 yield stdout_line
@@ -1078,6 +1072,7 @@ def ninja_builder(env, target, source):
             return_code = proc.wait()
             if return_code:
                 raise subprocess.CalledProcessError(return_code, 'ninja')
+        
         erase_previous = False
         for output in execute_ninja():
             output = output.strip()
@@ -1088,6 +1083,9 @@ def ninja_builder(env, target, source):
                 sys.stdout.write(os.linesep)
             sys.stdout.write(output)
             sys.stdout.flush()
+            # this will only erase ninjas [#/#] lines
+            # leaving warnings and other output, seems a bit
+            # prone to failure with such a simple check
             erase_previous = output.startswith('[')
 
 # pylint: disable=too-few-public-methods
@@ -1226,6 +1224,20 @@ def ninja_always_serial(self, num, taskmaster):
     self.num_jobs = num
     self.job = SCons.Job.Serial(taskmaster)
 
+def ninja_hack_linkcom(env):
+    # TODO: change LINKCOM and SHLINKCOM to handle embedding manifest exe checks
+    # without relying on the SCons hacks that SCons uses by default.
+    if env["PLATFORM"] == "win32":
+        from SCons.Tool.mslink import compositeLinkAction
+
+        if env.get("LINKCOM", None) == compositeLinkAction:
+            env[
+                "LINKCOM"
+            ] = '${TEMPFILE("$LINK $LINKFLAGS /OUT:$TARGET.windows $_LIBDIRFLAGS $_LIBFLAGS $_PDB $SOURCES.windows", "$LINKCOMSTR")}'
+            env[
+                "SHLINKCOM"
+            ] = '${TEMPFILE("$SHLINK $SHLINKFLAGS $_SHLINK_TARGETS $_LIBDIRFLAGS $_LIBFLAGS $_PDB $_SHLINK_SOURCES", "$SHLINKCOMSTR")}'
+
 
 class NinjaNoResponseFiles(SCons.Platform.TempFileMunge):
     """Overwrite the __call__ method of SCons' TempFileMunge to not delete."""
@@ -1259,13 +1271,31 @@ def generate(env):
     global added
     if not added:
         added = 1
-        AddOption('--disable-auto-ninja',
-                  dest='disable_auto_ninja',
-                  metavar='BOOL',
-                  action="store_true",
-                  default=False,
-                  help='Disable ninja automatically building after scons')
-    env["DISABLE_AUTO_NINJA"] = GetOption('disable_auto_ninja')
+
+        AddOption('--disable-execute-ninja',
+            dest='disable_execute_ninja',
+            metavar='BOOL',
+            action="store_true",
+            default=False,
+            help='Disable ninja automatically building after scons')
+
+        AddOption('--disable-ninja',
+            dest='disable_ninja',
+            metavar='BOOL',
+            action="store_true",
+            default=False,
+            help='Disable ninja automatically building after scons')
+
+    if GetOption('disable_ninja'):
+        return env
+
+    try:
+        import ninja
+    except ImportError:
+        SCons.Warnings.Warning("Failed to import ninja, attempt normal SCons build.")
+        return
+
+    env["DISABLE_AUTO_NINJA"] = GetOption('disable_execute_ninja')
 
     global NINJA_STATE
     env[NINJA_SYNTAX] = env.get(NINJA_SYNTAX, "ninja_syntax.py")
@@ -1288,16 +1318,15 @@ def generate(env):
         env.Alias("$NINJA_ALIAS_NAME", ninja_file)
     else:
         if str(NINJA_STATE.ninja_file) != ninja_file_name:
-            raise Exception("Generating multiple ninja files not supported.")
-        else:
-            ninja_file = [NINJA_STATE.ninja_file]
+            SCons.Warnings.Warning("Generating multiple ninja files not supported, set ninja file name before tool initialization.")
+        ninja_file = [NINJA_STATE.ninja_file]
     
     # This adds the required flags such that the generated compile
     # commands will create depfiles as appropriate in the Ninja file.
     if env["PLATFORM"] == "win32":
         env.Append(CCFLAGS=["/showIncludes"])
     else:
-        env.Append(CCFLAGS=["-MMD", "-MF", "${TARGET}.d"])
+        env.Append(CCFLAGS=["-MD", "-MF", "${TARGET}.d"])
 
     # Provide a way for custom rule authors to easily access command
     # generation.
@@ -1329,18 +1358,8 @@ def generate(env):
     # might not catch it.
     env.AddMethod(register_custom_rule_mapping, "NinjaRuleMapping")
 
-    # TODO: change LINKCOM and SHLINKCOM to handle embedding manifest exe checks
-    # without relying on the SCons hacks that SCons uses by default.
-    if env["PLATFORM"] == "win32":
-        from SCons.Tool.mslink import compositeLinkAction
-
-        if env.get("LINKCOM", None) == compositeLinkAction:
-            env[
-                "LINKCOM"
-            ] = '${TEMPFILE("$LINK $LINKFLAGS /OUT:$TARGET.windows $_LIBDIRFLAGS $_LIBFLAGS $_PDB $SOURCES.windows", "$LINKCOMSTR")}'
-            env[
-                "SHLINKCOM"
-            ] = '${TEMPFILE("$SHLINK $SHLINKFLAGS $_SHLINK_TARGETS $_LIBDIRFLAGS $_LIBFLAGS $_PDB $_SHLINK_SOURCES", "$SHLINKCOMSTR")}'
+    # on windows we need to change the link action
+    ninja_hack_linkcom(env)
 
     # Normally in SCons actions for the Program and *Library builders
     # will return "${*COM}" as their pre-subst'd command line. However
@@ -1385,6 +1404,8 @@ def generate(env):
 
         # Disable running ranlib, since we added 's' above
         env["RANLIBCOM"] = ""
+
+    SCons.Warnings.Warning("Initializing ninja tool... this feature is experimental. SCons internals and all environments will be affected.")
 
     # This is the point of no return, anything after this comment
     # makes changes to SCons that are irreversible and incompatible
@@ -1462,68 +1483,43 @@ def generate(env):
     # monkey the Jobs constructor to only use the Serial Job class.
     SCons.Job.Jobs.__init__ = ninja_always_serial
 
-    # The environment variable NINJA_SYNTAX points to the
-    # ninja_syntax.py module from the ninja sources found here:
-    # https://github.com/ninja-build/ninja/blob/master/misc/ninja_syntax.py
-    #
-    # This should be vendored into the build sources and it's location
-    # set in NINJA_SYNTAX. This code block loads the location from
-    # that variable, gets the absolute path to the vendored file, gets
-    # it's parent directory then uses importlib to import the module
-    # dynamically.
-    ninja_syntax_file = env[NINJA_SYNTAX]
-    
-    if os.path.exists(ninja_syntax_file):
-        if isinstance(ninja_syntax_file, str):
-            ninja_syntax_file = env.File(ninja_syntax_file).get_abspath()
-        ninja_syntax_mod_dir = os.path.dirname(ninja_syntax_file)
-        sys.path.append(ninja_syntax_mod_dir)
-        ninja_syntax_mod_name = os.path.basename(ninja_syntax_file).replace(".py", "")
-        ninja_syntax = importlib.import_module(ninja_syntax_mod_name)
-    else:
-        ninja_syntax = importlib.import_module(".ninja_syntax", package='ninja')
+    ninja_syntax = importlib.import_module(".ninja_syntax", package='ninja')
         
     if NINJA_STATE is None:
         NINJA_STATE = NinjaState(env, ninja_file[0], ninja_syntax.Writer)
-        NINJA_STATE.ninja_bin_path = os.path.abspath(os.path.join(ninja_syntax.__file__, os.pardir, 'data', 'bin'))
-    # Here we will force every builder to use an emitter which makes the ninja
-    # file depend on it's target. This forces the ninja file to the bottom of
-    # the DAG which is required so that we walk every target, and therefore add
-    # it to the global NINJA_STATE, before we try to write the ninja file.
-    def ninja_file_depends_on_all(target, source, env):
-        if not any("conftest" in str(t) for t in target):
-            env.Depends(ninja_file, target)
-        return target, source
+        NINJA_STATE.ninja_bin_path = env.get('NINJA_BIN')
+        if not NINJA_STATE.ninja_bin_path:
+            # default to using ninja installed with python module
+            ninja_bin = 'ninja.exe' if env["PLATFORM"] == "win32" else 'ninja'
+            NINJA_STATE.ninja_bin_path = os.path.abspath(os.path.join(
+                ninja_syntax.__file__, 
+                os.pardir, 
+                'data', 
+                'bin', 
+                ninja_bin))
+            if not os.path.exists(NINJA_STATE.ninja_bin_path):
+                # couldn't find it, just give the bin name and hope
+                # its in the path later
+                NINJA_STATE.ninja_bin_path = ninja_bin
 
-    # The "Alias Builder" isn't in the BUILDERS map so we have to
-    # modify it directly.
-    SCons.Environment.AliasBuilder.emitter = ninja_file_depends_on_all
+    # TODO: this is hacking into scons, preferable if there were a less intrusive way
+    # We will subvert the normal builder execute to make sure all the ninja file is dependent
+    # on all targets generated from any builders 
+    SCons_Builder_BuilderBase__execute = SCons.Builder.BuilderBase._execute
+    def NinjaBuilderExecute(self, env, target, source, overwarn={}, executor_kw={}):
+        # this ensures all environments in which a builder executes from will
+        # not create list actions for linking on windows
+        ninja_hack_linkcom(env)
+        targets = SCons_Builder_BuilderBase__execute(self, env, target, source, overwarn=overwarn, executor_kw=executor_kw)
 
-    for _, builder in env["BUILDERS"].items():
-        try:
-            emitter = builder.emitter
-            if emitter is not None:
-                builder.emitter = SCons.Builder.ListEmitter(
-                    [emitter, ninja_file_depends_on_all]
-                )
-            else:
-                builder.emitter = ninja_file_depends_on_all
-        # Users can inject whatever they want into the BUILDERS
-        # dictionary so if the thing doesn't have an emitter we'll
-        # just ignore it.
-        except AttributeError:
-            pass
+        if not SCons.Util.is_List(target):
+            target = [target]
 
-    # We will subvert the normal Command to make sure all targets generated
-    # from commands will be linked to the ninja file
-    SconsCommand = SCons.Environment.Environment.Command
-
-    def NinjaCommand(self, target, source, action, **kw):
-        targets = SconsCommand(env, target, source, action, **kw)
-        env.Depends(ninja_file, targets)
+        for target in targets:
+            if str(target) != ninja_file_name and "conftest" not in str(target):
+                env.Depends(ninja_file, targets)
         return targets
-    
-    SCons.Environment.Environment.Command = NinjaCommand
+    SCons.Builder.BuilderBase._execute = NinjaBuilderExecute
 
     # Here we monkey patch the Task.execute method to not do a bunch of
     # unnecessary work. If a build is a regular builder (i.e not a conftest and
