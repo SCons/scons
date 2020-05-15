@@ -62,7 +62,7 @@ from SCons.Util import MD5signature
 
 from SCons.Debug import Trace
 
-from SCons.compat import with_metaclass, NoSlotsPyPy
+from SCons.compat import NoSlotsPyPy
 
 print_duplicate = 0
 
@@ -511,7 +511,7 @@ class BuildInfoBase(object):
                 setattr(self, key, value)
 
 
-class Node(object, with_metaclass(NoSlotsPyPy)):
+class Node(object, metaclass=NoSlotsPyPy):
     """The base Node class, for entities that we know how to
     build, or use to build other Nodes.
     """

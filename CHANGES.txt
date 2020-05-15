@@ -142,6 +142,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       has different function.
     - Update xml files in SCons to reflect changed relative paths after
       code restructuring (src/engine/SCons -> SCons)
+    - Drop the with_metaclass jig which was designed to let class
+      definitions using a metaclass be written the same for Py2/Py3.
 
 
 
