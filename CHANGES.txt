@@ -142,6 +142,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       has different function.
     - Update xml files in SCons to reflect changed relative paths after
       code restructuring (src/engine/SCons -> SCons)
+    - Preliminary Python 3.9 support - elimination of some warnings.
     - Drop the with_metaclass jig which was designed to let class
       definitions using a metaclass be written the same for Py2/Py3.
     - Bump python_version_unsupported (and deprecated) to indicate 3.5
