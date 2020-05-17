@@ -591,12 +591,13 @@ class ListSubber(collections.UserList):
                 self.substitute(a, lvars, 1)
                 self.next_word()
         elif callable(s):
-            try:
+            if (s and
+                set(signature(s).parameters.keys()) == set(['target', 'source', 'env', 'for_signature'])):
                 s = s(target=lvars['TARGETS'],
                      source=lvars['SOURCES'],
                      env=self.env,
                      for_signature=(self.mode != SUBST_CMD))
-            except TypeError:
+            else:
                 # This probably indicates that it's a callable
                 # object that doesn't match our calling arguments
                 # (like an Action).
