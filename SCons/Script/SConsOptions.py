@@ -425,6 +425,20 @@ class SConsOptionParser(optparse.OptionParser):
 
         return result
 
+    def cleanup(self):
+        """If there are leftover unprocessed options, fail.
+
+        Unrecognized options are saved for later processing, since
+        a later AddOption might enable them. Although abbreviations
+        of AddOption option strings don't trigger a match, they
+        also can't trigger an error because of that. This method
+        provides a way sweep through is to catch those cases still left
+        when all sconscripts are read.
+        """
+        xtra_args = [a for a in self.largs if a.startswith('--')]
+        if xtra_args:
+            self.error(_("no such option: %s") % " ".join(xtra_args))
+
 class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
     def format_usage(self, usage):
         return "usage: %s\n" % usage

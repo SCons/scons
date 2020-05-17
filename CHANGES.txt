@@ -162,6 +162,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       check and test is no longer needed.
     - Close various logfiles (trace, cache, taskmastertrace, configure)
       when done using atexit calls.
+    - Generate an error if AddOption uses an "abbreviation" for an option
+      string (e.g. via a user error) rather than swallowing silently (#3653)
 
 
 

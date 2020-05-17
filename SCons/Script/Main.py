@@ -1036,6 +1036,7 @@ def _main(parser):
         revert_io()
         sys.stderr.write("scons: *** %s  Stop.\n" % e)
         sys.exit(2)
+    OptionsParser.cleanup()
     global sconscript_time
     sconscript_time = time.time() - start_time
 
