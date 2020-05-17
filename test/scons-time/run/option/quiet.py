@@ -22,11 +22,11 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
 """
 Verify that the run -q and --quiet options suppress build output.
 """
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import re
 
@@ -34,11 +34,11 @@ import TestSCons_time
 
 python = TestSCons_time.python
 
-test = TestSCons_time.TestSCons_time(match = TestSCons_time.match_re,
-                                     diff = TestSCons_time.diff_re)
+test = TestSCons_time.TestSCons_time(match=TestSCons_time.match_re,
+                                     diff=TestSCons_time.diff_re)
 
 scons_py = re.escape(test.workpath('scripts', 'scons.py'))
-src_engine = re.escape(test.workpath('src', 'engine'))
+src_engine = re.escape(test.workpath())
 
 tmp_scons_time = test.tempdir_re()
 tmp_scons_time_foo = test.tempdir_re('foo')
@@ -55,7 +55,7 @@ SCONS_LIB_DIR = %(src_engine)s
 SConstruct file directory: %(tmp_scons_time_foo)s
 """ % locals()
 
-test.run(arguments = 'run -q foo.tar.gz', stdout = expect)
+test.run(arguments='run -q foo.tar.gz', stdout=expect)
 
 test.must_exist('foo-000-0.log',
                 'foo-000-0.prof',
@@ -64,11 +64,7 @@ test.must_exist('foo-000-0.log',
                 'foo-000-2.log',
                 'foo-000-2.prof')
 
-scons_py = test.workpath('src/script/scons.py')
-
-src_engine = test.workpath('src/engine')
-
-test.run(arguments = 'run -q foo.tar.gz', stdout = expect)
+test.run(arguments='run -q foo.tar.gz', stdout=expect)
 
 test.must_exist('foo-001-0.log',
                 'foo-001-0.prof',
@@ -77,7 +73,7 @@ test.must_exist('foo-001-0.log',
                 'foo-001-2.log',
                 'foo-001-2.prof')
 
-test.run(arguments = 'run --quiet foo.tar.gz', stdout = expect)
+test.run(arguments='run --quiet foo.tar.gz', stdout=expect)
 
 test.pass_test()
 

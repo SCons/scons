@@ -64,9 +64,9 @@ SCons.Conftest.LogErrorMessages = 0
 build_type = None
 build_types = ['clean', 'help']
 
-def SetBuildType(type):
+def SetBuildType(buildtype):
     global build_type
-    build_type = type
+    build_type = buildtype
 
 # to be set, if we are in dry-run mode
 dryrun = 0

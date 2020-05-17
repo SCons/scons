@@ -147,15 +147,13 @@ class TestRuntest(TestCommon):
         os.environ['PYTHONPATH'] = ''
 
     def write_fake_scons_source_tree(self):
-        os.mkdir('src')
-        os.mkdir('src/script')
-        self.write('src/script/scons.py', fake_scons_py)
+        os.mkdir('scripts')
+        self.write('scripts/scons.py', fake_scons_py)
 
-        os.mkdir('src/engine')
-        os.mkdir('src/engine/SCons')
-        self.write('src/engine/SCons/__init__.py', fake___init___py)
-        os.mkdir('src/engine/SCons/Script')
-        self.write('src/engine/SCons/Script/__init__.py', fake___init___py)
+        os.mkdir('SCons')
+        self.write('SCons/__init__.py', fake___init___py)
+        os.mkdir('SCons/Script')
+        self.write('SCons/Script/__init__.py', fake___init___py)
 
     def write_failing_test(self, name):
         self.write(name, failing_test_template)
