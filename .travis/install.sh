@@ -19,6 +19,9 @@ else
         sudo ln -s /usr/local/clang-5.0.0/bin/clang++ /usr/bin/clang++
     fi
 
+    # dependencies for rpm packaging tests
+    sudo apt-get -y install rpm
+    
     # dependencies for gdc tests
     sudo apt-get -y install gdc
 
@@ -37,22 +40,22 @@ else
     sudo apt-get -y install python-pip python-dev build-essential libpcre3-dev autoconf automake libtool bison subversion git
 
     # dependencies for D tests
-    sudo wget http://master.dl.sourceforge.net/project/d-apt/files/d-apt.list -O /etc/apt/sources.list.d/d-apt.list
-    wget -qO - https://dlang.org/d-keyring.gpg | sudo apt-key add -
-    sudo apt-get update && sudo apt-get -y --allow-unauthenticated install dmd-bin
+    sudo wget https://netcologne.dl.sourceforge.net/project/d-apt/files/d-apt.list -O /etc/apt/sources.list.d/d-apt.list
+    sudo apt-get update --allow-insecure-repositories
+    sudo apt-get -y --allow-unauthenticated install --reinstall d-apt-keyring
+    sudo apt-get update && sudo apt-get install dmd-compiler dub
+
+#    sudo wget http://master.dl.sourceforge.net/project/d-apt/files/d-apt.list -O /etc/apt/sources.list.d/d-apt.list
+#    wget -qO - https://dlang.org/d-keyring.gpg | sudo apt-key add -
+#    sudo apt-get update && sudo apt-get -y --allow-unauthenticated install dmd-bin
 
     # dependencies for ldc tests
-    wget https://github.com/ldc-developers/ldc/releases/download/v1.15.0/ldc2-1.15.0-linux-x86_64.tar.xz
-    tar xf ldc2-1.15.0-linux-x86_64.tar.xz
-    sudo cp -rf ldc2-1.15.0-linux-x86_64/* /
+    export SCONS_LDC_VERSION=1.21.0
+    wget https://github.com/ldc-developers/ldc/releases/download/v${SCONS_LDC_VERSION}/ldc2-${SCONS_LDC_VERSION}-linux-x86_64.tar.xz
+#    wget https://github.com/ldc-developers/ldc/releases/download/v1.15.0/ldc2-1.15.0-linux-x86_64.tar.xz
+    tar xf ldc2-${SCONS_LDC_VERSION}-linux-x86_64.tar.xz
+    sudo cp -rf ldc2-${SCONS_LDC_VERSION}-linux-x86_64/* /
 
-    ls -l /usr/lib/*python*{so,a}*
-
-    # For now skip swig if py27
-    if [[ "$PYVER" == 27 ]]; then
-        # dependencies for swig tests
-        wget https://github.com/swig/swig/archive/rel-3.0.12.tar.gz
-        tar xzf rel-3.0.12.tar.gz
-        cd swig-rel-3.0.12 && ./autogen.sh && ./configure --prefix=/usr && make && sudo make install && cd ..
-    fi
+    # Failing.. ?
+#    ls -l /usr/lib*/*python*{so,a}*
 fi

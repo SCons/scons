@@ -1,4 +1,4 @@
-dist: trusty
+dist: xenial
 language: python
 
 # Used: travis encrypt "chat.freenode.net#scons" --add notifications.irc
@@ -15,7 +15,7 @@ os:
 
 install:
   # needed for Docbook tests, must be in virtualenv context
-  - pip install lxml==4.3.3
+  - pip install lxml==4.5.0
   # do the rest of the image setup
   - ./.travis/install.sh
 
@@ -56,6 +56,10 @@ jobs:
 
     - <<: *test_job
       python: 3.8
+      dist: bionic  # required for Python >= 3.8
+
+    - <<: *test_job
+      python: 3.9-dev
       dist: bionic  # required for Python >= 3.8
 
     - &coverage_jobs
