@@ -261,6 +261,9 @@ def putintopackageroot(target, source, env, pkgroot, honor_install_location=1):
     directory.
 
     All attributes of the source file will be copied to the new file.
+
+    Note:
+    Uses CopyAs builder.
     """
     # make sure the packageroot is a Dir object.
     if SCons.Util.is_String(pkgroot):
