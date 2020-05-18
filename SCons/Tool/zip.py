@@ -58,7 +58,7 @@ def zip(target, source, env):
             zf.write(str(s), os.path.relpath(str(s), str(env.get('ZIPROOT', ''))))
     zf.close()
 
-zipAction = SCons.Action.Action(zip, varlist=['ZIPCOMPRESSION'])
+zipAction = SCons.Action.Action(zip, '$ZIPCOMSTR', varlist=['ZIPCOMPRESSION'])
 
 ZipBuilder = SCons.Builder.Builder(action = SCons.Action.Action('$ZIPCOM', '$ZIPCOMSTR'),
                                    source_factory = SCons.Node.FS.Entry,

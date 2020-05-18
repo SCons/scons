@@ -10,8 +10,11 @@ NOTE: Please include a reference to any Issues resolved by your changes in the b
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Rocco Matano:
+    - Make setting ZIPCOMSTR actually have an effect.
+
   From Daniel Moody:
-    - Add no_progress (-Q) option as a set-able option. However, setting it in the 
+    - Add no_progress (-Q) option as a set-able option. However, setting it in the
       SConstruct/SConscript will still cause "scons: Reading SConscript files ..." to be
       printed, since the option is not set when the build scripts first get read.
     - Added check for SONAME in environment to setup symlinks correctly (Github Issue #3246)
@@ -44,9 +47,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Add msys2 installed mingw default path to PATH for mingw tool.
       - C:\msys64\mingw64\bin
     - Purge obsolete internal build and tooling scripts
-    - Allow user specified location for vswhere.exe specified by VSWHERE. 
+    - Allow user specified location for vswhere.exe specified by VSWHERE.
       NOTE: This must be set at the time the 'msvc' 'msvs' and/or 'mslink' tool(s) are initialized to have any effect.
-    - Resolve Issue #3451 and Issue #3450 - Rewrite SCons setup.py and packaging. Move script logic to entry points so 
+    - Resolve Issue #3451 and Issue #3450 - Rewrite SCons setup.py and packaging. Move script logic to entry points so
       package can create scripts which use the correct version of Python.
     - Resolve Issue #3248 - Removing '-Wl,-Bsymbolic' from SHLIBVERSIONFLAGS
       NOTE: If your build depends on the above you must now add to your SHLIBVERSIONFLAGS
