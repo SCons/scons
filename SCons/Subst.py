@@ -420,7 +420,10 @@ class StringSubber(object):
                 return conv(substitute(l, lvars))
             return list(map(func, s))
         elif callable(s):
-            if (s and
+            # SCons has the unusual Null class where any __getattr__ call returns it's self, 
+            # which does not work the signature module, and the Null class returns an empty
+            # string if called on, so we make an exception in this condition for Null class
+            if (isinstance(s, SCons.Util.Null) or
                 set(signature(s).parameters.keys()) == set(['target', 'source', 'env', 'for_signature'])):
                 s = s(target=lvars['TARGETS'],
                      source=lvars['SOURCES'],
@@ -591,7 +594,10 @@ class ListSubber(collections.UserList):
                 self.substitute(a, lvars, 1)
                 self.next_word()
         elif callable(s):
-            if (s and
+            # SCons has the unusual Null class where any __getattr__ call returns it's self, 
+            # which does not work the signature module, and the Null class returns an empty
+            # string if called on, so we make an exception in this condition for Null class
+            if (isinstance(s, SCons.Util.Null) or
                 set(signature(s).parameters.keys()) == set(['target', 'source', 'env', 'for_signature'])):
                 s = s(target=lvars['TARGETS'],
                      source=lvars['SOURCES'],
