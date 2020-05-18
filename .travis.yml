@@ -58,6 +58,10 @@ jobs:
       python: 3.8
       dist: bionic  # required for Python >= 3.8
 
+    - <<: *test_job
+      python: 3.9-dev
+      dist: bionic  # required for Python >= 3.8
+
     - &coverage_jobs
       dist: bionic
       python: 3.7
