@@ -56,5 +56,6 @@ else
     tar xf ldc2-${SCONS_LDC_VERSION}-linux-x86_64.tar.xz
     sudo cp -rf ldc2-${SCONS_LDC_VERSION}-linux-x86_64/* /
 
-    ls -l /usr/lib*/*python*{so,a}*
+    # Failing.. ?
+#    ls -l /usr/lib*/*python*{so,a}*
 fi
