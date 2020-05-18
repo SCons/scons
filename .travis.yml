@@ -1,4 +1,4 @@
-dist: trusty
+dist: xenial
 language: python
 
 # Used: travis encrypt "chat.freenode.net#scons" --add notifications.irc

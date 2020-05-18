@@ -40,9 +40,14 @@ else
     sudo apt-get -y install python-pip python-dev build-essential libpcre3-dev autoconf automake libtool bison subversion git
 
     # dependencies for D tests
-    sudo wget http://master.dl.sourceforge.net/project/d-apt/files/d-apt.list -O /etc/apt/sources.list.d/d-apt.list
-    wget -qO - https://dlang.org/d-keyring.gpg | sudo apt-key add -
-    sudo apt-get update && sudo apt-get -y --allow-unauthenticated install dmd-bin
+    sudo wget https://netcologne.dl.sourceforge.net/project/d-apt/files/d-apt.list -O /etc/apt/sources.list.d/d-apt.list
+    sudo apt-get update --allow-insecure-repositories
+    sudo apt-get -y --allow-unauthenticated install --reinstall d-apt-keyring
+    sudo apt-get update && sudo apt-get install dmd-compiler dub
+
+#    sudo wget http://master.dl.sourceforge.net/project/d-apt/files/d-apt.list -O /etc/apt/sources.list.d/d-apt.list
+#    wget -qO - https://dlang.org/d-keyring.gpg | sudo apt-key add -
+#    sudo apt-get update && sudo apt-get -y --allow-unauthenticated install dmd-bin
 
     # dependencies for ldc tests
     export SCONS_LDC_VERSION=1.21.0
