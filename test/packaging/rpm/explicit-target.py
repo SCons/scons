@@ -30,6 +30,7 @@ Test the ability to create a rpm package from a explicit target name.
 
 import os
 import TestSCons
+import sys
 
 _python_ = TestSCons._python_
 
@@ -75,9 +76,15 @@ env.Package( NAME           = 'foo',
         )
 """ % locals())
 
+
+if sys.version_info.minor >= 8:
+    line_number = 12
+else:
+    line_number = 23
+
 expect = """
 scons: *** Setting target is not supported for rpm.
-""" + test.python_file_line(test.workpath('SConstruct'), 12)
+""" + test.python_file_line(test.workpath('SConstruct'), line_number)
 
 test.run(arguments='', status=2, stderr=expect)
 
