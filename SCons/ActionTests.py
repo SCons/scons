@@ -1512,11 +1512,11 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
 
         # Since the python bytecode has per version differences, we need different expected results per version
         func_matches = {
-            (2, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()'),
             (3, 5): bytearray(b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()'),
             (3, 6): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 8): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
+            (3, 9): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
         }
 
         meth_matches = [
@@ -1691,20 +1691,20 @@ class FunctionActionTestCase(unittest.TestCase):
             pass
 
         func_matches = {
-            (2, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()'),
             (3, 5): bytearray(b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()'),
             (3, 6): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 8): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
+            (3, 9): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
 
         }
 
         meth_matches = {
-            (2, 7): bytearray(b'1, 1, 0, 0,(),(),(d\x00\x00S),(),()'),
             (3, 5): bytearray(b'1, 1, 0, 0,(),(),(d\x00\x00S),(),()'),
             (3, 6): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 7): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 8): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
+            (3, 9): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
         }
 
         def factory(act, **kw):
@@ -1945,11 +1945,11 @@ class LazyActionTestCase(unittest.TestCase):
             pass
 
         func_matches = {
-            (2, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()'),
             (3, 5): bytearray(b'0, 0, 0, 0,(),(),(d\x00\x00S),(),()'),
             (3, 6): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 8): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
+            (3, 9): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
         }
 
         meth_matches = [
@@ -2004,11 +2004,11 @@ class ActionCallerTestCase(unittest.TestCase):
             pass
 
         matches = {
-            (2, 7): b'd\x00\x00S',
             (3, 5): b'd\x00\x00S',
             (3, 6): b'd\x00S\x00',
             (3, 7): b'd\x00S\x00',
             (3, 8): b'd\x00S\x00',
+            (3, 9): b'd\x00S\x00',
 
         }
 
@@ -2205,11 +2205,11 @@ class ObjectContentsTestCase(unittest.TestCase):
 
         # Since the python bytecode has per version differences, we need different expected results per version
         expected = {
-            (2, 7): bytearray(b'3, 3, 0, 0,(),(),(|\x00\x00S),(),()'),
             (3, 5): bytearray(b'3, 3, 0, 0,(),(),(|\x00\x00S),(),()'),
             (3, 6): bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),
             (3, 7): bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),
             (3, 8): bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),
+            (3, 9): bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),
         }
 
         c = SCons.Action._function_contents(func1)
@@ -2227,8 +2227,6 @@ class ObjectContentsTestCase(unittest.TestCase):
 
         # Since the python bytecode has per version differences, we need different expected results per version
         expected = {
-            (2, 7): bytearray(
-                b"{TestClass:__main__}[[[(<type \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<type \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01\x00|\x00\x00_\x00\x00d\x02\x00|\x00\x00_\x01\x00d\x00\x00S),(),(),2, 2, 0, 0,(),(),(d\x00\x00S),(),()}}{{{a=a,b=b}}}"),
             (3, 5): bytearray(
                 b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01\x00|\x00\x00_\x00\x00d\x02\x00|\x00\x00_\x01\x00d\x00\x00S),(),(),2, 2, 0, 0,(),(),(d\x00\x00S),(),()}}{{{a=a,b=b}}}"),
             (3, 6): bytearray(
@@ -2236,6 +2234,8 @@ class ObjectContentsTestCase(unittest.TestCase):
             (3, 7): bytearray(
                 b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"),
             (3, 8): bytearray(
+                b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"),
+            (3, 9): bytearray(
                 b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"),
         }
 
@@ -2250,11 +2250,11 @@ class ObjectContentsTestCase(unittest.TestCase):
 
         # Since the python bytecode has per version differences, we need different expected results per version
         expected = {
-            (2, 7): bytearray(b'0, 0, 0, 0,(Hello, World!),(),(d\x00\x00GHd\x01\x00S)'),
             (3, 5): bytearray(b'0, 0, 0, 0,(Hello, World!),(print),(e\x00\x00d\x00\x00\x83\x01\x00\x01d\x01\x00S)'),
             (3, 6): bytearray(b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'),
             (3, 7): bytearray(b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'),
             (3, 8): bytearray(b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'),
+            (3, 9): bytearray(b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'),
         }
 
         assert c == expected[sys.version_info[:2]], "Got\n" + repr(c) + "\nExpected \n" + "\n" + repr(expected[

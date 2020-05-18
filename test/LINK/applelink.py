@@ -86,7 +86,7 @@ for SHLIBVERSION, APPLELINK_CURRENT_VERSION, APPLELINK_COMPATIBILITY_VERSION, sh
         #     **locals())
         otool_output = "libfoo.{SHLIBVERSION}.dylib:\n\tlibfoo.{SHLIBVERSION}.dylib (compatibility version {APPLELINK_COMPATIBILITY_VERSION}, current version {APPLELINK_CURRENT_VERSION})\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version REPLACEME)\n".format(**locals())
         otool_output = re.escape(otool_output)
-        otool_output = otool_output.replace('REPLACEME','\d+\.\d+\.\d+')
+        otool_output = otool_output.replace('REPLACEME',r'\d+\.\d+\.\d+')
 
 
         test.run(program='/usr/bin/otool', arguments='-L libfoo.%s.dylib' % SHLIBVERSION, stdout=otool_output, match=TestSCons.match_re_dotall)
@@ -145,7 +145,7 @@ for SHLIBVERSION, \
             APPLELINK_COMPATIBILITY_VERSION = '0.0.0'
         otool_output = "libfoo.{SHLIBVERSION}.dylib:\n\tlibfoo.{SHLIBVERSION}.dylib (compatibility version {APPLELINK_COMPATIBILITY_VERSION}, current version {APPLELINK_CURRENT_VERSION})\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version REPLACEME)\n".format(
             **locals())
-        otool_output = re.escape(otool_output).replace('REPLACEME','\d+\.\d+\.\d+')
+        otool_output = re.escape(otool_output).replace('REPLACEME',r'\d+\.\d+\.\d+')
 
         test.run(program='/usr/bin/otool', arguments='-L libfoo.%s.dylib' % SHLIBVERSION, stdout=otool_output, match=TestSCons.match_re_dotall)
 

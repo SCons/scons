@@ -239,20 +239,19 @@ def options(opts):
 #
 
 def copy_attr(f1, f2):
-    """ copies the special packaging file attributes from f1 to f2.
+    """ Copies the special packaging file attributes from f1 to f2.
     """
     if f1._tags:
         pattrs = [
             tag
             for tag in f1._tags
-            if lambda tag: not hasattr(f2, tag) and tag.startswith('PACKAGING_')
+            if not hasattr(f2, tag) and tag.startswith('PACKAGING_')
         ]
         for attr in pattrs:
             f2.Tag(attr, f1.GetTag(attr))
 
 def putintopackageroot(target, source, env, pkgroot, honor_install_location=1):
-    """ Uses the CopyAs builder to copy all source files to the directory given
-    in pkgroot.
+    """ Copies all source files to the directory given in pkgroot.
 
     If honor_install_location is set and the copied source file has an
     PACKAGING_INSTALL_LOCATION attribute, the PACKAGING_INSTALL_LOCATION is
@@ -262,6 +261,9 @@ def putintopackageroot(target, source, env, pkgroot, honor_install_location=1):
     directory.
 
     All attributes of the source file will be copied to the new file.
+
+    Note:
+    Uses CopyAs builder.
     """
     # make sure the packageroot is a Dir object.
     if SCons.Util.is_String(pkgroot):
