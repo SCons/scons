@@ -688,6 +688,7 @@ def validate_all_xml(dpaths, xsdfile=default_xsd):
                             fpaths.append(fp)
 
     fails = []
+    fpaths = sorted(fpaths)
     for idx, fp in enumerate(fpaths):
         fpath = os.path.join(path, fp)
         print("%.2f%s (%d/%d) %s" % (float(idx + 1) * 100.0 /float(len(fpaths)),
