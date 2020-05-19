@@ -1,3 +1,12 @@
+"""
+Implements the ability for SCons to emit a compilation database for the MongoDB project. See
+http://clang.llvm.org/docs/JSONCompilationDatabase.html for details on what a compilation
+database is, and why you might want one. The only user visible entry point here is
+'env.CompilationDatabase'. This method takes an optional 'target' to name the file that
+should hold the compilation database, otherwise, the file defaults to compile_commands.json,
+which is the name that most clang tools search for by default.
+"""
+
 # Copyright 2020 MongoDB Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -21,17 +30,12 @@
 #
 
 import json
-import SCons
 import itertools
-from cxx import CXXSuffixes
-from cc import CSuffixes
+import SCons
 
-# Implements the ability for SCons to emit a compilation database for the MongoDB project. See
-# http://clang.llvm.org/docs/JSONCompilationDatabase.html for details on what a compilation
-# database is, and why you might want one. The only user visible entry point here is
-# 'env.CompilationDatabase'. This method takes an optional 'target' to name the file that
-# should hold the compilation database, otherwise, the file defaults to compile_commands.json,
-# which is the name that most clang tools search for by default.
+from .cxx import CXXSuffixes
+from .cc import CSuffixes
+from .asm import ASSuffixes, ASPPSuffixes
 
 # TODO: Is there a better way to do this than this global? Right now this exists so that the
 # emitter we add can record all of the things it emits, so that the scanner for the top level
@@ -117,10 +121,18 @@ def compilation_db_entry_action(target, source, env, **kw):
         env=env["__COMPILATIONDB_ENV"],
     )
 
+    if env['COMPILATIONDB_USE_ABSPATH']:
+        filename = env["__COMPILATIONDB_USOURCE"][0].abspath
+        target_name = env['__COMPILATIONDB_UTARGET'][0].abspath
+    else:
+        filename = env["__COMPILATIONDB_USOURCE"][0].path
+        target_name = env['__COMPILATIONDB_UTARGET'][0].path
+
     entry = {
         "directory": env.Dir("#").abspath,
         "command": command,
-        "file": str(env["__COMPILATIONDB_USOURCE"][0]),
+        "file": filename,
+        "target": target_name
     }
 
     target[0].write(entry)
@@ -132,7 +144,7 @@ def write_compilation_db(target, source, env):
     for s in __COMPILATION_DB_ENTRIES:
         entries.append(s.read())
 
-    with open(str(target[0]), "w") as target_file:
+    with open(target[0].path, "w") as target_file:
         json.dump(
             entries, target_file, sort_keys=True, indent=4, separators=(",", ": ")
         )
@@ -142,8 +154,16 @@ def scan_compilation_db(node, env, path):
     return __COMPILATION_DB_ENTRIES
 
 
-def generate(env, **kwargs):
+def CompilationDatabase(env, target='compile_commands.json'):
+    result = env.__COMPILATIONDB_Database(target=target, source=[])
 
+    env.AlwaysBuild(result)
+    env.NoCache(result)
+
+    return result
+
+
+def generate(env, **kwargs):
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
     env["COMPILATIONDB_COMSTR"] = kwargs.get(
@@ -164,6 +184,16 @@ def generate(env, **kwargs):
                 (static_obj, SCons.Defaults.StaticObjectEmitter, "$CXXCOM"),
                 (shared_obj, SCons.Defaults.SharedObjectEmitter, "$SHCXXCOM"),
             ],
+        ),
+        itertools.product(
+            ASSuffixes,
+            [(static_obj, SCons.Defaults.StaticObjectEmitter, "$ASCOM")],
+            [(shared_obj, SCons.Defaults.SharedObjectEmitter, "$ASCOM")],
+        ),
+        itertools.product(
+            ASPPSuffixes,
+            [(static_obj, SCons.Defaults.StaticObjectEmitter, "$ASPPCOM")],
+            [(shared_obj, SCons.Defaults.SharedObjectEmitter, "$ASPPCOM")],
         ),
     )
 
@@ -188,13 +218,7 @@ def generate(env, **kwargs):
         ),
     )
 
-    def CompilationDatabase(env, target):
-        result = env.__COMPILATIONDB_Database(target=target, source=[])
-
-        env.AlwaysBuild(result)
-        env.NoCache(result)
-
-        return result
+    env['COMPILATIONDB_USE_ABSPATH'] = False
 
     env.AddMethod(CompilationDatabase, "CompilationDatabase")
 

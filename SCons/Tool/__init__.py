@@ -94,11 +94,14 @@ for suffix in LaTeXSuffixes:
     SourceFileScanner.add_scanner(suffix, PDFLaTeXScanner)
 
 # Tool aliases are needed for those tools whose module names also
-# occur in the python standard library. This causes module shadowing and
-# can break using python library functions under python3
+# occur in the python standard library (This causes module shadowing and
+# can break using python library functions under python3)  or if the current tool/file names
+# are not legal module names (violate python's identifier rules or are
+# python language keywords).
 TOOL_ALIASES = {
     'gettext': 'gettext_tool',
     'clang++': 'clangxx',
+    'as': 'asm',
 }
 
 

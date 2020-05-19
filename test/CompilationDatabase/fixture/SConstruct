@@ -1,0 +1,6 @@
+DefaultEnvironment(tools=[])
+env = Environment()
+env.Tool('compilation_db')
+
+env.Program('main', 'test_main.c')
+env.CompilationDatabase('compile_commands.json')
