@@ -72,23 +72,25 @@ jobs:
         # setup sitecustomize so we can make all subprocess start coverage
         - export PYSITEDIR=$(python -c "import sys; print(sys.path[-1])")
         - export COVERAGE_PROCESS_START="$PWD/.coveragerc"
+        - export COVERAGE_FILE="$PWD/.coverage"
         - mkdir -p "$PYSITEDIR"
         - echo "$PYSITEDIR"
         - touch "${PYSITEDIR}/sitecustomize.py"
         - echo "import os" |  tee --append "${PYSITEDIR}/sitecustomize.py"
         - echo "os.environ['COVERAGE_PROCESS_START'] = '$PWD/.coveragerc'" | tee --append "${PYSITEDIR}/sitecustomize.py"
+        - echo "os.environ['COVERAGE_FILE'] = '$PWD/.coverage'" | tee --append "${PYSITEDIR}/sitecustomize.py"
         - echo "import coverage" | tee --append "${PYSITEDIR}/sitecustomize.py"
         - echo "coverage.process_startup()" | tee --append "${PYSITEDIR}/sitecustomize.py"
         - cat "${PYSITEDIR}/sitecustomize.py"
         # write the coverage config file
         - echo "[run]" >> "$PWD/.coveragerc"
-        - echo "source = $PWD/SCons" >> "$PWD/.coveragerc"
+        - echo "source = $PWD" >> "$PWD/.coveragerc"
         - echo "parallel = True" >> "$PWD/.coveragerc"
-        - echo "omit = *Tests.py" >> "$PWD/.coveragerc"
+        - printf "omit =\n\t*Tests.py\n\t*/src/*\n\t*/test/*\n\t*/testing/*\n\t*/template/*\n\t*/scripts/*\n\t*/scons-time.py\n\t*/bootstrap.py\n\t*/runtest.py\n\t*/setup.py\n\n" >> "$PWD/.coveragerc"
         - echo "[path]" >> "$PWD/.coveragerc"
         - echo "source = $PWD" >> "$PWD/.coveragerc"
         - echo "[report]" >> "$PWD/.coveragerc"
-        - echo "omit = *Tests.py" >> "$PWD/.coveragerc"
+        - printf "omit =\n\t*Tests.py\n\t*/src/*\n\t*/test/*\n\t*/testing/*\n\t*/template/*\n\t*/scripts/*\n\t*/scons-time.py\n\t*/bootstrap.py\n\t*/runtest.py\n\t*/setup.py\n\n" >> "$PWD/.coveragerc"
         - cat "$PWD/.coveragerc"
 
       script:
@@ -97,5 +99,5 @@ jobs:
       after_script:
         - coverage combine
         - coverage report
-        - coverage xml -o coverage_xml.xml
+        - coverage xml -i -o coverage_xml.xml
         - codecov -X gcov --file coverage_xml.xml
