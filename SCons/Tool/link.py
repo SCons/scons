@@ -46,7 +46,7 @@ from SCons.Tool.DCommon import isD
 
 from SCons.Tool.cxx import iscplusplus
 
-from SCons.Tool import ShLibSonameGenerator
+from SCons.Tool import _LibSonameGenerator
 
 issued_mixed_link_warning = False
 
@@ -175,13 +175,7 @@ def _versioned_lib_soname(env, libnode, version, prefix, suffix, name_func):
     if Verbose:
         print("_versioned_lib_soname: name={!r}".format(name))
     major = version.split('.')[0]
-
-    # if a desired SONAME was supplied, use that, otherwise create 
-    # a default from the major version
-    if env.get('SONAME'):
-        soname = ShLibSonameGenerator(env, libnode)
-    else:
-        soname = name + '.' + major
+    soname = name + '.' + major
     if Verbose:
         print("_versioned_lib_soname: soname={!r}".format(soname))
     return soname
@@ -243,17 +237,14 @@ def _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, so
 
 def _versioned_shlib_symlinks(env, libnode, version, prefix, suffix):
     name_func = env['LINKCALLBACKS']['VersionedShLibName']
-    soname_func = env['LINKCALLBACKS']['VersionedShLibSoname']
+    soname_func = env.get("SONAME_GENERATOR", _LibSonameGenerator)('ShLib')
 
     return _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, soname_func)
 
 
 def _versioned_ldmod_symlinks(env, libnode, version, prefix, suffix):
-    name_func = _versioned_ldmod_name
-    soname_func = _versioned_ldmod_soname
-
     name_func = env['LINKCALLBACKS']['VersionedLdModName']
-    soname_func = env['LINKCALLBACKS']['VersionedLdModSoname']
+    soname_func = env.get("SONAME_GENERATOR", _LibSonameGenerator)('LdMod')
 
     return _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, soname_func)
 
@@ -301,8 +292,8 @@ def _setup_versioned_lib_variables(env, **kw):
             env['_LDMODULEVERSIONFLAGS'] = '$LDMODULEVERSIONFLAGS -Wl,-soname=$_LDMODULESONAME'
         env['_SHLIBSONAME'] = '${ShLibSonameGenerator(__env__,TARGET)}'
         env['_LDMODULESONAME'] = '${LdModSonameGenerator(__env__,TARGET)}'
-        env['ShLibSonameGenerator'] = SCons.Tool.ShLibSonameGenerator
-        env['LdModSonameGenerator'] = SCons.Tool.LdModSonameGenerator
+        env['ShLibSonameGenerator'] = env.get("SONAME_GENERATOR", SCons.Tool._LibSonameGenerator)('ShLib')
+        env['LdModSonameGenerator'] = env.get("SONAME_GENERATOR", SCons.Tool._LibSonameGenerator)('LdMod')
     else:
         env['_SHLIBVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS'
         env['_LDMODULEVERSIONFLAGS'] = '$LDMODULEVERSIONFLAGS'

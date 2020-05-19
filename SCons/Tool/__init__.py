@@ -673,7 +673,7 @@ class _LibSonameGenerator(_LibInfoGeneratorBase):
     def __init__(self, libtype):
         super(_LibSonameGenerator, self).__init__(libtype, 'Soname')
 
-    def __call__(self, env, libnode, **kw):
+    def __call__(self, env, libnode, *args, **kw):
         """Returns a SONAME based on a shared library's node path"""
         Verbose = False
 
@@ -687,8 +687,16 @@ class _LibSonameGenerator(_LibInfoGeneratorBase):
             print("_LibSonameGenerator: libnode=%r" % libnode.get_path())
 
         soname = _call_env_subst(env, '$SONAME', **kw2)
+        version = _call_env_subst(env, '$SOVERSION', **kw2)
+        if soname and version:
+            raise SCons.Errors.UserError(
+                'Ambiguous library .so naming, both SONAME and SOVERSION are defined. '
+                'Only one can be defined for a target library, or SONAME_GENERATOR '
+                'can be defined as a callable to handle this situtation')
+                
         if not soname:
-            version = self.get_lib_version(env, **kw2)
+            if not version:
+                version = self.get_lib_version(env, **kw2)
             if Verbose:
                 print("_LibSonameGenerator: version=%r" % version)
             if version:
@@ -706,11 +714,6 @@ class _LibSonameGenerator(_LibInfoGeneratorBase):
             print("_LibSonameGenerator: return soname=%r" % soname)
 
         return soname
-
-
-ShLibSonameGenerator = _LibSonameGenerator('ShLib')
-LdModSonameGenerator = _LibSonameGenerator('LdMod')
-
 
 def StringizeLibSymlinks(symlinks):
     """Converts list with pairs of nodes to list with pairs of node paths
