@@ -35,7 +35,11 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 #
 # forward proxy to the preferred asm version
 #
-from SCons.Tool.asm import generate, exists
+import SCons.Tool.asm
+
+# Resolve FLAKE8 F401 (make sider happy)
+generate = SCons.Tool.asm.generate
+exists = SCons.Tool.asm.exists
 
 
 # Local Variables:
