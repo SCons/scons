@@ -85,36 +85,12 @@ expect = expect_build % (r' \[foo\.bar\]', r'\$\{func\(1\)\}')
 
 test.run(status=2, stderr=expect)
 
-# callable exceptions:
-test.write('foo.c', """\
-#include <stdio.h>
-#include <stdlib.h>
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        printf("foo.c");
-        exit (0);
-}
-""")
-
-test.write('SConstruct', """\
-
-class TestCallable(object):
-    def __init__(self, thing, makePathsRelative = True, debug = False):
-        pass
-    def __call__(self, target, source, env, for_signature):
-       raise TypeError("User callable exception")
-
-env = Environment()
-env["TESTCLASS"] = TestCallable
-env["CCCOM"] = "$CC $_CCCOMCOM $CCFLAGS -o ${TESTCLASS('$TARGET')} -c ${TESTCLASS('$SOURCES')}"
-
-env.Program(target='foo', source='foo.c')
-""")
+# user callable exceptions (Github issue #3654):
+test.file_fixture('test_main.c')
+test.file_fixture('./fixture/SConstruct.callable_exception', 'SConstruct')
 
 test.run(status=2, stderr=r'.*TypeError\s:\sUser\scallable\sexception.*')
-print(test.stdout())
+
 test.pass_test()
 
 # Local Variables:
